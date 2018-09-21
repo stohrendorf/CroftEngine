@@ -424,7 +424,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
         if( originalMood == Mood::Attack )
         {
             Expects( creatureInfo.lot.target_box != nullptr );
-            creatureInfo.lot.setRandomSearchTarget( to_not_null( creatureInfo.lot.target_box ) );
+            creatureInfo.lot.setRandomSearchTarget( gsl::make_not_null( creatureInfo.lot.target_box ) );
         }
         creatureInfo.lot.required_box = nullptr;
     }
@@ -506,7 +506,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
     if( creatureInfo.lot.target_box == nullptr )
     {
         Expects( item.box_number != nullptr );
-        creatureInfo.lot.setRandomSearchTarget( to_not_null( item.box_number ) );
+        creatureInfo.lot.setRandomSearchTarget( gsl::make_not_null( item.box_number ) );
     }
     creatureInfo.lot.calculateTarget( lvl, creatureInfo.target, item );
 }

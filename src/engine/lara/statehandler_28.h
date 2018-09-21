@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_28 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_28(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::JumpUp)
+            : AbstractStateHandler( lara, LaraStateId::JumpUp )
     {
     }
 
@@ -30,15 +30,15 @@ public:
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 192;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle(collisionInfo.facingAngle);
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), 870); //! @todo MAGICK 870
+        setMovementAngle( collisionInfo.facingAngle );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), 870 ); //! @todo MAGICK 870
 
-        if( tryGrabEdge(collisionInfo) )
+        if( tryGrabEdge( collisionInfo ) )
         {
             return;
         }
 
-        jumpAgainstWall(collisionInfo);
+        jumpAgainstWall( collisionInfo );
         if( getLara().m_state.fallspeed <= 0 || collisionInfo.mid.floor.y > 0 )
         {
             return;
@@ -53,7 +53,7 @@ public:
             setGoalAnimState( LaraStateId::Stop );
         }
         getLara().m_state.fallspeed = 0;
-        placeOnFloor(collisionInfo);
+        placeOnFloor( collisionInfo );
         getLara().m_state.falling = false;
     }
 };

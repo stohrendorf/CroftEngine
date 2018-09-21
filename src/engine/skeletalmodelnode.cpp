@@ -13,7 +13,7 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
         , m_level{lvl}
         , m_model{mdl}
 {
-    //setAnimId(mdl.animationIndex);
+    //setAnimation(mdl.animationIndex);
 }
 
 int SkeletalModelNode::calculateFloorSpeed(const engine::items::ItemState& state, int frameOffset) const
@@ -240,7 +240,7 @@ bool SkeletalModelNode::handleStateTransitions(engine::items::ItemState& state)
         {
             if( state.frame_number >= trc.firstFrame && state.frame_number <= trc.lastFrame )
             {
-                setAnimIdGlobal( state, to_not_null( trc.targetAnimation ), trc.targetFrame );
+                setAnimation( state, gsl::make_not_null( trc.targetAnimation ), trc.targetFrame );
                 return true;
             }
         }
@@ -250,8 +250,9 @@ bool SkeletalModelNode::handleStateTransitions(engine::items::ItemState& state)
 }
 
 void
-SkeletalModelNode::setAnimIdGlobal(engine::items::ItemState& state, gsl::not_null<const loader::Animation*> animation,
-                                   uint16_t frame)
+SkeletalModelNode::setAnimation(engine::items::ItemState& state,
+                                gsl::not_null<const loader::Animation*> animation,
+                                uint16_t frame)
 {
     BOOST_ASSERT( getChildren().empty() || animation->frames->numValues == getChildren().size() );
 

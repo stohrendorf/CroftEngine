@@ -154,11 +154,11 @@ LaraNode::WeaponId parseWeaponId(const std::string& s)
 
 std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
 
-void LaraNode::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
+void LaraNode::setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
 {
-    getSkeleton()->setAnimIdGlobal( m_state,
-                                    to_not_null( &getLevel().m_animations.at( static_cast<uint16_t>(anim) ) ),
-                                    firstFrame.get_value_or( 0 ) );
+    getSkeleton()->setAnimation( m_state,
+                                 gsl::make_not_null( &getLevel().m_animations.at( static_cast<uint16_t>(anim) ) ),
+                                 firstFrame.get_value_or( 0 ) );
 }
 
 void LaraNode::handleLaraStateOnLand()
@@ -424,7 +424,7 @@ void LaraNode::update()
         else
         {
             m_state.rotation.X = -45_deg;
-            setAnimIdGlobal( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895 );
+            setAnimation( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895 );
             setGoalAnimState( LaraStateId::UnderwaterForward );
             m_state.fallspeed += m_state.fallspeed / 2;
         }
@@ -434,7 +434,7 @@ void LaraNode::update()
         auto waterSurfaceHeight = getWaterSurfaceHeight();
         BOOST_ASSERT( waterSurfaceHeight.is_initialized() );
         auto room = m_state.position.room;
-        getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
+        getLevel().findRealFloorSector( m_state.position.position, gsl::make_not_null( &room ) );
         playSoundEffect( 33 );
         for( int i = 0; i < 10; ++i )
         {
@@ -461,7 +461,7 @@ void LaraNode::update()
             || std::abs( *waterSurfaceHeight - m_state.position.position.Y ) >= loader::QuarterSectorSize )
         {
             m_underwaterState = UnderwaterState::OnLand;
-            setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+            setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
             setGoalAnimState( LaraStateId::JumpForward );
             m_state.speed = std::exchange( m_state.fallspeed, 0 ) / 4;
             m_state.falling = true;
@@ -469,7 +469,7 @@ void LaraNode::update()
         else
         {
             m_underwaterState = UnderwaterState::Swimming;
-            setAnimIdGlobal( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
+            setAnimation( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
             setGoalAnimState( LaraStateId::OnWaterStop );
             m_state.position.position.Y = *waterSurfaceHeight + 1;
             m_swimToDiveKeypressDuration = 11;
@@ -480,7 +480,7 @@ void LaraNode::update()
     else if( m_underwaterState == UnderwaterState::Swimming && !m_state.position.room->isWaterRoom() )
     {
         m_underwaterState = UnderwaterState::OnLand;
-        setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+        setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
         setGoalAnimState( LaraStateId::JumpForward );
         m_state.speed = std::exchange( m_state.fallspeed, 0 ) / 4;
         m_state.falling = true;
@@ -573,7 +573,9 @@ void LaraNode::updateImpl()
             }
         }
 
-        getSkeleton()->setAnimIdGlobal( m_state, to_not_null( m_state.anim->nextAnimation ), m_state.anim->nextFrame );
+        getSkeleton()
+                ->setAnimation( m_state, gsl::make_not_null( m_state.anim->nextAnimation ),
+                                m_state.anim->nextFrame );
     }
 
     if( m_state.anim->animCommandCount > 0 )
@@ -624,7 +626,7 @@ void LaraNode::updateFloorHeight(int dy)
     auto pos = m_state.position.position;
     pos.Y += dy;
     auto room = m_state.position.room;
-    const auto sector = to_not_null( getLevel().findRealFloorSector( pos, to_not_null( &room ) ) );
+    const auto sector = gsl::make_not_null( getLevel().findRealFloorSector( pos, gsl::make_not_null( &room ) ) );
     setCurrentRoom( room );
     const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
     m_state.floor = hi.y;
@@ -872,7 +874,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
 
 boost::optional<int> LaraNode::getWaterSurfaceHeight() const
 {
-    auto sector = to_not_null( m_state.position.room->getSectorByAbsolutePosition( m_state.position.position ) );
+    auto sector = gsl::make_not_null( m_state.position.room->getSectorByAbsolutePosition( m_state.position.position ) );
 
     if( m_state.position.room->isWaterRoom() )
     {
@@ -881,7 +883,7 @@ boost::optional<int> LaraNode::getWaterSurfaceHeight() const
             if( !sector->roomAbove->isWaterRoom() )
                 break;
 
-            sector = to_not_null( sector->roomAbove->getSectorByAbsolutePosition( m_state.position.position ) );
+            sector = gsl::make_not_null( sector->roomAbove->getSectorByAbsolutePosition( m_state.position.position ) );
         }
 
         return sector->ceilingHeight * loader::QuarterSectorSize;
@@ -894,7 +896,7 @@ boost::optional<int> LaraNode::getWaterSurfaceHeight() const
             return sector->floorHeight * loader::QuarterSectorSize;
         }
 
-        sector = to_not_null( sector->roomBelow->getSectorByAbsolutePosition( m_state.position.position ) );
+        sector = gsl::make_not_null( sector->roomBelow->getSectorByAbsolutePosition( m_state.position.position ) );
     }
 
     return sector->ceilingHeight * loader::QuarterSectorSize;
@@ -936,7 +938,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     std::set<gsl::not_null<const loader::Room*>> rooms;
     rooms.insert( m_state.position.room );
     for( const loader::Portal& p : m_state.position.room->portals )
-        rooms.insert( to_not_null( &getLevel().m_rooms[p.adjoining_room] ) );
+        rooms.insert( gsl::make_not_null( &getLevel().m_rooms[p.adjoining_room] ) );
 
     for( const std::shared_ptr<ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
     {

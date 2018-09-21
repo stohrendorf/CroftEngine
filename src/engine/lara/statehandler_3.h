@@ -10,11 +10,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_3 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_3(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::JumpForward)
+            : AbstractStateHandler( lara, LaraStateId::JumpForward )
     {
     }
 
@@ -45,11 +45,11 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
-            subYRotationSpeed(2.25_deg, -3_deg);
+            subYRotationSpeed( 2.25_deg, -3_deg );
         }
         else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
-            addYRotationSpeed(2.25_deg, 3_deg);
+            addYRotationSpeed( 2.25_deg, 3_deg );
         }
     }
 
@@ -59,9 +59,9 @@ public:
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 192;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle(collisionInfo.facingAngle);
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
-        checkJumpWallSmash(collisionInfo);
+        setMovementAngle( collisionInfo.facingAngle );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        checkJumpWallSmash( collisionInfo );
 
         if( collisionInfo.mid.floor.y > 0 || getLara().m_state.fallspeed <= 0 )
         {
@@ -72,7 +72,8 @@ public:
         {
             setGoalAnimState( LaraStateId::Death );
         }
-        else if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward || getLevel().m_inputHandler->getInputState().moveSlow )
+        else if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward
+                 || getLevel().m_inputHandler->getInputState().moveSlow )
         {
             setGoalAnimState( LaraStateId::Stop );
         }
@@ -84,7 +85,7 @@ public:
         getLara().m_state.fallspeed = 0;
         getLara().m_state.falling = false;
         getLara().m_state.speed = 0;
-        placeOnFloor(collisionInfo);
+        placeOnFloor( collisionInfo );
 
         laraUpdateImpl();
     }

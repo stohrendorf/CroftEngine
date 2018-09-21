@@ -228,7 +228,7 @@ void Room::createSceneNode(
                                                                    gameplay::gl::Program::ActiveUniform& uniform) {
             uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
         } );
-        addChild( to_not_null( node ), subNode );
+        addChild( gsl::make_not_null( node ), subNode );
     }
     node->setLocalMatrix( glm::translate( glm::mat4{1.0f}, position.toRenderSystem() ) );
 
@@ -245,7 +245,7 @@ void Room::createSceneNode(
                                                                sprite.bottom_side - sprite.top_side,
                                                                sprite.t0,
                                                                sprite.t1,
-                                                               to_not_null( level.m_spriteMaterial ),
+                                                               gsl::make_not_null( level.m_spriteMaterial ),
                                                                gameplay::Sprite::Axis::Y );
 
         auto spriteNode = make_not_null_shared<gameplay::Node>( "sprite" );
@@ -263,7 +263,7 @@ void Room::createSceneNode(
                                                     uniform.set( brightness );
                                                 } );
 
-        addChild( to_not_null( node ), spriteNode );
+        addChild( gsl::make_not_null( node ), spriteNode );
     }
 }
 
@@ -307,20 +307,20 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, int height)
     auto room = item.m_state.position.room;
     //! @todo Ugly const_cast
     auto groundSector = const_cast<loader::Sector*>(item.getLevel().findRealFloorSector( item.m_state.position.position,
-                                                                                         to_not_null( &room ) ));
+                                                                                         gsl::make_not_null( &room ) ));
     BOOST_ASSERT( groundSector != nullptr );
     const auto topSector = item.getLevel().findRealFloorSector(
             item.m_state.position.position + core::TRVec{0, height - loader::SectorSize, 0},
-            to_not_null( &room ) );
+            gsl::make_not_null( &room ) );
 
     const auto q = height / loader::QuarterSectorSize;
     if( groundSector->floorHeight == -127 )
     {
-        groundSector->floorHeight = gsl::narrow<int8_t>(topSector->ceilingHeight + q);
+        groundSector->floorHeight = gsl::narrow<int8_t>( topSector->ceilingHeight + q );
     }
     else
     {
-        groundSector->floorHeight = gsl::narrow<int8_t>(topSector->floorHeight + q);
+        groundSector->floorHeight = gsl::narrow<int8_t>( topSector->floorHeight + q );
         if( groundSector->floorHeight == topSector->ceilingHeight )
             groundSector->floorHeight = -127;
     }

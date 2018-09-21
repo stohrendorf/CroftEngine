@@ -7,11 +7,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_34 final
-    : public StateHandler_OnWater
+        : public StateHandler_OnWater
 {
 public:
     explicit StateHandler_34(LaraNode& lara)
-        : StateHandler_OnWater(lara, LaraStateId::OnWaterForward)
+            : StateHandler_OnWater( lara, LaraStateId::OnWaterForward )
     {
     }
 
@@ -23,7 +23,7 @@ public:
             return;
         }
 
-        setSwimToDiveKeypressDuration(0);
+        setSwimToDiveKeypressDuration( 0 );
 
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
@@ -44,14 +44,14 @@ public:
             setGoalAnimState( LaraStateId::OnWaterStop );
         }
 
-        int spd = std::min(60, getLara().m_state.fallspeed + 8);
+        int spd = std::min( 60, getLara().m_state.fallspeed + 8 );
         getLara().m_state.fallspeed = spd;
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        setMovementAngle(getLara().m_state.rotation.Y);
-        commonOnWaterHandling(collisionInfo);
+        setMovementAngle( getLara().m_state.rotation.Y );
+        commonOnWaterHandling( collisionInfo );
     }
 };
 }

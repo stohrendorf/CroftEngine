@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_TurnSlow
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 protected:
     explicit StateHandler_TurnSlow(LaraNode& lara, LaraStateId id)
-        : AbstractStateHandler(lara, id)
+            : AbstractStateHandler( lara, id )
     {
     }
 
@@ -22,24 +22,24 @@ public:
         getLara().m_state.fallspeed = 0;
         getLara().m_state.falling = false;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle(collisionInfo.facingAngle);
+        setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0;
         collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
 
         if( collisionInfo.mid.floor.y <= core::DefaultCollisionRadius )
         {
-            if( !tryStartSlide(collisionInfo) )
+            if( !tryStartSlide( collisionInfo ) )
             {
-                placeOnFloor(collisionInfo);
+                placeOnFloor( collisionInfo );
             }
 
             return;
         }
 
-        setAnimIdGlobal(loader::AnimationId::FREE_FALL_FORWARD, 492);
+        setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
         setGoalAnimState( LaraStateId::JumpForward );
         getLara().m_state.fallspeed = 0;
         getLara().m_state.falling = true;

@@ -10,11 +10,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_21 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_21(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::StepRight)
+            : AbstractStateHandler( lara, LaraStateId::StepRight )
     {
     }
 
@@ -33,11 +33,11 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
-            subYRotationSpeed(2.25_deg, -4_deg);
+            subYRotationSpeed( 2.25_deg, -4_deg );
         }
         else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
-            addYRotationSpeed(2.25_deg, 4_deg);
+            addYRotationSpeed( 2.25_deg, 4_deg );
         }
     }
 
@@ -49,24 +49,24 @@ public:
         collisionInfo.badNegativeDistance = -128;
         collisionInfo.badCeilingDistance = 0;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 90_deg;
-        setMovementAngle(collisionInfo.facingAngle);
+        setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
 
-        if( stopIfCeilingBlocked(collisionInfo) )
+        if( stopIfCeilingBlocked( collisionInfo ) )
         {
             return;
         }
 
-        if( checkWallCollision(collisionInfo) )
+        if( checkWallCollision( collisionInfo ) )
         {
-            setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
+            setAnimation( loader::AnimationId::STAY_SOLID, 185 );
             setGoalAnimState( LaraStateId::Stop );
         }
 
-        if( !tryStartSlide(collisionInfo) )
+        if( !tryStartSlide( collisionInfo ) )
         {
-            placeOnFloor(collisionInfo);
+            placeOnFloor( collisionInfo );
         }
     }
 };

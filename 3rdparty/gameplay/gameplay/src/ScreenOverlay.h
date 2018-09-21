@@ -28,7 +28,7 @@ public:
 
     gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>> getImage() const
     {
-        return to_not_null( m_image );
+        return gsl::make_not_null( m_image );
     }
 
     RenderState& getRenderState() override

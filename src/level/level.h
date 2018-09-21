@@ -152,10 +152,7 @@ public:
 
     engine::LaraNode* createItems();
 
-    void setUpRendering(const gsl::not_null<gameplay::Game*>& game,
-                        const boost::filesystem::path& assetPath,
-                        const boost::filesystem::path& lvlName,
-                        const std::unique_ptr<loader::trx::Glidos>& glidos);
+    void setUpRendering(const gsl::not_null<gameplay::Game*>& game);
 
     template<typename T>
     std::shared_ptr<engine::items::ItemNode> createItem(engine::TR1ItemId type,
@@ -179,7 +176,7 @@ public:
         auto node = createSkeletalModel<T>( *model, room, item );
 
         m_dynamicItems.insert( node );
-        addChild( to_not_null( room->node ), to_not_null( node->getNode() ) );
+        addChild( gsl::make_not_null( room->node ), gsl::make_not_null( node->getNode() ) );
 
         return node;
     }
@@ -187,12 +184,12 @@ public:
     const loader::Sector* findRealFloorSector(const core::TRVec& position,
                                               gsl::not_null<const loader::Room*> room) const
     {
-        return findRealFloorSector( position, to_not_null( &room ) );
+        return findRealFloorSector( position, gsl::make_not_null( &room ) );
     }
 
     const loader::Sector* findRealFloorSector(core::RoomBoundPosition& rbs) const
     {
-        return findRealFloorSector( rbs.position, to_not_null( &rbs.room ) );
+        return findRealFloorSector( rbs.position, gsl::make_not_null( &rbs.room ) );
     }
 
     const loader::Sector* findRealFloorSector(const core::TRVec& position,
@@ -206,7 +203,7 @@ public:
     {
         while( sector->roomBelow != nullptr )
         {
-            sector = to_not_null( sector->roomBelow->getSectorByAbsolutePosition( position ) );
+            sector = gsl::make_not_null( sector->roomBelow->getSectorByAbsolutePosition( position ) );
         }
 
         static const auto zero = std::make_tuple( 0, 0 );

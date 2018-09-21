@@ -190,7 +190,7 @@ public:
     void fill(const StorageType& color)
     {
         if( !m_data.empty() )
-            detail::fill( to_not_null( m_data.data() ), m_data.size(), color );
+            detail::fill( gsl::make_not_null( m_data.data() ), m_data.size(), color );
     }
 
     void line(GLint x0, GLint y0, GLint x1, GLint y1, const StorageType& color, bool blend = false)

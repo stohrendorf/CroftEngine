@@ -217,9 +217,9 @@ loader::LaraStateId AbstractStateHandler::getCurrentAnimState() const
     return m_lara.getCurrentAnimState();
 }
 
-void AbstractStateHandler::setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
+void AbstractStateHandler::setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
 {
-    m_lara.setAnimIdGlobal( anim, firstFrame );
+    m_lara.setAnimation( anim, firstFrame );
     m_lara.drawRoutine();
 }
 
@@ -304,7 +304,7 @@ bool AbstractStateHandler::canClimbOnto(core::Axis axis) const
             break;
     }
 
-    auto sector = to_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
+    auto sector = gsl::make_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
     HeightInfo floor = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
     HeightInfo ceil = HeightInfo::fromCeiling( sector, pos, getLevel().m_itemNodes );
     return floor.y != -loader::HeightLimit && floor.y - pos.Y > 0 && ceil.y - pos.Y < -400;
@@ -351,17 +351,17 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 
     if( canClimbOnto( *axisFromAngle( m_lara.m_state.rotation.Y, 35_deg ) ) )
     {
-        setAnimIdGlobal( loader::AnimationId::OSCILLATE_HANG_ON, 3974 );
+        setAnimation( loader::AnimationId::OSCILLATE_HANG_ON, 3974 );
     }
     else
     {
-        setAnimIdGlobal( loader::AnimationId::HANG_IDLE, 1493 );
+        setAnimation( loader::AnimationId::HANG_IDLE, 1493 );
     }
 
     setGoalAnimState( LaraStateId::Hang );
     const core::TRVec& pos = m_lara.m_state.position.position
-                                     + core::TRVec( collisionInfo.shift.X, spaceToReach,
-                                                            collisionInfo.shift.Z );
+                             + core::TRVec( collisionInfo.shift.X, spaceToReach,
+                                            collisionInfo.shift.Z );
     m_lara.m_state.position.position = pos;
     m_lara.m_state.speed = 0;
     m_lara.m_state.rotation.Y = *alignedRotation;
@@ -382,7 +382,7 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
     m_lara.m_state.position.position = collisionInfo.oldPosition;
 
     setGoalAnimState( LaraStateId::Stop );
-    setAnimIdGlobal( loader::AnimationId::STAY_SOLID, 185 );
+    setAnimation( loader::AnimationId::STAY_SOLID, 185 );
     m_lara.m_state.speed = 0;
     m_lara.m_state.fallspeed = 0;
     m_lara.m_state.falling = false;
@@ -422,7 +422,7 @@ bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
         }
 
         setGoalAnimState( LaraStateId::Stop );
-        setAnimIdGlobal( loader::AnimationId::CLIMB_2CLICK, 759 );
+        setAnimation( loader::AnimationId::CLIMB_2CLICK, 759 );
         m_lara.m_state.position.position.Y += 2 * loader::QuarterSectorSize + climbHeight;
         setHandStatus( HandStatus::Grabbing );
     }
@@ -436,14 +436,14 @@ bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
         }
 
         setGoalAnimState( LaraStateId::Stop );
-        setAnimIdGlobal( loader::AnimationId::CLIMB_3CLICK, 614 );
+        setAnimation( loader::AnimationId::CLIMB_3CLICK, 614 );
         m_lara.m_state.position.position.Y += 3 * loader::QuarterSectorSize + climbHeight;
         setHandStatus( HandStatus::Grabbing );
     }
     else if( climbHeight >= -core::JumpReachableHeight && climbHeight <= -core::ClimbLimit3ClickMax )
     {
         setGoalAnimState( LaraStateId::JumpUp );
-        setAnimIdGlobal( loader::AnimationId::STAY_SOLID, 185 );
+        setAnimation( loader::AnimationId::STAY_SOLID, 185 );
         setFallSpeedOverride( -static_cast<int>(std::sqrt( -12 * (climbHeight + 800) ) + 3) );
         m_lara.updateImpl();
     }
@@ -523,7 +523,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
     {
         if( getCurrentAnimState() != LaraStateId::SlideBackward || targetAngle != getCurrentSlideAngle() )
         {
-            setAnimIdGlobal( loader::AnimationId::START_SLIDE_BACKWARD, 1677 );
+            setAnimation( loader::AnimationId::START_SLIDE_BACKWARD, 1677 );
             setGoalAnimState( LaraStateId::SlideBackward );
             setMovementAngle( targetAngle );
             setCurrentSlideAngle( targetAngle );
@@ -532,7 +532,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
     }
     else if( getCurrentAnimState() != LaraStateId::SlideForward || targetAngle != getCurrentSlideAngle() )
     {
-        setAnimIdGlobal( loader::AnimationId::SLIDE_FORWARD, 1133 );
+        setAnimation( loader::AnimationId::SLIDE_FORWARD, 1133 );
         setGoalAnimState( LaraStateId::SlideForward );
         setMovementAngle( targetAngle );
         setCurrentSlideAngle( targetAngle );
@@ -581,7 +581,7 @@ bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
     }
 
     setGoalAnimState( LaraStateId::Hang );
-    setAnimIdGlobal( loader::AnimationId::HANG_IDLE, 1505 );
+    setAnimation( loader::AnimationId::HANG_IDLE, 1505 );
     bbox = getBoundingBox();
     spaceToReach = collisionInfo.front.floor.y - bbox.minY;
 
@@ -604,7 +604,7 @@ int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, int di
     pos.Y -= core::ScalpHeight;
     pos.Z += angle.cos() * dist;
 
-    auto sector = to_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
+    auto sector = gsl::make_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
 
     HeightInfo h = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
 
@@ -669,12 +669,12 @@ void AbstractStateHandler::commonSlideHandling(CollisionInfo& collisionInfo)
 
     if( getCurrentAnimState() == LaraStateId::SlideForward )
     {
-        setAnimIdGlobal( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+        setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
         setGoalAnimState( LaraStateId::JumpForward );
     }
     else
     {
-        setAnimIdGlobal( loader::AnimationId::FREE_FALL_BACK, 1473 );
+        setAnimation( loader::AnimationId::FREE_FALL_BACK, 1473 );
         setGoalAnimState( LaraStateId::FallBackward );
     }
 
@@ -729,14 +729,14 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     collisionInfo.initHeightInfo( m_lara.m_state.position.position, getLevel(), core::ScalpHeight );
     if( !getLevel().m_inputHandler->getInputState().action || m_lara.m_state.health <= 0 )
     {
-        setAnimIdGlobal( loader::AnimationId::TRY_HANG_VERTICAL, 448 );
+        setAnimation( loader::AnimationId::TRY_HANG_VERTICAL, 448 );
         setGoalAnimState( LaraStateId::JumpUp );
         setHandStatus( HandStatus::None );
         const auto bbox = getBoundingBox();
         const auto hangDistance = collisionInfo.front.floor.y - bbox.minY + 2;
         const core::TRVec& pos = m_lara.m_state.position.position
-                                         + core::TRVec( collisionInfo.shift.X, hangDistance,
-                                                                collisionInfo.shift.Z );
+                                 + core::TRVec( collisionInfo.shift.X, hangDistance,
+                                                collisionInfo.shift.Z );
         m_lara.m_state.position.position = pos;
         m_lara.m_state.speed = 2;
         m_lara.m_state.fallspeed = 1;
@@ -756,7 +756,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
             return;
         }
 
-        setAnimIdGlobal( loader::AnimationId::HANG_IDLE, 1514 );
+        setAnimation( loader::AnimationId::HANG_IDLE, 1514 );
         setGoalAnimState( LaraStateId::Hang );
         return;
     }
@@ -767,7 +767,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
         case core::Axis::NegZ:
         {
             const core::TRVec& pos = m_lara.m_state.position.position
-                                             + core::TRVec( 0, 0, collisionInfo.shift.Z );
+                                     + core::TRVec( 0, 0, collisionInfo.shift.Z );
             m_lara.m_state.position.position = pos;
         }
             break;
@@ -775,7 +775,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
         case core::Axis::NegX:
         {
             const core::TRVec& pos = m_lara.m_state.position.position
-                                             + core::TRVec( collisionInfo.shift.X, 0, 0 );
+                                     + core::TRVec( collisionInfo.shift.X, 0, 0 );
             m_lara.m_state.position.position = pos;
         }
             break;
@@ -793,7 +793,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 
 bool AbstractStateHandler::applyLandingDamage()
 {
-    auto sector = to_not_null(
+    auto sector = gsl::make_not_null(
             getLevel().findRealFloorSector( m_lara.m_state.position.position, m_lara.m_state.position.room ) );
     HeightInfo h = HeightInfo::fromFloor( sector,
                                           m_lara.m_state.position.position
@@ -918,7 +918,7 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
         setGoalAnimState( LaraStateId::FreeFall );
         m_lara.m_state.speed /= 4;
         setMovementAngle( getMovementAngle() - 180_deg );
-        setAnimIdGlobal( loader::AnimationId::SMASH_JUMP, 481 );
+        setAnimation( loader::AnimationId::SMASH_JUMP, 481 );
         if( m_lara.m_state.fallspeed <= 0 )
         {
             m_lara.m_state.fallspeed = 1;

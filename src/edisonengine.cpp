@@ -170,7 +170,7 @@ public:
         m_mesh->getParts()[0]->setMaterial( m_material );
 
         m_model = std::make_shared<gameplay::Model>();
-        m_model->addMesh( to_not_null( m_mesh ) );
+        m_model->addMesh( gsl::make_not_null( m_mesh ) );
 
         m_model->getRenderState().setDepthWrite( false );
         m_model->getRenderState().setDepthTest( false );
@@ -404,8 +404,9 @@ int main()
 
     drawLoadingScreen( "Preparing to load " + baseName );
 
-    auto lvl = to_not_null( level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD", level::Game::Unknown,
-                                                        std::move( scriptEngine ) ) );
+    auto lvl = gsl::make_not_null(
+            level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD", level::Game::Unknown,
+                                        std::move( scriptEngine ) ) );
 
     drawLoadingScreen( "Loading " + baseName );
 
@@ -424,7 +425,7 @@ int main()
 
     drawLoadingScreen( "Preparing the game" );
 
-    lvl->setUpRendering( to_not_null( game.get() ), "assets/tr1", baseName, glidos );
+    lvl->setUpRendering( gsl::make_not_null( game.get() ) );
 
     if( useAlternativeLara )
     {
@@ -475,19 +476,21 @@ int main()
     }
 
     FullScreenFX depthDarknessFx{*game,
-                                 to_not_null( gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
-                                                                                       "shaders/fx_darkness.frag",
-                                                                                       {"LENS_DISTORTION"} ) )};
+                                 gsl::make_not_null(
+                                         gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
+                                                                                  "shaders/fx_darkness.frag",
+                                                                                  {"LENS_DISTORTION"} ) )};
     depthDarknessFx.getMaterial()->getParameter( "aspect_ratio" )->bind(
             [&game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
                 uniform.set( game->getAspectRatio() );
             } );
     depthDarknessFx.getMaterial()->getParameter( "distortion_power" )->set( -1.0f );
     FullScreenFX depthDarknessWaterFx{*game,
-                                      to_not_null( gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
-                                                                                            "shaders/fx_darkness.frag",
-                                                                                            {"WATER",
-                                                                                             "LENS_DISTORTION"} ) )};
+                                      gsl::make_not_null(
+                                              gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
+                                                                                       "shaders/fx_darkness.frag",
+                                                                                       {"WATER",
+                                                                                        "LENS_DISTORTION"} ) )};
     depthDarknessWaterFx.getMaterial()->getParameter( "aspect_ratio" )->bind(
             [&game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
                 uniform.set( game->getAspectRatio() );
@@ -578,7 +581,7 @@ int main()
                                               lvl->m_cameraController->getUpVector() );
 
         if( lvl->m_lara != nullptr )
-            lvl->drawBars( to_not_null( game.get() ), screenOverlay->getImage() );
+            lvl->drawBars( gsl::make_not_null( game.get() ), screenOverlay->getImage() );
 
         if( lvl->m_cameraController->getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx.bind();

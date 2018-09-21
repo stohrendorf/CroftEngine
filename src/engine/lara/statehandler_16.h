@@ -10,11 +10,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_16 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_16(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::WalkBackward)
+            : AbstractStateHandler( lara, LaraStateId::WalkBackward )
     {
     }
 
@@ -26,7 +26,8 @@ public:
             return;
         }
 
-        if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward && getLevel().m_inputHandler->getInputState().moveSlow )
+        if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward
+            && getLevel().m_inputHandler->getInputState().moveSlow )
         {
             setGoalAnimState( LaraStateId::WalkBackward );
         }
@@ -37,11 +38,11 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
-            subYRotationSpeed(2.25_deg, -4_deg);
+            subYRotationSpeed( 2.25_deg, -4_deg );
         }
         else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
-            addYRotationSpeed(2.25_deg, 4_deg);
+            addYRotationSpeed( 2.25_deg, 4_deg );
         }
     }
 
@@ -53,35 +54,36 @@ public:
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
-        setMovementAngle(collisionInfo.facingAngle);
+        setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
 
-        if( stopIfCeilingBlocked(collisionInfo) )
+        if( stopIfCeilingBlocked( collisionInfo ) )
         {
             return;
         }
 
-        if( checkWallCollision(collisionInfo) )
+        if( checkWallCollision( collisionInfo ) )
         {
-            setAnimIdGlobal(loader::AnimationId::STAY_SOLID, 185);
+            setAnimation( loader::AnimationId::STAY_SOLID, 185 );
         }
 
-        if( collisionInfo.mid.floor.y > loader::QuarterSectorSize && collisionInfo.mid.floor.y < core::ClimbLimit2ClickMin )
+        if( collisionInfo.mid.floor.y > loader::QuarterSectorSize
+            && collisionInfo.mid.floor.y < core::ClimbLimit2ClickMin )
         {
             if( getLara().m_state.frame_number < 964 || getLara().m_state.frame_number > 993 )
             {
-                setAnimIdGlobal(loader::AnimationId::WALK_DOWN_BACK_LEFT, 899);
+                setAnimation( loader::AnimationId::WALK_DOWN_BACK_LEFT, 899 );
             }
             else
             {
-                setAnimIdGlobal(loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930);
+                setAnimation( loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930 );
             }
         }
 
-        if( !tryStartSlide(collisionInfo) )
+        if( !tryStartSlide( collisionInfo ) )
         {
-            placeOnFloor(collisionInfo);
+            placeOnFloor( collisionInfo );
         }
     }
 };

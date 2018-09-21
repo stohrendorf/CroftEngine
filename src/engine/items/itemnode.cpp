@@ -91,7 +91,7 @@ void ItemNode::setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom)
         return;
     }
 
-    addChild( to_not_null( newRoom->node ), to_not_null( getNode() ) );
+    addChild( gsl::make_not_null( newRoom->node ), gsl::make_not_null( getNode() ) );
 
     m_state.position.room = newRoom;
     applyTransform();
@@ -103,17 +103,12 @@ ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
                              const loader::Item& item,
                              const bool hasUpdateFunction,
                              const loader::SkeletalModelType& animatedModel)
-        : ItemNode{
-        level,
-        room,
-        item,
-        hasUpdateFunction
-}
+        : ItemNode{level, room, item, hasUpdateFunction}
         , m_skeleton{std::make_shared<SkeletalModelNode>( name, level, animatedModel )}
 {
-    m_skeleton->setAnimIdGlobal( m_state,
-                                 to_not_null( animatedModel.animation ),
-                                 animatedModel.animation->firstFrame );
+    m_skeleton->setAnimation( m_state,
+                              gsl::make_not_null( animatedModel.animation ),
+                              animatedModel.animation->firstFrame );
 }
 
 void ModelItemNode::update()
@@ -168,7 +163,7 @@ void ModelItemNode::update()
             }
         }
 
-        m_skeleton->setAnimIdGlobal( m_state, to_not_null( m_state.anim->nextAnimation ), m_state.anim->nextFrame );
+        m_skeleton->setAnimation( m_state, gsl::make_not_null( m_state.anim->nextAnimation ), m_state.anim->nextFrame );
         m_state.goal_anim_state = m_state.current_anim_state;
         if( m_state.current_anim_state == m_state.required_anim_state )
             m_state.required_anim_state = 0;
@@ -299,12 +294,12 @@ YAML::Node ItemNode::savePosition() const
 void ItemNode::loadPosition(const YAML::Node& n)
 {
     m_state.position.position.load( n["position"] );
-    m_state.position.room = to_not_null( &getLevel().m_rooms.at( n["position"]["room"].as<size_t>() ) );
+    m_state.position.room = gsl::make_not_null( &getLevel().m_rooms.at( n["position"]["room"].as<size_t>() ) );
     m_state.rotation.load( n["rotation"] );
     m_state.speed = n["speed"].as<int16_t>();
     m_state.fallspeed = n["fallSpeed"].as<int16_t>();
 
-    addChild( to_not_null( m_state.position.room->node ), to_not_null( getNode() ) );
+    addChild( gsl::make_not_null( m_state.position.room->node ), gsl::make_not_null( getNode() ) );
     applyTransform();
 }
 
@@ -375,7 +370,7 @@ void ItemNode::loadTriggerInfo(const YAML::Node& n)
     }
     else
     {
-        m_state.creatureInfo = std::make_shared<ai::CreatureInfo>( getLevel(), to_not_null( &m_state ) );
+        m_state.creatureInfo = std::make_shared<ai::CreatureInfo>( getLevel(), gsl::make_not_null( &m_state ) );
         m_state.creatureInfo->load( n["ai"], getLevel() );
     }
 }
@@ -767,7 +762,7 @@ void ItemState::initCreatureInfo(const level::Level& lvl)
     if( creatureInfo != nullptr )
         return;
 
-    creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, to_not_null( this ) );
+    creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, gsl::make_not_null( this ) );
     collectZoneBoxes( lvl );
 }
 
@@ -784,7 +779,7 @@ void ItemState::collectZoneBoxes(const level::Level& lvl)
     {
         if( box.*zoneRef1 == zoneData1 || box.*zoneRef2 == zoneData2 )
         {
-            creatureInfo->lot.boxes.emplace_back( to_not_null( &box ) );
+            creatureInfo->lot.boxes.emplace_back( gsl::make_not_null( &box ) );
         }
     }
 }

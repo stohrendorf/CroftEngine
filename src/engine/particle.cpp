@@ -31,7 +31,7 @@ void Particle::initDrawables(const level::Level& level)
                     spr.top_side - spr.bottom_side,
                     spr.t0,
                     spr.t1,
-                    to_not_null( level.m_spriteMaterial ),
+                    gsl::make_not_null( level.m_spriteMaterial ),
                     gameplay::Sprite::Axis::Y
             );
             m_drawables.emplace_back( sprite );
@@ -105,13 +105,13 @@ bool BubbleParticle::update(const level::Level& level)
             pos.position.Y - speed,
             static_cast<int>((8 * angle.X.cos()) + pos.position.Z)
     };
-    auto sector = level.findRealFloorSector( testPos, to_not_null( &pos.room ) );
+    auto sector = level.findRealFloorSector( testPos, gsl::make_not_null( &pos.room ) );
     if( sector == nullptr || !pos.room->isWaterRoom() )
     {
         return false;
     }
 
-    auto ceiling = HeightInfo::fromCeiling( to_not_null( sector ), testPos, level.m_itemNodes ).y;
+    auto ceiling = HeightInfo::fromCeiling( gsl::make_not_null( sector ), testPos, level.m_itemNodes ).y;
     if( ceiling == -loader::HeightLimit || testPos.Y <= ceiling )
     {
         return false;

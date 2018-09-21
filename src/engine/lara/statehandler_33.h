@@ -8,17 +8,17 @@ namespace engine
 namespace lara
 {
 class StateHandler_33 final
-    : public StateHandler_OnWater
+        : public StateHandler_OnWater
 {
 public:
     explicit StateHandler_33(LaraNode& lara)
-        : StateHandler_OnWater(lara, LaraStateId::OnWaterStop)
+            : StateHandler_OnWater( lara, LaraStateId::OnWaterStop )
     {
     }
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        int spd = std::max(0, getLara().m_state.fallspeed - 4);
+        int spd = std::max( 0, getLara().m_state.fallspeed - 4 );
         getLara().m_state.fallspeed = spd;
 
         if( getLara().m_state.health <= 0 )
@@ -29,24 +29,26 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().freeLook )
         {
-            getLevel().m_cameraController->setMode(CameraMode::FreeLook);
+            getLevel().m_cameraController->setMode( CameraMode::FreeLook );
             getLara().addHeadRotationXY(
-                -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y / 2000), -40_deg, 40_deg,
-                FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x / 2000), -50_deg, 50_deg
-                                       );
+                    -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y / 2000),
+                    -40_deg, 40_deg,
+                    FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x / 2000),
+                    -50_deg, 50_deg
+            );
 
             auto torsoRot = getLara().getTorsoRotation();
             torsoRot.X = 0_deg;
             torsoRot.Y = getLara().getHeadRotation().Y / 2;
 
-            getLara().setTorsoRotation(torsoRot);
+            getLara().setTorsoRotation( torsoRot );
 
             return;
         }
 
         if( getLevel().m_cameraController->getMode() == CameraMode::FreeLook )
         {
-            getLevel().m_cameraController->setMode(CameraMode::Chase);
+            getLevel().m_cameraController->setMode( CameraMode::Chase );
         }
 
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
@@ -78,11 +80,11 @@ public:
 
         if( !getLevel().m_inputHandler->getInputState().jump )
         {
-            setSwimToDiveKeypressDuration(0);
+            setSwimToDiveKeypressDuration( 0 );
             return;
         }
 
-        addSwimToDiveKeypressDuration(1);
+        addSwimToDiveKeypressDuration( 1 );
         if( getSwimToDiveKeypressDuration() != 10 )
         {
             // not yet allowed to dive; not that the keypress duration is always >10 when coming up from diving
@@ -90,16 +92,16 @@ public:
         }
 
         setGoalAnimState( LaraStateId::UnderwaterForward );
-        setAnimIdGlobal(loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041);
+        setAnimation( loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041 );
         getLara().m_state.rotation.X = -45_deg;
         getLara().m_state.fallspeed = 80;
-        setUnderwaterState(UnderwaterState::Diving);
+        setUnderwaterState( UnderwaterState::Diving );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        setMovementAngle(getLara().m_state.rotation.Y);
-        commonOnWaterHandling(collisionInfo);
+        setMovementAngle( getLara().m_state.rotation.Y );
+        commonOnWaterHandling( collisionInfo );
     }
 };
 }

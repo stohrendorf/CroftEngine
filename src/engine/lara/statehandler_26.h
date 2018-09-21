@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_26 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_26(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::JumpLeft)
+            : AbstractStateHandler( lara, LaraStateId::JumpLeft )
     {
     }
 
@@ -26,8 +26,8 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
-        commonJumpHandling(collisionInfo);
+        setMovementAngle( getLara().m_state.rotation.Y + 90_deg );
+        commonJumpHandling( collisionInfo );
     }
 };
 }

@@ -58,7 +58,7 @@ public:
             , m_gunFlareLeft{std::make_shared<gameplay::Node>( "gun flare left" )}
             , m_gunFlareRight{std::make_shared<gameplay::Node>( "gun flare right" )}
     {
-        setAnimIdGlobal( loader::AnimationId::STAY_IDLE );
+        setAnimation( loader::AnimationId::STAY_IDLE );
         setGoalAnimState( LaraStateId::Stop );
         setMovementAngle( m_state.rotation.Y );
 
@@ -311,7 +311,7 @@ public:
         m_state.required_anim_state = static_cast<uint16_t>(st);
     }
 
-    void setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
+    void setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
 
     void updateFloorHeight(int dy);
 

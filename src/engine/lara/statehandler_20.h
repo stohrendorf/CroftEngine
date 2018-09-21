@@ -7,11 +7,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_20 final
-    : public StateHandler_Standing
+        : public StateHandler_Standing
 {
 public:
     explicit StateHandler_20(LaraNode& lara)
-        : StateHandler_Standing(lara, LaraStateId::TurnFast)
+            : StateHandler_Standing( lara, LaraStateId::TurnFast )
     {
     }
 
@@ -25,7 +25,7 @@ public:
 
         if( getYRotationSpeed() >= 0_deg )
         {
-            setYRotationSpeed(8_deg);
+            setYRotationSpeed( 8_deg );
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
             {
                 return;
@@ -33,7 +33,7 @@ public:
         }
         else
         {
-            setYRotationSpeed(-8_deg);
+            setYRotationSpeed( -8_deg );
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
                 return;

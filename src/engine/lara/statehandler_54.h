@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_54 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_54(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::Handstand)
+            : AbstractStateHandler( lara, LaraStateId::Handstand )
     {
     }
 
@@ -28,8 +28,8 @@ public:
         collisionInfo.badCeilingDistance = 0;
         collisionInfo.policyFlags |= CollisionInfo::SlopesArePits | CollisionInfo::SlopesAreWalls;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle(collisionInfo.facingAngle);
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
+        setMovementAngle( collisionInfo.facingAngle );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
     }
 };
 }

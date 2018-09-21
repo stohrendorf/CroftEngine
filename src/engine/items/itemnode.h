@@ -299,15 +299,19 @@ public:
     void kill();
 
     YAML::Node savePosition() const;
+
     void loadPosition(const YAML::Node& n);
 
     YAML::Node saveAnimation() const;
+
     void loadAnimation(const YAML::Node& n);
 
     YAML::Node saveHealth() const;
+
     void loadHealth(const YAML::Node& n);
 
     YAML::Node saveTriggerInfo() const;
+
     void loadTriggerInfo(const YAML::Node& n);
 
 protected:
@@ -392,7 +396,7 @@ public:
     {
         if( m_skeleton != nullptr )
         {
-            setParent( to_not_null( m_skeleton ), nullptr );
+            setParent( gsl::make_not_null( m_skeleton ), nullptr );
         }
     }
 
@@ -468,7 +472,7 @@ public:
     {
         if( m_node != nullptr )
         {
-            setParent( to_not_null( m_node ), nullptr );
+            setParent( gsl::make_not_null( m_node ), nullptr );
         }
     }
 

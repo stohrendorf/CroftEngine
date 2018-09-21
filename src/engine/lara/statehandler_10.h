@@ -10,17 +10,17 @@ namespace engine
 namespace lara
 {
 class StateHandler_10 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_10(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::Hang)
+            : AbstractStateHandler( lara, LaraStateId::Hang )
     {
     }
 
     void handleInput(CollisionInfo& collisionInfo) override
     {
-        setCameraCurrentRotation(-60_deg, 0_deg);
+        setCameraCurrentRotation( -60_deg, 0_deg );
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left ||
             getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
@@ -36,7 +36,7 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        commonEdgeHangHandling(collisionInfo);
+        commonEdgeHangHandling( collisionInfo );
 
         if( getGoalAnimState() != LaraStateId::Hang )
         {
@@ -52,7 +52,8 @@ public:
         const auto frontSpace = frontHeight - collisionInfo.front.ceiling.y;
         const auto frontLeftSpace = collisionInfo.frontLeft.floor.y - collisionInfo.frontLeft.ceiling.y;
         const auto frontRightSpace = collisionInfo.frontRight.floor.y - collisionInfo.frontRight.ceiling.y;
-        if( frontHeight <= -850 || frontHeight >= -650 || frontSpace < 0 || frontLeftSpace < 0 || frontRightSpace < 0 || collisionInfo.hasStaticMeshCollision )
+        if( frontHeight <= -850 || frontHeight >= -650 || frontSpace < 0 || frontLeftSpace < 0 || frontRightSpace < 0
+            || collisionInfo.hasStaticMeshCollision )
         {
             return;
         }

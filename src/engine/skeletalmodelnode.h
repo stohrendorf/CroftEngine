@@ -33,7 +33,7 @@ public:
     void updatePose(engine::items::ItemState& state);
 
     void
-    setAnimIdGlobal(engine::items::ItemState& state, gsl::not_null<const loader::Animation*> animation, uint16_t frame);
+    setAnimation(engine::items::ItemState& state, gsl::not_null<const loader::Animation*> animation, uint16_t frame);
 
     int calculateFloorSpeed(const engine::items::ItemState& state, int frameOffset = 0) const;
 

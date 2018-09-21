@@ -7,11 +7,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_18 final
-    : public StateHandler_Underwater
+        : public StateHandler_Underwater
 {
 public:
     explicit StateHandler_18(LaraNode& lara)
-        : StateHandler_Underwater(lara, LaraStateId::UnderwaterInertia)
+            : StateHandler_Underwater( lara, LaraStateId::UnderwaterInertia )
     {
     }
 
@@ -30,7 +30,7 @@ public:
             setGoalAnimState( LaraStateId::UnderwaterForward );
         }
 
-        int spd = std::max(0, getLara().m_state.fallspeed - 6);
+        int spd = std::max( 0, getLara().m_state.fallspeed - 6 );
         getLara().m_state.fallspeed = spd;
         if( getLara().m_state.fallspeed <= 133 )
         {

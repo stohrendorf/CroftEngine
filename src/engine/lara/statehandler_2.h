@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_2 final
-    : public StateHandler_Standing
+        : public StateHandler_Standing
 {
 public:
     explicit StateHandler_2(LaraNode& lara)
-        : StateHandler_Standing(lara, LaraStateId::Stop)
+            : StateHandler_Standing( lara, LaraStateId::Stop )
     {
     }
 
@@ -27,7 +27,7 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().roll )
         {
-            setAnimIdGlobal(loader::AnimationId::ROLL_BEGIN);
+            setAnimation( loader::AnimationId::ROLL_BEGIN );
             setGoalAnimState( LaraStateId::Stop );
             return;
         }
@@ -36,19 +36,21 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().freeLook )
         {
-            getLevel().m_cameraController->setMode(CameraMode::FreeLook);
+            getLevel().m_cameraController->setMode( CameraMode::FreeLook );
             getLara().addHeadRotationXY(
-                -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y / 2000), -42_deg, 22_deg,
-                FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x / 2000), -44_deg, 44_deg
-                                       );
-            getLara().setTorsoRotation(getLara().getHeadRotation());
+                    -FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.y / 2000),
+                    -42_deg, 22_deg,
+                    FreeLookMouseMovementScale * (getLevel().m_inputHandler->getInputState().mouseMovement.x / 2000),
+                    -44_deg, 44_deg
+            );
+            getLara().setTorsoRotation( getLara().getHeadRotation() );
 
             return;
         }
 
         if( getLevel().m_cameraController->getMode() == CameraMode::FreeLook )
         {
-            getLevel().m_cameraController->setMode(CameraMode::Chase);
+            getLevel().m_cameraController->setMode( CameraMode::Chase );
         }
 
         if( getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
@@ -77,18 +79,18 @@ public:
         {
             if( getLevel().m_inputHandler->getInputState().moveSlow )
             {
-                create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
+                create( LaraStateId::WalkForward, getLara() )->handleInput( collisionInfo );
             }
             else
             {
-                create(LaraStateId::RunForward, getLara())->handleInput(collisionInfo);
+                create( LaraStateId::RunForward, getLara() )->handleInput( collisionInfo );
             }
         }
         else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
         {
             if( getLevel().m_inputHandler->getInputState().moveSlow )
             {
-                create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
+                create( LaraStateId::WalkBackward, getLara() )->handleInput( collisionInfo );
             }
             else
             {

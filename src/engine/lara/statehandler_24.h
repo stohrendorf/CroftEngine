@@ -10,18 +10,18 @@ namespace engine
 namespace lara
 {
 class StateHandler_24 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_24(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::SlideForward)
+            : AbstractStateHandler( lara, LaraStateId::SlideForward )
     {
     }
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        setCameraOldMode(CameraMode::FreeLook);
-        setCameraCurrentRotationX(-45_deg);
+        setCameraOldMode( CameraMode::FreeLook );
+        setCameraCurrentRotationX( -45_deg );
         if( getLevel().m_inputHandler->getInputState().jump )
         {
             setGoalAnimState( LaraStateId::JumpForward );
@@ -30,8 +30,8 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        setMovementAngle(getLara().m_state.rotation.Y);
-        commonSlideHandling(collisionInfo);
+        setMovementAngle( getLara().m_state.rotation.Y );
+        commonSlideHandling( collisionInfo );
     }
 };
 }

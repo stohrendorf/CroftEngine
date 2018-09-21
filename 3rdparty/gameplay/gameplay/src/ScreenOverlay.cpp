@@ -38,8 +38,9 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
         BOOST_THROW_EXCEPTION( std::runtime_error( "Cannot create screen overlay because the viewport is empty" ) );
     }
 
-    const auto screenOverlayProgram = to_not_null( ShaderProgram::createFromFile( "shaders/screenoverlay.vert",
-                                                                                  "shaders/screenoverlay.frag", {} ) );
+    const auto screenOverlayProgram = gsl::make_not_null( ShaderProgram::createFromFile( "shaders/screenoverlay.vert",
+                                                                                         "shaders/screenoverlay.frag",
+                                                                                         {} ) );
 
     m_image->fill( {0, 0, 0, 0} );
 
@@ -56,7 +57,7 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
         ->set( glm::ortho( 0.0f, gsl::narrow<float>( viewport.width ), gsl::narrow<float>( viewport.height ), 0.0f,
                            0.0f, 1.0f ) );
 
-    m_model->addMesh( to_not_null( m_mesh ) );
+    m_model->addMesh( gsl::make_not_null( m_mesh ) );
 
     m_model->getRenderState().setDepthWrite( false );
     m_model->getRenderState().setDepthTest( false );

@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_53 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_53(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::SwandiveEnd)
+            : AbstractStateHandler( lara, LaraStateId::SwandiveEnd )
     {
     }
 
@@ -21,7 +21,7 @@ public:
         collisionInfo.policyFlags &= ~CollisionInfo::EnableSpaz;
         collisionInfo.policyFlags |= CollisionInfo::EnableBaddiePush;
 
-        dampenHorizontalSpeed(0.05f);
+        dampenHorizontalSpeed( 0.05f );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -30,9 +30,9 @@ public:
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 192;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle(collisionInfo.facingAngle);
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
-        checkJumpWallSmash(collisionInfo);
+        setMovementAngle( collisionInfo.facingAngle );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        checkJumpWallSmash( collisionInfo );
         if( collisionInfo.mid.floor.y > 0 || getLara().m_state.fallspeed <= 0 )
         {
             return;
@@ -49,7 +49,7 @@ public:
 
         getLara().m_state.fallspeed = 0;
         getLara().m_state.falling = false;
-        placeOnFloor(collisionInfo);
+        placeOnFloor( collisionInfo );
     }
 };
 }

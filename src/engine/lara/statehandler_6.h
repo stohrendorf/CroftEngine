@@ -7,11 +7,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_6 final
-    : public StateHandler_TurnSlow
+        : public StateHandler_TurnSlow
 {
 public:
     explicit StateHandler_6(LaraNode& lara)
-        : StateHandler_TurnSlow(lara, LaraStateId::TurnRightSlow)
+            : StateHandler_TurnSlow( lara, LaraStateId::TurnRightSlow )
     {
     }
 
@@ -23,7 +23,7 @@ public:
             return;
         }
 
-        addYRotationSpeed(2.25_deg);
+        addYRotationSpeed( 2.25_deg );
 
         if( getHandStatus() == HandStatus::Combat )
         {
@@ -33,7 +33,7 @@ public:
         {
             if( getLevel().m_inputHandler->getInputState().moveSlow )
             {
-                setYRotationSpeed(4_deg);
+                setYRotationSpeed( 4_deg );
             }
             else
             {

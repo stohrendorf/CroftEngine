@@ -1171,7 +1171,7 @@ struct Room
     {
         dx = util::clamp( dx, 1, sectorCountX - 2 );
         dz = util::clamp( dz, 1, sectorCountZ - 2 );
-        return to_not_null( &sectors[sectorCountZ * dx + dz] );
+        return gsl::make_not_null( &sectors[sectorCountZ * dx + dz] );
     }
 
     gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
@@ -1190,7 +1190,7 @@ struct Room
         {
             dx = util::clamp( dx, 0, sectorCountX - 1 );
         }
-        return to_not_null( getSectorByIndex( dx, dz ) );
+        return gsl::make_not_null( getSectorByIndex( dx, dz ) );
     }
 
     static void patchHeightsForBlock(const engine::items::ItemNode& item, int height);

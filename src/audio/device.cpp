@@ -115,7 +115,7 @@ Device::Device()
     alDistanceModel( AL_LINEAR_DISTANCE_CLAMPED );
     DEBUG_CHECK_AL_ERROR();
 
-    loadALExtFunctions( to_not_null( m_device ) );
+    loadALExtFunctions( gsl::make_not_null( m_device ) );
 
     BOOST_LOG_TRIVIAL( info ) << "Using OpenAL device " << alcGetString( m_device, ALC_DEVICE_SPECIFIER );
 

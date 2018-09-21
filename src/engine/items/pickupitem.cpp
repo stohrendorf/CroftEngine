@@ -7,7 +7,7 @@ namespace engine
 {
 namespace items
 {
-void PickupItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     const core::Angle y = lara.m_state.rotation.Y;
     m_state.rotation.Y = y;

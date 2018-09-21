@@ -27,7 +27,7 @@ void TallBlock::update()
 
     ModelItemNode::update();
     auto room = m_state.position.room;
-    getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) );
+    getLevel().findRealFloorSector( m_state.position.position, make_not_null( &room ) );
     setCurrentRoom( room );
 
     if( m_state.triggerState != engine::items::TriggerState::Deactivated )

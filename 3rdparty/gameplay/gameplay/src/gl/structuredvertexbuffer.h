@@ -63,7 +63,7 @@ public:
         if( sizeof( T ) != m_size )
         {
             BOOST_THROW_EXCEPTION( std::invalid_argument(
-                    "Trying to assign vertex data which has a different size than specified in the format" ) );
+                                           "Trying to assign vertex data which has a different size than specified in the format" ) );
         }
 
         VertexBuffer::bind();
@@ -83,7 +83,7 @@ public:
         if( sizeof( T ) != m_size )
         {
             BOOST_THROW_EXCEPTION( std::invalid_argument(
-                    "Trying to assign vertex data which has a different size than specified in the format" ) );
+                                           "Trying to assign vertex data which has a different size than specified in the format" ) );
         }
 
         VertexBuffer::bind();
@@ -113,14 +113,14 @@ public:
     void assign(const std::vector<T>& data)
     {
         if( !data.empty() )
-            assign<T>( to_not_null( data.data() ), data.size() );
+            assign<T>( gsl::make_not_null( data.data() ), data.size() );
     }
 
     template<typename T>
     void assignRaw(const std::vector<T>& data, size_t vertexCount)
     {
         if( !data.empty() )
-            assignRaw<T>( to_not_null( data.data() ), vertexCount );
+            assignRaw<T>( gsl::make_not_null( data.data() ), vertexCount );
     }
 
     void reserve(size_t n)
@@ -136,7 +136,7 @@ public:
         if( sizeof( T ) != m_size )
         {
             BOOST_THROW_EXCEPTION( std::invalid_argument(
-                    "Trying to map vertex data which has a different size than specified in the format" ) );
+                                           "Trying to map vertex data which has a different size than specified in the format" ) );
         }
 
         return static_cast<T*>(mapRw());
@@ -148,7 +148,7 @@ public:
         if( sizeof( T ) != m_size )
         {
             BOOST_THROW_EXCEPTION( std::invalid_argument(
-                    "Trying to map vertex data which has a different size than specified in the format" ) );
+                                           "Trying to map vertex data which has a different size than specified in the format" ) );
         }
 
         return static_cast<T*>(map());

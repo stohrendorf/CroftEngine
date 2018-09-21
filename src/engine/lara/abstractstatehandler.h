@@ -14,7 +14,9 @@ enum class CameraMode;
 using LaraStateId = loader::LaraStateId;
 struct CollisionInfo;
 
+
 class LaraNode;
+
 
 struct InputState;
 enum class UnderwaterState;
@@ -26,8 +28,8 @@ class AbstractStateHandler
 {
 public:
     explicit AbstractStateHandler(LaraNode& lara, LaraStateId id)
-        : m_lara{lara}
-          , m_id{id}
+            : m_lara{lara}
+            , m_id{id}
     {
     }
 
@@ -48,7 +50,9 @@ private:
     LaraNode& m_lara;
     const LaraStateId m_id;
 
+
     friend class StateHandler_2;
+
 
 protected:
     LaraNode& getLara()
@@ -68,7 +72,7 @@ protected:
 
     LaraStateId getCurrentAnimState() const;
 
-    void setAnimIdGlobal(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
+    void setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
 
     const level::Level& getLevel() const;
 

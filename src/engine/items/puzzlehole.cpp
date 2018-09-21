@@ -103,21 +103,22 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& /*collis
         const auto& model = getLevel().findAnimatedModelForType( completeId );
         Expects( model != nullptr );
 
-        const auto parent = to_not_null( m_skeleton->getParent().lock() );
-        setParent( to_not_null( m_skeleton ), nullptr );
+        const auto parent = gsl::make_not_null( m_skeleton->getParent().lock() );
+        setParent( gsl::make_not_null( m_skeleton ), nullptr );
 
-        m_skeleton = std::make_shared<SkeletalModelNode>( toString( completeId ), to_not_null( &getLevel() ), *model );
-        m_skeleton->setAnimIdGlobal( m_state,
-                                     to_not_null( model->animation ),
-                                     model->animation->firstFrame );
-        for( size_t boneIndex = 0; boneIndex < model->models.size(); ++boneIndex )
+        m_skeleton = std::make_shared<SkeletalModelNode>( toString( completeId ), gsl::make_not_null( &getLevel() ),
+                                                          *model );
+        m_skeleton->setAnimation( m_state,
+                                  gsl::make_not_null( model->animation ),
+                                  model->animation->firstFrame );
+        for( gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex )
         {
             auto node = make_not_null_shared<gameplay::Node>( "bone:" + std::to_string( boneIndex ) );
             node->setDrawable( model->models[boneIndex].get() );
-            addChild( to_not_null( getNode() ), node );
+            addChild( gsl::make_not_null( getNode() ), node );
         }
 
-        setParent( to_not_null( m_skeleton ), parent );
+        setParent( gsl::make_not_null( m_skeleton ), parent );
 
         m_state.object_number = completeId;
         ModelItemNode::update();

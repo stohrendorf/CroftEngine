@@ -134,7 +134,7 @@ void Block::update()
     ModelItemNode::update();
 
     auto pos = m_state.position;
-    auto sector = to_not_null( getLevel().findRealFloorSector( pos ) );
+    auto sector = gsl::make_not_null( getLevel().findRealFloorSector( pos ) );
     auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).y;
     if( height > pos.position.Y )
     {
@@ -161,7 +161,7 @@ void Block::update()
     deactivate();
     loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
     pos = m_state.position;
-    sector = to_not_null( getLevel().findRealFloorSector( pos ) );
+    sector = gsl::make_not_null( getLevel().findRealFloorSector( pos ) );
     getLevel().m_lara->handleCommandSequence(
             HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).lastCommandSequenceOrDeath, true );
 }
@@ -245,7 +245,7 @@ bool Block::canPullBlock(int height, core::Axis axis) const
     }
 
     auto room = m_state.position.room;
-    auto sector = getLevel().findRealFloorSector( pos, to_not_null( &room ) );
+    auto sector = getLevel().findRealFloorSector( pos, gsl::make_not_null( &room ) );
 
     CollisionInfo tmp;
     tmp.facingAxis = axis;
@@ -287,14 +287,14 @@ bool Block::canPullBlock(int height, core::Axis axis) const
             break;
     }
 
-    sector = getLevel().findRealFloorSector( laraPos, to_not_null( &room ) );
+    sector = getLevel().findRealFloorSector( laraPos, gsl::make_not_null( &room ) );
     if( sector->floorHeight * loader::QuarterSectorSize != pos.Y )
     {
         return false;
     }
 
     laraPos.Y -= core::ScalpHeight;
-    sector = getLevel().findRealFloorSector( laraPos, to_not_null( &room ) );
+    sector = getLevel().findRealFloorSector( laraPos, gsl::make_not_null( &room ) );
     if( laraPos.Y < sector->ceilingHeight * loader::QuarterSectorSize )
     {
         return false;

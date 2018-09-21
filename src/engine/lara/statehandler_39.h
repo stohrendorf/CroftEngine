@@ -10,31 +10,31 @@ namespace engine
 namespace lara
 {
 class StateHandler_39 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
 
     explicit StateHandler_39(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::PickUp)
+            : AbstractStateHandler( lara, LaraStateId::PickUp )
     {
     }
 
     void handleInput(CollisionInfo& collisionInfo) override
     {
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
-        setCameraCurrentRotation(-15_deg, -130_deg);
-        setCameraTargetDistance(1024);
+        setCameraCurrentRotation( -15_deg, -130_deg );
+        setCameraTargetDistance( 1024 );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle(collisionInfo.facingAngle);
+        setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0;
         collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
     }
 };
 }

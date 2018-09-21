@@ -10,11 +10,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_9 final
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_9(LaraNode& lara)
-        : AbstractStateHandler(lara, LaraStateId::FreeFall)
+            : AbstractStateHandler( lara, LaraStateId::FreeFall )
     {
     }
 
@@ -22,9 +22,9 @@ public:
     {
         if( getLara().m_state.fallspeed >= core::DeadlyFallSpeedThreshold )
         {
-            getLara().playSoundEffect(30);
+            getLara().playSoundEffect( 30 );
         }
-        dampenHorizontalSpeed(0.05f);
+        dampenHorizontalSpeed( 0.05f );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -34,8 +34,8 @@ public:
         collisionInfo.badCeilingDistance = 192;
         collisionInfo.facingAngle = getMovementAngle();
         getLara().m_state.falling = true;
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getLevel(), core::ScalpHeight);
-        jumpAgainstWall(collisionInfo);
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        jumpAgainstWall( collisionInfo );
         if( collisionInfo.mid.floor.y > 0 )
         {
             return;
@@ -48,11 +48,11 @@ public:
         else
         {
             setGoalAnimState( LaraStateId::Stop );
-            setAnimIdGlobal(loader::AnimationId::LANDING_HARD, 358);
+            setAnimation( loader::AnimationId::LANDING_HARD, 358 );
         }
-        getLevel().stopSoundEffect(30);
+        getLevel().stopSoundEffect( 30 );
         getLara().m_state.fallspeed = 0;
-        placeOnFloor(collisionInfo);
+        placeOnFloor( collisionInfo );
         getLara().m_state.falling = false;
     }
 };

@@ -10,25 +10,26 @@ namespace engine
 namespace lara
 {
 class StateHandler_Underwater
-    : public AbstractStateHandler
+        : public AbstractStateHandler
 {
 public:
     explicit StateHandler_Underwater(LaraNode& lara, LaraStateId id)
-        : AbstractStateHandler(lara, id)
+            : AbstractStateHandler( lara, id )
     {
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        if( abs(getLara().m_state.rotation.X) > 90_deg )
+        if( abs( getLara().m_state.rotation.X ) > 90_deg )
         {
             collisionInfo.facingAngle += 180_deg;
         }
-        setMovementAngle(collisionInfo.facingAngle);
-        collisionInfo.initHeightInfo(getLara().m_state.position.position + core::TRVec{0, 200, 0}, getLevel(), core::LaraHeightUnderwater);
+        setMovementAngle( collisionInfo.facingAngle );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec{0, 200, 0}, getLevel(),
+                                      core::LaraHeightUnderwater );
 
-        applyShift(collisionInfo);
+        applyShift( collisionInfo );
 
         switch( collisionInfo.collisionType )
         {
@@ -81,7 +82,7 @@ public:
             return;
         }
 
-        placeOnFloor(collisionInfo);
+        placeOnFloor( collisionInfo );
         getLara().m_state.rotation.X += 2_deg;
     }
 

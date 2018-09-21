@@ -36,7 +36,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(float left,
     };
 
     auto mesh = make_not_null_shared<Mesh>( layout, false );
-    mesh->getBuffers()[0]->assign<SpriteVertex>( to_not_null( &vertices[0] ), 4 );
+    mesh->getBuffers()[0]->assign<SpriteVertex>( gsl::make_not_null( &vertices[0] ), 4 );
 
     static const uint16_t indices[6] =
             {
@@ -47,7 +47,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(float left,
     gl::VertexArrayBuilder builder;
 
     auto indexBuffer = make_not_null_shared<gl::IndexBuffer>();
-    indexBuffer->setData( to_not_null( &indices[0] ), 6, false );
+    indexBuffer->setData( gsl::make_not_null( &indices[0] ), 6, false );
     builder.attach( indexBuffer );
     builder.attach( mesh->getBuffers() );
 

@@ -26,7 +26,8 @@ void engine::items::RollingBall::update()
         ModelItemNode::update();
 
         auto room = m_state.position.room;
-        auto sector = to_not_null( getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) ) );
+        auto sector = gsl::make_not_null(
+                getLevel().findRealFloorSector( m_state.position.position, gsl::make_not_null( &room ) ) );
         setCurrentRoom( room );
         const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
         m_state.floor = hi.y;
@@ -43,7 +44,7 @@ void engine::items::RollingBall::update()
                              + core::TRVec( m_state.rotation.Y.sin() * loader::SectorSize / 2,
                                             0,
                                             m_state.rotation.Y.cos() * loader::SectorSize / 2 );
-        sector = to_not_null( getLevel().findRealFloorSector( testPos, room ) );
+        sector = gsl::make_not_null( getLevel().findRealFloorSector( testPos, room ) );
         if( HeightInfo::fromFloor( sector, testPos, getLevel().m_itemNodes ).y < m_state.position.position.Y )
         {
             m_state.fallspeed = 0;
@@ -60,9 +61,10 @@ void engine::items::RollingBall::update()
         m_state.triggerState = TriggerState::Deactivated;
         m_state.position.position = m_position.position;
         setCurrentRoom( m_position.room );
-        getSkeleton()->setAnimIdGlobal( m_state,
-                                        to_not_null( getLevel().m_animatedModels[m_state.object_number]->animation ),
-                                        0 );
+        getSkeleton()->setAnimation( m_state,
+                                     gsl::make_not_null(
+                                             getLevel().m_animatedModels[m_state.object_number]->animation ),
+                                     0 );
         m_state.goal_anim_state = m_state.current_anim_state;
         m_state.required_anim_state = 0;
         deactivate();
@@ -103,7 +105,7 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
 
         lara.m_state.health = -1;
         lara.setCurrentRoom( m_state.position.room );
-        lara.setAnimIdGlobal( loader::AnimationId::SQUASH_BOULDER, 3561 );
+        lara.setAnimation( loader::AnimationId::SQUASH_BOULDER, 3561 );
         getLevel().m_cameraController->setOldMode( CameraMode::Fixed );
         getLevel().m_cameraController->setEyeRotation( -25_deg, 170_deg );
         lara.m_state.rotation.X = 0_deg;

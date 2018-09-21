@@ -39,7 +39,8 @@ void Dart::update()
     ModelItemNode::update();
 
     auto room = m_state.position.room;
-    auto sector = to_not_null( getLevel().findRealFloorSector( m_state.position.position, to_not_null( &room ) ) );
+    auto sector = gsl::make_not_null(
+            getLevel().findRealFloorSector( m_state.position.position, gsl::make_not_null( &room ) ) );
     if( room != m_state.position.room )
         setCurrentRoom( room );
 
