@@ -55,8 +55,8 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                    const loader::Item& item,
                    const bool hasUpdateFunction)
         : m_level{level}
-        , m_hasUpdateFunction{hasUpdateFunction}
         , m_state{room}
+        , m_hasUpdateFunction{hasUpdateFunction}
 {
     BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
 
@@ -799,7 +799,7 @@ sol::usertype<ItemState>& ItemState::userType()
             "goal_anim_state", &ItemState::goal_anim_state,
             "required_anim_state", &ItemState::required_anim_state,
             "activation_state", &ItemState::triggerState,
-            "patch_heights", [](ItemState& self, int delta) { /* TODO */ },
+            "patch_heights", [](ItemState& /*self*/, int /*delta*/) { /* TODO */ },
             "health", &ItemState::health,
             "do_enemy_push", []() { /* TODO */ },
             "set_y_angle", [](ItemState& self, int16_t angle) { self.rotation.Y = core::Angle( angle ); },

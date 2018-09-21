@@ -186,7 +186,7 @@ public:
 
         --negSpriteFrameId;
         timePerSpriteFrame = 0;
-        return std::abs( negSpriteFrameId ) < getLength();
+        return gsl::narrow<size_t>( -negSpriteFrameId ) < getLength();
     }
 };
 

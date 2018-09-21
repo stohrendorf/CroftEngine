@@ -6,7 +6,7 @@ namespace engine
 {
 namespace items
 {
-void KeyHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisionInfo)
+void KeyHole::collide(engine::LaraNode& lara, engine::CollisionInfo& /*collisionInfo*/)
 {
     static const InteractionLimits limits{
             core::BoundingBox{{-200, 0, 312},
