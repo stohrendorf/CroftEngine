@@ -6,7 +6,7 @@ namespace engine
 {
 namespace items
 {
-void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     static const InteractionLimits limits{
             core::BoundingBox{{-256, 540, -350},

@@ -7,7 +7,7 @@ namespace engine
 {
 namespace items
 {
-void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& collisionInfo)
+void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& /*collisionInfo*/)
 {
     switch( m_state.object_number )
     {

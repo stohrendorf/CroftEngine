@@ -7,7 +7,7 @@ namespace engine
 {
 namespace items
 {
-void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     if( !getLevel().m_inputHandler->getInputState().action )
     {
