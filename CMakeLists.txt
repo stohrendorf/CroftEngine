@@ -144,7 +144,7 @@ target_compile_definitions( CImg::CImg INTERFACE -Dcimg_display=0 -Dcimg_use_png
 if( VCPKG_TOOLCHAIN )
     find_package( sol2 CONFIG REQUIRED )
 else()
-    if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/sol/sol.hpp" )
+    if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/sol-v2.20.4/sol.hpp" )
         message( STATUS "Downloading sol2..." )
         file( DOWNLOAD https://github.com/ThePhD/sol2/releases/download/v2.20.4/sol.hpp "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/sol-v2.20.4/sol.hpp"
                 STATUS status
