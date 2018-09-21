@@ -441,7 +441,7 @@ void LaraNode::update()
             pos.position.Y = *waterSurfaceHeight;
             pos.position.Z = m_state.position.position.Z;
 
-            auto particle = make_not_null_shared<engine::SplashParticle>( pos, getLevel() );
+            auto particle = make_not_null_shared<engine::SplashParticle>( pos, getLevel(), false );
             gameplay::setParent( particle, pos.room->node );
             getLevel().m_particles.emplace_back( particle );
         }

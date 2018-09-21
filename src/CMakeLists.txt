@@ -291,6 +291,8 @@ set( EDISONENGINE_SRCS
         engine/items/trapdoorup.h
         engine/items/underwaterswitch.h
         engine/items/underwaterswitch.cpp
+        engine/items/waterfallmist.h
+        engine/items/waterfallmist.cpp
         engine/items/wolf.h
         engine/items/wolf.cpp
         engine/items/aiagent.h

@@ -110,11 +110,20 @@ class SplashParticle : public Particle
 {
 public:
     explicit SplashParticle(const core::RoomBoundPosition& pos,
-                            const level::Level& level)
+                            const level::Level& level,
+                            bool waterfall)
             : Particle{"splash", engine::TR1ItemId::Splash, pos, level}
     {
-        speed = util::rand15( 128 );
-        angle.Y = core::Angle( 2 * util::rand15s() );
+        if( !waterfall )
+        {
+            speed = util::rand15( 128 );
+            angle.Y = core::Angle( 2 * util::rand15s() );
+        }
+        else
+        {
+            this->pos.position.X += util::rand15s( loader::SectorSize );
+            this->pos.position.Z += util::rand15s( loader::SectorSize );
+        }
     }
 
     bool update(const level::Level& level) override;

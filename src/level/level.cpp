@@ -34,6 +34,7 @@
 #include "engine/items/trapdoordown.h"
 #include "engine/items/trapdoorup.h"
 #include "engine/items/underwaterswitch.h"
+#include "engine/items/waterfallmist.h"
 #include "engine/items/wolf.h"
 
 #include "util/md5.h"
@@ -443,22 +444,23 @@ engine::LaraNode* Level::createItems()
             {
                 modelNode = createSkeletalModel<engine::items::CutsceneActor4>( *model, room, item );
             }
+            else if( item.type == engine::TR1ItemId::WaterfallMist )
+            {
+                modelNode = createSkeletalModel<engine::items::WaterfallMist>( *model, room, item );
+            }
             else
             {
+                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
+
                 modelNode = createSkeletalModel<engine::items::StubItem>( *model, room, item );
                 if( item.type == engine::TR1ItemId::MidasGoldTouch
                     || item.type == engine::TR1ItemId::CameraTarget
-                    || item.type == engine::TR1ItemId::WaterfallMist
                     || item.type == engine::TR1ItemId::LavaParticleEmitter
                     || item.type == engine::TR1ItemId::FlameEmitter
                     || item.type == engine::TR1ItemId::Earthquake )
                 {
                     modelNode->getNode()->setDrawable( nullptr );
                     modelNode->getNode()->removeAllChildren();
-                }
-                else
-                {
-                    BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
                 }
             }
 
@@ -595,7 +597,7 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
     }
 
     auto texturedShader = gsl::make_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
-                                                                                  "shaders/textured_2.frag" ) );
+                                                                                       "shaders/textured_2.frag" ) );
     auto materials = createMaterials( texturedShader );
 
     auto colorMaterial = make_not_null_shared<gameplay::Material>( "shaders/colored_2.vert",
@@ -643,8 +645,8 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
             std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 
     auto waterTexturedShader = gsl::make_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
-                                                                                       "shaders/textured_2.frag",
-                                                                                       {"WATER"} ) );
+                                                                                            "shaders/textured_2.frag",
+                                                                                            {"WATER"} ) );
     auto waterMaterials = createMaterials( waterTexturedShader );
     for( const auto& m : waterMaterials | boost::adaptors::map_values )
     {
