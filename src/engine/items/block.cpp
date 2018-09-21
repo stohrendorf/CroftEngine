@@ -8,7 +8,7 @@ namespace engine
 {
 namespace items
 {
-void Block::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     if( !getLevel().m_inputHandler->getInputState().action
         || m_state.triggerState == TriggerState::Active

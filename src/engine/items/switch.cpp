@@ -7,7 +7,7 @@ namespace engine
 {
 namespace items
 {
-void Switch::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     if( !getLevel().m_inputHandler->getInputState().action )
     {

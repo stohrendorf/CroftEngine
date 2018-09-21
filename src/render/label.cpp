@@ -2,11 +2,7 @@
 
 #include "level/level.h"
 
-#ifdef _X
-#undef _X
-#endif
-
-#include <CImg.h>
+#include "util/cimgwrapper.h"
 
 namespace render
 {
@@ -67,29 +63,26 @@ void drawChar(gameplay::gl::Image<gameplay::gl::RGBA8>& img, int x, int y, int s
     if( x < 0 || y < 0 || x + dstW >= img.getWidth() || y + dstH >= img.getHeight() )
         return;
 
-    const cimg_library::CImg<uint8_t> src(
+    util::CImgWrapper src{
             reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
-            4, sprite.image->getWidth(), sprite.image->getHeight(), 1,
-            true );
-
-    cimg_library::CImg<uint8_t> tmp = src.get_crop(
-            0,
-            sprite.t0.x * sprite.image->getWidth() - 1,
-            sprite.t0.y * sprite.image->getHeight() - 1,
-            0,
-            3,
+            sprite.image->getWidth(),
+            sprite.image->getHeight(),
+            true
+    };
+    src.crop(
+            sprite.t0.x * sprite.image->getWidth(),
+            sprite.t0.y * sprite.image->getHeight(),
             sprite.t1.x * sprite.image->getWidth() - 1,
-            sprite.t1.y * sprite.image->getHeight() - 1,
-            0 );
-    BOOST_ASSERT( tmp.width() == 4 );
-    BOOST_ASSERT( tmp.spectrum() == 1 );
-    tmp.resize( 4, dstW, dstH, 1, 6 /*lanzcos*/ );
+            sprite.t1.y * sprite.image->getHeight() - 1
+            );
+    src.resize(dstW, dstH);
 
-    cimg_forYZ(tmp, dx, dy)
+    for(int dy=0; dy<src.height(); ++dy)
     {
-        img.set( x + dx, y + dy,
-                 {tmp( 0, dx, dy, 0 ), tmp( 1, dx, dy, 0 ), tmp( 2, dx, dy, 0 ), tmp( 3, dx, dy, 0 )},
-                 true );
+        for(int dx=0; dx<src.width(); ++dx)
+        {
+            img.set( x + dx, y + dy, src( dx, dy ), true );
+        }
     }
 }
 }

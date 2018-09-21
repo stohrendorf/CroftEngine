@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gl/pixel.h"
+
 #include <memory>
 #include <string>
 
@@ -42,10 +44,15 @@ public:
 
     uint8_t& operator()(int x, int y, int c);
 
+    gameplay::gl::RGBA8& operator()(int x, int y);
+
     uint8_t operator()(int x, int y, int c) const;
 
     const uint8_t* data() const;
 
     void savePng(const std::string& filename);
+
+private:
+    void unshare();
 };
 }

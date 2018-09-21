@@ -51,6 +51,8 @@ void CImgWrapper::interleave()
     if( m_interleaved )
         return;
 
+    unshare();
+
     m_interleaved = true;
     m_image->permute_axes( "cxyz" );
 }
@@ -59,6 +61,8 @@ void CImgWrapper::deinterleave()
 {
     if( !m_interleaved )
         return;
+
+    unshare();
 
     m_interleaved = false;
     m_image->permute_axes( "yzcx" );
@@ -76,6 +80,7 @@ int CImgWrapper::height() const
 
 void CImgWrapper::resize(int width, int height)
 {
+    unshare();
     if( !m_interleaved )
         m_image->resize( width, height, 1, 4, 6 );
     else
@@ -84,6 +89,7 @@ void CImgWrapper::resize(int width, int height)
 
 void CImgWrapper::crop(int x0, int y0, int x1, int y1)
 {
+    unshare();
     if( !m_interleaved )
         m_image->crop( x0, y0, 0, 0,
                        x1, y1, 0, 3
@@ -104,6 +110,14 @@ uint8_t& CImgWrapper::operator()(int x, int y, int c)
         return (*m_image)( c, x, y, 0 );
 }
 
+gameplay::gl::RGBA8& CImgWrapper::operator()(int x, int y)
+{
+    BOOST_ASSERT( x >= 0 && x < width() );
+    BOOST_ASSERT( y >= 0 && y < height() );
+    interleave();
+    return reinterpret_cast<gameplay::gl::RGBA8&>( (*m_image)( 0, x, y, 0 ) );
+}
+
 uint8_t CImgWrapper::operator()(int x, int y, int c) const
 {
     if( !m_interleaved )
@@ -121,5 +135,11 @@ void CImgWrapper::savePng(const std::string& filename)
 {
     deinterleave();
     m_image->save_png( filename.c_str(), 1 );
+}
+
+void CImgWrapper::unshare()
+{
+    if(m_image->is_shared())
+        m_image = std::make_unique<cimg_library::CImg<uint8_t>>( *m_image, false );
 }
 }
