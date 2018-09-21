@@ -152,8 +152,6 @@ LaraNode::WeaponId parseWeaponId(const std::string& s)
 
 }
 
-std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
-
 void LaraNode::setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
 {
     getSkeleton()->setAnimation( m_state,
@@ -799,22 +797,22 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
             }
                 break;
             case floordata::CommandOpcode::FlipMap:
-                BOOST_ASSERT( command.parameter < mapFlipActivationStates.size() );
-                if( !mapFlipActivationStates[command.parameter].isOneshot() )
+                BOOST_ASSERT( command.parameter < getLevel().mapFlipActivationStates.size() );
+                if( !getLevel().mapFlipActivationStates[command.parameter].isOneshot() )
                 {
                     if( chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated )
                     {
-                        mapFlipActivationStates[command.parameter] ^= activationRequest.getActivationSet();
+                        getLevel().mapFlipActivationStates[command.parameter] ^= activationRequest.getActivationSet();
                     }
                     else
                     {
-                        mapFlipActivationStates[command.parameter] |= activationRequest.getActivationSet();
+                        getLevel().mapFlipActivationStates[command.parameter] |= activationRequest.getActivationSet();
                     }
 
-                    if( mapFlipActivationStates[command.parameter].isFullyActivated() )
+                    if( getLevel().mapFlipActivationStates[command.parameter].isFullyActivated() )
                     {
                         if( activationRequest.isOneshot() )
-                            mapFlipActivationStates[command.parameter].setOneshot( true );
+                            getLevel().mapFlipActivationStates[command.parameter].setOneshot( true );
 
                         if( !getLevel().roomsAreSwapped )
                             swapRooms = true;
@@ -826,13 +824,15 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
                 }
                 break;
             case floordata::CommandOpcode::FlipOn:
-                BOOST_ASSERT( command.parameter < mapFlipActivationStates.size() );
-                if( !getLevel().roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
+                BOOST_ASSERT( command.parameter < getLevel().mapFlipActivationStates.size() );
+                if( !getLevel().roomsAreSwapped
+                    && getLevel().mapFlipActivationStates[command.parameter].isFullyActivated() )
                     swapRooms = true;
                 break;
             case floordata::CommandOpcode::FlipOff:
-                BOOST_ASSERT( command.parameter < mapFlipActivationStates.size() );
-                if( getLevel().roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated() )
+                BOOST_ASSERT( command.parameter < getLevel().mapFlipActivationStates.size() );
+                if( getLevel().roomsAreSwapped
+                    && getLevel().mapFlipActivationStates[command.parameter].isFullyActivated() )
                     swapRooms = true;
                 break;
             case floordata::CommandOpcode::FlipEffect:

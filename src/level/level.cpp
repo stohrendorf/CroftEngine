@@ -1744,7 +1744,7 @@ YAML::Node Level::save() const
     result["lara"] = lara;
 
     YAML::Node flipStatus;
-    for( const auto& state : engine::mapFlipActivationStates )
+    for( const auto& state : mapFlipActivationStates )
     {
         flipStatus.push_back( state.save() );
     }
@@ -1788,9 +1788,9 @@ void Level::load(const YAML::Node& node)
 
     m_lara->load( node["lara"] );
 
-    for( size_t i = 0; i < engine::mapFlipActivationStates.size(); ++i )
+    for( size_t i = 0; i < mapFlipActivationStates.size(); ++i )
     {
-        engine::mapFlipActivationStates[i].load( node["flipStatus"][i] );
+        mapFlipActivationStates[i].load( node["flipStatus"][i] );
     }
 
     if( !node["cameraFlags"].IsSequence() || node["cameraFlags"].size() != m_cameras.size() )

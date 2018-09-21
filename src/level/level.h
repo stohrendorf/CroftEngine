@@ -597,6 +597,8 @@ public:
         BOOST_THROW_EXCEPTION( std::runtime_error( "Model not found" ) );
     }
 
+    std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates{};
+
 protected:
     loader::io::SDLReader m_reader;
     engine::floordata::FloorData m_floorData;
