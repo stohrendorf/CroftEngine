@@ -661,7 +661,11 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
     getLevel().m_cameraController->findItem( floorData );
 
     bool conditionFulfilled = false, switchIsOn = false;
-    if( !fromHeavy )
+    if( fromHeavy )
+    {
+        conditionFulfilled = chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemIsHere;
+    }
+    else
     {
         switch( chunkHeader.sequenceCondition )
         {
@@ -677,21 +681,21 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
             case floordata::SequenceCondition::ItemActivated:
             {
                 const floordata::Command command{*floorData++};
-                Expects( getLevel().m_itemNodes.find( command.parameter ) != getLevel().m_itemNodes.end() );
-                ItemNode& swtch = *getLevel().m_itemNodes[command.parameter];
-                if( !swtch.triggerSwitch( activationRequestRaw ) )
+                auto swtch = getLevel().m_itemNodes.find( command.parameter );
+                Expects( swtch != getLevel().m_itemNodes.end() );
+                if( !swtch->second->triggerSwitch( activationRequestRaw ) )
                     return;
 
-                switchIsOn = (swtch.m_state.current_anim_state == 1);
+                switchIsOn = (swtch->second->m_state.current_anim_state == 1);
                 conditionFulfilled = true;
             }
                 break;
             case floordata::SequenceCondition::KeyUsed:
             {
                 const floordata::Command command{*floorData++};
-                Expects( getLevel().m_itemNodes.find( command.parameter ) != getLevel().m_itemNodes.end() );
-                ItemNode& key = *getLevel().m_itemNodes[command.parameter];
-                if( key.triggerKey() )
+                auto key = getLevel().m_itemNodes.find( command.parameter );
+                Expects( key != getLevel().m_itemNodes.end() );
+                if( key->second->triggerKey() )
                     conditionFulfilled = true;
                 else
                     return;
@@ -714,10 +718,6 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
                 break;
         }
     }
-    else
-    {
-        conditionFulfilled = chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemIsHere;
-    }
 
     if( !conditionFulfilled )
         return;
@@ -732,13 +732,13 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
             case floordata::CommandOpcode::Activate:
             {
                 Expects( getLevel().m_itemNodes.find( command.parameter ) != getLevel().m_itemNodes.end() );
-                ItemNode& item = *getLevel().m_itemNodes[command.parameter];
+                auto itemIt = getLevel().m_itemNodes.find( command.parameter );
+                Expects( itemIt != getLevel().m_itemNodes.end() );
+                auto& item = *itemIt->second;
                 if( item.m_state.activationState.isOneshot() )
                     break;
 
                 item.m_state.timer = floordata::ActivationState::extractTimeout( activationRequestRaw );
-
-                //BOOST_LOG_TRIVIAL(trace) << "Setting trigger timeout of " << item.getName() << " to " << item.m_triggerTimeout << "ms";
 
                 if( chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated )
                     item.m_state.activationState ^= activationRequest.getActivationSet();
@@ -777,7 +777,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, bool fromHeavy)
             }
                 break;
             case floordata::CommandOpcode::LookAt:
-                getLevel().m_cameraController->setItem( getLevel().getItemController( command.parameter ) );
+                getLevel().m_cameraController->setItem( getLevel().getItem( command.parameter ) );
                 break;
             case floordata::CommandOpcode::UnderwaterCurrent:
             {
@@ -1434,7 +1434,7 @@ void LaraNode::findTarget(const Weapon& weapon)
     for( const std::shared_ptr<ItemNode>& currentEnemy
             : getLevel().m_itemNodes | boost::adaptors::map_values )
     {
-        if( currentEnemy->m_state.health <= 0 || currentEnemy.get() == getLevel().m_lara )
+        if( currentEnemy->m_state.health <= 0 || currentEnemy == getLevel().m_lara )
             continue;
 
         const auto modelEnemy = std::dynamic_pointer_cast<ModelItemNode>( currentEnemy );
@@ -2679,7 +2679,7 @@ LaraNode::renderGunFlare(LaraNode::WeaponId weaponId,
 
 YAML::Node LaraNode::save() const
 {
-    YAML::Node node;
+    YAML::Node node = ItemNode::save();
     node["gun"] = toString( gunType );
     node["requestedGun"] = toString( requestedGunType );
     node["handStatus"] = toString( m_handStatus );
@@ -2711,9 +2711,6 @@ YAML::Node LaraNode::save() const
     node["underwaterCurrentStrength"] = m_underwaterCurrentStrength;
     node["underwaterRoute"] = m_underwaterRoute.save( getLevel() );
 
-    for( const auto& child : getNode()->getChildren() )
-        node["meshes"].push_back( getLevel().indexOfModel( child->getDrawable() ) );
-
     node["leftArm"] = leftArm.save( getLevel() );
     node["rightArm"] = rightArm.save( getLevel() );
     node["weaponTargetVector"] = m_weaponTargetVector.save();
@@ -2723,6 +2720,8 @@ YAML::Node LaraNode::save() const
 
 void LaraNode::load(const YAML::Node& n)
 {
+    ItemNode::load( n );
+
     gunType = parseWeaponId( n["gun"].as<std::string>() );
     requestedGunType = parseWeaponId( n["requestedGun"].as<std::string>() );
     m_handStatus = parseHandStatus( n["handStatus"].as<std::string>() );
@@ -2753,12 +2752,6 @@ void LaraNode::load(const YAML::Node& n)
 
     m_underwaterCurrentStrength = n["underwaterCurrentStrength"].as<int>();
     m_underwaterRoute.load( n["underwaterRoute"], getLevel() );
-
-    Expects( n["meshes"].size() == getNode()->getChildren().size() );
-    for( size_t i = 0; i < getNode()->getChildren().size(); ++i )
-    {
-        getNode()->getChildren()[i]->setDrawable( getLevel().getModel( n["meshes"][i].as<size_t>() ).get() );
-    }
 
     leftArm.load( n["leftArm"], getLevel() );
     rightArm.load( n["rightArm"], getLevel() );

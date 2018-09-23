@@ -129,7 +129,7 @@ void CameraController::findItem(const uint16_t* cmdSequence)
         if( command.opcode == floordata::CommandOpcode::LookAt && m_mode != CameraMode::FreeLook
             && m_mode != CameraMode::Combat )
         {
-            m_item = m_level->getItemController( command.parameter );
+            m_item = m_level->getItem( command.parameter );
         }
         else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
         {
@@ -439,7 +439,7 @@ void CameraController::update()
 
     const bool tracking = m_item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
 
-    items::ItemNode* trackedItem = tracking ? m_item : m_level->m_lara;
+    std::shared_ptr<items::ItemNode> trackedItem = tracking ? m_item : m_level->m_lara;
     auto trackedBBox = trackedItem->getBoundingBox();
     int trackedY = trackedItem->m_state.position.position.Y;
     if( tracking )
@@ -686,7 +686,7 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     m_camera->setViewMatrix( m );
 }
 
-void CameraController::doUsualMovement(const gsl::not_null<const items::ItemNode*>& item)
+void CameraController::doUsualMovement(const gsl::not_null<std::shared_ptr<const items::ItemNode>>& item)
 {
     m_currentRotation.X += item->m_state.rotation.X;
     if( m_currentRotation.X > 85_deg )
@@ -1125,21 +1125,21 @@ YAML::Node CameraController::save() const
     {
         result["item"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
                                        [&](const std::pair<uint16_t, std::shared_ptr<engine::items::ItemNode>>& entry) {
-                                           return entry.second.get() == m_item;
+                                           return entry.second == m_item;
                                        } )->first;
     }
     if( m_lastItem != nullptr )
     {
         result["lastItem"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
                                            [&](const std::pair<uint16_t, std::shared_ptr<engine::items::ItemNode>>& entry) {
-                                               return entry.second.get() == m_lastItem;
+                                               return entry.second == m_lastItem;
                                            } )->first;
     }
     if( m_enemy != nullptr )
     {
         result["enemy"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
                                         [&](const std::pair<uint16_t, std::shared_ptr<engine::items::ItemNode>>& entry) {
-                                            return entry.second.get() == m_enemy;
+                                            return entry.second == m_enemy;
                                         } )->first;
     }
     result["yOffset"] = m_cameraYOffset;

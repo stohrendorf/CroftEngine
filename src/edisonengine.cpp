@@ -207,27 +207,27 @@ private:
 
 void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, bool godMode)
 {
-    for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
+    for( const auto& item : lvl->m_itemNodes | boost::adaptors::map_values )
     {
-        if( ctrl.get() == lvl->m_lara ) // Lara is special and needs to be updated last
+        if( item.get() == lvl->m_lara ) // Lara is special and needs to be updated last
             continue;
 
-        if( ctrl->m_isActive )
-            ctrl->update();
+        if( item->m_isActive )
+            item->update();
 
-        ctrl->getNode()->setVisible( ctrl->m_state.triggerState != engine::items::TriggerState::Invisible );
+        item->getNode()->setVisible( item->m_state.triggerState != engine::items::TriggerState::Invisible );
     }
 
-    for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_dynamicItems )
+    for( const auto& item : lvl->m_dynamicItems )
     {
-        if( ctrl->m_isActive )
-            ctrl->update();
+        if( item->m_isActive )
+            item->update();
 
-        ctrl->getNode()->setVisible( ctrl->m_state.triggerState != engine::items::TriggerState::Invisible );
+        item->getNode()->setVisible( item->m_state.triggerState != engine::items::TriggerState::Invisible );
     }
 
     std::vector<gsl::not_null<std::shared_ptr<engine::Particle>>> particlesToKeep;
-    for( const gsl::not_null<std::shared_ptr<engine::Particle>>& particle : lvl->m_particles )
+    for( const auto& particle : lvl->m_particles )
     {
         if( particle->update( *lvl ) )
         {

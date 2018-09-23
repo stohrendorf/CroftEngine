@@ -26,11 +26,11 @@ struct HeightInfo
 
     static HeightInfo fromFloor(gsl::not_null<const loader::Sector*> roomSector,
                                 const core::TRVec& pos,
-                                const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList);
+                                const std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::items::ItemNode>>>& itemList);
 
     static HeightInfo fromCeiling(gsl::not_null<const loader::Sector*> roomSector,
                                   const core::TRVec& pos,
-                                  const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList);
+                                  const std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::items::ItemNode>>>& itemList);
 
     HeightInfo() = default;
 };
@@ -43,7 +43,7 @@ struct VerticalInfo
 
     void init(const gsl::not_null<const loader::Sector*>& roomSector,
               const core::TRVec& position,
-              const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList,
+              const std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::items::ItemNode>>>& itemList,
               int floorHeight,
               int scalpHeight)
     {

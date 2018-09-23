@@ -443,6 +443,7 @@ public:
         YAML::Node save() const
         {
             YAML::Node n;
+            n.SetStyle( YAML::EmitterStyle::Flow );
             n["ammo"] = ammo;
             n["hits"] = hits;
             n["misses"] = misses;
@@ -571,8 +572,8 @@ public:
         m_state.position.position = item.position.position + p;
     }
 
-    YAML::Node save() const;
+    YAML::Node save() const override;
 
-    void load(const YAML::Node& n);
+    void load(const YAML::Node& n) override;
 };
 }

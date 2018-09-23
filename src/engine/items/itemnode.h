@@ -103,6 +103,10 @@ struct ItemState final
 
     std::shared_ptr<ai::CreatureInfo> creatureInfo;
 
+    YAML::Node save(const level::Level& lvl) const;
+
+    void load(const YAML::Node& n, const level::Level& lvl);
+
     bool updateActivationTimeout()
     {
         if( !activationState.isFullyActivated() )
@@ -146,9 +150,6 @@ struct ItemState final
 
     static sol::usertype<ItemState>& userType();
 };
-
-
-using ItemList = std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>;
 
 
 class ItemNode
@@ -287,21 +288,9 @@ public:
 
     void kill();
 
-    YAML::Node savePosition() const;
+    virtual YAML::Node save() const;
 
-    void loadPosition(const YAML::Node& n);
-
-    YAML::Node saveAnimation() const;
-
-    void loadAnimation(const YAML::Node& n);
-
-    YAML::Node saveHealth() const;
-
-    void loadHealth(const YAML::Node& n);
-
-    YAML::Node saveTriggerInfo() const;
-
-    void loadTriggerInfo(const YAML::Node& n);
+    virtual void load(const YAML::Node& n);
 
 protected:
     bool alignTransformClamped(const core::TRVec& targetPos,

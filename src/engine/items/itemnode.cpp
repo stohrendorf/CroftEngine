@@ -293,101 +293,6 @@ void ItemNode::kill()
     m_state.activationState.setLocked( true );
 }
 
-YAML::Node ItemNode::savePosition() const
-{
-    YAML::Node node;
-    node["position"] = m_state.position.position.save();
-    node["position"]["room"] = std::distance( &getLevel().m_rooms[0], m_state.position.room.get() );
-    node["rotation"] = m_state.rotation.save();
-    node["speed"] = m_state.speed;
-    node["fallSpeed"] = m_state.fallspeed;
-    return node;
-}
-
-void ItemNode::loadPosition(const YAML::Node& n)
-{
-    m_state.position.position.load( n["position"] );
-    m_state.position.room = gsl::make_not_null( &getLevel().m_rooms.at( n["position"]["room"].as<size_t>() ) );
-    m_state.rotation.load( n["rotation"] );
-    m_state.speed = n["speed"].as<int16_t>();
-    m_state.fallspeed = n["fallSpeed"].as<int16_t>();
-
-    addChild( gsl::make_not_null( m_state.position.room->node ), gsl::make_not_null( getNode() ) );
-    applyTransform();
-}
-
-YAML::Node ItemNode::saveAnimation() const
-{
-    YAML::Node node;
-    node["state"] = m_state.current_anim_state;
-    node["goal"] = m_state.goal_anim_state;
-    node["required"] = m_state.required_anim_state;
-    if( m_state.anim != nullptr )
-        node["id"] = std::distance( &getLevel().m_animations[0], m_state.anim );
-    node["frame"] = m_state.frame_number;
-    return node;
-}
-
-void ItemNode::loadAnimation(const YAML::Node& n)
-{
-    m_state.current_anim_state = n["state"].as<uint16_t>();
-    m_state.goal_anim_state = n["goal"].as<uint16_t>();
-    m_state.required_anim_state = n["required"].as<uint16_t>();
-    if( !n["id"].IsDefined() )
-        m_state.anim = nullptr;
-    else
-        m_state.anim = &getLevel().m_animations.at( n["id"].as<size_t>() );
-    m_state.frame_number = n["frame"].as<uint16_t>();
-}
-
-YAML::Node ItemNode::saveHealth() const
-{
-    YAML::Node node;
-    node["value"] = m_state.health;
-    return node;
-}
-
-void ItemNode::loadHealth(const YAML::Node& n)
-{
-    m_state.health = n["value"].as<int16_t>();
-}
-
-YAML::Node ItemNode::saveTriggerInfo() const
-{
-    YAML::Node node;
-    node["triggerState"] = toString( m_state.triggerState );
-    node["isHit"] = m_state.is_hit;
-    node["timer"] = m_state.timer;
-    node["active"] = m_isActive;
-    node["activationState"] = m_state.activationState.save();
-
-    if( m_state.creatureInfo != nullptr )
-    {
-        node["ai"] = m_state.creatureInfo->save( getLevel() );
-    }
-
-    return node;
-}
-
-void ItemNode::loadTriggerInfo(const YAML::Node& n)
-{
-    m_state.triggerState = parseTriggerState( n["triggerState"].as<std::string>() );
-    m_state.is_hit = n["isHit"].as<bool>();
-    m_state.timer = n["timer"].as<int16_t>();
-    m_isActive = n["active"].as<bool>();
-    m_state.activationState.load( n["activationState"] );
-
-    if( !n["ai"].IsDefined() )
-    {
-        m_state.creatureInfo = nullptr;
-    }
-    else
-    {
-        m_state.creatureInfo = std::make_shared<ai::CreatureInfo>( getLevel(), gsl::make_not_null( &m_state ) );
-        m_state.creatureInfo->load( n["ai"], getLevel() );
-    }
-}
-
 bool ItemNode::triggerPickUp()
 {
     if( m_state.triggerState != engine::items::TriggerState::Invisible )
@@ -397,6 +302,34 @@ bool ItemNode::triggerPickUp()
 
     m_state.triggerState = TriggerState::Deactivated;
     return true;
+}
+
+YAML::Node ItemNode::save() const
+{
+    YAML::Node n;
+    n["state"] = m_state.save( *m_level );
+    n["active"] = m_isActive;
+
+    for( const auto& child : getNode()->getChildren() )
+        n["meshes"].push_back( m_level->indexOfModel( child->getDrawable() ) );
+
+    return n;
+}
+
+void ItemNode::load(const YAML::Node& n)
+{
+    m_state.load( n["state"], *m_level );
+    m_isActive = n["active"].as<bool>();
+
+    if( getNode()->getChildren().empty() )
+        Expects( !n["meshes"].IsDefined() );
+    else
+        Expects( n["meshes"].size() == getNode()->getChildren().size() );
+    for( size_t i = 0; i < getNode()->getChildren().size(); ++i )
+        getNode()->getChildren()[i]->setDrawable( getLevel().getModel( n["meshes"][i].as<size_t>() ).get() );
+
+    addChild( gsl::make_not_null( m_state.position.room->node ), gsl::make_not_null( getNode() ) );
+    applyTransform();
 }
 
 bool InteractionLimits::canInteract(const ItemState& item, const ItemState& lara) const
@@ -832,6 +765,70 @@ sol::usertype<ItemState>& ItemState::userType()
             "creature_info", sol::readonly( &ItemState::creatureInfo )
     );
     return type;
+}
+
+YAML::Node ItemState::save(const level::Level& lvl) const
+{
+    YAML::Node n;
+    n["type"] = engine::toString( object_number );
+    n["position"] = position.position.save();
+    n["position"]["room"] = std::distance( &lvl.m_rooms[0], position.room.get() );
+    n["rotation"] = rotation.save();
+    n["speed"] = speed;
+    n["fallSpeed"] = fallspeed;
+    n["state"] = current_anim_state;
+    n["goal"] = goal_anim_state;
+    n["required"] = required_anim_state;
+    if( anim != nullptr )
+        n["id"] = std::distance( &lvl.m_animations[0], anim );
+    n["frame"] = frame_number;
+    n["health"] = health;
+    n["triggerState"] = toString( triggerState );
+    n["isHit"] = is_hit;
+    n["timer"] = timer;
+    n["activationState"] = activationState.save();
+
+    if( creatureInfo != nullptr )
+    {
+        n["ai"] = creatureInfo->save( lvl );
+    }
+
+    return n;
+}
+
+void ItemState::load(const YAML::Node& n, const level::Level& lvl)
+{
+    if( engine::EnumUtil<engine::TR1ItemId>::fromString( n["type"].as<std::string>() ) != object_number )
+        BOOST_THROW_EXCEPTION( std::domain_error( "Item state has wrong type" ) );
+
+    position.position.load( n["position"] );
+    position.room = gsl::make_not_null( &lvl.m_rooms.at( n["position"]["room"].as<size_t>() ) );
+    rotation.load( n["rotation"] );
+    speed = n["speed"].as<int16_t>();
+    fallspeed = n["fallSpeed"].as<int16_t>();
+    current_anim_state = n["state"].as<uint16_t>();
+    goal_anim_state = n["goal"].as<uint16_t>();
+    required_anim_state = n["required"].as<uint16_t>();
+    if( !n["id"].IsDefined() )
+        anim = nullptr;
+    else
+        anim = &lvl.m_animations.at( n["id"].as<size_t>() );
+    frame_number = n["frame"].as<uint16_t>();
+    health = n["health"].as<int16_t>();
+    triggerState = parseTriggerState( n["triggerState"].as<std::string>() );
+    is_hit = n["isHit"].as<bool>();
+    timer = n["timer"].as<int16_t>();
+    activationState.load( n["activationState"] );
+
+    if( !n["ai"].IsDefined() )
+    {
+        creatureInfo = nullptr;
+    }
+    else
+    {
+        creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, gsl::make_not_null( this ) );
+        creatureInfo->load( n["ai"], lvl );
+    }
 }
 
 ItemState::~ItemState() = default;

@@ -87,9 +87,9 @@ public:
 
     std::vector<loader::Item> m_items;
 
-    engine::items::ItemList m_itemNodes;
+    std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::items::ItemNode>>> m_itemNodes;
 
-    std::set<std::shared_ptr<engine::items::ItemNode>> m_dynamicItems;
+    std::set<gsl::not_null<std::shared_ptr<engine::items::ItemNode>>> m_dynamicItems;
 
     std::set<engine::items::ItemNode*> m_scheduledDeletions;
 
@@ -150,7 +150,7 @@ public:
     std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
     createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
 
-    engine::LaraNode* createItems();
+    std::shared_ptr<engine::LaraNode> createItems();
 
     void setUpRendering(const gsl::not_null<gameplay::Game*>& game);
 
@@ -173,12 +173,12 @@ public:
         item.darkness = 0;
         item.activationState = activationState;
 
-        auto node = std::make_shared<T>( gsl::make_not_null( this ), room, item, *model );
+        auto node = make_not_null_shared<T>( gsl::make_not_null( this ), room, item, *model );
 
-        m_dynamicItems.insert( node );
+        m_dynamicItems.emplace( node );
         addChild( gsl::make_not_null( room->node ), gsl::make_not_null( node->getNode() ) );
 
-        return node;
+        return node.get();
     }
 
     const loader::Sector* findRealFloorSector(const core::TRVec& position,
@@ -220,11 +220,11 @@ public:
         return std::make_tuple( gsl::narrow_cast<int8_t>( fd & 0xff ), gsl::narrow_cast<int8_t>( fd >> 8 ) );
     }
 
-    engine::LaraNode* m_lara = nullptr;
+    std::shared_ptr<engine::LaraNode> m_lara = nullptr;
 
     std::shared_ptr<render::TextureAnimator> m_textureAnimator;
 
-    engine::items::ItemNode* getItemController(uint16_t id) const;
+    std::shared_ptr<engine::items::ItemNode> getItem(uint16_t id) const;
 
     void drawBars(const gsl::not_null<gameplay::Game*>& game,
                   const gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>>& image) const;

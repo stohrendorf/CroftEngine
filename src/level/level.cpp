@@ -290,9 +290,9 @@ Level::createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgr
     return materials;
 }
 
-engine::LaraNode* Level::createItems()
+std::shared_ptr<engine::LaraNode> Level::createItems()
 {
-    engine::LaraNode* lara = nullptr;
+    std::shared_ptr<engine::LaraNode> lara = nullptr;
     int id = -1;
     for( loader::Item& item : m_items )
     {
@@ -307,8 +307,8 @@ engine::LaraNode* Level::createItems()
 
             if( item.type == engine::TR1ItemId::Lara )
             {
-                modelNode = std::make_shared<engine::LaraNode>( gsl::make_not_null( this ), room, item, *model );
-                lara = static_cast<engine::LaraNode*>(modelNode.get());
+                lara = std::make_shared<engine::LaraNode>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = lara;
             }
             else if( auto objectInfo = m_scriptEngine["getObjectInfo"].call( -1 ) )
             {
@@ -481,7 +481,7 @@ engine::LaraNode* Level::createItems()
                 }
             }
 
-            m_itemNodes[id] = modelNode;
+            m_itemNodes.emplace( std::make_pair( id, gsl::make_not_null( modelNode ) ) );
             addChild( gsl::make_not_null( room->node ), gsl::make_not_null( modelNode->getNode() ) );
 
             modelNode->applyTransform();
@@ -553,7 +553,7 @@ engine::LaraNode* Level::createItems()
                                                                         gsl::make_not_null( m_spriteMaterial ) );
             }
 
-            m_itemNodes[id] = node;
+            m_itemNodes.emplace( std::make_pair( id, gsl::make_not_null( node ) ) );
             continue;
         }
 
@@ -796,7 +796,7 @@ Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const load
     return room;
 }
 
-engine::items::ItemNode* Level::getItemController(uint16_t id) const
+std::shared_ptr<engine::items::ItemNode> Level::getItem(uint16_t id) const
 {
     auto it = m_itemNodes.find( id );
     if( it == m_itemNodes.end() )
@@ -1720,9 +1720,7 @@ YAML::Node Level::save() const
     addInventory( engine::TR1ItemId::Key4 );
     addInventory( engine::TR1ItemId::LeadBar );
 
-    YAML::Node lara = m_lara->save();
-    lara["inventory"] = inventory;
-    result["lara"] = lara;
+    result["inventory"] = inventory;
 
     YAML::Node flipStatus;
     for( const auto& state : mapFlipActivationStates )
@@ -1744,13 +1742,7 @@ YAML::Node Level::save() const
 
     for( const auto& item : m_itemNodes )
     {
-        YAML::Node node;
-        node["type"] = engine::toString( item.second->m_state.object_number );
-        node["position"] = item.second->savePosition();
-        node["animation"] = item.second->saveAnimation();
-        node["health"] = item.second->saveHealth();
-        node["triggerInfo"] = item.second->saveTriggerInfo();
-        result["items"][item.first] = node;
+        result["items"][item.first] = item.second->save();
     }
 
     result["camera"] = m_cameraController->save();
@@ -1762,12 +1754,10 @@ void Level::load(const YAML::Node& node)
 {
     m_inventory.clear();
 
-    for( const auto& entry : node["lara"]["inventory"] )
+    for( const auto& entry : node["inventory"] )
         addInventoryItem(
                 engine::EnumUtil<engine::TR1ItemId>::fromString( entry.first.as<std::string>() ),
                 entry.second.as<size_t>() );
-
-    m_lara->load( node["lara"] );
 
     for( size_t i = 0; i < mapFlipActivationStates.size(); ++i )
     {
@@ -1789,16 +1779,7 @@ void Level::load(const YAML::Node& node)
 
     for( const auto& item : m_itemNodes )
     {
-        const auto n = node["items"][item.first];
-        if( !n.IsDefined() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "Item data is not saved" ) );
-        if( engine::EnumUtil<engine::TR1ItemId>::fromString( n["type"].as<std::string>() )
-            != item.second->m_state.object_number )
-            BOOST_THROW_EXCEPTION( std::domain_error( "Item data has wrong type" ) );
-        item.second->loadPosition( n["position"] );
-        item.second->loadAnimation( n["animation"] );
-        item.second->loadHealth( n["health"] );
-        item.second->loadTriggerInfo( n["triggerInfo"] );
+        item.second->load( node["items"][item.first] );
     }
 
     m_cameraController->load( node["camera"] );

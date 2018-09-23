@@ -79,9 +79,9 @@ private:
 
     //! @brief An item to point the camera to.
     //! @note Also modifies Lara's head and torso rotation.
-    items::ItemNode* m_item = nullptr;
-    const items::ItemNode* m_lastItem = nullptr;
-    items::ItemNode* m_enemy = nullptr;
+    std::shared_ptr<items::ItemNode> m_item = nullptr;
+    std::shared_ptr<const items::ItemNode> m_lastItem = nullptr;
+    std::shared_ptr<items::ItemNode> m_enemy = nullptr;
     //! @brief Movement smothness for adjusting the pivot position.
     int m_trackingSmoothness = 8;
     int m_fixedCameraId = -1;
@@ -130,11 +130,14 @@ public:
         m_oldMode = k;
     }
 
-    void
-    setCamOverride(const floordata::CameraParameters& camParams, uint16_t camId, floordata::SequenceCondition condition,
-                   bool isDoppelganger, uint16_t activationRequest, bool switchIsOn);
+    void setCamOverride(const floordata::CameraParameters& camParams,
+                        uint16_t camId,
+                        floordata::SequenceCondition condition,
+                        bool isDoppelganger,
+                        uint16_t activationRequest,
+                        bool switchIsOn);
 
-    void setItem(items::ItemNode* item)
+    void setItem(const std::shared_ptr<items::ItemNode>& item)
     {
         if( item == nullptr || (m_mode != CameraMode::Fixed && m_mode != CameraMode::Heavy) )
             return;
@@ -209,8 +212,9 @@ public:
      *
      * @warning Please be aware that the return value is reverted and not what you might expect...
      */
-    static bool
-    clampPosition(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const level::Level& level);
+    static bool clampPosition(const core::RoomBoundPosition& start,
+                              core::RoomBoundPosition& end,
+                              const level::Level& level);
 
     void setBounce(int bounce)
     {
@@ -235,9 +239,10 @@ public:
 private:
     void tracePortals();
 
-    static bool
-    clampY(const core::TRVec& start, core::TRVec& origin, gsl::not_null<const loader::Sector*> sector,
-           const level::Level& level);
+    static bool clampY(const core::TRVec& start,
+                       core::TRVec& origin,
+                       gsl::not_null<const loader::Sector*> sector,
+                       const level::Level& level);
 
     enum class ClampType
     {
@@ -246,11 +251,13 @@ private:
         None
     };
 
-    static ClampType
-    clampAlongX(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const level::Level& level);
+    static ClampType clampAlongX(const core::RoomBoundPosition& start,
+                                 core::RoomBoundPosition& end,
+                                 const level::Level& level);
 
-    static ClampType
-    clampAlongZ(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const level::Level& level);
+    static ClampType clampAlongZ(const core::RoomBoundPosition& start,
+                                 core::RoomBoundPosition& end,
+                                 const level::Level& level);
 
     void handleCamOverride();
 
@@ -260,7 +267,7 @@ private:
 
     void updatePosition(const core::RoomBoundPosition& eyePositionGoal, int smoothFactor);
 
-    void doUsualMovement(const gsl::not_null<const items::ItemNode*>& item);
+    void doUsualMovement(const gsl::not_null<std::shared_ptr<const items::ItemNode>>& item);
 
     void handleFreeLook(const items::ItemNode& item);
 
@@ -271,13 +278,11 @@ private:
 
     void clampBox(core::RoomBoundPosition& eyePositionGoal, const std::function<ClampCallback>& callback) const;
 
-    static void
-    freeLookClamp(int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight, int back,
-                  int right, int front, int left);
+    static void freeLookClamp(int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight,
+                              int back, int right, int front, int left);
 
-    static void
-    clampToCorners(const int targetHorizontalDistanceSq, int& currentFrontBack, int& currentLeftRight,
-                   int targetFrontBack,
-                   int targetLeftRight, int back, int right, int front, int left);
+    static void clampToCorners(int targetHorizontalDistanceSq,
+                               int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight,
+                               int back, int right, int front, int left);
 };
 }

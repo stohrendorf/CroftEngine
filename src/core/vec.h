@@ -117,6 +117,7 @@ struct TRVec
     YAML::Node save() const
     {
         YAML::Node n;
+        n.SetStyle( YAML::EmitterStyle::Flow );
         n["x"] = X;
         n["y"] = Y;
         n["z"] = Z;

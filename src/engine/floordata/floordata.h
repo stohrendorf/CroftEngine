@@ -225,6 +225,7 @@ public:
     YAML::Node save() const
     {
         YAML::Node node;
+        node.SetStyle( YAML::EmitterStyle::Flow );
         node["oneshot"] = m_oneshot;
         node["inverted"] = m_inverted;
         node["locked"] = m_locked;

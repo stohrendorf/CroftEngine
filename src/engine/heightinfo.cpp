@@ -7,8 +7,9 @@ namespace engine
 {
 bool HeightInfo::skipSteepSlants = false;
 
-HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector, const core::TRVec& pos,
-                                 const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList)
+HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector,
+                                 const core::TRVec& pos,
+                                 const std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::items::ItemNode>>>& itemList)
 {
     HeightInfo hi;
 
@@ -92,8 +93,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
                     {
                         auto it = itemList.find( command.parameter );
                         Expects( it != itemList.end() );
-                        if( it->second != nullptr )
-                            it->second->patchFloor( pos, hi.y );
+                        it->second->patchFloor( pos, hi.y );
                     }
                     else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                     {
@@ -113,8 +113,9 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
     return hi;
 }
 
-HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector, const core::TRVec& pos,
-                                   const std::map<uint16_t, std::shared_ptr<engine::items::ItemNode>>& itemList)
+HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector,
+                                   const core::TRVec& pos,
+                                   const std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::items::ItemNode>>>& itemList)
 {
     HeightInfo hi;
 
@@ -207,8 +208,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
                     {
                         auto it = itemList.find( command.parameter );
                         Expects( it != itemList.end() );
-                        if( it->second != nullptr )
-                            it->second->patchCeiling( pos, hi.y );
+                        it->second->patchCeiling( pos, hi.y );
                     }
                     else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                     {

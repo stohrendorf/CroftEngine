@@ -366,6 +366,7 @@ public:
     YAML::Node save() const
     {
         YAML::Node n;
+        n.SetStyle( YAML::EmitterStyle::Flow );
         n["x"] = X.toDegrees();
         n["y"] = Y.toDegrees();
         n["z"] = Z.toDegrees();

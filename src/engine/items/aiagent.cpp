@@ -59,9 +59,9 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
 
 bool AIAgent::anyMovingEnabledItemInReach() const
 {
-    for( const std::shared_ptr<ItemNode>& item : getLevel().m_itemNodes | boost::adaptors::map_values )
+    for( const auto& item : getLevel().m_itemNodes | boost::adaptors::map_values )
     {
-        if( !item->m_isActive || item.get() == this || item.get() == getLevel().m_lara )
+        if( !item->m_isActive || item.get().get() == this || item.get() == getLevel().m_lara )
             continue;
 
         if( item->m_state.triggerState == TriggerState::Active
