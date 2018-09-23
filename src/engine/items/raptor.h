@@ -13,11 +13,10 @@ class Raptor final
 {
 public:
     Raptor(const gsl::not_null<level::Level*>& level,
-           const std::string& name,
            const gsl::not_null<const loader::Room*>& room,
            const loader::Item& item,
            const loader::SkeletalModelType& animatedModel)
-            : AIAgent( level, name, room, item, animatedModel )
+            : AIAgent( level, room, item, animatedModel )
     {
     }
 

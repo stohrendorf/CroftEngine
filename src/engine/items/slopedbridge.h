@@ -13,17 +13,12 @@ private:
 
 public:
     SlopedBridge(const gsl::not_null<level::Level*>& level,
-                 const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel,
                  int div)
-            : ModelItemNode{level, name, room, item, false, animatedModel}
+            : ModelItemNode{level, room, item, false, animatedModel}
             , m_div{div}
-    {
-    }
-
-    void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/) override final
     {
     }
 
@@ -70,11 +65,10 @@ class BridgeSlope1 final : public SlopedBridge
 {
 public:
     BridgeSlope1(const gsl::not_null<level::Level*>& level,
-                 const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel)
-            : SlopedBridge{level, name, room, item, animatedModel, 4}
+            : SlopedBridge{level, room, item, animatedModel, 4}
     {
     }
 };
@@ -84,11 +78,10 @@ class BridgeSlope2 final : public SlopedBridge
 {
 public:
     BridgeSlope2(const gsl::not_null<level::Level*>& level,
-                 const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel)
-            : SlopedBridge{level, name, room, item, animatedModel, 2}
+            : SlopedBridge{level, room, item, animatedModel, 2}
     {
     }
 };

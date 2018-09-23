@@ -47,7 +47,6 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     {
         getLevel().addInventoryItem( m_state.object_number );
         m_state.triggerState = engine::items::TriggerState::Invisible;
-        getNode()->setVisible( false );
     }
 }
 }

@@ -12,7 +12,6 @@ class AIAgent : public ModelItemNode
 {
 public:
     AIAgent(const gsl::not_null<level::Level*>& level,
-            const std::string& name,
             const gsl::not_null<const loader::Room*>& room,
             const loader::Item& item,
             const loader::SkeletalModelType& animatedModel);

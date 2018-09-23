@@ -98,17 +98,32 @@ void ItemNode::setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom)
 }
 
 ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
-                             const std::string& name,
                              const gsl::not_null<const loader::Room*>& room,
                              const loader::Item& item,
                              const bool hasUpdateFunction,
                              const loader::SkeletalModelType& animatedModel)
         : ItemNode{level, room, item, hasUpdateFunction}
-        , m_skeleton{std::make_shared<SkeletalModelNode>( name, level, animatedModel )}
+        , m_skeleton{std::make_shared<SkeletalModelNode>(
+                std::string( "skeleton(type:" ) + engine::toString( item.type ) + ")",
+                level,
+                animatedModel )
+        }
 {
     m_skeleton->setAnimation( m_state,
                               gsl::make_not_null( animatedModel.animation ),
                               animatedModel.animation->firstFrame );
+
+    for( gsl::index boneIndex = 0; boneIndex < animatedModel.meshes.size(); ++boneIndex )
+    {
+        auto node = make_not_null_shared<gameplay::Node>(
+                getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
+        node->setDrawable( animatedModel.models[boneIndex].get() );
+        addChild( gsl::make_not_null( getNode() ), node );
+    }
+
+    BOOST_ASSERT( getNode()->getChildren().size() == gsl::narrow<size_t>( animatedModel.meshes.size() ) );
+
+    m_skeleton->updatePose( m_state );
 }
 
 void ModelItemNode::update()
@@ -142,9 +157,7 @@ void ModelItemNode::update()
                     cmd += 3;
                     break;
                 case AnimCommandOpcode::StartFalling:
-                {
                     m_state.fallspeed = cmd[0];
-                }
                     m_state.speed = cmd[1];
                     m_state.falling = true;
                     cmd += 2;
@@ -375,6 +388,17 @@ void ItemNode::loadTriggerInfo(const YAML::Node& n)
     }
 }
 
+bool ItemNode::triggerPickUp()
+{
+    if( m_state.triggerState != engine::items::TriggerState::Invisible )
+    {
+        return false;
+    }
+
+    m_state.triggerState = TriggerState::Deactivated;
+    return true;
+}
+
 bool InteractionLimits::canInteract(const ItemState& item, const ItemState& lara) const
 {
     const auto angle = lara.rotation - item.rotation;
@@ -472,6 +496,10 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                            gameplay::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
                                         } );
+
+    addChild( gsl::make_not_null( room->node ), gsl::make_not_null( m_node ) );
+
+    applyTransform();
 }
 
 bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const

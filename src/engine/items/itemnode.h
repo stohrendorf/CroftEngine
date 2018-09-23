@@ -254,16 +254,7 @@ public:
 
     std::shared_ptr<audio::SourceHandle> playSoundEffect(int id);
 
-    bool triggerPickUp()
-    {
-        if( m_state.triggerState != engine::items::TriggerState::Invisible )
-        {
-            return false;
-        }
-
-        m_state.triggerState = TriggerState::Deactivated;
-        return true;
-    }
+    bool triggerPickUp();
 
     bool triggerKey();
 
@@ -272,14 +263,12 @@ public:
         return m_state.rotation.Y;
     }
 
-    bool alignTransform(const glm::vec3& trSpeed, const ItemNode& target)
+    bool alignTransform(const core::TRVec& speed, const ItemNode& target)
     {
-        const auto speed = trSpeed / 16384.0f;
-        const auto targetRot = target.m_state.rotation.toMatrix();
         auto targetPos = target.m_state.position.position.toRenderSystem();
-        targetPos += glm::vec3( glm::vec4( speed, 0 ) * targetRot );
+        targetPos += glm::vec3{target.m_state.rotation.toMatrix() * glm::vec4{speed.toRenderSystem(), 1.0f}};
 
-        return alignTransformClamped( targetPos, target.m_state.rotation, 16, 364_au );
+        return alignTransformClamped( core::TRVec{targetPos}, target.m_state.rotation, 16, 364_au );
     }
 
     void updateLighting()
@@ -315,64 +304,32 @@ public:
     void loadTriggerInfo(const YAML::Node& n);
 
 protected:
-    bool alignTransformClamped(const glm::vec3& targetPos, const core::TRRotation& targetRot, const int maxDistance,
+    bool alignTransformClamped(const core::TRVec& targetPos,
+                               const core::TRRotation& targetRot,
+                               const int maxDistance,
                                const core::Angle& maxAngle)
     {
-        auto d = targetPos - m_state.position.position.toRenderSystem();
-        const auto dist = glm::length( d );
+        auto d = targetPos - m_state.position.position;
+        const auto dist = d.length();
         if( maxDistance < dist )
         {
-            move( static_cast<float>(maxDistance) * glm::normalize( d ) );
+            move( static_cast<float>(maxDistance) * glm::normalize( d.toRenderSystem() ) );
         }
         else
         {
-            const core::TRVec& pos = core::TRVec( targetPos );
-            m_state.position.position = pos;
+            m_state.position.position = targetPos;
         }
 
         core::TRRotation phi = targetRot - m_state.rotation;
-        if( phi.X > maxAngle )
-        {
-            m_state.rotation.X += maxAngle;
-        }
-        else if( phi.X < -maxAngle )
-        {
-            m_state.rotation.X += -maxAngle;
-        }
-        else
-        {
-            m_state.rotation.X += phi.X;
-        }
-        if( phi.Y > maxAngle )
-        {
-            m_state.rotation.Y += maxAngle;
-        }
-        else if( phi.Y < -maxAngle )
-        {
-            m_state.rotation.Y += -maxAngle;
-        }
-        else
-        {
-            m_state.rotation.Y += phi.Y;
-        }
-        if( phi.Z > maxAngle )
-        {
-            m_state.rotation.Z += maxAngle;
-        }
-        else if( phi.Z < -maxAngle )
-        {
-            m_state.rotation.Z += -maxAngle;
-        }
-        else
-        {
-            m_state.rotation.Z += phi.Z;
-        }
+        m_state.rotation.X += util::clamp( phi.X, -maxAngle, maxAngle );
+        m_state.rotation.Y += util::clamp( phi.Y, -maxAngle, maxAngle );
+        m_state.rotation.Z += util::clamp( phi.Z, -maxAngle, maxAngle );
 
         phi = targetRot - m_state.rotation;
-        d = targetPos - m_state.position.position.toRenderSystem();
+        d = targetPos - m_state.position.position;
 
         return abs( phi.X ) < 1_au && abs( phi.Y ) < 1_au && abs( phi.Z ) < 1_au
-               && abs( d.x ) < 1 && abs( d.y ) < 1 && abs( d.z ) < 1;
+               && d.X == 0 && d.Y == 0 && d.Z == 0;
     }
 };
 
@@ -386,7 +343,6 @@ protected:
 public:
     ModelItemNode(
             const gsl::not_null<level::Level*>& level,
-            const std::string& name,
             const gsl::not_null<const loader::Room*>& room,
             const loader::Item& item,
             bool hasUpdateFunction,

@@ -10,11 +10,10 @@ class SwordOfDamocles final : public ModelItemNode
 {
 public:
     SwordOfDamocles(const gsl::not_null<level::Level*>& level,
-                     const std::string& name,
-                     const gsl::not_null<const loader::Room*>& room,
-                     const loader::Item& item,
-                     const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, name, room, item, true, animatedModel )
+                    const gsl::not_null<const loader::Room*>& room,
+                    const loader::Item& item,
+                    const loader::SkeletalModelType& animatedModel)
+            : ModelItemNode( level, room, item, true, animatedModel )
     {
     }
 

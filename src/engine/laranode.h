@@ -47,11 +47,10 @@ private:
 
 public:
     LaraNode(const gsl::not_null<level::Level*>& level,
-             const std::string& name,
              const gsl::not_null<const loader::Room*>& room,
              const loader::Item& item,
              const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, name, room, item, false, animatedModel )
+            : ModelItemNode( level, room, item, false, animatedModel )
             , m_underwaterRoute{*level}
             , m_gunFlareLeft{std::make_shared<gameplay::Node>( "gun flare left" )}
             , m_gunFlareRight{std::make_shared<gameplay::Node>( "gun flare right" )}

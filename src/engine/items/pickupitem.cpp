@@ -9,8 +9,7 @@ namespace items
 {
 void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
-    const core::Angle y = lara.m_state.rotation.Y;
-    m_state.rotation.Y = y;
+    m_state.rotation.Y = lara.m_state.rotation.Y;
     m_state.rotation.Z = 0_deg;
 
     if( lara.isInWater() )
@@ -27,29 +26,30 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 {+45_deg, +45_deg, +45_deg}
         };
 
+        m_state.rotation.X = -25_deg;
         if( !limits.canInteract( m_state, lara.m_state ) )
         {
             return;
         }
 
-        static const glm::vec3 aimSpeed{0, -200.0f, -350.0f};
+        static const core::TRVec aimSpeed{0, -200, -350};
 
         if( lara.getCurrentAnimState() == LaraStateId::PickUp )
         {
             if( lara.m_state.frame_number == 2970 )
             {
                 m_state.triggerState = engine::items::TriggerState::Invisible;
-                getNode()->setVisible( false );
                 getLevel().addInventoryItem( m_state.object_number );
+                return;
             }
         }
         else if( getLevel().m_inputHandler->getInputState().action
                  && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop
                  && lara.alignTransform( aimSpeed, *this ) )
         {
+            lara.setGoalAnimState( LaraStateId::PickUp );
             do
             {
-                lara.setGoalAnimState( LaraStateId::PickUp );
                 lara.updateImpl();
             } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
             lara.setGoalAnimState( LaraStateId::UnderwaterStop );
@@ -82,8 +82,10 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 }
 
                 m_state.triggerState = engine::items::TriggerState::Invisible;
-                getNode()->setVisible( false );
                 getLevel().addInventoryItem( m_state.object_number );
+                gameplay::setParent( gsl::make_not_null( getNode() ), nullptr );
+                m_state.collidable = false;
+                return;
             }
         }
         else
@@ -95,9 +97,9 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             {
                 lara.alignForInteraction( core::TRVec{0, 0, -100}, m_state );
 
+                lara.setGoalAnimState( LaraStateId::PickUp );
                 do
                 {
-                    lara.setGoalAnimState( LaraStateId::PickUp );
                     lara.updateImpl();
                 } while( lara.getCurrentAnimState() != LaraStateId::PickUp );
                 lara.setGoalAnimState( LaraStateId::Stop );

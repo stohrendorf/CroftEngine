@@ -136,6 +136,11 @@ struct TRVec
         Y = n["y"].as<Scalar>();
         Z = n["z"].as<Scalar>();
     }
+
+    glm::float_t length() const
+    {
+        return glm::length( toRenderSystem() );
+    }
 };
 
 

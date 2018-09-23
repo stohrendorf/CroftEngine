@@ -10,29 +10,19 @@ namespace items
 void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     if( !getLevel().m_inputHandler->getInputState().action )
-    {
         return;
-    }
 
     if( lara.getHandStatus() != HandStatus::None )
-    {
         return;
-    }
 
     if( lara.m_state.falling )
-    {
         return;
-    }
 
     if( m_state.triggerState != engine::items::TriggerState::Inactive )
-    {
         return;
-    }
 
     if( lara.getCurrentAnimState() != loader::LaraStateId::Stop )
-    {
         return;
-    }
 
     static const InteractionLimits limits{
             core::BoundingBox{{-200, 0, 312},
@@ -42,9 +32,7 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     };
 
     if( !limits.canInteract( m_state, lara.m_state ) )
-    {
         return;
-    }
 
     lara.m_state.rotation.Y = m_state.rotation.Y;
 
@@ -62,9 +50,7 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     else
     {
         if( m_state.current_anim_state != 0 )
-        {
             return;
-        }
 
         do
         {

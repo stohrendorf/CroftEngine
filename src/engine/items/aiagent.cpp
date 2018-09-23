@@ -417,11 +417,10 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 }
 
 AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
-                 const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel)
-        : ModelItemNode( level, name, room, item, true, animatedModel )
+        : ModelItemNode( level, room, item, true, animatedModel )
         , m_collisionRadius{level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.object_number )["radius"]}
 {
     m_state.collidable = true;

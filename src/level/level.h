@@ -173,7 +173,7 @@ public:
         item.darkness = 0;
         item.activationState = activationState;
 
-        auto node = createSkeletalModel<T>( *model, room, item );
+        auto node = std::make_shared<T>( gsl::make_not_null( this ), room, item, *model );
 
         m_dynamicItems.insert( node );
         addChild( gsl::make_not_null( room->node ), gsl::make_not_null( node->getNode() ) );
@@ -625,11 +625,6 @@ private:
     static std::shared_ptr<Level>
     createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath,
                  sol::state&& scriptEngine);
-
-    template<typename T>
-    std::shared_ptr<T> createSkeletalModel(const loader::SkeletalModelType& model,
-                                           const gsl::not_null<const loader::Room*>& room,
-                                           const loader::Item& item);
 
     std::array<engine::floordata::ActivationState, 64> m_cdTrackActivationStates;
 

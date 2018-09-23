@@ -10,7 +10,6 @@ class CutsceneActor : public ModelItemNode
 {
 public:
     CutsceneActor(const gsl::not_null<level::Level*>& level,
-                  const std::string& name,
                   const gsl::not_null<const loader::Room*>& room,
                   const loader::Item& item,
                   const loader::SkeletalModelType& animatedModel);
@@ -23,11 +22,10 @@ class CutsceneActor1 final : public CutsceneActor
 {
 public:
     CutsceneActor1(const gsl::not_null<level::Level*>& level,
-                   const std::string& name,
                    const gsl::not_null<const loader::Room*>& room,
                    const loader::Item& item,
                    const loader::SkeletalModelType& animatedModel)
-            : CutsceneActor( level, name, room, item, animatedModel )
+            : CutsceneActor( level, room, item, animatedModel )
     {}
 };
 
@@ -36,11 +34,10 @@ class CutsceneActor2 final : public CutsceneActor
 {
 public:
     CutsceneActor2(const gsl::not_null<level::Level*>& level,
-                   const std::string& name,
                    const gsl::not_null<const loader::Room*>& room,
                    const loader::Item& item,
                    const loader::SkeletalModelType& animatedModel)
-            : CutsceneActor( level, name, room, item, animatedModel )
+            : CutsceneActor( level, room, item, animatedModel )
     {}
 };
 
@@ -49,11 +46,10 @@ class CutsceneActor3 final : public CutsceneActor
 {
 public:
     CutsceneActor3(const gsl::not_null<level::Level*>& level,
-                   const std::string& name,
                    const gsl::not_null<const loader::Room*>& room,
                    const loader::Item& item,
                    const loader::SkeletalModelType& animatedModel)
-            : CutsceneActor( level, name, room, item, animatedModel )
+            : CutsceneActor( level, room, item, animatedModel )
     {}
 };
 
@@ -63,11 +59,10 @@ class CutsceneActor4 final : public CutsceneActor
 public:
 public:
     CutsceneActor4(const gsl::not_null<level::Level*>& level,
-                   const std::string& name,
                    const gsl::not_null<const loader::Room*>& room,
                    const loader::Item& item,
                    const loader::SkeletalModelType& animatedModel)
-            : CutsceneActor( level, name, room, item, animatedModel )
+            : CutsceneActor( level, room, item, animatedModel )
     {}
 
     void update() override;

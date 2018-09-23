@@ -8,9 +8,6 @@ namespace items
 {
 void WaterfallMist::update()
 {
-    getNode()->setDrawable( nullptr );
-    getNode()->removeAllChildren();
-
     if( !m_state.activationState.isFullyActivated() )
         return;
 

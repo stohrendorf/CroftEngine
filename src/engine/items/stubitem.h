@@ -10,11 +10,10 @@ class StubItem final : public ModelItemNode
 {
 public:
     StubItem(const gsl::not_null<level::Level*>& level,
-             const std::string& name,
              const gsl::not_null<const loader::Room*>& room,
              const loader::Item& item,
              const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, name, room, item, false, animatedModel )
+            : ModelItemNode( level, room, item, false, animatedModel )
     {
     }
 };
@@ -24,12 +23,11 @@ class ScriptedItem final : public ModelItemNode
 {
 public:
     ScriptedItem(const gsl::not_null<level::Level*>& level,
-                 const std::string& name,
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel,
                  const sol::table& objectInfo)
-            : ModelItemNode( level, name, room, item, false, animatedModel )
+            : ModelItemNode( level, room, item, false, animatedModel )
             , m_objectInfo( objectInfo )
     {
         auto initialise = objectInfo["initialise"];

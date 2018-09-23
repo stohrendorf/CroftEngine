@@ -109,7 +109,7 @@ void Raptor::update()
                     {
                         if( m_state.touch_bits & 0xff7c00 )
                         {
-                            emitParticle(core::TRVec{0, 66, 318}, 22, &createBloodSplat);
+                            emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
                             getLevel().m_lara->m_state.is_hit = true;
                             getLevel().m_lara->m_state.health -= 100;
                             m_state.required_anim_state = 1;
@@ -123,7 +123,7 @@ void Raptor::update()
                 {
                     if( m_state.touch_bits & 0xff7c00 )
                     {
-                        emitParticle(core::TRVec{0, 66, 318}, 22, &createBloodSplat);
+                        emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
                         getLevel().m_lara->m_state.is_hit = true;
                         getLevel().m_lara->m_state.health -= 100;
                         m_state.required_anim_state = 3;
@@ -134,7 +134,7 @@ void Raptor::update()
                 animTilt = animAngle;
                 if( m_state.required_anim_state == 0 && m_state.touch_bits & 0xff7c00 )
                 {
-                    emitParticle(core::TRVec{0, 66, 318}, 22, &createBloodSplat);
+                    emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 100;
                     m_state.required_anim_state = 1;

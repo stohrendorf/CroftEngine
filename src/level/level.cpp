@@ -307,7 +307,7 @@ engine::LaraNode* Level::createItems()
 
             if( item.type == engine::TR1ItemId::Lara )
             {
-                modelNode = createSkeletalModel<engine::LaraNode>( *model, room, item );
+                modelNode = std::make_shared<engine::LaraNode>( gsl::make_not_null( this ), room, item, *model );
                 lara = static_cast<engine::LaraNode*>(modelNode.get());
             }
             else if( auto objectInfo = m_scriptEngine["getObjectInfo"].call( -1 ) )
@@ -316,8 +316,6 @@ engine::LaraNode* Level::createItems()
                                           << id;
 
                 modelNode = std::make_shared<engine::items::ScriptedItem>( gsl::make_not_null( this ),
-                                                                           std::string( "skeleton(type:" )
-                                                                           + engine::toString( item.type ) + ")",
                                                                            room,
                                                                            item,
                                                                            *model,
@@ -334,125 +332,144 @@ engine::LaraNode* Level::createItems()
             }
             else if( item.type == engine::TR1ItemId::Wolf )
             {
-                modelNode = createSkeletalModel<engine::items::Wolf>( *model, room, item );
+                modelNode = std::make_shared<engine::items::Wolf>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Bear )
             {
-                modelNode = createSkeletalModel<engine::items::Bear>( *model, room, item );
+                modelNode = std::make_shared<engine::items::Bear>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Bat )
             {
-                modelNode = createSkeletalModel<engine::items::Bat>( *model, room, item );
+                modelNode = std::make_shared<engine::items::Bat>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::FallingBlock )
             {
-                modelNode = createSkeletalModel<engine::items::CollapsibleFloor>( *model, room, item );
+                modelNode = std::make_shared<engine::items::CollapsibleFloor>( gsl::make_not_null( this ), room, item,
+                                                                               *model );
             }
             else if( item.type == engine::TR1ItemId::SwingingBlade )
             {
-                modelNode = createSkeletalModel<engine::items::SwingingBlade>( *model, room, item );
+                modelNode = std::make_shared<engine::items::SwingingBlade>( gsl::make_not_null( this ), room, item,
+                                                                            *model );
             }
             else if( item.type == engine::TR1ItemId::RollingBall )
             {
-                modelNode = createSkeletalModel<engine::items::RollingBall>( *model, room, item );
+                modelNode = std::make_shared<engine::items::RollingBall>( gsl::make_not_null( this ), room, item,
+                                                                          *model );
             }
             else if( item.type == engine::TR1ItemId::Dart )
             {
-                modelNode = createSkeletalModel<engine::items::Dart>( *model, room, item );
+                modelNode = std::make_shared<engine::items::Dart>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::DartEmitter )
             {
-                modelNode = createSkeletalModel<engine::items::DartGun>( *model, room, item );
+                modelNode = std::make_shared<engine::items::DartGun>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::LiftingDoor )
             {
-                modelNode = createSkeletalModel<engine::items::TrapDoorUp>( *model, room, item );
+                modelNode = std::make_shared<engine::items::TrapDoorUp>( gsl::make_not_null( this ), room, item,
+                                                                         *model );
             }
             else if( item.type >= engine::TR1ItemId::PushableBlock1 && item.type <= engine::TR1ItemId::PushableBlock4 )
             {
-                modelNode = createSkeletalModel<engine::items::Block>( *model, room, item );
+                modelNode = std::make_shared<engine::items::Block>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::MovingBlock )
             {
-                modelNode = createSkeletalModel<engine::items::TallBlock>( *model, room, item );
+                modelNode = std::make_shared<engine::items::TallBlock>( gsl::make_not_null( this ), room, item,
+                                                                        *model );
             }
             else if( item.type == engine::TR1ItemId::WallSwitch )
             {
-                modelNode = createSkeletalModel<engine::items::Switch>( *model, room, item );
+                modelNode = std::make_shared<engine::items::Switch>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::UnderwaterSwitch )
             {
-                modelNode = createSkeletalModel<engine::items::UnderwaterSwitch>( *model, room, item );
+                modelNode = std::make_shared<engine::items::UnderwaterSwitch>( gsl::make_not_null( this ), room, item,
+                                                                               *model );
             }
             else if( item.type >= engine::TR1ItemId::Door1 && item.type <= engine::TR1ItemId::Door8 )
             {
-                modelNode = createSkeletalModel<engine::items::Door>( *model, room, item );
+                modelNode = std::make_shared<engine::items::Door>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type >= engine::TR1ItemId::Trapdoor1 && item.type <= engine::TR1ItemId::Trapdoor2 )
             {
-                modelNode = createSkeletalModel<engine::items::TrapDoorDown>( *model, room, item );
+                modelNode = std::make_shared<engine::items::TrapDoorDown>( gsl::make_not_null( this ), room, item,
+                                                                           *model );
             }
             else if( item.type == engine::TR1ItemId::BridgeFlat )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeFlat>( *model, room, item );
+                modelNode = std::make_shared<engine::items::BridgeFlat>( gsl::make_not_null( this ), room, item,
+                                                                         *model );
             }
             else if( item.type == engine::TR1ItemId::BridgeTilt1 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeSlope1>( *model, room, item );
+                modelNode = std::make_shared<engine::items::BridgeSlope1>( gsl::make_not_null( this ), room, item,
+                                                                           *model );
             }
             else if( item.type == engine::TR1ItemId::BridgeTilt2 )
             {
-                modelNode = createSkeletalModel<engine::items::BridgeSlope2>( *model, room, item );
+                modelNode = std::make_shared<engine::items::BridgeSlope2>( gsl::make_not_null( this ), room, item,
+                                                                           *model );
             }
             else if( item.type >= engine::TR1ItemId::Keyhole1 && item.type <= engine::TR1ItemId::Keyhole4 )
             {
-                modelNode = createSkeletalModel<engine::items::KeyHole>( *model, room, item );
+                modelNode = std::make_shared<engine::items::KeyHole>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type >= engine::TR1ItemId::PuzzleHole1 && item.type <= engine::TR1ItemId::PuzzleHole4 )
             {
-                modelNode = createSkeletalModel<engine::items::PuzzleHole>( *model, room, item );
+                modelNode = std::make_shared<engine::items::PuzzleHole>( gsl::make_not_null( this ), room, item,
+                                                                         *model );
             }
             else if( item.type >= engine::TR1ItemId::Animating1 && item.type <= engine::TR1ItemId::Animating3 )
             {
-                modelNode = createSkeletalModel<engine::items::Animating>( *model, room, item );
+                modelNode = std::make_shared<engine::items::Animating>( gsl::make_not_null( this ), room, item,
+                                                                        *model );
             }
             else if( item.type == engine::TR1ItemId::TeethSpikes )
             {
-                modelNode = createSkeletalModel<engine::items::TeethSpikes>( *model, room, item );
+                modelNode = std::make_shared<engine::items::TeethSpikes>( gsl::make_not_null( this ), room, item,
+                                                                          *model );
             }
             else if( item.type == engine::TR1ItemId::Raptor )
             {
-                modelNode = createSkeletalModel<engine::items::Raptor>( *model, room, item );
+                modelNode = std::make_shared<engine::items::Raptor>( gsl::make_not_null( this ), room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::SwordOfDamocles || item.type == engine::TR1ItemId::FallingCeiling )
             {
-                modelNode = createSkeletalModel<engine::items::SwordOfDamocles>( *model, room, item );
+                modelNode = std::make_shared<engine::items::SwordOfDamocles>( gsl::make_not_null( this ), room, item,
+                                                                              *model );
             }
             else if( item.type == engine::TR1ItemId::CutsceneActor1 )
             {
-                modelNode = createSkeletalModel<engine::items::CutsceneActor1>( *model, room, item );
+                modelNode = std::make_shared<engine::items::CutsceneActor1>( gsl::make_not_null( this ), room, item,
+                                                                             *model );
             }
             else if( item.type == engine::TR1ItemId::CutsceneActor2 )
             {
-                modelNode = createSkeletalModel<engine::items::CutsceneActor2>( *model, room, item );
+                modelNode = std::make_shared<engine::items::CutsceneActor2>( gsl::make_not_null( this ), room, item,
+                                                                             *model );
             }
             else if( item.type == engine::TR1ItemId::CutsceneActor3 )
             {
-                modelNode = createSkeletalModel<engine::items::CutsceneActor3>( *model, room, item );
+                modelNode = std::make_shared<engine::items::CutsceneActor3>( gsl::make_not_null( this ), room, item,
+                                                                             *model );
             }
             else if( item.type == engine::TR1ItemId::CutsceneActor4 )
             {
-                modelNode = createSkeletalModel<engine::items::CutsceneActor4>( *model, room, item );
+                modelNode = std::make_shared<engine::items::CutsceneActor4>( gsl::make_not_null( this ), room, item,
+                                                                             *model );
             }
             else if( item.type == engine::TR1ItemId::WaterfallMist )
             {
-                modelNode = createSkeletalModel<engine::items::WaterfallMist>( *model, room, item );
+                modelNode = std::make_shared<engine::items::WaterfallMist>( gsl::make_not_null( this ), room, item,
+                                                                            *model );
             }
             else
             {
                 BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
 
-                modelNode = createSkeletalModel<engine::items::StubItem>( *model, room, item );
+                modelNode = std::make_shared<engine::items::StubItem>( gsl::make_not_null( this ), room, item, *model );
                 if( item.type == engine::TR1ItemId::MidasGoldTouch
                     || item.type == engine::TR1ItemId::CameraTarget
                     || item.type == engine::TR1ItemId::LavaParticleEmitter
@@ -537,10 +554,6 @@ engine::LaraNode* Level::createItems()
             }
 
             m_itemNodes[id] = node;
-            addChild( gsl::make_not_null( room->node ), gsl::make_not_null( node->getNode() ) );
-
-            node->applyTransform();
-
             continue;
         }
 
@@ -549,40 +562,6 @@ engine::LaraNode* Level::createItems()
     }
 
     return lara;
-}
-
-template<typename T>
-std::shared_ptr<T> Level::createSkeletalModel(const loader::SkeletalModelType& model,
-                                              const gsl::not_null<const loader::Room*>& room,
-                                              const loader::Item& item)
-{
-    static_assert( std::is_base_of<engine::items::ItemNode, T>::value, "T must be derived from ItemNode" );
-
-    if( model.animation == nullptr )
-    {
-        BOOST_LOG_TRIVIAL( error ) << "Model 0x" << std::hex << reinterpret_cast<uintptr_t>(&model) << std::dec
-                                   << " has no associated animation";
-        return nullptr;
-    }
-
-    auto skeletalModel = std::make_shared<T>( gsl::make_not_null( this ),
-                                              std::string( "skeleton(type:" ) + engine::toString( item.type ) + ")",
-                                              room,
-                                              item,
-                                              model );
-    for( gsl::index boneIndex = 0; boneIndex < model.meshes.size(); ++boneIndex )
-    {
-        auto node = make_not_null_shared<gameplay::Node>(
-                skeletalModel->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
-        node->setDrawable( model.models[boneIndex].get() );
-        addChild( gsl::make_not_null( skeletalModel->getNode() ), node );
-    }
-
-    BOOST_ASSERT( skeletalModel->getNode()->getChildren().size() == gsl::narrow<size_t>( model.meshes.size() ) );
-
-    skeletalModel->getSkeleton()->updatePose( skeletalModel->m_state );
-
-    return skeletalModel;
 }
 
 void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
