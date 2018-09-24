@@ -62,7 +62,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl,
 
     target = item.position.position;
 
-    auto box = item.box_number;
+    auto box = item.box;
     if( box == nullptr )
         return false;
 
@@ -327,8 +327,8 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
         return;
 
     CreatureInfo& creatureInfo = *item.creatureInfo;
-    if( creatureInfo.lot.nodes[item.box_number].isBlocked()
-        && creatureInfo.lot.nodes[item.box_number].getSearchVersion() == creatureInfo.lot.m_searchVersion )
+    if( creatureInfo.lot.nodes[item.box].isBlocked()
+        && creatureInfo.lot.nodes[item.box].getSearchVersion() == creatureInfo.lot.m_searchVersion )
     {
         creatureInfo.lot.required_box = nullptr;
     }
@@ -433,11 +433,11 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
     {
         case Mood::Attack:
             if( util::rand15() >= int( lvl.m_scriptEngine["getObjectInfo"].call<sol::table>(
-                    item.object_number )["target_update_chance"] ) )
+                    item.type )["target_update_chance"] ) )
                 break;
 
             creatureInfo.lot.target = lvl.m_lara->m_state.position.position;
-            creatureInfo.lot.required_box = lvl.m_lara->m_state.box_number;
+            creatureInfo.lot.required_box = lvl.m_lara->m_state.box;
             if( creatureInfo.lot.fly != 0 && lvl.m_lara->isOnLand() )
                 creatureInfo.lot.target.Y += lvl.m_lara->getSkeleton()->getInterpolationInfo( lvl.m_lara->m_state )
                                                 .getNearestFrame()->bbox.minY;
@@ -490,7 +490,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
                 || creatureInfo.lot.required_box != nullptr )
                 break;
 
-            if( item.inSameQuadrantAsBoxRelativeToLara( lvl, box ) )
+            if( item.inSameQuadrantAsBoxRelativeToLara( lvl, *box ) )
             {
                 creatureInfo.lot.setRandomSearchTarget( box );
             }
@@ -505,8 +505,8 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
 
     if( creatureInfo.lot.target_box == nullptr )
     {
-        Expects( item.box_number != nullptr );
-        creatureInfo.lot.setRandomSearchTarget( gsl::make_not_null( item.box_number ) );
+        Expects( item.box != nullptr );
+        creatureInfo.lot.setRandomSearchTarget( gsl::make_not_null( item.box ) );
     }
     creatureInfo.lot.calculateTarget( lvl, creatureInfo.target, item );
 }
@@ -520,18 +520,18 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
                                                   item.creatureInfo->lot.fly,
                                                   item.creatureInfo->lot.step );
 
-    item.box_number = item.getCurrentSector()->box;
-    zone_number = item.box_number->*zoneRef;
-    lvl.m_lara->m_state.box_number = lvl.m_lara->m_state.getCurrentSector()->box;
-    enemy_zone = lvl.m_lara->m_state.box_number->*zoneRef;
-    if( (item.creatureInfo->lot.block_mask & lvl.m_lara->m_state.box_number->overlap_index)
-        || item.creatureInfo->lot.nodes[item.box_number].search_version
+    item.box = item.getCurrentSector()->box;
+    zone_number = item.box->*zoneRef;
+    lvl.m_lara->m_state.box = lvl.m_lara->m_state.getCurrentSector()->box;
+    enemy_zone = lvl.m_lara->m_state.box->*zoneRef;
+    if( (item.creatureInfo->lot.block_mask & lvl.m_lara->m_state.box->overlap_index)
+        || item.creatureInfo->lot.nodes[item.box].search_version
            == (item.creatureInfo->lot.m_searchVersion | 0x8000) )
     {
         enemy_zone |= 0x4000;
     }
 
-    sol::table objectInfo = lvl.m_scriptEngine["getObjectInfo"].call( item.object_number );
+    sol::table objectInfo = lvl.m_scriptEngine["getObjectInfo"].call( item.type );
     const int pivotLength = objectInfo["pivot_length"];
     const auto dz = lvl.m_lara->m_state.position.position.Z
                     - (item.position.position.Z + pivotLength * item.rotation.Y.cos());
@@ -557,7 +557,7 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
 CreatureInfo::CreatureInfo(const level::Level& lvl, const gsl::not_null<items::ItemState*>& item)
         : lot{lvl}
 {
-    switch( item->object_number )
+    switch( item->type )
     {
         case engine::TR1ItemId::Wolf:
         case engine::TR1ItemId::LionMale:

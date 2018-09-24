@@ -68,38 +68,38 @@ enum class TriggerState
 
 struct ItemState final
 {
-    explicit ItemState(const gsl::not_null<const loader::Room*>& room)
-            : position{room}
+    explicit ItemState(const gsl::not_null<const loader::Room*>& room, engine::TR1ItemId type)
+            : type{type}
+            , position{room}
     {}
 
     ~ItemState();
 
-    int32_t floor = 0;
-    uint32_t touch_bits = 0;
-    uint32_t mesh_bits = 0;
-    engine::TR1ItemId object_number;
+    engine::TR1ItemId type;
+    core::RoomBoundPosition position;
+    core::TRRotation rotation;
+    int16_t speed = 0;
+    int16_t fallspeed = 0;
     uint16_t current_anim_state = 0;
     uint16_t goal_anim_state = 0;
     uint16_t required_anim_state = 0;
     const loader::Animation* anim = nullptr;
     uint16_t frame_number = 0;
-    int16_t speed = 0;
-    int16_t fallspeed = 0;
     int16_t health = 0;
-    const loader::Box* box_number = nullptr;
+    TriggerState triggerState = TriggerState::Inactive;
     int16_t timer = 0;
     floordata::ActivationState activationState;
+    int32_t floor = 0;
+    uint32_t touch_bits = 0;
+    const loader::Box* box = nullptr;
     int16_t shade = -1;
-    TriggerState triggerState = TriggerState::Inactive;
+    uint32_t mesh_bits = 0;
 
     bool falling = false;
     bool is_hit = false;
     bool collidable = true;
     bool already_looked_at = false;
     bool dynamic_light = false;
-
-    core::TRRotation rotation;
-    core::RoomBoundPosition position;
 
     std::shared_ptr<ai::CreatureInfo> creatureInfo;
 
@@ -137,7 +137,7 @@ struct ItemState final
 
     bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, const loader::Box& box) const;
 
-    bool inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::Box* box) const;
+    bool inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::Box& box) const;
 
     void initCreatureInfo(const level::Level& lvl);
 
@@ -394,6 +394,10 @@ public:
                                                                                     const core::RoomBoundPosition& pos,
                                                                                     int16_t speed,
                                                                                     core::Angle angle));
+
+    void load(const YAML::Node& n) override;
+
+    YAML::Node save() const override;
 };
 
 

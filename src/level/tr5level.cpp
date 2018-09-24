@@ -149,10 +149,10 @@ void TR5Level::loadFileData()
         {
             auto m = loader::SkeletalModelType::readTr5( m_reader );
             // FIXME: this uses TR1 item IDs...
-            if( m_animatedModels.find( m->typeId ) != m_animatedModels.end() )
+            if( m_animatedModels.find( m->type ) != m_animatedModels.end() )
                 BOOST_THROW_EXCEPTION( std::runtime_error( "Duplicate type id" ) );
 
-            m_animatedModels[m->typeId] = std::move( m );
+            m_animatedModels[m->type] = std::move( m );
         }
     }
 

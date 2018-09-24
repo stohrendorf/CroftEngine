@@ -97,11 +97,12 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
 
 void SkeletalModelNode::updatePose(engine::items::ItemState& state)
 {
-    BOOST_ASSERT( !getChildren().empty() );
+    if( getChildren().empty() )
+        return;
+
     BOOST_ASSERT( getChildren().size() == m_model.meshes.size() );
 
-    auto interpolationInfo = getInterpolationInfo( state );
-    updatePose( interpolationInfo );
+    updatePose( getInterpolationInfo( state ) );
 }
 
 void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePair)
@@ -340,5 +341,41 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
     }
 
     return result;
+}
+
+void SkeletalModelNode::load(const YAML::Node& n)
+{
+    resetPose();
+
+    if( n["patches"].IsDefined() )
+    {
+        Expects( n["patches"].IsSequence() );
+
+        if( n["patches"].size() > 0 )
+        {
+            Expects( n["patches"].size() == m_bonePatches.size() );
+            for( size_t i = 0; i < m_bonePatches.size(); ++i )
+                for( int x = 0, elem = 0; x < 4; ++x )
+                    for( int y = 0; y < 4; ++y, ++elem )
+                        m_bonePatches[i][x][y] = n["patches"][i][elem].as<glm::float_t>();
+        }
+    }
+}
+
+YAML::Node SkeletalModelNode::save() const
+{
+    YAML::Node n;
+
+    for( const glm::mat4& m : m_bonePatches )
+    {
+        YAML::Node mn;
+        mn.SetStyle( YAML::EmitterStyle::Flow );
+        for( int x = 0; x < 4; ++x )
+            for( int y = 0; y < 4; ++y )
+                mn.push_back( m[x][y] );
+        n["patches"].push_back( mn );
+    }
+
+    return n;
 }
 }

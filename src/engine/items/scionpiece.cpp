@@ -45,7 +45,7 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
     else if( lara.m_state.frame_number == lara.m_state.anim->firstFrame + 44 )
     {
-        getLevel().addInventoryItem( m_state.object_number );
+        getLevel().addInventoryItem( m_state.type );
         m_state.triggerState = engine::items::TriggerState::Invisible;
     }
 }

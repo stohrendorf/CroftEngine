@@ -466,7 +466,7 @@ int main()
             Expects( laraPistol != nullptr );
             for( const auto& item : lvl->m_itemNodes | boost::adaptors::map_values )
             {
-                if( item->m_state.object_number != engine::TR1ItemId::CutsceneActor1 )
+                if( item->m_state.type != engine::TR1ItemId::CutsceneActor1 )
                     continue;
 
                 item->getNode()->getChild( 1 )->setDrawable( laraPistol->models[1].get() );

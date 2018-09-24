@@ -984,7 +984,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
 
 void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
 {
-    m_state.box_number = m_state.getCurrentSector()->box;
+    m_state.box = m_state.getCurrentSector()->box;
     core::TRVec targetPos;
     if( !m_underwaterRoute.calculateTarget( getLevel(), targetPos, m_state ) )
         return;
@@ -2174,7 +2174,7 @@ void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, int dam
         return;
 
     int soundId;
-    switch( item.m_state.object_number )
+    switch( item.m_state.type )
     {
         case engine::TR1ItemId::Wolf:
             soundId = 20;
@@ -2407,7 +2407,7 @@ void LaraNode::drawRoutine()
         return;
     }
 
-    const auto& objInfo = *getLevel().m_animatedModels[m_state.object_number];
+    const auto& objInfo = *getLevel().m_animatedModels[m_state.type];
     const loader::AnimFrame* frame;
     if( !hit_direction.is_initialized() )
     {
@@ -2530,7 +2530,7 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
 {
     updateLighting();
 
-    const auto& objInfo = *getLevel().m_animatedModels[m_state.object_number];
+    const auto& objInfo = *getLevel().m_animatedModels[m_state.type];
 
     DualMatrixStack matrixStack{interpolationInfo.bias};
 

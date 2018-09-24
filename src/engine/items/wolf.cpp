@@ -210,7 +210,7 @@ void Wolf::update()
         const auto r = util::rand15( 3 );
         getSkeleton()->setAnimation(
                 m_state,
-                gsl::make_not_null( &getLevel().m_animatedModels[m_state.object_number]->animation[20 + r] ),
+                gsl::make_not_null( &getLevel().m_animatedModels[m_state.type]->animation[20 + r] ),
                 0 );
         BOOST_ASSERT( m_state.current_anim_state == Dying );
     }

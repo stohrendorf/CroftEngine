@@ -117,6 +117,10 @@ public:
                                                 const loader::AnimFrame& frame,
                                                 const glm::mat4* baseTransform);
 
+    void load(const YAML::Node& n);
+
+    YAML::Node save() const;
+
 protected:
     bool handleStateTransitions(engine::items::ItemState& state);
 

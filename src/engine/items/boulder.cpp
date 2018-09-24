@@ -63,7 +63,7 @@ void engine::items::RollingBall::update()
         setCurrentRoom( m_position.room );
         getSkeleton()->setAnimation( m_state,
                                      gsl::make_not_null(
-                                             getLevel().m_animatedModels[m_state.object_number]->animation ),
+                                             getLevel().m_animatedModels[m_state.type]->animation ),
                                      0 );
         m_state.goal_anim_state = m_state.current_anim_state;
         m_state.required_anim_state = 0;

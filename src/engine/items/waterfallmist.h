@@ -17,6 +17,7 @@ public:
     {
         getNode()->setDrawable( nullptr );
         getNode()->removeAllChildren();
+        getSkeleton()->resetPose();
     }
 
     void update() override;

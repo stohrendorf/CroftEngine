@@ -84,7 +84,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     const auto oldPosition = m_state.position.position;
 
-    const auto boxFloor = m_state.box_number->floor;
+    const auto boxFloor = m_state.box->floor;
     const auto zoneRef = loader::Box::getZoneRef( getLevel().roomsAreSwapped, creatureInfo->lot.fly,
                                                   creatureInfo->lot.step );
     ModelItemNode::update();
@@ -118,7 +118,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     }
 
     if( sector->box == nullptr
-        || m_state.box_number->*zoneRef != sector->box->*zoneRef
+        || m_state.box->*zoneRef != sector->box->*zoneRef
         || boxFloor - currentFloor > lotInfo.step
         || boxFloor - currentFloor < lotInfo.drop )
     {
@@ -160,7 +160,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto inSectorX = basePosX % loader::SectorSize;
     const auto inSectorZ = basePosZ % loader::SectorSize;
 
-    sol::table objectInfo = getLevel().m_scriptEngine["getObjectInfo"].call( m_state.object_number );
+    sol::table objectInfo = getLevel().m_scriptEngine["getObjectInfo"].call( m_state.type );
     const int radius = objectInfo["radius"];
 
     int moveX = 0;
@@ -349,7 +349,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                           },
                                                           getLevel().m_itemNodes ).y;
 
-            const auto y = m_state.object_number == engine::TR1ItemId::CrocodileInWater ? 0 : bbox.minY;
+            const auto y = m_state.type == engine::TR1ItemId::CrocodileInWater ? 0 : bbox.minY;
 
             if( m_state.position.position.Y + y + moveY < ceiling )
             {
@@ -421,12 +421,12 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel)
         : ModelItemNode( level, room, item, true, animatedModel )
-        , m_collisionRadius{level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.object_number )["radius"]}
+        , m_collisionRadius{level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.type )["radius"]}
 {
     m_state.collidable = true;
     const core::Angle v = core::Angle( util::rand15() * 2 );
     m_state.rotation.Y += v;
-    m_state.health = level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.object_number )["hit_points"];
+    m_state.health = level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.type )["hit_points"];
 }
 
 void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)

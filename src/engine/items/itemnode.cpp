@@ -55,12 +55,12 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                    const loader::Item& item,
                    const bool hasUpdateFunction)
         : m_level{level}
-        , m_state{room}
+        , m_state{room, item.type}
         , m_hasUpdateFunction{hasUpdateFunction}
 {
     BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
 
-    m_state.object_number = item.type;
+    m_state.type = item.type;
     m_state.position.position = item.position;
     m_state.rotation.Y = core::Angle{item.rotation};
     m_state.shade = item.darkness;
@@ -312,6 +312,9 @@ YAML::Node ItemNode::save() const
 
     for( const auto& child : getNode()->getChildren() )
         n["meshes"].push_back( m_level->indexOfModel( child->getDrawable() ) );
+
+    if( n["meshes"].IsDefined() )
+        n["meshes"].SetStyle( YAML::EmitterStyle::Flow );
 
     return n;
 }
@@ -595,6 +598,21 @@ void ModelItemNode::emitParticle(const core::TRVec& pos,
     getLevel().m_particles.emplace_back( particle );
 }
 
+void ModelItemNode::load(const YAML::Node& n)
+{
+    ItemNode::load( n );
+
+    m_skeleton->load( n["skeleton"] );
+    m_skeleton->updatePose( m_state );
+}
+
+YAML::Node ModelItemNode::save() const
+{
+    auto n = ItemNode::save();
+    n["skeleton"] = m_skeleton->save();
+    return n;
+}
+
 bool ItemState::stalkBox(const level::Level& lvl, const loader::Box& box) const
 {
     const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
@@ -704,11 +722,10 @@ bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl,
 
 }
 
-bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::Box* box) const
+bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::Box& box) const
 {
-    Expects( box != nullptr );
-    const auto laraToBoxX = (box->xmin + box->xmax) / 2 - lvl.m_lara->m_state.position.position.X;
-    const auto laraToBoxZ = (box->zmin + box->zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
+    const auto laraToBoxX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
+    const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
     if( std::abs( laraToBoxX ) < 5 * loader::SectorSize && std::abs( laraToBoxZ ) < 5 * loader::SectorSize )
         return false;
 
@@ -732,9 +749,9 @@ void ItemState::collectZoneBoxes(const level::Level& lvl)
     const auto zoneRef1 = loader::Box::getZoneRef( false, creatureInfo->lot.fly, creatureInfo->lot.step );
     const auto zoneRef2 = loader::Box::getZoneRef( true, creatureInfo->lot.fly, creatureInfo->lot.step );
 
-    box_number = position.room->getInnerSectorByAbsolutePosition( position.position )->box;
-    const auto zoneData1 = box_number->*zoneRef1;
-    const auto zoneData2 = box_number->*zoneRef2;
+    box = position.room->getInnerSectorByAbsolutePosition( position.position )->box;
+    const auto zoneData1 = box->*zoneRef1;
+    const auto zoneData2 = box->*zoneRef2;
     creatureInfo->lot.boxes.clear();
     for( const auto& box : lvl.m_boxes )
     {
@@ -770,7 +787,7 @@ sol::usertype<ItemState>& ItemState::userType()
 YAML::Node ItemState::save(const level::Level& lvl) const
 {
     YAML::Node n;
-    n["type"] = engine::toString( object_number );
+    n["type"] = engine::toString( type );
     n["position"] = position.position.save();
     n["position"]["room"] = std::distance( &lvl.m_rooms[0], position.room.get() );
     n["rotation"] = rotation.save();
@@ -784,21 +801,28 @@ YAML::Node ItemState::save(const level::Level& lvl) const
     n["frame"] = frame_number;
     n["health"] = health;
     n["triggerState"] = toString( triggerState );
-    n["isHit"] = is_hit;
     n["timer"] = timer;
     n["activationState"] = activationState.save();
+    n["floor"] = floor;
+    n["touchBits"] = touch_bits;
+    if( box != nullptr )
+        n["box"] = std::distance( &lvl.m_boxes[0], box );
+    n["shade"] = shade;
+
+    n["falling"] = falling;
+    n["isHit"] = is_hit;
+    n["collidable"] = collidable;
+    n["alreadyLookedAt"] = already_looked_at;
 
     if( creatureInfo != nullptr )
-    {
-        n["ai"] = creatureInfo->save( lvl );
-    }
+        n["creatureInfo"] = creatureInfo->save( lvl );
 
     return n;
 }
 
 void ItemState::load(const YAML::Node& n, const level::Level& lvl)
 {
-    if( engine::EnumUtil<engine::TR1ItemId>::fromString( n["type"].as<std::string>() ) != object_number )
+    if( engine::EnumUtil<engine::TR1ItemId>::fromString( n["type"].as<std::string>() ) != type )
         BOOST_THROW_EXCEPTION( std::domain_error( "Item state has wrong type" ) );
 
     position.position.load( n["position"] );
@@ -816,18 +840,30 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
     frame_number = n["frame"].as<uint16_t>();
     health = n["health"].as<int16_t>();
     triggerState = parseTriggerState( n["triggerState"].as<std::string>() );
-    is_hit = n["isHit"].as<bool>();
     timer = n["timer"].as<int16_t>();
     activationState.load( n["activationState"] );
 
-    if( !n["ai"].IsDefined() )
+    floor = n["floor"].as<int32_t>();
+    touch_bits = n["touchBits"].as<uint32_t>();
+    if( !n["box"].IsDefined() )
+        box = nullptr;
+    else
+        box = &lvl.m_boxes.at( n["box"].as<size_t>() );
+    shade = n["shade"].as<int16_t>();
+
+    falling = n["falling"].as<bool>();
+    is_hit = n["isHit"].as<bool>();
+    collidable = n["collidable"].as<bool>();
+    already_looked_at = n["alreadyLookedAt"].as<bool>();
+
+    if( !n["creatureInfo"].IsDefined() )
     {
         creatureInfo = nullptr;
     }
     else
     {
         creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, gsl::make_not_null( this ) );
-        creatureInfo->load( n["ai"], lvl );
+        creatureInfo->load( n["creatureInfo"], lvl );
     }
 }
 
