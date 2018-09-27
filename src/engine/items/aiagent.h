@@ -26,6 +26,7 @@ protected:
         m_state.rotation.Z += z;
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void rotateCreatureHead(const core::Angle& angle)
     {
         m_state.creatureInfo->rotateHead( angle );
@@ -46,8 +47,6 @@ private:
 
     bool isPositionOutOfReach(const core::TRVec& testPosition, int currentBoxFloor, int nextBoxFloor,
                               const ai::LotInfo& lotInfo) const;
-
-    uint16_t m_requiredAnimState = 0;
 
     const int m_collisionRadius;
 };

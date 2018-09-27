@@ -4,14 +4,13 @@
 #include "loader/trx/trx.h"
 #include "util/cimgwrapper.h"
 
-#include <glm/gtc/type_ptr.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
 namespace loader
 {
 gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
         const gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>& texture,
-        BlendingMode bmode,
+        const BlendingMode bmode,
         const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
 {
     auto result = make_not_null_shared<gameplay::Material>( shader );
@@ -76,10 +75,11 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
     original.deinterleave();
     original.resize( Resolution, Resolution );
 
-    for( const auto& indexedTile : mapping.tiles | boost::adaptors::indexed(0) )
+    for( const auto& indexedTile : mapping.tiles | boost::adaptors::indexed( 0 ) )
     {
         const auto& tile = indexedTile.value();
-        statusCallback( "Upgrading texture (" + std::to_string( indexedTile.index() * 100 / mapping.tiles.size() ) + "%)" );
+        statusCallback(
+                "Upgrading texture (" + std::to_string( indexedTile.index() * 100 / mapping.tiles.size() ) + "%)" );
 
         BOOST_LOG_TRIVIAL( info ) << "  - Loading " << tile.second << " into " << tile.first;
         if( !is_regular_file( tile.second ) )
@@ -109,7 +109,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 
     statusCallback( "Saving texture to cache..." );
     BOOST_LOG_TRIVIAL( info ) << "Writing texture cache " << cacheName << "...";
-    boost::filesystem::create_directories( cacheName.parent_path() );
+    create_directories( cacheName.parent_path() );
     original.savePng( cacheName.string() );
 
     original.interleave();

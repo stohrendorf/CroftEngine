@@ -5,5 +5,7 @@
 
 namespace engine
 {
+
 #include "items_tr1_enum.h"
+
 }

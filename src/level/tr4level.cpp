@@ -28,18 +28,18 @@ using namespace level;
 void TR4Level::loadFileData()
 {
     // Version
-    uint32_t file_version = m_reader.readU32();
+    const uint32_t file_version = m_reader.readU32();
 
     if( file_version != 0x00345254 /*&& file_version != 0x63345254*/)           // +TRLE
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR4 Level: Wrong level version" ) );
 
     std::vector<loader::WordTexture> texture16;
     {
-        auto numRoomTextiles = m_reader.readU16();
-        auto numObjTextiles = m_reader.readU16();
-        auto numBumpTextiles = m_reader.readU16();
-        auto numMiscTextiles = 2;
-        auto numTextiles = numRoomTextiles + numObjTextiles + numBumpTextiles + numMiscTextiles;
+        const auto numRoomTextiles = m_reader.readU16();
+        const auto numObjTextiles = m_reader.readU16();
+        const auto numBumpTextiles = m_reader.readU16();
+        const auto numMiscTextiles = 2;
+        const auto numTextiles = numRoomTextiles + numObjTextiles + numBumpTextiles + numMiscTextiles;
 
         uint32_t uncomp_size = m_reader.readU32();
         if( uncomp_size == 0 )
@@ -106,11 +106,11 @@ void TR4Level::loadFileData()
         }
     }
 
-    auto uncomp_size = m_reader.readU32();
+    const auto uncomp_size = m_reader.readU32();
     if( uncomp_size == 0 )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR4 Level: packed geometry (decompressed) is empty" ) );
 
-    auto comp_size = m_reader.readU32();
+    const auto comp_size = m_reader.readU32();
 
     if( comp_size == 0 )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR4 Level: packed geometry (compressed) is empty" ) );
@@ -228,7 +228,7 @@ void TR4Level::loadFileData()
 
     // LOAD SAMPLES
 
-    if( auto i = m_reader.readU32() )
+    if( const auto i = m_reader.readU32() )
     {
         m_samplesCount = i;
         // Since sample data is the last part, we simply load whole last

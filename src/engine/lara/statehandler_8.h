@@ -12,7 +12,7 @@ class StateHandler_8 final
 {
 public:
     explicit StateHandler_8(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::Death )
+            : AbstractStateHandler{lara, LaraStateId::Death}
     {
     }
 

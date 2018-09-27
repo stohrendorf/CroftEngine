@@ -15,9 +15,15 @@ class Camera final
 public:
     Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
 
-    ~Camera() = default;
+    Camera(const Camera&) = delete;
+
+    Camera(Camera&&) = delete;
+
+    Camera& operator=(Camera&&) = delete;
 
     Camera& operator=(const Camera&) = delete;
+
+    ~Camera() = default;
 
     float getFieldOfView() const;
 

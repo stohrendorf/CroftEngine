@@ -7,6 +7,7 @@
 #include <gsl/gsl>
 
 #include <boost/log/trivial.hpp>
+#include <utility>
 
 #include FT_OUTLINE_H
 
@@ -20,7 +21,7 @@ FT_Library freeTypeLib = nullptr;
 
 int _dummyFaceId = 0;
 
-const char* getFreeTypeErrorMessage(FT_Error err)
+const char* getFreeTypeErrorMessage(const FT_Error err)
 {
 #undef __FTERRORS_H__
 #define FT_ERRORDEF(e, v, s)  case e: return s;
@@ -36,7 +37,7 @@ FT_Library loadFreeTypeLib()
     if( freeTypeLib != nullptr )
         return freeTypeLib;
 
-    auto error = FT_Init_FreeType( &freeTypeLib );
+    const auto error = FT_Init_FreeType( &freeTypeLib );
     if( error != FT_Err_Ok )
     {
         BOOST_LOG_TRIVIAL( fatal ) << "Failed to load freetype library: "
@@ -55,13 +56,13 @@ FT_Library loadFreeTypeLib()
 }
 }
 
-FT_Error ftcFaceRequester(FTC_FaceID face_id,
-                          FT_Library library,
-                          FT_Pointer req_data,
+FT_Error ftcFaceRequester(const FTC_FaceID face_id,
+                          const FT_Library library,
+                          const FT_Pointer req_data,
                           FT_Face* aface)
 {
     Expects( face_id == &_dummyFaceId );
-    auto error = FT_New_Face( library, static_cast<const char*>(req_data), 0, aface );
+    const auto error = FT_New_Face( library, static_cast<const char*>(req_data), 0, aface );
     if( error != FT_Err_Ok )
     {
         BOOST_LOG_TRIVIAL( fatal ) << "Failed to load font " << static_cast<const char*>(req_data) << ": "
@@ -71,8 +72,8 @@ FT_Error ftcFaceRequester(FTC_FaceID face_id,
     return FT_Err_Ok;
 }
 
-Font::Font(const std::string& ttf, int size)
-        : m_filename{ttf}
+Font::Font(std::string ttf, const int size)
+        : m_filename{std::move( ttf )}
 {
     auto error = FTC_Manager_New( loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester,
                                   const_cast<char*>(m_filename.c_str()), &m_cache );
@@ -111,7 +112,7 @@ Font::~Font()
     m_cache = nullptr;
 }
 
-void Font::drawText(const char* text, int x, int y, const RGBA8& color)
+void Font::drawText(const char* text, const int x, const int y, const RGBA8& color)
 {
     BOOST_ASSERT( text );
 
@@ -123,7 +124,7 @@ void Font::drawText(const char* text, int x, int y, const RGBA8& color)
 
     while( const char chr = *text++ )
     {
-        auto glyphIndex = FTC_CMapCache_Lookup( m_cmapCache, &_dummyFaceId, -1, chr );
+        const auto glyphIndex = FTC_CMapCache_Lookup( m_cmapCache, &_dummyFaceId, -1, chr );
         if( glyphIndex <= 0 )
         {
             BOOST_LOG_TRIVIAL( warning ) << "Failed to load character '" << chr << "'";
@@ -132,7 +133,7 @@ void Font::drawText(const char* text, int x, int y, const RGBA8& color)
 
         FTC_SBit sbit = nullptr;
         FTC_Node node = nullptr;
-        auto error = FTC_SBitCache_Lookup( m_sbitCache, &m_imgType, glyphIndex, &sbit, &node );
+        const auto error = FTC_SBitCache_Lookup( m_sbitCache, &m_imgType, glyphIndex, &sbit, &node );
         if( error != FT_Err_Ok )
         {
             BOOST_LOG_TRIVIAL( warning ) << "Failed to load from sbit cache: "
@@ -158,8 +159,9 @@ void Font::drawText(const char* text, int x, int y, const RGBA8& color)
     }
 }
 
-void
-Font::drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
+void Font::drawText(const std::string& text,
+                    const int x, const int y,
+                    const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha)
 {
     drawText( text.c_str(), x, y, RGBA8{red, green, blue, alpha} );
 }

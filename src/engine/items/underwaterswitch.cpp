@@ -12,7 +12,7 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( !getLevel().m_inputHandler->getInputState().action )
         return;
 
-    if( m_state.triggerState != engine::items::TriggerState::Inactive )
+    if( m_state.triggerState != TriggerState::Inactive )
         return;
 
     if( !lara.isDiving() )
@@ -46,7 +46,7 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     } while( lara.getCurrentAnimState() != LaraStateId::SwitchDown );
     lara.setGoalAnimState( LaraStateId::UnderwaterStop );
     lara.setHandStatus( HandStatus::Grabbing );
-    m_state.triggerState = engine::items::TriggerState::Active;
+    m_state.triggerState = TriggerState::Active;
 
     if( m_state.current_anim_state == 1 )
     {

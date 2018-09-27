@@ -12,10 +12,18 @@
 namespace audio
 {
 
-class Device final : public boost::noncopyable
+class Device final
 {
 public:
     explicit Device();
+
+    explicit Device(const Device&) = delete;
+
+    explicit Device(Device&&) = delete;
+
+    Device& operator=(const Device&) = delete;
+
+    Device& operator=(Device&&) = delete;
 
     ~Device();
 
@@ -46,6 +54,8 @@ public:
         m_sources = std::move( cleaned );
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    // ReSharper disable once CppMemberFunctionMayBeStatic
     void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
     {
         alListener3f( AL_POSITION, pos.x, pos.y, pos.z );
@@ -75,14 +85,14 @@ public:
     gsl::not_null<std::shared_ptr<Stream>> createStream(std::unique_ptr<AbstractStreamSource>&& src, size_t bufferSize)
     {
         const auto r = std::make_shared<Stream>( *this, std::move( src ), bufferSize );
-        m_streams.insert(r);
+        m_streams.insert( r );
         return gsl::not_null<std::shared_ptr<Stream>>{r};
     }
 
     gsl::not_null<std::shared_ptr<SourceHandle>> createSource()
     {
         const auto r = std::make_shared<SourceHandle>();
-        m_sources.insert(r);
+        m_sources.insert( r );
         return gsl::not_null<std::shared_ptr<SourceHandle>>{r};
     }
 

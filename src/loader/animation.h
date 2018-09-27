@@ -19,7 +19,7 @@ struct BoundingBox
 
     explicit BoundingBox() = default;
 
-    BoundingBox(const BoundingBox& a, const BoundingBox& b, float bias)
+    BoundingBox(const BoundingBox& a, const BoundingBox& b, const float bias)
             : minX{static_cast<int16_t>(a.minX * (1 - bias) + b.minX * bias)}
             , maxX{static_cast<int16_t>(a.maxX * (1 - bias) + b.maxX * bias)}
             , minY{static_cast<int16_t>(a.minY * (1 - bias) + b.minY * bias)}
@@ -99,10 +99,10 @@ struct Animation
     uint16_t state_id;
 
     int32_t speed;
-    int32_t accelleration;
+    int32_t acceleration;
 
     int32_t lateralSpeed; // new in TR4 -->
-    int32_t lateralAccelleration; // lateral speed and acceleration.
+    int32_t lateralAcceleration; // lateral speed and acceleration.
 
     uint16_t firstFrame; // first frame in this animation
     uint16_t lastFrame; // last frame in this animation (numframes = (End - Start) + 1)
@@ -138,7 +138,7 @@ struct Animation
     }
 
 private:
-    static std::unique_ptr<Animation> read(io::SDLReader& reader, bool withLateral)
+    static std::unique_ptr<Animation> read(io::SDLReader& reader, const bool withLateral)
     {
         std::unique_ptr<Animation> animation{new Animation()};
         animation->poseDataOffset = reader.readU32();
@@ -149,16 +149,16 @@ private:
         animation->state_id = reader.readU16();
 
         animation->speed = reader.readI32();
-        animation->accelleration = reader.readI32();
+        animation->acceleration = reader.readI32();
         if( withLateral )
         {
             animation->lateralSpeed = reader.readI32();
-            animation->lateralAccelleration = reader.readI32();
+            animation->lateralAcceleration = reader.readI32();
         }
         else
         {
             animation->lateralSpeed = 0;
-            animation->lateralAccelleration = 0;
+            animation->lateralAcceleration = 0;
         }
 
         animation->firstFrame = reader.readU16();
@@ -245,25 +245,25 @@ static_assert( sizeof( BoneTreeEntry ) == 16, "BoneTreeEntry must be of size 16"
 struct SkeletalModelType
 {
     engine::TR1ItemId type;
-    int16_t nmeshes; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
+    int16_t nMeshes; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
     uint16_t mesh_base_index; // starting mesh (offset into MeshPointers[])
     uint32_t bone_index; // offset into MeshTree[]
     uint32_t pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
     uint16_t animation_index; // offset into Animations[]
 
-    gsl::span<gsl::not_null<const loader::Mesh*>> meshes{};
+    gsl::span<gsl::not_null<const Mesh*>> meshes{};
     gsl::span<gsl::not_null<std::shared_ptr<gameplay::Model>>> models{};
     gsl::span<const BoneTreeEntry> boneTree{};
 
     const AnimFrame* frames = nullptr;
 
-    const Animation* animation = nullptr;
+    const Animation* animations = nullptr;
 
     static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<SkeletalModelType> moveable{new SkeletalModelType()};
         moveable->type = static_cast<engine::TR1ItemId>(reader.readU32());
-        moveable->nmeshes = reader.readI16();
+        moveable->nMeshes = reader.readI16();
         moveable->mesh_base_index = reader.readU16();
         moveable->bone_index = reader.readU32();
         moveable->pose_data_offset = reader.readU32();

@@ -8,7 +8,7 @@
 
 namespace audio
 {
-class SourceHandle final : public boost::noncopyable
+class SourceHandle final
 {
     const ALuint m_handle;
     std::shared_ptr<BufferHandle> m_buffer;
@@ -26,11 +26,19 @@ class SourceHandle final : public boost::noncopyable
 
 public:
     explicit SourceHandle()
-            : m_handle( createHandle() )
+            : m_handle{createHandle()}
     {
         Expects( alIsSource( m_handle ) );
         set( AL_MAX_DISTANCE, 8 * 1024 );
     }
+
+    explicit SourceHandle(const SourceHandle&) = delete;
+
+    explicit SourceHandle(SourceHandle&&) = delete;
+
+    SourceHandle& operator=(const SourceHandle&) = delete;
+
+    SourceHandle& operator=(SourceHandle&&) = delete;
 
     ~SourceHandle()
     {
@@ -57,54 +65,63 @@ public:
         return m_buffer;
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void setDirectFilter(const std::shared_ptr<FilterHandle>& f)
     {
         alSourcei( m_handle, AL_DIRECT_FILTER, f ? f->get() : AL_FILTER_NULL );
         DEBUG_CHECK_AL_ERROR();
     }
 
-    void set(ALenum e, ALint v)
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const ALenum e, const ALint v)
     {
         alSourcei( m_handle, e, v );
         DEBUG_CHECK_AL_ERROR();
     }
 
-    void set(ALenum e, const ALint* v)
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const ALenum e, const ALint* v)
     {
         alSourceiv( m_handle, e, v );
         DEBUG_CHECK_AL_ERROR();
     }
 
-    void set(ALenum e, ALfloat v)
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const ALenum e, const ALfloat v)
     {
         alSourcef( m_handle, e, v );
         DEBUG_CHECK_AL_ERROR();
     }
 
-    void set(ALenum e, ALfloat a, ALfloat b, ALfloat c)
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const ALenum e, const ALfloat a, const ALfloat b, const ALfloat c)
     {
         alSource3f( m_handle, e, a, b, c );
         DEBUG_CHECK_AL_ERROR();
     }
 
-    void set(ALenum e, const ALfloat* v)
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const ALenum e, const ALfloat* v)
     {
         alSourcefv( m_handle, e, v );
         DEBUG_CHECK_AL_ERROR();
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void play()
     {
         alSourcePlay( m_handle );
         DEBUG_CHECK_AL_ERROR();
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void pause()
     {
         alSourcePause( m_handle );
         DEBUG_CHECK_AL_ERROR();
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     void stop()
     {
         alSourceStop( m_handle );
@@ -120,12 +137,12 @@ public:
         return state == AL_STOPPED;
     }
 
-    void setLooping(bool is_looping)
+    void setLooping(const bool isLooping)
     {
-        set( AL_LOOPING, is_looping ? AL_TRUE : AL_FALSE );
+        set( AL_LOOPING, isLooping ? AL_TRUE : AL_FALSE );
     }
 
-    void setGain(ALfloat gain_value)
+    void setGain(const ALfloat gain_value)
     {
         set( AL_GAIN, util::clamp( gain_value, 0.0f, 1.0f ) );
     }
@@ -135,7 +152,7 @@ public:
         set( AL_POSITION, position.x, position.y, position.z );
     }
 
-    void setPitch(ALfloat pitch_value)
+    void setPitch(const ALfloat pitch_value)
     {
         // Clamp pitch value according to specs
         set( AL_PITCH, util::clamp( pitch_value, 0.5f, 2.0f ) );

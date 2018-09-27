@@ -15,7 +15,7 @@ public:
                    const loader::Item& item,
                    const loader::Sprite& sprite,
                    const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
-            : SpriteItemNode( level, name, room, item, true, sprite, material )
+            : SpriteItemNode{level, name, room, item, true, sprite, material}
     {
     }
 

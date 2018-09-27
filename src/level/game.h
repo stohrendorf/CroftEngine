@@ -2,36 +2,36 @@
 
 namespace level
 {
-    enum class Game
-    {
-        TR1,
-        TR1Demo,
-        TR1UnfinishedBusiness,
-        TR2,
-        TR2Demo,
-        TR2Gold,
-        TR3,
-        TR3Gold,
-        TR4,
-        TR4Demo,
-        TR5,
-        Unknown
-    };
+enum class Game
+{
+    TR1,
+    TR1Demo,
+    TR1UnfinishedBusiness,
+    TR2,
+    TR2Demo,
+    TR2Gold,
+    TR3,
+    TR3Gold,
+    TR4,
+    TR4Demo,
+    TR5,
+    Unknown
+};
 
-    enum class Engine
-    {
-        TR1,
-        TR2,
-        TR3,
-        TR4,
-        TR5,
-        Unknown
-    };
+enum class Engine
+{
+    TR1,
+    TR2,
+    TR3,
+    TR4,
+    TR5,
+    Unknown
+};
 
-    inline Engine gameToEngine(Game game)
+inline Engine gameToEngine(const Game game)
+{
+    switch( game )
     {
-        switch( game )
-        {
         case Game::TR1:
         case Game::TR1Demo:
         case Game::TR1UnfinishedBusiness:
@@ -50,6 +50,6 @@ namespace level
             return Engine::TR5;
         default:
             return Engine::Unknown;
-        }
     }
+}
 }

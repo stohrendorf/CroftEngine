@@ -11,7 +11,8 @@ struct PortalTracer
         glm::vec3 min;
         glm::vec3 max;
 
-        BoundingBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
+        BoundingBox(const float minX, const float minY, const float minZ,
+                    const float maxX, const float maxY, const float maxZ)
                 : min{minX, minY, minZ}
                 , max{maxX, maxY, maxZ}
         {
@@ -25,7 +26,7 @@ struct PortalTracer
     bool checkVisibility(const loader::Portal* portal, const gameplay::Camera& camera)
     {
         const auto portalToCam = glm::vec3{camera.getInverseViewMatrix()[3]} - portal->vertices[0].toRenderSystem();
-        if( glm::dot( portal->normal.toRenderSystem(), portalToCam ) < 0 )
+        if( dot( portal->normal.toRenderSystem(), portalToCam ) < 0 )
         {
             return false; // wrong orientation (normals must face the camera)
         }
@@ -68,15 +69,15 @@ struct PortalTracer
         if( numBehind != 0 && projected.size() >= 2 )
         {
             const auto* prev = &projected.back();
-            for( const auto& curr : projected )
+            for( const auto& current : projected )
             {
-                if( std::signbit( prev->z ) != std::signbit( curr.z ) )
+                if( std::signbit( prev->z ) != std::signbit( current.z ) )
                 {
-                    if( prev->x < 0 && curr.x < 0 )
+                    if( prev->x < 0 && current.x < 0 )
                     {
                         boundingBox.min.x = -1;
                     }
-                    else if( prev->x > 0 && curr.x > 0 )
+                    else if( prev->x > 0 && current.x > 0 )
                     {
                         boundingBox.max.x = 1;
                     }
@@ -86,11 +87,11 @@ struct PortalTracer
                         boundingBox.max.x = 1;
                     }
 
-                    if( prev->y < 0 && curr.y < 0 )
+                    if( prev->y < 0 && current.y < 0 )
                     {
                         boundingBox.min.y = -1;
                     }
-                    else if( prev->y > 0 && curr.y > 0 )
+                    else if( prev->y > 0 && current.y > 0 )
                     {
                         boundingBox.max.y = 1;
                     }
@@ -101,7 +102,7 @@ struct PortalTracer
                     }
                 }
 
-                prev = &curr;
+                prev = &current;
             }
         }
 
@@ -146,9 +147,9 @@ private:
         projVertex = camera.getProjectionMatrix() * projVertex;
         projVertex /= projVertex.w;
 
-        if( !glm::isfinite(projVertex.x) )
+        if( !glm::isfinite( projVertex.x ) )
             projVertex.x = glm::sign( projVertex.x );
-        if( !glm::isfinite(projVertex.y))
+        if( !glm::isfinite( projVertex.y ) )
             projVertex.y = glm::sign( projVertex.y );
 
         return {glm::clamp( projVertex.x, -1.0f, 1.0f ), glm::clamp( projVertex.y, -1.0f, 1.0f ), projVertex.z};

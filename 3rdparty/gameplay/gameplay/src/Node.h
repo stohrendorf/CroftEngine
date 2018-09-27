@@ -24,6 +24,10 @@ class Node
 public:
     Node(const Node&) = delete;
 
+    Node(Node&&) = delete;
+
+    Node& operator=(Node&&) = delete;
+
     Node& operator=(const Node&) = delete;
 
     using List = std::vector<gsl::not_null<std::shared_ptr<Node>>>;
@@ -38,7 +42,7 @@ public:
 
     virtual Scene* getScene() const;
 
-    void setVisible(bool enabled);
+    void setVisible(bool visible);
 
     bool isVisible() const;
 
@@ -73,7 +77,7 @@ public:
             setParent( m_children[0], nullptr );
     }
 
-    const gsl::not_null<std::shared_ptr<Node>>& getChild(size_t idx) const
+    const gsl::not_null<std::shared_ptr<Node>>& getChild(const size_t idx) const
     {
         BOOST_ASSERT( idx < m_children.size() );
         return m_children[idx];
@@ -108,10 +112,10 @@ public:
         m_materialParameterSetters[name] = std::move( setter );
     }
 
-    const std::function<MaterialParameter::UniformValueSetter>*
-    findMaterialParameterSetter(const std::string& name) const
+    const std::function<MaterialParameter::UniformValueSetter>* findMaterialParameterSetter(
+            const std::string& name) const
     {
-        auto it = m_materialParameterSetters.find( name );
+        const auto it = m_materialParameterSetters.find( name );
         if( it != m_materialParameterSetters.end() )
             return &it->second;
 
@@ -149,13 +153,12 @@ private:
 };
 
 
-inline void setParent(gsl::not_null<std::shared_ptr<Node>> node,
-                      const std::shared_ptr<Node>& parent)
+inline void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent)
 {
     if( !node->getParent().expired() )
     {
         auto p = node->getParent().lock();
-        auto it = std::find( p->m_children.begin(), p->m_children.end(), node );
+        const auto it = std::find( p->m_children.begin(), p->m_children.end(), node );
         BOOST_ASSERT( it != p->m_children.end() );
         node->getParent().lock()->m_children.erase( it );
     }
@@ -176,8 +179,7 @@ inline void setParent(gsl::not_null<std::shared_ptr<Node>> node,
     node->transformChanged();
 }
 
-inline void swapChildren(const gsl::not_null<std::shared_ptr<Node>>& a,
-                         const gsl::not_null<std::shared_ptr<Node>>& b)
+inline void swapChildren(const gsl::not_null<std::shared_ptr<Node>>& a, const gsl::not_null<std::shared_ptr<Node>>& b)
 {
     auto aChildren = a->getChildren();
     for( auto& child : aChildren )

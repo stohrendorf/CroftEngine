@@ -14,7 +14,7 @@ class StateHandler_38 final
 {
 public:
     explicit StateHandler_38(LaraNode& lara)
-            : StateHandler_Pushable( lara, LaraStateId::PushableGrab )
+            : StateHandler_Pushable{lara, LaraStateId::PushableGrab}
     {
     }
 

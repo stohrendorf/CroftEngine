@@ -2,7 +2,6 @@
 
 #include "core/magic.h"
 
-#include <boost/assert.hpp>
 #include <boost/optional.hpp>
 #include <gsl/gsl>
 #include <yaml-cpp/yaml.h>
@@ -94,7 +93,7 @@ enum class CommandOpcode
 
 struct FloorDataChunk
 {
-    explicit FloorDataChunk(FloorData::value_type fd)
+    explicit FloorDataChunk(const FloorData::value_type fd)
             : isLast{extractIsLast( fd )}
             , sequenceCondition{extractSequenceCondition( fd )}
             , type{extractType( fd )}
@@ -105,18 +104,18 @@ struct FloorDataChunk
     SequenceCondition sequenceCondition;
     FloorDataChunkType type;
 
-    static FloorDataChunkType extractType(FloorData::value_type data)
+    static FloorDataChunkType extractType(const FloorData::value_type data)
     {
         return gsl::narrow_cast<FloorDataChunkType>( data & 0xff );
     }
 
 private:
-    static SequenceCondition extractSequenceCondition(FloorData::value_type data)
+    static SequenceCondition extractSequenceCondition(const FloorData::value_type data)
     {
         return gsl::narrow_cast<SequenceCondition>( (data & 0x3f00) >> 8 );
     }
 
-    static constexpr bool extractIsLast(FloorData::value_type data)
+    static constexpr bool extractIsLast(const FloorData::value_type data)
     {
         return (data & 0x8000) != 0;
     }
@@ -135,7 +134,7 @@ public:
 
     explicit ActivationState() = default;
 
-    explicit ActivationState(FloorData::value_type fd)
+    explicit ActivationState(const FloorData::value_type fd)
             : m_oneshot{(fd & Oneshot) != 0}
             , m_inverted{(fd & InvertedActivation) != 0}
             , m_locked{(fd & Locked) != 0}
@@ -148,7 +147,7 @@ public:
         return m_oneshot;
     }
 
-    void setOneshot(bool oneshot) noexcept
+    void setOneshot(const bool oneshot) noexcept
     {
         m_oneshot = oneshot;
     }
@@ -198,22 +197,22 @@ public:
         m_activationSet.reset();
     }
 
-    void setInverted(bool inverted) noexcept
+    void setInverted(const bool inverted) noexcept
     {
         m_inverted = inverted;
     }
 
-    void setLocked(bool locked) noexcept
+    void setLocked(const bool locked) noexcept
     {
         m_locked = locked;
     }
 
-    bool isInActivationSet(size_t i) const
+    bool isInActivationSet(const size_t i) const
     {
         return m_activationSet.test( i );
     }
 
-    static int16_t extractTimeout(FloorData::value_type fd)
+    static int16_t extractTimeout(const FloorData::value_type fd)
     {
         const auto seconds = gsl::narrow_cast<uint8_t>( fd & 0xff );
         if( seconds > 1 )
@@ -253,7 +252,7 @@ public:
     }
 
 private:
-    static ActivationSet extractActivationSet(FloorData::value_type fd)
+    static ActivationSet extractActivationSet(const FloorData::value_type fd)
     {
         const auto bits = gsl::narrow_cast<uint16_t>( (fd & ActivationMask) >> 9 );
         return ActivationSet{bits};
@@ -268,7 +267,7 @@ private:
 
 struct CameraParameters
 {
-    explicit CameraParameters(FloorData::value_type fd)
+    explicit CameraParameters(const FloorData::value_type fd)
             : timeout{gsl::narrow_cast<uint8_t>( fd & 0xff )}
             , oneshot{(fd & 0x100) != 0}
             , isLast{(fd & 0x8000) != 0}
@@ -285,7 +284,7 @@ struct CameraParameters
 
 struct Command
 {
-    explicit Command(FloorData::value_type fd)
+    explicit Command(const FloorData::value_type fd)
             : isLast{extractIsLast( fd )}
             , opcode{extractOpcode( fd )}
             , parameter{extractParameter( fd )}
@@ -297,17 +296,17 @@ struct Command
     uint16_t parameter;
 
 private:
-    static CommandOpcode extractOpcode(FloorData::value_type data)
+    static CommandOpcode extractOpcode(const FloorData::value_type data)
     {
         return gsl::narrow_cast<CommandOpcode>( (data >> 10) & 0x0f );
     }
 
-    static constexpr uint16_t extractParameter(FloorData::value_type data)
+    static constexpr uint16_t extractParameter(const FloorData::value_type data)
     {
         return static_cast<uint16_t>(data & 0x03ffu);
     }
 
-    static constexpr bool extractIsLast(FloorData::value_type data)
+    static constexpr bool extractIsLast(const FloorData::value_type data)
     {
         return (data & 0x8000u) != 0;
     }

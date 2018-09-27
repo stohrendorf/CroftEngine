@@ -20,12 +20,12 @@ void Raptor::update()
     core::Angle animHead = 0_deg;
     if( m_state.health > 0 )
     {
-        ai::AiInfo aiInfo{getLevel(), m_state};
+        const ai::AiInfo aiInfo{getLevel(), m_state};
         if( aiInfo.ahead )
         {
             animHead = aiInfo.angle;
         }
-        ai::updateMood( getLevel(), m_state, aiInfo, true );
+        updateMood( getLevel(), m_state, aiInfo, true );
         animAngle = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         switch( m_state.current_anim_state )
         {
@@ -146,7 +146,7 @@ void Raptor::update()
     }
     else if( m_state.current_anim_state != 5 )
     {
-        m_state.anim = getLevel().findAnimatedModelForType( engine::TR1ItemId::Raptor )->animation + 9
+        m_state.anim = getLevel().findAnimatedModelForType( TR1ItemId::Raptor )->animations + 9
                        + util::rand15( 3 );
         m_state.current_anim_state = 5;
         m_state.frame_number = m_state.anim->firstFrame;

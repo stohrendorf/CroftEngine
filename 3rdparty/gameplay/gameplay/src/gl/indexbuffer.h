@@ -16,7 +16,7 @@ class IndexBuffer : public BindableResource
 public:
     explicit IndexBuffer(const std::string& label = {})
             : BindableResource{glGenBuffers,
-                               [](GLuint handle) { glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, handle ); },
+                               [](const GLuint handle) { glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, handle ); },
                                glDeleteBuffers,
                                GL_BUFFER,
                                label}
@@ -40,7 +40,7 @@ public:
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
-    void setData(const gsl::not_null<const T*>& indexData, GLsizei indexCount, bool dynamic)
+    void setData(const gsl::not_null<const T*>& indexData, const GLsizei indexCount, const bool dynamic)
     {
         Expects( indexCount >= 0 );
 
@@ -83,7 +83,7 @@ public:
         checkGlError();
     }
 
-    void draw(GLenum mode) const
+    void draw(const GLenum mode) const
     {
         glDrawElements( mode, m_indexCount, m_storageType, nullptr );
         checkGlError();

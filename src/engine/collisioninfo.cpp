@@ -8,7 +8,7 @@ namespace engine
 {
 namespace
 {
-int reflectAtSectorBoundary(int target, int current)
+int reflectAtSectorBoundary(const int target, const int current)
 {
     const auto targetSector = target / loader::SectorSize;
     const auto currentSector = current / loader::SectorSize;
@@ -22,7 +22,7 @@ int reflectAtSectorBoundary(int target, int current)
 }
 }
 
-void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Level& level, int height)
+void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Level& level, const int height)
 {
     collisionType = AxisColl_None;
     shift = {0, 0, 0};
@@ -30,7 +30,8 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     auto room = level.m_lara->m_state.position.room;
     const auto refTestPos = laraPos - core::TRVec( 0, height + core::ScalpToHandsHeight, 0 );
-    auto currentSector = gsl::make_not_null( level.findRealFloorSector( refTestPos, gsl::make_not_null( &room ) ) );
+    const auto currentSector = gsl::make_not_null(
+            level::Level::findRealFloorSector( refTestPos, make_not_null( &room ) ) );
 
     mid.init( currentSector, refTestPos, level.m_itemNodes, laraPos.Y, height );
 
@@ -78,7 +79,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     // Front
     auto testPos = refTestPos + core::TRVec( frontX, 0, frontZ );
-    auto sector = gsl::make_not_null( level.findRealFloorSector( testPos, gsl::make_not_null( &room ) ) );
+    auto sector = gsl::make_not_null( level::Level::findRealFloorSector( testPos, make_not_null( &room ) ) );
     front.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
     if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.y < 0 )
     {
@@ -97,7 +98,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     // Front left
     testPos = refTestPos + core::TRVec( frontLeftX, 0, frontLeftZ );
-    sector = gsl::make_not_null( level.findRealFloorSector( testPos, gsl::make_not_null( &room ) ) );
+    sector = gsl::make_not_null( level::Level::findRealFloorSector( testPos, make_not_null( &room ) ) );
     frontLeft.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontLeft.floor.slantClass == SlantClass::Steep
@@ -118,7 +119,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     // Front right
     testPos = refTestPos + core::TRVec( frontRightX, 0, frontRightZ );
-    sector = gsl::make_not_null( level.findRealFloorSector( testPos, gsl::make_not_null( &room ) ) );
+    sector = gsl::make_not_null( level::Level::findRealFloorSector( testPos, make_not_null( &room ) ) );
     frontRight.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontRight.floor.slantClass == SlantClass::Steep
@@ -221,7 +222,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 }
 
 std::set<gsl::not_null<const loader::Room*>>
-CollisionInfo::collectTouchingRooms(const core::TRVec& position, int radius, int height,
+CollisionInfo::collectTouchingRooms(const core::TRVec& position, const int radius, const int height,
                                     const level::Level& level)
 {
     std::set<gsl::not_null<const loader::Room*>> result;
@@ -239,7 +240,7 @@ CollisionInfo::collectTouchingRooms(const core::TRVec& position, int radius, int
 }
 
 bool
-CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, int height, const level::Level& level)
+CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const int height, const level::Level& level)
 {
     const auto rooms = collectTouchingRooms( position, collisionRadius + 50, height + 50, level );
 
@@ -254,7 +255,7 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, int height
     {
         for( const loader::RoomStaticMesh& rsm : room->staticMeshes )
         {
-            auto sm = gsl::make_not_null( level.findStaticMeshById( rsm.meshId ) );
+            const auto sm = gsl::make_not_null( level.findStaticMeshById( rsm.meshId ) );
             if( sm->doNotCollide() )
                 continue;
 

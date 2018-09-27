@@ -12,7 +12,7 @@ class StateHandler_11 final
 {
 public:
     explicit StateHandler_11(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::Reach )
+            : AbstractStateHandler{lara, LaraStateId::Reach}
     {
     }
 

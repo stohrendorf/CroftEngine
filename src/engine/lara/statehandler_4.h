@@ -11,7 +11,7 @@ class StateHandler_4 final
 {
 public:
     explicit StateHandler_4(LaraNode& lara)
-            : StateHandler_Standing( lara, LaraStateId::Pose )
+            : StateHandler_Standing{lara, LaraStateId::Pose}
     {
     }
 

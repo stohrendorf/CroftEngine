@@ -5,6 +5,8 @@
 
 #include <boost/log/trivial.hpp>
 
+// ReSharper disable IdentifierTypo
+
 // Effect objects
 LPALGENEFFECTS alGenEffects = nullptr;
 LPALDELETEEFFECTS alDeleteEffects = nullptr;
@@ -92,9 +94,11 @@ void audio::loadALExtFunctions(const gsl::not_null<ALCdevice*>& device)
     GETPROC( LPALGETAUXILIARYEFFECTSLOTF, alGetAuxiliaryEffectSlotf );
     GETPROC( LPALGETAUXILIARYEFFECTSLOTFV, alGetAuxiliaryEffectSlotfv );
 
+// ReSharper restore IdentifierTypo
+
 #undef GETPROC
 
     isLoaded = true;
 }
 
-#endif // ifndef AL_ALEXT_PROTOTYPES
+#endif

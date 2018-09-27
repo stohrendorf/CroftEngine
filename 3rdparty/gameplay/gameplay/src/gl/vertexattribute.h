@@ -16,7 +16,7 @@ public:
     };
 
     template<typename T, typename U>
-    explicit VertexAttribute(const U T::* member, bool normalized = false)
+    explicit VertexAttribute(const U T::* member, const bool normalized = false)
             : m_type{TypeTraits<U>::TypeId}
             , m_pointer{&(static_cast<T*>(nullptr)->*member)}
             , m_size{TypeTraits<U>::ElementCount}
@@ -26,7 +26,7 @@ public:
     }
 
     template<typename U>
-    explicit VertexAttribute(const SingleAttribute<U>&, bool normalized = false)
+    explicit VertexAttribute(const SingleAttribute<U>&, const bool normalized = false)
             : m_type{TypeTraits<U>::TypeId}
             , m_pointer{nullptr}
             , m_size{TypeTraits<U>::ElementCount}
@@ -35,7 +35,7 @@ public:
     {
     }
 
-    void bind(GLuint index) const
+    void bind(const GLuint index) const
     {
         glVertexAttribPointer( index, m_size, m_type, m_normalized ? GL_TRUE : GL_FALSE, m_stride, m_pointer );
         checkGlError();

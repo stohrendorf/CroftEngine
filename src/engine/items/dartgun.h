@@ -13,7 +13,7 @@ public:
             const gsl::not_null<const loader::Room*>& room,
             const loader::Item& item,
             const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, room, item, true, animatedModel )
+            : ModelItemNode{level, room, item, true, animatedModel}
     {
     }
 
@@ -37,7 +37,7 @@ public:
             return;
         }
 
-        auto axis = core::axisFromAngle( m_state.rotation.Y, 45_deg );
+        auto axis = axisFromAngle( m_state.rotation.Y, 45_deg );
         BOOST_ASSERT( axis.is_initialized() );
 
         core::TRVec d( 0, 512, 0 );
@@ -61,10 +61,10 @@ public:
         }
 
         auto dart = getLevel()
-                .createItem<Dart>( engine::TR1ItemId::Dart, m_state.position.room, m_state.rotation.Y,
+                .createItem<Dart>( TR1ItemId::Dart, m_state.position.room, m_state.rotation.Y,
                                    m_state.position.position - d, 0 );
         dart->activate();
-        dart->m_state.triggerState = engine::items::TriggerState::Active;
+        dart->m_state.triggerState = TriggerState::Active;
 
         playSoundEffect( 0x97 );
         ModelItemNode::update();

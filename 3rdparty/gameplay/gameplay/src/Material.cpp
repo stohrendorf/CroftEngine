@@ -8,10 +8,12 @@
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string/join.hpp>
 
+#include <utility>
+
 namespace gameplay
 {
-Material::Material(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
-        : m_shaderProgram{shaderProgram}
+Material::Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram)
+        : m_shaderProgram{std::move( shaderProgram )}
 {
     for( const auto& u : m_shaderProgram->getHandle().getActiveUniforms() )
         m_parameters.emplace_back( std::make_shared<MaterialParameter>( u.getName() ) );
@@ -26,7 +28,7 @@ Material::Material(const std::string& vshPath, const std::string& fshPath, const
         m_parameters.emplace_back( std::make_shared<MaterialParameter>( u.getName() ) );
 }
 
-void Material::bind(const Node& node)
+void Material::bind(const Node& node) const
 {
     for( const auto& param : m_parameters )
     {

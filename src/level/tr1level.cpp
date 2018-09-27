@@ -32,7 +32,7 @@ void TR1Level::loadFileData()
     m_reader.seek( 0 );
 
     // Version
-    uint32_t file_version = m_reader.readU32();
+    const uint32_t file_version = m_reader.readU32();
 
     if( file_version != 0x00000020 )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR1 Level: Wrong level version" ) );

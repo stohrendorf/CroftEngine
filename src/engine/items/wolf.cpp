@@ -23,7 +23,7 @@ void Wolf::update()
     static constexpr const uint16_t Attacking = 7;
     static constexpr const uint16_t LyingDown = 8;
     static constexpr const uint16_t PrepareToStrike = 9;
-    static constexpr const uint16_t RunningJump = 10;
+    // static constexpr const uint16_t RunningJump = 10;
     static constexpr const uint16_t Dying = 11;
     static constexpr const uint16_t Biting = 12;
 
@@ -32,7 +32,7 @@ void Wolf::update()
     core::Angle rotationToMoveTarget = 0_deg;
     if( getHealth() > 0 )
     {
-        ai::AiInfo aiInfo{getLevel(), m_state};
+        const ai::AiInfo aiInfo{getLevel(), m_state};
 
         if( aiInfo.ahead )
         {
@@ -185,7 +185,7 @@ void Wolf::update()
                 roll = rotationToMoveTarget;
                 if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x774f) )
                 {
-                    emitParticle( core::TRVec{0, -14, 174}, 6, &engine::createBloodSplat );
+                    emitParticle( core::TRVec{0, -14, 174}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 50;
                     m_state.required_anim_state = Jumping;
@@ -195,7 +195,7 @@ void Wolf::update()
             case Biting:
                 if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x774f) && aiInfo.ahead )
                 {
-                    emitParticle( core::TRVec{0, -14, 174}, 6, &engine::createBloodSplat );
+                    emitParticle( core::TRVec{0, -14, 174}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 100;
                     m_state.required_anim_state = PrepareToStrike;
@@ -210,7 +210,7 @@ void Wolf::update()
         const auto r = util::rand15( 3 );
         getSkeleton()->setAnimation(
                 m_state,
-                gsl::make_not_null( &getLevel().m_animatedModels[m_state.type]->animation[20 + r] ),
+                gsl::make_not_null( &getLevel().m_animatedModels[m_state.type]->animations[20 + r] ),
                 0 );
         BOOST_ASSERT( m_state.current_anim_state == Dying );
     }

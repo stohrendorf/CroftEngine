@@ -12,7 +12,7 @@ class StateHandler_54 final
 {
 public:
     explicit StateHandler_54(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::Handstand )
+            : AbstractStateHandler{lara, LaraStateId::Handstand}
     {
     }
 

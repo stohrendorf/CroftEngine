@@ -15,7 +15,7 @@ void Bear::update()
 
     m_state.initCreatureInfo( getLevel() );
 
-    core::Angle rotationToMoveTarget = 0_deg;
+    core::Angle rotationToMoveTarget;
 
     static constexpr uint16_t Walking = 0;
     static constexpr uint16_t GettingDown = 1;
@@ -30,8 +30,8 @@ void Bear::update()
 
     if( getHealth() > 0 )
     {
-        ai::AiInfo aiInfo{getLevel(), m_state};
-        ai::updateMood( getLevel(), m_state, aiInfo, true );
+        const ai::AiInfo aiInfo{getLevel(), m_state};
+        updateMood( getLevel(), m_state, aiInfo, true );
 
         rotationToMoveTarget = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         if( m_state.is_hit )
@@ -165,7 +165,7 @@ void Bear::update()
             case RunningAttack:
                 if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x2406c) )
                 {
-                    emitParticle( core::TRVec{0, 96, 335}, 14, &engine::createBloodSplat );
+                    emitParticle( core::TRVec{0, 96, 335}, 14, &createBloodSplat );
                     getLevel().m_lara->m_state.health -= 200;
                     getLevel().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = GettingDown;

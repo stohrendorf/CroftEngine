@@ -16,7 +16,7 @@ class StateHandler_0 final
 public:
 
     explicit StateHandler_0(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::WalkForward )
+            : AbstractStateHandler{lara, LaraStateId::WalkForward}
     {
     }
 

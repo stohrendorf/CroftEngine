@@ -2,7 +2,6 @@
 
 #include "util.h"
 #include "pixel.h"
-#include "../gsl_util.h"
 
 #include <gsl/gsl>
 
@@ -67,7 +66,7 @@ struct FastFill<RGBA8, 4>
 {
     static_assert( sizeof( RGBA8 ) == 4, "Type size mismatch" );
 
-    static inline void fill(const gsl::not_null<RGBA8*>& data, size_t n, const RGBA8& value)
+    static inline void fill(const gsl::not_null<RGBA8*>& data, const size_t n, const RGBA8& value)
     {
         const auto scalar = value.r;
         if( scalar == value.g && scalar == value.b && scalar == value.a )
@@ -81,7 +80,7 @@ struct FastFill<RGBA8, 4>
 template<typename T>
 inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
 {
-    detail::FastFill<T, sizeof( T )>::fill( data, n, value );
+    FastFill<T, sizeof( T )>::fill( data, n, value );
 }
 }
 
@@ -91,7 +90,7 @@ class Image
 public:
     using StorageType = TStorage;
 
-    explicit Image(GLint width, GLint height, const StorageType* data = nullptr)
+    explicit Image(const GLint width, const GLint height, const StorageType* data = nullptr)
             : m_data{}
             , m_width{width}
             , m_height{height}
@@ -104,6 +103,14 @@ public:
         else
             m_data.assign( data, data + dataSize );
     }
+
+    Image(const Image&) = delete;
+
+    Image(Image&&) noexcept = delete;
+
+    Image& operator=(const Image&) = delete;
+
+    Image& operator=(Image&&) = delete;
 
     ~Image() = default;
 
@@ -140,7 +147,7 @@ public:
         return m_width;
     }
 
-    StorageType& at(GLint x, GLint y)
+    StorageType& at(const GLint x, const GLint y)
     {
         Expects( x >= 0 );
         Expects( x < m_width );
@@ -155,7 +162,7 @@ public:
         return m_data[y * m_width + x];
     }
 
-    void set(GLint x, GLint y, const StorageType& pixel, bool blend = false)
+    void set(const GLint x, const GLint y, const StorageType& pixel, const bool blend = false)
     {
         if( x < 0 || x >= m_width || y < 0 || y >= m_height )
             return;
@@ -172,7 +179,7 @@ public:
         }
     }
 
-    const StorageType& at(GLint x, GLint y) const
+    const StorageType& at(const GLint x, const GLint y) const
     {
         Expects( x >= 0 );
         Expects( x < m_width );
@@ -193,7 +200,7 @@ public:
             detail::fill( gsl::make_not_null( m_data.data() ), m_data.size(), color );
     }
 
-    void line(GLint x0, GLint y0, GLint x1, GLint y1, const StorageType& color, bool blend = false)
+    void line(GLint x0, GLint y0, const GLint x1, const GLint y1, const StorageType& color, const bool blend = false)
     {
         // shamelessly copied from wikipedia
         const GLint dx = abs( x1 - x0 );
@@ -210,7 +217,7 @@ public:
             if( x0 == x1 && y0 == y1 )
                 break;
 
-            auto e2 = 2 * err;
+            const auto e2 = 2 * err;
             if( e2 > dy )
             {
                 err += dy;
@@ -225,8 +232,6 @@ public:
     }
 
 private:
-
-    Image& operator=(const Image&) = delete;
 
     std::vector<StorageType> m_data;
 

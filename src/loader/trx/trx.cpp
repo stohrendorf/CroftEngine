@@ -1,5 +1,11 @@
 #include "trx.h"
 
+#include <boost/lexical_cast.hpp>
+#include <boost/log/trivial.hpp>
+
+#include <gsl/gsl>
+#include <utility>
+
 namespace
 {
 boost::filesystem::path readSymlink(const boost::filesystem::path& root,
@@ -24,7 +30,7 @@ boost::filesystem::path readSymlink(const boost::filesystem::path& root,
         boost::algorithm::trim( head );
         boost::algorithm::replace_all( head, "\\", "/" );
         srcTimestamp = std::max( srcTimestamp, std::chrono::system_clock::from_time_t(
-                boost::filesystem::last_write_time( root / ref ) ) );
+                last_write_time( root / ref ) ) );
         return readSymlink( root, head, srcTimestamp );
     }
     else
@@ -41,7 +47,7 @@ namespace trx
 Rectangle::Rectangle(const std::string& serialized)
 {
     // Format: (x0--x1)(y0--y1)
-    std::regex fmt( R"(\(([0-9]+)--([0-9]+)\)\(([0-9]+)--([0-9]+)\).*)" );
+    const std::regex fmt( R"(\(([0-9]+)--([0-9]+)\)\(([0-9]+)--([0-9]+)\).*)" );
     std::smatch matches;
     if( !std::regex_match( serialized, matches, fmt ) )
     {
@@ -65,7 +71,7 @@ Rectangle::Rectangle(const std::string& serialized)
 TexturePart::TexturePart(const std::string& serialized)
 {
     std::vector<std::string> parts;
-    boost::algorithm::split( parts, serialized, boost::is_any_of( "\\/" ) );
+    split( parts, serialized, boost::is_any_of( "\\/" ) );
     if( parts.size() != 2 || parts[0].size() != 32 )
     {
         BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to parse Glidos texture part" ) );
@@ -248,7 +254,7 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
         else
         {
             std::vector<std::string> parts;
-            boost::algorithm::split( parts, line, boost::is_any_of( " \t" ) );
+            split( parts, line, boost::is_any_of( " \t" ) );
             if( parts.size() != 2 )
             {
                 BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to parse mapping line" ) );
@@ -265,14 +271,14 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
         }
     }
 
-    boost::filesystem::directory_iterator end{};
+    const boost::filesystem::directory_iterator end{};
 
     for( const auto& texturePath : dirByTextureId )
     {
         // contains root+base
         const auto fullTexturePath = m_root / texturePath.second;
 
-        if( !boost::filesystem::is_directory( fullTexturePath ) )
+        if( !is_directory( fullTexturePath ) )
         {
             BOOST_LOG_TRIVIAL( warning ) << "Directory " << fullTexturePath << " does not exist, skipping";
             continue;
@@ -295,7 +301,7 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
             {
                 auto& ts = timestamps[texturePath.first];
                 ts = std::max( ts, rootTimestamp );
-                auto link = readSymlink(
+                const auto link = readSymlink(
                         m_root,
                         relative( it->path(), m_root ),
                         ts ).lexically_normal();
@@ -310,16 +316,16 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
     }
 }
 
-Glidos::Glidos(const boost::filesystem::path& baseDir, const std::function<void(const std::string&)>& statusCallback)
-        : m_baseDir{baseDir}
+Glidos::Glidos(boost::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback)
+        : m_baseDir{std::move( baseDir )}
 {
-    if( !boost::filesystem::is_directory( m_baseDir ) )
+    if( !is_directory( m_baseDir ) )
         BOOST_THROW_EXCEPTION( std::runtime_error( "Base path is not a directory" ) );
 
     BOOST_LOG_TRIVIAL( debug ) << "Loading Glidos texture pack from " << m_baseDir;
 
     m_rootTimestamp = std::chrono::system_clock::from_time_t(
-            boost::filesystem::last_write_time( m_baseDir / "equiv.txt" )
+            last_write_time( m_baseDir / "equiv.txt" )
     );
 
     statusCallback( "Glidos - Loading equiv.txt" );
@@ -329,10 +335,10 @@ Glidos::Glidos(const boost::filesystem::path& baseDir, const std::function<void(
 
     std::vector<PathMap> maps;
 
-    boost::filesystem::directory_iterator end{};
+    const boost::filesystem::directory_iterator end{};
     for( boost::filesystem::directory_iterator it{m_baseDir}; it != end; ++it )
     {
-        if( !boost::filesystem::is_regular_file( it->path() ) )
+        if( !is_regular_file( it->path() ) )
             continue;
 
         if( it->path().filename() == "equiv.txt" )

@@ -19,32 +19,40 @@ struct TRVec
 
     Scalar X = 0, Y = 0, Z = 0;
 
-    TRVec() = default;
+    constexpr TRVec() noexcept = default;
 
-    TRVec(const TRVec&) = default;
+    constexpr TRVec(const TRVec&) noexcept = default;
 
-    explicit TRVec(const glm::vec3& v)
+    constexpr TRVec(TRVec&&) noexcept = default;
+
+    explicit constexpr TRVec(const glm::vec3& v) noexcept
             : X{gsl::narrow_cast<Scalar>( v.x )}
             , Y{-gsl::narrow_cast<Scalar>( v.y )}
             , Z{-gsl::narrow_cast<Scalar>( v.z )}
     {
     }
 
-    explicit TRVec(const glm::ivec3& v)
+    constexpr explicit TRVec(const glm::ivec3& v) noexcept
             : X{v.x}
             , Y{-v.y}
             , Z{-v.z}
     {
     }
 
-    TRVec(Scalar x, Scalar y, Scalar z)
+    constexpr TRVec(const Scalar x, const Scalar y, const Scalar z) noexcept
             : X{x}
             , Y{y}
             , Z{z}
     {
     }
 
-    TRVec operator-(const TRVec& rhs) const noexcept
+    ~TRVec() noexcept = default;
+
+    constexpr TRVec& operator=(const TRVec&) noexcept = default;
+
+    constexpr TRVec& operator=(TRVec&&) noexcept = default;
+
+    constexpr TRVec operator-(const TRVec& rhs) const noexcept
     {
         return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
     }
@@ -57,12 +65,12 @@ struct TRVec
         return *this;
     }
 
-    TRVec operator/(int n) const noexcept
+    constexpr TRVec operator/(const int n) const noexcept
     {
         return {X / n, Y / n, Z / n};
     }
 
-    TRVec& operator/=(int n) noexcept
+    TRVec& operator/=(const int n) noexcept
     {
         X /= n;
         Y /= n;
@@ -70,7 +78,7 @@ struct TRVec
         return *this;
     }
 
-    TRVec operator+(const TRVec& rhs) const noexcept
+    constexpr TRVec operator+(const TRVec& rhs) const noexcept
     {
         return {X + rhs.X, Y + rhs.Y, Z + rhs.Z};
     }
@@ -83,9 +91,7 @@ struct TRVec
         return *this;
     }
 
-    TRVec& operator=(const TRVec&) = default;
-
-    glm::vec3 toRenderSystem() const noexcept
+    constexpr glm::vec3 toRenderSystem() const noexcept
     {
         return {
                 gsl::narrow_cast<glm::float_t>( X ),

@@ -14,7 +14,7 @@ class StateHandler_15 final
 {
 public:
     explicit StateHandler_15(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::JumpPrepare )
+            : AbstractStateHandler{lara, LaraStateId::JumpPrepare}
     {
     }
 

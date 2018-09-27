@@ -29,13 +29,15 @@ const std::array<const uint8_t, 98> charToSprite{
         0, 0
 };
 
-void drawLine(gameplay::gl::Image<gameplay::gl::RGBA8>& img, int x0, int y0, int width, int height,
+void drawLine(gameplay::gl::Image<gameplay::gl::RGBA8>& img,
+              const int x0, const int y0, const int width, const int height,
               const loader::ByteColor& color)
 {
     img.line( x0, y0, x0 + width, y0 + height, color.toTextureColor() );
 }
 
-void drawOutline(gameplay::gl::Image<gameplay::gl::RGBA8>& img, int x, int y, int width, int height,
+void drawOutline(gameplay::gl::Image<gameplay::gl::RGBA8>& img,
+                 const int x, const int y, const int width, const int height,
                  const loader::Palette& palette)
 {
     // top
@@ -52,7 +54,8 @@ void drawOutline(gameplay::gl::Image<gameplay::gl::RGBA8>& img, int x, int y, in
     drawLine( img, x, y + height, 0, -height, palette.colors[31] );
 }
 
-void drawChar(gameplay::gl::Image<gameplay::gl::RGBA8>& img, int x, int y, int scaleX, int scaleY,
+void drawChar(gameplay::gl::Image<gameplay::gl::RGBA8>& img,
+              const int x, const int y, const int scaleX, const int scaleY,
               const loader::Sprite& sprite)
 {
     BOOST_ASSERT( sprite.image != nullptr );
@@ -74,12 +77,12 @@ void drawChar(gameplay::gl::Image<gameplay::gl::RGBA8>& img, int x, int y, int s
             sprite.t0.y * sprite.image->getHeight(),
             sprite.t1.x * sprite.image->getWidth() - 1,
             sprite.t1.y * sprite.image->getHeight() - 1
-            );
-    src.resize(dstW, dstH);
+    );
+    src.resize( dstW, dstH );
 
-    for(int dy=0; dy<src.height(); ++dy)
+    for( int dy = 0; dy < src.height(); ++dy )
     {
-        for(int dx=0; dx<src.width(); ++dx)
+        for( int dx = 0; dx < src.width(); ++dx )
         {
             img.set( x + dx, y + dy, src( dx, dy ), true );
         }

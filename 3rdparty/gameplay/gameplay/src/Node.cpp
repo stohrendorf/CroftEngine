@@ -53,7 +53,7 @@ Scene* Node::getScene() const
     return nullptr;
 }
 
-void Node::setVisible(bool visible)
+void Node::setVisible(const bool visible)
 {
     m_visible = visible;
 }

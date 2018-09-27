@@ -11,7 +11,7 @@ namespace items
 {
 namespace
 {
-const char* toString(TriggerState s)
+const char* toString(const TriggerState s)
 {
     switch( s )
     {
@@ -44,7 +44,7 @@ TriggerState parseTriggerState(const std::string& s)
 
 void ItemNode::applyTransform()
 {
-    glm::vec3 tr = m_state.position.position.toRenderSystem() - m_state.position.room->position.toRenderSystem();
+    const glm::vec3 tr = m_state.position.position.toRenderSystem() - m_state.position.room->position.toRenderSystem();
     getNode()->setLocalMatrix( translate( glm::mat4{1.0f}, tr ) * m_state.rotation.toMatrix() );
 
     updateSounds();
@@ -110,18 +110,18 @@ ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
         }
 {
     m_skeleton->setAnimation( m_state,
-                              gsl::make_not_null( animatedModel.animation ),
-                              animatedModel.animation->firstFrame );
+                              gsl::make_not_null( animatedModel.animations ),
+                              animatedModel.animations->firstFrame );
 
     for( gsl::index boneIndex = 0; boneIndex < animatedModel.meshes.size(); ++boneIndex )
     {
         auto node = make_not_null_shared<gameplay::Node>(
-                getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
+                m_skeleton->getId() + "/bone:" + std::to_string( boneIndex ) );
         node->setDrawable( animatedModel.models[boneIndex].get() );
-        addChild( gsl::make_not_null( getNode() ), node );
+        addChild( gsl::make_not_null( m_skeleton ), node );
     }
 
-    BOOST_ASSERT( getNode()->getChildren().size() == gsl::narrow<size_t>( animatedModel.meshes.size() ) );
+    BOOST_ASSERT( m_skeleton->getChildren().size() == gsl::narrow<size_t>( animatedModel.meshes.size() ) );
 
     m_skeleton->updatePose( m_state );
 }
@@ -295,7 +295,7 @@ void ItemNode::kill()
 
 bool ItemNode::triggerPickUp()
 {
-    if( m_state.triggerState != engine::items::TriggerState::Invisible )
+    if( m_state.triggerState != TriggerState::Invisible )
     {
         return false;
     }
@@ -460,8 +460,8 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
            && z <= aFrame->bbox.maxZ + radius;
 }
 
-void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz,
-                              bool withXZCollRadius)
+void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, const bool enableSpaz,
+                              const bool withXZCollRadius)
 {
     const auto dx = lara.m_state.position.position.X - m_state.position.position.X;
     const auto dz = lara.m_state.position.position.Z - m_state.position.position.Z;
@@ -564,7 +564,7 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
         {
             if( laraSphere.radius <= 0 )
                 continue;
-            if( glm::distance( laraSphere.getPosition(), itemSphere.value().getPosition() )
+            if( distance( laraSphere.getPosition(), itemSphere.value().getPosition() )
                 >= util::square( itemSphere.value().radius + laraSphere.radius ) )
                 continue;
 
@@ -576,8 +576,8 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
     return m_state.touch_bits != 0;
 }
 
-void ModelItemNode::emitParticle(const core::TRVec& pos,
-                                 size_t boneIndex,
+void ModelItemNode::emitParticle(const core::TRVec& localPosition,
+                                 const size_t boneIndex,
                                  gsl::not_null<std::shared_ptr<Particle>> (* generate)(const level::Level& level,
                                                                                        const core::RoomBoundPosition&,
                                                                                        int16_t, core::Angle))
@@ -593,7 +593,7 @@ void ModelItemNode::emitParticle(const core::TRVec& pos,
 
     auto roomPos = m_state.position;
     roomPos.position = core::TRVec{
-            glm::vec3{glm::translate( itemSpheres[boneIndex].m, pos.toRenderSystem() )[3]}};
+            glm::vec3{translate( itemSpheres[boneIndex].m, localPosition.toRenderSystem() )[3]}};
     auto particle = generate( getLevel(), roomPos, m_state.speed, m_state.rotation.Y );
     getLevel().m_particles.emplace_back( particle );
 }
@@ -775,8 +775,8 @@ sol::usertype<ItemState>& ItemState::userType()
             "patch_heights", [](ItemState& /*self*/, int /*delta*/) { /* TODO */ },
             "health", &ItemState::health,
             "do_enemy_push", []() { /* TODO */ },
-            "set_y_angle", [](ItemState& self, int16_t angle) { self.rotation.Y = core::Angle( angle ); },
-            "set_collidable", [](ItemState& self, bool flag) { self.collidable = flag; },
+            "set_y_angle", [](ItemState& self, const int16_t angle) { self.rotation.Y = core::Angle( angle ); },
+            "set_collidable", [](ItemState& self, const bool flag) { self.collidable = flag; },
             "frame_number", &ItemState::frame_number,
             "enable_ai", &ItemState::initCreatureInfo,
             "creature_info", sol::readonly( &ItemState::creatureInfo )
@@ -822,7 +822,7 @@ YAML::Node ItemState::save(const level::Level& lvl) const
 
 void ItemState::load(const YAML::Node& n, const level::Level& lvl)
 {
-    if( engine::EnumUtil<engine::TR1ItemId>::fromString( n["type"].as<std::string>() ) != type )
+    if( EnumUtil<TR1ItemId>::fromString( n["type"].as<std::string>() ) != type )
         BOOST_THROW_EXCEPTION( std::domain_error( "Item state has wrong type" ) );
 
     position.position.load( n["position"] );

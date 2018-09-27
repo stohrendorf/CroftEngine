@@ -4,14 +4,13 @@
 #include "sndfile/helpers.h"
 
 #include <AL/al.h>
-#include <boost/noncopyable.hpp>
 #include <boost/log/trivial.hpp>
 
 #include <vector>
 
 namespace audio
 {
-class BufferHandle final : public boost::noncopyable
+class BufferHandle final
 {
     const ALuint m_handle;
 
@@ -28,9 +27,17 @@ class BufferHandle final : public boost::noncopyable
 
 public:
     explicit BufferHandle()
-            : m_handle( createHandle() )
+            : m_handle{createHandle()}
     {
     }
+
+    explicit BufferHandle(const BufferHandle&) = delete;
+
+    explicit BufferHandle(BufferHandle&&) = delete;
+
+    BufferHandle& operator=(const BufferHandle&) = delete;
+
+    BufferHandle& operator=(BufferHandle&&) = delete;
 
     ~BufferHandle()
     {
@@ -43,13 +50,15 @@ public:
         return m_handle;
     }
 
-    void fill(const int16_t* samples, size_t sampleCount, int channels, int sampleRate)
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void fill(const int16_t* samples, const size_t sampleCount, const int channels, const int sampleRate)
     {
         alBufferData( m_handle, channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, samples,
                       gsl::narrow<ALsizei>( sampleCount * sizeof( samples[0] ) ), sampleRate );
         DEBUG_CHECK_AL_ERROR();
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
     bool fillFromWav(const uint8_t* data)
     {
         Expects( data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F' );

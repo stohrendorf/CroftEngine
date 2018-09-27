@@ -28,16 +28,16 @@ using namespace level;
 void TR5Level::loadFileData()
 {
     // Version
-    uint32_t file_version = m_reader.readU32();
+    const uint32_t file_version = m_reader.readU32();
 
     if( file_version != 0x00345254 )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Level: Wrong level version" ) );
 
-    auto numRoomTextiles = m_reader.readU16();
-    auto numObjTextiles = m_reader.readU16();
-    auto numBumpTextiles = m_reader.readU16();
-    auto numMiscTextiles = 3;
-    auto numTextiles = numRoomTextiles + numObjTextiles + numBumpTextiles + numMiscTextiles;
+    const auto numRoomTextiles = m_reader.readU16();
+    const auto numObjTextiles = m_reader.readU16();
+    const auto numBumpTextiles = m_reader.readU16();
+    const auto numMiscTextiles = 3;
+    const auto numTextiles = numRoomTextiles + numObjTextiles + numBumpTextiles + numMiscTextiles;
 
     auto uncomp_size = m_reader.readU32();
     if( uncomp_size == 0 )
@@ -231,7 +231,7 @@ void TR5Level::loadFileData()
     m_reader.skip( 6 );   // In TR5, sample indices are followed by 6 0xCD bytes. - correct - really 0xCDCDCDCDCDCD
 
     // LOAD SAMPLES
-    if( auto i = m_reader.readU32() )
+    if( const auto i = m_reader.readU32() )
     {
         m_samplesCount = i;
         // Since sample data is the last part, we simply load whole last

@@ -15,11 +15,17 @@ class MeshPart
 public:
     using MaterialParameterSetter = void(const Node& node, Material& material);
 
-    explicit MeshPart(const std::shared_ptr<gl::VertexArray>& vao);
+    explicit MeshPart(std::shared_ptr<gl::VertexArray> vao);
 
     ~MeshPart();
 
-    MeshPart(const MeshPart& copy) = delete;
+    MeshPart(const MeshPart&) = delete;
+
+    MeshPart(MeshPart&&) = delete;
+
+    MeshPart& operator=(MeshPart&&) = delete;
+
+    MeshPart& operator=(const MeshPart&) = delete;
 
     void setMaterial(const std::shared_ptr<Material>& material)
     {

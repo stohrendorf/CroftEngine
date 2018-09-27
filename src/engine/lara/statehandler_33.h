@@ -12,14 +12,13 @@ class StateHandler_33 final
 {
 public:
     explicit StateHandler_33(LaraNode& lara)
-            : StateHandler_OnWater( lara, LaraStateId::OnWaterStop )
+            : StateHandler_OnWater{lara, LaraStateId::OnWaterStop}
     {
     }
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        int spd = std::max( 0, getLara().m_state.fallspeed - 4 );
-        getLara().m_state.fallspeed = spd;
+        getLara().m_state.fallspeed = std::max( 0, getLara().m_state.fallspeed - 4 );
 
         if( getLara().m_state.health <= 0 )
         {

@@ -11,7 +11,7 @@ class StateHandler_6 final
 {
 public:
     explicit StateHandler_6(LaraNode& lara)
-            : StateHandler_TurnSlow( lara, LaraStateId::TurnRightSlow )
+            : StateHandler_TurnSlow{lara, LaraStateId::TurnRightSlow}
     {
     }
 

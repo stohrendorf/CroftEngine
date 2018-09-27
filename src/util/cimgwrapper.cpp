@@ -78,7 +78,7 @@ int CImgWrapper::height() const
     return m_interleaved ? m_image->depth() : m_image->height();
 }
 
-void CImgWrapper::resize(int width, int height)
+void CImgWrapper::resize(const int width, const int height)
 {
     unshare();
     if( !m_interleaved )
@@ -87,7 +87,7 @@ void CImgWrapper::resize(int width, int height)
         m_image->resize( 4, width, height, 1, 6 );
 }
 
-void CImgWrapper::crop(int x0, int y0, int x1, int y1)
+void CImgWrapper::crop(const int x0, const int y0, const int x1, const int y1)
 {
     unshare();
     if( !m_interleaved )
@@ -100,7 +100,7 @@ void CImgWrapper::crop(int x0, int y0, int x1, int y1)
         );
 }
 
-uint8_t& CImgWrapper::operator()(int x, int y, int c)
+uint8_t& CImgWrapper::operator()(const int x, const int y, const int c)
 {
     BOOST_ASSERT( x >= 0 && x < width() );
     BOOST_ASSERT( y >= 0 && y < height() );
@@ -110,7 +110,7 @@ uint8_t& CImgWrapper::operator()(int x, int y, int c)
         return (*m_image)( c, x, y, 0 );
 }
 
-gameplay::gl::RGBA8& CImgWrapper::operator()(int x, int y)
+gameplay::gl::RGBA8& CImgWrapper::operator()(const int x, const int y)
 {
     BOOST_ASSERT( x >= 0 && x < width() );
     BOOST_ASSERT( y >= 0 && y < height() );
@@ -118,7 +118,7 @@ gameplay::gl::RGBA8& CImgWrapper::operator()(int x, int y)
     return reinterpret_cast<gameplay::gl::RGBA8&>( (*m_image)( 0, x, y, 0 ) );
 }
 
-uint8_t CImgWrapper::operator()(int x, int y, int c) const
+uint8_t CImgWrapper::operator()(const int x, const int y, const int c) const
 {
     if( !m_interleaved )
         return (*m_image)( x, y, 0, c );
@@ -134,12 +134,13 @@ const uint8_t* CImgWrapper::data() const
 void CImgWrapper::savePng(const std::string& filename)
 {
     deinterleave();
+    // ReSharper disable once CppExpressionWithoutSideEffects
     m_image->save_png( filename.c_str(), 1 );
 }
 
 void CImgWrapper::unshare()
 {
-    if(m_image->is_shared())
+    if( m_image->is_shared() )
         m_image = std::make_unique<cimg_library::CImg<uint8_t>>( *m_image, false );
 }
 }

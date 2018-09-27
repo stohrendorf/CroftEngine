@@ -6,12 +6,8 @@ namespace gl
 {
 class Shader final
 {
-    Shader(const Shader&) = delete;
-
-    Shader& operator=(const Shader&) = delete;
-
 public:
-    explicit Shader(GLenum type, const std::string& label = {})
+    explicit Shader(const GLenum type, const std::string& label = {})
             : m_handle{glCreateShader( type )}
             , m_type{type}
     {
@@ -25,6 +21,14 @@ public:
             checkGlError();
         }
     }
+
+    Shader(const Shader&) = delete;
+
+    Shader(Shader&&) = delete;
+
+    Shader& operator=(const Shader&) = delete;
+
+    Shader& operator=(Shader&&) = delete;
 
     ~Shader()
     {
@@ -46,7 +50,7 @@ public:
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void setSource(const GLchar* src[], GLsizei n)
+    void setSource(const GLchar* src[], const GLsizei n)
     {
         glShaderSource( m_handle, n, src, nullptr );
         checkGlError();
@@ -78,7 +82,7 @@ public:
         }
         if( length > 0 )
         {
-            char* infoLog = new char[length];
+            const auto infoLog = new char[length];
             glGetShaderInfoLog( m_handle, length, nullptr, infoLog );
             checkGlError();
             infoLog[length - 1] = '\0';

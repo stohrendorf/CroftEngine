@@ -14,7 +14,7 @@ class StateHandler_29 final
 {
 public:
     explicit StateHandler_29(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::FallBackward )
+            : AbstractStateHandler{lara, LaraStateId::FallBackward}
     {
     }
 

@@ -16,7 +16,7 @@ public:
          const gsl::not_null<const loader::Room*>& room,
          const loader::Item& item,
          const loader::SkeletalModelType& animatedModel)
-            : AIAgent( level, room, item, animatedModel )
+            : AIAgent{level, room, item, animatedModel}
     {
     }
 

@@ -63,7 +63,7 @@ namespace engine
 {
 namespace lara
 {
-std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraStateId id, LaraNode& lara)
+std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(const loader::LaraStateId id, LaraNode& lara)
 {
     switch( id )
     {
@@ -181,18 +181,18 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(loader::LaraS
             return std::make_unique<StateHandler_55>( lara );
         default:
             BOOST_LOG_TRIVIAL( error ) << "No state handler for state " << loader::toString( id );
-            throw std::runtime_error( "Unhandled state" );
+            BOOST_THROW_EXCEPTION( std::runtime_error( "Unhandled state" ) );
     }
-
-    return nullptr;
 }
 
-void AbstractStateHandler::setAir(int a) noexcept
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setAir(const int a) noexcept
 {
     m_lara.setAir( a );
 }
 
-void AbstractStateHandler::setMovementAngle(core::Angle angle) noexcept
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setMovementAngle(const core::Angle angle) noexcept
 {
     m_lara.setMovementAngle( angle );
 }
@@ -207,7 +207,8 @@ HandStatus AbstractStateHandler::getHandStatus() const noexcept
     return m_lara.getHandStatus();
 }
 
-void AbstractStateHandler::setHandStatus(HandStatus status) noexcept
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setHandStatus(const HandStatus status) noexcept
 {
     m_lara.setHandStatus( status );
 }
@@ -217,7 +218,8 @@ loader::LaraStateId AbstractStateHandler::getCurrentAnimState() const
     return m_lara.getCurrentAnimState();
 }
 
-void AbstractStateHandler::setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setAnimation(const loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
 {
     m_lara.setAnimation( anim, firstFrame );
     m_lara.drawRoutine();
@@ -228,12 +230,14 @@ const level::Level& AbstractStateHandler::getLevel() const
     return m_lara.getLevel();
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::placeOnFloor(const CollisionInfo& collisionInfo)
 {
     m_lara.placeOnFloor( collisionInfo );
 }
 
-void AbstractStateHandler::setYRotationSpeed(core::Angle spd)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setYRotationSpeed(const core::Angle spd)
 {
     m_lara.setYRotationSpeed( spd );
 }
@@ -243,24 +247,26 @@ core::Angle AbstractStateHandler::getYRotationSpeed() const
     return m_lara.getYRotationSpeed();
 }
 
-void AbstractStateHandler::subYRotationSpeed(core::Angle val,
-                                             core::Angle limit)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::subYRotationSpeed(const core::Angle val, const core::Angle limit)
 {
     m_lara.subYRotationSpeed( val, limit );
 }
 
-void AbstractStateHandler::addYRotationSpeed(core::Angle val,
-                                             core::Angle limit)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::addYRotationSpeed(const core::Angle val, const core::Angle limit)
 {
     m_lara.addYRotationSpeed( val, limit );
 }
 
-void AbstractStateHandler::setFallSpeedOverride(int v)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setFallSpeedOverride(const int v)
 {
     m_lara.setFallSpeedOverride( v );
 }
 
-void AbstractStateHandler::dampenHorizontalSpeed(float f)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::dampenHorizontalSpeed(const float f)
 {
     m_lara.dampenHorizontalSpeed( f );
 }
@@ -270,12 +276,14 @@ core::Angle AbstractStateHandler::getCurrentSlideAngle() const noexcept
     return m_lara.getCurrentSlideAngle();
 }
 
-void AbstractStateHandler::setCurrentSlideAngle(core::Angle a) noexcept
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setCurrentSlideAngle(const core::Angle a) noexcept
 {
     m_lara.setCurrentSlideAngle( a );
 }
 
-void AbstractStateHandler::setGoalAnimState(loader::LaraStateId state)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setGoalAnimState(const loader::LaraStateId state)
 {
     m_lara.setGoalAnimState( state );
 }
@@ -285,7 +293,7 @@ loader::LaraStateId AbstractStateHandler::getGoalAnimState() const
     return m_lara.getGoalAnimState();
 }
 
-bool AbstractStateHandler::canClimbOnto(core::Axis axis) const
+bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
 {
     auto pos = m_lara.m_state.position.position;
     switch( axis )
@@ -304,9 +312,9 @@ bool AbstractStateHandler::canClimbOnto(core::Axis axis) const
             break;
     }
 
-    auto sector = gsl::make_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
-    HeightInfo floor = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
-    HeightInfo ceil = HeightInfo::fromCeiling( sector, pos, getLevel().m_itemNodes );
+    const auto sector = gsl::make_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
+    const HeightInfo floor = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
+    const HeightInfo ceil = HeightInfo::fromCeiling( sector, pos, getLevel().m_itemNodes );
     return floor.y != -loader::HeightLimit && floor.y - pos.Y > 0 && ceil.y - pos.Y < -400;
 }
 
@@ -332,7 +340,7 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
     }
 
     const auto bbox = getBoundingBox();
-    int spaceToReach = collisionInfo.front.floor.y - bbox.minY;
+    const int spaceToReach = collisionInfo.front.floor.y - bbox.minY;
 
     if( spaceToReach < 0 && m_lara.m_state.fallspeed + spaceToReach < 0 )
     {
@@ -458,6 +466,7 @@ bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
     return true;
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::applyShift(const CollisionInfo& collisionInfo)
 {
     m_lara.applyShift( collisionInfo );
@@ -517,7 +526,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
         targetAngle = 0_deg;
     }
 
-    core::Angle dy = abs( targetAngle - m_lara.m_state.rotation.Y );
+    const core::Angle dy = abs( targetAngle - m_lara.m_state.rotation.Y );
     applyShift( collisionInfo );
     if( dy > 90_deg || dy < -90_deg )
     {
@@ -597,14 +606,14 @@ bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
     return true;
 }
 
-int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, int dist) const
+int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, const int dist) const
 {
     auto pos = m_lara.m_state.position.position;
     pos.X += angle.sin() * dist;
     pos.Y -= core::ScalpHeight;
     pos.Z += angle.cos() * dist;
 
-    auto sector = gsl::make_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
+    const auto sector = gsl::make_not_null( getLevel().findRealFloorSector( pos, m_lara.m_state.position.room ) );
 
     HeightInfo h = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
 
@@ -744,7 +753,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
         return;
     }
 
-    auto gradient = std::labs(
+    const auto gradient = std::labs(
             collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y );
     if( gradient >= core::MaxGrabbableGradient || collisionInfo.mid.ceiling.y >= 0
         || collisionInfo.collisionType != CollisionInfo::AxisColl_Front || tooSteepToGrab )
@@ -791,17 +800,18 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     }
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 bool AbstractStateHandler::applyLandingDamage()
 {
-    auto sector = gsl::make_not_null(
+    const auto sector = gsl::make_not_null(
             getLevel().findRealFloorSector( m_lara.m_state.position.position, m_lara.m_state.position.room ) );
-    HeightInfo h = HeightInfo::fromFloor( sector,
-                                          m_lara.m_state.position.position
-                                          - core::TRVec{0, core::ScalpHeight, 0},
-                                          getLevel().m_itemNodes );
+    const HeightInfo h = HeightInfo::fromFloor( sector,
+                                                m_lara.m_state.position.position
+                                                - core::TRVec{0, core::ScalpHeight, 0},
+                                                getLevel().m_itemNodes );
     m_lara.m_state.floor = h.y;
     m_lara.handleCommandSequence( h.lastCommandSequenceOrDeath, false );
-    auto damageSpeed = m_lara.m_state.fallspeed - core::DamageFallSpeedThreshold;
+    const auto damageSpeed = m_lara.m_state.fallspeed - core::DamageFallSpeedThreshold;
     if( damageSpeed <= 0 )
     {
         return false;
@@ -811,9 +821,7 @@ bool AbstractStateHandler::applyLandingDamage()
 
     if( damageSpeed <= DeathSpeedLimit )
     {
-        int h1 = m_lara.m_state.health
-                 - core::LaraHealth * util::square( damageSpeed ) / util::square( DeathSpeedLimit );
-        m_lara.m_state.health = h1;
+        m_lara.m_state.health -= core::LaraHealth * util::square( damageSpeed ) / util::square( DeathSpeedLimit );
     }
     else
     {
@@ -827,47 +835,56 @@ loader::BoundingBox AbstractStateHandler::getBoundingBox() const
     return m_lara.getBoundingBox();
 }
 
-void AbstractStateHandler::addSwimToDiveKeypressDuration(int n) noexcept
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::addSwimToDiveKeypressDuration(const int n) noexcept
 {
     m_lara.addSwimToDiveKeypressDuration( n );
 }
 
-void AbstractStateHandler::setSwimToDiveKeypressDuration(int n) noexcept
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setSwimToDiveKeypressDuration(const int n) noexcept
 {
     m_lara.setSwimToDiveKeypressDuration( n );
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 int AbstractStateHandler::getSwimToDiveKeypressDuration() const
 {
     return m_lara.getSwimToDiveKeypressDuration();
 }
 
-void AbstractStateHandler::setUnderwaterState(UnderwaterState u) noexcept
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setUnderwaterState(const UnderwaterState u) noexcept
 {
     m_lara.setUnderwaterState( u );
 }
 
-void AbstractStateHandler::setCameraCurrentRotation(core::Angle x, core::Angle y)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setCameraCurrentRotation(const core::Angle x, const core::Angle y)
 {
     m_lara.setCameraCurrentRotation( x, y );
 }
 
-void AbstractStateHandler::setCameraCurrentRotationX(core::Angle x)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setCameraCurrentRotationX(const core::Angle x)
 {
     m_lara.setCameraCurrentRotationX( x );
 }
 
-void AbstractStateHandler::setCameraCurrentRotationY(core::Angle y)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setCameraCurrentRotationY(const core::Angle y)
 {
     m_lara.setCameraCurrentRotationY( y );
 }
 
-void AbstractStateHandler::setCameraTargetDistance(int d)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setCameraTargetDistance(const int d)
 {
     m_lara.setCameraEyeCenterDistance( d );
 }
 
-void AbstractStateHandler::setCameraOldMode(CameraMode k)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void AbstractStateHandler::setCameraOldMode(const CameraMode k)
 {
     m_lara.setCameraOldMode( k );
 }
@@ -955,6 +972,7 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
     }
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::laraUpdateImpl()
 {
     m_lara.updateImpl();

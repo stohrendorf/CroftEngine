@@ -25,19 +25,19 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( lara.getCurrentAnimState() != loader::LaraStateId::PickUp )
     {
         if( getLevel().m_inputHandler->getInputState().action
-            && lara.getHandStatus() == engine::HandStatus::None
+            && lara.getHandStatus() == HandStatus::None
             && !lara.m_state.falling
             && lara.getCurrentAnimState() == loader::LaraStateId::Stop )
         {
             lara.alignForInteraction( {0, 640, -310}, m_state );
-            lara.m_state.anim = getLevel().findAnimatedModelForType( engine::TR1ItemId::AlternativeLara )
-                                          ->animation;
+            lara.m_state.anim = getLevel().findAnimatedModelForType( TR1ItemId::AlternativeLara )
+                                          ->animations;
             lara.m_state.current_anim_state = 39;
             lara.setCurrentAnimState( loader::LaraStateId::PickUp );
             lara.setGoalAnimState( loader::LaraStateId::PickUp );
             lara.m_state.frame_number = lara.m_state.anim->firstFrame;
-            getLevel().m_cameraController->setMode( engine::CameraMode::Cinematic );
-            lara.setHandStatus( engine::HandStatus::Grabbing );
+            getLevel().m_cameraController->setMode( CameraMode::Cinematic );
+            lara.setHandStatus( HandStatus::Grabbing );
             getLevel().m_cameraController->m_cinematicFrame = 0;
             getLevel().m_cameraController->m_cinematicPos = lara.m_state.position.position;
             getLevel().m_cameraController->m_cinematicRot = lara.m_state.rotation;
@@ -46,7 +46,7 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     else if( lara.m_state.frame_number == lara.m_state.anim->firstFrame + 44 )
     {
         getLevel().addInventoryItem( m_state.type );
-        m_state.triggerState = engine::items::TriggerState::Invisible;
+        m_state.triggerState = TriggerState::Invisible;
     }
 }
 }

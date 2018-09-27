@@ -12,7 +12,7 @@ class StateHandler_19 final
 {
 public:
     explicit StateHandler_19(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::Climbing )
+            : AbstractStateHandler{lara, LaraStateId::Climbing}
     {
     }
 

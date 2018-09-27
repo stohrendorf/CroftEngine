@@ -2,7 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
 #include "level/level.h"
 
 namespace engine
@@ -14,7 +13,7 @@ class StateHandler_51 final
 {
 public:
     explicit StateHandler_51(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::MidasDeath )
+            : AbstractStateHandler{lara, LaraStateId::MidasDeath}
     {
     }
 
@@ -22,13 +21,13 @@ public:
     {
         getLara().m_state.falling = false;
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush);
-        auto it = getLevel().m_animatedModels.find( engine::TR1ItemId::LaraShotgunAnim );
+        const auto it = getLevel().m_animatedModels.find( TR1ItemId::LaraShotgunAnim );
         if( it == getLevel().m_animatedModels.end() )
             return;
 
         const auto& alternateLara = *it->second;
 
-        auto frameOffs = getLara().m_state.frame_number - getLara().m_state.anim->firstFrame;
+        const auto frameOffs = getLara().m_state.frame_number - getLara().m_state.anim->firstFrame;
         switch( frameOffs )
         {
             case 5:
@@ -71,6 +70,9 @@ public:
                 break;
             case 225:
                 getLara().getNode()->getChild( 14 )->setDrawable( alternateLara.models[14].get() );
+                break;
+            default:
+                // silence compiler
                 break;
         }
         StateHandler_50::emitSparkles( getLara(), getLara().getLevel() );

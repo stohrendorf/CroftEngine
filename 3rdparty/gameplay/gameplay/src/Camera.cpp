@@ -12,7 +12,7 @@
 
 namespace gameplay
 {
-Camera::Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
+Camera::Camera(const float fieldOfView, const float aspectRatio, const float nearPlane, const float farPlane)
         : m_fieldOfView( fieldOfView )
         , m_aspectRatio( aspectRatio )
         , m_nearPlane( nearPlane )
@@ -26,7 +26,7 @@ float Camera::getFieldOfView() const
     return m_fieldOfView;
 }
 
-void Camera::setFieldOfView(float fieldOfView)
+void Camera::setFieldOfView(const float fieldOfView)
 {
     m_fieldOfView = fieldOfView;
     m_bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ;
@@ -37,7 +37,7 @@ float Camera::getAspectRatio() const
     return m_aspectRatio;
 }
 
-void Camera::setAspectRatio(float aspectRatio)
+void Camera::setAspectRatio(const float aspectRatio)
 {
     m_aspectRatio = aspectRatio;
     m_bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ;
@@ -62,7 +62,7 @@ const glm::mat4& Camera::getInverseViewMatrix() const
 {
     if( m_bits & CAMERA_DIRTY_INV_VIEW )
     {
-        m_inverseView = glm::inverse( m_view );
+        m_inverseView = inverse( m_view );
 
         m_bits &= ~CAMERA_DIRTY_INV_VIEW;
     }
@@ -97,7 +97,7 @@ const glm::mat4& Camera::getInverseViewProjectionMatrix() const
 {
     if( m_bits & CAMERA_DIRTY_INV_VIEW_PROJ )
     {
-        m_inverseViewProjection = glm::inverse( getViewProjectionMatrix() );
+        m_inverseViewProjection = inverse( getViewProjectionMatrix() );
 
         m_bits &= ~CAMERA_DIRTY_INV_VIEW_PROJ;
     }
@@ -105,6 +105,7 @@ const glm::mat4& Camera::getInverseViewProjectionMatrix() const
     return m_inverseViewProjection;
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void Camera::setViewMatrix(const glm::mat4& m)
 {
     m_view = m;

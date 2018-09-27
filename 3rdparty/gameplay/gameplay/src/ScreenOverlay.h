@@ -16,6 +16,10 @@ class ScreenOverlay : public Drawable
 public:
     ScreenOverlay(const ScreenOverlay&) = delete;
 
+    ScreenOverlay(ScreenOverlay&&) = delete;
+
+    ScreenOverlay& operator=(ScreenOverlay&&) = delete;
+
     ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
     explicit ScreenOverlay(const Dimension2<size_t>& viewport);

@@ -18,7 +18,7 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( lara.m_state.falling )
         return;
 
-    if( m_state.triggerState != engine::items::TriggerState::Inactive )
+    if( m_state.triggerState != TriggerState::Inactive )
         return;
 
     if( lara.getCurrentAnimState() != loader::LaraStateId::Stop )
@@ -62,7 +62,7 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         lara.setHandStatus( HandStatus::Grabbing );
     }
 
-    m_state.triggerState = engine::items::TriggerState::Active;
+    m_state.triggerState = TriggerState::Active;
 
     activate();
     ModelItemNode::update();

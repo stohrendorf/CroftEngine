@@ -13,10 +13,10 @@
 #include "loader/item.h"
 #include "loader/mesh.h"
 
+#include <boost/filesystem/path.hpp>
+
 #include <memory>
 #include <vector>
-#include <boost/detail/container_fwd.hpp>
-#include <boost/filesystem/path.hpp>
 
 namespace loader
 {
@@ -32,12 +32,20 @@ namespace level
 class Level
 {
 public:
-    Level(Game gameVersion, loader::io::SDLReader&& reader, sol::state&& scriptEngine)
+    Level(const Game gameVersion, loader::io::SDLReader&& reader, sol::state&& scriptEngine)
             : m_gameVersion{gameVersion}
             , m_scriptEngine{std::move( scriptEngine )}
             , m_reader{std::move( reader )}
     {
     }
+
+    Level(const Level&) = delete;
+
+    Level(Level&&) = delete;
+
+    Level& operator=(const Level&) = delete;
+
+    Level& operator=(Level&&) = delete;
 
     virtual ~Level();
 
@@ -139,9 +147,9 @@ public:
 
     virtual void loadFileData() = 0;
 
-    const loader::StaticMesh* findStaticMeshById(uint32_t object_id) const;
+    const loader::StaticMesh* findStaticMeshById(uint32_t meshId) const;
 
-    int findStaticMeshIndexById(uint32_t object_id) const;
+    int findStaticMeshIndexById(uint32_t meshId) const;
 
     const std::unique_ptr<loader::SkeletalModelType>& findAnimatedModelForType(engine::TR1ItemId type) const;
 
@@ -155,11 +163,11 @@ public:
     void setUpRendering(const gsl::not_null<gameplay::Game*>& game);
 
     template<typename T>
-    std::shared_ptr<engine::items::ItemNode> createItem(engine::TR1ItemId type,
+    std::shared_ptr<engine::items::ItemNode> createItem(const engine::TR1ItemId type,
                                                         const gsl::not_null<const loader::Room*>& room,
                                                         const core::Angle& angle,
                                                         const core::TRVec& position,
-                                                        uint16_t activationState)
+                                                        const uint16_t activationState)
     {
         const auto& model = findAnimatedModelForType( type );
         if( model == nullptr )
@@ -184,16 +192,16 @@ public:
     const loader::Sector* findRealFloorSector(const core::TRVec& position,
                                               gsl::not_null<const loader::Room*> room) const
     {
-        return findRealFloorSector( position, gsl::make_not_null( &room ) );
+        return findRealFloorSector( position, make_not_null( &room ) );
     }
 
     const loader::Sector* findRealFloorSector(core::RoomBoundPosition& rbs) const
     {
-        return findRealFloorSector( rbs.position, gsl::make_not_null( &rbs.room ) );
+        return findRealFloorSector( rbs.position, make_not_null( &rbs.room ) );
     }
 
-    const loader::Sector* findRealFloorSector(const core::TRVec& position,
-                                              const gsl::not_null<gsl::not_null<const loader::Room*>*>& room) const;
+    static const loader::Sector* findRealFloorSector(const core::TRVec& position,
+                                                     const gsl::not_null<gsl::not_null<const loader::Room*>*>& room);
 
     gsl::not_null<const loader::Room*> findRoomForPosition(const core::TRVec& position,
                                                            gsl::not_null<const loader::Room*> room) const;
@@ -216,7 +224,7 @@ public:
             != engine::floordata::FloorDataChunkType::FloorSlant )
             return zero;
 
-        auto fd = sector->floorData[1];
+        const auto fd = sector->floorData[1];
         return std::make_tuple( gsl::narrow_cast<int8_t>( fd & 0xff ), gsl::narrow_cast<int8_t>( fd >> 8 ) );
     }
 
@@ -236,9 +244,9 @@ public:
     std::map<size_t, std::weak_ptr<audio::SourceHandle>> m_samples;
 
     gsl::not_null<std::shared_ptr<audio::SourceHandle>> playSample(
-            size_t sample,
-            float pitch,
-            float volume,
+            const size_t sample,
+            const float pitch,
+            const float volume,
             const boost::optional<glm::vec3>& pos)
     {
         Expects( sample < m_sampleIndices.size() );
@@ -270,10 +278,10 @@ public:
         return src;
     }
 
-    std::shared_ptr<audio::SourceHandle> playSound(int id, const boost::optional<glm::vec3>& position)
+    std::shared_ptr<audio::SourceHandle> playSound(const int id, const boost::optional<glm::vec3>& position)
     {
         Expects( id >= 0 && static_cast<size_t>(id) < m_soundmap.size() );
-        auto snd = m_soundmap[id];
+        const auto snd = m_soundmap[id];
         if( snd < 0 )
         {
             BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << id;
@@ -338,9 +346,9 @@ public:
         return handle;
     }
 
-    std::shared_ptr<audio::SourceHandle> findSample(size_t sample) const
+    std::shared_ptr<audio::SourceHandle> findSample(const size_t sample) const
     {
-        auto it = m_samples.find( sample );
+        const auto it = m_samples.find( sample );
         if( it == m_samples.end() || it->second.expired() )
             return nullptr;
 
@@ -359,7 +367,7 @@ public:
     void triggerCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest,
                         engine::floordata::SequenceCondition triggerType);
 
-    void stopSoundEffect(uint16_t soundId) const
+    void stopSoundEffect(const uint16_t soundId) const
     {
         BOOST_ASSERT( soundId < m_soundmap.size() );
         const auto& details = m_soundDetails[m_soundmap[soundId]];
@@ -379,7 +387,7 @@ public:
             BOOST_LOG_TRIVIAL( debug ) << "Stopped samples of sound #" << soundId;
     }
 
-    bool stopSample(size_t id) const
+    bool stopSample(const size_t id) const
     {
         if( auto handle = findSample( id ) )
         {
@@ -396,7 +404,7 @@ public:
 
     void useAlternativeLaraAppearance();
 
-    const gsl::not_null<std::shared_ptr<gameplay::Model>>& getModel(size_t idx) const
+    const gsl::not_null<std::shared_ptr<gameplay::Model>>& getModel(const size_t idx) const
     {
         Expects( idx < m_models.size() );
 
@@ -499,7 +507,7 @@ public:
         runEffect( *m_activeEffect, nullptr );
     }
 
-    void runEffect(size_t id, engine::items::ModelItemNode* node)
+    void runEffect(const size_t id, engine::items::ModelItemNode* node)
     {
         switch( id )
         {
@@ -552,11 +560,11 @@ public:
 
     void addInventoryItem(engine::TR1ItemId id, size_t quantity = 1);
 
-    bool takeInventoryItem(engine::TR1ItemId id, size_t quantity = 1)
+    bool takeInventoryItem(const engine::TR1ItemId id, const size_t quantity = 1)
     {
         BOOST_LOG_TRIVIAL( debug ) << "Taking item " << toString( id ) << " from inventory";
 
-        auto it = m_inventory.find( id );
+        const auto it = m_inventory.find( id );
         if( it == m_inventory.end() )
             return false;
 
@@ -573,9 +581,9 @@ public:
 
     bool tryUseInventoryItem(engine::TR1ItemId id);
 
-    size_t countInventoryItem(engine::TR1ItemId id) const
+    size_t countInventoryItem(const engine::TR1ItemId id) const
     {
-        auto it = m_inventory.find( id );
+        const auto it = m_inventory.find( id );
         if( it == m_inventory.end() )
             return 0;
 

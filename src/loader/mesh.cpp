@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include <utility>
 
 #include "render/textureanimator.h"
 #include "color.h"
@@ -51,24 +52,24 @@ struct Mesh::ModelBuilder::RenderVertexWithNormal
 
 #pragma pack(pop)
 
-const gameplay::gl::StructuredVertexBuffer::AttributeMapping& Mesh::ModelBuilder::getFormat(bool withNormals)
+const gameplay::gl::StructuredVertexBuffer::AttributeMapping& Mesh::ModelBuilder::getFormat(const bool withNormals)
 {
     return withNormals ? RenderVertexWithNormal::getFormat() : RenderVertex::getFormat();
 }
 
 Mesh::ModelBuilder::ModelBuilder(
-        bool withNormals,
+        const bool withNormals,
         bool dynamic,
         const std::vector<TextureLayoutProxy>& textureProxies,
         const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-        const gsl::not_null<std::shared_ptr<gameplay::Material>>& colorMaterial,
+        gsl::not_null<std::shared_ptr<gameplay::Material>> colorMaterial,
         const Palette& palette,
         render::TextureAnimator& animator,
         const std::string& label)
         : m_hasNormals{withNormals}
         , m_textureProxies{textureProxies}
         , m_materials{materials}
-        , m_colorMaterial{colorMaterial}
+        , m_colorMaterial{std::move( colorMaterial )}
         , m_palette{palette}
         , m_animator{animator}
         , m_mesh{std::make_shared<gameplay::Mesh>( getFormat( withNormals ), dynamic, label )}
@@ -141,7 +142,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         for( const QuadFace& quad : mesh.colored_rectangles )
         {
             const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId );
-            auto partId = getPartForColor( quad.proxyId );
+            const auto partId = getPartForColor( quad.proxyId );
 
             const auto firstVertex = m_vertexCount;
             for( int i = 0; i < 4; ++i )
@@ -188,7 +189,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         for( const Triangle& tri : mesh.colored_triangles )
         {
             const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId );
-            auto partId = getPartForColor( tri.proxyId );
+            const auto partId = getPartForColor( tri.proxyId );
 
             for( int i = 0; i < 3; ++i )
             {
@@ -232,7 +233,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         for( const QuadFace& quad : mesh.colored_rectangles )
         {
             const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId );
-            auto partId = getPartForColor( quad.proxyId );
+            const auto partId = getPartForColor( quad.proxyId );
 
             const auto firstVertex = m_vertexCount;
             for( int i = 0; i < 4; ++i )
@@ -274,7 +275,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         for( const Triangle& tri : mesh.colored_triangles )
         {
             const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId );
-            auto partId = getPartForColor( tri.proxyId );
+            const auto partId = getPartForColor( tri.proxyId );
 
             for( int i = 0; i < 3; ++i )
             {
@@ -320,9 +321,10 @@ gsl::not_null<std::shared_ptr<gameplay::Model>> Mesh::ModelBuilder::finalize()
         part->setMaterial( localPart.material );
         if( localPart.color.is_initialized() )
         {
-            part->registerMaterialParameterSetter( [color = *localPart.color](const gameplay::Node& /*node*/, gameplay::Material& material) {
-                material.getParameter( "u_diffuseColor" )->set( color );
-            } );
+            part->registerMaterialParameterSetter(
+                    [color = *localPart.color](const gameplay::Node& /*node*/, gameplay::Material& material) {
+                        material.getParameter( "u_diffuseColor" )->set( color );
+                    } );
         }
     }
 

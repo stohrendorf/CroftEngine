@@ -1,13 +1,12 @@
 #include "puzzlehole.h"
 
 #include "engine/laranode.h"
-#include "stubitem.h"
 
 namespace engine
 {
 namespace items
 {
-void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& /*collisionInfo*/)
+void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     switch( m_state.type )
     {
@@ -30,12 +29,12 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& /*collis
     if( lara.getCurrentAnimState() == loader::LaraStateId::Stop )
     {
         if( !getLevel().m_inputHandler->getInputState().action
-            || lara.getHandStatus() != engine::HandStatus::None
+            || lara.getHandStatus() != HandStatus::None
             || lara.m_state.falling
             || !limits.canInteract( m_state, lara.m_state ) )
             return;
 
-        if( m_state.triggerState == engine::items::TriggerState::Invisible )
+        if( m_state.triggerState == TriggerState::Invisible )
         {
             lara.playSoundEffect( 2 );
             return;
@@ -44,17 +43,17 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& /*collis
         bool hasPuzzlePiece = false;
         switch( m_state.type )
         {
-            case engine::TR1ItemId::PuzzleHole1:
-                hasPuzzlePiece = getLevel().takeInventoryItem( engine::TR1ItemId::Puzzle1 );
+            case TR1ItemId::PuzzleHole1:
+                hasPuzzlePiece = getLevel().takeInventoryItem( TR1ItemId::Puzzle1 );
                 break;
-            case engine::TR1ItemId::PuzzleHole2:
-                hasPuzzlePiece = getLevel().takeInventoryItem( engine::TR1ItemId::Puzzle2 );
+            case TR1ItemId::PuzzleHole2:
+                hasPuzzlePiece = getLevel().takeInventoryItem( TR1ItemId::Puzzle2 );
                 break;
-            case engine::TR1ItemId::PuzzleHole3:
-                hasPuzzlePiece = getLevel().takeInventoryItem( engine::TR1ItemId::Puzzle3 );
+            case TR1ItemId::PuzzleHole3:
+                hasPuzzlePiece = getLevel().takeInventoryItem( TR1ItemId::Puzzle3 );
                 break;
-            case engine::TR1ItemId::PuzzleHole4:
-                hasPuzzlePiece = getLevel().takeInventoryItem( engine::TR1ItemId::Puzzle4 );
+            case TR1ItemId::PuzzleHole4:
+                hasPuzzlePiece = getLevel().takeInventoryItem( TR1ItemId::Puzzle4 );
                 break;
             default:
                 break;
@@ -74,8 +73,8 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& /*collis
         } while( lara.getCurrentAnimState() != LaraStateId::InsertPuzzle );
 
         lara.setGoalAnimState( loader::LaraStateId::Stop );
-        lara.setHandStatus( engine::HandStatus::Grabbing );
-        m_state.triggerState = engine::items::TriggerState::Active;
+        lara.setHandStatus( HandStatus::Grabbing );
+        m_state.triggerState = TriggerState::Active;
     }
     else if( lara.getCurrentAnimState() == loader::LaraStateId::InsertPuzzle && lara.m_state.frame_number == 3372
              && limits.canInteract( m_state, lara.m_state ) )
@@ -109,8 +108,8 @@ void PuzzleHole::collide(engine::LaraNode& lara, engine::CollisionInfo& /*collis
         m_skeleton = std::make_shared<SkeletalModelNode>( toString( completeId ), gsl::make_not_null( &getLevel() ),
                                                           *model );
         m_skeleton->setAnimation( m_state,
-                                  gsl::make_not_null( model->animation ),
-                                  model->animation->firstFrame );
+                                  gsl::make_not_null( model->animations ),
+                                  model->animations->firstFrame );
         for( gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex )
         {
             auto node = make_not_null_shared<gameplay::Node>( "bone:" + std::to_string( boneIndex ) );

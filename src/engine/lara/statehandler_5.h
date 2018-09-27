@@ -14,7 +14,7 @@ class StateHandler_5 final
 {
 public:
     explicit StateHandler_5(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::RunBack )
+            : AbstractStateHandler{lara, LaraStateId::RunBack}
     {
     }
 

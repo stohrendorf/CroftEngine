@@ -6,7 +6,6 @@
 #include "Model.h"
 #include "MeshPart.h"
 #include "gl/image.h"
-#include "gsl_util.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <boost/log/trivial.hpp>

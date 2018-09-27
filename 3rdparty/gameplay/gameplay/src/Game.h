@@ -24,6 +24,10 @@ public:
 
     Game(Game&&) = delete;
 
+    Game& operator=(const Game&) = delete;
+
+    Game& operator=(Game&&) = delete;
+
     explicit Game();
 
     virtual ~Game();
@@ -64,14 +68,14 @@ public:
 
     void clear(GLbitfield flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth);
 
-    bool windowShouldClose()
+    bool windowShouldClose() const
     {
         glfwPollEvents();
 
         return glfwWindowShouldClose( m_window ) == GL_TRUE;
     }
 
-    void swapBuffers();
+    void swapBuffers() const;
 
     GLFWwindow* getWindow() const
     {
@@ -85,8 +89,7 @@ public:
 
 private:
     bool m_initialized = false; // If game has initialized yet.
-    const std::chrono::high_resolution_clock::time_point m_constructionTime{
-            std::chrono::high_resolution_clock::now()};
+    const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
 
     std::chrono::high_resolution_clock::time_point m_frameLastFPS{}; // The last time the frame count was updated.
     unsigned int m_frameCount = 0; // The current frame count.
@@ -95,7 +98,7 @@ private:
     gl::RGBA8 m_clearColor; // The clear color value last used for clearing the color buffer.
     float m_clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
 
-    bool m_vsync = WINDOW_VSYNC;
+    bool m_vsync = false;
 
     GLFWwindow* m_window = nullptr;
 

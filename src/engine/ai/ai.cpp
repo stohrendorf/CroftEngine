@@ -9,7 +9,7 @@ namespace ai
 {
 namespace
 {
-const char* toString(Mood m)
+const char* toString(const Mood m)
 {
     switch( m )
     {
@@ -54,9 +54,7 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, const ui
     return gsl::make_span( first, last + 1 );
 }
 
-bool LotInfo::calculateTarget(const level::Level& lvl,
-                              core::TRVec& target,
-                              const items::ItemState& item)
+bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, const items::ItemState& item)
 {
     updatePath( lvl, 5 );
 
@@ -68,12 +66,12 @@ bool LotInfo::calculateTarget(const level::Level& lvl,
 
     int minZ = 0, maxZ = 0, minX = 0, maxX = 0;
 
-    auto clampX = [&minX, &maxX, &box]() {
+    const auto clampX = [&minX, &maxX, &box]() {
         minX = std::max( minX, box->xmin );
         maxX = std::min( maxX, box->xmax );
     };
 
-    auto clampZ = [&minZ, &maxZ, &box]() {
+    const auto clampZ = [&minZ, &maxZ, &box]() {
         minZ = std::max( minZ, box->zmin );
         maxZ = std::min( maxZ, box->zmax );
     };
@@ -559,30 +557,34 @@ CreatureInfo::CreatureInfo(const level::Level& lvl, const gsl::not_null<items::I
 {
     switch( item->type )
     {
-        case engine::TR1ItemId::Wolf:
-        case engine::TR1ItemId::LionMale:
-        case engine::TR1ItemId::LionFemale:
-        case engine::TR1ItemId::Panther:
+        case TR1ItemId::Wolf:
+        case TR1ItemId::LionMale:
+        case TR1ItemId::LionFemale:
+        case TR1ItemId::Panther:
             lot.drop = -loader::SectorSize;
             break;
 
-        case engine::TR1ItemId::Bat:
-        case engine::TR1ItemId::CrocodileInWater:
-        case engine::TR1ItemId::Fish:
+        case TR1ItemId::Bat:
+        case TR1ItemId::CrocodileInWater:
+        case TR1ItemId::Fish:
             lot.step = 20 * loader::SectorSize;
             lot.drop = -20 * loader::SectorSize;
             lot.fly = 16;
             break;
 
-        case engine::TR1ItemId::Gorilla:
+        case TR1ItemId::Gorilla:
             lot.step = loader::SectorSize / 2;
             lot.drop = -loader::SectorSize;
             break;
 
-        case engine::TR1ItemId::TRex:
-        case engine::TR1ItemId::Mutant:
-        case engine::TR1ItemId::CentaurMutant:
+        case TR1ItemId::TRex:
+        case TR1ItemId::Mutant:
+        case TR1ItemId::CentaurMutant:
             lot.block_mask = 0x8000;
+            break;
+
+        default:
+            // silence compiler
             break;
     }
 }

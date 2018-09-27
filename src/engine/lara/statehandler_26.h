@@ -12,7 +12,7 @@ class StateHandler_26 final
 {
 public:
     explicit StateHandler_26(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::JumpLeft )
+            : AbstractStateHandler{lara, LaraStateId::JumpLeft}
     {
     }
 

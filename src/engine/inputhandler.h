@@ -171,7 +171,7 @@ public:
     }
 
 private:
-    InputState m_inputState;
+    InputState m_inputState{};
 
     gsl::not_null<GLFWwindow*> m_window;
     double m_lastCursorX = 0;

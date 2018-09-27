@@ -13,10 +13,10 @@ public:
                   const gsl::not_null<const loader::Room*>& room,
                   const loader::Item& item,
                   const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, room, item, false, animatedModel )
+            : ModelItemNode{level, room, item, false, animatedModel}
     {
-        getNode()->setDrawable( nullptr );
-        getNode()->removeAllChildren();
+        getSkeleton()->setDrawable( nullptr );
+        getSkeleton()->removeAllChildren();
         getSkeleton()->resetPose();
     }
 

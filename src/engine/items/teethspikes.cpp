@@ -2,7 +2,7 @@
 
 #include "engine/laranode.h"
 
-void engine::items::TeethSpikes::collide(engine::LaraNode& lara, engine::CollisionInfo& collisionInfo)
+void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 {
     if( lara.m_state.health >= 0 && isNear( lara, collisionInfo.collisionRadius ) && testBoneCollision( lara ) )
     {

@@ -11,7 +11,7 @@ class VertexBuffer : public BindableResource
 public:
     explicit VertexBuffer(const std::string& label = {})
             : BindableResource{glGenBuffers,
-                               [](GLuint handle) { glBindBuffer( GL_ARRAY_BUFFER, handle ); },
+                               [](const GLuint handle) { glBindBuffer( GL_ARRAY_BUFFER, handle ); },
                                glDeleteBuffers,
                                GL_BUFFER,
                                label}
@@ -22,7 +22,7 @@ public:
     const void* map()
     {
         bind();
-        auto data = glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY );
+        const auto data = glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY );
         checkGlError();
         return data;
     }
@@ -31,7 +31,7 @@ public:
     void* mapRw()
     {
         bind();
-        auto data = glMapBuffer( GL_ARRAY_BUFFER, GL_READ_WRITE );
+        const auto data = glMapBuffer( GL_ARRAY_BUFFER, GL_READ_WRITE );
         checkGlError();
         return data;
     }

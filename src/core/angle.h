@@ -1,7 +1,5 @@
 #pragma once
 
-#include "gameplay.h"
-
 #include <cmath>
 
 #include <gsl/gsl>
@@ -19,11 +17,11 @@ struct UnsignedRawAngle;
 }
 }
 
-inline core::detail::UnsignedRawAngle operator "" _au(unsigned long long v) noexcept;
+inline core::detail::UnsignedRawAngle operator "" _au(unsigned long long value) noexcept;
 
-inline core::detail::UnsignedRawAngle operator "" _deg(unsigned long long v) noexcept;
+inline core::detail::UnsignedRawAngle operator "" _deg(unsigned long long value) noexcept;
 
-inline core::detail::UnsignedRawAngle operator "" _deg(long double v) noexcept;
+inline core::detail::UnsignedRawAngle operator "" _deg(long double value) noexcept;
 
 namespace core
 {
@@ -44,38 +42,42 @@ class Angle final
     {
     };
 
-    constexpr explicit Angle(int32_t val, const RawTag&) noexcept
+    constexpr explicit Angle(const int32_t val, const RawTag&) noexcept
             : m_value{val}
     {
     }
 
 public:
-    constexpr Angle() noexcept
-            : m_value{0}
-    {
-    }
+    constexpr Angle() noexcept = default;
 
-    explicit Angle(int16_t val) noexcept
-            : m_value{gsl::narrow_cast<int32_t>( val * Scale )}
+    explicit Angle(const int16_t value) noexcept
+            : m_value{gsl::narrow_cast<int32_t>( value * Scale )}
     {
     }
 
     constexpr Angle(const Angle&) = default;
 
-    static Angle fromRad(float r)
+    constexpr Angle(Angle&&) = default;
+
+    Angle& operator=(const Angle&) = default;
+
+    Angle& operator=(Angle&&) = default;
+
+    ~Angle() noexcept = default;
+
+    static Angle fromRad(const float r)
     {
         return Angle{gsl::narrow_cast<int32_t>( r / 2 / glm::pi<float>() * 65536 * Scale ), RawTag()};
     }
 
-    static Angle fromAtan(float dx, float dz)
+    static Angle fromAtan(const float dx, const float dz)
     {
         return fromRad( std::atan2( dx, dz ) );
     }
 
-    static Angle fromDegrees(float val)
+    static Angle fromDegrees(const float value)
     {
-        auto result = Angle{gsl::narrow_cast<int32_t>( std::lround( val / 360 * 65536 * Scale ) ), RawTag()};
-        return result;
+        return Angle{gsl::narrow_cast<int32_t>( std::lround( value / 360 * 65536 * Scale ) ), RawTag()};
     }
 
     constexpr float toDegrees() const noexcept
@@ -125,27 +127,25 @@ public:
         return *this;
     }
 
-    Angle operator*(float v) const
+    Angle operator*(const float value) const
     {
-        auto result = Angle{gsl::narrow_cast<int32_t>( std::lround( m_value * v ) ), RawTag()};
-        return result;
+        return Angle{gsl::narrow_cast<int32_t>( std::lround( m_value * value ) ), RawTag()};
     }
 
-    Angle& operator*=(float v)
+    Angle& operator*=(const float value)
     {
-        m_value = gsl::narrow_cast<int32_t>( m_value * v );
+        m_value = gsl::narrow_cast<int32_t>( m_value * value );
         return *this;
     }
 
-    Angle operator/(float v) const
+    Angle operator/(const float value) const
     {
-        auto result = Angle{gsl::narrow_cast<int32_t>( std::lround( m_value / v ) ), RawTag()};
-        return result;
+        return Angle{gsl::narrow_cast<int32_t>( std::lround( m_value / value ) ), RawTag()};
     }
 
-    Angle& operator/=(float v)
+    Angle& operator/=(const float value)
     {
-        m_value = gsl::narrow_cast<int32_t>( m_value / v );
+        m_value = gsl::narrow_cast<int32_t>( m_value / value );
         return *this;
     }
 
@@ -211,16 +211,16 @@ namespace detail
  */
 struct UnsignedRawAngle final
 {
-    const uint32_t value;
+    const uint32_t value{};
 
-    explicit UnsignedRawAngle(unsigned long long val)
-            : value{gsl::narrow<uint32_t>( val * Angle::Scale )}
+    explicit UnsignedRawAngle(const unsigned long long value)
+            : value{gsl::narrow<uint32_t>( value * Angle::Scale )}
     {
         Expects( value <= 32768U * Angle::Scale );
     }
 
-    explicit UnsignedRawAngle(long double val)
-            : value{gsl::narrow<uint32_t>( std::lround( val * Angle::Scale ) )}
+    explicit UnsignedRawAngle(const long double value)
+            : value{gsl::narrow<uint32_t>( std::lround( value * Angle::Scale ) )}
     {
         Expects( value <= 32768U * Angle::Scale );
     }
@@ -245,6 +245,7 @@ struct UnsignedRawAngle final
         return static_cast<Angle>(*this) + rhs;
     }
 
+    // ReSharper disable once CppNonExplicitConversionOperator
     operator Angle() const
     {
         return Angle{gsl::narrow_cast<int32_t>( value ), Angle::RawTag()};
@@ -391,7 +392,7 @@ public:
 
 inline glm::mat4 fromPackedAngles(uint32_t angleData)
 {
-    auto getAngle = [angleData](uint8_t n) -> Angle {
+    const auto getAngle = [angleData](const uint8_t n) -> Angle {
         BOOST_ASSERT( n < 3 );
         return Angle( static_cast<int16_t>(((angleData >> (10 * n)) & 0x3ff) * 64) );
     };
@@ -401,9 +402,9 @@ inline glm::mat4 fromPackedAngles(uint32_t angleData)
     return r.toMatrix();
 }
 
-inline Angle abs(const Angle& v)
+inline Angle abs(const Angle& angle)
 {
-    return v.abs();
+    return angle.abs();
 }
 
 
@@ -451,20 +452,20 @@ inline TRRotationXY getVectorAngles(const float dx, const float dy, const float 
 }
 }
 
-inline core::detail::UnsignedRawAngle operator "" _au(unsigned long long v) noexcept
+inline core::detail::UnsignedRawAngle operator "" _au(const unsigned long long value) noexcept
 {
-    Expects( v <= 32768 );
-    return core::detail::UnsignedRawAngle{v};
+    Expects( value <= 32768 );
+    return core::detail::UnsignedRawAngle{value};
 }
 
-inline core::detail::UnsignedRawAngle operator "" _deg(unsigned long long v) noexcept
+inline core::detail::UnsignedRawAngle operator "" _deg(const unsigned long long value) noexcept
 {
-    Expects( v <= 180 );
-    return core::detail::UnsignedRawAngle{v * 65536 / 360};
+    Expects( value <= 180 );
+    return core::detail::UnsignedRawAngle{value * 65536 / 360};
 }
 
-inline core::detail::UnsignedRawAngle operator "" _deg(long double v) noexcept
+inline core::detail::UnsignedRawAngle operator "" _deg(const long double value) noexcept
 {
-    Expects( v <= 180 );
-    return core::detail::UnsignedRawAngle{v * 65536 / 360};
+    Expects( value <= 180 );
+    return core::detail::UnsignedRawAngle{value * 65536 / 360};
 }

@@ -6,7 +6,6 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/range/adaptors.hpp>
 
 namespace loader
@@ -84,10 +83,10 @@ struct RenderModel
 }
 
 void Room::createSceneNode(
-        size_t roomId,
+        const size_t roomId,
         const level::Level& level,
-        const std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-        const std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& waterMaterials,
+        const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
+        const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& waterMaterials,
         const std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>>& staticMeshes,
         render::TextureAnimator& animator)
 {
@@ -207,13 +206,13 @@ void Room::createSceneNode(
 
     for( const RoomStaticMesh& sm : this->staticMeshes )
     {
-        auto idx = level.findStaticMeshIndexById( sm.meshId );
+        const auto idx = level.findStaticMeshIndexById( sm.meshId );
         BOOST_ASSERT( idx >= 0 );
         BOOST_ASSERT( static_cast<size_t>(idx) < staticMeshes.size() );
         auto subNode = make_not_null_shared<gameplay::Node>( "staticMesh" );
         subNode->setDrawable( staticMeshes[idx].get() );
-        subNode->setLocalMatrix( glm::translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
-                                 * glm::rotate( glm::mat4{1.0f}, util::auToRad( sm.rotation ), glm::vec3{0, -1, 0} ) );
+        subNode->setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
+                                 * rotate( glm::mat4{1.0f}, util::auToRad( sm.rotation ), glm::vec3{0, -1, 0} ) );
 
         subNode->addMaterialParameterSetter( "u_baseLight",
                                              [brightness = sm.getBrightness()](const gameplay::Node& /*node*/,
@@ -230,7 +229,7 @@ void Room::createSceneNode(
         } );
         addChild( gsl::make_not_null( node ), subNode );
     }
-    node->setLocalMatrix( glm::translate( glm::mat4{1.0f}, position.toRenderSystem() ) );
+    node->setLocalMatrix( translate( glm::mat4{1.0f}, position.toRenderSystem() ) );
 
     for( const SpriteInstance& spriteInstance : sprites )
     {
@@ -251,7 +250,7 @@ void Room::createSceneNode(
         auto spriteNode = make_not_null_shared<gameplay::Node>( "sprite" );
         spriteNode->setDrawable( model );
         const RoomVertex& v = vertices[spriteInstance.vertex];
-        spriteNode->setLocalMatrix( glm::translate( glm::mat4{1.0f}, v.position.toRenderSystem() ) );
+        spriteNode->setLocalMatrix( translate( glm::mat4{1.0f}, v.position.toRenderSystem() ) );
         spriteNode->addMaterialParameterSetter( "u_diffuseTexture",
                                                 [texture = sprite.texture](const gameplay::Node& /*node*/,
                                                                            gameplay::gl::Program::ActiveUniform& uniform) {
@@ -267,11 +266,11 @@ void Room::createSceneNode(
     }
 }
 
-core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, core::Angle angle) const
+core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core::Angle angle) const
 {
     auto result = collision_box;
 
-    const auto axis = core::axisFromAngle( angle, 45_deg );
+    const auto axis = axisFromAngle( angle, 45_deg );
     switch( *axis )
     {
         case core::Axis::PosZ:
@@ -302,18 +301,18 @@ core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, core::Angl
     return result;
 }
 
-void Room::patchHeightsForBlock(const engine::items::ItemNode& item, int height)
+void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const int height)
 {
     auto room = item.m_state.position.room;
     //! @todo Ugly const_cast
-    auto groundSector = const_cast<loader::Sector*>(item.getLevel().findRealFloorSector( item.m_state.position.position,
-                                                                                         gsl::make_not_null( &room ) ));
+    auto groundSector = const_cast<Sector*>(level::Level::findRealFloorSector( item.m_state.position.position,
+                                                                               make_not_null( &room ) ));
     BOOST_ASSERT( groundSector != nullptr );
-    const auto topSector = item.getLevel().findRealFloorSector(
-            item.m_state.position.position + core::TRVec{0, height - loader::SectorSize, 0},
-            gsl::make_not_null( &room ) );
+    const auto topSector = level::Level::findRealFloorSector(
+            item.m_state.position.position + core::TRVec{0, height - SectorSize, 0},
+            make_not_null( &room ) );
 
-    const auto q = height / loader::QuarterSectorSize;
+    const auto q = height / QuarterSectorSize;
     if( groundSector->floorHeight == -127 )
     {
         groundSector->floorHeight = gsl::narrow<int8_t>( topSector->ceilingHeight + q );

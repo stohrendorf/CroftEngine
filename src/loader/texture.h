@@ -28,7 +28,7 @@ struct ByteTexture
 
 /** \brief 16-bit texture.
 *
-* Each pixel is a colour with the following format.<br>
+* Each pixel is a color with the following format.<br>
 * - 1-bit transparency (0 ::= transparent, 1 ::= opaque) (0x8000)
 * - 5-bit red channel (0x7c00)
 * - 5-bit green channel (0x03e0)
@@ -44,9 +44,9 @@ struct WordTexture
 
         for( auto& row : texture->pixels )
         {
-            for( int j = 0; j < 256; j++ )
+            for( auto& element : row )
             {
-                row[j] = reader.readU16();
+                element = reader.readU16();
             }
         }
 
@@ -69,14 +69,14 @@ struct DWordTexture final
 
         for( auto& row : texture->pixels )
         {
-            for( int j = 0; j < 256; j++ )
+            for( auto& element : row )
             {
-                auto tmp = reader.readU32(); // format is ARGB
+                const auto tmp = reader.readU32(); // format is ARGB
                 const uint8_t a = (tmp >> 24) & 0xff;
                 const uint8_t r = (tmp >> 16) & 0xff;
                 const uint8_t g = (tmp >> 8) & 0xff;
                 const uint8_t b = (tmp >> 0) & 0xff;
-                row[j] = {r, g, b, a};
+                element = {r, g, b, a};
             }
         }
 
@@ -126,30 +126,30 @@ struct UVCoordinates
     /// \brief reads object texture vertex definition.
     static UVCoordinates readTr1(io::SDLReader& reader)
     {
-        UVCoordinates vert;
-        vert.xcoordinate = reader.readI8();
-        vert.xpixel = reader.readU8();
-        vert.ycoordinate = reader.readI8();
-        vert.ypixel = reader.readU8();
-        return vert;
+        UVCoordinates uv;
+        uv.xcoordinate = reader.readI8();
+        uv.xpixel = reader.readU8();
+        uv.ycoordinate = reader.readI8();
+        uv.ypixel = reader.readU8();
+        return uv;
     }
 
     static UVCoordinates readTr4(io::SDLReader& reader)
     {
-        UVCoordinates vert;
-        vert.xcoordinate = reader.readI8();
-        vert.xpixel = reader.readU8();
-        vert.ycoordinate = reader.readI8();
-        vert.ypixel = reader.readU8();
-        if( vert.xcoordinate == 0 )
+        UVCoordinates uv;
+        uv.xcoordinate = reader.readI8();
+        uv.xpixel = reader.readU8();
+        uv.ycoordinate = reader.readI8();
+        uv.ypixel = reader.readU8();
+        if( uv.xcoordinate == 0 )
         {
-            vert.xcoordinate = 1;
+            uv.xcoordinate = 1;
         }
-        if( vert.ycoordinate == 0 )
+        if( uv.ycoordinate == 0 )
         {
-            vert.ycoordinate = 1;
+            uv.ycoordinate = 1;
         }
-        return vert;
+        return uv;
     }
 
     glm::vec2 toGl() const
@@ -173,11 +173,11 @@ struct TextureLayoutProxy
 
         // 0 means that a texture is all-opaque, and that transparency
         // information is ignored.
-        // 1 means that transparency information is used. In 8-bit colour,
-        // index 0 is the transparent colour, while in 16-bit colour, the
+        // 1 means that transparency information is used. In 8-bit color,
+        // index 0 is the transparent color, while in 16-bit color, the
         // top bit (0x8000) is the alpha channel (1 = opaque, 0 = transparent).
         // 2 (only in TR3) means that the opacity (alpha) is equal to the intensity;
-        // the brighter the colour, the more opaque it is. The intensity is probably calculated
+        // the brighter the color, the more opaque it is. The intensity is probably calculated
         // as the maximum of the individual color values.
         uint16_t tileAndFlag = 0; // index into textile list
 
@@ -226,7 +226,7 @@ struct TextureLayoutProxy
     /** \brief reads object texture definition.
     *
     * some sanity checks get done and if they fail an exception gets thrown.
-    * all values introduced in TR4 get set appropiatly.
+    * all values introduced in TR4 get set appropriately.
     */
     static std::unique_ptr<TextureLayoutProxy> readTr1(io::SDLReader& reader)
     {

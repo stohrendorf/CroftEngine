@@ -4,10 +4,10 @@
 
 namespace gameplay
 {
-gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(float left,
-                                                        float bottom,
-                                                        float width,
-                                                        float height,
+gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float left,
+                                                        const float bottom,
+                                                        const float width,
+                                                        const float height,
                                                         const glm::vec2& uvTopLeft,
                                                         const glm::vec2& uvBottomRight,
                                                         const gsl::not_null<std::shared_ptr<Material>>& material,

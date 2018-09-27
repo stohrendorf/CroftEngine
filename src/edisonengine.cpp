@@ -12,9 +12,12 @@
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem/operations.hpp>
 
+#include <utility>
+
 namespace
 {
-void drawText(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, int x, int y, const std::string& txt,
+void drawText(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, const int x, const int y,
+              const std::string& txt,
               const gameplay::gl::RGBA8& col = {255, 255, 255, 255})
 {
     font->drawText( txt, x, y, col.r, col.g, col.b, col.a );
@@ -22,7 +25,7 @@ void drawText(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, in
 
 void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font,
                    const gsl::not_null<std::shared_ptr<level::Level>>& lvl,
-                   int fps)
+                   const int fps)
 {
     drawText( font, font->getTarget()->getWidth() - 40, font->getTarget()->getHeight() - 20, std::to_string( fps ) );
 
@@ -43,9 +46,9 @@ void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& fon
 
         // animation
         drawText( font, 10, 60,
-                  std::string( "current/anim    " ) + loader::toString( lvl->m_lara->getCurrentAnimState() ) );
+                  std::string( "current/anim    " ) + toString( lvl->m_lara->getCurrentAnimState() ) );
         drawText( font, 10, 100,
-                  std::string( "target          " ) + loader::toString( lvl->m_lara->getGoalAnimState() ) );
+                  std::string( "target          " ) + toString( lvl->m_lara->getGoalAnimState() ) );
         drawText( font, 10, 120,
                   std::string( "frame           " ) + std::to_string( lvl->m_lara->m_state.frame_number ) );
     }
@@ -53,7 +56,7 @@ void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& fon
     // triggers
     {
         int y = 180;
-        for( const std::shared_ptr<engine::items::ItemNode>& item : lvl->m_itemNodes | boost::adaptors::map_values )
+        for( const auto& item : lvl->m_itemNodes | boost::adaptors::map_values )
         {
             if( !item->m_isActive )
                 continue;
@@ -131,16 +134,16 @@ class FullScreenFX
 
 public:
     explicit FullScreenFX(const gameplay::Game& game,
-                          const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader,
-                          GLint multisample = 0)
-            : m_shader{shader}
+                          gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>> shader,
+                          const GLint multisample = 0)
+            : m_shader{std::move( shader )}
             , m_material{make_not_null_shared<gameplay::Material>( m_shader )}
             , m_fb{std::make_shared<gameplay::gl::FrameBuffer>()}
     {
         init( game, multisample );
     }
 
-    void init(const gameplay::Game& game, GLint multisample)
+    void init(const gameplay::Game& game, const GLint multisample)
     {
         const auto vp = game.getViewport();
 
@@ -180,7 +183,7 @@ public:
         m_colorBuffer->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
     }
 
-    void bind()
+    void bind() const
     {
         m_fb->bind();
     }
@@ -205,7 +208,7 @@ private:
 };
 
 
-void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, bool godMode)
+void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, const bool godMode)
 {
     for( const auto& item : lvl->m_itemNodes | boost::adaptors::map_values )
     {
@@ -606,8 +609,8 @@ int main()
 
             for( const std::shared_ptr<engine::items::ItemNode>& ctrl : lvl->m_itemNodes | boost::adaptors::map_values )
             {
-                auto vertex = glm::vec3( game->getScene()->getActiveCamera()->getViewMatrix()
-                                         * glm::vec4( ctrl->getNode()->getTranslationWorld(), 1 ) );
+                const auto vertex = glm::vec3{game->getScene()->getActiveCamera()->getViewMatrix()
+                                              * glm::vec4( ctrl->getNode()->getTranslationWorld(), 1 )};
 
                 if( vertex.z > -game->getScene()->getActiveCamera()->getNearPlane() )
                 {

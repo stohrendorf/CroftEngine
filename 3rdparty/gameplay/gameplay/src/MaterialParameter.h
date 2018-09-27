@@ -15,11 +15,15 @@ class Node;
 class MaterialParameter
 {
 public:
-    explicit MaterialParameter(const std::string& name);
+    explicit MaterialParameter(std::string name);
 
     ~MaterialParameter();
 
+    MaterialParameter(const MaterialParameter&&) = delete;
+
     MaterialParameter& operator=(const MaterialParameter&) = delete;
+
+    MaterialParameter& operator=(MaterialParameter&&) = delete;
 
     const std::string& getName() const;
 

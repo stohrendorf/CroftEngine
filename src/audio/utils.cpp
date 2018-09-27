@@ -6,9 +6,9 @@
 
 namespace audio
 {
-bool checkALError(const char* func, int line)
+bool checkALError(const char* func, const int line)
 {
-    ALenum err = alGetError();
+    const ALenum err = alGetError();
     if( err != AL_NO_ERROR )
     {
         const char* errStr = "<unknown>";
@@ -28,6 +28,9 @@ bool checkALError(const char* func, int line)
                 break;
             case AL_OUT_OF_MEMORY:
                 errStr = "OUT_OF_MEMORY";
+                break;
+            default:
+                // silence compiler
                 break;
         }
 

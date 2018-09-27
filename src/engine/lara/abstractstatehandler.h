@@ -27,11 +27,19 @@ namespace lara
 class AbstractStateHandler
 {
 public:
-    explicit AbstractStateHandler(LaraNode& lara, LaraStateId id)
+    explicit AbstractStateHandler(LaraNode& lara, const LaraStateId id)
             : m_lara{lara}
             , m_id{id}
     {
     }
+
+    AbstractStateHandler(const AbstractStateHandler&) = delete;
+
+    AbstractStateHandler(AbstractStateHandler&&) = delete;
+
+    AbstractStateHandler& operator=(const AbstractStateHandler&) = delete;
+
+    AbstractStateHandler& operator=(AbstractStateHandler&&) = delete;
 
     virtual ~AbstractStateHandler() = default;
 
@@ -55,6 +63,7 @@ private:
 
 
 protected:
+    // ReSharper disable once CppMemberFunctionMayBeConst
     LaraNode& getLara()
     {
         return m_lara;

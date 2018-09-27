@@ -12,7 +12,7 @@ class StateHandler_14 final
 {
 public:
     explicit StateHandler_14(LaraNode& lara)
-            : StateHandler_Standing( lara, LaraStateId::GrabToFall )
+            : StateHandler_Standing{lara, LaraStateId::GrabToFall}
     {
     }
 

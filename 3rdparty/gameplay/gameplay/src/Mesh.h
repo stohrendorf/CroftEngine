@@ -22,7 +22,7 @@ class Mesh : public Drawable
 {
 public:
     explicit Mesh(const gl::StructuredVertexBuffer::AttributeMapping& mapping,
-                  bool dynamic,
+                  const bool dynamic,
                   const std::string& label = {})
     {
         addBuffer( mapping, dynamic, label );
@@ -30,7 +30,11 @@ public:
 
     Mesh(const Mesh&) = delete;
 
+    Mesh(Mesh&&) = delete;
+
     Mesh& operator=(const Mesh&) = delete;
+
+    Mesh& operator=(Mesh&&) = delete;
 
     static gsl::not_null<std::shared_ptr<Mesh>> createQuadFullscreen(float width,
                                                                      float height,

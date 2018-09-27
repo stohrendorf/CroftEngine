@@ -17,7 +17,11 @@ public:
 
     ShaderProgram(const ShaderProgram&) = delete;
 
+    ShaderProgram(ShaderProgram&&) = delete;
+
     ShaderProgram& operator=(const ShaderProgram&) = delete;
+
+    ShaderProgram& operator=(ShaderProgram&&) = delete;
 
     ~ShaderProgram();
 
@@ -31,7 +35,7 @@ public:
 
     gl::Program::ActiveUniform* getUniform(const std::string& name) const;
 
-    void bind();
+    void bind() const;
 
     const gl::Program& getHandle() const
     {
@@ -40,12 +44,9 @@ public:
 
 private:
 
-    static std::shared_ptr<ShaderProgram>
-    createFromSource(const std::string& vshPath,
-                     const std::string& vshSource,
-                     const std::string& fshPath,
-                     const std::string& fshSource,
-                     const std::vector<std::string>& defines = {});
+    static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath, const std::string& vshSource,
+                                                           const std::string& fshPath, const std::string& fshSource,
+                                                           const std::vector<std::string>& defines = {});
 
     std::string m_id;
 

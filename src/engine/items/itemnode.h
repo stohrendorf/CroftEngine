@@ -68,14 +68,22 @@ enum class TriggerState
 
 struct ItemState final
 {
-    explicit ItemState(const gsl::not_null<const loader::Room*>& room, engine::TR1ItemId type)
+    explicit ItemState(const gsl::not_null<const loader::Room*>& room, const TR1ItemId type)
             : type{type}
             , position{room}
     {}
 
+    ItemState(const ItemState&) = default;
+
+    ItemState(ItemState&&) = default;
+
+    ItemState& operator=(const ItemState&) = default;
+
+    ItemState& operator=(ItemState&&) = default;
+
     ~ItemState();
 
-    engine::TR1ItemId type;
+    TR1ItemId type;
     core::RoomBoundPosition position;
     core::TRRotation rotation;
     int16_t speed = 0;
@@ -167,7 +175,7 @@ public:
 
     const bool m_hasUpdateFunction;
 
-    engine::Lighting m_lighting;
+    Lighting m_lighting;
 
     enum class AnimCommandOpcode
             : uint16_t
@@ -185,6 +193,14 @@ public:
              const gsl::not_null<const loader::Room*>& room,
              const loader::Item& item,
              bool hasUpdateFunction);
+
+    ItemNode(const ItemNode&) = delete;
+
+    ItemNode(ItemNode&&) = delete;
+
+    ItemNode& operator=(const ItemNode&) = delete;
+
+    ItemNode& operator=(ItemNode&&) = delete;
 
     virtual ~ItemNode() = default;
 
@@ -302,7 +318,7 @@ protected:
         const auto dist = d.length();
         if( maxDistance < dist )
         {
-            move( static_cast<float>(maxDistance) * glm::normalize( d.toRenderSystem() ) );
+            move( static_cast<float>(maxDistance) * normalize( d.toRenderSystem() ) );
         }
         else
         {
@@ -337,6 +353,14 @@ public:
             bool hasUpdateFunction,
             const loader::SkeletalModelType& animatedModel);
 
+    ModelItemNode(const ModelItemNode&) = delete;
+
+    ModelItemNode(ModelItemNode&&) = delete;
+
+    ModelItemNode& operator=(const ModelItemNode&) = delete;
+
+    ModelItemNode& operator=(ModelItemNode&&) = delete;
+
     ~ModelItemNode() override
     {
         if( m_skeleton != nullptr )
@@ -355,21 +379,21 @@ public:
         return m_skeleton;
     }
 
-    bool triggerSwitch(uint16_t arg) override
+    bool triggerSwitch(const uint16_t arg) override
     {
-        if( m_state.triggerState != engine::items::TriggerState::Deactivated )
+        if( m_state.triggerState != TriggerState::Deactivated )
         {
             return false;
         }
 
-        if( m_state.current_anim_state != 0 || engine::floordata::ActivationState{arg}.isLocked() )
+        if( m_state.current_anim_state != 0 || floordata::ActivationState{arg}.isLocked() )
         {
             deactivate();
             m_state.triggerState = TriggerState::Inactive;
         }
         else
         {
-            m_state.timer = engine::floordata::ActivationState::extractTimeout( arg );
+            m_state.timer = floordata::ActivationState::extractTimeout( arg );
             m_state.triggerState = TriggerState::Active;
         }
 
@@ -388,12 +412,12 @@ public:
 
     void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 
-    void emitParticle(const core::TRVec& pos,
+    void emitParticle(const core::TRVec& localPosition,
                       size_t boneIndex,
-                      gsl::not_null<std::shared_ptr<engine::Particle>> (* generate)(const level::Level& level,
-                                                                                    const core::RoomBoundPosition& pos,
-                                                                                    int16_t speed,
-                                                                                    core::Angle angle));
+                      gsl::not_null<std::shared_ptr<Particle>> (* generate)(const level::Level& level,
+                                                                            const core::RoomBoundPosition& pos,
+                                                                            int16_t speed,
+                                                                            core::Angle angle));
 
     void load(const YAML::Node& n) override;
 
@@ -416,6 +440,14 @@ public:
             bool hasUpdateFunction,
             const loader::Sprite& sprite,
             const gsl::not_null<std::shared_ptr<gameplay::Material>>& material);
+
+    SpriteItemNode(const SpriteItemNode&) = delete;
+
+    SpriteItemNode(SpriteItemNode&&) = delete;
+
+    SpriteItemNode& operator=(const SpriteItemNode&) = delete;
+
+    SpriteItemNode& operator=(SpriteItemNode&&) = delete;
 
     ~SpriteItemNode() override
     {

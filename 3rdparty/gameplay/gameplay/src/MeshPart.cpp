@@ -2,10 +2,12 @@
 
 #include "Material.h"
 
+#include <utility>
+
 namespace gameplay
 {
-MeshPart::MeshPart(const std::shared_ptr<gl::VertexArray>& vao)
-        : m_vao{vao}
+MeshPart::MeshPart(std::shared_ptr<gl::VertexArray> vao)
+        : m_vao{std::move( vao )}
 {
 }
 

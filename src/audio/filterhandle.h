@@ -4,11 +4,9 @@
 
 #include "alext.h"
 
-#include <boost/noncopyable.hpp>
-
 namespace audio
 {
-class FilterHandle final : public boost::noncopyable
+class FilterHandle final
 {
     const ALuint m_handle;
 
@@ -25,9 +23,17 @@ class FilterHandle final : public boost::noncopyable
 
 public:
     explicit FilterHandle()
-            : m_handle( createHandle() )
+            : m_handle{createHandle()}
     {
     }
+
+    explicit FilterHandle(const FilterHandle&) = delete;
+
+    explicit FilterHandle(FilterHandle&&) = delete;
+
+    FilterHandle& operator=(const FilterHandle&) = delete;
+
+    FilterHandle& operator=(FilterHandle&&) = delete;
 
     ~FilterHandle()
     {

@@ -27,7 +27,7 @@ void engine::items::RollingBall::update()
 
         auto room = m_state.position.room;
         auto sector = gsl::make_not_null(
-                getLevel().findRealFloorSector( m_state.position.position, gsl::make_not_null( &room ) ) );
+                level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) ) );
         setCurrentRoom( room );
         const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
         m_state.floor = hi.y;
@@ -63,7 +63,7 @@ void engine::items::RollingBall::update()
         setCurrentRoom( m_position.room );
         getSkeleton()->setAnimation( m_state,
                                      gsl::make_not_null(
-                                             getLevel().m_animatedModels[m_state.type]->animation ),
+                                             getLevel().m_animatedModels[m_state.type]->animations ),
                                      0 );
         m_state.goal_anim_state = m_state.current_anim_state;
         m_state.required_anim_state = 0;
@@ -71,7 +71,7 @@ void engine::items::RollingBall::update()
     }
 }
 
-void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::CollisionInfo& collisionInfo)
+void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 {
     if( m_state.triggerState != TriggerState::Active )
     {
@@ -117,7 +117,7 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
             const auto x = util::rand15s( 128 ) + lara.m_state.position.position.X;
             const auto y = lara.m_state.position.position.Y - util::rand15s( 512 );
             const auto z = util::rand15s( 128 ) + lara.m_state.position.position.Z;
-            auto fx = engine::createBloodSplat(
+            auto fx = createBloodSplat(
                     getLevel(),
                     core::RoomBoundPosition{m_state.position.room, core::TRVec{x, y, z}},
                     2 * m_state.speed,
@@ -128,12 +128,12 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
         return;
     }
 
-    if( collisionInfo.policyFlags & engine::CollisionInfo::EnableBaddiePush )
+    if( collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush )
     {
         enemyPush(
                 lara,
                 collisionInfo,
-                (collisionInfo.policyFlags & engine::CollisionInfo::EnableSpaz) != 0,
+                (collisionInfo.policyFlags & CollisionInfo::EnableSpaz) != 0,
                 true );
     }
     lara.m_state.health -= 100;
@@ -144,7 +144,7 @@ void engine::items::RollingBall::collide(engine::LaraNode& lara, engine::Collisi
     const auto xyz = std::max( 2 * loader::QuarterSectorSize, gsl::narrow_cast<int>(
             std::sqrt( util::square( x ) + util::square( y ) + util::square( z ) ) ) );
 
-    auto fx = engine::createBloodSplat(
+    auto fx = createBloodSplat(
             getLevel(),
             core::RoomBoundPosition{
                     m_state.position.room,

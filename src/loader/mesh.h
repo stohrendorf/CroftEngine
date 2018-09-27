@@ -25,13 +25,13 @@ struct Mesh
     std::vector<QuadFace> textured_rectangles; //[NumTexturedRectangles]; // list of textured rectangles
     std::vector<Triangle> textured_triangles; //[NumTexturedTriangles]; // list of textured triangles
     // the rest is not present in TR4
-    std::vector<QuadFace> colored_rectangles; //[NumColouredRectangles]; // list of coloured rectangles
-    std::vector<Triangle> colored_triangles; //[NumColouredTriangles]; // list of coloured triangles
+    std::vector<QuadFace> colored_rectangles; //[NumColoredRectangles]; // list of colored rectangles
+    std::vector<Triangle> colored_triangles; //[NumColoredTriangles]; // list of colored triangles
 
     /** \brief reads mesh definition.
     *
     * The read num_normals value is positive when normals are available and negative when light
-    * values are available. The values get set appropiatly.
+    * values are available. The values get set appropriately.
     */
     static std::unique_ptr<Mesh> readTr1(io::SDLReader& reader)
     {
@@ -41,7 +41,7 @@ struct Mesh
 
         reader.readVector( mesh->vertices, reader.readU16(), &io::readCoordinates16 );
 
-        auto num_normals = reader.readI16();
+        const auto num_normals = reader.readI16();
         if( num_normals >= 0 )
         {
             reader.readVector( mesh->normals, num_normals, &io::readCoordinates16 );
@@ -67,7 +67,7 @@ struct Mesh
 
         reader.readVector( mesh->vertices, reader.readU16(), &io::readCoordinates16 );
 
-        auto num_normals = reader.readI16();
+        const auto num_normals = reader.readI16();
         if( num_normals >= 0 )
         {
             reader.readVector( mesh->normals, num_normals, &io::readCoordinates16 );
@@ -117,7 +117,7 @@ struct Mesh
 
         void append(const RenderVertexWithNormal& v);
 
-        size_t getPartForColor(uint16_t proxyId)
+        size_t getPartForColor(const uint16_t proxyId)
         {
             TextureLayoutProxy::TextureKey tk;
             tk.blendingMode = BlendingMode::Solid;
@@ -143,7 +143,7 @@ struct Mesh
             {
                 m_texBuffers[proxy.textureKey] = m_parts.size();
                 m_parts.emplace_back();
-                auto it = m_materials.find( proxy.textureKey );
+                const auto it = m_materials.find( proxy.textureKey );
                 Expects( it != m_materials.end() );
                 m_parts.back().material = it->second;
             }
@@ -156,7 +156,7 @@ struct Mesh
                 bool dynamic,
                 const std::vector<TextureLayoutProxy>& textureProxies,
                 const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-                const gsl::not_null<std::shared_ptr<gameplay::Material>>& colorMaterial,
+                gsl::not_null<std::shared_ptr<gameplay::Material>> colorMaterial,
                 const Palette& palette,
                 render::TextureAnimator& animator,
                 const std::string& label = {});

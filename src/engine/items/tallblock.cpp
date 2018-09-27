@@ -27,15 +27,15 @@ void TallBlock::update()
 
     ModelItemNode::update();
     auto room = m_state.position.room;
-    getLevel().findRealFloorSector( m_state.position.position, make_not_null( &room ) );
+    level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) );
     setCurrentRoom( room );
 
-    if( m_state.triggerState != engine::items::TriggerState::Deactivated )
+    if( m_state.triggerState != TriggerState::Deactivated )
     {
         return;
     }
 
-    m_state.triggerState = engine::items::TriggerState::Active;
+    m_state.triggerState = TriggerState::Active;
     loader::Room::patchHeightsForBlock( *this, -2 * loader::SectorSize );
     auto pos = m_state.position.position;
     pos.X = (pos.X / loader::SectorSize) * loader::SectorSize + loader::SectorSize / 2;

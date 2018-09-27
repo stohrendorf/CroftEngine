@@ -7,7 +7,7 @@ namespace loader
 {
 namespace io
 {
-inline core::TRVec readCoordinates16(io::SDLReader& reader)
+inline core::TRVec readCoordinates16(SDLReader& reader)
 {
     core::TRVec vertex;
     vertex.X = reader.readI16();
@@ -16,7 +16,7 @@ inline core::TRVec readCoordinates16(io::SDLReader& reader)
     return vertex;
 }
 
-inline core::TRVec readCoordinates32(io::SDLReader& reader)
+inline core::TRVec readCoordinates32(SDLReader& reader)
 {
     core::TRVec vertex;
     vertex.X = reader.readI32();
@@ -25,7 +25,7 @@ inline core::TRVec readCoordinates32(io::SDLReader& reader)
     return vertex;
 }
 
-inline core::TRVec readCoordinatesF(io::SDLReader& reader)
+inline core::TRVec readCoordinatesF(SDLReader& reader)
 {
     core::TRVec vertex;
     vertex.X = std::lround( reader.readF() );

@@ -57,7 +57,6 @@ public:
 class CutsceneActor4 final : public CutsceneActor
 {
 public:
-public:
     CutsceneActor4(const gsl::not_null<level::Level*>& level,
                    const gsl::not_null<const loader::Room*>& room,
                    const loader::Item& item,

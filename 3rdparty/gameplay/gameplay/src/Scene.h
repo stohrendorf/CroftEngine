@@ -10,11 +10,15 @@ class Camera;
 class Scene final
 {
 public:
-    Scene(const Scene& copy) = delete;
+    explicit Scene() = default;
+
+    Scene(const Scene&) = delete;
+
+    Scene(Scene&&) = delete;
 
     Scene& operator=(const Scene&) = delete;
 
-    explicit Scene() = default;
+    Scene& operator=(Scene&&) = delete;
 
     ~Scene() = default;
 

@@ -14,10 +14,10 @@ namespace sndfile
 class MemBufferFileIo : public SF_VIRTUAL_IO
 {
 public:
-    MemBufferFileIo(const uint8_t* data, sf_count_t dataSize)
-            : SF_VIRTUAL_IO()
-            , m_data( data )
-            , m_dataSize( dataSize )
+    MemBufferFileIo(const uint8_t* data, const sf_count_t dataSize)
+            : SF_VIRTUAL_IO{}
+            , m_data{data}
+            , m_dataSize{dataSize}
     {
         BOOST_ASSERT( data != nullptr );
 
@@ -30,11 +30,11 @@ public:
 
     static sf_count_t getFileLength(void* user_data)
     {
-        auto self = static_cast<MemBufferFileIo*>(user_data);
+        const auto self = static_cast<MemBufferFileIo*>(user_data);
         return self->m_dataSize;
     }
 
-    static sf_count_t doSeek(sf_count_t offset, int whence, void* user_data)
+    static sf_count_t doSeek(const sf_count_t offset, const int whence, void* user_data)
     {
         auto self = static_cast<MemBufferFileIo*>(user_data);
         switch( whence )
@@ -65,7 +65,7 @@ public:
 
         BOOST_ASSERT( self->m_where + count <= self->m_dataSize );
 
-        auto buf = static_cast<uint8_t*>(ptr);
+        const auto buf = static_cast<uint8_t*>(ptr);
         std::copy_n( self->m_data + self->m_where, count, buf );
         self->m_where += count;
         return count;
@@ -78,7 +78,7 @@ public:
 
     static sf_count_t doTell(void* user_data)
     {
-        auto self = static_cast<MemBufferFileIo*>(user_data);
+        const auto self = static_cast<MemBufferFileIo*>(user_data);
         return self->m_where;
     }
 
@@ -92,10 +92,10 @@ private:
 class InputStreamViewWrapper : public SF_VIRTUAL_IO
 {
 public:
-    InputStreamViewWrapper(std::istream& stream, std::streamoff begin, std::streamoff end)
-            : SF_VIRTUAL_IO()
-            , m_restriction( boost::iostreams::restrict( stream, begin, end - begin ) )
-            , m_stream( m_restriction )
+    InputStreamViewWrapper(std::istream& stream, const std::streamoff begin, const std::streamoff end)
+            : SF_VIRTUAL_IO{}
+            , m_restriction{boost::iostreams::restrict( stream, begin, end - begin )}
+            , m_stream{m_restriction}
     {
         Expects( begin <= end );
 
@@ -116,7 +116,7 @@ public:
         return len;
     }
 
-    static sf_count_t doSeek(sf_count_t offset, int whence, void* user_data)
+    static sf_count_t doSeek(const sf_count_t offset, const int whence, void* user_data)
     {
         auto self = static_cast<InputStreamViewWrapper*>(user_data);
         switch( whence )
@@ -148,7 +148,7 @@ public:
 
         BOOST_ASSERT( self->m_stream.tellg() + count <= getFileLength( user_data ) );
 
-        auto buf = static_cast<char*>(ptr);
+        const auto buf = static_cast<char*>(ptr);
         self->m_stream.read( buf, count );
         return self->m_stream.gcount();
     }

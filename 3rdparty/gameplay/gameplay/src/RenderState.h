@@ -1,13 +1,8 @@
 #pragma once
 
-#include "Base.h"
 #include "gl/util.h"
 
 #include <boost/optional.hpp>
-
-#include <map>
-#include <memory>
-#include <vector>
 
 namespace gameplay
 {
@@ -16,7 +11,11 @@ class RenderState final
 public:
     RenderState(const RenderState&) = default;
 
-    RenderState& operator=(const RenderState&) = delete;
+    RenderState(RenderState&&) = default;
+
+    RenderState& operator=(const RenderState&) = default;
+
+    RenderState& operator=(RenderState&&) = default;
 
     explicit RenderState() = default;
 

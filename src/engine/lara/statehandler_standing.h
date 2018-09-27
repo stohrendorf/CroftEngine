@@ -11,8 +11,8 @@ class StateHandler_Standing
         : public AbstractStateHandler
 {
 protected:
-    explicit StateHandler_Standing(LaraNode& lara, LaraStateId id)
-            : AbstractStateHandler( lara, id )
+    explicit StateHandler_Standing(LaraNode& lara, const LaraStateId id)
+            : AbstractStateHandler{lara, id}
     {
     }
 

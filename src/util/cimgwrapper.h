@@ -26,7 +26,11 @@ public:
 
     CImgWrapper(const CImgWrapper& other);
 
+    CImgWrapper(CImgWrapper&& other) = delete;
+
     CImgWrapper& operator=(const CImgWrapper& other);
+
+    CImgWrapper& operator=(CImgWrapper&& other) = delete;
 
     ~CImgWrapper();
 

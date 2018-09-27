@@ -11,6 +11,10 @@ namespace gl
 class BindableResource
 {
 public:
+    BindableResource(const BindableResource&) = delete;
+
+    BindableResource& operator=(const BindableResource&) = delete;
+
     void bind() const
     {
         if( m_handle == 0 )
@@ -44,7 +48,7 @@ protected:
     }
 
     explicit BindableResource(const std::function<Allocator>& allocator, const std::function<Binder>& binder,
-                              const std::function<Deleter>& deleter, GLenum identifier,
+                              const std::function<Deleter>& deleter, const GLenum identifier,
                               const std::string& label)
             : m_allocator{allocator}
             , m_binder{binder}
@@ -70,13 +74,23 @@ protected:
         }
     }
 
-    explicit BindableResource(BindableResource&& rhs)
-            : m_handle{std::move( rhs.m_handle )}
+    explicit BindableResource(BindableResource&& rhs) noexcept
+            : m_handle{rhs.m_handle}
             , m_allocator{move( rhs.m_allocator )}
             , m_binder{move( rhs.m_binder )}
             , m_deleter{move( rhs.m_deleter )}
     {
         rhs.m_handle = 0;
+    }
+
+    BindableResource& operator=(BindableResource&& rhs)
+    {
+        m_handle = rhs.m_handle;
+        m_allocator = move( rhs.m_allocator );
+        m_binder = move( rhs.m_binder );
+        m_deleter = move( rhs.m_deleter );
+        rhs.m_handle = 0;
+        return *this;
     }
 
     virtual ~BindableResource()
@@ -89,7 +103,8 @@ protected:
         checkGlError();
     }
 
-    void setLabel(GLenum identifier, const std::string& label)
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void setLabel(const GLenum identifier, const std::string& label)
     {
         GLint maxLabelLength = 0;
         glGetIntegerv( GL_MAX_LABEL_LENGTH, &maxLabelLength );
@@ -110,10 +125,6 @@ private:
     std::function<Binder> m_binder;
 
     std::function<Deleter> m_deleter;
-
-    BindableResource(const BindableResource&) = delete;
-
-    BindableResource& operator=(const BindableResource&) = delete;
 };
 }
 }

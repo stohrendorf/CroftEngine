@@ -17,7 +17,7 @@ class Particle : public gameplay::Node
 public:
     core::RoomBoundPosition pos;
     core::TRRotation angle;
-    const engine::TR1ItemId object_number;
+    const TR1ItemId object_number;
     int16_t speed = 0;
     int16_t fall_speed = 0;
     int16_t negSpriteFrameId = 0;
@@ -27,7 +27,7 @@ public:
 private:
     std::deque<std::shared_ptr<gameplay::Drawable>> m_drawables{};
     std::deque<std::shared_ptr<gameplay::gl::Texture>> m_spriteTextures{};
-    engine::Lighting m_lighting;
+    Lighting m_lighting;
 
     void initDrawables(const level::Level& level);
 
@@ -52,7 +52,7 @@ protected:
 
     void applyTransform()
     {
-        glm::vec3 tr = pos.position.toRenderSystem() - pos.room->position.toRenderSystem();
+        const glm::vec3 tr = pos.position.toRenderSystem() - pos.room->position.toRenderSystem();
         setLocalMatrix( translate( glm::mat4{1.0f}, tr ) * angle.toMatrix() );
     }
 
@@ -63,7 +63,7 @@ protected:
 
 public:
     explicit Particle(const std::string& id,
-                      engine::TR1ItemId objectNumber,
+                      const TR1ItemId objectNumber,
                       const gsl::not_null<const loader::Room*>& room,
                       const level::Level& level)
             : Node{id}, pos{room}, object_number{objectNumber}
@@ -72,7 +72,7 @@ public:
     }
 
     explicit Particle(const std::string& id,
-                      engine::TR1ItemId objectNumber,
+                      const TR1ItemId objectNumber,
                       const core::RoomBoundPosition& pos,
                       const level::Level& level)
             : Node{id}, pos{pos}, object_number{objectNumber}
@@ -93,10 +93,10 @@ class BloodSplatterParticle : public Particle
 {
 public:
     explicit BloodSplatterParticle(const core::RoomBoundPosition& pos,
-                                   int16_t speed_,
-                                   core::Angle angle_,
+                                   const int16_t speed_,
+                                   const core::Angle angle_,
                                    const level::Level& level)
-            : Particle{"bloodsplat", engine::TR1ItemId::Blood, pos, level}
+            : Particle{"bloodsplat", TR1ItemId::Blood, pos, level}
     {
         speed = speed_;
         angle.Y = angle_;
@@ -111,8 +111,8 @@ class SplashParticle : public Particle
 public:
     explicit SplashParticle(const core::RoomBoundPosition& pos,
                             const level::Level& level,
-                            bool waterfall)
-            : Particle{"splash", engine::TR1ItemId::Splash, pos, level}
+                            const bool waterfall)
+            : Particle{"splash", TR1ItemId::Splash, pos, level}
     {
         if( !waterfall )
         {
@@ -135,11 +135,11 @@ class RicochetParticle : public Particle
 public:
     explicit RicochetParticle(const core::RoomBoundPosition& pos,
                               const level::Level& level)
-            : Particle{"ricochet", engine::TR1ItemId::Ricochet, pos, level}
+            : Particle{"ricochet", TR1ItemId::Ricochet, pos, level}
     {
         timePerSpriteFrame = 4;
 
-        int n = util::rand15( 3 );
+        const int n = util::rand15( 3 );
         for( int i = 0; i < n; ++i )
             nextFrame();
     }
@@ -163,11 +163,11 @@ class BubbleParticle : public Particle
 public:
     explicit BubbleParticle(const core::RoomBoundPosition& pos,
                             const level::Level& level)
-            : Particle{"bubble", engine::TR1ItemId::Bubbles, pos, level}
+            : Particle{"bubble", TR1ItemId::Bubbles, pos, level}
     {
         speed = 10 + util::rand15( 6 );
 
-        int n = util::rand15( 3 );
+        const int n = util::rand15( 3 );
         for( int i = 0; i < n; ++i )
             nextFrame();
     }
@@ -181,7 +181,7 @@ class SparkleParticle : public Particle
 public:
     explicit SparkleParticle(const core::RoomBoundPosition& pos,
                              const level::Level& level)
-            : Particle{"sparkles", engine::TR1ItemId::Sparkles, pos, level}
+            : Particle{"sparkles", TR1ItemId::Sparkles, pos, level}
     {
         timePerSpriteFrame = 0;
         negSpriteFrameId = 0;
@@ -206,7 +206,7 @@ inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(const level::Le
                                                                  core::Angle angle)
 {
     auto particle = make_not_null_shared<BloodSplatterParticle>( pos, speed, angle, level );
-    gameplay::setParent( particle, pos.room->node );
+    setParent( particle, pos.room->node );
     return particle;
 }
 }

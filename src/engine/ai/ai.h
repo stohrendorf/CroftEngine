@@ -131,7 +131,7 @@ struct LotInfo
     bool calculateTarget(const level::Level& lvl, core::TRVec& target, const items::ItemState& item);
 
     /**
-     * @brief Incrementally calculate all pathes to a specific box.
+     * @brief Incrementally calculate all paths to a specific box.
      * @param lvl The level for acquiring additional needed data.
      * @param maxDepth Maximum number of nodes of the search tree to expand at a time.
      *
@@ -139,7 +139,7 @@ struct LotInfo
      * The algorithm performs a greedy breadth-first search, searching for all paths that lead to
      * #required_box.  While searching, @arg maxDepth limits the number of nodes expanded, so it may take multiple
      * calls to actually calculate the full path.  Until a full path is found, the nodes partially retain the old
-     * pathes from a previous search.
+     * paths from a previous search.
      */
     void updatePath(const level::Level& lvl, const uint8_t maxDepth)
     {

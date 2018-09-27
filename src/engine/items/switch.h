@@ -13,11 +13,11 @@ public:
            const gsl::not_null<const loader::Room*>& room,
            const loader::Item& item,
            const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, room, item, true, animatedModel )
+            : ModelItemNode{level, room, item, true, animatedModel}
     {
     }
 
-    void collide(LaraNode& other, CollisionInfo& collisionInfo) override;
+    void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 
     void update() final
     {

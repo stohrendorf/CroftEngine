@@ -11,7 +11,7 @@ class StateHandler_17 final
 {
 public:
     explicit StateHandler_17(LaraNode& lara)
-            : StateHandler_Underwater( lara, LaraStateId::UnderwaterForward )
+            : StateHandler_Underwater{lara, LaraStateId::UnderwaterForward}
     {
     }
 
@@ -30,8 +30,7 @@ public:
             setGoalAnimState( LaraStateId::UnderwaterInertia );
         }
 
-        int spd = std::min( getLara().m_state.fallspeed + 8, 200 );
-        getLara().m_state.fallspeed = spd;
+        getLara().m_state.fallspeed = std::min( getLara().m_state.fallspeed + 8, 200 );
     }
 };
 }

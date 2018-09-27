@@ -12,7 +12,7 @@ class StateHandler_55 final
 {
 public:
     explicit StateHandler_55(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::OnWaterExit )
+            : AbstractStateHandler{lara, LaraStateId::OnWaterExit}
     {
     }
 

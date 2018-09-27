@@ -61,16 +61,8 @@ constexpr int HeightLimit = 127 * QuarterSectorSize;
 struct Portal
 {
     uint16_t adjoining_room; ///< \brief which room this portal leads to.
-    core::TRVec normal; /**< \brief which way the portal faces.
-                                   * the normal points away from the adjacent room->
-                                   * to be seen through, it must point toward the viewpoint.
-                                   */
-    core::TRVec vertices[4]; /**< \brief the corners of this portal.
-                                   * the right-hand rule applies with respect to the normal.
-                                   * if the right-hand-rule is not followed, the portal will
-                                   * contain visual artifacts instead of a viewport to
-                                   * Adjoiningroom->
-                                   */
+    core::TRVec normal;
+    core::TRVec vertices[4];
 
     static Portal read(io::SDLReader& reader, const core::TRVec& offset)
     {
@@ -283,14 +275,13 @@ struct Light
     {
         Light light;
         light.position = readCoordinatesF( reader );
-        //read_tr_colour(src, light.color);
         light.color.r = gsl::narrow<uint8_t>( reader.readF() * 255 ); // r
         light.color.g = gsl::narrow<uint8_t>( reader.readF() * 255 ); // g
         light.color.b = gsl::narrow<uint8_t>( reader.readF() * 255 ); // b
         light.color.a = gsl::narrow<uint8_t>( reader.readF() * 255 ); // a
         /*
         if ((temp != 0) && (temp != 0xCDCDCDCD))
-        BOOST_THROW_EXCEPTION( TR_ReadError("read_tr5_room_light: seperator1 has wrong value") );
+        BOOST_THROW_EXCEPTION( TR_ReadError("read_tr5_room_light: separator1 has wrong value") );
         */
         light.r_inner = gsl::narrow<int>( reader.readF() );
         light.r_outer = gsl::narrow<int>( reader.readF() );
@@ -304,15 +295,15 @@ struct Light
 
         auto temp = reader.readU8();
         if( temp != 0xCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room Light: seperator2 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room Light: separator2 has wrong value";
 
         temp = reader.readU8();
         if( temp != 0xCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room Light: seperator3 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room Light: separator3 has wrong value";
 
         temp = reader.readU8();
         if( temp != 0xCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room Light: seperator4 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room Light: separator4 has wrong value";
 
         return light;
     }
@@ -438,7 +429,7 @@ struct RoomVertex
       * lighting1 gets converted, so it matches the 0-32768 range introduced in TR3.
       * lighting2 is introduced in TR2 and is set to lighting1 for TR1.
       * attributes is introduced in TR2 and is set 0 for TR1.
-      * All other values are introduced in TR5 and get set to appropiate values.
+      * All other values are introduced in TR5 and get set to appropriate values.
       */
     static RoomVertex readTr1(io::SDLReader& reader)
     {
@@ -640,7 +631,7 @@ struct Room
       * darkness gets converted, so it matches the 0-32768 range introduced in TR3.
       * intensity2 is introduced in TR2 and is set to darkness for TR1.
       * light_mode is only in TR2 and is set 0 for TR1.
-      * light_colour is only in TR3-4 and gets set appropiatly.
+      * light_color is only in TR3-4 and gets set appropriately.
       */
     static std::unique_ptr<Room> readTr1(io::SDLReader& reader)
     {
@@ -653,9 +644,9 @@ struct Room
         room->lowestHeight = reader.readI32();
         room->greatestHeight = reader.readI32();
 
-        std::streamsize num_data_words = reader.readU32();
+        const std::streamsize num_data_words = reader.readU32();
 
-        auto position = reader.tell();
+        const auto position = reader.tell();
 
         reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr1 );
         reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
@@ -706,9 +697,9 @@ struct Room
         room->lowestHeight = reader.readI32();
         room->greatestHeight = reader.readI32();
 
-        std::streamsize num_data_words = reader.readU32();
+        const std::streamsize num_data_words = reader.readU32();
 
-        auto position = reader.tell();
+        const auto position = reader.tell();
 
         reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr2 );
         reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
@@ -766,9 +757,9 @@ struct Room
         room->lowestHeight = reader.readI32();
         room->greatestHeight = reader.readI32();
 
-        std::streamsize num_data_words = reader.readU32();
+        const std::streamsize num_data_words = reader.readU32();
 
-        auto position = reader.tell();
+        const auto position = reader.tell();
 
         reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr3 );
         reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
@@ -830,9 +821,9 @@ struct Room
         room->lowestHeight = reader.readI32();
         room->greatestHeight = reader.readI32();
 
-        std::streamsize num_data_words = reader.readU32();
+        const std::streamsize num_data_words = reader.readU32();
 
-        auto position = reader.tell();
+        const auto position = reader.tell();
 
         reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr4 );
         reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
@@ -893,16 +884,16 @@ struct Room
         room->lightMode = 0;
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator1 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator1 has wrong value";
 
         /*portal_offset = */
         reader.readI32(); // StartPortalOffset?   // endSDOffset
-        std::streampos sector_data_offset = reader.readU32(); // StartSDOffset
+        const std::streampos sector_data_offset = reader.readU32(); // StartSDOffset
         auto temp = reader.readU32();
         if( temp != 0 && temp != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator2 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator2 has wrong value";
 
-        std::streampos static_meshes_offset = reader.readU32(); // endPortalOffset
+        const std::streampos static_meshes_offset = reader.readU32(); // endPortalOffset
         // static_meshes_offset or room_layer_offset
         // read and change coordinate system
         room->position.X = reader.readI32();
@@ -918,7 +909,7 @@ struct Room
         room->lightColor.g = reader.readU8() / 255.0f;
         room->lightColor.r = reader.readU8() / 255.0f;
         room->lightColor.a = reader.readU8() / 255.0f;
-        //room->light_colour.a = 1.0f;
+        //room->light_color.a = 1.0f;
 
         room->lights.resize( reader.readU16() );
         if( room->lights.size() > 512 )
@@ -939,13 +930,13 @@ struct Room
             BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: filler2 has wrong value";
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator4 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator4 has wrong value";
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator5 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator5 has wrong value";
 
         if( reader.readU32() != 0xFFFFFFFF )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator6 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator6 has wrong value";
 
         room->alternateRoom = reader.readI16();
 
@@ -957,7 +948,7 @@ struct Room
 
         temp = reader.readU32();
         if( temp != 0 && temp != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator7 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator7 has wrong value";
 
         room->unknown_r4a = reader.readU16();
         room->unknown_r4b = reader.readU16();
@@ -967,23 +958,23 @@ struct Room
         room->room_z = -reader.readF();
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator8 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator8 has wrong value";
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator9 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator9 has wrong value";
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator10 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator10 has wrong value";
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator11 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator11 has wrong value";
 
         temp = reader.readU32();
         if( temp != 0 && temp != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator12 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator12 has wrong value";
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator13 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator13 has wrong value";
 
         auto num_triangles = reader.readU32();
         if( num_triangles == 0xCDCDCDCD )
@@ -1000,11 +991,11 @@ struct Room
         room->rectangles.resize( num_rectangles );
 
         if( reader.readU32() != 0 )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator14 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator14 has wrong value";
 
         /*light_size = */
         reader.readU32();
-        auto numL2 = reader.readU32();
+        const auto numL2 = reader.readU32();
         if( numL2 != room->lights.size() )
             BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Room: numLights2 != lights.size()" ) );
 
@@ -1014,28 +1005,28 @@ struct Room
 
         room->layers.resize( reader.readU32() );
 
-        std::streampos layer_offset = reader.readU32();
-        std::streampos vertices_offset = reader.readU32();
-        std::streampos poly_offset = reader.readU32();
-        std::streampos poly_offset2 = reader.readU32();
+        const std::streampos layer_offset = reader.readU32();
+        const std::streampos vertices_offset = reader.readU32();
+        const std::streampos poly_offset = reader.readU32();
+        const std::streampos poly_offset2 = reader.readU32();
         if( poly_offset != poly_offset2 )
             BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Room: poly_offset != poly_offset2" ) );
 
-        auto vertices_size = reader.readU32();
+        const auto vertices_size = reader.readU32();
         if( vertices_size % 28 != 0 )
             BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Room: vertices_size has wrong value" ) );
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator15 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator15 has wrong value";
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator16 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator16 has wrong value";
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator17 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator17 has wrong value";
 
         if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: seperator18 has wrong value";
+            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator18 has wrong value";
 
         for( auto& light : room->lights )
             light = Light::readTr5( reader );
@@ -1131,26 +1122,26 @@ struct Room
     bool isInnerPositionX(core::TRVec position) const
     {
         position -= this->position;
-        int sx = position.X / SectorSize;
+        const int sx = position.X / SectorSize;
         return sx > 0 && sx < sectorCountX - 1;
     }
 
     bool isInnerPositionZ(core::TRVec position) const
     {
         position -= this->position;
-        int sz = position.Z / SectorSize;
+        const int sz = position.Z / SectorSize;
         return sz > 0 && sz < sectorCountZ - 1;
     }
 
     bool isInnerPositionXZ(core::TRVec position) const
     {
         position -= this->position;
-        int sx = position.X / SectorSize;
-        int sz = position.Z / SectorSize;
+        const int sx = position.X / SectorSize;
+        const int sz = position.Z / SectorSize;
         return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
     }
 
-    const Sector* getSectorByIndex(int dx, int dz) const
+    const Sector* getSectorByIndex(const int dx, const int dz) const
     {
         if( dx < 0 || dx >= sectorCountX )
         {
@@ -1235,8 +1226,8 @@ struct Sprite
         const auto tright = reader.readI16();
         const auto tbottom = reader.readI16();
 
-        float w = tw / 256.0f;
-        float h = th / 256.0f;
+        const float w = tw / 256.0f;
+        const float h = th / 256.0f;
         sprite->t0.x = tx / 256.0f;
         sprite->t0.y = ty / 256.0f;
         sprite->t1.x = sprite->t0.x + w / 256.0f;
@@ -1336,17 +1327,17 @@ struct Box
     mutable uint16_t overlap_index; // index into Overlaps[]. The high bit is sometimes set; this
     // occurs in front of swinging doors and the like.
 
-    constexpr bool containsX(int32_t x) const noexcept
+    constexpr bool containsX(const int32_t x) const noexcept
     {
         return x >= xmin && x <= xmax;
     }
 
-    constexpr bool containsZ(int32_t z) const noexcept
+    constexpr bool containsZ(const int32_t z) const noexcept
     {
         return z >= zmin && z <= zmax;
     }
 
-    constexpr bool contains(int32_t x, int32_t z) const noexcept
+    constexpr bool contains(const int32_t x, const int32_t z) const noexcept
     {
         return containsX( x ) && containsZ( z );
     }
@@ -1382,13 +1373,13 @@ struct Box
     ZoneId zoneGround2 = 0;
     ZoneId zoneGround2Swapped = 0;
 
-    static const ZoneId Box::* getZoneRef(bool swapped, int fly, int step)
+    static const ZoneId Box::* getZoneRef(const bool swapped, const int fly, const int step)
     {
         if( fly != 0 )
         {
             return swapped ? &Box::zoneFlySwapped : &Box::zoneFly;
         }
-        else if( step == loader::QuarterSectorSize )
+        else if( step == QuarterSectorSize )
         {
             return swapped ? &Box::zoneGround1Swapped : &Box::zoneGround1;
         }
@@ -1405,7 +1396,7 @@ using ZoneData = std::vector<ZoneId>;
 
 struct Zones
 {
-    void read(size_t boxCount, io::SDLReader& reader)
+    void read(const size_t boxCount, io::SDLReader& reader)
     {
         reader.readVector( groundZone1, boxCount );
         reader.readVector( groundZone2, boxCount );
@@ -1454,7 +1445,7 @@ struct Camera
         return (flags & 1) != 0;
     }
 
-    void setActive(bool flg) const noexcept
+    void setActive(const bool flg) const noexcept
     {
         if( flg )
             flags |= 1;
@@ -1563,8 +1554,8 @@ struct CinematicFrame
     static std::unique_ptr<CinematicFrame> read(io::SDLReader& reader)
     {
         std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
-        cf->center = io::readCoordinates16( reader );
-        cf->eye = io::readCoordinates16( reader );
+        cf->center = readCoordinates16( reader );
+        cf->eye = readCoordinates16( reader );
         cf->fov = core::Angle{reader.readI16()};
         cf->rotZ = core::Angle{reader.readI16()};
         return cf;

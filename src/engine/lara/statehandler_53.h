@@ -12,7 +12,7 @@ class StateHandler_53 final
 {
 public:
     explicit StateHandler_53(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::SwandiveEnd )
+            : AbstractStateHandler{lara, LaraStateId::SwandiveEnd}
     {
     }
 

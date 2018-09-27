@@ -13,7 +13,7 @@ public:
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, room, item, true, animatedModel )
+            : ModelItemNode{level, room, item, true, animatedModel}
     {
     }
 
@@ -53,11 +53,11 @@ public:
 private:
     bool possiblyOnTrapdoor(const core::TRVec& pos) const
     {
-        auto trapdoorSectorX = m_state.position.position.X / loader::SectorSize;
-        auto trapdoorSectorZ = m_state.position.position.Z / loader::SectorSize;
-        auto posSectorX = pos.X / loader::SectorSize;
-        auto posSectorZ = pos.Z / loader::SectorSize;
-        auto trapdoorAxis = core::axisFromAngle( m_state.rotation.Y, 1_au );
+        const auto trapdoorSectorX = m_state.position.position.X / loader::SectorSize;
+        const auto trapdoorSectorZ = m_state.position.position.Z / loader::SectorSize;
+        const auto posSectorX = pos.X / loader::SectorSize;
+        const auto posSectorZ = pos.Z / loader::SectorSize;
+        auto trapdoorAxis = axisFromAngle( m_state.rotation.Y, 1_au );
         BOOST_ASSERT( trapdoorAxis.is_initialized() );
 
         if( *trapdoorAxis == core::Axis::PosZ && trapdoorSectorX == posSectorX

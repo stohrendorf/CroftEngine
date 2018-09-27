@@ -159,7 +159,7 @@ public:
         m_state.is_hit = true;
         m_state.falling = true;
 
-        const auto& gunFlareModel = getLevel().findAnimatedModelForType( engine::TR1ItemId::Gunflare );
+        const auto& gunFlareModel = getLevel().findAnimatedModelForType( TR1ItemId::Gunflare );
         if( gunFlareModel == nullptr )
             return;
 
@@ -171,6 +171,14 @@ public:
         m_gunFlareRight->setDrawable( mdl.get() );
         m_gunFlareRight->setVisible( false );
     }
+
+    LaraNode(const LaraNode&) = delete;
+
+    LaraNode(LaraNode&&) = delete;
+
+    LaraNode& operator=(const LaraNode&) = delete;
+
+    LaraNode& operator=(LaraNode&&) = delete;
 
     ~LaraNode() override;
 
@@ -221,12 +229,12 @@ private:
     uint16_t m_secretsFoundBitmask = 0;
 
 public:
-    void setAir(int a) noexcept
+    void setAir(const int a) noexcept
     {
         m_air = a;
     }
 
-    void setMovementAngle(core::Angle angle) noexcept
+    void setMovementAngle(const core::Angle angle) noexcept
     {
         m_movementAngle = angle;
     }
@@ -241,14 +249,14 @@ public:
         return m_handStatus;
     }
 
-    void setHandStatus(HandStatus status) noexcept
+    void setHandStatus(const HandStatus status) noexcept
     {
         m_handStatus = status;
     }
 
     void placeOnFloor(const CollisionInfo& collisionInfo);
 
-    void setYRotationSpeed(core::Angle spd)
+    void setYRotationSpeed(const core::Angle spd)
     {
         m_yRotationSpeed = spd;
     }
@@ -258,17 +266,17 @@ public:
         return m_yRotationSpeed;
     }
 
-    void subYRotationSpeed(core::Angle val, core::Angle limit = -32768_au)
+    void subYRotationSpeed(const core::Angle val, const core::Angle limit = -32768_au)
     {
         m_yRotationSpeed = std::max( m_yRotationSpeed - val, limit );
     }
 
-    void addYRotationSpeed(core::Angle val, core::Angle limit = 32767_au)
+    void addYRotationSpeed(const core::Angle val, const core::Angle limit = 32767_au)
     {
         m_yRotationSpeed = std::min( m_yRotationSpeed + val, limit );
     }
 
-    void setFallSpeedOverride(int v)
+    void setFallSpeedOverride(const int v)
     {
         m_fallSpeedOverride = v;
     }
@@ -278,7 +286,7 @@ public:
         return m_currentSlideAngle;
     }
 
-    void setCurrentSlideAngle(core::Angle a) noexcept
+    void setCurrentSlideAngle(const core::Angle a) noexcept
     {
         m_currentSlideAngle = a;
     }
@@ -312,16 +320,16 @@ public:
 
     void updateFloorHeight(int dy);
 
-    void handleCommandSequence(const uint16_t* floorData, bool skipFirstTriggers);
+    void handleCommandSequence(const uint16_t* floorData, bool fromHeavy);
 
     boost::optional<int> getWaterSurfaceHeight() const;
 
-    void addSwimToDiveKeypressDuration(int n) noexcept
+    void addSwimToDiveKeypressDuration(const int n) noexcept
     {
         m_swimToDiveKeypressDuration += n;
     }
 
-    void setSwimToDiveKeypressDuration(int n) noexcept
+    void setSwimToDiveKeypressDuration(const int n) noexcept
     {
         m_swimToDiveKeypressDuration = n;
     }
@@ -331,7 +339,7 @@ public:
         return m_swimToDiveKeypressDuration;
     }
 
-    void setUnderwaterState(UnderwaterState u) noexcept
+    void setUnderwaterState(const UnderwaterState u) noexcept
     {
         m_underwaterState = u;
     }
@@ -396,7 +404,7 @@ public:
         const auto rot = core::Angle::fromAtan(
                 forceSourcePosition->X - m_state.position.position.X,
                 forceSourcePosition->Z - m_state.position.position.Z ) - 180_deg;
-        hit_direction = core::axisFromAngle( m_state.rotation.Y - rot, 45_deg );
+        hit_direction = axisFromAngle( m_state.rotation.Y - rot, 45_deg );
         Expects( hit_direction.is_initialized() );
         if( hit_frame == 0 )
         {
@@ -550,7 +558,7 @@ public:
     void updateAnimNotShotgun(WeaponId weaponId);
 
     bool fireWeapon(WeaponId weaponId,
-                    const std::shared_ptr<engine::items::ModelItemNode>& target,
+                    const std::shared_ptr<ModelItemNode>& target,
                     const ModelItemNode& gunHolder,
                     const core::TRRotationXY& aimAngle);
 
@@ -559,13 +567,13 @@ public:
     void hitTarget(ModelItemNode& item, const core::TRVec& hitPos, int damage);
 
     void renderGunFlare(WeaponId weaponId, glm::mat4 m, const gsl::not_null<std::shared_ptr<gameplay::Node>>& flareNode,
-                        bool visible);
+                        bool visible) const;
 
     void drawRoutine();
 
     void drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo);
 
-    void alignForInteraction(const core::TRVec& offset, const engine::items::ItemState& item)
+    void alignForInteraction(const core::TRVec& offset, const items::ItemState& item)
     {
         const auto v = item.rotation.toMatrix() * glm::vec4{offset.toRenderSystem(), 1.0f};
         const auto p = core::TRVec{glm::vec3{v}};

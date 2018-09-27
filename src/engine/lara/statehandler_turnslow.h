@@ -11,8 +11,8 @@ class StateHandler_TurnSlow
         : public AbstractStateHandler
 {
 protected:
-    explicit StateHandler_TurnSlow(LaraNode& lara, LaraStateId id)
-            : AbstractStateHandler( lara, id )
+    explicit StateHandler_TurnSlow(LaraNode& lara, const LaraStateId id)
+            : AbstractStateHandler{lara, id}
     {
     }
 

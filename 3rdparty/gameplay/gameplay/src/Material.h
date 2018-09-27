@@ -16,9 +16,15 @@ class Node;
 class Material final
 {
 public:
-    explicit Material(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
+    explicit Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram);
 
     Material(const Material&) = delete;
+
+    Material(Material&&) = delete;
+
+    Material& operator=(const Material&) = delete;
+
+    Material& operator=(Material&&) = delete;
 
     ~Material();
 
@@ -30,7 +36,7 @@ public:
         return m_shaderProgram;
     }
 
-    void bind(const Node& node);
+    void bind(const Node& node) const;
 
     gsl::not_null<std::shared_ptr<MaterialParameter>> getParameter(const std::string& name) const;
 

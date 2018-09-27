@@ -10,6 +10,7 @@ void TrapDoorUp::update()
 {
     ModelItemNode::update();
     auto pos = m_state.position;
+    // ReSharper disable once CppExpressionWithoutSideEffects
     getLevel().findRealFloorSector( pos );
     setCurrentRoom( pos.room );
 }

@@ -14,7 +14,7 @@ class StateHandler_24 final
 {
 public:
     explicit StateHandler_24(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::SlideForward )
+            : AbstractStateHandler{lara, LaraStateId::SlideForward}
     {
     }
 

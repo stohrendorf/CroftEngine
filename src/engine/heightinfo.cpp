@@ -9,7 +9,7 @@ bool HeightInfo::skipSteepSlants = false;
 
 HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector,
                                  const core::TRVec& pos,
-                                 const std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::items::ItemNode>>>& itemList)
+                                 const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList)
 {
     HeightInfo hi;
 
@@ -52,23 +52,23 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
 
                     if( zSlant > 0 ) // lower edge at -Z
                     {
-                        auto dist = loader::SectorSize - localZ;
+                        const auto dist = loader::SectorSize - localZ;
                         hi.y += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                     else if( zSlant < 0 ) // lower edge at +Z
                     {
-                        auto dist = localZ;
+                        const auto dist = localZ;
                         hi.y -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
 
                     if( xSlant > 0 ) // lower edge at -X
                     {
-                        auto dist = loader::SectorSize - localX;
+                        const auto dist = loader::SectorSize - localX;
                         hi.y += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                     else if( xSlant < 0 ) // lower edge at +X
                     {
-                        auto dist = localX;
+                        const auto dist = localX;
                         hi.y -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                     }
                 }
@@ -115,7 +115,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
 
 HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSector,
                                    const core::TRVec& pos,
-                                   const std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::items::ItemNode>>>& itemList)
+                                   const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList)
 {
     HeightInfo hi;
 
@@ -153,23 +153,23 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
 
                 if( zSlant > 0 ) // lower edge at -Z
                 {
-                    auto dist = loader::SectorSize - localZ;
+                    const auto dist = loader::SectorSize - localZ;
                     hi.y -= dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                 }
                 else if( zSlant < 0 ) // lower edge at +Z
                 {
-                    auto dist = localZ;
+                    const auto dist = localZ;
                     hi.y += dist * zSlant * loader::QuarterSectorSize / loader::SectorSize;
                 }
 
                 if( xSlant > 0 ) // lower edge at -X
                 {
-                    auto dist = localX;
+                    const auto dist = localX;
                     hi.y -= dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                 }
                 else if( xSlant < 0 ) // lower edge at +X
                 {
-                    auto dist = loader::SectorSize - localX;
+                    const auto dist = loader::SectorSize - localX;
                     hi.y += dist * xSlant * loader::QuarterSectorSize / loader::SectorSize;
                 }
             }
@@ -187,7 +187,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
     const uint16_t* fd = roomSector->floorData;
     while( true )
     {
-        floordata::FloorDataChunk chunkHeader{*fd};
+        const floordata::FloorDataChunk chunkHeader{*fd};
         ++fd;
         switch( chunkHeader.type )
         {

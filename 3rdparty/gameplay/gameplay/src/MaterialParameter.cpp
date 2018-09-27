@@ -2,14 +2,14 @@
 
 #include "Node.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 #include <boost/log/trivial.hpp>
+
+#include <utility>
 
 namespace gameplay
 {
-MaterialParameter::MaterialParameter(const std::string& name)
-        : m_name( name )
+MaterialParameter::MaterialParameter(std::string name)
+        : m_name{std::move( name )}
 {
 }
 
@@ -34,7 +34,7 @@ void MaterialParameter::set(int value)
     };
 }
 
-void MaterialParameter::set(const float* values, std::size_t count)
+void MaterialParameter::set(const float* values, const size_t count)
 {
     std::vector<float> tmp;
     tmp.assign( values, values + count );
@@ -43,7 +43,7 @@ void MaterialParameter::set(const float* values, std::size_t count)
     };
 }
 
-void MaterialParameter::set(const int* values, std::size_t count)
+void MaterialParameter::set(const int* values, const size_t count)
 {
     std::vector<int> tmp;
     tmp.assign( values, values + count );
@@ -59,7 +59,7 @@ void MaterialParameter::set(const glm::vec2& value)
     };
 }
 
-void MaterialParameter::set(const glm::vec2* values, std::size_t count)
+void MaterialParameter::set(const glm::vec2* values, const size_t count)
 {
     std::vector<glm::vec2> tmp;
     tmp.assign( values, values + count );
@@ -75,7 +75,7 @@ void MaterialParameter::set(const glm::vec3& value)
     };
 }
 
-void MaterialParameter::set(const glm::vec3* values, std::size_t count)
+void MaterialParameter::set(const glm::vec3* values, const size_t count)
 {
     std::vector<glm::vec3> tmp;
     tmp.assign( values, values + count );
@@ -91,7 +91,7 @@ void MaterialParameter::set(const glm::vec4& value)
     };
 }
 
-void MaterialParameter::set(const glm::vec4* values, std::size_t count)
+void MaterialParameter::set(const glm::vec4* values, const size_t count)
 {
     std::vector<glm::vec4> tmp;
     tmp.assign( values, values + count );
@@ -107,7 +107,7 @@ void MaterialParameter::set(const glm::mat4& value)
     };
 }
 
-void MaterialParameter::set(const glm::mat4* values, std::size_t count)
+void MaterialParameter::set(const glm::mat4* values, const size_t count)
 {
     std::vector<glm::mat4> tmp;
     tmp.assign( values, values + count );
@@ -130,9 +130,10 @@ void MaterialParameter::set(const std::vector<std::shared_ptr<gl::Texture>>& tex
     };
 }
 
-gl::Program::ActiveUniform* MaterialParameter::getUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
+gl::Program::ActiveUniform* MaterialParameter::getUniform(
+        const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
-    auto uniform = shaderProgram->getUniform( m_name );
+    const auto uniform = shaderProgram->getUniform( m_name );
 
     if( uniform )
         return uniform;
@@ -163,7 +164,7 @@ bool MaterialParameter::bind(const Node& node, const gsl::not_null<std::shared_p
         return false;
     }
 
-    auto uniform = getUniform( shaderProgram );
+    const auto uniform = getUniform( shaderProgram );
     if( uniform == nullptr )
         return false;
 

@@ -8,9 +8,9 @@ struct BoundingBox final
 {
     explicit BoundingBox() = default;
 
-    explicit BoundingBox(const TRVec& min_, const TRVec& max_)
-            : min{min_}
-            , max{max_}
+    explicit BoundingBox(const TRVec& min, const TRVec& max)
+            : min{min}
+            , max{max}
     {
     }
 

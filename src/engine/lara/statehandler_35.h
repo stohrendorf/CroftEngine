@@ -11,7 +11,7 @@ class StateHandler_35 final
 {
 public:
     explicit StateHandler_35(LaraNode& lara)
-            : StateHandler_Underwater( lara, LaraStateId::UnderwaterDiving )
+            : StateHandler_Underwater{lara, LaraStateId::UnderwaterDiving}
     {
     }
 

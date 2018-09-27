@@ -16,20 +16,19 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
     //setAnimation(mdl.animationIndex);
 }
 
-int SkeletalModelNode::calculateFloorSpeed(const engine::items::ItemState& state, int frameOffset) const
+int SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const int frameOffset)
 {
     const auto scaled = state.anim->speed
-                        + state.anim->accelleration * (state.frame_number - state.anim->firstFrame + frameOffset);
+                        + state.anim->acceleration * (state.frame_number - state.anim->firstFrame + frameOffset);
     return scaled / (1 << 16);
 }
 
-int SkeletalModelNode::getAccelleration(const engine::items::ItemState& state) const
+int SkeletalModelNode::getAcceleration(const items::ItemState& state)
 {
-    return state.anim->accelleration / (1 << 16);
+    return state.anim->acceleration / (1 << 16);
 }
 
-SkeletalModelNode::InterpolationInfo
-SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) const
+SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(const items::ItemState& state) const
 {
     /*
      * == Animation Layout ==
@@ -57,8 +56,8 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
 
     //BOOST_ASSERT( m_time >= startTime && m_time < endTime );
     Expects( state.frame_number >= state.anim->firstFrame && state.frame_number <= state.anim->lastFrame );
-    size_t firstKeyframeIndex = gsl::narrow<size_t>( state.frame_number - state.anim->firstFrame )
-                                / state.anim->segmentLength;
+    const size_t firstKeyframeIndex = gsl::narrow<size_t>( state.frame_number - state.anim->firstFrame )
+                                      / state.anim->segmentLength;
     Expects( firstKeyframeIndex < state.anim->getKeyframeCount() );
 
     result.firstFrame = state.anim->frames->next( firstKeyframeIndex );
@@ -74,7 +73,7 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
     result.secondFrame = result.firstFrame->next();
 
     auto segmentDuration = state.anim->segmentLength;
-    auto segmentFrame = (state.frame_number - state.anim->firstFrame) % segmentDuration;
+    const auto segmentFrame = (state.frame_number - state.anim->firstFrame) % segmentDuration;
 
     if( segmentFrame == 0 )
     {
@@ -95,7 +94,7 @@ SkeletalModelNode::getInterpolationInfo(const engine::items::ItemState& state) c
     return result;
 }
 
-void SkeletalModelNode::updatePose(engine::items::ItemState& state)
+void SkeletalModelNode::updatePose(items::ItemState& state)
 {
     if( getChildren().empty() )
         return;
@@ -121,12 +120,12 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
     const auto angleDataFirst = framePair.firstFrame->getAngleData();
     std::stack<glm::mat4> transformsFirst;
-    transformsFirst.push( glm::translate( glm::mat4{1.0f}, framePair.firstFrame->pos.toGl() )
+    transformsFirst.push( translate( glm::mat4{1.0f}, framePair.firstFrame->pos.toGl() )
                           * core::fromPackedAngles( angleDataFirst[0] ) * m_bonePatches[0] );
 
     const auto angleDataSecond = framePair.secondFrame->getAngleData();
     std::stack<glm::mat4> transformsSecond;
-    transformsSecond.push( glm::translate( glm::mat4{1.0f}, framePair.secondFrame->pos.toGl() )
+    transformsSecond.push( translate( glm::mat4{1.0f}, framePair.secondFrame->pos.toGl() )
                            * core::fromPackedAngles( angleDataSecond[0] ) * m_bonePatches[0] );
 
     BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 2 );
@@ -152,17 +151,17 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
         BOOST_ASSERT( (m_model.boneTree[i - 1].flags & 0x1c) == 0 );
 
         if( framePair.firstFrame->numValues < i )
-            transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
+            transformsFirst.top() *= translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                      * m_bonePatches[i];
         else
-            transformsFirst.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
+            transformsFirst.top() *= translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                      * core::fromPackedAngles( angleDataFirst[i] ) * m_bonePatches[i];
 
         if( framePair.firstFrame->numValues < i )
-            transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
+            transformsSecond.top() *= translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                       * m_bonePatches[i];
         else
-            transformsSecond.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
+            transformsSecond.top() *= translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                       * core::fromPackedAngles( angleDataSecond[i] ) * m_bonePatches[i];
 
         getChildren()[i]
@@ -183,7 +182,7 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
     const auto angleData = framePair.firstFrame->getAngleData();
 
     std::stack<glm::mat4> transforms;
-    transforms.push( glm::translate( glm::mat4{1.0f}, framePair.firstFrame->pos.toGl() )
+    transforms.push( translate( glm::mat4{1.0f}, framePair.firstFrame->pos.toGl() )
                      * core::fromPackedAngles( angleData[0] ) * m_bonePatches[0] );
 
     getChildren()[0]->setLocalMatrix( transforms.top() );
@@ -205,28 +204,28 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
         }
 
         if( framePair.firstFrame->numValues < i )
-            transforms.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() ) * m_bonePatches[i];
+            transforms.top() *= translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() ) * m_bonePatches[i];
         else
-            transforms.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
+            transforms.top() *= translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                 * core::fromPackedAngles( angleData[i] ) * m_bonePatches[i];
 
         getChildren()[i]->setLocalMatrix( transforms.top() );
     }
 }
 
-loader::BoundingBox SkeletalModelNode::getBoundingBox(const engine::items::ItemState& state) const
+loader::BoundingBox SkeletalModelNode::getBoundingBox(const items::ItemState& state) const
 {
-    auto framePair = getInterpolationInfo( state );
+    const auto framePair = getInterpolationInfo( state );
     BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 1 );
 
     if( framePair.secondFrame != nullptr )
     {
-        return loader::BoundingBox( framePair.firstFrame->bbox, framePair.secondFrame->bbox, framePair.bias );
+        return {framePair.firstFrame->bbox, framePair.secondFrame->bbox, framePair.bias};
     }
     return framePair.firstFrame->bbox;
 }
 
-bool SkeletalModelNode::handleStateTransitions(engine::items::ItemState& state)
+bool SkeletalModelNode::handleStateTransitions(items::ItemState& state)
 {
     Expects( state.anim != nullptr );
     if( state.anim->state_id == state.goal_anim_state )
@@ -250,10 +249,10 @@ bool SkeletalModelNode::handleStateTransitions(engine::items::ItemState& state)
     return false;
 }
 
-void
-SkeletalModelNode::setAnimation(engine::items::ItemState& state,
-                                gsl::not_null<const loader::Animation*> animation,
-                                uint16_t frame)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void SkeletalModelNode::setAnimation(items::ItemState& state,
+                                     const gsl::not_null<const loader::Animation*>& animation,
+                                     uint16_t frame)
 {
     BOOST_ASSERT( getChildren().empty() || animation->frames->numValues == getChildren().size() );
 
@@ -265,7 +264,7 @@ SkeletalModelNode::setAnimation(engine::items::ItemState& state,
     state.current_anim_state = state.anim->state_id;
 }
 
-bool SkeletalModelNode::advanceFrame(engine::items::ItemState& state)
+bool SkeletalModelNode::advanceFrame(items::ItemState& state)
 {
     ++state.frame_number;
     if( handleStateTransitions( state ) )
@@ -278,10 +277,9 @@ bool SkeletalModelNode::advanceFrame(engine::items::ItemState& state)
     return state.frame_number > state.anim->lastFrame;
 }
 
-std::vector<SkeletalModelNode::Sphere>
-SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state,
-                                           const loader::AnimFrame& frame,
-                                           const glm::mat4* baseTransform)
+std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres(const items::ItemState& state,
+                                                                                  const loader::AnimFrame& frame,
+                                                                                  const glm::mat4* baseTransform)
 {
     BOOST_ASSERT( frame.numValues > 0 );
     BOOST_ASSERT( !m_model.meshes.empty() );
@@ -307,13 +305,13 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
         transforms.push( *baseTransform * state.rotation.toMatrix() );
     }
 
-    transforms.top() = glm::translate( transforms.top(), frame.pos.toGl() )
+    transforms.top() = translate( transforms.top(), frame.pos.toGl() )
                        * core::fromPackedAngles( angleData[0] ) * m_bonePatches[0];
 
     std::vector<Sphere> result;
     result.emplace_back(
-            glm::translate( glm::mat4{1.0f}, pos.toRenderSystem() )
-            + glm::translate( transforms.top(), m_model.meshes[0]->center.toRenderSystem() ),
+            translate( glm::mat4{1.0f}, pos.toRenderSystem() )
+            + translate( transforms.top(), m_model.meshes[0]->center.toRenderSystem() ),
             m_model.meshes[0]->collision_size );
 
     for( int i = 1; i < m_model.meshes.size(); ++i )
@@ -330,12 +328,12 @@ SkeletalModelNode::getBoneCollisionSpheres(const engine::items::ItemState& state
         }
 
         if( frame.numValues < i )
-            transforms.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() ) * m_bonePatches[i];
+            transforms.top() *= translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() ) * m_bonePatches[i];
         else
-            transforms.top() *= glm::translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
+            transforms.top() *= translate( glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl() )
                                 * core::fromPackedAngles( angleData[i] ) * m_bonePatches[i];
 
-        auto m = glm::translate( transforms.top(), m_model.meshes[i]->center.toRenderSystem() );
+        auto m = translate( transforms.top(), m_model.meshes[i]->center.toRenderSystem() );
         m[3] += glm::vec4( pos.toRenderSystem(), 0 );
         result.emplace_back( m, m_model.meshes[i]->collision_size );
     }

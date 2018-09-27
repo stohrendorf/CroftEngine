@@ -16,7 +16,8 @@ void Particle::initDrawables(const level::Level& level)
     }
     else if( const auto& spriteSequence = level.findSpriteSequenceForType( object_number ) )
     {
-        BOOST_ASSERT( spriteSequence->offset - spriteSequence->length <= level.m_sprites.size() );
+        BOOST_ASSERT(
+                gsl::narrow<size_t>( spriteSequence->offset - spriteSequence->length ) <= level.m_sprites.size() );
 
         shade = 4096;
 
@@ -41,12 +42,12 @@ void Particle::initDrawables(const level::Level& level)
     else
     {
         BOOST_LOG_TRIVIAL( warning ) << "Missing sprite/model referenced by particle: "
-                                     << engine::toString( object_number );
+                                     << toString( object_number );
         return;
     }
 
     setDrawable( m_drawables.front() );
-    addMaterialParameterSetter( "u_diffuseTexture", [this](const gameplay::Node& /*node*/,
+    addMaterialParameterSetter( "u_diffuseTexture", [this](const Node& /*node*/,
                                                            gameplay::gl::Program::ActiveUniform& uniform) {
         uniform.set( *m_spriteTextures.front() );
     } );
@@ -63,7 +64,7 @@ bool BloodSplatterParticle::update(const level::Level& level)
 
     timePerSpriteFrame = 0;
     nextFrame();
-    auto it = level.m_spriteSequences.find( object_number );
+    const auto it = level.m_spriteSequences.find( object_number );
     BOOST_ASSERT( it != level.m_spriteSequences.end() );
 
     if( negSpriteFrameId <= it->second->length )
@@ -77,7 +78,7 @@ bool BloodSplatterParticle::update(const level::Level& level)
 
 bool SplashParticle::update(const level::Level& level)
 {
-    auto it = level.m_spriteSequences.find( object_number );
+    const auto it = level.m_spriteSequences.find( object_number );
     BOOST_ASSERT( it != level.m_spriteSequences.end() );
 
     nextFrame();
@@ -86,11 +87,9 @@ bool SplashParticle::update(const level::Level& level)
     {
         return false;
     }
-    else
-    {
-        pos.position.X += speed * angle.Y.sin();
-        pos.position.Z += speed * angle.Y.cos();
-    }
+
+    pos.position.X += speed * angle.Y.sin();
+    pos.position.Z += speed * angle.Y.cos();
 
     applyTransform();
     return true;
@@ -100,18 +99,18 @@ bool BubbleParticle::update(const level::Level& level)
 {
     angle.X += 13_deg;
     angle.Y += 9_deg;
-    core::TRVec testPos{
+    const core::TRVec testPos{
             static_cast<int>(11 * angle.Y.sin() + pos.position.X),
             pos.position.Y - speed,
             static_cast<int>((8 * angle.X.cos()) + pos.position.Z)
     };
-    auto sector = level.findRealFloorSector( testPos, gsl::make_not_null( &pos.room ) );
+    auto sector = level::Level::findRealFloorSector( testPos, make_not_null( &pos.room ) );
     if( sector == nullptr || !pos.room->isWaterRoom() )
     {
         return false;
     }
 
-    auto ceiling = HeightInfo::fromCeiling( gsl::make_not_null( sector ), testPos, level.m_itemNodes ).y;
+    const auto ceiling = HeightInfo::fromCeiling( gsl::make_not_null( sector ), testPos, level.m_itemNodes ).y;
     if( ceiling == -loader::HeightLimit || testPos.Y <= ceiling )
     {
         return false;

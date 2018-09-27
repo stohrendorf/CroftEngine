@@ -12,7 +12,7 @@ class StateHandler_23 final
 {
 public:
     explicit StateHandler_23(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::RollBackward )
+            : AbstractStateHandler{lara, LaraStateId::RollBackward}
     {
     }
 

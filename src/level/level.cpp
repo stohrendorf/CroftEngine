@@ -90,7 +90,7 @@ void Level::readMeshData(loader::io::SDLReader& reader)
 
 std::shared_ptr<Level> Level::createLoader(const std::string& filename, Game gameVersion, sol::state&& scriptEngine)
 {
-    std::string sfxPath = (boost::filesystem::path( filename ).remove_filename() / "MAIN.SFX").string();
+    const std::string sfxPath = (boost::filesystem::path( filename ).remove_filename() / "MAIN.SFX").string();
 
     loader::io::SDLReader reader( filename );
     if( !reader.isOpen() )
@@ -117,29 +117,29 @@ Level::createLoader(loader::io::SDLReader&& reader, Game game_version, const std
     switch( game_version )
     {
         case Game::TR1:
-            result = std::make_shared<level::TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR1Demo:
         case Game::TR1UnfinishedBusiness:
-            result = std::make_shared<level::TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             result->m_demoOrUb = true;
             break;
         case Game::TR2:
-            result = std::make_shared<level::TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR2Demo:
-            result = std::make_shared<level::TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             result->m_demoOrUb = true;
             break;
         case Game::TR3:
-            result = std::make_shared<level::TR3Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<TR3Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR4:
         case Game::TR4Demo:
-            result = std::make_shared<level::TR4Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<TR4Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR5:
-            result = std::make_shared<level::TR5Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<TR5Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         default:
             BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid game version" ) );
@@ -156,9 +156,9 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
 
     std::string ext;
     ext += filename[filename.length() - 4];
-    ext += (char)toupper( filename[filename.length() - 3] );
-    ext += (char)toupper( filename[filename.length() - 2] );
-    ext += (char)toupper( filename[filename.length() - 1] );
+    ext += static_cast<char>(toupper( filename[filename.length() - 3] ));
+    ext += static_cast<char>(toupper( filename[filename.length() - 2] ));
+    ext += static_cast<char>(toupper( filename[filename.length() - 1] ));
 
     reader.seek( 0 );
     uint8_t check[4];
@@ -229,7 +229,7 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
     return ret;
 }
 
-const loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId) const
+const loader::StaticMesh* Level::findStaticMeshById(const uint32_t meshId) const
 {
     for( const auto& mesh : m_staticMeshes )
         if( mesh.id == meshId )
@@ -238,7 +238,7 @@ const loader::StaticMesh* Level::findStaticMeshById(uint32_t meshId) const
     return nullptr;
 }
 
-int Level::findStaticMeshIndexById(uint32_t meshId) const
+int Level::findStaticMeshIndexById(const uint32_t meshId) const
 {
     for( const auto& mesh : m_staticMeshes )
     {
@@ -252,7 +252,7 @@ int Level::findStaticMeshIndexById(uint32_t meshId) const
     return -1;
 }
 
-const std::unique_ptr<loader::SkeletalModelType>& Level::findAnimatedModelForType(engine::TR1ItemId type) const
+const std::unique_ptr<loader::SkeletalModelType>& Level::findAnimatedModelForType(const engine::TR1ItemId type) const
 {
     const auto it = m_animatedModels.find( type );
     if( it != m_animatedModels.end() )
@@ -262,7 +262,7 @@ const std::unique_ptr<loader::SkeletalModelType>& Level::findAnimatedModelForTyp
     return none;
 }
 
-const std::unique_ptr<loader::SpriteSequence>& Level::findSpriteSequenceForType(engine::TR1ItemId type) const
+const std::unique_ptr<loader::SpriteSequence>& Level::findSpriteSequenceForType(const engine::TR1ItemId type) const
 {
     const auto it = m_spriteSequences.find( type );
     if( it != m_spriteSequences.end() )
@@ -312,7 +312,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             }
             else if( auto objectInfo = m_scriptEngine["getObjectInfo"].call( -1 ) )
             {
-                BOOST_LOG_TRIVIAL( info ) << "Instantiating scripted type " << engine::toString( item.type ) << "/id "
+                BOOST_LOG_TRIVIAL( info ) << "Instantiating scripted type " << toString( item.type ) << "/id "
                                           << id;
 
                 modelNode = std::make_shared<engine::items::ScriptedItem>( gsl::make_not_null( this ),
@@ -328,7 +328,8 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
                     addChild( gsl::make_not_null( modelNode->getNode() ), node );
                 }
 
-                BOOST_ASSERT( modelNode->getNode()->getChildren().size() == model->meshes.size() );
+                BOOST_ASSERT(
+                        modelNode->getNode()->getChildren().size() == gsl::narrow<size_t>( model->meshes.size() ) );
             }
             else if( item.type == engine::TR1ItemId::Wolf )
             {
@@ -502,7 +503,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             {
                 node = std::make_shared<engine::items::ScionPieceItem>( gsl::make_not_null( this ),
                                                                         std::string( "sprite(type:" )
-                                                                        + engine::toString( item.type ) + ")",
+                                                                        + toString( item.type ) + ")",
                                                                         room,
                                                                         item,
                                                                         sprite,
@@ -534,7 +535,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             {
                 node = std::make_shared<engine::items::PickupItem>( gsl::make_not_null( this ),
                                                                     std::string( "sprite(type:" )
-                                                                    + engine::toString( item.type ) + ")",
+                                                                    + toString( item.type ) + ")",
                                                                     room,
                                                                     item,
                                                                     sprite,
@@ -545,7 +546,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
                 BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
                 node = std::make_shared<engine::items::SpriteItemNode>( gsl::make_not_null( this ),
                                                                         std::string( "sprite(type:" )
-                                                                        + engine::toString( item.type ) + ")",
+                                                                        + toString( item.type ) + ")",
                                                                         room,
                                                                         item,
                                                                         true,
@@ -575,12 +576,12 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
         sprite.image = m_textures[sprite.texture_id].image;
     }
 
-    auto texturedShader = gsl::make_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
-                                                                                       "shaders/textured_2.frag" ) );
-    auto materials = createMaterials( texturedShader );
+    const auto texturedShader = gsl::make_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
+                                                                                             "shaders/textured_2.frag" ) );
+    const auto materials = createMaterials( texturedShader );
 
-    auto colorMaterial = make_not_null_shared<gameplay::Material>( "shaders/colored_2.vert",
-                                                                   "shaders/colored_2.frag" );
+    const auto colorMaterial = make_not_null_shared<gameplay::Material>( "shaders/colored_2.vert",
+                                                                         "shaders/colored_2.frag" );
     colorMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
     colorMaterial->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
     colorMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
@@ -612,20 +613,21 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
 
     for( const std::unique_ptr<loader::SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
     {
-        Expects( model->mesh_base_index + model->nmeshes <= m_modelsDirect.size() );
-        if( model->nmeshes > 0 )
+        Expects( gsl::narrow<size_t>( model->mesh_base_index + model->nMeshes ) <= m_modelsDirect.size() );
+        if( model->nMeshes > 0 )
         {
-            model->models = gsl::make_span( &m_modelsDirect[model->mesh_base_index], model->nmeshes );
-            model->meshes = gsl::make_span( &m_meshesDirect[model->mesh_base_index], model->nmeshes );
+            model->models = make_span( &m_modelsDirect[model->mesh_base_index], model->nMeshes );
+            model->meshes = make_span( &m_meshesDirect[model->mesh_base_index], model->nMeshes );
         }
     }
 
     game->getScene()->setActiveCamera(
             std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 
-    auto waterTexturedShader = gsl::make_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
-                                                                                            "shaders/textured_2.frag",
-                                                                                            {"WATER"} ) );
+    const auto waterTexturedShader = gsl::make_not_null(
+            gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
+                                                     "shaders/textured_2.frag",
+                                                     {"WATER"} ) );
     auto waterMaterials = createMaterials( waterTexturedShader );
     for( const auto& m : waterMaterials | boost::adaptors::map_values )
     {
@@ -679,7 +681,7 @@ void Level::convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loade
     {
         for( int x = 0; x < 256; x++ )
         {
-            int col = tex.pixels[y][x];
+            const int col = tex.pixels[y][x];
 
             if( col > 0 )
                 dst.pixels[y][x] = {pal.colors[col].r, pal.colors[col].g, pal.colors[col].b, 255};
@@ -697,13 +699,13 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
     {
         for( int x = 0; x < 256; x++ )
         {
-            int col = tex.pixels[y][x];
+            const int col = tex.pixels[y][x];
 
             if( (col & 0x8000) != 0 )
             {
-                const uint8_t r = static_cast<const uint8_t>((col & 0x00007c00) >> 7);
-                const uint8_t g = static_cast<const uint8_t>((col & 0x000003e0) >> 2);
-                const uint8_t b = static_cast<const uint8_t>((col & 0x0000001f) << 3);
+                const auto r = static_cast<const uint8_t>((col & 0x00007c00) >> 7);
+                const auto g = static_cast<const uint8_t>((col & 0x000003e0) >> 2);
+                const auto b = static_cast<const uint8_t>((col & 0x0000001f) << 3);
                 dst.pixels[y][x] = {r, g, b, 1};
             }
             else
@@ -715,9 +717,9 @@ void Level::convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst)
 }
 
 const loader::Sector* Level::findRealFloorSector(const core::TRVec& position,
-                                                 const gsl::not_null<gsl::not_null<const loader::Room*>*>& room) const
+                                                 const gsl::not_null<gsl::not_null<const loader::Room*>*>& room)
 {
-    const loader::Sector* sector = nullptr;
+    const loader::Sector* sector;
     while( true )
     {
         sector = (*room)->findFloorSectorWithClampedIndex( (position.X - (*room)->position.X) / loader::SectorSize,
@@ -758,7 +760,7 @@ const loader::Sector* Level::findRealFloorSector(const core::TRVec& position,
 gsl::not_null<const loader::Room*>
 Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const loader::Room*> room) const
 {
-    const loader::Sector* sector = nullptr;
+    const loader::Sector* sector;
     while( true )
     {
         sector = room->findFloorSectorWithClampedIndex(
@@ -796,9 +798,9 @@ Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const load
     return room;
 }
 
-std::shared_ptr<engine::items::ItemNode> Level::getItem(uint16_t id) const
+std::shared_ptr<engine::items::ItemNode> Level::getItem(const uint16_t id) const
 {
-    auto it = m_itemNodes.find( id );
+    const auto it = m_itemNodes.find( id );
     if( it == m_itemNodes.end() )
         return nullptr;
 
@@ -810,7 +812,7 @@ void Level::drawBars(const gsl::not_null<gameplay::Game*>& game,
 {
     if( m_lara->isInWater() )
     {
-        const GLint x0 = gsl::narrow<GLint>( game->getViewport().width - 110 );
+        const auto x0 = gsl::narrow<GLint>( game->getViewport().width - 110 );
 
         for( int i = 7; i <= 13; ++i )
             image->line( x0 - 1, i, x0 + 101, i, m_palette->colors[0].toTextureColor() );
@@ -849,8 +851,9 @@ void Level::drawBars(const gsl::not_null<gameplay::Game*>& game,
     }
 }
 
-void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest,
-                           engine::floordata::SequenceCondition triggerType)
+void Level::triggerCdTrack(uint16_t trackId,
+                           const engine::floordata::ActivationState& activationRequest,
+                           const engine::floordata::SequenceCondition triggerType)
 {
     if( trackId < 1 || trackId >= 64 )
         return;
@@ -925,8 +928,9 @@ void Level::triggerCdTrack(uint16_t trackId, const engine::floordata::Activation
     }
 }
 
-void Level::triggerNormalCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest,
-                                 engine::floordata::SequenceCondition triggerType)
+void Level::triggerNormalCdTrack(const uint16_t trackId,
+                                 const engine::floordata::ActivationState& activationRequest,
+                                 const engine::floordata::SequenceCondition triggerType)
 {
     if( m_cdTrackActivationStates[trackId].isOneshot() )
         return;
@@ -951,7 +955,7 @@ void Level::triggerNormalCdTrack(uint16_t trackId, const engine::floordata::Acti
         playCdTrack( trackId );
 }
 
-void Level::playCdTrack(uint16_t trackId)
+void Level::playCdTrack(const uint16_t trackId)
 {
     if( trackId == 13 )
     {
@@ -1000,7 +1004,7 @@ void Level::playCdTrack(uint16_t trackId)
     m_activeCDTrack = trackId;
 }
 
-void Level::stopCdTrack(uint16_t trackId)
+void Level::stopCdTrack(const uint16_t trackId)
 {
     if( m_activeCDTrack == 0 )
         return;
@@ -1039,10 +1043,10 @@ void Level::playStream(uint16_t trackId)
 void Level::useAlternativeLaraAppearance()
 {
     const auto& base = *m_animatedModels[engine::TR1ItemId::Lara];
-    BOOST_ASSERT( base.models.size() == m_lara->getNode()->getChildren().size() );
+    BOOST_ASSERT( gsl::narrow<size_t>( base.models.size() ) == m_lara->getNode()->getChildren().size() );
 
     const auto& alternate = *m_animatedModels[engine::TR1ItemId::AlternativeLara];
-    BOOST_ASSERT( alternate.models.size() == m_lara->getNode()->getChildren().size() );
+    BOOST_ASSERT( gsl::narrow<size_t>( alternate.models.size() ) == m_lara->getNode()->getChildren().size() );
 
     for( size_t i = 0; i < m_lara->getNode()->getChildren().size(); ++i )
         m_lara->getNode()->getChild( i )->setDrawable( alternate.models[i].get() );
@@ -1119,16 +1123,16 @@ void Level::postProcessDataStructures()
             continue;
         }
         model->frames = reinterpret_cast<const loader::AnimFrame*>(&m_poseFrames[idx]);
-        if( model->nmeshes > 1 )
+        if( model->nMeshes > 1 )
         {
             model->boneTree = gsl::make_span(
                     reinterpret_cast<const loader::BoneTreeEntry*>(&m_boneTrees[model->bone_index]),
-                    model->nmeshes - 1 );
+                    model->nMeshes - 1 );
         }
 
         Expects( model->animation_index == 0xffff || model->animation_index < m_animations.size() );
         if( model->animation_index != 0xffff )
-            model->animation = &m_animations[model->animation_index];
+            model->animations = &m_animations[model->animation_index];
     }
 
     for( loader::Animation& anim : m_animations )
@@ -1185,7 +1189,7 @@ void Level::dinoStompEffect(engine::items::ItemNode& node)
     if( absD.x > MaxD || absD.y > MaxD || absD.z > MaxD )
         return;
 
-    auto x = 1 - glm::length2( d ) / util::square( MaxD );
+    const auto x = 1 - length2( d ) / util::square( MaxD );
     m_cameraController->setBounce( 100 * x );
 }
 
@@ -1207,7 +1211,7 @@ void Level::laraNormalEffect()
 
 void Level::laraBubblesEffect(engine::items::ItemNode& node)
 {
-    auto modelNode = dynamic_cast<engine::items::ModelItemNode*>(&node);
+    const auto modelNode = dynamic_cast<engine::items::ModelItemNode*>(&node);
     if( modelNode == nullptr )
         return;
 
@@ -1221,9 +1225,9 @@ void Level::laraBubblesEffect(engine::items::ItemNode& node)
                 *modelNode->getSkeleton()->getInterpolationInfo( modelNode->m_state ).getNearestFrame(),
                 nullptr );
 
-        auto position = core::TRVec{
-                glm::vec3{glm::translate( itemSpheres[14].m,
-                                          core::TRVec{0, 0, 50}.toRenderSystem() )[3]}};
+        const auto position = core::TRVec{
+                glm::vec3{translate( itemSpheres[14].m,
+                                     core::TRVec{0, 0, 50}.toRenderSystem() )[3]}};
 
         while( bubbleCount-- > 0 )
         {
@@ -1258,6 +1262,9 @@ void Level::earthquakeEffect()
         case 50:
         case 70:
             playSound( 70, boost::none );
+            break;
+        default:
+            // silence compiler
             break;
     }
 
@@ -1361,7 +1368,7 @@ void Level::flipMapEffect()
 void Level::unholsterRightGunEffect(engine::items::ItemNode& node)
 {
     const auto& src = *m_animatedModels[engine::TR1ItemId::LaraPistolsAnim];
-    BOOST_ASSERT( src.models.size() == node.getNode()->getChildren().size() );
+    BOOST_ASSERT( gsl::narrow<size_t>( src.models.size() ) == node.getNode()->getChildren().size() );
     node.getNode()->getChild( 10 )->setDrawable( src.models[10].get() );
 }
 
@@ -1397,16 +1404,16 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
 {
     // find any blocks in the original room and un-patch the floor heights
 
-    for( const std::shared_ptr<engine::items::ItemNode>& item : m_itemNodes | boost::adaptors::map_values )
+    for( const auto& item : m_itemNodes | boost::adaptors::map_values )
     {
         if( item->m_state.position.room != &orig )
             continue;
 
-        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item ) )
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize );
         }
-        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item ) )
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize * 2 );
         }
@@ -1423,7 +1430,7 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     // patch heights in the new room, and swap item ownerships.
     // note that this is exactly the same code as above,
     // except for the heights.
-    for( const std::shared_ptr<engine::items::ItemNode>& item : m_itemNodes | boost::adaptors::map_values )
+    for( const auto& item : m_itemNodes | boost::adaptors::map_values )
     {
         if( item->m_state.position.room == &orig )
         {
@@ -1439,17 +1446,17 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
             continue;
         }
 
-        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item ) )
+        if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize );
         }
-        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item ) )
+        else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item.get() ) )
         {
             loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize * 2 );
         }
     }
 
-    for( const std::shared_ptr<engine::items::ItemNode>& item : m_dynamicItems )
+    for( const auto& item : m_dynamicItems )
     {
         if( item->m_state.position.room == &orig )
         {
@@ -1462,7 +1469,7 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     }
 }
 
-void Level::addInventoryItem(engine::TR1ItemId id, size_t quantity)
+void Level::addInventoryItem(const engine::TR1ItemId id, const size_t quantity)
 {
     BOOST_LOG_TRIVIAL( debug ) << "Item " << toString( id ) << " added to inventory";
 
@@ -1474,7 +1481,7 @@ void Level::addInventoryItem(engine::TR1ItemId id, size_t quantity)
             break;
         case engine::TR1ItemId::ShotgunSprite:
         case engine::TR1ItemId::Shotgun:
-            if( auto clips = countInventoryItem( engine::TR1ItemId::ShotgunAmmoSprite ) )
+            if( const auto clips = countInventoryItem( engine::TR1ItemId::ShotgunAmmoSprite ) )
             {
                 takeInventoryItem( engine::TR1ItemId::ShotgunAmmoSprite, clips );
                 m_lara->shotgunAmmo.ammo += 12 * clips;
@@ -1485,7 +1492,7 @@ void Level::addInventoryItem(engine::TR1ItemId id, size_t quantity)
             break;
         case engine::TR1ItemId::MagnumsSprite:
         case engine::TR1ItemId::Magnums:
-            if( auto clips = countInventoryItem( engine::TR1ItemId::MagnumAmmoSprite ) )
+            if( const auto clips = countInventoryItem( engine::TR1ItemId::MagnumAmmoSprite ) )
             {
                 takeInventoryItem( engine::TR1ItemId::MagnumAmmoSprite, clips );
                 m_lara->revolverAmmo.ammo += 50 * clips;
@@ -1496,7 +1503,7 @@ void Level::addInventoryItem(engine::TR1ItemId id, size_t quantity)
             break;
         case engine::TR1ItemId::UzisSprite:
         case engine::TR1ItemId::Uzis:
-            if( auto clips = countInventoryItem( engine::TR1ItemId::UziAmmoSprite ) )
+            if( const auto clips = countInventoryItem( engine::TR1ItemId::UziAmmoSprite ) )
             {
                 takeInventoryItem( engine::TR1ItemId::UziAmmoSprite, clips );
                 m_lara->uziAmmo.ammo += 100 * clips;
@@ -1589,7 +1596,7 @@ void Level::addInventoryItem(engine::TR1ItemId id, size_t quantity)
     }
 }
 
-bool Level::tryUseInventoryItem(engine::TR1ItemId id)
+bool Level::tryUseInventoryItem(const engine::TR1ItemId id)
 {
     if( id == engine::TR1ItemId::Shotgun || id == engine::TR1ItemId::ShotgunSprite )
     {
@@ -1693,8 +1700,8 @@ YAML::Node Level::save() const
 
     YAML::Node inventory;
 
-    const auto addInventory = [&](engine::TR1ItemId id) {
-        inventory[engine::toString( id )] = countInventoryItem( id );
+    const auto addInventory = [&](const engine::TR1ItemId id) {
+        inventory[toString( id )] = countInventoryItem( id );
     };
 
     addInventory( engine::TR1ItemId::Pistols );

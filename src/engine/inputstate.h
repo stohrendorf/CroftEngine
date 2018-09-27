@@ -1,6 +1,5 @@
 #pragma once
 
-#include "gameplay.h"
 #include "core/angle.h"
 
 namespace engine
@@ -44,7 +43,7 @@ struct InputState
     bool load = false;
     glm::vec2 mouseMovement;
 
-    void setXAxisMovement(bool left, bool right)
+    void setXAxisMovement(const bool left, const bool right)
     {
         if( left < right )
             xMovement = AxisMovement::Right;
@@ -54,7 +53,7 @@ struct InputState
             xMovement = AxisMovement::Null;
     }
 
-    void setStepMovement(bool left, bool right)
+    void setStepMovement(const bool left, const bool right)
     {
         if( left < right )
             stepMovement = AxisMovement::Right;
@@ -64,7 +63,7 @@ struct InputState
             stepMovement = AxisMovement::Null;
     }
 
-    void setZAxisMovement(bool back, bool forward)
+    void setZAxisMovement(const bool back, const bool forward)
     {
         if( back < forward )
             zMovement = AxisMovement::Forward;

@@ -5,12 +5,13 @@
 #include "render/portaltracer.h"
 
 #include <queue>
+#include <utility>
 
 namespace engine
 {
 namespace
 {
-const char* toString(CameraMode mode)
+const char* toString(const CameraMode mode)
 {
     switch( mode )
     {
@@ -50,9 +51,9 @@ CameraMode parseCameraMode(const std::string& m)
 }
 }
 
-CameraController::CameraController(gsl::not_null<level::Level*> level,
-                                   const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera)
-        : m_camera{camera}
+CameraController::CameraController(const gsl::not_null<level::Level*>& level,
+                                   gsl::not_null<std::shared_ptr<gameplay::Camera>> camera)
+        : m_camera{std::move( camera )}
         , m_level{level}
         , m_eye{level->m_lara->m_state.position.room}
         , m_center{level->m_lara->m_state.position.room, level->m_lara->m_state.position.position}
@@ -67,25 +68,28 @@ CameraController::CameraController(gsl::not_null<level::Level*> level,
     update();
 }
 
-void CameraController::setCurrentRotation(core::Angle x, core::Angle y)
+void CameraController::setCurrentRotation(const core::Angle x, const core::Angle y)
 {
     setCurrentRotationX( x );
     setCurrentRotationY( y );
 }
 
-void CameraController::setCurrentRotationX(core::Angle x)
+void CameraController::setCurrentRotationX(const core::Angle x)
 {
     m_currentRotation.X = x;
 }
 
-void CameraController::setCurrentRotationY(core::Angle y)
+void CameraController::setCurrentRotationY(const core::Angle y)
 {
     m_currentRotation.Y = y;
 }
 
-void CameraController::setCamOverride(const floordata::CameraParameters& camParams, uint16_t camId,
-                                      floordata::SequenceCondition condition, bool fromHeavy,
-                                      uint16_t activationRequest, bool switchIsOn)
+void CameraController::setCamOverride(const floordata::CameraParameters& camParams,
+                                      const uint16_t camId,
+                                      const floordata::SequenceCondition condition,
+                                      const bool fromHeavy,
+                                      const uint16_t activationRequest,
+                                      const bool switchIsOn)
 {
     Expects( camId < m_level->m_cameras.size() );
     if( m_level->m_cameras[camId].isActive() )
@@ -97,7 +101,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
         return;
 
     if( condition == floordata::SequenceCondition::ItemActivated
-        && engine::floordata::ActivationState::extractTimeout( activationRequest ) != 0 && switchIsOn )
+        && floordata::ActivationState::extractTimeout( activationRequest ) != 0 && switchIsOn )
         return;
 
     if( condition != floordata::SequenceCondition::ItemActivated && m_fixedCameraId == m_currentFixedCameraId )
@@ -165,6 +169,7 @@ void CameraController::findItem(const uint16_t* cmdSequence)
         m_item = nullptr;
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void CameraController::tracePortals()
 {
     for( const loader::Room& room : m_level->m_rooms )
@@ -176,7 +181,7 @@ void CameraController::tracePortals()
     // Breadth-first queue
     std::queue<render::PortalTracer> toVisit;
 
-    // always process direct neighbours of the starting room
+    // always process direct neighbors of the starting room
     for( const loader::Portal& portal : startRoom->portals )
     {
         render::PortalTracer path;
@@ -185,14 +190,14 @@ void CameraController::tracePortals()
 
         m_level->m_rooms[portal.adjoining_room].node->setVisible( true );
 
-        toVisit.emplace( std::move( path ) );
+        toVisit.emplace( path );
     }
 
     // Avoid infinite loops
     std::set<const loader::Portal*> visited;
     while( !toVisit.empty() )
     {
-        const render::PortalTracer currentPath = std::move( toVisit.front() );
+        const render::PortalTracer currentPath = toVisit.front();
         toVisit.pop();
 
         if( !visited.insert( currentPath.getLastPortal() ).second )
@@ -209,14 +214,14 @@ void CameraController::tracePortals()
                 continue;
 
             m_level->m_rooms[srcPortal.adjoining_room].node->setVisible( true );
-            toVisit.emplace( std::move( newPath ) );
+            toVisit.emplace( newPath );
         }
     }
 }
 
 bool CameraController::clampY(const core::TRVec& start,
                               core::TRVec& end,
-                              gsl::not_null<const loader::Sector*> sector,
+                              const gsl::not_null<const loader::Sector*>& sector,
                               const level::Level& level)
 {
     const HeightInfo floor = HeightInfo::fromFloor( sector, end, level.m_itemNodes );
@@ -284,7 +289,7 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
         }
 
         core::TRVec heightPos = testPos;
-        auto sector = gsl::make_not_null( level.findRealFloorSector( heightPos, gsl::make_not_null( &room ) ) );
+        auto sector = gsl::make_not_null( level::Level::findRealFloorSector( heightPos, make_not_null( &room ) ) );
         if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes ).y
             || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes ).y )
         {
@@ -350,7 +355,7 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
         }
 
         core::TRVec heightPos = testPos;
-        auto sector = gsl::make_not_null( level.findRealFloorSector( heightPos, gsl::make_not_null( &room ) ) );
+        auto sector = gsl::make_not_null( level::Level::findRealFloorSector( heightPos, make_not_null( &room ) ) );
         if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes ).y
             || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes ).y )
         {
@@ -459,7 +464,7 @@ void CameraController::update()
                 - trackedItem->m_state.rotation.Y;
         trackAngleY *= 0.5f;
         trackedBBox = m_item->getBoundingBox();
-        auto trackAngleX = core::Angle::fromAtan( distToTarget, trackedY - (trackedBBox.minY + trackedBBox.maxY) / 2
+        auto trackAngleX = core::Angle::fromAtan( distToTarget, trackedY - (trackedBBox.minY + trackedBBox.maxY) / 2.0f
                                                                 + m_item->m_state.position.position.Y );
         trackAngleX *= 0.5f;
 
@@ -571,7 +576,10 @@ void CameraController::handleCamOverride()
     pos.position = m_level->m_cameras[m_fixedCameraId].position;
 
     if( !clampPosition( m_center, pos, *m_level ) )
+    {
+        // ReSharper disable once CppExpressionWithoutSideEffects
         moveIntoGeometry( pos, loader::QuarterSectorSize );
+    }
 
     m_tracking = true;
     updatePosition( pos, m_trackingSmoothness );
@@ -582,12 +590,12 @@ void CameraController::handleCamOverride()
         m_camOverrideTimeout = -1;
 }
 
-int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const
+int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, const int margin) const
 {
-    auto sector = gsl::make_not_null( m_level->findRealFloorSector( pos ) );
+    const auto sector = gsl::make_not_null( m_level->findRealFloorSector( pos ) );
     BOOST_ASSERT( sector->box != nullptr );
 
-    auto room = pos.room;
+    const auto room = pos.room;
 
     if( sector->box->zmin + margin > pos.position.Z
         && isVerticallyOutsideRoom( pos.position - core::TRVec( 0, 0, margin ), room ) )
@@ -618,14 +626,14 @@ int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, int margin)
 bool CameraController::isVerticallyOutsideRoom(const core::TRVec& pos,
                                                const gsl::not_null<const loader::Room*>& room) const
 {
-    auto sector = gsl::make_not_null( m_level->findRealFloorSector( pos, room ) );
+    const auto sector = gsl::make_not_null( m_level->findRealFloorSector( pos, room ) );
     const auto floor = HeightInfo::fromFloor( sector, pos, getLevel()->m_itemNodes ).y;
     const auto ceiling = HeightInfo::fromCeiling( sector, pos, getLevel()->m_itemNodes )
             .y;
     return pos.Y > floor || pos.Y <= ceiling;
 }
 
-void CameraController::updatePosition(const core::RoomBoundPosition& eyePositionGoal, int smoothFactor)
+void CameraController::updatePosition(const core::RoomBoundPosition& eyePositionGoal, const int smoothFactor)
 {
     m_eye.position += (eyePositionGoal.position - m_eye.position) / smoothFactor;
     HeightInfo::skipSteepSlants = false;
@@ -680,9 +688,9 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     camPos.Y += m_cameraYOffset;
 
     // update current room
-    m_level->findRealFloorSector( camPos, gsl::make_not_null( &m_eye.room ) );
+    level::Level::findRealFloorSector( camPos, make_not_null( &m_eye.room ) );
 
-    const auto m = glm::lookAt( camPos.toRenderSystem(), m_center.position.toRenderSystem(), {0, 1, 0} );
+    const auto m = lookAt( camPos.toRenderSystem(), m_center.position.toRenderSystem(), {0, 1, 0} );
     m_camera->setViewMatrix( m );
 }
 
@@ -703,9 +711,10 @@ void CameraController::doUsualMovement(const gsl::not_null<std::shared_ptr<const
     core::Angle y = m_currentRotation.Y + item->m_state.rotation.Y;
     eye.position.X = m_center.position.X - dist * y.sin();
     eye.position.Z = m_center.position.Z - dist * y.cos();
-    clampBox( eye, [this](int& a, int& b, int c, int d, int e, int f, int g, int h) {
-        clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
-    } );
+    clampBox( eye,
+              [this](int& a, int& b, const int c, const int d, const int e, const int f, const int g, const int h) {
+                  clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
+              } );
 
     updatePosition( eye, m_tracking ? m_trackingSmoothness : 12 );
 }
@@ -774,9 +783,10 @@ void CameraController::handleEnemy(const items::ItemNode& item)
     eye.position.Y += m_eyeCenterDistance * m_currentRotation.X.sin();
     eye.room = m_eye.room;
 
-    clampBox( eye, [this](int& a, int& b, int c, int d, int e, int f, int g, int h) {
-        clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
-    } );
+    clampBox( eye,
+              [this](int& a, int& b, const int c, const int d, const int e, const int f, const int g, const int h) {
+                  clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
+              } );
     updatePosition( eye, m_trackingSmoothness );
 }
 
@@ -788,7 +798,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
     auto clampBox = m_center.room->getSectorByAbsolutePosition( m_center.position )->box;
     BOOST_ASSERT( clampBox != nullptr );
     BOOST_ASSERT( eyePositionGoal.room->getSectorByAbsolutePosition( eyePositionGoal.position ) != nullptr );
-    if( auto idealBox = eyePositionGoal.room->getSectorByAbsolutePosition( eyePositionGoal.position )->box )
+    if( const auto idealBox = eyePositionGoal.room->getSectorByAbsolutePosition( eyePositionGoal.position )->box )
     {
         if( !clampBox->contains( eyePositionGoal.position.X, eyePositionGoal.position.Z ) )
             clampBox = idealBox;
@@ -800,8 +810,8 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
                   && std::abs( testPos.Z - eyePositionGoal.position.Z ) <= loader::SectorSize );
 
     auto clampZMin = clampBox->zmin;
-    const bool negZverticalOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
-    if( !negZverticalOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
+    const bool negZVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
+    if( !negZVerticallyOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
     {
         const auto testBox = m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box;
         if( testBox->zmin < clampZMin )
@@ -815,8 +825,8 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
                   && std::abs( testPos.Z - eyePositionGoal.position.Z ) <= loader::SectorSize );
 
     auto clampZMax = clampBox->zmax;
-    const bool posZverticalOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
-    if( !posZverticalOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
+    const bool posZVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
+    if( !posZVerticallyOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
     {
         const auto testBox = m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box;
         if( testBox->zmax > clampZMax )
@@ -830,8 +840,8 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
                   && std::abs( testPos.X - eyePositionGoal.position.X ) <= loader::SectorSize );
 
     auto clampXMin = clampBox->xmin;
-    const bool negXverticalOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
-    if( !negXverticalOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
+    const bool negXVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
+    if( !negXVerticallyOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
     {
         const auto testBox = m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box;
         if( testBox->xmin < clampXMin )
@@ -845,8 +855,8 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
                   && std::abs( testPos.X - eyePositionGoal.position.X ) <= loader::SectorSize );
 
     auto clampXMax = clampBox->xmax;
-    const bool posXverticalOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
-    if( !posXverticalOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
+    const bool posXVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
+    if( !posXVerticallyOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
     {
         const auto testBox = m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box;
         if( testBox->xmax > clampXMax )
@@ -855,7 +865,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
     clampXMax -= loader::QuarterSectorSize;
 
     bool skipRoomPatch = true;
-    if( negZverticalOutside && eyePositionGoal.position.Z < clampZMin )
+    if( negZVerticallyOutside && eyePositionGoal.position.Z < clampZMin )
     {
         skipRoomPatch = false;
         int left, right;
@@ -873,7 +883,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
                   clampZMin,
                   right, clampZMax, left );
     }
-    else if( posZverticalOutside && eyePositionGoal.position.Z > clampZMax )
+    else if( posZVerticallyOutside && eyePositionGoal.position.Z > clampZMax )
     {
         skipRoomPatch = false;
         int left, right;
@@ -894,11 +904,12 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
 
     if( !skipRoomPatch )
     {
+        // ReSharper disable once CppExpressionWithoutSideEffects
         m_level->findRealFloorSector( eyePositionGoal );
         return;
     }
 
-    if( negXverticalOutside && eyePositionGoal.position.X < clampXMin )
+    if( negXVerticallyOutside && eyePositionGoal.position.X < clampXMin )
     {
         skipRoomPatch = false;
         int left, right;
@@ -916,7 +927,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
                   clampXMin,
                   right, clampXMax, left );
     }
-    else if( posXverticalOutside && eyePositionGoal.position.X > clampXMax )
+    else if( posXVerticallyOutside && eyePositionGoal.position.X > clampXMax )
     {
         skipRoomPatch = false;
         int left, right;
@@ -937,18 +948,19 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
 
     if( !skipRoomPatch )
     {
+        // ReSharper disable once CppExpressionWithoutSideEffects
         m_level->findRealFloorSector( eyePositionGoal );
     }
 }
 
 void CameraController::freeLookClamp(int& currentFrontBack,
                                      int& currentLeftRight,
-                                     int targetFrontBack,
-                                     int targetLeftRight,
-                                     int back,
-                                     int right,
-                                     int front,
-                                     int left)
+                                     const int targetFrontBack,
+                                     const int targetLeftRight,
+                                     const int back,
+                                     const int right,
+                                     const int front,
+                                     const int left)
 {
     if( (front > back) != (targetFrontBack < back) )
     {
@@ -968,12 +980,12 @@ void CameraController::freeLookClamp(int& currentFrontBack,
 void CameraController::clampToCorners(const int targetHorizontalDistanceSq,
                                       int& currentFrontBack,
                                       int& currentLeftRight,
-                                      int targetFrontBack,
-                                      int targetLeftRight,
-                                      int back,
-                                      int right,
-                                      int front,
-                                      int left)
+                                      const int targetFrontBack,
+                                      const int targetLeftRight,
+                                      const int back,
+                                      const int right,
+                                      const int front,
+                                      const int left)
 {
     const auto targetRightDistSq = util::square( targetLeftRight - right );
     const auto targetBackDistSq = util::square( targetFrontBack - back );
@@ -1052,7 +1064,7 @@ void CameraController::clampToCorners(const int targetHorizontalDistanceSq,
     currentLeftRight = right;
 }
 
-void CameraController::updateCinematic(const loader::CinematicFrame& frame, bool ingame)
+void CameraController::updateCinematic(const loader::CinematicFrame& frame, const bool ingame)
 {
     if( ingame )
     {
@@ -1071,11 +1083,11 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, bool
         eye.Z += (c * frame.eye.Z - s * frame.eye.X);
         m_eye.position = eye;
 
-        auto m = glm::lookAt( eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0} );
-        m = glm::rotate( m, frame.rotZ.toRad(), -glm::vec3{m[2]} );
+        auto m = lookAt( eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0} );
+        m = rotate( m, frame.rotZ.toRad(), -glm::vec3{m[2]} );
         m_camera->setViewMatrix( m );
         m_camera->setFieldOfView( frame.fov.toRad() );
-        m_level->findRealFloorSector( m_eye.position, gsl::make_not_null( &m_eye.room ) );
+        level::Level::findRealFloorSector( m_eye.position, make_not_null( &m_eye.room ) );
     }
     else
     {
@@ -1092,21 +1104,20 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, bool
         eye.Y += frame.eye.Y;
         eye.Z += (c * frame.eye.Z - s * frame.eye.X);
 
-        auto m = glm::lookAt( eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0} );
-        m = glm::rotate( m, frame.rotZ.toRad(), -glm::vec3{m[2]} );
+        auto m = lookAt( eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0} );
+        m = rotate( m, frame.rotZ.toRad(), -glm::vec3{m[2]} );
         m_camera->setViewMatrix( m );
         m_camera->setFieldOfView( frame.fov.toRad() );
     }
 }
 
 CameraController::CameraController(gsl::not_null<level::Level*> level,
-                                   const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera,
+                                   gsl::not_null<std::shared_ptr<gameplay::Camera>> camera,
                                    bool /*noLaraTag*/)
-        : m_camera{camera}
+        : m_camera{std::move( camera )}
         , m_level{level}
         , m_eye{gsl::make_not_null( &level->m_rooms[0] )}
         , m_center{gsl::make_not_null( &level->m_rooms[0] )}
-        , m_cameraYOffset{0}
 {
 }
 
@@ -1124,21 +1135,21 @@ YAML::Node CameraController::save() const
     if( m_item != nullptr )
     {
         result["item"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
-                                       [&](const std::pair<uint16_t, std::shared_ptr<engine::items::ItemNode>>& entry) {
+                                       [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
                                            return entry.second == m_item;
                                        } )->first;
     }
     if( m_lastItem != nullptr )
     {
         result["lastItem"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
-                                           [&](const std::pair<uint16_t, std::shared_ptr<engine::items::ItemNode>>& entry) {
+                                           [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
                                                return entry.second == m_lastItem;
                                            } )->first;
     }
     if( m_enemy != nullptr )
     {
         result["enemy"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
-                                        [&](const std::pair<uint16_t, std::shared_ptr<engine::items::ItemNode>>& entry) {
+                                        [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
                                             return entry.second == m_enemy;
                                         } )->first;
     }

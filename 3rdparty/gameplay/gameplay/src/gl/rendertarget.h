@@ -16,7 +16,7 @@ protected:
     }
 
     explicit RenderTarget(const std::function<Allocator>& allocator, const std::function<Binder>& binder,
-                          const std::function<Deleter>& deleter, GLenum identifier, const std::string& label)
+                          const std::function<Deleter>& deleter, const GLenum identifier, const std::string& label)
             : BindableResource{allocator, binder, deleter, identifier, label}
     {
     }

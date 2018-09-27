@@ -7,6 +7,7 @@ namespace audio
 {
 class Device;
 
+
 class Stream : public boost::noncopyable
 {
 private:

@@ -1,5 +1,7 @@
 #include "Game.h"
 
+#include "Base.h"
+
 #include "RenderContext.h"
 #include "Scene.h"
 
@@ -7,12 +9,12 @@
 
 namespace
 {
-void glErrorCallback(int err, const char* msg)
+void glErrorCallback(const int err, const char* msg)
 {
     BOOST_LOG_TRIVIAL( error ) << "glfw Error " << err << ": " << msg;
 }
 
-inline const char* glDebugSourceToString(GLenum src)
+inline const char* glDebugSourceToString(const GLenum src)
 {
     switch( src )
     {
@@ -33,7 +35,7 @@ inline const char* glDebugSourceToString(GLenum src)
     }
 }
 
-inline const char* glDebugTypeToString(GLenum type)
+inline const char* glDebugTypeToString(const GLenum type)
 {
     switch( type )
     {
@@ -58,7 +60,7 @@ inline const char* glDebugTypeToString(GLenum type)
     }
 }
 
-inline const char* glDebugSeverityToString(GLenum severity)
+inline const char* glDebugSeverityToString(const GLenum severity)
 {
     switch( severity )
     {
@@ -75,8 +77,8 @@ inline const char* glDebugSeverityToString(GLenum severity)
     }
 }
 
-void GLAPIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/,
-                              const GLchar* message, const void* /*userParam*/)
+void GLAPIENTRY debugCallback(const GLenum source, const GLenum type, const GLuint id, const GLenum severity,
+                              const GLsizei /*length*/, const GLchar* message, const void* /*userParam*/)
 {
     if( source == GL_DEBUG_SOURCE_APPLICATION )
         return;
@@ -186,7 +188,7 @@ public:
 };
 }
 
-void Game::setVsync(bool enable)
+void Game::setVsync(const bool enable)
 {
     m_vsync = enable;
     glfwSwapInterval( enable ? 1 : 0 );
@@ -247,7 +249,7 @@ void Game::render()
     }
 }
 
-void Game::swapBuffers()
+void Game::swapBuffers() const
 {
     glfwSwapBuffers( m_window );
 }
@@ -260,7 +262,7 @@ void Game::setViewport(const Dimension2<size_t>& viewport)
                            gsl::narrow<GLuint>( viewport.height ) ) );
 }
 
-void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth)
+void Game::clear(const GLbitfield flags, const gl::RGBA8& clearColor, const float clearDepth)
 {
     GLbitfield bits = 0;
     if( flags & GL_COLOR_BUFFER_BIT )
@@ -292,7 +294,9 @@ void Game::clear(GLbitfield flags, const gl::RGBA8& clearColor, float clearDepth
     GL_ASSERT( glClear( bits ) );
 }
 
-void Game::clear(GLbitfield flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth)
+void Game::clear(const GLbitfield flags,
+                 const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha,
+                 const float clearDepth)
 {
     clear( flags, gl::RGBA8{red, green, blue, alpha}, clearDepth );
 }

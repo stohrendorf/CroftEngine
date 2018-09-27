@@ -40,19 +40,19 @@ Device::Device()
 
         BOOST_LOG_TRIVIAL( info ) << "Probing OpenAL devices...";
 
-        const char* devlist = alcGetString( nullptr, ALC_DEVICE_SPECIFIER );
+        const char* deviceList = alcGetString( nullptr, ALC_DEVICE_SPECIFIER );
         DEBUG_CHECK_AL_ERROR();
 
-        if( devlist == nullptr )
+        if( deviceList == nullptr )
         {
             BOOST_LOG_TRIVIAL( warning ) << BOOST_CURRENT_FUNCTION << ": No audio devices";
             return;
         }
 
-        while( *devlist != '\0' )
+        while( *deviceList != '\0' )
         {
-            BOOST_LOG_TRIVIAL( info ) << "Probing device `" << devlist << "`";
-            ALCdevice* dev = alcOpenDevice( devlist );
+            BOOST_LOG_TRIVIAL( info ) << "Probing device `" << deviceList << "`";
+            ALCdevice* dev = alcOpenDevice( deviceList );
             DEBUG_CHECK_AL_ERROR();
 
             if( dev == nullptr )
@@ -78,7 +78,7 @@ Device::Device()
 
             alcCloseDevice( dev );
             DEBUG_CHECK_AL_ERROR();
-            devlist += strlen( devlist ) + 1;
+            deviceList += strlen( deviceList ) + 1;
         }
     }
     else

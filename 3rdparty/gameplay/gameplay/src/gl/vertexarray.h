@@ -7,6 +7,7 @@
 
 #include "structuredvertexbuffer.h"
 
+#include <utility>
 #include <vector>
 
 namespace gameplay
@@ -16,13 +17,13 @@ namespace gl
 class VertexArray : public BindableResource
 {
 public:
-    explicit VertexArray(const std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>& indexBuffers,
-                         const std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>>& vertexBuffers,
+    explicit VertexArray(std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>> indexBuffers,
+                         std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> vertexBuffers,
                          const Program& program,
                          const std::string& label = {})
             : BindableResource{glGenVertexArrays, glBindVertexArray, glDeleteVertexArrays, GL_VERTEX_ARRAY, label}
-            , m_indexBuffers{indexBuffers}
-            , m_vertexBuffers{vertexBuffers}
+            , m_indexBuffers{std::move( indexBuffers )}
+            , m_vertexBuffers{std::move( vertexBuffers )}
     {
         bind();
         for( const auto& buffer : m_indexBuffers )

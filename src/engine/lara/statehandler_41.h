@@ -12,7 +12,7 @@ class StateHandler_41 final
 {
 public:
     explicit StateHandler_41(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::SwitchUp )
+            : AbstractStateHandler{lara, LaraStateId::SwitchUp}
     {
     }
 

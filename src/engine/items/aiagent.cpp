@@ -101,9 +101,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto bboxMinY = m_state.position.position.Y + bbox.minY;
 
     auto room = m_state.position.room;
-    auto sector = gsl::make_not_null( getLevel().findRealFloorSector(
+    auto sector = gsl::make_not_null( level::Level::findRealFloorSector(
             m_state.position.position + core::TRVec{0, bbox.minY, 0},
-            gsl::make_not_null( &room ) ) );
+            make_not_null( &room ) ) );
     Expects( sector->box != nullptr );
     auto currentFloor = sector->box->floor;
 
@@ -138,9 +138,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         else if( newSectorZ > oldSectorZ )
             m_state.position.position.Z = oldPosition.Z | 0x3ff;
 
-        sector = gsl::make_not_null( getLevel().findRealFloorSector(
+        sector = gsl::make_not_null( level::Level::findRealFloorSector(
                 core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                gsl::make_not_null( &room ) ) );
+                make_not_null( &room ) ) );
 
         currentFloor = sector->box->floor;
 
@@ -292,9 +292,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     if( moveX != 0 || moveZ != 0 )
     {
-        sector = gsl::make_not_null( getLevel().findRealFloorSector(
+        sector = gsl::make_not_null( level::Level::findRealFloorSector(
                 core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                gsl::make_not_null( &room ) ) );
+                make_not_null( &room ) ) );
 
         m_state.rotation.Y += angle;
         m_state.rotation.Z += util::clamp(
@@ -349,7 +349,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                           },
                                                           getLevel().m_itemNodes ).y;
 
-            const auto y = m_state.type == engine::TR1ItemId::CrocodileInWater ? 0 : bbox.minY;
+            const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0 : bbox.minY;
 
             if( m_state.position.position.Y + y + moveY < ceiling )
             {
@@ -365,9 +365,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         }
 
         m_state.position.position.Y += moveY;
-        sector = gsl::make_not_null( getLevel().findRealFloorSector(
+        sector = gsl::make_not_null( level::Level::findRealFloorSector(
                 core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                gsl::make_not_null( &room ) ) );
+                make_not_null( &room ) ) );
         m_state.floor = HeightInfo::fromFloor( sector,
                                                core::TRVec{
                                                        m_state.position.position.X,
@@ -408,7 +408,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     m_state.rotation.X = 0_au;
 
     sector = gsl::make_not_null(
-            getLevel().findRealFloorSector( m_state.position.position, gsl::make_not_null( &room ) ) );
+            level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) ) );
     m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
 
     setCurrentRoom( room );
@@ -420,7 +420,7 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel)
-        : ModelItemNode( level, room, item, true, animatedModel )
+        : ModelItemNode{level, room, item, true, animatedModel}
         , m_collisionRadius{level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.type )["radius"]}
 {
     m_state.collidable = true;

@@ -38,7 +38,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         {
             if( lara.m_state.frame_number == 2970 )
             {
-                m_state.triggerState = engine::items::TriggerState::Invisible;
+                m_state.triggerState = TriggerState::Invisible;
                 getLevel().addInventoryItem( m_state.type );
                 return;
             }
@@ -73,19 +73,19 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         {
             if( lara.m_state.frame_number == 3443 )
             {
-                if( m_state.type == engine::TR1ItemId::ShotgunSprite )
+                if( m_state.type == TR1ItemId::ShotgunSprite )
                 {
-                    const auto& shotgunLara = *getLevel().m_animatedModels[engine::TR1ItemId::LaraShotgunAnim];
-                    BOOST_ASSERT( shotgunLara.meshes.size() == lara.getNode()->getChildren().size() );
+                    const auto& shotgunLara = *getLevel().m_animatedModels[TR1ItemId::LaraShotgunAnim];
+                    BOOST_ASSERT(
+                            gsl::narrow<size_t>( shotgunLara.meshes.size() ) == lara.getNode()->getChildren().size() );
 
                     lara.getNode()->getChild( 7 )->setDrawable( shotgunLara.models[7].get() );
                 }
 
-                m_state.triggerState = engine::items::TriggerState::Invisible;
+                m_state.triggerState = TriggerState::Invisible;
                 getLevel().addInventoryItem( m_state.type );
-                gameplay::setParent( gsl::make_not_null( getNode() ), nullptr );
+                setParent( gsl::make_not_null( getNode() ), nullptr );
                 m_state.collidable = false;
-                return;
             }
         }
         else

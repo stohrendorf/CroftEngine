@@ -2,7 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
 #include "level/level.h"
 
 namespace engine
@@ -14,7 +13,7 @@ class StateHandler_42 final
 {
 public:
     explicit StateHandler_42(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::InsertKey )
+            : AbstractStateHandler{lara, LaraStateId::InsertKey}
     {
     }
 

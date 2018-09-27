@@ -82,7 +82,7 @@ private:
     std::shared_ptr<items::ItemNode> m_item = nullptr;
     std::shared_ptr<const items::ItemNode> m_lastItem = nullptr;
     std::shared_ptr<items::ItemNode> m_enemy = nullptr;
-    //! @brief Movement smothness for adjusting the pivot position.
+    //! @brief Movement smoothness for adjusting the pivot position.
     int m_trackingSmoothness = 8;
     int m_fixedCameraId = -1;
     int m_currentFixedCameraId = -1;
@@ -91,11 +91,11 @@ private:
     std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
 
 public:
-    explicit CameraController(gsl::not_null<level::Level*> level,
-                              const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera);
+    explicit CameraController(const gsl::not_null<level::Level*>& level,
+                              gsl::not_null<std::shared_ptr<gameplay::Camera>> camera);
 
     explicit CameraController(gsl::not_null<level::Level*> level,
-                              const gsl::not_null<std::shared_ptr<gameplay::Camera>>& camera,
+                              gsl::not_null<std::shared_ptr<gameplay::Camera>> camera,
                               bool noLaraTag);
 
     const level::Level* getLevel() const noexcept
@@ -109,7 +109,7 @@ public:
 
     void setCurrentRotationY(core::Angle y);
 
-    void setEyeRotation(core::Angle x, core::Angle y)
+    void setEyeRotation(const core::Angle x, const core::Angle y)
     {
         m_eyeRotation.X = x;
         m_eyeRotation.Y = y;
@@ -120,12 +120,12 @@ public:
         return m_eyeRotation;
     }
 
-    void setEyeCenterDistance(int d)
+    void setEyeCenterDistance(const int d)
     {
         m_eyeCenterDistance = d;
     }
 
-    void setOldMode(CameraMode k)
+    void setOldMode(const CameraMode k)
     {
         m_oldMode = k;
     }
@@ -133,7 +133,7 @@ public:
     void setCamOverride(const floordata::CameraParameters& camParams,
                         uint16_t camId,
                         floordata::SequenceCondition condition,
-                        bool isDoppelganger,
+                        bool fromHeavy,
                         uint16_t activationRequest,
                         bool switchIsOn);
 
@@ -145,11 +145,11 @@ public:
         m_item = item;
     }
 
-    void findItem(const uint16_t* floorData);
+    void findItem(const uint16_t* cmdSequence);
 
     void update();
 
-    void setMode(CameraMode t)
+    void setMode(const CameraMode t)
     {
         m_mode = t;
     }
@@ -216,7 +216,7 @@ public:
                               core::RoomBoundPosition& end,
                               const level::Level& level);
 
-    void setBounce(int bounce)
+    void setBounce(const int bounce)
     {
         m_bounce = bounce;
     }
@@ -240,8 +240,8 @@ private:
     void tracePortals();
 
     static bool clampY(const core::TRVec& start,
-                       core::TRVec& origin,
-                       gsl::not_null<const loader::Sector*> sector,
+                       core::TRVec& end,
+                       const gsl::not_null<const loader::Sector*>& sector,
                        const level::Level& level);
 
     enum class ClampType

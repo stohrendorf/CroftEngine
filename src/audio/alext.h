@@ -20,6 +20,8 @@ namespace audio
 void loadALExtFunctions(const gsl::not_null<ALCdevice*>&);
 } // namespace audio
 
+// ReSharper disable IdentifierTypo
+
 // Effect objects
 extern LPALGENEFFECTS alGenEffects;
 extern LPALDELETEEFFECTS alDeleteEffects;
@@ -59,4 +61,6 @@ extern LPALGETAUXILIARYEFFECTSLOTIV alGetAuxiliaryEffectSlotiv;
 extern LPALGETAUXILIARYEFFECTSLOTF alGetAuxiliaryEffectSlotf;
 extern LPALGETAUXILIARYEFFECTSLOTFV alGetAuxiliaryEffectSlotfv;
 
-#endif // ifndef AL_ALEXT_PROTOTYPES
+// ReSharper enable IdentifierTypo
+
+#endif

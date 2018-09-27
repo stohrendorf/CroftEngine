@@ -9,10 +9,10 @@
 
 namespace gameplay
 {
-gsl::not_null<std::shared_ptr<Mesh>> Mesh::createQuadFullscreen(float width,
-                                                                float height,
+gsl::not_null<std::shared_ptr<Mesh>> Mesh::createQuadFullscreen(const float width,
+                                                                const float height,
                                                                 const gl::Program& program,
-                                                                bool invertY)
+                                                                const bool invertY)
 {
     struct Vertex
     {
@@ -49,7 +49,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Mesh::createQuadFullscreen(float width,
     builder.attach( indexBuffer );
     builder.attach( mesh->getBuffers() );
 
-    auto part = make_not_null_shared<MeshPart>( builder.build( program ) );
+    const auto part = make_not_null_shared<MeshPart>( builder.build( program ) );
     mesh->addPart( part );
 
     return mesh;

@@ -16,7 +16,7 @@ public:
                  const gsl::not_null<const loader::Room*>& room,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel,
-                 int div)
+                 const int div)
             : ModelItemNode{level, room, item, false, animatedModel}
             , m_div{div}
     {
@@ -24,14 +24,14 @@ public:
 
     void patchFloor(const core::TRVec& pos, int& y) override final
     {
-        auto tmp = m_state.position.position.Y + getBridgeSlopeHeight( pos ) / m_div;
+        const auto tmp = m_state.position.position.Y + getBridgeSlopeHeight( pos ) / m_div;
         if( pos.Y <= tmp )
             y = tmp;
     }
 
     void patchCeiling(const core::TRVec& pos, int& y) override final
     {
-        auto tmp = m_state.position.position.Y + getBridgeSlopeHeight( pos ) / m_div;
+        const auto tmp = m_state.position.position.Y + getBridgeSlopeHeight( pos ) / m_div;
         if( pos.Y <= tmp )
             return;
 

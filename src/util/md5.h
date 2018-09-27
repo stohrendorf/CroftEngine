@@ -35,14 +35,12 @@ documentation and/or software.
 #include <cstdint>
 #include <string>
 
-
 namespace util
 {
-    extern std::string md5(const uint8_t* data, size_t length);
+extern std::string md5(const uint8_t* data, size_t length);
 
-
-    inline std::string md5(const char* data, size_t length)
-    {
-        return md5(reinterpret_cast<const uint8_t*>(data), length);
-    }
+inline std::string md5(const char* data, const size_t length)
+{
+    return md5( reinterpret_cast<const uint8_t*>(data), length );
+}
 }

@@ -15,7 +15,7 @@ private:
 public:
     explicit FrameBuffer(const std::string& label = {}, GLenum type = GL_FRAMEBUFFER)
             : BindableResource{glGenFramebuffers,
-                               [type](GLuint handle) { glBindFramebuffer( type, handle ); },
+                               [type](const GLuint handle) { glBindFramebuffer( type, handle ); },
                                glDeleteFramebuffers,
                                type,
                                label}
@@ -24,7 +24,7 @@ public:
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void attachTexture1D(GLenum attachment, const Texture& texture, GLint level = 0)
+    void attachTexture1D(const GLenum attachment, const Texture& texture, const GLint level = 0)
     {
         bind();
         glFramebufferTexture1D( m_type, attachment, texture.getType(), texture.getHandle(), level );
@@ -32,7 +32,7 @@ public:
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void attachTexture2D(GLenum attachment, const Texture& texture, GLint level = 0)
+    void attachTexture2D(const GLenum attachment, const Texture& texture, const GLint level = 0)
     {
         bind();
         glFramebufferTexture2D( m_type, attachment, texture.getType(), texture.getHandle(), level );
@@ -40,7 +40,8 @@ public:
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void attachTextureLayer(GLenum attachment, const Texture& texture, GLint level = 0, GLint layer = 0)
+    void attachTextureLayer(const GLenum attachment, const Texture& texture,
+                            const GLint level = 0, const GLint layer = 0)
     {
         bind();
         glFramebufferTextureLayer( m_type, attachment, texture.getHandle(), level, layer );
@@ -48,17 +49,17 @@ public:
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void attachRenderbuffer(GLenum attachment, const RenderBuffer& renderBuffer)
+    void attachRenderbuffer(const GLenum attachment, const RenderBuffer& renderBuffer)
     {
         bind();
         glFramebufferRenderbuffer( GL_DRAW_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderBuffer.getHandle() );
         checkGlError();
     }
 
-    void blit(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
-              GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
-              GLbitfield mask = GL_COLOR_BUFFER_BIT,
-              GLenum filter = GL_LINEAR)
+    void blit(const GLint srcX0, const GLint srcY0, const GLint srcX1, const GLint srcY1,
+              const GLint dstX0, const GLint dstY0, const GLint dstX1, const GLint dstY1,
+              const GLbitfield mask = GL_COLOR_BUFFER_BIT,
+              const GLenum filter = GL_LINEAR) const
     {
         bind();
         glBlitFramebuffer( srcX0, srcY0, srcX1, srcY1,
@@ -71,7 +72,7 @@ public:
     {
         bind();
 
-        auto result = glCheckFramebufferStatus( m_type );
+        const auto result = glCheckFramebufferStatus( m_type );
         checkGlError();
 
 #ifndef NDEBUG
@@ -120,7 +121,7 @@ public:
         return result == GL_FRAMEBUFFER_COMPLETE;
     }
 
-    static void unbindAll(GLenum type = GL_FRAMEBUFFER)
+    static void unbindAll(const GLenum type = GL_FRAMEBUFFER)
     {
         glBindFramebuffer( type, 0 );
         checkGlError();

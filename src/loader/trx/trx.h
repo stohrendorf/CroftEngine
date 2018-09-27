@@ -1,12 +1,7 @@
 #pragma once
 
-#include <gsl/gsl>
-
-#include <boost/throw_exception.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/log/trivial.hpp>
 
 #include <chrono>
 #include <map>
@@ -178,7 +173,7 @@ private:
 class Glidos
 {
 public:
-    explicit Glidos(const boost::filesystem::path& baseDir,
+    explicit Glidos(boost::filesystem::path baseDir,
                     const std::function<void(const std::string&)>& statusCallback);
 
     void dump() const;

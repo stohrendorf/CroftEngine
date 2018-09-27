@@ -13,7 +13,7 @@ class StateHandler_2 final
 {
 public:
     explicit StateHandler_2(LaraNode& lara)
-            : StateHandler_Standing( lara, LaraStateId::Stop )
+            : StateHandler_Standing{lara, LaraStateId::Stop}
     {
     }
 

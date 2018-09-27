@@ -16,6 +16,14 @@ namespace audio
 class AbstractStreamSource
 {
 public:
+    explicit AbstractStreamSource(const AbstractStreamSource&) = delete;
+
+    explicit AbstractStreamSource(AbstractStreamSource&&) = delete;
+
+    AbstractStreamSource& operator=(const AbstractStreamSource&) = delete;
+
+    AbstractStreamSource& operator=(AbstractStreamSource&&) = delete;
+
     virtual ~AbstractStreamSource() = default;
 
     virtual size_t readStereo(int16_t* buffer, size_t bufferSize) = 0;
@@ -23,7 +31,9 @@ public:
     virtual int getSampleRate() const = 0;
 
 protected:
-    static size_t readStereo(short* frameBuffer, size_t frameCount, SNDFILE* sndFile, bool sourceIsMono)
+    explicit AbstractStreamSource() = default;
+
+    static size_t readStereo(short* frameBuffer, const size_t frameCount, SNDFILE* sndFile, const bool sourceIsMono)
     {
         size_t count = 0;
         while( count < frameCount )
@@ -59,7 +69,7 @@ class WadStreamSource final : public AbstractStreamSource
 {
 private:
     std::ifstream m_wadFile;
-    SF_INFO m_sfInfo;
+    SF_INFO m_sfInfo{};
     SNDFILE* m_sndFile = nullptr;
     std::unique_ptr<sndfile::InputStreamViewWrapper> m_wrapper;
 
@@ -71,8 +81,8 @@ private:
     static constexpr size_t WADCount = 130;
 
 public:
-    WadStreamSource(const std::string& filename, size_t trackIndex)
-            : m_wadFile( filename, std::ios::in | std::ios::binary )
+    WadStreamSource(const std::string& filename, const size_t trackIndex)
+            : m_wadFile{filename, std::ios::in | std::ios::binary}
     {
         memset( &m_sfInfo, 0, sizeof( m_sfInfo ) );
 
@@ -103,7 +113,7 @@ public:
         }
     }
 
-    size_t readStereo(int16_t* frameBuffer, size_t frameCount) override
+    size_t readStereo(int16_t* frameBuffer, const size_t frameCount) override
     {
         return AbstractStreamSource::readStereo( frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1 );
     }
@@ -118,7 +128,7 @@ public:
 class SndfileStreamSource final : public AbstractStreamSource
 {
 private:
-    SF_INFO m_sfInfo;
+    SF_INFO m_sfInfo{};
     SNDFILE* m_sndFile = nullptr;
 
 public:
@@ -134,7 +144,7 @@ public:
         }
     }
 
-    size_t readStereo(int16_t* frameBuffer, size_t frameCount) override
+    size_t readStereo(int16_t* frameBuffer, const size_t frameCount) override
     {
         return AbstractStreamSource::readStereo( frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1 );
     }

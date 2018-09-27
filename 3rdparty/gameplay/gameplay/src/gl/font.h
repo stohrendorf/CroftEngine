@@ -4,7 +4,6 @@
 #include "image.h"
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
 #include FT_CACHE_H
 
 namespace gameplay
@@ -14,24 +13,32 @@ namespace gl
 class Font
 {
 public:
-    Font(const Font& copy) = delete;
+    Font(const Font&) = delete;
+
+    Font(Font&&) noexcept = delete;
 
     Font& operator=(const Font&) = delete;
+
+    Font& operator=(Font&&) = delete;
 
     void drawText(const char* text, int x, int y, const RGBA8& color);
 
     void drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
-    Font(const std::string& ttf, int size);
+    Font(std::string ttf, int size);
 
     ~Font();
 
-    void setTarget(const std::shared_ptr<Image<RGBA8>>& img)
+    void setTarget(const std::shared_ptr<Image < RGBA8>>
+
+    & img)
     {
         m_targetImage = img;
     }
 
-    const std::shared_ptr<Image<RGBA8>>& getTarget() const
+    const std::shared_ptr<Image < RGBA8>>&
+
+    getTarget() const
     {
         return m_targetImage;
     }
@@ -45,7 +52,7 @@ private:
 
     FTC_ImageTypeRec m_imgType;
 
-    std::shared_ptr<Image<RGBA8>> m_targetImage = nullptr;
+    std::shared_ptr<Image < RGBA8>> m_targetImage = nullptr;
 
     int m_x0 = 0;
 

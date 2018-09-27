@@ -6,7 +6,7 @@ namespace gameplay
 {
 RenderState RenderState::s_currentState;
 
-void RenderState::bindState(bool force) const
+void RenderState::bindState(const bool force) const
 {
     // Update any state if...
     //   - it is forced
@@ -87,47 +87,47 @@ void RenderState::enableDepthWrite()
     s_currentState.m_depthTestEnabled = true;
 }
 
-void RenderState::setBlend(bool enabled)
+void RenderState::setBlend(const bool enabled)
 {
     m_blendEnabled = enabled;
 }
 
-void RenderState::setBlendSrc(GLenum blend)
+void RenderState::setBlendSrc(const GLenum blend)
 {
     m_blendSrc = blend;
 }
 
-void RenderState::setBlendDst(GLenum blend)
+void RenderState::setBlendDst(const GLenum blend)
 {
     m_blendDst = blend;
 }
 
-void RenderState::setCullFace(bool enabled)
+void RenderState::setCullFace(const bool enabled)
 {
     m_cullFaceEnabled = enabled;
 }
 
-void RenderState::setCullFaceSide(GLenum side)
+void RenderState::setCullFaceSide(const GLenum side)
 {
     m_cullFaceSide = side;
 }
 
-void RenderState::setFrontFace(GLenum winding)
+void RenderState::setFrontFace(const GLenum winding)
 {
     m_frontFace = winding;
 }
 
-void RenderState::setDepthTest(bool enabled)
+void RenderState::setDepthTest(const bool enabled)
 {
     m_depthTestEnabled = enabled;
 }
 
-void RenderState::setDepthWrite(bool enabled)
+void RenderState::setDepthWrite(const bool enabled)
 {
     m_depthWriteEnabled = enabled;
 }
 
-void RenderState::setDepthFunction(GLenum func)
+void RenderState::setDepthFunction(const GLenum func)
 {
     m_depthFunction = func;
 }

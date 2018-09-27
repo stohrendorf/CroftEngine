@@ -18,10 +18,10 @@ public:
         X, Y, Z
     };
 
-    explicit Sprite(float left,
-                    float bottom,
-                    float width,
-                    float height,
+    explicit Sprite(const float left,
+                    const float bottom,
+                    const float width,
+                    const float height,
                     const glm::vec2& t0,
                     const glm::vec2& t1,
                     const gsl::not_null<std::shared_ptr<Material>>& material,
@@ -29,6 +29,12 @@ public:
             : m_mesh{createMesh( left, bottom, width, height, t0, t1, material, pole )}
     {
     }
+
+    Sprite(const Sprite&) = delete;
+
+    Sprite(Sprite&&) = delete;
+
+    Sprite& operator=(Sprite&&) = delete;
 
     Sprite& operator=(const Sprite&) = delete;
 

@@ -27,7 +27,7 @@ void Dart::update()
         getLevel().m_lara->m_state.health -= 50;
         getLevel().m_lara->m_state.is_hit = true;
 
-        auto fx = engine::createBloodSplat(
+        auto fx = createBloodSplat(
                 getLevel(),
                 m_state.position,
                 m_state.speed,
@@ -39,12 +39,12 @@ void Dart::update()
     ModelItemNode::update();
 
     auto room = m_state.position.room;
-    auto sector = gsl::make_not_null(
-            getLevel().findRealFloorSector( m_state.position.position, gsl::make_not_null( &room ) ) );
+    const auto sector = gsl::make_not_null(
+            level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) ) );
     if( room != m_state.position.room )
         setCurrentRoom( room );
 
-    HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
+    const HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
     m_state.floor = h.y;
 
     if( m_state.position.position.Y < m_state.floor )
@@ -52,8 +52,8 @@ void Dart::update()
 
     kill();
 
-    const auto particle = make_not_null_shared<engine::RicochetParticle>( m_state.position, getLevel() );
-    gameplay::setParent( particle, m_state.position.room->node );
+    const auto particle = make_not_null_shared<RicochetParticle>( m_state.position, getLevel() );
+    setParent( particle, m_state.position.room->node );
     particle->angle = m_state.rotation;
     particle->timePerSpriteFrame = 6;
     getLevel().m_particles.emplace_back( particle );

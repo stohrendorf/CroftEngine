@@ -15,7 +15,7 @@ class StateHandler_1 final
 {
 public:
     explicit StateHandler_1(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::RunForward )
+            : AbstractStateHandler{lara, LaraStateId::RunForward}
     {
     }
 
@@ -37,13 +37,13 @@ public:
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -8_deg );
-            core::Angle z = std::max( -11_deg, getLara().m_state.rotation.Z - 1.5_deg );
+            const core::Angle z = std::max( -11_deg, getLara().m_state.rotation.Z - 1.5_deg );
             getLara().m_state.rotation.Z = z;
         }
         else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 8_deg );
-            core::Angle z = std::min( +11_deg, getLara().m_state.rotation.Z + 1.5_deg );
+            const core::Angle z = std::min( +11_deg, getLara().m_state.rotation.Z + 1.5_deg );
             getLara().m_state.rotation.Z = z;
         }
 
@@ -134,8 +134,7 @@ public:
 
         if( !tryStartSlide( collisionInfo ) )
         {
-            int d = std::min( collisionInfo.mid.floor.y, 50 );
-            getLara().m_state.position.position.Y += d;
+            getLara().m_state.position.position.Y += std::min( collisionInfo.mid.floor.y, 50 );
         }
     }
 };

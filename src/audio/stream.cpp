@@ -4,8 +4,8 @@
 
 namespace audio
 {
-Stream::Stream(Device& device, std::unique_ptr<AbstractStreamSource>&& src, size_t bufferSize)
-        : m_stream( std::move( src ) )
+Stream::Stream(Device& device, std::unique_ptr<AbstractStreamSource>&& src, const size_t bufferSize)
+        : m_stream{std::move( src )}
         , m_source{device.createSource().get()}
         , m_buffers{device.createBuffer(), device.createBuffer()}
         , m_sampleBuffer( bufferSize * 2 )

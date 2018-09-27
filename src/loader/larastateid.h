@@ -6,5 +6,7 @@
 
 namespace loader
 {
+
 #include "larastateid_enum.h"
+
 }

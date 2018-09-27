@@ -11,7 +11,7 @@ class StateHandler_34 final
 {
 public:
     explicit StateHandler_34(LaraNode& lara)
-            : StateHandler_OnWater( lara, LaraStateId::OnWaterForward )
+            : StateHandler_OnWater{lara, LaraStateId::OnWaterForward}
     {
     }
 
@@ -44,8 +44,7 @@ public:
             setGoalAnimState( LaraStateId::OnWaterStop );
         }
 
-        int spd = std::min( 60, getLara().m_state.fallspeed + 8 );
-        getLara().m_state.fallspeed = spd;
+        getLara().m_state.fallspeed = std::min( 60, getLara().m_state.fallspeed + 8 );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override

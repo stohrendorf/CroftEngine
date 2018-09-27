@@ -15,8 +15,8 @@ class StateHandler_OnWater
         : public AbstractStateHandler
 {
 public:
-    explicit StateHandler_OnWater(LaraNode& lara, LaraStateId id)
-            : AbstractStateHandler( lara, id )
+    explicit StateHandler_OnWater(LaraNode& lara, const LaraStateId id)
+            : AbstractStateHandler{lara, id}
     {
     }
 

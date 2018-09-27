@@ -28,7 +28,7 @@ using namespace level;
 void TR3Level::loadFileData()
 {
     // Version
-    uint32_t file_version = m_reader.readU32();
+    const uint32_t file_version = m_reader.readU32();
 
     if( file_version != 0xFF080038 && file_version != 0xFF180038 && file_version != 0xFF180034 )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR3 Level: Wrong level version" ) );
@@ -36,7 +36,7 @@ void TR3Level::loadFileData()
     m_palette = loader::Palette::readTr1( m_reader );
     /*Palette palette16 =*/ loader::Palette::readTr2( m_reader );
 
-    auto numTextiles = m_reader.readU32();
+    const auto numTextiles = m_reader.readU32();
     std::vector<loader::ByteTexture> texture8;
     m_reader.readVector( texture8, numTextiles, &loader::ByteTexture::read );
     std::vector<loader::WordTexture> texture16;

@@ -14,7 +14,7 @@ class StateHandler_10 final
 {
 public:
     explicit StateHandler_10(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::Hang )
+            : AbstractStateHandler{lara, LaraStateId::Hang}
     {
     }
 

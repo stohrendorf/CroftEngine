@@ -18,7 +18,7 @@ class StructuredVertexBuffer : public VertexBuffer
 public:
     using AttributeMapping = std::map<std::string, VertexAttribute>;
 
-    explicit StructuredVertexBuffer(const AttributeMapping& mapping, bool dynamic,
+    explicit StructuredVertexBuffer(const AttributeMapping& mapping, const bool dynamic,
                                     const std::string& label = {})
             : VertexBuffer{label}
             , m_mapping{mapping}
@@ -28,9 +28,9 @@ public:
         BOOST_ASSERT( !mapping.empty() );
 
         m_size = -1;
-        for( const auto& attrib : mapping )
+        for( const auto& attribute : mapping )
         {
-            auto tmp = attrib.second.getStride();
+            const auto tmp = attribute.second.getStride();
             if( m_size != -1 && m_size != tmp )
             {
                 BOOST_THROW_EXCEPTION(
@@ -47,18 +47,18 @@ public:
     {
         VertexBuffer::bind();
 
-        for( const auto& attrib : program.getActiveAttributes() )
+        for( const auto& attribute : program.getActiveAttributes() )
         {
-            auto it = m_mapping.find( attrib.getName() );
+            auto it = m_mapping.find( attribute.getName() );
             if( it == m_mapping.end() )
                 continue;
 
-            it->second.bind( gsl::narrow<GLuint>( attrib.getLocation() ) );
+            it->second.bind( gsl::narrow<GLuint>( attribute.getLocation() ) );
         }
     }
 
     template<typename T>
-    void assignSub(const gsl::not_null<const T*>& vertexData, size_t vertexStart, size_t vertexCount)
+    void assignSub(const gsl::not_null<const T*>& vertexData, const size_t vertexStart, size_t vertexCount)
     {
         if( sizeof( T ) != m_size )
         {
@@ -78,7 +78,7 @@ public:
     }
 
     template<typename T>
-    void assign(const gsl::not_null<const T*>& vertexData, size_t vertexCount)
+    void assign(const gsl::not_null<const T*>& vertexData, const size_t vertexCount)
     {
         if( sizeof( T ) != m_size )
         {
@@ -97,7 +97,7 @@ public:
     }
 
     template<typename T>
-    void assignRaw(const gsl::not_null<const T*>& vertexData, size_t vertexCount)
+    void assignRaw(const gsl::not_null<const T*>& vertexData, const size_t vertexCount)
     {
         VertexBuffer::bind();
 
@@ -117,13 +117,13 @@ public:
     }
 
     template<typename T>
-    void assignRaw(const std::vector<T>& data, size_t vertexCount)
+    void assignRaw(const std::vector<T>& data, const size_t vertexCount)
     {
         if( !data.empty() )
             assignRaw<T>( gsl::make_not_null( data.data() ), vertexCount );
     }
 
-    void reserve(size_t n)
+    void reserve(const size_t n)
     {
         m_vertexCount = n;
         glBufferData( GL_ARRAY_BUFFER, m_size * m_vertexCount, nullptr,

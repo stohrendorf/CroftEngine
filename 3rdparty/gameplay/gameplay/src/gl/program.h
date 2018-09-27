@@ -15,12 +15,12 @@ class Program : public BindableResource
 public:
     explicit Program()
             : BindableResource{
-            [](GLsizei n, GLuint* handle) {
+            [](const GLsizei n, GLuint* handle) {
                 BOOST_ASSERT( n == 1 && handle != nullptr );
                 *handle = glCreateProgram();
             },
             glUseProgram,
-            [](GLsizei n, GLuint* handle) {
+            [](const GLsizei n, const GLuint* handle) {
                 BOOST_ASSERT( n == 1 && handle != nullptr );
                 glDeleteProgram( *handle );
             }
@@ -64,7 +64,7 @@ public:
         }
         if( length > 0 )
         {
-            auto infoLog = new char[length];
+            const auto infoLog = new char[length];
             glGetProgramInfoLog( getHandle(), length, nullptr, infoLog );
             checkGlError();
             infoLog[length - 1] = '\0';
@@ -112,7 +112,7 @@ public:
     class ActiveAttribute
     {
     public:
-        explicit ActiveAttribute(GLuint program, GLuint index, GLint maxLength)
+        explicit ActiveAttribute(const GLuint program, const GLuint index, const GLint maxLength)
         {
             Expects( maxLength >= 0 );
             auto* attribName = new GLchar[gsl::narrow_cast<size_t>( maxLength ) + 1];
@@ -150,13 +150,13 @@ public:
     class ActiveUniform
     {
     public:
-        explicit ActiveUniform(GLuint program, GLuint index, GLint maxLength, GLint& samplerIndex)
+        explicit ActiveUniform(const GLuint program, const GLuint index, const GLint maxLength, GLint& samplerIndex)
                 : m_program{program}
         {
             auto* uniformName = new GLchar[maxLength + 1];
             glGetActiveUniform( program, index, maxLength, nullptr, &m_size, &m_type, uniformName );
             uniformName[maxLength] = '\0';
-            if( auto chr = strrchr( uniformName, '[' ) )
+            if( const auto chr = strrchr( uniformName, '[' ) )
                 *chr = '\0';
 
             m_name = uniformName;
@@ -199,14 +199,14 @@ public:
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(GLfloat value)
+        void set(const GLfloat value)
         {
             glProgramUniform1f( m_program, m_location, value );
             checkGlError();
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const GLfloat* values, GLsizei count)
+        void set(const GLfloat* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
             glProgramUniform1fv( m_program, m_location, count, values );
@@ -214,13 +214,13 @@ public:
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(GLint value)
+        void set(const GLint value)
         {
             glProgramUniform1i( m_program, m_location, value );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const GLint* values, GLsizei count)
+        void set(const GLint* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
             glProgramUniform1iv( m_program, m_location, count, values );
@@ -230,12 +230,12 @@ public:
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::mat4& value)
         {
-            glProgramUniformMatrix4fv( m_program, m_location, 1, GL_FALSE, glm::value_ptr( value ) );
+            glProgramUniformMatrix4fv( m_program, m_location, 1, GL_FALSE, value_ptr( value ) );
             checkGlError();
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::mat4* values, GLsizei count)
+        void set(const glm::mat4* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
             glProgramUniformMatrix4fv( m_program, m_location, count, GL_FALSE,
@@ -251,7 +251,7 @@ public:
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::vec2* values, GLsizei count)
+        void set(const glm::vec2* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
             glProgramUniform2fv( m_program, m_location, count, reinterpret_cast<const GLfloat*>(values) );
@@ -266,7 +266,7 @@ public:
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::vec3* values, GLsizei count)
+        void set(const glm::vec3* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
             glProgramUniform3fv( m_program, m_location, count, reinterpret_cast<const GLfloat*>(values) );
@@ -281,7 +281,7 @@ public:
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::vec4* values, GLsizei count)
+        void set(const glm::vec4* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
             glProgramUniform4fv( m_program, m_location, count, reinterpret_cast<const GLfloat*>(values) );
@@ -346,7 +346,7 @@ public:
     };
 
 
-    ActiveAttribute getActiveAttribute(GLuint index) const
+    ActiveAttribute getActiveAttribute(const GLuint index) const
     {
         return ActiveAttribute{getHandle(), index, getActiveAttributeMaxLength()};
     }
@@ -361,7 +361,7 @@ public:
         return attribs;
     }
 
-    ActiveUniform getActiveUniform(GLuint index, GLint& samplerIndex) const
+    ActiveUniform getActiveUniform(const GLuint index, GLint& samplerIndex) const
     {
         return ActiveUniform{getHandle(), index, getActiveUniformMaxLength(), samplerIndex};
     }

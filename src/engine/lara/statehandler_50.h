@@ -2,7 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
 #include "level/level.h"
 
 namespace engine
@@ -14,7 +13,7 @@ class StateHandler_50 final
 {
 public:
     explicit StateHandler_50(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::UseMidas )
+            : AbstractStateHandler{lara, LaraStateId::UseMidas}
     {
     }
 
@@ -35,14 +34,14 @@ public:
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
     }
 
-    static void emitSparkles(const engine::LaraNode& lara, level::Level& level)
+    static void emitSparkles(const LaraNode& lara, level::Level& level)
     {
         const auto spheres = lara.getSkeleton()->getBoneCollisionSpheres(
                 lara.m_state,
                 *lara.getSkeleton()->getInterpolationInfo( lara.m_state ).getNearestFrame(),
                 nullptr );
 
-        const auto& normalLara = *level.m_animatedModels[engine::TR1ItemId::Lara];
+        const auto& normalLara = *level.m_animatedModels[TR1ItemId::Lara];
         for( size_t i = 0; i < spheres.size(); ++i )
         {
             if( lara.getNode()->getChild( i )->getDrawable() == normalLara.models[i].get() )
@@ -53,7 +52,7 @@ public:
             p.X += util::rand15s( r );
             p.Y += util::rand15s( r );
             p.Z += util::rand15s( r );
-            auto fx = std::make_shared<engine::SparkleParticle>(
+            auto fx = std::make_shared<SparkleParticle>(
                     core::RoomBoundPosition{lara.m_state.position.room, p}, level );
             level.m_particles.emplace_back( fx );
         }

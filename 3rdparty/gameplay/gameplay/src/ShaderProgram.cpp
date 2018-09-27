@@ -24,7 +24,7 @@ std::string readAll(const std::string& filePath)
         return {};
     }
     stream.seekg( 0, std::ios::end );
-    auto size = static_cast<std::size_t>(stream.tellg());
+    const auto size = static_cast<std::size_t>(stream.tellg());
     stream.seekg( 0, std::ios::beg );
 
     // Read entire file contents.
@@ -84,11 +84,11 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
         // If "#include" is found
         if( headPos != std::string::npos )
         {
-            // append from our last position for the legth (head - last position)
+            // append from our last position for the length (head - last position)
             out.append( source.substr( lastPos, headPos - lastPos ) );
 
             // find the start quote "
-            size_t startQuote = source.find( '"', headPos ) + 1;
+            const size_t startQuote = source.find( '"', headPos ) + 1;
             if( startQuote == std::string::npos )
             {
                 // We have started an "#include" but missing the leading quote "
@@ -97,7 +97,7 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
                 return;
             }
             // find the end quote "
-            size_t endQuote = source.find( '"', startQuote );
+            const size_t endQuote = source.find( '"', startQuote );
             if( endQuote == std::string::npos )
             {
                 // We have a start quote but missing the trailing quote "
@@ -112,7 +112,7 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
             // File path to include and 'stitch' in the value in the quotes to the file path and source it.
             std::string filepathStr = filepath;
             std::string directoryPath = filepathStr.substr( 0, filepathStr.rfind( '/' ) + 1 );
-            size_t len = endQuote - startQuote;
+            const size_t len = endQuote - startQuote;
             std::string includeStr = source.substr( startQuote, len );
             directoryPath.append( includeStr );
             if( included.count( directoryPath ) > 0 )
@@ -194,10 +194,9 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const std::string& 
     return shaderProgram;
 }
 
-std::shared_ptr<ShaderProgram>
-ShaderProgram::createFromSource(const std::string& vshPath, const std::string& vshSource,
-                                const std::string& fshPath, const std::string& fshSource,
-                                const std::vector<std::string>& defines)
+std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshPath, const std::string& vshSource,
+                                                               const std::string& fshPath, const std::string& fshSource,
+                                                               const std::vector<std::string>& defines)
 {
     // Replace all comma separated definitions with #define prefix and \n suffix
     std::string definesStr = replaceDefines( defines );
@@ -297,7 +296,7 @@ const std::string& ShaderProgram::getId() const
 
 const gl::Program::ActiveAttribute* ShaderProgram::getVertexAttribute(const std::string& name) const
 {
-    auto it = m_vertexAttributes.find( name );
+    const auto it = m_vertexAttributes.find( name );
     return it == m_vertexAttributes.end() ? nullptr : &it->second;
 }
 
@@ -307,7 +306,7 @@ gl::Program::ActiveUniform* ShaderProgram::getUniform(const std::string& name) c
     return it == m_uniforms.end() ? nullptr : &it->second;
 }
 
-void ShaderProgram::bind()
+void ShaderProgram::bind() const
 {
     m_handle.bind();
 }

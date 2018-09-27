@@ -6,5 +6,7 @@
 
 namespace loader
 {
+
 #include "animationid_enum.h"
+
 }

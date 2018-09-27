@@ -14,7 +14,7 @@ class StateHandler_30 final
 {
 public:
     explicit StateHandler_30(LaraNode& lara)
-            : AbstractStateHandler( lara, LaraStateId::ShimmyLeft )
+            : AbstractStateHandler{lara, LaraStateId::ShimmyLeft}
     {
     }
 

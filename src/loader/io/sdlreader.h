@@ -8,10 +8,7 @@
 
 #include <iostream>
 
-#include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
-
-#include <boost/version.hpp>
 
 #include <cstdint>
 #include <memory>
@@ -33,48 +30,50 @@ public:
 
     SDLReader& operator=(const SDLReader&) = delete;
 
+    SDLReader& operator=(SDLReader&&) = delete;
+
     explicit SDLReader(std::shared_ptr<DataStreamBuf> stream)
-            : m_streamBuf( std::move( stream ) )
-            , m_stream( m_streamBuf.get() )
+            : m_streamBuf{std::move( stream )}
+            , m_stream{m_streamBuf.get()}
     {
     }
 
     SDLReader(SDLReader&& rhs) noexcept
-            : m_memory( move( rhs.m_memory ) )
-            , m_file( move( rhs.m_file ) )
-            , m_array( move( rhs.m_array ) )
-            , m_streamBuf( move( rhs.m_streamBuf ) )
-            , m_stream( m_streamBuf.get() )
+            : m_memory{move( rhs.m_memory )}
+            , m_file{move( rhs.m_file )}
+            , m_array{move( rhs.m_array )}
+            , m_streamBuf{move( rhs.m_streamBuf )}
+            , m_stream{m_streamBuf.get()}
     {
     }
 
     explicit SDLReader(const std::string& filename)
-            : m_file( std::make_unique<boost::iostreams::file>( filename, std::ios::in | std::ios::binary,
-                                                                std::ios::in | std::ios::binary ) )
-            , m_streamBuf( std::make_shared<DataStreamBuf>( *m_file ) )
-            , m_stream( m_streamBuf.get() )
+            : m_file{std::make_unique<boost::iostreams::file>( filename, std::ios::in | std::ios::binary,
+                                                               std::ios::in | std::ios::binary )}
+            , m_streamBuf{std::make_shared<DataStreamBuf>( *m_file )}
+            , m_stream{m_streamBuf.get()}
     {
     }
 
     explicit SDLReader(const std::vector<char>& data)
-            : m_memory( data )
-            , m_array( std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() ) )
-            , m_streamBuf( std::make_shared<DataStreamBuf>( *m_array ) )
-            , m_stream( m_streamBuf.get() )
+            : m_memory{data}
+            , m_array{std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() )}
+            , m_streamBuf{std::make_shared<DataStreamBuf>( *m_array )}
+            , m_stream{m_streamBuf.get()}
     {
     }
 
     explicit SDLReader(std::vector<char>&& data)
-            : m_memory( move( data ) )
-            , m_array( std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() ) )
-            , m_streamBuf( std::make_shared<DataStreamBuf>( *m_array ) )
-            , m_stream( m_streamBuf.get() )
+            : m_memory{move( data )}
+            , m_array{std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() )}
+            , m_streamBuf{std::make_shared<DataStreamBuf>( *m_array )}
+            , m_stream{m_streamBuf.get()}
     {
     }
 
     ~SDLReader() = default;
 
-    static SDLReader decompress(const std::vector<uint8_t>& compressed, size_t uncompressedSize)
+    static SDLReader decompress(const std::vector<uint8_t>& compressed, const size_t uncompressedSize)
     {
         std::vector<char> uncomp_buffer( uncompressedSize );
 
@@ -112,18 +111,18 @@ public:
         return size;
     }
 
-    void skip(std::streamoff delta)
+    void skip(const std::streamoff delta)
     {
         m_stream.seekg( delta, std::ios::cur );
     }
 
-    void seek(std::streampos position)
+    void seek(const std::streampos position)
     {
         m_stream.seekg( position, std::ios::beg );
     }
 
     template<typename T>
-    void readBytes(T* dest, size_t n)
+    void readBytes(T* dest, const size_t n)
     {
         static_assert( std::is_integral<T>::value && sizeof( T ) == 1,
                        "readBytes() only allowed for byte-compatible data" );
@@ -185,14 +184,14 @@ public:
         }
     }
 
-    void readVector(std::vector<uint8_t>& elements, size_t count)
+    void readVector(std::vector<uint8_t>& elements, const size_t count)
     {
         elements.clear();
         elements.resize( count );
         readBytes( elements.data(), count );
     }
 
-    void readVector(std::vector<int8_t>& elements, size_t count)
+    void readVector(std::vector<int8_t>& elements, const size_t count)
     {
         elements.clear();
         elements.resize( count );

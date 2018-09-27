@@ -42,11 +42,11 @@ void CollapsibleFloor::update()
     }
 
     auto room = m_state.position.room;
-    auto sector = gsl::make_not_null(
-            getLevel().findRealFloorSector( m_state.position.position, gsl::make_not_null( &room ) ) );
+    const auto sector = gsl::make_not_null(
+            level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) ) );
     setCurrentRoom( room );
 
-    HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
+    const HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
     m_state.floor = h.y;
     if( m_state.current_anim_state != 2 || m_state.position.position.Y < h.y )
         return;

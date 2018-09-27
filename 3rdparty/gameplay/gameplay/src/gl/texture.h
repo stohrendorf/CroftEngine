@@ -12,7 +12,7 @@ class Texture : public RenderTarget
 {
 public:
     explicit Texture(GLenum type, const std::string& label = {})
-            : RenderTarget{glGenTextures, [type](GLuint handle) { glBindTexture( type, handle ); },
+            : RenderTarget{glGenTextures, [type](const GLuint handle) { glBindTexture( type, handle ); },
                            glDeleteTextures, GL_TEXTURE, label}
             , m_type{type}
     {
@@ -27,14 +27,14 @@ public:
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void set(GLenum param, GLint value)
+    void set(const GLenum param, const GLint value)
     {
         glTextureParameteri( getHandle(), param, value );
         checkGlError();
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void set(GLenum param, GLfloat value)
+    void set(const GLenum param, const GLfloat value)
     {
         glTextureParameterf( getHandle(), param, value );
         checkGlError();
@@ -102,8 +102,8 @@ public:
     }
 
     template<typename T>
-    void
-    image2D(GLint width, GLint height, const std::vector<T>& data, bool generateMipmaps, GLint multisample = 0)
+    void image2D(const GLint width, const GLint height, const std::vector<T>& data, const bool generateMipmaps,
+                 const GLint multisample = 0)
     {
         BOOST_ASSERT( width > 0 && height > 0 );
         BOOST_ASSERT(
@@ -121,7 +121,7 @@ public:
         m_width = width;
         m_height = height;
 
-        // Set initial minification filter based on whether or not mipmaping was enabled.
+        // Set initial minification filter based on whether or not mipmapping was enabled.
         set( GL_TEXTURE_MIN_FILTER, generateMipmaps ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR );
         checkGlError();
 
@@ -134,7 +134,7 @@ public:
         }
     }
 
-    void depthImage2D(GLint width, GLint height, GLint multisample = 0)
+    void depthImage2D(const GLint width, const GLint height, const GLint multisample = 0)
     {
         BOOST_ASSERT( width > 0 && height > 0 );
 
