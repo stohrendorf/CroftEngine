@@ -242,7 +242,7 @@ int Level::findStaticMeshIndexById(const uint32_t meshId) const
 {
     for( const auto& mesh : m_staticMeshes )
     {
-        if( mesh.id == meshId )
+        if( mesh.isVisible() && mesh.id == meshId )
         {
             BOOST_ASSERT( mesh.mesh < m_meshIndices.size() );
             return m_meshIndices[mesh.mesh];
@@ -858,6 +858,8 @@ void Level::triggerCdTrack(uint16_t trackId,
     if( trackId < 1 || trackId >= 64 )
         return;
 
+    BOOST_LOG_TRIVIAL( debug ) << "triggerCdTrack " << trackId;
+
     if( trackId < 28 )
     {
         // 1..27
@@ -1388,14 +1390,14 @@ void Level::chainBlockEffect()
 
 void Level::flickerEffect()
 {
-    if( m_effectTimer > 125 )
+    if( m_effectTimer == 90 || m_effectTimer == 92 || m_effectTimer == 105 || m_effectTimer == 107 )
+    {
+        swapAllRooms();
+    }
+    else if( m_effectTimer > 125 )
     {
         swapAllRooms();
         m_activeEffect.reset();
-    }
-    else if( m_effectTimer == 90 || m_effectTimer == 92 || m_effectTimer == 105 || m_effectTimer == 107 )
-    {
-        swapAllRooms();
     }
     ++m_effectTimer;
 }

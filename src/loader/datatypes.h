@@ -442,9 +442,7 @@ struct RoomVertex
         room_vertex.attributes = 0;
         // only in TR5
         room_vertex.normal = {0, 0, 0};
-        auto f = 1.0f - float( room_vertex.darkness ) / 0x1fff;
-        if( f == 0 )
-            f = 1;
+        const auto f = room_vertex.getBrightness();
         room_vertex.color = {f, f, f, 1};
         return room_vertex;
     }

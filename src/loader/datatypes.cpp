@@ -207,7 +207,9 @@ void Room::createSceneNode(
     for( const RoomStaticMesh& sm : this->staticMeshes )
     {
         const auto idx = level.findStaticMeshIndexById( sm.meshId );
-        BOOST_ASSERT( idx >= 0 );
+        if( idx < 0 )
+            continue;
+
         BOOST_ASSERT( static_cast<size_t>(idx) < staticMeshes.size() );
         auto subNode = make_not_null_shared<gameplay::Node>( "staticMesh" );
         subNode->setDrawable( staticMeshes[idx].get() );

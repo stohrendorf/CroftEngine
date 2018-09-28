@@ -349,7 +349,7 @@ void SkeletalModelNode::load(const YAML::Node& n)
     {
         Expects( n["patches"].IsSequence() );
 
-        if( n["patches"].size() > 0 )
+        if( n["patches"].size() > 0 && !m_bonePatches.empty() )
         {
             Expects( n["patches"].size() == m_bonePatches.size() );
             for( size_t i = 0; i < m_bonePatches.size(); ++i )
