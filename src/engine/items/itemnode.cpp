@@ -401,10 +401,10 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
         : ItemNode{level, room, item, hasUpdateFunction}
 {
-    const auto model = make_not_null_shared<gameplay::Sprite>( sprite.left_side,
-                                                               sprite.top_side,
-                                                               sprite.right_side - sprite.left_side,
-                                                               sprite.bottom_side - sprite.top_side,
+    const auto model = make_not_null_shared<gameplay::Sprite>( sprite.x0,
+                                                               sprite.y1,
+                                                               sprite.x1 - sprite.x0,
+                                                               sprite.y1 - sprite.y0,
                                                                sprite.t0,
                                                                sprite.t1,
                                                                material,

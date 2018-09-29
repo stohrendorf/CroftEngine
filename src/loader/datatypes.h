@@ -1197,13 +1197,13 @@ struct Sprite
 
     glm::vec2 t1;
 
-    int16_t left_side;
+    int16_t x0;
 
-    int16_t top_side;
+    int16_t y0;
 
-    int16_t right_side;
+    int16_t x1;
 
-    int16_t bottom_side;
+    int16_t y1;
 
     static std::unique_ptr<Sprite> readTr1(io::SDLReader& reader)
     {
@@ -1215,26 +1215,20 @@ struct Sprite
             BOOST_LOG_TRIVIAL( warning ) << "TR1 Sprite Texture ID > 64";
         }
 
-        const auto tx = reader.readU8();
-        const auto ty = reader.readU8();
+        sprite->t0.x = reader.readU8() / 256.0f;
+        sprite->t0.y = reader.readU8() / 256.0f;
         const auto tw = reader.readU16();
         const auto th = reader.readU16();
-        const auto tleft = reader.readI16();
-        const auto ttop = reader.readI16();
-        const auto tright = reader.readI16();
-        const auto tbottom = reader.readI16();
+        sprite->x0 = reader.readI16();
+        sprite->y0 = reader.readI16();
+        sprite->x1 = reader.readI16();
+        sprite->y1 = reader.readI16();
 
         const float w = tw / 256.0f;
         const float h = th / 256.0f;
-        sprite->t0.x = tx / 256.0f;
-        sprite->t0.y = ty / 256.0f;
         sprite->t1.x = sprite->t0.x + w / 256.0f;
         sprite->t1.y = sprite->t0.y + h / 256.0f;
 
-        sprite->left_side = tleft;
-        sprite->right_side = tright;
-        sprite->top_side = ttop;
-        sprite->bottom_side = tbottom;
         return sprite;
     }
 
@@ -1247,24 +1241,15 @@ struct Sprite
             BOOST_LOG_TRIVIAL( warning ) << "TR4 Sprite Texture ID > 128";
         }
 
-        const auto tx = reader.readU8();
-        const auto ty = reader.readU8();
-        const auto tw = reader.readU16();
-        const auto th = reader.readU16();
-        const auto tleft = reader.readI16();
-        const auto ttop = reader.readI16();
-        const auto tright = reader.readI16();
-        const auto tbottom = reader.readI16();
+        sprite->x0 = reader.readU8();
+        sprite->y1 = reader.readU8();
+        sprite->x1 = sprite->x0 + reader.readU16() / 256;
+        sprite->y0 = sprite->y1 + reader.readU16() / 256;
+        sprite->t0.x = reader.readI16() / 256.0f;
+        sprite->t1.y = reader.readI16() / 256.0f;
+        sprite->t0.y = reader.readI16() / 256.0f;
+        sprite->t1.x = reader.readI16() / 256.0f;
 
-        sprite->t0.x = tleft / 255.0f;
-        sprite->t0.y = tright / 255.0f;
-        sprite->t1.x = tbottom / 255.0f;
-        sprite->t1.y = ttop / 255.0f;
-
-        sprite->left_side = tx;
-        sprite->right_side = tx + tw / 256;
-        sprite->bottom_side = ty;
-        sprite->top_side = ty + th / 256;
         return sprite;
     }
 };
