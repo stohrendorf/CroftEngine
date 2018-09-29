@@ -410,10 +410,15 @@ void CameraController::update()
 
     if( m_eye.room->isWaterRoom() )
     {
-        if( !m_level->m_cdStream.expired() )
-            m_level->m_cdStream.lock()->getSource().lock()
-                   ->setDirectFilter( m_level->m_audioDev.getUnderwaterFilter() );
-        if( !m_underwaterAmbience.expired() )
+        if( !m_level->m_ambientStream.expired() )
+            m_level->m_ambientStream.lock()
+                   ->getSource().lock()->setDirectFilter( m_level->m_audioDev.getUnderwaterFilter() );
+
+        if( isPlaying( m_level->m_interceptStream ) )
+            m_level->m_interceptStream.lock()
+                   ->getSource().lock()->setDirectFilter( m_level->m_audioDev.getUnderwaterFilter() );
+
+        if( m_underwaterAmbience.expired() )
         {
             m_underwaterAmbience = m_level->playSound( 60, boost::none );
             m_underwaterAmbience.lock()->setLooping( true );
@@ -421,10 +426,20 @@ void CameraController::update()
     }
     else if( !m_underwaterAmbience.expired() )
     {
-        if( !m_level->m_cdStream.expired() )
-            m_level->m_cdStream.lock()->getSource().lock()->setDirectFilter( nullptr );
+        if( !m_level->m_ambientStream.expired() )
+            m_level->m_ambientStream.lock()->getSource().lock()->setDirectFilter( nullptr );
+
+        if( isPlaying( m_level->m_interceptStream ) )
+            m_level->m_interceptStream.lock()->getSource().lock()->setDirectFilter( nullptr );
+
         m_level->stopSoundEffect( 60 );
         m_underwaterAmbience.reset();
+    }
+
+    if( !isPlaying( m_level->m_interceptStream ) )
+    {
+        if( !m_level->m_ambientStream.expired() && m_level->m_ambientStream.lock()->getSource().lock()->isPaused() )
+            m_level->m_ambientStream.lock()->getSource().lock()->play();
     }
 
     if( m_mode == CameraMode::Cinematic )

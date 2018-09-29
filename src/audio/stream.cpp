@@ -17,19 +17,21 @@ Stream::Stream(Device& device, std::unique_ptr<AbstractStreamSource>&& src, cons
 
 void Stream::update()
 {
-    if( m_source.expired() )
+    if( m_source.expired() || m_source.lock()->isPaused() )
         return;
 
-    const auto s = m_source.lock();
+    const auto src = m_source.lock();
+    if( src->isStopped() && !m_looping )
+        return;
 
     ALint processed = 0;
-    alGetSourcei( s->get(), AL_BUFFERS_PROCESSED, &processed );
+    alGetSourcei( src->get(), AL_BUFFERS_PROCESSED, &processed );
     DEBUG_CHECK_AL_ERROR();
     if( processed == 0 )
         return;
 
     ALuint bufId;
-    alSourceUnqueueBuffers( s->get(), 1, &bufId );
+    alSourceUnqueueBuffers( src->get(), 1, &bufId );
     DEBUG_CHECK_AL_ERROR();
 
     if( bufId == m_buffers[0]->get() )
@@ -42,12 +44,11 @@ void Stream::update()
     }
     else
     {
-        BOOST_LOG_TRIVIAL( error ) << "Stream buffer torn, re-init";
-        init();
+        BOOST_LOG_TRIVIAL( warning ) << "Got unexpected buffer ID";
         return;
     }
 
-    alSourceQueueBuffers( s->get(), 1, &bufId );
+    alSourceQueueBuffers( src->get(), 1, &bufId );
     DEBUG_CHECK_AL_ERROR();
 }
 
@@ -56,22 +57,22 @@ void Stream::init()
     if( m_source.expired() )
         return;
 
-    const auto s = m_source.lock();
+    const auto src = m_source.lock();
 
     fillBuffer( *m_buffers[0] );
     fillBuffer( *m_buffers[1] );
 
-    auto tmp = m_buffers[0]->get();
-    alSourceQueueBuffers( s->get(), 1, &tmp );
+    auto buf = m_buffers[0]->get();
+    alSourceQueueBuffers( src->get(), 1, &buf );
     DEBUG_CHECK_AL_ERROR();
-    tmp = m_buffers[1]->get();
-    alSourceQueueBuffers( s->get(), 1, &tmp );
+    buf = m_buffers[1]->get();
+    alSourceQueueBuffers( src->get(), 1, &buf );
     DEBUG_CHECK_AL_ERROR();
 }
 
 void Stream::fillBuffer(BufferHandle& buffer)
 {
-    const auto framesRead = m_stream->readStereo( m_sampleBuffer.data(), m_sampleBuffer.size() / 2 );
+    const auto framesRead = m_stream->readStereo( m_sampleBuffer.data(), m_sampleBuffer.size() / 2, m_looping );
     buffer.fill( m_sampleBuffer.data(), framesRead * 2, 2, m_stream->getSampleRate() );
 }
 }

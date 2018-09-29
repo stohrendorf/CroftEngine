@@ -26,14 +26,15 @@ public:
 
     virtual ~AbstractStreamSource() = default;
 
-    virtual size_t readStereo(int16_t* buffer, size_t bufferSize) = 0;
+    virtual size_t readStereo(int16_t* buffer, size_t bufferSize, bool looping) = 0;
 
     virtual int getSampleRate() const = 0;
 
 protected:
     explicit AbstractStreamSource() = default;
 
-    static size_t readStereo(short* frameBuffer, const size_t frameCount, SNDFILE* sndFile, const bool sourceIsMono)
+    static size_t readStereo(short* frameBuffer, const size_t frameCount, SNDFILE* sndFile, const bool sourceIsMono,
+                             const bool looping)
     {
         size_t count = 0;
         while( count < frameCount )
@@ -41,9 +42,17 @@ protected:
             const auto n = sf_readf_short( sndFile, frameBuffer + count, frameCount - count );
             if( n <= 0 )
             {
-                // restart if there are not enough samples
-                sf_seek( sndFile, 0, SEEK_SET );
-                continue;
+                if( looping )
+                {
+                    // restart if there are not enough samples
+                    sf_seek( sndFile, 0, SEEK_SET );
+                    continue;
+                }
+                else
+                {
+                    std::fill_n( frameBuffer + count, frameCount - count, 0 );
+                    break;
+                }
             }
 
             count += n;
@@ -113,9 +122,9 @@ public:
         }
     }
 
-    size_t readStereo(int16_t* frameBuffer, const size_t frameCount) override
+    size_t readStereo(int16_t* frameBuffer, const size_t frameCount, const bool looping) override
     {
-        return AbstractStreamSource::readStereo( frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1 );
+        return AbstractStreamSource::readStereo( frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1, looping );
     }
 
     int getSampleRate() const override
@@ -144,9 +153,9 @@ public:
         }
     }
 
-    size_t readStereo(int16_t* frameBuffer, const size_t frameCount) override
+    size_t readStereo(int16_t* frameBuffer, const size_t frameCount, const bool looping) override
     {
-        return AbstractStreamSource::readStereo( frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1 );
+        return AbstractStreamSource::readStereo( frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1, looping );
     }
 
     int getSampleRate() const override

@@ -23,9 +23,15 @@ local function baddie_init(item)
 end
 
 local function baddie_interact(item, lara, coll_info)
-    if not item:is_near(lara, coll_info.radius) then return; end
-    if not item:test_bone_collision(lara) then return; end
-    if not coll_info:get_policy_flags().enable_baddie_push then return; end
+    if not item:is_near(lara, coll_info.radius) then
+        return
+    end
+    if not item:test_bone_collision(lara) then
+        return
+    end
+    if not coll_info:get_policy_flags().enable_baddie_push then
+        return
+    end
 
     local enable_spaz = (item.health > 0) and coll_info:get_policy_flags().enable_spaz
     item:do_enemy_push(lara, coll_info, enable_spaz, false);
@@ -269,5 +275,4 @@ infos[70].ceiling = function(item, x, y, z, base)
     return base
 end
 
-local module = { object_infos = infos }
-return module
+return infos

@@ -9,6 +9,8 @@
 
 #include "util/cimgwrapper.h"
 
+#include "audio/tracktype.h"
+
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -282,6 +284,13 @@ sol::state createScriptEngine()
                      "STALK", engine::ai::Mood::Stalk
     );
 
+    engine.new_enum( "TrackType",
+                     "AMBIENT", audio::TrackType::Ambient,
+                     "INTERCEPTION", audio::TrackType::Interception,
+                     "AMBIENT_EFFECT", audio::TrackType::AmbientEffect,
+                     "LARA_TALK", audio::TrackType::LaraTalk
+    );
+
     return engine;
 }
 
@@ -440,7 +449,7 @@ int main()
 
     if( trackToPlay )
     {
-        lvl->playCdTrack( trackToPlay.value() );
+        lvl->playStopCdTrack( trackToPlay.value(), false );
     }
 
     if( !cutsceneName.empty() )

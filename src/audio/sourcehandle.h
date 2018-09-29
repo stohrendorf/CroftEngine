@@ -137,6 +137,15 @@ public:
         return state == AL_STOPPED;
     }
 
+    bool isPaused() const
+    {
+        ALenum state = AL_STOPPED;
+        alGetSourcei( m_handle, AL_SOURCE_STATE, &state );
+        DEBUG_CHECK_AL_ERROR();
+
+        return state == AL_PAUSED;
+    }
+
     void setLooping(const bool isLooping)
     {
         set( AL_LOOPING, isLooping ? AL_TRUE : AL_FALSE );

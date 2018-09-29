@@ -1,4 +1,5 @@
-object_infos = (require "tr1.object_infos").object_infos
+object_infos = (require "tr1.object_infos")
+tracks = (require "tr1.audio")
 
 levelInfos = {
     {
@@ -177,7 +178,7 @@ levelInfos = {
 }
 
 cheats = {
-    godMode = false,
+    godMode = true,
     inventory = {
         Key1 = 10,
         Key2 = 10,
@@ -191,16 +192,23 @@ cheats = {
 }
 
 function getLevelInfo()
-    return levelInfos[13]
+    return levelInfos[3]
+    -- return levelInfos[22]
 end
 
 function getGlidosPack()
+    return nil
     -- return "assets/trx/1SilverlokAllVers/silverlok/"
-    return "assets/trx/JC levels 1-12/Textures/JC/"
+    -- return "assets/trx/JC levels 1-12/Textures/JC/"
+    -- return "assets/trx/JC levels 13-15/Textures/JC/"
 end
 
 function getObjectInfo(id)
     return object_infos[id]
+end
+
+function getTrackInfo(id)
+    return tracks[id]
 end
 
 print("Yay! Main script loaded.")

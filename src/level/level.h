@@ -355,11 +355,9 @@ public:
         return it->second.lock();
     }
 
-    void playStream(uint16_t trackId);
+    gsl::not_null<std::shared_ptr<audio::Stream>> playStream(uint16_t trackId);
 
-    void playCdTrack(uint16_t trackId);
-
-    void stopCdTrack(uint16_t trackId);
+    void playStopCdTrack(uint16_t trackId, bool stop);
 
     void triggerNormalCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest,
                               engine::floordata::SequenceCondition triggerType);
@@ -398,9 +396,9 @@ public:
         return false;
     }
 
-    std::weak_ptr<audio::Stream> m_cdStream;
-
-    int m_activeCDTrack = 0;
+    std::weak_ptr<audio::Stream> m_ambientStream;
+    std::weak_ptr<audio::Stream> m_interceptStream;
+    int m_currentTrack = -1;
 
     void useAlternativeLaraAppearance();
 

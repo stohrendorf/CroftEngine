@@ -39,6 +39,8 @@
 
 #include "util/md5.h"
 
+#include "audio/tracktype.h"
+
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -858,8 +860,6 @@ void Level::triggerCdTrack(uint16_t trackId,
     if( trackId < 1 || trackId >= 64 )
         return;
 
-    BOOST_LOG_TRIVIAL( debug ) << "triggerCdTrack " << trackId;
-
     if( trackId < 28 )
     {
         // 1..27
@@ -946,100 +946,106 @@ void Level::triggerNormalCdTrack(const uint16_t trackId,
 
     if( !m_cdTrackActivationStates[trackId].isFullyActivated() )
     {
-        stopCdTrack( trackId );
+        playStopCdTrack( trackId, true );
         return;
     }
 
     if( activationRequest.isOneshot() )
         m_cdTrackActivationStates[trackId].setOneshot( true );
 
-    if( m_activeCDTrack != trackId )
-        playCdTrack( trackId );
+    if( m_currentTrack != trackId )
+        playStopCdTrack( trackId, false );
 }
 
-void Level::playCdTrack(const uint16_t trackId)
+void Level::playStopCdTrack(const uint16_t trackId, bool stop)
 {
-    if( trackId == 13 )
-    {
-        playSound( 173, boost::none );
-        return;
-    }
+    const sol::table trackInfo = m_scriptEngine["getTrackInfo"].call( trackId );
 
-    if( trackId > 2 && trackId < 22 )
+    if( !trackInfo )
         return;
 
-    BOOST_LOG_TRIVIAL( debug ) << "Stopping track #" << m_activeCDTrack;
+    const int id = trackInfo["id"];
+    const audio::TrackType trackType = trackInfo["type"];
 
-    if( m_activeCDTrack >= 26 && m_activeCDTrack <= 56 )
+    switch( trackType )
     {
-        stopSoundEffect( gsl::narrow<uint16_t>( m_activeCDTrack + 148 ) );
+        case audio::TrackType::AmbientEffect:
+            if( !stop )
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play effect " << id;
+                playSound( id, boost::none );
+            }
+            else
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop effect " << id;
+                stopSoundEffect( id );
+            }
+            break;
+        case audio::TrackType::LaraTalk:
+            if( !stop )
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play lara talk " << id;
+                m_lara->playSoundEffect( id );
+            }
+            else
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop lara talk " << id;
+                stopSoundEffect( id );
+            }
+            break;
+        case audio::TrackType::Ambient:
+            if( !stop )
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play ambient " << id;
+                m_ambientStream = playStream( id ).get();
+                if( isPlaying( m_interceptStream ) )
+                    m_ambientStream.lock()->getSource().lock()->pause();
+                m_currentTrack = trackId;
+            }
+            else if( !m_ambientStream.expired() )
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << id;
+                m_audioDev.removeStream( m_ambientStream.lock() );
+                m_currentTrack = -1;
+            }
+            break;
+        case audio::TrackType::Interception:
+            if( !stop )
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play interception " << id;
+                if( !m_interceptStream.expired() )
+                    m_audioDev.removeStream( m_interceptStream.lock() );
+                if( !m_ambientStream.expired() )
+                    m_ambientStream.lock()->getSource().lock()->pause();
+                m_interceptStream = playStream( id ).get();
+                m_interceptStream.lock()->setLooping( false );
+                m_currentTrack = trackId;
+            }
+            else if( !m_interceptStream.expired() )
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop interception " << id;
+                m_audioDev.removeStream( m_interceptStream.lock() );
+                if( !m_ambientStream.expired() )
+                    m_ambientStream.lock()->getSource().lock()->play();
+                m_currentTrack = -1;
+            }
+            break;
     }
-    else if( m_activeCDTrack > 0 )
-    {
-        if( !m_cdStream.expired() )
-            m_audioDev.removeStream( m_cdStream.lock() );
-    }
-    m_activeCDTrack = 0;
-
-    BOOST_LOG_TRIVIAL( debug ) << "Playing track #" << trackId;
-
-    if( trackId >= 26 && trackId <= 56 )
-    {
-        m_lara->playSoundEffect( trackId + 148 );
-    }
-    else if( trackId >= 22 && trackId <= 25 )
-    {
-        // 22..25 -> 7..10: cinematic music
-        playStream( trackId - 15 );
-    }
-    else if( trackId == 2 )
-    {
-        // 2: title music
-        playStream( trackId );
-    }
-    else if( trackId > 56 )
-    {
-        // 57..60 -> 3..6: ambient+cinematic music
-        playStream( trackId - 54 );
-    }
-
-    m_activeCDTrack = trackId;
 }
 
-void Level::stopCdTrack(const uint16_t trackId)
-{
-    if( m_activeCDTrack == 0 )
-        return;
-
-    if( m_activeCDTrack < 26 || m_activeCDTrack > 56 )
-    {
-        if( !m_cdStream.expired() )
-            m_audioDev.removeStream( m_cdStream.lock() );
-    }
-    else
-    {
-        stopSoundEffect( static_cast<uint16_t>(trackId + 148) );
-    }
-
-    m_activeCDTrack = 0;
-}
-
-void Level::playStream(uint16_t trackId)
+gsl::not_null<std::shared_ptr<audio::Stream>> Level::playStream(uint16_t trackId)
 {
     static constexpr size_t DefaultBufferSize = 16384;
 
-    if( !m_cdStream.expired() )
-        m_audioDev.removeStream( m_cdStream.lock() );
-
     if( boost::filesystem::is_regular_file( "data/tr1/audio/CDAUDIO.WAD" ) )
-        m_cdStream = m_audioDev.createStream(
+        return m_audioDev.createStream(
                 std::make_unique<audio::WadStreamSource>( "data/tr1/audio/CDAUDIO.WAD", trackId ),
-                DefaultBufferSize ).get();
+                DefaultBufferSize );
     else
-        m_cdStream = m_audioDev.createStream(
+        return m_audioDev.createStream(
                 std::make_unique<audio::SndfileStreamSource>(
                         (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ),
-                DefaultBufferSize ).get();
+                DefaultBufferSize );
 }
 
 void Level::useAlternativeLaraAppearance()

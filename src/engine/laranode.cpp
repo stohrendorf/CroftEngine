@@ -845,7 +845,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
                 if( (m_secretsFoundBitmask & mask) == 0 )
                 {
                     m_secretsFoundBitmask |= mask;
-                    getLevel().playCdTrack( 13 );
+                    getLevel().playStopCdTrack( 13, false );
                 }
             }
                 break;
