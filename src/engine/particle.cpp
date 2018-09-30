@@ -25,15 +25,11 @@ void Particle::initDrawables(const level::Level& level)
         {
             const loader::Sprite& spr = level.m_sprites[spriteSequence->offset - i];
 
-            auto sprite = std::make_shared<gameplay::Sprite>(
-                    spr.x0,
-                    spr.y1,
-                    spr.x1 - spr.x0,
-                    spr.y1 - spr.y0,
-                    spr.t0,
-                    spr.t1,
-                    gsl::make_not_null( level.m_spriteMaterial ),
-                    gameplay::Sprite::Axis::Y
+            auto sprite = std::make_shared<gameplay::Sprite>( spr.x0, -spr.y0,
+                                                              spr.x1, -spr.y1,
+                                                              spr.t0, spr.t1,
+                                                              gsl::make_not_null( level.m_spriteMaterial ),
+                                                              gameplay::Sprite::Axis::Y
             );
             m_drawables.emplace_back( sprite );
             m_spriteTextures.emplace_back( spr.texture );

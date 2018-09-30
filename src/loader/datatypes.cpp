@@ -240,12 +240,9 @@ void Room::createSceneNode(
 
         const Sprite& sprite = level.m_sprites[spriteInstance.id];
 
-        const auto model = std::make_shared<gameplay::Sprite>( sprite.x0,
-                                                               sprite.y1,
-                                                               sprite.x1 - sprite.x0,
-                                                               sprite.y1 - sprite.y0,
-                                                               sprite.t0,
-                                                               sprite.t1,
+        const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
+                                                               sprite.x1, -sprite.y1,
+                                                               sprite.t0, sprite.t1,
                                                                gsl::make_not_null( level.m_spriteMaterial ),
                                                                gameplay::Sprite::Axis::Y );
 

@@ -4,12 +4,12 @@
 
 namespace gameplay
 {
-gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float left,
-                                                        const float bottom,
-                                                        const float width,
-                                                        const float height,
-                                                        const glm::vec2& uvTopLeft,
-                                                        const glm::vec2& uvBottomRight,
+gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
+                                                        const float y0,
+                                                        const float x1,
+                                                        const float y1,
+                                                        const glm::vec2& t0,
+                                                        const glm::vec2& t1,
                                                         const gsl::not_null<std::shared_ptr<Material>>& material,
                                                         const Axis pole)
 {
@@ -23,10 +23,10 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float left,
     };
 
     const SpriteVertex vertices[]{
-            {{left,         bottom,          0}, {uvTopLeft.x,     uvBottomRight.y}},
-            {{left + width, bottom,          0}, {uvBottomRight.x, uvBottomRight.y}},
-            {{left + width, bottom + height, 0}, {uvBottomRight.x, uvTopLeft.y}},
-            {{left,         bottom + height, 0}, {uvTopLeft.x,     uvTopLeft.y}}
+            {{x0, y0, 0}, {t0.x, t0.y}},
+            {{x1, y0, 0}, {t1.x, t0.y}},
+            {{x1, y1, 0}, {t1.x, t1.y}},
+            {{x0, y1, 0}, {t0.x, t1.y}}
     };
 
     gl::StructuredVertexBuffer::AttributeMapping layout{

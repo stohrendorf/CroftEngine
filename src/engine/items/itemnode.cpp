@@ -401,12 +401,9 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
         : ItemNode{level, room, item, hasUpdateFunction}
 {
-    const auto model = make_not_null_shared<gameplay::Sprite>( sprite.x0,
-                                                               sprite.y1,
-                                                               sprite.x1 - sprite.x0,
-                                                               sprite.y1 - sprite.y0,
-                                                               sprite.t0,
-                                                               sprite.t1,
+    const auto model = make_not_null_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
+                                                               sprite.x1, -sprite.y1,
+                                                               sprite.t0, sprite.t1,
                                                                material,
                                                                gameplay::Sprite::Axis::Y );
 
@@ -593,7 +590,7 @@ void ModelItemNode::emitParticle(const core::TRVec& localPosition,
 
     auto roomPos = m_state.position;
     roomPos.position = core::TRVec{
-            glm::vec3{translate( itemSpheres.at(boneIndex).m, localPosition.toRenderSystem() )[3]}};
+            glm::vec3{translate( itemSpheres.at( boneIndex ).m, localPosition.toRenderSystem() )[3]}};
     auto particle = generate( getLevel(), roomPos, m_state.speed, m_state.rotation.Y );
     getLevel().m_particles.emplace_back( particle );
 }
