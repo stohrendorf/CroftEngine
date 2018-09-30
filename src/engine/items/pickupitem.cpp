@@ -27,6 +27,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         };
 
         m_state.rotation.X = -25_deg;
+
         if( !limits.canInteract( m_state, lara.m_state ) )
         {
             return;
@@ -63,6 +64,8 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 {-10_deg, 0_deg, 0_deg},
                 {+10_deg, 0_deg, 0_deg}
         };
+
+        m_state.rotation.X = 0_deg;
 
         if( !limits.canInteract( m_state, lara.m_state ) )
         {
