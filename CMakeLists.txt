@@ -7,8 +7,8 @@ if( MSVC )
     # C4503: Name too long
     # C4996: "Call to 'std::copy_n' with parameters that may be unsafe" etc...
     add_definitions( -D_CRT_SECURE_NO_WARNINGS )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4996 /MP" )
-    set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Ob1" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4996 /wd4251 /wd4275 /MP" )
+    string( REPLACE "/Ob0" "/Ob1" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" )
 endif()
 
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
@@ -115,8 +115,8 @@ else()
     if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/CImg-v.2.3.6.zip" )
         message( STATUS "Downloading CImg..." )
         file( DOWNLOAD https://framagit.org/dtschump/CImg/-/archive/v.2.3.6/CImg-v.2.3.6.zip "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/CImg-v.2.3.6.zip"
-                STATUS status
-                LOG log )
+              STATUS status
+              LOG log )
         list( GET status 0 status_code )
         list( GET status 1 status_string )
 
@@ -128,8 +128,8 @@ else()
     if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/CImg-v.2.3.6" )
         message( STATUS "Extracting CImg..." )
         execute_process( COMMAND ${CMAKE_COMMAND} -E tar xfz CImg-v.2.3.6.zip
-                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
-                RESULT_VARIABLE rv )
+                         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
+                         RESULT_VARIABLE rv )
 
         if( NOT rv EQUAL 0 )
             message( FATAL_ERROR "Failed to extract CImg-v.2.3.6.zip" )
@@ -147,8 +147,8 @@ else()
     if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/sol-v2.20.4/sol.hpp" )
         message( STATUS "Downloading sol2..." )
         file( DOWNLOAD https://github.com/ThePhD/sol2/releases/download/v2.20.4/sol.hpp "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/sol-v2.20.4/sol.hpp"
-                STATUS status
-                LOG log )
+              STATUS status
+              LOG log )
         list( GET status 0 status_code )
         list( GET status 1 status_string )
 
@@ -165,8 +165,8 @@ if( NOT VCPKG_TOOLCHAIN )
     if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-v2.0.0.zip" )
         message( STATUS "Downloading ms-gsl..." )
         file( DOWNLOAD https://github.com/Microsoft/GSL/archive/v2.0.0.zip "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-v2.0.0.zip"
-                STATUS status
-                LOG log )
+              STATUS status
+              LOG log )
         list( GET status 0 status_code )
         list( GET status 1 status_string )
 
@@ -178,8 +178,8 @@ if( NOT VCPKG_TOOLCHAIN )
     if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/GSL-2.0.0" )
         message( STATUS "Extracting ms-gsl..." )
         execute_process( COMMAND ${CMAKE_COMMAND} -E tar xfz gsl-v2.0.0.zip
-                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
-                RESULT_VARIABLE rv )
+                         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
+                         RESULT_VARIABLE rv )
 
         if( NOT rv EQUAL 0 )
             message( FATAL_ERROR "Failed to extract gsl-v2.0.0.zip" )
