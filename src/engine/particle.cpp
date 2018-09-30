@@ -99,24 +99,22 @@ bool BubbleParticle::update(const level::Level& level)
 {
     angle.X += 13_deg;
     angle.Y += 9_deg;
-    const core::TRVec testPos{
-            static_cast<int>(11 * angle.Y.sin() + pos.position.X),
-            pos.position.Y - speed,
-            static_cast<int>((8 * angle.X.cos()) + pos.position.Z)
-    };
-    auto sector = level::Level::findRealFloorSector( testPos, make_not_null( &pos.room ) );
+    pos.position.X += 11 * angle.Y.sin();
+    pos.position.Y -= speed;
+    pos.position.Z += 8 * angle.X.cos();
+    auto sector = level::Level::findRealFloorSector( pos.position, make_not_null( &pos.room ) );
     if( sector == nullptr || !pos.room->isWaterRoom() )
     {
         return false;
     }
 
-    const auto ceiling = HeightInfo::fromCeiling( gsl::make_not_null( sector ), testPos, level.m_itemNodes ).y;
-    if( ceiling == -loader::HeightLimit || testPos.Y <= ceiling )
+    const auto ceiling = HeightInfo::fromCeiling( gsl::make_not_null( sector ), pos.position, level.m_itemNodes ).y;
+    if( ceiling == -loader::HeightLimit || pos.position.Y <= ceiling )
     {
         return false;
     }
 
-    pos.position = testPos;
+    applyTransform();
     return true;
 }
 }

@@ -30,7 +30,7 @@ constexpr T square(T v)
 
 inline int16_t rand15()
 {
-    return std::rand() & ((1 << 15) - 1);
+    return gsl::narrow_cast<int16_t>( std::rand() & ((1 << 15) - 1) );
 }
 
 template<typename T>

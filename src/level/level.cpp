@@ -1234,8 +1234,7 @@ void Level::laraBubblesEffect(engine::items::ItemNode& node)
                 nullptr );
 
         const auto position = core::TRVec{
-                glm::vec3{translate( itemSpheres[14].m,
-                                     core::TRVec{0, 0, 50}.toRenderSystem() )[3]}};
+                glm::vec3{translate( itemSpheres.at(14).m, core::TRVec{0, 0, 50}.toRenderSystem() )[3]}};
 
         while( bubbleCount-- > 0 )
         {

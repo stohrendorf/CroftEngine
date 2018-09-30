@@ -297,7 +297,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
     if( baseTransform == nullptr )
     {
         pos = state.position.position;
-        transforms.push( glm::mat4{1.0f} );
+        transforms.push( state.rotation.toMatrix() );
     }
     else
     {

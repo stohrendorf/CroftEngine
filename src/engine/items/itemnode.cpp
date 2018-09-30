@@ -593,7 +593,7 @@ void ModelItemNode::emitParticle(const core::TRVec& localPosition,
 
     auto roomPos = m_state.position;
     roomPos.position = core::TRVec{
-            glm::vec3{translate( itemSpheres[boneIndex].m, localPosition.toRenderSystem() )[3]}};
+            glm::vec3{translate( itemSpheres.at(boneIndex).m, localPosition.toRenderSystem() )[3]}};
     auto particle = generate( getLevel(), roomPos, m_state.speed, m_state.rotation.Y );
     getLevel().m_particles.emplace_back( particle );
 }
