@@ -91,20 +91,20 @@ struct TRVec
         return *this;
     }
 
-    constexpr glm::vec3 toRenderSystem() const noexcept
+    glm::vec3 toRenderSystem() const noexcept
     {
         return {
-                gsl::narrow_cast<glm::float_t>( X ),
-                -gsl::narrow_cast<glm::float_t>( Y ),
-                -gsl::narrow_cast<glm::float_t>( Z )
+                gsl::narrow_cast<float>( X ),
+                -gsl::narrow_cast<float>( Y ),
+                -gsl::narrow_cast<float>( Z )
         };
     }
 
     int distanceTo(const TRVec& rhs) const
     {
-        const auto dx = gsl::narrow<glm::float_t>( X - rhs.X );
-        const auto dy = gsl::narrow<glm::float_t>( Y - rhs.Y );
-        const auto dz = gsl::narrow<glm::float_t>( Z - rhs.Z );
+        const auto dx = gsl::narrow<float>( X - rhs.X );
+        const auto dy = gsl::narrow<float>( Y - rhs.Y );
+        const auto dz = gsl::narrow<float>( Z - rhs.Z );
         return static_cast<Scalar>(glm::sqrt( dx * dx + dy * dy + dz * dz ));
     }
 
@@ -144,7 +144,7 @@ struct TRVec
         Z = n["z"].as<Scalar>();
     }
 
-    glm::float_t length() const
+    float length() const
     {
         return glm::length( toRenderSystem() );
     }

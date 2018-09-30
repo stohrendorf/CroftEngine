@@ -355,7 +355,7 @@ void SkeletalModelNode::load(const YAML::Node& n)
             for( size_t i = 0; i < m_bonePatches.size(); ++i )
                 for( int x = 0, elem = 0; x < 4; ++x )
                     for( int y = 0; y < 4; ++y, ++elem )
-                        m_bonePatches[i][x][y] = n["patches"][i][elem].as<glm::float_t>();
+                        m_bonePatches[i][x][y] = n["patches"][i][elem].as<float>();
         }
     }
 }
