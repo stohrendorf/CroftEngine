@@ -289,6 +289,8 @@ set( EDISONENGINE_SRCS
      engine/items/trapdoordown.h
      engine/items/trapdoorup.cpp
      engine/items/trapdoorup.h
+     engine/items/trex.cpp
+     engine/items/trex.h
      engine/items/underwaterswitch.h
      engine/items/underwaterswitch.cpp
      engine/items/waterfallmist.h

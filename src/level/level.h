@@ -400,7 +400,7 @@ public:
     std::weak_ptr<audio::Stream> m_interceptStream;
     int m_currentTrack = -1;
 
-    void useAlternativeLaraAppearance();
+    void useAlternativeLaraAppearance(bool withHead = false);
 
     const gsl::not_null<std::shared_ptr<gameplay::Model>>& getModel(const size_t idx) const
     {

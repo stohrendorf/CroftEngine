@@ -85,6 +85,16 @@ infos[9].target_update_chance = 0x400
 infos[9].initialise = baddie_init
 infos[9].collison = baddie_interact
 
+-- TRex
+infos[18].ai_agent = true
+infos[18].radius = 341
+infos[18].hit_points = 100
+infos[18].pivot_length = 2000
+infos[18].shadow_size = 64
+infos[18].target_update_chance = 0x7fff
+infos[18].initialise = baddie_init
+infos[18].collison = baddie_interact
+
 -- Raptor
 infos[19].ai_agent = true
 infos[19].radius = 341

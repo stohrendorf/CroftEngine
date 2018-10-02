@@ -33,6 +33,7 @@
 #include "engine/items/teethspikes.h"
 #include "engine/items/trapdoordown.h"
 #include "engine/items/trapdoorup.h"
+#include "engine/items/trex.h"
 #include "engine/items/underwaterswitch.h"
 #include "engine/items/waterfallmist.h"
 #include "engine/items/wolf.h"
@@ -467,6 +468,10 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             {
                 modelNode = std::make_shared<engine::items::WaterfallMist>( gsl::make_not_null( this ), room, item,
                                                                             *model );
+            }
+            else if( item.type == engine::TR1ItemId::TRex )
+            {
+                modelNode = std::make_shared<engine::items::TRex>( gsl::make_not_null( this ), room, item, *model );
             }
             else
             {
@@ -1048,7 +1053,7 @@ gsl::not_null<std::shared_ptr<audio::Stream>> Level::playStream(uint16_t trackId
                 DefaultBufferSize );
 }
 
-void Level::useAlternativeLaraAppearance()
+void Level::useAlternativeLaraAppearance(const bool withHead)
 {
     const auto& base = *m_animatedModels[engine::TR1ItemId::Lara];
     BOOST_ASSERT( gsl::narrow<size_t>( base.models.size() ) == m_lara->getNode()->getChildren().size() );
@@ -1056,11 +1061,12 @@ void Level::useAlternativeLaraAppearance()
     const auto& alternate = *m_animatedModels[engine::TR1ItemId::AlternativeLara];
     BOOST_ASSERT( gsl::narrow<size_t>( alternate.models.size() ) == m_lara->getNode()->getChildren().size() );
 
+
     for( size_t i = 0; i < m_lara->getNode()->getChildren().size(); ++i )
         m_lara->getNode()->getChild( i )->setDrawable( alternate.models[i].get() );
 
-    // Don't replace the head.
-    m_lara->getNode()->getChild( 14 )->setDrawable( base.models[14].get() );
+    if( !withHead )
+        m_lara->getNode()->getChild( 14 )->setDrawable( base.models[14].get() );
 }
 
 void Level::postProcessDataStructures()
@@ -1234,7 +1240,7 @@ void Level::laraBubblesEffect(engine::items::ItemNode& node)
                 nullptr );
 
         const auto position = core::TRVec{
-                glm::vec3{translate( itemSpheres.at(14).m, core::TRVec{0, 0, 50}.toRenderSystem() )[3]}};
+                glm::vec3{translate( itemSpheres.at( 14 ).m, core::TRVec{0, 0, 50}.toRenderSystem() )[3]}};
 
         while( bubbleCount-- > 0 )
         {
