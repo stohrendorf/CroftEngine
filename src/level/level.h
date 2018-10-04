@@ -8,6 +8,7 @@
 #include "engine/items/itemnode.h"
 #include "engine/items_tr1.h"
 #include "engine/sounds_tr1.h"
+#include "engine/tracks_tr1.h"
 #include "game.h"
 #include "loader/animation.h"
 #include "loader/datatypes.h"
@@ -359,12 +360,14 @@ public:
 
     gsl::not_null<std::shared_ptr<audio::Stream>> playStream(size_t trackId);
 
-    void playStopCdTrack(uint16_t trackId, bool stop);
+    void playStopCdTrack(engine::TR1TrackId trackId, bool stop);
 
-    void triggerNormalCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest,
+    void triggerNormalCdTrack(engine::TR1TrackId trackId,
+                              const engine::floordata::ActivationState& activationRequest,
                               engine::floordata::SequenceCondition triggerType);
 
-    void triggerCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest,
+    void triggerCdTrack(engine::TR1TrackId trackId,
+                        const engine::floordata::ActivationState& activationRequest,
                         engine::floordata::SequenceCondition triggerType);
 
     void stopSoundEffect(const engine::TR1SoundId soundId) const
@@ -400,7 +403,7 @@ public:
 
     std::weak_ptr<audio::Stream> m_ambientStream;
     std::weak_ptr<audio::Stream> m_interceptStream;
-    int m_currentTrack = -1;
+    boost::optional<engine::TR1TrackId> m_currentTrack;
     boost::optional<engine::TR1SoundId> m_currentLaraTalk;
 
     void useAlternativeLaraAppearance(bool withHead = false);
@@ -635,7 +638,7 @@ private:
     createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath,
                  sol::state&& scriptEngine);
 
-    std::array<engine::floordata::ActivationState, 64> m_cdTrackActivationStates;
+    std::array<engine::floordata::ActivationState, static_cast<size_t>(engine::TR1TrackId::Sentinel)> m_cdTrackActivationStates;
 
     int m_cdTrack50time = 0;
 

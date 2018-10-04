@@ -17,7 +17,7 @@ levelInfos = {
         -- 2
         baseName = "LEVEL1",
         name = "Caves",
-        track = 57,
+        track = TR1TrackId.Ambience1,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
@@ -25,7 +25,7 @@ levelInfos = {
         -- 3
         baseName = "LEVEL2",
         name = "City of Vilcabamba",
-        track = 57,
+        track = TR1TrackId.Ambience1,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
@@ -33,7 +33,7 @@ levelInfos = {
         -- 4
         baseName = "LEVEL3A",
         name = "Lost Valley",
-        track = 57,
+        track = TR1TrackId.Ambience1,
         secrets = 5,
         inventory = { Pistols = 1 }
     },
@@ -41,13 +41,13 @@ levelInfos = {
         -- 5
         baseName = "LEVEL3B",
         name = "Tomb of Qualopec",
-        track = 57,
+        track = TR1TrackId.Ambience1,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
     {
         cutscene = "CUT1",
-        track = 23,
+        track = TR1TrackId.Cutscene2,
         cameraPosX = 36668,
         cameraPosZ = 63180,
         cameraRot = -128
@@ -59,7 +59,7 @@ levelInfos = {
         -- 6
         baseName = "LEVEL4",
         name = "St. Francis' Folly",
-        track = 59,
+        track = TR1TrackId.Ambience3,
         secrets = 4,
         inventory = { Pistols = 1 }
     },
@@ -67,7 +67,7 @@ levelInfos = {
         -- 7
         baseName = "LEVEL5",
         name = "Colosseum",
-        track = 59,
+        track = TR1TrackId.Ambience3,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
@@ -75,7 +75,7 @@ levelInfos = {
         -- 8
         baseName = "LEVEL6",
         name = "Palace Midas",
-        track = 59,
+        track = TR1TrackId.Ambience3,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
@@ -83,13 +83,13 @@ levelInfos = {
         -- 9
         baseName = "LEVEL7A",
         name = "The Cistern",
-        track = 58,
+        track = TR1TrackId.Ambience2,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
     {
         cutscene = "CUT2",
-        track = 25,
+        track = TR1TrackId.Cutscene4,
         cameraPosX = 51962,
         cameraPosZ = 53760,
         cameraRot = 90,
@@ -99,7 +99,7 @@ levelInfos = {
         -- 10
         baseName = "LEVEL7B",
         name = "Tomb of Tihocan",
-        track = 58,
+        track = TR1TrackId.Ambience2,
         secrets = 2,
         inventory = { Pistols = 1 }
     },
@@ -110,7 +110,7 @@ levelInfos = {
         -- 11
         baseName = "LEVEL8A",
         name = "City of Khamoon",
-        track = 59,
+        track = TR1TrackId.Ambience3,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
@@ -118,7 +118,7 @@ levelInfos = {
         -- 12
         baseName = "LEVEL8B",
         name = "Obelisk of Khamoon",
-        track = 59,
+        track = TR1TrackId.Ambience3,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
@@ -126,13 +126,13 @@ levelInfos = {
         -- 13
         baseName = "LEVEL8C",
         name = "Sanctuary of the Scion",
-        track = 59,
+        track = TR1TrackId.Ambience3,
         secrets = 1,
         inventory = { Pistols = 1 }
     },
     {
         cutscene = "CUT3",
-        track = 24,
+        track = TR1TrackId.Cutscene3,
         flipRooms = true,
         cameraRot = 90
     },
@@ -143,13 +143,13 @@ levelInfos = {
         -- 14
         baseName = "LEVEL10A",
         name = "Natla's Mines",
-        track = 58,
+        track = TR1TrackId.Ambience2,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
     {
         cutscene = "CUT4",
-        track = 22,
+        track = TR1TrackId.Cutscene1,
         cameraRot = 90,
         gunSwap = true
     },
@@ -160,7 +160,7 @@ levelInfos = {
         -- 15
         baseName = "LEVEL10B",
         name = "Atlantis",
-        track = 60,
+        track = TR1TrackId.Ambience4,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
@@ -171,14 +171,14 @@ levelInfos = {
         -- 16
         baseName = "LEVEL10C",
         name = "The Great Pyramid",
-        track = 60,
+        track = TR1TrackId.Ambience4,
         secrets = 3,
         inventory = { Pistols = 1 }
     }
 }
 
 cheats = {
-    godMode = true,
+    godMode = false,
     inventory = {
         Key1 = 10,
         Key2 = 10,

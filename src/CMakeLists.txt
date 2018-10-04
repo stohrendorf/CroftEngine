@@ -123,6 +123,7 @@ wrap_enum( ControllerAxis int ${CMAKE_CURRENT_SOURCE_DIR}/controlleraxes.txt ${C
 wrap_enum( ControllerButton int ${CMAKE_CURRENT_SOURCE_DIR}/controllerbuttons.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controllerbutton_enum.h )
 wrap_enum( TR1ItemId int ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1_enum.h )
 wrap_enum( TR1SoundId int ${CMAKE_CURRENT_SOURCE_DIR}/sounds_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/sounds_tr1_enum.h )
+wrap_enum( TR1TrackId int ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1_enum.h )
 
 set( EDISONENGINE_SRCS
      edisonengine.cpp

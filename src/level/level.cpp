@@ -858,63 +858,65 @@ void Level::drawBars(const gsl::not_null<gameplay::Game*>& game,
     }
 }
 
-void Level::triggerCdTrack(uint16_t trackId,
+void Level::triggerCdTrack(engine::TR1TrackId trackId,
                            const engine::floordata::ActivationState& activationRequest,
                            const engine::floordata::SequenceCondition triggerType)
 {
-    if( trackId < 1 || trackId >= m_cdTrackActivationStates.size() )
+    if( trackId >= engine::TR1TrackId::Sentinel )
         return;
 
-    if( trackId < 28 )
+    const auto trackIdN = static_cast<size_t>(trackId);
+
+    if( trackId < engine::TR1TrackId::LaraTalk2 )
     {
         // 1..27
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
-    else if( trackId == 28 )
+    else if( trackId == engine::TR1TrackId::LaraTalk2 )
     {
         // 28
-        if( m_cdTrackActivationStates[trackId].isOneshot()
+        if( m_cdTrackActivationStates[trackIdN].isOneshot()
             && m_lara->getCurrentAnimState() == loader::LaraStateId::JumpUp )
         {
-            trackId = 29;
+            trackId = engine::TR1TrackId::LaraTalk3;
         }
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
-    else if( trackId < 41 )
+    else if( trackId < engine::TR1TrackId::LaraTalk15 )
     {
         // 29..40
-        if( trackId != 37 )
+        if( trackId != engine::TR1TrackId::LaraTalk11 )
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
-    else if( trackId == 41 )
+    else if( trackId == engine::TR1TrackId::LaraTalk15 )
     {
         // 41
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
-    else if( trackId == 42 )
+    else if( trackId == engine::TR1TrackId::LaraTalk16 )
     {
         // 42
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::Hang )
-            triggerNormalCdTrack( 43, activationRequest, triggerType );
+            triggerNormalCdTrack( engine::TR1TrackId::LaraTalk17, activationRequest, triggerType );
         else
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
-    else if( trackId < 49 )
+    else if( trackId < engine::TR1TrackId::LaraTalk23 )
     {
         // 43..48
         triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
-    else if( trackId == 49 )
+    else if( trackId == engine::TR1TrackId::LaraTalk23 )
     {
         // 49
         if( m_lara->getCurrentAnimState() == loader::LaraStateId::OnWaterStop )
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
-    else if( trackId == 50 )
+    else if( trackId == engine::TR1TrackId::LaraTalk24 )
     {
-        // 50 -> LaraTalk24 "Right. Now I better take off these wet clothes"
-        if( m_cdTrackActivationStates[trackId].isOneshot() )
+        // LaraTalk24 "Right. Now I better take off these wet clothes"
+        if( m_cdTrackActivationStates[trackIdN].isOneshot() )
         {
             if( ++m_cdTrack50time == 120 )
             {
@@ -935,34 +937,39 @@ void Level::triggerCdTrack(uint16_t trackId,
     }
 }
 
-void Level::triggerNormalCdTrack(const uint16_t trackId,
+void Level::triggerNormalCdTrack(const engine::TR1TrackId trackId,
                                  const engine::floordata::ActivationState& activationRequest,
                                  const engine::floordata::SequenceCondition triggerType)
 {
-    if( m_cdTrackActivationStates[trackId].isOneshot() )
+    if( trackId >= engine::TR1TrackId::Sentinel )
+        return;
+
+    const auto trackIdN = static_cast<size_t>(trackId);
+
+    if( m_cdTrackActivationStates[trackIdN].isOneshot() )
         return;
 
     if( triggerType == engine::floordata::SequenceCondition::ItemActivated )
-        m_cdTrackActivationStates[trackId] ^= activationRequest.getActivationSet();
+        m_cdTrackActivationStates[trackIdN] ^= activationRequest.getActivationSet();
     else if( triggerType == engine::floordata::SequenceCondition::LaraOnGroundInverted )
-        m_cdTrackActivationStates[trackId] &= ~activationRequest.getActivationSet();
+        m_cdTrackActivationStates[trackIdN] &= ~activationRequest.getActivationSet();
     else
-        m_cdTrackActivationStates[trackId] |= activationRequest.getActivationSet();
+        m_cdTrackActivationStates[trackIdN] |= activationRequest.getActivationSet();
 
-    if( !m_cdTrackActivationStates[trackId].isFullyActivated() )
+    if( !m_cdTrackActivationStates[trackIdN].isFullyActivated() )
     {
         playStopCdTrack( trackId, true );
         return;
     }
 
     if( activationRequest.isOneshot() )
-        m_cdTrackActivationStates[trackId].setOneshot( true );
+        m_cdTrackActivationStates[trackIdN].setOneshot( true );
 
-    if( m_currentTrack != trackId )
+    if( !m_currentTrack.is_initialized() || *m_currentTrack != trackId )
         playStopCdTrack( trackId, false );
 }
 
-void Level::playStopCdTrack(const uint16_t trackId, bool stop)
+void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
 {
     const sol::table trackInfo = m_scriptEngine["getTrackInfo"].call( trackId );
 
@@ -1024,7 +1031,7 @@ void Level::playStopCdTrack(const uint16_t trackId, bool stop)
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo["id"]);
                 m_audioDev.removeStream( m_ambientStream.lock() );
-                m_currentTrack = -1;
+                m_currentTrack.reset();
             }
             break;
         case audio::TrackType::Interception:
@@ -1047,7 +1054,7 @@ void Level::playStopCdTrack(const uint16_t trackId, bool stop)
                 m_audioDev.removeStream( m_interceptStream.lock() );
                 if( !m_ambientStream.expired() )
                     m_ambientStream.lock()->getSource().lock()->play();
-                m_currentTrack = -1;
+                m_currentTrack.reset();
             }
             break;
     }

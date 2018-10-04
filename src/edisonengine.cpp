@@ -298,6 +298,12 @@ sol::state createScriptEngine()
             tbl[entry.second] = static_cast<std::underlying_type_t<engine::TR1SoundId>>(entry.first);
     }
 
+    {
+        sol::table tbl = engine.create_table("TR1TrackId");
+        for( const auto& entry : engine::EnumUtil<engine::TR1TrackId>::all() )
+            tbl[entry.second] = static_cast<std::underlying_type_t<engine::TR1TrackId>>(entry.first);
+    }
+
     return engine;
 }
 
@@ -401,7 +407,7 @@ int main()
 
     const auto baseName = cutsceneName.empty() ? levelInfo.get<std::string>( "baseName" ) : cutsceneName;
     Expects( !baseName.empty() );
-    sol::optional<uint32_t> trackToPlay = levelInfo["track"];
+    sol::optional<engine::TR1TrackId> trackToPlay = levelInfo["track"];
     const std::string levelName = levelInfo["name"];
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );
 

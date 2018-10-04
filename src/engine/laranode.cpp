@@ -836,7 +836,8 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
                 getLevel().m_levelFinished = true;
                 break;
             case floordata::CommandOpcode::PlayTrack:
-                getLevel().triggerCdTrack( command.parameter, activationRequest, chunkHeader.sequenceCondition );
+                getLevel().triggerCdTrack( static_cast<TR1TrackId>(command.parameter),
+                                           activationRequest, chunkHeader.sequenceCondition );
                 break;
             case floordata::CommandOpcode::Secret:
             {
@@ -845,7 +846,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
                 if( (m_secretsFoundBitmask & mask) == 0 )
                 {
                     m_secretsFoundBitmask |= mask;
-                    getLevel().playStopCdTrack( 13, false );
+                    getLevel().playStopCdTrack( TR1TrackId::Secret, false );
                 }
             }
                 break;
