@@ -66,7 +66,7 @@ public:
         dart->activate();
         dart->m_state.triggerState = TriggerState::Active;
 
-        playSoundEffect( 0x97 );
+        playSoundEffect( TR1SoundId::DartgunShoot );
         ModelItemNode::update();
     }
 };

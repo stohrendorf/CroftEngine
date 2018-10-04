@@ -14,6 +14,7 @@
 #include <boost/range/adaptors.hpp>
 #include <boost/filesystem/operations.hpp>
 
+#include <type_traits>
 #include <utility>
 
 namespace
@@ -290,6 +291,12 @@ sol::state createScriptEngine()
                      "AMBIENT_EFFECT", audio::TrackType::AmbientEffect,
                      "LARA_TALK", audio::TrackType::LaraTalk
     );
+
+    {
+        sol::table tbl = engine.create_table("TR1SoundId");
+        for( const auto& entry : engine::EnumUtil<engine::TR1SoundId>::all() )
+            tbl[entry.second] = static_cast<std::underlying_type_t<engine::TR1SoundId>>(entry.first);
+    }
 
     return engine;
 }

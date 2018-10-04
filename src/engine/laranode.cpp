@@ -403,7 +403,7 @@ void LaraNode::update()
         const core::TRVec& pos = m_state.position.position + core::TRVec( 0, 100, 0 );
         m_state.position.position = pos;
         updateFloorHeight( 0 );
-        getLevel().stopSoundEffect( 30 );
+        getLevel().stopSoundEffect( TR1SoundId::LaraScream );
         if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
         {
             m_state.rotation.X = -45_deg;
@@ -432,7 +432,7 @@ void LaraNode::update()
         BOOST_ASSERT( waterSurfaceHeight.is_initialized() );
         auto room = m_state.position.room;
         level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) );
-        playSoundEffect( 33 );
+        playSoundEffect( TR1SoundId::LaraFallIntoWater );
         for( int i = 0; i < 10; ++i )
         {
             core::RoomBoundPosition surfacePos{room};
@@ -471,7 +471,7 @@ void LaraNode::update()
             m_state.position.position.Y = *waterSurfaceHeight + 1;
             m_swimToDiveKeypressDuration = 11;
             updateFloorHeight( -381 );
-            playSoundEffect( 36 );
+            playSoundEffect( TR1SoundId::LaraCatchingAir );
         }
     }
     else if( m_underwaterState == UnderwaterState::Swimming && !m_state.position.room->isWaterRoom() )
@@ -595,7 +595,7 @@ void LaraNode::updateImpl()
                 case AnimCommandOpcode::PlaySound:
                     if( m_state.frame_number == cmd[0] )
                     {
-                        playSoundEffect( cmd[1] );
+                        playSoundEffect( static_cast<TR1SoundId>(cmd[1]) );
                     }
                     cmd += 2;
                     break;
@@ -1412,7 +1412,7 @@ void LaraNode::unholsterGuns(const WeaponId weaponId)
     else if( nextFrame == 13 )
     {
         overrideLaraMeshesUnholsterGuns( weaponId );
-        playSoundEffect( 6 );
+        playSoundEffect( TR1SoundId::LaraUnholster );
     }
     else if( nextFrame == 23 )
     {
@@ -1570,7 +1570,7 @@ void LaraNode::unholsterShotgun()
     {
         overrideLaraMeshesUnholsterShotgun();
 
-        playSoundEffect( 6 );
+        playSoundEffect( TR1SoundId::LaraUnholster );
     }
     else if( nextFrame == 47 )
     {
@@ -1659,7 +1659,7 @@ void LaraNode::updateAnimShotgun()
                 }
                 if( nextFrame == 57 )
                 {
-                    playSoundEffect( 9 );
+                    playSoundEffect( TR1SoundId::LaraPistolsCocking );
                     rightArm.frame = aimingFrame;
                     leftArm.frame = aimingFrame;
                     return;
@@ -1731,7 +1731,7 @@ void LaraNode::updateAnimShotgun()
             }
             if( nextFrame == 57 )
             {
-                playSoundEffect( 9 );
+                playSoundEffect( TR1SoundId::LaraPistolsCocking );
                 rightArm.frame = aimingFrame;
                 leftArm.frame = aimingFrame;
                 return;
@@ -1833,7 +1833,7 @@ void LaraNode::holsterShotgun()
             getNode()->getChild( 10 )->setDrawable( normalLara.models[10].get() );
             getNode()->getChild( 13 )->setDrawable( normalLara.models[13].get() );
 
-            playSoundEffect( 6 );
+            playSoundEffect( TR1SoundId::LaraUnholster );
         }
         else if( leftArm.frame == 113 )
         {
@@ -1894,7 +1894,7 @@ void LaraNode::holsterGuns(const WeaponId weaponId)
             getNode()->getChild( 1 )->setDrawable( src.models[1].get() );
             getNode()->getChild( 13 )->setDrawable( normalLara.models[13].get() );
 
-            playSoundEffect( 7 );
+            playSoundEffect( TR1SoundId::LaraHolster );
         }
     }
 
@@ -1936,7 +1936,7 @@ void LaraNode::holsterGuns(const WeaponId weaponId)
             getNode()->getChild( 4 )->setDrawable( src.models[4].get() );
             getNode()->getChild( 10 )->setDrawable( normalLara.models[10].get() );
 
-            playSoundEffect( 7 );
+            playSoundEffect( TR1SoundId::LaraHolster );
         }
     }
 
@@ -2078,7 +2078,7 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
     if( ammoPtr->ammo <= 0 )
     {
         ammoPtr->ammo = 0;
-        playSoundEffect( 48 );
+        playSoundEffect( TR1SoundId::EmptyAmmo );
         requestedGunType = WeaponId::Pistols;
         return false;
     }
@@ -2152,7 +2152,7 @@ void LaraNode::playShotMissed(const core::RoomBoundPosition& pos)
     const auto particle = make_not_null_shared<RicochetParticle>( pos, getLevel() );
     setParent( particle, m_state.position.room->node );
     getLevel().m_particles.emplace_back( particle );
-    getLevel().playSound( 10, pos.position.toRenderSystem() );
+    getLevel().playSound( TR1SoundId::Ricochet, pos.position.toRenderSystem() );
 }
 
 void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const int damage)
@@ -2171,27 +2171,27 @@ void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const i
     if( item.m_state.health <= 0 )
         return;
 
-    int soundId;
+    TR1SoundId soundId;
     switch( item.m_state.type )
     {
         case TR1ItemId::Wolf:
-            soundId = 20;
+            soundId = TR1SoundId::WolfHurt;
             break;
         case TR1ItemId::Bear:
-            soundId = 16;
+            soundId = TR1SoundId::Snarl3;
             break;
         case TR1ItemId::LionMale:
         case TR1ItemId::LionFemale:
-            soundId = 0x55;
+            soundId = TR1SoundId::LionSnarl;
             break;
         case TR1ItemId::RatOnLand:
-            soundId = 0x5f;
+            soundId = TR1SoundId::RatHurt;
             break;
         case TR1ItemId::SkateboardKid:
-            soundId = 0x84;
+            soundId = TR1SoundId::SkateboardKidHurt;
             break;
         case TR1ItemId::TorsoBoss:
-            soundId = 0x8e;
+            soundId = TR1SoundId::TorsoBossHurt;
             break;
         default:
             return;

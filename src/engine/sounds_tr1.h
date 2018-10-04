@@ -1,13 +1,12 @@
 #pragma once
 
-#include <cstdint>
 #include <map>
 #include <string>
 #include <stdexcept>
 
-namespace loader
+namespace engine
 {
 
-#include "larastateid_enum.h"
+#include "sounds_tr1_enum.h"
 
 }

@@ -15,6 +15,7 @@ src/loader/larastateid_enum.h
 src/engine/controlleraxis_enum.h
 src/engine/controllerbutton_enum.h
 src/engine/items_tr1_enum.h
+src/engine/sounds_tr1_enum.h
 
 *.log
 *.dll

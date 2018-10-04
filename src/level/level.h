@@ -7,6 +7,7 @@
 #include "engine/particle.h"
 #include "engine/items/itemnode.h"
 #include "engine/items_tr1.h"
+#include "engine/sounds_tr1.h"
 #include "game.h"
 #include "loader/animation.h"
 #include "loader/datatypes.h"
@@ -278,13 +279,14 @@ public:
         return src;
     }
 
-    std::shared_ptr<audio::SourceHandle> playSound(const int id, const boost::optional<glm::vec3>& position)
+    std::shared_ptr<audio::SourceHandle> playSound(const engine::TR1SoundId id,
+                                                   const boost::optional<glm::vec3>& position)
     {
-        Expects( id >= 0 && static_cast<size_t>(id) < m_soundmap.size() );
-        const auto snd = m_soundmap[id];
+        Expects( static_cast<size_t>(id) < m_soundmap.size() );
+        const auto snd = m_soundmap[static_cast<size_t>(id)];
         if( snd < 0 )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << id;
+            BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << toString( id );
             return nullptr;
         }
 
@@ -355,7 +357,7 @@ public:
         return it->second.lock();
     }
 
-    gsl::not_null<std::shared_ptr<audio::Stream>> playStream(uint16_t trackId);
+    gsl::not_null<std::shared_ptr<audio::Stream>> playStream(size_t trackId);
 
     void playStopCdTrack(uint16_t trackId, bool stop);
 
@@ -365,10 +367,10 @@ public:
     void triggerCdTrack(uint16_t trackId, const engine::floordata::ActivationState& activationRequest,
                         engine::floordata::SequenceCondition triggerType);
 
-    void stopSoundEffect(const uint16_t soundId) const
+    void stopSoundEffect(const engine::TR1SoundId soundId) const
     {
-        BOOST_ASSERT( soundId < m_soundmap.size() );
-        const auto& details = m_soundDetails[m_soundmap[soundId]];
+        BOOST_ASSERT( static_cast<size_t>(soundId) < m_soundmap.size() );
+        const auto& details = m_soundDetails[m_soundmap[static_cast<size_t>(soundId)]];
         const size_t first = details.sample;
         const size_t last = first + details.getSampleCount();
 
@@ -379,10 +381,10 @@ public:
         }
 
         if( !anyStopped )
-            BOOST_LOG_TRIVIAL( debug ) << "Attempting to stop sound #" << soundId << " (samples " << first << ".."
-                                       << (last - 1) << ") didn't stop any samples";
+            BOOST_LOG_TRIVIAL( debug ) << "Attempting to stop sound " << toString( soundId )
+                                       << " (samples " << first << ".." << (last - 1) << ") didn't stop any samples";
         else
-            BOOST_LOG_TRIVIAL( debug ) << "Stopped samples of sound #" << soundId;
+            BOOST_LOG_TRIVIAL( debug ) << "Stopped samples of sound " << toString( soundId );
     }
 
     bool stopSample(const size_t id) const
@@ -399,6 +401,7 @@ public:
     std::weak_ptr<audio::Stream> m_ambientStream;
     std::weak_ptr<audio::Stream> m_interceptStream;
     int m_currentTrack = -1;
+    boost::optional<engine::TR1SoundId> m_currentLaraTalk;
 
     void useAlternativeLaraAppearance(bool withHead = false);
 

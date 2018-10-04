@@ -147,7 +147,7 @@ void Block::update()
         m_state.falling = false;
         m_state.triggerState = TriggerState::Deactivated;
         getLevel().dinoStompEffect( *this );
-        playSoundEffect( 70 );
+        playSoundEffect( TR1SoundId::TRexFootstep );
     }
 
     setCurrentRoom( pos.room );

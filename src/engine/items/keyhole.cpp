@@ -26,7 +26,7 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     if( m_state.triggerState == TriggerState::Invisible )
     {
-        lara.playSoundEffect( 2 );
+        lara.playSoundEffect( TR1SoundId::LaraNo );
         return;
     }
 
@@ -50,7 +50,7 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
     if( !hasKey )
     {
-        lara.playSoundEffect( 2 );
+        lara.playSoundEffect( TR1SoundId::LaraNo );
         return;
     }
 

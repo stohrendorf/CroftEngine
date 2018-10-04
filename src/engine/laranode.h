@@ -85,7 +85,7 @@ public:
         w.targetDist = 8 * loader::SectorSize;
         w.recoilFrame = 9;
         w.flashTime = 3;
-        w.sampleNum = 8;
+        w.sampleNum = TR1SoundId::LaraShootPistols;
         weapons[WeaponId::Pistols] = w;
 
         w.lockAngles.y.min = -60_deg;
@@ -107,7 +107,7 @@ public:
         w.targetDist = 8 * loader::SectorSize;
         w.recoilFrame = 9;
         w.flashTime = 3;
-        w.sampleNum = 44;
+        w.sampleNum = TR1SoundId::CowboyShoot;
         weapons[WeaponId::AutoPistols] = w;
 
         w.lockAngles.y.min = -60_deg;
@@ -129,7 +129,7 @@ public:
         w.targetDist = 8 * loader::SectorSize;
         w.recoilFrame = 3;
         w.flashTime = 2;
-        w.sampleNum = 43;
+        w.sampleNum = TR1SoundId::LaraShootUzis;
         weapons[WeaponId::Uzi] = w;
 
         w.lockAngles.y.min = -60_deg;
@@ -151,7 +151,7 @@ public:
         w.targetDist = 8 * loader::SectorSize;
         w.recoilFrame = 9;
         w.flashTime = 3;
-        w.sampleNum = 45;
+        w.sampleNum = TR1SoundId::LaraShootShotgun;
         weapons[WeaponId::Shotgun] = w;
 
         m_state.health = core::LaraHealth;
@@ -408,7 +408,7 @@ public:
         Expects( hit_direction.is_initialized() );
         if( hit_frame == 0 )
         {
-            playSoundEffect( 0x1b );
+            playSoundEffect( TR1SoundId::LaraOof );
         }
         if( ++hit_frame > 34 )
         {
@@ -511,7 +511,7 @@ public:
         int32_t targetDist = 0;
         int16_t recoilFrame = 0;
         int16_t flashTime = 0;
-        int16_t sampleNum = 0;
+        TR1SoundId sampleNum = TR1SoundId::LaraFootstep;
     };
 
     std::unordered_map<WeaponId, Weapon> weapons;

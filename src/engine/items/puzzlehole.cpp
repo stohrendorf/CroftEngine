@@ -36,7 +36,7 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
         if( m_state.triggerState == TriggerState::Invisible )
         {
-            lara.playSoundEffect( 2 );
+            lara.playSoundEffect( TR1SoundId::LaraNo );
             return;
         }
 
@@ -60,7 +60,7 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         }
         if( !hasPuzzlePiece )
         {
-            lara.playSoundEffect( 2 );
+            lara.playSoundEffect( TR1SoundId::LaraNo );
             return;
         }
 

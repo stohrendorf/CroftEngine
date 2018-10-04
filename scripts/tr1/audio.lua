@@ -10,7 +10,7 @@ local tracks = {
     [10] = { id = 17, type = TrackType.INTERCEPTION }, -- Midas
     [11] = { id = 18, type = TrackType.INTERCEPTION }, -- Lever
     [12] = { id = 19, type = TrackType.INTERCEPTION }, -- Hmm...
-    [13] = { id = 173, type = TrackType.AMBIENT_EFFECT }, -- Secret theme
+    [13] = { id = TR1SoundId.SecretFound, type = TrackType.AMBIENT_EFFECT }, -- Secret theme
     [14] = { id = 20, type = TrackType.INTERCEPTION }, -- Big secret theme
     [15] = { id = 21, type = TrackType.INTERCEPTION }, -- Raiders
     [16] = { id = 22, type = TrackType.INTERCEPTION }, -- Wolf
@@ -31,7 +31,7 @@ local tracks = {
 
 for i = 26, 56 do
     tracks[i] = {
-        id = i + 148,
+        id = i - 26 + TR1SoundId.LaraTalk0,
         type = TrackType.LARA_TALK
     }
 end

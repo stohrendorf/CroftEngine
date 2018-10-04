@@ -2,6 +2,7 @@
 
 #include "io/sdlreader.h"
 #include "level/game.h"
+#include "engine/sounds_tr1.h"
 
 namespace loader
 {
@@ -34,14 +35,14 @@ enum class ReverbType : uint8_t
 struct SoundSource
 {
     core::TRVec position;
-    uint16_t sound_id; // internal sound index
+    engine::TR1SoundId sound_id;
     uint16_t flags; // 0x40, 0x80, or 0xc0
 
     static std::unique_ptr<SoundSource> read(io::SDLReader& reader)
     {
         std::unique_ptr<SoundSource> sound_source{new SoundSource()};
         sound_source->position = readCoordinates32( reader );
-        sound_source->sound_id = reader.readU16();
+        sound_source->sound_id = static_cast<engine::TR1SoundId>(reader.readU16());
         sound_source->flags = reader.readU16();
         return sound_source;
     }

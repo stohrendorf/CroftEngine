@@ -862,7 +862,7 @@ void Level::triggerCdTrack(uint16_t trackId,
                            const engine::floordata::ActivationState& activationRequest,
                            const engine::floordata::SequenceCondition triggerType)
 {
-    if( trackId < 1 || trackId >= 64 )
+    if( trackId < 1 || trackId >= m_cdTrackActivationStates.size() )
         return;
 
     if( trackId < 28 )
@@ -913,7 +913,7 @@ void Level::triggerCdTrack(uint16_t trackId,
     }
     else if( trackId == 50 )
     {
-        // 50
+        // 50 -> LaraTalk24 "Right. Now I better take off these wet clothes"
         if( m_cdTrackActivationStates[trackId].isOneshot() )
         {
             if( ++m_cdTrack50time == 120 )
@@ -969,7 +969,6 @@ void Level::playStopCdTrack(const uint16_t trackId, bool stop)
     if( !trackInfo )
         return;
 
-    const int id = trackInfo["id"];
     const audio::TrackType trackType = trackInfo["type"];
 
     switch( trackType )
@@ -977,39 +976,53 @@ void Level::playStopCdTrack(const uint16_t trackId, bool stop)
         case audio::TrackType::AmbientEffect:
             if( !stop )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play effect " << id;
-                playSound( id, boost::none );
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play effect "
+                                           << toString( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
+                playSound( static_cast<engine::TR1SoundId>(trackInfo["id"]), boost::none );
             }
             else
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop effect " << id;
-                stopSoundEffect( id );
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop effect "
+                                           << toString( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
+                stopSoundEffect( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
             }
             break;
         case audio::TrackType::LaraTalk:
             if( !stop )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play lara talk " << id;
-                m_lara->playSoundEffect( id );
+                const auto sfxId = static_cast<engine::TR1SoundId>(trackInfo["id"]);
+
+                if( !m_currentLaraTalk.is_initialized() || *m_currentLaraTalk != sfxId )
+                {
+                    BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play lara talk " << toString( sfxId );
+
+                    if( m_currentLaraTalk.is_initialized() )
+                        stopSoundEffect( *m_currentLaraTalk );
+
+                    m_lara->playSoundEffect( sfxId );
+                    m_currentLaraTalk = sfxId;
+                }
             }
             else
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop lara talk " << id;
-                stopSoundEffect( id );
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop lara talk "
+                                           << toString( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
+                stopSoundEffect( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
+                m_currentLaraTalk.reset();
             }
             break;
         case audio::TrackType::Ambient:
             if( !stop )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play ambient " << id;
-                m_ambientStream = playStream( id ).get();
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo["id"]);
+                m_ambientStream = playStream( trackInfo["id"] ).get();
                 if( isPlaying( m_interceptStream ) )
                     m_ambientStream.lock()->getSource().lock()->pause();
                 m_currentTrack = trackId;
             }
             else if( !m_ambientStream.expired() )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << id;
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo["id"]);
                 m_audioDev.removeStream( m_ambientStream.lock() );
                 m_currentTrack = -1;
             }
@@ -1017,18 +1030,20 @@ void Level::playStopCdTrack(const uint16_t trackId, bool stop)
         case audio::TrackType::Interception:
             if( !stop )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play interception " << id;
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play interception "
+                                           << static_cast<size_t>(trackInfo["id"]);
                 if( !m_interceptStream.expired() )
                     m_audioDev.removeStream( m_interceptStream.lock() );
                 if( !m_ambientStream.expired() )
                     m_ambientStream.lock()->getSource().lock()->pause();
-                m_interceptStream = playStream( id ).get();
+                m_interceptStream = playStream( trackInfo["id"] ).get();
                 m_interceptStream.lock()->setLooping( false );
                 m_currentTrack = trackId;
             }
             else if( !m_interceptStream.expired() )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop interception " << id;
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop interception "
+                                           << static_cast<size_t>(trackInfo["id"]);
                 m_audioDev.removeStream( m_interceptStream.lock() );
                 if( !m_ambientStream.expired() )
                     m_ambientStream.lock()->getSource().lock()->play();
@@ -1038,7 +1053,7 @@ void Level::playStopCdTrack(const uint16_t trackId, bool stop)
     }
 }
 
-gsl::not_null<std::shared_ptr<audio::Stream>> Level::playStream(uint16_t trackId)
+gsl::not_null<std::shared_ptr<audio::Stream>> Level::playStream(size_t trackId)
 {
     static constexpr size_t DefaultBufferSize = 16384;
 
@@ -1060,7 +1075,6 @@ void Level::useAlternativeLaraAppearance(const bool withHead)
 
     const auto& alternate = *m_animatedModels[engine::TR1ItemId::AlternativeLara];
     BOOST_ASSERT( gsl::narrow<size_t>( alternate.models.size() ) == m_lara->getNode()->getChildren().size() );
-
 
     for( size_t i = 0; i < m_lara->getNode()->getChildren().size(); ++i )
         m_lara->getNode()->getChild( i )->setDrawable( alternate.models[i].get() );
@@ -1232,7 +1246,7 @@ void Level::laraBubblesEffect(engine::items::ItemNode& node)
     auto bubbleCount = util::rand15( 3 );
     if( bubbleCount != 0 )
     {
-        node.playSoundEffect( 37 );
+        node.playSoundEffect( engine::TR1SoundId::LaraUnderwaterGurgle );
 
         const auto itemSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
                 node.m_state,
@@ -1262,19 +1276,19 @@ void Level::earthquakeEffect()
     switch( m_effectTimer )
     {
         case 0:
-            playSound( 99, boost::none );
+            playSound( engine::TR1SoundId::Explosion, boost::none );
             m_cameraController->setBounce( -250 );
             break;
         case 3:
-            playSound( 147, boost::none );
+            playSound( engine::TR1SoundId::RollingBall, boost::none );
             break;
         case 35:
-            playSound( 99, boost::none );
+            playSound( engine::TR1SoundId::Explosion, boost::none );
             break;
         case 20:
         case 50:
         case 70:
-            playSound( 70, boost::none );
+            playSound( engine::TR1SoundId::TRexFootstep, boost::none );
             break;
         default:
             // silence compiler
@@ -1303,7 +1317,7 @@ void Level::floodEffect()
             mul = 30 - m_effectTimer;
         }
         pos.Y = 100 * mul + m_cameraController->getCenter().position.Y;
-        playSound( 81, pos.toRenderSystem() );
+        playSound( engine::TR1SoundId::WaterFlow3, pos.toRenderSystem() );
     }
     else
     {
@@ -1314,7 +1328,7 @@ void Level::floodEffect()
 
 void Level::chandelierEffect()
 {
-    playSound( 117, boost::none );
+    playSound( engine::TR1SoundId::GlassyFlow, boost::none );
     m_activeEffect.reset();
 }
 
@@ -1322,7 +1336,7 @@ void Level::raisingBlockEffect()
 {
     if( m_effectTimer++ == 5 )
     {
-        playSound( 119, boost::none );
+        playSound( engine::TR1SoundId::Clank, boost::none );
         m_activeEffect.reset();
     }
 }
@@ -1333,11 +1347,11 @@ void Level::stairsToSlopeEffect()
     {
         if( m_effectTimer == 0 )
         {
-            playSound( 161, boost::none );
+            playSound( engine::TR1SoundId::HeavyDoorSlam, boost::none );
         }
         auto pos = m_cameraController->getCenter().position;
         pos.Y += 100 * m_effectTimer;
-        playSound( 118, pos.toRenderSystem() );
+        playSound( engine::TR1SoundId::FlowingAir, pos.toRenderSystem() );
     }
     else
     {
@@ -1352,7 +1366,7 @@ void Level::sandEffect()
     {
         auto pos = m_cameraController->getCenter().position;
         pos.Y += 100 * m_effectTimer;
-        playSound( 155, pos.toRenderSystem() );
+        playSound( engine::TR1SoundId::LowHum, pos.toRenderSystem() );
     }
     else
     {
@@ -1363,7 +1377,7 @@ void Level::sandEffect()
 
 void Level::explosionEffect()
 {
-    playSound( 170, boost::none );
+    playSound( engine::TR1SoundId::LowPitchedSettling, boost::none );
     m_cameraController->setBounce( -75 );
     m_activeEffect.reset();
 }
@@ -1389,12 +1403,12 @@ void Level::chainBlockEffect()
 {
     if( m_effectTimer == 0 )
     {
-        playSound( 173, boost::none );
+        playSound( engine::TR1SoundId::SecretFound, boost::none );
     }
     ++m_effectTimer;
     if( m_effectTimer == 55 )
     {
-        playSound( 33, boost::none );
+        playSound( engine::TR1SoundId::LaraFallIntoWater, boost::none );
         m_activeEffect.reset();
     }
 }
@@ -1671,7 +1685,7 @@ bool Level::tryUseInventoryItem(const engine::TR1ItemId id)
             m_lara->m_state.health = core::LaraHealth;
         }
         takeInventoryItem( engine::TR1ItemId::LargeMedipackSprite );
-        playSound( 116, m_lara->m_state.position.position.toRenderSystem() );
+        playSound( engine::TR1SoundId::LaraSigh, m_lara->m_state.position.position.toRenderSystem() );
     }
     else if( id == engine::TR1ItemId::SmallMedipack || id == engine::TR1ItemId::SmallMedipackSprite )
     {
@@ -1689,7 +1703,7 @@ bool Level::tryUseInventoryItem(const engine::TR1ItemId id)
             m_lara->m_state.health = core::LaraHealth;
         }
         takeInventoryItem( engine::TR1ItemId::SmallMedipackSprite );
-        playSound( 116, m_lara->m_state.position.position.toRenderSystem() );
+        playSound( engine::TR1SoundId::LaraSigh, m_lara->m_state.position.position.toRenderSystem() );
     }
 
     return true;

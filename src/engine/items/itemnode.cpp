@@ -203,7 +203,7 @@ void ModelItemNode::update()
             case AnimCommandOpcode::PlaySound:
                 if( m_state.frame_number == cmd[0] )
                 {
-                    playSoundEffect( cmd[1] );
+                    playSoundEffect( static_cast<TR1SoundId>(cmd[1]) );
                 }
                 cmd += 2;
                 break;
@@ -239,9 +239,9 @@ void ItemNode::deactivate()
     m_isActive = false;
 }
 
-std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const int id)
+std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const TR1SoundId id)
 {
-    auto handle = getLevel().playSound( id, m_state.position.position.toRenderSystem() );
+    const auto handle = getLevel().playSound( id, m_state.position.position.toRenderSystem() );
     if( handle != nullptr )
     {
         m_sounds.emplace_back( handle );
@@ -512,7 +512,7 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
             getLevel().m_lara->hit_direction = axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
             if( getLevel().m_lara->hit_frame == 0 )
             {
-                lara.playSoundEffect( 27 );
+                lara.playSoundEffect( TR1SoundId::LaraOof );
             }
             if( ++getLevel().m_lara->hit_frame > 34 )
             {

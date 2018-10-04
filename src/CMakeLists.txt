@@ -64,6 +64,8 @@ function( wrap_enum name type source dest )
     # EnumUtil specialization
     file( APPEND "${dest}" "template<> struct EnumUtil<${name}>\n" )
     file( APPEND "${dest}" "{\n" )
+
+    # fromString()
     file( APPEND "${dest}" "    static ${name} fromString(const std::string& value)\n" )
     file( APPEND "${dest}" "    {\n" )
     foreach( _val IN LISTS _vals )
@@ -86,6 +88,32 @@ function( wrap_enum name type source dest )
     endforeach()
     file( APPEND "${dest}" "        throw std::domain_error(\"Value '\" + value + \"' invalid for enum '${name}'\");\n" )
     file( APPEND "${dest}" "    }\n" )
+
+    # all()
+    file( APPEND "${dest}" "    static std::map<${name}, std::string> all()\n" )
+    file( APPEND "${dest}" "    {\n" )
+    file( APPEND "${dest}" "        return {\n" )
+    foreach( _val IN LISTS _vals )
+        # remove trailing whitespace/comments
+        string( REGEX REPLACE "//.*\$" "" _val "${_val}" )
+        string( REPLACE " " "" _val "${_val}" )
+        string( REPLACE "\t" "" _val "${_val}" )
+        if( _val STREQUAL "" )
+            continue()
+        endif()
+        string( REGEX REPLACE "=.+\$" "" _ename "${_val}" )
+        if( _ename STREQUAL "" )
+            continue()
+        endif()
+        if( _eval STREQUAL "" )
+            continue()
+        endif()
+        # emit: { enum, string },
+        file( APPEND "${dest}" "            {${name}::${_ename}, \"${_ename}\"},\n" )
+    endforeach()
+    file( APPEND "${dest}" "        };\n" )
+    file( APPEND "${dest}" "    }\n" )
+
     file( APPEND "${dest}" "};\n" )
 endfunction()
 
@@ -94,6 +122,7 @@ wrap_enum( LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_C
 wrap_enum( ControllerAxis int ${CMAKE_CURRENT_SOURCE_DIR}/controlleraxes.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controlleraxis_enum.h )
 wrap_enum( ControllerButton int ${CMAKE_CURRENT_SOURCE_DIR}/controllerbuttons.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controllerbutton_enum.h )
 wrap_enum( TR1ItemId int ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1_enum.h )
+wrap_enum( TR1SoundId int ${CMAKE_CURRENT_SOURCE_DIR}/sounds_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/sounds_tr1_enum.h )
 
 set( EDISONENGINE_SRCS
      edisonengine.cpp

@@ -269,7 +269,7 @@ public:
 
     virtual bool triggerSwitch(uint16_t arg) = 0;
 
-    std::shared_ptr<audio::SourceHandle> playSoundEffect(int id);
+    std::shared_ptr<audio::SourceHandle> playSoundEffect(TR1SoundId id);
 
     bool triggerPickUp();
 
