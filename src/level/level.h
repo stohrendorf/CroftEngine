@@ -314,6 +314,7 @@ public:
         std::shared_ptr<audio::SourceHandle> handle;
         if( details.getPlaybackType( Engine::TR1 ) == loader::PlaybackType::Looping )
         {
+            BOOST_LOG_TRIVIAL( debug ) << "Play looping sound " << toString( id );
             handle = playSample( sample, pitch, volume, position );
             handle->setLooping( true );
         }
@@ -322,6 +323,7 @@ public:
             handle = findSample( sample );
             if( handle != nullptr )
             {
+                BOOST_LOG_TRIVIAL( debug ) << "Update restarting sound " << toString( id );
                 handle->setPitch( pitch );
                 handle->setGain( volume );
                 if( position.is_initialized() )
@@ -330,6 +332,7 @@ public:
             }
             else
             {
+                BOOST_LOG_TRIVIAL( debug ) << "Play restarting sound " << toString( id );
                 handle = playSample( sample, pitch, volume, position );
             }
         }
@@ -338,11 +341,17 @@ public:
             handle = findSample( sample );
             if( handle == nullptr )
             {
+                BOOST_LOG_TRIVIAL( debug ) << "Play non-playing sound " << toString( id );
                 handle = playSample( sample, pitch, volume, position );
+            }
+            else
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "Not playing already playing sound " << toString( id );
             }
         }
         else
         {
+            BOOST_LOG_TRIVIAL( debug ) << "Unknown play mode - playing sound " << toString( id );
             handle = playSample( sample, pitch, volume, position );
         }
 

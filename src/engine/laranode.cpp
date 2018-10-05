@@ -2179,11 +2179,11 @@ void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const i
             soundId = TR1SoundId::WolfHurt;
             break;
         case TR1ItemId::Bear:
-            soundId = TR1SoundId::Snarl3;
+            soundId = TR1SoundId::BearHurt;
             break;
         case TR1ItemId::LionMale:
         case TR1ItemId::LionFemale:
-            soundId = TR1SoundId::LionSnarl;
+            soundId = TR1SoundId::LionHurt;
             break;
         case TR1ItemId::RatOnLand:
             soundId = TR1SoundId::RatHurt;

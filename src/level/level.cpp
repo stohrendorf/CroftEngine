@@ -1283,14 +1283,14 @@ void Level::earthquakeEffect()
     switch( m_effectTimer )
     {
         case 0:
-            playSound( engine::TR1SoundId::Explosion, boost::none );
+            playSound( engine::TR1SoundId::Explosion1, boost::none );
             m_cameraController->setBounce( -250 );
             break;
         case 3:
             playSound( engine::TR1SoundId::RollingBall, boost::none );
             break;
         case 35:
-            playSound( engine::TR1SoundId::Explosion, boost::none );
+            playSound( engine::TR1SoundId::Explosion1, boost::none );
             break;
         case 20:
         case 50:
