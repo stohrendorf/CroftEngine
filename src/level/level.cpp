@@ -991,7 +991,7 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop effect "
                                            << toString( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
-                stopSoundEffect( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
+                stopSound( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
             }
             break;
         case audio::TrackType::LaraTalk:
@@ -1004,7 +1004,7 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
                     BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play lara talk " << toString( sfxId );
 
                     if( m_currentLaraTalk.is_initialized() )
-                        stopSoundEffect( *m_currentLaraTalk );
+                        stopSound( *m_currentLaraTalk );
 
                     m_lara->playSoundEffect( sfxId );
                     m_currentLaraTalk = sfxId;
@@ -1014,7 +1014,7 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop lara talk "
                                            << toString( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
-                stopSoundEffect( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
+                stopSound( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
                 m_currentLaraTalk.reset();
             }
             break;
@@ -1824,4 +1824,145 @@ void Level::load(const YAML::Node& node)
     }
 
     m_cameraController->load( node["camera"] );
+}
+
+std::shared_ptr<audio::SourceHandle> Level::playSound(const engine::TR1SoundId id,
+                                                      const boost::optional<glm::vec3>& position)
+{
+    Expects( static_cast<size_t>(id) < m_soundmap.size() );
+    const auto snd = m_soundmap[static_cast<size_t>(id)];
+    if( snd < 0 )
+    {
+        BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << toString( id );
+        return nullptr;
+    }
+
+    BOOST_ASSERT( snd >= 0 && static_cast<size_t>(snd) < m_soundDetails.size() );
+    const loader::SoundDetails& details = m_soundDetails[snd];
+    if( details.chance != 0 && util::rand15() > details.chance )
+        return nullptr;
+
+    size_t sample = details.sample;
+    if( details.getSampleCount() > 1 )
+        sample += util::rand15( details.getSampleCount() );
+    BOOST_ASSERT( sample < m_sampleIndices.size() );
+
+    float pitch = 1;
+    if( details.useRandomPitch() )
+        pitch = 0.9f + util::rand15( 0.2f );
+
+    float volume = util::clamp( static_cast<float>(details.volume) / 0x7fff, 0.0f, 1.0f );
+    if( details.useRandomVolume() )
+        volume -= util::rand15( 0.25f );
+    if( volume <= 0 )
+        return nullptr;
+
+    std::shared_ptr<audio::SourceHandle> handle;
+    if( details.getPlaybackType( Engine::TR1 ) == loader::PlaybackType::Looping )
+    {
+        handle = findSample( sample );
+        if( handle == nullptr )
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "Play looping sound " << toString( id );
+            handle = playSample( sample, pitch, volume, position );
+            handle->setLooping( true );
+            handle->play();
+        }
+        else
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "Looping sound " << toString( id ) << " already playing";
+        }
+    }
+    else if( details.getPlaybackType( Engine::TR1 ) == loader::PlaybackType::Restart )
+    {
+        handle = findSample( sample );
+        if( handle != nullptr )
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "Update restarting sound " << toString( id );
+            handle->setPitch( pitch );
+            handle->setGain( volume );
+            if( position.is_initialized() )
+                handle->setPosition( *position );
+            handle->play();
+        }
+        else
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "Play restarting sound " << toString( id );
+            handle = playSample( sample, pitch, volume, position );
+        }
+    }
+    else if( details.getPlaybackType( Engine::TR1 ) == loader::PlaybackType::Wait )
+    {
+        handle = findSample( sample );
+        if( handle == nullptr )
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "Play non-playing sound " << toString( id );
+            handle = playSample( sample, pitch, volume, position );
+        }
+        else
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "Not playing already playing sound " << toString( id );
+        }
+    }
+    else
+    {
+        BOOST_LOG_TRIVIAL( debug ) << "Default play mode - playing sound " << toString( id );
+        handle = playSample( sample, pitch, volume, position );
+    }
+
+    return handle;
+}
+
+gsl::not_null<std::shared_ptr<audio::SourceHandle>> Level::playSample(const size_t sample,
+                                                                      const float pitch,
+                                                                      const float volume,
+                                                                      const boost::optional<glm::vec3>& pos)
+{
+    Expects( sample < m_sampleIndices.size() );
+
+    auto buf = m_audioDev.createBuffer();
+    const auto offset = m_sampleIndices[sample];
+    BOOST_ASSERT( offset < m_samplesData.size() );
+    buf->fillFromWav( &m_samplesData[offset] );
+
+    auto src = m_audioDev.createSource();
+    src->setBuffer( buf );
+    src->setPitch( pitch );
+    src->setGain( volume );
+    if( pos.is_initialized() )
+    {
+        src->setPosition( *pos );
+    }
+    else
+    {
+        src->set( AL_SOURCE_RELATIVE, AL_TRUE );
+        src->set( AL_POSITION, 0, 0, 0 );
+        src->set( AL_VELOCITY, 0, 0, 0 );
+    }
+
+    src->play();
+
+    m_samples[sample] = src.get();
+
+    return src;
+}
+
+void Level::stopSound(const engine::TR1SoundId soundId) const
+{
+    BOOST_ASSERT( static_cast<size_t>(soundId) < m_soundmap.size() );
+    const auto& details = m_soundDetails[m_soundmap[static_cast<size_t>(soundId)]];
+    const size_t first = details.sample;
+    const size_t last = first + details.getSampleCount();
+
+    bool anyStopped = false;
+    for( size_t i = first; i < last; ++i )
+    {
+        anyStopped |= stopSample( i );
+    }
+
+    if( !anyStopped )
+        BOOST_LOG_TRIVIAL( debug ) << "Attempting to stop sound " << toString( soundId )
+                                   << " (samples " << first << ".." << (last - 1) << ") didn't stop any sample";
+    else
+        BOOST_LOG_TRIVIAL( debug ) << "Stopped samples of sound " << toString( soundId );
 }

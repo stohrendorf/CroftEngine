@@ -403,7 +403,7 @@ void LaraNode::update()
         const core::TRVec& pos = m_state.position.position + core::TRVec( 0, 100, 0 );
         m_state.position.position = pos;
         updateFloorHeight( 0 );
-        getLevel().stopSoundEffect( TR1SoundId::LaraScream );
+        getLevel().stopSound( TR1SoundId::LaraScream );
         if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
         {
             m_state.rotation.X = -45_deg;

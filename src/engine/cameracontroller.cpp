@@ -432,7 +432,7 @@ void CameraController::update()
         if( isPlaying( m_level->m_interceptStream ) )
             m_level->m_interceptStream.lock()->getSource().lock()->setDirectFilter( nullptr );
 
-        m_level->stopSoundEffect( TR1SoundId::UnderwaterAmbience );
+        m_level->stopSound( TR1SoundId::UnderwaterAmbience );
         m_underwaterAmbience.reset();
     }
 
