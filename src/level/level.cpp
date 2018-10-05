@@ -1027,10 +1027,10 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
                     m_ambientStream.lock()->getSource().lock()->pause();
                 m_currentTrack = trackId;
             }
-            else if( !m_ambientStream.expired() )
+            else if( const auto str = m_ambientStream.lock() )
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo["id"]);
-                m_audioDev.removeStream( m_ambientStream.lock() );
+                m_audioDev.removeStream( str );
                 m_currentTrack.reset();
             }
             break;
@@ -1039,21 +1039,21 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play interception "
                                            << static_cast<size_t>(trackInfo["id"]);
-                if( !m_interceptStream.expired() )
-                    m_audioDev.removeStream( m_interceptStream.lock() );
-                if( !m_ambientStream.expired() )
-                    m_ambientStream.lock()->getSource().lock()->pause();
+                if( const auto str = m_interceptStream.lock() )
+                    m_audioDev.removeStream( str );
+                if( const auto str = m_ambientStream.lock() )
+                    str->getSource().lock()->pause();
                 m_interceptStream = playStream( trackInfo["id"] ).get();
                 m_interceptStream.lock()->setLooping( false );
                 m_currentTrack = trackId;
             }
-            else if( !m_interceptStream.expired() )
+            else if( const auto str = m_interceptStream.lock() )
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop interception "
                                            << static_cast<size_t>(trackInfo["id"]);
-                m_audioDev.removeStream( m_interceptStream.lock() );
-                if( !m_ambientStream.expired() )
-                    m_ambientStream.lock()->getSource().lock()->play();
+                m_audioDev.removeStream( str );
+                if( const auto amb = m_ambientStream.lock() )
+                    amb->play();
                 m_currentTrack.reset();
             }
             break;

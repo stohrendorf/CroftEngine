@@ -352,7 +352,7 @@ public:
     std::shared_ptr<audio::SourceHandle> findSample(const size_t sample) const
     {
         const auto it = m_samples.find( sample );
-        if( it == m_samples.end() || it->second.expired() )
+        if( it == m_samples.end() )
             return nullptr;
 
         return it->second.lock();

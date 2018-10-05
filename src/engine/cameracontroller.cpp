@@ -438,8 +438,8 @@ void CameraController::update()
 
     if( !isPlaying( m_level->m_interceptStream ) )
     {
-        if( !m_level->m_ambientStream.expired() && m_level->m_ambientStream.lock()->getSource().lock()->isPaused() )
-            m_level->m_ambientStream.lock()->getSource().lock()->play();
+        if( const auto str = m_level->m_ambientStream.lock() )
+            str->play();
     }
 
     if( m_mode == CameraMode::Cinematic )

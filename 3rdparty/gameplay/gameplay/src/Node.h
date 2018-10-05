@@ -119,8 +119,8 @@ public:
         if( it != m_materialParameterSetters.end() )
             return &it->second;
 
-        if( !m_parent.expired() )
-            return m_parent.lock()->findMaterialParameterSetter( name );
+        if( auto p = getParent().lock() )
+            return p->findMaterialParameterSetter( name );
 
         return nullptr;
     }
@@ -155,17 +155,15 @@ private:
 
 inline void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent)
 {
-    if( !node->getParent().expired() )
+    if( auto p = node->getParent().lock() )
     {
-        auto p = node->getParent().lock();
         const auto it = std::find( p->m_children.begin(), p->m_children.end(), node );
         BOOST_ASSERT( it != p->m_children.end() );
         node->getParent().lock()->m_children.erase( it );
     }
 
-    if( !node->m_parent.expired() )
+    if( auto p = node->getParent().lock() )
     {
-        auto p = node->m_parent.lock();
         const auto it = std::find( p->m_children.begin(), p->m_children.end(), node );
         if( it != p->m_children.end() )
             p->m_children.erase( it );
@@ -201,7 +199,7 @@ inline void swapChildren(const gsl::not_null<std::shared_ptr<Node>>& a, const gs
 inline void addChild(const gsl::not_null<std::shared_ptr<Node>>& node,
                      const gsl::not_null<std::shared_ptr<Node>>& child)
 {
-    if( !child->getParent().expired() && child->getParent().lock() == node.get() )
+    if( child->getParent().lock() == node.get() )
     {
         // This node is already present in our hierarchy
         return;

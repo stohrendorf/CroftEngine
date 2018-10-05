@@ -12,9 +12,8 @@ Node::Node(std::string id)
 
 Node::~Node()
 {
-    if( !getParent().expired() )
+    if( auto p = getParent().lock() )
     {
-        auto p = getParent().lock();
         const auto it = std::find_if( p->m_children.begin(), p->m_children.end(),
                                       [this](const gsl::not_null<std::shared_ptr<Node>>& node) {
                                           return node.get().get() == this;
@@ -44,9 +43,9 @@ Scene* Node::getScene() const
         return m_scene;
 
     // Search our parent for the scene
-    if( !m_parent.expired() )
+    if( auto p = getParent().lock() )
     {
-        Scene* scene = m_parent.lock()->getScene();
+        const auto scene = p->getScene();
         if( scene )
             return scene;
     }
@@ -73,10 +72,9 @@ const glm::mat4& Node::getModelMatrix() const
 
         // If we have a parent, multiply our parent world transform by our local
         // transform to obtain our final resolved world transform.
-        auto parent = getParent();
-        if( !parent.expired() )
+        if( auto p = getParent().lock() )
         {
-            m_modelMatrix = parent.lock()->getModelMatrix() * getLocalMatrix();
+            m_modelMatrix = p->getModelMatrix() * getLocalMatrix();
         }
         else
         {

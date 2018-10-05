@@ -37,6 +37,20 @@ public:
         m_looping = looping;
     }
 
+    void pause()
+    {
+        if( const auto src = m_source.lock() )
+            src->pause();
+    }
+
+    void play()
+    {
+        if( const auto src = m_source.lock() )
+            src->play();
+        else
+            init();
+    }
+
 private:
     void init();
 
@@ -46,14 +60,10 @@ private:
 
 inline bool isPlaying(const std::weak_ptr<Stream>& stream)
 {
-    if( stream.expired() )
-        return false;
+    if( const auto str = stream.lock() )
+        if( const auto src = str->getSource().lock() )
+            return !src->isPaused() && !src->isStopped();
 
-    const auto s = stream.lock();
-    if( s->getSource().expired() )
-        return false;
-
-    const auto src = s->getSource().lock();
-    return !src->isPaused() && !src->isStopped();
+    return false;
 }
 }

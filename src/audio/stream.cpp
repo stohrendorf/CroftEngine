@@ -17,10 +17,11 @@ Stream::Stream(Device& device, std::unique_ptr<AbstractStreamSource>&& src, cons
 
 void Stream::update()
 {
-    if( m_source.expired() || m_source.lock()->isPaused() )
+    const auto src = m_source.lock();
+
+    if( src == nullptr || src->isPaused() )
         return;
 
-    const auto src = m_source.lock();
     if( src->isStopped() && !m_looping )
         return;
 
@@ -54,10 +55,10 @@ void Stream::update()
 
 void Stream::init()
 {
-    if( m_source.expired() )
-        return;
-
     const auto src = m_source.lock();
+
+    if( src == nullptr )
+        return;
 
     fillBuffer( *m_buffers[0] );
     fillBuffer( *m_buffers[1] );
