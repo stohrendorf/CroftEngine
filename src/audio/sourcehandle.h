@@ -3,7 +3,6 @@
 #include "bufferhandle.h"
 #include "filterhandle.h"
 
-#include "gameplay.h"
 #include "util/helpers.h"
 
 namespace audio
@@ -11,13 +10,12 @@ namespace audio
 class SourceHandle final
 {
     const ALuint m_handle;
-    std::shared_ptr<BufferHandle> m_buffer;
+    std::unique_ptr<BufferHandle> m_buffer;
 
     static ALuint createHandle()
     {
         ALuint handle;
-        alGenSources( 1, &handle );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alGenSources( 1, &handle ) );
 
         Expects( alIsSource( handle ) );
 
@@ -28,7 +26,8 @@ public:
     explicit SourceHandle()
             : m_handle{createHandle()}
     {
-        Expects( alIsSource( m_handle ) );
+        BOOST_LOG_TRIVIAL( trace ) << "Created AL source handle " << m_handle;
+
         set( AL_MAX_DISTANCE, 8 * 1024 );
     }
 
@@ -42,10 +41,10 @@ public:
 
     ~SourceHandle()
     {
-        alSourceStop( m_handle );
-        DEBUG_CHECK_AL_ERROR();
-        alDeleteSources( 1, &m_handle );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSourceStop( m_handle ) );
+        AL_ASSERT( alDeleteSources( 1, &m_handle ) );
+
+        BOOST_LOG_TRIVIAL( trace ) << "Destroyed AL source handle " << m_handle;
     }
 
     ALuint get() const noexcept
@@ -53,14 +52,13 @@ public:
         return m_handle;
     }
 
-    void setBuffer(const gsl::not_null<std::shared_ptr<BufferHandle>>& b)
+    void setBuffer(std::unique_ptr<BufferHandle>&& b)
     {
-        m_buffer = b;
-        alSourcei( m_handle, AL_BUFFER, m_buffer->get() );
-        DEBUG_CHECK_AL_ERROR();
+        m_buffer = std::move( b );
+        AL_ASSERT( alSourcei( m_handle, AL_BUFFER, m_buffer == nullptr ? 0 : m_buffer->get() ) );
     }
 
-    const std::shared_ptr<BufferHandle>& getBuffer() const noexcept
+    const std::unique_ptr<BufferHandle>& getBuffer() const noexcept
     {
         return m_buffer;
     }
@@ -68,71 +66,61 @@ public:
     // ReSharper disable once CppMemberFunctionMayBeConst
     void setDirectFilter(const std::shared_ptr<FilterHandle>& f)
     {
-        alSourcei( m_handle, AL_DIRECT_FILTER, f ? f->get() : AL_FILTER_NULL );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSourcei( m_handle, AL_DIRECT_FILTER, f ? f->get() : AL_FILTER_NULL ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void set(const ALenum e, const ALint v)
     {
-        alSourcei( m_handle, e, v );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSourcei( m_handle, e, v ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void set(const ALenum e, const ALint* v)
     {
-        alSourceiv( m_handle, e, v );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSourceiv( m_handle, e, v ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void set(const ALenum e, const ALfloat v)
     {
-        alSourcef( m_handle, e, v );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSourcef( m_handle, e, v ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void set(const ALenum e, const ALfloat a, const ALfloat b, const ALfloat c)
     {
-        alSource3f( m_handle, e, a, b, c );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSource3f( m_handle, e, a, b, c ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void set(const ALenum e, const ALfloat* v)
     {
-        alSourcefv( m_handle, e, v );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSourcefv( m_handle, e, v ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void play()
     {
-        alSourcePlay( m_handle );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSourcePlay( m_handle ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void pause()
     {
-        alSourcePause( m_handle );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSourcePause( m_handle ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void stop()
     {
-        alSourceStop( m_handle );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alSourceStop( m_handle ) );
     }
 
     bool isStopped() const
     {
         ALenum state = AL_STOPPED;
-        alGetSourcei( m_handle, AL_SOURCE_STATE, &state );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alGetSourcei( m_handle, AL_SOURCE_STATE, &state ) );
 
         return state == AL_STOPPED;
     }
@@ -140,8 +128,7 @@ public:
     bool isPaused() const
     {
         ALenum state = AL_STOPPED;
-        alGetSourcei( m_handle, AL_SOURCE_STATE, &state );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alGetSourcei( m_handle, AL_SOURCE_STATE, &state ) );
 
         return state == AL_PAUSED;
     }
@@ -165,6 +152,30 @@ public:
     {
         // Clamp pitch value according to specs
         set( AL_PITCH, util::clamp( pitch_value, 0.5f, 2.0f ) );
+    }
+
+    ALint getBuffersProcessed() const
+    {
+        ALint processed = 0;
+        AL_ASSERT( alGetSourcei( m_handle, AL_BUFFERS_PROCESSED, &processed ) );
+        return processed;
+    }
+
+    ALuint unqueueBuffer()
+    {
+        ALuint result;
+        AL_ASSERT( alSourceUnqueueBuffers( m_handle, 1, &result ) );
+        return result;
+    }
+
+    void queueBuffer(ALuint buffer)
+    {
+        AL_ASSERT( alSourceQueueBuffers( m_handle, 1, &buffer ) );
+    }
+
+    void queueBuffer(const BufferHandle& buffer)
+    {
+        queueBuffer( buffer.get() );
     }
 };
 }

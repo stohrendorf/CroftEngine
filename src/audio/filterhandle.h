@@ -4,6 +4,8 @@
 
 #include "alext.h"
 
+#include <boost/log/trivial.hpp>
+
 namespace audio
 {
 class FilterHandle final
@@ -13,8 +15,7 @@ class FilterHandle final
     static ALuint createHandle()
     {
         ALuint handle;
-        alGenFilters( 1, &handle );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alGenFilters( 1, &handle ) );
 
         Expects( alIsFilter( handle ) );
 
@@ -25,6 +26,7 @@ public:
     explicit FilterHandle()
             : m_handle{createHandle()}
     {
+        BOOST_LOG_TRIVIAL( trace ) << "Created AL filter handle " << m_handle;
     }
 
     explicit FilterHandle(const FilterHandle&) = delete;
@@ -37,8 +39,8 @@ public:
 
     ~FilterHandle()
     {
-        alDeleteFilters( 1, &m_handle );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alDeleteFilters( 1, &m_handle ) );
+        BOOST_LOG_TRIVIAL( trace ) << "Destroyed AL filter handle " << m_handle;
     }
 
     ALuint get() const noexcept

@@ -2,12 +2,18 @@
 
 #include <AL/al.h>
 
+#include <gsl/gsl>
 #include <boost/log/trivial.hpp>
 
 namespace audio
 {
-bool checkALError(const char* func, const int line)
+namespace detail
 {
+bool checkALError(const char* code, const char* func, const int line)
+{
+    Expects( code != nullptr );
+    Expects( func != nullptr );
+
     const ALenum err = alGetError();
     if( err != AL_NO_ERROR )
     {
@@ -35,9 +41,10 @@ bool checkALError(const char* func, const int line)
         }
 
         BOOST_LOG_TRIVIAL( warning ) << "OpenAL error 0x" << std::hex << err << std::dec << " (in " << func << ":"
-                                     << line << "): " << errStr;
+                                     << line << ") in statement '" << code << "': " << errStr;
         return true;
     }
     return false;
 }
 } // namespace audio
+}

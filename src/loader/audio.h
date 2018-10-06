@@ -98,7 +98,7 @@ struct SoundDetails
                 case 2:
                     return PlaybackType::Looping;
                 default:
-                    return PlaybackType::None;
+                    return PlaybackType::Wait;
             }
         }
         else if( engine == level::Engine::TR2 )

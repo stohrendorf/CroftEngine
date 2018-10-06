@@ -11,7 +11,6 @@ Device::~Device()
 
     m_sources.clear();
     m_streams.clear();
-    m_buffers.clear();
 
     if( m_context != nullptr )
     {
@@ -34,14 +33,12 @@ Device::Device()
             ALC_FREQUENCY, 44100,
             0};
 
-    if( alcIsExtensionPresent( nullptr, "ALC_ENUMERATION_EXT" ) == ALC_TRUE )
+    if( AL_ASSERT_FN( alcIsExtensionPresent( nullptr, "ALC_ENUMERATION_EXT" ) ) == ALC_TRUE )
     {
-        DEBUG_CHECK_AL_ERROR();
-
         BOOST_LOG_TRIVIAL( info ) << "Probing OpenAL devices...";
 
-        const char* deviceList = alcGetString( nullptr, ALC_DEVICE_SPECIFIER );
-        DEBUG_CHECK_AL_ERROR();
+        const char* deviceList = AL_ASSERT_FN( alcGetString( nullptr, ALC_DEVICE_SPECIFIER ) );
+        Expects( deviceList != nullptr );
 
         if( deviceList == nullptr )
         {
@@ -52,8 +49,8 @@ Device::Device()
         while( *deviceList != '\0' )
         {
             BOOST_LOG_TRIVIAL( info ) << "Probing device `" << deviceList << "`";
-            ALCdevice* dev = alcOpenDevice( deviceList );
-            DEBUG_CHECK_AL_ERROR();
+            ALCdevice* dev = AL_ASSERT_FN( dev = alcOpenDevice( deviceList ) );
+            Expects( dev != nullptr );
 
             if( dev == nullptr )
             {
@@ -61,38 +58,30 @@ Device::Device()
                 continue;
             }
 
-            if( alcIsExtensionPresent( dev, ALC_EXT_EFX_NAME ) == ALC_TRUE )
+            if( AL_ASSERT_FN( alcIsExtensionPresent( dev, ALC_EXT_EFX_NAME ) ) == ALC_TRUE )
             {
-                DEBUG_CHECK_AL_ERROR();
                 BOOST_LOG_TRIVIAL( info ) << "Device supports EFX";
                 m_device = dev;
-                m_context = alcCreateContext( m_device, paramList );
-                DEBUG_CHECK_AL_ERROR();
+                m_context = AL_ASSERT_FN( alcCreateContext( m_device, paramList ) );
                 // fails e.g. with Rapture3D, where EFX is supported
                 if( m_context != nullptr )
                 {
                     break;
                 }
             }
-            DEBUG_CHECK_AL_ERROR();
 
-            alcCloseDevice( dev );
-            DEBUG_CHECK_AL_ERROR();
+            AL_ASSERT( alcCloseDevice( dev ) );
             deviceList += strlen( deviceList ) + 1;
         }
     }
     else
     {
-        DEBUG_CHECK_AL_ERROR();
-
         BOOST_LOG_TRIVIAL( info ) << "Trying to use default OpenAL device";
-        m_device = alcOpenDevice( nullptr );
-        DEBUG_CHECK_AL_ERROR();
+        m_device = AL_ASSERT_FN( alcOpenDevice( nullptr ) );
 
         if( m_device != nullptr )
         {
-            m_context = alcCreateContext( m_device, paramList );
-            DEBUG_CHECK_AL_ERROR();
+            m_context = AL_ASSERT_FN( alcCreateContext( m_device, paramList ) );
         }
         else
         {
@@ -103,17 +92,13 @@ Device::Device()
     if( m_context == nullptr )
     {
         BOOST_LOG_TRIVIAL( warning ) << BOOST_CURRENT_FUNCTION << ": Failed to create OpenAL context.";
-        alcCloseDevice( m_device );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alcCloseDevice( m_device ) );
         m_device = nullptr;
     }
 
-    alcMakeContextCurrent( m_context );
-    DEBUG_CHECK_AL_ERROR();
-    alListenerf( AL_METERS_PER_UNIT, 1 / 512.0f );
-    DEBUG_CHECK_AL_ERROR();
-    alDistanceModel( AL_LINEAR_DISTANCE_CLAMPED );
-    DEBUG_CHECK_AL_ERROR();
+    AL_ASSERT( alcMakeContextCurrent( m_context ) );
+    AL_ASSERT( alListenerf( AL_METERS_PER_UNIT, 1 / 512.0f ) );
+    AL_ASSERT( alDistanceModel( AL_LINEAR_DISTANCE_CLAMPED ) );
 
     loadALExtFunctions( gsl::make_not_null( m_device ) );
 
@@ -121,12 +106,9 @@ Device::Device()
 
     m_underwaterFilter = std::make_shared<FilterHandle>();
 
-    alFilteri( m_underwaterFilter->get(), AL_FILTER_TYPE, AL_FILTER_LOWPASS );
-    DEBUG_CHECK_AL_ERROR();
-    alFilterf( m_underwaterFilter->get(), AL_LOWPASS_GAIN, 0.7f ); // Low frequencies gain.
-    DEBUG_CHECK_AL_ERROR();
-    alFilterf( m_underwaterFilter->get(), AL_LOWPASS_GAINHF, 0.1f ); // High frequencies gain.
-    DEBUG_CHECK_AL_ERROR();
+    AL_ASSERT( alFilteri( m_underwaterFilter->get(), AL_FILTER_TYPE, AL_FILTER_LOWPASS ) );
+    AL_ASSERT( alFilterf( m_underwaterFilter->get(), AL_LOWPASS_GAIN, 0.7f ) ); // Low frequencies gain.
+    AL_ASSERT( alFilterf( m_underwaterFilter->get(), AL_LOWPASS_GAINHF, 0.1f ) ); // High frequencies gain.
 
     m_streamUpdater = std::thread{
             [this]() {

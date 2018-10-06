@@ -5,13 +5,34 @@
 
 namespace audio
 {
-extern bool checkALError(const char* func, int line);    // AL-specific error handler.
+namespace detail
+{
+extern bool checkALError(const char* code, const char* func, int line);
 
-#define CHECK_AL_ERROR() checkALError(BOOST_CURRENT_FUNCTION, __LINE__)
+template<typename F>
+inline auto alAssertFn(F code, const char* codeStr, const char* func, int line) -> decltype( code() )
+{
+    const auto result = code();
+#ifndef NDEBUG
+    checkALError( codeStr, func, line );
+#endif
+    return result;
+}
+}
+}
+
+#define AL_ASSERT_FN(code) \
+    ::audio::detail::alAssertFn([&](){return code;}, #code, BOOST_CURRENT_FUNCTION, __LINE__)
 
 #ifndef NDEBUG
-#define DEBUG_CHECK_AL_ERROR() CHECK_AL_ERROR()
+#define AL_ASSERT(code) \
+    do { \
+      code; \
+      ::audio::detail::checkALError(#code, BOOST_CURRENT_FUNCTION, __LINE__); \
+    } while(false)
 #else
-#define DEBUG_CHECK_AL_ERROR() false
+#define AL_ASSERT(code) \
+    do { \
+      code; \
+    } while(false)
 #endif
-} // namespace audio

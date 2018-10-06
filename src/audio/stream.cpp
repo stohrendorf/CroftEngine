@@ -4,12 +4,24 @@
 
 namespace audio
 {
-Stream::Stream(Device& device, std::unique_ptr<AbstractStreamSource>&& src, const size_t bufferSize)
+Stream::Stream(Device& device,
+               std::unique_ptr<AbstractStreamSource>&& src,
+               const size_t bufferSize,
+               const size_t bufferCount)
         : m_stream{std::move( src )}
         , m_source{device.createSource().get()}
-        , m_buffers{device.createBuffer(), device.createBuffer()}
         , m_sampleBuffer( bufferSize * 2 )
 {
+    BOOST_LOG_TRIVIAL( trace ) << "Created AL stream with buffer size " << bufferSize
+                               << " and " << bufferCount << " buffers";
+
+    Expects( bufferSize > 0 );
+    Expects( bufferCount >= 2 );
+
+    m_buffers.reserve( bufferCount );
+    for( size_t i = 0; i < bufferCount; ++i )
+        m_buffers.emplace_back( std::make_shared<BufferHandle>() );
+
     init();
 
     m_source.lock()->play();
@@ -25,32 +37,28 @@ void Stream::update()
     if( src->isStopped() && !m_looping )
         return;
 
-    ALint processed = 0;
-    alGetSourcei( src->get(), AL_BUFFERS_PROCESSED, &processed );
-    DEBUG_CHECK_AL_ERROR();
-    if( processed == 0 )
-        return;
+    ALint processed = src->getBuffersProcessed();
+    Expects( processed >= 0 && static_cast<size_t>(processed) <= m_buffers.size() );
 
-    ALuint bufId;
-    alSourceUnqueueBuffers( src->get(), 1, &bufId );
-    DEBUG_CHECK_AL_ERROR();
+    while( processed-- > 0 )
+    {
+        const auto bufId = src->unqueueBuffer();
 
-    if( bufId == m_buffers[0]->get() )
-    {
-        fillBuffer( *m_buffers[0] );
-    }
-    else if( bufId == m_buffers[1]->get() )
-    {
-        fillBuffer( *m_buffers[1] );
-    }
-    else
-    {
-        BOOST_LOG_TRIVIAL( warning ) << "Got unexpected buffer ID";
-        return;
-    }
+        bool foundBuffer = false;
+        for( const auto& buffer : m_buffers )
+        {
+            if( bufId == buffer->get() )
+            {
+                fillBuffer( *buffer );
+                src->queueBuffer( *buffer );
+                foundBuffer = true;
+                break;
+            }
+        }
 
-    alSourceQueueBuffers( src->get(), 1, &bufId );
-    DEBUG_CHECK_AL_ERROR();
+        if( !foundBuffer )
+            BOOST_LOG_TRIVIAL( warning ) << "Got unexpected buffer ID #" << bufId;
+    }
 }
 
 void Stream::init()
@@ -61,14 +69,10 @@ void Stream::init()
         return;
 
     fillBuffer( *m_buffers[0] );
-    fillBuffer( *m_buffers[1] );
+    src->queueBuffer( *m_buffers[0] );
 
-    auto buf = m_buffers[0]->get();
-    alSourceQueueBuffers( src->get(), 1, &buf );
-    DEBUG_CHECK_AL_ERROR();
-    buf = m_buffers[1]->get();
-    alSourceQueueBuffers( src->get(), 1, &buf );
-    DEBUG_CHECK_AL_ERROR();
+    fillBuffer( *m_buffers[1] );
+    src->queueBuffer( *m_buffers[1] );
 }
 
 void Stream::fillBuffer(BufferHandle& buffer)

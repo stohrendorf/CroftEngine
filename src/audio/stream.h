@@ -13,12 +13,12 @@ class Stream : public boost::noncopyable
 private:
     std::unique_ptr<AbstractStreamSource> m_stream;
     std::weak_ptr<SourceHandle> m_source;
-    gsl::not_null<std::shared_ptr<BufferHandle>> m_buffers[2];
+    std::vector<gsl::not_null<std::shared_ptr<BufferHandle>>> m_buffers{};
     std::vector<int16_t> m_sampleBuffer;
     bool m_looping = false;
 
 public:
-    explicit Stream(Device& device, std::unique_ptr<AbstractStreamSource>&& src, size_t bufferSize);
+    explicit Stream(Device& device, std::unique_ptr<AbstractStreamSource>&& src, size_t bufferSize, size_t bufferCount);
 
     void update();
 

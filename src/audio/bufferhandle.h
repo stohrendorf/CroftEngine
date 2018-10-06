@@ -17,8 +17,7 @@ class BufferHandle final
     static ALuint createHandle()
     {
         ALuint handle;
-        alGenBuffers( 1, &handle );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alGenBuffers( 1, &handle ) );
 
         Expects( alIsBuffer( handle ) );
 
@@ -29,6 +28,7 @@ public:
     explicit BufferHandle()
             : m_handle{createHandle()}
     {
+        BOOST_LOG_TRIVIAL( trace ) << "Created AL buffer handle " << m_handle;
     }
 
     explicit BufferHandle(const BufferHandle&) = delete;
@@ -41,8 +41,8 @@ public:
 
     ~BufferHandle()
     {
-        alDeleteBuffers( 1, &m_handle );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alDeleteBuffers( 1, &m_handle ) );
+        BOOST_LOG_TRIVIAL( trace ) << "Destroyed AL buffer handle " << m_handle;
     }
 
     ALuint get() const noexcept
@@ -53,9 +53,11 @@ public:
     // ReSharper disable once CppMemberFunctionMayBeConst
     void fill(const int16_t* samples, const size_t sampleCount, const int channels, const int sampleRate)
     {
-        alBufferData( m_handle, channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, samples,
-                      gsl::narrow<ALsizei>( sampleCount * sizeof( samples[0] ) ), sampleRate );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alBufferData( m_handle,
+                                 channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16,
+                                 samples,
+                                 gsl::narrow<ALsizei>( sampleCount * sizeof( samples[0] ) ),
+                                 sampleRate ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
@@ -80,9 +82,11 @@ public:
         std::vector<short> pcm( sfInfo.frames );
         sf_readf_short( sfFile, pcm.data(), sfInfo.frames );
 
-        alBufferData( m_handle, sfInfo.channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, pcm.data(),
-                      gsl::narrow<ALsizei>( pcm.size() * sizeof( pcm[0] ) ), sfInfo.samplerate );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alBufferData( m_handle,
+                                 sfInfo.channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16,
+                                 pcm.data(),
+                                 gsl::narrow<ALsizei>( pcm.size() * sizeof( pcm[0] ) ),
+                                 sfInfo.samplerate ) );
 
         sf_close( sfFile );
 

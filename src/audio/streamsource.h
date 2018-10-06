@@ -93,6 +93,8 @@ public:
     WadStreamSource(const std::string& filename, const size_t trackIndex)
             : m_wadFile{filename, std::ios::in | std::ios::binary}
     {
+        BOOST_LOG_TRIVIAL( trace ) << "Creating WAD stream source from " << filename << ", track " << trackIndex;
+
         memset( &m_sfInfo, 0, sizeof( m_sfInfo ) );
 
         if( !m_wadFile.is_open() )
@@ -143,6 +145,8 @@ private:
 public:
     explicit SndfileStreamSource(const std::string& filename)
     {
+        BOOST_LOG_TRIVIAL( trace ) << "Creating sndfile stream source from " << filename;
+
         memset( &m_sfInfo, 0, sizeof( m_sfInfo ) );
 
         m_sndFile = sf_open( filename.c_str(), SFM_READ, &m_sfInfo );

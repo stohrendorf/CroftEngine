@@ -1062,17 +1062,20 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
 
 gsl::not_null<std::shared_ptr<audio::Stream>> Level::playStream(size_t trackId)
 {
-    static constexpr size_t DefaultBufferSize = 16384;
+    static constexpr size_t DefaultBufferSize = 8192;
+    static constexpr size_t DefaultBufferCount = 4;
 
     if( boost::filesystem::is_regular_file( "data/tr1/audio/CDAUDIO.WAD" ) )
         return m_audioDev.createStream(
                 std::make_unique<audio::WadStreamSource>( "data/tr1/audio/CDAUDIO.WAD", trackId ),
-                DefaultBufferSize );
+                DefaultBufferSize,
+                DefaultBufferCount );
     else
         return m_audioDev.createStream(
                 std::make_unique<audio::SndfileStreamSource>(
                         (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ),
-                DefaultBufferSize );
+                DefaultBufferSize,
+                DefaultBufferCount );
 }
 
 void Level::useAlternativeLaraAppearance(const bool withHead)
@@ -1920,13 +1923,13 @@ gsl::not_null<std::shared_ptr<audio::SourceHandle>> Level::playSample(const size
 {
     Expects( sample < m_sampleIndices.size() );
 
-    auto buf = m_audioDev.createBuffer();
+    auto buf = std::make_unique<audio::BufferHandle>();
     const auto offset = m_sampleIndices[sample];
     BOOST_ASSERT( offset < m_samplesData.size() );
     buf->fillFromWav( &m_samplesData[offset] );
 
     auto src = m_audioDev.createSource();
-    src->setBuffer( buf );
+    src->setBuffer( std::move( buf ) );
     src->setPitch( pitch );
     src->setGain( volume );
     if( pos.is_initialized() )

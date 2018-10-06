@@ -58,15 +58,13 @@ public:
     // ReSharper disable once CppMemberFunctionMayBeStatic
     void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
     {
-        alListener3f( AL_POSITION, pos.x, pos.y, pos.z );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alListener3f( AL_POSITION, pos.x, pos.y, pos.z ) );
 
         const ALfloat o[6] = {
                 front.x, front.y, front.z,
                 up.x, up.y, up.z
         };
-        alListenerfv( AL_ORIENTATION, o );
-        DEBUG_CHECK_AL_ERROR();
+        AL_ASSERT( alListenerfv( AL_ORIENTATION, o ) );
     }
 
     void applyDirectFilterToAllSources(const std::shared_ptr<FilterHandle>& filter)
@@ -75,25 +73,20 @@ public:
             src->setDirectFilter( filter );
     }
 
-    gsl::not_null<std::shared_ptr<BufferHandle>> createBuffer()
+    gsl::not_null<std::shared_ptr<Stream>> createStream(std::unique_ptr<AbstractStreamSource>&& src,
+                                                        const size_t bufferSize,
+                                                        const size_t bufferCount)
     {
-        const auto r = std::make_shared<BufferHandle>();
-        m_buffers.emplace_back( r );
-        return gsl::not_null<std::shared_ptr<BufferHandle>>{r};
-    }
-
-    gsl::not_null<std::shared_ptr<Stream>> createStream(std::unique_ptr<AbstractStreamSource>&& src, size_t bufferSize)
-    {
-        const auto r = std::make_shared<Stream>( *this, std::move( src ), bufferSize );
-        m_streams.insert( r );
-        return gsl::not_null<std::shared_ptr<Stream>>{r};
+        const auto r = std::make_shared<Stream>( *this, std::move( src ), bufferSize, bufferCount );
+        m_streams.emplace( r );
+        return gsl::make_not_null( r );
     }
 
     gsl::not_null<std::shared_ptr<SourceHandle>> createSource()
     {
         const auto r = std::make_shared<SourceHandle>();
-        m_sources.insert( r );
-        return gsl::not_null<std::shared_ptr<SourceHandle>>{r};
+        m_sources.emplace( r );
+        return gsl::make_not_null( r );
     }
 
 private:
@@ -102,7 +95,6 @@ private:
     std::shared_ptr<FilterHandle> m_underwaterFilter = nullptr;
     std::set<std::shared_ptr<SourceHandle>> m_sources;
     std::set<std::shared_ptr<Stream>> m_streams;
-    std::vector<std::shared_ptr<BufferHandle>> m_buffers;
     std::thread m_streamUpdater;
     bool m_shutdown = false;
 
