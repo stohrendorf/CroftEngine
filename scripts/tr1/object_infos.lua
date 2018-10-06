@@ -105,6 +105,9 @@ infos[19].target_update_chance = 0x4000
 infos[19].initialise = baddie_init
 infos[19].collison = baddie_interact
 
+-- Mummy
+infos[24].hit_points = 18
+
 -- Broken floor
 infos[35].floor = function(item, _, y, _, base)
     local tmp = item.position.y - 512

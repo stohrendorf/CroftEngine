@@ -13,7 +13,7 @@ void SwordOfDamocles::update()
         m_state.goal_anim_state = 1;
         m_state.falling = true;
     }
-    else if( m_state.current_anim_state == 1 && m_state.touch_bits )
+    else if( m_state.current_anim_state == 1 && m_state.touch_bits != 0 )
     {
         getLevel().m_lara->m_state.is_hit = true;
         getLevel().m_lara->m_state.health -= 300;
