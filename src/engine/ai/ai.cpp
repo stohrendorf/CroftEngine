@@ -522,7 +522,7 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
     zone_number = item.box->*zoneRef;
     lvl.m_lara->m_state.box = lvl.m_lara->m_state.getCurrentSector()->box;
     enemy_zone = lvl.m_lara->m_state.box->*zoneRef;
-    if( (item.creatureInfo->lot.block_mask & lvl.m_lara->m_state.box->overlap_index)
+    if( (item.creatureInfo->lot.block_mask & lvl.m_lara->m_state.box->overlap_index) != 0
         || item.creatureInfo->lot.nodes[item.box].search_version
            == (item.creatureInfo->lot.m_searchVersion | 0x8000) )
     {

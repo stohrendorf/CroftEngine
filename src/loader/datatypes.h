@@ -1371,6 +1371,26 @@ struct Box
             return swapped ? &Box::zoneGround2Swapped : &Box::zoneGround2;
         }
     }
+
+    constexpr bool isBlockable() const noexcept
+    {
+        return (overlap_index & 0x8000) != 0;
+    }
+
+    constexpr bool isBlocked() const noexcept
+    {
+        return (overlap_index & 0x4000) != 0;
+    }
+
+    void block() const noexcept
+    {
+        overlap_index |= 0x4000;
+    }
+
+    void unblock() const noexcept
+    {
+        overlap_index &= ~0x4000;
+    }
 };
 
 

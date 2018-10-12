@@ -325,12 +325,12 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const int h
 
     Expects( groundSector->box != nullptr );
 
-    if( (groundSector->box->overlap_index & 0x8000) == 0 )
+    if( !groundSector->box->isBlockable() )
         return;
 
     if( height >= 0 )
-        groundSector->box->overlap_index &= ~0x4000;
+        groundSector->box->unblock();
     else
-        groundSector->box->overlap_index |= 0x4000;
+        groundSector->box->block();
 }
 }

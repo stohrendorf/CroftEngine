@@ -292,6 +292,7 @@ set( EDISONENGINE_SRCS
      engine/items/dart.cpp
      engine/items/dartgun.h
      engine/items/door.h
+     engine/items/door.cpp
      engine/items/itemnode.cpp
      engine/items/itemnode.h
      engine/items/keyhole.cpp
