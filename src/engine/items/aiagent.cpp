@@ -443,5 +443,68 @@ void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     const bool enableSpaz = m_state.health > 0 && (collisionInfo.policyFlags & CollisionInfo::EnableSpaz) != 0;
     enemyPush( lara, collisionInfo, enableSpaz, false );
 }
+
+bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
+{
+    if( !aiInfo.ahead || aiInfo.distance >= util::square( 7 * loader::SectorSize ) )
+    {
+        return false;
+    }
+
+    auto start = m_state.position;
+    auto end = getLevel().m_lara->m_state.position;
+    end.position.Y -= 768;
+    return CameraController::clampPosition( start, end, getLevel() );
+}
+
+namespace
+{
+gsl::not_null<std::shared_ptr<Particle>> createGunFlare(const level::Level& level,
+                                                        const core::RoomBoundPosition& pos,
+                                                        int16_t speed,
+                                                        core::Angle angle)
+{
+    auto particle = make_not_null_shared<GunflareParticle>( pos, level, angle );
+    setParent( particle, pos.room->node );
+    return particle;
+}
+}
+
+bool AIAgent::tryShootAtLara(engine::items::ModelItemNode& item,
+                             int distance,
+                             const core::TRVec& bonePos,
+                             size_t boneIndex,
+                             core::Angle angle)
+{
+    bool isHit = false;
+    if( distance <= util::square( 7 * loader::SectorSize ) )
+    {
+        if( util::rand15() < (util::square( 7 * loader::SectorSize ) - distance) / 1568 - 8192 )
+        {
+            isHit = true;
+
+            getLevel().m_lara->emitParticle( core::TRVec{0, 0, 0},
+                                             util::rand15( getLevel().m_lara->getNode()->getChildren().size() ),
+                                             &createBloodSplat );
+
+            if( !getLevel().m_lara->isInWater() )
+                getLevel().m_lara->playSoundEffect( TR1SoundId::BulletHitsLara );
+        }
+    }
+
+    if( !isHit )
+    {
+        auto pos = getLevel().m_lara->m_state.position;
+        pos.position.X += util::rand15s( 512 );
+        pos.position.Y = getLevel().m_lara->m_state.floor;
+        pos.position.Z += util::rand15s( 512 );
+        getLevel().m_lara->playShotMissed( pos );
+    }
+
+    auto p = item.emitParticle( bonePos, boneIndex, &createGunFlare );
+    p->angle.Y += angle;
+
+    return isHit;
+}
 }
 }

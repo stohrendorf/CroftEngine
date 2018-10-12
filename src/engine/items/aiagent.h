@@ -6,6 +6,11 @@
 
 namespace engine
 {
+namespace ai
+{
+struct AiInfo;
+}
+
 namespace items
 {
 class AIAgent : public ModelItemNode
@@ -40,6 +45,14 @@ protected:
     {
         return m_state.health;
     }
+
+    bool canShootAtLara(const ai::AiInfo& aiInfo) const;
+
+    bool tryShootAtLara(engine::items::ModelItemNode& item,
+                        int distance,
+                        const core::TRVec& bonePos,
+                        size_t boneIndex,
+                        core::Angle angle);
 
 private:
 

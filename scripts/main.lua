@@ -178,7 +178,7 @@ levelInfos = {
 }
 
 cheats = {
-    godMode = false,
+    godMode = true,
     inventory = {
         Key1 = 10,
         Key2 = 10,
@@ -192,7 +192,7 @@ cheats = {
 }
 
 function getLevelInfo()
-    return levelInfos[5]
+    return levelInfos[6]
     -- return levelInfos[22]
 end
 

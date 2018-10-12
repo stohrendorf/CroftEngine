@@ -108,6 +108,15 @@ infos[19].collison = baddie_interact
 -- Mummy
 infos[24].hit_points = 18
 
+-- Larson
+infos[27].ai_agent = true
+infos[27].radius = 102
+infos[27].hit_points = 50
+infos[27].shadow_size = 128
+infos[27].target_update_chance = 0x7fff
+infos[27].initialise = baddie_init
+infos[27].collison = baddie_interact
+
 -- Broken floor
 infos[35].floor = function(item, _, y, _, base)
     local tmp = item.position.y - 512

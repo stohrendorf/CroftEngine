@@ -308,6 +308,8 @@ public:
 
     virtual void load(const YAML::Node& n);
 
+    void playShotMissed(const core::RoomBoundPosition& pos);
+
 protected:
     bool alignTransformClamped(const core::TRVec& targetPos,
                                const core::TRRotation& targetRot,
@@ -412,12 +414,13 @@ public:
 
     void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 
-    void emitParticle(const core::TRVec& localPosition,
-                      size_t boneIndex,
-                      gsl::not_null<std::shared_ptr<Particle>> (* generate)(const level::Level& level,
-                                                                            const core::RoomBoundPosition& pos,
-                                                                            int16_t speed,
-                                                                            core::Angle angle));
+    gsl::not_null<std::shared_ptr<Particle>> emitParticle(const core::TRVec& localPosition,
+                                                          size_t boneIndex,
+                                                          gsl::not_null<std::shared_ptr<Particle>> (* generate)(
+                                                                  const level::Level& level,
+                                                                  const core::RoomBoundPosition& pos,
+                                                                  int16_t speed,
+                                                                  core::Angle angle));
 
     void load(const YAML::Node& n) override;
 

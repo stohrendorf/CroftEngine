@@ -2148,14 +2148,6 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
     return true;
 }
 
-void LaraNode::playShotMissed(const core::RoomBoundPosition& pos)
-{
-    const auto particle = make_not_null_shared<RicochetParticle>( pos, getLevel() );
-    setParent( particle, m_state.position.room->node );
-    getLevel().m_particles.emplace_back( particle );
-    getLevel().playSound( TR1SoundId::Ricochet, pos.position.toRenderSystem() );
-}
-
 void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const int damage)
 {
     if( item.m_state.health > 0 && item.m_state.health <= damage )

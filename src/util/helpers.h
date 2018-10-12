@@ -47,7 +47,7 @@ inline int16_t rand15s()
 template<typename T>
 inline T rand15s(T max)
 {
-    return max * rand15s() / 32768;
+    return max * rand15s() / (1 << 15);
 }
 
 constexpr float auToDeg(const int16_t au)

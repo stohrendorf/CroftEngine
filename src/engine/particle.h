@@ -16,7 +16,7 @@ class Particle : public gameplay::Node
 {
 public:
     core::RoomBoundPosition pos;
-    core::TRRotation angle;
+    core::TRRotation angle{0_deg, 0_deg, 0_deg};
     const TR1ItemId object_number;
     int16_t speed = 0;
     int16_t fall_speed = 0;
@@ -183,8 +183,6 @@ public:
                              const level::Level& level)
             : Particle{"sparkles", TR1ItemId::Sparkles, pos, level}
     {
-        timePerSpriteFrame = 0;
-        negSpriteFrameId = 0;
     }
 
     bool update(const level::Level& /*level*/) override
@@ -196,6 +194,31 @@ public:
         --negSpriteFrameId;
         timePerSpriteFrame = 0;
         return gsl::narrow<size_t>( -negSpriteFrameId ) < getLength();
+    }
+};
+
+
+class GunflareParticle : public Particle
+{
+public:
+    explicit GunflareParticle(const core::RoomBoundPosition& pos,
+                              const level::Level& level,
+                              const core::Angle& yAngle)
+            : Particle{"gunflare", TR1ItemId::Gunflare, pos, level}
+    {
+        angle.Y = yAngle;
+        timePerSpriteFrame = 3;
+        shade = 4096;
+    }
+
+    bool update(const level::Level& /*level*/) override
+    {
+        --timePerSpriteFrame;
+        if( timePerSpriteFrame == 0 )
+            return false;
+
+        angle.Z = util::rand15s( +180_deg );
+        return true;
     }
 };
 

@@ -562,8 +562,6 @@ public:
                     const ModelItemNode& gunHolder,
                     const core::TRRotationXY& aimAngle);
 
-    void playShotMissed(const core::RoomBoundPosition& pos);
-
     void hitTarget(ModelItemNode& item, const core::TRVec& hitPos, int damage);
 
     void renderGunFlare(WeaponId weaponId, glm::mat4 m, const gsl::not_null<std::shared_ptr<gameplay::Node>>& flareNode,

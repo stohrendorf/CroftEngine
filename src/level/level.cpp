@@ -20,6 +20,7 @@
 #include "engine/items/dartgun.h"
 #include "engine/items/door.h"
 #include "engine/items/keyhole.h"
+#include "engine/items/larson.h"
 #include "engine/items/mummy.h"
 #include "engine/items/pickupitem.h"
 #include "engine/items/puzzlehole.h"
@@ -477,6 +478,10 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             else if( item.type == engine::TR1ItemId::Mummy )
             {
                 modelNode = std::make_shared<engine::items::Mummy>( gsl::make_not_null( this ), room, item, *model );
+            }
+            else if( item.type == engine::TR1ItemId::Larson )
+            {
+                modelNode = std::make_shared<engine::items::Larson>( gsl::make_not_null( this ), room, item, *model );
             }
             else
             {
