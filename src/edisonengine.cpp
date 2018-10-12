@@ -248,11 +248,12 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, const bool 
     }
     lvl->m_particles = std::move( particlesToKeep );
 
-    if( godMode )
-        lvl->m_lara->m_state.health = core::LaraHealth;
-
     if( lvl->m_lara != nullptr )
+    {
+        if( godMode )
+            lvl->m_lara->m_state.health = core::LaraHealth;
         lvl->m_lara->update();
+    }
 
     lvl->applyScheduledDeletions();
     lvl->animateUV();
