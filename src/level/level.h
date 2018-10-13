@@ -372,6 +372,7 @@ public:
 
     void swapAllRooms()
     {
+        BOOST_LOG_TRIVIAL( info ) << "Swapping rooms";
         for( auto& room : m_rooms )
         {
             if( room.alternateRoom < 0 )

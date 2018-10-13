@@ -593,6 +593,8 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
         sprite.image = m_textures[sprite.texture_id].image;
     }
 
+    m_textureAnimator = std::make_shared<render::TextureAnimator>( m_animatedTextures, m_textureProxies, m_textures );
+
     const auto texturedShader = gsl::make_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                                              "shaders/textured_2.frag" ) );
     const auto materials = createMaterials( texturedShader );
@@ -612,8 +614,6 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
 
     m_spriteMaterial->getParameter( "u_baseLightDiff" )->set( 0.0f );
     m_spriteMaterial->getParameter( "u_lightPosition" )->set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
-
-    m_textureAnimator = std::make_shared<render::TextureAnimator>( m_animatedTextures );
 
     for( auto& mesh : m_meshes )
     {
@@ -1033,6 +1033,7 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo["id"]);
                 m_ambientStream = playStream( trackInfo["id"] ).get();
+                m_ambientStream.lock()->setLooping( true );
                 if( isPlaying( m_interceptStream ) )
                     m_ambientStream.lock()->getSource().lock()->pause();
                 m_currentTrack = trackId;
@@ -1471,9 +1472,6 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     orig.alternateRoom = alternate.alternateRoom;
     alternate.alternateRoom = -1;
 
-    // move all items over
-    swapChildren( gsl::make_not_null( orig.node ), gsl::make_not_null( alternate.node ) );
-
     // patch heights in the new room, and swap item ownerships.
     // note that this is exactly the same code as above,
     // except for the heights.
@@ -1481,11 +1479,11 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     {
         if( item->m_state.position.room == &orig )
         {
-            item->m_state.position.room = gsl::make_not_null( &alternate );
+            item->setCurrentRoom( gsl::make_not_null( &alternate ) );
         }
         else if( item->m_state.position.room == &alternate )
         {
-            item->m_state.position.room = gsl::make_not_null( &orig );
+            item->setCurrentRoom( gsl::make_not_null( &orig ) );
             continue;
         }
         else
@@ -1507,11 +1505,11 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     {
         if( item->m_state.position.room == &orig )
         {
-            item->m_state.position.room = gsl::make_not_null( &alternate );
+            item->setCurrentRoom( gsl::make_not_null( &alternate ) );
         }
         else if( item->m_state.position.room == &alternate )
         {
-            item->m_state.position.room = gsl::make_not_null( &orig );
+            item->setCurrentRoom( gsl::make_not_null( &orig ) );
         }
     }
 }

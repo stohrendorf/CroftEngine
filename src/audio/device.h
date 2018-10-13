@@ -30,7 +30,6 @@ public:
     void update()
     {
         removeStoppedSources();
-        updateStreams();
     }
 
     const std::shared_ptr<FilterHandle>& getUnderwaterFilter() const

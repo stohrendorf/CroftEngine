@@ -46,9 +46,14 @@ public:
     void play()
     {
         if( const auto src = m_source.lock() )
-            src->play();
+        {
+            if( src->isPaused() || src->isStopped() )
+                src->play();
+        }
         else
+        {
             init();
+        }
     }
 
 private:

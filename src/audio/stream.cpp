@@ -23,8 +23,6 @@ Stream::Stream(Device& device,
         m_buffers.emplace_back( std::make_shared<BufferHandle>() );
 
     init();
-
-    m_source.lock()->play();
 }
 
 void Stream::update()
@@ -73,6 +71,8 @@ void Stream::init()
 
     fillBuffer( *m_buffers[1] );
     src->queueBuffer( *m_buffers[1] );
+
+    src->play();
 }
 
 void Stream::fillBuffer(BufferHandle& buffer)
