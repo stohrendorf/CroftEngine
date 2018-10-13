@@ -34,7 +34,13 @@ CImgWrapper::CImgWrapper(const uint8_t* data, int width, int height, bool shared
         : m_image{std::make_unique<cimg_library::CImg<uint8_t>>( data, 4, width, height, 1, shared )}
         , m_interleaved{true}
 {
+}
 
+CImgWrapper::CImgWrapper(const int size)
+        : m_image{std::make_unique<cimg_library::CImg<uint8_t>>( size, size, 1, 4 )}
+        , m_interleaved{false}
+{
+    m_image->fill( 0 );
 }
 
 CImgWrapper& CImgWrapper::operator=(const CImgWrapper& other)
@@ -142,5 +148,27 @@ void CImgWrapper::unshare()
 {
     if( m_image->is_shared() )
         m_image = std::make_unique<cimg_library::CImg<uint8_t>>( *m_image, false );
+}
+
+void CImgWrapper::replace(int x, int y, const CImgWrapper& other)
+{
+    if( other.m_interleaved )
+        interleave();
+    else
+        deinterleave();
+
+    if( !m_interleaved )
+        m_image->draw_image( x, y, 0, 0, *other.m_image );
+    else
+        m_image->draw_image( 0, x, y, 0, *other.m_image );
+}
+
+void CImgWrapper::crop(const glm::vec2& uv0, const glm::vec2& uv1)
+{
+    const auto x0 = static_cast<int>(uv0.x * width());
+    const auto y0 = static_cast<int>(uv0.y * height());
+    const auto x1 = static_cast<int>(uv1.x * width());
+    const auto y1 = static_cast<int>(uv1.y * height());
+    crop( x0, y0, x1 + 1, y1 + 1 );
 }
 }

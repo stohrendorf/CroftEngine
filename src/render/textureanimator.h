@@ -95,29 +95,9 @@ class TextureAnimator
     std::map<uint16_t, size_t> m_sequenceByProxyId;
 
 public:
-    explicit TextureAnimator(const std::vector<uint16_t>& data)
-    {
-        /*
-         * We have N rotating sequences, each consisting of M+1 proxy ids.
-         */
-
-        const uint16_t* ptr = data.data();
-        const auto sequenceCount = *ptr++;
-
-        for( size_t i = 0; i < sequenceCount; ++i )
-        {
-            Sequence sequence;
-            const auto n = *ptr++;
-            for( size_t j = 0; j <= n; ++j )
-            {
-                BOOST_ASSERT( ptr <= &data.back() );
-                const auto proxyId = *ptr++;
-                sequence.proxyIds.emplace_back( proxyId );
-                m_sequenceByProxyId.insert( std::make_pair( proxyId, m_sequences.size() ) );
-            }
-            m_sequences.emplace_back( std::move( sequence ) );
-        }
-    }
+    explicit TextureAnimator(const std::vector<uint16_t>& data,
+                             std::vector<loader::TextureLayoutProxy>& textureProxies,
+                             std::vector<loader::DWordTexture>& textures);
 
     void registerVertex(const uint16_t proxyId, const std::shared_ptr<gameplay::Mesh>& mesh, const int sourceIndex,
                         const size_t bufferIndex)
@@ -126,8 +106,7 @@ public:
             return;
 
         const size_t sequenceId = m_sequenceByProxyId[proxyId];
-        Expects( sequenceId < m_sequences.size() );
-        m_sequences[sequenceId].registerVertex( mesh, Sequence::VertexReference( bufferIndex, sourceIndex ), proxyId );
+        m_sequences.at(sequenceId).registerVertex( mesh, Sequence::VertexReference( bufferIndex, sourceIndex ), proxyId );
     }
 
     void updateCoordinates(const std::vector<loader::TextureLayoutProxy>& proxies)

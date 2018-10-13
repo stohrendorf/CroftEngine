@@ -24,6 +24,8 @@ public:
 
     explicit CImgWrapper(const uint8_t* data, int width, int height, bool shared);
 
+    explicit CImgWrapper(int size);
+
     CImgWrapper(const CImgWrapper& other);
 
     CImgWrapper(CImgWrapper&& other) = delete;
@@ -46,6 +48,8 @@ public:
 
     void crop(int x0, int y0, int x1, int y1);
 
+    void crop(const glm::vec2& uv0, const glm::vec2& uv1);
+
     uint8_t& operator()(int x, int y, int c);
 
     gameplay::gl::RGBA8& operator()(int x, int y);
@@ -55,6 +59,8 @@ public:
     const uint8_t* data() const;
 
     void savePng(const std::string& filename);
+
+    void replace(int x, int y, const CImgWrapper& other);
 
 private:
     void unshare();

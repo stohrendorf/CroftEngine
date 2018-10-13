@@ -192,7 +192,7 @@ cheats = {
 }
 
 function getLevelInfo()
-    return levelInfos[6]
+    return levelInfos[9]
     -- return levelInfos[22]
 end
 

@@ -340,6 +340,7 @@ set( EDISONENGINE_SRCS
      engine/ai/ai.cpp
 
      render/label.cpp
+     render/textureanimator.cpp
      )
 
 if( MSVC )

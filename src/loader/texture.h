@@ -156,6 +156,13 @@ struct UVCoordinates
     {
         return glm::vec2{(xpixel + 0.5f) / 256.0f, (ypixel + 0.5f) / 256.0f};
     }
+
+    UVCoordinates& operator=(const glm::vec2& v)
+    {
+        xpixel = gsl::narrow<uint8_t>( std::lround( v.x * 256 ) );
+        ypixel = gsl::narrow<uint8_t>( std::lround( v.y * 256 ) );
+        return *this;
+    }
 };
 
 
