@@ -284,6 +284,8 @@ set( EDISONENGINE_SRCS
      engine/items/boulder.h
      engine/items/boulder.cpp
      engine/items/bridgeflat.h
+     engine/items/crocodile.cpp
+     engine/items/crocodile.h
      engine/items/collapsiblefloor.cpp
      engine/items/collapsiblefloor.h
      engine/items/cutsceneactors.cpp

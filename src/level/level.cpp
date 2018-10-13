@@ -15,6 +15,7 @@
 #include "engine/items/boulder.h"
 #include "engine/items/bridgeflat.h"
 #include "engine/items/collapsiblefloor.h"
+#include "engine/items/crocodile.h"
 #include "engine/items/cutsceneactors.h"
 #include "engine/items/dart.h"
 #include "engine/items/dartgun.h"
@@ -482,6 +483,12 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             else if( item.type == engine::TR1ItemId::Larson )
             {
                 modelNode = std::make_shared<engine::items::Larson>( gsl::make_not_null( this ), room, item, *model );
+            }
+            else if( item.type == engine::TR1ItemId::CrocodileOnLand
+                     || item.type == engine::TR1ItemId::CrocodileInWater )
+            {
+                modelNode = std::make_shared<engine::items::Crocodile>( gsl::make_not_null( this ), room, item,
+                                                                        *model );
             }
             else
             {
@@ -1479,11 +1486,12 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     {
         if( item->m_state.position.room == &orig )
         {
-            item->setCurrentRoom( gsl::make_not_null( &alternate ) );
+            // although this seems contradictory, remember the nodes have been swapped above
+            setParent( gsl::make_not_null( item->getNode() ), gsl::make_not_null( orig.node ) );
         }
         else if( item->m_state.position.room == &alternate )
         {
-            item->setCurrentRoom( gsl::make_not_null( &orig ) );
+            setParent( gsl::make_not_null( item->getNode() ), gsl::make_not_null( alternate.node ) );
             continue;
         }
         else
@@ -1505,11 +1513,11 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     {
         if( item->m_state.position.room == &orig )
         {
-            item->setCurrentRoom( gsl::make_not_null( &alternate ) );
+            setParent( gsl::make_not_null( item->getNode() ), gsl::make_not_null( orig.node ) );
         }
         else if( item->m_state.position.room == &alternate )
         {
-            item->setCurrentRoom( gsl::make_not_null( &orig ) );
+            setParent( gsl::make_not_null( item->getNode() ), gsl::make_not_null( alternate.node ) );
         }
     }
 }

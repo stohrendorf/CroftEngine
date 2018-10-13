@@ -85,6 +85,26 @@ infos[9].target_update_chance = 0x400
 infos[9].initialise = baddie_init
 infos[9].collison = baddie_interact
 
+-- Crocodile on land
+infos[10].ai_agent = true
+infos[10].radius = 341
+infos[10].hit_points = 20
+infos[10].pivot_length = 600
+infos[10].shadow_size = 85
+infos[10].target_update_chance = 0x2000
+infos[10].initialise = baddie_init
+infos[10].collison = baddie_interact
+
+-- Crocodile in water
+infos[11].ai_agent = true
+infos[11].radius = 341
+infos[11].hit_points = 20
+infos[11].pivot_length = 600
+infos[11].shadow_size = 85
+infos[11].target_update_chance = 0x400
+infos[11].initialise = baddie_init
+infos[11].collison = baddie_interact
+
 -- TRex
 infos[18].ai_agent = true
 infos[18].radius = 341

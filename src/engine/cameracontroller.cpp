@@ -299,7 +299,7 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
         }
 
         heightPos.X = testPos.X + sign;
-        sector = gsl::make_not_null( level.findRealFloorSector( heightPos, room ) );
+        sector = gsl::make_not_null( level::Level::findRealFloorSector( heightPos, room ) );
         if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes ).y
             || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes ).y )
         {
@@ -365,7 +365,7 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
         }
 
         heightPos.Z = testPos.Z + sign;
-        sector = gsl::make_not_null( level.findRealFloorSector( heightPos, room ) );
+        sector = gsl::make_not_null( level::Level::findRealFloorSector( heightPos, room ) );
         if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, level.m_itemNodes ).y
             || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, level.m_itemNodes ).y )
         {
@@ -400,7 +400,7 @@ bool CameraController::clampPosition(const core::RoomBoundPosition& start,
         return false;
     }
 
-    const auto sector = gsl::make_not_null( level.findRealFloorSector( end ) );
+    const auto sector = gsl::make_not_null( level::Level::findRealFloorSector( end ) );
     return clampY( start.position, end.position, sector, level ) && firstUnclamped && secondClamp == ClampType::None;
 }
 
@@ -534,7 +534,7 @@ void CameraController::update()
             m_trackingSmoothness = 1;
         }
 
-        const auto sector = gsl::make_not_null( m_level->findRealFloorSector( m_center ) );
+        const auto sector = gsl::make_not_null( level::Level::findRealFloorSector( m_center ) );
         if( HeightInfo::fromFloor( sector, m_center.position, getLevel()->m_itemNodes ).y < m_center.position.Y )
             HeightInfo::skipSteepSlants = false;
 
@@ -607,7 +607,7 @@ void CameraController::handleCamOverride()
 
 int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, const int margin) const
 {
-    const auto sector = gsl::make_not_null( m_level->findRealFloorSector( pos ) );
+    const auto sector = gsl::make_not_null( level::Level::findRealFloorSector( pos ) );
     BOOST_ASSERT( sector->box != nullptr );
 
     const auto room = pos.room;
@@ -641,7 +641,7 @@ int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, const int m
 bool CameraController::isVerticallyOutsideRoom(const core::TRVec& pos,
                                                const gsl::not_null<const loader::Room*>& room) const
 {
-    const auto sector = gsl::make_not_null( m_level->findRealFloorSector( pos, room ) );
+    const auto sector = gsl::make_not_null( level::Level::findRealFloorSector( pos, room ) );
     const auto floor = HeightInfo::fromFloor( sector, pos, getLevel()->m_itemNodes ).y;
     const auto ceiling = HeightInfo::fromCeiling( sector, pos, getLevel()->m_itemNodes )
             .y;
@@ -653,13 +653,13 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     m_eye.position += (eyePositionGoal.position - m_eye.position) / smoothFactor;
     HeightInfo::skipSteepSlants = false;
     m_eye.room = eyePositionGoal.room;
-    auto sector = gsl::make_not_null( m_level->findRealFloorSector( m_eye ) );
+    auto sector = gsl::make_not_null( level::Level::findRealFloorSector( m_eye ) );
     auto floor = HeightInfo::fromFloor( sector, m_eye.position, getLevel()->m_itemNodes )
                          .y - loader::QuarterSectorSize;
     if( floor <= m_eye.position.Y && floor <= eyePositionGoal.position.Y )
     {
         clampPosition( m_center, m_eye, *m_level );
-        sector = gsl::make_not_null( m_level->findRealFloorSector( m_eye ) );
+        sector = gsl::make_not_null( level::Level::findRealFloorSector( m_eye ) );
         floor = HeightInfo::fromFloor( sector, m_eye.position, getLevel()->m_itemNodes )
                         .y - loader::QuarterSectorSize;
     }
@@ -826,9 +826,9 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
 
     auto clampZMin = clampBox->zmin;
     const bool negZVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
-    if( !negZVerticallyOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
+    if( !negZVerticallyOutside && level::Level::findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
     {
-        const auto testBox = m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box;
+        const auto testBox = level::Level::findRealFloorSector( testPos, eyePositionGoal.room )->box;
         if( testBox->zmin < clampZMin )
             clampZMin = testBox->zmin;
     }
@@ -841,9 +841,9 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
 
     auto clampZMax = clampBox->zmax;
     const bool posZVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
-    if( !posZVerticallyOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
+    if( !posZVerticallyOutside && level::Level::findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
     {
-        const auto testBox = m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box;
+        const auto testBox = level::Level::findRealFloorSector( testPos, eyePositionGoal.room )->box;
         if( testBox->zmax > clampZMax )
             clampZMax = testBox->zmax;
     }
@@ -856,9 +856,9 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
 
     auto clampXMin = clampBox->xmin;
     const bool negXVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
-    if( !negXVerticallyOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
+    if( !negXVerticallyOutside && level::Level::findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
     {
-        const auto testBox = m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box;
+        const auto testBox = level::Level::findRealFloorSector( testPos, eyePositionGoal.room )->box;
         if( testBox->xmin < clampXMin )
             clampXMin = testBox->xmin;
     }
@@ -871,9 +871,9 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
 
     auto clampXMax = clampBox->xmax;
     const bool posXVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
-    if( !posXVerticallyOutside && m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
+    if( !posXVerticallyOutside && level::Level::findRealFloorSector( testPos, eyePositionGoal.room )->box != nullptr )
     {
-        const auto testBox = m_level->findRealFloorSector( testPos, eyePositionGoal.room )->box;
+        const auto testBox = level::Level::findRealFloorSector( testPos, eyePositionGoal.room )->box;
         if( testBox->xmax > clampXMax )
             clampXMax = testBox->xmax;
     }
@@ -920,7 +920,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
     if( !skipRoomPatch )
     {
         // ReSharper disable once CppExpressionWithoutSideEffects
-        m_level->findRealFloorSector( eyePositionGoal );
+        level::Level::findRealFloorSector( eyePositionGoal );
         return;
     }
 
@@ -964,7 +964,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
     if( !skipRoomPatch )
     {
         // ReSharper disable once CppExpressionWithoutSideEffects
-        m_level->findRealFloorSector( eyePositionGoal );
+        level::Level::findRealFloorSector( eyePositionGoal );
     }
 }
 

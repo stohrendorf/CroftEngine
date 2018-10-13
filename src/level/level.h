@@ -191,13 +191,13 @@ public:
         return node.get();
     }
 
-    const loader::Sector* findRealFloorSector(const core::TRVec& position,
-                                              gsl::not_null<const loader::Room*> room) const
+    static const loader::Sector* findRealFloorSector(const core::TRVec& position,
+                                                     gsl::not_null<const loader::Room*> room)
     {
         return findRealFloorSector( position, make_not_null( &room ) );
     }
 
-    const loader::Sector* findRealFloorSector(core::RoomBoundPosition& rbs) const
+    static const loader::Sector* findRealFloorSector(core::RoomBoundPosition& rbs)
     {
         return findRealFloorSector( rbs.position, make_not_null( &rbs.room ) );
     }

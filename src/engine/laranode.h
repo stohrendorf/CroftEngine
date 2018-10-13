@@ -322,8 +322,6 @@ public:
 
     void handleCommandSequence(const uint16_t* floorData, bool fromHeavy);
 
-    boost::optional<int> getWaterSurfaceHeight() const;
-
     void addSwimToDiveKeypressDuration(const int n) noexcept
     {
         m_swimToDiveKeypressDuration += n;

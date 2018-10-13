@@ -44,7 +44,7 @@ void engine::items::RollingBall::update()
                              + core::TRVec( m_state.rotation.Y.sin() * loader::SectorSize / 2,
                                             0,
                                             m_state.rotation.Y.cos() * loader::SectorSize / 2 );
-        sector = gsl::make_not_null( getLevel().findRealFloorSector( testPos, room ) );
+        sector = gsl::make_not_null( level::Level::findRealFloorSector( testPos, room ) );
         if( HeightInfo::fromFloor( sector, testPos, getLevel().m_itemNodes ).y < m_state.position.position.Y )
         {
             m_state.fallspeed = 0;

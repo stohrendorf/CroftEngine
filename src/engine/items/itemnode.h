@@ -310,6 +310,8 @@ public:
 
     void playShotMissed(const core::RoomBoundPosition& pos);
 
+    boost::optional<int> getWaterSurfaceHeight() const;
+
 protected:
     bool alignTransformClamped(const core::TRVec& targetPos,
                                const core::TRRotation& targetRot,

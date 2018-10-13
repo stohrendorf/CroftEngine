@@ -39,7 +39,7 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
                                    const int nextBoxFloor,
                                    const ai::LotInfo& lotInfo) const
 {
-    const auto sectorBox = getLevel().findRealFloorSector( testPosition, m_state.position.room )->box;
+    const auto sectorBox = level::Level::findRealFloorSector( testPosition, m_state.position.room )->box;
     if( sectorBox == nullptr )
         return true;
 

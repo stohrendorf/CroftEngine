@@ -134,7 +134,7 @@ void Block::update()
     ModelItemNode::update();
 
     auto pos = m_state.position;
-    auto sector = gsl::make_not_null( getLevel().findRealFloorSector( pos ) );
+    auto sector = gsl::make_not_null( level::Level::findRealFloorSector( pos ) );
     const auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).y;
     if( height > pos.position.Y )
     {
@@ -161,14 +161,14 @@ void Block::update()
     deactivate();
     loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
     pos = m_state.position;
-    sector = gsl::make_not_null( getLevel().findRealFloorSector( pos ) );
+    sector = gsl::make_not_null( level::Level::findRealFloorSector( pos ) );
     getLevel().m_lara->handleCommandSequence(
             HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).lastCommandSequenceOrDeath, true );
 }
 
 bool Block::isOnFloor(const int height) const
 {
-    const auto sector = getLevel().findRealFloorSector( m_state.position.position, m_state.position.room );
+    const auto sector = level::Level::findRealFloorSector( m_state.position.position, m_state.position.room );
     return sector->floorHeight == -127
            || sector->floorHeight * loader::QuarterSectorSize == m_state.position.position.Y - height;
 }
@@ -207,15 +207,15 @@ bool Block::canPushBlock(const int height, const core::Axis axis) const
         return false;
     }
 
-    const auto targetSector = getLevel().findRealFloorSector( pos, m_state.position.room );
+    const auto targetSector = level::Level::findRealFloorSector( pos, m_state.position.room );
     if( targetSector->floorHeight * loader::QuarterSectorSize != pos.Y )
     {
         return false;
     }
 
     pos.Y -= height;
-    return pos.Y
-           >= getLevel().findRealFloorSector( pos, m_state.position.room )->ceilingHeight * loader::QuarterSectorSize;
+    return pos.Y >= level::Level::findRealFloorSector(
+            pos, m_state.position.room )->ceilingHeight * loader::QuarterSectorSize;
 }
 
 bool Block::canPullBlock(const int height, const core::Axis axis) const
@@ -262,7 +262,7 @@ bool Block::canPullBlock(const int height, const core::Axis axis) const
 
     auto topPos = pos;
     topPos.Y -= height;
-    const auto topSector = getLevel().findRealFloorSector( topPos, m_state.position.room );
+    const auto topSector = level::Level::findRealFloorSector( topPos, m_state.position.room );
     if( topPos.Y < topSector->ceilingHeight * loader::QuarterSectorSize )
     {
         return false;

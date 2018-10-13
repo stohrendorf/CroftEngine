@@ -150,6 +150,7 @@ void Larson::update()
     }
     rotateCreatureTilt( tiltRot );
     rotateCreatureHead( headRot );
+    getSkeleton()->patchBone( 7, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
     animateCreature( creatureTurn, 0_deg );
 }
 

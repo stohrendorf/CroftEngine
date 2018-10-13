@@ -867,36 +867,6 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
         getLevel().setGlobalEffect( *flipEffect );
 }
 
-boost::optional<int> LaraNode::getWaterSurfaceHeight() const
-{
-    auto sector = gsl::make_not_null( m_state.position.room->getSectorByAbsolutePosition( m_state.position.position ) );
-
-    if( m_state.position.room->isWaterRoom() )
-    {
-        while( sector->roomAbove != nullptr )
-        {
-            if( !sector->roomAbove->isWaterRoom() )
-                break;
-
-            sector = gsl::make_not_null( sector->roomAbove->getSectorByAbsolutePosition( m_state.position.position ) );
-        }
-
-        return sector->ceilingHeight * loader::QuarterSectorSize;
-    }
-
-    while( sector->roomBelow != nullptr )
-    {
-        if( sector->roomBelow->isWaterRoom() )
-        {
-            return sector->floorHeight * loader::QuarterSectorSize;
-        }
-
-        sector = gsl::make_not_null( sector->roomBelow->getSectorByAbsolutePosition( m_state.position.position ) );
-    }
-
-    return sector->ceilingHeight * loader::QuarterSectorSize;
-}
-
 void LaraNode::setCameraCurrentRotation(const core::Angle x, const core::Angle y)
 {
     getLevel().m_cameraController->setCurrentRotation( x, y );

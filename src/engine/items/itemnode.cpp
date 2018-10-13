@@ -877,5 +877,32 @@ void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
     getLevel().playSound( TR1SoundId::Ricochet, pos.position.toRenderSystem() );
 }
 
+boost::optional<int> ItemNode::getWaterSurfaceHeight() const
+{
+    auto sector = gsl::make_not_null( m_state.position.room->getSectorByAbsolutePosition( m_state.position.position ) );
+
+    if( m_state.position.room->isWaterRoom() )
+    {
+        while( sector->roomAbove != nullptr )
+        {
+            if( !sector->roomAbove->isWaterRoom() )
+                return sector->ceilingHeight * loader::QuarterSectorSize;
+
+            sector = gsl::make_not_null( sector->roomAbove->getSectorByAbsolutePosition( m_state.position.position ) );
+        }
+    }
+    else
+    {
+        while( sector->roomBelow != nullptr )
+        {
+            if( sector->roomBelow->isWaterRoom() )
+                return sector->floorHeight * loader::QuarterSectorSize;
+
+            sector = gsl::make_not_null( sector->roomBelow->getSectorByAbsolutePosition( m_state.position.position ) );
+        }
+    }
+
+    return boost::none;
+}
 }
 }
