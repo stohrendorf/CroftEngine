@@ -277,6 +277,8 @@ set( EDISONENGINE_SRCS
      engine/items/animating.h
      engine/items/bear.cpp
      engine/items/bear.h
+     engine/items/barricade.cpp
+     engine/items/barricade.h
      engine/items/bat.cpp
      engine/items/bat.h
      engine/items/block.cpp

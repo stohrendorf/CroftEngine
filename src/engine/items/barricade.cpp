@@ -1,0 +1,44 @@
+#include "barricade.h"
+
+#include "level/level.h"
+#include "engine/laranode.h"
+
+namespace engine
+{
+namespace items
+{
+void Barricade::update()
+{
+    if( m_state.updateActivationTimeout() )
+    {
+        m_state.goal_anim_state = 1;
+    }
+    else
+    {
+        m_state.goal_anim_state = 0;
+    }
+
+    ModelItemNode::update();
+    auto room = m_state.position.room;
+    level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) );
+    if( room != m_state.position.room )
+    {
+        setCurrentRoom( room );
+    }
+}
+
+void Barricade::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+{
+    if( !isNear( lara, collisionInfo.collisionRadius ) )
+        return;
+
+    if( !testBoneCollision( lara ) )
+        return;
+
+    if( !(collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) )
+        return;
+
+    enemyPush( lara, collisionInfo, false, true );
+}
+}
+}

@@ -9,6 +9,7 @@
 #include "tr5level.h"
 
 #include "engine/items/animating.h"
+#include "engine/items/barricade.h"
 #include "engine/items/bat.h"
 #include "engine/items/bear.h"
 #include "engine/items/block.h"
@@ -496,6 +497,10 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
                      || item.type == engine::TR1ItemId::Panther )
             {
                 modelNode = std::make_shared<engine::items::Lion>( gsl::make_not_null( this ), room, item, *model );
+            }
+            else if( item.type == engine::TR1ItemId::Barricade )
+            {
+                modelNode = std::make_shared<engine::items::Barricade>( gsl::make_not_null( this ), room, item, *model );
             }
             else
             {
