@@ -540,7 +540,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             const loader::Sprite& sprite = m_sprites[spriteSequence->offset];
             std::shared_ptr<engine::items::ItemNode> node;
 
-            if( item.type == engine::TR1ItemId::ScionPiece )
+            if( item.type == engine::TR1ItemId::ScionPiece3 )
             {
                 node = std::make_shared<engine::items::ScionPieceItem>( gsl::make_not_null( this ),
                                                                         std::string( "sprite(type:" )
@@ -571,7 +571,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
                      || item.type == engine::TR1ItemId::ExplosiveSprite
                      || item.type == engine::TR1ItemId::SmallMedipackSprite
                      || item.type == engine::TR1ItemId::LargeMedipackSprite
-                     || item.type == engine::TR1ItemId::Item144
+                     || item.type == engine::TR1ItemId::ScionPiece2
                      || item.type == engine::TR1ItemId::LeadBarSprite )
             {
                 node = std::make_shared<engine::items::PickupItem>( gsl::make_not_null( this ),
@@ -1655,10 +1655,10 @@ void Level::addInventoryItem(const engine::TR1ItemId id, const size_t quantity)
         case engine::TR1ItemId::Item149:
             m_inventory[engine::TR1ItemId::Item149] += quantity;
             break;
-        case engine::TR1ItemId::ScionPiece:
-        case engine::TR1ItemId::Item144:
+        case engine::TR1ItemId::ScionPiece1:
         case engine::TR1ItemId::ScionPiece2:
-            m_inventory[engine::TR1ItemId::ScionPiece2] += quantity;
+        case engine::TR1ItemId::ScionPiece5:
+            m_inventory[engine::TR1ItemId::ScionPiece5] += quantity;
             break;
         default:
             BOOST_LOG_TRIVIAL( warning ) << "Cannot add item " << toString( id ) << " to inventory";
@@ -1783,7 +1783,7 @@ YAML::Node Level::save() const
     addInventory( engine::TR1ItemId::ShotgunAmmo );
     addInventory( engine::TR1ItemId::SmallMedipack );
     addInventory( engine::TR1ItemId::LargeMedipack );
-    addInventory( engine::TR1ItemId::ScionPiece );
+    addInventory( engine::TR1ItemId::ScionPiece5 );
     addInventory( engine::TR1ItemId::Item141 );
     addInventory( engine::TR1ItemId::Item142 );
     addInventory( engine::TR1ItemId::Item142 );
