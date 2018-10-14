@@ -22,6 +22,7 @@
 #include "engine/items/door.h"
 #include "engine/items/keyhole.h"
 #include "engine/items/larson.h"
+#include "engine/items/lion.h"
 #include "engine/items/mummy.h"
 #include "engine/items/pickupitem.h"
 #include "engine/items/puzzlehole.h"
@@ -489,6 +490,12 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             {
                 modelNode = std::make_shared<engine::items::Crocodile>( gsl::make_not_null( this ), room, item,
                                                                         *model );
+            }
+            else if( item.type == engine::TR1ItemId::LionMale
+                     || item.type == engine::TR1ItemId::LionFemale
+                     || item.type == engine::TR1ItemId::Panther )
+            {
+                modelNode = std::make_shared<engine::items::Lion>( gsl::make_not_null( this ), room, item, *model );
             }
             else
             {

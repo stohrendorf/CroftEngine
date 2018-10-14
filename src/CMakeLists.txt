@@ -301,6 +301,8 @@ set( EDISONENGINE_SRCS
      engine/items/keyhole.h
      engine/items/larson.cpp
      engine/items/larson.h
+     engine/items/lion.cpp
+     engine/items/lion.h
      engine/items/mummy.h
      engine/items/mummy.cpp
      engine/items/pickupitem.h

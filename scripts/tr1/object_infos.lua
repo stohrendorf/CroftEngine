@@ -105,6 +105,36 @@ infos[11].target_update_chance = 0x400
 infos[11].initialise = baddie_init
 infos[11].collison = baddie_interact
 
+-- Lion (male)
+infos[12].ai_agent = true
+infos[12].radius = 341
+infos[12].hit_points = 30
+infos[12].pivot_length = 400
+infos[12].shadow_size = 128
+infos[12].target_update_chance = 0x7fff
+infos[12].initialise = baddie_init
+infos[12].collison = baddie_interact
+
+-- Lion (female)
+infos[13].ai_agent = true
+infos[13].radius = 341
+infos[13].hit_points = 25
+infos[13].pivot_length = 400
+infos[13].shadow_size = 128
+infos[13].target_update_chance = 0x2000
+infos[13].initialise = baddie_init
+infos[13].collison = baddie_interact
+
+-- Panther
+infos[14].ai_agent = true
+infos[14].radius = 341
+infos[14].hit_points = 45
+infos[14].pivot_length = 400
+infos[14].shadow_size = 128
+infos[14].target_update_chance = 0x2000
+infos[14].initialise = baddie_init
+infos[14].collison = baddie_interact
+
 -- TRex
 infos[18].ai_agent = true
 infos[18].radius = 341
