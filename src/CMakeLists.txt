@@ -297,6 +297,8 @@ set( EDISONENGINE_SRCS
      engine/items/dartgun.h
      engine/items/door.h
      engine/items/door.cpp
+     engine/items/gorilla.h
+     engine/items/gorilla.cpp
      engine/items/itemnode.cpp
      engine/items/itemnode.h
      engine/items/keyhole.cpp

@@ -21,6 +21,7 @@
 #include "engine/items/dart.h"
 #include "engine/items/dartgun.h"
 #include "engine/items/door.h"
+#include "engine/items/gorilla.h"
 #include "engine/items/keyhole.h"
 #include "engine/items/larson.h"
 #include "engine/items/lion.h"
@@ -501,6 +502,10 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             else if( item.type == engine::TR1ItemId::Barricade )
             {
                 modelNode = std::make_shared<engine::items::Barricade>( gsl::make_not_null( this ), room, item, *model );
+            }
+            else if( item.type == engine::TR1ItemId::Gorilla )
+            {
+                modelNode = std::make_shared<engine::items::Gorilla>( gsl::make_not_null( this ), room, item, *model );
             }
             else
             {

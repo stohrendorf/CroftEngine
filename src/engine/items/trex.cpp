@@ -45,7 +45,7 @@ void TRex::update()
                                       && !aiInfo.ahead
                                       && aiInfo.enemy_facing > -90_deg
                                       && aiInfo.enemy_facing < 90_deg;
-        if( !m_state.creatureInfo->flags
+        if( m_state.creatureInfo->flags == 0
             && aiInfo.distance > util::square( 1500 )
             && aiInfo.distance < util::square( 4 * loader::SectorSize )
             && aiInfo.bite )
@@ -148,6 +148,8 @@ void TRex::update()
 
     rotateCreatureHead( creatureHead );
     m_state.creatureInfo->neck_rotation = m_state.creatureInfo->head_rotation;
+    getSkeleton()->patchBone( 11, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+    getSkeleton()->patchBone( 12, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
     animateCreature( rotationToMoveTarget, 0_deg );
     m_state.collidable = true;
 }
