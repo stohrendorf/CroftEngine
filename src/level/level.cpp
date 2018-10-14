@@ -540,7 +540,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             const loader::Sprite& sprite = m_sprites[spriteSequence->offset];
             std::shared_ptr<engine::items::ItemNode> node;
 
-            if( item.type == engine::TR1ItemId::ScionPiece3 )
+            if( item.type == engine::TR1ItemId::ScionPiece1 )
             {
                 node = std::make_shared<engine::items::ScionPieceItem>( gsl::make_not_null( this ),
                                                                         std::string( "sprite(type:" )
@@ -1783,9 +1783,8 @@ YAML::Node Level::save() const
     addInventory( engine::TR1ItemId::ShotgunAmmo );
     addInventory( engine::TR1ItemId::SmallMedipack );
     addInventory( engine::TR1ItemId::LargeMedipack );
-    addInventory( engine::TR1ItemId::ScionPiece5 );
+    addInventory( engine::TR1ItemId::ScionPiece1 );
     addInventory( engine::TR1ItemId::Item141 );
-    addInventory( engine::TR1ItemId::Item142 );
     addInventory( engine::TR1ItemId::Item142 );
     addInventory( engine::TR1ItemId::Puzzle1 );
     addInventory( engine::TR1ItemId::Puzzle2 );
