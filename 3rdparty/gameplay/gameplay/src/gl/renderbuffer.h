@@ -9,8 +9,7 @@ namespace gl
 class RenderBuffer : public RenderTarget
 {
 public:
-    explicit RenderBuffer(const GLint width, const GLint height, const GLenum format, const std::string& label = {},
-                          const GLsizei multisample = 0)
+    explicit RenderBuffer(const GLint width, const GLint height, const GLenum format, const std::string& label = {})
             : RenderTarget{glGenRenderbuffers,
                            [](const GLuint handle) { glBindRenderbuffer( GL_RENDERBUFFER, handle ); },
                            glDeleteRenderbuffers,
@@ -20,7 +19,7 @@ public:
             , m_height{height}
             , m_format{format}
     {
-        glRenderbufferStorageMultisample( GL_RENDERBUFFER, multisample, format, width, height );
+        glRenderbufferStorage( GL_RENDERBUFFER, format, width, height );
         checkGlError();
     }
 

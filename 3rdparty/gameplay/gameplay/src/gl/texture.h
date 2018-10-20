@@ -96,14 +96,13 @@ public:
     }
 
     template<typename T>
-    void image2D(GLint width, GLint height, bool generateMipmaps, GLint multisample = 0)
+    void image2D(GLint width, GLint height, bool generateMipmaps)
     {
-        image2D( width, height, std::vector<T>{}, generateMipmaps, multisample );
+        image2D( width, height, std::vector<T>{}, generateMipmaps );
     }
 
     template<typename T>
-    void image2D(const GLint width, const GLint height, const std::vector<T>& data, const bool generateMipmaps,
-                 const GLint multisample = 0)
+    void image2D(const GLint width, const GLint height, const std::vector<T>& data, const bool generateMipmaps)
     {
         BOOST_ASSERT( width > 0 && height > 0 );
         BOOST_ASSERT(
@@ -111,11 +110,8 @@ public:
 
         bind();
 
-        if( multisample > 0 )
-            glTexImage2DMultisample( m_type, multisample, T::InternalFormat, width, height, GL_TRUE );
-        else
-            glTexImage2D( m_type, 0, T::InternalFormat, width, height, 0, T::Format, T::TypeId,
-                          data.empty() ? nullptr : data.data() );
+        glTexImage2D( m_type, 0, T::InternalFormat, width, height, 0, T::Format, T::TypeId,
+                      data.empty() ? nullptr : data.data() );
         checkGlError();
 
         m_width = width;
@@ -134,17 +130,14 @@ public:
         }
     }
 
-    void depthImage2D(const GLint width, const GLint height, const GLint multisample = 0)
+    void depthImage2D(const GLint width, const GLint height)
     {
         BOOST_ASSERT( width > 0 && height > 0 );
 
         bind();
 
-        if( multisample > 0 )
-            glTexImage2DMultisample( m_type, multisample, GL_DEPTH_COMPONENT, width, height, GL_TRUE );
-        else
-            glTexImage2D( m_type, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT,
-                          GL_UNSIGNED_INT, nullptr );
+        glTexImage2D( m_type, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT,
+                      GL_UNSIGNED_INT, nullptr );
         checkGlError();
 
         m_width = width;

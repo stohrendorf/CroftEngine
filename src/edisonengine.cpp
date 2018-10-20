@@ -137,28 +137,25 @@ class FullScreenFX
 
 public:
     explicit FullScreenFX(const gameplay::Game& game,
-                          gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>> shader,
-                          const GLint multisample = 0)
+                          gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>> shader)
             : m_shader{std::move( shader )}
             , m_material{make_not_null_shared<gameplay::Material>( m_shader )}
             , m_fb{std::make_shared<gameplay::gl::FrameBuffer>()}
     {
-        init( game, multisample );
+        init( game );
     }
 
-    void init(const gameplay::Game& game, const GLint multisample)
+    void init(const gameplay::Game& game)
     {
         const auto vp = game.getViewport();
 
-        m_colorBuffer = std::make_shared<gameplay::gl::Texture>(
-                multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D );
+        m_colorBuffer = std::make_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
         m_colorBuffer->image2D<gameplay::gl::RGBA8>(
-                gsl::narrow<GLint>( vp.width ), gsl::narrow<GLint>( vp.height ), false, multisample );
+                gsl::narrow<GLint>( vp.width ), gsl::narrow<GLint>( vp.height ), false );
         m_fb->attachTexture2D( GL_COLOR_ATTACHMENT0, *m_colorBuffer );
 
-        m_depthBuffer = std::make_shared<gameplay::gl::Texture>(
-                multisample > 0 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D );
-        m_depthBuffer->depthImage2D( gsl::narrow<GLint>( vp.width ), gsl::narrow<GLint>( vp.height ), multisample );
+        m_depthBuffer = std::make_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
+        m_depthBuffer->depthImage2D( gsl::narrow<GLint>( vp.width ), gsl::narrow<GLint>( vp.height ) );
         m_fb->attachTexture2D( GL_DEPTH_ATTACHMENT, *m_depthBuffer );
 
         BOOST_ASSERT( m_fb->isComplete() );
@@ -582,8 +579,8 @@ int main()
         if( game->updateWindowSize() )
         {
             game->getScene()->getActiveCamera()->setAspectRatio( game->getAspectRatio() );
-            depthDarknessFx.init( *game, 0 );
-            depthDarknessWaterFx.init( *game, 0 );
+            depthDarknessFx.init( *game );
+            depthDarknessWaterFx.init( *game );
             screenOverlay->init( game->getViewport() );
             font->setTarget( screenOverlay->getImage() );
         }
