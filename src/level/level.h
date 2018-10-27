@@ -6,6 +6,7 @@
 #include "engine/inputhandler.h"
 #include "engine/particle.h"
 #include "engine/items/itemnode.h"
+#include "engine/items/pickupitem.h"
 #include "engine/items_tr1.h"
 #include "engine/sounds_tr1.h"
 #include "engine/tracks_tr1.h"
@@ -190,6 +191,10 @@ public:
 
         return node.get();
     }
+
+    std::shared_ptr<engine::items::PickupItem> createPickup(const engine::TR1ItemId type,
+                                                            const gsl::not_null<const loader::Room*>& room,
+                                                            const core::TRVec& position);
 
     static const loader::Sector* findRealFloorSector(const core::TRVec& position,
                                                      gsl::not_null<const loader::Room*> room)
@@ -498,6 +503,8 @@ public:
     }
 
     std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates{};
+
+    engine::items::ItemNode* m_pierre = nullptr;
 
 protected:
     loader::io::SDLReader m_reader;

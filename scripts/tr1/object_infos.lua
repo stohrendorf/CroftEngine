@@ -177,6 +177,15 @@ infos[27].target_update_chance = 0x7fff
 infos[27].initialise = baddie_init
 infos[27].collison = baddie_interact
 
+-- Pierre
+infos[28].ai_agent = true
+infos[28].radius = 102
+infos[28].hit_points = 70
+infos[28].shadow_size = 128
+infos[28].target_update_chance = 0x7fff
+infos[28].initialise = baddie_init
+infos[28].collison = baddie_interact
+
 -- Broken floor
 infos[35].floor = function(item, _, y, _, base)
     local tmp = item.position.y - 512

@@ -34,6 +34,11 @@ void Particle::initDrawables(const level::Level& level)
             m_drawables.emplace_back( sprite );
             m_spriteTextures.emplace_back( spr.texture );
         }
+
+        addMaterialParameterSetter( "u_diffuseTexture", [this](const Node& /*node*/,
+                                                               gameplay::gl::Program::ActiveUniform& uniform) {
+            uniform.set( *m_spriteTextures.front() );
+        } );
     }
     else
     {
@@ -43,10 +48,6 @@ void Particle::initDrawables(const level::Level& level)
     }
 
     setDrawable( m_drawables.front() );
-    addMaterialParameterSetter( "u_diffuseTexture", [this](const Node& /*node*/,
-                                                           gameplay::gl::Program::ActiveUniform& uniform) {
-        uniform.set( *m_spriteTextures.front() );
-    } );
     m_lighting.bind( *this );
 }
 

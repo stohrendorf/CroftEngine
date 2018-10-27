@@ -27,6 +27,7 @@
 #include "engine/items/lion.h"
 #include "engine/items/mummy.h"
 #include "engine/items/pickupitem.h"
+#include "engine/items/pierre.h"
 #include "engine/items/puzzlehole.h"
 #include "engine/items/raptor.h"
 #include "engine/items/scionpiece.h"
@@ -501,11 +502,16 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             }
             else if( item.type == engine::TR1ItemId::Barricade )
             {
-                modelNode = std::make_shared<engine::items::Barricade>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Barricade>( gsl::make_not_null( this ), room, item,
+                                                                        *model );
             }
             else if( item.type == engine::TR1ItemId::Gorilla )
             {
                 modelNode = std::make_shared<engine::items::Gorilla>( gsl::make_not_null( this ), room, item, *model );
+            }
+            else if( item.type == engine::TR1ItemId::Pierre )
+            {
+                modelNode = std::make_shared<engine::items::Pierre>( gsl::make_not_null( this ), room, item, *model );
             }
             else
             {
@@ -2000,4 +2006,34 @@ void Level::stopSound(const engine::TR1SoundId soundId) const
                                    << " (samples " << first << ".." << (last - 1) << ") didn't stop any sample";
     else
         BOOST_LOG_TRIVIAL( debug ) << "Stopped samples of sound " << toString( soundId );
+}
+
+std::shared_ptr<engine::items::PickupItem> Level::createPickup(const engine::TR1ItemId type,
+                                                               const gsl::not_null<const loader::Room*>& room,
+                                                               const core::TRVec& position)
+{
+    loader::Item item;
+    item.type = type;
+    item.room = -1;
+    item.position = position;
+    item.rotation = 0;
+    item.darkness = 0;
+    item.activationState = 0;
+
+    const auto& spriteSequence = findSpriteSequenceForType( type );
+    Expects( spriteSequence != nullptr );
+    const loader::Sprite& sprite = m_sprites[spriteSequence->offset];
+
+    auto node = make_not_null_shared<engine::items::PickupItem>(
+            gsl::make_not_null( this ),
+            "pickup",
+            room,
+            item,
+            sprite,
+            gsl::make_not_null( m_spriteMaterial ) );
+
+    m_dynamicItems.emplace( node );
+    addChild( gsl::make_not_null( room->node ), gsl::make_not_null( node->getNode() ) );
+
+    return node.get();
 }
