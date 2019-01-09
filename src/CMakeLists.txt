@@ -185,6 +185,7 @@ set( EDISONENGINE_SRCS
      engine/items/swordofdamocles.cpp
      engine/items/tallblock.cpp
      engine/items/teethspikes.cpp
+     engine/items/thorhammer.cpp
      engine/items/trapdoorup.cpp
      engine/items/trex.cpp
      engine/items/underwaterswitch.cpp

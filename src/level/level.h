@@ -166,11 +166,11 @@ public:
     void setUpRendering(const gsl::not_null<gameplay::Game*>& game);
 
     template<typename T>
-    std::shared_ptr<engine::items::ItemNode> createItem(const engine::TR1ItemId type,
-                                                        const gsl::not_null<const loader::Room*>& room,
-                                                        const core::Angle& angle,
-                                                        const core::TRVec& position,
-                                                        const uint16_t activationState)
+    std::shared_ptr<T> createItem(const engine::TR1ItemId type,
+                                  const gsl::not_null<const loader::Room*>& room,
+                                  const core::Angle& angle,
+                                  const core::TRVec& position,
+                                  const uint16_t activationState)
     {
         const auto& model = findAnimatedModelForType( type );
         if( model == nullptr )

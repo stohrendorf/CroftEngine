@@ -38,6 +38,7 @@
 #include "engine/items/swordofdamocles.h"
 #include "engine/items/tallblock.h"
 #include "engine/items/teethspikes.h"
+#include "engine/items/thorhammer.h"
 #include "engine/items/trapdoordown.h"
 #include "engine/items/trapdoorup.h"
 #include "engine/items/trex.h"
@@ -512,6 +513,16 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             else if( item.type == engine::TR1ItemId::Pierre )
             {
                 modelNode = std::make_shared<engine::items::Pierre>( gsl::make_not_null( this ), room, item, *model );
+            }
+            else if( item.type == engine::TR1ItemId::ThorHammerBlock )
+            {
+                modelNode = std::make_shared<engine::items::ThorHammerBlock>( gsl::make_not_null( this ), room, item,
+                                                                              *model );
+            }
+            else if( item.type == engine::TR1ItemId::ThorHammerHandle )
+            {
+                modelNode = std::make_shared<engine::items::ThorHammerHandle>( gsl::make_not_null( this ), room, item,
+                                                                               *model );
             }
             else
             {
