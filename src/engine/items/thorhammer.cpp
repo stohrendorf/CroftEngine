@@ -14,6 +14,8 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<level::Level*>& level,
 {
     m_block = level->createItem<ThorHammerBlock>( TR1ItemId::ThorHammerBlock, room, core::Angle( item.rotation ),
                                                   item.position, 0 );
+    m_block->activate();
+    m_block->m_state.triggerState = TriggerState::Active;
 }
 
 void ThorHammerHandle::update()
@@ -124,7 +126,7 @@ void ThorHammerHandle::update()
     // sync anim
     const auto animIdx = std::distance(
             &getLevel().findAnimatedModelForType( engine::TR1ItemId::ThorHammerHandle )->animations[0], m_state.anim );
-    m_block->m_state.anim = &getLevel().findAnimatedModelForType( engine::TR1ItemId::ThorHammerBlock )->animations[139];
+    m_block->m_state.anim = &getLevel().findAnimatedModelForType( engine::TR1ItemId::ThorHammerBlock )->animations[animIdx];
     m_block->m_state.frame_number = m_state.frame_number - m_state.anim->firstFrame + m_block->m_state.anim->firstFrame;
     m_block->m_state.current_anim_state = m_state.current_anim_state;
 }

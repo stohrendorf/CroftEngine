@@ -80,7 +80,8 @@ void Crocodile::update()
                 m_state.creatureInfo->lot.drop = -256;
                 m_state.creatureInfo->lot.fly = 0;
             }
-            getSkeleton()->patchBone( 8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+            getSkeleton()
+                    ->patchBone( 8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
             animateCreature( 0_deg, 0_deg );
         }
         else
@@ -243,7 +244,8 @@ void Crocodile::update()
                     break;
             }
         }
-        else {
+        else
+        {
             if( m_state.current_anim_state != 7 )
             {
                 m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[11];
@@ -271,7 +273,8 @@ void Crocodile::update()
         }
         if( m_state.creatureInfo != nullptr )
         {
-            getSkeleton()->patchBone( 8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+            getSkeleton()
+                    ->patchBone( 8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
             animateCreature( turnRot, 0_deg );
         }
         else

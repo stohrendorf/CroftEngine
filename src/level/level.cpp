@@ -1234,6 +1234,7 @@ void Level::postProcessDataStructures()
         {
             BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index " << idx << " out of range 0.."
                                          << m_poseFrames.size() - 1;
+            anim.frames = nullptr;
         }
         else
         {

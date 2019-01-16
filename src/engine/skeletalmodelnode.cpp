@@ -51,6 +51,11 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
         // empty animation
         result.firstFrame = state.anim->frames;
         result.secondFrame = state.anim->frames;
+
+        BOOST_ASSERT(reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
+            && reinterpret_cast<const short*>(result.firstFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
+        BOOST_ASSERT(reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
+            && reinterpret_cast<const short*>(result.secondFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
         return result;
     }
 
@@ -67,6 +72,10 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
         // last keyframe
         result.secondFrame = result.firstFrame;
         result.bias = 0;
+        BOOST_ASSERT(reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
+            && reinterpret_cast<const short*>(result.firstFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
+        BOOST_ASSERT(reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
+            && reinterpret_cast<const short*>(result.secondFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
         return result;
     }
 
@@ -78,6 +87,10 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     if( segmentFrame == 0 )
     {
         result.bias = 0;
+        BOOST_ASSERT(reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
+            && reinterpret_cast<const short*>(result.firstFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
+        BOOST_ASSERT(reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
+            && reinterpret_cast<const short*>(result.secondFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
         return result;
     }
 
@@ -91,6 +104,10 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     result.bias = static_cast<float>(segmentFrame) / segmentDuration;
     BOOST_ASSERT( result.bias >= 0 && result.bias <= 1 );
 
+    BOOST_ASSERT(reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
+        && reinterpret_cast<const short*>(result.firstFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
+    BOOST_ASSERT(reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
+        && reinterpret_cast<const short*>(result.secondFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
     return result;
 }
 
