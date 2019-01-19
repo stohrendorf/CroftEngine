@@ -15,7 +15,7 @@ class MeshPart
 public:
     using MaterialParameterSetter = void(const Node& node, Material& material);
 
-    explicit MeshPart(std::shared_ptr<gl::VertexArray> vao);
+    explicit MeshPart(std::shared_ptr<gl::VertexArray> vao, GLenum mode = GL_TRIANGLES);
 
     ~MeshPart();
 
@@ -57,5 +57,7 @@ private:
     std::vector<std::function<MaterialParameterSetter>> m_materialParameterSetters;
 
     std::shared_ptr<gl::VertexArray> m_vao;
+
+    const GLenum m_mode;
 };
 }

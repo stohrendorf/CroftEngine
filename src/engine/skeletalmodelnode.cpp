@@ -116,7 +116,7 @@ void SkeletalModelNode::updatePose(items::ItemState& state)
     if( getChildren().empty() )
         return;
 
-    BOOST_ASSERT( getChildren().size() == m_model.meshes.size() );
+    BOOST_ASSERT( getChildren().size() >= m_model.meshes.size() );
 
     updatePose( getInterpolationInfo( state ) );
 }
@@ -271,7 +271,7 @@ void SkeletalModelNode::setAnimation(items::ItemState& state,
                                      const gsl::not_null<const loader::Animation*>& animation,
                                      uint16_t frame)
 {
-    BOOST_ASSERT( getChildren().empty() || animation->frames->numValues == getChildren().size() );
+    BOOST_ASSERT( m_model.meshes.empty() || animation->frames->numValues == m_model.meshes.size() );
 
     if( frame < animation->firstFrame || frame > animation->lastFrame )
         frame = animation->firstFrame;
@@ -331,7 +331,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
             + translate( transforms.top(), m_model.meshes[0]->center.toRenderSystem() ),
             m_model.meshes[0]->collision_size );
 
-    for( int i = 1; i < m_model.meshes.size(); ++i )
+    for( gsl::index i = 1; i < m_model.meshes.size(); ++i )
     {
         BOOST_ASSERT( (m_model.boneTree[i - 1].flags & 0x1c) == 0 );
 
@@ -362,19 +362,19 @@ void SkeletalModelNode::load(const YAML::Node& n)
 {
     resetPose();
 
-    if( n["patches"].IsDefined() )
-    {
-        Expects( n["patches"].IsSequence() );
+    if( !n["patches"].IsDefined() )
+        return;
 
-        if( n["patches"].size() > 0 && !m_bonePatches.empty() )
-        {
-            Expects( n["patches"].size() == m_bonePatches.size() );
-            for( size_t i = 0; i < m_bonePatches.size(); ++i )
-                for( int x = 0, elem = 0; x < 4; ++x )
-                    for( int y = 0; y < 4; ++y, ++elem )
-                        m_bonePatches[i][x][y] = n["patches"][i][elem].as<float>();
-        }
-    }
+    Expects( n["patches"].IsSequence() );
+
+    if( n["patches"].size() <= 0 || m_bonePatches.empty() )
+        return;
+
+    Expects( n["patches"].size() <= m_bonePatches.size() );
+    for( size_t i = 0; i < n["patches"].size(); ++i )
+        for( int x = 0, elem = 0; x < 4; ++x )
+            for( int y = 0; y < 4; ++y, ++elem )
+                m_bonePatches[i][x][y] = n["patches"][i][elem].as<float>();
 }
 
 YAML::Node SkeletalModelNode::save() const

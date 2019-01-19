@@ -173,6 +173,7 @@ set( EDISONENGINE_SRCS
      engine/items/itemnode.cpp
      engine/items/keyhole.cpp
      engine/items/larson.cpp
+     engine/items/lightningball.cpp
      engine/items/lion.cpp
      engine/items/mummy.cpp
      engine/items/pickupitem.cpp

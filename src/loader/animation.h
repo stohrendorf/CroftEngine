@@ -44,7 +44,12 @@ struct AnimFrame
 
         glm::vec3 toGl() const noexcept
         {
-            return glm::vec3( x, -y, -z );
+            return toTr().toRenderSystem();
+        }
+
+        core::TRVec toTr() const noexcept
+        {
+            return core::TRVec( x, y, z );
         }
     };
 

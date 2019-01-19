@@ -24,6 +24,7 @@
 #include "engine/items/gorilla.h"
 #include "engine/items/keyhole.h"
 #include "engine/items/larson.h"
+#include "engine/items/lightningball.h"
 #include "engine/items/lion.h"
 #include "engine/items/mummy.h"
 #include "engine/items/pickupitem.h"
@@ -303,6 +304,8 @@ Level::createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgr
 
 std::shared_ptr<engine::LaraNode> Level::createItems()
 {
+    m_lightningShader = gameplay::ShaderProgram::createFromFile( "shaders/lightning.vert", "shaders/lightning.frag" );
+
     std::shared_ptr<engine::LaraNode> lara = nullptr;
     int id = -1;
     for( loader::Item& item : m_items )
@@ -523,6 +526,12 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             {
                 modelNode = std::make_shared<engine::items::ThorHammerHandle>( gsl::make_not_null( this ), room, item,
                                                                                *model );
+            }
+            else if( item.type == engine::TR1ItemId::ThorLightningBall )
+            {
+                modelNode = std::make_shared<engine::items::LightningBall>( gsl::make_not_null( this ), room, item,
+                                                                            *model,
+                                                                            gsl::make_not_null( m_lightningShader ) );
             }
             else
             {

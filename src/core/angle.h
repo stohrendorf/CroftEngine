@@ -352,6 +352,11 @@ public:
         return glm::yawPitchRoll( -Y.toRad(), X.toRad(), -Z.toRad() );
     }
 
+    TRRotation operator-() const
+    {
+        return TRRotation{-X, -Y, -Z};
+    }
+
     static sol::usertype<TRRotation>& userType()
     {
         static sol::usertype<TRRotation> userType(

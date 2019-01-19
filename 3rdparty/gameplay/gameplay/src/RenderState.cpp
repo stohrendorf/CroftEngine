@@ -52,6 +52,23 @@ void RenderState::bindState(const bool force) const
         GL_ASSERT( glFrontFace( m_frontFace.get() ) );
         s_currentState.m_frontFace = m_frontFace;
     }
+    if( force || (m_lineWidth.isInitialized() && m_lineWidth != s_currentState.m_lineWidth) )
+    {
+        GL_ASSERT( glLineWidth( m_lineWidth.get() ) );
+        s_currentState.m_lineWidth = m_lineWidth;
+    }
+    if( force || (m_lineSmooth.isInitialized() && (m_lineSmooth != s_currentState.m_lineSmooth)) )
+    {
+        if( m_lineSmooth.get() )
+        {
+            GL_ASSERT( glEnable( GL_LINE_SMOOTH ) );
+        }
+        else
+        {
+            GL_ASSERT( glDisable( GL_LINE_SMOOTH ) );
+        }
+        s_currentState.m_lineSmooth = m_lineSmooth;
+    }
     if( force || (m_depthTestEnabled.isInitialized() && (m_depthTestEnabled != s_currentState.m_depthTestEnabled)) )
     {
         if( m_depthTestEnabled.get() )
@@ -132,6 +149,16 @@ void RenderState::setDepthFunction(const GLenum func)
     m_depthFunction = func;
 }
 
+void RenderState::setLineWidth(GLfloat width)
+{
+    m_lineWidth = width;
+}
+
+void RenderState::setLineSmooth(bool enabled)
+{
+    m_lineSmooth = enabled;
+}
+
 void RenderState::initDefaults()
 {
     s_currentState.m_cullFaceEnabled.setDefault();
@@ -143,6 +170,8 @@ void RenderState::initDefaults()
     s_currentState.m_blendDst.setDefault();
     s_currentState.m_cullFaceSide.setDefault();
     s_currentState.m_frontFace.setDefault();
+    s_currentState.m_lineWidth.setDefault();
+    s_currentState.m_lineSmooth.setDefault();
     s_currentState.bindState( true );
 }
 
@@ -158,6 +187,8 @@ void RenderState::merge(const RenderState& other)
     MERGE_OPT( m_blendDst );
     MERGE_OPT( m_cullFaceSide );
     MERGE_OPT( m_frontFace );
+    MERGE_OPT( m_lineWidth );
+    MERGE_OPT( m_lineSmooth );
 #undef MERGE_OPT
 }
 }

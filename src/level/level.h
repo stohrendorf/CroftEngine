@@ -542,5 +542,7 @@ private:
     std::map<engine::TR1ItemId, size_t> m_inventory;
 
     int m_uvAnimTime{0};
+
+    std::shared_ptr<gameplay::ShaderProgram> m_lightningShader;
 };
 }

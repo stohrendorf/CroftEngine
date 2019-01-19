@@ -327,9 +327,13 @@ void ItemNode::load(const YAML::Node& n)
     if( getNode()->getChildren().empty() )
         Expects( !n["meshes"].IsDefined() );
     else
-        Expects( n["meshes"].size() == getNode()->getChildren().size() );
-    for( size_t i = 0; i < getNode()->getChildren().size(); ++i )
-        getNode()->getChildren()[i]->setDrawable( getLevel().getModel( n["meshes"][i].as<size_t>() ).get() );
+        Expects( !n["meshes"].IsDefined() || n["meshes"].size() <= getNode()->getChildren().size() );
+
+    if(n["meshes"].IsDefined())
+    {
+        for( size_t i = 0; i < n["meshes"].size(); ++i )
+            getNode()->getChildren()[i]->setDrawable( getLevel().getModel( n["meshes"][i].as<size_t>() ).get() );
+    }
 
     addChild( gsl::make_not_null( m_state.position.room->node ), gsl::make_not_null( getNode() ) );
     applyTransform();

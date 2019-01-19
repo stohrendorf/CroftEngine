@@ -41,6 +41,10 @@ public:
 
     void setDepthFunction(GLenum func);
 
+    void setLineWidth(GLfloat width);
+
+    void setLineSmooth(bool enabled);
+
     static void initDefaults();
 
     static void enableDepthWrite();
@@ -49,7 +53,7 @@ public:
 
 private:
     template<typename T, const T DefaultValue>
-    struct DefaultedOptional
+    struct DefaultedOptional final
     {
         boost::optional<T> value{};
 
@@ -92,6 +96,63 @@ private:
     };
 
 
+    struct DefaultedOptionalF final
+    {
+        const GLfloat DefaultValue;
+
+        explicit DefaultedOptionalF(GLfloat defaultValue)
+                : DefaultValue{defaultValue}
+        {}
+
+        DefaultedOptionalF& operator=(const DefaultedOptionalF& rhs)
+        {
+            BOOST_ASSERT( DefaultValue == rhs.DefaultValue );
+
+            value = rhs.value;
+            return *this;
+        }
+
+        boost::optional<GLfloat> value{};
+        
+        GLfloat get() const
+        {
+            return value.get_value_or( DefaultValue );
+        }
+
+        void reset()
+        {
+            value.reset();
+        }
+
+        void setDefault()
+        {
+            value = DefaultValue;
+        }
+
+        bool isInitialized() const
+        {
+            return value.is_initialized();
+        }
+
+        bool operator!=(const DefaultedOptionalF& rhs) const
+        {
+            return value != rhs.value;
+        }
+
+        DefaultedOptionalF& operator=(GLfloat rhs)
+        {
+            value = rhs;
+            return *this;
+        }
+
+        void merge(const DefaultedOptionalF& other)
+        {
+            if( other.isInitialized() )
+                *this = other;
+        }
+    };
+
+
     // States
     DefaultedOptional<bool, false> m_cullFaceEnabled;
 
@@ -110,6 +171,10 @@ private:
     DefaultedOptional<GLenum, GL_BACK> m_cullFaceSide;
 
     DefaultedOptional<GLenum, GL_CW> m_frontFace;
+
+    DefaultedOptionalF m_lineWidth{1.0f};
+
+    DefaultedOptional<bool, true> m_lineSmooth;
 
     static RenderState s_currentState;
 };

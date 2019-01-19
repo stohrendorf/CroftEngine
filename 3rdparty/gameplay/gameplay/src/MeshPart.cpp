@@ -6,8 +6,9 @@
 
 namespace gameplay
 {
-MeshPart::MeshPart(std::shared_ptr<gl::VertexArray> vao)
+MeshPart::MeshPart(std::shared_ptr<gl::VertexArray> vao, GLenum mode)
         : m_vao{std::move( vao )}
+        , m_mode{mode}
 {
 }
 
@@ -33,7 +34,7 @@ void MeshPart::draw(RenderContext& context) const
 
     for( const auto& buffer : m_vao->getIndexBuffers() )
     {
-        buffer->draw( GL_TRIANGLES );
+        buffer->draw( m_mode );
     }
 
     m_vao->unbind();
