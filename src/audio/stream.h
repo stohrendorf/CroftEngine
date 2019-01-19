@@ -56,6 +56,12 @@ public:
         }
     }
 
+    void setGain(const ALfloat gain_value)
+    {
+        if( const auto src = m_source.lock() )
+            src->setGain( gain_value );
+    }
+
 private:
     void init();
 

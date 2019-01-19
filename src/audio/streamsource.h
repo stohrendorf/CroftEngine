@@ -33,29 +33,46 @@ public:
 protected:
     explicit AbstractStreamSource() = default;
 
+    static short clampSample(float v) noexcept
+    {
+        if( v <= -1 )
+            return std::numeric_limits<short>::min();
+        else if( v >= 1 )
+            return std::numeric_limits<short>::max();
+        else
+            return static_cast<short>(std::numeric_limits<short>::max() * v);
+    }
+
     static size_t readStereo(short* frameBuffer, const size_t frameCount, SNDFILE* sndFile, const bool sourceIsMono,
                              const bool looping)
     {
-        size_t count = 0;
-        while( count < frameCount )
+        size_t processedFrames = 0;
+        std::vector<float> tmp;
+        const auto multiplier = sourceIsMono ? 1 : 2;
+        while( processedFrames < frameCount )
         {
-            const auto n = sf_readf_short( sndFile, frameBuffer + count, frameCount - count );
-            if( n <= 0 )
+            const auto requestedFrames = frameCount - processedFrames;
+            const auto requestedSamples = requestedFrames * multiplier;
+            tmp.resize( requestedSamples );
+            const auto readFrames = sf_readf_float( sndFile, tmp.data(), requestedFrames );
+            if( readFrames > 0 )
             {
-                if( looping )
+                for( size_t i = 0; i < static_cast<size_t>(readFrames * multiplier); ++i )
+                    frameBuffer[processedFrames * multiplier + i] = clampSample( tmp[i] );
+
+                processedFrames += readFrames;
+            }
+            else
+            {
+                if( !looping )
                 {
-                    // restart if there are not enough samples
-                    sf_seek( sndFile, 0, SEEK_SET );
-                    continue;
-                }
-                else
-                {
-                    std::fill_n( frameBuffer + count, frameCount - count, 0 );
+                    std::fill_n( frameBuffer + processedFrames * multiplier, requestedSamples, 0 );
                     break;
                 }
-            }
 
-            count += n;
+                // restart if there are not enough samples
+                sf_seek( sndFile, 0, SEEK_SET );
+            }
         }
 
         if( sourceIsMono )
@@ -69,7 +86,7 @@ protected:
             }
         }
 
-        return count;
+        return processedFrames;
     }
 };
 

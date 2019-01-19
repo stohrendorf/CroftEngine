@@ -1126,17 +1126,21 @@ gsl::not_null<std::shared_ptr<audio::Stream>> Level::playStream(size_t trackId)
     static constexpr size_t DefaultBufferSize = 8192;
     static constexpr size_t DefaultBufferCount = 4;
 
+    std::shared_ptr<audio::Stream> result;
     if( boost::filesystem::is_regular_file( "data/tr1/audio/CDAUDIO.WAD" ) )
-        return m_audioDev.createStream(
+        result = m_audioDev.createStream(
                 std::make_unique<audio::WadStreamSource>( "data/tr1/audio/CDAUDIO.WAD", trackId ),
                 DefaultBufferSize,
                 DefaultBufferCount );
     else
-        return m_audioDev.createStream(
+        result = m_audioDev.createStream(
                 std::make_unique<audio::SndfileStreamSource>(
                         (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ),
                 DefaultBufferSize,
                 DefaultBufferCount );
+
+    result->setGain(0.8f);
+    return gsl::make_not_null( result );
 }
 
 void Level::useAlternativeLaraAppearance(const bool withHead)
