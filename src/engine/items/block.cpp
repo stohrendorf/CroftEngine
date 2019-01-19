@@ -148,6 +148,7 @@ void Block::update()
         m_state.triggerState = TriggerState::Deactivated;
         getLevel().dinoStompEffect( *this );
         playSoundEffect( TR1SoundId::TRexFootstep );
+        applyTransform(); // needed for properly placing geometry on floor
     }
 
     setCurrentRoom( pos.room );
