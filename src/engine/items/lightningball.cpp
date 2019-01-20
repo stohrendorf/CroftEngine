@@ -234,5 +234,25 @@ void LightningBall::prepareRender()
         updateBolt( mainBolt[childBolt.startIndex], childBolt.end, *childBolt.mesh );
     }
 }
+
+void LightningBall::load(const YAML::Node& n)
+{
+    ModelItemNode::load( n );
+
+    while( getSkeleton()->getChildren().size() > m_poles + 1 )
+    {
+        setParent( getSkeleton()->getChildren().back(), nullptr );
+    }
+
+    auto node = std::make_shared<gameplay::Node>( "lightning-bolt-main" );
+    node->setDrawable( m_mainBoltMesh );
+    addChild( getSkeleton(), node );
+    for( auto& childBolt : m_childBolts )
+    {
+        node = std::make_shared<gameplay::Node>( "lightning-bolt-child" );
+        node->setDrawable( childBolt.mesh );
+        addChild( getSkeleton(), node );
+    }
+}
 }
 }

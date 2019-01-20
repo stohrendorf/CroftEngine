@@ -22,6 +22,8 @@ public:
 
     static constexpr const size_t SegmentPoints = 16;
 
+    void load(const YAML::Node& n) override;
+
 private:
     static constexpr const size_t ChildBolts = 5;
 
