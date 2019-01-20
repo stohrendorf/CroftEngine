@@ -3,7 +3,7 @@
 #include "bindableresource.h"
 #include "typetraits.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 #include <vector>
 

@@ -35,8 +35,8 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
             {VERTEX_ATTRIBUTE_COLOR_NAME,           gl::VertexAttribute{&SpriteVertex::color}}
     };
 
-    auto mesh = make_not_null_shared<Mesh>( layout, false );
-    mesh->getBuffers()[0]->assign<SpriteVertex>( gsl::make_not_null( &vertices[0] ), 4 );
+    auto mesh = std::make_shared<Mesh>( layout, false );
+    mesh->getBuffers()[0]->assign<SpriteVertex>( &vertices[0], 4 );
 
     static const uint16_t indices[6] =
             {
@@ -46,12 +46,12 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
 
     gl::VertexArrayBuilder builder;
 
-    auto indexBuffer = make_not_null_shared<gl::IndexBuffer>();
-    indexBuffer->setData( gsl::make_not_null( &indices[0] ), 6, false );
+    auto indexBuffer = std::make_shared<gl::IndexBuffer>();
+    indexBuffer->setData( gsl::not_null<const uint16_t*>(&indices[0]), 6, false );
     builder.attach( indexBuffer );
     builder.attach( mesh->getBuffers() );
 
-    auto part = make_not_null_shared<MeshPart>(
+    auto part = std::make_shared<MeshPart>(
             builder.build( material->getShaderProgram()->getHandle() ) );
 
     mesh->addPart( part );

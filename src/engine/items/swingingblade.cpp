@@ -43,8 +43,7 @@ void SwingingBlade::update()
     }
 
     auto room = m_state.position.room;
-    const auto sector = gsl::make_not_null(
-            level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) ) );
+    const auto sector = level::Level::findRealFloorSector( m_state.position.position, &room );
     setCurrentRoom( room );
     const int h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
     m_state.floor = h;

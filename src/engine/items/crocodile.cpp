@@ -113,8 +113,7 @@ void Crocodile::update()
                 m_state.frame_number = m_state.anim->firstFrame;
                 m_state.current_anim_state = m_state.goal_anim_state;
                 auto room = m_state.position.room;
-                auto sector = gsl::make_not_null( level::Level::findRealFloorSector( m_state.position.position,
-                                                                                     gsl::make_not_null( &room ) ) );
+                auto sector = level::Level::findRealFloorSector( m_state.position.position, &room );
                 m_state.position.position.Y = HeightInfo::fromFloor( sector,
                                                                      m_state.position.position,
                                                                      getLevel().m_itemNodes ).y;
@@ -122,8 +121,7 @@ void Crocodile::update()
             }
             ModelItemNode::update();
             auto room = m_state.position.room;
-            auto sector = gsl::make_not_null( level::Level::findRealFloorSector( m_state.position.position,
-                                                                                 gsl::make_not_null( &room ) ) );
+            auto sector = level::Level::findRealFloorSector( m_state.position.position, &room );
             m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
             setCurrentRoom( room );
         }

@@ -2,10 +2,10 @@
 
 #include "ShaderProgram.h"
 
-#include <glm/glm.hpp>
+#include "gsl-lite.hpp"
 
+#include <glm/glm.hpp>
 #include <boost/optional.hpp>
-#include <gsl/gsl>
 
 namespace gameplay
 {

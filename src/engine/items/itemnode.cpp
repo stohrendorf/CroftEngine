@@ -91,7 +91,7 @@ void ItemNode::setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom)
         return;
     }
 
-    addChild( gsl::make_not_null( newRoom->node ), gsl::make_not_null( getNode() ) );
+    addChild( newRoom->node, getNode() );
 
     m_state.position.room = newRoom;
     applyTransform();
@@ -109,16 +109,14 @@ ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
                 animatedModel )
         }
 {
-    m_skeleton->setAnimation( m_state,
-                              gsl::make_not_null( animatedModel.animations ),
-                              animatedModel.animations->firstFrame );
+    m_skeleton->setAnimation( m_state, animatedModel.animations, animatedModel.animations->firstFrame );
 
     for( gsl::index boneIndex = 0; boneIndex < animatedModel.meshes.size(); ++boneIndex )
     {
-        auto node = make_not_null_shared<gameplay::Node>(
+        auto node = std::make_shared<gameplay::Node>(
                 m_skeleton->getId() + "/bone:" + std::to_string( boneIndex ) );
         node->setDrawable( animatedModel.models[boneIndex].get() );
-        addChild( gsl::make_not_null( m_skeleton ), node );
+        addChild( m_skeleton, node );
     }
 
     BOOST_ASSERT( m_skeleton->getChildren().size() == gsl::narrow<size_t>( animatedModel.meshes.size() ) );
@@ -176,7 +174,7 @@ void ModelItemNode::update()
             }
         }
 
-        m_skeleton->setAnimation( m_state, gsl::make_not_null( m_state.anim->nextAnimation ), m_state.anim->nextFrame );
+        m_skeleton->setAnimation( m_state, m_state.anim->nextAnimation, m_state.anim->nextFrame );
         m_state.goal_anim_state = m_state.current_anim_state;
         if( m_state.current_anim_state == m_state.required_anim_state )
             m_state.required_anim_state = 0;
@@ -311,7 +309,10 @@ YAML::Node ItemNode::save() const
     n["active"] = m_isActive;
 
     for( const auto& child : getNode()->getChildren() )
-        n["meshes"].push_back( m_level->indexOfModel( child->getDrawable() ) );
+        if(auto idx = m_level->indexOfModel( child->getDrawable() ))
+            n["meshes"].push_back( *idx );
+        else
+            n["meshes"].push_back( YAML::Node() );
 
     if( n["meshes"].IsDefined() )
         n["meshes"].SetStyle( YAML::EmitterStyle::Flow );
@@ -332,10 +333,16 @@ void ItemNode::load(const YAML::Node& n)
     if(n["meshes"].IsDefined())
     {
         for( size_t i = 0; i < n["meshes"].size(); ++i )
-            getNode()->getChildren()[i]->setDrawable( getLevel().getModel( n["meshes"][i].as<size_t>() ).get() );
+        {
+            auto m = n["meshes"][i];
+            if(!m.IsNull())
+                getNode()->getChildren()[i]->setDrawable( getLevel().getModel( m.as<size_t>() ).get() );
+            else
+                getNode()->getChildren()[i]->setDrawable( nullptr );
+        }
     }
 
-    addChild( gsl::make_not_null( m_state.position.room->node ), gsl::make_not_null( getNode() ) );
+    addChild( m_state.position.room->node, getNode() );
     applyTransform();
 }
 
@@ -405,14 +412,14 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
         : ItemNode{level, room, item, hasUpdateFunction}
 {
-    const auto model = make_not_null_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
+    const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
                                                                sprite.x1, -sprite.y1,
                                                                sprite.t0, sprite.t1,
                                                                material,
                                                                gameplay::Sprite::Axis::Y );
 
     m_node = std::make_shared<gameplay::Node>( name );
-    m_node->setDrawable( model.get() );
+    m_node->setDrawable( model );
     m_node->addMaterialParameterSetter( "u_diffuseTexture",
                                         [texture = sprite.texture](const gameplay::Node& /*node*/,
                                                                    gameplay::gl::Program::ActiveUniform& uniform) {
@@ -434,7 +441,7 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                             uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
                                         } );
 
-    addChild( gsl::make_not_null( room->node ), gsl::make_not_null( m_node ) );
+    addChild( room->node, m_node );
 
     applyTransform();
 }
@@ -744,7 +751,7 @@ void ItemState::initCreatureInfo(const level::Level& lvl)
     if( creatureInfo != nullptr )
         return;
 
-    creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, gsl::make_not_null( this ) );
+    creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, this );
     collectZoneBoxes( lvl );
 }
 
@@ -761,7 +768,7 @@ void ItemState::collectZoneBoxes(const level::Level& lvl)
     {
         if( box.*zoneRef1 == zoneData1 || box.*zoneRef2 == zoneData2 )
         {
-            creatureInfo->lot.boxes.emplace_back( gsl::make_not_null( &box ) );
+            creatureInfo->lot.boxes.emplace_back( &box );
         }
     }
 }
@@ -830,7 +837,7 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
         BOOST_THROW_EXCEPTION( std::domain_error( "Item state has wrong type" ) );
 
     position.position.load( n["position"] );
-    position.room = gsl::make_not_null( &lvl.m_rooms.at( n["position"]["room"].as<size_t>() ) );
+    position.room = &lvl.m_rooms.at( n["position"]["room"].as<size_t>() );
     rotation.load( n["rotation"] );
     speed = n["speed"].as<int16_t>();
     fallspeed = n["fallSpeed"].as<int16_t>();
@@ -866,7 +873,7 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
     }
     else
     {
-        creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, gsl::make_not_null( this ) );
+        creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, this );
         creatureInfo->load( n["creatureInfo"], lvl );
     }
 }
@@ -875,7 +882,7 @@ ItemState::~ItemState() = default;
 
 void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
 {
-    const auto particle = make_not_null_shared<RicochetParticle>( pos, getLevel() );
+    const auto particle = std::make_shared<RicochetParticle>( pos, getLevel() );
     setParent( particle, m_state.position.room->node );
     getLevel().m_particles.emplace_back( particle );
     getLevel().playSound( TR1SoundId::Ricochet, pos.position.toRenderSystem() );
@@ -883,7 +890,7 @@ void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
 
 boost::optional<int> ItemNode::getWaterSurfaceHeight() const
 {
-    auto sector = gsl::make_not_null( m_state.position.room->getSectorByAbsolutePosition( m_state.position.position ) );
+    auto sector = m_state.position.room->getSectorByAbsolutePosition( m_state.position.position );
 
     if( m_state.position.room->isWaterRoom() )
     {
@@ -892,7 +899,7 @@ boost::optional<int> ItemNode::getWaterSurfaceHeight() const
             if( !sector->roomAbove->isWaterRoom() )
                 return sector->ceilingHeight * loader::QuarterSectorSize;
 
-            sector = gsl::make_not_null( sector->roomAbove->getSectorByAbsolutePosition( m_state.position.position ) );
+            sector = sector->roomAbove->getSectorByAbsolutePosition( m_state.position.position );
         }
     }
     else
@@ -902,7 +909,7 @@ boost::optional<int> ItemNode::getWaterSurfaceHeight() const
             if( sector->roomBelow->isWaterRoom() )
                 return sector->floorHeight * loader::QuarterSectorSize;
 
-            sector = gsl::make_not_null( sector->roomBelow->getSectorByAbsolutePosition( m_state.position.position ) );
+            sector = sector->roomBelow->getSectorByAbsolutePosition( m_state.position.position );
         }
     }
 

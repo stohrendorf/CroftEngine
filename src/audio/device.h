@@ -4,8 +4,10 @@
 #include "sourcehandle.h"
 #include "stream.h"
 
+#include "gsl-lite.hpp"
+
 #include <AL/alc.h>
-#include <gsl/gsl>
+
 #include <set>
 #include <thread>
 
@@ -78,14 +80,14 @@ public:
     {
         const auto r = std::make_shared<Stream>( *this, std::move( src ), bufferSize, bufferCount );
         m_streams.emplace( r );
-        return gsl::make_not_null( r );
+        return r;
     }
 
     gsl::not_null<std::shared_ptr<SourceHandle>> createSource()
     {
         const auto r = std::make_shared<SourceHandle>();
         m_sources.emplace( r );
-        return gsl::make_not_null( r );
+        return r;
     }
 
 private:

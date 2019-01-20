@@ -39,8 +39,7 @@ void Dart::update()
     ModelItemNode::update();
 
     auto room = m_state.position.room;
-    const auto sector = gsl::make_not_null(
-            level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) ) );
+    const auto sector = level::Level::findRealFloorSector( m_state.position.position, &room );
     if( room != m_state.position.room )
         setCurrentRoom( room );
 
@@ -52,7 +51,7 @@ void Dart::update()
 
     kill();
 
-    const auto particle = make_not_null_shared<RicochetParticle>( m_state.position, getLevel() );
+    const auto particle = std::make_shared<RicochetParticle>( m_state.position, getLevel() );
     setParent( particle, m_state.position.room->node );
     particle->angle = m_state.rotation;
     particle->timePerSpriteFrame = 6;

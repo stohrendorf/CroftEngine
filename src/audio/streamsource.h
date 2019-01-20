@@ -2,11 +2,10 @@
 
 #include "sndfile/helpers.h"
 
+#include "gsl-lite.hpp"
+
 #include <boost/throw_exception.hpp>
 #include <boost/log/trivial.hpp>
-
-#include <gsl/gsl>
-
 #include <sndfile.h>
 
 #include <fstream>

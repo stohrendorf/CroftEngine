@@ -4,7 +4,7 @@
 #include "engine/items_tr1.h"
 #include "core/vec.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 namespace loader
 {

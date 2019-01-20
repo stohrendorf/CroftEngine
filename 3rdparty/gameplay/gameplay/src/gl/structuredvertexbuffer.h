@@ -5,7 +5,7 @@
 #include "vertexbuffer.h"
 #include "program.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 #include <map>
 
@@ -113,14 +113,14 @@ public:
     void assign(const std::vector<T>& data)
     {
         if( !data.empty() )
-            assign<T>( gsl::make_not_null( data.data() ), data.size() );
+            assign<T>( data.data(), data.size() );
     }
 
     template<typename T>
     void assignRaw(const std::vector<T>& data, const size_t vertexCount)
     {
         if( !data.empty() )
-            assignRaw<T>( gsl::make_not_null( data.data() ), vertexCount );
+            assignRaw<T>( data.data(), vertexCount );
     }
 
     void reserve(const size_t n)

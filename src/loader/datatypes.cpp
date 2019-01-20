@@ -62,13 +62,13 @@ struct RenderModel
 #endif
             gameplay::gl::VertexArrayBuilder builder;
 
-            auto indexBuffer = make_not_null_shared<gameplay::gl::IndexBuffer>();
+            auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
             indexBuffer->setData( localPart.indices, true );
             builder.attach( indexBuffer );
 
             builder.attach( mesh->getBuffers() );
 
-            auto part = make_not_null_shared<gameplay::MeshPart>(
+            auto part = std::make_shared<gameplay::MeshPart>(
                     builder.build( localPart.material->getShaderProgram()->getHandle() ) );
             part->setMaterial( localPart.material );
             mesh->addPart( part );
@@ -94,8 +94,8 @@ void Room::createSceneNode(
     std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
     std::vector<RenderVertex> vbuf;
     std::vector<glm::vec2> uvCoords;
-    auto mesh = make_not_null_shared<gameplay::Mesh>( RenderVertex::getFormat(), false,
-                                                      "Room:" + std::to_string( roomId ) );
+    auto mesh = std::make_shared<gameplay::Mesh>( RenderVertex::getFormat(), false,
+                                                  "Room:" + std::to_string( roomId ) );
 
     for( const QuadFace& quad : rectangles )
     {
@@ -211,7 +211,7 @@ void Room::createSceneNode(
             continue;
 
         BOOST_ASSERT( static_cast<size_t>(idx) < staticMeshes.size() );
-        auto subNode = make_not_null_shared<gameplay::Node>( "staticMesh" );
+        auto subNode = std::make_shared<gameplay::Node>( "staticMesh" );
         subNode->setDrawable( staticMeshes[idx].get() );
         subNode->setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
                                  * rotate( glm::mat4{1.0f}, util::auToRad( sm.rotation ), glm::vec3{0, -1, 0} ) );
@@ -229,7 +229,7 @@ void Room::createSceneNode(
                                                                    gameplay::gl::Program::ActiveUniform& uniform) {
             uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
         } );
-        addChild( gsl::make_not_null( node ), subNode );
+        addChild( node, subNode );
     }
     node->setLocalMatrix( translate( glm::mat4{1.0f}, position.toRenderSystem() ) );
 
@@ -243,10 +243,10 @@ void Room::createSceneNode(
         const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
                                                                sprite.x1, -sprite.y1,
                                                                sprite.t0, sprite.t1,
-                                                               gsl::make_not_null( level.m_spriteMaterial ),
+                                                               level.m_spriteMaterial,
                                                                gameplay::Sprite::Axis::Y );
 
-        auto spriteNode = make_not_null_shared<gameplay::Node>( "sprite" );
+        auto spriteNode = std::make_shared<gameplay::Node>( "sprite" );
         spriteNode->setDrawable( model );
         const RoomVertex& v = vertices[spriteInstance.vertex];
         spriteNode->setLocalMatrix( translate( glm::mat4{1.0f}, v.position.toRenderSystem() ) );
@@ -261,7 +261,7 @@ void Room::createSceneNode(
                                                     uniform.set( brightness );
                                                 } );
 
-        addChild( gsl::make_not_null( node ), spriteNode );
+        addChild( node, spriteNode );
     }
 }
 
@@ -304,12 +304,10 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const int h
 {
     auto room = item.m_state.position.room;
     //! @todo Ugly const_cast
-    auto groundSector = const_cast<Sector*>(level::Level::findRealFloorSector( item.m_state.position.position,
-                                                                               make_not_null( &room ) ));
+    auto groundSector = const_cast<Sector*>(level::Level::findRealFloorSector( item.m_state.position.position, &room ));
     BOOST_ASSERT( groundSector != nullptr );
     const auto topSector = level::Level::findRealFloorSector(
-            item.m_state.position.position + core::TRVec{0, height - SectorSize, 0},
-            make_not_null( &room ) );
+            item.m_state.position.position + core::TRVec{0, height - SectorSize, 0}, &room );
 
     const auto q = height / QuarterSectorSize;
     if( groundSector->floorHeight == -127 )

@@ -11,7 +11,7 @@
 #include "audio.h"
 #include "engine/items_tr1.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 #include <array>
 #include <stdexcept>
@@ -1160,7 +1160,7 @@ struct Room
     {
         dx = util::clamp( dx, 1, sectorCountX - 2 );
         dz = util::clamp( dz, 1, sectorCountZ - 2 );
-        return gsl::make_not_null( &sectors[sectorCountZ * dx + dz] );
+        return &sectors[sectorCountZ * dx + dz];
     }
 
     gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
@@ -1179,7 +1179,7 @@ struct Room
         {
             dx = util::clamp( dx, 0, sectorCountX - 1 );
         }
-        return gsl::make_not_null( getSectorByIndex( dx, dz ) );
+        return getSectorByIndex( dx, dz );
     }
 
     static void patchHeightsForBlock(const engine::items::ItemNode& item, int height);

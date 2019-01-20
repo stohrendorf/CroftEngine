@@ -100,7 +100,7 @@ Device::Device()
     AL_ASSERT( alListenerf( AL_METERS_PER_UNIT, 1 / 512.0f ) );
     AL_ASSERT( alDistanceModel( AL_LINEAR_DISTANCE_CLAMPED ) );
 
-    loadALExtFunctions( gsl::make_not_null( m_device ) );
+    loadALExtFunctions( m_device );
 
     BOOST_LOG_TRIVIAL( info ) << "Using OpenAL device " << alcGetString( m_device, ALC_DEVICE_SPECIFIER );
 

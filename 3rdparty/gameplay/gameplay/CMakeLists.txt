@@ -49,7 +49,7 @@ set( GAMEPLAY_SRC
      src/gl/image.h
      src/gl/structuredvertexbuffer.h
      src/gl/vertexattribute.h
-     src/gsl_util.h )
+     )
 
 add_library( gameplay STATIC ${GAMEPLAY_SRC} )
 if( NOT MSVC )

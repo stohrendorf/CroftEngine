@@ -228,7 +228,7 @@ inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(const level::Le
                                                                  int16_t speed,
                                                                  core::Angle angle)
 {
-    auto particle = make_not_null_shared<BloodSplatterParticle>( pos, speed, angle, level );
+    auto particle = std::make_shared<BloodSplatterParticle>( pos, speed, angle, level );
     setParent( particle, pos.room->node );
     return particle;
 }

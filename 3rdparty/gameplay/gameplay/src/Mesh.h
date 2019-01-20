@@ -4,9 +4,8 @@
 #include "Drawable.h"
 
 #include "gl/structuredvertexbuffer.h"
-#include "gsl_util.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 #include <memory>
 
@@ -47,7 +46,7 @@ public:
                    bool dynamic,
                    const std::string& label = {})
     {
-        m_buffers.emplace_back( make_not_null_shared<gl::StructuredVertexBuffer>( mapping, dynamic, label ) );
+        m_buffers.emplace_back( std::make_shared<gl::StructuredVertexBuffer>( mapping, dynamic, label ) );
     }
 
     const std::vector<gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>>& getBuffers() const

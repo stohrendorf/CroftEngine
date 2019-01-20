@@ -52,7 +52,6 @@ set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
 * boost
 * glfw3
 * glew
-* ms-gsl
 * libpng
 * openal-soft
 * opengl

@@ -139,7 +139,7 @@ public:
     explicit FullScreenFX(const gameplay::Game& game,
                           gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>> shader)
             : m_shader{std::move( shader )}
-            , m_material{make_not_null_shared<gameplay::Material>( m_shader )}
+            , m_material{std::make_shared<gameplay::Material>( m_shader )}
             , m_fb{std::make_shared<gameplay::gl::FrameBuffer>()}
     {
         init( game );
@@ -173,7 +173,7 @@ public:
         m_mesh->getParts()[0]->setMaterial( m_material );
 
         m_model = std::make_shared<gameplay::Model>();
-        m_model->addMesh( gsl::make_not_null( m_mesh ) );
+        m_model->addMesh( m_mesh );
 
         m_model->getRenderState().setDepthWrite( false );
         m_model->getRenderState().setDepthTest( false );
@@ -291,13 +291,13 @@ sol::state createScriptEngine()
     );
 
     {
-        sol::table tbl = engine.create_table("TR1SoundId");
+        sol::table tbl = engine.create_table( "TR1SoundId" );
         for( const auto& entry : engine::EnumUtil<engine::TR1SoundId>::all() )
             tbl[entry.second] = static_cast<std::underlying_type_t<engine::TR1SoundId>>(entry.first);
     }
 
     {
-        sol::table tbl = engine.create_table("TR1TrackId");
+        sol::table tbl = engine.create_table( "TR1TrackId" );
         for( const auto& entry : engine::EnumUtil<engine::TR1TrackId>::all() )
             tbl[entry.second] = static_cast<std::underlying_type_t<engine::TR1TrackId>>(entry.first);
     }
@@ -340,9 +340,9 @@ int main()
 
     scaleSplashImage();
 
-    auto screenOverlay = make_not_null_shared<gameplay::ScreenOverlay>( game->getViewport() );
+    auto screenOverlay = std::make_shared<gameplay::ScreenOverlay>( game->getViewport() );
 
-    auto abibasFont = make_not_null_shared<gameplay::gl::Font>( "abibas.ttf", 48 );
+    auto abibasFont = std::make_shared<gameplay::gl::Font>( "abibas.ttf", 48 );
     abibasFont->setTarget( screenOverlay->getImage() );
 
     auto drawLoadingScreen = [&](const std::string& state) -> void {
@@ -427,9 +427,8 @@ int main()
 
     drawLoadingScreen( "Preparing to load " + baseName );
 
-    auto lvl = gsl::make_not_null(
-            level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD", level::Game::Unknown,
-                                        std::move( scriptEngine ) ) );
+    auto lvl = level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD", level::Game::Unknown,
+                                           std::move( scriptEngine ) );
 
     drawLoadingScreen( "Loading " + baseName );
 
@@ -448,7 +447,7 @@ int main()
 
     drawLoadingScreen( "Preparing the game" );
 
-    lvl->setUpRendering( gsl::make_not_null( game.get() ) );
+    lvl->setUpRendering( game.get() );
 
     if( useAlternativeLara )
     {
@@ -499,21 +498,19 @@ int main()
     }
 
     FullScreenFX depthDarknessFx{*game,
-                                 gsl::make_not_null(
-                                         gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
-                                                                                  "shaders/fx_darkness.frag",
-                                                                                  {"LENS_DISTORTION"} ) )};
+                                 gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
+                                                                          "shaders/fx_darkness.frag",
+                                                                          {"LENS_DISTORTION"} )};
     depthDarknessFx.getMaterial()->getParameter( "aspect_ratio" )->bind(
             [&game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
                 uniform.set( game->getAspectRatio() );
             } );
     depthDarknessFx.getMaterial()->getParameter( "distortion_power" )->set( -1.0f );
     FullScreenFX depthDarknessWaterFx{*game,
-                                      gsl::make_not_null(
-                                              gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
-                                                                                       "shaders/fx_darkness.frag",
-                                                                                       {"WATER",
-                                                                                        "LENS_DISTORTION"} ) )};
+                                      gameplay::ShaderProgram::createFromFile( "shaders/fx_darkness.vert",
+                                                                               "shaders/fx_darkness.frag",
+                                                                               {"WATER",
+                                                                                "LENS_DISTORTION"} )};
     depthDarknessWaterFx.getMaterial()->getParameter( "aspect_ratio" )->bind(
             [&game](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
                 uniform.set( game->getAspectRatio() );
@@ -532,7 +529,7 @@ int main()
     bool showDebugInfo = false;
     bool showDebugInfoToggled = false;
 
-    auto font = make_not_null_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
+    auto font = std::make_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
     font->setTarget( screenOverlay->getImage() );
 
     auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
@@ -604,7 +601,7 @@ int main()
                                               lvl->m_cameraController->getUpVector() );
 
         if( lvl->m_lara != nullptr )
-            lvl->drawBars( gsl::make_not_null( game.get() ), screenOverlay->getImage() );
+            lvl->drawBars( game.get(), screenOverlay->getImage() );
 
         if( lvl->m_cameraController->getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx.bind();

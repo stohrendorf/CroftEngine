@@ -3,7 +3,7 @@
 #include "RenderState.h"
 #include "ShaderProgram.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 namespace gameplay
 {

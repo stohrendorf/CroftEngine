@@ -296,8 +296,7 @@ Level::createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgr
         if( materials.find( key ) != materials.end() )
             continue;
 
-        materials.emplace( std::make_pair( key, proxy.createMaterial(
-                gsl::make_not_null( m_textures[key.tileAndFlag & texMask].texture ), shader ) ) );
+        materials.emplace( key, proxy.createMaterial( m_textures[key.tileAndFlag & texMask].texture, shader ) );
     }
     return materials;
 }
@@ -313,7 +312,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
         ++id;
 
         BOOST_ASSERT( item.room < m_rooms.size() );
-        auto room = gsl::make_not_null( const_cast<const loader::Room*>(&m_rooms[item.room]) );
+        auto room = const_cast<const loader::Room*>(&m_rooms[item.room]);
 
         if( const auto& model = findAnimatedModelForType( item.type ) )
         {
@@ -321,7 +320,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
 
             if( item.type == engine::TR1ItemId::Lara )
             {
-                lara = std::make_shared<engine::LaraNode>( gsl::make_not_null( this ), room, item, *model );
+                lara = std::make_shared<engine::LaraNode>( this, room, item, *model );
                 modelNode = lara;
             }
             else if( auto objectInfo = m_scriptEngine["getObjectInfo"].call( -1 ) )
@@ -329,17 +328,17 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
                 BOOST_LOG_TRIVIAL( info ) << "Instantiating scripted type " << toString( item.type ) << "/id "
                                           << id;
 
-                modelNode = std::make_shared<engine::items::ScriptedItem>( gsl::make_not_null( this ),
+                modelNode = std::make_shared<engine::items::ScriptedItem>( this,
                                                                            room,
                                                                            item,
                                                                            *model,
                                                                            objectInfo );
                 for( gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex )
                 {
-                    auto node = make_not_null_shared<gameplay::Node>(
+                    auto node = std::make_shared<gameplay::Node>(
                             modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
                     node->setDrawable( model->models[boneIndex].get() );
-                    addChild( gsl::make_not_null( modelNode->getNode() ), node );
+                    addChild( modelNode->getNode(), node );
                 }
 
                 BOOST_ASSERT(
@@ -347,197 +346,174 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             }
             else if( item.type == engine::TR1ItemId::Wolf )
             {
-                modelNode = std::make_shared<engine::items::Wolf>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Wolf>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Bear )
             {
-                modelNode = std::make_shared<engine::items::Bear>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Bear>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Bat )
             {
-                modelNode = std::make_shared<engine::items::Bat>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Bat>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::FallingBlock )
             {
-                modelNode = std::make_shared<engine::items::CollapsibleFloor>( gsl::make_not_null( this ), room, item,
-                                                                               *model );
+                modelNode = std::make_shared<engine::items::CollapsibleFloor>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::SwingingBlade )
             {
-                modelNode = std::make_shared<engine::items::SwingingBlade>( gsl::make_not_null( this ), room, item,
-                                                                            *model );
+                modelNode = std::make_shared<engine::items::SwingingBlade>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::RollingBall )
             {
-                modelNode = std::make_shared<engine::items::RollingBall>( gsl::make_not_null( this ), room, item,
-                                                                          *model );
+                modelNode = std::make_shared<engine::items::RollingBall>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Dart )
             {
-                modelNode = std::make_shared<engine::items::Dart>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Dart>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::DartEmitter )
             {
-                modelNode = std::make_shared<engine::items::DartGun>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::DartGun>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::LiftingDoor )
             {
-                modelNode = std::make_shared<engine::items::TrapDoorUp>( gsl::make_not_null( this ), room, item,
-                                                                         *model );
+                modelNode = std::make_shared<engine::items::TrapDoorUp>( this, room, item, *model );
             }
             else if( item.type >= engine::TR1ItemId::PushableBlock1 && item.type <= engine::TR1ItemId::PushableBlock4 )
             {
-                modelNode = std::make_shared<engine::items::Block>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Block>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::MovingBlock )
             {
-                modelNode = std::make_shared<engine::items::TallBlock>( gsl::make_not_null( this ), room, item,
-                                                                        *model );
+                modelNode = std::make_shared<engine::items::TallBlock>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::WallSwitch )
             {
-                modelNode = std::make_shared<engine::items::Switch>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Switch>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::UnderwaterSwitch )
             {
-                modelNode = std::make_shared<engine::items::UnderwaterSwitch>( gsl::make_not_null( this ), room, item,
-                                                                               *model );
+                modelNode = std::make_shared<engine::items::UnderwaterSwitch>( this, room, item, *model );
             }
             else if( item.type >= engine::TR1ItemId::Door1 && item.type <= engine::TR1ItemId::Door8 )
             {
-                modelNode = std::make_shared<engine::items::Door>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Door>( this, room, item, *model );
             }
             else if( item.type >= engine::TR1ItemId::Trapdoor1 && item.type <= engine::TR1ItemId::Trapdoor2 )
             {
-                modelNode = std::make_shared<engine::items::TrapDoorDown>( gsl::make_not_null( this ), room, item,
-                                                                           *model );
+                modelNode = std::make_shared<engine::items::TrapDoorDown>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::BridgeFlat )
             {
-                modelNode = std::make_shared<engine::items::BridgeFlat>( gsl::make_not_null( this ), room, item,
-                                                                         *model );
+                modelNode = std::make_shared<engine::items::BridgeFlat>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::BridgeTilt1 )
             {
-                modelNode = std::make_shared<engine::items::BridgeSlope1>( gsl::make_not_null( this ), room, item,
-                                                                           *model );
+                modelNode = std::make_shared<engine::items::BridgeSlope1>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::BridgeTilt2 )
             {
-                modelNode = std::make_shared<engine::items::BridgeSlope2>( gsl::make_not_null( this ), room, item,
-                                                                           *model );
+                modelNode = std::make_shared<engine::items::BridgeSlope2>( this, room, item, *model );
             }
             else if( item.type >= engine::TR1ItemId::Keyhole1 && item.type <= engine::TR1ItemId::Keyhole4 )
             {
-                modelNode = std::make_shared<engine::items::KeyHole>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::KeyHole>( this, room, item, *model );
             }
             else if( item.type >= engine::TR1ItemId::PuzzleHole1 && item.type <= engine::TR1ItemId::PuzzleHole4 )
             {
-                modelNode = std::make_shared<engine::items::PuzzleHole>( gsl::make_not_null( this ), room, item,
-                                                                         *model );
+                modelNode = std::make_shared<engine::items::PuzzleHole>( this, room, item, *model );
             }
             else if( item.type >= engine::TR1ItemId::Animating1 && item.type <= engine::TR1ItemId::Animating3 )
             {
-                modelNode = std::make_shared<engine::items::Animating>( gsl::make_not_null( this ), room, item,
-                                                                        *model );
+                modelNode = std::make_shared<engine::items::Animating>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::TeethSpikes )
             {
-                modelNode = std::make_shared<engine::items::TeethSpikes>( gsl::make_not_null( this ), room, item,
-                                                                          *model );
+                modelNode = std::make_shared<engine::items::TeethSpikes>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Raptor )
             {
-                modelNode = std::make_shared<engine::items::Raptor>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Raptor>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::SwordOfDamocles || item.type == engine::TR1ItemId::FallingCeiling )
             {
-                modelNode = std::make_shared<engine::items::SwordOfDamocles>( gsl::make_not_null( this ), room, item,
-                                                                              *model );
+                modelNode = std::make_shared<engine::items::SwordOfDamocles>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::CutsceneActor1 )
             {
-                modelNode = std::make_shared<engine::items::CutsceneActor1>( gsl::make_not_null( this ), room, item,
-                                                                             *model );
+                modelNode = std::make_shared<engine::items::CutsceneActor1>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::CutsceneActor2 )
             {
-                modelNode = std::make_shared<engine::items::CutsceneActor2>( gsl::make_not_null( this ), room, item,
-                                                                             *model );
+                modelNode = std::make_shared<engine::items::CutsceneActor2>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::CutsceneActor3 )
             {
-                modelNode = std::make_shared<engine::items::CutsceneActor3>( gsl::make_not_null( this ), room, item,
-                                                                             *model );
+                modelNode = std::make_shared<engine::items::CutsceneActor3>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::CutsceneActor4 )
             {
-                modelNode = std::make_shared<engine::items::CutsceneActor4>( gsl::make_not_null( this ), room, item,
-                                                                             *model );
+                modelNode = std::make_shared<engine::items::CutsceneActor4>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::WaterfallMist )
             {
-                modelNode = std::make_shared<engine::items::WaterfallMist>( gsl::make_not_null( this ), room, item,
-                                                                            *model );
+                modelNode = std::make_shared<engine::items::WaterfallMist>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::TRex )
             {
-                modelNode = std::make_shared<engine::items::TRex>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::TRex>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Mummy )
             {
-                modelNode = std::make_shared<engine::items::Mummy>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Mummy>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Larson )
             {
-                modelNode = std::make_shared<engine::items::Larson>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Larson>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::CrocodileOnLand
                      || item.type == engine::TR1ItemId::CrocodileInWater )
             {
-                modelNode = std::make_shared<engine::items::Crocodile>( gsl::make_not_null( this ), room, item,
-                                                                        *model );
+                modelNode = std::make_shared<engine::items::Crocodile>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::LionMale
                      || item.type == engine::TR1ItemId::LionFemale
                      || item.type == engine::TR1ItemId::Panther )
             {
-                modelNode = std::make_shared<engine::items::Lion>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Lion>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Barricade )
             {
-                modelNode = std::make_shared<engine::items::Barricade>( gsl::make_not_null( this ), room, item,
-                                                                        *model );
+                modelNode = std::make_shared<engine::items::Barricade>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Gorilla )
             {
-                modelNode = std::make_shared<engine::items::Gorilla>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Gorilla>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::Pierre )
             {
-                modelNode = std::make_shared<engine::items::Pierre>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::Pierre>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::ThorHammerBlock )
             {
-                modelNode = std::make_shared<engine::items::ThorHammerBlock>( gsl::make_not_null( this ), room, item,
-                                                                              *model );
+                modelNode = std::make_shared<engine::items::ThorHammerBlock>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::ThorHammerHandle )
             {
-                modelNode = std::make_shared<engine::items::ThorHammerHandle>( gsl::make_not_null( this ), room, item,
-                                                                               *model );
+                modelNode = std::make_shared<engine::items::ThorHammerHandle>( this, room, item, *model );
             }
             else if( item.type == engine::TR1ItemId::ThorLightningBall )
             {
-                modelNode = std::make_shared<engine::items::LightningBall>( gsl::make_not_null( this ), room, item,
+                modelNode = std::make_shared<engine::items::LightningBall>( this, room, item,
                                                                             *model,
-                                                                            gsl::make_not_null( m_lightningShader ) );
+                                                                            m_lightningShader );
             }
             else
             {
                 BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
 
-                modelNode = std::make_shared<engine::items::StubItem>( gsl::make_not_null( this ), room, item, *model );
+                modelNode = std::make_shared<engine::items::StubItem>( this, room, item, *model );
                 if( item.type == engine::TR1ItemId::MidasGoldTouch
                     || item.type == engine::TR1ItemId::CameraTarget
                     || item.type == engine::TR1ItemId::LavaParticleEmitter
@@ -549,8 +525,8 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
                 }
             }
 
-            m_itemNodes.emplace( std::make_pair( id, gsl::make_not_null( modelNode ) ) );
-            addChild( gsl::make_not_null( room->node ), gsl::make_not_null( modelNode->getNode() ) );
+            m_itemNodes.emplace( std::make_pair( id, modelNode ) );
+            addChild( room->node, modelNode->getNode() );
 
             modelNode->applyTransform();
             modelNode->updateLighting();
@@ -568,13 +544,13 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
 
             if( item.type == engine::TR1ItemId::ScionPiece1 )
             {
-                node = std::make_shared<engine::items::ScionPieceItem>( gsl::make_not_null( this ),
+                node = std::make_shared<engine::items::ScionPieceItem>( this,
                                                                         std::string( "sprite(type:" )
                                                                         + toString( item.type ) + ")",
                                                                         room,
                                                                         item,
                                                                         sprite,
-                                                                        gsl::make_not_null( m_spriteMaterial ) );
+                                                                        m_spriteMaterial );
             }
             else if( item.type == engine::TR1ItemId::Item141
                      || item.type == engine::TR1ItemId::Item142
@@ -600,28 +576,28 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
                      || item.type == engine::TR1ItemId::ScionPiece2
                      || item.type == engine::TR1ItemId::LeadBarSprite )
             {
-                node = std::make_shared<engine::items::PickupItem>( gsl::make_not_null( this ),
+                node = std::make_shared<engine::items::PickupItem>( this,
                                                                     std::string( "sprite(type:" )
                                                                     + toString( item.type ) + ")",
                                                                     room,
                                                                     item,
                                                                     sprite,
-                                                                    gsl::make_not_null( m_spriteMaterial ) );
+                                                                    m_spriteMaterial );
             }
             else
             {
                 BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
-                node = std::make_shared<engine::items::SpriteItemNode>( gsl::make_not_null( this ),
+                node = std::make_shared<engine::items::SpriteItemNode>( this,
                                                                         std::string( "sprite(type:" )
                                                                         + toString( item.type ) + ")",
                                                                         room,
                                                                         item,
                                                                         true,
                                                                         sprite,
-                                                                        gsl::make_not_null( m_spriteMaterial ) );
+                                                                        m_spriteMaterial );
             }
 
-            m_itemNodes.emplace( std::make_pair( id, gsl::make_not_null( node ) ) );
+            m_itemNodes.emplace( std::make_pair( id, node ) );
             continue;
         }
 
@@ -634,7 +610,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
 
 void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
 {
-    m_inputHandler = std::make_unique<engine::InputHandler>( gsl::make_not_null( game->getWindow() ) );
+    m_inputHandler = std::make_unique<engine::InputHandler>( game->getWindow() );
 
     for( auto& sprite : m_sprites )
     {
@@ -645,18 +621,18 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>( m_animatedTextures, m_textureProxies, m_textures );
 
-    const auto texturedShader = gsl::make_not_null( gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
-                                                                                             "shaders/textured_2.frag" ) );
+    const auto texturedShader = gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
+                                                                         "shaders/textured_2.frag" );
     const auto materials = createMaterials( texturedShader );
 
-    const auto colorMaterial = make_not_null_shared<gameplay::Material>( "shaders/colored_2.vert",
-                                                                         "shaders/colored_2.frag" );
+    const auto colorMaterial = std::make_shared<gameplay::Material>( "shaders/colored_2.vert",
+                                                                     "shaders/colored_2.frag" );
     colorMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
     colorMaterial->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
     colorMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
 
     BOOST_ASSERT( m_spriteMaterial == nullptr );
-    m_spriteMaterial = make_not_null_shared<gameplay::Material>( "shaders/textured_2.vert", "shaders/textured_2.frag" );
+    m_spriteMaterial = std::make_shared<gameplay::Material>( "shaders/textured_2.vert", "shaders/textured_2.frag" );
     m_spriteMaterial->getRenderState().setCullFace( false );
 
     m_spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
@@ -691,10 +667,9 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
     game->getScene()->setActiveCamera(
             std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 
-    const auto waterTexturedShader = gsl::make_not_null(
-            gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
-                                                     "shaders/textured_2.frag",
-                                                     {"WATER"} ) );
+    const auto waterTexturedShader = gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
+                                                                              "shaders/textured_2.frag",
+                                                                              {"WATER"} );
     auto waterMaterials = createMaterials( waterTexturedShader );
     for( const auto& m : waterMaterials | boost::adaptors::map_values )
     {
@@ -709,15 +684,15 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
     for( size_t i = 0; i < m_rooms.size(); ++i )
     {
         m_rooms[i].createSceneNode( i, *this, materials, waterMaterials, m_models, *m_textureAnimator );
-        game->getScene()->addNode( gsl::make_not_null( m_rooms[i].node ) );
+        game->getScene()->addNode( m_rooms[i].node );
     }
 
     m_lara = createItems();
     if( m_lara == nullptr )
     {
         m_cameraController = std::make_unique<engine::CameraController>(
-                gsl::make_not_null( this ),
-                gsl::make_not_null( game->getScene()->getActiveCamera() ),
+                this,
+                game->getScene()->getActiveCamera(),
                 true );
 
         for( const auto& item : m_items )
@@ -731,13 +706,13 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
     else
     {
         m_cameraController = std::make_unique<engine::CameraController>(
-                gsl::make_not_null( this ),
-                gsl::make_not_null( game->getScene()->getActiveCamera() ) );
+                this,
+                game->getScene()->getActiveCamera() );
     }
 
     for( const loader::SoundSource& src : m_soundSources )
     {
-        auto handle = gsl::make_not_null( playSound( src.sound_id, src.position.toRenderSystem() ) );
+        auto handle = playSound( src.sound_id, src.position.toRenderSystem() );
         handle->setLooping( true );
     }
 }
@@ -796,7 +771,7 @@ const loader::Sector* Level::findRealFloorSector(const core::TRVec& position,
             break;
         }
 
-        *room = gsl::make_not_null( sector->portalTarget );
+        *room = sector->portalTarget;
     }
 
     Expects( sector != nullptr );
@@ -804,7 +779,7 @@ const loader::Sector* Level::findRealFloorSector(const core::TRVec& position,
     {
         while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != nullptr )
         {
-            *room = gsl::make_not_null( sector->roomAbove );
+            *room = sector->roomAbove;
             sector = (*room)->getSectorByAbsolutePosition( position );
             if( sector == nullptr )
                 return nullptr;
@@ -814,7 +789,7 @@ const loader::Sector* Level::findRealFloorSector(const core::TRVec& position,
     {
         while( sector->floorHeight * loader::QuarterSectorSize < position.Y && sector->roomBelow != nullptr )
         {
-            *room = gsl::make_not_null( sector->roomBelow );
+            *room = sector->roomBelow;
             sector = (*room)->getSectorByAbsolutePosition( position );
             if( sector == nullptr )
                 return nullptr;
@@ -839,7 +814,7 @@ Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const load
             break;
         }
 
-        room = gsl::make_not_null( sector->portalTarget );
+        room = sector->portalTarget;
     }
 
     Expects( sector != nullptr );
@@ -847,7 +822,7 @@ Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const load
     {
         while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != nullptr )
         {
-            room = gsl::make_not_null( sector->roomAbove );
+            room = sector->roomAbove;
             sector = room->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
@@ -856,7 +831,7 @@ Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const load
     {
         while( sector->floorHeight * loader::QuarterSectorSize <= position.Y && sector->roomBelow != nullptr )
         {
-            room = gsl::make_not_null( sector->roomBelow );
+            room = sector->roomBelow;
             sector = room->getSectorByAbsolutePosition( position );
             Expects( sector != nullptr );
         }
@@ -1139,8 +1114,8 @@ gsl::not_null<std::shared_ptr<audio::Stream>> Level::playStream(size_t trackId)
                 DefaultBufferSize,
                 DefaultBufferCount );
 
-    result->setGain(0.8f);
-    return gsl::make_not_null( result );
+    result->setGain( 0.8f );
+    return result;
 }
 
 void Level::useAlternativeLaraAppearance(const bool withHead)
@@ -1334,7 +1309,7 @@ void Level::laraBubblesEffect(engine::items::ItemNode& node)
 
         while( bubbleCount-- > 0 )
         {
-            auto particle = make_not_null_shared<engine::BubbleParticle>(
+            auto particle = std::make_shared<engine::BubbleParticle>(
                     core::RoomBoundPosition{node.m_state.position.room, position}, *this );
             setParent( particle, node.m_state.position.room->node );
             m_particles.emplace_back( particle );
@@ -1535,11 +1510,11 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
         if( item->m_state.position.room == &orig )
         {
             // although this seems contradictory, remember the nodes have been swapped above
-            setParent( gsl::make_not_null( item->getNode() ), gsl::make_not_null( orig.node ) );
+            setParent( item->getNode(), orig.node );
         }
         else if( item->m_state.position.room == &alternate )
         {
-            setParent( gsl::make_not_null( item->getNode() ), gsl::make_not_null( alternate.node ) );
+            setParent( item->getNode(), alternate.node );
             continue;
         }
         else
@@ -1561,11 +1536,11 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     {
         if( item->m_state.position.room == &orig )
         {
-            setParent( gsl::make_not_null( item->getNode() ), gsl::make_not_null( orig.node ) );
+            setParent( item->getNode(), orig.node );
         }
         else if( item->m_state.position.room == &alternate )
         {
-            setParent( gsl::make_not_null( item->getNode() ), gsl::make_not_null( alternate.node ) );
+            setParent( item->getNode(), alternate.node );
         }
     }
 }
@@ -2049,16 +2024,16 @@ std::shared_ptr<engine::items::PickupItem> Level::createPickup(const engine::TR1
     Expects( spriteSequence != nullptr );
     const loader::Sprite& sprite = m_sprites[spriteSequence->offset];
 
-    auto node = make_not_null_shared<engine::items::PickupItem>(
-            gsl::make_not_null( this ),
+    auto node = std::make_shared<engine::items::PickupItem>(
+            this,
             "pickup",
             room,
             item,
             sprite,
-            gsl::make_not_null( m_spriteMaterial ) );
+            m_spriteMaterial );
 
     m_dynamicItems.emplace( node );
-    addChild( gsl::make_not_null( room->node ), gsl::make_not_null( node->getNode() ) );
+    addChild( room->node, node->getNode() );
 
-    return node.get();
+    return node;
 }

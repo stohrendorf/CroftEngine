@@ -208,10 +208,7 @@ void Wolf::update()
     else if( m_state.current_anim_state != Dying )
     {
         const auto r = util::rand15( 3 );
-        getSkeleton()->setAnimation(
-                m_state,
-                gsl::make_not_null( &getLevel().m_animatedModels[m_state.type]->animations[20 + r] ),
-                0 );
+        getSkeleton()->setAnimation( m_state, &getLevel().m_animatedModels[m_state.type]->animations[20 + r], 0 );
         BOOST_ASSERT( m_state.current_anim_state == Dying );
     }
     rotateCreatureTilt( roll );

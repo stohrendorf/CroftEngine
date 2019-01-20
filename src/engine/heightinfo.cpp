@@ -17,7 +17,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
 
     while( roomSector->roomBelow != nullptr )
     {
-        roomSector = gsl::make_not_null( roomSector->roomBelow->getSectorByAbsolutePosition( pos ) );
+        roomSector = roomSector->roomBelow->getSectorByAbsolutePosition( pos );
     }
 
     hi.y = roomSector->floorHeight * loader::QuarterSectorSize;
@@ -121,7 +121,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
 
     while( roomSector->roomAbove != nullptr )
     {
-        roomSector = gsl::make_not_null( roomSector->roomAbove->getSectorByAbsolutePosition( pos ) );
+        roomSector = roomSector->roomAbove->getSectorByAbsolutePosition( pos );
     }
 
     hi.y = roomSector->ceilingHeight * loader::QuarterSectorSize;
@@ -178,7 +178,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
 
     while( roomSector->roomBelow != nullptr )
     {
-        roomSector = gsl::make_not_null( roomSector->roomBelow->getSectorByAbsolutePosition( pos ) );
+        roomSector = roomSector->roomBelow->getSectorByAbsolutePosition( pos );
     }
 
     if( roomSector->floorData == nullptr )

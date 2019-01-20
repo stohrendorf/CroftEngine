@@ -257,7 +257,7 @@ bool SkeletalModelNode::handleStateTransitions(items::ItemState& state)
         {
             if( state.frame_number >= trc.firstFrame && state.frame_number <= trc.lastFrame )
             {
-                setAnimation( state, gsl::make_not_null( trc.targetAnimation ), trc.targetFrame );
+                setAnimation( state, trc.targetAnimation, trc.targetFrame );
                 return true;
             }
         }

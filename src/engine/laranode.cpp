@@ -154,7 +154,7 @@ LaraNode::WeaponId parseWeaponId(const std::string& s)
 void LaraNode::setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
 {
     getSkeleton()->setAnimation( m_state,
-                                 gsl::make_not_null( &getLevel().m_animations.at( static_cast<uint16_t>(anim) ) ),
+                                 &getLevel().m_animations.at( static_cast<uint16_t>(anim) ),
                                  firstFrame.get_value_or( 0 ) );
 }
 
@@ -431,7 +431,7 @@ void LaraNode::update()
         auto waterSurfaceHeight = getWaterSurfaceHeight();
         BOOST_ASSERT( waterSurfaceHeight.is_initialized() );
         auto room = m_state.position.room;
-        level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) );
+        level::Level::findRealFloorSector( m_state.position.position, &room );
         playSoundEffect( TR1SoundId::LaraFallIntoWater );
         for( int i = 0; i < 10; ++i )
         {
@@ -440,7 +440,7 @@ void LaraNode::update()
             surfacePos.position.Y = *waterSurfaceHeight;
             surfacePos.position.Z = m_state.position.position.Z;
 
-            auto particle = make_not_null_shared<SplashParticle>( surfacePos, getLevel(), false );
+            auto particle = std::make_shared<SplashParticle>( surfacePos, getLevel(), false );
             setParent( particle, surfacePos.room->node );
             getLevel().m_particles.emplace_back( particle );
         }
@@ -571,7 +571,7 @@ void LaraNode::updateImpl()
         }
 
         getSkeleton()
-                ->setAnimation( m_state, gsl::make_not_null( m_state.anim->nextAnimation ),
+                ->setAnimation( m_state, m_state.anim->nextAnimation,
                                 m_state.anim->nextFrame );
     }
 
@@ -623,7 +623,7 @@ void LaraNode::updateFloorHeight(const int dy)
     auto pos = m_state.position.position;
     pos.Y += dy;
     auto room = m_state.position.room;
-    const auto sector = gsl::make_not_null( level::Level::findRealFloorSector( pos, make_not_null( &room ) ) );
+    const auto sector = level::Level::findRealFloorSector( pos, &room );
     setCurrentRoom( room );
     const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
     m_state.floor = hi.y;
@@ -903,7 +903,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     std::set<gsl::not_null<const loader::Room*>> rooms;
     rooms.insert( m_state.position.room );
     for( const loader::Portal& p : m_state.position.room->portals )
-        rooms.insert( gsl::make_not_null( &getLevel().m_rooms[p.adjoining_room] ) );
+        rooms.insert( &getLevel().m_rooms[p.adjoining_room] );
 
     for( const auto& item : getLevel().m_itemNodes | boost::adaptors::map_values )
     {

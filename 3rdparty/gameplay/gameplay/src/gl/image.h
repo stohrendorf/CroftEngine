@@ -3,7 +3,7 @@
 #include "util.h"
 #include "pixel.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 #include <vector>
 
@@ -197,7 +197,7 @@ public:
     void fill(const StorageType& color)
     {
         if( !m_data.empty() )
-            detail::fill( gsl::make_not_null( m_data.data() ), m_data.size(), color );
+            detail::fill( gsl::not_null<StorageType*>{m_data.data()}, m_data.size(), color );
     }
 
     void line(GLint x0, GLint y0, const GLint x1, const GLint y1, const StorageType& color, const bool blend = false)

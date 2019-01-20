@@ -184,12 +184,12 @@ public:
         item.darkness = 0;
         item.activationState = activationState;
 
-        auto node = make_not_null_shared<T>( gsl::make_not_null( this ), room, item, *model );
+        auto node = std::make_shared<T>( this, room, item, *model );
 
         m_dynamicItems.emplace( node );
-        addChild( gsl::make_not_null( room->node ), gsl::make_not_null( node->getNode() ) );
+        addChild( room->node, node->getNode() );
 
-        return node.get();
+        return node;
     }
 
     std::shared_ptr<engine::items::PickupItem> createPickup(const engine::TR1ItemId type,
@@ -199,12 +199,12 @@ public:
     static const loader::Sector* findRealFloorSector(const core::TRVec& position,
                                                      gsl::not_null<const loader::Room*> room)
     {
-        return findRealFloorSector( position, make_not_null( &room ) );
+        return findRealFloorSector( position, &room );
     }
 
     static const loader::Sector* findRealFloorSector(core::RoomBoundPosition& rbs)
     {
-        return findRealFloorSector( rbs.position, make_not_null( &rbs.room ) );
+        return findRealFloorSector( rbs.position, &rbs.room );
     }
 
     static const loader::Sector* findRealFloorSector(const core::TRVec& position,
@@ -218,7 +218,7 @@ public:
     {
         while( sector->roomBelow != nullptr )
         {
-            sector = gsl::make_not_null( sector->roomBelow->getSectorByAbsolutePosition( position ) );
+            sector = sector->roomBelow->getSectorByAbsolutePosition( position );
         }
 
         static const auto zero = std::make_tuple( 0, 0 );
@@ -493,13 +493,16 @@ public:
 
     void load(const YAML::Node& node);
 
-    size_t indexOfModel(const std::shared_ptr<gameplay::Drawable>& m) const
+    boost::optional<size_t> indexOfModel(const std::shared_ptr<gameplay::Drawable>& m) const
     {
+        if(m==nullptr)
+            return boost::none;
+
         for( size_t i = 0; i < m_models.size(); ++i )
             if( m_models[i].get() == m )
                 return i;
 
-        BOOST_THROW_EXCEPTION( std::runtime_error( "Model not found" ) );
+        return boost::none;
     }
 
     std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates{};

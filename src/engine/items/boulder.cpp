@@ -26,8 +26,7 @@ void engine::items::RollingBall::update()
         ModelItemNode::update();
 
         auto room = m_state.position.room;
-        auto sector = gsl::make_not_null(
-                level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) ) );
+        auto sector = level::Level::findRealFloorSector( m_state.position.position, &room );
         setCurrentRoom( room );
         const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
         m_state.floor = hi.y;
@@ -44,7 +43,7 @@ void engine::items::RollingBall::update()
                              + core::TRVec( m_state.rotation.Y.sin() * loader::SectorSize / 2,
                                             0,
                                             m_state.rotation.Y.cos() * loader::SectorSize / 2 );
-        sector = gsl::make_not_null( level::Level::findRealFloorSector( testPos, room ) );
+        sector = level::Level::findRealFloorSector( testPos, room );
         if( HeightInfo::fromFloor( sector, testPos, getLevel().m_itemNodes ).y < m_state.position.position.Y )
         {
             m_state.fallspeed = 0;
@@ -61,10 +60,7 @@ void engine::items::RollingBall::update()
         m_state.triggerState = TriggerState::Deactivated;
         m_state.position.position = m_position.position;
         setCurrentRoom( m_position.room );
-        getSkeleton()->setAnimation( m_state,
-                                     gsl::make_not_null(
-                                             getLevel().m_animatedModels[m_state.type]->animations ),
-                                     0 );
+        getSkeleton()->setAnimation( m_state, getLevel().m_animatedModels[m_state.type]->animations, 0 );
         m_state.goal_anim_state = m_state.current_anim_state;
         m_state.required_anim_state = 0;
         deactivate();

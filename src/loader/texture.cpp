@@ -13,7 +13,7 @@ gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
         const BlendingMode bmode,
         const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
 {
-    auto result = make_not_null_shared<gameplay::Material>( shader );
+    auto result = std::make_shared<gameplay::Material>( shader );
     // Set some defaults
     texture->set( GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     texture->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
@@ -120,7 +120,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 
 void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback)
 {
-    texture = make_not_null_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
+    texture = std::make_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
     texture->setLabel( md5 );
     toImage( glidos, statusCallback );
     texture->image2D( image->getWidth(), image->getHeight(), image->getData(), true );

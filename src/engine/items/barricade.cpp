@@ -20,7 +20,7 @@ void Barricade::update()
 
     ModelItemNode::update();
     auto room = m_state.position.room;
-    level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) );
+    level::Level::findRealFloorSector( m_state.position.position, &room );
     if( room != m_state.position.room )
     {
         setCurrentRoom( room );

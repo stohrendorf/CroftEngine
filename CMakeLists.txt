@@ -161,33 +161,26 @@ else()
     target_include_directories( sol2 INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/sol-v2.20.4/" )
 endif()
 
-if( NOT VCPKG_TOOLCHAIN )
-    if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-v2.0.0.zip" )
-        message( STATUS "Downloading ms-gsl..." )
-        file( DOWNLOAD https://github.com/Microsoft/GSL/archive/v2.0.0.zip "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-v2.0.0.zip"
-              STATUS status
-              LOG log )
-        list( GET status 0 status_code )
-        list( GET status 1 status_string )
+if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp" )
+    message( STATUS "Downloading gsl-lite..." )
+    file( DOWNLOAD https://raw.githubusercontent.com/martinmoene/gsl-lite/d36fa3ba0b3a1331d5326d37b3202222aebd398c/include/gsl/gsl-lite.hpp "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp"
+          STATUS status
+          LOG log )
+    list( GET status 0 status_code )
+    list( GET status 1 status_string )
 
-        if( NOT status_code EQUAL 0 )
-            message( FATAL_ERROR "Download failed with code ${status_code}" )
-        endif()
+    if( NOT status_code EQUAL 0 )
+        message( FATAL_ERROR "Download failed with code ${status_code}" )
     endif()
-
-    if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/GSL-2.0.0" )
-        message( STATUS "Extracting ms-gsl..." )
-        execute_process( COMMAND ${CMAKE_COMMAND} -E tar xfz gsl-v2.0.0.zip
-                         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty"
-                         RESULT_VARIABLE rv )
-
-        if( NOT rv EQUAL 0 )
-            message( FATAL_ERROR "Failed to extract gsl-v2.0.0.zip" )
-        endif()
-    endif()
-
-    include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/GSL-2.0.0/include" )
 endif()
+
+include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite" )
+add_definitions(
+        -Dgsl_FEATURE_WITH_CONTAINER_TO_STD=${CMAKE_CXX_STANDARD}
+        -Dgsl_FEATURE_MAKE_SPAN_TO_STD=${CMAKE_CXX_STANDARD}
+        -Dgsl_FEATURE_BYTE_SPAN_TO_STD=${CMAKE_CXX_STANDARD}
+        -Dgsl_CONFIG_NOT_NULL_EXPLICIT_CTOR=0
+)
 
 
 find_package( Git REQUIRED )

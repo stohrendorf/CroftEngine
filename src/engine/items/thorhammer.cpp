@@ -86,8 +86,7 @@ void ThorHammerHandle::update()
         case 3:
         {
             const auto sector = level::Level::findRealFloorSector( m_state.position.position, m_state.position.room );
-            const auto hi = HeightInfo::fromFloor( gsl::make_not_null( sector ), m_state.position.position,
-                                                   getLevel().m_itemNodes );
+            const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
             getLevel().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
 
             const auto oldPosX = m_state.position.position.X;

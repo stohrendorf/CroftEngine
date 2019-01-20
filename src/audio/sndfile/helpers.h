@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 #include <sndfile.h>
 #include <boost/assert.hpp>

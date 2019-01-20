@@ -20,8 +20,8 @@ createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<gameplay::Shader
                     gameplay::gl::VertexAttribute::SingleAttribute<glm::vec3>{}}}
     };
 
-    auto mesh = make_not_null_shared<gameplay::Mesh>( attribs, true );
-    mesh->getBuffers()[0]->assign<glm::vec3>( gsl::make_not_null( &vertices[0] ), points );
+    auto mesh = std::make_shared<gameplay::Mesh>( attribs, true );
+    mesh->getBuffers()[0]->assign<glm::vec3>( &vertices[0], points );
 
     std::vector<uint16_t> indices;
     for( uint16_t i = 0; i < points; ++i )
@@ -29,12 +29,12 @@ createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<gameplay::Shader
 
     gameplay::gl::VertexArrayBuilder builder;
 
-    auto indexBuffer = make_not_null_shared<gameplay::gl::IndexBuffer>();
+    auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
     indexBuffer->setData( indices, false );
     builder.attach( indexBuffer );
     builder.attach( mesh->getBuffers() );
 
-    const auto part = make_not_null_shared<gameplay::MeshPart>( builder.build( program->getHandle() ), GL_LINE_STRIP );
+    const auto part = std::make_shared<gameplay::MeshPart>( builder.build( program->getHandle() ), GL_LINE_STRIP );
     mesh->addPart( part );
 
     mesh->getRenderState().setLineSmooth( true );
@@ -98,17 +98,17 @@ LightningBall::LightningBall(const gsl::not_null<level::Level*>& level,
     }
 
     m_mainBoltMesh = createBolt( SegmentPoints, boltProgram, 10 );
-    auto node = make_not_null_shared<gameplay::Node>( "lightning-bolt-main" );
+    auto node = std::make_shared<gameplay::Node>( "lightning-bolt-main" );
     node->setDrawable( m_mainBoltMesh );
-    addChild( gsl::make_not_null( getSkeleton() ), node );
+    addChild( getSkeleton(), node );
 
     for( auto& childBolt : m_childBolts )
     {
         childBolt.mesh = createBolt( SegmentPoints, boltProgram, 3 );
 
-        node = make_not_null_shared<gameplay::Node>( "lightning-bolt-child" );
+        node = std::make_shared<gameplay::Node>( "lightning-bolt-child" );
         node->setDrawable( childBolt.mesh );
-        addChild( gsl::make_not_null( getSkeleton() ), node );
+        addChild( getSkeleton(), node );
     }
 }
 
@@ -164,7 +164,7 @@ void LightningBall::update()
     {
         // we don't have poles, so just shoot downwards
         m_mainBoltEnd = glm::vec3{0, 0, 0};
-        const auto sector = gsl::make_not_null( level::Level::findRealFloorSector( m_state.position ) );
+        const auto sector = level::Level::findRealFloorSector( m_state.position );
         m_mainBoltEnd.y = -HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
         m_mainBoltEnd.y -= m_state.position.position.toRenderSystem().y;
     }

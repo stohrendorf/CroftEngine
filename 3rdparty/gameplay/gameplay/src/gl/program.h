@@ -3,7 +3,8 @@
 #include "texture.h"
 #include "shader.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
+
 #include <glm/gtc/type_ptr.hpp>
 
 namespace gameplay

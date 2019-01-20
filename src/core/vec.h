@@ -2,7 +2,8 @@
 
 #include "gameplay.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
+
 #include <sol.hpp>
 #include <yaml-cpp/yaml.h>
 

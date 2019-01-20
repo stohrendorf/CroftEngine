@@ -308,7 +308,7 @@ public:
         }
 
         loader::DWordTexture texture;
-        texture.texture = make_not_null_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
+        texture.texture = std::make_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
         texture.texture->setLabel( "animated texture tiles" );
         img.interleave();
         texture.image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(

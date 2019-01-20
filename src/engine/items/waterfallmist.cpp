@@ -17,7 +17,7 @@ void WaterfallMist::update()
         || std::abs( d.Z ) > 20 * loader::SectorSize )
         return;
 
-    auto particle = make_not_null_shared<SplashParticle>( m_state.position, getLevel(), true );
+    auto particle = std::make_shared<SplashParticle>( m_state.position, getLevel(), true );
     setParent( particle, m_state.position.room->node );
     getLevel().m_particles.emplace_back( particle );
 }

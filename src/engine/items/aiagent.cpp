@@ -101,9 +101,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto bboxMinY = m_state.position.position.Y + bbox.minY;
 
     auto room = m_state.position.room;
-    auto sector = gsl::make_not_null( level::Level::findRealFloorSector(
-            m_state.position.position + core::TRVec{0, bbox.minY, 0},
-            make_not_null( &room ) ) );
+    auto sector = level::Level::findRealFloorSector( m_state.position.position + core::TRVec{0, bbox.minY, 0}, &room );
     Expects( sector->box != nullptr );
     auto currentFloor = sector->box->floor;
 
@@ -138,9 +136,8 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         else if( newSectorZ > oldSectorZ )
             m_state.position.position.Z = oldPosition.Z | 0x3ff;
 
-        sector = gsl::make_not_null( level::Level::findRealFloorSector(
-                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                make_not_null( &room ) ) );
+        sector = level::Level::findRealFloorSector(
+                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
 
         currentFloor = sector->box->floor;
 
@@ -292,9 +289,8 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     if( moveX != 0 || moveZ != 0 )
     {
-        sector = gsl::make_not_null( level::Level::findRealFloorSector(
-                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                make_not_null( &room ) ) );
+        sector = level::Level::findRealFloorSector(
+                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
 
         m_state.rotation.Y += angle;
         m_state.rotation.Z += util::clamp(
@@ -365,9 +361,8 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         }
 
         m_state.position.position.Y += moveY;
-        sector = gsl::make_not_null( level::Level::findRealFloorSector(
-                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                make_not_null( &room ) ) );
+        sector = level::Level::findRealFloorSector(
+                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
         m_state.floor = HeightInfo::fromFloor( sector,
                                                core::TRVec{
                                                        m_state.position.position.X,
@@ -407,8 +402,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     m_state.rotation.X = 0_au;
 
-    sector = gsl::make_not_null(
-            level::Level::findRealFloorSector( m_state.position.position, make_not_null( &room ) ) );
+    sector = level::Level::findRealFloorSector( m_state.position.position, &room );
     m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
 
     setCurrentRoom( room );
@@ -464,7 +458,7 @@ gsl::not_null<std::shared_ptr<Particle>> createGunFlare(const level::Level& leve
                                                         int16_t speed,
                                                         core::Angle angle)
 {
-    auto particle = make_not_null_shared<GunflareParticle>( pos, level, angle );
+    auto particle = std::make_shared<GunflareParticle>( pos, level, angle );
     setParent( particle, pos.room->node );
     return particle;
 }

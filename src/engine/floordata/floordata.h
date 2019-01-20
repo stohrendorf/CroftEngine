@@ -2,8 +2,9 @@
 
 #include "core/magic.h"
 
+#include "gsl-lite.hpp"
+
 #include <boost/optional.hpp>
-#include <gsl/gsl>
 #include <yaml-cpp/yaml.h>
 
 #include <bitset>

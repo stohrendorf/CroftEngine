@@ -369,7 +369,7 @@ public:
     {
         if( m_skeleton != nullptr )
         {
-            setParent( gsl::make_not_null( m_skeleton ), nullptr );
+            setParent( m_skeleton, nullptr );
         }
     }
 
@@ -458,7 +458,7 @@ public:
     {
         if( m_node != nullptr )
         {
-            setParent( gsl::make_not_null( m_node ), nullptr );
+            setParent( m_node, nullptr );
         }
     }
 

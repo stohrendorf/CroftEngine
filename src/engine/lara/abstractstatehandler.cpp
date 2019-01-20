@@ -312,7 +312,7 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
             break;
     }
 
-    const auto sector = gsl::make_not_null( level::Level::findRealFloorSector( pos, m_lara.m_state.position.room ) );
+    const auto sector = level::Level::findRealFloorSector( pos, m_lara.m_state.position.room );
     const HeightInfo floor = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
     const HeightInfo ceil = HeightInfo::fromCeiling( sector, pos, getLevel().m_itemNodes );
     return floor.y != -loader::HeightLimit && floor.y - pos.Y > 0 && ceil.y - pos.Y < -400;
@@ -613,7 +613,7 @@ int AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, const 
     pos.Y -= core::ScalpHeight;
     pos.Z += angle.cos() * dist;
 
-    const auto sector = gsl::make_not_null( level::Level::findRealFloorSector( pos, m_lara.m_state.position.room ) );
+    const auto sector = level::Level::findRealFloorSector( pos, m_lara.m_state.position.room );
 
     HeightInfo h = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
 
@@ -803,8 +803,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 // ReSharper disable once CppMemberFunctionMayBeConst
 bool AbstractStateHandler::applyLandingDamage()
 {
-    const auto sector = gsl::make_not_null(
-            level::Level::findRealFloorSector( m_lara.m_state.position.position, m_lara.m_state.position.room ) );
+    const auto sector =  level::Level::findRealFloorSector( m_lara.m_state.position.position, m_lara.m_state.position.room );
     const HeightInfo h = HeightInfo::fromFloor( sector,
                                                 m_lara.m_state.position.position
                                                 - core::TRVec{0, core::ScalpHeight, 0},

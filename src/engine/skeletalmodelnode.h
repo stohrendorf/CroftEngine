@@ -3,7 +3,7 @@
 #include "core/magic.h"
 #include "loader/animation.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 namespace level
 {

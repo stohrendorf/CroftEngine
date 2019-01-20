@@ -4,7 +4,7 @@
 #include "Game.h"
 #include "MaterialParameter.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 #include <boost/log/trivial.hpp>
 #include <utility>

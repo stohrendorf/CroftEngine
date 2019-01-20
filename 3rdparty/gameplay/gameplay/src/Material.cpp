@@ -3,7 +3,6 @@
 #include "ShaderProgram.h"
 #include "Node.h"
 #include "MaterialParameter.h"
-#include "gsl_util.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string/join.hpp>
@@ -56,7 +55,7 @@ gsl::not_null<std::shared_ptr<MaterialParameter>> Material::getParameter(const s
     }
 
     // Create a new parameter and store it in our list.
-    auto param = make_not_null_shared<MaterialParameter>( name );
+    auto param = std::make_shared<MaterialParameter>( name );
     m_parameters.emplace_back( param );
     return param;
 }

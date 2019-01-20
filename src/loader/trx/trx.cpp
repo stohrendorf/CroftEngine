@@ -1,9 +1,9 @@
 #include "trx.h"
 
+#include "gsl-lite.hpp"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/log/trivial.hpp>
-
-#include <gsl/gsl>
 #include <utility>
 
 namespace
@@ -24,19 +24,17 @@ boost::filesystem::path readSymlink(const boost::filesystem::path& root,
     std::string head;
     std::getline( txt, head );
     boost::algorithm::trim( head );
-    if( boost::algorithm::starts_with( head, "TLNK:" ) )
-    {
-        head.erase( 0, head.find( ':' ) + 1 );
-        boost::algorithm::trim( head );
-        boost::algorithm::replace_all( head, "\\", "/" );
-        srcTimestamp = std::max( srcTimestamp, std::chrono::system_clock::from_time_t(
-                last_write_time( root / ref ) ) );
-        return readSymlink( root, head, srcTimestamp );
-    }
-    else
+    if( !boost::algorithm::starts_with( head, "TLNK:" ) )
     {
         BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to parse Glidos texture link file" ) );
     }
+
+    head.erase( 0, head.find( ':' ) + 1 );
+    boost::algorithm::trim( head );
+    boost::algorithm::replace_all( head, "\\", "/" );
+    srcTimestamp = std::max( srcTimestamp, std::chrono::system_clock::from_time_t(
+            last_write_time( root / ref ) ) );
+    return readSymlink( root, head, srcTimestamp );
 }
 }
 
@@ -64,8 +62,8 @@ Rectangle::Rectangle(const std::string& serialized)
     m_y0 = boost::lexical_cast<uint32_t>( matches[3].str() );
     m_y1 = boost::lexical_cast<uint32_t>( matches[4].str() );
 
-    BOOST_ASSERT( m_x0 <= m_x1 );
-    BOOST_ASSERT( m_y0 <= m_y1 );
+    Expects( m_x0 <= m_x1 );
+    Expects( m_y0 <= m_y1 );
 }
 
 TexturePart::TexturePart(const std::string& serialized)

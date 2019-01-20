@@ -7,7 +7,7 @@
 #include <CImg.h>
 
 #include <boost/assert.hpp>
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 namespace util
 {

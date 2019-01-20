@@ -4,7 +4,8 @@
 
 #include "controllerlayout.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
+
 #include <GLFW/glfw3.h>
 
 namespace engine
@@ -39,15 +40,18 @@ public:
     {
         static const constexpr float AxisThreshold = 0.5f;
 
-        int controllerButtonCount = 0;
+        gsl::index controllerButtonCount = 0;
         const uint8_t* controllerButtons = nullptr;
-        int controllerAxisCount = 0;
+        gsl::index controllerAxisCount = 0;
         const float* controllerAxisValues = nullptr;
 
         if( m_controllerIndex >= 0 )
         {
-            controllerButtons = glfwGetJoystickButtons( m_controllerIndex, &controllerButtonCount );
-            controllerAxisValues = glfwGetJoystickAxes( m_controllerIndex, &controllerAxisCount );
+            int tmp = 0;
+            controllerButtons = glfwGetJoystickButtons( m_controllerIndex, &tmp );
+            controllerButtonCount = std::exchange( tmp, 0 );
+            controllerAxisValues = glfwGetJoystickAxes( m_controllerIndex, &tmp );
+            controllerAxisCount = std::exchange( tmp, 0 );
         }
 
         auto left = glfwGetKey( m_window, GLFW_KEY_A ) == GLFW_PRESS;

@@ -30,8 +30,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     auto room = level.m_lara->m_state.position.room;
     const auto refTestPos = laraPos - core::TRVec( 0, height + core::ScalpToHandsHeight, 0 );
-    const auto currentSector = gsl::make_not_null(
-            level::Level::findRealFloorSector( refTestPos, make_not_null( &room ) ) );
+    const auto currentSector = level::Level::findRealFloorSector( refTestPos, &room );
 
     mid.init( currentSector, refTestPos, level.m_itemNodes, laraPos.Y, height );
 
@@ -79,7 +78,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     // Front
     auto testPos = refTestPos + core::TRVec( frontX, 0, frontZ );
-    auto sector = gsl::make_not_null( level::Level::findRealFloorSector( testPos, make_not_null( &room ) ) );
+    auto sector = level::Level::findRealFloorSector( testPos, &room );
     front.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
     if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.y < 0 )
     {
@@ -98,7 +97,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     // Front left
     testPos = refTestPos + core::TRVec( frontLeftX, 0, frontLeftZ );
-    sector = gsl::make_not_null( level::Level::findRealFloorSector( testPos, make_not_null( &room ) ) );
+    sector = level::Level::findRealFloorSector( testPos, &room );
     frontLeft.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontLeft.floor.slantClass == SlantClass::Steep
@@ -119,7 +118,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     // Front right
     testPos = refTestPos + core::TRVec( frontRightX, 0, frontRightZ );
-    sector = gsl::make_not_null( level::Level::findRealFloorSector( testPos, make_not_null( &room ) ) );
+    sector = level::Level::findRealFloorSector( testPos, &room );
     frontRight.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( (policyFlags & SlopesAreWalls) != 0 && frontRight.floor.slantClass == SlantClass::Steep
@@ -255,7 +254,7 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const int 
     {
         for( const loader::RoomStaticMesh& rsm : room->staticMeshes )
         {
-            const auto sm = gsl::make_not_null( level.findStaticMeshById( rsm.meshId ) );
+            const auto sm = level.findStaticMeshById( rsm.meshId );
             if( sm->doNotCollide() )
                 continue;
 

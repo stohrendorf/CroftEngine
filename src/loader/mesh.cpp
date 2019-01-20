@@ -309,13 +309,13 @@ gsl::not_null<std::shared_ptr<gameplay::Model>> Mesh::ModelBuilder::finalize()
 #endif
         gameplay::gl::VertexArrayBuilder builder;
 
-        auto indexBuffer = make_not_null_shared<gameplay::gl::IndexBuffer>();
+        auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
         indexBuffer->setData( localPart.indices, true );
         builder.attach( indexBuffer );
 
         builder.attach( m_mesh->getBuffers() );
 
-        auto part = make_not_null_shared<gameplay::MeshPart>(
+        auto part = std::make_shared<gameplay::MeshPart>(
                 builder.build( localPart.material->getShaderProgram()->getHandle() ) );
         m_mesh->addPart( part );
         part->setMaterial( localPart.material );
@@ -328,7 +328,7 @@ gsl::not_null<std::shared_ptr<gameplay::Model>> Mesh::ModelBuilder::finalize()
         }
     }
 
-    auto model = make_not_null_shared<gameplay::Model>();
+    auto model = std::make_shared<gameplay::Model>();
     model->addMesh( m_mesh );
     return model;
 }

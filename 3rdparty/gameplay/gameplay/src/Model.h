@@ -3,7 +3,7 @@
 #include "Drawable.h"
 #include "Mesh.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 namespace gameplay
 {

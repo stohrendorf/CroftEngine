@@ -41,7 +41,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             {
                 m_state.triggerState = TriggerState::Invisible;
                 getLevel().addInventoryItem( m_state.type );
-                setParent( gsl::make_not_null( getNode() ), nullptr );
+                setParent( getNode(), nullptr );
                 m_state.collidable = false;
                 return;
             }
@@ -89,7 +89,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
                 m_state.triggerState = TriggerState::Invisible;
                 getLevel().addInventoryItem( m_state.type );
-                setParent( gsl::make_not_null( getNode() ), nullptr );
+                setParent( getNode(), nullptr );
                 m_state.collidable = false;
             }
         }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>

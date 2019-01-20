@@ -2,7 +2,7 @@
 
 #include "RenderState.h"
 
-#include <gsl/gsl>
+#include "gsl-lite.hpp"
 
 #include <stack>
 

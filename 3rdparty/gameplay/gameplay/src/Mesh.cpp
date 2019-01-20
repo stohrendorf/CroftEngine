@@ -2,7 +2,6 @@
 #include "Mesh.h"
 #include "MeshPart.h"
 #include "Material.h"
-#include "gsl_util.h"
 
 #include <boost/log/trivial.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -33,8 +32,8 @@ gsl::not_null<std::shared_ptr<Mesh>> Mesh::createQuadFullscreen(const float widt
             {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&Vertex::uv}}
     };
 
-    auto mesh = make_not_null_shared<Mesh>( attribs, false );
-    mesh->getBuffers()[0]->assign<Vertex>( gsl::make_not_null( &vertices[0] ), 4 );
+    auto mesh = std::make_shared<Mesh>( attribs, false );
+    mesh->getBuffers()[0]->assign<Vertex>( &vertices[0], 4 );
 
     static const uint16_t indices[6] =
             {
@@ -44,12 +43,12 @@ gsl::not_null<std::shared_ptr<Mesh>> Mesh::createQuadFullscreen(const float widt
 
     gl::VertexArrayBuilder builder;
 
-    auto indexBuffer = make_not_null_shared<gl::IndexBuffer>();
-    indexBuffer->setData( gsl::make_not_null( &indices[0] ), 6, false );
+    auto indexBuffer = std::make_shared<gl::IndexBuffer>();
+    indexBuffer->setData( gsl::not_null<const uint16_t*>(&indices[0]), 6, false );
     builder.attach( indexBuffer );
     builder.attach( mesh->getBuffers() );
 
-    const auto part = make_not_null_shared<MeshPart>( builder.build( program ) );
+    const auto part = std::make_shared<MeshPart>( builder.build( program ) );
     mesh->addPart( part );
 
     return mesh;

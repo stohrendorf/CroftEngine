@@ -1,13 +1,13 @@
 #pragma once
 
-#include <cmath>
+#include "gsl-lite.hpp"
 
-#include <gsl/gsl>
 #include <glm/gtx/euler_angles.hpp>
-
 #include <boost/optional.hpp>
 #include <sol.hpp>
 #include <yaml-cpp/yaml.h>
+
+#include <cmath>
 
 namespace core
 {
