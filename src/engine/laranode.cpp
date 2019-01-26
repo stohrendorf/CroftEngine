@@ -322,7 +322,7 @@ void LaraNode::handleLaraStateSwimming()
     collisionInfo.badPositiveDistance = loader::HeightLimit;
     collisionInfo.badNegativeDistance = -core::DefaultCollisionRadius;
 
-    setCameraCurrentRotationX( -22_deg );
+    setCameraRotationAroundCenterX( -22_deg );
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->handleInput( collisionInfo );
 
@@ -657,7 +657,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
     const uint16_t activationRequestRaw = *floorData++;
     const floordata::ActivationState activationRequest{activationRequestRaw};
 
-    getLevel().m_cameraController->findItem( floorData );
+    getLevel().m_cameraController->handleCommandSequence( floorData );
 
     bool conditionFulfilled, switchIsOn = false;
     if( fromHeavy )
@@ -776,7 +776,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
             }
                 break;
             case floordata::CommandOpcode::LookAt:
-                getLevel().m_cameraController->setItem( getLevel().getItem( command.parameter ) );
+                getLevel().m_cameraController->setLookAtItem( getLevel().getItem( command.parameter ) );
                 break;
             case floordata::CommandOpcode::UnderwaterCurrent:
             {
@@ -867,19 +867,19 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
         getLevel().setGlobalEffect( *flipEffect );
 }
 
-void LaraNode::setCameraCurrentRotation(const core::Angle x, const core::Angle y)
+void LaraNode::setCameraRotationAroundCenter(const core::Angle x, const core::Angle y)
 {
-    getLevel().m_cameraController->setCurrentRotation( x, y );
+    getLevel().m_cameraController->setRotationAroundCenter( x, y );
 }
 
-void LaraNode::setCameraCurrentRotationY(const core::Angle y)
+void LaraNode::setCameraRotationAroundCenterY(const core::Angle y)
 {
-    getLevel().m_cameraController->setCurrentRotationY( y );
+    getLevel().m_cameraController->setRotationAroundCenterY( y );
 }
 
-void LaraNode::setCameraCurrentRotationX(const core::Angle x)
+void LaraNode::setCameraRotationAroundCenterX(const core::Angle x)
 {
-    getLevel().m_cameraController->setCurrentRotationX( x );
+    getLevel().m_cameraController->setRotationAroundCenterX( x );
 }
 
 void LaraNode::setCameraEyeCenterDistance(const int d)
@@ -887,9 +887,9 @@ void LaraNode::setCameraEyeCenterDistance(const int d)
     getLevel().m_cameraController->setEyeCenterDistance( d );
 }
 
-void LaraNode::setCameraOldMode(const CameraMode k)
+void LaraNode::setCameraModifier(const CameraModifier k)
 {
-    getLevel().m_cameraController->setOldMode( k );
+    getLevel().m_cameraController->setModifier( k );
 }
 
 void LaraNode::testInteractions(CollisionInfo& collisionInfo)

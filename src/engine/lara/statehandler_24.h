@@ -20,8 +20,8 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        setCameraOldMode( CameraMode::FreeLook );
-        setCameraCurrentRotationX( -45_deg );
+        setCameraModifier( CameraModifier::AllowSteepSlants );
+        setCameraRotationAroundCenterX( -45_deg );
         if( getLevel().m_inputHandler->getInputState().jump )
         {
             setGoalAnimState( LaraStateId::JumpForward );

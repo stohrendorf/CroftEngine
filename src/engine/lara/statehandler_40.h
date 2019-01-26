@@ -19,8 +19,8 @@ public:
     void handleInput(CollisionInfo& collisionInfo) override
     {
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush);
-        setCameraCurrentRotation( -25_deg, 80_deg );
-        setCameraTargetDistance( 1024 );
+        setCameraRotationAroundCenter( -25_deg, 80_deg );
+        setCameraEyeCenterDistance( 1024 );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override

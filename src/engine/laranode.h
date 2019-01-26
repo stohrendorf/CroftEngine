@@ -342,15 +342,15 @@ public:
         m_underwaterState = u;
     }
 
-    void setCameraCurrentRotation(core::Angle x, core::Angle y);
+    void setCameraRotationAroundCenter(const core::Angle x, const core::Angle y);
 
-    void setCameraCurrentRotationX(core::Angle x);
+    void setCameraRotationAroundCenterX(const core::Angle x);
 
-    void setCameraCurrentRotationY(core::Angle y);
+    void setCameraRotationAroundCenterY(const core::Angle y);
 
     void setCameraEyeCenterDistance(int d);
 
-    void setCameraOldMode(CameraMode k);
+    void setCameraModifier(const CameraModifier k);
 
     void addHeadRotationXY(const core::Angle& x, const core::Angle& minX, const core::Angle& maxX, const core::Angle& y,
                            const core::Angle& minY, const core::Angle& maxY)

@@ -859,33 +859,33 @@ void AbstractStateHandler::setUnderwaterState(const UnderwaterState u) noexcept
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraCurrentRotation(const core::Angle x, const core::Angle y)
+void AbstractStateHandler::setCameraRotationAroundCenter(const core::Angle x, const core::Angle y)
 {
-    m_lara.setCameraCurrentRotation( x, y );
+    m_lara.setCameraRotationAroundCenter( x, y );
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraCurrentRotationX(const core::Angle x)
+void AbstractStateHandler::setCameraRotationAroundCenterX(const core::Angle x)
 {
-    m_lara.setCameraCurrentRotationX( x );
+    m_lara.setCameraRotationAroundCenterX( x );
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraCurrentRotationY(const core::Angle y)
+void AbstractStateHandler::setCameraRotationAroundCenterY(const core::Angle y)
 {
-    m_lara.setCameraCurrentRotationY( y );
+    m_lara.setCameraRotationAroundCenterY( y );
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraTargetDistance(const int d)
+void AbstractStateHandler::setCameraEyeCenterDistance(const int d)
 {
     m_lara.setCameraEyeCenterDistance( d );
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraOldMode(const CameraMode k)
+void AbstractStateHandler::setCameraModifier(const CameraModifier k)
 {
-    m_lara.setCameraOldMode( k );
+    m_lara.setCameraModifier( k );
 }
 
 void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)

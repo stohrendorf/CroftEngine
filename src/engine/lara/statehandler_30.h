@@ -21,7 +21,7 @@ public:
     void handleInput(CollisionInfo& collisionInfo) override
     {
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
-        setCameraCurrentRotation( -60_deg, 0_deg );
+        setCameraRotationAroundCenter( -60_deg, 0_deg );
         if( getLevel().m_inputHandler->getInputState().xMovement != AxisMovement::Left &&
             getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
         {

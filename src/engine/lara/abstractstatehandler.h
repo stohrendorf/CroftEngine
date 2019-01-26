@@ -11,6 +11,7 @@
 namespace engine
 {
 enum class CameraMode;
+enum class CameraModifier;
 using LaraStateId = loader::LaraStateId;
 struct CollisionInfo;
 
@@ -149,15 +150,15 @@ protected:
 
     void setUnderwaterState(UnderwaterState u) noexcept;
 
-    void setCameraCurrentRotation(core::Angle x, core::Angle y);
+    void setCameraRotationAroundCenter(const core::Angle x, const core::Angle y);
 
-    void setCameraCurrentRotationX(core::Angle x);
+    void setCameraRotationAroundCenterX(const core::Angle x);
 
-    void setCameraCurrentRotationY(core::Angle y);
+    void setCameraRotationAroundCenterY(const core::Angle y);
 
-    void setCameraTargetDistance(int d);
+    void setCameraEyeCenterDistance(int d);
 
-    void setCameraOldMode(CameraMode k);
+    void setCameraModifier(const CameraModifier k);
 
     void laraUpdateImpl();
 };

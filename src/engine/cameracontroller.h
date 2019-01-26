@@ -27,22 +27,28 @@ class LaraNode;
 
 enum class CameraMode
 {
-    Chase, // 0
+    Chase,
     Fixed,
-    FreeLook, // 2
+    FreeLook,
     Combat,
     Cinematic,
     Heavy
+};
+
+enum class CameraModifier
+{
+    None,
+    FollowCenter,
+    AllowSteepSlants,
+    Chase
 };
 
 
 class CameraController final
 {
 private:
-    // Internals
     gsl::not_null<std::shared_ptr<gameplay::Camera>> m_camera;
 
-    // For interactions
     level::Level* m_level;
 
     //! @brief Global camera position.
@@ -52,20 +58,16 @@ private:
     CameraMode m_mode = CameraMode::Chase;
 
     //! @brief Additional height of the camera above the real position.
-    int m_cameraYOffset = 0;
+    int m_eyeYOffset = 0;
 
-    CameraMode m_oldMode = CameraMode::Chase;
+    CameraModifier m_modifier = CameraModifier::None;
 
-    bool m_tracking = false;
-
-    // int frameCount
+    bool m_fixed = false;
 
     /**
      * @brief If <0, bounce randomly around +/- @c m_bounce/2, increasing value by 5 each frame; if >0, do a single Y bounce downwards by @c m_bounce.
      */
     int m_bounce = 0;
-
-    // int underwater
 
     //! @brief Goal distance between the pivot point and the camera.
     int m_eyeCenterDistance = 1536;
@@ -75,15 +77,15 @@ private:
     core::TRRotation m_eyeRotation;
 
     //! @brief Global camera rotation.
-    core::TRRotation m_currentRotation;
+    core::TRRotation m_rotationAroundCenter;
 
     //! @brief An item to point the camera to.
     //! @note Also modifies Lara's head and torso rotation.
     std::shared_ptr<items::ItemNode> m_item = nullptr;
-    std::shared_ptr<const items::ItemNode> m_lastItem = nullptr;
+    std::shared_ptr<const items::ItemNode> m_previousItem = nullptr;
     std::shared_ptr<items::ItemNode> m_enemy = nullptr;
     //! @brief Movement smoothness for adjusting the pivot position.
-    int m_trackingSmoothness = 8;
+    int m_smoothness = 8;
     int m_fixedCameraId = -1;
     int m_currentFixedCameraId = -1;
     int m_camOverrideTimeout{-1};
@@ -103,11 +105,11 @@ public:
         return m_level;
     }
 
-    void setCurrentRotation(core::Angle x, core::Angle y);
+    void setRotationAroundCenter(const core::Angle x, const core::Angle y);
 
-    void setCurrentRotationX(core::Angle x);
+    void setRotationAroundCenterX(const core::Angle x);
 
-    void setCurrentRotationY(core::Angle y);
+    void setRotationAroundCenterY(const core::Angle y);
 
     void setEyeRotation(const core::Angle x, const core::Angle y)
     {
@@ -125,9 +127,9 @@ public:
         m_eyeCenterDistance = d;
     }
 
-    void setOldMode(const CameraMode k)
+    void setModifier(const CameraModifier k)
     {
-        m_oldMode = k;
+        m_modifier = k;
     }
 
     void setCamOverride(const floordata::CameraParameters& camParams,
@@ -137,15 +139,13 @@ public:
                         uint16_t activationRequest,
                         bool switchIsOn);
 
-    void setItem(const std::shared_ptr<items::ItemNode>& item)
+    void setLookAtItem(const std::shared_ptr<items::ItemNode>& item)
     {
-        if( item == nullptr || (m_mode != CameraMode::Fixed && m_mode != CameraMode::Heavy) )
-            return;
-
-        m_item = item;
+        if( item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy) )
+            m_item = item;
     }
 
-    void findItem(const uint16_t* cmdSequence);
+    void handleCommandSequence(const uint16_t* cmdSequence);
 
     void update();
 
@@ -259,7 +259,7 @@ private:
                                  core::RoomBoundPosition& end,
                                  const level::Level& level);
 
-    void handleCamOverride();
+    void handleFixedCamera();
 
     int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;
 
@@ -267,7 +267,7 @@ private:
 
     void updatePosition(const core::RoomBoundPosition& eyePositionGoal, int smoothFactor);
 
-    void doUsualMovement(const gsl::not_null<std::shared_ptr<const items::ItemNode>>& item);
+    void chaseItem(const gsl::not_null<std::shared_ptr<const items::ItemNode>>& item);
 
     void handleFreeLook(const items::ItemNode& item);
 

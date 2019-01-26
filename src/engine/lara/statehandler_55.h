@@ -19,7 +19,7 @@ public:
     void handleInput(CollisionInfo& collisionInfo) override
     {
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
-        setCameraOldMode( CameraMode::Fixed );
+        setCameraModifier( CameraModifier::FollowCenter );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override

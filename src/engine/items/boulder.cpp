@@ -102,7 +102,7 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
         lara.m_state.health = -1;
         lara.setCurrentRoom( m_state.position.room );
         lara.setAnimation( loader::AnimationId::SQUASH_BOULDER, 3561 );
-        getLevel().m_cameraController->setOldMode( CameraMode::Fixed );
+        getLevel().m_cameraController->setModifier( CameraModifier::FollowCenter );
         getLevel().m_cameraController->setEyeRotation( -25_deg, 170_deg );
         lara.m_state.rotation.X = 0_deg;
         lara.m_state.rotation.Y = m_state.rotation.Y;

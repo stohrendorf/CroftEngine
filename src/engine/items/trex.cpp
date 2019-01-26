@@ -125,8 +125,8 @@ void TRex::update()
                     getLevel().m_lara->setGoalAnimState( loader::LaraStateId::BoulderDeath );
                     getLevel().m_lara->setHandStatus( HandStatus::Grabbing );
                     getLevel().m_lara->gunType = LaraNode::WeaponId::None;
-                    getLevel().m_cameraController->setOldMode( CameraMode::Fixed );
-                    getLevel().m_cameraController->setCurrentRotation( -25_deg, 170_deg );
+                    getLevel().m_cameraController->setModifier( CameraModifier::FollowCenter );
+                    getLevel().m_cameraController->setRotationAroundCenter( -25_deg, 170_deg );
                     getLevel().m_lara->m_state.health = -1;
                     getLevel().m_lara->setAir( -1 );
                     getLevel().useAlternativeLaraAppearance( true );

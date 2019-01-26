@@ -49,6 +49,37 @@ CameraMode parseCameraMode(const std::string& m)
         return CameraMode::Heavy;
     BOOST_THROW_EXCEPTION( std::domain_error( "Invalid CameraMode" ) );
 }
+
+const char* toString(const CameraModifier mode)
+{
+    switch( mode )
+    {
+
+        case CameraModifier::None:
+            return "None";
+        case CameraModifier::FollowCenter:
+            return "FollowCenter";
+        case CameraModifier::AllowSteepSlants:
+            return "AllowSteepSlants";
+        case CameraModifier::Chase:
+            return "Chase";
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid CameraModifier" ) );
+    }
+}
+
+CameraModifier parseCameraModifier(const std::string& m)
+{
+    if( m == "None" )
+        return CameraModifier::None;
+    if( m == "FollowCenter" )
+        return CameraModifier::FollowCenter;
+    if( m == "AllowSteepSlants" )
+        return CameraModifier::AllowSteepSlants;
+    if( m == "Chase" )
+        return CameraModifier::Chase;
+    BOOST_THROW_EXCEPTION( std::domain_error( "Invalid CameraModifier" ) );
+}
 }
 
 CameraController::CameraController(const gsl::not_null<level::Level*>& level,
@@ -57,31 +88,31 @@ CameraController::CameraController(const gsl::not_null<level::Level*>& level,
         , m_level{level}
         , m_eye{level->m_lara->m_state.position.room}
         , m_center{level->m_lara->m_state.position.room, level->m_lara->m_state.position.position}
-        , m_cameraYOffset{level->m_lara->m_state.position.position.Y - loader::SectorSize}
+        , m_eyeYOffset{level->m_lara->m_state.position.position.Y - loader::SectorSize}
 {
     Expects( level->m_lara != nullptr );
 
-    m_center.position.Y -= m_cameraYOffset;
+    m_center.position.Y -= m_eyeYOffset;
     m_eye = m_center;
     m_eye.position.Z -= 100;
 
     update();
 }
 
-void CameraController::setCurrentRotation(const core::Angle x, const core::Angle y)
+void CameraController::setRotationAroundCenter(const core::Angle x, const core::Angle y)
 {
-    setCurrentRotationX( x );
-    setCurrentRotationY( y );
+    setRotationAroundCenterX( x );
+    setRotationAroundCenterY( y );
 }
 
-void CameraController::setCurrentRotationX(const core::Angle x)
+void CameraController::setRotationAroundCenterX(const core::Angle x)
 {
-    m_currentRotation.X = x;
+    m_rotationAroundCenter.X = x;
 }
 
-void CameraController::setCurrentRotationY(const core::Angle y)
+void CameraController::setRotationAroundCenterY(const core::Angle y)
 {
-    m_currentRotation.Y = y;
+    m_rotationAroundCenter.Y = y;
 }
 
 void CameraController::setCamOverride(const floordata::CameraParameters& camParams,
@@ -113,24 +144,30 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
     if( camParams.oneshot )
         m_level->m_cameras[camId].setActive( true );
 
-    m_trackingSmoothness = 1 + (camParams.smoothness * 4);
+    m_smoothness = 1 + (camParams.smoothness * 4);
     if( fromHeavy )
         m_mode = CameraMode::Heavy;
     else
         m_mode = CameraMode::Fixed;
 }
 
-void CameraController::findItem(const uint16_t* cmdSequence)
+void CameraController::handleCommandSequence(const uint16_t* cmdSequence)
 {
     if( m_mode == CameraMode::Heavy )
         return;
 
-    CameraMode type = CameraMode::FreeLook;
+    enum class Type
+    {
+        Invalid, FixedCamChange, NoChange
+    };
+
+    Type type = Type::NoChange;
     while( true )
     {
         const floordata::Command command{*cmdSequence++};
 
-        if( command.opcode == floordata::CommandOpcode::LookAt && m_mode != CameraMode::FreeLook
+        if( command.opcode == floordata::CommandOpcode::LookAt
+            && m_mode != CameraMode::FreeLook
             && m_mode != CameraMode::Combat )
         {
             m_item = m_level->getItem( command.parameter );
@@ -141,19 +178,19 @@ void CameraController::findItem(const uint16_t* cmdSequence)
 
             if( command.parameter != m_currentFixedCameraId )
             {
-                type = CameraMode::Chase; // new override
+                type = Type::Invalid; // new override
             }
             else
             {
                 m_fixedCameraId = m_currentFixedCameraId;
                 if( m_camOverrideTimeout >= 0 && m_mode != CameraMode::FreeLook && m_mode != CameraMode::Combat )
                 {
-                    type = CameraMode::Fixed;
+                    type = Type::FixedCamChange;
                     m_mode = CameraMode::Fixed;
                 }
                 else
                 {
-                    type = CameraMode::Chase;
+                    type = Type::Invalid;
                     m_camOverrideTimeout = -1;
                 }
             }
@@ -163,9 +200,10 @@ void CameraController::findItem(const uint16_t* cmdSequence)
             break;
     }
 
-    if( type == CameraMode::Chase
-        || (type == CameraMode::FreeLook && m_item != nullptr && m_item->m_state.already_looked_at
-            && m_item != m_lastItem) )
+    if( m_item == nullptr )
+        return;
+
+    if( type == Type::NoChange && m_item->m_state.already_looked_at && m_item != m_previousItem )
         m_item = nullptr;
 }
 
@@ -406,7 +444,7 @@ bool CameraController::clampPosition(const core::RoomBoundPosition& start,
 
 void CameraController::update()
 {
-    m_currentRotation.X = util::clamp( m_currentRotation.X, -85_deg, +85_deg );
+    m_rotationAroundCenter.X = util::clamp( m_rotationAroundCenter.X, -85_deg, +85_deg );
 
     if( m_eye.room->isWaterRoom() )
     {
@@ -454,53 +492,49 @@ void CameraController::update()
         return;
     }
 
-    if( m_oldMode != CameraMode::FreeLook )
+    if( m_modifier != CameraModifier::AllowSteepSlants )
         HeightInfo::skipSteepSlants = true;
 
-    const bool tracking = m_item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
+    const bool fixed = m_item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
+    const bool fixedCenterOnly = m_item != nullptr && !(m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
 
-    std::shared_ptr<items::ItemNode> trackedItem = tracking ? m_item : m_level->m_lara;
-    auto trackedBBox = trackedItem->getBoundingBox();
-    int trackedY = trackedItem->m_state.position.position.Y;
-    if( tracking )
-        trackedY += (trackedBBox.minY + trackedBBox.maxY) / 2;
+    // if we have a fixed position, we also have an item we're looking at
+    std::shared_ptr<items::ItemNode> focusedItem = fixed ? m_item : m_level->m_lara;
+    BOOST_ASSERT( focusedItem != nullptr );
+    auto focusBBox = focusedItem->getBoundingBox();
+    auto focusY = focusedItem->m_state.position.position.Y;
+    if( fixed )
+        focusY += (focusBBox.minY + focusBBox.maxY) / 2;
     else
-        trackedY += (trackedBBox.minY - trackedBBox.maxY) * 3 / 4 + trackedBBox.maxY;
+        focusY += (focusBBox.minY - focusBBox.maxY) * 3 / 4 + focusBBox.maxY;
 
-    if( m_item != nullptr && !tracking )
+    if( fixedCenterOnly )
     {
-        BOOST_ASSERT( m_item != trackedItem );
-        BOOST_ASSERT( trackedItem );
-        const auto distToTarget = m_item->m_state.position.position
-                                        .distanceTo( trackedItem->m_state.position.position );
-        auto trackAngleY =
-                core::Angle::fromAtan( m_item->m_state.position.position.X - trackedItem->m_state.position.position.X,
-                                       m_item->m_state.position.position.Z - trackedItem->m_state.position.position.Z )
-                - trackedItem->m_state.rotation.Y;
-        trackAngleY *= 0.5f;
-        trackedBBox = m_item->getBoundingBox();
-        auto trackAngleX = core::Angle::fromAtan( distToTarget, trackedY - (trackedBBox.minY + trackedBBox.maxY) / 2.0f
-                                                                + m_item->m_state.position.position.Y );
-        trackAngleX *= 0.5f;
+        // lara moves around and looks at some item, some sort of involuntary free look;
+        // in this case, we have an item to look at, but the camera is _not_ fixed
 
-        if( trackAngleY < 50_deg && trackAngleY > -50_deg && trackAngleX < 85_deg && trackAngleX > -85_deg )
+        BOOST_ASSERT( m_item != focusedItem );
+        BOOST_ASSERT( focusedItem != nullptr );
+        const auto distToFocused = m_item->m_state.position.position
+                                         .distanceTo( focusedItem->m_state.position.position );
+        auto eyeRotY =
+                core::Angle::fromAtan( m_item->m_state.position.position.X - focusedItem->m_state.position.position.X,
+                                       m_item->m_state.position.position.Z - focusedItem->m_state.position.position.Z )
+                - focusedItem->m_state.rotation.Y;
+        eyeRotY *= 0.5f;
+        focusBBox = m_item->getBoundingBox();
+        auto eyeRotX = core::Angle::fromAtan( distToFocused, focusY - (focusBBox.minY + focusBBox.maxY) / 2.0f
+                                                             + m_item->m_state.position.position.Y );
+        eyeRotX *= 0.5f;
+
+        if( eyeRotY < 50_deg && eyeRotY > -50_deg && eyeRotX < 85_deg && eyeRotX > -85_deg )
         {
-            trackAngleY -= m_level->m_lara->m_headRotation.Y;
-            if( trackAngleY > 4_deg )
-                m_level->m_lara->m_headRotation.Y += 4_deg;
-            else if( trackAngleY < -4_deg )
-                m_level->m_lara->m_headRotation.Y -= 4_deg;
-            else
-                m_level->m_lara->m_headRotation.Y += trackAngleY;
+            eyeRotY -= m_level->m_lara->m_headRotation.Y;
+            m_level->m_lara->m_headRotation.Y += util::clamp( eyeRotY, -4_deg, +4_deg );
             m_level->m_lara->m_torsoRotation.Y = m_level->m_lara->m_headRotation.Y;
 
-            trackAngleX -= m_level->m_lara->m_headRotation.X;
-            if( trackAngleX > 4_deg )
-                m_level->m_lara->m_headRotation.X += 4_deg;
-            else if( trackAngleX < -4_deg )
-                m_level->m_lara->m_headRotation.X -= 4_deg;
-            else
-                m_level->m_lara->m_headRotation.X += trackAngleX;
+            eyeRotX -= m_level->m_lara->m_headRotation.X;
+            m_level->m_lara->m_headRotation.X += util::clamp( eyeRotX, -4_deg, +4_deg );
             m_level->m_lara->m_torsoRotation.X = m_level->m_lara->m_headRotation.X;
 
             m_mode = CameraMode::FreeLook;
@@ -508,87 +542,87 @@ void CameraController::update()
         }
     }
 
-    m_center.room = trackedItem->m_state.position.room;
+    m_center.room = focusedItem->m_state.position.room;
 
-    if( m_mode != CameraMode::FreeLook && m_mode != CameraMode::Combat )
+    if( m_mode == CameraMode::FreeLook || m_mode == CameraMode::Combat )
     {
-        m_center.position.X = trackedItem->m_state.position.position.X;
-        m_center.position.Z = trackedItem->m_state.position.position.Z;
-
-        if( m_oldMode == CameraMode::Fixed )
+        if( m_fixed )
         {
-            const auto midZ = (trackedBBox.minZ + trackedBBox.maxZ) / 2;
-            m_center.position.Z += midZ * trackedItem->m_state.rotation.Y.cos();
-            m_center.position.X += midZ * trackedItem->m_state.rotation.Y.sin();
-        }
-
-        if( m_tracking == tracking )
-        {
-            m_tracking = false;
-            m_center.position.Y += (trackedY - m_center.position.Y) / 4;
+            m_center.position.Y = focusY - loader::QuarterSectorSize;
+            m_smoothness = 1;
         }
         else
         {
-            m_tracking = true;
-            m_center.position.Y = trackedY;
-            m_trackingSmoothness = 1;
+            m_center.position.Y += (focusY - loader::QuarterSectorSize - m_center.position.Y) / 4;
+            if( m_mode == CameraMode::FreeLook )
+                m_smoothness = 4;
+            else
+                m_smoothness = 8;
+        }
+        m_fixed = false;
+        if( m_mode == CameraMode::FreeLook )
+            handleFreeLook( *focusedItem );
+        else
+            handleEnemy( *focusedItem );
+    }
+    else
+    {
+        m_center.position.X = focusedItem->m_state.position.position.X;
+        m_center.position.Z = focusedItem->m_state.position.position.Z;
+
+        if( m_modifier == CameraModifier::FollowCenter )
+        {
+            const auto midZ = (focusBBox.minZ + focusBBox.maxZ) / 2;
+            m_center.position.Z += midZ * focusedItem->m_state.rotation.Y.cos();
+            m_center.position.X += midZ * focusedItem->m_state.rotation.Y.sin();
+        }
+
+        if( m_fixed == fixed )
+        {
+            m_fixed = false;
+            m_center.position.Y += (focusY - m_center.position.Y) / 4;
+        }
+        else
+        {
+            // switching between fixed cameras, so we're not doing any smoothing
+            m_fixed = true;
+            m_center.position.Y = focusY;
+            m_smoothness = 1;
         }
 
         const auto sector = level::Level::findRealFloorSector( m_center );
         if( HeightInfo::fromFloor( sector, m_center.position, getLevel()->m_itemNodes ).y < m_center.position.Y )
             HeightInfo::skipSteepSlants = false;
 
-        if( m_mode == CameraMode::Chase || m_oldMode == CameraMode::Combat )
-            doUsualMovement( trackedItem );
+        if( m_mode == CameraMode::Chase || m_modifier == CameraModifier::Chase )
+            chaseItem( focusedItem );
         else
-            handleCamOverride();
-    }
-    else
-    {
-        if( m_tracking )
-        {
-            m_center.position.Y = trackedY - loader::QuarterSectorSize;
-            m_trackingSmoothness = 1;
-        }
-        else
-        {
-            m_center.position.Y += (trackedY - loader::QuarterSectorSize - m_center.position.Y) / 4;
-            if( m_mode == CameraMode::FreeLook )
-                m_trackingSmoothness = 4;
-            else
-                m_trackingSmoothness = 8;
-        }
-        m_tracking = false;
-        if( m_mode == CameraMode::FreeLook )
-            handleFreeLook( *trackedItem );
-        else
-            handleEnemy( *trackedItem );
+            handleFixedCamera();
     }
 
-    m_tracking = tracking;
+    m_fixed = fixed;
     m_currentFixedCameraId = m_fixedCameraId;
     if( m_mode != CameraMode::Heavy || m_camOverrideTimeout < 0 )
     {
+        m_modifier = CameraModifier::None;
         m_mode = CameraMode::Chase;
-        m_lastItem = m_item;
-        m_currentRotation.X = m_currentRotation.Y = 0_deg;
+        m_previousItem = std::exchange( m_item, nullptr );
+        m_rotationAroundCenter.X = m_rotationAroundCenter.Y = 0_deg;
         m_eyeCenterDistance = 1536;
         m_fixedCameraId = -1;
-        m_item = nullptr;
-        m_oldMode = CameraMode::Chase;
     }
     HeightInfo::skipSteepSlants = false;
 
     tracePortals();
 }
 
-void CameraController::handleCamOverride()
+void CameraController::handleFixedCamera()
 {
-    Expects( m_fixedCameraId >= 0 && gsl::narrow_cast<size_t>( m_fixedCameraId ) < m_level->m_cameras.size() );
-    Expects( m_level->m_cameras[m_fixedCameraId].room < m_level->m_rooms.size() );
+    Expects( m_fixedCameraId >= 0 );
 
-    core::RoomBoundPosition pos( &m_level->m_rooms[m_level->m_cameras[m_fixedCameraId].room] );
-    pos.position = m_level->m_cameras[m_fixedCameraId].position;
+    const loader::Camera& camera = m_level->m_cameras.at( m_fixedCameraId );
+    core::RoomBoundPosition pos( &m_level->m_rooms.at( camera.room ) );
+    pos.position = camera.position;
 
     if( !clampPosition( m_center, pos, *m_level ) )
     {
@@ -596,13 +630,15 @@ void CameraController::handleCamOverride()
         moveIntoGeometry( pos, loader::QuarterSectorSize );
     }
 
-    m_tracking = true;
-    updatePosition( pos, m_trackingSmoothness );
+    m_fixed = true;
+    updatePosition( pos, m_smoothness );
 
-    if( m_camOverrideTimeout > 0 )
+    if( m_camOverrideTimeout != 0 )
+    {
         --m_camOverrideTimeout;
-    else
-        m_camOverrideTimeout = -1;
+        if( m_camOverrideTimeout == 0 )
+            m_camOverrideTimeout = -1;
+    }
 }
 
 int CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, const int margin) const
@@ -674,15 +710,13 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
 
     if( m_bounce < 0 )
     {
-        auto tmp = util::rand15s( m_bounce );
-        m_eye.position.X += tmp;
-        m_center.position.X += tmp;
-        tmp = util::rand15s( m_bounce );
-        m_eye.position.Y += tmp;
-        m_center.position.Y += tmp;
-        tmp = util::rand15s( m_bounce );
-        m_eye.position.Z += tmp;
-        m_center.position.Z += tmp;
+        const core::TRVec tmp{
+                util::rand15s( m_bounce ),
+                util::rand15s( m_bounce ),
+                util::rand15s( m_bounce )
+        };
+        m_eye.position += tmp;
+        m_center.position += tmp;
         m_bounce += 5;
     }
     else if( m_bounce > 0 )
@@ -693,14 +727,14 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     }
 
     if( m_eye.position.Y > floor )
-        m_cameraYOffset = floor - m_eye.position.Y;
+        m_eyeYOffset = floor - m_eye.position.Y;
     else if( m_eye.position.Y < ceiling )
-        m_cameraYOffset = ceiling - m_eye.position.Y;
+        m_eyeYOffset = ceiling - m_eye.position.Y;
     else
-        m_cameraYOffset = 0;
+        m_eyeYOffset = 0;
 
     auto camPos = m_eye.position;
-    camPos.Y += m_cameraYOffset;
+    camPos.Y += m_eyeYOffset;
 
     // update current room
     level::Level::findRealFloorSector( camPos, &m_eye.room );
@@ -709,21 +743,21 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     m_camera->setViewMatrix( m );
 }
 
-void CameraController::doUsualMovement(const gsl::not_null<std::shared_ptr<const items::ItemNode>>& item)
+void CameraController::chaseItem(const gsl::not_null<std::shared_ptr<const items::ItemNode>>& item)
 {
-    m_currentRotation.X += item->m_state.rotation.X;
-    if( m_currentRotation.X > 85_deg )
-        m_currentRotation.X = 85_deg;
-    else if( m_currentRotation.X < -85_deg )
-        m_currentRotation.X = -85_deg;
+    m_rotationAroundCenter.X += item->m_state.rotation.X;
+    if( m_rotationAroundCenter.X > 85_deg )
+        m_rotationAroundCenter.X = 85_deg;
+    else if( m_rotationAroundCenter.X < -85_deg )
+        m_rotationAroundCenter.X = -85_deg;
 
-    const auto dist = m_currentRotation.X.cos() * m_eyeCenterDistance;
+    const auto dist = m_rotationAroundCenter.X.cos() * m_eyeCenterDistance;
     m_eyeCenterHorizontalDistanceSq = gsl::narrow_cast<int>( util::square( dist ) );
 
     core::RoomBoundPosition eye( m_eye.room );
-    eye.position.Y = m_eyeCenterDistance * m_currentRotation.X.sin() + m_center.position.Y;
+    eye.position.Y = m_eyeCenterDistance * m_rotationAroundCenter.X.sin() + m_center.position.Y;
 
-    core::Angle y = m_currentRotation.Y + item->m_state.rotation.Y;
+    core::Angle y = m_rotationAroundCenter.Y + item->m_state.rotation.Y;
     eye.position.X = m_center.position.X - dist * y.sin();
     eye.position.Z = m_center.position.Z - dist * y.cos();
     clampBox( eye,
@@ -731,7 +765,7 @@ void CameraController::doUsualMovement(const gsl::not_null<std::shared_ptr<const
                   clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
               } );
 
-    updatePosition( eye, m_tracking ? m_trackingSmoothness : 12 );
+    updatePosition( eye, m_fixed ? m_smoothness : 12 );
 }
 
 void CameraController::handleFreeLook(const items::ItemNode& item)
@@ -739,14 +773,14 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
     const auto originalCenter = m_center.position;
     m_center.position.X = item.m_state.position.position.X;
     m_center.position.Z = item.m_state.position.position.Z;
-    m_currentRotation.X = m_level->m_lara->m_torsoRotation.X + m_level->m_lara->m_headRotation.X
-                          + item.m_state.rotation.X;
-    m_currentRotation.Y = m_level->m_lara->m_torsoRotation.Y + m_level->m_lara->m_headRotation.Y
-                          + item.m_state.rotation.Y;
+    m_rotationAroundCenter.X = m_level->m_lara->m_torsoRotation.X + m_level->m_lara->m_headRotation.X
+                               + item.m_state.rotation.X;
+    m_rotationAroundCenter.Y = m_level->m_lara->m_torsoRotation.Y + m_level->m_lara->m_headRotation.Y
+                               + item.m_state.rotation.Y;
     m_eyeCenterDistance = 1536;
-    m_cameraYOffset = gsl::narrow_cast<int>( -2 * loader::QuarterSectorSize * m_currentRotation.Y.sin() );
-    m_center.position.X += m_cameraYOffset * item.m_state.rotation.Y.sin();
-    m_center.position.Z += m_cameraYOffset * item.m_state.rotation.Y.cos();
+    m_eyeYOffset = gsl::narrow_cast<int>( -2 * loader::QuarterSectorSize * m_rotationAroundCenter.Y.sin() );
+    m_center.position.X += m_eyeYOffset * item.m_state.rotation.Y.sin();
+    m_center.position.Z += m_eyeYOffset * item.m_state.rotation.Y.cos();
 
     if( isVerticallyOutsideRoom( m_center.position, m_eye.room ) )
     {
@@ -757,19 +791,19 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
     m_center.position.Y += moveIntoGeometry( m_center, loader::QuarterSectorSize + 50 );
 
     auto center = m_center;
-    center.position.X -= m_eyeCenterDistance * m_currentRotation.Y.sin() * m_currentRotation.X.cos();
-    center.position.Z -= m_eyeCenterDistance * m_currentRotation.Y.cos() * m_currentRotation.X.cos();
-    center.position.Y += m_eyeCenterDistance * m_currentRotation.X.sin();
+    center.position.X -= m_eyeCenterDistance * m_rotationAroundCenter.Y.sin() * m_rotationAroundCenter.X.cos();
+    center.position.Z -= m_eyeCenterDistance * m_rotationAroundCenter.Y.cos() * m_rotationAroundCenter.X.cos();
+    center.position.Y += m_eyeCenterDistance * m_rotationAroundCenter.X.sin();
     center.room = m_eye.room;
 
     clampBox( center, &freeLookClamp );
 
     m_center.position.X = originalCenter.X
-                          + (m_center.position.X - originalCenter.X) / m_trackingSmoothness;
+                          + (m_center.position.X - originalCenter.X) / m_smoothness;
     m_center.position.Z = originalCenter.Z
-                          + (m_center.position.Z - originalCenter.Z) / m_trackingSmoothness;
+                          + (m_center.position.Z - originalCenter.Z) / m_smoothness;
 
-    updatePosition( center, m_trackingSmoothness );
+    updatePosition( center, m_smoothness );
 }
 
 void CameraController::handleEnemy(const items::ItemNode& item)
@@ -779,30 +813,30 @@ void CameraController::handleEnemy(const items::ItemNode& item)
 
     if( m_enemy != nullptr )
     {
-        m_currentRotation.X = m_eyeRotation.X + item.m_state.rotation.X;
-        m_currentRotation.Y = m_eyeRotation.Y + item.m_state.rotation.Y;
+        m_rotationAroundCenter.X = m_eyeRotation.X + item.m_state.rotation.X;
+        m_rotationAroundCenter.Y = m_eyeRotation.Y + item.m_state.rotation.Y;
     }
     else
     {
-        m_currentRotation.X = m_level->m_lara->m_torsoRotation.X + m_level->m_lara->m_headRotation.X
-                              + item.m_state.rotation.X;
-        m_currentRotation.Y = m_level->m_lara->m_torsoRotation.Y + m_level->m_lara->m_headRotation.Y
-                              + item.m_state.rotation.Y;
+        m_rotationAroundCenter.X = m_level->m_lara->m_torsoRotation.X + m_level->m_lara->m_headRotation.X
+                                   + item.m_state.rotation.X;
+        m_rotationAroundCenter.Y = m_level->m_lara->m_torsoRotation.Y + m_level->m_lara->m_headRotation.Y
+                                   + item.m_state.rotation.Y;
     }
 
     m_eyeCenterDistance = 2560;
     auto eye = m_center;
-    const auto d = m_eyeCenterDistance * m_currentRotation.X.cos();
-    eye.position.X -= d * m_currentRotation.Y.sin();
-    eye.position.Z -= d * m_currentRotation.Y.cos();
-    eye.position.Y += m_eyeCenterDistance * m_currentRotation.X.sin();
+    const auto d = m_eyeCenterDistance * m_rotationAroundCenter.X.cos();
+    eye.position.X -= d * m_rotationAroundCenter.Y.sin();
+    eye.position.Z -= d * m_rotationAroundCenter.Y.cos();
+    eye.position.Y += m_eyeCenterDistance * m_rotationAroundCenter.X.sin();
     eye.room = m_eye.room;
 
     clampBox( eye,
               [this](int& a, int& b, const int c, const int d, const int e, const int f, const int g, const int h) {
                   clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
               } );
-    updatePosition( eye, m_trackingSmoothness );
+    updatePosition( eye, m_smoothness );
 }
 
 void
@@ -1145,8 +1179,8 @@ YAML::Node CameraController::save() const
     result["center"]["room"] = std::distance( const_cast<const loader::Room*>(&m_level->m_rooms[0]),
                                               m_center.room.get() );
     result["mode"] = toString( m_mode );
-    result["oldMode"] = toString( m_oldMode );
-    result["tracking"] = m_tracking;
+    result["modifier"] = toString( m_modifier );
+    result["tracking"] = m_fixed;
     if( m_item != nullptr )
     {
         result["item"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
@@ -1154,11 +1188,11 @@ YAML::Node CameraController::save() const
                                            return entry.second == m_item;
                                        } )->first;
     }
-    if( m_lastItem != nullptr )
+    if( m_previousItem != nullptr )
     {
         result["lastItem"] = std::find_if( m_level->m_itemNodes.begin(), m_level->m_itemNodes.end(),
                                            [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
-                                               return entry.second == m_lastItem;
+                                               return entry.second == m_previousItem;
                                            } )->first;
     }
     if( m_enemy != nullptr )
@@ -1168,13 +1202,13 @@ YAML::Node CameraController::save() const
                                             return entry.second == m_enemy;
                                         } )->first;
     }
-    result["yOffset"] = m_cameraYOffset;
+    result["yOffset"] = m_eyeYOffset;
     result["bounce"] = m_bounce;
     result["eyeCenterDistance"] = m_eyeCenterDistance;
     result["eyeCenterHorizontalDistanceSq"] = m_eyeCenterHorizontalDistanceSq;
     result["eyeRotation"] = m_eyeRotation.save();
-    result["currentRotation"] = m_currentRotation.save();
-    result["trackingSmoothness"] = m_trackingSmoothness;
+    result["currentRotation"] = m_rotationAroundCenter.save();
+    result["trackingSmoothness"] = m_smoothness;
     result["fixedCameraId"] = m_fixedCameraId;
     result["currentFixedCameraId"] = m_currentFixedCameraId;
     result["camOverrideTimeout"] = m_camOverrideTimeout;
@@ -1191,8 +1225,8 @@ void CameraController::load(const YAML::Node& n)
     m_center.position.load( n["center"]["position"] );
     m_center.room = &m_level->m_rooms[n["center"]["room"].as<size_t>()];
     m_mode = parseCameraMode( n["mode"].as<std::string>() );
-    m_oldMode = parseCameraMode( n["oldMode"].as<std::string>() );
-    m_tracking = n["tracking"].as<bool>();
+    m_modifier = parseCameraModifier( n["modifier"].as<std::string>() );
+    m_fixed = n["tracking"].as<bool>();
     if( !n["item"].IsDefined() )
     {
         m_item = nullptr;
@@ -1206,14 +1240,14 @@ void CameraController::load(const YAML::Node& n)
     }
     if( !n["lastItem"].IsDefined() )
     {
-        m_lastItem = nullptr;
+        m_previousItem = nullptr;
     }
     else
     {
         const auto it = m_level->m_itemNodes.find( n["lastItem"].as<uint16_t>() );
         if( it == m_level->m_itemNodes.end() )
             BOOST_THROW_EXCEPTION( std::domain_error( "Invalid item reference" ) );
-        m_lastItem = it->second.get();
+        m_previousItem = it->second.get();
     }
     if( !n["enemy"].IsDefined() )
     {
@@ -1226,13 +1260,13 @@ void CameraController::load(const YAML::Node& n)
             BOOST_THROW_EXCEPTION( std::domain_error( "Invalid item reference" ) );
         m_enemy = it->second.get();
     }
-    m_cameraYOffset = n["yOffset"].as<int>();
+    m_eyeYOffset = n["yOffset"].as<int>();
     m_bounce = n["bounce"].as<int>();
     m_eyeCenterDistance = n["eyeCenterDistance"].as<int>();
     m_eyeCenterHorizontalDistanceSq = n["eyeCenterHorizontalDistanceSq"].as<int>();
     m_eyeRotation.load( n["eyeRotation"] );
-    m_currentRotation.load( n["currentRotation"] );
-    m_trackingSmoothness = n["trackingSmoothness"].as<int>();
+    m_rotationAroundCenter.load( n["currentRotation"] );
+    m_smoothness = n["trackingSmoothness"].as<int>();
     m_fixedCameraId = n["fixedCameraId"].as<int>();
     m_currentFixedCameraId = n["currentFixedCameraId"].as<int>();
     m_camOverrideTimeout = n["camOverrideTimeout"].as<int>();

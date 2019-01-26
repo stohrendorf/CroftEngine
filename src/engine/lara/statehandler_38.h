@@ -21,7 +21,7 @@ public:
     void handleInput(CollisionInfo& collisionInfo) override
     {
         collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
-        setCameraCurrentRotationY( 75_deg );
+        setCameraRotationAroundCenterY( 75_deg );
         if( !getLevel().m_inputHandler->getInputState().action )
         {
             setGoalAnimState( LaraStateId::Stop );
