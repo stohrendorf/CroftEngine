@@ -16,15 +16,10 @@ void Particle::initDrawables(const level::Level& level)
     }
     else if( const auto& spriteSequence = level.findSpriteSequenceForType( object_number ) )
     {
-        BOOST_ASSERT(
-                gsl::narrow<size_t>( spriteSequence->offset - spriteSequence->length ) <= level.m_sprites.size() );
-
         shade = 4096;
 
-        for( int i = 0; i > spriteSequence->length; --i )
+        for( const loader::Sprite& spr : spriteSequence->sprites )
         {
-            const loader::Sprite& spr = level.m_sprites[spriteSequence->offset - i];
-
             auto sprite = std::make_shared<gameplay::Sprite>( spr.x0, -spr.y0,
                                                               spr.x1, -spr.y1,
                                                               spr.t0, spr.t1,

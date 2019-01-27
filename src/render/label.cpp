@@ -220,7 +220,7 @@ void Label::draw(gameplay::gl::Image<gameplay::gl::RGBA8>& img, const level::Lev
                 y,
                 scaleX,
                 scaleY,
-                level.m_sprites.at( it->second->offset + chr ) );
+                it->second->sprites[chr] );
 
         if( origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~' )
             continue;

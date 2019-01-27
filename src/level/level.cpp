@@ -537,9 +537,9 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
         if( const auto& spriteSequence = findSpriteSequenceForType( item.type ) )
         {
             BOOST_ASSERT( !findAnimatedModelForType( item.type ) );
-            BOOST_ASSERT( spriteSequence->offset < m_sprites.size() );
+            BOOST_ASSERT( !spriteSequence->sprites.empty() );
 
-            const loader::Sprite& sprite = m_sprites[spriteSequence->offset];
+            const loader::Sprite& sprite = spriteSequence->sprites[0];
             std::shared_ptr<engine::items::ItemNode> node;
 
             if( item.type == engine::TR1ItemId::ScionPiece1 )
@@ -1256,6 +1256,14 @@ void Level::postProcessDataStructures()
             transition.transitionCases = gsl::make_span(
                     &m_transitionCases[transition.firstTransitionCase],
                     transition.transitionCaseCount );
+    }
+
+    for( const auto& sequence : m_spriteSequences | boost::adaptors::map_values )
+    {
+        Expects( sequence != nullptr );
+        Expects( sequence->length <= 0 );
+        Expects( sequence->offset - sequence->length <= m_sprites.size() );
+        sequence->sprites = gsl::make_span( &m_sprites[sequence->offset], -sequence->length );
     }
 }
 
@@ -2021,8 +2029,8 @@ std::shared_ptr<engine::items::PickupItem> Level::createPickup(const engine::TR1
     item.activationState = 0;
 
     const auto& spriteSequence = findSpriteSequenceForType( type );
-    Expects( spriteSequence != nullptr );
-    const loader::Sprite& sprite = m_sprites[spriteSequence->offset];
+    Expects( spriteSequence != nullptr && !spriteSequence->sprites.empty() );
+    const loader::Sprite& sprite = spriteSequence->sprites[0];
 
     auto node = std::make_shared<engine::items::PickupItem>(
             this,

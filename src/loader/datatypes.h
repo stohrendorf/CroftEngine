@@ -1261,6 +1261,8 @@ struct SpriteSequence
     int16_t length; // negative of "how many sprites are in this sequence"
     uint16_t offset; // where (in sprite texture list) this sequence starts
 
+    gsl::span<const Sprite> sprites;
+
     static std::unique_ptr<SpriteSequence> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
