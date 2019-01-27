@@ -1,6 +1,7 @@
 #include "gameplay.h"
 #include "loader/color.h"
 #include "loader/datatypes.h"
+#include "util/cimgwrapper.h"
 
 #include <cstdint>
 #include <string>
@@ -12,6 +13,84 @@ class Level;
 
 namespace render
 {
+namespace
+{
+constexpr const int FontBaseScale = 0x10000;
+}
+
+class CachedFont
+{
+    std::vector<util::CImgWrapper> m_images;
+    const int m_scaleX;
+    const int m_scaleY;
+
+    static util::CImgWrapper extractChar(const loader::Sprite& sprite, const int scaleX, const int scaleY)
+    {
+        BOOST_ASSERT( sprite.image != nullptr );
+
+        const auto dstW = (sprite.t1.x - sprite.t0.x) * 256 * scaleX / FontBaseScale;
+        const auto dstH = (sprite.t1.y - sprite.t0.y) * 256 * scaleY / FontBaseScale;
+
+        util::CImgWrapper src{
+                reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
+                sprite.image->getWidth(),
+                sprite.image->getHeight(),
+                true
+        };
+        src.crop(
+                sprite.t0.x * sprite.image->getWidth(),
+                sprite.t0.y * sprite.image->getHeight(),
+                sprite.t1.x * sprite.image->getWidth() - 1,
+                sprite.t1.y * sprite.image->getHeight() - 1
+        );
+        src.resize( dstW, dstH );
+
+        return src;
+    }
+
+public:
+    explicit CachedFont(const loader::SpriteSequence& sequence,
+                        const int scaleX = FontBaseScale,
+                        const int scaleY = FontBaseScale)
+            : m_scaleX{scaleX}
+            , m_scaleY{scaleY}
+    {
+        for( const auto& spr : sequence.sprites )
+        {
+            m_images.emplace_back( extractChar( spr, scaleX, scaleY ) );
+        }
+    }
+
+    const util::CImgWrapper& get(size_t n) const
+    {
+        return m_images.at( n );
+    }
+
+    void draw(size_t n, const int x, const int y, gameplay::gl::Image<gameplay::gl::RGBA8>& img)
+    {
+        auto& src = m_images.at( n );
+
+        for( int dy = 0; dy < src.height(); ++dy )
+        {
+            for( int dx = 0; dx < src.width(); ++dx )
+            {
+                img.set( x + dx, y + dy, src( dx, dy ), true );
+            }
+        }
+    }
+
+    int getScaleX() const noexcept
+    {
+        return m_scaleX;
+    }
+
+    int getScaleY() const noexcept
+    {
+        return m_scaleY;
+    }
+};
+
+
 struct Label
 {
     enum class Alignment
@@ -34,8 +113,8 @@ struct Label
     int16_t bgndSizeY = 0;
     int16_t bgndOffX = 0;
     int16_t bgndOffY = 0;
-    int scaleX = 0x10000;
-    int scaleY = 0x10000;
+    int scaleX = FontBaseScale;
+    int scaleY = FontBaseScale;
     std::string text;
 
     explicit Label(int16_t xpos, int16_t ypos, const std::string& string)
@@ -45,7 +124,7 @@ struct Label
     {
     }
 
-    void draw(gameplay::gl::Image<gameplay::gl::RGBA8>& img, const level::Level& level) const;
+    void draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const level::Level& level) const;
 
     int calcWidth() const;
 

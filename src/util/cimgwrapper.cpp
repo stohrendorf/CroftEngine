@@ -171,4 +171,10 @@ void CImgWrapper::crop(const glm::vec2& uv0, const glm::vec2& uv1)
     const auto y1 = static_cast<int>(uv1.y * height());
     crop( x0, y0, x1 + 1, y1 + 1 );
 }
+
+CImgWrapper::CImgWrapper(CImgWrapper&& other) noexcept
+        : m_image{std::move( other.m_image )}
+        , m_interleaved{other.m_interleaved}
+{
+}
 }

@@ -53,41 +53,6 @@ void drawOutline(gameplay::gl::Image<gameplay::gl::RGBA8>& img,
     drawLine( img, x - 1, y + height, 0, -height - 1, palette.colors[15] );
     drawLine( img, x, y + height, 0, -height, palette.colors[31] );
 }
-
-void drawChar(gameplay::gl::Image<gameplay::gl::RGBA8>& img,
-              const int x, const int y, const int scaleX, const int scaleY,
-              const loader::Sprite& sprite)
-{
-    BOOST_ASSERT( sprite.image != nullptr );
-
-    const auto dstW = (sprite.t1.x - sprite.t0.x) * 256 * scaleX / 0x10000;
-    const auto dstH = (sprite.t1.y - sprite.t0.y) * 256 * scaleY / 0x10000;
-
-    if( x < 0 || y < 0 || x + dstW >= img.getWidth() || y + dstH >= img.getHeight() )
-        return;
-
-    util::CImgWrapper src{
-            reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
-            sprite.image->getWidth(),
-            sprite.image->getHeight(),
-            true
-    };
-    src.crop(
-            sprite.t0.x * sprite.image->getWidth(),
-            sprite.t0.y * sprite.image->getHeight(),
-            sprite.t1.x * sprite.image->getWidth() - 1,
-            sprite.t1.y * sprite.image->getHeight() - 1
-    );
-    src.resize( dstW, dstH );
-
-    for( int dy = 0; dy < src.height(); ++dy )
-    {
-        for( int dx = 0; dx < src.width(); ++dx )
-        {
-            img.set( x + dx, y + dy, src( dx, dy ), true );
-        }
-    }
-}
 }
 
 int Label::calcWidth() const
@@ -123,8 +88,11 @@ int Label::calcWidth() const
     return width;
 }
 
-void Label::draw(gameplay::gl::Image<gameplay::gl::RGBA8>& img, const level::Level& level) const
+void Label::draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const level::Level& level) const
 {
+    Expects( font.getScaleX() == scaleX );
+    Expects( font.getScaleY() == scaleY );
+
     if( blink )
     {
         --timeout;
@@ -212,15 +180,7 @@ void Label::draw(gameplay::gl::Image<gameplay::gl::RGBA8>& img, const level::Lev
         else
             chr = charToSprite[chr - ' '];
 
-        auto it = level.m_spriteSequences.find( engine::TR1ItemId::FontGraphics );
-        BOOST_ASSERT( it != level.m_spriteSequences.end() );
-        drawChar(
-                img,
-                x,
-                y,
-                scaleX,
-                scaleY,
-                it->second->sprites[chr] );
+        font.draw( chr, x, y, img );
 
         if( origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~' )
             continue;
