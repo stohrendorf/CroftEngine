@@ -428,21 +428,23 @@ void LaraNode::update()
 
         resetHeadTorsoRotation();
 
-        auto waterSurfaceHeight = getWaterSurfaceHeight();
-        BOOST_ASSERT( waterSurfaceHeight.is_initialized() );
-        auto room = m_state.position.room;
-        level::Level::findRealFloorSector( m_state.position.position, &room );
-        playSoundEffect( TR1SoundId::LaraFallIntoWater );
-        for( int i = 0; i < 10; ++i )
+        if( const auto waterSurfaceHeight = getWaterSurfaceHeight() )
         {
-            core::RoomBoundPosition surfacePos{room};
-            surfacePos.position.X = m_state.position.position.X;
-            surfacePos.position.Y = *waterSurfaceHeight;
-            surfacePos.position.Z = m_state.position.position.Z;
+            playSoundEffect( TR1SoundId::LaraFallIntoWater );
 
-            auto particle = std::make_shared<SplashParticle>( surfacePos, getLevel(), false );
-            setParent( particle, surfacePos.room->node );
-            getLevel().m_particles.emplace_back( particle );
+            auto room = m_state.position.room;
+            level::Level::findRealFloorSector( m_state.position.position, &room );
+            for( int i = 0; i < 10; ++i )
+            {
+                core::RoomBoundPosition surfacePos{room};
+                surfacePos.position.X = m_state.position.position.X;
+                surfacePos.position.Y = *waterSurfaceHeight;
+                surfacePos.position.Z = m_state.position.position.Z;
+
+                auto particle = std::make_shared<SplashParticle>( surfacePos, getLevel(), false );
+                setParent( particle, surfacePos.room->node );
+                getLevel().m_particles.emplace_back( particle );
+            }
         }
     }
     else if( m_underwaterState == UnderwaterState::Diving && !m_state.position.room->isWaterRoom() )
