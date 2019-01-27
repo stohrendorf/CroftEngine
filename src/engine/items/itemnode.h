@@ -123,20 +123,14 @@ struct ItemState final
         }
 
         if( timer == 0 )
-        {
             return !activationState.isInverted();
-        }
 
         if( timer < 0 )
-        {
             return activationState.isInverted();
-        }
 
         --timer;
-        if( timer <= 0 )
-        {
+        if( timer == 0 )
             timer = -1;
-        }
 
         return !activationState.isInverted();
     }
@@ -390,15 +384,17 @@ public:
             return false;
         }
 
-        if( m_state.current_anim_state != 0 || floordata::ActivationState{arg}.isLocked() )
+        const auto timeout = floordata::ActivationState::extractTimeout( arg );
+        if( m_state.current_anim_state == 0 && timeout > 0 )
         {
-            deactivate();
-            m_state.triggerState = TriggerState::Inactive;
+            // switch has a timer
+            m_state.timer = timeout;
+            m_state.triggerState = TriggerState::Active;
         }
         else
         {
-            m_state.timer = floordata::ActivationState::extractTimeout( arg );
-            m_state.triggerState = TriggerState::Active;
+            deactivate();
+            m_state.triggerState = TriggerState::Inactive;
         }
 
         return true;

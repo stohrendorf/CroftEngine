@@ -1,5 +1,5 @@
 local tracks = {
-    [TR1TrackId.MainTheme] = { id = 2, type = TrackType.AMBIENT }, -- Main theme
+    [TR1TrackId.MainTheme] = { id = 2, type = TrackType.INTERCEPTION }, -- Main theme
     [TR1TrackId.Poseidon] = { id = 11, type = TrackType.INTERCEPTION }, -- Poseidon
     [TR1TrackId.MainThemeShort] = { id = 12, type = TrackType.AMBIENT }, -- Main theme, short
     [TR1TrackId.Ambience0] = { id = 3, type = TrackType.AMBIENT }, -- Caves ambience

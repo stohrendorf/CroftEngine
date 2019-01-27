@@ -213,13 +213,10 @@ public:
         return m_activationSet.test( i );
     }
 
-    static int16_t extractTimeout(const FloorData::value_type fd)
+    static uint16_t extractTimeout(const FloorData::value_type fd)
     {
         const auto seconds = gsl::narrow_cast<uint8_t>( fd & 0xff );
-        if( seconds > 1 )
-            return gsl::narrow<int16_t>( seconds * core::FrameRate );
-        else
-            return seconds;
+        return gsl::narrow<uint16_t>( seconds * core::FrameRate );
     }
 
     YAML::Node save() const
