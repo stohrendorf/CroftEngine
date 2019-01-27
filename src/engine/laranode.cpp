@@ -783,7 +783,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
             case floordata::CommandOpcode::UnderwaterCurrent:
             {
                 BOOST_ASSERT( command.parameter < getLevel().m_cameras.size() );
-                const auto& sink = getLevel().m_cameras[command.parameter];
+                const auto& sink = getLevel().m_cameras.at(command.parameter);
                 if( m_underwaterRoute.required_box != &getLevel().m_boxes[sink.box_index] )
                 {
                     m_underwaterRoute.required_box = &getLevel().m_boxes[sink.box_index];
