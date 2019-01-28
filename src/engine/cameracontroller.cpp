@@ -119,7 +119,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
                                       const uint16_t camId,
                                       const floordata::SequenceCondition condition,
                                       const bool fromHeavy,
-                                      const uint16_t activationRequest,
+                                      const uint16_t timeout,
                                       const bool switchIsOn)
 {
     Expects( camId < m_level->m_cameras.size() );
@@ -131,8 +131,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
         || condition == floordata::SequenceCondition::LaraInCombatMode )
         return;
 
-    if( condition == floordata::SequenceCondition::ItemActivated
-        && floordata::ActivationState::extractTimeout( activationRequest ) != 0 && switchIsOn )
+    if( condition == floordata::SequenceCondition::ItemActivated && timeout != 0 && switchIsOn )
         return;
 
     if( condition != floordata::SequenceCondition::ItemActivated && m_fixedCameraId == m_currentFixedCameraId )

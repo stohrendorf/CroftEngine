@@ -143,9 +143,7 @@ struct Mesh
             {
                 m_texBuffers[proxy.textureKey] = m_parts.size();
                 m_parts.emplace_back();
-                const auto it = m_materials.find( proxy.textureKey );
-                Expects( it != m_materials.end() );
-                m_parts.back().material = it->second;
+                m_parts.back().material = m_materials.at( proxy.textureKey );
             }
             return m_texBuffers[proxy.textureKey];
         }

@@ -91,9 +91,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
 
                     if( command.opcode == floordata::CommandOpcode::Activate )
                     {
-                        auto it = itemList.find( command.parameter );
-                        Expects( it != itemList.end() );
-                        it->second->patchFloor( pos, hi.y );
+                        itemList.at( command.parameter )->patchFloor( pos, hi.y );
                     }
                     else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                     {
@@ -206,9 +204,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
 
                     if( command.opcode == floordata::CommandOpcode::Activate )
                     {
-                        auto it = itemList.find( command.parameter );
-                        Expects( it != itemList.end() );
-                        it->second->patchCeiling( pos, hi.y );
+                        itemList.at( command.parameter )->patchCeiling( pos, hi.y );
                     }
                     else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
                     {

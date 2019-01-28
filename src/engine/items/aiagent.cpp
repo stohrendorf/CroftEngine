@@ -106,13 +106,13 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     auto currentFloor = sector->box->floor;
 
     int nextFloor;
-    if( lotInfo.nodes.find( sector->box )->second.exit_box == nullptr )
+    if( lotInfo.nodes.at( sector->box ).exit_box == nullptr )
     {
         nextFloor = currentFloor;
     }
     else
     {
-        nextFloor = lotInfo.nodes.find( sector->box )->second.exit_box->floor;
+        nextFloor = lotInfo.nodes.at( sector->box ).exit_box->floor;
     }
 
     if( sector->box == nullptr
@@ -141,13 +141,13 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         currentFloor = sector->box->floor;
 
-        if( lotInfo.nodes.find( sector->box )->second.exit_box == nullptr )
+        if( lotInfo.nodes.at( sector->box ).exit_box == nullptr )
         {
             nextFloor = sector->box->floor;
         }
         else
         {
-            nextFloor = lotInfo.nodes.find( sector->box )->second.exit_box->floor;
+            nextFloor = lotInfo.nodes.at( sector->box ).exit_box->floor;
         }
     }
 

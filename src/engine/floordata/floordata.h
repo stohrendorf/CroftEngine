@@ -126,7 +126,8 @@ private:
 class ActivationState
 {
 public:
-    static constexpr const uint16_t Oneshot = 0x100;
+    static constexpr const uint16_t TimeoutMask = 0x00ff;
+    static constexpr const uint16_t Oneshot = 0x0100;
     static constexpr const uint16_t ActivationMask = 0x3e00;
     static constexpr const uint16_t InvertedActivation = 0x4000;
     static constexpr const uint16_t Locked = 0x8000;
@@ -140,6 +141,7 @@ public:
             , m_inverted{(fd & InvertedActivation) != 0}
             , m_locked{(fd & Locked) != 0}
             , m_activationSet{extractActivationSet( fd )}
+            , m_timeout{gsl::narrow_cast<uint16_t>( (fd & TimeoutMask) * core::FrameRate )}
     {
     }
 
@@ -213,10 +215,9 @@ public:
         return m_activationSet.test( i );
     }
 
-    static uint16_t extractTimeout(const FloorData::value_type fd)
+    uint16_t getTimeout() const noexcept
     {
-        const auto seconds = gsl::narrow_cast<uint8_t>( fd & 0xff );
-        return gsl::narrow<uint16_t>( seconds * core::FrameRate );
+        return m_timeout;
     }
 
     YAML::Node save() const
@@ -260,6 +261,7 @@ private:
     bool m_inverted = false;
     bool m_locked = false;
     ActivationSet m_activationSet{};
+    uint16_t m_timeout = 0;
 };
 
 

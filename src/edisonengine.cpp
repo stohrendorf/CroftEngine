@@ -532,9 +532,8 @@ int main()
     auto font = std::make_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
     font->setTarget( screenOverlay->getImage() );
 
-    const auto& trFontGraphics = lvl->m_spriteSequences.find( engine::TR1ItemId::FontGraphics );
-    Expects( trFontGraphics != lvl->m_spriteSequences.end() );
-    auto trFont = render::CachedFont( *trFontGraphics->second );
+    const auto& trFontGraphics = lvl->m_spriteSequences.at( engine::TR1ItemId::FontGraphics );
+    auto trFont = render::CachedFont( *trFontGraphics );
 
     auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
 

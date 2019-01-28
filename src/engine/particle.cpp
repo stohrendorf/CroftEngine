@@ -56,10 +56,8 @@ bool BloodSplatterParticle::update(const level::Level& level)
 
     timePerSpriteFrame = 0;
     nextFrame();
-    const auto it = level.m_spriteSequences.find( object_number );
-    BOOST_ASSERT( it != level.m_spriteSequences.end() );
-
-    if( negSpriteFrameId <= it->second->length )
+    const auto& it = *level.m_spriteSequences.at( object_number );
+    if( negSpriteFrameId <= it.length )
     {
         return false;
     }
@@ -70,12 +68,11 @@ bool BloodSplatterParticle::update(const level::Level& level)
 
 bool SplashParticle::update(const level::Level& level)
 {
-    const auto it = level.m_spriteSequences.find( object_number );
-    BOOST_ASSERT( it != level.m_spriteSequences.end() );
+    const auto& it = *level.m_spriteSequences.at( object_number );
 
     nextFrame();
 
-    if( negSpriteFrameId <= it->second->length )
+    if( negSpriteFrameId <= it.length )
     {
         return false;
     }

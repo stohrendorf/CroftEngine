@@ -261,7 +261,7 @@ public:
 
     void deactivate();
 
-    virtual bool triggerSwitch(uint16_t arg) = 0;
+    virtual bool triggerSwitch(uint16_t timeout) = 0;
 
     std::shared_ptr<audio::SourceHandle> playSoundEffect(TR1SoundId id);
 
@@ -377,14 +377,13 @@ public:
         return m_skeleton;
     }
 
-    bool triggerSwitch(const uint16_t arg) override
+    bool triggerSwitch(const uint16_t timeout) override
     {
         if( m_state.triggerState != TriggerState::Deactivated )
         {
             return false;
         }
 
-        const auto timeout = floordata::ActivationState::extractTimeout( arg );
         if( m_state.current_anim_state == 0 && timeout > 0 )
         {
             // switch has a timer

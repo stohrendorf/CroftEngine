@@ -656,8 +656,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
 
     chunkHeader = floordata::FloorDataChunk{*floorData++};
     BOOST_ASSERT( chunkHeader.type == floordata::FloorDataChunkType::CommandSequence );
-    const uint16_t activationRequestRaw = *floorData++;
-    const floordata::ActivationState activationRequest{activationRequestRaw};
+    const floordata::ActivationState activationRequest{*floorData++};
 
     getLevel().m_cameraController->handleCommandSequence( floorData );
 
@@ -682,21 +681,19 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
             case floordata::SequenceCondition::ItemActivated:
             {
                 const floordata::Command command{*floorData++};
-                auto swtch = getLevel().m_itemNodes.find( command.parameter );
-                Expects( swtch != getLevel().m_itemNodes.end() );
-                if( !swtch->second->triggerSwitch( activationRequestRaw ) )
+                auto swtch = getLevel().m_itemNodes.at( command.parameter );
+                if( !swtch->triggerSwitch( activationRequest.getTimeout() ) )
                     return;
 
-                switchIsOn = (swtch->second->m_state.current_anim_state == 1);
+                switchIsOn = (swtch->m_state.current_anim_state == 1);
                 conditionFulfilled = true;
             }
                 break;
             case floordata::SequenceCondition::KeyUsed:
             {
                 const floordata::Command command{*floorData++};
-                auto key = getLevel().m_itemNodes.find( command.parameter );
-                Expects( key != getLevel().m_itemNodes.end() );
-                if( key->second->triggerKey() )
+                auto key = getLevel().m_itemNodes.at( command.parameter );
+                if( key->triggerKey() )
                     conditionFulfilled = true;
                 else
                     return;
@@ -732,14 +729,11 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
         {
             case floordata::CommandOpcode::Activate:
             {
-                Expects( getLevel().m_itemNodes.find( command.parameter ) != getLevel().m_itemNodes.end() );
-                auto itemIt = getLevel().m_itemNodes.find( command.parameter );
-                Expects( itemIt != getLevel().m_itemNodes.end() );
-                auto& item = *itemIt->second;
+                auto& item = *getLevel().m_itemNodes.at( command.parameter );
                 if( item.m_state.activationState.isOneshot() )
                     break;
 
-                item.m_state.timer = floordata::ActivationState::extractTimeout( activationRequestRaw );
+                item.m_state.timer = activationRequest.getTimeout();
 
                 if( chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated )
                     item.m_state.activationState ^= activationRequest.getActivationSet();
@@ -773,7 +767,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
                 const floordata::CameraParameters camParams{*floorData++};
                 getLevel().m_cameraController
                           ->setCamOverride( camParams, command.parameter, chunkHeader.sequenceCondition,
-                                            fromHeavy, activationRequestRaw, switchIsOn );
+                                            fromHeavy, activationRequest.getTimeout(), switchIsOn );
                 command.isLast = camParams.isLast;
             }
                 break;
@@ -1213,11 +1207,10 @@ void LaraNode::updateShotgun()
 
 void LaraNode::updateGuns(const WeaponId weaponId)
 {
-    BOOST_ASSERT( weapons.find( weaponId ) != weapons.end() );
-    const auto weapon = &weapons[weaponId];
+    const auto& weapon = weapons.at(weaponId);
     if( getLevel().m_inputHandler->getInputState().action )
     {
-        updateAimingState( *weapon );
+        updateAimingState( weapon );
     }
     else
     {
@@ -1225,10 +1218,10 @@ void LaraNode::updateGuns(const WeaponId weaponId)
     }
     if( target == nullptr )
     {
-        findTarget( *weapon );
+        findTarget( weapon );
     }
-    updateAimAngles( *weapon, leftArm );
-    updateAimAngles( *weapon, rightArm );
+    updateAimAngles( weapon, leftArm );
+    updateAimAngles( weapon, rightArm );
     if( leftArm.aiming && !rightArm.aiming )
     {
         m_headRotation.Y = m_torsoRotation.Y = leftArm.aimRotation.Y / 2;

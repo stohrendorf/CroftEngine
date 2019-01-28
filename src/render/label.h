@@ -28,8 +28,8 @@ class CachedFont
     {
         BOOST_ASSERT( sprite.image != nullptr );
 
-        const auto dstW = (sprite.t1.x - sprite.t0.x) * 256 * scaleX / FontBaseScale;
-        const auto dstH = (sprite.t1.y - sprite.t0.y) * 256 * scaleY / FontBaseScale;
+        const auto dstW = std::lround( (sprite.t1.x - sprite.t0.x) * 256 * scaleX / FontBaseScale );
+        const auto dstH = std::lround( (sprite.t1.y - sprite.t0.y) * 256 * scaleY / FontBaseScale );
 
         util::CImgWrapper src{
                 reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
@@ -38,10 +38,10 @@ class CachedFont
                 true
         };
         src.crop(
-                sprite.t0.x * sprite.image->getWidth(),
-                sprite.t0.y * sprite.image->getHeight(),
-                sprite.t1.x * sprite.image->getWidth() - 1,
-                sprite.t1.y * sprite.image->getHeight() - 1
+                gsl::narrow_cast<int>( sprite.t0.x * sprite.image->getWidth() ),
+                gsl::narrow_cast<int>( sprite.t0.y * sprite.image->getHeight() ),
+                gsl::narrow_cast<int>( sprite.t1.x * sprite.image->getWidth() - 1 ),
+                gsl::narrow_cast<int>( sprite.t1.y * sprite.image->getHeight() - 1 )
         );
         src.resize( dstW, dstH );
 
@@ -147,7 +147,7 @@ struct Label
         this->blink = blink;
         if( blink )
         {
-            blinkTime = blinkTime;
+            this->blinkTime = blinkTime;
             timeout = blinkTime;
         }
     }

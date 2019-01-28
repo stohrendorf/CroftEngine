@@ -65,7 +65,7 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
     m_state.rotation.Y = core::Angle{item.rotation};
     m_state.shade = item.darkness;
     m_state.activationState = floordata::ActivationState( item.activationState );
-    m_state.timer = floordata::ActivationState::extractTimeout( item.activationState );
+    m_state.timer = m_state.activationState.getTimeout();
 
     m_state.floor = room->getSectorByAbsolutePosition( item.position )->floorHeight * loader::QuarterSectorSize;
 

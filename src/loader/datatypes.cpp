@@ -105,9 +105,8 @@ void Room::createSceneNode(
         {
             texBuffers[proxy.textureKey] = renderModel.m_parts.size();
             renderModel.m_parts.emplace_back();
-            auto it = isWaterRoom() ? waterMaterials.find( proxy.textureKey ) : materials.find( proxy.textureKey );
-            Expects( it != (isWaterRoom() ? waterMaterials.end() : materials.end()) );
-            renderModel.m_parts.back().material = it->second;
+            auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
+            renderModel.m_parts.back().material = it;
         }
         const auto partId = texBuffers[proxy.textureKey];
 
@@ -148,9 +147,8 @@ void Room::createSceneNode(
         {
             texBuffers[proxy.textureKey] = renderModel.m_parts.size();
             renderModel.m_parts.emplace_back();
-            auto it = isWaterRoom() ? waterMaterials.find( proxy.textureKey ) : materials.find( proxy.textureKey );
-            Expects( it != (isWaterRoom() ? waterMaterials.end() : materials.end()) );
-            renderModel.m_parts.back().material = it->second;
+            auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
+            renderModel.m_parts.back().material = it;
         }
         const auto partId = texBuffers[proxy.textureKey];
 

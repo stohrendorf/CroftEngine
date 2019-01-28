@@ -136,7 +136,7 @@ public:
                         uint16_t camId,
                         floordata::SequenceCondition condition,
                         bool fromHeavy,
-                        uint16_t activationRequest,
+                        uint16_t timeout,
                         bool switchIsOn);
 
     void setLookAtItem(const std::shared_ptr<items::ItemNode>& item)
