@@ -85,7 +85,7 @@ public:
         m_lighting.updateStatic( shade );
     }
 
-    virtual bool update(const level::Level& level) = 0;
+    virtual bool update(level::Level& level) = 0;
 };
 
 
@@ -102,7 +102,7 @@ public:
         angle.Y = angle_;
     }
 
-    bool update(const level::Level& level) override;
+    bool update(level::Level& level) override;
 };
 
 
@@ -126,7 +126,7 @@ public:
         }
     }
 
-    bool update(const level::Level& level) override;
+    bool update(level::Level& level) override;
 };
 
 
@@ -144,7 +144,7 @@ public:
             nextFrame();
     }
 
-    bool update(const level::Level& /*level*/) override
+    bool update(level::Level& /*level*/) override
     {
         --timePerSpriteFrame;
         if( timePerSpriteFrame == 0 )
@@ -172,7 +172,7 @@ public:
             nextFrame();
     }
 
-    bool update(const level::Level& level) override;
+    bool update(level::Level& level) override;
 };
 
 
@@ -185,7 +185,7 @@ public:
     {
     }
 
-    bool update(const level::Level& /*level*/) override
+    bool update(level::Level& /*level*/) override
     {
         ++timePerSpriteFrame;
         if( timePerSpriteFrame != 1 )
@@ -211,7 +211,7 @@ public:
         shade = 4096;
     }
 
-    bool update(const level::Level& /*level*/) override
+    bool update(level::Level& /*level*/) override
     {
         --timePerSpriteFrame;
         if( timePerSpriteFrame == 0 )
@@ -220,6 +220,21 @@ public:
         angle.Z = util::rand15s( +180_deg );
         return true;
     }
+};
+
+class FlameParticle : public Particle
+{
+public:
+    explicit FlameParticle(const core::RoomBoundPosition& pos,
+                              const level::Level& level)
+            : Particle{"flame", TR1ItemId::Flame, pos, level}
+    {
+        timePerSpriteFrame = 0;
+        negSpriteFrameId = 0;
+        shade = 4096;
+    }
+
+    bool update(level::Level& level) override;
 };
 
 

@@ -309,7 +309,7 @@ YAML::Node ItemNode::save() const
     n["active"] = m_isActive;
 
     for( const auto& child : getNode()->getChildren() )
-        if(auto idx = m_level->indexOfModel( child->getDrawable() ))
+        if( auto idx = m_level->indexOfModel( child->getDrawable() ) )
             n["meshes"].push_back( *idx );
         else
             n["meshes"].push_back( YAML::Node() );
@@ -330,12 +330,12 @@ void ItemNode::load(const YAML::Node& n)
     else
         Expects( !n["meshes"].IsDefined() || n["meshes"].size() <= getNode()->getChildren().size() );
 
-    if(n["meshes"].IsDefined())
+    if( n["meshes"].IsDefined() )
     {
         for( size_t i = 0; i < n["meshes"].size(); ++i )
         {
             auto m = n["meshes"][i];
-            if(!m.IsNull())
+            if( !m.IsNull() )
                 getNode()->getChildren()[i]->setDrawable( getLevel().getModel( m.as<size_t>() ).get() );
             else
                 getNode()->getChildren()[i]->setDrawable( nullptr );
@@ -413,10 +413,10 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
         : ItemNode{level, room, item, hasUpdateFunction}
 {
     const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
-                                                               sprite.x1, -sprite.y1,
-                                                               sprite.t0, sprite.t1,
-                                                               material,
-                                                               gameplay::Sprite::Axis::Y );
+                                                           sprite.x1, -sprite.y1,
+                                                           sprite.t0, sprite.t1,
+                                                           material,
+                                                           gameplay::Sprite::Axis::Y );
 
     m_node = std::make_shared<gameplay::Node>( name );
     m_node->setDrawable( model );
@@ -460,6 +460,27 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
     const auto s = m_state.rotation.Y.sin();
     const auto dx = other.m_state.position.position.X - m_state.position.position.X;
     const auto dz = other.m_state.position.position.Z - m_state.position.position.Z;
+    const auto x = c * dx - s * dz;
+    const auto z = s * dx + c * dz;
+    return x >= aFrame->bbox.minX - radius
+           && x <= aFrame->bbox.maxX + radius
+           && z >= aFrame->bbox.minZ - radius
+           && z <= aFrame->bbox.maxZ + radius;
+}
+
+bool ModelItemNode::isNear(const Particle& other, const int radius) const
+{
+    const auto aFrame = getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame();
+    if( other.pos.position.Y >= m_state.position.position.Y + aFrame->bbox.maxY
+        || m_state.position.position.Y + aFrame->bbox.minY >= other.pos.position.Y )
+    {
+        return false;
+    }
+
+    const auto c = m_state.rotation.Y.cos();
+    const auto s = m_state.rotation.Y.sin();
+    const auto dx = other.pos.position.X - m_state.position.position.X;
+    const auto dz = other.pos.position.Z - m_state.position.position.Z;
     const auto x = c * dx - s * dz;
     const auto z = s * dx + c * dz;
     return x >= aFrame->bbox.minX - radius
@@ -890,30 +911,7 @@ void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
 
 boost::optional<int> ItemNode::getWaterSurfaceHeight() const
 {
-    auto sector = m_state.position.room->getSectorByAbsolutePosition( m_state.position.position );
-
-    if( m_state.position.room->isWaterRoom() )
-    {
-        while( sector->roomAbove != nullptr )
-        {
-            if( !sector->roomAbove->isWaterRoom() )
-                return sector->ceilingHeight * loader::QuarterSectorSize;
-
-            sector = sector->roomAbove->getSectorByAbsolutePosition( m_state.position.position );
-        }
-    }
-    else
-    {
-        while( sector->roomBelow != nullptr )
-        {
-            if( sector->roomBelow->isWaterRoom() )
-                return sector->floorHeight * loader::QuarterSectorSize;
-
-            sector = sector->roomBelow->getSectorByAbsolutePosition( m_state.position.position );
-        }
-    }
-
-    return boost::none;
+    return m_state.position.room->getWaterSurfaceHeight( m_state.position );
 }
 }
 }

@@ -407,6 +407,8 @@ public:
 
     bool isNear(const ModelItemNode& other, int radius) const;
 
+    bool isNear(const Particle& other, int radius) const;
+
     bool testBoneCollision(const ModelItemNode& other);
 
     void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);

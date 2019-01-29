@@ -1183,6 +1183,34 @@ struct Room
     }
 
     static void patchHeightsForBlock(const engine::items::ItemNode& item, int height);
+
+    boost::optional<int> getWaterSurfaceHeight(const core::RoomBoundPosition& pos) const
+    {
+        auto sector = pos.room->getSectorByAbsolutePosition( pos.position );
+
+        if( pos.room->isWaterRoom() )
+        {
+            while( sector->roomAbove != nullptr )
+            {
+                if( !sector->roomAbove->isWaterRoom() )
+                    return sector->ceilingHeight * loader::QuarterSectorSize;
+
+                sector = sector->roomAbove->getSectorByAbsolutePosition( pos.position );
+            }
+        }
+        else
+        {
+            while( sector->roomBelow != nullptr )
+            {
+                if( sector->roomBelow->isWaterRoom() )
+                    return sector->floorHeight * loader::QuarterSectorSize;
+
+                sector = sector->roomBelow->getSectorByAbsolutePosition( pos.position );
+            }
+        }
+
+        return boost::none;
+    }
 };
 
 
