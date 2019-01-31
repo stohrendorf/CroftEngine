@@ -99,7 +99,7 @@ void TR2Level::loadFileData()
 
     m_reader.readVector( m_cameras, m_reader.readU32(), &loader::Camera::read );
 
-    m_reader.readVector( m_soundSources, m_reader.readU32(), &loader::SoundSource::read );
+    m_reader.readVector( m_soundSources, m_reader.readU32(), &loader::SoundSource::read, &m_soundEngine );
 
     m_reader.readVector( m_boxes, m_reader.readU32(), &loader::Box::readTr2 );
 

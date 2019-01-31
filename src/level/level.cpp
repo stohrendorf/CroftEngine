@@ -715,9 +715,11 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
                 game->getScene()->getActiveCamera() );
     }
 
-    for( const loader::SoundSource& src : m_soundSources )
+    m_soundEngine.setListener( m_cameraController.get() );
+
+    for( loader::SoundSource& src : m_soundSources )
     {
-        auto handle = playSound( src.sound_id, src.position.toRenderSystem() );
+        auto handle = playSound( src.sound_id, &src );
         handle->setLooping( true );
     }
 }
@@ -1025,13 +1027,13 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play effect "
                                            << toString( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
-                playSound( static_cast<engine::TR1SoundId>(trackInfo["id"]), boost::none );
+                playSound( static_cast<engine::TR1SoundId>(trackInfo["id"]), nullptr );
             }
             else
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop effect "
                                            << toString( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
-                stopSound( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
+                stopSound( static_cast<engine::TR1SoundId>(trackInfo["id"]), nullptr );
             }
             break;
         case audio::TrackType::LaraTalk:
@@ -1044,7 +1046,7 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
                     BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play lara talk " << toString( sfxId );
 
                     if( m_currentLaraTalk.is_initialized() )
-                        stopSound( *m_currentLaraTalk );
+                        stopSound( *m_currentLaraTalk, &m_lara->m_state );
 
                     m_lara->playSoundEffect( sfxId );
                     m_currentLaraTalk = sfxId;
@@ -1054,7 +1056,7 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop lara talk "
                                            << toString( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
-                stopSound( static_cast<engine::TR1SoundId>(trackInfo["id"]) );
+                stopSound( static_cast<engine::TR1SoundId>(trackInfo["id"]), &m_lara->m_state );
                 m_currentLaraTalk.reset();
             }
             break;
@@ -1071,7 +1073,7 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
             else if( const auto str = m_ambientStream.lock() )
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo["id"]);
-                m_audioDev.removeStream( str );
+                m_soundEngine.getDevice().removeStream( str );
                 m_currentTrack.reset();
             }
             break;
@@ -1081,7 +1083,7 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play interception "
                                            << static_cast<size_t>(trackInfo["id"]);
                 if( const auto str = m_interceptStream.lock() )
-                    m_audioDev.removeStream( str );
+                    m_soundEngine.getDevice().removeStream( str );
                 if( const auto str = m_ambientStream.lock() )
                     str->getSource().lock()->pause();
                 m_interceptStream = playStream( trackInfo["id"] ).get();
@@ -1092,7 +1094,7 @@ void Level::playStopCdTrack(const engine::TR1TrackId trackId, bool stop)
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop interception "
                                            << static_cast<size_t>(trackInfo["id"]);
-                m_audioDev.removeStream( str );
+                m_soundEngine.getDevice().removeStream( str );
                 if( const auto amb = m_ambientStream.lock() )
                     amb->play();
                 m_currentTrack.reset();
@@ -1108,12 +1110,12 @@ gsl::not_null<std::shared_ptr<audio::Stream>> Level::playStream(size_t trackId)
 
     std::shared_ptr<audio::Stream> result;
     if( boost::filesystem::is_regular_file( "data/tr1/audio/CDAUDIO.WAD" ) )
-        result = m_audioDev.createStream(
+        result = m_soundEngine.getDevice().createStream(
                 std::make_unique<audio::WadStreamSource>( "data/tr1/audio/CDAUDIO.WAD", trackId ),
                 DefaultBufferSize,
                 DefaultBufferCount );
     else
-        result = m_audioDev.createStream(
+        result = m_soundEngine.getDevice().createStream(
                 std::make_unique<audio::SndfileStreamSource>(
                         (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ),
                 DefaultBufferSize,
@@ -1270,6 +1272,14 @@ void Level::postProcessDataStructures()
         Expects( sequence->offset - sequence->length <= m_sprites.size() );
         sequence->sprites = gsl::make_span( &m_sprites[sequence->offset], -sequence->length );
     }
+
+    BOOST_LOG_TRIVIAL( info ) << "Loading samples...";
+
+    for( const auto offset : m_sampleIndices )
+    {
+        Expects( offset < m_samplesData.size() );
+        m_soundEngine.addWav( &m_samplesData[offset] );
+    }
 }
 
 void Level::dinoStompEffect(engine::items::ItemNode& node)
@@ -1340,19 +1350,19 @@ void Level::earthquakeEffect()
     switch( m_effectTimer )
     {
         case 0:
-            playSound( engine::TR1SoundId::Explosion1, boost::none );
+            playSound( engine::TR1SoundId::Explosion1, nullptr );
             m_cameraController->setBounce( -250 );
             break;
         case 3:
-            playSound( engine::TR1SoundId::RollingBall, boost::none );
+            playSound( engine::TR1SoundId::RollingBall, nullptr );
             break;
         case 35:
-            playSound( engine::TR1SoundId::Explosion1, boost::none );
+            playSound( engine::TR1SoundId::Explosion1, nullptr );
             break;
         case 20:
         case 50:
         case 70:
-            playSound( engine::TR1SoundId::TRexFootstep, boost::none );
+            playSound( engine::TR1SoundId::TRexFootstep, nullptr );
             break;
         default:
             // silence compiler
@@ -1392,7 +1402,7 @@ void Level::floodEffect()
 
 void Level::chandelierEffect()
 {
-    playSound( engine::TR1SoundId::GlassyFlow, boost::none );
+    playSound( engine::TR1SoundId::GlassyFlow, nullptr );
     m_activeEffect.reset();
 }
 
@@ -1400,7 +1410,7 @@ void Level::raisingBlockEffect()
 {
     if( m_effectTimer++ == 5 )
     {
-        playSound( engine::TR1SoundId::Clank, boost::none );
+        playSound( engine::TR1SoundId::Clank, nullptr );
         m_activeEffect.reset();
     }
 }
@@ -1411,7 +1421,7 @@ void Level::stairsToSlopeEffect()
     {
         if( m_effectTimer == 0 )
         {
-            playSound( engine::TR1SoundId::HeavyDoorSlam, boost::none );
+            playSound( engine::TR1SoundId::HeavyDoorSlam, nullptr );
         }
         auto pos = m_cameraController->getCenter().position;
         pos.Y += 100 * m_effectTimer;
@@ -1428,9 +1438,7 @@ void Level::sandEffect()
 {
     if( m_effectTimer <= 120 )
     {
-        auto pos = m_cameraController->getCenter().position;
-        pos.Y += 100 * m_effectTimer;
-        playSound( engine::TR1SoundId::LowHum, pos.toRenderSystem() );
+        playSound( engine::TR1SoundId::LowHum, nullptr );
     }
     else
     {
@@ -1441,7 +1449,7 @@ void Level::sandEffect()
 
 void Level::explosionEffect()
 {
-    playSound( engine::TR1SoundId::LowPitchedSettling, boost::none );
+    playSound( engine::TR1SoundId::LowPitchedSettling, nullptr );
     m_cameraController->setBounce( -75 );
     m_activeEffect.reset();
 }
@@ -1467,12 +1475,12 @@ void Level::chainBlockEffect()
 {
     if( m_effectTimer == 0 )
     {
-        playSound( engine::TR1SoundId::SecretFound, boost::none );
+        playSound( engine::TR1SoundId::SecretFound, nullptr );
     }
     ++m_effectTimer;
     if( m_effectTimer == 55 )
     {
-        playSound( engine::TR1SoundId::LaraFallIntoWater, boost::none );
+        playSound( engine::TR1SoundId::LaraFallIntoWater, nullptr );
         m_activeEffect.reset();
     }
 }
@@ -1747,7 +1755,7 @@ bool Level::tryUseInventoryItem(const engine::TR1ItemId id)
             m_lara->m_state.health = core::LaraHealth;
         }
         takeInventoryItem( engine::TR1ItemId::LargeMedipackSprite );
-        playSound( engine::TR1SoundId::LaraSigh, m_lara->m_state.position.position.toRenderSystem() );
+        playSound( engine::TR1SoundId::LaraSigh, &m_lara->m_state );
     }
     else if( id == engine::TR1ItemId::SmallMedipack || id == engine::TR1ItemId::SmallMedipackSprite )
     {
@@ -1765,7 +1773,7 @@ bool Level::tryUseInventoryItem(const engine::TR1ItemId id)
             m_lara->m_state.health = core::LaraHealth;
         }
         takeInventoryItem( engine::TR1ItemId::SmallMedipackSprite );
-        playSound( engine::TR1SoundId::LaraSigh, m_lara->m_state.position.position.toRenderSystem() );
+        playSound( engine::TR1SoundId::LaraSigh, &m_lara->m_state );
     }
 
     return true;
@@ -1880,8 +1888,7 @@ void Level::load(const YAML::Node& node)
     m_cameraController->load( node["camera"] );
 }
 
-std::shared_ptr<audio::SourceHandle> Level::playSound(const engine::TR1SoundId id,
-                                                      const boost::optional<glm::vec3>& position)
+std::shared_ptr<audio::SourceHandle> Level::playSound(const engine::TR1SoundId id, audio::Emitter* emitter)
 {
     Expects( static_cast<size_t>(id) < m_soundmap.size() );
     const auto snd = m_soundmap[static_cast<size_t>(id)];
@@ -1914,94 +1921,62 @@ std::shared_ptr<audio::SourceHandle> Level::playSound(const engine::TR1SoundId i
     std::shared_ptr<audio::SourceHandle> handle;
     if( details.getPlaybackType( Engine::TR1 ) == loader::PlaybackType::Looping )
     {
-        handle = findSample( sample );
-        if( handle == nullptr )
+        auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
+        if( handles.empty() )
         {
             BOOST_LOG_TRIVIAL( debug ) << "Play looping sound " << toString( id );
-            handle = playSample( sample, pitch, volume, position );
+            handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
             handle->setLooping( true );
             handle->play();
         }
         else
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Looping sound " << toString( id ) << " already playing";
+            BOOST_ASSERT( handles.size() == 1 );
         }
     }
     else if( details.getPlaybackType( Engine::TR1 ) == loader::PlaybackType::Restart )
     {
-        handle = findSample( sample );
-        if( handle != nullptr )
+        auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
+        if( !handles.empty() )
         {
+            BOOST_ASSERT( handles.size() == 1 );
             BOOST_LOG_TRIVIAL( debug ) << "Update restarting sound " << toString( id );
+            handle = handles[0];
             handle->setPitch( pitch );
             handle->setGain( volume );
-            if( position.is_initialized() )
-                handle->setPosition( *position );
+            if( emitter != nullptr )
+                handle->setPosition( emitter->getPosition() );
             handle->play();
         }
         else
         {
             BOOST_LOG_TRIVIAL( debug ) << "Play restarting sound " << toString( id );
-            handle = playSample( sample, pitch, volume, position );
+            handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
         }
     }
     else if( details.getPlaybackType( Engine::TR1 ) == loader::PlaybackType::Wait )
     {
-        handle = findSample( sample );
-        if( handle == nullptr )
+        auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
+        if( handles.empty() )
         {
             BOOST_LOG_TRIVIAL( debug ) << "Play non-playing sound " << toString( id );
-            handle = playSample( sample, pitch, volume, position );
+            handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
         }
         else
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Not playing already playing sound " << toString( id );
+            BOOST_ASSERT( handles.size() == 1 );
         }
     }
     else
     {
         BOOST_LOG_TRIVIAL( debug ) << "Default play mode - playing sound " << toString( id );
-        handle = playSample( sample, pitch, volume, position );
+        handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
     }
 
     return handle;
 }
 
-gsl::not_null<std::shared_ptr<audio::SourceHandle>> Level::playSample(const size_t sample,
-                                                                      const float pitch,
-                                                                      const float volume,
-                                                                      const boost::optional<glm::vec3>& pos)
-{
-    Expects( sample < m_sampleIndices.size() );
-
-    auto buf = std::make_unique<audio::BufferHandle>();
-    const auto offset = m_sampleIndices[sample];
-    BOOST_ASSERT( offset < m_samplesData.size() );
-    buf->fillFromWav( &m_samplesData[offset] );
-
-    auto src = m_audioDev.createSource();
-    src->setBuffer( std::move( buf ) );
-    src->setPitch( pitch );
-    src->setGain( volume );
-    if( pos.is_initialized() )
-    {
-        src->setPosition( *pos );
-    }
-    else
-    {
-        src->set( AL_SOURCE_RELATIVE, AL_TRUE );
-        src->set( AL_POSITION, 0, 0, 0 );
-        src->set( AL_VELOCITY, 0, 0, 0 );
-    }
-
-    src->play();
-
-    m_samples[sample] = src.get();
-
-    return src;
-}
-
-void Level::stopSound(const engine::TR1SoundId soundId) const
+void Level::stopSound(const engine::TR1SoundId soundId, audio::Emitter* emitter)
 {
     BOOST_ASSERT( static_cast<size_t>(soundId) < m_soundmap.size() );
     const auto& details = m_soundDetails[m_soundmap[static_cast<size_t>(soundId)]];
@@ -2011,7 +1986,7 @@ void Level::stopSound(const engine::TR1SoundId soundId) const
     bool anyStopped = false;
     for( size_t i = first; i < last; ++i )
     {
-        anyStopped |= stopSample( i );
+        anyStopped |= m_soundEngine.stopBuffer( i, emitter );
     }
 
     if( !anyStopped )
@@ -2049,4 +2024,44 @@ std::shared_ptr<engine::items::PickupItem> Level::createPickup(const engine::TR1
     addChild( room->node, node->getNode() );
 
     return node;
+}
+
+void Level::doGlobalEffect()
+{
+    if( m_activeEffect.is_initialized() )
+        runEffect( *m_activeEffect, nullptr );
+
+    if( m_cameraController->getCurrentRoom()->isWaterRoom() )
+    {
+        if( isPlaying( m_ambientStream ) )
+            m_ambientStream.lock()
+                           ->getSource().lock()->setDirectFilter( m_soundEngine.getDevice().getUnderwaterFilter() );
+
+        if( isPlaying( m_interceptStream ) )
+            m_interceptStream.lock()
+                             ->getSource().lock()->setDirectFilter( m_soundEngine.getDevice().getUnderwaterFilter() );
+
+        if( m_underwaterAmbience.expired() )
+        {
+            m_underwaterAmbience = playSound( engine::TR1SoundId::UnderwaterAmbience, nullptr );
+            m_underwaterAmbience.lock()->setLooping( true );
+        }
+    }
+    else if( !m_underwaterAmbience.expired() )
+    {
+        if( !m_ambientStream.expired() )
+            m_ambientStream.lock()->getSource().lock()->setDirectFilter( nullptr );
+
+        if( isPlaying( m_interceptStream ) )
+            m_interceptStream.lock()->getSource().lock()->setDirectFilter( nullptr );
+
+        stopSound( engine::TR1SoundId::UnderwaterAmbience, nullptr );
+        m_underwaterAmbience.reset();
+    }
+
+    if( !isPlaying( m_interceptStream ) )
+    {
+        if( const auto str = m_ambientStream.lock() )
+            str->play();
+    }
 }

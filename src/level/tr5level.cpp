@@ -188,7 +188,7 @@ void TR5Level::loadFileData()
 
     m_reader.readVector( m_flybyCameras, m_reader.readU32(), &loader::FlybyCamera::read );
 
-    m_reader.readVector( m_soundSources, m_reader.readU32(), &loader::SoundSource::read );
+    m_reader.readVector( m_soundSources, m_reader.readU32(), &loader::SoundSource::read, &m_soundEngine );
 
     m_reader.readVector( m_boxes, m_reader.readU32(), &loader::Box::readTr2 );
 

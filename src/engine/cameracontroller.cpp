@@ -84,7 +84,8 @@ CameraModifier parseCameraModifier(const std::string& m)
 
 CameraController::CameraController(const gsl::not_null<level::Level*>& level,
                                    gsl::not_null<std::shared_ptr<gameplay::Camera>> camera)
-        : m_camera{std::move( camera )}
+        : Listener{&level->m_soundEngine}
+        , m_camera{std::move( camera )}
         , m_level{level}
         , m_eye{level->m_lara->m_state.position.room}
         , m_center{level->m_lara->m_state.position.room, level->m_lara->m_state.position.position}
@@ -444,40 +445,6 @@ bool CameraController::clampPosition(const core::RoomBoundPosition& start,
 void CameraController::update()
 {
     m_rotationAroundCenter.X = util::clamp( m_rotationAroundCenter.X, -85_deg, +85_deg );
-
-    if( m_eye.room->isWaterRoom() )
-    {
-        if( isPlaying( m_level->m_ambientStream ) )
-            m_level->m_ambientStream.lock()
-                   ->getSource().lock()->setDirectFilter( m_level->m_audioDev.getUnderwaterFilter() );
-
-        if( isPlaying( m_level->m_interceptStream ) )
-            m_level->m_interceptStream.lock()
-                   ->getSource().lock()->setDirectFilter( m_level->m_audioDev.getUnderwaterFilter() );
-
-        if( m_underwaterAmbience.expired() )
-        {
-            m_underwaterAmbience = m_level->playSound( TR1SoundId::UnderwaterAmbience, boost::none );
-            m_underwaterAmbience.lock()->setLooping( true );
-        }
-    }
-    else if( !m_underwaterAmbience.expired() )
-    {
-        if( !m_level->m_ambientStream.expired() )
-            m_level->m_ambientStream.lock()->getSource().lock()->setDirectFilter( nullptr );
-
-        if( isPlaying( m_level->m_interceptStream ) )
-            m_level->m_interceptStream.lock()->getSource().lock()->setDirectFilter( nullptr );
-
-        m_level->stopSound( TR1SoundId::UnderwaterAmbience );
-        m_underwaterAmbience.reset();
-    }
-
-    if( !isPlaying( m_level->m_interceptStream ) )
-    {
-        if( const auto str = m_level->m_ambientStream.lock() )
-            str->play();
-    }
 
     if( m_mode == CameraMode::Cinematic )
     {
@@ -1162,7 +1129,8 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, cons
 CameraController::CameraController(gsl::not_null<level::Level*> level,
                                    gsl::not_null<std::shared_ptr<gameplay::Camera>> camera,
                                    bool /*noLaraTag*/)
-        : m_camera{std::move( camera )}
+        : Listener{&level->m_soundEngine}
+        , m_camera{std::move( camera )}
         , m_level{level}
         , m_eye{&level->m_rooms[0]}
         , m_center{&level->m_rooms[0]}

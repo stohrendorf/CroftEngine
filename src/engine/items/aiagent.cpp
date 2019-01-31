@@ -453,7 +453,7 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
 
 namespace
 {
-gsl::not_null<std::shared_ptr<Particle>> createGunFlare(const level::Level& level,
+gsl::not_null<std::shared_ptr<Particle>> createGunFlare(level::Level& level,
                                                         const core::RoomBoundPosition& pos,
                                                         int16_t speed,
                                                         core::Angle angle)

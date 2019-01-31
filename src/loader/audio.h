@@ -3,6 +3,7 @@
 #include "io/sdlreader.h"
 #include "level/game.h"
 #include "engine/sounds_tr1.h"
+#include "audio/soundengine.h"
 
 namespace loader
 {
@@ -32,19 +33,28 @@ enum class ReverbType : uint8_t
 * seems to propagate omnidirectionally for about 10 horizontal-grid sizes
 * without regard for the presence of walls.
 */
-struct SoundSource
+struct SoundSource final : audio::Emitter
 {
     core::TRVec position;
     engine::TR1SoundId sound_id;
     uint16_t flags; // 0x40, 0x80, or 0xc0
 
-    static std::unique_ptr<SoundSource> read(io::SDLReader& reader)
+    explicit SoundSource(const gsl::not_null<audio::SoundEngine*>& engine)
+            : Emitter{engine}
+    {}
+
+    static std::unique_ptr<SoundSource> read(io::SDLReader& reader, audio::SoundEngine* engine)
     {
-        std::unique_ptr<SoundSource> sound_source{new SoundSource()};
+        std::unique_ptr<SoundSource> sound_source = std::make_unique<SoundSource>( engine );
         sound_source->position = readCoordinates32( reader );
         sound_source->sound_id = static_cast<engine::TR1SoundId>(reader.readU16());
         sound_source->flags = reader.readU16();
         return sound_source;
+    }
+
+    glm::vec3 getPosition() const final
+    {
+        return position.toRenderSystem();
     }
 };
 

@@ -10,7 +10,7 @@ namespace audio
 class SourceHandle final
 {
     const ALuint m_handle;
-    std::unique_ptr<BufferHandle> m_buffer;
+    std::shared_ptr<BufferHandle> m_buffer;
 
     static ALuint createHandle()
     {
@@ -26,8 +26,6 @@ public:
     explicit SourceHandle()
             : m_handle{createHandle()}
     {
-        BOOST_LOG_TRIVIAL( trace ) << "Created AL source handle " << m_handle;
-
         set( AL_MAX_DISTANCE, 8 * 1024 );
     }
 
@@ -43,8 +41,6 @@ public:
     {
         AL_ASSERT( alSourceStop( m_handle ) );
         AL_ASSERT( alDeleteSources( 1, &m_handle ) );
-
-        BOOST_LOG_TRIVIAL( trace ) << "Destroyed AL source handle " << m_handle;
     }
 
     ALuint get() const noexcept
@@ -52,13 +48,13 @@ public:
         return m_handle;
     }
 
-    void setBuffer(std::unique_ptr<BufferHandle>&& b)
+    void setBuffer(const std::shared_ptr<BufferHandle>& b)
     {
-        m_buffer = std::move( b );
+        m_buffer = b;
         AL_ASSERT( alSourcei( m_handle, AL_BUFFER, m_buffer == nullptr ? 0 : m_buffer->get() ) );
     }
 
-    const std::unique_ptr<BufferHandle>& getBuffer() const noexcept
+    const std::shared_ptr<BufferHandle>& getBuffer() const noexcept
     {
         return m_buffer;
     }

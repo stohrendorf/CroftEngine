@@ -229,12 +229,12 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, const bool 
         item->getNode()->setVisible( item->m_state.triggerState != engine::items::TriggerState::Invisible );
     }
 
-    std::vector<gsl::not_null<std::shared_ptr<engine::Particle>>> particlesToKeep;
-    for( const auto& particle : lvl->m_particles )
+    auto currentParticles = std::move( lvl->m_particles );
+    for( const auto& particle : currentParticles )
     {
         if( particle->update( *lvl ) )
         {
-            particlesToKeep.emplace_back( particle );
+            lvl->m_particles.emplace_back( particle );
             setParent( particle, particle->pos.room->node );
             particle->updateLight();
         }
@@ -243,7 +243,6 @@ void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, const bool 
             setParent( particle, nullptr );
         }
     }
-    lvl->m_particles = std::move( particlesToKeep );
 
     if( lvl->m_lara != nullptr )
     {
@@ -551,7 +550,7 @@ int main()
             tmp.draw( trFont, *screenOverlay->getImage(), *lvl );
         }
 
-        lvl->m_audioDev.update();
+        lvl->m_soundEngine.update();
         lvl->m_inputHandler->update();
 
         if( lvl->m_inputHandler->getInputState().debug )
@@ -599,10 +598,6 @@ int main()
                ->updateCinematic( lvl->m_cinematicFrames[lvl->m_cameraController->m_cinematicFrame], false );
         }
         lvl->doGlobalEffect();
-
-        lvl->m_audioDev.setListenerTransform( lvl->m_cameraController->getPosition(),
-                                              lvl->m_cameraController->getFrontVector(),
-                                              lvl->m_cameraController->getUpVector() );
 
         if( lvl->m_lara != nullptr )
             lvl->drawBars( game.get(), screenOverlay->getImage() );

@@ -28,7 +28,6 @@ public:
     explicit BufferHandle()
             : m_handle{createHandle()}
     {
-        BOOST_LOG_TRIVIAL( trace ) << "Created AL buffer handle " << m_handle;
     }
 
     explicit BufferHandle(const BufferHandle&) = delete;
@@ -42,7 +41,6 @@ public:
     ~BufferHandle()
     {
         AL_ASSERT( alDeleteBuffers( 1, &m_handle ) );
-        BOOST_LOG_TRIVIAL( trace ) << "Destroyed AL buffer handle " << m_handle;
     }
 
     ALuint get() const noexcept

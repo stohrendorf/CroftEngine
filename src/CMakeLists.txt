@@ -152,6 +152,7 @@ set( EDISONENGINE_SRCS
      audio/device.cpp
      audio/utils.cpp
      audio/stream.cpp
+     audio/soundengine.cpp
 
      util/md5.cpp
      util/cimgwrapper.cpp

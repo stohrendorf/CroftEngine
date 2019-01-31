@@ -1,6 +1,6 @@
 #pragma once
 
-#include "audio/device.h"
+#include "audio/soundengine.h"
 #include "audio/streamsource.h"
 #include "engine/cameracontroller.h"
 #include "engine/inputhandler.h"
@@ -246,26 +246,15 @@ public:
 
     std::unique_ptr<engine::InputHandler> m_inputHandler;
 
-    audio::Device m_audioDev;
+    audio::SoundEngine m_soundEngine;
 
-    std::map<size_t, std::weak_ptr<audio::SourceHandle>> m_samples;
+    std::shared_ptr<audio::SourceHandle> playSound(const engine::TR1SoundId id, audio::Emitter* emitter);
 
-    gsl::not_null<std::shared_ptr<audio::SourceHandle>> playSample(
-            const size_t sample,
-            const float pitch,
-            const float volume,
-            const boost::optional<glm::vec3>& pos);
-
-    std::shared_ptr<audio::SourceHandle> playSound(const engine::TR1SoundId id,
-                                                   const boost::optional<glm::vec3>& position);
-
-    std::shared_ptr<audio::SourceHandle> findSample(const size_t sample) const
+    std::shared_ptr<audio::SourceHandle> playSound(const engine::TR1SoundId id, const glm::vec3& pos)
     {
-        const auto it = m_samples.find( sample );
-        if( it == m_samples.end() )
-            return nullptr;
-
-        return it->second.lock();
+        const auto handle = playSound( id, nullptr );
+        handle->setPosition( pos );
+        return handle;
     }
 
     gsl::not_null<std::shared_ptr<audio::Stream>> playStream(size_t trackId);
@@ -280,18 +269,7 @@ public:
                         const engine::floordata::ActivationState& activationRequest,
                         engine::floordata::SequenceCondition triggerType);
 
-    void stopSound(const engine::TR1SoundId soundId) const;
-
-    bool stopSample(const size_t id) const
-    {
-        if( auto handle = findSample( id ) )
-        {
-            handle->stop();
-            return true;
-        }
-
-        return false;
-    }
+    void stopSound(const engine::TR1SoundId soundId, audio::Emitter* emitter);
 
     std::weak_ptr<audio::Stream> m_ambientStream;
     std::weak_ptr<audio::Stream> m_interceptStream;
@@ -396,13 +374,7 @@ public:
         m_effectTimer = 0;
     }
 
-    void doGlobalEffect()
-    {
-        if( !m_activeEffect.is_initialized() )
-            return;
-
-        runEffect( *m_activeEffect, nullptr );
-    }
+    void doGlobalEffect();
 
     void runEffect(const size_t id, engine::items::ModelItemNode* node)
     {
@@ -495,7 +467,7 @@ public:
 
     boost::optional<size_t> indexOfModel(const std::shared_ptr<gameplay::Drawable>& m) const
     {
-        if(m==nullptr)
+        if( m == nullptr )
             return boost::none;
 
         for( size_t i = 0; i < m_models.size(); ++i )
@@ -547,5 +519,7 @@ private:
     int m_uvAnimTime{0};
 
     std::shared_ptr<gameplay::ShaderProgram> m_lightningShader;
+
+    std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
 };
 }

@@ -50,7 +50,7 @@ public:
             setGoalAnimState( LaraStateId::Stop );
             setAnimation( loader::AnimationId::LANDING_HARD, 358 );
         }
-        getLevel().stopSound( TR1SoundId::LaraScream );
+        getLevel().stopSound( TR1SoundId::LaraScream, &getLara().m_state );
         getLara().m_state.fallspeed = 0;
         placeOnFloor( collisionInfo );
         getLara().m_state.falling = false;

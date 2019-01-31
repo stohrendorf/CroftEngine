@@ -26,7 +26,6 @@ public:
     explicit FilterHandle()
             : m_handle{createHandle()}
     {
-        BOOST_LOG_TRIVIAL( trace ) << "Created AL filter handle " << m_handle;
     }
 
     explicit FilterHandle(const FilterHandle&) = delete;
@@ -40,7 +39,6 @@ public:
     ~FilterHandle()
     {
         AL_ASSERT( alDeleteFilters( 1, &m_handle ) );
-        BOOST_LOG_TRIVIAL( trace ) << "Destroyed AL filter handle " << m_handle;
     }
 
     ALuint get() const noexcept

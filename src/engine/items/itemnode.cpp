@@ -46,8 +46,6 @@ void ItemNode::applyTransform()
 {
     const glm::vec3 tr = m_state.position.position.toRenderSystem() - m_state.position.room->position.toRenderSystem();
     getNode()->setLocalMatrix( translate( glm::mat4{1.0f}, tr ) * m_state.rotation.toMatrix() );
-
-    updateSounds();
 }
 
 ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
@@ -55,7 +53,7 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
                    const loader::Item& item,
                    const bool hasUpdateFunction)
         : m_level{level}
-        , m_state{room, item.type}
+        , m_state{&level->m_soundEngine, room, item.type}
         , m_hasUpdateFunction{hasUpdateFunction}
 {
     BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
@@ -239,12 +237,7 @@ void ItemNode::deactivate()
 
 std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const TR1SoundId id)
 {
-    const auto handle = getLevel().playSound( id, m_state.position.position.toRenderSystem() );
-    if( handle != nullptr )
-    {
-        m_sounds.emplace_back( handle );
-    }
-    return handle;
+    return getLevel().playSound( id, &m_state );
 }
 
 bool ItemNode::triggerKey()
@@ -261,24 +254,6 @@ bool ItemNode::triggerKey()
 
     m_state.triggerState = TriggerState::Deactivated;
     return true;
-}
-
-void ItemNode::updateSounds()
-{
-    if( m_sounds.empty() )
-        return;
-
-    auto old = std::move( m_sounds );
-    std::copy_if( old.begin(), old.end(), std::back_inserter( m_sounds ),
-                  [](const std::weak_ptr<audio::SourceHandle>& h) {
-                      return !h.expired();
-                  } );
-
-    for( const std::weak_ptr<audio::SourceHandle>& handle : m_sounds )
-    {
-        std::shared_ptr<audio::SourceHandle> lockedHandle = handle.lock();
-        lockedHandle->setPosition( m_state.position.position.toRenderSystem() );
-    }
 }
 
 void ItemNode::kill()
@@ -608,7 +583,7 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
 gsl::not_null<std::shared_ptr<Particle>> ModelItemNode::emitParticle(const core::TRVec& localPosition,
                                                                      const size_t boneIndex,
                                                                      gsl::not_null<std::shared_ptr<Particle>> (* generate)(
-                                                                             const level::Level& level,
+                                                                             level::Level& level,
                                                                              const core::RoomBoundPosition&,
                                                                              int16_t, core::Angle))
 {
@@ -899,6 +874,11 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
     }
 }
 
+glm::vec3 ItemState::getPosition() const
+{
+    return position.position.toRenderSystem();
+}
+
 ItemState::~ItemState() = default;
 
 void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
@@ -906,7 +886,7 @@ void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
     const auto particle = std::make_shared<RicochetParticle>( pos, getLevel() );
     setParent( particle, m_state.position.room->node );
     getLevel().m_particles.emplace_back( particle );
-    getLevel().playSound( TR1SoundId::Ricochet, pos.position.toRenderSystem() );
+    getLevel().playSound( TR1SoundId::Ricochet, particle.get() );
 }
 
 boost::optional<int> ItemNode::getWaterSurfaceHeight() const

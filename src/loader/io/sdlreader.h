@@ -133,43 +133,43 @@ public:
         }
     }
 
-    template<typename T>
-    using PtrProducer = std::unique_ptr<T>(SDLReader&);
+    template<typename T, typename... Args>
+    using PtrProducer = std::unique_ptr<T>(SDLReader&, Args... args);
 
-    template<typename T>
-    using StackProducer = T(SDLReader&);
+    template<typename T, typename... Args>
+    using StackProducer = T(SDLReader&, Args... args);
 
-    template<typename T>
-    void readVector(std::vector<T>& elements, size_t count, PtrProducer<T> producer)
+    template<typename T, typename... Args>
+    void readVector(std::vector<T>& elements, size_t count, PtrProducer<T, Args...> producer, Args... args)
     {
         elements.clear();
-        appendVector( elements, count, producer );
+        appendVector( elements, count, producer, args... );
     }
 
-    template<typename T>
-    void readVector(std::vector<T>& elements, size_t count, StackProducer<T> producer)
+    template<typename T, typename... Args>
+    void readVector(std::vector<T>& elements, size_t count, StackProducer<T, Args...> producer, Args... args)
     {
         elements.clear();
-        appendVector( elements, count, producer );
+        appendVector( elements, count, producer, args... );
     }
 
-    template<typename T>
-    void appendVector(std::vector<T>& elements, size_t count, PtrProducer<T> producer)
+    template<typename T, typename... Args>
+    void appendVector(std::vector<T>& elements, size_t count, PtrProducer<T, Args...> producer, Args... args)
     {
         elements.reserve( elements.size() + count );
         for( size_t i = 0; i < count; ++i )
         {
-            elements.emplace_back( std::move( *producer( *this ) ) );
+            elements.emplace_back( std::move( *producer( *this, args... ) ) );
         }
     }
 
-    template<typename T>
-    void appendVector(std::vector<T>& elements, size_t count, StackProducer<T> producer)
+    template<typename T, typename... Args>
+    void appendVector(std::vector<T>& elements, size_t count, StackProducer<T, Args...> producer, Args... args)
     {
         elements.reserve( elements.size() + count );
         for( size_t i = 0; i < count; ++i )
         {
-            elements.emplace_back( producer( *this ) );
+            elements.emplace_back( producer( *this, args... ) );
         }
     }
 

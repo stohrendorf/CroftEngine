@@ -120,7 +120,7 @@ void TR1Level::loadFileData()
     m_reader.readVector( m_cameras, m_reader.readU32(), &loader::Camera::read );
 
     BOOST_LOG_TRIVIAL( debug ) << "Reading sound sources";
-    m_reader.readVector( m_soundSources, m_reader.readU32(), &loader::SoundSource::read );
+    m_reader.readVector( m_soundSources, m_reader.readU32(), &loader::SoundSource::read, &m_soundEngine );
 
     BOOST_LOG_TRIVIAL( debug ) << "Reading boxes";
     m_reader.readVector( m_boxes, m_reader.readU32(), &loader::Box::readTr1 );

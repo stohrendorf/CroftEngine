@@ -230,6 +230,11 @@ const level::Level& AbstractStateHandler::getLevel() const
     return m_lara.getLevel();
 }
 
+level::Level& AbstractStateHandler::getLevel()
+{
+    return m_lara.getLevel();
+}
+
 // ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::placeOnFloor(const CollisionInfo& collisionInfo)
 {

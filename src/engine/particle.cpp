@@ -47,6 +47,29 @@ void Particle::initDrawables(const level::Level& level)
     m_lighting.bind( *this );
 }
 
+glm::vec3 Particle::getPosition() const
+{
+    return pos.position.toRenderSystem();
+}
+
+Particle::Particle(const std::string& id,
+                   const TR1ItemId objectNumber,
+                   const gsl::not_null<const loader::Room*>& room,
+                   level::Level& level)
+        : Node{id}, Emitter{&level.m_soundEngine}, pos{room}, object_number{objectNumber}
+{
+    initDrawables( level );
+}
+
+Particle::Particle(const std::string& id,
+                   const TR1ItemId objectNumber,
+                   const core::RoomBoundPosition& pos,
+                   level::Level& level)
+        : Node{id}, Emitter{&level.m_soundEngine}, pos{pos}, object_number{objectNumber}
+{
+    initDrawables( level );
+}
+
 bool BloodSplatterParticle::update(level::Level& level)
 {
     pos.position.X += speed * angle.Y.sin();
@@ -116,7 +139,7 @@ bool FlameParticle::update(level::Level& level)
 
     if( timePerSpriteFrame >= 0 )
     {
-        level.playSound( TR1SoundId::Burning, pos.position.toRenderSystem() );
+        level.playSound( TR1SoundId::Burning, this );
         if( timePerSpriteFrame != 0 )
         {
             --timePerSpriteFrame;
@@ -147,15 +170,14 @@ bool FlameParticle::update(level::Level& level)
     {
         // burn baby burn
 
-        pos.position.X = 0;
-        pos.position.Y = 0;
+        pos.position = {0, 0, 0};
         if( timePerSpriteFrame == -1 )
         {
-            pos.position.Z = -100;
+            pos.position.Y = -100;
         }
         else
         {
-            pos.position.Z = 0;
+            pos.position.Y = 0;
         }
 
         const auto itemSpheres = level.m_lara->getSkeleton()->getBoneCollisionSpheres(
@@ -170,14 +192,14 @@ bool FlameParticle::update(level::Level& level)
         const auto waterHeight = pos.room->getWaterSurfaceHeight( pos );
         if( !waterHeight.is_initialized() || waterHeight.get() >= pos.position.Y )
         {
-            level.playSound( TR1SoundId::Burning, pos.position.toRenderSystem() );
+            level.playSound( TR1SoundId::Burning, this );
             level.m_lara->m_state.health -= 3;
             level.m_lara->m_state.is_hit = true;
         }
         else
         {
             timePerSpriteFrame = 0;
-            level.stopSound( TR1SoundId::Burning );
+            level.stopSound( TR1SoundId::Burning, this );
             return false;
         }
     }

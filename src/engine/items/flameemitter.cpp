@@ -20,7 +20,7 @@ void FlameEmitter::update()
     else if( m_flame != nullptr )
     {
         removeParticle();
-        getLevel().stopSound( TR1SoundId::Burning );
+        getLevel().stopSound( TR1SoundId::Burning, m_flame.get() );
     }
 }
 

@@ -66,10 +66,13 @@ enum class TriggerState
 };
 
 
-struct ItemState final
+struct ItemState final : public audio::Emitter
 {
-    explicit ItemState(const gsl::not_null<const loader::Room*>& room, const TR1ItemId type)
-            : type{type}
+    explicit ItemState(const gsl::not_null<audio::SoundEngine*>& engine,
+                       const gsl::not_null<const loader::Room*>& room,
+                       const TR1ItemId type)
+            : Emitter{engine}
+            , type{type}
             , position{room}
     {}
 
@@ -81,7 +84,9 @@ struct ItemState final
 
     ItemState& operator=(ItemState&&) = default;
 
-    ~ItemState();
+    ~ItemState() override;
+
+    glm::vec3 getPosition() const final;
 
     TR1ItemId type;
     core::RoomBoundPosition position;
@@ -157,10 +162,6 @@ struct ItemState final
 class ItemNode
 {
     const gsl::not_null<level::Level*> m_level;
-
-    std::vector<std::weak_ptr<audio::SourceHandle>> m_sounds;
-
-    void updateSounds();
 
 public:
     ItemState m_state;
@@ -416,7 +417,7 @@ public:
     gsl::not_null<std::shared_ptr<Particle>> emitParticle(const core::TRVec& localPosition,
                                                           size_t boneIndex,
                                                           gsl::not_null<std::shared_ptr<Particle>> (* generate)(
-                                                                  const level::Level& level,
+                                                                  level::Level& level,
                                                                   const core::RoomBoundPosition& pos,
                                                                   int16_t speed,
                                                                   core::Angle angle));

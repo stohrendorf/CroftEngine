@@ -86,6 +86,8 @@ protected:
 
     const level::Level& getLevel() const;
 
+    level::Level& getLevel();
+
     void placeOnFloor(const CollisionInfo& collisionInfo);
 
     void setYRotationSpeed(core::Angle spd);

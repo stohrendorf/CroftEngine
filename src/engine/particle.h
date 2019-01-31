@@ -12,7 +12,7 @@
 
 namespace engine
 {
-class Particle : public gameplay::Node
+class Particle : public gameplay::Node, public audio::Emitter
 {
 public:
     core::RoomBoundPosition pos;
@@ -65,20 +65,12 @@ public:
     explicit Particle(const std::string& id,
                       const TR1ItemId objectNumber,
                       const gsl::not_null<const loader::Room*>& room,
-                      const level::Level& level)
-            : Node{id}, pos{room}, object_number{objectNumber}
-    {
-        initDrawables( level );
-    }
+                      level::Level& level);
 
     explicit Particle(const std::string& id,
                       const TR1ItemId objectNumber,
                       const core::RoomBoundPosition& pos,
-                      const level::Level& level)
-            : Node{id}, pos{pos}, object_number{objectNumber}
-    {
-        initDrawables( level );
-    }
+                      level::Level& level);
 
     void updateLight()
     {
@@ -86,6 +78,8 @@ public:
     }
 
     virtual bool update(level::Level& level) = 0;
+
+    glm::vec3 getPosition() const final;
 };
 
 
@@ -95,7 +89,7 @@ public:
     explicit BloodSplatterParticle(const core::RoomBoundPosition& pos,
                                    const int16_t speed_,
                                    const core::Angle angle_,
-                                   const level::Level& level)
+                                   level::Level& level)
             : Particle{"bloodsplat", TR1ItemId::Blood, pos, level}
     {
         speed = speed_;
@@ -110,7 +104,7 @@ class SplashParticle : public Particle
 {
 public:
     explicit SplashParticle(const core::RoomBoundPosition& pos,
-                            const level::Level& level,
+                            level::Level& level,
                             const bool waterfall)
             : Particle{"splash", TR1ItemId::Splash, pos, level}
     {
@@ -134,7 +128,7 @@ class RicochetParticle : public Particle
 {
 public:
     explicit RicochetParticle(const core::RoomBoundPosition& pos,
-                              const level::Level& level)
+                              level::Level& level)
             : Particle{"ricochet", TR1ItemId::Ricochet, pos, level}
     {
         timePerSpriteFrame = 4;
@@ -162,7 +156,7 @@ class BubbleParticle : public Particle
 {
 public:
     explicit BubbleParticle(const core::RoomBoundPosition& pos,
-                            const level::Level& level)
+                            level::Level& level)
             : Particle{"bubble", TR1ItemId::Bubbles, pos, level}
     {
         speed = 10 + util::rand15( 6 );
@@ -180,7 +174,7 @@ class SparkleParticle : public Particle
 {
 public:
     explicit SparkleParticle(const core::RoomBoundPosition& pos,
-                             const level::Level& level)
+                             level::Level& level)
             : Particle{"sparkles", TR1ItemId::Sparkles, pos, level}
     {
     }
@@ -202,7 +196,7 @@ class GunflareParticle : public Particle
 {
 public:
     explicit GunflareParticle(const core::RoomBoundPosition& pos,
-                              const level::Level& level,
+                              level::Level& level,
                               const core::Angle& yAngle)
             : Particle{"gunflare", TR1ItemId::Gunflare, pos, level}
     {
@@ -222,11 +216,12 @@ public:
     }
 };
 
+
 class FlameParticle : public Particle
 {
 public:
     explicit FlameParticle(const core::RoomBoundPosition& pos,
-                              const level::Level& level)
+                           level::Level& level)
             : Particle{"flame", TR1ItemId::Flame, pos, level}
     {
         timePerSpriteFrame = 0;
@@ -238,7 +233,7 @@ public:
 };
 
 
-inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(const level::Level& level,
+inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(level::Level& level,
                                                                  const core::RoomBoundPosition& pos,
                                                                  int16_t speed,
                                                                  core::Angle angle)

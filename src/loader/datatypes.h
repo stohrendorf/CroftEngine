@@ -646,7 +646,7 @@ struct Room
 
         const auto position = reader.tell();
 
-        reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr1 );
+        reader.readVector( room->vertices, reader.readU16(), RoomVertex::readTr1 );
         reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
         reader.readVector( room->triangles, reader.readU16(), &Triangle::readTr1 );
         reader.readVector( room->sprites, reader.readU16(), &SpriteInstance::read );

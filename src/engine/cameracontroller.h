@@ -2,7 +2,7 @@
 
 #include "core/angle.h"
 #include "loader/datatypes.h"
-#include "audio/sourcehandle.h"
+#include "audio/soundengine.h"
 
 namespace engine
 {
@@ -44,7 +44,7 @@ enum class CameraModifier
 };
 
 
-class CameraController final
+class CameraController final : public audio::Listener
 {
 private:
     gsl::not_null<std::shared_ptr<gameplay::Camera>> m_camera;
@@ -89,8 +89,6 @@ private:
     int m_fixedCameraId = -1;
     int m_currentFixedCameraId = -1;
     int m_camOverrideTimeout{-1};
-
-    std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
 
 public:
     explicit CameraController(const gsl::not_null<level::Level*>& level,
@@ -159,7 +157,7 @@ public:
         return m_mode;
     }
 
-    glm::vec3 getPosition() const
+    glm::vec3 getPosition() const override
     {
         return glm::vec3{m_camera->getInverseViewMatrix()[3]};
     }
@@ -169,21 +167,21 @@ public:
         return m_center;
     }
 
-    glm::vec3 getFrontVector() const
+    glm::vec3 getFrontVector() const override
     {
         auto rs = m_camera->getInverseViewMatrix();
         rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
         return glm::vec3{rs * glm::vec4{0, 0, -1, 1}};
     }
 
-    glm::vec3 getUpVector() const
+    glm::vec3 getUpVector() const override
     {
         auto rs = m_camera->getInverseViewMatrix();
         rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
         return glm::vec3{rs * glm::vec4{0, 1, 0, 1}};
     }
 
-    const loader::Room* getCurrentRoom() const
+    const gsl::not_null<const loader::Room*>& getCurrentRoom() const
     {
         return m_eye.room;
     }
