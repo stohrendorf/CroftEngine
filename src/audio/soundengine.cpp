@@ -132,12 +132,14 @@ void SoundEngine::dropEmitter(Emitter* emitter)
 
 SoundEngine::~SoundEngine()
 {
-    for( auto& src : m_sources )
-        if( src.first != nullptr )
-            src.first->m_engine = nullptr;
+    for( auto& emitter : m_emitters )
+    {
+        dropEmitter( emitter );
+        emitter->m_engine = nullptr;
+    }
 
-    if( m_listener != nullptr )
-        m_listener->m_engine = nullptr;
+    for( auto& listener : m_listeners )
+        listener->m_engine = nullptr;
 }
 
 void SoundEngine::addWav(const gsl::not_null<const uint8_t*>& buffer)
@@ -158,12 +160,84 @@ SoundEngine::playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, const gl
 Listener::~Listener()
 {
     if( m_engine != nullptr )
+    {
         m_engine->setListener( nullptr );
+        m_engine->m_listeners.erase( this );
+    }
+}
+
+Listener::Listener(const gsl::not_null<SoundEngine*>& engine)
+        : m_engine{engine}
+{
+    m_engine->m_listeners.emplace( this );
+}
+
+Listener& Listener::operator=(const Listener& rhs)
+{
+    if( m_engine != rhs.m_engine )
+    {
+        m_engine->m_listeners.erase( this );
+        m_engine = rhs.m_engine;
+        m_engine->m_listeners.emplace( this );
+    }
+    return *this;
+}
+
+Listener::Listener(Listener&& rhs)
+        : m_engine{std::exchange( rhs.m_engine, nullptr )}
+{
+    m_engine->m_listeners.erase( &rhs );
+    m_engine->m_listeners.emplace( this );
+}
+
+Listener& Listener::operator=(Listener&& rhs)
+{
+    m_engine->m_listeners.erase( this );
+    m_engine->m_listeners.erase( &rhs );
+    m_engine = std::exchange( rhs.m_engine, nullptr );
+    m_engine->m_listeners.emplace( this );
+    return *this;
 }
 
 Emitter::~Emitter()
 {
     if( m_engine != nullptr )
+    {
         m_engine->dropEmitter( this );
+        m_engine->m_emitters.erase( this );
+    }
+}
+
+Emitter::Emitter(const gsl::not_null<SoundEngine*>& engine)
+        : m_engine{engine}
+{
+    m_engine->m_emitters.emplace( this );
+}
+
+Emitter& Emitter::operator=(const Emitter& rhs)
+{
+    if( m_engine != rhs.m_engine )
+    {
+        m_engine->m_emitters.erase( this );
+        m_engine = rhs.m_engine;
+        m_engine->m_emitters.emplace( this );
+    }
+    return *this;
+}
+
+Emitter::Emitter(Emitter&& rhs)
+        : m_engine{std::exchange( rhs.m_engine, nullptr )}
+{
+    m_engine->m_emitters.erase( &rhs );
+    m_engine->m_emitters.emplace( this );
+}
+
+Emitter& Emitter::operator=(Emitter&& rhs)
+{
+    m_engine->m_emitters.erase( this );
+    m_engine->m_emitters.erase( &rhs );
+    m_engine = std::exchange( rhs.m_engine, nullptr );
+    m_engine->m_emitters.emplace( this );
+    return *this;
 }
 }

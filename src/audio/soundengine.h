@@ -6,7 +6,8 @@
 
 #include "gsl-lite.hpp"
 
-#include <map>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace audio
 {
@@ -19,16 +20,27 @@ class Emitter
 
 
 public:
-    explicit Emitter(const gsl::not_null<SoundEngine*>& engine)
-            : m_engine{engine}
-    {}
+    explicit Emitter(const gsl::not_null<SoundEngine*>& engine);
+
+    Emitter() = delete;
+
+    Emitter(const Emitter& rhs)
+            : Emitter{rhs.m_engine}
+    {
+    }
+
+    Emitter& operator=(const Emitter& rhs);
+
+    Emitter(Emitter&& rhs);
+
+    Emitter& operator=(Emitter&& rhs);
 
     virtual glm::vec3 getPosition() const = 0;
 
     virtual ~Emitter();
 
 private:
-    mutable SoundEngine* m_engine;
+    mutable SoundEngine* m_engine = nullptr;
 };
 
 
@@ -38,9 +50,20 @@ class Listener
 
 
 public:
-    explicit Listener(const gsl::not_null<SoundEngine*>& engine)
-            : m_engine{engine}
-    {}
+    explicit Listener(const gsl::not_null<SoundEngine*>& engine);
+
+    Listener() = delete;
+
+    Listener(const Listener& rhs)
+            : Listener{rhs.m_engine}
+    {
+    }
+
+    Listener& operator=(const Listener& rhs);
+
+    Listener(Listener&& rhs);
+
+    Listener& operator=(Listener&&);
 
     virtual glm::vec3 getPosition() const = 0;
 
@@ -51,12 +74,18 @@ public:
     virtual ~Listener();
 
 private:
-    mutable SoundEngine* m_engine;
+    mutable SoundEngine* m_engine = nullptr;
 };
 
 
 class SoundEngine final
 {
+    friend class Emitter;
+
+
+    friend class Listener;
+
+
 public:
     ~SoundEngine();
 
@@ -95,7 +124,10 @@ public:
 private:
     Device m_device;
     std::vector<std::shared_ptr<BufferHandle>> m_buffers;
-    std::map<Emitter*, std::map<size_t, std::vector<std::weak_ptr<SourceHandle>>>> m_sources;
+    std::unordered_map<Emitter*, std::unordered_map<size_t, std::vector<std::weak_ptr<SourceHandle>>>> m_sources;
     const Listener* m_listener = nullptr;
+
+    std::unordered_set<Emitter*> m_emitters;
+    std::unordered_set<Listener*> m_listeners;
 };
 }
