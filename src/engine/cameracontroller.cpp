@@ -151,7 +151,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
         m_mode = CameraMode::Fixed;
 }
 
-void CameraController::handleCommandSequence(const uint16_t* cmdSequence)
+void CameraController::handleCommandSequence(const engine::floordata::FloorDataValue* cmdSequence)
 {
     if( m_mode == CameraMode::Heavy )
         return;

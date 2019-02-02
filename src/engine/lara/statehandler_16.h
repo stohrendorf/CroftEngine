@@ -55,7 +55,7 @@ public:
         collisionInfo.badCeilingDistance = 0;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
+        collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
 
         if( stopIfCeilingBlocked( collisionInfo ) )

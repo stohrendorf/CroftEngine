@@ -15,7 +15,7 @@ Mummy::Mummy(const gsl::not_null<level::Level*>& level, const gsl::not_null<cons
 
 void Mummy::update()
 {
-    if( m_state.current_anim_state == 1 )
+    if( m_state.current_anim_state == 1_as )
     {
         auto head = core::Angle::fromAtan(
                 getLevel().m_lara->m_state.position.position.X - m_state.position.position.X,
@@ -26,7 +26,7 @@ void Mummy::update()
 
         if( m_state.health <= 0 || m_state.touch_bits != 0 )
         {
-            m_state.goal_anim_state = 2;
+            m_state.goal_anim_state = 2_as;
         }
     }
 
@@ -47,7 +47,7 @@ void Mummy::collide(LaraNode& lara, CollisionInfo& info)
     if( !testBoneCollision( lara ) )
         return;
 
-    if( !(info.policyFlags & CollisionInfo::EnableBaddiePush) )
+    if( !info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
         return;
 
     enemyPush( lara, info, false, true );

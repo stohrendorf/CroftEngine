@@ -27,35 +27,35 @@ void Crocodile::update()
             }
             updateMood( getLevel(), m_state, aiInfo, true );
             rotateTowardsTarget( 3_deg );
-            if( m_state.current_anim_state == 1 )
+            if( m_state.current_anim_state == 1_as )
             {
                 if( aiInfo.bite )
                 {
                     if( m_state.touch_bits )
                     {
-                        m_state.goal_anim_state = 2;
+                        m_state.goal_anim_state = 2_as;
                     }
                 }
             }
-            else if( m_state.current_anim_state == 2 )
+            else if( m_state.current_anim_state == 2_as )
             {
                 if( m_state.frame_number == m_state.anim->firstFrame )
                 {
-                    m_state.required_anim_state = 0;
+                    m_state.required_anim_state = 0_as;
                 }
                 if( aiInfo.bite && m_state.touch_bits != 0 )
                 {
-                    if( !m_state.required_anim_state )
+                    if( m_state.required_anim_state == 0_as )
                     {
                         emitParticle( {5, -21, 467}, 9, &createBloodSplat );
                         getLevel().m_lara->m_state.health -= 100;
                         getLevel().m_lara->m_state.is_hit = true;
-                        m_state.required_anim_state = 1;
+                        m_state.required_anim_state = 1_as;
                     }
                 }
                 else
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
             }
             rotateCreatureHead( headRot );
@@ -86,10 +86,10 @@ void Crocodile::update()
         }
         else
         {
-            if( m_state.current_anim_state != 3 )
+            if( m_state.current_anim_state != 3_as )
             {
                 m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileInWater )->animations[4];
-                m_state.current_anim_state = 3;
+                m_state.current_anim_state = 3_as;
                 m_state.health = -16384;
                 m_state.frame_number = m_state.anim->firstFrame;
             }
@@ -109,7 +109,7 @@ void Crocodile::update()
             {
                 m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[11];
                 m_state.type = TR1ItemId::CrocodileOnLand;
-                m_state.goal_anim_state = 7;
+                m_state.goal_anim_state = 7_as;
                 m_state.frame_number = m_state.anim->firstFrame;
                 m_state.current_anim_state = m_state.goal_anim_state;
                 auto room = m_state.position.room;
@@ -139,7 +139,7 @@ void Crocodile::update()
                 headRot = aiInfo.angle;
             }
             updateMood( getLevel(), m_state, aiInfo, true );
-            if( m_state.current_anim_state == 4 )
+            if( m_state.current_anim_state == 4_as )
             {
                 m_state.rotation.Y += 6_deg;
             }
@@ -147,32 +147,32 @@ void Crocodile::update()
             {
                 turnRot = rotateTowardsTarget( 3_deg );
             }
-            switch( m_state.current_anim_state )
+            switch( m_state.current_anim_state.get() )
             {
                 case 1:
                     if( aiInfo.bite && aiInfo.distance < util::square( 435 ) )
                     {
-                        m_state.goal_anim_state = 5;
+                        m_state.goal_anim_state = 5_as;
                         break;
                     }
                     switch( m_state.creatureInfo->mood )
                     {
                         case ai::Mood::Escape:
-                            m_state.goal_anim_state = 2;
+                            m_state.goal_anim_state = 2_as;
                             break;
                         case ai::Mood::Attack:
                             if( (aiInfo.angle >= -90_deg && aiInfo.angle <= 90_deg)
                                 || aiInfo.distance <= util::square( 3 * loader::SectorSize ) )
                             {
-                                m_state.goal_anim_state = 2;
+                                m_state.goal_anim_state = 2_as;
                             }
                             else
                             {
-                                m_state.goal_anim_state = 4;
+                                m_state.goal_anim_state = 4_as;
                             }
                             break;
                         case ai::Mood::Stalk:
-                            m_state.goal_anim_state = 3;
+                            m_state.goal_anim_state = 3_as;
                             break;
                         default:
                             // silence compiler
@@ -182,13 +182,13 @@ void Crocodile::update()
                 case 2:
                     if( aiInfo.ahead && m_state.touch_bits & 0x3FC )
                     {
-                        m_state.goal_anim_state = 1;
+                        m_state.goal_anim_state = 1_as;
                     }
                     else
                     {
                         if( m_state.creatureInfo->mood == ai::Mood::Stalk )
                         {
-                            m_state.goal_anim_state = 3;
+                            m_state.goal_anim_state = 3_as;
                         }
                         else if( m_state.creatureInfo->mood != ai::Mood::Bored )
                         {
@@ -196,46 +196,46 @@ void Crocodile::update()
                                 && aiInfo.distance > util::square( 3 * loader::SectorSize )
                                 && (aiInfo.angle < -90_deg || aiInfo.angle > 90_deg) )
                             {
-                                m_state.goal_anim_state = 1;
+                                m_state.goal_anim_state = 1_as;
                             }
                         }
                         else
                         {
-                            m_state.goal_anim_state = 1;
+                            m_state.goal_anim_state = 1_as;
                         }
                     }
                     break;
                 case 3:
                     if( aiInfo.ahead && m_state.touch_bits & 0x03fc )
                     {
-                        m_state.goal_anim_state = 1;
+                        m_state.goal_anim_state = 1_as;
                     }
                     else
                     {
                         if( m_state.creatureInfo->mood == ai::Mood::Attack
                             || m_state.creatureInfo->mood == ai::Mood::Escape )
                         {
-                            m_state.goal_anim_state = 2;
+                            m_state.goal_anim_state = 2_as;
                         }
                         else if( m_state.creatureInfo->mood == ai::Mood::Bored )
                         {
-                            m_state.goal_anim_state = 1;
+                            m_state.goal_anim_state = 1_as;
                         }
                     }
                     break;
                 case 4:
                     if( aiInfo.angle > -90_deg && aiInfo.angle < 90_deg )
                     {
-                        m_state.goal_anim_state = 3;
+                        m_state.goal_anim_state = 3_as;
                     }
                     break;
                 case 5:
-                    if( m_state.required_anim_state == 0 )
+                    if( m_state.required_anim_state == 0_as )
                     {
                         emitParticle( {5, -21, 467}, 9, &createBloodSplat );
                         getLevel().m_lara->m_state.health -= 100;
                         getLevel().m_lara->m_state.is_hit = true;
-                        m_state.required_anim_state = 1;
+                        m_state.required_anim_state = 1_as;
                     }
                     break;
                 default:
@@ -244,10 +244,10 @@ void Crocodile::update()
         }
         else
         {
-            if( m_state.current_anim_state != 7 )
+            if( m_state.current_anim_state != 7_as )
             {
                 m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[11];
-                m_state.current_anim_state = 7;
+                m_state.current_anim_state = 7_as;
                 m_state.frame_number = m_state.anim->firstFrame;
             }
         }

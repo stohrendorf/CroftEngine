@@ -235,6 +235,7 @@ target_link_libraries(
         glfw
         PNG::PNG
         sol2
+        type_safe
 )
 
 if( LINUX OR UNIX )

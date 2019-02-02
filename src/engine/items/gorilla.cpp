@@ -34,7 +34,7 @@ void Gorilla::update()
         {
             m_state.creatureInfo->flags |= FlgWantAttack;
         }
-        switch( m_state.current_anim_state )
+        switch( m_state.current_anim_state.get() )
         {
             case 1:
                 // standing
@@ -48,43 +48,43 @@ void Gorilla::update()
                     m_state.rotation.Y += 90_deg;
                     m_state.creatureInfo->flags &= ~FlgTurnedLeft;
                 }
-                if( m_state.required_anim_state != 0 )
+                if( m_state.required_anim_state != 0_as )
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
                 else if( aiInfo.bite && aiInfo.distance < 184900 )
                 {
-                    m_state.goal_anim_state = 4;
+                    m_state.goal_anim_state = 4_as;
                 }
                 else if( (m_state.creatureInfo->flags & FlgWantAttack)
                          || aiInfo.zone_number != aiInfo.enemy_zone
                          || !aiInfo.ahead )
                 {
-                    m_state.goal_anim_state = 3;
+                    m_state.goal_anim_state = 3_as;
                 }
                 else
                 {
                     const auto r = util::rand15( 1024 );
                     if( r < 160 )
                     {
-                        m_state.goal_anim_state = 10;
+                        m_state.goal_anim_state = 10_as;
                     }
                     else if( r < 320 )
                     {
-                        m_state.goal_anim_state = 6;
+                        m_state.goal_anim_state = 6_as;
                     }
                     else if( r < 480 )
                     {
-                        m_state.goal_anim_state = 7;
+                        m_state.goal_anim_state = 7_as;
                     }
                     else if( r < 752 )
                     {
-                        m_state.goal_anim_state = 8;
+                        m_state.goal_anim_state = 8_as;
                         m_state.creatureInfo->maximum_turn = 0_deg;
                     }
                     else
                     {
-                        m_state.goal_anim_state = 9;
+                        m_state.goal_anim_state = 9_as;
                         m_state.creatureInfo->maximum_turn = 0_deg;
                     }
                 }
@@ -94,43 +94,43 @@ void Gorilla::update()
                 m_state.creatureInfo->maximum_turn = 5_deg;
                 if( m_state.creatureInfo->flags == 0 && aiInfo.angle > -45_deg && aiInfo.angle < 45_deg )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( aiInfo.ahead && (m_state.touch_bits & 0xff00) != 0 )
                 {
-                    m_state.required_anim_state = 4;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 4_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( m_state.creatureInfo->mood != ai::Mood::Escape )
                 {
                     const auto r = util::rand15();
                     if( r < 160 )
                     {
-                        m_state.required_anim_state = 10;
-                        m_state.goal_anim_state = 1;
+                        m_state.required_anim_state = 10_as;
+                        m_state.goal_anim_state = 1_as;
                     }
                     else if( r < 320 )
                     {
-                        m_state.required_anim_state = 6;
-                        m_state.goal_anim_state = 1;
+                        m_state.required_anim_state = 6_as;
+                        m_state.goal_anim_state = 1_as;
                     }
                     else if( r < 480 )
                     {
-                        m_state.required_anim_state = 7;
-                        m_state.goal_anim_state = 1;
+                        m_state.required_anim_state = 7_as;
+                        m_state.goal_anim_state = 1_as;
                     }
                 }
                 break;
             case 4:
                 // attacking
-                if( m_state.required_anim_state == 0 )
+                if( m_state.required_anim_state == 0_as )
                 {
                     if( (m_state.touch_bits & 0xff00) != 0 )
                     {
                         emitParticle( {0, -19, 75}, 15, &createBloodSplat );
                         getLevel().m_lara->m_state.health -= 200;
                         getLevel().m_lara->m_state.is_hit = true;
-                        m_state.required_anim_state = 1;
+                        m_state.required_anim_state = 1_as;
                     }
                 }
                 break;
@@ -141,7 +141,7 @@ void Gorilla::update()
                     m_state.rotation.Y -= 90_deg;
                     m_state.creatureInfo->flags |= FlgTurnedLeft;
                 }
-                m_state.goal_anim_state = 1;
+                m_state.goal_anim_state = 1_as;
                 break;
             case 9:
                 // turn right
@@ -150,20 +150,20 @@ void Gorilla::update()
                     m_state.rotation.Y += 90_deg;
                     m_state.creatureInfo->flags |= FlgTurnedRight;
                 }
-                m_state.goal_anim_state = 1;
+                m_state.goal_anim_state = 1_as;
                 break;
             default:
                 break;
         }
     }
-    else if( m_state.current_anim_state != 5 )
+    else if( m_state.current_anim_state != 5_as )
     {
         m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::Gorilla )->animations[7 + util::rand15( 2 )];
-        m_state.current_anim_state = 5;
+        m_state.current_anim_state = 5_as;
         m_state.frame_number = m_state.anim->firstFrame;
     }
     rotateCreatureHead( headRot );
-    if( m_state.current_anim_state == 11 )
+    if( m_state.current_anim_state == 11_as )
     {
         // climbing
         getSkeleton()->patchBone( 14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
@@ -224,7 +224,7 @@ void Gorilla::update()
 
         m_state.position.position.Y = old.Y;
         m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::Gorilla )->animations[19];
-        m_state.current_anim_state = 11;
+        m_state.current_anim_state = 11_as;
         m_state.frame_number = m_state.anim->firstFrame;
     }
 }

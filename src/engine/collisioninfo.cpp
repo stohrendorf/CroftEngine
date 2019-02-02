@@ -24,7 +24,7 @@ int reflectAtSectorBoundary(const int target, const int current)
 
 void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Level& level, const int height)
 {
-    collisionType = AxisColl_None;
+    collisionType = AxisColl::None;
     shift = {0, 0, 0};
     facingAxis = *axisFromAngle( facingAngle, 45_deg );
 
@@ -80,14 +80,16 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     auto testPos = refTestPos + core::TRVec( frontX, 0, frontZ );
     auto sector = level::Level::findRealFloorSector( testPos, &room );
     front.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
-    if( (policyFlags & SlopesAreWalls) != 0 && front.floor.slantClass == SlantClass::Steep && front.floor.y < 0 )
+    if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && front.floor.slantClass == SlantClass::Steep
+        && front.floor.y < 0 )
     {
         front.floor.y = -32767; // This is not a typo, it is really -32767
     }
     else if( front.floor.y > 0
              && (
-                     ((policyFlags & SlopesArePits) != 0 && front.floor.slantClass == SlantClass::Steep)
-                     || ((policyFlags & LavaIsPit) != 0 && front.floor.lastCommandSequenceOrDeath != nullptr
+                     (policyFlags.is_set( PolicyFlags::SlopesArePits ) && front.floor.slantClass == SlantClass::Steep)
+                     || (policyFlags.is_set( PolicyFlags::LavaIsPit )
+                         && front.floor.lastCommandSequenceOrDeath != nullptr
                          && floordata::FloorDataChunk::extractType( *front.floor.lastCommandSequenceOrDeath )
                             == floordata::FloorDataChunkType::Death)
              ) )
@@ -100,15 +102,17 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     sector = level::Level::findRealFloorSector( testPos, &room );
     frontLeft.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
-    if( (policyFlags & SlopesAreWalls) != 0 && frontLeft.floor.slantClass == SlantClass::Steep
+    if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontLeft.floor.slantClass == SlantClass::Steep
         && frontLeft.floor.y < 0 )
     {
         frontLeft.floor.y = -32767; // This is not a typo, it is really -32767
     }
     else if( frontLeft.floor.y > 0
              && (
-                     ((policyFlags & SlopesArePits) != 0 && frontLeft.floor.slantClass == SlantClass::Steep)
-                     || ((policyFlags & LavaIsPit) != 0 && frontLeft.floor.lastCommandSequenceOrDeath != nullptr
+                     (policyFlags.is_set( PolicyFlags::SlopesArePits )
+                      && frontLeft.floor.slantClass == SlantClass::Steep)
+                     || (policyFlags.is_set( PolicyFlags::LavaIsPit )
+                         && frontLeft.floor.lastCommandSequenceOrDeath != nullptr
                          && floordata::FloorDataChunk::extractType( *frontLeft.floor.lastCommandSequenceOrDeath )
                             == floordata::FloorDataChunkType::Death)
              ) )
@@ -121,15 +125,17 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     sector = level::Level::findRealFloorSector( testPos, &room );
     frontRight.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
-    if( (policyFlags & SlopesAreWalls) != 0 && frontRight.floor.slantClass == SlantClass::Steep
+    if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontRight.floor.slantClass == SlantClass::Steep
         && frontRight.floor.y < 0 )
     {
         frontRight.floor.y = -32767; // This is not a typo, it is really -32767
     }
     else if( frontRight.floor.y > 0
              && (
-                     ((policyFlags & SlopesArePits) != 0 && frontRight.floor.slantClass == SlantClass::Steep)
-                     || ((policyFlags & LavaIsPit) != 0 && frontRight.floor.lastCommandSequenceOrDeath != nullptr
+                     (policyFlags.is_set( PolicyFlags::SlopesArePits )
+                      && frontRight.floor.slantClass == SlantClass::Steep)
+                     || (policyFlags.is_set( PolicyFlags::LavaIsPit )
+                         && frontRight.floor.lastCommandSequenceOrDeath != nullptr
                          && floordata::FloorDataChunk::extractType( *frontRight.floor.lastCommandSequenceOrDeath )
                             == floordata::FloorDataChunkType::Death)
              ) )
@@ -142,27 +148,27 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     if( mid.floor.y == -loader::HeightLimit )
     {
         shift = oldPosition - laraPos;
-        collisionType = AxisColl_Front;
+        collisionType = AxisColl::Front;
         return;
     }
 
     if( mid.floor.y <= mid.ceiling.y )
     {
-        collisionType = AxisColl_TopFront;
+        collisionType = AxisColl::TopFront;
         shift = oldPosition - laraPos;
         return;
     }
 
     if( mid.ceiling.y >= 0 )
     {
-        collisionType = AxisColl_Top;
+        collisionType = AxisColl::Top;
         shift.Y = mid.ceiling.y;
     }
 
     if( front.floor.y > badPositiveDistance || front.floor.y < badNegativeDistance
         || front.ceiling.y > badCeilingDistance )
     {
-        collisionType = AxisColl_Front;
+        collisionType = AxisColl::Front;
         switch( facingAxis )
         {
             case core::Axis::PosZ:
@@ -181,14 +187,14 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     if( front.ceiling.y >= badCeilingDistance )
     {
-        collisionType = AxisColl_TopBottom;
+        collisionType = AxisColl::TopBottom;
         shift = oldPosition - laraPos;
         return;
     }
 
     if( frontLeft.floor.y > badPositiveDistance || frontLeft.floor.y < badNegativeDistance )
     {
-        collisionType = AxisColl_Left;
+        collisionType = AxisColl::Left;
         switch( facingAxis )
         {
             case core::Axis::PosZ:
@@ -205,7 +211,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     if( frontRight.floor.y > badPositiveDistance || frontRight.floor.y < badNegativeDistance )
     {
-        collisionType = AxisColl_Right;
+        collisionType = AxisColl::Right;
         switch( facingAxis )
         {
             case core::Axis::PosZ:
@@ -287,19 +293,19 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const int 
                     {
                         shift.X = dx;
                         shift.Z = this->oldPosition.Z - position.Z;
-                        collisionType = AxisColl_Front;
+                        collisionType = AxisColl::Front;
                     }
                     else if( dz > 0 && dz <= collisionRadius )
                     {
                         shift.X = 0;
                         shift.Z = dz;
-                        collisionType = AxisColl_Right;
+                        collisionType = AxisColl::Right;
                     }
                     else if( dz < 0 && dz >= -collisionRadius )
                     {
                         shift.X = 0;
                         shift.Z = dz;
-                        collisionType = AxisColl_Left;
+                        collisionType = AxisColl::Left;
                     }
                     break;
                 case core::Axis::PosZ:
@@ -307,19 +313,19 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const int 
                     {
                         shift.X = this->oldPosition.X - position.X;
                         shift.Z = dz;
-                        collisionType = AxisColl_Front;
+                        collisionType = AxisColl::Front;
                     }
                     else if( dx > 0 && dx <= collisionRadius )
                     {
                         shift.X = dx;
                         shift.Z = 0;
-                        collisionType = AxisColl_Left;
+                        collisionType = AxisColl::Left;
                     }
                     else if( dx < 0 && dx >= -collisionRadius )
                     {
                         shift.X = dx;
                         shift.Z = 0;
-                        collisionType = AxisColl_Right;
+                        collisionType = AxisColl::Right;
                     }
                     break;
                 case core::Axis::NegX:
@@ -327,19 +333,19 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const int 
                     {
                         shift.X = dx;
                         shift.Z = this->oldPosition.Z - position.Z;
-                        collisionType = AxisColl_Front;
+                        collisionType = AxisColl::Front;
                     }
                     else if( dz > 0 && dz <= collisionRadius )
                     {
                         shift.X = 0;
                         shift.Z = dz;
-                        collisionType = AxisColl_Left;
+                        collisionType = AxisColl::Left;
                     }
                     else if( dz < 0 && dz >= -collisionRadius )
                     {
                         shift.X = 0;
                         shift.Z = dz;
-                        collisionType = AxisColl_Right;
+                        collisionType = AxisColl::Right;
                     }
                     break;
                 case core::Axis::NegZ:
@@ -347,19 +353,19 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const int 
                     {
                         shift.X = this->oldPosition.X - position.X;
                         shift.Z = dz + 1;
-                        collisionType = AxisColl_Front;
+                        collisionType = AxisColl::Front;
                     }
                     else if( dx > 0 && dx <= collisionRadius )
                     {
                         shift.X = dx;
                         shift.Z = 0;
-                        collisionType = AxisColl_Right;
+                        collisionType = AxisColl::Right;
                     }
                     else if( dx < 0 && dx >= -collisionRadius )
                     {
                         shift.X = dx;
                         shift.Z = 0;
-                        collisionType = AxisColl_Left;
+                        collisionType = AxisColl::Left;
                     }
                     break;
             }

@@ -27,24 +27,21 @@ protected:
         collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec( 0, 700, 0 ), getLevel(), 700 );
         applyShift( collisionInfo );
         if( collisionInfo.mid.floor.y < 0
-            || (collisionInfo.collisionType &
-                (CollisionInfo::AxisColl_TopFront | CollisionInfo::AxisColl_TopBottom | CollisionInfo::AxisColl_Top
-                 | CollisionInfo::AxisColl_Front)) != 0
-                )
+            || collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront
+            || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom
+            || collisionInfo.collisionType == CollisionInfo::AxisColl::Top
+            || collisionInfo.collisionType == CollisionInfo::AxisColl::Front)
         {
             getLara().m_state.fallspeed = 0;
             getLara().m_state.position.position = collisionInfo.oldPosition;
         }
-        else
+        else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Left )
         {
-            if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
-            {
-                getLara().m_state.rotation.Y += 5_deg;
-            }
-            else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
-            {
-                getLara().m_state.rotation.Y -= 5_deg;
-            }
+            getLara().m_state.rotation.Y += 5_deg;
+        }
+        else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Right )
+        {
+            getLara().m_state.rotation.Y -= 5_deg;
         }
 
         auto wsh = getLara().getWaterSurfaceHeight();
@@ -69,7 +66,7 @@ private:
             return;
         }
 
-        if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front )
+        if( collisionInfo.collisionType != CollisionInfo::AxisColl::Front )
         {
             return;
         }

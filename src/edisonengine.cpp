@@ -91,7 +91,7 @@ void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& fon
 #ifndef NDEBUG
     // collision
     drawText( font, 400, 20, boost::lexical_cast<std::string>( "AxisColl: " )
-                             + std::to_string( lvl->m_lara->lastUsedCollisionInfo.collisionType ) );
+                             + toString( lvl->m_lara->lastUsedCollisionInfo.collisionType ) );
     drawText( font, 400, 40, boost::lexical_cast<std::string>( "Current floor:   " )
                              + std::to_string( lvl->m_lara->lastUsedCollisionInfo.mid.floor.y ) );
     drawText( font, 400, 60, boost::lexical_cast<std::string>( "Current ceiling: " )

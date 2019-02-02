@@ -63,8 +63,8 @@ public:
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0;
-        collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits
-                                     | CollisionInfo::LavaIsPit;
+        collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
+        collisionInfo.policyFlags.set(CollisionInfo::PolicyFlags::LavaIsPit);
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
 
         if( stopIfCeilingBlocked( collisionInfo ) )

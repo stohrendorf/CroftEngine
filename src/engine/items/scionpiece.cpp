@@ -32,7 +32,6 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             lara.alignForInteraction( {0, 640, -310}, m_state );
             lara.m_state.anim = getLevel().findAnimatedModelForType( TR1ItemId::AlternativeLara )
                                           ->animations;
-            lara.m_state.current_anim_state = 39;
             lara.setCurrentAnimState( loader::LaraStateId::PickUp );
             lara.setGoalAnimState( loader::LaraStateId::PickUp );
             lara.m_state.frame_number = lara.m_state.anim->firstFrame;

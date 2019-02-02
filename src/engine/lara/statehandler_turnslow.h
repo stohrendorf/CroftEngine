@@ -26,7 +26,7 @@ public:
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0;
-        collisionInfo.policyFlags |= CollisionInfo::SlopesAreWalls | CollisionInfo::SlopesArePits;
+        collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
 
         if( collisionInfo.mid.floor.y <= core::DefaultCollisionRadius )

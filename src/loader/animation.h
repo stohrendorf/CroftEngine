@@ -5,6 +5,7 @@
 #include "core/vec.h"
 
 #include "gsl-lite.hpp"
+#include "type_safe/types.hpp"
 
 namespace loader
 {
@@ -92,6 +93,14 @@ static_assert( sizeof( AnimFrame ) == 20, "AnimFrame has wrong size" );
 
 struct Transitions;
 
+using AnimState = type_safe::integer<uint16_t>;
+
+template<char... Digits>
+inline constexpr AnimState operator "" _as()
+{
+    return type_safe::operator ""_u16 < Digits...>();
+}
+
 
 struct Animation
 {
@@ -101,7 +110,7 @@ struct Animation
 
     uint8_t segmentLength; // Slowdown factor of this animation
     uint8_t poseDataSize; // number of bit16's in Frames[] used by this animation
-    uint16_t state_id;
+    AnimState state_id = 0_as;
 
     int32_t speed;
     int32_t acceleration;
@@ -145,13 +154,13 @@ struct Animation
 private:
     static std::unique_ptr<Animation> read(io::SDLReader& reader, const bool withLateral)
     {
-        std::unique_ptr<Animation> animation{new Animation()};
+        auto animation = std::make_unique<Animation>();
         animation->poseDataOffset = reader.readU32();
         animation->segmentLength = reader.readU8();
         if( animation->segmentLength == 0 )
             animation->segmentLength = 1;
         animation->poseDataSize = reader.readU8();
-        animation->state_id = reader.readU16();
+        animation->state_id = AnimState{reader.readU16()};
 
         animation->speed = reader.readI32();
         animation->acceleration = reader.readI32();
@@ -285,3 +294,5 @@ struct SkeletalModelType
     }
 };
 }
+
+using loader::operator ""_as;

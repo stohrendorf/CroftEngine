@@ -19,7 +19,7 @@ public:
 
     void handleInput(CollisionInfo& collisionInfo) override
     {
-        collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush);
+        collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
         emitSparkles( getLara(), getLara().getLevel() );
     }
 
@@ -29,7 +29,7 @@ public:
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0;
         setMovementAngle( getLara().m_state.rotation.Y );
-        collisionInfo.policyFlags |= CollisionInfo::SlopesArePits | CollisionInfo::SlopesAreWalls;
+        collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
     }

@@ -10,6 +10,7 @@
 #include "texture.h"
 #include "audio.h"
 #include "engine/items_tr1.h"
+#include "engine/floordata/types.h"
 
 #include "gsl-lite.hpp"
 
@@ -89,7 +90,7 @@ struct Sector
      * @note If this is 0, no floor data is attached to this sector.
      */
     uint16_t floorDataIndex;
-    const uint16_t* floorData = nullptr;
+    const engine::floordata::FloorDataValue* floorData = nullptr;
     Room* portalTarget = nullptr;
 
     int16_t boxIndex; //!< Index into Boxes[]/Zones[] (-1 if none)
@@ -646,7 +647,7 @@ struct Room
 
         const auto position = reader.tell();
 
-        reader.readVector( room->vertices, reader.readU16(), RoomVertex::readTr1 );
+        reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr1 );
         reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
         reader.readVector( room->triangles, reader.readU16(), &Triangle::readTr1 );
         reader.readVector( room->sprites, reader.readU16(), &SpriteInstance::read );

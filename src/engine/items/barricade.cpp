@@ -11,11 +11,11 @@ void Barricade::update()
 {
     if( m_state.updateActivationTimeout() )
     {
-        m_state.goal_anim_state = 1;
+        m_state.goal_anim_state = 1_as;
     }
     else
     {
-        m_state.goal_anim_state = 0;
+        m_state.goal_anim_state = 0_as;
     }
 
     ModelItemNode::update();
@@ -35,7 +35,7 @@ void Barricade::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     if( !testBoneCollision( lara ) )
         return;
 
-    if( !(collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) )
+    if( !collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
         return;
 
     enemyPush( lara, collisionInfo, false, true );

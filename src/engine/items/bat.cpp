@@ -30,7 +30,7 @@ void Bat::update()
         updateMood( getLevel(), m_state, aiInfo, false );
 
         rotationToMoveTarget = rotateTowardsTarget( 20_deg );
-        switch( m_state.current_anim_state )
+        switch( m_state.current_anim_state.get() )
         {
             case StartingToFly:
                 m_state.goal_anim_state = FlyingStraight;

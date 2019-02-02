@@ -21,12 +21,12 @@ public:
     {
         if( m_state.updateActivationTimeout() )
         {
-            if( m_state.current_anim_state == 0 )
-                m_state.goal_anim_state = 1;
+            if( m_state.current_anim_state == 0_as )
+                m_state.goal_anim_state = 1_as;
         }
-        else if( m_state.current_anim_state == 1 )
+        else if( m_state.current_anim_state == 1_as )
         {
-            m_state.goal_anim_state = 0;
+            m_state.goal_anim_state = 0_as;
         }
 
         ModelItemNode::update();
@@ -34,7 +34,7 @@ public:
 
     void patchFloor(const core::TRVec& pos, int& y) override
     {
-        if( m_state.current_anim_state != 0 || !possiblyOnTrapdoor( pos ) || pos.Y > m_state.position.position.Y
+        if( m_state.current_anim_state != 0_as || !possiblyOnTrapdoor( pos ) || pos.Y > m_state.position.position.Y
             || y <= m_state.position.position.Y )
             return;
 
@@ -43,7 +43,7 @@ public:
 
     void patchCeiling(const core::TRVec& pos, int& y) override
     {
-        if( m_state.current_anim_state != 0 || !possiblyOnTrapdoor( pos ) || pos.Y <= m_state.position.position.Y
+        if( m_state.current_anim_state != 0_as || !possiblyOnTrapdoor( pos ) || pos.Y <= m_state.position.position.Y
             || y > m_state.position.position.Y )
             return;
 

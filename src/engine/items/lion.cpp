@@ -28,10 +28,10 @@ void Lion::update()
         }
         updateMood( getLevel(), m_state, aiInfo, true );
         angle = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
-        switch( m_state.current_anim_state )
+        switch( m_state.current_anim_state.get() )
         {
             case 1:
-                if( m_state.required_anim_state != 0 )
+                if( m_state.required_anim_state != 0_as )
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
@@ -39,32 +39,32 @@ void Lion::update()
                 {
                     if( aiInfo.ahead && m_state.touch_bits & 0x380066 )
                     {
-                        m_state.goal_anim_state = 7;
+                        m_state.goal_anim_state = 7_as;
                     }
                     else if( aiInfo.ahead && aiInfo.distance < util::square( loader::SectorSize ) )
                     {
-                        m_state.goal_anim_state = 4;
+                        m_state.goal_anim_state = 4_as;
                     }
                     else
                     {
-                        m_state.goal_anim_state = 3;
+                        m_state.goal_anim_state = 3_as;
                     }
                 }
                 else
                 {
-                    m_state.goal_anim_state = 2;
+                    m_state.goal_anim_state = 2_as;
                 }
                 break;
             case 2:
                 m_state.creatureInfo->maximum_turn = 2_deg;
                 if( m_state.creatureInfo->mood != ai::Mood::Bored )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( util::rand15() < 128 )
                 {
-                    m_state.required_anim_state = 6;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 6_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 break;
             case 3:
@@ -72,37 +72,37 @@ void Lion::update()
                 m_state.creatureInfo->maximum_turn = 5_deg;
                 if( m_state.creatureInfo->mood == ai::Mood::Bored )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( aiInfo.ahead && aiInfo.distance < util::square( loader::SectorSize ) )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( m_state.touch_bits & 0x380066 && aiInfo.ahead )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( m_state.creatureInfo->mood != ai::Mood::Escape && util::rand15() < 128 )
                 {
-                    m_state.required_anim_state = 6;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 6_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 break;
             case 4:
-                if( m_state.required_anim_state == 0 && m_state.touch_bits & 0x380066 )
+                if( m_state.required_anim_state == 0_as && m_state.touch_bits & 0x380066 )
                 {
                     getLevel().m_lara->m_state.health -= 150;
                     getLevel().m_lara->m_state.is_hit = true;
-                    m_state.required_anim_state = 1;
+                    m_state.required_anim_state = 1_as;
                 }
                 break;
             case 7:
-                if( m_state.required_anim_state == 0 && m_state.touch_bits & 0x380066 )
+                if( m_state.required_anim_state == 0_as && m_state.touch_bits & 0x380066 )
                 {
                     emitParticle( {-2, -10, 132}, 21, &createBloodSplat );
                     getLevel().m_lara->m_state.health -= 250;
                     getLevel().m_lara->m_state.is_hit = true;
-                    m_state.required_anim_state = 1;
+                    m_state.required_anim_state = 1_as;
                 }
                 break;
             default:
@@ -112,7 +112,7 @@ void Lion::update()
     }
     else
     {
-        if( m_state.current_anim_state != 5 )
+        if( m_state.current_anim_state != 5_as )
         {
             if( m_state.type == TR1ItemId::Panther )
             {
@@ -123,14 +123,14 @@ void Lion::update()
             {
                 m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::LionMale )->animations[7 + util::rand15(
                         2 )];
-                m_state.current_anim_state = 5;
+                m_state.current_anim_state = 5_as;
                 m_state.frame_number = m_state.anim->firstFrame;
             }
             else
             {
                 m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::LionFemale )
                                           ->animations[7 + util::rand15( 2 )];
-                m_state.current_anim_state = 5;
+                m_state.current_anim_state = 5_as;
                 m_state.frame_number = m_state.anim->firstFrame;
             }
         }

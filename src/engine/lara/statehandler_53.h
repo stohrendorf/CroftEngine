@@ -18,8 +18,8 @@ public:
 
     void handleInput(CollisionInfo& collisionInfo) override
     {
-        collisionInfo.policyFlags &= ~CollisionInfo::EnableSpaz;
-        collisionInfo.policyFlags |= CollisionInfo::EnableBaddiePush;
+        collisionInfo.policyFlags.reset( CollisionInfo::PolicyFlags::EnableSpaz );
+        collisionInfo.policyFlags.set( CollisionInfo::PolicyFlags::EnableBaddiePush );
 
         dampenHorizontalSpeed( 0.05f );
     }

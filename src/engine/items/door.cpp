@@ -161,7 +161,7 @@ void Door::update()
 {
     if( m_state.updateActivationTimeout() )
     {
-        if( m_state.current_anim_state != 0 )
+        if( m_state.current_anim_state != 0_as )
         {
 #ifndef NO_DOOR_BLOCK
             if( m_sector )
@@ -200,12 +200,12 @@ void Door::update()
         }
         else
         {
-            m_state.goal_anim_state = 1;
+            m_state.goal_anim_state = 1_as;
         }
     }
-    else if( m_state.current_anim_state == 1 )
+    else if( m_state.current_anim_state == 1_as )
     {
-        m_state.goal_anim_state = 0;
+        m_state.goal_anim_state = 0_as;
     }
     else
     {
@@ -257,7 +257,7 @@ void Door::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     if( !testBoneCollision( lara ) )
         return;
 
-    if( !(collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) )
+    if( !collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
         return;
 
     if( m_state.current_anim_state == m_state.goal_anim_state )
@@ -266,7 +266,7 @@ void Door::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     }
     else
     {
-        const auto enableSpaz = (collisionInfo.policyFlags & CollisionInfo::EnableSpaz) != 0;
+        const auto enableSpaz = collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableSpaz );
         enemyPush( lara, collisionInfo, enableSpaz, true );
     }
 #endif

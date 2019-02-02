@@ -21,7 +21,7 @@ public:
 
     void patchFloor(const core::TRVec& pos, int& y) override
     {
-        if( m_state.current_anim_state != 1 || !possiblyOnTrapdoor( pos ) || pos.Y > m_state.position.position.Y )
+        if( m_state.current_anim_state != 1_as || !possiblyOnTrapdoor( pos ) || pos.Y > m_state.position.position.Y )
             return;
 
         y = m_state.position.position.Y;
@@ -29,7 +29,7 @@ public:
 
     void patchCeiling(const core::TRVec& pos, int& y) override
     {
-        if( m_state.current_anim_state != 1 || !possiblyOnTrapdoor( pos ) || pos.Y <= m_state.position.position.Y )
+        if( m_state.current_anim_state != 1_as || !possiblyOnTrapdoor( pos ) || pos.Y <= m_state.position.position.Y )
             return;
 
         y = m_state.position.position.Y + loader::QuarterSectorSize;

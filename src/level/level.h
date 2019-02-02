@@ -232,7 +232,7 @@ public:
             return zero;
 
         const auto fd = sector->floorData[1];
-        return std::make_tuple( gsl::narrow_cast<int8_t>( fd & 0xff ), gsl::narrow_cast<int8_t>( fd >> 8 ) );
+        return std::make_tuple( gsl::narrow_cast<int8_t>( fd.get() & 0xff ), gsl::narrow_cast<int8_t>( fd.get() >> 8 ) );
     }
 
     std::shared_ptr<engine::LaraNode> m_lara = nullptr;

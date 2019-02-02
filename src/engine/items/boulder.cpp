@@ -9,9 +9,9 @@ void engine::items::RollingBall::update()
     {
         if( m_state.position.position.Y >= m_state.floor )
         {
-            if( m_state.current_anim_state == 0 )
+            if( m_state.current_anim_state == 0_as )
             {
-                m_state.goal_anim_state = 1;
+                m_state.goal_anim_state = 1_as;
             }
         }
         else
@@ -62,7 +62,7 @@ void engine::items::RollingBall::update()
         setCurrentRoom( m_position.room );
         getSkeleton()->setAnimation( m_state, getLevel().m_animatedModels[m_state.type]->animations, 0 );
         m_state.goal_anim_state = m_state.current_anim_state;
-        m_state.required_anim_state = 0;
+        m_state.required_anim_state = 0_as;
         deactivate();
     }
 }
@@ -79,7 +79,7 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
             if( !testBoneCollision( lara ) )
                 return;
 
-            if( !(collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) )
+            if( !collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
                 return;
 
             enemyPush( lara, collisionInfo, false, true );
@@ -124,12 +124,12 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
         return;
     }
 
-    if( collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush )
+    if( collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
     {
         enemyPush(
                 lara,
                 collisionInfo,
-                (collisionInfo.policyFlags & CollisionInfo::EnableSpaz) != 0,
+                collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz),
                 true );
     }
     lara.m_state.health -= 100;

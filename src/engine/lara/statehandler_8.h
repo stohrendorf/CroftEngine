@@ -18,7 +18,7 @@ public:
 
     void handleInput(CollisionInfo& collisionInfo) override
     {
-        collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
+        collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override

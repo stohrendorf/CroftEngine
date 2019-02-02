@@ -15,17 +15,17 @@ void Wolf::update()
 
     m_state.initCreatureInfo( getLevel() );
 
-    static constexpr const uint16_t Walking = 1;
-    static constexpr const uint16_t Running = 2;
-    static constexpr const uint16_t Jumping = 3;
-    static constexpr const uint16_t Stalking = 5;
-    static constexpr const uint16_t JumpAttack = 6;
-    static constexpr const uint16_t Attacking = 7;
-    static constexpr const uint16_t LyingDown = 8;
-    static constexpr const uint16_t PrepareToStrike = 9;
+    static constexpr const auto Walking = 1_as;
+    static constexpr const auto Running = 2_as;
+    static constexpr const auto Jumping = 3_as;
+    static constexpr const auto Stalking = 5_as;
+    static constexpr const auto JumpAttack = 6_as;
+    static constexpr const auto Attacking = 7_as;
+    static constexpr const auto LyingDown = 8_as;
+    static constexpr const auto PrepareToStrike = 9_as;
     // static constexpr const uint16_t RunningJump = 10;
-    static constexpr const uint16_t Dying = 11;
-    static constexpr const uint16_t Biting = 12;
+    static constexpr const auto Dying = 11_as;
+    static constexpr const auto Biting = 12_as;
 
     core::Angle pitch = 0_deg;
     core::Angle roll = 0_deg;
@@ -41,9 +41,9 @@ void Wolf::update()
 
         updateMood( getLevel(), m_state, aiInfo, false );
         rotationToMoveTarget = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
-        switch( m_state.current_anim_state )
+        switch( m_state.current_anim_state.get() )
         {
-            case LyingDown:
+            case LyingDown.get():
                 pitch = 0_deg;
                 if( m_state.creatureInfo->mood != ai::Mood::Escape && aiInfo.enemy_zone != aiInfo.zone_number )
                 {
@@ -59,23 +59,23 @@ void Wolf::update()
                     m_state.goal_anim_state = Walking;
                 }
                 break;
-            case Walking:
-                if( m_state.required_anim_state != 0 )
+            case Walking.get():
+                if( m_state.required_anim_state != 0_as )
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
-                    m_state.required_anim_state = 0;
+                    m_state.required_anim_state = 0_as;
                 }
                 else
                 {
                     m_state.goal_anim_state = Running;
                 }
                 break;
-            case Running:
+            case Running.get():
                 m_state.creatureInfo->maximum_turn = 2_deg;
                 if( m_state.creatureInfo->mood != ai::Mood::Bored )
                 {
                     m_state.goal_anim_state = Stalking;
-                    m_state.required_anim_state = 0;
+                    m_state.required_anim_state = 0_as;
                 }
                 else if( util::rand15() < 32 )
                 {
@@ -83,11 +83,11 @@ void Wolf::update()
                     m_state.required_anim_state = LyingDown;
                 }
                 break;
-            case PrepareToStrike:
-                if( m_state.required_anim_state != 0 )
+            case PrepareToStrike.get():
+                if( m_state.required_anim_state != 0_as )
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
-                    m_state.required_anim_state = 0;
+                    m_state.required_anim_state = 0_as;
                     break;
                 }
                 if( m_state.creatureInfo->mood == ai::Mood::Escape )
@@ -111,7 +111,7 @@ void Wolf::update()
                     m_state.goal_anim_state = Walking;
                 }
                 break;
-            case Stalking:
+            case Stalking.get():
                 m_state.creatureInfo->maximum_turn = 2_deg;
                 if( m_state.creatureInfo->mood == ai::Mood::Escape )
                 {
@@ -150,7 +150,7 @@ void Wolf::update()
                     m_state.goal_anim_state = Jumping;
                 }
                 break;
-            case Jumping:
+            case Jumping.get():
                 m_state.creatureInfo->maximum_turn = 5_deg;
                 roll = rotationToMoveTarget;
                 if( aiInfo.ahead && aiInfo.distance < util::square( 3 * loader::SectorSize / 2 ) )
@@ -159,7 +159,7 @@ void Wolf::update()
                         || (aiInfo.enemy_facing <= 90_deg && aiInfo.enemy_facing >= -90_deg) )
                     {
                         m_state.goal_anim_state = JumpAttack;
-                        m_state.required_anim_state = 0;
+                        m_state.required_anim_state = 0_as;
                     }
                     else
                     {
@@ -181,9 +181,9 @@ void Wolf::update()
                     m_state.required_anim_state = Stalking;
                 }
                 break;
-            case JumpAttack:
+            case JumpAttack.get():
                 roll = rotationToMoveTarget;
-                if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x774f) )
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits & 0x774f) )
                 {
                     emitParticle( core::TRVec{0, -14, 174}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
@@ -192,8 +192,8 @@ void Wolf::update()
                 }
                 m_state.goal_anim_state = Jumping;
                 break;
-            case Biting:
-                if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x774f) && aiInfo.ahead )
+            case Biting.get():
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits & 0x774f) && aiInfo.ahead )
                 {
                     emitParticle( core::TRVec{0, -14, 174}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;

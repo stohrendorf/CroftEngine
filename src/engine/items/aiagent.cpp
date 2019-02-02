@@ -431,10 +431,10 @@ void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     if( !testBoneCollision( lara ) )
         return;
 
-    if( !(collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) )
+    if( !collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
         return;
 
-    const bool enableSpaz = m_state.health > 0 && (collisionInfo.policyFlags & CollisionInfo::EnableSpaz) != 0;
+    const bool enableSpaz = m_state.health > 0 && collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
     enemyPush( lara, collisionInfo, enableSpaz, false );
 }
 

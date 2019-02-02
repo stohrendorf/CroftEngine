@@ -14,7 +14,7 @@ void CollapsibleFloor::update()
     if( !m_isActive )
         return;
 
-    if( m_state.current_anim_state == 0 ) // stationary
+    if( m_state.current_anim_state == 0_as ) // stationary
     {
         if( m_state.position.position.Y - 512 != getLevel().m_lara->m_state.position.position.Y )
         {
@@ -22,13 +22,13 @@ void CollapsibleFloor::update()
             deactivate();
             return;
         }
-        m_state.goal_anim_state = 1;
+        m_state.goal_anim_state = 1_as;
     }
-    else if( m_state.current_anim_state == 1 ) // shaking
+    else if( m_state.current_anim_state == 1_as ) // shaking
     {
-        m_state.goal_anim_state = 2;
+        m_state.goal_anim_state = 2_as;
     }
-    else if( m_state.current_anim_state == 2 && m_state.goal_anim_state != 3 ) // falling, not going to settle
+    else if( m_state.current_anim_state == 2_as && m_state.goal_anim_state != 3_as ) // falling, not going to settle
     {
         m_state.falling = true;
     }
@@ -47,11 +47,11 @@ void CollapsibleFloor::update()
 
     const HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
     m_state.floor = h.y;
-    if( m_state.current_anim_state != 2 || m_state.position.position.Y < h.y )
+    if( m_state.current_anim_state != 2_as || m_state.position.position.Y < h.y )
         return;
 
     // settle
-    m_state.goal_anim_state = 3;
+    m_state.goal_anim_state = 3_as;
     m_state.fallspeed = 0;
     auto pos = m_state.position.position;
     pos.Y = m_state.floor;

@@ -52,10 +52,12 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
         result.firstFrame = state.anim->frames;
         result.secondFrame = state.anim->frames;
 
-        BOOST_ASSERT(reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
-            && reinterpret_cast<const short*>(result.firstFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
-        BOOST_ASSERT(reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
-            && reinterpret_cast<const short*>(result.secondFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
+        BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
+                      && reinterpret_cast<const short*>(result.firstFrame)
+                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
+        BOOST_ASSERT( reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
+                      && reinterpret_cast<const short*>(result.secondFrame)
+                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
         return result;
     }
 
@@ -72,10 +74,12 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
         // last keyframe
         result.secondFrame = result.firstFrame;
         result.bias = 0;
-        BOOST_ASSERT(reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
-            && reinterpret_cast<const short*>(result.firstFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
-        BOOST_ASSERT(reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
-            && reinterpret_cast<const short*>(result.secondFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
+        BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
+                      && reinterpret_cast<const short*>(result.firstFrame)
+                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
+        BOOST_ASSERT( reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
+                      && reinterpret_cast<const short*>(result.secondFrame)
+                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
         return result;
     }
 
@@ -87,10 +91,12 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     if( segmentFrame == 0 )
     {
         result.bias = 0;
-        BOOST_ASSERT(reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
-            && reinterpret_cast<const short*>(result.firstFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
-        BOOST_ASSERT(reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
-            && reinterpret_cast<const short*>(result.secondFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
+        BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
+                      && reinterpret_cast<const short*>(result.firstFrame)
+                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
+        BOOST_ASSERT( reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
+                      && reinterpret_cast<const short*>(result.secondFrame)
+                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
         return result;
     }
 
@@ -104,10 +110,12 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     result.bias = static_cast<float>(segmentFrame) / segmentDuration;
     BOOST_ASSERT( result.bias >= 0 && result.bias <= 1 );
 
-    BOOST_ASSERT(reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
-        && reinterpret_cast<const short*>(result.firstFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
-    BOOST_ASSERT(reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
-        && reinterpret_cast<const short*>(result.secondFrame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size());
+    BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
+                  && reinterpret_cast<const short*>(result.firstFrame)
+                     < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
+    BOOST_ASSERT( reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
+                  && reinterpret_cast<const short*>(result.secondFrame)
+                     < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
     return result;
 }
 
@@ -288,7 +296,7 @@ bool SkeletalModelNode::advanceFrame(items::ItemState& state)
     {
         state.current_anim_state = state.anim->state_id;
         if( state.current_anim_state == state.required_anim_state )
-            state.required_anim_state = 0;
+            state.required_anim_state = 0_as;
     }
 
     return state.frame_number > state.anim->lastFrame;

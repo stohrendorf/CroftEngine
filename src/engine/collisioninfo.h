@@ -3,6 +3,8 @@
 #include "heightinfo.h"
 #include "core/angle.h"
 
+#include "type_safe/flag_set.hpp"
+
 #include <set>
 
 namespace engine
@@ -12,31 +14,39 @@ class LaraNode;
 
 struct CollisionInfo
 {
-    static constexpr int AxisColl_None = 0x00;
-    static constexpr int AxisColl_Front = 0x01;
-    static constexpr int AxisColl_Left = 0x02;
-    static constexpr int AxisColl_Right = 0x04;
-    static constexpr int AxisColl_Top = 0x08;
-    static constexpr int AxisColl_TopBottom = 0x10;
-    static constexpr int AxisColl_TopFront = 0x20;
+    enum class AxisColl
+    {
+        None,
+        Front,
+        Left,
+        Right,
+        Top,
+        TopBottom,
+        TopFront
+    };
 
-    //! @name PolicyFlags
-    //! @brief Policy flags
-    //! @see #policyFlags
-    //! @{
-    static constexpr int SlopesAreWalls = 0x01;
-    static constexpr int SlopesArePits = 0x02;
-    static constexpr int LavaIsPit = 0x04;
-    static constexpr int EnableBaddiePush = 0x08;
-    static constexpr int EnableSpaz = 0x10;
-    //! @}
+    enum class PolicyFlags
+    {
+        SlopesAreWalls,
+        SlopesArePits,
+        LavaIsPit,
+        EnableBaddiePush,
+        EnableSpaz,
+        _flag_set_size
+    };
 
-    int collisionType = AxisColl_None;
+    using PolicyFlagSet = type_safe::flag_set<PolicyFlags>;
+    static constexpr const type_safe::flag_combo<PolicyFlags> SlopeBlockingPolicy = PolicyFlags::SlopesAreWalls
+                                                                                    | PolicyFlags::SlopesArePits;
+    static constexpr const type_safe::flag_combo<PolicyFlags> SpazPushPolicy = PolicyFlags::EnableBaddiePush
+                                                                               | PolicyFlags::EnableSpaz;
+
+    AxisColl collisionType = AxisColl::None;
     mutable core::TRVec shift;
     core::Axis facingAxis = core::Axis::PosZ;
     core::Angle facingAngle = 0_deg; // external
     int collisionRadius = 0; // external
-    int policyFlags = 0; // external
+    PolicyFlagSet policyFlags; // external
     core::TRVec oldPosition; // external
     //! The deepest floor distance considered passable.
     int badPositiveDistance = 0; // external
@@ -61,4 +71,30 @@ struct CollisionInfo
 
     bool checkStaticMeshCollisions(const core::TRVec& position, int height, const level::Level& level);
 };
+
+
+inline const char* toString(CollisionInfo::AxisColl value)
+{
+    switch( value )
+    {
+
+        case CollisionInfo::AxisColl::None:
+            return "None";
+        case CollisionInfo::AxisColl::Front:
+            return "Front";
+        case CollisionInfo::AxisColl::Left:
+            return "Left";
+        case CollisionInfo::AxisColl::Right:
+            return "Right";
+        case CollisionInfo::AxisColl::Top:
+            return "Top";
+        case CollisionInfo::AxisColl::TopBottom:
+            return "TopBottom";
+        case CollisionInfo::AxisColl::TopFront:
+            return "TopFront";
+        default:
+            return "<null>";
+    }
+}
+
 }

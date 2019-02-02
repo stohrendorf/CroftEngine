@@ -31,7 +31,7 @@ void TRex::update()
         rotationToMoveTarget = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         if( m_state.touch_bits )
         {
-            if( m_state.current_anim_state == 3 )
+            if( m_state.current_anim_state == 3_as )
             {
                 getLevel().m_lara->m_state.health -= 10;
             }
@@ -53,62 +53,62 @@ void TRex::update()
             m_state.creatureInfo->flags = 1;
         }
 
-        switch( m_state.current_anim_state )
+        switch( m_state.current_anim_state.get() )
         {
             case 1:
-                if( m_state.required_anim_state != 0 )
+                if( m_state.required_anim_state != 0_as )
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
                 else if( aiInfo.distance < util::square( 1500 ) && aiInfo.bite )
                 {
-                    m_state.goal_anim_state = 7;
+                    m_state.goal_anim_state = 7_as;
                 }
-                else if( m_state.creatureInfo->mood != ai::Mood::Bored && !m_state.creatureInfo->flags )
+                else if( m_state.creatureInfo->mood != ai::Mood::Bored && m_state.creatureInfo->flags == 0 )
                 {
-                    m_state.goal_anim_state = 3;
+                    m_state.goal_anim_state = 3_as;
                 }
                 else
                 {
-                    m_state.goal_anim_state = 2;
+                    m_state.goal_anim_state = 2_as;
                 }
                 break;
             case 2:
                 m_state.creatureInfo->maximum_turn = 2_deg;
-                if( m_state.creatureInfo->mood != ai::Mood::Bored || !m_state.creatureInfo->flags )
+                if( m_state.creatureInfo->mood != ai::Mood::Bored || m_state.creatureInfo->flags == 0 )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( aiInfo.ahead && util::rand15() < 512 )
                 {
-                    m_state.required_anim_state = 6;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 6_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 break;
             case 3:
                 m_state.creatureInfo->maximum_turn = 4_deg;
                 if( aiInfo.distance < util::square( 5 * loader::SectorSize ) && aiInfo.bite )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( m_state.creatureInfo->flags )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( m_state.creatureInfo->mood != ai::Mood::Escape && aiInfo.ahead && util::rand15() < 512 )
                 {
-                    m_state.required_anim_state = 6;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 6_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( m_state.creatureInfo->mood == ai::Mood::Bored )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 break;
             case 7:
                 if( m_state.touch_bits & 0x3000 )
                 {
-                    m_state.goal_anim_state = 8;
+                    m_state.goal_anim_state = 8_as;
 
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.falling = false;
@@ -131,19 +131,19 @@ void TRex::update()
                     getLevel().m_lara->setAir( -1 );
                     getLevel().useAlternativeLaraAppearance( true );
                 }
-                m_state.required_anim_state = 2;
+                m_state.required_anim_state = 2_as;
                 break;
             default:
                 break;
         }
     }
-    else if( m_state.current_anim_state == 1 )
+    else if( m_state.current_anim_state == 1_as )
     {
-        m_state.goal_anim_state = 5;
+        m_state.goal_anim_state = 5_as;
     }
     else
     {
-        m_state.goal_anim_state = 1;
+        m_state.goal_anim_state = 1_as;
     }
 
     rotateCreatureHead( creatureHead );

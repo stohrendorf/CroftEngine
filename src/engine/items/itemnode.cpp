@@ -175,7 +175,7 @@ void ModelItemNode::update()
         m_skeleton->setAnimation( m_state, m_state.anim->nextAnimation, m_state.anim->nextFrame );
         m_state.goal_anim_state = m_state.current_anim_state;
         if( m_state.current_anim_state == m_state.required_anim_state )
-            m_state.required_anim_state = 0;
+            m_state.required_anim_state = 0_as;
     }
 
     BOOST_ASSERT(
@@ -535,7 +535,7 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
                 lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
         collisionInfo.initHeightInfo( lara.m_state.position.position, getLevel(), 762 );
         collisionInfo.facingAngle = facingAngle;
-        if( collisionInfo.collisionType != CollisionInfo::AxisColl_None )
+        if( collisionInfo.collisionType != CollisionInfo::AxisColl::None )
         {
             lara.m_state.position.position.X = collisionInfo.oldPosition.X;
             lara.m_state.position.position.Z = collisionInfo.oldPosition.Z;
@@ -800,9 +800,9 @@ YAML::Node ItemState::save(const level::Level& lvl) const
     n["rotation"] = rotation.save();
     n["speed"] = speed;
     n["fallSpeed"] = fallspeed;
-    n["state"] = current_anim_state;
-    n["goal"] = goal_anim_state;
-    n["required"] = required_anim_state;
+    n["state"] = current_anim_state.get();
+    n["goal"] = goal_anim_state.get();
+    n["required"] = required_anim_state.get();
     if( anim != nullptr )
         n["id"] = std::distance( &lvl.m_animations[0], anim );
     n["frame"] = frame_number;
@@ -837,9 +837,9 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
     rotation.load( n["rotation"] );
     speed = n["speed"].as<int16_t>();
     fallspeed = n["fallSpeed"].as<int16_t>();
-    current_anim_state = n["state"].as<uint16_t>();
-    goal_anim_state = n["goal"].as<uint16_t>();
-    required_anim_state = n["required"].as<uint16_t>();
+    current_anim_state = loader::AnimState{n["state"].as<uint16_t>()};
+    goal_anim_state = loader::AnimState{n["goal"].as<uint16_t>()};
+    required_anim_state = loader::AnimState{n["required"].as<uint16_t>()};
     if( !n["id"].IsDefined() )
         anim = nullptr;
     else

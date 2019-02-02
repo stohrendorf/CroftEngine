@@ -196,5 +196,7 @@ add_definitions( -DGIT_SHA="${GIT_SHA}" )
 
 find_package( yaml-cpp REQUIRED )
 
+add_subdirectory(3rdparty/type_safe)
+
 add_subdirectory( 3rdparty/gameplay )
 add_subdirectory( src )

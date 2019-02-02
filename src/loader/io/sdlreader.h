@@ -1,5 +1,7 @@
 #pragma once
 
+#include "type_safe/integer.hpp"
+
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -201,16 +203,7 @@ public:
     template<typename T>
     T read()
     {
-        T result;
-        m_stream.read( reinterpret_cast<char*>(&result), sizeof( T ) );
-        if( m_stream.gcount() != sizeof( T ) )
-        {
-            BOOST_THROW_EXCEPTION( std::runtime_error( "EOF unexpectedly reached" ) );
-        }
-
-        SwapTraits<T, sizeof( T ), std::is_integral<T>::value || std::is_floating_point<T>::value>::doSwap( result );
-
-        return result;
+        return ReadTraits<T>::read( m_stream );
     }
 
     uint8_t readU8()
@@ -272,6 +265,48 @@ private:
         static void doSwap(T& /*data*/)
         {
             //! @todo For now, no endian conversion
+        }
+    };
+
+
+    template<typename T, int dataSize>
+    struct SwapTraits<type_safe::integer<T>, dataSize, false>
+    {
+        static void doSwap(type_safe::integer<T>& data)
+        {
+            auto tmp = data.get();
+            SwapTraits<T, sizeof( T ), std::is_integral<T>::value || std::is_floating_point<T>::value>::doSwap( tmp );
+            data = type_safe::integer<T>( tmp );
+        }
+    };
+
+
+    template<typename T>
+    struct ReadTraits
+    {
+        static T read(std::istream& stream)
+        {
+            T result;
+            stream.read( reinterpret_cast<char*>(&result), sizeof( T ) );
+            if( stream.gcount() != sizeof( T ) )
+            {
+                BOOST_THROW_EXCEPTION( std::runtime_error( "EOF unexpectedly reached" ) );
+            }
+
+            SwapTraits<T, sizeof( T ), std::is_integral<T>::value || std::is_floating_point<T>::value>::doSwap(
+                    result );
+
+            return result;
+        }
+    };
+
+
+    template<typename T>
+    struct ReadTraits<type_safe::integer<T>>
+    {
+        static type_safe::integer<T> read(std::istream& stream)
+        {
+            return type_safe::integer<T>{ReadTraits<T>::read( stream )};
         }
     };
 };

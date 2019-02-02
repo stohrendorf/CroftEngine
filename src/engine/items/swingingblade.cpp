@@ -12,20 +12,20 @@ void SwingingBlade::update()
 {
     if( !m_state.updateActivationTimeout() )
     {
-        if( m_state.current_anim_state == 2 )
+        if( m_state.current_anim_state == 2_as )
         {
-            m_state.goal_anim_state = 0;
+            m_state.goal_anim_state = 0_as;
         }
     }
     else
     {
-        if( m_state.current_anim_state == 0 )
+        if( m_state.current_anim_state == 0_as )
         {
-            m_state.goal_anim_state = 2;
+            m_state.goal_anim_state = 2_as;
         }
     }
 
-    if( m_state.current_anim_state == 2 && m_state.touch_bits != 0 )
+    if( m_state.current_anim_state == 2_as && m_state.touch_bits != 0 )
     {
         getLevel().m_lara->m_state.is_hit = true;
         getLevel().m_lara->m_state.health -= 100;
@@ -64,7 +64,7 @@ void SwingingBlade::collide(LaraNode& lara, CollisionInfo& collisionInfo)
              && isNear( lara, collisionInfo.collisionRadius )
              && testBoneCollision( lara ) )
     {
-        if( (collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) != 0 )
+        if( collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
         {
             enemyPush( lara, collisionInfo, false, true );
         }

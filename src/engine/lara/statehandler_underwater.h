@@ -33,23 +33,23 @@ public:
 
         switch( collisionInfo.collisionType )
         {
-            case CollisionInfo::AxisColl_Left:
+            case CollisionInfo::AxisColl::Left:
                 getLara().m_state.rotation.Y += 5_deg;
                 break;
-            case CollisionInfo::AxisColl_Right:
+            case CollisionInfo::AxisColl::Right:
                 getLara().m_state.rotation.Y -= 5_deg;
                 break;
-            case CollisionInfo::AxisColl_TopFront:
+            case CollisionInfo::AxisColl::TopFront:
             {
                 getLara().m_state.fallspeed = 0;
             }
                 return;
-            case CollisionInfo::AxisColl_TopBottom:
+            case CollisionInfo::AxisColl::TopBottom:
             {
                 getLara().m_state.fallspeed = 0;
             }
                 break;
-            case CollisionInfo::AxisColl_Top:
+            case CollisionInfo::AxisColl::Top:
             {
                 if( getLara().m_state.rotation.X > -45_deg )
                 {
@@ -57,7 +57,7 @@ public:
                 }
             }
                 break;
-            case CollisionInfo::AxisColl_Front:
+            case CollisionInfo::AxisColl::Front:
             {
                 if( getLara().m_state.rotation.X > 35_deg )
                 {

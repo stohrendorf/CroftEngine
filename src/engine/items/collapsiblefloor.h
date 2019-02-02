@@ -24,7 +24,7 @@ public:
         if( pos.Y > m_state.position.position.Y - 512 )
             return;
 
-        if( m_state.current_anim_state != 0 && m_state.current_anim_state != 1 )
+        if( m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as )
             return;
 
         y = m_state.position.position.Y - 512;
@@ -35,7 +35,7 @@ public:
         if( pos.Y <= m_state.position.position.Y - 512 )
             return;
 
-        if( m_state.current_anim_state != 0 && m_state.current_anim_state != 1 )
+        if( m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as )
             return;
 
         y = m_state.position.position.Y - 256;

@@ -31,7 +31,7 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( !limits.canInteract( m_state, lara.m_state ) )
         return;
 
-    if( m_state.current_anim_state != 0 && m_state.current_anim_state != 1 )
+    if( m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as )
         return;
 
     static const core::TRVec alignSpeed{0, 0, 108};
@@ -48,13 +48,13 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     lara.setHandStatus( HandStatus::Grabbing );
     m_state.triggerState = TriggerState::Active;
 
-    if( m_state.current_anim_state == 1 )
+    if( m_state.current_anim_state == 1_as )
     {
-        m_state.goal_anim_state = 0;
+        m_state.goal_anim_state = 0_as;
     }
     else
     {
-        m_state.goal_anim_state = 1;
+        m_state.goal_anim_state = 1_as;
     }
 
     activate();

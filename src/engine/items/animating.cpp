@@ -10,11 +10,11 @@ void Animating::update()
 {
     if( m_state.updateActivationTimeout() )
     {
-        m_state.goal_anim_state = 1;
+        m_state.goal_anim_state = 1_as;
     }
     else
     {
-        m_state.goal_anim_state = 0;
+        m_state.goal_anim_state = 0_as;
     }
 
     ModelItemNode::update();

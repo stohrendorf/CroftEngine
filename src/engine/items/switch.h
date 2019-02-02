@@ -25,7 +25,7 @@ public:
         if( !m_state.updateActivationTimeout() )
         {
             // reset switch if a timeout is active
-            m_state.goal_anim_state = 1;
+            m_state.goal_anim_state = 1_as;
             m_state.timer = 0;
         }
 

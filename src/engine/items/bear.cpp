@@ -17,16 +17,16 @@ void Bear::update()
 
     core::Angle rotationToMoveTarget;
 
-    static constexpr uint16_t Walking = 0;
-    static constexpr uint16_t GettingDown = 1;
-    static constexpr uint16_t WalkingTall = 2;
-    static constexpr uint16_t Running = 3;
-    static constexpr uint16_t RoaringStanding = 4;
-    static constexpr uint16_t Growling = 5;
-    static constexpr uint16_t RunningAttack = 6;
-    static constexpr uint16_t Standing = 7;
-    static constexpr uint16_t Biting = 8;
-    static constexpr uint16_t Dying = 9;
+    static constexpr auto Walking = 0_as;
+    static constexpr auto GettingDown = 1_as;
+    static constexpr auto WalkingTall = 2_as;
+    static constexpr auto Running = 3_as;
+    static constexpr auto RoaringStanding = 4_as;
+    static constexpr auto Growling = 5_as;
+    static constexpr auto RunningAttack = 6_as;
+    static constexpr auto Standing = 7_as;
+    static constexpr auto Biting = 8_as;
+    static constexpr auto Dying = 9_as;
 
     if( getHealth() > 0 )
     {
@@ -37,9 +37,9 @@ void Bear::update()
         if( m_state.is_hit )
             m_state.creatureInfo->flags = 1;
 
-        switch( m_state.current_anim_state )
+        switch( m_state.current_anim_state.get() )
         {
-            case Walking:
+            case Walking.get():
                 m_state.creatureInfo->maximum_turn = 2_deg;
                 if( getLevel().m_lara->m_state.health <= 0 && (m_state.touch_bits & 0x2406c) != 0 && aiInfo.ahead )
                 {
@@ -50,7 +50,7 @@ void Bear::update()
                     m_state.goal_anim_state = GettingDown;
                     if( m_state.creatureInfo->mood == ai::Mood::Escape )
                     {
-                        m_state.required_anim_state = 0;
+                        m_state.required_anim_state = 0_as;
                     }
                 }
                 else if( util::rand15() < 80 )
@@ -59,7 +59,7 @@ void Bear::update()
                     m_state.goal_anim_state = GettingDown;
                 }
                 break;
-            case GettingDown:
+            case GettingDown.get():
                 if( getLevel().m_lara->m_state.health <= 0 )
                 {
                     if( aiInfo.bite && aiInfo.distance < util::square( 768 ) )
@@ -73,7 +73,7 @@ void Bear::update()
                 }
                 else
                 {
-                    if( m_state.required_anim_state != 0 )
+                    if( m_state.required_anim_state != 0_as )
                     {
                         m_state.goal_anim_state = m_state.required_anim_state;
                     }
@@ -87,10 +87,10 @@ void Bear::update()
                     }
                 }
                 break;
-            case WalkingTall:
+            case WalkingTall.get():
                 if( m_state.creatureInfo->flags != 0 )
                 {
-                    m_state.required_anim_state = 0;
+                    m_state.required_anim_state = 0_as;
                     m_state.goal_anim_state = RoaringStanding;
                 }
                 else if( aiInfo.ahead && (m_state.touch_bits & 0x2406c) != 0 )
@@ -99,7 +99,7 @@ void Bear::update()
                 }
                 else if( m_state.creatureInfo->mood == ai::Mood::Escape )
                 {
-                    m_state.required_anim_state = 0;
+                    m_state.required_anim_state = 0_as;
                     m_state.goal_anim_state = RoaringStanding;
                 }
                 else if( m_state.creatureInfo->mood == ai::Mood::Bored || util::rand15() < 80 )
@@ -113,7 +113,7 @@ void Bear::update()
                     m_state.goal_anim_state = RoaringStanding;
                 }
                 break;
-            case Running:
+            case Running.get():
                 m_state.creatureInfo->maximum_turn = 5_deg;
                 if( (m_state.touch_bits & 0x2406c) != 0 )
                 {
@@ -124,7 +124,7 @@ void Bear::update()
                 {
                     m_state.goal_anim_state = GettingDown;
                 }
-                else if( aiInfo.ahead && m_state.required_anim_state == 0 )
+                else if( aiInfo.ahead && m_state.required_anim_state == 0_as )
                 {
                     if( m_state.creatureInfo->flags == 0 && aiInfo.distance < util::square( 2048 )
                         && util::rand15() < 768 )
@@ -138,13 +138,13 @@ void Bear::update()
                     }
                 }
                 break;
-            case RoaringStanding:
+            case RoaringStanding.get():
                 if( m_state.creatureInfo->flags != 0 )
                 {
-                    m_state.required_anim_state = 0;
+                    m_state.required_anim_state = 0_as;
                     m_state.goal_anim_state = GettingDown;
                 }
-                else if( m_state.required_anim_state != 0 )
+                else if( m_state.required_anim_state != 0_as )
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
@@ -162,8 +162,8 @@ void Bear::update()
                     m_state.goal_anim_state = WalkingTall;
                 }
                 break;
-            case RunningAttack:
-                if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x2406c) )
+            case RunningAttack.get():
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits & 0x2406c) )
                 {
                     emitParticle( core::TRVec{0, 96, 335}, 14, &createBloodSplat );
                     getLevel().m_lara->m_state.health -= 200;
@@ -171,8 +171,8 @@ void Bear::update()
                     m_state.required_anim_state = GettingDown;
                 }
                 break;
-            case Standing:
-                if( m_state.required_anim_state == 0 && (m_state.touch_bits & 0x2406c) )
+            case Standing.get():
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits & 0x2406c) )
                 {
                     getLevel().m_lara->m_state.health -= 400;
                     getLevel().m_lara->m_state.is_hit = true;
@@ -187,24 +187,24 @@ void Bear::update()
     else
     {
         rotationToMoveTarget = rotateTowardsTarget( 1_deg );
-        switch( m_state.current_anim_state )
+        switch( m_state.current_anim_state.get() )
         {
-            case Walking:
-            case Running:
+            case Walking.get():
+            case Running.get():
                 m_state.goal_anim_state = GettingDown;
                 break;
-            case GettingDown:
+            case GettingDown.get():
                 m_state.creatureInfo->flags = 0;
                 m_state.goal_anim_state = Dying;
                 break;
-            case WalkingTall:
+            case WalkingTall.get():
                 m_state.goal_anim_state = RoaringStanding;
                 break;
-            case RoaringStanding:
+            case RoaringStanding.get():
                 m_state.creatureInfo->flags = 1;
                 m_state.goal_anim_state = Dying;
                 break;
-            case Dying:
+            case Dying.get():
                 if( m_state.creatureInfo->flags != 0 && (m_state.touch_bits & 0x2406c) != 0 )
                 {
                     getLevel().m_lara->m_state.health -= 200;

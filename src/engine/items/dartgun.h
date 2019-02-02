@@ -21,17 +21,17 @@ public:
     {
         if( m_state.updateActivationTimeout() )
         {
-            if( m_state.current_anim_state == 0 )
+            if( m_state.current_anim_state == 0_as )
             {
-                m_state.goal_anim_state = 1;
+                m_state.goal_anim_state = 1_as;
             }
         }
-        else if( m_state.current_anim_state == 1 )
+        else if( m_state.current_anim_state == 1_as )
         {
-            m_state.goal_anim_state = 0;
+            m_state.goal_anim_state = 0_as;
         }
 
-        if( m_state.current_anim_state != 1 || m_state.frame_number != m_state.anim->firstFrame )
+        if( m_state.current_anim_state != 1_as || m_state.frame_number != m_state.anim->firstFrame )
         {
             ModelItemNode::update();
             return;

@@ -293,7 +293,7 @@ public:
 
     loader::LaraStateId getGoalAnimState() const
     {
-        return static_cast<LaraStateId>(m_state.goal_anim_state);
+        return static_cast<LaraStateId>(m_state.goal_anim_state.get());
     }
 
     void setGoalAnimState(LaraStateId st)
@@ -303,7 +303,7 @@ public:
 
     loader::LaraStateId getCurrentAnimState() const
     {
-        return static_cast<loader::LaraStateId>(m_state.current_anim_state);
+        return static_cast<loader::LaraStateId>(m_state.current_anim_state.get());
     }
 
     void setCurrentAnimState(LaraStateId st)
@@ -320,7 +320,7 @@ public:
 
     void updateFloorHeight(int dy);
 
-    void handleCommandSequence(const uint16_t* floorData, bool fromHeavy);
+    void handleCommandSequence(const engine::floordata::FloorDataValue* floorData, bool fromHeavy);
 
     void addSwimToDiveKeypressDuration(const int n) noexcept
     {

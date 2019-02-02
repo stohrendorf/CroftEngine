@@ -8,12 +8,12 @@ namespace items
 {
 void SwordOfDamocles::update()
 {
-    if( m_state.current_anim_state == 0 )
+    if( m_state.current_anim_state == 0_as )
     {
-        m_state.goal_anim_state = 1;
+        m_state.goal_anim_state = 1_as;
         m_state.falling = true;
     }
-    else if( m_state.current_anim_state == 1 && m_state.touch_bits != 0 )
+    else if( m_state.current_anim_state == 1_as && m_state.touch_bits != 0 )
     {
         getLevel().m_lara->m_state.is_hit = true;
         getLevel().m_lara->m_state.health -= 300;
@@ -25,9 +25,9 @@ void SwordOfDamocles::update()
     {
         deactivate();
     }
-    else if( m_state.current_anim_state == 1 && m_state.position.position.Y >= m_state.floor )
+    else if( m_state.current_anim_state == 1_as && m_state.position.position.Y >= m_state.floor )
     {
-        m_state.goal_anim_state = 2;
+        m_state.goal_anim_state = 2_as;
         m_state.position.position.Y = m_state.floor;
         m_state.fallspeed = 0;
         m_state.falling = false;
@@ -47,7 +47,7 @@ void SwordOfDamocles::collide(LaraNode& lara, CollisionInfo& collisionInfo)
              && isNear( lara, collisionInfo.collisionRadius )
              && testBoneCollision( lara ) )
     {
-        if( (collisionInfo.policyFlags & CollisionInfo::EnableBaddiePush) != 0 )
+        if( collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
         {
             enemyPush( lara, collisionInfo, false, true );
         }

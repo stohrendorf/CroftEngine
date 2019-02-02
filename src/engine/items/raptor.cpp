@@ -27,46 +27,46 @@ void Raptor::update()
         }
         updateMood( getLevel(), m_state, aiInfo, true );
         animAngle = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
-        switch( m_state.current_anim_state )
+        switch( m_state.current_anim_state.get() )
         {
             case 1:
-                if( m_state.required_anim_state != 0 )
+                if( m_state.required_anim_state != 0_as )
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
                 else if( m_state.touch_bits & 0xff7c00 )
                 {
-                    m_state.goal_anim_state = 8;
+                    m_state.goal_anim_state = 8_as;
                 }
-                else if( aiInfo.distance < 462400 && aiInfo.bite )
+                else if( aiInfo.bite && aiInfo.distance < util::square( 680 ) )
                 {
-                    m_state.goal_anim_state = 8;
+                    m_state.goal_anim_state = 8_as;
                 }
-                else if( aiInfo.bite && aiInfo.distance < 2359296 )
+                else if( aiInfo.bite && aiInfo.distance < util::square( 1536 ) )
                 {
-                    m_state.goal_anim_state = 4;
+                    m_state.goal_anim_state = 4_as;
                 }
                 else if( m_state.creatureInfo->mood != ai::Mood::Bored )
                 {
-                    m_state.goal_anim_state = 3;
+                    m_state.goal_anim_state = 3_as;
                 }
                 else
                 {
-                    m_state.goal_anim_state = 2;
+                    m_state.goal_anim_state = 2_as;
                 }
                 break;
             case 2:
                 m_state.creatureInfo->maximum_turn = 1_deg;
                 if( m_state.creatureInfo->mood != ai::Mood::Bored )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( aiInfo.ahead )
                 {
                     if( util::rand15() < 256 )
                     {
-                        m_state.required_anim_state = 6;
-                        m_state.goal_anim_state = 1;
+                        m_state.required_anim_state = 6_as;
+                        m_state.goal_anim_state = 1_as;
                     }
                 }
                 break;
@@ -75,35 +75,35 @@ void Raptor::update()
                 animTilt = animAngle;
                 if( m_state.touch_bits & 0xff7c00 )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( aiInfo.bite && aiInfo.distance < 2359296 )
                 {
-                    if( m_state.goal_anim_state == 3 )
+                    if( m_state.goal_anim_state == 3_as )
                     {
                         if( util::rand15() >= 8192 )
                         {
-                            m_state.goal_anim_state = 7;
+                            m_state.goal_anim_state = 7_as;
                         }
                         else
                         {
-                            m_state.goal_anim_state = 1;
+                            m_state.goal_anim_state = 1_as;
                         }
                     }
                 }
                 else if( aiInfo.ahead && m_state.creatureInfo->mood != ai::Mood::Escape && util::rand15() < 256 )
                 {
-                    m_state.required_anim_state = 6;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 6_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( m_state.creatureInfo->mood == ai::Mood::Bored )
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 break;
             case 4:
                 animTilt = animAngle;
-                if( m_state.required_anim_state == 0 )
+                if( m_state.required_anim_state == 0_as )
                 {
                     if( aiInfo.ahead )
                     {
@@ -112,43 +112,43 @@ void Raptor::update()
                             emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
                             getLevel().m_lara->m_state.is_hit = true;
                             getLevel().m_lara->m_state.health -= 100;
-                            m_state.required_anim_state = 1;
+                            m_state.required_anim_state = 1_as;
                         }
                     }
                 }
                 break;
             case 7:
                 animTilt = animAngle;
-                if( m_state.required_anim_state == 0 && aiInfo.ahead )
+                if( m_state.required_anim_state == 0_as && aiInfo.ahead )
                 {
                     if( m_state.touch_bits & 0xff7c00 )
                     {
                         emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
                         getLevel().m_lara->m_state.is_hit = true;
                         getLevel().m_lara->m_state.health -= 100;
-                        m_state.required_anim_state = 3;
+                        m_state.required_anim_state = 3_as;
                     }
                 }
                 break;
             case 8:
                 animTilt = animAngle;
-                if( m_state.required_anim_state == 0 && m_state.touch_bits & 0xff7c00 )
+                if( m_state.required_anim_state == 0_as && m_state.touch_bits & 0xff7c00 )
                 {
                     emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 100;
-                    m_state.required_anim_state = 1;
+                    m_state.required_anim_state = 1_as;
                 }
                 break;
             default:
                 break;
         }
     }
-    else if( m_state.current_anim_state != 5 )
+    else if( m_state.current_anim_state != 5_as )
     {
         m_state.anim = getLevel().findAnimatedModelForType( TR1ItemId::Raptor )->animations + 9
                        + util::rand15( 3 );
-        m_state.current_anim_state = 5;
+        m_state.current_anim_state = 5_as;
         m_state.frame_number = m_state.anim->firstFrame;
     }
 

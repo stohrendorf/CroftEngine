@@ -325,7 +325,7 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
 
 bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 {
-    if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front
+    if( collisionInfo.collisionType != CollisionInfo::AxisColl::Front
         || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != HandStatus::None )
     {
         return false;
@@ -386,8 +386,8 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 
 bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionInfo)
 {
-    if( collisionInfo.collisionType != CollisionInfo::AxisColl_Top
-        && collisionInfo.collisionType != CollisionInfo::AxisColl_TopFront )
+    if( collisionInfo.collisionType != CollisionInfo::AxisColl::Top
+        && collisionInfo.collisionType != CollisionInfo::AxisColl::TopFront )
     {
         return false;
     }
@@ -404,8 +404,9 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
 
 bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
 {
-    if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front
-        || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != HandStatus::None )
+    if( collisionInfo.collisionType != CollisionInfo::AxisColl::Front
+        || !getLevel().m_inputHandler->getInputState().action
+        || getHandStatus() != HandStatus::None )
     {
         return false;
     }
@@ -479,8 +480,8 @@ void AbstractStateHandler::applyShift(const CollisionInfo& collisionInfo)
 
 bool AbstractStateHandler::checkWallCollision(CollisionInfo& collisionInfo)
 {
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_Front
-        || collisionInfo.collisionType == CollisionInfo::AxisColl_TopBottom )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::Front
+        || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom )
     {
         applyShift( collisionInfo );
         setGoalAnimState( LaraStateId::Stop );
@@ -489,12 +490,12 @@ bool AbstractStateHandler::checkWallCollision(CollisionInfo& collisionInfo)
         return true;
     }
 
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::Left )
     {
         applyShift( collisionInfo );
         m_lara.m_state.rotation.Y += 5_deg;
     }
-    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
+    else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Right )
     {
         applyShift( collisionInfo );
         m_lara.m_state.rotation.Y -= 5_deg;
@@ -557,8 +558,9 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
 
 bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
 {
-    if( collisionInfo.collisionType != CollisionInfo::AxisColl_Front
-        || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != HandStatus::None )
+    if( collisionInfo.collisionType != CollisionInfo::AxisColl::Front
+        || !getLevel().m_inputHandler->getInputState().action
+        || getHandStatus() != HandStatus::None )
     {
         return false;
     }
@@ -760,8 +762,10 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 
     const auto gradient = std::labs(
             collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y );
-    if( gradient >= core::MaxGrabbableGradient || collisionInfo.mid.ceiling.y >= 0
-        || collisionInfo.collisionType != CollisionInfo::AxisColl_Front || tooSteepToGrab )
+    if( gradient >= core::MaxGrabbableGradient
+        || collisionInfo.mid.ceiling.y >= 0
+        || collisionInfo.collisionType != CollisionInfo::AxisColl::Front
+        || tooSteepToGrab )
     {
         m_lara.m_state.position.position = collisionInfo.oldPosition;
         if( getCurrentAnimState() != LaraStateId::ShimmyLeft
@@ -808,7 +812,8 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 // ReSharper disable once CppMemberFunctionMayBeConst
 bool AbstractStateHandler::applyLandingDamage()
 {
-    const auto sector =  level::Level::findRealFloorSector( m_lara.m_state.position.position, m_lara.m_state.position.room );
+    const auto sector = level::Level::findRealFloorSector( m_lara.m_state.position.position,
+                                                           m_lara.m_state.position.room );
     const HeightInfo h = HeightInfo::fromFloor( sector,
                                                 m_lara.m_state.position.position
                                                 - core::TRVec{0, core::ScalpHeight, 0},
@@ -896,22 +901,22 @@ void AbstractStateHandler::setCameraModifier(const CameraModifier k)
 void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
 {
     applyShift( collisionInfo );
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::Left )
     {
         m_lara.m_state.rotation.Y += 5_deg;
     }
-    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
+    else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Right )
     {
         m_lara.m_state.rotation.Y -= 5_deg;
     }
-    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Top )
+    else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Top )
     {
         if( m_lara.m_state.fallspeed <= 0 )
         {
             m_lara.m_state.fallspeed = 1;
         }
     }
-    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_TopFront )
+    else if( collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront )
     {
         m_lara.m_state.position.position.X += 100 * m_lara.m_state.rotation.Y.sin();
         m_lara.m_state.position.position.Z += 100 * m_lara.m_state.rotation.Y.cos();
@@ -928,13 +933,13 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
 {
     applyShift( collisionInfo );
 
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_None )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::None )
     {
         return;
     }
 
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_Front
-        || collisionInfo.collisionType == CollisionInfo::AxisColl_TopBottom )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::Front
+        || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom )
     {
         setGoalAnimState( LaraStateId::FreeFall );
         m_lara.m_state.speed /= 4;
@@ -947,18 +952,18 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
         return;
     }
 
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::Left )
     {
         m_lara.m_state.rotation.Y += 5_deg;
         return;
     }
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::Right )
     {
         m_lara.m_state.rotation.Y -= 5_deg;
         return;
     }
 
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_TopFront )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront )
     {
         m_lara.m_state.position.position.X += 100 * collisionInfo.facingAngle.sin();
         m_lara.m_state.position.position.Z += 100 * collisionInfo.facingAngle.cos();
@@ -970,7 +975,7 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
         }
     }
 
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_Top && m_lara.m_state.fallspeed <= 0 )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::Top && m_lara.m_state.fallspeed <= 0 )
     {
         m_lara.m_state.fallspeed = 1;
     }

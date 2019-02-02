@@ -20,12 +20,12 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<level::Level*>& level,
 
 void ThorHammerHandle::update()
 {
-    switch( m_state.current_anim_state )
+    switch( m_state.current_anim_state.get() )
     {
         case 0:
             if( m_state.updateActivationTimeout() )
             {
-                m_state.goal_anim_state = 1;
+                m_state.goal_anim_state = 1_as;
             }
             else
             {
@@ -36,11 +36,11 @@ void ThorHammerHandle::update()
         case 1:
             if( m_state.updateActivationTimeout() )
             {
-                m_state.goal_anim_state = 2;
+                m_state.goal_anim_state = 2_as;
             }
             else
             {
-                m_state.goal_anim_state = 0;
+                m_state.goal_anim_state = 0_as;
             }
             break;
         case 2:
@@ -75,9 +75,9 @@ void ThorHammerHandle::update()
                         getLevel().m_lara->m_state.anim = &getLevel()
                                 .findAnimatedModelForType( engine::TR1ItemId::Lara )->animations[139];
                         getLevel().m_lara->m_state.frame_number = 3561;
-                        getLevel().m_lara->m_state.current_anim_state = 46;
-                        getLevel().m_lara->m_state.position.position.Y = m_state.position.position.Y;
+                        getLevel().m_lara->setCurrentAnimState( loader::LaraStateId::BoulderDeath );
                         getLevel().m_lara->setGoalAnimState( loader::LaraStateId::BoulderDeath );
+                        getLevel().m_lara->m_state.position.position.Y = m_state.position.position.Y;
                         getLevel().m_lara->m_state.falling = false;
                     }
                 }
@@ -125,14 +125,15 @@ void ThorHammerHandle::update()
     // sync anim
     const auto animIdx = std::distance(
             &getLevel().findAnimatedModelForType( engine::TR1ItemId::ThorHammerHandle )->animations[0], m_state.anim );
-    m_block->m_state.anim = &getLevel().findAnimatedModelForType( engine::TR1ItemId::ThorHammerBlock )->animations[animIdx];
+    m_block->m_state.anim = &getLevel().findAnimatedModelForType( engine::TR1ItemId::ThorHammerBlock )
+                                       ->animations[animIdx];
     m_block->m_state.frame_number = m_state.frame_number - m_state.anim->firstFrame + m_block->m_state.anim->firstFrame;
     m_block->m_state.current_anim_state = m_state.current_anim_state;
 }
 
 void ThorHammerHandle::collide(LaraNode& node, CollisionInfo& info)
 {
-    if( (info.policyFlags & CollisionInfo::EnableBaddiePush) == 0 )
+    if( !info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
         return;
 
     if( !isNear( node, info.collisionRadius ) )
@@ -143,10 +144,10 @@ void ThorHammerHandle::collide(LaraNode& node, CollisionInfo& info)
 
 void ThorHammerBlock::collide(LaraNode& node, CollisionInfo& info)
 {
-    if( m_state.current_anim_state == 2 )
+    if( m_state.current_anim_state == 2_as )
         return;
 
-    if( (info.policyFlags & CollisionInfo::EnableBaddiePush) == 0 )
+    if( !info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
         return;
 
     if( !isNear( node, info.collisionRadius ) )

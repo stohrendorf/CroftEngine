@@ -36,7 +36,7 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     lara.m_state.rotation.Y = m_state.rotation.Y;
 
-    if( m_state.current_anim_state == 1 )
+    if( m_state.current_anim_state == 1_as )
     {
         do
         {
@@ -44,12 +44,12 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             lara.updateImpl();
         } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
         lara.setGoalAnimState( loader::LaraStateId::Stop );
-        m_state.goal_anim_state = 0;
+        m_state.goal_anim_state = 0_as;
         lara.setHandStatus( HandStatus::Grabbing );
     }
     else
     {
-        if( m_state.current_anim_state != 0 )
+        if( m_state.current_anim_state != 0_as )
             return;
 
         do
@@ -58,7 +58,7 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             lara.updateImpl();
         } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
         lara.setGoalAnimState( loader::LaraStateId::Stop );
-        m_state.goal_anim_state = 1;
+        m_state.goal_anim_state = 1_as;
         lara.setHandStatus( HandStatus::Grabbing );
     }
 

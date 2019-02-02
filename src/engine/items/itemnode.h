@@ -93,9 +93,9 @@ struct ItemState final : public audio::Emitter
     core::TRRotation rotation;
     int16_t speed = 0;
     int16_t fallspeed = 0;
-    uint16_t current_anim_state = 0;
-    uint16_t goal_anim_state = 0;
-    uint16_t required_anim_state = 0;
+    loader::AnimState current_anim_state{uint16_t( 0 )};
+    loader::AnimState goal_anim_state{uint16_t( 0 )};
+    loader::AnimState required_anim_state{uint16_t( 0 )};
     const loader::Animation* anim = nullptr;
     uint16_t frame_number = 0;
     int16_t health = 0;
@@ -385,7 +385,7 @@ public:
             return false;
         }
 
-        if( m_state.current_anim_state == 0 && timeout > 0 )
+        if( m_state.current_anim_state == 0_as && timeout > 0 )
         {
             // switch has a timer
             m_state.timer = timeout;

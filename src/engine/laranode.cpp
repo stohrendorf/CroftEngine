@@ -163,7 +163,7 @@ void LaraNode::handleLaraStateOnLand()
     CollisionInfo collisionInfo;
     collisionInfo.oldPosition = m_state.position.position;
     collisionInfo.collisionRadius = core::DefaultCollisionRadius;
-    collisionInfo.policyFlags = CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush;
+    collisionInfo.policyFlags = CollisionInfo::SpazPushPolicy;
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->handleInput( collisionInfo );
 
@@ -250,11 +250,7 @@ void LaraNode::handleLaraStateDiving()
     CollisionInfo collisionInfo;
     collisionInfo.oldPosition = m_state.position.position;
     collisionInfo.collisionRadius = core::DefaultCollisionRadiusUnderwater;
-    collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz
-                                   | CollisionInfo::EnableBaddiePush
-                                   | CollisionInfo::LavaIsPit
-                                   | CollisionInfo::SlopesArePits
-                                   | CollisionInfo::SlopesAreWalls);
+    collisionInfo.policyFlags.reset_all();
     collisionInfo.badCeilingDistance = core::LaraHeightUnderwater;
     collisionInfo.badPositiveDistance = loader::HeightLimit;
     collisionInfo.badNegativeDistance = -core::LaraHeightUnderwater;
@@ -314,10 +310,7 @@ void LaraNode::handleLaraStateSwimming()
     CollisionInfo collisionInfo;
     collisionInfo.oldPosition = m_state.position.position;
     collisionInfo.collisionRadius = core::DefaultCollisionRadius;
-    collisionInfo.policyFlags &= ~(CollisionInfo::EnableSpaz | CollisionInfo::EnableBaddiePush
-                                   | CollisionInfo::LavaIsPit
-                                   | CollisionInfo::SlopesArePits
-                                   | CollisionInfo::SlopesAreWalls);
+    collisionInfo.policyFlags.reset_all();
     collisionInfo.badCeilingDistance = core::DefaultCollisionRadius;
     collisionInfo.badPositiveDistance = loader::HeightLimit;
     collisionInfo.badNegativeDistance = -core::DefaultCollisionRadius;
@@ -631,7 +624,7 @@ void LaraNode::updateFloorHeight(const int dy)
     m_state.floor = hi.y;
 }
 
-void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromHeavy)
+void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* floorData, const bool fromHeavy)
 {
     if( floorData == nullptr )
         return;
@@ -685,7 +678,7 @@ void LaraNode::handleCommandSequence(const uint16_t* floorData, const bool fromH
                 if( !swtch->triggerSwitch( activationRequest.getTimeout() ) )
                     return;
 
-                switchIsOn = (swtch->m_state.current_anim_state == 1);
+                switchIsOn = (swtch->m_state.current_anim_state == 1_as);
                 conditionFulfilled = true;
             }
                 break;
@@ -970,20 +963,20 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     );
 
     collisionInfo.initHeightInfo( m_state.position.position + core::TRVec{0, 200, 0}, getLevel(), 400 );
-    if( collisionInfo.collisionType == CollisionInfo::AxisColl_Front )
+    if( collisionInfo.collisionType == CollisionInfo::AxisColl::Front )
     {
         if( m_state.rotation.X > 35_deg )
             m_state.rotation.X += 2_deg;
         else if( m_state.rotation.X < -35_deg )
             m_state.rotation.X -= 2_deg;
     }
-    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Top )
+    else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Top )
         m_state.rotation.X -= 2_deg;
-    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_TopBottom )
+    else if( collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom )
         m_state.fallspeed = 0;
-    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Left )
+    else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Left )
         m_state.rotation.Y += 5_deg;
-    else if( collisionInfo.collisionType == CollisionInfo::AxisColl_Right )
+    else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Right )
         m_state.rotation.Y -= 5_deg;
 
     if( collisionInfo.mid.floor.y < 0 )

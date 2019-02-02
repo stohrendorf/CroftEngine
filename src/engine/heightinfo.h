@@ -19,7 +19,7 @@ struct HeightInfo
 {
     int y = 0;
     SlantClass slantClass = SlantClass::None;
-    const uint16_t* lastCommandSequenceOrDeath = nullptr;
+    const engine::floordata::FloorDataValue* lastCommandSequenceOrDeath = nullptr;
 
     static bool skipSteepSlants;
 

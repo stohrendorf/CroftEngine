@@ -29,10 +29,10 @@ void Larson::update()
         updateMood( getLevel(), m_state, aiInfo, false );
 
         creatureTurn = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
-        switch( m_state.current_anim_state )
+        switch( m_state.current_anim_state.get() )
         {
             case 1:                                   // standing holding gun
-                if( m_state.required_anim_state != 0 )
+                if( m_state.required_anim_state != 0_as )
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
@@ -40,43 +40,43 @@ void Larson::update()
                 {
                     if( util::rand15() >= 96 )
                     {
-                        m_state.goal_anim_state = 2;                          // walking
+                        m_state.goal_anim_state = 2_as; // walking
                     }
                     else
                     {
-                        m_state.goal_anim_state = 6;                          // standing
+                        m_state.goal_anim_state = 6_as; // standing
                     }
                 }
                 else if( m_state.creatureInfo->mood == ai::Mood::Escape )
                 {
-                    m_state.goal_anim_state = 3;      // running
+                    m_state.goal_anim_state = 3_as;      // running
                 }
                 else
                 {
-                    m_state.goal_anim_state = 2;      // walking
+                    m_state.goal_anim_state = 2_as;      // walking
                 }
                 break;
             case 2:                                   // walking
                 m_state.creatureInfo->maximum_turn = 3_deg;
                 if( m_state.creatureInfo->mood == ai::Mood::Bored && util::rand15() < 96 )
                 {
-                    m_state.required_anim_state = 6;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 6_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( m_state.creatureInfo->mood == ai::Mood::Escape )
                 {
-                    m_state.required_anim_state = 3;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 3_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( canShootAtLara( aiInfo ) )
                 {
-                    m_state.required_anim_state = 4;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 4_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( !aiInfo.ahead || aiInfo.distance > util::square( 3 * loader::SectorSize ) )
                 {
-                    m_state.required_anim_state = 3;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 3_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 break;
             case 3:                                   // running
@@ -84,69 +84,69 @@ void Larson::update()
                 tiltRot = creatureTurn / 2;
                 if( m_state.creatureInfo->mood == ai::Mood::Bored && util::rand15() < 96 )
                 {
-                    m_state.required_anim_state = 6;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 6_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( canShootAtLara( aiInfo ) )
                 {
-                    m_state.required_anim_state = 4;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 4_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 else if( aiInfo.ahead && aiInfo.distance < util::square( 3 * loader::SectorSize ) )
                 {
-                    m_state.required_anim_state = 2;
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 2_as;
+                    m_state.goal_anim_state = 1_as;
                 }
                 break;
             case 4:                                   // aiming
-                if( m_state.required_anim_state != 0 )
+                if( m_state.required_anim_state != 0_as )
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
                 else if( canShootAtLara( aiInfo ) )
                 {
-                    m_state.goal_anim_state = 7;
+                    m_state.goal_anim_state = 7_as;
                 }
                 else
                 {
-                    m_state.goal_anim_state = 1;
+                    m_state.goal_anim_state = 1_as;
                 }
                 break;
             case 6:                                   // standing
                 if( m_state.creatureInfo->mood != ai::Mood::Bored )
                 {
-                    m_state.goal_anim_state = 1;          // standing/holding gun
+                    m_state.goal_anim_state = 1_as;          // standing/holding gun
                 }
                 else if( util::rand15() < 96 )
                 {
-                    m_state.required_anim_state = 2;      // walking
-                    m_state.goal_anim_state = 1;
+                    m_state.required_anim_state = 2_as;      // walking
+                    m_state.goal_anim_state = 1_as;
                 }
                 break;
             case 7:                                   // firing
-                if( m_state.required_anim_state == 0 )
+                if( m_state.required_anim_state == 0_as )
                 {
                     if( tryShootAtLara( *this, aiInfo.distance, core::TRVec{-60, 170, 0}, 14, headRot ) )
                     {
                         getLevel().m_lara->m_state.health -= 50;
                         getLevel().m_lara->m_state.is_hit = true;
                     }
-                    m_state.required_anim_state = 4;
+                    m_state.required_anim_state = 4_as;
                 }
                 if( m_state.creatureInfo->mood == ai::Mood::Escape )
                 {
-                    m_state.required_anim_state = 1;
+                    m_state.required_anim_state = 1_as;
                 }
                 break;
             default:
                 break;
         }
     }
-    else if( m_state.current_anim_state != 5 )   // injured/dying
+    else if( m_state.current_anim_state != 5_as )   // injured/dying
     {
         m_state.anim = &getLevel().findAnimatedModelForType( engine::TR1ItemId::Larson )->animations[15];
         m_state.frame_number = m_state.anim->firstFrame;
-        m_state.current_anim_state = 5;
+        m_state.current_anim_state = 5_as;
     }
     rotateCreatureTilt( tiltRot );
     rotateCreatureHead( headRot );

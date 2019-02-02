@@ -143,7 +143,7 @@ public:
             m_item = item;
     }
 
-    void handleCommandSequence(const uint16_t* cmdSequence);
+    void handleCommandSequence(const engine::floordata::FloorDataValue* cmdSequence);
 
     void update();
 

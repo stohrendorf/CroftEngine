@@ -14,7 +14,7 @@ void Dart::collide(LaraNode& lara, CollisionInfo& info)
     if( !testBoneCollision( lara ) )
         return;
 
-    if( !(info.policyFlags & CollisionInfo::EnableBaddiePush) )
+    if( !info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
         return;
 
     enemyPush( lara, info, false, true );

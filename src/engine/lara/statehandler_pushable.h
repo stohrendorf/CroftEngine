@@ -18,19 +18,19 @@ public:
 
     void handleInput(CollisionInfo& collisionInfo) override
     {
-        collisionInfo.policyFlags &= ~(CollisionInfo::EnableBaddiePush | CollisionInfo::EnableSpaz);
+        collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
         setCameraModifier( CameraModifier::FollowCenter );
         setCameraRotationAroundCenter( -25_deg, 35_deg );
     }
 
-    void postprocessFrame(CollisionInfo& collisionInfo) override final
+    void postprocessFrame(CollisionInfo& collisionInfo) final
     {
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
         setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0;
-        collisionInfo.policyFlags |= CollisionInfo::SlopesArePits | CollisionInfo::SlopesAreWalls;
+        collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
 
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
     }

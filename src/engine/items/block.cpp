@@ -96,7 +96,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             return;
         }
 
-        m_state.goal_anim_state = 2;
+        m_state.goal_anim_state = 2_as;
         lara.setGoalAnimState( loader::LaraStateId::PushablePush );
     }
     else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
@@ -106,7 +106,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             return;
         }
 
-        m_state.goal_anim_state = 3;
+        m_state.goal_anim_state = 3_as;
         lara.setGoalAnimState( loader::LaraStateId::PushablePull );
     }
     else
