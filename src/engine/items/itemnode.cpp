@@ -811,7 +811,7 @@ YAML::Node ItemState::save(const level::Level& lvl) const
     n["timer"] = timer;
     n["activationState"] = activationState.save();
     n["floor"] = floor;
-    n["touchBits"] = touch_bits;
+    n["touchBits"] = touch_bits.to_ulong();
     if( box != nullptr )
         n["box"] = std::distance( &lvl.m_boxes[0], box );
     n["shade"] = shade;

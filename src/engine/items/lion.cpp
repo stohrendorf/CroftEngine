@@ -37,7 +37,7 @@ void Lion::update()
                 }
                 else if( m_state.creatureInfo->mood != ai::Mood::Bored )
                 {
-                    if( aiInfo.ahead && m_state.touch_bits & 0x380066 )
+                    if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                     {
                         m_state.goal_anim_state = 7_as;
                     }
@@ -78,7 +78,7 @@ void Lion::update()
                 {
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( m_state.touch_bits & 0x380066 && aiInfo.ahead )
+                else if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
                     m_state.goal_anim_state = 1_as;
                 }
@@ -89,7 +89,7 @@ void Lion::update()
                 }
                 break;
             case 4:
-                if( m_state.required_anim_state == 0_as && m_state.touch_bits & 0x380066 )
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
                     getLevel().m_lara->m_state.health -= 150;
                     getLevel().m_lara->m_state.is_hit = true;
@@ -97,7 +97,7 @@ void Lion::update()
                 }
                 break;
             case 7:
-                if( m_state.required_anim_state == 0_as && m_state.touch_bits & 0x380066 )
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
                     emitParticle( {-2, -10, 132}, 21, &createBloodSplat );
                     getLevel().m_lara->m_state.health -= 250;

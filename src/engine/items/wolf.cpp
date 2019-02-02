@@ -183,7 +183,7 @@ void Wolf::update()
                 break;
             case JumpAttack.get():
                 roll = rotationToMoveTarget;
-                if( m_state.required_anim_state == 0_as && (m_state.touch_bits & 0x774f) )
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL) )
                 {
                     emitParticle( core::TRVec{0, -14, 174}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
@@ -193,7 +193,7 @@ void Wolf::update()
                 m_state.goal_anim_state = Jumping;
                 break;
             case Biting.get():
-                if( m_state.required_anim_state == 0_as && (m_state.touch_bits & 0x774f) && aiInfo.ahead )
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL) && aiInfo.ahead )
                 {
                     emitParticle( core::TRVec{0, -14, 174}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;

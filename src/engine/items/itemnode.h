@@ -93,9 +93,9 @@ struct ItemState final : public audio::Emitter
     core::TRRotation rotation;
     int16_t speed = 0;
     int16_t fallspeed = 0;
-    loader::AnimState current_anim_state{uint16_t( 0 )};
-    loader::AnimState goal_anim_state{uint16_t( 0 )};
-    loader::AnimState required_anim_state{uint16_t( 0 )};
+    loader::AnimState current_anim_state = 0_as;
+    loader::AnimState goal_anim_state = 0_as;
+    loader::AnimState required_anim_state = 0_as;
     const loader::Animation* anim = nullptr;
     uint16_t frame_number = 0;
     int16_t health = 0;
@@ -103,10 +103,10 @@ struct ItemState final : public audio::Emitter
     int16_t timer = 0;
     floordata::ActivationState activationState;
     int32_t floor = 0;
-    uint32_t touch_bits = 0;
+    std::bitset<32> touch_bits;
     const loader::Box* box = nullptr;
     int16_t shade = -1;
-    uint32_t mesh_bits = 0;
+    std::bitset<32> mesh_bits;
 
     bool falling = false;
     bool is_hit = false;

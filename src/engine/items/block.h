@@ -23,6 +23,8 @@ public:
 
     void update() override;
 
+    void load(const YAML::Node& n) override;
+
 private:
     bool isOnFloor(int height) const;
 

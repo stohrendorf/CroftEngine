@@ -67,7 +67,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 vp = &core::TRVec::X;
                 break;
             default:
-                Expects( false );
+                BOOST_THROW_EXCEPTION( std::domain_error( "Invalid axis" ) );
         }
 
         lara.m_state.position.position.*vp =
@@ -326,6 +326,17 @@ bool Block::canPullBlock(const int height, const core::Axis axis) const
     tmp.collisionRadius = core::DefaultCollisionRadius;
 
     return !tmp.checkStaticMeshCollisions( laraPos, core::ScalpHeight, getLevel() );
+}
+
+void Block::load(const YAML::Node& n)
+{
+    if( m_state.triggerState != TriggerState::Invisible )
+        loader::Room::patchHeightsForBlock( *this, loader::SectorSize );
+
+    ModelItemNode::load( n );
+
+    if( m_state.triggerState != TriggerState::Invisible )
+        loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
 }
 }
 }

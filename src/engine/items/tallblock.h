@@ -19,6 +19,8 @@ public:
     }
 
     void update() override;
+
+    void load(const YAML::Node& n) override;
 };
 }
 }

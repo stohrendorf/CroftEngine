@@ -41,7 +41,7 @@ void Bear::update()
         {
             case Walking.get():
                 m_state.creatureInfo->maximum_turn = 2_deg;
-                if( getLevel().m_lara->m_state.health <= 0 && (m_state.touch_bits & 0x2406c) != 0 && aiInfo.ahead )
+                if( getLevel().m_lara->m_state.health <= 0 && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0 && aiInfo.ahead )
                 {
                     m_state.goal_anim_state = GettingDown;
                 }
@@ -93,7 +93,7 @@ void Bear::update()
                     m_state.required_anim_state = 0_as;
                     m_state.goal_anim_state = RoaringStanding;
                 }
-                else if( aiInfo.ahead && (m_state.touch_bits & 0x2406c) != 0 )
+                else if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0 )
                 {
                     m_state.goal_anim_state = RoaringStanding;
                 }
@@ -115,7 +115,7 @@ void Bear::update()
                 break;
             case Running.get():
                 m_state.creatureInfo->maximum_turn = 5_deg;
-                if( (m_state.touch_bits & 0x2406c) != 0 )
+                if( (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0 )
                 {
                     getLevel().m_lara->m_state.health -= 3;
                     getLevel().m_lara->m_state.is_hit = true;
@@ -163,7 +163,7 @@ void Bear::update()
                 }
                 break;
             case RunningAttack.get():
-                if( m_state.required_anim_state == 0_as && (m_state.touch_bits & 0x2406c) )
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x2406cUL) )
                 {
                     emitParticle( core::TRVec{0, 96, 335}, 14, &createBloodSplat );
                     getLevel().m_lara->m_state.health -= 200;
@@ -172,7 +172,7 @@ void Bear::update()
                 }
                 break;
             case Standing.get():
-                if( m_state.required_anim_state == 0_as && (m_state.touch_bits & 0x2406c) )
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x2406cUL) )
                 {
                     getLevel().m_lara->m_state.health -= 400;
                     getLevel().m_lara->m_state.is_hit = true;
@@ -205,7 +205,7 @@ void Bear::update()
                 m_state.goal_anim_state = Dying;
                 break;
             case Dying.get():
-                if( m_state.creatureInfo->flags != 0 && (m_state.touch_bits & 0x2406c) != 0 )
+                if( m_state.creatureInfo->flags != 0 && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0 )
                 {
                     getLevel().m_lara->m_state.health -= 200;
                     getLevel().m_lara->m_state.is_hit = true;

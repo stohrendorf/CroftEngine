@@ -29,7 +29,7 @@ void TRex::update()
         updateMood( getLevel(), m_state, aiInfo, true );
 
         rotationToMoveTarget = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
-        if( m_state.touch_bits )
+        if( m_state.touch_bits.any() )
         {
             if( m_state.current_anim_state == 3_as )
             {
@@ -106,7 +106,7 @@ void TRex::update()
                 }
                 break;
             case 7:
-                if( m_state.touch_bits & 0x3000 )
+                if( m_state.touch_bits.to_ulong() & 0x3000UL )
                 {
                     m_state.goal_anim_state = 8_as;
 

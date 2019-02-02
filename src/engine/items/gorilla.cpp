@@ -96,7 +96,7 @@ void Gorilla::update()
                 {
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( aiInfo.ahead && (m_state.touch_bits & 0xff00) != 0 )
+                else if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
                 {
                     m_state.required_anim_state = 4_as;
                     m_state.goal_anim_state = 1_as;
@@ -125,7 +125,7 @@ void Gorilla::update()
                 // attacking
                 if( m_state.required_anim_state == 0_as )
                 {
-                    if( (m_state.touch_bits & 0xff00) != 0 )
+                    if( (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
                     {
                         emitParticle( {0, -19, 75}, 15, &createBloodSplat );
                         getLevel().m_lara->m_state.health -= 200;

@@ -31,7 +31,7 @@ void Crocodile::update()
             {
                 if( aiInfo.bite )
                 {
-                    if( m_state.touch_bits )
+                    if( m_state.touch_bits.any() )
                     {
                         m_state.goal_anim_state = 2_as;
                     }
@@ -180,7 +180,7 @@ void Crocodile::update()
                     }
                     break;
                 case 2:
-                    if( aiInfo.ahead && m_state.touch_bits & 0x3FC )
+                    if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x3fcUL) )
                     {
                         m_state.goal_anim_state = 1_as;
                     }
@@ -206,7 +206,7 @@ void Crocodile::update()
                     }
                     break;
                 case 3:
-                    if( aiInfo.ahead && m_state.touch_bits & 0x03fc )
+                    if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x03fcUL) )
                     {
                         m_state.goal_anim_state = 1_as;
                     }

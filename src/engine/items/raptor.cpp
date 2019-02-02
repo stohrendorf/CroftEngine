@@ -34,7 +34,7 @@ void Raptor::update()
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
-                else if( m_state.touch_bits & 0xff7c00 )
+                else if( m_state.touch_bits.to_ulong() & 0xff7c00UL )
                 {
                     m_state.goal_anim_state = 8_as;
                 }
@@ -73,7 +73,7 @@ void Raptor::update()
             case 3:
                 m_state.creatureInfo->maximum_turn = 4_deg;
                 animTilt = animAngle;
-                if( m_state.touch_bits & 0xff7c00 )
+                if( m_state.touch_bits.to_ulong() & 0xff7c00UL )
                 {
                     m_state.goal_anim_state = 1_as;
                 }
@@ -107,7 +107,7 @@ void Raptor::update()
                 {
                     if( aiInfo.ahead )
                     {
-                        if( m_state.touch_bits & 0xff7c00 )
+                        if( m_state.touch_bits.to_ulong() & 0xff7c00UL )
                         {
                             emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
                             getLevel().m_lara->m_state.is_hit = true;
@@ -121,7 +121,7 @@ void Raptor::update()
                 animTilt = animAngle;
                 if( m_state.required_anim_state == 0_as && aiInfo.ahead )
                 {
-                    if( m_state.touch_bits & 0xff7c00 )
+                    if( m_state.touch_bits.to_ulong() & 0xff7c00UL )
                     {
                         emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
                         getLevel().m_lara->m_state.is_hit = true;
@@ -132,7 +132,7 @@ void Raptor::update()
                 break;
             case 8:
                 animTilt = animAngle;
-                if( m_state.required_anim_state == 0_as && m_state.touch_bits & 0xff7c00 )
+                if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0xff7c00UL) )
                 {
                     emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;

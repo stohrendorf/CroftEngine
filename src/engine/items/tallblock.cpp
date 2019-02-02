@@ -42,5 +42,12 @@ void TallBlock::update()
     pos.Z = (pos.Z / loader::SectorSize) * loader::SectorSize + loader::SectorSize / 2;
     m_state.position.position = pos;
 }
+
+void TallBlock::load(const YAML::Node& n)
+{
+    loader::Room::patchHeightsForBlock( *this, -2 * loader::SectorSize );
+    ModelItemNode::load( n );
+    loader::Room::patchHeightsForBlock( *this, 2 * loader::SectorSize );
+}
 }
 }
