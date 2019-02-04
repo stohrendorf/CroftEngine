@@ -221,6 +221,7 @@ struct convert<core::IntUnit<Tag, IntType>>
     static Node encode(const core::IntUnit<Tag, IntType>& rhs)
     {
         Node node( NodeType::Sequence );
+        node.SetStyle( YAML::EmitterStyle::Flow );
         node.push_back( Tag::typeId() );
         node.push_back( rhs.value );
         return node;

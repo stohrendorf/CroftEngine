@@ -1347,7 +1347,7 @@ void Level::finishLevelEffect()
 
 void Level::earthquakeEffect()
 {
-    switch( m_effectTimer )
+    switch( m_effectTimer.value )
     {
         case 0:
             playSound( engine::TR1SoundId::Explosion1, nullptr );
@@ -1369,8 +1369,8 @@ void Level::earthquakeEffect()
             break;
     }
 
-    ++m_effectTimer;
-    if( m_effectTimer == 105 )
+    m_effectTimer += 1_frame;
+    if( m_effectTimer == 105_frame )
     {
         m_activeEffect.reset();
     }
@@ -1378,26 +1378,26 @@ void Level::earthquakeEffect()
 
 void Level::floodEffect()
 {
-    if( m_effectTimer <= 120 )
+    if( m_effectTimer <= 120_frame )
     {
         auto pos = m_lara->m_state.position.position;
-        int mul;
-        if( m_effectTimer >= 30 )
+        core::Frame mul = 0_frame;
+        if( m_effectTimer >= 30_frame )
         {
-            mul = m_effectTimer - 30;
+            mul = m_effectTimer - 30_frame;
         }
         else
         {
-            mul = 30 - m_effectTimer;
+            mul = 30_frame - m_effectTimer;
         }
-        pos.Y = 100_len * mul + m_cameraController->getCenter().position.Y;
+        pos.Y = 100_len * mul.value + m_cameraController->getCenter().position.Y;
         playSound( engine::TR1SoundId::WaterFlow3, pos.toRenderSystem() );
     }
     else
     {
         m_activeEffect.reset();
     }
-    ++m_effectTimer;
+    m_effectTimer += 1_frame;
 }
 
 void Level::chandelierEffect()
@@ -1408,7 +1408,8 @@ void Level::chandelierEffect()
 
 void Level::raisingBlockEffect()
 {
-    if( m_effectTimer++ == 5 )
+    m_effectTimer += 1_frame;
+    if( m_effectTimer == 5_frame )
     {
         playSound( engine::TR1SoundId::Clank, nullptr );
         m_activeEffect.reset();
@@ -1417,26 +1418,26 @@ void Level::raisingBlockEffect()
 
 void Level::stairsToSlopeEffect()
 {
-    if( m_effectTimer <= 120 )
+    if( m_effectTimer <= 120_frame )
     {
-        if( m_effectTimer == 0 )
+        if( m_effectTimer == 0_frame )
         {
             playSound( engine::TR1SoundId::HeavyDoorSlam, nullptr );
         }
         auto pos = m_cameraController->getCenter().position;
-        pos.Y += 100_len * m_effectTimer;
+        pos.Y += 100_len * m_effectTimer.value;
         playSound( engine::TR1SoundId::FlowingAir, pos.toRenderSystem() );
     }
     else
     {
         m_activeEffect.reset();
     }
-    ++m_effectTimer;
+    m_effectTimer += 1_frame;
 }
 
 void Level::sandEffect()
 {
-    if( m_effectTimer <= 120 )
+    if( m_effectTimer <= 120_frame )
     {
         playSound( engine::TR1SoundId::LowHum, nullptr );
     }
@@ -1444,7 +1445,7 @@ void Level::sandEffect()
     {
         m_activeEffect.reset();
     }
-    ++m_effectTimer;
+    m_effectTimer += 1_frame;
 }
 
 void Level::explosionEffect()
@@ -1473,12 +1474,12 @@ void Level::unholsterRightGunEffect(engine::items::ItemNode& node)
 
 void Level::chainBlockEffect()
 {
-    if( m_effectTimer == 0 )
+    if( m_effectTimer == 0_frame )
     {
         playSound( engine::TR1SoundId::SecretFound, nullptr );
     }
-    ++m_effectTimer;
-    if( m_effectTimer == 55 )
+    m_effectTimer += 1_frame;
+    if( m_effectTimer == 55_frame )
     {
         playSound( engine::TR1SoundId::LaraFallIntoWater, nullptr );
         m_activeEffect.reset();
@@ -1487,16 +1488,16 @@ void Level::chainBlockEffect()
 
 void Level::flickerEffect()
 {
-    if( m_effectTimer == 90 || m_effectTimer == 92 || m_effectTimer == 105 || m_effectTimer == 107 )
+    if( m_effectTimer == 90_frame || m_effectTimer == 92_frame || m_effectTimer == 105_frame || m_effectTimer == 107_frame )
     {
         swapAllRooms();
     }
-    else if( m_effectTimer > 125 )
+    else if( m_effectTimer > 125_frame )
     {
         swapAllRooms();
         m_activeEffect.reset();
     }
-    ++m_effectTimer;
+    m_effectTimer += 1_frame;
 }
 
 void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
@@ -1878,7 +1879,7 @@ void Level::load(const YAML::Node& node)
     else
         m_activeEffect = node["flipEffect"].as<size_t>();
 
-    m_effectTimer = node["flipEffectTimer"].as<int>();
+    m_effectTimer = node["flipEffectTimer"].as<core::Frame>();
 
     for( const auto& item : m_itemNodes )
     {

@@ -842,19 +842,19 @@ loader::BoundingBox AbstractStateHandler::getBoundingBox() const
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::addSwimToDiveKeypressDuration(const int n) noexcept
+void AbstractStateHandler::addSwimToDiveKeypressDuration(const core::Frame n) noexcept
 {
     m_lara.addSwimToDiveKeypressDuration( n );
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setSwimToDiveKeypressDuration(const int n) noexcept
+void AbstractStateHandler::setSwimToDiveKeypressDuration(const core::Frame n) noexcept
 {
     m_lara.setSwimToDiveKeypressDuration( n );
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-int AbstractStateHandler::getSwimToDiveKeypressDuration() const
+core::Frame AbstractStateHandler::getSwimToDiveKeypressDuration() const
 {
     return m_lara.getSwimToDiveKeypressDuration();
 }

@@ -371,7 +371,7 @@ public:
     void setGlobalEffect(size_t fx)
     {
         m_activeEffect = fx;
-        m_effectTimer = 0;
+        m_effectTimer = 0_frame;
     }
 
     void doGlobalEffect();
@@ -490,7 +490,7 @@ protected:
 
     bool m_demoOrUb = false;
 
-    int m_effectTimer = 0;
+    core::Frame m_effectTimer = 0_frame;
     boost::optional<size_t> m_activeEffect{};
 
     void readMeshData(loader::io::SDLReader& reader);

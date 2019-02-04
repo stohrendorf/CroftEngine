@@ -144,11 +144,11 @@ protected:
 
     loader::BoundingBox getBoundingBox() const;
 
-    void addSwimToDiveKeypressDuration(int n) noexcept;
+    void addSwimToDiveKeypressDuration(core::Frame n) noexcept;
 
-    void setSwimToDiveKeypressDuration(int n) noexcept;
+    void setSwimToDiveKeypressDuration(core::Frame n) noexcept;
 
-    int getSwimToDiveKeypressDuration() const;
+    core::Frame getSwimToDiveKeypressDuration() const;
 
     void setUnderwaterState(UnderwaterState u) noexcept;
 

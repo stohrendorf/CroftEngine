@@ -79,12 +79,12 @@ public:
 
         if( !getLevel().m_inputHandler->getInputState().jump )
         {
-            setSwimToDiveKeypressDuration( 0 );
+            setSwimToDiveKeypressDuration( 0_frame );
             return;
         }
 
-        addSwimToDiveKeypressDuration( 1 );
-        if( getSwimToDiveKeypressDuration() != 10 )
+        addSwimToDiveKeypressDuration( 1_frame );
+        if( getSwimToDiveKeypressDuration() != 10_frame )
         {
             // not yet allowed to dive; not that the keypress duration is always >10 when coming up from diving
             return;

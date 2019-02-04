@@ -23,7 +23,7 @@ public:
             return;
         }
 
-        setSwimToDiveKeypressDuration( 0 );
+        setSwimToDiveKeypressDuration( 0_frame );
 
         if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {

@@ -225,7 +225,7 @@ private:
     //! @remarks This happens e.g. just after dive-to-swim transition, when players still
     //!          keep the "Dive Forward" action key pressed; in this case, you usually won't go
     //!          diving immediately again.
-    int m_swimToDiveKeypressDuration = 0;
+    core::Frame m_swimToDiveKeypressDuration = 0_frame;
     uint16_t m_secretsFoundBitmask = 0;
 
 public:
@@ -322,17 +322,17 @@ public:
 
     void handleCommandSequence(const engine::floordata::FloorDataValue* floorData, bool fromHeavy);
 
-    void addSwimToDiveKeypressDuration(const int n) noexcept
+    void addSwimToDiveKeypressDuration(const core::Frame n) noexcept
     {
         m_swimToDiveKeypressDuration += n;
     }
 
-    void setSwimToDiveKeypressDuration(const int n) noexcept
+    void setSwimToDiveKeypressDuration(const core::Frame n) noexcept
     {
         m_swimToDiveKeypressDuration = n;
     }
 
-    int getSwimToDiveKeypressDuration() const noexcept
+    core::Frame getSwimToDiveKeypressDuration() const noexcept
     {
         return m_swimToDiveKeypressDuration;
     }
@@ -394,7 +394,7 @@ public:
 
     boost::optional<core::Axis> hit_direction;
     core::Frame hit_frame = 0_frame;
-    int explosionStumblingDuration = 0;
+    core::Frame explosionStumblingDuration = 0_frame;
     const core::TRVec* forceSourcePosition = nullptr;
 
     void updateExplosionStumbling()
@@ -414,7 +414,7 @@ public:
         {
             hit_frame = 34_frame;
         }
-        --explosionStumblingDuration;
+        explosionStumblingDuration -= 1_frame;
     }
 
 

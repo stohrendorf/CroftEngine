@@ -464,7 +464,7 @@ void LaraNode::update()
             setAnimation( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937_frame );
             setGoalAnimState( LaraStateId::OnWaterStop );
             m_state.position.position.Y = *waterSurfaceHeight + 1_len;
-            m_swimToDiveKeypressDuration = 11;
+            m_swimToDiveKeypressDuration = 11_frame;
             updateFloorHeight( -381_len );
             playSoundEffect( TR1SoundId::LaraCatchingAir );
         }
@@ -933,7 +933,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
         item->collide( *this, collisionInfo );
     }
 
-    if( getLevel().m_lara->explosionStumblingDuration != 0 )
+    if( getLevel().m_lara->explosionStumblingDuration != 0_frame )
     {
         getLevel().m_lara->updateExplosionStumbling();
     }
@@ -2689,8 +2689,8 @@ void LaraNode::load(const YAML::Node& n)
         hit_direction = parseAxis( n["hitDir"].as<std::string>() );
 
     m_air = n["air"].as<int>();
-    m_swimToDiveKeypressDuration = n["swimToDiveKeypressDuration"].as<int>();
-    explosionStumblingDuration = n["explosionStumblingDuration"].as<int>();
+    m_swimToDiveKeypressDuration = n["swimToDiveKeypressDuration"].as<core::Frame>();
+    explosionStumblingDuration = n["explosionStumblingDuration"].as<core::Frame>();
     if( !n["forceSource"].IsDefined() )
         forceSourcePosition = nullptr;
     else
