@@ -27,7 +27,7 @@ public:
     {
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-        collisionInfo.badCeilingDistance = 0;
+        collisionInfo.badCeilingDistance = 0_len;
         setMovementAngle( getLara().m_state.rotation.Y );
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;

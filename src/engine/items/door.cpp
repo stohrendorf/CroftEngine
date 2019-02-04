@@ -13,25 +13,25 @@ Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const 
         : ModelItemNode{level, room, item, true, animatedModel}
 {
 #ifndef NO_DOOR_BLOCK
-    int dx = 0, dz = 0;
+    core::Length dx = 0_len, dz = 0_len;
     if( m_state.rotation.Y == 0_au )
     {
-        dz = -loader::SectorSize;
+        dz = -core::SectorSize;
     }
     else if( m_state.rotation.Y == -180_deg )
     {
-        dz = loader::SectorSize;
+        dz = core::SectorSize;
     }
     else if( m_state.rotation.Y == 90_deg )
     {
-        dx = -loader::SectorSize;
+        dx = -core::SectorSize;
     }
     else
     {
-        dx = loader::SectorSize;
+        dx = core::SectorSize;
     }
 
-    const auto wingsPosition = m_state.position.position + core::TRVec{dx, 0, dz};
+    const auto wingsPosition = m_state.position.position + core::TRVec{dx, 0_len, dz};
 
     m_sector = const_cast<loader::Sector*>(m_state.position.room->getSectorByAbsolutePosition( wingsPosition ));
     BOOST_ASSERT( m_sector != nullptr );

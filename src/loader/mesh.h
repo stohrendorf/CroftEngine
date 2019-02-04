@@ -18,7 +18,7 @@ namespace loader
 struct Mesh
 {
     core::TRVec center; // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
-    int32_t collision_size; // This appears to be the radius of that aforementioned collisional sphere.
+    core::Length collision_size = 0_len; // This appears to be the radius of that aforementioned collisional sphere.
     std::vector<core::TRVec> vertices; //[NumVertices]; // list of vertices (relative coordinates)
     std::vector<core::TRVec> normals; //[NumNormals]; // list of normals (if NumNormals is positive)
     std::vector<int16_t> vertexDarknesses; //[-NumNormals]; // list of light values (if NumNormals is negative), 0..8191
@@ -37,7 +37,7 @@ struct Mesh
     {
         std::unique_ptr<Mesh> mesh{std::make_unique<Mesh>()};
         mesh->center = readCoordinates16( reader );
-        mesh->collision_size = reader.readI32();
+        mesh->collision_size = core::Length{reader.readI32()};
 
         reader.readVector( mesh->vertices, reader.readU16(), &io::readCoordinates16 );
 
@@ -63,7 +63,7 @@ struct Mesh
     {
         std::unique_ptr<Mesh> mesh{std::make_unique<Mesh>()};
         mesh->center = readCoordinates16( reader );
-        mesh->collision_size = reader.readI32();
+        mesh->collision_size = core::Length{reader.readI32()};
 
         reader.readVector( mesh->vertices, reader.readU16(), &io::readCoordinates16 );
 

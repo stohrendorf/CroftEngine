@@ -49,11 +49,11 @@ createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<gameplay::Shader
     return mesh;
 }
 
-using Bolt = std::array<glm::vec3, LightningBall::SegmentPoints>;
+using Bolt = std::array<core::TRVec, LightningBall::SegmentPoints>;
 
-Bolt updateBolt(glm::vec3 start, const glm::vec3& end, const gameplay::Mesh& mesh)
+Bolt updateBolt(core::TRVec start, const core::TRVec& end, const gameplay::Mesh& mesh)
 {
-    const auto segmentSize = (end - start) / float( LightningBall::SegmentPoints );
+    const auto segmentSize = (end - start) / LightningBall::SegmentPoints;
 
     Bolt bolt;
 
@@ -61,16 +61,17 @@ Bolt updateBolt(glm::vec3 start, const glm::vec3& end, const gameplay::Mesh& mes
     auto boltData = mesh.getBuffers()[0]->mapTypedRw<glm::vec3>();
     for( size_t j = 0; j < LightningBall::SegmentPoints; j++ )
     {
-        glm::vec3 buckling{
-                util::rand15s( loader::QuarterSectorSize ),
-                util::rand15s( loader::QuarterSectorSize ),
-                util::rand15s( loader::QuarterSectorSize )
+        core::TRVec buckling{
+                util::rand15s( core::QuarterSectorSize ),
+                util::rand15s( core::QuarterSectorSize ),
+                util::rand15s( core::QuarterSectorSize )
         };
 
         if( j == LightningBall::SegmentPoints - 1 )
-            buckling.y = 0;
+            buckling.Y = 0_len;
 
-        bolt[j] = boltData[j] = start + buckling;
+        bolt[j] = start + buckling;
+        boltData[j] = bolt[j].toRenderSystem();
         start += segmentSize;
     }
     mesh.getBuffers()[0]->unmap();
@@ -148,12 +149,13 @@ void LightningBall::update()
     m_chargeTimeout = 20;
     m_laraHit = false;
 
-    const auto radius = m_poles == 0 ? loader::SectorSize : loader::SectorSize * 5 / 2;
+    const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
     if( getLevel().m_lara->isNear( *this, radius ) )
     {
         // target at lara
-        m_mainBoltEnd = (getLevel().m_lara->m_state.position.position - m_state.position.position).toRenderSystem();
-        m_mainBoltEnd = glm::vec3( (-m_state.rotation).toMatrix() * glm::vec4( m_mainBoltEnd, 1.0f ) );
+        m_mainBoltEnd = getLevel().m_lara->m_state.position.position - m_state.position.position;
+        m_mainBoltEnd = core::TRVec{
+                glm::vec3( (-m_state.rotation).toMatrix() * glm::vec4( m_mainBoltEnd.toRenderSystem(), 1.0f ) )};
 
         getLevel().m_lara->m_state.health -= 400;
         getLevel().m_lara->m_state.is_hit = true;
@@ -163,10 +165,10 @@ void LightningBall::update()
     else if( m_poles == 0 )
     {
         // we don't have poles, so just shoot downwards
-        m_mainBoltEnd = glm::vec3{0, 0, 0};
+        m_mainBoltEnd = core::TRVec{};
         const auto sector = level::Level::findRealFloorSector( m_state.position );
-        m_mainBoltEnd.y = -HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
-        m_mainBoltEnd.y -= m_state.position.position.toRenderSystem().y;
+        m_mainBoltEnd.Y = -HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
+        m_mainBoltEnd.Y -= m_state.position.position.Y;
     }
     else
     {
@@ -175,18 +177,19 @@ void LightningBall::update()
                 m_state,
                 *getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame(),
                 nullptr );
-        m_mainBoltEnd = itemSpheres[util::rand15( itemSpheres.size() - 1 ) + 1].getPosition()
-                        - m_state.position.position.toRenderSystem();
-        m_mainBoltEnd = glm::vec3( (-m_state.rotation).toMatrix() * glm::vec4( m_mainBoltEnd, 1.0f ) );
+        m_mainBoltEnd = core::TRVec{itemSpheres[util::rand15( itemSpheres.size() - 1 ) + 1].getPosition()}
+                        - m_state.position.position;
+        m_mainBoltEnd = core::TRVec{
+                glm::vec3( (-m_state.rotation).toMatrix() * glm::vec4( m_mainBoltEnd.toRenderSystem(), 1.0f ) )};
     }
 
     for( auto& childBolt : m_childBolts )
     {
         childBolt.startIndex = util::rand15( SegmentPoints - 1 );
-        childBolt.end = m_mainBoltEnd + glm::vec3(
-                util::rand15s( loader::QuarterSectorSize ),
-                0,
-                util::rand15s( loader::QuarterSectorSize ) );
+        childBolt.end = m_mainBoltEnd + core::TRVec{
+                util::rand15s( core::QuarterSectorSize ),
+                0_len,
+                util::rand15s( core::QuarterSectorSize )};
     }
 
     if( !getLevel().roomsAreSwapped )
@@ -224,8 +227,8 @@ void LightningBall::prepareRender()
     }
 
     const auto nearestFrame = getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame();
-    const auto segmentStart = glm::vec3(
-            core::fromPackedAngles( nearestFrame->getAngleData()[0] ) * glm::vec4( nearestFrame->pos.toGl(), 1.0f ) );
+    const auto segmentStart = core::TRVec{glm::vec3(
+            core::fromPackedAngles( nearestFrame->getAngleData()[0] ) * glm::vec4( nearestFrame->pos.toGl(), 1.0f ) )};
 
     const Bolt mainBolt = updateBolt( segmentStart, m_mainBoltEnd, *m_mainBoltMesh );
 

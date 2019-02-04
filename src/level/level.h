@@ -223,7 +223,7 @@ public:
 
         static const auto zero = std::make_tuple( 0, 0 );
 
-        if( position.Y + loader::QuarterSectorSize * 2 < sector->floorHeight * loader::QuarterSectorSize )
+        if( position.Y + core::QuarterSectorSize * 2 < sector->floorHeight )
             return zero;
         if( sector->floorData == nullptr )
             return zero;

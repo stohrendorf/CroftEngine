@@ -233,7 +233,7 @@ void LaraNode::handleLaraStateOnLand()
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->postprocessFrame( collisionInfo );
 
-    updateFloorHeight( -381 );
+    updateFloorHeight( -381_len );
 
     updateLarasWeaponsStatus();
     handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
@@ -252,7 +252,7 @@ void LaraNode::handleLaraStateDiving()
     collisionInfo.collisionRadius = core::DefaultCollisionRadiusUnderwater;
     collisionInfo.policyFlags.reset_all();
     collisionInfo.badCeilingDistance = core::LaraHeightUnderwater;
-    collisionInfo.badPositiveDistance = loader::HeightLimit;
+    collisionInfo.badPositiveDistance = core::HeightLimit;
     collisionInfo.badNegativeDistance = -core::LaraHeightUnderwater;
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->handleInput( collisionInfo );
@@ -278,7 +278,7 @@ void LaraNode::handleLaraStateDiving()
     const core::Angle z = util::clamp( m_state.rotation.Z, -22_deg, +22_deg );
     m_state.rotation.Z = z;
 
-    if( m_underwaterCurrentStrength != 0 )
+    if( m_underwaterCurrentStrength != 0_len )
     {
         handleUnderwaterCurrent( collisionInfo );
     }
@@ -297,7 +297,7 @@ void LaraNode::handleLaraStateDiving()
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->postprocessFrame( collisionInfo );
 
-    updateFloorHeight( 0 );
+    updateFloorHeight( 0_len );
     updateLarasWeaponsStatus();
     handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
 #ifndef NDEBUG
@@ -312,7 +312,7 @@ void LaraNode::handleLaraStateSwimming()
     collisionInfo.collisionRadius = core::DefaultCollisionRadius;
     collisionInfo.policyFlags.reset_all();
     collisionInfo.badCeilingDistance = core::DefaultCollisionRadius;
-    collisionInfo.badPositiveDistance = loader::HeightLimit;
+    collisionInfo.badPositiveDistance = core::HeightLimit;
     collisionInfo.badNegativeDistance = -core::DefaultCollisionRadius;
 
     setCameraRotationAroundCenterX( -22_deg );
@@ -341,7 +341,7 @@ void LaraNode::handleLaraStateSwimming()
         m_torsoRotation.Y /= 2;
     }
 
-    if( m_underwaterCurrentStrength != 0 )
+    if( m_underwaterCurrentStrength != 0_len )
     {
         handleUnderwaterCurrent( collisionInfo );
     }
@@ -350,7 +350,7 @@ void LaraNode::handleLaraStateSwimming()
 
     move(
             getMovementAngle().sin() * m_state.fallspeed / 4,
-            0,
+            0_len,
             getMovementAngle().cos() * m_state.fallspeed / 4
     );
 
@@ -393,9 +393,9 @@ void LaraNode::update()
         m_air = core::LaraAir;
         m_underwaterState = UnderwaterState::Diving;
         m_state.falling = false;
-        const core::TRVec& pos = m_state.position.position + core::TRVec( 0, 100, 0 );
+        const core::TRVec& pos = m_state.position.position + core::TRVec( 0_len, 100_len, 0_len );
         m_state.position.position = pos;
-        updateFloorHeight( 0 );
+        updateFloorHeight( 0_len );
         getLevel().stopSound( TR1SoundId::LaraScream, &m_state );
         if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
         {
@@ -443,19 +443,19 @@ void LaraNode::update()
     else if( m_underwaterState == UnderwaterState::Diving && !m_state.position.room->isWaterRoom() )
     {
         auto waterSurfaceHeight = getWaterSurfaceHeight();
-        m_state.fallspeed = 0;
+        m_state.fallspeed = 0_len;
         m_state.rotation.X = 0_deg;
         m_state.rotation.Z = 0_deg;
         resetHeadTorsoRotation();
         m_handStatus = HandStatus::None;
 
         if( !waterSurfaceHeight
-            || std::abs( *waterSurfaceHeight - m_state.position.position.Y ) >= loader::QuarterSectorSize )
+            || abs( *waterSurfaceHeight - m_state.position.position.Y ) >= core::QuarterSectorSize )
         {
             m_underwaterState = UnderwaterState::OnLand;
             setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
             setGoalAnimState( LaraStateId::JumpForward );
-            m_state.speed = std::exchange( m_state.fallspeed, 0 ) / 4;
+            m_state.speed = std::exchange( m_state.fallspeed, 0_len ) / 4;
             m_state.falling = true;
         }
         else
@@ -463,9 +463,9 @@ void LaraNode::update()
             m_underwaterState = UnderwaterState::Swimming;
             setAnimation( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
             setGoalAnimState( LaraStateId::OnWaterStop );
-            m_state.position.position.Y = *waterSurfaceHeight + 1;
+            m_state.position.position.Y = *waterSurfaceHeight + 1_len;
             m_swimToDiveKeypressDuration = 11;
-            updateFloorHeight( -381 );
+            updateFloorHeight( -381_len );
             playSoundEffect( TR1SoundId::LaraCatchingAir );
         }
     }
@@ -474,7 +474,7 @@ void LaraNode::update()
         m_underwaterState = UnderwaterState::OnLand;
         setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
         setGoalAnimState( LaraStateId::JumpForward );
-        m_state.speed = std::exchange( m_state.fallspeed, 0 ) / 4;
+        m_state.speed = std::exchange( m_state.fallspeed, 0_len ) / 4;
         m_state.falling = true;
         m_handStatus = HandStatus::None;
         m_state.rotation.X = 0_deg;
@@ -530,23 +530,22 @@ void LaraNode::updateImpl()
                 {
                     case AnimCommandOpcode::SetPosition:
                         moveLocal(
-                                cmd[0],
-                                cmd[1],
-                                cmd[2]
+                                core::Length{static_cast<core::Length::int_type>(cmd[0])},
+                                core::Length{static_cast<core::Length::int_type>(cmd[1])},
+                                core::Length{static_cast<core::Length::int_type>(cmd[2])}
                         );
                         cmd += 3;
                         break;
                     case AnimCommandOpcode::StartFalling:
-                        if( m_fallSpeedOverride != 0 )
+                        if( m_fallSpeedOverride != 0_len )
                         {
-                            m_state.fallspeed = m_fallSpeedOverride;
-                            m_fallSpeedOverride = 0;
+                            m_state.fallspeed = std::exchange( m_fallSpeedOverride, 0_len );
                         }
                         else
                         {
-                            m_state.fallspeed = cmd[0];
+                            m_state.fallspeed = core::Length{static_cast<core::Length::int_type>(cmd[0])};
                         }
-                        m_state.speed = cmd[1];
+                        m_state.speed = core::Length{static_cast<core::Length::int_type>(cmd[1])};
                         m_state.falling = true;
                         cmd += 2;
                         break;
@@ -613,7 +612,7 @@ void LaraNode::updateImpl()
     drawRoutine();
 }
 
-void LaraNode::updateFloorHeight(const int dy)
+void LaraNode::updateFloorHeight(const core::Length dy)
 {
     auto pos = m_state.position.position;
     pos.Y += dy;
@@ -770,13 +769,13 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
             case floordata::CommandOpcode::UnderwaterCurrent:
             {
                 BOOST_ASSERT( command.parameter < getLevel().m_cameras.size() );
-                const auto& sink = getLevel().m_cameras.at(command.parameter);
+                const auto& sink = getLevel().m_cameras.at( command.parameter );
                 if( m_underwaterRoute.required_box != &getLevel().m_boxes[sink.box_index] )
                 {
                     m_underwaterRoute.required_box = &getLevel().m_boxes[sink.box_index];
                     m_underwaterRoute.target = sink.position;
                 }
-                m_underwaterCurrentStrength = 6 * sink.underwaterCurrentStrength;
+                m_underwaterCurrentStrength = 6_len * sink.underwaterCurrentStrength;
             }
                 break;
             case floordata::CommandOpcode::FlipMap:
@@ -871,7 +870,7 @@ void LaraNode::setCameraRotationAroundCenterX(const core::Angle x)
     getLevel().m_cameraController->setRotationAroundCenterX( x );
 }
 
-void LaraNode::setCameraEyeCenterDistance(const int d)
+void LaraNode::setCameraEyeCenterDistance(const core::Length d)
 {
     getLevel().m_cameraController->setEyeCenterDistance( d );
 }
@@ -906,7 +905,9 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
             continue;
 
         const auto d = m_state.position.position - item->m_state.position.position;
-        if( std::abs( d.X ) >= 4096 || std::abs( d.Y ) >= 4096 || std::abs( d.Z ) >= 4096 )
+        if( abs( d.X ) >= 4 * core::SectorSize
+            || abs( d.Y ) >= 4 * core::SectorSize
+            || abs( d.Z ) >= 4 * core::SectorSize )
             continue;
 
         item->collide( *this, collisionInfo );
@@ -924,7 +925,9 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
             continue;
 
         const auto d = m_state.position.position - item->m_state.position.position;
-        if( std::abs( d.X ) >= 4096 || std::abs( d.Y ) >= 4096 || std::abs( d.Z ) >= 4096 )
+        if( abs( d.X ) >= 4 * core::SectorSize
+            || abs( d.Y ) >= 4 * core::SectorSize
+            || abs( d.Z ) >= 4 * core::SectorSize )
             continue;
 
         item->collide( *this, collisionInfo );
@@ -956,13 +959,13 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     m_state.position.position.Z += util::clamp( targetPos.Z, -m_underwaterCurrentStrength,
                                                 m_underwaterCurrentStrength );
 
-    m_underwaterCurrentStrength = 0;
+    m_underwaterCurrentStrength = 0_len;
     collisionInfo.facingAngle = core::Angle::fromAtan(
             m_state.position.position.X - collisionInfo.oldPosition.X,
             m_state.position.position.Z - collisionInfo.oldPosition.Z
     );
 
-    collisionInfo.initHeightInfo( m_state.position.position + core::TRVec{0, 200, 0}, getLevel(), 400 );
+    collisionInfo.initHeightInfo( m_state.position.position + core::TRVec{0_len, 200_len, 0_len}, getLevel(), 400_len );
     if( collisionInfo.collisionType == CollisionInfo::AxisColl::Front )
     {
         if( m_state.rotation.X > 35_deg )
@@ -973,13 +976,13 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Top )
         m_state.rotation.X -= 2_deg;
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom )
-        m_state.fallspeed = 0;
+        m_state.fallspeed = 0_len;
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Left )
         m_state.rotation.Y += 5_deg;
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Right )
         m_state.rotation.Y -= 5_deg;
 
-    if( collisionInfo.mid.floor.y < 0 )
+    if( collisionInfo.mid.floor.y < 0_len )
     {
         m_state.position.position.Y += collisionInfo.mid.floor.y;
         m_state.rotation.X += 2_deg;
@@ -1200,7 +1203,7 @@ void LaraNode::updateShotgun()
 
 void LaraNode::updateGuns(const WeaponId weaponId)
 {
-    const auto& weapon = weapons.at(weaponId);
+    const auto& weapon = weapons.at( weaponId );
     if( getLevel().m_inputHandler->getInputState().action )
     {
         updateAimingState( weapon );
@@ -1346,10 +1349,11 @@ void LaraNode::unholster()
 core::RoomBoundPosition LaraNode::getUpperThirdBBoxCtr(const ModelItemNode& item)
 {
     const auto kf = item.getSkeleton()->getInterpolationInfo( item.m_state ).getNearestFrame();
+    const auto bbox = kf->bbox.toBBox();
 
-    const auto ctrX = (kf->bbox.minX + kf->bbox.maxX) / 2;
-    const auto ctrZ = (kf->bbox.minZ + kf->bbox.maxZ) / 2;
-    const auto ctrY3 = (kf->bbox.maxY - kf->bbox.minY) / 3 + kf->bbox.minY;
+    const auto ctrX = (bbox.minX + bbox.maxX) / 2;
+    const auto ctrZ = (bbox.minZ + bbox.maxZ) / 2;
+    const auto ctrY3 = (bbox.maxY - bbox.minY) / 3 + bbox.minY;
 
     const auto cos = item.m_state.rotation.Y.cos();
     const auto sin = item.m_state.rotation.Y.sin();
@@ -1405,13 +1409,13 @@ void LaraNode::findTarget(const Weapon& weapon)
             continue;
 
         const auto d = currentEnemy->m_state.position.position - gunPosition.position;
-        if( std::abs( d.X ) > weapon.targetDist )
+        if( abs( d.X ) > weapon.targetDist )
             continue;
 
-        if( std::abs( d.Y ) > weapon.targetDist )
+        if( abs( d.Y ) > weapon.targetDist )
             continue;
 
-        if( std::abs( d.Z ) > weapon.targetDist )
+        if( abs( d.Z ) > weapon.targetDist )
             continue;
 
         if( util::square( d.X ) + util::square( d.Y ) + util::square( d.Z ) >= util::square( weapon.targetDist ) )
@@ -2066,13 +2070,13 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
     const auto bulletDir = normalize( glm::vec3( shootVector.toMatrix()[2] ) ); // +Z is our shooting direction
     if( !spheres.empty() )
     {
-        float minD = std::numeric_limits<float>::max();
+        core::Length minD{std::numeric_limits<core::Length::int_type>::max()};
         for( const auto& sphere : spheres )
         {
             hitPos = gunPosition.toRenderSystem()
                      + bulletDir * dot( sphere.getPosition() - gunPosition.toRenderSystem(), bulletDir );
 
-            const auto d = length( hitPos - sphere.getPosition() );
+            const auto d = core::Length{static_cast<core::Length::int_type>( length( hitPos - sphere.getPosition() ) )};
             if( d > sphere.radius || d >= minD )
                 continue;
 
@@ -2586,31 +2590,31 @@ void LaraNode::renderGunFlare(const WeaponId weaponId,
     }
 
     uint16_t shade;
-    int dy;
+    core::Length dy = 0_len;
     switch( weaponId )
     {
         case WeaponId::None:
         case WeaponId::Pistols:
             shade = 5120;
-            dy = 155;
+            dy = 155_len;
             break;
         case WeaponId::AutoPistols:
             shade = 4096;
-            dy = 155;
+            dy = 155_len;
             break;
         case WeaponId::Uzi:
             shade = 2560;
-            dy = 180;
+            dy = 180_len;
             break;
         case WeaponId::Shotgun:
             shade = 5120;
-            dy = 155;
+            dy = 155_len;
             break;
         default:
             BOOST_THROW_EXCEPTION( std::domain_error( "WeaponId" ) );
     }
 
-    m = translate( m, core::TRVec{0, dy, 55}.toRenderSystem() );
+    m = translate( m, core::TRVec{0_len, dy, 55_len}.toRenderSystem() );
     m *= core::TRRotation( -90_deg, 0_deg, core::Angle( 2 * util::rand15() ) ).toMatrix();
 
     flareNode->setVisible( true );
@@ -2701,7 +2705,7 @@ void LaraNode::load(const YAML::Node& n)
     uziAmmo.load( n["ammo"]["uzis"] );
     shotgunAmmo.load( n["ammo"]["shotgun"] );
 
-    m_underwaterCurrentStrength = n["underwaterCurrentStrength"].as<int>();
+    m_underwaterCurrentStrength = n["underwaterCurrentStrength"].as<core::Length>();
     m_underwaterRoute.load( n["underwaterRoute"], getLevel() );
 
     leftArm.load( n["leftArm"], getLevel() );

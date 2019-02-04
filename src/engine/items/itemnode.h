@@ -91,8 +91,8 @@ struct ItemState final : public audio::Emitter
     TR1ItemId type;
     core::RoomBoundPosition position;
     core::TRRotation rotation;
-    int16_t speed = 0;
-    int16_t fallspeed = 0;
+    core::Length speed = 0_len;
+    core::Length fallspeed = 0_len;
     loader::AnimState current_anim_state = 0_as;
     loader::AnimState goal_anim_state = 0_as;
     loader::AnimState required_anim_state = 0_as;
@@ -102,7 +102,7 @@ struct ItemState final : public audio::Emitter
     TriggerState triggerState = TriggerState::Inactive;
     int16_t timer = 0;
     floordata::ActivationState activationState;
-    int32_t floor = 0;
+    core::Length floor = 0_len;
     std::bitset<32> touch_bits;
     const loader::Box* box = nullptr;
     int16_t shade = -1;
@@ -214,7 +214,7 @@ public:
         m_state.rotation.Z += dz;
     }
 
-    void move(const int dx, const int dy, const int dz)
+    void move(const core::Length dx, const core::Length dy, const core::Length dz)
     {
         m_state.position.position.X += dx;
         m_state.position.position.Y += dy;
@@ -226,13 +226,9 @@ public:
         m_state.position.position += core::TRVec( d );
     }
 
-    void moveLocal(const int dx, const int dy, const int dz)
+    void moveLocal(const core::Length dx, const core::Length dy, const core::Length dz)
     {
-        const auto sin = m_state.rotation.Y.sin();
-        const auto cos = m_state.rotation.Y.cos();
-        m_state.position.position.X += dz * sin + dx * cos;
-        m_state.position.position.Y += dy;
-        m_state.position.position.Z += dz * cos - dx * sin;
+        m_state.position.position += util::rotateY(m_state.rotation.Y, dx, dy, dz);
     }
 
     const level::Level& getLevel() const
@@ -250,11 +246,11 @@ public:
         m_state.speed -= m_state.speed * f;
     }
 
-    virtual void patchFloor(const core::TRVec& /*pos*/, int& /*y*/)
+    virtual void patchFloor(const core::TRVec& /*pos*/, core::Length& /*y*/)
     {
     }
 
-    virtual void patchCeiling(const core::TRVec& /*pos*/, int& /*y*/)
+    virtual void patchCeiling(const core::TRVec& /*pos*/, core::Length& /*y*/)
     {
     }
 
@@ -280,7 +276,7 @@ public:
         auto targetPos = target.m_state.position.position.toRenderSystem();
         targetPos += glm::vec3{target.m_state.rotation.toMatrix() * glm::vec4{speed.toRenderSystem(), 1.0f}};
 
-        return alignTransformClamped( core::TRVec{targetPos}, target.m_state.rotation, 16, 364_au );
+        return alignTransformClamped( core::TRVec{targetPos}, target.m_state.rotation, 16_len, 364_au );
     }
 
     void updateLighting()
@@ -305,19 +301,19 @@ public:
 
     void playShotMissed(const core::RoomBoundPosition& pos);
 
-    boost::optional<int> getWaterSurfaceHeight() const;
+    boost::optional<core::Length> getWaterSurfaceHeight() const;
 
 protected:
     bool alignTransformClamped(const core::TRVec& targetPos,
                                const core::TRRotation& targetRot,
-                               const int maxDistance,
+                               const core::Length maxDistance,
                                const core::Angle& maxAngle)
     {
         auto d = targetPos - m_state.position.position;
         const auto dist = d.length();
         if( maxDistance < dist )
         {
-            move( static_cast<float>(maxDistance) * normalize( d.toRenderSystem() ) );
+            move( static_cast<float>(maxDistance.value) * normalize( d.toRenderSystem() ) );
         }
         else
         {
@@ -333,7 +329,7 @@ protected:
         d = targetPos - m_state.position.position;
 
         return abs( phi.X ) < 1_au && abs( phi.Y ) < 1_au && abs( phi.Z ) < 1_au
-               && d.X == 0 && d.Y == 0 && d.Z == 0;
+               && d.X == 0_len && d.Y == 0_len && d.Z == 0_len;
     }
 };
 
@@ -406,9 +402,9 @@ public:
 
     loader::BoundingBox getBoundingBox() const override;
 
-    bool isNear(const ModelItemNode& other, int radius) const;
+    bool isNear(const ModelItemNode& other, core::Length radius) const;
 
-    bool isNear(const Particle& other, int radius) const;
+    bool isNear(const Particle& other, core::Length radius) const;
 
     bool testBoneCollision(const ModelItemNode& other);
 
@@ -419,7 +415,7 @@ public:
                                                           gsl::not_null<std::shared_ptr<Particle>> (* generate)(
                                                                   level::Level& level,
                                                                   const core::RoomBoundPosition& pos,
-                                                                  int16_t speed,
+                                                                  core::Length speed,
                                                                   core::Angle angle));
 
     void load(const YAML::Node& n) override;

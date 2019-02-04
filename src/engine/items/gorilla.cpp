@@ -30,7 +30,7 @@ void Gorilla::update()
         updateMood( getLevel(), m_state, aiInfo, false );
 
         turn = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
-        if( m_state.is_hit || aiInfo.distance < util::square( 2 * loader::SectorSize ) )
+        if( m_state.is_hit || aiInfo.distance < util::square( 2 * core::SectorSize ) )
         {
             m_state.creatureInfo->flags |= FlgWantAttack;
         }
@@ -52,7 +52,7 @@ void Gorilla::update()
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
-                else if( aiInfo.bite && aiInfo.distance < 184900 )
+                else if( aiInfo.bite && aiInfo.distance < util::square( 430_len ) )
                 {
                     m_state.goal_anim_state = 4_as;
                 }
@@ -127,7 +127,7 @@ void Gorilla::update()
                 {
                     if( (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
                     {
-                        emitParticle( {0, -19, 75}, 15, &createBloodSplat );
+                        emitParticle( {0_len, -19_len, 75_len}, 15, &createBloodSplat );
                         getLevel().m_lara->m_state.health -= 200;
                         getLevel().m_lara->m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
@@ -184,13 +184,13 @@ void Gorilla::update()
         const auto old = m_state.position.position;
         getSkeleton()->patchBone( 14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
         animateCreature( turn, 0_deg );
-        if( old.Y - 384 < m_state.position.position.Y )
+        if( old.Y - 384_len < m_state.position.position.Y )
             return;
 
-        const auto xSectorOld = old.X / loader::SectorSize;
-        const auto zSectorOld = old.Z / loader::SectorSize;
-        const auto xSectorNew = m_state.position.position.X / loader::SectorSize;
-        const auto zSectorNew = m_state.position.position.Z / loader::SectorSize;
+        const auto xSectorOld = old.X / core::SectorSize;
+        const auto zSectorOld = old.Z / core::SectorSize;
+        const auto xSectorNew = m_state.position.position.X / core::SectorSize;
+        const auto zSectorNew = m_state.position.position.Z / core::SectorSize;
         if( zSectorOld == zSectorNew )
         {
             if( xSectorOld == xSectorNew )
@@ -200,12 +200,12 @@ void Gorilla::update()
             if( xSectorOld >= xSectorNew )
             {
                 m_state.rotation.Y = -90_deg;
-                m_state.position.position.X = xSectorOld * loader::SectorSize + 75;
+                m_state.position.position.X = xSectorOld * core::SectorSize + 75_len;
             }
             else
             {
                 m_state.rotation.Y = 90_deg;
-                m_state.position.position.X = xSectorNew * loader::SectorSize - 75;
+                m_state.position.position.X = xSectorNew * core::SectorSize - 75_len;
             }
         }
         else if( xSectorOld == xSectorNew )
@@ -213,12 +213,12 @@ void Gorilla::update()
             if( zSectorOld >= zSectorNew )
             {
                 m_state.rotation.Y = -180_deg;
-                m_state.position.position.Z = zSectorOld * loader::SectorSize + 75;
+                m_state.position.position.Z = zSectorOld * core::SectorSize + 75_len;
             }
             else
             {
                 m_state.rotation.Y = 0_deg;
-                m_state.position.position.Z = zSectorNew * loader::SectorSize - 75;
+                m_state.position.position.Z = zSectorNew * core::SectorSize - 75_len;
             }
         }
 

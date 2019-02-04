@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/length.h"
+
 #include "gsl-lite.hpp"
 
 #include <glm/gtx/euler_angles.hpp>
@@ -73,6 +75,11 @@ public:
     static Angle fromAtan(const float dx, const float dz)
     {
         return fromRad( std::atan2( dx, dz ) );
+    }
+
+    static Angle fromAtan(const core::Length dx, const core::Length dz)
+    {
+        return fromRad( std::atan2f( static_cast<float>(dx.value), static_cast<float>(dz.value) ) );
     }
 
     static Angle fromDegrees(const float value)
@@ -445,12 +452,12 @@ struct TRRotationXY
 };
 
 
-inline TRRotationXY getVectorAngles(const float dx, const float dy, const float dz)
+inline TRRotationXY getVectorAngles(const core::Length& dx, const core::Length& dy, const core::Length& dz)
 {
     const auto y = Angle::fromAtan( dx, dz );
-    const auto dxz = glm::sqrt( dz * dz + dx * dx );
+    const auto dxz = sqrt( dx * dx + dz * dz );
     auto x = Angle::fromAtan( dy, dxz );
-    if( std::signbit( dy ) == std::signbit( x.toRad() ) )
+    if( (dy < 0_len) == std::signbit( x.toRad() ) )
         x = -x;
 
     return TRRotationXY{x, y};

@@ -18,7 +18,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        getLara().m_state.fallspeed = std::max( 0, getLara().m_state.fallspeed - 4 );
+        getLara().m_state.fallspeed = std::max( 0_len, getLara().m_state.fallspeed - 4_len );
 
         if( getLara().m_state.health <= 0 )
         {
@@ -93,7 +93,7 @@ public:
         setGoalAnimState( LaraStateId::UnderwaterForward );
         setAnimation( loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041 );
         getLara().m_state.rotation.X = -45_deg;
-        getLara().m_state.fallspeed = 80;
+        getLara().m_state.fallspeed = 80_len;
         setUnderwaterState( UnderwaterState::Diving );
     }
 

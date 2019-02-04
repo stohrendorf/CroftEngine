@@ -20,8 +20,8 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         }
 
         static const InteractionLimits limits{
-                core::BoundingBox{{-512, -512, -512},
-                                  {512,  512,  512}},
+                core::BoundingBox{{-512_len, -512_len, -512_len},
+                                  {512_len,  512_len,  512_len}},
                 {-45_deg, -45_deg, -45_deg},
                 {+45_deg, +45_deg, +45_deg}
         };
@@ -33,7 +33,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             return;
         }
 
-        static const core::TRVec aimSpeed{0, -200, -350};
+        static const core::TRVec aimSpeed{0_len, -200_len, -350_len};
 
         if( lara.getCurrentAnimState() == LaraStateId::PickUp )
         {
@@ -61,8 +61,8 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     else
     {
         static const InteractionLimits limits{
-                core::BoundingBox{{-256, -100, -256},
-                                  {256,  100,  100}},
+                core::BoundingBox{{-256_len, -100_len, -256_len},
+                                  {256_len,  100_len,  100_len}},
                 {-10_deg, 0_deg, 0_deg},
                 {+10_deg, 0_deg, 0_deg}
         };
@@ -100,7 +100,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 && !lara.m_state.falling
                 && lara.getCurrentAnimState() == LaraStateId::Stop )
             {
-                lara.alignForInteraction( core::TRVec{0, 0, -100}, m_state );
+                lara.alignForInteraction( core::TRVec{0_len, 0_len, -100_len}, m_state );
 
                 lara.setGoalAnimState( LaraStateId::PickUp );
                 do

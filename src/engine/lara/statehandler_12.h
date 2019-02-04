@@ -24,7 +24,7 @@ public:
     {
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-        collisionInfo.badCeilingDistance = 0;
+        collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.facingAngle = getMovementAngle();
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );

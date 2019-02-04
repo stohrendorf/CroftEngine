@@ -100,7 +100,7 @@ protected:
     void addYRotationSpeed(core::Angle val,
                            core::Angle limit = 32767_au);
 
-    void setFallSpeedOverride(int v);
+    void setFallSpeedOverride(core::Length v);
 
     void dampenHorizontalSpeed(float f);
 
@@ -128,7 +128,7 @@ protected:
 
     void applyShift(const CollisionInfo& collisionInfo);
 
-    int getRelativeHeightAtDirection(core::Angle angle, int dist) const;
+    core::Length getRelativeHeightAtDirection(core::Angle angle, core::Length dist) const;
 
     void commonJumpHandling(CollisionInfo& collisionInfo);
 
@@ -158,7 +158,7 @@ protected:
 
     void setCameraRotationAroundCenterY(const core::Angle y);
 
-    void setCameraEyeCenterDistance(int d);
+    void setCameraEyeCenterDistance(core::Length d);
 
     void setCameraModifier(const CameraModifier k);
 

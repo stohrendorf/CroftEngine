@@ -24,15 +24,17 @@ protected:
     void commonOnWaterHandling(CollisionInfo& collisionInfo)
     {
         collisionInfo.facingAngle = getMovementAngle();
-        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec( 0, 700, 0 ), getLevel(), 700 );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec( 0_len, 700_len, 0_len ),
+                                      getLevel(),
+                                      700_len );
         applyShift( collisionInfo );
-        if( collisionInfo.mid.floor.y < 0
+        if( collisionInfo.mid.floor.y < 0_len
             || collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront
             || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom
             || collisionInfo.collisionType == CollisionInfo::AxisColl::Top
-            || collisionInfo.collisionType == CollisionInfo::AxisColl::Front)
+            || collisionInfo.collisionType == CollisionInfo::AxisColl::Front )
         {
-            getLara().m_state.fallspeed = 0;
+            getLara().m_state.fallspeed = 0_len;
             getLara().m_state.position.position = collisionInfo.oldPosition;
         }
         else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Left )
@@ -45,7 +47,7 @@ protected:
         }
 
         auto wsh = getLara().getWaterSurfaceHeight();
-        if( wsh.is_initialized() && *wsh > getLara().m_state.position.position.Y - 100 )
+        if( wsh.is_initialized() && *wsh > getLara().m_state.position.position.Y - 100_len )
         {
             tryClimbOutOfWater( collisionInfo );
             return;
@@ -54,7 +56,7 @@ protected:
         setAnimation( loader::AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041 );
         setGoalAnimState( LaraStateId::UnderwaterForward );
         getLara().m_state.rotation.X = -45_deg;
-        getLara().m_state.fallspeed = 80;
+        getLara().m_state.fallspeed = 80_len;
         setUnderwaterState( UnderwaterState::Diving );
     }
 
@@ -76,13 +78,13 @@ private:
             return;
         }
 
-        const auto gradient = std::abs( collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y );
+        const auto gradient = abs( collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y );
         if( gradient >= core::MaxGrabbableGradient )
         {
             return;
         }
 
-        if( collisionInfo.front.ceiling.y > 0 )
+        if( collisionInfo.front.ceiling.y > 0_len )
         {
             return;
         }
@@ -92,12 +94,12 @@ private:
             return;
         }
 
-        if( collisionInfo.front.floor.y + 700 <= -2 * loader::QuarterSectorSize )
+        if( collisionInfo.front.floor.y + 700_len <= 2 * -core::QuarterSectorSize )
         {
             return;
         }
 
-        if( collisionInfo.front.floor.y + 700 > core::DefaultCollisionRadius )
+        if( collisionInfo.front.floor.y + 700_len > core::DefaultCollisionRadius )
         {
             return;
         }
@@ -108,27 +110,27 @@ private:
             return;
         }
 
-        getLara().m_state.position.position += core::TRVec( 0, 695 + collisionInfo.front.floor.y, 0 );
-        getLara().updateFloorHeight( -381 );
+        getLara().m_state.position.position += core::TRVec( 0_len, 695_len + collisionInfo.front.floor.y, 0_len );
+        getLara().updateFloorHeight( -381_len );
         core::TRVec d = getLara().m_state.position.position;
         if( *yRot == 0_deg )
         {
-            d.Z = (getLara().m_state.position.position.Z / loader::SectorSize + 1) * loader::SectorSize
+            d.Z = (getLara().m_state.position.position.Z / core::SectorSize + 1) * core::SectorSize
                   + core::DefaultCollisionRadius;
         }
         else if( *yRot == 180_deg )
         {
-            d.Z = (getLara().m_state.position.position.Z / loader::SectorSize + 0) * loader::SectorSize
+            d.Z = (getLara().m_state.position.position.Z / core::SectorSize + 0) * core::SectorSize
                   - core::DefaultCollisionRadius;
         }
         else if( *yRot == -90_deg )
         {
-            d.X = (getLara().m_state.position.position.X / loader::SectorSize + 0) * loader::SectorSize
+            d.X = (getLara().m_state.position.position.X / core::SectorSize + 0) * core::SectorSize
                   - core::DefaultCollisionRadius;
         }
         else if( *yRot == 90_deg )
         {
-            d.X = (getLara().m_state.position.position.X / loader::SectorSize + 1) * loader::SectorSize
+            d.X = (getLara().m_state.position.position.X / core::SectorSize + 1) * core::SectorSize
                   + core::DefaultCollisionRadius;
         }
         else
@@ -140,8 +142,8 @@ private:
 
         setAnimation( loader::AnimationId::CLIMB_OUT_OF_WATER, 1849 );
         setGoalAnimState( LaraStateId::Stop );
-        getLara().m_state.speed = 0;
-        getLara().m_state.fallspeed = 0;
+        getLara().m_state.speed = 0_len;
+        getLara().m_state.fallspeed = 0_len;
         getLara().m_state.falling = false;
         getLara().m_state.rotation.X = 0_deg;
         getLara().m_state.rotation.Y = *yRot;

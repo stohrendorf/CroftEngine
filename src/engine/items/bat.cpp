@@ -44,7 +44,7 @@ void Bat::update()
             case Biting:
                 if( m_state.touch_bits != 0 )
                 {
-                    emitParticle( core::TRVec{0, 16, 45}, 4, &createBloodSplat );
+                    emitParticle( core::TRVec{0_len, 16_len, 45_len}, 4, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 2;
                 }
@@ -69,7 +69,7 @@ void Bat::update()
         else
         {
             m_state.goal_anim_state = Circling;
-            m_state.speed = 0;
+            m_state.speed = 0_len;
             m_state.falling = true;
         }
     }

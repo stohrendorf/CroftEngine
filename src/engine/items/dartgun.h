@@ -40,21 +40,21 @@ public:
         auto axis = axisFromAngle( m_state.rotation.Y, 45_deg );
         BOOST_ASSERT( axis.is_initialized() );
 
-        core::TRVec d( 0, 512, 0 );
+        core::TRVec d( 0_len, 512_len, 0_len );
 
         switch( *axis )
         {
             case core::Axis::PosZ:
-                d.Z += 412;
+                d.Z += 412_len;
                 break;
             case core::Axis::PosX:
-                d.X += 412;
+                d.X += 412_len;
                 break;
             case core::Axis::NegZ:
-                d.Z -= 412;
+                d.Z -= 412_len;
                 break;
             case core::Axis::NegX:
-                d.X -= 412;
+                d.X -= 412_len;
                 break;
             default:
                 break;

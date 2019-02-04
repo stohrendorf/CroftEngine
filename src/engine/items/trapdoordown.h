@@ -32,7 +32,7 @@ public:
         ModelItemNode::update();
     }
 
-    void patchFloor(const core::TRVec& pos, int& y) override
+    void patchFloor(const core::TRVec& pos, core::Length& y) override
     {
         if( m_state.current_anim_state != 0_as || !possiblyOnTrapdoor( pos ) || pos.Y > m_state.position.position.Y
             || y <= m_state.position.position.Y )
@@ -41,22 +41,22 @@ public:
         y = m_state.position.position.Y;
     }
 
-    void patchCeiling(const core::TRVec& pos, int& y) override
+    void patchCeiling(const core::TRVec& pos, core::Length& y) override
     {
         if( m_state.current_anim_state != 0_as || !possiblyOnTrapdoor( pos ) || pos.Y <= m_state.position.position.Y
             || y > m_state.position.position.Y )
             return;
 
-        y = m_state.position.position.Y + loader::QuarterSectorSize;
+        y = m_state.position.position.Y + core::QuarterSectorSize;
     }
 
 private:
     bool possiblyOnTrapdoor(const core::TRVec& pos) const
     {
-        const auto trapdoorSectorX = m_state.position.position.X / loader::SectorSize;
-        const auto trapdoorSectorZ = m_state.position.position.Z / loader::SectorSize;
-        const auto posSectorX = pos.X / loader::SectorSize;
-        const auto posSectorZ = pos.Z / loader::SectorSize;
+        const auto trapdoorSectorX = m_state.position.position.X / core::SectorSize;
+        const auto trapdoorSectorZ = m_state.position.position.Z / core::SectorSize;
+        const auto posSectorX = pos.X / core::SectorSize;
+        const auto posSectorZ = pos.Z / core::SectorSize;
         auto trapdoorAxis = axisFromAngle( m_state.rotation.Y, 1_au );
         BOOST_ASSERT( trapdoorAxis.is_initialized() );
 

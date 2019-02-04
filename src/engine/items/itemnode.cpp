@@ -65,7 +65,7 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
     m_state.activationState = floordata::ActivationState( item.activationState );
     m_state.timer = m_state.activationState.getTimeout();
 
-    m_state.floor = room->getSectorByAbsolutePosition( item.position )->floorHeight * loader::QuarterSectorSize;
+    m_state.floor = room->getSectorByAbsolutePosition( item.position )->floorHeight;
 
     if( m_state.activationState.isOneshot() )
     {
@@ -146,15 +146,15 @@ void ModelItemNode::update()
             {
                 case AnimCommandOpcode::SetPosition:
                     moveLocal(
-                            cmd[0],
-                            cmd[1],
-                            cmd[2]
+                            core::Length{static_cast<core::Length::int_type>(cmd[0])},
+                            core::Length{static_cast<core::Length::int_type>(cmd[1])},
+                            core::Length{static_cast<core::Length::int_type>(cmd[2])}
                     );
                     cmd += 3;
                     break;
                 case AnimCommandOpcode::StartFalling:
-                    m_state.fallspeed = cmd[0];
-                    m_state.speed = cmd[1];
+                    m_state.fallspeed = core::Length{static_cast<core::Length::int_type>(cmd[0])};
+                    m_state.speed = core::Length{static_cast<core::Length::int_type>(cmd[1])};
                     m_state.falling = true;
                     cmd += 2;
                     break;
@@ -340,13 +340,13 @@ void ModelItemNode::applyMovement(const bool forLara)
 {
     if( m_state.falling )
     {
-        if( m_state.fallspeed >= 128 )
+        if( m_state.fallspeed >= 128_len )
         {
-            m_state.fallspeed += 1;
+            m_state.fallspeed += 1_len;
         }
         else
         {
-            m_state.fallspeed += 6;
+            m_state.fallspeed += 6_len;
         }
 
         if( forLara )
@@ -363,7 +363,7 @@ void ModelItemNode::applyMovement(const bool forLara)
 
     move(
             getMovementAngle().sin() * m_state.speed,
-            m_state.falling ? m_state.fallspeed : 0,
+            m_state.falling ? m_state.fallspeed : 0_len,
             getMovementAngle().cos() * m_state.speed
     );
 
@@ -421,12 +421,14 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
     applyTransform();
 }
 
-bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
+bool ModelItemNode::isNear(const ModelItemNode& other, const core::Length radius) const
 {
     const auto aFrame = getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame();
+    const auto aBBox = aFrame->bbox.toBBox();
     const auto bFrame = other.getSkeleton()->getInterpolationInfo( other.m_state ).getNearestFrame();
-    if( other.m_state.position.position.Y + bFrame->bbox.minY >= m_state.position.position.Y + aFrame->bbox.maxY
-        || m_state.position.position.Y + aFrame->bbox.minY >= other.m_state.position.position.Y + bFrame->bbox.maxY )
+    const auto bBBox = bFrame->bbox.toBBox();
+    if( other.m_state.position.position.Y + bBBox.minY >= m_state.position.position.Y + aBBox.maxY
+        || m_state.position.position.Y + aBBox.minY >= other.m_state.position.position.Y + bBBox.maxY )
     {
         return false;
     }
@@ -437,17 +439,18 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const int radius) const
     const auto dz = other.m_state.position.position.Z - m_state.position.position.Z;
     const auto x = c * dx - s * dz;
     const auto z = s * dx + c * dz;
-    return x >= aFrame->bbox.minX - radius
-           && x <= aFrame->bbox.maxX + radius
-           && z >= aFrame->bbox.minZ - radius
-           && z <= aFrame->bbox.maxZ + radius;
+    return x >= aBBox.minX - radius
+           && x <= aBBox.maxX + radius
+           && z >= aBBox.minZ - radius
+           && z <= aBBox.maxZ + radius;
 }
 
-bool ModelItemNode::isNear(const Particle& other, const int radius) const
+bool ModelItemNode::isNear(const Particle& other, const core::Length radius) const
 {
-    const auto aFrame = getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame();
-    if( other.pos.position.Y >= m_state.position.position.Y + aFrame->bbox.maxY
-        || m_state.position.position.Y + aFrame->bbox.minY >= other.pos.position.Y )
+    const auto frame = getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame();
+    const auto bbox = frame->bbox.toBBox();
+    if( other.pos.position.Y >= m_state.position.position.Y + bbox.maxY
+        || m_state.position.position.Y + bbox.minY >= other.pos.position.Y )
     {
         return false;
     }
@@ -458,10 +461,10 @@ bool ModelItemNode::isNear(const Particle& other, const int radius) const
     const auto dz = other.pos.position.Z - m_state.position.position.Z;
     const auto x = c * dx - s * dz;
     const auto z = s * dx + c * dz;
-    return x >= aFrame->bbox.minX - radius
-           && x <= aFrame->bbox.maxX + radius
-           && z >= aFrame->bbox.minZ - radius
-           && z <= aFrame->bbox.maxZ + radius;
+    return x >= bbox.minX - radius
+           && x <= bbox.maxX + radius
+           && z >= bbox.minZ - radius
+           && z <= bbox.maxZ + radius;
 }
 
 void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, const bool enableSpaz,
@@ -474,10 +477,10 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
     auto posX = c * dx - s * dz;
     auto posZ = s * dx + c * dz;
     const auto itemKeyFrame = m_skeleton->getInterpolationInfo( m_state ).getNearestFrame();
-    auto itemBBoxMinX = itemKeyFrame->bbox.minX;
-    auto itemBBoxMaxX = itemKeyFrame->bbox.maxX;
-    auto itemBBoxMaxZ = itemKeyFrame->bbox.maxZ;
-    auto itemBBoxMinZ = itemKeyFrame->bbox.minZ;
+    auto itemBBoxMinX = itemKeyFrame->bbox.toBBox().minX;
+    auto itemBBoxMaxX = itemKeyFrame->bbox.toBBox().maxX;
+    auto itemBBoxMaxZ = itemKeyFrame->bbox.toBBox().maxZ;
+    auto itemBBoxMinZ = itemKeyFrame->bbox.toBBox().minZ;
     if( withXZCollRadius )
     {
         const auto r = collisionInfo.collisionRadius;
@@ -512,8 +515,8 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
         lara.m_state.position.position.Z = ((c * posZ - s * posX)) + m_state.position.position.Z;
         if( enableSpaz )
         {
-            const auto midX = (itemKeyFrame->bbox.minX + itemKeyFrame->bbox.maxX) / 2;
-            const auto midZ = (itemKeyFrame->bbox.minZ + itemKeyFrame->bbox.maxZ) / 2;
+            const auto midX = (itemKeyFrame->bbox.toBBox().minX + itemKeyFrame->bbox.toBBox().maxX) / 2;
+            const auto midZ = (itemKeyFrame->bbox.toBBox().minZ + itemKeyFrame->bbox.toBBox().maxZ) / 2;
             const auto a = core::Angle::fromAtan( dx - ((midX * c + midZ * s)), dz - ((midZ * c - midX * s)) )
                            - 180_deg;
             getLevel().m_lara->hit_direction = axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
@@ -526,14 +529,14 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
                 getLevel().m_lara->hit_frame = 34;
             }
         }
-        collisionInfo.badPositiveDistance = loader::HeightLimit;
-        collisionInfo.badNegativeDistance = -384;
-        collisionInfo.badCeilingDistance = 0;
+        collisionInfo.badPositiveDistance = core::HeightLimit;
+        collisionInfo.badNegativeDistance = -384_len;
+        collisionInfo.badCeilingDistance = 0_len;
         const auto facingAngle = collisionInfo.facingAngle;
         collisionInfo.facingAngle = core::Angle::fromAtan(
                 lara.m_state.position.position.X - collisionInfo.oldPosition.X,
                 lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
-        collisionInfo.initHeightInfo( lara.m_state.position.position, getLevel(), 762 );
+        collisionInfo.initHeightInfo( lara.m_state.position.position, getLevel(), 762_len );
         collisionInfo.facingAngle = facingAngle;
         if( collisionInfo.collisionType != CollisionInfo::AxisColl::None )
         {
@@ -543,7 +546,7 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
         else
         {
             collisionInfo.oldPosition = lara.m_state.position.position;
-            lara.updateFloorHeight( -10 );
+            lara.updateFloorHeight( -10_len );
         }
     }
 }
@@ -561,15 +564,15 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
             nullptr );
     for( const auto& itemSphere : itemSpheres | boost::adaptors::indexed( 0 ) )
     {
-        if( itemSphere.value().radius <= 0 )
+        if( itemSphere.value().radius <= 0_len )
             continue;
 
         for( const auto& laraSphere : laraSpheres )
         {
-            if( laraSphere.radius <= 0 )
+            if( laraSphere.radius <= 0_len )
                 continue;
-            if( distance( laraSphere.getPosition(), itemSphere.value().getPosition() )
-                >= util::square( itemSphere.value().radius + laraSphere.radius ) )
+            if( glm::distance( laraSphere.getPosition(), itemSphere.value().getPosition() )
+                >= (itemSphere.value().radius + laraSphere.radius).value )
                 continue;
 
             m_state.touch_bits |= 1 << itemSphere.index();
@@ -585,7 +588,7 @@ gsl::not_null<std::shared_ptr<Particle>> ModelItemNode::emitParticle(const core:
                                                                      gsl::not_null<std::shared_ptr<Particle>> (* generate)(
                                                                              level::Level& level,
                                                                              const core::RoomBoundPosition&,
-                                                                             int16_t, core::Angle))
+                                                                             core::Length, core::Angle))
 {
     BOOST_ASSERT( generate != nullptr );
     BOOST_ASSERT( boneIndex < m_skeleton->getChildren().size() );
@@ -625,16 +628,16 @@ bool ItemState::stalkBox(const level::Level& lvl, const loader::Box& box) const
     const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
     const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
 
-    if( std::abs( laraToBoxDistX ) > 3 * loader::SectorSize || std::abs( laraToBoxDistZ ) > 3 * loader::SectorSize )
+    if( abs( laraToBoxDistX ) > 3 * core::SectorSize || abs( laraToBoxDistZ ) > 3 * core::SectorSize )
     {
         return false;
     }
 
     const auto laraAxisBack = *axisFromAngle( lvl.m_lara->m_state.rotation.Y + 180_deg, 45_deg );
     core::Axis laraToBoxAxis;
-    if( laraToBoxDistZ > 0 )
+    if( laraToBoxDistZ > 0_len )
     {
-        if( laraToBoxDistX > 0 )
+        if( laraToBoxDistX > 0_len )
         {
             laraToBoxAxis = core::Axis::PosX;
         }
@@ -643,7 +646,7 @@ bool ItemState::stalkBox(const level::Level& lvl, const loader::Box& box) const
             laraToBoxAxis = core::Axis::NegZ;
         }
     }
-    else if( laraToBoxDistX > 0 )
+    else if( laraToBoxDistX > 0_len )
     {
         // Z <= 0, X > 0
         laraToBoxAxis = core::Axis::NegX;
@@ -733,12 +736,12 @@ bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const
 {
     const auto laraToBoxX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
     const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
-    if( std::abs( laraToBoxX ) < 5 * loader::SectorSize && std::abs( laraToBoxZ ) < 5 * loader::SectorSize )
+    if( abs( laraToBoxX ) < 5 * core::SectorSize && abs( laraToBoxZ ) < 5 * core::SectorSize )
         return false;
 
     const auto laraToNpcX = position.position.X - lvl.m_lara->m_state.position.position.X;
     const auto laraToNpcZ = position.position.Z - lvl.m_lara->m_state.position.position.Z;
-    return ((laraToNpcZ > 0) == (laraToBoxZ > 0)) || ((laraToNpcX > 0) == (laraToBoxX > 0));
+    return ((laraToNpcZ > 0_len) == (laraToBoxZ > 0_len)) || ((laraToNpcX > 0_len) == (laraToBoxX > 0_len));
 
 }
 
@@ -835,8 +838,8 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
     position.position.load( n["position"] );
     position.room = &lvl.m_rooms.at( n["position"]["room"].as<size_t>() );
     rotation.load( n["rotation"] );
-    speed = n["speed"].as<int16_t>();
-    fallspeed = n["fallSpeed"].as<int16_t>();
+    speed = n["speed"].as<core::Length>();
+    fallspeed = n["fallSpeed"].as<core::Length>();
     current_anim_state = loader::AnimState{n["state"].as<uint16_t>()};
     goal_anim_state = loader::AnimState{n["goal"].as<uint16_t>()};
     required_anim_state = loader::AnimState{n["required"].as<uint16_t>()};
@@ -850,7 +853,7 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
     timer = n["timer"].as<int16_t>();
     activationState.load( n["activationState"] );
 
-    floor = n["floor"].as<int32_t>();
+    floor = n["floor"].as<core::Length>();
     touch_bits = n["touchBits"].as<uint32_t>();
     if( !n["box"].IsDefined() )
         box = nullptr;
@@ -889,7 +892,7 @@ void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
     getLevel().playSound( TR1SoundId::Ricochet, particle.get() );
 }
 
-boost::optional<int> ItemNode::getWaterSurfaceHeight() const
+boost::optional<core::Length> ItemNode::getWaterSurfaceHeight() const
 {
     return m_state.position.room->getWaterSurfaceHeight( m_state.position );
 }

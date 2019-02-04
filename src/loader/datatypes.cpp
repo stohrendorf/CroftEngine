@@ -298,25 +298,24 @@ core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core
     return result;
 }
 
-void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const int height)
+void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core::Length height)
 {
     auto room = item.m_state.position.room;
     //! @todo Ugly const_cast
     auto groundSector = const_cast<Sector*>(level::Level::findRealFloorSector( item.m_state.position.position, &room ));
     BOOST_ASSERT( groundSector != nullptr );
     const auto topSector = level::Level::findRealFloorSector(
-            item.m_state.position.position + core::TRVec{0, height - SectorSize, 0}, &room );
+            item.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room );
 
-    const auto q = height / QuarterSectorSize;
-    if( groundSector->floorHeight == -127 )
+    if( groundSector->floorHeight == -core::HeightLimit )
     {
-        groundSector->floorHeight = gsl::narrow<int8_t>( topSector->ceilingHeight + q );
+        groundSector->floorHeight = topSector->ceilingHeight + height;
     }
     else
     {
-        groundSector->floorHeight = gsl::narrow<int8_t>( topSector->floorHeight + q );
+        groundSector->floorHeight = topSector->floorHeight + height;
         if( groundSector->floorHeight == topSector->ceilingHeight )
-            groundSector->floorHeight = -127;
+            groundSector->floorHeight = -core::HeightLimit;
     }
 
     Expects( groundSector->box != nullptr );
@@ -324,7 +323,7 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const int h
     if( !groundSector->box->isBlockable() )
         return;
 
-    if( height >= 0 )
+    if( height >= 0_len )
         groundSector->box->unblock();
     else
         groundSector->box->block();

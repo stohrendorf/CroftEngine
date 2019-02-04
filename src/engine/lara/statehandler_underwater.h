@@ -26,7 +26,8 @@ public:
             collisionInfo.facingAngle += 180_deg;
         }
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec{0, 200, 0}, getLevel(),
+        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec{0_len, 200_len, 0_len},
+                                      getLevel(),
                                       core::LaraHeightUnderwater );
 
         applyShift( collisionInfo );
@@ -41,12 +42,12 @@ public:
                 break;
             case CollisionInfo::AxisColl::TopFront:
             {
-                getLara().m_state.fallspeed = 0;
+                getLara().m_state.fallspeed = 0_len;
             }
                 return;
             case CollisionInfo::AxisColl::TopBottom:
             {
-                getLara().m_state.fallspeed = 0;
+                getLara().m_state.fallspeed = 0_len;
             }
                 break;
             case CollisionInfo::AxisColl::Top:
@@ -69,7 +70,7 @@ public:
                 }
                 else
                 {
-                    getLara().m_state.fallspeed = 0;
+                    getLara().m_state.fallspeed = 0_len;
                 }
             }
                 break;
@@ -77,7 +78,7 @@ public:
                 break;
         }
 
-        if( collisionInfo.mid.floor.y >= 0 )
+        if( collisionInfo.mid.floor.y >= 0_len )
         {
             return;
         }

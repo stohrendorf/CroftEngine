@@ -22,7 +22,7 @@ public:
     {
         collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
         setCameraRotationAroundCenter( -15_deg, -130_deg );
-        setCameraEyeCenterDistance( 1024 );
+        setCameraEyeCenterDistance( 1024_len );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -31,7 +31,7 @@ public:
         setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-        collisionInfo.badCeilingDistance = 0;
+        collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
     }

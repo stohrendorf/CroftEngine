@@ -16,11 +16,11 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
     //setAnimation(mdl.animationIndex);
 }
 
-int SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const int frameOffset)
+core::Length SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const int frameOffset)
 {
     const auto scaled = state.anim->speed
                         + state.anim->acceleration * (state.frame_number - state.anim->firstFrame + frameOffset);
-    return scaled / (1 << 16);
+    return core::Length{scaled / (1 << 16)};
 }
 
 int SkeletalModelNode::getAcceleration(const items::ItemState& state)
@@ -245,9 +245,9 @@ loader::BoundingBox SkeletalModelNode::getBoundingBox(const items::ItemState& st
 
     if( framePair.secondFrame != nullptr )
     {
-        return {framePair.firstFrame->bbox, framePair.secondFrame->bbox, framePair.bias};
+        return {framePair.firstFrame->bbox.toBBox(), framePair.secondFrame->bbox.toBBox(), framePair.bias};
     }
-    return framePair.firstFrame->bbox;
+    return framePair.firstFrame->bbox.toBBox();
 }
 
 bool SkeletalModelNode::handleStateTransitions(items::ItemState& state)
@@ -326,7 +326,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
     }
     else
     {
-        pos = core::TRVec( 0, 0, 0 );
+        pos = core::TRVec{};
         transforms.push( *baseTransform * state.rotation.toMatrix() );
     }
 

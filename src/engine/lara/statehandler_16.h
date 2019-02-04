@@ -48,11 +48,11 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        getLara().m_state.fallspeed = 0;
+        getLara().m_state.fallspeed = 0_len;
         getLara().m_state.falling = false;
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-        collisionInfo.badCeilingDistance = 0;
+        collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
         setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
@@ -68,7 +68,7 @@ public:
             setAnimation( loader::AnimationId::STAY_SOLID, 185 );
         }
 
-        if( collisionInfo.mid.floor.y > loader::QuarterSectorSize
+        if( collisionInfo.mid.floor.y > core::QuarterSectorSize
             && collisionInfo.mid.floor.y < core::ClimbLimit2ClickMin )
         {
             if( getLara().m_state.frame_number < 964 || getLara().m_state.frame_number > 993 )

@@ -50,26 +50,26 @@ void ThorHammerHandle::update()
                 auto posZ = m_state.position.position.Z;
                 if( m_state.rotation.Y == 0_deg )
                 {
-                    posZ += 3 * loader::SectorSize;
+                    posZ += 3 * core::SectorSize;
                 }
                 else if( m_state.rotation.Y == 90_deg )
                 {
-                    posX += 3 * loader::SectorSize;
+                    posX += 3 * core::SectorSize;
                 }
                 else if( m_state.rotation.Y == 180_deg )
                 {
-                    posZ -= 3 * loader::SectorSize;
+                    posZ -= 3 * core::SectorSize;
                 }
                 else if( m_state.rotation.Y == -90_deg )
                 {
-                    posX -= 3 * loader::SectorSize;
+                    posX -= 3 * core::SectorSize;
                 }
                 if( getLevel().m_lara->m_state.health >= 0 )
                 {
-                    if( posX - 520 < getLevel().m_lara->m_state.position.position.X
-                        && posX + 520 > getLevel().m_lara->m_state.position.position.X
-                        && posZ - 520 < getLevel().m_lara->m_state.position.position.Z
-                        && posZ + 520 > getLevel().m_lara->m_state.position.position.Z )
+                    if( posX - 520_len < getLevel().m_lara->m_state.position.position.X
+                        && posX + 520_len > getLevel().m_lara->m_state.position.position.X
+                        && posZ - 520_len < getLevel().m_lara->m_state.position.position.Z
+                        && posZ + 520_len > getLevel().m_lara->m_state.position.position.Z )
                     {
                         getLevel().m_lara->m_state.health = -1;
                         getLevel().m_lara->m_state.anim = &getLevel()
@@ -93,23 +93,23 @@ void ThorHammerHandle::update()
             const auto oldPosZ = m_state.position.position.Z;
             if( m_state.rotation.Y == 0_deg )
             {
-                m_state.position.position.Z += 3 * loader::SectorSize;
+                m_state.position.position.Z += 3 * core::SectorSize;
             }
             else if( m_state.rotation.Y == 90_deg )
             {
-                m_state.position.position.X += 3 * loader::SectorSize;
+                m_state.position.position.X += 3 * core::SectorSize;
             }
             else if( m_state.rotation.Y == 180_deg )
             {
-                m_state.position.position.Z -= 3 * loader::SectorSize;
+                m_state.position.position.Z -= 3 * core::SectorSize;
             }
             else if( m_state.rotation.Y == -90_deg )
             {
-                m_state.position.position.X -= 3 * loader::SectorSize;
+                m_state.position.position.X -= 3 * core::SectorSize;
             }
             if( getLevel().m_lara->m_state.health >= 0 )
             {
-                m_state.position.room->patchHeightsForBlock( *this, -2 * loader::SectorSize );
+                m_state.position.room->patchHeightsForBlock( *this, -2 * core::SectorSize );
             }
             m_state.position.position.X = oldPosX;
             m_state.position.position.Z = oldPosZ;
@@ -133,7 +133,7 @@ void ThorHammerHandle::update()
 
 void ThorHammerHandle::collide(LaraNode& node, CollisionInfo& info)
 {
-    if( !info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
+    if( !info.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
         return;
 
     if( !isNear( node, info.collisionRadius ) )
@@ -147,7 +147,7 @@ void ThorHammerBlock::collide(LaraNode& node, CollisionInfo& info)
     if( m_state.current_anim_state == 2_as )
         return;
 
-    if( !info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
+    if( !info.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
         return;
 
     if( !isNear( node, info.collisionRadius ) )

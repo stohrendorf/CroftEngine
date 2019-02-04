@@ -36,7 +36,7 @@ class LaraNode final : public items::ModelItemNode
 private:
     //! @brief Additional rotation per TR Engine Frame
     core::Angle m_yRotationSpeed{0};
-    int m_fallSpeedOverride = 0;
+    core::Length m_fallSpeedOverride = 0_len;
     core::Angle m_movementAngle{0};
     int m_air{core::LaraAir};
     core::Angle m_currentSlideAngle{0};
@@ -59,9 +59,9 @@ public:
         setGoalAnimState( LaraStateId::Stop );
         setMovementAngle( m_state.rotation.Y );
 
-        m_underwaterRoute.step = 20 * loader::SectorSize;
-        m_underwaterRoute.drop = -20 * loader::SectorSize;
-        m_underwaterRoute.fly = loader::QuarterSectorSize;
+        m_underwaterRoute.step = core::SectorSize * 20;
+        m_underwaterRoute.drop = -core::SectorSize * 20;
+        m_underwaterRoute.fly = core::QuarterSectorSize;
 
         Weapon w;
         weapons[WeaponId::None] = w;
@@ -80,9 +80,9 @@ public:
         w.rightAngles.x.max = +80_deg;
         w.aimSpeed = +10_deg;
         w.shotAccuracy = +8_deg;
-        w.gunHeight = 650;
+        w.gunHeight = 650_len;
         w.damage = 1;
-        w.targetDist = 8 * loader::SectorSize;
+        w.targetDist = core::SectorSize * 8;
         w.recoilFrame = 9;
         w.flashTime = 3;
         w.sampleNum = TR1SoundId::LaraShootPistols;
@@ -102,9 +102,9 @@ public:
         w.rightAngles.x.max = +80_deg;
         w.aimSpeed = +10_deg;
         w.shotAccuracy = +8_deg;
-        w.gunHeight = 650;
+        w.gunHeight = 650_len;
         w.damage = 2;
-        w.targetDist = 8 * loader::SectorSize;
+        w.targetDist = core::SectorSize * 8;
         w.recoilFrame = 9;
         w.flashTime = 3;
         w.sampleNum = TR1SoundId::CowboyShoot;
@@ -124,9 +124,9 @@ public:
         w.rightAngles.x.max = +80_deg;
         w.aimSpeed = +10_deg;
         w.shotAccuracy = +8_deg;
-        w.gunHeight = 650;
+        w.gunHeight = 650_len;
         w.damage = 1;
-        w.targetDist = 8 * loader::SectorSize;
+        w.targetDist = core::SectorSize * 8;
         w.recoilFrame = 3;
         w.flashTime = 2;
         w.sampleNum = TR1SoundId::LaraShootUzis;
@@ -146,9 +146,9 @@ public:
         w.rightAngles.x.max = +65_deg;
         w.aimSpeed = +10_deg;
         w.shotAccuracy = 0_deg;
-        w.gunHeight = 500;
+        w.gunHeight = 500_len;
         w.damage = 4;
-        w.targetDist = 8 * loader::SectorSize;
+        w.targetDist = core::SectorSize * 8;
         w.recoilFrame = 9;
         w.flashTime = 3;
         w.sampleNum = TR1SoundId::LaraShootShotgun;
@@ -209,7 +209,7 @@ public:
     void applyShift(const CollisionInfo& collisionInfo)
     {
         m_state.position.position = m_state.position.position + collisionInfo.shift;
-        collisionInfo.shift = {0, 0, 0};
+        collisionInfo.shift = {0_len, 0_len, 0_len};
     }
 
 private:
@@ -276,7 +276,7 @@ public:
         m_yRotationSpeed = std::min( m_yRotationSpeed + val, limit );
     }
 
-    void setFallSpeedOverride(const int v)
+    void setFallSpeedOverride(const core::Length v)
     {
         m_fallSpeedOverride = v;
     }
@@ -318,7 +318,7 @@ public:
 
     void setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
 
-    void updateFloorHeight(int dy);
+    void updateFloorHeight(core::Length dy);
 
     void handleCommandSequence(const engine::floordata::FloorDataValue* floorData, bool fromHeavy);
 
@@ -348,7 +348,7 @@ public:
 
     void setCameraRotationAroundCenterY(const core::Angle y);
 
-    void setCameraEyeCenterDistance(int d);
+    void setCameraEyeCenterDistance(core::Length d);
 
     void setCameraModifier(const CameraModifier k);
 
@@ -387,7 +387,7 @@ public:
     CollisionInfo lastUsedCollisionInfo;
 #endif
 
-    int m_underwaterCurrentStrength = 0;
+    core::Length m_underwaterCurrentStrength = 0_len;
     ai::LotInfo m_underwaterRoute;
 
     void handleUnderwaterCurrent(CollisionInfo& collisionInfo);
@@ -504,9 +504,9 @@ public:
         RangeXY rightAngles{};
         core::Angle aimSpeed = 0_deg;
         core::Angle shotAccuracy = 0_deg;
-        int32_t gunHeight = 0;
+        core::Length gunHeight = 0_len;
         int32_t damage = 0;
-        int32_t targetDist = 0;
+        core::Length targetDist = 0_len;
         int16_t recoilFrame = 0;
         int16_t flashTime = 0;
         TR1SoundId sampleNum = TR1SoundId::LaraFootstep;

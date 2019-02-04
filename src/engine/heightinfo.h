@@ -17,7 +17,7 @@ enum class SlantClass
 
 struct HeightInfo
 {
-    int y = 0;
+    core::Length y = 0_len;
     SlantClass slantClass = SlantClass::None;
     const engine::floordata::FloorDataValue* lastCommandSequenceOrDeath = nullptr;
 
@@ -43,15 +43,15 @@ struct VerticalInfo
     void init(const gsl::not_null<const loader::Sector*>& roomSector,
               const core::TRVec& position,
               const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList,
-              const int floorHeight,
-              const int scalpHeight)
+              const core::Length floorHeight,
+              const core::Length scalpHeight)
     {
         floor = HeightInfo::fromFloor( roomSector, position, itemList );
-        if( floor.y != -loader::HeightLimit )
+        if( floor.y != -core::HeightLimit )
             floor.y -= floorHeight;
 
         ceiling = HeightInfo::fromCeiling( roomSector, position, itemList );
-        if( ceiling.y != -loader::HeightLimit )
+        if( ceiling.y != -core::HeightLimit )
             ceiling.y -= floorHeight - scalpHeight;
     }
 };

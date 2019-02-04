@@ -2,6 +2,7 @@
 
 #include "io/sdlreader.h"
 #include "util/helpers.h"
+#include "core/magic.h"
 #include "core/angle.h"
 #include "core/vec.h"
 #include "color.h"
@@ -11,6 +12,7 @@
 #include "audio.h"
 #include "engine/items_tr1.h"
 #include "engine/floordata/types.h"
+#include "core/length.h"
 
 #include "gsl-lite.hpp"
 
@@ -52,12 +54,6 @@ constexpr const uint16_t TextureIndexMask = 0x0FFF;
 //constexpr const uint16_t TR_TEXTURE_SHAPE_MASK = 0x7000;          // still not used
 constexpr const uint16_t TextureFlippedMask = 0x8000;
 
-constexpr int SectorSize = 1024;
-
-constexpr int QuarterSectorSize = SectorSize / 4;
-
-constexpr int HeightLimit = 127 * QuarterSectorSize;
-
 
 struct Portal
 {
@@ -97,10 +93,10 @@ struct Sector
     const Box* box = nullptr;
     uint8_t roomIndexBelow; //!< The number of the room below this one (255 if none)
     Room* roomBelow = nullptr;
-    int8_t floorHeight; //!< Absolute height of floor (multiply by 256 for world coordinates)
+    core::Length floorHeight = -core::HeightLimit; //!< Absolute height of floor (multiply by 256 for world coordinates)
     uint8_t roomIndexAbove; //!< The number of the room above this one (255 if none)
     Room* roomAbove = nullptr;
-    int8_t ceilingHeight; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
+    core::Length ceilingHeight = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
     static Sector read(io::SDLReader& reader)
     {
@@ -108,9 +104,9 @@ struct Sector
         sector.floorDataIndex = reader.readU16();
         sector.boxIndex = reader.readI16();
         sector.roomIndexBelow = reader.readU8();
-        sector.floorHeight = reader.readI8();
+        sector.floorHeight = core::QuarterSectorSize * reader.readI8();
         sector.roomIndexAbove = reader.readU8();
-        sector.ceilingHeight = reader.readI8();
+        sector.ceilingHeight = core::QuarterSectorSize * reader.readI8();
         return sector;
     }
 
@@ -122,10 +118,10 @@ struct Sector
         box = nullptr;
         roomIndexBelow = 255;
         roomBelow = nullptr;
-        floorHeight = -127;
+        floorHeight = -core::HeightLimit;
         roomIndexAbove = 255;
         roomAbove = nullptr;
-        ceilingHeight = -127;
+        ceilingHeight = -core::HeightLimit;
     }
 };
 
@@ -149,17 +145,17 @@ struct Light
     ByteColor color; // three bytes rgb values
     int16_t intensity; // Light intensity
     uint16_t intensity2; // Almost always equal to Intensity1 [absent from TR1 data files]
-    uint32_t radius; // Falloff value 1
-    uint32_t fade2; // Falloff value 2 [absent from TR1 data files]
+    core::Length radius = 0_len; // Falloff value 1
+    core::Length fade2 = 0_len; // Falloff value 2 [absent from TR1 data files]
     uint8_t light_type; // same as D3D (i.e. 2 is for spotlight)
     uint8_t unknown; // always 0xff?
-    int r_inner;
+    core::Length r_inner = 0_len;
 
-    int r_outer;
+    core::Length r_outer = 0_len;
 
-    int length;
+    core::Length length = 0_len;
 
-    int cutoff;
+    core::Length cutoff = 0_len;
 
     core::TRVec dir; // direction
     core::TRVec pos2; // world coords
@@ -198,7 +194,7 @@ struct Light
         light.position = readCoordinates32( reader );
         // read and make consistent
         light.intensity = reader.readI16();
-        light.radius = reader.readU32();
+        light.radius = core::Length{reader.readI32()};
         // only in TR2
         light.intensity2 = light.intensity;
 
@@ -223,8 +219,8 @@ struct Light
         light.position = readCoordinates32( reader );
         light.intensity = reader.readU16();
         light.intensity2 = reader.readU16();
-        light.radius = reader.readU32();
-        light.fade2 = reader.readU32();
+        light.radius = core::Length{reader.readI32()};
+        light.fade2 = core::Length{reader.readI32()};
 
         light.r_outer = light.radius;
         light.r_inner = light.radius / 2;
@@ -246,8 +242,8 @@ struct Light
         light.color.g = reader.readU8();
         light.color.b = reader.readU8();
         light.color.a = reader.readU8();
-        light.radius = reader.readU32();
-        light.fade2 = reader.readU32();
+        light.radius = core::Length{reader.readI32()};
+        light.fade2 = core::Length{reader.readI32()};
 
         light.r_outer = light.radius;
         light.r_inner = light.radius / 2;
@@ -264,10 +260,10 @@ struct Light
         light.light_type = reader.readU8();
         light.unknown = reader.readU8();
         light.intensity = reader.readU8();
-        light.r_inner = gsl::narrow<int>( reader.readF() );
-        light.r_outer = gsl::narrow<int>( reader.readF() );
-        light.length = gsl::narrow<int>( reader.readF() );
-        light.cutoff = gsl::narrow<int>( reader.readF() );
+        light.r_inner = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
+        light.r_outer = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
+        light.length = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
+        light.cutoff = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
         light.dir = readCoordinatesF( reader );
         return light;
     }
@@ -284,8 +280,8 @@ struct Light
         if ((temp != 0) && (temp != 0xCDCDCDCD))
         BOOST_THROW_EXCEPTION( TR_ReadError("read_tr5_room_light: separator1 has wrong value") );
         */
-        light.r_inner = gsl::narrow<int>( reader.readF() );
-        light.r_outer = gsl::narrow<int>( reader.readF() );
+        light.r_inner = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
+        light.r_outer = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
         reader.readF(); // rad_input
         reader.readF(); // rad_output
         reader.readF(); // range
@@ -442,7 +438,7 @@ struct RoomVertex
         room_vertex.lighting2 = room_vertex.darkness;
         room_vertex.attributes = 0;
         // only in TR5
-        room_vertex.normal = {0, 0, 0};
+        room_vertex.normal = {0_len, 0_len, 0_len};
         const auto f = room_vertex.getBrightness();
         room_vertex.color = {f, f, f, 1};
         return room_vertex;
@@ -457,7 +453,7 @@ struct RoomVertex
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
         // only in TR5
-        room_vertex.normal = {0, 0, 0};
+        room_vertex.normal = {0_len, 0_len, 0_len};
         auto f = room_vertex.lighting2 / 32768.0f;
         room_vertex.color = {f, f, f, 1};
         return room_vertex;
@@ -472,7 +468,7 @@ struct RoomVertex
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal = {0, 0, 0};
+        room_vertex.normal = {0_len, 0_len, 0_len};
         room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
                              (room_vertex.lighting2 & 0x001F) / 62.0f,
@@ -489,7 +485,7 @@ struct RoomVertex
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal = {0, 0, 0};
+        room_vertex.normal = {0_len, 0_len, 0_len};
 
         room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
@@ -557,8 +553,8 @@ struct Room
 
     std::vector<Portal> portals;
 
-    uint16_t sectorCountZ; // "width" of sector list
-    uint16_t sectorCountX; // "height" of sector list
+    int sectorCountZ; // "width" of sector list
+    int sectorCountX; // "height" of sector list
     std::vector<Sector> sectors; // [NumXsectors * NumZsectors] list of sectors in this room
     int16_t ambientDarkness; //!< 0..8191
     int16_t intensity2; // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
@@ -637,9 +633,9 @@ struct Room
         std::unique_ptr<Room> room{std::make_unique<Room>()};
 
         // read and change coordinate system
-        room->position.X = reader.readI32();
-        room->position.Y = 0;
-        room->position.Z = reader.readI32();
+        room->position.X = core::Length{reader.readI32()};
+        room->position.Y = 0_len;
+        room->position.Z = core::Length{reader.readI32()};
         room->lowestHeight = reader.readI32();
         room->greatestHeight = reader.readI32();
 
@@ -690,9 +686,9 @@ struct Room
     {
         std::unique_ptr<Room> room{std::make_unique<Room>()};
         // read and change coordinate system
-        room->position.X = reader.readI32();
-        room->position.Y = 0;
-        room->position.Z = reader.readI32();
+        room->position.X = core::Length{reader.readI32()};
+        room->position.Y = 0_len;
+        room->position.Z = core::Length{reader.readI32()};
         room->lowestHeight = reader.readI32();
         room->greatestHeight = reader.readI32();
 
@@ -750,9 +746,9 @@ struct Room
         std::unique_ptr<Room> room{std::make_unique<Room>()};
 
         // read and change coordinate system
-        room->position.X = reader.readI32();
-        room->position.Y = 0;
-        room->position.Z = reader.readI32();
+        room->position.X = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
+        room->position.Y = 0_len;
+        room->position.Z = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
         room->lowestHeight = reader.readI32();
         room->greatestHeight = reader.readI32();
 
@@ -814,9 +810,9 @@ struct Room
     {
         std::unique_ptr<Room> room{std::make_unique<Room>()};
         // read and change coordinate system
-        room->position.X = reader.readI32();
-        room->position.Y = 0;
-        room->position.Z = reader.readI32();
+        room->position.X = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
+        room->position.Y = 0_len;
+        room->position.Z = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
         room->lowestHeight = reader.readI32();
         room->greatestHeight = reader.readI32();
 
@@ -895,9 +891,9 @@ struct Room
         const std::streampos static_meshes_offset = reader.readU32(); // endPortalOffset
         // static_meshes_offset or room_layer_offset
         // read and change coordinate system
-        room->position.X = reader.readI32();
-        room->position.Y = reader.readU32();
-        room->position.Z = reader.readI32();
+        room->position.X = core::Length{reader.readI32()};
+        room->position.Y = core::Length{reader.readI32()};
+        room->position.Z = core::Length{reader.readI32()};
         room->lowestHeight = reader.readI32();
         room->greatestHeight = reader.readI32();
 
@@ -1109,34 +1105,34 @@ struct Room
     const Sector* getSectorByAbsolutePosition(core::TRVec position) const
     {
         position -= this->position;
-        return getSectorByIndex( position.X / SectorSize, position.Z / SectorSize );
+        return getSectorByIndex( position.X / core::SectorSize, position.Z / core::SectorSize );
     }
 
     gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec position) const
     {
         position -= this->position;
-        return getInnerSectorByIndex( position.X / SectorSize, position.Z / SectorSize );
+        return getInnerSectorByIndex( position.X / core::SectorSize, position.Z / core::SectorSize );
     }
 
     bool isInnerPositionX(core::TRVec position) const
     {
         position -= this->position;
-        const int sx = position.X / SectorSize;
+        const auto sx = position.X / core::SectorSize;
         return sx > 0 && sx < sectorCountX - 1;
     }
 
     bool isInnerPositionZ(core::TRVec position) const
     {
         position -= this->position;
-        const int sz = position.Z / SectorSize;
+        const auto sz = position.Z / core::SectorSize;
         return sz > 0 && sz < sectorCountZ - 1;
     }
 
     bool isInnerPositionXZ(core::TRVec position) const
     {
         position -= this->position;
-        const int sx = position.X / SectorSize;
-        const int sz = position.Z / SectorSize;
+        const auto sx = position.X / core::SectorSize;
+        const auto sz = position.Z / core::SectorSize;
         return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
     }
 
@@ -1183,9 +1179,9 @@ struct Room
         return getSectorByIndex( dx, dz );
     }
 
-    static void patchHeightsForBlock(const engine::items::ItemNode& item, int height);
+    static void patchHeightsForBlock(const engine::items::ItemNode& item, core::Length height);
 
-    boost::optional<int> getWaterSurfaceHeight(const core::RoomBoundPosition& pos) const
+    boost::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos) const
     {
         auto sector = pos.room->getSectorByAbsolutePosition( pos.position );
 
@@ -1194,7 +1190,7 @@ struct Room
             while( sector->roomAbove != nullptr )
             {
                 if( !sector->roomAbove->isWaterRoom() )
-                    return sector->ceilingHeight * loader::QuarterSectorSize;
+                    return sector->ceilingHeight;
 
                 sector = sector->roomAbove->getSectorByAbsolutePosition( pos.position );
             }
@@ -1204,7 +1200,7 @@ struct Room
             while( sector->roomBelow != nullptr )
             {
                 if( sector->roomBelow->isWaterRoom() )
-                    return sector->floorHeight * loader::QuarterSectorSize;
+                    return sector->floorHeight;
 
                 sector = sector->roomBelow->getSectorByAbsolutePosition( pos.position );
             }
@@ -1328,12 +1324,12 @@ using ZoneId = uint16_t;
 
 struct Box
 {
-    int32_t zmin;
-    int32_t zmax;
-    int32_t xmin;
-    int32_t xmax;
+    core::Length zmin = 0_len;
+    core::Length zmax = 0_len;
+    core::Length xmin = 0_len;
+    core::Length xmax = 0_len;
 
-    int16_t floor;
+    core::Length floor = 0_len;
 
     //! @brief Index into the overlaps list, which lists all boxes that overlap with this one.
     //! @remark Mask @c 0x8000 possibly marks boxes that are not reachable by large NPCs, like the T-Rex.
@@ -1341,17 +1337,17 @@ struct Box
     mutable uint16_t overlap_index; // index into Overlaps[]. The high bit is sometimes set; this
     // occurs in front of swinging doors and the like.
 
-    constexpr bool containsX(const int32_t x) const noexcept
+    constexpr bool containsX(const core::Length x) const noexcept
     {
         return x >= xmin && x <= xmax;
     }
 
-    constexpr bool containsZ(const int32_t z) const noexcept
+    constexpr bool containsZ(const core::Length z) const noexcept
     {
         return z >= zmin && z <= zmax;
     }
 
-    constexpr bool contains(const int32_t x, const int32_t z) const noexcept
+    constexpr bool contains(const core::Length x, const core::Length z) const noexcept
     {
         return containsX( x ) && containsZ( z );
     }
@@ -1359,11 +1355,11 @@ struct Box
     static std::unique_ptr<Box> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<Box> box{std::make_unique<Box>()};
-        box->zmin = reader.readI32();
-        box->zmax = reader.readI32();
-        box->xmin = reader.readI32();
-        box->xmax = reader.readI32();
-        box->floor = reader.readI16();
+        box->zmin = 1_len * reader.readI32();
+        box->zmax = 1_len * reader.readI32();
+        box->xmin = 1_len * reader.readI32();
+        box->xmax = 1_len * reader.readI32();
+        box->floor = 1_len * reader.readI16();
         box->overlap_index = reader.readU16();
         return box;
     }
@@ -1371,11 +1367,11 @@ struct Box
     static std::unique_ptr<Box> readTr2(io::SDLReader& reader)
     {
         std::unique_ptr<Box> box{std::make_unique<Box>()};
-        box->zmin = 1024 * reader.readU8();
-        box->zmax = 1024 * reader.readU8();
-        box->xmin = 1024 * reader.readU8();
-        box->xmax = 1024 * reader.readU8();
-        box->floor = reader.readI16();
+        box->zmin = core::SectorSize * reader.readI8();
+        box->zmax = core::SectorSize * reader.readI8();
+        box->xmin = core::SectorSize * reader.readI8();
+        box->xmax = core::SectorSize * reader.readI8();
+        box->floor = 1_len * reader.readI16();
         box->overlap_index = reader.readU16();
         return box;
     }
@@ -1387,13 +1383,13 @@ struct Box
     ZoneId zoneGround2 = 0;
     ZoneId zoneGround2Swapped = 0;
 
-    static const ZoneId Box::* getZoneRef(const bool swapped, const int fly, const int step)
+    static const ZoneId Box::* getZoneRef(const bool swapped, const core::Length& fly, const core::Length& step)
     {
-        if( fly != 0 )
+        if( fly != 0_len )
         {
             return swapped ? &Box::zoneFlySwapped : &Box::zoneFly;
         }
-        else if( step == QuarterSectorSize )
+        else if( step == core::QuarterSectorSize )
         {
             return swapped ? &Box::zoneGround1Swapped : &Box::zoneGround1;
         }

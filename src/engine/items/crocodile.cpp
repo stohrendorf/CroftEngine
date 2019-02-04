@@ -47,7 +47,7 @@ void Crocodile::update()
                 {
                     if( m_state.required_anim_state == 0_as )
                     {
-                        emitParticle( {5, -21, 467}, 9, &createBloodSplat );
+                        emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
                         getLevel().m_lara->m_state.health -= 100;
                         getLevel().m_lara->m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
@@ -61,7 +61,7 @@ void Crocodile::update()
             rotateCreatureHead( headRot );
             if( auto waterSurfaceHeight = getWaterSurfaceHeight() )
             {
-                *waterSurfaceHeight += loader::QuarterSectorSize;
+                *waterSurfaceHeight += core::QuarterSectorSize;
                 if( *waterSurfaceHeight > m_state.position.position.Y )
                 {
                     m_state.position.position.Y = *waterSurfaceHeight;
@@ -76,9 +76,9 @@ void Crocodile::update()
                 m_state.goal_anim_state = m_state.anim->state_id;
                 m_state.current_anim_state = m_state.anim->state_id;
                 m_state.position.position.Y = m_state.floor;
-                m_state.creatureInfo->lot.step = 256;
-                m_state.creatureInfo->lot.drop = -256;
-                m_state.creatureInfo->lot.fly = 0;
+                m_state.creatureInfo->lot.step = 256_len;
+                m_state.creatureInfo->lot.drop = -256_len;
+                m_state.creatureInfo->lot.fly = 0_len;
             }
             getSkeleton()
                     ->patchBone( 8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
@@ -95,9 +95,9 @@ void Crocodile::update()
             }
             if( const auto waterSurfaceHeight = getWaterSurfaceHeight() )
             {
-                if( *waterSurfaceHeight + 32 < m_state.position.position.Y )
+                if( *waterSurfaceHeight + 32_len < m_state.position.position.Y )
                 {
-                    m_state.position.position.Y = m_state.position.position.Y - 32;
+                    m_state.position.position.Y = m_state.position.position.Y - 32_len;
                 }
                 else if( *waterSurfaceHeight > m_state.position.position.Y )
                 {
@@ -150,7 +150,7 @@ void Crocodile::update()
             switch( m_state.current_anim_state.get() )
             {
                 case 1:
-                    if( aiInfo.bite && aiInfo.distance < util::square( 435 ) )
+                    if( aiInfo.bite && aiInfo.distance < util::square( 435_len ) )
                     {
                         m_state.goal_anim_state = 5_as;
                         break;
@@ -162,7 +162,7 @@ void Crocodile::update()
                             break;
                         case ai::Mood::Attack:
                             if( (aiInfo.angle >= -90_deg && aiInfo.angle <= 90_deg)
-                                || aiInfo.distance <= util::square( 3 * loader::SectorSize ) )
+                                || aiInfo.distance <= util::square( 3 * core::SectorSize ) )
                             {
                                 m_state.goal_anim_state = 2_as;
                             }
@@ -193,7 +193,7 @@ void Crocodile::update()
                         else if( m_state.creatureInfo->mood != ai::Mood::Bored )
                         {
                             if( m_state.creatureInfo->mood == ai::Mood::Attack
-                                && aiInfo.distance > util::square( 3 * loader::SectorSize )
+                                && aiInfo.distance > util::square( 3 * core::SectorSize )
                                 && (aiInfo.angle < -90_deg || aiInfo.angle > 90_deg) )
                             {
                                 m_state.goal_anim_state = 1_as;
@@ -232,7 +232,7 @@ void Crocodile::update()
                 case 5:
                     if( m_state.required_anim_state == 0_as )
                     {
-                        emitParticle( {5, -21, 467}, 9, &createBloodSplat );
+                        emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
                         getLevel().m_lara->m_state.health -= 100;
                         getLevel().m_lara->m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
@@ -264,9 +264,9 @@ void Crocodile::update()
             m_state.current_anim_state = m_state.anim->state_id;
             if( m_state.creatureInfo != nullptr )
             {
-                m_state.creatureInfo->lot.step = 20480;
-                m_state.creatureInfo->lot.drop = -20480;
-                m_state.creatureInfo->lot.fly = 16;
+                m_state.creatureInfo->lot.step = 20480_len;
+                m_state.creatureInfo->lot.drop = -20480_len;
+                m_state.creatureInfo->lot.fly = 16_len;
             }
         }
         if( m_state.creatureInfo != nullptr )

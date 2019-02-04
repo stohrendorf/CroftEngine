@@ -30,7 +30,7 @@ public:
             setGoalAnimState( LaraStateId::UnderwaterInertia );
         }
 
-        getLara().m_state.fallspeed = std::min( getLara().m_state.fallspeed + 8, 200 );
+        getLara().m_state.fallspeed = std::min( getLara().m_state.fallspeed + 8_len, 200_len );
     }
 };
 }

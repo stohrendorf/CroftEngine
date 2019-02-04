@@ -45,14 +45,14 @@ struct CollisionInfo
     mutable core::TRVec shift;
     core::Axis facingAxis = core::Axis::PosZ;
     core::Angle facingAngle = 0_deg; // external
-    int collisionRadius = 0; // external
+    core::Length collisionRadius = 0_len; // external
     PolicyFlagSet policyFlags; // external
     core::TRVec oldPosition; // external
     //! The deepest floor distance considered passable.
-    int badPositiveDistance = 0; // external
+    core::Length badPositiveDistance = 0_len; // external
     //! The highest floor distance considered passable.
-    int badNegativeDistance = 0; // external
-    int badCeilingDistance = 0; // external
+    core::Length badNegativeDistance = 0_len; // external
+    core::Length badCeilingDistance = 0_len; // external
 
     VerticalInfo mid;
     VerticalInfo front;
@@ -64,12 +64,12 @@ struct CollisionInfo
 
     bool hasStaticMeshCollision = false;
 
-    void initHeightInfo(const core::TRVec& laraPos, const level::Level& level, int height);
+    void initHeightInfo(const core::TRVec& laraPos, const level::Level& level, const core::Length& height);
 
     static std::set<gsl::not_null<const loader::Room*>>
-    collectTouchingRooms(const core::TRVec& position, int radius, int height, const level::Level& level);
+    collectTouchingRooms(const core::TRVec& position, const core::Length& radius, const core::Length& height, const level::Level& level);
 
-    bool checkStaticMeshCollisions(const core::TRVec& position, int height, const level::Level& level);
+    bool checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height, const level::Level& level);
 };
 
 

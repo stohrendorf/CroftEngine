@@ -17,18 +17,18 @@ public:
     {
     }
 
-    void patchFloor(const core::TRVec& pos, int& y) override
+    void patchFloor(const core::TRVec& pos, core::Length& y) override
     {
         if( pos.Y <= m_state.position.position.Y )
             y = m_state.position.position.Y;
     }
 
-    void patchCeiling(const core::TRVec& pos, int& y) override
+    void patchCeiling(const core::TRVec& pos, core::Length& y) override
     {
         if( pos.Y <= m_state.position.position.Y )
             return;
 
-        y = m_state.position.position.Y + loader::QuarterSectorSize;
+        y = m_state.position.position.Y + core::QuarterSectorSize;
     }
 };
 }

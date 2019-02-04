@@ -1,5 +1,8 @@
 #pragma once
 
+#include "core/angle.h"
+#include "core/vec.h"
+
 #include "gsl-lite.hpp"
 
 #include <glm/glm.hpp>
@@ -23,7 +26,7 @@ T clamp(const T& v, const T& min, const T& max)
 }
 
 template<typename T>
-constexpr T square(T v)
+constexpr auto square(T v) -> decltype( v * v )
 {
     return v * v;
 }
@@ -69,5 +72,16 @@ inline glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
     for( int i = 0; i < 16; ++i )
         rp[i] = ap[i] * (1 - bias) + bp[i] * bias;
     return result;
+}
+
+inline core::TRVec rotateY(core::Angle angle, core::Length x, core::Length y, core::Length z)
+{
+    const auto sin = angle.sin();
+    const auto cos = angle.cos();
+    return core::TRVec{
+            core::Length{static_cast<core::Length::int_type>(z.value * sin + x.value * cos)},
+            y,
+            core::Length{static_cast<core::Length::int_type>(z.value * cos - x.value * sin)}
+    };
 }
 }

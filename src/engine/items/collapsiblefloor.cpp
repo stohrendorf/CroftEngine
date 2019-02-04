@@ -16,7 +16,7 @@ void CollapsibleFloor::update()
 
     if( m_state.current_anim_state == 0_as ) // stationary
     {
-        if( m_state.position.position.Y - 512 != getLevel().m_lara->m_state.position.position.Y )
+        if( m_state.position.position.Y - 512_len != getLevel().m_lara->m_state.position.position.Y )
         {
             m_state.triggerState = TriggerState::Inactive;
             deactivate();
@@ -52,7 +52,7 @@ void CollapsibleFloor::update()
 
     // settle
     m_state.goal_anim_state = 3_as;
-    m_state.fallspeed = 0;
+    m_state.fallspeed = 0_len;
     auto pos = m_state.position.position;
     pos.Y = m_state.floor;
     m_state.position.position = pos;

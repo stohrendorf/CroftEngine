@@ -25,8 +25,8 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         return;
 
     static const InteractionLimits limits{
-            core::BoundingBox{{-200, 0, 312},
-                              {+200, 0, 512}},
+            core::BoundingBox{{-200_len, 0_len, 312_len},
+                              {+200_len, 0_len, 512_len}},
             {-10_deg, -30_deg, -10_deg},
             {+10_deg, +30_deg, +10_deg}
     };

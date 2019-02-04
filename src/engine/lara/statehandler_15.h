@@ -21,7 +21,7 @@ public:
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
         if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward &&
-            getRelativeHeightAtDirection( getLara().m_state.rotation.Y, 256 ) >= -core::ClimbLimit2ClickMin )
+            getRelativeHeightAtDirection( getLara().m_state.rotation.Y, 256_len ) >= -core::ClimbLimit2ClickMin )
         {
             setMovementAngle( getLara().m_state.rotation.Y );
             setGoalAnimState( LaraStateId::JumpForward );
@@ -30,20 +30,20 @@ public:
         {
             if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left
                 && getRelativeHeightAtDirection(
-                        getLara().m_state.rotation.Y - 90_deg, 256 ) >= -core::ClimbLimit2ClickMin )
+                        getLara().m_state.rotation.Y - 90_deg, 256_len ) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle( getLara().m_state.rotation.Y - 90_deg );
                 setGoalAnimState( LaraStateId::JumpRight );
             }
             else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right &&
-                     getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 90_deg, 256 )
+                     getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 90_deg, 256_len )
                      >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle( getLara().m_state.rotation.Y + 90_deg );
                 setGoalAnimState( LaraStateId::JumpLeft );
             }
             else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward &&
-                     getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 180_deg, 256 )
+                     getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 180_deg, 256_len )
                      >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle( getLara().m_state.rotation.Y + 180_deg );
@@ -59,11 +59,11 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        getLara().m_state.fallspeed = 0;
+        getLara().m_state.fallspeed = 0_len;
         getLara().m_state.falling = false;
-        collisionInfo.badPositiveDistance = loader::HeightLimit;
-        collisionInfo.badNegativeDistance = -loader::HeightLimit;
-        collisionInfo.badCeilingDistance = 0;
+        collisionInfo.badPositiveDistance = core::HeightLimit;
+        collisionInfo.badNegativeDistance = -core::HeightLimit;
+        collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.facingAngle = getMovementAngle();
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
 
@@ -74,7 +74,7 @@ public:
 
         setAnimation( loader::AnimationId::STAY_SOLID, 185 );
         setGoalAnimState( LaraStateId::Stop );
-        getLara().m_state.speed = 0;
+        getLara().m_state.speed = 0_len;
         getLara().m_state.position.position = collisionInfo.oldPosition;
     }
 };

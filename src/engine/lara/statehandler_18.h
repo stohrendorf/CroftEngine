@@ -30,8 +30,8 @@ public:
             setGoalAnimState( LaraStateId::UnderwaterForward );
         }
 
-        getLara().m_state.fallspeed = std::max( 0, getLara().m_state.fallspeed - 6 );
-        if( getLara().m_state.fallspeed <= 133 )
+        getLara().m_state.fallspeed = std::max( 0_len, getLara().m_state.fallspeed - 6_len );
+        if( getLara().m_state.fallspeed <= 133_len )
         {
             setGoalAnimState( LaraStateId::UnderwaterStop );
         }

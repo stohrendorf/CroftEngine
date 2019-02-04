@@ -10,27 +10,27 @@ namespace io
 inline core::TRVec readCoordinates16(SDLReader& reader)
 {
     core::TRVec vertex;
-    vertex.X = reader.readI16();
-    vertex.Y = reader.readI16();
-    vertex.Z = reader.readI16();
+    vertex.X = core::Length{static_cast<core::Length::int_type>(reader.readI16())};
+    vertex.Y = core::Length{static_cast<core::Length::int_type>(reader.readI16())};
+    vertex.Z = core::Length{static_cast<core::Length::int_type>(reader.readI16())};
     return vertex;
 }
 
 inline core::TRVec readCoordinates32(SDLReader& reader)
 {
     core::TRVec vertex;
-    vertex.X = reader.readI32();
-    vertex.Y = reader.readI32();
-    vertex.Z = reader.readI32();
+    vertex.X = core::Length{reader.readI32()};
+    vertex.Y = core::Length{reader.readI32()};
+    vertex.Z = core::Length{reader.readI32()};
     return vertex;
 }
 
 inline core::TRVec readCoordinatesF(SDLReader& reader)
 {
     core::TRVec vertex;
-    vertex.X = std::lround( reader.readF() );
-    vertex.Y = std::lround( reader.readF() );
-    vertex.Z = std::lround( reader.readF() );
+    vertex.X = core::Length{static_cast<core::Length::int_type>(std::round( reader.readF() ))};
+    vertex.Y = core::Length{static_cast<core::Length::int_type>(std::round( reader.readF() ))};
+    vertex.Z = core::Length{static_cast<core::Length::int_type>(std::round( reader.readF() ))};
     return vertex;
 }
 }

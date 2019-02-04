@@ -38,11 +38,11 @@ void Raptor::update()
                 {
                     m_state.goal_anim_state = 8_as;
                 }
-                else if( aiInfo.bite && aiInfo.distance < util::square( 680 ) )
+                else if( aiInfo.bite && aiInfo.distance < util::square( 680_len ) )
                 {
                     m_state.goal_anim_state = 8_as;
                 }
-                else if( aiInfo.bite && aiInfo.distance < util::square( 1536 ) )
+                else if( aiInfo.bite && aiInfo.distance < util::square( 1536_len ) )
                 {
                     m_state.goal_anim_state = 4_as;
                 }
@@ -77,7 +77,7 @@ void Raptor::update()
                 {
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( aiInfo.bite && aiInfo.distance < 2359296 )
+                else if( aiInfo.bite && aiInfo.distance < util::square( 1536_len ) )
                 {
                     if( m_state.goal_anim_state == 3_as )
                     {
@@ -109,7 +109,7 @@ void Raptor::update()
                     {
                         if( m_state.touch_bits.to_ulong() & 0xff7c00UL )
                         {
-                            emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
+                            emitParticle( core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat );
                             getLevel().m_lara->m_state.is_hit = true;
                             getLevel().m_lara->m_state.health -= 100;
                             m_state.required_anim_state = 1_as;
@@ -123,7 +123,7 @@ void Raptor::update()
                 {
                     if( m_state.touch_bits.to_ulong() & 0xff7c00UL )
                     {
-                        emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
+                        emitParticle( core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat );
                         getLevel().m_lara->m_state.is_hit = true;
                         getLevel().m_lara->m_state.health -= 100;
                         m_state.required_anim_state = 3_as;
@@ -134,7 +134,7 @@ void Raptor::update()
                 animTilt = animAngle;
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0xff7c00UL) )
                 {
-                    emitParticle( core::TRVec{0, 66, 318}, 22, &createBloodSplat );
+                    emitParticle( core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 100;
                     m_state.required_anim_state = 1_as;

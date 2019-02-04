@@ -3,6 +3,7 @@
 #include "io/sdlreader.h"
 #include "engine/items_tr1.h"
 #include "core/vec.h"
+#include "gameplay.h"
 
 #include "gsl-lite.hpp"
 #include "type_safe/types.hpp"
@@ -14,25 +15,58 @@ namespace loader
 
 struct BoundingBox
 {
-    int16_t minX{0}, maxX{0};
-    int16_t minY{0}, maxY{0};
-    int16_t minZ{0}, maxZ{0};
+    core::Length minX{0_len}, maxX{0_len};
+    core::Length minY{0_len}, maxY{0_len};
+    core::Length minZ{0_len}, maxZ{0_len};
 
     explicit BoundingBox() = default;
 
+    BoundingBox(
+            core::Length minX,
+            core::Length maxX,
+            core::Length minY,
+            core::Length maxY,
+            core::Length minZ,
+            core::Length maxZ
+    )
+            : minX{minX}, maxX{maxX}
+            , minY{minY}, maxY{maxY}
+            , minZ{minZ}, maxZ{maxZ}
+    {}
+
     BoundingBox(const BoundingBox& a, const BoundingBox& b, const float bias)
-            : minX{static_cast<int16_t>(a.minX * (1 - bias) + b.minX * bias)}
-            , maxX{static_cast<int16_t>(a.maxX * (1 - bias) + b.maxX * bias)}
-            , minY{static_cast<int16_t>(a.minY * (1 - bias) + b.minY * bias)}
-            , maxY{static_cast<int16_t>(a.maxY * (1 - bias) + b.maxY * bias)}
-            , minZ{static_cast<int16_t>(a.minZ * (1 - bias) + b.minZ * bias)}
-            , maxZ{static_cast<int16_t>(a.maxZ * (1 - bias) + b.maxZ * bias)}
+            : minX{lerp( a.minX, b.minX, bias )}
+            , maxX{lerp( a.maxX, b.maxX, bias )}
+            , minY{lerp( a.minY, b.minY, bias )}
+            , maxY{lerp( a.maxY, b.maxY, bias )}
+            , minZ{lerp( a.minZ, b.minZ, bias )}
+            , maxZ{lerp( a.maxZ, b.maxZ, bias )}
     {
     }
 
     core::TRVec getCenter() const
     {
         return {(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2};
+    }
+};
+
+
+struct BoundingBoxIO
+{
+    int16_t minX{0}, maxX{0};
+    int16_t minY{0}, maxY{0};
+    int16_t minZ{0}, maxZ{0};
+
+    BoundingBox toBBox() const
+    {
+        return BoundingBox{
+                core::Length{static_cast<core::Length::int_type>(minX)},
+                core::Length{static_cast<core::Length::int_type>(maxX)},
+                core::Length{static_cast<core::Length::int_type>(minY)},
+                core::Length{static_cast<core::Length::int_type>(maxY)},
+                core::Length{static_cast<core::Length::int_type>(minZ)},
+                core::Length{static_cast<core::Length::int_type>(maxZ)}
+        };
     }
 };
 
@@ -50,12 +84,16 @@ struct AnimFrame
 
         core::TRVec toTr() const noexcept
         {
-            return core::TRVec( x, y, z );
+            return core::TRVec{
+                    core::Length{static_cast<core::Length::int_type>(x)},
+                    core::Length{static_cast<core::Length::int_type>(y)},
+                    core::Length{static_cast<core::Length::int_type>(z)}
+            };
         }
     };
 
 
-    BoundingBox bbox;
+    BoundingBoxIO bbox;
     Vec pos;
     uint16_t numValues;
 
@@ -203,7 +241,7 @@ struct Transitions
     /// \brief reads an animation state change.
     static std::unique_ptr<Transitions> read(io::SDLReader& reader)
     {
-        std::unique_ptr<Transitions> state_change{new Transitions()};
+        std::unique_ptr<Transitions> state_change = std::make_unique<Transitions>();
         state_change->stateId = reader.readU16();
         state_change->transitionCaseCount = reader.readU16();
         state_change->firstTransitionCase = reader.readU16();
@@ -246,7 +284,7 @@ struct BoneTreeEntry
 
     glm::vec3 toGl() const noexcept
     {
-        return core::TRVec( x, y, z ).toRenderSystem();
+        return core::TRVec( core::Length{x}, core::Length{y}, core::Length{z} ).toRenderSystem();
     }
 };
 

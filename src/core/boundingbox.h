@@ -43,8 +43,8 @@ struct BoundingBox final
                && v.Z >= min.Z && v.Z <= max.Z;
     }
 
-    TRVec min{0, 0, 0};
+    TRVec min{0_len, 0_len, 0_len};
 
-    TRVec max{0, 0, 0};
+    TRVec max{0_len, 0_len, 0_len};
 };
 }

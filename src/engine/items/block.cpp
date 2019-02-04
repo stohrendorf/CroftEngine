@@ -19,8 +19,8 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
 
     static const InteractionLimits limits{
-            core::BoundingBox{{-300, 0, -692},
-                              {200,  0, -512}},
+            core::BoundingBox{{-300_len, 0_len, -692_len},
+                              {200_len,  0_len, -512_len}},
             {-10_deg, -30_deg, -10_deg},
             {+10_deg, +30_deg, +10_deg}
     };
@@ -46,24 +46,24 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
         lara.m_state.rotation.Y = y;
 
-        int32_t core::TRVec::*vp;
-        int d;
+        core::Length core::TRVec::*vp;
+        core::Length d = 0_len;
         switch( *axis )
         {
             case core::Axis::PosZ:
-                d = loader::SectorSize - 100;
+                d = core::SectorSize - 100_len;
                 vp = &core::TRVec::Z;
                 break;
             case core::Axis::PosX:
-                d = loader::SectorSize - 100;
+                d = core::SectorSize - 100_len;
                 vp = &core::TRVec::X;
                 break;
             case core::Axis::NegZ:
-                d = 100;
+                d = 100_len;
                 vp = &core::TRVec::Z;
                 break;
             case core::Axis::NegX:
-                d = 100;
+                d = 100_len;
                 vp = &core::TRVec::X;
                 break;
             default:
@@ -71,7 +71,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         }
 
         lara.m_state.position.position.*vp =
-                (lara.m_state.position.position.*vp / loader::SectorSize) * loader::SectorSize + d;
+                (lara.m_state.position.position.*vp / core::SectorSize) * core::SectorSize + d;
 
         lara.setGoalAnimState( loader::LaraStateId::PushableGrab );
         lara.updateImpl();
@@ -91,7 +91,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
     {
-        if( !canPushBlock( loader::SectorSize, *axis ) )
+        if( !canPushBlock( core::SectorSize, *axis ) )
         {
             return;
         }
@@ -101,7 +101,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
     else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
     {
-        if( !canPullBlock( loader::SectorSize, *axis ) )
+        if( !canPullBlock( core::SectorSize, *axis ) )
         {
             return;
         }
@@ -115,7 +115,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
 
     activate();
-    loader::Room::patchHeightsForBlock( *this, loader::SectorSize );
+    loader::Room::patchHeightsForBlock( *this, core::SectorSize );
     m_state.triggerState = TriggerState::Active;
 
     ModelItemNode::update();
@@ -126,7 +126,7 @@ void Block::update()
 {
     if( m_state.activationState.isOneshot() )
     {
-        loader::Room::patchHeightsForBlock( *this, loader::SectorSize );
+        loader::Room::patchHeightsForBlock( *this, core::SectorSize );
         kill();
         return;
     }
@@ -160,21 +160,20 @@ void Block::update()
 
     m_state.triggerState = TriggerState::Inactive;
     deactivate();
-    loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
+    loader::Room::patchHeightsForBlock( *this, -core::SectorSize );
     pos = m_state.position;
     sector = level::Level::findRealFloorSector( pos );
     getLevel().m_lara->handleCommandSequence(
             HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).lastCommandSequenceOrDeath, true );
 }
 
-bool Block::isOnFloor(const int height) const
+bool Block::isOnFloor(const core::Length height) const
 {
     const auto sector = level::Level::findRealFloorSector( m_state.position.position, m_state.position.room );
-    return sector->floorHeight == -127
-           || sector->floorHeight * loader::QuarterSectorSize == m_state.position.position.Y - height;
+    return sector->floorHeight == -core::HeightLimit || sector->floorHeight == m_state.position.position.Y - height;
 }
 
-bool Block::canPushBlock(const int height, const core::Axis axis) const
+bool Block::canPushBlock(const core::Length height, const core::Axis axis) const
 {
     if( !isOnFloor( height ) )
     {
@@ -185,16 +184,16 @@ bool Block::canPushBlock(const int height, const core::Axis axis) const
     switch( axis )
     {
         case core::Axis::PosZ:
-            pos.Z += loader::SectorSize;
+            pos.Z += core::SectorSize;
             break;
         case core::Axis::PosX:
-            pos.X += loader::SectorSize;
+            pos.X += core::SectorSize;
             break;
         case core::Axis::NegZ:
-            pos.Z -= loader::SectorSize;
+            pos.Z -= core::SectorSize;
             break;
         case core::Axis::NegX:
-            pos.X -= loader::SectorSize;
+            pos.X -= core::SectorSize;
             break;
         default:
             break;
@@ -202,24 +201,24 @@ bool Block::canPushBlock(const int height, const core::Axis axis) const
 
     CollisionInfo tmp;
     tmp.facingAxis = axis;
-    tmp.collisionRadius = 500;
-    if( tmp.checkStaticMeshCollisions( pos, 1000, getLevel() ) )
+    tmp.collisionRadius = 500_len;
+    if( tmp.checkStaticMeshCollisions( pos, 1000_len, getLevel() ) )
     {
         return false;
     }
 
     const auto targetSector = level::Level::findRealFloorSector( pos, m_state.position.room );
-    if( targetSector->floorHeight * loader::QuarterSectorSize != pos.Y )
+    if( targetSector->floorHeight != pos.Y )
     {
         return false;
     }
 
     pos.Y -= height;
     return pos.Y >= level::Level::findRealFloorSector(
-            pos, m_state.position.room )->ceilingHeight * loader::QuarterSectorSize;
+            pos, m_state.position.room )->ceilingHeight;
 }
 
-bool Block::canPullBlock(const int height, const core::Axis axis) const
+bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
 {
     if( !isOnFloor( height ) )
     {
@@ -230,16 +229,16 @@ bool Block::canPullBlock(const int height, const core::Axis axis) const
     switch( axis )
     {
         case core::Axis::PosZ:
-            pos.Z -= loader::SectorSize;
+            pos.Z -= core::SectorSize;
             break;
         case core::Axis::PosX:
-            pos.X -= loader::SectorSize;
+            pos.X -= core::SectorSize;
             break;
         case core::Axis::NegZ:
-            pos.Z += loader::SectorSize;
+            pos.Z += core::SectorSize;
             break;
         case core::Axis::NegX:
-            pos.X += loader::SectorSize;
+            pos.X += core::SectorSize;
             break;
         default:
             break;
@@ -250,13 +249,13 @@ bool Block::canPullBlock(const int height, const core::Axis axis) const
 
     CollisionInfo tmp;
     tmp.facingAxis = axis;
-    tmp.collisionRadius = 500;
-    if( tmp.checkStaticMeshCollisions( pos, 1000, getLevel() ) )
+    tmp.collisionRadius = 500_len;
+    if( tmp.checkStaticMeshCollisions( pos, 1000_len, getLevel() ) )
     {
         return false;
     }
 
-    if( sector->floorHeight * loader::QuarterSectorSize != pos.Y )
+    if( sector->floorHeight != pos.Y )
     {
         return false;
     }
@@ -264,7 +263,7 @@ bool Block::canPullBlock(const int height, const core::Axis axis) const
     auto topPos = pos;
     topPos.Y -= height;
     const auto topSector = level::Level::findRealFloorSector( topPos, m_state.position.room );
-    if( topPos.Y < topSector->ceilingHeight * loader::QuarterSectorSize )
+    if( topPos.Y < topSector->ceilingHeight )
     {
         return false;
     }
@@ -273,30 +272,30 @@ bool Block::canPullBlock(const int height, const core::Axis axis) const
     switch( axis )
     {
         case core::Axis::PosZ:
-            laraPos.Z -= loader::SectorSize;
+            laraPos.Z -= core::SectorSize;
             break;
         case core::Axis::PosX:
-            laraPos.X -= loader::SectorSize;
+            laraPos.X -= core::SectorSize;
             break;
         case core::Axis::NegZ:
-            laraPos.Z += loader::SectorSize;
+            laraPos.Z += core::SectorSize;
             break;
         case core::Axis::NegX:
-            laraPos.X += loader::SectorSize;
+            laraPos.X += core::SectorSize;
             break;
         default:
             break;
     }
 
     sector = level::Level::findRealFloorSector( laraPos, &room );
-    if( sector->floorHeight * loader::QuarterSectorSize != pos.Y )
+    if( sector->floorHeight != pos.Y )
     {
         return false;
     }
 
     laraPos.Y -= core::ScalpHeight;
     sector = level::Level::findRealFloorSector( laraPos, &room );
-    if( laraPos.Y < sector->ceilingHeight * loader::QuarterSectorSize )
+    if( laraPos.Y < sector->ceilingHeight )
     {
         return false;
     }
@@ -305,19 +304,19 @@ bool Block::canPullBlock(const int height, const core::Axis axis) const
     switch( axis )
     {
         case core::Axis::PosZ:
-            laraPos.Z -= loader::SectorSize;
+            laraPos.Z -= core::SectorSize;
             tmp.facingAxis = core::Axis::NegZ;
             break;
         case core::Axis::PosX:
-            laraPos.X -= loader::SectorSize;
+            laraPos.X -= core::SectorSize;
             tmp.facingAxis = core::Axis::NegX;
             break;
         case core::Axis::NegZ:
-            laraPos.Z += loader::SectorSize;
+            laraPos.Z += core::SectorSize;
             tmp.facingAxis = core::Axis::PosZ;
             break;
         case core::Axis::NegX:
-            laraPos.X += loader::SectorSize;
+            laraPos.X += core::SectorSize;
             tmp.facingAxis = core::Axis::PosX;
             break;
         default:
@@ -331,12 +330,12 @@ bool Block::canPullBlock(const int height, const core::Axis axis) const
 void Block::load(const YAML::Node& n)
 {
     if( m_state.triggerState != TriggerState::Invisible )
-        loader::Room::patchHeightsForBlock( *this, loader::SectorSize );
+        loader::Room::patchHeightsForBlock( *this, core::SectorSize );
 
     ModelItemNode::load( n );
 
     if( m_state.triggerState != TriggerState::Invisible )
-        loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
+        loader::Room::patchHeightsForBlock( *this, -core::SectorSize );
 }
 }
 }

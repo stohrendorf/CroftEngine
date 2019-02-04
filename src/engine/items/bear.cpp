@@ -62,7 +62,7 @@ void Bear::update()
             case GettingDown.get():
                 if( getLevel().m_lara->m_state.health <= 0 )
                 {
-                    if( aiInfo.bite && aiInfo.distance < util::square( 768 ) )
+                    if( aiInfo.bite && aiInfo.distance < util::square( 768_len ) )
                     {
                         m_state.goal_anim_state = Biting;
                     }
@@ -107,7 +107,7 @@ void Bear::update()
                     m_state.required_anim_state = Growling;
                     m_state.goal_anim_state = RoaringStanding;
                 }
-                else if( aiInfo.distance > util::square( 2048 ) || util::rand15() < 1536 )
+                else if( aiInfo.distance > util::square( 2048_len ) || util::rand15() < 1536 )
                 {
                     m_state.required_anim_state = GettingDown;
                     m_state.goal_anim_state = RoaringStanding;
@@ -126,13 +126,13 @@ void Bear::update()
                 }
                 else if( aiInfo.ahead && m_state.required_anim_state == 0_as )
                 {
-                    if( m_state.creatureInfo->flags == 0 && aiInfo.distance < util::square( 2048 )
+                    if( m_state.creatureInfo->flags == 0 && aiInfo.distance < util::square( 2048_len )
                         && util::rand15() < 768 )
                     {
                         m_state.required_anim_state = RoaringStanding;
                         m_state.goal_anim_state = GettingDown;
                     }
-                    else if( aiInfo.distance < util::square( 1024 ) )
+                    else if( aiInfo.distance < util::square( 1024_len ) )
                     {
                         m_state.goal_anim_state = RunningAttack;
                     }
@@ -153,7 +153,7 @@ void Bear::update()
                 {
                     m_state.goal_anim_state = GettingDown;
                 }
-                else if( aiInfo.bite && aiInfo.distance < util::square( 600 ) )
+                else if( aiInfo.bite && aiInfo.distance < util::square( 600_len ) )
                 {
                     m_state.goal_anim_state = Standing;
                 }
@@ -165,7 +165,7 @@ void Bear::update()
             case RunningAttack.get():
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x2406cUL) )
                 {
-                    emitParticle( core::TRVec{0, 96, 335}, 14, &createBloodSplat );
+                    emitParticle( core::TRVec{0_len, 96_len, 335_len}, 14, &createBloodSplat );
                     getLevel().m_lara->m_state.health -= 200;
                     getLevel().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = GettingDown;

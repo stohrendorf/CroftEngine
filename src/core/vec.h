@@ -1,11 +1,12 @@
 #pragma once
 
-#include "gameplay.h"
+#include "length.h"
 
 #include "gsl-lite.hpp"
 
 #include <sol.hpp>
 #include <yaml-cpp/yaml.h>
+#include <glm/glm.hpp>
 
 namespace loader
 {
@@ -16,9 +17,7 @@ namespace core
 {
 struct TRVec
 {
-    using Scalar = int32_t;
-
-    Scalar X = 0, Y = 0, Z = 0;
+    Length X = 0_len, Y = 0_len, Z = 0_len;
 
     constexpr TRVec() noexcept = default;
 
@@ -27,20 +26,20 @@ struct TRVec
     constexpr TRVec(TRVec&&) noexcept = default;
 
     explicit constexpr TRVec(const glm::vec3& v) noexcept
-            : X{gsl::narrow_cast<Scalar>( v.x )}
-            , Y{-gsl::narrow_cast<Scalar>( v.y )}
-            , Z{-gsl::narrow_cast<Scalar>( v.z )}
+            : X{gsl::narrow_cast<Length::int_type>( v.x )}
+            , Y{-gsl::narrow_cast<Length::int_type>( v.y )}
+            , Z{-gsl::narrow_cast<Length::int_type>( v.z )}
     {
     }
 
     constexpr explicit TRVec(const glm::ivec3& v) noexcept
-            : X{v.x}
-            , Y{-v.y}
-            , Z{-v.z}
+            : X{gsl::narrow_cast<Length::int_type>( v.x )}
+            , Y{-gsl::narrow_cast<Length::int_type>( v.y )}
+            , Z{-gsl::narrow_cast<Length::int_type>( v.z )}
     {
     }
 
-    constexpr TRVec(const Scalar x, const Scalar y, const Scalar z) noexcept
+    constexpr TRVec(const Length x, const Length y, const Length z) noexcept
             : X{x}
             , Y{y}
             , Z{z}
@@ -66,7 +65,7 @@ struct TRVec
         return *this;
     }
 
-    constexpr TRVec operator/(const int n) const noexcept
+    constexpr TRVec operator/(const core::Length::int_type n) const noexcept
     {
         return {X / n, Y / n, Z / n};
     }
@@ -95,24 +94,24 @@ struct TRVec
     glm::vec3 toRenderSystem() const noexcept
     {
         return {
-                gsl::narrow_cast<float>( X ),
-                -gsl::narrow_cast<float>( Y ),
-                -gsl::narrow_cast<float>( Z )
+                gsl::narrow_cast<float>( X.value ),
+                -gsl::narrow_cast<float>( Y.value ),
+                -gsl::narrow_cast<float>( Z.value )
         };
     }
 
-    int distanceTo(const TRVec& rhs) const
+    Length distanceTo(const TRVec& rhs) const
     {
-        const auto dx = gsl::narrow<float>( X - rhs.X );
-        const auto dy = gsl::narrow<float>( Y - rhs.Y );
-        const auto dz = gsl::narrow<float>( Z - rhs.Z );
-        return static_cast<Scalar>(glm::sqrt( dx * dx + dy * dy + dz * dz ));
+        const auto dx = gsl::narrow<float>( (X - rhs.X).value );
+        const auto dy = gsl::narrow<float>( (Y - rhs.Y).value );
+        const auto dz = gsl::narrow<float>( (Z - rhs.Z).value );
+        return Length{static_cast<Length::int_type>( glm::sqrt( dx * dx + dy * dy + dz * dz ) )};
     }
 
     static sol::usertype<TRVec>& userType()
     {
         static sol::usertype<TRVec> userType(
-                sol::constructors<TRVec(), TRVec(Scalar, Scalar, Scalar)>(),
+                sol::constructors<TRVec(), TRVec(Length, Length, Length)>(),
                 "x", &TRVec::X,
                 "y", &TRVec::Y,
                 "z", &TRVec::Z
@@ -140,14 +139,14 @@ struct TRVec
         if( !n["z"].IsScalar() )
             BOOST_THROW_EXCEPTION( std::domain_error( "TRVec::Z is not a scalar value" ) );
 
-        X = n["x"].as<Scalar>();
-        Y = n["y"].as<Scalar>();
-        Z = n["z"].as<Scalar>();
+        X = n["x"].as<Length>();
+        Y = n["y"].as<Length>();
+        Z = n["z"].as<Length>();
     }
 
-    float length() const
+    core::Length length() const
     {
-        return glm::length( toRenderSystem() );
+        return sqrt( X * X + Y * Y + Z * Z );
     }
 };
 

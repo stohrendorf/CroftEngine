@@ -34,11 +34,11 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        getLara().m_state.fallspeed = 0;
+        getLara().m_state.fallspeed = 0_len;
         getLara().m_state.falling = false;
-        collisionInfo.badPositiveDistance = loader::HeightLimit;
+        collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-        collisionInfo.badCeilingDistance = 0;
+        collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
         setMovementAngle( collisionInfo.facingAngle );
@@ -48,11 +48,11 @@ public:
             return;
         }
 
-        if( collisionInfo.mid.floor.y > 200 )
+        if( collisionInfo.mid.floor.y > 200_len )
         {
             setAnimation( loader::AnimationId::FREE_FALL_BACK, 1473 );
             setGoalAnimState( LaraStateId::FallBackward );
-            getLara().m_state.fallspeed = 0;
+            getLara().m_state.fallspeed = 0_len;
             getLara().m_state.falling = true;
             return;
         }

@@ -9,8 +9,8 @@ namespace items
 void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     static const InteractionLimits limits{
-            core::BoundingBox{{-256, 540, -350},
-                              {256,  740, -200}},
+            core::BoundingBox{{-256_len, 540_len, -350_len},
+                              {256_len,  740_len, -200_len}},
             {-10_deg, 0_deg, 0_deg},
             {10_deg, 0_deg, 0_deg}
     };
@@ -29,7 +29,7 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             && !lara.m_state.falling
             && lara.getCurrentAnimState() == loader::LaraStateId::Stop )
         {
-            lara.alignForInteraction( {0, 640, -310}, m_state );
+            lara.alignForInteraction( {0_len, 640_len, -310_len}, m_state );
             lara.m_state.anim = getLevel().findAnimatedModelForType( TR1ItemId::AlternativeLara )
                                           ->animations;
             lara.setCurrentAnimState( loader::LaraStateId::PickUp );

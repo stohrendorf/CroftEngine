@@ -41,7 +41,7 @@ void Lion::update()
                     {
                         m_state.goal_anim_state = 7_as;
                     }
-                    else if( aiInfo.ahead && aiInfo.distance < util::square( loader::SectorSize ) )
+                    else if( aiInfo.ahead && aiInfo.distance < util::square( core::SectorSize ) )
                     {
                         m_state.goal_anim_state = 4_as;
                     }
@@ -74,7 +74,7 @@ void Lion::update()
                 {
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( aiInfo.ahead && aiInfo.distance < util::square( loader::SectorSize ) )
+                else if( aiInfo.ahead && aiInfo.distance < util::square( core::SectorSize ) )
                 {
                     m_state.goal_anim_state = 1_as;
                 }
@@ -99,7 +99,7 @@ void Lion::update()
             case 7:
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
-                    emitParticle( {-2, -10, 132}, 21, &createBloodSplat );
+                    emitParticle( {-2_len, -10_len, 132_len}, 21, &createBloodSplat );
                     getLevel().m_lara->m_state.health -= 250;
                     getLevel().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = 1_as;

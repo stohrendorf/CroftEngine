@@ -19,7 +19,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        getLara().m_state.fallspeed = std::max( 0, getLara().m_state.fallspeed - 8 );
+        getLara().m_state.fallspeed = std::max( 0_len, getLara().m_state.fallspeed - 8_len );
 
         if( getLara().m_state.rotation.X > 2_deg )
         {
@@ -46,7 +46,7 @@ public:
         auto h = getLara().getWaterSurfaceHeight();
         if( h.is_initialized() && *h < getLara().m_state.position.position.Y - core::DefaultCollisionRadius )
         {
-            getLara().m_state.position.position.Y -= 5;
+            getLara().m_state.position.position.Y -= 5_len;
         }
 
         StateHandler_Underwater::postprocessFrame( collisionInfo );

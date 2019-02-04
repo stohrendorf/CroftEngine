@@ -33,12 +33,12 @@ private:
     bool m_laraHit = false;
     int m_chargeTimeout = 1;
     bool m_shooting = false;
-    glm::vec3 m_mainBoltEnd;
+    core::TRVec m_mainBoltEnd;
 
     struct ChildBolt
     {
         size_t startIndex = 0;
-        glm::vec3 end{0.0f};
+        core::TRVec end{};
         std::shared_ptr<gameplay::Mesh> mesh;
     };
 

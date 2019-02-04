@@ -771,8 +771,8 @@ const loader::Sector* Level::findRealFloorSector(const core::TRVec& position,
     const loader::Sector* sector;
     while( true )
     {
-        sector = (*room)->findFloorSectorWithClampedIndex( (position.X - (*room)->position.X) / loader::SectorSize,
-                                                           (position.Z - (*room)->position.Z) / loader::SectorSize );
+        sector = (*room)->findFloorSectorWithClampedIndex( (position.X - (*room)->position.X) / core::SectorSize,
+                                                           (position.Z - (*room)->position.Z) / core::SectorSize );
         if( sector->portalTarget == nullptr )
         {
             break;
@@ -782,9 +782,9 @@ const loader::Sector* Level::findRealFloorSector(const core::TRVec& position,
     }
 
     Expects( sector != nullptr );
-    if( sector->floorHeight * loader::QuarterSectorSize > position.Y )
+    if( sector->floorHeight > position.Y )
     {
-        while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != nullptr )
+        while( sector->ceilingHeight > position.Y && sector->roomAbove != nullptr )
         {
             *room = sector->roomAbove;
             sector = (*room)->getSectorByAbsolutePosition( position );
@@ -794,7 +794,7 @@ const loader::Sector* Level::findRealFloorSector(const core::TRVec& position,
     }
     else
     {
-        while( sector->floorHeight * loader::QuarterSectorSize < position.Y && sector->roomBelow != nullptr )
+        while( sector->floorHeight < position.Y && sector->roomBelow != nullptr )
         {
             *room = sector->roomBelow;
             sector = (*room)->getSectorByAbsolutePosition( position );
@@ -813,8 +813,8 @@ Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const load
     while( true )
     {
         sector = room->findFloorSectorWithClampedIndex(
-                gsl::narrow_cast<int>( position.X - room->position.X ) / loader::SectorSize,
-                gsl::narrow_cast<int>( position.Z - room->position.Z ) / loader::SectorSize );
+                (position.X - room->position.X) / core::SectorSize,
+                (position.Z - room->position.Z) / core::SectorSize );
         Expects( sector != nullptr );
         if( sector->portalTarget == nullptr )
         {
@@ -825,9 +825,9 @@ Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const load
     }
 
     Expects( sector != nullptr );
-    if( sector->floorHeight * loader::QuarterSectorSize > position.Y )
+    if( sector->floorHeight > position.Y )
     {
-        while( sector->ceilingHeight * loader::QuarterSectorSize > position.Y && sector->roomAbove != nullptr )
+        while( sector->ceilingHeight > position.Y && sector->roomAbove != nullptr )
         {
             room = sector->roomAbove;
             sector = room->getSectorByAbsolutePosition( position );
@@ -836,7 +836,7 @@ Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const load
     }
     else
     {
-        while( sector->floorHeight * loader::QuarterSectorSize <= position.Y && sector->roomBelow != nullptr )
+        while( sector->floorHeight <= position.Y && sector->roomBelow != nullptr )
         {
             room = sector->roomBelow;
             sector = room->getSectorByAbsolutePosition( position );
@@ -1287,12 +1287,12 @@ void Level::dinoStompEffect(engine::items::ItemNode& node)
     const auto d = node.m_state.position.position.toRenderSystem() - m_cameraController->getPosition();
     const auto absD = glm::abs( d );
 
-    const auto MaxD = 16 * loader::SectorSize;
-    if( absD.x > MaxD || absD.y > MaxD || absD.z > MaxD )
+    constexpr auto MaxD = 16_len * core::SectorSize;
+    if( absD.x > MaxD.value || absD.y > MaxD.value || absD.z > MaxD.value )
         return;
 
-    const auto x = 1 - length2( d ) / util::square( MaxD );
-    m_cameraController->setBounce( 100 * x );
+    const auto x = 1 - length2( d ) / util::square( MaxD.value );
+    m_cameraController->setBounce( 100_len * x );
 }
 
 void Level::turn180Effect(engine::items::ItemNode& node)
@@ -1328,7 +1328,7 @@ void Level::laraBubblesEffect(engine::items::ItemNode& node)
                 nullptr );
 
         const auto position = core::TRVec{
-                glm::vec3{translate( itemSpheres.at( 14 ).m, core::TRVec{0, 0, 50}.toRenderSystem() )[3]}};
+                glm::vec3{translate( itemSpheres.at( 14 ).m, core::TRVec{0_len, 0_len, 50_len}.toRenderSystem() )[3]}};
 
         while( bubbleCount-- > 0 )
         {
@@ -1351,7 +1351,7 @@ void Level::earthquakeEffect()
     {
         case 0:
             playSound( engine::TR1SoundId::Explosion1, nullptr );
-            m_cameraController->setBounce( -250 );
+            m_cameraController->setBounce( -250_len );
             break;
         case 3:
             playSound( engine::TR1SoundId::RollingBall, nullptr );
@@ -1390,7 +1390,7 @@ void Level::floodEffect()
         {
             mul = 30 - m_effectTimer;
         }
-        pos.Y = 100 * mul + m_cameraController->getCenter().position.Y;
+        pos.Y = 100_len * mul + m_cameraController->getCenter().position.Y;
         playSound( engine::TR1SoundId::WaterFlow3, pos.toRenderSystem() );
     }
     else
@@ -1424,7 +1424,7 @@ void Level::stairsToSlopeEffect()
             playSound( engine::TR1SoundId::HeavyDoorSlam, nullptr );
         }
         auto pos = m_cameraController->getCenter().position;
-        pos.Y += 100 * m_effectTimer;
+        pos.Y += 100_len * m_effectTimer;
         playSound( engine::TR1SoundId::FlowingAir, pos.toRenderSystem() );
     }
     else
@@ -1450,7 +1450,7 @@ void Level::sandEffect()
 void Level::explosionEffect()
 {
     playSound( engine::TR1SoundId::LowPitchedSettling, nullptr );
-    m_cameraController->setBounce( -75 );
+    m_cameraController->setBounce( -75_len );
     m_activeEffect.reset();
 }
 
@@ -1510,11 +1510,11 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
 
         if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item.get() ) )
         {
-            loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize );
+            loader::Room::patchHeightsForBlock( *tmp, core::SectorSize );
         }
         else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item.get() ) )
         {
-            loader::Room::patchHeightsForBlock( *tmp, loader::SectorSize * 2 );
+            loader::Room::patchHeightsForBlock( *tmp, core::SectorSize * 2 );
         }
     }
 
@@ -1545,11 +1545,11 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
 
         if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item.get() ) )
         {
-            loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize );
+            loader::Room::patchHeightsForBlock( *tmp, -core::SectorSize );
         }
         else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item.get() ) )
         {
-            loader::Room::patchHeightsForBlock( *tmp, -loader::SectorSize * 2 );
+            loader::Room::patchHeightsForBlock( *tmp, -core::SectorSize * 2 );
         }
     }
 

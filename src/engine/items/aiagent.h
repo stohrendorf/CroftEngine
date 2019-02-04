@@ -49,7 +49,7 @@ protected:
     bool canShootAtLara(const ai::AiInfo& aiInfo) const;
 
     bool tryShootAtLara(engine::items::ModelItemNode& item,
-                        int distance,
+                        core::Area distance,
                         const core::TRVec& bonePos,
                         size_t boneIndex,
                         core::Angle angle);
@@ -58,10 +58,12 @@ private:
 
     bool anyMovingEnabledItemInReach() const;
 
-    bool isPositionOutOfReach(const core::TRVec& testPosition, int currentBoxFloor, int nextBoxFloor,
+    bool isPositionOutOfReach(const core::TRVec& testPosition,
+                              core::Length currentBoxFloor,
+                              core::Length nextBoxFloor,
                               const ai::LotInfo& lotInfo) const;
 
-    const int m_collisionRadius;
+    const core::Length m_collisionRadius;
 };
 }
 }

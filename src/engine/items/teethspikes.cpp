@@ -9,14 +9,14 @@ void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisio
         int bloodSplats = util::rand15( 2 );
         if( !lara.m_state.falling )
         {
-            if( lara.m_state.speed < 30 )
+            if( lara.m_state.speed < 30_len )
             {
                 return;
             }
         }
         else
         {
-            if( lara.m_state.fallspeed > 0 )
+            if( lara.m_state.fallspeed > 0_len )
             {
                 // immediate death when falling into the spikes
                 bloodSplats = 20;
@@ -30,12 +30,12 @@ void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisio
                                         core::RoomBoundPosition{
                                                 lara.m_state.position.room,
                                                 lara.m_state.position.position + core::TRVec{
-                                                        util::rand15s( 128 ),
-                                                        -util::rand15( 512 ),
-                                                        util::rand15s( 128 )
+                                                        util::rand15s( 128_len ),
+                                                        -util::rand15( 512_len ),
+                                                        util::rand15s( 128_len )
                                                 }
                                         },
-                                        20, util::rand15( +180_deg ) );
+                                        20_len, util::rand15( +180_deg ) );
             getLevel().m_particles.emplace_back( fx );
         }
         if( lara.m_state.health <= 0 )

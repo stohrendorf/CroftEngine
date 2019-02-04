@@ -16,7 +16,7 @@ public:
             : ModelItemNode{level, room, item, true, animatedModel}
     {
         if( m_state.triggerState != TriggerState::Invisible )
-            loader::Room::patchHeightsForBlock( *this, -loader::SectorSize );
+            loader::Room::patchHeightsForBlock( *this, -core::SectorSize );
     }
 
     void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
@@ -26,11 +26,11 @@ public:
     void load(const YAML::Node& n) override;
 
 private:
-    bool isOnFloor(int height) const;
+    bool isOnFloor(core::Length height) const;
 
-    bool canPushBlock(int height, core::Axis axis) const;
+    bool canPushBlock(core::Length height, core::Axis axis) const;
 
-    bool canPullBlock(int height, core::Axis axis) const;
+    bool canPullBlock(core::Length height, core::Axis axis) const;
 };
 }
 }

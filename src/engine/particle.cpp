@@ -112,9 +112,9 @@ bool BubbleParticle::update(level::Level& level)
 {
     angle.X += 13_deg;
     angle.Y += 9_deg;
-    pos.position.X += 11 * angle.Y.sin();
+    pos.position.X += 11_len * angle.Y.sin();
     pos.position.Y -= speed;
-    pos.position.Z += 8 * angle.X.cos();
+    pos.position.Z += 8_len * angle.X.cos();
     auto sector = level::Level::findRealFloorSector( pos.position, &pos.room );
     if( sector == nullptr || !pos.room->isWaterRoom() )
     {
@@ -122,7 +122,7 @@ bool BubbleParticle::update(level::Level& level)
     }
 
     const auto ceiling = HeightInfo::fromCeiling( sector, pos.position, level.m_itemNodes ).y;
-    if( ceiling == -loader::HeightLimit || pos.position.Y <= ceiling )
+    if( ceiling == -core::HeightLimit || pos.position.Y <= ceiling )
     {
         return false;
     }
@@ -147,7 +147,7 @@ bool FlameParticle::update(level::Level& level)
             return true;
         }
 
-        if( level.m_lara->isNear( *this, 600 ) )
+        if( level.m_lara->isNear( *this, 600_len ) )
         {
             // it's hot here, isn't it?
             level.m_lara->m_state.health -= 3;
@@ -155,7 +155,7 @@ bool FlameParticle::update(level::Level& level)
 
             const auto distSq = util::square( level.m_lara->m_state.position.position.X - pos.position.X )
                                 + util::square( level.m_lara->m_state.position.position.Z - pos.position.Z );
-            if( distSq < util::square( 300 ) )
+            if( distSq < util::square( 300_len ) )
             {
                 timePerSpriteFrame = 100;
 
@@ -170,14 +170,14 @@ bool FlameParticle::update(level::Level& level)
     {
         // burn baby burn
 
-        pos.position = {0, 0, 0};
+        pos.position = {0_len, 0_len, 0_len};
         if( timePerSpriteFrame == -1 )
         {
-            pos.position.Y = -100;
+            pos.position.Y = -100_len;
         }
         else
         {
-            pos.position.Y = 0;
+            pos.position.Y = 0_len;
         }
 
         const auto itemSpheres = level.m_lara->getSkeleton()->getBoneCollisionSpheres(

@@ -30,9 +30,9 @@ public:
         getLara().m_state.falling = true;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.badPositiveDistance = loader::HeightLimit;
-        collisionInfo.badNegativeDistance = 0;
-        collisionInfo.badCeilingDistance = 192;
+        collisionInfo.badPositiveDistance = core::HeightLimit;
+        collisionInfo.badNegativeDistance = 0_len;
+        collisionInfo.badCeilingDistance = 192_len;
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
 
         if( tryReach( collisionInfo ) )
@@ -41,7 +41,7 @@ public:
         }
 
         jumpAgainstWall( collisionInfo );
-        if( getLara().m_state.fallspeed <= 0 || collisionInfo.mid.floor.y > 0 )
+        if( getLara().m_state.fallspeed <= 0_len || collisionInfo.mid.floor.y > 0_len )
         {
             return;
         }
@@ -55,7 +55,7 @@ public:
             setGoalAnimState( LaraStateId::Stop );
         }
 
-        getLara().m_state.fallspeed = 0;
+        getLara().m_state.fallspeed = 0_len;
         getLara().m_state.falling = false;
         placeOnFloor( collisionInfo );
     }

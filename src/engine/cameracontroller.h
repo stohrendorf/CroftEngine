@@ -58,7 +58,7 @@ private:
     CameraMode m_mode = CameraMode::Chase;
 
     //! @brief Additional height of the camera above the real position.
-    int m_eyeYOffset = 0;
+    core::Length m_eyeYOffset = 0_len;
 
     CameraModifier m_modifier = CameraModifier::None;
 
@@ -67,12 +67,12 @@ private:
     /**
      * @brief If <0, bounce randomly around +/- @c m_bounce/2, increasing value by 5 each frame; if >0, do a single Y bounce downwards by @c m_bounce.
      */
-    int m_bounce = 0;
+    core::Length m_bounce = 0_len;
 
     //! @brief Goal distance between the pivot point and the camera.
-    int m_eyeCenterDistance = 1536;
+    core::Length m_eyeCenterDistance = 1536_len;
     //! @brief Floor-projected pivot distance, squared.
-    int m_eyeCenterHorizontalDistanceSq = 0;
+    core::Area m_eyeCenterHorizontalDistanceSq{0};
 
     core::TRRotation m_eyeRotation;
 
@@ -120,7 +120,7 @@ public:
         return m_eyeRotation;
     }
 
-    void setEyeCenterDistance(const int d)
+    void setEyeCenterDistance(const core::Length d)
     {
         m_eyeCenterDistance = d;
     }
@@ -214,7 +214,7 @@ public:
                               core::RoomBoundPosition& end,
                               const level::Level& level);
 
-    void setBounce(const int bounce)
+    void setBounce(const core::Length& bounce)
     {
         m_bounce = bounce;
     }
@@ -231,7 +231,7 @@ public:
     void load(const YAML::Node& n);
 
     size_t m_cinematicFrame = 0;
-    core::TRVec m_cinematicPos{0, 0, 0};
+    core::TRVec m_cinematicPos{0_len, 0_len, 0_len};
     core::TRRotation m_cinematicRot{0_deg, 0_deg, 0_deg};
 
 private:
@@ -259,7 +259,7 @@ private:
 
     void handleFixedCamera();
 
-    int moveIntoGeometry(core::RoomBoundPosition& pos, int margin) const;
+    core::Length moveIntoGeometry(core::RoomBoundPosition& pos, const core::Length& margin) const;
 
     bool isVerticallyOutsideRoom(const core::TRVec& pos, const gsl::not_null<const loader::Room*>& room) const;
 
@@ -271,16 +271,34 @@ private:
 
     void handleEnemy(const items::ItemNode& item);
 
-    using ClampCallback = void(int& current1, int& current2, int target1, int target2, int lowLimit1, int lowLimit2,
-                               int highLimit1, int highLimit2);
+    using ClampCallback = void(core::Length& current1,
+                               core::Length& current2,
+                               core::Length target1,
+                               core::Length target2,
+                               core::Length lowLimit1,
+                               core::Length lowLimit2,
+                               core::Length highLimit1,
+                               core::Length highLimit2);
 
     void clampBox(core::RoomBoundPosition& eyePositionGoal, const std::function<ClampCallback>& callback) const;
 
-    static void freeLookClamp(int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight,
-                              int back, int right, int front, int left);
+    static void freeLookClamp(core::Length& currentFrontBack,
+                              core::Length& currentLeftRight,
+                              core::Length targetFrontBack,
+                              core::Length targetLeftRight,
+                              core::Length back,
+                              core::Length right,
+                              core::Length front,
+                              core::Length left);
 
-    static void clampToCorners(int targetHorizontalDistanceSq,
-                               int& currentFrontBack, int& currentLeftRight, int targetFrontBack, int targetLeftRight,
-                               int back, int right, int front, int left);
+    static void clampToCorners(core::Area targetHorizontalDistanceSq,
+                               core::Length& currentFrontBack,
+                               core::Length& currentLeftRight,
+                               core::Length targetFrontBack,
+                               core::Length targetLeftRight,
+                               core::Length back,
+                               core::Length right,
+                               core::Length front,
+                               core::Length left);
 };
 }

@@ -9,8 +9,8 @@ namespace items
 void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     static const InteractionLimits limits{
-            core::BoundingBox{{-200, 0, 312},
-                              {200,  0, 512}},
+            core::BoundingBox{{-200_len, 0_len, 312_len},
+                              {200_len,  0_len, 512_len}},
             core::TRRotation{-10_deg, -30_deg, -10_deg},
             core::TRRotation{10_deg, 30_deg, 10_deg}
     };
@@ -54,7 +54,7 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         return;
     }
 
-    lara.alignForInteraction( core::TRVec{0, 0, 362}, m_state );
+    lara.alignForInteraction( core::TRVec{0_len, 0_len, 362_len}, m_state );
 
     do
     {

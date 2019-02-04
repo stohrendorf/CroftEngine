@@ -73,7 +73,7 @@ void Larson::update()
                     m_state.required_anim_state = 4_as;
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( !aiInfo.ahead || aiInfo.distance > util::square( 3 * loader::SectorSize ) )
+                else if( !aiInfo.ahead || aiInfo.distance > util::square( 3 * core::SectorSize ) )
                 {
                     m_state.required_anim_state = 3_as;
                     m_state.goal_anim_state = 1_as;
@@ -92,7 +92,7 @@ void Larson::update()
                     m_state.required_anim_state = 4_as;
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( aiInfo.ahead && aiInfo.distance < util::square( 3 * loader::SectorSize ) )
+                else if( aiInfo.ahead && aiInfo.distance < util::square( 3 * core::SectorSize ) )
                 {
                     m_state.required_anim_state = 2_as;
                     m_state.goal_anim_state = 1_as;
@@ -126,7 +126,7 @@ void Larson::update()
             case 7:                                   // firing
                 if( m_state.required_anim_state == 0_as )
                 {
-                    if( tryShootAtLara( *this, aiInfo.distance, core::TRVec{-60, 170, 0}, 14, headRot ) )
+                    if( tryShootAtLara( *this, aiInfo.distance, core::TRVec{-60_len, 170_len, 0_len}, 14, headRot ) )
                     {
                         getLevel().m_lara->m_state.health -= 50;
                         getLevel().m_lara->m_state.is_hit = true;

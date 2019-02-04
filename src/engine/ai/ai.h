@@ -89,11 +89,11 @@ struct LotInfo
 
     //! @brief Movement limits
     //! @{
-    int16_t step = loader::QuarterSectorSize;
+    core::Length step = core::QuarterSectorSize;
 
-    int16_t drop = -loader::QuarterSectorSize;
+    core::Length drop = -core::QuarterSectorSize;
 
-    int16_t fly = 0;
+    core::Length fly = 0_len;
 
     //! @}
     //! @brief The target box we need to reach
@@ -114,13 +114,13 @@ struct LotInfo
     void setRandomSearchTarget(const gsl::not_null<const loader::Box*>& box)
     {
         required_box = box;
-        const auto zSize = box->zmax - box->zmin - loader::SectorSize;
-        target.Z = util::rand15( zSize ) + box->zmin + loader::SectorSize / 2;
-        const auto xSize = box->xmax - box->xmin - loader::SectorSize;
-        target.X = util::rand15( xSize ) + box->xmin + loader::SectorSize / 2;
-        if( fly != 0 )
+        const auto zSize = box->zmax - box->zmin - core::SectorSize;
+        target.Z = util::rand15( zSize ) + box->zmin + core::SectorSize / 2;
+        const auto xSize = box->xmax - box->xmin - core::SectorSize;
+        target.X = util::rand15( xSize ) + box->xmin + core::SectorSize / 2;
+        if( fly != 0_len )
         {
-            target.Y = box->floor - 384;
+            target.Y = box->floor - 384_len;
         }
         else
         {
@@ -242,7 +242,7 @@ struct AiInfo
 
     loader::ZoneId enemy_zone;
 
-    int32_t distance;
+    core::Area distance{0};
 
     bool ahead;
 

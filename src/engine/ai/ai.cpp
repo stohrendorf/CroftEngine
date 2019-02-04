@@ -64,7 +64,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
     if( box == nullptr )
         return false;
 
-    int minZ = 0, maxZ = 0, minX = 0, maxX = 0;
+    core::Length minZ = 0_len, maxZ = 0_len, minX = 0_len, maxX = 0_len;
 
     const auto clampX = [&minX, &maxX, &box]() {
         minX = std::max( minX, box->xmin );
@@ -86,10 +86,10 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
     int unclampedDirs = ClampNone;
     while( true )
     {
-        if( fly != 0 )
+        if( fly != 0_len )
         {
-            if( box->floor - loader::SectorSize < target.Y )
-                target.Y = box->floor - loader::SectorSize;
+            if( box->floor - core::SectorSize < target.Y )
+                target.Y = box->floor - core::SectorSize;
         }
         else
         {
@@ -110,7 +110,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
             {
                 if( (unclampedDirs & NoClampZNeg) && box->containsX( item.position.position.X ) )
                 {
-                    target.Z = std::max( target.Z, box->zmin + loader::SectorSize / 2 );
+                    target.Z = std::max( target.Z, box->zmin + core::SectorSize / 2 );
 
                     if( unclampedDirs & Flag10 )
                         return true;
@@ -121,7 +121,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
                 }
                 else if( unclampedDirs != NoClampZNeg )
                 {
-                    target.Z = maxZ - loader::SectorSize / 2;
+                    target.Z = maxZ - core::SectorSize / 2;
                     if( unclampedDirs != ClampNone )
                         return true;
 
@@ -132,7 +132,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
             {
                 if( (unclampedDirs & NoClampZPos) && box->containsX( item.position.position.X ) )
                 {
-                    target.Z = std::min( target.Z, box->zmax - loader::SectorSize / 2 );
+                    target.Z = std::min( target.Z, box->zmax - core::SectorSize / 2 );
 
                     if( unclampedDirs & Flag10 )
                         return true;
@@ -143,7 +143,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
                 }
                 else if( unclampedDirs != NoClampZPos )
                 {
-                    target.Z = minZ + loader::SectorSize / 2;
+                    target.Z = minZ + core::SectorSize / 2;
                     if( unclampedDirs != ClampNone )
                         return true;
 
@@ -155,7 +155,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
             {
                 if( (unclampedDirs & NoClampXNeg) && box->containsZ( item.position.position.Z ) )
                 {
-                    target.X = std::max( target.X, box->xmin + loader::SectorSize / 2 );
+                    target.X = std::max( target.X, box->xmin + core::SectorSize / 2 );
 
                     if( unclampedDirs & Flag10 )
                         return true;
@@ -166,7 +166,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
                 }
                 else if( unclampedDirs != NoClampXNeg )
                 {
-                    target.X = maxX - loader::SectorSize / 2;
+                    target.X = maxX - core::SectorSize / 2;
                     if( unclampedDirs != ClampNone )
                         return true;
 
@@ -177,7 +177,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
             {
                 if( (unclampedDirs & NoClampXPos) && box->containsZ( item.position.position.Z ) )
                 {
-                    target.X = std::min( target.X, box->xmax - loader::SectorSize / 2 );
+                    target.X = std::min( target.X, box->xmax - core::SectorSize / 2 );
 
                     if( unclampedDirs & Flag10 )
                         return true;
@@ -188,7 +188,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
                 }
                 else if( unclampedDirs != NoClampXPos )
                 {
-                    target.X = minX + loader::SectorSize / 2;
+                    target.X = minX + core::SectorSize / 2;
                     if( unclampedDirs != ClampNone )
                         return true;
 
@@ -205,8 +205,8 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
             }
             else if( !(unclampedDirs & Flag10) )
             {
-                target.Z = util::clamp( target.Z, box->zmin + loader::SectorSize / 2,
-                                        box->zmax - loader::SectorSize / 2 );
+                target.Z = util::clamp( target.Z, box->zmin + core::SectorSize / 2,
+                                        box->zmax - core::SectorSize / 2 );
             }
 
             if( unclampedDirs & (NoClampXPos | NoClampXNeg) )
@@ -215,8 +215,8 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
             }
             else if( !(unclampedDirs & Flag10) )
             {
-                target.X = util::clamp( target.X, box->xmin + loader::SectorSize / 2,
-                                        box->xmax - loader::SectorSize / 2 );
+                target.X = util::clamp( target.X, box->xmin + core::SectorSize / 2,
+                                        box->xmax - core::SectorSize / 2 );
             }
 
             target.Y = this->target.Y;
@@ -234,28 +234,28 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
     BOOST_ASSERT( box != nullptr );
     if( unclampedDirs & (NoClampZPos | NoClampZNeg) )
     {
-        const auto center = box->zmax - box->zmin - loader::SectorSize;
-        target.Z = util::rand15( center ) + box->zmin + loader::SectorSize / 2;
+        const auto center = box->zmax - box->zmin - core::SectorSize;
+        target.Z = util::rand15( center ) + box->zmin + core::SectorSize / 2;
     }
     else if( !(unclampedDirs & Flag10) )
     {
-        target.Z = util::clamp( target.Z, box->zmin + loader::SectorSize / 2,
-                                box->zmax - loader::SectorSize / 2 );
+        target.Z = util::clamp( target.Z, box->zmin + core::SectorSize / 2,
+                                box->zmax - core::SectorSize / 2 );
     }
 
     if( unclampedDirs & (NoClampXPos | NoClampXNeg) )
     {
-        const auto center = box->xmax - box->xmin - loader::SectorSize;
-        target.X = util::rand15( center ) + box->xmin + loader::SectorSize / 2;
+        const auto center = box->xmax - box->xmin - core::SectorSize;
+        target.X = util::rand15( center ) + box->xmin + core::SectorSize / 2;
     }
     else if( !(unclampedDirs & Flag10) )
     {
-        target.X = util::clamp( target.X, box->xmin + loader::SectorSize / 2,
-                                box->xmax - loader::SectorSize / 2 );
+        target.X = util::clamp( target.X, box->xmin + core::SectorSize / 2,
+                                box->xmax - core::SectorSize / 2 );
     }
 
-    if( fly != 0 )
-        target.Y = box->floor - 384;
+    if( fly != 0_len )
+        target.Y = box->floor - 384_len;
     else
         target.Y = box->floor;
 
@@ -305,9 +305,9 @@ void LotInfo::load(const YAML::Node& n, const level::Level& lvl)
         tail = &lvl.m_boxes.at( n["tail"].as<size_t>() );
     m_searchVersion = n["searchVersion"].as<uint16_t>();
     block_mask = n["blockMask"].as<uint16_t>();
-    step = n["step"].as<int16_t>();
-    drop = n["drop"].as<int16_t>();
-    fly = n["fly"].as<int16_t>();
+    step = n["step"].as<core::Length>();
+    drop = n["drop"].as<core::Length>();
+    fly = n["fly"].as<core::Length>();
     if( !n["targetBox"].IsDefined() )
         target_box = nullptr;
     else
@@ -387,7 +387,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
                 }
                 else if( aiInfo.zone_number == aiInfo.enemy_zone )
                 {
-                    if( aiInfo.distance >= util::square( 3 * loader::SectorSize )
+                    if( aiInfo.distance >= util::square( 3 * core::SectorSize )
                         && (creatureInfo.mood != Mood::Stalk || creatureInfo.lot.required_box != nullptr) )
                     {
                         creatureInfo.mood = Mood::Stalk;
@@ -430,15 +430,15 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
     switch( creatureInfo.mood )
     {
         case Mood::Attack:
-            if( util::rand15() >= int( lvl.m_scriptEngine["getObjectInfo"].call<sol::table>(
-                    item.type )["target_update_chance"] ) )
+            if( util::rand15()
+                >= int( lvl.m_scriptEngine["getObjectInfo"].call<sol::table>( item.type )["target_update_chance"] ) )
                 break;
 
             creatureInfo.lot.target = lvl.m_lara->m_state.position.position;
             creatureInfo.lot.required_box = lvl.m_lara->m_state.box;
-            if( creatureInfo.lot.fly != 0 && lvl.m_lara->isOnLand() )
+            if( creatureInfo.lot.fly != 0_len && lvl.m_lara->isOnLand() )
                 creatureInfo.lot.target.Y += lvl.m_lara->getSkeleton()->getInterpolationInfo( lvl.m_lara->m_state )
-                                                .getNearestFrame()->bbox.minY;
+                                                .getNearestFrame()->bbox.toBBox().minY;
 
             break;
         case Mood::Bored:
@@ -530,7 +530,7 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
     }
 
     sol::table objectInfo = lvl.m_scriptEngine["getObjectInfo"].call( item.type );
-    const int pivotLength = objectInfo["pivot_length"];
+    const core::Length pivotLength{static_cast<core::Length::int_type>(objectInfo["pivot_length"])};
     const auto dz = lvl.m_lara->m_state.position.position.Z
                     - (item.position.position.Z + pivotLength * item.rotation.Y.cos());
     const auto dx = lvl.m_lara->m_state.position.position.X
@@ -544,8 +544,8 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
     if( ahead )
     {
         const auto laraY = lvl.m_lara->m_state.position.position.Y;
-        if( item.position.position.Y - loader::QuarterSectorSize < laraY
-            && item.position.position.Y + loader::QuarterSectorSize > laraY )
+        if( item.position.position.Y - core::QuarterSectorSize < laraY
+            && item.position.position.Y + core::QuarterSectorSize > laraY )
         {
             bite = true;
         }
@@ -561,20 +561,20 @@ CreatureInfo::CreatureInfo(const level::Level& lvl, const gsl::not_null<items::I
         case TR1ItemId::LionMale:
         case TR1ItemId::LionFemale:
         case TR1ItemId::Panther:
-            lot.drop = -loader::SectorSize;
+            lot.drop = -core::SectorSize;
             break;
 
         case TR1ItemId::Bat:
         case TR1ItemId::CrocodileInWater:
         case TR1ItemId::Fish:
-            lot.step = 20 * loader::SectorSize;
-            lot.drop = -20 * loader::SectorSize;
-            lot.fly = 16;
+            lot.step = 20 * core::SectorSize;
+            lot.drop = -20 * core::SectorSize;
+            lot.fly = 16_len;
             break;
 
         case TR1ItemId::Gorilla:
-            lot.step = loader::SectorSize / 2;
-            lot.drop = -loader::SectorSize;
+            lot.step = core::SectorSize / 2;
+            lot.drop = -core::SectorSize;
             break;
 
         case TR1ItemId::TRex:

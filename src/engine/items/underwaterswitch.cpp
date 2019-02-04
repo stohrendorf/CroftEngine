@@ -22,8 +22,8 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         return;
 
     static const InteractionLimits limits{
-            core::BoundingBox{{-1024, -1024, -1024},
-                              {1024,  1024,  512}},
+            core::BoundingBox{{-1024_len, -1024_len, -1024_len},
+                              {1024_len,  1024_len,  512_len}},
             {-80_deg, -80_deg, -80_deg},
             {+80_deg, +80_deg, +80_deg}
     };
@@ -34,11 +34,11 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as )
         return;
 
-    static const core::TRVec alignSpeed{0, 0, 108};
+    static const core::TRVec alignSpeed{0_len, 0_len, 108_len};
     if( !lara.alignTransform( alignSpeed, *this ) )
         return;
 
-    lara.m_state.fallspeed = 0;
+    lara.m_state.fallspeed = 0_len;
     do
     {
         lara.setGoalAnimState( LaraStateId::SwitchDown );

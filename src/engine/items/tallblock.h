@@ -15,7 +15,7 @@ public:
               const loader::SkeletalModelType& animatedModel)
             : ModelItemNode{level, room, item, true, animatedModel}
     {
-        loader::Room::patchHeightsForBlock( *this, -2 * loader::SectorSize );
+        loader::Room::patchHeightsForBlock( *this, -2 * core::SectorSize );
     }
 
     void update() override;

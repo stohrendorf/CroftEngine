@@ -46,8 +46,8 @@ void TRex::update()
                                       && aiInfo.enemy_facing > -90_deg
                                       && aiInfo.enemy_facing < 90_deg;
         if( m_state.creatureInfo->flags == 0
-            && aiInfo.distance > util::square( 1500 )
-            && aiInfo.distance < util::square( 4 * loader::SectorSize )
+            && aiInfo.distance > util::square( 1500_len )
+            && aiInfo.distance < util::square( 4 * core::SectorSize )
             && aiInfo.bite )
         {
             m_state.creatureInfo->flags = 1;
@@ -60,7 +60,7 @@ void TRex::update()
                 {
                     m_state.goal_anim_state = m_state.required_anim_state;
                 }
-                else if( aiInfo.distance < util::square( 1500 ) && aiInfo.bite )
+                else if( aiInfo.distance < util::square( 1500_len ) && aiInfo.bite )
                 {
                     m_state.goal_anim_state = 7_as;
                 }
@@ -87,7 +87,7 @@ void TRex::update()
                 break;
             case 3:
                 m_state.creatureInfo->maximum_turn = 4_deg;
-                if( aiInfo.distance < util::square( 5 * loader::SectorSize ) && aiInfo.bite )
+                if( aiInfo.distance < util::square( 5 * core::SectorSize ) && aiInfo.bite )
                 {
                     m_state.goal_anim_state = 1_as;
                 }

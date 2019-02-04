@@ -43,11 +43,11 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        getLara().m_state.fallspeed = 0;
+        getLara().m_state.fallspeed = 0_len;
         getLara().m_state.falling = false;
-        collisionInfo.badPositiveDistance = 128;
-        collisionInfo.badNegativeDistance = -128;
-        collisionInfo.badCeilingDistance = 0;
+        collisionInfo.badPositiveDistance = 128_len;
+        collisionInfo.badNegativeDistance = -128_len;
+        collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y - 90_deg;
         setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;

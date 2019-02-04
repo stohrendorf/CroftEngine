@@ -33,14 +33,14 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        collisionInfo.badPositiveDistance = loader::HeightLimit;
+        collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-        collisionInfo.badCeilingDistance = 192;
+        collisionInfo.badCeilingDistance = 192_len;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), 870 ); //! @todo MAGICK 870
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), 870_len ); //! @todo MAGICK 870
         checkJumpWallSmash( collisionInfo );
-        if( collisionInfo.mid.floor.y > 0 || getLara().m_state.fallspeed <= 0 )
+        if( collisionInfo.mid.floor.y > 0_len || getLara().m_state.fallspeed <= 0_len )
         {
             return;
         }
@@ -54,7 +54,7 @@ public:
             setGoalAnimState( LaraStateId::Stop );
         }
 
-        getLara().m_state.fallspeed = 0;
+        getLara().m_state.fallspeed = 0_len;
         placeOnFloor( collisionInfo );
         getLara().m_state.falling = false;
     }

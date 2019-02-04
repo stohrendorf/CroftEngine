@@ -52,7 +52,11 @@ public:
         const auto frontSpace = frontHeight - collisionInfo.front.ceiling.y;
         const auto frontLeftSpace = collisionInfo.frontLeft.floor.y - collisionInfo.frontLeft.ceiling.y;
         const auto frontRightSpace = collisionInfo.frontRight.floor.y - collisionInfo.frontRight.ceiling.y;
-        if( frontHeight <= -850 || frontHeight >= -650 || frontSpace < 0 || frontLeftSpace < 0 || frontRightSpace < 0
+        if( frontHeight <= -850_len
+            || frontHeight >= -650_len
+            || frontSpace < 0_len
+            || frontLeftSpace < 0_len
+            || frontRightSpace < 0_len
             || collisionInfo.hasStaticMeshCollision )
         {
             return;

@@ -105,7 +105,7 @@ void Pierre::update()
                     m_state.required_anim_state = 4_as;
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( !aiInfo.ahead || aiInfo.distance > util::square( loader::SectorSize * 3 ) )
+                else if( !aiInfo.ahead || aiInfo.distance > util::square( 3 * core::SectorSize ) )
                 {
                     m_state.required_anim_state = 3_as;
                     m_state.goal_anim_state = 1_as;
@@ -121,7 +121,7 @@ void Pierre::update()
                         m_state.required_anim_state = 4_as;
                         m_state.goal_anim_state = 1_as;
                     }
-                    else if( aiInfo.ahead && aiInfo.distance < util::square( loader::SectorSize * 3 ) )
+                    else if( aiInfo.ahead && aiInfo.distance < util::square( 3 * core::SectorSize ) )
                     {
                         m_state.required_anim_state = 2_as;
                         m_state.goal_anim_state = 1_as;
@@ -161,12 +161,12 @@ void Pierre::update()
             case 7:
                 if( m_state.required_anim_state == 0_as )
                 {
-                    if( tryShootAtLara( *this, aiInfo.distance, {60, 200, 0}, 11, headRot ) )
+                    if( tryShootAtLara( *this, aiInfo.distance, {60_len, 200_len, 0_len}, 11, headRot ) )
                     {
                         getLevel().m_lara->m_state.health -= 25;
                         getLevel().m_lara->m_state.is_hit = true;
                     }
-                    if( tryShootAtLara( *this, aiInfo.distance, {-57, 200, 0}, 14, headRot ) )
+                    if( tryShootAtLara( *this, aiInfo.distance, {-57_len, 200_len, 0_len}, 14, headRot ) )
                     {
                         getLevel().m_lara->m_state.health -= 25;
                         getLevel().m_lara->m_state.is_hit = true;
@@ -198,7 +198,7 @@ void Pierre::update()
     if( m_state.creatureInfo->flags != 0 )
     {
         auto camPos = m_state.position;
-        camPos.position.Y -= loader::SectorSize;
+        camPos.position.Y -= core::SectorSize;
         auto target = getLevel().m_cameraController->getTRPosition();
         if( engine::CameraController::clampPosition( target, camPos, getLevel() ) )
         {

@@ -94,7 +94,7 @@ void Wolf::update()
                 {
                     m_state.goal_anim_state = Jumping;
                 }
-                else if( aiInfo.distance < util::square( 345 ) && aiInfo.bite )
+                else if( aiInfo.distance < util::square( 345_len ) && aiInfo.bite )
                 {
                     m_state.goal_anim_state = Biting;
                 }
@@ -117,16 +117,16 @@ void Wolf::update()
                 {
                     m_state.goal_anim_state = Jumping;
                 }
-                else if( aiInfo.distance < util::square( 345 ) && aiInfo.bite )
+                else if( aiInfo.distance < util::square( 345_len ) && aiInfo.bite )
                 {
                     m_state.goal_anim_state = Biting;
                 }
-                else if( aiInfo.distance <= util::square( 3 * loader::SectorSize ) )
+                else if( aiInfo.distance <= util::square( 3 * core::SectorSize ) )
                 {
                     if( m_state.creatureInfo->mood == ai::Mood::Attack )
                     {
                         if( !aiInfo.ahead
-                            || aiInfo.distance > util::square( 3 * loader::SectorSize / 2 )
+                            || aiInfo.distance > util::square( 3 * core::SectorSize / 2 )
                             || (aiInfo.enemy_facing < 90_deg && aiInfo.enemy_facing > -90_deg) )
                         {
                             m_state.goal_anim_state = Jumping;
@@ -153,9 +153,9 @@ void Wolf::update()
             case Jumping.get():
                 m_state.creatureInfo->maximum_turn = 5_deg;
                 roll = rotationToMoveTarget;
-                if( aiInfo.ahead && aiInfo.distance < util::square( 3 * loader::SectorSize / 2 ) )
+                if( aiInfo.ahead && aiInfo.distance < util::square( 3 * core::SectorSize / 2 ) )
                 {
-                    if( aiInfo.distance <= util::square( 3 * loader::SectorSize / 2 ) / 2
+                    if( aiInfo.distance <= util::square( 3 * core::SectorSize / 2 ) / 2
                         || (aiInfo.enemy_facing <= 90_deg && aiInfo.enemy_facing >= -90_deg) )
                     {
                         m_state.goal_anim_state = JumpAttack;
@@ -168,7 +168,7 @@ void Wolf::update()
                     }
                 }
                 else if( m_state.creatureInfo->mood != ai::Mood::Stalk
-                         || aiInfo.distance >= util::square( 3 * loader::SectorSize ) )
+                         || aiInfo.distance >= util::square( 3 * core::SectorSize ) )
                 {
                     if( m_state.creatureInfo->mood == ai::Mood::Bored )
                     {
@@ -185,7 +185,7 @@ void Wolf::update()
                 roll = rotationToMoveTarget;
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL) )
                 {
-                    emitParticle( core::TRVec{0, -14, 174}, 6, &createBloodSplat );
+                    emitParticle( core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 50;
                     m_state.required_anim_state = Jumping;
@@ -195,7 +195,7 @@ void Wolf::update()
             case Biting.get():
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL) && aiInfo.ahead )
                 {
-                    emitParticle( core::TRVec{0, -14, 174}, 6, &createBloodSplat );
+                    emitParticle( core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
                     getLevel().m_lara->m_state.health -= 100;
                     m_state.required_anim_state = PrepareToStrike;

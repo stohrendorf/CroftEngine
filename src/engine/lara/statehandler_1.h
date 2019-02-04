@@ -73,9 +73,9 @@ public:
     {
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.badPositiveDistance = loader::HeightLimit;
+        collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-        collisionInfo.badCeilingDistance = 0;
+        collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.policyFlags.set(CollisionInfo::PolicyFlags::SlopesAreWalls);
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
 
@@ -115,7 +115,7 @@ public:
             setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
             setGoalAnimState( LaraStateId::JumpForward );
             getLara().m_state.falling = true;
-            getLara().m_state.fallspeed = 0;
+            getLara().m_state.fallspeed = 0_len;
             return;
         }
 
@@ -134,7 +134,7 @@ public:
 
         if( !tryStartSlide( collisionInfo ) )
         {
-            getLara().m_state.position.position.Y += std::min( collisionInfo.mid.floor.y, 50 );
+            getLara().m_state.position.position.Y += std::min( collisionInfo.mid.floor.y, 50_len );
         }
     }
 };

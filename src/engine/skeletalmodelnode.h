@@ -36,7 +36,7 @@ public:
                       const gsl::not_null<const loader::Animation*>& animation,
                       uint16_t frame);
 
-    static int calculateFloorSpeed(const items::ItemState& state, int frameOffset = 0);
+    static core::Length calculateFloorSpeed(const items::ItemState& state, int frameOffset = 0);
 
     static int getAcceleration(const items::ItemState& state);
 
@@ -99,9 +99,9 @@ public:
     struct Sphere
     {
         const glm::mat4 m;
-        const int radius;
+        const core::Length radius;
 
-        Sphere(const glm::mat4& m, const int radius)
+        Sphere(const glm::mat4& m, const core::Length& radius)
                 : m{m}
                 , radius{radius}
         {

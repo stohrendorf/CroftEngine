@@ -29,14 +29,14 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        collisionInfo.badPositiveDistance = loader::HeightLimit;
+        collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-        collisionInfo.badCeilingDistance = 192;
+        collisionInfo.badCeilingDistance = 192_len;
         collisionInfo.facingAngle = getMovementAngle();
         getLara().m_state.falling = true;
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
         jumpAgainstWall( collisionInfo );
-        if( collisionInfo.mid.floor.y > 0 )
+        if( collisionInfo.mid.floor.y > 0_len )
         {
             return;
         }
@@ -51,7 +51,7 @@ public:
             setAnimation( loader::AnimationId::LANDING_HARD, 358 );
         }
         getLevel().stopSound( TR1SoundId::LaraScream, &getLara().m_state );
-        getLara().m_state.fallspeed = 0;
+        getLara().m_state.fallspeed = 0_len;
         placeOnFloor( collisionInfo );
         getLara().m_state.falling = false;
     }
