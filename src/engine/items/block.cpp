@@ -83,7 +83,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
 
     if( lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab
-        || lara.m_state.frame_number != 2091
+        || lara.m_state.frame_number != 2091_frame
         || !limits.canInteract( m_state, lara.m_state ) )
     {
         return;

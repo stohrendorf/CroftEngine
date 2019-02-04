@@ -22,7 +22,7 @@ void Gorilla::update()
     core::Angle headRot = 0_deg;
     core::Angle turn = 0_deg;
 
-    if( getHealth() > 0 )
+    if( getHealth() > 0_hp )
     {
         const ai::AiInfo aiInfo{getLevel(), m_state};
         if( aiInfo.ahead )
@@ -128,7 +128,7 @@ void Gorilla::update()
                     if( (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
                     {
                         emitParticle( {0_len, -19_len, 75_len}, 15, &createBloodSplat );
-                        getLevel().m_lara->m_state.health -= 200;
+                        getLevel().m_lara->m_state.health -= 200_hp;
                         getLevel().m_lara->m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
                     }

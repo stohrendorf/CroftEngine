@@ -22,7 +22,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getLara().m_state.health <= 0 )
+        if( getLara().m_state.health <= 0_hp )
         {
             setGoalAnimState( LaraStateId::Stop );
             return;
@@ -80,23 +80,23 @@ public:
         if( checkWallCollision( collisionInfo ) )
         {
             const auto fr = getLara().m_state.frame_number;
-            if( fr >= 29 && fr <= 47 )
+            if( fr >= 29_frame && fr <= 47_frame )
             {
-                setAnimation( loader::AnimationId::END_WALK_LEFT, 74 );
+                setAnimation( loader::AnimationId::END_WALK_LEFT, 74_frame );
             }
-            else if( (fr >= 22 && fr <= 28) || (fr >= 48 && fr <= 57) )
+            else if( (fr >= 22_frame && fr <= 28_frame) || (fr >= 48_frame && fr <= 57_frame) )
             {
-                setAnimation( loader::AnimationId::END_WALK_RIGHT, 58 );
+                setAnimation( loader::AnimationId::END_WALK_RIGHT, 58_frame );
             }
             else
             {
-                setAnimation( loader::AnimationId::STAY_SOLID, 185 );
+                setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
             }
         }
 
         if( collisionInfo.mid.floor.y > core::ClimbLimit2ClickMin )
         {
-            setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+            setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
             setGoalAnimState( LaraStateId::JumpForward );
             getLara().m_state.fallspeed = 0_len;
             getLara().m_state.falling = true;
@@ -105,13 +105,13 @@ public:
         if( collisionInfo.mid.floor.y > core::SteppableHeight )
         {
             const auto fr = getLara().m_state.frame_number;
-            if( fr < 28 || fr > 45 )
+            if( fr < 28_frame || fr > 45_frame )
             {
-                setAnimation( loader::AnimationId::WALK_DOWN_RIGHT, 887 );
+                setAnimation( loader::AnimationId::WALK_DOWN_RIGHT, 887_frame );
             }
             else
             {
-                setAnimation( loader::AnimationId::WALK_DOWN_LEFT, 874 );
+                setAnimation( loader::AnimationId::WALK_DOWN_LEFT, 874_frame );
             }
         }
 
@@ -119,13 +119,13 @@ public:
             && collisionInfo.mid.floor.y < -core::SteppableHeight )
         {
             const auto fr = getLara().m_state.frame_number;
-            if( fr < 27 || fr > 44 )
+            if( fr < 27_frame || fr > 44_frame )
             {
-                setAnimation( loader::AnimationId::WALK_UP_STEP_RIGHT, 844 );
+                setAnimation( loader::AnimationId::WALK_UP_STEP_RIGHT, 844_frame );
             }
             else
             {
-                setAnimation( loader::AnimationId::WALK_UP_STEP_LEFT, 858 );
+                setAnimation( loader::AnimationId::WALK_UP_STEP_LEFT, 858_frame );
             }
         }
 

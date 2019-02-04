@@ -19,7 +19,7 @@ void TRex::update()
     core::Angle rotationToMoveTarget;
 
     core::Angle creatureHead = 0_deg;
-    if( getHealth() > 0 )
+    if( getHealth() > 0_hp )
     {
         const ai::AiInfo aiInfo{getLevel(), m_state};
         if( aiInfo.ahead )
@@ -33,11 +33,11 @@ void TRex::update()
         {
             if( m_state.current_anim_state == 3_as )
             {
-                getLevel().m_lara->m_state.health -= 10;
+                getLevel().m_lara->m_state.health -= 10_hp;
             }
             else
             {
-                getLevel().m_lara->m_state.health -= 1;
+                getLevel().m_lara->m_state.health -= 1_hp;
             }
         }
 
@@ -127,7 +127,7 @@ void TRex::update()
                     getLevel().m_lara->gunType = LaraNode::WeaponId::None;
                     getLevel().m_cameraController->setModifier( CameraModifier::FollowCenter );
                     getLevel().m_cameraController->setRotationAroundCenter( -25_deg, 170_deg );
-                    getLevel().m_lara->m_state.health = -1;
+                    getLevel().m_lara->m_state.health = -1_hp;
                     getLevel().m_lara->setAir( -1 );
                     getLevel().useAlternativeLaraAppearance( true );
                 }

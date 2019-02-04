@@ -41,7 +41,7 @@ protected:
 
     core::Angle rotateTowardsTarget(core::Angle maxRotationSpeed);
 
-    int getHealth() const
+    core::Health getHealth() const
     {
         return m_state.health;
     }

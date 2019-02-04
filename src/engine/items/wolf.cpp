@@ -30,7 +30,7 @@ void Wolf::update()
     core::Angle pitch = 0_deg;
     core::Angle roll = 0_deg;
     core::Angle rotationToMoveTarget = 0_deg;
-    if( getHealth() > 0 )
+    if( getHealth() > 0_hp )
     {
         const ai::AiInfo aiInfo{getLevel(), m_state};
 
@@ -187,7 +187,7 @@ void Wolf::update()
                 {
                     emitParticle( core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
-                    getLevel().m_lara->m_state.health -= 50;
+                    getLevel().m_lara->m_state.health -= 50_hp;
                     m_state.required_anim_state = Jumping;
                 }
                 m_state.goal_anim_state = Jumping;
@@ -197,7 +197,7 @@ void Wolf::update()
                 {
                     emitParticle( core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
-                    getLevel().m_lara->m_state.health -= 100;
+                    getLevel().m_lara->m_state.health -= 100_hp;
                     m_state.required_anim_state = PrepareToStrike;
                 }
                 break;
@@ -208,7 +208,7 @@ void Wolf::update()
     else if( m_state.current_anim_state != Dying )
     {
         const auto r = util::rand15( 3 );
-        getSkeleton()->setAnimation( m_state, &getLevel().m_animatedModels[m_state.type]->animations[20 + r], 0 );
+        getSkeleton()->setAnimation( m_state, &getLevel().m_animatedModels[m_state.type]->animations[20 + r], 0_frame );
         BOOST_ASSERT( m_state.current_anim_state == Dying );
     }
     rotateCreatureTilt( roll );

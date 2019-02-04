@@ -81,10 +81,10 @@ public:
         w.aimSpeed = +10_deg;
         w.shotAccuracy = +8_deg;
         w.gunHeight = 650_len;
-        w.damage = 1;
+        w.damage = 1_hp;
         w.targetDist = core::SectorSize * 8;
-        w.recoilFrame = 9;
-        w.flashTime = 3;
+        w.recoilFrame = 9_frame;
+        w.flashTime = 3_frame;
         w.sampleNum = TR1SoundId::LaraShootPistols;
         weapons[WeaponId::Pistols] = w;
 
@@ -103,10 +103,10 @@ public:
         w.aimSpeed = +10_deg;
         w.shotAccuracy = +8_deg;
         w.gunHeight = 650_len;
-        w.damage = 2;
+        w.damage = 2_hp;
         w.targetDist = core::SectorSize * 8;
-        w.recoilFrame = 9;
-        w.flashTime = 3;
+        w.recoilFrame = 9_frame;
+        w.flashTime = 3_frame;
         w.sampleNum = TR1SoundId::CowboyShoot;
         weapons[WeaponId::AutoPistols] = w;
 
@@ -125,10 +125,10 @@ public:
         w.aimSpeed = +10_deg;
         w.shotAccuracy = +8_deg;
         w.gunHeight = 650_len;
-        w.damage = 1;
+        w.damage = 1_hp;
         w.targetDist = core::SectorSize * 8;
-        w.recoilFrame = 3;
-        w.flashTime = 2;
+        w.recoilFrame = 3_frame;
+        w.flashTime = 2_frame;
         w.sampleNum = TR1SoundId::LaraShootUzis;
         weapons[WeaponId::Uzi] = w;
 
@@ -147,10 +147,10 @@ public:
         w.aimSpeed = +10_deg;
         w.shotAccuracy = 0_deg;
         w.gunHeight = 500_len;
-        w.damage = 4;
+        w.damage = 4_hp;
         w.targetDist = core::SectorSize * 8;
-        w.recoilFrame = 9;
-        w.flashTime = 3;
+        w.recoilFrame = 9_frame;
+        w.flashTime = 3_frame;
         w.sampleNum = TR1SoundId::LaraShootShotgun;
         weapons[WeaponId::Shotgun] = w;
 
@@ -316,7 +316,7 @@ public:
         m_state.required_anim_state = static_cast<uint16_t>(st);
     }
 
-    void setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
+    void setAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
 
     void updateFloorHeight(core::Length dy);
 
@@ -393,7 +393,7 @@ public:
     void handleUnderwaterCurrent(CollisionInfo& collisionInfo);
 
     boost::optional<core::Axis> hit_direction;
-    int hit_frame = 0;
+    core::Frame hit_frame = 0_frame;
     int explosionStumblingDuration = 0;
     const core::TRVec* forceSourcePosition = nullptr;
 
@@ -404,13 +404,15 @@ public:
                 forceSourcePosition->Z - m_state.position.position.Z ) - 180_deg;
         hit_direction = axisFromAngle( m_state.rotation.Y - rot, 45_deg );
         Expects( hit_direction.is_initialized() );
-        if( hit_frame == 0 )
+        if( hit_frame == 0_frame )
         {
             playSoundEffect( TR1SoundId::LaraOof );
         }
-        if( ++hit_frame > 34 )
+
+        hit_frame += 1_frame;
+        if( hit_frame > 34_frame )
         {
-            hit_frame = 34;
+            hit_frame = 34_frame;
         }
         --explosionStumblingDuration;
     }
@@ -419,10 +421,10 @@ public:
     struct AimInfo
     {
         const loader::AnimFrame* weaponAnimData = nullptr;
-        int16_t frame = 0;
+        core::Frame frame = 0_frame;
         bool aiming = false;
         core::TRRotationXY aimRotation{};
-        int16_t flashTimeout = 0;
+        core::Frame flashTimeout = 0_frame;
 
         YAML::Node save(const level::Level& lvl) const;
 
@@ -505,10 +507,10 @@ public:
         core::Angle aimSpeed = 0_deg;
         core::Angle shotAccuracy = 0_deg;
         core::Length gunHeight = 0_len;
-        int32_t damage = 0;
+        core::Health damage = 0_hp;
         core::Length targetDist = 0_len;
-        int16_t recoilFrame = 0;
-        int16_t flashTime = 0;
+        core::Frame recoilFrame = 0_frame;
+        core::Frame flashTime = 0_frame;
         TR1SoundId sampleNum = TR1SoundId::LaraFootstep;
     };
 
@@ -560,7 +562,7 @@ public:
                     const ModelItemNode& gunHolder,
                     const core::TRRotationXY& aimAngle);
 
-    void hitTarget(ModelItemNode& item, const core::TRVec& hitPos, int damage);
+    void hitTarget(ModelItemNode& item, const core::TRVec& hitPos, core::Health damage);
 
     void renderGunFlare(WeaponId weaponId, glm::mat4 m, const gsl::not_null<std::shared_ptr<gameplay::Node>>& flareNode,
                         bool visible) const;

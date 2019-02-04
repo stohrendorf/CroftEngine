@@ -1306,7 +1306,7 @@ void Level::laraNormalEffect()
     m_lara->setCurrentAnimState( engine::LaraStateId::Stop );
     m_lara->setRequiredAnimState( engine::LaraStateId::Unknown12 );
     m_lara->m_state.anim = &m_animations[static_cast<int>(loader::AnimationId::STAY_SOLID)];
-    m_lara->m_state.frame_number = 185;
+    m_lara->m_state.frame_number = 185_frame;
     m_cameraController->setMode( engine::CameraMode::Chase );
     m_cameraController->getCamera()->setFieldOfView( glm::radians( 80.0f ) );
 }
@@ -1744,12 +1744,12 @@ bool Level::tryUseInventoryItem(const engine::TR1ItemId id)
         if( countInventoryItem( engine::TR1ItemId::LargeMedipack ) == 0 )
             return false;
 
-        if( m_lara->m_state.health <= 0 || m_lara->m_state.health >= core::LaraHealth )
+        if( m_lara->m_state.health <= 0_hp || m_lara->m_state.health >= core::LaraHealth )
         {
             return false;
         }
 
-        m_lara->m_state.health += 1000;
+        m_lara->m_state.health += 1000_hp;
         if( m_lara->m_state.health > core::LaraHealth )
         {
             m_lara->m_state.health = core::LaraHealth;
@@ -1762,12 +1762,12 @@ bool Level::tryUseInventoryItem(const engine::TR1ItemId id)
         if( countInventoryItem( engine::TR1ItemId::SmallMedipack ) == 0 )
             return false;
 
-        if( m_lara->m_state.health <= 0 || m_lara->m_state.health >= core::LaraHealth )
+        if( m_lara->m_state.health <= 0_hp || m_lara->m_state.health >= core::LaraHealth )
         {
             return false;
         }
 
-        m_lara->m_state.health += 500;
+        m_lara->m_state.health += 500_hp;
         if( m_lara->m_state.health > core::LaraHealth )
         {
             m_lara->m_state.health = core::LaraHealth;

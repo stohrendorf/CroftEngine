@@ -1,6 +1,8 @@
 #pragma once
 
 #include "length.h"
+#include "health.h"
+#include "frame.h"
 
 namespace core
 {
@@ -32,10 +34,10 @@ static_assert( DamageFallSpeedThreshold < DeadlyFallSpeedThreshold, "Constants w
 
 constexpr auto MaxGrabbableGradient = 60_len;
 
-constexpr int FrameRate = 30;
+constexpr auto FrameRate = 30_frame;
 
 constexpr int LaraAir = 1800;
-constexpr int LaraHealth = 1000;
+constexpr auto LaraHealth = 1000_hp;
 
 constexpr auto DefaultCollisionRadius = 100_len;
 constexpr auto DefaultCollisionRadiusUnderwater = 300_len;

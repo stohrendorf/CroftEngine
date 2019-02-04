@@ -50,7 +50,7 @@ public:
 
         if( collisionInfo.mid.floor.y > 200_len )
         {
-            setAnimation( loader::AnimationId::FREE_FALL_BACK, 1473 );
+            setAnimation( loader::AnimationId::FREE_FALL_BACK, 1473_frame );
             setGoalAnimState( LaraStateId::FallBackward );
             getLara().m_state.fallspeed = 0_len;
             getLara().m_state.falling = true;
@@ -59,7 +59,7 @@ public:
 
         if( checkWallCollision( collisionInfo ) )
         {
-            setAnimation( loader::AnimationId::STAY_SOLID, 185 );
+            setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
         }
         placeOnFloor( collisionInfo );
     }

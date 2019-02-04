@@ -26,7 +26,7 @@ public:
         {
             // reset switch if a timeout is active
             m_state.goal_anim_state = 1_as;
-            m_state.timer = 0;
+            m_state.timer = 0_frame;
         }
 
         ModelItemNode::update();

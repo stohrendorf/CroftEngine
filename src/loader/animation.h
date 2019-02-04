@@ -3,6 +3,7 @@
 #include "io/sdlreader.h"
 #include "engine/items_tr1.h"
 #include "core/vec.h"
+#include "core/frame.h"
 #include "gameplay.h"
 
 #include "gsl-lite.hpp"
@@ -146,7 +147,7 @@ struct Animation
 
     const AnimFrame* frames = nullptr;
 
-    uint8_t segmentLength; // Slowdown factor of this animation
+    core::Frame segmentLength = 0_frame; // Slowdown factor of this animation
     uint8_t poseDataSize; // number of bit16's in Frames[] used by this animation
     AnimState state_id = 0_as;
 
@@ -156,10 +157,10 @@ struct Animation
     int32_t lateralSpeed; // new in TR4 -->
     int32_t lateralAcceleration; // lateral speed and acceleration.
 
-    uint16_t firstFrame; // first frame in this animation
-    uint16_t lastFrame; // last frame in this animation (numframes = (End - Start) + 1)
+    core::Frame firstFrame = 0_frame; // first frame in this animation
+    core::Frame lastFrame = 0_frame; // last frame in this animation (numframes = (End - Start) + 1)
     uint16_t nextAnimationIndex;
-    uint16_t nextFrame;
+    core::Frame nextFrame = 0_frame;
 
     uint16_t transitionsCount;
     uint16_t transitionsIndex; // offset into StateChanges[]
@@ -174,9 +175,9 @@ struct Animation
         return (lastFrame - firstFrame + segmentLength) / segmentLength;
     }
 
-    constexpr size_t getFrameCount() const
+    constexpr core::Frame getFrameCount() const
     {
-        return lastFrame - firstFrame + 1;
+        return lastFrame - firstFrame + 1_frame;
     }
 
     static std::unique_ptr<Animation> readTr1(io::SDLReader& reader)
@@ -194,9 +195,9 @@ private:
     {
         auto animation = std::make_unique<Animation>();
         animation->poseDataOffset = reader.readU32();
-        animation->segmentLength = reader.readU8();
-        if( animation->segmentLength == 0 )
-            animation->segmentLength = 1;
+        animation->segmentLength = core::Frame{static_cast<core::Frame::int_type>(reader.readU8())};
+        if( animation->segmentLength == 0_frame )
+            animation->segmentLength = 1_frame;
         animation->poseDataSize = reader.readU8();
         animation->state_id = AnimState{reader.readU16()};
 
@@ -213,10 +214,10 @@ private:
             animation->lateralAcceleration = 0;
         }
 
-        animation->firstFrame = reader.readU16();
-        animation->lastFrame = reader.readU16();
+        animation->firstFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
+        animation->lastFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
         animation->nextAnimationIndex = reader.readU16();
-        animation->nextFrame = reader.readU16();
+        animation->nextFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
 
         animation->transitionsCount = reader.readU16();
         animation->transitionsIndex = reader.readU16();
@@ -252,20 +253,20 @@ struct Transitions
 
 struct TransitionCase
 {
-    uint16_t firstFrame; // Lowest frame that uses this range
-    uint16_t lastFrame; // Highest frame (+1?) that uses this range
+    core::Frame firstFrame = 0_frame; // Lowest frame that uses this range
+    core::Frame lastFrame = 0_frame; // Highest frame (+1?) that uses this range
     uint16_t targetAnimationIndex; // Animation to dispatch to
-    uint16_t targetFrame; // Frame offset to dispatch to
+    core::Frame targetFrame = 0_frame; // Frame offset to dispatch to
 
     const Animation* targetAnimation = nullptr;
 
     static std::unique_ptr<TransitionCase> read(io::SDLReader& reader)
     {
         std::unique_ptr<TransitionCase> transition{new TransitionCase()};
-        transition->firstFrame = reader.readU16();
-        transition->lastFrame = reader.readU16();
+        transition->firstFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
+        transition->lastFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
         transition->targetAnimationIndex = reader.readU16();
-        transition->targetFrame = reader.readU16();
+        transition->targetFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
         return transition;
     }
 };

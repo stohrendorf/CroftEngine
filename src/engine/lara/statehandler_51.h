@@ -28,7 +28,7 @@ public:
         const auto& alternateLara = *it->second;
 
         const auto frameOffs = getLara().m_state.frame_number - getLara().m_state.anim->firstFrame;
-        switch( frameOffs )
+        switch( frameOffs.value )
         {
             case 5:
                 getLara().getNode()->getChild( 3 )->setDrawable( alternateLara.models[3].get() );

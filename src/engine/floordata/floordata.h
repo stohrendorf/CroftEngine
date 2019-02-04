@@ -64,7 +64,7 @@ public:
             , m_inverted{(fd.get() & InvertedActivation) != 0}
             , m_locked{(fd.get() & Locked) != 0}
             , m_activationSet{extractActivationSet( fd )}
-            , m_timeout{gsl::narrow_cast<uint16_t>( (fd.get() & TimeoutMask) * core::FrameRate )}
+            , m_timeout{(fd.get() & TimeoutMask) * core::FrameRate}
     {
     }
 
@@ -138,7 +138,7 @@ public:
         return m_activationSet.test( i );
     }
 
-    uint16_t getTimeout() const noexcept
+    core::Frame getTimeout() const noexcept
     {
         return m_timeout;
     }
@@ -184,7 +184,7 @@ private:
     bool m_inverted = false;
     bool m_locked = false;
     ActivationSet m_activationSet{};
-    uint16_t m_timeout = 0;
+    core::Frame m_timeout = 0_frame;
 };
 
 

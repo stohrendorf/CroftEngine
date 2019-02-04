@@ -24,11 +24,13 @@ struct MultiTag
 };
 
 
-template<typename Tag>
+template<typename Tag, typename IntType = int32_t>
 struct IntUnit
 {
+    static_assert( std::is_integral<IntType>::value, "IntType must be int" );
+
     using tag = Tag;
-    using int_type = int32_t;
+    using int_type = IntType;
     int_type value;
 
     constexpr explicit IntUnit(int_type value) noexcept
@@ -45,174 +47,178 @@ struct IntUnit
 };
 
 
-template<typename Tag>
-constexpr IntUnit<Tag> operator-(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr IntUnit<Tag, IntType> operator-(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
-    return IntUnit<Tag>{l.value - r.value};
+    return IntUnit<Tag, IntType>{static_cast<IntType>(l.value - r.value)};
 }
 
-template<typename Tag>
-inline IntUnit<Tag>& operator-=(IntUnit<Tag>& l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+inline IntUnit<Tag, IntType>& operator-=(IntUnit<Tag, IntType>& l, IntUnit<Tag, IntType> r) noexcept
 {
     l.value -= r.value;
     return l;
 }
 
-template<typename Tag>
-constexpr IntUnit<Tag> operator+(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr IntUnit<Tag, IntType> operator+(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
-    return IntUnit<Tag>{l.value + r.value};
+    return IntUnit<Tag, IntType>{static_cast<IntType>(l.value + r.value)};
 }
 
-template<typename Tag>
-inline IntUnit<Tag>& operator+=(IntUnit<Tag>& l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+inline IntUnit<Tag, IntType>& operator+=(IntUnit<Tag, IntType>& l, IntUnit<Tag, IntType> r) noexcept
 {
     l.value += r.value;
     return l;
 }
 
-template<typename Tag>
-constexpr typename IntUnit<Tag>::int_type operator/(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr typename IntUnit<Tag, IntType>::int_type operator/(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
     return l.value / r.value;
 }
 
-template<typename Tag>
-constexpr IntUnit<Tag> operator/(IntUnit<Tag> l, const typename IntUnit<Tag>::int_type& r) noexcept
+template<typename Tag, typename IntType>
+constexpr IntUnit<Tag, IntType>
+operator/(IntUnit<Tag, IntType> l, const typename IntUnit<Tag, IntType>::int_type& r) noexcept
 {
-    return IntUnit<Tag>{l.value / r};
+    return IntUnit<Tag, IntType>{l.value / r};
 }
 
-template<typename Tag>
-inline IntUnit<Tag>& operator/=(IntUnit<Tag>& l, typename IntUnit<Tag>::int_type r) noexcept
+template<typename Tag, typename IntType>
+inline IntUnit<Tag, IntType>& operator/=(IntUnit<Tag, IntType>& l, typename IntUnit<Tag, IntType>::int_type r) noexcept
 {
     l.value /= r;
     return l;
 }
 
-template<typename Tag>
-constexpr IntUnit<Tag> operator*(IntUnit<Tag> l, typename IntUnit<Tag>::int_type r) noexcept
+template<typename Tag, typename IntType>
+constexpr IntUnit<Tag, IntType> operator*(IntUnit<Tag, IntType> l, typename IntUnit<Tag, IntType>::int_type r) noexcept
 {
-    return IntUnit<Tag>{l.value * r};
+    return IntUnit<Tag, IntType>{l.value * r};
 }
 
-template<typename Tag>
-constexpr IntUnit<Tag> operator*(IntUnit<Tag> l, float r) noexcept
+template<typename Tag, typename IntType>
+constexpr IntUnit<Tag, IntType> operator*(IntUnit<Tag, IntType> l, float r) noexcept
 {
-    return IntUnit<Tag>{static_cast<typename IntUnit<Tag>::int_type>(l.value * r)};
+    return IntUnit<Tag, IntType>{static_cast<typename IntUnit<Tag, IntType>::int_type>(l.value * r)};
 }
 
-template<typename Tag>
-inline IntUnit<Tag>& operator*=(IntUnit<Tag>& l, typename IntUnit<Tag>::int_type r) noexcept
+template<typename Tag, typename IntType>
+inline IntUnit<Tag, IntType>& operator*=(IntUnit<Tag, IntType>& l, typename IntUnit<Tag, IntType>::int_type r) noexcept
 {
     l.value *= r;
     return l;
 }
 
-template<typename Tag>
-constexpr IntUnit<Tag> operator-(IntUnit<Tag> l) noexcept
+template<typename Tag, typename IntType>
+constexpr IntUnit<Tag, IntType> operator-(IntUnit<Tag, IntType> l) noexcept
 {
-    return IntUnit<Tag>{-l.value};
+    return IntUnit<Tag, IntType>{static_cast<IntType>(-l.value)};
 }
 
-template<typename Tag>
-constexpr IntUnit<Tag> operator+(IntUnit<Tag> l) noexcept
+template<typename Tag, typename IntType>
+constexpr IntUnit<Tag, IntType> operator+(IntUnit<Tag, IntType> l) noexcept
 {
     return l;
 }
 
-template<typename Tag>
-constexpr IntUnit<Tag> operator%(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr IntUnit<Tag, IntType> operator%(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
-    return IntUnit<Tag>{l.value % r.value};
+    return IntUnit<Tag, IntType>{l.value % r.value};
 }
 
-template<typename Tag>
-constexpr bool operator<(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr bool operator<(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
     return l.value < r.value;
 }
 
-template<typename Tag>
-constexpr bool operator<=(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr bool operator<=(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
     return l.value <= r.value;
 }
 
-template<typename Tag>
-constexpr bool operator==(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr bool operator==(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
     return l.value == r.value;
 }
 
-template<typename Tag>
-constexpr bool operator>(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr bool operator>(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
     return l.value > r.value;
 }
 
-template<typename Tag>
-constexpr bool operator>=(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr bool operator>=(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
     return l.value >= r.value;
 }
 
-template<typename Tag>
-constexpr bool operator!=(IntUnit<Tag> l, IntUnit<Tag> r) noexcept
+template<typename Tag, typename IntType>
+constexpr bool operator!=(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
 {
     return l.value != r.value;
 }
 
 // multiplicity
-template<typename Tag>
-constexpr IntUnit<MultiTag<Tag, 2>> operator*(IntUnit<Tag> a, IntUnit<Tag> b)
+template<typename Tag, typename IntType>
+constexpr IntUnit<MultiTag<Tag, 2>> operator*(IntUnit<Tag, IntType> a, IntUnit<Tag, IntType> b)
 {
     return IntUnit<MultiTag<Tag, 2>>{a.value * b.value};
 }
 
-template<typename Tag, int N1>
-constexpr IntUnit<MultiTag<Tag, N1 + 1>> operator*(IntUnit<MultiTag<Tag, N1>> a, IntUnit<Tag> b)
+template<typename Tag, typename IntType, int N1>
+constexpr IntUnit<MultiTag<Tag, N1 + 1>, IntType>
+operator*(IntUnit<MultiTag<Tag, N1>, IntType> a, IntUnit<Tag, IntType> b)
 {
-    return IntUnit<MultiTag<Tag, N1 + 1>>{a.value * b.value};
+    return IntUnit<MultiTag<Tag, N1 + 1>, IntType>{a.value * b.value};
 }
 
-template<typename Tag, int N2>
-constexpr IntUnit<MultiTag<Tag, 2>> operator*(IntUnit<Tag> a, IntUnit<MultiTag<Tag, N2>> b)
+template<typename Tag, typename IntType, int N2>
+constexpr IntUnit<MultiTag<Tag, 2>, IntType> operator*(IntUnit<Tag, IntType> a, IntUnit<MultiTag<Tag, N2>, IntType> b)
 {
-    return IntUnit<MultiTag<Tag, N2 + 1>>{a.value * b.value};
+    return IntUnit<MultiTag<Tag, IntType, N2 + 1>>{a.value * b.value};
 }
 
-template<typename Tag, int N1>
-constexpr IntUnit<MultiTag<Tag, N1 - 1>> operator/(IntUnit<MultiTag<Tag, N1>> a, IntUnit<Tag> b)
+template<typename Tag, typename IntType, int N1>
+constexpr IntUnit<MultiTag<Tag, N1 - 1>, IntType>
+operator/(IntUnit<MultiTag<Tag, N1>, IntType> a, IntUnit<Tag, IntType> b)
 {
-    return IntUnit<MultiTag<Tag, N1 - 1>>{a.value / b.value};
+    return IntUnit<MultiTag<Tag, IntType, N1 - 1>>{a.value / b.value};
 }
 
-template<typename Tag>
-constexpr IntUnit<Tag> operator/(IntUnit<MultiTag<Tag, 2>> a, IntUnit<Tag> b)
+template<typename Tag, typename IntType>
+constexpr IntUnit<Tag, IntType> operator/(IntUnit<MultiTag<Tag, 2>, IntType> a, IntUnit<Tag, IntType> b)
 {
-    return IntUnit<Tag>{a.value / b.value};
+    return IntUnit<Tag, IntType>{a.value / b.value};
 }
 
-template<typename Tag>
-constexpr core::IntUnit<Tag> operator*(typename core::IntUnit<Tag>::int_type l, core::IntUnit<Tag> r)
+template<typename Tag, typename IntType>
+constexpr core::IntUnit<Tag, IntType>
+operator*(typename core::IntUnit<Tag, IntType>::int_type l, core::IntUnit<Tag, IntType> r)
 {
-    return core::IntUnit<Tag>{l * r.value};
+    return core::IntUnit<Tag, IntType>{l * r.value};
 }
 
-template<typename Tag>
-constexpr core::IntUnit<Tag> operator*(float l, core::IntUnit<Tag> r)
+template<typename Tag, typename IntType>
+constexpr core::IntUnit<Tag, IntType> operator*(float l, core::IntUnit<Tag, IntType> r)
 {
-    return core::IntUnit<Tag>{static_cast<core::IntUnit<Tag>::int_type>(l * r.value)};
+    return core::IntUnit<Tag, IntType>{static_cast<core::IntUnit<Tag, IntType>::int_type>(l * r.value)};
 }
 }
 
 namespace YAML
 {
-template<typename Tag>
-struct convert<core::IntUnit<Tag>>
+template<typename Tag, typename IntType>
+struct convert<core::IntUnit<Tag, IntType>>
 {
-    static Node encode(const core::IntUnit<Tag>& rhs)
+    static Node encode(const core::IntUnit<Tag, IntType>& rhs)
     {
         Node node( NodeType::Sequence );
         node.push_back( Tag::typeId() );
@@ -220,7 +226,7 @@ struct convert<core::IntUnit<Tag>>
         return node;
     }
 
-    static bool decode(const Node& node, core::IntUnit<Tag>& rhs)
+    static bool decode(const Node& node, core::IntUnit<Tag, IntType>& rhs)
     {
         if( !node.IsSequence() )
             return false;
@@ -229,29 +235,29 @@ struct convert<core::IntUnit<Tag>>
         if( node[0].as<std::string>() != Tag::typeId() )
             return false;
 
-        rhs.value = node[1].as<core::IntUnit<Tag>::int_type>();
+        rhs.value = node[1].as<core::IntUnit<Tag, IntType>::int_type>();
         return true;
     }
 };
 
 
-template<typename Tag>
-struct as_if<core::IntUnit<Tag>, void>
+template<typename Tag, typename IntType>
+struct as_if<core::IntUnit<Tag, IntType>, void>
 {
     explicit as_if(const Node& node_) : node( node_ )
     {}
 
     const Node& node;
 
-    core::IntUnit<Tag> operator()() const
+    core::IntUnit<Tag, IntType> operator()() const
     {
         if( !node.m_pNode )
-            throw TypedBadConversion<core::IntUnit<Tag>>( node.Mark() );
+            throw TypedBadConversion<core::IntUnit<Tag, IntType>>( node.Mark() );
 
-        core::IntUnit<Tag> t{0};
-        if( convert<core::IntUnit<Tag>>::decode( node, t ) )
+        core::IntUnit<Tag, IntType> t{IntType{0}};
+        if( convert<core::IntUnit<Tag, IntType>>::decode( node, t ) )
             return t;
-        throw TypedBadConversion<core::IntUnit<Tag>>( node.Mark() );
+        throw TypedBadConversion<core::IntUnit<Tag, IntType>>( node.Mark() );
     }
 };
 }

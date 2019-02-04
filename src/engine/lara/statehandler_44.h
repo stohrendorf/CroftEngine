@@ -40,7 +40,7 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        getLara().m_state.health = -1;
+        getLara().m_state.health = -1_hp;
         setAir( -1 );
         setHandStatus( HandStatus::Grabbing );
         auto h = getLara().getWaterSurfaceHeight();

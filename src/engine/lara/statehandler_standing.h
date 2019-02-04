@@ -44,7 +44,7 @@ public:
             return;
         }
 
-        setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+        setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
         setGoalAnimState( LaraStateId::JumpForward );
         getLara().m_state.fallspeed = 0_len;
         getLara().m_state.falling = true;

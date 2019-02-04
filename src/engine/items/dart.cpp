@@ -24,7 +24,7 @@ void Dart::update()
 {
     if( m_state.touch_bits != 0 )
     {
-        getLevel().m_lara->m_state.health -= 50;
+        getLevel().m_lara->m_state.health -= 50_hp;
         getLevel().m_lara->m_state.is_hit = true;
 
         auto fx = createBloodSplat(

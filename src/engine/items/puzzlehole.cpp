@@ -76,7 +76,7 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         lara.setHandStatus( HandStatus::Grabbing );
         m_state.triggerState = TriggerState::Active;
     }
-    else if( lara.getCurrentAnimState() == loader::LaraStateId::InsertPuzzle && lara.m_state.frame_number == 3372
+    else if( lara.getCurrentAnimState() == loader::LaraStateId::InsertPuzzle && lara.m_state.frame_number == 3372_frame
              && limits.canInteract( m_state, lara.m_state ) )
     {
         TR1ItemId completeId;

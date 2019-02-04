@@ -150,7 +150,7 @@ bool FlameParticle::update(level::Level& level)
         if( level.m_lara->isNear( *this, 600_len ) )
         {
             // it's hot here, isn't it?
-            level.m_lara->m_state.health -= 3;
+            level.m_lara->m_state.health -= 3_hp;
             level.m_lara->m_state.is_hit = true;
 
             const auto distSq = util::square( level.m_lara->m_state.position.position.X - pos.position.X )
@@ -193,7 +193,7 @@ bool FlameParticle::update(level::Level& level)
         if( !waterHeight.is_initialized() || waterHeight.get() >= pos.position.Y )
         {
             level.playSound( TR1SoundId::Burning, this );
-            level.m_lara->m_state.health -= 3;
+            level.m_lara->m_state.health -= 3_hp;
             level.m_lara->m_state.is_hit = true;
         }
         else

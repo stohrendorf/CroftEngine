@@ -20,7 +20,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getLara().m_state.health <= 0 )
+        if( getLara().m_state.health <= 0_hp )
         {
             setGoalAnimState( LaraStateId::Stop );
             return;
@@ -60,7 +60,7 @@ public:
 
         if( checkWallCollision( collisionInfo ) )
         {
-            setAnimation( loader::AnimationId::STAY_SOLID, 185 );
+            setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
             setGoalAnimState( LaraStateId::Stop );
         }
 

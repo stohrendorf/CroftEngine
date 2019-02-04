@@ -88,7 +88,7 @@ private:
     int m_smoothness = 8;
     int m_fixedCameraId = -1;
     int m_currentFixedCameraId = -1;
-    int m_camOverrideTimeout{-1};
+    core::Frame m_camOverrideTimeout{-1_frame};
 
 public:
     explicit CameraController(const gsl::not_null<level::Level*>& level,
@@ -134,7 +134,7 @@ public:
                         uint16_t camId,
                         floordata::SequenceCondition condition,
                         bool fromHeavy,
-                        uint16_t timeout,
+                        core::Frame timeout,
                         bool switchIsOn);
 
     void setLookAtItem(const std::shared_ptr<items::ItemNode>& item)

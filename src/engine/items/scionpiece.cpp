@@ -42,7 +42,7 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             getLevel().m_cameraController->m_cinematicRot = lara.m_state.rotation;
         }
     }
-    else if( lara.m_state.frame_number == lara.m_state.anim->firstFrame + 44 )
+    else if( lara.m_state.frame_number == lara.m_state.anim->firstFrame + 44_frame )
     {
         m_state.triggerState = TriggerState::Invisible;
         getLevel().addInventoryItem( m_state.type );

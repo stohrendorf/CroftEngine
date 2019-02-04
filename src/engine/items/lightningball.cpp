@@ -157,7 +157,7 @@ void LightningBall::update()
         m_mainBoltEnd = core::TRVec{
                 glm::vec3( (-m_state.rotation).toMatrix() * glm::vec4( m_mainBoltEnd.toRenderSystem(), 1.0f ) )};
 
-        getLevel().m_lara->m_state.health -= 400;
+        getLevel().m_lara->m_state.health -= 400_hp;
         getLevel().m_lara->m_state.is_hit = true;
 
         m_laraHit = true;
@@ -204,8 +204,9 @@ void LightningBall::collide(LaraNode& lara, CollisionInfo& info)
         return;
 
     lara.hit_direction = static_cast<core::Axis>(util::rand15( 4 ));
-    if( ++lara.hit_frame > 34 )
-        lara.hit_frame = 34;
+    lara.hit_frame += 1_frame;
+    if( lara.hit_frame > 34_frame )
+        lara.hit_frame = 34_frame;
 }
 
 void LightningBall::prepareRender()

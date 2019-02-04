@@ -18,7 +18,7 @@ void Raptor::update()
     core::Angle animTilt = 0_deg;
     core::Angle animAngle = 0_deg;
     core::Angle animHead = 0_deg;
-    if( m_state.health > 0 )
+    if( m_state.health > 0_hp )
     {
         const ai::AiInfo aiInfo{getLevel(), m_state};
         if( aiInfo.ahead )
@@ -111,7 +111,7 @@ void Raptor::update()
                         {
                             emitParticle( core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat );
                             getLevel().m_lara->m_state.is_hit = true;
-                            getLevel().m_lara->m_state.health -= 100;
+                            getLevel().m_lara->m_state.health -= 100_hp;
                             m_state.required_anim_state = 1_as;
                         }
                     }
@@ -125,7 +125,7 @@ void Raptor::update()
                     {
                         emitParticle( core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat );
                         getLevel().m_lara->m_state.is_hit = true;
-                        getLevel().m_lara->m_state.health -= 100;
+                        getLevel().m_lara->m_state.health -= 100_hp;
                         m_state.required_anim_state = 3_as;
                     }
                 }
@@ -136,7 +136,7 @@ void Raptor::update()
                 {
                     emitParticle( core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
-                    getLevel().m_lara->m_state.health -= 100;
+                    getLevel().m_lara->m_state.health -= 100_hp;
                     m_state.required_anim_state = 1_as;
                 }
                 break;

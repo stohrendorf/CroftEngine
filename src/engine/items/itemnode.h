@@ -2,6 +2,7 @@
 
 #include "audio/sourcehandle.h"
 #include "core/boundingbox.h"
+#include "core/health.h"
 #include "engine/floordata/floordata.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/items_tr1.h"
@@ -97,10 +98,10 @@ struct ItemState final : public audio::Emitter
     loader::AnimState goal_anim_state = 0_as;
     loader::AnimState required_anim_state = 0_as;
     const loader::Animation* anim = nullptr;
-    uint16_t frame_number = 0;
-    int16_t health = 0;
+    core::Frame frame_number = 0_frame;
+    core::Health health = 0_hp;
     TriggerState triggerState = TriggerState::Inactive;
-    int16_t timer = 0;
+    core::Frame timer = 0_frame;
     floordata::ActivationState activationState;
     core::Length floor = 0_len;
     std::bitset<32> touch_bits;
@@ -127,15 +128,15 @@ struct ItemState final : public audio::Emitter
             return activationState.isInverted();
         }
 
-        if( timer == 0 )
+        if( timer == 0_frame )
             return !activationState.isInverted();
 
-        if( timer < 0 )
+        if( timer < 0_frame )
             return activationState.isInverted();
 
-        --timer;
-        if( timer == 0 )
-            timer = -1;
+        timer -= 1_frame;
+        if( timer == 0_frame )
+            timer = -1_frame;
 
         return !activationState.isInverted();
     }
@@ -258,7 +259,7 @@ public:
 
     void deactivate();
 
-    virtual bool triggerSwitch(uint16_t timeout) = 0;
+    virtual bool triggerSwitch(core::Frame timeout) = 0;
 
     std::shared_ptr<audio::SourceHandle> playSoundEffect(TR1SoundId id);
 
@@ -374,14 +375,14 @@ public:
         return m_skeleton;
     }
 
-    bool triggerSwitch(const uint16_t timeout) override
+    bool triggerSwitch(const core::Frame timeout) override
     {
         if( m_state.triggerState != TriggerState::Deactivated )
         {
             return false;
         }
 
-        if( m_state.current_anim_state == 0_as && timeout > 0 )
+        if( m_state.current_anim_state == 0_as && timeout > 0_frame )
         {
             // switch has a timer
             m_state.timer = timeout;
@@ -456,7 +457,7 @@ public:
         }
     }
 
-    bool triggerSwitch(uint16_t) override
+    bool triggerSwitch(core::Frame) override
     {
         BOOST_THROW_EXCEPTION( std::runtime_error( "triggerSwitch called on sprite" ) );
     }

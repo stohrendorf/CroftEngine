@@ -40,12 +40,12 @@ void Pierre::update()
     core::Angle tiltRot = 0_deg;
     core::Angle creatureTurn = 0_deg;
     core::Angle headRot = 0_deg;
-    if ( m_state.health <= 40 && !m_state.activationState.isOneshot() )
+    if ( m_state.health <= 40_hp && !m_state.activationState.isOneshot() )
     {
-        m_state.health = 40;
+        m_state.health = 40_hp;
         ++m_state.creatureInfo->flags;
     }
-    if( m_state.health > 0 )
+    if( m_state.health > 0_hp )
     {
         ai::AiInfo aiInfo{getLevel(), m_state};
         if( aiInfo.ahead )
@@ -163,12 +163,12 @@ void Pierre::update()
                 {
                     if( tryShootAtLara( *this, aiInfo.distance, {60_len, 200_len, 0_len}, 11, headRot ) )
                     {
-                        getLevel().m_lara->m_state.health -= 25;
+                        getLevel().m_lara->m_state.health -= 25_hp;
                         getLevel().m_lara->m_state.is_hit = true;
                     }
                     if( tryShootAtLara( *this, aiInfo.distance, {-57_len, 200_len, 0_len}, 14, headRot ) )
                     {
-                        getLevel().m_lara->m_state.health -= 25;
+                        getLevel().m_lara->m_state.health -= 25_hp;
                         getLevel().m_lara->m_state.is_hit = true;
                     }
                     m_state.required_anim_state = 4_as;
@@ -206,7 +206,7 @@ void Pierre::update()
         }
         else if( m_state.creatureInfo->flags > 10 )
         {
-            m_state.health = -16384;
+            m_state.health = -16384_hp;
             m_state.creatureInfo = nullptr;
             kill();
             getLevel().m_pierre = nullptr;
@@ -214,7 +214,7 @@ void Pierre::update()
     }
     if( getWaterSurfaceHeight().is_initialized() )
     {
-        m_state.health = -16384;
+        m_state.health = -16384_hp;
         m_state.creatureInfo = nullptr;
         kill();
         getLevel().m_pierre = nullptr;

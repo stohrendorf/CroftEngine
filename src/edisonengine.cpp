@@ -53,7 +53,7 @@ void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& fon
         drawText( font, 10, 100,
                   std::string( "target          " ) + toString( lvl->m_lara->getGoalAnimState() ) );
         drawText( font, 10, 120,
-                  std::string( "frame           " ) + std::to_string( lvl->m_lara->m_state.frame_number ) );
+                  std::string( "frame           " ) + lvl->m_lara->m_state.frame_number.toString() );
     }
 
     // triggers
@@ -80,7 +80,7 @@ void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& fon
                     drawText( font, 180, y, "invisible" );
                     break;
             }
-            drawText( font, 260, y, std::to_string( item->m_state.timer ) );
+            drawText( font, 260, y, item->m_state.timer.toString() );
             y += 20;
         }
     }
@@ -523,7 +523,7 @@ int main()
     );
 
     static const auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::seconds( 1 ) )
-                                      / core::FrameRate;
+                                      / core::FrameRate.value;
 
     bool showDebugInfo = false;
     bool showDebugInfoToggled = false;

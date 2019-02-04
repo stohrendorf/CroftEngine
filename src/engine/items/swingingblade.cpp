@@ -28,7 +28,7 @@ void SwingingBlade::update()
     if( m_state.current_anim_state == 2_as && m_state.touch_bits.any() )
     {
         getLevel().m_lara->m_state.is_hit = true;
-        getLevel().m_lara->m_state.health -= 100;
+        getLevel().m_lara->m_state.health -= 100_hp;
 
         const core::TRVec splatPos{
                 getLevel().m_lara->m_state.position.position.X + util::rand15s( 128_len ),

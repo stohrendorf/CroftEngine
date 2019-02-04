@@ -60,7 +60,7 @@ void engine::items::RollingBall::update()
         m_state.triggerState = TriggerState::Deactivated;
         m_state.position.position = m_position.position;
         setCurrentRoom( m_position.room );
-        getSkeleton()->setAnimation( m_state, getLevel().m_animatedModels[m_state.type]->animations, 0 );
+        getSkeleton()->setAnimation( m_state, getLevel().m_animatedModels[m_state.type]->animations, 0_frame );
         m_state.goal_anim_state = m_state.current_anim_state;
         m_state.required_anim_state = 0_as;
         deactivate();
@@ -96,12 +96,12 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
     if( !lara.m_state.falling )
     {
         lara.m_state.is_hit = true;
-        if( lara.m_state.health <= 0 )
+        if( lara.m_state.health <= 0_hp )
             return;
 
-        lara.m_state.health = -1;
+        lara.m_state.health = -1_hp;
         lara.setCurrentRoom( m_state.position.room );
-        lara.setAnimation( loader::AnimationId::SQUASH_BOULDER, 3561 );
+        lara.setAnimation( loader::AnimationId::SQUASH_BOULDER, 3561_frame );
         getLevel().m_cameraController->setModifier( CameraModifier::FollowCenter );
         getLevel().m_cameraController->setEyeRotation( -25_deg, 170_deg );
         lara.m_state.rotation.X = 0_deg;
@@ -132,7 +132,7 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
                 collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz),
                 true );
     }
-    lara.m_state.health -= 100;
+    lara.m_state.health -= 100_hp;
     const auto x = lara.m_state.position.position.X - m_state.position.position.X;
     const auto y = lara.m_state.position.position.Y - 350_len
                    - (m_state.position.position.Y - 2 * core::QuarterSectorSize);

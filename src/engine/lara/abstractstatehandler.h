@@ -82,7 +82,7 @@ protected:
 
     LaraStateId getCurrentAnimState() const;
 
-    void setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame = boost::none);
+    void setAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
 
     const level::Level& getLevel() const;
 

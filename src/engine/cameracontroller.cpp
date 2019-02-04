@@ -120,7 +120,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
                                       const uint16_t camId,
                                       const floordata::SequenceCondition condition,
                                       const bool fromHeavy,
-                                      const uint16_t timeout,
+                                      const core::Frame timeout,
                                       const bool switchIsOn)
 {
     Expects( camId < m_level->m_cameras.size() );
@@ -132,7 +132,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
         || condition == floordata::SequenceCondition::LaraInCombatMode )
         return;
 
-    if( condition == floordata::SequenceCondition::ItemActivated && timeout != 0 && switchIsOn )
+    if( condition == floordata::SequenceCondition::ItemActivated && timeout != 0_frame && switchIsOn )
         return;
 
     if( condition != floordata::SequenceCondition::ItemActivated && m_fixedCameraId == m_currentFixedCameraId )
@@ -183,7 +183,7 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
             else
             {
                 m_fixedCameraId = m_currentFixedCameraId;
-                if( m_camOverrideTimeout >= 0 && m_mode != CameraMode::FreeLook && m_mode != CameraMode::Combat )
+                if( m_camOverrideTimeout >= 0_frame && m_mode != CameraMode::FreeLook && m_mode != CameraMode::Combat )
                 {
                     type = Type::FixedCamChange;
                     m_mode = CameraMode::Fixed;
@@ -191,7 +191,7 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
                 else
                 {
                     type = Type::Invalid;
-                    m_camOverrideTimeout = -1;
+                    m_camOverrideTimeout = -1_frame;
                 }
             }
         }
@@ -568,7 +568,7 @@ void CameraController::update()
 
     m_fixed = fixed;
     m_currentFixedCameraId = m_fixedCameraId;
-    if( m_mode != CameraMode::Heavy || m_camOverrideTimeout < 0 )
+    if( m_mode != CameraMode::Heavy || m_camOverrideTimeout < 0_frame )
     {
         m_modifier = CameraModifier::None;
         m_mode = CameraMode::Chase;
@@ -599,11 +599,11 @@ void CameraController::handleFixedCamera()
     m_fixed = true;
     updatePosition( pos, m_smoothness );
 
-    if( m_camOverrideTimeout != 0 )
+    if( m_camOverrideTimeout != 0_frame )
     {
-        --m_camOverrideTimeout;
-        if( m_camOverrideTimeout == 0 )
-            m_camOverrideTimeout = -1;
+        m_camOverrideTimeout -= 1_frame;
+        if( m_camOverrideTimeout == 0_frame )
+            m_camOverrideTimeout = -1_frame;
     }
 }
 
@@ -1244,7 +1244,7 @@ void CameraController::load(const YAML::Node& n)
     m_smoothness = n["trackingSmoothness"].as<int>();
     m_fixedCameraId = n["fixedCameraId"].as<int>();
     m_currentFixedCameraId = n["currentFixedCameraId"].as<int>();
-    m_camOverrideTimeout = n["camOverrideTimeout"].as<int>();
+    m_camOverrideTimeout = n["camOverrideTimeout"].as<core::Frame>();
     m_cinematicFrame = n["cinematicFrame"].as<size_t>();
     m_cinematicPos.load( n["cinematicPos"] );
     m_cinematicRot.load( n["cinematicRot"] );

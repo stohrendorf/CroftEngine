@@ -90,7 +90,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     ModelItemNode::update();
     if( m_state.triggerState == TriggerState::Deactivated )
     {
-        m_state.health = -16384;
+        m_state.health = -16384_hp;
         m_state.collidable = false;
         m_state.creatureInfo.reset();
         deactivate();
@@ -430,7 +430,7 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
     m_state.collidable = true;
     const core::Angle v = core::Angle( util::rand15() * 2 );
     m_state.rotation.Y += v;
-    m_state.health = level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.type )["hit_points"];
+    m_state.health = core::Health{static_cast<core::Health::int_type>(level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.type )["hit_points"])};
 }
 
 void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
@@ -444,7 +444,7 @@ void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
     if( !collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
         return;
 
-    const bool enableSpaz = m_state.health > 0
+    const bool enableSpaz = m_state.health > 0_hp
                             && collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableSpaz );
     enemyPush( lara, collisionInfo, enableSpaz, false );
 }

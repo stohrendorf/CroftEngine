@@ -151,11 +151,11 @@ LaraNode::WeaponId parseWeaponId(const std::string& s)
 
 }
 
-void LaraNode::setAnimation(loader::AnimationId anim, const boost::optional<uint16_t>& firstFrame)
+void LaraNode::setAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame)
 {
     getSkeleton()->setAnimation( m_state,
                                  &getLevel().m_animations.at( static_cast<uint16_t>(anim) ),
-                                 firstFrame.get_value_or( 0 ) );
+                                 firstFrame.get_value_or( 0_frame ) );
 }
 
 void LaraNode::handleLaraStateOnLand()
@@ -414,7 +414,7 @@ void LaraNode::update()
         else
         {
             m_state.rotation.X = -45_deg;
-            setAnimation( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895 );
+            setAnimation( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895_frame );
             setGoalAnimState( LaraStateId::UnderwaterForward );
             m_state.fallspeed += m_state.fallspeed / 2;
         }
@@ -453,7 +453,7 @@ void LaraNode::update()
             || abs( *waterSurfaceHeight - m_state.position.position.Y ) >= core::QuarterSectorSize )
         {
             m_underwaterState = UnderwaterState::OnLand;
-            setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+            setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
             setGoalAnimState( LaraStateId::JumpForward );
             m_state.speed = std::exchange( m_state.fallspeed, 0_len ) / 4;
             m_state.falling = true;
@@ -461,7 +461,7 @@ void LaraNode::update()
         else
         {
             m_underwaterState = UnderwaterState::Swimming;
-            setAnimation( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937 );
+            setAnimation( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937_frame );
             setGoalAnimState( LaraStateId::OnWaterStop );
             m_state.position.position.Y = *waterSurfaceHeight + 1_len;
             m_swimToDiveKeypressDuration = 11;
@@ -472,7 +472,7 @@ void LaraNode::update()
     else if( m_underwaterState == UnderwaterState::Swimming && !m_state.position.room->isWaterRoom() )
     {
         m_underwaterState = UnderwaterState::OnLand;
-        setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492 );
+        setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
         setGoalAnimState( LaraStateId::JumpForward );
         m_state.speed = std::exchange( m_state.fallspeed, 0_len ) / 4;
         m_state.falling = true;
@@ -489,20 +489,20 @@ void LaraNode::update()
     }
     else if( m_underwaterState == UnderwaterState::Diving )
     {
-        if( m_state.health >= 0 )
+        if( m_state.health >= 0_hp )
         {
             --m_air;
             if( m_air < 0 )
             {
                 m_air = -1;
-                m_state.health -= 5;
+                m_state.health -= 5_hp;
             }
         }
         handleLaraStateDiving();
     }
     else if( m_underwaterState == UnderwaterState::Swimming )
     {
-        if( m_state.health >= 0 )
+        if( m_state.health >= 0_hp )
         {
             m_air = std::min( m_air + 10, core::LaraAir );
         }
@@ -587,14 +587,14 @@ void LaraNode::updateImpl()
                     cmd += 2;
                     break;
                 case AnimCommandOpcode::PlaySound:
-                    if( m_state.frame_number == cmd[0] )
+                    if( m_state.frame_number.value == cmd[0] )
                     {
                         playSoundEffect( static_cast<TR1SoundId>(cmd[1]) );
                     }
                     cmd += 2;
                     break;
                 case AnimCommandOpcode::PlayEffect:
-                    if( m_state.frame_number == cmd[0] )
+                    if( m_state.frame_number.value == cmd[0] )
                     {
                         BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
                         getLevel().runEffect( cmd[1], this );
@@ -885,7 +885,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     m_state.is_hit = false;
     hit_direction.reset();
 
-    if( m_state.health < 0 )
+    if( m_state.health < 0_hp )
         return;
 
     std::set<gsl::not_null<const loader::Room*>> rooms;
@@ -939,7 +939,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     }
     if( !getLevel().m_lara->hit_direction.is_initialized() )
     {
-        getLevel().m_lara->hit_frame = 0;
+        getLevel().m_lara->hit_frame = 0_frame;
     }
     // TODO selectedPuzzleKey = -1;
 }
@@ -993,16 +993,16 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
 
 void LaraNode::updateLarasWeaponsStatus()
 {
-    if( leftArm.flashTimeout > 0 )
+    if( leftArm.flashTimeout > 0_frame )
     {
-        --leftArm.flashTimeout;
+        leftArm.flashTimeout -= 1_frame;
     }
-    if( rightArm.flashTimeout > 0 )
+    if( rightArm.flashTimeout > 0_frame )
     {
-        --rightArm.flashTimeout;
+        rightArm.flashTimeout -= 1_frame;
     }
     bool doHolsterUpdate = false;
-    if( m_state.health <= 0 )
+    if( m_state.health <= 0_hp )
     {
         m_handStatus = HandStatus::None;
     }
@@ -1038,8 +1038,8 @@ void LaraNode::updateLarasWeaponsStatus()
     {
         if( m_handStatus == HandStatus::None )
         {
-            rightArm.frame = 0;
-            leftArm.frame = 0;
+            rightArm.frame = 0_frame;
+            leftArm.frame = 0_frame;
             m_handStatus = HandStatus::Unholster;
         }
         else if( m_handStatus == HandStatus::Combat )
@@ -1295,16 +1295,16 @@ void LaraNode::updateAimingState(const Weapon& weapon)
 
 void LaraNode::unholster()
 {
-    rightArm.frame = 0;
-    leftArm.frame = 0;
+    rightArm.frame = 0_frame;
+    leftArm.frame = 0_frame;
     leftArm.aimRotation.Y = 0_deg;
     leftArm.aimRotation.X = 0_deg;
     rightArm.aimRotation.Y = 0_deg;
     rightArm.aimRotation.X = 0_deg;
     rightArm.aiming = false;
     leftArm.aiming = false;
-    rightArm.flashTimeout = 0;
-    leftArm.flashTimeout = 0;
+    rightArm.flashTimeout = 0_frame;
+    leftArm.flashTimeout = 0_frame;
     target = nullptr;
     if( gunType == WeaponId::None )
     {
@@ -1367,20 +1367,20 @@ core::RoomBoundPosition LaraNode::getUpperThirdBBoxCtr(const ModelItemNode& item
 
 void LaraNode::unholsterGuns(const WeaponId weaponId)
 {
-    auto nextFrame = leftArm.frame + 1;
-    if( nextFrame < 5 || nextFrame > 23 )
+    auto nextFrame = leftArm.frame + 1_frame;
+    if( nextFrame < 5_frame || nextFrame > 23_frame )
     {
-        nextFrame = 5;
+        nextFrame = 5_frame;
     }
-    else if( nextFrame == 13 )
+    else if( nextFrame == 13_frame )
     {
         overrideLaraMeshesUnholsterGuns( weaponId );
         playSoundEffect( TR1SoundId::LaraUnholster );
     }
-    else if( nextFrame == 23 )
+    else if( nextFrame == 23_frame )
     {
         initAimInfoPistol();
-        nextFrame = 0;
+        nextFrame = 0_frame;
     }
 
     leftArm.frame = nextFrame;
@@ -1395,7 +1395,7 @@ void LaraNode::findTarget(const Weapon& weapon)
     core::Angle bestYAngle{std::numeric_limits<int16_t>::max()};
     for( const auto& currentEnemy : getLevel().m_itemNodes | boost::adaptors::map_values )
     {
-        if( currentEnemy->m_state.health <= 0 || currentEnemy.get() == getLevel().m_lara )
+        if( currentEnemy->m_state.health <= 0_hp || currentEnemy.get() == getLevel().m_lara )
             continue;
 
         const auto modelEnemy = std::dynamic_pointer_cast<ModelItemNode>( currentEnemy.get() );
@@ -1450,8 +1450,8 @@ void LaraNode::initAimInfoPistol()
     leftArm.aimRotation.X = 0_deg;
     rightArm.aimRotation.Y = 0_deg;
     rightArm.aimRotation.X = 0_deg;
-    rightArm.frame = 0;
-    leftArm.frame = 0;
+    rightArm.frame = 0_frame;
+    leftArm.frame = 0_frame;
     rightArm.aiming = false;
     leftArm.aiming = false;
     m_torsoRotation.Y = 0_deg;
@@ -1471,8 +1471,8 @@ void LaraNode::initAimInfoShotgun()
     leftArm.aimRotation.X = 0_deg;
     rightArm.aimRotation.Y = 0_deg;
     rightArm.aimRotation.X = 0_deg;
-    rightArm.frame = 0;
-    leftArm.frame = 0;
+    rightArm.frame = 0_frame;
+    leftArm.frame = 0_frame;
     rightArm.aiming = false;
     leftArm.aiming = false;
     m_torsoRotation.Y = 0_deg;
@@ -1524,21 +1524,21 @@ void LaraNode::overrideLaraMeshesUnholsterShotgun()
 
 void LaraNode::unholsterShotgun()
 {
-    auto nextFrame = leftArm.frame + 1;
-    if( nextFrame < 5 || nextFrame > 47 )
+    auto nextFrame = leftArm.frame + 1_frame;
+    if( nextFrame < 5_frame || nextFrame > 47_frame )
     {
-        nextFrame = 13;
+        nextFrame = 13_frame;
     }
-    else if( nextFrame == 23 )
+    else if( nextFrame == 23_frame )
     {
         overrideLaraMeshesUnholsterShotgun();
 
         playSoundEffect( TR1SoundId::LaraUnholster );
     }
-    else if( nextFrame == 47 )
+    else if( nextFrame == 47_frame )
     {
         initAimInfoShotgun();
-        nextFrame = 0;
+        nextFrame = 0_frame;
     }
 
     leftArm.frame = nextFrame;
@@ -1585,10 +1585,10 @@ void LaraNode::updateAnimShotgun()
     auto aimingFrame = leftArm.frame;
     if( leftArm.aiming )
     {
-        if( leftArm.frame < 0 || leftArm.frame >= 13 )
+        if( leftArm.frame < 0_frame || leftArm.frame >= 13_frame )
         {
-            const auto nextFrame = leftArm.frame + 1;
-            if( leftArm.frame == 47 )
+            const auto nextFrame = leftArm.frame + 1_frame;
+            if( leftArm.frame == 47_frame )
             {
                 if( getLevel().m_inputHandler->getInputState().action )
                 {
@@ -1598,29 +1598,29 @@ void LaraNode::updateAnimShotgun()
                     return;
                 }
             }
-            else if( leftArm.frame <= 47 || leftArm.frame >= 80 )
+            else if( leftArm.frame <= 47_frame || leftArm.frame >= 80_frame )
             {
-                if( leftArm.frame >= 114 && leftArm.frame < 127 )
+                if( leftArm.frame >= 114_frame && leftArm.frame < 127_frame )
                 {
-                    aimingFrame = leftArm.frame + 1;
-                    if( leftArm.frame == 126 )
+                    aimingFrame = leftArm.frame + 1_frame;
+                    if( leftArm.frame == 126_frame )
                     {
-                        rightArm.frame = 0;
-                        leftArm.frame = 0;
+                        rightArm.frame = 0_frame;
+                        leftArm.frame = 0_frame;
                         return;
                     }
                 }
             }
             else
             {
-                aimingFrame = leftArm.frame + 1;
-                if( nextFrame == 80 )
+                aimingFrame = leftArm.frame + 1_frame;
+                if( nextFrame == 80_frame )
                 {
-                    rightArm.frame = 47;
-                    leftArm.frame = 47;
+                    rightArm.frame = 47_frame;
+                    leftArm.frame = 47_frame;
                     return;
                 }
-                if( nextFrame == 57 )
+                if( nextFrame == 57_frame )
                 {
                     playSoundEffect( TR1SoundId::LaraPistolsCocking );
                     rightArm.frame = aimingFrame;
@@ -1631,10 +1631,10 @@ void LaraNode::updateAnimShotgun()
         }
         else
         {
-            aimingFrame = leftArm.frame + 1;
-            if( leftArm.frame == 12 )
+            aimingFrame = leftArm.frame + 1_frame;
+            if( leftArm.frame == 12_frame )
             {
-                aimingFrame = 47;
+                aimingFrame = 47_frame;
             }
         }
 
@@ -1643,56 +1643,57 @@ void LaraNode::updateAnimShotgun()
         return;
     }
 
-    if( leftArm.frame == 0 && getLevel().m_inputHandler->getInputState().action )
+    if( leftArm.frame == 0_frame && getLevel().m_inputHandler->getInputState().action )
     {
-        rightArm.frame = leftArm.frame++ + 1;
+        leftArm.frame += 1_frame;
+        rightArm.frame += 1_frame;
         return;
     }
 
-    if( leftArm.frame <= 0 || leftArm.frame >= 13 )
+    if( leftArm.frame <= 0_frame || leftArm.frame >= 13_frame )
     {
-        const auto nextFrame = leftArm.frame + 1;
-        if( leftArm.frame == 47 )
+        const auto nextFrame = leftArm.frame + 1_frame;
+        if( leftArm.frame == 47_frame )
         {
             if( getLevel().m_inputHandler->getInputState().action )
             {
                 tryShootShotgun();
-                rightArm.frame = aimingFrame + 1;
-                leftArm.frame = aimingFrame + 1;
+                rightArm.frame = aimingFrame + 1_frame;
+                leftArm.frame = aimingFrame + 1_frame;
                 return;
             }
 
-            rightArm.frame = 114;
-            leftArm.frame = 114;
+            rightArm.frame = 114_frame;
+            leftArm.frame = 114_frame;
             return;
         }
-        if( leftArm.frame <= 47 || leftArm.frame >= 80 )
+        if( leftArm.frame <= 47_frame || leftArm.frame >= 80_frame )
         {
-            if( leftArm.frame >= 114 && leftArm.frame < 127 )
+            if( leftArm.frame >= 114_frame && leftArm.frame < 127_frame )
             {
-                aimingFrame = leftArm.frame + 1;
-                if( leftArm.frame == 126 )
+                aimingFrame = leftArm.frame + 1_frame;
+                if( leftArm.frame == 126_frame )
                 {
-                    aimingFrame = 0;
+                    aimingFrame = 0_frame;
                 }
             }
         }
         else
         {
-            aimingFrame = leftArm.frame + 1;
-            if( nextFrame == 60 )
+            aimingFrame = leftArm.frame + 1_frame;
+            if( nextFrame == 60_frame )
             {
-                rightArm.frame = 0;
-                leftArm.frame = 0;
+                rightArm.frame = 0_frame;
+                leftArm.frame = 0_frame;
                 return;
             }
-            if( nextFrame == 80 )
+            if( nextFrame == 80_frame )
             {
-                rightArm.frame = 114;
-                leftArm.frame = 114;
+                rightArm.frame = 114_frame;
+                leftArm.frame = 114_frame;
                 return;
             }
-            if( nextFrame == 57 )
+            if( nextFrame == 57_frame )
             {
                 playSoundEffect( TR1SoundId::LaraPistolsCocking );
                 rightArm.frame = aimingFrame;
@@ -1703,18 +1704,18 @@ void LaraNode::updateAnimShotgun()
     }
     else
     {
-        aimingFrame = leftArm.frame + 1;
-        if( leftArm.frame == 12 )
+        aimingFrame = leftArm.frame + 1_frame;
+        if( leftArm.frame == 12_frame )
         {
             if( getLevel().m_inputHandler->getInputState().action )
             {
-                rightArm.frame = 47;
-                leftArm.frame = 47;
+                rightArm.frame = 47_frame;
+                leftArm.frame = 47_frame;
                 return;
             }
 
-            rightArm.frame = 114;
-            leftArm.frame = 114;
+            rightArm.frame = 114_frame;
+            leftArm.frame = 114_frame;
             return;
         }
     }
@@ -1747,46 +1748,46 @@ void LaraNode::tryShootShotgun()
 void LaraNode::holsterShotgun()
 {
     auto aimFrame = leftArm.frame;
-    if( leftArm.frame == 0 )
+    if( leftArm.frame == 0_frame )
     {
-        aimFrame = 80;
+        aimFrame = 80_frame;
     }
-    else if( leftArm.frame >= 0 && leftArm.frame < 13 )
+    else if( leftArm.frame >= 0_frame && leftArm.frame < 13_frame )
     {
-        aimFrame = leftArm.frame + 1;
-        if( leftArm.frame == 12 )
+        aimFrame = leftArm.frame + 1_frame;
+        if( leftArm.frame == 12_frame )
         {
-            aimFrame = 114;
+            aimFrame = 114_frame;
         }
     }
-    else if( leftArm.frame == 47 )
+    else if( leftArm.frame == 47_frame )
     {
-        aimFrame = 114;
+        aimFrame = 114_frame;
     }
-    else if( leftArm.frame >= 47 && leftArm.frame < 80 )
+    else if( leftArm.frame >= 47_frame && leftArm.frame < 80_frame )
     {
-        aimFrame = leftArm.frame + 1;
-        if( leftArm.frame == 59 )
+        aimFrame = leftArm.frame + 1_frame;
+        if( leftArm.frame == 59_frame )
         {
-            aimFrame = 0;
+            aimFrame = 0_frame;
         }
-        else if( aimFrame == 80 )
+        else if( aimFrame == 80_frame )
         {
-            aimFrame = 114;
-        }
-    }
-    else if( leftArm.frame >= 114 && leftArm.frame < 127 )
-    {
-        aimFrame = leftArm.frame + 1;
-        if( leftArm.frame == 126 )
-        {
-            aimFrame = 80;
+            aimFrame = 114_frame;
         }
     }
-    else if( leftArm.frame >= 80 && leftArm.frame < 114 )
+    else if( leftArm.frame >= 114_frame && leftArm.frame < 127_frame )
     {
-        aimFrame = leftArm.frame + 1;
-        if( leftArm.frame == 100 )
+        aimFrame = leftArm.frame + 1_frame;
+        if( leftArm.frame == 126_frame )
+        {
+            aimFrame = 80_frame;
+        }
+    }
+    else if( leftArm.frame >= 80_frame && leftArm.frame < 114_frame )
+    {
+        aimFrame = leftArm.frame + 1_frame;
+        if( leftArm.frame == 100_frame )
         {
             const auto& src = *getLevel().m_animatedModels[TR1ItemId::Lara];
             BOOST_ASSERT( src.meshes.size() == getNode()->getChildren().size() );
@@ -1798,9 +1799,9 @@ void LaraNode::holsterShotgun()
 
             playSoundEffect( TR1SoundId::LaraUnholster );
         }
-        else if( leftArm.frame == 113 )
+        else if( leftArm.frame == 113_frame )
         {
-            aimFrame = 0;
+            aimFrame = 0_frame;
             m_handStatus = HandStatus::None;
             target = nullptr;
             rightArm.aiming = false;
@@ -1819,26 +1820,26 @@ void LaraNode::holsterShotgun()
 
 void LaraNode::holsterGuns(const WeaponId weaponId)
 {
-    if( leftArm.frame >= 24 )
+    if( leftArm.frame >= 24_frame )
     {
-        leftArm.frame = 4;
+        leftArm.frame = 4_frame;
     }
-    else if( leftArm.frame > 0 && leftArm.frame < 5 )
+    else if( leftArm.frame > 0_frame && leftArm.frame < 5_frame )
     {
-        leftArm.aimRotation.X -= leftArm.aimRotation.X / leftArm.frame;
-        leftArm.aimRotation.Y -= leftArm.aimRotation.Y / leftArm.frame;
-        --leftArm.frame;
+        leftArm.aimRotation.X -= leftArm.aimRotation.X / leftArm.frame.value;
+        leftArm.aimRotation.Y -= leftArm.aimRotation.Y / leftArm.frame.value;
+        leftArm.frame -= 1_frame;
     }
-    else if( leftArm.frame == 0 )
+    else if( leftArm.frame == 0_frame )
     {
         leftArm.aimRotation.X = 0_deg;
         leftArm.aimRotation.Y = 0_deg;
-        leftArm.frame = 23;
+        leftArm.frame = 23_frame;
     }
-    else if( leftArm.frame > 5 && leftArm.frame < 24 )
+    else if( leftArm.frame > 5_frame && leftArm.frame < 24_frame )
     {
-        --leftArm.frame;
-        if( leftArm.frame == 12 )
+        leftArm.frame -= 1_frame;
+        if( leftArm.frame == 12_frame )
         {
             TR1ItemId srcId = TR1ItemId::LaraPistolsAnim;
             if( weaponId == WeaponId::AutoPistols )
@@ -1861,26 +1862,26 @@ void LaraNode::holsterGuns(const WeaponId weaponId)
         }
     }
 
-    if( rightArm.frame >= 24 )
+    if( rightArm.frame >= 24_frame )
     {
-        rightArm.frame = 4;
+        rightArm.frame = 4_frame;
     }
-    else if( rightArm.frame > 0 && rightArm.frame < 5 )
+    else if( rightArm.frame > 0_frame && rightArm.frame < 5_frame )
     {
-        rightArm.aimRotation.X -= rightArm.aimRotation.X / rightArm.frame;
-        rightArm.aimRotation.Y -= rightArm.aimRotation.Y / rightArm.frame;
-        --rightArm.frame;
+        rightArm.aimRotation.X -= rightArm.aimRotation.X / rightArm.frame.value;
+        rightArm.aimRotation.Y -= rightArm.aimRotation.Y / rightArm.frame.value;
+        rightArm.frame -= 1_frame;
     }
-    else if( rightArm.frame == 0 )
+    else if( rightArm.frame == 0_frame )
     {
         rightArm.aimRotation.Y = 0_deg;
         rightArm.aimRotation.X = 0_deg;
-        rightArm.frame = 23;
+        rightArm.frame = 23_frame;
     }
-    else if( rightArm.frame > 5 && rightArm.frame < 24 )
+    else if( rightArm.frame > 5_frame && rightArm.frame < 24_frame )
     {
-        --rightArm.frame;
-        if( rightArm.frame == 12 )
+        rightArm.frame -= 1_frame;
+        if( rightArm.frame == 12_frame )
         {
             TR1ItemId srcId = TR1ItemId::LaraPistolsAnim;
             if( weaponId == WeaponId::AutoPistols )
@@ -1903,11 +1904,11 @@ void LaraNode::holsterGuns(const WeaponId weaponId)
         }
     }
 
-    if( leftArm.frame == 5 && rightArm.frame == 5 )
+    if( leftArm.frame == 5_frame && rightArm.frame == 5_frame )
     {
         m_handStatus = HandStatus::None;
-        leftArm.frame = 0;
-        rightArm.frame = 0;
+        leftArm.frame = 0_frame;
+        rightArm.frame = 0_frame;
         target = nullptr;
         rightArm.aiming = false;
         leftArm.aiming = false;
@@ -1925,20 +1926,20 @@ void LaraNode::updateAnimNotShotgun(const WeaponId weaponId)
 
     if( !rightArm.aiming && (!getLevel().m_inputHandler->getInputState().action || target != nullptr) )
     {
-        if( rightArm.frame >= 24 )
+        if( rightArm.frame >= 24_frame )
         {
-            rightArm.frame = 4;
+            rightArm.frame = 4_frame;
         }
-        else if( rightArm.frame > 0 && rightArm.frame <= 4 )
+        else if( rightArm.frame > 0_frame && rightArm.frame <= 4_frame )
         {
-            --rightArm.frame;
+            rightArm.frame -= 1_frame;
         }
     }
-    else if( rightArm.frame >= 0 && rightArm.frame < 4 )
+    else if( rightArm.frame >= 0_frame && rightArm.frame < 4_frame )
     {
-        ++rightArm.frame;
+        rightArm.frame += 1_frame;
     }
-    else if( getLevel().m_inputHandler->getInputState().action && rightArm.frame == 4 )
+    else if( getLevel().m_inputHandler->getInputState().action && rightArm.frame == 4_frame )
     {
         core::TRRotationXY aimAngle;
         aimAngle.X = rightArm.aimRotation.X;
@@ -1948,33 +1949,33 @@ void LaraNode::updateAnimNotShotgun(const WeaponId weaponId)
             rightArm.flashTimeout = weapon.flashTime;
             playSoundEffect( weapon.sampleNum );
         }
-        rightArm.frame = 24;
+        rightArm.frame = 24_frame;
     }
-    else if( rightArm.frame >= 24 )
+    else if( rightArm.frame >= 24_frame )
     {
-        ++rightArm.frame;
-        if( rightArm.frame == weapon.recoilFrame + 24 )
+        rightArm.frame += 1_frame;
+        if( rightArm.frame == weapon.recoilFrame + 24_frame )
         {
-            rightArm.frame = 4;
+            rightArm.frame = 4_frame;
         }
     }
 
     if( !leftArm.aiming && (!getLevel().m_inputHandler->getInputState().action || target != nullptr) )
     {
-        if( leftArm.frame >= 24 )
+        if( leftArm.frame >= 24_frame )
         {
-            leftArm.frame = 4;
+            leftArm.frame = 4_frame;
         }
-        else if( leftArm.frame > 0 && leftArm.frame <= 4 )
+        else if( leftArm.frame > 0_frame && leftArm.frame <= 4_frame )
         {
-            --leftArm.frame;
+            leftArm.frame -= 1_frame;
         }
     }
-    else if( leftArm.frame >= 0 && leftArm.frame < 4 )
+    else if( leftArm.frame >= 0_frame && leftArm.frame < 4_frame )
     {
-        ++leftArm.frame;
+        leftArm.frame += 1_frame;
     }
-    else if( getLevel().m_inputHandler->getInputState().action && leftArm.frame == 4 )
+    else if( getLevel().m_inputHandler->getInputState().action && leftArm.frame == 4_frame )
     {
         core::TRRotationXY aimAngle;
         aimAngle.Y = m_state.rotation.Y + leftArm.aimRotation.Y;
@@ -1984,14 +1985,14 @@ void LaraNode::updateAnimNotShotgun(const WeaponId weaponId)
             leftArm.flashTimeout = weapon.flashTime;
             playSoundEffect( weapon.sampleNum );
         }
-        leftArm.frame = 24;
+        leftArm.frame = 24_frame;
     }
-    else if( leftArm.frame >= 24 )
+    else if( leftArm.frame >= 24_frame )
     {
-        ++leftArm.frame;
-        if( leftArm.frame == weapon.recoilFrame + 24 )
+        leftArm.frame += 1_frame;
+        if( leftArm.frame == weapon.recoilFrame + 24_frame )
         {
-            leftArm.frame = 4;
+            leftArm.frame = 4_frame;
         }
     }
 }
@@ -2110,9 +2111,9 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
     return true;
 }
 
-void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const int damage)
+void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const core::Health damage)
 {
-    if( item.m_state.health > 0 && item.m_state.health <= damage )
+    if( item.m_state.health > 0_hp && item.m_state.health <= damage )
     {
         // TODO ++g_numKills;
     }
@@ -2123,7 +2124,7 @@ void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const i
                                 item.m_state.speed,
                                 item.m_state.rotation.Y );
     getLevel().m_particles.emplace_back( fx );
-    if( item.m_state.health <= 0 )
+    if( item.m_state.health <= 0_hp )
         return;
 
     TR1SoundId soundId;
@@ -2384,7 +2385,7 @@ void LaraNode::drawRoutine()
                 frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_FORWARD)].frames;
                 break;
         }
-        frame = frame->next( hit_frame );
+        frame = frame->next( hit_frame.value );
     }
 
     updateLighting();
@@ -2444,35 +2445,35 @@ void LaraNode::drawRoutine()
             matrixStack.resetRotation();
             matrixStack.rotate( rightArm.aimRotation );
 
-            armAngleData = rightArm.weaponAnimData->next( rightArm.frame )->getAngleData();
+            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.value )->getAngleData();
             matrixStack.rotate( armAngleData[8] );
             matrixStack.apply( getSkeleton(), 8 );
 
             matrixStack.transform( 9, objInfo.boneTree, armAngleData, getSkeleton() );
             matrixStack.transform( 10, objInfo.boneTree, armAngleData, getSkeleton() );
 
-            renderGunFlare( activeGunType, matrixStack.top(), m_gunFlareRight, rightArm.flashTimeout != 0 );
+            renderGunFlare( activeGunType, matrixStack.top(), m_gunFlareRight, rightArm.flashTimeout != 0_frame );
             matrixStack.pop();
             matrixStack.push();
             matrixStack.translate( objInfo.boneTree[10] );
             matrixStack.resetRotation();
             matrixStack.rotate( leftArm.aimRotation );
-            armAngleData = leftArm.weaponAnimData->next( leftArm.frame )->getAngleData();
+            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.value )->getAngleData();
             matrixStack.rotate( armAngleData[11] );
             matrixStack.apply( getSkeleton(), 11 );
 
             matrixStack.transform( {12, 13}, objInfo.boneTree, armAngleData, getSkeleton() );
 
-            renderGunFlare( activeGunType, matrixStack.top(), m_gunFlareLeft, leftArm.flashTimeout != 0 );
+            renderGunFlare( activeGunType, matrixStack.top(), m_gunFlareLeft, leftArm.flashTimeout != 0_frame );
             break;
         case WeaponId::Shotgun:
             matrixStack.push();
-            armAngleData = rightArm.weaponAnimData->next( rightArm.frame )->getAngleData();
+            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.value )->getAngleData();
             matrixStack.transform( {8, 9, 10}, objInfo.boneTree, armAngleData, getSkeleton() );
 
             matrixStack.pop();
             matrixStack.push();
-            armAngleData = leftArm.weaponAnimData->next( leftArm.frame )->getAngleData();
+            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.value )->getAngleData();
             matrixStack.transform( {11, 12, 13}, objInfo.boneTree, armAngleData, getSkeleton() );
             break;
         default:
@@ -2542,35 +2543,35 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
             matrixStack.resetRotation();
             matrixStack.rotate( rightArm.aimRotation );
 
-            armAngleData = rightArm.weaponAnimData->next( rightArm.frame )->getAngleData();
+            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.value )->getAngleData();
             matrixStack.rotate( armAngleData[8], armAngleData[8] );
             matrixStack.apply( getSkeleton(), 8 );
 
             matrixStack.transform( 9, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
             matrixStack.transform( 10, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
 
-            renderGunFlare( activeGunType, matrixStack.itop(), m_gunFlareRight, rightArm.flashTimeout != 0 );
+            renderGunFlare( activeGunType, matrixStack.itop(), m_gunFlareRight, rightArm.flashTimeout != 0_frame );
             matrixStack.pop();
             matrixStack.push();
             matrixStack.translate( objInfo.boneTree[10] );
             matrixStack.resetRotation();
             matrixStack.rotate( leftArm.aimRotation );
-            armAngleData = leftArm.weaponAnimData->next( leftArm.frame )->getAngleData();
+            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.value )->getAngleData();
             matrixStack.rotate( armAngleData[11], armAngleData[11] );
             matrixStack.apply( getSkeleton(), 11 );
 
             matrixStack.transform( {12, 13}, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
 
-            renderGunFlare( activeGunType, matrixStack.itop(), m_gunFlareLeft, leftArm.flashTimeout != 0 );
+            renderGunFlare( activeGunType, matrixStack.itop(), m_gunFlareLeft, leftArm.flashTimeout != 0_frame );
             break;
         case WeaponId::Shotgun:
             matrixStack.push();
-            armAngleData = rightArm.weaponAnimData->next( rightArm.frame )->getAngleData();
+            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.value )->getAngleData();
             matrixStack.transform( {8, 9, 10}, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
 
             matrixStack.pop();
             matrixStack.push();
-            armAngleData = leftArm.weaponAnimData->next( leftArm.frame )->getAngleData();
+            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.value )->getAngleData();
             matrixStack.transform( {11, 12, 13}, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
             break;
         default:
@@ -2681,7 +2682,7 @@ void LaraNode::load(const YAML::Node& n)
     requestedGunType = parseWeaponId( n["requestedGun"].as<std::string>() );
     m_handStatus = parseHandStatus( n["handStatus"].as<std::string>() );
     m_underwaterState = parseUnderwaterState( n["underwater"].as<std::string>() );
-    hit_frame = n["hitFrame"].as<int>();
+    hit_frame = n["hitFrame"].as<core::Frame>();
     if( !n["hitDir"].IsDefined() )
         hit_direction.reset();
     else
@@ -2731,9 +2732,9 @@ void LaraNode::AimInfo::load(const YAML::Node& n, const level::Level& lvl)
         weaponAnimData = nullptr;
     else
         weaponAnimData = reinterpret_cast<const loader::AnimFrame*>(&lvl.m_poseFrames.at( n["animData"].as<size_t>() ));
-    frame = n["frame"].as<int16_t>();
+    frame = n["frame"].as<core::Frame>();
     aiming = n["aiming"].as<bool>();
     aimRotation.load( n["aimRotation"] );
-    flashTimeout = n["flashTimeout"].as<int16_t>();
+    flashTimeout = n["flashTimeout"].as<core::Frame>();
 }
 }

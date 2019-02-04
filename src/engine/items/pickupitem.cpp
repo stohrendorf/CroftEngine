@@ -37,7 +37,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
         if( lara.getCurrentAnimState() == LaraStateId::PickUp )
         {
-            if( lara.m_state.frame_number == 2970 )
+            if( lara.m_state.frame_number == 2970_frame )
             {
                 m_state.triggerState = TriggerState::Invisible;
                 getLevel().addInventoryItem( m_state.type );
@@ -76,7 +76,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
         if( lara.getCurrentAnimState() == LaraStateId::PickUp )
         {
-            if( lara.m_state.frame_number == 3443 )
+            if( lara.m_state.frame_number == 3443_frame )
             {
                 if( m_state.type == TR1ItemId::ShotgunSprite )
                 {

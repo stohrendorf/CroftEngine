@@ -19,7 +19,7 @@ void Lion::update()
     core::Angle angle = 0_deg;
     core::Angle headRot = 0_deg;
 
-    if( m_state.health > 0 )
+    if( m_state.health > 0_hp )
     {
         const ai::AiInfo aiInfo{getLevel(), m_state};
         if( aiInfo.ahead )
@@ -91,7 +91,7 @@ void Lion::update()
             case 4:
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
-                    getLevel().m_lara->m_state.health -= 150;
+                    getLevel().m_lara->m_state.health -= 150_hp;
                     getLevel().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = 1_as;
                 }
@@ -100,7 +100,7 @@ void Lion::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
                     emitParticle( {-2_len, -10_len, 132_len}, 21, &createBloodSplat );
-                    getLevel().m_lara->m_state.health -= 250;
+                    getLevel().m_lara->m_state.health -= 250_hp;
                     getLevel().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = 1_as;
                 }

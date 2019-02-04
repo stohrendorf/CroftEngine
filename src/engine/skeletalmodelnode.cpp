@@ -16,10 +16,10 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
     //setAnimation(mdl.animationIndex);
 }
 
-core::Length SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const int frameOffset)
+core::Length SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const core::Frame frameOffset)
 {
     const auto scaled = state.anim->speed
-                        + state.anim->acceleration * (state.frame_number - state.anim->firstFrame + frameOffset);
+                        + state.anim->acceleration * (state.frame_number - state.anim->firstFrame + frameOffset).value;
     return core::Length{scaled / (1 << 16)};
 }
 
@@ -44,7 +44,7 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     InterpolationInfo result;
 
     Expects( state.anim != nullptr );
-    BOOST_ASSERT( state.anim->segmentLength > 0 );
+    BOOST_ASSERT( state.anim->segmentLength > 0_frame );
 
     if( state.anim->firstFrame == state.anim->lastFrame )
     {
@@ -63,8 +63,7 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
 
     //BOOST_ASSERT( m_time >= startTime && m_time < endTime );
     Expects( state.frame_number >= state.anim->firstFrame && state.frame_number <= state.anim->lastFrame );
-    const size_t firstKeyframeIndex = gsl::narrow<size_t>( state.frame_number - state.anim->firstFrame )
-                                      / state.anim->segmentLength;
+    const size_t firstKeyframeIndex = ( state.frame_number - state.anim->firstFrame ) / state.anim->segmentLength;
     Expects( firstKeyframeIndex < state.anim->getKeyframeCount() );
 
     result.firstFrame = state.anim->frames->next( firstKeyframeIndex );
@@ -88,7 +87,7 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     auto segmentDuration = state.anim->segmentLength;
     const auto segmentFrame = (state.frame_number - state.anim->firstFrame) % segmentDuration;
 
-    if( segmentFrame == 0 )
+    if( segmentFrame == 0_frame )
     {
         result.bias = 0;
         BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
@@ -105,9 +104,9 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     // the last segment would only be 2 frames long.  Frame 1 is interpolated with a bias of 0.1, but
     // frame 11 must be interpolated with a bias of 0.5 to compensate the shorter segment length.
     if( segmentDuration * (firstKeyframeIndex + 1) > state.anim->lastFrame )
-        segmentDuration = gsl::narrow<uint8_t>( state.anim->lastFrame - segmentDuration * firstKeyframeIndex );
+        segmentDuration = state.anim->lastFrame - segmentDuration * firstKeyframeIndex;
 
-    result.bias = static_cast<float>(segmentFrame) / segmentDuration;
+    result.bias = static_cast<float>(segmentFrame.value) / segmentDuration.value;
     BOOST_ASSERT( result.bias >= 0 && result.bias <= 1 );
 
     BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
@@ -277,7 +276,7 @@ bool SkeletalModelNode::handleStateTransitions(items::ItemState& state)
 // ReSharper disable once CppMemberFunctionMayBeConst
 void SkeletalModelNode::setAnimation(items::ItemState& state,
                                      const gsl::not_null<const loader::Animation*>& animation,
-                                     uint16_t frame)
+                                     core::Frame frame)
 {
     BOOST_ASSERT( m_model.meshes.empty() || animation->frames->numValues == m_model.meshes.size() );
 
@@ -291,7 +290,7 @@ void SkeletalModelNode::setAnimation(items::ItemState& state,
 
 bool SkeletalModelNode::advanceFrame(items::ItemState& state)
 {
-    ++state.frame_number;
+    state.frame_number += 1_frame;
     if( handleStateTransitions( state ) )
     {
         state.current_anim_state = state.anim->state_id;

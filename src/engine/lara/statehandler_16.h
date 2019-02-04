@@ -20,7 +20,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getLara().m_state.health <= 0 )
+        if( getLara().m_state.health <= 0_hp )
         {
             setGoalAnimState( LaraStateId::Stop );
             return;
@@ -65,19 +65,19 @@ public:
 
         if( checkWallCollision( collisionInfo ) )
         {
-            setAnimation( loader::AnimationId::STAY_SOLID, 185 );
+            setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
         }
 
         if( collisionInfo.mid.floor.y > core::QuarterSectorSize
             && collisionInfo.mid.floor.y < core::ClimbLimit2ClickMin )
         {
-            if( getLara().m_state.frame_number < 964 || getLara().m_state.frame_number > 993 )
+            if( getLara().m_state.frame_number < 964_frame || getLara().m_state.frame_number > 993_frame )
             {
-                setAnimation( loader::AnimationId::WALK_DOWN_BACK_LEFT, 899 );
+                setAnimation( loader::AnimationId::WALK_DOWN_BACK_LEFT, 899_frame );
             }
             else
             {
-                setAnimation( loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930 );
+                setAnimation( loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930_frame );
             }
         }
 

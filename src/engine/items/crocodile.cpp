@@ -18,7 +18,7 @@ void Crocodile::update()
     if( m_state.type == TR1ItemId::CrocodileInWater )
     {
         core::Angle headRot = 0_deg;
-        if( m_state.health > 0 )
+        if( m_state.health > 0_hp )
         {
             const ai::AiInfo aiInfo{getLevel(), m_state};
             if( aiInfo.ahead )
@@ -48,7 +48,7 @@ void Crocodile::update()
                     if( m_state.required_anim_state == 0_as )
                     {
                         emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
-                        getLevel().m_lara->m_state.health -= 100;
+                        getLevel().m_lara->m_state.health -= 100_hp;
                         getLevel().m_lara->m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
                     }
@@ -90,7 +90,7 @@ void Crocodile::update()
             {
                 m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileInWater )->animations[4];
                 m_state.current_anim_state = 3_as;
-                m_state.health = -16384;
+                m_state.health = -16384_hp;
                 m_state.frame_number = m_state.anim->firstFrame;
             }
             if( const auto waterSurfaceHeight = getWaterSurfaceHeight() )
@@ -131,7 +131,7 @@ void Crocodile::update()
         BOOST_ASSERT( m_state.type == TR1ItemId::CrocodileOnLand );
         core::Angle turnRot = 0_deg;
         core::Angle headRot = 0_deg;
-        if( m_state.health > 0 )
+        if( m_state.health > 0_hp )
         {
             const ai::AiInfo aiInfo{getLevel(), m_state};
             if( aiInfo.ahead )
@@ -233,7 +233,7 @@ void Crocodile::update()
                     if( m_state.required_anim_state == 0_as )
                     {
                         emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
-                        getLevel().m_lara->m_state.health -= 100;
+                        getLevel().m_lara->m_state.health -= 100_hp;
                         getLevel().m_lara->m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
                     }

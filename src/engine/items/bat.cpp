@@ -24,7 +24,7 @@ void Bat::update()
     static constexpr const uint16_t Dying = 5;
 
     core::Angle rotationToMoveTarget = 0_deg;
-    if( getHealth() > 0 )
+    if( getHealth() > 0_hp )
     {
         const ai::AiInfo aiInfo{getLevel(), m_state};
         updateMood( getLevel(), m_state, aiInfo, false );
@@ -46,7 +46,7 @@ void Bat::update()
                 {
                     emitParticle( core::TRVec{0_len, 16_len, 45_len}, 4, &createBloodSplat );
                     getLevel().m_lara->m_state.is_hit = true;
-                    getLevel().m_lara->m_state.health -= 2;
+                    getLevel().m_lara->m_state.health -= 2_hp;
                 }
                 else
                 {

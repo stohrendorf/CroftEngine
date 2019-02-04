@@ -197,14 +197,14 @@ void ModelItemNode::update()
                 cmd += 2;
                 break;
             case AnimCommandOpcode::PlaySound:
-                if( m_state.frame_number == cmd[0] )
+                if( m_state.frame_number.value == cmd[0] )
                 {
                     playSoundEffect( static_cast<TR1SoundId>(cmd[1]) );
                 }
                 cmd += 2;
                 break;
             case AnimCommandOpcode::PlayEffect:
-                if( m_state.frame_number == cmd[0] )
+                if( m_state.frame_number.value == cmd[0] )
                 {
                     BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
                     getLevel().runEffect( cmd[1], this );
@@ -352,8 +352,8 @@ void ModelItemNode::applyMovement(const bool forLara)
         if( forLara )
         {
             // we only add acceleration here
-            m_state.speed = m_state.speed + m_skeleton->calculateFloorSpeed( m_state, 0 )
-                            - m_skeleton->calculateFloorSpeed( m_state, -1 );
+            m_state.speed = m_state.speed + m_skeleton->calculateFloorSpeed( m_state, 0_frame )
+                            - m_skeleton->calculateFloorSpeed( m_state, -1_frame );
         }
     }
     else
@@ -520,13 +520,14 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
             const auto a = core::Angle::fromAtan( dx - ((midX * c + midZ * s)), dz - ((midZ * c - midX * s)) )
                            - 180_deg;
             getLevel().m_lara->hit_direction = axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
-            if( getLevel().m_lara->hit_frame == 0 )
+            if( getLevel().m_lara->hit_frame == 0_frame )
             {
                 lara.playSoundEffect( TR1SoundId::LaraOof );
             }
-            if( ++getLevel().m_lara->hit_frame > 34 )
+            getLevel().m_lara->hit_frame += 1_frame;
+            if( getLevel().m_lara->hit_frame > 34_frame )
             {
-                getLevel().m_lara->hit_frame = 34;
+                getLevel().m_lara->hit_frame = 34_frame;
             }
         }
         collisionInfo.badPositiveDistance = core::HeightLimit;
@@ -847,10 +848,10 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
         anim = nullptr;
     else
         anim = &lvl.m_animations.at( n["id"].as<size_t>() );
-    frame_number = n["frame"].as<uint16_t>();
-    health = n["health"].as<int16_t>();
+    frame_number = n["frame"].as<core::Frame>();
+    health = n["health"].as<core::Health>();
     triggerState = parseTriggerState( n["triggerState"].as<std::string>() );
-    timer = n["timer"].as<int16_t>();
+    timer = n["timer"].as<core::Frame>();
     activationState.load( n["activationState"] );
 
     floor = n["floor"].as<core::Length>();

@@ -44,7 +44,7 @@ void ThorHammerHandle::update()
             }
             break;
         case 2:
-            if( m_state.frame_number > m_state.anim->firstFrame + 30 )
+            if( m_state.frame_number > m_state.anim->firstFrame + 30_frame )
             {
                 auto posX = m_state.position.position.X;
                 auto posZ = m_state.position.position.Z;
@@ -64,17 +64,17 @@ void ThorHammerHandle::update()
                 {
                     posX -= 3 * core::SectorSize;
                 }
-                if( getLevel().m_lara->m_state.health >= 0 )
+                if( getLevel().m_lara->m_state.health >= 0_hp )
                 {
                     if( posX - 520_len < getLevel().m_lara->m_state.position.position.X
                         && posX + 520_len > getLevel().m_lara->m_state.position.position.X
                         && posZ - 520_len < getLevel().m_lara->m_state.position.position.Z
                         && posZ + 520_len > getLevel().m_lara->m_state.position.position.Z )
                     {
-                        getLevel().m_lara->m_state.health = -1;
+                        getLevel().m_lara->m_state.health = -1_hp;
                         getLevel().m_lara->m_state.anim = &getLevel()
                                 .findAnimatedModelForType( engine::TR1ItemId::Lara )->animations[139];
-                        getLevel().m_lara->m_state.frame_number = 3561;
+                        getLevel().m_lara->m_state.frame_number = 3561_frame;
                         getLevel().m_lara->setCurrentAnimState( loader::LaraStateId::BoulderDeath );
                         getLevel().m_lara->setGoalAnimState( loader::LaraStateId::BoulderDeath );
                         getLevel().m_lara->m_state.position.position.Y = m_state.position.position.Y;
@@ -107,7 +107,7 @@ void ThorHammerHandle::update()
             {
                 m_state.position.position.X -= 3 * core::SectorSize;
             }
-            if( getLevel().m_lara->m_state.health >= 0 )
+            if( getLevel().m_lara->m_state.health >= 0_hp )
             {
                 m_state.position.room->patchHeightsForBlock( *this, -2 * core::SectorSize );
             }

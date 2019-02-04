@@ -17,7 +17,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getLara().m_state.health <= 0 )
+        if( getLara().m_state.health <= 0_hp )
         {
             setGoalAnimState( LaraStateId::Stop );
             return;

@@ -34,9 +34,9 @@ public:
 
     void setAnimation(items::ItemState& state,
                       const gsl::not_null<const loader::Animation*>& animation,
-                      uint16_t frame);
+                      core::Frame frame);
 
-    static core::Length calculateFloorSpeed(const items::ItemState& state, int frameOffset = 0);
+    static core::Length calculateFloorSpeed(const items::ItemState& state, core::Frame frameOffset = 0_frame);
 
     static int getAcceleration(const items::ItemState& state);
 

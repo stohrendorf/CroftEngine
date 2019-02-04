@@ -18,7 +18,7 @@ void Larson::update()
     core::Angle tiltRot = 0_deg;
     core::Angle creatureTurn = 0_deg;
     core::Angle headRot = 0_deg;
-    if( m_state.health > 0 )
+    if( m_state.health > 0_hp )
     {
         const ai::AiInfo aiInfo{getLevel(), m_state};
         if( aiInfo.ahead )
@@ -128,7 +128,7 @@ void Larson::update()
                 {
                     if( tryShootAtLara( *this, aiInfo.distance, core::TRVec{-60_len, 170_len, 0_len}, 14, headRot ) )
                     {
-                        getLevel().m_lara->m_state.health -= 50;
+                        getLevel().m_lara->m_state.health -= 50_hp;
                         getLevel().m_lara->m_state.is_hit = true;
                     }
                     m_state.required_anim_state = 4_as;

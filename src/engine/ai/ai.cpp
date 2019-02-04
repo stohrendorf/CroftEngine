@@ -342,7 +342,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
         creatureInfo.lot.required_box = nullptr;
     }
     const auto originalMood = creatureInfo.mood;
-    if( lvl.m_lara->m_state.health <= 0 )
+    if( lvl.m_lara->m_state.health <= 0_hp )
     {
         creatureInfo.mood = Mood::Bored;
     }
