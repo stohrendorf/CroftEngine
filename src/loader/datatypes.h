@@ -5,6 +5,8 @@
 #include "core/magic.h"
 #include "core/angle.h"
 #include "core/vec.h"
+#include "core/id.h"
+#include "core/frame.h"
 #include "color.h"
 #include "primitives.h"
 #include "meshes.h"
@@ -57,7 +59,7 @@ constexpr const uint16_t TextureFlippedMask = 0x8000;
 
 struct Portal
 {
-    uint16_t adjoining_room; ///< \brief which room this portal leads to.
+    core::RoomId adjoining_room{uint16_t( 0 )}; ///< \brief which room this portal leads to.
     core::TRVec normal;
     core::TRVec vertices[4];
 
@@ -89,12 +91,14 @@ struct Sector
     const engine::floordata::FloorDataValue* floorData = nullptr;
     Room* portalTarget = nullptr;
 
-    int16_t boxIndex; //!< Index into Boxes[]/Zones[] (-1 if none)
+    core::Id<int16_t, core::BoxIdTag> boxIndex{int16_t( -1 )}; //!< Index into Boxes[]/Zones[] (-1 if none)
     const Box* box = nullptr;
-    uint8_t roomIndexBelow; //!< The number of the room below this one (255 if none)
+    core::Id<uint8_t, core::RoomIdTag> roomIndexBelow{
+            uint8_t( -1 )}; //!< The number of the room below this one (255 if none)
     Room* roomBelow = nullptr;
     core::Length floorHeight = -core::HeightLimit; //!< Absolute height of floor (multiply by 256 for world coordinates)
-    uint8_t roomIndexAbove; //!< The number of the room above this one (255 if none)
+    core::Id<uint8_t, core::RoomIdTag> roomIndexAbove{
+            uint8_t( -1 )}; //!< The number of the room above this one (255 if none)
     Room* roomAbove = nullptr;
     core::Length ceilingHeight = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
@@ -114,12 +118,12 @@ struct Sector
     {
         floorDataIndex = 0;
         floorData = nullptr;
-        boxIndex = -1;
+        boxIndex = int16_t( -1 );
         box = nullptr;
-        roomIndexBelow = 255;
+        roomIndexBelow = uint8_t( 255 );
         roomBelow = nullptr;
         floorHeight = -core::HeightLimit;
-        roomIndexAbove = 255;
+        roomIndexAbove = uint8_t( 255 );
         roomAbove = nullptr;
         ceilingHeight = -core::HeightLimit;
     }
@@ -309,8 +313,12 @@ struct Light
 
 struct SpriteInstance
 {
-    uint16_t vertex; // offset into vertex list
-    uint16_t id;
+    struct VertexIdTag
+    {
+    };
+
+    core::Id<uint16_t, VertexIdTag> vertex{uint16_t( 0 )}; // offset into vertex list
+    core::Id<uint16_t, core::SpriteInstanceIdTag> id{uint16_t( 0 )};
 
     /// \brief reads a room sprite definition.
     static SpriteInstance read(io::SDLReader& reader)
@@ -537,9 +545,9 @@ struct Room
 
     core::TRVec position;
 
-    int lowestHeight;
+    core::Length lowestHeight{0};
 
-    int greatestHeight;
+    core::Length greatestHeight{0};
 
     std::vector<Layer> layers;
 
@@ -561,8 +569,9 @@ struct Room
     int16_t lightMode; // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
     std::vector<Light> lights; // [NumLights] list of point lights
     std::vector<RoomStaticMesh> staticMeshes; // [NumStaticMeshes]list of static meshes
-    int16_t alternateRoom; // number of the room that this room can alternate
-    int8_t alternateGroup; // number of group which is used to switch alternate rooms
+    core::Id<int16_t, core::RoomIdTag> alternateRoom{int16_t( -1 )}; // number of the room that this room can alternate
+    core::Id<uint8_t, core::RoomGroupIdTag> alternateGroup{
+            uint8_t( 0 )}; // number of group which is used to switch alternate rooms
     // with (e.g. empty/filled with water is implemented as an empty room that alternates with a full room)
 
     uint16_t flags;
@@ -636,8 +645,8 @@ struct Room
         room->position.X = core::Length{reader.readI32()};
         room->position.Y = 0_len;
         room->position.Z = core::Length{reader.readI32()};
-        room->lowestHeight = reader.readI32();
-        room->greatestHeight = reader.readI32();
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         const std::streamsize num_data_words = reader.readU32();
 
@@ -670,7 +679,7 @@ struct Room
         reader.readVector( room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr1 );
 
         room->alternateRoom = reader.readI16();
-        room->alternateGroup = 0; // Doesn't exist in TR1-3
+        room->alternateGroup = uint8_t( 0 ); // Doesn't exist in TR1-3
 
         room->flags = reader.readU16();
         room->reverbInfo = ReverbType::MediumRoom;
@@ -689,8 +698,8 @@ struct Room
         room->position.X = core::Length{reader.readI32()};
         room->position.Y = 0_len;
         room->position.Z = core::Length{reader.readI32()};
-        room->lowestHeight = reader.readI32();
-        room->greatestHeight = reader.readI32();
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         const std::streamsize num_data_words = reader.readU32();
 
@@ -721,7 +730,7 @@ struct Room
         reader.readVector( room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr2 );
 
         room->alternateRoom = reader.readI16();
-        room->alternateGroup = 0; // Doesn't exist in TR1-3
+        room->alternateGroup = uint8_t( 0 ); // Doesn't exist in TR1-3
 
         room->flags = reader.readU16();
 
@@ -749,8 +758,8 @@ struct Room
         room->position.X = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
         room->position.Y = 0_len;
         room->position.Z = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
-        room->lowestHeight = reader.readI32();
-        room->greatestHeight = reader.readI32();
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         const std::streamsize num_data_words = reader.readU32();
 
@@ -782,7 +791,7 @@ struct Room
         reader.readVector( room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr3 );
 
         room->alternateRoom = reader.readI16();
-        room->alternateGroup = 0; // Doesn't exist in TR1-3
+        room->alternateGroup = uint8_t( 0 ); // Doesn't exist in TR1-3
 
         room->flags = reader.readU16();
 
@@ -813,8 +822,8 @@ struct Room
         room->position.X = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
         room->position.Y = 0_len;
         room->position.Z = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
-        room->lowestHeight = reader.readI32();
-        room->greatestHeight = reader.readI32();
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         const std::streamsize num_data_words = reader.readU32();
 
@@ -894,8 +903,8 @@ struct Room
         room->position.X = core::Length{reader.readI32()};
         room->position.Y = core::Length{reader.readI32()};
         room->position.Z = core::Length{reader.readI32()};
-        room->lowestHeight = reader.readI32();
-        room->greatestHeight = reader.readI32();
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
@@ -1213,7 +1222,7 @@ struct Room
 
 struct Sprite
 {
-    uint16_t texture_id;
+    core::Id<uint16_t, core::TextureIdTag> texture_id{uint16_t( 0 )};
 
     std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> image{nullptr};
     std::shared_ptr<gameplay::gl::Texture> texture{nullptr};
@@ -1235,7 +1244,7 @@ struct Sprite
         std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
 
         sprite->texture_id = reader.readU16();
-        if( sprite->texture_id > 64 )
+        if( sprite->texture_id.get() > 64 )
         {
             BOOST_LOG_TRIVIAL( warning ) << "TR1 Sprite Texture ID > 64";
         }
@@ -1261,7 +1270,7 @@ struct Sprite
     {
         std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
         sprite->texture_id = reader.readU16();
-        if( sprite->texture_id > 128 )
+        if( sprite->texture_id.get() > 128 )
         {
             BOOST_LOG_TRIVIAL( warning ) << "TR4 Sprite Texture ID > 128";
         }
@@ -1507,13 +1516,13 @@ struct FlybyCamera
 
     uint16_t roll;
 
-    uint16_t timer;
+    core::Frame timer{0_frame};
 
     uint16_t speed;
 
     uint16_t flags;
 
-    uint32_t room_id;
+    core::Id<uint32_t, core::RoomIdTag> room_id{0u};
 
     static std::unique_ptr<FlybyCamera> read(io::SDLReader& reader)
     {
@@ -1530,7 +1539,7 @@ struct FlybyCamera
 
         camera->fov = reader.readU16();
         camera->roll = reader.readU16();
-        camera->timer = reader.readU16();
+        camera->timer = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
         camera->speed = reader.readU16();
         camera->flags = reader.readU16();
 
@@ -1542,7 +1551,7 @@ struct FlybyCamera
 
 struct AIObject
 {
-    uint16_t object_id; // the objectID from the AI object (AI_FOLLOW is 402)
+    core::Id<uint16_t, core::ItemIdTag> object_id{uint16_t( 0 )}; // the objectID from the AI object (AI_FOLLOW is 402)
     uint16_t room;
 
     int32_t x;

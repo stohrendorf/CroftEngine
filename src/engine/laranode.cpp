@@ -891,7 +891,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     std::set<gsl::not_null<const loader::Room*>> rooms;
     rooms.insert( m_state.position.room );
     for( const loader::Portal& p : m_state.position.room->portals )
-        rooms.insert( &getLevel().m_rooms[p.adjoining_room] );
+        rooms.insert( &getLevel().m_rooms.at(p.adjoining_room.get()) );
 
     for( const auto& item : getLevel().m_itemNodes | boost::adaptors::map_values )
     {

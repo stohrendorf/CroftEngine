@@ -89,7 +89,7 @@ struct SoundDetails
     //! @todo Check default value
     static constexpr const int DefaultPitch = 128; // 0.0 - only noise
 
-    size_t sample; // Index into SampleIndices -- NOT USED IN TR4-5!!!
+    core::Id<uint32_t, core::SampleIdTag> sample{0u}; // Index into SampleIndices -- NOT USED IN TR4-5!!!
     uint16_t volume; // Global sample value
     uint16_t sound_range = DefaultRange; // Sound range
     uint16_t chance; // Chance to play
@@ -162,8 +162,8 @@ struct SoundDetails
 
     static std::unique_ptr<SoundDetails> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<SoundDetails> sound_details{new SoundDetails()};
-        sound_details->sample = reader.readU16();
+        std::unique_ptr<SoundDetails> sound_details = std::make_unique<SoundDetails>();
+        sound_details->sample = core::SampleId::type( reader.readU16() );
         sound_details->volume = reader.readU16();
         sound_details->chance = reader.readU16();
         sound_details->sampleCountAndLoopType = reader.readU8();
@@ -173,8 +173,8 @@ struct SoundDetails
 
     static std::unique_ptr<SoundDetails> readTr3(io::SDLReader& reader)
     {
-        std::unique_ptr<SoundDetails> sound_details{new SoundDetails()};
-        sound_details->sample = reader.readU16();
+        std::unique_ptr<SoundDetails> sound_details = std::make_unique<SoundDetails>();
+        sound_details->sample = core::SampleId::type( reader.readU16() );
         sound_details->volume = reader.readU8();
         sound_details->sound_range = reader.readU8();
         sound_details->chance = reader.readU8();

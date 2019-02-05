@@ -99,7 +99,7 @@ void Room::createSceneNode(
 
     for( const QuadFace& quad : rectangles )
     {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at( quad.proxyId );
+        const TextureLayoutProxy& proxy = level.m_textureProxies.at( quad.proxyId.get() );
 
         if( texBuffers.find( proxy.textureKey ) == texBuffers.end() )
         {
@@ -141,7 +141,7 @@ void Room::createSceneNode(
     }
     for( const Triangle& tri : triangles )
     {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at( tri.proxyId );
+        const TextureLayoutProxy& proxy = level.m_textureProxies.at( tri.proxyId.get() );
 
         if( texBuffers.find( proxy.textureKey ) == texBuffers.end() )
         {
@@ -212,7 +212,7 @@ void Room::createSceneNode(
         auto subNode = std::make_shared<gameplay::Node>( "staticMesh" );
         subNode->setDrawable( staticMeshes[idx].get() );
         subNode->setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
-                                 * rotate( glm::mat4{1.0f}, util::auToRad( sm.rotation ), glm::vec3{0, -1, 0} ) );
+                                 * rotate( glm::mat4{1.0f}, sm.rotation.toRad(), glm::vec3{0, -1, 0} ) );
 
         subNode->addMaterialParameterSetter( "u_baseLight",
                                              [brightness = sm.getBrightness()](const gameplay::Node& /*node*/,
@@ -233,10 +233,9 @@ void Room::createSceneNode(
 
     for( const SpriteInstance& spriteInstance : sprites )
     {
-        BOOST_ASSERT( spriteInstance.vertex < vertices.size() );
-        BOOST_ASSERT( spriteInstance.id < level.m_sprites.size() );
+        BOOST_ASSERT( spriteInstance.vertex.get() < vertices.size() );
 
-        const Sprite& sprite = level.m_sprites[spriteInstance.id];
+        const Sprite& sprite = level.m_sprites.at( spriteInstance.id.get() );
 
         const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
                                                                sprite.x1, -sprite.y1,
@@ -246,7 +245,7 @@ void Room::createSceneNode(
 
         auto spriteNode = std::make_shared<gameplay::Node>( "sprite" );
         spriteNode->setDrawable( model );
-        const RoomVertex& v = vertices[spriteInstance.vertex];
+        const RoomVertex& v = vertices.at( spriteInstance.vertex.get() );
         spriteNode->setLocalMatrix( translate( glm::mat4{1.0f}, v.position.toRenderSystem() ) );
         spriteNode->addMaterialParameterSetter( "u_diffuseTexture",
                                                 [texture = sprite.texture](const gameplay::Node& /*node*/,

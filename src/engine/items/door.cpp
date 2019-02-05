@@ -49,14 +49,15 @@ Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const 
     }
 
     m_sectorData = *m_sector;
-    if( m_state.position.room->alternateRoom == -1 )
+    if( m_state.position.room->alternateRoom.get() < 0 )
     {
         m_alternateSector = nullptr;
     }
     else
     {
-        m_alternateSector = const_cast<loader::Sector*>(getLevel().m_rooms[m_state.position.room->alternateRoom]
-                .getSectorByAbsolutePosition( wingsPosition ));
+        m_alternateSector = const_cast<loader::Sector*>(getLevel().m_rooms
+                                                                  .at( m_state.position.room->alternateRoom.get() )
+                                                                  .getSectorByAbsolutePosition( wingsPosition ));
         BOOST_ASSERT( m_alternateSector != nullptr );
         if( m_alternateSector->portalTarget == nullptr )
         {
@@ -112,15 +113,17 @@ Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const 
         m_targetBox = nullptr;
     }
     m_targetSectorData = *m_targetSector;
-    if( m_sector->portalTarget->alternateRoom == -1 )
+    if( m_sector->portalTarget->alternateRoom.get() < 0 )
     {
         m_alternateTargetSector = nullptr;
     }
     else
     {
-        m_alternateTargetSector = const_cast<loader::Sector*>(getLevel().m_rooms[m_sector->portalTarget
-                                                                                         ->alternateRoom]
-                .getSectorByAbsolutePosition( m_state.position.position ));
+        m_alternateTargetSector = const_cast<loader::Sector*>(getLevel().m_rooms
+                                                                        .at( m_sector->portalTarget->alternateRoom
+                                                                                     .get() )
+                                                                        .getSectorByAbsolutePosition(
+                                                                                m_state.position.position ));
         if( m_alternateTargetSector->portalTarget == nullptr )
         {
             m_alternateTargetBox = const_cast<loader::Box*>(m_alternateTargetSector->box);

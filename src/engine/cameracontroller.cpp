@@ -226,7 +226,7 @@ void CameraController::tracePortals()
         if( !path.checkVisibility( &portal, *m_camera.get() ) )
             continue;
 
-        m_level->m_rooms[portal.adjoining_room].node->setVisible( true );
+        m_level->m_rooms.at( portal.adjoining_room.get() ).node->setVisible( true );
 
         toVisit.emplace( path );
     }
@@ -244,14 +244,14 @@ void CameraController::tracePortals()
         }
 
         // iterate through the last room's portals and add the destinations if suitable
-        const uint16_t destRoom = currentPath.getLastDestinationRoom();
-        for( const loader::Portal& srcPortal : m_level->m_rooms[destRoom].portals )
+        const auto destRoom = currentPath.getLastDestinationRoom();
+        for( const loader::Portal& srcPortal : m_level->m_rooms.at(destRoom.get()).portals )
         {
             render::PortalTracer newPath = currentPath;
             if( !newPath.checkVisibility( &srcPortal, *m_camera.get() ) )
                 continue;
 
-            m_level->m_rooms[srcPortal.adjoining_room].node->setVisible( true );
+            m_level->m_rooms.at( srcPortal.adjoining_room.get() ).node->setVisible( true );
             toVisit.emplace( newPath );
         }
     }

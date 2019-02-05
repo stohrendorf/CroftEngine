@@ -242,7 +242,7 @@ Game Level::probeVersion(loader::io::SDLReader& reader, const std::string& filen
     return ret;
 }
 
-const loader::StaticMesh* Level::findStaticMeshById(const uint32_t meshId) const
+const loader::StaticMesh* Level::findStaticMeshById(const core::StaticMeshId meshId) const
 {
     for( const auto& mesh : m_staticMeshes )
         if( mesh.id == meshId )
@@ -251,7 +251,7 @@ const loader::StaticMesh* Level::findStaticMeshById(const uint32_t meshId) const
     return nullptr;
 }
 
-int Level::findStaticMeshIndexById(const uint32_t meshId) const
+int Level::findStaticMeshIndexById(const core::StaticMeshId meshId) const
 {
     for( const auto& mesh : m_staticMeshes )
     {
@@ -312,8 +312,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
     {
         ++id;
 
-        BOOST_ASSERT( item.room < m_rooms.size() );
-        auto room = const_cast<const loader::Room*>(&m_rooms[item.room]);
+        const auto* room = &m_rooms.at( item.room.get() );
 
         if( const auto& model = findAnimatedModelForType( item.type ) )
         {
@@ -619,9 +618,8 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
 
     for( auto& sprite : m_sprites )
     {
-        BOOST_ASSERT( sprite.texture_id < m_textures.size() );
-        sprite.texture = m_textures[sprite.texture_id].texture;
-        sprite.image = m_textures[sprite.texture_id].image;
+        sprite.texture = m_textures.at( sprite.texture_id.get() ).texture;
+        sprite.image = m_textures[sprite.texture_id.get()].image;
     }
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>( m_animatedTextures, m_textureProxies, m_textures );
@@ -1148,22 +1146,19 @@ void Level::postProcessDataStructures()
     {
         for( loader::Sector& sector : room.sectors )
         {
-            if( sector.boxIndex >= 0 )
+            if( sector.boxIndex.get() >= 0 )
             {
-                Expects( static_cast<size_t>(sector.boxIndex) < m_boxes.size() );
-                sector.box = &m_boxes[sector.boxIndex];
+                sector.box = &m_boxes.at( sector.boxIndex.get() );
             }
 
-            if( sector.roomIndexBelow != 0xff )
+            if( sector.roomIndexBelow.get() != 0xff )
             {
-                Expects( sector.roomIndexBelow < m_rooms.size() );
-                sector.roomBelow = &m_rooms[sector.roomIndexBelow];
+                sector.roomBelow = &m_rooms.at( sector.roomIndexBelow.get() );
             }
 
-            if( sector.roomIndexAbove != 0xff )
+            if( sector.roomIndexAbove.get() != 0xff )
             {
-                Expects( sector.roomIndexAbove < m_rooms.size() );
-                sector.roomAbove = &m_rooms[sector.roomIndexAbove];
+                sector.roomAbove = &m_rooms.at( sector.roomIndexAbove.get() );
             }
 
             if( sector.floorDataIndex != 0 )
@@ -1488,7 +1483,8 @@ void Level::chainBlockEffect()
 
 void Level::flickerEffect()
 {
-    if( m_effectTimer == 90_frame || m_effectTimer == 92_frame || m_effectTimer == 105_frame || m_effectTimer == 107_frame )
+    if( m_effectTimer == 90_frame || m_effectTimer == 92_frame || m_effectTimer == 105_frame
+        || m_effectTimer == 107_frame )
     {
         swapAllRooms();
     }
@@ -1522,7 +1518,7 @@ void Level::swapWithAlternate(loader::Room& orig, loader::Room& alternate)
     // now swap the rooms and patch the alternate room ids
     std::swap( orig, alternate );
     orig.alternateRoom = alternate.alternateRoom;
-    alternate.alternateRoom = -1;
+    alternate.alternateRoom = int16_t( -1 );
 
     // patch heights in the new room, and swap item ownerships.
     // note that this is exactly the same code as above,
@@ -1904,7 +1900,7 @@ std::shared_ptr<audio::SourceHandle> Level::playSound(const engine::TR1SoundId i
     if( details.chance != 0 && util::rand15() > details.chance )
         return nullptr;
 
-    size_t sample = details.sample;
+    size_t sample = details.sample.get();
     if( details.getSampleCount() > 1 )
         sample += util::rand15( details.getSampleCount() );
     BOOST_ASSERT( sample < m_sampleIndices.size() );
@@ -1981,7 +1977,7 @@ void Level::stopSound(const engine::TR1SoundId soundId, audio::Emitter* emitter)
 {
     BOOST_ASSERT( static_cast<size_t>(soundId) < m_soundmap.size() );
     const auto& details = m_soundDetails[m_soundmap[static_cast<size_t>(soundId)]];
-    const size_t first = details.sample;
+    const size_t first = details.sample.get();
     const size_t last = first + details.getSampleCount();
 
     bool anyStopped = false;
@@ -2003,9 +1999,9 @@ std::shared_ptr<engine::items::PickupItem> Level::createPickup(const engine::TR1
 {
     loader::Item item;
     item.type = type;
-    item.room = -1;
+    item.room = uint16_t(-1);
     item.position = position;
-    item.rotation = 0;
+    item.rotation = 0_deg;
     item.darkness = 0;
     item.activationState = 0;
 

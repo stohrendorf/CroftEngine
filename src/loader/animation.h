@@ -4,10 +4,10 @@
 #include "engine/items_tr1.h"
 #include "core/vec.h"
 #include "core/frame.h"
+#include "core/id.h"
 #include "gameplay.h"
 
 #include "gsl-lite.hpp"
-#include "type_safe/types.hpp"
 
 namespace loader
 {
@@ -132,12 +132,11 @@ static_assert( sizeof( AnimFrame ) == 20, "AnimFrame has wrong size" );
 
 struct Transitions;
 
-using AnimState = type_safe::integer<uint16_t>;
+using AnimState = core::Id<uint16_t, core::AnimStateIdTag>;
 
-template<char... Digits>
-inline constexpr AnimState operator "" _as()
+inline constexpr AnimState operator "" _as(unsigned long long value)
 {
-    return type_safe::operator ""_u16 < Digits...>();
+    return AnimState{static_cast<AnimState::type>(value)};
 }
 
 
@@ -233,7 +232,7 @@ struct TransitionCase;
 
 struct Transitions
 {
-    uint16_t stateId;
+    AnimState stateId{uint16_t( 0 )};
     uint16_t transitionCaseCount; // number of ranges (seems to always be 1..5)
     uint16_t firstTransitionCase; // Offset into AnimDispatches[]
 

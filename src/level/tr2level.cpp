@@ -130,9 +130,9 @@ void TR2Level::loadFileData()
     // remap all sample indices here
     for( auto& soundDetail : m_soundDetails )
     {
-        if( soundDetail.sample < m_sampleIndices.size() )
+        if( soundDetail.sample.get() < m_sampleIndices.size() )
         {
-            soundDetail.sample = m_sampleIndices[soundDetail.sample];
+            soundDetail.sample = m_sampleIndices[soundDetail.sample.get()];
         }
     }
 

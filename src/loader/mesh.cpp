@@ -116,7 +116,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
     {
         for( const QuadFace& quad : mesh.textured_rectangles )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId );
+            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
             const auto partId = getPartForTexture( proxy );
 
             const auto firstVertex = m_vertexCount;
@@ -141,7 +141,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         }
         for( const QuadFace& quad : mesh.colored_rectangles )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId );
+            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
             const auto partId = getPartForColor( quad.proxyId );
 
             const auto firstVertex = m_vertexCount;
@@ -165,7 +165,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         }
         for( const Triangle& tri : mesh.textured_triangles )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId );
+            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
             const auto partId = getPartForTexture( proxy );
 
             const auto firstVertex = m_vertexCount;
@@ -188,7 +188,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         }
         for( const Triangle& tri : mesh.colored_triangles )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId );
+            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
             const auto partId = getPartForColor( tri.proxyId );
 
             for( int i = 0; i < 3; ++i )
@@ -209,7 +209,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
     {
         for( const QuadFace& quad : mesh.textured_rectangles )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId );
+            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
             const auto partId = getPartForTexture( proxy );
 
             const auto firstVertex = m_vertexCount;
@@ -232,7 +232,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         }
         for( const QuadFace& quad : mesh.colored_rectangles )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId );
+            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
             const auto partId = getPartForColor( quad.proxyId );
 
             const auto firstVertex = m_vertexCount;
@@ -253,7 +253,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         }
         for( const Triangle& tri : mesh.textured_triangles )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId );
+            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
             const auto partId = getPartForTexture( proxy );
 
             const auto firstVertex = m_vertexCount;
@@ -274,7 +274,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         }
         for( const Triangle& tri : mesh.colored_triangles )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId );
+            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
             const auto partId = getPartForColor( tri.proxyId );
 
             for( int i = 0; i < 3; ++i )

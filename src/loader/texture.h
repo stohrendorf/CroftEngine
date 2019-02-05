@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/id.h"
 #include "io/sdlreader.h"
 #include "gameplay.h"
 
@@ -190,7 +191,11 @@ struct TextureLayoutProxy
 
         uint16_t flags = 0; // TR4
 
-        int colorId = -1;
+        struct ColorIdTag
+        {
+        };
+
+        core::Id<int, ColorIdTag> colorId{-1};
 
         bool operator==(const TextureKey& rhs) const
         {
@@ -217,7 +222,7 @@ struct TextureLayoutProxy
                 return blendingMode < rhs.blendingMode;
             }
 
-            return colorId < rhs.colorId;
+            return colorId.get() < rhs.colorId.get();
         }
     };
 

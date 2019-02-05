@@ -20,10 +20,10 @@ namespace loader
 struct RoomStaticMesh
 {
     core::TRVec position; // world coords
-    int16_t rotation;
+    core::Angle rotation;
     int16_t darkness; // Constant lighting; -1 means use mesh lighting
     int16_t intensity2; // Like Intensity 1, and almost always the same value [absent from TR1 data files]
-    uint16_t meshId; // which StaticMesh item to draw
+    core::StaticMeshId meshId{0u}; // which StaticMesh item to draw
     FloatColor tint; // extracted from intensity
 
     float getBrightness() const
@@ -41,9 +41,9 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = readCoordinates32( reader );
-        room_static_mesh.rotation = reader.readI16();
+        room_static_mesh.rotation = core::Angle{reader.readI16()};
         room_static_mesh.darkness = reader.readI16();
-        room_static_mesh.meshId = reader.readU16();
+        room_static_mesh.meshId = core::StaticMeshId::type( reader.readU16() );
 
         // only in TR2
         room_static_mesh.intensity2 = room_static_mesh.darkness;
@@ -58,10 +58,10 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = readCoordinates32( reader );
-        room_static_mesh.rotation = reader.readI16();
+        room_static_mesh.rotation = core::Angle{reader.readI16()};
         room_static_mesh.darkness = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
-        room_static_mesh.meshId = reader.readU16();
+        room_static_mesh.meshId = core::StaticMeshId::type( reader.readU16() );
         // make consistent
         if( room_static_mesh.darkness >= 0 )
             room_static_mesh.darkness = (8191 - room_static_mesh.darkness) << 2;
@@ -78,10 +78,10 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = readCoordinates32( reader );
-        room_static_mesh.rotation = reader.readI16();
+        room_static_mesh.rotation = core::Angle{reader.readI16()};
         room_static_mesh.darkness = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
-        room_static_mesh.meshId = reader.readU16();
+        room_static_mesh.meshId = core::StaticMeshId::type( reader.readU16() );
 
         room_static_mesh.tint.r = (room_static_mesh.darkness & 0x001F) / 62.0f;
 
@@ -96,10 +96,10 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = readCoordinates32( reader );
-        room_static_mesh.rotation = reader.readI16();
+        room_static_mesh.rotation = core::Angle{reader.readI16()};
         room_static_mesh.darkness = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
-        room_static_mesh.meshId = reader.readU16();
+        room_static_mesh.meshId = core::StaticMeshId::type( reader.readU16() );
 
         room_static_mesh.tint.r = (room_static_mesh.darkness & 0x001F) / 31.0f;
 
@@ -114,7 +114,7 @@ struct RoomStaticMesh
 
 struct StaticMesh
 {
-    uint32_t id; // Object Identifier (matched in Items[])
+    core::StaticMeshId id{0u}; // Object Identifier (matched in Items[])
     uint16_t mesh; // mesh (offset into MeshPointers[])
     core::BoundingBox visibility_box;
     core::BoundingBox collision_box;

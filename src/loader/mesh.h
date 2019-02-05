@@ -117,21 +117,21 @@ struct Mesh
 
         void append(const RenderVertexWithNormal& v);
 
-        size_t getPartForColor(const uint16_t proxyId)
+        size_t getPartForColor(const core::Id<uint16_t, core::TextureProxyIdTag> proxyId)
         {
             TextureLayoutProxy::TextureKey tk;
             tk.blendingMode = BlendingMode::Solid;
             tk.flags = 0;
             tk.tileAndFlag = 0;
-            tk.colorId = proxyId & 0xff;
-            BOOST_ASSERT( tk.colorId >= 0 && tk.colorId <= 255 );
+            tk.colorId = proxyId.get() & 0xff;
+            BOOST_ASSERT( tk.colorId.get() >= 0 && tk.colorId.get() <= 255 );
 
             if( m_texBuffers.find( tk ) == m_texBuffers.end() )
             {
                 m_texBuffers[tk] = m_parts.size();
                 m_parts.emplace_back();
                 m_parts.back().material = m_colorMaterial;
-                m_parts.back().color = glm::vec3( m_palette.colors[tk.colorId].toGLColor() );
+                m_parts.back().color = glm::vec3( m_palette.colors[tk.colorId.get()].toGLColor() );
             }
 
             return m_texBuffers[tk];

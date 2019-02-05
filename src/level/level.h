@@ -150,9 +150,9 @@ public:
 
     virtual void loadFileData() = 0;
 
-    const loader::StaticMesh* findStaticMeshById(uint32_t meshId) const;
+    const loader::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
 
-    int findStaticMeshIndexById(uint32_t meshId) const;
+    int findStaticMeshIndexById(core::StaticMeshId meshId) const;
 
     const std::unique_ptr<loader::SkeletalModelType>& findAnimatedModelForType(engine::TR1ItemId type) const;
 
@@ -178,9 +178,9 @@ public:
 
         loader::Item item;
         item.type = type;
-        item.room = -1;
+        item.room = uint16_t(-1);
         item.position = position;
-        item.rotation = angle.toAU();
+        item.rotation = angle;
         item.darkness = 0;
         item.activationState = activationState;
 
@@ -232,7 +232,8 @@ public:
             return zero;
 
         const auto fd = sector->floorData[1];
-        return std::make_tuple( gsl::narrow_cast<int8_t>( fd.get() & 0xff ), gsl::narrow_cast<int8_t>( fd.get() >> 8 ) );
+        return std::make_tuple( gsl::narrow_cast<int8_t>( fd.get() & 0xff ),
+                                gsl::narrow_cast<int8_t>( fd.get() >> 8 ) );
     }
 
     std::shared_ptr<engine::LaraNode> m_lara = nullptr;
@@ -358,11 +359,11 @@ public:
         BOOST_LOG_TRIVIAL( info ) << "Swapping rooms";
         for( auto& room : m_rooms )
         {
-            if( room.alternateRoom < 0 )
+            if( room.alternateRoom.get() < 0 )
                 continue;
 
-            BOOST_ASSERT( static_cast<size_t>(room.alternateRoom) < m_rooms.size() );
-            swapWithAlternate( room, m_rooms[room.alternateRoom] );
+            BOOST_ASSERT( static_cast<size_t>(room.alternateRoom.get()) < m_rooms.size() );
+            swapWithAlternate( room, m_rooms.at( room.alternateRoom.get() ) );
         }
 
         roomsAreSwapped = !roomsAreSwapped;

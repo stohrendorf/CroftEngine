@@ -42,7 +42,7 @@ class TextureAnimator
         };
 
 
-        std::vector<uint16_t> proxyIds;
+        std::vector<core::Id<uint16_t, core::TextureProxyIdTag>> proxyIds;
         std::map<std::shared_ptr<gameplay::Mesh>, std::set<VertexReference>> affectedVertices;
 
         void rotate()
@@ -53,7 +53,8 @@ class TextureAnimator
             proxyIds.emplace_back( first );
         }
 
-        void registerVertex(const std::shared_ptr<gameplay::Mesh>& mesh, VertexReference vertex, const uint16_t proxyId)
+        void registerVertex(const std::shared_ptr<gameplay::Mesh>& mesh, VertexReference vertex,
+                            const core::Id<uint16_t, core::TextureProxyIdTag> proxyId)
         {
             //! @fixme Expects(mesh->getVertexFormat().getElement(0).usage == gameplay::VertexFormat::TEXCOORD);
 
@@ -80,7 +81,7 @@ class TextureAnimator
                 {
                     BOOST_ASSERT( vref.bufferIndex < mesh->getBuffers()[1]->getVertexCount() );
                     BOOST_ASSERT( vref.queueOffset < proxyIds.size() );
-                    const loader::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset]];
+                    const loader::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset].get()];
 
                     uvArray[vref.bufferIndex] = proxy.uvCoordinates[vref.sourceIndex].toGl();
                 }
@@ -92,21 +93,24 @@ class TextureAnimator
 
 
     std::vector<Sequence> m_sequences;
-    std::map<uint16_t, size_t> m_sequenceByProxyId;
+    std::map<core::Id<uint16_t, core::TextureProxyIdTag>, size_t> m_sequenceByProxyId;
 
 public:
     explicit TextureAnimator(const std::vector<uint16_t>& data,
                              std::vector<loader::TextureLayoutProxy>& textureProxies,
                              std::vector<loader::DWordTexture>& textures);
 
-    void registerVertex(const uint16_t proxyId, const std::shared_ptr<gameplay::Mesh>& mesh, const int sourceIndex,
+    void registerVertex(const core::Id<uint16_t, core::TextureProxyIdTag> proxyId,
+                        const std::shared_ptr<gameplay::Mesh>& mesh,
+                        const int sourceIndex,
                         const size_t bufferIndex)
     {
         if( m_sequenceByProxyId.find( proxyId ) == m_sequenceByProxyId.end() )
             return;
 
         const size_t sequenceId = m_sequenceByProxyId[proxyId];
-        m_sequences.at(sequenceId).registerVertex( mesh, Sequence::VertexReference( bufferIndex, sourceIndex ), proxyId );
+        m_sequences.at( sequenceId )
+                   .registerVertex( mesh, Sequence::VertexReference( bufferIndex, sourceIndex ), proxyId );
     }
 
     void updateCoordinates(const std::vector<loader::TextureLayoutProxy>& proxies)

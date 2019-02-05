@@ -111,7 +111,7 @@ struct PortalTracer
         return boundingBox.min.x < boundingBox.max.x && boundingBox.min.y < boundingBox.max.y;
     }
 
-    uint16_t getLastDestinationRoom() const
+    core::RoomId getLastDestinationRoom() const
     {
         return getLastPortal()->adjoining_room;
     }

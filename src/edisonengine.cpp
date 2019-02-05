@@ -479,7 +479,7 @@ int main()
             lvl->swapAllRooms();
 
         for( auto& room : lvl->m_rooms )
-            room.node->setVisible( room.alternateRoom < 0 );
+            room.node->setVisible( room.alternateRoom.get() < 0 );
 
         if( bool(levelInfo["gunSwap"]) )
         {
