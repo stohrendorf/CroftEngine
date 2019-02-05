@@ -6,6 +6,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <string>
+#include <type_traits>
 
 namespace core
 {
@@ -74,7 +75,8 @@ constexpr IntQuantity<Unit, IntType>& operator+=(IntQuantity<Unit, IntType>& l, 
 }
 
 template<typename Unit, typename IntType>
-constexpr typename IntQuantity<Unit, IntType>::int_type operator/(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
+constexpr typename IntQuantity<Unit, IntType>::int_type
+operator/(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
     return l.value / r.value;
 }
@@ -87,14 +89,16 @@ operator/(IntQuantity<Unit, IntType> l, const typename IntQuantity<Unit, IntType
 }
 
 template<typename Unit, typename IntType>
-constexpr IntQuantity<Unit, IntType>& operator/=(IntQuantity<Unit, IntType>& l, typename IntQuantity<Unit, IntType>::int_type r) noexcept
+constexpr IntQuantity<Unit, IntType>&
+operator/=(IntQuantity<Unit, IntType>& l, typename IntQuantity<Unit, IntType>::int_type r) noexcept
 {
     l.value /= r;
     return l;
 }
 
 template<typename Unit, typename IntType>
-constexpr IntQuantity<Unit, IntType> operator*(IntQuantity<Unit, IntType> l, typename IntQuantity<Unit, IntType>::int_type r) noexcept
+constexpr IntQuantity<Unit, IntType>
+operator*(IntQuantity<Unit, IntType> l, typename IntQuantity<Unit, IntType>::int_type r) noexcept
 {
     return IntQuantity<Unit, IntType>{l.value * r};
 }
@@ -106,14 +110,16 @@ constexpr IntQuantity<Unit, IntType> operator*(IntQuantity<Unit, IntType> l, flo
 }
 
 template<typename Unit, typename IntType>
-constexpr IntQuantity<Unit, IntType>& operator*=(IntQuantity<Unit, IntType>& l, typename IntQuantity<Unit, IntType>::int_type r) noexcept
+constexpr IntQuantity<Unit, IntType>&
+operator*=(IntQuantity<Unit, IntType>& l, typename IntQuantity<Unit, IntType>::int_type r) noexcept
 {
     l.value *= r;
     return l;
 }
 
 template<typename Unit, typename IntType>
-constexpr IntQuantity<Unit, IntType> operator-(IntQuantity<Unit, IntType> l) noexcept
+constexpr std::enable_if_t<std::is_signed<IntType>::value, IntQuantity<Unit, IntType>>
+operator-(IntQuantity<Unit, IntType> l) noexcept
 {
     return IntQuantity<Unit, IntType>{static_cast<IntType>(-l.value)};
 }
@@ -181,7 +187,8 @@ operator*(IntQuantity<UnitExp<Unit, Exp>, IntType> a, IntQuantity<Unit, IntType>
 }
 
 template<typename Unit, typename IntType, int Exp>
-constexpr IntQuantity<UnitExp<Unit, 2>, IntType> operator*(IntQuantity<Unit, IntType> a, IntQuantity<UnitExp<Unit, Exp>, IntType> b)
+constexpr IntQuantity<UnitExp<Unit, 2>, IntType>
+operator*(IntQuantity<Unit, IntType> a, IntQuantity<UnitExp<Unit, Exp>, IntType> b)
 {
     return IntQuantity<UnitExp<Unit, IntType, Exp + 1>>{a.value * b.value};
 }
@@ -211,6 +218,20 @@ constexpr core::IntQuantity<Unit, IntType> operator*(float l, core::IntQuantity<
 {
     return core::IntQuantity<Unit, IntType>{static_cast<core::IntQuantity<Unit, IntType>::int_type>(l * r.value)};
 }
+
+template<typename Unit, typename IntType>
+constexpr std::enable_if_t<std::is_signed<IntType>::value, IntQuantity<Unit, IntType>>
+abs(const IntQuantity<Unit, IntType>& v) noexcept
+{
+    return v.value >= 0 ? v : -v;
+}
+
+template<typename Unit, typename IntType>
+constexpr std::enable_if_t<!std::is_signed<IntType>::value, IntQuantity<Unit, IntType>>
+abs(const IntQuantity<Unit, IntType>& v) noexcept
+{
+    return v;
+}
 }
 
 namespace YAML
@@ -220,7 +241,7 @@ struct convert<core::IntQuantity<Unit, IntType>>
 {
     static Node encode(const core::IntQuantity<Unit, IntType>& rhs)
     {
-        Node node( NodeType::Sequence );
+        Node node{NodeType::Sequence};
         node.SetStyle( YAML::EmitterStyle::Flow );
         node.push_back( Unit::typeId() );
         node.push_back( rhs.value );
@@ -245,7 +266,7 @@ struct convert<core::IntQuantity<Unit, IntType>>
 template<typename Unit, typename IntType>
 struct as_if<core::IntQuantity<Unit, IntType>, void>
 {
-    explicit as_if(const Node& node_) : node( node_ )
+    explicit as_if(const Node& node_) : node{node_}
     {}
 
     const Node& node;
@@ -253,12 +274,12 @@ struct as_if<core::IntQuantity<Unit, IntType>, void>
     core::IntQuantity<Unit, IntType> operator()() const
     {
         if( !node.m_pNode )
-            throw TypedBadConversion<core::IntQuantity<Unit, IntType>>( node.Mark() );
+            throw TypedBadConversion<core::IntQuantity<Unit, IntType>>{node.Mark()};
 
         core::IntQuantity<Unit, IntType> t{IntType{0}};
         if( convert<core::IntQuantity<Unit, IntType>>::decode( node, t ) )
             return t;
-        throw TypedBadConversion<core::IntQuantity<Unit, IntType>>( node.Mark() );
+        throw TypedBadConversion<core::IntQuantity<Unit, IntType>>{node.Mark()};
     }
 };
 }

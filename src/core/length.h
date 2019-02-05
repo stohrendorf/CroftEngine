@@ -25,7 +25,7 @@ using Area = IntQuantity<UnitExp<detail::LengthUnit, 2>>;
 
 inline Length sqrt(const Area& area)
 {
-    return Length{Length::int_type( std::sqrt( area.value ) )};
+    return Length{static_cast<Length::int_type>( std::sqrt( area.value ) )};
 }
 
 constexpr Length operator "" _len(unsigned long long value) noexcept
@@ -36,11 +36,6 @@ constexpr Length operator "" _len(unsigned long long value) noexcept
 constexpr Length lerp(const Length& a, const Length& b, float bias)
 {
     return Length{static_cast<Length::int_type>(a.value * (1 - bias) + b.value * bias)};
-}
-
-constexpr Length abs(const Length& v) noexcept
-{
-    return v >= 0_len ? v : -v;
 }
 }
 
