@@ -6,7 +6,7 @@ namespace core
 {
 namespace detail
 {
-struct HealthTag
+struct HealthUnit
 {
     static const char* suffix()
     {
@@ -20,7 +20,7 @@ struct HealthTag
 };
 }
 
-using Health = IntUnit<detail::HealthTag>;
+using Health = IntQuantity<detail::HealthUnit>;
 
 constexpr Health operator "" _hp(unsigned long long value) noexcept
 {

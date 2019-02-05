@@ -6,7 +6,7 @@ namespace core
 {
 namespace detail
 {
-struct FrameTag
+struct FrameUnit
 {
     static const char* suffix()
     {
@@ -20,7 +20,7 @@ struct FrameTag
 };
 }
 
-using Frame = IntUnit<detail::FrameTag>;
+using Frame = IntQuantity<detail::FrameUnit>;
 
 constexpr Frame operator "" _frame(unsigned long long value) noexcept
 {

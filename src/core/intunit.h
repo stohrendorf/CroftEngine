@@ -9,256 +9,256 @@
 
 namespace core
 {
-template<typename Tag, int Multiplicity>
-struct MultiTag
+template<typename BaseUnit, int Exponent>
+struct UnitExp
 {
     static std::string suffix()
     {
-        return std::string( Tag::suffix() ) + "^" + std::to_string( Multiplicity );
+        return std::string( BaseUnit::suffix() ) + "^" + std::to_string( Exponent );
     }
 
     static std::string typeId()
     {
-        return std::string( Tag::typeId() ) + "^" + std::to_string( Multiplicity );
+        return std::string( BaseUnit::typeId() ) + "^" + std::to_string( Exponent );
     }
 };
 
 
-template<typename Tag, typename IntType = int32_t>
-struct IntUnit
+template<typename Unit, typename IntType = int32_t>
+struct IntQuantity
 {
     static_assert( std::is_integral<IntType>::value, "IntType must be int" );
 
-    using tag = Tag;
+    using unit = Unit;
     using int_type = IntType;
     int_type value;
 
-    constexpr explicit IntUnit(int_type value) noexcept
+    constexpr explicit IntQuantity(int_type value) noexcept
             : value{value}
     {}
 
     template<typename T>
-    explicit IntUnit(T) = delete;
+    explicit IntQuantity(T) = delete;
 
     std::string toString() const
     {
-        return std::to_string( value ) + Tag::suffix();
+        return std::to_string( value ) + Unit::suffix();
     }
 };
 
 
-template<typename Tag, typename IntType>
-constexpr IntUnit<Tag, IntType> operator-(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType> operator-(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
-    return IntUnit<Tag, IntType>{static_cast<IntType>(l.value - r.value)};
+    return IntQuantity<Unit, IntType>{static_cast<IntType>(l.value - r.value)};
 }
 
-template<typename Tag, typename IntType>
-inline IntUnit<Tag, IntType>& operator-=(IntUnit<Tag, IntType>& l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType>& operator-=(IntQuantity<Unit, IntType>& l, IntQuantity<Unit, IntType> r) noexcept
 {
     l.value -= r.value;
     return l;
 }
 
-template<typename Tag, typename IntType>
-constexpr IntUnit<Tag, IntType> operator+(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType> operator+(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
-    return IntUnit<Tag, IntType>{static_cast<IntType>(l.value + r.value)};
+    return IntQuantity<Unit, IntType>{static_cast<IntType>(l.value + r.value)};
 }
 
-template<typename Tag, typename IntType>
-inline IntUnit<Tag, IntType>& operator+=(IntUnit<Tag, IntType>& l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType>& operator+=(IntQuantity<Unit, IntType>& l, IntQuantity<Unit, IntType> r) noexcept
 {
     l.value += r.value;
     return l;
 }
 
-template<typename Tag, typename IntType>
-constexpr typename IntUnit<Tag, IntType>::int_type operator/(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr typename IntQuantity<Unit, IntType>::int_type operator/(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
     return l.value / r.value;
 }
 
-template<typename Tag, typename IntType>
-constexpr IntUnit<Tag, IntType>
-operator/(IntUnit<Tag, IntType> l, const typename IntUnit<Tag, IntType>::int_type& r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType>
+operator/(IntQuantity<Unit, IntType> l, const typename IntQuantity<Unit, IntType>::int_type& r) noexcept
 {
-    return IntUnit<Tag, IntType>{l.value / r};
+    return IntQuantity<Unit, IntType>{l.value / r};
 }
 
-template<typename Tag, typename IntType>
-inline IntUnit<Tag, IntType>& operator/=(IntUnit<Tag, IntType>& l, typename IntUnit<Tag, IntType>::int_type r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType>& operator/=(IntQuantity<Unit, IntType>& l, typename IntQuantity<Unit, IntType>::int_type r) noexcept
 {
     l.value /= r;
     return l;
 }
 
-template<typename Tag, typename IntType>
-constexpr IntUnit<Tag, IntType> operator*(IntUnit<Tag, IntType> l, typename IntUnit<Tag, IntType>::int_type r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType> operator*(IntQuantity<Unit, IntType> l, typename IntQuantity<Unit, IntType>::int_type r) noexcept
 {
-    return IntUnit<Tag, IntType>{l.value * r};
+    return IntQuantity<Unit, IntType>{l.value * r};
 }
 
-template<typename Tag, typename IntType>
-constexpr IntUnit<Tag, IntType> operator*(IntUnit<Tag, IntType> l, float r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType> operator*(IntQuantity<Unit, IntType> l, float r) noexcept
 {
-    return IntUnit<Tag, IntType>{static_cast<typename IntUnit<Tag, IntType>::int_type>(l.value * r)};
+    return IntQuantity<Unit, IntType>{static_cast<typename IntQuantity<Unit, IntType>::int_type>(l.value * r)};
 }
 
-template<typename Tag, typename IntType>
-inline IntUnit<Tag, IntType>& operator*=(IntUnit<Tag, IntType>& l, typename IntUnit<Tag, IntType>::int_type r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType>& operator*=(IntQuantity<Unit, IntType>& l, typename IntQuantity<Unit, IntType>::int_type r) noexcept
 {
     l.value *= r;
     return l;
 }
 
-template<typename Tag, typename IntType>
-constexpr IntUnit<Tag, IntType> operator-(IntUnit<Tag, IntType> l) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType> operator-(IntQuantity<Unit, IntType> l) noexcept
 {
-    return IntUnit<Tag, IntType>{static_cast<IntType>(-l.value)};
+    return IntQuantity<Unit, IntType>{static_cast<IntType>(-l.value)};
 }
 
-template<typename Tag, typename IntType>
-constexpr IntUnit<Tag, IntType> operator+(IntUnit<Tag, IntType> l) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType> operator+(IntQuantity<Unit, IntType> l) noexcept
 {
     return l;
 }
 
-template<typename Tag, typename IntType>
-constexpr IntUnit<Tag, IntType> operator%(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType> operator%(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
-    return IntUnit<Tag, IntType>{l.value % r.value};
+    return IntQuantity<Unit, IntType>{l.value % r.value};
 }
 
-template<typename Tag, typename IntType>
-constexpr bool operator<(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr bool operator<(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
     return l.value < r.value;
 }
 
-template<typename Tag, typename IntType>
-constexpr bool operator<=(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr bool operator<=(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
     return l.value <= r.value;
 }
 
-template<typename Tag, typename IntType>
-constexpr bool operator==(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr bool operator==(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
     return l.value == r.value;
 }
 
-template<typename Tag, typename IntType>
-constexpr bool operator>(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr bool operator>(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
     return l.value > r.value;
 }
 
-template<typename Tag, typename IntType>
-constexpr bool operator>=(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr bool operator>=(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
     return l.value >= r.value;
 }
 
-template<typename Tag, typename IntType>
-constexpr bool operator!=(IntUnit<Tag, IntType> l, IntUnit<Tag, IntType> r) noexcept
+template<typename Unit, typename IntType>
+constexpr bool operator!=(IntQuantity<Unit, IntType> l, IntQuantity<Unit, IntType> r) noexcept
 {
     return l.value != r.value;
 }
 
-// multiplicity
-template<typename Tag, typename IntType>
-constexpr IntUnit<MultiTag<Tag, 2>> operator*(IntUnit<Tag, IntType> a, IntUnit<Tag, IntType> b)
+// exponents
+template<typename Unit, typename IntType>
+constexpr IntQuantity<UnitExp<Unit, 2>> operator*(IntQuantity<Unit, IntType> a, IntQuantity<Unit, IntType> b)
 {
-    return IntUnit<MultiTag<Tag, 2>>{a.value * b.value};
+    return IntQuantity<UnitExp<Unit, 2>>{a.value * b.value};
 }
 
-template<typename Tag, typename IntType, int N1>
-constexpr IntUnit<MultiTag<Tag, N1 + 1>, IntType>
-operator*(IntUnit<MultiTag<Tag, N1>, IntType> a, IntUnit<Tag, IntType> b)
+template<typename Unit, typename IntType, int Exp>
+constexpr IntQuantity<UnitExp<Unit, Exp + 1>, IntType>
+operator*(IntQuantity<UnitExp<Unit, Exp>, IntType> a, IntQuantity<Unit, IntType> b)
 {
-    return IntUnit<MultiTag<Tag, N1 + 1>, IntType>{a.value * b.value};
+    return IntQuantity<UnitExp<Unit, Exp + 1>, IntType>{a.value * b.value};
 }
 
-template<typename Tag, typename IntType, int N2>
-constexpr IntUnit<MultiTag<Tag, 2>, IntType> operator*(IntUnit<Tag, IntType> a, IntUnit<MultiTag<Tag, N2>, IntType> b)
+template<typename Unit, typename IntType, int Exp>
+constexpr IntQuantity<UnitExp<Unit, 2>, IntType> operator*(IntQuantity<Unit, IntType> a, IntQuantity<UnitExp<Unit, Exp>, IntType> b)
 {
-    return IntUnit<MultiTag<Tag, IntType, N2 + 1>>{a.value * b.value};
+    return IntQuantity<UnitExp<Unit, IntType, Exp + 1>>{a.value * b.value};
 }
 
-template<typename Tag, typename IntType, int N1>
-constexpr IntUnit<MultiTag<Tag, N1 - 1>, IntType>
-operator/(IntUnit<MultiTag<Tag, N1>, IntType> a, IntUnit<Tag, IntType> b)
+template<typename Unit, typename IntType, int Exp>
+constexpr IntQuantity<UnitExp<Unit, Exp - 1>, IntType>
+operator/(IntQuantity<UnitExp<Unit, Exp>, IntType> a, IntQuantity<Unit, IntType> b)
 {
-    return IntUnit<MultiTag<Tag, IntType, N1 - 1>>{a.value / b.value};
+    return IntQuantity<UnitExp<Unit, IntType, Exp - 1>>{a.value / b.value};
 }
 
-template<typename Tag, typename IntType>
-constexpr IntUnit<Tag, IntType> operator/(IntUnit<MultiTag<Tag, 2>, IntType> a, IntUnit<Tag, IntType> b)
+template<typename Unit, typename IntType>
+constexpr IntQuantity<Unit, IntType> operator/(IntQuantity<UnitExp<Unit, 2>, IntType> a, IntQuantity<Unit, IntType> b)
 {
-    return IntUnit<Tag, IntType>{a.value / b.value};
+    return IntQuantity<Unit, IntType>{a.value / b.value};
 }
 
-template<typename Tag, typename IntType>
-constexpr core::IntUnit<Tag, IntType>
-operator*(typename core::IntUnit<Tag, IntType>::int_type l, core::IntUnit<Tag, IntType> r)
+template<typename Unit, typename IntType>
+constexpr core::IntQuantity<Unit, IntType>
+operator*(typename core::IntQuantity<Unit, IntType>::int_type l, core::IntQuantity<Unit, IntType> r)
 {
-    return core::IntUnit<Tag, IntType>{l * r.value};
+    return core::IntQuantity<Unit, IntType>{l * r.value};
 }
 
-template<typename Tag, typename IntType>
-constexpr core::IntUnit<Tag, IntType> operator*(float l, core::IntUnit<Tag, IntType> r)
+template<typename Unit, typename IntType>
+constexpr core::IntQuantity<Unit, IntType> operator*(float l, core::IntQuantity<Unit, IntType> r)
 {
-    return core::IntUnit<Tag, IntType>{static_cast<core::IntUnit<Tag, IntType>::int_type>(l * r.value)};
+    return core::IntQuantity<Unit, IntType>{static_cast<core::IntQuantity<Unit, IntType>::int_type>(l * r.value)};
 }
 }
 
 namespace YAML
 {
-template<typename Tag, typename IntType>
-struct convert<core::IntUnit<Tag, IntType>>
+template<typename Unit, typename IntType>
+struct convert<core::IntQuantity<Unit, IntType>>
 {
-    static Node encode(const core::IntUnit<Tag, IntType>& rhs)
+    static Node encode(const core::IntQuantity<Unit, IntType>& rhs)
     {
         Node node( NodeType::Sequence );
         node.SetStyle( YAML::EmitterStyle::Flow );
-        node.push_back( Tag::typeId() );
+        node.push_back( Unit::typeId() );
         node.push_back( rhs.value );
         return node;
     }
 
-    static bool decode(const Node& node, core::IntUnit<Tag, IntType>& rhs)
+    static bool decode(const Node& node, core::IntQuantity<Unit, IntType>& rhs)
     {
         if( !node.IsSequence() )
             return false;
         if( node.size() != 2 )
             return false;
-        if( node[0].as<std::string>() != Tag::typeId() )
+        if( node[0].as<std::string>() != Unit::typeId() )
             return false;
 
-        rhs.value = node[1].as<core::IntUnit<Tag, IntType>::int_type>();
+        rhs.value = node[1].as<core::IntQuantity<Unit, IntType>::int_type>();
         return true;
     }
 };
 
 
-template<typename Tag, typename IntType>
-struct as_if<core::IntUnit<Tag, IntType>, void>
+template<typename Unit, typename IntType>
+struct as_if<core::IntQuantity<Unit, IntType>, void>
 {
     explicit as_if(const Node& node_) : node( node_ )
     {}
 
     const Node& node;
 
-    core::IntUnit<Tag, IntType> operator()() const
+    core::IntQuantity<Unit, IntType> operator()() const
     {
         if( !node.m_pNode )
-            throw TypedBadConversion<core::IntUnit<Tag, IntType>>( node.Mark() );
+            throw TypedBadConversion<core::IntQuantity<Unit, IntType>>( node.Mark() );
 
-        core::IntUnit<Tag, IntType> t{IntType{0}};
-        if( convert<core::IntUnit<Tag, IntType>>::decode( node, t ) )
+        core::IntQuantity<Unit, IntType> t{IntType{0}};
+        if( convert<core::IntQuantity<Unit, IntType>>::decode( node, t ) )
             return t;
-        throw TypedBadConversion<core::IntUnit<Tag, IntType>>( node.Mark() );
+        throw TypedBadConversion<core::IntQuantity<Unit, IntType>>( node.Mark() );
     }
 };
 }

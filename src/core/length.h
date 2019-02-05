@@ -6,7 +6,7 @@ namespace core
 {
 namespace detail
 {
-struct LengthTag
+struct LengthUnit
 {
     static const char* suffix()
     {
@@ -20,8 +20,8 @@ struct LengthTag
 };
 }
 
-using Length = IntUnit<detail::LengthTag>;
-using Area = IntUnit<MultiTag<detail::LengthTag, 2>>;
+using Length = IntQuantity<detail::LengthUnit>;
+using Area = IntQuantity<UnitExp<detail::LengthUnit, 2>>;
 
 inline Length sqrt(const Area& area)
 {
