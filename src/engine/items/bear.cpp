@@ -41,7 +41,8 @@ void Bear::update()
         {
             case Walking.get():
                 m_state.creatureInfo->maximum_turn = 2_deg;
-                if( getLevel().m_lara->m_state.health <= 0_hp && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0 && aiInfo.ahead )
+                if( getLevel().m_lara->m_state.health <= 0_hp && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0
+                    && aiInfo.ahead )
                 {
                     m_state.goal_anim_state = GettingDown;
                 }
@@ -107,7 +108,7 @@ void Bear::update()
                     m_state.required_anim_state = Growling;
                     m_state.goal_anim_state = RoaringStanding;
                 }
-                else if( aiInfo.distance > util::square( 2048_len ) || util::rand15() < 1536 )
+                else if( aiInfo.distance > util::square( 2 * core::SectorSize ) || util::rand15() < 1536 )
                 {
                     m_state.required_anim_state = GettingDown;
                     m_state.goal_anim_state = RoaringStanding;
@@ -132,7 +133,7 @@ void Bear::update()
                         m_state.required_anim_state = RoaringStanding;
                         m_state.goal_anim_state = GettingDown;
                     }
-                    else if( aiInfo.distance < util::square( 1024_len ) )
+                    else if( aiInfo.distance < util::square( core::SectorSize ) )
                     {
                         m_state.goal_anim_state = RunningAttack;
                     }

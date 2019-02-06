@@ -51,19 +51,19 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         switch( *axis )
         {
             case core::Axis::PosZ:
-                d = core::SectorSize - 100_len;
+                d = core::SectorSize - core::DefaultCollisionRadius;
                 vp = &core::TRVec::Z;
                 break;
             case core::Axis::PosX:
-                d = core::SectorSize - 100_len;
+                d = core::SectorSize - core::DefaultCollisionRadius;
                 vp = &core::TRVec::X;
                 break;
             case core::Axis::NegZ:
-                d = 100_len;
+                d = core::DefaultCollisionRadius;
                 vp = &core::TRVec::Z;
                 break;
             case core::Axis::NegX:
-                d = 100_len;
+                d = core::DefaultCollisionRadius;
                 vp = &core::TRVec::X;
                 break;
             default:
@@ -202,7 +202,7 @@ bool Block::canPushBlock(const core::Length height, const core::Axis axis) const
     CollisionInfo tmp;
     tmp.facingAxis = axis;
     tmp.collisionRadius = 500_len;
-    if( tmp.checkStaticMeshCollisions( pos, 1000_len, getLevel() ) )
+    if( tmp.checkStaticMeshCollisions( pos, 2 * tmp.collisionRadius, getLevel() ) )
     {
         return false;
     }
@@ -250,7 +250,7 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
     CollisionInfo tmp;
     tmp.facingAxis = axis;
     tmp.collisionRadius = 500_len;
-    if( tmp.checkStaticMeshCollisions( pos, 1000_len, getLevel() ) )
+    if( tmp.checkStaticMeshCollisions( pos, 2 * tmp.collisionRadius, getLevel() ) )
     {
         return false;
     }
@@ -293,7 +293,7 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
         return false;
     }
 
-    laraPos.Y -= core::ScalpHeight;
+    laraPos.Y -= core::LaraWalkHeight;
     sector = level::Level::findRealFloorSector( laraPos, &room );
     if( laraPos.Y < sector->ceilingHeight )
     {
@@ -324,7 +324,7 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
     }
     tmp.collisionRadius = core::DefaultCollisionRadius;
 
-    return !tmp.checkStaticMeshCollisions( laraPos, core::ScalpHeight, getLevel() );
+    return !tmp.checkStaticMeshCollisions( laraPos, core::LaraWalkHeight, getLevel() );
 }
 
 void Block::load(const YAML::Node& n)

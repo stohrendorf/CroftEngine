@@ -264,8 +264,8 @@ void Crocodile::update()
             m_state.current_anim_state = m_state.anim->state_id;
             if( m_state.creatureInfo != nullptr )
             {
-                m_state.creatureInfo->lot.step = 20480_len;
-                m_state.creatureInfo->lot.drop = -20480_len;
+                m_state.creatureInfo->lot.step = 20 * core::SectorSize;
+                m_state.creatureInfo->lot.drop = -20 * core::SectorSize;
                 m_state.creatureInfo->lot.fly = 16_len;
             }
         }

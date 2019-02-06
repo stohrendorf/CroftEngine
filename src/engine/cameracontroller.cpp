@@ -574,7 +574,7 @@ void CameraController::update()
         m_mode = CameraMode::Chase;
         m_previousItem = std::exchange( m_item, nullptr );
         m_rotationAroundCenter.X = m_rotationAroundCenter.Y = 0_deg;
-        m_eyeCenterDistance = 1536_len;
+        m_eyeCenterDistance = core::DefaultCameraLaraDistance;
         m_fixedCameraId = -1;
     }
     HeightInfo::skipSteepSlants = false;
@@ -744,7 +744,7 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
                                + item.m_state.rotation.X;
     m_rotationAroundCenter.Y = m_level->m_lara->m_torsoRotation.Y + m_level->m_lara->m_headRotation.Y
                                + item.m_state.rotation.Y;
-    m_eyeCenterDistance = 1536_len;
+    m_eyeCenterDistance = core::DefaultCameraLaraDistance;
     m_eyeYOffset = -2 * core::QuarterSectorSize * m_rotationAroundCenter.Y.sin();
     m_center.position.X += m_eyeYOffset * item.m_state.rotation.Y.sin();
     m_center.position.Z += m_eyeYOffset * item.m_state.rotation.Y.cos();
@@ -755,7 +755,7 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
         m_center.position.Z = item.m_state.position.position.Z;
     }
 
-    m_center.position.Y += moveIntoGeometry( m_center, core::QuarterSectorSize + 50_len );
+    m_center.position.Y += moveIntoGeometry( m_center, core::CameraWallDistance );
 
     auto center = m_center;
     center.position.X -= m_eyeCenterDistance * m_rotationAroundCenter.Y.sin() * m_rotationAroundCenter.X.cos();
@@ -791,7 +791,7 @@ void CameraController::handleEnemy(const items::ItemNode& item)
                                    + item.m_state.rotation.Y;
     }
 
-    m_eyeCenterDistance = 2560_len;
+    m_eyeCenterDistance = core::CombatCameraLaraDistance;
     auto eye = m_center;
     const auto d = m_eyeCenterDistance * m_rotationAroundCenter.X.cos();
     eye.position.X -= d * m_rotationAroundCenter.Y.sin();

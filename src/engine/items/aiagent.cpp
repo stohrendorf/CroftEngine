@@ -430,7 +430,8 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
     m_state.collidable = true;
     const core::Angle v = core::Angle( util::rand15() * 2 );
     m_state.rotation.Y += v;
-    m_state.health = core::Health{static_cast<core::Health::int_type>(level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.type )["hit_points"])};
+    m_state.health = core::Health{static_cast<core::Health::int_type>(level->m_scriptEngine["getObjectInfo"]
+            .call<sol::table>( m_state.type )["hit_points"])};
 }
 
 void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
@@ -484,7 +485,7 @@ bool AIAgent::tryShootAtLara(engine::items::ModelItemNode& item,
     bool isHit = false;
     if( distance <= util::square( 7 * core::SectorSize ) )
     {
-        if( util::rand15( 32768_len ) < (util::square( 7 * core::SectorSize ) - distance) / 1568_len - 8192_len )
+        if( util::rand15() * 1_len < (util::square( 7 * core::SectorSize ) - distance) / 1568_len - 8192_len )
         {
             isHit = true;
 
@@ -500,9 +501,9 @@ bool AIAgent::tryShootAtLara(engine::items::ModelItemNode& item,
     if( !isHit )
     {
         auto pos = getLevel().m_lara->m_state.position;
-        pos.position.X += util::rand15s( 512_len );
+        pos.position.X += util::rand15s( core::SectorSize / 2 );
         pos.position.Y = getLevel().m_lara->m_state.floor;
-        pos.position.Z += util::rand15s( 512_len );
+        pos.position.Z += util::rand15s( core::SectorSize / 2 );
         getLevel().m_lara->playShotMissed( pos );
     }
 

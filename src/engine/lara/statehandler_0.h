@@ -65,7 +65,7 @@ public:
         collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.policyFlags.set(CollisionInfo::PolicyFlags::LavaIsPit);
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
 
         if( stopIfCeilingBlocked( collisionInfo ) )
         {
@@ -94,7 +94,7 @@ public:
             }
         }
 
-        if( collisionInfo.mid.floor.y > core::ClimbLimit2ClickMin )
+        if( collisionInfo.mid.floorSpace.y > core::ClimbLimit2ClickMin )
         {
             setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
             setGoalAnimState( LaraStateId::JumpForward );
@@ -102,7 +102,7 @@ public:
             getLara().m_state.falling = true;
         }
 
-        if( collisionInfo.mid.floor.y > core::SteppableHeight )
+        if( collisionInfo.mid.floorSpace.y > core::SteppableHeight )
         {
             const auto fr = getLara().m_state.frame_number;
             if( fr < 28_frame || fr > 45_frame )
@@ -115,8 +115,8 @@ public:
             }
         }
 
-        if( collisionInfo.mid.floor.y >= -core::ClimbLimit2ClickMin
-            && collisionInfo.mid.floor.y < -core::SteppableHeight )
+        if( collisionInfo.mid.floorSpace.y >= -core::ClimbLimit2ClickMin
+            && collisionInfo.mid.floorSpace.y < -core::SteppableHeight )
         {
             const auto fr = getLara().m_state.frame_number;
             if( fr < 27_frame || fr > 44_frame )

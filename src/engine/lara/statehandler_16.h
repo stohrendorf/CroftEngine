@@ -56,7 +56,7 @@ public:
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
         setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
 
         if( stopIfCeilingBlocked( collisionInfo ) )
         {
@@ -68,8 +68,8 @@ public:
             setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
         }
 
-        if( collisionInfo.mid.floor.y > core::QuarterSectorSize
-            && collisionInfo.mid.floor.y < core::ClimbLimit2ClickMin )
+        if( collisionInfo.mid.floorSpace.y > core::QuarterSectorSize
+            && collisionInfo.mid.floorSpace.y < core::ClimbLimit2ClickMin )
         {
             if( getLara().m_state.frame_number < 964_frame || getLara().m_state.frame_number > 993_frame )
             {

@@ -70,7 +70,7 @@ private:
     core::Length m_bounce = 0_len;
 
     //! @brief Goal distance between the pivot point and the camera.
-    core::Length m_eyeCenterDistance = 1536_len;
+    core::Length m_eyeCenterDistance = core::DefaultCameraLaraDistance;
     //! @brief Floor-projected pivot distance, squared.
     core::Area m_eyeCenterHorizontalDistanceSq{0};
 

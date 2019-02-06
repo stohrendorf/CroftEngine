@@ -54,10 +54,10 @@ struct CollisionInfo
     core::Length badNegativeDistance = 0_len; // external
     core::Length badCeilingDistance = 0_len; // external
 
-    VerticalInfo mid;
-    VerticalInfo front;
-    VerticalInfo frontLeft;
-    VerticalInfo frontRight;
+    VerticalSpaceInfo mid;
+    VerticalSpaceInfo front;
+    VerticalSpaceInfo frontLeft;
+    VerticalSpaceInfo frontRight;
 
     int8_t floorSlantX = 0;
     int8_t floorSlantZ = 0;

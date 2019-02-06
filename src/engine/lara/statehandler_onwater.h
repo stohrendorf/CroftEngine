@@ -24,11 +24,11 @@ protected:
     void commonOnWaterHandling(CollisionInfo& collisionInfo)
     {
         collisionInfo.facingAngle = getMovementAngle();
-        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec( 0_len, 700_len, 0_len ),
+        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec( 0_len, core::LaraSwimHeight, 0_len ),
                                       getLevel(),
-                                      700_len );
+                                      core::LaraSwimHeight );
         applyShift( collisionInfo );
-        if( collisionInfo.mid.floor.y < 0_len
+        if( collisionInfo.mid.floorSpace.y < 0_len
             || collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront
             || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom
             || collisionInfo.collisionType == CollisionInfo::AxisColl::Top
@@ -47,7 +47,7 @@ protected:
         }
 
         auto wsh = getLara().getWaterSurfaceHeight();
-        if( wsh.is_initialized() && *wsh > getLara().m_state.position.position.Y - 100_len )
+        if( wsh.is_initialized() && *wsh > getLara().m_state.position.position.Y - core::DefaultCollisionRadius )
         {
             tryClimbOutOfWater( collisionInfo );
             return;
@@ -78,28 +78,28 @@ private:
             return;
         }
 
-        const auto gradient = abs( collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y );
+        const auto gradient = abs( collisionInfo.frontLeft.floorSpace.y - collisionInfo.frontRight.floorSpace.y );
         if( gradient >= core::MaxGrabbableGradient )
         {
             return;
         }
 
-        if( collisionInfo.front.ceiling.y > 0_len )
+        if( collisionInfo.front.ceilingSpace.y > 0_len )
         {
             return;
         }
 
-        if( collisionInfo.mid.ceiling.y > -core::ClimbLimit2ClickMin )
+        if( collisionInfo.mid.ceilingSpace.y > -core::ClimbLimit2ClickMin )
         {
             return;
         }
 
-        if( collisionInfo.front.floor.y + 700_len <= 2 * -core::QuarterSectorSize )
+        if( collisionInfo.front.floorSpace.y + core::LaraSwimHeight <= 2 * -core::QuarterSectorSize )
         {
             return;
         }
 
-        if( collisionInfo.front.floor.y + 700_len > core::DefaultCollisionRadius )
+        if( collisionInfo.front.floorSpace.y + core::LaraSwimHeight > core::DefaultCollisionRadius )
         {
             return;
         }
@@ -110,7 +110,7 @@ private:
             return;
         }
 
-        getLara().m_state.position.position += core::TRVec( 0_len, 695_len + collisionInfo.front.floor.y, 0_len );
+        getLara().m_state.position.position += core::TRVec( 0_len, 695_len + collisionInfo.front.floorSpace.y, 0_len );
         getLara().updateFloorHeight( -381_len );
         core::TRVec d = getLara().m_state.position.position;
         if( *yRot == 0_deg )

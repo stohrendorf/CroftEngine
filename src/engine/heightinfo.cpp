@@ -13,21 +13,19 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::Sector*> roomSector
 {
     HeightInfo hi;
 
-    hi.slantClass = SlantClass::None;
-
     while( roomSector->roomBelow != nullptr )
     {
         roomSector = roomSector->roomBelow->getSectorByAbsolutePosition( pos );
     }
 
     hi.y = roomSector->floorHeight;
-    hi.lastCommandSequenceOrDeath = nullptr;
 
     if( roomSector->floorData == nullptr )
     {
         return hi;
     }
 
+    // process additional slant and item height patches
     const engine::floordata::FloorDataValue* fd = roomSector->floorData;
     while( true )
     {
@@ -185,8 +183,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::Sector*> roomSect
     const engine::floordata::FloorDataValue* fd = roomSector->floorData;
     while( true )
     {
-        const floordata::FloorDataChunk chunkHeader{*fd};
-        ++fd;
+        const floordata::FloorDataChunk chunkHeader{*fd++};
         switch( chunkHeader.type )
         {
             case floordata::FloorDataChunkType::CeilingSlant:

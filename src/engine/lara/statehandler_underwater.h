@@ -26,9 +26,9 @@ public:
             collisionInfo.facingAngle += 180_deg;
         }
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec{0_len, 200_len, 0_len},
+        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
                                       getLevel(),
-                                      core::LaraHeightUnderwater );
+                                      core::LaraDiveHeight );
 
         applyShift( collisionInfo );
 
@@ -78,7 +78,7 @@ public:
                 break;
         }
 
-        if( collisionInfo.mid.floor.y >= 0_len )
+        if( collisionInfo.mid.floorSpace.y >= 0_len )
         {
             return;
         }

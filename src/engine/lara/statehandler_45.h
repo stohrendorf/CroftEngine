@@ -30,7 +30,7 @@ public:
         collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0_len;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
 
         if( stopIfCeilingBlocked( collisionInfo ) )
         {
@@ -42,7 +42,7 @@ public:
             return;
         }
 
-        if( collisionInfo.mid.floor.y <= 200_len )
+        if( collisionInfo.mid.floorSpace.y <= 200_len )
         {
             applyShift( collisionInfo );
             placeOnFloor( collisionInfo );

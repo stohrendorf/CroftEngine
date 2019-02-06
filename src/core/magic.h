@@ -21,7 +21,11 @@ static_assert( SteppableHeight < ClimbLimit2ClickMin, "Constants wrong" );
 static_assert( ClimbLimit2ClickMin < ClimbLimit2ClickMax, "Constants wrong" );
 static_assert( ClimbLimit2ClickMax < ClimbLimit3ClickMax, "Constants wrong" );
 
-constexpr auto ScalpHeight = 762_len;
+constexpr auto LaraWalkHeight = 762_len;
+constexpr auto LaraSwimHeight = 700_len;
+constexpr auto LaraDiveHeight = 400_len;
+constexpr auto LaraDiveGroundElevation = 200_len;
+constexpr auto LaraHangingHeight = 870_len;
 constexpr auto ScalpToHandsHeight = 160_len;
 constexpr auto JumpReachableHeight = ClimbLimit3ClickMax + SectorSize;
 
@@ -41,5 +45,8 @@ constexpr auto LaraHealth = 1000_hp;
 
 constexpr auto DefaultCollisionRadius = 100_len;
 constexpr auto DefaultCollisionRadiusUnderwater = 300_len;
-constexpr auto LaraHeightUnderwater = 400_len;
+
+constexpr auto CameraWallDistance = QuarterSectorSize + 50_len;
+constexpr auto DefaultCameraLaraDistance = SectorSize * 3 / 2;
+constexpr auto CombatCameraLaraDistance = SectorSize + DefaultCameraLaraDistance;
 }

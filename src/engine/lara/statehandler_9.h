@@ -34,9 +34,9 @@ public:
         collisionInfo.badCeilingDistance = 192_len;
         collisionInfo.facingAngle = getMovementAngle();
         getLara().m_state.falling = true;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
         jumpAgainstWall( collisionInfo );
-        if( collisionInfo.mid.floor.y > 0_len )
+        if( collisionInfo.mid.floorSpace.y > 0_len )
         {
             return;
         }

@@ -65,9 +65,9 @@ public:
         collisionInfo.badNegativeDistance = -core::HeightLimit;
         collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.facingAngle = getMovementAngle();
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
 
-        if( collisionInfo.mid.ceiling.y <= -core::DefaultCollisionRadius )
+        if( collisionInfo.mid.ceilingSpace.y <= -core::DefaultCollisionRadius )
         {
             return;
         }

@@ -31,7 +31,7 @@ public:
         setMovementAngle( getLara().m_state.rotation.Y );
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
     }
 
     static void emitSparkles(const LaraNode& lara, level::Level& level)

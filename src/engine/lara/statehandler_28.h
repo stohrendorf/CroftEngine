@@ -31,7 +31,7 @@ public:
         collisionInfo.badCeilingDistance = 192_len;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), 870_len ); //! @todo MAGICK 870
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraHangingHeight );
 
         if( tryGrabEdge( collisionInfo ) )
         {
@@ -39,7 +39,7 @@ public:
         }
 
         jumpAgainstWall( collisionInfo );
-        if( getLara().m_state.fallspeed <= 0_len || collisionInfo.mid.floor.y > 0_len )
+        if( getLara().m_state.fallspeed <= 0_len || collisionInfo.mid.floorSpace.y > 0_len )
         {
             return;
         }

@@ -236,7 +236,7 @@ void LaraNode::handleLaraStateOnLand()
     updateFloorHeight( -381_len );
 
     updateLarasWeaponsStatus();
-    handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
+    handleCommandSequence( collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false );
 
     applyTransform();
 
@@ -251,9 +251,9 @@ void LaraNode::handleLaraStateDiving()
     collisionInfo.oldPosition = m_state.position.position;
     collisionInfo.collisionRadius = core::DefaultCollisionRadiusUnderwater;
     collisionInfo.policyFlags.reset_all();
-    collisionInfo.badCeilingDistance = core::LaraHeightUnderwater;
+    collisionInfo.badCeilingDistance = core::LaraDiveHeight;
     collisionInfo.badPositiveDistance = core::HeightLimit;
-    collisionInfo.badNegativeDistance = -core::LaraHeightUnderwater;
+    collisionInfo.badNegativeDistance = -core::LaraDiveHeight;
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->handleInput( collisionInfo );
 
@@ -299,7 +299,7 @@ void LaraNode::handleLaraStateDiving()
 
     updateFloorHeight( 0_len );
     updateLarasWeaponsStatus();
-    handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
+    handleCommandSequence( collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false );
 #ifndef NDEBUG
     lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -360,7 +360,7 @@ void LaraNode::handleLaraStateSwimming()
 
     updateFloorHeight( core::DefaultCollisionRadius );
     updateLarasWeaponsStatus();
-    handleCommandSequence( collisionInfo.mid.floor.lastCommandSequenceOrDeath, false );
+    handleCommandSequence( collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false );
 #ifndef NDEBUG
     lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -368,7 +368,7 @@ void LaraNode::handleLaraStateSwimming()
 
 void LaraNode::placeOnFloor(const CollisionInfo& collisionInfo)
 {
-    m_state.position.position.Y += collisionInfo.mid.floor.y;
+    m_state.position.position.Y += collisionInfo.mid.floorSpace.y;
 }
 
 LaraNode::~LaraNode() = default;
@@ -393,8 +393,7 @@ void LaraNode::update()
         m_air = core::LaraAir;
         m_underwaterState = UnderwaterState::Diving;
         m_state.falling = false;
-        const core::TRVec& pos = m_state.position.position + core::TRVec( 0_len, 100_len, 0_len );
-        m_state.position.position = pos;
+        m_state.position.position.Y += 100_len;
         updateFloorHeight( 0_len );
         getLevel().stopSound( TR1SoundId::LaraScream, &m_state );
         if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
@@ -965,7 +964,7 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
             m_state.position.position.Z - collisionInfo.oldPosition.Z
     );
 
-    collisionInfo.initHeightInfo( m_state.position.position + core::TRVec{0_len, 200_len, 0_len}, getLevel(), 400_len );
+    collisionInfo.initHeightInfo( m_state.position.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len}, getLevel(), core::LaraDiveHeight );
     if( collisionInfo.collisionType == CollisionInfo::AxisColl::Front )
     {
         if( m_state.rotation.X > 35_deg )
@@ -982,9 +981,9 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Right )
         m_state.rotation.Y -= 5_deg;
 
-    if( collisionInfo.mid.floor.y < 0_len )
+    if( collisionInfo.mid.floorSpace.y < 0_len )
     {
-        m_state.position.position.Y += collisionInfo.mid.floor.y;
+        m_state.position.position.Y += collisionInfo.mid.floorSpace.y;
         m_state.rotation.X += 2_deg;
     }
     applyShift( collisionInfo );

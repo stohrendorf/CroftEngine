@@ -537,7 +537,7 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
         collisionInfo.facingAngle = core::Angle::fromAtan(
                 lara.m_state.position.position.X - collisionInfo.oldPosition.X,
                 lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
-        collisionInfo.initHeightInfo( lara.m_state.position.position, getLevel(), 762_len );
+        collisionInfo.initHeightInfo( lara.m_state.position.position, getLevel(), core::LaraWalkHeight );
         collisionInfo.facingAngle = facingAngle;
         if( collisionInfo.collisionType != CollisionInfo::AxisColl::None )
         {
@@ -576,7 +576,7 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
                 >= (itemSphere.value().radius + laraSphere.radius).value )
                 continue;
 
-            m_state.touch_bits |= 1 << itemSphere.index();
+            m_state.touch_bits.set( itemSphere.index() );
             break;
         }
     }

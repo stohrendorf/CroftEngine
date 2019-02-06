@@ -42,13 +42,13 @@ public:
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
         if( stopIfCeilingBlocked( collisionInfo ) )
         {
             return;
         }
 
-        if( collisionInfo.mid.floor.y > 200_len )
+        if( collisionInfo.mid.floorSpace.y > 200_len )
         {
             setAnimation( loader::AnimationId::FREE_FALL_BACK, 1473_frame );
             setGoalAnimState( LaraStateId::FallBackward );

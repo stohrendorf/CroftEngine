@@ -35,24 +35,24 @@ struct HeightInfo
 };
 
 
-struct VerticalInfo
+struct VerticalSpaceInfo
 {
-    HeightInfo floor;
-    HeightInfo ceiling;
+    HeightInfo floorSpace;
+    HeightInfo ceilingSpace;
 
     void init(const gsl::not_null<const loader::Sector*>& roomSector,
               const core::TRVec& position,
               const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList,
-              const core::Length floorHeight,
-              const core::Length scalpHeight)
+              const core::Length itemY,
+              const core::Length itemHeight)
     {
-        floor = HeightInfo::fromFloor( roomSector, position, itemList );
-        if( floor.y != -core::HeightLimit )
-            floor.y -= floorHeight;
+        floorSpace = HeightInfo::fromFloor( roomSector, position, itemList );
+        if( floorSpace.y != -core::HeightLimit )
+            floorSpace.y -= itemY;
 
-        ceiling = HeightInfo::fromCeiling( roomSector, position, itemList );
-        if( ceiling.y != -core::HeightLimit )
-            ceiling.y -= floorHeight - scalpHeight;
+        ceilingSpace = HeightInfo::fromCeiling( roomSector, position, itemList );
+        if( ceilingSpace.y != -core::HeightLimit )
+            ceilingSpace.y -= itemY - itemHeight;
     }
 };
 }

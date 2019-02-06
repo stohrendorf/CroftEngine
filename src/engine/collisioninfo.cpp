@@ -80,21 +80,21 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     auto testPos = refTestPos + core::TRVec( frontX, 0_len, frontZ );
     auto sector = level::Level::findRealFloorSector( testPos, &room );
     front.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
-    if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && front.floor.slantClass == SlantClass::Steep
-        && front.floor.y < 0_len )
+    if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && front.floorSpace.slantClass == SlantClass::Steep
+        && front.floorSpace.y < 0_len )
     {
-        front.floor.y = -32767_len; // This is not a typo, it is really -32767
+        front.floorSpace.y = - 32767_len; // This is not a typo, it is really -32767
     }
-    else if( front.floor.y > 0_len
+    else if( front.floorSpace.y > 0_len
              && (
-                     (policyFlags.is_set( PolicyFlags::SlopesArePits ) && front.floor.slantClass == SlantClass::Steep)
+                     (policyFlags.is_set( PolicyFlags::SlopesArePits ) && front.floorSpace.slantClass == SlantClass::Steep)
                      || (policyFlags.is_set( PolicyFlags::LavaIsPit )
-                         && front.floor.lastCommandSequenceOrDeath != nullptr
-                         && floordata::FloorDataChunk::extractType( *front.floor.lastCommandSequenceOrDeath )
+                         && front.floorSpace.lastCommandSequenceOrDeath != nullptr
+                         && floordata::FloorDataChunk::extractType( *front.floorSpace.lastCommandSequenceOrDeath )
                             == floordata::FloorDataChunkType::Death)
              ) )
     {
-        front.floor.y = 2 * core::QuarterSectorSize;
+        front.floorSpace.y = 2 * core::QuarterSectorSize;
     }
 
     // Front left
@@ -102,22 +102,22 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     sector = level::Level::findRealFloorSector( testPos, &room );
     frontLeft.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
-    if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontLeft.floor.slantClass == SlantClass::Steep
-        && frontLeft.floor.y < 0_len )
+    if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontLeft.floorSpace.slantClass == SlantClass::Steep
+        && frontLeft.floorSpace.y < 0_len )
     {
-        frontLeft.floor.y = -32767_len; // This is not a typo, it is really -32767
+        frontLeft.floorSpace.y = -32767_len; // This is not a typo, it is really -32767
     }
-    else if( frontLeft.floor.y > 0_len
+    else if( frontLeft.floorSpace.y > 0_len
              && (
                      (policyFlags.is_set( PolicyFlags::SlopesArePits )
-                      && frontLeft.floor.slantClass == SlantClass::Steep)
+                      && frontLeft.floorSpace.slantClass == SlantClass::Steep)
                      || (policyFlags.is_set( PolicyFlags::LavaIsPit )
-                         && frontLeft.floor.lastCommandSequenceOrDeath != nullptr
-                         && floordata::FloorDataChunk::extractType( *frontLeft.floor.lastCommandSequenceOrDeath )
+                         && frontLeft.floorSpace.lastCommandSequenceOrDeath != nullptr
+                         && floordata::FloorDataChunk::extractType( *frontLeft.floorSpace.lastCommandSequenceOrDeath )
                             == floordata::FloorDataChunkType::Death)
              ) )
     {
-        frontLeft.floor.y = 2 * core::QuarterSectorSize;
+        frontLeft.floorSpace.y = 2 * core::QuarterSectorSize;
     }
 
     // Front right
@@ -125,48 +125,48 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     sector = level::Level::findRealFloorSector( testPos, &room );
     frontRight.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
-    if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontRight.floor.slantClass == SlantClass::Steep
-        && frontRight.floor.y < 0_len )
+    if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontRight.floorSpace.slantClass == SlantClass::Steep
+        && frontRight.floorSpace.y < 0_len )
     {
-        frontRight.floor.y = -32767_len; // This is not a typo, it is really -32767
+        frontRight.floorSpace.y = -32767_len; // This is not a typo, it is really -32767
     }
-    else if( frontRight.floor.y > 0_len
+    else if( frontRight.floorSpace.y > 0_len
              && (
                      (policyFlags.is_set( PolicyFlags::SlopesArePits )
-                      && frontRight.floor.slantClass == SlantClass::Steep)
+                      && frontRight.floorSpace.slantClass == SlantClass::Steep)
                      || (policyFlags.is_set( PolicyFlags::LavaIsPit )
-                         && frontRight.floor.lastCommandSequenceOrDeath != nullptr
-                         && floordata::FloorDataChunk::extractType( *frontRight.floor.lastCommandSequenceOrDeath )
+                         && frontRight.floorSpace.lastCommandSequenceOrDeath != nullptr
+                         && floordata::FloorDataChunk::extractType( *frontRight.floorSpace.lastCommandSequenceOrDeath )
                             == floordata::FloorDataChunkType::Death)
              ) )
     {
-        frontRight.floor.y = 2 * core::QuarterSectorSize;
+        frontRight.floorSpace.y = 2 * core::QuarterSectorSize;
     }
 
     checkStaticMeshCollisions( laraPos, height, level );
 
-    if( mid.floor.y == -core::HeightLimit )
+    if( mid.floorSpace.y == -core::HeightLimit )
     {
         shift = oldPosition - laraPos;
         collisionType = AxisColl::Front;
         return;
     }
 
-    if( mid.floor.y <= mid.ceiling.y )
+    if( mid.floorSpace.y <= mid.ceilingSpace.y )
     {
         collisionType = AxisColl::TopFront;
         shift = oldPosition - laraPos;
         return;
     }
 
-    if( mid.ceiling.y >= 0_len )
+    if( mid.ceilingSpace.y >= 0_len )
     {
         collisionType = AxisColl::Top;
-        shift.Y = mid.ceiling.y;
+        shift.Y = mid.ceilingSpace.y;
     }
 
-    if( front.floor.y > badPositiveDistance || front.floor.y < badNegativeDistance
-        || front.ceiling.y > badCeilingDistance )
+    if( front.floorSpace.y > badPositiveDistance || front.floorSpace.y < badNegativeDistance
+        || front.ceilingSpace.y > badCeilingDistance )
     {
         collisionType = AxisColl::Front;
         switch( facingAxis )
@@ -185,14 +185,14 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
         return;
     }
 
-    if( front.ceiling.y >= badCeilingDistance )
+    if( front.ceilingSpace.y >= badCeilingDistance )
     {
         collisionType = AxisColl::TopBottom;
         shift = oldPosition - laraPos;
         return;
     }
 
-    if( frontLeft.floor.y > badPositiveDistance || frontLeft.floor.y < badNegativeDistance )
+    if( frontLeft.floorSpace.y > badPositiveDistance || frontLeft.floorSpace.y < badNegativeDistance )
     {
         collisionType = AxisColl::Left;
         switch( facingAxis )
@@ -209,7 +209,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
         return;
     }
 
-    if( frontRight.floor.y > badPositiveDistance || frontRight.floor.y < badNegativeDistance )
+    if( frontRight.floorSpace.y > badPositiveDistance || frontRight.floorSpace.y < badNegativeDistance )
     {
         collisionType = AxisColl::Right;
         switch( facingAxis )

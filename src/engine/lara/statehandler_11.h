@@ -33,7 +33,7 @@ public:
         collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = 0_len;
         collisionInfo.badCeilingDistance = 192_len;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::ScalpHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
 
         if( tryReach( collisionInfo ) )
         {
@@ -41,7 +41,7 @@ public:
         }
 
         jumpAgainstWall( collisionInfo );
-        if( getLara().m_state.fallspeed <= 0_len || collisionInfo.mid.floor.y > 0_len )
+        if( getLara().m_state.fallspeed <= 0_len || collisionInfo.mid.floorSpace.y > 0_len )
         {
             return;
         }
