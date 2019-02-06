@@ -79,9 +79,9 @@ inline core::TRVec rotateY(core::Angle angle, core::Length x, core::Length y, co
     const auto sin = angle.sin();
     const auto cos = angle.cos();
     return core::TRVec{
-            core::Length{static_cast<core::Length::int_type>(z.value * sin + x.value * cos)},
+            core::Length{(z.cast<float>() * sin + x.cast<float>() * cos).as<core::Length>()},
             y,
-            core::Length{static_cast<core::Length::int_type>(z.value * cos - x.value * sin)}
+            core::Length{(z.cast<float>() * cos - x.cast<float>() * sin).as<core::Length>()}
     };
 }
 }

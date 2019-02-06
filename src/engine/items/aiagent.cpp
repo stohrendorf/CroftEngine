@@ -167,7 +167,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto inSectorZ = basePosZ % core::SectorSize;
 
     sol::table objectInfo = getLevel().m_scriptEngine["getObjectInfo"].call( m_state.type );
-    const core::Length radius{static_cast<core::Length::int_type>(objectInfo["radius"])};
+    const core::Length radius{static_cast<core::Length::type>(objectInfo["radius"])};
 
     core::Length moveX = 0_len;
     core::Length moveZ = 0_len;
@@ -424,13 +424,13 @@ AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
                  const loader::Item& item,
                  const loader::SkeletalModelType& animatedModel)
         : ModelItemNode{level, room, item, true, animatedModel}
-        , m_collisionRadius{static_cast<core::Length::int_type>(level->m_scriptEngine["getObjectInfo"]
+        , m_collisionRadius{static_cast<core::Length::type>(level->m_scriptEngine["getObjectInfo"]
                 .call<sol::table>( m_state.type )["radius"])}
 {
     m_state.collidable = true;
     const core::Angle v = core::Angle( util::rand15() * 2 );
     m_state.rotation.Y += v;
-    m_state.health = core::Health{static_cast<core::Health::int_type>(level->m_scriptEngine["getObjectInfo"]
+    m_state.health = core::Health{static_cast<core::Health::type>(level->m_scriptEngine["getObjectInfo"]
             .call<sol::table>( m_state.type )["hit_points"])};
 }
 

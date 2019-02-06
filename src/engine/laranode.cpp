@@ -529,9 +529,9 @@ void LaraNode::updateImpl()
                 {
                     case AnimCommandOpcode::SetPosition:
                         moveLocal(
-                                core::Length{static_cast<core::Length::int_type>(cmd[0])},
-                                core::Length{static_cast<core::Length::int_type>(cmd[1])},
-                                core::Length{static_cast<core::Length::int_type>(cmd[2])}
+                                core::Length{static_cast<core::Length::type>(cmd[0])},
+                                core::Length{static_cast<core::Length::type>(cmd[1])},
+                                core::Length{static_cast<core::Length::type>(cmd[2])}
                         );
                         cmd += 3;
                         break;
@@ -542,9 +542,9 @@ void LaraNode::updateImpl()
                         }
                         else
                         {
-                            m_state.fallspeed = core::Length{static_cast<core::Length::int_type>(cmd[0])};
+                            m_state.fallspeed = core::Length{static_cast<core::Length::type>(cmd[0])};
                         }
-                        m_state.speed = core::Length{static_cast<core::Length::int_type>(cmd[1])};
+                        m_state.speed = core::Length{static_cast<core::Length::type>(cmd[1])};
                         m_state.falling = true;
                         cmd += 2;
                         break;
@@ -2070,13 +2070,13 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
     const auto bulletDir = normalize( glm::vec3( shootVector.toMatrix()[2] ) ); // +Z is our shooting direction
     if( !spheres.empty() )
     {
-        core::Length minD{std::numeric_limits<core::Length::int_type>::max()};
+        core::Length minD{std::numeric_limits<core::Length::type>::max()};
         for( const auto& sphere : spheres )
         {
             hitPos = gunPosition.toRenderSystem()
                      + bulletDir * dot( sphere.getPosition() - gunPosition.toRenderSystem(), bulletDir );
 
-            const auto d = core::Length{static_cast<core::Length::int_type>( length( hitPos - sphere.getPosition() ) )};
+            const auto d = core::Length{static_cast<core::Length::type>( length( hitPos - sphere.getPosition() ) )};
             if( d > sphere.radius || d >= minD )
                 continue;
 

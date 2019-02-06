@@ -61,12 +61,12 @@ struct BoundingBoxIO
     BoundingBox toBBox() const
     {
         return BoundingBox{
-                core::Length{static_cast<core::Length::int_type>(minX)},
-                core::Length{static_cast<core::Length::int_type>(maxX)},
-                core::Length{static_cast<core::Length::int_type>(minY)},
-                core::Length{static_cast<core::Length::int_type>(maxY)},
-                core::Length{static_cast<core::Length::int_type>(minZ)},
-                core::Length{static_cast<core::Length::int_type>(maxZ)}
+                core::Length{static_cast<core::Length::type>(minX)},
+                core::Length{static_cast<core::Length::type>(maxX)},
+                core::Length{static_cast<core::Length::type>(minY)},
+                core::Length{static_cast<core::Length::type>(maxY)},
+                core::Length{static_cast<core::Length::type>(minZ)},
+                core::Length{static_cast<core::Length::type>(maxZ)}
         };
     }
 };
@@ -86,9 +86,9 @@ struct AnimFrame
         core::TRVec toTr() const noexcept
         {
             return core::TRVec{
-                    core::Length{static_cast<core::Length::int_type>(x)},
-                    core::Length{static_cast<core::Length::int_type>(y)},
-                    core::Length{static_cast<core::Length::int_type>(z)}
+                    core::Length{static_cast<core::Length::type>(x)},
+                    core::Length{static_cast<core::Length::type>(y)},
+                    core::Length{static_cast<core::Length::type>(z)}
             };
         }
     };
@@ -194,7 +194,7 @@ private:
     {
         auto animation = std::make_unique<Animation>();
         animation->poseDataOffset = reader.readU32();
-        animation->segmentLength = core::Frame{static_cast<core::Frame::int_type>(reader.readU8())};
+        animation->segmentLength = core::Frame{static_cast<core::Frame::type>(reader.readU8())};
         if( animation->segmentLength == 0_frame )
             animation->segmentLength = 1_frame;
         animation->poseDataSize = reader.readU8();
@@ -213,10 +213,10 @@ private:
             animation->lateralAcceleration = 0;
         }
 
-        animation->firstFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
-        animation->lastFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
+        animation->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+        animation->lastFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
         animation->nextAnimationIndex = reader.readU16();
-        animation->nextFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
+        animation->nextFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
 
         animation->transitionsCount = reader.readU16();
         animation->transitionsIndex = reader.readU16();
@@ -262,10 +262,10 @@ struct TransitionCase
     static std::unique_ptr<TransitionCase> read(io::SDLReader& reader)
     {
         std::unique_ptr<TransitionCase> transition{new TransitionCase()};
-        transition->firstFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
-        transition->lastFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
+        transition->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+        transition->lastFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
         transition->targetAnimationIndex = reader.readU16();
-        transition->targetFrame = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
+        transition->targetFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
         return transition;
     }
 };

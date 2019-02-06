@@ -26,16 +26,16 @@ struct TRVec
     constexpr TRVec(TRVec&&) noexcept = default;
 
     explicit constexpr TRVec(const glm::vec3& v) noexcept
-            : X{gsl::narrow_cast<Length::int_type>( v.x )}
-            , Y{-gsl::narrow_cast<Length::int_type>( v.y )}
-            , Z{-gsl::narrow_cast<Length::int_type>( v.z )}
+            : X{gsl::narrow_cast<Length::type>( v.x )}
+            , Y{-gsl::narrow_cast<Length::type>( v.y )}
+            , Z{-gsl::narrow_cast<Length::type>( v.z )}
     {
     }
 
     constexpr explicit TRVec(const glm::ivec3& v) noexcept
-            : X{gsl::narrow_cast<Length::int_type>( v.x )}
-            , Y{-gsl::narrow_cast<Length::int_type>( v.y )}
-            , Z{-gsl::narrow_cast<Length::int_type>( v.z )}
+            : X{gsl::narrow_cast<Length::type>( v.x )}
+            , Y{-gsl::narrow_cast<Length::type>( v.y )}
+            , Z{-gsl::narrow_cast<Length::type>( v.z )}
     {
     }
 
@@ -65,7 +65,7 @@ struct TRVec
         return *this;
     }
 
-    constexpr TRVec operator/(const core::Length::int_type n) const noexcept
+    constexpr TRVec operator/(const core::Length::type n) const noexcept
     {
         return {X / n, Y / n, Z / n};
     }
@@ -105,7 +105,7 @@ struct TRVec
         const auto dx = gsl::narrow<float>( (X - rhs.X).value );
         const auto dy = gsl::narrow<float>( (Y - rhs.Y).value );
         const auto dz = gsl::narrow<float>( (Z - rhs.Z).value );
-        return Length{static_cast<Length::int_type>( glm::sqrt( dx * dx + dy * dy + dz * dz ) )};
+        return Length{static_cast<Length::type>( glm::sqrt( dx * dx + dy * dy + dz * dz ) )};
     }
 
     static sol::usertype<TRVec>& userType()

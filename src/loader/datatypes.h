@@ -264,10 +264,10 @@ struct Light
         light.light_type = reader.readU8();
         light.unknown = reader.readU8();
         light.intensity = reader.readU8();
-        light.r_inner = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
-        light.r_outer = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
-        light.length = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
-        light.cutoff = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
+        light.r_inner = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
+        light.r_outer = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
+        light.length = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
+        light.cutoff = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
         light.dir = readCoordinatesF( reader );
         return light;
     }
@@ -284,8 +284,8 @@ struct Light
         if ((temp != 0) && (temp != 0xCDCDCDCD))
         BOOST_THROW_EXCEPTION( TR_ReadError("read_tr5_room_light: separator1 has wrong value") );
         */
-        light.r_inner = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
-        light.r_outer = core::Length{gsl::narrow<core::Length::int_type>( reader.readF() )};
+        light.r_inner = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
+        light.r_outer = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
         reader.readF(); // rad_input
         reader.readF(); // rad_output
         reader.readF(); // range
@@ -755,9 +755,9 @@ struct Room
         std::unique_ptr<Room> room{std::make_unique<Room>()};
 
         // read and change coordinate system
-        room->position.X = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
+        room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
         room->position.Y = 0_len;
-        room->position.Z = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
+        room->position.Z = core::Length{static_cast<core::Length::type>(reader.readI32())};
         room->lowestHeight = core::Length{reader.readI32()};
         room->greatestHeight = core::Length{reader.readI32()};
 
@@ -819,9 +819,9 @@ struct Room
     {
         std::unique_ptr<Room> room{std::make_unique<Room>()};
         // read and change coordinate system
-        room->position.X = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
+        room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
         room->position.Y = 0_len;
-        room->position.Z = core::Length{static_cast<core::Length::int_type>(reader.readI32())};
+        room->position.Z = core::Length{static_cast<core::Length::type>(reader.readI32())};
         room->lowestHeight = core::Length{reader.readI32()};
         room->greatestHeight = core::Length{reader.readI32()};
 
@@ -1539,7 +1539,7 @@ struct FlybyCamera
 
         camera->fov = reader.readU16();
         camera->roll = reader.readU16();
-        camera->timer = core::Frame{static_cast<core::Frame::int_type>(reader.readU16())};
+        camera->timer = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
         camera->speed = reader.readU16();
         camera->flags = reader.readU16();
 

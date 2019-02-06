@@ -106,7 +106,7 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     if( segmentDuration * (firstKeyframeIndex + 1) > state.anim->lastFrame )
         segmentDuration = state.anim->lastFrame - segmentDuration * firstKeyframeIndex;
 
-    result.bias = static_cast<float>(segmentFrame.value) / segmentDuration.value;
+    result.bias = segmentFrame.cast<double>() / segmentDuration.cast<double>();
     BOOST_ASSERT( result.bias >= 0 && result.bias <= 1 );
 
     BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()

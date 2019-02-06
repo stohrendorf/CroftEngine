@@ -146,15 +146,15 @@ void ModelItemNode::update()
             {
                 case AnimCommandOpcode::SetPosition:
                     moveLocal(
-                            core::Length{static_cast<core::Length::int_type>(cmd[0])},
-                            core::Length{static_cast<core::Length::int_type>(cmd[1])},
-                            core::Length{static_cast<core::Length::int_type>(cmd[2])}
+                            core::Length{static_cast<core::Length::type>(cmd[0])},
+                            core::Length{static_cast<core::Length::type>(cmd[1])},
+                            core::Length{static_cast<core::Length::type>(cmd[2])}
                     );
                     cmd += 3;
                     break;
                 case AnimCommandOpcode::StartFalling:
-                    m_state.fallspeed = core::Length{static_cast<core::Length::int_type>(cmd[0])};
-                    m_state.speed = core::Length{static_cast<core::Length::int_type>(cmd[1])};
+                    m_state.fallspeed = core::Length{static_cast<core::Length::type>(cmd[0])};
+                    m_state.speed = core::Length{static_cast<core::Length::type>(cmd[1])};
                     m_state.falling = true;
                     cmd += 2;
                     break;

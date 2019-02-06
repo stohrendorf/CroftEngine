@@ -1,6 +1,6 @@
 #pragma once
 
-#include "intunit.h"
+#include "unit.h"
 
 namespace core
 {
@@ -12,19 +12,14 @@ struct HealthUnit
     {
         return "hp";
     }
-
-    static const char* typeId()
-    {
-        return "health";
-    }
 };
 }
 
-using Health = IntQuantity<detail::HealthUnit>;
+using Health = Quantity<detail::HealthUnit>;
 
 constexpr Health operator "" _hp(unsigned long long value) noexcept
 {
-    return Health{static_cast<Health::int_type>(value)};
+    return Health{static_cast<Health::type>(value)};
 }
 }
 

@@ -530,7 +530,7 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
     }
 
     sol::table objectInfo = lvl.m_scriptEngine["getObjectInfo"].call( item.type );
-    const core::Length pivotLength{static_cast<core::Length::int_type>(objectInfo["pivot_length"])};
+    const core::Length pivotLength{static_cast<core::Length::type>(objectInfo["pivot_length"])};
     const auto dz = lvl.m_lara->m_state.position.position.Z
                     - (item.position.position.Z + pivotLength * item.rotation.Y.cos());
     const auto dx = lvl.m_lara->m_state.position.position.X

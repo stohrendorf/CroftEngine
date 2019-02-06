@@ -829,8 +829,8 @@ bool AbstractStateHandler::applyLandingDamage()
 
     if( damageSpeed <= DeathSpeedLimit )
     {
-        m_lara.m_state.health -= core::LaraHealth * util::square( damageSpeed.value )
-                                 / util::square( DeathSpeedLimit.value );
+        m_lara.m_state.health -= core::LaraHealth * util::square( damageSpeed ).value
+                                 / util::square( DeathSpeedLimit ).value;
     }
     else
     {

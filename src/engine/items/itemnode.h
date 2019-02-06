@@ -314,7 +314,7 @@ protected:
         const auto dist = d.length();
         if( maxDistance < dist )
         {
-            move( static_cast<float>(maxDistance.value) * normalize( d.toRenderSystem() ) );
+            move( maxDistance.cast<float>().value * normalize( d.toRenderSystem() ) );
         }
         else
         {

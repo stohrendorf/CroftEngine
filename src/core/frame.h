@@ -1,6 +1,6 @@
 #pragma once
 
-#include "intunit.h"
+#include "unit.h"
 
 namespace core
 {
@@ -12,19 +12,14 @@ struct FrameUnit
     {
         return "frame";
     }
-
-    static const char* typeId()
-    {
-        return "frame";
-    }
 };
 }
 
-using Frame = IntQuantity<detail::FrameUnit>;
+using Frame = Quantity<detail::FrameUnit>;
 
 constexpr Frame operator "" _frame(unsigned long long value) noexcept
 {
-    return Frame{static_cast<Frame::int_type>(value)};
+    return Frame{static_cast<Frame::type>(value)};
 }
 }
 
