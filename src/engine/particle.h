@@ -29,7 +29,7 @@ private:
     std::deque<std::shared_ptr<gameplay::gl::Texture>> m_spriteTextures{};
     Lighting m_lighting;
 
-    void initDrawables(const level::Level& level);
+    void initDrawables(const level::Level& level, float scale = 1);
 
 protected:
     void nextFrame()
@@ -65,12 +65,14 @@ public:
     explicit Particle(const std::string& id,
                       const TR1ItemId objectNumber,
                       const gsl::not_null<const loader::Room*>& room,
-                      level::Level& level);
+                      level::Level& level,
+                      float scale = 1);
 
     explicit Particle(const std::string& id,
                       const TR1ItemId objectNumber,
                       const core::RoomBoundPosition& pos,
-                      level::Level& level);
+                      level::Level& level,
+                      float scale = 1);
 
     void updateLight()
     {
@@ -157,7 +159,7 @@ class BubbleParticle : public Particle
 public:
     explicit BubbleParticle(const core::RoomBoundPosition& pos,
                             level::Level& level)
-            : Particle{"bubble", TR1ItemId::Bubbles, pos, level}
+            : Particle{"bubble", TR1ItemId::Bubbles, pos, level, 0.7f}
     {
         speed = 10_len + util::rand15( 6_len );
 

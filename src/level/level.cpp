@@ -659,11 +659,10 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
 
     for( const std::unique_ptr<loader::SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
     {
-        Expects( gsl::narrow<size_t>( model->mesh_base_index + model->nMeshes ) <= m_modelsDirect.size() );
         if( model->nMeshes > 0 )
         {
-            model->models = make_span( &m_modelsDirect[model->mesh_base_index], model->nMeshes );
-            model->meshes = make_span( &m_meshesDirect[model->mesh_base_index], model->nMeshes );
+            model->models = make_span( &model->mesh_base_index.checkedFrom( m_modelsDirect ), model->nMeshes );
+            model->meshes = make_span( &model->mesh_base_index.checkedFrom( m_meshesDirect ), model->nMeshes );
         }
     }
 
@@ -1161,9 +1160,9 @@ void Level::postProcessDataStructures()
                 sector.roomAbove = &m_rooms.at( sector.roomIndexAbove.get() );
             }
 
-            if( sector.floorDataIndex != 0 )
+            if( sector.floorDataIndex.index != 0 )
             {
-                sector.floorData = &m_floorData[sector.floorDataIndex];
+                sector.floorData = &sector.floorDataIndex.from( m_floorData );
 
                 const auto portalTarget = engine::floordata::getPortalTarget( sector.floorData );
                 if( portalTarget.is_initialized() )
@@ -1193,42 +1192,37 @@ void Level::postProcessDataStructures()
 
     for( const std::unique_ptr<loader::SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
     {
-        Expects( model->pose_data_offset % 2 == 0 );
-
-        const auto idx = model->pose_data_offset / 2;
-        if( idx >= m_poseFrames.size() )
+        if( model->pose_data_offset.index<decltype( m_poseFrames[0] )>() >= m_poseFrames.size() )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index " << idx << " out of range 0.."
-                                         << m_poseFrames.size() - 1;
+            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index "
+                                         << model->pose_data_offset.index<decltype( m_poseFrames[0] )>()
+                                         << " out of range 0.." << m_poseFrames.size() - 1;
             continue;
         }
-        model->frames = reinterpret_cast<const loader::AnimFrame*>(&m_poseFrames[idx]);
+        model->frames = reinterpret_cast<const loader::AnimFrame*>(model->pose_data_offset.from( m_poseFrames ));
         if( model->nMeshes > 1 )
         {
             model->boneTree = gsl::make_span(
-                    reinterpret_cast<const loader::BoneTreeEntry*>(&m_boneTrees[model->bone_index]),
+                    reinterpret_cast<const loader::BoneTreeEntry*>(&model->bone_index.from( m_boneTrees )),
                     model->nMeshes - 1 );
         }
 
-        Expects( model->animation_index == 0xffff || model->animation_index < m_animations.size() );
-        if( model->animation_index != 0xffff )
-            model->animations = &m_animations[model->animation_index];
+        if( model->animation_index.index != 0xffff )
+            model->animations = &model->animation_index.checkedFrom( m_animations );
     }
 
     for( loader::Animation& anim : m_animations )
     {
-        Expects( anim.poseDataOffset % 2 == 0 );
-
-        const auto idx = anim.poseDataOffset / 2;
-        if( idx >= m_poseFrames.size() )
+        if( anim.poseDataOffset.index<decltype( m_poseFrames[0] )>() >= m_poseFrames.size() )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index " << idx << " out of range 0.."
-                                         << m_poseFrames.size() - 1;
+            BOOST_LOG_TRIVIAL( warning ) << "Pose frame data index "
+                                         << anim.poseDataOffset.index<decltype( m_poseFrames[0] )>()
+                                         << " out of range 0.." << m_poseFrames.size() - 1;
             anim.frames = nullptr;
         }
         else
         {
-            anim.frames = reinterpret_cast<const loader::AnimFrame*>(&m_poseFrames[idx]);
+            anim.frames = reinterpret_cast<const loader::AnimFrame*>(&anim.poseDataOffset.from( m_poseFrames ));
         }
 
         Expects( anim.nextAnimationIndex < m_animations.size() );
@@ -1238,16 +1232,16 @@ void Level::postProcessDataStructures()
 
         Expects( anim.transitionsIndex + anim.transitionsCount <= m_transitions.size() );
         if( anim.transitionsCount > 0 )
-            anim.transitions = gsl::make_span( &m_transitions[anim.transitionsIndex],
+            anim.transitions = gsl::make_span( &anim.transitionsIndex.checkedFrom( m_transitions ),
                                                anim.transitionsCount );
     }
 
     for( loader::TransitionCase& transitionCase : m_transitionCases )
     {
-        if( transitionCase.targetAnimationIndex < m_animations.size() )
-            transitionCase.targetAnimation = &m_animations[transitionCase.targetAnimationIndex];
+        if( transitionCase.targetAnimationIndex.index < m_animations.size() )
+            transitionCase.targetAnimation = &transitionCase.targetAnimationIndex.from( m_animations );
         else
-            BOOST_LOG_TRIVIAL( warning ) << "Animation index " << transitionCase.targetAnimationIndex
+            BOOST_LOG_TRIVIAL( warning ) << "Animation index " << transitionCase.targetAnimationIndex.index
                                          << " not less than " << m_animations.size();
     }
 
@@ -1256,7 +1250,7 @@ void Level::postProcessDataStructures()
         Expects( transition.firstTransitionCase + transition.transitionCaseCount <= m_transitionCases.size() );
         if( transition.transitionCaseCount > 0 )
             transition.transitionCases = gsl::make_span(
-                    &m_transitionCases[transition.firstTransitionCase],
+                    &transition.firstTransitionCase.from( m_transitionCases ),
                     transition.transitionCaseCount );
     }
 
@@ -1312,26 +1306,26 @@ void Level::laraBubblesEffect(engine::items::ItemNode& node)
     if( modelNode == nullptr )
         return;
 
-    auto bubbleCount = util::rand15( 3 );
-    if( bubbleCount != 0 )
+    auto bubbleCount = util::rand15( 12 );
+    if( bubbleCount == 0 )
+        return;
+
+    node.playSoundEffect( engine::TR1SoundId::LaraUnderwaterGurgle );
+
+    const auto itemSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
+            node.m_state,
+            *modelNode->getSkeleton()->getInterpolationInfo( modelNode->m_state ).getNearestFrame(),
+            nullptr );
+
+    const auto position = core::TRVec{
+            glm::vec3{translate( itemSpheres.at( 14 ).m, core::TRVec{0_len, 0_len, 50_len}.toRenderSystem() )[3]}};
+
+    while( bubbleCount-- > 0 )
     {
-        node.playSoundEffect( engine::TR1SoundId::LaraUnderwaterGurgle );
-
-        const auto itemSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
-                node.m_state,
-                *modelNode->getSkeleton()->getInterpolationInfo( modelNode->m_state ).getNearestFrame(),
-                nullptr );
-
-        const auto position = core::TRVec{
-                glm::vec3{translate( itemSpheres.at( 14 ).m, core::TRVec{0_len, 0_len, 50_len}.toRenderSystem() )[3]}};
-
-        while( bubbleCount-- > 0 )
-        {
-            auto particle = std::make_shared<engine::BubbleParticle>(
-                    core::RoomBoundPosition{node.m_state.position.room, position}, *this );
-            setParent( particle, node.m_state.position.room->node );
-            m_particles.emplace_back( particle );
-        }
+        auto particle = std::make_shared<engine::BubbleParticle>(
+                core::RoomBoundPosition{node.m_state.position.room, position}, *this );
+        setParent( particle, node.m_state.position.room->node );
+        m_particles.emplace_back( particle );
     }
 }
 
@@ -1999,7 +1993,7 @@ std::shared_ptr<engine::items::PickupItem> Level::createPickup(const engine::TR1
 {
     loader::Item item;
     item.type = type;
-    item.room = uint16_t(-1);
+    item.room = uint16_t( -1 );
     item.position = position;
     item.rotation = 0_deg;
     item.darkness = 0;

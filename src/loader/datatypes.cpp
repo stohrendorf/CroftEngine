@@ -114,8 +114,8 @@ void Room::createSceneNode(
         for( int i = 0; i < 4; ++i )
         {
             RenderVertex iv;
-            iv.position = vertices[quad.vertices[i]].position.toRenderSystem();
-            iv.color = vertices[quad.vertices[i]].color;
+            iv.position = quad.vertices[i].from( vertices ).position.toRenderSystem();
+            iv.color = quad.vertices[i].from(vertices).color;
             uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
             vbuf.push_back( iv );
         }
@@ -156,8 +156,8 @@ void Room::createSceneNode(
         for( int i = 0; i < 3; ++i )
         {
             RenderVertex iv;
-            iv.position = vertices[tri.vertices[i]].position.toRenderSystem();
-            iv.color = vertices[tri.vertices[i]].color;
+            iv.position = tri.vertices[i].from(vertices).position.toRenderSystem();
+            iv.color = tri.vertices[i].from(vertices).color;
             uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
             vbuf.push_back( iv );
         }

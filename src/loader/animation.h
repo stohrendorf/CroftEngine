@@ -5,6 +5,7 @@
 #include "core/vec.h"
 #include "core/frame.h"
 #include "core/id.h"
+#include "core/containeroffset.h"
 #include "gameplay.h"
 
 #include "gsl-lite.hpp"
@@ -142,7 +143,7 @@ inline constexpr AnimState operator "" _as(unsigned long long value)
 
 struct Animation
 {
-    uint32_t poseDataOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
+    core::ContainerOffset<uint32_t, int16_t> poseDataOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
 
     const AnimFrame* frames = nullptr;
 
@@ -162,7 +163,7 @@ struct Animation
     core::Frame nextFrame = 0_frame;
 
     uint16_t transitionsCount;
-    uint16_t transitionsIndex; // offset into StateChanges[]
+    core::ContainerIndex<uint16_t, Transitions> transitionsIndex; // offset into StateChanges[]
     uint16_t animCommandCount; // How many of them to use.
     uint16_t animCommandIndex; // offset into AnimCommand[]
 
@@ -234,7 +235,7 @@ struct Transitions
 {
     AnimState stateId{uint16_t( 0 )};
     uint16_t transitionCaseCount; // number of ranges (seems to always be 1..5)
-    uint16_t firstTransitionCase; // Offset into AnimDispatches[]
+    core::ContainerIndex<uint16_t, TransitionCase> firstTransitionCase; // Offset into AnimDispatches[]
 
     gsl::span<const TransitionCase> transitionCases{};
 
@@ -254,7 +255,7 @@ struct TransitionCase
 {
     core::Frame firstFrame = 0_frame; // Lowest frame that uses this range
     core::Frame lastFrame = 0_frame; // Highest frame (+1?) that uses this range
-    uint16_t targetAnimationIndex; // Animation to dispatch to
+    core::ContainerIndex<uint16_t, Animation> targetAnimationIndex; // Animation to dispatch to
     core::Frame targetFrame = 0_frame; // Frame offset to dispatch to
 
     const Animation* targetAnimation = nullptr;
@@ -298,10 +299,10 @@ struct SkeletalModelType
 {
     engine::TR1ItemId type;
     int16_t nMeshes; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
-    uint16_t mesh_base_index; // starting mesh (offset into MeshPointers[])
-    uint32_t bone_index; // offset into MeshTree[]
-    uint32_t pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
-    uint16_t animation_index; // offset into Animations[]
+    core::ContainerIndex<uint16_t, gsl::not_null<const Mesh*>, gsl::not_null<std::shared_ptr<gameplay::Model>>> mesh_base_index; // starting mesh (offset into MeshPointers[])
+    core::ContainerIndex<uint32_t, int32_t> bone_index; // offset into MeshTree[]
+    core::ContainerOffset<uint32_t, int16_t> pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
+    core::ContainerIndex<uint16_t, Animation> animation_index; // offset into Animations[]
 
     gsl::span<gsl::not_null<const Mesh*>> meshes{};
     gsl::span<gsl::not_null<std::shared_ptr<gameplay::Model>>> models{};

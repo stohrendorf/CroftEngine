@@ -6,7 +6,7 @@
 namespace engine
 {
 
-void Particle::initDrawables(const level::Level& level)
+void Particle::initDrawables(const level::Level& level, const float scale)
 {
     if( const auto& modelType = level.findAnimatedModelForType( object_number ) )
     {
@@ -21,8 +21,8 @@ void Particle::initDrawables(const level::Level& level)
 
         for( const loader::Sprite& spr : spriteSequence->sprites )
         {
-            auto sprite = std::make_shared<gameplay::Sprite>( spr.x0, -spr.y0,
-                                                              spr.x1, -spr.y1,
+            auto sprite = std::make_shared<gameplay::Sprite>( spr.x0 * scale, -spr.y0 * scale,
+                                                              spr.x1 * scale, -spr.y1 * scale,
                                                               spr.t0, spr.t1,
                                                               level.m_spriteMaterial,
                                                               gameplay::Sprite::Axis::Y
@@ -55,19 +55,21 @@ glm::vec3 Particle::getPosition() const
 Particle::Particle(const std::string& id,
                    const TR1ItemId objectNumber,
                    const gsl::not_null<const loader::Room*>& room,
-                   level::Level& level)
+                   level::Level& level,
+                   float scale)
         : Node{id}, Emitter{&level.m_soundEngine}, pos{room}, object_number{objectNumber}
 {
-    initDrawables( level );
+    initDrawables( level, scale );
 }
 
 Particle::Particle(const std::string& id,
                    const TR1ItemId objectNumber,
                    const core::RoomBoundPosition& pos,
-                   level::Level& level)
+                   level::Level& level,
+                   float scale)
         : Node{id}, Emitter{&level.m_soundEngine}, pos{pos}, object_number{objectNumber}
 {
-    initDrawables( level );
+    initDrawables( level, scale );
 }
 
 bool BloodSplatterParticle::update(level::Level& level)

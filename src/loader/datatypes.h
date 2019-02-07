@@ -7,6 +7,7 @@
 #include "core/vec.h"
 #include "core/id.h"
 #include "core/frame.h"
+#include "core/containeroffset.h"
 #include "color.h"
 #include "primitives.h"
 #include "meshes.h"
@@ -87,7 +88,7 @@ struct Sector
      *
      * @note If this is 0, no floor data is attached to this sector.
      */
-    uint16_t floorDataIndex;
+    core::ContainerIndex<uint16_t, engine::floordata::FloorDataValue> floorDataIndex;
     const engine::floordata::FloorDataValue* floorData = nullptr;
     Room* portalTarget = nullptr;
 
@@ -1056,7 +1057,7 @@ struct Room
         reader.seek( position + std::streamoff( 208 ) + poly_offset );
 
         {
-            uint32_t vertex_index = 0;
+            loader::VertexIndex::index_type vertex_index = 0;
             uint32_t rectangle_index = 0;
             uint32_t triangle_index = 0;
 

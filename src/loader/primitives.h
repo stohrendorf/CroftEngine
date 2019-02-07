@@ -2,13 +2,19 @@
 
 #include "io/sdlreader.h"
 #include "core/id.h"
+#include "core/containeroffset.h"
 
 namespace loader
 {
+struct RoomVertex;
+
+using VertexIndex = core::ContainerIndex<uint32_t, core::TRVec, int16_t, RoomVertex>;
+
+
 struct Triangle
 {
     //! Vertex buffer indices
-    uint16_t vertices[3];
+    VertexIndex vertices[3];
     core::Id<uint16_t, core::TextureProxyIdTag> proxyId{uint16_t( 0 )}; /**< \brief object-texture index or color index.
                              * If the triangle is textured, then this is an index into the object-texture list.
                              * If it's not textured, then the low 8 bit contain the index into the 256 color palette
@@ -49,7 +55,7 @@ private:
 struct QuadFace
 {
     //! Vertex buffer indices
-    uint16_t vertices[4];
+    VertexIndex vertices[4];
     core::Id<uint16_t, core::TextureProxyIdTag> proxyId{uint16_t( 0 )}; /**< \brief object-texture index or color index.
                              * If the rectangle is textured, then this is an index into the object-texture list.
                              * If it's not textured, then the low 8 bit contain the index into the 256 color palette
