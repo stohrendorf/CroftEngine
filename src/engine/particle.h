@@ -4,7 +4,6 @@
 #include "core/vec.h"
 #include "items_tr1.h"
 #include "Node.h"
-#include "level/level.h"
 #include "engine/lighting.h"
 
 #include <memory>

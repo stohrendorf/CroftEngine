@@ -1,7 +1,6 @@
 #pragma once
 
 #include "itemnode.h"
-#include "engine/particle.h"
 
 namespace engine
 {
