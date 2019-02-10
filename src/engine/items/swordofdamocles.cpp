@@ -29,7 +29,7 @@ void SwordOfDamocles::update()
     {
         m_state.goal_anim_state = 2_as;
         m_state.position.position.Y = m_state.floor;
-        m_state.fallspeed = 0_len;
+        m_state.fallspeed = 0_spd;
         m_state.falling = false;
     }
 }

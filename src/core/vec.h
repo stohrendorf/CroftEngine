@@ -1,6 +1,6 @@
 #pragma once
 
-#include "length.h"
+#include "units.h"
 
 #include "gsl-lite.hpp"
 
@@ -94,17 +94,17 @@ struct TRVec
     glm::vec3 toRenderSystem() const noexcept
     {
         return {
-                gsl::narrow_cast<float>( X.value ),
-                -gsl::narrow_cast<float>( Y.value ),
-                -gsl::narrow_cast<float>( Z.value )
+                gsl::narrow_cast<float>( X.get() ),
+                -gsl::narrow_cast<float>( Y.get() ),
+                -gsl::narrow_cast<float>( Z.get() )
         };
     }
 
     Length distanceTo(const TRVec& rhs) const
     {
-        const auto dx = gsl::narrow<float>( (X - rhs.X).value );
-        const auto dy = gsl::narrow<float>( (Y - rhs.Y).value );
-        const auto dz = gsl::narrow<float>( (Z - rhs.Z).value );
+        const auto dx = gsl::narrow<float>( (X - rhs.X).get() );
+        const auto dy = gsl::narrow<float>( (Y - rhs.Y).get() );
+        const auto dz = gsl::narrow<float>( (Z - rhs.Z).get() );
         return Length{static_cast<Length::type>( glm::sqrt( dx * dx + dy * dy + dz * dz ) )};
     }
 

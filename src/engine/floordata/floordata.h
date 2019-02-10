@@ -64,7 +64,7 @@ public:
             , m_inverted{(fd.get() & InvertedActivation) != 0}
             , m_locked{(fd.get() & Locked) != 0}
             , m_activationSet{extractActivationSet( fd )}
-            , m_timeout{(fd.get() & TimeoutMask) * core::FrameRate}
+            , m_timeout{core::Seconds{static_cast<core::Seconds::type>(fd.get() & TimeoutMask)} * core::FrameRate}
     {
     }
 
@@ -191,14 +191,14 @@ private:
 struct CameraParameters
 {
     explicit CameraParameters(const FloorDataValue fd)
-            : timeout{gsl::narrow_cast<uint8_t>( fd.get() & 0xff )}
+            : timeout{core::Seconds{static_cast<core::Seconds::type>( int8_t( fd.get() ) )}}
             , oneshot{(fd.get() & 0x100) != 0}
             , isLast{(fd.get() & 0x8000) != 0}
             , smoothness{gsl::narrow_cast<uint8_t>( (fd.get() >> 8) & 0x3e )}
     {
     }
 
-    const uint8_t timeout;
+    const core::Seconds timeout;
     const bool oneshot;
     const bool isLast;
     const uint8_t smoothness;

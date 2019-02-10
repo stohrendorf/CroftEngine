@@ -2,7 +2,7 @@
 
 #include "audio/sourcehandle.h"
 #include "core/boundingbox.h"
-#include "core/health.h"
+#include "core/units.h"
 #include "engine/floordata/floordata.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/items_tr1.h"
@@ -92,8 +92,8 @@ struct ItemState final : public audio::Emitter
     TR1ItemId type;
     core::RoomBoundPosition position;
     core::TRRotation rotation;
-    core::Length speed = 0_len;
-    core::Length fallspeed = 0_len;
+    core::Speed speed = 0_spd;
+    core::Speed fallspeed = 0_spd;
     loader::AnimState current_anim_state = 0_as;
     loader::AnimState goal_anim_state = 0_as;
     loader::AnimState required_anim_state = 0_as;
@@ -229,7 +229,7 @@ public:
 
     void moveLocal(const core::Length dx, const core::Length dy, const core::Length dz)
     {
-        m_state.position.position += util::rotateY(m_state.rotation.Y, dx, dy, dz);
+        m_state.position.position += util::rotateY( m_state.rotation.Y, dx, dy, dz );
     }
 
     const level::Level& getLevel() const
@@ -244,7 +244,7 @@ public:
 
     void dampenHorizontalSpeed(const float f)
     {
-        m_state.speed -= m_state.speed * f;
+        m_state.speed -= (m_state.speed.retype_as<float>() * f).retype_as<core::Speed>();
     }
 
     virtual void patchFloor(const core::TRVec& /*pos*/, core::Length& /*y*/)
@@ -314,7 +314,7 @@ protected:
         const auto dist = d.length();
         if( maxDistance < dist )
         {
-            move( maxDistance.cast<float>().value * normalize( d.toRenderSystem() ) );
+            move( maxDistance.retype_as<float>().get() * normalize( d.toRenderSystem() ) );
         }
         else
         {
@@ -416,7 +416,7 @@ public:
                                                           gsl::not_null<std::shared_ptr<Particle>> (* generate)(
                                                                   level::Level& level,
                                                                   const core::RoomBoundPosition& pos,
-                                                                  core::Length speed,
+                                                                  core::Speed speed,
                                                                   core::Angle angle));
 
     void load(const YAML::Node& n) override;

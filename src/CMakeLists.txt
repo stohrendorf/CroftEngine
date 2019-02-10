@@ -245,3 +245,5 @@ if( LINUX OR UNIX )
             pthread
     )
 endif()
+
+add_subdirectory(qs)

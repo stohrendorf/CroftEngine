@@ -128,7 +128,7 @@ void TRex::update()
                     getLevel().m_cameraController->setModifier( CameraModifier::FollowCenter );
                     getLevel().m_cameraController->setRotationAroundCenter( -25_deg, 170_deg );
                     getLevel().m_lara->m_state.health = -1_hp;
-                    getLevel().m_lara->setAir( -1 );
+                    getLevel().m_lara->setAir( -1_frame );
                     getLevel().useAlternativeLaraAppearance( true );
                 }
                 m_state.required_anim_state = 2_as;

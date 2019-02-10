@@ -353,7 +353,7 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
                     atlas.insert( textureProxies, proxyId );
                 }
                 sequence.proxyIds.emplace_back( proxyId );
-                m_sequenceByProxyId.insert( std::make_pair( proxyId, m_sequences.size() ) );
+                m_sequenceByProxyId.emplace( proxyId, m_sequences.size() );
             }
             m_sequences.emplace_back( std::move( sequence ) );
         }

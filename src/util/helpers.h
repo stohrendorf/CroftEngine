@@ -26,9 +26,9 @@ T clamp(const T& v, const T& min, const T& max)
 }
 
 template<typename T>
-constexpr auto square(T v) -> decltype( v * v )
+constexpr auto square(T value)
 {
-    return v * v;
+    return value * value;
 }
 
 inline int16_t rand15()
@@ -42,9 +42,21 @@ inline T rand15(T max)
     return max * rand15() / (1 << 15);
 }
 
+template<typename T, typename U>
+inline T rand15(T max, const U&)
+{
+    return max * U( rand15() ) / U( 1 << 15 );
+}
+
 inline int16_t rand15s()
 {
     return static_cast<int16_t>(rand15() - (1 << 14));
+}
+
+template<typename T, typename U>
+inline T rand15s(T max, const U& = int16_t{})
+{
+    return max * U( rand15s() ) / U( 1 << 15 );
 }
 
 template<typename T>
@@ -79,9 +91,9 @@ inline core::TRVec rotateY(core::Angle angle, core::Length x, core::Length y, co
     const auto sin = angle.sin();
     const auto cos = angle.cos();
     return core::TRVec{
-            core::Length{(z.cast<float>() * sin + x.cast<float>() * cos).as<core::Length>()},
+            (z.retype_as<float>() * sin + x.retype_as<float>() * cos).retype_as<core::Length>(),
             y,
-            core::Length{(z.cast<float>() * cos - x.cast<float>() * sin).as<core::Length>()}
+            (z.retype_as<float>() * cos - x.retype_as<float>() * sin).retype_as<core::Length>()
     };
 }
 }

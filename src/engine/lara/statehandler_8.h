@@ -33,7 +33,7 @@ public:
         placeOnFloor( collisionInfo );
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
         getLara().m_state.health = -1_hp;
-        setAir( -1 );
+        setAir( -1_frame );
     }
 };
 }

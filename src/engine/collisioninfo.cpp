@@ -43,7 +43,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     switch( facingAxis )
     {
         case core::Axis::PosZ:
-            frontX = facingAngle.sin() * collisionRadius;
+            frontX = (facingAngle.sin() * collisionRadius.retype_as<float>()).retype_as<core::Length>();
             frontZ = collisionRadius;
             frontLeftZ = collisionRadius;
             frontLeftX = -collisionRadius;
@@ -52,14 +52,14 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
             break;
         case core::Axis::PosX:
             frontX = collisionRadius;
-            frontZ = facingAngle.cos() * collisionRadius;
+            frontZ = (facingAngle.cos() * collisionRadius.retype_as<float>()).retype_as<core::Length>();
             frontLeftX = collisionRadius;
             frontLeftZ = collisionRadius;
             frontRightX = collisionRadius;
             frontRightZ = -collisionRadius;
             break;
         case core::Axis::NegZ:
-            frontX = facingAngle.sin() * collisionRadius;
+            frontX = (facingAngle.sin() * collisionRadius.retype_as<float>()).retype_as<core::Length>();
             frontZ = -collisionRadius;
             frontLeftX = collisionRadius;
             frontLeftZ = -collisionRadius;
@@ -68,7 +68,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
             break;
         case core::Axis::NegX:
             frontX = -collisionRadius;
-            frontZ = facingAngle.cos() * collisionRadius;
+            frontZ = (facingAngle.cos() * collisionRadius.retype_as<float>()).retype_as<core::Length>();
             frontLeftX = -collisionRadius;
             frontLeftZ = -collisionRadius;
             frontRightX = -collisionRadius;
@@ -83,11 +83,12 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && front.floorSpace.slantClass == SlantClass::Steep
         && front.floorSpace.y < 0_len )
     {
-        front.floorSpace.y = - 32767_len; // This is not a typo, it is really -32767
+        front.floorSpace.y = -32767_len; // This is not a typo, it is really -32767
     }
     else if( front.floorSpace.y > 0_len
              && (
-                     (policyFlags.is_set( PolicyFlags::SlopesArePits ) && front.floorSpace.slantClass == SlantClass::Steep)
+                     (policyFlags.is_set( PolicyFlags::SlopesArePits )
+                      && front.floorSpace.slantClass == SlantClass::Steep)
                      || (policyFlags.is_set( PolicyFlags::LavaIsPit )
                          && front.floorSpace.lastCommandSequenceOrDeath != nullptr
                          && floordata::FloorDataChunk::extractType( *front.floorSpace.lastCommandSequenceOrDeath )
@@ -245,7 +246,8 @@ CollisionInfo::collectTouchingRooms(const core::TRVec& position, const core::Len
 }
 
 bool
-CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height, const level::Level& level)
+CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height,
+                                         const level::Level& level)
 {
     const auto rooms = collectTouchingRooms( position, collisionRadius + 50_len, height + 50_len, level );
 

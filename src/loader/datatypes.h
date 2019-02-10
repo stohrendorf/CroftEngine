@@ -6,7 +6,6 @@
 #include "core/angle.h"
 #include "core/vec.h"
 #include "core/id.h"
-#include "core/frame.h"
 #include "core/containeroffset.h"
 #include "color.h"
 #include "primitives.h"
@@ -15,7 +14,6 @@
 #include "audio.h"
 #include "engine/items_tr1.h"
 #include "engine/floordata/types.h"
-#include "core/length.h"
 
 #include "gsl-lite.hpp"
 
@@ -109,9 +107,9 @@ struct Sector
         sector.floorDataIndex = reader.readU16();
         sector.boxIndex = reader.readI16();
         sector.roomIndexBelow = reader.readU8();
-        sector.floorHeight = core::QuarterSectorSize * reader.readI8();
+        sector.floorHeight = core::QuarterSectorSize * static_cast<core::Length::type>(reader.readI8());
         sector.roomIndexAbove = reader.readU8();
-        sector.ceilingHeight = core::QuarterSectorSize * reader.readI8();
+        sector.ceilingHeight = core::QuarterSectorSize * static_cast<core::Length::type>(reader.readI8());
         return sector;
     }
 
@@ -1369,7 +1367,7 @@ struct Box
         box->zmax = 1_len * reader.readI32();
         box->xmin = 1_len * reader.readI32();
         box->xmax = 1_len * reader.readI32();
-        box->floor = 1_len * reader.readI16();
+        box->floor = 1_len * static_cast<core::Length::type>(reader.readI16());
         box->overlap_index = reader.readU16();
         return box;
     }
@@ -1377,11 +1375,11 @@ struct Box
     static std::unique_ptr<Box> readTr2(io::SDLReader& reader)
     {
         std::unique_ptr<Box> box{std::make_unique<Box>()};
-        box->zmin = core::SectorSize * reader.readI8();
-        box->zmax = core::SectorSize * reader.readI8();
-        box->xmin = core::SectorSize * reader.readI8();
-        box->xmax = core::SectorSize * reader.readI8();
-        box->floor = 1_len * reader.readI16();
+        box->zmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
+        box->zmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
+        box->xmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
+        box->xmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
+        box->floor = core::Length{static_cast<core::Length::type>(reader.readI16())};
         box->overlap_index = reader.readU16();
         return box;
     }

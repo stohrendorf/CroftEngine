@@ -10,7 +10,7 @@ namespace items
 {
 core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
 {
-    if( m_state.speed == 0_len || maxRotationSpeed == 0_au )
+    if( m_state.speed == 0_spd || maxRotationSpeed == 0_au )
     {
         return 0_au;
     }
@@ -21,8 +21,8 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
     if( turnAngle < -90_deg || turnAngle > 90_deg )
     {
         // the target is behind the current item, so we need a U-turn
-        const auto relativeSpeed = m_state.speed * (+90_deg).toAU() / maxRotationSpeed.toAU();
-        if( util::square( dx ) + util::square( dz ) < util::square( relativeSpeed ) )
+        const auto relativeSpeed = core::Speed{m_state.speed.get() * (+90_deg).toAU() / maxRotationSpeed.toAU()};
+        if( util::square( dx ) + util::square( dz ) < util::square( relativeSpeed * 1_frame ) )
         {
             maxRotationSpeed /= 2;
         }
@@ -65,7 +65,7 @@ bool AIAgent::anyMovingEnabledItemInReach() const
             continue;
 
         if( item->m_state.triggerState == TriggerState::Active
-            && item->m_state.speed != 0_len
+            && item->m_state.speed != 0_spd
             && item->m_state.position.position.distanceTo( m_state.position.position ) < m_collisionRadius )
         {
             return true;
@@ -381,8 +381,8 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                getLevel().m_itemNodes ).y;
 
         core::Angle yaw{0};
-        if( m_state.speed != 0_len )
-            yaw = core::Angle::fromAtan( -moveY, m_state.speed );
+        if( m_state.speed != 0_spd )
+            yaw = core::Angle::fromAtan( -moveY / 1_len, m_state.speed * 1_frame / 1_len );
 
         if( yaw < m_state.rotation.X - 1_deg )
             m_state.rotation.X -= 1_deg;
@@ -467,7 +467,7 @@ namespace
 {
 gsl::not_null<std::shared_ptr<Particle>> createGunFlare(level::Level& level,
                                                         const core::RoomBoundPosition& pos,
-                                                        core::Length speed,
+                                                        core::Speed speed,
                                                         core::Angle angle)
 {
     auto particle = std::make_shared<GunflareParticle>( pos, level, angle );
@@ -485,7 +485,7 @@ bool AIAgent::tryShootAtLara(engine::items::ModelItemNode& item,
     bool isHit = false;
     if( distance <= util::square( 7 * core::SectorSize ) )
     {
-        if( util::rand15() * 1_len < (util::square( 7 * core::SectorSize ) - distance) / 1568_len - 8192_len )
+        if( util::rand15() < (util::square( 7 * core::SectorSize ) - distance) / util::square( 40_len ) - 8192 )
         {
             isHit = true;
 
@@ -501,9 +501,9 @@ bool AIAgent::tryShootAtLara(engine::items::ModelItemNode& item,
     if( !isHit )
     {
         auto pos = getLevel().m_lara->m_state.position;
-        pos.position.X += util::rand15s( core::SectorSize / 2 );
+        pos.position.X += util::rand15s( core::SectorSize / 2, core::Length::type() );
         pos.position.Y = getLevel().m_lara->m_state.floor;
-        pos.position.Z += util::rand15s( core::SectorSize / 2 );
+        pos.position.Z += util::rand15s( core::SectorSize / 2, core::Length::type() );
         getLevel().m_lara->playShotMissed( pos );
     }
 

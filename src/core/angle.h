@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/length.h"
+#include "core/units.h"
 
 #include "gsl-lite.hpp"
 
@@ -79,7 +79,7 @@ public:
 
     static Angle fromAtan(const core::Length dx, const core::Length dz)
     {
-        return fromRad( std::atan2f( static_cast<float>(dx.value), static_cast<float>(dz.value) ) );
+        return fromRad( std::atan2( dx.get_as<float>(), dz.get_as<float>() ) );
     }
 
     static Angle fromDegrees(const float value)

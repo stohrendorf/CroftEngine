@@ -36,9 +36,9 @@ class LaraNode final : public items::ModelItemNode
 private:
     //! @brief Additional rotation per TR Engine Frame
     core::Angle m_yRotationSpeed{0};
-    core::Length m_fallSpeedOverride = 0_len;
+    core::Speed m_fallSpeedOverride = 0_spd;
     core::Angle m_movementAngle{0};
-    int m_air{core::LaraAir};
+    core::Frame m_air{core::LaraAir};
     core::Angle m_currentSlideAngle{0};
 
     HandStatus m_handStatus = HandStatus::None;
@@ -197,7 +197,7 @@ public:
         return m_underwaterState == UnderwaterState::OnLand;
     }
 
-    int getAir() const
+    core::Frame getAir() const
     {
         return m_air;
     }
@@ -229,7 +229,7 @@ private:
     uint16_t m_secretsFoundBitmask = 0;
 
 public:
-    void setAir(const int a) noexcept
+    void setAir(const core::Frame a) noexcept
     {
         m_air = a;
     }
@@ -276,7 +276,7 @@ public:
         m_yRotationSpeed = std::min( m_yRotationSpeed + val, limit );
     }
 
-    void setFallSpeedOverride(const core::Length v)
+    void setFallSpeedOverride(const core::Speed v)
     {
         m_fallSpeedOverride = v;
     }

@@ -36,9 +36,7 @@ public:
                       const gsl::not_null<const loader::Animation*>& animation,
                       core::Frame frame);
 
-    static core::Length calculateFloorSpeed(const items::ItemState& state, core::Frame frameOffset = 0_frame);
-
-    static int getAcceleration(const items::ItemState& state);
+    static core::Speed calculateFloorSpeed(const items::ItemState& state, core::Frame frameOffset = 0_frame);
 
     loader::BoundingBox getBoundingBox(const items::ItemState& state) const;
 

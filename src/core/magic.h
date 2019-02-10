@@ -1,8 +1,6 @@
 #pragma once
 
-#include "length.h"
-#include "health.h"
-#include "frame.h"
+#include "units.h"
 
 namespace core
 {
@@ -29,18 +27,20 @@ constexpr auto LaraHangingHeight = 870_len;
 constexpr auto ScalpToHandsHeight = 160_len;
 constexpr auto JumpReachableHeight = ClimbLimit3ClickMax + SectorSize;
 
-constexpr auto FreeFallSpeedThreshold = 131_len;
-constexpr auto DamageFallSpeedThreshold = 140_len;
-constexpr auto DeadlyFallSpeedThreshold = 154_len;
+constexpr auto FreeFallSpeedThreshold = 131_spd;
+constexpr auto DamageFallSpeedThreshold = 140_spd;
+constexpr auto DeadlyFallSpeedThreshold = 154_spd;
+constexpr auto DeadlyHeadFallSpeedThreshold = 133_spd;
 
 static_assert( FreeFallSpeedThreshold < DamageFallSpeedThreshold, "Constants wrong" );
+static_assert( FreeFallSpeedThreshold < DeadlyHeadFallSpeedThreshold, "Constants wrong" );
 static_assert( DamageFallSpeedThreshold < DeadlyFallSpeedThreshold, "Constants wrong" );
 
 constexpr auto MaxGrabbableGradient = 60_len;
 
-constexpr auto FrameRate = 30_frame;
+constexpr auto FrameRate = 30_frame / 1_sec;
 
-constexpr int LaraAir = 1800;
+constexpr auto LaraAir = 1800_frame;
 constexpr auto LaraHealth = 1000_hp;
 
 constexpr auto DefaultCollisionRadius = 100_len;

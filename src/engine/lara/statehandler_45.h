@@ -23,7 +23,7 @@ public:
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
         getLara().m_state.falling = false;
-        getLara().m_state.fallspeed = 0_len;
+        getLara().m_state.fallspeed = 0_spd;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
         setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.policyFlags |= CollisionInfo::PolicyFlags::SlopesAreWalls;
@@ -51,7 +51,7 @@ public:
 
         setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
         setGoalAnimState( LaraStateId::JumpForward );
-        getLara().m_state.fallspeed = 0_len;
+        getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = true;
     }
 };

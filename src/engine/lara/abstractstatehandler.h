@@ -70,7 +70,7 @@ protected:
         return m_lara;
     }
 
-    void setAir(int a) noexcept;
+    void setAir(core::Frame a) noexcept;
 
     void setMovementAngle(core::Angle angle) noexcept;
 
@@ -100,7 +100,7 @@ protected:
     void addYRotationSpeed(core::Angle val,
                            core::Angle limit = 32767_au);
 
-    void setFallSpeedOverride(core::Length v);
+    void setFallSpeedOverride(core::Speed v);
 
     void dampenHorizontalSpeed(float f);
 

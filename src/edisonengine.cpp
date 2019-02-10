@@ -523,7 +523,7 @@ int main()
     );
 
     static const auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::seconds( 1 ) )
-                                      / core::FrameRate.value;
+                                      / core::FrameRate.get();
 
     bool showDebugInfo = false;
     bool showDebugInfoToggled = false;

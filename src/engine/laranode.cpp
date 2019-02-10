@@ -287,9 +287,12 @@ void LaraNode::handleLaraStateDiving()
 
     {
         auto pos = m_state.position.position;
-        pos.X += m_state.rotation.Y.sin() * m_state.rotation.X.cos() * m_state.fallspeed / 4;
-        pos.Y -= m_state.rotation.X.sin() * m_state.fallspeed / 4;
-        pos.Z += m_state.rotation.Y.cos() * m_state.rotation.X.cos() * m_state.fallspeed / 4;
+        pos.X += (m_state.rotation.Y.sin() * m_state.rotation.X.cos() * m_state.fallspeed.retype_as<float>() / 4.0f)
+                         .retype_as<core::Speed>() * 1_frame;
+        pos.Y -= (m_state.rotation.X.sin() * m_state.fallspeed.retype_as<float>() / 4.0f)
+                         .retype_as<core::Speed>() * 1_frame;
+        pos.Z += (m_state.rotation.Y.cos() * m_state.rotation.X.cos() * m_state.fallspeed.retype_as<float>() / 4.0f)
+                         .retype_as<core::Speed>() * 1_frame;
         m_state.position.position = pos;
     }
 
@@ -349,9 +352,9 @@ void LaraNode::handleLaraStateSwimming()
     updateImpl();
 
     move(
-            getMovementAngle().sin() * m_state.fallspeed / 4,
+            (getMovementAngle().sin() * m_state.fallspeed.retype_as<float>() / 4.0f).retype_as<core::Speed>() * 1_frame,
             0_len,
-            getMovementAngle().cos() * m_state.fallspeed / 4
+            (getMovementAngle().cos() * m_state.fallspeed.retype_as<float>() / 4.0f).retype_as<core::Speed>() * 1_frame
     );
 
     testInteractions( collisionInfo );
@@ -442,7 +445,7 @@ void LaraNode::update()
     else if( m_underwaterState == UnderwaterState::Diving && !m_state.position.room->isWaterRoom() )
     {
         auto waterSurfaceHeight = getWaterSurfaceHeight();
-        m_state.fallspeed = 0_len;
+        m_state.fallspeed = 0_spd;
         m_state.rotation.X = 0_deg;
         m_state.rotation.Z = 0_deg;
         resetHeadTorsoRotation();
@@ -454,7 +457,7 @@ void LaraNode::update()
             m_underwaterState = UnderwaterState::OnLand;
             setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
             setGoalAnimState( LaraStateId::JumpForward );
-            m_state.speed = std::exchange( m_state.fallspeed, 0_len ) / 4;
+            m_state.speed = std::exchange( m_state.fallspeed, 0_spd ) / 4;
             m_state.falling = true;
         }
         else
@@ -473,7 +476,7 @@ void LaraNode::update()
         m_underwaterState = UnderwaterState::OnLand;
         setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
         setGoalAnimState( LaraStateId::JumpForward );
-        m_state.speed = std::exchange( m_state.fallspeed, 0_len ) / 4;
+        m_state.speed = std::exchange( m_state.fallspeed, 0_spd ) / 4;
         m_state.falling = true;
         m_handStatus = HandStatus::None;
         m_state.rotation.X = 0_deg;
@@ -490,10 +493,10 @@ void LaraNode::update()
     {
         if( m_state.health >= 0_hp )
         {
-            --m_air;
-            if( m_air < 0 )
+            m_air -= 1_frame;
+            if( m_air < 0_frame )
             {
-                m_air = -1;
+                m_air = -1_frame;
                 m_state.health -= 5_hp;
             }
         }
@@ -503,7 +506,7 @@ void LaraNode::update()
     {
         if( m_state.health >= 0_hp )
         {
-            m_air = std::min( m_air + 10, core::LaraAir );
+            m_air = std::min( m_air + 10_frame, core::LaraAir );
         }
         handleLaraStateSwimming();
     }
@@ -536,15 +539,15 @@ void LaraNode::updateImpl()
                         cmd += 3;
                         break;
                     case AnimCommandOpcode::StartFalling:
-                        if( m_fallSpeedOverride != 0_len )
+                        if( m_fallSpeedOverride != 0_spd )
                         {
-                            m_state.fallspeed = std::exchange( m_fallSpeedOverride, 0_len );
+                            m_state.fallspeed = std::exchange( m_fallSpeedOverride, 0_spd );
                         }
                         else
                         {
-                            m_state.fallspeed = core::Length{static_cast<core::Length::type>(cmd[0])};
+                            m_state.fallspeed = core::Speed{static_cast<core::Speed::type>(cmd[0])};
                         }
-                        m_state.speed = core::Length{static_cast<core::Length::type>(cmd[1])};
+                        m_state.speed = core::Speed{static_cast<core::Speed::type>(cmd[1])};
                         m_state.falling = true;
                         cmd += 2;
                         break;
@@ -586,14 +589,14 @@ void LaraNode::updateImpl()
                     cmd += 2;
                     break;
                 case AnimCommandOpcode::PlaySound:
-                    if( m_state.frame_number.value == cmd[0] )
+                    if( m_state.frame_number.get() == cmd[0] )
                     {
                         playSoundEffect( static_cast<TR1SoundId>(cmd[1]) );
                     }
                     cmd += 2;
                     break;
                 case AnimCommandOpcode::PlayEffect:
-                    if( m_state.frame_number.value == cmd[0] )
+                    if( m_state.frame_number.get() == cmd[0] )
                     {
                         BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
                         getLevel().runEffect( cmd[1], this );
@@ -774,7 +777,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
                     m_underwaterRoute.required_box = &getLevel().m_boxes[sink.box_index];
                     m_underwaterRoute.target = sink.position;
                 }
-                m_underwaterCurrentStrength = 6_len * sink.underwaterCurrentStrength;
+                m_underwaterCurrentStrength = 6_len * static_cast<core::Length::type>(sink.underwaterCurrentStrength);
             }
                 break;
             case floordata::CommandOpcode::FlipMap:
@@ -890,7 +893,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     std::set<gsl::not_null<const loader::Room*>> rooms;
     rooms.insert( m_state.position.room );
     for( const loader::Portal& p : m_state.position.room->portals )
-        rooms.insert( &getLevel().m_rooms.at(p.adjoining_room.get()) );
+        rooms.insert( &getLevel().m_rooms.at( p.adjoining_room.get() ) );
 
     for( const auto& item : getLevel().m_itemNodes | boost::adaptors::map_values )
     {
@@ -964,7 +967,8 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
             m_state.position.position.Z - collisionInfo.oldPosition.Z
     );
 
-    collisionInfo.initHeightInfo( m_state.position.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len}, getLevel(), core::LaraDiveHeight );
+    collisionInfo.initHeightInfo( m_state.position.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
+                                  getLevel(), core::LaraDiveHeight );
     if( collisionInfo.collisionType == CollisionInfo::AxisColl::Front )
     {
         if( m_state.rotation.X > 35_deg )
@@ -975,7 +979,7 @@ void LaraNode::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Top )
         m_state.rotation.X -= 2_deg;
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom )
-        m_state.fallspeed = 0_len;
+        m_state.fallspeed = 0_spd;
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Left )
         m_state.rotation.Y += 5_deg;
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::Right )
@@ -1350,17 +1354,17 @@ core::RoomBoundPosition LaraNode::getUpperThirdBBoxCtr(const ModelItemNode& item
     const auto kf = item.getSkeleton()->getInterpolationInfo( item.m_state ).getNearestFrame();
     const auto bbox = kf->bbox.toBBox();
 
-    const auto ctrX = (bbox.minX + bbox.maxX) / 2;
-    const auto ctrZ = (bbox.minZ + bbox.maxZ) / 2;
-    const auto ctrY3 = (bbox.maxY - bbox.minY) / 3 + bbox.minY;
+    const auto ctrX = (bbox.minX + bbox.maxX).retype_as<float>() / 2.0f;
+    const auto ctrZ = (bbox.minZ + bbox.maxZ).retype_as<float>() / 2.0f;
+    const auto ctrY3 = (bbox.maxY - bbox.minY).retype_as<float>() / 3.0f + bbox.minY.retype_as<float>();
 
     const auto cos = item.m_state.rotation.Y.cos();
     const auto sin = item.m_state.rotation.Y.sin();
 
     core::RoomBoundPosition result{item.m_state.position};
-    result.position.X += ctrZ * sin + ctrX * cos;
-    result.position.Y += ctrY3;
-    result.position.Z += ctrZ * cos - ctrX * sin;
+    result.position.X += (ctrZ * sin + ctrX * cos).retype_as<core::Length>();
+    result.position.Y += ctrY3.retype_as<core::Length>();
+    result.position.Z += (ctrZ * cos - ctrX * sin).retype_as<core::Length>();
     return result;
 }
 
@@ -1825,8 +1829,8 @@ void LaraNode::holsterGuns(const WeaponId weaponId)
     }
     else if( leftArm.frame > 0_frame && leftArm.frame < 5_frame )
     {
-        leftArm.aimRotation.X -= leftArm.aimRotation.X / leftArm.frame.value;
-        leftArm.aimRotation.Y -= leftArm.aimRotation.Y / leftArm.frame.value;
+        leftArm.aimRotation.X -= leftArm.aimRotation.X / leftArm.frame.get();
+        leftArm.aimRotation.Y -= leftArm.aimRotation.Y / leftArm.frame.get();
         leftArm.frame -= 1_frame;
     }
     else if( leftArm.frame == 0_frame )
@@ -1867,8 +1871,8 @@ void LaraNode::holsterGuns(const WeaponId weaponId)
     }
     else if( rightArm.frame > 0_frame && rightArm.frame < 5_frame )
     {
-        rightArm.aimRotation.X -= rightArm.aimRotation.X / rightArm.frame.value;
-        rightArm.aimRotation.Y -= rightArm.aimRotation.Y / rightArm.frame.value;
+        rightArm.aimRotation.X -= rightArm.aimRotation.X / rightArm.frame.get();
+        rightArm.aimRotation.Y -= rightArm.aimRotation.Y / rightArm.frame.get();
         rightArm.frame -= 1_frame;
     }
     else if( rightArm.frame == 0_frame )
@@ -2384,7 +2388,7 @@ void LaraNode::drawRoutine()
                 frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_FORWARD)].frames;
                 break;
         }
-        frame = frame->next( hit_frame.value );
+        frame = frame->next( hit_frame.get() );
     }
 
     updateLighting();
@@ -2444,7 +2448,7 @@ void LaraNode::drawRoutine()
             matrixStack.resetRotation();
             matrixStack.rotate( rightArm.aimRotation );
 
-            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.value )->getAngleData();
+            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.get() )->getAngleData();
             matrixStack.rotate( armAngleData[8] );
             matrixStack.apply( getSkeleton(), 8 );
 
@@ -2457,7 +2461,7 @@ void LaraNode::drawRoutine()
             matrixStack.translate( objInfo.boneTree[10] );
             matrixStack.resetRotation();
             matrixStack.rotate( leftArm.aimRotation );
-            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.value )->getAngleData();
+            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.get() )->getAngleData();
             matrixStack.rotate( armAngleData[11] );
             matrixStack.apply( getSkeleton(), 11 );
 
@@ -2467,12 +2471,12 @@ void LaraNode::drawRoutine()
             break;
         case WeaponId::Shotgun:
             matrixStack.push();
-            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.value )->getAngleData();
+            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.get() )->getAngleData();
             matrixStack.transform( {8, 9, 10}, objInfo.boneTree, armAngleData, getSkeleton() );
 
             matrixStack.pop();
             matrixStack.push();
-            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.value )->getAngleData();
+            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.get() )->getAngleData();
             matrixStack.transform( {11, 12, 13}, objInfo.boneTree, armAngleData, getSkeleton() );
             break;
         default:
@@ -2542,7 +2546,7 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
             matrixStack.resetRotation();
             matrixStack.rotate( rightArm.aimRotation );
 
-            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.value )->getAngleData();
+            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.get() )->getAngleData();
             matrixStack.rotate( armAngleData[8], armAngleData[8] );
             matrixStack.apply( getSkeleton(), 8 );
 
@@ -2555,7 +2559,7 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
             matrixStack.translate( objInfo.boneTree[10] );
             matrixStack.resetRotation();
             matrixStack.rotate( leftArm.aimRotation );
-            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.value )->getAngleData();
+            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.get() )->getAngleData();
             matrixStack.rotate( armAngleData[11], armAngleData[11] );
             matrixStack.apply( getSkeleton(), 11 );
 
@@ -2565,12 +2569,12 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
             break;
         case WeaponId::Shotgun:
             matrixStack.push();
-            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.value )->getAngleData();
+            armAngleData = rightArm.weaponAnimData->next( rightArm.frame.get() )->getAngleData();
             matrixStack.transform( {8, 9, 10}, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
 
             matrixStack.pop();
             matrixStack.push();
-            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.value )->getAngleData();
+            armAngleData = leftArm.weaponAnimData->next( leftArm.frame.get() )->getAngleData();
             matrixStack.transform( {11, 12, 13}, objInfo.boneTree, armAngleData, armAngleData, getSkeleton() );
             break;
         default:
@@ -2687,7 +2691,7 @@ void LaraNode::load(const YAML::Node& n)
     else
         hit_direction = parseAxis( n["hitDir"].as<std::string>() );
 
-    m_air = n["air"].as<int>();
+    m_air = n["air"].as<core::Frame>();
     m_swimToDiveKeypressDuration = n["swimToDiveKeypressDuration"].as<core::Frame>();
     explosionStumblingDuration = n["explosionStumblingDuration"].as<core::Frame>();
     if( !n["forceSource"].IsDefined() )

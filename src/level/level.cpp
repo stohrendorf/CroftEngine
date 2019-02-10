@@ -1199,7 +1199,7 @@ void Level::postProcessDataStructures()
                                          << " out of range 0.." << m_poseFrames.size() - 1;
             continue;
         }
-        model->frames = reinterpret_cast<const loader::AnimFrame*>(model->pose_data_offset.from( m_poseFrames ));
+        model->frames = reinterpret_cast<const loader::AnimFrame*>(&model->pose_data_offset.from( m_poseFrames ));
         if( model->nMeshes > 1 )
         {
             model->boneTree = gsl::make_span(
@@ -1276,12 +1276,12 @@ void Level::dinoStompEffect(engine::items::ItemNode& node)
     const auto d = node.m_state.position.position.toRenderSystem() - m_cameraController->getPosition();
     const auto absD = glm::abs( d );
 
-    constexpr auto MaxD = 16_len * core::SectorSize;
-    if( absD.x > MaxD.value || absD.y > MaxD.value || absD.z > MaxD.value )
+    static constexpr auto MaxD = (16 * core::SectorSize).get_as<float>();
+    if( absD.x > MaxD || absD.y > MaxD || absD.z > MaxD )
         return;
 
-    const auto x = 1 - length2( d ) / util::square( MaxD.value );
-    m_cameraController->setBounce( 100_len * x );
+    const auto x = (100_len).retype_as<float>() * (1 - length2( d ) / util::square( MaxD ));
+    m_cameraController->setBounce( x.retype_as<core::Length>() );
 }
 
 void Level::turn180Effect(engine::items::ItemNode& node)
@@ -1336,7 +1336,7 @@ void Level::finishLevelEffect()
 
 void Level::earthquakeEffect()
 {
-    switch( m_effectTimer.value )
+    switch( m_effectTimer.get() )
     {
         case 0:
             playSound( engine::TR1SoundId::Explosion1, nullptr );
@@ -1379,7 +1379,7 @@ void Level::floodEffect()
         {
             mul = 30_frame - m_effectTimer;
         }
-        pos.Y = 100_len * mul.value + m_cameraController->getCenter().position.Y;
+        pos.Y = 100_len * mul / 1_frame + m_cameraController->getCenter().position.Y;
         playSound( engine::TR1SoundId::WaterFlow3, pos.toRenderSystem() );
     }
     else
@@ -1414,7 +1414,7 @@ void Level::stairsToSlopeEffect()
             playSound( engine::TR1SoundId::HeavyDoorSlam, nullptr );
         }
         auto pos = m_cameraController->getCenter().position;
-        pos.Y += 100_len * m_effectTimer.value;
+        pos.Y += 100_spd * m_effectTimer;
         playSound( engine::TR1SoundId::FlowingAir, pos.toRenderSystem() );
     }
     else

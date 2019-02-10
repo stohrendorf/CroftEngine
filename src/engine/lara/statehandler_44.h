@@ -19,7 +19,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        getLara().m_state.fallspeed = std::max( 0_len, getLara().m_state.fallspeed - 8_len );
+        getLara().m_state.fallspeed = std::max( 0_spd, getLara().m_state.fallspeed - 8_spd );
 
         if( getLara().m_state.rotation.X > 2_deg )
         {
@@ -41,7 +41,7 @@ public:
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
         getLara().m_state.health = -1_hp;
-        setAir( -1 );
+        setAir( -1_frame );
         setHandStatus( HandStatus::Grabbing );
         auto h = getLara().getWaterSurfaceHeight();
         if( h.is_initialized() && *h < getLara().m_state.position.position.Y - core::DefaultCollisionRadius )

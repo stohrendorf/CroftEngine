@@ -39,7 +39,7 @@ public:
             setGoalAnimState( LaraStateId::OnWaterStop );
         }
 
-        getLara().m_state.fallspeed = std::min( 60_len, getLara().m_state.fallspeed + 8_len );
+        getLara().m_state.fallspeed = std::min( 60_spd, getLara().m_state.fallspeed + 8_spd );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override

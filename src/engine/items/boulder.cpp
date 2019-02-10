@@ -18,7 +18,7 @@ void engine::items::RollingBall::update()
         {
             if( !m_state.falling )
             {
-                m_state.fallspeed = -10_len;
+                m_state.fallspeed = -10_spd;
                 m_state.falling = true;
             }
         }
@@ -33,22 +33,22 @@ void engine::items::RollingBall::update()
         getLevel().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
         if( m_state.floor - core::QuarterSectorSize <= m_state.position.position.Y )
         {
-            m_state.fallspeed = 0_len;
+            m_state.fallspeed = 0_spd;
             m_state.falling = false;
             m_state.position.position.Y = m_state.floor;
         }
 
         // let's see if we hit a wall, and if that's the case, stop.
         const auto testPos = m_state.position.position
-                             + core::TRVec( m_state.rotation.Y.sin() * core::SectorSize / 2,
+                             + core::TRVec( (m_state.rotation.Y.sin() * core::SectorSize.retype_as<float>()).retype_as<core::Length>() / 2,
                                             0_len,
-                                            m_state.rotation.Y.cos() * core::SectorSize / 2 );
+                                            (m_state.rotation.Y.cos() * core::SectorSize.retype_as<float>()).retype_as<core::Length>() / 2 );
         sector = level::Level::findRealFloorSector( testPos, room );
         if( HeightInfo::fromFloor( sector, testPos, getLevel().m_itemNodes ).y < m_state.position.position.Y )
         {
-            m_state.fallspeed = 0_len;
+            m_state.fallspeed = 0_spd;
             m_state.touch_bits.reset();
-            m_state.speed = 0_len;
+            m_state.speed = 0_spd;
             m_state.triggerState = TriggerState::Deactivated;
             m_state.position.position.X = oldPos.X;
             m_state.position.position.Y = m_state.floor;
@@ -110,9 +110,9 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
         lara.setGoalAnimState( loader::LaraStateId::BoulderDeath );
         for( int i = 0; i < 15; ++i )
         {
-            const auto x = util::rand15s( 128_len ) + lara.m_state.position.position.X;
-            const auto y = lara.m_state.position.position.Y - util::rand15s( 512_len );
-            const auto z = util::rand15s( 128_len ) + lara.m_state.position.position.Z;
+            const auto x = util::rand15s( 128_len, core::Length::type() ) + lara.m_state.position.position.X;
+            const auto y = lara.m_state.position.position.Y - util::rand15s( 512_len, core::Length::type() );
+            const auto z = util::rand15s( 128_len, core::Length::type() ) + lara.m_state.position.position.Z;
             auto fx = createBloodSplat(
                     getLevel(),
                     core::RoomBoundPosition{m_state.position.room, core::TRVec{x, y, z}},

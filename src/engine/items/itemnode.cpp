@@ -153,8 +153,8 @@ void ModelItemNode::update()
                     cmd += 3;
                     break;
                 case AnimCommandOpcode::StartFalling:
-                    m_state.fallspeed = core::Length{static_cast<core::Length::type>(cmd[0])};
-                    m_state.speed = core::Length{static_cast<core::Length::type>(cmd[1])};
+                    m_state.fallspeed = core::Speed{static_cast<core::Speed::type>(cmd[0])};
+                    m_state.speed = core::Speed{static_cast<core::Speed::type>(cmd[1])};
                     m_state.falling = true;
                     cmd += 2;
                     break;
@@ -197,14 +197,14 @@ void ModelItemNode::update()
                 cmd += 2;
                 break;
             case AnimCommandOpcode::PlaySound:
-                if( m_state.frame_number.value == cmd[0] )
+                if( m_state.frame_number.get() == cmd[0] )
                 {
                     playSoundEffect( static_cast<TR1SoundId>(cmd[1]) );
                 }
                 cmd += 2;
                 break;
             case AnimCommandOpcode::PlayEffect:
-                if( m_state.frame_number.value == cmd[0] )
+                if( m_state.frame_number.get() == cmd[0] )
                 {
                     BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
                     getLevel().runEffect( cmd[1], this );
@@ -340,13 +340,13 @@ void ModelItemNode::applyMovement(const bool forLara)
 {
     if( m_state.falling )
     {
-        if( m_state.fallspeed >= 128_len )
+        if( m_state.fallspeed >= 128_spd )
         {
-            m_state.fallspeed += 1_len;
+            m_state.fallspeed += 1_spd;
         }
         else
         {
-            m_state.fallspeed += 6_len;
+            m_state.fallspeed += 6_spd;
         }
 
         if( forLara )
@@ -362,9 +362,9 @@ void ModelItemNode::applyMovement(const bool forLara)
     }
 
     move(
-            getMovementAngle().sin() * m_state.speed,
-            m_state.falling ? m_state.fallspeed : 0_len,
-            getMovementAngle().cos() * m_state.speed
+            (getMovementAngle().sin() * m_state.speed.retype_as<float>()).retype_as<core::Speed>() * 1_frame,
+            (m_state.falling ? m_state.fallspeed : 0_spd) * 1_frame,
+            (getMovementAngle().cos() * m_state.speed.retype_as<float>()).retype_as<core::Speed>() * 1_frame
     );
 
     applyTransform();
@@ -435,10 +435,10 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const core::Length radius
 
     const auto c = m_state.rotation.Y.cos();
     const auto s = m_state.rotation.Y.sin();
-    const auto dx = other.m_state.position.position.X - m_state.position.position.X;
-    const auto dz = other.m_state.position.position.Z - m_state.position.position.Z;
-    const auto x = c * dx - s * dz;
-    const auto z = s * dx + c * dz;
+    const auto dx = (other.m_state.position.position.X - m_state.position.position.X).retype_as<float>();
+    const auto dz = (other.m_state.position.position.Z - m_state.position.position.Z).retype_as<float>();
+    const auto x = (c * dx - s * dz).retype_as<core::Length>();
+    const auto z = (s * dx + c * dz).retype_as<core::Length>();
     return x >= aBBox.minX - radius
            && x <= aBBox.maxX + radius
            && z >= aBBox.minZ - radius
@@ -457,10 +457,10 @@ bool ModelItemNode::isNear(const Particle& other, const core::Length radius) con
 
     const auto c = m_state.rotation.Y.cos();
     const auto s = m_state.rotation.Y.sin();
-    const auto dx = other.pos.position.X - m_state.position.position.X;
-    const auto dz = other.pos.position.Z - m_state.position.position.Z;
-    const auto x = c * dx - s * dz;
-    const auto z = s * dx + c * dz;
+    const auto dx = (other.pos.position.X - m_state.position.position.X).retype_as<float>();
+    const auto dz = (other.pos.position.Z - m_state.position.position.Z).retype_as<float>();
+    const auto x = (c * dx - s * dz).retype_as<core::Length>();
+    const auto z = (s * dx + c * dz).retype_as<core::Length>();
     return x >= bbox.minX - radius
            && x <= bbox.maxX + radius
            && z >= bbox.minZ - radius
@@ -470,12 +470,12 @@ bool ModelItemNode::isNear(const Particle& other, const core::Length radius) con
 void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, const bool enableSpaz,
                               const bool withXZCollRadius)
 {
-    const auto dx = lara.m_state.position.position.X - m_state.position.position.X;
-    const auto dz = lara.m_state.position.position.Z - m_state.position.position.Z;
+    const auto dx = (lara.m_state.position.position.X - m_state.position.position.X).retype_as<float>();
+    const auto dz = (lara.m_state.position.position.Z - m_state.position.position.Z).retype_as<float>();
     const auto c = m_state.rotation.Y.cos();
     const auto s = m_state.rotation.Y.sin();
-    auto posX = c * dx - s * dz;
-    auto posZ = s * dx + c * dz;
+    auto posX = (c * dx - s * dz).retype_as<core::Length>();
+    auto posZ = (s * dx + c * dz).retype_as<core::Length>();
     const auto itemKeyFrame = m_skeleton->getInterpolationInfo( m_state ).getNearestFrame();
     auto itemBBoxMinX = itemKeyFrame->bbox.toBBox().minX;
     auto itemBBoxMaxX = itemKeyFrame->bbox.toBBox().maxX;
@@ -511,15 +511,22 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
         {
             posZ = itemBBoxMaxZ;
         }
-        lara.m_state.position.position.X = ((c * posX + s * posZ)) + m_state.position.position.X;
-        lara.m_state.position.position.Z = ((c * posZ - s * posX)) + m_state.position.position.Z;
+        lara.m_state.position.position.X =
+                (c * posX.retype_as<float>() + s * posZ.retype_as<float>()).retype_as<core::Length>()
+                + m_state.position.position.X;
+        lara.m_state.position.position.Z =
+                (c * posZ.retype_as<float>() - s * posX.retype_as<float>()).retype_as<core::Length>()
+                + m_state.position.position.Z;
         if( enableSpaz )
         {
-            const auto midX = (itemKeyFrame->bbox.toBBox().minX + itemKeyFrame->bbox.toBBox().maxX) / 2;
-            const auto midZ = (itemKeyFrame->bbox.toBBox().minZ + itemKeyFrame->bbox.toBBox().maxZ) / 2;
-            const auto a = core::Angle::fromAtan( dx - ((midX * c + midZ * s)), dz - ((midZ * c - midX * s)) )
-                           - 180_deg;
-            getLevel().m_lara->hit_direction = axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
+            const auto midX = (itemKeyFrame->bbox.toBBox().minX + itemKeyFrame->bbox.toBBox().maxX).retype_as<float>()
+                              / 2.0f;
+            const auto midZ = (itemKeyFrame->bbox.toBBox().minZ + itemKeyFrame->bbox.toBBox().maxZ).retype_as<float>()
+                              / 2.0f;
+            const auto a =
+                    core::Angle::fromAtan( (dx - ((midX * c + midZ * s))).get(), (dz - ((midZ * c - midX * s))).get() )
+                    - 180_deg;
+            getLevel().m_lara->hit_direction = core::axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
             if( getLevel().m_lara->hit_frame == 0_frame )
             {
                 lara.playSoundEffect( TR1SoundId::LaraOof );
@@ -573,7 +580,7 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
             if( laraSphere.radius <= 0_len )
                 continue;
             if( glm::distance( laraSphere.getPosition(), itemSphere.value().getPosition() )
-                >= (itemSphere.value().radius + laraSphere.radius).value )
+                >= (itemSphere.value().radius + laraSphere.radius).get_as<float>() )
                 continue;
 
             m_state.touch_bits.set( itemSphere.index() );
@@ -589,7 +596,7 @@ gsl::not_null<std::shared_ptr<Particle>> ModelItemNode::emitParticle(const core:
                                                                      gsl::not_null<std::shared_ptr<Particle>> (* generate)(
                                                                              level::Level& level,
                                                                              const core::RoomBoundPosition&,
-                                                                             core::Length, core::Angle))
+                                                                             core::Speed, core::Angle))
 {
     BOOST_ASSERT( generate != nullptr );
     BOOST_ASSERT( boneIndex < m_skeleton->getChildren().size() );
@@ -839,8 +846,8 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
     position.position.load( n["position"] );
     position.room = &lvl.m_rooms.at( n["position"]["room"].as<size_t>() );
     rotation.load( n["rotation"] );
-    speed = n["speed"].as<core::Length>();
-    fallspeed = n["fallSpeed"].as<core::Length>();
+    speed = n["speed"].as<core::Speed>();
+    fallspeed = n["fallSpeed"].as<core::Speed>();
     current_anim_state = loader::AnimState{n["state"].as<uint16_t>()};
     goal_anim_state = loader::AnimState{n["goal"].as<uint16_t>()};
     required_anim_state = loader::AnimState{n["required"].as<uint16_t>()};

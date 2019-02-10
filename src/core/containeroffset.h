@@ -33,15 +33,12 @@ constexpr bool contains_v = contains<
         std::remove_cv<std::remove_reference_t<T>>,
         std::remove_cv<std::remove_reference_t<Args>>...
 >::value;
-
-template<typename A0, typename... Args>
-using first_t = A0;
 }
 
 template<typename OffsetType, typename... DataTypes>
 struct ContainerOffset
 {
-    static_assert( std::is_integral_v<OffsetType> && !std::is_signed_v<OffsetType>,
+    static_assert( std::is_integral<OffsetType>::value && !std::is_signed<OffsetType>::value,
                    "Index type must be unsigned integer like" );
     static_assert( sizeof...( DataTypes ) > 0, "Must provide at least one bound type" );
 
@@ -118,7 +115,7 @@ struct ContainerOffset
 template<typename IndexType, typename... DataTypes>
 struct ContainerIndex
 {
-    static_assert( std::is_integral_v<IndexType> && !std::is_signed_v<IndexType>,
+    static_assert( std::is_integral<IndexType>::value && !std::is_signed<IndexType>::value,
                    "Index type must be unsigned integer like" );
     static_assert( sizeof...( DataTypes ) > 0, "Must provide at least one bound type" );
 

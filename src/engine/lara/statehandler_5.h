@@ -34,7 +34,7 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        getLara().m_state.fallspeed = 0_len;
+        getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = false;
         collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
@@ -52,7 +52,7 @@ public:
         {
             setAnimation( loader::AnimationId::FREE_FALL_BACK, 1473_frame );
             setGoalAnimState( LaraStateId::FallBackward );
-            getLara().m_state.fallspeed = 0_len;
+            getLara().m_state.fallspeed = 0_spd;
             getLara().m_state.falling = true;
             return;
         }

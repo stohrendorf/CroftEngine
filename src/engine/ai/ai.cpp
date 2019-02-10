@@ -235,7 +235,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
     if( unclampedDirs & (NoClampZPos | NoClampZNeg) )
     {
         const auto center = box->zmax - box->zmin - core::SectorSize;
-        target.Z = util::rand15( center ) + box->zmin + core::SectorSize / 2;
+        target.Z = util::rand15( center, core::Length::type() ) + box->zmin + core::SectorSize / 2;
     }
     else if( !(unclampedDirs & Flag10) )
     {
@@ -246,7 +246,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
     if( unclampedDirs & (NoClampXPos | NoClampXNeg) )
     {
         const auto center = box->xmax - box->xmin - core::SectorSize;
-        target.X = util::rand15( center ) + box->xmin + core::SectorSize / 2;
+        target.X = util::rand15( center, core::Length::type() ) + box->xmin + core::SectorSize / 2;
     }
     else if( !(unclampedDirs & Flag10) )
     {
@@ -532,9 +532,11 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
     sol::table objectInfo = lvl.m_scriptEngine["getObjectInfo"].call( item.type );
     const core::Length pivotLength{static_cast<core::Length::type>(objectInfo["pivot_length"])};
     const auto dz = lvl.m_lara->m_state.position.position.Z
-                    - (item.position.position.Z + pivotLength * item.rotation.Y.cos());
+                    - (item.position.position.Z.retype_as<float>()
+                       + pivotLength.retype_as<float>() * item.rotation.Y.cos()).retype_as<core::Length>();
     const auto dx = lvl.m_lara->m_state.position.position.X
-                    - (item.position.position.X + pivotLength * item.rotation.Y.sin());
+                    - (item.position.position.X.retype_as<float>()
+                       + pivotLength.retype_as<float>() * item.rotation.Y.sin()).retype_as<core::Length>();
     const auto pivotAngle = core::Angle::fromAtan( dx, dz );
     distance = util::square( dx ) + util::square( dz );
     angle = pivotAngle - item.rotation.Y;

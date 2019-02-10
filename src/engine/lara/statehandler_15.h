@@ -59,7 +59,7 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        getLara().m_state.fallspeed = 0_len;
+        getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = false;
         collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = -core::HeightLimit;
@@ -74,7 +74,7 @@ public:
 
         setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
         setGoalAnimState( LaraStateId::Stop );
-        getLara().m_state.speed = 0_len;
+        getLara().m_state.speed = 0_spd;
         getLara().m_state.position.position = collisionInfo.oldPosition;
     }
 };

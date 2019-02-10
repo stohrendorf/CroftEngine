@@ -33,12 +33,12 @@ public:
         setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
         checkJumpWallSmash( collisionInfo );
-        if( collisionInfo.mid.floorSpace.y > 0_len || getLara().m_state.fallspeed <= 0_len )
+        if( collisionInfo.mid.floorSpace.y > 0_len || getLara().m_state.fallspeed <= 0_spd )
         {
             return;
         }
 
-        if( getLara().m_state.fallspeed <= 133_len )
+        if( getLara().m_state.fallspeed <= core::DeadlyHeadFallSpeedThreshold )
         {
             setGoalAnimState( LaraStateId::Stop );
         }
@@ -47,7 +47,7 @@ public:
             setGoalAnimState( LaraStateId::Death );
         }
 
-        getLara().m_state.fallspeed = 0_len;
+        getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = false;
         placeOnFloor( collisionInfo );
     }

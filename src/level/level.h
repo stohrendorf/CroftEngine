@@ -478,7 +478,7 @@ public:
         return boost::none;
     }
 
-    std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates{};
+    std::array<engine::floordata::ActivationState, 10> mapFlipActivationStates;
 
     engine::items::ItemNode* m_pierre = nullptr;
 

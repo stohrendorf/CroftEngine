@@ -17,7 +17,7 @@ public:
     core::RoomBoundPosition pos;
     core::TRRotation angle{0_deg, 0_deg, 0_deg};
     const TR1ItemId object_number;
-    core::Length speed = 0_len;
+    core::Speed speed = 0_spd;
     core::Length fall_speed = 0_len;
     int16_t negSpriteFrameId = 0;
     int16_t timePerSpriteFrame = 0;
@@ -88,7 +88,7 @@ class BloodSplatterParticle : public Particle
 {
 public:
     explicit BloodSplatterParticle(const core::RoomBoundPosition& pos,
-                                   const core::Length speed_,
+                                   const core::Speed speed_,
                                    const core::Angle angle_,
                                    level::Level& level)
             : Particle{"bloodsplat", TR1ItemId::Blood, pos, level}
@@ -111,13 +111,13 @@ public:
     {
         if( !waterfall )
         {
-            speed = util::rand15( 128_len );
+            speed = util::rand15( 128_spd, core::Speed::type() );
             angle.Y = core::Angle( 2 * util::rand15s() );
         }
         else
         {
-            this->pos.position.X += util::rand15s( core::SectorSize );
-            this->pos.position.Z += util::rand15s( core::SectorSize );
+            this->pos.position.X += util::rand15s( core::SectorSize, core::Length::type() );
+            this->pos.position.Z += util::rand15s( core::SectorSize, core::Length::type() );
         }
     }
 
@@ -160,7 +160,7 @@ public:
                             level::Level& level)
             : Particle{"bubble", TR1ItemId::Bubbles, pos, level, 0.7f}
     {
-        speed = 10_len + util::rand15( 6_len );
+        speed = 10_spd + util::rand15( 6_spd, core::Speed::type() );
 
         const int n = util::rand15( 3 );
         for( int i = 0; i < n; ++i )
@@ -236,7 +236,7 @@ public:
 
 inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(level::Level& level,
                                                                  const core::RoomBoundPosition& pos,
-                                                                 core::Length speed,
+                                                                 core::Speed speed,
                                                                  core::Angle angle)
 {
     auto particle = std::make_shared<BloodSplatterParticle>( pos, speed, angle, level );

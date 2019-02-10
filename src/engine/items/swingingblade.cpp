@@ -31,9 +31,9 @@ void SwingingBlade::update()
         getLevel().m_lara->m_state.health -= 100_hp;
 
         const core::TRVec splatPos{
-                getLevel().m_lara->m_state.position.position.X + util::rand15s( 128_len ),
-                getLevel().m_lara->m_state.position.position.Y - util::rand15( 745_len ),
-                getLevel().m_lara->m_state.position.position.Z + util::rand15s( 128_len )
+                getLevel().m_lara->m_state.position.position.X + util::rand15s( 128_len, core::Length::type() ),
+                getLevel().m_lara->m_state.position.position.Y - util::rand15( 745_len, core::Length::type() ),
+                getLevel().m_lara->m_state.position.position.Z + util::rand15s( 128_len, core::Length::type() )
         };
         auto fx = createBloodSplat( getLevel(),
                                     core::RoomBoundPosition{m_state.position.room, splatPos},

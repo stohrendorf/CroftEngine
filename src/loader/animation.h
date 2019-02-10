@@ -3,7 +3,7 @@
 #include "io/sdlreader.h"
 #include "engine/items_tr1.h"
 #include "core/vec.h"
-#include "core/frame.h"
+#include "core/units.h"
 #include "core/id.h"
 #include "core/containeroffset.h"
 #include "gameplay.h"
@@ -151,11 +151,11 @@ struct Animation
     uint8_t poseDataSize; // number of bit16's in Frames[] used by this animation
     AnimState state_id = 0_as;
 
-    int32_t speed;
-    int32_t acceleration;
+    core::Speed speed;
+    core::Acceleration acceleration;
 
-    int32_t lateralSpeed; // new in TR4 -->
-    int32_t lateralAcceleration; // lateral speed and acceleration.
+    core::Speed lateralSpeed; // new in TR4 -->
+    core::Acceleration lateralAcceleration; // lateral speed and acceleration.
 
     core::Frame firstFrame = 0_frame; // first frame in this animation
     core::Frame lastFrame = 0_frame; // last frame in this animation (numframes = (End - Start) + 1)
@@ -172,7 +172,7 @@ struct Animation
 
     constexpr size_t getKeyframeCount() const
     {
-        return (lastFrame - firstFrame + segmentLength) / segmentLength;
+        return (getFrameCount() + segmentLength - 1_frame) / segmentLength + 1;
     }
 
     constexpr core::Frame getFrameCount() const
@@ -201,17 +201,12 @@ private:
         animation->poseDataSize = reader.readU8();
         animation->state_id = AnimState{reader.readU16()};
 
-        animation->speed = reader.readI32();
-        animation->acceleration = reader.readI32();
+        animation->speed = core::Speed{reader.readI32()};
+        animation->acceleration = core::Acceleration{reader.readI32()};
         if( withLateral )
         {
-            animation->lateralSpeed = reader.readI32();
-            animation->lateralAcceleration = reader.readI32();
-        }
-        else
-        {
-            animation->lateralSpeed = 0;
-            animation->lateralAcceleration = 0;
+            animation->lateralSpeed = core::Speed{reader.readI32()};
+            animation->lateralAcceleration = core::Acceleration{reader.readI32()};
         }
 
         animation->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};

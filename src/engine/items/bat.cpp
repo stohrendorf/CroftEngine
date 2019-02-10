@@ -69,7 +69,7 @@ void Bat::update()
         else
         {
             m_state.goal_anim_state = Circling;
-            m_state.speed = 0_len;
+            m_state.speed = 0_spd;
             m_state.falling = true;
         }
     }

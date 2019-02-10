@@ -16,16 +16,11 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
     //setAnimation(mdl.animationIndex);
 }
 
-core::Length SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const core::Frame frameOffset)
+core::Speed SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const core::Frame frameOffset)
 {
     const auto scaled = state.anim->speed
-                        + state.anim->acceleration * (state.frame_number - state.anim->firstFrame + frameOffset).value;
-    return core::Length{scaled / (1 << 16)};
-}
-
-int SkeletalModelNode::getAcceleration(const items::ItemState& state)
-{
-    return state.anim->acceleration / (1 << 16);
+                        + state.anim->acceleration * (state.frame_number - state.anim->firstFrame + frameOffset);
+    return scaled / (1 << 16);
 }
 
 SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(const items::ItemState& state) const
@@ -63,8 +58,8 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
 
     //BOOST_ASSERT( m_time >= startTime && m_time < endTime );
     Expects( state.frame_number >= state.anim->firstFrame && state.frame_number <= state.anim->lastFrame );
-    const size_t firstKeyframeIndex = ( state.frame_number - state.anim->firstFrame ) / state.anim->segmentLength;
-    Expects( firstKeyframeIndex < state.anim->getKeyframeCount() );
+    const auto firstKeyframeIndex = (state.frame_number - state.anim->firstFrame) / state.anim->segmentLength;
+    Expects( firstKeyframeIndex >= 0 && firstKeyframeIndex < state.anim->getKeyframeCount() );
 
     result.firstFrame = state.anim->frames->next( firstKeyframeIndex );
 
@@ -101,12 +96,16 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
 
     // If we are interpolating the last two keyframes, the real animation may be shorter
     // than the position of the last keyframe.  E.g., with a stretch factor of 10 and a length of 12,
-    // the last segment would only be 2 frames long.  Frame 1 is interpolated with a bias of 0.1, but
-    // frame 11 must be interpolated with a bias of 0.5 to compensate the shorter segment length.
-    if( segmentDuration * (firstKeyframeIndex + 1) > state.anim->lastFrame )
-        segmentDuration = state.anim->lastFrame - segmentDuration * firstKeyframeIndex;
+    // the last segment would only be 3 frames long.  Frame #1 is interpolated with a bias of 0.1, but
+    // frame 11 (#1 in segment) must be interpolated with a bias of 0.5 to compensate the shorter segment length.
+    if( firstKeyframeIndex == state.anim->getKeyframeCount() - 2u )
+    {
+        const auto tmp = state.anim->getFrameCount() % state.anim->segmentLength;
+        if(tmp != 0_frame)
+            segmentDuration = tmp + 1_frame;
+    }
 
-    result.bias = segmentFrame.cast<float>() / segmentDuration.cast<float>();
+    result.bias = segmentFrame.retype_as<float>() / segmentDuration.retype_as<float>();
     BOOST_ASSERT( result.bias >= 0 && result.bias <= 1 );
 
     BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()

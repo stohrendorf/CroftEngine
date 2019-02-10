@@ -39,9 +39,9 @@ struct Lighting
         float maxBrightness = 0;
         for( const auto& light : pos.room->lights )
         {
-            const auto r = util::square( light.radius.cast<float>() / (4096_len).cast<float>() );
+            const auto r = util::square( light.radius.retype_as<core::LengthF>() / 4096.0_len );
             const auto d = util::square(
-                    pos.position.distanceTo( light.position ).cast<float>() / (4096_len).cast<float>() );
+                    pos.position.distanceTo( light.position ).retype_as<core::LengthF>() / 4096.0_len );
 
             const auto lightBrightness = roomAmbient + r * light.getBrightness() / (r + d) / 2;
             if( lightBrightness > maxBrightness )

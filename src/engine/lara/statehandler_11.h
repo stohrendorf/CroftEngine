@@ -41,7 +41,7 @@ public:
         }
 
         jumpAgainstWall( collisionInfo );
-        if( getLara().m_state.fallspeed <= 0_len || collisionInfo.mid.floorSpace.y > 0_len )
+        if( getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floorSpace.y > 0_len )
         {
             return;
         }
@@ -55,7 +55,7 @@ public:
             setGoalAnimState( LaraStateId::Stop );
         }
 
-        getLara().m_state.fallspeed = 0_len;
+        getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = false;
         placeOnFloor( collisionInfo );
     }

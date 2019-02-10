@@ -51,7 +51,7 @@ public:
             setAnimation( loader::AnimationId::LANDING_HARD, 358_frame );
         }
         getLevel().stopSound( TR1SoundId::LaraScream, &getLara().m_state );
-        getLara().m_state.fallspeed = 0_len;
+        getLara().m_state.fallspeed = 0_spd;
         placeOnFloor( collisionInfo );
         getLara().m_state.falling = false;
     }

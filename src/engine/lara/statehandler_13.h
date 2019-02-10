@@ -30,7 +30,7 @@ public:
             setGoalAnimState( LaraStateId::UnderwaterForward );
         }
 
-        getLara().m_state.fallspeed = std::max( 0_len, getLara().m_state.fallspeed - 6_len );
+        getLara().m_state.fallspeed = std::max( 0_spd, getLara().m_state.fallspeed - 6_spd );
     }
 };
 }

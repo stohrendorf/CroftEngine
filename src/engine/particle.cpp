@@ -74,8 +74,14 @@ Particle::Particle(const std::string& id,
 
 bool BloodSplatterParticle::update(level::Level& level)
 {
-    pos.position.X += speed * angle.Y.sin();
-    pos.position.Z += speed * angle.Y.cos();
+    static_assert(
+            std::is_same<
+                    QS_COMBINE_UNITS( core::Speed, *, core::Frame ),
+                    core::Length
+            >::value, "meh" );
+
+    pos.position.X += (speed.retype_as<float>() * angle.Y.sin()).retype_as<core::Speed>() * 1_frame;
+    pos.position.Z += (speed.retype_as<float>() * angle.Y.cos()).retype_as<core::Speed>() * 1_frame;
     ++timePerSpriteFrame;
     if( timePerSpriteFrame != 4 )
         return true;
@@ -103,8 +109,8 @@ bool SplashParticle::update(level::Level& level)
         return false;
     }
 
-    pos.position.X += speed * angle.Y.sin();
-    pos.position.Z += speed * angle.Y.cos();
+    pos.position.X += (speed.retype_as<float>() * angle.Y.sin()).retype_as<core::Speed>() * 1_frame;
+    pos.position.Z += (speed.retype_as<float>() * angle.Y.cos()).retype_as<core::Speed>() * 1_frame;
 
     applyTransform();
     return true;
@@ -114,9 +120,9 @@ bool BubbleParticle::update(level::Level& level)
 {
     angle.X += 13_deg;
     angle.Y += 9_deg;
-    pos.position.X += 11_len * angle.Y.sin();
-    pos.position.Y -= speed;
-    pos.position.Z += 8_len * angle.X.cos();
+    pos.position.X += ((11_len).retype_as<float>() * angle.Y.sin()).retype_as<core::Length>();
+    pos.position.Y -= 1_frame * speed;
+    pos.position.Z += ((8_len).retype_as<float>() * angle.X.cos()).retype_as<core::Length>();
     auto sector = level::Level::findRealFloorSector( pos.position, &pos.room );
     if( sector == nullptr || !pos.room->isWaterRoom() )
     {

@@ -38,7 +38,7 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( !lara.alignTransform( alignSpeed, *this ) )
         return;
 
-    lara.m_state.fallspeed = 0_len;
+    lara.m_state.fallspeed = 0_spd;
     do
     {
         lara.setGoalAnimState( LaraStateId::SwitchDown );

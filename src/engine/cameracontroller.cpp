@@ -138,7 +138,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
     if( condition != floordata::SequenceCondition::ItemActivated && m_fixedCameraId == m_currentFixedCameraId )
         return;
 
-    if( camParams.timeout != 1 )
+    if( camParams.timeout != 1_sec )
         m_camOverrideTimeout = camParams.timeout * core::FrameRate;
 
     if( camParams.oneshot )
@@ -245,7 +245,7 @@ void CameraController::tracePortals()
 
         // iterate through the last room's portals and add the destinations if suitable
         const auto destRoom = currentPath.getLastDestinationRoom();
-        for( const loader::Portal& srcPortal : m_level->m_rooms.at(destRoom.get()).portals )
+        for( const loader::Portal& srcPortal : m_level->m_rooms.at( destRoom.get() ).portals )
         {
             render::PortalTracer newPath = currentPath;
             if( !newPath.checkVisibility( &srcPortal, *m_camera.get() ) )
@@ -539,8 +539,10 @@ void CameraController::update()
         if( m_modifier == CameraModifier::FollowCenter )
         {
             const auto midZ = (focusBBox.minZ + focusBBox.maxZ) / 2;
-            m_center.position.Z += midZ * focusedItem->m_state.rotation.Y.cos();
-            m_center.position.X += midZ * focusedItem->m_state.rotation.Y.sin();
+            m_center.position.Z += (midZ.retype_as<float>() * focusedItem->m_state.rotation.Y.cos())
+                    .retype_as<core::Length>();
+            m_center.position.X += (midZ.retype_as<float>() * focusedItem->m_state.rotation.Y.sin())
+                    .retype_as<core::Length>();
         }
 
         if( m_fixed == fixed )
@@ -677,9 +679,9 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     if( m_bounce < 0_len )
     {
         const core::TRVec tmp{
-                util::rand15s( m_bounce ),
-                util::rand15s( m_bounce ),
-                util::rand15s( m_bounce )
+                util::rand15s( m_bounce, core::Length::type() ),
+                util::rand15s( m_bounce, core::Length::type() ),
+                util::rand15s( m_bounce, core::Length::type() )
         };
         m_eye.position += tmp;
         m_center.position += tmp;
@@ -717,15 +719,18 @@ void CameraController::chaseItem(const gsl::not_null<std::shared_ptr<const items
     else if( m_rotationAroundCenter.X < -85_deg )
         m_rotationAroundCenter.X = -85_deg;
 
-    const auto dist = m_rotationAroundCenter.X.cos() * m_eyeCenterDistance;
+    const auto dist = (m_rotationAroundCenter.X.cos() * m_eyeCenterDistance.retype_as<float>())
+            .retype_as<core::Length>();
     m_eyeCenterHorizontalDistanceSq = util::square( dist );
 
     core::RoomBoundPosition eye( m_eye.room );
-    eye.position.Y = m_eyeCenterDistance * m_rotationAroundCenter.X.sin() + m_center.position.Y;
+    eye.position.Y =
+            (m_eyeCenterDistance.retype_as<float>() * m_rotationAroundCenter.X.sin()).retype_as<core::Length>()
+            + m_center.position.Y;
 
     core::Angle y = m_rotationAroundCenter.Y + item->m_state.rotation.Y;
-    eye.position.X = m_center.position.X - dist * y.sin();
-    eye.position.Z = m_center.position.Z - dist * y.cos();
+    eye.position.X = m_center.position.X - (dist.retype_as<float>() * y.sin()).retype_as<core::Length>();
+    eye.position.Z = m_center.position.Z - (dist.retype_as<float>() * y.cos()).retype_as<core::Length>();
     clampBox( eye,
               [this](core::Length& a, core::Length& b, const core::Length c, const core::Length d, const core::Length e,
                      const core::Length f, const core::Length g, const core::Length h) {
@@ -745,9 +750,10 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
     m_rotationAroundCenter.Y = m_level->m_lara->m_torsoRotation.Y + m_level->m_lara->m_headRotation.Y
                                + item.m_state.rotation.Y;
     m_eyeCenterDistance = core::DefaultCameraLaraDistance;
-    m_eyeYOffset = -2 * core::QuarterSectorSize * m_rotationAroundCenter.Y.sin();
-    m_center.position.X += m_eyeYOffset * item.m_state.rotation.Y.sin();
-    m_center.position.Z += m_eyeYOffset * item.m_state.rotation.Y.cos();
+    m_eyeYOffset = -2 * (core::QuarterSectorSize.retype_as<float>() * m_rotationAroundCenter.Y.sin())
+            .retype_as<core::Length>();
+    m_center.position.X += (m_eyeYOffset.retype_as<float>() * item.m_state.rotation.Y.sin()).retype_as<core::Length>();
+    m_center.position.Z += (m_eyeYOffset.retype_as<float>() * item.m_state.rotation.Y.cos()).retype_as<core::Length>();
 
     if( isVerticallyOutsideRoom( m_center.position, m_eye.room ) )
     {
@@ -758,9 +764,12 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
     m_center.position.Y += moveIntoGeometry( m_center, core::CameraWallDistance );
 
     auto center = m_center;
-    center.position.X -= m_eyeCenterDistance * m_rotationAroundCenter.Y.sin() * m_rotationAroundCenter.X.cos();
-    center.position.Z -= m_eyeCenterDistance * m_rotationAroundCenter.Y.cos() * m_rotationAroundCenter.X.cos();
-    center.position.Y += m_eyeCenterDistance * m_rotationAroundCenter.X.sin();
+    center.position.X -= (m_eyeCenterDistance.retype_as<float>() * m_rotationAroundCenter.Y.sin()
+                          * m_rotationAroundCenter.X.cos()).retype_as<core::Length>();
+    center.position.Z -= (m_eyeCenterDistance.retype_as<float>() * m_rotationAroundCenter.Y.cos()
+                          * m_rotationAroundCenter.X.cos()).retype_as<core::Length>();
+    center.position.Y += (m_eyeCenterDistance.retype_as<float>() * m_rotationAroundCenter.X.sin())
+            .retype_as<core::Length>();
     center.room = m_eye.room;
 
     clampBox( center, &freeLookClamp );
@@ -793,10 +802,11 @@ void CameraController::handleEnemy(const items::ItemNode& item)
 
     m_eyeCenterDistance = core::CombatCameraLaraDistance;
     auto eye = m_center;
-    const auto d = m_eyeCenterDistance * m_rotationAroundCenter.X.cos();
-    eye.position.X -= d * m_rotationAroundCenter.Y.sin();
-    eye.position.Z -= d * m_rotationAroundCenter.Y.cos();
-    eye.position.Y += m_eyeCenterDistance * m_rotationAroundCenter.X.sin();
+    const auto d = m_eyeCenterDistance.retype_as<float>() * m_rotationAroundCenter.X.cos();
+    eye.position.X -= (d * m_rotationAroundCenter.Y.sin()).retype_as<core::Length>();
+    eye.position.Z -= (d * m_rotationAroundCenter.Y.cos()).retype_as<core::Length>();
+    eye.position.Y += (m_eyeCenterDistance.retype_as<float>() * m_rotationAroundCenter.X.sin())
+            .retype_as<core::Length>();
     eye.room = m_eye.room;
 
     clampBox( eye,
@@ -1095,15 +1105,17 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, cons
         const auto s = m_cinematicRot.Y.sin();
 
         core::TRVec center = m_cinematicPos;
-        center.X += (s * frame.center.Z + c * frame.center.X);
+        center.X += (s * frame.center.Z.retype_as<float>() + c * frame.center.X.retype_as<float>())
+                .retype_as<core::Length>();
         center.Y += frame.center.Y;
-        center.Z += (c * frame.center.Z - s * frame.center.X);
+        center.Z += (c * frame.center.Z.retype_as<float>() - s * frame.center.X.retype_as<float>())
+                .retype_as<core::Length>();
         m_center.position = center;
 
         core::TRVec eye = m_cinematicPos;
-        eye.X += (s * frame.eye.Z + c * frame.eye.X);
+        eye.X += (s * frame.eye.Z.retype_as<float>() + c * frame.eye.X.retype_as<float>()).retype_as<core::Length>();
         eye.Y += frame.eye.Y;
-        eye.Z += (c * frame.eye.Z - s * frame.eye.X);
+        eye.Z += (c * frame.eye.Z.retype_as<float>() - s * frame.eye.X.retype_as<float>()).retype_as<core::Length>();
         m_eye.position = eye;
 
         auto m = lookAt( eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0} );
@@ -1118,14 +1130,16 @@ void CameraController::updateCinematic(const loader::CinematicFrame& frame, cons
         const auto s = m_eyeRotation.Y.sin();
 
         core::TRVec center = m_eye.position;
-        center.X += (s * frame.center.Z + c * frame.center.X);
+        center.X += (s * frame.center.Z.retype_as<float>() + c * frame.center.X.retype_as<float>())
+                .retype_as<core::Length>();
         center.Y += frame.center.Y;
-        center.Z += (c * frame.center.Z - s * frame.center.X);
+        center.Z += (c * frame.center.Z.retype_as<float>() - s * frame.center.X.retype_as<float>())
+                .retype_as<core::Length>();
 
         core::TRVec eye = m_eye.position;
-        eye.X += (s * frame.eye.Z + c * frame.eye.X);
+        eye.X += (s * frame.eye.Z.retype_as<float>() + c * frame.eye.X.retype_as<float>()).retype_as<core::Length>();
         eye.Y += frame.eye.Y;
-        eye.Z += (c * frame.eye.Z - s * frame.eye.X);
+        eye.Z += (c * frame.eye.Z.retype_as<float>() - s * frame.eye.X.retype_as<float>()).retype_as<core::Length>();
 
         auto m = lookAt( eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0} );
         m = rotate( m, frame.rotZ.toRad(), -glm::vec3{m[2]} );

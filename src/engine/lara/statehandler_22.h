@@ -43,7 +43,7 @@ public:
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        getLara().m_state.fallspeed = 0_len;
+        getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = false;
         collisionInfo.badPositiveDistance = 128_len;
         collisionInfo.badNegativeDistance = -128_len;
