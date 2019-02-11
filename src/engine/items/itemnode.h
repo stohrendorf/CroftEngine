@@ -227,9 +227,9 @@ public:
         m_state.position.position += core::TRVec( d );
     }
 
-    void moveLocal(const core::Length dx, const core::Length dy, const core::Length dz)
+    void moveLocal(const core::TRVec d)
     {
-        m_state.position.position += util::rotateY( m_state.rotation.Y, dx, dy, dz );
+        m_state.position.position += util::pitch( d, m_state.rotation.Y );
     }
 
     const level::Level& getLevel() const

@@ -39,10 +39,7 @@ void engine::items::RollingBall::update()
         }
 
         // let's see if we hit a wall, and if that's the case, stop.
-        const auto testPos = m_state.position.position
-                             + core::TRVec( (m_state.rotation.Y.sin() * core::SectorSize.retype_as<float>()).retype_as<core::Length>() / 2,
-                                            0_len,
-                                            (m_state.rotation.Y.cos() * core::SectorSize.retype_as<float>()).retype_as<core::Length>() / 2 );
+        const auto testPos = m_state.position.position + util::pitch(core::SectorSize/2, m_state.rotation.Y);
         sector = level::Level::findRealFloorSector( testPos, room );
         if( HeightInfo::fromFloor( sector, testPos, getLevel().m_itemNodes ).y < m_state.position.position.Y )
         {

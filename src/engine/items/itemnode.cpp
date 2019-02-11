@@ -145,11 +145,11 @@ void ModelItemNode::update()
             switch( opcode )
             {
                 case AnimCommandOpcode::SetPosition:
-                    moveLocal(
+                    moveLocal( core::TRVec{
                             core::Length{static_cast<core::Length::type>(cmd[0])},
                             core::Length{static_cast<core::Length::type>(cmd[1])},
                             core::Length{static_cast<core::Length::type>(cmd[2])}
-                    );
+                    } );
                     cmd += 3;
                     break;
                 case AnimCommandOpcode::StartFalling:
@@ -361,11 +361,9 @@ void ModelItemNode::applyMovement(const bool forLara)
         m_state.speed = m_skeleton->calculateFloorSpeed( m_state );
     }
 
-    move(
-            (getMovementAngle().sin() * m_state.speed.retype_as<float>()).retype_as<core::Speed>() * 1_frame,
-            (m_state.falling ? m_state.fallspeed : 0_spd) * 1_frame,
-            (getMovementAngle().cos() * m_state.speed.retype_as<float>()).retype_as<core::Speed>() * 1_frame
-    );
+    move( (util::pitch( m_state.speed * 1_frame, getMovementAngle() ) + core::TRVec{
+            0_len, (m_state.falling ? m_state.fallspeed : 0_spd) * 1_frame, 0_len
+    }).toRenderSystem() );
 
     applyTransform();
 
@@ -433,16 +431,14 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const core::Length radius
         return false;
     }
 
-    const auto c = m_state.rotation.Y.cos();
-    const auto s = m_state.rotation.Y.sin();
-    const auto dx = (other.m_state.position.position.X - m_state.position.position.X).retype_as<float>();
-    const auto dz = (other.m_state.position.position.Z - m_state.position.position.Z).retype_as<float>();
-    const auto x = (c * dx - s * dz).retype_as<core::Length>();
-    const auto z = (s * dx + c * dz).retype_as<core::Length>();
-    return x >= aBBox.minX - radius
-           && x <= aBBox.maxX + radius
-           && z >= aBBox.minZ - radius
-           && z <= aBBox.maxZ + radius;
+    const auto xz = util::pitch(
+            other.m_state.position.position - m_state.position.position,
+            m_state.rotation.Y
+    );
+    return xz.X >= aBBox.minX - radius
+           && xz.X <= aBBox.maxX + radius
+           && xz.Z >= aBBox.minZ - radius
+           && xz.Z <= aBBox.maxZ + radius;
 }
 
 bool ModelItemNode::isNear(const Particle& other, const core::Length radius) const
@@ -455,107 +451,93 @@ bool ModelItemNode::isNear(const Particle& other, const core::Length radius) con
         return false;
     }
 
-    const auto c = m_state.rotation.Y.cos();
-    const auto s = m_state.rotation.Y.sin();
-    const auto dx = (other.pos.position.X - m_state.position.position.X).retype_as<float>();
-    const auto dz = (other.pos.position.Z - m_state.position.position.Z).retype_as<float>();
-    const auto x = (c * dx - s * dz).retype_as<core::Length>();
-    const auto z = (s * dx + c * dz).retype_as<core::Length>();
-    return x >= bbox.minX - radius
-           && x <= bbox.maxX + radius
-           && z >= bbox.minZ - radius
-           && z <= bbox.maxZ + radius;
+    const auto xz = util::pitch(
+            other.pos.position - m_state.position.position,
+            m_state.rotation.Y
+    );
+    return xz.X >= bbox.minX - radius
+           && xz.X <= bbox.maxX + radius
+           && xz.Z >= bbox.minZ - radius
+           && xz.Z <= bbox.maxZ + radius;
 }
 
 void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, const bool enableSpaz,
                               const bool withXZCollRadius)
 {
-    const auto dx = (lara.m_state.position.position.X - m_state.position.position.X).retype_as<float>();
-    const auto dz = (lara.m_state.position.position.Z - m_state.position.position.Z).retype_as<float>();
-    const auto c = m_state.rotation.Y.cos();
-    const auto s = m_state.rotation.Y.sin();
-    auto posX = (c * dx - s * dz).retype_as<core::Length>();
-    auto posZ = (s * dx + c * dz).retype_as<core::Length>();
-    const auto itemKeyFrame = m_skeleton->getInterpolationInfo( m_state ).getNearestFrame();
-    auto itemBBoxMinX = itemKeyFrame->bbox.toBBox().minX;
-    auto itemBBoxMaxX = itemKeyFrame->bbox.toBBox().maxX;
-    auto itemBBoxMaxZ = itemKeyFrame->bbox.toBBox().maxZ;
-    auto itemBBoxMinZ = itemKeyFrame->bbox.toBBox().minZ;
+    const auto laraPosWorld = lara.m_state.position.position - m_state.position.position;
+    auto laraPosLocal = util::pitch( laraPosWorld, -m_state.rotation.Y );
+    const auto keyFrame = m_skeleton->getInterpolationInfo( m_state ).getNearestFrame();
+    auto itemBBox = keyFrame->bbox.toBBox();
     if( withXZCollRadius )
     {
         const auto r = collisionInfo.collisionRadius;
-        itemBBoxMinX -= r;
-        itemBBoxMaxX += r;
-        itemBBoxMinZ -= r;
-        itemBBoxMaxZ += r;
+        itemBBox.minX -= r;
+        itemBBox.maxX += r;
+        itemBBox.minZ -= r;
+        itemBBox.maxZ += r;
     }
-    if( posX >= itemBBoxMinX && posX <= itemBBoxMaxX && posZ >= itemBBoxMinZ && posZ <= itemBBoxMaxZ )
+    if( laraPosLocal.X < itemBBox.minX || laraPosLocal.X > itemBBox.maxX
+        || laraPosLocal.Z < itemBBox.minZ || laraPosLocal.Z > itemBBox.maxZ )
+        return;
+
+    const auto left = laraPosLocal.X - itemBBox.minX;
+    const auto right = itemBBox.maxX - laraPosLocal.X;
+    const auto back = laraPosLocal.Z - itemBBox.minZ;
+    const auto front = itemBBox.maxZ - laraPosLocal.Z;
+
+    if( left <= right && left <= front && left <= back )
     {
-        const auto dxMin = posX - itemBBoxMinX;
-        const auto dxMax = itemBBoxMaxX - posX;
-        const auto dzMin = posZ - itemBBoxMinZ;
-        const auto dzMax = itemBBoxMaxZ - posZ;
-        if( posX - itemBBoxMinX <= itemBBoxMaxX - posX && dxMin <= dzMax && dxMin <= dzMin )
+        laraPosLocal.X = itemBBox.minX;
+    }
+    else if( right <= left && right <= front && right <= back )
+    {
+        laraPosLocal.X = itemBBox.maxX;
+    }
+    else if( front <= left && front <= right && front <= back )
+    {
+        laraPosLocal.Z = itemBBox.maxZ;
+    }
+    else
+    {
+        laraPosLocal.Z = itemBBox.minZ;
+    }
+    // update lara's position to where she was pushed
+    lara.m_state.position.position = m_state.position.position + util::pitch( laraPosLocal, m_state.rotation.Y );
+    if( enableSpaz )
+    {
+        const auto midX = (keyFrame->bbox.toBBox().minX + keyFrame->bbox.toBBox().maxX) / 2;
+        const auto midZ = (keyFrame->bbox.toBBox().minZ + keyFrame->bbox.toBBox().maxZ) / 2;
+        const auto tmp = laraPosWorld - util::pitch( core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y );
+        const auto a = core::Angle::fromAtan( tmp.X, tmp.Z ) - 180_deg;
+        getLevel().m_lara->hit_direction = core::axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
+        if( getLevel().m_lara->hit_frame == 0_frame )
         {
-            posX -= dxMin;
+            lara.playSoundEffect( TR1SoundId::LaraOof );
         }
-        else if( dxMin >= dxMax && dxMax <= dzMax && dxMax <= dzMin )
+        getLevel().m_lara->hit_frame += 1_frame;
+        if( getLevel().m_lara->hit_frame > 34_frame )
         {
-            posX = itemBBoxMaxX;
+            getLevel().m_lara->hit_frame = 34_frame;
         }
-        else if( dxMin < dzMax || dzMax > dxMax || dzMax > dzMin )
-        {
-            posZ -= dzMin;
-        }
-        else
-        {
-            posZ = itemBBoxMaxZ;
-        }
-        lara.m_state.position.position.X =
-                (c * posX.retype_as<float>() + s * posZ.retype_as<float>()).retype_as<core::Length>()
-                + m_state.position.position.X;
-        lara.m_state.position.position.Z =
-                (c * posZ.retype_as<float>() - s * posX.retype_as<float>()).retype_as<core::Length>()
-                + m_state.position.position.Z;
-        if( enableSpaz )
-        {
-            const auto midX = (itemKeyFrame->bbox.toBBox().minX + itemKeyFrame->bbox.toBBox().maxX).retype_as<float>()
-                              / 2.0f;
-            const auto midZ = (itemKeyFrame->bbox.toBBox().minZ + itemKeyFrame->bbox.toBBox().maxZ).retype_as<float>()
-                              / 2.0f;
-            const auto a =
-                    core::Angle::fromAtan( (dx - ((midX * c + midZ * s))).get(), (dz - ((midZ * c - midX * s))).get() )
-                    - 180_deg;
-            getLevel().m_lara->hit_direction = core::axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
-            if( getLevel().m_lara->hit_frame == 0_frame )
-            {
-                lara.playSoundEffect( TR1SoundId::LaraOof );
-            }
-            getLevel().m_lara->hit_frame += 1_frame;
-            if( getLevel().m_lara->hit_frame > 34_frame )
-            {
-                getLevel().m_lara->hit_frame = 34_frame;
-            }
-        }
-        collisionInfo.badPositiveDistance = core::HeightLimit;
-        collisionInfo.badNegativeDistance = -384_len;
-        collisionInfo.badCeilingDistance = 0_len;
-        const auto facingAngle = collisionInfo.facingAngle;
-        collisionInfo.facingAngle = core::Angle::fromAtan(
-                lara.m_state.position.position.X - collisionInfo.oldPosition.X,
-                lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
-        collisionInfo.initHeightInfo( lara.m_state.position.position, getLevel(), core::LaraWalkHeight );
-        collisionInfo.facingAngle = facingAngle;
-        if( collisionInfo.collisionType != CollisionInfo::AxisColl::None )
-        {
-            lara.m_state.position.position.X = collisionInfo.oldPosition.X;
-            lara.m_state.position.position.Z = collisionInfo.oldPosition.Z;
-        }
-        else
-        {
-            collisionInfo.oldPosition = lara.m_state.position.position;
-            lara.updateFloorHeight( -10_len );
-        }
+    }
+    collisionInfo.badPositiveDistance = core::HeightLimit;
+    collisionInfo.badNegativeDistance = -384_len;
+    collisionInfo.badCeilingDistance = 0_len;
+    const auto facingAngle = collisionInfo.facingAngle;
+    collisionInfo.facingAngle = core::Angle::fromAtan(
+            lara.m_state.position.position.X - collisionInfo.oldPosition.X,
+            lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
+    collisionInfo.initHeightInfo( lara.m_state.position.position, getLevel(), core::LaraWalkHeight );
+    collisionInfo.facingAngle = facingAngle;
+    if( collisionInfo.collisionType != CollisionInfo::AxisColl::None )
+    {
+        lara.m_state.position.position.X = collisionInfo.oldPosition.X;
+        lara.m_state.position.position.Z = collisionInfo.oldPosition.Z;
+    }
+    else
+    {
+        collisionInfo.oldPosition = lara.m_state.position.position;
+        lara.updateFloorHeight( -10_len );
     }
 }
 

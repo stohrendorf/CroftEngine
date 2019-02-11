@@ -531,14 +531,10 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
 
     sol::table objectInfo = lvl.m_scriptEngine["getObjectInfo"].call( item.type );
     const core::Length pivotLength{static_cast<core::Length::type>(objectInfo["pivot_length"])};
-    const auto dz = lvl.m_lara->m_state.position.position.Z
-                    - (item.position.position.Z.retype_as<float>()
-                       + pivotLength.retype_as<float>() * item.rotation.Y.cos()).retype_as<core::Length>();
-    const auto dx = lvl.m_lara->m_state.position.position.X
-                    - (item.position.position.X.retype_as<float>()
-                       + pivotLength.retype_as<float>() * item.rotation.Y.sin()).retype_as<core::Length>();
-    const auto pivotAngle = core::Angle::fromAtan( dx, dz );
-    distance = util::square( dx ) + util::square( dz );
+    const auto d = lvl.m_lara->m_state.position.position
+            - (item.position.position + util::pitch( pivotLength, item.rotation.Y ));
+    const auto pivotAngle = core::Angle::fromAtan( d.X, d.Z );
+    distance = util::square( d.X ) + util::square( d.Z );
     angle = pivotAngle - item.rotation.Y;
     enemy_facing = pivotAngle - 180_deg - lvl.m_lara->m_state.rotation.Y;
     ahead = angle > -90_deg && angle < 90_deg;

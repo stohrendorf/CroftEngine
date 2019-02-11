@@ -285,16 +285,7 @@ void LaraNode::handleLaraStateDiving()
 
     updateImpl();
 
-    {
-        auto pos = m_state.position.position;
-        pos.X += (m_state.rotation.Y.sin() * m_state.rotation.X.cos() * m_state.fallspeed.retype_as<float>() / 4.0f)
-                         .retype_as<core::Speed>() * 1_frame;
-        pos.Y -= (m_state.rotation.X.sin() * m_state.fallspeed.retype_as<float>() / 4.0f)
-                         .retype_as<core::Speed>() * 1_frame;
-        pos.Z += (m_state.rotation.Y.cos() * m_state.rotation.X.cos() * m_state.fallspeed.retype_as<float>() / 4.0f)
-                         .retype_as<core::Speed>() * 1_frame;
-        m_state.position.position = pos;
-    }
+    m_state.position.position += util::yawPitch( m_state.fallspeed * 1_frame / 4, m_state.rotation );
 
     testInteractions( collisionInfo );
 
@@ -351,11 +342,7 @@ void LaraNode::handleLaraStateSwimming()
 
     updateImpl();
 
-    move(
-            (getMovementAngle().sin() * m_state.fallspeed.retype_as<float>() / 4.0f).retype_as<core::Speed>() * 1_frame,
-            0_len,
-            (getMovementAngle().cos() * m_state.fallspeed.retype_as<float>() / 4.0f).retype_as<core::Speed>() * 1_frame
-    );
+    move( util::pitch( m_state.fallspeed * 1_frame / 4, getMovementAngle() ).toRenderSystem() );
 
     testInteractions( collisionInfo );
 
@@ -531,11 +518,11 @@ void LaraNode::updateImpl()
                 switch( opcode )
                 {
                     case AnimCommandOpcode::SetPosition:
-                        moveLocal(
+                        moveLocal( core::TRVec{
                                 core::Length{static_cast<core::Length::type>(cmd[0])},
                                 core::Length{static_cast<core::Length::type>(cmd[1])},
                                 core::Length{static_cast<core::Length::type>(cmd[2])}
-                        );
+                        } );
                         cmd += 3;
                         break;
                     case AnimCommandOpcode::StartFalling:
@@ -1354,17 +1341,12 @@ core::RoomBoundPosition LaraNode::getUpperThirdBBoxCtr(const ModelItemNode& item
     const auto kf = item.getSkeleton()->getInterpolationInfo( item.m_state ).getNearestFrame();
     const auto bbox = kf->bbox.toBBox();
 
-    const auto ctrX = (bbox.minX + bbox.maxX).retype_as<float>() / 2.0f;
-    const auto ctrZ = (bbox.minZ + bbox.maxZ).retype_as<float>() / 2.0f;
-    const auto ctrY3 = (bbox.maxY - bbox.minY).retype_as<float>() / 3.0f + bbox.minY.retype_as<float>();
-
-    const auto cos = item.m_state.rotation.Y.cos();
-    const auto sin = item.m_state.rotation.Y.sin();
+    const auto ctrX = (bbox.minX + bbox.maxX) / 2;
+    const auto ctrZ = (bbox.minZ + bbox.maxZ) / 2;
+    const auto ctrY3 = (bbox.maxY - bbox.minY) / 3 + bbox.minY;
 
     core::RoomBoundPosition result{item.m_state.position};
-    result.position.X += (ctrZ * sin + ctrX * cos).retype_as<core::Length>();
-    result.position.Y += ctrY3.retype_as<core::Length>();
-    result.position.Z += (ctrZ * cos - ctrX * sin).retype_as<core::Length>();
+    result.position += util::pitch( core::TRVec{ctrX, ctrY3, ctrZ}, item.m_state.rotation.Y );
     return result;
 }
 

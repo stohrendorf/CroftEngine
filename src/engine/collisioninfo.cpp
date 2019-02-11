@@ -43,7 +43,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     switch( facingAxis )
     {
         case core::Axis::PosZ:
-            frontX = (facingAngle.sin() * collisionRadius.retype_as<float>()).retype_as<core::Length>();
+            frontX = util::sin(collisionRadius, facingAngle);
             frontZ = collisionRadius;
             frontLeftZ = collisionRadius;
             frontLeftX = -collisionRadius;
@@ -52,14 +52,14 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
             break;
         case core::Axis::PosX:
             frontX = collisionRadius;
-            frontZ = (facingAngle.cos() * collisionRadius.retype_as<float>()).retype_as<core::Length>();
+            frontZ = util::cos(collisionRadius, facingAngle);
             frontLeftX = collisionRadius;
             frontLeftZ = collisionRadius;
             frontRightX = collisionRadius;
             frontRightZ = -collisionRadius;
             break;
         case core::Axis::NegZ:
-            frontX = (facingAngle.sin() * collisionRadius.retype_as<float>()).retype_as<core::Length>();
+            frontX = util::sin(collisionRadius, facingAngle);
             frontZ = -collisionRadius;
             frontLeftX = collisionRadius;
             frontLeftZ = -collisionRadius;
@@ -68,7 +68,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
             break;
         case core::Axis::NegX:
             frontX = -collisionRadius;
-            frontZ = (facingAngle.cos() * collisionRadius.retype_as<float>()).retype_as<core::Length>();
+            frontZ = util::cos(collisionRadius, facingAngle);
             frontLeftX = -collisionRadius;
             frontLeftZ = -collisionRadius;
             frontRightX = -collisionRadius;

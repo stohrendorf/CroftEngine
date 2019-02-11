@@ -86,14 +86,43 @@ inline glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
     return result;
 }
 
-inline core::TRVec rotateY(core::Angle angle, core::Length x, core::Length y, core::Length z)
+inline core::Length sin(const core::Length len, const core::Angle rot)
 {
-    const auto sin = angle.sin();
-    const auto cos = angle.cos();
+    return (len.retype_as<float>() * rot.sin()).retype_as<core::Length>();
+}
+
+inline core::Length cos(const core::Length len, const core::Angle rot)
+{
+    return (len.retype_as<float>() * rot.cos()).retype_as<core::Length>();
+}
+
+inline core::TRVec pitch(const core::Length len, const core::Angle rot)
+{
     return core::TRVec{
-            (z.retype_as<float>() * sin + x.retype_as<float>() * cos).retype_as<core::Length>(),
-            y,
-            (z.retype_as<float>() * cos - x.retype_as<float>() * sin).retype_as<core::Length>()
+            sin( len, rot ),
+            0_len,
+            cos( len, rot )
+    };
+}
+
+inline core::TRVec yawPitch(const core::Length len, const core::TRRotation rot)
+{
+    const auto d = cos( len, rot.X );
+    return core::TRVec{
+            sin( d, rot.Y ),
+            -sin( len, rot.X ),
+            cos( d, rot.Y )
+    };
+}
+
+inline core::TRVec pitch(const core::TRVec vec, const core::Angle rot)
+{
+    const auto sin = rot.sin();
+    const auto cos = rot.cos();
+    return core::TRVec{
+            (vec.Z.retype_as<float>() * sin + vec.X.retype_as<float>() * cos).retype_as<core::Length>(),
+            vec.Y,
+            (vec.Z.retype_as<float>() * cos - vec.X.retype_as<float>() * sin).retype_as<core::Length>()
     };
 }
 }

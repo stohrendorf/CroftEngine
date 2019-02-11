@@ -615,10 +615,8 @@ bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
 
 core::Length AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, const core::Length dist) const
 {
-    auto pos = m_lara.m_state.position.position;
-    pos.X += (angle.sin() * dist.retype_as<float>()).retype_as<core::Length>();
+    auto pos = m_lara.m_state.position.position + util::pitch(dist, angle);
     pos.Y -= core::LaraWalkHeight;
-    pos.Z += (angle.cos() * dist.retype_as<float>()).retype_as<core::Length>();
 
     const auto sector = level::Level::findRealFloorSector( pos, m_lara.m_state.position.room );
 
@@ -919,10 +917,7 @@ void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
     }
     else if( collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront )
     {
-        m_lara.m_state.position.position.X += ((100_len).retype_as<float>() * m_lara.m_state.rotation.Y.sin())
-                .retype_as<core::Length>();
-        m_lara.m_state.position.position.Z += ((100_len).retype_as<float>() * m_lara.m_state.rotation.Y.cos())
-                .retype_as<core::Length>();
+        m_lara.m_state.position.position += util::pitch(core::DefaultCollisionRadius, m_lara.m_state.rotation.Y);
         m_lara.m_state.speed = 0_spd;
         collisionInfo.mid.floorSpace.y = 0_len;
         if( m_lara.m_state.fallspeed < 0_spd )
@@ -968,10 +963,7 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
 
     if( collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront )
     {
-        m_lara.m_state.position.position.X += ((100_len).retype_as<float>() * collisionInfo.facingAngle.sin())
-                .retype_as<core::Length>();
-        m_lara.m_state.position.position.Z += ((100_len).retype_as<float>() * collisionInfo.facingAngle.cos())
-                .retype_as<core::Length>();
+        m_lara.m_state.position.position += util::pitch(core::DefaultCollisionRadius, collisionInfo.facingAngle);
         m_lara.m_state.speed = 0_spd;
         collisionInfo.mid.floorSpace.y = 0_len;
         if( m_lara.m_state.fallspeed <= 0_spd )
