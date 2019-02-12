@@ -63,7 +63,7 @@ protected:
 public:
     explicit Particle(const std::string& id,
                       const TR1ItemId objectNumber,
-                      const gsl::not_null<const loader::Room*>& room,
+                      const gsl::not_null<const loader::file::Room*>& room,
                       level::Level& level,
                       float scale = 1);
 

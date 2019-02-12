@@ -20,6 +20,8 @@
 
 namespace loader
 {
+namespace file
+{
 namespace io
 {
 using DataStreamBuf = boost::iostreams::filtering_istreambuf;
@@ -310,5 +312,6 @@ private:
         }
     };
 };
-} // namespace io
-} // namespace loader
+}
+}
+}

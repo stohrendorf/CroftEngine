@@ -117,8 +117,8 @@ function( wrap_enum name type source dest )
     file( APPEND "${dest}" "};\n" )
 endfunction()
 
-wrap_enum( AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/animationid_enum.h )
-wrap_enum( LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/larastateid_enum.h )
+wrap_enum( AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/animationid_enum.h )
+wrap_enum( LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/larastateid_enum.h )
 wrap_enum( ControllerAxis int ${CMAKE_CURRENT_SOURCE_DIR}/controlleraxes.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controlleraxis_enum.h )
 wrap_enum( ControllerButton int ${CMAKE_CURRENT_SOURCE_DIR}/controllerbuttons.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controllerbutton_enum.h )
 wrap_enum( TR1ItemId int ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1_enum.h )
@@ -137,15 +137,15 @@ set( EDISONENGINE_SRCS
      engine/skeletalmodelnode.cpp
 
      level/level.cpp
-     level/tr1level.cpp
-     level/tr2level.cpp
-     level/tr3level.cpp
-     level/tr4level.cpp
-     level/tr5level.cpp
+     loader/file/level/tr1level.cpp
+     loader/file/level/tr2level.cpp
+     loader/file/level/tr3level.cpp
+     loader/file/level/tr4level.cpp
+     loader/file/level/tr5level.cpp
 
-     loader/datatypes.cpp
-     loader/mesh.cpp
-     loader/texture.cpp
+     loader/file/datatypes.cpp
+     loader/file/mesh.cpp
+     loader/file/texture.cpp
      loader/trx/trx.cpp
 
      audio/alext.cpp

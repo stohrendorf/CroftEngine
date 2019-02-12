@@ -3,8 +3,8 @@
 #include "textureanimator.h"
 
 #include "util/cimgwrapper.h"
-#include "loader/texture.h"
-#include "loader/datatypes.h"
+#include "loader/file/texture.h"
+#include "loader/file/datatypes.h"
 
 namespace render
 {
@@ -185,7 +185,7 @@ class TextureAtlas
         glm::vec2 uvMin;
         glm::vec2 uvMax;
 
-        loader::TextureLayoutProxy::TextureKey srcTexture;
+        loader::file::TextureLayoutProxy::TextureKey srcTexture;
 
         glm::vec2 newUvMin;
     };
@@ -195,7 +195,7 @@ class TextureAtlas
     std::vector<Mapping> m_mappings{};
 
 public:
-    void layOutTextures(const std::vector<loader::DWordTexture>& textures)
+    void layOutTextures(const std::vector<loader::file::DWordTexture>& textures)
     {
         // First step: Sort the canonical textures by size.
         std::vector<size_t> sortedIndices( m_mappings.size() );
@@ -211,7 +211,7 @@ public:
         {
             Mapping& mapping = m_mappings[sortedIndices[texture]];
             const auto mapped = layout.tryInsert(
-                    textures.at( mapping.srcTexture.tileAndFlag & loader::TextureIndexMask ).image->getWidth(),
+                    textures.at( mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask ).image->getWidth(),
                     mapping.uvMax - mapping.uvMin );
             if( !mapped.is_initialized() )
             {
@@ -230,7 +230,7 @@ public:
 
     ~TextureAtlas() = default;
 
-    void insert(const std::vector<loader::TextureLayoutProxy>& textureProxies, const size_t proxyId)
+    void insert(const std::vector<loader::file::TextureLayoutProxy>& textureProxies, const size_t proxyId)
     {
         const auto& proxy = textureProxies.at( proxyId );
         // Determine the canonical texture for this texture.
@@ -273,8 +273,8 @@ public:
         m_mappingByProxy.emplace( std::make_pair( proxyId, mappingIdx ) );
     }
 
-    void toTexture(std::vector<loader::DWordTexture>& textures,
-                   std::vector<loader::TextureLayoutProxy>& textureProxies) const
+    void toTexture(std::vector<loader::file::DWordTexture>& textures,
+                   std::vector<loader::file::TextureLayoutProxy>& textureProxies) const
     {
         util::CImgWrapper img{m_resultPageSize};
 
@@ -284,7 +284,7 @@ public:
             auto& proxy = textureProxies.at( proxyToMapping.first );
             const auto& mapping = m_mappings.at( proxyToMapping.second );
 
-            const auto& glSrcImg = textures.at( mapping.srcTexture.tileAndFlag & loader::TextureIndexMask ).image;
+            const auto& glSrcImg = textures.at( mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask ).image;
             util::CImgWrapper srcImg{reinterpret_cast<const uint8_t*>(glSrcImg->getData().data()),
                                      glSrcImg->getWidth(), glSrcImg->getHeight(),
                                      true};
@@ -298,7 +298,7 @@ public:
             const auto s = static_cast<float>(m_resultPageSize)
                            / textures.at( proxy.textureKey.tileAndFlag & 0x7fff ).image->getWidth();
 
-            proxy.textureKey.tileAndFlag &= ~loader::TextureIndexMask;
+            proxy.textureKey.tileAndFlag &= ~loader::file::TextureIndexMask;
             proxy.textureKey.tileAndFlag |= gsl::narrow_cast<uint16_t>( textures.size() );
             for( auto& uv : proxy.uvCoordinates )
             {
@@ -307,7 +307,7 @@ public:
             }
         }
 
-        loader::DWordTexture texture;
+        loader::file::DWordTexture texture;
         texture.texture = std::make_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
         texture.texture->setLabel( "animated texture tiles" );
         img.interleave();
@@ -322,8 +322,8 @@ public:
 }
 
 TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
-                                 std::vector<loader::TextureLayoutProxy>& textureProxies,
-                                 std::vector<loader::DWordTexture>& textures)
+                                 std::vector<loader::file::TextureLayoutProxy>& textureProxies,
+                                 std::vector<loader::file::DWordTexture>& textures)
 {
     GLint maxSize = 0;
     for( const auto& texture : textures )

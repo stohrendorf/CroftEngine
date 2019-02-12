@@ -85,7 +85,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto oldPosition = m_state.position.position;
 
     const auto boxFloor = m_state.box->floor;
-    const auto zoneRef = loader::Box::getZoneRef( getLevel().roomsAreSwapped, creatureInfo->lot.fly,
+    const auto zoneRef = loader::file::Box::getZoneRef( getLevel().roomsAreSwapped, creatureInfo->lot.fly,
                                                   creatureInfo->lot.step );
     ModelItemNode::update();
     if( m_state.triggerState == TriggerState::Deactivated )
@@ -382,7 +382,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         core::Angle yaw{0};
         if( m_state.speed != 0_spd )
-            yaw = core::Angle::fromAtan( -moveY / 1_len, m_state.speed * 1_frame / 1_len );
+            yaw = core::Angle::fromAtan( -moveY, m_state.speed * 1_frame );
 
         if( yaw < m_state.rotation.X - 1_deg )
             m_state.rotation.X -= 1_deg;
@@ -420,9 +420,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 }
 
 AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
-                 const gsl::not_null<const loader::Room*>& room,
-                 const loader::Item& item,
-                 const loader::SkeletalModelType& animatedModel)
+                 const gsl::not_null<const loader::file::Room*>& room,
+                 const loader::file::Item& item,
+                 const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{level, room, item, true, animatedModel}
         , m_collisionRadius{static_cast<core::Length::type>(level->m_scriptEngine["getObjectInfo"]
                 .call<sol::table>( m_state.type )["radius"])}

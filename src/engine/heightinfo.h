@@ -1,6 +1,6 @@
 #pragma once
 
-#include "loader/datatypes.h"
+#include "loader/file/datatypes.h"
 
 namespace engine
 {
@@ -23,11 +23,11 @@ struct HeightInfo
 
     static bool skipSteepSlants;
 
-    static HeightInfo fromFloor(gsl::not_null<const loader::Sector*> roomSector,
+    static HeightInfo fromFloor(gsl::not_null<const loader::file::Sector*> roomSector,
                                 const core::TRVec& pos,
                                 const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList);
 
-    static HeightInfo fromCeiling(gsl::not_null<const loader::Sector*> roomSector,
+    static HeightInfo fromCeiling(gsl::not_null<const loader::file::Sector*> roomSector,
                                   const core::TRVec& pos,
                                   const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList);
 
@@ -40,7 +40,7 @@ struct VerticalSpaceInfo
     HeightInfo floorSpace;
     HeightInfo ceilingSpace;
 
-    void init(const gsl::not_null<const loader::Sector*>& roomSector,
+    void init(const gsl::not_null<const loader::file::Sector*>& roomSector,
               const core::TRVec& position,
               const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList,
               const core::Length itemY,

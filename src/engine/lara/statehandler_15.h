@@ -72,7 +72,7 @@ public:
             return;
         }
 
-        setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
+        setAnimation( AnimationId::STAY_SOLID, 185_frame );
         setGoalAnimState( LaraStateId::Stop );
         getLara().m_state.speed = 0_spd;
         getLara().m_state.position.position = collisionInfo.oldPosition;

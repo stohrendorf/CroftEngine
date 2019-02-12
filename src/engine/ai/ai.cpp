@@ -514,7 +514,7 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
     if( item.creatureInfo == nullptr )
         return;
 
-    const auto zoneRef = loader::Box::getZoneRef( lvl.roomsAreSwapped,
+    const auto zoneRef = loader::file::Box::getZoneRef( lvl.roomsAreSwapped,
                                                   item.creatureInfo->lot.fly,
                                                   item.creatureInfo->lot.step );
 

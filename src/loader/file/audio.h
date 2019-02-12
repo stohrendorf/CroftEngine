@@ -7,6 +7,8 @@
 
 namespace loader
 {
+namespace file
+{
 // In TR3-5, there were 5 reverb / echo effect flags for each
 // room, but they were never used in PC versions - however, level
 // files still contain this info, so we now can re-use these flags
@@ -184,4 +186,5 @@ struct SoundDetails
         return sound_details;
     }
 };
+}
 }

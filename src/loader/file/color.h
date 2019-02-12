@@ -8,6 +8,8 @@
 
 namespace loader
 {
+namespace file
+{
 /**
 * @brief 8-Bit RGBA color.
 * @ingroup native
@@ -96,4 +98,5 @@ struct Palette
         return palette;
     }
 };
+}
 }

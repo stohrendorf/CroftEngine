@@ -6,6 +6,8 @@
 
 namespace loader
 {
+namespace file
+{
 struct RoomVertex;
 
 using VertexIndex = core::ContainerIndex<uint32_t, core::TRVec, int16_t, RoomVertex>;
@@ -94,4 +96,5 @@ private:
         return quadFace;
     }
 };
+}
 }

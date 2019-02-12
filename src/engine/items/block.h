@@ -10,13 +10,13 @@ class Block final : public ModelItemNode
 {
 public:
     Block(const gsl::not_null<level::Level*>& level,
-          const gsl::not_null<const loader::Room*>& room,
-          const loader::Item& item,
-          const loader::SkeletalModelType& animatedModel)
+          const gsl::not_null<const loader::file::Room*>& room,
+          const loader::file::Item& item,
+          const loader::file::SkeletalModelType& animatedModel)
             : ModelItemNode{level, room, item, true, animatedModel}
     {
         if( m_state.triggerState != TriggerState::Invisible )
-            loader::Room::patchHeightsForBlock( *this, -core::SectorSize );
+            loader::file::Room::patchHeightsForBlock( *this, -core::SectorSize );
     }
 
     void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;

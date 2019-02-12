@@ -22,18 +22,18 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( !limits.canInteract( m_state, lara.m_state ) )
         return;
 
-    if( lara.getCurrentAnimState() != loader::LaraStateId::PickUp )
+    if( lara.getCurrentAnimState() != LaraStateId::PickUp )
     {
         if( getLevel().m_inputHandler->getInputState().action
             && lara.getHandStatus() == HandStatus::None
             && !lara.m_state.falling
-            && lara.getCurrentAnimState() == loader::LaraStateId::Stop )
+            && lara.getCurrentAnimState() == LaraStateId::Stop )
         {
             lara.alignForInteraction( {0_len, 640_len, -310_len}, m_state );
             lara.m_state.anim = getLevel().findAnimatedModelForType( TR1ItemId::AlternativeLara )
                                           ->animations;
-            lara.setCurrentAnimState( loader::LaraStateId::PickUp );
-            lara.setGoalAnimState( loader::LaraStateId::PickUp );
+            lara.setCurrentAnimState( LaraStateId::PickUp );
+            lara.setGoalAnimState( LaraStateId::PickUp );
             lara.m_state.frame_number = lara.m_state.anim->firstFrame;
             getLevel().m_cameraController->setMode( CameraMode::Cinematic );
             lara.setHandStatus( HandStatus::Grabbing );

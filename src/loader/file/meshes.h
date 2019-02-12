@@ -2,7 +2,7 @@
 
 #include "color.h"
 #include "texture.h"
-#include "util.h"
+#include "io/util.h"
 #include "core/boundingbox.h"
 
 namespace core
@@ -16,6 +16,8 @@ class TextureAnimator;
 }
 
 namespace loader
+{
+namespace file
 {
 struct RoomStaticMesh
 {
@@ -157,4 +159,5 @@ struct StaticMesh
         return mesh;
     }
 };
+}
 }

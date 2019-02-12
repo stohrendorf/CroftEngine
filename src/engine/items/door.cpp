@@ -8,8 +8,8 @@ namespace items
 {
 // #define NO_DOOR_BLOCK
 
-Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const loader::Room*>& room,
-           const loader::Item& item, const loader::SkeletalModelType& animatedModel)
+Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const loader::file::Room*>& room,
+           const loader::file::Item& item, const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{level, room, item, true, animatedModel}
 {
 #ifndef NO_DOOR_BLOCK
@@ -33,15 +33,15 @@ Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const 
 
     const auto wingsPosition = m_state.position.position + core::TRVec{dx, 0_len, dz};
 
-    m_sector = const_cast<loader::Sector*>(m_state.position.room->getSectorByAbsolutePosition( wingsPosition ));
+    m_sector = const_cast<loader::file::Sector*>(m_state.position.room->getSectorByAbsolutePosition( wingsPosition ));
     BOOST_ASSERT( m_sector != nullptr );
     if( m_sector->portalTarget == nullptr )
     {
-        m_box = const_cast<loader::Box*>(m_sector->box);
+        m_box = const_cast<loader::file::Box*>(m_sector->box);
     }
     else
     {
-        m_box = const_cast<loader::Box*>(m_sector->portalTarget->getSectorByAbsolutePosition( wingsPosition )->box);
+        m_box = const_cast<loader::file::Box*>(m_sector->portalTarget->getSectorByAbsolutePosition( wingsPosition )->box);
     }
     if( m_box != nullptr && !m_box->isBlockable() )
     {
@@ -55,17 +55,17 @@ Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const 
     }
     else
     {
-        m_alternateSector = const_cast<loader::Sector*>(getLevel().m_rooms
+        m_alternateSector = const_cast<loader::file::Sector*>(getLevel().m_rooms
                                                                   .at( m_state.position.room->alternateRoom.get() )
                                                                   .getSectorByAbsolutePosition( wingsPosition ));
         BOOST_ASSERT( m_alternateSector != nullptr );
         if( m_alternateSector->portalTarget == nullptr )
         {
-            m_alternateBox = const_cast<loader::Box*>(m_alternateSector->box);
+            m_alternateBox = const_cast<loader::file::Box*>(m_alternateSector->box);
         }
         else
         {
-            m_alternateBox = const_cast<loader::Box*>(m_alternateSector->portalTarget->getSectorByAbsolutePosition(
+            m_alternateBox = const_cast<loader::file::Box*>(m_alternateSector->portalTarget->getSectorByAbsolutePosition(
                     wingsPosition )->box);
         }
         if( m_alternateBox != nullptr && !m_alternateBox->isBlockable() )
@@ -97,15 +97,15 @@ Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const 
         return;
     }
 
-    m_targetSector = const_cast<loader::Sector*>(m_sector->portalTarget->getSectorByAbsolutePosition(
+    m_targetSector = const_cast<loader::file::Sector*>(m_sector->portalTarget->getSectorByAbsolutePosition(
             m_state.position.position ));
     if( m_targetSector->portalTarget == nullptr )
     {
-        m_targetBox = const_cast<loader::Box*>(m_targetSector->box);
+        m_targetBox = const_cast<loader::file::Box*>(m_targetSector->box);
     }
     else
     {
-        m_targetBox = const_cast<loader::Box*>(m_targetSector->portalTarget->getSectorByAbsolutePosition(
+        m_targetBox = const_cast<loader::file::Box*>(m_targetSector->portalTarget->getSectorByAbsolutePosition(
                 m_state.position.position )->box);
     }
     if( !m_targetBox->isBlockable() )
@@ -119,18 +119,18 @@ Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const 
     }
     else
     {
-        m_alternateTargetSector = const_cast<loader::Sector*>(getLevel().m_rooms
+        m_alternateTargetSector = const_cast<loader::file::Sector*>(getLevel().m_rooms
                                                                         .at( m_sector->portalTarget->alternateRoom
                                                                                      .get() )
                                                                         .getSectorByAbsolutePosition(
                                                                                 m_state.position.position ));
         if( m_alternateTargetSector->portalTarget == nullptr )
         {
-            m_alternateTargetBox = const_cast<loader::Box*>(m_alternateTargetSector->box);
+            m_alternateTargetBox = const_cast<loader::file::Box*>(m_alternateTargetSector->box);
         }
         else
         {
-            m_alternateTargetBox = const_cast<loader::Box*>(m_alternateTargetSector->portalTarget
+            m_alternateTargetBox = const_cast<loader::file::Box*>(m_alternateTargetSector->portalTarget
                                                                                    ->getSectorByAbsolutePosition(
                                                                                            m_state.position
                                                                                                   .position )->box);

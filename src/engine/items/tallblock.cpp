@@ -12,7 +12,7 @@ void TallBlock::update()
     {
         if( m_state.current_anim_state == 0_as )
         {
-            loader::Room::patchHeightsForBlock( *this, 2 * core::SectorSize );
+            loader::file::Room::patchHeightsForBlock( *this, 2 * core::SectorSize );
             m_state.goal_anim_state = 1_as;
         }
     }
@@ -20,7 +20,7 @@ void TallBlock::update()
     {
         if( m_state.current_anim_state == 1_as )
         {
-            loader::Room::patchHeightsForBlock( *this, 2 * core::SectorSize );
+            loader::file::Room::patchHeightsForBlock( *this, 2 * core::SectorSize );
             m_state.goal_anim_state = 0_as;
         }
     }
@@ -36,7 +36,7 @@ void TallBlock::update()
     }
 
     m_state.triggerState = TriggerState::Active;
-    loader::Room::patchHeightsForBlock( *this, -2 * core::SectorSize );
+    loader::file::Room::patchHeightsForBlock( *this, -2 * core::SectorSize );
     auto pos = m_state.position.position;
     pos.X = (pos.X / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
     pos.Z = (pos.Z / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
@@ -45,9 +45,9 @@ void TallBlock::update()
 
 void TallBlock::load(const YAML::Node& n)
 {
-    loader::Room::patchHeightsForBlock( *this, -2 * core::SectorSize );
+    loader::file::Room::patchHeightsForBlock( *this, -2 * core::SectorSize );
     ModelItemNode::load( n );
-    loader::Room::patchHeightsForBlock( *this, 2 * core::SectorSize );
+    loader::file::Room::patchHeightsForBlock( *this, 2 * core::SectorSize );
 }
 }
 }

@@ -6,6 +6,8 @@
 
 namespace loader
 {
+namespace file
+{
 #pragma pack(push, 1)
 
 
@@ -125,7 +127,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 RenderVertex iv;
                 iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
                 if( quad.vertices[i].index < mesh.vertexDarknesses.size() )
-                    iv.color = glm::vec4( 1 - quad.vertices[i].from(mesh.vertexDarknesses) / 8191.0f );
+                    iv.color = glm::vec4( 1 - quad.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
                 else
                     iv.color = glm::vec4( 1.0f );
                 iv.uv = proxy.uvCoordinates[i].toGl();
@@ -150,7 +152,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 RenderVertex iv;
                 iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
                 if( quad.vertices[i].index < mesh.vertexDarknesses.size() )
-                    iv.color = glm::vec4( 1 - quad.vertices[i].from(mesh.vertexDarknesses) / 8191.0f );
+                    iv.color = glm::vec4( 1 - quad.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
                 else
                     iv.color = glm::vec4( 1.0f );
                 iv.uv = proxy.uvCoordinates[i].toGl();
@@ -174,7 +176,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 RenderVertex iv;
                 iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
                 if( tri.vertices[i].index < mesh.vertexDarknesses.size() )
-                    iv.color = glm::vec4( 1 - tri.vertices[i].from(mesh.vertexDarknesses) / 8191.0f );
+                    iv.color = glm::vec4( 1 - tri.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
                 else
                     iv.color = glm::vec4( 1.0f );
                 iv.uv = proxy.uvCoordinates[i].toGl();
@@ -196,7 +198,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 RenderVertex iv;
                 iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
                 if( tri.vertices[i].index < mesh.vertexDarknesses.size() )
-                    iv.color = glm::vec4( 1 - tri.vertices[i].from(mesh.vertexDarknesses) / 8191.0f );
+                    iv.color = glm::vec4( 1 - tri.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
                 else
                     iv.color = glm::vec4( 1.0f );
                 iv.uv = proxy.uvCoordinates[i].toGl();
@@ -280,8 +282,8 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             for( int i = 0; i < 3; ++i )
             {
                 RenderVertexWithNormal iv;
-                iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
-                iv.normal = tri.vertices[i].from(mesh.normals).toRenderSystem();
+                iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
+                iv.normal = tri.vertices[i].from( mesh.normals ).toRenderSystem();
                 iv.color = glm::vec4( 1.0f );
                 iv.uv = proxy.uvCoordinates[i].toGl();
                 m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
@@ -355,5 +357,6 @@ std::shared_ptr<gameplay::Model> Mesh::createModel(
     mb.append( *this );
 
     return mb.finalize();
+}
 }
 }

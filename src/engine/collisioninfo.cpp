@@ -227,11 +227,11 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
     }
 }
 
-std::set<gsl::not_null<const loader::Room*>>
+std::set<gsl::not_null<const loader::file::Room*>>
 CollisionInfo::collectTouchingRooms(const core::TRVec& position, const core::Length& radius, const core::Length& height,
                                     const level::Level& level)
 {
-    std::set<gsl::not_null<const loader::Room*>> result;
+    std::set<gsl::not_null<const loader::file::Room*>> result;
     auto room = level.m_lara->m_state.position.room;
     result.emplace( room );
     result.emplace( level.findRoomForPosition( position + core::TRVec( radius, 0_len, radius ), room ) );
@@ -260,7 +260,7 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const core
 
     for( const auto& room : rooms )
     {
-        for( const loader::RoomStaticMesh& rsm : room->staticMeshes )
+        for( const loader::file::RoomStaticMesh& rsm : room->staticMeshes )
         {
             const auto sm = level.findStaticMeshById( rsm.meshId );
             if( sm->doNotCollide() )

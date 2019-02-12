@@ -8,7 +8,7 @@ namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
                                      const gsl::not_null<const level::Level*>& lvl,
-                                     const loader::SkeletalModelType& mdl)
+                                     const loader::file::SkeletalModelType& mdl)
         : Node{id}
         , m_level{lvl}
         , m_model{mdl}
@@ -236,7 +236,7 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
     }
 }
 
-loader::BoundingBox SkeletalModelNode::getBoundingBox(const items::ItemState& state) const
+loader::file::BoundingBox SkeletalModelNode::getBoundingBox(const items::ItemState& state) const
 {
     const auto framePair = getInterpolationInfo( state );
     BOOST_ASSERT( framePair.bias >= 0 && framePair.bias <= 1 );
@@ -254,12 +254,12 @@ bool SkeletalModelNode::handleStateTransitions(items::ItemState& state)
     if( state.anim->state_id == state.goal_anim_state )
         return false;
 
-    for( const loader::Transitions& tr : state.anim->transitions )
+    for( const loader::file::Transitions& tr : state.anim->transitions )
     {
         if( tr.stateId != state.goal_anim_state )
             continue;
 
-        for( const loader::TransitionCase& trc : tr.transitionCases )
+        for( const loader::file::TransitionCase& trc : tr.transitionCases )
         {
             if( state.frame_number >= trc.firstFrame && state.frame_number <= trc.lastFrame )
             {
@@ -274,7 +274,7 @@ bool SkeletalModelNode::handleStateTransitions(items::ItemState& state)
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void SkeletalModelNode::setAnimation(items::ItemState& state,
-                                     const gsl::not_null<const loader::Animation*>& animation,
+                                     const gsl::not_null<const loader::file::Animation*>& animation,
                                      core::Frame frame)
 {
     BOOST_ASSERT( m_model.meshes.empty() || animation->frames->numValues == m_model.meshes.size() );
@@ -301,7 +301,7 @@ bool SkeletalModelNode::advanceFrame(items::ItemState& state)
 }
 
 std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres(const items::ItemState& state,
-                                                                                  const loader::AnimFrame& frame,
+                                                                                  const loader::file::AnimFrame& frame,
                                                                                   const glm::mat4* baseTransform)
 {
     BOOST_ASSERT( frame.numValues > 0 );

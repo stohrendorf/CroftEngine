@@ -8,6 +8,8 @@
 
 namespace loader
 {
+namespace file
+{
 gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
         const gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>& texture,
         const BlendingMode bmode,
@@ -124,5 +126,6 @@ void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void
     texture->setLabel( md5 );
     toImage( glidos, statusCallback );
     texture->image2D( image->getWidth(), image->getHeight(), image->getData(), true );
+}
 }
 }

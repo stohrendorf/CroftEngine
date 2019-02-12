@@ -48,7 +48,7 @@ public:
         else
         {
             setGoalAnimState( LaraStateId::Stop );
-            setAnimation( loader::AnimationId::LANDING_HARD, 358_frame );
+            setAnimation( AnimationId::LANDING_HARD, 358_frame );
         }
         getLevel().stopSound( TR1SoundId::LaraScream, &getLara().m_state );
         getLara().m_state.fallspeed = 0_spd;

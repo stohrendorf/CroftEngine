@@ -26,7 +26,7 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             core::TRRotation{10_deg, 30_deg, 10_deg}
     };
 
-    if( lara.getCurrentAnimState() == loader::LaraStateId::Stop )
+    if( lara.getCurrentAnimState() == LaraStateId::Stop )
     {
         if( !getLevel().m_inputHandler->getInputState().action
             || lara.getHandStatus() != HandStatus::None
@@ -72,11 +72,11 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             lara.updateImpl();
         } while( lara.getCurrentAnimState() != LaraStateId::InsertPuzzle );
 
-        lara.setGoalAnimState( loader::LaraStateId::Stop );
+        lara.setGoalAnimState( LaraStateId::Stop );
         lara.setHandStatus( HandStatus::Grabbing );
         m_state.triggerState = TriggerState::Active;
     }
-    else if( lara.getCurrentAnimState() == loader::LaraStateId::InsertPuzzle && lara.m_state.frame_number == 3372_frame
+    else if( lara.getCurrentAnimState() == LaraStateId::InsertPuzzle && lara.m_state.frame_number == 3372_frame
              && limits.canInteract( m_state, lara.m_state ) )
     {
         TR1ItemId completeId;

@@ -45,11 +45,11 @@ struct SearchNode
     /**
      * @brief The next box on the path.
      */
-    const loader::Box* exit_box = nullptr;
+    const loader::file::Box* exit_box = nullptr;
 
     uint16_t search_version = 0;
 
-    const loader::Box* next_expansion = nullptr;
+    const loader::file::Box* next_expansion = nullptr;
 
     void markBlocked()
     {
@@ -74,13 +74,13 @@ struct SearchNode
 
 struct LotInfo
 {
-    std::unordered_map<const loader::Box*, SearchNode> nodes;
+    std::unordered_map<const loader::file::Box*, SearchNode> nodes;
 
-    std::vector<gsl::not_null<const loader::Box*>> boxes;
+    std::vector<gsl::not_null<const loader::file::Box*>> boxes;
 
-    const loader::Box* head = nullptr;
+    const loader::file::Box* head = nullptr;
 
-    const loader::Box* tail = nullptr;
+    const loader::file::Box* tail = nullptr;
 
     uint16_t m_searchVersion = 0;
 
@@ -97,9 +97,9 @@ struct LotInfo
 
     //! @}
     //! @brief The target box we need to reach
-    const loader::Box* target_box = nullptr;
+    const loader::file::Box* target_box = nullptr;
 
-    const loader::Box* required_box = nullptr;
+    const loader::file::Box* required_box = nullptr;
 
     core::TRVec target;
 
@@ -111,7 +111,7 @@ struct LotInfo
 
     static gsl::span<const uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);
 
-    void setRandomSearchTarget(const gsl::not_null<const loader::Box*>& box)
+    void setRandomSearchTarget(const gsl::not_null<const loader::file::Box*>& box)
     {
         required_box = box;
         const auto zSize = box->zmax - box->zmin - core::SectorSize;
@@ -171,7 +171,7 @@ struct LotInfo
             return;
         }
 
-        const auto zoneRef = loader::Box::getZoneRef( lvl.roomsAreSwapped, fly, step );
+        const auto zoneRef = loader::file::Box::getZoneRef( lvl.roomsAreSwapped, fly, step );
         const auto searchZone = head->*zoneRef;
 
         for( uint8_t i = 0; i < maxDepth; ++i )
@@ -238,9 +238,9 @@ struct LotInfo
 
 struct AiInfo
 {
-    loader::ZoneId zone_number;
+    loader::file::ZoneId zone_number;
 
-    loader::ZoneId enemy_zone;
+    loader::file::ZoneId enemy_zone;
 
     core::Area distance{0};
 

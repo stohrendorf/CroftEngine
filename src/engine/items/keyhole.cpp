@@ -15,7 +15,7 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             core::TRRotation{10_deg, 30_deg, 10_deg}
     };
 
-    if( lara.getCurrentAnimState() != loader::LaraStateId::Stop )
+    if( lara.getCurrentAnimState() != LaraStateId::Stop )
         return;
 
     if( !getLevel().m_inputHandler->getInputState().action
@@ -62,7 +62,7 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         lara.updateImpl();
     } while( lara.getCurrentAnimState() != LaraStateId::InsertKey );
 
-    lara.setGoalAnimState( loader::LaraStateId::Stop );
+    lara.setGoalAnimState( LaraStateId::Stop );
     lara.setHandStatus( HandStatus::Grabbing );
     m_state.triggerState = TriggerState::Active;
 }

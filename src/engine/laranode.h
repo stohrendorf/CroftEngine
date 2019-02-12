@@ -1,7 +1,7 @@
 #pragma once
 
-#include "loader/animationid.h"
-#include "loader/larastateid.h"
+#include "loader/file/animationid.h"
+#include "loader/file/larastateid.h"
 #include "collisioninfo.h"
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/items/itemnode.h"
@@ -31,7 +31,8 @@ enum class HandStatus
 
 class LaraNode final : public items::ModelItemNode
 {
-    using LaraStateId = loader::LaraStateId;
+    using LaraStateId = loader::file::LaraStateId;
+    using AnimationId = loader::file::AnimationId;
 
 private:
     //! @brief Additional rotation per TR Engine Frame
@@ -47,15 +48,15 @@ private:
 
 public:
     LaraNode(const gsl::not_null<level::Level*>& level,
-             const gsl::not_null<const loader::Room*>& room,
-             const loader::Item& item,
-             const loader::SkeletalModelType& animatedModel)
+             const gsl::not_null<const loader::file::Room*>& room,
+             const loader::file::Item& item,
+             const loader::file::SkeletalModelType& animatedModel)
             : ModelItemNode( level, room, item, false, animatedModel )
             , m_underwaterRoute{*level}
             , m_gunFlareLeft{std::make_shared<gameplay::Node>( "gun flare left" )}
             , m_gunFlareRight{std::make_shared<gameplay::Node>( "gun flare right" )}
     {
-        setAnimation( loader::AnimationId::STAY_IDLE );
+        setAnimation( AnimationId::STAY_IDLE );
         setGoalAnimState( LaraStateId::Stop );
         setMovementAngle( m_state.rotation.Y );
 
@@ -291,7 +292,7 @@ public:
         m_currentSlideAngle = a;
     }
 
-    loader::LaraStateId getGoalAnimState() const
+    loader::file::LaraStateId getGoalAnimState() const
     {
         return static_cast<LaraStateId>(m_state.goal_anim_state.get());
     }
@@ -301,9 +302,9 @@ public:
         m_state.goal_anim_state = static_cast<uint16_t>(st);
     }
 
-    loader::LaraStateId getCurrentAnimState() const
+    loader::file::LaraStateId getCurrentAnimState() const
     {
-        return static_cast<loader::LaraStateId>(m_state.current_anim_state.get());
+        return static_cast<loader::file::LaraStateId>(m_state.current_anim_state.get());
     }
 
     void setCurrentAnimState(LaraStateId st)
@@ -316,7 +317,7 @@ public:
         m_state.required_anim_state = static_cast<uint16_t>(st);
     }
 
-    void setAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
+    void setAnimation(AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
 
     void updateFloorHeight(core::Length dy);
 
@@ -420,7 +421,7 @@ public:
 
     struct AimInfo
     {
-        const loader::AnimFrame* weaponAnimData = nullptr;
+        const loader::file::AnimFrame* weaponAnimData = nullptr;
         core::Frame frame = 0_frame;
         bool aiming = false;
         core::TRRotationXY aimRotation{};

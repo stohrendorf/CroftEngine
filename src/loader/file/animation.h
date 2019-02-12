@@ -12,6 +12,8 @@
 
 namespace loader
 {
+namespace file
+{
 #pragma pack(push, 1)
 
 
@@ -328,5 +330,6 @@ struct SkeletalModelType
     }
 };
 }
+}
 
-using loader::operator ""_as;
+using loader::file::operator ""_as;

@@ -98,13 +98,13 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
 
         lara.m_state.health = -1_hp;
         lara.setCurrentRoom( m_state.position.room );
-        lara.setAnimation( loader::AnimationId::SQUASH_BOULDER, 3561_frame );
+        lara.setAnimation( AnimationId::SQUASH_BOULDER, 3561_frame );
         getLevel().m_cameraController->setModifier( CameraModifier::FollowCenter );
         getLevel().m_cameraController->setEyeRotation( -25_deg, 170_deg );
         lara.m_state.rotation.X = 0_deg;
         lara.m_state.rotation.Y = m_state.rotation.Y;
         lara.m_state.rotation.Z = 0_deg;
-        lara.setGoalAnimState( loader::LaraStateId::BoulderDeath );
+        lara.setGoalAnimState( LaraStateId::BoulderDeath );
         for( int i = 0; i < 15; ++i )
         {
             const auto x = util::rand15s( 128_len, core::Length::type() ) + lara.m_state.position.position.X;

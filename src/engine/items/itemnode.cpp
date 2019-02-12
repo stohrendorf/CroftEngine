@@ -49,8 +49,8 @@ void ItemNode::applyTransform()
 }
 
 ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
-                   const gsl::not_null<const loader::Room*>& room,
-                   const loader::Item& item,
+                   const gsl::not_null<const loader::file::Room*>& room,
+                   const loader::file::Item& item,
                    const bool hasUpdateFunction)
         : m_level{level}
         , m_state{&level->m_soundEngine, room, item.type}
@@ -82,7 +82,7 @@ ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
     }
 }
 
-void ItemNode::setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom)
+void ItemNode::setCurrentRoom(const gsl::not_null<const loader::file::Room*>& newRoom)
 {
     if( newRoom == m_state.position.room )
     {
@@ -96,10 +96,10 @@ void ItemNode::setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom)
 }
 
 ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
-                             const gsl::not_null<const loader::Room*>& room,
-                             const loader::Item& item,
+                             const gsl::not_null<const loader::file::Room*>& room,
+                             const loader::file::Item& item,
                              const bool hasUpdateFunction,
-                             const loader::SkeletalModelType& animatedModel)
+                             const loader::file::SkeletalModelType& animatedModel)
         : ItemNode{level, room, item, hasUpdateFunction}
         , m_skeleton{std::make_shared<SkeletalModelNode>(
                 std::string( "skeleton(type:" ) + engine::toString( item.type ) + ")",
@@ -371,17 +371,17 @@ void ModelItemNode::applyMovement(const bool forLara)
     updateLighting();
 }
 
-loader::BoundingBox ModelItemNode::getBoundingBox() const
+loader::file::BoundingBox ModelItemNode::getBoundingBox() const
 {
     return m_skeleton->getBoundingBox( m_state );
 }
 
 SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
                                const std::string& name,
-                               const gsl::not_null<const loader::Room*>& room,
-                               const loader::Item& item,
+                               const gsl::not_null<const loader::file::Room*>& room,
+                               const loader::file::Item& item,
                                const bool hasUpdateFunction,
-                               const loader::Sprite& sprite,
+                               const loader::file::Sprite& sprite,
                                const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
         : ItemNode{level, room, item, hasUpdateFunction}
 {
@@ -613,7 +613,7 @@ YAML::Node ModelItemNode::save() const
     return n;
 }
 
-bool ItemState::stalkBox(const level::Level& lvl, const loader::Box& box) const
+bool ItemState::stalkBox(const level::Level& lvl, const loader::file::Box& box) const
 {
     const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
     const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
@@ -698,11 +698,11 @@ bool ItemState::stalkBox(const level::Level& lvl, const loader::Box& box) const
 
 bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl,
                                         const int16_t zoneId,
-                                        const loader::Box& box) const
+                                        const loader::file::Box& box) const
 {
     Expects( creatureInfo != nullptr );
 
-    const auto zoneRef = loader::Box::getZoneRef( lvl.roomsAreSwapped, creatureInfo->lot.fly,
+    const auto zoneRef = loader::file::Box::getZoneRef( lvl.roomsAreSwapped, creatureInfo->lot.fly,
                                                   creatureInfo->lot.step );
 
     if( zoneId != box.*zoneRef )
@@ -722,7 +722,7 @@ bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl,
 
 }
 
-bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::Box& box) const
+bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::file::Box& box) const
 {
     const auto laraToBoxX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
     const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
@@ -746,8 +746,8 @@ void ItemState::initCreatureInfo(const level::Level& lvl)
 
 void ItemState::collectZoneBoxes(const level::Level& lvl)
 {
-    const auto zoneRef1 = loader::Box::getZoneRef( false, creatureInfo->lot.fly, creatureInfo->lot.step );
-    const auto zoneRef2 = loader::Box::getZoneRef( true, creatureInfo->lot.fly, creatureInfo->lot.step );
+    const auto zoneRef1 = loader::file::Box::getZoneRef( false, creatureInfo->lot.fly, creatureInfo->lot.step );
+    const auto zoneRef2 = loader::file::Box::getZoneRef( true, creatureInfo->lot.fly, creatureInfo->lot.step );
 
     box = position.room->getInnerSectorByAbsolutePosition( position.position )->box;
     const auto zoneData1 = box->*zoneRef1;
@@ -830,9 +830,9 @@ void ItemState::load(const YAML::Node& n, const level::Level& lvl)
     rotation.load( n["rotation"] );
     speed = n["speed"].as<core::Speed>();
     fallspeed = n["fallSpeed"].as<core::Speed>();
-    current_anim_state = loader::AnimState{n["state"].as<uint16_t>()};
-    goal_anim_state = loader::AnimState{n["goal"].as<uint16_t>()};
-    required_anim_state = loader::AnimState{n["required"].as<uint16_t>()};
+    current_anim_state = loader::file::AnimState{n["state"].as<uint16_t>()};
+    goal_anim_state = loader::file::AnimState{n["goal"].as<uint16_t>()};
+    required_anim_state = loader::file::AnimState{n["required"].as<uint16_t>()};
     if( !n["id"].IsDefined() )
         anim = nullptr;
     else

@@ -40,10 +40,10 @@ void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisio
         }
         if( lara.m_state.health <= 0_hp )
         {
-            lara.m_state.anim = &getLevel().m_animations[static_cast<int>(loader::AnimationId::SPIKED)];
+            lara.m_state.anim = &getLevel().m_animations[static_cast<int>(AnimationId::SPIKED)];
             lara.m_state.frame_number = 3887_frame;
-            lara.setCurrentAnimState( loader::LaraStateId::Death );
-            lara.setGoalAnimState( loader::LaraStateId::Death );
+            lara.setCurrentAnimState( LaraStateId::Death );
+            lara.setGoalAnimState( LaraStateId::Death );
             lara.m_state.falling = false;
             lara.m_state.position.position.Y = m_state.position.position.Y;
         }

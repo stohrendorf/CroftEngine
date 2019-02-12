@@ -21,7 +21,7 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( m_state.triggerState != TriggerState::Inactive )
         return;
 
-    if( lara.getCurrentAnimState() != loader::LaraStateId::Stop )
+    if( lara.getCurrentAnimState() != LaraStateId::Stop )
         return;
 
     static const InteractionLimits limits{
@@ -40,10 +40,10 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     {
         do
         {
-            lara.setGoalAnimState( loader::LaraStateId::SwitchDown );
+            lara.setGoalAnimState( LaraStateId::SwitchDown );
             lara.updateImpl();
-        } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchDown );
-        lara.setGoalAnimState( loader::LaraStateId::Stop );
+        } while( lara.getCurrentAnimState() != LaraStateId::SwitchDown );
+        lara.setGoalAnimState( LaraStateId::Stop );
         m_state.goal_anim_state = 0_as;
         lara.setHandStatus( HandStatus::Grabbing );
     }
@@ -54,10 +54,10 @@ void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
         do
         {
-            lara.setGoalAnimState( loader::LaraStateId::SwitchUp );
+            lara.setGoalAnimState( LaraStateId::SwitchUp );
             lara.updateImpl();
-        } while( lara.getCurrentAnimState() != loader::LaraStateId::SwitchUp );
-        lara.setGoalAnimState( loader::LaraStateId::Stop );
+        } while( lara.getCurrentAnimState() != LaraStateId::SwitchUp );
+        lara.setGoalAnimState( LaraStateId::Stop );
         m_state.goal_anim_state = 1_as;
         lara.setHandStatus( HandStatus::Grabbing );
     }

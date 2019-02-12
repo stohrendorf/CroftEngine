@@ -151,7 +151,7 @@ LaraNode::WeaponId parseWeaponId(const std::string& s)
 
 }
 
-void LaraNode::setAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame)
+void LaraNode::setAnimation(AnimationId anim, const boost::optional<core::Frame>& firstFrame)
 {
     getSkeleton()->setAnimation( m_state,
                                  &getLevel().m_animations.at( static_cast<uint16_t>(anim) ),
@@ -403,7 +403,7 @@ void LaraNode::update()
         else
         {
             m_state.rotation.X = -45_deg;
-            setAnimation( loader::AnimationId::FREE_FALL_TO_UNDERWATER, 1895_frame );
+            setAnimation( AnimationId::FREE_FALL_TO_UNDERWATER, 1895_frame );
             setGoalAnimState( LaraStateId::UnderwaterForward );
             m_state.fallspeed += m_state.fallspeed / 2;
         }
@@ -442,7 +442,7 @@ void LaraNode::update()
             || abs( *waterSurfaceHeight - m_state.position.position.Y ) >= core::QuarterSectorSize )
         {
             m_underwaterState = UnderwaterState::OnLand;
-            setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
+            setAnimation( AnimationId::FREE_FALL_FORWARD, 492_frame );
             setGoalAnimState( LaraStateId::JumpForward );
             m_state.speed = std::exchange( m_state.fallspeed, 0_spd ) / 4;
             m_state.falling = true;
@@ -450,7 +450,7 @@ void LaraNode::update()
         else
         {
             m_underwaterState = UnderwaterState::Swimming;
-            setAnimation( loader::AnimationId::UNDERWATER_TO_ONWATER, 1937_frame );
+            setAnimation( AnimationId::UNDERWATER_TO_ONWATER, 1937_frame );
             setGoalAnimState( LaraStateId::OnWaterStop );
             m_state.position.position.Y = *waterSurfaceHeight + 1_len;
             m_swimToDiveKeypressDuration = 11_frame;
@@ -461,7 +461,7 @@ void LaraNode::update()
     else if( m_underwaterState == UnderwaterState::Swimming && !m_state.position.room->isWaterRoom() )
     {
         m_underwaterState = UnderwaterState::OnLand;
-        setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
+        setAnimation( AnimationId::FREE_FALL_FORWARD, 492_frame );
         setGoalAnimState( LaraStateId::JumpForward );
         m_state.speed = std::exchange( m_state.fallspeed, 0_spd ) / 4;
         m_state.falling = true;
@@ -877,9 +877,9 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     if( m_state.health < 0_hp )
         return;
 
-    std::set<gsl::not_null<const loader::Room*>> rooms;
+    std::set<gsl::not_null<const loader::file::Room*>> rooms;
     rooms.insert( m_state.position.room );
-    for( const loader::Portal& p : m_state.position.room->portals )
+    for( const loader::file::Portal& p : m_state.position.room->portals )
         rooms.insert( &getLevel().m_rooms.at( p.adjoining_room.get() ) );
 
     for( const auto& item : getLevel().m_itemNodes | boost::adaptors::map_values )
@@ -2206,13 +2206,13 @@ public:
         m_stack.top() = glm::translate( m_stack.top(), c );
     }
 
-    void translate(const loader::BoneTreeEntry& bte)
+    void translate(const loader::file::BoneTreeEntry& bte)
     {
         translate( bte.toGl() );
     }
 
     void transform(const std::initializer_list<size_t>& indices,
-                   const gsl::span<const loader::BoneTreeEntry>& boneTree,
+                   const gsl::span<const loader::file::BoneTreeEntry>& boneTree,
                    const gsl::span<const uint32_t>& angleData,
                    const std::shared_ptr<SkeletalModelNode>& skeleton)
     {
@@ -2221,7 +2221,7 @@ public:
     }
 
     void transform(const size_t idx,
-                   const gsl::span<const loader::BoneTreeEntry>& boneTree,
+                   const gsl::span<const loader::file::BoneTreeEntry>& boneTree,
                    const gsl::span<const uint32_t>& angleData,
                    const std::shared_ptr<SkeletalModelNode>& skeleton)
     {
@@ -2302,13 +2302,13 @@ public:
         m_stack2.top() = glm::translate( m_stack2.top(), v2 );
     }
 
-    void translate(const loader::BoneTreeEntry& bte)
+    void translate(const loader::file::BoneTreeEntry& bte)
     {
         translate( bte.toGl(), bte.toGl() );
     }
 
     void transform(const std::initializer_list<size_t>& indices,
-                   const gsl::span<const loader::BoneTreeEntry>& boneTree,
+                   const gsl::span<const loader::file::BoneTreeEntry>& boneTree,
                    const gsl::span<const uint32_t>& angleData1,
                    const gsl::span<const uint32_t>& angleData2,
                    const std::shared_ptr<SkeletalModelNode>& skeleton)
@@ -2318,7 +2318,7 @@ public:
     }
 
     void transform(const size_t idx,
-                   const gsl::span<const loader::BoneTreeEntry>& boneTree,
+                   const gsl::span<const loader::file::BoneTreeEntry>& boneTree,
                    const gsl::span<const uint32_t>& angleData1,
                    const gsl::span<const uint32_t>& angleData2,
                    const std::shared_ptr<SkeletalModelNode>& skeleton)
@@ -2348,7 +2348,7 @@ void LaraNode::drawRoutine()
     }
 
     const auto& objInfo = *getLevel().m_animatedModels[m_state.type];
-    const loader::AnimFrame* frame;
+    const loader::file::AnimFrame* frame;
     if( !hit_direction.is_initialized() )
     {
         frame = interpolationInfo.firstFrame;
@@ -2358,16 +2358,16 @@ void LaraNode::drawRoutine()
         switch( *hit_direction )
         {
             case core::Axis::PosX:
-                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_LEFT)].frames;
+                frame = getLevel().m_animations[static_cast<int>(AnimationId::AH_LEFT)].frames;
                 break;
             case core::Axis::NegZ:
-                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_BACKWARD)].frames;
+                frame = getLevel().m_animations[static_cast<int>(AnimationId::AH_BACKWARD)].frames;
                 break;
             case core::Axis::NegX:
-                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_RIGHT)].frames;
+                frame = getLevel().m_animations[static_cast<int>(AnimationId::AH_RIGHT)].frames;
                 break;
             default:
-                frame = getLevel().m_animations[static_cast<int>(loader::AnimationId::AH_FORWARD)].frames;
+                frame = getLevel().m_animations[static_cast<int>(AnimationId::AH_FORWARD)].frames;
                 break;
         }
         frame = frame->next( hit_frame.get() );
@@ -2716,7 +2716,7 @@ void LaraNode::AimInfo::load(const YAML::Node& n, const level::Level& lvl)
     if( !n["animData"].IsDefined() )
         weaponAnimData = nullptr;
     else
-        weaponAnimData = reinterpret_cast<const loader::AnimFrame*>(&lvl.m_poseFrames.at( n["animData"].as<size_t>() ));
+        weaponAnimData = reinterpret_cast<const loader::file::AnimFrame*>(&lvl.m_poseFrames.at( n["animData"].as<size_t>() ));
     frame = n["frame"].as<core::Frame>();
     aiming = n["aiming"].as<bool>();
     aimRotation.load( n["aimRotation"] );

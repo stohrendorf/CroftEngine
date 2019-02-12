@@ -1,6 +1,6 @@
 #include "gameplay.h"
-#include "loader/color.h"
-#include "loader/datatypes.h"
+#include "loader/file/color.h"
+#include "loader/file/datatypes.h"
 #include "util/cimgwrapper.h"
 
 #include <cstdint>
@@ -24,7 +24,7 @@ class CachedFont
     const int m_scaleX;
     const int m_scaleY;
 
-    static util::CImgWrapper extractChar(const loader::Sprite& sprite, const int scaleX, const int scaleY)
+    static util::CImgWrapper extractChar(const loader::file::Sprite& sprite, const int scaleX, const int scaleY)
     {
         BOOST_ASSERT( sprite.image != nullptr );
 
@@ -49,7 +49,7 @@ class CachedFont
     }
 
 public:
-    explicit CachedFont(const loader::SpriteSequence& sequence,
+    explicit CachedFont(const loader::file::SpriteSequence& sequence,
                         const int scaleX = FontBaseScale,
                         const int scaleY = FontBaseScale)
             : m_scaleX{scaleX}

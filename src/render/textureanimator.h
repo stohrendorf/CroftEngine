@@ -1,6 +1,6 @@
 #pragma once
 
-#include "loader/texture.h"
+#include "loader/file/texture.h"
 
 #include "Mesh.h"
 
@@ -64,7 +64,7 @@ class TextureAnimator
             affectedVertices[mesh].insert( vertex );
         }
 
-        void updateCoordinates(const std::vector<loader::TextureLayoutProxy>& proxies)
+        void updateCoordinates(const std::vector<loader::file::TextureLayoutProxy>& proxies)
         {
             BOOST_ASSERT( !proxyIds.empty() );
 
@@ -81,7 +81,7 @@ class TextureAnimator
                 {
                     BOOST_ASSERT( vref.bufferIndex < mesh->getBuffers()[1]->getVertexCount() );
                     BOOST_ASSERT( vref.queueOffset < proxyIds.size() );
-                    const loader::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset].get()];
+                    const loader::file::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset].get()];
 
                     uvArray[vref.bufferIndex] = proxy.uvCoordinates[vref.sourceIndex].toGl();
                 }
@@ -97,8 +97,8 @@ class TextureAnimator
 
 public:
     explicit TextureAnimator(const std::vector<uint16_t>& data,
-                             std::vector<loader::TextureLayoutProxy>& textureProxies,
-                             std::vector<loader::DWordTexture>& textures);
+                             std::vector<loader::file::TextureLayoutProxy>& textureProxies,
+                             std::vector<loader::file::DWordTexture>& textures);
 
     void registerVertex(const core::Id<uint16_t, core::TextureProxyIdTag> proxyId,
                         const std::shared_ptr<gameplay::Mesh>& mesh,
@@ -113,7 +113,7 @@ public:
                    .registerVertex( mesh, Sequence::VertexReference( bufferIndex, sourceIndex ), proxyId );
     }
 
-    void updateCoordinates(const std::vector<loader::TextureLayoutProxy>& proxies)
+    void updateCoordinates(const std::vector<loader::file::TextureLayoutProxy>& proxies)
     {
         for( Sequence& sequence : m_sequences )
         {

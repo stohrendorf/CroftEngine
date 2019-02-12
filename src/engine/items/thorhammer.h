@@ -10,9 +10,9 @@ class ThorHammerBlock final : public ModelItemNode
 {
 public:
     ThorHammerBlock(const gsl::not_null<level::Level*>& level,
-                     const gsl::not_null<const loader::Room*>& room,
-                     const loader::Item& item,
-                     const loader::SkeletalModelType& animatedModel)
+                     const gsl::not_null<const loader::file::Room*>& room,
+                     const loader::file::Item& item,
+                     const loader::file::SkeletalModelType& animatedModel)
             : ModelItemNode{level, room, item, true, animatedModel}
     {
     }
@@ -24,9 +24,9 @@ class ThorHammerHandle final : public ModelItemNode
 {
 public:
     ThorHammerHandle(const gsl::not_null<level::Level*>& level,
-                     const gsl::not_null<const loader::Room*>& room,
-                     const loader::Item& item,
-                     const loader::SkeletalModelType& animatedModel);
+                     const gsl::not_null<const loader::file::Room*>& room,
+                     const loader::file::Item& item,
+                     const loader::file::SkeletalModelType& animatedModel);
 
     void update() override;
 

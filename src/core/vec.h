@@ -10,7 +10,10 @@
 
 namespace loader
 {
+namespace file
+{
 struct Room;
+}
 }
 
 namespace core
@@ -153,11 +156,11 @@ struct TRVec
 
 struct RoomBoundPosition
 {
-    gsl::not_null<const loader::Room*> room;
+    gsl::not_null<const loader::file::Room*> room;
 
     TRVec position;
 
-    explicit RoomBoundPosition(const gsl::not_null<const loader::Room*>& r, const TRVec& pos = {})
+    explicit RoomBoundPosition(const gsl::not_null<const loader::file::Room*>& r, const TRVec& pos = {})
             : room{r}
             , position{pos}
     {

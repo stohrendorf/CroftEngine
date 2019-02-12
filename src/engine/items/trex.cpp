@@ -121,8 +121,8 @@ void TRex::update()
                     getLevel().m_lara->m_state.anim = &getLevel()
                             .findAnimatedModelForType( engine::TR1ItemId::AlternativeLara )->animations[1];
                     getLevel().m_lara->m_state.frame_number = getLevel().m_lara->m_state.anim->firstFrame;
-                    getLevel().m_lara->setCurrentAnimState( loader::LaraStateId::BoulderDeath );
-                    getLevel().m_lara->setGoalAnimState( loader::LaraStateId::BoulderDeath );
+                    getLevel().m_lara->setCurrentAnimState( LaraStateId::BoulderDeath );
+                    getLevel().m_lara->setGoalAnimState( LaraStateId::BoulderDeath );
                     getLevel().m_lara->setHandStatus( HandStatus::Grabbing );
                     getLevel().m_lara->gunType = LaraNode::WeaponId::None;
                     getLevel().m_cameraController->setModifier( CameraModifier::FollowCenter );

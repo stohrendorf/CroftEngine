@@ -1,9 +1,9 @@
 #pragma once
 
 #include "engine/skeletalmodelnode.h"
-#include "loader/larastateid.h"
-#include "loader/datatypes.h"
-#include "loader/animationid.h"
+#include "loader/file/larastateid.h"
+#include "loader/file/datatypes.h"
+#include "loader/file/animationid.h"
 #include "core/angle.h"
 
 #include <memory>
@@ -12,7 +12,8 @@ namespace engine
 {
 enum class CameraMode;
 enum class CameraModifier;
-using LaraStateId = loader::LaraStateId;
+using LaraStateId = loader::file::LaraStateId;
+using AnimationId = loader::file::AnimationId;
 struct CollisionInfo;
 
 
@@ -82,7 +83,7 @@ protected:
 
     LaraStateId getCurrentAnimState() const;
 
-    void setAnimation(loader::AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
+    void setAnimation(AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
 
     const level::Level& getLevel() const;
 
@@ -142,7 +143,7 @@ protected:
 
     bool applyLandingDamage();
 
-    loader::BoundingBox getBoundingBox() const;
+    loader::file::BoundingBox getBoundingBox() const;
 
     void addSwimToDiveKeypressDuration(core::Frame n) noexcept;
 

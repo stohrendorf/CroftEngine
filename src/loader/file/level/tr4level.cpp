@@ -21,7 +21,7 @@
 
 #include "tr4level.h"
 
-using namespace level;
+using namespace loader::file::level;
 
 #define TR_AUDIO_MAP_SIZE_TR4  370
 
@@ -33,7 +33,7 @@ void TR4Level::loadFileData()
     if( file_version != 0x00345254 /*&& file_version != 0x63345254*/)           // +TRLE
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR4 Level: Wrong level version" ) );
 
-    std::vector<loader::WordTexture> texture16;
+    std::vector<loader::file::WordTexture> texture16;
     {
         const auto numRoomTextiles = m_reader.readU16();
         const auto numObjTextiles = m_reader.readU16();
@@ -51,8 +51,8 @@ void TR4Level::loadFileData()
             std::vector<uint8_t> comp_buffer( comp_size );
             m_reader.readBytes( comp_buffer.data(), comp_size );
 
-            loader::io::SDLReader newsrc = loader::io::SDLReader::decompress( comp_buffer, uncomp_size );
-            newsrc.readVector( m_textures, numTextiles - numMiscTextiles, &loader::DWordTexture::read );
+            auto newsrc = io::SDLReader::decompress( comp_buffer, uncomp_size );
+            newsrc.readVector( m_textures, numTextiles - numMiscTextiles, &loader::file::DWordTexture::read );
         }
 
         uncomp_size = m_reader.readU32();
@@ -67,8 +67,8 @@ void TR4Level::loadFileData()
                 std::vector<uint8_t> comp_buffer( comp_size );
                 m_reader.readBytes( comp_buffer.data(), comp_size );
 
-                loader::io::SDLReader newsrc = loader::io::SDLReader::decompress( comp_buffer, uncomp_size );
-                newsrc.readVector( texture16, numTextiles - numMiscTextiles, &loader::WordTexture::read );
+                auto newsrc = io::SDLReader::decompress( comp_buffer, uncomp_size );
+                newsrc.readVector( texture16, numTextiles - numMiscTextiles, &loader::file::WordTexture::read );
             }
             else
             {
@@ -100,8 +100,8 @@ void TR4Level::loadFileData()
 
                 m_reader.readBytes( comp_buffer.data(), comp_size );
 
-                loader::io::SDLReader newsrc = loader::io::SDLReader::decompress( comp_buffer, uncomp_size );
-                newsrc.appendVector( m_textures, numMiscTextiles, &loader::DWordTexture::read );
+                auto newsrc = io::SDLReader::decompress( comp_buffer, uncomp_size );
+                newsrc.appendVector( m_textures, numMiscTextiles, &loader::file::DWordTexture::read );
             }
         }
     }
@@ -118,7 +118,7 @@ void TR4Level::loadFileData()
     std::vector<uint8_t> comp_buffer( comp_size );
     m_reader.readBytes( comp_buffer.data(), comp_size );
 
-    loader::io::SDLReader newsrc = loader::io::SDLReader::decompress( comp_buffer, uncomp_size );
+    auto newsrc = io::SDLReader::decompress( comp_buffer, uncomp_size );
     if( !newsrc.isOpen() )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR4 Level: packed geometry could not be decompressed" ) );
 
@@ -126,17 +126,17 @@ void TR4Level::loadFileData()
     if( newsrc.readU32() != 0 )
         BOOST_LOG_TRIVIAL( warning ) << "TR4 Level: Bad value for 'unused'";
 
-    newsrc.readVector( m_rooms, newsrc.readU16(), &loader::Room::readTr4 );
+    newsrc.readVector( m_rooms, newsrc.readU16(), &loader::file::Room::readTr4 );
 
     newsrc.readVector( m_floorData, newsrc.readU32() );
 
     readMeshData( newsrc );
 
-    newsrc.readVector( m_animations, newsrc.readU32(), &loader::Animation::readTr4 );
+    newsrc.readVector( m_animations, newsrc.readU32(), &loader::file::Animation::readTr4 );
 
-    newsrc.readVector( m_transitions, newsrc.readU32(), &loader::Transitions::read );
+    newsrc.readVector( m_transitions, newsrc.readU32(), &loader::file::Transitions::read );
 
-    newsrc.readVector( m_transitionCases, newsrc.readU32(), loader::TransitionCase::read );
+    newsrc.readVector( m_transitionCases, newsrc.readU32(), loader::file::TransitionCase::read );
 
     newsrc.readVector( m_animCommands, newsrc.readU32() );
 
@@ -148,7 +148,7 @@ void TR4Level::loadFileData()
         const auto n = m_reader.readU32();
         for( uint32_t i = 0; i < n; ++i )
         {
-            auto m = loader::SkeletalModelType::readTr1( m_reader );
+            auto m = loader::file::SkeletalModelType::readTr1( m_reader );
             // FIXME: this uses TR1 item IDs...
             if( m_animatedModels.find( m->type ) != m_animatedModels.end() )
                 BOOST_THROW_EXCEPTION( std::runtime_error( "Duplicate type id" ) );
@@ -157,7 +157,7 @@ void TR4Level::loadFileData()
         }
     }
 
-    newsrc.readVector( m_staticMeshes, newsrc.readU32(), &loader::StaticMesh::read );
+    newsrc.readVector( m_staticMeshes, newsrc.readU32(), &loader::file::StaticMesh::read );
 
     if( newsrc.readI8() != 'S' )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR4 Level: 'SPR' not found" ) );
@@ -168,13 +168,13 @@ void TR4Level::loadFileData()
     if( newsrc.readI8() != 'R' )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR4 Level: 'SPR' not found" ) );
 
-    newsrc.readVector( m_sprites, newsrc.readU32(), &loader::Sprite::readTr4 );
+    newsrc.readVector( m_sprites, newsrc.readU32(), &loader::file::Sprite::readTr4 );
 
     {
         const auto n = m_reader.readU32();
         for( uint32_t i = 0; i < n; ++i )
         {
-            auto m = loader::SpriteSequence::read( m_reader );
+            auto m = loader::file::SpriteSequence::read( m_reader );
             if( m_spriteSequences.find( m->type ) != m_spriteSequences.end() )
                 BOOST_THROW_EXCEPTION( std::runtime_error( "Duplicate type id" ) );
 
@@ -182,15 +182,15 @@ void TR4Level::loadFileData()
         }
     }
 
-    newsrc.readVector( m_cameras, newsrc.readU32(), &loader::Camera::read );
+    newsrc.readVector( m_cameras, newsrc.readU32(), &loader::file::Camera::read );
     //SDL_RWseek(newsrc, this->cameras.size() * 16, SEEK_CUR);
 
-    newsrc.readVector( m_flybyCameras, newsrc.readU32(), &loader::FlybyCamera::read );
+    newsrc.readVector( m_flybyCameras, newsrc.readU32(), &loader::file::FlybyCamera::read );
     //SDL_RWseek(newsrc, this->flyby_cameras.size() * 40, SEEK_CUR);
 
-    newsrc.readVector( m_soundSources, newsrc.readU32(), &loader::SoundSource::read, &m_soundEngine );
+    newsrc.readVector( m_soundSources, newsrc.readU32(), &loader::file::SoundSource::read, &m_soundEngine );
 
-    newsrc.readVector( m_boxes, newsrc.readU32(), &loader::Box::readTr2 );
+    newsrc.readVector( m_boxes, newsrc.readU32(), &loader::file::Box::readTr2 );
 
     newsrc.readVector( m_overlaps, newsrc.readU32() );
 
@@ -210,18 +210,18 @@ void TR4Level::loadFileData()
     if( newsrc.readI8() != 'X' )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR4 Level: 'TEX' not found" ) );
 
-    newsrc.readVector( m_textureProxies, newsrc.readU32(), &loader::TextureLayoutProxy::readTr4 );
+    newsrc.readVector( m_textureProxies, newsrc.readU32(), &loader::file::TextureLayoutProxy::readTr4 );
 
-    newsrc.readVector( m_items, newsrc.readU32(), &loader::Item::readTr4 );
+    newsrc.readVector( m_items, newsrc.readU32(), &loader::file::Item::readTr4 );
 
-    newsrc.readVector( m_aiObjects, newsrc.readU32(), &loader::AIObject::read );
+    newsrc.readVector( m_aiObjects, newsrc.readU32(), &loader::file::AIObject::read );
 
     newsrc.readVector( m_demoData, newsrc.readU16() );
 
     // Soundmap
     newsrc.readVector( m_soundmap, TR_AUDIO_MAP_SIZE_TR4 );
 
-    newsrc.readVector( m_soundDetails, newsrc.readU32(), &loader::SoundDetails::readTr3 );
+    newsrc.readVector( m_soundDetails, newsrc.readU32(), &loader::file::SoundDetails::readTr3 );
 
     // IMPORTANT NOTE: Sample indices ARE NOT USED in TR4 engine, but are parsed anyway.
     newsrc.readVector( m_sampleIndices, newsrc.readU32() );

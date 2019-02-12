@@ -8,8 +8,8 @@ namespace engine
 namespace items
 {
 ThorHammerHandle::ThorHammerHandle(const gsl::not_null<level::Level*>& level,
-                                   const gsl::not_null<const loader::Room*>& room, const loader::Item& item,
-                                   const loader::SkeletalModelType& animatedModel)
+                                   const gsl::not_null<const loader::file::Room*>& room, const loader::file::Item& item,
+                                   const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{level, room, item, true, animatedModel}
 {
     m_block = level->createItem<ThorHammerBlock>( TR1ItemId::ThorHammerBlock, room, core::Angle( item.rotation ),
@@ -75,8 +75,8 @@ void ThorHammerHandle::update()
                         getLevel().m_lara->m_state.anim = &getLevel()
                                 .findAnimatedModelForType( engine::TR1ItemId::Lara )->animations[139];
                         getLevel().m_lara->m_state.frame_number = 3561_frame;
-                        getLevel().m_lara->setCurrentAnimState( loader::LaraStateId::BoulderDeath );
-                        getLevel().m_lara->setGoalAnimState( loader::LaraStateId::BoulderDeath );
+                        getLevel().m_lara->setCurrentAnimState( LaraStateId::BoulderDeath );
+                        getLevel().m_lara->setGoalAnimState( LaraStateId::BoulderDeath );
                         getLevel().m_lara->m_state.position.position.Y = m_state.position.position.Y;
                         getLevel().m_lara->m_state.falling = false;
                     }

@@ -1,9 +1,11 @@
 #pragma once
 
 #include "core/vec.h"
-#include "io/sdlreader.h"
+#include "sdlreader.h"
 
 namespace loader
+{
+namespace file
 {
 namespace io
 {
@@ -32,6 +34,7 @@ inline core::TRVec readCoordinatesF(SDLReader& reader)
     vertex.Y = core::Length{static_cast<core::Length::type>(std::round( reader.readF() ))};
     vertex.Z = core::Length{static_cast<core::Length::type>(std::round( reader.readF() ))};
     return vertex;
+}
 }
 }
 }

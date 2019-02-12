@@ -19,7 +19,7 @@ void Particle::initDrawables(const level::Level& level, const float scale)
     {
         shade = 4096;
 
-        for( const loader::Sprite& spr : spriteSequence->sprites )
+        for( const loader::file::Sprite& spr : spriteSequence->sprites )
         {
             auto sprite = std::make_shared<gameplay::Sprite>( spr.x0 * scale, -spr.y0 * scale,
                                                               spr.x1 * scale, -spr.y1 * scale,
@@ -54,7 +54,7 @@ glm::vec3 Particle::getPosition() const
 
 Particle::Particle(const std::string& id,
                    const TR1ItemId objectNumber,
-                   const gsl::not_null<const loader::Room*>& room,
+                   const gsl::not_null<const loader::file::Room*>& room,
                    level::Level& level,
                    float scale)
         : Node{id}, Emitter{&level.m_soundEngine}, pos{room}, object_number{objectNumber}

@@ -49,6 +49,8 @@ class Level;
 
 namespace loader
 {
+namespace file
+{
 constexpr const uint16_t TextureIndexMaskTr4 = 0x7FFF; // in some custom levels we need to use 0x7FFF flag
 constexpr const uint16_t TextureIndexMask = 0x0FFF;
 
@@ -1055,7 +1057,7 @@ struct Room
         reader.seek( position + std::streamoff( 208 ) + poly_offset );
 
         {
-            loader::VertexIndex::index_type vertex_index = 0;
+            loader::file::VertexIndex::index_type vertex_index = 0;
             uint32_t rectangle_index = 0;
             uint32_t triangle_index = 0;
 
@@ -1613,4 +1615,5 @@ struct LightMap
         return lightmap;
     }
 };
-} // namespace loader
+}
+}

@@ -15,7 +15,10 @@
 
 namespace loader
 {
+namespace file
+{
 struct Item;
+}
 }
 
 namespace level
@@ -70,7 +73,7 @@ enum class TriggerState
 struct ItemState final : public audio::Emitter
 {
     explicit ItemState(const gsl::not_null<audio::SoundEngine*>& engine,
-                       const gsl::not_null<const loader::Room*>& room,
+                       const gsl::not_null<const loader::file::Room*>& room,
                        const TR1ItemId type)
             : Emitter{engine}
             , type{type}
@@ -94,10 +97,10 @@ struct ItemState final : public audio::Emitter
     core::TRRotation rotation;
     core::Speed speed = 0_spd;
     core::Speed fallspeed = 0_spd;
-    loader::AnimState current_anim_state = 0_as;
-    loader::AnimState goal_anim_state = 0_as;
-    loader::AnimState required_anim_state = 0_as;
-    const loader::Animation* anim = nullptr;
+    loader::file::AnimState current_anim_state = 0_as;
+    loader::file::AnimState goal_anim_state = 0_as;
+    loader::file::AnimState required_anim_state = 0_as;
+    const loader::file::Animation* anim = nullptr;
     core::Frame frame_number = 0_frame;
     core::Health health = 0_hp;
     TriggerState triggerState = TriggerState::Inactive;
@@ -105,7 +108,7 @@ struct ItemState final : public audio::Emitter
     floordata::ActivationState activationState;
     core::Length floor = 0_len;
     std::bitset<32> touch_bits;
-    const loader::Box* box = nullptr;
+    const loader::file::Box* box = nullptr;
     int16_t shade = -1;
     std::bitset<32> mesh_bits;
 
@@ -141,17 +144,17 @@ struct ItemState final : public audio::Emitter
         return !activationState.isInverted();
     }
 
-    bool stalkBox(const level::Level& lvl, const loader::Box& box) const;
+    bool stalkBox(const level::Level& lvl, const loader::file::Box& box) const;
 
-    bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, const loader::Box& box) const;
+    bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, const loader::file::Box& box) const;
 
-    bool inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::Box& box) const;
+    bool inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::file::Box& box) const;
 
     void initCreatureInfo(const level::Level& lvl);
 
     void collectZoneBoxes(const level::Level& lvl);
 
-    const loader::Sector* getCurrentSector() const
+    const loader::file::Sector* getCurrentSector() const
     {
         return position.room->getSectorByAbsolutePosition( position.position );
     }
@@ -186,8 +189,8 @@ public:
     };
 
     ItemNode(const gsl::not_null<level::Level*>& level,
-             const gsl::not_null<const loader::Room*>& room,
-             const loader::Item& item,
+             const gsl::not_null<const loader::file::Room*>& room,
+             const loader::file::Item& item,
              bool hasUpdateFunction);
 
     ItemNode(const ItemNode&) = delete;
@@ -204,7 +207,7 @@ public:
 
     virtual std::shared_ptr<gameplay::Node> getNode() const = 0;
 
-    void setCurrentRoom(const gsl::not_null<const loader::Room*>& newRoom);
+    void setCurrentRoom(const gsl::not_null<const loader::file::Room*>& newRoom);
 
     void applyTransform();
 
@@ -288,7 +291,7 @@ public:
         m_lighting.updateDynamic( m_state.shade, tmp );
     }
 
-    virtual loader::BoundingBox getBoundingBox() const = 0;
+    virtual loader::file::BoundingBox getBoundingBox() const = 0;
 
     virtual void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/)
     {
@@ -344,10 +347,10 @@ protected:
 public:
     ModelItemNode(
             const gsl::not_null<level::Level*>& level,
-            const gsl::not_null<const loader::Room*>& room,
-            const loader::Item& item,
+            const gsl::not_null<const loader::file::Room*>& room,
+            const loader::file::Item& item,
             bool hasUpdateFunction,
-            const loader::SkeletalModelType& animatedModel);
+            const loader::file::SkeletalModelType& animatedModel);
 
     ModelItemNode(const ModelItemNode&) = delete;
 
@@ -401,7 +404,7 @@ public:
 
     void applyMovement(bool forLara);
 
-    loader::BoundingBox getBoundingBox() const override;
+    loader::file::BoundingBox getBoundingBox() const override;
 
     bool isNear(const ModelItemNode& other, core::Length radius) const;
 
@@ -435,10 +438,10 @@ public:
     SpriteItemNode(
             const gsl::not_null<level::Level*>& level,
             const std::string& name,
-            const gsl::not_null<const loader::Room*>& room,
-            const loader::Item& item,
+            const gsl::not_null<const loader::file::Room*>& room,
+            const loader::file::Item& item,
             bool hasUpdateFunction,
-            const loader::Sprite& sprite,
+            const loader::file::Sprite& sprite,
             const gsl::not_null<std::shared_ptr<gameplay::Material>>& material);
 
     SpriteItemNode(const SpriteItemNode&) = delete;
@@ -472,9 +475,9 @@ public:
         // TODO
     }
 
-    loader::BoundingBox getBoundingBox() const override
+    loader::file::BoundingBox getBoundingBox() const override
     {
-        loader::BoundingBox bb;
+        loader::file::BoundingBox bb;
         bb.minX = bb.maxX = m_state.position.position.X;
         bb.minY = bb.maxY = m_state.position.position.Y;
         bb.minZ = bb.maxZ = m_state.position.position.Z;

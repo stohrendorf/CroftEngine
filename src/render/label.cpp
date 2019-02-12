@@ -31,14 +31,14 @@ const std::array<const uint8_t, 98> charToSprite{
 
 void drawLine(gameplay::gl::Image<gameplay::gl::RGBA8>& img,
               const int x0, const int y0, const int width, const int height,
-              const loader::ByteColor& color)
+              const loader::file::ByteColor& color)
 {
     img.line( x0, y0, x0 + width, y0 + height, color.toTextureColor() );
 }
 
 void drawOutline(gameplay::gl::Image<gameplay::gl::RGBA8>& img,
                  const int x, const int y, const int width, const int height,
-                 const loader::Palette& palette)
+                 const loader::file::Palette& palette)
 {
     // top
     drawLine( img, x, y - 1, width + 1, 0, palette.colors[15] );

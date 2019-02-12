@@ -28,7 +28,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     auto axis = axisFromAngle( lara.m_state.rotation.Y, 45_deg );
     Expects( axis.is_initialized() );
 
-    if( lara.getCurrentAnimState() == loader::LaraStateId::Stop )
+    if( lara.getCurrentAnimState() == LaraStateId::Stop )
     {
         if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Null
             || lara.getHandStatus() != HandStatus::None )
@@ -73,16 +73,16 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         lara.m_state.position.position.*vp =
                 (lara.m_state.position.position.*vp / core::SectorSize) * core::SectorSize + d;
 
-        lara.setGoalAnimState( loader::LaraStateId::PushableGrab );
+        lara.setGoalAnimState( LaraStateId::PushableGrab );
         lara.updateImpl();
-        if( lara.getCurrentAnimState() == loader::LaraStateId::PushableGrab )
+        if( lara.getCurrentAnimState() == LaraStateId::PushableGrab )
         {
             lara.setHandStatus( HandStatus::Grabbing );
         }
         return;
     }
 
-    if( lara.getCurrentAnimState() != loader::LaraStateId::PushableGrab
+    if( lara.getCurrentAnimState() != LaraStateId::PushableGrab
         || lara.m_state.frame_number != 2091_frame
         || !limits.canInteract( m_state, lara.m_state ) )
     {
@@ -97,7 +97,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         }
 
         m_state.goal_anim_state = 2_as;
-        lara.setGoalAnimState( loader::LaraStateId::PushablePush );
+        lara.setGoalAnimState( LaraStateId::PushablePush );
     }
     else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
     {
@@ -107,7 +107,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         }
 
         m_state.goal_anim_state = 3_as;
-        lara.setGoalAnimState( loader::LaraStateId::PushablePull );
+        lara.setGoalAnimState( LaraStateId::PushablePull );
     }
     else
     {
@@ -115,7 +115,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
 
     activate();
-    loader::Room::patchHeightsForBlock( *this, core::SectorSize );
+    loader::file::Room::patchHeightsForBlock( *this, core::SectorSize );
     m_state.triggerState = TriggerState::Active;
 
     ModelItemNode::update();
@@ -126,7 +126,7 @@ void Block::update()
 {
     if( m_state.activationState.isOneshot() )
     {
-        loader::Room::patchHeightsForBlock( *this, core::SectorSize );
+        loader::file::Room::patchHeightsForBlock( *this, core::SectorSize );
         kill();
         return;
     }
@@ -160,7 +160,7 @@ void Block::update()
 
     m_state.triggerState = TriggerState::Inactive;
     deactivate();
-    loader::Room::patchHeightsForBlock( *this, -core::SectorSize );
+    loader::file::Room::patchHeightsForBlock( *this, -core::SectorSize );
     pos = m_state.position;
     sector = level::Level::findRealFloorSector( pos );
     getLevel().m_lara->handleCommandSequence(
@@ -330,12 +330,12 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
 void Block::load(const YAML::Node& n)
 {
     if( m_state.triggerState != TriggerState::Invisible )
-        loader::Room::patchHeightsForBlock( *this, core::SectorSize );
+        loader::file::Room::patchHeightsForBlock( *this, core::SectorSize );
 
     ModelItemNode::load( n );
 
     if( m_state.triggerState != TriggerState::Invisible )
-        loader::Room::patchHeightsForBlock( *this, -core::SectorSize );
+        loader::file::Room::patchHeightsForBlock( *this, -core::SectorSize );
 }
 }
 }

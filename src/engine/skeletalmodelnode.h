@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/magic.h"
-#include "loader/animation.h"
+#include "loader/file/animation.h"
 
 #include "gsl-lite.hpp"
 
@@ -12,8 +12,11 @@ class Level;
 
 namespace loader
 {
+namespace file
+{
 struct SkeletalModelType;
 struct Animation;
+}
 }
 
 namespace engine
@@ -28,17 +31,17 @@ class SkeletalModelNode
 public:
     explicit SkeletalModelNode(const std::string& id,
                                const gsl::not_null<const level::Level*>& lvl,
-                               const loader::SkeletalModelType& mdl);
+                               const loader::file::SkeletalModelType& mdl);
 
     void updatePose(items::ItemState& state);
 
     void setAnimation(items::ItemState& state,
-                      const gsl::not_null<const loader::Animation*>& animation,
+                      const gsl::not_null<const loader::file::Animation*>& animation,
                       core::Frame frame);
 
     static core::Speed calculateFloorSpeed(const items::ItemState& state, core::Frame frameOffset = 0_frame);
 
-    loader::BoundingBox getBoundingBox(const items::ItemState& state) const;
+    loader::file::BoundingBox getBoundingBox(const items::ItemState& state) const;
 
     void resetPose()
     {
@@ -64,11 +67,11 @@ public:
 
     struct InterpolationInfo
     {
-        const loader::AnimFrame* firstFrame = nullptr;
-        const loader::AnimFrame* secondFrame = nullptr;
+        const loader::file::AnimFrame* firstFrame = nullptr;
+        const loader::file::AnimFrame* secondFrame = nullptr;
         float bias = 0;
 
-        const loader::AnimFrame* getNearestFrame() const
+        const loader::file::AnimFrame* getNearestFrame() const
         {
             if( bias <= 0.5f )
             {
@@ -113,7 +116,7 @@ public:
 
 
     std::vector<Sphere> getBoneCollisionSpheres(const items::ItemState& state,
-                                                const loader::AnimFrame& frame,
+                                                const loader::file::AnimFrame& frame,
                                                 const glm::mat4* baseTransform);
 
     void load(const YAML::Node& n);
@@ -125,7 +128,7 @@ protected:
 
 private:
     const gsl::not_null<const level::Level*> m_level;
-    const loader::SkeletalModelType& m_model;
+    const loader::file::SkeletalModelType& m_model;
     std::vector<glm::mat4> m_bonePatches;
 
     void updatePoseKeyframe(const InterpolationInfo& framePair);

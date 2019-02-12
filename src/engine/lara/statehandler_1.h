@@ -29,7 +29,7 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().roll )
         {
-            setAnimation( loader::AnimationId::ROLL_BEGIN, 3857_frame );
+            setAnimation( AnimationId::ROLL_BEGIN, 3857_frame );
             setGoalAnimState( LaraStateId::Stop );
             return;
         }
@@ -97,22 +97,22 @@ public:
             {
                 if( getLara().m_state.frame_number < 10_frame )
                 {
-                    setAnimation( loader::AnimationId::WALL_SMASH_LEFT, 800_frame );
+                    setAnimation( AnimationId::WALL_SMASH_LEFT, 800_frame );
                     return;
                 }
                 if( getLara().m_state.frame_number >= 10_frame && getLara().m_state.frame_number < 22_frame )
                 {
-                    setAnimation( loader::AnimationId::WALL_SMASH_RIGHT, 815_frame );
+                    setAnimation( AnimationId::WALL_SMASH_RIGHT, 815_frame );
                     return;
                 }
             }
 
-            setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
+            setAnimation( AnimationId::STAY_SOLID, 185_frame );
         }
 
         if( collisionInfo.mid.floorSpace.y > core::ClimbLimit2ClickMin )
         {
-            setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
+            setAnimation( AnimationId::FREE_FALL_FORWARD, 492_frame );
             setGoalAnimState( LaraStateId::JumpForward );
             getLara().m_state.falling = true;
             getLara().m_state.fallspeed = 0_spd;
@@ -124,11 +124,11 @@ public:
         {
             if( getLara().m_state.frame_number >= 3_frame && getLara().m_state.frame_number <= 14_frame )
             {
-                setAnimation( loader::AnimationId::RUN_UP_STEP_LEFT, 837_frame );
+                setAnimation( AnimationId::RUN_UP_STEP_LEFT, 837_frame );
             }
             else
             {
-                setAnimation( loader::AnimationId::RUN_UP_STEP_RIGHT, 830_frame );
+                setAnimation( AnimationId::RUN_UP_STEP_RIGHT, 830_frame );
             }
         }
 

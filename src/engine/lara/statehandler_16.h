@@ -65,7 +65,7 @@ public:
 
         if( checkWallCollision( collisionInfo ) )
         {
-            setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
+            setAnimation( AnimationId::STAY_SOLID, 185_frame );
         }
 
         if( collisionInfo.mid.floorSpace.y > core::QuarterSectorSize
@@ -73,11 +73,11 @@ public:
         {
             if( getLara().m_state.frame_number < 964_frame || getLara().m_state.frame_number > 993_frame )
             {
-                setAnimation( loader::AnimationId::WALK_DOWN_BACK_LEFT, 899_frame );
+                setAnimation( AnimationId::WALK_DOWN_BACK_LEFT, 899_frame );
             }
             else
             {
-                setAnimation( loader::AnimationId::WALK_DOWN_BACK_RIGHT, 930_frame );
+                setAnimation( AnimationId::WALK_DOWN_BACK_RIGHT, 930_frame );
             }
         }
 

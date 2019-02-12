@@ -6,8 +6,8 @@ namespace engine
 {
 namespace items
 {
-Mummy::Mummy(const gsl::not_null<level::Level*>& level, const gsl::not_null<const loader::Room*>& room,
-             const loader::Item& item, const loader::SkeletalModelType& animatedModel)
+Mummy::Mummy(const gsl::not_null<level::Level*>& level, const gsl::not_null<const loader::file::Room*>& room,
+             const loader::file::Item& item, const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{level, room, item, true, animatedModel}
 {
     m_state.health = level->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.type )["hit_points"];

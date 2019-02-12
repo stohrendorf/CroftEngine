@@ -6,6 +6,8 @@
 
 namespace loader
 {
+namespace file
+{
 struct Item
 {
     engine::TR1ItemId type; //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
@@ -75,4 +77,5 @@ struct Item
         return item;
     }
 };
+}
 }

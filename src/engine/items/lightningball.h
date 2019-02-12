@@ -11,9 +11,9 @@ class LightningBall final : public ModelItemNode
 {
 public:
     LightningBall(const gsl::not_null<level::Level*>& level,
-                  const gsl::not_null<const loader::Room*>& room,
-                  const loader::Item& item,
-                  const loader::SkeletalModelType& animatedModel,
+                  const gsl::not_null<const loader::file::Room*>& room,
+                  const loader::file::Item& item,
+                  const loader::file::SkeletalModelType& animatedModel,
                   const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& boltProgram);
 
     void update() override;

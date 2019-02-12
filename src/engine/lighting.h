@@ -2,7 +2,7 @@
 
 #include "util/helpers.h"
 #include "core/vec.h"
-#include "loader/datatypes.h"
+#include "loader/file/datatypes.h"
 
 namespace engine
 {

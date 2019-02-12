@@ -210,7 +210,7 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
 // ReSharper disable once CppMemberFunctionMayBeConst
 void CameraController::tracePortals()
 {
-    for( const loader::Room& room : m_level->m_rooms )
+    for( const loader::file::Room& room : m_level->m_rooms )
         room.node->setVisible( false );
 
     auto startRoom = m_eye.room;
@@ -220,7 +220,7 @@ void CameraController::tracePortals()
     std::queue<render::PortalTracer> toVisit;
 
     // always process direct neighbors of the starting room
-    for( const loader::Portal& portal : startRoom->portals )
+    for( const loader::file::Portal& portal : startRoom->portals )
     {
         render::PortalTracer path;
         if( !path.checkVisibility( &portal, *m_camera.get() ) )
@@ -232,7 +232,7 @@ void CameraController::tracePortals()
     }
 
     // Avoid infinite loops
-    std::set<const loader::Portal*> visited;
+    std::set<const loader::file::Portal*> visited;
     while( !toVisit.empty() )
     {
         const render::PortalTracer currentPath = toVisit.front();
@@ -245,7 +245,7 @@ void CameraController::tracePortals()
 
         // iterate through the last room's portals and add the destinations if suitable
         const auto destRoom = currentPath.getLastDestinationRoom();
-        for( const loader::Portal& srcPortal : m_level->m_rooms.at( destRoom.get() ).portals )
+        for( const loader::file::Portal& srcPortal : m_level->m_rooms.at( destRoom.get() ).portals )
         {
             render::PortalTracer newPath = currentPath;
             if( !newPath.checkVisibility( &srcPortal, *m_camera.get() ) )
@@ -259,7 +259,7 @@ void CameraController::tracePortals()
 
 bool CameraController::clampY(const core::TRVec& start,
                               core::TRVec& end,
-                              const gsl::not_null<const loader::Sector*>& sector,
+                              const gsl::not_null<const loader::file::Sector*>& sector,
                               const level::Level& level)
 {
     const HeightInfo floor = HeightInfo::fromFloor( sector, end, level.m_itemNodes );
@@ -585,7 +585,7 @@ void CameraController::handleFixedCamera()
 {
     Expects( m_fixedCameraId >= 0 );
 
-    const loader::Camera& camera = m_level->m_cameras.at( m_fixedCameraId );
+    const loader::file::Camera& camera = m_level->m_cameras.at( m_fixedCameraId );
     core::RoomBoundPosition pos( &m_level->m_rooms.at( camera.room ) );
     pos.position = camera.position;
 
@@ -640,7 +640,7 @@ core::Length CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, co
 }
 
 bool CameraController::isVerticallyOutsideRoom(const core::TRVec& pos,
-                                               const gsl::not_null<const loader::Room*>& room) const
+                                               const gsl::not_null<const loader::file::Room*>& room) const
 {
     const auto sector = level::Level::findRealFloorSector( pos, room );
     const auto floor = HeightInfo::fromFloor( sector, pos, getLevel()->m_itemNodes ).y;
@@ -1086,7 +1086,7 @@ void CameraController::clampToCorners(const core::Area targetHorizontalDistanceS
     currentLeftRight = right;
 }
 
-void CameraController::updateCinematic(const loader::CinematicFrame& frame, const bool ingame)
+void CameraController::updateCinematic(const loader::file::CinematicFrame& frame, const bool ingame)
 {
     if( ingame )
     {
@@ -1126,9 +1126,9 @@ YAML::Node CameraController::save() const
 {
     YAML::Node result;
     result["eye"]["position"] = m_eye.position.save();
-    result["eye"]["room"] = std::distance( const_cast<const loader::Room*>(&m_level->m_rooms[0]), m_eye.room.get() );
+    result["eye"]["room"] = std::distance( const_cast<const loader::file::Room*>(&m_level->m_rooms[0]), m_eye.room.get() );
     result["center"]["position"] = m_center.position.save();
-    result["center"]["room"] = std::distance( const_cast<const loader::Room*>(&m_level->m_rooms[0]),
+    result["center"]["room"] = std::distance( const_cast<const loader::file::Room*>(&m_level->m_rooms[0]),
                                               m_center.room.get() );
     result["mode"] = toString( m_mode );
     result["modifier"] = toString( m_modifier );

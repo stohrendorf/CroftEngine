@@ -60,7 +60,7 @@ public:
 
         if( checkWallCollision( collisionInfo ) )
         {
-            setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
+            setAnimation( AnimationId::STAY_SOLID, 185_frame );
             setGoalAnimState( LaraStateId::Stop );
         }
 

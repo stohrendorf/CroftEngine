@@ -82,21 +82,21 @@ public:
             const auto fr = getLara().m_state.frame_number;
             if( fr >= 29_frame && fr <= 47_frame )
             {
-                setAnimation( loader::AnimationId::END_WALK_LEFT, 74_frame );
+                setAnimation( AnimationId::END_WALK_LEFT, 74_frame );
             }
             else if( (fr >= 22_frame && fr <= 28_frame) || (fr >= 48_frame && fr <= 57_frame) )
             {
-                setAnimation( loader::AnimationId::END_WALK_RIGHT, 58_frame );
+                setAnimation( AnimationId::END_WALK_RIGHT, 58_frame );
             }
             else
             {
-                setAnimation( loader::AnimationId::STAY_SOLID, 185_frame );
+                setAnimation( AnimationId::STAY_SOLID, 185_frame );
             }
         }
 
         if( collisionInfo.mid.floorSpace.y > core::ClimbLimit2ClickMin )
         {
-            setAnimation( loader::AnimationId::FREE_FALL_FORWARD, 492_frame );
+            setAnimation( AnimationId::FREE_FALL_FORWARD, 492_frame );
             setGoalAnimState( LaraStateId::JumpForward );
             getLara().m_state.fallspeed = 0_spd;
             getLara().m_state.falling = true;
@@ -107,11 +107,11 @@ public:
             const auto fr = getLara().m_state.frame_number;
             if( fr < 28_frame || fr > 45_frame )
             {
-                setAnimation( loader::AnimationId::WALK_DOWN_RIGHT, 887_frame );
+                setAnimation( AnimationId::WALK_DOWN_RIGHT, 887_frame );
             }
             else
             {
-                setAnimation( loader::AnimationId::WALK_DOWN_LEFT, 874_frame );
+                setAnimation( AnimationId::WALK_DOWN_LEFT, 874_frame );
             }
         }
 
@@ -121,11 +121,11 @@ public:
             const auto fr = getLara().m_state.frame_number;
             if( fr < 27_frame || fr > 44_frame )
             {
-                setAnimation( loader::AnimationId::WALK_UP_STEP_RIGHT, 844_frame );
+                setAnimation( AnimationId::WALK_UP_STEP_RIGHT, 844_frame );
             }
             else
             {
-                setAnimation( loader::AnimationId::WALK_UP_STEP_LEFT, 858_frame );
+                setAnimation( AnimationId::WALK_UP_STEP_LEFT, 858_frame );
             }
         }
 

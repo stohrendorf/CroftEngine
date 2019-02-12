@@ -14,6 +14,8 @@ namespace trx
 class Glidos;
 }
 
+namespace file
+{
 struct ByteTexture
 {
     uint8_t pixels[256][256];
@@ -299,7 +301,8 @@ struct TextureLayoutProxy
             const gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>& texture,
             const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader) const
     {
-        return loader::createMaterial( texture, textureKey.blendingMode, shader );
+        return loader::file::createMaterial( texture, textureKey.blendingMode, shader );
     }
 };
+}
 }

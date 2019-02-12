@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/angle.h"
-#include "loader/datatypes.h"
+#include "loader/file/datatypes.h"
 #include "audio/soundengine.h"
 
 namespace engine
@@ -143,7 +143,7 @@ public:
             m_item = item;
     }
 
-    void handleCommandSequence(const engine::floordata::FloorDataValue* cmdSequence);
+    void handleCommandSequence(const floordata::FloorDataValue* cmdSequence);
 
     void update();
 
@@ -181,7 +181,7 @@ public:
         return glm::vec3{rs * glm::vec4{0, 1, 0, 1}};
     }
 
-    const gsl::not_null<const loader::Room*>& getCurrentRoom() const
+    const gsl::not_null<const loader::file::Room*>& getCurrentRoom() const
     {
         return m_eye.room;
     }
@@ -224,7 +224,7 @@ public:
         return m_camera;
     }
 
-    void updateCinematic(const loader::CinematicFrame& frame, bool ingame);
+    void updateCinematic(const loader::file::CinematicFrame& frame, bool ingame);
 
     YAML::Node save() const;
 
@@ -239,7 +239,7 @@ private:
 
     static bool clampY(const core::TRVec& start,
                        core::TRVec& end,
-                       const gsl::not_null<const loader::Sector*>& sector,
+                       const gsl::not_null<const loader::file::Sector*>& sector,
                        const level::Level& level);
 
     enum class ClampType
@@ -261,7 +261,7 @@ private:
 
     core::Length moveIntoGeometry(core::RoomBoundPosition& pos, const core::Length& margin) const;
 
-    bool isVerticallyOutsideRoom(const core::TRVec& pos, const gsl::not_null<const loader::Room*>& room) const;
+    bool isVerticallyOutsideRoom(const core::TRVec& pos, const gsl::not_null<const loader::file::Room*>& room) const;
 
     void updatePosition(const core::RoomBoundPosition& eyePositionGoal, int smoothFactor);
 

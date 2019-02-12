@@ -27,7 +27,7 @@ public:
 
         if( getLevel().m_inputHandler->getInputState().roll )
         {
-            setAnimation( loader::AnimationId::ROLL_BEGIN );
+            setAnimation( AnimationId::ROLL_BEGIN );
             setGoalAnimState( LaraStateId::Stop );
             return;
         }

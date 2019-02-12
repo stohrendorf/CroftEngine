@@ -10,6 +10,8 @@
 
 namespace loader
 {
+namespace file
+{
 namespace
 {
 #pragma pack(push, 1)
@@ -115,7 +117,7 @@ void Room::createSceneNode(
         {
             RenderVertex iv;
             iv.position = quad.vertices[i].from( vertices ).position.toRenderSystem();
-            iv.color = quad.vertices[i].from(vertices).color;
+            iv.color = quad.vertices[i].from( vertices ).color;
             uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
             vbuf.push_back( iv );
         }
@@ -156,8 +158,8 @@ void Room::createSceneNode(
         for( int i = 0; i < 3; ++i )
         {
             RenderVertex iv;
-            iv.position = tri.vertices[i].from(vertices).position.toRenderSystem();
-            iv.color = tri.vertices[i].from(vertices).color;
+            iv.position = tri.vertices[i].from( vertices ).position.toRenderSystem();
+            iv.color = tri.vertices[i].from( vertices ).color;
             uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
             vbuf.push_back( iv );
         }
@@ -326,5 +328,6 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core:
         groundSector->box->unblock();
     else
         groundSector->box->block();
+}
 }
 }

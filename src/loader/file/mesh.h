@@ -4,7 +4,7 @@
 #include "color.h"
 #include "primitives.h"
 #include "texture.h"
-#include "util.h"
+#include "io/util.h"
 
 #include <vector>
 
@@ -14,6 +14,8 @@ class TextureAnimator;
 }
 
 namespace loader
+{
+namespace file
 {
 struct Mesh
 {
@@ -175,4 +177,5 @@ struct Mesh
             render::TextureAnimator& animator,
             const std::string& label = {}) const;
 };
+}
 }

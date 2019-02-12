@@ -1,6 +1,6 @@
 #pragma once
 
-#include "loader/datatypes.h"
+#include "loader/file/datatypes.h"
 
 namespace render
 {
@@ -21,9 +21,9 @@ struct PortalTracer
 
 
     BoundingBox boundingBox{-1, -1, 0, 1, 1, 0};
-    const loader::Portal* lastPortal = nullptr;
+    const loader::file::Portal* lastPortal = nullptr;
 
-    bool checkVisibility(const loader::Portal* portal, const gameplay::Camera& camera)
+    bool checkVisibility(const loader::file::Portal* portal, const gameplay::Camera& camera)
     {
         const auto portalToCam = glm::vec3{camera.getInverseViewMatrix()[3]} - portal->vertices[0].toRenderSystem();
         if( dot( portal->normal.toRenderSystem(), portalToCam ) < 0 )
@@ -116,7 +116,7 @@ struct PortalTracer
         return getLastPortal()->adjoining_room;
     }
 
-    const loader::Portal* getLastPortal() const
+    const loader::file::Portal* getLastPortal() const
     {
         Expects( lastPortal != nullptr );
         return lastPortal;

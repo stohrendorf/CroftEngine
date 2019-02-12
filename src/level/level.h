@@ -11,10 +11,10 @@
 #include "engine/sounds_tr1.h"
 #include "engine/tracks_tr1.h"
 #include "game.h"
-#include "loader/animation.h"
-#include "loader/datatypes.h"
-#include "loader/item.h"
-#include "loader/mesh.h"
+#include "loader/file/animation.h"
+#include "loader/file/datatypes.h"
+#include "loader/file/item.h"
+#include "loader/file/mesh.h"
 
 #include <boost/filesystem/path.hpp>
 
@@ -35,7 +35,7 @@ namespace level
 class Level
 {
 public:
-    Level(const Game gameVersion, loader::io::SDLReader&& reader, sol::state&& scriptEngine)
+    Level(const Game gameVersion, loader::file::io::SDLReader&& reader, sol::state&& scriptEngine)
             : m_gameVersion{gameVersion}
             , m_scriptEngine{std::move( scriptEngine )}
             , m_reader{std::move( reader )}
@@ -56,47 +56,47 @@ public:
 
     sol::state m_scriptEngine;
 
-    std::vector<loader::DWordTexture> m_textures;
+    std::vector<loader::file::DWordTexture> m_textures;
 
-    std::unique_ptr<loader::Palette> m_palette;
+    std::unique_ptr<loader::file::Palette> m_palette;
 
-    std::vector<loader::Room> m_rooms;
+    std::vector<loader::file::Room> m_rooms;
 
     std::vector<uint32_t> m_meshIndices;
 
-    std::vector<loader::Animation> m_animations;
+    std::vector<loader::file::Animation> m_animations;
 
-    std::vector<loader::Transitions> m_transitions;
+    std::vector<loader::file::Transitions> m_transitions;
 
-    std::vector<loader::TransitionCase> m_transitionCases;
+    std::vector<loader::file::TransitionCase> m_transitionCases;
 
     std::vector<int16_t> m_animCommands;
 
-    std::map<engine::TR1ItemId, std::unique_ptr<loader::SkeletalModelType>> m_animatedModels;
+    std::map<engine::TR1ItemId, std::unique_ptr<loader::file::SkeletalModelType>> m_animatedModels;
 
-    std::vector<loader::TextureLayoutProxy> m_textureProxies;
+    std::vector<loader::file::TextureLayoutProxy> m_textureProxies;
 
     size_t m_animatedTexturesUvCount = 0;
 
-    std::vector<loader::Sprite> m_sprites;
+    std::vector<loader::file::Sprite> m_sprites;
 
-    std::map<engine::TR1ItemId, std::unique_ptr<loader::SpriteSequence>> m_spriteSequences;
+    std::map<engine::TR1ItemId, std::unique_ptr<loader::file::SpriteSequence>> m_spriteSequences;
 
-    std::vector<loader::Camera> m_cameras;
+    std::vector<loader::file::Camera> m_cameras;
 
-    std::vector<loader::FlybyCamera> m_flybyCameras;
+    std::vector<loader::file::FlybyCamera> m_flybyCameras;
 
-    std::vector<loader::SoundSource> m_soundSources;
+    std::vector<loader::file::SoundSource> m_soundSources;
 
-    std::vector<loader::Box> m_boxes;
+    std::vector<loader::file::Box> m_boxes;
 
     std::vector<uint16_t> m_overlaps;
 
-    loader::Zones m_baseZones;
+    loader::file::Zones m_baseZones;
 
-    loader::Zones m_alternateZones;
+    loader::file::Zones m_alternateZones;
 
-    std::vector<loader::Item> m_items;
+    std::vector<loader::file::Item> m_items;
 
     std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::items::ItemNode>>> m_itemNodes;
 
@@ -104,17 +104,17 @@ public:
 
     std::set<engine::items::ItemNode*> m_scheduledDeletions;
 
-    std::unique_ptr<loader::LightMap> m_lightmap;
+    std::unique_ptr<loader::file::LightMap> m_lightmap;
 
-    std::vector<loader::AIObject> m_aiObjects;
+    std::vector<loader::file::AIObject> m_aiObjects;
 
-    std::vector<loader::CinematicFrame> m_cinematicFrames;
+    std::vector<loader::file::CinematicFrame> m_cinematicFrames;
 
     std::vector<uint8_t> m_demoData;
 
     std::vector<int16_t> m_soundmap;
 
-    std::vector<loader::SoundDetails> m_soundDetails;
+    std::vector<loader::file::SoundDetails> m_soundDetails;
 
     size_t m_samplesCount = 0;
 
@@ -150,15 +150,15 @@ public:
 
     virtual void loadFileData() = 0;
 
-    const loader::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
+    const loader::file::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
 
     int findStaticMeshIndexById(core::StaticMeshId meshId) const;
 
-    const std::unique_ptr<loader::SkeletalModelType>& findAnimatedModelForType(engine::TR1ItemId type) const;
+    const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(engine::TR1ItemId type) const;
 
-    const std::unique_ptr<loader::SpriteSequence>& findSpriteSequenceForType(engine::TR1ItemId type) const;
+    const std::unique_ptr<loader::file::SpriteSequence>& findSpriteSequenceForType(engine::TR1ItemId type) const;
 
-    std::map<loader::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
+    std::map<loader::file::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
     createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
 
     std::shared_ptr<engine::LaraNode> createItems();
@@ -167,7 +167,7 @@ public:
 
     template<typename T>
     std::shared_ptr<T> createItem(const engine::TR1ItemId type,
-                                  const gsl::not_null<const loader::Room*>& room,
+                                  const gsl::not_null<const loader::file::Room*>& room,
                                   const core::Angle& angle,
                                   const core::TRVec& position,
                                   const uint16_t activationState)
@@ -176,9 +176,9 @@ public:
         if( model == nullptr )
             return nullptr;
 
-        loader::Item item;
+        loader::file::Item item;
         item.type = type;
-        item.room = uint16_t(-1);
+        item.room = uint16_t( -1 );
         item.position = position;
         item.rotation = angle;
         item.darkness = 0;
@@ -193,27 +193,27 @@ public:
     }
 
     std::shared_ptr<engine::items::PickupItem> createPickup(const engine::TR1ItemId type,
-                                                            const gsl::not_null<const loader::Room*>& room,
+                                                            const gsl::not_null<const loader::file::Room*>& room,
                                                             const core::TRVec& position);
 
-    static const loader::Sector* findRealFloorSector(const core::TRVec& position,
-                                                     gsl::not_null<const loader::Room*> room)
+    static const loader::file::Sector* findRealFloorSector(const core::TRVec& position,
+                                                           gsl::not_null<const loader::file::Room*> room)
     {
         return findRealFloorSector( position, &room );
     }
 
-    static const loader::Sector* findRealFloorSector(core::RoomBoundPosition& rbs)
+    static const loader::file::Sector* findRealFloorSector(core::RoomBoundPosition& rbs)
     {
         return findRealFloorSector( rbs.position, &rbs.room );
     }
 
-    static const loader::Sector* findRealFloorSector(const core::TRVec& position,
-                                                     const gsl::not_null<gsl::not_null<const loader::Room*>*>& room);
+    static const loader::file::Sector* findRealFloorSector(const core::TRVec& position,
+                                                           const gsl::not_null<gsl::not_null<const loader::file::Room*>*>& room);
 
-    gsl::not_null<const loader::Room*> findRoomForPosition(const core::TRVec& position,
-                                                           gsl::not_null<const loader::Room*> room) const;
+    gsl::not_null<const loader::file::Room*> findRoomForPosition(const core::TRVec& position,
+                                                                 gsl::not_null<const loader::file::Room*> room) const;
 
-    std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::Sector*> sector,
+    std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
                                                  const core::TRVec& position) const
     {
         while( sector->roomBelow != nullptr )
@@ -316,7 +316,7 @@ public:
 
     // list of meshes and models, resolved through m_meshIndices
     std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_modelsDirect;
-    std::vector<gsl::not_null<const loader::Mesh*>> m_meshesDirect;
+    std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
 
     std::shared_ptr<gameplay::Material> m_spriteMaterial{nullptr};
 
@@ -426,7 +426,7 @@ public:
 
     bool m_levelFinished = false;
 
-    void swapWithAlternate(loader::Room& orig, loader::Room& alternate);
+    void swapWithAlternate(loader::file::Room& orig, loader::file::Room& alternate);
 
     void addInventoryItem(engine::TR1ItemId id, size_t quantity = 1);
 
@@ -483,10 +483,10 @@ public:
     engine::items::ItemNode* m_pierre = nullptr;
 
 protected:
-    loader::io::SDLReader m_reader;
+    loader::file::io::SDLReader m_reader;
     engine::floordata::FloorData m_floorData;
-    std::vector<loader::Mesh> m_meshes;
-    std::vector<loader::StaticMesh> m_staticMeshes;
+    std::vector<loader::file::Mesh> m_meshes;
+    std::vector<loader::file::StaticMesh> m_staticMeshes;
     std::vector<uint16_t> m_animatedTextures;
 
     bool m_demoOrUb = false;
@@ -494,19 +494,20 @@ protected:
     core::Frame m_effectTimer = 0_frame;
     boost::optional<size_t> m_activeEffect{};
 
-    void readMeshData(loader::io::SDLReader& reader);
+    void readMeshData(loader::file::io::SDLReader& reader);
 
-    static void convertTexture(loader::ByteTexture& tex, loader::Palette& pal, loader::DWordTexture& dst);
+    static void
+    convertTexture(loader::file::ByteTexture& tex, loader::file::Palette& pal, loader::file::DWordTexture& dst);
 
-    static void convertTexture(loader::WordTexture& tex, loader::DWordTexture& dst);
+    static void convertTexture(loader::file::WordTexture& tex, loader::file::DWordTexture& dst);
 
     void postProcessDataStructures();
 
 private:
-    static Game probeVersion(loader::io::SDLReader& reader, const std::string& filename);
+    static Game probeVersion(loader::file::io::SDLReader& reader, const std::string& filename);
 
     static std::shared_ptr<Level>
-    createLoader(loader::io::SDLReader&& reader, Game game_version, const std::string& sfxPath,
+    createLoader(loader::file::io::SDLReader&& reader, Game game_version, const std::string& sfxPath,
                  sol::state&& scriptEngine);
 
     std::array<engine::floordata::ActivationState, static_cast<size_t>(engine::TR1TrackId::Sentinel)> m_cdTrackActivationStates;
