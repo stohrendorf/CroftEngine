@@ -28,7 +28,7 @@ private:
     std::deque<std::shared_ptr<gameplay::gl::Texture>> m_spriteTextures{};
     Lighting m_lighting;
 
-    void initDrawables(const level::Level& level, float scale = 1);
+    void initDrawables(const loader::file::level::Level& level, float scale = 1);
 
 protected:
     void nextFrame()
@@ -64,13 +64,13 @@ public:
     explicit Particle(const std::string& id,
                       const TR1ItemId objectNumber,
                       const gsl::not_null<const loader::file::Room*>& room,
-                      level::Level& level,
+                      loader::file::level::Level& level,
                       float scale = 1);
 
     explicit Particle(const std::string& id,
                       const TR1ItemId objectNumber,
                       const core::RoomBoundPosition& pos,
-                      level::Level& level,
+                      loader::file::level::Level& level,
                       float scale = 1);
 
     void updateLight()
@@ -78,7 +78,7 @@ public:
         m_lighting.updateStatic( shade );
     }
 
-    virtual bool update(level::Level& level) = 0;
+    virtual bool update(loader::file::level::Level& level) = 0;
 
     glm::vec3 getPosition() const final;
 };
@@ -90,14 +90,14 @@ public:
     explicit BloodSplatterParticle(const core::RoomBoundPosition& pos,
                                    const core::Speed speed_,
                                    const core::Angle angle_,
-                                   level::Level& level)
+                                   loader::file::level::Level& level)
             : Particle{"bloodsplat", TR1ItemId::Blood, pos, level}
     {
         speed = speed_;
         angle.Y = angle_;
     }
 
-    bool update(level::Level& level) override;
+    bool update(loader::file::level::Level& level) override;
 };
 
 
@@ -105,7 +105,7 @@ class SplashParticle : public Particle
 {
 public:
     explicit SplashParticle(const core::RoomBoundPosition& pos,
-                            level::Level& level,
+                            loader::file::level::Level& level,
                             const bool waterfall)
             : Particle{"splash", TR1ItemId::Splash, pos, level}
     {
@@ -121,7 +121,7 @@ public:
         }
     }
 
-    bool update(level::Level& level) override;
+    bool update(loader::file::level::Level& level) override;
 };
 
 
@@ -129,7 +129,7 @@ class RicochetParticle : public Particle
 {
 public:
     explicit RicochetParticle(const core::RoomBoundPosition& pos,
-                              level::Level& level)
+                              loader::file::level::Level& level)
             : Particle{"ricochet", TR1ItemId::Ricochet, pos, level}
     {
         timePerSpriteFrame = 4;
@@ -139,7 +139,7 @@ public:
             nextFrame();
     }
 
-    bool update(level::Level& /*level*/) override
+    bool update(loader::file::level::Level& /*level*/) override
     {
         --timePerSpriteFrame;
         if( timePerSpriteFrame == 0 )
@@ -157,7 +157,7 @@ class BubbleParticle : public Particle
 {
 public:
     explicit BubbleParticle(const core::RoomBoundPosition& pos,
-                            level::Level& level)
+                            loader::file::level::Level& level)
             : Particle{"bubble", TR1ItemId::Bubbles, pos, level, 0.7f}
     {
         speed = 10_spd + util::rand15( 6_spd, core::Speed::type() );
@@ -167,7 +167,7 @@ public:
             nextFrame();
     }
 
-    bool update(level::Level& level) override;
+    bool update(loader::file::level::Level& level) override;
 };
 
 
@@ -175,12 +175,12 @@ class SparkleParticle : public Particle
 {
 public:
     explicit SparkleParticle(const core::RoomBoundPosition& pos,
-                             level::Level& level)
+                             loader::file::level::Level& level)
             : Particle{"sparkles", TR1ItemId::Sparkles, pos, level}
     {
     }
 
-    bool update(level::Level& /*level*/) override
+    bool update(loader::file::level::Level& /*level*/) override
     {
         ++timePerSpriteFrame;
         if( timePerSpriteFrame != 1 )
@@ -197,7 +197,7 @@ class GunflareParticle : public Particle
 {
 public:
     explicit GunflareParticle(const core::RoomBoundPosition& pos,
-                              level::Level& level,
+                              loader::file::level::Level& level,
                               const core::Angle& yAngle)
             : Particle{"gunflare", TR1ItemId::Gunflare, pos, level}
     {
@@ -206,7 +206,7 @@ public:
         shade = 4096;
     }
 
-    bool update(level::Level& /*level*/) override
+    bool update(loader::file::level::Level& /*level*/) override
     {
         --timePerSpriteFrame;
         if( timePerSpriteFrame == 0 )
@@ -222,7 +222,7 @@ class FlameParticle : public Particle
 {
 public:
     explicit FlameParticle(const core::RoomBoundPosition& pos,
-                           level::Level& level)
+                           loader::file::level::Level& level)
             : Particle{"flame", TR1ItemId::Flame, pos, level}
     {
         timePerSpriteFrame = 0;
@@ -230,11 +230,11 @@ public:
         shade = 4096;
     }
 
-    bool update(level::Level& level) override;
+    bool update(loader::file::level::Level& level) override;
 };
 
 
-inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(level::Level& level,
+inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(loader::file::level::Level& level,
                                                                  const core::RoomBoundPosition& pos,
                                                                  core::Speed speed,
                                                                  core::Angle angle)

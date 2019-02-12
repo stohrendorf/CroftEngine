@@ -1,7 +1,7 @@
 #include "block.h"
 
 #include "engine/laranode.h"
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "core/boundingbox.h"
 
 namespace engine
@@ -134,7 +134,7 @@ void Block::update()
     ModelItemNode::update();
 
     auto pos = m_state.position;
-    auto sector = level::Level::findRealFloorSector( pos );
+    auto sector = loader::file::level::Level::findRealFloorSector( pos );
     const auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).y;
     if( height > pos.position.Y )
     {
@@ -162,14 +162,14 @@ void Block::update()
     deactivate();
     loader::file::Room::patchHeightsForBlock( *this, -core::SectorSize );
     pos = m_state.position;
-    sector = level::Level::findRealFloorSector( pos );
+    sector = loader::file::level::Level::findRealFloorSector( pos );
     getLevel().m_lara->handleCommandSequence(
             HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).lastCommandSequenceOrDeath, true );
 }
 
 bool Block::isOnFloor(const core::Length height) const
 {
-    const auto sector = level::Level::findRealFloorSector( m_state.position.position, m_state.position.room );
+    const auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, m_state.position.room );
     return sector->floorHeight == -core::HeightLimit || sector->floorHeight == m_state.position.position.Y - height;
 }
 
@@ -207,14 +207,14 @@ bool Block::canPushBlock(const core::Length height, const core::Axis axis) const
         return false;
     }
 
-    const auto targetSector = level::Level::findRealFloorSector( pos, m_state.position.room );
+    const auto targetSector = loader::file::level::Level::findRealFloorSector( pos, m_state.position.room );
     if( targetSector->floorHeight != pos.Y )
     {
         return false;
     }
 
     pos.Y -= height;
-    return pos.Y >= level::Level::findRealFloorSector(
+    return pos.Y >= loader::file::level::Level::findRealFloorSector(
             pos, m_state.position.room )->ceilingHeight;
 }
 
@@ -245,7 +245,7 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
     }
 
     auto room = m_state.position.room;
-    auto sector = level::Level::findRealFloorSector( pos, &room );
+    auto sector = loader::file::level::Level::findRealFloorSector( pos, &room );
 
     CollisionInfo tmp;
     tmp.facingAxis = axis;
@@ -262,7 +262,7 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
 
     auto topPos = pos;
     topPos.Y -= height;
-    const auto topSector = level::Level::findRealFloorSector( topPos, m_state.position.room );
+    const auto topSector = loader::file::level::Level::findRealFloorSector( topPos, m_state.position.room );
     if( topPos.Y < topSector->ceilingHeight )
     {
         return false;
@@ -287,14 +287,14 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
             break;
     }
 
-    sector = level::Level::findRealFloorSector( laraPos, &room );
+    sector = loader::file::level::Level::findRealFloorSector( laraPos, &room );
     if( sector->floorHeight != pos.Y )
     {
         return false;
     }
 
     laraPos.Y -= core::LaraWalkHeight;
-    sector = level::Level::findRealFloorSector( laraPos, &room );
+    sector = loader::file::level::Level::findRealFloorSector( laraPos, &room );
     if( laraPos.Y < sector->ceilingHeight )
     {
         return false;

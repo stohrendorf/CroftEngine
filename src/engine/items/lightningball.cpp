@@ -2,7 +2,7 @@
 
 #include "engine/heightinfo.h"
 #include "engine/laranode.h"
-#include "level/level.h"
+#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -80,7 +80,7 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const gameplay::Mesh&
 }
 }
 
-LightningBall::LightningBall(const gsl::not_null<level::Level*>& level,
+LightningBall::LightningBall(const gsl::not_null<loader::file::level::Level*>& level,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const loader::file::SkeletalModelType& animatedModel,
@@ -166,7 +166,7 @@ void LightningBall::update()
     {
         // we don't have poles, so just shoot downwards
         m_mainBoltEnd = core::TRVec{};
-        const auto sector = level::Level::findRealFloorSector( m_state.position );
+        const auto sector = loader::file::level::Level::findRealFloorSector( m_state.position );
         m_mainBoltEnd.Y = -HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
         m_mainBoltEnd.Y -= m_state.position.position.Y;
     }

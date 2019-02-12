@@ -12,7 +12,7 @@ class Wolf final
         : public AIAgent
 {
 public:
-    Wolf(const gsl::not_null<level::Level*>& level,
+    Wolf(const gsl::not_null<loader::file::level::Level*>& level,
          const gsl::not_null<const loader::file::Room*>& room,
          const loader::file::Item& item,
          const loader::file::SkeletalModelType& animatedModel)

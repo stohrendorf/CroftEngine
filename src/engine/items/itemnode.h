@@ -18,12 +18,12 @@ namespace loader
 namespace file
 {
 struct Item;
-}
-}
 
 namespace level
 {
 class Level;
+}
+}
 }
 
 namespace engine
@@ -120,9 +120,9 @@ struct ItemState final : public audio::Emitter
 
     std::shared_ptr<ai::CreatureInfo> creatureInfo;
 
-    YAML::Node save(const level::Level& lvl) const;
+    YAML::Node save(const loader::file::level::Level& lvl) const;
 
-    void load(const YAML::Node& n, const level::Level& lvl);
+    void load(const YAML::Node& n, const loader::file::level::Level& lvl);
 
     bool updateActivationTimeout()
     {
@@ -144,15 +144,15 @@ struct ItemState final : public audio::Emitter
         return !activationState.isInverted();
     }
 
-    bool stalkBox(const level::Level& lvl, const loader::file::Box& box) const;
+    bool stalkBox(const loader::file::level::Level& lvl, const loader::file::Box& box) const;
 
-    bool isInsideZoneButNotInBox(const level::Level& lvl, int16_t zoneId, const loader::file::Box& box) const;
+    bool isInsideZoneButNotInBox(const loader::file::level::Level& lvl, int16_t zoneId, const loader::file::Box& box) const;
 
-    bool inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::file::Box& box) const;
+    bool inSameQuadrantAsBoxRelativeToLara(const loader::file::level::Level& lvl, const loader::file::Box& box) const;
 
-    void initCreatureInfo(const level::Level& lvl);
+    void initCreatureInfo(const loader::file::level::Level& lvl);
 
-    void collectZoneBoxes(const level::Level& lvl);
+    void collectZoneBoxes(const loader::file::level::Level& lvl);
 
     const loader::file::Sector* getCurrentSector() const
     {
@@ -165,7 +165,7 @@ struct ItemState final : public audio::Emitter
 
 class ItemNode
 {
-    const gsl::not_null<level::Level*> m_level;
+    const gsl::not_null<loader::file::level::Level*> m_level;
 
 public:
     ItemState m_state;
@@ -188,7 +188,7 @@ public:
         Interact = 7
     };
 
-    ItemNode(const gsl::not_null<level::Level*>& level,
+    ItemNode(const gsl::not_null<loader::file::level::Level*>& level,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              bool hasUpdateFunction);
@@ -235,12 +235,12 @@ public:
         m_state.position.position += util::pitch( d, m_state.rotation.Y );
     }
 
-    const level::Level& getLevel() const
+    const loader::file::level::Level& getLevel() const
     {
         return *m_level;
     }
 
-    level::Level& getLevel()
+    loader::file::level::Level& getLevel()
     {
         return *m_level;
     }
@@ -346,7 +346,7 @@ protected:
 
 public:
     ModelItemNode(
-            const gsl::not_null<level::Level*>& level,
+            const gsl::not_null<loader::file::level::Level*>& level,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,
             bool hasUpdateFunction,
@@ -417,7 +417,7 @@ public:
     gsl::not_null<std::shared_ptr<Particle>> emitParticle(const core::TRVec& localPosition,
                                                           size_t boneIndex,
                                                           gsl::not_null<std::shared_ptr<Particle>> (* generate)(
-                                                                  level::Level& level,
+                                                                  loader::file::level::Level& level,
                                                                   const core::RoomBoundPosition& pos,
                                                                   core::Speed speed,
                                                                   core::Angle angle));
@@ -436,7 +436,7 @@ private:
 
 public:
     SpriteItemNode(
-            const gsl::not_null<level::Level*>& level,
+            const gsl::not_null<loader::file::level::Level*>& level,
             const std::string& name,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,

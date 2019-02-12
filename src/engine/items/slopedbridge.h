@@ -12,7 +12,7 @@ private:
     const int m_div;
 
 public:
-    SlopedBridge(const gsl::not_null<level::Level*>& level,
+    SlopedBridge(const gsl::not_null<loader::file::level::Level*>& level,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel,
@@ -64,7 +64,7 @@ private:
 class BridgeSlope1 final : public SlopedBridge
 {
 public:
-    BridgeSlope1(const gsl::not_null<level::Level*>& level,
+    BridgeSlope1(const gsl::not_null<loader::file::level::Level*>& level,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
@@ -77,7 +77,7 @@ public:
 class BridgeSlope2 final : public SlopedBridge
 {
 public:
-    BridgeSlope2(const gsl::not_null<level::Level*>& level,
+    BridgeSlope2(const gsl::not_null<loader::file::level::Level*>& level,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)

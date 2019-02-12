@@ -9,7 +9,7 @@ namespace items
 class StubItem final : public ModelItemNode
 {
 public:
-    StubItem(const gsl::not_null<level::Level*>& level,
+    StubItem(const gsl::not_null<loader::file::level::Level*>& level,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const loader::file::SkeletalModelType& animatedModel)
@@ -22,7 +22,7 @@ public:
 class ScriptedItem final : public ModelItemNode
 {
 public:
-    ScriptedItem(const gsl::not_null<level::Level*>& level,
+    ScriptedItem(const gsl::not_null<loader::file::level::Level*>& level,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel,

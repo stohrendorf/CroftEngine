@@ -47,7 +47,7 @@ private:
     UnderwaterState m_underwaterState = UnderwaterState::OnLand;
 
 public:
-    LaraNode(const gsl::not_null<level::Level*>& level,
+    LaraNode(const gsl::not_null<loader::file::level::Level*>& level,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const loader::file::SkeletalModelType& animatedModel)
@@ -427,9 +427,9 @@ public:
         core::TRRotationXY aimRotation{};
         core::Frame flashTimeout = 0_frame;
 
-        YAML::Node save(const level::Level& lvl) const;
+        YAML::Node save(const loader::file::level::Level& lvl) const;
 
-        void load(const YAML::Node& n, const level::Level& lvl);
+        void load(const YAML::Node& n, const loader::file::level::Level& lvl);
     };
 
 

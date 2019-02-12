@@ -1,12 +1,12 @@
 #include "particle.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 namespace engine
 {
 
-void Particle::initDrawables(const level::Level& level, const float scale)
+void Particle::initDrawables(const loader::file::level::Level& level, const float scale)
 {
     if( const auto& modelType = level.findAnimatedModelForType( object_number ) )
     {
@@ -55,7 +55,7 @@ glm::vec3 Particle::getPosition() const
 Particle::Particle(const std::string& id,
                    const TR1ItemId objectNumber,
                    const gsl::not_null<const loader::file::Room*>& room,
-                   level::Level& level,
+                   loader::file::level::Level& level,
                    float scale)
         : Node{id}, Emitter{&level.m_soundEngine}, pos{room}, object_number{objectNumber}
 {
@@ -65,14 +65,14 @@ Particle::Particle(const std::string& id,
 Particle::Particle(const std::string& id,
                    const TR1ItemId objectNumber,
                    const core::RoomBoundPosition& pos,
-                   level::Level& level,
+                   loader::file::level::Level& level,
                    float scale)
         : Node{id}, Emitter{&level.m_soundEngine}, pos{pos}, object_number{objectNumber}
 {
     initDrawables( level, scale );
 }
 
-bool BloodSplatterParticle::update(level::Level& level)
+bool BloodSplatterParticle::update(loader::file::level::Level& level)
 {
     pos.position += util::pitch( speed * 1_frame, angle.Y );
     ++timePerSpriteFrame;
@@ -91,7 +91,7 @@ bool BloodSplatterParticle::update(level::Level& level)
     return true;
 }
 
-bool SplashParticle::update(level::Level& level)
+bool SplashParticle::update(loader::file::level::Level& level)
 {
     const auto& it = *level.m_spriteSequences.at( object_number );
 
@@ -108,14 +108,14 @@ bool SplashParticle::update(level::Level& level)
     return true;
 }
 
-bool BubbleParticle::update(level::Level& level)
+bool BubbleParticle::update(loader::file::level::Level& level)
 {
     angle.X += 13_deg;
     angle.Y += 9_deg;
     pos.position.X += util::sin( 11_len, angle.Y );
     pos.position.Y -= 1_frame * speed;
     pos.position.Z += util::cos( 8_len, angle.X );
-    auto sector = level::Level::findRealFloorSector( pos.position, &pos.room );
+    auto sector = loader::file::level::Level::findRealFloorSector( pos.position, &pos.room );
     if( sector == nullptr || !pos.room->isWaterRoom() )
     {
         return false;
@@ -131,7 +131,7 @@ bool BubbleParticle::update(level::Level& level)
     return true;
 }
 
-bool FlameParticle::update(level::Level& level)
+bool FlameParticle::update(loader::file::level::Level& level)
 {
     nextFrame();
     if( negSpriteFrameId <= level.findSpriteSequenceForType( object_number )->length )

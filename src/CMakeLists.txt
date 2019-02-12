@@ -136,7 +136,7 @@ set( EDISONENGINE_SRCS
      engine/particle.cpp
      engine/skeletalmodelnode.cpp
 
-     level/level.cpp
+     loader/file/level/level.cpp
      loader/file/level/tr1level.cpp
      loader/file/level/tr2level.cpp
      loader/file/level/tr3level.cpp

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "engine/items/itemnode.h"
 
 #include <unordered_map>
@@ -66,9 +66,9 @@ struct SearchNode
         return (search_version & 0x8000u) != 0;
     }
 
-    YAML::Node save(const level::Level& lvl) const;
+    YAML::Node save(const loader::file::level::Level& lvl) const;
 
-    void load(const YAML::Node& n, const level::Level& lvl);
+    void load(const YAML::Node& n, const loader::file::level::Level& lvl);
 };
 
 
@@ -103,13 +103,13 @@ struct LotInfo
 
     core::TRVec target;
 
-    explicit LotInfo(const level::Level& lvl)
+    explicit LotInfo(const loader::file::level::Level& lvl)
     {
         for( const auto& box : lvl.m_boxes )
             nodes.insert( std::make_pair( &box, SearchNode{} ) );
     }
 
-    static gsl::span<const uint16_t> getOverlaps(const level::Level& lvl, uint16_t idx);
+    static gsl::span<const uint16_t> getOverlaps(const loader::file::level::Level& lvl, uint16_t idx);
 
     void setRandomSearchTarget(const gsl::not_null<const loader::file::Box*>& box)
     {
@@ -128,7 +128,7 @@ struct LotInfo
         }
     }
 
-    bool calculateTarget(const level::Level& lvl, core::TRVec& target, const items::ItemState& item);
+    bool calculateTarget(const loader::file::level::Level& lvl, core::TRVec& target, const items::ItemState& item);
 
     /**
      * @brief Incrementally calculate all paths to a specific box.
@@ -141,7 +141,7 @@ struct LotInfo
      * calls to actually calculate the full path.  Until a full path is found, the nodes partially retain the old
      * paths from a previous search.
      */
-    void updatePath(const level::Level& lvl, const uint8_t maxDepth)
+    void updatePath(const loader::file::level::Level& lvl, const uint8_t maxDepth)
     {
         if( required_box != nullptr && required_box != target_box )
         {
@@ -164,7 +164,7 @@ struct LotInfo
         searchPath( lvl, maxDepth );
     }
 
-    void searchPath(const level::Level& lvl, const uint8_t maxDepth)
+    void searchPath(const loader::file::level::Level& lvl, const uint8_t maxDepth)
     {
         if( head == nullptr )
         {
@@ -230,9 +230,9 @@ struct LotInfo
         }
     }
 
-    YAML::Node save(const level::Level& lvl) const;
+    YAML::Node save(const loader::file::level::Level& lvl) const;
 
-    void load(const YAML::Node& n, const level::Level& lvl);
+    void load(const YAML::Node& n, const loader::file::level::Level& lvl);
 };
 
 
@@ -252,7 +252,7 @@ struct AiInfo
 
     core::Angle enemy_facing;
 
-    AiInfo(const level::Level& lvl, items::ItemState& item);
+    AiInfo(const loader::file::level::Level& lvl, items::ItemState& item);
 };
 
 
@@ -272,7 +272,7 @@ struct CreatureInfo
 
     core::TRVec target;
 
-    CreatureInfo(const level::Level& lvl, const gsl::not_null<items::ItemState*>& item);
+    CreatureInfo(const loader::file::level::Level& lvl, const gsl::not_null<items::ItemState*>& item);
 
     void rotateHead(const core::Angle& angle)
     {
@@ -294,12 +294,12 @@ struct CreatureInfo
         return type;
     }
 
-    YAML::Node save(const level::Level& lvl) const;
+    YAML::Node save(const loader::file::level::Level& lvl) const;
 
-    void load(const YAML::Node& n, const level::Level& lvl);
+    void load(const YAML::Node& n, const loader::file::level::Level& lvl);
 };
 
 
-void updateMood(const level::Level& lvl, const items::ItemState& item, const AiInfo& aiInfo, bool violent);
+void updateMood(const loader::file::level::Level& lvl, const items::ItemState& item, const AiInfo& aiInfo, bool violent);
 }
 }

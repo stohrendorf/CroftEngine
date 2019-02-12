@@ -58,12 +58,13 @@
 
 #include <glm/gtx/norm.hpp>
 
-using namespace level;
+using namespace loader::file;
+using namespace loader::file::level;
 
 Level::~Level() = default;
 
 /// \brief reads the mesh data.
-void Level::readMeshData(loader::file::io::SDLReader& reader)
+void Level::readMeshData(io::SDLReader& reader)
 {
     const auto meshDataWords = reader.readU32();
     const auto basePos = reader.tell();
@@ -84,9 +85,9 @@ void Level::readMeshData(loader::file::io::SDLReader& reader)
         reader.seek( basePos + std::streamoff( meshDataPos ) );
 
         if( gameToEngine( m_gameVersion ) >= Engine::TR4 )
-            m_meshes.emplace_back( *loader::file::Mesh::readTr4( reader ) );
+            m_meshes.emplace_back( *Mesh::readTr4( reader ) );
         else
-            m_meshes.emplace_back( *loader::file::Mesh::readTr1( reader ) );
+            m_meshes.emplace_back( *Mesh::readTr1( reader ) );
 
         for( auto pos : m_meshIndices )
         {
@@ -105,7 +106,7 @@ std::shared_ptr<Level> Level::createLoader(const std::string& filename, Game gam
 {
     const std::string sfxPath = (boost::filesystem::path( filename ).remove_filename() / "MAIN.SFX").string();
 
-    loader::file::io::SDLReader reader( filename );
+    io::SDLReader reader( filename );
     if( !reader.isOpen() )
         return nullptr;
 
@@ -119,7 +120,7 @@ std::shared_ptr<Level> Level::createLoader(const std::string& filename, Game gam
 }
 
 std::shared_ptr<Level>
-Level::createLoader(loader::file::io::SDLReader&& reader, Game game_version, const std::string& sfxPath,
+Level::createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath,
                     sol::state&& scriptEngine)
 {
     if( !reader.isOpen() )
@@ -130,29 +131,29 @@ Level::createLoader(loader::file::io::SDLReader&& reader, Game game_version, con
     switch( game_version )
     {
         case Game::TR1:
-            result = std::make_shared<loader::file::level::TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<level::TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR1Demo:
         case Game::TR1UnfinishedBusiness:
-            result = std::make_shared<loader::file::level::TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<level::TR1Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             result->m_demoOrUb = true;
             break;
         case Game::TR2:
-            result = std::make_shared<loader::file::level::TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<level::TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR2Demo:
-            result = std::make_shared<loader::file::level::TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<level::TR2Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             result->m_demoOrUb = true;
             break;
         case Game::TR3:
-            result = std::make_shared<loader::file::level::TR3Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<level::TR3Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR4:
         case Game::TR4Demo:
-            result = std::make_shared<loader::file::level::TR4Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<level::TR4Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         case Game::TR5:
-            result = std::make_shared<loader::file::level::TR5Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
+            result = std::make_shared<level::TR5Level>( game_version, std::move( reader ), std::move( scriptEngine ) );
             break;
         default:
             BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid game version" ) );
@@ -162,7 +163,7 @@ Level::createLoader(loader::file::io::SDLReader&& reader, Game game_version, con
     return result;
 }
 
-Game Level::probeVersion(loader::file::io::SDLReader& reader, const std::string& filename)
+Game Level::probeVersion(io::SDLReader& reader, const std::string& filename)
 {
     if( !reader.isOpen() || filename.length() < 5 )
         return Game::Unknown;
@@ -242,7 +243,7 @@ Game Level::probeVersion(loader::file::io::SDLReader& reader, const std::string&
     return ret;
 }
 
-const loader::file::StaticMesh* Level::findStaticMeshById(const core::StaticMeshId meshId) const
+const StaticMesh* Level::findStaticMeshById(const core::StaticMeshId meshId) const
 {
     for( const auto& mesh : m_staticMeshes )
         if( mesh.id == meshId )
@@ -265,33 +266,33 @@ int Level::findStaticMeshIndexById(const core::StaticMeshId meshId) const
     return -1;
 }
 
-const std::unique_ptr<loader::file::SkeletalModelType>& Level::findAnimatedModelForType(const engine::TR1ItemId type) const
+const std::unique_ptr<SkeletalModelType>& Level::findAnimatedModelForType(const engine::TR1ItemId type) const
 {
     const auto it = m_animatedModels.find( type );
     if( it != m_animatedModels.end() )
         return it->second;
 
-    static const std::unique_ptr<loader::file::SkeletalModelType> none;
+    static const std::unique_ptr<SkeletalModelType> none;
     return none;
 }
 
-const std::unique_ptr<loader::file::SpriteSequence>& Level::findSpriteSequenceForType(const engine::TR1ItemId type) const
+const std::unique_ptr<SpriteSequence>& Level::findSpriteSequenceForType(const engine::TR1ItemId type) const
 {
     const auto it = m_spriteSequences.find( type );
     if( it != m_spriteSequences.end() )
         return it->second;
 
-    static const std::unique_ptr<loader::file::SpriteSequence> none;
+    static const std::unique_ptr<SpriteSequence> none;
     return none;
 }
 
-std::map<loader::file::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
+std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
 Level::createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
 {
-    const auto texMask = gameToEngine( m_gameVersion ) == Engine::TR4 ? loader::file::TextureIndexMaskTr4
-                                                                      : loader::file::TextureIndexMask;
-    std::map<loader::file::TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>> materials;
-    for( loader::file::TextureLayoutProxy& proxy : m_textureProxies )
+    const auto texMask = gameToEngine( m_gameVersion ) == Engine::TR4 ? TextureIndexMaskTr4
+                                                                      : TextureIndexMask;
+    std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>> materials;
+    for( TextureLayoutProxy& proxy : m_textureProxies )
     {
         const auto& key = proxy.textureKey;
         if( materials.find( key ) != materials.end() )
@@ -308,7 +309,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
 
     std::shared_ptr<engine::LaraNode> lara = nullptr;
     int id = -1;
-    for( loader::file::Item& item : m_items )
+    for( Item& item : m_items )
     {
         ++id;
 
@@ -543,7 +544,7 @@ std::shared_ptr<engine::LaraNode> Level::createItems()
             BOOST_ASSERT( !findAnimatedModelForType( item.type ) );
             BOOST_ASSERT( !spriteSequence->sprites.empty() );
 
-            const loader::file::Sprite& sprite = spriteSequence->sprites[0];
+            const Sprite& sprite = spriteSequence->sprites[0];
             std::shared_ptr<engine::items::ItemNode> node;
 
             if( item.type == engine::TR1ItemId::ScionPiece1 )
@@ -657,7 +658,7 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
         m_meshesDirect.emplace_back( &m_meshes[idx] );
     }
 
-    for( const std::unique_ptr<loader::file::SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
+    for( const std::unique_ptr<SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
     {
         if( model->nMeshes > 0 )
         {
@@ -714,14 +715,14 @@ void Level::setUpRendering(const gsl::not_null<gameplay::Game*>& game)
 
     m_soundEngine.setListener( m_cameraController.get() );
 
-    for( loader::file::SoundSource& src : m_soundSources )
+    for( SoundSource& src : m_soundSources )
     {
         auto handle = playSound( src.sound_id, &src );
         handle->setLooping( true );
     }
 }
 
-void Level::convertTexture(loader::file::ByteTexture& tex, loader::file::Palette& pal, loader::file::DWordTexture& dst)
+void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
 {
     for( int y = 0; y < 256; y++ )
     {
@@ -739,7 +740,7 @@ void Level::convertTexture(loader::file::ByteTexture& tex, loader::file::Palette
     dst.md5 = util::md5( &tex.pixels[0][0], 256 * 256 );
 }
 
-void Level::convertTexture(loader::file::WordTexture& tex, loader::file::DWordTexture& dst)
+void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
 {
     for( int y = 0; y < 256; y++ )
     {
@@ -762,10 +763,10 @@ void Level::convertTexture(loader::file::WordTexture& tex, loader::file::DWordTe
     }
 }
 
-const loader::file::Sector* Level::findRealFloorSector(const core::TRVec& position,
-                                                 const gsl::not_null<gsl::not_null<const loader::file::Room*>*>& room)
+const Sector* Level::findRealFloorSector(const core::TRVec& position,
+                                                 const gsl::not_null<gsl::not_null<const Room*>*>& room)
 {
-    const loader::file::Sector* sector;
+    const Sector* sector;
     while( true )
     {
         sector = (*room)->findFloorSectorWithClampedIndex( (position.X - (*room)->position.X) / core::SectorSize,
@@ -803,10 +804,10 @@ const loader::file::Sector* Level::findRealFloorSector(const core::TRVec& positi
     return sector;
 }
 
-gsl::not_null<const loader::file::Room*>
-Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const loader::file::Room*> room) const
+gsl::not_null<const Room*>
+Level::findRoomForPosition(const core::TRVec& position, gsl::not_null<const Room*> room) const
 {
-    const loader::file::Sector* sector;
+    const Sector* sector;
     while( true )
     {
         sector = room->findFloorSectorWithClampedIndex(
@@ -915,7 +916,7 @@ void Level::triggerCdTrack(engine::TR1TrackId trackId,
     {
         // 28
         if( m_cdTrackActivationStates[trackIdN].isOneshot()
-            && m_lara->getCurrentAnimState() == loader::file::LaraStateId::JumpUp )
+            && m_lara->getCurrentAnimState() == LaraStateId::JumpUp )
         {
             trackId = engine::TR1TrackId::LaraTalk3;
         }
@@ -930,13 +931,13 @@ void Level::triggerCdTrack(engine::TR1TrackId trackId,
     else if( trackId == engine::TR1TrackId::LaraTalk15 )
     {
         // 41
-        if( m_lara->getCurrentAnimState() == loader::file::LaraStateId::Hang )
+        if( m_lara->getCurrentAnimState() == LaraStateId::Hang )
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
     else if( trackId == engine::TR1TrackId::LaraTalk16 )
     {
         // 42
-        if( m_lara->getCurrentAnimState() == loader::file::LaraStateId::Hang )
+        if( m_lara->getCurrentAnimState() == LaraStateId::Hang )
             triggerNormalCdTrack( engine::TR1TrackId::LaraTalk17, activationRequest, triggerType );
         else
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
@@ -949,7 +950,7 @@ void Level::triggerCdTrack(engine::TR1TrackId trackId,
     else if( trackId == engine::TR1TrackId::LaraTalk23 )
     {
         // 49
-        if( m_lara->getCurrentAnimState() == loader::file::LaraStateId::OnWaterStop )
+        if( m_lara->getCurrentAnimState() == LaraStateId::OnWaterStop )
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
     }
     else if( trackId == engine::TR1TrackId::LaraTalk24 )
@@ -964,7 +965,7 @@ void Level::triggerCdTrack(engine::TR1TrackId trackId,
                 triggerNormalCdTrack( trackId, activationRequest, triggerType );
             }
         }
-        else if( m_lara->getCurrentAnimState() == loader::file::LaraStateId::OnWaterExit )
+        else if( m_lara->getCurrentAnimState() == LaraStateId::OnWaterExit )
         {
             triggerNormalCdTrack( trackId, activationRequest, triggerType );
         }
@@ -1141,9 +1142,9 @@ void Level::postProcessDataStructures()
 {
     BOOST_LOG_TRIVIAL( info ) << "Post-processing data structures";
 
-    for( loader::file::Room& room : m_rooms )
+    for( Room& room : m_rooms )
     {
-        for( loader::file::Sector& sector : room.sectors )
+        for( Sector& sector : room.sectors )
         {
             if( sector.boxIndex.get() >= 0 )
             {
@@ -1190,7 +1191,7 @@ void Level::postProcessDataStructures()
         m_boxes[i].zoneGround2Swapped = m_alternateZones.groundZone2[i];
     }
 
-    for( const std::unique_ptr<loader::file::SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
+    for( const std::unique_ptr<SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values )
     {
         if( model->pose_data_offset.index<decltype( m_poseFrames[0] )>() >= m_poseFrames.size() )
         {
@@ -1199,11 +1200,11 @@ void Level::postProcessDataStructures()
                                          << " out of range 0.." << m_poseFrames.size() - 1;
             continue;
         }
-        model->frames = reinterpret_cast<const loader::file::AnimFrame*>(&model->pose_data_offset.from( m_poseFrames ));
+        model->frames = reinterpret_cast<const AnimFrame*>(&model->pose_data_offset.from( m_poseFrames ));
         if( model->nMeshes > 1 )
         {
             model->boneTree = gsl::make_span(
-                    reinterpret_cast<const loader::file::BoneTreeEntry*>(&model->bone_index.from( m_boneTrees )),
+                    reinterpret_cast<const BoneTreeEntry*>(&model->bone_index.from( m_boneTrees )),
                     model->nMeshes - 1 );
         }
 
@@ -1211,7 +1212,7 @@ void Level::postProcessDataStructures()
             model->animations = &model->animation_index.checkedFrom( m_animations );
     }
 
-    for( loader::file::Animation& anim : m_animations )
+    for( Animation& anim : m_animations )
     {
         if( anim.poseDataOffset.index<decltype( m_poseFrames[0] )>() >= m_poseFrames.size() )
         {
@@ -1222,7 +1223,7 @@ void Level::postProcessDataStructures()
         }
         else
         {
-            anim.frames = reinterpret_cast<const loader::file::AnimFrame*>(&anim.poseDataOffset.from( m_poseFrames ));
+            anim.frames = reinterpret_cast<const AnimFrame*>(&anim.poseDataOffset.from( m_poseFrames ));
         }
 
         Expects( anim.nextAnimationIndex < m_animations.size() );
@@ -1236,7 +1237,7 @@ void Level::postProcessDataStructures()
                                                anim.transitionsCount );
     }
 
-    for( loader::file::TransitionCase& transitionCase : m_transitionCases )
+    for( TransitionCase& transitionCase : m_transitionCases )
     {
         if( transitionCase.targetAnimationIndex.index < m_animations.size() )
             transitionCase.targetAnimation = &transitionCase.targetAnimationIndex.from( m_animations );
@@ -1245,7 +1246,7 @@ void Level::postProcessDataStructures()
                                          << " not less than " << m_animations.size();
     }
 
-    for( loader::file::Transitions& transition : m_transitions )
+    for( Transitions& transition : m_transitions )
     {
         Expects( transition.firstTransitionCase + transition.transitionCaseCount <= m_transitionCases.size() );
         if( transition.transitionCaseCount > 0 )
@@ -1294,7 +1295,7 @@ void Level::laraNormalEffect()
     Expects( m_lara != nullptr );
     m_lara->setCurrentAnimState( engine::LaraStateId::Stop );
     m_lara->setRequiredAnimState( engine::LaraStateId::Unknown12 );
-    m_lara->m_state.anim = &m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
+    m_lara->m_state.anim = &m_animations[static_cast<int>(AnimationId::STAY_SOLID)];
     m_lara->m_state.frame_number = 185_frame;
     m_cameraController->setMode( engine::CameraMode::Chase );
     m_cameraController->getCamera()->setFieldOfView( glm::radians( 80.0f ) );
@@ -1490,7 +1491,7 @@ void Level::flickerEffect()
     m_effectTimer += 1_frame;
 }
 
-void Level::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alternate)
+void Level::swapWithAlternate(Room& orig, Room& alternate)
 {
     // find any blocks in the original room and un-patch the floor heights
 
@@ -1501,11 +1502,11 @@ void Level::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alte
 
         if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item.get() ) )
         {
-            loader::file::Room::patchHeightsForBlock( *tmp, core::SectorSize );
+            Room::patchHeightsForBlock( *tmp, core::SectorSize );
         }
         else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item.get() ) )
         {
-            loader::file::Room::patchHeightsForBlock( *tmp, core::SectorSize * 2 );
+            Room::patchHeightsForBlock( *tmp, core::SectorSize * 2 );
         }
     }
 
@@ -1536,11 +1537,11 @@ void Level::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alte
 
         if( const auto tmp = std::dynamic_pointer_cast<engine::items::Block>( item.get() ) )
         {
-            loader::file::Room::patchHeightsForBlock( *tmp, -core::SectorSize );
+            Room::patchHeightsForBlock( *tmp, -core::SectorSize );
         }
         else if( const auto tmp = std::dynamic_pointer_cast<engine::items::TallBlock>( item.get() ) )
         {
-            loader::file::Room::patchHeightsForBlock( *tmp, -core::SectorSize * 2 );
+            Room::patchHeightsForBlock( *tmp, -core::SectorSize * 2 );
         }
     }
 
@@ -1890,7 +1891,7 @@ std::shared_ptr<audio::SourceHandle> Level::playSound(const engine::TR1SoundId i
     }
 
     BOOST_ASSERT( snd >= 0 && static_cast<size_t>(snd) < m_soundDetails.size() );
-    const loader::file::SoundDetails& details = m_soundDetails[snd];
+    const SoundDetails& details = m_soundDetails[snd];
     if( details.chance != 0 && util::rand15() > details.chance )
         return nullptr;
 
@@ -1910,7 +1911,7 @@ std::shared_ptr<audio::SourceHandle> Level::playSound(const engine::TR1SoundId i
         return nullptr;
 
     std::shared_ptr<audio::SourceHandle> handle;
-    if( details.getPlaybackType( Engine::TR1 ) == loader::file::PlaybackType::Looping )
+    if( details.getPlaybackType( Engine::TR1 ) == PlaybackType::Looping )
     {
         auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
         if( handles.empty() )
@@ -1925,7 +1926,7 @@ std::shared_ptr<audio::SourceHandle> Level::playSound(const engine::TR1SoundId i
             BOOST_ASSERT( handles.size() == 1 );
         }
     }
-    else if( details.getPlaybackType( Engine::TR1 ) == loader::file::PlaybackType::Restart )
+    else if( details.getPlaybackType( Engine::TR1 ) == PlaybackType::Restart )
     {
         auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
         if( !handles.empty() )
@@ -1945,7 +1946,7 @@ std::shared_ptr<audio::SourceHandle> Level::playSound(const engine::TR1SoundId i
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
         }
     }
-    else if( details.getPlaybackType( Engine::TR1 ) == loader::file::PlaybackType::Wait )
+    else if( details.getPlaybackType( Engine::TR1 ) == PlaybackType::Wait )
     {
         auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
         if( handles.empty() )
@@ -1988,10 +1989,10 @@ void Level::stopSound(const engine::TR1SoundId soundId, audio::Emitter* emitter)
 }
 
 std::shared_ptr<engine::items::PickupItem> Level::createPickup(const engine::TR1ItemId type,
-                                                               const gsl::not_null<const loader::file::Room*>& room,
+                                                               const gsl::not_null<const Room*>& room,
                                                                const core::TRVec& position)
 {
-    loader::file::Item item;
+    Item item;
     item.type = type;
     item.room = uint16_t( -1 );
     item.position = position;
@@ -2001,7 +2002,7 @@ std::shared_ptr<engine::items::PickupItem> Level::createPickup(const engine::TR1
 
     const auto& spriteSequence = findSpriteSequenceForType( type );
     Expects( spriteSequence != nullptr && !spriteSequence->sprites.empty() );
-    const loader::file::Sprite& sprite = spriteSequence->sprites[0];
+    const Sprite& sprite = spriteSequence->sprites[0];
 
     auto node = std::make_shared<engine::items::PickupItem>(
             this,

@@ -5,17 +5,17 @@
 
 #include "gsl-lite.hpp"
 
-namespace level
-{
-class Level;
-}
-
 namespace loader
 {
 namespace file
 {
 struct SkeletalModelType;
 struct Animation;
+
+namespace level
+{
+class Level;
+}
 }
 }
 
@@ -30,7 +30,7 @@ class SkeletalModelNode
 {
 public:
     explicit SkeletalModelNode(const std::string& id,
-                               const gsl::not_null<const level::Level*>& lvl,
+                               const gsl::not_null<const loader::file::level::Level*>& lvl,
                                const loader::file::SkeletalModelType& mdl);
 
     void updatePose(items::ItemState& state);
@@ -127,7 +127,7 @@ protected:
     bool handleStateTransitions(items::ItemState& state);
 
 private:
-    const gsl::not_null<const level::Level*> m_level;
+    const gsl::not_null<const loader::file::level::Level*> m_level;
     const loader::file::SkeletalModelType& m_model;
     std::vector<glm::mat4> m_bonePatches;
 

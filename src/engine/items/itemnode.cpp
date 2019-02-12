@@ -1,7 +1,7 @@
 #include "itemnode.h"
 
 #include "engine/laranode.h"
-#include "level/level.h"
+#include "loader/file/level/level.h"
 
 #include <boost/range/adaptor/indexed.hpp>
 
@@ -48,7 +48,7 @@ void ItemNode::applyTransform()
     getNode()->setLocalMatrix( translate( glm::mat4{1.0f}, tr ) * m_state.rotation.toMatrix() );
 }
 
-ItemNode::ItemNode(const gsl::not_null<level::Level*>& level,
+ItemNode::ItemNode(const gsl::not_null<loader::file::level::Level*>& level,
                    const gsl::not_null<const loader::file::Room*>& room,
                    const loader::file::Item& item,
                    const bool hasUpdateFunction)
@@ -95,7 +95,7 @@ void ItemNode::setCurrentRoom(const gsl::not_null<const loader::file::Room*>& ne
     applyTransform();
 }
 
-ModelItemNode::ModelItemNode(const gsl::not_null<level::Level*>& level,
+ModelItemNode::ModelItemNode(const gsl::not_null<loader::file::level::Level*>& level,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const bool hasUpdateFunction,
@@ -376,7 +376,7 @@ loader::file::BoundingBox ModelItemNode::getBoundingBox() const
     return m_skeleton->getBoundingBox( m_state );
 }
 
-SpriteItemNode::SpriteItemNode(const gsl::not_null<level::Level*>& level,
+SpriteItemNode::SpriteItemNode(const gsl::not_null<loader::file::level::Level*>& level,
                                const std::string& name,
                                const gsl::not_null<const loader::file::Room*>& room,
                                const loader::file::Item& item,
@@ -576,7 +576,7 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
 gsl::not_null<std::shared_ptr<Particle>> ModelItemNode::emitParticle(const core::TRVec& localPosition,
                                                                      const size_t boneIndex,
                                                                      gsl::not_null<std::shared_ptr<Particle>> (* generate)(
-                                                                             level::Level& level,
+                                                                             loader::file::level::Level& level,
                                                                              const core::RoomBoundPosition&,
                                                                              core::Speed, core::Angle))
 {
@@ -613,7 +613,7 @@ YAML::Node ModelItemNode::save() const
     return n;
 }
 
-bool ItemState::stalkBox(const level::Level& lvl, const loader::file::Box& box) const
+bool ItemState::stalkBox(const loader::file::level::Level& lvl, const loader::file::Box& box) const
 {
     const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
     const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
@@ -696,7 +696,7 @@ bool ItemState::stalkBox(const level::Level& lvl, const loader::file::Box& box) 
     BOOST_THROW_EXCEPTION( std::runtime_error( "Unreachable code reached" ) );
 }
 
-bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl,
+bool ItemState::isInsideZoneButNotInBox(const loader::file::level::Level& lvl,
                                         const int16_t zoneId,
                                         const loader::file::Box& box) const
 {
@@ -722,7 +722,7 @@ bool ItemState::isInsideZoneButNotInBox(const level::Level& lvl,
 
 }
 
-bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const loader::file::Box& box) const
+bool ItemState::inSameQuadrantAsBoxRelativeToLara(const loader::file::level::Level& lvl, const loader::file::Box& box) const
 {
     const auto laraToBoxX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
     const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
@@ -735,7 +735,7 @@ bool ItemState::inSameQuadrantAsBoxRelativeToLara(const level::Level& lvl, const
 
 }
 
-void ItemState::initCreatureInfo(const level::Level& lvl)
+void ItemState::initCreatureInfo(const loader::file::level::Level& lvl)
 {
     if( creatureInfo != nullptr )
         return;
@@ -744,7 +744,7 @@ void ItemState::initCreatureInfo(const level::Level& lvl)
     collectZoneBoxes( lvl );
 }
 
-void ItemState::collectZoneBoxes(const level::Level& lvl)
+void ItemState::collectZoneBoxes(const loader::file::level::Level& lvl)
 {
     const auto zoneRef1 = loader::file::Box::getZoneRef( false, creatureInfo->lot.fly, creatureInfo->lot.step );
     const auto zoneRef2 = loader::file::Box::getZoneRef( true, creatureInfo->lot.fly, creatureInfo->lot.step );
@@ -784,7 +784,7 @@ sol::usertype<ItemState>& ItemState::userType()
     return type;
 }
 
-YAML::Node ItemState::save(const level::Level& lvl) const
+YAML::Node ItemState::save(const loader::file::level::Level& lvl) const
 {
     YAML::Node n;
     n["type"] = engine::toString( type );
@@ -820,7 +820,7 @@ YAML::Node ItemState::save(const level::Level& lvl) const
     return n;
 }
 
-void ItemState::load(const YAML::Node& n, const level::Level& lvl)
+void ItemState::load(const YAML::Node& n, const loader::file::level::Level& lvl)
 {
     if( EnumUtil<TR1ItemId>::fromString( n["type"].as<std::string>() ) != type )
         BOOST_THROW_EXCEPTION( std::domain_error( "Item state has wrong type" ) );

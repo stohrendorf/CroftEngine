@@ -1,6 +1,6 @@
 #include "ai.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 namespace engine
@@ -40,7 +40,7 @@ Mood parseMood(const std::string& s)
 }
 }
 
-gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, const uint16_t idx)
+gsl::span<const uint16_t> LotInfo::getOverlaps(const loader::file::level::Level& lvl, const uint16_t idx)
 {
     const auto first = &lvl.m_overlaps[idx & 0x3fff];
     auto last = first;
@@ -54,7 +54,7 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const level::Level& lvl, const ui
     return gsl::make_span( first, last + 1 );
 }
 
-bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, const items::ItemState& item)
+bool LotInfo::calculateTarget(const loader::file::level::Level& lvl, core::TRVec& target, const items::ItemState& item)
 {
     updatePath( lvl, 5 );
 
@@ -262,7 +262,7 @@ bool LotInfo::calculateTarget(const level::Level& lvl, core::TRVec& target, cons
     return false;
 }
 
-YAML::Node LotInfo::save(const level::Level& lvl) const
+YAML::Node LotInfo::save(const loader::file::level::Level& lvl) const
 {
     YAML::Node node;
     for( const auto& entry : nodes )
@@ -287,7 +287,7 @@ YAML::Node LotInfo::save(const level::Level& lvl) const
     return node;
 }
 
-void LotInfo::load(const YAML::Node& n, const level::Level& lvl)
+void LotInfo::load(const YAML::Node& n, const loader::file::level::Level& lvl)
 {
     nodes.clear();
     for( const auto& entry : n["nodes"] )
@@ -319,7 +319,7 @@ void LotInfo::load(const YAML::Node& n, const level::Level& lvl)
     target.load( n["target"] );
 }
 
-void updateMood(const level::Level& lvl, const items::ItemState& item, const AiInfo& aiInfo, const bool violent)
+void updateMood(const loader::file::level::Level& lvl, const items::ItemState& item, const AiInfo& aiInfo, const bool violent)
 {
     if( item.creatureInfo == nullptr )
         return;
@@ -509,7 +509,7 @@ void updateMood(const level::Level& lvl, const items::ItemState& item, const AiI
     creatureInfo.lot.calculateTarget( lvl, creatureInfo.target, item );
 }
 
-AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
+AiInfo::AiInfo(const loader::file::level::Level& lvl, items::ItemState& item)
 {
     if( item.creatureInfo == nullptr )
         return;
@@ -550,7 +550,7 @@ AiInfo::AiInfo(const level::Level& lvl, items::ItemState& item)
     }
 }
 
-CreatureInfo::CreatureInfo(const level::Level& lvl, const gsl::not_null<items::ItemState*>& item)
+CreatureInfo::CreatureInfo(const loader::file::level::Level& lvl, const gsl::not_null<items::ItemState*>& item)
         : lot{lvl}
 {
     switch( item->type )
@@ -587,7 +587,7 @@ CreatureInfo::CreatureInfo(const level::Level& lvl, const gsl::not_null<items::I
     }
 }
 
-YAML::Node CreatureInfo::save(const level::Level& lvl) const
+YAML::Node CreatureInfo::save(const loader::file::level::Level& lvl) const
 {
     YAML::Node node;
     node["headRot"] = head_rotation.toDegrees();
@@ -600,7 +600,7 @@ YAML::Node CreatureInfo::save(const level::Level& lvl) const
     return node;
 }
 
-void CreatureInfo::load(const YAML::Node& n, const level::Level& lvl)
+void CreatureInfo::load(const YAML::Node& n, const loader::file::level::Level& lvl)
 {
     head_rotation = core::Angle::fromDegrees( n["headRot"].as<float>() );
     neck_rotation = core::Angle::fromDegrees( n["neckRot"].as<float>() );
@@ -611,7 +611,7 @@ void CreatureInfo::load(const YAML::Node& n, const level::Level& lvl)
     target.load( n["target"] );
 }
 
-YAML::Node SearchNode::save(const level::Level& lvl) const
+YAML::Node SearchNode::save(const loader::file::level::Level& lvl) const
 {
     YAML::Node node;
     node["searchVersion"] = search_version;
@@ -622,7 +622,7 @@ YAML::Node SearchNode::save(const level::Level& lvl) const
     return node;
 }
 
-void SearchNode::load(const YAML::Node& n, const level::Level& lvl)
+void SearchNode::load(const YAML::Node& n, const loader::file::level::Level& lvl)
 {
     search_version = n["searchVersion"].as<uint16_t>();
     if( !n["exitBox"].IsDefined() )

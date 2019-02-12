@@ -1,7 +1,7 @@
 #include "collisioninfo.h"
 
 #include "core/magic.h"
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "laranode.h"
 
 namespace engine
@@ -22,7 +22,7 @@ core::Length reflectAtSectorBoundary(const core::Length target, const core::Leng
 }
 }
 
-void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Level& level, const core::Length& height)
+void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const loader::file::level::Level& level, const core::Length& height)
 {
     collisionType = AxisColl::None;
     shift = core::TRVec{};
@@ -30,7 +30,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     auto room = level.m_lara->m_state.position.room;
     const auto refTestPos = laraPos - core::TRVec( 0_len, height + core::ScalpToHandsHeight, 0_len );
-    const auto currentSector = level::Level::findRealFloorSector( refTestPos, &room );
+    const auto currentSector = loader::file::level::Level::findRealFloorSector( refTestPos, &room );
 
     mid.init( currentSector, refTestPos, level.m_itemNodes, laraPos.Y, height );
 
@@ -78,7 +78,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     // Front
     auto testPos = refTestPos + core::TRVec( frontX, 0_len, frontZ );
-    auto sector = level::Level::findRealFloorSector( testPos, &room );
+    auto sector = loader::file::level::Level::findRealFloorSector( testPos, &room );
     front.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
     if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && front.floorSpace.slantClass == SlantClass::Steep
         && front.floorSpace.y < 0_len )
@@ -100,7 +100,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     // Front left
     testPos = refTestPos + core::TRVec( frontLeftX, 0_len, frontLeftZ );
-    sector = level::Level::findRealFloorSector( testPos, &room );
+    sector = loader::file::level::Level::findRealFloorSector( testPos, &room );
     frontLeft.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontLeft.floorSpace.slantClass == SlantClass::Steep
@@ -123,7 +123,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
     // Front right
     testPos = refTestPos + core::TRVec( frontRightX, 0_len, frontRightZ );
-    sector = level::Level::findRealFloorSector( testPos, &room );
+    sector = loader::file::level::Level::findRealFloorSector( testPos, &room );
     frontRight.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
 
     if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontRight.floorSpace.slantClass == SlantClass::Steep
@@ -229,7 +229,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const level::Leve
 
 std::set<gsl::not_null<const loader::file::Room*>>
 CollisionInfo::collectTouchingRooms(const core::TRVec& position, const core::Length& radius, const core::Length& height,
-                                    const level::Level& level)
+                                    const loader::file::level::Level& level)
 {
     std::set<gsl::not_null<const loader::file::Room*>> result;
     auto room = level.m_lara->m_state.position.room;
@@ -247,7 +247,7 @@ CollisionInfo::collectTouchingRooms(const core::TRVec& position, const core::Len
 
 bool
 CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height,
-                                         const level::Level& level)
+                                         const loader::file::level::Level& level)
 {
     const auto rooms = collectTouchingRooms( position, collisionRadius + 50_len, height + 50_len, level );
 

@@ -1,5 +1,9 @@
 #pragma once
 
+namespace loader
+{
+namespace file
+{
 namespace level
 {
 enum class Game
@@ -51,5 +55,7 @@ inline Engine gameToEngine(const Game game)
         default:
             return Engine::Unknown;
     }
+}
+}
 }
 }

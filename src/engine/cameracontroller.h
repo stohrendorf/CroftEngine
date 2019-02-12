@@ -49,7 +49,7 @@ class CameraController final : public audio::Listener
 private:
     gsl::not_null<std::shared_ptr<gameplay::Camera>> m_camera;
 
-    level::Level* m_level;
+    loader::file::level::Level* m_level;
 
     //! @brief Global camera position.
     core::RoomBoundPosition m_eye;
@@ -91,14 +91,14 @@ private:
     core::Frame m_camOverrideTimeout{-1_frame};
 
 public:
-    explicit CameraController(const gsl::not_null<level::Level*>& level,
+    explicit CameraController(const gsl::not_null<loader::file::level::Level*>& level,
                               gsl::not_null<std::shared_ptr<gameplay::Camera>> camera);
 
-    explicit CameraController(gsl::not_null<level::Level*> level,
+    explicit CameraController(gsl::not_null<loader::file::level::Level*> level,
                               gsl::not_null<std::shared_ptr<gameplay::Camera>> camera,
                               bool noLaraTag);
 
-    const level::Level* getLevel() const noexcept
+    const loader::file::level::Level* getLevel() const noexcept
     {
         return m_level;
     }
@@ -212,7 +212,7 @@ public:
      */
     static bool clampPosition(const core::RoomBoundPosition& start,
                               core::RoomBoundPosition& end,
-                              const level::Level& level);
+                              const loader::file::level::Level& level);
 
     void setBounce(const core::Length& bounce)
     {
@@ -240,7 +240,7 @@ private:
     static bool clampY(const core::TRVec& start,
                        core::TRVec& end,
                        const gsl::not_null<const loader::file::Sector*>& sector,
-                       const level::Level& level);
+                       const loader::file::level::Level& level);
 
     enum class ClampType
     {
@@ -251,11 +251,11 @@ private:
 
     static ClampType clampAlongX(const core::RoomBoundPosition& start,
                                  core::RoomBoundPosition& end,
-                                 const level::Level& level);
+                                 const loader::file::level::Level& level);
 
     static ClampType clampAlongZ(const core::RoomBoundPosition& start,
                                  core::RoomBoundPosition& end,
-                                 const level::Level& level);
+                                 const loader::file::level::Level& level);
 
     void handleFixedCamera();
 

@@ -1,4 +1,4 @@
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 #include "loader/trx/trx.h"
 
@@ -27,7 +27,7 @@ void drawText(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, co
 }
 
 void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font,
-                   const gsl::not_null<std::shared_ptr<level::Level>>& lvl,
+                   const gsl::not_null<std::shared_ptr<loader::file::level::Level>>& lvl,
                    const int fps)
 {
     drawText( font, font->getTarget()->getWidth() - 40, font->getTarget()->getHeight() - 20, std::to_string( fps ) );
@@ -208,7 +208,7 @@ private:
 };
 
 
-void update(const gsl::not_null<std::shared_ptr<level::Level>>& lvl, const bool godMode)
+void update(const gsl::not_null<std::shared_ptr<loader::file::level::Level>>& lvl, const bool godMode)
 {
     for( const auto& item : lvl->m_itemNodes | boost::adaptors::map_values )
     {
@@ -426,7 +426,7 @@ int main()
 
     drawLoadingScreen( "Preparing to load " + baseName );
 
-    auto lvl = level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD", level::Game::Unknown,
+    auto lvl = loader::file::level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD", loader::file::level::Game::Unknown,
                                            std::move( scriptEngine ) );
 
     drawLoadingScreen( "Loading " + baseName );

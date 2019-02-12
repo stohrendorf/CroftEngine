@@ -1,6 +1,6 @@
 #include "trapdoorup.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -10,7 +10,7 @@ void TrapDoorUp::update()
 {
     ModelItemNode::update();
     auto pos = m_state.position;
-    level::Level::findRealFloorSector( pos );
+    loader::file::level::Level::findRealFloorSector( pos );
     setCurrentRoom( pos.room );
 }
 }

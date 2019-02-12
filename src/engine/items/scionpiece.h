@@ -9,7 +9,7 @@ namespace items
 class ScionPieceItem final : public SpriteItemNode
 {
 public:
-    ScionPieceItem(const gsl::not_null<level::Level*>& level,
+    ScionPieceItem(const gsl::not_null<loader::file::level::Level*>& level,
                    const std::string& name,
                    const gsl::not_null<const loader::file::Room*>& room,
                    const loader::file::Item& item,

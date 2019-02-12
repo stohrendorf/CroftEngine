@@ -2,7 +2,7 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "level/level.h"
+#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -34,7 +34,7 @@ public:
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
     }
 
-    static void emitSparkles(const LaraNode& lara, level::Level& level)
+    static void emitSparkles(const LaraNode& lara, loader::file::level::Level& level)
     {
         const auto spheres = lara.getSkeleton()->getBoneCollisionSpheres(
                 lara.m_state,

@@ -8,7 +8,7 @@ namespace items
 {
 // #define NO_DOOR_BLOCK
 
-Door::Door(const gsl::not_null<level::Level*>& level, const gsl::not_null<const loader::file::Room*>& room,
+Door::Door(const gsl::not_null<loader::file::level::Level*>& level, const gsl::not_null<const loader::file::Room*>& room,
            const loader::file::Item& item, const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{level, room, item, true, animatedModel}
 {

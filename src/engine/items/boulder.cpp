@@ -1,6 +1,6 @@
 #include "boulder.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 void engine::items::RollingBall::update()
@@ -26,7 +26,7 @@ void engine::items::RollingBall::update()
         ModelItemNode::update();
 
         auto room = m_state.position.room;
-        auto sector = level::Level::findRealFloorSector( m_state.position.position, &room );
+        auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
         setCurrentRoom( room );
         const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
         m_state.floor = hi.y;
@@ -40,7 +40,7 @@ void engine::items::RollingBall::update()
 
         // let's see if we hit a wall, and if that's the case, stop.
         const auto testPos = m_state.position.position + util::pitch(core::SectorSize/2, m_state.rotation.Y);
-        sector = level::Level::findRealFloorSector( testPos, room );
+        sector = loader::file::level::Level::findRealFloorSector( testPos, room );
         if( HeightInfo::fromFloor( sector, testPos, getLevel().m_itemNodes ).y < m_state.position.position.Y )
         {
             m_state.fallspeed = 0_spd;

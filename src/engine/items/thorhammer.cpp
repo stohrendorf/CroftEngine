@@ -1,13 +1,13 @@
 #include "thorhammer.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 namespace engine
 {
 namespace items
 {
-ThorHammerHandle::ThorHammerHandle(const gsl::not_null<level::Level*>& level,
+ThorHammerHandle::ThorHammerHandle(const gsl::not_null<loader::file::level::Level*>& level,
                                    const gsl::not_null<const loader::file::Room*>& room, const loader::file::Item& item,
                                    const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{level, room, item, true, animatedModel}
@@ -85,7 +85,7 @@ void ThorHammerHandle::update()
             break;
         case 3:
         {
-            const auto sector = level::Level::findRealFloorSector( m_state.position.position, m_state.position.room );
+            const auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, m_state.position.room );
             const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
             getLevel().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
 

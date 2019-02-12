@@ -1,6 +1,6 @@
 #include "collapsiblefloor.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 namespace engine
@@ -42,7 +42,7 @@ void CollapsibleFloor::update()
     }
 
     auto room = m_state.position.room;
-    const auto sector = level::Level::findRealFloorSector( m_state.position.position, &room );
+    const auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
     setCurrentRoom( room );
 
     const HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );

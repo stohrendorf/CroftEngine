@@ -1,5 +1,5 @@
 #include "aiagent.h"
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 #include <boost/range/adaptors.hpp>
@@ -39,7 +39,7 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
                                    const core::Length nextBoxFloor,
                                    const ai::LotInfo& lotInfo) const
 {
-    const auto sectorBox = level::Level::findRealFloorSector( testPosition, m_state.position.room )->box;
+    const auto sectorBox = loader::file::level::Level::findRealFloorSector( testPosition, m_state.position.room )->box;
     if( sectorBox == nullptr )
         return true;
 
@@ -101,7 +101,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto bboxMinY = m_state.position.position.Y + bbox.minY;
 
     auto room = m_state.position.room;
-    auto sector = level::Level::findRealFloorSector( m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len},
+    auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len},
                                                      &room );
     Expects( sector->box != nullptr );
     auto currentFloor = sector->box->floor;
@@ -145,7 +145,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         else if( newSectorZ > oldSectorZ )
             m_state.position.position.Z = shoveMax( oldPosition.Z );
 
-        sector = level::Level::findRealFloorSector(
+        sector = loader::file::level::Level::findRealFloorSector(
                 core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
 
         currentFloor = sector->box->floor;
@@ -298,7 +298,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     if( moveX != 0_len || moveZ != 0_len )
     {
-        sector = level::Level::findRealFloorSector(
+        sector = loader::file::level::Level::findRealFloorSector(
                 core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
 
         m_state.rotation.Y += angle;
@@ -370,7 +370,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         }
 
         m_state.position.position.Y += moveY;
-        sector = level::Level::findRealFloorSector(
+        sector = loader::file::level::Level::findRealFloorSector(
                 core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
         m_state.floor = HeightInfo::fromFloor( sector,
                                                core::TRVec{
@@ -411,7 +411,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     m_state.rotation.X = 0_au;
 
-    sector = level::Level::findRealFloorSector( m_state.position.position, &room );
+    sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
     m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
 
     setCurrentRoom( room );
@@ -419,7 +419,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     return true;
 }
 
-AIAgent::AIAgent(const gsl::not_null<level::Level*>& level,
+AIAgent::AIAgent(const gsl::not_null<loader::file::level::Level*>& level,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
@@ -465,7 +465,7 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
 
 namespace
 {
-gsl::not_null<std::shared_ptr<Particle>> createGunFlare(level::Level& level,
+gsl::not_null<std::shared_ptr<Particle>> createGunFlare(loader::file::level::Level& level,
                                                         const core::RoomBoundPosition& pos,
                                                         core::Speed speed,
                                                         core::Angle angle)

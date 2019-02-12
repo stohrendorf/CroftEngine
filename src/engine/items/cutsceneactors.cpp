@@ -1,12 +1,12 @@
 #include "cutsceneactors.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 
 namespace engine
 {
 namespace items
 {
-CutsceneActor::CutsceneActor(const gsl::not_null<level::Level*>& level,
+CutsceneActor::CutsceneActor(const gsl::not_null<loader::file::level::Level*>& level,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const loader::file::SkeletalModelType& animatedModel)

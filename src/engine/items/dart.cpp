@@ -39,7 +39,7 @@ void Dart::update()
     ModelItemNode::update();
 
     auto room = m_state.position.room;
-    const auto sector = level::Level::findRealFloorSector( m_state.position.position, &room );
+    const auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
     if( room != m_state.position.room )
         setCurrentRoom( room );
 

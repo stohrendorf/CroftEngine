@@ -1,6 +1,6 @@
 #include "tallblock.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -27,7 +27,7 @@ void TallBlock::update()
 
     ModelItemNode::update();
     auto room = m_state.position.room;
-    level::Level::findRealFloorSector( m_state.position.position, &room );
+    loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
     setCurrentRoom( room );
 
     if( m_state.triggerState != TriggerState::Deactivated )

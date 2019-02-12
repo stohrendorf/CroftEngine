@@ -21,6 +21,7 @@
 
 #include "tr5level.h"
 
+using namespace loader::file;
 using namespace loader::file::level;
 
 #define TR_AUDIO_MAP_SIZE_TR5  450
@@ -50,7 +51,7 @@ void TR5Level::loadFileData()
         m_reader.readBytes( comp_buffer.data(), comp_size );
 
         auto newsrc = io::SDLReader::decompress( comp_buffer, uncomp_size );
-        newsrc.readVector( m_textures, numTextiles - numMiscTextiles, &loader::file::DWordTexture::read );
+        newsrc.readVector( m_textures, numTextiles - numMiscTextiles, &DWordTexture::read );
     }
 
     uncomp_size = m_reader.readU32();
@@ -58,7 +59,7 @@ void TR5Level::loadFileData()
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Level: textiles16 is empty" ) );
 
     comp_size = m_reader.readU32();
-    std::vector<loader::file::WordTexture> texture16;
+    std::vector<WordTexture> texture16;
     if( comp_size > 0 )
     {
         if( m_textures.empty() )
@@ -67,7 +68,7 @@ void TR5Level::loadFileData()
             m_reader.readBytes( comp_buffer.data(), comp_size );
 
             auto newsrc = io::SDLReader::decompress( comp_buffer, uncomp_size );
-            newsrc.readVector( texture16, numTextiles - numMiscTextiles, &loader::file::WordTexture::read );
+            newsrc.readVector( texture16, numTextiles - numMiscTextiles, &WordTexture::read );
         }
         else
         {
@@ -89,7 +90,7 @@ void TR5Level::loadFileData()
         m_reader.readBytes( comp_buffer.data(), comp_size );
 
         auto newsrc = io::SDLReader::decompress( comp_buffer, uncomp_size );
-        newsrc.appendVector( m_textures, numMiscTextiles, &loader::file::DWordTexture::read );
+        newsrc.appendVector( m_textures, numMiscTextiles, &DWordTexture::read );
     }
 
     m_laraType = m_reader.readU16();
@@ -125,17 +126,17 @@ void TR5Level::loadFileData()
     if( m_reader.readU32() != 0 )
         BOOST_LOG_TRIVIAL( warning ) << "TR5 Level: Bad value for 'unused'";
 
-    m_reader.readVector( m_rooms, m_reader.readU32(), &loader::file::Room::readTr5 );
+    m_reader.readVector( m_rooms, m_reader.readU32(), &Room::readTr5 );
 
     m_reader.readVector( m_floorData, m_reader.readU32() );
 
     readMeshData( m_reader );
 
-    m_reader.readVector( m_animations, m_reader.readU32(), &loader::file::Animation::readTr4 );
+    m_reader.readVector( m_animations, m_reader.readU32(), &Animation::readTr4 );
 
-    m_reader.readVector( m_transitions, m_reader.readU32(), &loader::file::Transitions::read );
+    m_reader.readVector( m_transitions, m_reader.readU32(), &Transitions::read );
 
-    m_reader.readVector( m_transitionCases, m_reader.readU32(), &loader::file::TransitionCase::read );
+    m_reader.readVector( m_transitionCases, m_reader.readU32(), &TransitionCase::read );
 
     m_reader.readVector( m_animCommands, m_reader.readU32() );
 
@@ -147,7 +148,7 @@ void TR5Level::loadFileData()
         const auto n = m_reader.readU32();
         for( uint32_t i = 0; i < n; ++i )
         {
-            auto m = loader::file::SkeletalModelType::readTr5( m_reader );
+            auto m = SkeletalModelType::readTr5( m_reader );
             // FIXME: this uses TR1 item IDs...
             if( m_animatedModels.find( m->type ) != m_animatedModels.end() )
                 BOOST_THROW_EXCEPTION( std::runtime_error( "Duplicate type id" ) );
@@ -156,7 +157,7 @@ void TR5Level::loadFileData()
         }
     }
 
-    m_reader.readVector( m_staticMeshes, m_reader.readU32(), &loader::file::StaticMesh::read );
+    m_reader.readVector( m_staticMeshes, m_reader.readU32(), &StaticMesh::read );
 
     if( m_reader.readI8() != 'S' )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Level: 'SPR\\0' not found" ) );
@@ -170,13 +171,13 @@ void TR5Level::loadFileData()
     if( m_reader.readI8() != 0 )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Level: 'SPR\\0' not found" ) );
 
-    m_reader.readVector( m_sprites, m_reader.readU32(), &loader::file::Sprite::readTr4 );
+    m_reader.readVector( m_sprites, m_reader.readU32(), &Sprite::readTr4 );
 
     {
         const auto n = m_reader.readU32();
         for( uint32_t i = 0; i < n; ++i )
         {
-            auto m = loader::file::SpriteSequence::read( m_reader );
+            auto m = SpriteSequence::read( m_reader );
             if( m_spriteSequences.find( m->type ) != m_spriteSequences.end() )
                 BOOST_THROW_EXCEPTION( std::runtime_error( "Duplicate type id" ) );
 
@@ -184,13 +185,13 @@ void TR5Level::loadFileData()
         }
     }
 
-    m_reader.readVector( m_cameras, m_reader.readU32(), &loader::file::Camera::read );
+    m_reader.readVector( m_cameras, m_reader.readU32(), &Camera::read );
 
-    m_reader.readVector( m_flybyCameras, m_reader.readU32(), &loader::file::FlybyCamera::read );
+    m_reader.readVector( m_flybyCameras, m_reader.readU32(), &FlybyCamera::read );
 
-    m_reader.readVector( m_soundSources, m_reader.readU32(), &loader::file::SoundSource::read, &m_soundEngine );
+    m_reader.readVector( m_soundSources, m_reader.readU32(), &SoundSource::read, &m_soundEngine );
 
-    m_reader.readVector( m_boxes, m_reader.readU32(), &loader::file::Box::readTr2 );
+    m_reader.readVector( m_boxes, m_reader.readU32(), &Box::readTr2 );
 
     m_reader.readVector( m_overlaps, m_reader.readU32() );
 
@@ -213,18 +214,18 @@ void TR5Level::loadFileData()
     if( m_reader.readI8() != 0 )
         BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Level: 'TEX\\0' not found" ) );
 
-    m_reader.readVector( m_textureProxies, m_reader.readU32(), &loader::file::TextureLayoutProxy::readTr5 );
+    m_reader.readVector( m_textureProxies, m_reader.readU32(), &TextureLayoutProxy::readTr5 );
 
-    m_reader.readVector( m_items, m_reader.readU32(), &loader::file::Item::readTr4 );
+    m_reader.readVector( m_items, m_reader.readU32(), &Item::readTr4 );
 
-    m_reader.readVector( m_aiObjects, m_reader.readU32(), &loader::file::AIObject::read );
+    m_reader.readVector( m_aiObjects, m_reader.readU32(), &AIObject::read );
 
     m_reader.readVector( m_demoData, m_reader.readU16() );
 
     // Soundmap
     m_reader.readVector( m_soundmap, TR_AUDIO_MAP_SIZE_TR5 );
 
-    m_reader.readVector( m_soundDetails, m_reader.readU32(), &loader::file::SoundDetails::readTr3 );
+    m_reader.readVector( m_soundDetails, m_reader.readU32(), &SoundDetails::readTr3 );
 
     m_reader.readVector( m_sampleIndices, m_reader.readU32() );
 

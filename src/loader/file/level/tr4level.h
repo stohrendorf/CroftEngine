@@ -1,6 +1,6 @@
 #pragma once
 
-#include "level/level.h"
+#include "level.h"
 
 namespace loader
 {
@@ -8,10 +8,10 @@ namespace file
 {
 namespace level
 {
-class TR4Level : public ::level::Level
+class TR4Level : public Level
 {
 public:
-    TR4Level(const ::level::Game gameVersion, loader::file::io::SDLReader&& reader, sol::state&& scriptEngine)
+    TR4Level(const Game gameVersion, loader::file::io::SDLReader&& reader, sol::state&& scriptEngine)
             : Level{gameVersion, std::move( reader ), std::move( scriptEngine )}
     {
     }

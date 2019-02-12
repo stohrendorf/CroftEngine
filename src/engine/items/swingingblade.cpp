@@ -2,7 +2,7 @@
 
 #include "engine/heightinfo.h"
 #include "engine/laranode.h"
-#include "level/level.h"
+#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -43,7 +43,7 @@ void SwingingBlade::update()
     }
 
     auto room = m_state.position.room;
-    const auto sector = level::Level::findRealFloorSector( m_state.position.position, &room );
+    const auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
     setCurrentRoom( room );
     m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
 

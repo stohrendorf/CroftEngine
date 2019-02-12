@@ -225,12 +225,12 @@ void AbstractStateHandler::setAnimation(const AnimationId anim, const boost::opt
     m_lara.drawRoutine();
 }
 
-const level::Level& AbstractStateHandler::getLevel() const
+const loader::file::level::Level& AbstractStateHandler::getLevel() const
 {
     return m_lara.getLevel();
 }
 
-level::Level& AbstractStateHandler::getLevel()
+loader::file::level::Level& AbstractStateHandler::getLevel()
 {
     return m_lara.getLevel();
 }
@@ -317,7 +317,7 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
             break;
     }
 
-    const auto sector = level::Level::findRealFloorSector( pos, m_lara.m_state.position.room );
+    const auto sector = loader::file::level::Level::findRealFloorSector( pos, m_lara.m_state.position.room );
     VerticalSpaceInfo space;
     space.init( sector, pos, getLevel().m_itemNodes, pos.Y, 400_len );
     return space.floorSpace.y != -core::HeightLimit && space.floorSpace.y > 0_len
@@ -618,7 +618,7 @@ core::Length AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angl
     auto pos = m_lara.m_state.position.position + util::pitch(dist, angle);
     pos.Y -= core::LaraWalkHeight;
 
-    const auto sector = level::Level::findRealFloorSector( pos, m_lara.m_state.position.room );
+    const auto sector = loader::file::level::Level::findRealFloorSector( pos, m_lara.m_state.position.room );
 
     HeightInfo h = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
 
@@ -809,7 +809,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 // ReSharper disable once CppMemberFunctionMayBeConst
 bool AbstractStateHandler::applyLandingDamage()
 {
-    const auto sector = level::Level::findRealFloorSector( m_lara.m_state.position.position,
+    const auto sector = loader::file::level::Level::findRealFloorSector( m_lara.m_state.position.position,
                                                            m_lara.m_state.position.room );
     const HeightInfo h = HeightInfo::fromFloor( sector,
                                                 m_lara.m_state.position.position

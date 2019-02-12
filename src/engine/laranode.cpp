@@ -1,7 +1,7 @@
 #include "laranode.h"
 
 #include "cameracontroller.h"
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "render/textureanimator.h"
 
 #include "items/block.h"
@@ -415,7 +415,7 @@ void LaraNode::update()
             playSoundEffect( TR1SoundId::LaraFallIntoWater );
 
             auto room = m_state.position.room;
-            level::Level::findRealFloorSector( m_state.position.position, &room );
+            loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
             for( int i = 0; i < 10; ++i )
             {
                 core::RoomBoundPosition surfacePos{room};
@@ -606,7 +606,7 @@ void LaraNode::updateFloorHeight(const core::Length dy)
     auto pos = m_state.position.position;
     pos.Y += dy;
     auto room = m_state.position.room;
-    const auto sector = level::Level::findRealFloorSector( pos, &room );
+    const auto sector = loader::file::level::Level::findRealFloorSector( pos, &room );
     setCurrentRoom( room );
     const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
     m_state.floor = hi.y;
@@ -2699,7 +2699,7 @@ void LaraNode::load(const YAML::Node& n)
     m_weaponTargetVector.load( n["weaponTargetVector"] );
 }
 
-YAML::Node LaraNode::AimInfo::save(const level::Level& lvl) const
+YAML::Node LaraNode::AimInfo::save(const loader::file::level::Level& lvl) const
 {
     YAML::Node node;
     if( weaponAnimData != nullptr )
@@ -2711,7 +2711,7 @@ YAML::Node LaraNode::AimInfo::save(const level::Level& lvl) const
     return node;
 }
 
-void LaraNode::AimInfo::load(const YAML::Node& n, const level::Level& lvl)
+void LaraNode::AimInfo::load(const YAML::Node& n, const loader::file::level::Level& lvl)
 {
     if( !n["animData"].IsDefined() )
         weaponAnimData = nullptr;

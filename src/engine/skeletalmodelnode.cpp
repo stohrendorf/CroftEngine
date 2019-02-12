@@ -1,13 +1,13 @@
 #include "skeletalmodelnode.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 
 #include <stack>
 
 namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
-                                     const gsl::not_null<const level::Level*>& lvl,
+                                     const gsl::not_null<const loader::file::level::Level*>& lvl,
                                      const loader::file::SkeletalModelType& mdl)
         : Node{id}
         , m_level{lvl}

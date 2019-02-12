@@ -1,6 +1,6 @@
 #include "label.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 
 #include "util/cimgwrapper.h"
 
@@ -88,7 +88,7 @@ int Label::calcWidth() const
     return width;
 }
 
-void Label::draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const level::Level& level) const
+void Label::draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const loader::file::level::Level& level) const
 {
     Expects( font.getScaleX() == scaleX );
     Expects( font.getScaleY() == scaleY );

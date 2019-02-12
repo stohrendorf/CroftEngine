@@ -9,7 +9,7 @@ namespace items
 class Door final : public ModelItemNode
 {
 public:
-    Door(const gsl::not_null<level::Level*>& level,
+    Door(const gsl::not_null<loader::file::level::Level*>& level,
          const gsl::not_null<const loader::file::Room*>& room,
          const loader::file::Item& item,
          const loader::file::SkeletalModelType& animatedModel);

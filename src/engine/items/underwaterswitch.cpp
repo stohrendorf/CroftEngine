@@ -1,6 +1,6 @@
 #include "underwaterswitch.h"
 
-#include "level/level.h"
+#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 namespace engine

@@ -42,15 +42,15 @@ class ItemNode;
 }
 }
 
+namespace loader
+{
+namespace file
+{
 namespace level
 {
 class Level;
 }
 
-namespace loader
-{
-namespace file
-{
 constexpr const uint16_t TextureIndexMaskTr4 = 0x7FFF; // in some custom levels we need to use 0x7FFF flag
 constexpr const uint16_t TextureIndexMask = 0x0FFF;
 
