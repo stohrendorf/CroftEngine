@@ -25,16 +25,16 @@ public:
 
         setSwimToDiveKeypressDuration( 0_frame );
 
-        if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
             getLara().m_state.rotation.Y -= 2_deg;
         }
-        else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
             getLara().m_state.rotation.Y += 2_deg;
         }
 
-        if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
+        if( getEngine().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
         {
             setGoalAnimState( LaraStateId::OnWaterStop );
         }

@@ -1,7 +1,5 @@
 #include "animating.h"
 
-#include "loader/file/level/level.h"
-
 namespace engine
 {
 namespace items
@@ -19,7 +17,7 @@ void Animating::update()
 
     ModelItemNode::update();
     auto room = m_state.position.room;
-    loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
+    loader::file::findRealFloorSector( m_state.position.position, &room );
     if( room != m_state.position.room )
     {
         setCurrentRoom( room );

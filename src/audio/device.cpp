@@ -33,36 +33,35 @@ Device::Device()
             ALC_FREQUENCY, 44100,
             0};
 
-    if( AL_ASSERT_FN( alcIsExtensionPresent( nullptr, "ALC_ENUMERATION_EXT" ) ) == ALC_TRUE )
+    if( alcIsExtensionPresent( nullptr, "ALC_ENUMERATE_ALL_EXT" ) != ALC_TRUE )
     {
         BOOST_LOG_TRIVIAL( info ) << "Probing OpenAL devices...";
 
-        const char* deviceList = AL_ASSERT_FN( alcGetString( nullptr, ALC_DEVICE_SPECIFIER ) );
+        const char* deviceList = alcGetString( nullptr, ALC_ALL_DEVICES_SPECIFIER );
         Expects( deviceList != nullptr );
 
         if( deviceList == nullptr )
         {
-            BOOST_LOG_TRIVIAL( warning ) << BOOST_CURRENT_FUNCTION << ": No audio devices";
+            BOOST_LOG_TRIVIAL( warning ) << "No audio devices";
             return;
         }
 
         while( *deviceList != '\0' )
         {
             BOOST_LOG_TRIVIAL( info ) << "Probing device `" << deviceList << "`";
-            ALCdevice* dev = AL_ASSERT_FN( dev = alcOpenDevice( deviceList ) );
-            Expects( dev != nullptr );
+            m_device = alcOpenDevice( deviceList );
+            deviceList += strlen( deviceList ) + 1;
 
-            if( dev == nullptr )
+            if( m_device == nullptr )
             {
                 BOOST_LOG_TRIVIAL( info ) << "Failed to open device";
                 continue;
             }
 
-            if( AL_ASSERT_FN( alcIsExtensionPresent( dev, ALC_EXT_EFX_NAME ) ) == ALC_TRUE )
+            if( alcIsExtensionPresent( m_device, ALC_EXT_EFX_NAME ) == ALC_TRUE )
             {
                 BOOST_LOG_TRIVIAL( info ) << "Device supports EFX";
-                m_device = dev;
-                m_context = AL_ASSERT_FN( alcCreateContext( m_device, paramList ) );
+                m_context = alcCreateContext( m_device, paramList );
                 // fails e.g. with Rapture3D, where EFX is supported
                 if( m_context != nullptr )
                 {
@@ -70,18 +69,18 @@ Device::Device()
                 }
             }
 
-            AL_ASSERT( alcCloseDevice( dev ) );
-            deviceList += strlen( deviceList ) + 1;
+            alcCloseDevice( m_device );
+            m_device = nullptr;
         }
     }
     else
     {
         BOOST_LOG_TRIVIAL( info ) << "Trying to use default OpenAL device";
-        m_device = AL_ASSERT_FN( alcOpenDevice( nullptr ) );
+        m_device = alcOpenDevice( nullptr );
 
         if( m_device != nullptr )
         {
-            m_context = AL_ASSERT_FN( alcCreateContext( m_device, paramList ) );
+            m_context = alcCreateContext( m_device, paramList );
         }
         else
         {
@@ -91,12 +90,13 @@ Device::Device()
 
     if( m_context == nullptr )
     {
-        BOOST_LOG_TRIVIAL( warning ) << BOOST_CURRENT_FUNCTION << ": Failed to create OpenAL context.";
-        AL_ASSERT( alcCloseDevice( m_device ) );
-        m_device = nullptr;
+        BOOST_LOG_TRIVIAL( error ) << "Failed to create OpenAL context.";
+        if( m_device != nullptr )
+            alcCloseDevice( m_device );
+        BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to create OpenAL context." ) );
     }
 
-    AL_ASSERT( alcMakeContextCurrent( m_context ) );
+    alcMakeContextCurrent( m_context );
     AL_ASSERT( alListenerf( AL_METERS_PER_UNIT, 1 / 512.0f ) );
     AL_ASSERT( alDistanceModel( AL_LINEAR_DISTANCE_CLAMPED ) );
 

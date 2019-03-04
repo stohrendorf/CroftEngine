@@ -1,6 +1,7 @@
 #include "wolf.h"
 
 #include "engine/laranode.h"
+#include "engine/particle.h"
 
 namespace engine
 {
@@ -13,7 +14,7 @@ void Wolf::update()
         m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo( getLevel() );
+    m_state.initCreatureInfo( getEngine() );
 
     static constexpr const auto Walking = 1_as;
     static constexpr const auto Running = 2_as;
@@ -32,14 +33,14 @@ void Wolf::update()
     core::Angle rotationToMoveTarget = 0_deg;
     if( getHealth() > 0_hp )
     {
-        const ai::AiInfo aiInfo{getLevel(), m_state};
+        const ai::AiInfo aiInfo{getEngine(), m_state};
 
         if( aiInfo.ahead )
         {
             pitch = aiInfo.angle;
         }
 
-        updateMood( getLevel(), m_state, aiInfo, false );
+        updateMood( getEngine(), m_state, aiInfo, false );
         rotationToMoveTarget = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         switch( m_state.current_anim_state.get() )
         {
@@ -186,8 +187,8 @@ void Wolf::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL) )
                 {
                     emitParticle( core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat );
-                    getLevel().m_lara->m_state.is_hit = true;
-                    getLevel().m_lara->m_state.health -= 50_hp;
+                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.health -= 50_hp;
                     m_state.required_anim_state = Jumping;
                 }
                 m_state.goal_anim_state = Jumping;
@@ -196,8 +197,8 @@ void Wolf::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL) && aiInfo.ahead )
                 {
                     emitParticle( core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat );
-                    getLevel().m_lara->m_state.is_hit = true;
-                    getLevel().m_lara->m_state.health -= 100_hp;
+                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.health -= 100_hp;
                     m_state.required_anim_state = PrepareToStrike;
                 }
                 break;
@@ -208,7 +209,7 @@ void Wolf::update()
     else if( m_state.current_anim_state != Dying )
     {
         const auto r = util::rand15( 3 );
-        getSkeleton()->setAnimation( m_state, &getLevel().m_animatedModels[m_state.type]->animations[20 + r], 0_frame );
+        getSkeleton()->setAnimation( m_state, &getEngine().findAnimatedModelForType(m_state.type)->animations[20 + r], 0_frame );
         BOOST_ASSERT( m_state.current_anim_state == Dying );
     }
     rotateCreatureTilt( roll );

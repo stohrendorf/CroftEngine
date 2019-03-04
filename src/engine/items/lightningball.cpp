@@ -2,7 +2,6 @@
 
 #include "engine/heightinfo.h"
 #include "engine/laranode.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -80,12 +79,12 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const gameplay::Mesh&
 }
 }
 
-LightningBall::LightningBall(const gsl::not_null<loader::file::level::Level*>& level,
+LightningBall::LightningBall(const gsl::not_null<Engine*>& engine,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const loader::file::SkeletalModelType& animatedModel,
                              const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& boltProgram)
-        : ModelItemNode{level, room, item, true, animatedModel}
+        : ModelItemNode{engine, room, item, true, animatedModel}
 {
     if( animatedModel.nMeshes >= 1 )
     {
@@ -120,8 +119,8 @@ void LightningBall::update()
         m_chargeTimeout = 1;
         m_shooting = false;
         m_laraHit = false;
-        if( getLevel().roomsAreSwapped )
-            getLevel().swapAllRooms();
+        if( getEngine().roomsAreSwapped )
+            getEngine().swapAllRooms();
 
         deactivate();
         m_state.triggerState = TriggerState::Inactive;
@@ -139,8 +138,8 @@ void LightningBall::update()
         m_shooting = false;
         m_chargeTimeout = 35 + util::rand15( 45 );
         m_laraHit = false;
-        if( getLevel().roomsAreSwapped )
-            getLevel().swapAllRooms();
+        if( getEngine().roomsAreSwapped )
+            getEngine().swapAllRooms();
 
         return;
     }
@@ -150,15 +149,15 @@ void LightningBall::update()
     m_laraHit = false;
 
     const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
-    if( getLevel().m_lara->isNear( *this, radius ) )
+    if( getEngine().m_lara->isNear( *this, radius ) )
     {
         // target at lara
-        m_mainBoltEnd = getLevel().m_lara->m_state.position.position - m_state.position.position;
+        m_mainBoltEnd = getEngine().m_lara->m_state.position.position - m_state.position.position;
         m_mainBoltEnd = core::TRVec{
                 glm::vec3( (-m_state.rotation).toMatrix() * glm::vec4( m_mainBoltEnd.toRenderSystem(), 1.0f ) )};
 
-        getLevel().m_lara->m_state.health -= 400_hp;
-        getLevel().m_lara->m_state.is_hit = true;
+        getEngine().m_lara->m_state.health -= 400_hp;
+        getEngine().m_lara->m_state.is_hit = true;
 
         m_laraHit = true;
     }
@@ -166,8 +165,8 @@ void LightningBall::update()
     {
         // we don't have poles, so just shoot downwards
         m_mainBoltEnd = core::TRVec{};
-        const auto sector = loader::file::level::Level::findRealFloorSector( m_state.position );
-        m_mainBoltEnd.Y = -HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
+        const auto sector = loader::file::findRealFloorSector( m_state.position );
+        m_mainBoltEnd.Y = -HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes ).y;
         m_mainBoltEnd.Y -= m_state.position.position.Y;
     }
     else
@@ -192,8 +191,8 @@ void LightningBall::update()
                 util::rand15s( core::QuarterSectorSize, core::Length::type() )};
     }
 
-    if( !getLevel().roomsAreSwapped )
-        getLevel().swapAllRooms();
+    if( !getEngine().roomsAreSwapped )
+        getEngine().swapAllRooms();
 
     playSoundEffect( TR1SoundId::Chatter );
 }

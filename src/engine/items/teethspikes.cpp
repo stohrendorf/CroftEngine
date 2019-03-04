@@ -1,6 +1,7 @@
 #include "teethspikes.h"
 
 #include "engine/laranode.h"
+#include "engine/particle.h"
 
 void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 {
@@ -26,7 +27,7 @@ void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisio
         lara.m_state.health -= 15_hp;
         while( bloodSplats-- > 0 )
         {
-            auto fx = createBloodSplat( getLevel(),
+            auto fx = createBloodSplat( getEngine(),
                                         core::RoomBoundPosition{
                                                 lara.m_state.position.room,
                                                 lara.m_state.position.position + core::TRVec{
@@ -36,11 +37,11 @@ void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisio
                                                 }
                                         },
                                         20_spd, util::rand15( +180_deg ) );
-            getLevel().m_particles.emplace_back( fx );
+            getEngine().m_particles.emplace_back( fx );
         }
         if( lara.m_state.health <= 0_hp )
         {
-            lara.m_state.anim = &getLevel().m_animations[static_cast<int>(AnimationId::SPIKED)];
+            lara.m_state.anim = &getEngine().getAnimation( AnimationId::SPIKED );
             lara.m_state.frame_number = 3887_frame;
             lara.setCurrentAnimState( LaraStateId::Death );
             lara.setGoalAnimState( LaraStateId::Death );

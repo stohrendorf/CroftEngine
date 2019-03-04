@@ -8,9 +8,9 @@ namespace items
 {
 // #define NO_DOOR_BLOCK
 
-Door::Door(const gsl::not_null<loader::file::level::Level*>& level, const gsl::not_null<const loader::file::Room*>& room,
+Door::Door(const gsl::not_null<engine::Engine*>& engine, const gsl::not_null<const loader::file::Room*>& room,
            const loader::file::Item& item, const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{level, room, item, true, animatedModel}
+        : ModelItemNode{engine, room, item, true, animatedModel}
 {
 #ifndef NO_DOOR_BLOCK
     core::Length dx = 0_len, dz = 0_len;
@@ -55,7 +55,7 @@ Door::Door(const gsl::not_null<loader::file::level::Level*>& level, const gsl::n
     }
     else
     {
-        m_alternateSector = const_cast<loader::file::Sector*>(getLevel().m_rooms
+        m_alternateSector = const_cast<loader::file::Sector*>(getEngine().getRooms()
                                                                   .at( m_state.position.room->alternateRoom.get() )
                                                                   .getSectorByAbsolutePosition( wingsPosition ));
         BOOST_ASSERT( m_alternateSector != nullptr );
@@ -119,7 +119,7 @@ Door::Door(const gsl::not_null<loader::file::level::Level*>& level, const gsl::n
     }
     else
     {
-        m_alternateTargetSector = const_cast<loader::file::Sector*>(getLevel().m_rooms
+        m_alternateTargetSector = const_cast<loader::file::Sector*>(getEngine().getRooms()
                                                                         .at( m_sector->portalTarget->alternateRoom
                                                                                      .get() )
                                                                         .getSectorByAbsolutePosition(

@@ -11,16 +11,13 @@ namespace file
 {
 struct SkeletalModelType;
 struct Animation;
-
-namespace level
-{
-class Level;
-}
 }
 }
 
 namespace engine
 {
+class Engine;
+
 namespace items
 {
 struct ItemState;
@@ -30,7 +27,7 @@ class SkeletalModelNode
 {
 public:
     explicit SkeletalModelNode(const std::string& id,
-                               const gsl::not_null<const loader::file::level::Level*>& lvl,
+                               const gsl::not_null<const Engine*>& engine,
                                const loader::file::SkeletalModelType& mdl);
 
     void updatePose(items::ItemState& state);
@@ -127,7 +124,7 @@ protected:
     bool handleStateTransitions(items::ItemState& state);
 
 private:
-    const gsl::not_null<const loader::file::level::Level*> m_level;
+    const gsl::not_null<const Engine*> m_engine;
     const loader::file::SkeletalModelType& m_model;
     std::vector<glm::mat4> m_bonePatches;
 

@@ -26,7 +26,7 @@ using namespace loader::file::level;
 
 #define TR_AUDIO_MAP_SIZE_TR5  450
 
-void TR5Level::loadFileData()
+void TR5Level::loadFileData(audio::SoundEngine& soundEngine)
 {
     // Version
     const uint32_t file_version = m_reader.readU32();
@@ -189,7 +189,7 @@ void TR5Level::loadFileData()
 
     m_reader.readVector( m_flybyCameras, m_reader.readU32(), &FlybyCamera::read );
 
-    m_reader.readVector( m_soundSources, m_reader.readU32(), &SoundSource::read, &m_soundEngine );
+    m_reader.readVector( m_soundSources, m_reader.readU32(), &SoundSource::read, &soundEngine );
 
     m_reader.readVector( m_boxes, m_reader.readU32(), &Box::readTr2 );
 

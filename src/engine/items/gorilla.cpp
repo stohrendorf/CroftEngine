@@ -1,6 +1,7 @@
 #include "gorilla.h"
 
 #include "engine/laranode.h"
+#include "engine/particle.h"
 
 namespace engine
 {
@@ -13,7 +14,7 @@ void Gorilla::update()
         m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo( getLevel() );
+    m_state.initCreatureInfo( getEngine() );
 
     static const constexpr uint16_t FlgWantAttack = 1;
     static const constexpr uint16_t FlgTurnedRight = 2;
@@ -24,10 +25,10 @@ void Gorilla::update()
 
     if( getHealth() > 0_hp )
     {
-        const ai::AiInfo aiInfo{getLevel(), m_state};
+        const ai::AiInfo aiInfo{getEngine(), m_state};
         if( aiInfo.ahead )
             headRot = aiInfo.angle;
-        updateMood( getLevel(), m_state, aiInfo, false );
+        updateMood( getEngine(), m_state, aiInfo, false );
 
         turn = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         if( m_state.is_hit || aiInfo.distance < util::square( 2 * core::SectorSize ) )
@@ -128,8 +129,8 @@ void Gorilla::update()
                     if( (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
                     {
                         emitParticle( {0_len, -19_len, 75_len}, 15, &createBloodSplat );
-                        getLevel().m_lara->m_state.health -= 200_hp;
-                        getLevel().m_lara->m_state.is_hit = true;
+                        getEngine().m_lara->m_state.health -= 200_hp;
+                        getEngine().m_lara->m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
                     }
                 }
@@ -158,7 +159,7 @@ void Gorilla::update()
     }
     else if( m_state.current_anim_state != 5_as )
     {
-        m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::Gorilla )->animations[7 + util::rand15( 2 )];
+        m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::Gorilla )->animations[7 + util::rand15( 2 )];
         m_state.current_anim_state = 5_as;
         m_state.frame_number = m_state.anim->firstFrame;
     }
@@ -223,7 +224,7 @@ void Gorilla::update()
         }
 
         m_state.position.position.Y = old.Y;
-        m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::Gorilla )->animations[19];
+        m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::Gorilla )->animations[19];
         m_state.current_anim_state = 11_as;
         m_state.frame_number = m_state.anim->firstFrame;
     }

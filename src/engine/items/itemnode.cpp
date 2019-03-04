@@ -1,7 +1,7 @@
 #include "itemnode.h"
 
 #include "engine/laranode.h"
-#include "loader/file/level/level.h"
+#include "engine/particle.h"
 
 #include <boost/range/adaptor/indexed.hpp>
 
@@ -48,12 +48,12 @@ void ItemNode::applyTransform()
     getNode()->setLocalMatrix( translate( glm::mat4{1.0f}, tr ) * m_state.rotation.toMatrix() );
 }
 
-ItemNode::ItemNode(const gsl::not_null<loader::file::level::Level*>& level,
+ItemNode::ItemNode(const gsl::not_null<Engine*>& engine,
                    const gsl::not_null<const loader::file::Room*>& room,
                    const loader::file::Item& item,
                    const bool hasUpdateFunction)
-        : m_level{level}
-        , m_state{&level->m_soundEngine, room, item.type}
+        : m_engine{engine}
+        , m_state{&engine->m_soundEngine, room, item.type}
         , m_hasUpdateFunction{hasUpdateFunction}
 {
     BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
@@ -95,15 +95,15 @@ void ItemNode::setCurrentRoom(const gsl::not_null<const loader::file::Room*>& ne
     applyTransform();
 }
 
-ModelItemNode::ModelItemNode(const gsl::not_null<loader::file::level::Level*>& level,
+ModelItemNode::ModelItemNode(const gsl::not_null<Engine*>& engine,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const bool hasUpdateFunction,
                              const loader::file::SkeletalModelType& animatedModel)
-        : ItemNode{level, room, item, hasUpdateFunction}
+        : ItemNode{engine, room, item, hasUpdateFunction}
         , m_skeleton{std::make_shared<SkeletalModelNode>(
                 std::string( "skeleton(type:" ) + engine::toString( item.type ) + ")",
-                level,
+                engine,
                 animatedModel )
         }
 {
@@ -131,15 +131,12 @@ void ModelItemNode::update()
 
     if( endOfAnim )
     {
-        BOOST_ASSERT(
-                m_state.anim->animCommandCount == 0
-                || m_state.anim->animCommandIndex < getLevel().m_animCommands.size() );
         const auto* cmd = m_state.anim->animCommandCount == 0
                           ? nullptr
-                          : &getLevel().m_animCommands[m_state.anim->animCommandIndex];
+                          : &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
         for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
         {
-            BOOST_ASSERT( cmd < &getLevel().m_animCommands.back() );
+            BOOST_ASSERT( cmd < &getEngine().getAnimCommands().back() );
             const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
             ++cmd;
             switch( opcode )
@@ -178,14 +175,12 @@ void ModelItemNode::update()
             m_state.required_anim_state = 0_as;
     }
 
-    BOOST_ASSERT(
-            m_state.anim->animCommandCount == 0 || m_state.anim->animCommandIndex < getLevel().m_animCommands.size() );
     const auto* cmd = m_state.anim->animCommandCount == 0
                       ? nullptr
-                      : &getLevel().m_animCommands[m_state.anim->animCommandIndex];
+                      : &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
     for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
     {
-        BOOST_ASSERT( cmd < &getLevel().m_animCommands.back() );
+        BOOST_ASSERT( cmd < &getEngine().getAnimCommands().back() );
         const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
         ++cmd;
         switch( opcode )
@@ -207,7 +202,7 @@ void ModelItemNode::update()
                 if( m_state.frame_number.get() == cmd[0] )
                 {
                     BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
-                    getLevel().runEffect( cmd[1], this );
+                    getEngine().runEffect( cmd[1], this );
                 }
                 cmd += 2;
                 break;
@@ -237,12 +232,12 @@ void ItemNode::deactivate()
 
 std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const TR1SoundId id)
 {
-    return getLevel().playSound( id, &m_state );
+    return getEngine().playSound( id, &m_state );
 }
 
 bool ItemNode::triggerKey()
 {
-    if( getLevel().m_lara->getHandStatus() != HandStatus::None )
+    if( getEngine().m_lara->getHandStatus() != HandStatus::None )
     {
         return false;
     }
@@ -258,11 +253,11 @@ bool ItemNode::triggerKey()
 
 void ItemNode::kill()
 {
-    if( this == getLevel().m_lara->target.get() )
+    if( this == getEngine().m_lara->target.get() )
     {
-        getLevel().m_lara->target.reset();
+        getEngine().m_lara->target.reset();
     }
-    getLevel().scheduleDeletion( this );
+    getEngine().scheduleDeletion( this );
     m_state.activationState.setLocked( true );
 }
 
@@ -280,11 +275,11 @@ bool ItemNode::triggerPickUp()
 YAML::Node ItemNode::save() const
 {
     YAML::Node n;
-    n["state"] = m_state.save( *m_level );
+    n["state"] = m_state.save( *m_engine );
     n["active"] = m_isActive;
 
     for( const auto& child : getNode()->getChildren() )
-        if( auto idx = m_level->indexOfModel( child->getDrawable() ) )
+        if( auto idx = m_engine->indexOfModel( child->getDrawable() ) )
             n["meshes"].push_back( *idx );
         else
             n["meshes"].push_back( YAML::Node() );
@@ -297,7 +292,7 @@ YAML::Node ItemNode::save() const
 
 void ItemNode::load(const YAML::Node& n)
 {
-    m_state.load( n["state"], *m_level );
+    m_state.load( n["state"], *m_engine );
     m_isActive = n["active"].as<bool>();
 
     if( getNode()->getChildren().empty() )
@@ -311,7 +306,7 @@ void ItemNode::load(const YAML::Node& n)
         {
             auto m = n["meshes"][i];
             if( !m.IsNull() )
-                getNode()->getChildren()[i]->setDrawable( getLevel().getModel( m.as<size_t>() ).get() );
+                getNode()->getChildren()[i]->setDrawable( getEngine().getModel( m.as<size_t>() ).get() );
             else
                 getNode()->getChildren()[i]->setDrawable( nullptr );
         }
@@ -376,14 +371,14 @@ loader::file::BoundingBox ModelItemNode::getBoundingBox() const
     return m_skeleton->getBoundingBox( m_state );
 }
 
-SpriteItemNode::SpriteItemNode(const gsl::not_null<loader::file::level::Level*>& level,
+SpriteItemNode::SpriteItemNode(const gsl::not_null<Engine*>& engine,
                                const std::string& name,
                                const gsl::not_null<const loader::file::Room*>& room,
                                const loader::file::Item& item,
                                const bool hasUpdateFunction,
                                const loader::file::Sprite& sprite,
                                const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
-        : ItemNode{level, room, item, hasUpdateFunction}
+        : ItemNode{engine, room, item, hasUpdateFunction}
 {
     const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
                                                            sprite.x1, -sprite.y1,
@@ -509,15 +504,15 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
         const auto midZ = (keyFrame->bbox.toBBox().minZ + keyFrame->bbox.toBBox().maxZ) / 2;
         const auto tmp = laraPosWorld - util::pitch( core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y );
         const auto a = core::Angle::fromAtan( tmp.X, tmp.Z ) - 180_deg;
-        getLevel().m_lara->hit_direction = core::axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
-        if( getLevel().m_lara->hit_frame == 0_frame )
+        getEngine().m_lara->hit_direction = core::axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
+        if( getEngine().m_lara->hit_frame == 0_frame )
         {
             lara.playSoundEffect( TR1SoundId::LaraOof );
         }
-        getLevel().m_lara->hit_frame += 1_frame;
-        if( getLevel().m_lara->hit_frame > 34_frame )
+        getEngine().m_lara->hit_frame += 1_frame;
+        if( getEngine().m_lara->hit_frame > 34_frame )
         {
-            getLevel().m_lara->hit_frame = 34_frame;
+            getEngine().m_lara->hit_frame = 34_frame;
         }
     }
     collisionInfo.badPositiveDistance = core::HeightLimit;
@@ -527,7 +522,7 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
     collisionInfo.facingAngle = core::Angle::fromAtan(
             lara.m_state.position.position.X - collisionInfo.oldPosition.X,
             lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
-    collisionInfo.initHeightInfo( lara.m_state.position.position, getLevel(), core::LaraWalkHeight );
+    collisionInfo.initHeightInfo( lara.m_state.position.position, getEngine(), core::LaraWalkHeight );
     collisionInfo.facingAngle = facingAngle;
     if( collisionInfo.collisionType != CollisionInfo::AxisColl::None )
     {
@@ -576,7 +571,7 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
 gsl::not_null<std::shared_ptr<Particle>> ModelItemNode::emitParticle(const core::TRVec& localPosition,
                                                                      const size_t boneIndex,
                                                                      gsl::not_null<std::shared_ptr<Particle>> (* generate)(
-                                                                             loader::file::level::Level& level,
+                                                                             Engine& engine,
                                                                              const core::RoomBoundPosition&,
                                                                              core::Speed, core::Angle))
 {
@@ -592,8 +587,8 @@ gsl::not_null<std::shared_ptr<Particle>> ModelItemNode::emitParticle(const core:
     auto roomPos = m_state.position;
     roomPos.position = core::TRVec{
             glm::vec3{translate( itemSpheres.at( boneIndex ).m, localPosition.toRenderSystem() )[3]}};
-    auto particle = generate( getLevel(), roomPos, m_state.speed, m_state.rotation.Y );
-    getLevel().m_particles.emplace_back( particle );
+    auto particle = generate( getEngine(), roomPos, m_state.speed, m_state.rotation.Y );
+    getEngine().m_particles.emplace_back( particle );
 
     return particle;
 }
@@ -613,17 +608,17 @@ YAML::Node ModelItemNode::save() const
     return n;
 }
 
-bool ItemState::stalkBox(const loader::file::level::Level& lvl, const loader::file::Box& box) const
+bool ItemState::stalkBox(const Engine& engine, const loader::file::Box& box) const
 {
-    const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
-    const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
+    const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - engine.m_lara->m_state.position.position.X;
+    const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - engine.m_lara->m_state.position.position.Z;
 
     if( abs( laraToBoxDistX ) > 3 * core::SectorSize || abs( laraToBoxDistZ ) > 3 * core::SectorSize )
     {
         return false;
     }
 
-    const auto laraAxisBack = *axisFromAngle( lvl.m_lara->m_state.rotation.Y + 180_deg, 45_deg );
+    const auto laraAxisBack = *axisFromAngle( engine.m_lara->m_state.rotation.Y + 180_deg, 45_deg );
     core::Axis laraToBoxAxis;
     if( laraToBoxDistZ > 0_len )
     {
@@ -653,9 +648,9 @@ bool ItemState::stalkBox(const loader::file::level::Level& lvl, const loader::fi
     }
 
     core::Axis itemToLaraAxis;
-    if( position.position.Z <= lvl.m_lara->m_state.position.position.Z )
+    if( position.position.Z <= engine.m_lara->m_state.position.position.Z )
     {
-        if( position.position.X <= lvl.m_lara->m_state.position.position.X )
+        if( position.position.X <= engine.m_lara->m_state.position.position.X )
         {
             itemToLaraAxis = core::Axis::PosZ;
         }
@@ -666,7 +661,7 @@ bool ItemState::stalkBox(const loader::file::level::Level& lvl, const loader::fi
     }
     else
     {
-        if( position.position.X > lvl.m_lara->m_state.position.position.X )
+        if( position.position.X > engine.m_lara->m_state.position.position.X )
         {
             itemToLaraAxis = core::Axis::PosX;
         }
@@ -696,13 +691,13 @@ bool ItemState::stalkBox(const loader::file::level::Level& lvl, const loader::fi
     BOOST_THROW_EXCEPTION( std::runtime_error( "Unreachable code reached" ) );
 }
 
-bool ItemState::isInsideZoneButNotInBox(const loader::file::level::Level& lvl,
+bool ItemState::isInsideZoneButNotInBox(const Engine& engine,
                                         const int16_t zoneId,
                                         const loader::file::Box& box) const
 {
     Expects( creatureInfo != nullptr );
 
-    const auto zoneRef = loader::file::Box::getZoneRef( lvl.roomsAreSwapped, creatureInfo->lot.fly,
+    const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped, creatureInfo->lot.fly,
                                                   creatureInfo->lot.step );
 
     if( zoneId != box.*zoneRef )
@@ -722,29 +717,29 @@ bool ItemState::isInsideZoneButNotInBox(const loader::file::level::Level& lvl,
 
 }
 
-bool ItemState::inSameQuadrantAsBoxRelativeToLara(const loader::file::level::Level& lvl, const loader::file::Box& box) const
+bool ItemState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& box) const
 {
-    const auto laraToBoxX = (box.xmin + box.xmax) / 2 - lvl.m_lara->m_state.position.position.X;
-    const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - lvl.m_lara->m_state.position.position.Z;
+    const auto laraToBoxX = (box.xmin + box.xmax) / 2 - engine.m_lara->m_state.position.position.X;
+    const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - engine.m_lara->m_state.position.position.Z;
     if( abs( laraToBoxX ) < 5 * core::SectorSize && abs( laraToBoxZ ) < 5 * core::SectorSize )
         return false;
 
-    const auto laraToNpcX = position.position.X - lvl.m_lara->m_state.position.position.X;
-    const auto laraToNpcZ = position.position.Z - lvl.m_lara->m_state.position.position.Z;
+    const auto laraToNpcX = position.position.X - engine.m_lara->m_state.position.position.X;
+    const auto laraToNpcZ = position.position.Z - engine.m_lara->m_state.position.position.Z;
     return ((laraToNpcZ > 0_len) == (laraToBoxZ > 0_len)) || ((laraToNpcX > 0_len) == (laraToBoxX > 0_len));
 
 }
 
-void ItemState::initCreatureInfo(const loader::file::level::Level& lvl)
+void ItemState::initCreatureInfo(const Engine& engine)
 {
     if( creatureInfo != nullptr )
         return;
 
-    creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, this );
-    collectZoneBoxes( lvl );
+    creatureInfo = std::make_shared<ai::CreatureInfo>( engine, this );
+    collectZoneBoxes( engine );
 }
 
-void ItemState::collectZoneBoxes(const loader::file::level::Level& lvl)
+void ItemState::collectZoneBoxes(const Engine& engine)
 {
     const auto zoneRef1 = loader::file::Box::getZoneRef( false, creatureInfo->lot.fly, creatureInfo->lot.step );
     const auto zoneRef2 = loader::file::Box::getZoneRef( true, creatureInfo->lot.fly, creatureInfo->lot.step );
@@ -753,7 +748,7 @@ void ItemState::collectZoneBoxes(const loader::file::level::Level& lvl)
     const auto zoneData1 = box->*zoneRef1;
     const auto zoneData2 = box->*zoneRef2;
     creatureInfo->lot.boxes.clear();
-    for( const auto& box : lvl.m_boxes )
+    for( const auto& box : engine.getBoxes() )
     {
         if( box.*zoneRef1 == zoneData1 || box.*zoneRef2 == zoneData2 )
         {
@@ -784,12 +779,12 @@ sol::usertype<ItemState>& ItemState::userType()
     return type;
 }
 
-YAML::Node ItemState::save(const loader::file::level::Level& lvl) const
+YAML::Node ItemState::save(const Engine& engine) const
 {
     YAML::Node n;
     n["type"] = engine::toString( type );
     n["position"] = position.position.save();
-    n["position"]["room"] = std::distance( &lvl.m_rooms[0], position.room.get() );
+    n["position"]["room"] = std::distance( &engine.getRooms()[0], position.room.get() );
     n["rotation"] = rotation.save();
     n["speed"] = speed;
     n["fallSpeed"] = fallspeed;
@@ -797,7 +792,7 @@ YAML::Node ItemState::save(const loader::file::level::Level& lvl) const
     n["goal"] = goal_anim_state.get();
     n["required"] = required_anim_state.get();
     if( anim != nullptr )
-        n["id"] = std::distance( &lvl.m_animations[0], anim );
+        n["id"] = std::distance( &engine.getAnimations()[0], anim );
     n["frame"] = frame_number;
     n["health"] = health;
     n["triggerState"] = toString( triggerState );
@@ -806,7 +801,7 @@ YAML::Node ItemState::save(const loader::file::level::Level& lvl) const
     n["floor"] = floor;
     n["touchBits"] = touch_bits.to_ulong();
     if( box != nullptr )
-        n["box"] = std::distance( &lvl.m_boxes[0], box );
+        n["box"] = std::distance( &engine.getBoxes()[0], box );
     n["shade"] = shade;
 
     n["falling"] = falling;
@@ -815,18 +810,18 @@ YAML::Node ItemState::save(const loader::file::level::Level& lvl) const
     n["alreadyLookedAt"] = already_looked_at;
 
     if( creatureInfo != nullptr )
-        n["creatureInfo"] = creatureInfo->save( lvl );
+        n["creatureInfo"] = creatureInfo->save( engine );
 
     return n;
 }
 
-void ItemState::load(const YAML::Node& n, const loader::file::level::Level& lvl)
+void ItemState::load(const YAML::Node& n, const Engine& engine)
 {
     if( EnumUtil<TR1ItemId>::fromString( n["type"].as<std::string>() ) != type )
         BOOST_THROW_EXCEPTION( std::domain_error( "Item state has wrong type" ) );
 
     position.position.load( n["position"] );
-    position.room = &lvl.m_rooms.at( n["position"]["room"].as<size_t>() );
+    position.room = &engine.getRooms().at( n["position"]["room"].as<size_t>() );
     rotation.load( n["rotation"] );
     speed = n["speed"].as<core::Speed>();
     fallspeed = n["fallSpeed"].as<core::Speed>();
@@ -836,7 +831,7 @@ void ItemState::load(const YAML::Node& n, const loader::file::level::Level& lvl)
     if( !n["id"].IsDefined() )
         anim = nullptr;
     else
-        anim = &lvl.m_animations.at( n["id"].as<size_t>() );
+        anim = &engine.getAnimations().at( n["id"].as<size_t>() );
     frame_number = n["frame"].as<core::Frame>();
     health = n["health"].as<core::Health>();
     triggerState = parseTriggerState( n["triggerState"].as<std::string>() );
@@ -848,7 +843,7 @@ void ItemState::load(const YAML::Node& n, const loader::file::level::Level& lvl)
     if( !n["box"].IsDefined() )
         box = nullptr;
     else
-        box = &lvl.m_boxes.at( n["box"].as<size_t>() );
+        box = &engine.getBoxes().at( n["box"].as<size_t>() );
     shade = n["shade"].as<int16_t>();
 
     falling = n["falling"].as<bool>();
@@ -862,8 +857,8 @@ void ItemState::load(const YAML::Node& n, const loader::file::level::Level& lvl)
     }
     else
     {
-        creatureInfo = std::make_shared<ai::CreatureInfo>( lvl, this );
-        creatureInfo->load( n["creatureInfo"], lvl );
+        creatureInfo = std::make_shared<ai::CreatureInfo>( engine, this );
+        creatureInfo->load( n["creatureInfo"], engine );
     }
 }
 
@@ -876,10 +871,10 @@ ItemState::~ItemState() = default;
 
 void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
 {
-    const auto particle = std::make_shared<RicochetParticle>( pos, getLevel() );
+    const auto particle = std::make_shared<RicochetParticle>( pos, getEngine() );
     setParent( particle, m_state.position.room->node );
-    getLevel().m_particles.emplace_back( particle );
-    getLevel().playSound( TR1SoundId::Ricochet, particle.get() );
+    getEngine().m_particles.emplace_back( particle );
+    getEngine().playSound( TR1SoundId::Ricochet, particle.get() );
 }
 
 boost::optional<core::Length> ItemNode::getWaterSurfaceHeight() const

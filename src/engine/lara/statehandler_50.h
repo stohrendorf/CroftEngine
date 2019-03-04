@@ -2,7 +2,7 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "loader/file/level/level.h"
+#include "engine/particle.h"
 
 namespace engine
 {
@@ -20,7 +20,7 @@ public:
     void handleInput(CollisionInfo& collisionInfo) override
     {
         collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-        emitSparkles( getLara(), getLara().getLevel() );
+        emitSparkles( getLara(), getEngine() );
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -31,20 +31,21 @@ public:
         setMovementAngle( getLara().m_state.rotation.Y );
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
     }
 
-    static void emitSparkles(const LaraNode& lara, loader::file::level::Level& level)
+    static void emitSparkles(const LaraNode& lara, Engine& engine)
     {
         const auto spheres = lara.getSkeleton()->getBoneCollisionSpheres(
                 lara.m_state,
                 *lara.getSkeleton()->getInterpolationInfo( lara.m_state ).getNearestFrame(),
                 nullptr );
 
-        const auto& normalLara = *level.m_animatedModels[TR1ItemId::Lara];
+        const auto& normalLara = engine.findAnimatedModelForType( TR1ItemId::Lara );
+        Expects( normalLara != nullptr );
         for( size_t i = 0; i < spheres.size(); ++i )
         {
-            if( lara.getNode()->getChild( i )->getDrawable() == normalLara.models[i].get() )
+            if( lara.getNode()->getChild( i )->getDrawable() == normalLara->models[i].get() )
                 continue;
 
             const auto r = spheres[i].radius;
@@ -53,8 +54,8 @@ public:
             p.Y += util::rand15s( r, core::Length::type() );
             p.Z += util::rand15s( r, core::Length::type() );
             auto fx = std::make_shared<SparkleParticle>(
-                    core::RoomBoundPosition{lara.m_state.position.room, p}, level );
-            level.m_particles.emplace_back( fx );
+                    core::RoomBoundPosition{lara.m_state.position.room, p}, engine );
+            engine.m_particles.emplace_back( fx );
         }
     }
 };

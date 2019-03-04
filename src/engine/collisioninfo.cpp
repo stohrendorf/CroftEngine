@@ -1,7 +1,6 @@
 #include "collisioninfo.h"
 
 #include "core/magic.h"
-#include "loader/file/level/level.h"
 #include "laranode.h"
 
 namespace engine
@@ -22,19 +21,19 @@ core::Length reflectAtSectorBoundary(const core::Length target, const core::Leng
 }
 }
 
-void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const loader::file::level::Level& level, const core::Length& height)
+void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& engine, const core::Length& height)
 {
     collisionType = AxisColl::None;
     shift = core::TRVec{};
     facingAxis = *axisFromAngle( facingAngle, 45_deg );
 
-    auto room = level.m_lara->m_state.position.room;
+    auto room = engine.m_lara->m_state.position.room;
     const auto refTestPos = laraPos - core::TRVec( 0_len, height + core::ScalpToHandsHeight, 0_len );
-    const auto currentSector = loader::file::level::Level::findRealFloorSector( refTestPos, &room );
+    const auto currentSector = findRealFloorSector( refTestPos, &room );
 
-    mid.init( currentSector, refTestPos, level.m_itemNodes, laraPos.Y, height );
+    mid.init( currentSector, refTestPos, engine.m_itemNodes, laraPos.Y, height );
 
-    std::tie( floorSlantX, floorSlantZ ) = level.getFloorSlantInfo( currentSector, laraPos );
+    std::tie( floorSlantX, floorSlantZ ) = engine.getFloorSlantInfo( currentSector, laraPos );
 
     core::Length frontX = 0_len, frontZ = 0_len;
     core::Length frontLeftX = 0_len, frontLeftZ = 0_len;
@@ -78,8 +77,8 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const loader::fil
 
     // Front
     auto testPos = refTestPos + core::TRVec( frontX, 0_len, frontZ );
-    auto sector = loader::file::level::Level::findRealFloorSector( testPos, &room );
-    front.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
+    auto sector = findRealFloorSector( testPos, &room );
+    front.init( sector, testPos, engine.m_itemNodes, laraPos.Y, height );
     if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && front.floorSpace.slantClass == SlantClass::Steep
         && front.floorSpace.y < 0_len )
     {
@@ -100,8 +99,8 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const loader::fil
 
     // Front left
     testPos = refTestPos + core::TRVec( frontLeftX, 0_len, frontLeftZ );
-    sector = loader::file::level::Level::findRealFloorSector( testPos, &room );
-    frontLeft.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
+    sector = findRealFloorSector( testPos, &room );
+    frontLeft.init( sector, testPos, engine.m_itemNodes, laraPos.Y, height );
 
     if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontLeft.floorSpace.slantClass == SlantClass::Steep
         && frontLeft.floorSpace.y < 0_len )
@@ -123,8 +122,8 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const loader::fil
 
     // Front right
     testPos = refTestPos + core::TRVec( frontRightX, 0_len, frontRightZ );
-    sector = loader::file::level::Level::findRealFloorSector( testPos, &room );
-    frontRight.init( sector, testPos, level.m_itemNodes, laraPos.Y, height );
+    sector = findRealFloorSector( testPos, &room );
+    frontRight.init( sector, testPos, engine.m_itemNodes, laraPos.Y, height );
 
     if( policyFlags.is_set( PolicyFlags::SlopesAreWalls ) && frontRight.floorSpace.slantClass == SlantClass::Steep
         && frontRight.floorSpace.y < 0_len )
@@ -144,7 +143,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const loader::fil
         frontRight.floorSpace.y = 2 * core::QuarterSectorSize;
     }
 
-    checkStaticMeshCollisions( laraPos, height, level );
+    checkStaticMeshCollisions( laraPos, height, engine );
 
     if( mid.floorSpace.y == -core::HeightLimit )
     {
@@ -229,27 +228,26 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const loader::fil
 
 std::set<gsl::not_null<const loader::file::Room*>>
 CollisionInfo::collectTouchingRooms(const core::TRVec& position, const core::Length& radius, const core::Length& height,
-                                    const loader::file::level::Level& level)
+                                    const Engine& engine)
 {
     std::set<gsl::not_null<const loader::file::Room*>> result;
-    auto room = level.m_lara->m_state.position.room;
+    auto room = engine.m_lara->m_state.position.room;
     result.emplace( room );
-    result.emplace( level.findRoomForPosition( position + core::TRVec( radius, 0_len, radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRVec( -radius, 0_len, radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRVec( radius, 0_len, -radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRVec( -radius, 0_len, -radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRVec( radius, -height, radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRVec( -radius, -height, radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRVec( radius, -height, -radius ), room ) );
-    result.emplace( level.findRoomForPosition( position + core::TRVec( -radius, -height, -radius ), room ) );
+    result.emplace( engine.findRoomForPosition( position + core::TRVec( radius, 0_len, radius ), room ) );
+    result.emplace( engine.findRoomForPosition( position + core::TRVec( -radius, 0_len, radius ), room ) );
+    result.emplace( engine.findRoomForPosition( position + core::TRVec( radius, 0_len, -radius ), room ) );
+    result.emplace( engine.findRoomForPosition( position + core::TRVec( -radius, 0_len, -radius ), room ) );
+    result.emplace( engine.findRoomForPosition( position + core::TRVec( radius, -height, radius ), room ) );
+    result.emplace( engine.findRoomForPosition( position + core::TRVec( -radius, -height, radius ), room ) );
+    result.emplace( engine.findRoomForPosition( position + core::TRVec( radius, -height, -radius ), room ) );
+    result.emplace( engine.findRoomForPosition( position + core::TRVec( -radius, -height, -radius ), room ) );
     return result;
 }
 
 bool
-CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height,
-                                         const loader::file::level::Level& level)
+CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height, const Engine& engine)
 {
-    const auto rooms = collectTouchingRooms( position, collisionRadius + 50_len, height + 50_len, level );
+    const auto rooms = collectTouchingRooms( position, collisionRadius + 50_len, height + 50_len, engine );
 
     const core::BoundingBox inBox{
             {position.X - collisionRadius, position.Y - height, position.Z - collisionRadius},
@@ -262,7 +260,7 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const core
     {
         for( const loader::file::RoomStaticMesh& rsm : room->staticMeshes )
         {
-            const auto sm = level.findStaticMeshById( rsm.meshId );
+            const auto sm = engine.findStaticMeshById( rsm.meshId );
             if( sm->doNotCollide() )
                 continue;
 

@@ -9,11 +9,11 @@ namespace items
 class BridgeFlat final : public ModelItemNode
 {
 public:
-    BridgeFlat(const gsl::not_null<loader::file::level::Level*>& level,
+    BridgeFlat(const gsl::not_null<engine::Engine*>& engine,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const loader::file::SkeletalModelType& animatedModel)
-            : ModelItemNode{level, room, item, false, animatedModel}
+            : ModelItemNode{engine, room, item, false, animatedModel}
     {
     }
 

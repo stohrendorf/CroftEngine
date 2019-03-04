@@ -38,7 +38,11 @@ struct quantity
     {}
 
     template<typename T>
-    explicit quantity(T) = delete;
+    explicit quantity(T)
+    {
+        // must use T here, otherwise the static assert will trigger always
+        static_assert( sizeof( T ) > 0 && false, "Can only construct a quantity from its defined value type" );
+    }
 
     std::string toString() const
     {

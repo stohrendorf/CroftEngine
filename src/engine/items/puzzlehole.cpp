@@ -1,6 +1,7 @@
 #include "puzzlehole.h"
 
 #include "engine/laranode.h"
+#include "engine/inputhandler.h"
 
 namespace engine
 {
@@ -28,7 +29,7 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     if( lara.getCurrentAnimState() == LaraStateId::Stop )
     {
-        if( !getLevel().m_inputHandler->getInputState().action
+        if( !getEngine().m_inputHandler->getInputState().action
             || lara.getHandStatus() != HandStatus::None
             || lara.m_state.falling
             || !limits.canInteract( m_state, lara.m_state ) )
@@ -44,16 +45,16 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         switch( m_state.type )
         {
             case TR1ItemId::PuzzleHole1:
-                hasPuzzlePiece = getLevel().takeInventoryItem( TR1ItemId::Puzzle1 );
+                hasPuzzlePiece = getEngine().takeInventoryItem( TR1ItemId::Puzzle1 );
                 break;
             case TR1ItemId::PuzzleHole2:
-                hasPuzzlePiece = getLevel().takeInventoryItem( TR1ItemId::Puzzle2 );
+                hasPuzzlePiece = getEngine().takeInventoryItem( TR1ItemId::Puzzle2 );
                 break;
             case TR1ItemId::PuzzleHole3:
-                hasPuzzlePiece = getLevel().takeInventoryItem( TR1ItemId::Puzzle3 );
+                hasPuzzlePiece = getEngine().takeInventoryItem( TR1ItemId::Puzzle3 );
                 break;
             case TR1ItemId::PuzzleHole4:
-                hasPuzzlePiece = getLevel().takeInventoryItem( TR1ItemId::Puzzle4 );
+                hasPuzzlePiece = getEngine().takeInventoryItem( TR1ItemId::Puzzle4 );
                 break;
             default:
                 break;
@@ -99,13 +100,13 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid puzzle ID" ) );
         }
 
-        const auto& model = getLevel().findAnimatedModelForType( completeId );
+        const auto& model = getEngine().findAnimatedModelForType( completeId );
         Expects( model != nullptr );
 
         const auto parent = m_skeleton->getParent().lock();
         setParent( m_skeleton, nullptr );
 
-        m_skeleton = std::make_shared<SkeletalModelNode>( toString( completeId ), &getLevel(), *model );
+        m_skeleton = std::make_shared<SkeletalModelNode>( toString( completeId ), &getEngine(), *model );
         m_skeleton->setAnimation( m_state, model->animations, model->animations->firstFrame );
         for( gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex )
         {

@@ -225,14 +225,14 @@ void AbstractStateHandler::setAnimation(const AnimationId anim, const boost::opt
     m_lara.drawRoutine();
 }
 
-const loader::file::level::Level& AbstractStateHandler::getLevel() const
+const Engine& AbstractStateHandler::getEngine() const
 {
-    return m_lara.getLevel();
+    return m_lara.getEngine();
 }
 
-loader::file::level::Level& AbstractStateHandler::getLevel()
+Engine& AbstractStateHandler::getEngine()
 {
-    return m_lara.getLevel();
+    return m_lara.getEngine();
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -317,9 +317,9 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
             break;
     }
 
-    const auto sector = loader::file::level::Level::findRealFloorSector( pos, m_lara.m_state.position.room );
+    const auto sector = findRealFloorSector( pos, m_lara.m_state.position.room );
     VerticalSpaceInfo space;
-    space.init( sector, pos, getLevel().m_itemNodes, pos.Y, 400_len );
+    space.init( sector, pos, getEngine().m_itemNodes, pos.Y, 400_len );
     return space.floorSpace.y != -core::HeightLimit && space.floorSpace.y > 0_len
            && space.ceilingSpace.y < 0_len;
 }
@@ -327,7 +327,7 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
 bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 {
     if( collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-        || !getLevel().m_inputHandler->getInputState().action || getHandStatus() != HandStatus::None )
+        || !getEngine().m_inputHandler->getInputState().action || getHandStatus() != HandStatus::None )
     {
         return false;
     }
@@ -407,7 +407,7 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
 bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
 {
     if( collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-        || !getLevel().m_inputHandler->getInputState().action
+        || !getEngine().m_inputHandler->getInputState().action
         || getHandStatus() != HandStatus::None )
     {
         return false;
@@ -560,7 +560,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
 bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
 {
     if( collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-        || !getLevel().m_inputHandler->getInputState().action
+        || !getEngine().m_inputHandler->getInputState().action
         || getHandStatus() != HandStatus::None )
     {
         return false;
@@ -618,9 +618,9 @@ core::Length AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angl
     auto pos = m_lara.m_state.position.position + util::pitch(dist, angle);
     pos.Y -= core::LaraWalkHeight;
 
-    const auto sector = loader::file::level::Level::findRealFloorSector( pos, m_lara.m_state.position.room );
+    const auto sector = findRealFloorSector( pos, m_lara.m_state.position.room );
 
-    HeightInfo h = HeightInfo::fromFloor( sector, pos, getLevel().m_itemNodes );
+    HeightInfo h = HeightInfo::fromFloor( sector, pos, getEngine().m_itemNodes );
 
     if( h.y != -core::HeightLimit )
     {
@@ -636,7 +636,7 @@ void AbstractStateHandler::commonJumpHandling(CollisionInfo& collisionInfo)
     collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
     collisionInfo.badCeilingDistance = 192_len;
     collisionInfo.facingAngle = getMovementAngle();
-    collisionInfo.initHeightInfo( m_lara.m_state.position.position, getLevel(), core::LaraWalkHeight );
+    collisionInfo.initHeightInfo( m_lara.m_state.position.position, getEngine(), core::LaraWalkHeight );
     checkJumpWallSmash( collisionInfo );
     if( m_lara.m_state.fallspeed <= 0_spd || collisionInfo.mid.floorSpace.y > 0_len )
     {
@@ -662,7 +662,7 @@ void AbstractStateHandler::commonSlideHandling(CollisionInfo& collisionInfo)
     collisionInfo.badNegativeDistance = -core::QuarterSectorSize * 2;
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
-    collisionInfo.initHeightInfo( m_lara.m_state.position.position, getLevel(), core::LaraWalkHeight );
+    collisionInfo.initHeightInfo( m_lara.m_state.position.position, getEngine(), core::LaraWalkHeight );
 
     if( stopIfCeilingBlocked( collisionInfo ) )
     {
@@ -702,7 +702,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     collisionInfo.badNegativeDistance = -core::HeightLimit;
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
-    collisionInfo.initHeightInfo( m_lara.m_state.position.position, getLevel(), core::LaraWalkHeight );
+    collisionInfo.initHeightInfo( m_lara.m_state.position.position, getEngine(), core::LaraWalkHeight );
     const bool tooSteepToGrab = collisionInfo.front.floorSpace.y < 200_len;
     m_lara.m_state.fallspeed = 0_spd;
     m_lara.m_state.falling = false;
@@ -740,8 +740,8 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
-    collisionInfo.initHeightInfo( m_lara.m_state.position.position, getLevel(), core::LaraWalkHeight );
-    if( !getLevel().m_inputHandler->getInputState().action || m_lara.m_state.health <= 0_hp )
+    collisionInfo.initHeightInfo( m_lara.m_state.position.position, getEngine(), core::LaraWalkHeight );
+    if( !getEngine().m_inputHandler->getInputState().action || m_lara.m_state.health <= 0_hp )
     {
         setAnimation( AnimationId::TRY_HANG_VERTICAL, 448_frame );
         setGoalAnimState( LaraStateId::JumpUp );
@@ -809,12 +809,11 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 // ReSharper disable once CppMemberFunctionMayBeConst
 bool AbstractStateHandler::applyLandingDamage()
 {
-    const auto sector = loader::file::level::Level::findRealFloorSector( m_lara.m_state.position.position,
-                                                           m_lara.m_state.position.room );
+    const auto sector = findRealFloorSector( m_lara.m_state.position.position, m_lara.m_state.position.room );
     const HeightInfo h = HeightInfo::fromFloor( sector,
                                                 m_lara.m_state.position.position
                                                 - core::TRVec{0_len, core::LaraWalkHeight, 0_len},
-                                                getLevel().m_itemNodes );
+                                                getEngine().m_itemNodes );
     m_lara.m_state.floor = h.y;
     m_lara.handleCommandSequence( h.lastCommandSequenceOrDeath, false );
     const auto damageSpeed = m_lara.m_state.fallspeed - core::DamageFallSpeedThreshold;

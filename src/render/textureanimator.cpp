@@ -185,7 +185,7 @@ class TextureAtlas
         glm::vec2 uvMin;
         glm::vec2 uvMax;
 
-        loader::file::TextureLayoutProxy::TextureKey srcTexture;
+        loader::file::TextureKey srcTexture;
 
         glm::vec2 newUvMin;
     };
@@ -278,7 +278,6 @@ public:
     {
         util::CImgWrapper img{m_resultPageSize};
 
-        const auto newTextureId = gsl::narrow<uint16_t>( textures.size() );
         for( const auto& proxyToMapping : m_mappingByProxy )
         {
             auto& proxy = textureProxies.at( proxyToMapping.first );

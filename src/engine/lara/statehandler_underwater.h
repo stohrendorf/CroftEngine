@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/inputstate.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -27,7 +26,7 @@ public:
         }
         setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
-                                      getLevel(),
+                                      getEngine(),
                                       core::LaraDiveHeight );
 
         applyShift( collisionInfo );
@@ -82,21 +81,21 @@ public:
 protected:
     void handleDiveRotationInput()
     {
-        if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
+        if( getEngine().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
         {
             getLara().m_state.rotation.X -= 2_deg;
         }
-        else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
+        else if( getEngine().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
         {
             getLara().m_state.rotation.X += 2_deg;
         }
 
-        if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
             getLara().m_state.rotation.Y -= 6_deg;
             getLara().m_state.rotation.Z -= 3_deg;
         }
-        else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
             getLara().m_state.rotation.Y += 6_deg;
             getLara().m_state.rotation.Z += 3_deg;

@@ -63,7 +63,7 @@ Mesh::ModelBuilder::ModelBuilder(
         const bool withNormals,
         bool dynamic,
         const std::vector<TextureLayoutProxy>& textureProxies,
-        const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
         gsl::not_null<std::shared_ptr<gameplay::Material>> colorMaterial,
         const Palette& palette,
         render::TextureAnimator& animator,
@@ -337,7 +337,7 @@ gsl::not_null<std::shared_ptr<gameplay::Model>> Mesh::ModelBuilder::finalize()
 
 std::shared_ptr<gameplay::Model> Mesh::createModel(
         const std::vector<TextureLayoutProxy>& textureProxies,
-        const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
         const gsl::not_null<std::shared_ptr<gameplay::Material>>& colorMaterial,
         const Palette& palette,
         render::TextureAnimator& animator,

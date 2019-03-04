@@ -11,12 +11,12 @@ namespace level
 class TR4Level : public Level
 {
 public:
-    TR4Level(const Game gameVersion, loader::file::io::SDLReader&& reader, sol::state&& scriptEngine)
-            : Level{gameVersion, std::move( reader ), std::move( scriptEngine )}
+    TR4Level(const Game gameVersion, loader::file::io::SDLReader&& reader)
+            : Level{gameVersion, std::move( reader )}
     {
     }
 
-    void loadFileData() override;
+    void loadFileData(audio::SoundEngine& soundEngine) override;
 };
 }
 }

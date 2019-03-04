@@ -25,6 +25,9 @@ class ItemNode;
 class LaraNode;
 
 
+class Engine;
+
+
 enum class CameraMode
 {
     Chase,
@@ -49,7 +52,7 @@ class CameraController final : public audio::Listener
 private:
     gsl::not_null<std::shared_ptr<gameplay::Camera>> m_camera;
 
-    loader::file::level::Level* m_level;
+    Engine* m_engine;
 
     //! @brief Global camera position.
     core::RoomBoundPosition m_eye;
@@ -91,16 +94,16 @@ private:
     core::Frame m_camOverrideTimeout{-1_frame};
 
 public:
-    explicit CameraController(const gsl::not_null<loader::file::level::Level*>& level,
+    explicit CameraController(const gsl::not_null<Engine*>& engine,
                               gsl::not_null<std::shared_ptr<gameplay::Camera>> camera);
 
-    explicit CameraController(gsl::not_null<loader::file::level::Level*> level,
+    explicit CameraController(gsl::not_null<Engine*> engine,
                               gsl::not_null<std::shared_ptr<gameplay::Camera>> camera,
                               bool noLaraTag);
 
-    const loader::file::level::Level* getLevel() const noexcept
+    const Engine* getEngine() const noexcept
     {
-        return m_level;
+        return m_engine;
     }
 
     void setRotationAroundCenter(const core::Angle x, const core::Angle y);
@@ -205,14 +208,14 @@ public:
      * @brief Clamps a point between two endpoints if there is a floordata-defined obstacle
      * @param[in] start Starting point
      * @param[in] end Destination of the movement, clamped if necessary
-     * @param[in] level For accessing boxes and floordata
+     * @param[in] engine For accessing boxes and floordata
      * @retval false if clamped
      *
      * @warning Please be aware that the return value is reverted and not what you might expect...
      */
     static bool clampPosition(const core::RoomBoundPosition& start,
                               core::RoomBoundPosition& end,
-                              const loader::file::level::Level& level);
+                              const Engine& engine);
 
     void setBounce(const core::Length& bounce)
     {
@@ -240,7 +243,7 @@ private:
     static bool clampY(const core::TRVec& start,
                        core::TRVec& end,
                        const gsl::not_null<const loader::file::Sector*>& sector,
-                       const loader::file::level::Level& level);
+                       const Engine& engine);
 
     enum class ClampType
     {
@@ -251,11 +254,11 @@ private:
 
     static ClampType clampAlongX(const core::RoomBoundPosition& start,
                                  core::RoomBoundPosition& end,
-                                 const loader::file::level::Level& level);
+                                 const Engine& engine);
 
     static ClampType clampAlongZ(const core::RoomBoundPosition& start,
                                  core::RoomBoundPosition& end,
-                                 const loader::file::level::Level& level);
+                                 const Engine& engine);
 
     void handleFixedCamera();
 

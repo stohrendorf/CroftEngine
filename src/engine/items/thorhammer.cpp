@@ -1,18 +1,17 @@
 #include "thorhammer.h"
 
-#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 namespace engine
 {
 namespace items
 {
-ThorHammerHandle::ThorHammerHandle(const gsl::not_null<loader::file::level::Level*>& level,
+ThorHammerHandle::ThorHammerHandle(const gsl::not_null<Engine*>& engine,
                                    const gsl::not_null<const loader::file::Room*>& room, const loader::file::Item& item,
                                    const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{level, room, item, true, animatedModel}
+        : ModelItemNode{engine, room, item, true, animatedModel}
 {
-    m_block = level->createItem<ThorHammerBlock>( TR1ItemId::ThorHammerBlock, room, core::Angle( item.rotation ),
+    m_block = engine->createItem<ThorHammerBlock>( TR1ItemId::ThorHammerBlock, room, core::Angle( item.rotation ),
                                                   item.position, 0 );
     m_block->activate();
     m_block->m_state.triggerState = TriggerState::Active;
@@ -64,30 +63,30 @@ void ThorHammerHandle::update()
                 {
                     posX -= 3 * core::SectorSize;
                 }
-                if( getLevel().m_lara->m_state.health >= 0_hp )
+                if( getEngine().m_lara->m_state.health >= 0_hp )
                 {
-                    if( posX - 520_len < getLevel().m_lara->m_state.position.position.X
-                        && posX + 520_len > getLevel().m_lara->m_state.position.position.X
-                        && posZ - 520_len < getLevel().m_lara->m_state.position.position.Z
-                        && posZ + 520_len > getLevel().m_lara->m_state.position.position.Z )
+                    if( posX - 520_len < getEngine().m_lara->m_state.position.position.X
+                        && posX + 520_len > getEngine().m_lara->m_state.position.position.X
+                        && posZ - 520_len < getEngine().m_lara->m_state.position.position.Z
+                        && posZ + 520_len > getEngine().m_lara->m_state.position.position.Z )
                     {
-                        getLevel().m_lara->m_state.health = -1_hp;
-                        getLevel().m_lara->m_state.anim = &getLevel()
+                        getEngine().m_lara->m_state.health = -1_hp;
+                        getEngine().m_lara->m_state.anim = &getEngine()
                                 .findAnimatedModelForType( engine::TR1ItemId::Lara )->animations[139];
-                        getLevel().m_lara->m_state.frame_number = 3561_frame;
-                        getLevel().m_lara->setCurrentAnimState( LaraStateId::BoulderDeath );
-                        getLevel().m_lara->setGoalAnimState( LaraStateId::BoulderDeath );
-                        getLevel().m_lara->m_state.position.position.Y = m_state.position.position.Y;
-                        getLevel().m_lara->m_state.falling = false;
+                        getEngine().m_lara->m_state.frame_number = 3561_frame;
+                        getEngine().m_lara->setCurrentAnimState( LaraStateId::BoulderDeath );
+                        getEngine().m_lara->setGoalAnimState( LaraStateId::BoulderDeath );
+                        getEngine().m_lara->m_state.position.position.Y = m_state.position.position.Y;
+                        getEngine().m_lara->m_state.falling = false;
                     }
                 }
             }
             break;
         case 3:
         {
-            const auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, m_state.position.room );
-            const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
-            getLevel().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
+            const auto sector = loader::file::findRealFloorSector( m_state.position.position, m_state.position.room );
+            const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes );
+            getEngine().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
 
             const auto oldPosX = m_state.position.position.X;
             const auto oldPosZ = m_state.position.position.Z;
@@ -107,7 +106,7 @@ void ThorHammerHandle::update()
             {
                 m_state.position.position.X -= 3 * core::SectorSize;
             }
-            if( getLevel().m_lara->m_state.health >= 0_hp )
+            if( getEngine().m_lara->m_state.health >= 0_hp )
             {
                 m_state.position.room->patchHeightsForBlock( *this, -2 * core::SectorSize );
             }
@@ -124,8 +123,8 @@ void ThorHammerHandle::update()
 
     // sync anim
     const auto animIdx = std::distance(
-            &getLevel().findAnimatedModelForType( engine::TR1ItemId::ThorHammerHandle )->animations[0], m_state.anim );
-    m_block->m_state.anim = &getLevel().findAnimatedModelForType( engine::TR1ItemId::ThorHammerBlock )
+            &getEngine().findAnimatedModelForType( engine::TR1ItemId::ThorHammerHandle )->animations[0], m_state.anim );
+    m_block->m_state.anim = &getEngine().findAnimatedModelForType( engine::TR1ItemId::ThorHammerBlock )
                                        ->animations[animIdx];
     m_block->m_state.frame_number = m_state.frame_number - m_state.anim->firstFrame + m_block->m_state.anim->firstFrame;
     m_block->m_state.current_anim_state = m_state.current_anim_state;

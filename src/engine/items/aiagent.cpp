@@ -1,6 +1,7 @@
 #include "aiagent.h"
-#include "loader/file/level/level.h"
+
 #include "engine/laranode.h"
+#include "engine/particle.h"
 
 #include <boost/range/adaptors.hpp>
 
@@ -39,7 +40,7 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
                                    const core::Length nextBoxFloor,
                                    const ai::LotInfo& lotInfo) const
 {
-    const auto sectorBox = loader::file::level::Level::findRealFloorSector( testPosition, m_state.position.room )->box;
+    const auto sectorBox = loader::file::findRealFloorSector( testPosition, m_state.position.room )->box;
     if( sectorBox == nullptr )
         return true;
 
@@ -59,9 +60,9 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
 
 bool AIAgent::anyMovingEnabledItemInReach() const
 {
-    for( const auto& item : getLevel().m_itemNodes | boost::adaptors::map_values )
+    for( const auto& item : getEngine().m_itemNodes | boost::adaptors::map_values )
     {
-        if( !item->m_isActive || item.get().get() == this || item.get() == getLevel().m_lara )
+        if( !item->m_isActive || item.get().get() == this || item.get() == getEngine().m_lara )
             continue;
 
         if( item->m_state.triggerState == TriggerState::Active
@@ -85,7 +86,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto oldPosition = m_state.position.position;
 
     const auto boxFloor = m_state.box->floor;
-    const auto zoneRef = loader::file::Box::getZoneRef( getLevel().roomsAreSwapped, creatureInfo->lot.fly,
+    const auto zoneRef = loader::file::Box::getZoneRef( getEngine().roomsAreSwapped, creatureInfo->lot.fly,
                                                   creatureInfo->lot.step );
     ModelItemNode::update();
     if( m_state.triggerState == TriggerState::Deactivated )
@@ -101,7 +102,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto bboxMinY = m_state.position.position.Y + bbox.minY;
 
     auto room = m_state.position.room;
-    auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len},
+    auto sector = loader::file::findRealFloorSector( m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len},
                                                      &room );
     Expects( sector->box != nullptr );
     auto currentFloor = sector->box->floor;
@@ -145,7 +146,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         else if( newSectorZ > oldSectorZ )
             m_state.position.position.Z = shoveMax( oldPosition.Z );
 
-        sector = loader::file::level::Level::findRealFloorSector(
+        sector = loader::file::findRealFloorSector(
                 core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
 
         currentFloor = sector->box->floor;
@@ -166,7 +167,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto inSectorX = basePosX % core::SectorSize;
     const auto inSectorZ = basePosZ % core::SectorSize;
 
-    sol::table objectInfo = getLevel().m_scriptEngine["getObjectInfo"].call( m_state.type );
+    sol::table objectInfo = getEngine().m_scriptEngine["getObjectInfo"].call( m_state.type );
     const core::Length radius{static_cast<core::Length::type>(objectInfo["radius"])};
 
     core::Length moveX = 0_len;
@@ -298,7 +299,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     if( moveX != 0_len || moveZ != 0_len )
     {
-        sector = loader::file::level::Level::findRealFloorSector(
+        sector = loader::file::findRealFloorSector(
                 core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
 
         m_state.rotation.Y += angle;
@@ -325,7 +326,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                       bboxMinY,
                                                       m_state.position.position.Z
                                               },
-                                              getLevel().m_itemNodes ).y;
+                                              getEngine().m_itemNodes ).y;
 
         if( m_state.position.position.Y + moveY > currentFloor )
         {
@@ -352,7 +353,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                                   bboxMinY,
                                                                   m_state.position.position.Z
                                                           },
-                                                          getLevel().m_itemNodes ).y;
+                                                          getEngine().m_itemNodes ).y;
 
             const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.minY;
 
@@ -370,7 +371,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         }
 
         m_state.position.position.Y += moveY;
-        sector = loader::file::level::Level::findRealFloorSector(
+        sector = loader::file::findRealFloorSector(
                 core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
         m_state.floor = HeightInfo::fromFloor( sector,
                                                core::TRVec{
@@ -378,7 +379,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                        bboxMinY,
                                                        m_state.position.position.Z
                                                },
-                                               getLevel().m_itemNodes ).y;
+                                               getEngine().m_itemNodes ).y;
 
         core::Angle yaw{0};
         if( m_state.speed != 0_spd )
@@ -411,26 +412,26 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
     m_state.rotation.X = 0_au;
 
-    sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
-    m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
+    sector = loader::file::findRealFloorSector( m_state.position.position, &room );
+    m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes ).y;
 
     setCurrentRoom( room );
 
     return true;
 }
 
-AIAgent::AIAgent(const gsl::not_null<loader::file::level::Level*>& level,
+AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{level, room, item, true, animatedModel}
-        , m_collisionRadius{static_cast<core::Length::type>(level->m_scriptEngine["getObjectInfo"]
+        : ModelItemNode{engine, room, item, true, animatedModel}
+        , m_collisionRadius{static_cast<core::Length::type>(engine->m_scriptEngine["getObjectInfo"]
                 .call<sol::table>( m_state.type )["radius"])}
 {
     m_state.collidable = true;
     const core::Angle v = core::Angle( util::rand15() * 2 );
     m_state.rotation.Y += v;
-    m_state.health = core::Health{static_cast<core::Health::type>(level->m_scriptEngine["getObjectInfo"]
+    m_state.health = core::Health{static_cast<core::Health::type>(engine->m_scriptEngine["getObjectInfo"]
             .call<sol::table>( m_state.type )["hit_points"])};
 }
 
@@ -458,19 +459,19 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
     }
 
     auto start = m_state.position;
-    auto end = getLevel().m_lara->m_state.position;
+    auto end = getEngine().m_lara->m_state.position;
     end.position.Y -= 768_len;
-    return CameraController::clampPosition( start, end, getLevel() );
+    return CameraController::clampPosition( start, end, getEngine() );
 }
 
 namespace
 {
-gsl::not_null<std::shared_ptr<Particle>> createGunFlare(loader::file::level::Level& level,
+gsl::not_null<std::shared_ptr<Particle>> createGunFlare(Engine& engine,
                                                         const core::RoomBoundPosition& pos,
                                                         core::Speed speed,
                                                         core::Angle angle)
 {
-    auto particle = std::make_shared<GunflareParticle>( pos, level, angle );
+    auto particle = std::make_shared<GunflareParticle>( pos, engine, angle );
     setParent( particle, pos.room->node );
     return particle;
 }
@@ -489,22 +490,22 @@ bool AIAgent::tryShootAtLara(engine::items::ModelItemNode& item,
         {
             isHit = true;
 
-            getLevel().m_lara->emitParticle( core::TRVec{},
-                                             util::rand15( getLevel().m_lara->getNode()->getChildren().size() ),
+            getEngine().m_lara->emitParticle( core::TRVec{},
+                                             util::rand15( getEngine().m_lara->getNode()->getChildren().size() ),
                                              &createBloodSplat );
 
-            if( !getLevel().m_lara->isInWater() )
-                getLevel().m_lara->playSoundEffect( TR1SoundId::BulletHitsLara );
+            if( !getEngine().m_lara->isInWater() )
+                getEngine().m_lara->playSoundEffect( TR1SoundId::BulletHitsLara );
         }
     }
 
     if( !isHit )
     {
-        auto pos = getLevel().m_lara->m_state.position;
+        auto pos = getEngine().m_lara->m_state.position;
         pos.position.X += util::rand15s( core::SectorSize / 2, core::Length::type() );
-        pos.position.Y = getLevel().m_lara->m_state.floor;
+        pos.position.Y = getEngine().m_lara->m_state.floor;
         pos.position.Z += util::rand15s( core::SectorSize / 2, core::Length::type() );
-        getLevel().m_lara->playShotMissed( pos );
+        getEngine().m_lara->playShotMissed( pos );
     }
 
     auto p = item.emitParticle( bonePos, boneIndex, &createGunFlare );

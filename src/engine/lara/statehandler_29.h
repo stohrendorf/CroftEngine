@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/inputstate.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -25,7 +24,7 @@ public:
             setGoalAnimState( LaraStateId::FreeFall );
         }
 
-        if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == HandStatus::None )
+        if( getEngine().m_inputHandler->getInputState().action && getHandStatus() == HandStatus::None )
         {
             setGoalAnimState( LaraStateId::Reach );
         }
@@ -38,7 +37,7 @@ public:
         collisionInfo.badCeilingDistance = 192_len;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraHangingHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraHangingHeight );
         checkJumpWallSmash( collisionInfo );
         if( collisionInfo.mid.floorSpace.y > 0_len || getLara().m_state.fallspeed <= 0_spd )
         {

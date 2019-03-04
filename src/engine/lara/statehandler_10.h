@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/inputstate.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -22,13 +21,13 @@ public:
     {
         setCameraRotationAroundCenter( -60_deg, 0_deg );
         collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-        if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left ||
-            getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
+        if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left ||
+            getEngine().m_inputHandler->getInputState().stepMovement == AxisMovement::Left )
         {
             setGoalAnimState( LaraStateId::ShimmyLeft );
         }
-        else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right ||
-                 getLevel().m_inputHandler->getInputState().stepMovement == AxisMovement::Right )
+        else if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right ||
+                 getEngine().m_inputHandler->getInputState().stepMovement == AxisMovement::Right )
         {
             setGoalAnimState( LaraStateId::ShimmyRight );
         }
@@ -43,7 +42,7 @@ public:
             return;
         }
 
-        if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
+        if( getEngine().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
         {
             return;
         }
@@ -62,7 +61,7 @@ public:
             return;
         }
 
-        if( getLevel().m_inputHandler->getInputState().moveSlow )
+        if( getEngine().m_inputHandler->getInputState().moveSlow )
         {
             setGoalAnimState( LaraStateId::Handstand );
         }

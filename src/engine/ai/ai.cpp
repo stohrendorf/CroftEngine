@@ -1,6 +1,5 @@
 #include "ai.h"
 
-#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 namespace engine
@@ -40,11 +39,11 @@ Mood parseMood(const std::string& s)
 }
 }
 
-gsl::span<const uint16_t> LotInfo::getOverlaps(const loader::file::level::Level& lvl, const uint16_t idx)
+gsl::span<const uint16_t> LotInfo::getOverlaps(const engine::Engine& engine, const uint16_t idx)
 {
-    const auto first = &lvl.m_overlaps[idx & 0x3fff];
+    const auto first = &engine.getOverlaps().at( idx & 0x3fffu );
     auto last = first;
-    const auto endOfUniverse = &lvl.m_overlaps.back() + 1;
+    const auto endOfUniverse = &engine.getOverlaps().back() + 1;
 
     while( last < endOfUniverse && (*last & 0x8000) == 0 )
     {
@@ -54,9 +53,9 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const loader::file::level::Level&
     return gsl::make_span( first, last + 1 );
 }
 
-bool LotInfo::calculateTarget(const loader::file::level::Level& lvl, core::TRVec& target, const items::ItemState& item)
+bool LotInfo::calculateTarget(const engine::Engine& engine, core::TRVec& target, const items::ItemState& item)
 {
-    updatePath( lvl, 5 );
+    updatePath( engine, 5 );
 
     target = item.position.position;
 
@@ -262,47 +261,47 @@ bool LotInfo::calculateTarget(const loader::file::level::Level& lvl, core::TRVec
     return false;
 }
 
-YAML::Node LotInfo::save(const loader::file::level::Level& lvl) const
+YAML::Node LotInfo::save(const Engine& engine) const
 {
     YAML::Node node;
     for( const auto& entry : nodes )
-        node["nodes"][std::distance( &lvl.m_boxes[0], entry.first )] = entry.second.save( lvl );
+        node["nodes"][std::distance( &engine.getBoxes()[0], entry.first )] = entry.second.save( engine );
     for( const auto& box : boxes )
-        node["boxes"].push_back( std::distance( &lvl.m_boxes[0], box.get() ) );
+        node["boxes"].push_back( std::distance( &engine.getBoxes()[0], box.get() ) );
     if( head != nullptr )
-        node["head"] = std::distance( &lvl.m_boxes[0], head );
+        node["head"] = std::distance( &engine.getBoxes()[0], head );
     if( tail != nullptr )
-        node["tail"] = std::distance( &lvl.m_boxes[0], tail );
+        node["tail"] = std::distance( &engine.getBoxes()[0], tail );
     node["searchVersion"] = m_searchVersion;
     node["blockMask"] = block_mask;
     node["step"] = step;
     node["drop"] = drop;
     node["fly"] = fly;
     if( target_box != nullptr )
-        node["targetBox"] = std::distance( &lvl.m_boxes[0], target_box );
+        node["targetBox"] = std::distance( &engine.getBoxes()[0], target_box );
     if( required_box != nullptr )
-        node["requiredBox"] = std::distance( &lvl.m_boxes[0], required_box );
+        node["requiredBox"] = std::distance( &engine.getBoxes()[0], required_box );
     node["target"] = target.save();
 
     return node;
 }
 
-void LotInfo::load(const YAML::Node& n, const loader::file::level::Level& lvl)
+void LotInfo::load(const YAML::Node& n, const Engine& engine)
 {
     nodes.clear();
     for( const auto& entry : n["nodes"] )
-        nodes[&lvl.m_boxes.at( entry.first.as<size_t>() )].load( entry.second, lvl );
+        nodes[&engine.getBoxes().at( entry.first.as<size_t>() )].load( entry.second, engine );
     boxes.clear();
     for( const auto& entry : n["boxes"] )
-        boxes.emplace_back( &lvl.m_boxes.at( entry.as<size_t>() ) );
+        boxes.emplace_back( &engine.getBoxes().at( entry.as<size_t>() ) );
     if( !n["head"].IsDefined() )
         head = nullptr;
     else
-        head = &lvl.m_boxes.at( n["head"].as<size_t>() );
+        head = &engine.getBoxes().at( n["head"].as<size_t>() );
     if( !n["tail"].IsDefined() )
         tail = nullptr;
     else
-        tail = &lvl.m_boxes.at( n["tail"].as<size_t>() );
+        tail = &engine.getBoxes().at( n["tail"].as<size_t>() );
     m_searchVersion = n["searchVersion"].as<uint16_t>();
     block_mask = n["blockMask"].as<uint16_t>();
     step = n["step"].as<core::Length>();
@@ -311,15 +310,15 @@ void LotInfo::load(const YAML::Node& n, const loader::file::level::Level& lvl)
     if( !n["targetBox"].IsDefined() )
         target_box = nullptr;
     else
-        target_box = &lvl.m_boxes.at( n["targetBox"].as<size_t>() );
+        target_box = &engine.getBoxes().at( n["targetBox"].as<size_t>() );
     if( !n["requiredBox"].IsDefined() )
         required_box = nullptr;
     else
-        required_box = &lvl.m_boxes.at( n["requiredBox"].as<size_t>() );
+        required_box = &engine.getBoxes().at( n["requiredBox"].as<size_t>() );
     target.load( n["target"] );
 }
 
-void updateMood(const loader::file::level::Level& lvl, const items::ItemState& item, const AiInfo& aiInfo, const bool violent)
+void updateMood(const engine::Engine& engine, const items::ItemState& item, const AiInfo& aiInfo, const bool violent)
 {
     if( item.creatureInfo == nullptr )
         return;
@@ -333,7 +332,7 @@ void updateMood(const loader::file::level::Level& lvl, const items::ItemState& i
 
     if( creatureInfo.mood != Mood::Attack
         && creatureInfo.lot.required_box != nullptr
-        && !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, *creatureInfo.lot.target_box ) )
+        && !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *creatureInfo.lot.target_box ) )
     {
         if( aiInfo.zone_number == aiInfo.enemy_zone )
         {
@@ -342,7 +341,7 @@ void updateMood(const loader::file::level::Level& lvl, const items::ItemState& i
         creatureInfo.lot.required_box = nullptr;
     }
     const auto originalMood = creatureInfo.mood;
-    if( lvl.m_lara->m_state.health <= 0_hp )
+    if( engine.m_lara->m_state.health <= 0_hp )
     {
         creatureInfo.mood = Mood::Bored;
     }
@@ -431,23 +430,24 @@ void updateMood(const loader::file::level::Level& lvl, const items::ItemState& i
     {
         case Mood::Attack:
             if( util::rand15()
-                >= int( lvl.m_scriptEngine["getObjectInfo"].call<sol::table>( item.type )["target_update_chance"] ) )
+                >= int( engine.m_scriptEngine["getObjectInfo"].call<sol::table>( item.type )["target_update_chance"] ) )
                 break;
 
-            creatureInfo.lot.target = lvl.m_lara->m_state.position.position;
-            creatureInfo.lot.required_box = lvl.m_lara->m_state.box;
-            if( creatureInfo.lot.fly != 0_len && lvl.m_lara->isOnLand() )
-                creatureInfo.lot.target.Y += lvl.m_lara->getSkeleton()->getInterpolationInfo( lvl.m_lara->m_state )
-                                                .getNearestFrame()->bbox.toBBox().minY;
+            creatureInfo.lot.target = engine.m_lara->m_state.position.position;
+            creatureInfo.lot.required_box = engine.m_lara->m_state.box;
+            if( creatureInfo.lot.fly != 0_len && engine.m_lara->isOnLand() )
+                creatureInfo.lot.target.Y += engine.m_lara->getSkeleton()
+                                                   ->getInterpolationInfo( engine.m_lara->m_state )
+                                                   .getNearestFrame()->bbox.toBBox().minY;
 
             break;
         case Mood::Bored:
         {
             const auto box = creatureInfo.lot.boxes[util::rand15( creatureInfo.lot.boxes.size() )];
-            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, *box ) )
+            if( !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *box ) )
                 break;
 
-            if( item.stalkBox( lvl, *box ) )
+            if( item.stalkBox( engine, *box ) )
             {
                 creatureInfo.lot.setRandomSearchTarget( box );
                 creatureInfo.mood = Mood::Stalk;
@@ -460,14 +460,14 @@ void updateMood(const loader::file::level::Level& lvl, const items::ItemState& i
         }
         case Mood::Stalk:
         {
-            if( creatureInfo.lot.required_box != nullptr && item.stalkBox( lvl, *creatureInfo.lot.required_box ) )
+            if( creatureInfo.lot.required_box != nullptr && item.stalkBox( engine, *creatureInfo.lot.required_box ) )
                 break;
 
             const auto box = creatureInfo.lot.boxes[util::rand15( creatureInfo.lot.boxes.size() )];
-            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, *box ) )
+            if( !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *box ) )
                 break;
 
-            if( item.stalkBox( lvl, *box ) )
+            if( item.stalkBox( engine, *box ) )
             {
                 creatureInfo.lot.setRandomSearchTarget( box );
             }
@@ -484,15 +484,15 @@ void updateMood(const loader::file::level::Level& lvl, const items::ItemState& i
         case Mood::Escape:
         {
             const auto box = creatureInfo.lot.boxes[util::rand15( creatureInfo.lot.boxes.size() )];
-            if( !item.isInsideZoneButNotInBox( lvl, aiInfo.zone_number, *box )
+            if( !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *box )
                 || creatureInfo.lot.required_box != nullptr )
                 break;
 
-            if( item.inSameQuadrantAsBoxRelativeToLara( lvl, *box ) )
+            if( item.inSameQuadrantAsBoxRelativeToLara( engine, *box ) )
             {
                 creatureInfo.lot.setRandomSearchTarget( box );
             }
-            else if( aiInfo.zone_number == aiInfo.enemy_zone && item.stalkBox( lvl, *box ) )
+            else if( aiInfo.zone_number == aiInfo.enemy_zone && item.stalkBox( engine, *box ) )
             {
                 creatureInfo.lot.setRandomSearchTarget( box );
                 creatureInfo.mood = Mood::Stalk;
@@ -506,42 +506,42 @@ void updateMood(const loader::file::level::Level& lvl, const items::ItemState& i
         Expects( item.box != nullptr );
         creatureInfo.lot.setRandomSearchTarget( item.box );
     }
-    creatureInfo.lot.calculateTarget( lvl, creatureInfo.target, item );
+    creatureInfo.lot.calculateTarget( engine, creatureInfo.target, item );
 }
 
-AiInfo::AiInfo(const loader::file::level::Level& lvl, items::ItemState& item)
+AiInfo::AiInfo(const engine::Engine& engine, items::ItemState& item)
 {
     if( item.creatureInfo == nullptr )
         return;
 
-    const auto zoneRef = loader::file::Box::getZoneRef( lvl.roomsAreSwapped,
-                                                  item.creatureInfo->lot.fly,
-                                                  item.creatureInfo->lot.step );
+    const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped,
+                                                        item.creatureInfo->lot.fly,
+                                                        item.creatureInfo->lot.step );
 
     item.box = item.getCurrentSector()->box;
     zone_number = item.box->*zoneRef;
-    lvl.m_lara->m_state.box = lvl.m_lara->m_state.getCurrentSector()->box;
-    enemy_zone = lvl.m_lara->m_state.box->*zoneRef;
-    if( (item.creatureInfo->lot.block_mask & lvl.m_lara->m_state.box->overlap_index) != 0
+    engine.m_lara->m_state.box = engine.m_lara->m_state.getCurrentSector()->box;
+    enemy_zone = engine.m_lara->m_state.box->*zoneRef;
+    if( (item.creatureInfo->lot.block_mask & engine.m_lara->m_state.box->overlap_index) != 0
         || item.creatureInfo->lot.nodes[item.box].search_version
            == (item.creatureInfo->lot.m_searchVersion | 0x8000) )
     {
         enemy_zone |= 0x4000;
     }
 
-    sol::table objectInfo = lvl.m_scriptEngine["getObjectInfo"].call( item.type );
+    sol::table objectInfo = engine.m_scriptEngine["getObjectInfo"].call( item.type );
     const core::Length pivotLength{static_cast<core::Length::type>(objectInfo["pivot_length"])};
-    const auto d = lvl.m_lara->m_state.position.position
-            - (item.position.position + util::pitch( pivotLength, item.rotation.Y ));
+    const auto d = engine.m_lara->m_state.position.position
+                   - (item.position.position + util::pitch( pivotLength, item.rotation.Y ));
     const auto pivotAngle = core::Angle::fromAtan( d.X, d.Z );
     distance = util::square( d.X ) + util::square( d.Z );
     angle = pivotAngle - item.rotation.Y;
-    enemy_facing = pivotAngle - 180_deg - lvl.m_lara->m_state.rotation.Y;
+    enemy_facing = pivotAngle - 180_deg - engine.m_lara->m_state.rotation.Y;
     ahead = angle > -90_deg && angle < 90_deg;
     bite = false;
     if( ahead )
     {
-        const auto laraY = lvl.m_lara->m_state.position.position.Y;
+        const auto laraY = engine.m_lara->m_state.position.position.Y;
         if( item.position.position.Y - core::QuarterSectorSize < laraY
             && item.position.position.Y + core::QuarterSectorSize > laraY )
         {
@@ -550,8 +550,8 @@ AiInfo::AiInfo(const loader::file::level::Level& lvl, items::ItemState& item)
     }
 }
 
-CreatureInfo::CreatureInfo(const loader::file::level::Level& lvl, const gsl::not_null<items::ItemState*>& item)
-        : lot{lvl}
+CreatureInfo::CreatureInfo(const engine::Engine& engine, const gsl::not_null<items::ItemState*>& item)
+        : lot{engine}
 {
     switch( item->type )
     {
@@ -587,7 +587,7 @@ CreatureInfo::CreatureInfo(const loader::file::level::Level& lvl, const gsl::not
     }
 }
 
-YAML::Node CreatureInfo::save(const loader::file::level::Level& lvl) const
+YAML::Node CreatureInfo::save(const Engine& engine) const
 {
     YAML::Node node;
     node["headRot"] = head_rotation.toDegrees();
@@ -595,44 +595,44 @@ YAML::Node CreatureInfo::save(const loader::file::level::Level& lvl) const
     node["maxTurn"] = maximum_turn.toDegrees();
     node["flags"] = flags;
     node["mood"] = toString( mood );
-    node["lot"] = lot.save( lvl );
+    node["lot"] = lot.save( engine );
     node["target"] = target.save();
     return node;
 }
 
-void CreatureInfo::load(const YAML::Node& n, const loader::file::level::Level& lvl)
+void CreatureInfo::load(const YAML::Node& n, const Engine& engine)
 {
     head_rotation = core::Angle::fromDegrees( n["headRot"].as<float>() );
     neck_rotation = core::Angle::fromDegrees( n["neckRot"].as<float>() );
     maximum_turn = core::Angle::fromDegrees( n["maxTurn"].as<float>() );
     flags = n["flags"].as<uint16_t>();
     mood = parseMood( n["mood"].as<std::string>() );
-    lot.load( n["lot"], lvl );
+    lot.load( n["lot"], engine );
     target.load( n["target"] );
 }
 
-YAML::Node SearchNode::save(const loader::file::level::Level& lvl) const
+YAML::Node SearchNode::save(const Engine& engine) const
 {
     YAML::Node node;
     node["searchVersion"] = search_version;
     if( exit_box != nullptr )
-        node["exitBox"] = std::distance( &lvl.m_boxes[0], exit_box );
+        node["exitBox"] = std::distance( &engine.getBoxes()[0], exit_box );
     if( next_expansion != nullptr )
-        node["nextExpansion"] = std::distance( &lvl.m_boxes[0], next_expansion );
+        node["nextExpansion"] = std::distance( &engine.getBoxes()[0], next_expansion );
     return node;
 }
 
-void SearchNode::load(const YAML::Node& n, const loader::file::level::Level& lvl)
+void SearchNode::load(const YAML::Node& n, const Engine& engine)
 {
     search_version = n["searchVersion"].as<uint16_t>();
     if( !n["exitBox"].IsDefined() )
         exit_box = nullptr;
     else
-        exit_box = &lvl.m_boxes.at( n["exitBox"].as<size_t>() );
+        exit_box = &engine.getBoxes().at( n["exitBox"].as<size_t>() );
     if( !n["nextExpansion"].IsDefined() )
         next_expansion = nullptr;
     else
-        next_expansion = &lvl.m_boxes.at( n["nextExpansion"].as<size_t>() );
+        next_expansion = &engine.getBoxes().at( n["nextExpansion"].as<size_t>() );
 }
 }
 }

@@ -26,7 +26,7 @@ public:
         if( getYRotationSpeed() >= 0_deg )
         {
             setYRotationSpeed( 8_deg );
-            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+            if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
             {
                 return;
             }
@@ -34,7 +34,7 @@ public:
         else
         {
             setYRotationSpeed( -8_deg );
-            if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+            if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
             {
                 return;
             }

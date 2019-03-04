@@ -12,7 +12,7 @@ class Mummy final
         : public ModelItemNode
 {
 public:
-    Mummy(const gsl::not_null<loader::file::level::Level*>& level,
+    Mummy(const gsl::not_null<Engine*>& engine,
           const gsl::not_null<const loader::file::Room*>& room,
           const loader::file::Item& item,
           const loader::file::SkeletalModelType& animatedModel);

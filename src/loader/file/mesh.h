@@ -94,11 +94,11 @@ struct Mesh
         const bool m_hasNormals;
         std::vector<float> m_vbuf;
         const std::vector<TextureLayoutProxy>& m_textureProxies;
-        const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& m_materials;
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& m_materials;
         const gsl::not_null<std::shared_ptr<gameplay::Material>> m_colorMaterial;
         const Palette& m_palette;
         render::TextureAnimator& m_animator;
-        std::map<TextureLayoutProxy::TextureKey, size_t> m_texBuffers;
+        std::map<TextureKey, size_t> m_texBuffers;
         size_t m_vertexCount = 0;
         gsl::not_null<std::shared_ptr<gameplay::Mesh>> m_mesh;
 
@@ -121,7 +121,7 @@ struct Mesh
 
         size_t getPartForColor(const core::Id<uint16_t, core::TextureProxyIdTag> proxyId)
         {
-            TextureLayoutProxy::TextureKey tk;
+            TextureKey tk;
             tk.blendingMode = BlendingMode::Solid;
             tk.flags = 0;
             tk.tileAndFlag = 0;
@@ -155,7 +155,7 @@ struct Mesh
                 bool withNormals,
                 bool dynamic,
                 const std::vector<TextureLayoutProxy>& textureProxies,
-                const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
+                const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
                 gsl::not_null<std::shared_ptr<gameplay::Material>> colorMaterial,
                 const Palette& palette,
                 render::TextureAnimator& animator,
@@ -171,7 +171,7 @@ struct Mesh
 
     std::shared_ptr<gameplay::Model> createModel(
             const std::vector<TextureLayoutProxy>& textureProxies,
-            const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
+            const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
             const gsl::not_null<std::shared_ptr<gameplay::Material>>& colorMaterial,
             const Palette& palette,
             render::TextureAnimator& animator,

@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/inputstate.h"
-#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 namespace engine
@@ -27,39 +26,39 @@ public:
             return;
         }
 
-        if( getLevel().m_inputHandler->getInputState().roll )
+        if( getEngine().m_inputHandler->getInputState().roll )
         {
             setAnimation( AnimationId::ROLL_BEGIN, 3857_frame );
             setGoalAnimState( LaraStateId::Stop );
             return;
         }
 
-        if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -8_deg );
             const core::Angle z = std::max( -11_deg, getLara().m_state.rotation.Z - 1.5_deg );
             getLara().m_state.rotation.Z = z;
         }
-        else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 8_deg );
             const core::Angle z = std::min( +11_deg, getLara().m_state.rotation.Z + 1.5_deg );
             getLara().m_state.rotation.Z = z;
         }
 
-        if( getLevel().m_inputHandler->getInputState().jump && !getLara().m_state.falling )
+        if( getEngine().m_inputHandler->getInputState().jump && !getLara().m_state.falling )
         {
             setGoalAnimState( LaraStateId::JumpForward );
             return;
         }
 
-        if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
+        if( getEngine().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
         {
             setGoalAnimState( LaraStateId::Stop );
             return;
         }
 
-        if( getLevel().m_inputHandler->getInputState().moveSlow )
+        if( getEngine().m_inputHandler->getInputState().moveSlow )
         {
             setGoalAnimState( LaraStateId::WalkForward );
         }
@@ -77,7 +76,7 @@ public:
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.policyFlags.set(CollisionInfo::PolicyFlags::SlopesAreWalls);
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
 
         if( stopIfCeilingBlocked( collisionInfo ) )
         {

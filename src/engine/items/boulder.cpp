@@ -1,7 +1,7 @@
 #include "boulder.h"
 
-#include "loader/file/level/level.h"
 #include "engine/laranode.h"
+#include "engine/particle.h"
 
 void engine::items::RollingBall::update()
 {
@@ -26,11 +26,11 @@ void engine::items::RollingBall::update()
         ModelItemNode::update();
 
         auto room = m_state.position.room;
-        auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
+        auto sector = loader::file::findRealFloorSector( m_state.position.position, &room );
         setCurrentRoom( room );
-        const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes );
+        const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes );
         m_state.floor = hi.y;
-        getLevel().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
+        getEngine().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
         if( m_state.floor - core::QuarterSectorSize <= m_state.position.position.Y )
         {
             m_state.fallspeed = 0_spd;
@@ -40,8 +40,8 @@ void engine::items::RollingBall::update()
 
         // let's see if we hit a wall, and if that's the case, stop.
         const auto testPos = m_state.position.position + util::pitch(core::SectorSize/2, m_state.rotation.Y);
-        sector = loader::file::level::Level::findRealFloorSector( testPos, room );
-        if( HeightInfo::fromFloor( sector, testPos, getLevel().m_itemNodes ).y < m_state.position.position.Y )
+        sector = loader::file::findRealFloorSector( testPos, room );
+        if( HeightInfo::fromFloor( sector, testPos, getEngine().m_itemNodes ).y < m_state.position.position.Y )
         {
             m_state.fallspeed = 0_spd;
             m_state.touch_bits.reset();
@@ -57,7 +57,7 @@ void engine::items::RollingBall::update()
         m_state.triggerState = TriggerState::Deactivated;
         m_state.position.position = m_position.position;
         setCurrentRoom( m_position.room );
-        getSkeleton()->setAnimation( m_state, getLevel().m_animatedModels[m_state.type]->animations, 0_frame );
+        getSkeleton()->setAnimation( m_state, getEngine().findAnimatedModelForType(m_state.type)->animations, 0_frame );
         m_state.goal_anim_state = m_state.current_anim_state;
         m_state.required_anim_state = 0_as;
         deactivate();
@@ -99,8 +99,8 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
         lara.m_state.health = -1_hp;
         lara.setCurrentRoom( m_state.position.room );
         lara.setAnimation( AnimationId::SQUASH_BOULDER, 3561_frame );
-        getLevel().m_cameraController->setModifier( CameraModifier::FollowCenter );
-        getLevel().m_cameraController->setEyeRotation( -25_deg, 170_deg );
+        getEngine().m_cameraController->setModifier( CameraModifier::FollowCenter );
+        getEngine().m_cameraController->setEyeRotation( -25_deg, 170_deg );
         lara.m_state.rotation.X = 0_deg;
         lara.m_state.rotation.Y = m_state.rotation.Y;
         lara.m_state.rotation.Z = 0_deg;
@@ -111,12 +111,12 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
             const auto y = lara.m_state.position.position.Y - util::rand15s( 512_len, core::Length::type() );
             const auto z = util::rand15s( 128_len, core::Length::type() ) + lara.m_state.position.position.Z;
             auto fx = createBloodSplat(
-                    getLevel(),
+                    getEngine(),
                     core::RoomBoundPosition{m_state.position.room, core::TRVec{x, y, z}},
                     2 * m_state.speed,
                     core::Angle( gsl::narrow_cast<int16_t>( util::rand15s( 4096 ) ) ) + m_state.rotation.Y
             );
-            getLevel().m_particles.emplace_back( fx );
+            getEngine().m_particles.emplace_back( fx );
         }
         return;
     }
@@ -138,7 +138,7 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
             sqrt( util::square( x ) + util::square( y ) + util::square( z ) ) );
 
     auto fx = createBloodSplat(
-            getLevel(),
+            getEngine(),
             core::RoomBoundPosition{
                     m_state.position.room,
                     core::TRVec{
@@ -151,5 +151,5 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
             m_state.speed,
             m_state.rotation.Y
     );
-    getLevel().m_particles.emplace_back( fx );
+    getEngine().m_particles.emplace_back( fx );
 }

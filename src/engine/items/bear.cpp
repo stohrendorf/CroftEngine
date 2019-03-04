@@ -1,6 +1,7 @@
 #include "bear.h"
 
 #include "engine/laranode.h"
+#include "engine/particle.h"
 
 namespace engine
 {
@@ -13,7 +14,7 @@ void Bear::update()
         m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo( getLevel() );
+    m_state.initCreatureInfo( getEngine() );
 
     core::Angle rotationToMoveTarget;
 
@@ -30,8 +31,8 @@ void Bear::update()
 
     if( getHealth() > 0_hp )
     {
-        const ai::AiInfo aiInfo{getLevel(), m_state};
-        updateMood( getLevel(), m_state, aiInfo, true );
+        const ai::AiInfo aiInfo{getEngine(), m_state};
+        updateMood( getEngine(), m_state, aiInfo, true );
 
         rotationToMoveTarget = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         if( m_state.is_hit )
@@ -41,7 +42,7 @@ void Bear::update()
         {
             case Walking.get():
                 m_state.creatureInfo->maximum_turn = 2_deg;
-                if( getLevel().m_lara->m_state.health <= 0_hp && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0
+                if( getEngine().m_lara->m_state.health <= 0_hp && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0
                     && aiInfo.ahead )
                 {
                     m_state.goal_anim_state = GettingDown;
@@ -61,7 +62,7 @@ void Bear::update()
                 }
                 break;
             case GettingDown.get():
-                if( getLevel().m_lara->m_state.health <= 0_hp )
+                if( getEngine().m_lara->m_state.health <= 0_hp )
                 {
                     if( aiInfo.bite && aiInfo.distance < util::square( 768_len ) )
                     {
@@ -118,10 +119,10 @@ void Bear::update()
                 m_state.creatureInfo->maximum_turn = 5_deg;
                 if( (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0 )
                 {
-                    getLevel().m_lara->m_state.health -= 3_hp;
-                    getLevel().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.health -= 3_hp;
+                    getEngine().m_lara->m_state.is_hit = true;
                 }
-                if( m_state.creatureInfo->mood == ai::Mood::Bored || getLevel().m_lara->m_state.health <= 0_hp )
+                if( m_state.creatureInfo->mood == ai::Mood::Bored || getEngine().m_lara->m_state.health <= 0_hp )
                 {
                     m_state.goal_anim_state = GettingDown;
                 }
@@ -167,16 +168,16 @@ void Bear::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x2406cUL) )
                 {
                     emitParticle( core::TRVec{0_len, 96_len, 335_len}, 14, &createBloodSplat );
-                    getLevel().m_lara->m_state.health -= 200_hp;
-                    getLevel().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.health -= 200_hp;
+                    getEngine().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = GettingDown;
                 }
                 break;
             case Standing.get():
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x2406cUL) )
                 {
-                    getLevel().m_lara->m_state.health -= 400_hp;
-                    getLevel().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.health -= 400_hp;
+                    getEngine().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = RoaringStanding;
                 }
                 break;
@@ -208,8 +209,8 @@ void Bear::update()
             case Dying.get():
                 if( m_state.creatureInfo->flags != 0 && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0 )
                 {
-                    getLevel().m_lara->m_state.health -= 200_hp;
-                    getLevel().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.health -= 200_hp;
+                    getEngine().m_lara->m_state.is_hit = true;
                     m_state.creatureInfo->flags = 0;
                 }
                 break;

@@ -1,8 +1,8 @@
 #include "bat.h"
 
-#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 #include "engine/ai/ai.h"
+#include "engine/particle.h"
 
 namespace engine
 {
@@ -15,7 +15,7 @@ void Bat::update()
         m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo( getLevel() );
+    m_state.initCreatureInfo( getEngine() );
 
     static constexpr const uint16_t StartingToFly = 1;
     static constexpr const uint16_t FlyingStraight = 2;
@@ -26,8 +26,8 @@ void Bat::update()
     core::Angle rotationToMoveTarget = 0_deg;
     if( getHealth() > 0_hp )
     {
-        const ai::AiInfo aiInfo{getLevel(), m_state};
-        updateMood( getLevel(), m_state, aiInfo, false );
+        const ai::AiInfo aiInfo{getEngine(), m_state};
+        updateMood( getEngine(), m_state, aiInfo, false );
 
         rotationToMoveTarget = rotateTowardsTarget( 20_deg );
         switch( m_state.current_anim_state.get() )
@@ -45,8 +45,8 @@ void Bat::update()
                 if( m_state.touch_bits != 0 )
                 {
                     emitParticle( core::TRVec{0_len, 16_len, 45_len}, 4, &createBloodSplat );
-                    getLevel().m_lara->m_state.is_hit = true;
-                    getLevel().m_lara->m_state.health -= 2_hp;
+                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.health -= 2_hp;
                 }
                 else
                 {

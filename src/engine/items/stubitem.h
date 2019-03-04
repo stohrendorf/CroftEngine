@@ -9,11 +9,11 @@ namespace items
 class StubItem final : public ModelItemNode
 {
 public:
-    StubItem(const gsl::not_null<loader::file::level::Level*>& level,
+    StubItem(const gsl::not_null<Engine*>& engine,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const loader::file::SkeletalModelType& animatedModel)
-            : ModelItemNode{level, room, item, false, animatedModel}
+            : ModelItemNode{engine, room, item, false, animatedModel}
     {
     }
 };
@@ -22,12 +22,12 @@ public:
 class ScriptedItem final : public ModelItemNode
 {
 public:
-    ScriptedItem(const gsl::not_null<loader::file::level::Level*>& level,
+    ScriptedItem(const gsl::not_null<engine::Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel,
                  const sol::table& objectInfo)
-            : ModelItemNode{level, room, item, false, animatedModel}
+            : ModelItemNode{engine, room, item, false, animatedModel}
             , m_objectInfo{objectInfo}
     {
         auto initialise = objectInfo["initialise"];

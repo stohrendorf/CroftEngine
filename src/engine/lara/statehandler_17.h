@@ -25,7 +25,7 @@ public:
 
         handleDiveRotationInput();
 
-        if( !getLevel().m_inputHandler->getInputState().jump )
+        if( !getEngine().m_inputHandler->getInputState().jump )
         {
             setGoalAnimState( LaraStateId::UnderwaterInertia );
         }

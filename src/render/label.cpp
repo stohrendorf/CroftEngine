@@ -1,7 +1,5 @@
 #include "label.h"
 
-#include "loader/file/level/level.h"
-
 #include "util/cimgwrapper.h"
 
 namespace render
@@ -88,7 +86,7 @@ int Label::calcWidth() const
     return width;
 }
 
-void Label::draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const loader::file::level::Level& level) const
+void Label::draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const loader::file::Palette& palette) const
 {
     Expects( font.getScaleX() == scaleX );
     Expects( font.getScaleY() == scaleY );
@@ -190,7 +188,7 @@ void Label::draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img
 
     if( outline )
     {
-        drawOutline( img, bgndX, bgndY, bgndWidth, bgndHeight, *level.m_palette );
+        drawOutline( img, bgndX, bgndY, bgndWidth, bgndHeight, palette );
     }
 }
 }

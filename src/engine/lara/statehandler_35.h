@@ -17,7 +17,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
+        if( getEngine().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
         {
             getLara().m_state.rotation.X -= 1_deg;
         }

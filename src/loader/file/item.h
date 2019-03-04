@@ -1,8 +1,9 @@
 #pragma once
 
-#include "datatypes.h"
-
 #include "engine/items_tr1.h"
+#include "io/util.h"
+#include "core/angle.h"
+#include "core/id.h"
 
 namespace loader
 {

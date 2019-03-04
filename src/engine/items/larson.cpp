@@ -13,20 +13,20 @@ void Larson::update()
         m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo( getLevel() );
+    m_state.initCreatureInfo( getEngine() );
 
     core::Angle tiltRot = 0_deg;
     core::Angle creatureTurn = 0_deg;
     core::Angle headRot = 0_deg;
     if( m_state.health > 0_hp )
     {
-        const ai::AiInfo aiInfo{getLevel(), m_state};
+        const ai::AiInfo aiInfo{getEngine(), m_state};
         if( aiInfo.ahead )
         {
             headRot = aiInfo.angle;
         }
 
-        updateMood( getLevel(), m_state, aiInfo, false );
+        updateMood( getEngine(), m_state, aiInfo, false );
 
         creatureTurn = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         switch( m_state.current_anim_state.get() )
@@ -128,8 +128,8 @@ void Larson::update()
                 {
                     if( tryShootAtLara( *this, aiInfo.distance, core::TRVec{-60_len, 170_len, 0_len}, 14, headRot ) )
                     {
-                        getLevel().m_lara->m_state.health -= 50_hp;
-                        getLevel().m_lara->m_state.is_hit = true;
+                        getEngine().m_lara->m_state.health -= 50_hp;
+                        getEngine().m_lara->m_state.is_hit = true;
                     }
                     m_state.required_anim_state = 4_as;
                 }
@@ -144,7 +144,7 @@ void Larson::update()
     }
     else if( m_state.current_anim_state != 5_as )   // injured/dying
     {
-        m_state.anim = &getLevel().findAnimatedModelForType( engine::TR1ItemId::Larson )->animations[15];
+        m_state.anim = &getEngine().findAnimatedModelForType( engine::TR1ItemId::Larson )->animations[15];
         m_state.frame_number = m_state.anim->firstFrame;
         m_state.current_anim_state = 5_as;
     }
@@ -154,11 +154,11 @@ void Larson::update()
     animateCreature( creatureTurn, 0_deg );
 }
 
-Larson::Larson(const gsl::not_null<loader::file::level::Level*>& level,
+Larson::Larson(const gsl::not_null<Engine*>& engine,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const loader::file::SkeletalModelType& animatedModel)
-        : AIAgent{level, room, item, animatedModel}
+        : AIAgent{engine, room, item, animatedModel}
 {
 }
 }

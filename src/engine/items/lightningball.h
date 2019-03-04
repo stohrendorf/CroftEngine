@@ -1,6 +1,5 @@
 #pragma once
 
-#include "loader/file/level/level.h"
 #include "itemnode.h"
 
 namespace engine
@@ -10,7 +9,7 @@ namespace items
 class LightningBall final : public ModelItemNode
 {
 public:
-    LightningBall(const gsl::not_null<loader::file::level::Level*>& level,
+    LightningBall(const gsl::not_null<Engine*>& engine,
                   const gsl::not_null<const loader::file::Room*>& room,
                   const loader::file::Item& item,
                   const loader::file::SkeletalModelType& animatedModel,

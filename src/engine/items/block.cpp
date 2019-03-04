@@ -1,8 +1,8 @@
 #include "block.h"
 
 #include "engine/laranode.h"
-#include "loader/file/level/level.h"
 #include "core/boundingbox.h"
+#include "engine/inputhandler.h"
 
 namespace engine
 {
@@ -10,7 +10,7 @@ namespace items
 {
 void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
-    if( !getLevel().m_inputHandler->getInputState().action
+    if( !getEngine().m_inputHandler->getInputState().action
         || m_state.triggerState == TriggerState::Active
         || lara.m_state.falling
         || lara.m_state.position.position.Y != m_state.position.position.Y )
@@ -30,7 +30,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     if( lara.getCurrentAnimState() == LaraStateId::Stop )
     {
-        if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Null
+        if( getEngine().m_inputHandler->getInputState().zMovement != AxisMovement::Null
             || lara.getHandStatus() != HandStatus::None )
         {
             return;
@@ -89,7 +89,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         return;
     }
 
-    if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
+    if( getEngine().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
     {
         if( !canPushBlock( core::SectorSize, *axis ) )
         {
@@ -99,7 +99,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         m_state.goal_anim_state = 2_as;
         lara.setGoalAnimState( LaraStateId::PushablePush );
     }
-    else if( getLevel().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
+    else if( getEngine().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
     {
         if( !canPullBlock( core::SectorSize, *axis ) )
         {
@@ -119,7 +119,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     m_state.triggerState = TriggerState::Active;
 
     ModelItemNode::update();
-    getLevel().m_lara->updateImpl();
+    getEngine().m_lara->updateImpl();
 }
 
 void Block::update()
@@ -134,8 +134,8 @@ void Block::update()
     ModelItemNode::update();
 
     auto pos = m_state.position;
-    auto sector = loader::file::level::Level::findRealFloorSector( pos );
-    const auto height = HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).y;
+    auto sector = loader::file::findRealFloorSector( pos );
+    const auto height = HeightInfo::fromFloor( sector, pos.position, getEngine().m_itemNodes ).y;
     if( height > pos.position.Y )
     {
         m_state.falling = true;
@@ -146,7 +146,7 @@ void Block::update()
         m_state.position.position = pos.position;
         m_state.falling = false;
         m_state.triggerState = TriggerState::Deactivated;
-        getLevel().dinoStompEffect( *this );
+        getEngine().dinoStompEffect( *this );
         playSoundEffect( TR1SoundId::TRexFootstep );
         applyTransform(); // needed for properly placing geometry on floor
     }
@@ -162,14 +162,14 @@ void Block::update()
     deactivate();
     loader::file::Room::patchHeightsForBlock( *this, -core::SectorSize );
     pos = m_state.position;
-    sector = loader::file::level::Level::findRealFloorSector( pos );
-    getLevel().m_lara->handleCommandSequence(
-            HeightInfo::fromFloor( sector, pos.position, getLevel().m_itemNodes ).lastCommandSequenceOrDeath, true );
+    sector = loader::file::findRealFloorSector( pos );
+    getEngine().m_lara->handleCommandSequence(
+            HeightInfo::fromFloor( sector, pos.position, getEngine().m_itemNodes ).lastCommandSequenceOrDeath, true );
 }
 
 bool Block::isOnFloor(const core::Length height) const
 {
-    const auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, m_state.position.room );
+    const auto sector = loader::file::findRealFloorSector( m_state.position.position, m_state.position.room );
     return sector->floorHeight == -core::HeightLimit || sector->floorHeight == m_state.position.position.Y - height;
 }
 
@@ -202,19 +202,19 @@ bool Block::canPushBlock(const core::Length height, const core::Axis axis) const
     CollisionInfo tmp;
     tmp.facingAxis = axis;
     tmp.collisionRadius = 500_len;
-    if( tmp.checkStaticMeshCollisions( pos, 2 * tmp.collisionRadius, getLevel() ) )
+    if( tmp.checkStaticMeshCollisions( pos, 2 * tmp.collisionRadius, getEngine() ) )
     {
         return false;
     }
 
-    const auto targetSector = loader::file::level::Level::findRealFloorSector( pos, m_state.position.room );
+    const auto targetSector = loader::file::findRealFloorSector( pos, m_state.position.room );
     if( targetSector->floorHeight != pos.Y )
     {
         return false;
     }
 
     pos.Y -= height;
-    return pos.Y >= loader::file::level::Level::findRealFloorSector(
+    return pos.Y >= loader::file::findRealFloorSector(
             pos, m_state.position.room )->ceilingHeight;
 }
 
@@ -245,12 +245,12 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
     }
 
     auto room = m_state.position.room;
-    auto sector = loader::file::level::Level::findRealFloorSector( pos, &room );
+    auto sector = loader::file::findRealFloorSector( pos, &room );
 
     CollisionInfo tmp;
     tmp.facingAxis = axis;
     tmp.collisionRadius = 500_len;
-    if( tmp.checkStaticMeshCollisions( pos, 2 * tmp.collisionRadius, getLevel() ) )
+    if( tmp.checkStaticMeshCollisions( pos, 2 * tmp.collisionRadius, getEngine() ) )
     {
         return false;
     }
@@ -262,7 +262,7 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
 
     auto topPos = pos;
     topPos.Y -= height;
-    const auto topSector = loader::file::level::Level::findRealFloorSector( topPos, m_state.position.room );
+    const auto topSector = loader::file::findRealFloorSector( topPos, m_state.position.room );
     if( topPos.Y < topSector->ceilingHeight )
     {
         return false;
@@ -287,20 +287,20 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
             break;
     }
 
-    sector = loader::file::level::Level::findRealFloorSector( laraPos, &room );
+    sector = loader::file::findRealFloorSector( laraPos, &room );
     if( sector->floorHeight != pos.Y )
     {
         return false;
     }
 
     laraPos.Y -= core::LaraWalkHeight;
-    sector = loader::file::level::Level::findRealFloorSector( laraPos, &room );
+    sector = loader::file::findRealFloorSector( laraPos, &room );
     if( laraPos.Y < sector->ceilingHeight )
     {
         return false;
     }
 
-    laraPos = getLevel().m_lara->m_state.position.position;
+    laraPos = getEngine().m_lara->m_state.position.position;
     switch( axis )
     {
         case core::Axis::PosZ:
@@ -324,7 +324,7 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
     }
     tmp.collisionRadius = core::DefaultCollisionRadius;
 
-    return !tmp.checkStaticMeshCollisions( laraPos, core::LaraWalkHeight, getLevel() );
+    return !tmp.checkStaticMeshCollisions( laraPos, core::LaraWalkHeight, getEngine() );
 }
 
 void Block::load(const YAML::Node& n)

@@ -10,10 +10,7 @@ namespace loader
 {
 namespace file
 {
-namespace level
-{
-class Level;
-}
+struct Palette;
 }
 }
 
@@ -130,7 +127,8 @@ struct Label
     {
     }
 
-    void draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const loader::file::level::Level& level) const;
+    void
+    draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const loader::file::Palette& palette) const;
 
     int calcWidth() const;
 

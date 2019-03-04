@@ -43,6 +43,12 @@ CImgWrapper::CImgWrapper(const int size)
     m_image->fill( 0 );
 }
 
+CImgWrapper::CImgWrapper()
+        : m_image{nullptr}
+        , m_interleaved{false}
+{
+}
+
 CImgWrapper& CImgWrapper::operator=(const CImgWrapper& other)
 {
     m_image = std::make_unique<cimg_library::CImg<uint8_t>>( *other.m_image );

@@ -9,11 +9,11 @@ namespace items
 class UnderwaterSwitch final : public Switch
 {
 public:
-    UnderwaterSwitch(const gsl::not_null<loader::file::level::Level*>& level,
+    UnderwaterSwitch(const gsl::not_null<Engine*>& engine,
                      const gsl::not_null<const loader::file::Room*>& room,
                      const loader::file::Item& item,
                      const loader::file::SkeletalModelType& animatedModel)
-            : Switch{level, room, item, animatedModel}
+            : Switch{engine, room, item, animatedModel}
     {
     }
 

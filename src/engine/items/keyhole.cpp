@@ -1,6 +1,7 @@
 #include "keyhole.h"
 
 #include "engine/laranode.h"
+#include "engine/inputhandler.h"
 
 namespace engine
 {
@@ -18,7 +19,7 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( lara.getCurrentAnimState() != LaraStateId::Stop )
         return;
 
-    if( !getLevel().m_inputHandler->getInputState().action
+    if( !getEngine().m_inputHandler->getInputState().action
         || lara.getHandStatus() != HandStatus::None
         || lara.m_state.falling
         || !limits.canInteract( m_state, lara.m_state ) )
@@ -34,16 +35,16 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     switch( m_state.type )
     {
         case TR1ItemId::Keyhole1:
-            hasKey = getLevel().takeInventoryItem( TR1ItemId::Key1 );
+            hasKey = getEngine().takeInventoryItem( TR1ItemId::Key1 );
             break;
         case TR1ItemId::Keyhole2:
-            hasKey = getLevel().takeInventoryItem( TR1ItemId::Key2 );
+            hasKey = getEngine().takeInventoryItem( TR1ItemId::Key2 );
             break;
         case TR1ItemId::Keyhole3:
-            hasKey = getLevel().takeInventoryItem( TR1ItemId::Key3 );
+            hasKey = getEngine().takeInventoryItem( TR1ItemId::Key3 );
             break;
         case TR1ItemId::Keyhole4:
-            hasKey = getLevel().takeInventoryItem( TR1ItemId::Key4 );
+            hasKey = getEngine().takeInventoryItem( TR1ItemId::Key4 );
             break;
         default:
             break;

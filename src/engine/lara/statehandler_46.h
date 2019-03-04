@@ -2,7 +2,6 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -19,7 +18,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        const auto& camera = getLevel().m_cameraController;
+        const auto& camera = getEngine().m_cameraController;
         camera->setModifier( CameraModifier::FollowCenter );
         camera->setEyeRotation( -25_deg, 170_deg );
     }

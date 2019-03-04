@@ -1107,10 +1107,11 @@ struct Room
     void createSceneNode(
             size_t roomId,
             const level::Level& level,
-            const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-            const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& waterMaterials,
+            const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
+            const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& waterMaterials,
             const std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>>& staticMeshes,
-            render::TextureAnimator& animator);
+            render::TextureAnimator& animator,
+            const std::shared_ptr<gameplay::Material>& spriteMaterial);
 
     const Sector* getSectorByAbsolutePosition(core::TRVec position) const
     {
@@ -1219,6 +1220,21 @@ struct Room
         return boost::none;
     }
 };
+
+
+extern const Sector* findRealFloorSector(const core::TRVec& position,
+                                         const gsl::not_null<gsl::not_null<const Room*>*>& room);
+
+inline const Sector* findRealFloorSector(const core::TRVec& position,
+                                         gsl::not_null<const Room*> room)
+{
+    return findRealFloorSector( position, &room );
+}
+
+inline const Sector* findRealFloorSector(core::RoomBoundPosition& rbs)
+{
+    return findRealFloorSector( rbs.position, &rbs.room );
+}
 
 
 struct Sprite

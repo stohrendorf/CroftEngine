@@ -1,6 +1,7 @@
 #include "lion.h"
 
 #include "engine/laranode.h"
+#include "engine/particle.h"
 
 namespace engine
 {
@@ -13,7 +14,7 @@ void Lion::update()
         m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo( getLevel() );
+    m_state.initCreatureInfo( getEngine() );
 
     core::Angle tiltRot = 0_deg;
     core::Angle angle = 0_deg;
@@ -21,12 +22,12 @@ void Lion::update()
 
     if( m_state.health > 0_hp )
     {
-        const ai::AiInfo aiInfo{getLevel(), m_state};
+        const ai::AiInfo aiInfo{getEngine(), m_state};
         if( aiInfo.ahead )
         {
             headRot = aiInfo.angle;
         }
-        updateMood( getLevel(), m_state, aiInfo, true );
+        updateMood( getEngine(), m_state, aiInfo, true );
         angle = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         switch( m_state.current_anim_state.get() )
         {
@@ -91,8 +92,8 @@ void Lion::update()
             case 4:
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
-                    getLevel().m_lara->m_state.health -= 150_hp;
-                    getLevel().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.health -= 150_hp;
+                    getEngine().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = 1_as;
                 }
                 break;
@@ -100,8 +101,8 @@ void Lion::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
                     emitParticle( {-2_len, -10_len, 132_len}, 21, &createBloodSplat );
-                    getLevel().m_lara->m_state.health -= 250_hp;
-                    getLevel().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.health -= 250_hp;
+                    getEngine().m_lara->m_state.is_hit = true;
                     m_state.required_anim_state = 1_as;
                 }
                 break;
@@ -116,19 +117,19 @@ void Lion::update()
         {
             if( m_state.type == TR1ItemId::Panther )
             {
-                m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::Panther )->animations[4 + util::rand15(
+                m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::Panther )->animations[4 + util::rand15(
                         2 )];
             }
             else if( m_state.type == TR1ItemId::LionMale )
             {
-                m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::LionMale )->animations[7 + util::rand15(
+                m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::LionMale )->animations[7 + util::rand15(
                         2 )];
                 m_state.current_anim_state = 5_as;
                 m_state.frame_number = m_state.anim->firstFrame;
             }
             else
             {
-                m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::LionFemale )
+                m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::LionFemale )
                                           ->animations[7 + util::rand15( 2 )];
                 m_state.current_anim_state = 5_as;
                 m_state.frame_number = m_state.anim->firstFrame;

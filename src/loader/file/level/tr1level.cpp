@@ -26,7 +26,7 @@ using namespace loader::file::level;
 
 #define TR_AUDIO_MAP_SIZE_TR1  256
 
-void TR1Level::loadFileData()
+void TR1Level::loadFileData(audio::SoundEngine& soundEngine)
 {
     BOOST_LOG_TRIVIAL( debug ) << "Start. File size = " << m_reader.size();
 
@@ -121,7 +121,7 @@ void TR1Level::loadFileData()
     m_reader.readVector( m_cameras, m_reader.readU32(), &Camera::read );
 
     BOOST_LOG_TRIVIAL( debug ) << "Reading sound sources";
-    m_reader.readVector( m_soundSources, m_reader.readU32(), &SoundSource::read, &m_soundEngine );
+    m_reader.readVector( m_soundSources, m_reader.readU32(), &SoundSource::read, &soundEngine );
 
     BOOST_LOG_TRIVIAL( debug ) << "Reading boxes";
     m_reader.readVector( m_boxes, m_reader.readU32(), &Box::readTr1 );

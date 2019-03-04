@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/inputstate.h"
-#include "loader/file/level/level.h"
 
 #include "engine/laranode.h"
 
@@ -25,7 +24,7 @@ protected:
     {
         collisionInfo.facingAngle = getMovementAngle();
         collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec( 0_len, core::LaraSwimHeight, 0_len ),
-                                      getLevel(),
+                                      getEngine(),
                                       core::LaraSwimHeight );
         applyShift( collisionInfo );
         if( collisionInfo.mid.floorSpace.y < 0_len
@@ -73,7 +72,7 @@ private:
             return;
         }
 
-        if( !getLevel().m_inputHandler->getInputState().action )
+        if( !getEngine().m_inputHandler->getInputState().action )
         {
             return;
         }

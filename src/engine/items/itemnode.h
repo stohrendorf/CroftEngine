@@ -18,11 +18,6 @@ namespace loader
 namespace file
 {
 struct Item;
-
-namespace level
-{
-class Level;
-}
 }
 }
 
@@ -32,6 +27,9 @@ class LaraNode;
 
 
 class Particle;
+
+
+class Engine;
 
 namespace ai
 {
@@ -120,9 +118,9 @@ struct ItemState final : public audio::Emitter
 
     std::shared_ptr<ai::CreatureInfo> creatureInfo;
 
-    YAML::Node save(const loader::file::level::Level& lvl) const;
+    YAML::Node save(const Engine& engine) const;
 
-    void load(const YAML::Node& n, const loader::file::level::Level& lvl);
+    void load(const YAML::Node& n, const Engine& engine);
 
     bool updateActivationTimeout()
     {
@@ -144,15 +142,16 @@ struct ItemState final : public audio::Emitter
         return !activationState.isInverted();
     }
 
-    bool stalkBox(const loader::file::level::Level& lvl, const loader::file::Box& box) const;
+    bool stalkBox(const Engine& engine, const loader::file::Box& box) const;
 
-    bool isInsideZoneButNotInBox(const loader::file::level::Level& lvl, int16_t zoneId, const loader::file::Box& box) const;
+    bool
+    isInsideZoneButNotInBox(const Engine& engine, int16_t zoneId, const loader::file::Box& box) const;
 
-    bool inSameQuadrantAsBoxRelativeToLara(const loader::file::level::Level& lvl, const loader::file::Box& box) const;
+    bool inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& box) const;
 
-    void initCreatureInfo(const loader::file::level::Level& lvl);
+    void initCreatureInfo(const Engine& engine);
 
-    void collectZoneBoxes(const loader::file::level::Level& lvl);
+    void collectZoneBoxes(const Engine& engine);
 
     const loader::file::Sector* getCurrentSector() const
     {
@@ -165,7 +164,7 @@ struct ItemState final : public audio::Emitter
 
 class ItemNode
 {
-    const gsl::not_null<loader::file::level::Level*> m_level;
+    const gsl::not_null<Engine*> m_engine;
 
 public:
     ItemState m_state;
@@ -188,7 +187,7 @@ public:
         Interact = 7
     };
 
-    ItemNode(const gsl::not_null<loader::file::level::Level*>& level,
+    ItemNode(const gsl::not_null<Engine*>& engine,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              bool hasUpdateFunction);
@@ -235,14 +234,14 @@ public:
         m_state.position.position += util::pitch( d, m_state.rotation.Y );
     }
 
-    const loader::file::level::Level& getLevel() const
+    const Engine& getEngine() const
     {
-        return *m_level;
+        return *m_engine;
     }
 
-    loader::file::level::Level& getLevel()
+    Engine& getEngine()
     {
-        return *m_level;
+        return *m_engine;
     }
 
     void dampenHorizontalSpeed(const float f)
@@ -346,7 +345,7 @@ protected:
 
 public:
     ModelItemNode(
-            const gsl::not_null<loader::file::level::Level*>& level,
+            const gsl::not_null<Engine*>& engine,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,
             bool hasUpdateFunction,
@@ -417,7 +416,7 @@ public:
     gsl::not_null<std::shared_ptr<Particle>> emitParticle(const core::TRVec& localPosition,
                                                           size_t boneIndex,
                                                           gsl::not_null<std::shared_ptr<Particle>> (* generate)(
-                                                                  loader::file::level::Level& level,
+                                                                  Engine& engine,
                                                                   const core::RoomBoundPosition& pos,
                                                                   core::Speed speed,
                                                                   core::Angle angle));
@@ -436,7 +435,7 @@ private:
 
 public:
     SpriteItemNode(
-            const gsl::not_null<loader::file::level::Level*>& level,
+            const gsl::not_null<Engine*>& engine,
             const std::string& name,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,

@@ -9,11 +9,11 @@ namespace items
 class DartGun final : public ModelItemNode
 {
 public:
-    DartGun(const gsl::not_null<loader::file::level::Level*>& level,
+    DartGun(const gsl::not_null<Engine*>& engine,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,
             const loader::file::SkeletalModelType& animatedModel)
-            : ModelItemNode{level, room, item, true, animatedModel}
+            : ModelItemNode{engine, room, item, true, animatedModel}
     {
     }
 
@@ -60,7 +60,7 @@ public:
                 break;
         }
 
-        auto dart = getLevel()
+        auto dart = getEngine()
                 .createItem<Dart>( TR1ItemId::Dart, m_state.position.room, m_state.rotation.Y,
                                    m_state.position.position - d, 0 );
         dart->activate();

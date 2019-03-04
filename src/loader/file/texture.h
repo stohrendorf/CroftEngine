@@ -175,60 +175,60 @@ extern gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
         const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
 
 
-struct TextureLayoutProxy
+struct TextureKey
 {
-    struct TextureKey
+    BlendingMode blendingMode = BlendingMode::Solid;
+
+    // 0 means that a texture is all-opaque, and that transparency
+    // information is ignored.
+    // 1 means that transparency information is used. In 8-bit color,
+    // index 0 is the transparent color, while in 16-bit color, the
+    // top bit (0x8000) is the alpha channel (1 = opaque, 0 = transparent).
+    // 2 (only in TR3) means that the opacity (alpha) is equal to the intensity;
+    // the brighter the color, the more opaque it is. The intensity is probably calculated
+    // as the maximum of the individual color values.
+    uint16_t tileAndFlag = 0; // index into textile list
+
+    uint16_t flags = 0; // TR4
+
+    struct ColorIdTag
     {
-        BlendingMode blendingMode = BlendingMode::Solid;
-
-        // 0 means that a texture is all-opaque, and that transparency
-        // information is ignored.
-        // 1 means that transparency information is used. In 8-bit color,
-        // index 0 is the transparent color, while in 16-bit color, the
-        // top bit (0x8000) is the alpha channel (1 = opaque, 0 = transparent).
-        // 2 (only in TR3) means that the opacity (alpha) is equal to the intensity;
-        // the brighter the color, the more opaque it is. The intensity is probably calculated
-        // as the maximum of the individual color values.
-        uint16_t tileAndFlag = 0; // index into textile list
-
-        uint16_t flags = 0; // TR4
-
-        struct ColorIdTag
-        {
-        };
-
-        core::Id<int, ColorIdTag> colorId{-1};
-
-        bool operator==(const TextureKey& rhs) const
-        {
-            return tileAndFlag == rhs.tileAndFlag
-                   && flags == rhs.flags
-                   && blendingMode == rhs.blendingMode
-                   && colorId == rhs.colorId;
-        }
-
-        bool operator<(const TextureKey& rhs) const
-        {
-            if( tileAndFlag != rhs.tileAndFlag )
-            {
-                return tileAndFlag < rhs.tileAndFlag;
-            }
-
-            if( flags != rhs.flags )
-            {
-                return flags < rhs.flags;
-            }
-
-            if( blendingMode != rhs.blendingMode )
-            {
-                return blendingMode < rhs.blendingMode;
-            }
-
-            return colorId.get() < rhs.colorId.get();
-        }
     };
 
+    core::Id<int, ColorIdTag> colorId{-1};
 
+    bool operator==(const TextureKey& rhs) const
+    {
+        return tileAndFlag == rhs.tileAndFlag
+               && flags == rhs.flags
+               && blendingMode == rhs.blendingMode
+               && colorId == rhs.colorId;
+    }
+
+    bool operator<(const TextureKey& rhs) const
+    {
+        if( tileAndFlag != rhs.tileAndFlag )
+        {
+            return tileAndFlag < rhs.tileAndFlag;
+        }
+
+        if( flags != rhs.flags )
+        {
+            return flags < rhs.flags;
+        }
+
+        if( blendingMode != rhs.blendingMode )
+        {
+            return blendingMode < rhs.blendingMode;
+        }
+
+        return colorId.get() < rhs.colorId.get();
+    }
+};
+
+
+struct TextureLayoutProxy
+{
     TextureKey textureKey;
 
     UVCoordinates uvCoordinates[4]; // the four corners of the texture

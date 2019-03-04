@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/inputstate.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -27,12 +26,12 @@ public:
 
         if( getGoalAnimState() != LaraStateId::Death && getGoalAnimState() != LaraStateId::Stop )
         {
-            if( getLevel().m_inputHandler->getInputState().action && getHandStatus() == HandStatus::None )
+            if( getEngine().m_inputHandler->getInputState().action && getHandStatus() == HandStatus::None )
             {
                 setGoalAnimState( LaraStateId::Reach );
             }
 
-            if( getLevel().m_inputHandler->getInputState().moveSlow && getHandStatus() == HandStatus::None )
+            if( getEngine().m_inputHandler->getInputState().moveSlow && getHandStatus() == HandStatus::None )
             {
                 setGoalAnimState( LaraStateId::SwandiveBegin );
             }
@@ -43,11 +42,11 @@ public:
             }
         }
 
-        if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -3_deg );
         }
-        else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 3_deg );
         }
@@ -60,7 +59,7 @@ public:
         collisionInfo.badCeilingDistance = 192_len;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
         setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
         checkJumpWallSmash( collisionInfo );
 
         if( collisionInfo.mid.floorSpace.y > 0_len || getLara().m_state.fallspeed <= 0_spd )
@@ -72,8 +71,8 @@ public:
         {
             setGoalAnimState( LaraStateId::Death );
         }
-        else if( getLevel().m_inputHandler->getInputState().zMovement != AxisMovement::Forward
-                 || getLevel().m_inputHandler->getInputState().moveSlow )
+        else if( getEngine().m_inputHandler->getInputState().zMovement != AxisMovement::Forward
+                 || getEngine().m_inputHandler->getInputState().moveSlow )
         {
             setGoalAnimState( LaraStateId::Stop );
         }

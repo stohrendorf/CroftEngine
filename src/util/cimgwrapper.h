@@ -26,6 +26,8 @@ public:
 
     explicit CImgWrapper(int size);
 
+    explicit CImgWrapper();
+
     CImgWrapper(const CImgWrapper& other);
 
     CImgWrapper(CImgWrapper&& other) noexcept;

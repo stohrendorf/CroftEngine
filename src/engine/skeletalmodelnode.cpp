@@ -1,16 +1,18 @@
 #include "skeletalmodelnode.h"
 
-#include "loader/file/level/level.h"
+#include "engine/engine.h"
+#include "engine/items/itemnode.h"
+#include "loader/file/mesh.h"
 
 #include <stack>
 
 namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
-                                     const gsl::not_null<const loader::file::level::Level*>& lvl,
+                                     const gsl::not_null<const Engine*>& engine,
                                      const loader::file::SkeletalModelType& mdl)
         : Node{id}
-        , m_level{lvl}
+        , m_engine{engine}
         , m_model{mdl}
 {
     //setAnimation(mdl.animationIndex);
@@ -43,16 +45,12 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
 
     if( state.anim->firstFrame == state.anim->lastFrame )
     {
-        // empty animation
+        // single-frame animation
         result.firstFrame = state.anim->frames;
         result.secondFrame = state.anim->frames;
 
-        BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
-                      && reinterpret_cast<const short*>(result.firstFrame)
-                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
-        BOOST_ASSERT( reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
-                      && reinterpret_cast<const short*>(result.secondFrame)
-                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
+        BOOST_ASSERT( m_engine->isValid(result.firstFrame) );
+        BOOST_ASSERT( m_engine->isValid(result.secondFrame) );
         return result;
     }
 
@@ -68,12 +66,8 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
         // last keyframe
         result.secondFrame = result.firstFrame;
         result.bias = 0;
-        BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
-                      && reinterpret_cast<const short*>(result.firstFrame)
-                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
-        BOOST_ASSERT( reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
-                      && reinterpret_cast<const short*>(result.secondFrame)
-                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
+        BOOST_ASSERT( m_engine->isValid(result.firstFrame) );
+        BOOST_ASSERT( m_engine->isValid(result.secondFrame) );
         return result;
     }
 
@@ -85,12 +79,8 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     if( segmentFrame == 0_frame )
     {
         result.bias = 0;
-        BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
-                      && reinterpret_cast<const short*>(result.firstFrame)
-                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
-        BOOST_ASSERT( reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
-                      && reinterpret_cast<const short*>(result.secondFrame)
-                         < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
+        BOOST_ASSERT( m_engine->isValid(result.firstFrame) );
+        BOOST_ASSERT( m_engine->isValid(result.secondFrame) );
         return result;
     }
 
@@ -108,12 +98,8 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     result.bias = segmentFrame.retype_as<float>() / segmentDuration.retype_as<float>();
     BOOST_ASSERT( result.bias >= 0 && result.bias <= 1 );
 
-    BOOST_ASSERT( reinterpret_cast<const short*>(result.firstFrame) >= m_level->m_poseFrames.data()
-                  && reinterpret_cast<const short*>(result.firstFrame)
-                     < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
-    BOOST_ASSERT( reinterpret_cast<const short*>(result.secondFrame) >= m_level->m_poseFrames.data()
-                  && reinterpret_cast<const short*>(result.secondFrame)
-                     < m_level->m_poseFrames.data() + m_level->m_poseFrames.size() );
+    BOOST_ASSERT( m_engine->isValid(result.firstFrame) );
+    BOOST_ASSERT( m_engine->isValid(result.secondFrame) );
     return result;
 }
 

@@ -1,7 +1,7 @@
 #include "underwaterswitch.h"
 
-#include "loader/file/level/level.h"
 #include "engine/laranode.h"
+#include "engine/inputhandler.h"
 
 namespace engine
 {
@@ -9,7 +9,7 @@ namespace items
 {
 void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
-    if( !getLevel().m_inputHandler->getInputState().action )
+    if( !getEngine().m_inputHandler->getInputState().action )
         return;
 
     if( m_state.triggerState != TriggerState::Inactive )

@@ -47,12 +47,12 @@ private:
     UnderwaterState m_underwaterState = UnderwaterState::OnLand;
 
 public:
-    LaraNode(const gsl::not_null<loader::file::level::Level*>& level,
+    LaraNode(const gsl::not_null<engine::Engine*>& engine,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const loader::file::SkeletalModelType& animatedModel)
-            : ModelItemNode( level, room, item, false, animatedModel )
-            , m_underwaterRoute{*level}
+            : ModelItemNode( engine, room, item, false, animatedModel )
+            , m_underwaterRoute{*engine}
             , m_gunFlareLeft{std::make_shared<gameplay::Node>( "gun flare left" )}
             , m_gunFlareRight{std::make_shared<gameplay::Node>( "gun flare right" )}
     {
@@ -160,7 +160,7 @@ public:
         m_state.is_hit = true;
         m_state.falling = true;
 
-        const auto& gunFlareModel = getLevel().findAnimatedModelForType( TR1ItemId::Gunflare );
+        const auto& gunFlareModel = getEngine().findAnimatedModelForType( TR1ItemId::Gunflare );
         if( gunFlareModel == nullptr )
             return;
 
@@ -427,9 +427,9 @@ public:
         core::TRRotationXY aimRotation{};
         core::Frame flashTimeout = 0_frame;
 
-        YAML::Node save(const loader::file::level::Level& lvl) const;
+        YAML::Node save(const Engine& engine) const;
 
-        void load(const YAML::Node& n, const loader::file::level::Level& lvl);
+        void load(const YAML::Node& n, const Engine& engine);
     };
 
 

@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/laranode.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -34,7 +33,7 @@ public:
         collisionInfo.badCeilingDistance = 192_len;
         collisionInfo.facingAngle = getMovementAngle();
         getLara().m_state.falling = true;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
         jumpAgainstWall( collisionInfo );
         if( collisionInfo.mid.floorSpace.y > 0_len )
         {
@@ -50,7 +49,7 @@ public:
             setGoalAnimState( LaraStateId::Stop );
             setAnimation( AnimationId::LANDING_HARD, 358_frame );
         }
-        getLevel().stopSound( TR1SoundId::LaraScream, &getLara().m_state );
+        getEngine().stopSound( TR1SoundId::LaraScream, &getLara().m_state );
         getLara().m_state.fallspeed = 0_spd;
         placeOnFloor( collisionInfo );
         getLara().m_state.falling = false;

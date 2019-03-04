@@ -1,7 +1,8 @@
 #include "heightinfo.h"
 
 #include "cameracontroller.h"
-#include "loader/file/level/level.h"
+#include "floordata/floordata.h"
+#include "items/itemnode.h"
 
 namespace engine
 {

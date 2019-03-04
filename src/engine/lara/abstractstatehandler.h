@@ -85,9 +85,9 @@ protected:
 
     void setAnimation(AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
 
-    const loader::file::level::Level& getLevel() const;
+    const engine::Engine& getEngine() const;
 
-    loader::file::level::Level& getLevel();
+    engine::Engine& getEngine();
 
     void placeOnFloor(const CollisionInfo& collisionInfo);
 

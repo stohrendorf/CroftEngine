@@ -128,6 +128,7 @@ wrap_enum( TR1TrackId int ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt ${CMAKE_CUR
 set( EDISONENGINE_SRCS
      edisonengine.cpp
 
+     engine/engine.cpp
      engine/lara/abstractstatehandler.cpp
      engine/cameracontroller.cpp
      engine/collisioninfo.cpp

@@ -1,7 +1,7 @@
 #include "switch.h"
 
 #include "engine/laranode.h"
-#include "loader/file/level/level.h"
+#include "engine/inputhandler.h"
 
 namespace engine
 {
@@ -9,7 +9,7 @@ namespace items
 {
 void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
-    if( !getLevel().m_inputHandler->getInputState().action )
+    if( !getEngine().m_inputHandler->getInputState().action )
         return;
 
     if( lara.getHandStatus() != HandStatus::None )

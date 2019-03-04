@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/inputstate.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -20,7 +19,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getLevel().m_inputHandler->getInputState().jump )
+        if( getEngine().m_inputHandler->getInputState().jump )
         {
             setGoalAnimState( LaraStateId::JumpBack );
         }

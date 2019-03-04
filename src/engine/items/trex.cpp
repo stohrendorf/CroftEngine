@@ -14,30 +14,30 @@ void TRex::update()
         m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo( getLevel() );
+    m_state.initCreatureInfo( getEngine() );
 
     core::Angle rotationToMoveTarget;
 
     core::Angle creatureHead = 0_deg;
     if( getHealth() > 0_hp )
     {
-        const ai::AiInfo aiInfo{getLevel(), m_state};
+        const ai::AiInfo aiInfo{getEngine(), m_state};
         if( aiInfo.ahead )
         {
             creatureHead = aiInfo.angle;
         }
-        updateMood( getLevel(), m_state, aiInfo, true );
+        updateMood( getEngine(), m_state, aiInfo, true );
 
         rotationToMoveTarget = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         if( m_state.touch_bits.any() )
         {
             if( m_state.current_anim_state == 3_as )
             {
-                getLevel().m_lara->m_state.health -= 10_hp;
+                getEngine().m_lara->m_state.health -= 10_hp;
             }
             else
             {
-                getLevel().m_lara->m_state.health -= 1_hp;
+                getEngine().m_lara->m_state.health -= 1_hp;
             }
         }
 
@@ -110,26 +110,26 @@ void TRex::update()
                 {
                     m_state.goal_anim_state = 8_as;
 
-                    getLevel().m_lara->m_state.is_hit = true;
-                    getLevel().m_lara->m_state.falling = false;
+                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().m_lara->m_state.falling = false;
 
-                    getLevel().m_lara->setCurrentRoom( m_state.position.room );
-                    getLevel().m_lara->m_state.position.position = m_state.position.position;
-                    getLevel().m_lara->m_state.rotation.X = 0_deg;
-                    getLevel().m_lara->m_state.rotation.Y = m_state.rotation.Y;
-                    getLevel().m_lara->m_state.rotation.Z = 0_deg;
-                    getLevel().m_lara->m_state.anim = &getLevel()
+                    getEngine().m_lara->setCurrentRoom( m_state.position.room );
+                    getEngine().m_lara->m_state.position.position = m_state.position.position;
+                    getEngine().m_lara->m_state.rotation.X = 0_deg;
+                    getEngine().m_lara->m_state.rotation.Y = m_state.rotation.Y;
+                    getEngine().m_lara->m_state.rotation.Z = 0_deg;
+                    getEngine().m_lara->m_state.anim = &getEngine()
                             .findAnimatedModelForType( engine::TR1ItemId::AlternativeLara )->animations[1];
-                    getLevel().m_lara->m_state.frame_number = getLevel().m_lara->m_state.anim->firstFrame;
-                    getLevel().m_lara->setCurrentAnimState( LaraStateId::BoulderDeath );
-                    getLevel().m_lara->setGoalAnimState( LaraStateId::BoulderDeath );
-                    getLevel().m_lara->setHandStatus( HandStatus::Grabbing );
-                    getLevel().m_lara->gunType = LaraNode::WeaponId::None;
-                    getLevel().m_cameraController->setModifier( CameraModifier::FollowCenter );
-                    getLevel().m_cameraController->setRotationAroundCenter( -25_deg, 170_deg );
-                    getLevel().m_lara->m_state.health = -1_hp;
-                    getLevel().m_lara->setAir( -1_frame );
-                    getLevel().useAlternativeLaraAppearance( true );
+                    getEngine().m_lara->m_state.frame_number = getEngine().m_lara->m_state.anim->firstFrame;
+                    getEngine().m_lara->setCurrentAnimState( LaraStateId::BoulderDeath );
+                    getEngine().m_lara->setGoalAnimState( LaraStateId::BoulderDeath );
+                    getEngine().m_lara->setHandStatus( HandStatus::Grabbing );
+                    getEngine().m_lara->gunType = LaraNode::WeaponId::None;
+                    getEngine().m_cameraController->setModifier( CameraModifier::FollowCenter );
+                    getEngine().m_cameraController->setRotationAroundCenter( -25_deg, 170_deg );
+                    getEngine().m_lara->m_state.health = -1_hp;
+                    getEngine().m_lara->setAir( -1_frame );
+                    getEngine().useAlternativeLaraAppearance( true );
                 }
                 m_state.required_anim_state = 2_as;
                 break;

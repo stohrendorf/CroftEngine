@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/inputstate.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -26,16 +25,16 @@ public:
             return;
         }
 
-        if( getLevel().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
+        if( getEngine().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
         {
             setGoalAnimState( LaraStateId::Stop );
         }
 
-        if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -4_deg );
         }
-        else if( getLevel().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 4_deg );
         }
@@ -51,7 +50,7 @@ public:
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 90_deg;
         setMovementAngle( collisionInfo.facingAngle );
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getLevel(), core::LaraWalkHeight );
+        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
 
         if( stopIfCeilingBlocked( collisionInfo ) )
         {

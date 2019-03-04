@@ -1,8 +1,9 @@
 #include "datatypes.h"
 
-#include "level/level.h"
+#include "engine/engine.h"
 #include "render/textureanimator.h"
 #include "util/helpers.h"
+#include "level/level.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -52,7 +53,7 @@ struct RenderModel
 {
     std::vector<MeshPart> m_parts;
 
-    std::shared_ptr<gameplay::Model> toModel(const gsl::not_null<std::shared_ptr<gameplay::Mesh>>& mesh)
+    std::shared_ptr<gameplay::Model> toModel(const gsl::not_null <std::shared_ptr<gameplay::Mesh>>& mesh)
     {
         for( const MeshPart& localPart : m_parts )
         {
@@ -87,181 +88,340 @@ struct RenderModel
 void Room::createSceneNode(
         const size_t roomId,
         const level::Level& level,
-        const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-        const std::map<TextureLayoutProxy::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& waterMaterials,
-        const std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>>& staticMeshes,
-        render::TextureAnimator& animator)
+        const std::map<TextureKey, gsl::not_null < std::shared_ptr<gameplay::Material>>
+
+>& materials,
+const std::map<TextureKey, gsl::not_null < std::shared_ptr<gameplay::Material>>>& waterMaterials,
+const std::vector<gsl::not_null < std::shared_ptr<gameplay::Model>>>& staticMeshes,
+render::TextureAnimator& animator,
+const std::shared_ptr<gameplay::Material>& spriteMaterial
+)
 {
-    RenderModel renderModel;
-    std::map<TextureLayoutProxy::TextureKey, size_t> texBuffers;
-    std::vector<RenderVertex> vbuf;
-    std::vector<glm::vec2> uvCoords;
-    auto mesh = std::make_shared<gameplay::Mesh>( RenderVertex::getFormat(), false,
-                                                  "Room:" + std::to_string( roomId ) );
+RenderModel renderModel;
+std::map<TextureKey, size_t> texBuffers;
+std::vector<RenderVertex> vbuf;
+std::vector<glm::vec2> uvCoords;
+auto mesh = std::make_shared<gameplay::Mesh>( RenderVertex::getFormat(), false,
+                                              "Room:" + std::to_string( roomId ) );
 
-    for( const QuadFace& quad : rectangles )
-    {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at( quad.proxyId.get() );
+for(
+const QuadFace& quad
+: rectangles )
+{
+const TextureLayoutProxy& proxy = level.m_textureProxies.at( quad.proxyId.get() );
 
-        if( texBuffers.find( proxy.textureKey ) == texBuffers.end() )
-        {
-            texBuffers[proxy.textureKey] = renderModel.m_parts.size();
-            renderModel.m_parts.emplace_back();
-            auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
-            renderModel.m_parts.back().material = it;
-        }
-        const auto partId = texBuffers[proxy.textureKey];
+if( texBuffers.
+find( proxy
+.textureKey ) == texBuffers.
 
-        const auto firstVertex = vbuf.size();
-        for( int i = 0; i < 4; ++i )
-        {
-            RenderVertex iv;
-            iv.position = quad.vertices[i].from( vertices ).position.toRenderSystem();
-            iv.color = quad.vertices[i].from( vertices ).color;
-            uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
-            vbuf.push_back( iv );
-        }
+end()
 
-        animator.registerVertex( quad.proxyId, mesh, 0, firstVertex + 0 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 ) );
-        animator.registerVertex( quad.proxyId, mesh, 1, firstVertex + 1 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 ) );
-        animator.registerVertex( quad.proxyId, mesh, 2, firstVertex + 2 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 ) );
-        animator.registerVertex( quad.proxyId, mesh, 0, firstVertex + 0 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 ) );
-        animator.registerVertex( quad.proxyId, mesh, 2, firstVertex + 2 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 ) );
-        animator.registerVertex( quad.proxyId, mesh, 3, firstVertex + 3 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 3 ) );
-    }
-    for( const Triangle& tri : triangles )
-    {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at( tri.proxyId.get() );
+)
+{
+texBuffers[proxy.textureKey] = renderModel.m_parts.
 
-        if( texBuffers.find( proxy.textureKey ) == texBuffers.end() )
-        {
-            texBuffers[proxy.textureKey] = renderModel.m_parts.size();
-            renderModel.m_parts.emplace_back();
-            auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
-            renderModel.m_parts.back().material = it;
-        }
-        const auto partId = texBuffers[proxy.textureKey];
+size();
 
-        const auto firstVertex = vbuf.size();
-        for( int i = 0; i < 3; ++i )
-        {
-            RenderVertex iv;
-            iv.position = tri.vertices[i].from( vertices ).position.toRenderSystem();
-            iv.color = tri.vertices[i].from( vertices ).color;
-            uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
-            vbuf.push_back( iv );
-        }
+renderModel.m_parts.
 
-        animator.registerVertex( tri.proxyId, mesh, 0, firstVertex + 0 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 ) );
-        animator.registerVertex( tri.proxyId, mesh, 1, firstVertex + 1 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 ) );
-        animator.registerVertex( tri.proxyId, mesh, 2, firstVertex + 2 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 ) );
-    }
+emplace_back();
 
-    mesh->getBuffers()[0]->assign( vbuf );
+auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
+renderModel.m_parts.
 
-    static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{
-                    gameplay::gl::VertexAttribute::SingleAttribute<glm::vec2>{}}}
-    };
+back()
 
-    mesh->addBuffer( attribs, true );
-    mesh->getBuffers()[1]->assign( uvCoords );
+.
+material = it;
+}
+const auto partId = texBuffers[proxy.textureKey];
 
-    auto resModel = renderModel.toModel( mesh );
-    resModel->getRenderState().setCullFace( true );
-    resModel->getRenderState().setCullFaceSide( GL_BACK );
+const auto firstVertex = vbuf.size();
+for(
+int i = 0;
+i < 4; ++i )
+{
+RenderVertex iv;
+iv.
+position = quad.vertices[i].from( vertices ).position.toRenderSystem();
+iv.
+color = quad.vertices[i].from( vertices ).color;
+uvCoords.
+push_back( proxy
+.uvCoordinates[i].
 
-    node = std::make_shared<gameplay::Node>( "Room:" + std::to_string( roomId ) );
-    node->setDrawable( resModel );
-    node->addMaterialParameterSetter( "u_lightPosition", [](const gameplay::Node& /*node*/,
-                                                            gameplay::gl::Program::ActiveUniform& uniform) {
-        uniform.set( glm::vec3{0.0f} );
-    } );
-    node->addMaterialParameterSetter( "u_baseLight", [](const gameplay::Node& /*node*/,
-                                                        gameplay::gl::Program::ActiveUniform& uniform) {
-        uniform.set( 1.0f );
-    } );
-    node->addMaterialParameterSetter( "u_baseLightDiff", [](const gameplay::Node& /*node*/,
-                                                            gameplay::gl::Program::ActiveUniform& uniform) {
-        uniform.set( 1.0f );
-    } );
+toGl()
 
-    for( const RoomStaticMesh& sm : this->staticMeshes )
-    {
-        const auto idx = level.findStaticMeshIndexById( sm.meshId );
-        if( idx < 0 )
-            continue;
+);
+vbuf.
+push_back( iv );
+}
 
-        BOOST_ASSERT( static_cast<size_t>(idx) < staticMeshes.size() );
-        auto subNode = std::make_shared<gameplay::Node>( "staticMesh" );
-        subNode->setDrawable( staticMeshes[idx].get() );
-        subNode->setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
-                                 * rotate( glm::mat4{1.0f}, sm.rotation.toRad(), glm::vec3{0, -1, 0} ) );
+animator.
+registerVertex( quad
+.proxyId, mesh, 0, firstVertex + 0 );
+renderModel.m_parts[partId].indices
+.
+emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
+);
+animator.
+registerVertex( quad
+.proxyId, mesh, 1, firstVertex + 1 );
+renderModel.m_parts[partId].indices
+.
+emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 )
+);
+animator.
+registerVertex( quad
+.proxyId, mesh, 2, firstVertex + 2 );
+renderModel.m_parts[partId].indices
+.
+emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
+);
+animator.
+registerVertex( quad
+.proxyId, mesh, 0, firstVertex + 0 );
+renderModel.m_parts[partId].indices
+.
+emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
+);
+animator.
+registerVertex( quad
+.proxyId, mesh, 2, firstVertex + 2 );
+renderModel.m_parts[partId].indices
+.
+emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
+);
+animator.
+registerVertex( quad
+.proxyId, mesh, 3, firstVertex + 3 );
+renderModel.m_parts[partId].indices
+.
+emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 3 )
+);
+}
+for(
+const Triangle& tri
+: triangles )
+{
+const TextureLayoutProxy& proxy = level.m_textureProxies.at( tri.proxyId.get() );
 
-        subNode->addMaterialParameterSetter( "u_baseLight",
-                                             [brightness = sm.getBrightness()](const gameplay::Node& /*node*/,
-                                                                               gameplay::gl::Program::ActiveUniform& uniform) {
-                                                 uniform.set( brightness );
-                                             } );
-        subNode->addMaterialParameterSetter( "u_baseLightDiff", [](const gameplay::Node& /*node*/,
-                                                                   gameplay::gl::Program::ActiveUniform& uniform) {
-            uniform.set( 0.0f );
-        } );
-        subNode->addMaterialParameterSetter( "u_lightPosition", [](const gameplay::Node& /*node*/,
-                                                                   gameplay::gl::Program::ActiveUniform& uniform) {
-            uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
-        } );
-        addChild( node, subNode );
-    }
-    node->setLocalMatrix( translate( glm::mat4{1.0f}, position.toRenderSystem() ) );
+if( texBuffers.
+find( proxy
+.textureKey ) == texBuffers.
 
-    for( const SpriteInstance& spriteInstance : sprites )
-    {
-        BOOST_ASSERT( spriteInstance.vertex.get() < vertices.size() );
+end()
 
-        const Sprite& sprite = level.m_sprites.at( spriteInstance.id.get() );
+)
+{
+texBuffers[proxy.textureKey] = renderModel.m_parts.
 
-        const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
-                                                               sprite.x1, -sprite.y1,
-                                                               sprite.t0, sprite.t1,
-                                                               level.m_spriteMaterial,
-                                                               gameplay::Sprite::Axis::Y );
+size();
 
-        auto spriteNode = std::make_shared<gameplay::Node>( "sprite" );
-        spriteNode->setDrawable( model );
-        const RoomVertex& v = vertices.at( spriteInstance.vertex.get() );
-        spriteNode->setLocalMatrix( translate( glm::mat4{1.0f}, v.position.toRenderSystem() ) );
-        spriteNode->addMaterialParameterSetter( "u_diffuseTexture",
-                                                [texture = sprite.texture](const gameplay::Node& /*node*/,
-                                                                           gameplay::gl::Program::ActiveUniform& uniform) {
-                                                    uniform.set( *texture );
-                                                } );
-        spriteNode->addMaterialParameterSetter( "u_baseLight",
-                                                [brightness = v.getBrightness()](const gameplay::Node& /*node*/,
-                                                                                 gameplay::gl::Program::ActiveUniform& uniform) {
-                                                    uniform.set( brightness );
-                                                } );
+renderModel.m_parts.
 
-        addChild( node, spriteNode );
-    }
+emplace_back();
+
+auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
+renderModel.m_parts.
+
+back()
+
+.
+material = it;
+}
+const auto partId = texBuffers[proxy.textureKey];
+
+const auto firstVertex = vbuf.size();
+for(
+int i = 0;
+i < 3; ++i )
+{
+RenderVertex iv;
+iv.
+position = tri.vertices[i].from( vertices ).position.toRenderSystem();
+iv.
+color = tri.vertices[i].from( vertices ).color;
+uvCoords.
+push_back( proxy
+.uvCoordinates[i].
+
+toGl()
+
+);
+vbuf.
+push_back( iv );
+}
+
+animator.
+registerVertex( tri
+.proxyId, mesh, 0, firstVertex + 0 );
+renderModel.m_parts[partId].indices
+.
+emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
+);
+animator.
+registerVertex( tri
+.proxyId, mesh, 1, firstVertex + 1 );
+renderModel.m_parts[partId].indices
+.
+emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 )
+);
+animator.
+registerVertex( tri
+.proxyId, mesh, 2, firstVertex + 2 );
+renderModel.m_parts[partId].indices
+.
+emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
+);
+}
+
+mesh->getBuffers()[0]->
+assign( vbuf );
+
+static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
+        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{
+                gameplay::gl::VertexAttribute::SingleAttribute < glm::vec2 > {}}}
+};
+
+mesh->
+addBuffer( attribs,
+true );
+mesh->getBuffers()[1]->
+assign( uvCoords );
+
+auto resModel = renderModel.toModel( mesh );
+resModel->
+
+getRenderState()
+
+.setCullFace( true );
+resModel->
+
+getRenderState()
+
+.
+setCullFaceSide( GL_BACK );
+
+node = std::make_shared<gameplay::Node>( "Room:" + std::to_string( roomId ) );
+node->
+setDrawable( resModel );
+node->addMaterialParameterSetter( "u_lightPosition",[](const gameplay::Node& /*node*/,
+gameplay::gl::Program::ActiveUniform& uniform
+) {
+uniform.
+set( glm::vec3{0.0f}
+);
+} );
+node->addMaterialParameterSetter( "u_baseLight",[](const gameplay::Node& /*node*/,
+gameplay::gl::Program::ActiveUniform& uniform
+) {
+uniform.set( 1.0f );
+} );
+node->addMaterialParameterSetter( "u_baseLightDiff",[](const gameplay::Node& /*node*/,
+gameplay::gl::Program::ActiveUniform& uniform
+) {
+uniform.set( 1.0f );
+} );
+
+for(
+const RoomStaticMesh& sm
+: this->staticMeshes )
+{
+const auto idx = level.findStaticMeshIndexById( sm.meshId );
+if( idx < 0 )
+continue;
+
+BOOST_ASSERT( static_cast<size_t>(idx) < staticMeshes.size() );
+auto subNode = std::make_shared<gameplay::Node>( "staticMesh" );
+subNode->
+setDrawable( staticMeshes[idx]
+.
+
+get()
+
+);
+subNode->
+setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
+*
+rotate( glm::mat4{1.0f}, sm
+.rotation.
+
+toRad(), glm::vec3{0, -1, 0}
+
+) );
+
+subNode->addMaterialParameterSetter( "u_baseLight",
+[
+brightness = sm.getBrightness()
+](const gameplay::Node& /*node*/,
+gameplay::gl::Program::ActiveUniform& uniform
+) {
+uniform.
+set( brightness );
+} );
+subNode->addMaterialParameterSetter( "u_baseLightDiff",[](const gameplay::Node& /*node*/,
+gameplay::gl::Program::ActiveUniform& uniform
+) {
+uniform.set( 0.0f );
+} );
+subNode->addMaterialParameterSetter( "u_lightPosition",[](const gameplay::Node& /*node*/,
+gameplay::gl::Program::ActiveUniform& uniform
+) {
+uniform.
+set( glm::vec3{std::numeric_limits<float>::quiet_NaN()}
+);
+} );
+addChild( node, subNode
+);
+}
+node->
+setLocalMatrix( translate( glm::mat4{1.0f}, position.toRenderSystem() )
+);
+
+for(
+const SpriteInstance& spriteInstance
+: sprites )
+{
+BOOST_ASSERT( spriteInstance.vertex.get() < vertices.size() );
+
+const Sprite& sprite = level.m_sprites.at( spriteInstance.id.get() );
+
+const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
+                                                       sprite.x1, -sprite.y1,
+                                                       sprite.t0, sprite.t1,
+                                                       spriteMaterial,
+                                                       gameplay::Sprite::Axis::Y );
+
+auto spriteNode = std::make_shared<gameplay::Node>( "sprite" );
+spriteNode->
+setDrawable( model );
+const RoomVertex& v = vertices.at( spriteInstance.vertex.get() );
+spriteNode->
+setLocalMatrix( translate( glm::mat4{1.0f}, v.position.toRenderSystem() )
+);
+spriteNode->addMaterialParameterSetter( "u_diffuseTexture",
+[
+texture = sprite.texture
+](const gameplay::Node& /*node*/,
+gameplay::gl::Program::ActiveUniform& uniform
+) {
+uniform.
+set( * texture );
+} );
+spriteNode->addMaterialParameterSetter( "u_baseLight",
+[
+brightness = v.getBrightness()
+](const gameplay::Node& /*node*/,
+gameplay::gl::Program::ActiveUniform& uniform
+) {
+uniform.
+set( brightness );
+} );
+
+addChild( node, spriteNode
+);
+}
 }
 
 core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core::Angle angle) const
@@ -303,9 +463,9 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core:
 {
     auto room = item.m_state.position.room;
     //! @todo Ugly const_cast
-    auto groundSector = const_cast<Sector*>(level::Level::findRealFloorSector( item.m_state.position.position, &room ));
+    auto groundSector = const_cast<Sector*>(loader::file::findRealFloorSector( item.m_state.position.position, &room ));
     BOOST_ASSERT( groundSector != nullptr );
-    const auto topSector = level::Level::findRealFloorSector(
+    const auto topSector = loader::file::findRealFloorSector(
             item.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room );
 
     if( groundSector->floorHeight == -core::HeightLimit )
@@ -328,6 +488,48 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core:
         groundSector->box->unblock();
     else
         groundSector->box->block();
+}
+
+const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_null<gsl::not_null<const Room*> * >& room)
+{
+    const Sector* sector;
+    // follow portals
+    while( true )
+    {
+        sector = (*room)->findFloorSectorWithClampedIndex( (position.X - (*room)->position.X) / core::SectorSize,
+                                                           (position.Z - (*room)->position.Z) / core::SectorSize );
+        if( sector->portalTarget == nullptr )
+        {
+            break;
+        }
+
+        *room = sector->portalTarget;
+    }
+
+    // go up/down until we are in the room that contains our coordinates
+    Expects( sector != nullptr );
+    if( sector->floorHeight > position.Y )
+    {
+        while( sector->ceilingHeight > position.Y && sector->roomAbove != nullptr )
+        {
+            *room = sector->roomAbove;
+            sector = (*room)->getSectorByAbsolutePosition( position );
+            if( sector == nullptr )
+                return nullptr;
+        }
+    }
+    else
+    {
+        while( sector->floorHeight < position.Y && sector->roomBelow != nullptr )
+        {
+            *room = sector->roomBelow;
+            sector = (*room)->getSectorByAbsolutePosition( position );
+            if( sector == nullptr )
+                return nullptr;
+        }
+    }
+
+    return sector;
 }
 }
 }

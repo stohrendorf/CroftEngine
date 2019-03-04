@@ -12,12 +12,12 @@ private:
     const int m_div;
 
 public:
-    SlopedBridge(const gsl::not_null<loader::file::level::Level*>& level,
+    SlopedBridge(const gsl::not_null<engine::Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel,
                  const int div)
-            : ModelItemNode{level, room, item, false, animatedModel}
+            : ModelItemNode{engine, room, item, false, animatedModel}
             , m_div{div}
     {
     }
@@ -64,11 +64,11 @@ private:
 class BridgeSlope1 final : public SlopedBridge
 {
 public:
-    BridgeSlope1(const gsl::not_null<loader::file::level::Level*>& level,
+    BridgeSlope1(const gsl::not_null<engine::Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
-            : SlopedBridge{level, room, item, animatedModel, 4}
+            : SlopedBridge{engine, room, item, animatedModel, 4}
     {
     }
 };
@@ -77,11 +77,11 @@ public:
 class BridgeSlope2 final : public SlopedBridge
 {
 public:
-    BridgeSlope2(const gsl::not_null<loader::file::level::Level*>& level,
+    BridgeSlope2(const gsl::not_null<engine::Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
-            : SlopedBridge{level, room, item, animatedModel, 2}
+            : SlopedBridge{engine, room, item, animatedModel, 2}
     {
     }
 };

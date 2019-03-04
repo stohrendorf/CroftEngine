@@ -1,6 +1,7 @@
 #include "scionpiece.h"
 
 #include "engine/laranode.h"
+#include "engine/inputhandler.h"
 
 namespace engine
 {
@@ -24,28 +25,28 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     if( lara.getCurrentAnimState() != LaraStateId::PickUp )
     {
-        if( getLevel().m_inputHandler->getInputState().action
+        if( getEngine().m_inputHandler->getInputState().action
             && lara.getHandStatus() == HandStatus::None
             && !lara.m_state.falling
             && lara.getCurrentAnimState() == LaraStateId::Stop )
         {
             lara.alignForInteraction( {0_len, 640_len, -310_len}, m_state );
-            lara.m_state.anim = getLevel().findAnimatedModelForType( TR1ItemId::AlternativeLara )
+            lara.m_state.anim = getEngine().findAnimatedModelForType( TR1ItemId::AlternativeLara )
                                           ->animations;
             lara.setCurrentAnimState( LaraStateId::PickUp );
             lara.setGoalAnimState( LaraStateId::PickUp );
             lara.m_state.frame_number = lara.m_state.anim->firstFrame;
-            getLevel().m_cameraController->setMode( CameraMode::Cinematic );
+            getEngine().m_cameraController->setMode( CameraMode::Cinematic );
             lara.setHandStatus( HandStatus::Grabbing );
-            getLevel().m_cameraController->m_cinematicFrame = 0;
-            getLevel().m_cameraController->m_cinematicPos = lara.m_state.position.position;
-            getLevel().m_cameraController->m_cinematicRot = lara.m_state.rotation;
+            getEngine().m_cameraController->m_cinematicFrame = 0;
+            getEngine().m_cameraController->m_cinematicPos = lara.m_state.position.position;
+            getEngine().m_cameraController->m_cinematicRot = lara.m_state.rotation;
         }
     }
     else if( lara.m_state.frame_number == lara.m_state.anim->firstFrame + 44_frame )
     {
         m_state.triggerState = TriggerState::Invisible;
-        getLevel().addInventoryItem( m_state.type );
+        getEngine().addInventoryItem( m_state.type );
         setParent( getNode(), nullptr );
         m_state.collidable = false;
     }

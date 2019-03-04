@@ -1,21 +1,20 @@
 #include "particle.h"
 
-#include "loader/file/level/level.h"
 #include "engine/laranode.h"
 
 namespace engine
 {
 
-void Particle::initDrawables(const loader::file::level::Level& level, const float scale)
+void Particle::initDrawables(const Engine& engine, const float scale)
 {
-    if( const auto& modelType = level.findAnimatedModelForType( object_number ) )
+    if( const auto& modelType = engine.findAnimatedModelForType( object_number ) )
     {
         for( const auto& model : modelType->models )
         {
             m_drawables.emplace_back( model.get() );
         }
     }
-    else if( const auto& spriteSequence = level.findSpriteSequenceForType( object_number ) )
+    else if( const auto& spriteSequence = engine.findSpriteSequenceForType( object_number ) )
     {
         shade = 4096;
 
@@ -24,7 +23,7 @@ void Particle::initDrawables(const loader::file::level::Level& level, const floa
             auto sprite = std::make_shared<gameplay::Sprite>( spr.x0 * scale, -spr.y0 * scale,
                                                               spr.x1 * scale, -spr.y1 * scale,
                                                               spr.t0, spr.t1,
-                                                              level.m_spriteMaterial,
+                                                              engine.m_spriteMaterial,
                                                               gameplay::Sprite::Axis::Y
             );
             m_drawables.emplace_back( sprite );
@@ -55,24 +54,24 @@ glm::vec3 Particle::getPosition() const
 Particle::Particle(const std::string& id,
                    const TR1ItemId objectNumber,
                    const gsl::not_null<const loader::file::Room*>& room,
-                   loader::file::level::Level& level,
+                   Engine& engine,
                    float scale)
-        : Node{id}, Emitter{&level.m_soundEngine}, pos{room}, object_number{objectNumber}
+        : Node{id}, Emitter{&engine.m_soundEngine}, pos{room}, object_number{objectNumber}
 {
-    initDrawables( level, scale );
+    initDrawables( engine, scale );
 }
 
 Particle::Particle(const std::string& id,
                    const TR1ItemId objectNumber,
                    const core::RoomBoundPosition& pos,
-                   loader::file::level::Level& level,
+                   Engine& engine,
                    float scale)
-        : Node{id}, Emitter{&level.m_soundEngine}, pos{pos}, object_number{objectNumber}
+        : Node{id}, Emitter{&engine.m_soundEngine}, pos{pos}, object_number{objectNumber}
 {
-    initDrawables( level, scale );
+    initDrawables( engine, scale );
 }
 
-bool BloodSplatterParticle::update(loader::file::level::Level& level)
+bool BloodSplatterParticle::update(Engine& engine)
 {
     pos.position += util::pitch( speed * 1_frame, angle.Y );
     ++timePerSpriteFrame;
@@ -81,8 +80,7 @@ bool BloodSplatterParticle::update(loader::file::level::Level& level)
 
     timePerSpriteFrame = 0;
     nextFrame();
-    const auto& it = *level.m_spriteSequences.at( object_number );
-    if( negSpriteFrameId <= it.length )
+    if( negSpriteFrameId <= engine.findSpriteSequenceForType(object_number)->length )
     {
         return false;
     }
@@ -91,13 +89,11 @@ bool BloodSplatterParticle::update(loader::file::level::Level& level)
     return true;
 }
 
-bool SplashParticle::update(loader::file::level::Level& level)
+bool SplashParticle::update(Engine& engine)
 {
-    const auto& it = *level.m_spriteSequences.at( object_number );
-
     nextFrame();
 
-    if( negSpriteFrameId <= it.length )
+    if( negSpriteFrameId <= engine.findSpriteSequenceForType( object_number )->length )
     {
         return false;
     }
@@ -108,20 +104,20 @@ bool SplashParticle::update(loader::file::level::Level& level)
     return true;
 }
 
-bool BubbleParticle::update(loader::file::level::Level& level)
+bool BubbleParticle::update(Engine& engine)
 {
     angle.X += 13_deg;
     angle.Y += 9_deg;
     pos.position.X += util::sin( 11_len, angle.Y );
     pos.position.Y -= 1_frame * speed;
     pos.position.Z += util::cos( 8_len, angle.X );
-    auto sector = loader::file::level::Level::findRealFloorSector( pos.position, &pos.room );
+    auto sector = findRealFloorSector( pos.position, &pos.room );
     if( sector == nullptr || !pos.room->isWaterRoom() )
     {
         return false;
     }
 
-    const auto ceiling = HeightInfo::fromCeiling( sector, pos.position, level.m_itemNodes ).y;
+    const auto ceiling = HeightInfo::fromCeiling( sector, pos.position, engine.m_itemNodes ).y;
     if( ceiling == -core::HeightLimit || pos.position.Y <= ceiling )
     {
         return false;
@@ -131,15 +127,15 @@ bool BubbleParticle::update(loader::file::level::Level& level)
     return true;
 }
 
-bool FlameParticle::update(loader::file::level::Level& level)
+bool FlameParticle::update(Engine& engine)
 {
     nextFrame();
-    if( negSpriteFrameId <= level.findSpriteSequenceForType( object_number )->length )
+    if( negSpriteFrameId <= engine.findSpriteSequenceForType( object_number )->length )
         negSpriteFrameId = 0;
 
     if( timePerSpriteFrame >= 0 )
     {
-        level.playSound( TR1SoundId::Burning, this );
+        engine.playSound( TR1SoundId::Burning, this );
         if( timePerSpriteFrame != 0 )
         {
             --timePerSpriteFrame;
@@ -147,22 +143,22 @@ bool FlameParticle::update(loader::file::level::Level& level)
             return true;
         }
 
-        if( level.m_lara->isNear( *this, 600_len ) )
+        if( engine.m_lara->isNear( *this, 600_len ) )
         {
             // it's hot here, isn't it?
-            level.m_lara->m_state.health -= 3_hp;
-            level.m_lara->m_state.is_hit = true;
+            engine.m_lara->m_state.health -= 3_hp;
+            engine.m_lara->m_state.is_hit = true;
 
-            const auto distSq = util::square( level.m_lara->m_state.position.position.X - pos.position.X )
-                                + util::square( level.m_lara->m_state.position.position.Z - pos.position.Z );
+            const auto distSq = util::square( engine.m_lara->m_state.position.position.X - pos.position.X )
+                                + util::square( engine.m_lara->m_state.position.position.Z - pos.position.Z );
             if( distSq < util::square( 300_len ) )
             {
                 timePerSpriteFrame = 100;
 
-                const auto particle = std::make_shared<FlameParticle>( pos, level );
+                const auto particle = std::make_shared<FlameParticle>( pos, engine );
                 particle->timePerSpriteFrame = -1;
                 setParent( particle, pos.room->node );
-                level.m_particles.emplace_back( particle );
+                engine.m_particles.emplace_back( particle );
             }
         }
     }
@@ -180,9 +176,9 @@ bool FlameParticle::update(loader::file::level::Level& level)
             pos.position.Y = 0_len;
         }
 
-        const auto itemSpheres = level.m_lara->getSkeleton()->getBoneCollisionSpheres(
-                level.m_lara->m_state,
-                *level.m_lara->getSkeleton()->getInterpolationInfo( level.m_lara->m_state ).getNearestFrame(),
+        const auto itemSpheres = engine.m_lara->getSkeleton()->getBoneCollisionSpheres(
+                engine.m_lara->m_state,
+                *engine.m_lara->getSkeleton()->getInterpolationInfo( engine.m_lara->m_state ).getNearestFrame(),
                 nullptr );
 
         pos.position = core::TRVec{
@@ -192,14 +188,14 @@ bool FlameParticle::update(loader::file::level::Level& level)
         const auto waterHeight = pos.room->getWaterSurfaceHeight( pos );
         if( !waterHeight.is_initialized() || waterHeight.get() >= pos.position.Y )
         {
-            level.playSound( TR1SoundId::Burning, this );
-            level.m_lara->m_state.health -= 3_hp;
-            level.m_lara->m_state.is_hit = true;
+            engine.playSound( TR1SoundId::Burning, this );
+            engine.m_lara->m_state.health -= 3_hp;
+            engine.m_lara->m_state.is_hit = true;
         }
         else
         {
             timePerSpriteFrame = 0;
-            level.stopSound( TR1SoundId::Burning, this );
+            engine.stopSound( TR1SoundId::Burning, this );
             return false;
         }
     }

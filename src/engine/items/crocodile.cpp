@@ -1,6 +1,7 @@
 #include "crocodile.h"
 
 #include "engine/laranode.h"
+#include "engine/particle.h"
 
 namespace engine
 {
@@ -13,19 +14,19 @@ void Crocodile::update()
         m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo( getLevel() );
+    m_state.initCreatureInfo( getEngine() );
 
     if( m_state.type == TR1ItemId::CrocodileInWater )
     {
         core::Angle headRot = 0_deg;
         if( m_state.health > 0_hp )
         {
-            const ai::AiInfo aiInfo{getLevel(), m_state};
+            const ai::AiInfo aiInfo{getEngine(), m_state};
             if( aiInfo.ahead )
             {
                 headRot = aiInfo.angle;
             }
-            updateMood( getLevel(), m_state, aiInfo, true );
+            updateMood( getEngine(), m_state, aiInfo, true );
             rotateTowardsTarget( 3_deg );
             if( m_state.current_anim_state == 1_as )
             {
@@ -48,8 +49,8 @@ void Crocodile::update()
                     if( m_state.required_anim_state == 0_as )
                     {
                         emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
-                        getLevel().m_lara->m_state.health -= 100_hp;
-                        getLevel().m_lara->m_state.is_hit = true;
+                        getEngine().m_lara->m_state.health -= 100_hp;
+                        getEngine().m_lara->m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
                     }
                 }
@@ -69,7 +70,7 @@ void Crocodile::update()
             }
             else
             {
-                m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[0];
+                m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[0];
                 m_state.type = TR1ItemId::CrocodileOnLand;
                 m_state.frame_number = m_state.anim->firstFrame;
                 m_state.rotation.X = 0_deg;
@@ -88,7 +89,7 @@ void Crocodile::update()
         {
             if( m_state.current_anim_state != 3_as )
             {
-                m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileInWater )->animations[4];
+                m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::CrocodileInWater )->animations[4];
                 m_state.current_anim_state = 3_as;
                 m_state.health = -16384_hp;
                 m_state.frame_number = m_state.anim->firstFrame;
@@ -107,22 +108,22 @@ void Crocodile::update()
             }
             else
             {
-                m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[11];
+                m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[11];
                 m_state.type = TR1ItemId::CrocodileOnLand;
                 m_state.goal_anim_state = 7_as;
                 m_state.frame_number = m_state.anim->firstFrame;
                 m_state.current_anim_state = m_state.goal_anim_state;
                 auto room = m_state.position.room;
-                auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
+                auto sector = loader::file::findRealFloorSector( m_state.position.position, &room );
                 m_state.position.position.Y = HeightInfo::fromFloor( sector,
                                                                      m_state.position.position,
-                                                                     getLevel().m_itemNodes ).y;
+                                                                     getEngine().m_itemNodes ).y;
                 m_state.rotation.X = 0_deg;
             }
             ModelItemNode::update();
             auto room = m_state.position.room;
-            auto sector = loader::file::level::Level::findRealFloorSector( m_state.position.position, &room );
-            m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getLevel().m_itemNodes ).y;
+            auto sector = loader::file::findRealFloorSector( m_state.position.position, &room );
+            m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes ).y;
             setCurrentRoom( room );
         }
     }
@@ -133,12 +134,12 @@ void Crocodile::update()
         core::Angle headRot = 0_deg;
         if( m_state.health > 0_hp )
         {
-            const ai::AiInfo aiInfo{getLevel(), m_state};
+            const ai::AiInfo aiInfo{getEngine(), m_state};
             if( aiInfo.ahead )
             {
                 headRot = aiInfo.angle;
             }
-            updateMood( getLevel(), m_state, aiInfo, true );
+            updateMood( getEngine(), m_state, aiInfo, true );
             if( m_state.current_anim_state == 4_as )
             {
                 m_state.rotation.Y += 6_deg;
@@ -233,8 +234,8 @@ void Crocodile::update()
                     if( m_state.required_anim_state == 0_as )
                     {
                         emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
-                        getLevel().m_lara->m_state.health -= 100_hp;
-                        getLevel().m_lara->m_state.is_hit = true;
+                        getEngine().m_lara->m_state.health -= 100_hp;
+                        getEngine().m_lara->m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
                     }
                     break;
@@ -246,7 +247,7 @@ void Crocodile::update()
         {
             if( m_state.current_anim_state != 7_as )
             {
-                m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[11];
+                m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[11];
                 m_state.current_anim_state = 7_as;
                 m_state.frame_number = m_state.anim->firstFrame;
             }
@@ -257,7 +258,7 @@ void Crocodile::update()
         }
         if( m_state.position.room->isWaterRoom() )
         {
-            m_state.anim = &getLevel().findAnimatedModelForType( TR1ItemId::CrocodileInWater )->animations[0];
+            m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::CrocodileInWater )->animations[0];
             m_state.type = TR1ItemId::CrocodileInWater;
             m_state.frame_number = m_state.anim->firstFrame;
             m_state.goal_anim_state = m_state.anim->state_id;

@@ -1,7 +1,7 @@
 #include "pickupitem.h"
 
-#include "loader/file/level/level.h"
 #include "engine/laranode.h"
+#include "engine/inputhandler.h"
 
 namespace engine
 {
@@ -40,13 +40,13 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             if( lara.m_state.frame_number == 2970_frame )
             {
                 m_state.triggerState = TriggerState::Invisible;
-                getLevel().addInventoryItem( m_state.type );
+                getEngine().addInventoryItem( m_state.type );
                 setParent( getNode(), nullptr );
                 m_state.collidable = false;
                 return;
             }
         }
-        else if( getLevel().m_inputHandler->getInputState().action
+        else if( getEngine().m_inputHandler->getInputState().action
                  && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop
                  && lara.alignTransform( aimSpeed, *this ) )
         {
@@ -80,7 +80,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             {
                 if( m_state.type == TR1ItemId::ShotgunSprite )
                 {
-                    const auto& shotgunLara = *getLevel().m_animatedModels[TR1ItemId::LaraShotgunAnim];
+                    const auto& shotgunLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
                     BOOST_ASSERT(
                             gsl::narrow<size_t>( shotgunLara.meshes.size() ) == lara.getNode()->getChildren().size() );
 
@@ -88,14 +88,14 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 }
 
                 m_state.triggerState = TriggerState::Invisible;
-                getLevel().addInventoryItem( m_state.type );
+                getEngine().addInventoryItem( m_state.type );
                 setParent( getNode(), nullptr );
                 m_state.collidable = false;
             }
         }
         else
         {
-            if( getLevel().m_inputHandler->getInputState().action
+            if( getEngine().m_inputHandler->getInputState().action
                 && lara.getHandStatus() == HandStatus::None
                 && !lara.m_state.falling
                 && lara.getCurrentAnimState() == LaraStateId::Stop )

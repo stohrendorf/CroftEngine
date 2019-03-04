@@ -3,7 +3,6 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/inputstate.h"
-#include "loader/file/level/level.h"
 
 namespace engine
 {
@@ -22,7 +21,7 @@ public:
     {
         collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
         setCameraRotationAroundCenterY( 75_deg );
-        if( !getLevel().m_inputHandler->getInputState().action )
+        if( !getEngine().m_inputHandler->getInputState().action )
         {
             setGoalAnimState( LaraStateId::Stop );
         }
