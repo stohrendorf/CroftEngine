@@ -7,6 +7,7 @@ in vec2 v_texCoord;
 in vec3 v_color;
 in vec3 v_vertexPos;
 in vec3 v_normal;
+in vec3 v_camspaceVertexPos;
 
 out vec4 out_color;
 
@@ -85,6 +86,6 @@ void main()
     out_color.rgb *= clamp(abs(voronoi(v_vertexPos * Scale2))*1.2+0.2, 0, 1.2);
 #endif
 
-    out_color *= calc_positional_lighting(v_normal, v_vertexPos);
+    out_color *= calc_positional_lighting(v_normal, v_vertexPos, v_camspaceVertexPos);
     out_color.a = 1;
 }
