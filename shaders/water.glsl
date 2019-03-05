@@ -6,8 +6,6 @@ const float Frq2 = 19.7;
 const float TimeMult2 = 0.002;
 const float Amplitude2 = 0.0125;
 
-uniform float u_time;
-
 void do_water_distortion_frq(inout vec2 uv, in float timeMult, in float frq, in float amplitude)
 {
     vec2 phase = vec2(u_time * timeMult) + uv * frq;

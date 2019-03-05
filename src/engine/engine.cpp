@@ -2064,6 +2064,13 @@ Engine::Engine()
                 uniform.set( game->getAspectRatio() );
             } );
     depthDarknessFx->getMaterial()->getParameter( "distortion_power" )->set( -1.0f );
+    depthDarknessFx->getMaterial()->getParameter( "u_time" )->bind(
+            [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
+                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( game->getGameTime() );
+                uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
+            }
+    );
+
     depthDarknessWaterFx = std::make_shared<render::FullScreenFX>( *game,
                                                                    gameplay::ShaderProgram::createFromFile(
                                                                            "shaders/fx_darkness.vert",
