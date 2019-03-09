@@ -63,21 +63,21 @@ void ThorHammerHandle::update()
                 {
                     posX -= 3 * core::SectorSize;
                 }
-                if( getEngine().m_lara->m_state.health >= 0_hp )
+                if( getEngine().getLara().m_state.health >= 0_hp )
                 {
-                    if( posX - 520_len < getEngine().m_lara->m_state.position.position.X
-                        && posX + 520_len > getEngine().m_lara->m_state.position.position.X
-                        && posZ - 520_len < getEngine().m_lara->m_state.position.position.Z
-                        && posZ + 520_len > getEngine().m_lara->m_state.position.position.Z )
+                    if( posX - 520_len < getEngine().getLara().m_state.position.position.X
+                        && posX + 520_len > getEngine().getLara().m_state.position.position.X
+                        && posZ - 520_len < getEngine().getLara().m_state.position.position.Z
+                        && posZ + 520_len > getEngine().getLara().m_state.position.position.Z )
                     {
-                        getEngine().m_lara->m_state.health = -1_hp;
-                        getEngine().m_lara->m_state.anim = &getEngine()
+                        getEngine().getLara().m_state.health = -1_hp;
+                        getEngine().getLara().m_state.anim = &getEngine()
                                 .findAnimatedModelForType( engine::TR1ItemId::Lara )->animations[139];
-                        getEngine().m_lara->m_state.frame_number = 3561_frame;
-                        getEngine().m_lara->setCurrentAnimState( LaraStateId::BoulderDeath );
-                        getEngine().m_lara->setGoalAnimState( LaraStateId::BoulderDeath );
-                        getEngine().m_lara->m_state.position.position.Y = m_state.position.position.Y;
-                        getEngine().m_lara->m_state.falling = false;
+                        getEngine().getLara().m_state.frame_number = 3561_frame;
+                        getEngine().getLara().setCurrentAnimState( LaraStateId::BoulderDeath );
+                        getEngine().getLara().setGoalAnimState( LaraStateId::BoulderDeath );
+                        getEngine().getLara().m_state.position.position.Y = m_state.position.position.Y;
+                        getEngine().getLara().m_state.falling = false;
                     }
                 }
             }
@@ -85,8 +85,8 @@ void ThorHammerHandle::update()
         case 3:
         {
             const auto sector = loader::file::findRealFloorSector( m_state.position.position, m_state.position.room );
-            const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes );
-            getEngine().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
+            const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().getItemNodes() );
+            getEngine().getLara().handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
 
             const auto oldPosX = m_state.position.position.X;
             const auto oldPosZ = m_state.position.position.Z;
@@ -106,7 +106,7 @@ void ThorHammerHandle::update()
             {
                 m_state.position.position.X -= 3 * core::SectorSize;
             }
-            if( getEngine().m_lara->m_state.health >= 0_hp )
+            if( getEngine().getLara().m_state.health >= 0_hp )
             {
                 m_state.position.room->patchHeightsForBlock( *this, -2 * core::SectorSize );
             }

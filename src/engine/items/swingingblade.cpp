@@ -27,25 +27,25 @@ void SwingingBlade::update()
 
     if( m_state.current_anim_state == 2_as && m_state.touch_bits.any() )
     {
-        getEngine().m_lara->m_state.is_hit = true;
-        getEngine().m_lara->m_state.health -= 100_hp;
+        getEngine().getLara().m_state.is_hit = true;
+        getEngine().getLara().m_state.health -= 100_hp;
 
         const core::TRVec splatPos{
-                getEngine().m_lara->m_state.position.position.X + util::rand15s( 128_len, core::Length::type() ),
-                getEngine().m_lara->m_state.position.position.Y - util::rand15( 745_len, core::Length::type() ),
-                getEngine().m_lara->m_state.position.position.Z + util::rand15s( 128_len, core::Length::type() )
+                getEngine().getLara().m_state.position.position.X + util::rand15s( 128_len, core::Length::type() ),
+                getEngine().getLara().m_state.position.position.Y - util::rand15( 745_len, core::Length::type() ),
+                getEngine().getLara().m_state.position.position.Z + util::rand15s( 128_len, core::Length::type() )
         };
         auto fx = createBloodSplat( getEngine(),
                                     core::RoomBoundPosition{m_state.position.room, splatPos},
-                                    getEngine().m_lara->m_state.speed,
-                                    getEngine().m_lara->m_state.rotation.Y + util::rand15s( +22_deg ) );
-        getEngine().m_particles.emplace_back( fx );
+                                    getEngine().getLara().m_state.speed,
+                                    getEngine().getLara().m_state.rotation.Y + util::rand15s( +22_deg ) );
+        getEngine().getParticles().emplace_back( fx );
     }
 
     auto room = m_state.position.room;
     const auto sector = loader::file::findRealFloorSector( m_state.position.position, &room );
     setCurrentRoom( room );
-    m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes ).y;
+    m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().getItemNodes() ).y;
 
     ModelItemNode::update();
 }

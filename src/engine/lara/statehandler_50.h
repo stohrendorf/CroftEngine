@@ -55,7 +55,7 @@ public:
             p.Z += util::rand15s( r, core::Length::type() );
             auto fx = std::make_shared<SparkleParticle>(
                     core::RoomBoundPosition{lara.m_state.position.room, p}, engine );
-            engine.m_particles.emplace_back( fx );
+            engine.getParticles().emplace_back( fx );
         }
     }
 };

@@ -25,7 +25,7 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     if( lara.getCurrentAnimState() != LaraStateId::PickUp )
     {
-        if( getEngine().m_inputHandler->getInputState().action
+        if( getEngine().getInputHandler().getInputState().action
             && lara.getHandStatus() == HandStatus::None
             && !lara.m_state.falling
             && lara.getCurrentAnimState() == LaraStateId::Stop )
@@ -36,11 +36,11 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             lara.setCurrentAnimState( LaraStateId::PickUp );
             lara.setGoalAnimState( LaraStateId::PickUp );
             lara.m_state.frame_number = lara.m_state.anim->firstFrame;
-            getEngine().m_cameraController->setMode( CameraMode::Cinematic );
+            getEngine().getCameraController().setMode( CameraMode::Cinematic );
             lara.setHandStatus( HandStatus::Grabbing );
-            getEngine().m_cameraController->m_cinematicFrame = 0;
-            getEngine().m_cameraController->m_cinematicPos = lara.m_state.position.position;
-            getEngine().m_cameraController->m_cinematicRot = lara.m_state.rotation;
+            getEngine().getCameraController().m_cinematicFrame = 0;
+            getEngine().getCameraController().m_cinematicPos = lara.m_state.position.position;
+            getEngine().getCameraController().m_cinematicRot = lara.m_state.rotation;
         }
     }
     else if( lara.m_state.frame_number == lara.m_state.anim->firstFrame + 44_frame )

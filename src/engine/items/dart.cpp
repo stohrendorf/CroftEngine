@@ -25,8 +25,8 @@ void Dart::update()
 {
     if( m_state.touch_bits != 0 )
     {
-        getEngine().m_lara->m_state.health -= 50_hp;
-        getEngine().m_lara->m_state.is_hit = true;
+        getEngine().getLara().m_state.health -= 50_hp;
+        getEngine().getLara().m_state.is_hit = true;
 
         auto fx = createBloodSplat(
                 getEngine(),
@@ -34,7 +34,7 @@ void Dart::update()
                 m_state.speed,
                 m_state.rotation.Y
         );
-        getEngine().m_particles.emplace_back( fx );
+        getEngine().getParticles().emplace_back( fx );
     }
 
     ModelItemNode::update();
@@ -44,7 +44,7 @@ void Dart::update()
     if( room != m_state.position.room )
         setCurrentRoom( room );
 
-    const HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes );
+    const HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().getItemNodes() );
     m_state.floor = h.y;
 
     if( m_state.position.position.Y < m_state.floor )
@@ -56,7 +56,7 @@ void Dart::update()
     setParent( particle, m_state.position.room->node );
     particle->angle = m_state.rotation;
     particle->timePerSpriteFrame = 6;
-    getEngine().m_particles.emplace_back( particle );
+    getEngine().getParticles().emplace_back( particle );
 }
 }
 }

@@ -53,7 +53,7 @@ ItemNode::ItemNode(const gsl::not_null<Engine*>& engine,
                    const loader::file::Item& item,
                    const bool hasUpdateFunction)
         : m_engine{engine}
-        , m_state{&engine->m_soundEngine, room, item.type}
+        , m_state{&engine->getSoundEngine(), room, item.type}
         , m_hasUpdateFunction{hasUpdateFunction}
 {
     BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
@@ -237,7 +237,7 @@ std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const TR1SoundId 
 
 bool ItemNode::triggerKey()
 {
-    if( getEngine().m_lara->getHandStatus() != HandStatus::None )
+    if( getEngine().getLara().getHandStatus() != HandStatus::None )
     {
         return false;
     }
@@ -253,9 +253,9 @@ bool ItemNode::triggerKey()
 
 void ItemNode::kill()
 {
-    if( this == getEngine().m_lara->target.get() )
+    if( this == getEngine().getLara().target.get() )
     {
-        getEngine().m_lara->target.reset();
+        getEngine().getLara().target.reset();
     }
     getEngine().scheduleDeletion( this );
     m_state.activationState.setLocked( true );
@@ -504,15 +504,15 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
         const auto midZ = (keyFrame->bbox.toBBox().minZ + keyFrame->bbox.toBBox().maxZ) / 2;
         const auto tmp = laraPosWorld - util::pitch( core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y );
         const auto a = core::Angle::fromAtan( tmp.X, tmp.Z ) - 180_deg;
-        getEngine().m_lara->hit_direction = core::axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
-        if( getEngine().m_lara->hit_frame == 0_frame )
+        getEngine().getLara().hit_direction = core::axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
+        if( getEngine().getLara().hit_frame == 0_frame )
         {
             lara.playSoundEffect( TR1SoundId::LaraOof );
         }
-        getEngine().m_lara->hit_frame += 1_frame;
-        if( getEngine().m_lara->hit_frame > 34_frame )
+        getEngine().getLara().hit_frame += 1_frame;
+        if( getEngine().getLara().hit_frame > 34_frame )
         {
-            getEngine().m_lara->hit_frame = 34_frame;
+            getEngine().getLara().hit_frame = 34_frame;
         }
     }
     collisionInfo.badPositiveDistance = core::HeightLimit;
@@ -588,7 +588,7 @@ gsl::not_null<std::shared_ptr<Particle>> ModelItemNode::emitParticle(const core:
     roomPos.position = core::TRVec{
             glm::vec3{translate( itemSpheres.at( boneIndex ).m, localPosition.toRenderSystem() )[3]}};
     auto particle = generate( getEngine(), roomPos, m_state.speed, m_state.rotation.Y );
-    getEngine().m_particles.emplace_back( particle );
+    getEngine().getParticles().emplace_back( particle );
 
     return particle;
 }
@@ -610,15 +610,15 @@ YAML::Node ModelItemNode::save() const
 
 bool ItemState::stalkBox(const Engine& engine, const loader::file::Box& box) const
 {
-    const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - engine.m_lara->m_state.position.position.X;
-    const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - engine.m_lara->m_state.position.position.Z;
+    const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - engine.getLara().m_state.position.position.X;
+    const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - engine.getLara().m_state.position.position.Z;
 
     if( abs( laraToBoxDistX ) > 3 * core::SectorSize || abs( laraToBoxDistZ ) > 3 * core::SectorSize )
     {
         return false;
     }
 
-    const auto laraAxisBack = *axisFromAngle( engine.m_lara->m_state.rotation.Y + 180_deg, 45_deg );
+    const auto laraAxisBack = *axisFromAngle( engine.getLara().m_state.rotation.Y + 180_deg, 45_deg );
     core::Axis laraToBoxAxis;
     if( laraToBoxDistZ > 0_len )
     {
@@ -648,9 +648,9 @@ bool ItemState::stalkBox(const Engine& engine, const loader::file::Box& box) con
     }
 
     core::Axis itemToLaraAxis;
-    if( position.position.Z <= engine.m_lara->m_state.position.position.Z )
+    if( position.position.Z <= engine.getLara().m_state.position.position.Z )
     {
-        if( position.position.X <= engine.m_lara->m_state.position.position.X )
+        if( position.position.X <= engine.getLara().m_state.position.position.X )
         {
             itemToLaraAxis = core::Axis::PosZ;
         }
@@ -661,7 +661,7 @@ bool ItemState::stalkBox(const Engine& engine, const loader::file::Box& box) con
     }
     else
     {
-        if( position.position.X > engine.m_lara->m_state.position.position.X )
+        if( position.position.X > engine.getLara().m_state.position.position.X )
         {
             itemToLaraAxis = core::Axis::PosX;
         }
@@ -697,8 +697,7 @@ bool ItemState::isInsideZoneButNotInBox(const Engine& engine,
 {
     Expects( creatureInfo != nullptr );
 
-    const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped, creatureInfo->lot.fly,
-                                                  creatureInfo->lot.step );
+    const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped(), creatureInfo->lot.fly, creatureInfo->lot.step );
 
     if( zoneId != box.*zoneRef )
     {
@@ -719,13 +718,13 @@ bool ItemState::isInsideZoneButNotInBox(const Engine& engine,
 
 bool ItemState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& box) const
 {
-    const auto laraToBoxX = (box.xmin + box.xmax) / 2 - engine.m_lara->m_state.position.position.X;
-    const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - engine.m_lara->m_state.position.position.Z;
+    const auto laraToBoxX = (box.xmin + box.xmax) / 2 - engine.getLara().m_state.position.position.X;
+    const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - engine.getLara().m_state.position.position.Z;
     if( abs( laraToBoxX ) < 5 * core::SectorSize && abs( laraToBoxZ ) < 5 * core::SectorSize )
         return false;
 
-    const auto laraToNpcX = position.position.X - engine.m_lara->m_state.position.position.X;
-    const auto laraToNpcZ = position.position.Z - engine.m_lara->m_state.position.position.Z;
+    const auto laraToNpcX = position.position.X - engine.getLara().m_state.position.position.X;
+    const auto laraToNpcZ = position.position.Z - engine.getLara().m_state.position.position.Z;
     return ((laraToNpcZ > 0_len) == (laraToBoxZ > 0_len)) || ((laraToNpcX > 0_len) == (laraToBoxX > 0_len));
 
 }
@@ -873,7 +872,7 @@ void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
 {
     const auto particle = std::make_shared<RicochetParticle>( pos, getEngine() );
     setParent( particle, m_state.position.room->node );
-    getEngine().m_particles.emplace_back( particle );
+    getEngine().getParticles().emplace_back( particle );
     getEngine().playSound( TR1SoundId::Ricochet, particle.get() );
 }
 

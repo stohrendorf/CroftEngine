@@ -28,9 +28,9 @@ void engine::items::RollingBall::update()
         auto room = m_state.position.room;
         auto sector = loader::file::findRealFloorSector( m_state.position.position, &room );
         setCurrentRoom( room );
-        const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes );
+        const auto hi = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().getItemNodes() );
         m_state.floor = hi.y;
-        getEngine().m_lara->handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
+        getEngine().getLara().handleCommandSequence( hi.lastCommandSequenceOrDeath, true );
         if( m_state.floor - core::QuarterSectorSize <= m_state.position.position.Y )
         {
             m_state.fallspeed = 0_spd;
@@ -41,7 +41,7 @@ void engine::items::RollingBall::update()
         // let's see if we hit a wall, and if that's the case, stop.
         const auto testPos = m_state.position.position + util::pitch(core::SectorSize/2, m_state.rotation.Y);
         sector = loader::file::findRealFloorSector( testPos, room );
-        if( HeightInfo::fromFloor( sector, testPos, getEngine().m_itemNodes ).y < m_state.position.position.Y )
+        if( HeightInfo::fromFloor( sector, testPos, getEngine().getItemNodes() ).y < m_state.position.position.Y )
         {
             m_state.fallspeed = 0_spd;
             m_state.touch_bits.reset();
@@ -99,8 +99,8 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
         lara.m_state.health = -1_hp;
         lara.setCurrentRoom( m_state.position.room );
         lara.setAnimation( AnimationId::SQUASH_BOULDER, 3561_frame );
-        getEngine().m_cameraController->setModifier( CameraModifier::FollowCenter );
-        getEngine().m_cameraController->setEyeRotation( -25_deg, 170_deg );
+        getEngine().getCameraController().setModifier( CameraModifier::FollowCenter );
+        getEngine().getCameraController().setEyeRotation( -25_deg, 170_deg );
         lara.m_state.rotation.X = 0_deg;
         lara.m_state.rotation.Y = m_state.rotation.Y;
         lara.m_state.rotation.Z = 0_deg;
@@ -116,7 +116,7 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
                     2 * m_state.speed,
                     core::Angle( gsl::narrow_cast<int16_t>( util::rand15s( 4096 ) ) ) + m_state.rotation.Y
             );
-            getEngine().m_particles.emplace_back( fx );
+            getEngine().getParticles().emplace_back( fx );
         }
         return;
     }
@@ -151,5 +151,5 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
             m_state.speed,
             m_state.rotation.Y
     );
-    getEngine().m_particles.emplace_back( fx );
+    getEngine().getParticles().emplace_back( fx );
 }

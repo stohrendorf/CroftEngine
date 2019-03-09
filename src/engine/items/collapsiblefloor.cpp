@@ -15,7 +15,7 @@ void CollapsibleFloor::update()
 
     if( m_state.current_anim_state == 0_as ) // stationary
     {
-        if( m_state.position.position.Y - 512_len != getEngine().m_lara->m_state.position.position.Y )
+        if( m_state.position.position.Y - 512_len != getEngine().getLara().m_state.position.position.Y )
         {
             m_state.triggerState = TriggerState::Inactive;
             deactivate();
@@ -44,7 +44,7 @@ void CollapsibleFloor::update()
     const auto sector = loader::file::findRealFloorSector( m_state.position.position, &room );
     setCurrentRoom( room );
 
-    const HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes );
+    const HeightInfo h = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().getItemNodes() );
     m_state.floor = h.y;
     if( m_state.current_anim_state != 2_as || m_state.position.position.Y < h.y )
         return;

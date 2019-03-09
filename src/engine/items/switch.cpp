@@ -9,7 +9,7 @@ namespace items
 {
 void Switch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
-    if( !getEngine().m_inputHandler->getInputState().action )
+    if( !getEngine().getInputHandler().getInputState().action )
         return;
 
     if( lara.getHandStatus() != HandStatus::None )

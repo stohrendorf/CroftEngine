@@ -10,7 +10,7 @@ Mummy::Mummy(const gsl::not_null<Engine*>& engine, const gsl::not_null<const loa
              const loader::file::Item& item, const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{engine, room, item, true, animatedModel}
 {
-    m_state.health = engine->m_scriptEngine["getObjectInfo"].call<sol::table>( m_state.type )["hit_points"];
+    m_state.health = engine->getScriptEngine()["getObjectInfo"].call<sol::table>( m_state.type )["hit_points"];
 }
 
 void Mummy::update()
@@ -18,8 +18,8 @@ void Mummy::update()
     if( m_state.current_anim_state == 1_as )
     {
         auto head = core::Angle::fromAtan(
-                getEngine().m_lara->m_state.position.position.X - m_state.position.position.X,
-                getEngine().m_lara->m_state.position.position.Z - m_state.position.position.Z );
+                getEngine().getLara().m_state.position.position.X - m_state.position.position.X,
+                getEngine().getLara().m_state.position.position.Z - m_state.position.position.Z );
         head = util::clamp( head - m_state.rotation.Y, -90_deg, +90_deg );
         m_headRotation += util::clamp( head - m_headRotation, -5_deg, +5_deg );
         getSkeleton()->patchBone( 3, core::TRRotation{0_deg, m_headRotation, 0_deg}.toMatrix() );

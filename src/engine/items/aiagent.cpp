@@ -60,9 +60,9 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
 
 bool AIAgent::anyMovingEnabledItemInReach() const
 {
-    for( const auto& item : getEngine().m_itemNodes | boost::adaptors::map_values )
+    for( const auto& item : getEngine().getItemNodes() | boost::adaptors::map_values )
     {
-        if( !item->m_isActive || item.get().get() == this || item.get() == getEngine().m_lara )
+        if( !item->m_isActive || item.get().get() == this || item.get().get() == &getEngine().getLara() )
             continue;
 
         if( item->m_state.triggerState == TriggerState::Active
@@ -86,8 +86,8 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto oldPosition = m_state.position.position;
 
     const auto boxFloor = m_state.box->floor;
-    const auto zoneRef = loader::file::Box::getZoneRef( getEngine().roomsAreSwapped, creatureInfo->lot.fly,
-                                                  creatureInfo->lot.step );
+    const auto zoneRef = loader::file::Box::getZoneRef( getEngine().roomsAreSwapped(), creatureInfo->lot.fly,
+                                                        creatureInfo->lot.step );
     ModelItemNode::update();
     if( m_state.triggerState == TriggerState::Deactivated )
     {
@@ -167,7 +167,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto inSectorX = basePosX % core::SectorSize;
     const auto inSectorZ = basePosZ % core::SectorSize;
 
-    sol::table objectInfo = getEngine().m_scriptEngine["getObjectInfo"].call( m_state.type );
+    sol::table objectInfo = getEngine().getScriptEngine()["getObjectInfo"].call( m_state.type );
     const core::Length radius{static_cast<core::Length::type>(objectInfo["radius"])};
 
     core::Length moveX = 0_len;
@@ -326,7 +326,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                       bboxMinY,
                                                       m_state.position.position.Z
                                               },
-                                              getEngine().m_itemNodes ).y;
+                                              getEngine().getItemNodes() ).y;
 
         if( m_state.position.position.Y + moveY > currentFloor )
         {
@@ -353,7 +353,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                                   bboxMinY,
                                                                   m_state.position.position.Z
                                                           },
-                                                          getEngine().m_itemNodes ).y;
+                                                          getEngine().getItemNodes() ).y;
 
             const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.minY;
 
@@ -379,7 +379,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                        bboxMinY,
                                                        m_state.position.position.Z
                                                },
-                                               getEngine().m_itemNodes ).y;
+                                               getEngine().getItemNodes() ).y;
 
         core::Angle yaw{0};
         if( m_state.speed != 0_spd )
@@ -413,7 +413,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     m_state.rotation.X = 0_au;
 
     sector = loader::file::findRealFloorSector( m_state.position.position, &room );
-    m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes ).y;
+    m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().getItemNodes() ).y;
 
     setCurrentRoom( room );
 
@@ -425,13 +425,13 @@ AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{engine, room, item, true, animatedModel}
-        , m_collisionRadius{static_cast<core::Length::type>(engine->m_scriptEngine["getObjectInfo"]
+        , m_collisionRadius{static_cast<core::Length::type>(engine->getScriptEngine()["getObjectInfo"]
                 .call<sol::table>( m_state.type )["radius"])}
 {
     m_state.collidable = true;
     const core::Angle v = core::Angle( util::rand15() * 2 );
     m_state.rotation.Y += v;
-    m_state.health = core::Health{static_cast<core::Health::type>(engine->m_scriptEngine["getObjectInfo"]
+    m_state.health = core::Health{static_cast<core::Health::type>(engine->getScriptEngine()["getObjectInfo"]
             .call<sol::table>( m_state.type )["hit_points"])};
 }
 
@@ -459,7 +459,7 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
     }
 
     auto start = m_state.position;
-    auto end = getEngine().m_lara->m_state.position;
+    auto end = getEngine().getLara().m_state.position;
     end.position.Y -= 768_len;
     return CameraController::clampPosition( start, end, getEngine() );
 }
@@ -490,22 +490,22 @@ bool AIAgent::tryShootAtLara(engine::items::ModelItemNode& item,
         {
             isHit = true;
 
-            getEngine().m_lara->emitParticle( core::TRVec{},
-                                             util::rand15( getEngine().m_lara->getNode()->getChildren().size() ),
-                                             &createBloodSplat );
+            getEngine().getLara().emitParticle( core::TRVec{},
+                                                util::rand15( getEngine().getLara().getNode()->getChildren().size() ),
+                                                &createBloodSplat );
 
-            if( !getEngine().m_lara->isInWater() )
-                getEngine().m_lara->playSoundEffect( TR1SoundId::BulletHitsLara );
+            if( !getEngine().getLara().isInWater() )
+                getEngine().getLara().playSoundEffect( TR1SoundId::BulletHitsLara );
         }
     }
 
     if( !isHit )
     {
-        auto pos = getEngine().m_lara->m_state.position;
+        auto pos = getEngine().getLara().m_state.position;
         pos.position.X += util::rand15s( core::SectorSize / 2, core::Length::type() );
-        pos.position.Y = getEngine().m_lara->m_state.floor;
+        pos.position.Y = getEngine().getLara().m_state.floor;
         pos.position.Z += util::rand15s( core::SectorSize / 2, core::Length::type() );
-        getEngine().m_lara->playShotMissed( pos );
+        getEngine().getLara().playShotMissed( pos );
     }
 
     auto p = item.emitParticle( bonePos, boneIndex, &createGunFlare );

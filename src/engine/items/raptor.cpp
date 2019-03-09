@@ -111,8 +111,8 @@ void Raptor::update()
                         if( m_state.touch_bits.to_ulong() & 0xff7c00UL )
                         {
                             emitParticle( core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat );
-                            getEngine().m_lara->m_state.is_hit = true;
-                            getEngine().m_lara->m_state.health -= 100_hp;
+                            getEngine().getLara().m_state.is_hit = true;
+                            getEngine().getLara().m_state.health -= 100_hp;
                             m_state.required_anim_state = 1_as;
                         }
                     }
@@ -125,8 +125,8 @@ void Raptor::update()
                     if( m_state.touch_bits.to_ulong() & 0xff7c00UL )
                     {
                         emitParticle( core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat );
-                        getEngine().m_lara->m_state.is_hit = true;
-                        getEngine().m_lara->m_state.health -= 100_hp;
+                        getEngine().getLara().m_state.is_hit = true;
+                        getEngine().getLara().m_state.health -= 100_hp;
                         m_state.required_anim_state = 3_as;
                     }
                 }
@@ -136,8 +136,8 @@ void Raptor::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0xff7c00UL) )
                 {
                     emitParticle( core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat );
-                    getEngine().m_lara->m_state.is_hit = true;
-                    getEngine().m_lara->m_state.health -= 100_hp;
+                    getEngine().getLara().m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 100_hp;
                     m_state.required_anim_state = 1_as;
                 }
                 break;

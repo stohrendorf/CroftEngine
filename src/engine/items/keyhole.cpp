@@ -19,7 +19,7 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     if( lara.getCurrentAnimState() != LaraStateId::Stop )
         return;
 
-    if( !getEngine().m_inputHandler->getInputState().action
+    if( !getEngine().getInputHandler().getInputState().action
         || lara.getHandStatus() != HandStatus::None
         || lara.m_state.falling
         || !limits.canInteract( m_state, lara.m_state ) )

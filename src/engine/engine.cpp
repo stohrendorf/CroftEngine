@@ -148,7 +148,7 @@ void Engine::swapAllRooms()
         swapWithAlternate( room, m_level->m_rooms.at( room.alternateRoom.get() ) );
     }
 
-    roomsAreSwapped = !roomsAreSwapped;
+    m_roomsAreSwapped = !m_roomsAreSwapped;
 }
 
 bool Engine::isValid(const loader::file::AnimFrame* frame) const
@@ -599,7 +599,7 @@ void Engine::setUpRendering()
         {
             if( item.type == TR1ItemId::CutsceneActor1 )
             {
-                m_cameraController->setPosition( item.position );
+                getCameraController().setPosition( item.position );
             }
         }
     }
@@ -951,7 +951,7 @@ void Engine::useAlternativeLaraAppearance(const bool withHead)
 
 void Engine::dinoStompEffect(items::ItemNode& node)
 {
-    const auto d = node.m_state.position.position.toRenderSystem() - m_cameraController->getPosition();
+    const auto d = node.m_state.position.position.toRenderSystem() - getCameraController().getPosition();
     const auto absD = glm::abs( d );
 
     static constexpr auto MaxD = (16 * core::SectorSize).get_as<float>();
@@ -959,7 +959,7 @@ void Engine::dinoStompEffect(items::ItemNode& node)
         return;
 
     const auto x = (100_len).retype_as<float>() * (1 - glm::length2( d ) / util::square( MaxD ));
-    m_cameraController->setBounce( x.retype_as<core::Length>() );
+    getCameraController().setBounce( x.retype_as<core::Length>() );
 }
 
 void Engine::turn180Effect(items::ItemNode& node)
@@ -974,8 +974,8 @@ void Engine::laraNormalEffect()
     m_lara->setRequiredAnimState( LaraStateId::Unknown12 );
     m_lara->m_state.anim = &m_level->m_animations[static_cast<int>(AnimationId::STAY_SOLID)];
     m_lara->m_state.frame_number = 185_frame;
-    m_cameraController->setMode( CameraMode::Chase );
-    m_cameraController->getCamera()->setFieldOfView( glm::radians( 80.0f ) );
+    getCameraController().setMode( CameraMode::Chase );
+    getCameraController().getCamera()->setFieldOfView( glm::radians( 80.0f ) );
 }
 
 void Engine::laraBubblesEffect(items::ItemNode& node)
@@ -1018,7 +1018,7 @@ void Engine::earthquakeEffect()
     {
         case 0:
             playSound( TR1SoundId::Explosion1, nullptr );
-            m_cameraController->setBounce( -250_len );
+            getCameraController().setBounce( -250_len );
             break;
         case 3:
             playSound( TR1SoundId::RollingBall, nullptr );
@@ -1057,7 +1057,7 @@ void Engine::floodEffect()
         {
             mul = 30_frame - m_effectTimer;
         }
-        pos.Y = 100_len * mul / 1_frame + m_cameraController->getCenter().position.Y;
+        pos.Y = 100_len * mul / 1_frame + getCameraController().getCenter().position.Y;
         playSound( TR1SoundId::WaterFlow3, pos.toRenderSystem() );
     }
     else
@@ -1091,7 +1091,7 @@ void Engine::stairsToSlopeEffect()
         {
             playSound( TR1SoundId::HeavyDoorSlam, nullptr );
         }
-        auto pos = m_cameraController->getCenter().position;
+        auto pos = getCameraController().getCenter().position;
         pos.Y += 100_spd * m_effectTimer;
         playSound( TR1SoundId::FlowingAir, pos.toRenderSystem() );
     }
@@ -1118,7 +1118,7 @@ void Engine::sandEffect()
 void Engine::explosionEffect()
 {
     playSound( TR1SoundId::LowPitchedSettling, nullptr );
-    m_cameraController->setBounce( -75_len );
+    getCameraController().setBounce( -75_len );
     m_activeEffect.reset();
 }
 
@@ -1554,7 +1554,7 @@ void Engine::load(const YAML::Node& node)
         item.second->load( node["items"][item.first] );
     }
 
-    m_cameraController->load( node["camera"] );
+    getCameraController().load( node["camera"] );
 }
 
 std::shared_ptr<audio::SourceHandle> Engine::playSound(const TR1SoundId id, audio::Emitter* emitter)
@@ -1700,7 +1700,7 @@ void Engine::doGlobalEffect()
     if( m_activeEffect.is_initialized() )
         runEffect( *m_activeEffect, nullptr );
 
-    if( m_cameraController->getCurrentRoom()->isWaterRoom() )
+    if( getCameraController().getCurrentRoom()->isWaterRoom() )
     {
         if( isPlaying( m_ambientStream ) )
             m_ambientStream.lock()
@@ -2023,7 +2023,7 @@ Engine::Engine()
     {
         m_cameraController
                 ->setEyeRotation( 0_deg, core::Angle::fromDegrees( levelInfo.get<float>( "cameraRot" ) ) );
-        auto pos = m_cameraController->getTRPosition().position;
+        auto pos = getCameraController().getTRPosition().position;
         if( auto x = levelInfo["cameraPosX"] )
             pos.X = x;
         if( auto y = levelInfo["cameraPosY"] )
@@ -2031,7 +2031,7 @@ Engine::Engine()
         if( auto z = levelInfo["cameraPosZ"] )
             pos.Z = z;
 
-        m_cameraController->setPosition( pos );
+        getCameraController().setPosition( pos );
 
         if( bool(levelInfo["flipRooms"]) )
             swapAllRooms();
@@ -2161,22 +2161,22 @@ void Engine::run()
 
         if( !isCutscene )
         {
-            m_cameraController->update();
+            getCameraController().update();
         }
         else
         {
-            if( ++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size() )
+            if( ++getCameraController().m_cinematicFrame >= m_level->m_cinematicFrames.size() )
                 break;
 
             m_cameraController
-                    ->updateCinematic( m_level->m_cinematicFrames[m_cameraController->m_cinematicFrame], false );
+                    ->updateCinematic( m_level->m_cinematicFrames[getCameraController().m_cinematicFrame], false );
         }
         doGlobalEffect();
 
         if( m_lara != nullptr )
             drawBars( game.get(), screenOverlay->getImage() );
 
-        if( m_cameraController->getCurrentRoom()->isWaterRoom() )
+        if( getCameraController().getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx->bind();
         else
             depthDarknessFx->bind();
@@ -2188,7 +2188,7 @@ void Engine::run()
 
         gameplay::gl::FrameBuffer::unbindAll();
 
-        if( m_cameraController->getCurrentRoom()->isWaterRoom() )
+        if( getCameraController().getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx->render( context );
         else
             depthDarknessFx->render( context );

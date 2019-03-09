@@ -45,8 +45,8 @@ void Bat::update()
                 if( m_state.touch_bits != 0 )
                 {
                     emitParticle( core::TRVec{0_len, 16_len, 45_len}, 4, &createBloodSplat );
-                    getEngine().m_lara->m_state.is_hit = true;
-                    getEngine().m_lara->m_state.health -= 2_hp;
+                    getEngine().getLara().m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 2_hp;
                 }
                 else
                 {

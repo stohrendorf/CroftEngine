@@ -21,11 +21,11 @@ public:
     {
         setGoalAnimState( LaraStateId::Stop );
 
-        if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -6_deg );
         }
-        else if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 6_deg );
         }

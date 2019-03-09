@@ -72,7 +72,7 @@ private:
             return;
         }
 
-        if( !getEngine().m_inputHandler->getInputState().action )
+        if( !getEngine().getInputHandler().getInputState().action )
         {
             return;
         }

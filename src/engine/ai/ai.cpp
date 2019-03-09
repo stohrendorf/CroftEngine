@@ -341,7 +341,7 @@ void updateMood(const engine::Engine& engine, const items::ItemState& item, cons
         creatureInfo.lot.required_box = nullptr;
     }
     const auto originalMood = creatureInfo.mood;
-    if( engine.m_lara->m_state.health <= 0_hp )
+    if( engine.getLara().m_state.health <= 0_hp )
     {
         creatureInfo.mood = Mood::Bored;
     }
@@ -430,14 +430,14 @@ void updateMood(const engine::Engine& engine, const items::ItemState& item, cons
     {
         case Mood::Attack:
             if( util::rand15()
-                >= int( engine.m_scriptEngine["getObjectInfo"].call<sol::table>( item.type )["target_update_chance"] ) )
+                >= int( engine.getScriptEngine()["getObjectInfo"].call<sol::table>( item.type )["target_update_chance"] ) )
                 break;
 
-            creatureInfo.lot.target = engine.m_lara->m_state.position.position;
-            creatureInfo.lot.required_box = engine.m_lara->m_state.box;
-            if( creatureInfo.lot.fly != 0_len && engine.m_lara->isOnLand() )
-                creatureInfo.lot.target.Y += engine.m_lara->getSkeleton()
-                                                   ->getInterpolationInfo( engine.m_lara->m_state )
+            creatureInfo.lot.target = engine.getLara().m_state.position.position;
+            creatureInfo.lot.required_box = engine.getLara().m_state.box;
+            if( creatureInfo.lot.fly != 0_len && engine.getLara().isOnLand() )
+                creatureInfo.lot.target.Y += engine.getLara().getSkeleton()
+                                                   ->getInterpolationInfo( engine.getLara().m_state )
                                                    .getNearestFrame()->bbox.toBBox().minY;
 
             break;
@@ -509,39 +509,39 @@ void updateMood(const engine::Engine& engine, const items::ItemState& item, cons
     creatureInfo.lot.calculateTarget( engine, creatureInfo.target, item );
 }
 
-AiInfo::AiInfo(const engine::Engine& engine, items::ItemState& item)
+AiInfo::AiInfo(engine::Engine& engine, items::ItemState& item)
 {
     if( item.creatureInfo == nullptr )
         return;
 
-    const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped,
+    const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped(),
                                                         item.creatureInfo->lot.fly,
                                                         item.creatureInfo->lot.step );
 
     item.box = item.getCurrentSector()->box;
     zone_number = item.box->*zoneRef;
-    engine.m_lara->m_state.box = engine.m_lara->m_state.getCurrentSector()->box;
-    enemy_zone = engine.m_lara->m_state.box->*zoneRef;
-    if( (item.creatureInfo->lot.block_mask & engine.m_lara->m_state.box->overlap_index) != 0
+    engine.getLara().m_state.box = engine.getLara().m_state.getCurrentSector()->box;
+    enemy_zone = engine.getLara().m_state.box->*zoneRef;
+    if( (item.creatureInfo->lot.block_mask & engine.getLara().m_state.box->overlap_index) != 0
         || item.creatureInfo->lot.nodes[item.box].search_version
            == (item.creatureInfo->lot.m_searchVersion | 0x8000) )
     {
         enemy_zone |= 0x4000;
     }
 
-    sol::table objectInfo = engine.m_scriptEngine["getObjectInfo"].call( item.type );
+    sol::table objectInfo = engine.getScriptEngine()["getObjectInfo"].call( item.type );
     const core::Length pivotLength{static_cast<core::Length::type>(objectInfo["pivot_length"])};
-    const auto d = engine.m_lara->m_state.position.position
+    const auto d = engine.getLara().m_state.position.position
                    - (item.position.position + util::pitch( pivotLength, item.rotation.Y ));
     const auto pivotAngle = core::Angle::fromAtan( d.X, d.Z );
     distance = util::square( d.X ) + util::square( d.Z );
     angle = pivotAngle - item.rotation.Y;
-    enemy_facing = pivotAngle - 180_deg - engine.m_lara->m_state.rotation.Y;
+    enemy_facing = pivotAngle - 180_deg - engine.getLara().m_state.rotation.Y;
     ahead = angle > -90_deg && angle < 90_deg;
     bite = false;
     if( ahead )
     {
-        const auto laraY = engine.m_lara->m_state.position.position.Y;
+        const auto laraY = engine.getLara().m_state.position.position.Y;
         if( item.position.position.Y - core::QuarterSectorSize < laraY
             && item.position.position.Y + core::QuarterSectorSize > laraY )
         {

@@ -187,8 +187,8 @@ void Wolf::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL) )
                 {
                     emitParticle( core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat );
-                    getEngine().m_lara->m_state.is_hit = true;
-                    getEngine().m_lara->m_state.health -= 50_hp;
+                    getEngine().getLara().m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 50_hp;
                     m_state.required_anim_state = Jumping;
                 }
                 m_state.goal_anim_state = Jumping;
@@ -197,8 +197,8 @@ void Wolf::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL) && aiInfo.ahead )
                 {
                     emitParticle( core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat );
-                    getEngine().m_lara->m_state.is_hit = true;
-                    getEngine().m_lara->m_state.health -= 100_hp;
+                    getEngine().getLara().m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 100_hp;
                     m_state.required_anim_state = PrepareToStrike;
                 }
                 break;

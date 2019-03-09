@@ -37,7 +37,7 @@ void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisio
                                                 }
                                         },
                                         20_spd, util::rand15( +180_deg ) );
-            getEngine().m_particles.emplace_back( fx );
+            getEngine().getParticles().emplace_back( fx );
         }
         if( lara.m_state.health <= 0_hp )
         {

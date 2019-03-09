@@ -16,7 +16,7 @@ void FlameEmitter::update()
 
         m_flame = std::make_shared<FlameParticle>( m_state.position, getEngine() );
         setParent( m_flame, m_state.position.room->node );
-        getEngine().m_particles.emplace_back( m_flame );
+        getEngine().getParticles().emplace_back( m_flame );
     }
     else if( m_flame != nullptr )
     {
@@ -30,12 +30,12 @@ void FlameEmitter::removeParticle()
     if( m_flame == nullptr )
         return;
 
-    auto it = std::find_if( getEngine().m_particles.begin(), getEngine().m_particles.end(),
+    auto it = std::find_if( getEngine().getParticles().begin(), getEngine().getParticles().end(),
                             [f = m_flame](const auto& p) {
                                 return f == p.get();
                             } );
-    if( it != getEngine().m_particles.end() )
-        getEngine().m_particles.erase( it );
+    if( it != getEngine().getParticles().end() )
+        getEngine().getParticles().erase( it );
 
     setParent( m_flame, nullptr );
     m_flame.reset();

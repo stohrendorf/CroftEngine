@@ -21,8 +21,8 @@ public:
     {
         collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
         setCameraRotationAroundCenter( -60_deg, 0_deg );
-        if( getEngine().m_inputHandler->getInputState().xMovement != AxisMovement::Left &&
-            getEngine().m_inputHandler->getInputState().stepMovement != AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().xMovement != AxisMovement::Left &&
+            getEngine().getInputHandler().getInputState().stepMovement != AxisMovement::Left )
         {
             setGoalAnimState( LaraStateId::Hang );
         }

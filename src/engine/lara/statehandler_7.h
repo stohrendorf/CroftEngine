@@ -31,7 +31,7 @@ public:
         }
         else if( getYRotationSpeed() < -4_deg )
         {
-            if( getEngine().m_inputHandler->getInputState().moveSlow )
+            if( getEngine().getInputHandler().getInputState().moveSlow )
             {
                 setYRotationSpeed( -4_deg );
             }
@@ -41,16 +41,16 @@ public:
             }
         }
 
-        if( getEngine().m_inputHandler->getInputState().zMovement != AxisMovement::Forward )
+        if( getEngine().getInputHandler().getInputState().zMovement != AxisMovement::Forward )
         {
-            if( getEngine().m_inputHandler->getInputState().xMovement != AxisMovement::Left )
+            if( getEngine().getInputHandler().getInputState().xMovement != AxisMovement::Left )
             {
                 setGoalAnimState( LaraStateId::Stop );
             }
             return;
         }
 
-        if( getEngine().m_inputHandler->getInputState().moveSlow )
+        if( getEngine().getInputHandler().getInputState().moveSlow )
         {
             setGoalAnimState( LaraStateId::WalkForward );
         }

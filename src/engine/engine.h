@@ -67,13 +67,7 @@ class InputHandler;
 
 class Engine
 {
-public:
-    explicit Engine();
-
-    ~Engine();
-
-    void run();
-
+private:
     std::shared_ptr<loader::file::level::Level> m_level;
     std::unique_ptr<CameraController> m_cameraController = nullptr;
 
@@ -101,6 +95,111 @@ public:
     std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
 
     sol::state m_scriptEngine;
+
+    std::shared_ptr<LaraNode> m_lara = nullptr;
+
+    std::shared_ptr<render::TextureAnimator> m_textureAnimator;
+
+    std::unique_ptr<InputHandler> m_inputHandler;
+
+    audio::SoundEngine m_soundEngine;
+
+    std::weak_ptr<audio::Stream> m_ambientStream;
+    std::weak_ptr<audio::Stream> m_interceptStream;
+    boost::optional<TR1TrackId> m_currentTrack;
+    boost::optional<TR1SoundId> m_currentLaraTalk;
+
+    bool m_roomsAreSwapped = false;
+
+    std::vector<gsl::not_null<std::shared_ptr<Particle>>> m_particles;
+
+    // list of meshes and models, resolved through m_meshIndices
+    std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_modelsDirect;
+    std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
+
+    std::shared_ptr<gameplay::Material> m_spriteMaterial{nullptr};
+
+    std::shared_ptr<render::FullScreenFX> depthDarknessFx;
+    std::shared_ptr<render::FullScreenFX> depthDarknessWaterFx;
+    std::shared_ptr<gameplay::ScreenOverlay> screenOverlay;
+    std::unique_ptr<gameplay::Game> game;
+    sol::table levelInfo;
+
+    const util::CImgWrapper splashImage;
+    util::CImgWrapper splashImageScaled;
+    std::shared_ptr<gameplay::gl::Font> abibasFont;
+
+public:
+    explicit Engine();
+
+    ~Engine();
+
+    const InputHandler& getInputHandler() const
+    {
+        return *m_inputHandler;
+    }
+
+    bool roomsAreSwapped() const
+    {
+        return m_roomsAreSwapped;
+    }
+
+    LaraNode& getLara()
+    {
+        return *m_lara;
+    }
+
+    const LaraNode& getLara() const
+    {
+        return *m_lara;
+    }
+
+    auto& getParticles()
+    {
+        return m_particles;
+    }
+
+    auto& getItemNodes()
+    {
+        return m_itemNodes;
+    }
+
+    const auto& getItemNodes() const
+    {
+        return m_itemNodes;
+    }
+
+    const auto& getDynamicItems() const
+    {
+        return m_dynamicItems;
+    }
+
+    CameraController& getCameraController()
+    {
+        return *m_cameraController;
+    }
+
+    const auto& getSpriteMaterial() const
+    {
+        return m_spriteMaterial;
+    }
+
+    auto& getSoundEngine()
+    {
+        return m_soundEngine;
+    }
+
+    auto& getScriptEngine()
+    {
+        return m_scriptEngine;
+    }
+
+    const auto& getScriptEngine() const
+    {
+        return m_scriptEngine;
+    }
+
+    void run();
 
     std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
     createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
@@ -148,18 +247,10 @@ public:
     std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
                                                  const core::TRVec& position) const;
 
-    std::shared_ptr<LaraNode> m_lara = nullptr;
-
-    std::shared_ptr<render::TextureAnimator> m_textureAnimator;
-
     std::shared_ptr<items::ItemNode> getItem(uint16_t id) const;
 
     void drawBars(const gsl::not_null<gameplay::Game*>& game,
                   const gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>>& image) const;
-
-    std::unique_ptr<InputHandler> m_inputHandler;
-
-    audio::SoundEngine m_soundEngine;
 
     std::shared_ptr<audio::SourceHandle> playSound(const TR1SoundId id, audio::Emitter* emitter);
 
@@ -184,18 +275,11 @@ public:
 
     void stopSound(const TR1SoundId soundId, audio::Emitter* emitter);
 
-    std::weak_ptr<audio::Stream> m_ambientStream;
-    std::weak_ptr<audio::Stream> m_interceptStream;
-    boost::optional<TR1TrackId> m_currentTrack;
-    boost::optional<TR1SoundId> m_currentLaraTalk;
-
     void useAlternativeLaraAppearance(bool withHead = false);
 
     const gsl::not_null<std::shared_ptr<gameplay::Model>>& getModel(const size_t idx) const
     {
-        Expects( idx < m_models.size() );
-
-        return m_models[idx];
+        return m_models.at( idx );
     }
 
     void scheduleDeletion(items::ItemNode* item)
@@ -221,16 +305,6 @@ public:
 
         m_scheduledDeletions.clear();
     }
-
-    bool roomsAreSwapped = false;
-
-    std::vector<gsl::not_null<std::shared_ptr<Particle>>> m_particles;
-
-    // list of meshes and models, resolved through m_meshIndices
-    std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_modelsDirect;
-    std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
-
-    std::shared_ptr<gameplay::Material> m_spriteMaterial{nullptr};
 
     void turn180Effect(items::ItemNode& node);
 
@@ -403,12 +477,6 @@ public:
 
     const std::vector<uint16_t>& getOverlaps() const;
 
-    std::shared_ptr<render::FullScreenFX> depthDarknessFx;
-    std::shared_ptr<render::FullScreenFX> depthDarknessWaterFx;
-    std::shared_ptr<gameplay::ScreenOverlay> screenOverlay;
-    std::unique_ptr<gameplay::Game> game;
-    sol::table levelInfo;
-
     void update(const bool godMode);
 
     static void drawText(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, const int x, const int y,
@@ -416,10 +484,6 @@ public:
                          const gameplay::gl::RGBA8& col = {255, 255, 255, 255});
 
     void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, const int fps);
-
-    const util::CImgWrapper splashImage;
-    util::CImgWrapper splashImageScaled;
-    std::shared_ptr<gameplay::gl::Font> abibasFont;
 
     void scaleSplashImage();
 

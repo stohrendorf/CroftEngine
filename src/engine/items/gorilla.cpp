@@ -129,8 +129,8 @@ void Gorilla::update()
                     if( (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
                     {
                         emitParticle( {0_len, -19_len, 75_len}, 15, &createBloodSplat );
-                        getEngine().m_lara->m_state.health -= 200_hp;
-                        getEngine().m_lara->m_state.is_hit = true;
+                        getEngine().getLara().m_state.health -= 200_hp;
+                        getEngine().getLara().m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
                     }
                 }

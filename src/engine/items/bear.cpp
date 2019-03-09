@@ -42,7 +42,7 @@ void Bear::update()
         {
             case Walking.get():
                 m_state.creatureInfo->maximum_turn = 2_deg;
-                if( getEngine().m_lara->m_state.health <= 0_hp && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0
+                if( getEngine().getLara().m_state.health <= 0_hp && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0
                     && aiInfo.ahead )
                 {
                     m_state.goal_anim_state = GettingDown;
@@ -62,7 +62,7 @@ void Bear::update()
                 }
                 break;
             case GettingDown.get():
-                if( getEngine().m_lara->m_state.health <= 0_hp )
+                if( getEngine().getLara().m_state.health <= 0_hp )
                 {
                     if( aiInfo.bite && aiInfo.distance < util::square( 768_len ) )
                     {
@@ -119,10 +119,10 @@ void Bear::update()
                 m_state.creatureInfo->maximum_turn = 5_deg;
                 if( (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0 )
                 {
-                    getEngine().m_lara->m_state.health -= 3_hp;
-                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 3_hp;
+                    getEngine().getLara().m_state.is_hit = true;
                 }
-                if( m_state.creatureInfo->mood == ai::Mood::Bored || getEngine().m_lara->m_state.health <= 0_hp )
+                if( m_state.creatureInfo->mood == ai::Mood::Bored || getEngine().getLara().m_state.health <= 0_hp )
                 {
                     m_state.goal_anim_state = GettingDown;
                 }
@@ -168,16 +168,16 @@ void Bear::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x2406cUL) )
                 {
                     emitParticle( core::TRVec{0_len, 96_len, 335_len}, 14, &createBloodSplat );
-                    getEngine().m_lara->m_state.health -= 200_hp;
-                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 200_hp;
+                    getEngine().getLara().m_state.is_hit = true;
                     m_state.required_anim_state = GettingDown;
                 }
                 break;
             case Standing.get():
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x2406cUL) )
                 {
-                    getEngine().m_lara->m_state.health -= 400_hp;
-                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 400_hp;
+                    getEngine().getLara().m_state.is_hit = true;
                     m_state.required_anim_state = RoaringStanding;
                 }
                 break;
@@ -209,8 +209,8 @@ void Bear::update()
             case Dying.get():
                 if( m_state.creatureInfo->flags != 0 && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0 )
                 {
-                    getEngine().m_lara->m_state.health -= 200_hp;
-                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 200_hp;
+                    getEngine().getLara().m_state.is_hit = true;
                     m_state.creatureInfo->flags = 0;
                 }
                 break;

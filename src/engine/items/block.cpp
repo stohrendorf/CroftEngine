@@ -10,7 +10,7 @@ namespace items
 {
 void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
-    if( !getEngine().m_inputHandler->getInputState().action
+    if( !getEngine().getInputHandler().getInputState().action
         || m_state.triggerState == TriggerState::Active
         || lara.m_state.falling
         || lara.m_state.position.position.Y != m_state.position.position.Y )
@@ -30,7 +30,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     if( lara.getCurrentAnimState() == LaraStateId::Stop )
     {
-        if( getEngine().m_inputHandler->getInputState().zMovement != AxisMovement::Null
+        if( getEngine().getInputHandler().getInputState().zMovement != AxisMovement::Null
             || lara.getHandStatus() != HandStatus::None )
         {
             return;
@@ -89,7 +89,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         return;
     }
 
-    if( getEngine().m_inputHandler->getInputState().zMovement == AxisMovement::Forward )
+    if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Forward )
     {
         if( !canPushBlock( core::SectorSize, *axis ) )
         {
@@ -99,7 +99,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         m_state.goal_anim_state = 2_as;
         lara.setGoalAnimState( LaraStateId::PushablePush );
     }
-    else if( getEngine().m_inputHandler->getInputState().zMovement == AxisMovement::Backward )
+    else if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Backward )
     {
         if( !canPullBlock( core::SectorSize, *axis ) )
         {
@@ -119,7 +119,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     m_state.triggerState = TriggerState::Active;
 
     ModelItemNode::update();
-    getEngine().m_lara->updateImpl();
+    getEngine().getLara().updateImpl();
 }
 
 void Block::update()
@@ -135,7 +135,7 @@ void Block::update()
 
     auto pos = m_state.position;
     auto sector = loader::file::findRealFloorSector( pos );
-    const auto height = HeightInfo::fromFloor( sector, pos.position, getEngine().m_itemNodes ).y;
+    const auto height = HeightInfo::fromFloor( sector, pos.position, getEngine().getItemNodes() ).y;
     if( height > pos.position.Y )
     {
         m_state.falling = true;
@@ -163,8 +163,8 @@ void Block::update()
     loader::file::Room::patchHeightsForBlock( *this, -core::SectorSize );
     pos = m_state.position;
     sector = loader::file::findRealFloorSector( pos );
-    getEngine().m_lara->handleCommandSequence(
-            HeightInfo::fromFloor( sector, pos.position, getEngine().m_itemNodes ).lastCommandSequenceOrDeath, true );
+    getEngine().getLara().handleCommandSequence(
+            HeightInfo::fromFloor( sector, pos.position, getEngine().getItemNodes() ).lastCommandSequenceOrDeath, true );
 }
 
 bool Block::isOnFloor(const core::Length height) const
@@ -300,7 +300,7 @@ bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
         return false;
     }
 
-    laraPos = getEngine().m_lara->m_state.position.position;
+    laraPos = getEngine().getLara().m_state.position.position;
     switch( axis )
     {
         case core::Axis::PosZ:

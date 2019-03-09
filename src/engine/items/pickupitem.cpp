@@ -46,7 +46,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 return;
             }
         }
-        else if( getEngine().m_inputHandler->getInputState().action
+        else if( getEngine().getInputHandler().getInputState().action
                  && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop
                  && lara.alignTransform( aimSpeed, *this ) )
         {
@@ -95,7 +95,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         }
         else
         {
-            if( getEngine().m_inputHandler->getInputState().action
+            if( getEngine().getInputHandler().getInputState().action
                 && lara.getHandStatus() == HandStatus::None
                 && !lara.m_state.falling
                 && lara.getCurrentAnimState() == LaraStateId::Stop )

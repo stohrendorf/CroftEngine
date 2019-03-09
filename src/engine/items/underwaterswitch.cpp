@@ -9,7 +9,7 @@ namespace items
 {
 void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
-    if( !getEngine().m_inputHandler->getInputState().action )
+    if( !getEngine().getInputHandler().getInputState().action )
         return;
 
     if( m_state.triggerState != TriggerState::Inactive )

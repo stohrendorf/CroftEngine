@@ -92,8 +92,8 @@ void Lion::update()
             case 4:
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
-                    getEngine().m_lara->m_state.health -= 150_hp;
-                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 150_hp;
+                    getEngine().getLara().m_state.is_hit = true;
                     m_state.required_anim_state = 1_as;
                 }
                 break;
@@ -101,8 +101,8 @@ void Lion::update()
                 if( m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL) )
                 {
                     emitParticle( {-2_len, -10_len, 132_len}, 21, &createBloodSplat );
-                    getEngine().m_lara->m_state.health -= 250_hp;
-                    getEngine().m_lara->m_state.is_hit = true;
+                    getEngine().getLara().m_state.health -= 250_hp;
+                    getEngine().getLara().m_state.is_hit = true;
                     m_state.required_anim_state = 1_as;
                 }
                 break;

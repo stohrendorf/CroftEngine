@@ -163,13 +163,13 @@ void Pierre::update()
                 {
                     if( tryShootAtLara( *this, aiInfo.distance, {60_len, 200_len, 0_len}, 11, headRot ) )
                     {
-                        getEngine().m_lara->m_state.health -= 25_hp;
-                        getEngine().m_lara->m_state.is_hit = true;
+                        getEngine().getLara().m_state.health -= 25_hp;
+                        getEngine().getLara().m_state.is_hit = true;
                     }
                     if( tryShootAtLara( *this, aiInfo.distance, {-57_len, 200_len, 0_len}, 14, headRot ) )
                     {
-                        getEngine().m_lara->m_state.health -= 25_hp;
-                        getEngine().m_lara->m_state.is_hit = true;
+                        getEngine().getLara().m_state.health -= 25_hp;
+                        getEngine().getLara().m_state.is_hit = true;
                     }
                     m_state.required_anim_state = 4_as;
                 }
@@ -199,7 +199,7 @@ void Pierre::update()
     {
         auto camPos = m_state.position;
         camPos.position.Y -= core::SectorSize;
-        auto target = getEngine().m_cameraController->getTRPosition();
+        auto target = getEngine().getCameraController().getTRPosition();
         if( engine::CameraController::clampPosition( target, camPos, getEngine() ) )
         {
             m_state.creatureInfo->flags = 1;

@@ -128,8 +128,8 @@ void Larson::update()
                 {
                     if( tryShootAtLara( *this, aiInfo.distance, core::TRVec{-60_len, 170_len, 0_len}, 14, headRot ) )
                     {
-                        getEngine().m_lara->m_state.health -= 50_hp;
-                        getEngine().m_lara->m_state.is_hit = true;
+                        getEngine().getLara().m_state.health -= 50_hp;
+                        getEngine().getLara().m_state.is_hit = true;
                     }
                     m_state.required_anim_state = 4_as;
                 }

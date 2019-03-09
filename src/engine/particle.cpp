@@ -23,7 +23,7 @@ void Particle::initDrawables(const Engine& engine, const float scale)
             auto sprite = std::make_shared<gameplay::Sprite>( spr.x0 * scale, -spr.y0 * scale,
                                                               spr.x1 * scale, -spr.y1 * scale,
                                                               spr.t0, spr.t1,
-                                                              engine.m_spriteMaterial,
+                                                              engine.getSpriteMaterial(),
                                                               gameplay::Sprite::Axis::Y
             );
             m_drawables.emplace_back( sprite );
@@ -56,7 +56,7 @@ Particle::Particle(const std::string& id,
                    const gsl::not_null<const loader::file::Room*>& room,
                    Engine& engine,
                    float scale)
-        : Node{id}, Emitter{&engine.m_soundEngine}, pos{room}, object_number{objectNumber}
+        : Node{id}, Emitter{&engine.getSoundEngine()}, pos{room}, object_number{objectNumber}
 {
     initDrawables( engine, scale );
 }
@@ -66,7 +66,7 @@ Particle::Particle(const std::string& id,
                    const core::RoomBoundPosition& pos,
                    Engine& engine,
                    float scale)
-        : Node{id}, Emitter{&engine.m_soundEngine}, pos{pos}, object_number{objectNumber}
+        : Node{id}, Emitter{&engine.getSoundEngine()}, pos{pos}, object_number{objectNumber}
 {
     initDrawables( engine, scale );
 }
@@ -117,7 +117,7 @@ bool BubbleParticle::update(Engine& engine)
         return false;
     }
 
-    const auto ceiling = HeightInfo::fromCeiling( sector, pos.position, engine.m_itemNodes ).y;
+    const auto ceiling = HeightInfo::fromCeiling( sector, pos.position, engine.getItemNodes() ).y;
     if( ceiling == -core::HeightLimit || pos.position.Y <= ceiling )
     {
         return false;
@@ -143,14 +143,14 @@ bool FlameParticle::update(Engine& engine)
             return true;
         }
 
-        if( engine.m_lara->isNear( *this, 600_len ) )
+        if( engine.getLara().isNear( *this, 600_len ) )
         {
             // it's hot here, isn't it?
-            engine.m_lara->m_state.health -= 3_hp;
-            engine.m_lara->m_state.is_hit = true;
+            engine.getLara().m_state.health -= 3_hp;
+            engine.getLara().m_state.is_hit = true;
 
-            const auto distSq = util::square( engine.m_lara->m_state.position.position.X - pos.position.X )
-                                + util::square( engine.m_lara->m_state.position.position.Z - pos.position.Z );
+            const auto distSq = util::square( engine.getLara().m_state.position.position.X - pos.position.X )
+                                + util::square( engine.getLara().m_state.position.position.Z - pos.position.Z );
             if( distSq < util::square( 300_len ) )
             {
                 timePerSpriteFrame = 100;
@@ -158,7 +158,7 @@ bool FlameParticle::update(Engine& engine)
                 const auto particle = std::make_shared<FlameParticle>( pos, engine );
                 particle->timePerSpriteFrame = -1;
                 setParent( particle, pos.room->node );
-                engine.m_particles.emplace_back( particle );
+                engine.getParticles().emplace_back( particle );
             }
         }
     }
@@ -176,9 +176,9 @@ bool FlameParticle::update(Engine& engine)
             pos.position.Y = 0_len;
         }
 
-        const auto itemSpheres = engine.m_lara->getSkeleton()->getBoneCollisionSpheres(
-                engine.m_lara->m_state,
-                *engine.m_lara->getSkeleton()->getInterpolationInfo( engine.m_lara->m_state ).getNearestFrame(),
+        const auto itemSpheres = engine.getLara().getSkeleton()->getBoneCollisionSpheres(
+                engine.getLara().m_state,
+                *engine.getLara().getSkeleton()->getInterpolationInfo( engine.getLara().m_state ).getNearestFrame(),
                 nullptr );
 
         pos.position = core::TRVec{
@@ -189,8 +189,8 @@ bool FlameParticle::update(Engine& engine)
         if( !waterHeight.is_initialized() || waterHeight.get() >= pos.position.Y )
         {
             engine.playSound( TR1SoundId::Burning, this );
-            engine.m_lara->m_state.health -= 3_hp;
-            engine.m_lara->m_state.is_hit = true;
+            engine.getLara().m_state.health -= 3_hp;
+            engine.getLara().m_state.is_hit = true;
         }
         else
         {

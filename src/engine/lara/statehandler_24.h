@@ -21,7 +21,7 @@ public:
     {
         setCameraModifier( CameraModifier::AllowSteepSlants );
         setCameraRotationAroundCenterX( -45_deg );
-        if( getEngine().m_inputHandler->getInputState().jump )
+        if( getEngine().getInputHandler().getInputState().jump )
         {
             setGoalAnimState( LaraStateId::JumpForward );
         }

@@ -26,12 +26,12 @@ public:
 
         if( getGoalAnimState() != LaraStateId::Death && getGoalAnimState() != LaraStateId::Stop )
         {
-            if( getEngine().m_inputHandler->getInputState().action && getHandStatus() == HandStatus::None )
+            if( getEngine().getInputHandler().getInputState().action && getHandStatus() == HandStatus::None )
             {
                 setGoalAnimState( LaraStateId::Reach );
             }
 
-            if( getEngine().m_inputHandler->getInputState().moveSlow && getHandStatus() == HandStatus::None )
+            if( getEngine().getInputHandler().getInputState().moveSlow && getHandStatus() == HandStatus::None )
             {
                 setGoalAnimState( LaraStateId::SwandiveBegin );
             }
@@ -42,11 +42,11 @@ public:
             }
         }
 
-        if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -3_deg );
         }
-        else if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 3_deg );
         }
@@ -71,8 +71,8 @@ public:
         {
             setGoalAnimState( LaraStateId::Death );
         }
-        else if( getEngine().m_inputHandler->getInputState().zMovement != AxisMovement::Forward
-                 || getEngine().m_inputHandler->getInputState().moveSlow )
+        else if( getEngine().getInputHandler().getInputState().zMovement != AxisMovement::Forward
+                 || getEngine().getInputHandler().getInputState().moveSlow )
         {
             setGoalAnimState( LaraStateId::Stop );
         }

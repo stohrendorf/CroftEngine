@@ -18,8 +18,8 @@ CutsceneActor::CutsceneActor(const gsl::not_null<Engine*>& engine,
 
 void CutsceneActor::update()
 {
-    m_state.rotation.Y = getEngine().m_cameraController->getEyeRotation().Y;
-    m_state.position.position = getEngine().m_cameraController->getTRPosition().position;
+    m_state.rotation.Y = getEngine().getCameraController().getEyeRotation().Y;
+    m_state.position.position = getEngine().getCameraController().getTRPosition().position;
     ModelItemNode::update();
 }
 

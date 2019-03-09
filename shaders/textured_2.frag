@@ -37,7 +37,7 @@ float voronoi(in vec3 p)
 
     for (int y= -1; y <= 1; y++) {
         for (int x= -1; x <= 1; x++) {
-        for (int z= -1; z <= 1; z++) {
+            for (int z= -1; z <= 1; z++) {
                 // Neighbor place in the grid
                 vec3 neighbor = vec3(float(x),float(y),float(z));
 

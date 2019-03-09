@@ -226,8 +226,9 @@ private:
     //! @remarks This happens e.g. just after dive-to-swim transition, when players still
     //!          keep the "Dive Forward" action key pressed; in this case, you usually won't go
     //!          diving immediately again.
+    //! @fixme Move this to the engine
     core::Frame m_swimToDiveKeypressDuration = 0_frame;
-    uint16_t m_secretsFoundBitmask = 0;
+    std::bitset<16> m_secretsFoundBitmask = 0;
 
 public:
     void setAir(const core::Frame a) noexcept

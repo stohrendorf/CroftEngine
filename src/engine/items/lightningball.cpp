@@ -119,7 +119,7 @@ void LightningBall::update()
         m_chargeTimeout = 1;
         m_shooting = false;
         m_laraHit = false;
-        if( getEngine().roomsAreSwapped )
+        if( getEngine().roomsAreSwapped() )
             getEngine().swapAllRooms();
 
         deactivate();
@@ -138,7 +138,7 @@ void LightningBall::update()
         m_shooting = false;
         m_chargeTimeout = 35 + util::rand15( 45 );
         m_laraHit = false;
-        if( getEngine().roomsAreSwapped )
+        if( getEngine().roomsAreSwapped() )
             getEngine().swapAllRooms();
 
         return;
@@ -149,15 +149,15 @@ void LightningBall::update()
     m_laraHit = false;
 
     const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
-    if( getEngine().m_lara->isNear( *this, radius ) )
+    if( getEngine().getLara().isNear( *this, radius ) )
     {
         // target at lara
-        m_mainBoltEnd = getEngine().m_lara->m_state.position.position - m_state.position.position;
+        m_mainBoltEnd = getEngine().getLara().m_state.position.position - m_state.position.position;
         m_mainBoltEnd = core::TRVec{
                 glm::vec3( (-m_state.rotation).toMatrix() * glm::vec4( m_mainBoltEnd.toRenderSystem(), 1.0f ) )};
 
-        getEngine().m_lara->m_state.health -= 400_hp;
-        getEngine().m_lara->m_state.is_hit = true;
+        getEngine().getLara().m_state.health -= 400_hp;
+        getEngine().getLara().m_state.is_hit = true;
 
         m_laraHit = true;
     }
@@ -166,7 +166,7 @@ void LightningBall::update()
         // we don't have poles, so just shoot downwards
         m_mainBoltEnd = core::TRVec{};
         const auto sector = loader::file::findRealFloorSector( m_state.position );
-        m_mainBoltEnd.Y = -HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes ).y;
+        m_mainBoltEnd.Y = -HeightInfo::fromFloor( sector, m_state.position.position, getEngine().getItemNodes() ).y;
         m_mainBoltEnd.Y -= m_state.position.position.Y;
     }
     else
@@ -191,7 +191,7 @@ void LightningBall::update()
                 util::rand15s( core::QuarterSectorSize, core::Length::type() )};
     }
 
-    if( !getEngine().roomsAreSwapped )
+    if( !getEngine().roomsAreSwapped() )
         getEngine().swapAllRooms();
 
     playSoundEffect( TR1SoundId::Chatter );

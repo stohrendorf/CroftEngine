@@ -169,7 +169,7 @@ void LaraNode::handleLaraStateOnLand()
 
     lara::AbstractStateHandler::create( getCurrentAnimState(), *this )->handleInput( collisionInfo );
 
-    if( getEngine().m_cameraController->getMode() != CameraMode::FreeLook )
+    if( getEngine().getCameraController().getMode() != CameraMode::FreeLook )
     {
         const auto headX = m_headRotation.X;
         if( headX <= -2_deg || headX >= 2_deg )
@@ -329,7 +329,7 @@ void LaraNode::handleLaraStateSwimming()
         m_state.rotation.Z = 0_deg;
     }
 
-    if( getEngine().m_cameraController->getMode() != CameraMode::FreeLook )
+    if( getEngine().getCameraController().getMode() != CameraMode::FreeLook )
     {
         m_headRotation.X -= m_headRotation.X / 8;
         m_headRotation.Y -= m_headRotation.Y / 8;
@@ -367,17 +367,17 @@ LaraNode::~LaraNode() = default;
 
 void LaraNode::update()
 {
-    if( getEngine().m_inputHandler->getInputState()._1 )
+    if( getEngine().getInputHandler().getInputState()._1 )
         getEngine().tryUseInventoryItem( TR1ItemId::Pistols );
-    else if( getEngine().m_inputHandler->getInputState()._2 )
+    else if( getEngine().getInputHandler().getInputState()._2 )
         getEngine().tryUseInventoryItem( TR1ItemId::Shotgun );
-    else if( getEngine().m_inputHandler->getInputState()._3 )
+    else if( getEngine().getInputHandler().getInputState()._3 )
         getEngine().tryUseInventoryItem( TR1ItemId::Uzis );
-    else if( getEngine().m_inputHandler->getInputState()._4 )
+    else if( getEngine().getInputHandler().getInputState()._4 )
         getEngine().tryUseInventoryItem( TR1ItemId::Magnums );
-    else if( getEngine().m_inputHandler->getInputState()._5 )
+    else if( getEngine().getInputHandler().getInputState()._5 )
         getEngine().tryUseInventoryItem( TR1ItemId::SmallMedipack );
-    else if( getEngine().m_inputHandler->getInputState()._6 )
+    else if( getEngine().getInputHandler().getInputState()._6 )
         getEngine().tryUseInventoryItem( TR1ItemId::LargeMedipack );
 
     if( m_underwaterState == UnderwaterState::OnLand && m_state.position.room->isWaterRoom() )
@@ -427,7 +427,7 @@ void LaraNode::update()
 
                 auto particle = std::make_shared<SplashParticle>( surfacePos, getEngine(), false );
                 setParent( particle, surfacePos.room->node );
-                getEngine().m_particles.emplace_back( particle );
+                getEngine().getParticles().emplace_back( particle );
             }
         }
     }
@@ -608,7 +608,7 @@ void LaraNode::updateFloorHeight(const core::Length dy)
     auto room = m_state.position.room;
     const auto sector = findRealFloorSector( pos, &room );
     setCurrentRoom( room );
-    const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getEngine().m_itemNodes );
+    const HeightInfo hi = HeightInfo::fromFloor( sector, pos, getEngine().getItemNodes() );
     m_state.floor = hi.y;
 }
 
@@ -639,7 +639,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
     BOOST_ASSERT( chunkHeader.type == floordata::FloorDataChunkType::CommandSequence );
     const floordata::ActivationState activationRequest{*floorData++};
 
-    getEngine().m_cameraController->handleCommandSequence( floorData );
+    getEngine().getCameraController().handleCommandSequence( floorData );
 
     bool conditionFulfilled, switchIsOn = false;
     if( fromHeavy )
@@ -662,7 +662,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
             case floordata::SequenceCondition::ItemActivated:
             {
                 const floordata::Command command{*floorData++};
-                auto swtch = getEngine().m_itemNodes.at( command.parameter );
+                auto swtch = getEngine().getItemNodes().at( command.parameter );
                 if( !swtch->triggerSwitch( activationRequest.getTimeout() ) )
                     return;
 
@@ -673,7 +673,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
             case floordata::SequenceCondition::KeyUsed:
             {
                 const floordata::Command command{*floorData++};
-                auto key = getEngine().m_itemNodes.at( command.parameter );
+                auto key = getEngine().getItemNodes().at( command.parameter );
                 if( key->triggerKey() )
                     conditionFulfilled = true;
                 else
@@ -681,7 +681,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
             }
                 break;
             case floordata::SequenceCondition::ItemPickedUp:
-                if( getEngine().m_itemNodes.at( floordata::Command{*floorData++}.parameter )->triggerPickUp() )
+                if( getEngine().getItemNodes().at( floordata::Command{*floorData++}.parameter )->triggerPickUp() )
                     conditionFulfilled = true;
                 else
                     return;
@@ -710,7 +710,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
         {
             case floordata::CommandOpcode::Activate:
             {
-                auto& item = *getEngine().m_itemNodes.at( command.parameter );
+                auto& item = *getEngine().getItemNodes().at( command.parameter );
                 if( item.m_state.activationState.isOneshot() )
                     break;
 
@@ -746,14 +746,14 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
             case floordata::CommandOpcode::SwitchCamera:
             {
                 const floordata::CameraParameters camParams{*floorData++};
-                getEngine().m_cameraController
-                           ->setCamOverride( camParams, command.parameter, chunkHeader.sequenceCondition,
-                                             fromHeavy, activationRequest.getTimeout(), switchIsOn );
+                getEngine().getCameraController()
+                           .setCamOverride( camParams, command.parameter, chunkHeader.sequenceCondition,
+                                            fromHeavy, activationRequest.getTimeout(), switchIsOn );
                 command.isLast = camParams.isLast;
             }
                 break;
             case floordata::CommandOpcode::LookAt:
-                getEngine().m_cameraController->setLookAtItem( getEngine().getItem( command.parameter ) );
+                getEngine().getCameraController().setLookAtItem( getEngine().getItem( command.parameter ) );
                 break;
             case floordata::CommandOpcode::UnderwaterCurrent:
             {
@@ -784,10 +784,10 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
                         if( activationRequest.isOneshot() )
                             getEngine().mapFlipActivationStates[command.parameter].setOneshot( true );
 
-                        if( !getEngine().roomsAreSwapped )
+                        if( !getEngine().roomsAreSwapped() )
                             swapRooms = true;
                     }
-                    else if( getEngine().roomsAreSwapped )
+                    else if( getEngine().roomsAreSwapped() )
                     {
                         swapRooms = true;
                     }
@@ -795,13 +795,13 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
                 break;
             case floordata::CommandOpcode::FlipOn:
                 BOOST_ASSERT( command.parameter < getEngine().mapFlipActivationStates.size() );
-                if( !getEngine().roomsAreSwapped
+                if( !getEngine().roomsAreSwapped()
                     && getEngine().mapFlipActivationStates[command.parameter].isFullyActivated() )
                     swapRooms = true;
                 break;
             case floordata::CommandOpcode::FlipOff:
                 BOOST_ASSERT( command.parameter < getEngine().mapFlipActivationStates.size() );
-                if( getEngine().roomsAreSwapped
+                if( getEngine().roomsAreSwapped()
                     && getEngine().mapFlipActivationStates[command.parameter].isFullyActivated() )
                     swapRooms = true;
                 break;
@@ -818,10 +818,9 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
             case floordata::CommandOpcode::Secret:
             {
                 BOOST_ASSERT( command.parameter < 16 );
-                const uint16_t mask = 1u << command.parameter;
-                if( (m_secretsFoundBitmask & mask) == 0 )
+                if( !m_secretsFoundBitmask.test(command.parameter) )
                 {
-                    m_secretsFoundBitmask |= mask;
+                    m_secretsFoundBitmask.set(command.parameter);
                     getEngine().playStopCdTrack( TR1TrackId::Secret, false );
                 }
             }
@@ -845,27 +844,27 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
 
 void LaraNode::setCameraRotationAroundCenter(const core::Angle x, const core::Angle y)
 {
-    getEngine().m_cameraController->setRotationAroundCenter( x, y );
+    getEngine().getCameraController().setRotationAroundCenter( x, y );
 }
 
 void LaraNode::setCameraRotationAroundCenterY(const core::Angle y)
 {
-    getEngine().m_cameraController->setRotationAroundCenterY( y );
+    getEngine().getCameraController().setRotationAroundCenterY( y );
 }
 
 void LaraNode::setCameraRotationAroundCenterX(const core::Angle x)
 {
-    getEngine().m_cameraController->setRotationAroundCenterX( x );
+    getEngine().getCameraController().setRotationAroundCenterX( x );
 }
 
 void LaraNode::setCameraEyeCenterDistance(const core::Length d)
 {
-    getEngine().m_cameraController->setEyeCenterDistance( d );
+    getEngine().getCameraController().setEyeCenterDistance( d );
 }
 
 void LaraNode::setCameraModifier(const CameraModifier k)
 {
-    getEngine().m_cameraController->setModifier( k );
+    getEngine().getCameraController().setModifier( k );
 }
 
 void LaraNode::testInteractions(CollisionInfo& collisionInfo)
@@ -881,7 +880,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     for( const loader::file::Portal& p : m_state.position.room->portals )
         rooms.insert( &getEngine().getRooms().at( p.adjoining_room.get() ) );
 
-    for( const auto& item : getEngine().m_itemNodes | boost::adaptors::map_values )
+    for( const auto& item : getEngine().getItemNodes() | boost::adaptors::map_values )
     {
         if( rooms.find( item->m_state.position.room ) == rooms.end() )
             continue;
@@ -901,7 +900,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
         item->collide( *this, collisionInfo );
     }
 
-    for( const auto& item : getEngine().m_dynamicItems )
+    for( const auto& item : getEngine().getDynamicItems() )
     {
         if( rooms.find( item->m_state.position.room ) == rooms.end() )
             continue;
@@ -921,13 +920,13 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
         item->collide( *this, collisionInfo );
     }
 
-    if( getEngine().m_lara->explosionStumblingDuration != 0_frame )
+    if( getEngine().getLara().explosionStumblingDuration != 0_frame )
     {
-        getEngine().m_lara->updateExplosionStumbling();
+        getEngine().getLara().updateExplosionStumbling();
     }
-    if( !getEngine().m_lara->hit_direction.is_initialized() )
+    if( !getEngine().getLara().hit_direction.is_initialized() )
     {
-        getEngine().m_lara->hit_frame = 0_frame;
+        getEngine().getLara().hit_frame = 0_frame;
     }
     // TODO selectedPuzzleKey = -1;
 }
@@ -1006,7 +1005,7 @@ void LaraNode::updateLarasWeaponsStatus()
         }
         else if( requestedGunType == gunType )
         {
-            if( getEngine().m_inputHandler->getInputState().holster )
+            if( getEngine().getInputHandler().getInputState().holster )
             {
                 doHolsterUpdate = true;
             }
@@ -1043,19 +1042,19 @@ void LaraNode::updateLarasWeaponsStatus()
         {
             if( gunType <= WeaponId::Uzi )
             {
-                if( getEngine().m_cameraController->getMode() != CameraMode::Cinematic
-                    && getEngine().m_cameraController->getMode() != CameraMode::FreeLook )
+                if( getEngine().getCameraController().getMode() != CameraMode::Cinematic
+                    && getEngine().getCameraController().getMode() != CameraMode::FreeLook )
                 {
-                    getEngine().m_cameraController->setMode( CameraMode::Combat );
+                    getEngine().getCameraController().setMode( CameraMode::Combat );
                 }
                 unholsterGuns( gunType );
             }
             else if( gunType == WeaponId::Shotgun )
             {
-                if( getEngine().m_cameraController->getMode() != CameraMode::Cinematic
-                    && getEngine().m_cameraController->getMode() != CameraMode::FreeLook )
+                if( getEngine().getCameraController().getMode() != CameraMode::Cinematic
+                    && getEngine().getCameraController().getMode() != CameraMode::FreeLook )
                 {
-                    getEngine().m_cameraController->setMode( CameraMode::Combat );
+                    getEngine().getCameraController().setMode( CameraMode::Combat );
                 }
                 unholsterShotgun();
             }
@@ -1094,68 +1093,68 @@ void LaraNode::updateLarasWeaponsStatus()
             case WeaponId::Pistols:
                 if( pistolsAmmo.ammo != 0 )
                 {
-                    if( getEngine().m_inputHandler->getInputState().action )
+                    if( getEngine().getInputHandler().getInputState().action )
                     {
                         const auto& uziLara = *getEngine().findAnimatedModelForType( TR1ItemId::LaraUzisAnim );
                         BOOST_ASSERT( uziLara.meshes.size() == getNode()->getChildren().size() );
                         getNode()->getChild( 14 )->setDrawable( uziLara.models[14].get() );
                     }
                 }
-                if( getEngine().m_cameraController->getMode() != CameraMode::Cinematic
-                    && getEngine().m_cameraController->getMode() != CameraMode::FreeLook )
+                if( getEngine().getCameraController().getMode() != CameraMode::Cinematic
+                    && getEngine().getCameraController().getMode() != CameraMode::FreeLook )
                 {
-                    getEngine().m_cameraController->setMode( CameraMode::Combat );
+                    getEngine().getCameraController().setMode( CameraMode::Combat );
                 }
                 updateGuns( gunType );
                 break;
             case WeaponId::AutoPistols:
                 if( revolverAmmo.ammo != 0 )
                 {
-                    if( getEngine().m_inputHandler->getInputState().action )
+                    if( getEngine().getInputHandler().getInputState().action )
                     {
                         const auto& uziLara = *getEngine().findAnimatedModelForType( TR1ItemId::LaraUzisAnim );
                         BOOST_ASSERT( uziLara.meshes.size() == getNode()->getChildren().size() );
                         getNode()->getChild( 14 )->setDrawable( uziLara.models[14].get() );
                     }
                 }
-                if( getEngine().m_cameraController->getMode() != CameraMode::Cinematic
-                    && getEngine().m_cameraController->getMode() != CameraMode::FreeLook )
+                if( getEngine().getCameraController().getMode() != CameraMode::Cinematic
+                    && getEngine().getCameraController().getMode() != CameraMode::FreeLook )
                 {
-                    getEngine().m_cameraController->setMode( CameraMode::Combat );
+                    getEngine().getCameraController().setMode( CameraMode::Combat );
                 }
                 updateGuns( gunType );
                 break;
             case WeaponId::Uzi:
                 if( uziAmmo.ammo != 0 )
                 {
-                    if( getEngine().m_inputHandler->getInputState().action )
+                    if( getEngine().getInputHandler().getInputState().action )
                     {
                         const auto& uziLara = *getEngine().findAnimatedModelForType( TR1ItemId::LaraUzisAnim );
                         BOOST_ASSERT( uziLara.meshes.size() == getNode()->getChildren().size() );
                         getNode()->getChild( 14 )->setDrawable( uziLara.models[14].get() );
                     }
                 }
-                if( getEngine().m_cameraController->getMode() != CameraMode::Cinematic
-                    && getEngine().m_cameraController->getMode() != CameraMode::FreeLook )
+                if( getEngine().getCameraController().getMode() != CameraMode::Cinematic
+                    && getEngine().getCameraController().getMode() != CameraMode::FreeLook )
                 {
-                    getEngine().m_cameraController->setMode( CameraMode::Combat );
+                    getEngine().getCameraController().setMode( CameraMode::Combat );
                 }
                 updateGuns( gunType );
                 break;
             case WeaponId::Shotgun:
                 if( shotgunAmmo.ammo != 0 )
                 {
-                    if( getEngine().m_inputHandler->getInputState().action )
+                    if( getEngine().getInputHandler().getInputState().action )
                     {
                         const auto& uziLara = *getEngine().findAnimatedModelForType( TR1ItemId::LaraUzisAnim );
                         BOOST_ASSERT( uziLara.meshes.size() == getNode()->getChildren().size() );
                         getNode()->getChild( 14 )->setDrawable( uziLara.models[14].get() );
                     }
                 }
-                if( getEngine().m_cameraController->getMode() != CameraMode::Cinematic
-                    && getEngine().m_cameraController->getMode() != CameraMode::FreeLook )
+                if( getEngine().getCameraController().getMode() != CameraMode::Cinematic
+                    && getEngine().getCameraController().getMode() != CameraMode::FreeLook )
                 {
-                    getEngine().m_cameraController->setMode( CameraMode::Combat );
+                    getEngine().getCameraController().setMode( CameraMode::Combat );
                 }
                 updateShotgun();
                 break;
@@ -1167,7 +1166,7 @@ void LaraNode::updateLarasWeaponsStatus()
 
 void LaraNode::updateShotgun()
 {
-    if( getEngine().m_inputHandler->getInputState().action )
+    if( getEngine().getInputHandler().getInputState().action )
     {
         updateAimingState( weapons[WeaponId::Shotgun] );
     }
@@ -1193,7 +1192,7 @@ void LaraNode::updateShotgun()
 void LaraNode::updateGuns(const WeaponId weaponId)
 {
     const auto& weapon = weapons.at( weaponId );
-    if( getEngine().m_inputHandler->getInputState().action )
+    if( getEngine().getInputHandler().getInputState().action )
     {
         updateAimingState( weapon );
     }
@@ -1377,9 +1376,9 @@ void LaraNode::findTarget(const Weapon& weapon)
     gunPosition.position.Y -= weapons[WeaponId::Shotgun].gunHeight;
     std::shared_ptr<ModelItemNode> bestEnemy = nullptr;
     core::Angle bestYAngle{std::numeric_limits<int16_t>::max()};
-    for( const auto& currentEnemy : getEngine().m_itemNodes | boost::adaptors::map_values )
+    for( const auto& currentEnemy : getEngine().getItemNodes() | boost::adaptors::map_values )
     {
-        if( currentEnemy->m_state.health <= 0_hp || currentEnemy.get() == getEngine().m_lara )
+        if( currentEnemy->m_state.health <= 0_hp || currentEnemy.get().get() == &getEngine().getLara() )
             continue;
 
         const auto modelEnemy = std::dynamic_pointer_cast<ModelItemNode>( currentEnemy.get() );
@@ -1575,7 +1574,7 @@ void LaraNode::updateAnimShotgun()
             const auto nextFrame = leftArm.frame + 1_frame;
             if( leftArm.frame == 47_frame )
             {
-                if( getEngine().m_inputHandler->getInputState().action )
+                if( getEngine().getInputHandler().getInputState().action )
                 {
                     tryShootShotgun();
                     rightArm.frame = nextFrame;
@@ -1628,7 +1627,7 @@ void LaraNode::updateAnimShotgun()
         return;
     }
 
-    if( leftArm.frame == 0_frame && getEngine().m_inputHandler->getInputState().action )
+    if( leftArm.frame == 0_frame && getEngine().getInputHandler().getInputState().action )
     {
         leftArm.frame += 1_frame;
         rightArm.frame += 1_frame;
@@ -1640,7 +1639,7 @@ void LaraNode::updateAnimShotgun()
         const auto nextFrame = leftArm.frame + 1_frame;
         if( leftArm.frame == 47_frame )
         {
-            if( getEngine().m_inputHandler->getInputState().action )
+            if( getEngine().getInputHandler().getInputState().action )
             {
                 tryShootShotgun();
                 rightArm.frame = aimingFrame + 1_frame;
@@ -1692,7 +1691,7 @@ void LaraNode::updateAnimShotgun()
         aimingFrame = leftArm.frame + 1_frame;
         if( leftArm.frame == 12_frame )
         {
-            if( getEngine().m_inputHandler->getInputState().action )
+            if( getEngine().getInputHandler().getInputState().action )
             {
                 rightArm.frame = 47_frame;
                 leftArm.frame = 47_frame;
@@ -1909,7 +1908,7 @@ void LaraNode::updateAnimNotShotgun(const WeaponId weaponId)
 {
     const auto& weapon = weapons[weaponId];
 
-    if( !rightArm.aiming && (!getEngine().m_inputHandler->getInputState().action || target != nullptr) )
+    if( !rightArm.aiming && (!getEngine().getInputHandler().getInputState().action || target != nullptr) )
     {
         if( rightArm.frame >= 24_frame )
         {
@@ -1924,7 +1923,7 @@ void LaraNode::updateAnimNotShotgun(const WeaponId weaponId)
     {
         rightArm.frame += 1_frame;
     }
-    else if( getEngine().m_inputHandler->getInputState().action && rightArm.frame == 4_frame )
+    else if( getEngine().getInputHandler().getInputState().action && rightArm.frame == 4_frame )
     {
         core::TRRotationXY aimAngle;
         aimAngle.X = rightArm.aimRotation.X;
@@ -1945,7 +1944,7 @@ void LaraNode::updateAnimNotShotgun(const WeaponId weaponId)
         }
     }
 
-    if( !leftArm.aiming && (!getEngine().m_inputHandler->getInputState().action || target != nullptr) )
+    if( !leftArm.aiming && (!getEngine().getInputHandler().getInputState().action || target != nullptr) )
     {
         if( leftArm.frame >= 24_frame )
         {
@@ -1960,7 +1959,7 @@ void LaraNode::updateAnimNotShotgun(const WeaponId weaponId)
     {
         leftArm.frame += 1_frame;
     }
-    else if( getEngine().m_inputHandler->getInputState().action && leftArm.frame == 4_frame )
+    else if( getEngine().getInputHandler().getInputState().action && leftArm.frame == 4_frame )
     {
         core::TRRotationXY aimAngle;
         aimAngle.Y = m_state.rotation.Y + leftArm.aimRotation.Y;
@@ -2108,7 +2107,7 @@ void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const c
                                 core::RoomBoundPosition{item.m_state.position.room, hitPos},
                                 item.m_state.speed,
                                 item.m_state.rotation.Y );
-    getEngine().m_particles.emplace_back( fx );
+    getEngine().getParticles().emplace_back( fx );
     if( item.m_state.health <= 0_hp )
         return;
 

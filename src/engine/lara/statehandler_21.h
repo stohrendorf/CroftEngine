@@ -25,16 +25,16 @@ public:
             return;
         }
 
-        if( getEngine().m_inputHandler->getInputState().stepMovement != AxisMovement::Right )
+        if( getEngine().getInputHandler().getInputState().stepMovement != AxisMovement::Right )
         {
             setGoalAnimState( LaraStateId::Stop );
         }
 
-        if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -4_deg );
         }
-        else if( getEngine().m_inputHandler->getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 4_deg );
         }

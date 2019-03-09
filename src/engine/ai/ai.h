@@ -171,7 +171,7 @@ struct LotInfo
             return;
         }
 
-        const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped, fly, step );
+        const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped(), fly, step );
         const auto searchZone = head->*zoneRef;
 
         for( uint8_t i = 0; i < maxDepth; ++i )
@@ -252,7 +252,7 @@ struct AiInfo
 
     core::Angle enemy_facing;
 
-    AiInfo(const engine::Engine& engine, items::ItemState& item);
+    AiInfo(engine::Engine& engine, items::ItemState& item);
 };
 
 

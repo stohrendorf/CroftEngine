@@ -49,8 +49,8 @@ void Crocodile::update()
                     if( m_state.required_anim_state == 0_as )
                     {
                         emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
-                        getEngine().m_lara->m_state.health -= 100_hp;
-                        getEngine().m_lara->m_state.is_hit = true;
+                        getEngine().getLara().m_state.health -= 100_hp;
+                        getEngine().getLara().m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
                     }
                 }
@@ -117,13 +117,13 @@ void Crocodile::update()
                 auto sector = loader::file::findRealFloorSector( m_state.position.position, &room );
                 m_state.position.position.Y = HeightInfo::fromFloor( sector,
                                                                      m_state.position.position,
-                                                                     getEngine().m_itemNodes ).y;
+                                                                     getEngine().getItemNodes() ).y;
                 m_state.rotation.X = 0_deg;
             }
             ModelItemNode::update();
             auto room = m_state.position.room;
             auto sector = loader::file::findRealFloorSector( m_state.position.position, &room );
-            m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().m_itemNodes ).y;
+            m_state.floor = HeightInfo::fromFloor( sector, m_state.position.position, getEngine().getItemNodes() ).y;
             setCurrentRoom( room );
         }
     }
@@ -234,8 +234,8 @@ void Crocodile::update()
                     if( m_state.required_anim_state == 0_as )
                     {
                         emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
-                        getEngine().m_lara->m_state.health -= 100_hp;
-                        getEngine().m_lara->m_state.is_hit = true;
+                        getEngine().getLara().m_state.health -= 100_hp;
+                        getEngine().getLara().m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
                     }
                     break;

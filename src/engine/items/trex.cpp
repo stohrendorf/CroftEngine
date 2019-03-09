@@ -33,11 +33,11 @@ void TRex::update()
         {
             if( m_state.current_anim_state == 3_as )
             {
-                getEngine().m_lara->m_state.health -= 10_hp;
+                getEngine().getLara().m_state.health -= 10_hp;
             }
             else
             {
-                getEngine().m_lara->m_state.health -= 1_hp;
+                getEngine().getLara().m_state.health -= 1_hp;
             }
         }
 
@@ -110,25 +110,25 @@ void TRex::update()
                 {
                     m_state.goal_anim_state = 8_as;
 
-                    getEngine().m_lara->m_state.is_hit = true;
-                    getEngine().m_lara->m_state.falling = false;
+                    getEngine().getLara().m_state.is_hit = true;
+                    getEngine().getLara().m_state.falling = false;
 
-                    getEngine().m_lara->setCurrentRoom( m_state.position.room );
-                    getEngine().m_lara->m_state.position.position = m_state.position.position;
-                    getEngine().m_lara->m_state.rotation.X = 0_deg;
-                    getEngine().m_lara->m_state.rotation.Y = m_state.rotation.Y;
-                    getEngine().m_lara->m_state.rotation.Z = 0_deg;
-                    getEngine().m_lara->m_state.anim = &getEngine()
+                    getEngine().getLara().setCurrentRoom( m_state.position.room );
+                    getEngine().getLara().m_state.position.position = m_state.position.position;
+                    getEngine().getLara().m_state.rotation.X = 0_deg;
+                    getEngine().getLara().m_state.rotation.Y = m_state.rotation.Y;
+                    getEngine().getLara().m_state.rotation.Z = 0_deg;
+                    getEngine().getLara().m_state.anim = &getEngine()
                             .findAnimatedModelForType( engine::TR1ItemId::AlternativeLara )->animations[1];
-                    getEngine().m_lara->m_state.frame_number = getEngine().m_lara->m_state.anim->firstFrame;
-                    getEngine().m_lara->setCurrentAnimState( LaraStateId::BoulderDeath );
-                    getEngine().m_lara->setGoalAnimState( LaraStateId::BoulderDeath );
-                    getEngine().m_lara->setHandStatus( HandStatus::Grabbing );
-                    getEngine().m_lara->gunType = LaraNode::WeaponId::None;
-                    getEngine().m_cameraController->setModifier( CameraModifier::FollowCenter );
-                    getEngine().m_cameraController->setRotationAroundCenter( -25_deg, 170_deg );
-                    getEngine().m_lara->m_state.health = -1_hp;
-                    getEngine().m_lara->setAir( -1_frame );
+                    getEngine().getLara().m_state.frame_number = getEngine().getLara().m_state.anim->firstFrame;
+                    getEngine().getLara().setCurrentAnimState( LaraStateId::BoulderDeath );
+                    getEngine().getLara().setGoalAnimState( LaraStateId::BoulderDeath );
+                    getEngine().getLara().setHandStatus( HandStatus::Grabbing );
+                    getEngine().getLara().gunType = LaraNode::WeaponId::None;
+                    getEngine().getCameraController().setModifier( CameraModifier::FollowCenter );
+                    getEngine().getCameraController().setRotationAroundCenter( -25_deg, 170_deg );
+                    getEngine().getLara().m_state.health = -1_hp;
+                    getEngine().getLara().setAir( -1_frame );
                     getEngine().useAlternativeLaraAppearance( true );
                 }
                 m_state.required_anim_state = 2_as;
