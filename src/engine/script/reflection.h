@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/tracktype.h"
+
 #include <sol.hpp>
 
 namespace engine
@@ -24,6 +26,27 @@ struct ObjectInfo
                 "pivot_length", &ObjectInfo::pivot_length,
                 "target_update_chance", &ObjectInfo::target_update_chance
         );
+
+        return userType;
+    }
+};
+
+
+struct TrackInfo
+{
+    TrackInfo(int id, audio::TrackType type)
+            : id{id}
+            , type{type}
+    {}
+
+    int id;
+    audio::TrackType type;
+
+    static sol::usertype<TrackInfo>& userType()
+    {
+        static sol::usertype<TrackInfo> userType{
+                sol::constructors<TrackInfo(int, audio::TrackType)>()
+        };
 
         return userType;
     }

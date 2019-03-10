@@ -77,6 +77,7 @@ sol::state createScriptEngine()
     engine.set_usertype( engine::ai::CreatureInfo::userType() );
     engine.set_usertype( engine::items::ItemState::userType() );
     engine.set_usertype( engine::script::ObjectInfo::userType() );
+    engine.set_usertype( engine::script::TrackInfo::userType() );
 
     engine.new_enum( "ActivationState",
                      "INACTIVE", engine::items::TriggerState::Inactive,
@@ -824,33 +825,28 @@ void Engine::triggerNormalCdTrack(const TR1TrackId trackId,
 
 void Engine::playStopCdTrack(const TR1TrackId trackId, bool stop)
 {
-    const sol::table trackInfo = m_scriptEngine["getTrackInfo"].call( trackId );
+    const auto trackInfo = m_scriptEngine["getTrackInfo"].call<script::TrackInfo>( trackId );
 
-    if( !trackInfo )
-        return;
-
-    const audio::TrackType trackType = trackInfo["type"];
-
-    switch( trackType )
+    switch( trackInfo.type )
     {
         case audio::TrackType::AmbientEffect:
             if( !stop )
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play effect "
-                                           << toString( static_cast<TR1SoundId>(trackInfo["id"]) );
-                playSound( static_cast<TR1SoundId>(trackInfo["id"]), nullptr );
+                                           << toString( static_cast<TR1SoundId>(trackInfo.id) );
+                playSound( static_cast<TR1SoundId>(trackInfo.id), nullptr );
             }
             else
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop effect "
-                                           << toString( static_cast<TR1SoundId>(trackInfo["id"]) );
-                stopSound( static_cast<TR1SoundId>(trackInfo["id"]), nullptr );
+                                           << toString( static_cast<TR1SoundId>(trackInfo.id) );
+                stopSound( static_cast<TR1SoundId>(trackInfo.id), nullptr );
             }
             break;
         case audio::TrackType::LaraTalk:
             if( !stop )
             {
-                const auto sfxId = static_cast<TR1SoundId>(trackInfo["id"]);
+                const auto sfxId = static_cast<TR1SoundId>(trackInfo.id);
 
                 if( !m_currentLaraTalk.is_initialized() || *m_currentLaraTalk != sfxId )
                 {
@@ -866,16 +862,16 @@ void Engine::playStopCdTrack(const TR1TrackId trackId, bool stop)
             else
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop lara talk "
-                                           << toString( static_cast<TR1SoundId>(trackInfo["id"]) );
-                stopSound( static_cast<TR1SoundId>(trackInfo["id"]), &m_lara->m_state );
+                                           << toString( static_cast<TR1SoundId>(trackInfo.id) );
+                stopSound( static_cast<TR1SoundId>(trackInfo.id), &m_lara->m_state );
                 m_currentLaraTalk.reset();
             }
             break;
         case audio::TrackType::Ambient:
             if( !stop )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo["id"]);
-                m_ambientStream = playStream( trackInfo["id"] ).get();
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id);
+                m_ambientStream = playStream( trackInfo.id ).get();
                 m_ambientStream.lock()->setLooping( true );
                 if( isPlaying( m_interceptStream ) )
                     m_ambientStream.lock()->getSource().lock()->pause();
@@ -883,7 +879,7 @@ void Engine::playStopCdTrack(const TR1TrackId trackId, bool stop)
             }
             else if( const auto str = m_ambientStream.lock() )
             {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo["id"]);
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo.id);
                 m_soundEngine.getDevice().removeStream( str );
                 m_currentTrack.reset();
             }
@@ -892,19 +888,19 @@ void Engine::playStopCdTrack(const TR1TrackId trackId, bool stop)
             if( !stop )
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play interception "
-                                           << static_cast<size_t>(trackInfo["id"]);
+                                           << static_cast<size_t>(trackInfo.id);
                 if( const auto str = m_interceptStream.lock() )
                     m_soundEngine.getDevice().removeStream( str );
                 if( const auto str = m_ambientStream.lock() )
                     str->getSource().lock()->pause();
-                m_interceptStream = playStream( trackInfo["id"] ).get();
+                m_interceptStream = playStream( trackInfo.id ).get();
                 m_interceptStream.lock()->setLooping( false );
                 m_currentTrack = trackId;
             }
             else if( const auto str = m_interceptStream.lock() )
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop interception "
-                                           << static_cast<size_t>(trackInfo["id"]);
+                                           << static_cast<size_t>(trackInfo.id);
                 m_soundEngine.getDevice().removeStream( str );
                 if( const auto amb = m_ambientStream.lock() )
                     amb->play();
