@@ -268,7 +268,7 @@ private:
 
     void updatePosition(const core::RoomBoundPosition& eyePositionGoal, int smoothFactor);
 
-    void chaseItem(const gsl::not_null<std::shared_ptr<const items::ItemNode>>& item);
+    void chaseItem(const items::ItemNode& item);
 
     void handleFreeLook(const items::ItemNode& item);
 

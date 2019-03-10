@@ -462,7 +462,7 @@ void CameraController::update()
     const bool fixedCenterOnly = m_item != nullptr && !(m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
 
     // if we have a fixed position, we also have an item we're looking at
-    items::ItemNode* focusedItem = fixed ? m_item.get() : &m_engine->getLara();
+    items::ItemNode* const focusedItem = fixed ? m_item.get() : &m_engine->getLara();
     BOOST_ASSERT( focusedItem != nullptr );
     auto focusBBox = focusedItem->getBoundingBox();
     auto focusY = focusedItem->m_state.position.position.Y;
@@ -557,7 +557,7 @@ void CameraController::update()
             HeightInfo::skipSteepSlants = false;
 
         if( m_mode == CameraMode::Chase || m_modifier == CameraModifier::Chase )
-            chaseItem( focusedItem );
+            chaseItem( *focusedItem );
         else
             handleFixedCamera();
     }
@@ -705,9 +705,9 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     m_camera->setViewMatrix( m );
 }
 
-void CameraController::chaseItem(const gsl::not_null<std::shared_ptr<const items::ItemNode>>& item)
+void CameraController::chaseItem(const items::ItemNode& item)
 {
-    m_rotationAroundCenter.X += item->m_state.rotation.X;
+    m_rotationAroundCenter.X += item.m_state.rotation.X;
     if( m_rotationAroundCenter.X > 85_deg )
         m_rotationAroundCenter.X = 85_deg;
     else if( m_rotationAroundCenter.X < -85_deg )
@@ -723,7 +723,7 @@ void CameraController::chaseItem(const gsl::not_null<std::shared_ptr<const items
             0_len
     };
 
-    core::Angle y = m_rotationAroundCenter.Y + item->m_state.rotation.Y;
+    const core::Angle y = m_rotationAroundCenter.Y + item.m_state.rotation.Y;
     eye.position += m_center.position - util::pitch( dist, y );
     clampBox( eye,
               [this](core::Length& a, core::Length& b, const core::Length c, const core::Length d, const core::Length e,

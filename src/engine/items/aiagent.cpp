@@ -2,6 +2,7 @@
 
 #include "engine/laranode.h"
 #include "engine/particle.h"
+#include "engine/script/reflection.h"
 
 #include <boost/range/adaptors.hpp>
 
@@ -167,8 +168,8 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto inSectorX = basePosX % core::SectorSize;
     const auto inSectorZ = basePosZ % core::SectorSize;
 
-    sol::table objectInfo = getEngine().getScriptEngine()["getObjectInfo"].call( m_state.type );
-    const core::Length radius{static_cast<core::Length::type>(objectInfo["radius"])};
+    auto objectInfo = getEngine().getScriptEngine()["getObjectInfo"].call<engine::script::ObjectInfo>( m_state.type );
+    const core::Length radius{static_cast<core::Length::type>(objectInfo.radius)};
 
     core::Length moveX = 0_len;
     core::Length moveZ = 0_len;
@@ -426,13 +427,13 @@ AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
                  const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{engine, room, item, true, animatedModel}
         , m_collisionRadius{static_cast<core::Length::type>(engine->getScriptEngine()["getObjectInfo"]
-                .call<sol::table>( m_state.type )["radius"])}
+                .call<engine::script::ObjectInfo>( m_state.type ).radius)}
 {
     m_state.collidable = true;
     const core::Angle v = core::Angle( util::rand15() * 2 );
     m_state.rotation.Y += v;
     m_state.health = core::Health{static_cast<core::Health::type>(engine->getScriptEngine()["getObjectInfo"]
-            .call<sol::table>( m_state.type )["hit_points"])};
+            .call<engine::script::ObjectInfo>( m_state.type ).hit_points)};
 }
 
 void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)

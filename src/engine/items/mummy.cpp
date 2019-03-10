@@ -1,3 +1,4 @@
+#include <engine/script/reflection.h>
 #include "mummy.h"
 
 #include "engine/laranode.h"
@@ -10,7 +11,8 @@ Mummy::Mummy(const gsl::not_null<Engine*>& engine, const gsl::not_null<const loa
              const loader::file::Item& item, const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{engine, room, item, true, animatedModel}
 {
-    m_state.health = engine->getScriptEngine()["getObjectInfo"].call<sol::table>( m_state.type )["hit_points"];
+    m_state.health = core::Health{static_cast<core::Health::type>(engine->getScriptEngine()["getObjectInfo"]
+            .call<engine::script::ObjectInfo>( m_state.type ).hit_points)};
 }
 
 void Mummy::update()
@@ -47,7 +49,7 @@ void Mummy::collide(LaraNode& lara, CollisionInfo& info)
     if( !testBoneCollision( lara ) )
         return;
 
-    if( !info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
+    if( !info.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
         return;
 
     enemyPush( lara, info, false, true );

@@ -1,6 +1,7 @@
 #include "ai.h"
 
 #include "engine/laranode.h"
+#include "engine/script/reflection.h"
 
 namespace engine
 {
@@ -430,7 +431,7 @@ void updateMood(const engine::Engine& engine, const items::ItemState& item, cons
     {
         case Mood::Attack:
             if( util::rand15()
-                >= int( engine.getScriptEngine()["getObjectInfo"].call<sol::table>( item.type )["target_update_chance"] ) )
+                >= engine.getScriptEngine()["getObjectInfo"].call<engine::script::ObjectInfo>( item.type ).target_update_chance )
                 break;
 
             creatureInfo.lot.target = engine.getLara().m_state.position.position;
@@ -529,8 +530,8 @@ AiInfo::AiInfo(engine::Engine& engine, items::ItemState& item)
         enemy_zone |= 0x4000;
     }
 
-    sol::table objectInfo = engine.getScriptEngine()["getObjectInfo"].call( item.type );
-    const core::Length pivotLength{static_cast<core::Length::type>(objectInfo["pivot_length"])};
+    auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<engine::script::ObjectInfo>( item.type );
+    const core::Length pivotLength{static_cast<core::Length::type>(objectInfo.pivot_length)};
     const auto d = engine.getLara().m_state.position.position
                    - (item.position.position + util::pitch( pivotLength, item.rotation.Y ));
     const auto pivotAngle = core::Angle::fromAtan( d.X, d.Z );

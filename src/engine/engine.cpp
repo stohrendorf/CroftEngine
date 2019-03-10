@@ -58,6 +58,7 @@
 #include <boost/format.hpp>
 
 #include <glm/gtx/norm.hpp>
+#include <engine/script/reflection.h>
 
 namespace engine
 {
@@ -75,6 +76,7 @@ sol::state createScriptEngine()
     engine.set_usertype( core::TRVec::userType() );
     engine.set_usertype( engine::ai::CreatureInfo::userType() );
     engine.set_usertype( engine::items::ItemState::userType() );
+    engine.set_usertype( engine::script::ObjectInfo::userType() );
 
     engine.new_enum( "ActivationState",
                      "INACTIVE", engine::items::TriggerState::Inactive,
