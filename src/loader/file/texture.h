@@ -191,11 +191,8 @@ struct TextureKey
 
     uint16_t flags = 0; // TR4
 
-    struct ColorIdTag
-    {
-    };
-
-    core::Id<int, ColorIdTag> colorId{-1};
+    DECLARE_ID( ColorId, int );
+    ColorId colorId{-1};
 
     bool operator==(const TextureKey& rhs) const
     {

@@ -13,12 +13,13 @@ namespace engine
 {
 class Engine;
 
+
 class Particle : public gameplay::Node, public audio::Emitter
 {
 public:
     core::RoomBoundPosition pos;
     core::TRRotation angle{0_deg, 0_deg, 0_deg};
-    const TR1ItemId object_number;
+    const core::TypeId object_number;
     core::Speed speed = 0_spd;
     core::Length fall_speed = 0_len;
     int16_t negSpriteFrameId = 0;
@@ -64,8 +65,22 @@ protected:
 
 public:
     explicit Particle(const std::string& id,
+                      const core::TypeId objectNumber,
+                      const gsl::not_null<const loader::file::Room*>& room,
+                      Engine& engine,
+                      float scale = 1);
+
+    explicit Particle(const std::string& id,
                       const TR1ItemId objectNumber,
                       const gsl::not_null<const loader::file::Room*>& room,
+                      Engine& engine,
+                      float scale = 1)
+            : Particle( id, core::TypeId{static_cast<core::TypeId::type>(objectNumber)}, room, engine, scale )
+    {}
+
+    explicit Particle(const std::string& id,
+                      const core::TypeId objectNumber,
+                      const core::RoomBoundPosition& pos,
                       Engine& engine,
                       float scale = 1);
 
@@ -73,7 +88,9 @@ public:
                       const TR1ItemId objectNumber,
                       const core::RoomBoundPosition& pos,
                       Engine& engine,
-                      float scale = 1);
+                      float scale = 1)
+            : Particle( id, core::TypeId{static_cast<core::TypeId::type>(objectNumber)}, pos, engine, scale )
+    {}
 
     void updateLight()
     {

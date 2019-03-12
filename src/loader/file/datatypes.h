@@ -12,7 +12,6 @@
 #include "meshes.h"
 #include "texture.h"
 #include "audio.h"
-#include "engine/items_tr1.h"
 #include "engine/floordata/types.h"
 
 #include "gsl-lite.hpp"
@@ -60,7 +59,7 @@ constexpr const uint16_t TextureFlippedMask = 0x8000;
 
 struct Portal
 {
-    core::RoomId adjoining_room{uint16_t( 0 )}; ///< \brief which room this portal leads to.
+    core::RoomId16 adjoining_room{uint16_t( 0 )}; ///< \brief which room this portal leads to.
     core::TRVec normal;
     core::TRVec vertices[4];
 
@@ -92,13 +91,13 @@ struct Sector
     const engine::floordata::FloorDataValue* floorData = nullptr;
     Room* portalTarget = nullptr;
 
-    core::Id<int16_t, core::BoxIdTag> boxIndex{int16_t( -1 )}; //!< Index into Boxes[]/Zones[] (-1 if none)
+    core::BoxId boxIndex{int16_t( -1 )}; //!< Index into Boxes[]/Zones[] (-1 if none)
     const Box* box = nullptr;
-    core::Id<uint8_t, core::RoomIdTag> roomIndexBelow{
+    core::RoomId8 roomIndexBelow{
             uint8_t( -1 )}; //!< The number of the room below this one (255 if none)
     Room* roomBelow = nullptr;
     core::Length floorHeight = -core::HeightLimit; //!< Absolute height of floor (multiply by 256 for world coordinates)
-    core::Id<uint8_t, core::RoomIdTag> roomIndexAbove{
+    core::RoomId8 roomIndexAbove{
             uint8_t( -1 )}; //!< The number of the room above this one (255 if none)
     Room* roomAbove = nullptr;
     core::Length ceilingHeight = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
@@ -314,12 +313,10 @@ struct Light
 
 struct SpriteInstance
 {
-    struct VertexIdTag
-    {
-    };
+    DECLARE_ID(VertexId, uint16_t);
 
-    core::Id<uint16_t, VertexIdTag> vertex{uint16_t( 0 )}; // offset into vertex list
-    core::Id<uint16_t, core::SpriteInstanceIdTag> id{uint16_t( 0 )};
+    VertexId vertex{uint16_t( 0 )}; // offset into vertex list
+    core::SpriteInstanceId id{uint16_t( 0 )};
 
     /// \brief reads a room sprite definition.
     static SpriteInstance read(io::SDLReader& reader)
@@ -570,8 +567,8 @@ struct Room
     int16_t lightMode; // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
     std::vector<Light> lights; // [NumLights] list of point lights
     std::vector<RoomStaticMesh> staticMeshes; // [NumStaticMeshes]list of static meshes
-    core::Id<int16_t, core::RoomIdTag> alternateRoom{int16_t( -1 )}; // number of the room that this room can alternate
-    core::Id<uint8_t, core::RoomGroupIdTag> alternateGroup{
+    core::RoomIdI16 alternateRoom{int16_t( -1 )}; // number of the room that this room can alternate
+    core::RoomGroupId alternateGroup{
             uint8_t( 0 )}; // number of group which is used to switch alternate rooms
     // with (e.g. empty/filled with water is implemented as an empty room that alternates with a full room)
 
@@ -1239,7 +1236,7 @@ inline const Sector* findRealFloorSector(core::RoomBoundPosition& rbs)
 
 struct Sprite
 {
-    core::Id<uint16_t, core::TextureIdTag> texture_id{uint16_t( 0 )};
+    core::TextureId texture_id{uint16_t( 0 )};
 
     std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> image{nullptr};
     std::shared_ptr<gameplay::gl::Texture> texture{nullptr};
@@ -1308,7 +1305,7 @@ struct Sprite
 
 struct SpriteSequence
 {
-    engine::TR1ItemId type; // Item identifier (matched in Items[])
+    core::TypeId type{uint16_t(0)}; // Item identifier (matched in Items[])
     int16_t length; // negative of "how many sprites are in this sequence"
     uint16_t offset; // where (in sprite texture list) this sequence starts
 
@@ -1317,11 +1314,11 @@ struct SpriteSequence
     static std::unique_ptr<SpriteSequence> readTr1(io::SDLReader& reader)
     {
         std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
-        sprite_sequence->type = static_cast<engine::TR1ItemId>(reader.readU32());
+        sprite_sequence->type = static_cast<core::TypeId::type>(reader.readU32());
         sprite_sequence->length = reader.readI16();
         sprite_sequence->offset = reader.readU16();
 
-        if( sprite_sequence->type >= engine::TR1ItemId::Plant1 )
+        if( sprite_sequence->type.get() >= 191 /*Plant1*/ )
         {
             sprite_sequence->length = 0;
         }
@@ -1334,7 +1331,7 @@ struct SpriteSequence
     static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader)
     {
         std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
-        sprite_sequence->type = static_cast<engine::TR1ItemId>(reader.readU32());
+        sprite_sequence->type = static_cast<core::TypeId::type>(reader.readU32());
         sprite_sequence->length = reader.readI16();
         sprite_sequence->offset = reader.readU16();
 
@@ -1539,7 +1536,7 @@ struct FlybyCamera
 
     uint16_t flags;
 
-    core::Id<uint32_t, core::RoomIdTag> room_id{0u};
+    core::RoomId32 room_id{0u};
 
     static std::unique_ptr<FlybyCamera> read(io::SDLReader& reader)
     {
@@ -1568,7 +1565,7 @@ struct FlybyCamera
 
 struct AIObject
 {
-    core::Id<uint16_t, core::ItemIdTag> object_id{uint16_t( 0 )}; // the objectID from the AI object (AI_FOLLOW is 402)
+    core::ItemId object_id{uint16_t( 0 )}; // the objectID from the AI object (AI_FOLLOW is 402)
     uint16_t room;
 
     int32_t x;

@@ -17,7 +17,7 @@ struct Triangle
 {
     //! Vertex buffer indices
     VertexIndex vertices[3];
-    core::Id<uint16_t, core::TextureProxyIdTag> proxyId{uint16_t( 0 )}; /**< \brief object-texture index or color index.
+    core::TextureProxyId proxyId{uint16_t( 0 )}; /**< \brief object-texture index or color index.
                              * If the triangle is textured, then this is an index into the object-texture list.
                              * If it's not textured, then the low 8 bit contain the index into the 256 color palette
                              * and from TR2 on the high 8 bit contain the index into the 16 bit palette.
@@ -58,7 +58,7 @@ struct QuadFace
 {
     //! Vertex buffer indices
     VertexIndex vertices[4];
-    core::Id<uint16_t, core::TextureProxyIdTag> proxyId{uint16_t( 0 )}; /**< \brief object-texture index or color index.
+    core::TextureProxyId proxyId{uint16_t( 0 )}; /**< \brief object-texture index or color index.
                              * If the rectangle is textured, then this is an index into the object-texture list.
                              * If it's not textured, then the low 8 bit contain the index into the 256 color palette
                              * and from TR2 on the high 8 bit contain the index into the 16 bit palette.

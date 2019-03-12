@@ -11,8 +11,12 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<Engine*>& engine,
                                    const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{engine, room, item, true, animatedModel}
 {
-    m_block = engine->createItem<ThorHammerBlock>( TR1ItemId::ThorHammerBlock, room, core::Angle( item.rotation ),
-                                                  item.position, 0 );
+    m_block = engine
+            ->createItem<ThorHammerBlock>( core::TypeId{static_cast<core::TypeId::type>(TR1ItemId::ThorHammerBlock)},
+                                           room,
+                                           core::Angle( item.rotation ),
+                                           item.position,
+                                           0 );
     m_block->activate();
     m_block->m_state.triggerState = TriggerState::Active;
 }
@@ -125,7 +129,7 @@ void ThorHammerHandle::update()
     const auto animIdx = std::distance(
             &getEngine().findAnimatedModelForType( engine::TR1ItemId::ThorHammerHandle )->animations[0], m_state.anim );
     m_block->m_state.anim = &getEngine().findAnimatedModelForType( engine::TR1ItemId::ThorHammerBlock )
-                                       ->animations[animIdx];
+                                        ->animations[animIdx];
     m_block->m_state.frame_number = m_state.frame_number - m_state.anim->firstFrame + m_block->m_state.anim->firstFrame;
     m_block->m_state.current_anim_state = m_state.current_anim_state;
 }

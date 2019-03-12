@@ -119,7 +119,7 @@ struct Mesh
 
         void append(const RenderVertexWithNormal& v);
 
-        size_t getPartForColor(const core::Id<uint16_t, core::TextureProxyIdTag> proxyId)
+        size_t getPartForColor(const core::TextureProxyId proxyId)
         {
             TextureKey tk;
             tk.blendingMode = BlendingMode::Solid;

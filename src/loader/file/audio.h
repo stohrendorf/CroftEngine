@@ -2,7 +2,6 @@
 
 #include "io/sdlreader.h"
 #include "loader/file/level/game.h"
-#include "engine/sounds_tr1.h"
 #include "audio/soundengine.h"
 
 namespace loader
@@ -38,7 +37,7 @@ enum class ReverbType : uint8_t
 struct SoundSource final : audio::Emitter
 {
     core::TRVec position;
-    engine::TR1SoundId sound_id;
+    core::SoundId sound_id{uint16_t( 0 )};
     uint16_t flags; // 0x40, 0x80, or 0xc0
 
     explicit SoundSource(const gsl::not_null<audio::SoundEngine*>& engine)
@@ -49,7 +48,7 @@ struct SoundSource final : audio::Emitter
     {
         std::unique_ptr<SoundSource> sound_source = std::make_unique<SoundSource>( engine );
         sound_source->position = readCoordinates32( reader );
-        sound_source->sound_id = static_cast<engine::TR1SoundId>(reader.readU16());
+        sound_source->sound_id = reader.readU16();
         sound_source->flags = reader.readU16();
         return sound_source;
     }
@@ -91,7 +90,7 @@ struct SoundDetails
     //! @todo Check default value
     static constexpr const int DefaultPitch = 128; // 0.0 - only noise
 
-    core::Id<uint32_t, core::SampleIdTag> sample{0u}; // Index into SampleIndices -- NOT USED IN TR4-5!!!
+    core::SampleId sample{0u}; // Index into SampleIndices -- NOT USED IN TR4-5!!!
     uint16_t volume; // Global sample value
     uint16_t sound_range = DefaultRange; // Sound range
     uint16_t chance; // Chance to play

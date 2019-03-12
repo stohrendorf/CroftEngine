@@ -7,9 +7,6 @@
 #include "engine/particle.h"
 #include "engine/items/itemnode.h"
 #include "engine/items/pickupitem.h"
-#include "engine/items_tr1.h"
-#include "engine/sounds_tr1.h"
-#include "engine/tracks_tr1.h"
 #include "game.h"
 #include "loader/file/animation.h"
 #include "loader/file/datatypes.h"
@@ -70,7 +67,7 @@ public:
 
     std::vector<int16_t> m_animCommands;
 
-    std::map<engine::TR1ItemId, std::unique_ptr<SkeletalModelType>> m_animatedModels;
+    std::map<core::TypeId, std::unique_ptr<SkeletalModelType>> m_animatedModels;
 
     std::vector<TextureLayoutProxy> m_textureProxies;
 
@@ -78,7 +75,7 @@ public:
 
     std::vector<Sprite> m_sprites;
 
-    std::map<engine::TR1ItemId, std::unique_ptr<SpriteSequence>> m_spriteSequences;
+    std::map<core::TypeId, std::unique_ptr<SpriteSequence>> m_spriteSequences;
 
     std::vector<Camera> m_cameras;
 
@@ -148,9 +145,9 @@ public:
 
     int findStaticMeshIndexById(core::StaticMeshId meshId) const;
 
-    const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(engine::TR1ItemId type) const;
+    const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
 
-    const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(engine::TR1ItemId type) const;
+    const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
 
 protected:
     io::SDLReader m_reader;

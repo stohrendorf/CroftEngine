@@ -8,6 +8,7 @@
 #include "engine/items_tr1.h"
 #include "engine/collisioninfo.h"
 #include "engine/lighting.h"
+#include "engine/sounds_tr1.h"
 
 #include <set>
 
@@ -72,7 +73,7 @@ struct ItemState final : public audio::Emitter
 {
     explicit ItemState(const gsl::not_null<audio::SoundEngine*>& engine,
                        const gsl::not_null<const loader::file::Room*>& room,
-                       const TR1ItemId type)
+                       const core::TypeId type)
             : Emitter{engine}
             , type{type}
             , position{room}
@@ -90,14 +91,14 @@ struct ItemState final : public audio::Emitter
 
     glm::vec3 getPosition() const final;
 
-    TR1ItemId type;
+    core::TypeId type;
     core::RoomBoundPosition position;
     core::TRRotation rotation;
     core::Speed speed = 0_spd;
     core::Speed fallspeed = 0_spd;
-    loader::file::AnimState current_anim_state = 0_as;
-    loader::file::AnimState goal_anim_state = 0_as;
-    loader::file::AnimState required_anim_state = 0_as;
+    core::AnimStateId current_anim_state = 0_as;
+    core::AnimStateId goal_anim_state = 0_as;
+    core::AnimStateId required_anim_state = 0_as;
     const loader::file::Animation* anim = nullptr;
     core::Frame frame_number = 0_frame;
     core::Health health = 0_hp;
@@ -263,7 +264,12 @@ public:
 
     virtual bool triggerSwitch(core::Frame timeout) = 0;
 
-    std::shared_ptr<audio::SourceHandle> playSoundEffect(TR1SoundId id);
+    std::shared_ptr<audio::SourceHandle> playSoundEffect(core::SoundId id);
+
+    std::shared_ptr<audio::SourceHandle> playSoundEffect(TR1SoundId id)
+    {
+        return playSoundEffect( core::SoundId{static_cast<core::SoundId::type>(id)} );
+    }
 
     bool triggerPickUp();
 

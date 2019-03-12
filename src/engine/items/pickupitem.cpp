@@ -40,7 +40,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             if( lara.m_state.frame_number == 2970_frame )
             {
                 m_state.triggerState = TriggerState::Invisible;
-                getEngine().addInventoryItem( m_state.type );
+                getEngine().addInventoryItem( m_state.type.as<TR1ItemId>() );
                 setParent( getNode(), nullptr );
                 m_state.collidable = false;
                 return;
@@ -88,7 +88,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 }
 
                 m_state.triggerState = TriggerState::Invisible;
-                getEngine().addInventoryItem( m_state.type );
+                getEngine().addInventoryItem( m_state.type.as<TR1ItemId>() );
                 setParent( getNode(), nullptr );
                 m_state.collidable = false;
             }

@@ -9,7 +9,7 @@ namespace items
 {
 void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
-    switch( m_state.type )
+    switch( m_state.type.as<TR1ItemId>() )
     {
         case TR1ItemId::PuzzleDone1:
         case TR1ItemId::PuzzleDone2:
@@ -42,7 +42,7 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         }
 
         bool hasPuzzlePiece = false;
-        switch( m_state.type )
+        switch( m_state.type.as<TR1ItemId>() )
         {
             case TR1ItemId::PuzzleHole1:
                 hasPuzzlePiece = getEngine().takeInventoryItem( TR1ItemId::Puzzle1 );
@@ -82,7 +82,7 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     {
         TR1ItemId completeId;
 
-        switch( m_state.type )
+        switch( m_state.type.as<TR1ItemId>() )
         {
             case TR1ItemId::PuzzleHole1:
                 completeId = TR1ItemId::PuzzleDone1;
@@ -117,7 +117,7 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
         setParent( m_skeleton, parent );
 
-        m_state.type = completeId;
+        m_state.type = core::TypeId{static_cast<core::TypeId::type>(completeId)};
         ModelItemNode::update();
     }
 }

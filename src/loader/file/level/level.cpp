@@ -223,7 +223,7 @@ int Level::findStaticMeshIndexById(const core::StaticMeshId meshId) const
     return -1;
 }
 
-const std::unique_ptr<SkeletalModelType>& Level::findAnimatedModelForType(const engine::TR1ItemId type) const
+const std::unique_ptr<SkeletalModelType>& Level::findAnimatedModelForType(const core::TypeId type) const
 {
     const auto it = m_animatedModels.find( type );
     if( it != m_animatedModels.end() )
@@ -233,7 +233,7 @@ const std::unique_ptr<SkeletalModelType>& Level::findAnimatedModelForType(const 
     return none;
 }
 
-const std::unique_ptr<SpriteSequence>& Level::findSpriteSequenceForType(const engine::TR1ItemId type) const
+const std::unique_ptr<SpriteSequence>& Level::findSpriteSequenceForType(const core::TypeId type) const
 {
     const auto it = m_spriteSequences.find( type );
     if( it != m_spriteSequences.end() )

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "audio/tracktype.h"
+#include "core/id.h"
 
 #include <sol.hpp>
 
@@ -34,18 +35,18 @@ struct ObjectInfo
 
 struct TrackInfo
 {
-    TrackInfo(int id, audio::TrackType type)
+    TrackInfo(core::SoundId::type id, audio::TrackType type)
             : id{id}
             , type{type}
     {}
 
-    int id;
+    core::SoundId::type id;
     audio::TrackType type;
 
     static sol::usertype<TrackInfo>& userType()
     {
         static sol::usertype<TrackInfo> userType{
-                sol::constructors<TrackInfo(int, audio::TrackType)>()
+                sol::constructors<TrackInfo(core::SoundId::type, audio::TrackType)>()
         };
 
         return userType;

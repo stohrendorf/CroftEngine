@@ -102,7 +102,7 @@ ModelItemNode::ModelItemNode(const gsl::not_null<Engine*>& engine,
                              const loader::file::SkeletalModelType& animatedModel)
         : ItemNode{engine, room, item, hasUpdateFunction}
         , m_skeleton{std::make_shared<SkeletalModelNode>(
-                std::string( "skeleton(type:" ) + engine::toString( item.type ) + ")",
+                std::string( "skeleton(type:" ) + toString( item.type.as<TR1ItemId>() ) + ")",
                 engine,
                 animatedModel )
         }
@@ -230,7 +230,7 @@ void ItemNode::deactivate()
     m_isActive = false;
 }
 
-std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const TR1SoundId id)
+std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const core::SoundId id)
 {
     return getEngine().playSound( id, &m_state );
 }
@@ -734,7 +734,7 @@ void ItemState::initCreatureInfo(const Engine& engine)
     if( creatureInfo != nullptr )
         return;
 
-    creatureInfo = std::make_shared<ai::CreatureInfo>( engine, this );
+    creatureInfo = std::make_shared<ai::CreatureInfo>( engine, type );
     collectZoneBoxes( engine );
 }
 
@@ -781,7 +781,7 @@ sol::usertype<ItemState>& ItemState::userType()
 YAML::Node ItemState::save(const Engine& engine) const
 {
     YAML::Node n;
-    n["type"] = engine::toString( type );
+    n["type"] = type.get();
     n["position"] = position.position.save();
     n["position"]["room"] = std::distance( &engine.getRooms()[0], position.room.get() );
     n["rotation"] = rotation.save();
@@ -816,7 +816,7 @@ YAML::Node ItemState::save(const Engine& engine) const
 
 void ItemState::load(const YAML::Node& n, const Engine& engine)
 {
-    if( EnumUtil<TR1ItemId>::fromString( n["type"].as<std::string>() ) != type )
+    if( core::TypeId{n["type"].as<core::TypeId::type>()} != type )
         BOOST_THROW_EXCEPTION( std::domain_error( "Item state has wrong type" ) );
 
     position.position.load( n["position"] );
@@ -824,9 +824,9 @@ void ItemState::load(const YAML::Node& n, const Engine& engine)
     rotation.load( n["rotation"] );
     speed = n["speed"].as<core::Speed>();
     fallspeed = n["fallSpeed"].as<core::Speed>();
-    current_anim_state = loader::file::AnimState{n["state"].as<uint16_t>()};
-    goal_anim_state = loader::file::AnimState{n["goal"].as<uint16_t>()};
-    required_anim_state = loader::file::AnimState{n["required"].as<uint16_t>()};
+    current_anim_state = core::AnimStateId{n["state"].as<uint16_t>()};
+    goal_anim_state = core::AnimStateId{n["goal"].as<uint16_t>()};
+    required_anim_state = core::AnimStateId{n["required"].as<uint16_t>()};
     if( !n["id"].IsDefined() )
         anim = nullptr;
     else
@@ -856,7 +856,7 @@ void ItemState::load(const YAML::Node& n, const Engine& engine)
     }
     else
     {
-        creatureInfo = std::make_shared<ai::CreatureInfo>( engine, this );
+        creatureInfo = std::make_shared<ai::CreatureInfo>( engine, type );
         creatureInfo->load( n["creatureInfo"], engine );
     }
 }

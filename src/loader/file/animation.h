@@ -1,7 +1,6 @@
 #pragma once
 
 #include "io/sdlreader.h"
-#include "engine/items_tr1.h"
 #include "core/vec.h"
 #include "core/units.h"
 #include "core/id.h"
@@ -135,13 +134,6 @@ static_assert( sizeof( AnimFrame ) == 20, "AnimFrame has wrong size" );
 
 struct Transitions;
 
-using AnimState = core::Id<uint16_t, core::AnimStateIdTag>;
-
-inline constexpr AnimState operator "" _as(unsigned long long value)
-{
-    return AnimState{static_cast<AnimState::type>(value)};
-}
-
 
 struct Animation
 {
@@ -151,7 +143,7 @@ struct Animation
 
     core::Frame segmentLength = 0_frame; // Slowdown factor of this animation
     uint8_t poseDataSize; // number of bit16's in Frames[] used by this animation
-    AnimState state_id = 0_as;
+    core::AnimStateId state_id = 0_as;
 
     core::Speed speed;
     core::Acceleration acceleration;
@@ -201,7 +193,7 @@ private:
         if( animation->segmentLength == 0_frame )
             animation->segmentLength = 1_frame;
         animation->poseDataSize = reader.readU8();
-        animation->state_id = AnimState{reader.readU16()};
+        animation->state_id = core::AnimStateId{reader.readU16()};
 
         animation->speed = core::Speed{reader.readI32()};
         animation->acceleration = core::Acceleration{reader.readI32()};
@@ -230,7 +222,7 @@ struct TransitionCase;
 
 struct Transitions
 {
-    AnimState stateId{uint16_t( 0 )};
+    core::AnimStateId stateId{uint16_t( 0 )};
     uint16_t transitionCaseCount; // number of ranges (seems to always be 1..5)
     core::ContainerIndex<uint16_t, TransitionCase> firstTransitionCase; // Offset into AnimDispatches[]
 
@@ -294,7 +286,7 @@ static_assert( sizeof( BoneTreeEntry ) == 16, "BoneTreeEntry must be of size 16"
 
 struct SkeletalModelType
 {
-    engine::TR1ItemId type;
+    core::TypeId type{uint16_t( 0 )};
     int16_t nMeshes; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
     core::ContainerIndex<uint16_t, gsl::not_null<const Mesh*>, gsl::not_null<std::shared_ptr<gameplay::Model>>> mesh_base_index; // starting mesh (offset into MeshPointers[])
     core::ContainerIndex<uint32_t, int32_t> bone_index; // offset into MeshTree[]
@@ -311,8 +303,8 @@ struct SkeletalModelType
 
     static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<SkeletalModelType> moveable{new SkeletalModelType()};
-        moveable->type = static_cast<engine::TR1ItemId>(reader.readU32());
+        std::unique_ptr<SkeletalModelType> moveable{std::make_unique<SkeletalModelType>()};
+        moveable->type = static_cast<core::TypeId::type>(reader.readU32());
         moveable->nMeshes = reader.readI16();
         moveable->mesh_base_index = reader.readU16();
         moveable->bone_index = reader.readU32();
@@ -331,5 +323,3 @@ struct SkeletalModelType
 };
 }
 }
-
-using loader::file::operator ""_as;

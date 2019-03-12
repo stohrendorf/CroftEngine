@@ -5,6 +5,8 @@
 #include "loader/file/item.h"
 #include "loader/file/animationid.h"
 #include "util/cimgwrapper.h"
+#include "items_tr1.h"
+#include "sounds_tr1.h"
 
 #include <boost/filesystem/path.hpp>
 
@@ -86,7 +88,7 @@ private:
 
     std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models;
 
-    std::map<engine::TR1ItemId, size_t> m_inventory;
+    std::map<TR1ItemId, size_t> m_inventory;
 
     int m_uvAnimTime{0};
 
@@ -208,10 +210,15 @@ public:
 
     void setUpRendering();
 
-    const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(TR1ItemId type) const;
+    const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
+
+    const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(TR1ItemId type) const
+    {
+        return findAnimatedModelForType( core::TypeId{static_cast<core::TypeId::type>(type)} );
+    }
 
     template<typename T>
-    std::shared_ptr<T> createItem(const TR1ItemId type,
+    std::shared_ptr<T> createItem(const core::TypeId type,
                                   const gsl::not_null<const loader::file::Room*>& room,
                                   const core::Angle& angle,
                                   const core::TRVec& position,
@@ -237,9 +244,16 @@ public:
         return node;
     }
 
-    std::shared_ptr<items::PickupItem> createPickup(const TR1ItemId type,
+    std::shared_ptr<items::PickupItem> createPickup(const core::TypeId type,
                                                     const gsl::not_null<const loader::file::Room*>& room,
                                                     const core::TRVec& position);
+
+    std::shared_ptr<items::PickupItem> createPickup(const TR1ItemId type,
+                                                    const gsl::not_null<const loader::file::Room*>& room,
+                                                    const core::TRVec& position)
+    {
+        return createPickup( core::TypeId{static_cast<core::TypeId::type>(type)}, room, position );
+    }
 
     gsl::not_null<const loader::file::Room*> findRoomForPosition(const core::TRVec& position,
                                                                  gsl::not_null<const loader::file::Room*> room) const;
@@ -252,13 +266,23 @@ public:
     void drawBars(const gsl::not_null<gameplay::Game*>& game,
                   const gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>>& image) const;
 
-    std::shared_ptr<audio::SourceHandle> playSound(const TR1SoundId id, audio::Emitter* emitter);
+    std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId id, audio::Emitter* emitter);
 
-    std::shared_ptr<audio::SourceHandle> playSound(const TR1SoundId id, const glm::vec3& pos)
+    std::shared_ptr<audio::SourceHandle> playSound(const TR1SoundId id, audio::Emitter* emitter)
+    {
+        return playSound( core::SoundId{static_cast<core::SoundId::type>(id)}, emitter );
+    }
+
+    std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId id, const glm::vec3& pos)
     {
         const auto handle = playSound( id, nullptr );
         handle->setPosition( pos );
         return handle;
+    }
+
+    std::shared_ptr<audio::SourceHandle> playSound(const TR1SoundId id, const glm::vec3& pos)
+    {
+        return playSound( core::SoundId{static_cast<core::SoundId::type>(id)}, pos );
     }
 
     gsl::not_null<std::shared_ptr<audio::Stream>> playStream(size_t trackId);
@@ -273,7 +297,12 @@ public:
                         const floordata::ActivationState& activationRequest,
                         floordata::SequenceCondition triggerType);
 
-    void stopSound(const TR1SoundId soundId, audio::Emitter* emitter);
+    void stopSound(const core::SoundId soundId, audio::Emitter* emitter);
+
+    void stopSound(const TR1SoundId soundId, audio::Emitter* emitter)
+    {
+        stopSound( core::SoundId{static_cast<core::SoundId::type>(soundId)}, emitter );
+    }
 
     void useAlternativeLaraAppearance(bool withHead = false);
 
@@ -461,7 +490,7 @@ public:
 
     const loader::file::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
 
-    const std::unique_ptr<loader::file::SpriteSequence>& findSpriteSequenceForType(TR1ItemId type) const;
+    const std::unique_ptr<loader::file::SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
 
     bool isValid(const loader::file::AnimFrame* frame) const;
 

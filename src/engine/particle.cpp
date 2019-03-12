@@ -38,7 +38,7 @@ void Particle::initDrawables(const Engine& engine, const float scale)
     else
     {
         BOOST_LOG_TRIVIAL( warning ) << "Missing sprite/model referenced by particle: "
-                                     << toString( object_number );
+                                     << toString( static_cast<TR1ItemId>(object_number.get()) );
         return;
     }
 
@@ -52,7 +52,7 @@ glm::vec3 Particle::getPosition() const
 }
 
 Particle::Particle(const std::string& id,
-                   const TR1ItemId objectNumber,
+                   const core::TypeId objectNumber,
                    const gsl::not_null<const loader::file::Room*>& room,
                    Engine& engine,
                    float scale)
@@ -62,7 +62,7 @@ Particle::Particle(const std::string& id,
 }
 
 Particle::Particle(const std::string& id,
-                   const TR1ItemId objectNumber,
+                   const core::TypeId objectNumber,
                    const core::RoomBoundPosition& pos,
                    Engine& engine,
                    float scale)
@@ -80,7 +80,7 @@ bool BloodSplatterParticle::update(Engine& engine)
 
     timePerSpriteFrame = 0;
     nextFrame();
-    if( negSpriteFrameId <= engine.findSpriteSequenceForType(object_number)->length )
+    if( negSpriteFrameId <= engine.findSpriteSequenceForType( object_number )->length )
     {
         return false;
     }

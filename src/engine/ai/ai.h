@@ -272,7 +272,7 @@ struct CreatureInfo
 
     core::TRVec target;
 
-    CreatureInfo(const engine::Engine& engine, const gsl::not_null<items::ItemState*>& item);
+    CreatureInfo(const engine::Engine& engine, const core::TypeId type);
 
     void rotateHead(const core::Angle& angle)
     {

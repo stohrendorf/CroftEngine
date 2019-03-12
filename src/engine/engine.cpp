@@ -3,47 +3,49 @@
 #include "floordata/floordata.h"
 #include "loader/file/level/level.h"
 
-#include "engine/items/animating.h"
-#include "engine/items/barricade.h"
-#include "engine/items/bat.h"
-#include "engine/items/bear.h"
-#include "engine/items/block.h"
-#include "engine/items/boulder.h"
-#include "engine/items/bridgeflat.h"
-#include "engine/items/collapsiblefloor.h"
-#include "engine/items/crocodile.h"
-#include "engine/items/cutsceneactors.h"
-#include "engine/items/dart.h"
-#include "engine/items/dartgun.h"
-#include "engine/items/door.h"
-#include "engine/items/flameemitter.h"
-#include "engine/items/gorilla.h"
-#include "engine/items/keyhole.h"
-#include "engine/items/larson.h"
-#include "engine/items/lightningball.h"
-#include "engine/items/lion.h"
-#include "engine/items/mummy.h"
-#include "engine/items/pickupitem.h"
-#include "engine/items/pierre.h"
-#include "engine/items/puzzlehole.h"
-#include "engine/items/raptor.h"
-#include "engine/items/scionpiece.h"
-#include "engine/items/slopedbridge.h"
-#include "engine/items/stubitem.h"
-#include "engine/items/swingingblade.h"
-#include "engine/items/switch.h"
-#include "engine/items/swordofdamocles.h"
-#include "engine/items/tallblock.h"
-#include "engine/items/teethspikes.h"
-#include "engine/items/thorhammer.h"
-#include "engine/items/trapdoordown.h"
-#include "engine/items/trapdoorup.h"
-#include "engine/items/trex.h"
-#include "engine/items/underwaterswitch.h"
-#include "engine/items/waterfallmist.h"
-#include "engine/items/wolf.h"
+#include "items/animating.h"
+#include "items/barricade.h"
+#include "items/bat.h"
+#include "items/bear.h"
+#include "items/block.h"
+#include "items/boulder.h"
+#include "items/bridgeflat.h"
+#include "items/collapsiblefloor.h"
+#include "items/crocodile.h"
+#include "items/cutsceneactors.h"
+#include "items/dart.h"
+#include "items/dartgun.h"
+#include "items/door.h"
+#include "items/flameemitter.h"
+#include "items/gorilla.h"
+#include "items/keyhole.h"
+#include "items/larson.h"
+#include "items/lightningball.h"
+#include "items/lion.h"
+#include "items/mummy.h"
+#include "items/pickupitem.h"
+#include "items/pierre.h"
+#include "items/puzzlehole.h"
+#include "items/raptor.h"
+#include "items/scionpiece.h"
+#include "items/slopedbridge.h"
+#include "items/stubitem.h"
+#include "items/swingingblade.h"
+#include "items/switch.h"
+#include "items/swordofdamocles.h"
+#include "items/tallblock.h"
+#include "items/teethspikes.h"
+#include "items/thorhammer.h"
+#include "items/trapdoordown.h"
+#include "items/trapdoorup.h"
+#include "items/trex.h"
+#include "items/underwaterswitch.h"
+#include "items/waterfallmist.h"
+#include "items/wolf.h"
 
-#include "engine/laranode.h"
+#include "laranode.h"
+#include "script/reflection.h"
+#include "tracks_tr1.h"
 
 #include "audio/tracktype.h"
 #include "render/textureanimator.h"
@@ -58,7 +60,6 @@
 #include <boost/format.hpp>
 
 #include <glm/gtx/norm.hpp>
-#include <engine/script/reflection.h>
 
 namespace engine
 {
@@ -74,23 +75,23 @@ sol::state createScriptEngine()
     engine.set_usertype( core::Angle::userType() );
     engine.set_usertype( core::TRRotation::userType() );
     engine.set_usertype( core::TRVec::userType() );
-    engine.set_usertype( engine::ai::CreatureInfo::userType() );
-    engine.set_usertype( engine::items::ItemState::userType() );
-    engine.set_usertype( engine::script::ObjectInfo::userType() );
-    engine.set_usertype( engine::script::TrackInfo::userType() );
+    engine.set_usertype( ai::CreatureInfo::userType() );
+    engine.set_usertype( items::ItemState::userType() );
+    engine.set_usertype( script::ObjectInfo::userType() );
+    engine.set_usertype( script::TrackInfo::userType() );
 
     engine.new_enum( "ActivationState",
-                     "INACTIVE", engine::items::TriggerState::Inactive,
-                     "ACTIVE", engine::items::TriggerState::Active,
-                     "DEACTIVATED", engine::items::TriggerState::Deactivated,
-                     "INVISIBLE", engine::items::TriggerState::Invisible
+                     "INACTIVE", items::TriggerState::Inactive,
+                     "ACTIVE", items::TriggerState::Active,
+                     "DEACTIVATED", items::TriggerState::Deactivated,
+                     "INVISIBLE", items::TriggerState::Invisible
     );
 
     engine.new_enum( "Mood",
-                     "BORED", engine::ai::Mood::Bored,
-                     "ATTACK", engine::ai::Mood::Attack,
-                     "ESCAPE", engine::ai::Mood::Escape,
-                     "STALK", engine::ai::Mood::Stalk
+                     "BORED", ai::Mood::Bored,
+                     "ATTACK", ai::Mood::Attack,
+                     "ESCAPE", ai::Mood::Escape,
+                     "STALK", ai::Mood::Stalk
     );
 
     engine.new_enum( "TrackType",
@@ -102,14 +103,14 @@ sol::state createScriptEngine()
 
     {
         sol::table tbl = engine.create_table( "TR1SoundId" );
-        for( const auto& entry : engine::EnumUtil<engine::TR1SoundId>::all() )
-            tbl[entry.second] = static_cast<std::underlying_type_t<engine::TR1SoundId>>(entry.first);
+        for( const auto& entry : EnumUtil<TR1SoundId>::all() )
+            tbl[entry.second] = static_cast<std::underlying_type_t<TR1SoundId>>(entry.first);
     }
 
     {
         sol::table tbl = engine.create_table( "TR1TrackId" );
-        for( const auto& entry : engine::EnumUtil<engine::TR1TrackId>::all() )
-            tbl[entry.second] = static_cast<std::underlying_type_t<engine::TR1TrackId>>(entry.first);
+        for( const auto& entry : EnumUtil<TR1TrackId>::all() )
+            tbl[entry.second] = static_cast<std::underlying_type_t<TR1TrackId>>(entry.first);
     }
 
     return engine;
@@ -160,7 +161,7 @@ bool Engine::isValid(const loader::file::AnimFrame* frame) const
            && reinterpret_cast<const short*>(frame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size();
 }
 
-const std::unique_ptr<loader::file::SpriteSequence>& Engine::findSpriteSequenceForType(TR1ItemId type) const
+const std::unique_ptr<loader::file::SpriteSequence>& Engine::findSpriteSequenceForType(core::TypeId type) const
 {
     return m_level->findSpriteSequenceForType( type );
 }
@@ -222,7 +223,8 @@ std::shared_ptr<LaraNode> Engine::createItems()
             }
             else if( auto objectInfo = m_scriptEngine["getObjectInfo"].call( -1 ) )
             {
-                BOOST_LOG_TRIVIAL( info ) << "Instantiating scripted type " << toString( item.type ) << "/id "
+                BOOST_LOG_TRIVIAL( info ) << "Instantiating scripted type " << toString( item.type.as<TR1ItemId>() )
+                                          << "/id "
                                           << id;
 
                 modelNode = std::make_shared<items::ScriptedItem>( this,
@@ -277,7 +279,8 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 modelNode = std::make_shared<items::TrapDoorUp>( this, room, item, *model );
             }
-            else if( item.type >= TR1ItemId::PushableBlock1 && item.type <= TR1ItemId::PushableBlock4 )
+            else if( item.type.as<TR1ItemId>() >= TR1ItemId::PushableBlock1
+                     && item.type.as<TR1ItemId>() <= TR1ItemId::PushableBlock4 )
             {
                 modelNode = std::make_shared<items::Block>( this, room, item, *model );
             }
@@ -293,11 +296,12 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 modelNode = std::make_shared<items::UnderwaterSwitch>( this, room, item, *model );
             }
-            else if( item.type >= TR1ItemId::Door1 && item.type <= TR1ItemId::Door8 )
+            else if( item.type.as<TR1ItemId>() >= TR1ItemId::Door1 && item.type.as<TR1ItemId>() <= TR1ItemId::Door8 )
             {
                 modelNode = std::make_shared<items::Door>( this, room, item, *model );
             }
-            else if( item.type >= TR1ItemId::Trapdoor1 && item.type <= TR1ItemId::Trapdoor2 )
+            else if( item.type.as<TR1ItemId>() >= TR1ItemId::Trapdoor1
+                     && item.type.as<TR1ItemId>() <= TR1ItemId::Trapdoor2 )
             {
                 modelNode = std::make_shared<items::TrapDoorDown>( this, room, item, *model );
             }
@@ -313,15 +317,18 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 modelNode = std::make_shared<items::BridgeSlope2>( this, room, item, *model );
             }
-            else if( item.type >= TR1ItemId::Keyhole1 && item.type <= TR1ItemId::Keyhole4 )
+            else if( item.type.as<TR1ItemId>() >= TR1ItemId::Keyhole1
+                     && item.type.as<TR1ItemId>() <= TR1ItemId::Keyhole4 )
             {
                 modelNode = std::make_shared<items::KeyHole>( this, room, item, *model );
             }
-            else if( item.type >= TR1ItemId::PuzzleHole1 && item.type <= TR1ItemId::PuzzleHole4 )
+            else if( item.type.as<TR1ItemId>() >= TR1ItemId::PuzzleHole1
+                     && item.type.as<TR1ItemId>() <= TR1ItemId::PuzzleHole4 )
             {
                 modelNode = std::make_shared<items::PuzzleHole>( this, room, item, *model );
             }
-            else if( item.type >= TR1ItemId::Animating1 && item.type <= TR1ItemId::Animating3 )
+            else if( item.type.as<TR1ItemId>() >= TR1ItemId::Animating1
+                     && item.type.as<TR1ItemId>() <= TR1ItemId::Animating3 )
             {
                 modelNode = std::make_shared<items::Animating>( this, room, item, *model );
             }
@@ -412,7 +419,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
             }
             else
             {
-                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
+                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type.as<TR1ItemId>() );
 
                 modelNode = std::make_shared<items::StubItem>( this, room, item, *model );
                 if( item.type == TR1ItemId::MidasGoldTouch
@@ -447,7 +454,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 node = std::make_shared<items::ScionPieceItem>( this,
                                                                 std::string( "sprite(type:" )
-                                                                + toString( item.type ) + ")",
+                                                                + toString( item.type.as<TR1ItemId>() ) + ")",
                                                                 room,
                                                                 item,
                                                                 sprite,
@@ -479,7 +486,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 node = std::make_shared<items::PickupItem>( this,
                                                             std::string( "sprite(type:" )
-                                                            + toString( item.type ) + ")",
+                                                            + toString( item.type.as<TR1ItemId>() ) + ")",
                                                             room,
                                                             item,
                                                             sprite,
@@ -487,10 +494,10 @@ std::shared_ptr<LaraNode> Engine::createItems()
             }
             else
             {
-                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type );
+                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type.as<TR1ItemId>() );
                 node = std::make_shared<items::SpriteItemNode>( this,
                                                                 std::string( "sprite(type:" )
-                                                                + toString( item.type ) + ")",
+                                                                + toString( item.type.as<TR1ItemId>() ) + ")",
                                                                 room,
                                                                 item,
                                                                 true,
@@ -503,7 +510,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
         }
 
         BOOST_LOG_TRIVIAL( error ) << "Failed to find an appropriate animated model for item " << id << "/type "
-                                   << int( item.type );
+                                   << int( item.type.get() );
     }
 
     return lara;
@@ -834,13 +841,13 @@ void Engine::playStopCdTrack(const TR1TrackId trackId, bool stop)
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play effect "
                                            << toString( static_cast<TR1SoundId>(trackInfo.id) );
-                playSound( static_cast<TR1SoundId>(trackInfo.id), nullptr );
+                playSound( core::SoundId{trackInfo.id}, nullptr );
             }
             else
             {
                 BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop effect "
                                            << toString( static_cast<TR1SoundId>(trackInfo.id) );
-                stopSound( static_cast<TR1SoundId>(trackInfo.id), nullptr );
+                stopSound( core::SoundId{trackInfo.id}, nullptr );
             }
             break;
         case audio::TrackType::LaraTalk:
@@ -1555,13 +1562,13 @@ void Engine::load(const YAML::Node& node)
     getCameraController().load( node["camera"] );
 }
 
-std::shared_ptr<audio::SourceHandle> Engine::playSound(const TR1SoundId id, audio::Emitter* emitter)
+std::shared_ptr<audio::SourceHandle> Engine::playSound(const core::SoundId id, audio::Emitter* emitter)
 {
-    Expects( static_cast<size_t>(id) < m_level->m_soundmap.size() );
-    const auto snd = m_level->m_soundmap[static_cast<size_t>(id)];
+    Expects( id.get() < m_level->m_soundmap.size() );
+    const auto snd = m_level->m_soundmap[id.get()];
     if( snd < 0 )
     {
-        BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << toString( id );
+        BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << toString( id.as<TR1SoundId>() );
         return nullptr;
     }
 
@@ -1591,7 +1598,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const TR1SoundId id, audi
         auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
         if( handles.empty() )
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Play looping sound " << toString( id );
+            BOOST_LOG_TRIVIAL( debug ) << "Play looping sound " << toString( id.as<TR1SoundId>() );
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
             handle->setLooping( true );
             handle->play();
@@ -1607,7 +1614,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const TR1SoundId id, audi
         if( !handles.empty() )
         {
             BOOST_ASSERT( handles.size() == 1 );
-            BOOST_LOG_TRIVIAL( debug ) << "Update restarting sound " << toString( id );
+            BOOST_LOG_TRIVIAL( debug ) << "Update restarting sound " << toString( id.as<TR1SoundId>() );
             handle = handles[0];
             handle->setPitch( pitch );
             handle->setGain( volume );
@@ -1617,7 +1624,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const TR1SoundId id, audi
         }
         else
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Play restarting sound " << toString( id );
+            BOOST_LOG_TRIVIAL( debug ) << "Play restarting sound " << toString( id.as<TR1SoundId>() );
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
         }
     }
@@ -1626,7 +1633,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const TR1SoundId id, audi
         auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
         if( handles.empty() )
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Play non-playing sound " << toString( id );
+            BOOST_LOG_TRIVIAL( debug ) << "Play non-playing sound " << toString( id.as<TR1SoundId>() );
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
         }
         else
@@ -1636,17 +1643,16 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const TR1SoundId id, audi
     }
     else
     {
-        BOOST_LOG_TRIVIAL( debug ) << "Default play mode - playing sound " << toString( id );
+        BOOST_LOG_TRIVIAL( debug ) << "Default play mode - playing sound " << toString( id.as<TR1SoundId>() );
         handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
     }
 
     return handle;
 }
 
-void Engine::stopSound(const TR1SoundId soundId, audio::Emitter* emitter)
+void Engine::stopSound(const core::SoundId soundId, audio::Emitter* emitter)
 {
-    BOOST_ASSERT( static_cast<size_t>(soundId) < m_level->m_soundmap.size() );
-    const auto& details = m_level->m_soundDetails[m_level->m_soundmap[static_cast<size_t>(soundId)]];
+    const auto& details = m_level->m_soundDetails.at( m_level->m_soundmap.at( soundId.get() ) );
     const size_t first = details.sample.get();
     const size_t last = first + details.getSampleCount();
 
@@ -1657,13 +1663,13 @@ void Engine::stopSound(const TR1SoundId soundId, audio::Emitter* emitter)
     }
 
     if( !anyStopped )
-        BOOST_LOG_TRIVIAL( debug ) << "Attempting to stop sound " << toString( soundId )
+        BOOST_LOG_TRIVIAL( debug ) << "Attempting to stop sound " << toString( soundId.as<TR1SoundId>() )
                                    << " (samples " << first << ".." << (last - 1) << ") didn't stop any sample";
     else
-        BOOST_LOG_TRIVIAL( debug ) << "Stopped samples of sound " << toString( soundId );
+        BOOST_LOG_TRIVIAL( debug ) << "Stopped samples of sound " << toString( soundId.as<TR1SoundId>() );
 }
 
-std::shared_ptr<items::PickupItem> Engine::createPickup(const TR1ItemId type,
+std::shared_ptr<items::PickupItem> Engine::createPickup(const core::TypeId type,
                                                         const gsl::not_null<const loader::file::Room*>& room,
                                                         const core::TRVec& position)
 {
@@ -1743,7 +1749,7 @@ const std::vector<loader::file::CinematicFrame>& Engine::getCinematicFrames() co
     return m_level->m_cinematicFrames;
 }
 
-const std::vector<loader::file::Camera>& engine::Engine::getCameras() const
+const std::vector<loader::file::Camera>& Engine::getCameras() const
 {
     return m_level->m_cameras;
 }
@@ -1763,7 +1769,7 @@ void Engine::update(const bool godMode)
         if( item->m_isActive )
             item->update();
 
-        item->getNode()->setVisible( item->m_state.triggerState != engine::items::TriggerState::Invisible );
+        item->getNode()->setVisible( item->m_state.triggerState != items::TriggerState::Invisible );
     }
 
     for( const auto& item : m_dynamicItems )
@@ -1771,7 +1777,7 @@ void Engine::update(const bool godMode)
         if( item->m_isActive )
             item->update();
 
-        item->getNode()->setVisible( item->m_state.triggerState != engine::items::TriggerState::Invisible );
+        item->getNode()->setVisible( item->m_state.triggerState != items::TriggerState::Invisible );
     }
 
     auto currentParticles = std::move( m_particles );
@@ -1839,16 +1845,16 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Fon
             drawText( font, 10, y, item->getNode()->getId() );
             switch( item->m_state.triggerState )
             {
-                case engine::items::TriggerState::Inactive:
+                case items::TriggerState::Inactive:
                     drawText( font, 180, y, "inactive" );
                     break;
-                case engine::items::TriggerState::Active:
+                case items::TriggerState::Active:
                     drawText( font, 180, y, "active" );
                     break;
-                case engine::items::TriggerState::Deactivated:
+                case items::TriggerState::Deactivated:
                     drawText( font, 180, y, "deactivated" );
                     break;
-                case engine::items::TriggerState::Invisible:
+                case items::TriggerState::Invisible:
                     drawText( font, 180, y, "invisible" );
                     break;
             }
@@ -1951,22 +1957,22 @@ Engine::Engine()
 
     const auto baseName = cutsceneName.empty() ? levelInfo.get<std::string>( "baseName" ) : cutsceneName;
     Expects( !baseName.empty() );
-    sol::optional<engine::TR1TrackId> trackToPlay = levelInfo["track"];
+    sol::optional<TR1TrackId> trackToPlay = levelInfo["track"];
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );
 
-    std::map<engine::TR1ItemId, size_t> initInv;
+    std::map<TR1ItemId, size_t> initInv;
 
     if( sol::optional<sol::table> tbl = levelInfo["inventory"] )
     {
         for( const auto& kv : *tbl )
-            initInv[engine::EnumUtil<engine::TR1ItemId>::fromString( kv.first.as<std::string>() )]
+            initInv[EnumUtil<TR1ItemId>::fromString( kv.first.as<std::string>() )]
                     += kv.second.as<size_t>();
     }
 
     if( sol::optional<sol::table> tbl = m_scriptEngine["cheats"]["inventory"] )
     {
         for( const auto& kv : *tbl )
-            initInv[engine::EnumUtil<engine::TR1ItemId>::fromString( kv.first.as<std::string>() )]
+            initInv[EnumUtil<TR1ItemId>::fromString( kv.first.as<std::string>() )]
                     += kv.second.as<size_t>();
     }
 
@@ -2039,11 +2045,11 @@ Engine::Engine()
 
         if( bool(levelInfo["gunSwap"]) )
         {
-            const auto& laraPistol = findAnimatedModelForType( engine::TR1ItemId::LaraPistolsAnim );
+            const auto& laraPistol = findAnimatedModelForType( TR1ItemId::LaraPistolsAnim );
             Expects( laraPistol != nullptr );
             for( const auto& item : m_itemNodes | boost::adaptors::map_values )
             {
-                if( item->m_state.type != engine::TR1ItemId::CutsceneActor1 )
+                if( item->m_state.type.as<TR1ItemId>() != TR1ItemId::CutsceneActor1 )
                     continue;
 
                 item->getNode()->getChild( 1 )->setDrawable( laraPistol->models[1].get() );
@@ -2101,7 +2107,7 @@ void Engine::run()
     auto font = std::make_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
     font->setTarget( screenOverlay->getImage() );
 
-    const auto& trFontGraphics = m_level->m_spriteSequences.at( engine::TR1ItemId::FontGraphics );
+    const auto& trFontGraphics = m_level->m_spriteSequences.at( core::TypeId{static_cast<core::TypeId::type>(TR1ItemId::FontGraphics)} );
     auto trFont = render::CachedFont( *trFontGraphics );
 
     auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
@@ -2195,7 +2201,7 @@ void Engine::run()
         {
             drawDebugInfo( font, game->getFrameRate() );
 
-            for( const std::shared_ptr<engine::items::ItemNode>& ctrl : m_itemNodes | boost::adaptors::map_values )
+            for( const std::shared_ptr<items::ItemNode>& ctrl : m_itemNodes | boost::adaptors::map_values )
             {
                 const auto vertex = glm::vec3{game->getScene()->getActiveCamera()->getViewMatrix()
                                               * glm::vec4( ctrl->getNode()->getTranslationWorld(), 1 )};
@@ -2327,9 +2333,9 @@ const std::vector<uint16_t>& Engine::getOverlaps() const
     return m_level->m_overlaps;
 }
 
-const std::unique_ptr<loader::file::SkeletalModelType>& Engine::findAnimatedModelForType(TR1ItemId type) const
+const std::unique_ptr<loader::file::SkeletalModelType>& Engine::findAnimatedModelForType(core::TypeId type) const
 {
-    return m_level->findAnimatedModelForType(type);
+    return m_level->findAnimatedModelForType( type );
 }
 
 Engine::~Engine() = default;

@@ -40,7 +40,7 @@ Mood parseMood(const std::string& s)
 }
 }
 
-gsl::span<const uint16_t> LotInfo::getOverlaps(const engine::Engine& engine, const uint16_t idx)
+gsl::span<const uint16_t> LotInfo::getOverlaps(const Engine& engine, const uint16_t idx)
 {
     const auto first = &engine.getOverlaps().at( idx & 0x3fffu );
     auto last = first;
@@ -54,7 +54,7 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const engine::Engine& engine, con
     return gsl::make_span( first, last + 1 );
 }
 
-bool LotInfo::calculateTarget(const engine::Engine& engine, core::TRVec& target, const items::ItemState& item)
+bool LotInfo::calculateTarget(const Engine& engine, core::TRVec& target, const items::ItemState& item)
 {
     updatePath( engine, 5 );
 
@@ -319,7 +319,7 @@ void LotInfo::load(const YAML::Node& n, const Engine& engine)
     target.load( n["target"] );
 }
 
-void updateMood(const engine::Engine& engine, const items::ItemState& item, const AiInfo& aiInfo, const bool violent)
+void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo& aiInfo, const bool violent)
 {
     if( item.creatureInfo == nullptr )
         return;
@@ -431,7 +431,7 @@ void updateMood(const engine::Engine& engine, const items::ItemState& item, cons
     {
         case Mood::Attack:
             if( util::rand15()
-                >= engine.getScriptEngine()["getObjectInfo"].call<engine::script::ObjectInfo>( item.type ).target_update_chance )
+                >= engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>( item.type.get() ).target_update_chance )
                 break;
 
             creatureInfo.lot.target = engine.getLara().m_state.position.position;
@@ -510,7 +510,7 @@ void updateMood(const engine::Engine& engine, const items::ItemState& item, cons
     creatureInfo.lot.calculateTarget( engine, creatureInfo.target, item );
 }
 
-AiInfo::AiInfo(engine::Engine& engine, items::ItemState& item)
+AiInfo::AiInfo(Engine& engine, items::ItemState& item)
 {
     if( item.creatureInfo == nullptr )
         return;
@@ -530,7 +530,7 @@ AiInfo::AiInfo(engine::Engine& engine, items::ItemState& item)
         enemy_zone |= 0x4000;
     }
 
-    auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<engine::script::ObjectInfo>( item.type );
+    auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>( item.type.get() );
     const core::Length pivotLength{static_cast<core::Length::type>(objectInfo.pivot_length)};
     const auto d = engine.getLara().m_state.position.position
                    - (item.position.position + util::pitch( pivotLength, item.rotation.Y ));
@@ -551,10 +551,10 @@ AiInfo::AiInfo(engine::Engine& engine, items::ItemState& item)
     }
 }
 
-CreatureInfo::CreatureInfo(const engine::Engine& engine, const gsl::not_null<items::ItemState*>& item)
+CreatureInfo::CreatureInfo(const Engine& engine, const core::TypeId type)
         : lot{engine}
 {
-    switch( item->type )
+    switch( type.as<TR1ItemId>() )
     {
         case TR1ItemId::Wolf:
         case TR1ItemId::LionMale:

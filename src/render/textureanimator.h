@@ -42,7 +42,7 @@ class TextureAnimator
         };
 
 
-        std::vector<core::Id<uint16_t, core::TextureProxyIdTag>> proxyIds;
+        std::vector<core::TextureProxyId> proxyIds;
         std::map<std::shared_ptr<gameplay::Mesh>, std::set<VertexReference>> affectedVertices;
 
         void rotate()
@@ -54,7 +54,7 @@ class TextureAnimator
         }
 
         void registerVertex(const std::shared_ptr<gameplay::Mesh>& mesh, VertexReference vertex,
-                            const core::Id<uint16_t, core::TextureProxyIdTag> proxyId)
+                            const core::TextureProxyId proxyId)
         {
             //! @fixme Expects(mesh->getVertexFormat().getElement(0).usage == gameplay::VertexFormat::TEXCOORD);
 
@@ -93,14 +93,14 @@ class TextureAnimator
 
 
     std::vector<Sequence> m_sequences;
-    std::map<core::Id<uint16_t, core::TextureProxyIdTag>, size_t> m_sequenceByProxyId;
+    std::map<core::TextureProxyId, size_t> m_sequenceByProxyId;
 
 public:
     explicit TextureAnimator(const std::vector<uint16_t>& data,
                              std::vector<loader::file::TextureLayoutProxy>& textureProxies,
                              std::vector<loader::file::DWordTexture>& textures);
 
-    void registerVertex(const core::Id<uint16_t, core::TextureProxyIdTag> proxyId,
+    void registerVertex(const core::TextureProxyId proxyId,
                         const std::shared_ptr<gameplay::Mesh>& mesh,
                         const int sourceIndex,
                         const size_t bufferIndex)
