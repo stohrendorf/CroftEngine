@@ -32,7 +32,7 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
 
     bool hasKey = false;
-    switch( m_state.type.as<TR1ItemId>() )
+    switch( m_state.type.get_as<TR1ItemId>() )
     {
         case TR1ItemId::Keyhole1:
             hasKey = getEngine().takeInventoryItem( TR1ItemId::Key1 );

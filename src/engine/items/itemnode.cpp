@@ -102,7 +102,7 @@ ModelItemNode::ModelItemNode(const gsl::not_null<Engine*>& engine,
                              const loader::file::SkeletalModelType& animatedModel)
         : ItemNode{engine, room, item, hasUpdateFunction}
         , m_skeleton{std::make_shared<SkeletalModelNode>(
-                std::string( "skeleton(type:" ) + toString( item.type.as<TR1ItemId>() ) + ")",
+                std::string( "skeleton(type:" ) + toString( item.type.get_as<TR1ItemId>() ) + ")",
                 engine,
                 animatedModel )
         }
@@ -754,28 +754,6 @@ void ItemState::collectZoneBoxes(const Engine& engine)
             creatureInfo->lot.boxes.emplace_back( &box );
         }
     }
-}
-
-sol::usertype<ItemState>& ItemState::userType()
-{
-    static auto type = sol::usertype<ItemState>(
-            sol::meta_function::construct, sol::no_constructor,
-            "position", [](ItemState& self) { return self.position.position; },
-            "rotation", [](ItemState& self) { return self.rotation; },
-            "current_anim_state", sol::readonly( &ItemState::current_anim_state ),
-            "goal_anim_state", &ItemState::goal_anim_state,
-            "required_anim_state", &ItemState::required_anim_state,
-            "activation_state", &ItemState::triggerState,
-            "patch_heights", [](ItemState& /*self*/, int /*delta*/) { /* TODO */ },
-            "health", &ItemState::health,
-            "do_enemy_push", []() { /* TODO */ },
-            "set_y_angle", [](ItemState& self, const int16_t angle) { self.rotation.Y = core::Angle( angle ); },
-            "set_collidable", [](ItemState& self, const bool flag) { self.collidable = flag; },
-            "frame_number", &ItemState::frame_number,
-            "enable_ai", &ItemState::initCreatureInfo,
-            "creature_info", sol::readonly( &ItemState::creatureInfo )
-    );
-    return type;
 }
 
 YAML::Node ItemState::save(const Engine& engine) const

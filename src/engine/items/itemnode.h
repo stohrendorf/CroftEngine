@@ -158,8 +158,6 @@ struct ItemState final : public audio::Emitter
     {
         return position.room->getSectorByAbsolutePosition( position.position );
     }
-
-    static sol::usertype<ItemState>& userType();
 };
 
 
@@ -265,11 +263,6 @@ public:
     virtual bool triggerSwitch(core::Frame timeout) = 0;
 
     std::shared_ptr<audio::SourceHandle> playSoundEffect(core::SoundId id);
-
-    std::shared_ptr<audio::SourceHandle> playSoundEffect(TR1SoundId id)
-    {
-        return playSoundEffect( core::SoundId{static_cast<core::SoundId::type>(id)} );
-    }
 
     bool triggerPickUp();
 

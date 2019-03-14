@@ -12,7 +12,7 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<Engine*>& engine,
         : ModelItemNode{engine, room, item, true, animatedModel}
 {
     m_block = engine
-            ->createItem<ThorHammerBlock>( core::TypeId{static_cast<core::TypeId::type>(TR1ItemId::ThorHammerBlock)},
+            ->createItem<ThorHammerBlock>( TR1ItemId::ThorHammerBlock,
                                            room,
                                            core::Angle( item.rotation ),
                                            item.position,

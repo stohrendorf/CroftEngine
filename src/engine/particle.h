@@ -71,26 +71,10 @@ public:
                       float scale = 1);
 
     explicit Particle(const std::string& id,
-                      const TR1ItemId objectNumber,
-                      const gsl::not_null<const loader::file::Room*>& room,
-                      Engine& engine,
-                      float scale = 1)
-            : Particle( id, core::TypeId{static_cast<core::TypeId::type>(objectNumber)}, room, engine, scale )
-    {}
-
-    explicit Particle(const std::string& id,
                       const core::TypeId objectNumber,
                       const core::RoomBoundPosition& pos,
                       Engine& engine,
                       float scale = 1);
-
-    explicit Particle(const std::string& id,
-                      const TR1ItemId objectNumber,
-                      const core::RoomBoundPosition& pos,
-                      Engine& engine,
-                      float scale = 1)
-            : Particle( id, core::TypeId{static_cast<core::TypeId::type>(objectNumber)}, pos, engine, scale )
-    {}
 
     void updateLight()
     {

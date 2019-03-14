@@ -61,7 +61,7 @@ public:
         }
 
         auto dart = getEngine()
-                .createItem<Dart>( core::TypeId{static_cast<core::TypeId::type>(TR1ItemId::Dart)},
+                .createItem<Dart>( TR1ItemId::Dart,
                                    m_state.position.room,
                                    m_state.rotation.Y,
                                    m_state.position.position - d,

@@ -1,40 +1,11 @@
 #pragma once
 
-#include <type_traits>
+#include "tpl_helper.h"
+
 #include <vector>
 
 namespace core
 {
-namespace detail
-{
-template<typename T, typename... Args>
-struct contains;
-
-template<typename T>
-struct contains<T>
-{
-    static constexpr bool value = false;
-};
-
-template<typename T, typename... Args>
-struct contains<T, T, Args...>
-{
-    static constexpr bool value = true;
-};
-
-template<typename T, typename A, typename... Args>
-struct contains<T, A, Args...>
-{
-    static constexpr bool value = contains<T, Args...>::value;
-};
-
-template<typename T, typename... Args>
-constexpr bool contains_v = contains<
-        std::remove_cv<std::remove_reference_t<T>>,
-        std::remove_cv<std::remove_reference_t<Args>>...
->::value;
-}
-
 template<typename OffsetType, typename... DataTypes>
 struct ContainerOffset
 {
@@ -59,7 +30,7 @@ struct ContainerOffset
     template<typename T>
     offset_type index() const
     {
-        static_assert( detail::contains_v<T, DataTypes...>, "Can only use declared types for index conversion" );
+        static_assert( tpl::contains_v<T, DataTypes...>, "Can only use declared types for index conversion" );
         if( offset % sizeof( T ) != 0 )
             throw std::runtime_error( "Offset not dividable by element size" );
 
@@ -68,7 +39,7 @@ struct ContainerOffset
 
     template<typename T>
     constexpr
-    std::enable_if_t<detail::contains_v<T, DataTypes...>, T&>
+    std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
     from(std::vector<T>& v) const
     {
         if( offset % sizeof( T ) != 0 )
@@ -79,7 +50,7 @@ struct ContainerOffset
 
     template<typename T>
     constexpr
-    std::enable_if_t<detail::contains_v<T, DataTypes...>, T&>
+    std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
     checkedFrom(std::vector<T>& v) const
     {
         if( offset % sizeof( T ) != 0 )
@@ -90,7 +61,7 @@ struct ContainerOffset
 
     template<typename T>
     constexpr
-    std::enable_if_t<detail::contains_v<T, DataTypes...>, const T&>
+    std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
     from(const std::vector<T>& v) const
     {
         if( offset % sizeof( T ) != 0 )
@@ -101,7 +72,7 @@ struct ContainerOffset
 
     template<typename T>
     constexpr
-    std::enable_if_t<detail::contains_v<T, DataTypes...>, const T&>
+    std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
     checkedFrom(const std::vector<T>& v) const
     {
         if( offset % sizeof( T ) != 0 )
@@ -135,7 +106,7 @@ struct ContainerIndex
 
     template<typename T>
     constexpr
-    std::enable_if_t<detail::contains_v<T, DataTypes...>, T&>
+    std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
     from(std::vector<T>& v) const
     {
         return v[index];
@@ -143,7 +114,7 @@ struct ContainerIndex
 
     template<typename T>
     constexpr
-    std::enable_if_t<detail::contains_v<T, DataTypes...>, T&>
+    std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
     checkedFrom(std::vector<T>& v) const
     {
         return v[index];
@@ -151,7 +122,7 @@ struct ContainerIndex
 
     template<typename T>
     constexpr
-    std::enable_if_t<detail::contains_v<T, DataTypes...>, const T&>
+    std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
     from(const std::vector<T>& v) const
     {
         return v.at( index );
@@ -159,7 +130,7 @@ struct ContainerIndex
 
     template<typename T>
     constexpr
-    std::enable_if_t<detail::contains_v<T, DataTypes...>, const T&>
+    std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
     checkedFrom(const std::vector<T>& v) const
     {
         return v.at( index );

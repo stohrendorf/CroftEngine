@@ -554,7 +554,7 @@ AiInfo::AiInfo(Engine& engine, items::ItemState& item)
 CreatureInfo::CreatureInfo(const Engine& engine, const core::TypeId type)
         : lot{engine}
 {
-    switch( type.as<TR1ItemId>() )
+    switch( type.get_as<TR1ItemId>() )
     {
         case TR1ItemId::Wolf:
         case TR1ItemId::LionMale:

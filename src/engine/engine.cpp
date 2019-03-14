@@ -76,7 +76,6 @@ sol::state createScriptEngine()
     engine.set_usertype( core::TRRotation::userType() );
     engine.set_usertype( core::TRVec::userType() );
     engine.set_usertype( ai::CreatureInfo::userType() );
-    engine.set_usertype( items::ItemState::userType() );
     engine.set_usertype( script::ObjectInfo::userType() );
     engine.set_usertype( script::TrackInfo::userType() );
 
@@ -223,7 +222,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
             }
             else if( auto objectInfo = m_scriptEngine["getObjectInfo"].call( -1 ) )
             {
-                BOOST_LOG_TRIVIAL( info ) << "Instantiating scripted type " << toString( item.type.as<TR1ItemId>() )
+                BOOST_LOG_TRIVIAL( info ) << "Instantiating scripted type " << toString( item.type.get_as<TR1ItemId>() )
                                           << "/id "
                                           << id;
 
@@ -279,8 +278,8 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 modelNode = std::make_shared<items::TrapDoorUp>( this, room, item, *model );
             }
-            else if( item.type.as<TR1ItemId>() >= TR1ItemId::PushableBlock1
-                     && item.type.as<TR1ItemId>() <= TR1ItemId::PushableBlock4 )
+            else if( item.type >= TR1ItemId::PushableBlock1
+                     && item.type <= TR1ItemId::PushableBlock4 )
             {
                 modelNode = std::make_shared<items::Block>( this, room, item, *model );
             }
@@ -296,12 +295,12 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 modelNode = std::make_shared<items::UnderwaterSwitch>( this, room, item, *model );
             }
-            else if( item.type.as<TR1ItemId>() >= TR1ItemId::Door1 && item.type.as<TR1ItemId>() <= TR1ItemId::Door8 )
+            else if( item.type >= TR1ItemId::Door1 && item.type <= TR1ItemId::Door8 )
             {
                 modelNode = std::make_shared<items::Door>( this, room, item, *model );
             }
-            else if( item.type.as<TR1ItemId>() >= TR1ItemId::Trapdoor1
-                     && item.type.as<TR1ItemId>() <= TR1ItemId::Trapdoor2 )
+            else if( item.type >= TR1ItemId::Trapdoor1
+                     && item.type <= TR1ItemId::Trapdoor2 )
             {
                 modelNode = std::make_shared<items::TrapDoorDown>( this, room, item, *model );
             }
@@ -317,18 +316,18 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 modelNode = std::make_shared<items::BridgeSlope2>( this, room, item, *model );
             }
-            else if( item.type.as<TR1ItemId>() >= TR1ItemId::Keyhole1
-                     && item.type.as<TR1ItemId>() <= TR1ItemId::Keyhole4 )
+            else if( item.type >= TR1ItemId::Keyhole1
+                     && item.type <= TR1ItemId::Keyhole4 )
             {
                 modelNode = std::make_shared<items::KeyHole>( this, room, item, *model );
             }
-            else if( item.type.as<TR1ItemId>() >= TR1ItemId::PuzzleHole1
-                     && item.type.as<TR1ItemId>() <= TR1ItemId::PuzzleHole4 )
+            else if( item.type >= TR1ItemId::PuzzleHole1
+                     && item.type <= TR1ItemId::PuzzleHole4 )
             {
                 modelNode = std::make_shared<items::PuzzleHole>( this, room, item, *model );
             }
-            else if( item.type.as<TR1ItemId>() >= TR1ItemId::Animating1
-                     && item.type.as<TR1ItemId>() <= TR1ItemId::Animating3 )
+            else if( item.type >= TR1ItemId::Animating1
+                     && item.type <= TR1ItemId::Animating3 )
             {
                 modelNode = std::make_shared<items::Animating>( this, room, item, *model );
             }
@@ -419,7 +418,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
             }
             else
             {
-                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type.as<TR1ItemId>() );
+                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type.get_as<TR1ItemId>() );
 
                 modelNode = std::make_shared<items::StubItem>( this, room, item, *model );
                 if( item.type == TR1ItemId::MidasGoldTouch
@@ -454,7 +453,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 node = std::make_shared<items::ScionPieceItem>( this,
                                                                 std::string( "sprite(type:" )
-                                                                + toString( item.type.as<TR1ItemId>() ) + ")",
+                                                                + toString( item.type.get_as<TR1ItemId>() ) + ")",
                                                                 room,
                                                                 item,
                                                                 sprite,
@@ -486,7 +485,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 node = std::make_shared<items::PickupItem>( this,
                                                             std::string( "sprite(type:" )
-                                                            + toString( item.type.as<TR1ItemId>() ) + ")",
+                                                            + toString( item.type.get_as<TR1ItemId>() ) + ")",
                                                             room,
                                                             item,
                                                             sprite,
@@ -494,10 +493,10 @@ std::shared_ptr<LaraNode> Engine::createItems()
             }
             else
             {
-                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type.as<TR1ItemId>() );
+                BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type.get_as<TR1ItemId>() );
                 node = std::make_shared<items::SpriteItemNode>( this,
                                                                 std::string( "sprite(type:" )
-                                                                + toString( item.type.as<TR1ItemId>() ) + ")",
+                                                                + toString( item.type.get_as<TR1ItemId>() ) + ")",
                                                                 room,
                                                                 item,
                                                                 true,
@@ -1240,11 +1239,11 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
     }
 }
 
-void Engine::addInventoryItem(const TR1ItemId id, const size_t quantity)
+void Engine::addInventoryItem(const core::TypeId id, const size_t quantity)
 {
-    BOOST_LOG_TRIVIAL( debug ) << "Item " << toString( id ) << " added to inventory";
+    BOOST_LOG_TRIVIAL( debug ) << "Item " << toString( id.get_as<TR1ItemId>() ) << " added to inventory";
 
-    switch( id )
+    switch( id.get_as<TR1ItemId>() )
     {
         case TR1ItemId::PistolsSprite:
         case TR1ItemId::Pistols:
@@ -1362,7 +1361,7 @@ void Engine::addInventoryItem(const TR1ItemId id, const size_t quantity)
             m_inventory[TR1ItemId::ScionPiece5] += quantity;
             break;
         default:
-            BOOST_LOG_TRIVIAL( warning ) << "Cannot add item " << toString( id ) << " to inventory";
+            BOOST_LOG_TRIVIAL( warning ) << "Cannot add item " << toString( id.get_as<TR1ItemId>() ) << " to inventory";
             return;
     }
 }
@@ -1568,7 +1567,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const core::SoundId id, a
     const auto snd = m_level->m_soundmap[id.get()];
     if( snd < 0 )
     {
-        BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << toString( id.as<TR1SoundId>() );
+        BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << toString( id.get_as<TR1SoundId>() );
         return nullptr;
     }
 
@@ -1598,7 +1597,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const core::SoundId id, a
         auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
         if( handles.empty() )
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Play looping sound " << toString( id.as<TR1SoundId>() );
+            BOOST_LOG_TRIVIAL( debug ) << "Play looping sound " << toString( id.get_as<TR1SoundId>() );
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
             handle->setLooping( true );
             handle->play();
@@ -1614,7 +1613,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const core::SoundId id, a
         if( !handles.empty() )
         {
             BOOST_ASSERT( handles.size() == 1 );
-            BOOST_LOG_TRIVIAL( debug ) << "Update restarting sound " << toString( id.as<TR1SoundId>() );
+            BOOST_LOG_TRIVIAL( debug ) << "Update restarting sound " << toString( id.get_as<TR1SoundId>() );
             handle = handles[0];
             handle->setPitch( pitch );
             handle->setGain( volume );
@@ -1624,7 +1623,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const core::SoundId id, a
         }
         else
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Play restarting sound " << toString( id.as<TR1SoundId>() );
+            BOOST_LOG_TRIVIAL( debug ) << "Play restarting sound " << toString( id.get_as<TR1SoundId>() );
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
         }
     }
@@ -1633,7 +1632,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const core::SoundId id, a
         auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
         if( handles.empty() )
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Play non-playing sound " << toString( id.as<TR1SoundId>() );
+            BOOST_LOG_TRIVIAL( debug ) << "Play non-playing sound " << toString( id.get_as<TR1SoundId>() );
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
         }
         else
@@ -1643,7 +1642,7 @@ std::shared_ptr<audio::SourceHandle> Engine::playSound(const core::SoundId id, a
     }
     else
     {
-        BOOST_LOG_TRIVIAL( debug ) << "Default play mode - playing sound " << toString( id.as<TR1SoundId>() );
+        BOOST_LOG_TRIVIAL( debug ) << "Default play mode - playing sound " << toString( id.get_as<TR1SoundId>() );
         handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
     }
 
@@ -1663,10 +1662,10 @@ void Engine::stopSound(const core::SoundId soundId, audio::Emitter* emitter)
     }
 
     if( !anyStopped )
-        BOOST_LOG_TRIVIAL( debug ) << "Attempting to stop sound " << toString( soundId.as<TR1SoundId>() )
+        BOOST_LOG_TRIVIAL( debug ) << "Attempting to stop sound " << toString( soundId.get_as<TR1SoundId>() )
                                    << " (samples " << first << ".." << (last - 1) << ") didn't stop any sample";
     else
-        BOOST_LOG_TRIVIAL( debug ) << "Stopped samples of sound " << toString( soundId.as<TR1SoundId>() );
+        BOOST_LOG_TRIVIAL( debug ) << "Stopped samples of sound " << toString( soundId.get_as<TR1SoundId>() );
 }
 
 std::shared_ptr<items::PickupItem> Engine::createPickup(const core::TypeId type,
@@ -2049,7 +2048,7 @@ Engine::Engine()
             Expects( laraPistol != nullptr );
             for( const auto& item : m_itemNodes | boost::adaptors::map_values )
             {
-                if( item->m_state.type.as<TR1ItemId>() != TR1ItemId::CutsceneActor1 )
+                if( item->m_state.type != TR1ItemId::CutsceneActor1 )
                     continue;
 
                 item->getNode()->getChild( 1 )->setDrawable( laraPistol->models[1].get() );
@@ -2107,7 +2106,7 @@ void Engine::run()
     auto font = std::make_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
     font->setTarget( screenOverlay->getImage() );
 
-    const auto& trFontGraphics = m_level->m_spriteSequences.at( core::TypeId{static_cast<core::TypeId::type>(TR1ItemId::FontGraphics)} );
+    const auto& trFontGraphics = m_level->m_spriteSequences.at( TR1ItemId::FontGraphics );
     auto trFont = render::CachedFont( *trFontGraphics );
 
     auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;

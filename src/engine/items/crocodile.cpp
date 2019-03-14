@@ -71,7 +71,7 @@ void Crocodile::update()
             else
             {
                 m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[0];
-                m_state.type = core::TypeId{static_cast<core::TypeId::type>(TR1ItemId::CrocodileOnLand)};
+                m_state.type = TR1ItemId::CrocodileOnLand;
                 m_state.frame_number = m_state.anim->firstFrame;
                 m_state.rotation.X = 0_deg;
                 m_state.goal_anim_state = m_state.anim->state_id;
@@ -109,7 +109,7 @@ void Crocodile::update()
             else
             {
                 m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::CrocodileOnLand )->animations[11];
-                m_state.type = core::TypeId{static_cast<core::TypeId::type>(TR1ItemId::CrocodileOnLand)};
+                m_state.type = TR1ItemId::CrocodileOnLand;
                 m_state.goal_anim_state = 7_as;
                 m_state.frame_number = m_state.anim->firstFrame;
                 m_state.current_anim_state = m_state.goal_anim_state;
@@ -259,7 +259,7 @@ void Crocodile::update()
         if( m_state.position.room->isWaterRoom() )
         {
             m_state.anim = &getEngine().findAnimatedModelForType( TR1ItemId::CrocodileInWater )->animations[0];
-            m_state.type = core::TypeId{static_cast<core::TypeId::type>(TR1ItemId::CrocodileInWater)};
+            m_state.type = TR1ItemId::CrocodileInWater;
             m_state.frame_number = m_state.anim->firstFrame;
             m_state.goal_anim_state = m_state.anim->state_id;
             m_state.current_anim_state = m_state.anim->state_id;

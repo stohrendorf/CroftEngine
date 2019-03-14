@@ -12,7 +12,7 @@ Mummy::Mummy(const gsl::not_null<Engine*>& engine, const gsl::not_null<const loa
         : ModelItemNode{engine, room, item, true, animatedModel}
 {
     m_state.health = core::Health{static_cast<core::Health::type>(engine->getScriptEngine()["getObjectInfo"]
-            .call<engine::script::ObjectInfo>( m_state.type ).hit_points)};
+            .call<engine::script::ObjectInfo>( m_state.type.get() ).hit_points)};
 }
 
 void Mummy::update()

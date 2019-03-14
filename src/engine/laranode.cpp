@@ -2112,7 +2112,7 @@ void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const c
         return;
 
     TR1SoundId soundId;
-    switch( item.m_state.type.as<TR1ItemId>() )
+    switch( item.m_state.type.get_as<TR1ItemId>() )
     {
         case TR1ItemId::Wolf:
             soundId = TR1SoundId::WolfHurt;

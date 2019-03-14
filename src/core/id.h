@@ -1,7 +1,15 @@
 #pragma once
 
+#include "tpl_helper.h"
+
 #include <cstdint>
 #include <functional>
+
+namespace engine
+{
+enum class TR1ItemId;
+enum class TR1SoundId;
+}
 
 namespace core
 {
@@ -10,9 +18,11 @@ namespace core
  * @tparam StorageType ID type
  * @tparam Tag Tag for avoiding mixing different IDs with the same storage type
  */
-template<typename StorageType, typename Tag>
+template<typename StorageType, typename Tag, typename... Enums>
 struct Id
 {
+    static_assert( tpl::is_all_enum_v<Enums...>, "Compatible types must be enums" );
+
     using type = StorageType;
     using tag = Tag;
 
@@ -21,7 +31,11 @@ struct Id
     {}
 
     template<typename T>
-    constexpr Id(T) = delete;
+    constexpr Id(T value)
+            : m_value{static_cast<type>(value)}
+    {
+        static_assert( tpl::contains_v<T, Enums...>, "Incompatible type" );
+    }
 
     constexpr auto& operator=(type value)
     {
@@ -30,7 +44,12 @@ struct Id
     }
 
     template<typename T>
-    constexpr auto& operator=(T value) = delete;
+    constexpr auto& operator=(T value)
+    {
+        static_assert( tpl::contains_v<T, Enums...>, "Incompatible type" );
+        m_value = static_cast<type>(value);
+        return *this;
+    }
 
     constexpr explicit operator type() const
     {
@@ -42,10 +61,62 @@ struct Id
         return m_value;
     }
 
-    template<typename EType>
-    constexpr typename std::enable_if<std::is_enum<EType>::value, EType>::type as() const
+    template<typename T>
+    constexpr T get_as() const
     {
-        return static_cast<EType>(m_value);
+        static_assert( tpl::contains_v<T, Enums...>, "Incompatible target type" );
+        return static_cast<T>(m_value);
+    }
+
+    constexpr bool operator<(const Id<type, tag, Enums...> r) const
+    {
+        return get() < r.get();
+    }
+
+    constexpr bool operator==(const Id<type, tag, Enums...> r) const
+    {
+        return get() == r.get();
+    }
+
+    constexpr bool operator!=(const Id<type, tag, Enums...> r) const
+    {
+        return get() != r.get();
+    }
+
+    template<typename T>
+    constexpr bool operator==(const T r) const
+    {
+        return get_as<T>() == r;
+    }
+
+    template<typename T>
+    constexpr bool operator!=(const T r) const
+    {
+        return get_as<T>() != r;
+    }
+
+    template<typename T>
+    constexpr bool operator<(const T r) const
+    {
+        return get_as<T>() < r;
+    }
+
+    template<typename T>
+    constexpr bool operator<=(const T r) const
+    {
+        return get_as<T>() <= r;
+    }
+
+    template<typename T>
+    constexpr bool operator>(const T r) const
+    {
+        return get_as<T>() > r;
+    }
+
+    template<typename T>
+    constexpr bool operator>=(const T r) const
+    {
+        return get_as<T>() >= r;
     }
 
 private:
@@ -53,33 +124,13 @@ private:
 };
 
 
-template<typename StorageType, typename Tag>
-constexpr bool operator==(Id<StorageType, Tag> l, Id<StorageType, Tag> r)
-{
-    return l.get() == r.get();
-}
-
-template<typename StorageType, typename Tag, typename EType>
-constexpr typename std::enable_if<std::is_enum<EType>::value, bool>::type operator==(Id<StorageType, Tag> l, EType r)
-{
-    return l.get() == static_cast<StorageType>(r);
-}
-
-template<typename StorageType, typename Tag>
-constexpr bool operator!=(Id<StorageType, Tag> l, Id<StorageType, Tag> r)
-{
-    return l.get() != r.get();
-}
-
-template<typename StorageType, typename Tag>
-constexpr bool operator<(Id<StorageType, Tag> l, Id<StorageType, Tag> r)
-{
-    return l.get() < r.get();
-}
-
 #define DECLARE_ID(name, type) \
     struct name ## _generated_tag {}; \
     using name = ::core::Id<type, name ## _generated_tag>
+
+#define DECLARE_ID_E(name, type, ...) \
+    struct name ## _generated_tag {}; \
+    using name = ::core::Id<type, name ## _generated_tag, __VA_ARGS__>
 
 DECLARE_ID( RoomId8, uint8_t );
 DECLARE_ID( RoomId16, uint16_t );
@@ -96,8 +147,8 @@ DECLARE_ID( BoxId, int16_t );
 DECLARE_ID( SpriteInstanceId, uint16_t );
 DECLARE_ID( ItemId, uint16_t );
 
-DECLARE_ID( TypeId, uint16_t );
-DECLARE_ID( SoundId, uint16_t );
+DECLARE_ID_E( TypeId, uint16_t, engine::TR1ItemId );
+DECLARE_ID_E( SoundId, uint16_t, engine::TR1SoundId );
 
 inline constexpr AnimStateId operator "" _as(unsigned long long value)
 {

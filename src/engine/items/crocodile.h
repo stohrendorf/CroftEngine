@@ -27,7 +27,7 @@ public:
         auto newType = EnumUtil<TR1ItemId>::fromString( n["state"]["type"].as<std::string>() );
 
         if( newType == TR1ItemId::CrocodileOnLand || newType == TR1ItemId::CrocodileInWater )
-            m_state.type = static_cast<core::TypeId::type>(newType);
+            m_state.type = newType;
 
         AIAgent::load( n );
     }
