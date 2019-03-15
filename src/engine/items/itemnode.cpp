@@ -232,7 +232,7 @@ void ItemNode::deactivate()
 
 std::shared_ptr<audio::SourceHandle> ItemNode::playSoundEffect(const core::SoundId id)
 {
-    return getEngine().playSound( id, &m_state );
+    return getEngine().getAudioEngine().playSound( id, &m_state );
 }
 
 bool ItemNode::triggerKey()
@@ -851,7 +851,7 @@ void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
     const auto particle = std::make_shared<RicochetParticle>( pos, getEngine() );
     setParent( particle, m_state.position.room->node );
     getEngine().getParticles().emplace_back( particle );
-    getEngine().playSound( TR1SoundId::Ricochet, particle.get() );
+    getEngine().getAudioEngine().playSound( TR1SoundId::Ricochet, particle.get() );
 }
 
 boost::optional<core::Length> ItemNode::getWaterSurfaceHeight() const

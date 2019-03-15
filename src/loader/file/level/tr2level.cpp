@@ -69,7 +69,6 @@ void TR2Level::loadFileData(audio::SoundEngine& soundEngine)
         for( uint32_t i = 0; i < n; ++i )
         {
             auto m = SkeletalModelType::readTr1( m_reader );
-            // FIXME: this uses TR1 item IDs...
             if( m_animatedModels.find( m->type ) != m_animatedModels.end() )
                 BOOST_THROW_EXCEPTION( std::runtime_error( "Duplicate type id" ) );
 

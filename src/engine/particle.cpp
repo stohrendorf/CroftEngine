@@ -135,7 +135,7 @@ bool FlameParticle::update(Engine& engine)
 
     if( timePerSpriteFrame >= 0 )
     {
-        engine.playSound( TR1SoundId::Burning, this );
+        engine.getAudioEngine().playSound( TR1SoundId::Burning, this );
         if( timePerSpriteFrame != 0 )
         {
             --timePerSpriteFrame;
@@ -188,14 +188,14 @@ bool FlameParticle::update(Engine& engine)
         const auto waterHeight = pos.room->getWaterSurfaceHeight( pos );
         if( !waterHeight.is_initialized() || waterHeight.get() >= pos.position.Y )
         {
-            engine.playSound( TR1SoundId::Burning, this );
+            engine.getAudioEngine().playSound( TR1SoundId::Burning, this );
             engine.getLara().m_state.health -= 3_hp;
             engine.getLara().m_state.is_hit = true;
         }
         else
         {
             timePerSpriteFrame = 0;
-            engine.stopSound( TR1SoundId::Burning, this );
+            engine.getAudioEngine().stopSound( TR1SoundId::Burning, this );
             return false;
         }
     }

@@ -387,7 +387,7 @@ void LaraNode::update()
         m_state.falling = false;
         m_state.position.position.Y += 100_len;
         updateFloorHeight( 0_len );
-        getEngine().stopSound( TR1SoundId::LaraScream, &m_state );
+        getEngine().getAudioEngine().stopSound( TR1SoundId::LaraScream, &m_state );
         if( getCurrentAnimState() == LaraStateId::SwandiveBegin )
         {
             m_state.rotation.X = -45_deg;
@@ -510,7 +510,7 @@ void LaraNode::updateImpl()
     {
         if( m_state.anim->animCommandCount > 0 )
         {
-            const auto* cmd = &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
+            const auto* cmd = &getEngine().getAnimCommands().at( m_state.anim->animCommandIndex );
             for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
             {
                 Expects( cmd < &getEngine().getAnimCommands().back() );
@@ -561,7 +561,7 @@ void LaraNode::updateImpl()
 
     if( m_state.anim->animCommandCount > 0 )
     {
-        const auto* cmd = &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
+        const auto* cmd = &getEngine().getAnimCommands().at( m_state.anim->animCommandIndex );
         for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
         {
             Expects( cmd < &getEngine().getAnimCommands().back() );
@@ -812,16 +812,16 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
                 getEngine().m_levelFinished = true;
                 break;
             case floordata::CommandOpcode::PlayTrack:
-                getEngine().triggerCdTrack( static_cast<TR1TrackId>(command.parameter),
-                                            activationRequest, chunkHeader.sequenceCondition );
+                getEngine().getAudioEngine().triggerCdTrack( static_cast<TR1TrackId>(command.parameter),
+                                                             activationRequest, chunkHeader.sequenceCondition );
                 break;
             case floordata::CommandOpcode::Secret:
             {
                 BOOST_ASSERT( command.parameter < 16 );
-                if( !m_secretsFoundBitmask.test(command.parameter) )
+                if( !m_secretsFoundBitmask.test( command.parameter ) )
                 {
-                    m_secretsFoundBitmask.set(command.parameter);
-                    getEngine().playStopCdTrack( TR1TrackId::Secret, false );
+                    m_secretsFoundBitmask.set( command.parameter );
+                    getEngine().getAudioEngine().playStopCdTrack( TR1TrackId::Secret, false );
                 }
             }
                 break;
@@ -2702,7 +2702,8 @@ YAML::Node LaraNode::AimInfo::save(const engine::Engine& engine) const
 {
     YAML::Node node;
     if( weaponAnimData != nullptr )
-        node["animData"] = std::distance( &engine.getPoseFrames().front(), reinterpret_cast<const int16_t*>(weaponAnimData) );
+        node["animData"] = std::distance( &engine.getPoseFrames().front(),
+                                          reinterpret_cast<const int16_t*>(weaponAnimData) );
     node["frame"] = frame;
     node["aiming"] = aiming;
     node["aimRotation"] = aimRotation.save();

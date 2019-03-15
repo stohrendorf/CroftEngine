@@ -136,6 +136,7 @@ set( EDISONENGINE_SRCS
      engine/laranode.cpp
      engine/particle.cpp
      engine/skeletalmodelnode.cpp
+     engine/audioengine.cpp
 
      loader/file/level/level.cpp
      loader/file/level/tr1level.cpp

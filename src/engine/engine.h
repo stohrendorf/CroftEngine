@@ -6,7 +6,7 @@
 #include "loader/file/animationid.h"
 #include "util/cimgwrapper.h"
 #include "items_tr1.h"
-#include "sounds_tr1.h"
+#include "audioengine.h"
 
 #include <boost/filesystem/path.hpp>
 
@@ -58,9 +58,6 @@ class ItemNode;
 class PickupItem;
 }
 
-enum class TR1TrackId;
-
-
 class Particle;
 
 
@@ -73,6 +70,8 @@ private:
     std::shared_ptr<loader::file::level::Level> m_level;
     std::unique_ptr<CameraController> m_cameraController = nullptr;
 
+    std::unique_ptr<AudioEngine> m_audioEngine;
+
     core::Frame m_effectTimer = 0_frame;
     boost::optional<size_t> m_activeEffect{};
 
@@ -82,10 +81,6 @@ private:
 
     std::set<items::ItemNode*> m_scheduledDeletions;
 
-    std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
-
-    int m_cdTrack50time = 0;
-
     std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models;
 
     std::map<TR1ItemId, size_t> m_inventory;
@@ -94,8 +89,6 @@ private:
 
     std::shared_ptr<gameplay::ShaderProgram> m_lightningShader;
 
-    std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
-
     sol::state m_scriptEngine;
 
     std::shared_ptr<LaraNode> m_lara = nullptr;
@@ -103,13 +96,6 @@ private:
     std::shared_ptr<render::TextureAnimator> m_textureAnimator;
 
     std::unique_ptr<InputHandler> m_inputHandler;
-
-    audio::SoundEngine m_soundEngine;
-
-    std::weak_ptr<audio::Stream> m_ambientStream;
-    std::weak_ptr<audio::Stream> m_interceptStream;
-    boost::optional<TR1TrackId> m_currentTrack;
-    boost::optional<TR1SoundId> m_currentLaraTalk;
 
     bool m_roomsAreSwapped = false;
 
@@ -188,7 +174,7 @@ public:
 
     auto& getSoundEngine()
     {
-        return m_soundEngine;
+        return m_audioEngine->m_soundEngine;
     }
 
     auto& getScriptEngine()
@@ -199,6 +185,21 @@ public:
     const auto& getScriptEngine() const
     {
         return m_scriptEngine;
+    }
+
+    auto& getAudioEngine()
+    {
+        return *m_audioEngine;
+    }
+
+    const auto& getAudioEngine() const
+    {
+        return *m_audioEngine;
+    }
+
+    void finishLevel()
+    {
+        m_levelFinished = true;
     }
 
     void run();
@@ -239,7 +240,7 @@ public:
         return node;
     }
 
-    std::shared_ptr<items::PickupItem> createPickup(const core::TypeId type,
+    std::shared_ptr<items::PickupItem> createPickup(core::TypeId type,
                                                     const gsl::not_null<const loader::file::Room*>& room,
                                                     const core::TRVec& position);
 
@@ -253,29 +254,6 @@ public:
 
     void drawBars(const gsl::not_null<gameplay::Game*>& game,
                   const gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>>& image) const;
-
-    std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId id, audio::Emitter* emitter);
-
-    std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId id, const glm::vec3& pos)
-    {
-        const auto handle = playSound( id, nullptr );
-        handle->setPosition( pos );
-        return handle;
-    }
-
-    gsl::not_null<std::shared_ptr<audio::Stream>> playStream(size_t trackId);
-
-    void playStopCdTrack(TR1TrackId trackId, bool stop);
-
-    void triggerNormalCdTrack(TR1TrackId trackId,
-                              const floordata::ActivationState& activationRequest,
-                              floordata::SequenceCondition triggerType);
-
-    void triggerCdTrack(TR1TrackId trackId,
-                        const floordata::ActivationState& activationRequest,
-                        floordata::SequenceCondition triggerType);
-
-    void stopSound(const core::SoundId soundId, audio::Emitter* emitter);
 
     void useAlternativeLaraAppearance(bool withHead = false);
 
@@ -479,13 +457,13 @@ public:
 
     const std::vector<uint16_t>& getOverlaps() const;
 
-    void update(const bool godMode);
+    void update(bool godMode);
 
-    static void drawText(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, const int x, const int y,
+    static void drawText(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, int x, const int y,
                          const std::string& txt,
                          const gameplay::gl::RGBA8& col = {255, 255, 255, 255});
 
-    void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, const int fps);
+    void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, int fps);
 
     void scaleSplashImage();
 

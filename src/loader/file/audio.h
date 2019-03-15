@@ -1,6 +1,7 @@
 #pragma once
 
 #include "io/sdlreader.h"
+#include "io/util.h"
 #include "loader/file/level/game.h"
 #include "audio/soundengine.h"
 
