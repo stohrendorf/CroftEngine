@@ -367,17 +367,17 @@ LaraNode::~LaraNode() = default;
 
 void LaraNode::update()
 {
-    if( getEngine().getInputHandler().getInputState()._1 )
+    if( getEngine().getInputHandler().getInputState()._1.justPressed() )
         getEngine().getInventory().tryUse( TR1ItemId::Pistols );
-    else if( getEngine().getInputHandler().getInputState()._2 )
+    else if( getEngine().getInputHandler().getInputState()._2.justPressed() )
         getEngine().getInventory().tryUse( TR1ItemId::Shotgun );
-    else if( getEngine().getInputHandler().getInputState()._3 )
+    else if( getEngine().getInputHandler().getInputState()._3.justPressed() )
         getEngine().getInventory().tryUse( TR1ItemId::Uzis );
-    else if( getEngine().getInputHandler().getInputState()._4 )
+    else if( getEngine().getInputHandler().getInputState()._4.justPressed() )
         getEngine().getInventory().tryUse( TR1ItemId::Magnums );
-    else if( getEngine().getInputHandler().getInputState()._5 )
+    else if( getEngine().getInputHandler().getInputState()._5.justPressed() )
         getEngine().getInventory().tryUse( TR1ItemId::SmallMedipack );
-    else if( getEngine().getInputHandler().getInputState()._6 )
+    else if( getEngine().getInputHandler().getInputState()._6.justPressed() )
         getEngine().getInventory().tryUse( TR1ItemId::LargeMedipack );
 
     if( m_underwaterState == UnderwaterState::OnLand && m_state.position.room->isWaterRoom() )
@@ -1005,7 +1005,7 @@ void LaraNode::updateLarasWeaponsStatus()
         }
         else if( requestedGunType == gunType )
         {
-            if( getEngine().getInputHandler().getInputState().holster )
+            if( getEngine().getInputHandler().getInputState().holster.justPressed() )
             {
                 doHolsterUpdate = true;
             }

@@ -1536,7 +1536,6 @@ void Engine::run()
     const std::string levelName = levelInfo["name"];
 
     bool showDebugInfo = false;
-    bool showDebugInfoToggled = false;
 
     auto font = std::make_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
     font->setTarget( screenOverlay->getImage() );
@@ -1565,17 +1564,9 @@ void Engine::run()
         m_audioEngine->m_soundEngine.update();
         m_inputHandler->update();
 
-        if( m_inputHandler->getInputState().debug )
+        if( m_inputHandler->getInputState().debug.justPressed() )
         {
-            if( !showDebugInfoToggled )
-            {
-                showDebugInfoToggled = true;
-                showDebugInfo = !showDebugInfo;
-            }
-        }
-        else
-        {
-            showDebugInfoToggled = false;
+            showDebugInfo = !showDebugInfo;
         }
 
         {
@@ -1668,7 +1659,7 @@ void Engine::run()
 
         game->swapBuffers();
 
-        if( m_inputHandler->getInputState().save )
+        if( m_inputHandler->getInputState().save.justPressed() )
         {
             scaleSplashImage();
             abibasFont->setTarget( screenOverlay->getImage() );
@@ -1681,7 +1672,7 @@ void Engine::run()
 
             nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
         }
-        else if( m_inputHandler->getInputState().load )
+        else if( m_inputHandler->getInputState().load.justPressed() )
         {
             scaleSplashImage();
             abibasFont->setTarget( screenOverlay->getImage() );
