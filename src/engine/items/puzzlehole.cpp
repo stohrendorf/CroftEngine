@@ -45,16 +45,16 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         switch( m_state.type.get_as<TR1ItemId>() )
         {
             case TR1ItemId::PuzzleHole1:
-                hasPuzzlePiece = getEngine().takeInventoryItem( TR1ItemId::Puzzle1 );
+                hasPuzzlePiece = getEngine().getInventory().tryTake( TR1ItemId::Puzzle1 );
                 break;
             case TR1ItemId::PuzzleHole2:
-                hasPuzzlePiece = getEngine().takeInventoryItem( TR1ItemId::Puzzle2 );
+                hasPuzzlePiece = getEngine().getInventory().tryTake( TR1ItemId::Puzzle2 );
                 break;
             case TR1ItemId::PuzzleHole3:
-                hasPuzzlePiece = getEngine().takeInventoryItem( TR1ItemId::Puzzle3 );
+                hasPuzzlePiece = getEngine().getInventory().tryTake( TR1ItemId::Puzzle3 );
                 break;
             case TR1ItemId::PuzzleHole4:
-                hasPuzzlePiece = getEngine().takeInventoryItem( TR1ItemId::Puzzle4 );
+                hasPuzzlePiece = getEngine().getInventory().tryTake( TR1ItemId::Puzzle4 );
                 break;
             default:
                 break;

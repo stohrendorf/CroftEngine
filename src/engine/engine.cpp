@@ -1023,219 +1023,6 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
     }
 }
 
-void Engine::addInventoryItem(const core::TypeId id, const size_t quantity)
-{
-    BOOST_LOG_TRIVIAL( debug ) << "Item " << toString( id.get_as<TR1ItemId>() ) << " added to inventory";
-
-    switch( id.get_as<TR1ItemId>() )
-    {
-        case TR1ItemId::PistolsSprite:
-        case TR1ItemId::Pistols:
-            m_inventory[TR1ItemId::Pistols] += quantity;
-            break;
-        case TR1ItemId::ShotgunSprite:
-        case TR1ItemId::Shotgun:
-            if( const auto clips = countInventoryItem( TR1ItemId::ShotgunAmmoSprite ) )
-            {
-                takeInventoryItem( TR1ItemId::ShotgunAmmoSprite, clips );
-                m_lara->shotgunAmmo.ammo += 12 * clips;
-            }
-            m_lara->shotgunAmmo.ammo += 12 * quantity;
-            // TODO replaceItems( ShotgunSprite, ShotgunAmmoSprite );
-            m_inventory[TR1ItemId::Shotgun] = 1;
-            break;
-        case TR1ItemId::MagnumsSprite:
-        case TR1ItemId::Magnums:
-            if( const auto clips = countInventoryItem( TR1ItemId::MagnumAmmoSprite ) )
-            {
-                takeInventoryItem( TR1ItemId::MagnumAmmoSprite, clips );
-                m_lara->revolverAmmo.ammo += 50 * clips;
-            }
-            m_lara->revolverAmmo.ammo += 50 * quantity;
-            // TODO replaceItems( MagnumsSprite, MagnumAmmoSprite );
-            m_inventory[TR1ItemId::Magnums] = 1;
-            break;
-        case TR1ItemId::UzisSprite:
-        case TR1ItemId::Uzis:
-            if( const auto clips = countInventoryItem( TR1ItemId::UziAmmoSprite ) )
-            {
-                takeInventoryItem( TR1ItemId::UziAmmoSprite, clips );
-                m_lara->uziAmmo.ammo += 100 * clips;
-            }
-            m_lara->uziAmmo.ammo += 100 * quantity;
-            // TODO replaceItems( UzisSprite, UziAmmoSprite );
-            m_inventory[TR1ItemId::Uzis] = 1;
-            break;
-        case TR1ItemId::ShotgunAmmoSprite:
-        case TR1ItemId::ShotgunAmmo:
-            if( countInventoryItem( TR1ItemId::ShotgunSprite ) > 0 )
-                m_lara->shotgunAmmo.ammo += 12;
-            else
-                m_inventory[TR1ItemId::ShotgunAmmo] += quantity;
-            break;
-        case TR1ItemId::MagnumAmmoSprite:
-        case TR1ItemId::MagnumAmmo:
-            if( countInventoryItem( TR1ItemId::MagnumsSprite ) > 0 )
-                m_lara->revolverAmmo.ammo += 50;
-            else
-                m_inventory[TR1ItemId::MagnumAmmo] += quantity;
-            break;
-        case TR1ItemId::UziAmmoSprite:
-        case TR1ItemId::UziAmmo:
-            if( countInventoryItem( TR1ItemId::UzisSprite ) > 0 )
-                m_lara->uziAmmo.ammo += 100;
-            else
-                m_inventory[TR1ItemId::UziAmmo] += quantity;
-            break;
-        case TR1ItemId::SmallMedipackSprite:
-        case TR1ItemId::SmallMedipack:
-            m_inventory[TR1ItemId::SmallMedipack] += quantity;
-            break;
-        case TR1ItemId::LargeMedipackSprite:
-        case TR1ItemId::LargeMedipack:
-            m_inventory[TR1ItemId::LargeMedipack] += quantity;
-            break;
-        case TR1ItemId::Puzzle1Sprite:
-        case TR1ItemId::Puzzle1:
-            m_inventory[TR1ItemId::Puzzle1] += quantity;
-            break;
-        case TR1ItemId::Puzzle2Sprite:
-        case TR1ItemId::Puzzle2:
-            m_inventory[TR1ItemId::Puzzle2] += quantity;
-            break;
-        case TR1ItemId::Puzzle3Sprite:
-        case TR1ItemId::Puzzle3:
-            m_inventory[TR1ItemId::Puzzle3] += quantity;
-            break;
-        case TR1ItemId::Puzzle4Sprite:
-        case TR1ItemId::Puzzle4:
-            m_inventory[TR1ItemId::Puzzle4] += quantity;
-            break;
-        case TR1ItemId::LeadBarSprite:
-        case TR1ItemId::LeadBar:
-            m_inventory[TR1ItemId::LeadBar] += quantity;
-            break;
-        case TR1ItemId::Key1Sprite:
-        case TR1ItemId::Key1:
-            m_inventory[TR1ItemId::Key1] += quantity;
-            break;
-        case TR1ItemId::Key2Sprite:
-        case TR1ItemId::Key2:
-            m_inventory[TR1ItemId::Key2] += quantity;
-            break;
-        case TR1ItemId::Key3Sprite:
-        case TR1ItemId::Key3:
-            m_inventory[TR1ItemId::Key3] += quantity;
-            break;
-        case TR1ItemId::Key4Sprite:
-        case TR1ItemId::Key4:
-            m_inventory[TR1ItemId::Key4] += quantity;
-            break;
-        case TR1ItemId::Item141:
-        case TR1ItemId::Item148:
-            m_inventory[TR1ItemId::Item148] += quantity;
-            break;
-        case TR1ItemId::Item142:
-        case TR1ItemId::Item149:
-            m_inventory[TR1ItemId::Item149] += quantity;
-            break;
-        case TR1ItemId::ScionPiece1:
-        case TR1ItemId::ScionPiece2:
-        case TR1ItemId::ScionPiece5:
-            m_inventory[TR1ItemId::ScionPiece5] += quantity;
-            break;
-        default:
-            BOOST_LOG_TRIVIAL( warning ) << "Cannot add item " << toString( id.get_as<TR1ItemId>() ) << " to inventory";
-            return;
-    }
-}
-
-bool Engine::tryUseInventoryItem(const TR1ItemId id)
-{
-    if( id == TR1ItemId::Shotgun || id == TR1ItemId::ShotgunSprite )
-    {
-        if( countInventoryItem( TR1ItemId::Shotgun ) == 0 )
-            return false;
-
-        m_lara->requestedGunType = LaraNode::WeaponId::Shotgun;
-        if( m_lara->getHandStatus() == HandStatus::None && m_lara->gunType == m_lara->requestedGunType )
-        {
-            m_lara->gunType = LaraNode::WeaponId::None;
-        }
-    }
-    else if( id == TR1ItemId::Pistols || id == TR1ItemId::PistolsSprite )
-    {
-        if( countInventoryItem( TR1ItemId::Pistols ) == 0 )
-            return false;
-
-        m_lara->requestedGunType = LaraNode::WeaponId::Pistols;
-        if( m_lara->getHandStatus() == HandStatus::None && m_lara->gunType == m_lara->requestedGunType )
-        {
-            m_lara->gunType = LaraNode::WeaponId::None;
-        }
-    }
-    else if( id == TR1ItemId::Magnums || id == TR1ItemId::MagnumsSprite )
-    {
-        if( countInventoryItem( TR1ItemId::Magnums ) == 0 )
-            return false;
-
-        m_lara->requestedGunType = LaraNode::WeaponId::AutoPistols;
-        if( m_lara->getHandStatus() == HandStatus::None && m_lara->gunType == m_lara->requestedGunType )
-        {
-            m_lara->gunType = LaraNode::WeaponId::None;
-        }
-    }
-    else if( id == TR1ItemId::Uzis || id == TR1ItemId::UzisSprite )
-    {
-        if( countInventoryItem( TR1ItemId::Uzis ) == 0 )
-            return false;
-
-        m_lara->requestedGunType = LaraNode::WeaponId::Uzi;
-        if( m_lara->getHandStatus() == HandStatus::None && m_lara->gunType == m_lara->requestedGunType )
-        {
-            m_lara->gunType = LaraNode::WeaponId::None;
-        }
-    }
-    else if( id == TR1ItemId::LargeMedipack || id == TR1ItemId::LargeMedipackSprite )
-    {
-        if( countInventoryItem( TR1ItemId::LargeMedipack ) == 0 )
-            return false;
-
-        if( m_lara->m_state.health <= 0_hp || m_lara->m_state.health >= core::LaraHealth )
-        {
-            return false;
-        }
-
-        m_lara->m_state.health += 1000_hp;
-        if( m_lara->m_state.health > core::LaraHealth )
-        {
-            m_lara->m_state.health = core::LaraHealth;
-        }
-        takeInventoryItem( TR1ItemId::LargeMedipackSprite );
-        m_audioEngine->playSound( TR1SoundId::LaraSigh, &m_lara->m_state );
-    }
-    else if( id == TR1ItemId::SmallMedipack || id == TR1ItemId::SmallMedipackSprite )
-    {
-        if( countInventoryItem( TR1ItemId::SmallMedipack ) == 0 )
-            return false;
-
-        if( m_lara->m_state.health <= 0_hp || m_lara->m_state.health >= core::LaraHealth )
-        {
-            return false;
-        }
-
-        m_lara->m_state.health += 500_hp;
-        if( m_lara->m_state.health > core::LaraHealth )
-        {
-            m_lara->m_state.health = core::LaraHealth;
-        }
-        takeInventoryItem( TR1ItemId::SmallMedipackSprite );
-        m_audioEngine->playSound( TR1SoundId::LaraSigh, &m_lara->m_state );
-    }
-
-    return true;
-}
-
 void Engine::animateUV()
 {
     static constexpr auto UVAnimTime = 10;
@@ -1255,7 +1042,7 @@ YAML::Node Engine::save() const
     YAML::Node inventory;
 
     const auto addInventory = [&](const TR1ItemId id) {
-        inventory[toString( id )] = countInventoryItem( id );
+        inventory[toString( id )] = m_inventory.count( id );
     };
 
     addInventory( TR1ItemId::Pistols );
@@ -1315,7 +1102,7 @@ void Engine::load(const YAML::Node& node)
     m_inventory.clear();
 
     for( const auto& entry : node["inventory"] )
-        addInventoryItem(
+        m_inventory.put(
                 EnumUtil<TR1ItemId>::fromString( entry.first.as<std::string>() ),
                 entry.second.as<size_t>() );
 
@@ -1560,6 +1347,7 @@ Engine::Engine()
         , splashImage{"splash.png"}
         , abibasFont{std::make_shared<gameplay::gl::Font>( "abibas.ttf", 48 )}
         , m_scriptEngine{createScriptEngine()}
+        , m_inventory{*this}
 {
     game->initialize();
     game->getScene()->setActiveCamera(
@@ -1662,7 +1450,7 @@ Engine::Engine()
     }
 
     for( const auto& item : initInv )
-        addInventoryItem( item.first, item.second );
+        m_inventory.put( item.first, item.second );
 
     if( trackToPlay )
     {

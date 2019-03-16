@@ -7,6 +7,7 @@
 #include "util/cimgwrapper.h"
 #include "items_tr1.h"
 #include "audioengine.h"
+#include "inventory.h"
 
 #include <boost/filesystem/path.hpp>
 
@@ -83,8 +84,6 @@ private:
 
     std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models;
 
-    std::map<TR1ItemId, size_t> m_inventory;
-
     int m_uvAnimTime{0};
 
     std::shared_ptr<gameplay::ShaderProgram> m_lightningShader;
@@ -116,6 +115,10 @@ private:
     const util::CImgWrapper splashImage;
     util::CImgWrapper splashImageScaled;
     std::shared_ptr<gameplay::gl::Font> abibasFont;
+
+    bool m_levelFinished = false;
+
+    Inventory m_inventory;
 
 public:
     explicit Engine();
@@ -195,6 +198,16 @@ public:
     const auto& getAudioEngine() const
     {
         return *m_audioEngine;
+    }
+
+    auto& getInventory()
+    {
+        return m_inventory;
+    }
+
+    const auto& getInventory() const
+    {
+        return m_inventory;
     }
 
     void finishLevel()
@@ -377,41 +390,7 @@ public:
         }
     }
 
-    bool m_levelFinished = false;
-
     void swapWithAlternate(loader::file::Room& orig, loader::file::Room& alternate);
-
-    void addInventoryItem(core::TypeId id, size_t quantity = 1);
-
-    bool takeInventoryItem(const TR1ItemId id, const size_t quantity = 1)
-    {
-        BOOST_LOG_TRIVIAL( debug ) << "Taking item " << toString( id ) << " from inventory";
-
-        const auto it = m_inventory.find( id );
-        if( it == m_inventory.end() )
-            return false;
-
-        if( it->second < quantity )
-            return false;
-
-        if( it->second == quantity )
-            m_inventory.erase( it );
-        else
-            m_inventory[id] -= quantity;
-
-        return true;
-    }
-
-    bool tryUseInventoryItem(TR1ItemId id);
-
-    size_t countInventoryItem(const TR1ItemId id) const
-    {
-        const auto it = m_inventory.find( id );
-        if( it == m_inventory.end() )
-            return 0;
-
-        return it->second;
-    }
 
     void animateUV();
 

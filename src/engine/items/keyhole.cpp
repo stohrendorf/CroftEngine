@@ -35,16 +35,16 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     switch( m_state.type.get_as<TR1ItemId>() )
     {
         case TR1ItemId::Keyhole1:
-            hasKey = getEngine().takeInventoryItem( TR1ItemId::Key1 );
+            hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key1 );
             break;
         case TR1ItemId::Keyhole2:
-            hasKey = getEngine().takeInventoryItem( TR1ItemId::Key2 );
+            hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key2 );
             break;
         case TR1ItemId::Keyhole3:
-            hasKey = getEngine().takeInventoryItem( TR1ItemId::Key3 );
+            hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key3 );
             break;
         case TR1ItemId::Keyhole4:
-            hasKey = getEngine().takeInventoryItem( TR1ItemId::Key4 );
+            hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key4 );
             break;
         default:
             break;

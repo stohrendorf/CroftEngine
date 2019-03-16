@@ -368,17 +368,17 @@ LaraNode::~LaraNode() = default;
 void LaraNode::update()
 {
     if( getEngine().getInputHandler().getInputState()._1 )
-        getEngine().tryUseInventoryItem( TR1ItemId::Pistols );
+        getEngine().getInventory().tryUse( TR1ItemId::Pistols );
     else if( getEngine().getInputHandler().getInputState()._2 )
-        getEngine().tryUseInventoryItem( TR1ItemId::Shotgun );
+        getEngine().getInventory().tryUse( TR1ItemId::Shotgun );
     else if( getEngine().getInputHandler().getInputState()._3 )
-        getEngine().tryUseInventoryItem( TR1ItemId::Uzis );
+        getEngine().getInventory().tryUse( TR1ItemId::Uzis );
     else if( getEngine().getInputHandler().getInputState()._4 )
-        getEngine().tryUseInventoryItem( TR1ItemId::Magnums );
+        getEngine().getInventory().tryUse( TR1ItemId::Magnums );
     else if( getEngine().getInputHandler().getInputState()._5 )
-        getEngine().tryUseInventoryItem( TR1ItemId::SmallMedipack );
+        getEngine().getInventory().tryUse( TR1ItemId::SmallMedipack );
     else if( getEngine().getInputHandler().getInputState()._6 )
-        getEngine().tryUseInventoryItem( TR1ItemId::LargeMedipack );
+        getEngine().getInventory().tryUse( TR1ItemId::LargeMedipack );
 
     if( m_underwaterState == UnderwaterState::OnLand && m_state.position.room->isWaterRoom() )
     {
@@ -809,7 +809,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
                 flipEffect = command.parameter;
                 break;
             case floordata::CommandOpcode::EndLevel:
-                getEngine().m_levelFinished = true;
+                getEngine().finishLevel();
                 break;
             case floordata::CommandOpcode::PlayTrack:
                 getEngine().getAudioEngine().triggerCdTrack( static_cast<TR1TrackId>(command.parameter),
