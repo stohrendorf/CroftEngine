@@ -203,6 +203,40 @@ set( EDISONENGINE_SRCS
 
      render/label.cpp
      render/textureanimator.cpp
+
+     render/gl/util.h
+     render/gl/shader.h
+     render/gl/program.h
+     render/gl/bindableresource.h
+     render/gl/framebuffer.h
+     render/gl/indexbuffer.h
+     render/gl/pixel.h
+     render/gl/renderbuffer.h
+     render/gl/rendertarget.h
+     render/gl/texture.h
+     render/gl/typetraits.h
+     render/gl/vertexarray.h
+     render/gl/vertexbuffer.h
+     render/gl/debuggroup.h
+     render/gl/font.cpp
+     render/gl/font.h
+     render/gl/image.h
+     render/gl/structuredvertexbuffer.h
+     render/gl/vertexattribute.h
+
+     render/scene/Camera.cpp
+     render/scene/Game.cpp
+     render/scene/Material.cpp
+     render/scene/MaterialParameter.cpp
+     render/scene/Mesh.cpp
+     render/scene/MeshPart.cpp
+     render/scene/Model.cpp
+     render/scene/Node.cpp
+     render/scene/RenderState.cpp
+     render/scene/ScreenOverlay.cpp
+     render/scene/ShaderProgram.cpp
+     render/scene/Sprite.cpp
+     render/scene/Visitor.cpp
      )
 
 if( MSVC )
@@ -227,7 +261,6 @@ target_link_libraries(
         edisonengine
         PRIVATE
         Boost::boost
-        gameplay
         ZLIB::ZLIB
         OpenAL::OpenAL
         sndfile-shared
@@ -239,6 +272,12 @@ target_link_libraries(
         PNG::PNG
         sol2
         type_safe
+        GLEW::GLEW
+        glfw
+        Boost::boost
+        OpenGL
+        glm
+        Freetype::Freetype
 )
 
 if( LINUX OR UNIX )

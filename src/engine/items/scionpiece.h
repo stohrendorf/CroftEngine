@@ -14,7 +14,7 @@ public:
                    const gsl::not_null<const loader::file::Room*>& room,
                    const loader::file::Item& item,
                    const loader::file::Sprite& sprite,
-                   const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
+                   const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
             : SpriteItemNode{engine, name, room, item, true, sprite, material}
     {
     }

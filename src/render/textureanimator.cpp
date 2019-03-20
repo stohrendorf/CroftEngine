@@ -307,11 +307,11 @@ public:
         }
 
         loader::file::DWordTexture texture;
-        texture.texture = std::make_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
+        texture.texture = std::make_shared<render::gl::Texture>( GL_TEXTURE_2D );
         texture.texture->setLabel( "animated texture tiles" );
         img.interleave();
-        texture.image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(
-                img.width(), img.height(), reinterpret_cast<const gameplay::gl::RGBA8*>(img.data()) );
+        texture.image = std::make_shared<render::gl::Image<render::gl::RGBA8>>(
+                img.width(), img.height(), reinterpret_cast<const render::gl::RGBA8*>(img.data()) );
         texture.texture->image2D(
                 texture.image->getWidth(), texture.image->getHeight(), texture.image->getData(), true );
 

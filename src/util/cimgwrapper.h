@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gl/pixel.h"
+#include "render/gl/pixel.h"
 
 #include <memory>
 #include <string>
@@ -54,7 +54,7 @@ public:
 
     uint8_t& operator()(int x, int y, int c);
 
-    gameplay::gl::RGBA8& operator()(int x, int y);
+    render::gl::RGBA8& operator()(int x, int y);
 
     uint8_t operator()(int x, int y, int c) const;
 

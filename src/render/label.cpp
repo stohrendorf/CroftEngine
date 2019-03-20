@@ -27,14 +27,14 @@ const std::array<const uint8_t, 98> charToSprite{
         0, 0
 };
 
-void drawLine(gameplay::gl::Image<gameplay::gl::RGBA8>& img,
+void drawLine(render::gl::Image<render::gl::RGBA8>& img,
               const int x0, const int y0, const int width, const int height,
               const loader::file::ByteColor& color)
 {
     img.line( x0, y0, x0 + width, y0 + height, color.toTextureColor() );
 }
 
-void drawOutline(gameplay::gl::Image<gameplay::gl::RGBA8>& img,
+void drawOutline(render::gl::Image<render::gl::RGBA8>& img,
                  const int x, const int y, const int width, const int height,
                  const loader::file::Palette& palette)
 {
@@ -86,7 +86,7 @@ int Label::calcWidth() const
     return width;
 }
 
-void Label::draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const loader::file::Palette& palette) const
+void Label::draw(CachedFont& font, render::gl::Image<render::gl::RGBA8>& img, const loader::file::Palette& palette) const
 {
     Expects( font.getScaleX() == scaleX );
     Expects( font.getScaleY() == scaleY );

@@ -62,18 +62,18 @@ struct Lighting
         position = glm::vec3{std::numeric_limits<float>::quiet_NaN()};
     }
 
-    void bind(gameplay::Node& node)
+    void bind(render::scene::Node& node)
     {
-        node.addMaterialParameterSetter( "u_baseLight", [this](const gameplay::Node& /*node*/,
-                                                               gameplay::gl::Program::ActiveUniform& uniform) {
+        node.addMaterialParameterSetter( "u_baseLight", [this](const render::scene::Node& /*node*/,
+                                                               render::gl::Program::ActiveUniform& uniform) {
             uniform.set( base );
         } );
-        node.addMaterialParameterSetter( "u_baseLightDiff", [this](const gameplay::Node& /*node*/,
-                                                                   gameplay::gl::Program::ActiveUniform& uniform) {
+        node.addMaterialParameterSetter( "u_baseLightDiff", [this](const render::scene::Node& /*node*/,
+                                                                   render::gl::Program::ActiveUniform& uniform) {
             uniform.set( baseDiff );
         } );
-        node.addMaterialParameterSetter( "u_lightPosition", [this](const gameplay::Node& /*node*/,
-                                                                   gameplay::gl::Program::ActiveUniform& uniform) {
+        node.addMaterialParameterSetter( "u_lightPosition", [this](const render::scene::Node& /*node*/,
+                                                                   render::gl::Program::ActiveUniform& uniform) {
             uniform.set( position );
         } );
     }

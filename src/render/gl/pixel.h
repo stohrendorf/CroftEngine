@@ -1,0 +1,124 @@
+#pragma once
+
+#include "typetraits.h"
+
+namespace render
+{
+namespace gl
+{
+template<typename T>
+struct RGBA final
+{
+    static_assert( std::is_integral<T>::value || std::is_floating_point<T>::value,
+                   "Pixel may only have channels of integral types" );
+
+    using Type = T;
+    using Traits = TypeTraits<T>;
+
+    static constexpr const auto TypeId = Traits::TypeId;
+    static constexpr const auto InternalFormat = Traits::RgbaInternalFormat;
+    static constexpr const auto Format = Traits::RgbaFormat;
+
+    explicit RGBA()
+            : RGBA{0}
+    {
+    }
+
+    explicit constexpr RGBA(Type value) noexcept
+            : r{value}
+            , g{value}
+            , b{value}
+            , a{value}
+    {
+    }
+
+    constexpr RGBA(Type r_, Type g_, Type b_, Type a_) noexcept
+            : r{r_}
+            , g{g_}
+            , b{b_}
+            , a{a_}
+    {
+    }
+
+    Type r, g, b, a;
+};
+
+
+template<typename T>
+constexpr bool operator==(const RGBA<T>& lhs, const RGBA<T>& rhs)
+{
+    return lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b && lhs.a == rhs.a;
+}
+
+template<typename T>
+constexpr bool operator!=(const RGBA<T>& lhs, const RGBA<T>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template<typename T>
+inline RGBA<T> mixAlpha(const RGBA<T>& lhs, const RGBA<T>& rhs)
+{
+    const float bias = float( rhs.a ) / std::numeric_limits<T>::max();
+    return {
+            static_cast<T>(lhs.r * (1 - bias) + rhs.r * bias),
+            static_cast<T>(lhs.g * (1 - bias) + rhs.g * bias),
+            static_cast<T>(lhs.b * (1 - bias) + rhs.b * bias),
+            static_cast<T>(lhs.a * (1 - bias) + rhs.a * bias)
+    };
+}
+
+using RGBA8 = RGBA<GLubyte>;
+
+
+template<typename T>
+struct RGB final
+{
+    static_assert( std::is_integral<T>::value || std::is_floating_point<T>::value,
+                   "Pixel may only have channels of integral types" );
+
+    using Type = T;
+    using Traits = TypeTraits<T>;
+
+    static constexpr const auto TypeId = Traits::TypeId;
+    static constexpr const auto InternalFormat = Traits::RgbInternalFormat;
+    static constexpr const auto Format = Traits::RgbFormat;
+
+    explicit RGB()
+            : RGB{0}
+    {
+    }
+
+    explicit constexpr RGB(Type value) noexcept
+            : r{value}
+            , g{value}
+            , b{value}
+    {
+    }
+
+    constexpr RGB(Type r_, Type g_, Type b_) noexcept
+            : r{r_}
+            , g{g_}
+            , b{b_}
+    {
+    }
+
+    Type r, g, b;
+};
+
+
+template<typename T>
+constexpr bool operator==(const RGB<T>& lhs, const RGB<T>& rhs)
+{
+    return lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b;
+}
+
+template<typename T>
+constexpr bool operator!=(const RGB<T>& lhs, const RGB<T>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+using RGB8 = RGB<GLubyte>;
+}
+}

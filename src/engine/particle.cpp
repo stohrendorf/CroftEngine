@@ -1,6 +1,7 @@
 #include "particle.h"
 
 #include "engine/laranode.h"
+#include "render/scene/Sprite.h"
 
 namespace engine
 {
@@ -20,18 +21,18 @@ void Particle::initDrawables(const Engine& engine, const float scale)
 
         for( const loader::file::Sprite& spr : spriteSequence->sprites )
         {
-            auto sprite = std::make_shared<gameplay::Sprite>( spr.x0 * scale, -spr.y0 * scale,
-                                                              spr.x1 * scale, -spr.y1 * scale,
-                                                              spr.t0, spr.t1,
-                                                              engine.getSpriteMaterial(),
-                                                              gameplay::Sprite::Axis::Y
+            auto sprite = std::make_shared<render::scene::Sprite>( spr.x0 * scale, -spr.y0 * scale,
+                                                                   spr.x1 * scale, -spr.y1 * scale,
+                                                                   spr.t0, spr.t1,
+                                                                   engine.getSpriteMaterial(),
+                                                                   render::scene::Sprite::Axis::Y
             );
             m_drawables.emplace_back( sprite );
             m_spriteTextures.emplace_back( spr.texture );
         }
 
         addMaterialParameterSetter( "u_diffuseTexture", [this](const Node& /*node*/,
-                                                               gameplay::gl::Program::ActiveUniform& uniform) {
+                                                               render::gl::Program::ActiveUniform& uniform) {
             uniform.set( *m_spriteTextures.front() );
         } );
     }

@@ -110,7 +110,7 @@ void PuzzleHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         m_skeleton->setAnimation( m_state, model->animations, model->animations->firstFrame );
         for( gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex )
         {
-            auto node = std::make_shared<gameplay::Node>( "bone:" + std::to_string( boneIndex ) );
+            auto node = std::make_shared<render::scene::Node>( "bone:" + std::to_string( boneIndex ) );
             node->setDrawable( model->models[boneIndex].get() );
             addChild( getNode(), node );
         }

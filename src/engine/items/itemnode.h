@@ -203,7 +203,7 @@ public:
 
     virtual void update() = 0;
 
-    virtual std::shared_ptr<gameplay::Node> getNode() const = 0;
+    virtual std::shared_ptr<render::scene::Node> getNode() const = 0;
 
     void setCurrentRoom(const gsl::not_null<const loader::file::Room*>& newRoom);
 
@@ -366,7 +366,7 @@ public:
         }
     }
 
-    std::shared_ptr<gameplay::Node> getNode() const override
+    std::shared_ptr<render::scene::Node> getNode() const override
     {
         return m_skeleton;
     }
@@ -430,7 +430,7 @@ class SpriteItemNode
         : public ItemNode
 {
 private:
-    std::shared_ptr<gameplay::Node> m_node;
+    std::shared_ptr<render::scene::Node> m_node;
 
 public:
     SpriteItemNode(
@@ -440,7 +440,7 @@ public:
             const loader::file::Item& item,
             bool hasUpdateFunction,
             const loader::file::Sprite& sprite,
-            const gsl::not_null<std::shared_ptr<gameplay::Material>>& material);
+            const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
 
     SpriteItemNode(const SpriteItemNode&) = delete;
 
@@ -463,7 +463,7 @@ public:
         BOOST_THROW_EXCEPTION( std::runtime_error( "triggerSwitch called on sprite" ) );
     }
 
-    std::shared_ptr<gameplay::Node> getNode() const override
+    std::shared_ptr<render::scene::Node> getNode() const override
     {
         return m_node;
     }

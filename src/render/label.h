@@ -1,4 +1,3 @@
-#include "gameplay.h"
 #include "loader/file/color.h"
 #include "loader/file/datatypes.h"
 #include "util/cimgwrapper.h"
@@ -69,7 +68,7 @@ public:
         return m_images.at( n );
     }
 
-    void draw(size_t n, const int x, const int y, gameplay::gl::Image<gameplay::gl::RGBA8>& img)
+    void draw(size_t n, const int x, const int y, gl::Image<gl::RGBA8>& img)
     {
         auto& src = m_images.at( n );
 
@@ -128,7 +127,7 @@ struct Label
     }
 
     void
-    draw(CachedFont& font, gameplay::gl::Image<gameplay::gl::RGBA8>& img, const loader::file::Palette& palette) const;
+    draw(CachedFont& font, gl::Image<gl::RGBA8>& img, const loader::file::Palette& palette) const;
 
     int calcWidth() const;
 

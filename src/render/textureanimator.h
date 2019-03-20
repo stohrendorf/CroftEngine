@@ -2,7 +2,7 @@
 
 #include "loader/file/texture.h"
 
-#include "Mesh.h"
+#include "render/scene/Mesh.h"
 
 #include <boost/assert.hpp>
 
@@ -43,7 +43,7 @@ class TextureAnimator
 
 
         std::vector<core::TextureProxyId> proxyIds;
-        std::map<std::shared_ptr<gameplay::Mesh>, std::set<VertexReference>> affectedVertices;
+        std::map<std::shared_ptr<render::scene::Mesh>, std::set<VertexReference>> affectedVertices;
 
         void rotate()
         {
@@ -53,10 +53,10 @@ class TextureAnimator
             proxyIds.emplace_back( first );
         }
 
-        void registerVertex(const std::shared_ptr<gameplay::Mesh>& mesh, VertexReference vertex,
+        void registerVertex(const std::shared_ptr<render::scene::Mesh>& mesh, VertexReference vertex,
                             const core::TextureProxyId proxyId)
         {
-            //! @fixme Expects(mesh->getVertexFormat().getElement(0).usage == gameplay::VertexFormat::TEXCOORD);
+            //! @fixme Expects(mesh->getVertexFormat().getElement(0).usage == render::scene::VertexFormat::TEXCOORD);
 
             const auto it = std::find( proxyIds.begin(), proxyIds.end(), proxyId );
             Expects( it != proxyIds.end() );
@@ -70,7 +70,7 @@ class TextureAnimator
 
             for( const auto& partAndVertices : affectedVertices )
             {
-                const std::shared_ptr<gameplay::Mesh>& mesh = partAndVertices.first;
+                const std::shared_ptr<render::scene::Mesh>& mesh = partAndVertices.first;
                 BOOST_ASSERT( mesh->getBuffers().size() == 2 );
 
                 auto* uvArray = mesh->getBuffers()[1]->mapTypedRw<glm::vec2>();
@@ -86,7 +86,7 @@ class TextureAnimator
                     uvArray[vref.bufferIndex] = proxy.uvCoordinates[vref.sourceIndex].toGl();
                 }
 
-                gameplay::gl::VertexBuffer::unmap();
+                render::gl::VertexBuffer::unmap();
             }
         }
     };
@@ -101,7 +101,7 @@ public:
                              std::vector<loader::file::DWordTexture>& textures);
 
     void registerVertex(const core::TextureProxyId proxyId,
-                        const std::shared_ptr<gameplay::Mesh>& mesh,
+                        const std::shared_ptr<render::scene::Mesh>& mesh,
                         const int sourceIndex,
                         const size_t bufferIndex)
     {

@@ -13,6 +13,8 @@
 #include "texture.h"
 #include "audio.h"
 #include "engine/floordata/types.h"
+#include "render/scene/Model.h"
+#include "render/scene/Node.h"
 
 #include "gsl-lite.hpp"
 
@@ -517,7 +519,7 @@ struct RoomVertex
 
 struct Room
 {
-    std::shared_ptr<gameplay::Node> node = nullptr;
+    std::shared_ptr<render::scene::Node> node = nullptr;
 
     // Various room flags specify various room options. Mostly, they
     // specify environment type and some additional actions which should
@@ -1104,11 +1106,11 @@ struct Room
     void createSceneNode(
             size_t roomId,
             const level::Level& level,
-            const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-            const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& waterMaterials,
-            const std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>>& staticMeshes,
+            const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
+            const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
+            const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshes,
             render::TextureAnimator& animator,
-            const std::shared_ptr<gameplay::Material>& spriteMaterial);
+            const std::shared_ptr<render::scene::Material>& spriteMaterial);
 
     const Sector* getSectorByAbsolutePosition(core::TRVec position) const
     {
@@ -1238,8 +1240,8 @@ struct Sprite
 {
     core::TextureId texture_id{uint16_t( 0 )};
 
-    std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> image{nullptr};
-    std::shared_ptr<gameplay::gl::Texture> texture{nullptr};
+    std::shared_ptr<render::gl::Image<render::gl::RGBA8>> image{nullptr};
+    std::shared_ptr<render::gl::Texture> texture{nullptr};
 
     glm::vec2 t0;
 

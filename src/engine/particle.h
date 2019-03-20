@@ -3,7 +3,7 @@
 #include "core/angle.h"
 #include "core/vec.h"
 #include "items_tr1.h"
-#include "Node.h"
+#include "render/scene/Node.h"
 #include "engine/lighting.h"
 
 #include <memory>
@@ -14,7 +14,7 @@ namespace engine
 class Engine;
 
 
-class Particle : public gameplay::Node, public audio::Emitter
+class Particle : public render::scene::Node, public audio::Emitter
 {
 public:
     core::RoomBoundPosition pos;
@@ -27,8 +27,8 @@ public:
     int16_t shade = 4096;
 
 private:
-    std::deque<std::shared_ptr<gameplay::Drawable>> m_drawables{};
-    std::deque<std::shared_ptr<gameplay::gl::Texture>> m_spriteTextures{};
+    std::deque<std::shared_ptr<render::scene::Drawable>> m_drawables{};
+    std::deque<std::shared_ptr<render::gl::Texture>> m_spriteTextures{};
     Lighting m_lighting;
 
     void initDrawables(const Engine& engine, float scale = 1);

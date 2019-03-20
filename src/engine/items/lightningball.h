@@ -13,7 +13,7 @@ public:
                   const gsl::not_null<const loader::file::Room*>& room,
                   const loader::file::Item& item,
                   const loader::file::SkeletalModelType& animatedModel,
-                  const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& boltProgram);
+                  const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& boltProgram);
 
     void update() override;
 
@@ -38,12 +38,12 @@ private:
     {
         size_t startIndex = 0;
         core::TRVec end{};
-        std::shared_ptr<gameplay::Mesh> mesh;
+        std::shared_ptr<render::scene::Mesh> mesh;
     };
 
     std::array<ChildBolt, ChildBolts> m_childBolts;
 
-    std::shared_ptr<gameplay::Mesh> m_mainBoltMesh;
+    std::shared_ptr<render::scene::Mesh> m_mainBoltMesh;
 };
 }
 }

@@ -10,12 +10,12 @@ namespace loader
 {
 namespace file
 {
-gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
-        const gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>& texture,
+gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(
+        const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
         const BlendingMode bmode,
-        const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
+        const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader)
 {
-    auto result = std::make_shared<gameplay::Material>( shader );
+    auto result = std::make_shared<render::scene::Material>( shader );
     // Set some defaults
     texture->set( GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     texture->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
@@ -46,7 +46,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 {
     if( glidos == nullptr )
     {
-        image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>( 256, 256, &pixels[0][0] );
+        image = std::make_shared<render::gl::Image<render::gl::RGBA8>>( 256, 256, &pixels[0][0] );
         return;
     }
 
@@ -66,9 +66,9 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
         util::CImgWrapper cacheImage{cacheName.string()};
 
         cacheImage.interleave();
-        image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(
+        image = std::make_shared<render::gl::Image<render::gl::RGBA8>>(
                 cacheImage.width(), cacheImage.height(),
-                reinterpret_cast<const gameplay::gl::RGBA8*>(cacheImage.data()) );
+                reinterpret_cast<const render::gl::RGBA8*>(cacheImage.data()) );
         return;
     }
 
@@ -115,14 +115,14 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
     original.savePng( cacheName.string() );
 
     original.interleave();
-    image = std::make_shared<gameplay::gl::Image<gameplay::gl::RGBA8>>(
+    image = std::make_shared<render::gl::Image<render::gl::RGBA8>>(
             Resolution, Resolution,
-            reinterpret_cast<const gameplay::gl::RGBA8*>(original.data()) );
+            reinterpret_cast<const render::gl::RGBA8*>(original.data()) );
 }
 
 void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback)
 {
-    texture = std::make_shared<gameplay::gl::Texture>( GL_TEXTURE_2D );
+    texture = std::make_shared<render::gl::Texture>( GL_TEXTURE_2D );
     texture->setLabel( md5 );
     toImage( glidos, statusCallback );
     texture->image2D( image->getWidth(), image->getHeight(), image->getData(), true );

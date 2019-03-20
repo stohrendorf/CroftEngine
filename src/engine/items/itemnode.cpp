@@ -2,6 +2,7 @@
 
 #include "engine/laranode.h"
 #include "engine/particle.h"
+#include "render/scene/Sprite.h"
 
 #include <boost/range/adaptor/indexed.hpp>
 
@@ -111,7 +112,7 @@ ModelItemNode::ModelItemNode(const gsl::not_null<Engine*>& engine,
 
     for( gsl::index boneIndex = 0; boneIndex < animatedModel.meshes.size(); ++boneIndex )
     {
-        auto node = std::make_shared<gameplay::Node>(
+        auto node = std::make_shared<render::scene::Node>(
                 m_skeleton->getId() + "/bone:" + std::to_string( boneIndex ) );
         node->setDrawable( animatedModel.models[boneIndex].get() );
         addChild( m_skeleton, node );
@@ -133,7 +134,7 @@ void ModelItemNode::update()
     {
         const auto* cmd = m_state.anim->animCommandCount == 0
                           ? nullptr
-                          : &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
+                          : &getEngine().getAnimCommands().at( m_state.anim->animCommandIndex );
         for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
         {
             BOOST_ASSERT( cmd < &getEngine().getAnimCommands().back() );
@@ -177,7 +178,7 @@ void ModelItemNode::update()
 
     const auto* cmd = m_state.anim->animCommandCount == 0
                       ? nullptr
-                      : &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
+                      : &getEngine().getAnimCommands().at( m_state.anim->animCommandIndex );
     for( uint16_t i = 0; i < m_state.anim->animCommandCount; ++i )
     {
         BOOST_ASSERT( cmd < &getEngine().getAnimCommands().back() );
@@ -377,35 +378,35 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<Engine*>& engine,
                                const loader::file::Item& item,
                                const bool hasUpdateFunction,
                                const loader::file::Sprite& sprite,
-                               const gsl::not_null<std::shared_ptr<gameplay::Material>>& material)
+                               const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
         : ItemNode{engine, room, item, hasUpdateFunction}
 {
-    const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
-                                                           sprite.x1, -sprite.y1,
-                                                           sprite.t0, sprite.t1,
-                                                           material,
-                                                           gameplay::Sprite::Axis::Y );
+    const auto model = std::make_shared<render::scene::Sprite>( sprite.x0, -sprite.y0,
+                                                                sprite.x1, -sprite.y1,
+                                                                sprite.t0, sprite.t1,
+                                                                material,
+                                                                render::scene::Sprite::Axis::Y );
 
-    m_node = std::make_shared<gameplay::Node>( name );
+    m_node = std::make_shared<render::scene::Node>( name );
     m_node->setDrawable( model );
     m_node->addMaterialParameterSetter( "u_diffuseTexture",
-                                        [texture = sprite.texture](const gameplay::Node& /*node*/,
-                                                                   gameplay::gl::Program::ActiveUniform& uniform) {
+                                        [texture = sprite.texture](const render::scene::Node& /*node*/,
+                                                                   render::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( *texture );
                                         } );
     m_node->addMaterialParameterSetter( "u_baseLight",
-                                        [brightness = item.getBrightness()](const gameplay::Node& /*node*/,
-                                                                            gameplay::gl::Program::ActiveUniform& uniform) {
+                                        [brightness = item.getBrightness()](const render::scene::Node& /*node*/,
+                                                                            render::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( brightness );
                                         } );
     m_node->addMaterialParameterSetter( "u_baseLightDiff",
-                                        [](const gameplay::Node& /*node*/,
-                                           gameplay::gl::Program::ActiveUniform& uniform) {
+                                        [](const render::scene::Node& /*node*/,
+                                           render::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( 0.0f );
                                         } );
     m_node->addMaterialParameterSetter( "u_lightPosition",
-                                        [](const gameplay::Node& /*node*/,
-                                           gameplay::gl::Program::ActiveUniform& uniform) {
+                                        [](const render::scene::Node& /*node*/,
+                                           render::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
                                         } );
 
@@ -697,7 +698,8 @@ bool ItemState::isInsideZoneButNotInBox(const Engine& engine,
 {
     Expects( creatureInfo != nullptr );
 
-    const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped(), creatureInfo->lot.fly, creatureInfo->lot.step );
+    const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped(), creatureInfo->lot.fly,
+                                                        creatureInfo->lot.step );
 
     if( zoneId != box.*zoneRef )
     {

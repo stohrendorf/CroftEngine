@@ -53,8 +53,8 @@ public:
              const loader::file::SkeletalModelType& animatedModel)
             : ModelItemNode( engine, room, item, false, animatedModel )
             , m_underwaterRoute{*engine}
-            , m_gunFlareLeft{std::make_shared<gameplay::Node>( "gun flare left" )}
-            , m_gunFlareRight{std::make_shared<gameplay::Node>( "gun flare right" )}
+            , m_gunFlareLeft{std::make_shared<render::scene::Node>( "gun flare left" )}
+            , m_gunFlareRight{std::make_shared<render::scene::Node>( "gun flare right" )}
     {
         setAnimation( AnimationId::STAY_IDLE );
         setGoalAnimState( LaraStateId::Stop );
@@ -518,8 +518,8 @@ public:
 
     std::unordered_map<WeaponId, Weapon> weapons;
     core::TRRotationXY m_weaponTargetVector;
-    gsl::not_null<std::shared_ptr<gameplay::Node>> m_gunFlareLeft;
-    gsl::not_null<std::shared_ptr<gameplay::Node>> m_gunFlareRight;
+    gsl::not_null<std::shared_ptr<render::scene::Node>> m_gunFlareLeft;
+    gsl::not_null<std::shared_ptr<render::scene::Node>> m_gunFlareRight;
 
     void updateLarasWeaponsStatus();
 
@@ -566,7 +566,7 @@ public:
 
     void hitTarget(ModelItemNode& item, const core::TRVec& hitPos, core::Health damage);
 
-    void renderGunFlare(WeaponId weaponId, glm::mat4 m, const gsl::not_null<std::shared_ptr<gameplay::Node>>& flareNode,
+    void renderGunFlare(WeaponId weaponId, glm::mat4 m, const gsl::not_null<std::shared_ptr<render::scene::Node>>& flareNode,
                         bool visible) const;
 
     void drawRoutine();

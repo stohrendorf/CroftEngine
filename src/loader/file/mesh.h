@@ -5,6 +5,7 @@
 #include "primitives.h"
 #include "texture.h"
 #include "io/util.h"
+#include "render/scene/Mesh.h"
 
 #include <vector>
 
@@ -94,22 +95,22 @@ struct Mesh
         const bool m_hasNormals;
         std::vector<float> m_vbuf;
         const std::vector<TextureLayoutProxy>& m_textureProxies;
-        const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& m_materials;
-        const gsl::not_null<std::shared_ptr<gameplay::Material>> m_colorMaterial;
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& m_materials;
+        const gsl::not_null<std::shared_ptr<render::scene::Material>> m_colorMaterial;
         const Palette& m_palette;
         render::TextureAnimator& m_animator;
         std::map<TextureKey, size_t> m_texBuffers;
         size_t m_vertexCount = 0;
-        gsl::not_null<std::shared_ptr<gameplay::Mesh>> m_mesh;
+        gsl::not_null<std::shared_ptr<render::scene::Mesh>> m_mesh;
 
-        static const gameplay::gl::StructuredVertexBuffer::AttributeMapping& getFormat(bool withNormals);
+        static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat(bool withNormals);
 
         struct MeshPart
         {
             using IndexBuffer = std::vector<uint16_t>;
 
             IndexBuffer indices;
-            std::shared_ptr<gameplay::Material> material;
+            std::shared_ptr<render::scene::Material> material;
             boost::optional<glm::vec3> color;
         };
 
@@ -155,8 +156,8 @@ struct Mesh
                 bool withNormals,
                 bool dynamic,
                 const std::vector<TextureLayoutProxy>& textureProxies,
-                const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-                gsl::not_null<std::shared_ptr<gameplay::Material>> colorMaterial,
+                const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
+                gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
                 const Palette& palette,
                 render::TextureAnimator& animator,
                 const std::string& label = {});
@@ -165,14 +166,14 @@ struct Mesh
 
         void append(const Mesh& mesh);
 
-        gsl::not_null<std::shared_ptr<gameplay::Model>> finalize();
+        gsl::not_null<std::shared_ptr<render::scene::Model>> finalize();
     };
 
 
-    std::shared_ptr<gameplay::Model> createModel(
+    std::shared_ptr<render::scene::Model> createModel(
             const std::vector<TextureLayoutProxy>& textureProxies,
-            const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-            const gsl::not_null<std::shared_ptr<gameplay::Material>>& colorMaterial,
+            const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
+            const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
             const Palette& palette,
             render::TextureAnimator& animator,
             const std::string& label = {}) const;

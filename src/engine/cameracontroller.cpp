@@ -84,7 +84,7 @@ CameraModifier parseCameraModifier(const std::string& m)
 }
 
 CameraController::CameraController(const gsl::not_null<Engine*>& engine,
-                                   gsl::not_null<std::shared_ptr<gameplay::Camera>> camera)
+                                   gsl::not_null<std::shared_ptr<render::scene::Camera>> camera)
         : Listener{&engine->getSoundEngine()}
         , m_camera{std::move( camera )}
         , m_engine{engine}
@@ -1107,7 +1107,7 @@ void CameraController::updateCinematic(const loader::file::CinematicFrame& frame
 }
 
 CameraController::CameraController(gsl::not_null<Engine*> engine,
-                                   gsl::not_null<std::shared_ptr<gameplay::Camera>> camera,
+                                   gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                                    bool /*noLaraTag*/)
         : Listener{&engine->getSoundEngine()}
         , m_camera{std::move( camera )}

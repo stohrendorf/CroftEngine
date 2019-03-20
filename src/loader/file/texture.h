@@ -2,7 +2,9 @@
 
 #include "core/id.h"
 #include "io/sdlreader.h"
-#include "gameplay.h"
+
+#include "render/scene/Material.h"
+#include "render/gl/image.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/path.hpp>
@@ -60,9 +62,9 @@ struct WordTexture
 
 struct DWordTexture final
 {
-    gameplay::gl::RGBA8 pixels[256][256];
-    std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>> image;
-    std::shared_ptr<gameplay::gl::Texture> texture;
+    render::gl::RGBA8 pixels[256][256];
+    std::shared_ptr<render::gl::Image<render::gl::RGBA8>> image;
+    std::shared_ptr<render::gl::Texture> texture;
 
     std::string md5;
 
@@ -169,10 +171,10 @@ struct UVCoordinates
 };
 
 
-extern gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
-        const gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>& texture,
+extern gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(
+        const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
         BlendingMode bmode,
-        const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
+        const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader);
 
 
 struct TextureKey
@@ -294,9 +296,9 @@ struct TextureLayoutProxy
         return proxy;
     }
 
-    gsl::not_null<std::shared_ptr<gameplay::Material>> createMaterial(
-            const gsl::not_null<std::shared_ptr<gameplay::gl::Texture>>& texture,
-            const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader) const
+    gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(
+            const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
+            const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader) const
     {
         return loader::file::createMaterial( texture, textureKey.blendingMode, shader );
     }

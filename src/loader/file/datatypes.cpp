@@ -4,6 +4,11 @@
 #include "render/textureanimator.h"
 #include "util/helpers.h"
 #include "level/level.h"
+#include "render/scene/Base.h"
+#include "render/scene/MeshPart.h"
+#include "render/scene/Material.h"
+#include "render/scene/Sprite.h"
+#include "render/gl/vertexarray.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -24,12 +29,12 @@ struct RenderVertex
     glm::vec4 color;
     glm::vec3 normal{0.0f};
 
-    static const gameplay::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
+    static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
     {
-        static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
-                {VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{&RenderVertex::position}},
-                {VERTEX_ATTRIBUTE_NORMAL_NAME,   gameplay::gl::VertexAttribute{&RenderVertex::normal}},
-                {VERTEX_ATTRIBUTE_COLOR_NAME,    gameplay::gl::VertexAttribute{&RenderVertex::color}}
+        static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
+                {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{&RenderVertex::position}},
+                {VERTEX_ATTRIBUTE_NORMAL_NAME,   render::gl::VertexAttribute{&RenderVertex::normal}},
+                {VERTEX_ATTRIBUTE_COLOR_NAME,    render::gl::VertexAttribute{&RenderVertex::color}}
         };
 
         return attribs;
@@ -45,7 +50,7 @@ struct MeshPart
     static_assert( std::is_unsigned<IndexBuffer::value_type>::value, "Index buffer entries must be unsigned" );
 
     IndexBuffer indices;
-    std::shared_ptr<gameplay::Material> material;
+    std::shared_ptr<render::scene::Material> material;
 };
 
 
@@ -53,7 +58,7 @@ struct RenderModel
 {
     std::vector<MeshPart> m_parts;
 
-    std::shared_ptr<gameplay::Model> toModel(const gsl::not_null <std::shared_ptr<gameplay::Mesh>>& mesh)
+    std::shared_ptr<render::scene::Model> toModel(const gsl::not_null<std::shared_ptr<render::scene::Mesh>>& mesh)
     {
         for( const MeshPart& localPart : m_parts )
         {
@@ -63,21 +68,21 @@ struct RenderModel
                 BOOST_ASSERT( idx < mesh->getBuffers()[0]->getVertexCount() );
             }
 #endif
-            gameplay::gl::VertexArrayBuilder builder;
+            render::gl::VertexArrayBuilder builder;
 
-            auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+            auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
             indexBuffer->setData( localPart.indices, true );
             builder.attach( indexBuffer );
 
             builder.attach( mesh->getBuffers() );
 
-            auto part = std::make_shared<gameplay::MeshPart>(
+            auto part = std::make_shared<render::scene::MeshPart>(
                     builder.build( localPart.material->getShaderProgram()->getHandle() ) );
             part->setMaterial( localPart.material );
             mesh->addPart( part );
         }
 
-        auto model = std::make_shared<gameplay::Model>();
+        auto model = std::make_shared<render::scene::Model>();
         model->addMesh( mesh );
 
         return model;
@@ -88,340 +93,203 @@ struct RenderModel
 void Room::createSceneNode(
         const size_t roomId,
         const level::Level& level,
-        const std::map<TextureKey, gsl::not_null < std::shared_ptr<gameplay::Material>>
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>
 
->& materials,
-const std::map<TextureKey, gsl::not_null < std::shared_ptr<gameplay::Material>>>& waterMaterials,
-const std::vector<gsl::not_null < std::shared_ptr<gameplay::Model>>>& staticMeshes,
-render::TextureAnimator& animator,
-const std::shared_ptr<gameplay::Material>& spriteMaterial
+        >& materials,
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
+        const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshes,
+        render::TextureAnimator& animator,
+        const std::shared_ptr<render::scene::Material>& spriteMaterial
 )
 {
-RenderModel renderModel;
-std::map<TextureKey, size_t> texBuffers;
-std::vector<RenderVertex> vbuf;
-std::vector<glm::vec2> uvCoords;
-auto mesh = std::make_shared<gameplay::Mesh>( RenderVertex::getFormat(), false,
-                                              "Room:" + std::to_string( roomId ) );
+    RenderModel renderModel;
+    std::map<TextureKey, size_t> texBuffers;
+    std::vector<RenderVertex> vbuf;
+    std::vector<glm::vec2> uvCoords;
+    auto mesh = std::make_shared<render::scene::Mesh>( RenderVertex::getFormat(), false,
+                                                       "Room:" + std::to_string( roomId ) );
 
-for(
-const QuadFace& quad
-: rectangles )
-{
-const TextureLayoutProxy& proxy = level.m_textureProxies.at( quad.proxyId.get() );
+    for(
+        const QuadFace& quad
+            : rectangles )
+    {
+        const TextureLayoutProxy& proxy = level.m_textureProxies.at( quad.proxyId.get() );
 
-if( texBuffers.
-find( proxy
-.textureKey ) == texBuffers.
+        if( texBuffers.find( proxy.textureKey ) == texBuffers.end() )
+        {
+            texBuffers[proxy.textureKey] = renderModel.m_parts.size();
 
-end()
+            renderModel.m_parts.emplace_back();
 
-)
-{
-texBuffers[proxy.textureKey] = renderModel.m_parts.
+            auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
+            renderModel.m_parts.back().material = it;
+        }
+        const auto partId = texBuffers[proxy.textureKey];
 
-size();
+        const auto firstVertex = vbuf.size();
+        for( int i = 0; i < 4; ++i )
+        {
+            RenderVertex iv;
+            iv.position = quad.vertices[i].from( vertices ).position.toRenderSystem();
+            iv.color = quad.vertices[i].from( vertices ).color;
+            uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
+            vbuf.push_back( iv );
+        }
 
-renderModel.m_parts.
+        animator.registerVertex( quad.proxyId, mesh, 0, firstVertex + 0 );
+        renderModel.m_parts[partId].indices.emplace_back(
+                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
+        );
+        animator.registerVertex( quad.proxyId, mesh, 1, firstVertex + 1 );
+        renderModel.m_parts[partId].indices.emplace_back(
+                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 )
+        );
+        animator.registerVertex( quad.proxyId, mesh, 2, firstVertex + 2 );
+        renderModel.m_parts[partId].indices.emplace_back(
+                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
+        );
+        animator.registerVertex( quad.proxyId, mesh, 0, firstVertex + 0 );
+        renderModel.m_parts[partId].indices.emplace_back(
+                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
+        );
+        animator.registerVertex( quad.proxyId, mesh, 2, firstVertex + 2 );
+        renderModel.m_parts[partId].indices.emplace_back(
+                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
+        );
+        animator.registerVertex( quad.proxyId, mesh, 3, firstVertex + 3 );
+        renderModel.m_parts[partId].indices.emplace_back(
+                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 3 )
+        );
+    }
+    for( const Triangle& tri : triangles )
+    {
+        const TextureLayoutProxy& proxy = level.m_textureProxies.at( tri.proxyId.get() );
 
-emplace_back();
+        if( texBuffers.find( proxy.textureKey ) == texBuffers.end() )
+        {
+            texBuffers[proxy.textureKey] = renderModel.m_parts.size();
 
-auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
-renderModel.m_parts.
+            renderModel.m_parts.emplace_back();
 
-back()
+            auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
+            renderModel.m_parts.back().material = it;
+        }
+        const auto partId = texBuffers[proxy.textureKey];
 
-.
-material = it;
-}
-const auto partId = texBuffers[proxy.textureKey];
+        const auto firstVertex = vbuf.size();
+        for( int i = 0; i < 3; ++i )
+        {
+            RenderVertex iv;
+            iv.position = tri.vertices[i].from( vertices ).position.toRenderSystem();
+            iv.color = tri.vertices[i].from( vertices ).color;
+            uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
+            vbuf.push_back( iv );
+        }
 
-const auto firstVertex = vbuf.size();
-for(
-int i = 0;
-i < 4; ++i )
-{
-RenderVertex iv;
-iv.
-position = quad.vertices[i].from( vertices ).position.toRenderSystem();
-iv.
-color = quad.vertices[i].from( vertices ).color;
-uvCoords.
-push_back( proxy
-.uvCoordinates[i].
+        animator.registerVertex( tri.proxyId, mesh, 0, firstVertex + 0 );
+        renderModel.m_parts[partId].indices
+                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 ) );
+        animator.registerVertex( tri.proxyId, mesh, 1, firstVertex + 1 );
+        renderModel.m_parts[partId].indices
+                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 ) );
+        animator.registerVertex( tri.proxyId, mesh, 2, firstVertex + 2 );
+        renderModel.m_parts[partId].indices
+                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 ) );
+    }
 
-toGl()
+    mesh->getBuffers()[0]->assign( vbuf );
 
-);
-vbuf.
-push_back( iv );
-}
+    static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
+            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute{
+                    render::gl::VertexAttribute::SingleAttribute<glm::vec2>{}}}
+    };
 
-animator.
-registerVertex( quad
-.proxyId, mesh, 0, firstVertex + 0 );
-renderModel.m_parts[partId].indices
-.
-emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
-);
-animator.
-registerVertex( quad
-.proxyId, mesh, 1, firstVertex + 1 );
-renderModel.m_parts[partId].indices
-.
-emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 )
-);
-animator.
-registerVertex( quad
-.proxyId, mesh, 2, firstVertex + 2 );
-renderModel.m_parts[partId].indices
-.
-emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
-);
-animator.
-registerVertex( quad
-.proxyId, mesh, 0, firstVertex + 0 );
-renderModel.m_parts[partId].indices
-.
-emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
-);
-animator.
-registerVertex( quad
-.proxyId, mesh, 2, firstVertex + 2 );
-renderModel.m_parts[partId].indices
-.
-emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
-);
-animator.
-registerVertex( quad
-.proxyId, mesh, 3, firstVertex + 3 );
-renderModel.m_parts[partId].indices
-.
-emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 3 )
-);
-}
-for(
-const Triangle& tri
-: triangles )
-{
-const TextureLayoutProxy& proxy = level.m_textureProxies.at( tri.proxyId.get() );
+    mesh->addBuffer( attribs, true );
+    mesh->getBuffers()[1]->assign( uvCoords );
 
-if( texBuffers.
-find( proxy
-.textureKey ) == texBuffers.
+    auto resModel = renderModel.toModel( mesh );
+    resModel->getRenderState().setCullFace( true );
+    resModel->getRenderState().setCullFaceSide( GL_BACK );
 
-end()
+    node = std::make_shared<render::scene::Node>( "Room:" + std::to_string( roomId ) );
+    node->setDrawable( resModel );
+    node->addMaterialParameterSetter( "u_lightPosition", [](const render::scene::Node& /*node*/,
+                                                            render::gl::Program::ActiveUniform& uniform
+    ) {
+        uniform.set( glm::vec3{0.0f} );
+    } );
+    node->addMaterialParameterSetter( "u_baseLight", [](const render::scene::Node& /*node*/,
+                                                        render::gl::Program::ActiveUniform& uniform
+    ) {
+        uniform.set( 1.0f );
+    } );
+    node->addMaterialParameterSetter( "u_baseLightDiff", [](const render::scene::Node& /*node*/,
+                                                            render::gl::Program::ActiveUniform& uniform
+    ) {
+        uniform.set( 1.0f );
+    } );
 
-)
-{
-texBuffers[proxy.textureKey] = renderModel.m_parts.
+    for(
+        const RoomStaticMesh& sm
+            : this->staticMeshes )
+    {
+        const auto idx = level.findStaticMeshIndexById( sm.meshId );
+        if( idx < 0 )
+            continue;
 
-size();
+        BOOST_ASSERT( static_cast<size_t>(idx) < staticMeshes.size() );
+        auto subNode = std::make_shared<render::scene::Node>( "staticMesh" );
+        subNode->setDrawable( staticMeshes[idx].get() );
+        subNode->setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
+                                 * rotate( glm::mat4{1.0f}, sm.rotation.toRad(), glm::vec3{0, -1, 0} ) );
 
-renderModel.m_parts.
+        subNode->addMaterialParameterSetter( "u_baseLight",
+                                             [brightness = sm.getBrightness()](const render::scene::Node& /*node*/,
+                                                                               render::gl::Program::ActiveUniform& uniform) {
+                                                 uniform.set( brightness );
+                                             } );
+        subNode->addMaterialParameterSetter( "u_baseLightDiff", [](const render::scene::Node& /*node*/,
+                                                                   render::gl::Program::ActiveUniform& uniform
+        ) {
+            uniform.set( 0.0f );
+        } );
+        subNode->addMaterialParameterSetter( "u_lightPosition", [](const render::scene::Node& /*node*/,
+                                                                   render::gl::Program::ActiveUniform& uniform
+        ) {
+            uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
+        } );
+        addChild( node, subNode );
+    }
+    node->setLocalMatrix( translate( glm::mat4{1.0f}, position.toRenderSystem() )
+    );
 
-emplace_back();
+    for( const SpriteInstance& spriteInstance : sprites )
+    {
+        BOOST_ASSERT( spriteInstance.vertex.get() < vertices.size() );
 
-auto it = isWaterRoom() ? waterMaterials.at( proxy.textureKey ) : materials.at( proxy.textureKey );
-renderModel.m_parts.
+        const Sprite& sprite = level.m_sprites.at( spriteInstance.id.get() );
 
-back()
+        const auto model = std::make_shared<render::scene::Sprite>( sprite.x0, -sprite.y0,
+                                                                    sprite.x1, -sprite.y1,
+                                                                    sprite.t0, sprite.t1,
+                                                                    spriteMaterial,
+                                                                    render::scene::Sprite::Axis::Y );
 
-.
-material = it;
-}
-const auto partId = texBuffers[proxy.textureKey];
+        auto spriteNode = std::make_shared<render::scene::Node>( "sprite" );
+        spriteNode->setDrawable( model );
+        const RoomVertex& v = vertices.at( spriteInstance.vertex.get() );
+        spriteNode->setLocalMatrix( translate( glm::mat4{1.0f}, v.position.toRenderSystem() ) );
+        spriteNode->addMaterialParameterSetter( "u_diffuseTexture",
+                                                [texture = sprite.texture](const render::scene::Node & /*node*/,
+                render::gl::Program::ActiveUniform & uniform
+        ) { uniform.set( *texture ); } );
+        spriteNode->addMaterialParameterSetter( "u_baseLight",
+                                                [brightness = v.getBrightness()](const render::scene::Node& /*node*/,
+                                                                                 render::gl::Program::ActiveUniform& uniform
+                                                ) { uniform.set( brightness ); } );
 
-const auto firstVertex = vbuf.size();
-for(
-int i = 0;
-i < 3; ++i )
-{
-RenderVertex iv;
-iv.
-position = tri.vertices[i].from( vertices ).position.toRenderSystem();
-iv.
-color = tri.vertices[i].from( vertices ).color;
-uvCoords.
-push_back( proxy
-.uvCoordinates[i].
-
-toGl()
-
-);
-vbuf.
-push_back( iv );
-}
-
-animator.
-registerVertex( tri
-.proxyId, mesh, 0, firstVertex + 0 );
-renderModel.m_parts[partId].indices
-.
-emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
-);
-animator.
-registerVertex( tri
-.proxyId, mesh, 1, firstVertex + 1 );
-renderModel.m_parts[partId].indices
-.
-emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 )
-);
-animator.
-registerVertex( tri
-.proxyId, mesh, 2, firstVertex + 2 );
-renderModel.m_parts[partId].indices
-.
-emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
-);
-}
-
-mesh->getBuffers()[0]->
-assign( vbuf );
-
-static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
-        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{
-                gameplay::gl::VertexAttribute::SingleAttribute < glm::vec2 > {}}}
-};
-
-mesh->
-addBuffer( attribs,
-true );
-mesh->getBuffers()[1]->
-assign( uvCoords );
-
-auto resModel = renderModel.toModel( mesh );
-resModel->
-
-getRenderState()
-
-.setCullFace( true );
-resModel->
-
-getRenderState()
-
-.
-setCullFaceSide( GL_BACK );
-
-node = std::make_shared<gameplay::Node>( "Room:" + std::to_string( roomId ) );
-node->
-setDrawable( resModel );
-node->addMaterialParameterSetter( "u_lightPosition",[](const gameplay::Node& /*node*/,
-gameplay::gl::Program::ActiveUniform& uniform
-) {
-uniform.
-set( glm::vec3{0.0f}
-);
-} );
-node->addMaterialParameterSetter( "u_baseLight",[](const gameplay::Node& /*node*/,
-gameplay::gl::Program::ActiveUniform& uniform
-) {
-uniform.set( 1.0f );
-} );
-node->addMaterialParameterSetter( "u_baseLightDiff",[](const gameplay::Node& /*node*/,
-gameplay::gl::Program::ActiveUniform& uniform
-) {
-uniform.set( 1.0f );
-} );
-
-for(
-const RoomStaticMesh& sm
-: this->staticMeshes )
-{
-const auto idx = level.findStaticMeshIndexById( sm.meshId );
-if( idx < 0 )
-continue;
-
-BOOST_ASSERT( static_cast<size_t>(idx) < staticMeshes.size() );
-auto subNode = std::make_shared<gameplay::Node>( "staticMesh" );
-subNode->
-setDrawable( staticMeshes[idx]
-.
-
-get()
-
-);
-subNode->
-setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
-*
-rotate( glm::mat4{1.0f}, sm
-.rotation.
-
-toRad(), glm::vec3{0, -1, 0}
-
-) );
-
-subNode->addMaterialParameterSetter( "u_baseLight",
-[
-brightness = sm.getBrightness()
-](const gameplay::Node& /*node*/,
-gameplay::gl::Program::ActiveUniform& uniform
-) {
-uniform.
-set( brightness );
-} );
-subNode->addMaterialParameterSetter( "u_baseLightDiff",[](const gameplay::Node& /*node*/,
-gameplay::gl::Program::ActiveUniform& uniform
-) {
-uniform.set( 0.0f );
-} );
-subNode->addMaterialParameterSetter( "u_lightPosition",[](const gameplay::Node& /*node*/,
-gameplay::gl::Program::ActiveUniform& uniform
-) {
-uniform.
-set( glm::vec3{std::numeric_limits<float>::quiet_NaN()}
-);
-} );
-addChild( node, subNode
-);
-}
-node->
-setLocalMatrix( translate( glm::mat4{1.0f}, position.toRenderSystem() )
-);
-
-for(
-const SpriteInstance& spriteInstance
-: sprites )
-{
-BOOST_ASSERT( spriteInstance.vertex.get() < vertices.size() );
-
-const Sprite& sprite = level.m_sprites.at( spriteInstance.id.get() );
-
-const auto model = std::make_shared<gameplay::Sprite>( sprite.x0, -sprite.y0,
-                                                       sprite.x1, -sprite.y1,
-                                                       sprite.t0, sprite.t1,
-                                                       spriteMaterial,
-                                                       gameplay::Sprite::Axis::Y );
-
-auto spriteNode = std::make_shared<gameplay::Node>( "sprite" );
-spriteNode->
-setDrawable( model );
-const RoomVertex& v = vertices.at( spriteInstance.vertex.get() );
-spriteNode->
-setLocalMatrix( translate( glm::mat4{1.0f}, v.position.toRenderSystem() )
-);
-spriteNode->addMaterialParameterSetter( "u_diffuseTexture",
-[
-texture = sprite.texture
-](const gameplay::Node& /*node*/,
-gameplay::gl::Program::ActiveUniform& uniform
-) {
-uniform.
-set( * texture );
-} );
-spriteNode->addMaterialParameterSetter( "u_baseLight",
-[
-brightness = v.getBrightness()
-](const gameplay::Node& /*node*/,
-gameplay::gl::Program::ActiveUniform& uniform
-) {
-uniform.
-set( brightness );
-} );
-
-addChild( node, spriteNode
-);
-}
+        addChild( node, spriteNode );
+    }
 }
 
 core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core::Angle angle) const
@@ -490,7 +358,7 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core:
         groundSector->box->block();
 }
 
-const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_null<gsl::not_null<const Room*> * >& room)
+const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_null<gsl::not_null<const Room*>*>& room)
 {
     const Sector* sector;
     // follow portals

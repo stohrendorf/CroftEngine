@@ -4,7 +4,7 @@
 
 #include "gsl-lite.hpp"
 
-#include "gameplay.h"
+#include "render/gl/pixel.h"
 
 namespace loader
 {
@@ -30,9 +30,9 @@ struct ByteColor
         return read( reader, true );
     }
 
-    gameplay::gl::RGBA8 toTextureColor() const
+    render::gl::RGBA8 toTextureColor() const
     {
-        return gameplay::gl::RGBA8{r, g, b, a};
+        return render::gl::RGBA8{r, g, b, a};
     }
 
     glm::vec4 toGLColor() const

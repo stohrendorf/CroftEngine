@@ -1,8 +1,14 @@
 #include "mesh.h"
-#include <utility>
 
 #include "render/textureanimator.h"
 #include "color.h"
+#include "render/scene/Base.h"
+#include "render/scene/MeshPart.h"
+#include "render/scene/MaterialParameter.h"
+#include "render/scene/Model.h"
+#include "render/gl/vertexarray.h"
+
+#include <utility>
 
 namespace loader
 {
@@ -17,12 +23,12 @@ struct Mesh::ModelBuilder::RenderVertex
     glm::vec4 color;
     glm::vec2 uv;
 
-    static const gameplay::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
+    static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
     {
-        static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
-                {VERTEX_ATTRIBUTE_POSITION_NAME,        gameplay::gl::VertexAttribute{&RenderVertex::position}},
-                {VERTEX_ATTRIBUTE_COLOR_NAME,           gameplay::gl::VertexAttribute{&RenderVertex::color}},
-                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{&RenderVertex::uv}}
+        static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
+                {VERTEX_ATTRIBUTE_POSITION_NAME,        render::gl::VertexAttribute{&RenderVertex::position}},
+                {VERTEX_ATTRIBUTE_COLOR_NAME,           render::gl::VertexAttribute{&RenderVertex::color}},
+                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute{&RenderVertex::uv}}
         };
 
         return attribs;
@@ -37,14 +43,14 @@ struct Mesh::ModelBuilder::RenderVertexWithNormal
     glm::vec4 color;
     glm::vec2 uv;
 
-    static const gameplay::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
+    static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
     {
-        static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
-                {VERTEX_ATTRIBUTE_POSITION_NAME,        gameplay::gl::VertexAttribute{
+        static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
+                {VERTEX_ATTRIBUTE_POSITION_NAME,        render::gl::VertexAttribute{
                         &RenderVertexWithNormal::position}},
-                {VERTEX_ATTRIBUTE_NORMAL_NAME,          gameplay::gl::VertexAttribute{&RenderVertexWithNormal::normal}},
-                {VERTEX_ATTRIBUTE_COLOR_NAME,           gameplay::gl::VertexAttribute{&RenderVertexWithNormal::color}},
-                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gameplay::gl::VertexAttribute{&RenderVertexWithNormal::uv}}
+                {VERTEX_ATTRIBUTE_NORMAL_NAME,          render::gl::VertexAttribute{&RenderVertexWithNormal::normal}},
+                {VERTEX_ATTRIBUTE_COLOR_NAME,           render::gl::VertexAttribute{&RenderVertexWithNormal::color}},
+                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute{&RenderVertexWithNormal::uv}}
         };
 
         return attribs;
@@ -54,7 +60,7 @@ struct Mesh::ModelBuilder::RenderVertexWithNormal
 
 #pragma pack(pop)
 
-const gameplay::gl::StructuredVertexBuffer::AttributeMapping& Mesh::ModelBuilder::getFormat(const bool withNormals)
+const render::gl::StructuredVertexBuffer::AttributeMapping& Mesh::ModelBuilder::getFormat(const bool withNormals)
 {
     return withNormals ? RenderVertexWithNormal::getFormat() : RenderVertex::getFormat();
 }
@@ -63,8 +69,8 @@ Mesh::ModelBuilder::ModelBuilder(
         const bool withNormals,
         bool dynamic,
         const std::vector<TextureLayoutProxy>& textureProxies,
-        const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-        gsl::not_null<std::shared_ptr<gameplay::Material>> colorMaterial,
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
+        gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
         const Palette& palette,
         render::TextureAnimator& animator,
         const std::string& label)
@@ -74,7 +80,7 @@ Mesh::ModelBuilder::ModelBuilder(
         , m_colorMaterial{std::move( colorMaterial )}
         , m_palette{palette}
         , m_animator{animator}
-        , m_mesh{std::make_shared<gameplay::Mesh>( getFormat( withNormals ), dynamic, label )}
+        , m_mesh{std::make_shared<render::scene::Mesh>( getFormat( withNormals ), dynamic, label )}
 {
 }
 
@@ -293,7 +299,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
     }
 }
 
-gsl::not_null<std::shared_ptr<gameplay::Model>> Mesh::ModelBuilder::finalize()
+gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finalize()
 {
     Expects( m_vbuf.size() * sizeof( m_vbuf[0] ) == m_vertexCount * m_mesh->getBuffers()[0]->getVertexSize() );
 
@@ -309,36 +315,36 @@ gsl::not_null<std::shared_ptr<gameplay::Model>> Mesh::ModelBuilder::finalize()
             BOOST_ASSERT( idx < m_vertexCount );
         }
 #endif
-        gameplay::gl::VertexArrayBuilder builder;
+        render::gl::VertexArrayBuilder builder;
 
-        auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+        auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
         indexBuffer->setData( localPart.indices, true );
         builder.attach( indexBuffer );
 
         builder.attach( m_mesh->getBuffers() );
 
-        auto part = std::make_shared<gameplay::MeshPart>(
+        auto part = std::make_shared<render::scene::MeshPart>(
                 builder.build( localPart.material->getShaderProgram()->getHandle() ) );
         m_mesh->addPart( part );
         part->setMaterial( localPart.material );
         if( localPart.color.is_initialized() )
         {
             part->registerMaterialParameterSetter(
-                    [color = *localPart.color](const gameplay::Node& /*node*/, gameplay::Material& material) {
+                    [color = *localPart.color](const render::scene::Node& /*node*/, render::scene::Material& material) {
                         material.getParameter( "u_diffuseColor" )->set( color );
                     } );
         }
     }
 
-    auto model = std::make_shared<gameplay::Model>();
+    auto model = std::make_shared<render::scene::Model>();
     model->addMesh( m_mesh );
     return model;
 }
 
-std::shared_ptr<gameplay::Model> Mesh::createModel(
+std::shared_ptr<render::scene::Model> Mesh::createModel(
         const std::vector<TextureLayoutProxy>& textureProxies,
-        const std::map<TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>& materials,
-        const gsl::not_null<std::shared_ptr<gameplay::Material>>& colorMaterial,
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
+        const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
         const Palette& palette,
         render::TextureAnimator& animator,
         const std::string& label) const

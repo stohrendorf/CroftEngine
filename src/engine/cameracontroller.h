@@ -3,6 +3,7 @@
 #include "core/angle.h"
 #include "loader/file/datatypes.h"
 #include "audio/soundengine.h"
+#include "render/scene/Camera.h"
 
 namespace engine
 {
@@ -50,7 +51,7 @@ enum class CameraModifier
 class CameraController final : public audio::Listener
 {
 private:
-    gsl::not_null<std::shared_ptr<gameplay::Camera>> m_camera;
+    gsl::not_null<std::shared_ptr<render::scene::Camera>> m_camera;
 
     Engine* m_engine;
 
@@ -95,10 +96,10 @@ private:
 
 public:
     explicit CameraController(const gsl::not_null<Engine*>& engine,
-                              gsl::not_null<std::shared_ptr<gameplay::Camera>> camera);
+                              gsl::not_null<std::shared_ptr<render::scene::Camera>> camera);
 
     explicit CameraController(gsl::not_null<Engine*> engine,
-                              gsl::not_null<std::shared_ptr<gameplay::Camera>> camera,
+                              gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                               bool noLaraTag);
 
     const Engine* getEngine() const noexcept
@@ -222,7 +223,7 @@ public:
         m_bounce = bounce;
     }
 
-    const gsl::not_null<std::shared_ptr<gameplay::Camera>>& getCamera() const
+    const gsl::not_null<std::shared_ptr<render::scene::Camera>>& getCamera() const
     {
         return m_camera;
     }

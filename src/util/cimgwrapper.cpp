@@ -122,12 +122,12 @@ uint8_t& CImgWrapper::operator()(const int x, const int y, const int c)
         return (*m_image)( c, x, y, 0 );
 }
 
-gameplay::gl::RGBA8& CImgWrapper::operator()(const int x, const int y)
+render::gl::RGBA8& CImgWrapper::operator()(const int x, const int y)
 {
     BOOST_ASSERT( x >= 0 && x < width() );
     BOOST_ASSERT( y >= 0 && y < height() );
     interleave();
-    return reinterpret_cast<gameplay::gl::RGBA8&>( (*m_image)( 0, x, y, 0 ) );
+    return reinterpret_cast<render::gl::RGBA8&>( (*m_image)( 0, x, y, 0 ) );
 }
 
 uint8_t CImgWrapper::operator()(const int x, const int y, const int c) const

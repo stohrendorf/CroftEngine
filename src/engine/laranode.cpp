@@ -2565,7 +2565,7 @@ void LaraNode::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInf
 
 void LaraNode::renderGunFlare(const WeaponId weaponId,
                               glm::mat4 m,
-                              const gsl::not_null<std::shared_ptr<gameplay::Node>>& flareNode,
+                              const gsl::not_null<std::shared_ptr<render::scene::Node>>& flareNode,
                               const bool visible) const
 {
     if( !visible )
@@ -2607,12 +2607,12 @@ void LaraNode::renderGunFlare(const WeaponId weaponId,
     flareNode->setLocalMatrix( getNode()->getLocalMatrix() * m );
 
     const auto brightness = util::clamp( 2.0f - shade / 8191.0f, 0.0f, 1.0f );
-    flareNode->addMaterialParameterSetter( "u_baseLight", [brightness](const gameplay::Node& /*node*/,
-                                                                       gameplay::gl::Program::ActiveUniform& uniform) {
+    flareNode->addMaterialParameterSetter( "u_baseLight", [brightness](const render::scene::Node & /*node*/,
+            render::gl::Program::ActiveUniform & uniform) {
         uniform.set( brightness );
     } );
-    flareNode->addMaterialParameterSetter( "u_baseLightDiff", [](const gameplay::Node& /*node*/,
-                                                                 gameplay::gl::Program::ActiveUniform& uniform) {
+    flareNode->addMaterialParameterSetter( "u_baseLightDiff", [](const render::scene::Node& /*node*/,
+                                                                 render::gl::Program::ActiveUniform& uniform) {
         uniform.set( 0.0f );
     } );
 }

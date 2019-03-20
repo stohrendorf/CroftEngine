@@ -23,7 +23,7 @@ struct PortalTracer
     BoundingBox boundingBox{-1, -1, 0, 1, 1, 0};
     const loader::file::Portal* lastPortal = nullptr;
 
-    bool checkVisibility(const loader::file::Portal* portal, const gameplay::Camera& camera)
+    bool checkVisibility(const loader::file::Portal* portal, const render::scene::Camera& camera)
     {
         const auto portalToCam = glm::vec3{camera.getInverseViewMatrix()[3]} - portal->vertices[0].toRenderSystem();
         if( dot( portal->normal.toRenderSystem(), portalToCam ) < 0 )
@@ -124,7 +124,7 @@ struct PortalTracer
 
 private:
     static glm::vec3 projectOnScreen(glm::vec3 vertex,
-                                     const gameplay::Camera& camera,
+                                     const render::scene::Camera& camera,
                                      int& numBehind,
                                      int& numTooFar)
     {

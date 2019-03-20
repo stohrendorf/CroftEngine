@@ -50,7 +50,7 @@
 #include "audio/tracktype.h"
 #include "render/textureanimator.h"
 
-#include "gl/font.h"
+#include "render/gl/font.h"
 #include "render/fullscreenfx.h"
 #include "render/label.h"
 #include "loader/trx/trx.h"
@@ -180,13 +180,13 @@ const std::vector<loader::file::Box>& Engine::getBoxes() const
     return m_level->m_boxes;
 }
 
-std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
-Engine::createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader)
+std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>
+Engine::createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader)
 {
     const auto texMask = gameToEngine( m_level->m_gameVersion ) == loader::file::level::Engine::TR4
                          ? loader::file::TextureIndexMaskTr4
                          : loader::file::TextureIndexMask;
-    std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>> materials;
+    std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>> materials;
     for( loader::file::TextureLayoutProxy& proxy : m_level->m_textureProxies )
     {
         const auto& key = proxy.textureKey;
@@ -201,7 +201,7 @@ Engine::createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProg
 
 std::shared_ptr<LaraNode> Engine::createItems()
 {
-    m_lightningShader = gameplay::ShaderProgram::createFromFile( "shaders/lightning.vert", "shaders/lightning.frag" );
+    m_lightningShader = render::scene::ShaderProgram::createFromFile( "shaders/lightning.vert", "shaders/lightning.frag" );
 
     std::shared_ptr<LaraNode> lara = nullptr;
     int id = -1;
@@ -233,7 +233,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
                                                                    objectInfo );
                 for( gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex )
                 {
-                    auto node = std::make_shared<gameplay::Node>(
+                    auto node = std::make_shared<render::scene::Node>(
                             modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
                     node->setDrawable( model->models[boneIndex].get() );
                     addChild( modelNode->getNode(), node );
@@ -528,18 +528,18 @@ void Engine::setUpRendering()
     m_textureAnimator = std::make_shared<render::TextureAnimator>( m_level->m_animatedTextures,
                                                                    m_level->m_textureProxies, m_level->m_textures );
 
-    const auto texturedShader = gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
+    const auto texturedShader = render::scene::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                          "shaders/textured_2.frag" );
     const auto materials = createMaterials( texturedShader );
 
-    const auto colorMaterial = std::make_shared<gameplay::Material>( "shaders/colored_2.vert",
+    const auto colorMaterial = std::make_shared<render::scene::Material>( "shaders/colored_2.vert",
                                                                      "shaders/colored_2.frag" );
     colorMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
     colorMaterial->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
     colorMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
 
     BOOST_ASSERT( m_spriteMaterial == nullptr );
-    m_spriteMaterial = std::make_shared<gameplay::Material>( "shaders/textured_2.vert", "shaders/textured_2.frag" );
+    m_spriteMaterial = std::make_shared<render::scene::Material>( "shaders/textured_2.vert", "shaders/textured_2.frag" );
     m_spriteMaterial->getRenderState().setCullFace( false );
 
     m_spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
@@ -573,16 +573,16 @@ void Engine::setUpRendering()
     }
 
     game->getScene()->setActiveCamera(
-            std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
+            std::make_shared<render::scene::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 
-    const auto waterTexturedShader = gameplay::ShaderProgram::createFromFile( "shaders/textured_2.vert",
+    const auto waterTexturedShader = render::scene::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                               "shaders/textured_2.frag",
                                                                               {"WATER"} );
     auto waterMaterials = createMaterials( waterTexturedShader );
     for( const auto& m : waterMaterials | boost::adaptors::map_values )
     {
         m->getParameter( "u_time" )->bind(
-                [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
+                [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
                     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( game->getGameTime() );
                     uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
                 }
@@ -678,8 +678,8 @@ std::shared_ptr<items::ItemNode> Engine::getItem(const uint16_t id) const
     return it->second.get();
 }
 
-void Engine::drawBars(const gsl::not_null<gameplay::Game*>& game,
-                      const gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>>& image) const
+void Engine::drawBars(const gsl::not_null<render::scene::Game*>& game,
+                      const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::RGBA8>>>& image) const
 {
     if( m_lara->isInWater() )
     {
@@ -1237,7 +1237,7 @@ void Engine::update(const bool godMode)
     animateUV();
 }
 
-void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, const int fps)
+void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, const int fps)
 {
     drawText( font, font->getTarget()->getWidth() - 40, font->getTarget()->getHeight() - 20, std::to_string( fps ) );
 
@@ -1336,26 +1336,26 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Fon
               + ", Y=" + std::to_string( m_lara->rightArm.aimRotation.Y.toDegrees() ) );
 }
 
-void Engine::drawText(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, const int x, const int y,
-                      const std::string& txt, const gameplay::gl::RGBA8& col)
+void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, const int x, const int y,
+                      const std::string& txt, const render::gl::RGBA8& col)
 {
     font->drawText( txt, x, y, col.r, col.g, col.b, col.a );
 }
 
 Engine::Engine()
-        : game{std::make_unique<gameplay::Game>()}
+        : game{std::make_unique<render::scene::Game>()}
         , splashImage{"splash.png"}
-        , abibasFont{std::make_shared<gameplay::gl::Font>( "abibas.ttf", 48 )}
+        , abibasFont{std::make_shared<render::gl::Font>( "abibas.ttf", 48 )}
         , m_scriptEngine{createScriptEngine()}
         , m_inventory{*this}
 {
     game->initialize();
     game->getScene()->setActiveCamera(
-            std::make_shared<gameplay::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
+            std::make_shared<render::scene::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
 
     scaleSplashImage();
 
-    screenOverlay = std::make_shared<gameplay::ScreenOverlay>( game->getViewport() );
+    screenOverlay = std::make_shared<render::scene::ScreenOverlay>( game->getViewport() );
 
     abibasFont->setTarget( screenOverlay->getImage() );
 
@@ -1493,35 +1493,35 @@ Engine::Engine()
     }
 
     depthDarknessFx = std::make_shared<render::FullScreenFX>( *game,
-                                                              gameplay::ShaderProgram::createFromFile(
+                                                              render::scene::ShaderProgram::createFromFile(
                                                                       "shaders/fx_darkness.vert",
                                                                       "shaders/fx_darkness.frag",
                                                                       {"LENS_DISTORTION"} ) );
     depthDarknessFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
-            [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
+            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
                 uniform.set( game->getAspectRatio() );
             } );
     depthDarknessFx->getMaterial()->getParameter( "distortion_power" )->set( -1.0f );
     depthDarknessFx->getMaterial()->getParameter( "u_time" )->bind(
-            [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
+            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
                 const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( game->getGameTime() );
                 uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
             }
     );
 
     depthDarknessWaterFx = std::make_shared<render::FullScreenFX>( *game,
-                                                                   gameplay::ShaderProgram::createFromFile(
+                                                                   render::scene::ShaderProgram::createFromFile(
                                                                            "shaders/fx_darkness.vert",
                                                                            "shaders/fx_darkness.frag",
                                                                            {"WATER",
                                                                             "LENS_DISTORTION"} ) );
     depthDarknessWaterFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
-            [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
+            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
                 uniform.set( game->getAspectRatio() );
             } );
     depthDarknessWaterFx->getMaterial()->getParameter( "distortion_power" )->set( -2.0f );
     depthDarknessWaterFx->getMaterial()->getParameter( "u_time" )->bind(
-            [this](const gameplay::Node& /*node*/, gameplay::gl::Program::ActiveUniform& uniform) {
+            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
                 const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( game->getGameTime() );
                 uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
             }
@@ -1537,7 +1537,7 @@ void Engine::run()
 
     bool showDebugInfo = false;
 
-    auto font = std::make_shared<gameplay::gl::Font>( "DroidSansMono.ttf", 12 );
+    auto font = std::make_shared<render::gl::Font>( "DroidSansMono.ttf", 12 );
     font->setTarget( screenOverlay->getImage() );
 
     const auto& trFontGraphics = m_level->m_spriteSequences.at( TR1ItemId::FontGraphics );
@@ -1611,11 +1611,11 @@ void Engine::run()
             depthDarknessFx->bind();
         game->render();
 
-        gameplay::RenderContext context{};
-        gameplay::Node dummyNode{""};
+        render::scene::RenderContext context{};
+        render::scene::Node dummyNode{""};
         context.setCurrentNode( &dummyNode );
 
-        gameplay::gl::FrameBuffer::unbindAll();
+        render::gl::FrameBuffer::unbindAll();
 
         if( getCameraController().getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx->render( context );
@@ -1651,7 +1651,7 @@ void Engine::run()
                 projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().height;
 
                 font->drawText( ctrl->getNode()->getId().c_str(), projVertex.x, projVertex.y,
-                                gameplay::gl::RGBA8{255} );
+                                render::gl::RGBA8{255} );
             }
         }
 
@@ -1725,19 +1725,19 @@ void Engine::drawLoadingScreen(const std::string& state)
         scaleSplashImage();
     }
     screenOverlay->getImage()->assign(
-            reinterpret_cast<const gameplay::gl::RGBA8*>(splashImageScaled.data()),
+            reinterpret_cast<const render::gl::RGBA8*>(splashImageScaled.data()),
             game->getViewport().width * game->getViewport().height
     );
     abibasFont->drawText( state, 40, gsl::narrow<int>( game->getViewport().height - 100 ), 255, 255, 255, 192 );
 
-    gameplay::gl::FrameBuffer::unbindAll();
+    render::gl::FrameBuffer::unbindAll();
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    gameplay::gl::checkGlError();
+    render::gl::checkGlError();
 
     game->clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
-    gameplay::RenderContext context{};
-    gameplay::Node dummyNode{""};
+    render::scene::RenderContext context{};
+    render::scene::Node dummyNode{""};
     context.setCurrentNode( &dummyNode );
     screenOverlay->draw( context );
     game->swapBuffers();

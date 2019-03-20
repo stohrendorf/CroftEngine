@@ -2,6 +2,7 @@
 
 #include "core/magic.h"
 #include "loader/file/animation.h"
+#include "render/scene/Node.h"
 
 #include "gsl-lite.hpp"
 
@@ -23,7 +24,7 @@ namespace items
 struct ItemState;
 }
 class SkeletalModelNode
-        : public gameplay::Node
+        : public render::scene::Node
 {
 public:
     explicit SkeletalModelNode(const std::string& id,

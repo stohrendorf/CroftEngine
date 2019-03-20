@@ -2,6 +2,10 @@
 
 #include "engine/heightinfo.h"
 #include "engine/laranode.h"
+#include "render/scene/Base.h"
+#include "render/scene/MeshPart.h"
+#include "render/gl/vertexarray.h"
+#include "render/gl/indexbuffer.h"
 
 namespace engine
 {
@@ -9,37 +13,37 @@ namespace items
 {
 namespace
 {
-gsl::not_null<std::shared_ptr<gameplay::Mesh>>
-createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& program, GLfloat lineWidth)
+gsl::not_null<std::shared_ptr<render::scene::Mesh>>
+createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& program, GLfloat lineWidth)
 {
     std::vector<glm::vec3> vertices( points );
 
-    static const gameplay::gl::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_POSITION_NAME, gameplay::gl::VertexAttribute{
-                    gameplay::gl::VertexAttribute::SingleAttribute<glm::vec3>{}}}
+    static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
+            {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{
+                    render::gl::VertexAttribute::SingleAttribute<glm::vec3>{}}}
     };
 
-    auto mesh = std::make_shared<gameplay::Mesh>( attribs, true );
+    auto mesh = std::make_shared<render::scene::Mesh>( attribs, true );
     mesh->getBuffers()[0]->assign<glm::vec3>( &vertices[0], points );
 
     std::vector<uint16_t> indices;
     for( uint16_t i = 0; i < points; ++i )
         indices.emplace_back( i );
 
-    gameplay::gl::VertexArrayBuilder builder;
+    render::gl::VertexArrayBuilder builder;
 
-    auto indexBuffer = std::make_shared<gameplay::gl::IndexBuffer>();
+    auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
     indexBuffer->setData( indices, false );
     builder.attach( indexBuffer );
     builder.attach( mesh->getBuffers() );
 
-    const auto part = std::make_shared<gameplay::MeshPart>( builder.build( program->getHandle() ), GL_LINE_STRIP );
+    const auto part = std::make_shared<render::scene::MeshPart>( builder.build( program->getHandle() ), GL_LINE_STRIP );
     mesh->addPart( part );
 
     mesh->getRenderState().setLineSmooth( true );
     mesh->getRenderState().setLineWidth( lineWidth );
 
-    auto material = std::make_shared<gameplay::Material>( program );
+    auto material = std::make_shared<render::scene::Material>( program );
     material->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
     material->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
 
@@ -50,7 +54,7 @@ createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<gameplay::Shader
 
 using Bolt = std::array<core::TRVec, LightningBall::SegmentPoints>;
 
-Bolt updateBolt(core::TRVec start, const core::TRVec& end, const gameplay::Mesh& mesh)
+Bolt updateBolt(core::TRVec start, const core::TRVec& end, const render::scene::Mesh& mesh)
 {
     const auto segmentSize = (end - start) / LightningBall::SegmentPoints;
 
@@ -83,7 +87,7 @@ LightningBall::LightningBall(const gsl::not_null<Engine*>& engine,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const loader::file::SkeletalModelType& animatedModel,
-                             const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& boltProgram)
+                             const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& boltProgram)
         : ModelItemNode{engine, room, item, true, animatedModel}
 {
     if( animatedModel.nMeshes >= 1 )
@@ -98,7 +102,7 @@ LightningBall::LightningBall(const gsl::not_null<Engine*>& engine,
     }
 
     m_mainBoltMesh = createBolt( SegmentPoints, boltProgram, 10 );
-    auto node = std::make_shared<gameplay::Node>( "lightning-bolt-main" );
+    auto node = std::make_shared<render::scene::Node>( "lightning-bolt-main" );
     node->setDrawable( m_mainBoltMesh );
     addChild( getSkeleton(), node );
 
@@ -106,7 +110,7 @@ LightningBall::LightningBall(const gsl::not_null<Engine*>& engine,
     {
         childBolt.mesh = createBolt( SegmentPoints, boltProgram, 3 );
 
-        node = std::make_shared<gameplay::Node>( "lightning-bolt-child" );
+        node = std::make_shared<render::scene::Node>( "lightning-bolt-child" );
         node->setDrawable( childBolt.mesh );
         addChild( getSkeleton(), node );
     }
@@ -247,12 +251,12 @@ void LightningBall::load(const YAML::Node& n)
         setParent( getSkeleton()->getChildren().back(), nullptr );
     }
 
-    auto node = std::make_shared<gameplay::Node>( "lightning-bolt-main" );
+    auto node = std::make_shared<render::scene::Node>( "lightning-bolt-main" );
     node->setDrawable( m_mainBoltMesh );
     addChild( getSkeleton(), node );
     for( auto& childBolt : m_childBolts )
     {
-        node = std::make_shared<gameplay::Node>( "lightning-bolt-child" );
+        node = std::make_shared<render::scene::Node>( "lightning-bolt-child" );
         node->setDrawable( childBolt.mesh );
         addChild( getSkeleton(), node );
     }

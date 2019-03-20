@@ -8,6 +8,7 @@
 #include "items_tr1.h"
 #include "audioengine.h"
 #include "inventory.h"
+#include "render/scene/ScreenOverlay.h"
 
 #include <boost/filesystem/path.hpp>
 
@@ -36,16 +37,13 @@ struct CinematicFrame;
 }
 }
 
-namespace gameplay
+namespace render
 {
 namespace gl
 {
 class Font;
 }
-}
 
-namespace render
-{
 class FullScreenFX;
 }
 
@@ -82,11 +80,11 @@ private:
 
     std::set<items::ItemNode*> m_scheduledDeletions;
 
-    std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_models;
+    std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_models;
 
     int m_uvAnimTime{0};
 
-    std::shared_ptr<gameplay::ShaderProgram> m_lightningShader;
+    std::shared_ptr<render::scene::ShaderProgram> m_lightningShader;
 
     sol::state m_scriptEngine;
 
@@ -101,20 +99,20 @@ private:
     std::vector<gsl::not_null<std::shared_ptr<Particle>>> m_particles;
 
     // list of meshes and models, resolved through m_meshIndices
-    std::vector<gsl::not_null<std::shared_ptr<gameplay::Model>>> m_modelsDirect;
+    std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_modelsDirect;
     std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
 
-    std::shared_ptr<gameplay::Material> m_spriteMaterial{nullptr};
+    std::shared_ptr<render::scene::Material> m_spriteMaterial{nullptr};
 
     std::shared_ptr<render::FullScreenFX> depthDarknessFx;
     std::shared_ptr<render::FullScreenFX> depthDarknessWaterFx;
-    std::shared_ptr<gameplay::ScreenOverlay> screenOverlay;
-    std::unique_ptr<gameplay::Game> game;
+    std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
+    std::unique_ptr<render::scene::Game> game;
     sol::table levelInfo;
 
     const util::CImgWrapper splashImage;
     util::CImgWrapper splashImageScaled;
-    std::shared_ptr<gameplay::gl::Font> abibasFont;
+    std::shared_ptr<render::gl::Font> abibasFont;
 
     bool m_levelFinished = false;
 
@@ -217,8 +215,8 @@ public:
 
     void run();
 
-    std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<gameplay::Material>>>
-    createMaterials(const gsl::not_null<std::shared_ptr<gameplay::ShaderProgram>>& shader);
+    std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>
+    createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader);
 
     std::shared_ptr<LaraNode> createItems();
 
@@ -265,12 +263,12 @@ public:
 
     std::shared_ptr<items::ItemNode> getItem(uint16_t id) const;
 
-    void drawBars(const gsl::not_null<gameplay::Game*>& game,
-                  const gsl::not_null<std::shared_ptr<gameplay::gl::Image<gameplay::gl::RGBA8>>>& image) const;
+    void drawBars(const gsl::not_null<render::scene::Game*>& game,
+                  const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::RGBA8>>>& image) const;
 
     void useAlternativeLaraAppearance(bool withHead = false);
 
-    const gsl::not_null<std::shared_ptr<gameplay::Model>>& getModel(const size_t idx) const
+    const gsl::not_null<std::shared_ptr<render::scene::Model>>& getModel(const size_t idx) const
     {
         return m_models.at( idx );
     }
@@ -398,7 +396,7 @@ public:
 
     void load(const YAML::Node& node);
 
-    boost::optional<size_t> indexOfModel(const std::shared_ptr<gameplay::Drawable>& m) const
+    boost::optional<size_t> indexOfModel(const std::shared_ptr<render::scene::Drawable>& m) const
     {
         if( m == nullptr )
             return boost::none;
@@ -438,11 +436,11 @@ public:
 
     void update(bool godMode);
 
-    static void drawText(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, int x, const int y,
+    static void drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, int x, const int y,
                          const std::string& txt,
-                         const gameplay::gl::RGBA8& col = {255, 255, 255, 255});
+                         const render::gl::RGBA8& col = {255, 255, 255, 255});
 
-    void drawDebugInfo(const gsl::not_null<std::shared_ptr<gameplay::gl::Font>>& font, int fps);
+    void drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, int fps);
 
     void scaleSplashImage();
 
