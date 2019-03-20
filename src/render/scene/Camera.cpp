@@ -3,24 +3,17 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-// Camera dirty bits
-#define CAMERA_DIRTY_PROJ 2
-#define CAMERA_DIRTY_VIEW_PROJ 4
-#define CAMERA_DIRTY_INV_VIEW 8
-#define CAMERA_DIRTY_INV_VIEW_PROJ 16
-#define CAMERA_DIRTY_ALL (CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW | CAMERA_DIRTY_INV_VIEW_PROJ)
-
 namespace render
 {
 namespace scene
 {
 Camera::Camera(const float fieldOfView, const float aspectRatio, const float nearPlane, const float farPlane)
-        : m_fieldOfView( fieldOfView )
-        , m_aspectRatio( aspectRatio )
-        , m_nearPlane( nearPlane )
-        , m_farPlane( farPlane )
-        , m_bits( CAMERA_DIRTY_ALL )
+        : m_fieldOfView{fieldOfView}
+        , m_aspectRatio{aspectRatio}
+        , m_nearPlane{nearPlane}
+        , m_farPlane{farPlane}
 {
+    m_dirty.set_all();
 }
 
 float Camera::getFieldOfView() const
@@ -31,7 +24,9 @@ float Camera::getFieldOfView() const
 void Camera::setFieldOfView(const float fieldOfView)
 {
     m_fieldOfView = fieldOfView;
-    m_bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ;
+    m_dirty.set(DirtyFlag::Projection);
+    m_dirty.set(DirtyFlag::ViewProjection);
+    m_dirty.set(DirtyFlag::InvViewProjection);
 }
 
 float Camera::getAspectRatio() const
@@ -42,7 +37,9 @@ float Camera::getAspectRatio() const
 void Camera::setAspectRatio(const float aspectRatio)
 {
     m_aspectRatio = aspectRatio;
-    m_bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ;
+    m_dirty.set(DirtyFlag::Projection);
+    m_dirty.set(DirtyFlag::ViewProjection);
+    m_dirty.set(DirtyFlag::InvViewProjection);
 }
 
 float Camera::getNearPlane() const
@@ -62,11 +59,10 @@ const glm::mat4& Camera::getViewMatrix() const
 
 const glm::mat4& Camera::getInverseViewMatrix() const
 {
-    if( m_bits & CAMERA_DIRTY_INV_VIEW )
+    if( m_dirty.is_set(DirtyFlag::InvView) )
     {
         m_inverseView = inverse( m_view );
-
-        m_bits &= ~CAMERA_DIRTY_INV_VIEW;
+        m_dirty.reset(DirtyFlag::InvView);
     }
 
     return m_inverseView;
@@ -74,10 +70,10 @@ const glm::mat4& Camera::getInverseViewMatrix() const
 
 const glm::mat4& Camera::getProjectionMatrix() const
 {
-    if( m_bits & CAMERA_DIRTY_PROJ )
+    if( m_dirty.is_set(DirtyFlag::Projection) )
     {
         m_projection = glm::perspective( m_fieldOfView, m_aspectRatio, m_nearPlane, m_farPlane );
-        m_bits &= ~CAMERA_DIRTY_PROJ;
+        m_dirty.reset(DirtyFlag::Projection);
     }
 
     return m_projection;
@@ -85,11 +81,10 @@ const glm::mat4& Camera::getProjectionMatrix() const
 
 const glm::mat4& Camera::getViewProjectionMatrix() const
 {
-    if( m_bits & CAMERA_DIRTY_VIEW_PROJ )
+    if( m_dirty.is_set(DirtyFlag::ViewProjection) )
     {
         m_viewProjection = getProjectionMatrix() * getViewMatrix();
-
-        m_bits &= ~CAMERA_DIRTY_VIEW_PROJ;
+        m_dirty.reset(DirtyFlag::ViewProjection);
     }
 
     return m_viewProjection;
@@ -97,11 +92,10 @@ const glm::mat4& Camera::getViewProjectionMatrix() const
 
 const glm::mat4& Camera::getInverseViewProjectionMatrix() const
 {
-    if( m_bits & CAMERA_DIRTY_INV_VIEW_PROJ )
+    if( m_dirty.is_set(DirtyFlag::InvViewProjection) )
     {
         m_inverseViewProjection = inverse( getViewProjectionMatrix() );
-
-        m_bits &= ~CAMERA_DIRTY_INV_VIEW_PROJ;
+        m_dirty.reset(DirtyFlag::InvViewProjection);
     }
 
     return m_inverseViewProjection;
@@ -111,7 +105,10 @@ const glm::mat4& Camera::getInverseViewProjectionMatrix() const
 void Camera::setViewMatrix(const glm::mat4& m)
 {
     m_view = m;
-    m_bits |= CAMERA_DIRTY_PROJ | CAMERA_DIRTY_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW_PROJ | CAMERA_DIRTY_INV_VIEW;
+    m_dirty.set(DirtyFlag::Projection);
+    m_dirty.set(DirtyFlag::ViewProjection);
+    m_dirty.set(DirtyFlag::InvViewProjection);
+    m_dirty.set(DirtyFlag::InvView);
 }
 }
 }

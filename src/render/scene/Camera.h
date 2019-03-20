@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "type_safe/flag_set.hpp"
 
 namespace render
 {
@@ -52,6 +53,16 @@ public:
     const glm::mat4& getInverseViewProjectionMatrix() const;
 
 private:
+    enum class DirtyFlag
+    {
+        Projection,
+        InvView,
+        InvProjection,
+        ViewProjection,
+        InvViewProjection,
+        _flag_set_size
+    };
+
     float m_fieldOfView;
     float m_aspectRatio;
     float m_nearPlane;
@@ -61,7 +72,7 @@ private:
     mutable glm::mat4 m_viewProjection;
     mutable glm::mat4 m_inverseView;
     mutable glm::mat4 m_inverseViewProjection;
-    mutable int m_bits;
+    mutable type_safe::flag_set<DirtyFlag> m_dirty;
 };
 }
 }
