@@ -2,12 +2,14 @@
 
 namespace render
 {
+namespace gl
+{
+class RenderState;
+}
+
 namespace scene
 {
 class RenderContext;
-
-
-class RenderState;
 
 
 class Drawable
@@ -27,7 +29,7 @@ public:
 
     virtual void draw(RenderContext& context) = 0;
 
-    virtual RenderState& getRenderState() = 0;
+    virtual render::gl::RenderState& getRenderState() = 0;
 };
 }
 }

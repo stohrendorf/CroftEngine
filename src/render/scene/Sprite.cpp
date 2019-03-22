@@ -1,6 +1,6 @@
 #include "Sprite.h"
 
-#include "Base.h"
+#include "names.h"
 #include "Material.h"
 #include "MeshPart.h"
 #include "Node.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderState.h"
+#include "render/gl/renderstate.h"
 
 #include "gsl-lite.hpp"
 
@@ -18,7 +18,7 @@ class RenderContext
 public:
     explicit RenderContext()
     {
-        m_renderStates.push( RenderState() );
+        m_renderStates.push( render::gl::RenderState() );
     }
 
     Node* getCurrentNode() const noexcept
@@ -31,7 +31,7 @@ public:
         m_currentNode = n;
     }
 
-    void pushState(const RenderState& state)
+    void pushState(const render::gl::RenderState& state)
     {
         auto tmp = m_renderStates.top();
         tmp.merge( state );
@@ -51,7 +51,7 @@ public:
 
 private:
     Node* m_currentNode = nullptr;
-    std::stack<RenderState> m_renderStates{};
+    std::stack<render::gl::RenderState> m_renderStates{};
 };
 }
 }

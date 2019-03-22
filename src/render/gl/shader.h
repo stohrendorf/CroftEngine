@@ -1,5 +1,7 @@
 #pragma once
 
+#include "glew.h"
+
 namespace render
 {
 namespace gl

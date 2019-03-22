@@ -2,9 +2,9 @@
 
 #include "controlleraxis.h"
 #include "controllerbutton.h"
+#include "render/scene/glfw.h"
 
 #include <yaml-cpp/yaml.h>
-#include <GLFW/glfw3.h>
 
 #include <map>
 #include <set>

@@ -4,7 +4,7 @@
 #include "render/textureanimator.h"
 #include "util/helpers.h"
 #include "level/level.h"
-#include "render/scene/Base.h"
+#include "render/scene/names.h"
 #include "render/scene/MeshPart.h"
 #include "render/scene/Material.h"
 #include "render/scene/Sprite.h"

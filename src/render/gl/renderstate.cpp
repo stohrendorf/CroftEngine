@@ -1,10 +1,8 @@
-#include "Base.h"
-#include "RenderState.h"
-#include "Node.h"
+#include "renderstate.h"
 
 namespace render
 {
-namespace scene
+namespace gl
 {
 RenderState RenderState::s_currentState;
 

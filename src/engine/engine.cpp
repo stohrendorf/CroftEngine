@@ -517,7 +517,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
 
 void Engine::setUpRendering()
 {
-    m_inputHandler = std::make_unique<InputHandler>( game->getWindow() );
+    m_inputHandler = std::make_unique<InputHandler>( m_window->getWindow() );
 
     for( auto& sprite : m_level->m_sprites )
     {
@@ -572,8 +572,8 @@ void Engine::setUpRendering()
         }
     }
 
-    game->getScene()->setActiveCamera(
-            std::make_shared<render::scene::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
+    m_game->getScene()->setActiveCamera(
+            std::make_shared<render::scene::Camera>( glm::radians( 80.0f ), m_window->getAspectRatio(), 10.0f, 20480.0f ) );
 
     const auto waterTexturedShader = render::scene::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                               "shaders/textured_2.frag",
@@ -583,7 +583,7 @@ void Engine::setUpRendering()
     {
         m->getParameter( "u_time" )->bind(
                 [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( game->getGameTime() );
+                    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( m_game->getGameTime() );
                     uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
                 }
         );
@@ -593,7 +593,7 @@ void Engine::setUpRendering()
     {
         m_level->m_rooms[i].createSceneNode( i, *m_level, materials, waterMaterials, m_models, *m_textureAnimator,
                                              m_spriteMaterial );
-        game->getScene()->addNode( m_level->m_rooms[i].node );
+        m_game->getScene()->addNode( m_level->m_rooms[i].node );
     }
 
     m_lara = createItems();
@@ -601,7 +601,7 @@ void Engine::setUpRendering()
     {
         m_cameraController = std::make_unique<CameraController>(
                 this,
-                game->getScene()->getActiveCamera(),
+                m_game->getScene()->getActiveCamera(),
                 true );
 
         for( const auto& item : m_level->m_items )
@@ -616,7 +616,7 @@ void Engine::setUpRendering()
     {
         m_cameraController = std::make_unique<CameraController>(
                 this,
-                game->getScene()->getActiveCamera() );
+                m_game->getScene()->getActiveCamera() );
     }
 
     m_audioEngine->m_soundEngine.setListener( m_cameraController.get() );
@@ -683,7 +683,7 @@ void Engine::drawBars(const gsl::not_null<render::scene::Game*>& game,
 {
     if( m_lara->isInWater() )
     {
-        const auto x0 = gsl::narrow<GLint>( game->getViewport().width - 110 );
+        const auto x0 = gsl::narrow<GLint>( m_window->getViewport().width - 110 );
 
         for( int i = 7; i <= 13; ++i )
             image->line( x0 - 1, i, x0 + 101, i, m_level->m_palette->colors[0].toTextureColor() );
@@ -1237,7 +1237,7 @@ void Engine::update(const bool godMode)
     animateUV();
 }
 
-void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, const int fps)
+void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, const float fps)
 {
     drawText( font, font->getTarget()->getWidth() - 40, font->getTarget()->getHeight() - 20, std::to_string( fps ) );
 
@@ -1342,20 +1342,20 @@ void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& fo
     font->drawText( txt, x, y, col.r, col.g, col.b, col.a );
 }
 
-Engine::Engine()
-        : game{std::make_unique<render::scene::Game>()}
+Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution)
+        : m_game{std::make_unique<render::scene::Game>()}
+        , m_window{std::make_unique<render::scene::Window>(fullscreen, resolution)}
         , splashImage{"splash.png"}
         , abibasFont{std::make_shared<render::gl::Font>( "abibas.ttf", 48 )}
         , m_scriptEngine{createScriptEngine()}
         , m_inventory{*this}
 {
-    game->initialize();
-    game->getScene()->setActiveCamera(
-            std::make_shared<render::scene::Camera>( glm::radians( 80.0f ), game->getAspectRatio(), 10.0f, 20480.0f ) );
+    m_game->getScene()->setActiveCamera(
+            std::make_shared<render::scene::Camera>( glm::radians( 80.0f ), m_window->getAspectRatio(), 10.0f, 20480.0f ) );
 
     scaleSplashImage();
 
-    screenOverlay = std::make_shared<render::scene::ScreenOverlay>( game->getViewport() );
+    screenOverlay = std::make_shared<render::scene::ScreenOverlay>( m_window->getViewport() );
 
     abibasFont->setTarget( screenOverlay->getImage() );
 
@@ -1492,24 +1492,26 @@ Engine::Engine()
         }
     }
 
-    depthDarknessFx = std::make_shared<render::FullScreenFX>( *game,
+    depthDarknessFx = std::make_shared<render::FullScreenFX>( *m_game,
+                                                              *m_window,
                                                               render::scene::ShaderProgram::createFromFile(
                                                                       "shaders/fx_darkness.vert",
                                                                       "shaders/fx_darkness.frag",
                                                                       {"LENS_DISTORTION"} ) );
     depthDarknessFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
             [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                uniform.set( game->getAspectRatio() );
+                uniform.set( m_window->getAspectRatio() );
             } );
     depthDarknessFx->getMaterial()->getParameter( "distortion_power" )->set( -1.0f );
     depthDarknessFx->getMaterial()->getParameter( "u_time" )->bind(
             [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( game->getGameTime() );
+                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( m_game->getGameTime() );
                 uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
             }
     );
 
-    depthDarknessWaterFx = std::make_shared<render::FullScreenFX>( *game,
+    depthDarknessWaterFx = std::make_shared<render::FullScreenFX>( *m_game,
+                                                                   *m_window,
                                                                    render::scene::ShaderProgram::createFromFile(
                                                                            "shaders/fx_darkness.vert",
                                                                            "shaders/fx_darkness.frag",
@@ -1517,12 +1519,12 @@ Engine::Engine()
                                                                             "LENS_DISTORTION"} ) );
     depthDarknessWaterFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
             [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                uniform.set( game->getAspectRatio() );
+                uniform.set( m_window->getAspectRatio() );
             } );
     depthDarknessWaterFx->getMaterial()->getParameter( "distortion_power" )->set( -2.0f );
     depthDarknessWaterFx->getMaterial()->getParameter( "u_time" )->bind(
             [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( game->getGameTime() );
+                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( m_game->getGameTime() );
                 uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
             }
     );
@@ -1547,7 +1549,7 @@ void Engine::run()
 
     const bool isCutscene = !levelInfo.get<std::string>( "cutscene" ).empty();
 
-    while( !game->windowShouldClose() )
+    while( !m_window->windowShouldClose() )
     {
         screenOverlay->getImage()->fill( {0, 0, 0, 0} );
 
@@ -1579,12 +1581,12 @@ void Engine::run()
 
         update( bool( m_scriptEngine["cheats"]["godMode"] ) );
 
-        if( game->updateWindowSize() )
+        if( m_window->updateWindowSize() )
         {
-            game->getScene()->getActiveCamera()->setAspectRatio( game->getAspectRatio() );
-            depthDarknessFx->init( *game );
-            depthDarknessWaterFx->init( *game );
-            screenOverlay->init( game->getViewport() );
+            m_game->getScene()->getActiveCamera()->setAspectRatio( m_window->getAspectRatio() );
+            depthDarknessFx->init( *m_game, *m_window );
+            depthDarknessWaterFx->init( *m_game, *m_window );
+            screenOverlay->init( m_window->getViewport() );
             font->setTarget( screenOverlay->getImage() );
         }
 
@@ -1603,13 +1605,13 @@ void Engine::run()
         doGlobalEffect();
 
         if( m_lara != nullptr )
-            drawBars( game.get(), screenOverlay->getImage() );
+            drawBars( m_game.get(), screenOverlay->getImage() );
 
         if( getCameraController().getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx->bind();
         else
             depthDarknessFx->bind();
-        game->render();
+        m_game->render();
 
         render::scene::RenderContext context{};
         render::scene::Node dummyNode{""};
@@ -1624,31 +1626,31 @@ void Engine::run()
 
         if( showDebugInfo )
         {
-            drawDebugInfo( font, game->getFrameRate() );
+            drawDebugInfo( font, m_game->getFrameRate() );
 
             for( const std::shared_ptr<items::ItemNode>& ctrl : m_itemNodes | boost::adaptors::map_values )
             {
-                const auto vertex = glm::vec3{game->getScene()->getActiveCamera()->getViewMatrix()
+                const auto vertex = glm::vec3{m_game->getScene()->getActiveCamera()->getViewMatrix()
                                               * glm::vec4( ctrl->getNode()->getTranslationWorld(), 1 )};
 
-                if( vertex.z > -game->getScene()->getActiveCamera()->getNearPlane() )
+                if( vertex.z > -m_game->getScene()->getActiveCamera()->getNearPlane() )
                 {
                     continue;
                 }
-                else if( vertex.z < -game->getScene()->getActiveCamera()->getFarPlane() )
+                else if( vertex.z < -m_game->getScene()->getActiveCamera()->getFarPlane() )
                 {
                     continue;
                 }
 
                 glm::vec4 projVertex{vertex, 1};
-                projVertex = game->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
+                projVertex = m_game->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
                 projVertex /= projVertex.w;
 
                 if( std::abs( projVertex.x ) > 1 || std::abs( projVertex.y ) > 1 )
                     continue;
 
-                projVertex.x = (projVertex.x / 2 + 0.5f) * game->getViewport().width;
-                projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * game->getViewport().height;
+                projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().width;
+                projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().height;
 
                 font->drawText( ctrl->getNode()->getId().c_str(), projVertex.x, projVertex.y,
                                 render::gl::RGBA8{255} );
@@ -1657,7 +1659,7 @@ void Engine::run()
 
         screenOverlay->draw( context );
 
-        game->swapBuffers();
+        m_window->swapBuffers();
 
         if( m_inputHandler->getInputState().save.justPressed() )
         {
@@ -1690,8 +1692,8 @@ void Engine::scaleSplashImage()
 {
     // scale splash image so that its aspect ratio is preserved, but the boundaries match
     const float splashScale = std::max(
-            gsl::narrow<float>( game->getViewport().width ) / splashImage.width(),
-            gsl::narrow<float>( game->getViewport().height ) / splashImage.height()
+            gsl::narrow<float>( m_window->getViewport().width ) / splashImage.width(),
+            gsl::narrow<float>( m_window->getViewport().height ) / splashImage.height()
     );
 
     splashImageScaled = splashImage;
@@ -1701,14 +1703,14 @@ void Engine::scaleSplashImage()
     const auto centerX = splashImageScaled.width() / 2;
     const auto centerY = splashImageScaled.height() / 2;
     splashImageScaled.crop(
-            gsl::narrow<int>( centerX - game->getViewport().width / 2 ),
-            gsl::narrow<int>( centerY - game->getViewport().height / 2 ),
-            gsl::narrow<int>( centerX - game->getViewport().width / 2 + game->getViewport().width - 1 ),
-            gsl::narrow<int>( centerY - game->getViewport().height / 2 + game->getViewport().height - 1 )
+            gsl::narrow<int>( centerX - m_window->getViewport().width / 2 ),
+            gsl::narrow<int>( centerY - m_window->getViewport().height / 2 ),
+            gsl::narrow<int>( centerX - m_window->getViewport().width / 2 + m_window->getViewport().width - 1 ),
+            gsl::narrow<int>( centerY - m_window->getViewport().height / 2 + m_window->getViewport().height - 1 )
     );
 
-    Expects( splashImageScaled.width() == game->getViewport().width );
-    Expects( splashImageScaled.height() == game->getViewport().height );
+    Expects( splashImageScaled.width() == m_window->getViewport().width );
+    Expects( splashImageScaled.height() == m_window->getViewport().height );
 
     splashImageScaled.interleave();
 }
@@ -1716,31 +1718,31 @@ void Engine::scaleSplashImage()
 void Engine::drawLoadingScreen(const std::string& state)
 {
     glfwPollEvents();
-    if( game->updateWindowSize() )
+    if( m_window->updateWindowSize() )
     {
-        game->getScene()->getActiveCamera()->setAspectRatio( game->getAspectRatio() );
-        screenOverlay->init( game->getViewport() );
+        m_game->getScene()->getActiveCamera()->setAspectRatio( m_window->getAspectRatio() );
+        screenOverlay->init( m_window->getViewport() );
         abibasFont->setTarget( screenOverlay->getImage() );
 
         scaleSplashImage();
     }
     screenOverlay->getImage()->assign(
             reinterpret_cast<const render::gl::RGBA8*>(splashImageScaled.data()),
-            game->getViewport().width * game->getViewport().height
+            m_window->getViewport().width * m_window->getViewport().height
     );
-    abibasFont->drawText( state, 40, gsl::narrow<int>( game->getViewport().height - 100 ), 255, 255, 255, 192 );
+    abibasFont->drawText( state, 40, gsl::narrow<int>( m_window->getViewport().height - 100 ), 255, 255, 255, 192 );
 
     render::gl::FrameBuffer::unbindAll();
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     render::gl::checkGlError();
 
-    game->clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
+    m_game->clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
     render::scene::RenderContext context{};
     render::scene::Node dummyNode{""};
     context.setCurrentNode( &dummyNode );
     screenOverlay->draw( context );
-    game->swapBuffers();
+    m_window->swapBuffers();
 }
 
 const std::vector<int16_t>& Engine::getPoseFrames() const

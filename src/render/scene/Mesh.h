@@ -1,8 +1,8 @@
 #pragma once
 
-#include "RenderState.h"
 #include "Drawable.h"
 
+#include "render/gl/renderstate.h"
 #include "render/gl/structuredvertexbuffer.h"
 
 #include "gsl-lite.hpp"
@@ -66,7 +66,7 @@ public:
         return m_parts;
     }
 
-    RenderState& getRenderState() override
+    render::gl::RenderState& getRenderState() override
     {
         return m_renderState;
     }
@@ -74,7 +74,7 @@ public:
     void draw(RenderContext& context) override;
 
 private:
-    RenderState m_renderState{};
+    render::gl::RenderState m_renderState{};
 
     std::vector<gsl::not_null<std::shared_ptr<MeshPart>>> m_parts{};
 

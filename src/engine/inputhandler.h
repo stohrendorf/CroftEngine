@@ -6,8 +6,6 @@
 
 #include "gsl-lite.hpp"
 
-#include <GLFW/glfw3.h>
-
 namespace engine
 {
 class InputHandler final

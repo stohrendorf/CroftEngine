@@ -1,6 +1,6 @@
 #include "font.h"
 
-#include "render/scene/Base.h"
+#include "render/scene/names.h"
 #include "render/scene/Game.h"
 #include "render/scene/MaterialParameter.h"
 

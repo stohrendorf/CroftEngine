@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderState.h"
+#include "render/gl/renderstate.h"
 #include "ShaderProgram.h"
 
 #include "gsl-lite.hpp"
@@ -42,7 +42,7 @@ public:
 
     gsl::not_null<std::shared_ptr<MaterialParameter>> getParameter(const std::string& name) const;
 
-    RenderState& getRenderState()
+    render::gl::RenderState& getRenderState()
     {
         return m_renderState;
     }
@@ -53,7 +53,7 @@ private:
 
     mutable std::vector<gsl::not_null<std::shared_ptr<MaterialParameter>>> m_parameters;
 
-    RenderState m_renderState{};
+    render::gl::RenderState m_renderState{};
 };
 }
 }

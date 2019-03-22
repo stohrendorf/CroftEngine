@@ -1,4 +1,4 @@
-#include "Base.h"
+#include "names.h"
 #include "Node.h"
 #include "Scene.h"
 #include "Camera.h"
@@ -123,9 +123,9 @@ const glm::mat4& Node::getInverseViewMatrix() const
 
 const glm::mat4& Node::getProjectionMatrix() const
 {
-    Scene* scene = getScene();
-    const auto camera = scene ? scene->getActiveCamera() : nullptr;
-    if( camera )
+    const auto scene = getScene();
+    const auto camera = scene != nullptr ? scene->getActiveCamera() : nullptr;
+    if( camera != nullptr )
     {
         return camera->getProjectionMatrix();
     }

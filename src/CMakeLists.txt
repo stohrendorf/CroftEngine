@@ -204,7 +204,7 @@ set( EDISONENGINE_SRCS
      render/label.cpp
      render/textureanimator.cpp
 
-     render/gl/util.h
+     render/gl/glassert.h
      render/gl/shader.h
      render/gl/program.h
      render/gl/bindableresource.h
@@ -223,6 +223,8 @@ set( EDISONENGINE_SRCS
      render/gl/image.h
      render/gl/structuredvertexbuffer.h
      render/gl/vertexattribute.h
+     render/gl/renderstate.cpp
+     render/gl/glew.cpp
 
      render/scene/Camera.cpp
      render/scene/Game.cpp
@@ -232,11 +234,11 @@ set( EDISONENGINE_SRCS
      render/scene/MeshPart.cpp
      render/scene/Model.cpp
      render/scene/Node.cpp
-     render/scene/RenderState.cpp
      render/scene/ScreenOverlay.cpp
      render/scene/ShaderProgram.cpp
      render/scene/Sprite.cpp
      render/scene/Visitor.cpp
+     render/scene/window.cpp
      )
 
 if( MSVC )

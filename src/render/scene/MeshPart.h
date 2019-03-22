@@ -1,8 +1,8 @@
 #pragma once
 
 #include "RenderContext.h"
-#include "RenderState.h"
 
+#include "render/gl/renderstate.h"
 #include "render/gl/vertexarray.h"
 
 namespace render
@@ -46,13 +46,13 @@ public:
         m_materialParameterSetters.emplace_back( setter );
     }
 
-    RenderState& getRenderState()
+    render::gl::RenderState& getRenderState()
     {
         return m_renderState;
     }
 
 private:
-    RenderState m_renderState{};
+    render::gl::RenderState m_renderState{};
 
     std::shared_ptr<Material> m_material;
 

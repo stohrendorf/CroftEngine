@@ -153,8 +153,8 @@ gl::Program::ActiveUniform* MaterialParameter::getUniform(
 
 bool MaterialParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
-    const auto mpsIt = node.findMaterialParameterSetter( m_name );
-    if( !m_valueSetter && mpsIt == nullptr )
+    const auto setter = node.findMaterialParameterSetter( m_name );
+    if( !m_valueSetter && setter == nullptr )
     {
         if( (m_loggerDirtyBits & PARAMETER_VALUE_NOT_SET) == 0 )
         {
@@ -170,8 +170,8 @@ bool MaterialParameter::bind(const Node& node, const gsl::not_null<std::shared_p
     if( uniform == nullptr )
         return false;
 
-    if( mpsIt != nullptr )
-        (*mpsIt)( node, *uniform );
+    if( setter != nullptr )
+        (*setter)( node, *uniform );
     else
         (*m_valueSetter)( node, *uniform );
 
@@ -195,7 +195,7 @@ void MaterialParameter::bindViewMatrix()
 void MaterialParameter::bindModelViewMatrix()
 {
     m_valueSetter = [](const Node& node, gl::Program::ActiveUniform& uniform) {
-        uniform.set( node.getViewMatrix() * node.getModelMatrix() );
+        uniform.set( node.getModelViewMatrix() );
     };
 }
 

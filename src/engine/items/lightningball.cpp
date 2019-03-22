@@ -2,7 +2,7 @@
 
 #include "engine/heightinfo.h"
 #include "engine/laranode.h"
-#include "render/scene/Base.h"
+#include "render/scene/names.h"
 #include "render/scene/MeshPart.h"
 #include "render/gl/vertexarray.h"
 #include "render/gl/indexbuffer.h"

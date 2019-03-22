@@ -1,12 +1,12 @@
 #pragma once
 
-#include "render/gl/util.h"
+#include "glassert.h"
 
 #include <boost/optional.hpp>
 
 namespace render
 {
-namespace scene
+namespace gl
 {
 class RenderState final
 {

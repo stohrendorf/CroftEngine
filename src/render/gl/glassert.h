@@ -1,8 +1,6 @@
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN
-
-#include <GL/glew.h>
+#include "glew.h"
 
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
@@ -24,3 +22,9 @@ inline void checkGlError()
 }
 }
 }
+
+#define GL_ASSERT(gl_code) \
+    do { \
+        gl_code; \
+        ::render::gl::checkGlError(); \
+    } while(false)

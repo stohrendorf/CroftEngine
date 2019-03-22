@@ -107,7 +107,8 @@ private:
     std::shared_ptr<render::FullScreenFX> depthDarknessFx;
     std::shared_ptr<render::FullScreenFX> depthDarknessWaterFx;
     std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
-    std::unique_ptr<render::scene::Game> game;
+    std::unique_ptr<render::scene::Game> m_game;
+    std::unique_ptr<render::scene::Window> m_window;
     sol::table levelInfo;
 
     const util::CImgWrapper splashImage;
@@ -119,7 +120,7 @@ private:
     Inventory m_inventory;
 
 public:
-    explicit Engine();
+    explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = {1280, 800});
 
     ~Engine();
 
@@ -440,7 +441,7 @@ public:
                          const std::string& txt,
                          const render::gl::RGBA8& col = {255, 255, 255, 255});
 
-    void drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, int fps);
+    void drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, float fps);
 
     void scaleSplashImage();
 

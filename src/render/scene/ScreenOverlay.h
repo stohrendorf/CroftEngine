@@ -3,6 +3,7 @@
 #include "Drawable.h"
 #include "Game.h"
 #include "Mesh.h"
+#include "window.h"
 
 #include "render/gl/image.h"
 #include "render/gl/texture.h"
@@ -39,13 +40,13 @@ public:
         return m_image;
     }
 
-    RenderState& getRenderState() override
+    render::gl::RenderState& getRenderState() override
     {
         return m_renderState;
     }
 
 private:
-    RenderState m_renderState;
+    render::gl::RenderState m_renderState;
 
     std::shared_ptr<gl::Image<gl::RGBA8>> m_image;
 
