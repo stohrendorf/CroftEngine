@@ -231,7 +231,7 @@ set( EDISONENGINE_SRCS
      render/scene/Material.cpp
      render/scene/MaterialParameter.cpp
      render/scene/mesh.cpp
-     render/scene/Model.cpp
+     render/scene/model.cpp
      render/scene/Node.cpp
      render/scene/ScreenOverlay.cpp
      render/scene/ShaderProgram.cpp

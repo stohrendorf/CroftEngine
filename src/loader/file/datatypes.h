@@ -13,7 +13,7 @@
 #include "texture.h"
 #include "audio.h"
 #include "engine/floordata/types.h"
-#include "render/scene/Model.h"
+#include "render/scene/model.h"
 #include "render/scene/Node.h"
 
 #include "gsl-lite.hpp"

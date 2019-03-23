@@ -5,7 +5,7 @@
 #include "core/units.h"
 #include "core/id.h"
 #include "core/containeroffset.h"
-#include "render/scene/Model.h"
+#include "render/scene/model.h"
 
 #include "gsl-lite.hpp"
 

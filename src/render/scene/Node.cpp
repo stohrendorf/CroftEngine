@@ -179,12 +179,12 @@ void Node::transformChanged()
     }
 }
 
-const std::shared_ptr<Drawable>& Node::getDrawable() const
+const std::shared_ptr<Renderable>& Node::getDrawable() const
 {
     return m_drawable;
 }
 
-void Node::setDrawable(const std::shared_ptr<Drawable>& drawable)
+void Node::setDrawable(const std::shared_ptr<Renderable>& drawable)
 {
     m_drawable = drawable;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderContext.h"
-#include "Drawable.h"
+#include "rendercontext.h"
+#include "renderable.h"
 
 #include "render/gl/renderstate.h"
 #include "render/gl/vertexarray.h"
@@ -13,7 +13,7 @@ namespace scene
 class Material;
 
 
-class Mesh : public Drawable
+class Mesh : public Renderable
 {
 public:
     using MaterialParameterSetter = void(const Node& node, Material& material);
@@ -40,7 +40,7 @@ public:
         return m_material;
     }
 
-    void draw(RenderContext& context) override;
+    void render(RenderContext& context) override;
 
     void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
     {

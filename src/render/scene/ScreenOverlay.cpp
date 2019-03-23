@@ -3,7 +3,7 @@
 #include "renderer.h"
 #include "Material.h"
 #include "MaterialParameter.h"
-#include "Model.h"
+#include "model.h"
 #include "mesh.h"
 #include "render/gl/image.h"
 
@@ -21,11 +21,11 @@ ScreenOverlay::ScreenOverlay(const Dimension2<size_t>& viewport)
 
 ScreenOverlay::~ScreenOverlay() = default;
 
-void ScreenOverlay::draw(RenderContext& context)
+void ScreenOverlay::render(RenderContext& context)
 {
     context.pushState( getRenderState() );
     m_texture->subImage2D( m_image->getData() );
-    m_model->draw( context );
+    m_model->render( context );
     context.popState();
 }
 

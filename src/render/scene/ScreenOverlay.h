@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Drawable.h"
+#include "renderable.h"
 #include "renderer.h"
 #include "window.h"
 
@@ -16,7 +16,7 @@ namespace scene
 class Mesh;
 class Model;
 
-class ScreenOverlay : public Drawable
+class ScreenOverlay : public Renderable
 {
 public:
     ScreenOverlay(const ScreenOverlay&) = delete;
@@ -33,7 +33,7 @@ public:
 
     ~ScreenOverlay() override;
 
-    void draw(RenderContext& context) override;
+    void render(RenderContext& context) override;
 
     gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>> getImage() const
     {

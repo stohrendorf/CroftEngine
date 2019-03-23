@@ -1654,7 +1654,7 @@ void Engine::run()
             }
         }
 
-        screenOverlay->draw( context );
+        screenOverlay->render( context );
 
         m_window->swapBuffers();
 
@@ -1738,7 +1738,7 @@ void Engine::drawLoadingScreen(const std::string& state)
     render::scene::RenderContext context{};
     render::scene::Node dummyNode{""};
     context.setCurrentNode( &dummyNode );
-    screenOverlay->draw( context );
+    screenOverlay->render( context );
     m_window->swapBuffers();
 }
 

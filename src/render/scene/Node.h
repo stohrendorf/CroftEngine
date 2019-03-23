@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model.h"
+#include "model.h"
 #include "Visitor.h"
 #include "MaterialParameter.h"
 
@@ -12,7 +12,7 @@ namespace render
 {
 namespace scene
 {
-class Drawable;
+class Renderable;
 
 
 class Scene;
@@ -64,9 +64,9 @@ public:
 
     glm::vec3 getTranslationWorld() const;
 
-    const std::shared_ptr<Drawable>& getDrawable() const;
+    const std::shared_ptr<Renderable>& getDrawable() const;
 
-    void setDrawable(const std::shared_ptr<Drawable>& drawable);
+    void setDrawable(const std::shared_ptr<Renderable>& drawable);
 
     const List& getChildren() const
     {
@@ -141,7 +141,7 @@ private:
 
     bool m_visible = true;
 
-    std::shared_ptr<Drawable> m_drawable = nullptr;
+    std::shared_ptr<Renderable> m_drawable = nullptr;
 
     glm::mat4 m_localMatrix{1.0f};
 

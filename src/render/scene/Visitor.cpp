@@ -1,7 +1,7 @@
 #include "Visitor.h"
 
 #include "Node.h"
-#include "RenderContext.h"
+#include "rendercontext.h"
 
 #include "render/gl/debuggroup.h"
 

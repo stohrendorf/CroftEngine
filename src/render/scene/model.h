@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Drawable.h"
+#include "renderable.h"
 
 #include "gsl-lite.hpp"
 
@@ -11,7 +11,7 @@ namespace scene
 class Mesh;
 
 
-class Model : public Drawable
+class Model : public Renderable
 {
 public:
     explicit Model() = default;
@@ -36,7 +36,7 @@ public:
         m_meshes.emplace_back( mesh );
     }
 
-    void draw(RenderContext& context) override;
+    void render(RenderContext& context) override;
 
 private:
     std::vector<gsl::not_null<std::shared_ptr<Mesh>>> m_meshes{};

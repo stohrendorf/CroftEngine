@@ -56,7 +56,7 @@ Mesh::Mesh(std::shared_ptr<gl::VertexArray> vao, GLenum mode)
 
 Mesh::~Mesh() = default;
 
-void Mesh::draw(RenderContext& context)
+void Mesh::render(RenderContext& context)
 {
     if( m_material == nullptr )
         return;

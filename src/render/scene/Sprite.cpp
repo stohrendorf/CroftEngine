@@ -93,9 +93,9 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
     return mesh;
 }
 
-void Sprite::draw(RenderContext& context)
+void Sprite::render(RenderContext& context)
 {
-    m_mesh->draw(context);
+    m_mesh->render( context );
 }
 }
 }

@@ -4,14 +4,18 @@ namespace render
 {
 namespace gl
 {
-RenderState RenderState::s_currentState;
+RenderState& RenderState::getCurrentState()
+{
+    static RenderState currentState;
+    return currentState;
+}
 
-void RenderState::bindState(const bool force) const
+void RenderState::apply(const bool force) const
 {
     // Update any state if...
     //   - it is forced
     //   - or it is explicitly set and different than the current state
-    if( force || (m_blendEnabled.isInitialized() && m_blendEnabled != s_currentState.m_blendEnabled) )
+    if( force || (m_blendEnabled.isInitialized() && m_blendEnabled != getCurrentState().m_blendEnabled) )
     {
         if( m_blendEnabled.get() )
         {
@@ -21,16 +25,16 @@ void RenderState::bindState(const bool force) const
         {
             GL_ASSERT( glDisable( GL_BLEND ) );
         }
-        s_currentState.m_blendEnabled = m_blendEnabled;
+        getCurrentState().m_blendEnabled = m_blendEnabled;
     }
     if( force || ((m_blendSrc.isInitialized() || m_blendDst.isInitialized())
-                  && (m_blendSrc != s_currentState.m_blendSrc || m_blendDst != s_currentState.m_blendDst)) )
+                  && (m_blendSrc != getCurrentState().m_blendSrc || m_blendDst != getCurrentState().m_blendDst)) )
     {
         GL_ASSERT( glBlendFunc( m_blendSrc.get(), m_blendDst.get() ) );
-        s_currentState.m_blendSrc = m_blendSrc;
-        s_currentState.m_blendDst = m_blendDst;
+        getCurrentState().m_blendSrc = m_blendSrc;
+        getCurrentState().m_blendDst = m_blendDst;
     }
-    if( force || (m_cullFaceEnabled.isInitialized() && m_cullFaceEnabled != s_currentState.m_cullFaceEnabled) )
+    if( force || (m_cullFaceEnabled.isInitialized() && m_cullFaceEnabled != getCurrentState().m_cullFaceEnabled) )
     {
         if( m_cullFaceEnabled.get() )
         {
@@ -40,24 +44,24 @@ void RenderState::bindState(const bool force) const
         {
             GL_ASSERT( glDisable( GL_CULL_FACE ) );
         }
-        s_currentState.m_cullFaceEnabled = m_cullFaceEnabled;
+        getCurrentState().m_cullFaceEnabled = m_cullFaceEnabled;
     }
-    if( force || (m_cullFaceSide.isInitialized() && (m_cullFaceSide != s_currentState.m_cullFaceSide)) )
+    if( force || (m_cullFaceSide.isInitialized() && (m_cullFaceSide != getCurrentState().m_cullFaceSide)) )
     {
         GL_ASSERT( glCullFace( m_cullFaceSide.get() ) );
-        s_currentState.m_cullFaceSide = m_cullFaceSide;
+        getCurrentState().m_cullFaceSide = m_cullFaceSide;
     }
-    if( force || (m_frontFace.isInitialized() && m_frontFace != s_currentState.m_frontFace) )
+    if( force || (m_frontFace.isInitialized() && m_frontFace != getCurrentState().m_frontFace) )
     {
         GL_ASSERT( glFrontFace( m_frontFace.get() ) );
-        s_currentState.m_frontFace = m_frontFace;
+        getCurrentState().m_frontFace = m_frontFace;
     }
-    if( force || (m_lineWidth.isInitialized() && m_lineWidth != s_currentState.m_lineWidth) )
+    if( force || (m_lineWidth.isInitialized() && m_lineWidth != getCurrentState().m_lineWidth) )
     {
         GL_ASSERT( glLineWidth( m_lineWidth.get() ) );
-        s_currentState.m_lineWidth = m_lineWidth;
+        getCurrentState().m_lineWidth = m_lineWidth;
     }
-    if( force || (m_lineSmooth.isInitialized() && (m_lineSmooth != s_currentState.m_lineSmooth)) )
+    if( force || (m_lineSmooth.isInitialized() && (m_lineSmooth != getCurrentState().m_lineSmooth)) )
     {
         if( m_lineSmooth.get() )
         {
@@ -67,9 +71,9 @@ void RenderState::bindState(const bool force) const
         {
             GL_ASSERT( glDisable( GL_LINE_SMOOTH ) );
         }
-        s_currentState.m_lineSmooth = m_lineSmooth;
+        getCurrentState().m_lineSmooth = m_lineSmooth;
     }
-    if( force || (m_depthTestEnabled.isInitialized() && (m_depthTestEnabled != s_currentState.m_depthTestEnabled)) )
+    if( force || (m_depthTestEnabled.isInitialized() && (m_depthTestEnabled != getCurrentState().m_depthTestEnabled)) )
     {
         if( m_depthTestEnabled.get() )
         {
@@ -79,17 +83,17 @@ void RenderState::bindState(const bool force) const
         {
             GL_ASSERT( glDisable( GL_DEPTH_TEST ) );
         }
-        s_currentState.m_depthTestEnabled = m_depthTestEnabled;
+        getCurrentState().m_depthTestEnabled = m_depthTestEnabled;
     }
-    if( force || (m_depthWriteEnabled.isInitialized() && (m_depthWriteEnabled != s_currentState.m_depthWriteEnabled)) )
+    if( force || (m_depthWriteEnabled.isInitialized() && (m_depthWriteEnabled != getCurrentState().m_depthWriteEnabled)) )
     {
         GL_ASSERT( glDepthMask( m_depthWriteEnabled.get() ? GL_TRUE : GL_FALSE ) );
-        s_currentState.m_depthWriteEnabled = m_depthWriteEnabled;
+        getCurrentState().m_depthWriteEnabled = m_depthWriteEnabled;
     }
-    if( force || (m_depthFunction.isInitialized() && (m_depthFunction != s_currentState.m_depthFunction)) )
+    if( force || (m_depthFunction.isInitialized() && (m_depthFunction != getCurrentState().m_depthFunction)) )
     {
         GL_ASSERT( glDepthFunc( m_depthFunction.get() ) );
-        s_currentState.m_depthFunction = m_depthFunction;
+        getCurrentState().m_depthFunction = m_depthFunction;
     }
 }
 
@@ -99,9 +103,9 @@ void RenderState::enableDepthWrite()
     // clear operation. This is necessary if the last code to draw before the
     // next frame leaves depth writing disabled.
     GL_ASSERT( glDepthMask( GL_TRUE ) );
-    s_currentState.m_depthWriteEnabled = true;
+    getCurrentState().m_depthWriteEnabled = true;
     GL_ASSERT( glEnable( GL_DEPTH_TEST ) );
-    s_currentState.m_depthTestEnabled = true;
+    getCurrentState().m_depthTestEnabled = true;
 }
 
 void RenderState::setBlend(const bool enabled)
@@ -161,18 +165,18 @@ void RenderState::setLineSmooth(bool enabled)
 
 void RenderState::initDefaults()
 {
-    s_currentState.m_cullFaceEnabled.setDefault();
-    s_currentState.m_depthTestEnabled.setDefault();
-    s_currentState.m_depthWriteEnabled.setDefault();
-    s_currentState.m_depthFunction.setDefault();
-    s_currentState.m_blendEnabled.setDefault();
-    s_currentState.m_blendSrc.setDefault();
-    s_currentState.m_blendDst.setDefault();
-    s_currentState.m_cullFaceSide.setDefault();
-    s_currentState.m_frontFace.setDefault();
-    s_currentState.m_lineWidth.setDefault();
-    s_currentState.m_lineSmooth.setDefault();
-    s_currentState.bindState( true );
+    getCurrentState().m_cullFaceEnabled.setDefault();
+    getCurrentState().m_depthTestEnabled.setDefault();
+    getCurrentState().m_depthWriteEnabled.setDefault();
+    getCurrentState().m_depthFunction.setDefault();
+    getCurrentState().m_blendEnabled.setDefault();
+    getCurrentState().m_blendSrc.setDefault();
+    getCurrentState().m_blendDst.setDefault();
+    getCurrentState().m_cullFaceSide.setDefault();
+    getCurrentState().m_frontFace.setDefault();
+    getCurrentState().m_lineWidth.setDefault();
+    getCurrentState().m_lineSmooth.setDefault();
+    getCurrentState().apply( true );
 }
 
 void RenderState::merge(const RenderState& other)

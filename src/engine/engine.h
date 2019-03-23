@@ -396,7 +396,7 @@ public:
 
     void load(const YAML::Node& node);
 
-    boost::optional<size_t> indexOfModel(const std::shared_ptr<render::scene::Drawable>& m) const
+    boost::optional<size_t> indexOfModel(const std::shared_ptr<render::scene::Renderable>& m) const
     {
         if( m == nullptr )
             return boost::none;

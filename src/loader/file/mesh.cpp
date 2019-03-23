@@ -5,7 +5,7 @@
 #include "render/scene/names.h"
 #include "render/scene/mesh.h"
 #include "render/scene/MaterialParameter.h"
-#include "render/scene/Model.h"
+#include "render/scene/model.h"
 #include "render/gl/vertexarray.h"
 
 #include <utility>

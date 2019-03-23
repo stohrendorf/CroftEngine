@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Drawable.h"
+#include "renderable.h"
 #include "mesh.h"
 
 #include "gsl-lite.hpp"
@@ -12,7 +12,7 @@ namespace scene
 class Material;
 
 
-class Sprite : public Drawable
+class Sprite : public Renderable
 {
 public:
     enum class Axis
@@ -39,7 +39,7 @@ public:
 
     ~Sprite() override = default;
 
-    void draw(RenderContext& context) override;
+    void render(RenderContext& context) override;
 
 private:
     static gsl::not_null<std::shared_ptr<Mesh>> createMesh(float x0,

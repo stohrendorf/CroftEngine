@@ -27,7 +27,7 @@ public:
     int16_t shade = 4096;
 
 private:
-    std::deque<std::shared_ptr<render::scene::Drawable>> m_drawables{};
+    std::deque<std::shared_ptr<render::scene::Renderable>> m_drawables{};
     std::deque<std::shared_ptr<render::gl::Texture>> m_spriteTextures{};
     Lighting m_lighting;
 

@@ -23,7 +23,7 @@ public:
 
     ~RenderState() = default;
 
-    void bindState(bool force = false) const;
+    void apply(bool force = false) const;
 
     void setBlend(bool enabled);
 
@@ -178,7 +178,7 @@ private:
 
     DefaultedOptional<bool, true> m_lineSmooth;
 
-    static RenderState s_currentState;
+    static inline RenderState& getCurrentState();
 };
 }
 }

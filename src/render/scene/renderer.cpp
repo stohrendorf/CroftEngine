@@ -2,7 +2,7 @@
 
 #include "names.h"
 
-#include "RenderContext.h"
+#include "rendercontext.h"
 #include "Scene.h"
 
 #include "render/gl/debuggroup.h"
@@ -42,7 +42,7 @@ public:
 
         if( auto dr = node.getDrawable() )
         {
-            dr->draw( getContext() );
+            dr->render( getContext() );
         }
 
         Visitor::visit( node );

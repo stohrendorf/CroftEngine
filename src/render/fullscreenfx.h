@@ -70,7 +70,7 @@ public:
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         gl::checkGlError();
 
-        m_model->draw( context );
+        m_model->render( context );
     }
 
     const gsl::not_null<std::shared_ptr<scene::Material>>& getMaterial() const

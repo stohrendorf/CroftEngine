@@ -13,7 +13,7 @@ namespace scene
 class Node;
 
 
-class RenderContext
+class RenderContext final
 {
 public:
     explicit RenderContext()
@@ -41,7 +41,7 @@ public:
     void bindState()
     {
         Expects( !m_renderStates.empty() );
-        m_renderStates.top().bindState();
+        m_renderStates.top().apply();
     }
 
     void popState()
