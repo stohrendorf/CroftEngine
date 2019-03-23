@@ -2,7 +2,6 @@
 
 #include "Drawable.h"
 #include "renderer.h"
-#include "Mesh.h"
 #include "window.h"
 
 #include "render/gl/image.h"
@@ -14,6 +13,9 @@ namespace render
 {
 namespace scene
 {
+class Mesh;
+class Model;
+
 class ScreenOverlay : public Drawable
 {
 public:

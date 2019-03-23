@@ -4,7 +4,7 @@
 #include "Material.h"
 #include "MaterialParameter.h"
 #include "Model.h"
-#include "MeshPart.h"
+#include "mesh.h"
 #include "render/gl/image.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -31,9 +31,9 @@ void ScreenOverlay::draw(RenderContext& context)
 
 void ScreenOverlay::init(const Dimension2<size_t>& viewport)
 {
-    m_image = std::make_shared<gl::Image < gl::RGBA8>>
-    (gsl::narrow<GLint>( viewport.width ),
-            gsl::narrow<GLint>( viewport.height ));
+    m_image = std::make_shared<gl::Image<gl::RGBA8>>
+            ( gsl::narrow<GLint>( viewport.width ),
+              gsl::narrow<GLint>( viewport.height ) );
     // Update the projection matrix for our batch to match the current viewport
     if( viewport.width <= 0 || viewport.height <= 0 )
     {
@@ -50,14 +50,14 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
     m_texture->set( GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     m_texture->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
-    m_mesh = Mesh::createQuadFullscreen( gsl::narrow<float>( viewport.width ), gsl::narrow<float>( viewport.height ),
-                                         screenOverlayProgram->getHandle(), true );
-    const auto part = m_mesh->getParts()[0];
-    part->setMaterial( std::make_shared<Material>( screenOverlayProgram ) );
-    part->getMaterial()->getParameter( "u_texture" )->set( m_texture );
-    part->getMaterial()->getParameter( "u_projectionMatrix" )
-        ->set( glm::ortho( 0.0f, gsl::narrow<float>( viewport.width ), gsl::narrow<float>( viewport.height ), 0.0f,
-                           0.0f, 1.0f ) );
+    m_mesh = render::scene::createQuadFullscreen( gsl::narrow<float>( viewport.width ),
+                                                  gsl::narrow<float>( viewport.height ),
+                                                  screenOverlayProgram->getHandle(), true );
+    m_mesh->setMaterial( std::make_shared<Material>( screenOverlayProgram ) );
+    m_mesh->getMaterial()->getParameter( "u_texture" )->set( m_texture );
+    m_mesh->getMaterial()->getParameter( "u_projectionMatrix" )
+          ->set( glm::ortho( 0.0f, gsl::narrow<float>( viewport.width ), gsl::narrow<float>( viewport.height ), 0.0f,
+                             0.0f, 1.0f ) );
 
     m_model->addMesh( m_mesh );
 

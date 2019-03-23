@@ -2,7 +2,7 @@
 
 #include "names.h"
 #include "Material.h"
-#include "MeshPart.h"
+#include "mesh.h"
 #include "Node.h"
 #include "render/gl/vertexarray.h"
 #include "render/gl/indexbuffer.h"
@@ -41,9 +41,8 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
             {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&SpriteVertex::uv}},
             {VERTEX_ATTRIBUTE_COLOR_NAME,           gl::VertexAttribute{&SpriteVertex::color}}
     };
-
-    auto mesh = std::make_shared<Mesh>( layout, false );
-    mesh->getBuffers()[0]->assign<SpriteVertex>( &vertices[0], 4 );
+    auto vb = std::make_shared<render::gl::StructuredVertexBuffer>(layout, false);
+    vb->assign<SpriteVertex>( &vertices[0], 4 );
 
     static const uint16_t indices[6] =
             {
@@ -51,20 +50,14 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
                     0, 2, 3
             };
 
-    render::gl::VertexArrayBuilder builder;
-
     auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
     indexBuffer->setData( gsl::not_null<const uint16_t*>( &indices[0] ), 6, false );
-    builder.attach( indexBuffer );
-    builder.attach( mesh->getBuffers() );
 
-    auto part = std::make_shared<MeshPart>(
-            builder.build( material->getShaderProgram()->getHandle() ) );
+    auto vao = std::make_shared<render::gl::VertexArray>(indexBuffer, vb, material->getShaderProgram()->getHandle());
+    auto mesh = std::make_shared<Mesh>( vao );
+    mesh->setMaterial( material );
 
-    mesh->addPart( part );
-    part->setMaterial( material );
-
-    part->registerMaterialParameterSetter(
+    mesh->registerMaterialParameterSetter(
             [pole](const Node& node, Material& material) {
                 auto m = node.getModelViewMatrix();
                 // clear out rotation component
@@ -102,12 +95,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
 
 void Sprite::draw(RenderContext& context)
 {
-    context.pushState( getRenderState() );
-    for( const gsl::not_null<std::shared_ptr<MeshPart>>& part : m_mesh->getParts() )
-    {
-        part->draw( context );
-    }
-    context.popState();
+    m_mesh->draw(context);
 }
 }
 }

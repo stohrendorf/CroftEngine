@@ -553,8 +553,7 @@ void Engine::setUpRendering()
     for( auto& mesh : m_level->m_meshes )
     {
         m_models.emplace_back(
-                mesh.createModel( m_level->m_textureProxies, materials, colorMaterial, *m_level->m_palette,
-                                  *m_textureAnimator ) );
+                mesh.createModel( m_level->m_textureProxies, materials, colorMaterial, *m_level->m_palette ) );
     }
 
     for( auto idx : m_level->m_meshIndices )

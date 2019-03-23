@@ -5,7 +5,7 @@
 #include "util/helpers.h"
 #include "level/level.h"
 #include "render/scene/names.h"
-#include "render/scene/MeshPart.h"
+#include "render/scene/mesh.h"
 #include "render/scene/Material.h"
 #include "render/scene/Sprite.h"
 #include "render/gl/vertexarray.h"
@@ -58,32 +58,35 @@ struct RenderModel
 {
     std::vector<MeshPart> m_parts;
 
-    std::shared_ptr<render::scene::Model> toModel(const gsl::not_null<std::shared_ptr<render::scene::Mesh>>& mesh)
+    std::shared_ptr<render::scene::Model> toModel(
+            const gsl::not_null<std::shared_ptr<render::gl::StructuredVertexBuffer>>& vbuf,
+            const gsl::not_null<std::shared_ptr<render::gl::StructuredVertexBuffer>>& uvBuf)
     {
+        auto model = std::make_shared<render::scene::Model>();
+
         for( const MeshPart& localPart : m_parts )
         {
 #ifndef NDEBUG
             for( auto idx : localPart.indices )
             {
-                BOOST_ASSERT( idx < mesh->getBuffers()[0]->getVertexCount() );
+                BOOST_ASSERT( idx < vbuf->getVertexCount() );
             }
 #endif
-            render::gl::VertexArrayBuilder builder;
 
             auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
             indexBuffer->setData( localPart.indices, true );
-            builder.attach( indexBuffer );
 
-            builder.attach( mesh->getBuffers() );
+            std::vector<gsl::not_null<std::shared_ptr<render::gl::IndexBuffer>>> indexBufs{indexBuffer};
+            std::vector<gsl::not_null<std::shared_ptr<render::gl::StructuredVertexBuffer>>> vBufs{vbuf, uvBuf};
 
-            auto part = std::make_shared<render::scene::MeshPart>(
-                    builder.build( localPart.material->getShaderProgram()->getHandle() ) );
-            part->setMaterial( localPart.material );
-            mesh->addPart( part );
+            auto mesh = std::make_shared<render::scene::Mesh>(
+                    std::make_shared<render::gl::VertexArray>( indexBufs,
+                                                               vBufs,
+                                                               localPart.material->getShaderProgram()->getHandle() )
+            );
+            mesh->setMaterial( localPart.material );
+            model->addMesh( mesh );
         }
-
-        auto model = std::make_shared<render::scene::Model>();
-        model->addMesh( mesh );
 
         return model;
     }
@@ -104,14 +107,19 @@ void Room::createSceneNode(
 {
     RenderModel renderModel;
     std::map<TextureKey, size_t> texBuffers;
-    std::vector<RenderVertex> vbuf;
-    std::vector<glm::vec2> uvCoords;
-    auto mesh = std::make_shared<render::scene::Mesh>( RenderVertex::getFormat(), false,
-                                                       "Room:" + std::to_string( roomId ) );
+    std::vector<RenderVertex> vbufData;
+    std::vector<glm::vec2> uvCoordsData;
 
-    for(
-        const QuadFace& quad
-            : rectangles )
+    const auto label = "Room:" + std::to_string( roomId );
+    auto vbuf = std::make_shared<render::gl::StructuredVertexBuffer>( RenderVertex::getFormat(), false, label );
+
+    static const render::gl::StructuredVertexBuffer::AttributeMapping uvAttribs{
+            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute{
+                    render::gl::VertexAttribute::SingleAttribute<glm::vec2>{}}}
+    };
+    auto uvCoords = std::make_shared<render::gl::StructuredVertexBuffer>( uvAttribs, true, label + "-uv" );
+
+    for( const QuadFace& quad : rectangles )
     {
         const TextureLayoutProxy& proxy = level.m_textureProxies.at( quad.proxyId.get() );
 
@@ -126,40 +134,23 @@ void Room::createSceneNode(
         }
         const auto partId = texBuffers[proxy.textureKey];
 
-        const auto firstVertex = vbuf.size();
+        const auto firstVertex = vbufData.size();
         for( int i = 0; i < 4; ++i )
         {
             RenderVertex iv;
             iv.position = quad.vertices[i].from( vertices ).position.toRenderSystem();
             iv.color = quad.vertices[i].from( vertices ).color;
-            uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
-            vbuf.push_back( iv );
+            uvCoordsData.push_back( proxy.uvCoordinates[i].toGl() );
+            vbufData.push_back( iv );
         }
 
-        animator.registerVertex( quad.proxyId, mesh, 0, firstVertex + 0 );
-        renderModel.m_parts[partId].indices.emplace_back(
-                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
-        );
-        animator.registerVertex( quad.proxyId, mesh, 1, firstVertex + 1 );
-        renderModel.m_parts[partId].indices.emplace_back(
-                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 )
-        );
-        animator.registerVertex( quad.proxyId, mesh, 2, firstVertex + 2 );
-        renderModel.m_parts[partId].indices.emplace_back(
-                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
-        );
-        animator.registerVertex( quad.proxyId, mesh, 0, firstVertex + 0 );
-        renderModel.m_parts[partId].indices.emplace_back(
-                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 )
-        );
-        animator.registerVertex( quad.proxyId, mesh, 2, firstVertex + 2 );
-        renderModel.m_parts[partId].indices.emplace_back(
-                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 )
-        );
-        animator.registerVertex( quad.proxyId, mesh, 3, firstVertex + 3 );
-        renderModel.m_parts[partId].indices.emplace_back(
-                gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 3 )
-        );
+        for( int i : {0, 1, 2, 0, 2, 3} )
+        {
+            animator.registerVertex( quad.proxyId, uvCoords, i, firstVertex + i );
+            renderModel.m_parts[partId].indices.emplace_back(
+                    gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + i )
+            );
+        }
     }
     for( const Triangle& tri : triangles )
     {
@@ -176,38 +167,30 @@ void Room::createSceneNode(
         }
         const auto partId = texBuffers[proxy.textureKey];
 
-        const auto firstVertex = vbuf.size();
+        const auto firstVertex = vbufData.size();
         for( int i = 0; i < 3; ++i )
         {
             RenderVertex iv;
             iv.position = tri.vertices[i].from( vertices ).position.toRenderSystem();
             iv.color = tri.vertices[i].from( vertices ).color;
-            uvCoords.push_back( proxy.uvCoordinates[i].toGl() );
-            vbuf.push_back( iv );
+            uvCoordsData.push_back( proxy.uvCoordinates[i].toGl() );
+            vbufData.push_back( iv );
         }
 
-        animator.registerVertex( tri.proxyId, mesh, 0, firstVertex + 0 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 0 ) );
-        animator.registerVertex( tri.proxyId, mesh, 1, firstVertex + 1 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 1 ) );
-        animator.registerVertex( tri.proxyId, mesh, 2, firstVertex + 2 );
-        renderModel.m_parts[partId].indices
-                                   .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + 2 ) );
+        for( int i:{0, 1, 2} )
+        {
+            animator.registerVertex( tri.proxyId, uvCoords, i, firstVertex + i );
+            renderModel.m_parts[partId].indices
+                                       .emplace_back(
+                                               gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + i ) );
+        }
     }
 
-    mesh->getBuffers()[0]->assign( vbuf );
+    vbuf->assign( vbufData );
 
-    static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute{
-                    render::gl::VertexAttribute::SingleAttribute<glm::vec2>{}}}
-    };
+    uvCoords->assign( uvCoordsData );
 
-    mesh->addBuffer( attribs, true );
-    mesh->getBuffers()[1]->assign( uvCoords );
-
-    auto resModel = renderModel.toModel( mesh );
+    auto resModel = renderModel.toModel( vbuf, uvCoords );
     resModel->getRenderState().setCullFace( true );
     resModel->getRenderState().setCullFaceSide( GL_BACK );
 
@@ -280,9 +263,9 @@ void Room::createSceneNode(
         const RoomVertex& v = vertices.at( spriteInstance.vertex.get() );
         spriteNode->setLocalMatrix( translate( glm::mat4{1.0f}, v.position.toRenderSystem() ) );
         spriteNode->addMaterialParameterSetter( "u_diffuseTexture",
-                                                [texture = sprite.texture](const render::scene::Node & /*node*/,
-                render::gl::Program::ActiveUniform & uniform
-        ) { uniform.set( *texture ); } );
+                                                [texture = sprite.texture](const render::scene::Node& /*node*/,
+                                                                           render::gl::Program::ActiveUniform& uniform
+                                                ) { uniform.set( *texture ); } );
         spriteNode->addMaterialParameterSetter( "u_baseLight",
                                                 [brightness = v.getBrightness()](const render::scene::Node& /*node*/,
                                                                                  render::gl::Program::ActiveUniform& uniform

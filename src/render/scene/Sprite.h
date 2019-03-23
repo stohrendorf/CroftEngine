@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Drawable.h"
-#include "Mesh.h"
+#include "mesh.h"
 
 #include "gsl-lite.hpp"
 
@@ -50,7 +50,6 @@ private:
                                                            const glm::vec2& t1,
                                                            const gsl::not_null<std::shared_ptr<Material>>& material,
                                                            Axis pole);
-
 
     gsl::not_null<std::shared_ptr<Mesh>> m_mesh;
 };

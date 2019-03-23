@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Drawable.h"
-#include "Mesh.h"
 
 #include "gsl-lite.hpp"
 
@@ -9,6 +8,9 @@ namespace render
 {
 namespace scene
 {
+class Mesh;
+
+
 class Model : public Drawable
 {
 public:

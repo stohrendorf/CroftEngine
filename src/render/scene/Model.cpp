@@ -1,6 +1,6 @@
 #include "names.h"
 #include "Model.h"
-#include "MeshPart.h"
+#include "mesh.h"
 
 namespace render
 {

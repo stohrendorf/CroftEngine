@@ -5,13 +5,18 @@
 #include "primitives.h"
 #include "texture.h"
 #include "io/util.h"
-#include "render/scene/Mesh.h"
+#include "render/scene/mesh.h"
 
 #include <vector>
 
 namespace render
 {
 class TextureAnimator;
+
+namespace scene
+{
+class Model;
+}
 }
 
 namespace loader
@@ -98,10 +103,10 @@ struct Mesh
         const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& m_materials;
         const gsl::not_null<std::shared_ptr<render::scene::Material>> m_colorMaterial;
         const Palette& m_palette;
-        render::TextureAnimator& m_animator;
         std::map<TextureKey, size_t> m_texBuffers;
         size_t m_vertexCount = 0;
-        gsl::not_null<std::shared_ptr<render::scene::Mesh>> m_mesh;
+        std::shared_ptr<render::gl::StructuredVertexBuffer> m_vb;
+        const std::string m_label;
 
         static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat(bool withNormals);
 
@@ -159,7 +164,6 @@ struct Mesh
                 const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
                 gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
                 const Palette& palette,
-                render::TextureAnimator& animator,
                 const std::string& label = {});
 
         ~ModelBuilder();
@@ -175,7 +179,6 @@ struct Mesh
             const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
             const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
             const Palette& palette,
-            render::TextureAnimator& animator,
             const std::string& label = {}) const;
 };
 }

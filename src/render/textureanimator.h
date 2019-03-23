@@ -1,8 +1,7 @@
 #pragma once
 
 #include "loader/file/texture.h"
-
-#include "render/scene/Mesh.h"
+#include "render/gl/structuredvertexbuffer.h"
 
 #include <boost/assert.hpp>
 
@@ -43,7 +42,7 @@ class TextureAnimator
 
 
         std::vector<core::TextureProxyId> proxyIds;
-        std::map<std::shared_ptr<render::scene::Mesh>, std::set<VertexReference>> affectedVertices;
+        std::map<std::shared_ptr<render::gl::StructuredVertexBuffer>, std::set<VertexReference>> affectedVertices;
 
         void rotate()
         {
@@ -53,7 +52,7 @@ class TextureAnimator
             proxyIds.emplace_back( first );
         }
 
-        void registerVertex(const std::shared_ptr<render::scene::Mesh>& mesh, VertexReference vertex,
+        void registerVertex(const std::shared_ptr<render::gl::StructuredVertexBuffer>& buffer, VertexReference vertex,
                             const core::TextureProxyId proxyId)
         {
             //! @fixme Expects(mesh->getVertexFormat().getElement(0).usage == render::scene::VertexFormat::TEXCOORD);
@@ -61,7 +60,7 @@ class TextureAnimator
             const auto it = std::find( proxyIds.begin(), proxyIds.end(), proxyId );
             Expects( it != proxyIds.end() );
             vertex.queueOffset = std::distance( proxyIds.begin(), it );
-            affectedVertices[mesh].insert( vertex );
+            affectedVertices[buffer].insert( vertex );
         }
 
         void updateCoordinates(const std::vector<loader::file::TextureLayoutProxy>& proxies)
@@ -70,16 +69,14 @@ class TextureAnimator
 
             for( const auto& partAndVertices : affectedVertices )
             {
-                const std::shared_ptr<render::scene::Mesh>& mesh = partAndVertices.first;
-                BOOST_ASSERT( mesh->getBuffers().size() == 2 );
-
-                auto* uvArray = mesh->getBuffers()[1]->mapTypedRw<glm::vec2>();
+                const std::shared_ptr<render::gl::StructuredVertexBuffer>& buffer = partAndVertices.first;
+                auto* uvArray = buffer->mapTypedRw<glm::vec2>();
 
                 const std::set<VertexReference>& vertices = partAndVertices.second;
 
                 for( const VertexReference& vref : vertices )
                 {
-                    BOOST_ASSERT( vref.bufferIndex < mesh->getBuffers()[1]->getVertexCount() );
+                    BOOST_ASSERT( vref.bufferIndex < buffer->getVertexCount() );
                     BOOST_ASSERT( vref.queueOffset < proxyIds.size() );
                     const loader::file::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset].get()];
 
@@ -101,7 +98,7 @@ public:
                              std::vector<loader::file::DWordTexture>& textures);
 
     void registerVertex(const core::TextureProxyId proxyId,
-                        const std::shared_ptr<render::scene::Mesh>& mesh,
+                        const std::shared_ptr<render::gl::StructuredVertexBuffer>& buffer,
                         const int sourceIndex,
                         const size_t bufferIndex)
     {
@@ -110,7 +107,7 @@ public:
 
         const size_t sequenceId = m_sequenceByProxyId[proxyId];
         m_sequences.at( sequenceId )
-                   .registerVertex( mesh, Sequence::VertexReference( bufferIndex, sourceIndex ), proxyId );
+                   .registerVertex( buffer, Sequence::VertexReference( bufferIndex, sourceIndex ), proxyId );
     }
 
     void updateCoordinates(const std::vector<loader::file::TextureLayoutProxy>& proxies)

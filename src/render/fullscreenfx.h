@@ -2,7 +2,7 @@
 
 #include "gl/framebuffer.h"
 #include "scene/Scene.h"
-#include "scene/MeshPart.h"
+#include "render/scene/mesh.h"
 #include "scene/window.h"
 
 namespace render
@@ -39,8 +39,7 @@ public:
 
         BOOST_ASSERT( m_fb->isComplete() );
 
-        m_mesh = scene::Mesh::createQuadFullscreen( gsl::narrow<float>( vp.width ), gsl::narrow<float>( vp.height ),
-                                                       m_shader->getHandle() );
+        m_mesh = scene::createQuadFullscreen( gsl::narrow<float>( vp.width ), gsl::narrow<float>( vp.height ), m_shader->getHandle() );
         m_material->getParameter( "u_depth" )->set( m_depthBuffer );
         m_material->getParameter( "u_projectionMatrix" )
                   ->set( glm::ortho( 0.0f, gsl::narrow<float>( vp.width ), gsl::narrow<float>( vp.height ), 0.0f, 0.0f,
@@ -48,7 +47,7 @@ public:
         m_material->getParameter( "u_projection" )->bindProjectionMatrix();
         m_material->getParameter( "u_texture" )->set( m_colorBuffer );
 
-        m_mesh->getParts()[0]->setMaterial( m_material );
+        m_mesh->setMaterial( m_material );
 
         m_model = std::make_shared<scene::Model>();
         m_model->addMesh( m_mesh );

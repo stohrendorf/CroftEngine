@@ -3,7 +3,7 @@
 #include "engine/heightinfo.h"
 #include "engine/laranode.h"
 #include "render/scene/names.h"
-#include "render/scene/MeshPart.h"
+#include "render/scene/mesh.h"
 #include "render/gl/vertexarray.h"
 #include "render/gl/indexbuffer.h"
 
@@ -23,22 +23,19 @@ createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<render::scene::S
                     render::gl::VertexAttribute::SingleAttribute<glm::vec3>{}}}
     };
 
-    auto mesh = std::make_shared<render::scene::Mesh>( attribs, true );
-    mesh->getBuffers()[0]->assign<glm::vec3>( &vertices[0], points );
 
     std::vector<uint16_t> indices;
     for( uint16_t i = 0; i < points; ++i )
         indices.emplace_back( i );
 
-    render::gl::VertexArrayBuilder builder;
-
     auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
     indexBuffer->setData( indices, false );
-    builder.attach( indexBuffer );
-    builder.attach( mesh->getBuffers() );
 
-    const auto part = std::make_shared<render::scene::MeshPart>( builder.build( program->getHandle() ), GL_LINE_STRIP );
-    mesh->addPart( part );
+    auto vb = std::make_shared<render::gl::StructuredVertexBuffer>(attribs, true);
+    vb->assign<glm::vec3>( &vertices[0], points );
+
+    auto vao = std::make_shared<render::gl::VertexArray>(indexBuffer, vb, program->getHandle());
+    auto mesh = std::make_shared<render::scene::Mesh>( vao, GL_LINE_STRIP );
 
     mesh->getRenderState().setLineSmooth( true );
     mesh->getRenderState().setLineWidth( lineWidth );
@@ -47,7 +44,7 @@ createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<render::scene::S
     material->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
     material->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
 
-    part->setMaterial( material );
+    mesh->setMaterial( material );
 
     return mesh;
 }
@@ -60,8 +57,8 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const render::scene::
 
     Bolt bolt;
 
-    BOOST_ASSERT( mesh.getBuffers()[0]->getVertexCount() == LightningBall::SegmentPoints );
-    auto boltData = mesh.getBuffers()[0]->mapTypedRw<glm::vec3>();
+    BOOST_ASSERT( mesh.getVAO()->getVertexBuffers()[0]->getVertexCount() == LightningBall::SegmentPoints );
+    auto boltData = mesh.getVAO()->getVertexBuffers()[0]->mapTypedRw<glm::vec3>();
     for( size_t j = 0; j < LightningBall::SegmentPoints; j++ )
     {
         core::TRVec buckling{
@@ -77,7 +74,7 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const render::scene::
         boltData[j] = bolt[j].toRenderSystem();
         start += segmentSize;
     }
-    mesh.getBuffers()[0]->unmap();
+    mesh.getVAO()->getVertexBuffers()[0]->unmap();
 
     return bolt;
 }

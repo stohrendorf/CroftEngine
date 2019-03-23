@@ -13,22 +13,22 @@ namespace scene
 class Material;
 
 
-class MeshPart : public Drawable
+class Mesh : public Drawable
 {
 public:
     using MaterialParameterSetter = void(const Node& node, Material& material);
 
-    explicit MeshPart(std::shared_ptr<gl::VertexArray> vao, GLenum mode = GL_TRIANGLES);
+    explicit Mesh(std::shared_ptr<gl::VertexArray> vao, GLenum mode = GL_TRIANGLES);
 
-    ~MeshPart() override;
+    ~Mesh() override;
 
-    MeshPart(const MeshPart&) = delete;
+    Mesh(const Mesh&) = delete;
 
-    MeshPart(MeshPart&&) = delete;
+    Mesh(Mesh&&) = delete;
 
-    MeshPart& operator=(MeshPart&&) = delete;
+    Mesh& operator=(Mesh&&) = delete;
 
-    MeshPart& operator=(const MeshPart&) = delete;
+    Mesh& operator=(const Mesh&) = delete;
 
     void setMaterial(const std::shared_ptr<Material>& material)
     {
@@ -47,14 +47,26 @@ public:
         m_materialParameterSetters.emplace_back( setter );
     }
 
+    const auto& getVAO() const
+    {
+        return m_vao;
+    }
+
 private:
     std::shared_ptr<Material> m_material;
 
     std::vector<std::function<MaterialParameterSetter>> m_materialParameterSetters;
 
-    std::shared_ptr<gl::VertexArray> m_vao;
+    gsl::not_null<std::shared_ptr<gl::VertexArray>> m_vao;
 
     const GLenum m_mode;
 };
+
+
+extern gsl::not_null<std::shared_ptr<Mesh>> createQuadFullscreen(float width,
+                                                                 float height,
+                                                                 const gl::Program& program,
+                                                                 bool invertY = false);
+
 }
 }

@@ -3,7 +3,7 @@
 #include "render/textureanimator.h"
 #include "color.h"
 #include "render/scene/names.h"
-#include "render/scene/MeshPart.h"
+#include "render/scene/mesh.h"
 #include "render/scene/MaterialParameter.h"
 #include "render/scene/Model.h"
 #include "render/gl/vertexarray.h"
@@ -72,15 +72,14 @@ Mesh::ModelBuilder::ModelBuilder(
         const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
         gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
         const Palette& palette,
-        render::TextureAnimator& animator,
         const std::string& label)
         : m_hasNormals{withNormals}
         , m_textureProxies{textureProxies}
         , m_materials{materials}
         , m_colorMaterial{std::move( colorMaterial )}
         , m_palette{palette}
-        , m_animator{animator}
-        , m_mesh{std::make_shared<render::scene::Mesh>( getFormat( withNormals ), dynamic, label )}
+        , m_vb{std::make_shared<render::gl::StructuredVertexBuffer>( getFormat( withNormals ), dynamic, label )}
+        , m_label{label}
 {
 }
 
@@ -90,10 +89,10 @@ void Mesh::ModelBuilder::append(const RenderVertex& v)
 {
     static_assert( sizeof( RenderVertex ) % sizeof( float ) == 0, "Invalid vertex structure" );
     Expects( !m_hasNormals );
-    Expects( sizeof( v ) == m_mesh->getBuffers()[0]->getVertexSize() );
+    Expects( sizeof( v ) == m_vb->getVertexSize() );
 
     const auto* data = reinterpret_cast<const float*>(&v);
-    const auto n = m_mesh->getBuffers()[0]->getVertexSize() / sizeof( float );
+    const auto n = m_vb->getVertexSize() / sizeof( float );
     std::copy_n( data, n, std::back_inserter( m_vbuf ) );
     ++m_vertexCount;
 }
@@ -102,11 +101,11 @@ void Mesh::ModelBuilder::append(const RenderVertexWithNormal& v)
 {
     static_assert( sizeof( RenderVertexWithNormal ) % sizeof( float ) == 0, "Invalid vertex structure" );
     Expects( m_hasNormals );
-    Expects( sizeof( v ) == m_mesh->getBuffers()[0]->getVertexSize() );
-    Expects( m_mesh->getBuffers()[0]->getVertexSize() % sizeof( float ) == 0 );
+    Expects( sizeof( v ) == m_vb->getVertexSize() );
+    Expects( m_vb->getVertexSize() % sizeof( float ) == 0 );
 
     const auto* data = reinterpret_cast<const float*>(&v);
-    const auto n = m_mesh->getBuffers()[0]->getVertexSize() / sizeof( float );
+    const auto n = m_vb->getVertexSize() / sizeof( float );
     std::copy_n( data, n, std::back_inserter( m_vbuf ) );
     ++m_vertexCount;
 }
@@ -142,7 +141,6 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
 
             for( auto j : {0, 1, 2, 0, 2, 3} )
             {
-                m_animator.registerVertex( quad.proxyId, m_mesh, j, firstVertex + j );
                 m_parts[partId].indices
                                .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + j ) );
             }
@@ -189,10 +187,6 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
                 append( iv );
             }
-
-            m_animator.registerVertex( tri.proxyId, m_mesh, 0, firstVertex + 0 );
-            m_animator.registerVertex( tri.proxyId, m_mesh, 1, firstVertex + 1 );
-            m_animator.registerVertex( tri.proxyId, m_mesh, 2, firstVertex + 2 );
         }
         for( const Triangle& tri : mesh.colored_triangles )
         {
@@ -233,7 +227,6 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
 
             for( auto j : {0, 1, 2, 0, 2, 3} )
             {
-                m_animator.registerVertex( quad.proxyId, m_mesh, j, firstVertex + j );
                 m_parts[partId].indices
                                .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + j ) );
             }
@@ -275,10 +268,6 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
                 append( iv );
             }
-
-            m_animator.registerVertex( tri.proxyId, m_mesh, 0, firstVertex + 0 );
-            m_animator.registerVertex( tri.proxyId, m_mesh, 1, firstVertex + 1 );
-            m_animator.registerVertex( tri.proxyId, m_mesh, 2, firstVertex + 2 );
         }
         for( const Triangle& tri : mesh.colored_triangles )
         {
@@ -301,10 +290,10 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
 
 gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finalize()
 {
-    Expects( m_vbuf.size() * sizeof( m_vbuf[0] ) == m_vertexCount * m_mesh->getBuffers()[0]->getVertexSize() );
+    Expects( m_vbuf.size() * sizeof( m_vbuf[0] ) == m_vertexCount * m_vb->getVertexSize() );
+    m_vb->assignRaw( m_vbuf, m_vertexCount );
 
-    m_mesh->getBuffers()[0]->assignRaw( m_vbuf, m_vertexCount );
-
+    auto model = std::make_shared<render::scene::Model>();
     for( const MeshPart& localPart : m_parts )
     {
         static_assert( sizeof( localPart.indices[0] ) == sizeof( uint16_t ),
@@ -320,24 +309,23 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finaliz
         auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
         indexBuffer->setData( localPart.indices, true );
         builder.attach( indexBuffer );
+        builder.attach( m_vb );
 
-        builder.attach( m_mesh->getBuffers() );
+        auto va = std::make_shared<render::gl::VertexArray>( indexBuffer, m_vb, localPart.material->getShaderProgram()->getHandle(), m_label );
+        auto mesh = std::make_shared<render::scene::Mesh>( va, GL_TRIANGLES );
+        mesh->setMaterial( localPart.material );
 
-        auto part = std::make_shared<render::scene::MeshPart>(
-                builder.build( localPart.material->getShaderProgram()->getHandle() ) );
-        m_mesh->addPart( part );
-        part->setMaterial( localPart.material );
         if( localPart.color.is_initialized() )
         {
-            part->registerMaterialParameterSetter(
+            mesh->registerMaterialParameterSetter(
                     [color = *localPart.color](const render::scene::Node& /*node*/, render::scene::Material& material) {
                         material.getParameter( "u_diffuseColor" )->set( color );
                     } );
         }
+
+        model->addMesh(mesh);
     }
 
-    auto model = std::make_shared<render::scene::Model>();
-    model->addMesh( m_mesh );
     return model;
 }
 
@@ -346,7 +334,6 @@ std::shared_ptr<render::scene::Model> Mesh::createModel(
         const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
         const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
         const Palette& palette,
-        render::TextureAnimator& animator,
         const std::string& label) const
 {
     ModelBuilder mb{
@@ -356,7 +343,6 @@ std::shared_ptr<render::scene::Model> Mesh::createModel(
             materials,
             colorMaterial,
             palette,
-            animator,
             label
     };
 
