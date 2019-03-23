@@ -36,14 +36,7 @@ public:
 
     void draw(RenderContext& context) override;
 
-    render::gl::RenderState& getRenderState() override
-    {
-        return m_renderState;
-    }
-
 private:
-    render::gl::RenderState m_renderState{};
-
     std::vector<gsl::not_null<std::shared_ptr<Mesh>>> m_meshes{};
 };
 }

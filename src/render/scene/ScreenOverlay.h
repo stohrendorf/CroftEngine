@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Drawable.h"
-#include "Game.h"
+#include "renderer.h"
 #include "Mesh.h"
 #include "window.h"
 
@@ -33,21 +33,12 @@ public:
 
     void draw(RenderContext& context) override;
 
-    gsl::not_null<std::shared_ptr<gl::Image < gl::RGBA8>>>
-
-    getImage() const
+    gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>> getImage() const
     {
         return m_image;
     }
 
-    render::gl::RenderState& getRenderState() override
-    {
-        return m_renderState;
-    }
-
 private:
-    render::gl::RenderState m_renderState;
-
     std::shared_ptr<gl::Image<gl::RGBA8>> m_image;
 
     gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{std::make_shared<gl::Texture>( GL_TEXTURE_2D )};

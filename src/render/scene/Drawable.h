@@ -1,11 +1,9 @@
 #pragma once
 
+#include "render/gl/renderstate.h"
+
 namespace render
 {
-namespace gl
-{
-class RenderState;
-}
 
 namespace scene
 {
@@ -29,7 +27,13 @@ public:
 
     virtual void draw(RenderContext& context) = 0;
 
-    virtual render::gl::RenderState& getRenderState() = 0;
+    render::gl::RenderState& getRenderState()
+    {
+        return m_renderState;
+    }
+
+private:
+    render::gl::RenderState m_renderState;
 };
 }
 }

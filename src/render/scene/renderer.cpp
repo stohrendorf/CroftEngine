@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "renderer.h"
 
 #include "names.h"
 
@@ -11,12 +11,12 @@ namespace render
 {
 namespace scene
 {
-Game::Game()
+Renderer::Renderer()
         : m_scene{std::make_shared<Scene>()}
 {
 }
 
-Game::~Game() = default;
+Renderer::~Renderer() = default;
 
 namespace
 {
@@ -50,7 +50,7 @@ public:
 };
 }
 
-void Game::render()
+void Renderer::render()
 {
     // Graphics Rendering.
     clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
@@ -71,7 +71,7 @@ void Game::render()
     }
 }
 
-void Game::clear(const GLbitfield flags, const gl::RGBA8& clearColor, const float clearDepth)
+void Renderer::clear(const GLbitfield flags, const gl::RGBA8& clearColor, const float clearDepth)
 {
     GLbitfield bits = 0;
     if( flags & GL_COLOR_BUFFER_BIT )
@@ -103,9 +103,9 @@ void Game::clear(const GLbitfield flags, const gl::RGBA8& clearColor, const floa
     GL_ASSERT( glClear( bits ) );
 }
 
-void Game::clear(const GLbitfield flags,
-                 const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha,
-                 const float clearDepth)
+void Renderer::clear(const GLbitfield flags,
+                     const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha,
+                     const float clearDepth)
 {
     clear( flags, gl::RGBA8{red, green, blue, alpha}, clearDepth );
 }

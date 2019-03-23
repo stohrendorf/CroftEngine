@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderContext.h"
+#include "Drawable.h"
 
 #include "render/gl/renderstate.h"
 #include "render/gl/vertexarray.h"
@@ -12,14 +13,14 @@ namespace scene
 class Material;
 
 
-class MeshPart
+class MeshPart : public Drawable
 {
 public:
     using MaterialParameterSetter = void(const Node& node, Material& material);
 
     explicit MeshPart(std::shared_ptr<gl::VertexArray> vao, GLenum mode = GL_TRIANGLES);
 
-    ~MeshPart();
+    ~MeshPart() override;
 
     MeshPart(const MeshPart&) = delete;
 
@@ -39,21 +40,14 @@ public:
         return m_material;
     }
 
-    void draw(RenderContext& context) const;
+    void draw(RenderContext& context) override;
 
     void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
     {
         m_materialParameterSetters.emplace_back( setter );
     }
 
-    render::gl::RenderState& getRenderState()
-    {
-        return m_renderState;
-    }
-
 private:
-    render::gl::RenderState m_renderState{};
-
     std::shared_ptr<Material> m_material;
 
     std::vector<std::function<MaterialParameterSetter>> m_materialParameterSetters;

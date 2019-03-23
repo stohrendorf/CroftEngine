@@ -102,7 +102,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
 
 void Sprite::draw(RenderContext& context)
 {
-    context.pushState( m_renderState );
+    context.pushState( getRenderState() );
     for( const gsl::not_null<std::shared_ptr<MeshPart>>& part : m_mesh->getParts() )
     {
         part->draw( context );

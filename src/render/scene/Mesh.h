@@ -2,7 +2,6 @@
 
 #include "Drawable.h"
 
-#include "render/gl/renderstate.h"
 #include "render/gl/structuredvertexbuffer.h"
 
 #include "gsl-lite.hpp"
@@ -51,7 +50,7 @@ public:
         m_buffers.emplace_back( std::make_shared<gl::StructuredVertexBuffer>( mapping, dynamic, label ) );
     }
 
-    const std::vector<gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>>& getBuffers() const
+    const auto& getBuffers() const
     {
         return m_buffers;
     }
@@ -66,16 +65,9 @@ public:
         return m_parts;
     }
 
-    render::gl::RenderState& getRenderState() override
-    {
-        return m_renderState;
-    }
-
     void draw(RenderContext& context) override;
 
 private:
-    render::gl::RenderState m_renderState{};
-
     std::vector<gsl::not_null<std::shared_ptr<MeshPart>>> m_parts{};
 
     std::vector<gsl::not_null<std::shared_ptr<gl::StructuredVertexBuffer>>> m_buffers{};

@@ -17,20 +17,20 @@ class Scene;
 class RenderContext;
 
 
-class Game final
+class Renderer final
 {
 public:
-    Game(const Game&) = delete;
+    Renderer(const Renderer&) = delete;
 
-    Game(Game&&) = delete;
+    Renderer(Renderer&&) = delete;
 
-    Game& operator=(const Game&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
 
-    Game& operator=(Game&&) = delete;
+    Renderer& operator=(Renderer&&) = delete;
 
-    explicit Game();
+    explicit Renderer();
 
-    virtual ~Game();
+    ~Renderer();
 
     std::chrono::high_resolution_clock::time_point getGameTime() const
     {

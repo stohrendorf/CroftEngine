@@ -227,7 +227,7 @@ set( EDISONENGINE_SRCS
      render/gl/glew.cpp
 
      render/scene/Camera.cpp
-     render/scene/Game.cpp
+     render/scene/renderer.cpp
      render/scene/Material.cpp
      render/scene/MaterialParameter.cpp
      render/scene/Mesh.cpp

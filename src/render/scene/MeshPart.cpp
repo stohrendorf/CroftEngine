@@ -16,7 +16,7 @@ MeshPart::MeshPart(std::shared_ptr<gl::VertexArray> vao, GLenum mode)
 
 MeshPart::~MeshPart() = default;
 
-void MeshPart::draw(RenderContext& context) const
+void MeshPart::draw(RenderContext& context)
 {
     if( m_material == nullptr )
         return;
@@ -26,7 +26,7 @@ void MeshPart::draw(RenderContext& context) const
     for( const auto& mps : m_materialParameterSetters )
         mps( *context.getCurrentNode(), *m_material );
 
-    context.pushState( m_renderState );
+    context.pushState( getRenderState() );
     context.pushState( m_material->getRenderState() );
     context.bindState();
 

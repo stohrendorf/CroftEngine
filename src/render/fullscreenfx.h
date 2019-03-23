@@ -15,17 +15,16 @@ class FullScreenFX
     const gsl::not_null<std::shared_ptr<scene::Material>> m_material;
 
 public:
-    explicit FullScreenFX(const scene::Game& game,
-                          const scene::Window& window,
+    explicit FullScreenFX(const scene::Window& window,
                           gsl::not_null<std::shared_ptr<scene::ShaderProgram>> shader)
             : m_shader{std::move( shader )}
             , m_material{std::make_shared<scene::Material>( m_shader )}
             , m_fb{std::make_shared<gl::FrameBuffer>()}
     {
-        init( game, window );
+        init( window );
     }
 
-    void init(const scene::Game& game, const scene::Window& window)
+    void init(const scene::Window& window)
     {
         const auto vp = window.getViewport();
 

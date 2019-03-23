@@ -41,11 +41,6 @@ public:
 
     void draw(RenderContext& context) override;
 
-    render::gl::RenderState& getRenderState() override
-    {
-        return m_renderState;
-    }
-
 private:
     static gsl::not_null<std::shared_ptr<Mesh>> createMesh(float x0,
                                                            float y0,
@@ -56,7 +51,6 @@ private:
                                                            const gsl::not_null<std::shared_ptr<Material>>& material,
                                                            Axis pole);
 
-    render::gl::RenderState m_renderState;
 
     gsl::not_null<std::shared_ptr<Mesh>> m_mesh;
 };

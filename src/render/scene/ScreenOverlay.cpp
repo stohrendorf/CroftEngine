@@ -1,6 +1,6 @@
 #include "ScreenOverlay.h"
 
-#include "Game.h"
+#include "renderer.h"
 #include "Material.h"
 #include "MaterialParameter.h"
 #include "Model.h"
@@ -23,7 +23,7 @@ ScreenOverlay::~ScreenOverlay() = default;
 
 void ScreenOverlay::draw(RenderContext& context)
 {
-    context.pushState( m_renderState );
+    context.pushState( getRenderState() );
     m_texture->subImage2D( m_image->getData() );
     m_model->draw( context );
     context.popState();

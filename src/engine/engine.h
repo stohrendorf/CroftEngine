@@ -107,7 +107,7 @@ private:
     std::shared_ptr<render::FullScreenFX> depthDarknessFx;
     std::shared_ptr<render::FullScreenFX> depthDarknessWaterFx;
     std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
-    std::unique_ptr<render::scene::Game> m_game;
+    std::unique_ptr<render::scene::Renderer> m_renderer;
     std::unique_ptr<render::scene::Window> m_window;
     sol::table levelInfo;
 
@@ -264,8 +264,7 @@ public:
 
     std::shared_ptr<items::ItemNode> getItem(uint16_t id) const;
 
-    void drawBars(const gsl::not_null<render::scene::Game*>& game,
-                  const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::RGBA8>>>& image) const;
+    void drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::RGBA8>>>& image) const;
 
     void useAlternativeLaraAppearance(bool withHead = false);
 

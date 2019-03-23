@@ -8,7 +8,7 @@ namespace scene
 {
 void Model::draw(RenderContext& context)
 {
-    context.pushState( m_renderState );
+    context.pushState( getRenderState() );
     for( const auto& mesh : m_meshes )
     {
         mesh->draw( context );
