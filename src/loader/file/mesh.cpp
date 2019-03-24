@@ -304,12 +304,9 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finaliz
             BOOST_ASSERT( idx < m_vertexCount );
         }
 #endif
-        render::gl::VertexArrayBuilder builder;
 
         auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
         indexBuffer->setData( localPart.indices, true );
-        builder.attach( indexBuffer );
-        builder.attach( m_vb );
 
         auto va = std::make_shared<render::gl::VertexArray>( indexBuffer, m_vb, localPart.material->getShaderProgram()->getHandle(), m_label );
         auto mesh = std::make_shared<render::scene::Mesh>( va, GL_TRIANGLES );

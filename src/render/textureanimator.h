@@ -55,8 +55,6 @@ class TextureAnimator
         void registerVertex(const std::shared_ptr<render::gl::StructuredVertexBuffer>& buffer, VertexReference vertex,
                             const core::TextureProxyId proxyId)
         {
-            //! @fixme Expects(mesh->getVertexFormat().getElement(0).usage == render::scene::VertexFormat::TEXCOORD);
-
             const auto it = std::find( proxyIds.begin(), proxyIds.end(), proxyId );
             Expects( it != proxyIds.end() );
             vertex.queueOffset = std::distance( proxyIds.begin(), it );

@@ -470,7 +470,6 @@ public:
 
     void update() override
     {
-        // TODO
     }
 
     loader::file::BoundingBox getBoundingBox() const override

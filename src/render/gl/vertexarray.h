@@ -58,44 +58,5 @@ private:
 
     std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> m_vertexBuffers;
 };
-
-
-class VertexArrayBuilder final
-{
-public:
-    VertexArrayBuilder& attach(const gsl::not_null<std::shared_ptr<IndexBuffer>>& buffer)
-    {
-        m_indexBuffers.emplace_back( buffer );
-        return *this;
-    }
-
-    VertexArrayBuilder& attach(const std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>& buffers)
-    {
-        copy( buffers.begin(), buffers.end(), back_inserter( m_indexBuffers ) );
-        return *this;
-    }
-
-    VertexArrayBuilder& attach(const gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>& buffer)
-    {
-        m_vertexBuffers.emplace_back( buffer );
-        return *this;
-    }
-
-    VertexArrayBuilder& attach(const std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>>& buffers)
-    {
-        copy( buffers.begin(), buffers.end(), back_inserter( m_vertexBuffers ) );
-        return *this;
-    }
-
-    std::shared_ptr<VertexArray> build(const Program& program, const std::string& label = {})
-    {
-        return std::make_shared<VertexArray>( move( m_indexBuffers ), move( m_vertexBuffers ), program, label );
-    }
-
-private:
-    std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>> m_indexBuffers;
-
-    std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> m_vertexBuffers;
-};
 }
 }
