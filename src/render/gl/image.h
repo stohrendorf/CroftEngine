@@ -49,18 +49,6 @@ struct FastFill<T, 2>
 };
 
 
-template<typename T>
-struct FastFill<T, 4>
-{
-    static_assert( sizeof( T ) == 2, "Type size mismatch" );
-
-    static inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
-    {
-        std::wmemset( data.get(), value, n );
-    }
-};
-
-
 template<>
 struct FastFill<RGBA8, 4>
 {

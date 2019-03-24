@@ -29,16 +29,12 @@ public:
 
     ~Font();
 
-    void setTarget(const std::shared_ptr<Image < RGBA8>>
-
-    & img)
+    void setTarget(const std::shared_ptr<Image<RGBA8>>& img)
     {
         m_targetImage = img;
     }
 
-    const std::shared_ptr<Image < RGBA8>>&
-
-    getTarget() const
+    const std::shared_ptr<Image<RGBA8>>& getTarget() const
     {
         return m_targetImage;
     }
@@ -52,7 +48,7 @@ private:
 
     FTC_ImageTypeRec m_imgType;
 
-    std::shared_ptr<Image < RGBA8>> m_targetImage = nullptr;
+    std::shared_ptr<Image<RGBA8>> m_targetImage = nullptr;
 
     int m_x0 = 0;
 
