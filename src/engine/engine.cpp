@@ -27,6 +27,7 @@
 #include "items/pierre.h"
 #include "items/puzzlehole.h"
 #include "items/raptor.h"
+#include "items/rat.h"
 #include "items/scionpiece.h"
 #include "items/slopedbridge.h"
 #include "items/stubitem.h"
@@ -416,6 +417,10 @@ std::shared_ptr<LaraNode> Engine::createItems()
                 modelNode = std::make_shared<items::LightningBall>( this, room, item,
                                                                     *model,
                                                                     m_lightningShader );
+            }
+            else if( item.type == TR1ItemId::RatInWater || item.type == TR1ItemId::RatOnLand )
+            {
+                modelNode = std::make_shared<items::Rat>( this, room, item, *model );
             }
             else
             {

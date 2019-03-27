@@ -185,6 +185,7 @@ set( EDISONENGINE_SRCS
      engine/items/pierre.cpp
      engine/items/puzzlehole.cpp
      engine/items/raptor.cpp
+     engine/items/rat.cpp
      engine/items/scionpiece.cpp
      engine/items/swingingblade.cpp
      engine/items/switch.cpp
