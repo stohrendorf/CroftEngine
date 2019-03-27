@@ -72,6 +72,19 @@ infos[15].hit_points = 22
 infos[15].pivot_length = 250
 infos[15].target_update_chance = 0x7fff
 
+-- Rats
+infos[16].ai_agent = true
+infos[16].radius = 204
+infos[16].hit_points = 5
+infos[16].pivot_length = 200
+infos[16].target_update_chance = 0x2000
+
+infos[17].ai_agent = true
+infos[17].radius = 204
+infos[17].hit_points = 5
+infos[17].pivot_length = 200
+infos[17].target_update_chance = 0x2000
+
 -- TRex
 infos[18].ai_agent = true
 infos[18].radius = 341

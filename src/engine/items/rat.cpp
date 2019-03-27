@@ -97,6 +97,7 @@ void Rat::update()
                 m_state.current_anim_state = 3_as;
             }
             rotateCreatureHead( 0_deg );
+            getSkeleton()->patchBone( 2, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
             ModelItemNode::update();
             if( m_state.triggerState == TriggerState::Deactivated )
             {
@@ -208,6 +209,7 @@ void Rat::update()
             m_state.current_anim_state = m_state.anim->state_id;
             m_state.position.position.Y = waterHeight.get();
         }
+        getSkeleton()->patchBone( 2, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
         animateCreature( turn, 0_deg );
     }
 }
