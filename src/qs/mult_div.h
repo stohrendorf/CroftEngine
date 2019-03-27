@@ -262,7 +262,7 @@ constexpr auto operator/(quantity<fraction_unit<std::tuple<Units1Top...>, std::t
                          quantity<Unit2, Type> b)
 {
     return quantity<fraction_unit_t<std::tuple<Units1Top...>, std::tuple<Units1Bottom..., Unit2>>, Type>{
-            a.get() * b.get()};
+            a.get() / b.get()};
 }
 
 // fraction_unit / product_unit
@@ -271,7 +271,7 @@ constexpr auto operator/(quantity<fraction_unit<std::tuple<Units1Top...>, std::t
                          quantity<product_unit<Units2...>, Type> b)
 {
     return quantity<fraction_unit_t<std::tuple<Units1Top...>, std::tuple<Units1Bottom..., Units2...>>, Type>{
-            a.get() * b.get()};
+            a.get() / b.get()};
 }
 
 // fraction_unit / fraction_unit
@@ -280,6 +280,6 @@ constexpr auto operator/(quantity<fraction_unit<std::tuple<Units1Top...>, std::t
                          quantity<fraction_unit<std::tuple<Units2Top...>, std::tuple<Units2Bottom...>>, Type> b)
 {
     return quantity<fraction_unit_t<std::tuple<Units1Top..., Units2Bottom...>, std::tuple<Units1Bottom..., Units2Top...>>, Type>{
-            a.get() * b.get()};
+            a.get() / b.get()};
 }
 }
