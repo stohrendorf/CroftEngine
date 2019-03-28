@@ -761,15 +761,15 @@ void ItemState::collectZoneBoxes(const Engine& engine)
 YAML::Node ItemState::save(const Engine& engine) const
 {
     YAML::Node n;
-    n["type"] = type.get();
+    n["type"] = type;
     n["position"] = position.position.save();
     n["position"]["room"] = std::distance( &engine.getRooms()[0], position.room.get() );
     n["rotation"] = rotation.save();
     n["speed"] = speed;
     n["fallSpeed"] = fallspeed;
-    n["state"] = current_anim_state.get();
-    n["goal"] = goal_anim_state.get();
-    n["required"] = required_anim_state.get();
+    n["state"] = current_anim_state;
+    n["goal"] = goal_anim_state;
+    n["required"] = required_anim_state;
     if( anim != nullptr )
         n["id"] = std::distance( &engine.getAnimations()[0], anim );
     n["frame"] = frame_number;
@@ -804,9 +804,9 @@ void ItemState::load(const YAML::Node& n, const Engine& engine)
     rotation.load( n["rotation"] );
     speed = n["speed"].as<core::Speed>();
     fallspeed = n["fallSpeed"].as<core::Speed>();
-    current_anim_state = core::AnimStateId{n["state"].as<uint16_t>()};
-    goal_anim_state = core::AnimStateId{n["goal"].as<uint16_t>()};
-    required_anim_state = core::AnimStateId{n["required"].as<uint16_t>()};
+    current_anim_state = n["state"].as<core::AnimStateId>();
+    goal_anim_state = n["goal"].as<core::AnimStateId>();
+    required_anim_state = n["required"].as<core::AnimStateId>();
     if( !n["id"].IsDefined() )
         anim = nullptr;
     else

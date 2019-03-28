@@ -166,7 +166,10 @@ struct Animation
 
     constexpr size_t getKeyframeCount() const
     {
-        return (getFrameCount() + segmentLength - 1_frame) / segmentLength + 1;
+        if( segmentLength > 1_frame )
+            return (getFrameCount() + segmentLength - 1_frame) / segmentLength + 1;
+        else
+            return (getFrameCount() + segmentLength - 1_frame) / segmentLength;
     }
 
     constexpr core::Frame getFrameCount() const

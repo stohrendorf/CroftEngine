@@ -2,6 +2,8 @@
 
 #include "tpl_helper.h"
 
+#include <yaml-cpp/yaml.h>
+
 #include <cstdint>
 #include <functional>
 
@@ -166,6 +168,51 @@ struct hash<core::Id<StorageType, Tag>>
     constexpr size_t operator()(const core::Id<StorageType, Tag>& v) const
     {
         return hash<StorageType>{}( v.get() );
+    }
+};
+}
+
+// YAML converters
+namespace YAML
+{
+template<typename Type, typename Tag, typename... Enums>
+struct convert<core::Id<Type, Tag, Enums...>>
+{
+    static Node encode(const core::Id<Type, Tag, Enums...>& rhs)
+    {
+        Node node{NodeType::Scalar};
+        node = rhs.get();
+        return node;
+    }
+
+    static bool decode(const Node& node, core::Id<Type, Tag, Enums...>& rhs)
+    {
+        if( !node.IsScalar() )
+            return false;
+
+        rhs = core::Id<Type, Tag, Enums...>{node.as<Type>()};
+        return true;
+    }
+};
+
+
+template<typename Type, typename Tag, typename... Enums>
+struct as_if<core::Id<Type, Tag, Enums...>, void>
+{
+    explicit as_if(const Node& node_) : node{node_}
+    {}
+
+    const Node& node;
+
+    core::Id<Type, Tag, Enums...> operator()() const
+    {
+        if( !node.m_pNode )
+            throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
+
+        core::Id<Type, Tag, Enums...> t{Type{0}};
+        if( convert<core::Id<Type, Tag, Enums...>>::decode( node, t ) )
+            return t;
+        throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
     }
 };
 }

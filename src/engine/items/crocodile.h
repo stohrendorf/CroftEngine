@@ -24,9 +24,9 @@ public:
 
     void load(const YAML::Node& n) override
     {
-        auto newType = EnumUtil<TR1ItemId>::fromString( n["state"]["type"].as<std::string>() );
+        auto newType = n["state"]["type"].as<core::TypeId>();
 
-        if( newType == TR1ItemId::CrocodileOnLand || newType == TR1ItemId::CrocodileInWater )
+        if( newType.get_as<TR1ItemId>() == TR1ItemId::CrocodileOnLand || newType.get_as<TR1ItemId>() == TR1ItemId::CrocodileInWater )
             m_state.type = newType;
 
         AIAgent::load( n );

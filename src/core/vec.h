@@ -135,13 +135,6 @@ struct TRVec
 
     void load(const YAML::Node& n)
     {
-        if( !n["x"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "TRVec::X is not a scalar value" ) );
-        if( !n["y"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "TRVec::Y is not a scalar value" ) );
-        if( !n["z"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "TRVec::Z is not a scalar value" ) );
-
         X = n["x"].as<Length>();
         Y = n["y"].as<Length>();
         Z = n["z"].as<Length>();
