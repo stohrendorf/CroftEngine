@@ -8,19 +8,19 @@ struct PortalTracer
 {
     struct BoundingBox
     {
-        glm::vec3 min;
-        glm::vec3 max;
+        glm::vec2 min;
+        glm::vec2 max;
 
-        BoundingBox(const float minX, const float minY, const float minZ,
-                    const float maxX, const float maxY, const float maxZ)
-                : min{minX, minY, minZ}
-                , max{maxX, maxY, maxZ}
+        BoundingBox(const float minX, const float minY,
+                    const float maxX, const float maxY)
+                : min{minX, minY}
+                , max{maxX, maxY}
         {
         }
     };
 
 
-    BoundingBox boundingBox{-1, -1, 0, 1, 1, 0};
+    BoundingBox boundingBox{-1, -1, 1, 1};
     const loader::file::Portal* lastPortal = nullptr;
 
     bool checkVisibility(const loader::file::Portal* portal, const render::scene::Camera& camera)
@@ -34,9 +34,7 @@ struct PortalTracer
         int numBehind = 0, numTooFar = 0;
 
         // screen space bounding box of the portal
-        BoundingBox portalBB{0, 0, 0, 0, 0, 0};
-        portalBB.min = {1, 1, 0};
-        portalBB.max = {-1, -1, 0};
+        BoundingBox portalBB{1, 1, -1, -1};
 
         std::vector<glm::vec3> projected;
 
@@ -66,13 +64,14 @@ struct PortalTracer
         boundingBox.max.x = std::min( portalBB.max.x, boundingBox.max.x );
         boundingBox.max.y = std::min( portalBB.max.y, boundingBox.max.y );
 
-        if( numBehind != 0 && projected.size() >= 2 )
+        if( numBehind != 0 )
         {
             const auto* prev = &projected.back();
             for( const auto& current : projected )
             {
                 if( std::signbit( prev->z ) != std::signbit( current.z ) )
                 {
+                    // connection between portal vertices crosses Z plane
                     if( prev->x < 0 && current.x < 0 )
                     {
                         boundingBox.min.x = -1;
@@ -128,13 +127,14 @@ private:
                                      int& numBehind,
                                      int& numTooFar)
     {
+        // vertex is in OpenGL coordinate system, -z faces to viewer
         vertex = glm::vec3( camera.getViewMatrix() * glm::vec4( vertex, 1 ) );
 
-        if( vertex.z > -camera.getNearPlane() )
+        if( -vertex.z < camera.getNearPlane() )
         {
             ++numBehind;
         }
-        else if( vertex.z < -camera.getFarPlane() )
+        else if( -vertex.z > camera.getFarPlane() )
         {
             ++numTooFar;
         }
@@ -147,10 +147,19 @@ private:
         projVertex = camera.getProjectionMatrix() * projVertex;
         projVertex /= projVertex.w;
 
+        if( glm::abs( projVertex.z ) < 1e-4 )
+        {
+            return {
+                    projVertex.x < 0 ? -1 : 1,
+                    projVertex.y < 0 ? -1 : 1,
+                    projVertex.z
+            };
+        }
+
         if( !glm::isfinite( projVertex.x ) )
-            projVertex.x = glm::sign( projVertex.x );
+            projVertex.x = projVertex.x < 0 ? -1.0f : 1.0f;
         if( !glm::isfinite( projVertex.y ) )
-            projVertex.y = glm::sign( projVertex.y );
+            projVertex.y = projVertex.y < 0 ? -1.0f : 1.0f;
 
         return {glm::clamp( projVertex.x, -1.0f, 1.0f ), glm::clamp( projVertex.y, -1.0f, 1.0f ), projVertex.z};
     }
