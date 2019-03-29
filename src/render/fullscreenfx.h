@@ -3,6 +3,7 @@
 #include "gl/framebuffer.h"
 #include "scene/Scene.h"
 #include "render/scene/mesh.h"
+#include "scene/camera.h"
 #include "scene/window.h"
 
 namespace render
@@ -16,15 +17,16 @@ class FullScreenFX
 
 public:
     explicit FullScreenFX(const scene::Window& window,
-                          gsl::not_null<std::shared_ptr<scene::ShaderProgram>> shader)
+                          gsl::not_null<std::shared_ptr<scene::ShaderProgram>> shader,
+                          const std::shared_ptr<scene::Camera>& camera)
             : m_shader{std::move( shader )}
             , m_material{std::make_shared<scene::Material>( m_shader )}
             , m_fb{std::make_shared<gl::FrameBuffer>()}
     {
-        init( window );
+        init( window, camera );
     }
 
-    void init(const scene::Window& window)
+    void init(const scene::Window& window, const std::shared_ptr<scene::Camera>& camera)
     {
         const auto vp = window.getViewport();
 
@@ -39,12 +41,16 @@ public:
 
         BOOST_ASSERT( m_fb->isComplete() );
 
-        m_mesh = scene::createQuadFullscreen( gsl::narrow<float>( vp.width ), gsl::narrow<float>( vp.height ), m_shader->getHandle() );
+        m_mesh = scene::createQuadFullscreen( gsl::narrow<float>( vp.width ), gsl::narrow<float>( vp.height ),
+                                              m_shader->getHandle() );
         m_material->getParameter( "u_depth" )->set( m_depthBuffer );
         m_material->getParameter( "u_projectionMatrix" )
                   ->set( glm::ortho( 0.0f, gsl::narrow<float>( vp.width ), gsl::narrow<float>( vp.height ), 0.0f, 0.0f,
                                      1.0f ) );
-        m_material->getParameter( "u_projection" )->bindProjectionMatrix();
+        m_material->getParameter( "u_projection" )
+                  ->bind( [camera](const scene::Node& node, gl::Program::ActiveUniform& uniform) {
+                      uniform.set( camera->getProjectionMatrix() );
+                  } );
         m_material->getParameter( "u_texture" )->set( m_colorBuffer );
 
         m_mesh->setMaterial( m_material );

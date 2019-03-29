@@ -1475,13 +1475,13 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
 
         getCameraController().setPosition( pos );
 
-        if( bool(levelInfo["flipRooms"]) )
+        if( bool( levelInfo["flipRooms"] ) )
             swapAllRooms();
 
         for( auto& room : m_level->m_rooms )
             room.node->setVisible( room.alternateRoom.get() < 0 );
 
-        if( bool(levelInfo["gunSwap"]) )
+        if( bool( levelInfo["gunSwap"] ) )
         {
             const auto& laraPistol = findAnimatedModelForType( TR1ItemId::LaraPistolsAnim );
             Expects( laraPistol != nullptr );
@@ -1500,7 +1500,8 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                                                               render::scene::ShaderProgram::createFromFile(
                                                                       "shaders/fx_darkness.vert",
                                                                       "shaders/fx_darkness.frag",
-                                                                      {"LENS_DISTORTION"} ) );
+                                                                      {"LENS_DISTORTION"} ),
+                                                              m_renderer->getScene()->getActiveCamera() );
     depthDarknessFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
             [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
                 uniform.set( m_window->getAspectRatio() );
@@ -1517,8 +1518,8 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                                                                    render::scene::ShaderProgram::createFromFile(
                                                                            "shaders/fx_darkness.vert",
                                                                            "shaders/fx_darkness.frag",
-                                                                           {"WATER",
-                                                                            "LENS_DISTORTION"} ) );
+                                                                           {"WATER", "LENS_DISTORTION"} ),
+                                                                   m_renderer->getScene()->getActiveCamera() );
     depthDarknessWaterFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
             [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
                 uniform.set( m_window->getAspectRatio() );
@@ -1586,8 +1587,8 @@ void Engine::run()
         if( m_window->updateWindowSize() )
         {
             m_renderer->getScene()->getActiveCamera()->setAspectRatio( m_window->getAspectRatio() );
-            depthDarknessFx->init( *m_window );
-            depthDarknessWaterFx->init( *m_window );
+            depthDarknessFx->init( *m_window, m_renderer->getScene()->getActiveCamera() );
+            depthDarknessWaterFx->init( *m_window, m_renderer->getScene()->getActiveCamera() );
             screenOverlay->init( m_window->getViewport() );
             font->setTarget( screenOverlay->getImage() );
         }

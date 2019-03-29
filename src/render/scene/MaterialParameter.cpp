@@ -140,13 +140,9 @@ gl::Program::ActiveUniform* MaterialParameter::getUniform(
     if( uniform )
         return uniform;
 
-    if( (m_loggerDirtyBits & UNIFORM_NOT_FOUND) == 0 )
-    {
-        // This parameter was not found in the specified effect, so do nothing.
-        BOOST_LOG_TRIVIAL( warning ) << "Material parameter for uniform '" << m_name << "' not found in effect: '"
-                                     << shaderProgram->getId() << "'.";
-        m_loggerDirtyBits |= UNIFORM_NOT_FOUND;
-    }
+    // This parameter was not found in the specified effect, so do nothing.
+    BOOST_LOG_TRIVIAL( warning ) << "Material parameter for uniform '" << m_name << "' not found in program '"
+                                 << shaderProgram->getId() << "'";
 
     return nullptr;
 }
@@ -156,12 +152,8 @@ bool MaterialParameter::bind(const Node& node, const gsl::not_null<std::shared_p
     const auto setter = node.findMaterialParameterSetter( m_name );
     if( !m_valueSetter && setter == nullptr )
     {
-        if( (m_loggerDirtyBits & PARAMETER_VALUE_NOT_SET) == 0 )
-        {
-            BOOST_LOG_TRIVIAL( warning ) << "Material parameter value not set for: '" << m_name << "' in effect: '"
-                                         << shaderProgram->getId() << "'.";
-            m_loggerDirtyBits |= PARAMETER_VALUE_NOT_SET;
-        }
+        BOOST_LOG_TRIVIAL( warning ) << "Material parameter value not set for '" << m_name << "' in program '"
+                                     << shaderProgram->getId() << "'";
 
         return false;
     }
