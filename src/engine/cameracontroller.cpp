@@ -408,6 +408,7 @@ void CameraController::update()
         }
 
         updateCinematic( m_engine->getCinematicFrames()[m_cinematicFrame], true );
+        tracePortals();
         return;
     }
 
@@ -531,7 +532,7 @@ void CameraController::update()
     }
     HeightInfo::skipSteepSlants = false;
 
-    return;
+    tracePortals();
 }
 
 void CameraController::handleFixedCamera()

@@ -26,12 +26,13 @@ struct PortalTracer
         std::vector<const loader::file::Room*> seenRooms;
         seenRooms.reserve( 32 );
         traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms );
+        Expects( seenRooms.empty() );
     }
 
     static void traceRoom(const loader::file::Room& room, const BoundingBox& roomBBox, const engine::Engine& engine,
                           std::vector<const loader::file::Room*>& seenRooms)
     {
-        if( std::count( seenRooms.rbegin(), seenRooms.rend(), &room ) > 0 )
+        if( std::find( seenRooms.rbegin(), seenRooms.rend(), &room ) != seenRooms.rend() )
             return;
         seenRooms.emplace_back( &room );
 
@@ -55,7 +56,7 @@ struct PortalTracer
         static const constexpr auto Eps = 1.0f / (1 << 14);
 
         const auto portalToCam = glm::vec3{camera.getPosition() - portal.vertices[0].toRenderSystem()};
-        if( dot( portal.normal.toRenderSystem(), portalToCam ) <= -Eps )
+        if( dot( portal.normal.toRenderSystem(), portalToCam ) <= Eps )
         {
             return boost::none; // wrong orientation (normals must face the camera)
         }
@@ -73,7 +74,7 @@ struct PortalTracer
                 ++behindCamera;
                 continue;
             }
-            else if( -camSpace.z >= camera.getCamera()->getNearPlane() )
+            else if( -camSpace.z >= camera.getCamera()->getFarPlane() )
             {
                 ++tooFar;
                 continue;
@@ -93,7 +94,9 @@ struct PortalTracer
         }
 
         if( behindCamera == portal.vertices.size() || tooFar == portal.vertices.size() )
+        {
             return boost::none;
+        }
 
         if( behindCamera > 0 )
         {
