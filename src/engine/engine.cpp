@@ -1630,8 +1630,7 @@ void Engine::run()
         if( showDebugInfo )
         {
             drawDebugInfo( font, m_renderer->getFrameRate() );
-
-            for( const std::shared_ptr<items::ItemNode>& ctrl : m_itemNodes | boost::adaptors::map_values )
+            for( const auto& ctrl : m_itemNodes | boost::adaptors::map_values )
             {
                 const auto vertex = glm::vec3{m_renderer->getScene()->getActiveCamera()->getViewMatrix()
                                               * glm::vec4( ctrl->getNode()->getTranslationWorld(), 1 )};

@@ -169,6 +169,11 @@ public:
         return *m_cameraController;
     }
 
+    const CameraController& getCameraController() const
+    {
+        return *m_cameraController;
+    }
+
     const auto& getSpriteMaterial() const
     {
         return m_spriteMaterial;

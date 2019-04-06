@@ -105,7 +105,6 @@ const glm::mat4& Camera::getInverseViewProjectionMatrix() const
 void Camera::setViewMatrix(const glm::mat4& m)
 {
     m_view = m;
-    m_dirty.set(DirtyFlag::Projection);
     m_dirty.set(DirtyFlag::ViewProjection);
     m_dirty.set(DirtyFlag::InvViewProjection);
     m_dirty.set(DirtyFlag::InvView);

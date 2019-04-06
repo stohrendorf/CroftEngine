@@ -63,7 +63,7 @@ struct Portal
 {
     core::RoomId16 adjoining_room{uint16_t( 0 )}; ///< \brief which room this portal leads to.
     core::TRVec normal;
-    core::TRVec vertices[4];
+    std::array<core::TRVec, 4> vertices;
 
     static Portal read(io::SDLReader& reader, const core::TRVec& offset)
     {

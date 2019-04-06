@@ -95,8 +95,6 @@ CameraController::CameraController(const gsl::not_null<Engine*>& engine,
     m_center.position.Y -= m_eyeYOffset;
     m_eye = m_center;
     m_eye.position.Z -= 100_len;
-
-    update();
 }
 
 void CameraController::setRotationAroundCenter(const core::Angle x, const core::Angle y)
@@ -122,7 +120,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
                                       const core::Frame timeout,
                                       const bool switchIsOn)
 {
-    if( m_engine->getCameras().at(camId).isActive() )
+    if( m_engine->getCameras().at( camId ).isActive() )
         return;
 
     m_fixedCameraId = camId;
@@ -208,51 +206,10 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
 // ReSharper disable once CppMemberFunctionMayBeConst
 void CameraController::tracePortals()
 {
-    for( const loader::file::Room& room : m_engine->getRooms() )
+    for( const auto& room : m_engine->getRooms() )
         room.node->setVisible( false );
 
-    auto startRoom = m_eye.room;
-    startRoom->node->setVisible( true );
-
-    // Breadth-first queue
-    std::queue<render::PortalTracer> toVisit;
-
-    // always process direct neighbors of the starting room
-    for( const loader::file::Portal& portal : startRoom->portals )
-    {
-        render::PortalTracer path;
-        if( !path.checkVisibility( &portal, *m_camera.get() ) )
-            continue;
-
-        m_engine->getRooms().at( portal.adjoining_room.get() ).node->setVisible( true );
-
-        toVisit.emplace( path );
-    }
-
-    // Avoid infinite loops
-    std::set<const loader::file::Portal*> visited;
-    while( !toVisit.empty() )
-    {
-        const render::PortalTracer currentPath = toVisit.front();
-        toVisit.pop();
-
-        if( !visited.insert( currentPath.getLastPortal() ).second )
-        {
-            continue; // already tested
-        }
-
-        // iterate through the last room's portals and add the destinations if suitable
-        const auto destRoom = currentPath.getLastDestinationRoom();
-        for( const loader::file::Portal& srcPortal : m_engine->getRooms().at( destRoom.get() ).portals )
-        {
-            render::PortalTracer newPath = currentPath;
-            if( !newPath.checkVisibility( &srcPortal, *m_camera.get() ) )
-                continue;
-
-            m_engine->getRooms().at( srcPortal.adjoining_room.get() ).node->setVisible( true );
-            toVisit.emplace( newPath );
-        }
-    }
+    render::PortalTracer::trace( *m_eye.room, *m_engine );
 }
 
 bool CameraController::clampY(const core::TRVec& start,
@@ -451,7 +408,6 @@ void CameraController::update()
         }
 
         updateCinematic( m_engine->getCinematicFrames()[m_cinematicFrame], true );
-        tracePortals();
         return;
     }
 
@@ -575,7 +531,7 @@ void CameraController::update()
     }
     HeightInfo::skipSteepSlants = false;
 
-    tracePortals();
+    return;
 }
 
 void CameraController::handleFixedCamera()
@@ -701,8 +657,12 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     // update current room
     findRealFloorSector( camPos, &m_eye.room );
 
-    const auto m = lookAt( camPos.toRenderSystem(), m_center.position.toRenderSystem(), {0, 1, 0} );
-    m_camera->setViewMatrix( m );
+    if( camPos.X != m_center.position.X || camPos.Z != m_center.position.Z )
+    {
+        // only apply lookAt if we won't get NaN values because of parallel up and look axes
+        const auto m = lookAt( camPos.toRenderSystem(), m_center.position.toRenderSystem(), {0, 1, 0} );
+        m_camera->setViewMatrix( m );
+    }
 }
 
 void CameraController::chaseItem(const items::ItemNode& item)
@@ -1034,7 +994,7 @@ void CameraController::clampToCorners(const core::Area targetHorizontalDistanceS
     }
 
     // back left
-    const auto targetLeftDistSq = util::square(targetLeftRight - left);
+    const auto targetLeftDistSq = util::square( targetLeftRight - left );
     const auto targetBackLeftDistSq = targetBackDistSq + targetLeftDistSq;
     if( targetBackLeftDistSq > targetHorizontalDistanceSq )
     {
@@ -1121,7 +1081,8 @@ YAML::Node CameraController::save() const
 {
     YAML::Node result;
     result["eye"]["position"] = m_eye.position.save();
-    result["eye"]["room"] = std::distance( const_cast<const loader::file::Room*>(&m_engine->getRooms()[0]), m_eye.room.get() );
+    result["eye"]["room"] = std::distance( const_cast<const loader::file::Room*>(&m_engine->getRooms()[0]),
+                                           m_eye.room.get() );
     result["center"]["position"] = m_center.position.save();
     result["center"]["room"] = std::distance( const_cast<const loader::file::Room*>(&m_engine->getRooms()[0]),
                                               m_center.room.get() );

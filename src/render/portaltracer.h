@@ -1,6 +1,7 @@
 #pragma once
 
 #include "loader/file/datatypes.h"
+#include "engine/engine.h"
 
 namespace render
 {
@@ -20,28 +21,65 @@ struct PortalTracer
     };
 
 
-    BoundingBox boundingBox{-1, -1, 1, 1};
-    const loader::file::Portal* lastPortal = nullptr;
-
-    bool checkVisibility(const loader::file::Portal* portal, const render::scene::Camera& camera)
+    static void trace(const loader::file::Room& startRoom, const engine::Engine& engine)
     {
-        const auto portalToCam = glm::vec3{camera.getInverseViewMatrix()[3]} - portal->vertices[0].toRenderSystem();
-        if( dot( portal->normal.toRenderSystem(), portalToCam ) < 0 )
+        std::set<const loader::file::Room*> seenRooms;
+        traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms );
+    }
+
+    static void traceRoom(const loader::file::Room& room, const BoundingBox& roomBBox, const engine::Engine& engine,
+                          std::set<const loader::file::Room*>& seenRooms)
+    {
+        if( seenRooms.count( &room ) > 0 )
+            return;
+
+        room.node->setVisible( true );
+        seenRooms.emplace( &room );
+        for( const auto& portal : room.portals )
         {
-            return false; // wrong orientation (normals must face the camera)
+            if( const auto narrowedBounds = narrowPortal( room, roomBBox, portal, engine.getCameraController() ) )
+            {
+                traceRoom( engine.getRooms().at( portal.adjoining_room.get() ), *narrowedBounds, engine, seenRooms );
+            }
+        }
+        seenRooms.erase( &room );
+    }
+
+    static boost::optional<BoundingBox> narrowPortal(
+            const loader::file::Room& parentRoom,
+            const BoundingBox& parentBBox,
+            const loader::file::Portal& portal,
+            const engine::CameraController& camera)
+    {
+        static const constexpr auto Eps = 1.0f / (1 << 14);
+
+        const auto portalToCam = glm::vec3{camera.getPosition() - portal.vertices[0].toRenderSystem()};
+        if( dot( portal.normal.toRenderSystem(), portalToCam ) <= -Eps )
+        {
+            return boost::none; // wrong orientation (normals must face the camera)
         }
 
-        int numBehind = 0, numTooFar = 0;
-
-        // screen space bounding box of the portal
+        // 1. determine the screen bbox of the current portal
+        // 2. intersect it with the parent's bbox
         BoundingBox portalBB{1, 1, -1, -1};
-
-        std::vector<glm::vec3> projected;
-
-        for( auto vertex : portal->vertices )
+        size_t behindCamera = 0, tooFar = 0;
+        for( const auto& vertex : portal.vertices )
         {
-            const auto screen = projectOnScreen( vertex.toRenderSystem(), camera, numBehind, numTooFar );
-            projected.emplace_back( screen );
+            glm::vec3 camSpace = glm::vec3{
+                    camera.getCamera()->getViewMatrix() * glm::vec4{vertex.toRenderSystem(), 1.0f}};
+            if( -camSpace.z <= 0 )
+            {
+                ++behindCamera;
+                continue;
+            }
+            else if( -camSpace.z >= camera.getCamera()->getNearPlane() )
+            {
+                ++tooFar;
+                continue;
+            }
+
+            auto screen = camera.getCamera()->getProjectionMatrix() * glm::vec4{camSpace, 1.0f};
+            screen /= screen.w;
 
             portalBB.min.x = std::min( portalBB.min.x, screen.x );
             portalBB.min.y = std::min( portalBB.min.y, screen.y );
@@ -53,115 +91,67 @@ struct PortalTracer
             BOOST_ASSERT( portalBB.min.y <= portalBB.max.y );
         }
 
-        if( numBehind == 4 || numTooFar == 4 )
-            return false;
+        if( behindCamera == portal.vertices.size() || tooFar == portal.vertices.size() )
+            return boost::none;
 
-        BOOST_ASSERT( numBehind <= 3 );
-
-        // intersect full portal path bounding box with current portal bounding box
-        boundingBox.min.x = std::max( portalBB.min.x, boundingBox.min.x );
-        boundingBox.min.y = std::max( portalBB.min.y, boundingBox.min.y );
-        boundingBox.max.x = std::min( portalBB.max.x, boundingBox.max.x );
-        boundingBox.max.y = std::min( portalBB.max.y, boundingBox.max.y );
-
-        if( numBehind != 0 )
+        if( behindCamera > 0 )
         {
-            const auto* prev = &projected.back();
-            for( const auto& current : projected )
+            glm::vec3 prev{camera.getCamera()->getViewMatrix()
+                           * glm::vec4{portal.vertices.back().toRenderSystem(), 1.0f}};
+            for( const auto& currentPV : portal.vertices )
             {
-                if( std::signbit( prev->z ) != std::signbit( current.z ) )
-                {
-                    // connection between portal vertices crosses Z plane
-                    if( prev->x < 0 && current.x < 0 )
-                    {
-                        boundingBox.min.x = -1;
-                    }
-                    else if( prev->x > 0 && current.x > 0 )
-                    {
-                        boundingBox.max.x = 1;
-                    }
-                    else
-                    {
-                        boundingBox.min.x = -1;
-                        boundingBox.max.x = 1;
-                    }
+                const glm::vec3 current{
+                        camera.getCamera()->getViewMatrix() * glm::vec4{currentPV.toRenderSystem(), 1.0f}};
+                const auto crossing = (prev.z >= 0) != (current.z >= 0);
+                prev = current;
 
-                    if( prev->y < 0 && current.y < 0 )
-                    {
-                        boundingBox.min.y = -1;
-                    }
-                    else if( prev->y > 0 && current.y > 0 )
-                    {
-                        boundingBox.max.y = 1;
-                    }
-                    else
-                    {
-                        boundingBox.min.y = -1;
-                        boundingBox.max.y = 1;
-                    }
+                if( !crossing )
+                {
+                    continue;
                 }
 
-                prev = &current;
+                // edge crosses the camera plane, max out the bounds
+                if( (prev.x < 0) && (current.x < 0) )
+                {
+                    portalBB.min.x = -1;
+                }
+                else if( (prev.x > 0) && (current.x > 0) )
+                {
+                    portalBB.max.x = 1;
+                }
+                else
+                {
+                    portalBB.min.x = -1;
+                    portalBB.max.x = 1;
+                }
+
+                if( (prev.y < 0) && (current.y < 0) )
+                {
+                    portalBB.min.y = -1;
+                }
+                else if( (prev.y > 0) && (current.y > 0) )
+                {
+                    portalBB.max.y = 1;
+                }
+                else
+                {
+                    portalBB.min.y = -1;
+                    portalBB.max.y = 1;
+                }
             }
         }
 
-        lastPortal = portal;
+        portalBB.min.x = std::max( parentBBox.min.x, portalBB.min.x );
+        portalBB.min.y = std::max( parentBBox.min.y, portalBB.min.y );
+        portalBB.max.x = std::min( parentBBox.max.x, portalBB.max.x );
+        portalBB.max.y = std::min( parentBBox.max.y, portalBB.max.y );
 
-        return boundingBox.min.x < boundingBox.max.x && boundingBox.min.y < boundingBox.max.y;
-    }
-
-    core::RoomId16 getLastDestinationRoom() const
-    {
-        return getLastPortal()->adjoining_room;
-    }
-
-    const loader::file::Portal* getLastPortal() const
-    {
-        Expects( lastPortal != nullptr );
-        return lastPortal;
-    }
-
-private:
-    static glm::vec3 projectOnScreen(glm::vec3 vertex,
-                                     const render::scene::Camera& camera,
-                                     int& numBehind,
-                                     int& numTooFar)
-    {
-        // vertex is in OpenGL coordinate system, -z faces to viewer
-        vertex = glm::vec3( camera.getViewMatrix() * glm::vec4( vertex, 1 ) );
-
-        if( -vertex.z < camera.getNearPlane() )
+        if( portalBB.min.x + Eps >= portalBB.max.x || portalBB.min.y + Eps >= portalBB.max.y )
         {
-            ++numBehind;
-        }
-        else if( -vertex.z > camera.getFarPlane() )
-        {
-            ++numTooFar;
+            return boost::none;
         }
 
-        // clamp to avoid div-by-near-zero
-        if( vertex.z > -0.001f )
-            vertex.z = -0.001f;
-
-        glm::vec4 projVertex{vertex, 1};
-        projVertex = camera.getProjectionMatrix() * projVertex;
-        projVertex /= projVertex.w;
-
-        if( glm::abs( projVertex.z ) < 1e-4 )
-        {
-            return {
-                    projVertex.x < 0 ? -1 : 1,
-                    projVertex.y < 0 ? -1 : 1,
-                    projVertex.z
-            };
-        }
-
-        if( !glm::isfinite( projVertex.x ) )
-            projVertex.x = projVertex.x < 0 ? -1.0f : 1.0f;
-        if( !glm::isfinite( projVertex.y ) )
-            projVertex.y = projVertex.y < 0 ? -1.0f : 1.0f;
-
-        return {glm::clamp( projVertex.x, -1.0f, 1.0f ), glm::clamp( projVertex.y, -1.0f, 1.0f ), projVertex.z};
+        return portalBB;
     }
 };
 }
