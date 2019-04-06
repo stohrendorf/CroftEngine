@@ -23,18 +23,19 @@ struct PortalTracer
 
     static void trace(const loader::file::Room& startRoom, const engine::Engine& engine)
     {
-        std::set<const loader::file::Room*> seenRooms;
+        std::vector<const loader::file::Room*> seenRooms;
+        seenRooms.reserve( 32 );
         traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms );
     }
 
     static void traceRoom(const loader::file::Room& room, const BoundingBox& roomBBox, const engine::Engine& engine,
-                          std::set<const loader::file::Room*>& seenRooms)
+                          std::vector<const loader::file::Room*>& seenRooms)
     {
-        if( seenRooms.count( &room ) > 0 )
+        if( std::count( seenRooms.rbegin(), seenRooms.rend(), &room ) > 0 )
             return;
+        seenRooms.emplace_back( &room );
 
         room.node->setVisible( true );
-        seenRooms.emplace( &room );
         for( const auto& portal : room.portals )
         {
             if( const auto narrowedBounds = narrowPortal( room, roomBBox, portal, engine.getCameraController() ) )
@@ -42,7 +43,7 @@ struct PortalTracer
                 traceRoom( engine.getRooms().at( portal.adjoining_room.get() ), *narrowedBounds, engine, seenRooms );
             }
         }
-        seenRooms.erase( &room );
+        seenRooms.pop_back();
     }
 
     static boost::optional<BoundingBox> narrowPortal(
