@@ -57,6 +57,10 @@ Window::Window(bool fullscreen, const Dimension2<int>& resolution)
     render::gl::initializeGl();
 
     updateWindowSize();
+
+#ifdef NDEBUG
+    glfwSetInputMode( m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+#endif
 }
 
 void Window::setVsync(const bool enable)
