@@ -1393,7 +1393,6 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
 
     const auto baseName = cutsceneName.empty() ? levelInfo.get<std::string>( "baseName" ) : cutsceneName;
     Expects( !baseName.empty() );
-    sol::optional<TR1TrackId> trackToPlay = levelInfo["track"];
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );
 
     std::map<TR1ItemId, size_t> initInv;
@@ -1456,22 +1455,17 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     for( const auto& item : initInv )
         m_inventory.put( item.first, item.second );
 
-    if( trackToPlay )
-    {
-        m_audioEngine->playStopCdTrack( trackToPlay.value(), false );
-    }
-
     if( !cutsceneName.empty() )
     {
         m_cameraController
                 ->setEyeRotation( 0_deg, core::Angle::fromDegrees( levelInfo.get<float>( "cameraRot" ) ) );
         auto pos = getCameraController().getTRPosition().position;
         if( auto x = levelInfo["cameraPosX"] )
-            pos.X = x;
+            pos.X = core::Length{x.get<core::Length::type>()};
         if( auto y = levelInfo["cameraPosY"] )
-            pos.Y = y;
+            pos.Y = core::Length{y.get<core::Length::type>()};
         if( auto z = levelInfo["cameraPosZ"] )
-            pos.Z = z;
+            pos.Z = core::Length{z.get<core::Length::type>()};
 
         getCameraController().setPosition( pos );
 
@@ -1551,6 +1545,11 @@ void Engine::run()
     auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
 
     const bool isCutscene = !levelInfo.get<std::string>( "cutscene" ).empty();
+
+    if( const sol::optional<TR1TrackId> trackToPlay = levelInfo["track"] )
+    {
+        m_audioEngine->playStopCdTrack( trackToPlay.value(), false );
+    }
 
     while( !m_window->windowShouldClose() )
     {
