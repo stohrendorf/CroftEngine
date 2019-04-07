@@ -30,7 +30,7 @@ local tracks = {
 };
 
 for i = TR1TrackId.LaraTalk0, TR1TrackId.LaraTalk30 do
-    tracks[i] = TrackInfo.new(TR1TrackId.LaraTalk0 + TR1SoundId.LaraTalk0, TrackType.LARA_TALK)
+    tracks[i] = TrackInfo.new(i - TR1TrackId.LaraTalk0 + TR1SoundId.LaraTalk0, TrackType.LARA_TALK)
 end
 
 return tracks

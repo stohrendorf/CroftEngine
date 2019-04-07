@@ -228,16 +228,14 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
 
 std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId id, audio::Emitter* emitter)
 {
-    Expects( id.get() < m_soundmap.size() );
-    const auto snd = m_soundmap[id.get()];
+    const auto snd = m_soundmap.at(id.get());
     if( snd < 0 )
     {
         BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << toString( id.get_as<TR1SoundId>() );
         return nullptr;
     }
 
-    BOOST_ASSERT( snd >= 0 && static_cast<size_t>(snd) < m_soundDetails.size() );
-    const loader::file::SoundDetails& details = m_soundDetails[snd];
+    const loader::file::SoundDetails& details = m_soundDetails.at(snd);
     if( details.chance != 0 && util::rand15() > details.chance )
         return nullptr;
 

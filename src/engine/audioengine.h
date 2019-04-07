@@ -7,6 +7,7 @@
 #include "loader/file/audio.h"
 
 #include <map>
+#include <utility>
 
 namespace engine
 {
@@ -25,13 +26,13 @@ struct AudioEngine
     std::vector<uint32_t> m_sampleIndices;
 
     explicit AudioEngine(Engine& engine,
-                         const std::vector<loader::file::SoundDetails>& soundDetails,
-                         const std::vector<int16_t>& soundmap,
-                         const std::vector<uint32_t>& sampleIndices)
+                         std::vector<loader::file::SoundDetails>  soundDetails,
+                         std::vector<int16_t>  soundmap,
+                         std::vector<uint32_t>  sampleIndices)
             : m_engine{engine}
-            , m_soundDetails{soundDetails}
-            , m_soundmap{soundmap}
-            , m_sampleIndices{sampleIndices}
+            , m_soundDetails{std::move(soundDetails)}
+            , m_soundmap{std::move(soundmap)}
+            , m_sampleIndices{std::move(sampleIndices)}
     {
     }
 
