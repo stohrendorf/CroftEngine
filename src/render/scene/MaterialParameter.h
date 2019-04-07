@@ -95,17 +95,9 @@ public:
 private:
     gl::Program::ActiveUniform* getUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
-    enum LOGGER_DIRTYBITS
-    {
-        UNIFORM_NOT_FOUND = 0x01,
-        PARAMETER_VALUE_NOT_SET = 0x02
-    };
-
     const std::string m_name;
 
     boost::optional<std::function<UniformValueSetter>> m_valueSetter;
-
-    uint8_t m_loggerDirtyBits = 0;
 };
 }
 }
