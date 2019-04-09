@@ -164,14 +164,6 @@ struct Animation
     const Animation* nextAnimation = nullptr;
     gsl::span<const Transitions> transitions{};
 
-    constexpr size_t getKeyframeCount() const
-    {
-        if( segmentLength > 1_frame )
-            return (getFrameCount() + segmentLength - 1_frame) / segmentLength + 1;
-        else
-            return (getFrameCount() + segmentLength - 1_frame) / segmentLength;
-    }
-
     constexpr core::Frame getFrameCount() const
     {
         return lastFrame - firstFrame + 1_frame;

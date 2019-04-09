@@ -41,65 +41,41 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
     InterpolationInfo result;
 
     Expects( state.anim != nullptr );
-    BOOST_ASSERT( state.anim->segmentLength > 0_frame );
+    Expects( state.anim->segmentLength > 0_frame );
 
-    if( state.anim->firstFrame == state.anim->lastFrame )
-    {
-        // single-frame animation
-        result.firstFrame = state.anim->frames;
-        result.secondFrame = state.anim->frames;
-
-        BOOST_ASSERT( m_engine->isValid(result.firstFrame) );
-        BOOST_ASSERT( m_engine->isValid(result.secondFrame) );
-        return result;
-    }
-
-    //BOOST_ASSERT( m_time >= startTime && m_time < endTime );
     Expects( state.frame_number >= state.anim->firstFrame && state.frame_number <= state.anim->lastFrame );
     const auto firstKeyframeIndex = (state.frame_number - state.anim->firstFrame) / state.anim->segmentLength;
-    Expects( firstKeyframeIndex >= 0 && firstKeyframeIndex < state.anim->getKeyframeCount() );
 
     result.firstFrame = state.anim->frames->next( firstKeyframeIndex );
+    Expects( m_engine->isValid( result.firstFrame ) );
 
-    if( firstKeyframeIndex == state.anim->getKeyframeCount() - 1u )
+    if( state.frame_number >= state.anim->lastFrame )
     {
-        // last keyframe
         result.secondFrame = result.firstFrame;
-        result.bias = 0;
-        BOOST_ASSERT( m_engine->isValid(result.firstFrame) );
-        BOOST_ASSERT( m_engine->isValid(result.secondFrame) );
         return result;
     }
 
     result.secondFrame = result.firstFrame->next();
+    Expects( m_engine->isValid( result.secondFrame ) );
 
     auto segmentDuration = state.anim->segmentLength;
-    const auto segmentFrame = (state.frame_number - state.anim->firstFrame) % segmentDuration;
-
-    if( segmentFrame == 0_frame )
+    if( (firstKeyframeIndex + 1) * state.anim->segmentLength >= state.anim->getFrameCount() )
     {
-        result.bias = 0;
-        BOOST_ASSERT( m_engine->isValid(result.firstFrame) );
-        BOOST_ASSERT( m_engine->isValid(result.secondFrame) );
-        return result;
-    }
-
-    // If we are interpolating the last two keyframes, the real animation may be shorter
-    // than the position of the last keyframe.  E.g., with a stretch factor of 10 and a length of 12,
-    // the last segment would only be 3 frames long.  Frame #1 is interpolated with a bias of 0.1, but
-    // frame 11 (#1 in segment) must be interpolated with a bias of 0.5 to compensate the shorter segment length.
-    if( firstKeyframeIndex == state.anim->getKeyframeCount() - 2u )
-    {
+        // second keyframe beyond end
         const auto tmp = state.anim->getFrameCount() % state.anim->segmentLength;
-        if(tmp != 0_frame)
+        if( tmp != 0_frame )
             segmentDuration = tmp + 1_frame;
     }
 
+    const auto segmentFrame = (state.frame_number - state.anim->firstFrame) % segmentDuration;
     result.bias = segmentFrame.retype_as<float>() / segmentDuration.retype_as<float>();
     BOOST_ASSERT( result.bias >= 0 && result.bias <= 1 );
 
-    BOOST_ASSERT( m_engine->isValid(result.firstFrame) );
-    BOOST_ASSERT( m_engine->isValid(result.secondFrame) );
+    if( segmentFrame == 0_frame )
+    {
+        return result;
+    }
+
     return result;
 }
 
