@@ -2,7 +2,7 @@
 
 #include "util/cimgwrapper.h"
 
-namespace render
+namespace ui
 {
 
 namespace

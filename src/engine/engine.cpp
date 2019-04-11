@@ -50,10 +50,11 @@
 
 #include "audio/tracktype.h"
 #include "render/textureanimator.h"
-
 #include "render/gl/font.h"
 #include "render/fullscreenfx.h"
-#include "render/label.h"
+
+#include "ui/label.h"
+
 #include "loader/trx/trx.h"
 
 #include <boost/range/adaptor/map.hpp>
@@ -1540,7 +1541,7 @@ void Engine::run()
     font->setTarget( screenOverlay->getImage() );
 
     const auto& trFontGraphics = m_level->m_spriteSequences.at( TR1ItemId::FontGraphics );
-    auto trFont = render::CachedFont( *trFontGraphics );
+    auto trFont = ui::CachedFont( *trFontGraphics );
 
     auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
 
@@ -1557,9 +1558,9 @@ void Engine::run()
 
         if( !levelName.empty() )
         {
-            render::Label tmp{0, -50, levelName};
-            tmp.alignX = render::Label::Alignment::Center;
-            tmp.alignY = render::Label::Alignment::Bottom;
+            ui::Label tmp{0, -50, levelName};
+            tmp.alignX = ui::Label::Alignment::Center;
+            tmp.alignY = ui::Label::Alignment::Bottom;
             tmp.outline = true;
             tmp.addBackground( 0, 0, 0, 0 );
             tmp.draw( trFont, *screenOverlay->getImage(), *m_level->m_palette );

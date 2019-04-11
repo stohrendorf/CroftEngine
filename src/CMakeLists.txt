@@ -202,7 +202,6 @@ set( EDISONENGINE_SRCS
 
      engine/ai/ai.cpp
 
-     render/label.cpp
      render/textureanimator.cpp
 
      render/gl/glassert.h
@@ -239,6 +238,8 @@ set( EDISONENGINE_SRCS
      render/scene/Sprite.cpp
      render/scene/Visitor.cpp
      render/scene/window.cpp
+
+     ui/label.cpp
      )
 
 if( MSVC )
