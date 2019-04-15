@@ -113,7 +113,7 @@ void Pierre::update()
                 break;
             case 3:
                 m_state.creatureInfo->maximum_turn = 6_deg;
-                tiltRot = creatureTurn / 2;
+                tiltRot = creatureTurn / core::Angle::type{2};
                 if( m_state.creatureInfo->mood != ai::Mood::Bored || util::rand15() >= 96 )
                 {
                     if( canShootAtLara( aiInfo ) )

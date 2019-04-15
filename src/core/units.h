@@ -51,7 +51,6 @@ inline auto sqrt(QS_COMBINE_UNITS( Acceleration, *, Length ) value)
 {
     return Speed{static_cast<Speed::type>( std::sqrt( value.get() ) )};
 }
-
 }
 
 using core::operator ""_frame;

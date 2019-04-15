@@ -43,7 +43,7 @@ inline T rand15(T max)
 }
 
 template<typename T, typename U>
-inline T rand15(T max, const U&)
+inline auto rand15(qs::quantity<T, U> max)
 {
     return max * U( rand15() ) / U( 1 << 15 );
 }
@@ -54,7 +54,7 @@ inline int16_t rand15s()
 }
 
 template<typename T, typename U>
-inline T rand15s(T max, const U& = int16_t{})
+inline auto rand15s(qs::quantity<T, U> max)
 {
     return max * U( rand15s() ) / U( 1 << 15 );
 }
@@ -88,12 +88,12 @@ inline glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
 
 inline core::Length sin(const core::Length len, const core::Angle rot)
 {
-    return (len.retype_as<float>() * rot.sin()).retype_as<core::Length>();
+    return (len.retype_as<float>() * sin(rot)).retype_as<core::Length>();
 }
 
 inline core::Length cos(const core::Length len, const core::Angle rot)
 {
-    return (len.retype_as<float>() * rot.cos()).retype_as<core::Length>();
+    return (len.retype_as<float>() * cos(rot)).retype_as<core::Length>();
 }
 
 inline core::TRVec pitch(const core::Length len, const core::Angle rot)
@@ -117,8 +117,8 @@ inline core::TRVec yawPitch(const core::Length len, const core::TRRotation rot)
 
 inline core::TRVec pitch(const core::TRVec vec, const core::Angle rot)
 {
-    const auto sin = rot.sin();
-    const auto cos = rot.cos();
+    const auto sin = core::sin(rot);
+    const auto cos = core::cos(rot);
     return core::TRVec{
             (vec.Z.retype_as<float>() * sin + vec.X.retype_as<float>() * cos).retype_as<core::Length>(),
             vec.Y,

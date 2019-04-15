@@ -235,7 +235,7 @@ bool LotInfo::calculateTarget(const Engine& engine, core::TRVec& target, const i
     if( unclampedDirs & (NoClampZPos | NoClampZNeg) )
     {
         const auto center = box->zmax - box->zmin - core::SectorSize;
-        target.Z = util::rand15( center, core::Length::type() ) + box->zmin + core::SectorSize / 2;
+        target.Z = util::rand15( center ) + box->zmin + core::SectorSize / 2;
     }
     else if( !(unclampedDirs & Flag10) )
     {
@@ -246,7 +246,7 @@ bool LotInfo::calculateTarget(const Engine& engine, core::TRVec& target, const i
     if( unclampedDirs & (NoClampXPos | NoClampXNeg) )
     {
         const auto center = box->xmax - box->xmin - core::SectorSize;
-        target.X = util::rand15( center, core::Length::type() ) + box->xmin + core::SectorSize / 2;
+        target.X = util::rand15( center ) + box->xmin + core::SectorSize / 2;
     }
     else if( !(unclampedDirs & Flag10) )
     {
@@ -534,7 +534,7 @@ AiInfo::AiInfo(Engine& engine, items::ItemState& item)
     const core::Length pivotLength{static_cast<core::Length::type>(objectInfo.pivot_length)};
     const auto d = engine.getLara().m_state.position.position
                    - (item.position.position + util::pitch( pivotLength, item.rotation.Y ));
-    const auto pivotAngle = core::Angle::fromAtan( d.X, d.Z );
+    const auto pivotAngle = angleFromAtan( d.X, d.Z );
     distance = util::square( d.X ) + util::square( d.Z );
     angle = pivotAngle - item.rotation.Y;
     enemy_facing = pivotAngle - 180_deg - engine.getLara().m_state.rotation.Y;
@@ -591,9 +591,9 @@ CreatureInfo::CreatureInfo(const Engine& engine, const core::TypeId type)
 YAML::Node CreatureInfo::save(const Engine& engine) const
 {
     YAML::Node node;
-    node["headRot"] = head_rotation.toDegrees();
-    node["neckRot"] = neck_rotation.toDegrees();
-    node["maxTurn"] = maximum_turn.toDegrees();
+    node["headRot"] = head_rotation;
+    node["neckRot"] = neck_rotation;
+    node["maxTurn"] = maximum_turn;
     node["flags"] = flags;
     node["mood"] = toString( mood );
     node["lot"] = lot.save( engine );
@@ -603,9 +603,9 @@ YAML::Node CreatureInfo::save(const Engine& engine) const
 
 void CreatureInfo::load(const YAML::Node& n, const Engine& engine)
 {
-    head_rotation = core::Angle::fromDegrees( n["headRot"].as<float>() );
-    neck_rotation = core::Angle::fromDegrees( n["neckRot"].as<float>() );
-    maximum_turn = core::Angle::fromDegrees( n["maxTurn"].as<float>() );
+    head_rotation = n["headRot"].as<core::Angle>();
+    neck_rotation = n["neckRot"].as<core::Angle>();
+    maximum_turn = n["maxTurn"].as<core::Angle>();
     flags = n["flags"].as<uint16_t>();
     mood = parseMood( n["mood"].as<std::string>() );
     lot.load( n["lot"], engine );

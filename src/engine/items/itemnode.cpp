@@ -504,7 +504,7 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
         const auto midX = (keyFrame->bbox.toBBox().minX + keyFrame->bbox.toBBox().maxX) / 2;
         const auto midZ = (keyFrame->bbox.toBBox().minZ + keyFrame->bbox.toBBox().maxZ) / 2;
         const auto tmp = laraPosWorld - util::pitch( core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y );
-        const auto a = core::Angle::fromAtan( tmp.X, tmp.Z ) - 180_deg;
+        const auto a = angleFromAtan( tmp.X, tmp.Z ) - 180_deg;
         getEngine().getLara().hit_direction = core::axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
         if( getEngine().getLara().hit_frame == 0_frame )
         {
@@ -520,7 +520,7 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
     collisionInfo.badNegativeDistance = -384_len;
     collisionInfo.badCeilingDistance = 0_len;
     const auto facingAngle = collisionInfo.facingAngle;
-    collisionInfo.facingAngle = core::Angle::fromAtan(
+    collisionInfo.facingAngle = angleFromAtan(
             lara.m_state.position.position.X - collisionInfo.oldPosition.X,
             lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
     collisionInfo.initHeightInfo( lara.m_state.position.position, getEngine(), core::LaraWalkHeight );

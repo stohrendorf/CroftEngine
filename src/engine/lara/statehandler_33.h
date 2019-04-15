@@ -30,15 +30,15 @@ public:
         {
             getEngine().getCameraController().setMode( CameraMode::FreeLook );
             getLara().addHeadRotationXY(
-                    -FreeLookMouseMovementScale * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000),
+                    (-FreeLookMouseMovementScale.retype_as<float>() * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000)).retype_as<core::Angle>(),
                     -40_deg, 40_deg,
-                    FreeLookMouseMovementScale * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000),
+                    (FreeLookMouseMovementScale.retype_as<float>() * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000)).retype_as<core::Angle>(),
                     -50_deg, 50_deg
             );
 
             auto torsoRot = getLara().getTorsoRotation();
             torsoRot.X = 0_deg;
-            torsoRot.Y = getLara().getHeadRotation().Y / 2;
+            torsoRot.Y = getLara().getHeadRotation().Y / core::Angle::type{2};
 
             getLara().setTorsoRotation( torsoRot );
 

@@ -38,9 +38,9 @@ public:
         {
             getEngine().getCameraController().setMode( CameraMode::FreeLook );
             getLara().addHeadRotationXY(
-                    -FreeLookMouseMovementScale * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000),
+                    (-FreeLookMouseMovementScale.retype_as<float>() * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000)).retype_as<core::Angle>(),
                     -42_deg, 22_deg,
-                    FreeLookMouseMovementScale * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000),
+                    (FreeLookMouseMovementScale.retype_as<float>() * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000)).retype_as<core::Angle>(),
                     -44_deg, 44_deg
             );
             getLara().setTorsoRotation( getLara().getHeadRotation() );

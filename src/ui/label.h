@@ -97,12 +97,12 @@ struct Label
 {
     enum class Alignment
     {
-        None, Center, Right, Bottom = Right
+        None, Top = None, Left = None, Center, Right, Bottom = Right
     };
 
     bool blink = false;
-    Alignment alignX = Alignment::None;
-    Alignment alignY = Alignment::None;
+    Alignment alignX = Alignment::Left;
+    Alignment alignY = Alignment::Top;
     bool fillBackground = false;
     bool outline = false;
     int16_t posX = 0;

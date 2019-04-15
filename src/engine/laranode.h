@@ -36,11 +36,11 @@ class LaraNode final : public items::ModelItemNode
 
 private:
     //! @brief Additional rotation per TR Engine Frame
-    core::Angle m_yRotationSpeed{0};
+    core::Angle m_yRotationSpeed{0_deg};
     core::Speed m_fallSpeedOverride = 0_spd;
-    core::Angle m_movementAngle{0};
+    core::Angle m_movementAngle{0_deg};
     core::Frame m_air{core::LaraAir};
-    core::Angle m_currentSlideAngle{0};
+    core::Angle m_currentSlideAngle{0_deg};
 
     HandStatus m_handStatus = HandStatus::None;
 
@@ -401,7 +401,7 @@ public:
 
     void updateExplosionStumbling()
     {
-        const auto rot = core::Angle::fromAtan(
+        const auto rot = angleFromAtan(
                 forceSourcePosition->X - m_state.position.position.X,
                 forceSourcePosition->Z - m_state.position.position.Z ) - 180_deg;
         hit_direction = axisFromAngle( m_state.rotation.Y - rot, 45_deg );

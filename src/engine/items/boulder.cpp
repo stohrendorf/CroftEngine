@@ -107,14 +107,14 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
         lara.setGoalAnimState( LaraStateId::BoulderDeath );
         for( int i = 0; i < 15; ++i )
         {
-            const auto x = util::rand15s( 128_len, core::Length::type() ) + lara.m_state.position.position.X;
-            const auto y = lara.m_state.position.position.Y - util::rand15s( 512_len, core::Length::type() );
-            const auto z = util::rand15s( 128_len, core::Length::type() ) + lara.m_state.position.position.Z;
+            const auto x = util::rand15s( 128_len ) + lara.m_state.position.position.X;
+            const auto y = lara.m_state.position.position.Y - util::rand15s( 512_len );
+            const auto z = util::rand15s( 128_len ) + lara.m_state.position.position.Z;
             auto fx = createBloodSplat(
                     getEngine(),
                     core::RoomBoundPosition{m_state.position.room, core::TRVec{x, y, z}},
                     2 * m_state.speed,
-                    core::Angle( gsl::narrow_cast<int16_t>( util::rand15s( 4096 ) ) ) + m_state.rotation.Y
+                    util::rand15s( 22.5_deg ) + m_state.rotation.Y
             );
             getEngine().getParticles().emplace_back( fx );
         }

@@ -437,15 +437,15 @@ void CameraController::update()
         const auto distToFocused = m_item->m_state.position.position
                                          .distanceTo( focusedItem->m_state.position.position );
         auto eyeRotY =
-                core::Angle::fromAtan( m_item->m_state.position.position.X - focusedItem->m_state.position.position.X,
+                angleFromAtan( m_item->m_state.position.position.X - focusedItem->m_state.position.position.X,
                                        m_item->m_state.position.position.Z - focusedItem->m_state.position.position.Z )
                 - focusedItem->m_state.rotation.Y;
-        eyeRotY *= 0.5f;
+        eyeRotY /= core::Angle::type{2};
         focusBBox = m_item->getBoundingBox();
-        auto eyeRotX = core::Angle::fromAtan( distToFocused,
+        auto eyeRotX = angleFromAtan( distToFocused,
                                               focusY - (focusBBox.minY + focusBBox.maxY) / 2
                                               + m_item->m_state.position.position.Y );
-        eyeRotX *= 0.5f;
+        eyeRotX /= core::Angle::type{2};
 
         if( eyeRotY < 50_deg && eyeRotY > -50_deg && eyeRotX < 85_deg && eyeRotX > -85_deg )
         {
@@ -630,9 +630,9 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     if( m_bounce < 0_len )
     {
         const core::TRVec tmp{
-                util::rand15s( m_bounce, core::Length::type() ),
-                util::rand15s( m_bounce, core::Length::type() ),
-                util::rand15s( m_bounce, core::Length::type() )
+                util::rand15s( m_bounce ),
+                util::rand15s( m_bounce ),
+                util::rand15s( m_bounce )
         };
         m_eye.position += tmp;
         m_center.position += tmp;
@@ -1050,9 +1050,9 @@ void CameraController::updateCinematic(const loader::file::CinematicFrame& frame
         m_cinematicPos += util::pitch( frame.eye, m_cinematicRot.Y );
 
         auto m = lookAt( m_cinematicPos.toRenderSystem(), m_center.position.toRenderSystem(), {0, 1, 0} );
-        m = rotate( m, frame.rotZ.toRad(), -glm::vec3{m[2]} );
+        m = rotate( m, toRad(frame.rotZ), -glm::vec3{m[2]} );
         m_camera->setViewMatrix( m );
-        m_camera->setFieldOfView( frame.fov.toRad() );
+        m_camera->setFieldOfView( toRad(frame.fov) );
         findRealFloorSector( m_eye.position, &m_eye.room );
     }
     else
@@ -1061,9 +1061,9 @@ void CameraController::updateCinematic(const loader::file::CinematicFrame& frame
         core::TRVec eye = m_eye.position + util::pitch( frame.eye, m_eyeRotation.Y );
 
         auto m = lookAt( eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0} );
-        m = rotate( m, frame.rotZ.toRad(), -glm::vec3{m[2]} );
+        m = rotate( m, toRad(frame.rotZ), -glm::vec3{m[2]} );
         m_camera->setViewMatrix( m );
-        m_camera->setFieldOfView( frame.fov.toRad() );
+        m_camera->setFieldOfView( toRad(frame.fov) );
     }
 }
 

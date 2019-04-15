@@ -74,8 +74,6 @@ sol::state createScriptEngine()
     engine["package"]["path"] = (boost::filesystem::path( "scripts" ) / "?.lua").string();
     engine["package"]["cpath"] = "";
 
-    engine.set_usertype( core::Angle::userType() );
-    engine.set_usertype( core::TRRotation::userType() );
     engine.set_usertype( core::TRVec::userType() );
     engine.set_usertype( ai::CreatureInfo::userType() );
     engine.set_usertype( script::ObjectInfo::userType() );
@@ -1251,7 +1249,7 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
         drawText( font, 10, 40, m_lara->m_state.position.room->node->getId() );
 
         drawText( font, 300, 20,
-                  std::to_string( std::lround( m_lara->m_state.rotation.Y.toDegrees() ) ) + " deg" );
+                  std::to_string( std::lround( toDegrees(m_lara->m_state.rotation.Y) ) ) + " deg" );
         drawText( font, 300, 40, "x=" + m_lara->m_state.position.position.X.toString() );
         drawText( font, 300, 60, "y=" + m_lara->m_state.position.position.Y.toString() );
         drawText( font, 300, 80, "z=" + m_lara->m_state.position.position.Z.toString() );
@@ -1332,12 +1330,12 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
     // weapons
     drawText( font, 400, 280, std::string( "L.aiming    " ) + (m_lara->leftArm.aiming ? "true" : "false") );
     drawText( font, 400, 300,
-              std::string( "L.aim       X=" ) + std::to_string( m_lara->leftArm.aimRotation.X.toDegrees() )
-              + ", Y=" + std::to_string( m_lara->leftArm.aimRotation.Y.toDegrees() ) );
+              std::string( "L.aim       X=" ) + std::to_string( toDegrees(m_lara->leftArm.aimRotation.X) )
+              + ", Y=" + std::to_string( toDegrees(m_lara->leftArm.aimRotation.Y) ) );
     drawText( font, 400, 320, std::string( "R.aiming    " ) + (m_lara->rightArm.aiming ? "true" : "false") );
     drawText( font, 400, 340,
-              std::string( "R.aim       X=" ) + std::to_string( m_lara->rightArm.aimRotation.X.toDegrees() )
-              + ", Y=" + std::to_string( m_lara->rightArm.aimRotation.Y.toDegrees() ) );
+              std::string( "R.aim       X=" ) + std::to_string( toDegrees(m_lara->rightArm.aimRotation.X) )
+              + ", Y=" + std::to_string( toDegrees(m_lara->rightArm.aimRotation.Y) ) );
 }
 
 void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, const int x, const int y,
@@ -1459,7 +1457,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     if( !cutsceneName.empty() )
     {
         m_cameraController
-                ->setEyeRotation( 0_deg, core::Angle::fromDegrees( levelInfo.get<float>( "cameraRot" ) ) );
+                ->setEyeRotation( 0_deg, core::angleFromDegrees( levelInfo.get<float>( "cameraRot" ) ) );
         auto pos = getCameraController().getTRPosition().position;
         if( auto x = levelInfo["cameraPosX"] )
             pos.X = core::Length{x.get<core::Length::type>()};

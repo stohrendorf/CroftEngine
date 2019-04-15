@@ -19,14 +19,14 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
 
     const auto dx = m_state.creatureInfo->target.X - m_state.position.position.X;
     const auto dz = m_state.creatureInfo->target.Z - m_state.position.position.Z;
-    auto turnAngle = core::Angle::fromAtan( dx, dz ) - m_state.rotation.Y;
+    auto turnAngle = angleFromAtan( dx, dz ) - m_state.rotation.Y;
     if( turnAngle < -90_deg || turnAngle > 90_deg )
     {
         // the target is behind the current item, so we need a U-turn
-        const auto relativeSpeed = core::Speed{m_state.speed.get() * (+90_deg).toAU() / maxRotationSpeed.toAU()};
+        const auto relativeSpeed = m_state.speed * (90_deg).retype_as<core::Speed::type>() / maxRotationSpeed.retype_as<core::Speed::type>();
         if( util::square( dx ) + util::square( dz ) < util::square( relativeSpeed * 1_frame ) )
         {
-            maxRotationSpeed /= 2;
+            maxRotationSpeed /= core::Angle::type{2};
         }
     }
 
@@ -305,7 +305,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         m_state.rotation.Y += angle;
         m_state.rotation.Z += util::clamp(
-                core::Angle{gsl::narrow<int16_t>( 8 * tilt.toAU() )} - m_state.rotation.Z,
+                core::Angle::type{8} * tilt - m_state.rotation.Z,
                 -3_deg, +3_deg );
     }
 
@@ -382,9 +382,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
                                                },
                                                getEngine().getItemNodes() ).y;
 
-        core::Angle yaw{0};
+        core::Angle yaw{0_deg};
         if( m_state.speed != 0_spd )
-            yaw = core::Angle::fromAtan( -moveY, m_state.speed * 1_frame );
+            yaw = angleFromAtan( -moveY, m_state.speed * 1_frame );
 
         if( yaw < m_state.rotation.X - 1_deg )
             m_state.rotation.X -= 1_deg;
@@ -430,7 +430,7 @@ AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
                 .call<script::ObjectInfo>( m_state.type.get() ).radius)}
 {
     m_state.collidable = true;
-    const core::Angle v = core::Angle( util::rand15() * 2 );
+    const core::Angle v = util::rand15(360_deg);
     m_state.rotation.Y += v;
     m_state.health = core::Health{static_cast<core::Health::type>(engine->getScriptEngine()["getObjectInfo"]
             .call<script::ObjectInfo>( m_state.type.get() ).hit_points)};
@@ -503,9 +503,9 @@ bool AIAgent::tryShootAtLara(items::ModelItemNode& item,
     if( !isHit )
     {
         auto pos = getEngine().getLara().m_state.position;
-        pos.position.X += util::rand15s( core::SectorSize / 2, core::Length::type() );
+        pos.position.X += util::rand15s( core::SectorSize / 2 );
         pos.position.Y = getEngine().getLara().m_state.floor;
-        pos.position.Z += util::rand15s( core::SectorSize / 2, core::Length::type() );
+        pos.position.Z += util::rand15s( core::SectorSize / 2 );
         getEngine().getLara().playShotMissed( pos );
     }
 

@@ -114,13 +114,13 @@ public:
     {
         if( !waterfall )
         {
-            speed = util::rand15( 128_spd, core::Speed::type() );
-            angle.Y = core::Angle( 2 * util::rand15s() );
+            speed = util::rand15( 128_spd );
+            angle.Y = core::Angle( core::Angle::type(2 * util::rand15s()) );
         }
         else
         {
-            this->pos.position.X += util::rand15s( core::SectorSize, core::Length::type() );
-            this->pos.position.Z += util::rand15s( core::SectorSize, core::Length::type() );
+            this->pos.position.X += util::rand15s( core::SectorSize );
+            this->pos.position.Z += util::rand15s( core::SectorSize );
         }
     }
 
@@ -163,7 +163,7 @@ public:
                             Engine& engine)
             : Particle{"bubble", TR1ItemId::Bubbles, pos, engine, 0.7f}
     {
-        speed = 10_spd + util::rand15( 6_spd, core::Speed::type() );
+        speed = 10_spd + util::rand15( 6_spd );
 
         const int n = util::rand15( 3 );
         for( int i = 0; i < n; ++i )

@@ -19,7 +19,7 @@ void Mummy::update()
 {
     if( m_state.current_anim_state == 1_as )
     {
-        auto head = core::Angle::fromAtan(
+        auto head = angleFromAtan(
                 getEngine().getLara().m_state.position.position.X - m_state.position.position.X,
                 getEngine().getLara().m_state.position.position.Z - m_state.position.position.Z );
         head = util::clamp( head - m_state.rotation.Y, -90_deg, +90_deg );

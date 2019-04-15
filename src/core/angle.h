@@ -13,251 +13,56 @@
 
 namespace core
 {
-namespace detail
+QS_DECLARE_QUANTITY( Angle, int16_t, "au" );
+
+QS_LITERAL_OP_ULL( Angle, _au )
+
+inline Angle operator "" _deg(const unsigned long long value) noexcept;
+inline Angle operator "" _deg(const long double value) noexcept;
+
+inline Angle angleFromRad(const float r)
 {
-struct UnsignedRawAngle;
-}
-}
-
-inline core::detail::UnsignedRawAngle operator "" _au(unsigned long long value) noexcept;
-
-inline core::detail::UnsignedRawAngle operator "" _deg(unsigned long long value) noexcept;
-
-inline core::detail::UnsignedRawAngle operator "" _deg(long double value) noexcept;
-
-namespace core
-{
-namespace detail
-{
-struct UnsignedRawAngle;
+    return Angle{gsl::narrow_cast<Angle::type>( r / 2 / glm::pi<float>() * 65536 )};
 }
 
-class Angle final
+inline Angle angleFromAtan(const float dx, const float dz)
 {
-    friend struct detail::UnsignedRawAngle;
-
-    int32_t m_value = 0;
-
-    static const int32_t Scale = 1 << 16;
-
-    struct RawTag
-    {
-    };
-
-    constexpr explicit Angle(const int32_t val, const RawTag&) noexcept
-            : m_value{val}
-    {
-    }
-
-public:
-    constexpr Angle() noexcept = default;
-
-    explicit Angle(const int16_t value) noexcept
-            : m_value{gsl::narrow_cast<int32_t>( value * Scale )}
-    {
-    }
-
-    constexpr Angle(const Angle&) = default;
-
-    constexpr Angle(Angle&&) = default;
-
-    Angle& operator=(const Angle&) = default;
-
-    Angle& operator=(Angle&&) = default;
-
-    ~Angle() noexcept = default;
-
-    static Angle fromRad(const float r)
-    {
-        return Angle{gsl::narrow_cast<int32_t>( r / 2 / glm::pi<float>() * 65536 * Scale ), RawTag()};
-    }
-
-    static Angle fromAtan(const float dx, const float dz)
-    {
-        return fromRad( std::atan2( dx, dz ) );
-    }
-
-    static Angle fromAtan(const core::Length dx, const core::Length dz)
-    {
-        return fromRad( std::atan2( dx.get_as<float>(), dz.get_as<float>() ) );
-    }
-
-    static Angle fromDegrees(const float value)
-    {
-        return Angle{gsl::narrow_cast<int32_t>( std::lround( value / 360 * 65536 * Scale ) ), RawTag()};
-    }
-
-    constexpr float toDegrees() const noexcept
-    {
-        return m_value * 360.0f / Scale / 65536;
-    }
-
-    float toRad() const noexcept
-    {
-        return m_value * glm::pi<float>() * 2 / Scale / 65536;
-    }
-
-    float sin() const noexcept
-    {
-        return glm::sin( toRad() );
-    }
-
-    float cos() const noexcept
-    {
-        return glm::cos( toRad() );
-    }
-
-    constexpr int16_t toAU() const noexcept
-    {
-        return static_cast<int16_t>(m_value / Scale);
-    }
-
-    Angle operator-(const Angle& rhs) const noexcept
-    {
-        return Angle{gsl::narrow_cast<int32_t>( m_value - rhs.m_value ), RawTag()};
-    }
-
-    Angle& operator-=(const Angle& rhs) noexcept
-    {
-        m_value -= rhs.m_value;
-        return *this;
-    }
-
-    Angle operator+(const Angle& rhs) const noexcept
-    {
-        return Angle{gsl::narrow_cast<int32_t>( m_value + rhs.m_value ), RawTag()};
-    }
-
-    Angle& operator+=(const Angle& rhs) noexcept
-    {
-        m_value += rhs.m_value;
-        return *this;
-    }
-
-    Angle operator*(const float value) const
-    {
-        return Angle{gsl::narrow_cast<int32_t>( std::lround( m_value * value ) ), RawTag()};
-    }
-
-    Angle& operator*=(const float value)
-    {
-        m_value = gsl::narrow_cast<int32_t>( m_value * value );
-        return *this;
-    }
-
-    Angle operator/(const float value) const
-    {
-        return Angle{gsl::narrow_cast<int32_t>( std::lround( m_value / value ) ), RawTag()};
-    }
-
-    Angle& operator/=(const float value)
-    {
-        m_value = gsl::narrow_cast<int32_t>( m_value / value );
-        return *this;
-    }
-
-    Angle operator-() const
-    {
-        return Angle{-m_value, RawTag()};
-    }
-
-    constexpr bool operator==(const Angle& rhs) const noexcept
-    {
-        return m_value == rhs.m_value;
-    }
-
-    constexpr bool operator<(const Angle& rhs) const noexcept
-    {
-        return m_value < rhs.m_value;
-    }
-
-    Angle abs() const noexcept
-    {
-        return Angle{glm::abs( m_value ), RawTag{}};
-    }
-
-    static sol::usertype<Angle>& userType()
-    {
-        static sol::usertype<Angle> userType(
-                sol::meta_function::construct, sol::no_constructor,
-                "sin", &Angle::sin,
-                "cos", &Angle::cos,
-                "abs", &Angle::abs,
-                "get_au", &Angle::toAU
-        );
-
-        return userType;
-    }
-};
-
-
-constexpr bool operator>(const Angle& a, const Angle& b) noexcept
-{
-    return b < a;
+    return angleFromRad( std::atan2( dx, dz ) );
 }
 
-constexpr bool operator<=(const Angle& a, const Angle& b) noexcept
+inline Angle angleFromDegrees(const float value)
 {
-    return a == b || a < b;
+    return Angle{gsl::narrow_cast<Angle::type>( std::lround( value / 360 * 65536 ) )};
 }
 
-constexpr bool operator>=(const Angle& a, const Angle& b) noexcept
+inline Angle angleFromAtan(const core::Length dx, const core::Length dz)
 {
-    return a == b || a > b;
+    return angleFromRad( std::atan2( dx.get_as<float>(), dz.get_as<float>() ) );
 }
 
-constexpr bool operator!=(const Angle& a, const Angle& b) noexcept
+constexpr float toDegrees(const Angle& a) noexcept
 {
-    return !(a == b);
+    return a.get_as<float>() * 360 / 65536;
 }
 
-namespace detail
+inline float toRad(const Angle& a) noexcept
 {
-/**
- * @brief A simple helper to provide negation of unsigned values created by operator""_au
- */
-struct UnsignedRawAngle final
+    return a.get_as<float>() * glm::pi<float>() * 2 / 65536;
+}
+
+inline float sin(const Angle& a) noexcept
 {
-    const uint32_t value{};
+    return glm::sin( toRad( a ) );
+}
 
-    explicit UnsignedRawAngle(const unsigned long long value)
-            : value{gsl::narrow<uint32_t>( value * Angle::Scale )}
-    {
-        Expects( value <= 32768U * Angle::Scale );
-    }
+inline float cos(const Angle& a) noexcept
+{
+    return glm::cos( toRad( a ) );
+}
 
-    explicit UnsignedRawAngle(const long double value)
-            : value{gsl::narrow<uint32_t>( std::lround( value * Angle::Scale ) )}
-    {
-        Expects( value <= 32768U * Angle::Scale );
-    }
-
-    Angle operator-() const
-    {
-        return Angle{-gsl::narrow_cast<int32_t>( value ), Angle::RawTag()};
-    }
-
-    Angle operator+() const
-    {
-        return static_cast<Angle>(*this);
-    }
-
-    Angle operator-(const Angle& rhs) const
-    {
-        return static_cast<Angle>(*this) - rhs;
-    }
-
-    Angle operator+(const Angle& rhs) const
-    {
-        return static_cast<Angle>(*this) + rhs;
-    }
-
-    // ReSharper disable once CppNonExplicitConversionOperator
-    operator Angle() const
-    {
-        return Angle{gsl::narrow_cast<int32_t>( value ), Angle::RawTag()};
-    }
-};
+inline Angle abs(const Angle& a)
+{
+    return Angle{glm::abs( a.get() )};
 }
 
 enum class Axis
@@ -267,10 +72,7 @@ enum class Axis
     NegZ,
     NegX
 };
-}
 
-namespace core
-{
 inline boost::optional<Axis> axisFromAngle(const Angle& angle, const Angle& margin)
 {
     Expects( margin >= 0_deg && margin <= 45_deg );
@@ -334,18 +136,18 @@ public:
     glm::vec3 toDegrees() const
     {
         return {
-                X.toDegrees(),
-                Y.toDegrees(),
-                Z.toDegrees()
+                core::toDegrees( X ),
+                core::toDegrees( Y ),
+                core::toDegrees( Z )
         };
     }
 
     glm::vec3 toRenderSystem() const
     {
         return {
-                X.toRad(),
-                -Y.toRad(),
-                -Z.toRad()
+                toRad( X ),
+                -toRad( Y ),
+                -toRad( Z )
         };
     }
 
@@ -356,7 +158,7 @@ public:
 
     glm::mat4 toMatrix() const
     {
-        return glm::yawPitchRoll( -Y.toRad(), X.toRad(), -Z.toRad() );
+        return glm::yawPitchRoll( -toRad( Y ), toRad( X ), -toRad( Z ) );
     }
 
     TRRotation operator-() const
@@ -364,25 +166,13 @@ public:
         return TRRotation{-X, -Y, -Z};
     }
 
-    static sol::usertype<TRRotation>& userType()
-    {
-        static sol::usertype<TRRotation> userType(
-                sol::meta_function::construct, sol::no_constructor,
-                "x", &TRRotation::X,
-                "y", &TRRotation::Y,
-                "z", &TRRotation::Z
-        );
-
-        return userType;
-    }
-
     YAML::Node save() const
     {
         YAML::Node n;
         n.SetStyle( YAML::EmitterStyle::Flow );
-        n["x"] = X.toDegrees();
-        n["y"] = Y.toDegrees();
-        n["z"] = Z.toDegrees();
+        n["x"] = core::toDegrees( X );
+        n["y"] = core::toDegrees( Y );
+        n["z"] = core::toDegrees( Z );
         return n;
     }
 
@@ -395,9 +185,9 @@ public:
         if( !n["z"].IsScalar() )
             BOOST_THROW_EXCEPTION( std::domain_error( "TRRotation::Z is not a scalar value" ) );
 
-        X = Angle::fromDegrees( n["x"].as<float>() );
-        Y = Angle::fromDegrees( n["y"].as<float>() );
-        Z = Angle::fromDegrees( n["z"].as<float>() );
+        X = angleFromDegrees( n["x"].as<float>() );
+        Y = angleFromDegrees( n["y"].as<float>() );
+        Z = angleFromDegrees( n["z"].as<float>() );
     }
 };
 
@@ -406,17 +196,12 @@ inline glm::mat4 fromPackedAngles(uint32_t angleData)
 {
     const auto getAngle = [angleData](const uint8_t n) -> Angle {
         BOOST_ASSERT( n < 3 );
-        return Angle( static_cast<int16_t>(((angleData >> (10 * n)) & 0x3ff) * 64) );
+        return Angle( static_cast<Angle::type>(((angleData >> (10 * n)) & 0x3ff) * 64) );
     };
 
     TRRotation r{getAngle( 2 ), getAngle( 1 ), getAngle( 0 )};
 
     return r.toMatrix();
-}
-
-inline Angle abs(const Angle& angle)
-{
-    return angle.abs();
 }
 
 
@@ -428,14 +213,14 @@ struct TRRotationXY
 
     glm::mat4 toMatrix() const
     {
-        return glm::yawPitchRoll( -Y.toRad(), X.toRad(), 0.0f );
+        return glm::yawPitchRoll( -toRad(Y), toRad(X), 0.0f );
     }
 
     YAML::Node save() const
     {
         YAML::Node n;
-        n["x"] = X.toDegrees();
-        n["y"] = Y.toDegrees();
+        n["x"] = toDegrees(X);
+        n["y"] = toDegrees(Y);
         return n;
     }
 
@@ -446,38 +231,32 @@ struct TRRotationXY
         if( !n["y"].IsScalar() )
             BOOST_THROW_EXCEPTION( std::domain_error( "TRRotationXY::Y is not a scalar value" ) );
 
-        X = Angle::fromDegrees( n["x"].as<float>() );
-        Y = Angle::fromDegrees( n["y"].as<float>() );
+        X = angleFromDegrees( n["x"].as<float>() );
+        Y = angleFromDegrees( n["y"].as<float>() );
     }
 };
 
 
 inline TRRotationXY getVectorAngles(const core::Length& dx, const core::Length& dy, const core::Length& dz)
 {
-    const auto y = Angle::fromAtan( dx, dz );
+    const auto y = angleFromAtan( dx, dz );
     const auto dxz = sqrt( dx * dx + dz * dz );
-    auto x = Angle::fromAtan( dy, dxz );
-    if( (dy < 0_len) == std::signbit( x.toRad() ) )
+    auto x = angleFromAtan( dy, dxz );
+    if( (dy < 0_len) == std::signbit( toRad(x) ) )
         x = -x;
 
     return TRRotationXY{x, y};
 }
+inline Angle operator "" _deg(const unsigned long long value) noexcept
+{
+    return Angle{static_cast<Angle::type>(value * 65536 / 360)};
 }
 
-inline core::detail::UnsignedRawAngle operator "" _au(const unsigned long long value) noexcept
+inline Angle operator "" _deg(const long double value) noexcept
 {
-    Expects( value <= 32768 );
-    return core::detail::UnsignedRawAngle{value};
+    return Angle{static_cast<Angle::type>(value * 65536 / 360)};
+}
 }
 
-inline core::detail::UnsignedRawAngle operator "" _deg(const unsigned long long value) noexcept
-{
-    Expects( value <= 180 );
-    return core::detail::UnsignedRawAngle{value * 65536 / 360};
-}
-
-inline core::detail::UnsignedRawAngle operator "" _deg(const long double value) noexcept
-{
-    Expects( value <= 180 );
-    return core::detail::UnsignedRawAngle{value * 65536 / 360};
-}
+using core::operator""_au;
+using core::operator""_deg;

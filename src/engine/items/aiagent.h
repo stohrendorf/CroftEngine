@@ -26,7 +26,7 @@ public:
 protected:
     void rotateCreatureTilt(core::Angle angle)
     {
-        const auto dz = core::Angle( 4 * angle.toAU() ) - m_state.rotation.Z;
+        const auto dz = core::Angle::type{4} * angle - m_state.rotation.Z;
         const core::Angle z = util::clamp( dz, -3_deg, +3_deg );
         m_state.rotation.Z += z;
     }

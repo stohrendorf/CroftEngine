@@ -115,9 +115,9 @@ struct LotInfo
     {
         required_box = box;
         const auto zSize = box->zmax - box->zmin - core::SectorSize;
-        target.Z = util::rand15( zSize, core::Length::type() ) + box->zmin + core::SectorSize / 2;
+        target.Z = util::rand15( zSize ) + box->zmin + core::SectorSize / 2;
         const auto xSize = box->xmax - box->xmin - core::SectorSize;
-        target.X = util::rand15( xSize, core::Length::type() ) + box->xmin + core::SectorSize / 2;
+        target.X = util::rand15( xSize ) + box->xmin + core::SectorSize / 2;
         if( fly != 0_len )
         {
             target.Y = box->floor - 384_len;

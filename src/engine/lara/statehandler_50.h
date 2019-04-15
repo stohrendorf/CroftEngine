@@ -50,9 +50,9 @@ public:
 
             const auto r = spheres[i].radius;
             auto p = core::TRVec{spheres[i].getPosition()};
-            p.X += util::rand15s( r, core::Length::type() );
-            p.Y += util::rand15s( r, core::Length::type() );
-            p.Z += util::rand15s( r, core::Length::type() );
+            p.X += util::rand15s( r );
+            p.Y += util::rand15s( r );
+            p.Z += util::rand15s( r );
             auto fx = std::make_shared<SparkleParticle>(
                     core::RoomBoundPosition{lara.m_state.position.room, p}, engine );
             engine.getParticles().emplace_back( fx );

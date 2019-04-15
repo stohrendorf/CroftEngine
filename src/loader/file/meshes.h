@@ -5,11 +5,6 @@
 #include "io/util.h"
 #include "core/boundingbox.h"
 
-namespace core
-{
-class Angle;
-}
-
 namespace render
 {
 class TextureAnimator;

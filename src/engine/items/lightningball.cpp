@@ -62,9 +62,9 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const render::scene::
     for( size_t j = 0; j < LightningBall::SegmentPoints; j++ )
     {
         core::TRVec buckling{
-                util::rand15s( core::QuarterSectorSize, core::Length::type() ),
-                util::rand15s( core::QuarterSectorSize, core::Length::type() ),
-                util::rand15s( core::QuarterSectorSize, core::Length::type() )
+                util::rand15s( core::QuarterSectorSize ),
+                util::rand15s( core::QuarterSectorSize ),
+                util::rand15s( core::QuarterSectorSize )
         };
 
         if( j == LightningBall::SegmentPoints - 1 )
@@ -187,9 +187,9 @@ void LightningBall::update()
     {
         childBolt.startIndex = util::rand15( SegmentPoints - 1 );
         childBolt.end = m_mainBoltEnd + core::TRVec{
-                util::rand15s( core::QuarterSectorSize, core::Length::type() ),
+                util::rand15s( core::QuarterSectorSize ),
                 0_len,
-                util::rand15s( core::QuarterSectorSize, core::Length::type() )};
+                util::rand15s( core::QuarterSectorSize )};
     }
 
     if( !getEngine().roomsAreSwapped() )
