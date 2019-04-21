@@ -260,7 +260,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId 
         auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
         if( handles.empty() )
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Play looping sound " << toString( id.get_as<TR1SoundId>() );
+            BOOST_LOG_TRIVIAL( trace ) << "Play looping sound " << toString( id.get_as<TR1SoundId>() );
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
             handle->setLooping( true );
             handle->play();
@@ -286,7 +286,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId 
         }
         else
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Play restarting sound " << toString( id.get_as<TR1SoundId>() );
+            BOOST_LOG_TRIVIAL( trace ) << "Play restarting sound " << toString( id.get_as<TR1SoundId>() );
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
         }
     }
@@ -295,7 +295,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId 
         auto handles = m_soundEngine.getSourcesForBuffer( emitter, sample );
         if( handles.empty() )
         {
-            BOOST_LOG_TRIVIAL( debug ) << "Play non-playing sound " << toString( id.get_as<TR1SoundId>() );
+            BOOST_LOG_TRIVIAL( trace ) << "Play non-playing sound " << toString( id.get_as<TR1SoundId>() );
             handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
         }
         else
@@ -305,7 +305,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId 
     }
     else
     {
-        BOOST_LOG_TRIVIAL( debug ) << "Default play mode - playing sound " << toString( id.get_as<TR1SoundId>() );
+        BOOST_LOG_TRIVIAL( trace ) << "Default play mode - playing sound " << toString( id.get_as<TR1SoundId>() );
         handle = m_soundEngine.playBuffer( sample, pitch, volume, emitter );
     }
 

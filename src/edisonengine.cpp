@@ -1,7 +1,13 @@
 #include "engine/engine.h"
 
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+
 int main()
 {
+    boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::info );
+
     try
     {
         engine::Engine engine;
