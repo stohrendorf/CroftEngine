@@ -50,6 +50,9 @@ struct AudioEngine
     std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId id, const glm::vec3& pos)
     {
         const auto handle = playSound( id, nullptr );
+        if( handle == nullptr )
+            return nullptr;
+
         handle->setPosition( pos );
         return handle;
     }

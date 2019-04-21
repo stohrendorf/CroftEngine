@@ -1,6 +1,7 @@
 #pragma once
 
 #include "audio/sourcehandle.h"
+#include "audio/soundengine.h"
 #include "core/boundingbox.h"
 #include "core/units.h"
 #include "engine/floordata/floordata.h"

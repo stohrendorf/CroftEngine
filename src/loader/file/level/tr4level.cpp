@@ -26,7 +26,7 @@ using namespace loader::file::level;
 
 #define TR_AUDIO_MAP_SIZE_TR4  370
 
-void TR4Level::loadFileData(audio::SoundEngine& soundEngine)
+void TR4Level::loadFileData()
 {
     // Version
     const uint32_t file_version = m_reader.readU32();
@@ -188,7 +188,7 @@ void TR4Level::loadFileData(audio::SoundEngine& soundEngine)
     newsrc.readVector( m_flybyCameras, newsrc.readU32(), &FlybyCamera::read );
     //SDL_RWseek(newsrc, this->flyby_cameras.size() * 40, SEEK_CUR);
 
-    newsrc.readVector( m_soundSources, newsrc.readU32(), &SoundSource::read, &soundEngine );
+    newsrc.readVector( m_soundSources, newsrc.readU32(), &SoundSource::read );
 
     newsrc.readVector( m_boxes, newsrc.readU32(), &Box::readTr2 );
 

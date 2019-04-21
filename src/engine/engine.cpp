@@ -624,52 +624,14 @@ void Engine::setUpRendering()
 
     m_audioEngine->m_soundEngine.setListener( m_cameraController.get() );
 
+    m_positionalEmitters.reserve(m_level->m_soundSources.size());
     for( loader::file::SoundSource& src : m_level->m_soundSources )
     {
-        auto handle = m_audioEngine->playSound( src.sound_id, &src );
+        m_positionalEmitters.emplace_back(src.position.toRenderSystem(), &m_audioEngine->m_soundEngine);
+        auto handle = m_audioEngine->playSound( src.sound_id, &m_positionalEmitters.back() );
+        Expects( handle != nullptr );
         handle->setLooping( true );
     }
-}
-
-gsl::not_null<const loader::file::Room*>
-Engine::findRoomForPosition(const core::TRVec& position, gsl::not_null<const loader::file::Room*> room) const
-{
-    const loader::file::Sector* sector;
-    while( true )
-    {
-        sector = room->findFloorSectorWithClampedIndex(
-                (position.X - room->position.X) / core::SectorSize,
-                (position.Z - room->position.Z) / core::SectorSize );
-        Expects( sector != nullptr );
-        if( sector->portalTarget == nullptr )
-        {
-            break;
-        }
-
-        room = sector->portalTarget;
-    }
-
-    Expects( sector != nullptr );
-    if( sector->floorHeight > position.Y )
-    {
-        while( sector->ceilingHeight > position.Y && sector->roomAbove != nullptr )
-        {
-            room = sector->roomAbove;
-            sector = room->getSectorByAbsolutePosition( position );
-            Expects( sector != nullptr );
-        }
-    }
-    else
-    {
-        while( sector->floorHeight <= position.Y && sector->roomBelow != nullptr )
-        {
-            room = sector->roomBelow;
-            sector = room->getSectorByAbsolutePosition( position );
-            Expects( sector != nullptr );
-        }
-    }
-
-    return room;
 }
 
 std::shared_ptr<items::ItemNode> Engine::getItem(const uint16_t id) const
@@ -1417,7 +1379,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
 
     drawLoadingScreen( "Loading " + baseName );
 
-    m_level->loadFileData( m_audioEngine->m_soundEngine );
+    m_level->loadFileData();
 
     m_audioEngine = std::make_unique<AudioEngine>( *this, m_level->m_soundDetails, m_level->m_soundmap,
                                                    m_level->m_sampleIndices );

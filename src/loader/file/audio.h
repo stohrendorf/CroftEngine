@@ -3,7 +3,6 @@
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "loader/file/level/game.h"
-#include "audio/soundengine.h"
 
 namespace loader
 {
@@ -35,28 +34,19 @@ enum class ReverbType : uint8_t
 * seems to propagate omnidirectionally for about 10 horizontal-grid sizes
 * without regard for the presence of walls.
 */
-struct SoundSource final : audio::Emitter
+struct SoundSource final
 {
     core::TRVec position;
     core::SoundId sound_id{uint16_t( 0 )};
     uint16_t flags; // 0x40, 0x80, or 0xc0
 
-    explicit SoundSource(const gsl::not_null<audio::SoundEngine*>& engine)
-            : Emitter{engine}
-    {}
-
-    static std::unique_ptr<SoundSource> read(io::SDLReader& reader, audio::SoundEngine* engine)
+    static std::unique_ptr<SoundSource> read(io::SDLReader& reader)
     {
-        std::unique_ptr<SoundSource> sound_source = std::make_unique<SoundSource>( engine );
+        std::unique_ptr<SoundSource> sound_source = std::make_unique<SoundSource>();
         sound_source->position = readCoordinates32( reader );
         sound_source->sound_id = reader.readU16();
         sound_source->flags = reader.readU16();
         return sound_source;
-    }
-
-    glm::vec3 getPosition() const final
-    {
-        return position.toRenderSystem();
     }
 };
 
@@ -103,7 +93,7 @@ struct SoundDetails
     {
         if( engine == level::Engine::TR1 )
         {
-            switch( sampleCountAndLoopType & 3 )
+            switch( sampleCountAndLoopType & 3u )
             {
                 case 1:
                     return PlaybackType::Restart;
@@ -115,7 +105,7 @@ struct SoundDetails
         }
         else if( engine == level::Engine::TR2 )
         {
-            switch( sampleCountAndLoopType & 3 )
+            switch( sampleCountAndLoopType & 3u )
             {
                 case 1:
                     return PlaybackType::Restart;
@@ -127,7 +117,7 @@ struct SoundDetails
         }
         else
         {
-            switch( sampleCountAndLoopType & 3 )
+            switch( sampleCountAndLoopType & 3u )
             {
                 case 1:
                     return PlaybackType::Wait;
@@ -143,23 +133,23 @@ struct SoundDetails
 
     uint8_t getSampleCount() const
     {
-        return (sampleCountAndLoopType >> 2) & 0x0f;
+        return (sampleCountAndLoopType >> 2u) & 0x0fu;
     }
 
     //! @brief Whether to play this sample without orientation (no panning).
     bool ignoreOrientation() const
     {
-        return (flags & 0x10) != 0;
+        return (flags & 0x10u) != 0;
     }
 
     bool useRandomPitch() const
     {
-        return (flags & 0x20) != 0;
+        return (flags & 0x20u) != 0;
     }
 
     bool useRandomVolume() const
     {
-        return (flags & 0x40) != 0;
+        return (flags & 0x40u) != 0;
     }
 
     static std::unique_ptr<SoundDetails> readTr1(io::SDLReader& reader)

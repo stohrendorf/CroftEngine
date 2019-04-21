@@ -119,6 +119,24 @@ private:
 
     Inventory m_inventory;
 
+    struct PositionalEmitter final : public audio::Emitter
+    {
+        glm::vec3 position;
+
+        PositionalEmitter(const glm::vec3& position, const gsl::not_null<audio::SoundEngine*>& engine)
+            : Emitter{engine}
+            , position{position}
+        {
+        }
+
+        glm::vec3 getPosition() const override
+        {
+            return position;
+        }
+    };
+
+    std::vector<PositionalEmitter> m_positionalEmitters;
+
 public:
     explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = {1280, 800});
 
@@ -260,9 +278,6 @@ public:
     std::shared_ptr<items::PickupItem> createPickup(core::TypeId type,
                                                     const gsl::not_null<const loader::file::Room*>& room,
                                                     const core::TRVec& position);
-
-    gsl::not_null<const loader::file::Room*> findRoomForPosition(const core::TRVec& position,
-                                                                 gsl::not_null<const loader::file::Room*> room) const;
 
     std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
                                                  const core::TRVec& position) const;

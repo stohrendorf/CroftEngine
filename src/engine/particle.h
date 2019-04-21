@@ -5,6 +5,7 @@
 #include "items_tr1.h"
 #include "render/scene/Node.h"
 #include "engine/lighting.h"
+#include "audio/soundengine.h"
 
 #include <memory>
 #include <deque>

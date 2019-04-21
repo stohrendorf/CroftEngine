@@ -42,7 +42,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
     switch( facingAxis )
     {
         case core::Axis::PosZ:
-            frontX = util::sin(collisionRadius, facingAngle);
+            frontX = util::sin( collisionRadius, facingAngle );
             frontZ = collisionRadius;
             frontLeftZ = collisionRadius;
             frontLeftX = -collisionRadius;
@@ -51,14 +51,14 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
             break;
         case core::Axis::PosX:
             frontX = collisionRadius;
-            frontZ = util::cos(collisionRadius, facingAngle);
+            frontZ = util::cos( collisionRadius, facingAngle );
             frontLeftX = collisionRadius;
             frontLeftZ = collisionRadius;
             frontRightX = collisionRadius;
             frontRightZ = -collisionRadius;
             break;
         case core::Axis::NegZ:
-            frontX = util::sin(collisionRadius, facingAngle);
+            frontX = util::sin( collisionRadius, facingAngle );
             frontZ = -collisionRadius;
             frontLeftX = collisionRadius;
             frontLeftZ = -collisionRadius;
@@ -67,7 +67,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
             break;
         case core::Axis::NegX:
             frontX = -collisionRadius;
-            frontZ = util::cos(collisionRadius, facingAngle);
+            frontZ = util::cos( collisionRadius, facingAngle );
             frontLeftX = -collisionRadius;
             frontLeftZ = -collisionRadius;
             frontRightX = -collisionRadius;
@@ -226,6 +226,50 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
     }
 }
 
+namespace
+{
+gsl::not_null<const loader::file::Room*>
+findRoomForPosition(const core::TRVec& position, gsl::not_null<const loader::file::Room*> room)
+{
+    const loader::file::Sector* sector;
+    while( true )
+    {
+        sector = room->findFloorSectorWithClampedIndex(
+                (position.X - room->position.X) / core::SectorSize,
+                (position.Z - room->position.Z) / core::SectorSize );
+        Expects( sector != nullptr );
+        if( sector->portalTarget == nullptr )
+        {
+            break;
+        }
+
+        room = sector->portalTarget;
+    }
+
+    Expects( sector != nullptr );
+    if( sector->floorHeight > position.Y )
+    {
+        while( sector->ceilingHeight > position.Y && sector->roomAbove != nullptr )
+        {
+            room = sector->roomAbove;
+            sector = room->getSectorByAbsolutePosition( position );
+            Expects( sector != nullptr );
+        }
+    }
+    else
+    {
+        while( sector->floorHeight <= position.Y && sector->roomBelow != nullptr )
+        {
+            room = sector->roomBelow;
+            sector = room->getSectorByAbsolutePosition( position );
+            Expects( sector != nullptr );
+        }
+    }
+
+    return room;
+}
+}
+
 std::set<gsl::not_null<const loader::file::Room*>>
 CollisionInfo::collectTouchingRooms(const core::TRVec& position, const core::Length& radius, const core::Length& height,
                                     const Engine& engine)
@@ -233,14 +277,14 @@ CollisionInfo::collectTouchingRooms(const core::TRVec& position, const core::Len
     std::set<gsl::not_null<const loader::file::Room*>> result;
     auto room = engine.getLara().m_state.position.room;
     result.emplace( room );
-    result.emplace( engine.findRoomForPosition( position + core::TRVec( radius, 0_len, radius ), room ) );
-    result.emplace( engine.findRoomForPosition( position + core::TRVec( -radius, 0_len, radius ), room ) );
-    result.emplace( engine.findRoomForPosition( position + core::TRVec( radius, 0_len, -radius ), room ) );
-    result.emplace( engine.findRoomForPosition( position + core::TRVec( -radius, 0_len, -radius ), room ) );
-    result.emplace( engine.findRoomForPosition( position + core::TRVec( radius, -height, radius ), room ) );
-    result.emplace( engine.findRoomForPosition( position + core::TRVec( -radius, -height, radius ), room ) );
-    result.emplace( engine.findRoomForPosition( position + core::TRVec( radius, -height, -radius ), room ) );
-    result.emplace( engine.findRoomForPosition( position + core::TRVec( -radius, -height, -radius ), room ) );
+    result.emplace( findRoomForPosition( position + core::TRVec( radius, 0_len, radius ), room ) );
+    result.emplace( findRoomForPosition( position + core::TRVec( -radius, 0_len, radius ), room ) );
+    result.emplace( findRoomForPosition( position + core::TRVec( radius, 0_len, -radius ), room ) );
+    result.emplace( findRoomForPosition( position + core::TRVec( -radius, 0_len, -radius ), room ) );
+    result.emplace( findRoomForPosition( position + core::TRVec( radius, -height, radius ), room ) );
+    result.emplace( findRoomForPosition( position + core::TRVec( -radius, -height, radius ), room ) );
+    result.emplace( findRoomForPosition( position + core::TRVec( radius, -height, -radius ), room ) );
+    result.emplace( findRoomForPosition( position + core::TRVec( -radius, -height, -radius ), room ) );
     return result;
 }
 

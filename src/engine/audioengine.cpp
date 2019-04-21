@@ -268,6 +268,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId 
         else
         {
             BOOST_ASSERT( handles.size() == 1 );
+            handle = handles[0];
         }
     }
     else if( details.getPlaybackType( loader::file::level::Engine::TR1 ) == loader::file::PlaybackType::Restart )
@@ -301,6 +302,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId 
         else
         {
             BOOST_ASSERT( handles.size() == 1 );
+            handle = handles[0];
         }
     }
     else

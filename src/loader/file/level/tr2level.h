@@ -16,7 +16,7 @@ public:
     {
     }
 
-    void loadFileData(audio::SoundEngine& soundEngine) override;
+    void loadFileData() override;
 };
 }
 }

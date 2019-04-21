@@ -139,7 +139,7 @@ public:
 
     static std::shared_ptr<Level> createLoader(const std::string& filename, Game gameVersion);
 
-    virtual void loadFileData(audio::SoundEngine& soundEngine) = 0;
+    virtual void loadFileData() = 0;
 
     const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
 
