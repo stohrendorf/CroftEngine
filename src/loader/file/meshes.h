@@ -38,7 +38,7 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = readCoordinates32( reader );
-        room_static_mesh.rotation = core::Angle{reader.readI16()};
+        room_static_mesh.rotation = core::auToAngle( reader.readI16() );
         room_static_mesh.darkness = reader.readI16();
         room_static_mesh.meshId = core::StaticMeshId::type( reader.readU16() );
 
@@ -55,7 +55,7 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = readCoordinates32( reader );
-        room_static_mesh.rotation = core::Angle{reader.readI16()};
+        room_static_mesh.rotation = core::auToAngle( reader.readI16() );
         room_static_mesh.darkness = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
         room_static_mesh.meshId = core::StaticMeshId::type( reader.readU16() );
@@ -75,7 +75,7 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = readCoordinates32( reader );
-        room_static_mesh.rotation = core::Angle{reader.readI16()};
+        room_static_mesh.rotation = core::auToAngle( reader.readI16() );
         room_static_mesh.darkness = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
         room_static_mesh.meshId = core::StaticMeshId::type( reader.readU16() );
@@ -93,7 +93,7 @@ struct RoomStaticMesh
     {
         RoomStaticMesh room_static_mesh;
         room_static_mesh.position = readCoordinates32( reader );
-        room_static_mesh.rotation = core::Angle{reader.readI16()};
+        room_static_mesh.rotation = core::auToAngle( reader.readI16() );
         room_static_mesh.darkness = reader.readI16();
         room_static_mesh.intensity2 = reader.readI16();
         room_static_mesh.meshId = core::StaticMeshId::type( reader.readU16() );
@@ -120,12 +120,12 @@ struct StaticMesh
 
     bool doNotCollide() const
     {
-        return (flags & 1) != 0;
+        return (flags & 1u) != 0;
     }
 
     bool isVisible() const
     {
-        return (flags & 2) != 0;
+        return (flags & 2u) != 0;
     }
 
     core::BoundingBox getCollisionBox(const core::TRVec& pos, core::Angle angle) const;

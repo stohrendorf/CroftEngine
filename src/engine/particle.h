@@ -115,7 +115,7 @@ public:
         if( !waterfall )
         {
             speed = util::rand15( 128_spd );
-            angle.Y = core::Angle( core::Angle::type(2 * util::rand15s()) );
+            angle.Y = core::auToAngle( 2 * util::rand15s() );
         }
         else
         {

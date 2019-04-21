@@ -11,12 +11,11 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<Engine*>& engine,
                                    const loader::file::SkeletalModelType& animatedModel)
         : ModelItemNode{engine, room, item, true, animatedModel}
 {
-    m_block = engine
-            ->createItem<ThorHammerBlock>( TR1ItemId::ThorHammerBlock,
-                                           room,
-                                           core::Angle( item.rotation ),
-                                           item.position,
-                                           0 );
+    m_block = engine->createItem<ThorHammerBlock>( TR1ItemId::ThorHammerBlock,
+                                                   room,
+                                                   item.rotation,
+                                                   item.position,
+                                                   0 );
     m_block->activate();
     m_block->m_state.triggerState = TriggerState::Active;
 }

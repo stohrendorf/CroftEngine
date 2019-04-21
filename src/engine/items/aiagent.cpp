@@ -23,7 +23,8 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
     if( turnAngle < -90_deg || turnAngle > 90_deg )
     {
         // the target is behind the current item, so we need a U-turn
-        const auto relativeSpeed = m_state.speed * (90_deg).retype_as<core::Speed::type>() / maxRotationSpeed.retype_as<core::Speed::type>();
+        const auto relativeSpeed = m_state.speed * (90_deg).retype_as<core::Speed::type>()
+                                   / maxRotationSpeed.retype_as<core::Speed::type>();
         if( util::square( dx ) + util::square( dz ) < util::square( relativeSpeed * 1_frame ) )
         {
             maxRotationSpeed /= core::Angle::type{2};
@@ -430,7 +431,7 @@ AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
                 .call<script::ObjectInfo>( m_state.type.get() ).radius)}
 {
     m_state.collidable = true;
-    const core::Angle v = util::rand15(360_deg);
+    const core::Angle v = util::rand15( 180_deg ) * 2;
     m_state.rotation.Y += v;
     m_state.health = core::Health{static_cast<core::Health::type>(engine->getScriptEngine()["getObjectInfo"]
             .call<script::ObjectInfo>( m_state.type.get() ).hit_points)};

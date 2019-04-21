@@ -32,7 +32,7 @@ struct Item
         item->type = reader.readU16();
         item->room = reader.readU16();
         item->position = readCoordinates32( reader );
-        item->rotation = core::Angle{reader.readI16()};
+        item->rotation = core::auToAngle( reader.readI16() );
         item->darkness = reader.readI16();
         item->activationState = reader.readU16();
         return item;
@@ -44,7 +44,7 @@ struct Item
         item->type = reader.readU16();
         item->room = reader.readU16();
         item->position = readCoordinates32( reader );
-        item->rotation = core::Angle{reader.readI16()};
+        item->rotation = core::auToAngle( reader.readI16() );
         item->darkness = reader.readI16();
         item->intensity2 = reader.readU16();
         item->activationState = reader.readU16();
@@ -57,7 +57,7 @@ struct Item
         item->type = reader.readU16();
         item->room = reader.readU16();
         item->position = readCoordinates32( reader );
-        item->rotation = core::Angle{reader.readI16()};
+        item->rotation = core::auToAngle( reader.readI16() );
         item->darkness = reader.readU16();
         item->intensity2 = reader.readU16();
         item->activationState = reader.readU16();
@@ -70,7 +70,7 @@ struct Item
         item->type = reader.readU16();
         item->room = reader.readU16();
         item->position = readCoordinates32( reader );
-        item->rotation = core::Angle{reader.readI16()};
+        item->rotation = core::auToAngle( reader.readI16() );
         item->darkness = reader.readU16();
         item->intensity2 = item->darkness;
         item->ocb = reader.readU16();

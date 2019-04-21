@@ -120,7 +120,7 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
     if( m_model.meshes.size() <= 1 )
         return;
 
-    for( int i = 1; i < m_model.meshes.size(); ++i )
+    for( size_t i = 1; i < m_model.meshes.size(); ++i )
     {
         if( m_model.boneTree[i - 1].flags & 0x01 )
         {

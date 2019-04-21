@@ -1375,7 +1375,7 @@ void LaraNode::findTarget(const Weapon& weapon)
     core::RoomBoundPosition gunPosition{m_state.position};
     gunPosition.position.Y -= weapons[WeaponId::Shotgun].gunHeight;
     std::shared_ptr<ModelItemNode> bestEnemy = nullptr;
-    core::Angle bestYAngle{std::numeric_limits<int16_t>::max()};
+    core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
     for( const auto& currentEnemy : getEngine().getItemNodes() | boost::adaptors::map_values )
     {
         if( currentEnemy->m_state.health <= 0_hp || currentEnemy.get().get() == &getEngine().getLara() )
@@ -1714,8 +1714,8 @@ void LaraNode::tryShootShotgun()
     for( int i = 0; i < 5; ++i )
     {
         core::TRRotationXY aimAngle;
-        aimAngle.Y = util::rand15s(+20_deg) + m_state.rotation.Y + leftArm.aimRotation.Y;
-        aimAngle.X = util::rand15s(+20_deg) + leftArm.aimRotation.X;
+        aimAngle.Y = util::rand15s( +20_deg ) + m_state.rotation.Y + leftArm.aimRotation.Y;
+        aimAngle.X = util::rand15s( +20_deg ) + leftArm.aimRotation.X;
         if( fireWeapon( WeaponId::Shotgun, target, *this, aimAngle ) )
         {
             fireShotgun = true;
@@ -2598,7 +2598,7 @@ void LaraNode::renderGunFlare(const WeaponId weaponId,
     }
 
     m = translate( m, core::TRVec{0_len, dy, 55_len}.toRenderSystem() );
-    m *= core::TRRotation( -90_deg, 0_deg, util::rand15(360_deg) ).toMatrix();
+    m *= core::TRRotation( -90_deg, 0_deg, util::rand15s( 180_deg ) * 2 ).toMatrix();
 
     flareNode->setVisible( true );
     setParent( flareNode, getNode()->getParent().lock() );
@@ -2606,7 +2606,7 @@ void LaraNode::renderGunFlare(const WeaponId weaponId,
 
     const auto brightness = util::clamp( 2.0f - shade / 8191.0f, 0.0f, 1.0f );
     flareNode->addMaterialParameterSetter( "u_baseLight", [brightness](const render::scene::Node& /*node*/,
-            render::gl::Program::ActiveUniform & uniform) {
+                                                                       render::gl::Program::ActiveUniform& uniform) {
         uniform.set( brightness );
     } );
     flareNode->addMaterialParameterSetter( "u_baseLightDiff", [](const render::scene::Node& /*node*/,

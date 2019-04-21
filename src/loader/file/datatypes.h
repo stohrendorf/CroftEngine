@@ -315,7 +315,7 @@ struct Light
 
 struct SpriteInstance
 {
-    DECLARE_ID(VertexId, uint16_t);
+    DECLARE_ID( VertexId, uint16_t );
 
     VertexId vertex{uint16_t( 0 )}; // offset into vertex list
     core::SpriteInstanceId id{uint16_t( 0 )};
@@ -1307,7 +1307,7 @@ struct Sprite
 
 struct SpriteSequence
 {
-    core::TypeId type{uint16_t(0)}; // Item identifier (matched in Items[])
+    core::TypeId type{uint16_t( 0 )}; // Item identifier (matched in Items[])
     int16_t length; // negative of "how many sprites are in this sequence"
     uint16_t offset; // where (in sprite texture list) this sequence starts
 
@@ -1611,8 +1611,8 @@ struct CinematicFrame
         std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
         cf->center = readCoordinates16( reader );
         cf->eye = readCoordinates16( reader );
-        cf->fov = core::Angle{reader.readI16()};
-        cf->rotZ = core::Angle{reader.readI16()};
+        cf->fov = core::auToAngle( reader.readI16() );
+        cf->rotZ = core::auToAngle( reader.readI16() );
         return cf;
     }
 };

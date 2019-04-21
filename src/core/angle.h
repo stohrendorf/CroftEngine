@@ -13,16 +13,22 @@
 
 namespace core
 {
-QS_DECLARE_QUANTITY( Angle, int16_t, "au" );
 
-QS_LITERAL_OP_ULL( Angle, _au )
+constexpr int32_t FullRotation = 1 << 16;
+constexpr int32_t AngleStorageScale = 1 << 16;
 
-inline Angle operator "" _deg(const unsigned long long value) noexcept;
-inline Angle operator "" _deg(const long double value) noexcept;
+
+QS_DECLARE_QUANTITY( Angle, int32_t, "au" );
+
+constexpr Angle auToAngle(int16_t value) noexcept;
+
+constexpr Angle operator "" _deg(unsigned long long value) noexcept;
+
+constexpr Angle operator "" _deg(long double value) noexcept;
 
 inline Angle angleFromRad(const float r)
 {
-    return Angle{gsl::narrow_cast<Angle::type>( r / 2 / glm::pi<float>() * 65536 )};
+    return Angle{gsl::narrow_cast<Angle::type>( r / 2 / glm::pi<float>() * FullRotation * AngleStorageScale )};
 }
 
 inline Angle angleFromAtan(const float dx, const float dz)
@@ -32,7 +38,7 @@ inline Angle angleFromAtan(const float dx, const float dz)
 
 inline Angle angleFromDegrees(const float value)
 {
-    return Angle{gsl::narrow_cast<Angle::type>( std::lround( value / 360 * 65536 ) )};
+    return Angle{gsl::narrow_cast<Angle::type>( std::lround( value / 360 * FullRotation * AngleStorageScale ) )};
 }
 
 inline Angle angleFromAtan(const core::Length dx, const core::Length dz)
@@ -42,12 +48,12 @@ inline Angle angleFromAtan(const core::Length dx, const core::Length dz)
 
 constexpr float toDegrees(const Angle& a) noexcept
 {
-    return a.get_as<float>() * 360 / 65536;
+    return a.get_as<float>() / AngleStorageScale * 360 / FullRotation;
 }
 
 inline float toRad(const Angle& a) noexcept
 {
-    return a.get_as<float>() * glm::pi<float>() * 2 / 65536;
+    return a.get_as<float>() / AngleStorageScale * glm::pi<float>() * 2 / FullRotation;
 }
 
 inline float sin(const Angle& a) noexcept
@@ -170,24 +176,17 @@ public:
     {
         YAML::Node n;
         n.SetStyle( YAML::EmitterStyle::Flow );
-        n["x"] = core::toDegrees( X );
-        n["y"] = core::toDegrees( Y );
-        n["z"] = core::toDegrees( Z );
+        n["x"] = X;
+        n["y"] = Y;
+        n["z"] = Z;
         return n;
     }
 
     void load(const YAML::Node& n)
     {
-        if( !n["x"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotation::X is not a scalar value" ) );
-        if( !n["y"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotation::Y is not a scalar value" ) );
-        if( !n["z"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotation::Z is not a scalar value" ) );
-
-        X = angleFromDegrees( n["x"].as<float>() );
-        Y = angleFromDegrees( n["y"].as<float>() );
-        Z = angleFromDegrees( n["z"].as<float>() );
+        X = n["x"].as<core::Angle>();
+        Y = n["y"].as<core::Angle>();
+        Z = n["z"].as<core::Angle>();
     }
 };
 
@@ -196,7 +195,7 @@ inline glm::mat4 fromPackedAngles(uint32_t angleData)
 {
     const auto getAngle = [angleData](const uint8_t n) -> Angle {
         BOOST_ASSERT( n < 3 );
-        return Angle( static_cast<Angle::type>(((angleData >> (10 * n)) & 0x3ff) * 64) );
+        return core::auToAngle( ((angleData >> (10 * n)) & 0x3ff) * 64 );
     };
 
     TRRotation r{getAngle( 2 ), getAngle( 1 ), getAngle( 0 )};
@@ -213,26 +212,21 @@ struct TRRotationXY
 
     glm::mat4 toMatrix() const
     {
-        return glm::yawPitchRoll( -toRad(Y), toRad(X), 0.0f );
+        return glm::yawPitchRoll( -toRad( Y ), toRad( X ), 0.0f );
     }
 
     YAML::Node save() const
     {
         YAML::Node n;
-        n["x"] = toDegrees(X);
-        n["y"] = toDegrees(Y);
+        n["x"] = X;
+        n["y"] = Y;
         return n;
     }
 
     void load(const YAML::Node& n)
     {
-        if( !n["x"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotationXY::X is not a scalar value" ) );
-        if( !n["y"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "TRRotationXY::Y is not a scalar value" ) );
-
-        X = angleFromDegrees( n["x"].as<float>() );
-        Y = angleFromDegrees( n["y"].as<float>() );
+        X = n["x"].as<core::Angle>();
+        Y = n["y"].as<core::Angle>();
     }
 };
 
@@ -242,21 +236,32 @@ inline TRRotationXY getVectorAngles(const core::Length& dx, const core::Length& 
     const auto y = angleFromAtan( dx, dz );
     const auto dxz = sqrt( dx * dx + dz * dz );
     auto x = angleFromAtan( dy, dxz );
-    if( (dy < 0_len) == std::signbit( toRad(x) ) )
+    if( (dy < 0_len) == std::signbit( toRad( x ) ) )
         x = -x;
 
     return TRRotationXY{x, y};
 }
-inline Angle operator "" _deg(const unsigned long long value) noexcept
+
+constexpr Angle auToAngle(int16_t value) noexcept
 {
-    return Angle{static_cast<Angle::type>(value * 65536 / 360)};
+    return Angle{static_cast<Angle::type>(value) * AngleStorageScale};
 }
 
-inline Angle operator "" _deg(const long double value) noexcept
+constexpr Angle operator "" _au(const unsigned long long value) noexcept
 {
-    return Angle{static_cast<Angle::type>(value * 65536 / 360)};
+    return auToAngle( static_cast<int16_t>(value) );
+}
+
+constexpr Angle operator "" _deg(const unsigned long long value) noexcept
+{
+    return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
+}
+
+constexpr Angle operator "" _deg(const long double value) noexcept
+{
+    return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
 }
 }
 
-using core::operator""_au;
-using core::operator""_deg;
+using core::operator ""_au;
+using core::operator ""_deg;

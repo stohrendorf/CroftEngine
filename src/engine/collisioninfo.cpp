@@ -264,7 +264,7 @@ CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position, const core
             if( sm->doNotCollide() )
                 continue;
 
-            const auto meshBox = sm->getCollisionBox( rsm.position, core::Angle{rsm.rotation} );
+            const auto meshBox = sm->getCollisionBox( rsm.position, rsm.rotation );
 
             if( !meshBox.intersects( inBox ) )
                 continue;
