@@ -43,6 +43,13 @@ CImgWrapper::CImgWrapper(const int size)
     m_image->fill( 0 );
 }
 
+CImgWrapper::CImgWrapper(const int w, const int h)
+        : m_image{std::make_unique<cimg_library::CImg<uint8_t>>( w, h, 1, 4 )}
+        , m_interleaved{false}
+{
+    m_image->fill( 0 );
+}
+
 CImgWrapper::CImgWrapper()
         : m_image{nullptr}
         , m_interleaved{false}
@@ -182,5 +189,13 @@ CImgWrapper::CImgWrapper(CImgWrapper&& other) noexcept
         : m_image{std::move( other.m_image )}
         , m_interleaved{other.m_interleaved}
 {
+}
+
+CImgWrapper& CImgWrapper::operator=(CImgWrapper&& other)
+{
+    m_image = std::exchange( other.m_image, std::make_unique<cimg_library::CImg<uint8_t>>( 0, 0, 1, 4 ) );
+    m_interleaved = std::exchange( other.m_interleaved, false );
+
+    return *this;
 }
 }

@@ -10,7 +10,7 @@ levelInfos = {
         inventory = {}
     },
     [2] = {
-        video = "SNOW"
+        video = "SNOW.RPL"
     },
     [3] = {
         baseName = "LEVEL1",
@@ -48,7 +48,7 @@ levelInfos = {
         cameraRot = -128
     },
     [8] = {
-        video = "LIFT"
+        video = "LIFT.RPL"
     },
     [9] = {
         baseName = "LEVEL4",
@@ -94,7 +94,7 @@ levelInfos = {
         inventory = { Pistols = 1 }
     },
     [15] = {
-        video = "VISION"
+        video = "VISION.RPL"
     },
     [16] = {
         baseName = "LEVEL8A",
@@ -124,7 +124,7 @@ levelInfos = {
         cameraRot = 90
     },
     [20] = {
-        video = "CANYON"
+        video = "CANYON.RPL"
     },
     [21] = {
         baseName = "LEVEL10A",
@@ -140,7 +140,7 @@ levelInfos = {
         gunSwap = true
     },
     [23] = {
-        video = "PYRAMID"
+        video = "PYRAMID.RPL"
     },
     [24] = {
         baseName = "LEVEL10B",
@@ -150,7 +150,7 @@ levelInfos = {
         inventory = { Pistols = 1 }
     },
     [25] = {
-        video = "PRISON"
+        video = "PRISON.RPL"
     },
     [26] = {
         baseName = "LEVEL10C",
@@ -176,7 +176,7 @@ cheats = {
 }
 
 function getLevelInfo()
-    return levelInfos[3]
+    return levelInfos[7]
 end
 
 function getGlidosPack()

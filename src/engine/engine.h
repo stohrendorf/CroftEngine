@@ -119,13 +119,14 @@ private:
 
     Inventory m_inventory;
 
+
     struct PositionalEmitter final : public audio::Emitter
     {
         glm::vec3 position;
 
         PositionalEmitter(const glm::vec3& position, const gsl::not_null<audio::SoundEngine*>& engine)
-            : Emitter{engine}
-            , position{position}
+                : Emitter{engine}
+                , position{position}
         {
         }
 
@@ -134,6 +135,7 @@ private:
             return position;
         }
     };
+
 
     std::vector<PositionalEmitter> m_positionalEmitters;
 
@@ -232,6 +234,11 @@ public:
         return m_inventory;
     }
 
+    bool hasLevel() const
+    {
+        return m_level != nullptr;
+    }
+
     void finishLevel()
     {
         m_levelFinished = true;
@@ -244,7 +251,7 @@ public:
 
     std::shared_ptr<LaraNode> createItems();
 
-    void setUpRendering();
+    void loadSceneData();
 
     const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
 

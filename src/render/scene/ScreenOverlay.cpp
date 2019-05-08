@@ -31,9 +31,8 @@ void ScreenOverlay::render(RenderContext& context)
 
 void ScreenOverlay::init(const Dimension2<size_t>& viewport)
 {
-    m_image = std::make_shared<gl::Image<gl::RGBA8>>
-            ( gsl::narrow<GLint>( viewport.width ),
-              gsl::narrow<GLint>( viewport.height ) );
+    *m_image = gl::Image<gl::RGBA8>( gsl::narrow<GLint>( viewport.width ),
+                                     gsl::narrow<GLint>( viewport.height ) );
     // Update the projection matrix for our batch to match the current viewport
     if( viewport.width <= 0 || viewport.height <= 0 )
     {
@@ -43,8 +42,6 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
     const auto screenOverlayProgram = ShaderProgram::createFromFile( "shaders/screenoverlay.vert",
                                                                      "shaders/screenoverlay.frag",
                                                                      {} );
-
-    m_image->fill( {0, 0, 0, 0} );
 
     m_texture->image2D( m_image->getWidth(), m_image->getHeight(), m_image->getData(), false );
     m_texture->set( GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );

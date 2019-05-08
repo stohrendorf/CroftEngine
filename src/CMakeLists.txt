@@ -240,11 +240,17 @@ set( EDISONENGINE_SRCS
      render/scene/window.cpp
 
      ui/label.cpp
+
+     video/player.cpp
      )
 
 if( MSVC )
     list( APPEND EDISONENGINE_SRCS edisonengine.rc )
 endif()
+set_property(
+        SOURCE util/cimgwrapper.cpp
+        PROPERTY COMPILE_DEFINITIONS NDEBUG
+)
 
 add_definitions(
         -DSOL_USE_BOOST
@@ -281,6 +287,7 @@ target_link_libraries(
         OpenGL
         glm
         Freetype::Freetype
+        FFmpeg
 )
 
 if( LINUX OR UNIX )

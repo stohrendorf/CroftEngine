@@ -24,6 +24,8 @@ public:
 
     explicit CImgWrapper(const uint8_t* data, int width, int height, bool shared);
 
+    explicit CImgWrapper(int w, int h);
+
     explicit CImgWrapper(int size);
 
     explicit CImgWrapper();
@@ -34,7 +36,7 @@ public:
 
     CImgWrapper& operator=(const CImgWrapper& other);
 
-    CImgWrapper& operator=(CImgWrapper&& other) = delete;
+    CImgWrapper& operator=(CImgWrapper&& other);
 
     ~CImgWrapper();
 

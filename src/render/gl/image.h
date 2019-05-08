@@ -83,7 +83,7 @@ public:
             , m_width{width}
             , m_height{height}
     {
-        Expects( width > 0 && height > 0 );
+        Expects( width >= 0 && height >= 0 );
 
         const auto dataSize = static_cast<size_t>(width * height);
         if( data == nullptr )
@@ -92,19 +92,47 @@ public:
             m_data.assign( data, data + dataSize );
     }
 
+    Image() : Image{0, 0}
+    {}
+
     Image(const Image&) = delete;
 
-    Image(Image&&) noexcept = delete;
+    Image(Image&& rhs) noexcept
+            : m_data{std::move( rhs.m_data )}
+            , m_width{rhs.m_width}
+            , m_height{rhs.m_height}
+    {
+        rhs.m_width = 0;
+        rhs.m_height = 0;
+    }
 
     Image& operator=(const Image&) = delete;
 
-    Image& operator=(Image&&) = delete;
+    Image& operator=(Image&& rhs) noexcept
+    {
+        m_data = std::move( rhs.m_data );
+        m_width = rhs.m_width;
+        m_height = rhs.m_height;
+        rhs.m_width = 0;
+        rhs.m_height = 0;
+        return *this;
+    }
 
     ~Image() = default;
 
     const std::vector<StorageType>& getData() const
     {
         return m_data;
+    }
+
+    StorageType* getRawData()
+    {
+        return m_data.data();
+    }
+
+    auto begin()
+    {
+        return m_data.begin();
     }
 
     void assign(const std::vector<StorageType>& data)
@@ -217,6 +245,11 @@ public:
                 y0 += sy;
             }
         }
+    }
+
+    void scaleFit(GLint newWidth, GLint newHeight)
+    {
+
     }
 
 private:

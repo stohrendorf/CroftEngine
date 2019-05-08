@@ -1,4 +1,6 @@
 cmake_minimum_required( VERSION 3.11.2 )
+list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
+
 project( EdisonEngine )
 
 set( CMAKE_CXX_STANDARD 14 )
@@ -109,6 +111,11 @@ find_package( GLEW REQUIRED )
 
 find_package( glfw3 3.2 REQUIRED )
 
+find_package( FFmpeg REQUIRED )
+add_library( FFmpeg INTERFACE )
+target_include_directories( FFmpeg INTERFACE ${FFMPEG_INCLUDE_DIR} )
+target_link_libraries( FFmpeg INTERFACE ${FFMPEG_LIBRARY} )
+
 if( VCPKG_TOOLCHAIN )
     find_package( CImg REQUIRED )
 else()
@@ -196,5 +203,5 @@ add_definitions( -DGIT_SHA="${GIT_SHA}" )
 
 find_package( yaml-cpp REQUIRED )
 
-add_subdirectory(3rdparty/type_safe)
+add_subdirectory( 3rdparty/type_safe )
 add_subdirectory( src )

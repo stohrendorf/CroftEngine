@@ -32,6 +32,11 @@ public:
         return m_source;
     }
 
+    const auto& getStream() const
+    {
+        return m_stream;
+    }
+
     void setLooping(const bool looping)
     {
         m_looping = looping;

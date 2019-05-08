@@ -56,9 +56,9 @@ private:
     Engine* m_engine;
 
     //! @brief Global camera position.
-    core::RoomBoundPosition m_eye;
+    boost::optional<core::RoomBoundPosition> m_eye;
     //! @brief The point the camera moves around.
-    core::RoomBoundPosition m_center;
+    boost::optional<core::RoomBoundPosition> m_center;
     CameraMode m_mode = CameraMode::Chase;
 
     //! @brief Additional height of the camera above the real position.
@@ -168,7 +168,8 @@ public:
 
     const core::RoomBoundPosition& getCenter() const
     {
-        return m_center;
+        Expects( m_center.is_initialized() );
+        return *m_center;
     }
 
     glm::vec3 getFrontVector() const override
@@ -187,17 +188,18 @@ public:
 
     const gsl::not_null<const loader::file::Room*>& getCurrentRoom() const
     {
-        return m_eye.room;
+        return m_eye->room;
     }
 
     void setPosition(const core::TRVec& p)
     {
-        m_eye.position = p;
+        m_eye->position = p;
     }
 
     const core::RoomBoundPosition& getTRPosition() const
     {
-        return m_eye;
+        Expects( m_eye.is_initialized() );
+        return *m_eye;
     }
 
     void setPosition(const core::RoomBoundPosition& p)

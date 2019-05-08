@@ -38,6 +38,9 @@ void Stream::update()
     ALint processed = src->getBuffersProcessed();
     Expects( processed >= 0 && static_cast<size_t>(processed) <= m_buffers.size() );
 
+    if( static_cast<size_t>(processed) >= m_buffers.size() )
+        BOOST_LOG_TRIVIAL( warning ) << "Lost stream sync";
+
     while( processed-- > 0 )
     {
         const auto bufId = src->unqueueBuffer();

@@ -57,6 +57,8 @@
 
 #include "loader/trx/trx.h"
 
+#include "video/player.h"
+
 #include <boost/range/adaptor/map.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -172,6 +174,7 @@ const loader::file::StaticMesh* Engine::findStaticMeshById(core::StaticMeshId me
 
 const std::vector<loader::file::Room>& Engine::getRooms() const
 {
+
     return m_level->m_rooms;
 }
 
@@ -520,10 +523,8 @@ std::shared_ptr<LaraNode> Engine::createItems()
     return lara;
 }
 
-void Engine::setUpRendering()
+void Engine::loadSceneData()
 {
-    m_inputHandler = std::make_unique<InputHandler>( m_window->getWindow() );
-
     for( auto& sprite : m_level->m_sprites )
     {
         sprite.texture = m_level->m_textures.at( sprite.texture_id.get() ).texture;
@@ -622,12 +623,10 @@ void Engine::setUpRendering()
                 m_renderer->getScene()->getActiveCamera() );
     }
 
-    m_audioEngine->m_soundEngine.setListener( m_cameraController.get() );
-
-    m_positionalEmitters.reserve(m_level->m_soundSources.size());
+    m_positionalEmitters.reserve( m_level->m_soundSources.size() );
     for( loader::file::SoundSource& src : m_level->m_soundSources )
     {
-        m_positionalEmitters.emplace_back(src.position.toRenderSystem(), &m_audioEngine->m_soundEngine);
+        m_positionalEmitters.emplace_back( src.position.toRenderSystem(), &m_audioEngine->m_soundEngine );
         auto handle = m_audioEngine->playSound( src.sound_id, &m_positionalEmitters.back() );
         Expects( handle != nullptr );
         handle->setLooping( true );
@@ -1211,7 +1210,7 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
         drawText( font, 10, 40, m_lara->m_state.position.room->node->getId() );
 
         drawText( font, 300, 20,
-                  std::to_string( std::lround( toDegrees(m_lara->m_state.rotation.Y) ) ) + " deg" );
+                  std::to_string( std::lround( toDegrees( m_lara->m_state.rotation.Y ) ) ) + " deg" );
         drawText( font, 300, 40, "x=" + m_lara->m_state.position.position.X.toString() );
         drawText( font, 300, 60, "y=" + m_lara->m_state.position.position.Y.toString() );
         drawText( font, 300, 80, "z=" + m_lara->m_state.position.position.Z.toString() );
@@ -1292,12 +1291,12 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
     // weapons
     drawText( font, 400, 280, std::string( "L.aiming    " ) + (m_lara->leftArm.aiming ? "true" : "false") );
     drawText( font, 400, 300,
-              std::string( "L.aim       X=" ) + std::to_string( toDegrees(m_lara->leftArm.aimRotation.X) )
-              + ", Y=" + std::to_string( toDegrees(m_lara->leftArm.aimRotation.Y) ) );
+              std::string( "L.aim       X=" ) + std::to_string( toDegrees( m_lara->leftArm.aimRotation.X ) )
+              + ", Y=" + std::to_string( toDegrees( m_lara->leftArm.aimRotation.Y ) ) );
     drawText( font, 400, 320, std::string( "R.aiming    " ) + (m_lara->rightArm.aiming ? "true" : "false") );
     drawText( font, 400, 340,
-              std::string( "R.aim       X=" ) + std::to_string( toDegrees(m_lara->rightArm.aimRotation.X) )
-              + ", Y=" + std::to_string( toDegrees(m_lara->rightArm.aimRotation.Y) ) );
+              std::string( "R.aim       X=" ) + std::to_string( toDegrees( m_lara->rightArm.aimRotation.X ) )
+              + ", Y=" + std::to_string( toDegrees( m_lara->rightArm.aimRotation.Y ) ) );
 }
 
 void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, const int x, const int y,
@@ -1347,74 +1346,87 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     }
 
     levelInfo = m_scriptEngine["getLevelInfo"]();
-    if( !levelInfo.get<std::string>( "video" ).empty() )
-        BOOST_THROW_EXCEPTION( std::runtime_error( "Videos not yet supported" ) );
-
+    const bool isVideo = !levelInfo.get<std::string>( "video" ).empty();
     const auto cutsceneName = levelInfo.get<std::string>( "cutscene" );
 
     const auto baseName = cutsceneName.empty() ? levelInfo.get<std::string>( "baseName" ) : cutsceneName;
-    Expects( !baseName.empty() );
+    Expects( isVideo || !baseName.empty() );
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );
 
-    std::map<TR1ItemId, size_t> initInv;
+    m_inputHandler = std::make_unique<InputHandler>( m_window->getWindow() );
 
-    if( sol::optional<sol::table> tbl = levelInfo["inventory"] )
+    if( !isVideo )
     {
-        for( const auto& kv : *tbl )
-            initInv[EnumUtil<TR1ItemId>::fromString( kv.first.as<std::string>() )]
-                    += kv.second.as<size_t>();
+        std::map<TR1ItemId, size_t> initInv;
+
+        if( sol::optional<sol::table> tbl = levelInfo["inventory"] )
+        {
+            for( const auto& kv : *tbl )
+                initInv[EnumUtil<TR1ItemId>::fromString( kv.first.as<std::string>() )]
+                        += kv.second.as<size_t>();
+        }
+
+        if( sol::optional<sol::table> tbl = m_scriptEngine["cheats"]["inventory"] )
+        {
+            for( const auto& kv : *tbl )
+                initInv[EnumUtil<TR1ItemId>::fromString( kv.first.as<std::string>() )]
+                        += kv.second.as<size_t>();
+        }
+
+        drawLoadingScreen( "Preparing to load " + baseName );
+
+        m_level = loader::file::level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD",
+                                                            loader::file::level::Game::Unknown );
+
+        drawLoadingScreen( "Loading " + baseName );
+
+        m_level->loadFileData();
+
+        m_audioEngine = std::make_unique<AudioEngine>( *this, m_level->m_soundDetails, m_level->m_soundmap,
+                                                       m_level->m_sampleIndices );
+
+        BOOST_LOG_TRIVIAL( info ) << "Loading samples...";
+
+        for( const auto offset : m_level->m_sampleIndices )
+        {
+            Expects( offset < m_level->m_samplesData.size() );
+            m_audioEngine->m_soundEngine.addWav( &m_level->m_samplesData[offset] );
+        }
+
+        for( size_t i = 0; i < m_level->m_textures.size(); ++i )
+        {
+            if( glidos != nullptr )
+                drawLoadingScreen( "Upgrading texture " + std::to_string( i + 1 ) + " of "
+                                   + std::to_string( m_level->m_textures.size() ) );
+            else
+                drawLoadingScreen(
+                        "Loading texture " + std::to_string( i + 1 ) + " of "
+                        + std::to_string( m_level->m_textures.size() ) );
+            m_level->m_textures[i].toTexture( glidos.get(), std::function<void(const std::string&)>(
+                    [this](const std::string& s) { drawLoadingScreen( s ); } ) );
+        }
+
+        drawLoadingScreen( "Preparing the game" );
+        loadSceneData();
+
+        if( useAlternativeLara )
+        {
+            useAlternativeLaraAppearance();
+        }
+
+        for( const auto& item : initInv )
+            m_inventory.put( item.first, item.second );
+    }
+    else
+    {
+        m_audioEngine = std::make_unique<AudioEngine>( *this );
+        m_cameraController = std::make_unique<CameraController>(
+                this,
+                m_renderer->getScene()->getActiveCamera(),
+                true );
     }
 
-    if( sol::optional<sol::table> tbl = m_scriptEngine["cheats"]["inventory"] )
-    {
-        for( const auto& kv : *tbl )
-            initInv[EnumUtil<TR1ItemId>::fromString( kv.first.as<std::string>() )]
-                    += kv.second.as<size_t>();
-    }
-
-    drawLoadingScreen( "Preparing to load " + baseName );
-
-    m_level = loader::file::level::Level::createLoader( "data/tr1/data/" + baseName + ".PHD",
-                                                        loader::file::level::Game::Unknown );
-
-    drawLoadingScreen( "Loading " + baseName );
-
-    m_level->loadFileData();
-
-    m_audioEngine = std::make_unique<AudioEngine>( *this, m_level->m_soundDetails, m_level->m_soundmap,
-                                                   m_level->m_sampleIndices );
-    BOOST_LOG_TRIVIAL( info ) << "Loading samples...";
-
-    for( const auto offset : m_level->m_sampleIndices )
-    {
-        Expects( offset < m_level->m_samplesData.size() );
-        m_audioEngine->m_soundEngine.addWav( &m_level->m_samplesData[offset] );
-    }
-
-    for( size_t i = 0; i < m_level->m_textures.size(); ++i )
-    {
-        if( glidos != nullptr )
-            drawLoadingScreen( "Upgrading texture " + std::to_string( i + 1 ) + " of "
-                               + std::to_string( m_level->m_textures.size() ) );
-        else
-            drawLoadingScreen(
-                    "Loading texture " + std::to_string( i + 1 ) + " of "
-                    + std::to_string( m_level->m_textures.size() ) );
-        m_level->m_textures[i].toTexture( glidos.get(), std::function<void(const std::string&)>(
-                [this](const std::string& s) { drawLoadingScreen( s ); } ) );
-    }
-
-    drawLoadingScreen( "Preparing the game" );
-
-    setUpRendering();
-
-    if( useAlternativeLara )
-    {
-        useAlternativeLaraAppearance();
-    }
-
-    for( const auto& item : initInv )
-        m_inventory.put( item.first, item.second );
+    m_audioEngine->m_soundEngine.setListener( m_cameraController.get() );
 
     if( !cutsceneName.empty() )
     {
@@ -1490,6 +1502,34 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
 
 void Engine::run()
 {
+    render::scene::RenderContext context{};
+    render::scene::Node dummyNode{""};
+    context.setCurrentNode( &dummyNode );
+
+    render::gl::FrameBuffer::unbindAll();
+
+    screenOverlay->init( m_window->getViewport() );
+
+    if( const sol::optional<std::string> video = levelInfo["video"] )
+    {
+        video::play( "data/tr1/fmv/" + video.value(),
+                     m_audioEngine->m_soundEngine.getDevice(),
+                     screenOverlay->getImage(),
+                     [&]() {
+                         if( m_window->updateWindowSize() )
+                         {
+                             m_renderer->getScene()->getActiveCamera()->setAspectRatio( m_window->getAspectRatio() );
+                             screenOverlay->init( m_window->getViewport() );
+                         }
+
+                         screenOverlay->render( context );
+                         m_window->swapBuffers();
+                         m_inputHandler->update();
+                         return !m_window->windowShouldClose();
+                     } );
+        return;
+    }
+
     static const auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::seconds( 1 ) )
                                       / core::FrameRate.get();
 
@@ -1500,8 +1540,7 @@ void Engine::run()
     auto font = std::make_shared<render::gl::Font>( "DroidSansMono.ttf", 12 );
     font->setTarget( screenOverlay->getImage() );
 
-    const auto& trFontGraphics = m_level->m_spriteSequences.at( TR1ItemId::FontGraphics );
-    auto trFont = ui::CachedFont( *trFontGraphics );
+    auto trFont = ui::CachedFont( *m_level->m_spriteSequences.at( TR1ItemId::FontGraphics ) );
 
     auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
 
@@ -1620,7 +1659,6 @@ void Engine::run()
         }
 
         screenOverlay->render( context );
-
         m_window->swapBuffers();
 
         if( m_inputHandler->getInputState().save.justPressed() )

@@ -14,7 +14,10 @@ namespace render
 namespace scene
 {
 class Mesh;
+
+
 class Model;
+
 
 class ScreenOverlay : public Renderable
 {
@@ -35,13 +38,18 @@ public:
 
     void render(RenderContext& context) override;
 
-    gsl::not_null<std::shared_ptr<gl::Image<gl::RGBA8>>> getImage() const
+    const auto& getImage() const
     {
         return m_image;
     }
 
+    auto getTexture() const
+    {
+        return m_texture;
+    }
+
 private:
-    std::shared_ptr<gl::Image<gl::RGBA8>> m_image;
+    const std::shared_ptr<gl::Image<gl::RGBA8>> m_image{std::make_shared<gl::Image<gl::RGBA8>>()};
 
     gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{std::make_shared<gl::Texture>( GL_TEXTURE_2D )};
 
