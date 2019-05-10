@@ -661,8 +661,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
                 break;
             case floordata::SequenceCondition::ItemActivated:
             {
-                const floordata::Command command{*floorData++};
-                auto swtch = getEngine().getItemNodes().at( command.parameter );
+                auto swtch = getEngine().getItemNodes().at( floordata::Command{*floorData++}.parameter );
                 if( !swtch->triggerSwitch( activationRequest.getTimeout() ) )
                     return;
 
@@ -672,8 +671,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
                 break;
             case floordata::SequenceCondition::KeyUsed:
             {
-                const floordata::Command command{*floorData++};
-                auto key = getEngine().getItemNodes().at( command.parameter );
+                auto key = getEngine().getItemNodes().at( floordata::Command{*floorData++}.parameter );
                 if( key->triggerKey() )
                     conditionFulfilled = true;
                 else
@@ -816,14 +814,12 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
                                                              activationRequest, chunkHeader.sequenceCondition );
                 break;
             case floordata::CommandOpcode::Secret:
-            {
                 BOOST_ASSERT( command.parameter < 16 );
                 if( !m_secretsFoundBitmask.test( command.parameter ) )
                 {
                     m_secretsFoundBitmask.set( command.parameter );
                     getEngine().getAudioEngine().playStopCdTrack( TR1TrackId::Secret, false );
                 }
-            }
                 break;
             default:
                 break;

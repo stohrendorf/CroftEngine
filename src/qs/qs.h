@@ -3,6 +3,7 @@
 #include "quantity.h"
 #include "mult_div.h"
 #include "yaml_io.h"
+#include "stream.h"
 
 #define QS_DECLARE_QUANTITY(NAME, TYPE, SUFFIX) \
     struct _ ## NAME ## _generated_unit \

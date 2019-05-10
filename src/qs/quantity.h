@@ -77,21 +77,10 @@ struct quantity
         return quantity<unit, typename Q::type>{static_cast<typename Q::type>(value)};
     }
 
-    // the easy operators with scalars or same self_type on the rhs
-    constexpr self_type operator+(self_type r) const noexcept
-    {
-        return self_type{static_cast<type>(value + r.value)};
-    }
-
     constexpr self_type& operator+=(self_type r) noexcept
     {
         value += r.value;
         return *this;
-    }
-
-    constexpr self_type operator-(self_type r) const noexcept
-    {
-        return self_type{static_cast<type>(value - r.value)};
     }
 
     constexpr self_type& operator-=(self_type r) noexcept
@@ -99,14 +88,6 @@ struct quantity
         value -= r.value;
         return *this;
     }
-
-    constexpr self_type operator*(type r) const noexcept
-    {
-        return self_type{static_cast<type>(value * r)};
-    }
-
-    template<typename T>
-    constexpr self_type operator*(T r) const = delete;
 
     constexpr self_type operator*=(type r) noexcept
     {
@@ -117,19 +98,6 @@ struct quantity
     template<typename T>
     constexpr self_type& operator*=(T r) = delete;
 
-    constexpr type operator/(self_type r) const noexcept
-    {
-        return value / r.value;
-    }
-
-    constexpr self_type operator/(type r) const noexcept
-    {
-        return self_type{static_cast<type>(value / r)};
-    }
-
-    template<typename T>
-    constexpr self_type operator/(T r) const = delete;
-
     constexpr self_type operator/=(type r) noexcept
     {
         value /= r;
@@ -139,12 +107,7 @@ struct quantity
     template<typename T>
     constexpr self_type& operator/=(T r) = delete;
 
-    constexpr self_type operator%(self_type r) const noexcept
-    {
-        return self_type{value % r.value};
-    }
-
-    // unary operator -
+    // unary operator +
     constexpr self_type operator+() const noexcept
     {
         return *this;

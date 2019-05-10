@@ -2,6 +2,7 @@
 
 #include "quantity.h"
 #include "tuple_util.h"
+#include "string_util.h"
 
 #include <string>
 
@@ -9,31 +10,8 @@ namespace qs
 {
 namespace detail
 {
-template<typename U, typename... Units>
-struct unit_suffix_helper
-{
-    static std::string suffix()
-    {
-        return std::string( U::suffix() ) + "*" + unit_suffix_helper<Units...>::suffix();
-    }
-};
-
-
-template<typename U>
-struct unit_suffix_helper<U>
-{
-    static std::string suffix()
-    {
-        return U::suffix();
-    }
-};
-
-
-template<typename... Units>
-inline std::string suffix()
-{
-    return unit_suffix_helper<Units...>::suffix();
-}
+template<typename A, typename B>
+using enable_if_not_same_t = std::enable_if_t<!std::is_same_v<A, B>, bool>;
 }
 
 template<typename... Units>
@@ -203,7 +181,8 @@ constexpr auto operator*(quantity<fraction_unit<std::tuple<Units1Top...>, std::t
 // Follows: lhs = product_unit, rhs = (unit, product_unit, fraction_unit)
 
 // product_unit / unit
-template<typename Type, typename... Units1, typename Unit2>
+template<typename Type, typename... Units1, typename Unit2,
+        typename = detail::enable_if_not_same_t<product_unit<Units1...>, Unit2>>
 constexpr auto operator/(quantity<product_unit<Units1...>, Type> a,
                          quantity<Unit2, Type> b)
 {
@@ -211,7 +190,8 @@ constexpr auto operator/(quantity<product_unit<Units1...>, Type> a,
 }
 
 // product_unit / product_unit
-template<typename Type, typename... Units1, typename... Units2>
+template<typename Type, typename... Units1, typename... Units2,
+        typename = detail::enable_if_not_same_t<std::tuple<Units1...>, std::tuple<Units2...>>>
 constexpr auto operator/(quantity<product_unit<Units1...>, Type> a,
                          quantity<product_unit<Units2...>, Type> b)
 {
@@ -238,7 +218,8 @@ constexpr auto operator/(quantity<Unit1, Type> a,
 }
 
 // unit / product_unit
-template<typename Type, typename Unit1, typename... Units2>
+template<typename Type, typename Unit1, typename... Units2,
+        typename = detail::enable_if_not_same_t<Unit1, product_unit<Units2...>>>
 constexpr auto operator/(quantity<Unit1, Type> a,
                          quantity<product_unit<Units2...>, Type> b)
 {
@@ -282,4 +263,47 @@ constexpr auto operator/(quantity<fraction_unit<std::tuple<Units1Top...>, std::t
     return quantity<fraction_unit_t<std::tuple<Units1Top..., Units2Bottom...>, std::tuple<Units1Bottom..., Units2Top...>>, Type>{
             a.get() / b.get()};
 }
+
+template<typename Type, typename Unit>
+constexpr auto operator/(quantity<Unit, Type> l, quantity<Unit, Type> r) noexcept
+{
+    return l.get() / r.get();
+}
+
+template<typename Type, typename Unit>
+constexpr auto operator/(quantity<Unit, Type> l, Type r) noexcept
+{
+    return quantity<Unit, Type>{static_cast<Type>(l.get() / r)};
+}
+
+template<typename Type, typename Unit, typename T>
+constexpr void operator/(quantity<Unit, Type> l, T r) = delete;
+
+template<typename Type, typename Unit>
+constexpr auto operator*(quantity<Unit, Type> l, Type r) noexcept
+{
+    return quantity<Unit, Type>{static_cast<Type>(l.get() * r)};
+}
+
+template<typename Type, typename Unit, typename T>
+constexpr void operator*(quantity<Unit, Type> l, T r) = delete;
+
+template<typename Type, typename Unit>
+constexpr auto operator+(quantity<Unit, Type> l, quantity<Unit, Type> r) noexcept
+{
+    return quantity<Unit, Type>{static_cast<Type>(l.get() + r.get())};
+}
+
+template<typename Type, typename Unit>
+constexpr auto operator-(quantity<Unit, Type> l, quantity<Unit, Type> r) noexcept
+{
+    return quantity<Unit, Type>{static_cast<Type>(l.get() - r.get())};
+}
+
+template<typename Type, typename Unit>
+constexpr auto operator%(quantity<Unit, Type> l, quantity<Unit, Type> r) noexcept
+{
+    return quantity<Unit, Type>{static_cast<Type>(l.get() % r.get())};
+}
+
 }

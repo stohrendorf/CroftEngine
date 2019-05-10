@@ -2,8 +2,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "tuple_util.h"
-#include "mult_div.h"
+#include "qs.h"
 
 #define TPL(...) __VA_ARGS__
 #define STR(X) #X
@@ -14,7 +13,7 @@
 using namespace qs::detail;
 using namespace qs;
 
-BOOST_AUTO_TEST_SUITE( qs_tests )
+BOOST_AUTO_TEST_SUITE( qs_type_tests )
 
 
 BOOST_AUTO_TEST_CASE( test_drop_if_same_t )
@@ -131,3 +130,80 @@ BOOST_AUTO_TEST_CASE( test_fraction_unit_t )
 
 BOOST_AUTO_TEST_SUITE_END()
 
+BOOST_AUTO_TEST_SUITE( qs_quantitative_tests )
+
+
+BOOST_AUTO_TEST_CASE( test_comparison )
+{
+    QS_DECLARE_QUANTITY( Foo, int, "foo" );
+
+    BOOST_CHECK_EQUAL( Foo{2}, Foo{2} );
+    BOOST_CHECK_NE( Foo{2}, Foo{3} );
+    BOOST_CHECK_LE( Foo{2}, Foo{3} );
+    BOOST_CHECK_LE( Foo{3}, Foo{3} );
+    BOOST_CHECK_LT( Foo{2}, Foo{3} );
+    BOOST_CHECK_GE( Foo{3}, Foo{2} );
+    BOOST_CHECK_GE( Foo{3}, Foo{3} );
+    BOOST_CHECK_GT( Foo{3}, Foo{2} );
+}
+
+
+BOOST_AUTO_TEST_CASE( test_mul )
+{
+    QS_DECLARE_QUANTITY( Foo, int, "foo" );
+
+    BOOST_CHECK_EQUAL( Foo{2} * 5, Foo{10} );
+    BOOST_CHECK_EQUAL( 5 * Foo{2}, Foo{10} );
+}
+
+
+BOOST_AUTO_TEST_CASE( test_div )
+{
+    QS_DECLARE_QUANTITY( Foo, int, "foo" );
+
+    BOOST_CHECK_EQUAL( Foo{10} / 2, Foo{5} );
+    BOOST_CHECK_EQUAL( Foo{10} / Foo{2}, 5 );
+}
+
+
+BOOST_AUTO_TEST_CASE( test_mod )
+{
+    QS_DECLARE_QUANTITY( Foo, int, "foo" );
+
+    BOOST_CHECK_EQUAL( Foo{10} % Foo{2}, Foo{0} );
+    BOOST_CHECK_EQUAL( Foo{10} % Foo{3}, Foo{1} );
+}
+
+
+BOOST_AUTO_TEST_CASE( test_add )
+{
+    QS_DECLARE_QUANTITY( Foo, int, "foo" );
+
+    BOOST_CHECK_EQUAL( Foo{10} + Foo{2}, Foo{12} );
+}
+
+
+BOOST_AUTO_TEST_CASE( test_sub )
+{
+    QS_DECLARE_QUANTITY( Foo, int, "foo" );
+
+    BOOST_CHECK_EQUAL( Foo{10} - Foo{2}, Foo{8} );
+}
+
+
+BOOST_AUTO_TEST_CASE( test_unary_plus )
+{
+    QS_DECLARE_QUANTITY( Foo, int, "foo" );
+
+    BOOST_CHECK_EQUAL( +Foo{2}, Foo{+2} );
+}
+
+
+BOOST_AUTO_TEST_CASE( test_unary_minus )
+{
+    QS_DECLARE_QUANTITY( Foo, int, "foo" );
+
+    BOOST_CHECK_EQUAL( -Foo{2}, Foo{-2} );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
