@@ -64,7 +64,7 @@ public:
         m_underwaterRoute.drop = -core::SectorSize * 20;
         m_underwaterRoute.fly = core::QuarterSectorSize;
 
-        Weapon w;
+        Weapon w{};
         weapons[WeaponId::None] = w;
 
         w.lockAngles.y.min = -60_deg;
@@ -344,15 +344,15 @@ public:
         m_underwaterState = u;
     }
 
-    void setCameraRotationAroundCenter(const core::Angle x, const core::Angle y);
+    void setCameraRotationAroundCenter(core::Angle x, core::Angle y);
 
-    void setCameraRotationAroundCenterX(const core::Angle x);
+    void setCameraRotationAroundCenterX(core::Angle x);
 
-    void setCameraRotationAroundCenterY(const core::Angle y);
+    void setCameraRotationAroundCenterY(core::Angle y);
 
     void setCameraEyeCenterDistance(core::Length d);
 
-    void setCameraModifier(const CameraModifier k);
+    void setCameraModifier(CameraModifier k);
 
     void addHeadRotationXY(const core::Angle& x, const core::Angle& minX, const core::Angle& maxX, const core::Angle& y,
                            const core::Angle& minY, const core::Angle& maxY)

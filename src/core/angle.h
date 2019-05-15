@@ -206,9 +206,9 @@ inline glm::mat4 fromPackedAngles(uint32_t angleData)
 
 struct TRRotationXY
 {
-    Angle X;
+    Angle X{0_deg};
 
-    Angle Y;
+    Angle Y{0_deg};
 
     glm::mat4 toMatrix() const
     {

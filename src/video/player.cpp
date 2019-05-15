@@ -32,6 +32,16 @@ extern "C"
 
 namespace video
 {
+inline std::string getAvError(int err)
+{
+    char tmp[1024] = "";
+    if( av_strerror( err, tmp, 1024 ) < 0 )
+        return "Unknown error " + std::to_string( err );
+
+    return tmp;
+}
+
+
 struct Stream final
 {
     int index = -1;
@@ -215,7 +225,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
                                          audioStream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
                                          audioStream->context->sample_fmt, audioStream->context->sample_rate,
                                          0, nullptr );
-        if( !swrContext )
+        if( swrContext == nullptr )
         {
             throw std::runtime_error( "Could not allocate resampler context" );
         }
@@ -249,9 +259,10 @@ struct AVDecoder final : public audio::AbstractStreamSource
             }
         }
 
-        while( av_read_frame( fmtContext, &packet ) == 0 )
+        int err;
+        while( (err = av_read_frame( fmtContext, &packet )) == 0 )
         {
-            decodePacket( packet );
+            decodePacket();
             av_packet_unref( &packet );
 
             std::unique_lock<std::mutex> lock( imgQueueMutex );
@@ -260,6 +271,8 @@ struct AVDecoder final : public audio::AbstractStreamSource
                 return;
             }
         }
+
+        BOOST_LOG_TRIVIAL( info ) << "fillQueues done: " << getAvError( err );
     }
 
     std::queue<AVFramePtr> imgQueue;
@@ -289,18 +302,38 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
     static const constexpr size_t QueueLimit = 3;
 
-    void decodePacket(AVPacket& pkt)
+    void decodePacket()
     {
-        if( pkt.stream_index == videoStream->index )
+        if( packet.stream_index == videoStream->index )
         {
-            if( avcodec_send_packet( videoStream->context, &pkt ) != 0 )
-                throw std::runtime_error( "Failed to send packet to video decoder" );
+            if( const auto err = avcodec_send_packet( videoStream->context, &packet ) )
+            {
+                if( err == AVERROR( EINVAL ) )
+                {
+                    BOOST_LOG_TRIVIAL( info ) << "Flushing video decoder";
+                    avcodec_flush_buffers( videoStream->context );
+                }
+                else
+                {
+                    if( err == AVERROR( EAGAIN ) )
+                        BOOST_LOG_TRIVIAL( error ) << "Frames still present in video decoder";
+                    else if( err == AVERROR( ENOMEM ) )
+                        BOOST_LOG_TRIVIAL( error ) << "Failed to add packet to video decoder queue";
+                    else if( err == AVERROR_EOF )
+                        BOOST_LOG_TRIVIAL( error ) << "Video decoder already flushed";
+
+                    BOOST_LOG_TRIVIAL( error ) << "Failed to send packet to video decoder: " << getAvError( err );
+                    throw std::runtime_error( "Failed to send packet to video decoder" );
+                }
+            }
 
             AVFramePtr videoFrame;
-            while( avcodec_receive_frame( videoStream->context, videoFrame.frame ) == 0 )
+            int err;
+            while( (err = avcodec_receive_frame( videoStream->context, videoFrame.frame )) == 0 )
             {
-                if( av_buffersrc_add_frame( filterGraph.input, videoFrame.release() ) < 0 )
+                if( const auto err = av_buffersrc_add_frame( filterGraph.input, videoFrame.release() ) )
                 {
+                    BOOST_LOG_TRIVIAL( error ) << "Error while feeding the filtergraph: " << getAvError( err );
                     throw std::runtime_error( "Error while feeding the filtergraph" );
                 }
                 videoFrame = AVFramePtr();
@@ -312,21 +345,51 @@ struct AVDecoder final : public audio::AbstractStreamSource
                     if( ret == AVERROR( EAGAIN ) || ret == AVERROR_EOF )
                         break;
                     if( ret < 0 )
+                    {
+                        BOOST_LOG_TRIVIAL( error ) << "Filter error: " << getAvError( ret );
                         throw std::runtime_error( "Filter error" );
+                    }
 
                     std::unique_lock<std::mutex> lock( imgQueueMutex );
                     imgQueue.push( std::move( filteredFrame ) );
                 }
             }
+            if( err != AVERROR( EAGAIN ) )
+                BOOST_LOG_TRIVIAL( info ) << "Video stream chunk decoded: " << getAvError( err );
         }
-        else if( pkt.stream_index == audioStream->index )
+        else if( packet.stream_index == audioStream->index )
         {
-            if( avcodec_send_packet( audioStream->context, &pkt ) != 0 )
-                throw std::runtime_error( "Failed to send packet to audio decoder" );
+            if( const auto err = avcodec_send_packet( audioStream->context, &packet ) )
+            {
+                if( err == AVERROR( EINVAL ) )
+                {
+                    BOOST_LOG_TRIVIAL( info ) << "Flushing audio decoder";
+                    avcodec_flush_buffers( audioStream->context );
+                }
+                else
+                {
+                    if( err == AVERROR( EAGAIN ) )
+                        BOOST_LOG_TRIVIAL( error ) << "Frames still present in audio decoder";
+                    else if( err == AVERROR( ENOMEM ) )
+                        BOOST_LOG_TRIVIAL( error ) << "Failed to add packet to audio decoder queue";
+                    else if( err == AVERROR_EOF )
+                        BOOST_LOG_TRIVIAL( error ) << "Audio decoder already flushed";
 
-            while( avcodec_receive_frame( audioStream->context, audioFrame.frame ) == 0 )
+                    BOOST_LOG_TRIVIAL( error ) << "Failed to send packet to audio decoder: " << getAvError( err );
+                    throw std::runtime_error( "Failed to send packet to audio decoder" );
+                }
+            }
+
+            int err;
+            while( (err = avcodec_receive_frame( audioStream->context, audioFrame.frame )) == 0 )
             {
                 const auto outSamples = swr_get_out_samples( swrContext, audioFrame.frame->nb_samples );
+                if( outSamples < 0 )
+                {
+                    BOOST_LOG_TRIVIAL( error ) << "Failed to receive resampled audio data";
+                    BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to receive resampled audio data" ) );
+                }
+
                 std::vector<int16_t> audio( outSamples * 2, 0 );
                 auto* audioData = reinterpret_cast<uint8_t*>(audio.data());
 
@@ -342,6 +405,8 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
                 audioQueue.push( std::move( audio ) );
             }
+            if( err != AVERROR( EAGAIN ) )
+                BOOST_LOG_TRIVIAL( info ) << "Audio stream chunk decoded: " << getAvError( err );
         }
     }
 

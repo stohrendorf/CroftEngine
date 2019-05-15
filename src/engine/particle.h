@@ -66,13 +66,13 @@ protected:
 
 public:
     explicit Particle(const std::string& id,
-                      const core::TypeId objectNumber,
+                      core::TypeId objectNumber,
                       const gsl::not_null<const loader::file::Room*>& room,
                       Engine& engine,
                       float scale = 1);
 
     explicit Particle(const std::string& id,
-                      const core::TypeId objectNumber,
+                      core::TypeId objectNumber,
                       const core::RoomBoundPosition& pos,
                       Engine& engine,
                       float scale = 1);
