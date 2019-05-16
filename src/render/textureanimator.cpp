@@ -274,7 +274,8 @@ public:
     }
 
     void toTexture(std::vector<loader::file::DWordTexture>& textures,
-                   std::vector<loader::file::TextureLayoutProxy>& textureProxies) const
+                   std::vector<loader::file::TextureLayoutProxy>& textureProxies,
+                   bool linear) const
     {
         util::CImgWrapper img{m_resultPageSize};
 
@@ -309,6 +310,16 @@ public:
         loader::file::DWordTexture texture;
         texture.texture = std::make_shared<render::gl::Texture>( GL_TEXTURE_2D );
         texture.texture->setLabel( "animated texture tiles" );
+        if( !linear )
+        {
+            texture.texture->set( GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+            texture.texture->set( GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+        }
+        else
+        {
+            texture.texture->set( GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+            texture.texture->set( GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        }
         img.interleave();
         texture.image = std::make_shared<render::gl::Image<render::gl::RGBA8>>(
                 img.width(), img.height(), reinterpret_cast<const render::gl::RGBA8*>(img.data()) );
@@ -322,7 +333,8 @@ public:
 
 TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
                                  std::vector<loader::file::TextureLayoutProxy>& textureProxies,
-                                 std::vector<loader::file::DWordTexture>& textures)
+                                 std::vector<loader::file::DWordTexture>& textures,
+                                 bool linear)
 {
     GLint maxSize = 0;
     for( const auto& texture : textures )
@@ -362,6 +374,6 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
     atlas.layOutTextures( textures );
 
     BOOST_LOG_TRIVIAL( debug ) << "  - Building texture...";
-    atlas.toTexture( textures, textureProxies );
+    atlas.toTexture( textures, textureProxies, linear );
 }
 }

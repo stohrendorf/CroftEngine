@@ -22,7 +22,7 @@ float dof_blur_radius(in float depth) {
     return dof_focal_point_distance(depth) * dof_scale + dof_offset;
 }
 
-vec3 do_dof(in vec2 uv)
+vec3 do_dof(in vec2 uv, in vec3 centerRgb)
 {
     float depth = depth_at(uv);
 
@@ -32,7 +32,7 @@ vec3 do_dof(in vec2 uv)
 
     float dist_step = dof_blur_radius(depth) / dof_rings;
 
-    vec3 sample_color = shaded_texel(uv, depth);
+    vec3 sample_color = centerRgb;
     float sample_weight_sum = 1.0;
     for (int i = 1; i <= dof_blends; i += 1)
     {

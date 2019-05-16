@@ -124,6 +124,16 @@ void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void
 {
     texture = std::make_shared<render::gl::Texture>( GL_TEXTURE_2D );
     texture->setLabel( md5 );
+    if( glidos == nullptr )
+    {
+        texture->set( GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+        texture->set( GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    }
+    else
+    {
+        texture->set( GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+        texture->set( GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    }
     toImage( glidos, statusCallback );
     texture->image2D( image->getWidth(), image->getHeight(), image->getData(), true );
 }

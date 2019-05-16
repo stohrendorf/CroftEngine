@@ -11,9 +11,14 @@ float brightness(in float depth)
     return 1.0 - depth;
 }
 
+vec3 shade_texel(in vec3 rgb, in float depth)
+{
+    return rgb * brightness(depth);
+}
+
 vec3 shaded_texel(in vec2 uv, in float depth)
 {
-    return texture2D(u_texture, uv).rgb * brightness(depth);
+    return shade_texel(texture2D(u_texture, uv).rgb, depth);
 }
 
 float luminance(in vec3 color)

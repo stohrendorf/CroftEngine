@@ -251,7 +251,7 @@ public:
 
     std::shared_ptr<LaraNode> createItems();
 
-    void loadSceneData();
+    void loadSceneData(bool linearTextureInterpolation);
 
     const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
 

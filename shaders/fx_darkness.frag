@@ -1,6 +1,7 @@
 uniform sampler2D u_texture;
 uniform mat4 u_projection;
 uniform float u_time;
+uniform vec2 u_screenSize;
 
 in vec2 v_texCoord;
 
@@ -25,6 +26,8 @@ const float Z_max = 20480;
 #include "lens.glsl"
 #endif
 
+#include "fxaa.glsl"
+
 float rand1(in vec2 seed)
 {
     const vec2 K1 = vec2(
@@ -48,10 +51,11 @@ void main()
     do_water_distortion(uv);
 #endif
 
-#ifndef DOF
-    out_color.rgb = shaded_texel(uv, depth_at(uv));
-#else
-    out_color.rgb = do_dof(uv);
+    out_color.rgb = fxaa(uv, u_texture, 1.0/u_screenSize, 0.75, 0.166, 0.0833);
+
+    out_color.rgb = shade_texel(out_color.rgb, depth_at(uv));
+#ifdef DOF
+    out_color.rgb = do_dof(uv, out_color.rgb);
 #endif
 
     out_color.rgb *= grain*0.3 + 0.7;

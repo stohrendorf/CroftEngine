@@ -93,7 +93,8 @@ class TextureAnimator
 public:
     explicit TextureAnimator(const std::vector<uint16_t>& data,
                              std::vector<loader::file::TextureLayoutProxy>& textureProxies,
-                             std::vector<loader::file::DWordTexture>& textures);
+                             std::vector<loader::file::DWordTexture>& textures,
+                             bool linear);
 
     void registerVertex(const core::TextureProxyId proxyId,
                         const std::shared_ptr<render::gl::StructuredVertexBuffer>& buffer,

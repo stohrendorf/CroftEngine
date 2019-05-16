@@ -528,7 +528,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
     return lara;
 }
 
-void Engine::loadSceneData()
+void Engine::loadSceneData(bool linearTextureInterpolation)
 {
     for( auto& sprite : m_level->m_sprites )
     {
@@ -537,7 +537,9 @@ void Engine::loadSceneData()
     }
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>( m_level->m_animatedTextures,
-                                                                   m_level->m_textureProxies, m_level->m_textures );
+                                                                   m_level->m_textureProxies,
+                                                                   m_level->m_textures,
+                                                                   linearTextureInterpolation );
 
     const auto texturedShader = render::scene::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                               "shaders/textured_2.frag" );
@@ -1412,7 +1414,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
         }
 
         drawLoadingScreen( "Preparing the game" );
-        loadSceneData();
+        loadSceneData( glidos != nullptr );
 
         if( useAlternativeLara )
         {
@@ -1485,6 +1487,11 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                 uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
             }
     );
+    depthDarknessFx->getMaterial()->getParameter( "u_screenSize" )->bind(
+            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
+                const auto s = m_window->getViewport();
+                uniform.set( glm::vec2( static_cast<float>(s.width), static_cast<float>(s.height) ) );
+            } );
 
     depthDarknessWaterFx = std::make_shared<render::FullScreenFX>( *m_window,
                                                                    render::scene::ShaderProgram::createFromFile(
@@ -1503,6 +1510,11 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                 uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
             }
     );
+    depthDarknessWaterFx->getMaterial()->getParameter( "u_screenSize" )->bind(
+            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
+                const auto s = m_window->getViewport();
+                uniform.set( glm::vec2( static_cast<float>(s.width), static_cast<float>(s.height) ) );
+            } );
 }
 
 void Engine::run()

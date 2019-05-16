@@ -31,8 +31,11 @@ public:
         const auto vp = window.getViewport();
 
         m_colorBuffer = std::make_shared<gl::Texture>( GL_TEXTURE_2D );
-        m_colorBuffer->image2D<gl::RGBA8>(
-                gsl::narrow<GLint>( vp.width ), gsl::narrow<GLint>( vp.height ), false );
+        m_colorBuffer->image2D<gl::RGBA8>( gsl::narrow<GLint>( vp.width ), gsl::narrow<GLint>( vp.height ), false );
+        m_colorBuffer->set( GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+        m_colorBuffer->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        m_colorBuffer->set( GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+        m_colorBuffer->set( GL_TEXTURE_MAG_FILTER, GL_LINEAR );
         m_fb->attachTexture2D( GL_COLOR_ATTACHMENT0, *m_colorBuffer );
 
         m_depthBuffer = std::make_shared<gl::Texture>( GL_TEXTURE_2D );
@@ -61,9 +64,6 @@ public:
         m_model->getRenderState().setDepthWrite( false );
         m_model->getRenderState().setDepthTest( false );
         m_model->getRenderState().setCullFace( false );
-
-        m_colorBuffer->set( GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-        m_colorBuffer->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
     }
 
     void bind() const
