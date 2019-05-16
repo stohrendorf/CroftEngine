@@ -187,6 +187,7 @@ set( EDISONENGINE_SRCS
      engine/items/raptor.cpp
      engine/items/rat.cpp
      engine/items/scionpiece.cpp
+     engine/items/slammingdoors.cpp
      engine/items/swingingblade.cpp
      engine/items/switch.cpp
      engine/items/swordofdamocles.cpp

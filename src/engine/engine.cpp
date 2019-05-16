@@ -29,6 +29,7 @@
 #include "items/raptor.h"
 #include "items/rat.h"
 #include "items/scionpiece.h"
+#include "items/slammingdoors.h"
 #include "items/slopedbridge.h"
 #include "items/stubitem.h"
 #include "items/swingingblade.h"
@@ -423,6 +424,10 @@ std::shared_ptr<LaraNode> Engine::createItems()
             else if( item.type == TR1ItemId::RatInWater || item.type == TR1ItemId::RatOnLand )
             {
                 modelNode = std::make_shared<items::Rat>( this, room, item, *model );
+            }
+            else if( item.type == TR1ItemId::SlammingDoors )
+            {
+                modelNode = std::make_shared<items::SlammingDoors>( this, room, item, *model );
             }
             else
             {
