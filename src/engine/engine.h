@@ -44,7 +44,7 @@ namespace gl
 class Font;
 }
 
-class FullScreenFX;
+class DeferredRenderTarget;
 }
 
 namespace engine
@@ -104,8 +104,9 @@ private:
 
     std::shared_ptr<render::scene::Material> m_spriteMaterial{nullptr};
 
-    std::shared_ptr<render::FullScreenFX> depthDarknessFx;
-    std::shared_ptr<render::FullScreenFX> depthDarknessWaterFx;
+    std::shared_ptr<render::DeferredRenderTarget> fxaa;
+    std::shared_ptr<render::DeferredRenderTarget> depthDarknessFx;
+    std::shared_ptr<render::DeferredRenderTarget> depthDarknessWaterFx;
     std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
     std::unique_ptr<render::scene::Renderer> m_renderer;
     std::unique_ptr<render::scene::Window> m_window;

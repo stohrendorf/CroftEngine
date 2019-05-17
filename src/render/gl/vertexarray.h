@@ -33,8 +33,8 @@ public:
         unbind();
     }
 
-    explicit VertexArray(gsl::not_null<std::shared_ptr<IndexBuffer>> indexBuffer,
-                         gsl::not_null<std::shared_ptr<StructuredVertexBuffer>> vertexBuffer,
+    explicit VertexArray(const gsl::not_null<std::shared_ptr<IndexBuffer>>& indexBuffer,
+                         const gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>& vertexBuffer,
                          const Program& program,
                          const std::string& label = {})
             : VertexArray{std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>{indexBuffer},

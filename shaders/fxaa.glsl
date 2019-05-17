@@ -1,3 +1,5 @@
+#include "util.glsl"
+
 #ifndef FXAA_QUALITY_PRESET
     #define FXAA_QUALITY_PRESET 39
 #endif
@@ -54,8 +56,6 @@
     const float FxaaQualityP[12] = { 1, 1, 1, 1, 1, 1.5, 2, 2, 2, 2, 4, 8 };
 #endif
 
-float FxaaLuma(in vec4 rgba) { return rgba.g; }
-
 bool fxaaStep(in sampler2D tex,
          in float lumaNN,
          inout vec2 posN, inout vec2 posP,
@@ -67,11 +67,11 @@ bool fxaaStep(in sampler2D tex,
 {
     if (!doneN)
     {
-        lumaEndN = FxaaLuma(texture(tex, posN.xy)) - lumaNN * 0.5;
+        lumaEndN = luminance(texture(tex, posN.xy)) - lumaNN * 0.5;
     }
     if (!doneP)
     {
-        lumaEndP = FxaaLuma(texture(tex, posP.xy)) - lumaNN * 0.5;
+        lumaEndP = luminance(texture(tex, posP.xy)) - lumaNN * 0.5;
     }
     doneN = abs(lumaEndN) >= gradientScaled;
     if (!doneN)
@@ -99,11 +99,11 @@ vec3 fxaa(
 ) {
 /*--------------------------------------------------------------------------*/
     vec4 rgbyM = texture(tex, posM);
-    float lumaM = FxaaLuma(rgbyM);
-    float lumaS = FxaaLuma(textureOffset(tex, posM, ivec2(0, 1)));
-    float lumaE = FxaaLuma(textureOffset(tex, posM, ivec2(1, 0)));
-    float lumaN = FxaaLuma(textureOffset(tex, posM, ivec2(0,-1)));
-    float lumaW = FxaaLuma(textureOffset(tex, posM, ivec2(-1, 0)));
+    float lumaM = luminance(rgbyM);
+    float lumaS = luminance(textureOffset(tex, posM, ivec2(0, 1)));
+    float lumaE = luminance(textureOffset(tex, posM, ivec2(1, 0)));
+    float lumaN = luminance(textureOffset(tex, posM, ivec2(0,-1)));
+    float lumaW = luminance(textureOffset(tex, posM, ivec2(-1, 0)));
 /*--------------------------------------------------------------------------*/
     float maxSM = max(lumaS, lumaM);
     float minSM = min(lumaS, lumaM);
@@ -120,10 +120,10 @@ vec3 fxaa(
     if (range < rangeMaxClamped)
         return rgbyM.rgb;
 /*--------------------------------------------------------------------------*/
-    float lumaNW = FxaaLuma(textureOffset(tex, posM, ivec2(-1,-1)));
-    float lumaSE = FxaaLuma(textureOffset(tex, posM, ivec2(1, 1)));
-    float lumaNE = FxaaLuma(textureOffset(tex, posM, ivec2(1,-1)));
-    float lumaSW = FxaaLuma(textureOffset(tex, posM, ivec2(-1, 1)));
+    float lumaNW = luminance(textureOffset(tex, posM, ivec2(-1,-1)));
+    float lumaSE = luminance(textureOffset(tex, posM, ivec2(1, 1)));
+    float lumaNE = luminance(textureOffset(tex, posM, ivec2(1,-1)));
+    float lumaSW = luminance(textureOffset(tex, posM, ivec2(-1, 1)));
 /*--------------------------------------------------------------------------*/
     float lumaNS = lumaN + lumaS;
     float lumaWE = lumaW + lumaE;
@@ -174,9 +174,9 @@ vec3 fxaa(
 /*--------------------------------------------------------------------------*/
     vec2 posN = posB - offNP * FxaaQualityP[0];
     vec2 posP = posB + offNP * FxaaQualityP[0];
-    float lumaEndN = FxaaLuma(texture(tex, posN));
+    float lumaEndN = luminance(texture(tex, posN));
     float subpixE = subpixC * subpixC;
-    float lumaEndP = FxaaLuma(texture(tex, posP));
+    float lumaEndP = luminance(texture(tex, posP));
 /*--------------------------------------------------------------------------*/
     if (!pairN) lumaNN = lumaSS;
     float gradientScaled = gradient * 1.0/4.0;

@@ -25,3 +25,8 @@ float luminance(in vec3 color)
 {
     return dot(color, vec3(0.212656, 0.715158, 0.072186));
 }
+
+float luminance(in vec4 color)
+{
+    return dot(vec3(color), vec3(0.212656, 0.715158, 0.072186));
+}

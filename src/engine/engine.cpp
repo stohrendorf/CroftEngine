@@ -52,7 +52,7 @@
 #include "audio/tracktype.h"
 #include "render/textureanimator.h"
 #include "render/gl/font.h"
-#include "render/fullscreenfx.h"
+#include "render/deferredrendertarget.h"
 
 #include "ui/label.h"
 
@@ -1470,12 +1470,24 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
         }
     }
 
-    depthDarknessFx = std::make_shared<render::FullScreenFX>( *m_window,
-                                                              render::scene::ShaderProgram::createFromFile(
-                                                                      "shaders/fx_darkness.vert",
-                                                                      "shaders/fx_darkness.frag",
-                                                                      {"LENS_DISTORTION"} ),
-                                                              m_renderer->getScene()->getActiveCamera() );
+    fxaa = std::make_shared<render::DeferredRenderTarget>( m_window->getViewport(),
+                                                           render::scene::ShaderProgram::createFromFile(
+                                                                   "shaders/fxaa.vert",
+                                                                   "shaders/fxaa.frag",
+                                                                   {} ),
+                                                           true );
+    fxaa->getMaterial()->getParameter( "u_screenSize" )->bind(
+            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
+                const auto s = m_window->getViewport();
+                uniform.set( glm::vec2( static_cast<float>(s.width), static_cast<float>(s.height) ) );
+            } );
+
+    depthDarknessFx = std::make_shared<render::DeferredRenderTarget>( m_window->getViewport(),
+                                                                      render::scene::ShaderProgram::createFromFile(
+                                                                              "shaders/fx_darkness.vert",
+                                                                              "shaders/fx_darkness.frag",
+                                                                              {"LENS_DISTORTION"} ),
+                                                                      false );
     depthDarknessFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
             [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
                 uniform.set( m_window->getAspectRatio() );
@@ -1487,18 +1499,19 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                 uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
             }
     );
-    depthDarknessFx->getMaterial()->getParameter( "u_screenSize" )->bind(
-            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                const auto s = m_window->getViewport();
-                uniform.set( glm::vec2( static_cast<float>(s.width), static_cast<float>(s.height) ) );
-            } );
+    depthDarknessFx->getMaterial()->getParameter( "u_projection" )
+                   ->bind( [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
+                                                                                render::gl::Program::ActiveUniform& uniform) {
+                       uniform.set( camera->getProjectionMatrix() );
+                   } );
+    depthDarknessFx->getMaterial()->getParameter( "u_depth" )->set( fxaa->getDepthBuffer() );
 
-    depthDarknessWaterFx = std::make_shared<render::FullScreenFX>( *m_window,
-                                                                   render::scene::ShaderProgram::createFromFile(
-                                                                           "shaders/fx_darkness.vert",
-                                                                           "shaders/fx_darkness.frag",
-                                                                           {"WATER", "LENS_DISTORTION"} ),
-                                                                   m_renderer->getScene()->getActiveCamera() );
+    depthDarknessWaterFx = std::make_shared<render::DeferredRenderTarget>( m_window->getViewport(),
+                                                                           render::scene::ShaderProgram::createFromFile(
+                                                                                   "shaders/fx_darkness.vert",
+                                                                                   "shaders/fx_darkness.frag",
+                                                                                   {"WATER", "LENS_DISTORTION"} ),
+                                                                           false );
     depthDarknessWaterFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
             [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
                 uniform.set( m_window->getAspectRatio() );
@@ -1510,11 +1523,14 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                 uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
             }
     );
-    depthDarknessWaterFx->getMaterial()->getParameter( "u_screenSize" )->bind(
-            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                const auto s = m_window->getViewport();
-                uniform.set( glm::vec2( static_cast<float>(s.width), static_cast<float>(s.height) ) );
-            } );
+    depthDarknessWaterFx->getMaterial()->getParameter( "u_projection" )
+                        ->bind( [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
+                                                                                     render::gl::Program::ActiveUniform& uniform) {
+                            uniform.set( camera->getProjectionMatrix() );
+                        } );
+    depthDarknessWaterFx->getMaterial()->getParameter( "u_depth" )->set( fxaa->getDepthBuffer() );
+
+    fxaa->dropDepthBuffer();
 }
 
 void Engine::run()
@@ -1603,8 +1619,12 @@ void Engine::run()
         if( m_window->updateWindowSize() )
         {
             m_renderer->getScene()->getActiveCamera()->setAspectRatio( m_window->getAspectRatio() );
-            depthDarknessFx->init( *m_window, m_renderer->getScene()->getActiveCamera() );
-            depthDarknessWaterFx->init( *m_window, m_renderer->getScene()->getActiveCamera() );
+            fxaa->init( m_window->getViewport() );
+            depthDarknessFx->init( m_window->getViewport() );
+            depthDarknessFx->getMaterial()->getParameter( "u_depth" )->set( fxaa->getDepthBuffer() );
+            depthDarknessWaterFx->init( m_window->getViewport() );
+            depthDarknessWaterFx->getMaterial()->getParameter( "u_depth" )->set( fxaa->getDepthBuffer() );
+            fxaa->dropDepthBuffer();
             screenOverlay->init( m_window->getViewport() );
             font->setTarget( screenOverlay->getImage() );
         }
@@ -1626,16 +1646,20 @@ void Engine::run()
         if( m_lara != nullptr )
             drawBars( screenOverlay->getImage() );
 
-        if( getCameraController().getCurrentRoom()->isWaterRoom() )
-            depthDarknessWaterFx->bind();
-        else
-            depthDarknessFx->bind();
+        fxaa->bind();
+
         m_renderer->render();
 
         render::scene::RenderContext context{};
         render::scene::Node dummyNode{""};
         context.setCurrentNode( &dummyNode );
 
+        if( getCameraController().getCurrentRoom()->isWaterRoom() )
+            depthDarknessWaterFx->bind();
+        else
+            depthDarknessFx->bind();
+
+        fxaa->render( context );
         render::gl::FrameBuffer::unbindAll();
 
         if( getCameraController().getCurrentRoom()->isWaterRoom() )
