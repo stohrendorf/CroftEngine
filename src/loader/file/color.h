@@ -35,6 +35,11 @@ struct ByteColor
         return render::gl::RGBA8{r, g, b, a};
     }
 
+    render::gl::RGBA8 toTextureColor(uint8_t alphaOverride) const
+    {
+        return render::gl::RGBA8{r, g, b, alphaOverride};
+    }
+
     glm::vec4 toGLColor() const
     {
         return glm::vec4{r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};

@@ -649,7 +649,7 @@ std::shared_ptr<items::ItemNode> Engine::getItem(const uint16_t id) const
     return it->second.get();
 }
 
-void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::RGBA8>>>& image) const
+void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::RGBA8>>>& image)
 {
     if( m_lara->isInWater() )
     {
@@ -673,22 +673,38 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<rend
         }
     }
 
+    if( m_lara->getHandStatus() == HandStatus::Combat || m_lara->m_state.health <= 0_hp )
+        m_healthBarTimeout = 40_frame;
+
+    if( std::exchange( m_drawnHealth, m_lara->m_state.health ) != m_lara->m_state.health )
+        m_healthBarTimeout = 40_frame;
+
+    m_healthBarTimeout -= 1_frame;
+    if( m_healthBarTimeout <= -40_frame )
+        return;
+
+    uint8_t alpha = 255;
+    if( m_healthBarTimeout < 0_frame )
+    {
+        alpha = util::clamp( 255 - std::abs( 255 * m_healthBarTimeout / 40_frame ), 0, 255 );
+    }
+
     const int x0 = 8;
     for( int i = 7; i <= 13; ++i )
-        image->line( x0 - 1, i, x0 + 101, i, m_level->m_palette->colors[0].toTextureColor() );
-    image->line( x0 - 2, 14, x0 + 102, 14, m_level->m_palette->colors[17].toTextureColor() );
-    image->line( x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[17].toTextureColor() );
-    image->line( x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[19].toTextureColor() );
-    image->line( x0 - 2, 6, x0 - 2, 14, m_level->m_palette->colors[19].toTextureColor() );
+        image->line( x0 - 1, i, x0 + 101, i, m_level->m_palette->colors[0].toTextureColor( alpha ), true );
+    image->line( x0 - 2, 14, x0 + 102, 14, m_level->m_palette->colors[17].toTextureColor( alpha ), true );
+    image->line( x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[17].toTextureColor( alpha ), true );
+    image->line( x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[19].toTextureColor( alpha ), true );
+    image->line( x0 - 2, 6, x0 - 2, 14, m_level->m_palette->colors[19].toTextureColor( alpha ), true );
 
     const int p = util::clamp( m_lara->m_state.health * 100 / core::LaraHealth, 0, 100 );
     if( p > 0 )
     {
-        image->line( x0, 8, x0 + p, 8, m_level->m_palette->colors[8].toTextureColor() );
-        image->line( x0, 9, x0 + p, 9, m_level->m_palette->colors[11].toTextureColor() );
-        image->line( x0, 10, x0 + p, 10, m_level->m_palette->colors[8].toTextureColor() );
-        image->line( x0, 11, x0 + p, 11, m_level->m_palette->colors[6].toTextureColor() );
-        image->line( x0, 12, x0 + p, 12, m_level->m_palette->colors[24].toTextureColor() );
+        image->line( x0, 8, x0 + p, 8, m_level->m_palette->colors[8].toTextureColor( alpha ), true );
+        image->line( x0, 9, x0 + p, 9, m_level->m_palette->colors[11].toTextureColor( alpha ), true );
+        image->line( x0, 10, x0 + p, 10, m_level->m_palette->colors[8].toTextureColor( alpha ), true );
+        image->line( x0, 11, x0 + p, 11, m_level->m_palette->colors[6].toTextureColor( alpha ), true );
+        image->line( x0, 12, x0 + p, 12, m_level->m_palette->colors[24].toTextureColor( alpha ), true );
     }
 }
 

@@ -37,6 +37,10 @@ struct quantity
             : value{value}
     {}
 
+    constexpr quantity(const self_type& rhs) noexcept
+            : value{rhs.value}
+    {}
+
     template<typename T>
     explicit quantity(T)
     {

@@ -139,6 +139,8 @@ private:
 
 
     std::vector<PositionalEmitter> m_positionalEmitters;
+    core::Health m_drawnHealth = core::LaraHealth;
+    core::Frame m_healthBarTimeout = -40_frame;
 
 public:
     explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = {1280, 800});
@@ -292,7 +294,7 @@ public:
 
     std::shared_ptr<items::ItemNode> getItem(uint16_t id) const;
 
-    void drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::RGBA8>>>& image) const;
+    void drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::RGBA8>>>& image);
 
     void useAlternativeLaraAppearance(bool withHead = false);
 
