@@ -11,6 +11,6 @@ out vec4 out_color;
 
 void main()
 {
-    out_color.rgb = fxaa(v_texCoord, u_texture, 1.0/u_screenSize, 0.75, 0.166, 0.0833);
+    out_color.rgb = fxaa(0.75, 0.166, 0.0833);
     out_color.a = 1;
 }
