@@ -96,13 +96,12 @@ struct RenderModel
 void Room::createSceneNode(
         const size_t roomId,
         const level::Level& level,
-        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>
-
-        >& materials,
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
         const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
         const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshes,
         render::TextureAnimator& animator,
-        const std::shared_ptr<render::scene::Material>& spriteMaterial
+        const std::shared_ptr<render::scene::Material>& spriteMaterial,
+        const std::shared_ptr<render::scene::Material>& portalMaterial
 )
 {
     RenderModel renderModel;
@@ -197,34 +196,28 @@ void Room::createSceneNode(
     node = std::make_shared<render::scene::Node>( "Room:" + std::to_string( roomId ) );
     node->setDrawable( resModel );
     node->addMaterialParameterSetter( "u_lightPosition", [](const render::scene::Node& /*node*/,
-                                                            render::gl::Program::ActiveUniform& uniform
-    ) {
+                                                            render::gl::Program::ActiveUniform& uniform) {
         uniform.set( glm::vec3{0.0f} );
     } );
     node->addMaterialParameterSetter( "u_baseLight", [](const render::scene::Node& /*node*/,
-                                                        render::gl::Program::ActiveUniform& uniform
-    ) {
+                                                        render::gl::Program::ActiveUniform& uniform) {
         uniform.set( 1.0f );
     } );
     node->addMaterialParameterSetter( "u_baseLightDiff", [](const render::scene::Node& /*node*/,
-                                                            render::gl::Program::ActiveUniform& uniform
-    ) {
+                                                            render::gl::Program::ActiveUniform& uniform) {
         uniform.set( 1.0f );
     } );
 
-    for(
-        const RoomStaticMesh& sm
-            : this->staticMeshes )
+    for( const RoomStaticMesh& sm : this->staticMeshes )
     {
         const auto idx = level.findStaticMeshIndexById( sm.meshId );
         if( idx < 0 )
             continue;
 
-        BOOST_ASSERT( static_cast<size_t>(idx) < staticMeshes.size() );
         auto subNode = std::make_shared<render::scene::Node>( "staticMesh" );
-        subNode->setDrawable( staticMeshes[idx].get() );
+        subNode->setDrawable( staticMeshes.at( idx ).get() );
         subNode->setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
-                                 * rotate( glm::mat4{1.0f}, toRad(sm.rotation), glm::vec3{0, -1, 0} ) );
+                                 * rotate( glm::mat4{1.0f}, toRad( sm.rotation ), glm::vec3{0, -1, 0} ) );
 
         subNode->addMaterialParameterSetter( "u_baseLight",
                                              [brightness = sm.getBrightness()](const render::scene::Node& /*node*/,
@@ -243,8 +236,7 @@ void Room::createSceneNode(
         } );
         addChild( node, subNode );
     }
-    node->setLocalMatrix( translate( glm::mat4{1.0f}, position.toRenderSystem() )
-    );
+    node->setLocalMatrix( translate( glm::mat4{1.0f}, position.toRenderSystem() ) );
 
     for( const SpriteInstance& spriteInstance : sprites )
     {
@@ -273,6 +265,8 @@ void Room::createSceneNode(
 
         addChild( node, spriteNode );
     }
+    for( auto& portal : portals )
+        portal.buildMesh( portalMaterial );
 }
 
 core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core::Angle angle) const

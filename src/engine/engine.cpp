@@ -562,6 +562,17 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     m_spriteMaterial->getParameter( "u_baseLightDiff" )->set( 0.0f );
     m_spriteMaterial->getParameter( "u_lightPosition" )->set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
 
+    BOOST_ASSERT( m_portalMaterial == nullptr );
+    m_portalMaterial = std::make_shared<render::scene::Material>( "shaders/portal.vert",
+                                                                  "shaders/portal.frag" );
+    m_portalMaterial->getRenderState().setCullFace( false );
+
+    m_portalMaterial->getParameter( "u_mvp" )
+                   ->bind( [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
+                                                                                render::gl::Program::ActiveUniform& uniform) {
+                       uniform.set( camera->getViewProjectionMatrix() ); // portals are already in world space
+                   } );
+
     for( auto& mesh : m_level->m_meshes )
     {
         m_models.emplace_back(
@@ -603,7 +614,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     for( size_t i = 0; i < m_level->m_rooms.size(); ++i )
     {
         m_level->m_rooms[i].createSceneNode( i, *m_level, materials, waterMaterials, m_models, *m_textureAnimator,
-                                             m_spriteMaterial );
+                                             m_spriteMaterial, m_portalMaterial );
         m_renderer->getScene()->addNode( m_level->m_rooms[i].node );
     }
 
@@ -1497,6 +1508,10 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                 const auto s = m_window->getViewport();
                 uniform.set( glm::vec2( static_cast<float>(s.width), static_cast<float>(s.height) ) );
             } );
+    fxaaDepthBuffer = fxaa->getDepthBuffer();
+    fxaa->dropDepthBuffer();
+
+    portalDepthBuffer = std::make_shared<render::DeferredDepthRenderTarget>( m_window->getViewport() );
 
     depthDarknessFx = std::make_shared<render::DeferredRenderTarget>( m_window->getViewport(),
                                                                       render::scene::ShaderProgram::createFromFile(
@@ -1520,7 +1535,8 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                                                                                 render::gl::Program::ActiveUniform& uniform) {
                        uniform.set( camera->getProjectionMatrix() );
                    } );
-    depthDarknessFx->getMaterial()->getParameter( "u_depth" )->set( fxaa->getDepthBuffer() );
+    depthDarknessFx->getMaterial()->getParameter( "u_depth" )->set( fxaaDepthBuffer );
+    depthDarknessFx->getMaterial()->getParameter( "u_portalDepth" )->set( portalDepthBuffer->getDepthBuffer() );
 
     depthDarknessWaterFx = std::make_shared<render::DeferredRenderTarget>( m_window->getViewport(),
                                                                            render::scene::ShaderProgram::createFromFile(
@@ -1544,9 +1560,8 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                                                                                      render::gl::Program::ActiveUniform& uniform) {
                             uniform.set( camera->getProjectionMatrix() );
                         } );
-    depthDarknessWaterFx->getMaterial()->getParameter( "u_depth" )->set( fxaa->getDepthBuffer() );
-
-    fxaa->dropDepthBuffer();
+    depthDarknessWaterFx->getMaterial()->getParameter( "u_depth" )->set( fxaaDepthBuffer );
+    depthDarknessWaterFx->getMaterial()->getParameter( "u_portalDepth" )->set( portalDepthBuffer->getDepthBuffer() );
 }
 
 void Engine::run()
@@ -1636,25 +1651,30 @@ void Engine::run()
         {
             m_renderer->getScene()->getActiveCamera()->setAspectRatio( m_window->getAspectRatio() );
             fxaa->init( m_window->getViewport() );
-            depthDarknessFx->init( m_window->getViewport() );
-            depthDarknessFx->getMaterial()->getParameter( "u_depth" )->set( fxaa->getDepthBuffer() );
-            depthDarknessWaterFx->init( m_window->getViewport() );
-            depthDarknessWaterFx->getMaterial()->getParameter( "u_depth" )->set( fxaa->getDepthBuffer() );
+            fxaaDepthBuffer = fxaa->getDepthBuffer();
             fxaa->dropDepthBuffer();
+            portalDepthBuffer->init( m_window->getViewport() );
+            depthDarknessFx->init( m_window->getViewport() );
+            depthDarknessFx->getMaterial()->getParameter( "u_depth" )->set( fxaaDepthBuffer );
+            depthDarknessFx->getMaterial()->getParameter( "u_portalDepth" )->set( portalDepthBuffer->getDepthBuffer() );
+            depthDarknessWaterFx->init( m_window->getViewport() );
+            depthDarknessWaterFx->getMaterial()->getParameter( "u_depth" )->set( fxaaDepthBuffer );
+            depthDarknessWaterFx->getMaterial()->getParameter( "u_portalDepth" )->set( portalDepthBuffer->getDepthBuffer() );
             screenOverlay->init( m_window->getViewport() );
             font->setTarget( screenOverlay->getImage() );
         }
 
+        std::unordered_set<const loader::file::Portal*> waterEntryPortals;
         if( !isCutscene )
         {
-            getCameraController().update();
+            waterEntryPortals = getCameraController().update();
         }
         else
         {
             if( ++getCameraController().m_cinematicFrame >= m_level->m_cinematicFrames.size() )
                 break;
 
-            m_cameraController
+            waterEntryPortals = m_cameraController
                     ->updateCinematic( m_level->m_cinematicFrames[getCameraController().m_cinematicFrame], false );
         }
         doGlobalEffect();
@@ -1663,18 +1683,26 @@ void Engine::run()
             drawBars( screenOverlay->getImage() );
 
         fxaa->bind();
-
         m_renderer->render();
 
         render::scene::RenderContext context{};
         render::scene::Node dummyNode{""};
         context.setCurrentNode( &dummyNode );
 
+        render::gl::FrameBuffer::unbindAll();
+        portalDepthBuffer->getDepthBuffer()->copyImageSubData( *fxaaDepthBuffer );
+        portalDepthBuffer->bind();
+        for( const auto& portal : waterEntryPortals )
+        {
+            portal->mesh->render( context );
+        }
+
         if( getCameraController().getCurrentRoom()->isWaterRoom() )
             depthDarknessWaterFx->bind();
         else
             depthDarknessFx->bind();
 
+        context.setCurrentNode( &dummyNode );
         fxaa->render( context );
         render::gl::FrameBuffer::unbindAll();
 

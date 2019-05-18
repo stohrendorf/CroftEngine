@@ -99,4 +99,38 @@ public:
         return m_material;
     }
 };
+
+
+class DeferredDepthRenderTarget
+{
+    std::shared_ptr<gl::Texture> m_depthBuffer{nullptr};
+    std::shared_ptr<gl::FrameBuffer> m_fb;
+
+public:
+    explicit DeferredDepthRenderTarget(const scene::Dimension2<size_t>& viewport)
+            : m_fb{std::make_shared<gl::FrameBuffer>()}
+    {
+        init( viewport );
+    }
+
+    const auto& getDepthBuffer() const
+    {
+        return m_depthBuffer;
+    }
+
+    void init(const scene::Dimension2<size_t>& viewport)
+    {
+        m_depthBuffer = std::make_shared<gl::Texture>( GL_TEXTURE_2D );
+        m_depthBuffer->depthImage2D( gsl::narrow<GLint>( viewport.width ), gsl::narrow<GLint>( viewport.height ) );
+        m_fb->attachTexture2D( GL_DEPTH_ATTACHMENT, *m_depthBuffer );
+
+        BOOST_ASSERT( m_fb->isComplete() );
+    }
+
+    void bind() const
+    {
+        gl::FrameBuffer::unbindAll();
+        m_fb->bind();
+    }
+};
 }

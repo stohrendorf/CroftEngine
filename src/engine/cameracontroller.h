@@ -149,7 +149,7 @@ public:
 
     void handleCommandSequence(const floordata::FloorDataValue* cmdSequence);
 
-    void update();
+    std::unordered_set<const loader::file::Portal*> update();
 
     void setMode(const CameraMode t)
     {
@@ -230,7 +230,8 @@ public:
         return m_camera;
     }
 
-    void updateCinematic(const loader::file::CinematicFrame& frame, bool ingame);
+    std::unordered_set<const loader::file::Portal*>
+    updateCinematic(const loader::file::CinematicFrame& frame, bool ingame);
 
     YAML::Node save() const;
 
@@ -241,7 +242,7 @@ public:
     core::TRRotation m_cinematicRot{0_deg, 0_deg, 0_deg};
 
 private:
-    void tracePortals();
+    std::unordered_set<const loader::file::Portal*> tracePortals();
 
     static bool clampY(const core::TRVec& start,
                        core::TRVec& end,

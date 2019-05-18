@@ -13,6 +13,8 @@
 #include "texture.h"
 #include "audio.h"
 #include "engine/floordata/types.h"
+#include "render/scene/names.h"
+#include "render/scene/mesh.h"
 #include "render/scene/model.h"
 #include "render/scene/Node.h"
 
@@ -64,6 +66,7 @@ struct Portal
     core::RoomId16 adjoining_room{uint16_t( 0 )}; ///< \brief which room this portal leads to.
     core::TRVec normal;
     std::array<core::TRVec, 4> vertices;
+    std::shared_ptr<render::scene::Mesh> mesh;
 
     static Portal read(io::SDLReader& reader, const core::TRVec& offset)
     {
@@ -75,6 +78,38 @@ struct Portal
         portal.vertices[2] = readCoordinates16( reader ) + offset;
         portal.vertices[3] = readCoordinates16( reader ) + offset;
         return portal;
+    }
+
+    void buildMesh(const std::shared_ptr<render::scene::Material>& material)
+    {
+        struct Vertex
+        {
+            glm::vec3 pos;
+        };
+
+        std::array<Vertex, 4> glVertices;
+        for( size_t i = 0; i < 4; ++i )
+            glVertices[i].pos = vertices[i].toRenderSystem();
+
+        render::gl::StructuredVertexBuffer::AttributeMapping layout{
+                {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{&Vertex::pos}}
+        };
+        auto vb = std::make_shared<render::gl::StructuredVertexBuffer>( layout, false );
+        vb->assign<Vertex>( &glVertices[0], 4 );
+
+        static const uint16_t indices[6] =
+                {
+                        0, 1, 2,
+                        0, 2, 3
+                };
+
+        auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
+        indexBuffer->setData( gsl::not_null<const uint16_t*>( &indices[0] ), 6, false );
+
+        auto vao = std::make_shared<render::gl::VertexArray>( indexBuffer, vb,
+                                                              material->getShaderProgram()->getHandle() );
+        mesh = std::make_shared<render::scene::Mesh>( vao );
+        mesh->setMaterial( material );
     }
 };
 
@@ -1110,7 +1145,8 @@ struct Room
             const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
             const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshes,
             render::TextureAnimator& animator,
-            const std::shared_ptr<render::scene::Material>& spriteMaterial);
+            const std::shared_ptr<render::scene::Material>& spriteMaterial,
+            const std::shared_ptr<render::scene::Material>& portalMaterial);
 
     const Sector* getSectorByAbsolutePosition(core::TRVec position) const
     {

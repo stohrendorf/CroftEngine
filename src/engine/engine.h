@@ -45,6 +45,7 @@ class Font;
 }
 
 class DeferredRenderTarget;
+class DeferredDepthRenderTarget;
 }
 
 namespace engine
@@ -103,10 +104,13 @@ private:
     std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
 
     std::shared_ptr<render::scene::Material> m_spriteMaterial{nullptr};
+    std::shared_ptr<render::scene::Material> m_portalMaterial{nullptr};
 
     std::shared_ptr<render::DeferredRenderTarget> fxaa;
+    std::shared_ptr<render::gl::Texture> fxaaDepthBuffer;
     std::shared_ptr<render::DeferredRenderTarget> depthDarknessFx;
     std::shared_ptr<render::DeferredRenderTarget> depthDarknessWaterFx;
+    std::shared_ptr<render::DeferredDepthRenderTarget> portalDepthBuffer;
     std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
     std::unique_ptr<render::scene::Renderer> m_renderer;
     std::unique_ptr<render::scene::Window> m_window;

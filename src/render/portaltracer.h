@@ -21,19 +21,23 @@ struct PortalTracer
     };
 
 
-    static void trace(const loader::file::Room& startRoom, const engine::Engine& engine)
+    static std::unordered_set<const loader::file::Portal*>
+    trace(const loader::file::Room& startRoom, const engine::Engine& engine)
     {
         std::vector<const loader::file::Room*> seenRooms;
         seenRooms.reserve( 32 );
-        traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms );
+        std::unordered_set<const loader::file::Portal*> waterEntryPortals;
+        traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms, startRoom.isWaterRoom(), waterEntryPortals );
         Expects( seenRooms.empty() );
+        return waterEntryPortals;
     }
 
-    static void traceRoom(const loader::file::Room& room, const BoundingBox& roomBBox, const engine::Engine& engine,
-                          std::vector<const loader::file::Room*>& seenRooms)
+    static bool traceRoom(const loader::file::Room& room, const BoundingBox& roomBBox, const engine::Engine& engine,
+                          std::vector<const loader::file::Room*>& seenRooms, const bool inWater,
+                          std::unordered_set<const loader::file::Portal*>& waterEntryPortals)
     {
         if( std::find( seenRooms.rbegin(), seenRooms.rend(), &room ) != seenRooms.rend() )
-            return;
+            return false;
         seenRooms.emplace_back( &room );
 
         room.node->setVisible( true );
@@ -41,10 +45,17 @@ struct PortalTracer
         {
             if( const auto narrowedBounds = narrowPortal( room, roomBBox, portal, engine.getCameraController() ) )
             {
-                traceRoom( engine.getRooms().at( portal.adjoining_room.get() ), *narrowedBounds, engine, seenRooms );
+                const auto& childRoom = engine.getRooms().at( portal.adjoining_room.get() );
+                const bool enteredWater = !inWater && childRoom.isWaterRoom();
+                if( traceRoom( childRoom, *narrowedBounds, engine, seenRooms, inWater || childRoom.isWaterRoom(),
+                               waterEntryPortals ) && enteredWater )
+                {
+                    waterEntryPortals.emplace( &portal );
+                }
             }
         }
         seenRooms.pop_back();
+        return true;
     }
 
     static boost::optional<BoundingBox> narrowPortal(

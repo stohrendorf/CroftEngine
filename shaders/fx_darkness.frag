@@ -1,4 +1,5 @@
 uniform sampler2D u_texture;
+uniform sampler2D u_portalDepth;
 uniform mat4 u_projection;
 uniform float u_time;
 
@@ -11,9 +12,7 @@ const float Z_max = 20480;
 
 #include "util.glsl"
 
-#ifdef WATER
 #include "water.glsl"
-#endif
 
 #define DOF
 
@@ -34,6 +33,22 @@ float rand1(in vec2 seed)
     return fract( cos( dot(seed*u_time/40, K1) ) * 12345.6789 );
 }
 
+float fbm(in vec2 uv) {
+    // Initial values
+    float value = 0.0;
+    float amplitude = .5;
+    float frequency = 0.;
+    //
+    // Loop of octaves
+    const int octaves = 4;
+    for (int i = 0; i < octaves; i++) {
+        value += amplitude * rand1(uv);
+        uv *= 2.;
+        amplitude *= .5;
+    }
+    return value;
+}
+
 void main()
 {
     vec2 uv = v_texCoord;
@@ -47,6 +62,14 @@ void main()
 #ifdef WATER
     do_water_distortion(uv);
 #endif
+
+    float d = depth_at(uv) - depth_at(u_portalDepth, uv);
+    if( d > 0 )
+    {
+        // camera ray goes through water surface; scale distortion with underwater ray length
+        d = fbm(uv) * clamp(d*4, 0, 0.5);
+        do_water_distortion_frq(uv, 0.005, 22.6, 0.00175);
+    }
 
 #ifndef DOF
     out_color.rgb = shaded_texel(uv, depth_at(uv));

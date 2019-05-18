@@ -149,6 +149,19 @@ public:
         m_mipmap = false;
     }
 
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void copyImageSubData(const Texture& src)
+    {
+        if( m_type != src.m_type )
+            BOOST_THROW_EXCEPTION( std::runtime_error( "Refusing to copy image data with different types" ) );
+
+        glCopyImageSubData( src.getHandle(), src.m_type, 0, 0, 0, 0, getHandle(), m_type, 0, 0, 0, 0, src.m_width,
+                            src.m_height, 1 );
+        checkGlError();
+        m_width = src.m_width;
+        m_height = src.m_height;
+    }
+
 private:
     const GLenum m_type;
 

@@ -205,12 +205,12 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void CameraController::tracePortals()
+std::unordered_set<const loader::file::Portal*> CameraController::tracePortals()
 {
     for( const auto& room : m_engine->getRooms() )
         room.node->setVisible( false );
 
-    render::PortalTracer::trace( *m_eye->room, *m_engine );
+    return render::PortalTracer::trace( *m_eye->room, *m_engine );
 }
 
 bool CameraController::clampY(const core::TRVec& start,
@@ -397,7 +397,7 @@ bool CameraController::clampPosition(const core::RoomBoundPosition& start,
     return clampY( start.position, end.position, sector, engine ) && firstUnclamped && secondClamp == ClampType::None;
 }
 
-void CameraController::update()
+std::unordered_set<const loader::file::Portal*> CameraController::update()
 {
     m_rotationAroundCenter.X = util::clamp( m_rotationAroundCenter.X, -85_deg, +85_deg );
 
@@ -409,8 +409,7 @@ void CameraController::update()
         }
 
         updateCinematic( m_engine->getCinematicFrames()[m_cinematicFrame], true );
-        tracePortals();
-        return;
+        return tracePortals();
     }
 
     if( m_modifier != CameraModifier::AllowSteepSlants )
@@ -533,7 +532,7 @@ void CameraController::update()
     }
     HeightInfo::skipSteepSlants = false;
 
-    tracePortals();
+    return tracePortals();
 }
 
 void CameraController::handleFixedCamera()
@@ -1043,7 +1042,8 @@ void CameraController::clampToCorners(const core::Area targetHorizontalDistanceS
     currentLeftRight = right;
 }
 
-void CameraController::updateCinematic(const loader::file::CinematicFrame& frame, const bool ingame)
+std::unordered_set<const loader::file::Portal*>
+CameraController::updateCinematic(const loader::file::CinematicFrame& frame, const bool ingame)
 {
     if( ingame )
     {
@@ -1066,6 +1066,7 @@ void CameraController::updateCinematic(const loader::file::CinematicFrame& frame
         m_camera->setViewMatrix( m );
         m_camera->setFieldOfView( toRad( frame.fov ) );
     }
+    return tracePortals();
 }
 
 CameraController::CameraController(gsl::not_null<Engine*> engine,
