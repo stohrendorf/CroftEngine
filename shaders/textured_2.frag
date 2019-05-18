@@ -76,10 +76,6 @@ void main()
     out_color.a = baseColor.a;
 
 #ifdef WATER
-    const vec4 WaterColor = vec4(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f, 1);
-
-    out_color *= WaterColor;
-
     const float Scale1 = 0.003;
     out_color.rgb *= clamp(abs(voronoi(v_vertexPos * Scale1))*1.2+0.2, 0, 1.2);
     const float Scale2 = 0.0011;
