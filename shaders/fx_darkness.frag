@@ -61,15 +61,15 @@ void main()
 
 #ifdef WATER
     do_water_distortion(uv);
-#endif
-
+#else
     float d = depth_at(uv) - depth_at(u_portalDepth, uv);
     d = clamp(d*4, 0, 1);
     if( d > 0 )
     {
         // camera ray goes through water surface; scale distortion with underwater ray length
-        do_water_distortion_frq(uv, 0.005, 22.6, 0.000175*fbm(uv));
+        do_water_distortion_frq(uv, 0.005, 22.6, 0.00175*fbm(uv));
     }
+#endif
 
 #ifndef DOF
     out_color.rgb = shaded_texel(uv, depth_at(uv));
@@ -79,12 +79,18 @@ void main()
 
     const vec4 WaterColor = vec4(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f, 1);
 #ifdef WATER
-    d = clamp(depth_at(uv)*4, 0, 1);
+    float d = clamp(depth_at(uv)*4, 0, 1);
+    // light absorbtion
     out_color *= mix(vec4(1), WaterColor, d);
+    // light scatter
+    out_color = mix(out_color, WaterColor, d/30);
 #else
     if( d > 0 )
     {
+        // light absorbtion
         out_color *= mix(vec4(1), WaterColor, d);
+        // light scatter
+        out_color = mix(out_color, WaterColor, d/30);
     }
 #endif
 
