@@ -157,10 +157,10 @@ struct Sector
         floorData = nullptr;
         boxIndex = int16_t( -1 );
         box = nullptr;
-        roomIndexBelow = uint8_t( 255 );
+        roomIndexBelow = uint8_t( -1 );
         roomBelow = nullptr;
         floorHeight = -core::HeightLimit;
-        roomIndexAbove = uint8_t( 255 );
+        roomIndexAbove = uint8_t( -1 );
         roomAbove = nullptr;
         ceilingHeight = -core::HeightLimit;
     }

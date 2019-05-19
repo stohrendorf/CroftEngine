@@ -19,18 +19,65 @@ public:
     void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 
 private:
-    loader::file::Sector* m_sector{nullptr};
-    loader::file::Sector m_sectorData;
-    loader::file::Box* m_box{nullptr};
-    loader::file::Sector* m_alternateSector{nullptr};
-    loader::file::Sector m_alternateSectorData;
-    loader::file::Box* m_alternateBox{nullptr};
-    loader::file::Sector* m_targetSector{nullptr};
-    loader::file::Sector m_targetSectorData;
-    loader::file::Box* m_targetBox{nullptr};
-    loader::file::Sector* m_alternateTargetSector{nullptr};
-    loader::file::Sector m_alternateTargetSectorData;
-    loader::file::Box* m_alternateTargetBox{nullptr};
+    struct Info
+    {
+        loader::file::Sector* sector{nullptr};
+        loader::file::Sector sectorData;
+        loader::file::Box* box{nullptr};
+
+        void open()
+        {
+            if( sector == nullptr )
+                return;
+
+            *sector = sectorData;
+            if( box != nullptr )
+            {
+                box->unblock();
+            }
+        }
+
+        void close()
+        {
+            if( sector == nullptr )
+                return;
+
+            sector->reset();
+            if( box != nullptr )
+            {
+                box->block();
+            }
+        }
+
+        void init(const loader::file::Room& room, const core::TRVec& wingsPosition)
+        {
+            sector = const_cast<loader::file::Sector*>(room.getSectorByAbsolutePosition( wingsPosition ));
+            Expects( sector != nullptr );
+            sectorData = *sector;
+
+            if( sector->portalTarget == nullptr )
+            {
+                box = const_cast<loader::file::Box*>(sector->box);
+            }
+            else
+            {
+                box = const_cast<loader::file::Box*>(sector->portalTarget->getSectorByAbsolutePosition( wingsPosition )
+                                                           ->box);
+            }
+            if( box != nullptr && !box->isBlockable() )
+            {
+                box = nullptr;
+            }
+
+            close();
+        }
+    };
+
+
+    Info m_info;
+    Info m_alternateInfo;
+    Info m_target;
+    Info m_alternateTarget;
 };
 }
 }
