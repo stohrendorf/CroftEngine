@@ -415,7 +415,7 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<Engine*>& engine,
     applyTransform();
 }
 
-bool ModelItemNode::isNear(const ModelItemNode& other, const core::Length radius) const
+bool ModelItemNode::isNear(const ModelItemNode& other, const core::Length& radius) const
 {
     const auto aFrame = getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame();
     const auto aBBox = aFrame->bbox.toBBox();
@@ -429,7 +429,7 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const core::Length radius
 
     const auto xz = util::pitch(
             other.m_state.position.position - m_state.position.position,
-            m_state.rotation.Y
+            -m_state.rotation.Y
     );
     return xz.X >= aBBox.minX - radius
            && xz.X <= aBBox.maxX + radius
@@ -437,7 +437,7 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const core::Length radius
            && xz.Z <= aBBox.maxZ + radius;
 }
 
-bool ModelItemNode::isNear(const Particle& other, const core::Length radius) const
+bool ModelItemNode::isNear(const Particle& other, const core::Length& radius) const
 {
     const auto frame = getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame();
     const auto bbox = frame->bbox.toBBox();
@@ -449,7 +449,7 @@ bool ModelItemNode::isNear(const Particle& other, const core::Length radius) con
 
     const auto xz = util::pitch(
             other.pos.position - m_state.position.position,
-            m_state.rotation.Y
+            -m_state.rotation.Y
     );
     return xz.X >= bbox.minX - radius
            && xz.X <= bbox.maxX + radius

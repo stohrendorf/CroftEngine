@@ -65,16 +65,6 @@ inline T rand15s(T max)
     return max * rand15s() / (1 << 15);
 }
 
-constexpr float auToDeg(const int16_t au)
-{
-    return au / 65536.0f * 360;
-}
-
-inline float auToRad(const int16_t au)
-{
-    return au / 65536.0f * 2 * glm::pi<float>();
-}
-
 inline glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
 {
     glm::mat4 result{0.0f};
@@ -86,17 +76,17 @@ inline glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
     return result;
 }
 
-inline core::Length sin(const core::Length len, const core::Angle rot)
+inline core::Length sin(const core::Length& len, const core::Angle& rot)
 {
-    return (len.retype_as<float>() * sin(rot)).retype_as<core::Length>();
+    return (len.retype_as<float>() * sin( rot )).retype_as<core::Length>();
 }
 
-inline core::Length cos(const core::Length len, const core::Angle rot)
+inline core::Length cos(const core::Length& len, const core::Angle& rot)
 {
-    return (len.retype_as<float>() * cos(rot)).retype_as<core::Length>();
+    return (len.retype_as<float>() * cos( rot )).retype_as<core::Length>();
 }
 
-inline core::TRVec pitch(const core::Length len, const core::Angle rot)
+inline core::TRVec pitch(const core::Length& len, const core::Angle& rot)
 {
     return core::TRVec{
             sin( len, rot ),
@@ -105,7 +95,7 @@ inline core::TRVec pitch(const core::Length len, const core::Angle rot)
     };
 }
 
-inline core::TRVec yawPitch(const core::Length len, const core::TRRotation rot)
+inline core::TRVec yawPitch(const core::Length& len, const core::TRRotation& rot)
 {
     const auto d = cos( len, rot.X );
     return core::TRVec{
@@ -115,10 +105,10 @@ inline core::TRVec yawPitch(const core::Length len, const core::TRRotation rot)
     };
 }
 
-inline core::TRVec pitch(const core::TRVec vec, const core::Angle rot)
+inline core::TRVec pitch(const core::TRVec& vec, const core::Angle& rot)
 {
-    const auto sin = core::sin(rot);
-    const auto cos = core::cos(rot);
+    const auto sin = core::sin( rot );
+    const auto cos = core::cos( rot );
     return core::TRVec{
             (vec.Z.retype_as<float>() * sin + vec.X.retype_as<float>() * cos).retype_as<core::Length>(),
             vec.Y,

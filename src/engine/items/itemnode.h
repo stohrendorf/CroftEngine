@@ -405,9 +405,9 @@ public:
 
     loader::file::BoundingBox getBoundingBox() const override;
 
-    bool isNear(const ModelItemNode& other, core::Length radius) const;
+    bool isNear(const ModelItemNode& other, const core::Length& radius) const;
 
-    bool isNear(const Particle& other, core::Length radius) const;
+    bool isNear(const Particle& other, const core::Length& radius) const;
 
     bool testBoneCollision(const ModelItemNode& other);
 
