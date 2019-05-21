@@ -1066,7 +1066,24 @@ CameraController::updateCinematic(const loader::file::CinematicFrame& frame, con
         m_camera->setViewMatrix( m );
         m_camera->setFieldOfView( toRad( frame.fov ) );
     }
-    return tracePortals();
+
+    // portal tracing doesn't work here because we always render each room.
+    // assuming "sane" room layout here without overlapping rooms.
+    std::unordered_set<const loader::file::Portal*> result;
+    for( const auto& room : getEngine()->getRooms() )
+    {
+        if( room.isWaterRoom() )
+            continue;
+
+        for( const auto& portal : room.portals )
+        {
+            if( portal.adjoining_room.get() < 0 )
+                continue;
+            if( getEngine()->getRooms().at( portal.adjoining_room.get() ).isWaterRoom() )
+                result.emplace( &portal );
+        }
+    }
+    return result;
 }
 
 CameraController::CameraController(gsl::not_null<Engine*> engine,
