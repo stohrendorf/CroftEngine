@@ -98,18 +98,18 @@ CameraController::CameraController(const gsl::not_null<Engine*>& engine,
     m_eye->position.Z -= 100_len;
 }
 
-void CameraController::setRotationAroundCenter(const core::Angle x, const core::Angle y)
+void CameraController::setRotationAroundCenter(const core::Angle& x, const core::Angle& y)
 {
     setRotationAroundCenterX( x );
     setRotationAroundCenterY( y );
 }
 
-void CameraController::setRotationAroundCenterX(const core::Angle x)
+void CameraController::setRotationAroundCenterX(const core::Angle& x)
 {
     m_rotationAroundCenter.X = x;
 }
 
-void CameraController::setRotationAroundCenterY(const core::Angle y)
+void CameraController::setRotationAroundCenterY(const core::Angle& y)
 {
     m_rotationAroundCenter.Y = y;
 }
@@ -118,7 +118,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
                                       const uint16_t camId,
                                       const floordata::SequenceCondition condition,
                                       const bool fromHeavy,
-                                      const core::Frame timeout,
+                                      const core::Frame& timeout,
                                       const bool switchIsOn)
 {
     if( m_engine->getCameras().at( camId ).isActive() )
@@ -267,38 +267,36 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
     step.Y = step.X * d.Y / d.X;
     step.Z = step.X * d.Z / d.X;
 
-    auto room = start.room;
+    end.room = start.room;
 
     while( true )
     {
         if( sign > 0 && testPos.X >= end.position.X )
         {
-            end.room = room;
             return ClampType::None;
         }
         if( sign < 0 && testPos.X <= end.position.X )
         {
-            end.room = room;
             return ClampType::None;
         }
 
-        core::TRVec heightPos = testPos;
-        auto sector = findRealFloorSector( heightPos, &room );
-        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, engine.getItemNodes() ).y
-            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, engine.getItemNodes() ).y )
+        auto sector = findRealFloorSector( testPos, &end.room );
+        if( testPos.Y > HeightInfo::fromFloor( sector, testPos, engine.getItemNodes() ).y
+            || testPos.Y < HeightInfo::fromCeiling( sector, testPos, engine.getItemNodes() ).y )
         {
             end.position = testPos;
-            end.room = room;
             return ClampType::Ceiling;
         }
 
-        heightPos.X = testPos.X + sign * 1_len;
-        sector = findRealFloorSector( heightPos, room );
+        core::TRVec heightPos = testPos;
+        heightPos.X += sign * 1_len;
+        auto tmp = end.room;
+        sector = findRealFloorSector( heightPos, &tmp );
         if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, engine.getItemNodes() ).y
             || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, engine.getItemNodes() ).y )
         {
             end.position = testPos;
-            end.room = room;
+            end.room = tmp;
             return ClampType::Wall;
         }
 
@@ -332,38 +330,36 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
     step.X = step.Z * d.X / d.Z;
     step.Y = step.Z * d.Y / d.Z;
 
-    auto room = start.room;
+    end.room = start.room;
 
     while( true )
     {
         if( sign > 0 && testPos.Z >= end.position.Z )
         {
-            end.room = room;
             return ClampType::None;
         }
         if( sign < 0 && testPos.Z <= end.position.Z )
         {
-            end.room = room;
             return ClampType::None;
         }
 
-        core::TRVec heightPos = testPos;
-        auto sector = findRealFloorSector( heightPos, &room );
-        if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, engine.getItemNodes() ).y
-            || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, engine.getItemNodes() ).y )
+        auto sector = findRealFloorSector( testPos, &end.room );
+        if( testPos.Y > HeightInfo::fromFloor( sector, testPos, engine.getItemNodes() ).y
+            || testPos.Y < HeightInfo::fromCeiling( sector, testPos, engine.getItemNodes() ).y )
         {
             end.position = testPos;
-            end.room = room;
             return ClampType::Ceiling;
         }
 
-        heightPos.Z = testPos.Z + sign * 1_len;
-        sector = findRealFloorSector( heightPos, room );
+        core::TRVec heightPos = testPos;
+        heightPos.Z += sign * 1_len;
+        auto tmp = end.room;
+        sector = findRealFloorSector( heightPos, &tmp );
         if( testPos.Y > HeightInfo::fromFloor( sector, heightPos, engine.getItemNodes() ).y
             || testPos.Y < HeightInfo::fromCeiling( sector, heightPos, engine.getItemNodes() ).y )
         {
             end.position = testPos;
-            end.room = room;
+            end.room = tmp;
             return ClampType::Wall;
         }
 
@@ -935,12 +931,12 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
 
 void CameraController::freeLookClamp(core::Length& currentFrontBack,
                                      core::Length& currentLeftRight,
-                                     const core::Length targetFrontBack,
-                                     const core::Length targetLeftRight,
-                                     const core::Length back,
-                                     const core::Length right,
-                                     const core::Length front,
-                                     const core::Length left)
+                                     const core::Length& targetFrontBack,
+                                     const core::Length& targetLeftRight,
+                                     const core::Length& back,
+                                     const core::Length& right,
+                                     const core::Length& front,
+                                     const core::Length& left)
 {
     if( (front > back) != (targetFrontBack < back) )
     {
@@ -957,15 +953,15 @@ void CameraController::freeLookClamp(core::Length& currentFrontBack,
     }
 }
 
-void CameraController::clampToCorners(const core::Area targetHorizontalDistanceSq,
+void CameraController::clampToCorners(const core::Area& targetHorizontalDistanceSq,
                                       core::Length& currentFrontBack,
                                       core::Length& currentLeftRight,
-                                      const core::Length targetFrontBack,
-                                      const core::Length targetLeftRight,
-                                      const core::Length back,
-                                      const core::Length right,
-                                      const core::Length front,
-                                      const core::Length left)
+                                      const core::Length& targetFrontBack,
+                                      const core::Length& targetLeftRight,
+                                      const core::Length& back,
+                                      const core::Length& right,
+                                      const core::Length& front,
+                                      const core::Length& left)
 {
     const auto targetRightDistSq = util::square( targetLeftRight - right );
     const auto targetBackDistSq = util::square( targetFrontBack - back );

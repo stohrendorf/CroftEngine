@@ -14,21 +14,23 @@ Door::Door(const gsl::not_null<engine::Engine*>& engine, const gsl::not_null<con
 {
 #ifndef NO_DOOR_BLOCK
     core::Length dx = 0_len, dz = 0_len;
-    if( m_state.rotation.Y == 0_au )
+    const auto axis = core::axisFromAngle( m_state.rotation.Y, 45_deg );
+    Expects( axis.is_initialized() );
+    switch( *axis )
     {
-        dz = -core::SectorSize;
-    }
-    else if( m_state.rotation.Y == -180_deg )
-    {
-        dz = core::SectorSize;
-    }
-    else if( m_state.rotation.Y == 90_deg )
-    {
-        dx = -core::SectorSize;
-    }
-    else
-    {
-        dx = core::SectorSize;
+
+        case core::Axis::PosZ:
+            dz = -core::SectorSize;
+            break;
+        case core::Axis::PosX:
+            dx = -core::SectorSize;
+            break;
+        case core::Axis::NegZ:
+            dz = core::SectorSize;
+            break;
+        case core::Axis::NegX:
+            dx = core::SectorSize;
+            break;
     }
 
     const auto wingsPosition = m_state.position.position + core::TRVec{dx, 0_len, dz};

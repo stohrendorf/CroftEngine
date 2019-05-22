@@ -155,6 +155,7 @@ struct Sector
     {
         floorDataIndex = 0;
         floorData = nullptr;
+        portalTarget = nullptr; // cached from floordata
         boxIndex = int16_t( -1 );
         box = nullptr;
         roomIndexBelow = uint8_t( -1 );

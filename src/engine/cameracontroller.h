@@ -107,13 +107,13 @@ public:
         return m_engine;
     }
 
-    void setRotationAroundCenter(const core::Angle x, const core::Angle y);
+    void setRotationAroundCenter(const core::Angle& x, const core::Angle& y);
 
-    void setRotationAroundCenterX(const core::Angle x);
+    void setRotationAroundCenterX(const core::Angle& x);
 
-    void setRotationAroundCenterY(const core::Angle y);
+    void setRotationAroundCenterY(const core::Angle& y);
 
-    void setEyeRotation(const core::Angle x, const core::Angle y)
+    void setEyeRotation(const core::Angle& x, const core::Angle& y)
     {
         m_eyeRotation.X = x;
         m_eyeRotation.Y = y;
@@ -124,7 +124,7 @@ public:
         return m_eyeRotation;
     }
 
-    void setEyeCenterDistance(const core::Length d)
+    void setEyeCenterDistance(const core::Length& d)
     {
         m_eyeCenterDistance = d;
     }
@@ -138,7 +138,7 @@ public:
                         uint16_t camId,
                         floordata::SequenceCondition condition,
                         bool fromHeavy,
-                        core::Frame timeout,
+                        const core::Frame& timeout,
                         bool switchIsOn);
 
     void setLookAtItem(const std::shared_ptr<items::ItemNode>& item)
@@ -291,21 +291,21 @@ private:
 
     static void freeLookClamp(core::Length& currentFrontBack,
                               core::Length& currentLeftRight,
-                              core::Length targetFrontBack,
-                              core::Length targetLeftRight,
-                              core::Length back,
-                              core::Length right,
-                              core::Length front,
-                              core::Length left);
+                              const core::Length& targetFrontBack,
+                              const core::Length& targetLeftRight,
+                              const core::Length& back,
+                              const core::Length& right,
+                              const core::Length& front,
+                              const core::Length& left);
 
-    static void clampToCorners(core::Area targetHorizontalDistanceSq,
+    static void clampToCorners(const core::Area& targetHorizontalDistanceSq,
                                core::Length& currentFrontBack,
                                core::Length& currentLeftRight,
-                               core::Length targetFrontBack,
-                               core::Length targetLeftRight,
-                               core::Length back,
-                               core::Length right,
-                               core::Length front,
-                               core::Length left);
+                               const core::Length& targetFrontBack,
+                               const core::Length& targetLeftRight,
+                               const core::Length& back,
+                               const core::Length& right,
+                               const core::Length& front,
+                               const core::Length& left);
 };
 }
