@@ -27,14 +27,14 @@ struct PortalTracer
         std::vector<const loader::file::Room*> seenRooms;
         seenRooms.reserve( 32 );
         std::unordered_set<const loader::file::Portal*> waterEntryPortals;
-        traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms, startRoom.isWaterRoom(), waterEntryPortals );
+        traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms, startRoom.isWaterRoom(), waterEntryPortals, startRoom.isWaterRoom() );
         Expects( seenRooms.empty() );
         return waterEntryPortals;
     }
 
     static bool traceRoom(const loader::file::Room& room, const BoundingBox& roomBBox, const engine::Engine& engine,
                           std::vector<const loader::file::Room*>& seenRooms, const bool inWater,
-                          std::unordered_set<const loader::file::Portal*>& waterEntryPortals)
+                          std::unordered_set<const loader::file::Portal*>& waterEntryPortals, const bool startFromWater)
     {
         if( std::find( seenRooms.rbegin(), seenRooms.rend(), &room ) != seenRooms.rend() )
             return false;
@@ -46,9 +46,9 @@ struct PortalTracer
             if( const auto narrowedBounds = narrowPortal( room, roomBBox, portal, engine.getCameraController() ) )
             {
                 const auto& childRoom = engine.getRooms().at( portal.adjoining_room.get() );
-                const bool enteredWater = !inWater && childRoom.isWaterRoom();
+                const bool waterChanged = inWater == startFromWater && childRoom.isWaterRoom() != startFromWater;
                 if( traceRoom( childRoom, *narrowedBounds, engine, seenRooms, inWater || childRoom.isWaterRoom(),
-                               waterEntryPortals ) && enteredWater )
+                               waterEntryPortals, startFromWater ) && waterChanged )
                 {
                     waterEntryPortals.emplace( &portal );
                 }
