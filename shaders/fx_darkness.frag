@@ -79,7 +79,7 @@ void main()
 
     const vec4 WaterColor = vec4(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f, 1);
 #ifdef WATER
-    float d = clamp(depth_at(uv)*4, 0, 1);
+    float d = clamp(depth_at(u_portalDepth, uv)*4, 0, 1);
     // light absorbtion
     out_color *= mix(vec4(1), WaterColor, d);
     // light scatter
