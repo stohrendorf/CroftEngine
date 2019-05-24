@@ -149,6 +149,8 @@ public:
 
     const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
 
+    void updateRoomBasedCaches();
+
 protected:
     io::SDLReader m_reader;
 

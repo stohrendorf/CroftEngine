@@ -284,10 +284,8 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
     }
 }
 
-void Level::postProcessDataStructures()
+void Level::updateRoomBasedCaches()
 {
-    BOOST_LOG_TRIVIAL( info ) << "Post-processing data structures";
-
     for( Room& room : m_rooms )
     {
         for( Sector& sector : room.sectors )
@@ -314,12 +312,22 @@ void Level::postProcessDataStructures()
                 const auto portalTarget = engine::floordata::getPortalTarget( sector.floorData );
                 if( portalTarget.is_initialized() )
                 {
-                    BOOST_ASSERT( *portalTarget != 0xff && *portalTarget < m_rooms.size() );
-                    sector.portalTarget = &m_rooms[*portalTarget];
+                    sector.portalTarget = &m_rooms.at( *portalTarget );
+                }
+                else
+                {
+                    sector.portalTarget = nullptr;
                 }
             }
         }
     }
+}
+
+void Level::postProcessDataStructures()
+{
+    BOOST_LOG_TRIVIAL( info ) << "Post-processing data structures";
+
+    updateRoomBasedCaches();
 
     Expects( m_baseZones.flyZone.size() == m_boxes.size() );
     Expects( m_baseZones.groundZone1.size() == m_boxes.size() );

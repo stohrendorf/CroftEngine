@@ -155,6 +155,7 @@ void Engine::swapAllRooms()
     }
 
     m_roomsAreSwapped = !m_roomsAreSwapped;
+    m_level->updateRoomBasedCaches();
 }
 
 bool Engine::isValid(const loader::file::AnimFrame* frame) const
@@ -568,10 +569,10 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     m_portalMaterial->getRenderState().setCullFace( false );
 
     m_portalMaterial->getParameter( "u_mvp" )
-                   ->bind( [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
-                                                                                render::gl::Program::ActiveUniform& uniform) {
-                       uniform.set( camera->getViewProjectionMatrix() ); // portals are already in world space
-                   } );
+                    ->bind( [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
+                                                                                 render::gl::Program::ActiveUniform& uniform) {
+                        uniform.set( camera->getViewProjectionMatrix() ); // portals are already in world space
+                    } );
 
     for( auto& mesh : m_level->m_meshes )
     {
@@ -1659,7 +1660,8 @@ void Engine::run()
             depthDarknessFx->getMaterial()->getParameter( "u_portalDepth" )->set( portalDepthBuffer->getDepthBuffer() );
             depthDarknessWaterFx->init( m_window->getViewport() );
             depthDarknessWaterFx->getMaterial()->getParameter( "u_depth" )->set( fxaaDepthBuffer );
-            depthDarknessWaterFx->getMaterial()->getParameter( "u_portalDepth" )->set( portalDepthBuffer->getDepthBuffer() );
+            depthDarknessWaterFx->getMaterial()->getParameter( "u_portalDepth" )
+                                ->set( portalDepthBuffer->getDepthBuffer() );
             screenOverlay->init( m_window->getViewport() );
             font->setTarget( screenOverlay->getImage() );
         }
