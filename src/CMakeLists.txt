@@ -280,7 +280,7 @@ target_link_libraries(
         GLEW::GLEW
         glfw
         PNG::PNG
-        sol2
+        sol2::sol2
         type_safe
         GLEW::GLEW
         glfw

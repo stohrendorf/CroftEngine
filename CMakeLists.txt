@@ -164,8 +164,8 @@ else()
         endif()
     endif()
 
-    add_library( sol2 INTERFACE IMPORTED )
-    target_include_directories( sol2 INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/sol-v2.20.4/" )
+    add_library( sol2::sol2 INTERFACE IMPORTED )
+    target_include_directories( sol2::sol2 INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/sol-v2.20.4/" )
 endif()
 
 if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp" )
