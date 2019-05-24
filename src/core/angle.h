@@ -14,8 +14,8 @@
 namespace core
 {
 
-constexpr int32_t FullRotation = 1 << 16;
-constexpr int32_t AngleStorageScale = 1 << 16;
+constexpr int32_t FullRotation = 1u << 16u;
+constexpr int32_t AngleStorageScale = 1u << 16u;
 
 
 QS_DECLARE_QUANTITY( Angle, int32_t, "au" );
@@ -41,7 +41,7 @@ inline Angle angleFromDegrees(const float value)
     return Angle{gsl::narrow_cast<Angle::type>( std::lround( value / 360 * FullRotation * AngleStorageScale ) )};
 }
 
-inline Angle angleFromAtan(const core::Length dx, const core::Length dz)
+inline Angle angleFromAtan(const core::Length& dx, const core::Length& dz)
 {
     return angleFromRad( std::atan2( dx.get_as<float>(), dz.get_as<float>() ) );
 }
@@ -195,7 +195,7 @@ inline glm::mat4 fromPackedAngles(uint32_t angleData)
 {
     const auto getAngle = [angleData](const uint8_t n) -> Angle {
         BOOST_ASSERT( n < 3 );
-        return core::auToAngle( ((angleData >> (10 * n)) & 0x3ff) * 64 );
+        return core::auToAngle( ((angleData >> (10u * n)) & 0x3ffu) * 64 );
     };
 
     TRRotation r{getAngle( 2 ), getAngle( 1 ), getAngle( 0 )};
