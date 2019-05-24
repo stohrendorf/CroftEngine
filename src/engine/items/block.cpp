@@ -114,6 +114,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         return;
     }
 
+    // start moving the block, remove it from the floordata
     activate();
     loader::file::Room::patchHeightsForBlock( *this, core::SectorSize );
     m_state.triggerState = TriggerState::Active;

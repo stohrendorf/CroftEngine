@@ -309,9 +309,9 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core:
     auto room = item.m_state.position.room;
     //! @todo Ugly const_cast
     auto groundSector = const_cast<Sector*>(loader::file::findRealFloorSector( item.m_state.position.position, &room ));
-    BOOST_ASSERT( groundSector != nullptr );
+    Expects( groundSector != nullptr );
     const auto topSector = loader::file::findRealFloorSector(
-            item.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room );
+            item.m_state.position.position + core::TRVec{0_len, height -core::SectorSize, 0_len}, &room );
 
     if( groundSector->floorHeight == -core::HeightLimit )
     {
@@ -353,11 +353,11 @@ const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_nu
 
     // go up/down until we are in the room that contains our coordinates
     Expects( sector != nullptr );
-    if( sector->floorHeight > position.Y )
+    if( position.Y >= sector->floorHeight )
     {
-        while( sector->ceilingHeight > position.Y && sector->roomAbove != nullptr )
+        while( position.Y >= sector->floorHeight && sector->roomBelow != nullptr )
         {
-            *room = sector->roomAbove;
+            *room = sector->roomBelow;
             sector = (*room)->getSectorByAbsolutePosition( position );
             if( sector == nullptr )
                 return nullptr;
@@ -365,9 +365,9 @@ const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_nu
     }
     else
     {
-        while( sector->floorHeight < position.Y && sector->roomBelow != nullptr )
+        while( position.Y < sector->ceilingHeight && sector->roomAbove != nullptr )
         {
-            *room = sector->roomBelow;
+            *room = sector->roomAbove;
             sector = (*room)->getSectorByAbsolutePosition( position );
             if( sector == nullptr )
                 return nullptr;
