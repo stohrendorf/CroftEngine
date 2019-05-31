@@ -167,7 +167,7 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
             && m_mode != CameraMode::FreeLook
             && m_mode != CameraMode::Combat )
         {
-            m_item = m_engine->getItem( command.parameter );
+            m_targetItem = m_engine->getItem( command.parameter );
         }
         else if( command.opcode == floordata::CommandOpcode::SwitchCamera )
         {
@@ -197,11 +197,11 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
             break;
     }
 
-    if( m_item == nullptr )
+    if( m_targetItem == nullptr )
         return;
 
-    if( type == Type::NoChange && m_item->m_state.already_looked_at && m_item != m_previousItem )
-        m_item = nullptr;
+    if( type == Type::NoChange && m_targetItem->m_state.already_looked_at && m_targetItem != m_previousItem )
+        m_targetItem = nullptr;
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -411,11 +411,10 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     if( m_modifier != CameraModifier::AllowSteepSlants )
         HeightInfo::skipSteepSlants = true;
 
-    const bool fixed = m_item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
-    const bool fixedCenterOnly = m_item != nullptr && !(m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
+    const bool fixed = m_targetItem != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
 
     // if we have a fixed position, we also have an item we're looking at
-    items::ItemNode* const focusedItem = fixed ? m_item.get() : &m_engine->getLara();
+    items::ItemNode* const focusedItem = fixed ? m_targetItem.get() : &m_engine->getLara();
     BOOST_ASSERT( focusedItem != nullptr );
     auto focusBBox = focusedItem->getBoundingBox();
     auto focusY = focusedItem->m_state.position.position.Y;
@@ -424,23 +423,23 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     else
         focusY += (focusBBox.minY - focusBBox.maxY) * 3 / 4 + focusBBox.maxY;
 
-    if( fixedCenterOnly )
+    if( m_targetItem != nullptr && !fixed )
     {
         // lara moves around and looks at some item, some sort of involuntary free look;
         // in this case, we have an item to look at, but the camera is _not_ fixed
 
-        BOOST_ASSERT( m_item.get() != focusedItem );
-        const auto distToFocused = m_item->m_state.position.position
+        BOOST_ASSERT( m_targetItem.get() != focusedItem );
+        const auto distToFocused = m_targetItem->m_state.position.position
                                          .distanceTo( focusedItem->m_state.position.position );
         auto eyeRotY =
-                angleFromAtan( m_item->m_state.position.position.X - focusedItem->m_state.position.position.X,
-                               m_item->m_state.position.position.Z - focusedItem->m_state.position.position.Z )
+                angleFromAtan( m_targetItem->m_state.position.position.X - focusedItem->m_state.position.position.X,
+                               m_targetItem->m_state.position.position.Z - focusedItem->m_state.position.position.Z )
                 - focusedItem->m_state.rotation.Y;
         eyeRotY /= core::Angle::type{2};
-        focusBBox = m_item->getBoundingBox();
+        focusBBox = m_targetItem->getBoundingBox();
         auto eyeRotX = angleFromAtan( distToFocused,
                                       focusY - (focusBBox.minY + focusBBox.maxY) / 2
-                                      + m_item->m_state.position.position.Y );
+                                      + m_targetItem->m_state.position.position.Y );
         eyeRotX /= core::Angle::type{2};
 
         if( eyeRotY < 50_deg && eyeRotY > -50_deg && eyeRotX < 85_deg && eyeRotX > -85_deg )
@@ -454,7 +453,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
             m_engine->getLara().m_torsoRotation.X = m_engine->getLara().m_headRotation.X;
 
             m_mode = CameraMode::FreeLook;
-            m_item->m_state.already_looked_at = true;
+            m_targetItem->m_state.already_looked_at = true;
         }
     }
 
@@ -521,7 +520,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     {
         m_modifier = CameraModifier::None;
         m_mode = CameraMode::Chase;
-        m_previousItem = std::exchange( m_item, nullptr );
+        m_previousItem = std::exchange( m_targetItem, nullptr );
         m_rotationAroundCenter.X = m_rotationAroundCenter.Y = 0_deg;
         m_eyeCenterDistance = core::DefaultCameraLaraDistance;
         m_fixedCameraId = -1;
@@ -1108,11 +1107,11 @@ YAML::Node CameraController::save() const
     result["mode"] = toString( m_mode );
     result["modifier"] = toString( m_modifier );
     result["tracking"] = m_fixed;
-    if( m_item != nullptr )
+    if( m_targetItem != nullptr )
     {
         result["item"] = std::find_if( m_engine->getItemNodes().begin(), m_engine->getItemNodes().end(),
                                        [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
-                                           return entry.second == m_item;
+                                           return entry.second == m_targetItem;
                                        } )->first;
     }
     if( m_previousItem != nullptr )
@@ -1156,14 +1155,14 @@ void CameraController::load(const YAML::Node& n)
     m_fixed = n["tracking"].as<bool>();
     if( !n["item"].IsDefined() )
     {
-        m_item = nullptr;
+        m_targetItem = nullptr;
     }
     else
     {
         const auto it = m_engine->getItemNodes().find( n["item"].as<uint16_t>() );
         if( it == m_engine->getItemNodes().end() )
             BOOST_THROW_EXCEPTION( std::domain_error( "Invalid item reference" ) );
-        m_item = it->second.get();
+        m_targetItem = it->second.get();
     }
     if( !n["lastItem"].IsDefined() )
     {

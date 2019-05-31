@@ -27,7 +27,8 @@ struct PortalTracer
         std::vector<const loader::file::Room*> seenRooms;
         seenRooms.reserve( 32 );
         std::unordered_set<const loader::file::Portal*> waterEntryPortals;
-        traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms, startRoom.isWaterRoom(), waterEntryPortals, startRoom.isWaterRoom() );
+        traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms, startRoom.isWaterRoom(), waterEntryPortals,
+                   startRoom.isWaterRoom() );
         Expects( seenRooms.empty() );
         return waterEntryPortals;
     }
@@ -80,7 +81,7 @@ struct PortalTracer
         {
             glm::vec3 camSpace = glm::vec3{
                     camera.getCamera()->getViewMatrix() * glm::vec4{vertex.toRenderSystem(), 1.0f}};
-            if( -camSpace.z <= 0 )
+            if( -camSpace.z <= camera.getCamera()->getNearPlane() )
             {
                 ++behindCamera;
                 continue;
@@ -117,7 +118,8 @@ struct PortalTracer
             {
                 const glm::vec3 current{
                         camera.getCamera()->getViewMatrix() * glm::vec4{currentPV.toRenderSystem(), 1.0f}};
-                const auto crossing = (prev.z >= 0) != (current.z >= 0);
+                const auto crossing = (-prev.z <= camera.getCamera()->getNearPlane())
+                                      != (-current.z <= camera.getCamera()->getNearPlane());
                 prev = current;
 
                 if( !crossing )

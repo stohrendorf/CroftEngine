@@ -85,7 +85,7 @@ private:
 
     //! @brief An item to point the camera to.
     //! @note Also modifies Lara's head and torso rotation.
-    std::shared_ptr<items::ItemNode> m_item = nullptr;
+    std::shared_ptr<items::ItemNode> m_targetItem = nullptr;
     std::shared_ptr<const items::ItemNode> m_previousItem = nullptr;
     std::shared_ptr<items::ItemNode> m_enemy = nullptr;
     //! @brief Movement smoothness for adjusting the pivot position.
@@ -144,7 +144,7 @@ public:
     void setLookAtItem(const std::shared_ptr<items::ItemNode>& item)
     {
         if( item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy) )
-            m_item = item;
+            m_targetItem = item;
     }
 
     void handleCommandSequence(const floordata::FloorDataValue* cmdSequence);

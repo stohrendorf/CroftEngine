@@ -49,11 +49,11 @@ private:
     static ByteColor read(io::SDLReader& reader, const bool withAlpha)
     {
         ByteColor color;
-        color.r = reader.readU8() << 2;
-        color.g = reader.readU8() << 2;
-        color.b = reader.readU8() << 2;
+        color.r = reader.readU8() << 2u;
+        color.g = reader.readU8() << 2u;
+        color.b = reader.readU8() << 2u;
         if( withAlpha )
-            color.a = reader.readU8() << 2;
+            color.a = reader.readU8() << 2u;
         else
             color.a = 255;
         return color;

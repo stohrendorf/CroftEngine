@@ -1149,37 +1149,23 @@ struct Room
             const std::shared_ptr<render::scene::Material>& spriteMaterial,
             const std::shared_ptr<render::scene::Material>& portalMaterial);
 
-    const Sector* getSectorByAbsolutePosition(core::TRVec position) const
+    const Sector* getSectorByAbsolutePosition(core::TRVec worldPos) const
     {
-        position -= this->position;
-        return getSectorByIndex( position.X / core::SectorSize, position.Z / core::SectorSize );
+        worldPos -= position;
+        return getSectorByIndex( worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize );
     }
 
-    gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec position) const
+    gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
     {
-        position -= this->position;
-        return getInnerSectorByIndex( position.X / core::SectorSize, position.Z / core::SectorSize );
+        worldPos -= position;
+        return getInnerSectorByIndex( worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize );
     }
 
-    bool isInnerPositionX(core::TRVec position) const
+    bool isInnerPositionXZ(core::TRVec worldPos) const
     {
-        position -= this->position;
-        const auto sx = position.X / core::SectorSize;
-        return sx > 0 && sx < sectorCountX - 1;
-    }
-
-    bool isInnerPositionZ(core::TRVec position) const
-    {
-        position -= this->position;
-        const auto sz = position.Z / core::SectorSize;
-        return sz > 0 && sz < sectorCountZ - 1;
-    }
-
-    bool isInnerPositionXZ(core::TRVec position) const
-    {
-        position -= this->position;
-        const auto sx = position.X / core::SectorSize;
-        const auto sz = position.Z / core::SectorSize;
+        worldPos -= position;
+        const auto sx = worldPos.X / core::SectorSize;
+        const auto sz = worldPos.Z / core::SectorSize;
         return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
     }
 

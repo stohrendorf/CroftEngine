@@ -25,12 +25,12 @@ struct BoundingBox
     explicit BoundingBox() = default;
 
     BoundingBox(
-            core::Length minX,
-            core::Length maxX,
-            core::Length minY,
-            core::Length maxY,
-            core::Length minZ,
-            core::Length maxZ
+            const core::Length& minX,
+            const core::Length& maxX,
+            const core::Length& minY,
+            const core::Length& maxY,
+            const core::Length& minZ,
+            const core::Length& maxZ
     )
             : minX{minX}, maxX{maxX}
             , minY{minY}, maxY{maxY}

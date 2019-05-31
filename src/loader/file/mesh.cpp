@@ -46,8 +46,7 @@ struct Mesh::ModelBuilder::RenderVertexWithNormal
     static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
     {
         static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
-                {VERTEX_ATTRIBUTE_POSITION_NAME,        render::gl::VertexAttribute{
-                        &RenderVertexWithNormal::position}},
+                {VERTEX_ATTRIBUTE_POSITION_NAME,        render::gl::VertexAttribute{&RenderVertexWithNormal::position}},
                 {VERTEX_ATTRIBUTE_NORMAL_NAME,          render::gl::VertexAttribute{&RenderVertexWithNormal::normal}},
                 {VERTEX_ATTRIBUTE_COLOR_NAME,           render::gl::VertexAttribute{&RenderVertexWithNormal::color}},
                 {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute{&RenderVertexWithNormal::uv}}
@@ -129,7 +128,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             const auto firstVertex = m_vertexCount;
             for( int i = 0; i < 4; ++i )
             {
-                RenderVertex iv;
+                RenderVertex iv{};
                 iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
                 if( quad.vertices[i].index < mesh.vertexDarknesses.size() )
                     iv.color = glm::vec4( 1 - quad.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
@@ -153,7 +152,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             const auto firstVertex = m_vertexCount;
             for( int i = 0; i < 4; ++i )
             {
-                RenderVertex iv;
+                RenderVertex iv{};
                 iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
                 if( quad.vertices[i].index < mesh.vertexDarknesses.size() )
                     iv.color = glm::vec4( 1 - quad.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
@@ -177,7 +176,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             const auto firstVertex = m_vertexCount;
             for( int i = 0; i < 3; ++i )
             {
-                RenderVertex iv;
+                RenderVertex iv{};
                 iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
                 if( tri.vertices[i].index < mesh.vertexDarknesses.size() )
                     iv.color = glm::vec4( 1 - tri.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
@@ -195,7 +194,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
 
             for( int i = 0; i < 3; ++i )
             {
-                RenderVertex iv;
+                RenderVertex iv{};
                 iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
                 if( tri.vertices[i].index < mesh.vertexDarknesses.size() )
                     iv.color = glm::vec4( 1 - tri.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
@@ -217,7 +216,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             const auto firstVertex = m_vertexCount;
             for( int i = 0; i < 4; ++i )
             {
-                RenderVertexWithNormal iv;
+                RenderVertexWithNormal iv{};
                 iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
                 iv.normal = quad.vertices[i].from( mesh.normals ).toRenderSystem();
                 iv.color = glm::vec4( 1.0f );
@@ -239,7 +238,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             const auto firstVertex = m_vertexCount;
             for( int i = 0; i < 4; ++i )
             {
-                RenderVertexWithNormal iv;
+                RenderVertexWithNormal iv{};
                 iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
                 iv.normal = quad.vertices[i].from( mesh.normals ).toRenderSystem();
                 iv.color = glm::vec4( 1.0f );
@@ -257,10 +256,9 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
             const auto partId = getPartForTexture( proxy );
 
-            const auto firstVertex = m_vertexCount;
             for( int i = 0; i < 3; ++i )
             {
-                RenderVertexWithNormal iv;
+                RenderVertexWithNormal iv{};
                 iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
                 iv.normal = tri.vertices[i].from( mesh.normals ).toRenderSystem();
                 iv.color = glm::vec4( 1.0f );
@@ -276,7 +274,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
 
             for( int i = 0; i < 3; ++i )
             {
-                RenderVertexWithNormal iv;
+                RenderVertexWithNormal iv{};
                 iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
                 iv.normal = tri.vertices[i].from( mesh.normals ).toRenderSystem();
                 iv.color = glm::vec4( 1.0f );
