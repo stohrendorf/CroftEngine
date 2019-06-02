@@ -199,13 +199,13 @@ void Room::createSceneNode(
                                                             render::gl::Program::ActiveUniform& uniform) {
         uniform.set( glm::vec3{0.0f} );
     } );
-    node->addMaterialParameterSetter( "u_baseLight", [](const render::scene::Node& /*node*/,
+    node->addMaterialParameterSetter( "u_lightAmbient", [](const render::scene::Node& /*node*/,
                                                         render::gl::Program::ActiveUniform& uniform) {
         uniform.set( 1.0f );
     } );
-    node->addMaterialParameterSetter( "u_baseLightDiff", [](const render::scene::Node& /*node*/,
+    node->addMaterialParameterSetter( "u_lightIntensity", [](const render::scene::Node& /*node*/,
                                                             render::gl::Program::ActiveUniform& uniform) {
-        uniform.set( 1.0f );
+        uniform.set( 0.0f );
     } );
 
     for( const RoomStaticMesh& sm : this->staticMeshes )
@@ -219,12 +219,12 @@ void Room::createSceneNode(
         subNode->setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
                                  * rotate( glm::mat4{1.0f}, toRad( sm.rotation ), glm::vec3{0, -1, 0} ) );
 
-        subNode->addMaterialParameterSetter( "u_baseLight",
+        subNode->addMaterialParameterSetter( "u_lightAmbient",
                                              [brightness = sm.getBrightness()](const render::scene::Node& /*node*/,
                                                                                render::gl::Program::ActiveUniform& uniform) {
                                                  uniform.set( brightness );
                                              } );
-        subNode->addMaterialParameterSetter( "u_baseLightDiff", [](const render::scene::Node& /*node*/,
+        subNode->addMaterialParameterSetter( "u_lightIntensity", [](const render::scene::Node& /*node*/,
                                                                    render::gl::Program::ActiveUniform& uniform
         ) {
             uniform.set( 0.0f );
@@ -258,7 +258,7 @@ void Room::createSceneNode(
                                                 [texture = sprite.texture](const render::scene::Node& /*node*/,
                                                                            render::gl::Program::ActiveUniform& uniform
                                                 ) { uniform.set( *texture ); } );
-        spriteNode->addMaterialParameterSetter( "u_baseLight",
+        spriteNode->addMaterialParameterSetter( "u_lightAmbient",
                                                 [brightness = v.getBrightness()](const render::scene::Node& /*node*/,
                                                                                  render::gl::Program::ActiveUniform& uniform
                                                 ) { uniform.set( brightness ); } );

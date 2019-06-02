@@ -560,7 +560,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     m_spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
     m_spriteMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
 
-    m_spriteMaterial->getParameter( "u_baseLightDiff" )->set( 0.0f );
+    m_spriteMaterial->getParameter( "u_lightIntensity" )->set( 0.0f );
     m_spriteMaterial->getParameter( "u_lightPosition" )->set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
 
     BOOST_ASSERT( m_portalMaterial == nullptr );

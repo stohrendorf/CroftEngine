@@ -9,12 +9,10 @@ uniform mat4 u_projectionMatrix;
 out vec3 v_color;
 out vec3 v_vertexPos;
 out vec3 v_normal;
-out vec3 v_camspaceVertexPos;
 
 void main()
 {
     vec4 tmp = u_modelViewMatrix * vec4(a_position, 1);
-    v_camspaceVertexPos = -vec3(tmp);
     gl_Position = u_projectionMatrix * tmp;
     v_color = a_color;
 

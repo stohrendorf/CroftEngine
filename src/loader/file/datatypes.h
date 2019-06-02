@@ -187,7 +187,8 @@ struct Light
     ByteColor color; // three bytes rgb values
     int16_t intensity; // Light intensity
     uint16_t intensity2; // Almost always equal to Intensity1 [absent from TR1 data files]
-    core::Length radius = 0_len; // Falloff value 1
+    // distance of half light intensity
+    core::Length fadeDistance = 0_len;
     core::Length fade2 = 0_len; // Falloff value 2 [absent from TR1 data files]
     uint8_t light_type; // same as D3D (i.e. 2 is for spotlight)
     uint8_t unknown; // always 0xff?
@@ -236,14 +237,14 @@ struct Light
         light.position = readCoordinates32( reader );
         // read and make consistent
         light.intensity = reader.readI16();
-        light.radius = core::Length{reader.readI32()};
+        light.fadeDistance = core::Length{reader.readI32()};
         // only in TR2
         light.intensity2 = light.intensity;
 
-        light.fade2 = light.radius;
+        light.fade2 = light.fadeDistance;
 
-        light.r_outer = light.radius;
-        light.r_inner = light.radius / 2;
+        light.r_outer = light.fadeDistance;
+        light.r_inner = light.fadeDistance / 2;
 
         light.light_type = 1; // Point light
 
@@ -261,11 +262,11 @@ struct Light
         light.position = readCoordinates32( reader );
         light.intensity = reader.readU16();
         light.intensity2 = reader.readU16();
-        light.radius = core::Length{reader.readI32()};
+        light.fadeDistance = core::Length{reader.readI32()};
         light.fade2 = core::Length{reader.readI32()};
 
-        light.r_outer = light.radius;
-        light.r_inner = light.radius / 2;
+        light.r_outer = light.fadeDistance;
+        light.r_inner = light.fadeDistance / 2;
 
         light.light_type = 1; // Point light
 
@@ -284,11 +285,11 @@ struct Light
         light.color.g = reader.readU8();
         light.color.b = reader.readU8();
         light.color.a = reader.readU8();
-        light.radius = core::Length{reader.readI32()};
+        light.fadeDistance = core::Length{reader.readI32()};
         light.fade2 = core::Length{reader.readI32()};
 
-        light.r_outer = light.radius;
-        light.r_inner = light.radius / 2;
+        light.r_outer = light.fadeDistance;
+        light.r_inner = light.fadeDistance / 2;
 
         light.light_type = 1; // Point light
         return light;

@@ -394,12 +394,12 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<Engine*>& engine,
                                                                    render::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( *texture );
                                         } );
-    m_node->addMaterialParameterSetter( "u_baseLight",
+    m_node->addMaterialParameterSetter( "u_lightAmbient",
                                         [brightness = item.getBrightness()](const render::scene::Node& /*node*/,
                                                                             render::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( brightness );
                                         } );
-    m_node->addMaterialParameterSetter( "u_baseLightDiff",
+    m_node->addMaterialParameterSetter( "u_lightIntensity",
                                         [](const render::scene::Node& /*node*/,
                                            render::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( 0.0f );

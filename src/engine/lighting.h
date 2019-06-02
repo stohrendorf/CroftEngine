@@ -9,13 +9,8 @@ namespace engine
 struct Lighting
 {
     glm::vec3 position = glm::vec3{std::numeric_limits<float>::quiet_NaN()};
-    float base = 0;
-    float baseDiff = 0;
-
-    void updateDynamic(const core::RoomBoundPosition& pos)
-    {
-        updateDynamic( -1, pos );
-    }
+    float ambient = 0;
+    float intensity = 0;
 
     void updateDynamic(int16_t shade, const core::RoomBoundPosition& pos)
     {
@@ -25,52 +20,51 @@ struct Lighting
             return;
         }
 
-        baseDiff = 0;
-
         const auto roomAmbient = pos.room->getAmbientBrightness();
         BOOST_ASSERT( roomAmbient >= 0 && roomAmbient <= 1 );
+        ambient = roomAmbient;
+        intensity = 0;
 
         if( pos.room->lights.empty() )
         {
-            base = roomAmbient;
             return;
         }
 
-        float maxBrightness = 0;
         for( const auto& light : pos.room->lights )
         {
-            const auto r = util::square( light.radius.retype_as<core::LengthF>() / 4096.0_len );
+            const auto fadeDistance = util::square( light.fadeDistance.retype_as<core::LengthF>() / 4096.0_len );
             const auto d = util::square(
                     pos.position.distanceTo( light.position ).retype_as<core::LengthF>() / 4096.0_len );
 
-            const auto lightBrightness = roomAmbient + r * light.getBrightness() / (r + d) / 2;
-            if( lightBrightness > maxBrightness )
+            // http://www-f9.ijs.si/~matevz/docs/PovRay/pov274.htm
+            // 1 / ( 1 + (d/fade_distance) ^ fade_power );
+            // assuming fade_power = 1, multiply numerator and denominator with fade_distance (identity transform):
+            // fade_distance / ( fade_distance + d )
+            const auto lightBrightness = roomAmbient + light.getBrightness() * fadeDistance / (fadeDistance + d);
+            if( lightBrightness > intensity )
             {
-                maxBrightness = lightBrightness;
+                intensity = lightBrightness;
                 position = light.position.toRenderSystem();
             }
         }
-
-        base = maxBrightness;
-        baseDiff = maxBrightness - roomAmbient;
     }
 
     void updateStatic(int16_t shade)
     {
-        base = util::clamp( 2.0f - shade / 8191.0f, 0.0f, 1.0f );
-        baseDiff = 0;
+        ambient = 1.0f - shade / 8191.0f;
+        intensity = 0;
         position = glm::vec3{std::numeric_limits<float>::quiet_NaN()};
     }
 
     void bind(render::scene::Node& node)
     {
-        node.addMaterialParameterSetter( "u_baseLight", [this](const render::scene::Node& /*node*/,
+        node.addMaterialParameterSetter( "u_lightAmbient", [this](const render::scene::Node& /*node*/,
                                                                render::gl::Program::ActiveUniform& uniform) {
-            uniform.set( base );
+            uniform.set( ambient );
         } );
-        node.addMaterialParameterSetter( "u_baseLightDiff", [this](const render::scene::Node& /*node*/,
+        node.addMaterialParameterSetter( "u_lightIntensity", [this](const render::scene::Node& /*node*/,
                                                                    render::gl::Program::ActiveUniform& uniform) {
-            uniform.set( baseDiff );
+            uniform.set( intensity );
         } );
         node.addMaterialParameterSetter( "u_lightPosition", [this](const render::scene::Node& /*node*/,
                                                                    render::gl::Program::ActiveUniform& uniform) {

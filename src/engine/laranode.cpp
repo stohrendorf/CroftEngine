@@ -2600,12 +2600,12 @@ void LaraNode::renderGunFlare(const WeaponId weaponId,
     setParent( flareNode, getNode()->getParent().lock() );
     flareNode->setLocalMatrix( getNode()->getLocalMatrix() * m );
 
-    const auto brightness = util::clamp( 2.0f - shade / 8191.0f, 0.0f, 1.0f );
-    flareNode->addMaterialParameterSetter( "u_baseLight", [brightness](const render::scene::Node& /*node*/,
+    const auto brightness = 1.0f - shade / 8191.0f;
+    flareNode->addMaterialParameterSetter( "u_lightAmbient", [brightness](const render::scene::Node& /*node*/,
                                                                        render::gl::Program::ActiveUniform& uniform) {
         uniform.set( brightness );
     } );
-    flareNode->addMaterialParameterSetter( "u_baseLightDiff", [](const render::scene::Node& /*node*/,
+    flareNode->addMaterialParameterSetter( "u_lightIntensity", [](const render::scene::Node& /*node*/,
                                                                  render::gl::Program::ActiveUniform& uniform) {
         uniform.set( 0.0f );
     } );

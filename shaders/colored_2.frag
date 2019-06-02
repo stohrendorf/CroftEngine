@@ -3,7 +3,6 @@ uniform vec3 u_diffuseColor;
 in vec3 v_color;
 in vec3 v_vertexPos;
 in vec3 v_normal;
-in vec3 v_camspaceVertexPos;
 
 out vec4 out_color;
 
@@ -24,6 +23,6 @@ void main()
     out_color.g = color.g * v_color.g;
     out_color.b = color.b * v_color.b;
 
-    out_color *= calc_positional_lighting(v_normal, v_vertexPos, v_camspaceVertexPos);
+    out_color *= calc_positional_lighting(v_normal, v_vertexPos);
     out_color.a = 1;
 }
