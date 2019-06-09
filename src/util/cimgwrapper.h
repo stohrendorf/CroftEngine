@@ -56,7 +56,7 @@ public:
 
     uint8_t& operator()(int x, int y, int c);
 
-    render::gl::RGBA8& operator()(int x, int y);
+    render::gl::SRGBA8& operator()(int x, int y);
 
     uint8_t operator()(int x, int y, int c) const;
 

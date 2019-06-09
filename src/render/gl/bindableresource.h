@@ -20,14 +20,12 @@ public:
         if( m_handle == 0 )
             return;
 
-        m_binder( m_handle );
-        checkGlError();
+        GL_ASSERT( m_binder( m_handle ) );
     }
 
     void unbind() const
     {
-        m_binder( 0 );
-        checkGlError();
+        GL_ASSERT( m_binder( 0 ) );
     }
 
     GLuint getHandle() const
@@ -58,8 +56,7 @@ protected:
         BOOST_ASSERT( static_cast<bool>(binder) );
         BOOST_ASSERT( static_cast<bool>(deleter) );
 
-        m_allocator( 1, &m_handle );
-        checkGlError();
+        GL_ASSERT( m_allocator( 1, &m_handle ) );
 
         BOOST_ASSERT( m_handle != 0 );
 
@@ -99,22 +96,19 @@ protected:
             return;
 
         unbind();
-        m_deleter( 1, &m_handle );
-        checkGlError();
+        GL_ASSERT( m_deleter( 1, &m_handle ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void setLabel(const GLenum identifier, const std::string& label)
     {
         GLint maxLabelLength = 0;
-        glGetIntegerv( GL_MAX_LABEL_LENGTH, &maxLabelLength );
-        checkGlError();
+        GL_ASSERT( glGetIntegerv( GL_MAX_LABEL_LENGTH, &maxLabelLength ) );
         BOOST_ASSERT( maxLabelLength > 0 );
 
-        glObjectLabel( identifier, m_handle, -1,
-                       label.empty() ? nullptr : label.substr( 0, static_cast<std::size_t>(maxLabelLength) )
-                                                      .c_str() );
-        checkGlError();
+        GL_ASSERT( glObjectLabel( identifier, m_handle, -1,
+                                  label.empty() ? nullptr : label.substr( 0, static_cast<std::size_t>(maxLabelLength) )
+                                                                 .c_str() ) );
     }
 
 private:

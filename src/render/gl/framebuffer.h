@@ -3,69 +3,88 @@
 #include "renderbuffer.h"
 #include "texture.h"
 
+#include <initializer_list>
+
 namespace render
 {
 namespace gl
 {
-class FrameBuffer : public BindableResource
+class FrameBuffer;
+
+
+class FrameBufferAttachment
 {
+    friend FrameBuffer;
 private:
-    const GLenum m_type;
+    virtual void attach(const FrameBuffer& frameBuffer, const GLenum attachment) const = 0;
 
 public:
-    explicit FrameBuffer(const std::string& label = {}, GLenum type = GL_FRAMEBUFFER)
+    explicit FrameBufferAttachment() = default;
+
+    virtual ~FrameBufferAttachment() = default;
+};
+
+
+class FrameBufferTextureAttachment final : public FrameBufferAttachment
+{
+public:
+    explicit FrameBufferTextureAttachment(const std::shared_ptr<Texture>& texture, const GLint level = 0)
+            : m_texture{texture}
+            , m_level{level}
+    {}
+
+    void attach(const FrameBuffer& frameBuffer, const GLenum attachment) const override;
+
+private:
+    const std::shared_ptr<Texture> m_texture;
+    const GLint m_level;
+};
+
+
+class FrameBuffer : public BindableResource
+{
+public:
+    using Attachment = std::pair<std::shared_ptr<FrameBufferAttachment>, GLenum>;
+    using Attachments = std::vector<Attachment>;
+
+private:
+    const GLenum m_type;
+    Attachments m_attachments;
+
+public:
+    explicit FrameBuffer(Attachments attachments, const std::string& label = {}, GLenum type = GL_FRAMEBUFFER)
             : BindableResource{glGenFramebuffers,
                                [type](const GLuint handle) { glBindFramebuffer( type, handle ); },
                                glDeleteFramebuffers,
                                type,
                                label}
             , m_type{type}
-    {
-    }
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void attachTexture1D(const GLenum attachment, const Texture& texture, const GLint level = 0)
+            , m_attachments{std::move( attachments )}
     {
         bind();
-        glFramebufferTexture1D( m_type, attachment, texture.getType(), texture.getHandle(), level );
-        checkGlError();
+        std::vector<GLenum> tmp;
+        for( const auto& attachment : m_attachments )
+        {
+            attachment.first->attach( *this, attachment.second );
+
+            if( attachment.second >= GL_COLOR_ATTACHMENT0 && attachment.second <= GL_COLOR_ATTACHMENT15 )
+                tmp.emplace_back( attachment.second );
+        }
+        if( !tmp.empty() )
+            GL_ASSERT( glDrawBuffers( gsl::narrow<GLsizei>( tmp.size() ), tmp.data() ) );
+
+        Expects( isComplete() );
+        unbind();
     }
 
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void attachTexture2D(const GLenum attachment, const Texture& texture, const GLint level = 0)
+    GLenum getType() const
     {
-        bind();
-        glFramebufferTexture2D( m_type, attachment, texture.getType(), texture.getHandle(), level );
-        checkGlError();
+        return m_type;
     }
 
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void attachTextureLayer(const GLenum attachment, const Texture& texture,
-                            const GLint level = 0, const GLint layer = 0)
+    const Attachments& getAttachments() const
     {
-        bind();
-        glFramebufferTextureLayer( m_type, attachment, texture.getHandle(), level, layer );
-        checkGlError();
-    }
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void attachRenderbuffer(const GLenum attachment, const RenderBuffer& renderBuffer)
-    {
-        bind();
-        glFramebufferRenderbuffer( GL_DRAW_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderBuffer.getHandle() );
-        checkGlError();
-    }
-
-    void blit(const GLint srcX0, const GLint srcY0, const GLint srcX1, const GLint srcY1,
-              const GLint dstX0, const GLint dstY0, const GLint dstX1, const GLint dstY1,
-              const GLbitfield mask = GL_COLOR_BUFFER_BIT,
-              const GLenum filter = GL_LINEAR) const
-    {
-        bind();
-        glBlitFramebuffer( srcX0, srcY0, srcX1, srcY1,
-                           dstX0, dstY0, dstX1, dstY1,
-                           mask, filter );
-        checkGlError();
+        return m_attachments;
     }
 
     bool isComplete() const
@@ -123,9 +142,34 @@ public:
 
     static void unbindAll(const GLenum type = GL_FRAMEBUFFER)
     {
-        glBindFramebuffer( type, 0 );
-        checkGlError();
+        GL_ASSERT( glBindFramebuffer( type, 0 ) );
     }
 };
+
+
+void FrameBufferTextureAttachment::attach(const FrameBuffer& frameBuffer, const GLenum attachment) const
+{
+    GL_ASSERT( glFramebufferTexture( frameBuffer.getType(), attachment, m_texture->getHandle(), m_level ) );
+}
+
+
+class FrameBufferBuilder
+{
+private:
+    FrameBuffer::Attachments m_attachments;
+
+public:
+    std::shared_ptr<FrameBuffer> build()
+    {
+        return std::make_shared<FrameBuffer>( std::move( m_attachments ) );
+    }
+
+    FrameBufferBuilder& texture(GLenum attachment, const std::shared_ptr<Texture>& texture, GLint level = 0)
+    {
+        m_attachments.emplace_back( std::make_shared<FrameBufferTextureAttachment>( texture ), attachment );
+        return *this;
+    }
+};
+
 }
 }

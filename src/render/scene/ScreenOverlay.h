@@ -49,7 +49,7 @@ public:
     }
 
 private:
-    const std::shared_ptr<gl::Image<gl::RGBA8>> m_image{std::make_shared<gl::Image<gl::RGBA8>>()};
+    const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
 
     gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{std::make_shared<gl::Texture>( GL_TEXTURE_2D )};
 

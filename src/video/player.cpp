@@ -519,7 +519,7 @@ struct Scaler
         }
     };
 
-    void scale(const AVFramePtr& videoFrame, render::gl::Image<render::gl::RGBA8>& img)
+    void scale(const AVFramePtr& videoFrame, render::gl::Image<render::gl::SRGBA8>& img)
     {
         sws_scale( context, static_cast<const uint8_t* const*>(videoFrame.frame->data),
                    videoFrame.frame->linesize, 0, videoFrame.frame->height, dstVideoData, dstVideoLinesize );
@@ -527,7 +527,7 @@ struct Scaler
         auto srcLineRaw = dstVideoData[0];
         auto dst = img.getRawData();
 
-        Expects( img.getWidth() <= dstVideoLinesize[0] / sizeof( render::gl::RGBA8 ) );
+        Expects( img.getWidth() <= dstVideoLinesize[0] / sizeof( render::gl::SRGBA8 ) );
 
         img.fill( {0, 0, 0, 255} );
 
@@ -539,7 +539,7 @@ struct Scaler
         dst += xOffset;
         for( GLint y = 0; y < scaledHeight; ++y )
         {
-            std::copy_n( reinterpret_cast<render::gl::RGBA8*>(srcLineRaw), scaledWidth, dst );
+            std::copy_n( reinterpret_cast<render::gl::SRGBA8*>(srcLineRaw), scaledWidth, dst );
             dst += img.getWidth();
             srcLineRaw += dstVideoLinesize[0];
         }
@@ -549,7 +549,7 @@ struct Scaler
 
 void play(const boost::filesystem::path& filename,
           audio::Device& audioDevice,
-          const std::shared_ptr<render::gl::Image<render::gl::RGBA8>>& img,
+          const std::shared_ptr<render::gl::Image<render::gl::SRGBA8>>& img,
           const std::function<bool()>& onFrame)
 {
     if( !boost::filesystem::is_regular_file( filename ) )

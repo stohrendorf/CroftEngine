@@ -73,8 +73,7 @@ public:
             vertexCount = m_vertexCount - vertexStart;
         }
 
-        glBufferSubData( GL_ARRAY_BUFFER, vertexStart * m_size, vertexCount * m_size, vertexData );
-        checkGlError();
+        GL_ASSERT(glBufferSubData( GL_ARRAY_BUFFER, vertexStart * m_size, vertexCount * m_size, vertexData ));
     }
 
     template<typename T>
@@ -91,9 +90,8 @@ public:
         if( vertexCount != 0 )
             m_vertexCount = vertexCount;
 
-        glBufferData( GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData,
-                      m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW );
-        checkGlError();
+        GL_ASSERT(glBufferData( GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData,
+                      m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW ));
     }
 
     template<typename T>
@@ -104,9 +102,8 @@ public:
         if( vertexCount != 0 )
             m_vertexCount = vertexCount;
 
-        glBufferData( GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData,
-                      m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW );
-        checkGlError();
+        GL_ASSERT(glBufferData( GL_ARRAY_BUFFER, m_size * m_vertexCount, vertexData,
+                      m_dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW ));
     }
 
     template<typename T>

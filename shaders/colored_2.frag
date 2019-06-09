@@ -1,10 +1,14 @@
 uniform vec3 u_diffuseColor;
 
+in vec2 v_texCoord;
 in vec3 v_color;
 in vec3 v_vertexPos;
 in vec3 v_normal;
+in vec3 v_ssaoNormal;
 
-out vec4 out_color;
+layout(location=0) out vec4 out_color;
+layout(location=1) out vec3 out_normal;
+layout(location=2) out vec3 out_position;
 
 #include "lighting.glsl"
 
@@ -25,4 +29,7 @@ void main()
 
     out_color *= calc_positional_lighting(v_normal, v_vertexPos);
     out_color.a = 1;
+
+    out_normal = v_ssaoNormal;
+    out_position = v_vertexPos;
 }

@@ -19,8 +19,7 @@ public:
             , m_height{height}
             , m_format{format}
     {
-        glRenderbufferStorage( GL_RENDERBUFFER, format, width, height );
-        checkGlError();
+        GL_ASSERT(glRenderbufferStorage( GL_RENDERBUFFER, format, width, height ));
     }
 
     GLint getWidth() const noexcept override

@@ -50,11 +50,11 @@ struct FastFill<T, 2>
 
 
 template<>
-struct FastFill<RGBA8, 4>
+struct FastFill<SRGBA8, 4>
 {
-    static_assert( sizeof( RGBA8 ) == 4, "Type size mismatch" );
+    static_assert( sizeof( SRGBA8 ) == 4, "Type size mismatch" );
 
-    static inline void fill(const gsl::not_null<RGBA8*>& data, const size_t n, const RGBA8& value)
+    static inline void fill(const gsl::not_null<SRGBA8*>& data, const size_t n, const SRGBA8& value)
     {
         const auto scalar = value.r;
         if( scalar == value.g && scalar == value.b && scalar == value.a )

@@ -297,9 +297,13 @@ void ItemNode::load(const YAML::Node& n)
     m_isActive = n["active"].as<bool>();
 
     if( getNode()->getChildren().empty() )
+    {
         Expects( !n["meshes"].IsDefined() );
+    }
     else
+    {
         Expects( !n["meshes"].IsDefined() || n["meshes"].size() <= getNode()->getChildren().size() );
+    }
 
     if( n["meshes"].IsDefined() )
     {

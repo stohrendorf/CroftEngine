@@ -22,7 +22,7 @@ gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(
     result->getParameter( "u_diffuseTexture" )->set( texture );
     result->getParameter( "u_modelMatrix" )->bindModelMatrix();
     result->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
-    result->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
+    result->getParameter( "u_camProjection" )->bindProjectionMatrix();
 
     switch( bmode )
     {
@@ -46,7 +46,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 {
     if( glidos == nullptr )
     {
-        image = std::make_shared<render::gl::Image<render::gl::RGBA8>>( 256, 256, &pixels[0][0] );
+        image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>( 256, 256, &pixels[0][0] );
         return;
     }
 
@@ -66,9 +66,9 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
         util::CImgWrapper cacheImage{cacheName.string()};
 
         cacheImage.interleave();
-        image = std::make_shared<render::gl::Image<render::gl::RGBA8>>(
+        image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
                 cacheImage.width(), cacheImage.height(),
-                reinterpret_cast<const render::gl::RGBA8*>(cacheImage.data()) );
+                reinterpret_cast<const render::gl::SRGBA8*>(cacheImage.data()) );
         return;
     }
 
@@ -115,9 +115,9 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
     original.savePng( cacheName.string() );
 
     original.interleave();
-    image = std::make_shared<render::gl::Image<render::gl::RGBA8>>(
+    image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
             Resolution, Resolution,
-            reinterpret_cast<const render::gl::RGBA8*>(original.data()) );
+            reinterpret_cast<const render::gl::SRGBA8*>(original.data()) );
 }
 
 void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback)

@@ -34,8 +34,7 @@ public:
 
     static void unmap()
     {
-        glUnmapBuffer( GL_ELEMENT_ARRAY_BUFFER );
-        checkGlError();
+        GL_ASSERT(glUnmapBuffer( GL_ELEMENT_ARRAY_BUFFER ));
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
@@ -46,9 +45,8 @@ public:
 
         bind();
 
-        glBufferData( GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLsizeiptr>( sizeof( T ) * indexCount ), indexData.get(),
-                      dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW );
-        checkGlError();
+        GL_ASSERT(glBufferData( GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLsizeiptr>( sizeof( T ) * indexCount ), indexData.get(),
+                      dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW ));
 
         m_indexCount = indexCount;
         m_storageType = TypeTraits<T>::TypeId;
@@ -78,15 +76,13 @@ public:
 
         bind();
 
-        glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLintptr>( indexStart * sizeof( T ) ),
-                         gsl::narrow<GLsizeiptr>( indexCount * sizeof( T ) ), indexData.get() );
-        checkGlError();
+        GL_ASSERT(glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLintptr>( indexStart * sizeof( T ) ),
+                         gsl::narrow<GLsizeiptr>( indexCount * sizeof( T ) ), indexData.get() ));
     }
 
     void draw(const GLenum mode) const
     {
-        glDrawElements( mode, m_indexCount, m_storageType, nullptr );
-        checkGlError();
+        GL_ASSERT(glDrawElements( mode, m_indexCount, m_storageType, nullptr ));
     }
 
     GLsizei getIndexCount() const

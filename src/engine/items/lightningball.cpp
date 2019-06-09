@@ -42,7 +42,7 @@ createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<render::scene::S
 
     auto material = std::make_shared<render::scene::Material>( program );
     material->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
-    material->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
+    material->getParameter( "u_camProjection" )->bindProjectionMatrix();
 
     mesh->setMaterial( material );
 

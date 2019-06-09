@@ -38,8 +38,7 @@ public:
 
     static void unmap()
     {
-        glUnmapBuffer( GL_ARRAY_BUFFER );
-        checkGlError();
+        GL_ASSERT(glUnmapBuffer( GL_ARRAY_BUFFER ));
     }
 };
 }

@@ -71,7 +71,7 @@ void Renderer::render()
     }
 }
 
-void Renderer::clear(const GLbitfield flags, const gl::RGBA8& clearColor, const float clearDepth)
+void Renderer::clear(const GLbitfield flags, const gl::SRGBA8& clearColor, const float clearDepth)
 {
     GLbitfield bits = 0;
     if( flags & GL_COLOR_BUFFER_BIT )
@@ -107,7 +107,7 @@ void Renderer::clear(const GLbitfield flags,
                      const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha,
                      const float clearDepth)
 {
-    clear( flags, gl::RGBA8{red, green, blue, alpha}, clearDepth );
+    clear( flags, gl::SRGBA8{red, green, blue, alpha}, clearDepth );
 }
 }
 }

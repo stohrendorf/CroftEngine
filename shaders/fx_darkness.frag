@@ -1,11 +1,12 @@
 uniform sampler2D u_texture;
 uniform sampler2D u_portalDepth;
-uniform mat4 u_projection;
+uniform sampler2D u_ao;
+uniform mat4 u_camProjection;
 uniform float u_time;
 
 in vec2 v_texCoord;
 
-out vec4 out_color;
+layout(location=0) out vec4 out_color;
 
 const float PI = 3.14159265;
 const float Z_max = 20480;
@@ -94,6 +95,7 @@ void main()
     }
 #endif
 
+    out_color.rgb *= texture(u_ao, uv).r;
     out_color.rgb *= grain*0.3 + 0.7;
     out_color.a = 1;
 }

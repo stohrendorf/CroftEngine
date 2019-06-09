@@ -9,6 +9,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
+#include <iostream>
 
 namespace render
 {
@@ -60,16 +61,18 @@ std::string replaceDefines(const std::vector<std::string>& defines)
     return out;
 }
 
-void replaceIncludes(const std::string& filepath, const std::string& source, std::string& out,
+void replaceIncludes(const std::string& filepath,
+                     const std::string& source,
+                     std::string& out,
                      std::set<std::string>& included)
 {
     included.emplace( filepath );
+    out += "#line 1\n#pragma file \"" + filepath + "\"\n";
 
     // Replace the #include "xxxx.xxx" with the sourced file contents of "filepath/xxxx.xxx"
     size_t headPos = 0;
-    const auto fileLen = source.length();
-    const auto tailPos = fileLen;
-    while( headPos < fileLen )
+    size_t line = 1;
+    while( headPos < source.length() )
     {
         const auto lastPos = headPos;
         if( headPos == 0 )
@@ -87,7 +90,11 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
         if( headPos != std::string::npos )
         {
             // append from our last position for the length (head - last position)
-            out.append( source.substr( lastPos, headPos - lastPos ) );
+            {
+                const auto part = source.substr( lastPos, headPos - lastPos );
+                out.append( part );
+                line += std::count(part.begin(), part.end(), '\n');
+            }
 
             // find the start quote "
             const size_t startQuote = source.find( '"', headPos ) + 1;
@@ -131,11 +138,13 @@ void replaceIncludes(const std::string& filepath, const std::string& source, std
             }
             // Valid file so lets attempt to see if we need to append anything to it too (recurse...)
             replaceIncludes( directoryPath, includedSource, out, included );
+            out += "#line " + std::to_string(line) + "\n#pragma file \"" + filepath + "\"\n";
         }
         else
         {
             // Append the remaining
-            out.append( source, lastPos, tailPos );
+            out.append( source, lastPos );
+            break;
         }
     }
 }
@@ -280,11 +289,13 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
 
     for( auto&& attrib : shaderProgram->m_handle.getActiveAttributes() )
     {
+        std::cerr << shaderProgram->m_id << " ATTR " << attrib.getName() << " @ " << attrib.getLocation() << "\n";
         shaderProgram->m_vertexAttributes.insert( make_pair( attrib.getName(), std::move( attrib ) ) );
     }
 
     for( auto&& uniform : shaderProgram->m_handle.getActiveUniforms() )
     {
+        std::cerr << shaderProgram->m_id << " UNIFORM " << uniform.getName() << " @ " << uniform.getLocation() << "/" << uniform.getSamplerIndex() << "\n";
         shaderProgram->m_uniforms.emplace( make_pair( uniform.getName(), std::move( uniform ) ) );
     }
 

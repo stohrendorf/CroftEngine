@@ -4,6 +4,7 @@
 
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/stacktrace.hpp>
 
 namespace render
 {
@@ -16,7 +17,8 @@ inline void checkGlError()
     if( error == GL_NO_ERROR )
         return;
 
-    BOOST_LOG_TRIVIAL( error ) << "OpenGL error " << error << ": " << gluErrorString( error );
+    BOOST_LOG_TRIVIAL( error ) << "OpenGL error " << error << ": " << (const char*)gluErrorString( error );
+    BOOST_LOG_TRIVIAL( error ) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
     BOOST_ASSERT_MSG( false, "OpenGL error check failed" );
 #endif
 }

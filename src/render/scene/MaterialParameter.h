@@ -57,6 +57,12 @@ public:
 
     void set(const std::vector<std::shared_ptr<gl::Texture>>& textures);
 
+    template<typename T>
+    void set(const std::vector<T>& values)
+    {
+        set( values.data(), values.size() );
+    }
+
     template<class ClassType, class ValueType>
     void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
     {

@@ -140,6 +140,25 @@ void Room::createSceneNode(
             iv.position = quad.vertices[i].from( vertices ).position.toRenderSystem();
             iv.color = quad.vertices[i].from( vertices ).color;
             uvCoordsData.push_back( proxy.uvCoordinates[i].toGl() );
+
+            // generate normal
+            if( i <= 2 )
+            {
+                static const int indices[3] = {0, 1, 2};
+                const auto o = quad.vertices[indices[(i + 0) % 3]].from( vertices ).position.toRenderSystem();
+                const auto a = quad.vertices[indices[(i + 1) % 3]].from( vertices ).position.toRenderSystem();
+                const auto b = quad.vertices[indices[(i + 2) % 3]].from( vertices ).position.toRenderSystem();
+                iv.normal = glm::normalize( -glm::cross( a - o, b - o ) );
+            }
+            else
+            {
+                static const int indices[3] = {0, 2, 3};
+                const auto o = quad.vertices[indices[(i + 0) % 3]].from( vertices ).position.toRenderSystem();
+                const auto a = quad.vertices[indices[(i + 1) % 3]].from( vertices ).position.toRenderSystem();
+                const auto b = quad.vertices[indices[(i + 2) % 3]].from( vertices ).position.toRenderSystem();
+                iv.normal = glm::normalize( -glm::cross( a - o, b - o ) );
+            }
+
             vbufData.push_back( iv );
         }
 
@@ -173,6 +192,13 @@ void Room::createSceneNode(
             iv.position = tri.vertices[i].from( vertices ).position.toRenderSystem();
             iv.color = tri.vertices[i].from( vertices ).color;
             uvCoordsData.push_back( proxy.uvCoordinates[i].toGl() );
+
+            static const int indices[3] = {0, 1, 2};
+            const auto o = tri.vertices[indices[(i + 0) % 3]].from( vertices ).position.toRenderSystem();
+            const auto a = tri.vertices[indices[(i + 1) % 3]].from( vertices ).position.toRenderSystem();
+            const auto b = tri.vertices[indices[(i + 2) % 3]].from( vertices ).position.toRenderSystem();
+            iv.normal = glm::normalize( -glm::cross( a - o, b - o ) );
+
             vbufData.push_back( iv );
         }
 
@@ -200,11 +226,11 @@ void Room::createSceneNode(
         uniform.set( glm::vec3{0.0f} );
     } );
     node->addMaterialParameterSetter( "u_lightAmbient", [](const render::scene::Node& /*node*/,
-                                                        render::gl::Program::ActiveUniform& uniform) {
+                                                           render::gl::Program::ActiveUniform& uniform) {
         uniform.set( 1.0f );
     } );
     node->addMaterialParameterSetter( "u_lightIntensity", [](const render::scene::Node& /*node*/,
-                                                            render::gl::Program::ActiveUniform& uniform) {
+                                                             render::gl::Program::ActiveUniform& uniform) {
         uniform.set( 0.0f );
     } );
 
@@ -225,7 +251,7 @@ void Room::createSceneNode(
                                                  uniform.set( brightness );
                                              } );
         subNode->addMaterialParameterSetter( "u_lightIntensity", [](const render::scene::Node& /*node*/,
-                                                                   render::gl::Program::ActiveUniform& uniform
+                                                                    render::gl::Program::ActiveUniform& uniform
         ) {
             uniform.set( 0.0f );
         } );
@@ -311,7 +337,7 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core:
     auto groundSector = const_cast<Sector*>(loader::file::findRealFloorSector( item.m_state.position.position, &room ));
     Expects( groundSector != nullptr );
     const auto topSector = loader::file::findRealFloorSector(
-            item.m_state.position.position + core::TRVec{0_len, height -core::SectorSize, 0_len}, &room );
+            item.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room );
 
     if( groundSector->floorHeight == -core::HeightLimit )
     {

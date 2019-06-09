@@ -112,7 +112,7 @@ Font::~Font()
     m_cache = nullptr;
 }
 
-void Font::drawText(const char* text, const int x, const int y, const RGBA8& color)
+void Font::drawText(const char* text, const int x, const int y, const SRGBA8& color)
 {
     BOOST_ASSERT( text );
 
@@ -163,7 +163,7 @@ void Font::drawText(const std::string& text,
                     const int x, const int y,
                     const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha)
 {
-    drawText( text.c_str(), x, y, RGBA8{red, green, blue, alpha} );
+    drawText( text.c_str(), x, y, SRGBA8{red, green, blue, alpha} );
 }
 }
 }

@@ -19,8 +19,7 @@ public:
 
         if( !label.empty() )
         {
-            glObjectLabel( GL_SHADER, m_handle, -1, label.c_str() );
-            checkGlError();
+            GL_ASSERT(glObjectLabel( GL_SHADER, m_handle, -1, label.c_str() ));
         }
     }
 
@@ -34,8 +33,7 @@ public:
 
     ~Shader()
     {
-        glDeleteShader( m_handle );
-        checkGlError();
+        GL_ASSERT(glDeleteShader( m_handle ));
     }
 
     GLenum getType() const noexcept
@@ -47,37 +45,32 @@ public:
     void setSource(const std::string& src)
     {
         const GLchar* data[1]{src.c_str()};
-        glShaderSource( m_handle, 1, data, nullptr );
-        checkGlError();
+        GL_ASSERT(glShaderSource( m_handle, 1, data, nullptr ));
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void setSource(const GLchar* src[], const GLsizei n)
     {
-        glShaderSource( m_handle, n, src, nullptr );
-        checkGlError();
+        GL_ASSERT(glShaderSource( m_handle, n, src, nullptr ));
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void compile()
     {
-        glCompileShader( m_handle );
-        checkGlError();
+        GL_ASSERT(glCompileShader( m_handle ));
     }
 
     bool getCompileStatus() const
     {
         GLint success = GL_FALSE;
-        glGetShaderiv( m_handle, GL_COMPILE_STATUS, &success );
-        checkGlError();
+        GL_ASSERT(glGetShaderiv( m_handle, GL_COMPILE_STATUS, &success ));
         return success == GL_TRUE;
     }
 
     std::string getInfoLog() const
     {
         GLint length = 0;
-        glGetShaderiv( m_handle, GL_INFO_LOG_LENGTH, &length );
-        checkGlError();
+        GL_ASSERT(glGetShaderiv( m_handle, GL_INFO_LOG_LENGTH, &length ));
         if( length == 0 )
         {
             length = 4096;
@@ -85,8 +78,7 @@ public:
         if( length > 0 )
         {
             const auto infoLog = new char[length];
-            glGetShaderInfoLog( m_handle, length, nullptr, infoLog );
-            checkGlError();
+            GL_ASSERT(glGetShaderInfoLog( m_handle, length, nullptr, infoLog ));
             infoLog[length - 1] = '\0';
             std::string result = infoLog;
             delete[] infoLog;

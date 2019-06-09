@@ -170,7 +170,7 @@ endif()
 
 if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp" )
     message( STATUS "Downloading gsl-lite..." )
-    file( DOWNLOAD https://raw.githubusercontent.com/martinmoene/gsl-lite/d36fa3ba0b3a1331d5326d37b3202222aebd398c/include/gsl/gsl-lite.hpp "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp"
+    file( DOWNLOAD https://raw.githubusercontent.com/martinmoene/gsl-lite/08049ece650ce17ea8b8ae9086d67fa65173d116/include/gsl/gsl-lite.hpp "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp"
           STATUS status
           LOG log )
     list( GET status 0 status_code )
@@ -188,7 +188,9 @@ add_definitions(
         -Dgsl_FEATURE_BYTE_SPAN_TO_STD=${CMAKE_CXX_STANDARD}
         -Dgsl_CONFIG_NOT_NULL_EXPLICIT_CTOR=0
 )
-
+if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+    add_definitions( -Dgsl_CONFIG_CONTRACT_VIOLATION_THROWS )
+endif()
 
 find_package( Git REQUIRED )
 execute_process(
@@ -200,6 +202,7 @@ execute_process(
 )
 
 add_definitions( -DGIT_SHA="${GIT_SHA}" )
+add_definitions( -DNOMINMAX -DNOGDI )
 
 find_package( yaml-cpp REQUIRED )
 

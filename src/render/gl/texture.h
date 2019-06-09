@@ -22,22 +22,21 @@ public:
     void setLabel(const std::string& lbl)
     {
         bind();
-        glObjectLabel( GL_TEXTURE, getHandle(), static_cast<GLsizei>(lbl.length()), lbl.c_str() );
-        checkGlError();
+        GL_ASSERT(glObjectLabel( GL_TEXTURE, getHandle(), static_cast<GLsizei>(lbl.length()), lbl.c_str() ));
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void set(const GLenum param, const GLint value)
+    Texture& set(const GLenum param, const GLint value)
     {
-        glTextureParameteri( getHandle(), param, value );
-        checkGlError();
+        GL_ASSERT(glTextureParameteri( getHandle(), param, value ));
+        return *this;
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void set(const GLenum param, const GLfloat value)
+    Texture& set(const GLenum param, const GLfloat value)
     {
-        glTextureParameterf( getHandle(), param, value );
-        checkGlError();
+        GL_ASSERT(glTextureParameterf( getHandle(), param, value ));
+        return *this;
     }
 
     GLint getWidth() const noexcept override
@@ -65,14 +64,12 @@ public:
 
         bind();
 
-        glTexImage2D( m_type, 0, T::InternalFormat, m_width, m_height, 0, T::Format, T::TypeId,
-                      data.empty() ? nullptr : data.data() );
-        checkGlError();
+        GL_ASSERT(glTexImage2D( m_type, 0, T::InternalFormat, m_width, m_height, 0, T::Format, T::TypeId,
+                      data.empty() ? nullptr : data.data() ));
 
         if( m_mipmap )
         {
-            glGenerateMipmap( m_type );
-            checkGlError();
+            GL_ASSERT(glGenerateMipmap( m_type ));
         }
     }
 
@@ -85,24 +82,22 @@ public:
 
         bind();
 
-        glTexSubImage2D( m_type, 0, 0, 0, m_width, m_height, T::Format, T::TypeId, data.data() );
-        checkGlError();
+        GL_ASSERT(glTexSubImage2D( m_type, 0, 0, 0, m_width, m_height, T::Format, T::TypeId, data.data() ));
 
         if( m_mipmap )
         {
-            glGenerateMipmap( m_type );
-            checkGlError();
+            GL_ASSERT(glGenerateMipmap( m_type ));
         }
     }
 
     template<typename T>
-    void image2D(GLint width, GLint height, bool generateMipmaps)
+    Texture& image2D(GLint width, GLint height, bool generateMipmaps)
     {
-        image2D( width, height, std::vector<T>{}, generateMipmaps );
+        return image2D( width, height, std::vector<T>{}, generateMipmaps );
     }
 
     template<typename T>
-    void image2D(const GLint width, const GLint height, const std::vector<T>& data, const bool generateMipmaps)
+    Texture& image2D(const GLint width, const GLint height, const std::vector<T>& data, const bool generateMipmaps)
     {
         BOOST_ASSERT( width > 0 && height > 0 );
         BOOST_ASSERT(
@@ -110,24 +105,19 @@ public:
 
         bind();
 
-        glTexImage2D( m_type, 0, T::InternalFormat, width, height, 0, T::Format, T::TypeId,
-                      data.empty() ? nullptr : data.data() );
-        checkGlError();
+        GL_ASSERT(glTexImage2D( m_type, 0, T::InternalFormat, width, height, 0, T::Format, T::TypeId,
+                      data.empty() ? nullptr : data.data() ));
 
         m_width = width;
         m_height = height;
-
-        // Set initial minification filter based on whether or not mipmapping was enabled.
-        set( GL_TEXTURE_MIN_FILTER, generateMipmaps ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR );
-        checkGlError();
-
         m_mipmap = generateMipmaps;
 
         if( m_mipmap )
         {
-            glGenerateMipmap( m_type );
-            checkGlError();
+            GL_ASSERT(glGenerateMipmap( m_type ));
         }
+
+        return *this;
     }
 
     void depthImage2D(const GLint width, const GLint height)
@@ -136,16 +126,11 @@ public:
 
         bind();
 
-        glTexImage2D( m_type, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT,
-                      GL_UNSIGNED_INT, nullptr );
-        checkGlError();
+        GL_ASSERT(glTexImage2D( m_type, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT,
+                      GL_UNSIGNED_INT, nullptr ));
 
         m_width = width;
         m_height = height;
-
-        set( GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-        checkGlError();
-
         m_mipmap = false;
     }
 
@@ -155,9 +140,8 @@ public:
         if( m_type != src.m_type )
             BOOST_THROW_EXCEPTION( std::runtime_error( "Refusing to copy image data with different types" ) );
 
-        glCopyImageSubData( src.getHandle(), src.m_type, 0, 0, 0, 0, getHandle(), m_type, 0, 0, 0, 0, src.m_width,
-                            src.m_height, 1 );
-        checkGlError();
+        GL_ASSERT(glCopyImageSubData( src.getHandle(), src.m_type, 0, 0, 0, 0, getHandle(), m_type, 0, 0, 0, 0, src.m_width,
+                            src.m_height, 1 ));
         m_width = src.m_width;
         m_height = src.m_height;
     }

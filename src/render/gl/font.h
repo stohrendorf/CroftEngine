@@ -21,7 +21,7 @@ public:
 
     Font& operator=(Font&&) = delete;
 
-    void drawText(const char* text, int x, int y, const RGBA8& color);
+    void drawText(const char* text, int x, int y, const SRGBA8& color);
 
     void drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
@@ -29,12 +29,12 @@ public:
 
     ~Font();
 
-    void setTarget(const std::shared_ptr<Image<RGBA8>>& img)
+    void setTarget(const std::shared_ptr<Image<SRGBA8>>& img)
     {
         m_targetImage = img;
     }
 
-    const std::shared_ptr<Image<RGBA8>>& getTarget() const
+    const std::shared_ptr<Image<SRGBA8>>& getTarget() const
     {
         return m_targetImage;
     }
@@ -48,7 +48,7 @@ private:
 
     FTC_ImageTypeRec m_imgType;
 
-    std::shared_ptr<Image<RGBA8>> m_targetImage = nullptr;
+    std::shared_ptr<Image<SRGBA8>> m_targetImage = nullptr;
 
     int m_x0 = 0;
 

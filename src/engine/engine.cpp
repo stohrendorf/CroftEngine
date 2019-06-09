@@ -52,13 +52,15 @@
 #include "audio/tracktype.h"
 #include "render/textureanimator.h"
 #include "render/gl/font.h"
-#include "render/deferredrendertarget.h"
 
 #include "ui/label.h"
 
 #include "loader/trx/trx.h"
 
 #include "video/player.h"
+
+#include "render/renderpipeline.h"
+#include "render/scene/scene.h"
 
 #include <boost/range/adaptor/map.hpp>
 #include <boost/filesystem.hpp>
@@ -550,7 +552,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
                                                                           "shaders/colored_2.frag" );
     colorMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
     colorMaterial->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
-    colorMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
+    colorMaterial->getParameter( "u_camProjection" )->bindProjectionMatrix();
 
     BOOST_ASSERT( m_spriteMaterial == nullptr );
     m_spriteMaterial = std::make_shared<render::scene::Material>( "shaders/textured_2.vert",
@@ -558,7 +560,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     m_spriteMaterial->getRenderState().setCullFace( false );
 
     m_spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
-    m_spriteMaterial->getParameter( "u_projectionMatrix" )->bindProjectionMatrix();
+    m_spriteMaterial->getParameter( "u_camProjection" )->bindProjectionMatrix();
 
     m_spriteMaterial->getParameter( "u_lightIntensity" )->set( 0.0f );
     m_spriteMaterial->getParameter( "u_lightPosition" )->set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
@@ -661,7 +663,7 @@ std::shared_ptr<items::ItemNode> Engine::getItem(const uint16_t id) const
     return it->second.get();
 }
 
-void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::RGBA8>>>& image)
+void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::SRGBA8>>>& image)
 {
     if( m_lara->isInWater() )
     {
@@ -1335,7 +1337,7 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
 }
 
 void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, const int x, const int y,
-                      const std::string& txt, const render::gl::RGBA8& col)
+                      const std::string& txt, const render::gl::SRGBA8& col)
 {
     font->drawText( txt, x, y, col.r, col.g, col.b, col.a );
 }
@@ -1498,71 +1500,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
         }
     }
 
-    fxaa = std::make_shared<render::DeferredRenderTarget>( m_window->getViewport(),
-                                                           render::scene::ShaderProgram::createFromFile(
-                                                                   "shaders/fxaa.vert",
-                                                                   "shaders/fxaa.frag",
-                                                                   {} ),
-                                                           true );
-    fxaa->getMaterial()->getParameter( "u_screenSize" )->bind(
-            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                const auto s = m_window->getViewport();
-                uniform.set( glm::vec2( static_cast<float>(s.width), static_cast<float>(s.height) ) );
-            } );
-    fxaaDepthBuffer = fxaa->getDepthBuffer();
-    fxaa->dropDepthBuffer();
-
-    portalDepthBuffer = std::make_shared<render::DeferredDepthRenderTarget>( m_window->getViewport() );
-
-    depthDarknessFx = std::make_shared<render::DeferredRenderTarget>( m_window->getViewport(),
-                                                                      render::scene::ShaderProgram::createFromFile(
-                                                                              "shaders/fx_darkness.vert",
-                                                                              "shaders/fx_darkness.frag",
-                                                                              {"LENS_DISTORTION"} ),
-                                                                      false );
-    depthDarknessFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
-            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                uniform.set( m_window->getAspectRatio() );
-            } );
-    depthDarknessFx->getMaterial()->getParameter( "distortion_power" )->set( -1.0f );
-    depthDarknessFx->getMaterial()->getParameter( "u_time" )->bind(
-            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( m_renderer->getGameTime() );
-                uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
-            }
-    );
-    depthDarknessFx->getMaterial()->getParameter( "u_projection" )
-                   ->bind( [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
-                                                                                render::gl::Program::ActiveUniform& uniform) {
-                       uniform.set( camera->getProjectionMatrix() );
-                   } );
-    depthDarknessFx->getMaterial()->getParameter( "u_depth" )->set( fxaaDepthBuffer );
-    depthDarknessFx->getMaterial()->getParameter( "u_portalDepth" )->set( portalDepthBuffer->getDepthBuffer() );
-
-    depthDarknessWaterFx = std::make_shared<render::DeferredRenderTarget>( m_window->getViewport(),
-                                                                           render::scene::ShaderProgram::createFromFile(
-                                                                                   "shaders/fx_darkness.vert",
-                                                                                   "shaders/fx_darkness.frag",
-                                                                                   {"WATER", "LENS_DISTORTION"} ),
-                                                                           false );
-    depthDarknessWaterFx->getMaterial()->getParameter( "aspect_ratio" )->bind(
-            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                uniform.set( m_window->getAspectRatio() );
-            } );
-    depthDarknessWaterFx->getMaterial()->getParameter( "distortion_power" )->set( -2.0f );
-    depthDarknessWaterFx->getMaterial()->getParameter( "u_time" )->bind(
-            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>( m_renderer->getGameTime() );
-                uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
-            }
-    );
-    depthDarknessWaterFx->getMaterial()->getParameter( "u_projection" )
-                        ->bind( [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
-                                                                                     render::gl::Program::ActiveUniform& uniform) {
-                            uniform.set( camera->getProjectionMatrix() );
-                        } );
-    depthDarknessWaterFx->getMaterial()->getParameter( "u_depth" )->set( fxaaDepthBuffer );
-    depthDarknessWaterFx->getMaterial()->getParameter( "u_portalDepth" )->set( portalDepthBuffer->getDepthBuffer() );
+    m_renderPipeline = std::make_shared<render::RenderPipeline>( m_window->getViewport() );
 }
 
 void Engine::run()
@@ -1651,17 +1589,7 @@ void Engine::run()
         if( m_window->updateWindowSize() )
         {
             m_renderer->getScene()->getActiveCamera()->setAspectRatio( m_window->getAspectRatio() );
-            fxaa->init( m_window->getViewport() );
-            fxaaDepthBuffer = fxaa->getDepthBuffer();
-            fxaa->dropDepthBuffer();
-            portalDepthBuffer->init( m_window->getViewport() );
-            depthDarknessFx->init( m_window->getViewport() );
-            depthDarknessFx->getMaterial()->getParameter( "u_depth" )->set( fxaaDepthBuffer );
-            depthDarknessFx->getMaterial()->getParameter( "u_portalDepth" )->set( portalDepthBuffer->getDepthBuffer() );
-            depthDarknessWaterFx->init( m_window->getViewport() );
-            depthDarknessWaterFx->getMaterial()->getParameter( "u_depth" )->set( fxaaDepthBuffer );
-            depthDarknessWaterFx->getMaterial()->getParameter( "u_portalDepth" )
-                                ->set( portalDepthBuffer->getDepthBuffer() );
+            m_renderPipeline->resize( m_window->getViewport() );
             screenOverlay->init( m_window->getViewport() );
             font->setTarget( screenOverlay->getImage() );
         }
@@ -1684,34 +1612,29 @@ void Engine::run()
         if( m_lara != nullptr )
             drawBars( screenOverlay->getImage() );
 
-        fxaa->bind();
-        m_renderer->render();
+        m_renderPipeline
+                ->update( *getCameraController().getCamera(), m_renderer->getGameTime() );
+
+        {
+            render::gl::DebugGroup dbg{"geometry-pass"};
+            m_renderPipeline->bindGeometryFrameBuffer();
+            m_renderer->render();
+        }
 
         render::scene::RenderContext context{};
         render::scene::Node dummyNode{""};
         context.setCurrentNode( &dummyNode );
 
-        render::gl::FrameBuffer::unbindAll();
-        portalDepthBuffer->getDepthBuffer()->copyImageSubData( *fxaaDepthBuffer );
-        portalDepthBuffer->bind();
-        for( const auto& portal : waterEntryPortals )
         {
-            portal->mesh->render( context );
+            render::gl::DebugGroup dbg{"portal-depth-pass"};
+            m_renderPipeline->bindPortalFrameBuffer();
+            for( const auto& portal : waterEntryPortals )
+            {
+                portal->mesh->render( context );
+            }
         }
 
-        if( getCameraController().getCurrentRoom()->isWaterRoom() )
-            depthDarknessWaterFx->bind();
-        else
-            depthDarknessFx->bind();
-
-        context.setCurrentNode( &dummyNode );
-        fxaa->render( context );
-        render::gl::FrameBuffer::unbindAll();
-
-        if( getCameraController().getCurrentRoom()->isWaterRoom() )
-            depthDarknessWaterFx->render( context );
-        else
-            depthDarknessFx->render( context );
+        m_renderPipeline->finalPass( getCameraController().getCurrentRoom()->isWaterRoom() );
 
         if( showDebugInfo )
         {
@@ -1741,11 +1664,14 @@ void Engine::run()
                 projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().height;
 
                 font->drawText( ctrl->getNode()->getId().c_str(), projVertex.x, projVertex.y,
-                                render::gl::RGBA8{255} );
+                                render::gl::SRGBA8{255} );
             }
         }
 
-        screenOverlay->render( context );
+        {
+            render::gl::DebugGroup dbg{"screen-overlay-pass"};
+            screenOverlay->render( context );
+        }
         m_window->swapBuffers();
 
         if( m_inputHandler->getInputState().save.justPressed() )
@@ -1814,15 +1740,14 @@ void Engine::drawLoadingScreen(const std::string& state)
         scaleSplashImage();
     }
     screenOverlay->getImage()->assign(
-            reinterpret_cast<const render::gl::RGBA8*>(splashImageScaled.data()),
+            reinterpret_cast<const render::gl::SRGBA8*>(splashImageScaled.data()),
             m_window->getViewport().width * m_window->getViewport().height
     );
     abibasFont->drawText( state, 40, gsl::narrow<int>( m_window->getViewport().height - 100 ), 255, 255, 255, 192 );
 
     render::gl::FrameBuffer::unbindAll();
 
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    render::gl::checkGlError();
+    GL_ASSERT( glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) );
 
     m_renderer->clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
     render::scene::RenderContext context{};

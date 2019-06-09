@@ -122,7 +122,7 @@ vec3 fxaa(
     float edgeHorz = abs(-2.0 * lumaW + lumaLeft) + abs(-2.0 * lumaM + lumaV) * 2.0 + abs(-2.0 * lumaE + lumaRight);
     float edgeVert = abs(-2.0 * lumaS + lumaBottom) + abs(-2.0 * lumaM + lumaH) * 2.0 + abs(-2.0 * lumaN + lumaTop);
 /*--------------------------------------------------------------------------*/
-    float lengthSign = 1.0/u_screenSize.x;
+    float lengthSign = 1.0/screenSize.x;
     bool horzSpan = edgeHorz >= edgeVert;
     float subpixA = (lumaV + lumaH) * 2.0 + lumaLeft + lumaRight;
 /*--------------------------------------------------------------------------*/
@@ -131,7 +131,7 @@ vec3 fxaa(
         lumaS = lumaE;
     }
     else {
-        lengthSign = 1.0/u_screenSize.y;
+        lengthSign = 1.0/screenSize.y;
     }
 /*--------------------------------------------------------------------------*/
     float gradientN = abs(lumaN - lumaM);
@@ -146,8 +146,8 @@ vec3 fxaa(
 /*--------------------------------------------------------------------------*/
     vec2 posB = posM;
     vec2 offNP = horzSpan
-        ? vec2(1.0/u_screenSize.x, 0.0)
-        : vec2(0.0, 1.0/u_screenSize.y);
+        ? vec2(1.0/screenSize.x, 0.0)
+        : vec2(0.0, 1.0/screenSize.y);
     if (!horzSpan) {
         posB.x += lengthSign * 0.5;
     }

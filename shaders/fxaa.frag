@@ -1,9 +1,10 @@
 uniform sampler2D u_texture;
-uniform vec2 u_screenSize;
+
+vec2 screenSize = textureSize(u_texture, 0);
 
 in vec2 v_texCoord;
 
-out vec4 out_color;
+layout(location=0) out vec4 out_color;
 
 #include "util.glsl"
 

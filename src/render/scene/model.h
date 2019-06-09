@@ -26,7 +26,12 @@ public:
 
     Model& operator=(const Model&) = delete;
 
-    const std::vector<gsl::not_null<std::shared_ptr<Mesh>>>& getMeshes() const
+    const auto& getMeshes() const
+    {
+        return m_meshes;
+    }
+
+    auto& getMeshes()
     {
         return m_meshes;
     }

@@ -30,14 +30,14 @@ struct ByteColor
         return read( reader, true );
     }
 
-    render::gl::RGBA8 toTextureColor() const
+    render::gl::SRGBA8 toTextureColor() const
     {
-        return render::gl::RGBA8{r, g, b, a};
+        return render::gl::SRGBA8{r, g, b, a};
     }
 
-    render::gl::RGBA8 toTextureColor(uint8_t alphaOverride) const
+    render::gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const
     {
-        return render::gl::RGBA8{r, g, b, alphaOverride};
+        return render::gl::SRGBA8{r, g, b, alphaOverride};
     }
 
     glm::vec4 toGLColor() const

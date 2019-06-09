@@ -68,7 +68,7 @@ public:
         return m_images.at( n );
     }
 
-    void draw(size_t n, const int x, const int y, render::gl::Image<render::gl::RGBA8>& img)
+    void draw(size_t n, const int x, const int y, render::gl::Image<render::gl::SRGBA8>& img)
     {
         auto& src = m_images.at( n );
 
@@ -126,7 +126,7 @@ struct Label
     {
     }
 
-    void draw(CachedFont& font, render::gl::Image<render::gl::RGBA8>& img, const loader::file::Palette& palette) const;
+    void draw(CachedFont& font, render::gl::Image<render::gl::SRGBA8>& img, const loader::file::Palette& palette) const;
 
     int calcWidth() const;
 

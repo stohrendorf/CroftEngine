@@ -37,11 +37,8 @@ public:
 
     void bind(const GLuint index) const
     {
-        glVertexAttribPointer( index, m_size, m_type, m_normalized ? GL_TRUE : GL_FALSE, m_stride, m_pointer );
-        checkGlError();
-
-        glEnableVertexAttribArray( index );
-        checkGlError();
+        GL_ASSERT(glVertexAttribPointer( index, m_size, m_type, m_normalized ? GL_TRUE : GL_FALSE, m_stride, m_pointer ));
+        GL_ASSERT(glEnableVertexAttribArray( index ));
     }
 
     GLsizei getStride() const noexcept

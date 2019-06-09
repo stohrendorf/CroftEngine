@@ -321,8 +321,8 @@ public:
             texture.texture->set( GL_TEXTURE_MAG_FILTER, GL_LINEAR );
         }
         img.interleave();
-        texture.image = std::make_shared<render::gl::Image<render::gl::RGBA8>>(
-                img.width(), img.height(), reinterpret_cast<const render::gl::RGBA8*>(img.data()) );
+        texture.image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
+                img.width(), img.height(), reinterpret_cast<const render::gl::SRGBA8*>(img.data()) );
         texture.texture->image2D(
                 texture.image->getWidth(), texture.image->getHeight(), texture.image->getData(), true );
 

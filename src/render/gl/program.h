@@ -33,15 +33,13 @@ public:
     void attach(const Shader& shader)
     {
         BOOST_ASSERT( shader.getCompileStatus() );
-        glAttachShader( getHandle(), shader.getHandle() );
-        checkGlError();
+        GL_ASSERT( glAttachShader( getHandle(), shader.getHandle() ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void link(const std::string& label = {})
     {
-        glLinkProgram( getHandle() );
-        checkGlError();
+        GL_ASSERT( glLinkProgram( getHandle() ) );
 
         setLabel( GL_PROGRAM, label );
     }
@@ -49,16 +47,14 @@ public:
     bool getLinkStatus() const
     {
         GLint success = GL_FALSE;
-        glGetProgramiv( getHandle(), GL_LINK_STATUS, &success );
-        checkGlError();
+        GL_ASSERT( glGetProgramiv( getHandle(), GL_LINK_STATUS, &success ) );
         return success == GL_TRUE;
     }
 
     std::string getInfoLog() const
     {
         GLint length = 0;
-        glGetProgramiv( getHandle(), GL_INFO_LOG_LENGTH, &length );
-        checkGlError();
+        GL_ASSERT( glGetProgramiv( getHandle(), GL_INFO_LOG_LENGTH, &length ) );
         if( length == 0 )
         {
             length = 4096;
@@ -66,8 +62,7 @@ public:
         if( length > 0 )
         {
             const auto infoLog = new char[length];
-            glGetProgramInfoLog( getHandle(), length, nullptr, infoLog );
-            checkGlError();
+            GL_ASSERT( glGetProgramInfoLog( getHandle(), length, nullptr, infoLog ) );
             infoLog[length - 1] = '\0';
             std::string result = infoLog;
             delete[] infoLog;
@@ -80,32 +75,28 @@ public:
     GLint getActiveAttributeCount() const
     {
         GLint activeAttributes = 0;
-        glGetProgramiv( getHandle(), GL_ACTIVE_ATTRIBUTES, &activeAttributes );
-        checkGlError();
+        GL_ASSERT( glGetProgramiv( getHandle(), GL_ACTIVE_ATTRIBUTES, &activeAttributes ) );
         return activeAttributes;
     }
 
     GLint getActiveAttributeMaxLength() const
     {
         GLint length = 0;
-        glGetProgramiv( getHandle(), GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length );
-        checkGlError();
+        GL_ASSERT( glGetProgramiv( getHandle(), GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length ) );
         return length;
     }
 
     GLuint getActiveUniformCount() const
     {
         GLint activeAttributes = 0;
-        glGetProgramiv( getHandle(), GL_ACTIVE_UNIFORMS, &activeAttributes );
-        checkGlError();
+        GL_ASSERT( glGetProgramiv( getHandle(), GL_ACTIVE_UNIFORMS, &activeAttributes ) );
         return gsl::narrow<GLuint>( activeAttributes );
     }
 
     GLint getActiveUniformMaxLength() const
     {
         GLint length = 0;
-        glGetProgramiv( getHandle(), GL_ACTIVE_UNIFORM_MAX_LENGTH, &length );
-        checkGlError();
+        GL_ASSERT( glGetProgramiv( getHandle(), GL_ACTIVE_UNIFORM_MAX_LENGTH, &length ) );
         return length;
     }
 
@@ -117,11 +108,10 @@ public:
         {
             Expects( maxLength >= 0 );
             auto* attribName = new GLchar[gsl::narrow_cast<size_t>( maxLength ) + 1];
-            glGetActiveAttrib( program, index, maxLength, nullptr, &m_size, &m_type, attribName );
+            GL_ASSERT( glGetActiveAttrib( program, index, maxLength, nullptr, &m_size, &m_type, attribName ) );
             attribName[maxLength] = '\0';
             m_name = attribName;
             delete[] attribName;
-            checkGlError();
 
             m_location = glGetAttribLocation( program, m_name.c_str() );
             checkGlError();
@@ -155,14 +145,13 @@ public:
                 : m_program{program}
         {
             auto* uniformName = new GLchar[maxLength + 1];
-            glGetActiveUniform( program, index, maxLength, nullptr, &m_size, &m_type, uniformName );
+            GL_ASSERT( glGetActiveUniform( program, index, maxLength, nullptr, &m_size, &m_type, uniformName ) );
             uniformName[maxLength] = '\0';
             if( const auto chr = strrchr( uniformName, '[' ) )
                 *chr = '\0';
 
             m_name = uniformName;
             delete[] uniformName;
-            checkGlError();
 
             m_location = glGetUniformLocation( program, m_name.c_str() );
             checkGlError();
@@ -202,91 +191,86 @@ public:
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const GLfloat value)
         {
-            glProgramUniform1f( m_program, m_location, value );
-            checkGlError();
+            GL_ASSERT( glProgramUniform1f( m_program, m_location, value ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const GLfloat* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
-            glProgramUniform1fv( m_program, m_location, count, values );
-            checkGlError();
+            GL_ASSERT( glProgramUniform1fv( m_program, m_location, count, values ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const GLint value)
         {
-            glProgramUniform1i( m_program, m_location, value );
+            GL_ASSERT( glProgramUniform1i( m_program, m_location, value ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const GLint* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
-            glProgramUniform1iv( m_program, m_location, count, values );
-            checkGlError();
+            GL_ASSERT( glProgramUniform1iv( m_program, m_location, count, values ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::mat4& value)
         {
-            glProgramUniformMatrix4fv( m_program, m_location, 1, GL_FALSE, value_ptr( value ) );
-            checkGlError();
+            GL_ASSERT( glProgramUniformMatrix4fv( m_program, m_location, 1, GL_FALSE, value_ptr( value ) ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::mat4* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
-            glProgramUniformMatrix4fv( m_program, m_location, count, GL_FALSE,
-                                       reinterpret_cast<const GLfloat*>(values) );
-            checkGlError();
+            GL_ASSERT( glProgramUniformMatrix4fv( m_program, m_location, count, GL_FALSE,
+                                                  reinterpret_cast<const GLfloat*>(values) ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec2& value)
         {
-            glProgramUniform2f( m_program, m_location, value.x, value.y );
-            checkGlError();
+            GL_ASSERT( glProgramUniform2f( m_program, m_location, value.x, value.y ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec2* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
-            glProgramUniform2fv( m_program, m_location, count, reinterpret_cast<const GLfloat*>(values) );
-            checkGlError();
+            GL_ASSERT( glProgramUniform2fv( m_program, m_location, count, reinterpret_cast<const GLfloat*>(values) ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec3& value)
         {
-            glProgramUniform3f( m_program, m_location, value.x, value.y, value.z );
-            checkGlError();
+            GL_ASSERT( glProgramUniform3f( m_program, m_location, value.x, value.y, value.z ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec3* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
-            glProgramUniform3fv( m_program, m_location, count, reinterpret_cast<const GLfloat*>(values) );
-            checkGlError();
+            GL_ASSERT( glProgramUniform3fv( m_program, m_location, count, reinterpret_cast<const GLfloat*>(values) ) );
+        }
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
+        void set(const std::vector<glm::vec3>& values)
+        {
+            set( values.data(), gsl::narrow<GLsizei>( values.size() ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec4& value)
         {
-            glProgramUniform4f( m_program, m_location, value.x, value.y, value.z, value.w );
-            checkGlError();
+            GL_ASSERT( glProgramUniform4f( m_program, m_location, value.x, value.y, value.z, value.w ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec4* values, const GLsizei count)
         {
             BOOST_ASSERT( values != nullptr );
-            glProgramUniform4fv( m_program, m_location, count, reinterpret_cast<const GLfloat*>(values) );
-            checkGlError();
+            GL_ASSERT( glProgramUniform4fv( m_program, m_location, count, reinterpret_cast<const GLfloat*>(values) ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
@@ -294,14 +278,12 @@ public:
         {
             BOOST_ASSERT( m_samplerIndex >= 0 );
 
-            glActiveTexture( gsl::narrow<GLenum>( GL_TEXTURE0 + m_samplerIndex ) );
-            checkGlError();
+            GL_ASSERT( glActiveTexture( gsl::narrow<GLenum>( GL_TEXTURE0 + m_samplerIndex ) ) );
 
             // Bind the sampler - this binds the texture and applies sampler state
             texture.bind();
 
-            glProgramUniform1i( m_program, m_location, m_samplerIndex );
-            checkGlError();
+            GL_ASSERT( glProgramUniform1i( m_program, m_location, m_samplerIndex ) );
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
@@ -313,8 +295,7 @@ public:
             std::vector<GLint> units;
             for( std::size_t i = 0; i < values.size(); ++i )
             {
-                glActiveTexture( static_cast<GLenum>(GL_TEXTURE0 + m_samplerIndex + i) );
-                checkGlError();
+                GL_ASSERT( glActiveTexture( static_cast<GLenum>(GL_TEXTURE0 + m_samplerIndex + i) ) );
 
                 // Bind the sampler - this binds the texture and applies sampler state
                 values[i]->bind();
@@ -323,13 +304,23 @@ public:
             }
 
             // Pass texture unit array to GL
-            glProgramUniform1iv( m_program, m_location, static_cast<GLsizei>(values.size()), units.data() );
-            checkGlError();
+            GL_ASSERT(
+                    glProgramUniform1iv( m_program, m_location, static_cast<GLsizei>(values.size()), units.data() ) );
         }
 
         GLenum getType() const noexcept
         {
             return m_type;
+        }
+
+        GLint getLocation() const noexcept
+        {
+            return m_location;
+        }
+
+        GLint getSamplerIndex() const noexcept
+        {
+            return m_samplerIndex;
         }
 
     private:

@@ -152,10 +152,8 @@ bool MaterialParameter::bind(const Node& node, const gsl::not_null<std::shared_p
     const auto setter = node.findMaterialParameterSetter( m_name );
     if( !m_valueSetter && setter == nullptr )
     {
-        BOOST_LOG_TRIVIAL( warning ) << "Material parameter value not set for '" << m_name << "' in program '"
-                                     << shaderProgram->getId() << "'";
-
-        return false;
+        // don't have an explicit setter present on material or node level, assuming it's set on shader level
+        return true;
     }
 
     const auto uniform = getUniform( shaderProgram );
