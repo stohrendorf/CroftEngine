@@ -16,12 +16,27 @@ void stacktrace_handler(int signum)
 }
 #endif
 
+namespace
+{
+std::terminate_handler oldTerminateHandler = nullptr;
+
+void terminateHandler()
+{
+    BOOST_LOG_TRIVIAL( error ) << "Abnormal termination. Stacktrace:\n" << boost::stacktrace::stacktrace();
+
+    if( oldTerminateHandler != nullptr )
+        oldTerminateHandler();
+}
+}
+
 int main()
 {
 #ifndef BOOST_MSVC
     ::signal(SIGSEGV, &stacktrace_handler);
     ::signal(SIGABRT, &stacktrace_handler);
 #endif
+
+    oldTerminateHandler = std::set_terminate( &terminateHandler );
 
     boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::info );
 

@@ -188,9 +188,6 @@ add_definitions(
         -Dgsl_FEATURE_BYTE_SPAN_TO_STD=${CMAKE_CXX_STANDARD}
         -Dgsl_CONFIG_NOT_NULL_EXPLICIT_CTOR=0
 )
-if( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-    add_definitions( -Dgsl_CONFIG_CONTRACT_VIOLATION_THROWS )
-endif()
 
 find_package( Git REQUIRED )
 execute_process(

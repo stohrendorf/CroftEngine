@@ -215,17 +215,22 @@ public:
         // === ssao.glsl setup ===
         // generate sample kernel
         std::uniform_real_distribution<GLfloat> randomFloats( 0, 1 );
-        std::default_random_engine generator{};
+        std::default_random_engine generator{}; // NOLINT(cert-msc32-c)
         std::vector<glm::vec3> ssaoSamples;
         for( int i = 0; i < 64; ++i )
         {
-            glm::vec3 sample( randomFloats( generator ) * 2 - 1, randomFloats( generator ) * 2 - 1,
-                              randomFloats( generator ) );
+            glm::vec3 sample{randomFloats( generator ) * 2 - 1,
+                             randomFloats( generator ) * 2 - 1,
+                             randomFloats( generator )};
             sample = glm::normalize( sample ) * randomFloats( generator );
-            float scale = float( i ) / 64;
 
+#ifdef SSAO_SAMPLE_CONTRACTION
             // scale samples s.t. they're more aligned to center of kernel
-            ssaoSamples.emplace_back( sample * glm::lerp( 0.1f, 1.0f, scale * scale ) );
+            const float scale = float( i ) / 64;
+            ssaoSamples.emplace_back( sample * glm::mix( 0.1f, 1.0f, scale * scale ) );
+#else
+            ssaoSamples.emplace_back( sample );
+#endif
         }
         m_ssaoMaterial->getParameter( "u_samples" )->set( ssaoSamples );
 

@@ -22,8 +22,7 @@ public:
     const void* map()
     {
         bind();
-        const auto data = glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY );
-        checkGlError();
+        const auto data = GL_ASSERT_FN( glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY ) );
         return data;
     }
 
@@ -31,14 +30,13 @@ public:
     void* mapRw()
     {
         bind();
-        const auto data = glMapBuffer( GL_ARRAY_BUFFER, GL_READ_WRITE );
-        checkGlError();
+        const auto data = GL_ASSERT_FN( glMapBuffer( GL_ARRAY_BUFFER, GL_READ_WRITE ) );
         return data;
     }
 
     static void unmap()
     {
-        GL_ASSERT(glUnmapBuffer( GL_ARRAY_BUFFER ));
+        GL_ASSERT( glUnmapBuffer( GL_ARRAY_BUFFER ) );
     }
 };
 }

@@ -91,8 +91,7 @@ public:
     {
         bind();
 
-        const auto result = glCheckFramebufferStatus( m_type );
-        checkGlError();
+        const auto result = GL_ASSERT_FN( glCheckFramebufferStatus( m_type ) );
 
 #ifndef NDEBUG
         switch( result )

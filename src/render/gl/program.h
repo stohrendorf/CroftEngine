@@ -2,6 +2,7 @@
 
 #include "texture.h"
 #include "shader.h"
+#include "glassert.h"
 
 #include "gsl-lite.hpp"
 
@@ -113,8 +114,7 @@ public:
             m_name = attribName;
             delete[] attribName;
 
-            m_location = glGetAttribLocation( program, m_name.c_str() );
-            checkGlError();
+            m_location = GL_ASSERT_FN( glGetAttribLocation( program, m_name.c_str() ) );
         }
 
         const std::string& getName() const noexcept
@@ -153,8 +153,7 @@ public:
             m_name = uniformName;
             delete[] uniformName;
 
-            m_location = glGetUniformLocation( program, m_name.c_str() );
-            checkGlError();
+            m_location = GL_ASSERT_FN( glGetUniformLocation( program, m_name.c_str() ) );
 
             switch( m_type )
             {
