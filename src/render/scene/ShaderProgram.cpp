@@ -9,7 +9,6 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
-#include <iostream>
 
 namespace render
 {
@@ -289,13 +288,11 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
 
     for( auto&& attrib : shaderProgram->m_handle.getActiveAttributes() )
     {
-        std::cerr << shaderProgram->m_id << " ATTR " << attrib.getName() << " @ " << attrib.getLocation() << "\n";
         shaderProgram->m_vertexAttributes.insert( make_pair( attrib.getName(), std::move( attrib ) ) );
     }
 
     for( auto&& uniform : shaderProgram->m_handle.getActiveUniforms() )
     {
-        std::cerr << shaderProgram->m_id << " UNIFORM " << uniform.getName() << " @ " << uniform.getLocation() << "/" << uniform.getSamplerIndex() << "\n";
         shaderProgram->m_uniforms.emplace( make_pair( uniform.getName(), std::move( uniform ) ) );
     }
 
