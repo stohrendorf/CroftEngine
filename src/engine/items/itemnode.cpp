@@ -121,6 +121,7 @@ ModelItemNode::ModelItemNode(const gsl::not_null<Engine*>& engine,
     BOOST_ASSERT( m_skeleton->getChildren().size() == gsl::narrow<size_t>( animatedModel.meshes.size() ) );
 
     m_skeleton->updatePose( m_state );
+    m_lighting.bind( *m_skeleton );
 }
 
 void ModelItemNode::update()
@@ -402,16 +403,6 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<Engine*>& engine,
                                         [brightness = item.getBrightness()](const render::scene::Node& /*node*/,
                                                                             render::gl::Program::ActiveUniform& uniform) {
                                             uniform.set( brightness );
-                                        } );
-    m_node->addMaterialParameterSetter( "u_lightIntensity",
-                                        [](const render::scene::Node& /*node*/,
-                                           render::gl::Program::ActiveUniform& uniform) {
-                                            uniform.set( 0.0f );
-                                        } );
-    m_node->addMaterialParameterSetter( "u_lightPosition",
-                                        [](const render::scene::Node& /*node*/,
-                                           render::gl::Program::ActiveUniform& uniform) {
-                                            uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
                                         } );
 
     addChild( room->node, m_node );
@@ -863,6 +854,13 @@ void ItemNode::playShotMissed(const core::RoomBoundPosition& pos)
 boost::optional<core::Length> ItemNode::getWaterSurfaceHeight() const
 {
     return m_state.position.room->getWaterSurfaceHeight( m_state.position );
+}
+
+void ItemNode::updateLighting()
+{
+    auto tmp = m_state.position;
+    tmp.position += getBoundingBox().getCenter();
+    m_lighting.updateDynamic( m_state.shade, tmp, m_engine->getRooms() );
 }
 }
 }

@@ -562,8 +562,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     m_spriteMaterial->getParameter( "u_modelMatrix" )->bindModelMatrix();
     m_spriteMaterial->getParameter( "u_camProjection" )->bindProjectionMatrix();
 
-    m_spriteMaterial->getParameter( "u_lightIntensity" )->set( 0.0f );
-    m_spriteMaterial->getParameter( "u_lightPosition" )->set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
+    m_spriteMaterial->getParameter( "u_numLights" )->set( 0 );
 
     BOOST_ASSERT( m_portalMaterial == nullptr );
     m_portalMaterial = std::make_shared<render::scene::Material>( "shaders/portal.vert",

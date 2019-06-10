@@ -282,13 +282,7 @@ public:
         return alignTransformClamped( core::TRVec{targetPos}, target.m_state.rotation, 16_len, 364_au );
     }
 
-    void updateLighting()
-    {
-        m_lighting.bind( *getNode() );
-        auto tmp = m_state.position;
-        tmp.position += getBoundingBox().getCenter();
-        m_lighting.updateDynamic( m_state.shade, tmp );
-    }
+    void updateLighting();
 
     virtual loader::file::BoundingBox getBoundingBox() const = 0;
 

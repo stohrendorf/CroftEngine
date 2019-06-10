@@ -92,7 +92,7 @@ void replaceIncludes(const std::string& filepath,
             {
                 const auto part = source.substr( lastPos, headPos - lastPos );
                 out.append( part );
-                line += std::count(part.begin(), part.end(), '\n');
+                line += std::count( part.begin(), part.end(), '\n' );
             }
 
             // find the start quote "
@@ -137,7 +137,7 @@ void replaceIncludes(const std::string& filepath,
             }
             // Valid file so lets attempt to see if we need to append anything to it too (recurse...)
             replaceIncludes( directoryPath, includedSource, out, included );
-            out += "#line " + std::to_string(line) + "\n#pragma file \"" + filepath + "\"\n";
+            out += "#line " + std::to_string( line ) + "\n#pragma file \"" + filepath + "\"\n";
         }
         else
         {
@@ -310,7 +310,13 @@ const gl::Program::ActiveAttribute* ShaderProgram::getVertexAttribute(const std:
     return it == m_vertexAttributes.end() ? nullptr : &it->second;
 }
 
-gl::Program::ActiveUniform* ShaderProgram::getUniform(const std::string& name) const
+const gl::Program::ActiveUniform* ShaderProgram::getUniform(const std::string& name) const
+{
+    const auto it = m_uniforms.find( name );
+    return it == m_uniforms.end() ? nullptr : &it->second;
+}
+
+gl::Program::ActiveUniform* ShaderProgram::getUniform(const std::string& name)
 {
     auto it = m_uniforms.find( name );
     return it == m_uniforms.end() ? nullptr : &it->second;

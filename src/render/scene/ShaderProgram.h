@@ -35,7 +35,9 @@ public:
 
     const gl::Program::ActiveAttribute* getVertexAttribute(const std::string& name) const;
 
-    gl::Program::ActiveUniform* getUniform(const std::string& name) const;
+    const gl::Program::ActiveUniform* getUniform(const std::string& name) const;
+
+    gl::Program::ActiveUniform* getUniform(const std::string& name);
 
     void bind() const;
 
@@ -56,7 +58,7 @@ private:
 
     boost::container::flat_map<std::string, gl::Program::ActiveAttribute> m_vertexAttributes;
 
-    mutable std::map<std::string, gl::Program::ActiveUniform> m_uniforms;
+    std::map<std::string, gl::Program::ActiveUniform> m_uniforms;
 };
 }
 }

@@ -221,17 +221,13 @@ void Room::createSceneNode(
 
     node = std::make_shared<render::scene::Node>( "Room:" + std::to_string( roomId ) );
     node->setDrawable( resModel );
-    node->addMaterialParameterSetter( "u_lightPosition", [](const render::scene::Node& /*node*/,
-                                                            render::gl::Program::ActiveUniform& uniform) {
-        uniform.set( glm::vec3{0.0f} );
-    } );
     node->addMaterialParameterSetter( "u_lightAmbient", [](const render::scene::Node& /*node*/,
                                                            render::gl::Program::ActiveUniform& uniform) {
         uniform.set( 1.0f );
     } );
-    node->addMaterialParameterSetter( "u_lightIntensity", [](const render::scene::Node& /*node*/,
-                                                             render::gl::Program::ActiveUniform& uniform) {
-        uniform.set( 0.0f );
+    node->addMaterialParameterSetter( "u_numLights", [](const render::scene::Node& /*node*/,
+                                                        render::gl::Program::ActiveUniform& uniform) {
+        uniform.set( 0 );
     } );
 
     for( const RoomStaticMesh& sm : this->staticMeshes )
@@ -250,15 +246,10 @@ void Room::createSceneNode(
                                                                                render::gl::Program::ActiveUniform& uniform) {
                                                  uniform.set( brightness );
                                              } );
-        subNode->addMaterialParameterSetter( "u_lightIntensity", [](const render::scene::Node& /*node*/,
-                                                                    render::gl::Program::ActiveUniform& uniform
+        subNode->addMaterialParameterSetter( "u_numLights", [](const render::scene::Node& /*node*/,
+                                                               render::gl::Program::ActiveUniform& uniform
         ) {
-            uniform.set( 0.0f );
-        } );
-        subNode->addMaterialParameterSetter( "u_lightPosition", [](const render::scene::Node& /*node*/,
-                                                                   render::gl::Program::ActiveUniform& uniform
-        ) {
-            uniform.set( glm::vec3{std::numeric_limits<float>::quiet_NaN()} );
+            uniform.set( 0 );
         } );
         addChild( node, subNode );
     }

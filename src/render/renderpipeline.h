@@ -232,7 +232,7 @@ public:
             ssaoSamples.emplace_back( sample );
 #endif
         }
-        m_ssaoMaterial->getParameter( "u_samples" )->set( ssaoSamples );
+        m_ssaoMaterial->getParameter( "u_samples[0]" )->set( ssaoSamples );
 
         // generate noise texture
         std::vector<gl::RGB32F> ssaoNoise;

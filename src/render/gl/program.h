@@ -147,8 +147,6 @@ public:
             auto* uniformName = new GLchar[maxLength + 1];
             GL_ASSERT( glGetActiveUniform( program, index, maxLength, nullptr, &m_size, &m_type, uniformName ) );
             uniformName[maxLength] = '\0';
-            if( const auto chr = strrchr( uniformName, '[' ) )
-                *chr = '\0';
 
             m_name = uniformName;
             delete[] uniformName;
