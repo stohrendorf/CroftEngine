@@ -95,7 +95,7 @@ void main()
     }
 #endif
 
-    out_color.rgb *= texture(u_ao, uv).r;
+    out_color.rgb *= pow(texture(u_ao, uv).r, 1.5);
     out_color.rgb *= grain*0.3 + 0.7;
     out_color.a = 1;
 }
