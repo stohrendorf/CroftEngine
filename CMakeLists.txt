@@ -170,7 +170,20 @@ endif()
 
 if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp" )
     message( STATUS "Downloading gsl-lite..." )
-    file( DOWNLOAD https://raw.githubusercontent.com/martinmoene/gsl-lite/08049ece650ce17ea8b8ae9086d67fa65173d116/include/gsl/gsl-lite.hpp "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp"
+    file( DOWNLOAD https://raw.githubusercontent.com/martinmoene/gsl-lite/2871e5be5eb95117cf6b13f508cbd2f4a50e8801/include/gsl/gsl-lite.hpp "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp"
+          STATUS status
+          LOG log )
+    list( GET status 0 status_code )
+    list( GET status 1 status_string )
+
+    if( NOT status_code EQUAL 0 )
+        message( FATAL_ERROR "Download failed with code ${status_code}" )
+    endif()
+endif()
+
+if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gamecontrollerdb.txt" )
+    message( STATUS "Downloading gamecontrollerdb..." )
+    file( DOWNLOAD https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt "${CMAKE_CURRENT_SOURCE_DIR}/gamecontrollerdb.txt"
           STATUS status
           LOG log )
     list( GET status 0 status_code )
@@ -187,6 +200,7 @@ add_definitions(
         -Dgsl_FEATURE_MAKE_SPAN_TO_STD=${CMAKE_CXX_STANDARD}
         -Dgsl_FEATURE_BYTE_SPAN_TO_STD=${CMAKE_CXX_STANDARD}
         -Dgsl_CONFIG_NOT_NULL_EXPLICIT_CTOR=0
+        -Dgsl_CONFIG_CONTRACT_VIOLATION_CALLS_HANDLER
 )
 
 find_package( Git REQUIRED )

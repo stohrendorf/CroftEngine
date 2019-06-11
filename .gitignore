@@ -28,3 +28,4 @@ src/engine/tracks_tr1_enum.h
 *.user
 
 shaders/*.err
+gamecontrollerdb.txt

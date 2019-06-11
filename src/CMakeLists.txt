@@ -119,8 +119,6 @@ endfunction()
 
 wrap_enum( AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/animationid_enum.h )
 wrap_enum( LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/larastateid_enum.h )
-wrap_enum( ControllerAxis int ${CMAKE_CURRENT_SOURCE_DIR}/controlleraxes.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controlleraxis_enum.h )
-wrap_enum( ControllerButton int ${CMAKE_CURRENT_SOURCE_DIR}/controllerbuttons.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/controllerbutton_enum.h )
 wrap_enum( TR1ItemId int ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1_enum.h )
 wrap_enum( TR1SoundId int ${CMAKE_CURRENT_SOURCE_DIR}/sounds_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/sounds_tr1_enum.h )
 wrap_enum( TR1TrackId int ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1_enum.h )
@@ -138,6 +136,8 @@ set( EDISONENGINE_SRCS
      engine/skeletalmodelnode.cpp
      engine/audioengine.cpp
      engine/inventory.cpp
+     engine/inputhandler.cpp
+     engine/controller.cpp
 
      loader/file/level/level.cpp
      loader/file/level/tr1level.cpp
@@ -266,6 +266,7 @@ add_executable( edisonengine
 group_files( ${EDISONENGINE_SRCS} )
 
 target_include_directories( edisonengine PRIVATE . )
+target_include_directories( edisonengine PRIVATE ../3rdparty/sdl-controllers )
 
 target_link_libraries(
         edisonengine
