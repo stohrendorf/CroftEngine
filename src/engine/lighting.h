@@ -42,6 +42,7 @@ struct Lighting
         }
 
         for( const auto& room : testRooms )
+        {
             for( const auto& light : room->lights )
             {
                 const auto fadeDistance = util::square( light.fadeDistance.retype_as<core::LengthF>() / 4096.0_len );
@@ -54,9 +55,21 @@ struct Lighting
                 // fade_distance / ( fade_distance + d )
                 lights.emplace_back( Light{
                         light.position.toRenderSystem(),
-                        ambient + light.getBrightness() * fadeDistance / (fadeDistance + d)
+                        light.getBrightness() * fadeDistance / (fadeDistance + d) - ambient
                 } );
             }
+        }
+
+        if( lights.size() > MaxLights )
+        {
+            std::sort(
+                    lights.begin(), lights.end(),
+                    [](const Light& a, const Light& b) {
+                        return a.intensity > b.intensity;
+                    }
+            );
+            lights.resize( MaxLights );
+        }
     }
 
     void updateStatic(int16_t shade)
