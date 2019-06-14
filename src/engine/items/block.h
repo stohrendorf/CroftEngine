@@ -26,11 +26,11 @@ public:
     void load(const YAML::Node& n) override;
 
 private:
-    bool isOnFloor(core::Length height) const;
+    bool isOnFloor(const core::Length& height) const;
 
-    bool canPushBlock(core::Length height, core::Axis axis) const;
+    bool canPushBlock(const core::Length& height, core::Axis axis) const;
 
-    bool canPullBlock(core::Length height, core::Axis axis) const;
+    bool canPullBlock(const core::Length& height, core::Axis axis) const;
 };
 }
 }

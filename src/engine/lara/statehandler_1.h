@@ -2,8 +2,8 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
 #include "engine/laranode.h"
+#include "hid/inputstate.h"
 
 namespace engine
 {
@@ -33,13 +33,13 @@ public:
             return;
         }
 
-        if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -8_deg );
             const core::Angle z = std::max( -11_deg, getLara().m_state.rotation.Z - 1.5_deg );
             getLara().m_state.rotation.Z = z;
         }
-        else if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 8_deg );
             const core::Angle z = std::min( +11_deg, getLara().m_state.rotation.Z + 1.5_deg );
@@ -52,7 +52,7 @@ public:
             return;
         }
 
-        if( getEngine().getInputHandler().getInputState().zMovement != AxisMovement::Forward )
+        if( getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward )
         {
             setGoalAnimState( LaraStateId::Stop );
             return;

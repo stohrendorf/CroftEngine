@@ -128,7 +128,7 @@ struct StaticMesh
         return (flags & 2u) != 0;
     }
 
-    core::BoundingBox getCollisionBox(const core::TRVec& pos, core::Angle angle) const;
+    core::BoundingBox getCollisionBox(const core::TRVec& pos, const core::Angle& angle) const;
 
     static std::unique_ptr<StaticMesh> read(io::SDLReader& reader)
     {

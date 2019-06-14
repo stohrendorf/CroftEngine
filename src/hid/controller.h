@@ -5,7 +5,7 @@
 
 #include <map>
 
-namespace engine
+namespace hid
 {
 enum class ControllerButton
 {
@@ -41,13 +41,21 @@ class Controller
 {
 public:
     class OutputHandler;
+
+
     friend OutputHandler;
+
+
     class InputChannel;
+
+
     friend InputChannel;
 
     explicit Controller(const std::vector<std::string>& mappings);
 
     ~Controller();
+
+    void init();
 
     bool isButtonPressed(const ControllerButton btn) const
     {
@@ -58,11 +66,11 @@ public:
         return it->second;
     }
 
-    float getAxisValue(const ControllerAxis axis, const float def) const
+    float getAxisValue(const ControllerAxis axis) const
     {
         const auto it = m_axes.find( axis );
         if( it == m_axes.end() )
-            return def;
+            return 0;
 
         return it->second;
     }
@@ -85,5 +93,6 @@ private:
     std::map<ControllerAxis, float> m_axes;
     std::map<ControllerButton, bool> m_buttons;
     std::vector<std::shared_ptr<InputChannel>> m_channels;
+    std::vector<std::string> m_rawMappings;
 };
 }

@@ -1145,7 +1145,7 @@ struct Room
             const level::Level& level,
             const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
             const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
-            const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshes,
+            const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
             render::TextureAnimator& animator,
             const std::shared_ptr<render::scene::Material>& spriteMaterial,
             const std::shared_ptr<render::scene::Material>& portalMaterial);
@@ -1213,7 +1213,7 @@ struct Room
         return getSectorByIndex( dx, dz );
     }
 
-    static void patchHeightsForBlock(const engine::items::ItemNode& item, core::Length height);
+    static void patchHeightsForBlock(const engine::items::ItemNode& item, const core::Length& height);
 
     boost::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos) const
     {

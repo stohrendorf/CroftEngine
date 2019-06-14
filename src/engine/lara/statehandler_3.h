@@ -2,7 +2,7 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
+#include "hid/inputstate.h"
 
 namespace engine
 {
@@ -42,11 +42,11 @@ public:
             }
         }
 
-        if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -3_deg );
         }
-        else if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 3_deg );
         }
@@ -71,7 +71,7 @@ public:
         {
             setGoalAnimState( LaraStateId::Death );
         }
-        else if( getEngine().getInputHandler().getInputState().zMovement != AxisMovement::Forward
+        else if( getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward
                  || getEngine().getInputHandler().getInputState().moveSlow )
         {
             setGoalAnimState( LaraStateId::Stop );

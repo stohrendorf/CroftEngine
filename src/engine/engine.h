@@ -14,6 +14,11 @@
 
 #include <memory>
 
+namespace hid
+{
+class InputHandler;
+}
+
 namespace loader
 {
 namespace file
@@ -60,9 +65,6 @@ class PickupItem;
 class Particle;
 
 
-class InputHandler;
-
-
 class Engine
 {
 private:
@@ -92,7 +94,7 @@ private:
 
     std::shared_ptr<render::TextureAnimator> m_textureAnimator;
 
-    std::unique_ptr<InputHandler> m_inputHandler;
+    std::unique_ptr<hid::InputHandler> m_inputHandler;
 
     bool m_roomsAreSwapped = false;
 
@@ -146,7 +148,7 @@ public:
 
     ~Engine();
 
-    const InputHandler& getInputHandler() const
+    const hid::InputHandler& getInputHandler() const
     {
         return *m_inputHandler;
     }

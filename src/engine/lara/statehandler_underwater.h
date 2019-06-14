@@ -2,7 +2,7 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
+#include "hid/inputstate.h"
 
 namespace engine
 {
@@ -81,21 +81,21 @@ public:
 protected:
     void handleDiveRotationInput()
     {
-        if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Forward )
+        if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward )
         {
             getLara().m_state.rotation.X -= 2_deg;
         }
-        else if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Backward )
+        else if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward )
         {
             getLara().m_state.rotation.X += 2_deg;
         }
 
-        if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left )
         {
             getLara().m_state.rotation.Y -= 6_deg;
             getLara().m_state.rotation.Z -= 3_deg;
         }
-        else if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right )
         {
             getLara().m_state.rotation.Y += 6_deg;
             getLara().m_state.rotation.Z += 3_deg;

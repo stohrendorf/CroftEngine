@@ -2,7 +2,7 @@
 
 #include "core/angle.h"
 
-namespace engine
+namespace hid
 {
 namespace
 {

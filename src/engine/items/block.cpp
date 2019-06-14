@@ -2,7 +2,7 @@
 
 #include "engine/laranode.h"
 #include "core/boundingbox.h"
-#include "engine/inputhandler.h"
+#include "hid/inputhandler.h"
 
 namespace engine
 {
@@ -30,7 +30,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     if( lara.getCurrentAnimState() == LaraStateId::Stop )
     {
-        if( getEngine().getInputHandler().getInputState().zMovement != AxisMovement::Null
+        if( getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Null
             || lara.getHandStatus() != HandStatus::None )
         {
             return;
@@ -89,7 +89,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         return;
     }
 
-    if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Forward )
+    if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward )
     {
         if( !canPushBlock( core::SectorSize, *axis ) )
         {
@@ -99,7 +99,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         m_state.goal_anim_state = 2_as;
         lara.setGoalAnimState( LaraStateId::PushablePush );
     }
-    else if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Backward )
+    else if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward )
     {
         if( !canPullBlock( core::SectorSize, *axis ) )
         {
@@ -168,13 +168,13 @@ void Block::update()
             HeightInfo::fromFloor( sector, pos.position, getEngine().getItemNodes() ).lastCommandSequenceOrDeath, true );
 }
 
-bool Block::isOnFloor(const core::Length height) const
+bool Block::isOnFloor(const core::Length& height) const
 {
     const auto sector = loader::file::findRealFloorSector( m_state.position.position, m_state.position.room );
     return sector->floorHeight == -core::HeightLimit || sector->floorHeight == m_state.position.position.Y - height;
 }
 
-bool Block::canPushBlock(const core::Length height, const core::Axis axis) const
+bool Block::canPushBlock(const core::Length& height, const core::Axis axis) const
 {
     if( !isOnFloor( height ) )
     {
@@ -219,7 +219,7 @@ bool Block::canPushBlock(const core::Length height, const core::Axis axis) const
             pos, m_state.position.room )->ceilingHeight;
 }
 
-bool Block::canPullBlock(const core::Length height, const core::Axis axis) const
+bool Block::canPullBlock(const core::Length& height, const core::Axis axis) const
 {
     if( !isOnFloor( height ) )
     {

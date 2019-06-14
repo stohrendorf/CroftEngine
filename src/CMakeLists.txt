@@ -136,8 +136,8 @@ set( EDISONENGINE_SRCS
      engine/skeletalmodelnode.cpp
      engine/audioengine.cpp
      engine/inventory.cpp
-     engine/inputhandler.cpp
-     engine/controller.cpp
+     hid/inputhandler.cpp
+     hid/controller.cpp
 
      loader/file/level/level.cpp
      loader/file/level/tr1level.cpp

@@ -2,7 +2,7 @@
 
 #include "cameracontroller.h"
 #include "render/textureanimator.h"
-#include "inputhandler.h"
+#include "hid/inputhandler.h"
 
 #include "items/block.h"
 #include "items/aiagent.h"

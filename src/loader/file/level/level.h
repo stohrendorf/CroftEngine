@@ -3,7 +3,6 @@
 #include "audio/soundengine.h"
 #include "audio/streamsource.h"
 #include "engine/cameracontroller.h"
-#include "engine/inputhandler.h"
 #include "engine/particle.h"
 #include "engine/items/itemnode.h"
 #include "engine/items/pickupitem.h"
@@ -12,6 +11,7 @@
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
 #include "loader/file/mesh.h"
+#include "hid/inputhandler.h"
 
 #include <boost/filesystem/path.hpp>
 

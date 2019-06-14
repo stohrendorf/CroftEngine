@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-namespace engine
+namespace hid
 {
 
 InputHandler::InputHandler(const gsl::not_null<GLFWwindow*>& window)
@@ -17,6 +17,7 @@ InputHandler::InputHandler(const gsl::not_null<GLFWwindow*>& window)
         if( !gcdb.is_open() )
             return;
 
+        BOOST_LOG_TRIVIAL( info ) << "Loading controller mapping file " << filename;
         std::string line;
         while( std::getline( gcdb, line ) )
         {
@@ -54,6 +55,7 @@ InputHandler::InputHandler(const gsl::not_null<GLFWwindow*>& window)
 
         BOOST_LOG_TRIVIAL( info ) << "Found controller mapping";
         m_controller = &it->second;
+        m_controller->init();
         m_controllerIndex = i;
         break;
     }
@@ -122,16 +124,16 @@ void InputHandler::update()
 
     m_inputState._1 = glfwGetKey( m_window, GLFW_KEY_1 ) == GLFW_PRESS
                       || (m_controller != nullptr
-                          && m_controller->getAxisValue( ControllerAxis::righty, 0 ) < -AxisThreshold);
+                          && m_controller->getAxisValue( ControllerAxis::righty ) < -AxisThreshold);
     m_inputState._2 = glfwGetKey( m_window, GLFW_KEY_2 ) == GLFW_PRESS
                       || (m_controller != nullptr
-                          && m_controller->getAxisValue( ControllerAxis::righty, 0 ) > AxisThreshold);
+                          && m_controller->getAxisValue( ControllerAxis::righty ) > AxisThreshold);
     m_inputState._3 = glfwGetKey( m_window, GLFW_KEY_3 ) == GLFW_PRESS
                       || (m_controller != nullptr
-                          && m_controller->getAxisValue( ControllerAxis::rightx, 0 ) < -AxisThreshold);
+                          && m_controller->getAxisValue( ControllerAxis::rightx ) < -AxisThreshold);
     m_inputState._4 = glfwGetKey( m_window, GLFW_KEY_4 ) == GLFW_PRESS
                       || (m_controller != nullptr
-                          && m_controller->getAxisValue( ControllerAxis::rightx, 0 ) > AxisThreshold);
+                          && m_controller->getAxisValue( ControllerAxis::rightx ) > AxisThreshold);
     m_inputState._5 = glfwGetKey( m_window, GLFW_KEY_5 ) == GLFW_PRESS;
     m_inputState._6 = glfwGetKey( m_window, GLFW_KEY_6 ) == GLFW_PRESS;
 
@@ -145,25 +147,24 @@ void InputHandler::update()
     {
         if( m_inputState.freeLook )
         {
-            x += m_controller->getAxisValue( ControllerAxis::leftx, 0 ) * 500;
-            y -= m_controller->getAxisValue( ControllerAxis::lefty, 0 ) * 500;
+            x += m_controller->getAxisValue( ControllerAxis::leftx ) * 500;
+            y -= m_controller->getAxisValue( ControllerAxis::lefty ) * 500;
         }
         else
         {
-            if( m_controller->getAxisValue( ControllerAxis::lefty, 0 ) < -AxisThreshold )
+            if( m_controller->getAxisValue( ControllerAxis::lefty ) < -AxisThreshold )
                 forward = true;
-            if( m_controller->getAxisValue( ControllerAxis::lefty, 0 ) > AxisThreshold )
+            if( m_controller->getAxisValue( ControllerAxis::lefty ) > AxisThreshold )
                 backward = true;
-            if( m_controller->getAxisValue( ControllerAxis::leftx, 0 ) < -AxisThreshold )
+            if( m_controller->getAxisValue( ControllerAxis::leftx ) < -AxisThreshold )
                 left = true;
-            if( m_controller->getAxisValue( ControllerAxis::leftx, 0 ) > AxisThreshold )
+            if( m_controller->getAxisValue( ControllerAxis::leftx ) > AxisThreshold )
                 right = true;
         }
     }
 
-    m_inputState.mouseMovement = glm::vec2( x - m_lastCursorX, y - m_lastCursorY );
-    m_lastCursorX = x;
-    m_lastCursorY = y;
+    m_inputState.mouseMovement = glm::vec2( x - std::exchange( m_lastCursorX, x ),
+                                            y - std::exchange( m_lastCursorY, y ) );
 
     m_inputState.setXAxisMovement( left, right );
     m_inputState.setZAxisMovement( backward, forward );

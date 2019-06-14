@@ -41,9 +41,9 @@ public:
             }
         }
 
-        if( getEngine().getInputHandler().getInputState().zMovement != AxisMovement::Forward )
+        if( getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward )
         {
-            if( getEngine().getInputHandler().getInputState().xMovement != AxisMovement::Right )
+            if( getEngine().getInputHandler().getInputState().xMovement != hid::AxisMovement::Right )
             {
                 setGoalAnimState( LaraStateId::Stop );
             }

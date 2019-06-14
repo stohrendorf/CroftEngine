@@ -2,8 +2,8 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputhandler.h"
 #include "engine/laranode.h"
+#include "hid/inputhandler.h"
 
 namespace engine
 {
@@ -27,16 +27,16 @@ public:
             return;
         }
 
-        if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left )
         {
             subYRotationSpeed( 2.25_deg, -4_deg );
         }
-        else if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right )
         {
             addYRotationSpeed( 2.25_deg, 4_deg );
         }
 
-        if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Forward )
+        if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward )
         {
             if( getEngine().getInputHandler().getInputState().moveSlow )
             {

@@ -2,7 +2,7 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
+#include "hid/inputstate.h"
 
 namespace engine
 {

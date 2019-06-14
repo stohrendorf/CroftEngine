@@ -1,12 +1,11 @@
 #pragma once
 
 #include "inputstate.h"
-
 #include "controller.h"
 
 #include "gsl-lite.hpp"
 
-namespace engine
+namespace hid
 {
 class InputHandler final
 {

@@ -1389,7 +1389,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     Expects( isVideo || !baseName.empty() );
     const bool useAlternativeLara = levelInfo.get_or( "useAlternativeLara", false );
 
-    m_inputHandler = std::make_unique<InputHandler>( m_window->getWindow() );
+    m_inputHandler = std::make_unique<hid::InputHandler>( m_window->getWindow() );
 
     if( !isVideo )
     {

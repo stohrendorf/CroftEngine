@@ -30,9 +30,11 @@ public:
         {
             getEngine().getCameraController().setMode( CameraMode::FreeLook );
             getLara().addHeadRotationXY(
-                    (-FreeLookMouseMovementScale.retype_as<float>() * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000)).retype_as<core::Angle>(),
+                    (-hid::FreeLookMouseMovementScale.retype_as<float>()
+                     * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000)).retype_as<core::Angle>(),
                     -40_deg, 40_deg,
-                    (FreeLookMouseMovementScale.retype_as<float>() * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000)).retype_as<core::Angle>(),
+                    (hid::FreeLookMouseMovementScale.retype_as<float>()
+                     * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000)).retype_as<core::Angle>(),
                     -50_deg, 50_deg
             );
 
@@ -50,29 +52,29 @@ public:
             getEngine().getCameraController().setMode( CameraMode::Chase );
         }
 
-        if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left )
         {
             getLara().m_state.rotation.Y -= 4_deg;
         }
-        else if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Right )
+        else if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right )
         {
             getLara().m_state.rotation.Y += 4_deg;
         }
 
-        if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Forward )
+        if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward )
         {
             setGoalAnimState( LaraStateId::OnWaterForward );
         }
-        else if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Backward )
+        else if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward )
         {
             setGoalAnimState( LaraStateId::OnWaterBackward );
         }
 
-        if( getEngine().getInputHandler().getInputState().stepMovement == AxisMovement::Left )
+        if( getEngine().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Left )
         {
             setGoalAnimState( LaraStateId::OnWaterLeft );
         }
-        else if( getEngine().getInputHandler().getInputState().stepMovement == AxisMovement::Right )
+        else if( getEngine().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Right )
         {
             setGoalAnimState( LaraStateId::OnWaterRight );
         }

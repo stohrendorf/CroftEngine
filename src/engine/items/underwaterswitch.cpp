@@ -1,7 +1,7 @@
 #include "underwaterswitch.h"
 
 #include "engine/laranode.h"
-#include "engine/inputhandler.h"
+#include "hid/inputhandler.h"
 
 namespace engine
 {

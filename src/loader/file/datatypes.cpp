@@ -98,7 +98,7 @@ void Room::createSceneNode(
         const level::Level& level,
         const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
         const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
-        const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshes,
+        const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
         render::TextureAnimator& animator,
         const std::shared_ptr<render::scene::Material>& spriteMaterial,
         const std::shared_ptr<render::scene::Material>& portalMaterial
@@ -230,14 +230,14 @@ void Room::createSceneNode(
         uniform.set( 0 );
     } );
 
-    for( const RoomStaticMesh& sm : this->staticMeshes )
+    for( const RoomStaticMesh& sm : staticMeshes )
     {
         const auto idx = level.findStaticMeshIndexById( sm.meshId );
         if( idx < 0 )
             continue;
 
         auto subNode = std::make_shared<render::scene::Node>( "staticMesh" );
-        subNode->setDrawable( staticMeshes.at( idx ).get() );
+        subNode->setDrawable( staticMeshModels.at( idx ).get() );
         subNode->setLocalMatrix( translate( glm::mat4{1.0f}, (sm.position - position).toRenderSystem() )
                                  * rotate( glm::mat4{1.0f}, toRad( sm.rotation ), glm::vec3{0, -1, 0} ) );
 
@@ -286,7 +286,7 @@ void Room::createSceneNode(
         portal.buildMesh( portalMaterial );
 }
 
-core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core::Angle angle) const
+core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core::Angle& angle) const
 {
     auto result = collision_box;
 
@@ -321,7 +321,7 @@ core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core
     return result;
 }
 
-void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core::Length height)
+void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core::Length& height)
 {
     auto room = item.m_state.position.room;
     //! @todo Ugly const_cast

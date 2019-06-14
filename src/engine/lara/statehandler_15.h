@@ -2,7 +2,7 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/inputstate.h"
+#include "hid/inputstate.h"
 
 namespace engine
 {
@@ -19,7 +19,7 @@ public:
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Forward &&
+        if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward &&
             getRelativeHeightAtDirection( getLara().m_state.rotation.Y, 256_len ) >= -core::ClimbLimit2ClickMin )
         {
             setMovementAngle( getLara().m_state.rotation.Y );
@@ -27,21 +27,21 @@ public:
         }
         else
         {
-            if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Left
+            if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
                 && getRelativeHeightAtDirection(
                         getLara().m_state.rotation.Y - 90_deg, 256_len ) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle( getLara().m_state.rotation.Y - 90_deg );
                 setGoalAnimState( LaraStateId::JumpRight );
             }
-            else if( getEngine().getInputHandler().getInputState().xMovement == AxisMovement::Right &&
+            else if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right &&
                      getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 90_deg, 256_len )
                      >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle( getLara().m_state.rotation.Y + 90_deg );
                 setGoalAnimState( LaraStateId::JumpLeft );
             }
-            else if( getEngine().getInputHandler().getInputState().zMovement == AxisMovement::Backward &&
+            else if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward &&
                      getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 180_deg, 256_len )
                      >= -core::ClimbLimit2ClickMin )
             {

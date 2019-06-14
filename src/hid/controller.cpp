@@ -6,7 +6,7 @@
 #include <boost/optional.hpp>
 #include <utility>
 
-namespace engine
+namespace hid
 {
 class Controller::OutputHandler
 {
@@ -230,14 +230,22 @@ Controller::Controller(const std::vector<std::string>& mappings)
     Expects( mappings.size() >= 2 );
     m_guid = mappings[0];
     m_name = mappings[1];
+    std::copy( std::next( mappings.begin(), 2 ), mappings.end(), std::back_inserter( m_rawMappings ) );
+}
+
+void Controller::init()
+{
+    if( !m_channels.empty() )
+        return;
+
     BOOST_LOG_TRIVIAL( debug ) << "Loading controller mapping for " << m_name;
 
-    for( size_t i = 2; i < mappings.size(); ++i )
+    for( const auto& rawMapping : m_rawMappings )
     {
-        if( mappings[i].empty() )
+        if( rawMapping.empty() )
             continue;
 
-        if( boost::starts_with( mappings[i], "platform:" ) )
+        if( boost::starts_with( rawMapping, "platform:" ) )
             continue;
 
         static const std::regex re{"([-+]?)" // 1 = +-
@@ -249,9 +257,9 @@ Controller::Controller(const std::vector<std::string>& mappings)
                                    std::regex::icase | std::regex::optimize | std::regex::extended};
 
         std::smatch match;
-        if( !std::regex_match( mappings[i], match, re ) )
+        if( !std::regex_match( rawMapping, match, re ) )
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Ignoring invalid mapping: " << mappings[i];
+            BOOST_LOG_TRIVIAL( warning ) << "Ignoring invalid mapping: " << rawMapping;
             continue;
         }
 
@@ -342,7 +350,7 @@ Controller::Controller(const std::vector<std::string>& mappings)
         }
         else
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Ignoring invalid mapping \"" << mappings[i] << "\" for controller "
+            BOOST_LOG_TRIVIAL( warning ) << "Ignoring invalid mapping \"" << rawMapping << "\" for controller "
                                          << m_name;
         }
     }
