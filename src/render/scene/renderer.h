@@ -44,9 +44,9 @@ public:
         return m_frameRate;
     }
 
-    void clear(GLbitfield flags, const gl::SRGBA8& clearColor, float clearDepth);
+    void clear(::gl::ClearBufferMask flags, const gl::SRGBA8& clearColor, float clearDepth);
 
-    void clear(GLbitfield flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth);
+    void clear(::gl::ClearBufferMask flags, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha, float clearDepth);
 
     const std::shared_ptr<Scene>& getScene() const
     {

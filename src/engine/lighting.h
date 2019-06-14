@@ -102,7 +102,7 @@ struct Lighting
         node.addMaterialParameterSetter( "u_numLights", [this](const render::scene::Node& /*node*/,
                                                                render::gl::Program::ActiveUniform& uniform) {
             Expects( lights.size() <= MaxLights );
-            uniform.set( static_cast<GLint>(lights.size()) );
+            uniform.set( static_cast<::gl::GLint>(lights.size()) );
         } );
     }
 };

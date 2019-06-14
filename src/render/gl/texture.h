@@ -11,9 +11,9 @@ namespace gl
 class Texture : public RenderTarget
 {
 public:
-    explicit Texture(GLenum type, const std::string& label = {})
-            : RenderTarget{glGenTextures, [type](const GLuint handle) { glBindTexture( type, handle ); },
-                           glDeleteTextures, GL_TEXTURE, label}
+    explicit Texture(::gl::GLenum type, const std::string& label = {})
+            : RenderTarget{::gl::glGenTextures, [type](const ::gl::GLuint handle) { glBindTexture( type, handle ); },
+                           ::gl::glDeleteTextures, ::gl::GL_TEXTURE, label}
             , m_type{type}
     {
     }
@@ -22,34 +22,41 @@ public:
     void setLabel(const std::string& lbl)
     {
         bind();
-        GL_ASSERT(glObjectLabel( GL_TEXTURE, getHandle(), static_cast<GLsizei>(lbl.length()), lbl.c_str() ));
+        GL_ASSERT(
+                glObjectLabel( ::gl::GL_TEXTURE, getHandle(), static_cast<::gl::GLsizei>(lbl.length()), lbl.c_str() ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    Texture& set(const GLenum param, const GLint value)
+    Texture& set(const ::gl::GLenum param, const ::gl::GLint value)
     {
-        GL_ASSERT(glTextureParameteri( getHandle(), param, value ));
+        GL_ASSERT( glTextureParameteri( getHandle(), param, value ) );
+        return *this;
+    }
+
+    Texture& set(const ::gl::GLenum param, const ::gl::GLenum value)
+    {
+        GL_ASSERT( glTextureParameteri( getHandle(), param, value ) );
         return *this;
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    Texture& set(const GLenum param, const GLfloat value)
+    Texture& set(const ::gl::GLenum param, const ::gl::GLfloat value)
     {
-        GL_ASSERT(glTextureParameterf( getHandle(), param, value ));
+        GL_ASSERT( glTextureParameterf( getHandle(), param, value ) );
         return *this;
     }
 
-    GLint getWidth() const noexcept override
+    ::gl::GLint getWidth() const noexcept override
     {
         return m_width;
     }
 
-    GLint getHeight() const noexcept override
+    ::gl::GLint getHeight() const noexcept override
     {
         return m_height;
     }
 
-    GLenum getType() const noexcept
+    ::gl::GLenum getType() const noexcept
     {
         return m_type;
     }
@@ -64,12 +71,12 @@ public:
 
         bind();
 
-        GL_ASSERT(glTexImage2D( m_type, 0, T::InternalFormat, m_width, m_height, 0, T::Format, T::TypeId,
-                      data.empty() ? nullptr : data.data() ));
+        GL_ASSERT( glTexImage2D( m_type, 0, T::InternalFormat, m_width, m_height, 0, T::Format, T::TypeId,
+                                 data.empty() ? nullptr : data.data() ) );
 
         if( m_mipmap )
         {
-            GL_ASSERT(glGenerateMipmap( m_type ));
+            GL_ASSERT( glGenerateMipmap( m_type ) );
         }
     }
 
@@ -82,22 +89,23 @@ public:
 
         bind();
 
-        GL_ASSERT(glTexSubImage2D( m_type, 0, 0, 0, m_width, m_height, T::Format, T::TypeId, data.data() ));
+        GL_ASSERT( glTexSubImage2D( m_type, 0, 0, 0, m_width, m_height, T::Format, T::TypeId, data.data() ) );
 
         if( m_mipmap )
         {
-            GL_ASSERT(glGenerateMipmap( m_type ));
+            GL_ASSERT( glGenerateMipmap( m_type ) );
         }
     }
 
     template<typename T>
-    Texture& image2D(GLint width, GLint height, bool generateMipmaps)
+    Texture& image2D(::gl::GLint width, ::gl::GLint height, bool generateMipmaps)
     {
         return image2D( width, height, std::vector<T>{}, generateMipmaps );
     }
 
     template<typename T>
-    Texture& image2D(const GLint width, const GLint height, const std::vector<T>& data, const bool generateMipmaps)
+    Texture&
+    image2D(const ::gl::GLint width, const ::gl::GLint height, const std::vector<T>& data, const bool generateMipmaps)
     {
         BOOST_ASSERT( width > 0 && height > 0 );
         BOOST_ASSERT(
@@ -105,8 +113,8 @@ public:
 
         bind();
 
-        GL_ASSERT(glTexImage2D( m_type, 0, T::InternalFormat, width, height, 0, T::Format, T::TypeId,
-                      data.empty() ? nullptr : data.data() ));
+        GL_ASSERT( glTexImage2D( m_type, 0, T::InternalFormat, width, height, 0, T::Format, T::TypeId,
+                                 data.empty() ? nullptr : data.data() ) );
 
         m_width = width;
         m_height = height;
@@ -114,20 +122,20 @@ public:
 
         if( m_mipmap )
         {
-            GL_ASSERT(glGenerateMipmap( m_type ));
+            GL_ASSERT( glGenerateMipmap( m_type ) );
         }
 
         return *this;
     }
 
-    void depthImage2D(const GLint width, const GLint height)
+    void depthImage2D(const ::gl::GLint width, const ::gl::GLint height)
     {
         BOOST_ASSERT( width > 0 && height > 0 );
 
         bind();
 
-        GL_ASSERT(glTexImage2D( m_type, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT,
-                      GL_UNSIGNED_INT, nullptr ));
+        GL_ASSERT( glTexImage2D( m_type, 0, ::gl::GL_DEPTH_COMPONENT24, width, height, 0, ::gl::GL_DEPTH_COMPONENT,
+                                 ::gl::GL_UNSIGNED_INT, nullptr ) );
 
         m_width = width;
         m_height = height;
@@ -140,18 +148,19 @@ public:
         if( m_type != src.m_type )
             BOOST_THROW_EXCEPTION( std::runtime_error( "Refusing to copy image data with different types" ) );
 
-        GL_ASSERT(glCopyImageSubData( src.getHandle(), src.m_type, 0, 0, 0, 0, getHandle(), m_type, 0, 0, 0, 0, src.m_width,
-                            src.m_height, 1 ));
+        GL_ASSERT( glCopyImageSubData( src.getHandle(), src.m_type, 0, 0, 0, 0, getHandle(), m_type, 0, 0, 0, 0,
+                                       src.m_width,
+                                       src.m_height, 1 ) );
         m_width = src.m_width;
         m_height = src.m_height;
     }
 
 private:
-    const GLenum m_type;
+    const ::gl::GLenum m_type;
 
-    GLint m_width = -1;
+    ::gl::GLint m_width = -1;
 
-    GLint m_height = -1;
+    ::gl::GLint m_height = -1;
 
     bool m_mipmap = false;
 };

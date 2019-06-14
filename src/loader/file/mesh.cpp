@@ -307,7 +307,7 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finaliz
         indexBuffer->setData( localPart.indices, true );
 
         auto va = std::make_shared<render::gl::VertexArray>( indexBuffer, m_vb, localPart.material->getShaderProgram()->getHandle(), m_label );
-        auto mesh = std::make_shared<render::scene::Mesh>( va, GL_TRIANGLES );
+        auto mesh = std::make_shared<render::scene::Mesh>( va, ::gl::GL_TRIANGLES );
         mesh->setMaterial( localPart.material );
 
         if( localPart.color.is_initialized() )

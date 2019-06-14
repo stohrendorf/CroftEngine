@@ -78,7 +78,7 @@ class Image
 public:
     using StorageType = TStorage;
 
-    explicit Image(const GLint width, const GLint height, const StorageType* data = nullptr)
+    explicit Image(const ::gl::GLint width, const ::gl::GLint height, const StorageType* data = nullptr)
             : m_data{}
             , m_width{width}
             , m_height{height}
@@ -153,17 +153,17 @@ public:
         m_data = std::move( data );
     }
 
-    GLint getHeight() const
+    ::gl::GLint getHeight() const
     {
         return m_height;
     }
 
-    GLint getWidth() const
+    ::gl::GLint getWidth() const
     {
         return m_width;
     }
 
-    StorageType& at(const GLint x, const GLint y)
+    StorageType& at(const ::gl::GLint x, const ::gl::GLint y)
     {
         Expects( x >= 0 );
         Expects( x < m_width );
@@ -178,7 +178,7 @@ public:
         return m_data[y * m_width + x];
     }
 
-    void set(const GLint x, const GLint y, const StorageType& pixel, const bool blend = false)
+    void set(const ::gl::GLint x, const ::gl::GLint y, const StorageType& pixel, const bool blend = false)
     {
         if( x < 0 || x >= m_width || y < 0 || y >= m_height )
             return;
@@ -195,7 +195,7 @@ public:
         }
     }
 
-    const StorageType& at(const GLint x, const GLint y) const
+    const StorageType& at(const ::gl::GLint x, const ::gl::GLint y) const
     {
         Expects( x >= 0 );
         Expects( x < m_width );
@@ -216,15 +216,15 @@ public:
             detail::fill( gsl::not_null<StorageType*>{m_data.data()}, m_data.size(), color );
     }
 
-    void line(GLint x0, GLint y0, const GLint x1, const GLint y1, const StorageType& color, const bool blend = false)
+    void line(::gl::GLint x0, ::gl::GLint y0, const ::gl::GLint x1, const ::gl::GLint y1, const StorageType& color, const bool blend = false)
     {
         // shamelessly copied from wikipedia
-        const GLint dx = abs( x1 - x0 );
-        const GLint sx = x0 < x1 ? 1 : -1;
-        const GLint dy = -abs( y1 - y0 );
-        const GLint sy = y0 < y1 ? 1 : -1;
+        const ::gl::GLint dx = abs( x1 - x0 );
+        const ::gl::GLint sx = x0 < x1 ? 1 : -1;
+        const ::gl::GLint dy = -abs( y1 - y0 );
+        const ::gl::GLint sy = y0 < y1 ? 1 : -1;
 
-        GLint err = dx + dy;
+        ::gl::GLint err = dx + dy;
 
         while( true )
         {
@@ -247,18 +247,13 @@ public:
         }
     }
 
-    void scaleFit(GLint newWidth, GLint newHeight)
-    {
-
-    }
-
 private:
 
     std::vector<StorageType> m_data;
 
-    GLint m_width;
+    ::gl::GLint m_width;
 
-    GLint m_height;
+    ::gl::GLint m_height;
 };
 }
 }

@@ -27,23 +27,23 @@ public:
 
     void setBlend(bool enabled);
 
-    void setBlendSrc(GLenum blend);
+    void setBlendSrc(::gl::GLenum blend);
 
-    void setBlendDst(GLenum blend);
+    void setBlendDst(::gl::GLenum blend);
 
     void setCullFace(bool enabled);
 
-    void setCullFaceSide(GLenum side);
+    void setCullFaceSide(::gl::GLenum side);
 
-    void setFrontFace(GLenum winding);
+    void setFrontFace(::gl::GLenum winding);
 
     void setDepthTest(bool enabled);
 
     void setDepthWrite(bool enabled);
 
-    void setDepthFunction(GLenum func);
+    void setDepthFunction(::gl::GLenum func);
 
-    void setLineWidth(GLfloat width);
+    void setLineWidth(::gl::GLfloat width);
 
     void setLineSmooth(bool enabled);
 
@@ -100,9 +100,9 @@ private:
 
     struct DefaultedOptionalF final
     {
-        const GLfloat DefaultValue;
+        const ::gl::GLfloat DefaultValue;
 
-        explicit DefaultedOptionalF(GLfloat defaultValue)
+        explicit DefaultedOptionalF(::gl::GLfloat defaultValue)
                 : DefaultValue{defaultValue}
         {}
 
@@ -114,9 +114,9 @@ private:
             return *this;
         }
 
-        boost::optional<GLfloat> value{};
+        boost::optional<::gl::GLfloat> value{};
 
-        GLfloat get() const
+        ::gl::GLfloat get() const
         {
             return value.get_value_or( DefaultValue );
         }
@@ -141,7 +141,7 @@ private:
             return value != rhs.value;
         }
 
-        DefaultedOptionalF& operator=(GLfloat rhs)
+        DefaultedOptionalF& operator=(::gl::GLfloat rhs)
         {
             value = rhs;
             return *this;
@@ -162,17 +162,17 @@ private:
 
     DefaultedOptional<bool, true> m_depthWriteEnabled;
 
-    DefaultedOptional<GLenum, GL_LESS> m_depthFunction;
+    DefaultedOptional<::gl::GLenum, ::gl::GL_LESS> m_depthFunction;
 
     DefaultedOptional<bool, true> m_blendEnabled;
 
-    DefaultedOptional<GLenum, GL_SRC_ALPHA> m_blendSrc;
+    DefaultedOptional<::gl::GLenum, ::gl::GL_SRC_ALPHA> m_blendSrc;
 
-    DefaultedOptional<GLenum, GL_ONE_MINUS_SRC_ALPHA> m_blendDst;
+    DefaultedOptional<::gl::GLenum, ::gl::GL_ONE_MINUS_SRC_ALPHA> m_blendDst;
 
-    DefaultedOptional<GLenum, GL_BACK> m_cullFaceSide;
+    DefaultedOptional<::gl::GLenum, ::gl::GL_BACK> m_cullFaceSide;
 
-    DefaultedOptional<GLenum, GL_CW> m_frontFace;
+    DefaultedOptional<::gl::GLenum, ::gl::GL_CW> m_frontFace;
 
     DefaultedOptionalF m_lineWidth{1.0f};
 

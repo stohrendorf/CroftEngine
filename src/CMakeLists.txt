@@ -278,12 +278,11 @@ target_link_libraries(
         CImg::CImg
         Lua
         yaml-cpp
-        GLEW::GLEW
-        glfw
         PNG::PNG
         sol2::sol2
         type_safe
-        GLEW::GLEW
+        glbinding::glbinding
+        glbinding::glbinding-aux
         glfw
         Boost::boost
         OpenGL

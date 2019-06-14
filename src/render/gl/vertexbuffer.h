@@ -10,10 +10,10 @@ class VertexBuffer : public BindableResource
 {
 public:
     explicit VertexBuffer(const std::string& label = {})
-            : BindableResource{glGenBuffers,
-                               [](const GLuint handle) { glBindBuffer( GL_ARRAY_BUFFER, handle ); },
-                               glDeleteBuffers,
-                               GL_BUFFER,
+            : BindableResource{::gl::glGenBuffers,
+                               [](const ::gl::GLuint handle) { ::gl::glBindBuffer( ::gl::GL_ARRAY_BUFFER, handle ); },
+                               ::gl::glDeleteBuffers,
+                               ::gl::GL_BUFFER,
                                label}
     {
     }
@@ -22,21 +22,19 @@ public:
     const void* map()
     {
         bind();
-        const auto data = GL_ASSERT_FN( glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY ) );
-        return data;
+        return GL_ASSERT_FN( glMapBuffer( ::gl::GL_ARRAY_BUFFER, ::gl::GL_READ_ONLY ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void* mapRw()
     {
         bind();
-        const auto data = GL_ASSERT_FN( glMapBuffer( GL_ARRAY_BUFFER, GL_READ_WRITE ) );
-        return data;
+        return GL_ASSERT_FN( glMapBuffer( ::gl::GL_ARRAY_BUFFER, ::gl::GL_READ_WRITE ) );
     }
 
     static void unmap()
     {
-        GL_ASSERT( glUnmapBuffer( GL_ARRAY_BUFFER ) );
+        GL_ASSERT( glUnmapBuffer( ::gl::GL_ARRAY_BUFFER ) );
     }
 };
 }

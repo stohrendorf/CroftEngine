@@ -80,7 +80,7 @@ else()
 endif()
 target_compile_definitions( glm INTERFACE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_RADIANS )
 
-find_package( Boost COMPONENTS system log filesystem thread REQUIRED )
+find_package( Boost COMPONENTS system log filesystem REQUIRED )
 target_compile_definitions( Boost::boost INTERFACE -DBOOST_LOG_DYN_LINK=0 )
 target_compile_definitions( Boost::boost INTERFACE -DBOOST_ALL_NO_LIB )
 target_include_directories( Boost::boost INTERFACE ${Boost_INCLUDE_DIR} )
@@ -107,14 +107,15 @@ endif()
 
 find_package( Freetype REQUIRED )
 
-find_package( GLEW REQUIRED )
-
-find_package( glfw3 3.2 REQUIRED )
+find_package( glfw3 3.3 REQUIRED )
+target_compile_definitions( glfw INTERFACE -DGLFW_INCLUDE_NONE )
 
 find_package( FFmpeg REQUIRED )
 add_library( FFmpeg INTERFACE )
 target_include_directories( FFmpeg INTERFACE ${FFMPEG_INCLUDE_DIR} )
 target_link_libraries( FFmpeg INTERFACE ${FFMPEG_LIBRARY} )
+
+find_package( glbinding CONFIG REQUIRED )
 
 if( VCPKG_TOOLCHAIN )
     find_package( CImg REQUIRED )
@@ -148,7 +149,7 @@ else()
 endif()
 target_compile_definitions( CImg::CImg INTERFACE -Dcimg_display=0 -Dcimg_use_png )
 
-if( VCPKG_TOOLCHAIN )
+if( VCPKG_TOOLCHAIN AND FALSE )
     find_package( sol2 CONFIG REQUIRED )
 else()
     if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/sol-v2.20.4/sol.hpp" )

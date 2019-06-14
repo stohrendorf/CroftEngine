@@ -48,7 +48,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createQuadFullscreen(const float width,
     return std::make_shared<Mesh>( std::make_shared<gl::VertexArray>(indexBuffer, vertexBuffer, program) );
 }
 
-Mesh::Mesh(std::shared_ptr<gl::VertexArray> vao, GLenum mode)
+Mesh::Mesh(std::shared_ptr<gl::VertexArray> vao, ::gl::GLenum mode)
         : m_vao{std::move( vao )}
         , m_mode{mode}
 {

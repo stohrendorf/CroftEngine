@@ -9,40 +9,41 @@ namespace gl
 class RenderBuffer : public RenderTarget
 {
 public:
-    explicit RenderBuffer(const GLint width, const GLint height, const GLenum format, const std::string& label = {})
-            : RenderTarget{glGenRenderbuffers,
-                           [](const GLuint handle) { glBindRenderbuffer( GL_RENDERBUFFER, handle ); },
-                           glDeleteRenderbuffers,
-                           GL_RENDERBUFFER,
+    explicit RenderBuffer(const ::gl::GLint width, const ::gl::GLint height, const ::gl::GLenum format,
+                          const std::string& label = {})
+            : RenderTarget{::gl::glGenRenderbuffers,
+                           [](const ::gl::GLuint handle) { ::gl::glBindRenderbuffer( ::gl::GL_RENDERBUFFER, handle ); },
+                           ::gl::glDeleteRenderbuffers,
+                           ::gl::GL_RENDERBUFFER,
                            label}
             , m_width{width}
             , m_height{height}
             , m_format{format}
     {
-        GL_ASSERT(glRenderbufferStorage( GL_RENDERBUFFER, format, width, height ));
+        GL_ASSERT( glRenderbufferStorage( ::gl::GL_RENDERBUFFER, format, width, height ) );
     }
 
-    GLint getWidth() const noexcept override
+    ::gl::GLint getWidth() const noexcept override
     {
         return m_width;
     }
 
-    GLint getHeight() const noexcept override
+    ::gl::GLint getHeight() const noexcept override
     {
         return m_height;
     }
 
-    GLenum getFormat() const noexcept
+    ::gl::GLenum getFormat() const noexcept
     {
         return m_format;
     }
 
 private:
-    const GLint m_width;
+    const ::gl::GLint m_width;
 
-    const GLint m_height;
+    const ::gl::GLint m_height;
 
-    const GLenum m_format;
+    const ::gl::GLenum m_format;
 };
 }
 }

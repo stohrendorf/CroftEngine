@@ -22,14 +22,14 @@ struct BSPTree
     //! @note This is a pure caching mechanism to avoid unnecessary recursion.
     bool isFilled = false;
 
-    GLint x = 0;
-    GLint y = 0;
-    GLint width = 0;
-    GLint height = 0;
+    ::gl::GLint x = 0;
+    ::gl::GLint y = 0;
+    ::gl::GLint width = 0;
+    ::gl::GLint height = 0;
 
     BSPTree() = default;
 
-    BSPTree(const GLint x, const GLint y, const GLint w, const GLint h)
+    BSPTree(const ::gl::GLint x, const ::gl::GLint y, const ::gl::GLint w, const ::gl::GLint h)
             : x{x}, y{y}, width{w}, height{h}
     {
         Expects( x >= 0 );
@@ -47,7 +47,7 @@ struct BSPTree
      * @brief Split this node along its Y axis (X is split).
      * @param splitLocation Local X coordinate of the split point
      */
-    void splitX(const GLint splitLocation)
+    void splitX(const ::gl::GLint splitLocation)
     {
         Expects( splitLocation < width );
         left = std::make_unique<BSPTree>( x, y, splitLocation, height );
@@ -58,14 +58,14 @@ struct BSPTree
      * @brief Split this node along its X axis (Y is split).
      * @param splitLocation Local Y coordinate of the split point
      */
-    void splitY(const GLint splitLocation)
+    void splitY(const ::gl::GLint splitLocation)
     {
         Expects( splitLocation < height );
         left = std::make_unique<BSPTree>( x, y, width, splitLocation );
         right = std::make_unique<BSPTree>( x, y + splitLocation, width, height - splitLocation );
     }
 
-    bool fits(const GLint w, const GLint h) const noexcept
+    bool fits(const ::gl::GLint w, const ::gl::GLint h) const noexcept
     {
         Expects( w > 0 );
         Expects( h > 0 );
@@ -77,15 +77,15 @@ struct BSPTree
      */
     boost::optional<glm::vec2> tryInsert(const int scale, const glm::vec2& uv)
     {
-        const auto tmp = tryInsert( gsl::narrow_cast<GLint>( scale * uv.x ),
-                                    gsl::narrow_cast<GLint>( scale * uv.y ) );
+        const auto tmp = tryInsert( gsl::narrow_cast<::gl::GLint>( scale * uv.x ),
+                                    gsl::narrow_cast<::gl::GLint>( scale * uv.y ) );
         if( !tmp.is_initialized() )
             return boost::none;
 
         return glm::vec2{tmp->x / float( scale ), tmp->y / float( scale )};
     }
 
-    boost::optional<glm::ivec2> tryInsert(const GLint width, const GLint height)
+    boost::optional<glm::ivec2> tryInsert(const ::gl::GLint width, const ::gl::GLint height)
     {
         // Could this possibly fit?
         if( !fits( width, height ) )
@@ -190,7 +190,7 @@ class TextureAtlas
         glm::vec2 newUvMin;
     };
 
-    const GLint m_resultPageSize;
+    const ::gl::GLint m_resultPageSize;
     std::map<size_t, size_t> m_mappingByProxy{};
     std::vector<Mapping> m_mappings{};
 
@@ -222,7 +222,7 @@ public:
         }
     }
 
-    explicit TextureAtlas(const GLint pageSize)
+    explicit TextureAtlas(const ::gl::GLint pageSize)
             : m_resultPageSize{pageSize}
     {
         Expects( pageSize > 0 );
@@ -308,17 +308,17 @@ public:
         }
 
         loader::file::DWordTexture texture;
-        texture.texture = std::make_shared<render::gl::Texture>( GL_TEXTURE_2D );
+        texture.texture = std::make_shared<render::gl::Texture>( ::gl::GL_TEXTURE_2D );
         texture.texture->setLabel( "animated texture tiles" );
         if( !linear )
         {
-            texture.texture->set( GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-            texture.texture->set( GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+            texture.texture->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
+                   .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST );
         }
         else
         {
-            texture.texture->set( GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-            texture.texture->set( GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+            texture.texture->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_LINEAR )
+                   .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_LINEAR );
         }
         img.interleave();
         texture.image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
@@ -336,7 +336,7 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
                                  std::vector<loader::file::DWordTexture>& textures,
                                  bool linear)
 {
-    GLint maxSize = 0;
+    ::gl::GLint maxSize = 0;
     for( const auto& texture : textures )
         maxSize = std::max( maxSize, texture.image->getWidth() );
 

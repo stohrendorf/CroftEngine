@@ -14,7 +14,8 @@ namespace items
 namespace
 {
 gsl::not_null<std::shared_ptr<render::scene::Mesh>>
-createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& program, GLfloat lineWidth)
+createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& program,
+           ::gl::GLfloat lineWidth)
 {
     std::vector<glm::vec3> vertices( points );
 
@@ -23,7 +24,6 @@ createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<render::scene::S
                     render::gl::VertexAttribute::SingleAttribute<glm::vec3>{}}}
     };
 
-
     std::vector<uint16_t> indices;
     for( uint16_t i = 0; i < points; ++i )
         indices.emplace_back( i );
@@ -31,11 +31,11 @@ createBolt(uint16_t points, const gsl::not_null<std::shared_ptr<render::scene::S
     auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
     indexBuffer->setData( indices, false );
 
-    auto vb = std::make_shared<render::gl::StructuredVertexBuffer>(attribs, true);
+    auto vb = std::make_shared<render::gl::StructuredVertexBuffer>( attribs, true );
     vb->assign<glm::vec3>( &vertices[0], points );
 
-    auto vao = std::make_shared<render::gl::VertexArray>(indexBuffer, vb, program->getHandle());
-    auto mesh = std::make_shared<render::scene::Mesh>( vao, GL_LINE_STRIP );
+    auto vao = std::make_shared<render::gl::VertexArray>( indexBuffer, vb, program->getHandle() );
+    auto mesh = std::make_shared<render::scene::Mesh>( vao, ::gl::GL_LINE_STRIP );
 
     mesh->getRenderState().setLineSmooth( true );
     mesh->getRenderState().setLineWidth( lineWidth );

@@ -18,7 +18,7 @@ class Mesh : public Renderable
 public:
     using MaterialParameterSetter = void(const Node& node, Material& material);
 
-    explicit Mesh(std::shared_ptr<gl::VertexArray> vao, GLenum mode = GL_TRIANGLES);
+    explicit Mesh(std::shared_ptr<gl::VertexArray> vao, ::gl::GLenum mode = ::gl::GL_TRIANGLES);
 
     ~Mesh() override;
 
@@ -59,7 +59,7 @@ private:
 
     gsl::not_null<std::shared_ptr<gl::VertexArray>> m_vao;
 
-    const GLenum m_mode;
+    const ::gl::GLenum m_mode;
 };
 
 

@@ -35,7 +35,7 @@ InputHandler::InputHandler(const gsl::not_null<GLFWwindow*>& window)
 
     for( auto i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i )
     {
-        if( glfwJoystickPresent( i ) != GL_TRUE )
+        if( glfwJoystickPresent( i ) != GLFW_TRUE )
             continue;
 
         const char* name = glfwGetJoystickName( i );

@@ -20,33 +20,33 @@ public:
         if( m_handle == 0 )
             return;
 
-        GL_ASSERT( m_binder( m_handle ) );
+        GL_ASSERT_NO_NS( m_binder( m_handle ) );
     }
 
     void unbind() const
     {
-        GL_ASSERT( m_binder( 0 ) );
+        GL_ASSERT_NO_NS( m_binder( 0 ) );
     }
 
-    GLuint getHandle() const
+    ::gl::GLuint getHandle() const
     {
         BOOST_ASSERT( m_handle != 0 );
         return m_handle;
     }
 
 protected:
-    using Allocator = void(GLsizei, GLuint*);
-    using Binder = void(GLuint);
-    using Deleter = void(GLsizei, GLuint*);
+    using Allocator =void(::gl::GLsizei, ::gl::GLuint*);
+    using Binder = void(::gl::GLuint);
+    using Deleter = void(::gl::GLsizei, ::gl::GLuint*);
 
     explicit BindableResource(const std::function<Allocator>& allocator, const std::function<Binder>& binder,
                               const std::function<Deleter>& deleter)
-            : BindableResource{allocator, binder, deleter, GLenum( -1 ), {}}
+            : BindableResource{allocator, binder, deleter, ::gl::GL_NONE, {}}
     {
     }
 
     explicit BindableResource(const std::function<Allocator>& allocator, const std::function<Binder>& binder,
-                              const std::function<Deleter>& deleter, const GLenum identifier,
+                              const std::function<Deleter>& deleter, const ::gl::GLenum identifier,
                               const std::string& label)
             : m_allocator{allocator}
             , m_binder{binder}
@@ -56,7 +56,7 @@ protected:
         BOOST_ASSERT( static_cast<bool>(binder) );
         BOOST_ASSERT( static_cast<bool>(deleter) );
 
-        GL_ASSERT( m_allocator( 1, &m_handle ) );
+        GL_ASSERT_NO_NS( m_allocator( 1, &m_handle ) );
 
         BOOST_ASSERT( m_handle != 0 );
 
@@ -96,14 +96,14 @@ protected:
             return;
 
         unbind();
-        GL_ASSERT( m_deleter( 1, &m_handle ) );
+        GL_ASSERT_NO_NS( m_deleter( 1, &m_handle ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void setLabel(const GLenum identifier, const std::string& label)
+    void setLabel(const ::gl::GLenum identifier, const std::string& label)
     {
-        GLint maxLabelLength = 0;
-        GL_ASSERT( glGetIntegerv( GL_MAX_LABEL_LENGTH, &maxLabelLength ) );
+        ::gl::GLint maxLabelLength = 0;
+        GL_ASSERT( glGetIntegerv( ::gl::GL_MAX_LABEL_LENGTH, &maxLabelLength ) );
         BOOST_ASSERT( maxLabelLength > 0 );
 
         GL_ASSERT( glObjectLabel( identifier, m_handle, -1,
@@ -112,7 +112,7 @@ protected:
     }
 
 private:
-    GLuint m_handle = 0;
+    ::gl::GLuint m_handle = 0;
 
     std::function<Allocator> m_allocator;
 

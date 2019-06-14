@@ -15,10 +15,12 @@ class IndexBuffer : public BindableResource
 {
 public:
     explicit IndexBuffer(const std::string& label = {})
-            : BindableResource{glGenBuffers,
-                               [](const GLuint handle) { glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, handle ); },
-                               glDeleteBuffers,
-                               GL_BUFFER,
+            : BindableResource{::gl::glGenBuffers,
+                               [](const ::gl::GLuint handle) {
+                                   ::gl::glBindBuffer( ::gl::GL_ELEMENT_ARRAY_BUFFER, handle );
+                               },
+                               ::gl::glDeleteBuffers,
+                               ::gl::GL_BUFFER,
                                label}
     {
     }
@@ -27,26 +29,27 @@ public:
     const void* map()
     {
         bind();
-        const void* data = GL_ASSERT_FN( glMapBuffer( GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY ) );
+        const void* data = GL_ASSERT_FN( glMapBuffer( ::gl::GL_ELEMENT_ARRAY_BUFFER, ::gl::GL_READ_ONLY ) );
         return data;
     }
 
     static void unmap()
     {
-        GL_ASSERT( glUnmapBuffer( GL_ELEMENT_ARRAY_BUFFER ) );
+        GL_ASSERT( glUnmapBuffer( ::gl::GL_ELEMENT_ARRAY_BUFFER ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
-    void setData(const gsl::not_null<const T*>& indexData, const GLsizei indexCount, const bool dynamic)
+    void setData(const gsl::not_null<const T*>& indexData, const ::gl::GLsizei indexCount, const bool dynamic)
     {
         Expects( indexCount >= 0 );
 
         bind();
 
-        GL_ASSERT( glBufferData( GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLsizeiptr>( sizeof( T ) * indexCount ),
+        GL_ASSERT( glBufferData( ::gl::GL_ELEMENT_ARRAY_BUFFER,
+                                 gsl::narrow<::gl::GLsizeiptr>( sizeof( T ) * indexCount ),
                                  indexData.get(),
-                                 dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW ) );
+                                 dynamic ? ::gl::GL_DYNAMIC_DRAW : ::gl::GL_STATIC_DRAW ) );
 
         m_indexCount = indexCount;
         m_storageType = TypeTraits<T>::TypeId;
@@ -55,12 +58,12 @@ public:
     template<typename T>
     void setData(const std::vector<T>& data, bool dynamic)
     {
-        setData( gsl::not_null<const T*>( data.data() ), gsl::narrow<GLsizei>( data.size() ), dynamic );
+        setData( gsl::not_null<const T*>( data.data() ), gsl::narrow<::gl::GLsizei>( data.size() ), dynamic );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
-    void setSubData(const gsl::not_null<const T*>& indexData, GLsizei indexStart, GLsizei indexCount)
+    void setSubData(const gsl::not_null<const T*>& indexData, ::gl::GLsizei indexStart, ::gl::GLsizei indexCount)
     {
         Expects( indexStart >= 0 );
         Expects( indexCount >= 0 );
@@ -80,25 +83,25 @@ public:
                                     gsl::narrow<GLsizeiptr>( indexCount * sizeof( T ) ), indexData.get() ) );
     }
 
-    void draw(const GLenum mode) const
+    void draw(const ::gl::GLenum mode) const
     {
         GL_ASSERT( glDrawElements( mode, m_indexCount, m_storageType, nullptr ) );
     }
 
-    GLsizei getIndexCount() const
+    ::gl::GLsizei getIndexCount() const
     {
         return m_indexCount;
     }
 
-    const GLenum& getStorageType() const
+    ::gl::GLenum getStorageType() const
     {
         return m_storageType;
     }
 
 private:
-    GLsizei m_indexCount = 0;
+    ::gl::GLsizei m_indexCount = 0;
 
-    GLenum m_storageType = GL_NONE;
+    ::gl::GLenum m_storageType = ::gl::GL_NONE;
 };
 }
 }

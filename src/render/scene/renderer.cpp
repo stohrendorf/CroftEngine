@@ -53,7 +53,7 @@ public:
 void Renderer::render()
 {
     // Graphics Rendering.
-    clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
+    clear( ::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
 
     RenderContext context{};
     RenderVisitor visitor{context};
@@ -71,10 +71,10 @@ void Renderer::render()
     }
 }
 
-void Renderer::clear(const GLbitfield flags, const gl::SRGBA8& clearColor, const float clearDepth)
+void Renderer::clear(const ::gl::ClearBufferMask flags, const gl::SRGBA8& clearColor, const float clearDepth)
 {
-    GLbitfield bits = 0;
-    if( flags & GL_COLOR_BUFFER_BIT )
+    ::gl::ClearBufferMask bits = ::gl::GL_NONE_BIT;
+    if( (flags & ::gl::GL_COLOR_BUFFER_BIT) != ::gl::GL_NONE_BIT )
     {
         if( clearColor != m_clearColor )
         {
@@ -82,17 +82,17 @@ void Renderer::clear(const GLbitfield flags, const gl::SRGBA8& clearColor, const
                                      clearColor.a / 255.0f ) );
             m_clearColor = clearColor;
         }
-        bits |= GL_COLOR_BUFFER_BIT;
+        bits |= ::gl::GL_COLOR_BUFFER_BIT;
     }
 
-    if( flags & GL_DEPTH_BUFFER_BIT )
+    if( (flags & ::gl::GL_DEPTH_BUFFER_BIT) != ::gl::GL_NONE_BIT )
     {
         if( clearDepth != m_clearDepth )
         {
             GL_ASSERT( glClearDepth( clearDepth ) );
             m_clearDepth = clearDepth;
         }
-        bits |= GL_DEPTH_BUFFER_BIT;
+        bits |= ::gl::GL_DEPTH_BUFFER_BIT;
 
         // We need to explicitly call the static enableDepthWrite() method on StateBlock
         // to ensure depth writing is enabled before clearing the depth buffer (and to
@@ -103,7 +103,7 @@ void Renderer::clear(const GLbitfield flags, const gl::SRGBA8& clearColor, const
     GL_ASSERT( glClear( bits ) );
 }
 
-void Renderer::clear(const GLbitfield flags,
+void Renderer::clear(const ::gl::ClearBufferMask flags,
                      const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha,
                      const float clearDepth)
 {

@@ -11,11 +11,11 @@ namespace gl
 class DebugGroup final
 {
 public:
-    explicit DebugGroup(const std::string& message, const GLuint id = 0)
+    explicit DebugGroup(const std::string& message, const ::gl::GLuint id = 0)
     {
-        GL_ASSERT( glPushDebugGroup( GL_DEBUG_SOURCE_APPLICATION,
+        GL_ASSERT( glPushDebugGroup( ::gl::GL_DEBUG_SOURCE_APPLICATION,
                                      id,
-                                     gsl::narrow<GLsizei>( message.length() ),
+                                     gsl::narrow<::gl::GLsizei>( message.length() ),
                                      message.c_str() ) );
     }
 

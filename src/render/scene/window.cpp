@@ -19,7 +19,7 @@ Window::Window(bool fullscreen, const Dimension2<int>& resolution)
 {
     glfwSetErrorCallback( &glErrorCallback );
 
-    if( glfwInit() != GL_TRUE )
+    if( glfwInit() != GLFW_TRUE )
     {
         BOOST_LOG_TRIVIAL( fatal ) << "Failed to initialize GLFW";
         BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to initialize GLFW" ) );
@@ -27,19 +27,19 @@ Window::Window(bool fullscreen, const Dimension2<int>& resolution)
 
     atexit( &glfwTerminate );
 
-    glfwWindowHint( GLFW_DOUBLEBUFFER, GL_TRUE );
+    glfwWindowHint( GLFW_DOUBLEBUFFER, GLFW_TRUE );
     glfwWindowHint( GLFW_DEPTH_BITS, 24 );
     // glfwWindowHint( GLFW_SAMPLES, m_multiSampling );
     glfwWindowHint( GLFW_RED_BITS, 8 );
     glfwWindowHint( GLFW_GREEN_BITS, 8 );
     glfwWindowHint( GLFW_BLUE_BITS, 8 );
     glfwWindowHint( GLFW_ALPHA_BITS, 8 );
-    glfwWindowHint( GLFW_DECORATED, fullscreen ? GL_FALSE : GL_TRUE );
+    glfwWindowHint( GLFW_DECORATED, fullscreen ? GLFW_FALSE : GLFW_TRUE );
     glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
     glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 4 );
     glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 1 );
 #ifndef NDEBUG
-    glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE );
+    glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE );
 #endif
 
     // Create the windows
@@ -77,7 +77,7 @@ bool Window::isVsync() const
 bool Window::updateWindowSize()
 {
     int tmpW, tmpH;
-    GL_ASSERT( glfwGetFramebufferSize( m_window, &tmpW, &tmpH ) );
+    glfwGetFramebufferSize( m_window, &tmpW, &tmpH );
 
     if( tmpW == m_viewport.width && tmpH == m_viewport.height )
         return false;
@@ -98,8 +98,8 @@ void Window::setViewport(const Dimension2<size_t>& viewport)
 {
     m_viewport = viewport;
     GL_ASSERT( glViewport( 0, 0,
-                           gsl::narrow<GLuint>( viewport.width ),
-                           gsl::narrow<GLuint>( viewport.height ) ) );
+                           gsl::narrow<::gl::GLuint>( viewport.width ),
+                           gsl::narrow<::gl::GLuint>( viewport.height ) ) );
 }
 }
 }

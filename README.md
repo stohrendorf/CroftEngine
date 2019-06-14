@@ -51,7 +51,6 @@ This is the list of the required libraries to be installed with `vcpkg install` 
 set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
 * boost
 * glfw3
-* glew
 * libpng
 * openal-soft
 * opengl
@@ -64,6 +63,7 @@ set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
 * sol2
 * cimg
 * ffmpeg
+* glbinding
 
 ...or use this, and adjust the triplet:
-> `vcpkg install --triplet x64-windows boost glfw3 glew ms-gsl libpng openal-soft opengl lua glm zlib libsndfile freetype yaml-cpp sol2 cimg ffmpeg`
+> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl lua glm zlib libsndfile freetype yaml-cpp sol2 cimg ffmpeg glbinding`

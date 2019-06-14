@@ -23,7 +23,7 @@ public:
     {
         glfwPollEvents();
 
-        return glfwWindowShouldClose( m_window ) == GL_TRUE;
+        return glfwWindowShouldClose( m_window ) == GLFW_TRUE;
     }
 
     void swapBuffers() const;

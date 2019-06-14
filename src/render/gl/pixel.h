@@ -17,7 +17,7 @@ struct SRGBA final
 
     static constexpr const auto TypeId = Traits::TypeId;
     static constexpr const auto InternalFormat = Traits::SrgbaInternalFormat;
-    static constexpr const GLint Format = GL_RGBA;
+    static constexpr const ::gl::GLenum Format = ::gl::GL_RGBA;
 
     explicit SRGBA()
             : SRGBA{0}
@@ -68,7 +68,7 @@ inline SRGBA<T> mixAlpha(const SRGBA<T>& lhs, const SRGBA<T>& rhs)
     };
 }
 
-using SRGBA8 = SRGBA<GLubyte>;
+using SRGBA8 = SRGBA<::gl::GLubyte>;
 
 
 template<typename T>
@@ -82,7 +82,7 @@ struct SRGB final
 
     static constexpr const auto TypeId = Traits::TypeId;
     static constexpr const auto InternalFormat = Traits::SrgbInternalFormat;
-    static constexpr const GLint Format = GL_RGB;
+    static constexpr const ::gl::GLenum Format = ::gl::GL_RGB;
 
     explicit SRGB()
             : RGB{0}
@@ -107,9 +107,9 @@ struct SRGB final
 };
 
 
-using SRGB8 = SRGB<GLubyte>;
+using SRGB8 = SRGB<::gl::GLubyte>;
 using SRGB16F = SRGB<Half>;
-using SRGB32F = SRGB<GLfloat>;
+using SRGB32F = SRGB<::gl::GLfloat>;
 
 template<typename T>
 constexpr bool operator==(const SRGB<T>& lhs, const SRGB<T>& rhs)
@@ -135,7 +135,7 @@ struct RGB final
 
     static constexpr const auto TypeId = Traits::TypeId;
     static constexpr const auto InternalFormat = Traits::RgbInternalFormat;
-    static constexpr const GLint Format = GL_RGB;
+    static constexpr const ::gl::GLenum Format = ::gl::GL_RGB;
 
     explicit RGB()
             : RGB{0}
@@ -172,9 +172,9 @@ constexpr bool operator!=(const RGB<T>& lhs, const RGB<T>& rhs)
     return !(lhs == rhs);
 }
 
-using RGB8 = RGB<GLubyte>;
+using RGB8 = RGB<::gl::GLubyte>;
 using RGB16F = RGB<Half>;
-using RGB32F = RGB<GLfloat>;
+using RGB32F = RGB<::gl::GLfloat>;
 
 
 template<typename T>
@@ -188,7 +188,7 @@ struct Single final
 
     static constexpr const auto TypeId = Traits::TypeId;
     static constexpr const auto InternalFormat = Traits::RInternalFormat;
-    static constexpr const GLint Format = GL_RED;
+    static constexpr const ::gl::GLenum Format = ::gl::GL_RED;
 
     explicit Single()
             : Single{0}
@@ -216,8 +216,8 @@ constexpr bool operator!=(const Single<T>& lhs, const Single<T>& rhs)
     return !(lhs == rhs);
 }
 
-using SingleByte = Single<GLubyte>;
-using SingleF = Single<GLfloat>;
+using SingleByte = Single<::gl::GLubyte>;
+using SingleF = Single<::gl::GLfloat>;
 using SingleH = Single<Half>;
 }
 }

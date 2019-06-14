@@ -31,8 +31,8 @@ void ScreenOverlay::render(RenderContext& context)
 
 void ScreenOverlay::init(const Dimension2<size_t>& viewport)
 {
-    *m_image = gl::Image<gl::SRGBA8>( gsl::narrow<GLint>( viewport.width ),
-                                      gsl::narrow<GLint>( viewport.height ) );
+    *m_image = gl::Image<gl::SRGBA8>( gsl::narrow<::gl::GLint>( viewport.width ),
+                                      gsl::narrow<::gl::GLint>( viewport.height ) );
     // Update the projection matrix for our batch to match the current viewport
     if( viewport.width <= 0 || viewport.height <= 0 )
     {
@@ -44,10 +44,10 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
                                                                      {} );
 
     m_texture->image2D( m_image->getWidth(), m_image->getHeight(), m_image->getData(), false );
-    m_texture->set( GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-    m_texture->set( GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-    m_texture->set( GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-    m_texture->set( GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    m_texture->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
+             .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST )
+             .set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
+             .set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_CLAMP_TO_EDGE );
 
     m_mesh = render::scene::createQuadFullscreen( gsl::narrow<float>( viewport.width ),
                                                   gsl::narrow<float>( viewport.height ),

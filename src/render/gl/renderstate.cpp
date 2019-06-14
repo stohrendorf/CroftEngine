@@ -19,11 +19,11 @@ void RenderState::apply(const bool force) const
     {
         if( m_blendEnabled.get() )
         {
-            GL_ASSERT( glEnable( GL_BLEND ) );
+            GL_ASSERT( glEnable( ::gl::GL_BLEND ) );
         }
         else
         {
-            GL_ASSERT( glDisable( GL_BLEND ) );
+            GL_ASSERT( glDisable( ::gl::GL_BLEND ) );
         }
         getCurrentState().m_blendEnabled = m_blendEnabled;
     }
@@ -38,11 +38,11 @@ void RenderState::apply(const bool force) const
     {
         if( m_cullFaceEnabled.get() )
         {
-            GL_ASSERT( glEnable( GL_CULL_FACE ) );
+            GL_ASSERT( glEnable( ::gl::GL_CULL_FACE ) );
         }
         else
         {
-            GL_ASSERT( glDisable( GL_CULL_FACE ) );
+            GL_ASSERT( glDisable( ::gl::GL_CULL_FACE ) );
         }
         getCurrentState().m_cullFaceEnabled = m_cullFaceEnabled;
     }
@@ -65,11 +65,11 @@ void RenderState::apply(const bool force) const
     {
         if( m_lineSmooth.get() )
         {
-            GL_ASSERT( glEnable( GL_LINE_SMOOTH ) );
+            GL_ASSERT( glEnable( ::gl::GL_LINE_SMOOTH ) );
         }
         else
         {
-            GL_ASSERT( glDisable( GL_LINE_SMOOTH ) );
+            GL_ASSERT( glDisable( ::gl::GL_LINE_SMOOTH ) );
         }
         getCurrentState().m_lineSmooth = m_lineSmooth;
     }
@@ -77,17 +77,17 @@ void RenderState::apply(const bool force) const
     {
         if( m_depthTestEnabled.get() )
         {
-            GL_ASSERT( glEnable( GL_DEPTH_TEST ) );
+            GL_ASSERT( glEnable( ::gl::GL_DEPTH_TEST ) );
         }
         else
         {
-            GL_ASSERT( glDisable( GL_DEPTH_TEST ) );
+            GL_ASSERT( glDisable( ::gl::GL_DEPTH_TEST ) );
         }
         getCurrentState().m_depthTestEnabled = m_depthTestEnabled;
     }
     if( force || (m_depthWriteEnabled.isInitialized() && (m_depthWriteEnabled != getCurrentState().m_depthWriteEnabled)) )
     {
-        GL_ASSERT( glDepthMask( m_depthWriteEnabled.get() ? GL_TRUE : GL_FALSE ) );
+        GL_ASSERT( glDepthMask( m_depthWriteEnabled.get() ? ::gl::GL_TRUE : ::gl::GL_FALSE ) );
         getCurrentState().m_depthWriteEnabled = m_depthWriteEnabled;
     }
     if( force || (m_depthFunction.isInitialized() && (m_depthFunction != getCurrentState().m_depthFunction)) )
@@ -102,9 +102,9 @@ void RenderState::enableDepthWrite()
     // Internal method used by Game::clear() to restore depth writing before a
     // clear operation. This is necessary if the last code to draw before the
     // next frame leaves depth writing disabled.
-    GL_ASSERT( glDepthMask( GL_TRUE ) );
+    GL_ASSERT( glDepthMask( ::gl::GL_TRUE ) );
     getCurrentState().m_depthWriteEnabled = true;
-    GL_ASSERT( glEnable( GL_DEPTH_TEST ) );
+    GL_ASSERT( glEnable( ::gl::GL_DEPTH_TEST ) );
     getCurrentState().m_depthTestEnabled = true;
 }
 
@@ -113,12 +113,12 @@ void RenderState::setBlend(const bool enabled)
     m_blendEnabled = enabled;
 }
 
-void RenderState::setBlendSrc(const GLenum blend)
+void RenderState::setBlendSrc(const ::gl::GLenum blend)
 {
     m_blendSrc = blend;
 }
 
-void RenderState::setBlendDst(const GLenum blend)
+void RenderState::setBlendDst(const ::gl::GLenum blend)
 {
     m_blendDst = blend;
 }
@@ -128,12 +128,12 @@ void RenderState::setCullFace(const bool enabled)
     m_cullFaceEnabled = enabled;
 }
 
-void RenderState::setCullFaceSide(const GLenum side)
+void RenderState::setCullFaceSide(const ::gl::GLenum side)
 {
     m_cullFaceSide = side;
 }
 
-void RenderState::setFrontFace(const GLenum winding)
+void RenderState::setFrontFace(const ::gl::GLenum winding)
 {
     m_frontFace = winding;
 }
@@ -148,12 +148,12 @@ void RenderState::setDepthWrite(const bool enabled)
     m_depthWriteEnabled = enabled;
 }
 
-void RenderState::setDepthFunction(const GLenum func)
+void RenderState::setDepthFunction(const ::gl::GLenum func)
 {
     m_depthFunction = func;
 }
 
-void RenderState::setLineWidth(GLfloat width)
+void RenderState::setLineWidth(::gl::GLfloat width)
 {
     m_lineWidth = width;
 }
