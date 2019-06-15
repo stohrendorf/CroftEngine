@@ -221,17 +221,31 @@ public:
         std::vector<glm::vec3> ssaoSamples;
         for( int i = 0; i < 64; ++i )
         {
+#define SSAO_UNIFORM_VOLUME_SAMPLING
+#ifdef SSAO_SAMPLE_CONTRACTION
             glm::vec3 sample{ randomFloats( generator ) * 2 - 1,
                               randomFloats( generator ) * 2 - 1,
                               randomFloats( generator )
             };
             sample = glm::normalize( sample ) * randomFloats( generator );
-
-#ifdef SSAO_SAMPLE_CONTRACTION
             // scale samples s.t. they're more aligned to center of kernel
             const float scale = float( i ) / 64;
             ssaoSamples.emplace_back( sample * glm::mix( 0.1f, 1.0f, scale * scale ) );
+#elif defined(SSAO_UNIFORM_VOLUME_SAMPLING)
+            // https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
+            const auto sigma = randomFloats( generator ) * 2 * glm::pi<float>();
+            const auto phi = glm::acos( 2 * randomFloats( generator ) - 1 );
+            const auto r = glm::pow( randomFloats( generator ), 1.0f / 3 );
+            ssaoSamples.emplace_back( r * glm::cos( sigma ) * glm::sin( phi ),
+                                      r * glm::sin( sigma ) * glm::sin( phi ),
+                                      glm::abs( r * glm::cos( phi ) )
+                                    );
 #else
+            glm::vec3 sample{ randomFloats( generator ) * 2 - 1,
+                              randomFloats( generator ) * 2 - 1,
+                              randomFloats( generator )
+            };
+            sample = glm::normalize( sample ) * randomFloats( generator );
             ssaoSamples.emplace_back( sample );
 #endif
         }
