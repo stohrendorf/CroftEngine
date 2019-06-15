@@ -19,17 +19,12 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos)
         return u_lightAmbient;
     }
 
-    float sum = 0;
+    float sum = u_lightAmbient;
     for (int i=0; i<u_numLights; ++i)
     {
         vec3 light_dir = normalize(pos - u_lights[i].position);
-        float value = max(dot(light_dir, normalize(normal)), 0);
-
-        if (value > 0)
-        {
-            sum += max(u_lights[i].intensity, 0.0) * value;
-        }
+        sum += u_lights[i].intensity * max(dot(light_dir, normalize(normal)), 0);
     }
 
-    return max(u_lightAmbient, sum);
+    return sum;
 }

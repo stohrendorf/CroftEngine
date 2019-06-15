@@ -328,14 +328,6 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finaliz
         auto mesh = std::make_shared<render::scene::Mesh>( va, ::gl::GL_TRIANGLES );
         mesh->setMaterial( localPart.material );
 
-        if( localPart.color.is_initialized() )
-        {
-            mesh->registerMaterialParameterSetter(
-                    [color = *localPart.color](const render::scene::Node& /*node*/, render::scene::Material& material) {
-                        material.getParameter( "u_diffuseColor" )->set( color );
-                    } );
-        }
-
         model->addMesh( mesh );
     }
 

@@ -1,5 +1,3 @@
-uniform vec3 u_diffuseColor;
-
 in vec2 v_texCoord;
 in vec3 v_color;
 in vec3 v_vertexPos;
@@ -12,20 +10,45 @@ layout(location=2) out vec3 out_position;
 
 #include "lighting.glsl"
 
-vec3 srgbDecode(in vec3 color){
-   float r = color.r < 0.04045 ? (1.0 / 12.92) * color.r : pow((color.r + 0.055) * (1.0 / 1.055), 2.4);
-   float g = color.g < 0.04045 ? (1.0 / 12.92) * color.g : pow((color.g + 0.055) * (1.0 / 1.055), 2.4);
-   float b = color.b < 0.04045 ? (1.0 / 12.92) * color.b : pow((color.b + 0.055) * (1.0 / 1.055), 2.4);
+float srgbEncode(in float cl)
+{
+    if(cl<0)
+        return 0;
+    else if(cl < 0.0031308)
+        return 12.92 * cl;
+    else if(cl<1)
+        return 1.055 * pow(cl, 0.41666) - 0.055;
+    else
+        return 1;
+}
+
+vec3 srgbEncode(in vec3 color)
+{
+   float r = srgbEncode(color.r);
+   float g = srgbEncode(color.g);
+   float b = srgbEncode(color.b);
+   return vec3(r, g, b);
+}
+
+float srgbDecode(in float cs)
+{
+    if(cs <= 0.04045)
+        return cs / 12.92;
+    else
+        return pow((cs + 0.055)/1.055, 2.4);
+}
+
+vec3 srgbDecode(in vec3 color)
+{
+   float r = srgbDecode(color.r);
+   float g = srgbDecode(color.g);
+   float b = srgbDecode(color.b);
    return vec3(r, g, b);
 }
 
 void main()
 {
-    vec3 color = srgbDecode(u_diffuseColor);
-
-    out_color.r = color.r * v_color.r;
-    out_color.g = color.g * v_color.g;
-    out_color.b = color.b * v_color.b;
+    out_color.rgb = srgbDecode(v_color);
 
     out_color *= calc_positional_lighting(v_normal, v_vertexPos);
     out_color.a = 1;

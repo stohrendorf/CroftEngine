@@ -130,7 +130,7 @@ struct Mesh
             tk.flags = 0;
             tk.tileAndFlag = 0;
             tk.colorId = proxyId.get() & 0xff;
-            const auto color = gsl::at(m_palette.colors, tk.colorId.get()).toGLColor3();
+            const auto color = gsl::at( m_palette.colors, tk.colorId.get() ).toGLColor3();
 
             if( m_texBuffers.find( tk ) == m_texBuffers.end() )
             {
