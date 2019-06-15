@@ -8,6 +8,8 @@
 #include "render/scene/model.h"
 #include "render/gl/vertexarray.h"
 
+#include "util.h"
+
 #include <utility>
 
 namespace loader
@@ -20,13 +22,15 @@ namespace file
 struct Mesh::ModelBuilder::RenderVertex
 {
     glm::vec3 position;
-    glm::vec4 color;
+    glm::vec3 normal;
+    glm::vec3 color{1.0f};
     glm::vec2 uv;
 
     static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
     {
         static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
                 {VERTEX_ATTRIBUTE_POSITION_NAME,        render::gl::VertexAttribute{&RenderVertex::position}},
+                {VERTEX_ATTRIBUTE_NORMAL_NAME,          render::gl::VertexAttribute{&RenderVertex::normal}},
                 {VERTEX_ATTRIBUTE_COLOR_NAME,           render::gl::VertexAttribute{&RenderVertex::color}},
                 {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute{&RenderVertex::uv}}
         };
@@ -36,33 +40,7 @@ struct Mesh::ModelBuilder::RenderVertex
 };
 
 
-struct Mesh::ModelBuilder::RenderVertexWithNormal
-{
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec4 color;
-    glm::vec2 uv;
-
-    static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
-    {
-        static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
-                {VERTEX_ATTRIBUTE_POSITION_NAME,        render::gl::VertexAttribute{&RenderVertexWithNormal::position}},
-                {VERTEX_ATTRIBUTE_NORMAL_NAME,          render::gl::VertexAttribute{&RenderVertexWithNormal::normal}},
-                {VERTEX_ATTRIBUTE_COLOR_NAME,           render::gl::VertexAttribute{&RenderVertexWithNormal::color}},
-                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute{&RenderVertexWithNormal::uv}}
-        };
-
-        return attribs;
-    }
-};
-
-
 #pragma pack(pop)
-
-const render::gl::StructuredVertexBuffer::AttributeMapping& Mesh::ModelBuilder::getFormat(const bool withNormals)
-{
-    return withNormals ? RenderVertexWithNormal::getFormat() : RenderVertex::getFormat();
-}
 
 Mesh::ModelBuilder::ModelBuilder(
         const bool withNormals,
@@ -77,7 +55,7 @@ Mesh::ModelBuilder::ModelBuilder(
         , m_materials{materials}
         , m_colorMaterial{std::move( colorMaterial )}
         , m_palette{palette}
-        , m_vb{std::make_shared<render::gl::StructuredVertexBuffer>( getFormat( withNormals ), dynamic, label )}
+        , m_vb{std::make_shared<render::gl::StructuredVertexBuffer>( RenderVertex::getFormat(), dynamic, label )}
         , m_label{label}
 {
 }
@@ -86,22 +64,7 @@ Mesh::ModelBuilder::~ModelBuilder() = default;
 
 void Mesh::ModelBuilder::append(const RenderVertex& v)
 {
-    static_assert( sizeof( RenderVertex ) % sizeof( float ) == 0, "Invalid vertex structure" );
-    Expects( !m_hasNormals );
-    Expects( sizeof( v ) == m_vb->getVertexSize() );
-
-    const auto* data = reinterpret_cast<const float*>(&v);
-    const auto n = m_vb->getVertexSize() / sizeof( float );
-    std::copy_n( data, n, std::back_inserter( m_vbuf ) );
-    ++m_vertexCount;
-}
-
-void Mesh::ModelBuilder::append(const RenderVertexWithNormal& v)
-{
-    static_assert( sizeof( RenderVertexWithNormal ) % sizeof( float ) == 0, "Invalid vertex structure" );
-    Expects( m_hasNormals );
-    Expects( sizeof( v ) == m_vb->getVertexSize() );
-    Expects( m_vb->getVertexSize() % sizeof( float ) == 0 );
+    BOOST_ASSERT( sizeof( RenderVertex ) == m_vb->getVertexSize() );
 
     const auto* data = reinterpret_cast<const float*>(&v);
     const auto n = m_vb->getVertexSize() / sizeof( float );
@@ -118,170 +81,223 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         BOOST_THROW_EXCEPTION(
                 std::runtime_error( "Trying to append a mesh without normals to a buffer with normals" ) );
 
-    if( !m_hasNormals )
+    for( const QuadFace& quad : mesh.textured_rectangles )
     {
-        for( const QuadFace& quad : mesh.textured_rectangles )
+        const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
+        const auto partId = getPartForTexture( proxy );
+
+        glm::vec3 defaultNormal{0.0f};
+        if( m_hasNormals )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
-            const auto partId = getPartForTexture( proxy );
-
-            const auto firstVertex = m_vertexCount;
-            for( int i = 0; i < 4; ++i )
+            for( auto v : quad.vertices )
             {
-                RenderVertex iv{};
-                iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
-                if( quad.vertices[i].index < mesh.vertexDarknesses.size() )
-                    iv.color = glm::vec4( 1 - quad.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
-                else
-                    iv.color = glm::vec4( 1.0f );
-                iv.uv = proxy.uvCoordinates[i].toGl();
-                append( iv );
-            }
-
-            for( auto j : {0, 1, 2, 0, 2, 3} )
-            {
-                m_parts[partId].indices
-                               .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + j ) );
+                const auto n = v.from( mesh.normals ).toRenderSystem();
+                if( n != glm::vec3{0.0f} )
+                {
+                    defaultNormal = n;
+                    break;
+                }
             }
         }
-        for( const QuadFace& quad : mesh.colored_rectangles )
+
+        const auto firstVertex = m_vertexCount;
+        for( int i = 0; i < 4; ++i )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
-            const auto partId = getPartForColor( quad.proxyId );
+            RenderVertex iv{};
 
-            const auto firstVertex = m_vertexCount;
-            for( int i = 0; i < 4; ++i )
+            if( !m_hasNormals )
             {
-                RenderVertex iv{};
-                iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
-                if( quad.vertices[i].index < mesh.vertexDarknesses.size() )
-                    iv.color = glm::vec4( 1 - quad.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
+                iv.color = glm::vec3( 1 - quad.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
+                if( i <= 2 )
+                {
+                    static const int indices[3] = {0, 1, 2};
+                    iv.normal = generateNormal(
+                            quad.vertices[indices[(i + 0) % 3]].from( mesh.vertices ),
+                            quad.vertices[indices[(i + 1) % 3]].from( mesh.vertices ),
+                            quad.vertices[indices[(i + 2) % 3]].from( mesh.vertices )
+                    );
+                }
                 else
-                    iv.color = glm::vec4( 1.0f );
-                iv.uv = proxy.uvCoordinates[i].toGl();
-                append( iv );
+                {
+                    static const int indices[3] = {0, 2, 3};
+                    iv.normal = generateNormal(
+                            quad.vertices[indices[(i + 0) % 3]].from( mesh.vertices ),
+                            quad.vertices[indices[(i + 1) % 3]].from( mesh.vertices ),
+                            quad.vertices[indices[(i + 2) % 3]].from( mesh.vertices )
+                    );
+                }
+            }
+            else
+            {
+                iv.normal = quad.vertices[i].from( mesh.normals ).toRenderSystem();
+                if( iv.normal == glm::vec3{0.0f} )
+                    iv.normal = defaultNormal;
             }
 
-            for( auto j : {0, 1, 2, 0, 2, 3} )
-            {
-                m_parts[partId].indices
-                               .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + j ) );
-            }
+            iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
+            iv.uv = proxy.uvCoordinates[i].toGl();
+            append( iv );
         }
-        for( const Triangle& tri : mesh.textured_triangles )
-        {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
-            const auto partId = getPartForTexture( proxy );
 
-            const auto firstVertex = m_vertexCount;
-            for( int i = 0; i < 3; ++i )
-            {
-                RenderVertex iv{};
-                iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
-                if( tri.vertices[i].index < mesh.vertexDarknesses.size() )
-                    iv.color = glm::vec4( 1 - tri.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
-                else
-                    iv.color = glm::vec4( 1.0f );
-                iv.uv = proxy.uvCoordinates[i].toGl();
-                m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
-                append( iv );
-            }
-        }
-        for( const Triangle& tri : mesh.colored_triangles )
+        for( auto i : {0, 1, 2, 0, 2, 3} )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
-            const auto partId = getPartForColor( tri.proxyId );
-
-            for( int i = 0; i < 3; ++i )
-            {
-                RenderVertex iv{};
-                iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
-                if( tri.vertices[i].index < mesh.vertexDarknesses.size() )
-                    iv.color = glm::vec4( 1 - tri.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
-                else
-                    iv.color = glm::vec4( 1.0f );
-                iv.uv = proxy.uvCoordinates[i].toGl();
-                m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
-                append( iv );
-            }
+            m_parts[partId].indices
+                           .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + i ) );
         }
     }
-    else
+    for( const QuadFace& quad : mesh.colored_rectangles )
     {
-        for( const QuadFace& quad : mesh.textured_rectangles )
-        {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
-            const auto partId = getPartForTexture( proxy );
+        const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
+        const auto partId = getPartForColor( quad.proxyId );
+        const auto color = *m_parts[partId].color;
 
-            const auto firstVertex = m_vertexCount;
-            for( int i = 0; i < 4; ++i )
+        glm::vec3 defaultNormal{0.0f};
+        if( m_hasNormals )
+        {
+            for( auto v : quad.vertices )
             {
-                RenderVertexWithNormal iv{};
-                iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
+                const auto n = v.from( mesh.normals ).toRenderSystem();
+                if( n != glm::vec3{0.0f} )
+                {
+                    defaultNormal = n;
+                    break;
+                }
+            }
+        }
+
+        const auto firstVertex = m_vertexCount;
+        for( int i = 0; i < 4; ++i )
+        {
+            RenderVertex iv{};
+            iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
+            iv.color = color;
+            if( !m_hasNormals )
+            {
+                iv.color *= 1 - quad.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f;
+                if( i <= 2 )
+                {
+                    static const int indices[3] = {0, 1, 2};
+                    iv.normal = generateNormal(
+                            quad.vertices[indices[(i + 0) % 3]].from( mesh.vertices ),
+                            quad.vertices[indices[(i + 1) % 3]].from( mesh.vertices ),
+                            quad.vertices[indices[(i + 2) % 3]].from( mesh.vertices )
+                    );
+                }
+                else
+                {
+                    static const int indices[3] = {0, 2, 3};
+                    iv.normal = generateNormal(
+                            quad.vertices[indices[(i + 0) % 3]].from( mesh.vertices ),
+                            quad.vertices[indices[(i + 1) % 3]].from( mesh.vertices ),
+                            quad.vertices[indices[(i + 2) % 3]].from( mesh.vertices )
+                    );
+                }
+            }
+            else
+            {
                 iv.normal = quad.vertices[i].from( mesh.normals ).toRenderSystem();
-                iv.color = glm::vec4( 1.0f );
-                iv.uv = proxy.uvCoordinates[i].toGl();
-                append( iv );
+                if( iv.normal == glm::vec3{0.0f} )
+                    iv.normal = defaultNormal;
             }
+            iv.uv = proxy.uvCoordinates[i].toGl();
+            append( iv );
+        }
+        for( auto i : {0, 1, 2, 0, 2, 3} )
+        {
+            m_parts[partId].indices
+                           .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + i ) );
+        }
+    }
+    for( const Triangle& tri : mesh.textured_triangles )
+    {
+        const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
+        const auto partId = getPartForTexture( proxy );
 
-            for( auto j : {0, 1, 2, 0, 2, 3} )
+        glm::vec3 defaultNormal{0.0f};
+        if( m_hasNormals )
+        {
+            for( auto v : tri.vertices )
             {
-                m_parts[partId].indices
-                               .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + j ) );
+                const auto n = v.from( mesh.normals ).toRenderSystem();
+                if( n != glm::vec3{0.0f} )
+                {
+                    defaultNormal = n;
+                    break;
+                }
             }
         }
-        for( const QuadFace& quad : mesh.colored_rectangles )
-        {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( quad.proxyId.get() );
-            const auto partId = getPartForColor( quad.proxyId );
 
-            const auto firstVertex = m_vertexCount;
-            for( int i = 0; i < 4; ++i )
-            {
-                RenderVertexWithNormal iv{};
-                iv.position = quad.vertices[i].from( mesh.vertices ).toRenderSystem();
-                iv.normal = quad.vertices[i].from( mesh.normals ).toRenderSystem();
-                iv.color = glm::vec4( 1.0f );
-                iv.uv = proxy.uvCoordinates[i].toGl();
-                append( iv );
-            }
-            for( auto j : {0, 1, 2, 0, 2, 3} )
-            {
-                m_parts[partId].indices
-                               .emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( firstVertex + j ) );
-            }
-        }
-        for( const Triangle& tri : mesh.textured_triangles )
+        for( int i = 0; i < 3; ++i )
         {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
-            const auto partId = getPartForTexture( proxy );
-
-            for( int i = 0; i < 3; ++i )
+            RenderVertex iv{};
+            iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
+            iv.uv = proxy.uvCoordinates[i].toGl();
+            if( !m_hasNormals )
             {
-                RenderVertexWithNormal iv{};
-                iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
+                iv.color = glm::vec3( 1 - tri.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
+
+                static const int indices[3] = {0, 1, 2};
+                iv.normal = generateNormal(
+                        tri.vertices[indices[(i + 0) % 3]].from( mesh.vertices ),
+                        tri.vertices[indices[(i + 1) % 3]].from( mesh.vertices ),
+                        tri.vertices[indices[(i + 2) % 3]].from( mesh.vertices )
+                );
+            }
+            else
+            {
                 iv.normal = tri.vertices[i].from( mesh.normals ).toRenderSystem();
-                iv.color = glm::vec4( 1.0f );
-                iv.uv = proxy.uvCoordinates[i].toGl();
-                m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
-                append( iv );
+                if( iv.normal == glm::vec3{0.0f} )
+                    iv.normal = defaultNormal;
+            }
+            m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
+            append( iv );
+        }
+    }
+    for( const Triangle& tri : mesh.colored_triangles )
+    {
+        const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
+        const auto partId = getPartForColor( tri.proxyId );
+        const auto color = *m_parts[partId].color;
+
+        glm::vec3 defaultNormal{0.0f};
+        if( m_hasNormals )
+        {
+            for( auto v : tri.vertices )
+            {
+                const auto n = v.from( mesh.normals ).toRenderSystem();
+                if( n != glm::vec3{0.0f} )
+                {
+                    defaultNormal = n;
+                    break;
+                }
             }
         }
-        for( const Triangle& tri : mesh.colored_triangles )
-        {
-            const TextureLayoutProxy& proxy = m_textureProxies.at( tri.proxyId.get() );
-            const auto partId = getPartForColor( tri.proxyId );
 
-            for( int i = 0; i < 3; ++i )
+        for( int i = 0; i < 3; ++i )
+        {
+            RenderVertex iv{};
+            iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
+            iv.color = color;
+            if( !m_hasNormals )
             {
-                RenderVertexWithNormal iv{};
-                iv.position = tri.vertices[i].from( mesh.vertices ).toRenderSystem();
-                iv.normal = tri.vertices[i].from( mesh.normals ).toRenderSystem();
-                iv.color = glm::vec4( 1.0f );
-                iv.uv = proxy.uvCoordinates[i].toGl();
-                m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
-                append( iv );
+                iv.color *= glm::vec3( 1 - tri.vertices[i].from( mesh.vertexDarknesses ) / 8191.0f );
+
+                static const int indices[3] = {0, 1, 2};
+                iv.normal = generateNormal(
+                        tri.vertices[indices[(i + 0) % 3]].from( mesh.vertices ),
+                        tri.vertices[indices[(i + 1) % 3]].from( mesh.vertices ),
+                        tri.vertices[indices[(i + 2) % 3]].from( mesh.vertices )
+                );
             }
+            else
+            {
+                iv.normal = tri.vertices[i].from( mesh.normals ).toRenderSystem();
+                if( iv.normal == glm::vec3{0.0f} )
+                    iv.normal = defaultNormal;
+            }
+            iv.uv = proxy.uvCoordinates[i].toGl();
+            m_parts[partId].indices.emplace_back( gsl::narrow<MeshPart::IndexBuffer::value_type>( m_vertexCount ) );
+            append( iv );
         }
     }
 }
@@ -306,7 +322,9 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finaliz
         auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
         indexBuffer->setData( localPart.indices, true );
 
-        auto va = std::make_shared<render::gl::VertexArray>( indexBuffer, m_vb, localPart.material->getShaderProgram()->getHandle(), m_label );
+        auto va = std::make_shared<render::gl::VertexArray>( indexBuffer, m_vb,
+                                                             localPart.material->getShaderProgram()->getHandle(),
+                                                             m_label );
         auto mesh = std::make_shared<render::scene::Mesh>( va, ::gl::GL_TRIANGLES );
         mesh->setMaterial( localPart.material );
 
@@ -318,7 +336,7 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finaliz
                     } );
         }
 
-        model->addMesh(mesh);
+        model->addMesh( mesh );
     }
 
     return model;

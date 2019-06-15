@@ -45,17 +45,20 @@ struct Mesh
     {
         std::unique_ptr<Mesh> mesh{std::make_unique<Mesh>()};
         mesh->center = readCoordinates16( reader );
-        mesh->collision_size = core::Length{reader.readI32()};
+        mesh->collision_size = core::Length{core::Length::type{reader.readI16()}};
+        reader.skip( 2 ); // some unknown flags
 
         reader.readVector( mesh->vertices, reader.readU16(), &io::readCoordinates16 );
 
         const auto num_normals = reader.readI16();
         if( num_normals >= 0 )
         {
+            Expects( num_normals == mesh->vertices.size() );
             reader.readVector( mesh->normals, num_normals, &io::readCoordinates16 );
         }
         else
         {
+            Expects( -num_normals == mesh->vertices.size() );
             reader.readVector( mesh->vertexDarknesses, -num_normals );
         }
 
@@ -95,7 +98,6 @@ struct Mesh
     class ModelBuilder
     {
         struct RenderVertex;
-        struct RenderVertexWithNormal;
 
         const bool m_hasNormals;
         std::vector<float> m_vbuf;
@@ -107,8 +109,6 @@ struct Mesh
         size_t m_vertexCount = 0;
         std::shared_ptr<render::gl::StructuredVertexBuffer> m_vb;
         const std::string m_label;
-
-        static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat(bool withNormals);
 
         struct MeshPart
         {
@@ -123,8 +123,6 @@ struct Mesh
 
         void append(const RenderVertex& v);
 
-        void append(const RenderVertexWithNormal& v);
-
         size_t getPartForColor(const core::TextureProxyId proxyId)
         {
             TextureKey tk;
@@ -132,14 +130,14 @@ struct Mesh
             tk.flags = 0;
             tk.tileAndFlag = 0;
             tk.colorId = proxyId.get() & 0xff;
-            BOOST_ASSERT( tk.colorId.get() >= 0 && tk.colorId.get() <= 255 );
+            const auto color = gsl::at(m_palette.colors, tk.colorId.get()).toGLColor3();
 
             if( m_texBuffers.find( tk ) == m_texBuffers.end() )
             {
                 m_texBuffers[tk] = m_parts.size();
                 m_parts.emplace_back();
                 m_parts.back().material = m_colorMaterial;
-                m_parts.back().color = glm::vec3( m_palette.colors[tk.colorId.get()].toGLColor() );
+                m_parts.back().color = color;
             }
 
             return m_texBuffers[tk];

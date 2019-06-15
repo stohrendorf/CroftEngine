@@ -10,6 +10,8 @@
 #include "render/scene/Sprite.h"
 #include "render/gl/vertexarray.h"
 
+#include "util.h"
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <boost/range/adaptors.hpp>
@@ -26,7 +28,7 @@ namespace
 struct RenderVertex
 {
     glm::vec3 position;
-    glm::vec4 color;
+    glm::vec4 color{1.0f};
     glm::vec3 normal{0.0f};
 
     static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
@@ -141,22 +143,23 @@ void Room::createSceneNode(
             iv.color = quad.vertices[i].from( vertices ).color;
             uvCoordsData.push_back( proxy.uvCoordinates[i].toGl() );
 
-            // generate normal
             if( i <= 2 )
             {
                 static const int indices[3] = {0, 1, 2};
-                const auto o = quad.vertices[indices[(i + 0) % 3]].from( vertices ).position.toRenderSystem();
-                const auto a = quad.vertices[indices[(i + 1) % 3]].from( vertices ).position.toRenderSystem();
-                const auto b = quad.vertices[indices[(i + 2) % 3]].from( vertices ).position.toRenderSystem();
-                iv.normal = glm::normalize( -glm::cross( a - o, b - o ) );
+                iv.normal = generateNormal(
+                        quad.vertices[indices[(i + 0) % 3]].from( vertices ).position,
+                        quad.vertices[indices[(i + 1) % 3]].from( vertices ).position,
+                        quad.vertices[indices[(i + 2) % 3]].from( vertices ).position
+                );
             }
             else
             {
                 static const int indices[3] = {0, 2, 3};
-                const auto o = quad.vertices[indices[(i + 0) % 3]].from( vertices ).position.toRenderSystem();
-                const auto a = quad.vertices[indices[(i + 1) % 3]].from( vertices ).position.toRenderSystem();
-                const auto b = quad.vertices[indices[(i + 2) % 3]].from( vertices ).position.toRenderSystem();
-                iv.normal = glm::normalize( -glm::cross( a - o, b - o ) );
+                iv.normal = generateNormal(
+                        quad.vertices[indices[(i + 0) % 3]].from( vertices ).position,
+                        quad.vertices[indices[(i + 1) % 3]].from( vertices ).position,
+                        quad.vertices[indices[(i + 2) % 3]].from( vertices ).position
+                );
             }
 
             vbufData.push_back( iv );
@@ -194,10 +197,11 @@ void Room::createSceneNode(
             uvCoordsData.push_back( proxy.uvCoordinates[i].toGl() );
 
             static const int indices[3] = {0, 1, 2};
-            const auto o = tri.vertices[indices[(i + 0) % 3]].from( vertices ).position.toRenderSystem();
-            const auto a = tri.vertices[indices[(i + 1) % 3]].from( vertices ).position.toRenderSystem();
-            const auto b = tri.vertices[indices[(i + 2) % 3]].from( vertices ).position.toRenderSystem();
-            iv.normal = glm::normalize( -glm::cross( a - o, b - o ) );
+            iv.normal = generateNormal(
+                    tri.vertices[indices[(i + 0) % 3]].from( vertices ).position,
+                    tri.vertices[indices[(i + 1) % 3]].from( vertices ).position,
+                    tri.vertices[indices[(i + 2) % 3]].from( vertices ).position
+            );
 
             vbufData.push_back( iv );
         }

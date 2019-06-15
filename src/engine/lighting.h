@@ -49,13 +49,17 @@ struct Lighting
                 const auto d = util::square(
                         pos.position.distanceTo( light.position ).retype_as<core::LengthF>() / 4096.0_len );
 
+                const auto intensity = light.getBrightness() * fadeDistance / (fadeDistance + d);
+                if( intensity < 0.01f )
+                    continue;
+
                 // http://www-f9.ijs.si/~matevz/docs/PovRay/pov274.htm
                 // 1 / ( 1 + (d/fade_distance) ^ fade_power );
                 // assuming fade_power = 1, multiply numerator and denominator with fade_distance (identity transform):
                 // fade_distance / ( fade_distance + d )
                 lights.emplace_back( Light{
                         light.position.toRenderSystem(),
-                        light.getBrightness() * fadeDistance / (fadeDistance + d) - ambient
+                        intensity
                 } );
             }
         }

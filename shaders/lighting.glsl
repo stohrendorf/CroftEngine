@@ -27,9 +27,9 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos)
 
         if (value > 0)
         {
-            sum += max(u_lights[i].intensity-u_lightAmbient, 0.0) * value;
+            sum += max(u_lights[i].intensity, 0.0) * value;
         }
     }
 
-    return u_lightAmbient + sum;
+    return max(u_lightAmbient, sum);
 }

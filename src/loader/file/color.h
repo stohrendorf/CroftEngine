@@ -45,6 +45,11 @@ struct ByteColor
         return glm::vec4{r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};
     }
 
+    glm::vec3 toGLColor3() const
+    {
+        return glm::vec3{r / 255.0f, g / 255.0f, b / 255.0f};
+    }
+
 private:
     static ByteColor read(io::SDLReader& reader, const bool withAlpha)
     {
