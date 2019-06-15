@@ -32,7 +32,7 @@ void FlameEmitter::removeParticle()
 
     auto it = std::find_if( getEngine().getParticles().begin(), getEngine().getParticles().end(),
                             [f = m_flame](const auto& p) {
-                                return f == p.get();
+                              return f == p.get();
                             } );
     if( it != getEngine().getParticles().end() )
         getEngine().getParticles().erase( it );

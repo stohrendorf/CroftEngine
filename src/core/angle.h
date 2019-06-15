@@ -17,7 +17,6 @@ namespace core
 constexpr int32_t FullRotation = 1u << 16u;
 constexpr int32_t AngleStorageScale = 1u << 16u;
 
-
 QS_DECLARE_QUANTITY( Angle, int32_t, "au" );
 
 constexpr Angle auToAngle(int16_t value) noexcept;
@@ -28,7 +27,7 @@ constexpr Angle operator "" _deg(long double value) noexcept;
 
 inline Angle angleFromRad(const float r)
 {
-    return Angle{gsl::narrow_cast<Angle::type>( r / 2 / glm::pi<float>() * FullRotation * AngleStorageScale )};
+    return Angle{ gsl::narrow_cast<Angle::type>( r / 2 / glm::pi<float>() * FullRotation * AngleStorageScale ) };
 }
 
 inline Angle angleFromAtan(const float dx, const float dz)
@@ -38,7 +37,7 @@ inline Angle angleFromAtan(const float dx, const float dz)
 
 inline Angle angleFromDegrees(const float value)
 {
-    return Angle{gsl::narrow_cast<Angle::type>( std::lround( value / 360 * FullRotation * AngleStorageScale ) )};
+    return Angle{ gsl::narrow_cast<Angle::type>( std::lround( value / 360 * FullRotation * AngleStorageScale ) ) };
 }
 
 inline Angle angleFromAtan(const core::Length& dx, const core::Length& dz)
@@ -68,7 +67,7 @@ inline float cos(const Angle& a) noexcept
 
 inline Angle abs(const Angle& a)
 {
-    return Angle{glm::abs( a.get() )};
+    return Angle{ glm::abs( a.get() ) };
 }
 
 enum class Axis
@@ -98,16 +97,16 @@ inline Angle alignRotation(const Axis& axis)
 {
     switch( axis )
     {
-        case Axis::PosZ:
-            return 0_deg;
-        case Axis::PosX:
-            return 90_deg;
-        case Axis::NegZ:
-            return -180_deg;
-        case Axis::NegX:
-            return -90_deg;
-        default:
-            return 0_deg;
+    case Axis::PosZ:
+        return 0_deg;
+    case Axis::PosX:
+        return 90_deg;
+    case Axis::NegZ:
+        return -180_deg;
+    case Axis::NegX:
+        return -90_deg;
+    default:
+        return 0_deg;
     }
 }
 
@@ -119,7 +118,6 @@ inline boost::optional<Angle> alignRotation(const Angle& angle, const Angle& mar
 
     return alignRotation( *axis );
 }
-
 
 class TRRotation final
 {
@@ -133,33 +131,33 @@ public:
     TRRotation() = default;
 
     TRRotation(const Angle& x, const Angle& y, const Angle& z)
-            : X{x}
-            , Y{y}
-            , Z{z}
+        : X{ x }
+          , Y{ y }
+          , Z{ z }
     {
     }
 
     glm::vec3 toDegrees() const
     {
         return {
-                core::toDegrees( X ),
-                core::toDegrees( Y ),
-                core::toDegrees( Z )
+            core::toDegrees( X ),
+            core::toDegrees( Y ),
+            core::toDegrees( Z )
         };
     }
 
     glm::vec3 toRenderSystem() const
     {
         return {
-                toRad( X ),
-                -toRad( Y ),
-                -toRad( Z )
+            toRad( X ),
+            -toRad( Y ),
+            -toRad( Z )
         };
     }
 
     TRRotation operator-(const TRRotation& rhs) const
     {
-        return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
+        return { X - rhs.X, Y - rhs.Y, Z - rhs.Z };
     }
 
     glm::mat4 toMatrix() const
@@ -169,7 +167,7 @@ public:
 
     TRRotation operator-() const
     {
-        return TRRotation{-X, -Y, -Z};
+        return TRRotation{ -X, -Y, -Z };
     }
 
     YAML::Node save() const
@@ -190,25 +188,23 @@ public:
     }
 };
 
-
 inline glm::mat4 fromPackedAngles(uint32_t angleData)
 {
     const auto getAngle = [angleData](const uint8_t n) -> Angle {
-        BOOST_ASSERT( n < 3 );
-        return core::auToAngle( ((angleData >> (10u * n)) & 0x3ffu) * 64 );
+      BOOST_ASSERT( n < 3 );
+      return core::auToAngle( ((angleData >> (10u * n)) & 0x3ffu) * 64 );
     };
 
-    TRRotation r{getAngle( 2 ), getAngle( 1 ), getAngle( 0 )};
+    TRRotation r{ getAngle( 2 ), getAngle( 1 ), getAngle( 0 ) };
 
     return r.toMatrix();
 }
 
-
 struct TRRotationXY
 {
-    Angle X{0_deg};
+    Angle X{ 0_deg };
 
-    Angle Y{0_deg};
+    Angle Y{ 0_deg };
 
     glm::mat4 toMatrix() const
     {
@@ -230,7 +226,6 @@ struct TRRotationXY
     }
 };
 
-
 inline TRRotationXY getVectorAngles(const core::Length& dx, const core::Length& dy, const core::Length& dz)
 {
     const auto y = angleFromAtan( dx, dz );
@@ -239,12 +234,12 @@ inline TRRotationXY getVectorAngles(const core::Length& dx, const core::Length& 
     if( (dy < 0_len) == std::signbit( toRad( x ) ) )
         x = -x;
 
-    return TRRotationXY{x, y};
+    return TRRotationXY{ x, y };
 }
 
 constexpr Angle auToAngle(int16_t value) noexcept
 {
-    return Angle{static_cast<Angle::type>(value) * AngleStorageScale};
+    return Angle{ static_cast<Angle::type>(value) * AngleStorageScale };
 }
 
 constexpr Angle operator "" _au(const unsigned long long value) noexcept
@@ -254,12 +249,12 @@ constexpr Angle operator "" _au(const unsigned long long value) noexcept
 
 constexpr Angle operator "" _deg(const unsigned long long value) noexcept
 {
-    return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
+    return Angle{ static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale) };
 }
 
 constexpr Angle operator "" _deg(const long double value) noexcept
 {
-    return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
+    return Angle{ static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale) };
 }
 }
 

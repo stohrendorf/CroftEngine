@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_45 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_45(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::RollForward}
+        : AbstractStateHandler{ lara, LaraStateId::RollForward }
     {
     }
 

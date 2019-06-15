@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_33 final
-        : public StateHandler_OnWater
+    : public StateHandler_OnWater
 {
 public:
     explicit StateHandler_33(LaraNode& lara)
-            : StateHandler_OnWater{lara, LaraStateId::OnWaterStop}
+        : StateHandler_OnWater{ lara, LaraStateId::OnWaterStop }
     {
     }
 
@@ -30,17 +30,17 @@ public:
         {
             getEngine().getCameraController().setMode( CameraMode::FreeLook );
             getLara().addHeadRotationXY(
-                    (-hid::FreeLookMouseMovementScale.retype_as<float>()
-                     * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000)).retype_as<core::Angle>(),
-                    -40_deg, 40_deg,
-                    (hid::FreeLookMouseMovementScale.retype_as<float>()
-                     * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000)).retype_as<core::Angle>(),
-                    -50_deg, 50_deg
-            );
+                (-hid::FreeLookMouseMovementScale.retype_as<float>()
+                    * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000)).retype_as<core::Angle>(),
+                -40_deg, 40_deg,
+                (hid::FreeLookMouseMovementScale.retype_as<float>()
+                    * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000)).retype_as<core::Angle>(),
+                -50_deg, 50_deg
+                                       );
 
             auto torsoRot = getLara().getTorsoRotation();
             torsoRot.X = 0_deg;
-            torsoRot.Y = getLara().getHeadRotation().Y / core::Angle::type{2};
+            torsoRot.Y = getLara().getHeadRotation().Y / core::Angle::type{ 2 };
 
             getLara().setTorsoRotation( torsoRot );
 

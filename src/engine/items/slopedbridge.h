@@ -17,8 +17,8 @@ public:
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel,
                  const int div)
-            : ModelItemNode{engine, room, item, false, animatedModel}
-            , m_div{div}
+        : ModelItemNode{ engine, room, item, false, animatedModel }
+          , m_div{ div }
     {
     }
 
@@ -46,20 +46,19 @@ private:
 
         switch( *axis )
         {
-            case core::Axis::PosZ:
-                return core::SectorSize - 1_len - pos.X % core::SectorSize;
-            case core::Axis::PosX:
-                return pos.Z % core::SectorSize;
-            case core::Axis::NegZ:
-                return pos.X % core::SectorSize;
-            case core::Axis::NegX:
-                return core::SectorSize - 1_len - pos.Z % core::SectorSize;
-            default:
-                return 0_len;
+        case core::Axis::PosZ:
+            return core::SectorSize - 1_len - pos.X % core::SectorSize;
+        case core::Axis::PosX:
+            return pos.Z % core::SectorSize;
+        case core::Axis::NegZ:
+            return pos.X % core::SectorSize;
+        case core::Axis::NegX:
+            return core::SectorSize - 1_len - pos.Z % core::SectorSize;
+        default:
+            return 0_len;
         }
     }
 };
-
 
 class BridgeSlope1 final : public SlopedBridge
 {
@@ -68,11 +67,10 @@ public:
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
-            : SlopedBridge{engine, room, item, animatedModel, 4}
+        : SlopedBridge{ engine, room, item, animatedModel, 4 }
     {
     }
 };
-
 
 class BridgeSlope2 final : public SlopedBridge
 {
@@ -81,7 +79,7 @@ public:
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
-            : SlopedBridge{engine, room, item, animatedModel, 2}
+        : SlopedBridge{ engine, room, item, animatedModel, 2 }
     {
     }
 };

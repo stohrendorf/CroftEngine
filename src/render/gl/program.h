@@ -16,16 +16,16 @@ class Program : public BindableResource
 {
 public:
     explicit Program()
-            : BindableResource{
-            [](const ::gl::GLsizei n, ::gl::GLuint* handle) {
-                BOOST_ASSERT( n == 1 && handle != nullptr );
-                *handle = ::gl::glCreateProgram();
-            },
-            ::gl::glUseProgram,
-            [](const ::gl::GLsizei n, const ::gl::GLuint* handle) {
-                BOOST_ASSERT( n == 1 && handle != nullptr );
-                ::gl::glDeleteProgram( *handle );
-            }
+        : BindableResource{
+        [](const ::gl::GLsizei n, ::gl::GLuint* handle) {
+          BOOST_ASSERT( n == 1 && handle != nullptr );
+          *handle = ::gl::glCreateProgram();
+        },
+        ::gl::glUseProgram,
+        [](const ::gl::GLsizei n, const ::gl::GLuint* handle) {
+          BOOST_ASSERT( n == 1 && handle != nullptr );
+          ::gl::glDeleteProgram( *handle );
+        }
     }
     {
     }
@@ -101,7 +101,6 @@ public:
         return length;
     }
 
-
     class ActiveAttribute
     {
     public:
@@ -137,13 +136,12 @@ public:
         ::gl::GLint m_location = -1;
     };
 
-
     class ActiveUniform
     {
     public:
         explicit ActiveUniform(const ::gl::GLuint program, const ::gl::GLuint index, const ::gl::GLint maxLength,
                                ::gl::GLint& samplerIndex)
-                : m_program{program}
+            : m_program{ program }
         {
             auto* uniformName = new ::gl::GLchar[maxLength + 1];
             GL_ASSERT( glGetActiveUniform( program, index, maxLength, nullptr, &m_size, &m_type, uniformName ) );
@@ -156,28 +154,28 @@ public:
 
             switch( m_type )
             {
-                case ::gl::GL_SAMPLER_1D:
-                case ::gl::GL_SAMPLER_1D_SHADOW:
-                case ::gl::GL_SAMPLER_1D_ARRAY:
-                case ::gl::GL_SAMPLER_1D_ARRAY_SHADOW:
-                case ::gl::GL_SAMPLER_2D:
-                case ::gl::GL_SAMPLER_2D_SHADOW:
-                case ::gl::GL_SAMPLER_2D_ARRAY:
-                case ::gl::GL_SAMPLER_2D_ARRAY_SHADOW:
-                case ::gl::GL_SAMPLER_2D_RECT:
-                case ::gl::GL_SAMPLER_2D_RECT_SHADOW:
-                case ::gl::GL_SAMPLER_2D_MULTISAMPLE:
-                case ::gl::GL_SAMPLER_2D_MULTISAMPLE_ARRAY:
-                case ::gl::GL_SAMPLER_3D:
-                case ::gl::GL_SAMPLER_CUBE:
-                case ::gl::GL_SAMPLER_CUBE_MAP_ARRAY:
-                case ::gl::GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW:
-                case ::gl::GL_SAMPLER_CUBE_SHADOW:
-                case ::gl::GL_SAMPLER_BUFFER:
-                    m_samplerIndex = samplerIndex;
-                    samplerIndex += m_size;
-                default:
-                    break;
+            case ::gl::GL_SAMPLER_1D:
+            case ::gl::GL_SAMPLER_1D_SHADOW:
+            case ::gl::GL_SAMPLER_1D_ARRAY:
+            case ::gl::GL_SAMPLER_1D_ARRAY_SHADOW:
+            case ::gl::GL_SAMPLER_2D:
+            case ::gl::GL_SAMPLER_2D_SHADOW:
+            case ::gl::GL_SAMPLER_2D_ARRAY:
+            case ::gl::GL_SAMPLER_2D_ARRAY_SHADOW:
+            case ::gl::GL_SAMPLER_2D_RECT:
+            case ::gl::GL_SAMPLER_2D_RECT_SHADOW:
+            case ::gl::GL_SAMPLER_2D_MULTISAMPLE:
+            case ::gl::GL_SAMPLER_2D_MULTISAMPLE_ARRAY:
+            case ::gl::GL_SAMPLER_3D:
+            case ::gl::GL_SAMPLER_CUBE:
+            case ::gl::GL_SAMPLER_CUBE_MAP_ARRAY:
+            case ::gl::GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW:
+            case ::gl::GL_SAMPLER_CUBE_SHADOW:
+            case ::gl::GL_SAMPLER_BUFFER:
+                m_samplerIndex = samplerIndex;
+                samplerIndex += m_size;
+            default:
+                break;
             }
         }
 
@@ -307,8 +305,8 @@ public:
 
             // Pass texture unit array to GL
             GL_ASSERT(
-                    glProgramUniform1iv( m_program, m_location, static_cast<::gl::GLsizei>(values.size()),
-                                         units.data() ) );
+                glProgramUniform1iv( m_program, m_location, static_cast<::gl::GLsizei>(values.size()),
+                                     units.data() ) );
         }
 
         ::gl::GLenum getType() const noexcept
@@ -340,10 +338,9 @@ public:
         const ::gl::GLuint m_program;
     };
 
-
     ActiveAttribute getActiveAttribute(const ::gl::GLuint index) const
     {
-        return ActiveAttribute{getHandle(), index, getActiveAttributeMaxLength()};
+        return ActiveAttribute{ getHandle(), index, getActiveAttributeMaxLength() };
     }
 
     std::vector<ActiveAttribute> getActiveAttributes() const
@@ -358,7 +355,7 @@ public:
 
     ActiveUniform getActiveUniform(const ::gl::GLuint index, ::gl::GLint& samplerIndex) const
     {
-        return ActiveUniform{getHandle(), index, getActiveUniformMaxLength(), samplerIndex};
+        return ActiveUniform{ getHandle(), index, getActiveUniformMaxLength(), samplerIndex };
     }
 
     std::vector<ActiveUniform> getActiveUniforms() const

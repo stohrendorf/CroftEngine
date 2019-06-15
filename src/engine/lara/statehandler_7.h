@@ -7,11 +7,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_7 final
-        : public StateHandler_TurnSlow
+    : public StateHandler_TurnSlow
 {
 public:
     explicit StateHandler_7(LaraNode& lara)
-            : StateHandler_TurnSlow{lara, LaraStateId::TurnLeftSlow}
+        : StateHandler_TurnSlow{ lara, LaraStateId::TurnLeftSlow }
     {
     }
 

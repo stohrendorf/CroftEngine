@@ -9,7 +9,7 @@ namespace engine
 namespace items
 {
 class Pierre final
-        : public AIAgent
+    : public AIAgent
 {
 public:
     Pierre(const gsl::not_null<Engine*>& engine,

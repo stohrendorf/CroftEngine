@@ -10,7 +10,7 @@ namespace items
 
 Door::Door(const gsl::not_null<engine::Engine*>& engine, const gsl::not_null<const loader::file::Room*>& room,
            const loader::file::Item& item, const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{engine, room, item, true, animatedModel}
+    : ModelItemNode{ engine, room, item, true, animatedModel }
 {
 #ifndef NO_DOOR_BLOCK
     core::Length dx = 0_len, dz = 0_len;
@@ -19,21 +19,21 @@ Door::Door(const gsl::not_null<engine::Engine*>& engine, const gsl::not_null<con
     switch( *axis )
     {
 
-        case core::Axis::PosZ:
-            dz = -core::SectorSize;
-            break;
-        case core::Axis::PosX:
-            dx = -core::SectorSize;
-            break;
-        case core::Axis::NegZ:
-            dz = core::SectorSize;
-            break;
-        case core::Axis::NegX:
-            dx = core::SectorSize;
-            break;
+    case core::Axis::PosZ:
+        dz = -core::SectorSize;
+        break;
+    case core::Axis::PosX:
+        dx = -core::SectorSize;
+        break;
+    case core::Axis::NegZ:
+        dz = core::SectorSize;
+        break;
+    case core::Axis::NegX:
+        dx = core::SectorSize;
+        break;
     }
 
-    const auto wingsPosition = m_state.position.position + core::TRVec{dx, 0_len, dz};
+    const auto wingsPosition = m_state.position.position + core::TRVec{ dx, 0_len, dz };
 
     m_info.init( *m_state.position.room, wingsPosition );
 

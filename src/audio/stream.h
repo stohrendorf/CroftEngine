@@ -7,7 +7,6 @@ namespace audio
 {
 class Device;
 
-
 class Stream : public boost::noncopyable
 {
 private:
@@ -72,7 +71,6 @@ private:
 
     void fillBuffer(BufferHandle& buffer);
 };
-
 
 inline bool isPlaying(const std::weak_ptr<Stream>& stream)
 {

@@ -30,7 +30,7 @@ struct BSPTree
     BSPTree() = default;
 
     BSPTree(const ::gl::GLint x, const ::gl::GLint y, const ::gl::GLint w, const ::gl::GLint h)
-            : x{x}, y{y}, width{w}, height{h}
+        : x{ x }, y{ y }, width{ w }, height{ h }
     {
         Expects( x >= 0 );
         Expects( y >= 0 );
@@ -82,7 +82,7 @@ struct BSPTree
         if( !tmp.is_initialized() )
             return boost::none;
 
-        return glm::vec2{tmp->x / float( scale ), tmp->y / float( scale )};
+        return glm::vec2{ tmp->x / float( scale ), tmp->y / float( scale ) };
     }
 
     boost::optional<glm::ivec2> tryInsert(const ::gl::GLint width, const ::gl::GLint height)
@@ -121,7 +121,7 @@ struct BSPTree
         {
             // Perfect match
             isFilled = true;
-            return glm::ivec2{x, y};
+            return glm::ivec2{ x, y };
         }
         else if( this->height == height )
         {
@@ -130,7 +130,7 @@ struct BSPTree
 
             // height already fits, width fits too now, so this is the result
             left->isFilled = true;
-            return glm::ivec2{x, y};
+            return glm::ivec2{ x, y };
         }
         else
         {
@@ -143,7 +143,6 @@ struct BSPTree
     }
 };
 
-
 class TextureAtlas
 {
     struct TextureSizeComparator
@@ -151,7 +150,7 @@ class TextureAtlas
         const TextureAtlas* const context;
 
         explicit TextureSizeComparator(const TextureAtlas* context_)
-                : context{context_}
+            : context{ context_ }
         {
         }
 
@@ -179,7 +178,6 @@ class TextureAtlas
         }
     };
 
-
     struct Mapping
     {
         glm::vec2 uvMin;
@@ -205,14 +203,14 @@ public:
         std::sort( sortedIndices.begin(), sortedIndices.end(), TextureSizeComparator( this ) );
 
         // Find positions for the canonical textures
-        BSPTree layout{0, 0, m_resultPageSize, m_resultPageSize};
+        BSPTree layout{ 0, 0, m_resultPageSize, m_resultPageSize };
 
         for( size_t texture = 0; texture < m_mappings.size(); texture++ )
         {
             Mapping& mapping = m_mappings[sortedIndices[texture]];
             const auto mapped = layout.tryInsert(
-                    textures.at( mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask ).image->getWidth(),
-                    mapping.uvMax - mapping.uvMin );
+                textures.at( mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask ).image->getWidth(),
+                mapping.uvMax - mapping.uvMin );
             if( !mapped.is_initialized() )
             {
                 BOOST_THROW_EXCEPTION( std::runtime_error( "UV animation texture overflow" ) );
@@ -223,7 +221,7 @@ public:
     }
 
     explicit TextureAtlas(const ::gl::GLint pageSize)
-            : m_resultPageSize{pageSize}
+        : m_resultPageSize{ pageSize }
     {
         Expects( pageSize > 0 );
     }
@@ -235,7 +233,7 @@ public:
         const auto& proxy = textureProxies.at( proxyId );
         // Determine the canonical texture for this texture.
         // Use only first three vertices to find min, max, because for triangles the last will be 0,0 with no other marker that this is a triangle. As long as all textures are axis-aligned rectangles, this will always return the right result anyway.
-        glm::vec2 max{0, 0}, min{1.0f, 1.0f};
+        glm::vec2 max{ 0, 0 }, min{ 1.0f, 1.0f };
         for( const auto& uv : proxy.uvCoordinates )
         {
             const auto gl = uv.toGl();
@@ -277,7 +275,7 @@ public:
                    std::vector<loader::file::TextureLayoutProxy>& textureProxies,
                    bool linear) const
     {
-        util::CImgWrapper img{m_resultPageSize};
+        util::CImgWrapper img{ m_resultPageSize };
 
         for( const auto& proxyToMapping : m_mappingByProxy )
         {
@@ -285,9 +283,10 @@ public:
             const auto& mapping = m_mappings.at( proxyToMapping.second );
 
             const auto& glSrcImg = textures.at( mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask ).image;
-            util::CImgWrapper srcImg{reinterpret_cast<const uint8_t*>(glSrcImg->getData().data()),
-                                     glSrcImg->getWidth(), glSrcImg->getHeight(),
-                                     true};
+            util::CImgWrapper srcImg{ reinterpret_cast<const uint8_t*>(glSrcImg->getData().data()),
+                                      glSrcImg->getWidth(), glSrcImg->getHeight(),
+                                      true
+            };
             srcImg.crop( mapping.uvMin, mapping.uvMax );
             srcImg.resize( srcImg.width() * m_resultPageSize / glSrcImg->getWidth(),
                            srcImg.height() * m_resultPageSize / glSrcImg->getHeight() );
@@ -296,7 +295,7 @@ public:
                          srcImg );
 
             const auto s = static_cast<float>(m_resultPageSize)
-                           / textures.at( proxy.textureKey.tileAndFlag & 0x7fff ).image->getWidth();
+                / textures.at( proxy.textureKey.tileAndFlag & 0x7fff ).image->getWidth();
 
             proxy.textureKey.tileAndFlag &= ~loader::file::TextureIndexMask;
             proxy.textureKey.tileAndFlag |= gsl::narrow_cast<uint16_t>( textures.size() );
@@ -322,9 +321,9 @@ public:
         }
         img.interleave();
         texture.image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
-                img.width(), img.height(), reinterpret_cast<const render::gl::SRGBA8*>(img.data()) );
+            img.width(), img.height(), reinterpret_cast<const render::gl::SRGBA8*>(img.data()) );
         texture.texture->image2D(
-                texture.image->getWidth(), texture.image->getHeight(), texture.image->getData(), true );
+            texture.image->getWidth(), texture.image->getHeight(), texture.image->getData(), true );
 
         textures.emplace_back( std::move( texture ) );
     }
@@ -345,7 +344,7 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
     BOOST_LOG_TRIVIAL( debug ) << "Extracting animated texture tiles into " << maxSize << "px texture";
     BOOST_LOG_TRIVIAL( debug ) << "  - Collecting animated proxy IDs...";
 
-    TextureAtlas atlas{maxSize};
+    TextureAtlas atlas{ maxSize };
     {
         const uint16_t* ptr = data.data();
         const auto sequenceCount = *ptr++;

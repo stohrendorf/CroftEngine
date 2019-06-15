@@ -11,7 +11,7 @@ namespace scene
 {
 void Visitor::visit(Node& node)
 {
-    gl::DebugGroup debugGroup{node.getId()};
+    gl::DebugGroup debugGroup{ node.getId() };
 
     m_context.setCurrentNode( &node );
     node.accept( *this );

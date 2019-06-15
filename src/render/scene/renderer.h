@@ -13,9 +13,7 @@ namespace scene
 {
 class Scene;
 
-
 class RenderContext;
-
 
 class Renderer final
 {
@@ -54,7 +52,8 @@ public:
     }
 
 private:
-    const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
+    const std::chrono::high_resolution_clock::time_point
+        m_constructionTime{ std::chrono::high_resolution_clock::now() };
 
     std::chrono::high_resolution_clock::time_point m_frameLastFPS{}; // The last time the frame count was updated.
     uint_fast32_t m_frameCount = 0; // The current frame count.

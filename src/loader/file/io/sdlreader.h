@@ -26,7 +26,6 @@ namespace io
 {
 using DataStreamBuf = boost::iostreams::filtering_istreambuf;
 
-
 class SDLReader
 {
 public:
@@ -37,41 +36,42 @@ public:
     SDLReader& operator=(SDLReader&&) = delete;
 
     explicit SDLReader(std::shared_ptr<DataStreamBuf> stream)
-            : m_streamBuf{std::move( stream )}
-            , m_stream{m_streamBuf.get()}
+        : m_streamBuf{ std::move( stream ) }
+          , m_stream{ m_streamBuf.get() }
     {
     }
 
     SDLReader(SDLReader&& rhs) noexcept
-            : m_memory{move( rhs.m_memory )}
-            , m_file{move( rhs.m_file )}
-            , m_array{move( rhs.m_array )}
-            , m_streamBuf{move( rhs.m_streamBuf )}
-            , m_stream{m_streamBuf.get()}
+        : m_memory{ move( rhs.m_memory ) }
+          , m_file{ move( rhs.m_file ) }
+          , m_array{ move( rhs.m_array ) }
+          , m_streamBuf{ move( rhs.m_streamBuf ) }
+          , m_stream{ m_streamBuf.get() }
     {
     }
 
     explicit SDLReader(const std::string& filename)
-            : m_file{std::make_unique<boost::iostreams::file>( filename, std::ios::in | std::ios::binary,
-                                                               std::ios::in | std::ios::binary )}
-            , m_streamBuf{std::make_shared<DataStreamBuf>( *m_file )}
-            , m_stream{m_streamBuf.get()}
+        : m_file{ std::make_unique<boost::iostreams::file>( filename, std::ios::in | std::ios::binary,
+                                                            std::ios::in | std::ios::binary )
+    }
+          , m_streamBuf{ std::make_shared<DataStreamBuf>( *m_file ) }
+          , m_stream{ m_streamBuf.get() }
     {
     }
 
     explicit SDLReader(const std::vector<char>& data)
-            : m_memory{data}
-            , m_array{std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() )}
-            , m_streamBuf{std::make_shared<DataStreamBuf>( *m_array )}
-            , m_stream{m_streamBuf.get()}
+        : m_memory{ data }
+          , m_array{ std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() ) }
+          , m_streamBuf{ std::make_shared<DataStreamBuf>( *m_array ) }
+          , m_stream{ m_streamBuf.get() }
     {
     }
 
     explicit SDLReader(std::vector<char>&& data)
-            : m_memory{move( data )}
-            , m_array{std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() )}
-            , m_streamBuf{std::make_shared<DataStreamBuf>( *m_array )}
-            , m_stream{m_streamBuf.get()}
+        : m_memory{ move( data ) }
+          , m_array{ std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() ) }
+          , m_streamBuf{ std::make_shared<DataStreamBuf>( *m_array ) }
+          , m_stream{ m_streamBuf.get() }
     {
     }
 
@@ -260,7 +260,6 @@ private:
     {
     };
 
-
     template<typename T, int dataSize>
     struct SwapTraits<T, dataSize, true>
     {
@@ -269,7 +268,6 @@ private:
             //! @todo For now, no endian conversion
         }
     };
-
 
     template<typename T, int dataSize>
     struct SwapTraits<type_safe::integer<T>, dataSize, false>
@@ -281,7 +279,6 @@ private:
             data = type_safe::integer<T>( tmp );
         }
     };
-
 
     template<typename T>
     struct ReadTraits
@@ -296,19 +293,18 @@ private:
             }
 
             SwapTraits<T, sizeof( T ), std::is_integral<T>::value || std::is_floating_point<T>::value>::doSwap(
-                    result );
+                result );
 
             return result;
         }
     };
-
 
     template<typename T>
     struct ReadTraits<type_safe::integer<T>>
     {
         static type_safe::integer<T> read(std::istream& stream)
         {
-            return type_safe::integer<T>{ReadTraits<T>::read( stream )};
+            return type_safe::integer<T>{ ReadTraits<T>::read( stream ) };
         }
     };
 };

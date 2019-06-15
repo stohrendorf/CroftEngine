@@ -41,7 +41,6 @@ inline std::string getAvError(int err)
     return tmp;
 }
 
-
 struct Stream final
 {
     int index = -1;
@@ -92,18 +91,18 @@ struct Stream final
     }
 };
 
-
 struct AVFramePtr
 {
     AVFrame* frame;
 
-    AVFramePtr() : frame{av_frame_alloc()}
+    AVFramePtr()
+        : frame{ av_frame_alloc() }
     {
         Expects( frame != nullptr );
     }
 
     AVFramePtr(AVFramePtr&& rhs) noexcept
-            : frame{std::exchange( rhs.frame, nullptr )}
+        : frame{ std::exchange( rhs.frame, nullptr ) }
     {
     }
 
@@ -124,7 +123,6 @@ struct AVFramePtr
         av_frame_free( &frame );
     }
 };
-
 
 struct FilterGraph
 {
@@ -181,7 +179,6 @@ struct FilterGraph
             throw std::runtime_error( "Failed to configure filter graph" );
     }
 };
-
 
 struct AVDecoder final : public audio::AbstractStreamSource
 {
@@ -283,7 +280,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
     auto takeFrame()
     {
-        std::unique_lock<std::mutex> lock{imgQueueMutex};
+        std::unique_lock<std::mutex> lock{ imgQueueMutex };
         while( !frameReady )
             frameReadyCondition.wait( lock );
         frameReady = false;
@@ -443,7 +440,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
         while( audioFramePosition >= audioFrameDuration )
         {
             audioFramePosition -= audioFrameDuration;
-            std::unique_lock<std::mutex> lock{imgQueueMutex};
+            std::unique_lock<std::mutex> lock{ imgQueueMutex };
             frameReady = true;
             frameReadyCondition.notify_one();
         }
@@ -457,7 +454,6 @@ struct AVDecoder final : public audio::AbstractStreamSource
     }
 };
 
-
 struct Scaler
 {
     static constexpr const auto OutputPixFmt = AV_PIX_FMT_RGBA;
@@ -468,11 +464,11 @@ struct Scaler
     int scaledHeight = -1;
     SwsContext* context = nullptr;
     AVFilterLink* filter;
-    uint8_t* dstVideoData[4] = {nullptr};
-    int dstVideoLinesize[4] = {0};
+    uint8_t* dstVideoData[4] = { nullptr };
+    int dstVideoLinesize[4] = { 0 };
 
     explicit Scaler(AVFilterLink* filter)
-            : filter{filter}
+        : filter{ filter }
     {
     }
 
@@ -491,9 +487,9 @@ struct Scaler
         currentSwsHeight = targetHeight;
 
         const auto scale = std::min(
-                float( targetWidth ) / filter->w,
-                float( targetHeight ) / filter->h
-        );
+            float( targetWidth ) / filter->w,
+            float( targetHeight ) / filter->h
+                                   );
         scaledWidth = static_cast<int>(filter->w * scale);
         scaledHeight = static_cast<int>(filter->h * scale);
 
@@ -529,7 +525,7 @@ struct Scaler
 
         Expects( img.getWidth() <= dstVideoLinesize[0] / sizeof( render::gl::SRGBA8 ) );
 
-        img.fill( {0, 0, 0, 255} );
+        img.fill( { 0, 0, 0, 255 } );
 
         Expects( img.getWidth() >= scaledWidth );
         Expects( img.getHeight() >= scaledHeight );
@@ -546,7 +542,6 @@ struct Scaler
     }
 };
 
-
 void play(const boost::filesystem::path& filename,
           audio::Device& audioDevice,
           const std::shared_ptr<render::gl::Image<render::gl::SRGBA8>>& img,
@@ -558,7 +553,7 @@ void play(const boost::filesystem::path& filename,
     auto decoderPtr = std::make_unique<AVDecoder>( filename.string() );
     const auto decoder = decoderPtr.get();
     Expects( decoder->filterGraph.graph->sink_links_count == 1 );
-    Scaler sws{decoder->filterGraph.graph->sink_links[0]};
+    Scaler sws{ decoder->filterGraph.graph->sink_links[0] };
 
     auto stream = audioDevice.createStream( std::move( decoderPtr ), decoder->audioFrameDuration, 2 );
     stream->setLooping( true );

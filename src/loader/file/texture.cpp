@@ -11,9 +11,9 @@ namespace loader
 namespace file
 {
 gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(
-        const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
-        const BlendingMode bmode,
-        const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader)
+    const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
+    const BlendingMode bmode,
+    const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader)
 {
     auto result = std::make_shared<render::scene::Material>( shader );
     // Set some defaults
@@ -26,17 +26,17 @@ gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(
 
     switch( bmode )
     {
-        case BlendingMode::Solid:
-        case BlendingMode::AlphaTransparency:
-        case BlendingMode::VertexColorTransparency: // Classic PC alpha
-        case BlendingMode::InvertSrc: // Inversion by src (PS darkness) - SAME AS IN TR3-TR5
-        case BlendingMode::InvertDst: // Inversion by dest
-        case BlendingMode::Screen: // Screen (smoke, etc.)
-        case BlendingMode::AnimatedTexture:
-            break;
+    case BlendingMode::Solid:
+    case BlendingMode::AlphaTransparency:
+    case BlendingMode::VertexColorTransparency: // Classic PC alpha
+    case BlendingMode::InvertSrc: // Inversion by src (PS darkness) - SAME AS IN TR3-TR5
+    case BlendingMode::InvertDst: // Inversion by dest
+    case BlendingMode::Screen: // Screen (smoke, etc.)
+    case BlendingMode::AnimatedTexture:
+        break;
 
-        default: // opaque animated textures case
-            BOOST_ASSERT( false ); // FIXME
+    default: // opaque animated textures case
+        BOOST_ASSERT( false ); // FIXME
     }
 
     return result;
@@ -63,17 +63,17 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
     {
         statusCallback( "Loading cached texture..." );
         BOOST_LOG_TRIVIAL( info ) << "Loading cached texture " << cacheName << "...";
-        util::CImgWrapper cacheImage{cacheName.string()};
+        util::CImgWrapper cacheImage{ cacheName.string() };
 
         cacheImage.interleave();
         image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
-                cacheImage.width(), cacheImage.height(),
-                reinterpret_cast<const render::gl::SRGBA8*>(cacheImage.data()) );
+            cacheImage.width(), cacheImage.height(),
+            reinterpret_cast<const render::gl::SRGBA8*>(cacheImage.data()) );
         return;
     }
 
     statusCallback( "Upgrading texture (upscaling)" );
-    util::CImgWrapper original{&pixels[0][0].r, 256, 256, false};
+    util::CImgWrapper original{ &pixels[0][0].r, 256, 256, false };
     original.deinterleave();
     original.resize( Resolution, Resolution );
 
@@ -81,7 +81,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
     {
         const auto& tile = indexedTile.value();
         statusCallback(
-                "Upgrading texture (" + std::to_string( indexedTile.index() * 100 / mapping.tiles.size() ) + "%)" );
+            "Upgrading texture (" + std::to_string( indexedTile.index() * 100 / mapping.tiles.size() ) + "%)" );
 
         BOOST_LOG_TRIVIAL( info ) << "  - Loading " << tile.second << " into " << tile.first;
         if( !is_regular_file( tile.second ) )
@@ -90,7 +90,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
             continue;
         }
 
-        util::CImgWrapper srcImage{tile.second.string()};
+        util::CImgWrapper srcImage{ tile.second.string() };
         srcImage.resize( tile.first.getWidth() * Scale, tile.first.getHeight() * Scale );
         const auto x0 = tile.first.getX0() * Scale;
         const auto y0 = tile.first.getY0() * Scale;
@@ -116,8 +116,8 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 
     original.interleave();
     image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
-            Resolution, Resolution,
-            reinterpret_cast<const render::gl::SRGBA8*>(original.data()) );
+        Resolution, Resolution,
+        reinterpret_cast<const render::gl::SRGBA8*>(original.data()) );
 }
 
 void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback)

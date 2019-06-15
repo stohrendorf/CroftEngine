@@ -26,7 +26,6 @@ enum class ReverbType : uint8_t
     Sentinel
 };
 
-
 /** \brief SoundSource.
 *
 * This structure contains the details of continuous-sound sources. Although
@@ -37,7 +36,7 @@ enum class ReverbType : uint8_t
 struct SoundSource final
 {
     core::TRVec position;
-    core::SoundId sound_id{uint16_t( 0 )};
+    core::SoundId sound_id{ uint16_t( 0 ) };
     uint16_t flags; // 0x40, 0x80, or 0xc0
 
     static std::unique_ptr<SoundSource> read(io::SDLReader& reader)
@@ -50,19 +49,17 @@ struct SoundSource final
     }
 };
 
-
 enum class PlaybackType
 {
     //! Play the sample once, then release the resources
-            None,
+        None,
     //! Loop the sample
-            Looping,
+        Looping,
     //! Restart already playing sample
-            Restart,
+        Restart,
     //! Sample cannot be played more than once at the same time
-            Wait
+        Wait
 };
-
 
 /** \brief SoundDetails.
 *
@@ -81,7 +78,7 @@ struct SoundDetails
     //! @todo Check default value
     static constexpr const int DefaultPitch = 128; // 0.0 - only noise
 
-    core::SampleId sample{0u}; // Index into SampleIndices -- NOT USED IN TR4-5!!!
+    core::SampleId sample{ 0u }; // Index into SampleIndices -- NOT USED IN TR4-5!!!
     uint16_t volume; // Global sample value
     uint16_t sound_range = DefaultRange; // Sound range
     uint16_t chance; // Chance to play
@@ -95,38 +92,38 @@ struct SoundDetails
         {
             switch( sampleCountAndLoopType & 3u )
             {
-                case 1:
-                    return PlaybackType::Restart;
-                case 2:
-                    return PlaybackType::Looping;
-                default:
-                    return PlaybackType::Wait;
+            case 1:
+                return PlaybackType::Restart;
+            case 2:
+                return PlaybackType::Looping;
+            default:
+                return PlaybackType::Wait;
             }
         }
         else if( engine == level::Engine::TR2 )
         {
             switch( sampleCountAndLoopType & 3u )
             {
-                case 1:
-                    return PlaybackType::Restart;
-                case 3:
-                    return PlaybackType::Looping;
-                default:
-                    return PlaybackType::None;
+            case 1:
+                return PlaybackType::Restart;
+            case 3:
+                return PlaybackType::Looping;
+            default:
+                return PlaybackType::None;
             }
         }
         else
         {
             switch( sampleCountAndLoopType & 3u )
             {
-                case 1:
-                    return PlaybackType::Wait;
-                case 2:
-                    return PlaybackType::Restart;
-                case 3:
-                    return PlaybackType::Looping;
-                default:
-                    return PlaybackType::None;
+            case 1:
+                return PlaybackType::Wait;
+            case 2:
+                return PlaybackType::Restart;
+            case 3:
+                return PlaybackType::Looping;
+            default:
+                return PlaybackType::None;
             }
         }
     }

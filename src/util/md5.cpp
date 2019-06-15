@@ -120,7 +120,7 @@ void decode(uint32_t output[], const uint8_t input[], const size_t len)
     for( size_t i = 0, j = 0; j < len; i++, j += 4 )
     {
         output[i] = static_cast<uint32_t>(input[j]) | (static_cast<uint32_t>(input[j + 1]) << 8) |
-                    (static_cast<uint32_t>(input[j + 2]) << 16) | (static_cast<uint32_t>(input[j + 3]) << 24);
+            (static_cast<uint32_t>(input[j + 2]) << 16) | (static_cast<uint32_t>(input[j + 3]) << 24);
     }
 }
 
@@ -147,8 +147,8 @@ struct State
 {
     bool finalized = false;
     std::array<uint8_t, Blocksize> buffer; // bytes that didn't fit in last 64 byte chunk
-    std::array<uint32_t, 2> count{{0, 0}}; // 64bit counter for number of bits (lo, hi)
-    uint32_t state[4] = {0x67452301u, 0xefcdab89u, 0x98badcfeu, 0x10325476u}; // digest so far
+    std::array<uint32_t, 2> count{ { 0, 0 } }; // 64bit counter for number of bits (lo, hi)
+    uint32_t state[4] = { 0x67452301u, 0xefcdab89u, 0x98badcfeu, 0x10325476u }; // digest so far
     uint8_t digest[16]; // the result
 
     // MD5 finalization. Ends an MD5 message-digest operation, writing the
@@ -156,9 +156,9 @@ struct State
     void finalize()
     {
         static uint8_t padding[64] = {
-                0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
         if( !finalized )
@@ -335,7 +335,6 @@ struct State
         return std::string( buf );
     }
 };
-
 
 std::string util::md5(const uint8_t* data, const size_t length)
 {

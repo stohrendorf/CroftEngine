@@ -8,9 +8,9 @@ Stream::Stream(Device& device,
                std::unique_ptr<AbstractStreamSource>&& src,
                const size_t bufferSize,
                const size_t bufferCount)
-        : m_stream{std::move( src )}
-        , m_source{device.createSource().get()}
-        , m_sampleBuffer( bufferSize * 2 )
+    : m_stream{ std::move( src ) }
+      , m_source{ device.createSource().get() }
+      , m_sampleBuffer( bufferSize * 2 )
 {
     BOOST_LOG_TRIVIAL( trace ) << "Created AL stream with buffer size " << bufferSize
                                << " and " << bufferCount << " buffers";

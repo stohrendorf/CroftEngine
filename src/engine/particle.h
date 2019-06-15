@@ -14,12 +14,11 @@ namespace engine
 {
 class Engine;
 
-
 class Particle : public render::scene::Node, public audio::Emitter
 {
 public:
     core::RoomBoundPosition pos;
-    core::TRRotation angle{0_deg, 0_deg, 0_deg};
+    core::TRRotation angle{ 0_deg, 0_deg, 0_deg };
     const core::TypeId object_number;
     core::Speed speed = 0_spd;
     core::Length fall_speed = 0_len;
@@ -56,7 +55,7 @@ protected:
     void applyTransform()
     {
         const glm::vec3 tr = pos.position.toRenderSystem() - pos.room->position.toRenderSystem();
-        setLocalMatrix( translate( glm::mat4{1.0f}, tr ) * angle.toMatrix() );
+        setLocalMatrix( translate( glm::mat4{ 1.0f }, tr ) * angle.toMatrix() );
     }
 
     size_t getLength() const
@@ -87,7 +86,6 @@ public:
     glm::vec3 getPosition() const final;
 };
 
-
 class BloodSplatterParticle : public Particle
 {
 public:
@@ -95,7 +93,7 @@ public:
                                    const core::Speed speed_,
                                    const core::Angle angle_,
                                    Engine& engine)
-            : Particle{"bloodsplat", TR1ItemId::Blood, pos, engine}
+        : Particle{ "bloodsplat", TR1ItemId::Blood, pos, engine }
     {
         speed = speed_;
         angle.Y = angle_;
@@ -104,14 +102,13 @@ public:
     bool update(Engine& engine) override;
 };
 
-
 class SplashParticle : public Particle
 {
 public:
     explicit SplashParticle(const core::RoomBoundPosition& pos,
                             Engine& engine,
                             const bool waterfall)
-            : Particle{"splash", TR1ItemId::Splash, pos, engine}
+        : Particle{ "splash", TR1ItemId::Splash, pos, engine }
     {
         if( !waterfall )
         {
@@ -128,13 +125,12 @@ public:
     bool update(Engine& engine) override;
 };
 
-
 class RicochetParticle : public Particle
 {
 public:
     explicit RicochetParticle(const core::RoomBoundPosition& pos,
                               Engine& engine)
-            : Particle{"ricochet", TR1ItemId::Ricochet, pos, engine}
+        : Particle{ "ricochet", TR1ItemId::Ricochet, pos, engine }
     {
         timePerSpriteFrame = 4;
 
@@ -156,13 +152,12 @@ public:
     }
 };
 
-
 class BubbleParticle : public Particle
 {
 public:
     explicit BubbleParticle(const core::RoomBoundPosition& pos,
                             Engine& engine)
-            : Particle{"bubble", TR1ItemId::Bubbles, pos, engine, 0.7f}
+        : Particle{ "bubble", TR1ItemId::Bubbles, pos, engine, 0.7f }
     {
         speed = 10_spd + util::rand15( 6_spd );
 
@@ -174,13 +169,12 @@ public:
     bool update(Engine& engine) override;
 };
 
-
 class SparkleParticle : public Particle
 {
 public:
     explicit SparkleParticle(const core::RoomBoundPosition& pos,
                              Engine& engine)
-            : Particle{"sparkles", TR1ItemId::Sparkles, pos, engine}
+        : Particle{ "sparkles", TR1ItemId::Sparkles, pos, engine }
     {
     }
 
@@ -196,14 +190,13 @@ public:
     }
 };
 
-
 class GunflareParticle : public Particle
 {
 public:
     explicit GunflareParticle(const core::RoomBoundPosition& pos,
                               Engine& engine,
                               const core::Angle& yAngle)
-            : Particle{"gunflare", TR1ItemId::Gunflare, pos, engine}
+        : Particle{ "gunflare", TR1ItemId::Gunflare, pos, engine }
     {
         angle.Y = yAngle;
         timePerSpriteFrame = 3;
@@ -221,12 +214,11 @@ public:
     }
 };
 
-
 class FlameParticle : public Particle
 {
 public:
     explicit FlameParticle(const core::RoomBoundPosition& pos, Engine& engine)
-            : Particle{"flame", TR1ItemId::Flame, pos, engine}
+        : Particle{ "flame", TR1ItemId::Flame, pos, engine }
     {
         timePerSpriteFrame = 0;
         negSpriteFrameId = 0;
@@ -235,7 +227,6 @@ public:
 
     bool update(Engine& engine) override;
 };
-
 
 inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(Engine& engine,
                                                                  const core::RoomBoundPosition& pos,

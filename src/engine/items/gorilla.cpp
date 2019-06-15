@@ -25,7 +25,7 @@ void Gorilla::update()
 
     if( getHealth() > 0_hp )
     {
-        const ai::AiInfo aiInfo{getEngine(), m_state};
+        const ai::AiInfo aiInfo{ getEngine(), m_state };
         if( aiInfo.ahead )
             headRot = aiInfo.angle;
         updateMood( getEngine(), m_state, aiInfo, false );
@@ -37,124 +37,124 @@ void Gorilla::update()
         }
         switch( m_state.current_anim_state.get() )
         {
-            case 1:
-                // standing
-                if( m_state.creatureInfo->flags & FlgTurnedRight )
+        case 1:
+            // standing
+            if( m_state.creatureInfo->flags & FlgTurnedRight )
+            {
+                m_state.rotation.Y -= 90_deg;
+                m_state.creatureInfo->flags &= ~FlgTurnedRight;
+            }
+            else if( m_state.creatureInfo->flags & FlgTurnedLeft )
+            {
+                m_state.rotation.Y += 90_deg;
+                m_state.creatureInfo->flags &= ~FlgTurnedLeft;
+            }
+            if( m_state.required_anim_state != 0_as )
+            {
+                m_state.goal_anim_state = m_state.required_anim_state;
+            }
+            else if( aiInfo.bite && aiInfo.distance < util::square( 430_len ) )
+            {
+                m_state.goal_anim_state = 4_as;
+            }
+            else if( (m_state.creatureInfo->flags & FlgWantAttack)
+                || aiInfo.zone_number != aiInfo.enemy_zone
+                || !aiInfo.ahead )
+            {
+                m_state.goal_anim_state = 3_as;
+            }
+            else
+            {
+                const auto r = util::rand15( 1024 );
+                if( r < 160 )
                 {
-                    m_state.rotation.Y -= 90_deg;
-                    m_state.creatureInfo->flags &= ~FlgTurnedRight;
+                    m_state.goal_anim_state = 10_as;
                 }
-                else if( m_state.creatureInfo->flags & FlgTurnedLeft )
+                else if( r < 320 )
                 {
-                    m_state.rotation.Y += 90_deg;
-                    m_state.creatureInfo->flags &= ~FlgTurnedLeft;
+                    m_state.goal_anim_state = 6_as;
                 }
-                if( m_state.required_anim_state != 0_as )
+                else if( r < 480 )
                 {
-                    m_state.goal_anim_state = m_state.required_anim_state;
+                    m_state.goal_anim_state = 7_as;
                 }
-                else if( aiInfo.bite && aiInfo.distance < util::square( 430_len ) )
+                else if( r < 752 )
                 {
-                    m_state.goal_anim_state = 4_as;
-                }
-                else if( (m_state.creatureInfo->flags & FlgWantAttack)
-                         || aiInfo.zone_number != aiInfo.enemy_zone
-                         || !aiInfo.ahead )
-                {
-                    m_state.goal_anim_state = 3_as;
+                    m_state.goal_anim_state = 8_as;
+                    m_state.creatureInfo->maximum_turn = 0_deg;
                 }
                 else
                 {
-                    const auto r = util::rand15( 1024 );
-                    if( r < 160 )
-                    {
-                        m_state.goal_anim_state = 10_as;
-                    }
-                    else if( r < 320 )
-                    {
-                        m_state.goal_anim_state = 6_as;
-                    }
-                    else if( r < 480 )
-                    {
-                        m_state.goal_anim_state = 7_as;
-                    }
-                    else if( r < 752 )
-                    {
-                        m_state.goal_anim_state = 8_as;
-                        m_state.creatureInfo->maximum_turn = 0_deg;
-                    }
-                    else
-                    {
-                        m_state.goal_anim_state = 9_as;
-                        m_state.creatureInfo->maximum_turn = 0_deg;
-                    }
+                    m_state.goal_anim_state = 9_as;
+                    m_state.creatureInfo->maximum_turn = 0_deg;
                 }
-                break;
-            case 3:
-                // running
-                m_state.creatureInfo->maximum_turn = 5_deg;
-                if( m_state.creatureInfo->flags == 0 && aiInfo.angle > -45_deg && aiInfo.angle < 45_deg )
+            }
+            break;
+        case 3:
+            // running
+            m_state.creatureInfo->maximum_turn = 5_deg;
+            if( m_state.creatureInfo->flags == 0 && aiInfo.angle > -45_deg && aiInfo.angle < 45_deg )
+            {
+                m_state.goal_anim_state = 1_as;
+            }
+            else if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
+            {
+                m_state.required_anim_state = 4_as;
+                m_state.goal_anim_state = 1_as;
+            }
+            else if( m_state.creatureInfo->mood != ai::Mood::Escape )
+            {
+                const auto r = util::rand15();
+                if( r < 160 )
                 {
+                    m_state.required_anim_state = 10_as;
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
+                else if( r < 320 )
                 {
-                    m_state.required_anim_state = 4_as;
+                    m_state.required_anim_state = 6_as;
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( m_state.creatureInfo->mood != ai::Mood::Escape )
+                else if( r < 480 )
                 {
-                    const auto r = util::rand15();
-                    if( r < 160 )
-                    {
-                        m_state.required_anim_state = 10_as;
-                        m_state.goal_anim_state = 1_as;
-                    }
-                    else if( r < 320 )
-                    {
-                        m_state.required_anim_state = 6_as;
-                        m_state.goal_anim_state = 1_as;
-                    }
-                    else if( r < 480 )
-                    {
-                        m_state.required_anim_state = 7_as;
-                        m_state.goal_anim_state = 1_as;
-                    }
+                    m_state.required_anim_state = 7_as;
+                    m_state.goal_anim_state = 1_as;
                 }
-                break;
-            case 4:
-                // attacking
-                if( m_state.required_anim_state == 0_as )
+            }
+            break;
+        case 4:
+            // attacking
+            if( m_state.required_anim_state == 0_as )
+            {
+                if( (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
                 {
-                    if( (m_state.touch_bits.to_ulong() & 0xff00) != 0 )
-                    {
-                        emitParticle( {0_len, -19_len, 75_len}, 15, &createBloodSplat );
-                        getEngine().getLara().m_state.health -= 200_hp;
-                        getEngine().getLara().m_state.is_hit = true;
-                        m_state.required_anim_state = 1_as;
-                    }
+                    emitParticle( { 0_len, -19_len, 75_len }, 15, &createBloodSplat );
+                    getEngine().getLara().m_state.health -= 200_hp;
+                    getEngine().getLara().m_state.is_hit = true;
+                    m_state.required_anim_state = 1_as;
                 }
-                break;
-            case 8:
-                // turn left
-                if( !(m_state.creatureInfo->flags & FlgTurnedLeft) )
-                {
-                    m_state.rotation.Y -= 90_deg;
-                    m_state.creatureInfo->flags |= FlgTurnedLeft;
-                }
-                m_state.goal_anim_state = 1_as;
-                break;
-            case 9:
-                // turn right
-                if( !(m_state.creatureInfo->flags & FlgTurnedRight) )
-                {
-                    m_state.rotation.Y += 90_deg;
-                    m_state.creatureInfo->flags |= FlgTurnedRight;
-                }
-                m_state.goal_anim_state = 1_as;
-                break;
-            default:
-                break;
+            }
+            break;
+        case 8:
+            // turn left
+            if( !(m_state.creatureInfo->flags & FlgTurnedLeft) )
+            {
+                m_state.rotation.Y -= 90_deg;
+                m_state.creatureInfo->flags |= FlgTurnedLeft;
+            }
+            m_state.goal_anim_state = 1_as;
+            break;
+        case 9:
+            // turn right
+            if( !(m_state.creatureInfo->flags & FlgTurnedRight) )
+            {
+                m_state.rotation.Y += 90_deg;
+                m_state.creatureInfo->flags |= FlgTurnedRight;
+            }
+            m_state.goal_anim_state = 1_as;
+            break;
+        default:
+            break;
         }
     }
     else if( m_state.current_anim_state != 5_as )
@@ -167,7 +167,8 @@ void Gorilla::update()
     if( m_state.current_anim_state == 11_as )
     {
         // climbing
-        getSkeleton()->patchBone( 14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+        getSkeleton()
+            ->patchBone( 14, core::TRRotation{ 0_deg, m_state.creatureInfo->head_rotation, 0_deg }.toMatrix() );
         animateCreature( turn, 0_deg );
     }
     else
@@ -183,7 +184,8 @@ void Gorilla::update()
             m_state.creatureInfo->flags &= ~FlgTurnedLeft;
         }
         const auto old = m_state.position.position;
-        getSkeleton()->patchBone( 14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+        getSkeleton()
+            ->patchBone( 14, core::TRRotation{ 0_deg, m_state.creatureInfo->head_rotation, 0_deg }.toMatrix() );
         animateCreature( turn, 0_deg );
         if( old.Y - 384_len < m_state.position.position.Y )
             return;

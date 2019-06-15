@@ -20,7 +20,7 @@ void Rat::update()
     {
         if( m_state.health > 0_hp )
         {
-            const ai::AiInfo aiInfo{getEngine(), m_state};
+            const ai::AiInfo aiInfo{ getEngine(), m_state };
             core::Angle headRot = 0_deg;
             if( aiInfo.ahead )
             {
@@ -47,7 +47,7 @@ void Rat::update()
                     {
                         if( m_state.touch_bits.to_ulong() & 0x300018ful )
                         {
-                            emitParticle( {0_len, -11_len, 108_len}, 3, &createBloodSplat );
+                            emitParticle( { 0_len, -11_len, 108_len }, 3, &createBloodSplat );
                             getEngine().getLara().m_state.health -= 20_hp;
                             getEngine().getLara().m_state.is_hit = true;
                             m_state.required_anim_state = 1_as;
@@ -97,7 +97,8 @@ void Rat::update()
                 m_state.current_anim_state = 3_as;
             }
             rotateCreatureHead( 0_deg );
-            getSkeleton()->patchBone( 2, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+            getSkeleton()
+                ->patchBone( 2, core::TRRotation{ 0_deg, m_state.creatureInfo->head_rotation, 0_deg }.toMatrix() );
             ModelItemNode::update();
             if( m_state.triggerState == TriggerState::Deactivated )
             {
@@ -123,7 +124,7 @@ void Rat::update()
         core::Angle headRot = 0_deg;
         if( m_state.health > 0_hp )
         {
-            const ai::AiInfo aiInfo{getEngine(), m_state};
+            const ai::AiInfo aiInfo{ getEngine(), m_state };
             if( aiInfo.ahead )
             {
                 headRot = aiInfo.angle;
@@ -133,64 +134,64 @@ void Rat::update()
 
             switch( m_state.current_anim_state.get() )
             {
-                case 1:
-                    if( m_state.required_anim_state != 0_as )
-                    {
-                        m_state.goal_anim_state = m_state.required_anim_state;
-                    }
-                    else if( aiInfo.bite && aiInfo.distance < util::square( 341_len ) )
-                    {
-                        m_state.goal_anim_state = 4_as;
-                    }
-                    else
-                    {
-                        m_state.goal_anim_state = 3_as;
-                    }
+            case 1:
+                if( m_state.required_anim_state != 0_as )
+                {
+                    m_state.goal_anim_state = m_state.required_anim_state;
+                }
+                else if( aiInfo.bite && aiInfo.distance < util::square( 341_len ) )
+                {
+                    m_state.goal_anim_state = 4_as;
+                }
+                else
+                {
+                    m_state.goal_anim_state = 3_as;
+                }
+                break;
+            case 2:
+                if( m_state.required_anim_state == 0_as && aiInfo.ahead
+                    && m_state.touch_bits.to_ulong() & 0x300018ful )
+                {
+                    emitParticle( { 0_len, -11_len, 108_len }, 3, &createBloodSplat );
+                    getEngine().getLara().m_state.health -= 20_hp;
+                    getEngine().getLara().m_state.is_hit = true;
+                    m_state.required_anim_state = 3_as;
+                }
+                break;
+            case 3:
+                if( aiInfo.ahead && m_state.touch_bits.to_ulong() & 0x300018ful )
+                {
+                    m_state.goal_anim_state = 1_as;
                     break;
-                case 2:
-                    if( m_state.required_anim_state == 0_as && aiInfo.ahead
-                        && m_state.touch_bits.to_ulong() & 0x300018ful )
-                    {
-                        emitParticle( {0_len, -11_len, 108_len}, 3, &createBloodSplat );
-                        getEngine().getLara().m_state.health -= 20_hp;
-                        getEngine().getLara().m_state.is_hit = true;
-                        m_state.required_anim_state = 3_as;
-                    }
-                    break;
-                case 3:
-                    if( aiInfo.ahead && m_state.touch_bits.to_ulong() & 0x300018ful )
-                    {
-                        m_state.goal_anim_state = 1_as;
-                        break;
-                    }
-                    if( aiInfo.bite && aiInfo.distance < util::square( 1536_len ) )
-                    {
-                        m_state.goal_anim_state = 2_as;
-                    }
-                    else if( aiInfo.ahead && util::rand15() < 256 )
-                    {
-                        m_state.required_anim_state = 6_as;
-                        m_state.goal_anim_state = 1_as;
-                    }
-                    break;
-                case 4:
-                    if( m_state.required_anim_state == 0_as && aiInfo.ahead
-                        && (m_state.touch_bits.to_ulong() & 0x300018ful) != 0 )
-                    {
-                        emitParticle( {0_len, -11_len, 108_len}, 3, &createBloodSplat );
-                        getEngine().getLara().m_state.health -= 20_hp;
-                        getEngine().getLara().m_state.is_hit = true;
-                        m_state.required_anim_state = 1_as;
-                    }
-                    break;
-                case 6:
-                    if( m_state.creatureInfo->mood != ai::Mood::Bored || util::rand15() < 256 )
-                    {
-                        m_state.goal_anim_state = 1_as;
-                    }
-                    break;
-                default:
-                    break;
+                }
+                if( aiInfo.bite && aiInfo.distance < util::square( 1536_len ) )
+                {
+                    m_state.goal_anim_state = 2_as;
+                }
+                else if( aiInfo.ahead && util::rand15() < 256 )
+                {
+                    m_state.required_anim_state = 6_as;
+                    m_state.goal_anim_state = 1_as;
+                }
+                break;
+            case 4:
+                if( m_state.required_anim_state == 0_as && aiInfo.ahead
+                    && (m_state.touch_bits.to_ulong() & 0x300018ful) != 0 )
+                {
+                    emitParticle( { 0_len, -11_len, 108_len }, 3, &createBloodSplat );
+                    getEngine().getLara().m_state.health -= 20_hp;
+                    getEngine().getLara().m_state.is_hit = true;
+                    m_state.required_anim_state = 1_as;
+                }
+                break;
+            case 6:
+                if( m_state.creatureInfo->mood != ai::Mood::Bored || util::rand15() < 256 )
+                {
+                    m_state.goal_anim_state = 1_as;
+                }
+                break;
+            default:
+                break;
             }
         }
         else if( m_state.current_anim_state != 5_as )
@@ -209,7 +210,7 @@ void Rat::update()
             m_state.current_anim_state = m_state.anim->state_id;
             m_state.position.position.Y = waterHeight.get();
         }
-        getSkeleton()->patchBone( 2, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+        getSkeleton()->patchBone( 2, core::TRRotation{ 0_deg, m_state.creatureInfo->head_rotation, 0_deg }.toMatrix() );
         animateCreature( turn, 0_deg );
     }
 }

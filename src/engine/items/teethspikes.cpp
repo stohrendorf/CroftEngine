@@ -29,12 +29,12 @@ void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisio
         {
             auto fx = createBloodSplat( getEngine(),
                                         core::RoomBoundPosition{
-                                                lara.m_state.position.room,
-                                                lara.m_state.position.position + core::TRVec{
-                                                        util::rand15s( 128_len ),
-                                                        -util::rand15( 512_len ),
-                                                        util::rand15s( 128_len )
-                                                }
+                                            lara.m_state.position.room,
+                                            lara.m_state.position.position + core::TRVec{
+                                                util::rand15s( 128_len ),
+                                                -util::rand15( 512_len ),
+                                                util::rand15s( 128_len )
+                                            }
                                         },
                                         20_spd, util::rand15( +180_deg ) );
             getEngine().getParticles().emplace_back( fx );

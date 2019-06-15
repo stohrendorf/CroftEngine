@@ -48,8 +48,8 @@ FT_Library loadFreeTypeLib()
     BOOST_ASSERT( freeTypeLib != nullptr );
 
     atexit( []() {
-        FT_Done_FreeType( freeTypeLib );
-        freeTypeLib = nullptr;
+      FT_Done_FreeType( freeTypeLib );
+      freeTypeLib = nullptr;
     } );
 
     return freeTypeLib;
@@ -73,7 +73,7 @@ FT_Error ftcFaceRequester(const FTC_FaceID face_id,
 }
 
 Font::Font(std::string ttf, const int size)
-        : m_filename{std::move( ttf )}
+    : m_filename{ std::move( ttf ) }
 {
     auto error = FTC_Manager_New( loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester,
                                   const_cast<char*>(m_filename.c_str()), &m_cache );
@@ -163,7 +163,7 @@ void Font::drawText(const std::string& text,
                     const int x, const int y,
                     const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha)
 {
-    drawText( text.c_str(), x, y, SRGBA8{red, green, blue, alpha} );
+    drawText( text.c_str(), x, y, SRGBA8{ red, green, blue, alpha } );
 }
 }
 }

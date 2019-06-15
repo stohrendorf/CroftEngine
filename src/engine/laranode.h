@@ -28,7 +28,6 @@ enum class HandStatus
     Combat
 };
 
-
 class LaraNode final : public items::ModelItemNode
 {
     using LaraStateId = loader::file::LaraStateId;
@@ -36,11 +35,11 @@ class LaraNode final : public items::ModelItemNode
 
 private:
     //! @brief Additional rotation per TR Engine Frame
-    core::Angle m_yRotationSpeed{0_deg};
+    core::Angle m_yRotationSpeed{ 0_deg };
     core::Speed m_fallSpeedOverride = 0_spd;
-    core::Angle m_movementAngle{0_deg};
-    core::Frame m_air{core::LaraAir};
-    core::Angle m_currentSlideAngle{0_deg};
+    core::Angle m_movementAngle{ 0_deg };
+    core::Frame m_air{ core::LaraAir };
+    core::Angle m_currentSlideAngle{ 0_deg };
 
     HandStatus m_handStatus = HandStatus::None;
 
@@ -51,10 +50,10 @@ public:
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const loader::file::SkeletalModelType& animatedModel)
-            : ModelItemNode( engine, room, item, false, animatedModel )
-            , m_underwaterRoute{*engine}
-            , m_gunFlareLeft{std::make_shared<render::scene::Node>( "gun flare left" )}
-            , m_gunFlareRight{std::make_shared<render::scene::Node>( "gun flare right" )}
+        : ModelItemNode( engine, room, item, false, animatedModel )
+          , m_underwaterRoute{ *engine }
+          , m_gunFlareLeft{ std::make_shared<render::scene::Node>( "gun flare left" ) }
+          , m_gunFlareRight{ std::make_shared<render::scene::Node>( "gun flare right" ) }
     {
         setAnimation( AnimationId::STAY_IDLE );
         setGoalAnimState( LaraStateId::Stop );
@@ -210,7 +209,7 @@ public:
     void applyShift(const CollisionInfo& collisionInfo)
     {
         m_state.position.position = m_state.position.position + collisionInfo.shift;
-        collisionInfo.shift = {0_len, 0_len, 0_len};
+        collisionInfo.shift = { 0_len, 0_len, 0_len };
     }
 
 private:
@@ -378,8 +377,8 @@ public:
 
     void resetHeadTorsoRotation()
     {
-        m_headRotation = {0_deg, 0_deg, 0_deg};
-        m_torsoRotation = {0_deg, 0_deg, 0_deg};
+        m_headRotation = { 0_deg, 0_deg, 0_deg };
+        m_torsoRotation = { 0_deg, 0_deg, 0_deg };
     }
 
     core::TRRotation m_headRotation;
@@ -402,8 +401,8 @@ public:
     void updateExplosionStumbling()
     {
         const auto rot = angleFromAtan(
-                forceSourcePosition->X - m_state.position.position.X,
-                forceSourcePosition->Z - m_state.position.position.Z ) - 180_deg;
+            forceSourcePosition->X - m_state.position.position.X,
+            forceSourcePosition->Z - m_state.position.position.Z ) - 180_deg;
         hit_direction = axisFromAngle( m_state.rotation.Y - rot, 45_deg );
         Expects( hit_direction.is_initialized() );
         if( hit_frame == 0_frame )
@@ -419,7 +418,6 @@ public:
         explosionStumblingDuration -= 1_frame;
     }
 
-
     struct AimInfo
     {
         const loader::file::AnimFrame* weaponAnimData = nullptr;
@@ -433,7 +431,6 @@ public:
         void load(const YAML::Node& n, const Engine& engine);
     };
 
-
     enum class WeaponId
     {
         None,
@@ -442,7 +439,6 @@ public:
         Uzi,
         Shotgun
     };
-
 
     struct Ammo
     {
@@ -475,7 +471,6 @@ public:
         }
     };
 
-
     AimInfo leftArm;
     AimInfo rightArm;
 
@@ -487,7 +482,7 @@ public:
     Ammo uziAmmo;
     Ammo shotgunAmmo;
 
-    std::shared_ptr<ModelItemNode> target{nullptr};
+    std::shared_ptr<ModelItemNode> target{ nullptr };
 
     struct Range
     {
@@ -566,7 +561,9 @@ public:
 
     void hitTarget(ModelItemNode& item, const core::TRVec& hitPos, core::Health damage);
 
-    void renderGunFlare(WeaponId weaponId, glm::mat4 m, const gsl::not_null<std::shared_ptr<render::scene::Node>>& flareNode,
+    void renderGunFlare(WeaponId weaponId,
+                        glm::mat4 m,
+                        const gsl::not_null<std::shared_ptr<render::scene::Node>>& flareNode,
                         bool visible) const;
 
     void drawRoutine();
@@ -575,8 +572,8 @@ public:
 
     void alignForInteraction(const core::TRVec& offset, const items::ItemState& item)
     {
-        const auto v = item.rotation.toMatrix() * glm::vec4{offset.toRenderSystem(), 1.0f};
-        const auto p = core::TRVec{glm::vec3{v}};
+        const auto v = item.rotation.toMatrix() * glm::vec4{ offset.toRenderSystem(), 1.0f };
+        const auto p = core::TRVec{ glm::vec3{ v } };
         m_state.position.position = item.position.position + p;
     }
 

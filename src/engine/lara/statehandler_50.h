@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_50 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_50(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::UseMidas}
+        : AbstractStateHandler{ lara, LaraStateId::UseMidas }
     {
     }
 
@@ -37,9 +37,9 @@ public:
     static void emitSparkles(const LaraNode& lara, Engine& engine)
     {
         const auto spheres = lara.getSkeleton()->getBoneCollisionSpheres(
-                lara.m_state,
-                *lara.getSkeleton()->getInterpolationInfo( lara.m_state ).getNearestFrame(),
-                nullptr );
+            lara.m_state,
+            *lara.getSkeleton()->getInterpolationInfo( lara.m_state ).getNearestFrame(),
+            nullptr );
 
         const auto& normalLara = engine.findAnimatedModelForType( TR1ItemId::Lara );
         Expects( normalLara != nullptr );
@@ -49,12 +49,12 @@ public:
                 continue;
 
             const auto r = spheres[i].radius;
-            auto p = core::TRVec{spheres[i].getPosition()};
+            auto p = core::TRVec{ spheres[i].getPosition() };
             p.X += util::rand15s( r );
             p.Y += util::rand15s( r );
             p.Z += util::rand15s( r );
             auto fx = std::make_shared<SparkleParticle>(
-                    core::RoomBoundPosition{lara.m_state.position.room, p}, engine );
+                core::RoomBoundPosition{ lara.m_state.position.room, p }, engine );
             engine.getParticles().emplace_back( fx );
         }
     }

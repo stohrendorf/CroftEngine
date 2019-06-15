@@ -40,14 +40,14 @@ void Pierre::update()
     core::Angle tiltRot = 0_deg;
     core::Angle creatureTurn = 0_deg;
     core::Angle headRot = 0_deg;
-    if ( m_state.health <= 40_hp && !m_state.activationState.isOneshot() )
+    if( m_state.health <= 40_hp && !m_state.activationState.isOneshot() )
     {
         m_state.health = 40_hp;
         ++m_state.creatureInfo->flags;
     }
     if( m_state.health > 0_hp )
     {
-        ai::AiInfo aiInfo{getEngine(), m_state};
+        ai::AiInfo aiInfo{ getEngine(), m_state };
         if( aiInfo.ahead )
         {
             headRot = aiInfo.angle;
@@ -63,123 +63,123 @@ void Pierre::update()
         creatureTurn = rotateTowardsTarget( m_state.creatureInfo->maximum_turn );
         switch( m_state.current_anim_state.get() )
         {
-            case 1:
-                if( m_state.required_anim_state != 0_as )
-                {
-                    m_state.goal_anim_state = m_state.required_anim_state;
-                }
-                else if( m_state.creatureInfo->mood == ai::Mood::Bored )
-                {
-                    if( util::rand15() >= 96 )
-                    {
-                        m_state.goal_anim_state = 2_as;
-                    }
-                    else
-                    {
-                        m_state.goal_anim_state = 6_as;
-                    }
-                }
-                else if( m_state.creatureInfo->mood == ai::Mood::Escape )
-                {
-                    m_state.goal_anim_state = 3_as;
-                }
-                else
+        case 1:
+            if( m_state.required_anim_state != 0_as )
+            {
+                m_state.goal_anim_state = m_state.required_anim_state;
+            }
+            else if( m_state.creatureInfo->mood == ai::Mood::Bored )
+            {
+                if( util::rand15() >= 96 )
                 {
                     m_state.goal_anim_state = 2_as;
                 }
-                break;
-            case 2:
-                m_state.creatureInfo->maximum_turn = 3_deg;
-                if( m_state.creatureInfo->mood == ai::Mood::Bored && util::rand15() < 96 )
+                else
                 {
-                    m_state.required_anim_state = 6_as;
-                    m_state.goal_anim_state = 1_as;
+                    m_state.goal_anim_state = 6_as;
                 }
-                else if( m_state.creatureInfo->mood == ai::Mood::Escape )
-                {
-                    m_state.required_anim_state = 3_as;
-                    m_state.goal_anim_state = 1_as;
-                }
-                else if( canShootAtLara( aiInfo ) )
+            }
+            else if( m_state.creatureInfo->mood == ai::Mood::Escape )
+            {
+                m_state.goal_anim_state = 3_as;
+            }
+            else
+            {
+                m_state.goal_anim_state = 2_as;
+            }
+            break;
+        case 2:
+            m_state.creatureInfo->maximum_turn = 3_deg;
+            if( m_state.creatureInfo->mood == ai::Mood::Bored && util::rand15() < 96 )
+            {
+                m_state.required_anim_state = 6_as;
+                m_state.goal_anim_state = 1_as;
+            }
+            else if( m_state.creatureInfo->mood == ai::Mood::Escape )
+            {
+                m_state.required_anim_state = 3_as;
+                m_state.goal_anim_state = 1_as;
+            }
+            else if( canShootAtLara( aiInfo ) )
+            {
+                m_state.required_anim_state = 4_as;
+                m_state.goal_anim_state = 1_as;
+            }
+            else if( !aiInfo.ahead || aiInfo.distance > util::square( 3 * core::SectorSize ) )
+            {
+                m_state.required_anim_state = 3_as;
+                m_state.goal_anim_state = 1_as;
+            }
+            break;
+        case 3:
+            m_state.creatureInfo->maximum_turn = 6_deg;
+            tiltRot = creatureTurn / core::Angle::type{ 2 };
+            if( m_state.creatureInfo->mood != ai::Mood::Bored || util::rand15() >= 96 )
+            {
+                if( canShootAtLara( aiInfo ) )
                 {
                     m_state.required_anim_state = 4_as;
                     m_state.goal_anim_state = 1_as;
                 }
-                else if( !aiInfo.ahead || aiInfo.distance > util::square( 3 * core::SectorSize ) )
-                {
-                    m_state.required_anim_state = 3_as;
-                    m_state.goal_anim_state = 1_as;
-                }
-                break;
-            case 3:
-                m_state.creatureInfo->maximum_turn = 6_deg;
-                tiltRot = creatureTurn / core::Angle::type{2};
-                if( m_state.creatureInfo->mood != ai::Mood::Bored || util::rand15() >= 96 )
-                {
-                    if( canShootAtLara( aiInfo ) )
-                    {
-                        m_state.required_anim_state = 4_as;
-                        m_state.goal_anim_state = 1_as;
-                    }
-                    else if( aiInfo.ahead && aiInfo.distance < util::square( 3 * core::SectorSize ) )
-                    {
-                        m_state.required_anim_state = 2_as;
-                        m_state.goal_anim_state = 1_as;
-                    }
-                }
-                else
-                {
-                    m_state.required_anim_state = 6_as;
-                    m_state.goal_anim_state = 1_as;
-                }
-                break;
-            case 4:
-                if( m_state.required_anim_state != 0_as )
-                {
-                    m_state.goal_anim_state = m_state.required_anim_state;
-                }
-                else if( canShootAtLara( aiInfo ) )
-                {
-                    m_state.goal_anim_state = 7_as;
-                }
-                else
-                {
-                    m_state.goal_anim_state = 1_as;
-                }
-                break;
-            case 6:
-                if( m_state.creatureInfo->mood != ai::Mood::Bored )
-                {
-                    m_state.goal_anim_state = 1_as;
-                }
-                else if( util::rand15() < 96 )
+                else if( aiInfo.ahead && aiInfo.distance < util::square( 3 * core::SectorSize ) )
                 {
                     m_state.required_anim_state = 2_as;
                     m_state.goal_anim_state = 1_as;
                 }
-                break;
-            case 7:
-                if( m_state.required_anim_state == 0_as )
+            }
+            else
+            {
+                m_state.required_anim_state = 6_as;
+                m_state.goal_anim_state = 1_as;
+            }
+            break;
+        case 4:
+            if( m_state.required_anim_state != 0_as )
+            {
+                m_state.goal_anim_state = m_state.required_anim_state;
+            }
+            else if( canShootAtLara( aiInfo ) )
+            {
+                m_state.goal_anim_state = 7_as;
+            }
+            else
+            {
+                m_state.goal_anim_state = 1_as;
+            }
+            break;
+        case 6:
+            if( m_state.creatureInfo->mood != ai::Mood::Bored )
+            {
+                m_state.goal_anim_state = 1_as;
+            }
+            else if( util::rand15() < 96 )
+            {
+                m_state.required_anim_state = 2_as;
+                m_state.goal_anim_state = 1_as;
+            }
+            break;
+        case 7:
+            if( m_state.required_anim_state == 0_as )
+            {
+                if( tryShootAtLara( *this, aiInfo.distance, { 60_len, 200_len, 0_len }, 11, headRot ) )
                 {
-                    if( tryShootAtLara( *this, aiInfo.distance, {60_len, 200_len, 0_len}, 11, headRot ) )
-                    {
-                        getEngine().getLara().m_state.health -= 25_hp;
-                        getEngine().getLara().m_state.is_hit = true;
-                    }
-                    if( tryShootAtLara( *this, aiInfo.distance, {-57_len, 200_len, 0_len}, 14, headRot ) )
-                    {
-                        getEngine().getLara().m_state.health -= 25_hp;
-                        getEngine().getLara().m_state.is_hit = true;
-                    }
-                    m_state.required_anim_state = 4_as;
+                    getEngine().getLara().m_state.health -= 25_hp;
+                    getEngine().getLara().m_state.is_hit = true;
                 }
-                if( m_state.creatureInfo->mood == ai::Mood::Escape && util::rand15() > 8192 )
+                if( tryShootAtLara( *this, aiInfo.distance, { -57_len, 200_len, 0_len }, 14, headRot ) )
                 {
-                    m_state.required_anim_state = 1_as;
+                    getEngine().getLara().m_state.health -= 25_hp;
+                    getEngine().getLara().m_state.is_hit = true;
                 }
-                break;
-            default:
-                break;
+                m_state.required_anim_state = 4_as;
+            }
+            if( m_state.creatureInfo->mood == ai::Mood::Escape && util::rand15() > 8192 )
+            {
+                m_state.required_anim_state = 1_as;
+            }
+            break;
+        default:
+            break;
         }
     }
     else if( m_state.current_anim_state != 5_as ) // injured/dying
@@ -194,7 +194,7 @@ void Pierre::update()
     rotateCreatureTilt( tiltRot );
     rotateCreatureHead( headRot );
     animateCreature( creatureTurn, 0_deg );
-    getSkeleton()->patchBone( 7, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+    getSkeleton()->patchBone( 7, core::TRRotation{ 0_deg, m_state.creatureInfo->head_rotation, 0_deg }.toMatrix() );
     if( m_state.creatureInfo->flags != 0 )
     {
         auto camPos = m_state.position;
@@ -225,7 +225,7 @@ Pierre::Pierre(const gsl::not_null<Engine*>& engine,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const loader::file::SkeletalModelType& animatedModel)
-        : AIAgent{engine, room, item, animatedModel}
+    : AIAgent{ engine, room, item, animatedModel }
 {
 }
 }

@@ -10,10 +10,11 @@ namespace items
 void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     static const InteractionLimits limits{
-            core::BoundingBox{{-256_len, 540_len, -350_len},
-                              {256_len,  740_len, -200_len}},
-            {-10_deg, 0_deg, 0_deg},
-            {10_deg, 0_deg, 0_deg}
+        core::BoundingBox{ { -256_len, 540_len, -350_len },
+                           { 256_len,  740_len, -200_len }
+        },
+        { -10_deg, 0_deg, 0_deg },
+        { 10_deg, 0_deg, 0_deg }
     };
 
     m_state.rotation.X = 0_deg;
@@ -30,9 +31,9 @@ void ScionPieceItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             && !lara.m_state.falling
             && lara.getCurrentAnimState() == LaraStateId::Stop )
         {
-            lara.alignForInteraction( {0_len, 640_len, -310_len}, m_state );
+            lara.alignForInteraction( { 0_len, 640_len, -310_len }, m_state );
             lara.m_state.anim = getEngine().findAnimatedModelForType( TR1ItemId::AlternativeLara )
-                                          ->animations;
+                                           ->animations;
             lara.setCurrentAnimState( LaraStateId::PickUp );
             lara.setGoalAnimState( LaraStateId::PickUp );
             lara.m_state.frame_number = lara.m_state.anim->firstFrame;

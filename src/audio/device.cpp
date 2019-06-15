@@ -29,9 +29,10 @@ Device::Device()
     alcGetError( nullptr ); // clear any error
 
     static const ALCint paramList[] = {
-            ALC_STEREO_SOURCES, 16,
-            ALC_FREQUENCY, 44100,
-            0};
+        ALC_STEREO_SOURCES, 16,
+        ALC_FREQUENCY, 44100,
+        0
+    };
 
     if( alcIsExtensionPresent( nullptr, "ALC_ENUMERATE_ALL_EXT" ) != ALC_TRUE )
     {
@@ -111,14 +112,14 @@ Device::Device()
     AL_ASSERT( alFilterf( m_underwaterFilter->get(), AL_LOWPASS_GAINHF, 0.1f ) ); // High frequencies gain.
 
     m_streamUpdater = std::thread{
-            [this]() {
-                while( !this->m_shutdown )
-                {
-                    this->updateStreams();
-                    std::this_thread::yield();
-                    std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
-                }
-            }
+        [this]() {
+          while( !this->m_shutdown )
+          {
+              this->updateStreams();
+              std::this_thread::yield();
+              std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
+          }
+        }
     };
 }
 }

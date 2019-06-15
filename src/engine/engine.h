@@ -58,12 +58,10 @@ namespace items
 {
 class ItemNode;
 
-
 class PickupItem;
 }
 
 class Particle;
-
 
 class Engine
 {
@@ -84,7 +82,7 @@ private:
 
     std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_models;
 
-    int m_uvAnimTime{0};
+    int m_uvAnimTime{ 0 };
 
     std::shared_ptr<render::scene::ShaderProgram> m_lightningShader;
 
@@ -104,8 +102,8 @@ private:
     std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_modelsDirect;
     std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
 
-    std::shared_ptr<render::scene::Material> m_spriteMaterial{nullptr};
-    std::shared_ptr<render::scene::Material> m_portalMaterial{nullptr};
+    std::shared_ptr<render::scene::Material> m_spriteMaterial{ nullptr };
+    std::shared_ptr<render::scene::Material> m_portalMaterial{ nullptr };
 
     std::shared_ptr<render::RenderPipeline> m_renderPipeline;
     std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
@@ -121,14 +119,13 @@ private:
 
     Inventory m_inventory;
 
-
     struct PositionalEmitter final : public audio::Emitter
     {
         glm::vec3 position;
 
         PositionalEmitter(const glm::vec3& position, const gsl::not_null<audio::SoundEngine*>& engine)
-                : Emitter{engine}
-                , position{position}
+            : Emitter{ engine }
+              , position{ position }
         {
         }
 
@@ -138,13 +135,12 @@ private:
         }
     };
 
-
     std::vector<PositionalEmitter> m_positionalEmitters;
     core::Health m_drawnHealth = core::LaraHealth;
     core::Frame m_healthBarTimeout = -40_frame;
 
 public:
-    explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = {1280, 800});
+    explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = { 1280, 800 });
 
     ~Engine();
 
@@ -318,7 +314,7 @@ public:
         {
             auto it = std::find_if( m_dynamicItems.begin(), m_dynamicItems.end(),
                                     [del](const std::shared_ptr<items::ItemNode>& i) {
-                                        return i.get() == del;
+                                      return i.get() == del;
                                     } );
             if( it == m_dynamicItems.end() )
                 continue;
@@ -376,46 +372,46 @@ public:
     {
         switch( id )
         {
-            case 0:
-                Expects( node != nullptr );
-                return turn180Effect( *node );
-            case 1:
-                Expects( node != nullptr );
-                return dinoStompEffect( *node );
-            case 2:
-                return laraNormalEffect();
-            case 3:
-                Expects( node != nullptr );
-                return laraBubblesEffect( *node );
-            case 4:
-                return finishLevelEffect();
-            case 5:
-                return earthquakeEffect();
-            case 6:
-                return floodEffect();
-            case 7:
-                return chandelierEffect();
-            case 8:
-                return raisingBlockEffect();
-            case 9:
-                return stairsToSlopeEffect();
-            case 10:
-                return sandEffect();
-            case 11:
-                return explosionEffect();
-            case 12:
-                return laraHandsFreeEffect();
-            case 13:
-                return flipMapEffect();
-            case 14:
-                Expects( node != nullptr );
-                return unholsterRightGunEffect( *node );
-            case 15:
-                return chainBlockEffect();
-            case 16:
-                return flickerEffect();
-            default:
-                BOOST_LOG_TRIVIAL( warning ) << "Unhandled effect: " << id;
+        case 0:
+            Expects( node != nullptr );
+            return turn180Effect( *node );
+        case 1:
+            Expects( node != nullptr );
+            return dinoStompEffect( *node );
+        case 2:
+            return laraNormalEffect();
+        case 3:
+            Expects( node != nullptr );
+            return laraBubblesEffect( *node );
+        case 4:
+            return finishLevelEffect();
+        case 5:
+            return earthquakeEffect();
+        case 6:
+            return floodEffect();
+        case 7:
+            return chandelierEffect();
+        case 8:
+            return raisingBlockEffect();
+        case 9:
+            return stairsToSlopeEffect();
+        case 10:
+            return sandEffect();
+        case 11:
+            return explosionEffect();
+        case 12:
+            return laraHandsFreeEffect();
+        case 13:
+            return flipMapEffect();
+        case 14:
+            Expects( node != nullptr );
+            return unholsterRightGunEffect( *node );
+        case 15:
+            return chainBlockEffect();
+        case 16:
+            return flickerEffect();
+        default:
+            BOOST_LOG_TRIVIAL( warning ) << "Unhandled effect: " << id;
         }
     }
 
@@ -469,7 +465,7 @@ public:
 
     static void drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, int x, const int y,
                          const std::string& txt,
-                         const render::gl::SRGBA8& col = {255, 255, 255, 255});
+                         const render::gl::SRGBA8& col = { 255, 255, 255, 255 });
 
     void drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, float fps);
 

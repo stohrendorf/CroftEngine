@@ -20,29 +20,28 @@ struct SRGBA final
     static constexpr const ::gl::GLenum Format = ::gl::GL_RGBA;
 
     explicit SRGBA()
-            : SRGBA{0}
+        : SRGBA{ 0 }
     {
     }
 
     explicit constexpr SRGBA(Type value) noexcept
-            : r{value}
-            , g{value}
-            , b{value}
-            , a{value}
+        : r{ value }
+          , g{ value }
+          , b{ value }
+          , a{ value }
     {
     }
 
     constexpr SRGBA(Type r_, Type g_, Type b_, Type a_) noexcept
-            : r{r_}
-            , g{g_}
-            , b{b_}
-            , a{a_}
+        : r{ r_ }
+          , g{ g_ }
+          , b{ b_ }
+          , a{ a_ }
     {
     }
 
     Type r, g, b, a;
 };
-
 
 template<typename T>
 constexpr bool operator==(const SRGBA<T>& lhs, const SRGBA<T>& rhs)
@@ -61,15 +60,14 @@ inline SRGBA<T> mixAlpha(const SRGBA<T>& lhs, const SRGBA<T>& rhs)
 {
     const float bias = float( rhs.a ) / std::numeric_limits<T>::max();
     return {
-            static_cast<T>(lhs.r * (1 - bias) + rhs.r * bias),
-            static_cast<T>(lhs.g * (1 - bias) + rhs.g * bias),
-            static_cast<T>(lhs.b * (1 - bias) + rhs.b * bias),
-            static_cast<T>(lhs.a * (1 - bias) + rhs.a * bias)
+        static_cast<T>(lhs.r * (1 - bias) + rhs.r * bias),
+        static_cast<T>(lhs.g * (1 - bias) + rhs.g * bias),
+        static_cast<T>(lhs.b * (1 - bias) + rhs.b * bias),
+        static_cast<T>(lhs.a * (1 - bias) + rhs.a * bias)
     };
 }
 
 using SRGBA8 = SRGBA<::gl::GLubyte>;
-
 
 template<typename T>
 struct SRGB final
@@ -85,27 +83,26 @@ struct SRGB final
     static constexpr const ::gl::GLenum Format = ::gl::GL_RGB;
 
     explicit SRGB()
-            : RGB{0}
+        : RGB{ 0 }
     {
     }
 
     explicit constexpr SRGB(Type value) noexcept
-            : r{value}
-            , g{value}
-            , b{value}
+        : r{ value }
+          , g{ value }
+          , b{ value }
     {
     }
 
     constexpr SRGB(Type r_, Type g_, Type b_) noexcept
-            : r{r_}
-            , g{g_}
-            , b{b_}
+        : r{ r_ }
+          , g{ g_ }
+          , b{ b_ }
     {
     }
 
     Type r, g, b;
 };
-
 
 using SRGB8 = SRGB<::gl::GLubyte>;
 using SRGB16F = SRGB<Half>;
@@ -123,7 +120,6 @@ constexpr bool operator!=(const SRGB<T>& lhs, const SRGB<T>& rhs)
     return !(lhs == rhs);
 }
 
-
 template<typename T>
 struct RGB final
 {
@@ -138,27 +134,26 @@ struct RGB final
     static constexpr const ::gl::GLenum Format = ::gl::GL_RGB;
 
     explicit RGB()
-            : RGB{0}
+        : RGB{ 0 }
     {
     }
 
     explicit constexpr RGB(Type value) noexcept
-            : r{value}
-            , g{value}
-            , b{value}
+        : r{ value }
+          , g{ value }
+          , b{ value }
     {
     }
 
     constexpr RGB(Type r_, Type g_, Type b_) noexcept
-            : r{r_}
-            , g{g_}
-            , b{b_}
+        : r{ r_ }
+          , g{ g_ }
+          , b{ b_ }
     {
     }
 
     Type r, g, b;
 };
-
 
 template<typename T>
 constexpr bool operator==(const RGB<T>& lhs, const RGB<T>& rhs)
@@ -176,7 +171,6 @@ using RGB8 = RGB<::gl::GLubyte>;
 using RGB16F = RGB<Half>;
 using RGB32F = RGB<::gl::GLfloat>;
 
-
 template<typename T>
 struct Single final
 {
@@ -191,18 +185,17 @@ struct Single final
     static constexpr const ::gl::GLenum Format = ::gl::GL_RED;
 
     explicit Single()
-            : Single{0}
+        : Single{ 0 }
     {
     }
 
     explicit constexpr Single(Type value) noexcept
-            : value{value}
+        : value{ value }
     {
     }
 
     Type value;
 };
-
 
 template<typename T>
 constexpr bool operator==(const Single<T>& lhs, const Single<T>& rhs)

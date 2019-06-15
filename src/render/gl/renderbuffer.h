@@ -11,14 +11,15 @@ class RenderBuffer : public RenderTarget
 public:
     explicit RenderBuffer(const ::gl::GLint width, const ::gl::GLint height, const ::gl::GLenum format,
                           const std::string& label = {})
-            : RenderTarget{::gl::glGenRenderbuffers,
-                           [](const ::gl::GLuint handle) { ::gl::glBindRenderbuffer( ::gl::GL_RENDERBUFFER, handle ); },
-                           ::gl::glDeleteRenderbuffers,
-                           ::gl::GL_RENDERBUFFER,
-                           label}
-            , m_width{width}
-            , m_height{height}
-            , m_format{format}
+        : RenderTarget{ ::gl::glGenRenderbuffers,
+                        [](const ::gl::GLuint handle) { ::gl::glBindRenderbuffer( ::gl::GL_RENDERBUFFER, handle ); },
+                        ::gl::glDeleteRenderbuffers,
+                        ::gl::GL_RENDERBUFFER,
+                        label
+    }
+          , m_width{ width }
+          , m_height{ height }
+          , m_format{ format }
     {
         GL_ASSERT( glRenderbufferStorage( ::gl::GL_RENDERBUFFER, format, width, height ) );
     }

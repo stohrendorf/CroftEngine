@@ -44,10 +44,10 @@ void SwordOfDamocles::collide(LaraNode& lara, CollisionInfo& collisionInfo)
         }
     }
     else if( m_state.triggerState != TriggerState::Invisible
-             && isNear( lara, collisionInfo.collisionRadius )
-             && testBoneCollision( lara ) )
+        && isNear( lara, collisionInfo.collisionRadius )
+        && testBoneCollision( lara ) )
     {
-        if( collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
+        if( collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
         {
             enemyPush( lara, collisionInfo, false, true );
         }

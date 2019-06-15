@@ -150,7 +150,7 @@ void replaceIncludes(const std::string& filepath,
 
 void writeShaderToErrorFile(const std::string& filePath, const std::string& source)
 {
-    std::ofstream stream{filePath + ".err", std::ios::out | std::ios::binary | std::ios::trunc};
+    std::ofstream stream{ filePath + ".err", std::ios::out | std::ios::binary | std::ios::trunc };
     stream.write( source.c_str(), source.size() );
 }
 }
@@ -228,7 +228,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
     }
     shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
 
-    gl::Shader vertexShader{::gl::GL_VERTEX_SHADER, vshPath + ";" + boost::algorithm::join( defines, ";" )};
+    gl::Shader vertexShader{ ::gl::GL_VERTEX_SHADER, vshPath + ";" + boost::algorithm::join( defines, ";" ) };
     vertexShader.setSource( shaderSource, SHADER_SOURCE_LENGTH );
     vertexShader.compile();
     if( !vertexShader.getCompileStatus() )
@@ -255,7 +255,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
     }
     shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
 
-    gl::Shader fragmentShader{::gl::GL_FRAGMENT_SHADER, fshPath + ";" + boost::algorithm::join( defines, ";" )};
+    gl::Shader fragmentShader{ ::gl::GL_FRAGMENT_SHADER, fshPath + ";" + boost::algorithm::join( defines, ";" ) };
     fragmentShader.setSource( shaderSource, SHADER_SOURCE_LENGTH );
     fragmentShader.compile();
     if( !fragmentShader.getCompileStatus() )

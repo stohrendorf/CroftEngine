@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_3 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_3(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::JumpForward}
+        : AbstractStateHandler{ lara, LaraStateId::JumpForward }
     {
     }
 
@@ -72,7 +72,7 @@ public:
             setGoalAnimState( LaraStateId::Death );
         }
         else if( getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward
-                 || getEngine().getInputHandler().getInputState().moveSlow )
+            || getEngine().getInputHandler().getInputState().moveSlow )
         {
             setGoalAnimState( LaraStateId::Stop );
         }

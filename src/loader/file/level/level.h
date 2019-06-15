@@ -34,8 +34,8 @@ class Level
 {
 public:
     Level(const Game gameVersion, io::SDLReader&& reader)
-            : m_gameVersion{gameVersion}
-            , m_reader{std::move( reader )}
+        : m_gameVersion{ gameVersion }
+          , m_reader{ std::move( reader ) }
     {
     }
 

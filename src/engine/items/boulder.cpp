@@ -39,7 +39,7 @@ void engine::items::RollingBall::update()
         }
 
         // let's see if we hit a wall, and if that's the case, stop.
-        const auto testPos = m_state.position.position + util::pitch(core::SectorSize/2, m_state.rotation.Y);
+        const auto testPos = m_state.position.position + util::pitch( core::SectorSize / 2, m_state.rotation.Y );
         sector = loader::file::findRealFloorSector( testPos, room );
         if( HeightInfo::fromFloor( sector, testPos, getEngine().getItemNodes() ).y < m_state.position.position.Y )
         {
@@ -57,7 +57,8 @@ void engine::items::RollingBall::update()
         m_state.triggerState = TriggerState::Deactivated;
         m_state.position.position = m_position.position;
         setCurrentRoom( m_position.room );
-        getSkeleton()->setAnimation( m_state, getEngine().findAnimatedModelForType(m_state.type)->animations, 0_frame );
+        getSkeleton()
+            ->setAnimation( m_state, getEngine().findAnimatedModelForType( m_state.type )->animations, 0_frame );
         m_state.goal_anim_state = m_state.current_anim_state;
         m_state.required_anim_state = 0_as;
         deactivate();
@@ -76,7 +77,7 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
             if( !testBoneCollision( lara ) )
                 return;
 
-            if( !collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
+            if( !collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
                 return;
 
             enemyPush( lara, collisionInfo, false, true );
@@ -111,45 +112,45 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
             const auto y = lara.m_state.position.position.Y - util::rand15s( 512_len );
             const auto z = util::rand15s( 128_len ) + lara.m_state.position.position.Z;
             auto fx = createBloodSplat(
-                    getEngine(),
-                    core::RoomBoundPosition{m_state.position.room, core::TRVec{x, y, z}},
-                    2 * m_state.speed,
-                    util::rand15s( 22.5_deg ) + m_state.rotation.Y
-            );
+                getEngine(),
+                core::RoomBoundPosition{ m_state.position.room, core::TRVec{ x, y, z } },
+                2 * m_state.speed,
+                util::rand15s( 22.5_deg ) + m_state.rotation.Y
+                                      );
             getEngine().getParticles().emplace_back( fx );
         }
         return;
     }
 
-    if( collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
+    if( collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
     {
         enemyPush(
-                lara,
-                collisionInfo,
-                collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz),
-                true );
+            lara,
+            collisionInfo,
+            collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableSpaz ),
+            true );
     }
     lara.m_state.health -= 100_hp;
     const auto x = lara.m_state.position.position.X - m_state.position.position.X;
     const auto y = lara.m_state.position.position.Y - 350_len
-                   - (m_state.position.position.Y - 2 * core::QuarterSectorSize);
+        - (m_state.position.position.Y - 2 * core::QuarterSectorSize);
     const auto z = lara.m_state.position.position.Z - m_state.position.position.Z;
     const auto xyz = std::max( 2 * core::QuarterSectorSize,
-            sqrt( util::square( x ) + util::square( y ) + util::square( z ) ) );
+                               sqrt( util::square( x ) + util::square( y ) + util::square( z ) ) );
 
     auto fx = createBloodSplat(
-            getEngine(),
-            core::RoomBoundPosition{
-                    m_state.position.room,
-                    core::TRVec{
-                            x * core::SectorSize / 2 / xyz + m_state.position.position.X,
-                            y * core::SectorSize / 2 / xyz + m_state.position.position.Y
-                            - 2 * core::QuarterSectorSize,
-                            z * core::SectorSize / 2 / xyz + m_state.position.position.Z
-                    }
-            },
-            m_state.speed,
-            m_state.rotation.Y
-    );
+        getEngine(),
+        core::RoomBoundPosition{
+            m_state.position.room,
+            core::TRVec{
+                x * core::SectorSize / 2 / xyz + m_state.position.position.X,
+                y * core::SectorSize / 2 / xyz + m_state.position.position.Y
+                    - 2 * core::QuarterSectorSize,
+                z * core::SectorSize / 2 / xyz + m_state.position.position.Z
+            }
+        },
+        m_state.speed,
+        m_state.rotation.Y
+                              );
     getEngine().getParticles().emplace_back( fx );
 }

@@ -20,7 +20,7 @@ struct RoomStaticMesh
     core::Angle rotation;
     int16_t darkness; // Constant lighting; -1 means use mesh lighting
     int16_t intensity2; // Like Intensity 1, and almost always the same value [absent from TR1 data files]
-    core::StaticMeshId meshId{0u}; // which StaticMesh item to draw
+    core::StaticMeshId meshId{ 0u }; // which StaticMesh item to draw
     FloatColor tint; // extracted from intensity
 
     float getBrightness() const
@@ -46,7 +46,7 @@ struct RoomStaticMesh
         room_static_mesh.intensity2 = room_static_mesh.darkness;
 
         room_static_mesh.tint.b = room_static_mesh.tint.g = room_static_mesh.tint.r = room_static_mesh.intensity2
-                                                                                      / 16384.0f;
+            / 16384.0f;
         room_static_mesh.tint.a = 1.0f;
         return room_static_mesh;
     }
@@ -66,7 +66,7 @@ struct RoomStaticMesh
             room_static_mesh.intensity2 = (8191 - room_static_mesh.intensity2) << 2;
 
         room_static_mesh.tint.b = room_static_mesh.tint.g = room_static_mesh.tint.r = room_static_mesh.intensity2
-                                                                                      / 16384.0f;
+            / 16384.0f;
         room_static_mesh.tint.a = 1.0f;
         return room_static_mesh;
     }
@@ -108,10 +108,9 @@ struct RoomStaticMesh
     }
 };
 
-
 struct StaticMesh
 {
-    core::StaticMeshId id{0u}; // Object Identifier (matched in Items[])
+    core::StaticMeshId id{ 0u }; // Object Identifier (matched in Items[])
     uint16_t mesh; // mesh (offset into MeshPointers[])
     core::BoundingBox visibility_box;
     core::BoundingBox collision_box;
@@ -136,19 +135,19 @@ struct StaticMesh
         mesh->id = reader.readU32();
         mesh->mesh = reader.readU16();
 
-        mesh->visibility_box.min.X = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->visibility_box.max.X = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->visibility_box.min.Y = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->visibility_box.max.Y = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->visibility_box.min.Z = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->visibility_box.max.Z = core::Length{static_cast<core::Length::type>(reader.readI16())};
+        mesh->visibility_box.min.X = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->visibility_box.max.X = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->visibility_box.min.Y = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->visibility_box.max.Y = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->visibility_box.min.Z = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->visibility_box.max.Z = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
 
-        mesh->collision_box.min.X = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->collision_box.max.X = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->collision_box.min.Y = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->collision_box.max.Y = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->collision_box.min.Z = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        mesh->collision_box.max.Z = core::Length{static_cast<core::Length::type>(reader.readI16())};
+        mesh->collision_box.min.X = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->collision_box.max.X = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->collision_box.min.Y = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->collision_box.max.Y = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->collision_box.min.Z = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        mesh->collision_box.max.Z = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
 
         mesh->flags = reader.readU16();
         return mesh;

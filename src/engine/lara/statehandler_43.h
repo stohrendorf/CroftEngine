@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_43 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_43(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::InsertPuzzle}
+        : AbstractStateHandler{ lara, LaraStateId::InsertPuzzle }
     {
     }
 

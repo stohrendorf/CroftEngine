@@ -24,7 +24,7 @@ class FilterHandle final
 
 public:
     explicit FilterHandle()
-            : m_handle{createHandle()}
+        : m_handle{ createHandle() }
     {
     }
 

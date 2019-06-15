@@ -109,7 +109,7 @@ private:
 
 public:
     WadStreamSource(const std::string& filename, const size_t trackIndex)
-            : m_wadFile{filename, std::ios::in | std::ios::binary}
+        : m_wadFile{ filename, std::ios::in | std::ios::binary }
     {
         BOOST_LOG_TRIVIAL( trace ) << "Creating WAD stream source from " << filename << ", track " << trackIndex;
 
@@ -152,7 +152,6 @@ public:
         return m_sfInfo.samplerate;
     }
 };
-
 
 class SndfileStreamSource final : public AbstractStreamSource
 {

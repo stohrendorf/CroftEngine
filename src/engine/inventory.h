@@ -8,14 +8,13 @@ namespace engine
 {
 class Engine;
 
-
 struct Inventory
 {
     Engine& m_engine;
     std::map<TR1ItemId, size_t> m_inventory;
 
     explicit Inventory(Engine& engine)
-            : m_engine{engine}
+        : m_engine{ engine }
     {}
 
     void put(core::TypeId id, size_t quantity = 1);
@@ -38,5 +37,4 @@ struct Inventory
 
     bool tryUse(TR1ItemId id);
 };
-
 }

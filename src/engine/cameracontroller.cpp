@@ -16,21 +16,20 @@ const char* toString(const CameraMode mode)
 {
     switch( mode )
     {
-
-        case CameraMode::Chase:
-            return "Chase";
-        case CameraMode::Fixed:
-            return "Fixed";
-        case CameraMode::FreeLook:
-            return "FreeLook";
-        case CameraMode::Combat:
-            return "Combat";
-        case CameraMode::Cinematic:
-            return "Cinematic";
-        case CameraMode::Heavy:
-            return "Heavy";
-        default:
-            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid CameraMode" ) );
+    case CameraMode::Chase:
+        return "Chase";
+    case CameraMode::Fixed:
+        return "Fixed";
+    case CameraMode::FreeLook:
+        return "FreeLook";
+    case CameraMode::Combat:
+        return "Combat";
+    case CameraMode::Cinematic:
+        return "Cinematic";
+    case CameraMode::Heavy:
+        return "Heavy";
+    default:
+        BOOST_THROW_EXCEPTION( std::domain_error( "Invalid CameraMode" ) );
     }
 }
 
@@ -56,16 +55,16 @@ const char* toString(const CameraModifier mode)
     switch( mode )
     {
 
-        case CameraModifier::None:
-            return "None";
-        case CameraModifier::FollowCenter:
-            return "FollowCenter";
-        case CameraModifier::AllowSteepSlants:
-            return "AllowSteepSlants";
-        case CameraModifier::Chase:
-            return "Chase";
-        default:
-            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid CameraModifier" ) );
+    case CameraModifier::None:
+        return "None";
+    case CameraModifier::FollowCenter:
+        return "FollowCenter";
+    case CameraModifier::AllowSteepSlants:
+        return "AllowSteepSlants";
+    case CameraModifier::Chase:
+        return "Chase";
+    default:
+        BOOST_THROW_EXCEPTION( std::domain_error( "Invalid CameraModifier" ) );
     }
 }
 
@@ -85,13 +84,15 @@ CameraModifier parseCameraModifier(const std::string& m)
 
 CameraController::CameraController(const gsl::not_null<Engine*>& engine,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera)
-        : Listener{&engine->getSoundEngine()}
-        , m_camera{std::move( camera )}
-        , m_engine{engine}
-        , m_eye{engine->getLara().m_state.position.room}
-        , m_center{core::RoomBoundPosition{engine->getLara().m_state.position.room,
-                                           engine->getLara().m_state.position.position}}
-        , m_eyeYOffset{engine->getLara().m_state.position.position.Y - core::SectorSize}
+    : Listener{ &engine->getSoundEngine() }
+      , m_camera{ std::move( camera ) }
+      , m_engine{ engine }
+      , m_eye{ engine->getLara().m_state.position.room }
+      , m_center{ core::RoomBoundPosition{ engine->getLara().m_state.position.room,
+                                           engine->getLara().m_state.position.position
+    }
+    }
+      , m_eyeYOffset{ engine->getLara().m_state.position.position.Y - core::SectorSize }
 {
     m_center->position.Y -= m_eyeYOffset;
     m_eye = m_center;
@@ -161,7 +162,7 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
     Type type = Type::NoChange;
     while( true )
     {
-        const floordata::Command command{*cmdSequence++};
+        const floordata::Command command{ *cmdSequence++ };
 
         if( command.opcode == floordata::CommandOpcode::LookAt
             && m_mode != CameraMode::FreeLook
@@ -430,17 +431,17 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
 
         BOOST_ASSERT( m_targetItem.get() != focusedItem );
         const auto distToFocused = m_targetItem->m_state.position.position
-                                         .distanceTo( focusedItem->m_state.position.position );
+                                               .distanceTo( focusedItem->m_state.position.position );
         auto eyeRotY =
-                angleFromAtan( m_targetItem->m_state.position.position.X - focusedItem->m_state.position.position.X,
-                               m_targetItem->m_state.position.position.Z - focusedItem->m_state.position.position.Z )
+            angleFromAtan( m_targetItem->m_state.position.position.X - focusedItem->m_state.position.position.X,
+                           m_targetItem->m_state.position.position.Z - focusedItem->m_state.position.position.Z )
                 - focusedItem->m_state.rotation.Y;
-        eyeRotY /= core::Angle::type{2};
+        eyeRotY /= core::Angle::type{ 2 };
         focusBBox = m_targetItem->getBoundingBox();
         auto eyeRotX = angleFromAtan( distToFocused,
                                       focusY - (focusBBox.minY + focusBBox.maxY) / 2
-                                      + m_targetItem->m_state.position.position.Y );
-        eyeRotX /= core::Angle::type{2};
+                                          + m_targetItem->m_state.position.position.Y );
+        eyeRotX /= core::Angle::type{ 2 };
 
         if( eyeRotY < 50_deg && eyeRotY > -50_deg && eyeRotX < 85_deg && eyeRotX > -85_deg )
         {
@@ -566,14 +567,14 @@ core::Length CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, co
         && isVerticallyOutsideRoom( pos.position - core::TRVec( 0_len, 0_len, margin ), room ) )
         pos.position.Z = sector->box->zmin + margin;
     else if( sector->box->zmax - margin > pos.position.Z
-             && isVerticallyOutsideRoom( pos.position + core::TRVec( 0_len, 0_len, margin ), room ) )
+        && isVerticallyOutsideRoom( pos.position + core::TRVec( 0_len, 0_len, margin ), room ) )
         pos.position.Z = sector->box->zmax - margin;
 
     if( sector->box->xmin + margin > pos.position.X
         && isVerticallyOutsideRoom( pos.position - core::TRVec( margin, 0_len, 0_len ), room ) )
         pos.position.X = sector->box->xmin + margin;
     else if( sector->box->xmax - margin > pos.position.X
-             && isVerticallyOutsideRoom( pos.position + core::TRVec( margin, 0_len, 0_len ), room ) )
+        && isVerticallyOutsideRoom( pos.position + core::TRVec( margin, 0_len, 0_len ), room ) )
         pos.position.X = sector->box->xmax - margin;
 
     auto bottom = HeightInfo::fromFloor( sector, pos.position, m_engine->getItemNodes() ).y - margin;
@@ -594,7 +595,7 @@ bool CameraController::isVerticallyOutsideRoom(const core::TRVec& pos,
     const auto sector = findRealFloorSector( pos, room );
     const auto floor = HeightInfo::fromFloor( sector, pos, m_engine->getItemNodes() ).y;
     const auto ceiling = HeightInfo::fromCeiling( sector, pos, m_engine->getItemNodes() )
-            .y;
+        .y;
     return pos.Y > floor || pos.Y <= ceiling;
 }
 
@@ -605,18 +606,18 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     m_eye->room = eyePositionGoal.room;
     auto sector = loader::file::findRealFloorSector( *m_eye );
     auto floor = HeightInfo::fromFloor( sector, m_eye->position, m_engine->getItemNodes() )
-                         .y - core::QuarterSectorSize;
+        .y - core::QuarterSectorSize;
     if( floor <= m_eye->position.Y && floor <= eyePositionGoal.position.Y )
     {
         clampPosition( *m_center, *m_eye, *m_engine );
         sector = loader::file::findRealFloorSector( *m_eye );
         floor = HeightInfo::fromFloor( sector, m_eye->position, m_engine->getItemNodes() )
-                        .y - core::QuarterSectorSize;
+            .y - core::QuarterSectorSize;
     }
 
     auto ceiling =
-            HeightInfo::fromCeiling( sector, m_eye->position, m_engine->getItemNodes() )
-                    .y + core::QuarterSectorSize;
+        HeightInfo::fromCeiling( sector, m_eye->position, m_engine->getItemNodes() )
+            .y + core::QuarterSectorSize;
     if( floor < ceiling )
     {
         floor = ceiling = (floor + ceiling) / 2;
@@ -625,9 +626,9 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     if( m_bounce < 0_len )
     {
         const core::TRVec tmp{
-                util::rand15s( m_bounce ),
-                util::rand15s( m_bounce ),
-                util::rand15s( m_bounce )
+            util::rand15s( m_bounce ),
+            util::rand15s( m_bounce ),
+            util::rand15s( m_bounce )
         };
         m_eye->position += tmp;
         m_center->position += tmp;
@@ -656,7 +657,7 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
     if( camPos.X != m_center->position.X || camPos.Z != m_center->position.Z )
     {
         // only apply lookAt if we won't get NaN values because of parallel up and look axes
-        const auto m = lookAt( camPos.toRenderSystem(), m_center->position.toRenderSystem(), {0, 1, 0} );
+        const auto m = lookAt( camPos.toRenderSystem(), m_center->position.toRenderSystem(), { 0, 1, 0 } );
         m_camera->setViewMatrix( m );
     }
 }
@@ -674,9 +675,9 @@ void CameraController::chaseItem(const items::ItemNode& item)
 
     core::RoomBoundPosition eye( m_eye->room );
     eye.position = {
-            0_len,
-            util::sin( m_eyeCenterDistance, m_rotationAroundCenter.X ),
-            0_len
+        0_len,
+        util::sin( m_eyeCenterDistance, m_rotationAroundCenter.X ),
+        0_len
     };
 
     const core::Angle y = m_rotationAroundCenter.Y + item.m_state.rotation.Y;
@@ -684,7 +685,7 @@ void CameraController::chaseItem(const items::ItemNode& item)
     clampBox( eye,
               [this](core::Length& a, core::Length& b, const core::Length c, const core::Length d, const core::Length e,
                      const core::Length f, const core::Length g, const core::Length h) {
-                  clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
+                clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
               } );
 
     updatePosition( eye, m_fixed ? m_smoothness : 12 );
@@ -696,9 +697,9 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
     m_center->position.X = item.m_state.position.position.X;
     m_center->position.Z = item.m_state.position.position.Z;
     m_rotationAroundCenter.X = m_engine->getLara().m_torsoRotation.X + m_engine->getLara().m_headRotation.X
-                               + item.m_state.rotation.X;
+        + item.m_state.rotation.X;
     m_rotationAroundCenter.Y = m_engine->getLara().m_torsoRotation.Y + m_engine->getLara().m_headRotation.Y
-                               + item.m_state.rotation.Y;
+        + item.m_state.rotation.Y;
     m_eyeCenterDistance = core::DefaultCameraLaraDistance;
     m_eyeYOffset = -util::sin( core::SectorSize / 2, m_rotationAroundCenter.Y );
     m_center->position += util::pitch( m_eyeYOffset, item.m_state.rotation.Y );
@@ -719,9 +720,9 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
     clampBox( center, &freeLookClamp );
 
     m_center->position.X = originalCenter.X
-                           + (m_center->position.X - originalCenter.X) / m_smoothness;
+        + (m_center->position.X - originalCenter.X) / m_smoothness;
     m_center->position.Z = originalCenter.Z
-                           + (m_center->position.Z - originalCenter.Z) / m_smoothness;
+        + (m_center->position.Z - originalCenter.Z) / m_smoothness;
 
     updatePosition( center, m_smoothness );
 }
@@ -739,9 +740,9 @@ void CameraController::handleEnemy(const items::ItemNode& item)
     else
     {
         m_rotationAroundCenter.X = m_engine->getLara().m_torsoRotation.X + m_engine->getLara().m_headRotation.X
-                                   + item.m_state.rotation.X;
+            + item.m_state.rotation.X;
         m_rotationAroundCenter.Y = m_engine->getLara().m_torsoRotation.Y + m_engine->getLara().m_headRotation.Y
-                                   + item.m_state.rotation.Y;
+            + item.m_state.rotation.Y;
     }
 
     m_eyeCenterDistance = core::CombatCameraLaraDistance;
@@ -760,7 +761,7 @@ void CameraController::handleEnemy(const items::ItemNode& item)
                      const core::Length f,
                      const core::Length g,
                      const core::Length h) {
-                  clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
+                clampToCorners( m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h );
               } );
     updatePosition( center, m_smoothness );
 }
@@ -782,7 +783,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
     core::TRVec testPos = eyePositionGoal.position;
     testPos.Z = (testPos.Z / core::SectorSize) * core::SectorSize - 1_len;
     BOOST_ASSERT( testPos.Z % core::SectorSize == core::SectorSize - 1_len
-                  && abs( testPos.Z - eyePositionGoal.position.Z ) <= core::SectorSize );
+                      && abs( testPos.Z - eyePositionGoal.position.Z ) <= core::SectorSize );
 
     auto clampZMin = clampBox->zmin;
     const bool negZVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
@@ -797,7 +798,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
     testPos = eyePositionGoal.position;
     testPos.Z = (testPos.Z / core::SectorSize + 1) * core::SectorSize;
     BOOST_ASSERT( testPos.Z % core::SectorSize == 0_len
-                  && abs( testPos.Z - eyePositionGoal.position.Z ) <= core::SectorSize );
+                      && abs( testPos.Z - eyePositionGoal.position.Z ) <= core::SectorSize );
 
     auto clampZMax = clampBox->zmax;
     const bool posZVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
@@ -812,7 +813,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
     testPos = eyePositionGoal.position;
     testPos.X = (testPos.X / core::SectorSize) * core::SectorSize - 1_len;
     BOOST_ASSERT( testPos.X % core::SectorSize == core::SectorSize - 1_len
-                  && abs( testPos.X - eyePositionGoal.position.X ) <= core::SectorSize );
+                      && abs( testPos.X - eyePositionGoal.position.X ) <= core::SectorSize );
 
     auto clampXMin = clampBox->xmin;
     const bool negXVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
@@ -827,7 +828,7 @@ CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal, const std::
     testPos = eyePositionGoal.position;
     testPos.X = (testPos.X / core::SectorSize + 1) * core::SectorSize;
     BOOST_ASSERT( testPos.X % core::SectorSize == 0_len
-                  && abs( testPos.X - eyePositionGoal.position.X ) <= core::SectorSize );
+                      && abs( testPos.X - eyePositionGoal.position.X ) <= core::SectorSize );
 
     auto clampXMax = clampBox->xmax;
     const bool posXVerticallyOutside = isVerticallyOutsideRoom( testPos, eyePositionGoal.room );
@@ -941,13 +942,13 @@ void CameraController::freeLookClamp(core::Length& currentFrontBack,
     {
         currentFrontBack = back;
         currentLeftRight = targetLeftRight + (currentLeftRight - targetLeftRight) * (back - targetFrontBack)
-                                             / (currentFrontBack - targetFrontBack);
+            / (currentFrontBack - targetFrontBack);
     }
     else if( (right < left && targetLeftRight > right && right > currentLeftRight)
-             || (right > left && targetLeftRight < right && right < currentLeftRight) )
+        || (right > left && targetLeftRight < right && right < currentLeftRight) )
     {
         currentFrontBack = targetFrontBack + (currentFrontBack - targetFrontBack) * (right - targetLeftRight)
-                                             / (currentLeftRight - targetLeftRight);
+            / (currentLeftRight - targetLeftRight);
         currentLeftRight = right;
     }
 }
@@ -1045,8 +1046,8 @@ CameraController::updateCinematic(const loader::file::CinematicFrame& frame, con
         m_center->position += util::pitch( frame.center, m_cinematicRot.Y );
         m_cinematicPos += util::pitch( frame.eye, m_cinematicRot.Y );
 
-        auto m = lookAt( m_cinematicPos.toRenderSystem(), m_center->position.toRenderSystem(), {0, 1, 0} );
-        m = rotate( m, toRad( frame.rotZ ), -glm::vec3{m[2]} );
+        auto m = lookAt( m_cinematicPos.toRenderSystem(), m_center->position.toRenderSystem(), { 0, 1, 0 } );
+        m = rotate( m, toRad( frame.rotZ ), -glm::vec3{ m[2] } );
         m_camera->setViewMatrix( m );
         m_camera->setFieldOfView( toRad( frame.fov ) );
         findRealFloorSector( m_eye->position, &m_eye->room );
@@ -1056,8 +1057,8 @@ CameraController::updateCinematic(const loader::file::CinematicFrame& frame, con
         core::TRVec center = m_eye->position + util::pitch( frame.center, m_eyeRotation.Y );
         core::TRVec eye = m_eye->position + util::pitch( frame.eye, m_eyeRotation.Y );
 
-        auto m = lookAt( eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0} );
-        m = rotate( m, toRad( frame.rotZ ), -glm::vec3{m[2]} );
+        auto m = lookAt( eye.toRenderSystem(), center.toRenderSystem(), { 0, 1, 0 } );
+        m = rotate( m, toRad( frame.rotZ ), -glm::vec3{ m[2] } );
         m_camera->setViewMatrix( m );
         m_camera->setFieldOfView( toRad( frame.fov ) );
     }
@@ -1084,14 +1085,14 @@ CameraController::updateCinematic(const loader::file::CinematicFrame& frame, con
 CameraController::CameraController(gsl::not_null<Engine*> engine,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                                    bool /*noLaraTag*/)
-        : Listener{&engine->getSoundEngine()}
-        , m_camera{std::move( camera )}
-        , m_engine{engine}
+    : Listener{ &engine->getSoundEngine() }
+      , m_camera{ std::move( camera ) }
+      , m_engine{ engine }
 {
     if( engine->hasLevel() )
     {
-        m_eye = core::RoomBoundPosition{&engine->getRooms()[0]};
-        m_center = core::RoomBoundPosition{&engine->getRooms()[0]};
+        m_eye = core::RoomBoundPosition{ &engine->getRooms()[0] };
+        m_center = core::RoomBoundPosition{ &engine->getRooms()[0] };
     }
 }
 
@@ -1111,21 +1112,21 @@ YAML::Node CameraController::save() const
     {
         result["item"] = std::find_if( m_engine->getItemNodes().begin(), m_engine->getItemNodes().end(),
                                        [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
-                                           return entry.second == m_targetItem;
+                                         return entry.second == m_targetItem;
                                        } )->first;
     }
     if( m_previousItem != nullptr )
     {
         result["lastItem"] = std::find_if( m_engine->getItemNodes().begin(), m_engine->getItemNodes().end(),
                                            [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
-                                               return entry.second == m_previousItem;
+                                             return entry.second == m_previousItem;
                                            } )->first;
     }
     if( m_enemy != nullptr )
     {
         result["enemy"] = std::find_if( m_engine->getItemNodes().begin(), m_engine->getItemNodes().end(),
                                         [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
-                                            return entry.second == m_enemy;
+                                          return entry.second == m_enemy;
                                         } )->first;
     }
     result["yOffset"] = m_eyeYOffset;

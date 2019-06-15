@@ -10,10 +10,10 @@ class ThorHammerBlock final : public ModelItemNode
 {
 public:
     ThorHammerBlock(const gsl::not_null<Engine*>& engine,
-                     const gsl::not_null<const loader::file::Room*>& room,
-                     const loader::file::Item& item,
-                     const loader::file::SkeletalModelType& animatedModel)
-            : ModelItemNode{engine, room, item, true, animatedModel}
+                    const gsl::not_null<const loader::file::Room*>& room,
+                    const loader::file::Item& item,
+                    const loader::file::SkeletalModelType& animatedModel)
+        : ModelItemNode{ engine, room, item, true, animatedModel }
     {
     }
 

@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_41 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_41(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::SwitchUp}
+        : AbstractStateHandler{ lara, LaraStateId::SwitchUp }
     {
     }
 

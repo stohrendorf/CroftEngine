@@ -20,7 +20,7 @@ struct ContainerOffset
     constexpr ContainerOffset() = default;
 
     constexpr ContainerOffset(offset_type offset)
-            : offset{offset}
+        : offset{ offset }
     {
     }
 
@@ -39,8 +39,9 @@ struct ContainerOffset
 
     template<typename T>
     constexpr
-    std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
-    from(std::vector<T>& v) const
+    std::enable_if_t<tpl::contains_v < T, DataTypes...>, T&>
+    from(std::vector<T>
+    & v) const
     {
         if( offset % sizeof( T ) != 0 )
             throw std::runtime_error( "Offset not dividable by element size" );
@@ -50,8 +51,9 @@ struct ContainerOffset
 
     template<typename T>
     constexpr
-    std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
-    checkedFrom(std::vector<T>& v) const
+    std::enable_if_t<tpl::contains_v < T, DataTypes...>, T&>
+    checkedFrom(std::vector<T>
+    & v) const
     {
         if( offset % sizeof( T ) != 0 )
             throw std::runtime_error( "Offset not dividable by element size" );
@@ -61,7 +63,8 @@ struct ContainerOffset
 
     template<typename T>
     constexpr
-    std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+    std::enable_if_t<tpl::contains_v < T, DataTypes...>, const T&>
+
     from(const std::vector<T>& v) const
     {
         if( offset % sizeof( T ) != 0 )
@@ -72,7 +75,8 @@ struct ContainerOffset
 
     template<typename T>
     constexpr
-    std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+    std::enable_if_t<tpl::contains_v < T, DataTypes...>, const T&>
+
     checkedFrom(const std::vector<T>& v) const
     {
         if( offset % sizeof( T ) != 0 )
@@ -81,7 +85,6 @@ struct ContainerOffset
         return v.at( offset / sizeof( T ) );
     }
 };
-
 
 template<typename IndexType, typename... DataTypes>
 struct ContainerIndex
@@ -97,7 +100,7 @@ struct ContainerIndex
     constexpr ContainerIndex() = default;
 
     constexpr ContainerIndex(index_type index) noexcept
-            : index{index}
+        : index{ index }
     {
     }
 
@@ -106,23 +109,26 @@ struct ContainerIndex
 
     template<typename T>
     constexpr
-    std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
-    from(std::vector<T>& v) const
+    std::enable_if_t<tpl::contains_v < T, DataTypes...>, T&>
+    from(std::vector<T>
+    & v) const
     {
         return v[index];
     }
 
     template<typename T>
     constexpr
-    std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
-    checkedFrom(std::vector<T>& v) const
+    std::enable_if_t<tpl::contains_v < T, DataTypes...>, T&>
+    checkedFrom(std::vector<T>
+    & v) const
     {
         return v[index];
     }
 
     template<typename T>
     constexpr
-    std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+    std::enable_if_t<tpl::contains_v < T, DataTypes...>, const T&>
+
     from(const std::vector<T>& v) const
     {
         return v.at( index );
@@ -130,7 +136,8 @@ struct ContainerIndex
 
     template<typename T>
     constexpr
-    std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+    std::enable_if_t<tpl::contains_v < T, DataTypes...>, const T&>
+
     checkedFrom(const std::vector<T>& v) const
     {
         return v.at( index );
@@ -156,5 +163,4 @@ struct ContainerIndex
     template<typename T>
     void operator+=(T) = delete;
 };
-
 }

@@ -12,7 +12,6 @@ namespace scene
 {
 class Node;
 
-
 class RenderContext final
 {
 public:

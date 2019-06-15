@@ -49,7 +49,7 @@ public:
         std::set<std::shared_ptr<SourceHandle>> cleaned;
         std::copy_if( m_sources.begin(), m_sources.end(), std::inserter( cleaned, cleaned.end() ),
                       [](const std::shared_ptr<SourceHandle>& src) {
-                          return !src->isStopped();
+                        return !src->isStopped();
                       } );
 
         m_sources = std::move( cleaned );
@@ -62,8 +62,8 @@ public:
         AL_ASSERT( alListener3f( AL_POSITION, pos.x, pos.y, pos.z ) );
 
         const ALfloat o[6] = {
-                front.x, front.y, front.z,
-                up.x, up.y, up.z
+            front.x, front.y, front.z,
+            up.x, up.y, up.z
         };
         AL_ASSERT( alListenerfv( AL_ORIENTATION, o ) );
     }
@@ -105,5 +105,4 @@ private:
             stream->update();
     }
 };
-
 }

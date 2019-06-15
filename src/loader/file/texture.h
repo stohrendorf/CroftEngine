@@ -24,12 +24,11 @@ struct ByteTexture
 
     static std::unique_ptr<ByteTexture> read(io::SDLReader& reader)
     {
-        std::unique_ptr<ByteTexture> textile{new ByteTexture()};
+        std::unique_ptr<ByteTexture> textile{ new ByteTexture() };
         reader.readBytes( reinterpret_cast<uint8_t*>(textile->pixels), 256 * 256 );
         return textile;
     }
 };
-
 
 /** \brief 16-bit texture.
 *
@@ -45,7 +44,7 @@ struct WordTexture
 
     static std::unique_ptr<WordTexture> read(io::SDLReader& reader)
     {
-        std::unique_ptr<WordTexture> texture{new WordTexture()};
+        std::unique_ptr<WordTexture> texture{ new WordTexture() };
 
         for( auto& row : texture->pixels )
         {
@@ -59,7 +58,6 @@ struct WordTexture
     }
 };
 
-
 struct DWordTexture final
 {
     render::gl::SRGBA8 pixels[256][256];
@@ -70,7 +68,7 @@ struct DWordTexture final
 
     static std::unique_ptr<DWordTexture> read(io::SDLReader& reader)
     {
-        std::unique_ptr<DWordTexture> texture{std::make_unique<DWordTexture>()};
+        std::unique_ptr<DWordTexture> texture{ std::make_unique<DWordTexture>() };
 
         for( auto& row : texture->pixels )
         {
@@ -81,7 +79,7 @@ struct DWordTexture final
                 const uint8_t r = (tmp >> 16) & 0xff;
                 const uint8_t g = (tmp >> 8) & 0xff;
                 const uint8_t b = (tmp >> 0) & 0xff;
-                element = {r, g, b, a};
+                element = { r, g, b, a };
             }
         }
 
@@ -93,9 +91,8 @@ struct DWordTexture final
     void toImage(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback);
 };
 
-
 enum class BlendingMode
-        : uint16_t
+    : uint16_t
 {
     Solid,
     AlphaTransparency,
@@ -110,7 +107,6 @@ enum class BlendingMode
     Hide,
     AnimatedTexture
 };
-
 
 /** \brief Object Texture Vertex.
 *
@@ -159,7 +155,7 @@ struct UVCoordinates
 
     glm::vec2 toGl() const
     {
-        return glm::vec2{(xpixel + 0.5f) / 256.0f, (ypixel + 0.5f) / 256.0f};
+        return glm::vec2{ (xpixel + 0.5f) / 256.0f, (ypixel + 0.5f) / 256.0f };
     }
 
     UVCoordinates& operator=(const glm::vec2& v)
@@ -170,12 +166,10 @@ struct UVCoordinates
     }
 };
 
-
 extern gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(
-        const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
-        BlendingMode bmode,
-        const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader);
-
+    const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
+    BlendingMode bmode,
+    const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader);
 
 struct TextureKey
 {
@@ -194,14 +188,14 @@ struct TextureKey
     uint16_t flags = 0; // TR4
 
     DECLARE_ID( ColorId, int );
-    ColorId colorId{-1};
+    ColorId colorId{ -1 };
 
     bool operator==(const TextureKey& rhs) const
     {
         return tileAndFlag == rhs.tileAndFlag
-               && flags == rhs.flags
-               && blendingMode == rhs.blendingMode
-               && colorId == rhs.colorId;
+            && flags == rhs.flags
+            && blendingMode == rhs.blendingMode
+            && colorId == rhs.colorId;
     }
 
     bool operator<(const TextureKey& rhs) const
@@ -225,7 +219,6 @@ struct TextureKey
     }
 };
 
-
 struct TextureLayoutProxy
 {
     TextureKey textureKey;
@@ -243,7 +236,7 @@ struct TextureLayoutProxy
     */
     static std::unique_ptr<TextureLayoutProxy> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<TextureLayoutProxy> proxy{new TextureLayoutProxy()};
+        std::unique_ptr<TextureLayoutProxy> proxy{ new TextureLayoutProxy() };
         proxy->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
         proxy->textureKey.tileAndFlag = reader.readU16();
         if( proxy->textureKey.tileAndFlag > 64 )
@@ -268,7 +261,7 @@ struct TextureLayoutProxy
 
     static std::unique_ptr<TextureLayoutProxy> readTr4(io::SDLReader& reader)
     {
-        std::unique_ptr<TextureLayoutProxy> proxy{new TextureLayoutProxy()};
+        std::unique_ptr<TextureLayoutProxy> proxy{ new TextureLayoutProxy() };
         proxy->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
         proxy->textureKey.tileAndFlag = reader.readU16();
         if( (proxy->textureKey.tileAndFlag & 0x7FFF) > 128 )
@@ -297,8 +290,8 @@ struct TextureLayoutProxy
     }
 
     gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(
-            const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
-            const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader) const
+        const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
+        const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader) const
     {
         return loader::file::createMaterial( texture, textureKey.blendingMode, shader );
     }

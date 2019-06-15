@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_38 final
-        : public StateHandler_Pushable
+    : public StateHandler_Pushable
 {
 public:
     explicit StateHandler_38(LaraNode& lara)
-            : StateHandler_Pushable{lara, LaraStateId::PushableGrab}
+        : StateHandler_Pushable{ lara, LaraStateId::PushableGrab }
     {
     }
 

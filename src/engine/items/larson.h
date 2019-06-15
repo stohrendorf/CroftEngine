@@ -9,7 +9,7 @@ namespace engine
 namespace items
 {
 class Larson final
-        : public AIAgent
+    : public AIAgent
 {
 public:
     Larson(const gsl::not_null<Engine*>& engine,

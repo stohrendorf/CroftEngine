@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_16 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_16(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::WalkBackward}
+        : AbstractStateHandler{ lara, LaraStateId::WalkBackward }
     {
     }
 

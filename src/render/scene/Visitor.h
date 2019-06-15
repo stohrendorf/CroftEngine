@@ -6,15 +6,13 @@ namespace scene
 {
 class RenderContext;
 
-
 class Node;
-
 
 class Visitor
 {
 public:
     explicit Visitor(RenderContext& context)
-            : m_context{context}
+        : m_context{ context }
     {
     }
 

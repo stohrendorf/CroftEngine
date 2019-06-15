@@ -68,12 +68,10 @@ private:
     uint32_t m_y1 = 0;
 };
 
-
 inline std::ostream& operator<<(std::ostream& str, const Rectangle& r)
 {
     return str << "(" << r.getX0() << "," << r.getY0() << ")-(" << r.getX1() << "," << r.getY1() << ")";
 }
-
 
 class TexturePart
 {
@@ -81,8 +79,8 @@ public:
     explicit TexturePart(const std::string& serialized);
 
     explicit TexturePart(std::string filename, const Rectangle& r)
-            : m_textureId{std::move( filename )}
-            , m_rect{r}
+        : m_textureId{ std::move( filename ) }
+          , m_rect{ r }
     {
     }
 
@@ -109,7 +107,6 @@ private:
     Rectangle m_rect{};
 };
 
-
 class EquivalenceSet
 {
 public:
@@ -135,7 +132,6 @@ private:
     mutable bool m_resolved = false;
 };
 
-
 class Equiv
 {
 public:
@@ -150,7 +146,6 @@ public:
 private:
     std::vector<EquivalenceSet> m_equivalentSets;
 };
-
 
 class PathMap
 {
@@ -168,7 +163,6 @@ public:
 private:
     boost::filesystem::path m_root;
 };
-
 
 class Glidos
 {

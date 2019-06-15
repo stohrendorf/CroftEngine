@@ -26,19 +26,18 @@ inline std::ostream& operator<<(std::ostream& str, const Mood mood)
 {
     switch( mood )
     {
-        case Mood::Bored:
-            return str << "Bored";
-        case Mood::Attack:
-            return str << "Attack";
-        case Mood::Escape:
-            return str << "Escape";
-        case Mood::Stalk:
-            return str << "Stalk";
-        default:
-            BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid mood" ) );
+    case Mood::Bored:
+        return str << "Bored";
+    case Mood::Attack:
+        return str << "Attack";
+    case Mood::Escape:
+        return str << "Escape";
+    case Mood::Stalk:
+        return str << "Stalk";
+    default:
+        BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid mood" ) );
     }
 }
-
 
 struct SearchNode
 {
@@ -70,7 +69,6 @@ struct SearchNode
 
     void load(const YAML::Node& n, const Engine& engine);
 };
-
 
 struct LotInfo
 {
@@ -235,14 +233,13 @@ struct LotInfo
     void load(const YAML::Node& n, const Engine& engine);
 };
 
-
 struct AiInfo
 {
     loader::file::ZoneId zone_number;
 
     loader::file::ZoneId enemy_zone;
 
-    core::Area distance{0};
+    core::Area distance{ 0 };
 
     bool ahead;
 
@@ -254,7 +251,6 @@ struct AiInfo
 
     AiInfo(engine::Engine& engine, items::ItemState& item);
 };
-
 
 struct CreatureInfo
 {
@@ -283,14 +279,14 @@ struct CreatureInfo
     static sol::usertype<CreatureInfo>& userType()
     {
         static auto type = sol::usertype<CreatureInfo>(
-                sol::meta_function::construct, sol::no_constructor,
-                "head_rotation", &CreatureInfo::head_rotation,
-                "neck_rotation", &CreatureInfo::neck_rotation,
-                "maximum_turn", &CreatureInfo::maximum_turn,
-                "flags", &CreatureInfo::flags,
-                "mood", &CreatureInfo::mood,
-                "target", &CreatureInfo::target
-        );
+            sol::meta_function::construct, sol::no_constructor,
+            "head_rotation", &CreatureInfo::head_rotation,
+            "neck_rotation", &CreatureInfo::neck_rotation,
+            "maximum_turn", &CreatureInfo::maximum_turn,
+            "flags", &CreatureInfo::flags,
+            "mood", &CreatureInfo::mood,
+            "target", &CreatureInfo::target
+                                                      );
         return type;
     }
 
@@ -298,7 +294,6 @@ struct CreatureInfo
 
     void load(const YAML::Node& n, const Engine& engine);
 };
-
 
 void updateMood(const engine::Engine& engine, const items::ItemState& item, const AiInfo& aiInfo, bool violent);
 }

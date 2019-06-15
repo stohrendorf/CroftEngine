@@ -12,5 +12,4 @@ namespace file
 
 #include "animationid_enum.h"
 
-}
-}
+} }

@@ -12,7 +12,7 @@ namespace render
 namespace scene
 {
 Renderer::Renderer()
-        : m_scene{std::make_shared<Scene>()}
+    : m_scene{ std::make_shared<Scene>() }
 {
 }
 
@@ -21,11 +21,11 @@ Renderer::~Renderer() = default;
 namespace
 {
 class RenderVisitor
-        : public Visitor
+    : public Visitor
 {
 public:
     explicit RenderVisitor(RenderContext& context)
-            : Visitor{context}
+        : Visitor{ context }
     {
     }
 
@@ -36,7 +36,7 @@ public:
             return;
         }
 
-        gl::DebugGroup debugGroup{node.getId()};
+        gl::DebugGroup debugGroup{ node.getId() };
 
         getContext().setCurrentNode( &node );
 
@@ -53,10 +53,10 @@ public:
 void Renderer::render()
 {
     // Graphics Rendering.
-    clear( ::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
+    clear( ::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT, { 0, 0, 0, 0 }, 1 );
 
     RenderContext context{};
-    RenderVisitor visitor{context};
+    RenderVisitor visitor{ context };
     m_scene->accept( visitor );
 
     // Update FPS.
@@ -66,7 +66,7 @@ void Renderer::render()
     if( dt >= std::chrono::seconds( 1 ) )
     {
         m_frameRate = std::exchange( m_frameCount, 0 ) * 1000.0f
-                      / std::chrono::duration_cast<std::chrono::milliseconds>( dt ).count();
+            / std::chrono::duration_cast<std::chrono::milliseconds>( dt ).count();
         m_frameLastFPS = t;
     }
 }
@@ -107,7 +107,7 @@ void Renderer::clear(const ::gl::ClearBufferMask flags,
                      const uint8_t red, const uint8_t green, const uint8_t blue, const uint8_t alpha,
                      const float clearDepth)
 {
-    clear( flags, gl::SRGBA8{red, green, blue, alpha}, clearDepth );
+    clear( flags, gl::SRGBA8{ red, green, blue, alpha }, clearDepth );
 }
 }
 }

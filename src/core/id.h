@@ -29,12 +29,12 @@ struct Id
     using tag = Tag;
 
     constexpr explicit Id(type value)
-            : m_value{value}
+        : m_value{ value }
     {}
 
     template<typename T>
     constexpr Id(T value)
-            : m_value{static_cast<type>(value)}
+        : m_value{ static_cast<type>(value) }
     {
         static_assert( tpl::contains_v<T, Enums...>, "Incompatible type" );
     }
@@ -125,7 +125,6 @@ private:
     StorageType m_value;
 };
 
-
 #define DECLARE_ID(name, type) \
     struct name ## _generated_tag {}; \
     using name = ::core::Id<type, name ## _generated_tag>
@@ -154,7 +153,7 @@ DECLARE_ID_E( SoundId, uint16_t, engine::TR1SoundId );
 
 inline constexpr AnimStateId operator "" _as(unsigned long long value)
 {
-    return AnimStateId{static_cast<AnimStateId::type>(value)};
+    return AnimStateId{ static_cast<AnimStateId::type>(value) };
 }
 }
 
@@ -180,7 +179,7 @@ struct convert<core::Id<Type, Tag, Enums...>>
 {
     static Node encode(const core::Id<Type, Tag, Enums...>& rhs)
     {
-        Node node{NodeType::Scalar};
+        Node node{ NodeType::Scalar };
         node = rhs.get();
         return node;
     }
@@ -190,16 +189,16 @@ struct convert<core::Id<Type, Tag, Enums...>>
         if( !node.IsScalar() )
             return false;
 
-        rhs = core::Id<Type, Tag, Enums...>{node.as<Type>()};
+        rhs = core::Id<Type, Tag, Enums...>{ node.as<Type>() };
         return true;
     }
 };
 
-
 template<typename Type, typename Tag, typename... Enums>
 struct as_if<core::Id<Type, Tag, Enums...>, void>
 {
-    explicit as_if(const Node& node_) : node{node_}
+    explicit as_if(const Node& node_)
+        : node{ node_ }
     {}
 
     const Node& node;
@@ -207,12 +206,12 @@ struct as_if<core::Id<Type, Tag, Enums...>, void>
     core::Id<Type, Tag, Enums...> operator()() const
     {
         if( !node.m_pNode )
-            throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
+            throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{ node.Mark() };
 
-        core::Id<Type, Tag, Enums...> t{Type{0}};
+        core::Id<Type, Tag, Enums...> t{ Type{ 0 } };
         if( convert<core::Id<Type, Tag, Enums...>>::decode( node, t ) )
             return t;
-        throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
+        throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{ node.Mark() };
     }
 };
 }

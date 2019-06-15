@@ -10,12 +10,12 @@ namespace engine
 namespace lara
 {
 class StateHandler_0 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
 
     explicit StateHandler_0(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::WalkForward}
+        : AbstractStateHandler{ lara, LaraStateId::WalkForward }
     {
     }
 
@@ -63,7 +63,7 @@ public:
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
-        collisionInfo.policyFlags.set(CollisionInfo::PolicyFlags::LavaIsPit);
+        collisionInfo.policyFlags.set( CollisionInfo::PolicyFlags::LavaIsPit );
         collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
 
         if( stopIfCeilingBlocked( collisionInfo ) )

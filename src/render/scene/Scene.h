@@ -8,7 +8,6 @@ namespace scene
 {
 class Camera;
 
-
 class Scene final
 {
 public:

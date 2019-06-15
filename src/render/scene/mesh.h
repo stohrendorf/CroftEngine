@@ -12,7 +12,6 @@ namespace scene
 {
 class Material;
 
-
 class Mesh : public Renderable
 {
 public:
@@ -62,11 +61,9 @@ private:
     const ::gl::GLenum m_mode;
 };
 
-
 extern gsl::not_null<std::shared_ptr<Mesh>> createQuadFullscreen(float width,
                                                                  float height,
                                                                  const gl::Program& program,
                                                                  bool invertY = false);
-
 }
 }

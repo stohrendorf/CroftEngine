@@ -13,9 +13,7 @@ namespace engine
 {
 enum class TR1TrackId;
 
-
 class Engine;
-
 
 struct AudioEngine
 {
@@ -29,15 +27,15 @@ struct AudioEngine
                          std::vector<loader::file::SoundDetails> soundDetails,
                          std::vector<int16_t> soundmap,
                          std::vector<uint32_t> sampleIndices)
-            : m_engine{engine}
-            , m_soundDetails{std::move( soundDetails )}
-            , m_soundmap{std::move( soundmap )}
-            , m_sampleIndices{std::move( sampleIndices )}
+        : m_engine{ engine }
+          , m_soundDetails{ std::move( soundDetails ) }
+          , m_soundmap{ std::move( soundmap ) }
+          , m_sampleIndices{ std::move( sampleIndices ) }
     {
     }
 
     explicit AudioEngine(Engine& engine)
-            : AudioEngine{engine, {}, {}, {}}
+        : AudioEngine{ engine, {}, {}, {} }
     {
     }
 

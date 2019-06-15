@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_44 final
-        : public StateHandler_Underwater
+    : public StateHandler_Underwater
 {
 public:
     explicit StateHandler_44(LaraNode& lara)
-            : StateHandler_Underwater{lara, LaraStateId::WaterDeath}
+        : StateHandler_Underwater{ lara, LaraStateId::WaterDeath }
     {
     }
 

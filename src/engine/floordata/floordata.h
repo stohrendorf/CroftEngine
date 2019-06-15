@@ -18,9 +18,9 @@ namespace floordata
 struct FloorDataChunk
 {
     explicit FloorDataChunk(const FloorDataValue fd)
-            : isLast{extractIsLast( fd )}
-            , sequenceCondition{extractSequenceCondition( fd )}
-            , type{extractType( fd )}
+        : isLast{ extractIsLast( fd ) }
+          , sequenceCondition{ extractSequenceCondition( fd ) }
+          , type{ extractType( fd ) }
     {
     }
 
@@ -45,7 +45,6 @@ private:
     }
 };
 
-
 class ActivationState
 {
 public:
@@ -60,11 +59,11 @@ public:
     explicit ActivationState() = default;
 
     explicit ActivationState(const FloorDataValue fd)
-            : m_oneshot{(fd.get() & Oneshot) != 0}
-            , m_inverted{(fd.get() & InvertedActivation) != 0}
-            , m_locked{(fd.get() & Locked) != 0}
-            , m_activationSet{extractActivationSet( fd )}
-            , m_timeout{core::Seconds{static_cast<core::Seconds::type>(fd.get() & TimeoutMask)} * core::FrameRate}
+        : m_oneshot{ (fd.get() & Oneshot) != 0 }
+          , m_inverted{ (fd.get() & InvertedActivation) != 0 }
+          , m_locked{ (fd.get() & Locked) != 0 }
+          , m_activationSet{ extractActivationSet( fd ) }
+          , m_timeout{ core::Seconds{ static_cast<core::Seconds::type>(fd.get() & TimeoutMask) } * core::FrameRate }
     {
     }
 
@@ -177,7 +176,7 @@ private:
     static ActivationSet extractActivationSet(const FloorDataValue fd)
     {
         const auto bits = gsl::narrow_cast<uint16_t>( (fd.get() & ActivationMask) >> 9 );
-        return ActivationSet{bits};
+        return ActivationSet{ bits };
     }
 
     bool m_oneshot = false;
@@ -187,14 +186,13 @@ private:
     core::Frame m_timeout = 0_frame;
 };
 
-
 struct CameraParameters
 {
     explicit CameraParameters(const FloorDataValue fd)
-            : timeout{core::Seconds{static_cast<core::Seconds::type>( int8_t( fd.get() ) )}}
-            , oneshot{(fd.get() & 0x100) != 0}
-            , isLast{(fd.get() & 0x8000) != 0}
-            , smoothness{gsl::narrow_cast<uint8_t>( (fd.get() >> 8) & 0x3e )}
+        : timeout{ core::Seconds{ static_cast<core::Seconds::type>( int8_t( fd.get() ) ) } }
+          , oneshot{ (fd.get() & 0x100) != 0 }
+          , isLast{ (fd.get() & 0x8000) != 0 }
+          , smoothness{ gsl::narrow_cast<uint8_t>( (fd.get() >> 8) & 0x3e ) }
     {
     }
 
@@ -204,13 +202,12 @@ struct CameraParameters
     const uint8_t smoothness;
 };
 
-
 struct Command
 {
     explicit Command(const FloorDataValue fd)
-            : isLast{extractIsLast( fd )}
-            , opcode{extractOpcode( fd )}
-            , parameter{extractParameter( fd )}
+        : isLast{ extractIsLast( fd ) }
+          , opcode{ extractOpcode( fd ) }
+          , parameter{ extractParameter( fd ) }
     {
     }
 
@@ -235,26 +232,25 @@ private:
     }
 };
 
-
 inline boost::optional<uint8_t> getPortalTarget(const FloorDataValue* fdData)
 {
     if( fdData == nullptr )
         return {};
 
-    FloorDataChunk chunk{fdData[0]};
+    FloorDataChunk chunk{ fdData[0] };
     if( chunk.type == FloorDataChunkType::FloorSlant )
     {
         if( chunk.isLast )
             return {};
         fdData += 2;
-        chunk = FloorDataChunk{fdData[0]};
+        chunk = FloorDataChunk{ fdData[0] };
     }
     if( chunk.type == FloorDataChunkType::CeilingSlant )
     {
         if( chunk.isLast )
             return {};
         fdData += 2;
-        chunk = FloorDataChunk{fdData[0]};
+        chunk = FloorDataChunk{ fdData[0] };
     }
     if( chunk.type == FloorDataChunkType::PortalSector )
     {

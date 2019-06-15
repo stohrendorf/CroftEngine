@@ -21,7 +21,7 @@ void Crocodile::update()
         core::Angle headRot = 0_deg;
         if( m_state.health > 0_hp )
         {
-            const ai::AiInfo aiInfo{getEngine(), m_state};
+            const ai::AiInfo aiInfo{ getEngine(), m_state };
             if( aiInfo.ahead )
             {
                 headRot = aiInfo.angle;
@@ -48,7 +48,7 @@ void Crocodile::update()
                 {
                     if( m_state.required_anim_state == 0_as )
                     {
-                        emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
+                        emitParticle( { 5_len, -21_len, 467_len }, 9, &createBloodSplat );
                         getEngine().getLara().m_state.health -= 100_hp;
                         getEngine().getLara().m_state.is_hit = true;
                         m_state.required_anim_state = 1_as;
@@ -82,7 +82,7 @@ void Crocodile::update()
                 m_state.creatureInfo->lot.fly = 0_len;
             }
             getSkeleton()
-                    ->patchBone( 8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+                ->patchBone( 8, core::TRRotation{ 0_deg, m_state.creatureInfo->head_rotation, 0_deg }.toMatrix() );
             animateCreature( 0_deg, 0_deg );
         }
         else
@@ -134,7 +134,7 @@ void Crocodile::update()
         core::Angle headRot = 0_deg;
         if( m_state.health > 0_hp )
         {
-            const ai::AiInfo aiInfo{getEngine(), m_state};
+            const ai::AiInfo aiInfo{ getEngine(), m_state };
             if( aiInfo.ahead )
             {
                 headRot = aiInfo.angle;
@@ -150,97 +150,97 @@ void Crocodile::update()
             }
             switch( m_state.current_anim_state.get() )
             {
-                case 1:
-                    if( aiInfo.bite && aiInfo.distance < util::square( 435_len ) )
-                    {
-                        m_state.goal_anim_state = 5_as;
-                        break;
-                    }
-                    switch( m_state.creatureInfo->mood )
-                    {
-                        case ai::Mood::Escape:
-                            m_state.goal_anim_state = 2_as;
-                            break;
-                        case ai::Mood::Attack:
-                            if( (aiInfo.angle >= -90_deg && aiInfo.angle <= 90_deg)
-                                || aiInfo.distance <= util::square( 3 * core::SectorSize ) )
-                            {
-                                m_state.goal_anim_state = 2_as;
-                            }
-                            else
-                            {
-                                m_state.goal_anim_state = 4_as;
-                            }
-                            break;
-                        case ai::Mood::Stalk:
-                            m_state.goal_anim_state = 3_as;
-                            break;
-                        default:
-                            // silence compiler
-                            break;
-                    }
+            case 1:
+                if( aiInfo.bite && aiInfo.distance < util::square( 435_len ) )
+                {
+                    m_state.goal_anim_state = 5_as;
                     break;
-                case 2:
-                    if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x3fcUL) )
+                }
+                switch( m_state.creatureInfo->mood )
+                {
+                case ai::Mood::Escape:
+                    m_state.goal_anim_state = 2_as;
+                    break;
+                case ai::Mood::Attack:
+                    if( (aiInfo.angle >= -90_deg && aiInfo.angle <= 90_deg)
+                        || aiInfo.distance <= util::square( 3 * core::SectorSize ) )
                     {
-                        m_state.goal_anim_state = 1_as;
+                        m_state.goal_anim_state = 2_as;
                     }
                     else
                     {
-                        if( m_state.creatureInfo->mood == ai::Mood::Stalk )
-                        {
-                            m_state.goal_anim_state = 3_as;
-                        }
-                        else if( m_state.creatureInfo->mood != ai::Mood::Bored )
-                        {
-                            if( m_state.creatureInfo->mood == ai::Mood::Attack
-                                && aiInfo.distance > util::square( 3 * core::SectorSize )
-                                && (aiInfo.angle < -90_deg || aiInfo.angle > 90_deg) )
-                            {
-                                m_state.goal_anim_state = 1_as;
-                            }
-                        }
-                        else
-                        {
-                            m_state.goal_anim_state = 1_as;
-                        }
+                        m_state.goal_anim_state = 4_as;
                     }
                     break;
-                case 3:
-                    if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x03fcUL) )
-                    {
-                        m_state.goal_anim_state = 1_as;
-                    }
-                    else
-                    {
-                        if( m_state.creatureInfo->mood == ai::Mood::Attack
-                            || m_state.creatureInfo->mood == ai::Mood::Escape )
-                        {
-                            m_state.goal_anim_state = 2_as;
-                        }
-                        else if( m_state.creatureInfo->mood == ai::Mood::Bored )
-                        {
-                            m_state.goal_anim_state = 1_as;
-                        }
-                    }
+                case ai::Mood::Stalk:
+                    m_state.goal_anim_state = 3_as;
                     break;
-                case 4:
-                    if( aiInfo.angle > -90_deg && aiInfo.angle < 90_deg )
+                default:
+                    // silence compiler
+                    break;
+                }
+                break;
+            case 2:
+                if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x3fcUL) )
+                {
+                    m_state.goal_anim_state = 1_as;
+                }
+                else
+                {
+                    if( m_state.creatureInfo->mood == ai::Mood::Stalk )
                     {
                         m_state.goal_anim_state = 3_as;
                     }
-                    break;
-                case 5:
-                    if( m_state.required_anim_state == 0_as )
+                    else if( m_state.creatureInfo->mood != ai::Mood::Bored )
                     {
-                        emitParticle( {5_len, -21_len, 467_len}, 9, &createBloodSplat );
-                        getEngine().getLara().m_state.health -= 100_hp;
-                        getEngine().getLara().m_state.is_hit = true;
-                        m_state.required_anim_state = 1_as;
+                        if( m_state.creatureInfo->mood == ai::Mood::Attack
+                            && aiInfo.distance > util::square( 3 * core::SectorSize )
+                            && (aiInfo.angle < -90_deg || aiInfo.angle > 90_deg) )
+                        {
+                            m_state.goal_anim_state = 1_as;
+                        }
                     }
-                    break;
-                default:
-                    break;
+                    else
+                    {
+                        m_state.goal_anim_state = 1_as;
+                    }
+                }
+                break;
+            case 3:
+                if( aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x03fcUL) )
+                {
+                    m_state.goal_anim_state = 1_as;
+                }
+                else
+                {
+                    if( m_state.creatureInfo->mood == ai::Mood::Attack
+                        || m_state.creatureInfo->mood == ai::Mood::Escape )
+                    {
+                        m_state.goal_anim_state = 2_as;
+                    }
+                    else if( m_state.creatureInfo->mood == ai::Mood::Bored )
+                    {
+                        m_state.goal_anim_state = 1_as;
+                    }
+                }
+                break;
+            case 4:
+                if( aiInfo.angle > -90_deg && aiInfo.angle < 90_deg )
+                {
+                    m_state.goal_anim_state = 3_as;
+                }
+                break;
+            case 5:
+                if( m_state.required_anim_state == 0_as )
+                {
+                    emitParticle( { 5_len, -21_len, 467_len }, 9, &createBloodSplat );
+                    getEngine().getLara().m_state.health -= 100_hp;
+                    getEngine().getLara().m_state.is_hit = true;
+                    m_state.required_anim_state = 1_as;
+                }
+                break;
+            default:
+                break;
             }
         }
         else
@@ -273,7 +273,7 @@ void Crocodile::update()
         if( m_state.creatureInfo != nullptr )
         {
             getSkeleton()
-                    ->patchBone( 8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix() );
+                ->patchBone( 8, core::TRRotation{ 0_deg, m_state.creatureInfo->head_rotation, 0_deg }.toMatrix() );
             animateCreature( turnRot, 0_deg );
         }
         else

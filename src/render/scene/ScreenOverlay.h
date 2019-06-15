@@ -15,9 +15,7 @@ namespace scene
 {
 class Mesh;
 
-
 class Model;
-
 
 class ScreenOverlay : public Renderable
 {
@@ -49,13 +47,13 @@ public:
     }
 
 private:
-    const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
+    const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{ std::make_shared<gl::Image<gl::SRGBA8>>() };
 
-    gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D )};
+    gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{ std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D ) };
 
-    std::shared_ptr<Mesh> m_mesh{nullptr};
+    std::shared_ptr<Mesh> m_mesh{ nullptr };
 
-    gsl::not_null<std::shared_ptr<Model>> m_model{std::make_shared<Model>()};
+    gsl::not_null<std::shared_ptr<Model>> m_model{ std::make_shared<Model>() };
 };
 }
 }

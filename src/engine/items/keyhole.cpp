@@ -10,10 +10,11 @@ namespace items
 void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 {
     static const InteractionLimits limits{
-            core::BoundingBox{{-200_len, 0_len, 312_len},
-                              {200_len,  0_len, 512_len}},
-            core::TRRotation{-10_deg, -30_deg, -10_deg},
-            core::TRRotation{10_deg, 30_deg, 10_deg}
+        core::BoundingBox{ { -200_len, 0_len, 312_len },
+                           { 200_len,  0_len, 512_len }
+        },
+        core::TRRotation{ -10_deg, -30_deg, -10_deg },
+        core::TRRotation{ 10_deg, 30_deg, 10_deg }
     };
 
     if( lara.getCurrentAnimState() != LaraStateId::Stop )
@@ -34,20 +35,20 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     bool hasKey = false;
     switch( m_state.type.get_as<TR1ItemId>() )
     {
-        case TR1ItemId::Keyhole1:
-            hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key1 );
-            break;
-        case TR1ItemId::Keyhole2:
-            hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key2 );
-            break;
-        case TR1ItemId::Keyhole3:
-            hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key3 );
-            break;
-        case TR1ItemId::Keyhole4:
-            hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key4 );
-            break;
-        default:
-            break;
+    case TR1ItemId::Keyhole1:
+        hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key1 );
+        break;
+    case TR1ItemId::Keyhole2:
+        hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key2 );
+        break;
+    case TR1ItemId::Keyhole3:
+        hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key3 );
+        break;
+    case TR1ItemId::Keyhole4:
+        hasKey = getEngine().getInventory().tryTake( TR1ItemId::Key4 );
+        break;
+    default:
+        break;
     }
     if( !hasKey )
     {
@@ -55,7 +56,7 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         return;
     }
 
-    lara.alignForInteraction( core::TRVec{0_len, 0_len, 362_len}, m_state );
+    lara.alignForInteraction( core::TRVec{ 0_len, 0_len, 362_len }, m_state );
 
     do
     {

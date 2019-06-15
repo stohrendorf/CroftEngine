@@ -24,7 +24,7 @@ class SourceHandle final
 
 public:
     explicit SourceHandle()
-            : m_handle{createHandle()}
+        : m_handle{ createHandle() }
     {
         set( AL_MAX_DISTANCE, 8 * 1024 );
     }

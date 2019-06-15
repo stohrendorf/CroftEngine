@@ -89,21 +89,21 @@ sol::state createScriptEngine()
                      "ACTIVE", items::TriggerState::Active,
                      "DEACTIVATED", items::TriggerState::Deactivated,
                      "INVISIBLE", items::TriggerState::Invisible
-    );
+                   );
 
     engine.new_enum( "Mood",
                      "BORED", ai::Mood::Bored,
                      "ATTACK", ai::Mood::Attack,
                      "ESCAPE", ai::Mood::Escape,
                      "STALK", ai::Mood::Stalk
-    );
+                   );
 
     engine.new_enum( "TrackType",
                      "AMBIENT", audio::TrackType::Ambient,
                      "INTERCEPTION", audio::TrackType::Interception,
                      "AMBIENT_EFFECT", audio::TrackType::AmbientEffect,
                      "LARA_TALK", audio::TrackType::LaraTalk
-    );
+                   );
 
     {
         sol::table tbl = engine.create_table( "TR1SoundId" );
@@ -135,7 +135,7 @@ Engine::getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector, con
         return zero;
     if( sector->floorData == nullptr )
         return zero;
-    if( floordata::FloorDataChunk{*sector->floorData}.type
+    if( floordata::FloorDataChunk{ *sector->floorData }.type
         != floordata::FloorDataChunkType::FloorSlant )
         return zero;
 
@@ -163,7 +163,7 @@ void Engine::swapAllRooms()
 bool Engine::isValid(const loader::file::AnimFrame* frame) const
 {
     return reinterpret_cast<const short*>(frame) >= m_level->m_poseFrames.data()
-           && reinterpret_cast<const short*>(frame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size();
+        && reinterpret_cast<const short*>(frame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size();
 }
 
 const std::unique_ptr<loader::file::SpriteSequence>& Engine::findSpriteSequenceForType(core::TypeId type) const
@@ -201,7 +201,7 @@ Engine::createMaterials(const gsl::not_null<std::shared_ptr<render::scene::Shade
             continue;
 
         materials
-                .emplace( key, proxy.createMaterial( m_level->m_textures[key.tileAndFlag & texMask].texture, shader ) );
+            .emplace( key, proxy.createMaterial( m_level->m_textures[key.tileAndFlag & texMask].texture, shader ) );
     }
     return materials;
 }
@@ -242,13 +242,13 @@ std::shared_ptr<LaraNode> Engine::createItems()
                 for( gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex )
                 {
                     auto node = std::make_shared<render::scene::Node>(
-                            modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
+                        modelNode->getNode()->getId() + "/bone:" + std::to_string( boneIndex ) );
                     node->setDrawable( model->models[boneIndex].get() );
                     addChild( modelNode->getNode(), node );
                 }
 
                 BOOST_ASSERT(
-                        modelNode->getNode()->getChildren().size() == gsl::narrow<size_t>( model->meshes.size() ) );
+                    modelNode->getNode()->getChildren().size() == gsl::narrow<size_t>( model->meshes.size() ) );
             }
             else if( item.type == TR1ItemId::Wolf )
             {
@@ -287,7 +287,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
                 modelNode = std::make_shared<items::TrapDoorUp>( this, room, item, *model );
             }
             else if( item.type >= TR1ItemId::PushableBlock1
-                     && item.type <= TR1ItemId::PushableBlock4 )
+                && item.type <= TR1ItemId::PushableBlock4 )
             {
                 modelNode = std::make_shared<items::Block>( this, room, item, *model );
             }
@@ -308,7 +308,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
                 modelNode = std::make_shared<items::Door>( this, room, item, *model );
             }
             else if( item.type >= TR1ItemId::Trapdoor1
-                     && item.type <= TR1ItemId::Trapdoor2 )
+                && item.type <= TR1ItemId::Trapdoor2 )
             {
                 modelNode = std::make_shared<items::TrapDoorDown>( this, room, item, *model );
             }
@@ -325,17 +325,17 @@ std::shared_ptr<LaraNode> Engine::createItems()
                 modelNode = std::make_shared<items::BridgeSlope2>( this, room, item, *model );
             }
             else if( item.type >= TR1ItemId::Keyhole1
-                     && item.type <= TR1ItemId::Keyhole4 )
+                && item.type <= TR1ItemId::Keyhole4 )
             {
                 modelNode = std::make_shared<items::KeyHole>( this, room, item, *model );
             }
             else if( item.type >= TR1ItemId::PuzzleHole1
-                     && item.type <= TR1ItemId::PuzzleHole4 )
+                && item.type <= TR1ItemId::PuzzleHole4 )
             {
                 modelNode = std::make_shared<items::PuzzleHole>( this, room, item, *model );
             }
             else if( item.type >= TR1ItemId::Animating1
-                     && item.type <= TR1ItemId::Animating3 )
+                && item.type <= TR1ItemId::Animating3 )
             {
                 modelNode = std::make_shared<items::Animating>( this, room, item, *model );
             }
@@ -384,13 +384,13 @@ std::shared_ptr<LaraNode> Engine::createItems()
                 modelNode = std::make_shared<items::Larson>( this, room, item, *model );
             }
             else if( item.type == TR1ItemId::CrocodileOnLand
-                     || item.type == TR1ItemId::CrocodileInWater )
+                || item.type == TR1ItemId::CrocodileInWater )
             {
                 modelNode = std::make_shared<items::Crocodile>( this, room, item, *model );
             }
             else if( item.type == TR1ItemId::LionMale
-                     || item.type == TR1ItemId::LionFemale
-                     || item.type == TR1ItemId::Panther )
+                || item.type == TR1ItemId::LionFemale
+                || item.type == TR1ItemId::Panther )
             {
                 modelNode = std::make_shared<items::Lion>( this, room, item, *model );
             }
@@ -469,39 +469,39 @@ std::shared_ptr<LaraNode> Engine::createItems()
             {
                 node = std::make_shared<items::ScionPieceItem>( this,
                                                                 std::string( "sprite(type:" )
-                                                                + toString( item.type.get_as<TR1ItemId>() ) + ")",
+                                                                    + toString( item.type.get_as<TR1ItemId>() ) + ")",
                                                                 room,
                                                                 item,
                                                                 sprite,
                                                                 m_spriteMaterial );
             }
             else if( item.type == TR1ItemId::Item141
-                     || item.type == TR1ItemId::Item142
-                     || item.type == TR1ItemId::Key1Sprite
-                     || item.type == TR1ItemId::Key2Sprite
-                     || item.type == TR1ItemId::Key3Sprite
-                     || item.type == TR1ItemId::Key4Sprite
-                     || item.type == TR1ItemId::Puzzle1Sprite
-                     || item.type == TR1ItemId::Puzzle2Sprite
-                     || item.type == TR1ItemId::Puzzle3Sprite
-                     || item.type == TR1ItemId::Puzzle4Sprite
-                     || item.type == TR1ItemId::PistolsSprite
-                     || item.type == TR1ItemId::ShotgunSprite
-                     || item.type == TR1ItemId::MagnumsSprite
-                     || item.type == TR1ItemId::UzisSprite
-                     || item.type == TR1ItemId::PistolAmmoSprite
-                     || item.type == TR1ItemId::ShotgunAmmoSprite
-                     || item.type == TR1ItemId::MagnumAmmoSprite
-                     || item.type == TR1ItemId::UziAmmoSprite
-                     || item.type == TR1ItemId::ExplosiveSprite
-                     || item.type == TR1ItemId::SmallMedipackSprite
-                     || item.type == TR1ItemId::LargeMedipackSprite
-                     || item.type == TR1ItemId::ScionPiece2
-                     || item.type == TR1ItemId::LeadBarSprite )
+                || item.type == TR1ItemId::Item142
+                || item.type == TR1ItemId::Key1Sprite
+                || item.type == TR1ItemId::Key2Sprite
+                || item.type == TR1ItemId::Key3Sprite
+                || item.type == TR1ItemId::Key4Sprite
+                || item.type == TR1ItemId::Puzzle1Sprite
+                || item.type == TR1ItemId::Puzzle2Sprite
+                || item.type == TR1ItemId::Puzzle3Sprite
+                || item.type == TR1ItemId::Puzzle4Sprite
+                || item.type == TR1ItemId::PistolsSprite
+                || item.type == TR1ItemId::ShotgunSprite
+                || item.type == TR1ItemId::MagnumsSprite
+                || item.type == TR1ItemId::UzisSprite
+                || item.type == TR1ItemId::PistolAmmoSprite
+                || item.type == TR1ItemId::ShotgunAmmoSprite
+                || item.type == TR1ItemId::MagnumAmmoSprite
+                || item.type == TR1ItemId::UziAmmoSprite
+                || item.type == TR1ItemId::ExplosiveSprite
+                || item.type == TR1ItemId::SmallMedipackSprite
+                || item.type == TR1ItemId::LargeMedipackSprite
+                || item.type == TR1ItemId::ScionPiece2
+                || item.type == TR1ItemId::LeadBarSprite )
             {
                 node = std::make_shared<items::PickupItem>( this,
                                                             std::string( "sprite(type:" )
-                                                            + toString( item.type.get_as<TR1ItemId>() ) + ")",
+                                                                + toString( item.type.get_as<TR1ItemId>() ) + ")",
                                                             room,
                                                             item,
                                                             sprite,
@@ -512,7 +512,7 @@ std::shared_ptr<LaraNode> Engine::createItems()
                 BOOST_LOG_TRIVIAL( warning ) << "Unimplemented item " << toString( item.type.get_as<TR1ItemId>() );
                 node = std::make_shared<items::SpriteItemNode>( this,
                                                                 std::string( "sprite(type:" )
-                                                                + toString( item.type.get_as<TR1ItemId>() ) + ")",
+                                                                    + toString( item.type.get_as<TR1ItemId>() ) + ")",
                                                                 room,
                                                                 item,
                                                                 true,
@@ -572,13 +572,13 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     m_portalMaterial->getParameter( "u_mvp" )
                     ->bind( [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
                                                                                  render::gl::Program::ActiveUniform& uniform) {
-                        uniform.set( camera->getViewProjectionMatrix() ); // portals are already in world space
+                      uniform.set( camera->getViewProjectionMatrix() ); // portals are already in world space
                     } );
 
     for( auto& mesh : m_level->m_meshes )
     {
         m_models.emplace_back(
-                mesh.createModel( m_level->m_textureProxies, materials, colorMaterial, *m_level->m_palette ) );
+            mesh.createModel( m_level->m_textureProxies, materials, colorMaterial, *m_level->m_palette ) );
     }
 
     for( auto idx : m_level->m_meshIndices )
@@ -589,7 +589,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     }
 
     for( const std::unique_ptr<loader::file::SkeletalModelType>& model : m_level->m_animatedModels
-                                                                         | boost::adaptors::map_values )
+        | boost::adaptors::map_values )
     {
         if( model->nMeshes > 0 )
         {
@@ -600,17 +600,17 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
 
     const auto waterTexturedShader = render::scene::ShaderProgram::createFromFile( "shaders/textured_2.vert",
                                                                                    "shaders/textured_2.frag",
-                                                                                   {"WATER"} );
+                                                                                   { "WATER" } );
     auto waterMaterials = createMaterials( waterTexturedShader );
     for( const auto& m : waterMaterials | boost::adaptors::map_values )
     {
         m->getParameter( "u_time" )->bind(
-                [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
-                    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(
-                            m_renderer->getGameTime() );
-                    uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
-                }
-        );
+            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
+              const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(
+                  m_renderer->getGameTime() );
+              uniform.set( gsl::narrow_cast<float>( now.time_since_epoch().count() ) );
+            }
+                                         );
     }
 
     for( size_t i = 0; i < m_level->m_rooms.size(); ++i )
@@ -624,9 +624,9 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     if( m_lara == nullptr )
     {
         m_cameraController = std::make_unique<CameraController>(
-                this,
-                m_renderer->getScene()->getActiveCamera(),
-                true );
+            this,
+            m_renderer->getScene()->getActiveCamera(),
+            true );
 
         for( const auto& item : m_level->m_items )
         {
@@ -639,8 +639,8 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     else
     {
         m_cameraController = std::make_unique<CameraController>(
-                this,
-                m_renderer->getScene()->getActiveCamera() );
+            this,
+            m_renderer->getScene()->getActiveCamera() );
     }
 
     m_positionalEmitters.reserve( m_level->m_soundSources.size() );
@@ -778,17 +778,18 @@ void Engine::laraBubblesEffect(items::ItemNode& node)
     node.playSoundEffect( TR1SoundId::LaraUnderwaterGurgle );
 
     const auto itemSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
-            node.m_state,
-            *modelNode->getSkeleton()->getInterpolationInfo( modelNode->m_state ).getNearestFrame(),
-            nullptr );
+        node.m_state,
+        *modelNode->getSkeleton()->getInterpolationInfo( modelNode->m_state ).getNearestFrame(),
+        nullptr );
 
     const auto position = core::TRVec{
-            glm::vec3{translate( itemSpheres.at( 14 ).m, core::TRVec{0_len, 0_len, 50_len}.toRenderSystem() )[3]}};
+        glm::vec3{ translate( itemSpheres.at( 14 ).m, core::TRVec{ 0_len, 0_len, 50_len }.toRenderSystem() )[3] }
+    };
 
     while( bubbleCount-- > 0 )
     {
         auto particle = std::make_shared<BubbleParticle>(
-                core::RoomBoundPosition{node.m_state.position.room, position}, *this );
+            core::RoomBoundPosition{ node.m_state.position.room, position }, *this );
         setParent( particle, node.m_state.position.room->node );
         m_particles.emplace_back( particle );
     }
@@ -803,24 +804,24 @@ void Engine::earthquakeEffect()
 {
     switch( m_effectTimer.get() )
     {
-        case 0:
-            m_audioEngine->playSound( TR1SoundId::Explosion1, nullptr );
-            getCameraController().setBounce( -250_len );
-            break;
-        case 3:
-            m_audioEngine->playSound( TR1SoundId::RollingBall, nullptr );
-            break;
-        case 35:
-            m_audioEngine->playSound( TR1SoundId::Explosion1, nullptr );
-            break;
-        case 20:
-        case 50:
-        case 70:
-            m_audioEngine->playSound( TR1SoundId::TRexFootstep, nullptr );
-            break;
-        default:
-            // silence compiler
-            break;
+    case 0:
+        m_audioEngine->playSound( TR1SoundId::Explosion1, nullptr );
+        getCameraController().setBounce( -250_len );
+        break;
+    case 3:
+        m_audioEngine->playSound( TR1SoundId::RollingBall, nullptr );
+        break;
+    case 35:
+        m_audioEngine->playSound( TR1SoundId::Explosion1, nullptr );
+        break;
+    case 20:
+    case 50:
+    case 70:
+        m_audioEngine->playSound( TR1SoundId::TRexFootstep, nullptr );
+        break;
+    default:
+        // silence compiler
+        break;
     }
 
     m_effectTimer += 1_frame;
@@ -1041,7 +1042,7 @@ YAML::Node Engine::save() const
     YAML::Node inventory;
 
     const auto addInventory = [&](const TR1ItemId id) {
-        inventory[toString( id )] = m_inventory.count( id );
+      inventory[toString( id )] = m_inventory.count( id );
     };
 
     addInventory( TR1ItemId::Pistols );
@@ -1102,8 +1103,8 @@ void Engine::load(const YAML::Node& node)
 
     for( const auto& entry : node["inventory"] )
         m_inventory.put(
-                EnumUtil<TR1ItemId>::fromString( entry.first.as<std::string>() ),
-                entry.second.as<size_t>() );
+            EnumUtil<TR1ItemId>::fromString( entry.first.as<std::string>() ),
+            entry.second.as<size_t>() );
 
     for( size_t i = 0; i < mapFlipActivationStates.size(); ++i )
     {
@@ -1148,12 +1149,12 @@ std::shared_ptr<items::PickupItem> Engine::createPickup(const core::TypeId type,
     const loader::file::Sprite& sprite = spriteSequence->sprites[0];
 
     auto node = std::make_shared<items::PickupItem>(
-            this,
-            "pickup",
-            room,
-            item,
-            sprite,
-            m_spriteMaterial );
+        this,
+        "pickup",
+        room,
+        item,
+        sprite,
+        m_spriteMaterial );
 
     m_dynamicItems.emplace( node );
     addChild( room->node, node->getNode() );
@@ -1275,18 +1276,18 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
             drawText( font, 10, y, item->getNode()->getId() );
             switch( item->m_state.triggerState )
             {
-                case items::TriggerState::Inactive:
-                    drawText( font, 180, y, "inactive" );
-                    break;
-                case items::TriggerState::Active:
-                    drawText( font, 180, y, "active" );
-                    break;
-                case items::TriggerState::Deactivated:
-                    drawText( font, 180, y, "deactivated" );
-                    break;
-                case items::TriggerState::Invisible:
-                    drawText( font, 180, y, "invisible" );
-                    break;
+            case items::TriggerState::Inactive:
+                drawText( font, 180, y, "inactive" );
+                break;
+            case items::TriggerState::Active:
+                drawText( font, 180, y, "active" );
+                break;
+            case items::TriggerState::Deactivated:
+                drawText( font, 180, y, "deactivated" );
+                break;
+            case items::TriggerState::Invisible:
+                drawText( font, 180, y, "invisible" );
+                break;
             }
             drawText( font, 260, y, item->m_state.timer.toString() );
             y += 20;
@@ -1299,40 +1300,40 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
 #ifndef NDEBUG
     // collision
     drawText( font, 400, 20, boost::lexical_cast<std::string>( "AxisColl: " )
-                             + toString( m_lara->lastUsedCollisionInfo.collisionType ) );
+        + toString( m_lara->lastUsedCollisionInfo.collisionType ) );
     drawText( font, 400, 40, boost::lexical_cast<std::string>( "Current floor:   " )
-                             + m_lara->lastUsedCollisionInfo.mid.floorSpace.y.toString() );
+        + m_lara->lastUsedCollisionInfo.mid.floorSpace.y.toString() );
     drawText( font, 400, 60, boost::lexical_cast<std::string>( "Current ceiling: " )
-                             + m_lara->lastUsedCollisionInfo.mid.ceilingSpace.y.toString() );
+        + m_lara->lastUsedCollisionInfo.mid.ceilingSpace.y.toString() );
     drawText( font, 400, 80, boost::lexical_cast<std::string>( "Front floor:     " )
-                             + m_lara->lastUsedCollisionInfo.front.floorSpace.y.toString() );
+        + m_lara->lastUsedCollisionInfo.front.floorSpace.y.toString() );
     drawText( font, 400, 100, boost::lexical_cast<std::string>( "Front ceiling:   " )
-                              + m_lara->lastUsedCollisionInfo.front.ceilingSpace.y.toString() );
+        + m_lara->lastUsedCollisionInfo.front.ceilingSpace.y.toString() );
     drawText( font, 400, 120, boost::lexical_cast<std::string>( "Front/L floor:   " )
-                              + m_lara->lastUsedCollisionInfo.frontLeft.floorSpace.y.toString() );
+        + m_lara->lastUsedCollisionInfo.frontLeft.floorSpace.y.toString() );
     drawText( font, 400, 140, boost::lexical_cast<std::string>( "Front/L ceiling: " )
-                              + m_lara->lastUsedCollisionInfo.frontLeft.ceilingSpace.y.toString() );
+        + m_lara->lastUsedCollisionInfo.frontLeft.ceilingSpace.y.toString() );
     drawText( font, 400, 160, boost::lexical_cast<std::string>( "Front/R floor:   " )
-                              + m_lara->lastUsedCollisionInfo.frontRight.floorSpace.y.toString() );
+        + m_lara->lastUsedCollisionInfo.frontRight.floorSpace.y.toString() );
     drawText( font, 400, 180, boost::lexical_cast<std::string>( "Front/R ceiling: " )
-                              + m_lara->lastUsedCollisionInfo.frontRight.ceilingSpace.y.toString() );
+        + m_lara->lastUsedCollisionInfo.frontRight.ceilingSpace.y.toString() );
     drawText( font, 400, 200, boost::lexical_cast<std::string>( "Need bottom:     " )
-                              + m_lara->lastUsedCollisionInfo.badPositiveDistance.toString() );
+        + m_lara->lastUsedCollisionInfo.badPositiveDistance.toString() );
     drawText( font, 400, 220, boost::lexical_cast<std::string>( "Need top:        " )
-                              + m_lara->lastUsedCollisionInfo.badNegativeDistance.toString() );
+        + m_lara->lastUsedCollisionInfo.badNegativeDistance.toString() );
     drawText( font, 400, 240, boost::lexical_cast<std::string>( "Need ceiling:    " )
-                              + m_lara->lastUsedCollisionInfo.badCeilingDistance.toString() );
+        + m_lara->lastUsedCollisionInfo.badCeilingDistance.toString() );
 #endif
 
     // weapons
     drawText( font, 400, 280, std::string( "L.aiming    " ) + (m_lara->leftArm.aiming ? "true" : "false") );
     drawText( font, 400, 300,
               std::string( "L.aim       X=" ) + std::to_string( toDegrees( m_lara->leftArm.aimRotation.X ) )
-              + ", Y=" + std::to_string( toDegrees( m_lara->leftArm.aimRotation.Y ) ) );
+                  + ", Y=" + std::to_string( toDegrees( m_lara->leftArm.aimRotation.Y ) ) );
     drawText( font, 400, 320, std::string( "R.aiming    " ) + (m_lara->rightArm.aiming ? "true" : "false") );
     drawText( font, 400, 340,
               std::string( "R.aim       X=" ) + std::to_string( toDegrees( m_lara->rightArm.aimRotation.X ) )
-              + ", Y=" + std::to_string( toDegrees( m_lara->rightArm.aimRotation.Y ) ) );
+                  + ", Y=" + std::to_string( toDegrees( m_lara->rightArm.aimRotation.Y ) ) );
 }
 
 void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, const int x, const int y,
@@ -1342,16 +1343,16 @@ void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& fo
 }
 
 Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution)
-        : m_renderer{std::make_unique<render::scene::Renderer>()}
-        , m_window{std::make_unique<render::scene::Window>( fullscreen, resolution )}
-        , splashImage{"splash.png"}
-        , abibasFont{std::make_shared<render::gl::Font>( "abibas.ttf", 48 )}
-        , m_scriptEngine{createScriptEngine()}
-        , m_inventory{*this}
+    : m_renderer{ std::make_unique<render::scene::Renderer>() }
+      , m_window{ std::make_unique<render::scene::Window>( fullscreen, resolution ) }
+      , splashImage{ "splash.png" }
+      , abibasFont{ std::make_shared<render::gl::Font>( "abibas.ttf", 48 ) }
+      , m_scriptEngine{ createScriptEngine() }
+      , m_inventory{ *this }
 {
     m_renderer->getScene()->setActiveCamera(
-            std::make_shared<render::scene::Camera>( glm::radians( 80.0f ), m_window->getAspectRatio(), 10.0f,
-                                                     20480.0f ) );
+        std::make_shared<render::scene::Camera>( glm::radians( 80.0f ), m_window->getAspectRatio(), 10.0f,
+                                                 20480.0f ) );
 
     scaleSplashImage();
 
@@ -1399,14 +1400,14 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
         {
             for( const auto& kv : *tbl )
                 initInv[EnumUtil<TR1ItemId>::fromString( kv.first.as<std::string>() )]
-                        += kv.second.as<size_t>();
+                    += kv.second.as<size_t>();
         }
 
         if( sol::optional<sol::table> tbl = m_scriptEngine["cheats"]["inventory"] )
         {
             for( const auto& kv : *tbl )
                 initInv[EnumUtil<TR1ItemId>::fromString( kv.first.as<std::string>() )]
-                        += kv.second.as<size_t>();
+                    += kv.second.as<size_t>();
         }
 
         drawLoadingScreen( "Preparing to load " + baseName );
@@ -1433,13 +1434,13 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
         {
             if( glidos != nullptr )
                 drawLoadingScreen( "Upgrading texture " + std::to_string( i + 1 ) + " of "
-                                   + std::to_string( m_level->m_textures.size() ) );
+                                       + std::to_string( m_level->m_textures.size() ) );
             else
                 drawLoadingScreen(
-                        "Loading texture " + std::to_string( i + 1 ) + " of "
+                    "Loading texture " + std::to_string( i + 1 ) + " of "
                         + std::to_string( m_level->m_textures.size() ) );
             m_level->m_textures[i].toTexture( glidos.get(), std::function<void(const std::string&)>(
-                    [this](const std::string& s) { drawLoadingScreen( s ); } ) );
+                [this](const std::string& s) { drawLoadingScreen( s ); } ) );
         }
 
         drawLoadingScreen( "Preparing the game" );
@@ -1457,9 +1458,9 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     {
         m_audioEngine = std::make_unique<AudioEngine>( *this );
         m_cameraController = std::make_unique<CameraController>(
-                this,
-                m_renderer->getScene()->getActiveCamera(),
-                true );
+            this,
+            m_renderer->getScene()->getActiveCamera(),
+            true );
     }
 
     m_audioEngine->m_soundEngine.setListener( m_cameraController.get() );
@@ -1467,14 +1468,14 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     if( !cutsceneName.empty() )
     {
         m_cameraController
-                ->setEyeRotation( 0_deg, core::angleFromDegrees( levelInfo.get<float>( "cameraRot" ) ) );
+            ->setEyeRotation( 0_deg, core::angleFromDegrees( levelInfo.get<float>( "cameraRot" ) ) );
         auto pos = getCameraController().getTRPosition().position;
         if( auto x = levelInfo["cameraPosX"] )
-            pos.X = core::Length{x.get<core::Length::type>()};
+            pos.X = core::Length{ x.get<core::Length::type>() };
         if( auto y = levelInfo["cameraPosY"] )
-            pos.Y = core::Length{y.get<core::Length::type>()};
+            pos.Y = core::Length{ y.get<core::Length::type>() };
         if( auto z = levelInfo["cameraPosZ"] )
-            pos.Z = core::Length{z.get<core::Length::type>()};
+            pos.Z = core::Length{ z.get<core::Length::type>() };
 
         getCameraController().setPosition( pos );
 
@@ -1505,7 +1506,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
 void Engine::run()
 {
     render::scene::RenderContext context{};
-    render::scene::Node dummyNode{""};
+    render::scene::Node dummyNode{ "" };
     context.setCurrentNode( &dummyNode );
 
     render::gl::FrameBuffer::unbindAll();
@@ -1518,22 +1519,22 @@ void Engine::run()
                      m_audioEngine->m_soundEngine.getDevice(),
                      screenOverlay->getImage(),
                      [&]() {
-                         if( m_window->updateWindowSize() )
-                         {
-                             m_renderer->getScene()->getActiveCamera()->setAspectRatio( m_window->getAspectRatio() );
-                             screenOverlay->init( m_window->getViewport() );
-                         }
+                       if( m_window->updateWindowSize() )
+                       {
+                           m_renderer->getScene()->getActiveCamera()->setAspectRatio( m_window->getAspectRatio() );
+                           screenOverlay->init( m_window->getViewport() );
+                       }
 
-                         screenOverlay->render( context );
-                         m_window->swapBuffers();
-                         m_inputHandler->update();
-                         return !m_window->windowShouldClose();
+                       screenOverlay->render( context );
+                       m_window->swapBuffers();
+                       m_inputHandler->update();
+                       return !m_window->windowShouldClose();
                      } );
         return;
     }
 
     static const auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>( std::chrono::seconds( 1 ) )
-                                      / core::FrameRate.get();
+        / core::FrameRate.get();
 
     const std::string levelName = levelInfo["name"];
 
@@ -1555,11 +1556,11 @@ void Engine::run()
 
     while( !m_window->windowShouldClose() )
     {
-        screenOverlay->getImage()->fill( {0, 0, 0, 0} );
+        screenOverlay->getImage()->fill( { 0, 0, 0, 0 } );
 
         if( !levelName.empty() )
         {
-            ui::Label tmp{0, -50, levelName};
+            ui::Label tmp{ 0, -50, levelName };
             tmp.alignX = ui::Label::Alignment::Center;
             tmp.alignY = ui::Label::Alignment::Bottom;
             tmp.outline = true;
@@ -1604,7 +1605,7 @@ void Engine::run()
                 break;
 
             waterEntryPortals = m_cameraController
-                    ->updateCinematic( m_level->m_cinematicFrames[getCameraController().m_cinematicFrame], false );
+                ->updateCinematic( m_level->m_cinematicFrames[getCameraController().m_cinematicFrame], false );
         }
         doGlobalEffect();
 
@@ -1612,20 +1613,20 @@ void Engine::run()
             drawBars( screenOverlay->getImage() );
 
         m_renderPipeline
-                ->update( *getCameraController().getCamera(), m_renderer->getGameTime() );
+            ->update( *getCameraController().getCamera(), m_renderer->getGameTime() );
 
         {
-            render::gl::DebugGroup dbg{"geometry-pass"};
+            render::gl::DebugGroup dbg{ "geometry-pass" };
             m_renderPipeline->bindGeometryFrameBuffer();
             m_renderer->render();
         }
 
         render::scene::RenderContext context{};
-        render::scene::Node dummyNode{""};
+        render::scene::Node dummyNode{ "" };
         context.setCurrentNode( &dummyNode );
 
         {
-            render::gl::DebugGroup dbg{"portal-depth-pass"};
+            render::gl::DebugGroup dbg{ "portal-depth-pass" };
             m_renderPipeline->bindPortalFrameBuffer();
             for( const auto& portal : waterEntryPortals )
             {
@@ -1640,8 +1641,9 @@ void Engine::run()
             drawDebugInfo( font, m_renderer->getFrameRate() );
             for( const auto& ctrl : m_itemNodes | boost::adaptors::map_values )
             {
-                const auto vertex = glm::vec3{m_renderer->getScene()->getActiveCamera()->getViewMatrix()
-                                              * glm::vec4( ctrl->getNode()->getTranslationWorld(), 1 )};
+                const auto vertex = glm::vec3{ m_renderer->getScene()->getActiveCamera()->getViewMatrix()
+                                                   * glm::vec4( ctrl->getNode()->getTranslationWorld(), 1 )
+                };
 
                 if( vertex.z > -m_renderer->getScene()->getActiveCamera()->getNearPlane() )
                 {
@@ -1652,7 +1654,7 @@ void Engine::run()
                     continue;
                 }
 
-                glm::vec4 projVertex{vertex, 1};
+                glm::vec4 projVertex{ vertex, 1 };
                 projVertex = m_renderer->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
                 projVertex /= projVertex.w;
 
@@ -1663,12 +1665,12 @@ void Engine::run()
                 projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().height;
 
                 font->drawText( ctrl->getNode()->getId().c_str(), projVertex.x, projVertex.y,
-                                render::gl::SRGBA8{255} );
+                                render::gl::SRGBA8{ 255 } );
             }
         }
 
         {
-            render::gl::DebugGroup dbg{"screen-overlay-pass"};
+            render::gl::DebugGroup dbg{ "screen-overlay-pass" };
             screenOverlay->render( context );
         }
         m_window->swapBuffers();
@@ -1680,7 +1682,7 @@ void Engine::run()
             drawLoadingScreen( "Saving..." );
 
             BOOST_LOG_TRIVIAL( info ) << "Save";
-            std::ofstream file{"quicksave.yaml", std::ios::out | std::ios::trunc};
+            std::ofstream file{ "quicksave.yaml", std::ios::out | std::ios::trunc };
             Expects( file.is_open() );
             file << save();
 
@@ -1704,9 +1706,9 @@ void Engine::scaleSplashImage()
 {
     // scale splash image so that its aspect ratio is preserved, but the boundaries match
     const float splashScale = std::max(
-            gsl::narrow<float>( m_window->getViewport().width ) / splashImage.width(),
-            gsl::narrow<float>( m_window->getViewport().height ) / splashImage.height()
-    );
+        gsl::narrow<float>( m_window->getViewport().width ) / splashImage.width(),
+        gsl::narrow<float>( m_window->getViewport().height ) / splashImage.height()
+                                      );
 
     splashImageScaled = splashImage;
     splashImageScaled.resize( splashImageScaled.width() * splashScale, splashImageScaled.height() * splashScale );
@@ -1715,11 +1717,11 @@ void Engine::scaleSplashImage()
     const auto centerX = splashImageScaled.width() / 2;
     const auto centerY = splashImageScaled.height() / 2;
     splashImageScaled.crop(
-            gsl::narrow<int>( centerX - m_window->getViewport().width / 2 ),
-            gsl::narrow<int>( centerY - m_window->getViewport().height / 2 ),
-            gsl::narrow<int>( centerX - m_window->getViewport().width / 2 + m_window->getViewport().width - 1 ),
-            gsl::narrow<int>( centerY - m_window->getViewport().height / 2 + m_window->getViewport().height - 1 )
-    );
+        gsl::narrow<int>( centerX - m_window->getViewport().width / 2 ),
+        gsl::narrow<int>( centerY - m_window->getViewport().height / 2 ),
+        gsl::narrow<int>( centerX - m_window->getViewport().width / 2 + m_window->getViewport().width - 1 ),
+        gsl::narrow<int>( centerY - m_window->getViewport().height / 2 + m_window->getViewport().height - 1 )
+                          );
 
     Expects( splashImageScaled.width() == m_window->getViewport().width );
     Expects( splashImageScaled.height() == m_window->getViewport().height );
@@ -1739,18 +1741,18 @@ void Engine::drawLoadingScreen(const std::string& state)
         scaleSplashImage();
     }
     screenOverlay->getImage()->assign(
-            reinterpret_cast<const render::gl::SRGBA8*>(splashImageScaled.data()),
-            m_window->getViewport().width * m_window->getViewport().height
-    );
+        reinterpret_cast<const render::gl::SRGBA8*>(splashImageScaled.data()),
+        m_window->getViewport().width * m_window->getViewport().height
+                                     );
     abibasFont->drawText( state, 40, gsl::narrow<int>( m_window->getViewport().height - 100 ), 255, 255, 255, 192 );
 
     render::gl::FrameBuffer::unbindAll();
 
     GL_ASSERT( glClear( ::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT ) );
 
-    m_renderer->clear( ::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1 );
+    m_renderer->clear( ::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT, { 0, 0, 0, 0 }, 1 );
     render::scene::RenderContext context{};
-    render::scene::Node dummyNode{""};
+    render::scene::Node dummyNode{ "" };
     context.setCurrentNode( &dummyNode );
     screenOverlay->render( context );
     m_window->swapBuffers();

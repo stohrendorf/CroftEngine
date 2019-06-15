@@ -13,11 +13,9 @@ namespace audio
 {
 class SoundEngine;
 
-
 class Emitter
 {
     friend class SoundEngine;
-
 
 public:
     explicit Emitter(const gsl::not_null<SoundEngine*>& engine);
@@ -25,7 +23,7 @@ public:
     Emitter() = delete;
 
     Emitter(const Emitter& rhs)
-            : Emitter{rhs.m_engine}
+        : Emitter{ rhs.m_engine }
     {
     }
 
@@ -43,11 +41,9 @@ private:
     mutable SoundEngine* m_engine = nullptr;
 };
 
-
 class Listener
 {
     friend class SoundEngine;
-
 
 public:
     explicit Listener(const gsl::not_null<SoundEngine*>& engine);
@@ -55,7 +51,7 @@ public:
     Listener() = delete;
 
     Listener(const Listener& rhs)
-            : Listener{rhs.m_engine}
+        : Listener{ rhs.m_engine }
     {
     }
 
@@ -77,14 +73,11 @@ private:
     mutable SoundEngine* m_engine = nullptr;
 };
 
-
 class SoundEngine final
 {
     friend class Emitter;
 
-
     friend class Listener;
-
 
 public:
     ~SoundEngine();

@@ -15,13 +15,14 @@ class IndexBuffer : public BindableResource
 {
 public:
     explicit IndexBuffer(const std::string& label = {})
-            : BindableResource{::gl::glGenBuffers,
-                               [](const ::gl::GLuint handle) {
-                                   ::gl::glBindBuffer( ::gl::GL_ELEMENT_ARRAY_BUFFER, handle );
-                               },
-                               ::gl::glDeleteBuffers,
-                               ::gl::GL_BUFFER,
-                               label}
+        : BindableResource{ ::gl::glGenBuffers,
+                            [](const ::gl::GLuint handle) {
+                              ::gl::glBindBuffer( ::gl::GL_ELEMENT_ARRAY_BUFFER, handle );
+                            },
+                            ::gl::glDeleteBuffers,
+                            ::gl::GL_BUFFER,
+                            label
+    }
     {
     }
 
@@ -69,12 +70,12 @@ public:
         Expects( indexCount >= 0 );
         if( indexStart + indexCount > m_indexCount )
         {
-            BOOST_THROW_EXCEPTION( std::out_of_range{"Sub-range exceeds buffer range"} );
+            BOOST_THROW_EXCEPTION( std::out_of_range{ "Sub-range exceeds buffer range" } );
         }
 
         if( TypeTraits<T>::TypeId != m_storageType )
         {
-            BOOST_THROW_EXCEPTION( std::logic_error{"Incompatible storage type for buffer sub-data"} );
+            BOOST_THROW_EXCEPTION( std::logic_error{ "Incompatible storage type for buffer sub-data" } );
         }
 
         bind();

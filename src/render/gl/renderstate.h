@@ -97,13 +97,12 @@ private:
         }
     };
 
-
     struct DefaultedOptionalF final
     {
         const ::gl::GLfloat DefaultValue;
 
         explicit DefaultedOptionalF(::gl::GLfloat defaultValue)
-                : DefaultValue{defaultValue}
+            : DefaultValue{ defaultValue }
         {}
 
         DefaultedOptionalF& operator=(const DefaultedOptionalF& rhs)
@@ -154,7 +153,6 @@ private:
         }
     };
 
-
     // States
     DefaultedOptional<bool, false> m_cullFaceEnabled;
 
@@ -174,7 +172,7 @@ private:
 
     DefaultedOptional<::gl::GLenum, ::gl::GL_CW> m_frontFace;
 
-    DefaultedOptionalF m_lineWidth{1.0f};
+    DefaultedOptionalF m_lineWidth{ 1.0f };
 
     DefaultedOptional<bool, true> m_lineSmooth;
 

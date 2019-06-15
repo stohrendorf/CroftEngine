@@ -11,9 +11,7 @@ namespace floordata
 {
 enum class SequenceCondition;
 
-
 class ActivationState;
-
 
 struct CameraParameters;
 }
@@ -25,9 +23,7 @@ class ItemNode;
 
 class LaraNode;
 
-
 class Engine;
-
 
 enum class CameraMode
 {
@@ -46,7 +42,6 @@ enum class CameraModifier
     AllowSteepSlants,
     Chase
 };
-
 
 class CameraController final : public audio::Listener
 {
@@ -76,7 +71,7 @@ private:
     //! @brief Goal distance between the pivot point and the camera.
     core::Length m_eyeCenterDistance = core::DefaultCameraLaraDistance;
     //! @brief Floor-projected pivot distance, squared.
-    core::Area m_eyeCenterHorizontalDistanceSq{0};
+    core::Area m_eyeCenterHorizontalDistanceSq{ 0 };
 
     core::TRRotation m_eyeRotation;
 
@@ -92,7 +87,7 @@ private:
     int m_smoothness = 8;
     int m_fixedCameraId = -1;
     int m_currentFixedCameraId = -1;
-    core::Frame m_camOverrideTimeout{-1_frame};
+    core::Frame m_camOverrideTimeout{ -1_frame };
 
 public:
     explicit CameraController(const gsl::not_null<Engine*>& engine,
@@ -163,7 +158,7 @@ public:
 
     glm::vec3 getPosition() const override
     {
-        return glm::vec3{m_camera->getInverseViewMatrix()[3]};
+        return glm::vec3{ m_camera->getInverseViewMatrix()[3] };
     }
 
     const core::RoomBoundPosition& getCenter() const
@@ -176,14 +171,14 @@ public:
     {
         auto rs = m_camera->getInverseViewMatrix();
         rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
-        return glm::vec3{rs * glm::vec4{0, 0, -1, 1}};
+        return glm::vec3{ rs * glm::vec4{ 0, 0, -1, 1 } };
     }
 
     glm::vec3 getUpVector() const override
     {
         auto rs = m_camera->getInverseViewMatrix();
         rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
-        return glm::vec3{rs * glm::vec4{0, 1, 0, 1}};
+        return glm::vec3{ rs * glm::vec4{ 0, 1, 0, 1 } };
     }
 
     const gsl::not_null<const loader::file::Room*>& getCurrentRoom() const
@@ -238,8 +233,8 @@ public:
     void load(const YAML::Node& n);
 
     size_t m_cinematicFrame = 0;
-    core::TRVec m_cinematicPos{0_len, 0_len, 0_len};
-    core::TRRotation m_cinematicRot{0_deg, 0_deg, 0_deg};
+    core::TRVec m_cinematicPos{ 0_len, 0_len, 0_len };
+    core::TRRotation m_cinematicRot{ 0_deg, 0_deg, 0_deg };
 
 private:
     std::unordered_set<const loader::file::Portal*> tracePortals();

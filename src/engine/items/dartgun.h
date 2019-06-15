@@ -13,7 +13,7 @@ public:
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,
             const loader::file::SkeletalModelType& animatedModel)
-            : ModelItemNode{engine, room, item, true, animatedModel}
+        : ModelItemNode{ engine, room, item, true, animatedModel }
     {
     }
 
@@ -44,28 +44,28 @@ public:
 
         switch( *axis )
         {
-            case core::Axis::PosZ:
-                d.Z += 412_len;
-                break;
-            case core::Axis::PosX:
-                d.X += 412_len;
-                break;
-            case core::Axis::NegZ:
-                d.Z -= 412_len;
-                break;
-            case core::Axis::NegX:
-                d.X -= 412_len;
-                break;
-            default:
-                break;
+        case core::Axis::PosZ:
+            d.Z += 412_len;
+            break;
+        case core::Axis::PosX:
+            d.X += 412_len;
+            break;
+        case core::Axis::NegZ:
+            d.Z -= 412_len;
+            break;
+        case core::Axis::NegX:
+            d.X -= 412_len;
+            break;
+        default:
+            break;
         }
 
         auto dart = getEngine()
-                .createItem<Dart>( TR1ItemId::Dart,
-                                   m_state.position.room,
-                                   m_state.rotation.Y,
-                                   m_state.position.position - d,
-                                   0 );
+            .createItem<Dart>( TR1ItemId::Dart,
+                               m_state.position.room,
+                               m_state.rotation.Y,
+                               m_state.position.position - d,
+                               0 );
         dart->activate();
         dart->m_state.triggerState = TriggerState::Active;
 

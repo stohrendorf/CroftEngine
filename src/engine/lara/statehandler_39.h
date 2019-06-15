@@ -8,12 +8,12 @@ namespace engine
 namespace lara
 {
 class StateHandler_39 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
 
     explicit StateHandler_39(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::PickUp}
+        : AbstractStateHandler{ lara, LaraStateId::PickUp }
     {
     }
 

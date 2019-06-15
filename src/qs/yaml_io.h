@@ -12,7 +12,7 @@ struct convert<qs::quantity<Unit, Type>>
 {
     static Node encode(const qs::quantity<Unit, Type>& rhs)
     {
-        Node node{NodeType::Sequence};
+        Node node{ NodeType::Sequence };
         node.SetStyle( YAML::EmitterStyle::Flow );
         node.push_back( Unit::suffix() );
         node.push_back( rhs.get() );
@@ -28,16 +28,16 @@ struct convert<qs::quantity<Unit, Type>>
         if( node[0].as<std::string>() != Unit::suffix() )
             return false;
 
-        rhs = qs::quantity<Unit, Type>{node[1].as<typename qs::quantity<Unit, Type>::type>()};
+        rhs = qs::quantity<Unit, Type>{ node[1].as<typename qs::quantity<Unit, Type>::type>() };
         return true;
     }
 };
 
-
 template<typename Unit, typename Type>
 struct as_if<qs::quantity<Unit, Type>, void>
 {
-    explicit as_if(const Node& node_) : node{node_}
+    explicit as_if(const Node& node_)
+        : node{ node_ }
     {}
 
     const Node& node;
@@ -45,12 +45,12 @@ struct as_if<qs::quantity<Unit, Type>, void>
     qs::quantity<Unit, Type> operator()() const
     {
         if( !node.m_pNode )
-            throw TypedBadConversion<qs::quantity<Unit, Type>>{node.Mark()};
+            throw TypedBadConversion<qs::quantity<Unit, Type>>{ node.Mark() };
 
-        qs::quantity<Unit, Type> t{Type{0}};
+        qs::quantity<Unit, Type> t{ Type{ 0 } };
         if( convert<qs::quantity<Unit, Type>>::decode( node, t ) )
             return t;
-        throw TypedBadConversion<qs::quantity<Unit, Type>>{node.Mark()};
+        throw TypedBadConversion<qs::quantity<Unit, Type>>{ node.Mark() };
     }
 };
 }

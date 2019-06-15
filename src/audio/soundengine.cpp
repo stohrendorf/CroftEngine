@@ -30,7 +30,7 @@ void SoundEngine::update()
             auto old = std::move( handleMap.second );
             std::copy_if( old.begin(), old.end(), std::back_inserter( handleMap.second ),
                           [](const auto& h) {
-                              return !h.expired();
+                            return !h.expired();
                           } );
 
             if( emitterMap.first == nullptr )
@@ -167,7 +167,7 @@ Listener::~Listener()
 }
 
 Listener::Listener(const gsl::not_null<SoundEngine*>& engine)
-        : m_engine{engine}
+    : m_engine{ engine }
 {
     m_engine->m_listeners.emplace( this );
 }
@@ -184,7 +184,7 @@ Listener& Listener::operator=(const Listener& rhs)
 }
 
 Listener::Listener(Listener&& rhs)
-        : m_engine{std::exchange( rhs.m_engine, nullptr )}
+    : m_engine{ std::exchange( rhs.m_engine, nullptr ) }
 {
     m_engine->m_listeners.erase( &rhs );
     m_engine->m_listeners.emplace( this );
@@ -209,7 +209,7 @@ Emitter::~Emitter()
 }
 
 Emitter::Emitter(const gsl::not_null<SoundEngine*>& engine)
-        : m_engine{engine}
+    : m_engine{ engine }
 {
     m_engine->m_emitters.emplace( this );
 }
@@ -226,7 +226,7 @@ Emitter& Emitter::operator=(const Emitter& rhs)
 }
 
 Emitter::Emitter(Emitter&& rhs)
-        : m_engine{std::exchange( rhs.m_engine, nullptr )}
+    : m_engine{ std::exchange( rhs.m_engine, nullptr ) }
 {
     m_engine->m_emitters.erase( &rhs );
     m_engine->m_emitters.emplace( this );

@@ -14,14 +14,11 @@ namespace scene
 {
 class Renderable;
 
-
 class Scene;
-
 
 class Node
 {
     friend class Scene;
-
 
 public:
     Node(const Node&) = delete;
@@ -115,7 +112,7 @@ public:
     }
 
     const std::function<MaterialParameter::UniformValueSetter>* findMaterialParameterSetter(
-            const std::string& name) const
+        const std::string& name) const
     {
         const auto it = m_materialParameterSetters.find( name );
         if( it != m_materialParameterSetters.end() )
@@ -143,17 +140,17 @@ private:
 
     std::shared_ptr<Renderable> m_drawable = nullptr;
 
-    glm::mat4 m_localMatrix{1.0f};
+    glm::mat4 m_localMatrix{ 1.0f };
 
-    mutable glm::mat4 m_modelMatrix{1.0f};
+    mutable glm::mat4 m_modelMatrix{ 1.0f };
 
     mutable bool m_dirty = false;
 
-    boost::container::flat_map<std::string, std::function<MaterialParameter::UniformValueSetter>> m_materialParameterSetters;
+    boost::container::flat_map<std::string, std::function<MaterialParameter::UniformValueSetter>>
+        m_materialParameterSetters;
 
     friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent);
 };
-
 
 inline void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent)
 {

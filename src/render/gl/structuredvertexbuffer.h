@@ -19,10 +19,10 @@ public:
     using AttributeMapping = std::map<std::string, VertexAttribute>;
 
     explicit StructuredVertexBuffer(const AttributeMapping& mapping, const bool dynamic, const std::string& label = {})
-            : VertexBuffer{label}
-            , m_mapping{mapping}
-            , m_dynamic{dynamic}
-            , m_vertexCount{0}
+        : VertexBuffer{ label }
+          , m_mapping{ mapping }
+          , m_dynamic{ dynamic }
+          , m_vertexCount{ 0 }
     {
         BOOST_ASSERT( !mapping.empty() );
 
@@ -33,7 +33,7 @@ public:
             if( m_size != -1 && m_size != tmp )
             {
                 BOOST_THROW_EXCEPTION(
-                        std::runtime_error( "Inconsistent stride in vertex attribute mapping" ) );
+                    std::runtime_error( "Inconsistent stride in vertex attribute mapping" ) );
             }
 
             m_size = tmp;
@@ -62,7 +62,7 @@ public:
         if( sizeof( T ) != m_size )
         {
             BOOST_THROW_EXCEPTION( std::invalid_argument(
-                                           "Trying to assign vertex data which has a different size than specified in the format" ) );
+                                       "Trying to assign vertex data which has a different size than specified in the format" ) );
         }
 
         VertexBuffer::bind();
@@ -81,7 +81,7 @@ public:
         if( sizeof( T ) != m_size )
         {
             BOOST_THROW_EXCEPTION( std::invalid_argument(
-                                           "Trying to assign vertex data which has a different size than specified in the format" ) );
+                                       "Trying to assign vertex data which has a different size than specified in the format" ) );
         }
 
         VertexBuffer::bind();
@@ -132,7 +132,7 @@ public:
         if( sizeof( T ) != m_size )
         {
             BOOST_THROW_EXCEPTION( std::invalid_argument(
-                                           "Trying to map vertex data which has a different size than specified in the format" ) );
+                                       "Trying to map vertex data which has a different size than specified in the format" ) );
         }
 
         return static_cast<T*>(mapRw());
@@ -144,7 +144,7 @@ public:
         if( sizeof( T ) != m_size )
         {
             BOOST_THROW_EXCEPTION( std::invalid_argument(
-                                           "Trying to map vertex data which has a different size than specified in the format" ) );
+                                       "Trying to map vertex data which has a different size than specified in the format" ) );
         }
 
         return static_cast<T*>(map());

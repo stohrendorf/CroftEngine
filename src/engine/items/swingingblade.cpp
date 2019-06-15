@@ -31,12 +31,12 @@ void SwingingBlade::update()
         getEngine().getLara().m_state.health -= 100_hp;
 
         const core::TRVec splatPos{
-                getEngine().getLara().m_state.position.position.X + util::rand15s( 128_len ),
-                getEngine().getLara().m_state.position.position.Y - util::rand15( 745_len ),
-                getEngine().getLara().m_state.position.position.Z + util::rand15s( 128_len )
+            getEngine().getLara().m_state.position.position.X + util::rand15s( 128_len ),
+            getEngine().getLara().m_state.position.position.Y - util::rand15( 745_len ),
+            getEngine().getLara().m_state.position.position.Z + util::rand15s( 128_len )
         };
         auto fx = createBloodSplat( getEngine(),
-                                    core::RoomBoundPosition{m_state.position.room, splatPos},
+                                    core::RoomBoundPosition{ m_state.position.room, splatPos },
                                     getEngine().getLara().m_state.speed,
                                     getEngine().getLara().m_state.rotation.Y + util::rand15s( +22_deg ) );
         getEngine().getParticles().emplace_back( fx );
@@ -60,8 +60,8 @@ void SwingingBlade::collide(LaraNode& lara, CollisionInfo& collisionInfo)
         }
     }
     else if( m_state.triggerState != TriggerState::Invisible
-             && isNear( lara, collisionInfo.collisionRadius )
-             && testBoneCollision( lara ) )
+        && isNear( lara, collisionInfo.collisionRadius )
+        && testBoneCollision( lara ) )
     {
         if( collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
         {

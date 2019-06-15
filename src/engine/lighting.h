@@ -10,7 +10,7 @@ struct Lighting
 {
     struct Light
     {
-        glm::vec3 position = glm::vec3{std::numeric_limits<float>::quiet_NaN()};
+        glm::vec3 position = glm::vec3{ std::numeric_limits<float>::quiet_NaN() };
         float intensity = 0;
     };
 
@@ -47,7 +47,7 @@ struct Lighting
             {
                 const auto fadeDistance = util::square( light.fadeDistance.retype_as<core::LengthF>() / 4096.0_len );
                 const auto d = util::square(
-                        pos.position.distanceTo( light.position ).retype_as<core::LengthF>() / 4096.0_len );
+                    pos.position.distanceTo( light.position ).retype_as<core::LengthF>() / 4096.0_len );
 
                 const auto intensity = light.getBrightness() * fadeDistance / (fadeDistance + d);
                 if( intensity < 0.01f )
@@ -58,8 +58,8 @@ struct Lighting
                 // assuming fade_power = 1, multiply numerator and denominator with fade_distance (identity transform):
                 // fade_distance / ( fade_distance + d )
                 lights.emplace_back( Light{
-                        light.position.toRenderSystem(),
-                        intensity
+                    light.position.toRenderSystem(),
+                    intensity
                 } );
             }
         }
@@ -67,11 +67,11 @@ struct Lighting
         if( lights.size() > MaxLights )
         {
             std::sort(
-                    lights.begin(), lights.end(),
-                    [](const Light& a, const Light& b) {
-                        return a.intensity > b.intensity;
-                    }
-            );
+                lights.begin(), lights.end(),
+                [](const Light& a, const Light& b) {
+                  return a.intensity > b.intensity;
+                }
+                     );
             lights.resize( MaxLights );
         }
     }
@@ -86,27 +86,27 @@ struct Lighting
     {
         node.addMaterialParameterSetter( "u_lightAmbient", [this](const render::scene::Node& /*node*/,
                                                                   render::gl::Program::ActiveUniform& uniform) {
-            uniform.set( ambient );
+          uniform.set( ambient );
         } );
         for( size_t i = 0; i < MaxLights; ++i )
         {
             node.addMaterialParameterSetter( "u_lights[" + std::to_string( i ) + "].intensity",
                                              [this, i](const render::scene::Node& /*node*/,
                                                        render::gl::Program::ActiveUniform& uniform) {
-                                                 if( i < lights.size() )
-                                                     uniform.set( lights[i].intensity );
+                                               if( i < lights.size() )
+                                                   uniform.set( lights[i].intensity );
                                              } );
             node.addMaterialParameterSetter( "u_lights[" + std::to_string( i ) + "].position",
                                              [this, i](const render::scene::Node& /*node*/,
                                                        render::gl::Program::ActiveUniform& uniform) {
-                                                 if( i < lights.size() )
-                                                     uniform.set( lights[i].position );
+                                               if( i < lights.size() )
+                                                   uniform.set( lights[i].position );
                                              } );
         }
         node.addMaterialParameterSetter( "u_numLights", [this](const render::scene::Node& /*node*/,
                                                                render::gl::Program::ActiveUniform& uniform) {
-            Expects( lights.size() <= MaxLights );
-            uniform.set( static_cast<::gl::GLint>(lights.size()) );
+          Expects( lights.size() <= MaxLights );
+          uniform.set( static_cast<::gl::GLint>(lights.size()) );
         } );
     }
 };

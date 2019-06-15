@@ -48,7 +48,9 @@ int main()
 
     oldTerminateHandler = std::set_terminate( &terminateHandler );
 
+#ifdef NDEBUG
     boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::info );
+#endif
 
     try
     {

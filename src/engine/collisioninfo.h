@@ -10,8 +10,8 @@
 namespace engine
 {
 class LaraNode;
-class Engine;
 
+class Engine;
 
 struct CollisionInfo
 {
@@ -38,9 +38,9 @@ struct CollisionInfo
 
     using PolicyFlagSet = type_safe::flag_set<PolicyFlags>;
     static constexpr const type_safe::flag_combo<PolicyFlags> SlopeBlockingPolicy = PolicyFlags::SlopesAreWalls
-                                                                                    | PolicyFlags::SlopesArePits;
+        | PolicyFlags::SlopesArePits;
     static constexpr const type_safe::flag_combo<PolicyFlags> SpazPushPolicy = PolicyFlags::EnableBaddiePush
-                                                                               | PolicyFlags::EnableSpaz;
+        | PolicyFlags::EnableSpaz;
 
     AxisColl collisionType = AxisColl::None;
     mutable core::TRVec shift;
@@ -68,34 +68,35 @@ struct CollisionInfo
     void initHeightInfo(const core::TRVec& laraPos, const Engine& engine, const core::Length& height);
 
     static std::set<gsl::not_null<const loader::file::Room*>>
-    collectTouchingRooms(const core::TRVec& position, const core::Length& radius, const core::Length& height, const Engine& engine);
+    collectTouchingRooms(const core::TRVec& position,
+                         const core::Length& radius,
+                         const core::Length& height,
+                         const Engine& engine);
 
     bool checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height, const Engine& engine);
 };
-
 
 inline const char* toString(CollisionInfo::AxisColl value)
 {
     switch( value )
     {
 
-        case CollisionInfo::AxisColl::None:
-            return "None";
-        case CollisionInfo::AxisColl::Front:
-            return "Front";
-        case CollisionInfo::AxisColl::Left:
-            return "Left";
-        case CollisionInfo::AxisColl::Right:
-            return "Right";
-        case CollisionInfo::AxisColl::Top:
-            return "Top";
-        case CollisionInfo::AxisColl::TopBottom:
-            return "TopBottom";
-        case CollisionInfo::AxisColl::TopFront:
-            return "TopFront";
-        default:
-            return "<null>";
+    case CollisionInfo::AxisColl::None:
+        return "None";
+    case CollisionInfo::AxisColl::Front:
+        return "Front";
+    case CollisionInfo::AxisColl::Left:
+        return "Left";
+    case CollisionInfo::AxisColl::Right:
+        return "Right";
+    case CollisionInfo::AxisColl::Top:
+        return "Top";
+    case CollisionInfo::AxisColl::TopBottom:
+        return "TopBottom";
+    case CollisionInfo::AxisColl::TopFront:
+        return "TopFront";
+    default:
+        return "<null>";
     }
 }
-
 }

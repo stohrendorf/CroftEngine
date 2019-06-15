@@ -10,8 +10,8 @@ class Shader final
 {
 public:
     explicit Shader(const ::gl::GLenum type, const std::string& label = {})
-            : m_handle{GL_ASSERT_FN( glCreateShader( type ) )}
-            , m_type{type}
+        : m_handle{ GL_ASSERT_FN( glCreateShader( type ) ) }
+          , m_type{ type }
     {
         BOOST_ASSERT( type == ::gl::GL_VERTEX_SHADER || type == ::gl::GL_FRAGMENT_SHADER );
         BOOST_ASSERT( m_handle != 0 );
@@ -43,7 +43,7 @@ public:
     // ReSharper disable once CppMemberFunctionMayBeConst
     void setSource(const std::string& src)
     {
-        const ::gl::GLchar* data[1]{src.c_str()};
+        const ::gl::GLchar* data[1]{ src.c_str() };
         GL_ASSERT( glShaderSource( m_handle, 1, data, nullptr ) );
     }
 

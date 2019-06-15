@@ -11,11 +11,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_OnWater
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_OnWater(LaraNode& lara, const LaraStateId id)
-            : AbstractStateHandler{lara, id}
+        : AbstractStateHandler{ lara, id }
     {
     }
 
@@ -23,9 +23,10 @@ protected:
     void commonOnWaterHandling(CollisionInfo& collisionInfo)
     {
         collisionInfo.facingAngle = getMovementAngle();
-        collisionInfo.initHeightInfo( getLara().m_state.position.position + core::TRVec( 0_len, core::LaraSwimHeight, 0_len ),
-                                      getEngine(),
-                                      core::LaraSwimHeight );
+        collisionInfo
+            .initHeightInfo( getLara().m_state.position.position + core::TRVec( 0_len, core::LaraSwimHeight, 0_len ),
+                             getEngine(),
+                             core::LaraSwimHeight );
         applyShift( collisionInfo );
         if( collisionInfo.mid.floorSpace.y < 0_len
             || collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront
@@ -115,22 +116,22 @@ private:
         if( *yRot == 0_deg )
         {
             d.Z = (getLara().m_state.position.position.Z / core::SectorSize + 1) * core::SectorSize
-                  + core::DefaultCollisionRadius;
+                + core::DefaultCollisionRadius;
         }
         else if( *yRot == 180_deg )
         {
             d.Z = (getLara().m_state.position.position.Z / core::SectorSize + 0) * core::SectorSize
-                  - core::DefaultCollisionRadius;
+                - core::DefaultCollisionRadius;
         }
         else if( *yRot == -90_deg )
         {
             d.X = (getLara().m_state.position.position.X / core::SectorSize + 0) * core::SectorSize
-                  - core::DefaultCollisionRadius;
+                - core::DefaultCollisionRadius;
         }
         else if( *yRot == 90_deg )
         {
             d.X = (getLara().m_state.position.position.X / core::SectorSize + 1) * core::SectorSize
-                  + core::DefaultCollisionRadius;
+                + core::DefaultCollisionRadius;
         }
         else
         {

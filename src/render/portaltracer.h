@@ -14,12 +14,11 @@ struct PortalTracer
 
         BoundingBox(const float minX, const float minY,
                     const float maxX, const float maxY)
-                : min{minX, minY}
-                , max{maxX, maxY}
+            : min{ minX, minY }
+              , max{ maxX, maxY }
         {
         }
     };
-
 
     static std::unordered_set<const loader::file::Portal*>
     trace(const loader::file::Room& startRoom, const engine::Engine& engine)
@@ -27,7 +26,7 @@ struct PortalTracer
         std::vector<const loader::file::Room*> seenRooms;
         seenRooms.reserve( 32 );
         std::unordered_set<const loader::file::Portal*> waterEntryPortals;
-        traceRoom( startRoom, {-1, -1, 1, 1}, engine, seenRooms, startRoom.isWaterRoom(), waterEntryPortals,
+        traceRoom( startRoom, { -1, -1, 1, 1 }, engine, seenRooms, startRoom.isWaterRoom(), waterEntryPortals,
                    startRoom.isWaterRoom() );
         Expects( seenRooms.empty() );
         return waterEntryPortals;
@@ -60,14 +59,14 @@ struct PortalTracer
     }
 
     static boost::optional<BoundingBox> narrowPortal(
-            const loader::file::Room& parentRoom,
-            const BoundingBox& parentBBox,
-            const loader::file::Portal& portal,
-            const engine::CameraController& camera)
+        const loader::file::Room& parentRoom,
+        const BoundingBox& parentBBox,
+        const loader::file::Portal& portal,
+        const engine::CameraController& camera)
     {
         static const constexpr auto Eps = 1.0f / (1 << 14);
 
-        const auto portalToCam = glm::vec3{camera.getPosition() - portal.vertices[0].toRenderSystem()};
+        const auto portalToCam = glm::vec3{ camera.getPosition() - portal.vertices[0].toRenderSystem() };
         if( dot( portal.normal.toRenderSystem(), portalToCam ) <= Eps )
         {
             return boost::none; // wrong orientation (normals must face the camera)
@@ -75,12 +74,13 @@ struct PortalTracer
 
         // 1. determine the screen bbox of the current portal
         // 2. intersect it with the parent's bbox
-        BoundingBox portalBB{1, 1, -1, -1};
+        BoundingBox portalBB{ 1, 1, -1, -1 };
         size_t behindCamera = 0, tooFar = 0;
         for( const auto& vertex : portal.vertices )
         {
             glm::vec3 camSpace = glm::vec3{
-                    camera.getCamera()->getViewMatrix() * glm::vec4{vertex.toRenderSystem(), 1.0f}};
+                camera.getCamera()->getViewMatrix() * glm::vec4{ vertex.toRenderSystem(), 1.0f }
+            };
             if( -camSpace.z <= camera.getCamera()->getNearPlane() )
             {
                 ++behindCamera;
@@ -92,7 +92,7 @@ struct PortalTracer
                 continue;
             }
 
-            auto screen = camera.getCamera()->getProjectionMatrix() * glm::vec4{camSpace, 1.0f};
+            auto screen = camera.getCamera()->getProjectionMatrix() * glm::vec4{ camSpace, 1.0f };
             screen /= screen.w;
 
             portalBB.min.x = std::min( portalBB.min.x, screen.x );
@@ -112,14 +112,16 @@ struct PortalTracer
 
         if( behindCamera > 0 )
         {
-            glm::vec3 prev{camera.getCamera()->getViewMatrix()
-                           * glm::vec4{portal.vertices.back().toRenderSystem(), 1.0f}};
+            glm::vec3 prev{ camera.getCamera()->getViewMatrix()
+                                * glm::vec4{ portal.vertices.back().toRenderSystem(), 1.0f }
+            };
             for( const auto& currentPV : portal.vertices )
             {
                 const glm::vec3 current{
-                        camera.getCamera()->getViewMatrix() * glm::vec4{currentPV.toRenderSystem(), 1.0f}};
+                    camera.getCamera()->getViewMatrix() * glm::vec4{ currentPV.toRenderSystem(), 1.0f }
+                };
                 const auto crossing = (-prev.z <= camera.getCamera()->getNearPlane())
-                                      != (-current.z <= camera.getCamera()->getNearPlane());
+                    != (-current.z <= camera.getCamera()->getNearPlane());
                 prev = current;
 
                 if( !crossing )

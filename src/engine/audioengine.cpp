@@ -123,84 +123,84 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
 
     switch( trackInfo.type )
     {
-        case audio::TrackType::AmbientEffect:
-            if( !stop )
-            {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play effect "
-                                           << toString( static_cast<TR1SoundId>(trackInfo.id) );
-                playSound( core::SoundId{trackInfo.id}, nullptr );
-            }
-            else
-            {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop effect "
-                                           << toString( static_cast<TR1SoundId>(trackInfo.id) );
-                stopSound( core::SoundId{trackInfo.id}, nullptr );
-            }
-            break;
-        case audio::TrackType::LaraTalk:
-            if( !stop )
-            {
-                const auto sfxId = static_cast<TR1SoundId>(trackInfo.id);
+    case audio::TrackType::AmbientEffect:
+        if( !stop )
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play effect "
+                                       << toString( static_cast<TR1SoundId>(trackInfo.id) );
+            playSound( core::SoundId{ trackInfo.id }, nullptr );
+        }
+        else
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop effect "
+                                       << toString( static_cast<TR1SoundId>(trackInfo.id) );
+            stopSound( core::SoundId{ trackInfo.id }, nullptr );
+        }
+        break;
+    case audio::TrackType::LaraTalk:
+        if( !stop )
+        {
+            const auto sfxId = static_cast<TR1SoundId>(trackInfo.id);
 
-                if( !m_currentLaraTalk.is_initialized() || *m_currentLaraTalk != sfxId )
-                {
-                    BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play lara talk " << toString( sfxId );
+            if( !m_currentLaraTalk.is_initialized() || *m_currentLaraTalk != sfxId )
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play lara talk " << toString( sfxId );
 
-                    if( m_currentLaraTalk.is_initialized() )
-                        stopSound( *m_currentLaraTalk, &m_engine.getLara().m_state );
+                if( m_currentLaraTalk.is_initialized() )
+                    stopSound( *m_currentLaraTalk, &m_engine.getLara().m_state );
 
-                    m_engine.getLara().playSoundEffect( sfxId );
-                    m_currentLaraTalk = sfxId;
-                }
+                m_engine.getLara().playSoundEffect( sfxId );
+                m_currentLaraTalk = sfxId;
             }
-            else
-            {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop lara talk "
-                                           << toString( static_cast<TR1SoundId>(trackInfo.id) );
-                stopSound( static_cast<TR1SoundId>(trackInfo.id), &m_engine.getLara().m_state );
-                m_currentLaraTalk.reset();
-            }
-            break;
-        case audio::TrackType::Ambient:
-            if( !stop )
-            {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id);
-                m_ambientStream = playStream( trackInfo.id ).get();
-                m_ambientStream.lock()->setLooping( true );
-                if( isPlaying( m_interceptStream ) )
-                    m_ambientStream.lock()->getSource().lock()->pause();
-                m_currentTrack = trackId;
-            }
-            else if( const auto str = m_ambientStream.lock() )
-            {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo.id);
+        }
+        else
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop lara talk "
+                                       << toString( static_cast<TR1SoundId>(trackInfo.id) );
+            stopSound( static_cast<TR1SoundId>(trackInfo.id), &m_engine.getLara().m_state );
+            m_currentLaraTalk.reset();
+        }
+        break;
+    case audio::TrackType::Ambient:
+        if( !stop )
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id);
+            m_ambientStream = playStream( trackInfo.id ).get();
+            m_ambientStream.lock()->setLooping( true );
+            if( isPlaying( m_interceptStream ) )
+                m_ambientStream.lock()->getSource().lock()->pause();
+            m_currentTrack = trackId;
+        }
+        else if( const auto str = m_ambientStream.lock() )
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo.id);
+            m_soundEngine.getDevice().removeStream( str );
+            m_currentTrack.reset();
+        }
+        break;
+    case audio::TrackType::Interception:
+        if( !stop )
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play interception "
+                                       << static_cast<size_t>(trackInfo.id);
+            if( const auto str = m_interceptStream.lock() )
                 m_soundEngine.getDevice().removeStream( str );
-                m_currentTrack.reset();
-            }
-            break;
-        case audio::TrackType::Interception:
-            if( !stop )
-            {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - play interception "
-                                           << static_cast<size_t>(trackInfo.id);
-                if( const auto str = m_interceptStream.lock() )
-                    m_soundEngine.getDevice().removeStream( str );
-                if( const auto str = m_ambientStream.lock() )
-                    str->getSource().lock()->pause();
-                m_interceptStream = playStream( trackInfo.id ).get();
-                m_interceptStream.lock()->setLooping( false );
-                m_currentTrack = trackId;
-            }
-            else if( const auto str = m_interceptStream.lock() )
-            {
-                BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop interception "
-                                           << static_cast<size_t>(trackInfo.id);
-                m_soundEngine.getDevice().removeStream( str );
-                if( const auto amb = m_ambientStream.lock() )
-                    amb->play();
-                m_currentTrack.reset();
-            }
-            break;
+            if( const auto str = m_ambientStream.lock() )
+                str->getSource().lock()->pause();
+            m_interceptStream = playStream( trackInfo.id ).get();
+            m_interceptStream.lock()->setLooping( false );
+            m_currentTrack = trackId;
+        }
+        else if( const auto str = m_interceptStream.lock() )
+        {
+            BOOST_LOG_TRIVIAL( debug ) << "playStopCdTrack - stop interception "
+                                       << static_cast<size_t>(trackInfo.id);
+            m_soundEngine.getDevice().removeStream( str );
+            if( const auto amb = m_ambientStream.lock() )
+                amb->play();
+            m_currentTrack.reset();
+        }
+        break;
     }
 }
 
@@ -212,15 +212,15 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
     std::shared_ptr<audio::Stream> result;
     if( boost::filesystem::is_regular_file( "data/tr1/audio/CDAUDIO.WAD" ) )
         result = m_soundEngine.getDevice().createStream(
-                std::make_unique<audio::WadStreamSource>( "data/tr1/audio/CDAUDIO.WAD", trackId ),
-                DefaultBufferSize,
-                DefaultBufferCount );
+            std::make_unique<audio::WadStreamSource>( "data/tr1/audio/CDAUDIO.WAD", trackId ),
+            DefaultBufferSize,
+            DefaultBufferCount );
     else
         result = m_soundEngine.getDevice().createStream(
-                std::make_unique<audio::SndfileStreamSource>(
-                        (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ),
-                DefaultBufferSize,
-                DefaultBufferCount );
+            std::make_unique<audio::SndfileStreamSource>(
+                (boost::format( "data/tr1/audio/%03d.ogg" ) % trackId).str() ),
+            DefaultBufferSize,
+            DefaultBufferCount );
 
     result->setGain( 0.8f );
     return result;
@@ -228,14 +228,14 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
 
 std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId id, audio::Emitter* emitter)
 {
-    const auto snd = m_soundmap.at(id.get());
+    const auto snd = m_soundmap.at( id.get() );
     if( snd < 0 )
     {
         BOOST_LOG_TRIVIAL( warning ) << "No mapped sound for id " << toString( id.get_as<TR1SoundId>() );
         return nullptr;
     }
 
-    const loader::file::SoundDetails& details = m_soundDetails.at(snd);
+    const loader::file::SoundDetails& details = m_soundDetails.at( snd );
     if( details.chance != 0 && util::rand15() > details.chance )
         return nullptr;
 

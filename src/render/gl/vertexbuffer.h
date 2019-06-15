@@ -10,11 +10,12 @@ class VertexBuffer : public BindableResource
 {
 public:
     explicit VertexBuffer(const std::string& label = {})
-            : BindableResource{::gl::glGenBuffers,
-                               [](const ::gl::GLuint handle) { ::gl::glBindBuffer( ::gl::GL_ARRAY_BUFFER, handle ); },
-                               ::gl::glDeleteBuffers,
-                               ::gl::GL_BUFFER,
-                               label}
+        : BindableResource{ ::gl::glGenBuffers,
+                            [](const ::gl::GLuint handle) { ::gl::glBindBuffer( ::gl::GL_ARRAY_BUFFER, handle ); },
+                            ::gl::glDeleteBuffers,
+                            ::gl::GL_BUFFER,
+                            label
+    }
     {
     }
 

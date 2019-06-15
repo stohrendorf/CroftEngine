@@ -24,7 +24,6 @@ struct FastFill
     }
 };
 
-
 template<typename T>
 struct FastFill<T, 1>
 {
@@ -36,7 +35,6 @@ struct FastFill<T, 1>
     }
 };
 
-
 template<typename T>
 struct FastFill<T, 2>
 {
@@ -47,7 +45,6 @@ struct FastFill<T, 2>
         std::wmemset( data.get(), value, n );
     }
 };
-
 
 template<>
 struct FastFill<SRGBA8, 4>
@@ -64,7 +61,6 @@ struct FastFill<SRGBA8, 4>
     }
 };
 
-
 template<typename T>
 inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
 {
@@ -79,9 +75,9 @@ public:
     using StorageType = TStorage;
 
     explicit Image(const ::gl::GLint width, const ::gl::GLint height, const StorageType* data = nullptr)
-            : m_data{}
-            , m_width{width}
-            , m_height{height}
+        : m_data{}
+          , m_width{ width }
+          , m_height{ height }
     {
         Expects( width >= 0 && height >= 0 );
 
@@ -92,15 +88,16 @@ public:
             m_data.assign( data, data + dataSize );
     }
 
-    Image() : Image{0, 0}
+    Image()
+        : Image{ 0, 0 }
     {}
 
     Image(const Image&) = delete;
 
     Image(Image&& rhs) noexcept
-            : m_data{std::move( rhs.m_data )}
-            , m_width{rhs.m_width}
-            , m_height{rhs.m_height}
+        : m_data{ std::move( rhs.m_data ) }
+          , m_width{ rhs.m_width }
+          , m_height{ rhs.m_height }
     {
         rhs.m_width = 0;
         rhs.m_height = 0;
@@ -172,7 +169,7 @@ public:
 
         if( x < 0 || x >= m_width || y < 0 || y >= m_height )
         {
-            BOOST_THROW_EXCEPTION( std::out_of_range{"Image coordinates out of range"} );
+            BOOST_THROW_EXCEPTION( std::out_of_range{ "Image coordinates out of range" } );
         }
 
         return m_data[y * m_width + x];
@@ -204,7 +201,7 @@ public:
 
         if( x < 0 || x >= m_width || y < 0 || y >= m_height )
         {
-            BOOST_THROW_EXCEPTION( std::out_of_range{"Image coordinates out of range"} );
+            BOOST_THROW_EXCEPTION( std::out_of_range{ "Image coordinates out of range" } );
         }
 
         return m_data[y * m_width + x];
@@ -213,10 +210,15 @@ public:
     void fill(const StorageType& color)
     {
         if( !m_data.empty() )
-            detail::fill( gsl::not_null<StorageType*>{m_data.data()}, m_data.size(), color );
+            detail::fill( gsl::not_null<StorageType*>{ m_data.data() }, m_data.size(), color );
     }
 
-    void line(::gl::GLint x0, ::gl::GLint y0, const ::gl::GLint x1, const ::gl::GLint y1, const StorageType& color, const bool blend = false)
+    void line(::gl::GLint x0,
+              ::gl::GLint y0,
+              const ::gl::GLint x1,
+              const ::gl::GLint y1,
+              const StorageType& color,
+              const bool blend = false)
     {
         // shamelessly copied from wikipedia
         const ::gl::GLint dx = abs( x1 - x0 );

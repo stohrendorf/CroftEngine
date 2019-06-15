@@ -21,9 +21,9 @@ public:
 private:
     struct Info
     {
-        loader::file::Sector* sector{nullptr};
+        loader::file::Sector* sector{ nullptr };
         loader::file::Sector sectorData;
-        loader::file::Box* box{nullptr};
+        loader::file::Box* box{ nullptr };
 
         void open()
         {
@@ -72,7 +72,6 @@ private:
             close();
         }
     };
-
 
     Info m_info;
     Info m_alternateInfo;

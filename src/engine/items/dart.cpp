@@ -15,7 +15,7 @@ void Dart::collide(LaraNode& lara, CollisionInfo& info)
     if( !testBoneCollision( lara ) )
         return;
 
-    if( !info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush) )
+    if( !info.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
         return;
 
     enemyPush( lara, info, false, true );
@@ -29,11 +29,11 @@ void Dart::update()
         getEngine().getLara().m_state.is_hit = true;
 
         auto fx = createBloodSplat(
-                getEngine(),
-                m_state.position,
-                m_state.speed,
-                m_state.rotation.Y
-        );
+            getEngine(),
+            m_state.position,
+            m_state.speed,
+            m_state.rotation.Y
+                                  );
         getEngine().getParticles().emplace_back( fx );
     }
 

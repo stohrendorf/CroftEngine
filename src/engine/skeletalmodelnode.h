@@ -24,7 +24,7 @@ namespace items
 struct ItemState;
 }
 class SkeletalModelNode
-        : public render::scene::Node
+    : public render::scene::Node
 {
 public:
     explicit SkeletalModelNode(const std::string& id,
@@ -44,7 +44,7 @@ public:
     void resetPose()
     {
         m_bonePatches.clear();
-        m_bonePatches.resize( getChildren().size(), glm::mat4{1.0f} );
+        m_bonePatches.resize( getChildren().size(), glm::mat4{ 1.0f } );
     }
 
     void patchBone(const size_t idx, const glm::mat4& m)
@@ -61,7 +61,6 @@ public:
     }
 
     bool advanceFrame(items::ItemState& state);
-
 
     struct InterpolationInfo
     {
@@ -83,7 +82,6 @@ public:
         }
     };
 
-
     InterpolationInfo getInterpolationInfo(const items::ItemState& state) const;
 
     void updatePose(const InterpolationInfo& interpolationInfo)
@@ -94,15 +92,14 @@ public:
             updatePoseInterpolated( interpolationInfo );
     }
 
-
     struct Sphere
     {
         const glm::mat4 m;
         const core::Length radius;
 
         Sphere(const glm::mat4& m, const core::Length& radius)
-                : m{m}
-                , radius{radius}
+            : m{ m }
+              , radius{ radius }
         {
         }
 
@@ -111,7 +108,6 @@ public:
             return glm::vec3( m[3] );
         }
     };
-
 
     std::vector<Sphere> getBoneCollisionSpheres(const items::ItemState& state,
                                                 const loader::file::AnimFrame& frame,

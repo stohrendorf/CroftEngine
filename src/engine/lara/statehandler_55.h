@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_55 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_55(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::OnWaterExit}
+        : AbstractStateHandler{ lara, LaraStateId::OnWaterExit }
     {
     }
 

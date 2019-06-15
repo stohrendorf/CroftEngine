@@ -14,20 +14,20 @@ inline const char* glDebugSourceToString(const ::gl::GLenum src)
 {
     switch( src )
     {
-        case ::gl::GL_DEBUG_SOURCE_API:
-            return "API";
-        case ::gl::GL_DEBUG_SOURCE_APPLICATION:
-            return "Application";
-        case ::gl::GL_DEBUG_SOURCE_OTHER:
-            return "Other";
-        case ::gl::GL_DEBUG_SOURCE_SHADER_COMPILER:
-            return "Shader Compiler";
-        case ::gl::GL_DEBUG_SOURCE_THIRD_PARTY:
-            return "Third Party";
-        case ::gl::GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-            return "Window System";
-        default:
-            return "<unknown>";
+    case ::gl::GL_DEBUG_SOURCE_API:
+        return "API";
+    case ::gl::GL_DEBUG_SOURCE_APPLICATION:
+        return "Application";
+    case ::gl::GL_DEBUG_SOURCE_OTHER:
+        return "Other";
+    case ::gl::GL_DEBUG_SOURCE_SHADER_COMPILER:
+        return "Shader Compiler";
+    case ::gl::GL_DEBUG_SOURCE_THIRD_PARTY:
+        return "Third Party";
+    case ::gl::GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        return "Window System";
+    default:
+        return "<unknown>";
     }
 }
 
@@ -35,24 +35,24 @@ inline const char* glDebugTypeToString(const ::gl::GLenum type)
 {
     switch( type )
     {
-        case ::gl::GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-            return "Deprecated Behavior";
-        case ::gl::GL_DEBUG_TYPE_ERROR:
-            return "Error";
-        case ::gl::GL_DEBUG_TYPE_MARKER:
-            return "Marker";
-        case ::gl::GL_DEBUG_TYPE_OTHER:
-            return "Other";
-        case ::gl::GL_DEBUG_TYPE_PERFORMANCE:
-            return "Performance";
-        case ::gl::GL_DEBUG_TYPE_POP_GROUP:
-            return "Pop Group";
-        case ::gl::GL_DEBUG_TYPE_PUSH_GROUP:
-            return "Push Group";
-        case ::gl::GL_DEBUG_TYPE_PORTABILITY:
-            return "Portability";
-        default:
-            return "<unknown>";
+    case ::gl::GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        return "Deprecated Behavior";
+    case ::gl::GL_DEBUG_TYPE_ERROR:
+        return "Error";
+    case ::gl::GL_DEBUG_TYPE_MARKER:
+        return "Marker";
+    case ::gl::GL_DEBUG_TYPE_OTHER:
+        return "Other";
+    case ::gl::GL_DEBUG_TYPE_PERFORMANCE:
+        return "Performance";
+    case ::gl::GL_DEBUG_TYPE_POP_GROUP:
+        return "Pop Group";
+    case ::gl::GL_DEBUG_TYPE_PUSH_GROUP:
+        return "Push Group";
+    case ::gl::GL_DEBUG_TYPE_PORTABILITY:
+        return "Portability";
+    default:
+        return "<unknown>";
     }
 }
 
@@ -60,16 +60,16 @@ inline const char* glDebugSeverityToString(const ::gl::GLenum severity)
 {
     switch( severity )
     {
-        case ::gl::GL_DEBUG_SEVERITY_HIGH:
-            return "High";
-        case ::gl::GL_DEBUG_SEVERITY_LOW:
-            return "Low";
-        case ::gl::GL_DEBUG_SEVERITY_MEDIUM:
-            return "Medium";
-        case ::gl::GL_DEBUG_SEVERITY_NOTIFICATION:
-            return "Notification";
-        default:
-            return "<unknown>";
+    case ::gl::GL_DEBUG_SEVERITY_HIGH:
+        return "High";
+    case ::gl::GL_DEBUG_SEVERITY_LOW:
+        return "Low";
+    case ::gl::GL_DEBUG_SEVERITY_MEDIUM:
+        return "Medium";
+    case ::gl::GL_DEBUG_SEVERITY_NOTIFICATION:
+        return "Notification";
+    default:
+        return "<unknown>";
     }
 }
 

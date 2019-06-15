@@ -11,7 +11,7 @@ namespace scene
 class Window final
 {
 public:
-    explicit Window(bool fullscreen = false, const Dimension2<int>& resolution = {1280, 800});
+    explicit Window(bool fullscreen = false, const Dimension2<int>& resolution = { 1280, 800 });
 
     bool isVsync() const;
 

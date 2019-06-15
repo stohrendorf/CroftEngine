@@ -9,7 +9,7 @@ namespace engine
 namespace items
 {
 class Mummy final
-        : public ModelItemNode
+    : public ModelItemNode
 {
 public:
     Mummy(const gsl::not_null<Engine*>& engine,
@@ -22,7 +22,7 @@ public:
     void collide(LaraNode& lara, CollisionInfo& info) override;
 
 private:
-    core::Angle m_headRotation{0_deg};
+    core::Angle m_headRotation{ 0_deg };
 };
 }
 }

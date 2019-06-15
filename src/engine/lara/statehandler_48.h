@@ -7,11 +7,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_48 final
-        : public StateHandler_OnWater
+    : public StateHandler_OnWater
 {
 public:
     explicit StateHandler_48(LaraNode& lara)
-            : StateHandler_OnWater{lara, LaraStateId::OnWaterLeft}
+        : StateHandler_OnWater{ lara, LaraStateId::OnWaterLeft }
     {
     }
 

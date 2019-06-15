@@ -23,8 +23,8 @@ class TextureAnimator
             size_t queueOffset = 0;
 
             VertexReference(const size_t bufferIdx, const int sourceIdx)
-                    : bufferIndex( bufferIdx )
-                    , sourceIndex( sourceIdx )
+                : bufferIndex( bufferIdx )
+                  , sourceIndex( sourceIdx )
             {
                 Expects( sourceIdx >= 0 && sourceIdx < 4 );
             }
@@ -39,7 +39,6 @@ class TextureAnimator
                 return bufferIndex == rhs.bufferIndex;
             }
         };
-
 
         std::vector<core::TextureProxyId> proxyIds;
         std::map<std::shared_ptr<render::gl::StructuredVertexBuffer>, std::set<VertexReference>> affectedVertices;
@@ -85,7 +84,6 @@ class TextureAnimator
             }
         }
     };
-
 
     std::vector<Sequence> m_sequences;
     std::map<core::TextureProxyId, size_t> m_sequenceByProxyId;

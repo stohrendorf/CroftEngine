@@ -26,7 +26,7 @@ class BufferHandle final
 
 public:
     explicit BufferHandle()
-            : m_handle{createHandle()}
+        : m_handle{ createHandle() }
     {
     }
 

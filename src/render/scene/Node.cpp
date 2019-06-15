@@ -8,7 +8,7 @@ namespace render
 namespace scene
 {
 Node::Node(std::string id)
-        : m_id( std::move( id ) )
+    : m_id( std::move( id ) )
 {
 }
 
@@ -18,7 +18,7 @@ Node::~Node()
     {
         const auto it = std::find_if( p->m_children.begin(), p->m_children.end(),
                                       [this](const gsl::not_null<std::shared_ptr<Node>>& node) {
-                                          return node.get().get() == this;
+                                        return node.get().get() == this;
                                       } );
         if( it != p->m_children.end() )
             getParent().lock()->m_children.erase( it );
@@ -101,7 +101,7 @@ const glm::mat4& Node::getViewMatrix() const
     }
     else
     {
-        static const glm::mat4 identity{1.0f};
+        static const glm::mat4 identity{ 1.0f };
         return identity;
     }
 }
@@ -116,7 +116,7 @@ const glm::mat4& Node::getInverseViewMatrix() const
     }
     else
     {
-        static const glm::mat4 identity{1.0f};
+        static const glm::mat4 identity{ 1.0f };
         return identity;
     }
 }
@@ -131,7 +131,7 @@ const glm::mat4& Node::getProjectionMatrix() const
     }
     else
     {
-        static const glm::mat4 identity{1.0f};
+        static const glm::mat4 identity{ 1.0f };
         return identity;
     }
 }
@@ -146,7 +146,7 @@ const glm::mat4& Node::getViewProjectionMatrix() const
     }
     else
     {
-        static const glm::mat4 identity{1.0f};
+        static const glm::mat4 identity{ 1.0f };
         return identity;
     }
 }
@@ -159,7 +159,7 @@ const glm::mat4& Node::getInverseViewProjectionMatrix() const
     {
         return camera->getInverseViewProjectionMatrix();
     }
-    static const glm::mat4 identity{1.0f};
+    static const glm::mat4 identity{ 1.0f };
     return identity;
 }
 

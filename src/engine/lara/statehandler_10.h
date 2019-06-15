@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_10 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_10(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::Hang}
+        : AbstractStateHandler{ lara, LaraStateId::Hang }
     {
     }
 
@@ -27,7 +27,7 @@ public:
             setGoalAnimState( LaraStateId::ShimmyLeft );
         }
         else if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right ||
-                 getEngine().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Right )
+            getEngine().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Right )
         {
             setGoalAnimState( LaraStateId::ShimmyRight );
         }

@@ -9,7 +9,7 @@ namespace hid
 {
 
 InputHandler::InputHandler(const gsl::not_null<GLFWwindow*>& window)
-        : m_window{window}
+    : m_window{ window }
 {
     glfwGetCursorPos( m_window, &m_lastCursorX, &m_lastCursorY );
 
@@ -73,41 +73,37 @@ void InputHandler::update()
         backward = true;
 
     m_inputState.moveSlow = glfwGetKey( m_window, GLFW_KEY_LEFT_SHIFT ) == GLFW_PRESS
-                            || glfwGetKey( m_window, GLFW_KEY_RIGHT_SHIFT ) == GLFW_PRESS
-                            || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_R1] == GLFW_PRESS);
+        || glfwGetKey( m_window, GLFW_KEY_RIGHT_SHIFT ) == GLFW_PRESS
+        || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_R1] == GLFW_PRESS);
 
     m_inputState.action = glfwGetKey( m_window, GLFW_KEY_LEFT_CONTROL ) == GLFW_PRESS
-                          || glfwGetKey( m_window, GLFW_KEY_RIGHT_CONTROL ) == GLFW_PRESS
-                          || glfwGetMouseButton( m_window, GLFW_MOUSE_BUTTON_LEFT ) == GLFW_PRESS
-                          || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_CROSS] == GLFW_PRESS);
+        || glfwGetKey( m_window, GLFW_KEY_RIGHT_CONTROL ) == GLFW_PRESS
+        || glfwGetMouseButton( m_window, GLFW_MOUSE_BUTTON_LEFT ) == GLFW_PRESS
+        || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_CROSS] == GLFW_PRESS);
 
     m_inputState.holster = glfwGetKey( m_window, GLFW_KEY_R ) == GLFW_PRESS
-                           || glfwGetMouseButton( m_window, GLFW_MOUSE_BUTTON_MIDDLE ) == GLFW_PRESS
-                           || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_TRIANGLE] == GLFW_PRESS);
+        || glfwGetMouseButton( m_window, GLFW_MOUSE_BUTTON_MIDDLE ) == GLFW_PRESS
+        || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_TRIANGLE] == GLFW_PRESS);
 
     m_inputState.jump = glfwGetKey( m_window, GLFW_KEY_SPACE ) == GLFW_PRESS
-                        || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_SQUARE] == GLFW_PRESS);
+        || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_SQUARE] == GLFW_PRESS);
 
     m_inputState.roll = glfwGetKey( m_window, GLFW_KEY_X ) == GLFW_PRESS
-                        || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_CIRCLE] == GLFW_PRESS);
+        || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_CIRCLE] == GLFW_PRESS);
 
     m_inputState.freeLook = glfwGetMouseButton( m_window, GLFW_MOUSE_BUTTON_RIGHT ) == GLFW_PRESS
-                            || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_L1] == GLFW_PRESS);
+        || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_L1] == GLFW_PRESS);
 
     m_inputState.debug = glfwGetKey( m_window, GLFW_KEY_F11 ) == GLFW_PRESS;
 
     m_inputState._1 = glfwGetKey( m_window, GLFW_KEY_1 ) == GLFW_PRESS
-                      || (m_controllerIndex >= 0
-                          && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -AxisThreshold);
+        || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -AxisThreshold);
     m_inputState._2 = glfwGetKey( m_window, GLFW_KEY_2 ) == GLFW_PRESS
-                      || (m_controllerIndex >= 0
-                          && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > AxisThreshold);
+        || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > AxisThreshold);
     m_inputState._3 = glfwGetKey( m_window, GLFW_KEY_3 ) == GLFW_PRESS
-                      || (m_controllerIndex >= 0
-                          && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] < -AxisThreshold);
+        || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] < -AxisThreshold);
     m_inputState._4 = glfwGetKey( m_window, GLFW_KEY_4 ) == GLFW_PRESS
-                      || (m_controllerIndex >= 0
-                          && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] > AxisThreshold);
+        || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] > AxisThreshold);
     m_inputState._5 = glfwGetKey( m_window, GLFW_KEY_5 ) == GLFW_PRESS;
     m_inputState._6 = glfwGetKey( m_window, GLFW_KEY_6 ) == GLFW_PRESS;
 

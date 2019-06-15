@@ -87,33 +87,33 @@ Level::createLoader(io::SDLReader&& reader, Game game_version, const std::string
 
     switch( game_version )
     {
-        case Game::TR1:
-            result = std::make_shared<level::TR1Level>( game_version, std::move( reader ) );
-            break;
-        case Game::TR1Demo:
-        case Game::TR1UnfinishedBusiness:
-            result = std::make_shared<level::TR1Level>( game_version, std::move( reader ) );
-            result->m_demoOrUb = true;
-            break;
-        case Game::TR2:
-            result = std::make_shared<level::TR2Level>( game_version, std::move( reader ) );
-            break;
-        case Game::TR2Demo:
-            result = std::make_shared<level::TR2Level>( game_version, std::move( reader ) );
-            result->m_demoOrUb = true;
-            break;
-        case Game::TR3:
-            result = std::make_shared<level::TR3Level>( game_version, std::move( reader ) );
-            break;
-        case Game::TR4:
-        case Game::TR4Demo:
-            result = std::make_shared<level::TR4Level>( game_version, std::move( reader ) );
-            break;
-        case Game::TR5:
-            result = std::make_shared<level::TR5Level>( game_version, std::move( reader ) );
-            break;
-        default:
-            BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid game version" ) );
+    case Game::TR1:
+        result = std::make_shared<level::TR1Level>( game_version, std::move( reader ) );
+        break;
+    case Game::TR1Demo:
+    case Game::TR1UnfinishedBusiness:
+        result = std::make_shared<level::TR1Level>( game_version, std::move( reader ) );
+        result->m_demoOrUb = true;
+        break;
+    case Game::TR2:
+        result = std::make_shared<level::TR2Level>( game_version, std::move( reader ) );
+        break;
+    case Game::TR2Demo:
+        result = std::make_shared<level::TR2Level>( game_version, std::move( reader ) );
+        result->m_demoOrUb = true;
+        break;
+    case Game::TR3:
+        result = std::make_shared<level::TR3Level>( game_version, std::move( reader ) );
+        break;
+    case Game::TR4:
+    case Game::TR4Demo:
+        result = std::make_shared<level::TR4Level>( game_version, std::move( reader ) );
+        break;
+    case Game::TR5:
+        result = std::make_shared<level::TR5Level>( game_version, std::move( reader ) );
+        break;
+    default:
+        BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid game version" ) );
     }
 
     result->m_sfxPath = sfxPath;
@@ -157,7 +157,7 @@ Game Level::probeVersion(io::SDLReader& reader, const std::string& filename)
             ret = Game::TR2;
         }
         else if( (check[0] == 0x38 || check[0] == 0x34) && check[1] == 0x00 && (check[2] == 0x18 || check[2] == 0x08)
-                 && check[3] == 0xFF )
+            && check[3] == 0xFF )
         {
             ret = Game::TR3;
         }
@@ -172,16 +172,16 @@ Game Level::probeVersion(io::SDLReader& reader, const std::string& filename)
             ret = Game::TR4;
         }
         else if( check[0] == 0x54 && // T
-                 check[1] == 0x52 && // R
-                 check[2] == 0x34 && // 4
-                 check[3] == 0x63 ) //
+            check[1] == 0x52 && // R
+            check[2] == 0x34 && // 4
+            check[3] == 0x63 ) //
         {
             ret = Game::TR4;
         }
         else if( check[0] == 0xF0 && // T
-                 check[1] == 0xFF && // R
-                 check[2] == 0xFF && // 4
-                 check[3] == 0xFF )
+            check[1] == 0xFF && // R
+            check[2] == 0xFF && // 4
+            check[3] == 0xFF )
         {
             ret = Game::TR4;
         }
@@ -252,9 +252,9 @@ void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
             const int col = tex.pixels[y][x];
 
             if( col > 0 )
-                dst.pixels[y][x] = {pal.colors[col].r, pal.colors[col].g, pal.colors[col].b, 255};
+                dst.pixels[y][x] = { pal.colors[col].r, pal.colors[col].g, pal.colors[col].b, 255 };
             else
-                dst.pixels[y][x] = {0, 0, 0, 0};
+                dst.pixels[y][x] = { 0, 0, 0, 0 };
         }
     }
 
@@ -274,11 +274,11 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
                 const auto r = static_cast<const uint8_t>((col & 0x00007c00) >> 7);
                 const auto g = static_cast<const uint8_t>((col & 0x000003e0) >> 2);
                 const auto b = static_cast<const uint8_t>((col & 0x0000001f) << 3);
-                dst.pixels[y][x] = {r, g, b, 1};
+                dst.pixels[y][x] = { r, g, b, 1 };
             }
             else
             {
-                dst.pixels[y][x] = {0, 0, 0, 0};
+                dst.pixels[y][x] = { 0, 0, 0, 0 };
             }
         }
     }
@@ -358,8 +358,8 @@ void Level::postProcessDataStructures()
         if( model->nMeshes > 1 )
         {
             model->boneTree = gsl::make_span(
-                    reinterpret_cast<const BoneTreeEntry*>(&model->bone_index.from( m_boneTrees )),
-                    model->nMeshes - 1 );
+                reinterpret_cast<const BoneTreeEntry*>(&model->bone_index.from( m_boneTrees )),
+                model->nMeshes - 1 );
         }
 
         if( model->animation_index.index != 0xffff )
@@ -405,8 +405,8 @@ void Level::postProcessDataStructures()
         Expects( transition.firstTransitionCase + transition.transitionCaseCount <= m_transitionCases.size() );
         if( transition.transitionCaseCount > 0 )
             transition.transitionCases = gsl::make_span(
-                    &transition.firstTransitionCase.from( m_transitionCases ),
-                    transition.transitionCaseCount );
+                &transition.firstTransitionCase.from( m_transitionCases ),
+                transition.transitionCaseCount );
     }
 
     for( const auto& sequence : m_spriteSequences | boost::adaptors::map_values )

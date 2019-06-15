@@ -9,7 +9,6 @@ namespace scene
 {
 class RenderContext;
 
-
 class Renderable
 {
 public:

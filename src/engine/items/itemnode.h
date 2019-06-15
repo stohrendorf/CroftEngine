@@ -27,9 +27,7 @@ namespace engine
 {
 class LaraNode;
 
-
 class Particle;
-
 
 class Engine;
 
@@ -50,16 +48,15 @@ struct InteractionLimits
     core::TRRotation maxAngle;
 
     InteractionLimits(const core::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
-            : distance{bbox}
-            , minAngle{min}
-            , maxAngle{max}
+        : distance{ bbox }
+          , minAngle{ min }
+          , maxAngle{ max }
     {
         distance.makeValid();
     }
 
     bool canInteract(const ItemState& item, const ItemState& lara) const;
 };
-
 
 enum class TriggerState
 {
@@ -69,15 +66,14 @@ enum class TriggerState
     Invisible
 };
 
-
 struct ItemState final : public audio::Emitter
 {
     explicit ItemState(const gsl::not_null<audio::SoundEngine*>& engine,
                        const gsl::not_null<const loader::file::Room*>& room,
                        const core::TypeId type)
-            : Emitter{engine}
-            , type{type}
-            , position{room}
+        : Emitter{ engine }
+          , type{ type }
+          , position{ room }
     {}
 
     ItemState(const ItemState&) = default;
@@ -161,7 +157,6 @@ struct ItemState final : public audio::Emitter
     }
 };
 
-
 class ItemNode
 {
     const gsl::not_null<Engine*> m_engine;
@@ -176,7 +171,7 @@ public:
     Lighting m_lighting;
 
     enum class AnimCommandOpcode
-            : uint16_t
+        : uint16_t
     {
         SetPosition = 1,
         StartFalling = 2,
@@ -277,9 +272,9 @@ public:
     bool alignTransform(const core::TRVec& speed, const ItemNode& target)
     {
         auto targetPos = target.m_state.position.position.toRenderSystem();
-        targetPos += glm::vec3{target.m_state.rotation.toMatrix() * glm::vec4{speed.toRenderSystem(), 1.0f}};
+        targetPos += glm::vec3{ target.m_state.rotation.toMatrix() * glm::vec4{ speed.toRenderSystem(), 1.0f } };
 
-        return alignTransformClamped( core::TRVec{targetPos}, target.m_state.rotation, 16_len, 364_au );
+        return alignTransformClamped( core::TRVec{ targetPos }, target.m_state.rotation, 16_len, 364_au );
     }
 
     void updateLighting();
@@ -326,24 +321,23 @@ protected:
         d = targetPos - m_state.position.position;
 
         return abs( phi.X ) < 1_au && abs( phi.Y ) < 1_au && abs( phi.Z ) < 1_au
-               && d.X == 0_len && d.Y == 0_len && d.Z == 0_len;
+            && d.X == 0_len && d.Y == 0_len && d.Z == 0_len;
     }
 };
 
-
 class ModelItemNode
-        : public ItemNode
+    : public ItemNode
 {
 protected:
     std::shared_ptr<SkeletalModelNode> m_skeleton;
 
 public:
     ModelItemNode(
-            const gsl::not_null<Engine*>& engine,
-            const gsl::not_null<const loader::file::Room*>& room,
-            const loader::file::Item& item,
-            bool hasUpdateFunction,
-            const loader::file::SkeletalModelType& animatedModel);
+        const gsl::not_null<Engine*>& engine,
+        const gsl::not_null<const loader::file::Room*>& room,
+        const loader::file::Item& item,
+        bool hasUpdateFunction,
+        const loader::file::SkeletalModelType& animatedModel);
 
     ModelItemNode(const ModelItemNode&) = delete;
 
@@ -410,32 +404,31 @@ public:
     gsl::not_null<std::shared_ptr<Particle>> emitParticle(const core::TRVec& localPosition,
                                                           size_t boneIndex,
                                                           gsl::not_null<std::shared_ptr<Particle>> (* generate)(
-                                                                  Engine& engine,
-                                                                  const core::RoomBoundPosition& pos,
-                                                                  core::Speed speed,
-                                                                  core::Angle angle));
+                                                              Engine& engine,
+                                                              const core::RoomBoundPosition& pos,
+                                                              core::Speed speed,
+                                                              core::Angle angle));
 
     void load(const YAML::Node& n) override;
 
     YAML::Node save() const override;
 };
 
-
 class SpriteItemNode
-        : public ItemNode
+    : public ItemNode
 {
 private:
     std::shared_ptr<render::scene::Node> m_node;
 
 public:
     SpriteItemNode(
-            const gsl::not_null<Engine*>& engine,
-            const std::string& name,
-            const gsl::not_null<const loader::file::Room*>& room,
-            const loader::file::Item& item,
-            bool hasUpdateFunction,
-            const loader::file::Sprite& sprite,
-            const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
+        const gsl::not_null<Engine*>& engine,
+        const std::string& name,
+        const gsl::not_null<const loader::file::Room*>& room,
+        const loader::file::Item& item,
+        bool hasUpdateFunction,
+        const loader::file::Sprite& sprite,
+        const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
 
     SpriteItemNode(const SpriteItemNode&) = delete;
 

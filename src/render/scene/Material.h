@@ -11,9 +11,7 @@ namespace scene
 {
 class MaterialParameter;
 
-
 class Node;
-
 
 class Material final
 {

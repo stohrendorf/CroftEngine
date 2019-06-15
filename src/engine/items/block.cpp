@@ -19,10 +19,11 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
 
     static const InteractionLimits limits{
-            core::BoundingBox{{-300_len, 0_len, -692_len},
-                              {200_len,  0_len, -512_len}},
-            {-10_deg, -30_deg, -10_deg},
-            {+10_deg, +30_deg, +10_deg}
+        core::BoundingBox{ { -300_len, 0_len, -692_len },
+                           { 200_len,  0_len, -512_len }
+        },
+        { -10_deg, -30_deg, -10_deg },
+        { +10_deg, +30_deg, +10_deg }
     };
 
     auto axis = axisFromAngle( lara.m_state.rotation.Y, 45_deg );
@@ -50,28 +51,28 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         core::Length d = 0_len;
         switch( *axis )
         {
-            case core::Axis::PosZ:
-                d = core::SectorSize - core::DefaultCollisionRadius;
-                vp = &core::TRVec::Z;
-                break;
-            case core::Axis::PosX:
-                d = core::SectorSize - core::DefaultCollisionRadius;
-                vp = &core::TRVec::X;
-                break;
-            case core::Axis::NegZ:
-                d = core::DefaultCollisionRadius;
-                vp = &core::TRVec::Z;
-                break;
-            case core::Axis::NegX:
-                d = core::DefaultCollisionRadius;
-                vp = &core::TRVec::X;
-                break;
-            default:
-                BOOST_THROW_EXCEPTION( std::domain_error( "Invalid axis" ) );
+        case core::Axis::PosZ:
+            d = core::SectorSize - core::DefaultCollisionRadius;
+            vp = &core::TRVec::Z;
+            break;
+        case core::Axis::PosX:
+            d = core::SectorSize - core::DefaultCollisionRadius;
+            vp = &core::TRVec::X;
+            break;
+        case core::Axis::NegZ:
+            d = core::DefaultCollisionRadius;
+            vp = &core::TRVec::Z;
+            break;
+        case core::Axis::NegX:
+            d = core::DefaultCollisionRadius;
+            vp = &core::TRVec::X;
+            break;
+        default:
+            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid axis" ) );
         }
 
         lara.m_state.position.position.*vp =
-                (lara.m_state.position.position.*vp / core::SectorSize) * core::SectorSize + d;
+            (lara.m_state.position.position.*vp / core::SectorSize) * core::SectorSize + d;
 
         lara.setGoalAnimState( LaraStateId::PushableGrab );
         lara.updateImpl();
@@ -165,7 +166,7 @@ void Block::update()
     pos = m_state.position;
     sector = loader::file::findRealFloorSector( pos );
     getEngine().getLara().handleCommandSequence(
-            HeightInfo::fromFloor( sector, pos.position, getEngine().getItemNodes() ).lastCommandSequenceOrDeath, true );
+        HeightInfo::fromFloor( sector, pos.position, getEngine().getItemNodes() ).lastCommandSequenceOrDeath, true );
 }
 
 bool Block::isOnFloor(const core::Length& height) const
@@ -184,20 +185,20 @@ bool Block::canPushBlock(const core::Length& height, const core::Axis axis) cons
     auto pos = m_state.position.position;
     switch( axis )
     {
-        case core::Axis::PosZ:
-            pos.Z += core::SectorSize;
-            break;
-        case core::Axis::PosX:
-            pos.X += core::SectorSize;
-            break;
-        case core::Axis::NegZ:
-            pos.Z -= core::SectorSize;
-            break;
-        case core::Axis::NegX:
-            pos.X -= core::SectorSize;
-            break;
-        default:
-            break;
+    case core::Axis::PosZ:
+        pos.Z += core::SectorSize;
+        break;
+    case core::Axis::PosX:
+        pos.X += core::SectorSize;
+        break;
+    case core::Axis::NegZ:
+        pos.Z -= core::SectorSize;
+        break;
+    case core::Axis::NegX:
+        pos.X -= core::SectorSize;
+        break;
+    default:
+        break;
     }
 
     CollisionInfo tmp;
@@ -216,7 +217,7 @@ bool Block::canPushBlock(const core::Length& height, const core::Axis axis) cons
 
     pos.Y -= height;
     return pos.Y >= loader::file::findRealFloorSector(
-            pos, m_state.position.room )->ceilingHeight;
+        pos, m_state.position.room )->ceilingHeight;
 }
 
 bool Block::canPullBlock(const core::Length& height, const core::Axis axis) const
@@ -229,20 +230,20 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
     auto pos = m_state.position.position;
     switch( axis )
     {
-        case core::Axis::PosZ:
-            pos.Z -= core::SectorSize;
-            break;
-        case core::Axis::PosX:
-            pos.X -= core::SectorSize;
-            break;
-        case core::Axis::NegZ:
-            pos.Z += core::SectorSize;
-            break;
-        case core::Axis::NegX:
-            pos.X += core::SectorSize;
-            break;
-        default:
-            break;
+    case core::Axis::PosZ:
+        pos.Z -= core::SectorSize;
+        break;
+    case core::Axis::PosX:
+        pos.X -= core::SectorSize;
+        break;
+    case core::Axis::NegZ:
+        pos.Z += core::SectorSize;
+        break;
+    case core::Axis::NegX:
+        pos.X += core::SectorSize;
+        break;
+    default:
+        break;
     }
 
     auto room = m_state.position.room;
@@ -272,20 +273,20 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
     auto laraPos = pos;
     switch( axis )
     {
-        case core::Axis::PosZ:
-            laraPos.Z -= core::SectorSize;
-            break;
-        case core::Axis::PosX:
-            laraPos.X -= core::SectorSize;
-            break;
-        case core::Axis::NegZ:
-            laraPos.Z += core::SectorSize;
-            break;
-        case core::Axis::NegX:
-            laraPos.X += core::SectorSize;
-            break;
-        default:
-            break;
+    case core::Axis::PosZ:
+        laraPos.Z -= core::SectorSize;
+        break;
+    case core::Axis::PosX:
+        laraPos.X -= core::SectorSize;
+        break;
+    case core::Axis::NegZ:
+        laraPos.Z += core::SectorSize;
+        break;
+    case core::Axis::NegX:
+        laraPos.X += core::SectorSize;
+        break;
+    default:
+        break;
     }
 
     sector = loader::file::findRealFloorSector( laraPos, &room );
@@ -304,24 +305,24 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
     laraPos = getEngine().getLara().m_state.position.position;
     switch( axis )
     {
-        case core::Axis::PosZ:
-            laraPos.Z -= core::SectorSize;
-            tmp.facingAxis = core::Axis::NegZ;
-            break;
-        case core::Axis::PosX:
-            laraPos.X -= core::SectorSize;
-            tmp.facingAxis = core::Axis::NegX;
-            break;
-        case core::Axis::NegZ:
-            laraPos.Z += core::SectorSize;
-            tmp.facingAxis = core::Axis::PosZ;
-            break;
-        case core::Axis::NegX:
-            laraPos.X += core::SectorSize;
-            tmp.facingAxis = core::Axis::PosX;
-            break;
-        default:
-            break;
+    case core::Axis::PosZ:
+        laraPos.Z -= core::SectorSize;
+        tmp.facingAxis = core::Axis::NegZ;
+        break;
+    case core::Axis::PosX:
+        laraPos.X -= core::SectorSize;
+        tmp.facingAxis = core::Axis::NegX;
+        break;
+    case core::Axis::NegZ:
+        laraPos.Z += core::SectorSize;
+        tmp.facingAxis = core::Axis::PosZ;
+        break;
+    case core::Axis::NegX:
+        laraPos.X += core::SectorSize;
+        tmp.facingAxis = core::Axis::PosX;
+        break;
+    default:
+        break;
     }
     tmp.collisionRadius = core::DefaultCollisionRadius;
 

@@ -11,7 +11,6 @@ namespace gl
 {
 class FrameBuffer;
 
-
 class FrameBufferAttachment
 {
     friend FrameBuffer;
@@ -24,13 +23,12 @@ public:
     virtual ~FrameBufferAttachment() = default;
 };
 
-
 class FrameBufferTextureAttachment final : public FrameBufferAttachment
 {
 public:
     explicit FrameBufferTextureAttachment(const std::shared_ptr<Texture>& texture, const ::gl::GLint level = 0)
-            : m_texture{texture}
-            , m_level{level}
+        : m_texture{ texture }
+          , m_level{ level }
     {}
 
     void attach(const FrameBuffer& frameBuffer, const ::gl::GLenum attachment) const override;
@@ -39,7 +37,6 @@ private:
     const std::shared_ptr<Texture> m_texture;
     const ::gl::GLint m_level;
 };
-
 
 class FrameBuffer : public BindableResource
 {
@@ -54,13 +51,14 @@ private:
 public:
     explicit FrameBuffer(Attachments attachments, const std::string& label = {},
                          ::gl::GLenum type = ::gl::GL_FRAMEBUFFER)
-            : BindableResource{::gl::glGenFramebuffers,
-                               [type](const ::gl::GLuint handle) { ::gl::glBindFramebuffer( type, handle ); },
-                               ::gl::glDeleteFramebuffers,
-                               type,
-                               label}
-            , m_type{type}
-            , m_attachments{std::move( attachments )}
+        : BindableResource{ ::gl::glGenFramebuffers,
+                            [type](const ::gl::GLuint handle) { ::gl::glBindFramebuffer( type, handle ); },
+                            ::gl::glDeleteFramebuffers,
+                            type,
+                            label
+    }
+          , m_type{ type }
+          , m_attachments{ std::move( attachments ) }
     {
         bind();
         std::vector<::gl::GLenum> colorAttachments;
@@ -73,7 +71,7 @@ public:
         }
         if( !colorAttachments.empty() )
             GL_ASSERT(
-                    glDrawBuffers( gsl::narrow<::gl::GLsizei>( colorAttachments.size() ), colorAttachments.data() ) );
+                glDrawBuffers( gsl::narrow<::gl::GLsizei>( colorAttachments.size() ), colorAttachments.data() ) );
         else
             GL_ASSERT( glDrawBuffer( ::gl::GL_NONE ) );
 
@@ -100,43 +98,43 @@ public:
 #ifndef NDEBUG
         switch( result )
         {
-            case ::gl::GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-                BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
-                                             << " incomplete: incomplete attachment";
-                break;
-            case ::gl::GL_FRAMEBUFFER_UNDEFINED:
-                BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
-                                             << " incomplete: default is undefined";
-                break;
-            case ::gl::GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-                BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
-                                             << " incomplete: missing attachment";
-                break;
-            case ::gl::GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-                BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
-                                             << " incomplete: incomplete draw buffer";
-                break;
-            case ::gl::GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-                BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
-                                             << " incomplete: incomplete read buffer";
-                break;
-            case ::gl::GL_FRAMEBUFFER_UNSUPPORTED:
-                BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
-                                             << " incomplete: unsupported attachment type";
-                break;
-            case ::gl::GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-                BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
-                                             << " incomplete: incomplete multisample";
-                break;
-            case ::gl::GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-                BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
-                                             << " incomplete: incomplete layer targets";
-                break;
-            case ::gl::GL_FRAMEBUFFER_COMPLETE:
-                break;
-            default:
-                BOOST_LOG_TRIVIAL( error ) << "Framebuffer #" << getHandle() << " incomplete: unknown code #"
-                                           << result;
+        case ::gl::GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+            BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
+                                         << " incomplete: incomplete attachment";
+            break;
+        case ::gl::GL_FRAMEBUFFER_UNDEFINED:
+            BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
+                                         << " incomplete: default is undefined";
+            break;
+        case ::gl::GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+            BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
+                                         << " incomplete: missing attachment";
+            break;
+        case ::gl::GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+            BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
+                                         << " incomplete: incomplete draw buffer";
+            break;
+        case ::gl::GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+            BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
+                                         << " incomplete: incomplete read buffer";
+            break;
+        case ::gl::GL_FRAMEBUFFER_UNSUPPORTED:
+            BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
+                                         << " incomplete: unsupported attachment type";
+            break;
+        case ::gl::GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+            BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
+                                         << " incomplete: incomplete multisample";
+            break;
+        case ::gl::GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+            BOOST_LOG_TRIVIAL( warning ) << "Framebuffer #" << getHandle()
+                                         << " incomplete: incomplete layer targets";
+            break;
+        case ::gl::GL_FRAMEBUFFER_COMPLETE:
+            break;
+        default:
+            BOOST_LOG_TRIVIAL( error ) << "Framebuffer #" << getHandle() << " incomplete: unknown code #"
+                                       << result;
         }
 #endif
 
@@ -149,12 +147,10 @@ public:
     }
 };
 
-
 void FrameBufferTextureAttachment::attach(const FrameBuffer& frameBuffer, const ::gl::GLenum attachment) const
 {
     GL_ASSERT( glFramebufferTexture( frameBuffer.getType(), attachment, m_texture->getHandle(), m_level ) );
 }
-
 
 class FrameBufferBuilder
 {
@@ -173,6 +169,5 @@ public:
         return *this;
     }
 };
-
 }
 }

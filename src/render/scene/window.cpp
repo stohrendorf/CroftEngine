@@ -1,6 +1,7 @@
 #include "window.h"
 
 #include "render/gl/glassert.h"
+#include "util/cimgwrapper.h"
 #include "gsl-lite.hpp"
 
 namespace render
@@ -51,6 +52,14 @@ Window::Window(bool fullscreen, const Dimension2<int>& resolution)
         BOOST_LOG_TRIVIAL( fatal ) << "Failed to create window";
         BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to create window" ) );
     }
+
+    util::CImgWrapper imgWrapper{"logo.png"};
+    imgWrapper.interleave();
+    GLFWimage img;
+    img.width = imgWrapper.width();
+    img.height = imgWrapper.height();
+    img.pixels = const_cast<unsigned char*>(imgWrapper.data());
+    glfwSetWindowIcon(m_window, 1, &img);
 
     glfwMakeContextCurrent( m_window );
 

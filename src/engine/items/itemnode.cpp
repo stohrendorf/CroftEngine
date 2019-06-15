@@ -16,16 +16,16 @@ const char* toString(const TriggerState s)
 {
     switch( s )
     {
-        case TriggerState::Inactive:
-            return "Inactive";
-        case TriggerState::Active:
-            return "Active";
-        case TriggerState::Deactivated:
-            return "Deactivated";
-        case TriggerState::Invisible:
-            return "Invisible";
-        default:
-            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid TriggerState" ) );
+    case TriggerState::Inactive:
+        return "Inactive";
+    case TriggerState::Active:
+        return "Active";
+    case TriggerState::Deactivated:
+        return "Deactivated";
+    case TriggerState::Invisible:
+        return "Invisible";
+    default:
+        BOOST_THROW_EXCEPTION( std::domain_error( "Invalid TriggerState" ) );
     }
 }
 
@@ -46,16 +46,16 @@ TriggerState parseTriggerState(const std::string& s)
 void ItemNode::applyTransform()
 {
     const glm::vec3 tr = m_state.position.position.toRenderSystem() - m_state.position.room->position.toRenderSystem();
-    getNode()->setLocalMatrix( translate( glm::mat4{1.0f}, tr ) * m_state.rotation.toMatrix() );
+    getNode()->setLocalMatrix( translate( glm::mat4{ 1.0f }, tr ) * m_state.rotation.toMatrix() );
 }
 
 ItemNode::ItemNode(const gsl::not_null<Engine*>& engine,
                    const gsl::not_null<const loader::file::Room*>& room,
                    const loader::file::Item& item,
                    const bool hasUpdateFunction)
-        : m_engine{engine}
-        , m_state{&engine->getSoundEngine(), room, item.type}
-        , m_hasUpdateFunction{hasUpdateFunction}
+    : m_engine{ engine }
+      , m_state{ &engine->getSoundEngine(), room, item.type }
+      , m_hasUpdateFunction{ hasUpdateFunction }
 {
     BOOST_ASSERT( room->isInnerPositionXZ( item.position ) );
 
@@ -101,19 +101,19 @@ ModelItemNode::ModelItemNode(const gsl::not_null<Engine*>& engine,
                              const loader::file::Item& item,
                              const bool hasUpdateFunction,
                              const loader::file::SkeletalModelType& animatedModel)
-        : ItemNode{engine, room, item, hasUpdateFunction}
-        , m_skeleton{std::make_shared<SkeletalModelNode>(
-                std::string( "skeleton(type:" ) + toString( item.type.get_as<TR1ItemId>() ) + ")",
-                engine,
-                animatedModel )
-        }
+    : ItemNode{ engine, room, item, hasUpdateFunction }
+      , m_skeleton{ std::make_shared<SkeletalModelNode>(
+        std::string( "skeleton(type:" ) + toString( item.type.get_as<TR1ItemId>() ) + ")",
+        engine,
+        animatedModel )
+    }
 {
     m_skeleton->setAnimation( m_state, animatedModel.animations, animatedModel.animations->firstFrame );
 
     for( gsl::index boneIndex = 0; boneIndex < animatedModel.meshes.size(); ++boneIndex )
     {
         auto node = std::make_shared<render::scene::Node>(
-                m_skeleton->getId() + "/bone:" + std::to_string( boneIndex ) );
+            m_skeleton->getId() + "/bone:" + std::to_string( boneIndex ) );
         node->setDrawable( animatedModel.models[boneIndex].get() );
         addChild( m_skeleton, node );
     }
@@ -143,31 +143,31 @@ void ModelItemNode::update()
             ++cmd;
             switch( opcode )
             {
-                case AnimCommandOpcode::SetPosition:
-                    moveLocal( core::TRVec{
-                            core::Length{static_cast<core::Length::type>(cmd[0])},
-                            core::Length{static_cast<core::Length::type>(cmd[1])},
-                            core::Length{static_cast<core::Length::type>(cmd[2])}
-                    } );
-                    cmd += 3;
-                    break;
-                case AnimCommandOpcode::StartFalling:
-                    m_state.fallspeed = core::Speed{static_cast<core::Speed::type>(cmd[0])};
-                    m_state.speed = core::Speed{static_cast<core::Speed::type>(cmd[1])};
-                    m_state.falling = true;
-                    cmd += 2;
-                    break;
-                case AnimCommandOpcode::PlaySound:
-                    cmd += 2;
-                    break;
-                case AnimCommandOpcode::PlayEffect:
-                    cmd += 2;
-                    break;
-                case AnimCommandOpcode::Kill:
-                    m_state.triggerState = TriggerState::Deactivated;
-                    break;
-                default:
-                    break;
+            case AnimCommandOpcode::SetPosition:
+                moveLocal( core::TRVec{
+                    core::Length{ static_cast<core::Length::type>(cmd[0]) },
+                    core::Length{ static_cast<core::Length::type>(cmd[1]) },
+                    core::Length{ static_cast<core::Length::type>(cmd[2]) }
+                } );
+                cmd += 3;
+                break;
+            case AnimCommandOpcode::StartFalling:
+                m_state.fallspeed = core::Speed{ static_cast<core::Speed::type>(cmd[0]) };
+                m_state.speed = core::Speed{ static_cast<core::Speed::type>(cmd[1]) };
+                m_state.falling = true;
+                cmd += 2;
+                break;
+            case AnimCommandOpcode::PlaySound:
+                cmd += 2;
+                break;
+            case AnimCommandOpcode::PlayEffect:
+                cmd += 2;
+                break;
+            case AnimCommandOpcode::Kill:
+                m_state.triggerState = TriggerState::Deactivated;
+                break;
+            default:
+                break;
             }
         }
 
@@ -187,29 +187,29 @@ void ModelItemNode::update()
         ++cmd;
         switch( opcode )
         {
-            case AnimCommandOpcode::SetPosition:
-                cmd += 3;
-                break;
-            case AnimCommandOpcode::StartFalling:
-                cmd += 2;
-                break;
-            case AnimCommandOpcode::PlaySound:
-                if( m_state.frame_number.get() == cmd[0] )
-                {
-                    playSoundEffect( static_cast<TR1SoundId>(cmd[1]) );
-                }
-                cmd += 2;
-                break;
-            case AnimCommandOpcode::PlayEffect:
-                if( m_state.frame_number.get() == cmd[0] )
-                {
-                    BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
-                    getEngine().runEffect( cmd[1], this );
-                }
-                cmd += 2;
-                break;
-            default:
-                break;
+        case AnimCommandOpcode::SetPosition:
+            cmd += 3;
+            break;
+        case AnimCommandOpcode::StartFalling:
+            cmd += 2;
+            break;
+        case AnimCommandOpcode::PlaySound:
+            if( m_state.frame_number.get() == cmd[0] )
+            {
+                playSoundEffect( static_cast<TR1SoundId>(cmd[1]) );
+            }
+            cmd += 2;
+            break;
+        case AnimCommandOpcode::PlayEffect:
+            if( m_state.frame_number.get() == cmd[0] )
+            {
+                BOOST_LOG_TRIVIAL( debug ) << "Anim effect: " << int( cmd[1] );
+                getEngine().runEffect( cmd[1], this );
+            }
+            cmd += 2;
+            break;
+        default:
+            break;
         }
     }
 
@@ -333,8 +333,8 @@ bool InteractionLimits::canInteract(const ItemState& item, const ItemState& lara
     }
 
     const auto offs = lara.position.position - item.position.position;
-    const auto dist = glm::vec4{offs.toRenderSystem(), 0.0f} * item.rotation.toMatrix();
-    return distance.contains( core::TRVec{glm::vec3{dist}} );
+    const auto dist = glm::vec4{ offs.toRenderSystem(), 0.0f } * item.rotation.toMatrix();
+    return distance.contains( core::TRVec{ glm::vec3{ dist } } );
 }
 
 void ModelItemNode::applyMovement(const bool forLara)
@@ -354,7 +354,7 @@ void ModelItemNode::applyMovement(const bool forLara)
         {
             // we only add acceleration here
             m_state.speed = m_state.speed + m_skeleton->calculateFloorSpeed( m_state, 0_frame )
-                            - m_skeleton->calculateFloorSpeed( m_state, -1_frame );
+                - m_skeleton->calculateFloorSpeed( m_state, -1_frame );
         }
     }
     else
@@ -363,7 +363,7 @@ void ModelItemNode::applyMovement(const bool forLara)
     }
 
     move( (util::pitch( m_state.speed * 1_frame, getMovementAngle() ) + core::TRVec{
-            0_len, (m_state.falling ? m_state.fallspeed : 0_spd) * 1_frame, 0_len
+        0_len, (m_state.falling ? m_state.fallspeed : 0_spd) * 1_frame, 0_len
     }).toRenderSystem() );
 
     applyTransform();
@@ -384,7 +384,7 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<Engine*>& engine,
                                const bool hasUpdateFunction,
                                const loader::file::Sprite& sprite,
                                const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
-        : ItemNode{engine, room, item, hasUpdateFunction}
+    : ItemNode{ engine, room, item, hasUpdateFunction }
 {
     const auto model = std::make_shared<render::scene::Sprite>( sprite.x0, -sprite.y0,
                                                                 sprite.x1, -sprite.y1,
@@ -397,12 +397,12 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<Engine*>& engine,
     m_node->addMaterialParameterSetter( "u_diffuseTexture",
                                         [texture = sprite.texture](const render::scene::Node& /*node*/,
                                                                    render::gl::Program::ActiveUniform& uniform) {
-                                            uniform.set( *texture );
+                                          uniform.set( *texture );
                                         } );
     m_node->addMaterialParameterSetter( "u_lightAmbient",
                                         [brightness = item.getBrightness()](const render::scene::Node& /*node*/,
                                                                             render::gl::Program::ActiveUniform& uniform) {
-                                            uniform.set( brightness );
+                                          uniform.set( brightness );
                                         } );
 
     addChild( room->node, m_node );
@@ -423,13 +423,13 @@ bool ModelItemNode::isNear(const ModelItemNode& other, const core::Length& radiu
     }
 
     const auto xz = util::pitch(
-            other.m_state.position.position - m_state.position.position,
-            -m_state.rotation.Y
-    );
+        other.m_state.position.position - m_state.position.position,
+        -m_state.rotation.Y
+                               );
     return xz.X >= aBBox.minX - radius
-           && xz.X <= aBBox.maxX + radius
-           && xz.Z >= aBBox.minZ - radius
-           && xz.Z <= aBBox.maxZ + radius;
+        && xz.X <= aBBox.maxX + radius
+        && xz.Z >= aBBox.minZ - radius
+        && xz.Z <= aBBox.maxZ + radius;
 }
 
 bool ModelItemNode::isNear(const Particle& other, const core::Length& radius) const
@@ -443,13 +443,13 @@ bool ModelItemNode::isNear(const Particle& other, const core::Length& radius) co
     }
 
     const auto xz = util::pitch(
-            other.pos.position - m_state.position.position,
-            -m_state.rotation.Y
-    );
+        other.pos.position - m_state.position.position,
+        -m_state.rotation.Y
+                               );
     return xz.X >= bbox.minX - radius
-           && xz.X <= bbox.maxX + radius
-           && xz.Z >= bbox.minZ - radius
-           && xz.Z <= bbox.maxZ + radius;
+        && xz.X <= bbox.maxX + radius
+        && xz.Z >= bbox.minZ - radius
+        && xz.Z <= bbox.maxZ + radius;
 }
 
 void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, const bool enableSpaz,
@@ -498,7 +498,7 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
     {
         const auto midX = (keyFrame->bbox.toBBox().minX + keyFrame->bbox.toBBox().maxX) / 2;
         const auto midZ = (keyFrame->bbox.toBBox().minZ + keyFrame->bbox.toBBox().maxZ) / 2;
-        const auto tmp = laraPosWorld - util::pitch( core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y );
+        const auto tmp = laraPosWorld - util::pitch( core::TRVec{ midX, 0_len, midZ }, m_state.rotation.Y );
         const auto a = angleFromAtan( tmp.X, tmp.Z ) - 180_deg;
         getEngine().getLara().hit_direction = core::axisFromAngle( lara.m_state.rotation.Y - a, 45_deg ).get();
         if( getEngine().getLara().hit_frame == 0_frame )
@@ -516,8 +516,8 @@ void ModelItemNode::enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, cons
     collisionInfo.badCeilingDistance = 0_len;
     const auto facingAngle = collisionInfo.facingAngle;
     collisionInfo.facingAngle = angleFromAtan(
-            lara.m_state.position.position.X - collisionInfo.oldPosition.X,
-            lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
+        lara.m_state.position.position.X - collisionInfo.oldPosition.X,
+        lara.m_state.position.position.Z - collisionInfo.oldPosition.Z );
     collisionInfo.initHeightInfo( lara.m_state.position.position, getEngine(), core::LaraWalkHeight );
     collisionInfo.facingAngle = facingAngle;
     if( collisionInfo.collisionType != CollisionInfo::AxisColl::None )
@@ -536,13 +536,13 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
 {
     m_state.touch_bits = 0;
     const auto itemSpheres = m_skeleton->getBoneCollisionSpheres(
-            m_state,
-            *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
-            nullptr );
+        m_state,
+        *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
+        nullptr );
     const auto laraSpheres = other.m_skeleton->getBoneCollisionSpheres(
-            other.m_state,
-            *other.m_skeleton->getInterpolationInfo( other.m_state ).getNearestFrame(),
-            nullptr );
+        other.m_state,
+        *other.m_skeleton->getInterpolationInfo( other.m_state ).getNearestFrame(),
+        nullptr );
     for( const auto& itemSphere : itemSpheres | boost::adaptors::indexed( 0 ) )
     {
         if( itemSphere.value().radius <= 0_len )
@@ -567,22 +567,23 @@ bool ModelItemNode::testBoneCollision(const ModelItemNode& other)
 gsl::not_null<std::shared_ptr<Particle>> ModelItemNode::emitParticle(const core::TRVec& localPosition,
                                                                      const size_t boneIndex,
                                                                      gsl::not_null<std::shared_ptr<Particle>> (* generate)(
-                                                                             Engine& engine,
-                                                                             const core::RoomBoundPosition&,
-                                                                             core::Speed, core::Angle))
+                                                                         Engine& engine,
+                                                                         const core::RoomBoundPosition&,
+                                                                         core::Speed, core::Angle))
 {
     BOOST_ASSERT( generate != nullptr );
     BOOST_ASSERT( boneIndex < m_skeleton->getChildren().size() );
 
     const auto itemSpheres = m_skeleton->getBoneCollisionSpheres(
-            m_state,
-            *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
-            nullptr );
+        m_state,
+        *m_skeleton->getInterpolationInfo( m_state ).getNearestFrame(),
+        nullptr );
     BOOST_ASSERT( boneIndex < itemSpheres.size() );
 
     auto roomPos = m_state.position;
     roomPos.position = core::TRVec{
-            glm::vec3{translate( itemSpheres.at( boneIndex ).m, localPosition.toRenderSystem() )[3]}};
+        glm::vec3{ translate( itemSpheres.at( boneIndex ).m, localPosition.toRenderSystem() )[3] }
+    };
     auto particle = generate( getEngine(), roomPos, m_state.speed, m_state.rotation.Y );
     getEngine().getParticles().emplace_back( particle );
 
@@ -674,14 +675,14 @@ bool ItemState::stalkBox(const Engine& engine, const loader::file::Box& box) con
 
     switch( laraAxisBack )
     {
-        case core::Axis::PosZ:
-            return laraToBoxAxis == core::Axis::NegZ;
-        case core::Axis::PosX:
-            return laraToBoxAxis == core::Axis::NegX;
-        case core::Axis::NegZ:
-            return laraToBoxAxis == core::Axis::PosZ;
-        case core::Axis::NegX:
-            return laraToBoxAxis == core::Axis::PosX;
+    case core::Axis::PosZ:
+        return laraToBoxAxis == core::Axis::NegZ;
+    case core::Axis::PosX:
+        return laraToBoxAxis == core::Axis::NegX;
+    case core::Axis::NegZ:
+        return laraToBoxAxis == core::Axis::PosZ;
+    case core::Axis::NegX:
+        return laraToBoxAxis == core::Axis::PosX;
     }
 
     BOOST_THROW_EXCEPTION( std::runtime_error( "Unreachable code reached" ) );
@@ -707,10 +708,9 @@ bool ItemState::isInsideZoneButNotInBox(const Engine& engine,
     }
 
     return position.position.Z <= box.zmin
-           || position.position.Z >= box.zmax
-           || position.position.X <= box.xmin
-           || position.position.X >= box.xmax;
-
+        || position.position.Z >= box.zmax
+        || position.position.X <= box.xmin
+        || position.position.X >= box.xmax;
 }
 
 bool ItemState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& box) const
@@ -723,7 +723,6 @@ bool ItemState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const lo
     const auto laraToNpcX = position.position.X - engine.getLara().m_state.position.position.X;
     const auto laraToNpcZ = position.position.Z - engine.getLara().m_state.position.position.Z;
     return ((laraToNpcZ > 0_len) == (laraToBoxZ > 0_len)) || ((laraToNpcX > 0_len) == (laraToBoxX > 0_len));
-
 }
 
 void ItemState::initCreatureInfo(const Engine& engine)
@@ -791,7 +790,7 @@ YAML::Node ItemState::save(const Engine& engine) const
 
 void ItemState::load(const YAML::Node& n, const Engine& engine)
 {
-    if( core::TypeId{n["type"].as<core::TypeId::type>()} != type )
+    if( core::TypeId{ n["type"].as<core::TypeId::type>() } != type )
         BOOST_THROW_EXCEPTION( std::domain_error( "Item state has wrong type" ) );
 
     position.position.load( n["position"] );

@@ -8,11 +8,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_TurnSlow
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 protected:
     explicit StateHandler_TurnSlow(LaraNode& lara, const LaraStateId id)
-            : AbstractStateHandler{lara, id}
+        : AbstractStateHandler{ lara, id }
     {
     }
 

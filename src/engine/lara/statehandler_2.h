@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_2 final
-        : public StateHandler_Standing
+    : public StateHandler_Standing
 {
 public:
     explicit StateHandler_2(LaraNode& lara)
-            : StateHandler_Standing{lara, LaraStateId::Stop}
+        : StateHandler_Standing{ lara, LaraStateId::Stop }
     {
     }
 
@@ -38,13 +38,13 @@ public:
         {
             getEngine().getCameraController().setMode( CameraMode::FreeLook );
             getLara().addHeadRotationXY(
-                    (-hid::FreeLookMouseMovementScale.retype_as<float>()
-                     * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000)).retype_as<core::Angle>(),
-                    -42_deg, 22_deg,
-                    (hid::FreeLookMouseMovementScale.retype_as<float>()
-                     * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000)).retype_as<core::Angle>(),
-                    -44_deg, 44_deg
-            );
+                (-hid::FreeLookMouseMovementScale.retype_as<float>()
+                    * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000)).retype_as<core::Angle>(),
+                -42_deg, 22_deg,
+                (hid::FreeLookMouseMovementScale.retype_as<float>()
+                    * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000)).retype_as<core::Angle>(),
+                -44_deg, 44_deg
+                                       );
             getLara().setTorsoRotation( getLara().getHeadRotation() );
 
             return;

@@ -16,35 +16,35 @@ namespace render
 class RenderPipeline
 {
     const std::shared_ptr<scene::ShaderProgram> m_fxaaShader = scene::ShaderProgram::createFromFile(
-            "shaders/flat.vert",
-            "shaders/fxaa.frag",
-            {} );
+        "shaders/flat.vert",
+        "shaders/fxaa.frag",
+        {} );
     const std::shared_ptr<scene::Material> m_fxaaMaterial = std::make_shared<scene::Material>(
-            m_fxaaShader );
+        m_fxaaShader );
     const std::shared_ptr<scene::ShaderProgram> m_ssaoShader = scene::ShaderProgram::createFromFile(
-            "shaders/flat.vert",
-            "shaders/ssao.frag",
-            {} );
+        "shaders/flat.vert",
+        "shaders/ssao.frag",
+        {} );
     const std::shared_ptr<scene::Material> m_ssaoMaterial = std::make_shared<scene::Material>(
-            m_ssaoShader );
+        m_ssaoShader );
     const std::shared_ptr<scene::ShaderProgram> m_ssaoBlurShader = scene::ShaderProgram::createFromFile(
-            "shaders/flat.vert",
-            "shaders/ssao_blur.frag",
-            {} );
+        "shaders/flat.vert",
+        "shaders/ssao_blur.frag",
+        {} );
     const std::shared_ptr<scene::Material> m_ssaoBlurMaterial = std::make_shared<scene::Material>(
-            m_ssaoBlurShader );
+        m_ssaoBlurShader );
     const std::shared_ptr<scene::ShaderProgram> m_fxDarknessShader = scene::ShaderProgram::createFromFile(
-            "shaders/flat.vert",
-            "shaders/fx_darkness.frag",
-            {"LENS_DISTORTION"} );
+        "shaders/flat.vert",
+        "shaders/fx_darkness.frag",
+        { "LENS_DISTORTION" } );
     const std::shared_ptr<scene::Material> m_fxDarknessMaterial = std::make_shared<scene::Material>(
-            m_fxDarknessShader );
+        m_fxDarknessShader );
     const std::shared_ptr<scene::ShaderProgram> m_fxWaterDarknessShader = scene::ShaderProgram::createFromFile(
-            "shaders/flat.vert",
-            "shaders/fx_darkness.frag",
-            {"WATER", "LENS_DISTORTION"} );
+        "shaders/flat.vert",
+        "shaders/fx_darkness.frag",
+        { "WATER", "LENS_DISTORTION" } );
     const std::shared_ptr<scene::Material> m_fxWaterDarknessMaterial = std::make_shared<scene::Material>(
-            m_fxWaterDarknessShader );
+        m_fxWaterDarknessShader );
 
     const std::shared_ptr<scene::Model> m_fbModel = std::make_shared<scene::Model>();
 
@@ -92,10 +92,10 @@ public:
     void finalPass(const bool water)
     {
         {
-            gl::DebugGroup dbg{"ssao-pass"};
+            gl::DebugGroup dbg{ "ssao-pass" };
             m_ssaoFb->bind();
             scene::RenderContext context{};
-            scene::Node dummyNode{""};
+            scene::Node dummyNode{ "" };
             context.setCurrentNode( &dummyNode );
 
             m_fbModel->getMeshes()[0]->setMaterial( m_ssaoMaterial );
@@ -107,10 +107,10 @@ public:
         }
 
         {
-            gl::DebugGroup dbg{"fxaa-pass"};
+            gl::DebugGroup dbg{ "fxaa-pass" };
             m_fxaaFb->bind();
             scene::RenderContext context{};
-            scene::Node dummyNode{""};
+            scene::Node dummyNode{ "" };
             context.setCurrentNode( &dummyNode );
 
             m_fbModel->getMeshes()[0]->setMaterial( m_fxaaMaterial );
@@ -118,14 +118,14 @@ public:
         }
 
         {
-            gl::DebugGroup dbg{"postprocess-pass"};
+            gl::DebugGroup dbg{ "postprocess-pass" };
             gl::FrameBuffer::unbindAll();
             if( water )
                 m_fbModel->getMeshes()[0]->setMaterial( m_fxWaterDarknessMaterial );
             else
                 m_fbModel->getMeshes()[0]->setMaterial( m_fxDarknessMaterial );
             scene::RenderContext context{};
-            scene::Node dummyNode{""};
+            scene::Node dummyNode{ "" };
             context.setCurrentNode( &dummyNode );
             m_fbModel->render( context );
         }
@@ -165,19 +165,19 @@ public:
         m_fxWaterDarknessMaterial->getParameter( "u_depth" )->set( m_geometryDepthBuffer );
 
         m_geometryFb = gl::FrameBufferBuilder()
-                .texture( ::gl::GL_COLOR_ATTACHMENT0, m_geometryColorBuffer )
-                .texture( ::gl::GL_COLOR_ATTACHMENT1, m_geometryNormalBuffer )
-                .texture( ::gl::GL_COLOR_ATTACHMENT2, m_geometryPositionBuffer )
-                .texture( ::gl::GL_DEPTH_ATTACHMENT, m_geometryDepthBuffer )
-                .build();
+            .texture( ::gl::GL_COLOR_ATTACHMENT0, m_geometryColorBuffer )
+            .texture( ::gl::GL_COLOR_ATTACHMENT1, m_geometryNormalBuffer )
+            .texture( ::gl::GL_COLOR_ATTACHMENT2, m_geometryPositionBuffer )
+            .texture( ::gl::GL_DEPTH_ATTACHMENT, m_geometryDepthBuffer )
+            .build();
 
         // === portalDepthFB setup ===
         m_fxDarknessMaterial->getParameter( "u_portalDepth" )->set( m_portalDepthBuffer );
         m_fxWaterDarknessMaterial->getParameter( "u_portalDepth" )->set( m_portalDepthBuffer );
 
         m_portalFb = gl::FrameBufferBuilder()
-                .texture( ::gl::GL_DEPTH_ATTACHMENT, m_portalDepthBuffer )
-                .build();
+            .texture( ::gl::GL_DEPTH_ATTACHMENT, m_portalDepthBuffer )
+            .build();
 
         // === fxaaFB setup ===
         m_fxaaColorBuffer->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
@@ -188,8 +188,8 @@ public:
         m_fxWaterDarknessMaterial->getParameter( "u_texture" )->set( m_fxaaColorBuffer );
 
         m_fxaaFb = gl::FrameBufferBuilder()
-                .texture( ::gl::GL_COLOR_ATTACHMENT0, m_fxaaColorBuffer )
-                .build();
+            .texture( ::gl::GL_COLOR_ATTACHMENT0, m_fxaaColorBuffer )
+            .build();
 
         // === ssaoFB setup ===
         m_ssaoAOBuffer->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
@@ -199,8 +199,8 @@ public:
         m_ssaoBlurMaterial->getParameter( "u_ao" )->set( m_ssaoAOBuffer );
 
         m_ssaoFb = gl::FrameBufferBuilder()
-                .texture( ::gl::GL_COLOR_ATTACHMENT0, m_ssaoAOBuffer )
-                .build();
+            .texture( ::gl::GL_COLOR_ATTACHMENT0, m_ssaoAOBuffer )
+            .build();
 
         // === ssaoBlurFB setup ===
         m_ssaoBlurAOBuffer->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
@@ -211,8 +211,8 @@ public:
         m_fxWaterDarknessMaterial->getParameter( "u_ao" )->set( m_ssaoBlurAOBuffer );
 
         m_ssaoBlurFb = gl::FrameBufferBuilder()
-                .texture( ::gl::GL_COLOR_ATTACHMENT0, m_ssaoBlurAOBuffer )
-                .build();
+            .texture( ::gl::GL_COLOR_ATTACHMENT0, m_ssaoBlurAOBuffer )
+            .build();
 
         // === ssao.glsl setup ===
         // generate sample kernel
@@ -221,9 +221,10 @@ public:
         std::vector<glm::vec3> ssaoSamples;
         for( int i = 0; i < 64; ++i )
         {
-            glm::vec3 sample{randomFloats( generator ) * 2 - 1,
-                             randomFloats( generator ) * 2 - 1,
-                             randomFloats( generator )};
+            glm::vec3 sample{ randomFloats( generator ) * 2 - 1,
+                              randomFloats( generator ) * 2 - 1,
+                              randomFloats( generator )
+            };
             sample = glm::normalize( sample ) * randomFloats( generator );
 
 #ifdef SSAO_SAMPLE_CONTRACTION

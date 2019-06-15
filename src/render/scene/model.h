@@ -10,7 +10,6 @@ namespace scene
 {
 class Mesh;
 
-
 class Model : public Renderable
 {
 public:

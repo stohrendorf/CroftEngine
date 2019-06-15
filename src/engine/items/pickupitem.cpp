@@ -20,10 +20,11 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
         }
 
         static const InteractionLimits limits{
-                core::BoundingBox{{-512_len, -512_len, -512_len},
-                                  {512_len,  512_len,  512_len}},
-                {-45_deg, -45_deg, -45_deg},
-                {+45_deg, +45_deg, +45_deg}
+            core::BoundingBox{ { -512_len, -512_len, -512_len },
+                               { 512_len,  512_len,  512_len }
+            },
+            { -45_deg, -45_deg, -45_deg },
+            { +45_deg, +45_deg, +45_deg }
         };
 
         m_state.rotation.X = -25_deg;
@@ -33,7 +34,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             return;
         }
 
-        static const core::TRVec aimSpeed{0_len, -200_len, -350_len};
+        static const core::TRVec aimSpeed{ 0_len, -200_len, -350_len };
 
         if( lara.getCurrentAnimState() == LaraStateId::PickUp )
         {
@@ -47,8 +48,8 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             }
         }
         else if( getEngine().getInputHandler().getInputState().action
-                 && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop
-                 && lara.alignTransform( aimSpeed, *this ) )
+            && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop
+            && lara.alignTransform( aimSpeed, *this ) )
         {
             lara.setGoalAnimState( LaraStateId::PickUp );
             do
@@ -61,10 +62,11 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     else
     {
         static const InteractionLimits limits{
-                core::BoundingBox{{-256_len, -100_len, -256_len},
-                                  {256_len,  100_len,  100_len}},
-                {-10_deg, 0_deg, 0_deg},
-                {+10_deg, 0_deg, 0_deg}
+            core::BoundingBox{ { -256_len, -100_len, -256_len },
+                               { 256_len,  100_len,  100_len }
+            },
+            { -10_deg, 0_deg, 0_deg },
+            { +10_deg, 0_deg, 0_deg }
         };
 
         m_state.rotation.X = 0_deg;
@@ -80,9 +82,9 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
             {
                 if( m_state.type == TR1ItemId::ShotgunSprite )
                 {
-                    const auto& shotgunLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+                    const auto& shotgunLara = *getEngine().findAnimatedModelForType( TR1ItemId::LaraShotgunAnim );
                     BOOST_ASSERT(
-                            gsl::narrow<size_t>( shotgunLara.meshes.size() ) == lara.getNode()->getChildren().size() );
+                        gsl::narrow<size_t>( shotgunLara.meshes.size() ) == lara.getNode()->getChildren().size() );
 
                     lara.getNode()->getChild( 7 )->setDrawable( shotgunLara.models[7].get() );
                 }
@@ -100,7 +102,7 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                 && !lara.m_state.falling
                 && lara.getCurrentAnimState() == LaraStateId::Stop )
             {
-                lara.alignForInteraction( core::TRVec{0_len, 0_len, -100_len}, m_state );
+                lara.alignForInteraction( core::TRVec{ 0_len, 0_len, -100_len }, m_state );
 
                 lara.setGoalAnimState( LaraStateId::PickUp );
                 do

@@ -32,22 +32,22 @@ struct ByteColor
 
     render::gl::SRGBA8 toTextureColor() const
     {
-        return render::gl::SRGBA8{r, g, b, a};
+        return render::gl::SRGBA8{ r, g, b, a };
     }
 
     render::gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const
     {
-        return render::gl::SRGBA8{r, g, b, alphaOverride};
+        return render::gl::SRGBA8{ r, g, b, alphaOverride };
     }
 
     glm::vec4 toGLColor() const
     {
-        return glm::vec4{r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};
+        return glm::vec4{ r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
     }
 
     glm::vec3 toGLColor3() const
     {
-        return glm::vec3{r / 255.0f, g / 255.0f, b / 255.0f};
+        return glm::vec3{ r / 255.0f, g / 255.0f, b / 255.0f };
     }
 
 private:
@@ -64,7 +64,6 @@ private:
         return color;
     }
 };
-
 
 /**
 * @brief 32-Bit float RGBA color.
@@ -86,7 +85,6 @@ struct FloatColor
     }
 };
 
-
 struct Palette
 {
     ByteColor colors[256];
@@ -94,7 +92,7 @@ struct Palette
     /// \brief reads the 256 color palette values.
     static std::unique_ptr<Palette> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Palette> palette{new Palette()};
+        std::unique_ptr<Palette> palette{ new Palette() };
         for( auto& c : gsl::span<ByteColor>( palette->colors ) )
             c = ByteColor::readTr1( reader );
         return palette;
@@ -102,7 +100,7 @@ struct Palette
 
     static std::unique_ptr<Palette> readTr2(io::SDLReader& reader)
     {
-        std::unique_ptr<Palette> palette{new Palette()};
+        std::unique_ptr<Palette> palette{ new Palette() };
         for( auto& c : gsl::span<ByteColor>( palette->colors ) )
             c = ByteColor::readTr2( reader );
         return palette;

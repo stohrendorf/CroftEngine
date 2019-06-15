@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_15 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_15(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::JumpPrepare}
+        : AbstractStateHandler{ lara, LaraStateId::JumpPrepare }
     {
     }
 
@@ -29,21 +29,21 @@ public:
         {
             if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
                 && getRelativeHeightAtDirection(
-                        getLara().m_state.rotation.Y - 90_deg, 256_len ) >= -core::ClimbLimit2ClickMin )
+                    getLara().m_state.rotation.Y - 90_deg, 256_len ) >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle( getLara().m_state.rotation.Y - 90_deg );
                 setGoalAnimState( LaraStateId::JumpRight );
             }
             else if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right &&
-                     getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 90_deg, 256_len )
-                     >= -core::ClimbLimit2ClickMin )
+                getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 90_deg, 256_len )
+                    >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle( getLara().m_state.rotation.Y + 90_deg );
                 setGoalAnimState( LaraStateId::JumpLeft );
             }
             else if( getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward &&
-                     getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 180_deg, 256_len )
-                     >= -core::ClimbLimit2ClickMin )
+                getRelativeHeightAtDirection( getLara().m_state.rotation.Y + 180_deg, 256_len )
+                    >= -core::ClimbLimit2ClickMin )
             {
                 setMovementAngle( getLara().m_state.rotation.Y + 180_deg );
                 setGoalAnimState( LaraStateId::JumpBack );

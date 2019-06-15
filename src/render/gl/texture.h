@@ -12,9 +12,10 @@ class Texture : public RenderTarget
 {
 public:
     explicit Texture(::gl::GLenum type, const std::string& label = {})
-            : RenderTarget{::gl::glGenTextures, [type](const ::gl::GLuint handle) { glBindTexture( type, handle ); },
-                           ::gl::glDeleteTextures, ::gl::GL_TEXTURE, label}
-            , m_type{type}
+        : RenderTarget{ ::gl::glGenTextures, [type](const ::gl::GLuint handle) { glBindTexture( type, handle ); },
+                        ::gl::glDeleteTextures, ::gl::GL_TEXTURE, label
+    }
+          , m_type{ type }
     {
     }
 
@@ -23,7 +24,7 @@ public:
     {
         bind();
         GL_ASSERT(
-                glObjectLabel( ::gl::GL_TEXTURE, getHandle(), static_cast<::gl::GLsizei>(lbl.length()), lbl.c_str() ) );
+            glObjectLabel( ::gl::GL_TEXTURE, getHandle(), static_cast<::gl::GLsizei>(lbl.length()), lbl.c_str() ) );
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
@@ -67,7 +68,7 @@ public:
     {
         BOOST_ASSERT( m_width > 0 && m_height > 0 );
         BOOST_ASSERT(
-                data.empty() || static_cast<std::size_t>(m_width) * static_cast<std::size_t>(m_height) == data.size() );
+            data.empty() || static_cast<std::size_t>(m_width) * static_cast<std::size_t>(m_height) == data.size() );
 
         bind();
 
@@ -109,7 +110,7 @@ public:
     {
         BOOST_ASSERT( width > 0 && height > 0 );
         BOOST_ASSERT(
-                data.empty() || static_cast<std::size_t>(width) * static_cast<std::size_t>(height) == data.size() );
+            data.empty() || static_cast<std::size_t>(width) * static_cast<std::size_t>(height) == data.size() );
 
         bind();
 

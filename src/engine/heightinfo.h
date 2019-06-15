@@ -6,14 +6,12 @@ namespace engine
 {
 class CameraController;
 
-
 enum class SlantClass
 {
     None,
     Max512,
     Steep
 };
-
 
 struct HeightInfo
 {
@@ -33,7 +31,6 @@ struct HeightInfo
 
     HeightInfo() = default;
 };
-
 
 struct VerticalSpaceInfo
 {

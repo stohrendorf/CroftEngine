@@ -35,22 +35,27 @@ public:
     }
 
 protected:
-    using Allocator =void(::gl::GLsizei, ::gl::GLuint*);
-    using Binder = void(::gl::GLuint);
-    using Deleter = void(::gl::GLsizei, ::gl::GLuint*);
+    using Allocator =
+    void(::gl::GLsizei, ::gl::GLuint
+    *);
+    using Binder =
+    void(::gl::GLuint);
+    using Deleter =
+    void(::gl::GLsizei, ::gl::GLuint
+    *);
 
     explicit BindableResource(const std::function<Allocator>& allocator, const std::function<Binder>& binder,
                               const std::function<Deleter>& deleter)
-            : BindableResource{allocator, binder, deleter, ::gl::GL_NONE, {}}
+        : BindableResource{ allocator, binder, deleter, ::gl::GL_NONE, {} }
     {
     }
 
     explicit BindableResource(const std::function<Allocator>& allocator, const std::function<Binder>& binder,
                               const std::function<Deleter>& deleter, const ::gl::GLenum identifier,
                               const std::string& label)
-            : m_allocator{allocator}
-            , m_binder{binder}
-            , m_deleter{deleter}
+        : m_allocator{ allocator }
+          , m_binder{ binder }
+          , m_deleter{ deleter }
     {
         BOOST_ASSERT( static_cast<bool>(allocator) );
         BOOST_ASSERT( static_cast<bool>(binder) );
@@ -72,10 +77,10 @@ protected:
     }
 
     explicit BindableResource(BindableResource&& rhs) noexcept
-            : m_handle{rhs.m_handle}
-            , m_allocator{move( rhs.m_allocator )}
-            , m_binder{move( rhs.m_binder )}
-            , m_deleter{move( rhs.m_deleter )}
+        : m_handle{ rhs.m_handle }
+          , m_allocator{ move( rhs.m_allocator ) }
+          , m_binder{ move( rhs.m_binder ) }
+          , m_deleter{ move( rhs.m_deleter ) }
     {
         rhs.m_handle = 0;
     }

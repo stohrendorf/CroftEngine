@@ -11,7 +11,6 @@ namespace scene
 {
 class Material;
 
-
 class Sprite : public Renderable
 {
 public:
@@ -25,7 +24,7 @@ public:
                     const glm::vec2& t0, const glm::vec2& t1,
                     const gsl::not_null<std::shared_ptr<Material>>& material,
                     const Axis pole)
-            : m_mesh{createMesh( x0, y0, x1, y1, t0, t1, material, pole )}
+        : m_mesh{ createMesh( x0, y0, x1, y1, t0, t1, material, pole ) }
     {
     }
 

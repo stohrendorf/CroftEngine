@@ -26,14 +26,14 @@ void Particle::initDrawables(const Engine& engine, const float scale)
                                                                    spr.t0, spr.t1,
                                                                    engine.getSpriteMaterial(),
                                                                    render::scene::Sprite::Axis::Y
-            );
+                                                                 );
             m_drawables.emplace_back( sprite );
             m_spriteTextures.emplace_back( spr.texture );
         }
 
         addMaterialParameterSetter( "u_diffuseTexture", [this](const Node& /*node*/,
                                                                render::gl::Program::ActiveUniform& uniform) {
-            uniform.set( *m_spriteTextures.front() );
+          uniform.set( *m_spriteTextures.front() );
         } );
     }
     else
@@ -57,7 +57,7 @@ Particle::Particle(const std::string& id,
                    const gsl::not_null<const loader::file::Room*>& room,
                    Engine& engine,
                    float scale)
-        : Node{id}, Emitter{&engine.getSoundEngine()}, pos{room}, object_number{objectNumber}
+    : Node{ id }, Emitter{ &engine.getSoundEngine() }, pos{ room }, object_number{ objectNumber }
 {
     initDrawables( engine, scale );
 }
@@ -67,7 +67,7 @@ Particle::Particle(const std::string& id,
                    const core::RoomBoundPosition& pos,
                    Engine& engine,
                    float scale)
-        : Node{id}, Emitter{&engine.getSoundEngine()}, pos{pos}, object_number{objectNumber}
+    : Node{ id }, Emitter{ &engine.getSoundEngine() }, pos{ pos }, object_number{ objectNumber }
 {
     initDrawables( engine, scale );
 }
@@ -151,7 +151,7 @@ bool FlameParticle::update(Engine& engine)
             engine.getLara().m_state.is_hit = true;
 
             const auto distSq = util::square( engine.getLara().m_state.position.position.X - pos.position.X )
-                                + util::square( engine.getLara().m_state.position.position.Z - pos.position.Z );
+                + util::square( engine.getLara().m_state.position.position.Z - pos.position.Z );
             if( distSq < util::square( 300_len ) )
             {
                 timePerSpriteFrame = 100;
@@ -167,7 +167,7 @@ bool FlameParticle::update(Engine& engine)
     {
         // burn baby burn
 
-        pos.position = {0_len, 0_len, 0_len};
+        pos.position = { 0_len, 0_len, 0_len };
         if( timePerSpriteFrame == -1 )
         {
             pos.position.Y = -100_len;
@@ -178,13 +178,15 @@ bool FlameParticle::update(Engine& engine)
         }
 
         const auto itemSpheres = engine.getLara().getSkeleton()->getBoneCollisionSpheres(
-                engine.getLara().m_state,
-                *engine.getLara().getSkeleton()->getInterpolationInfo( engine.getLara().m_state ).getNearestFrame(),
-                nullptr );
+            engine.getLara().m_state,
+            *engine.getLara().getSkeleton()->getInterpolationInfo( engine.getLara().m_state ).getNearestFrame(),
+            nullptr );
 
         pos.position = core::TRVec{
-                glm::vec3{translate( itemSpheres.at( -timePerSpriteFrame - 1 ).m,
-                                     pos.position.toRenderSystem() )[3]}};
+            glm::vec3{ translate( itemSpheres.at( -timePerSpriteFrame - 1 ).m,
+                                  pos.position.toRenderSystem() )[3]
+            }
+        };
 
         const auto waterHeight = pos.room->getWaterSurfaceHeight( pos );
         if( !waterHeight.is_initialized() || waterHeight.get() >= pos.position.Y )

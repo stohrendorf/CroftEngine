@@ -15,7 +15,7 @@ boost::filesystem::path readSymlink(const boost::filesystem::path& root,
     if( ref.extension() != ".txt" )
         return root / ref;
 
-    std::ifstream txt{(root / ref).string()};
+    std::ifstream txt{ (root / ref).string() };
     if( !txt.is_open() )
     {
         BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to open Glidos text file" ) );
@@ -33,7 +33,7 @@ boost::filesystem::path readSymlink(const boost::filesystem::path& root,
     boost::algorithm::trim( head );
     boost::algorithm::replace_all( head, "\\", "/" );
     srcTimestamp = std::max( srcTimestamp, std::chrono::system_clock::from_time_t(
-            last_write_time( root / ref ) ) );
+        last_write_time( root / ref ) ) );
     return readSymlink( root, head, srcTimestamp );
 }
 }
@@ -76,7 +76,7 @@ TexturePart::TexturePart(const std::string& serialized)
     }
 
     m_textureId = parts[0];
-    m_rect = Rectangle{parts[1]};
+    m_rect = Rectangle{ parts[1] };
 }
 
 EquivalenceSet::EquivalenceSet(std::ifstream& file)
@@ -100,7 +100,7 @@ EquivalenceSet::EquivalenceSet(std::ifstream& file)
 
 Equiv::Equiv(const boost::filesystem::path& filename)
 {
-    std::ifstream file{filename.string()};
+    std::ifstream file{ filename.string() };
     if( !file.is_open() )
     {
         BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to open Glidos equiv file" ) );
@@ -138,7 +138,7 @@ void Equiv::resolve(const boost::filesystem::path& root,
     BOOST_LOG_TRIVIAL( info ) << "Resolving " << m_equivalentSets.size() << " equiv sets...";
 
     auto resolved = std::count_if( m_equivalentSets.begin(), m_equivalentSets.end(), [](const EquivalenceSet& set) {
-        return set.isResolved();
+      return set.isResolved();
     } );
 
     statusCallback( "Glidos - Resolving maps (" + std::to_string( resolved * 100 / m_equivalentSets.size() ) + "%)" );
@@ -197,7 +197,7 @@ void Equiv::resolve(const boost::filesystem::path& root,
         if( resolved % 10 == 0 )
         {
             statusCallback(
-                    "Glidos - Resolving maps (" + std::to_string( resolved * 100 / m_equivalentSets.size() ) + "%)" );
+                "Glidos - Resolving maps (" + std::to_string( resolved * 100 / m_equivalentSets.size() ) + "%)" );
         }
     }
 }
@@ -207,7 +207,7 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
                  std::chrono::system_clock::time_point& rootTimestamp,
                  std::map<TexturePart, boost::filesystem::path>& filesByPart)
 {
-    std::ifstream txt{baseTxtName.string()};
+    std::ifstream txt{ baseTxtName.string() };
     if( !txt.is_open() )
     {
         BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to open Glidos base file" ) );
@@ -282,12 +282,12 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
             continue;
         }
 
-        for( boost::filesystem::directory_iterator it{fullTexturePath}; it != end; ++it )
+        for( boost::filesystem::directory_iterator it{ fullTexturePath }; it != end; ++it )
         {
             Rectangle r;
             try
             {
-                r = Rectangle{it->path().filename().string()};
+                r = Rectangle{ it->path().filename().string() };
             }
             catch( std::runtime_error& )
             {
@@ -300,9 +300,9 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
                 auto& ts = timestamps[texturePath.first];
                 ts = std::max( ts, rootTimestamp );
                 const auto link = readSymlink(
-                        m_root,
-                        relative( it->path(), m_root ),
-                        ts ).lexically_normal();
+                    m_root,
+                    relative( it->path(), m_root ),
+                    ts ).lexically_normal();
                 filesByPart[TexturePart( texturePath.first, r )] = link;
             }
             catch( std::runtime_error& ex )
@@ -315,7 +315,7 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
 }
 
 Glidos::Glidos(boost::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback)
-        : m_baseDir{std::move( baseDir )}
+    : m_baseDir{ std::move( baseDir ) }
 {
     if( !is_directory( m_baseDir ) )
         BOOST_THROW_EXCEPTION( std::runtime_error( "Base path is not a directory" ) );
@@ -323,18 +323,18 @@ Glidos::Glidos(boost::filesystem::path baseDir, const std::function<void(const s
     BOOST_LOG_TRIVIAL( debug ) << "Loading Glidos texture pack from " << m_baseDir;
 
     m_rootTimestamp = std::chrono::system_clock::from_time_t(
-            last_write_time( m_baseDir / "equiv.txt" )
-    );
+        last_write_time( m_baseDir / "equiv.txt" )
+                                                            );
 
     statusCallback( "Glidos - Loading equiv.txt" );
 
     BOOST_LOG_TRIVIAL( debug ) << "Loading equiv.txt";
-    Equiv equiv{m_baseDir / "equiv.txt"};
+    Equiv equiv{ m_baseDir / "equiv.txt" };
 
     std::vector<PathMap> maps;
 
     const boost::filesystem::directory_iterator end{};
-    for( boost::filesystem::directory_iterator it{m_baseDir}; it != end; ++it )
+    for( boost::filesystem::directory_iterator it{ m_baseDir }; it != end; ++it )
     {
         if( !is_regular_file( it->path() ) )
             continue;

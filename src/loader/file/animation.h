@@ -15,64 +15,61 @@ namespace file
 {
 #pragma pack(push, 1)
 
-
 struct BoundingBox
 {
-    core::Length minX{0_len}, maxX{0_len};
-    core::Length minY{0_len}, maxY{0_len};
-    core::Length minZ{0_len}, maxZ{0_len};
+    core::Length minX{ 0_len }, maxX{ 0_len };
+    core::Length minY{ 0_len }, maxY{ 0_len };
+    core::Length minZ{ 0_len }, maxZ{ 0_len };
 
     explicit BoundingBox() = default;
 
     BoundingBox(
-            const core::Length& minX,
-            const core::Length& maxX,
-            const core::Length& minY,
-            const core::Length& maxY,
-            const core::Length& minZ,
-            const core::Length& maxZ
-    )
-            : minX{minX}, maxX{maxX}
-            , minY{minY}, maxY{maxY}
-            , minZ{minZ}, maxZ{maxZ}
+        const core::Length& minX,
+        const core::Length& maxX,
+        const core::Length& minY,
+        const core::Length& maxY,
+        const core::Length& minZ,
+        const core::Length& maxZ
+               )
+        : minX{ minX }, maxX{ maxX }
+          , minY{ minY }, maxY{ maxY }
+          , minZ{ minZ }, maxZ{ maxZ }
     {}
 
     BoundingBox(const BoundingBox& a, const BoundingBox& b, const float bias)
-            : minX{lerp( a.minX, b.minX, bias )}
-            , maxX{lerp( a.maxX, b.maxX, bias )}
-            , minY{lerp( a.minY, b.minY, bias )}
-            , maxY{lerp( a.maxY, b.maxY, bias )}
-            , minZ{lerp( a.minZ, b.minZ, bias )}
-            , maxZ{lerp( a.maxZ, b.maxZ, bias )}
+        : minX{ lerp( a.minX, b.minX, bias ) }
+          , maxX{ lerp( a.maxX, b.maxX, bias ) }
+          , minY{ lerp( a.minY, b.minY, bias ) }
+          , maxY{ lerp( a.maxY, b.maxY, bias ) }
+          , minZ{ lerp( a.minZ, b.minZ, bias ) }
+          , maxZ{ lerp( a.maxZ, b.maxZ, bias ) }
     {
     }
 
     core::TRVec getCenter() const
     {
-        return {(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2};
+        return { (minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2 };
     }
 };
 
-
 struct BoundingBoxIO
 {
-    int16_t minX{0}, maxX{0};
-    int16_t minY{0}, maxY{0};
-    int16_t minZ{0}, maxZ{0};
+    int16_t minX{ 0 }, maxX{ 0 };
+    int16_t minY{ 0 }, maxY{ 0 };
+    int16_t minZ{ 0 }, maxZ{ 0 };
 
     BoundingBox toBBox() const
     {
         return BoundingBox{
-                core::Length{static_cast<core::Length::type>(minX)},
-                core::Length{static_cast<core::Length::type>(maxX)},
-                core::Length{static_cast<core::Length::type>(minY)},
-                core::Length{static_cast<core::Length::type>(maxY)},
-                core::Length{static_cast<core::Length::type>(minZ)},
-                core::Length{static_cast<core::Length::type>(maxZ)}
+            core::Length{ static_cast<core::Length::type>(minX) },
+            core::Length{ static_cast<core::Length::type>(maxX) },
+            core::Length{ static_cast<core::Length::type>(minY) },
+            core::Length{ static_cast<core::Length::type>(maxY) },
+            core::Length{ static_cast<core::Length::type>(minZ) },
+            core::Length{ static_cast<core::Length::type>(maxZ) }
         };
     }
 };
-
 
 struct AnimFrame
 {
@@ -88,13 +85,12 @@ struct AnimFrame
         core::TRVec toTr() const noexcept
         {
             return core::TRVec{
-                    core::Length{static_cast<core::Length::type>(x)},
-                    core::Length{static_cast<core::Length::type>(y)},
-                    core::Length{static_cast<core::Length::type>(z)}
+                core::Length{ static_cast<core::Length::type>(x) },
+                core::Length{ static_cast<core::Length::type>(y) },
+                core::Length{ static_cast<core::Length::type>(z) }
             };
         }
     };
-
 
     BoundingBoxIO bbox;
     Vec pos;
@@ -127,13 +123,11 @@ struct AnimFrame
     }
 };
 
-
 static_assert( sizeof( AnimFrame ) == 20, "AnimFrame has wrong size" );
 
 #pragma pack(pop)
 
 struct Transitions;
-
 
 struct Animation
 {
@@ -184,24 +178,24 @@ private:
     {
         auto animation = std::make_unique<Animation>();
         animation->poseDataOffset = reader.readU32();
-        animation->segmentLength = core::Frame{static_cast<core::Frame::type>(reader.readU8())};
+        animation->segmentLength = core::Frame{ static_cast<core::Frame::type>(reader.readU8()) };
         if( animation->segmentLength == 0_frame )
             animation->segmentLength = 1_frame;
         animation->poseDataSize = reader.readU8();
-        animation->state_id = core::AnimStateId{reader.readU16()};
+        animation->state_id = core::AnimStateId{ reader.readU16() };
 
-        animation->speed = core::Speed{reader.readI32()};
-        animation->acceleration = core::Acceleration{reader.readI32()};
+        animation->speed = core::Speed{ reader.readI32() };
+        animation->acceleration = core::Acceleration{ reader.readI32() };
         if( withLateral )
         {
-            animation->lateralSpeed = core::Speed{reader.readI32()};
-            animation->lateralAcceleration = core::Acceleration{reader.readI32()};
+            animation->lateralSpeed = core::Speed{ reader.readI32() };
+            animation->lateralAcceleration = core::Acceleration{ reader.readI32() };
         }
 
-        animation->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-        animation->lastFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+        animation->firstFrame = core::Frame{ static_cast<core::Frame::type>(reader.readU16()) };
+        animation->lastFrame = core::Frame{ static_cast<core::Frame::type>(reader.readU16()) };
         animation->nextAnimationIndex = reader.readU16();
-        animation->nextFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+        animation->nextFrame = core::Frame{ static_cast<core::Frame::type>(reader.readU16()) };
 
         animation->transitionsCount = reader.readU16();
         animation->transitionsIndex = reader.readU16();
@@ -211,13 +205,11 @@ private:
     }
 };
 
-
 struct TransitionCase;
-
 
 struct Transitions
 {
-    core::AnimStateId stateId{uint16_t( 0 )};
+    core::AnimStateId stateId{ uint16_t( 0 ) };
     uint16_t transitionCaseCount; // number of ranges (seems to always be 1..5)
     core::ContainerIndex<uint16_t, TransitionCase> firstTransitionCase; // Offset into AnimDispatches[]
 
@@ -234,7 +226,6 @@ struct Transitions
     }
 };
 
-
 struct TransitionCase
 {
     core::Frame firstFrame = 0_frame; // Lowest frame that uses this range
@@ -246,20 +237,18 @@ struct TransitionCase
 
     static std::unique_ptr<TransitionCase> read(io::SDLReader& reader)
     {
-        std::unique_ptr<TransitionCase> transition{new TransitionCase()};
-        transition->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-        transition->lastFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+        std::unique_ptr<TransitionCase> transition{ new TransitionCase() };
+        transition->firstFrame = core::Frame{ static_cast<core::Frame::type>(reader.readU16()) };
+        transition->lastFrame = core::Frame{ static_cast<core::Frame::type>(reader.readU16()) };
         transition->targetAnimationIndex = reader.readU16();
-        transition->targetFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+        transition->targetFrame = core::Frame{ static_cast<core::Frame::type>(reader.readU16()) };
         return transition;
     }
 };
 
-
 struct Mesh;
 
 #pragma pack(push, 1)
-
 
 struct BoneTreeEntry
 {
@@ -269,21 +258,21 @@ struct BoneTreeEntry
 
     glm::vec3 toGl() const noexcept
     {
-        return core::TRVec( core::Length{x}, core::Length{y}, core::Length{z} ).toRenderSystem();
+        return core::TRVec( core::Length{ x }, core::Length{ y }, core::Length{ z } ).toRenderSystem();
     }
 };
-
 
 #pragma pack(pop)
 
 static_assert( sizeof( BoneTreeEntry ) == 16, "BoneTreeEntry must be of size 16" );
 
-
 struct SkeletalModelType
 {
-    core::TypeId type{uint16_t( 0 )};
-    int16_t nMeshes; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
-    core::ContainerIndex<uint16_t, gsl::not_null<const Mesh*>, gsl::not_null<std::shared_ptr<render::scene::Model>>> mesh_base_index; // starting mesh (offset into MeshPointers[])
+    core::TypeId type{ uint16_t( 0 ) };
+    int16_t
+        nMeshes; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
+    core::ContainerIndex<uint16_t, gsl::not_null<const Mesh*>, gsl::not_null<std::shared_ptr<render::scene::Model>>>
+        mesh_base_index; // starting mesh (offset into MeshPointers[])
     core::ContainerIndex<uint32_t, int32_t> bone_index; // offset into MeshTree[]
     core::ContainerOffset<uint32_t, int16_t> pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
     core::ContainerIndex<uint16_t, Animation> animation_index; // offset into Animations[]
@@ -298,7 +287,7 @@ struct SkeletalModelType
 
     static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<SkeletalModelType> moveable{std::make_unique<SkeletalModelType>()};
+        std::unique_ptr<SkeletalModelType> moveable{ std::make_unique<SkeletalModelType>() };
         moveable->type = static_cast<core::TypeId::type>(reader.readU32());
         moveable->nMeshes = reader.readI16();
         moveable->mesh_base_index = reader.readU16();

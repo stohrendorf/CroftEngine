@@ -29,8 +29,8 @@ struct contains<T, A, Args...>
 
 template<typename T, typename... Args>
 constexpr bool contains_v = contains<
-        std::remove_cv<std::remove_reference_t<T>>,
-        std::remove_cv<std::remove_reference_t<Args>>...
+    std::remove_cv<std::remove_reference_t<T>>,
+    std::remove_cv<std::remove_reference_t<Args>>...
 >::value;
 
 template<typename... Args>

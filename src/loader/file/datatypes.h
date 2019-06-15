@@ -60,10 +60,9 @@ constexpr const uint16_t TextureIndexMask = 0x0FFF;
 //constexpr const uint16_t TR_TEXTURE_SHAPE_MASK = 0x7000;          // still not used
 constexpr const uint16_t TextureFlippedMask = 0x8000;
 
-
 struct Portal
 {
-    core::RoomId16 adjoining_room{uint16_t( 0 )}; ///< \brief which room this portal leads to.
+    core::RoomId16 adjoining_room{ uint16_t( 0 ) }; ///< \brief which room this portal leads to.
     core::TRVec normal;
     std::array<core::TRVec, 4> vertices;
     std::shared_ptr<render::scene::Mesh> mesh;
@@ -92,16 +91,16 @@ struct Portal
             glVertices[i].pos = vertices[i].toRenderSystem();
 
         render::gl::StructuredVertexBuffer::AttributeMapping layout{
-                {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{&Vertex::pos}}
+            { VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{ &Vertex::pos } }
         };
         auto vb = std::make_shared<render::gl::StructuredVertexBuffer>( layout, false );
         vb->assign<Vertex>( &glVertices[0], 4 );
 
         static const uint16_t indices[6] =
-                {
-                        0, 1, 2,
-                        0, 2, 3
-                };
+            {
+                0, 1, 2,
+                0, 2, 3
+            };
 
         auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
         indexBuffer->setData( gsl::not_null<const uint16_t*>( &indices[0] ), 6, false );
@@ -113,9 +112,7 @@ struct Portal
     }
 };
 
-
 struct Box;
-
 
 struct Sector
 {
@@ -128,16 +125,19 @@ struct Sector
     const engine::floordata::FloorDataValue* floorData = nullptr;
     Room* portalTarget = nullptr;
 
-    core::BoxId boxIndex{int16_t( -1 )}; //!< Index into Boxes[]/Zones[] (-1 if none)
+    core::BoxId boxIndex{ int16_t( -1 ) }; //!< Index into Boxes[]/Zones[] (-1 if none)
     const Box* box = nullptr;
     core::RoomId8 roomIndexBelow{
-            uint8_t( -1 )}; //!< The number of the room below this one (255 if none)
+        uint8_t( -1 )
+    }; //!< The number of the room below this one (255 if none)
     Room* roomBelow = nullptr;
     core::Length floorHeight = -core::HeightLimit; //!< Absolute height of floor (multiply by 256 for world coordinates)
     core::RoomId8 roomIndexAbove{
-            uint8_t( -1 )}; //!< The number of the room above this one (255 if none)
+        uint8_t( -1 )
+    }; //!< The number of the room above this one (255 if none)
     Room* roomAbove = nullptr;
-    core::Length ceilingHeight = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
+    core::Length
+        ceilingHeight = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
     static Sector read(io::SDLReader& reader)
     {
@@ -167,7 +167,6 @@ struct Sector
     }
 };
 
-
 /*
 * lights
 */
@@ -179,7 +178,6 @@ enum class LightType : uint8_t
     Sun,
     Shadow
 };
-
 
 struct Light
 {
@@ -213,16 +211,16 @@ struct Light
     {
         switch( light_type )
         {
-            case 0:
-                return LightType::Sun;
-            case 1:
-                return LightType::Point;
-            case 2:
-                return LightType::Spotlight;
-            case 3:
-                return LightType::Shadow;
-            default:
-                return LightType::Null;
+        case 0:
+            return LightType::Sun;
+        case 1:
+            return LightType::Point;
+        case 2:
+            return LightType::Spotlight;
+        case 3:
+            return LightType::Shadow;
+        default:
+            return LightType::Null;
         }
     }
 
@@ -237,7 +235,7 @@ struct Light
         light.position = readCoordinates32( reader );
         // read and make consistent
         light.intensity = reader.readI16();
-        light.fadeDistance = core::Length{reader.readI32()};
+        light.fadeDistance = core::Length{ reader.readI32() };
         // only in TR2
         light.intensity2 = light.intensity;
 
@@ -262,8 +260,8 @@ struct Light
         light.position = readCoordinates32( reader );
         light.intensity = reader.readU16();
         light.intensity2 = reader.readU16();
-        light.fadeDistance = core::Length{reader.readI32()};
-        light.fade2 = core::Length{reader.readI32()};
+        light.fadeDistance = core::Length{ reader.readI32() };
+        light.fade2 = core::Length{ reader.readI32() };
 
         light.r_outer = light.fadeDistance;
         light.r_inner = light.fadeDistance / 2;
@@ -285,8 +283,8 @@ struct Light
         light.color.g = reader.readU8();
         light.color.b = reader.readU8();
         light.color.a = reader.readU8();
-        light.fadeDistance = core::Length{reader.readI32()};
-        light.fade2 = core::Length{reader.readI32()};
+        light.fadeDistance = core::Length{ reader.readI32() };
+        light.fade2 = core::Length{ reader.readI32() };
 
         light.r_outer = light.fadeDistance;
         light.r_inner = light.fadeDistance / 2;
@@ -303,10 +301,10 @@ struct Light
         light.light_type = reader.readU8();
         light.unknown = reader.readU8();
         light.intensity = reader.readU8();
-        light.r_inner = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
-        light.r_outer = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
-        light.length = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
-        light.cutoff = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
+        light.r_inner = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
+        light.r_outer = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
+        light.length = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
+        light.cutoff = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
         light.dir = readCoordinatesF( reader );
         return light;
     }
@@ -323,8 +321,8 @@ struct Light
         if ((temp != 0) && (temp != 0xCDCDCDCD))
         BOOST_THROW_EXCEPTION( TR_ReadError("read_tr5_room_light: separator1 has wrong value") );
         */
-        light.r_inner = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
-        light.r_outer = core::Length{gsl::narrow<core::Length::type>( reader.readF() )};
+        light.r_inner = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
+        light.r_outer = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
         reader.readF(); // rad_input
         reader.readF(); // rad_output
         reader.readF(); // range
@@ -349,13 +347,12 @@ struct Light
     }
 };
 
-
 struct SpriteInstance
 {
     DECLARE_ID( VertexId, uint16_t );
 
-    VertexId vertex{uint16_t( 0 )}; // offset into vertex list
-    core::SpriteInstanceId id{uint16_t( 0 )};
+    VertexId vertex{ uint16_t( 0 ) }; // offset into vertex list
+    core::SpriteInstanceId id{ uint16_t( 0 ) };
 
     /// \brief reads a room sprite definition.
     static SpriteInstance read(io::SDLReader& reader)
@@ -366,7 +363,6 @@ struct SpriteInstance
         return room_sprite;
     }
 };
-
 
 /** \brief Room layer (TR5).
   */
@@ -443,7 +439,6 @@ struct Layer
     }
 };
 
-
 struct RoomVertex
 {
     core::TRVec position; // where this vertex lies (relative to tr2_room_info::x/z)
@@ -459,7 +454,7 @@ struct RoomVertex
     // TR5 -->
     core::TRVec normal;
 
-    glm::vec4 color{0.0f};
+    glm::vec4 color{ 0.0f };
 
     float getBrightness() const
     {
@@ -483,9 +478,9 @@ struct RoomVertex
         room_vertex.lighting2 = room_vertex.darkness;
         room_vertex.attributes = 0;
         // only in TR5
-        room_vertex.normal = {0_len, 0_len, 0_len};
+        room_vertex.normal = { 0_len, 0_len, 0_len };
         const auto f = room_vertex.getBrightness();
-        room_vertex.color = {f, f, f, 1};
+        room_vertex.color = { f, f, f, 1 };
         return room_vertex;
     }
 
@@ -498,9 +493,9 @@ struct RoomVertex
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
         // only in TR5
-        room_vertex.normal = {0_len, 0_len, 0_len};
+        room_vertex.normal = { 0_len, 0_len, 0_len };
         auto f = room_vertex.lighting2 / 32768.0f;
-        room_vertex.color = {f, f, f, 1};
+        room_vertex.color = { f, f, f, 1 };
         return room_vertex;
     }
 
@@ -513,11 +508,12 @@ struct RoomVertex
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal = {0_len, 0_len, 0_len};
-        room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
-                             ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
-                             (room_vertex.lighting2 & 0x001F) / 62.0f,
-                             1};
+        room_vertex.normal = { 0_len, 0_len, 0_len };
+        room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
+                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
+                              (room_vertex.lighting2 & 0x001F) / 62.0f,
+                              1
+        };
         return room_vertex;
     }
 
@@ -530,12 +526,13 @@ struct RoomVertex
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal = {0_len, 0_len, 0_len};
+        room_vertex.normal = { 0_len, 0_len, 0_len };
 
-        room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
-                             ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
-                             (room_vertex.lighting2 & 0x001F) / 31.0f,
-                             1};
+        room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
+                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
+                              (room_vertex.lighting2 & 0x001F) / 31.0f,
+                              1
+        };
         return room_vertex;
     }
 
@@ -548,11 +545,10 @@ struct RoomVertex
         auto g = reader.readU8();
         auto r = reader.readU8();
         auto a = reader.readU8();
-        vert.color = {r, g, b, a};
+        vert.color = { r, g, b, a };
         return vert;
     }
 };
-
 
 struct Room
 {
@@ -582,9 +578,9 @@ struct Room
 
     core::TRVec position;
 
-    core::Length lowestHeight{0};
+    core::Length lowestHeight{ 0 };
 
-    core::Length greatestHeight{0};
+    core::Length greatestHeight{ 0 };
 
     std::vector<Layer> layers;
 
@@ -606,9 +602,10 @@ struct Room
     int16_t lightMode; // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
     std::vector<Light> lights; // [NumLights] list of point lights
     std::vector<RoomStaticMesh> staticMeshes; // [NumStaticMeshes]list of static meshes
-    core::RoomIdI16 alternateRoom{int16_t( -1 )}; // number of the room that this room can alternate
+    core::RoomIdI16 alternateRoom{ int16_t( -1 ) }; // number of the room that this room can alternate
     core::RoomGroupId alternateGroup{
-            uint8_t( 0 )}; // number of group which is used to switch alternate rooms
+        uint8_t( 0 )
+    }; // number of group which is used to switch alternate rooms
     // with (e.g. empty/filled with water is implemented as an empty room that alternates with a full room)
 
     uint16_t flags;
@@ -676,14 +673,14 @@ struct Room
       */
     static std::unique_ptr<Room> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Room> room{std::make_unique<Room>()};
+        std::unique_ptr<Room> room{ std::make_unique<Room>() };
 
         // read and change coordinate system
-        room->position.X = core::Length{reader.readI32()};
+        room->position.X = core::Length{ reader.readI32() };
         room->position.Y = 0_len;
-        room->position.Z = core::Length{reader.readI32()};
-        room->lowestHeight = core::Length{reader.readI32()};
-        room->greatestHeight = core::Length{reader.readI32()};
+        room->position.Z = core::Length{ reader.readI32() };
+        room->lowestHeight = core::Length{ reader.readI32() };
+        room->greatestHeight = core::Length{ reader.readI32() };
 
         const std::streamsize num_data_words = reader.readU32();
 
@@ -730,13 +727,13 @@ struct Room
 
     static std::unique_ptr<Room> readTr2(io::SDLReader& reader)
     {
-        std::unique_ptr<Room> room{std::make_unique<Room>()};
+        std::unique_ptr<Room> room{ std::make_unique<Room>() };
         // read and change coordinate system
-        room->position.X = core::Length{reader.readI32()};
+        room->position.X = core::Length{ reader.readI32() };
         room->position.Y = 0_len;
-        room->position.Z = core::Length{reader.readI32()};
-        room->lowestHeight = core::Length{reader.readI32()};
-        room->greatestHeight = core::Length{reader.readI32()};
+        room->position.Z = core::Length{ reader.readI32() };
+        room->lowestHeight = core::Length{ reader.readI32() };
+        room->greatestHeight = core::Length{ reader.readI32() };
 
         const std::streamsize num_data_words = reader.readU32();
 
@@ -789,14 +786,14 @@ struct Room
 
     static std::unique_ptr<Room> readTr3(io::SDLReader& reader)
     {
-        std::unique_ptr<Room> room{std::make_unique<Room>()};
+        std::unique_ptr<Room> room{ std::make_unique<Room>() };
 
         // read and change coordinate system
-        room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
+        room->position.X = core::Length{ static_cast<core::Length::type>(reader.readI32()) };
         room->position.Y = 0_len;
-        room->position.Z = core::Length{static_cast<core::Length::type>(reader.readI32())};
-        room->lowestHeight = core::Length{reader.readI32()};
-        room->greatestHeight = core::Length{reader.readI32()};
+        room->position.Z = core::Length{ static_cast<core::Length::type>(reader.readI32()) };
+        room->lowestHeight = core::Length{ reader.readI32() };
+        room->greatestHeight = core::Length{ reader.readI32() };
 
         const std::streamsize num_data_words = reader.readU32();
 
@@ -854,13 +851,13 @@ struct Room
 
     static std::unique_ptr<Room> readTr4(io::SDLReader& reader)
     {
-        std::unique_ptr<Room> room{std::make_unique<Room>()};
+        std::unique_ptr<Room> room{ std::make_unique<Room>() };
         // read and change coordinate system
-        room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
+        room->position.X = core::Length{ static_cast<core::Length::type>(reader.readI32()) };
         room->position.Y = 0_len;
-        room->position.Z = core::Length{static_cast<core::Length::type>(reader.readI32())};
-        room->lowestHeight = core::Length{reader.readI32()};
-        room->greatestHeight = core::Length{reader.readI32()};
+        room->position.Z = core::Length{ static_cast<core::Length::type>(reader.readI32()) };
+        room->lowestHeight = core::Length{ reader.readI32() };
+        room->greatestHeight = core::Length{ reader.readI32() };
 
         const std::streamsize num_data_words = reader.readU32();
 
@@ -919,7 +916,7 @@ struct Room
         const std::streampos position = reader.tell();
         const std::streampos endPos = position + room_data_size;
 
-        std::unique_ptr<Room> room{std::make_unique<Room>()};
+        std::unique_ptr<Room> room{ std::make_unique<Room>() };
         room->ambientDarkness = 32767;
         room->intensity2 = 32767;
         room->lightMode = 0;
@@ -937,11 +934,11 @@ struct Room
         const std::streampos static_meshes_offset = reader.readU32(); // endPortalOffset
         // static_meshes_offset or room_layer_offset
         // read and change coordinate system
-        room->position.X = core::Length{reader.readI32()};
-        room->position.Y = core::Length{reader.readI32()};
-        room->position.Z = core::Length{reader.readI32()};
-        room->lowestHeight = core::Length{reader.readI32()};
-        room->greatestHeight = core::Length{reader.readI32()};
+        room->position.X = core::Length{ reader.readI32() };
+        room->position.Y = core::Length{ reader.readI32() };
+        room->position.Z = core::Length{ reader.readI32() };
+        room->lowestHeight = core::Length{ reader.readI32() };
+        room->greatestHeight = core::Length{ reader.readI32() };
 
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
@@ -1141,14 +1138,14 @@ struct Room
     }
 
     void createSceneNode(
-            size_t roomId,
-            const level::Level& level,
-            const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
-            const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
-            const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
-            render::TextureAnimator& animator,
-            const std::shared_ptr<render::scene::Material>& spriteMaterial,
-            const std::shared_ptr<render::scene::Material>& portalMaterial);
+        size_t roomId,
+        const level::Level& level,
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
+        const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
+        render::TextureAnimator& animator,
+        const std::shared_ptr<render::scene::Material>& spriteMaterial,
+        const std::shared_ptr<render::scene::Material>& portalMaterial);
 
     const Sector* getSectorByAbsolutePosition(core::TRVec worldPos) const
     {
@@ -1244,7 +1241,6 @@ struct Room
     }
 };
 
-
 extern const Sector* findRealFloorSector(const core::TRVec& position,
                                          const gsl::not_null<gsl::not_null<const Room*>*>& room);
 
@@ -1259,13 +1255,12 @@ inline const Sector* findRealFloorSector(core::RoomBoundPosition& rbs)
     return findRealFloorSector( rbs.position, &rbs.room );
 }
 
-
 struct Sprite
 {
-    core::TextureId texture_id{uint16_t( 0 )};
+    core::TextureId texture_id{ uint16_t( 0 ) };
 
-    std::shared_ptr<render::gl::Image<render::gl::SRGBA8>> image{nullptr};
-    std::shared_ptr<render::gl::Texture> texture{nullptr};
+    std::shared_ptr<render::gl::Image<render::gl::SRGBA8>> image{ nullptr };
+    std::shared_ptr<render::gl::Texture> texture{ nullptr };
 
     glm::vec2 t0;
 
@@ -1281,7 +1276,7 @@ struct Sprite
 
     static std::unique_ptr<Sprite> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
+        std::unique_ptr<Sprite> sprite{ std::make_unique<Sprite>() };
 
         sprite->texture_id = reader.readU16();
         if( sprite->texture_id.get() > 64 )
@@ -1308,7 +1303,7 @@ struct Sprite
 
     static std::unique_ptr<Sprite> readTr4(io::SDLReader& reader)
     {
-        std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
+        std::unique_ptr<Sprite> sprite{ std::make_unique<Sprite>() };
         sprite->texture_id = reader.readU16();
         if( sprite->texture_id.get() > 128 )
         {
@@ -1328,10 +1323,9 @@ struct Sprite
     }
 };
 
-
 struct SpriteSequence
 {
-    core::TypeId type{uint16_t( 0 )}; // Item identifier (matched in Items[])
+    core::TypeId type{ uint16_t( 0 ) }; // Item identifier (matched in Items[])
     int16_t length; // negative of "how many sprites are in this sequence"
     uint16_t offset; // where (in sprite texture list) this sequence starts
 
@@ -1339,7 +1333,7 @@ struct SpriteSequence
 
     static std::unique_ptr<SpriteSequence> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
+        std::unique_ptr<SpriteSequence> sprite_sequence{ std::make_unique<SpriteSequence>() };
         sprite_sequence->type = static_cast<core::TypeId::type>(reader.readU32());
         sprite_sequence->length = reader.readI16();
         sprite_sequence->offset = reader.readU16();
@@ -1356,7 +1350,7 @@ struct SpriteSequence
 
     static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader)
     {
-        std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
+        std::unique_ptr<SpriteSequence> sprite_sequence{ std::make_unique<SpriteSequence>() };
         sprite_sequence->type = static_cast<core::TypeId::type>(reader.readU32());
         sprite_sequence->length = reader.readI16();
         sprite_sequence->offset = reader.readU16();
@@ -1367,9 +1361,7 @@ struct SpriteSequence
     }
 };
 
-
 using ZoneId = uint16_t;
-
 
 struct Box
 {
@@ -1403,7 +1395,7 @@ struct Box
 
     static std::unique_ptr<Box> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Box> box{std::make_unique<Box>()};
+        std::unique_ptr<Box> box{ std::make_unique<Box>() };
         box->zmin = 1_len * reader.readI32();
         box->zmax = 1_len * reader.readI32();
         box->xmin = 1_len * reader.readI32();
@@ -1415,12 +1407,12 @@ struct Box
 
     static std::unique_ptr<Box> readTr2(io::SDLReader& reader)
     {
-        std::unique_ptr<Box> box{std::make_unique<Box>()};
+        std::unique_ptr<Box> box{ std::make_unique<Box>() };
         box->zmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
         box->zmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
         box->xmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
         box->xmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
-        box->floor = core::Length{static_cast<core::Length::type>(reader.readI16())};
+        box->floor = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
         box->overlap_index = reader.readU16();
         return box;
     }
@@ -1469,9 +1461,7 @@ struct Box
     }
 };
 
-
 using ZoneData = std::vector<ZoneId>;
-
 
 struct Zones
 {
@@ -1488,7 +1478,6 @@ struct Zones
 
     ZoneData flyZone{};
 };
-
 
 struct Camera
 {
@@ -1511,7 +1500,7 @@ struct Camera
 
     static std::unique_ptr<Camera> read(io::SDLReader& reader)
     {
-        std::unique_ptr<Camera> camera{std::make_unique<Camera>()};
+        std::unique_ptr<Camera> camera{ std::make_unique<Camera>() };
         camera->position = readCoordinates32( reader );
 
         camera->room = reader.readU16();
@@ -1532,7 +1521,6 @@ struct Camera
             flags &= ~1;
     }
 };
-
 
 struct FlybyCamera
 {
@@ -1556,17 +1544,17 @@ struct FlybyCamera
 
     uint16_t roll;
 
-    core::Frame timer{0_frame};
+    core::Frame timer{ 0_frame };
 
     uint16_t speed;
 
     uint16_t flags;
 
-    core::RoomId32 room_id{0u};
+    core::RoomId32 room_id{ 0u };
 
     static std::unique_ptr<FlybyCamera> read(io::SDLReader& reader)
     {
-        std::unique_ptr<FlybyCamera> camera{std::make_unique<FlybyCamera>()};
+        std::unique_ptr<FlybyCamera> camera{ std::make_unique<FlybyCamera>() };
         camera->cam_x = reader.readI32();
         camera->cam_y = reader.readI32();
         camera->cam_z = reader.readI32();
@@ -1579,7 +1567,7 @@ struct FlybyCamera
 
         camera->fov = reader.readU16();
         camera->roll = reader.readU16();
-        camera->timer = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+        camera->timer = core::Frame{ static_cast<core::Frame::type>(reader.readU16()) };
         camera->speed = reader.readU16();
         camera->flags = reader.readU16();
 
@@ -1588,10 +1576,9 @@ struct FlybyCamera
     }
 };
 
-
 struct AIObject
 {
-    core::ItemId object_id{uint16_t( 0 )}; // the objectID from the AI object (AI_FOLLOW is 402)
+    core::ItemId object_id{ uint16_t( 0 ) }; // the objectID from the AI object (AI_FOLLOW is 402)
     uint16_t room;
 
     int32_t x;
@@ -1607,7 +1594,7 @@ struct AIObject
 
     static std::unique_ptr<AIObject> read(io::SDLReader& reader)
     {
-        std::unique_ptr<AIObject> object{std::make_unique<AIObject>()};
+        std::unique_ptr<AIObject> object{ std::make_unique<AIObject>() };
         object->object_id = reader.readU16();
         object->room = reader.readU16(); // 4
 
@@ -1622,7 +1609,6 @@ struct AIObject
     }
 };
 
-
 struct CinematicFrame
 {
     core::TRVec center;
@@ -1632,7 +1618,7 @@ struct CinematicFrame
 
     static std::unique_ptr<CinematicFrame> read(io::SDLReader& reader)
     {
-        std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
+        std::unique_ptr<CinematicFrame> cf{ std::make_unique<CinematicFrame>() };
         cf->center = readCoordinates16( reader );
         cf->eye = readCoordinates16( reader );
         cf->fov = core::auToAngle( reader.readI16() );
@@ -1641,7 +1627,6 @@ struct CinematicFrame
     }
 };
 
-
 struct LightMap
 {
     std::array<uint8_t, 32 * 256> map;
@@ -1649,7 +1634,7 @@ struct LightMap
     /// \brief reads the lightmap.
     static std::unique_ptr<LightMap> read(io::SDLReader& reader)
     {
-        std::unique_ptr<LightMap> lightmap{std::make_unique<LightMap>()};
+        std::unique_ptr<LightMap> lightmap{ std::make_unique<LightMap>() };
         reader.readBytes( lightmap->map.data(), lightmap->map.size() );
         return lightmap;
     }

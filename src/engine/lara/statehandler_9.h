@@ -9,11 +9,11 @@ namespace engine
 namespace lara
 {
 class StateHandler_9 final
-        : public AbstractStateHandler
+    : public AbstractStateHandler
 {
 public:
     explicit StateHandler_9(LaraNode& lara)
-            : AbstractStateHandler{lara, LaraStateId::FreeFall}
+        : AbstractStateHandler{ lara, LaraStateId::FreeFall }
     {
     }
 

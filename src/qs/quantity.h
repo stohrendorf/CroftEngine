@@ -34,11 +34,11 @@ struct quantity
     using with_type = quantity<unit, T>;
 
     constexpr explicit quantity(type value = type{}) noexcept
-            : value{value}
+        : value{ value }
     {}
 
     constexpr quantity(const self_type& rhs) noexcept
-            : value{rhs.value}
+        : value{ rhs.value }
     {}
 
     template<typename T>
@@ -69,7 +69,7 @@ struct quantity
     std::enable_if_t<!detail::is_quantity<T>::value, quantity<unit, T>>
     retype_as() const
     {
-        return quantity<Unit, T>{static_cast<T>(value)};
+        return quantity<Unit, T>{ static_cast<T>(value) };
     }
 
     template<typename Q>
@@ -78,7 +78,7 @@ struct quantity
     retype_as() const
     {
         static_assert( std::is_same<typename Q::unit, unit>::value, "Unit mismatch" );
-        return quantity<unit, typename Q::type>{static_cast<typename Q::type>(value)};
+        return quantity<unit, typename Q::type>{ static_cast<typename Q::type>(value) };
     }
 
     constexpr self_type& operator+=(self_type r) noexcept
@@ -152,18 +152,17 @@ private:
     type value;
 };
 
-
 template<typename Unit, typename Type>
 constexpr std::enable_if_t<std::is_signed<Type>::value, quantity<Unit, Type>>
 operator-(quantity<Unit, Type> l) noexcept
 {
-    return quantity<Unit, Type>{static_cast<Type>(-l.get())};
+    return quantity<Unit, Type>{ static_cast<Type>(-l.get()) };
 }
 
 template<typename Unit, typename Type>
 constexpr auto operator*(Type l, quantity<Unit, Type> r) noexcept
 {
-    return quantity<Unit, Type>{static_cast<Type>(l * r.get())};
+    return quantity<Unit, Type>{ static_cast<Type>(l * r.get()) };
 }
 
 // abs

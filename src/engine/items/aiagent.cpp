@@ -24,10 +24,10 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
     {
         // the target is behind the current item, so we need a U-turn
         const auto relativeSpeed = m_state.speed * (90_deg).retype_as<core::Speed::type>()
-                                   / maxRotationSpeed.retype_as<core::Speed::type>();
+            / maxRotationSpeed.retype_as<core::Speed::type>();
         if( util::square( dx ) + util::square( dz ) < util::square( relativeSpeed * 1_frame ) )
         {
-            maxRotationSpeed /= core::Angle::type{2};
+            maxRotationSpeed /= core::Angle::type{ 2 };
         }
     }
 
@@ -104,7 +104,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto bboxMinY = m_state.position.position.Y + bbox.minY;
 
     auto room = m_state.position.room;
-    auto sector = loader::file::findRealFloorSector( m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len},
+    auto sector = loader::file::findRealFloorSector( m_state.position.position + core::TRVec{ 0_len, bbox.minY, 0_len },
                                                      &room );
     Expects( sector->box != nullptr );
     auto currentFloor = sector->box->floor;
@@ -131,11 +131,11 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         const auto oldSectorZ = oldPosition.Z / core::SectorSize;
 
         static const auto shoveMin = [](const core::Length& l) {
-            return l - (l % core::SectorSize);
+          return l - (l % core::SectorSize);
         };
 
         static const auto shoveMax = [](const core::Length& l) {
-            return shoveMin( l ) + core::SectorSize - 1_len;
+          return shoveMin( l ) + core::SectorSize - 1_len;
         };
 
         if( newSectorX < oldSectorX )
@@ -149,7 +149,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
             m_state.position.position.Z = shoveMax( oldPosition.Z );
 
         sector = loader::file::findRealFloorSector(
-                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
+            core::TRVec{ m_state.position.position.X, bboxMinY, m_state.position.position.Z }, &room );
 
         currentFloor = sector->box->floor;
 
@@ -170,14 +170,14 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto inSectorZ = basePosZ % core::SectorSize;
 
     auto objectInfo = getEngine().getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>( m_state.type.get() );
-    const core::Length radius{static_cast<core::Length::type>(objectInfo.radius)};
+    const core::Length radius{ static_cast<core::Length::type>(objectInfo.radius) };
 
     core::Length moveX = 0_len;
     core::Length moveZ = 0_len;
 
     if( radius > inSectorZ )
     {
-        if( isPositionOutOfReach( core::TRVec{basePosX, bboxMinY, basePosZ - radius}, currentFloor,
+        if( isPositionOutOfReach( core::TRVec{ basePosX, bboxMinY, basePosZ - radius }, currentFloor,
                                   nextFloor,
                                   lotInfo ) )
         {
@@ -186,15 +186,15 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         if( radius > inSectorX )
         {
-            if( isPositionOutOfReach( core::TRVec{basePosX - radius, bboxMinY, basePosZ}, currentFloor,
+            if( isPositionOutOfReach( core::TRVec{ basePosX - radius, bboxMinY, basePosZ }, currentFloor,
                                       nextFloor, lotInfo ) )
             {
                 moveX = radius - inSectorX;
             }
             else if( moveZ == 0_len
-                     && isPositionOutOfReach(
-                             core::TRVec{basePosX - radius, bboxMinY, basePosZ - radius},
-                             currentFloor, nextFloor, lotInfo ) )
+                && isPositionOutOfReach(
+                    core::TRVec{ basePosX - radius, bboxMinY, basePosZ - radius },
+                    currentFloor, nextFloor, lotInfo ) )
             {
                 if( m_state.rotation.Y > -135_deg && m_state.rotation.Y < 45_deg )
                     moveZ = radius - inSectorZ;
@@ -204,15 +204,15 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         }
         else if( core::SectorSize - radius < inSectorX )
         {
-            if( isPositionOutOfReach( core::TRVec{radius + basePosX, bboxMinY, basePosZ}, currentFloor,
+            if( isPositionOutOfReach( core::TRVec{ radius + basePosX, bboxMinY, basePosZ }, currentFloor,
                                       nextFloor, lotInfo ) )
             {
                 moveX = core::SectorSize - radius - inSectorX;
             }
             else if( moveZ == 0_len
-                     && isPositionOutOfReach(
-                             core::TRVec{radius + basePosX, bboxMinY, basePosZ - radius},
-                             currentFloor, nextFloor, lotInfo ) )
+                && isPositionOutOfReach(
+                    core::TRVec{ radius + basePosX, bboxMinY, basePosZ - radius },
+                    currentFloor, nextFloor, lotInfo ) )
             {
                 if( m_state.rotation.Y > -45_deg && m_state.rotation.Y < 135_deg )
                 {
@@ -227,7 +227,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     }
     else if( core::SectorSize - radius < inSectorZ )
     {
-        if( isPositionOutOfReach( core::TRVec{basePosX, bboxMinY, basePosZ + radius}, currentFloor,
+        if( isPositionOutOfReach( core::TRVec{ basePosX, bboxMinY, basePosZ + radius }, currentFloor,
                                   nextFloor,
                                   lotInfo ) )
         {
@@ -236,15 +236,15 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         if( radius > inSectorX )
         {
-            if( isPositionOutOfReach( core::TRVec{basePosX - radius, bboxMinY, basePosZ}, currentFloor,
+            if( isPositionOutOfReach( core::TRVec{ basePosX - radius, bboxMinY, basePosZ }, currentFloor,
                                       nextFloor, lotInfo ) )
             {
                 moveX = radius - inSectorX;
             }
             else if( moveZ == 0_len
-                     && isPositionOutOfReach(
-                             core::TRVec{basePosX - radius, bboxMinY, basePosZ + radius},
-                             currentFloor, nextFloor, lotInfo ) )
+                && isPositionOutOfReach(
+                    core::TRVec{ basePosX - radius, bboxMinY, basePosZ + radius },
+                    currentFloor, nextFloor, lotInfo ) )
             {
                 if( m_state.rotation.Y < 135_deg && m_state.rotation.Y > -45_deg )
                 {
@@ -258,15 +258,15 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         }
         else if( core::SectorSize - radius < inSectorX )
         {
-            if( isPositionOutOfReach( core::TRVec{radius + basePosX, bboxMinY, basePosZ}, currentFloor,
+            if( isPositionOutOfReach( core::TRVec{ radius + basePosX, bboxMinY, basePosZ }, currentFloor,
                                       nextFloor, lotInfo ) )
             {
                 moveX = core::SectorSize - radius - inSectorX;
             }
             else if( moveZ == 0_len
-                     && isPositionOutOfReach(
-                             core::TRVec{radius + basePosX, bboxMinY, basePosZ + radius},
-                             currentFloor, nextFloor, lotInfo ) )
+                && isPositionOutOfReach(
+                    core::TRVec{ radius + basePosX, bboxMinY, basePosZ + radius },
+                    currentFloor, nextFloor, lotInfo ) )
             {
                 if( m_state.rotation.Y < 45_deg && m_state.rotation.Y > -135_deg )
                 {
@@ -281,7 +281,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     }
     else if( radius > inSectorX )
     {
-        if( isPositionOutOfReach( core::TRVec{basePosX - radius, bboxMinY, basePosZ}, currentFloor,
+        if( isPositionOutOfReach( core::TRVec{ basePosX - radius, bboxMinY, basePosZ }, currentFloor,
                                   nextFloor, lotInfo ) )
         {
             moveX = radius - inSectorX;
@@ -289,7 +289,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     }
     else if( inSectorX > core::SectorSize - radius )
     {
-        if( isPositionOutOfReach( core::TRVec{basePosX + radius, bboxMinY, basePosZ}, currentFloor,
+        if( isPositionOutOfReach( core::TRVec{ basePosX + radius, bboxMinY, basePosZ }, currentFloor,
                                   nextFloor, lotInfo ) )
         {
             moveX = core::SectorSize - radius - inSectorX;
@@ -302,12 +302,12 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     if( moveX != 0_len || moveZ != 0_len )
     {
         sector = loader::file::findRealFloorSector(
-                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
+            core::TRVec{ m_state.position.position.X, bboxMinY, m_state.position.position.Z }, &room );
 
         m_state.rotation.Y += angle;
         m_state.rotation.Z += util::clamp(
-                core::Angle::type{8} * tilt - m_state.rotation.Z,
-                -3_deg, +3_deg );
+            core::Angle::type{ 8 } * tilt - m_state.rotation.Z,
+            -3_deg, +3_deg );
     }
 
     if( anyMovingEnabledItemInReach() )
@@ -324,9 +324,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         currentFloor = HeightInfo::fromFloor( sector,
                                               core::TRVec{
-                                                      m_state.position.position.X,
-                                                      bboxMinY,
-                                                      m_state.position.position.Z
+                                                  m_state.position.position.X,
+                                                  bboxMinY,
+                                                  m_state.position.position.Z
                                               },
                                               getEngine().getItemNodes() ).y;
 
@@ -351,9 +351,9 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
         {
             const auto ceiling = HeightInfo::fromCeiling( sector,
                                                           core::TRVec{
-                                                                  m_state.position.position.X,
-                                                                  bboxMinY,
-                                                                  m_state.position.position.Z
+                                                              m_state.position.position.X,
+                                                              bboxMinY,
+                                                              m_state.position.position.Z
                                                           },
                                                           getEngine().getItemNodes() ).y;
 
@@ -374,16 +374,16 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
 
         m_state.position.position.Y += moveY;
         sector = loader::file::findRealFloorSector(
-                core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room );
+            core::TRVec{ m_state.position.position.X, bboxMinY, m_state.position.position.Z }, &room );
         m_state.floor = HeightInfo::fromFloor( sector,
                                                core::TRVec{
-                                                       m_state.position.position.X,
-                                                       bboxMinY,
-                                                       m_state.position.position.Z
+                                                   m_state.position.position.X,
+                                                   bboxMinY,
+                                                   m_state.position.position.Z
                                                },
                                                getEngine().getItemNodes() ).y;
 
-        core::Angle yaw{0_deg};
+        core::Angle yaw{ 0_deg };
         if( m_state.speed != 0_spd )
             yaw = angleFromAtan( -moveY, m_state.speed * 1_frame );
 
@@ -426,15 +426,17 @@ AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{engine, room, item, true, animatedModel}
-        , m_collisionRadius{static_cast<core::Length::type>(engine->getScriptEngine()["getObjectInfo"]
-                .call<script::ObjectInfo>( m_state.type.get() ).radius)}
+    : ModelItemNode{ engine, room, item, true, animatedModel }
+      , m_collisionRadius{ static_cast<core::Length::type>(engine->getScriptEngine()["getObjectInfo"]
+        .call<script::ObjectInfo>( m_state.type.get() ).radius)
+    }
 {
     m_state.collidable = true;
     const core::Angle v = util::rand15( 180_deg ) * 2;
     m_state.rotation.Y += v;
-    m_state.health = core::Health{static_cast<core::Health::type>(engine->getScriptEngine()["getObjectInfo"]
-            .call<script::ObjectInfo>( m_state.type.get() ).hit_points)};
+    m_state.health = core::Health{ static_cast<core::Health::type>(engine->getScriptEngine()["getObjectInfo"]
+        .call<script::ObjectInfo>( m_state.type.get() ).hit_points)
+    };
 }
 
 void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
@@ -449,7 +451,7 @@ void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
         return;
 
     const bool enableSpaz = m_state.health > 0_hp
-                            && collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableSpaz );
+        && collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableSpaz );
     enemyPush( lara, collisionInfo, enableSpaz, false );
 }
 

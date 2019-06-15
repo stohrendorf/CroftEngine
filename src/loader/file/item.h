@@ -11,8 +11,9 @@ namespace file
 struct Item
 {
     core::TypeId type{
-            uint16_t( 0 )}; //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
-    core::RoomId16 room{uint16_t( 0 )}; //!< Owning room
+        uint16_t( 0 )
+    }; //!< Object Identifier (matched in AnimatedModels[], or SpriteSequences[], as appropriate)
+    core::RoomId16 room{ uint16_t( 0 ) }; //!< Owning room
     core::TRVec position; //!< world coords
     core::Angle rotation; //!< ((0xc000 >> 14) * 90) degrees around Y axis
     int16_t darkness; //!< (constant lighting; -1 means use mesh lighting)
@@ -28,7 +29,7 @@ struct Item
 
     static std::unique_ptr<Item> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Item> item{std::make_unique<Item>()};
+        std::unique_ptr<Item> item{ std::make_unique<Item>() };
         item->type = reader.readU16();
         item->room = reader.readU16();
         item->position = readCoordinates32( reader );
@@ -40,7 +41,7 @@ struct Item
 
     static std::unique_ptr<Item> readTr2(io::SDLReader& reader)
     {
-        std::unique_ptr<Item> item{std::make_unique<Item>()};
+        std::unique_ptr<Item> item{ std::make_unique<Item>() };
         item->type = reader.readU16();
         item->room = reader.readU16();
         item->position = readCoordinates32( reader );
@@ -53,7 +54,7 @@ struct Item
 
     static std::unique_ptr<Item> readTr3(io::SDLReader& reader)
     {
-        std::unique_ptr<Item> item{std::make_unique<Item>()};
+        std::unique_ptr<Item> item{ std::make_unique<Item>() };
         item->type = reader.readU16();
         item->room = reader.readU16();
         item->position = readCoordinates32( reader );
@@ -66,7 +67,7 @@ struct Item
 
     static std::unique_ptr<Item> readTr4(io::SDLReader& reader)
     {
-        std::unique_ptr<Item> item{std::make_unique<Item>()};
+        std::unique_ptr<Item> item{ std::make_unique<Item>() };
         item->type = reader.readU16();
         item->room = reader.readU16();
         item->position = readCoordinates32( reader );

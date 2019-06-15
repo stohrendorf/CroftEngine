@@ -13,7 +13,6 @@ namespace scene
 {
 class Node;
 
-
 class MaterialParameter
 {
 public:
@@ -67,7 +66,7 @@ public:
     void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
     {
         m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
-            uniform.set( (classInstance->*valueMethod)() );
+          uniform.set( (classInstance->*valueMethod)() );
         };
     }
 
@@ -84,7 +83,7 @@ public:
     {
         m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/,
                                                                   const gl::Program::ActiveUniform& uniform) {
-            uniform.set( (classInstance->*valueMethod)(), (classInstance->*countMethod)() );
+          uniform.set( (classInstance->*valueMethod)(), (classInstance->*countMethod)() );
         };
     }
 

@@ -13,16 +13,16 @@ const char* toString(const Mood m)
 {
     switch( m )
     {
-        case Mood::Bored:
-            return "Bored";
-        case Mood::Attack:
-            return "Attack";
-        case Mood::Escape:
-            return "Escape";
-        case Mood::Stalk:
-            return "Stalk";
-        default:
-            BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Mood" ) );
+    case Mood::Bored:
+        return "Bored";
+    case Mood::Attack:
+        return "Attack";
+    case Mood::Escape:
+        return "Escape";
+    case Mood::Stalk:
+        return "Stalk";
+    default:
+        BOOST_THROW_EXCEPTION( std::domain_error( "Invalid Mood" ) );
     }
 }
 
@@ -67,13 +67,13 @@ bool LotInfo::calculateTarget(const Engine& engine, core::TRVec& target, const i
     core::Length minZ = 0_len, maxZ = 0_len, minX = 0_len, maxX = 0_len;
 
     const auto clampX = [&minX, &maxX, &box]() {
-        minX = std::max( minX, box->xmin );
-        maxX = std::min( maxX, box->xmax );
+      minX = std::max( minX, box->xmin );
+      maxX = std::min( maxX, box->xmax );
     };
 
     const auto clampZ = [&minZ, &maxZ, &box]() {
-        minZ = std::max( minZ, box->zmin );
-        maxZ = std::min( maxZ, box->zmax );
+      minZ = std::max( minZ, box->zmin );
+      maxZ = std::min( maxZ, box->zmax );
     };
 
     constexpr auto NoClampXPos = 0x01;
@@ -350,70 +350,70 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
     {
         switch( creatureInfo.mood )
         {
-            case Mood::Bored:
-            case Mood::Stalk:
-                if( aiInfo.zone_number == aiInfo.enemy_zone )
-                {
-                    creatureInfo.mood = Mood::Attack;
-                }
-                else if( item.is_hit )
-                {
-                    creatureInfo.mood = Mood::Escape;
-                }
-                break;
-            case Mood::Attack:
-                if( aiInfo.zone_number != aiInfo.enemy_zone )
-                {
-                    creatureInfo.mood = Mood::Bored;
-                }
-                break;
-            case Mood::Escape:
-                if( aiInfo.zone_number == aiInfo.enemy_zone )
-                {
-                    creatureInfo.mood = Mood::Attack;
-                }
-                break;
+        case Mood::Bored:
+        case Mood::Stalk:
+            if( aiInfo.zone_number == aiInfo.enemy_zone )
+            {
+                creatureInfo.mood = Mood::Attack;
+            }
+            else if( item.is_hit )
+            {
+                creatureInfo.mood = Mood::Escape;
+            }
+            break;
+        case Mood::Attack:
+            if( aiInfo.zone_number != aiInfo.enemy_zone )
+            {
+                creatureInfo.mood = Mood::Bored;
+            }
+            break;
+        case Mood::Escape:
+            if( aiInfo.zone_number == aiInfo.enemy_zone )
+            {
+                creatureInfo.mood = Mood::Attack;
+            }
+            break;
         }
     }
     else
     {
         switch( creatureInfo.mood )
         {
-            case Mood::Bored:
-            case Mood::Stalk:
-                if( item.is_hit && (util::rand15() < 2048 || aiInfo.zone_number != aiInfo.enemy_zone) )
-                {
-                    creatureInfo.mood = Mood::Escape;
-                }
-                else if( aiInfo.zone_number == aiInfo.enemy_zone )
-                {
-                    if( aiInfo.distance >= util::square( 3 * core::SectorSize )
-                        && (creatureInfo.mood != Mood::Stalk || creatureInfo.lot.required_box != nullptr) )
-                    {
-                        creatureInfo.mood = Mood::Stalk;
-                    }
-                    else
-                    {
-                        creatureInfo.mood = Mood::Attack;
-                    }
-                }
-                break;
-            case Mood::Attack:
-                if( item.is_hit && (util::rand15() < 2048 || aiInfo.zone_number != aiInfo.enemy_zone) )
-                {
-                    creatureInfo.mood = Mood::Escape;
-                }
-                else if( aiInfo.zone_number != aiInfo.enemy_zone )
-                {
-                    creatureInfo.mood = Mood::Bored;
-                }
-                break;
-            case Mood::Escape:
-                if( aiInfo.zone_number == aiInfo.enemy_zone && util::rand15() < 256 )
+        case Mood::Bored:
+        case Mood::Stalk:
+            if( item.is_hit && (util::rand15() < 2048 || aiInfo.zone_number != aiInfo.enemy_zone) )
+            {
+                creatureInfo.mood = Mood::Escape;
+            }
+            else if( aiInfo.zone_number == aiInfo.enemy_zone )
+            {
+                if( aiInfo.distance >= util::square( 3 * core::SectorSize )
+                    && (creatureInfo.mood != Mood::Stalk || creatureInfo.lot.required_box != nullptr) )
                 {
                     creatureInfo.mood = Mood::Stalk;
                 }
-                break;
+                else
+                {
+                    creatureInfo.mood = Mood::Attack;
+                }
+            }
+            break;
+        case Mood::Attack:
+            if( item.is_hit && (util::rand15() < 2048 || aiInfo.zone_number != aiInfo.enemy_zone) )
+            {
+                creatureInfo.mood = Mood::Escape;
+            }
+            else if( aiInfo.zone_number != aiInfo.enemy_zone )
+            {
+                creatureInfo.mood = Mood::Bored;
+            }
+            break;
+        case Mood::Escape:
+            if( aiInfo.zone_number == aiInfo.enemy_zone && util::rand15() < 256 )
+            {
+                creatureInfo.mood = Mood::Stalk;
+            }
+            break;
         }
     }
 
@@ -429,77 +429,78 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
 
     switch( creatureInfo.mood )
     {
-        case Mood::Attack:
-            if( util::rand15()
-                >= engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>( item.type.get() ).target_update_chance )
-                break;
-
-            creatureInfo.lot.target = engine.getLara().m_state.position.position;
-            creatureInfo.lot.required_box = engine.getLara().m_state.box;
-            if( creatureInfo.lot.fly != 0_len && engine.getLara().isOnLand() )
-                creatureInfo.lot.target.Y += engine.getLara().getSkeleton()
-                                                   ->getInterpolationInfo( engine.getLara().m_state )
-                                                   .getNearestFrame()->bbox.toBBox().minY;
-
+    case Mood::Attack:
+        if( util::rand15()
+            >= engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>( item.type.get() )
+                                                        .target_update_chance )
             break;
-        case Mood::Bored:
+
+        creatureInfo.lot.target = engine.getLara().m_state.position.position;
+        creatureInfo.lot.required_box = engine.getLara().m_state.box;
+        if( creatureInfo.lot.fly != 0_len && engine.getLara().isOnLand() )
+            creatureInfo.lot.target.Y += engine.getLara().getSkeleton()
+                                               ->getInterpolationInfo( engine.getLara().m_state )
+                                               .getNearestFrame()->bbox.toBBox().minY;
+
+        break;
+    case Mood::Bored:
+    {
+        const auto box = creatureInfo.lot.boxes[util::rand15( creatureInfo.lot.boxes.size() )];
+        if( !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *box ) )
+            break;
+
+        if( item.stalkBox( engine, *box ) )
         {
-            const auto box = creatureInfo.lot.boxes[util::rand15( creatureInfo.lot.boxes.size() )];
-            if( !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *box ) )
-                break;
-
-            if( item.stalkBox( engine, *box ) )
-            {
-                creatureInfo.lot.setRandomSearchTarget( box );
-                creatureInfo.mood = Mood::Stalk;
-            }
-            else if( creatureInfo.lot.required_box == nullptr )
-            {
-                creatureInfo.lot.setRandomSearchTarget( box );
-            }
-            break;
+            creatureInfo.lot.setRandomSearchTarget( box );
+            creatureInfo.mood = Mood::Stalk;
         }
-        case Mood::Stalk:
+        else if( creatureInfo.lot.required_box == nullptr )
         {
-            if( creatureInfo.lot.required_box != nullptr && item.stalkBox( engine, *creatureInfo.lot.required_box ) )
-                break;
-
-            const auto box = creatureInfo.lot.boxes[util::rand15( creatureInfo.lot.boxes.size() )];
-            if( !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *box ) )
-                break;
-
-            if( item.stalkBox( engine, *box ) )
-            {
-                creatureInfo.lot.setRandomSearchTarget( box );
-            }
-            else if( creatureInfo.lot.required_box == nullptr )
-            {
-                creatureInfo.lot.setRandomSearchTarget( box );
-                if( aiInfo.zone_number != aiInfo.enemy_zone )
-                {
-                    creatureInfo.mood = Mood::Bored;
-                }
-            }
-            break;
+            creatureInfo.lot.setRandomSearchTarget( box );
         }
-        case Mood::Escape:
+        break;
+    }
+    case Mood::Stalk:
+    {
+        if( creatureInfo.lot.required_box != nullptr && item.stalkBox( engine, *creatureInfo.lot.required_box ) )
+            break;
+
+        const auto box = creatureInfo.lot.boxes[util::rand15( creatureInfo.lot.boxes.size() )];
+        if( !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *box ) )
+            break;
+
+        if( item.stalkBox( engine, *box ) )
         {
-            const auto box = creatureInfo.lot.boxes[util::rand15( creatureInfo.lot.boxes.size() )];
-            if( !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *box )
-                || creatureInfo.lot.required_box != nullptr )
-                break;
-
-            if( item.inSameQuadrantAsBoxRelativeToLara( engine, *box ) )
-            {
-                creatureInfo.lot.setRandomSearchTarget( box );
-            }
-            else if( aiInfo.zone_number == aiInfo.enemy_zone && item.stalkBox( engine, *box ) )
-            {
-                creatureInfo.lot.setRandomSearchTarget( box );
-                creatureInfo.mood = Mood::Stalk;
-            }
-            break;
+            creatureInfo.lot.setRandomSearchTarget( box );
         }
+        else if( creatureInfo.lot.required_box == nullptr )
+        {
+            creatureInfo.lot.setRandomSearchTarget( box );
+            if( aiInfo.zone_number != aiInfo.enemy_zone )
+            {
+                creatureInfo.mood = Mood::Bored;
+            }
+        }
+        break;
+    }
+    case Mood::Escape:
+    {
+        const auto box = creatureInfo.lot.boxes[util::rand15( creatureInfo.lot.boxes.size() )];
+        if( !item.isInsideZoneButNotInBox( engine, aiInfo.zone_number, *box )
+            || creatureInfo.lot.required_box != nullptr )
+            break;
+
+        if( item.inSameQuadrantAsBoxRelativeToLara( engine, *box ) )
+        {
+            creatureInfo.lot.setRandomSearchTarget( box );
+        }
+        else if( aiInfo.zone_number == aiInfo.enemy_zone && item.stalkBox( engine, *box ) )
+        {
+            creatureInfo.lot.setRandomSearchTarget( box );
+            creatureInfo.mood = Mood::Stalk;
+        }
+        break;
+    }
     }
 
     if( creatureInfo.lot.target_box == nullptr )
@@ -525,15 +526,15 @@ AiInfo::AiInfo(Engine& engine, items::ItemState& item)
     enemy_zone = engine.getLara().m_state.box->*zoneRef;
     if( (item.creatureInfo->lot.block_mask & engine.getLara().m_state.box->overlap_index) != 0
         || item.creatureInfo->lot.nodes[item.box].search_version
-           == (item.creatureInfo->lot.m_searchVersion | 0x8000) )
+            == (item.creatureInfo->lot.m_searchVersion | 0x8000) )
     {
         enemy_zone |= 0x4000;
     }
 
     auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>( item.type.get() );
-    const core::Length pivotLength{static_cast<core::Length::type>(objectInfo.pivot_length)};
+    const core::Length pivotLength{ static_cast<core::Length::type>(objectInfo.pivot_length) };
     const auto d = engine.getLara().m_state.position.position
-                   - (item.position.position + util::pitch( pivotLength, item.rotation.Y ));
+        - (item.position.position + util::pitch( pivotLength, item.rotation.Y ));
     const auto pivotAngle = angleFromAtan( d.X, d.Z );
     distance = util::square( d.X ) + util::square( d.Z );
     angle = pivotAngle - item.rotation.Y;
@@ -552,39 +553,39 @@ AiInfo::AiInfo(Engine& engine, items::ItemState& item)
 }
 
 CreatureInfo::CreatureInfo(const Engine& engine, const core::TypeId type)
-        : lot{engine}
+    : lot{ engine }
 {
     switch( type.get_as<TR1ItemId>() )
     {
-        case TR1ItemId::Wolf:
-        case TR1ItemId::LionMale:
-        case TR1ItemId::LionFemale:
-        case TR1ItemId::Panther:
-            lot.drop = -core::SectorSize;
-            break;
+    case TR1ItemId::Wolf:
+    case TR1ItemId::LionMale:
+    case TR1ItemId::LionFemale:
+    case TR1ItemId::Panther:
+        lot.drop = -core::SectorSize;
+        break;
 
-        case TR1ItemId::Bat:
-        case TR1ItemId::CrocodileInWater:
-        case TR1ItemId::Fish:
-            lot.step = 20 * core::SectorSize;
-            lot.drop = -20 * core::SectorSize;
-            lot.fly = 16_len;
-            break;
+    case TR1ItemId::Bat:
+    case TR1ItemId::CrocodileInWater:
+    case TR1ItemId::Fish:
+        lot.step = 20 * core::SectorSize;
+        lot.drop = -20 * core::SectorSize;
+        lot.fly = 16_len;
+        break;
 
-        case TR1ItemId::Gorilla:
-            lot.step = core::SectorSize / 2;
-            lot.drop = -core::SectorSize;
-            break;
+    case TR1ItemId::Gorilla:
+        lot.step = core::SectorSize / 2;
+        lot.drop = -core::SectorSize;
+        break;
 
-        case TR1ItemId::TRex:
-        case TR1ItemId::Mutant:
-        case TR1ItemId::CentaurMutant:
-            lot.block_mask = 0x8000;
-            break;
+    case TR1ItemId::TRex:
+    case TR1ItemId::Mutant:
+    case TR1ItemId::CentaurMutant:
+        lot.block_mask = 0x8000;
+        break;
 
-        default:
-            // silence compiler
-            break;
+    default:
+        // silence compiler
+        break;
     }
 }
 

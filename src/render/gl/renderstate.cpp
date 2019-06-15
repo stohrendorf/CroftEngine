@@ -28,7 +28,7 @@ void RenderState::apply(const bool force) const
         getCurrentState().m_blendEnabled = m_blendEnabled;
     }
     if( force || ((m_blendSrc.isInitialized() || m_blendDst.isInitialized())
-                  && (m_blendSrc != getCurrentState().m_blendSrc || m_blendDst != getCurrentState().m_blendDst)) )
+        && (m_blendSrc != getCurrentState().m_blendSrc || m_blendDst != getCurrentState().m_blendDst)) )
     {
         GL_ASSERT( glBlendFunc( m_blendSrc.get(), m_blendDst.get() ) );
         getCurrentState().m_blendSrc = m_blendSrc;
@@ -85,7 +85,8 @@ void RenderState::apply(const bool force) const
         }
         getCurrentState().m_depthTestEnabled = m_depthTestEnabled;
     }
-    if( force || (m_depthWriteEnabled.isInitialized() && (m_depthWriteEnabled != getCurrentState().m_depthWriteEnabled)) )
+    if( force
+        || (m_depthWriteEnabled.isInitialized() && (m_depthWriteEnabled != getCurrentState().m_depthWriteEnabled)) )
     {
         GL_ASSERT( glDepthMask( m_depthWriteEnabled.get() ? ::gl::GL_TRUE : ::gl::GL_FALSE ) );
         getCurrentState().m_depthWriteEnabled = m_depthWriteEnabled;

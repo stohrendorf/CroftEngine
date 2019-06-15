@@ -6,7 +6,7 @@ namespace hid
 {
 namespace
 {
-const core::Angle FreeLookMouseMovementScale{50_deg};
+const core::Angle FreeLookMouseMovementScale{ 50_deg };
 }
 
 enum class AxisMovement
@@ -20,13 +20,11 @@ enum class AxisMovement
     Backward = Negative
 };
 
-
 struct InputState
 {
     AxisMovement xMovement = AxisMovement::Null;
     AxisMovement zMovement = AxisMovement::Null;
     AxisMovement stepMovement = AxisMovement::Null;
-
 
     struct Button
     {
@@ -49,7 +47,6 @@ struct InputState
             return current && current != previous;
         }
     };
-
 
     Button jump;
     Button moveSlow;

@@ -12,5 +12,4 @@ namespace file
 
 #include "larastateid_enum.h"
 
-}
-}
+} }

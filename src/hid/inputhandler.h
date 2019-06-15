@@ -22,7 +22,7 @@ public:
 private:
     InputState m_inputState{};
 
-    gsl::not_null<GLFWwindow*> m_window;
+    const gsl::not_null<GLFWwindow*> m_window;
     double m_lastCursorX = 0;
     double m_lastCursorY = 0;
 

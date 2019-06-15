@@ -16,9 +16,7 @@ using LaraStateId = loader::file::LaraStateId;
 using AnimationId = loader::file::AnimationId;
 struct CollisionInfo;
 
-
 class LaraNode;
-
 
 struct InputState;
 enum class UnderwaterState;
@@ -30,8 +28,8 @@ class AbstractStateHandler
 {
 public:
     explicit AbstractStateHandler(LaraNode& lara, const LaraStateId id)
-            : m_lara{lara}
-            , m_id{id}
+        : m_lara{ lara }
+          , m_id{ id }
     {
     }
 
@@ -60,9 +58,7 @@ private:
     LaraNode& m_lara;
     const LaraStateId m_id;
 
-
     friend class StateHandler_2;
-
 
 protected:
     // ReSharper disable once CppMemberFunctionMayBeConst

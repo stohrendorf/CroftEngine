@@ -9,11 +9,9 @@ namespace scene
 {
 class Node;
 
-
 class Camera final
 {
     friend class Node;
-
 
 public:
     Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);

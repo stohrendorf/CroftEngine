@@ -23,23 +23,24 @@ void SlammingDoors::update()
             getEngine().getLara().m_state.is_hit = true;
 
             const auto itemSpheres = getSkeleton()->getBoneCollisionSpheres(
-                    m_state,
-                    *getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame(),
-                    nullptr );
+                m_state,
+                *getSkeleton()->getInterpolationInfo( m_state ).getNearestFrame(),
+                nullptr );
 
             const auto emitBlood = [&itemSpheres, this](const core::TRVec& bitePos, size_t boneId) {
-                const auto position = core::TRVec{
-                        glm::vec3{translate( itemSpheres.at( boneId ).m, bitePos.toRenderSystem() )[3]}};
+              const auto position = core::TRVec{
+                  glm::vec3{ translate( itemSpheres.at( boneId ).m, bitePos.toRenderSystem() )[3] }
+              };
 
-                auto blood = createBloodSplat( getEngine(), core::RoomBoundPosition{m_state.position.room, position},
-                                               m_state.speed, m_state.rotation.Y );
-                getEngine().getParticles().emplace_back( std::move( blood ) );
+              auto blood = createBloodSplat( getEngine(), core::RoomBoundPosition{ m_state.position.room, position },
+                                             m_state.speed, m_state.rotation.Y );
+              getEngine().getParticles().emplace_back( std::move( blood ) );
             };
 
-            for( auto x : {-23_len, 71_len} )
+            for( auto x : { -23_len, 71_len } )
             {
-                for( auto y : {0_len, 10_len, -10_len} )
-                    emitBlood( {x, y, -1718_len}, 0 );
+                for( auto y : { 0_len, 10_len, -10_len } )
+                    emitBlood( { x, y, -1718_len }, 0 );
             }
         }
     }
@@ -56,8 +57,8 @@ void SlammingDoors::collide(LaraNode& lara, CollisionInfo& collisionInfo)
         }
     }
     else if( m_state.triggerState != TriggerState::Invisible
-             && isNear( lara, collisionInfo.collisionRadius )
-             && testBoneCollision( lara ) )
+        && isNear( lara, collisionInfo.collisionRadius )
+        && testBoneCollision( lara ) )
     {
         if( collisionInfo.policyFlags.is_set( CollisionInfo::PolicyFlags::EnableBaddiePush ) )
         {

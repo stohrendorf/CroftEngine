@@ -12,7 +12,7 @@
 namespace util
 {
 CImgWrapper::CImgWrapper(const std::string& filename)
-        : m_image{std::make_unique<cimg_library::CImg<uint8_t>>( filename.c_str() )}
+    : m_image{ std::make_unique<cimg_library::CImg<uint8_t>>( filename.c_str() ) }
 {
     if( m_image->spectrum() == 3 )
     {
@@ -25,34 +25,34 @@ CImgWrapper::CImgWrapper(const std::string& filename)
 }
 
 CImgWrapper::CImgWrapper(const CImgWrapper& other)
-        : m_image{std::make_unique<cimg_library::CImg<uint8_t>>( *other.m_image )}
-        , m_interleaved{other.m_interleaved}
+    : m_image{ std::make_unique<cimg_library::CImg<uint8_t>>( *other.m_image ) }
+      , m_interleaved{ other.m_interleaved }
 {
 }
 
 CImgWrapper::CImgWrapper(const uint8_t* data, int width, int height, bool shared)
-        : m_image{std::make_unique<cimg_library::CImg<uint8_t>>( data, 4, width, height, 1, shared )}
-        , m_interleaved{true}
+    : m_image{ std::make_unique<cimg_library::CImg<uint8_t>>( data, 4, width, height, 1, shared ) }
+      , m_interleaved{ true }
 {
 }
 
 CImgWrapper::CImgWrapper(const int size)
-        : m_image{std::make_unique<cimg_library::CImg<uint8_t>>( size, size, 1, 4 )}
-        , m_interleaved{false}
+    : m_image{ std::make_unique<cimg_library::CImg<uint8_t>>( size, size, 1, 4 ) }
+      , m_interleaved{ false }
 {
     m_image->fill( 0 );
 }
 
 CImgWrapper::CImgWrapper(const int w, const int h)
-        : m_image{std::make_unique<cimg_library::CImg<uint8_t>>( w, h, 1, 4 )}
-        , m_interleaved{false}
+    : m_image{ std::make_unique<cimg_library::CImg<uint8_t>>( w, h, 1, 4 ) }
+      , m_interleaved{ false }
 {
     m_image->fill( 0 );
 }
 
 CImgWrapper::CImgWrapper()
-        : m_image{nullptr}
-        , m_interleaved{false}
+    : m_image{ nullptr }
+      , m_interleaved{ false }
 {
 }
 
@@ -112,11 +112,11 @@ void CImgWrapper::crop(const int x0, const int y0, const int x1, const int y1)
     if( !m_interleaved )
         m_image->crop( x0, y0, 0, 0,
                        x1, y1, 0, 3
-        );
+                     );
     else
         m_image->crop( 0, x0, y0, 0,
                        3, x1, y1, 0
-        );
+                     );
 }
 
 uint8_t& CImgWrapper::operator()(const int x, const int y, const int c)
@@ -186,8 +186,8 @@ void CImgWrapper::crop(const glm::vec2& uv0, const glm::vec2& uv1)
 }
 
 CImgWrapper::CImgWrapper(CImgWrapper&& other) noexcept
-        : m_image{std::move( other.m_image )}
-        , m_interleaved{other.m_interleaved}
+    : m_image{ std::move( other.m_image ) }
+      , m_interleaved{ other.m_interleaved }
 {
 }
 

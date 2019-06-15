@@ -13,11 +13,10 @@ public:
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const loader::file::SkeletalModelType& animatedModel)
-            : ModelItemNode{engine, room, item, false, animatedModel}
+        : ModelItemNode{ engine, room, item, false, animatedModel }
     {
     }
 };
-
 
 class ScriptedItem final : public ModelItemNode
 {
@@ -27,8 +26,8 @@ public:
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel,
                  const sol::table& objectInfo)
-            : ModelItemNode{engine, room, item, false, animatedModel}
-            , m_objectInfo{objectInfo}
+        : ModelItemNode{ engine, room, item, false, animatedModel }
+          , m_objectInfo{ objectInfo }
     {
         auto initialise = objectInfo["initialise"];
         if( initialise )

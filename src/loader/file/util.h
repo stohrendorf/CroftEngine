@@ -14,10 +14,10 @@ inline glm::vec3 generateNormal(const glm::vec3& o, const glm::vec3& a, const gl
 inline glm::vec3 generateNormal(const core::TRVec& o, const core::TRVec& a, const core::TRVec& b)
 {
     return generateNormal(
-            o.toRenderSystem(),
-            a.toRenderSystem(),
-            b.toRenderSystem()
-    );
+        o.toRenderSystem(),
+        a.toRenderSystem(),
+        b.toRenderSystem()
+                         );
 }
 }
 }

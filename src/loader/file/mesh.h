@@ -25,7 +25,8 @@ namespace file
 {
 struct Mesh
 {
-    core::TRVec center; // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
+    core::TRVec
+        center; // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
     core::Length collision_size = 0_len; // This appears to be the radius of that aforementioned collisional sphere.
     std::vector<core::TRVec> vertices; //[NumVertices]; // list of vertices (relative coordinates)
     std::vector<core::TRVec> normals; //[NumNormals]; // list of normals (if NumNormals is positive)
@@ -43,9 +44,9 @@ struct Mesh
     */
     static std::unique_ptr<Mesh> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Mesh> mesh{std::make_unique<Mesh>()};
+        std::unique_ptr<Mesh> mesh{ std::make_unique<Mesh>() };
         mesh->center = readCoordinates16( reader );
-        mesh->collision_size = core::Length{core::Length::type{reader.readI16()}};
+        mesh->collision_size = core::Length{ core::Length::type{ reader.readI16() } };
         reader.skip( 2 ); // some unknown flags
 
         reader.readVector( mesh->vertices, reader.readU16(), &io::readCoordinates16 );
@@ -72,9 +73,9 @@ struct Mesh
 
     static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader)
     {
-        std::unique_ptr<Mesh> mesh{std::make_unique<Mesh>()};
+        std::unique_ptr<Mesh> mesh{ std::make_unique<Mesh>() };
         mesh->center = readCoordinates16( reader );
-        mesh->collision_size = core::Length{reader.readI32()};
+        mesh->collision_size = core::Length{ reader.readI32() };
 
         reader.readVector( mesh->vertices, reader.readU16(), &io::readCoordinates16 );
 
@@ -93,7 +94,6 @@ struct Mesh
 
         return mesh;
     }
-
 
     class ModelBuilder
     {
@@ -156,13 +156,13 @@ struct Mesh
 
     public:
         explicit ModelBuilder(
-                bool withNormals,
-                bool dynamic,
-                const std::vector<TextureLayoutProxy>& textureProxies,
-                const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
-                gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
-                const Palette& palette,
-                const std::string& label = {});
+            bool withNormals,
+            bool dynamic,
+            const std::vector<TextureLayoutProxy>& textureProxies,
+            const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
+            gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
+            const Palette& palette,
+            const std::string& label = {});
 
         ~ModelBuilder();
 
@@ -171,13 +171,12 @@ struct Mesh
         gsl::not_null<std::shared_ptr<render::scene::Model>> finalize();
     };
 
-
     std::shared_ptr<render::scene::Model> createModel(
-            const std::vector<TextureLayoutProxy>& textureProxies,
-            const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
-            const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
-            const Palette& palette,
-            const std::string& label = {}) const;
+        const std::vector<TextureLayoutProxy>& textureProxies,
+        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
+        const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
+        const Palette& palette,
+        const std::string& label = {}) const;
 };
 }
 }
