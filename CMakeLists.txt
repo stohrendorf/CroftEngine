@@ -182,19 +182,6 @@ if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite/gsl-lite.hpp" )
     endif()
 endif()
 
-if( NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gamecontrollerdb.txt" )
-    message( STATUS "Downloading gamecontrollerdb..." )
-    file( DOWNLOAD https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt "${CMAKE_CURRENT_SOURCE_DIR}/gamecontrollerdb.txt"
-          STATUS status
-          LOG log )
-    list( GET status 0 status_code )
-    list( GET status 1 status_string )
-
-    if( NOT status_code EQUAL 0 )
-        message( FATAL_ERROR "Download failed with code ${status_code}" )
-    endif()
-endif()
-
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/gsl-lite" )
 add_definitions(
         -Dgsl_FEATURE_WITH_CONTAINER_TO_STD=${CMAKE_CXX_STANDARD}

@@ -137,7 +137,6 @@ set( EDISONENGINE_SRCS
      engine/audioengine.cpp
      engine/inventory.cpp
      hid/inputhandler.cpp
-     hid/controller.cpp
 
      loader/file/level/level.cpp
      loader/file/level/tr1level.cpp

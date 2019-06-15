@@ -1,9 +1,9 @@
 #pragma once
 
 #include "inputstate.h"
-#include "controller.h"
 
 #include "gsl-lite.hpp"
+#include <GLFW/glfw3.h>
 
 namespace hid
 {
@@ -26,8 +26,6 @@ private:
     double m_lastCursorX = 0;
     double m_lastCursorY = 0;
 
-    std::map<std::string, Controller> m_controllers;
-    Controller* m_controller = nullptr;
     int m_controllerIndex = -1;
 };
 }
