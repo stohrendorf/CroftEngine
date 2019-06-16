@@ -172,7 +172,7 @@ using RGB16F = RGB<Half>;
 using RGB32F = RGB<::gl::GLfloat>;
 
 template<typename T>
-struct Single final
+struct Scalar final
 {
     static_assert( std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<Half, T>,
                    "Pixel may only have channels of integral types" );
@@ -184,12 +184,12 @@ struct Single final
     static constexpr const auto InternalFormat = Traits::RInternalFormat;
     static constexpr const ::gl::GLenum Format = ::gl::GL_RED;
 
-    explicit Single()
-        : Single{ 0 }
+    explicit Scalar()
+        : Scalar{ 0 }
     {
     }
 
-    explicit constexpr Single(Type value) noexcept
+    explicit constexpr Scalar(Type value) noexcept
         : value{ value }
     {
     }
@@ -198,19 +198,19 @@ struct Single final
 };
 
 template<typename T>
-constexpr bool operator==(const Single<T>& lhs, const Single<T>& rhs)
+constexpr bool operator==(const Scalar<T>& lhs, const Scalar<T>& rhs)
 {
     return lhs.value == rhs.value;
 }
 
 template<typename T>
-constexpr bool operator!=(const Single<T>& lhs, const Single<T>& rhs)
+constexpr bool operator!=(const Scalar<T>& lhs, const Scalar<T>& rhs)
 {
     return !(lhs == rhs);
 }
 
-using SingleByte = Single<::gl::GLubyte>;
-using SingleF = Single<::gl::GLfloat>;
-using SingleH = Single<Half>;
+using ScalarByte = Scalar<::gl::GLubyte>;
+using Scalar32F = Scalar<::gl::GLfloat>;
+using Scalar16F = Scalar<Half>;
 }
 }

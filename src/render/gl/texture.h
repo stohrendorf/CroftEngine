@@ -8,6 +8,69 @@ namespace render
 {
 namespace gl
 {
+enum class TextureWrapAxis : std::underlying_type_t<::gl::GLenum>
+{
+    WrapR = (uint32_t)::gl::GL_TEXTURE_WRAP_R,
+    WrapS = (uint32_t)::gl::GL_TEXTURE_WRAP_S,
+    WrapT = (uint32_t)::gl::GL_TEXTURE_WRAP_T,
+};
+
+enum class TextureWrapMode : std::underlying_type_t<::gl::GLenum>
+{
+    Clamp = (uint32_t)::gl::GL_CLAMP,
+    ClampToBorder = (uint32_t)::gl::GL_CLAMP_TO_BORDER,
+    ClampToEdge = (uint32_t)::gl::GL_CLAMP_TO_EDGE,
+    Repeat = (uint32_t)::gl::GL_REPEAT,
+};
+
+enum class TextureMinFilter : std::underlying_type_t<::gl::GLenum>
+{
+    Linear = (uint32_t)::gl::GL_LINEAR,
+    LinearMipmapLinear = (uint32_t)::gl::GL_LINEAR_MIPMAP_LINEAR,
+    LinearMipmapNearest = (uint32_t)::gl::GL_LINEAR_MIPMAP_NEAREST,
+    Nearest = (uint32_t)::gl::GL_NEAREST,
+    NearestMipmapLinear = (uint32_t)::gl::GL_NEAREST_MIPMAP_LINEAR,
+    NearestMipmapNearest = (uint32_t)::gl::GL_NEAREST_MIPMAP_NEAREST,
+};
+
+enum class TextureMagFilter : std::underlying_type_t<::gl::GLenum>
+{
+    Linear = (uint32_t)::gl::GL_LINEAR,
+    Nearest = (uint32_t)::gl::GL_NEAREST,
+};
+
+enum class TextureParameter : uint32_t
+{
+    GenerateMipmap = (uint32_t)::gl::GL_GENERATE_MIPMAP,
+    BorderColor = (uint32_t)::gl::GL_TEXTURE_BORDER_COLOR,
+    Priority = (uint32_t)::gl::GL_TEXTURE_PRIORITY,
+    BaseLevel = (uint32_t)::gl::GL_TEXTURE_BASE_LEVEL,
+    CompareMode = (uint32_t)::gl::GL_TEXTURE_COMPARE_MODE,
+    CompareFunc = (uint32_t)::gl::GL_TEXTURE_COMPARE_FUNC,
+    LodBias = (uint32_t)::gl::GL_TEXTURE_LOD_BIAS,
+    MinLod = (uint32_t)::gl::GL_TEXTURE_MIN_LOD,
+    MaxLod = (uint32_t)::gl::GL_TEXTURE_MAX_LOD,
+    MaxLevel = (uint32_t)::gl::GL_TEXTURE_MAX_LEVEL,
+    SwizzleR = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_R,
+    SwizzleG = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_G,
+    SwizzleB = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_B,
+    SwizzleA = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_A,
+    SwizzleRGBA = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_RGBA,
+    DepthStencilMode = (uint32_t)::gl::GL_DEPTH_STENCIL_TEXTURE_MODE,
+    AlphaSize = (uint32_t)::gl::GL_TEXTURE_ALPHA_SIZE,
+    BlueSize = (uint32_t)::gl::GL_TEXTURE_BLUE_SIZE,
+    Border = (uint32_t)::gl::GL_TEXTURE_BORDER,
+    Components = (uint32_t)::gl::GL_TEXTURE_COMPONENTS,
+    GreenSize = (uint32_t)::gl::GL_TEXTURE_GREEN_SIZE,
+    Height = (uint32_t)::gl::GL_TEXTURE_HEIGHT,
+    IntensitySize = (uint32_t)::gl::GL_TEXTURE_INTENSITY_SIZE,
+    Format = (uint32_t)::gl::GL_TEXTURE_INTERNAL_FORMAT,
+    LuminanceSize = (uint32_t)::gl::GL_TEXTURE_LUMINANCE_SIZE,
+    RedSize = (uint32_t)::gl::GL_TEXTURE_RED_SIZE,
+    Resident = (uint32_t)::gl::GL_TEXTURE_RESIDENT,
+    Width = (uint32_t)::gl::GL_TEXTURE_WIDTH,
+};
+
 class Texture : public RenderTarget
 {
 public:
@@ -27,23 +90,39 @@ public:
             glObjectLabel( ::gl::GL_TEXTURE, getHandle(), static_cast<::gl::GLsizei>(lbl.length()), lbl.c_str() ) );
     }
 
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    Texture& set(const ::gl::GLenum param, const ::gl::GLint value)
+    Texture& set(const TextureParameter param, const ::gl::GLint value)
     {
-        GL_ASSERT( glTextureParameteri( getHandle(), param, value ) );
+        GL_ASSERT( glTextureParameteri( getHandle(), (::gl::GLenum)param, value ) );
         return *this;
     }
 
-    Texture& set(const ::gl::GLenum param, const ::gl::GLenum value)
+    Texture& set(const TextureParameter param, const ::gl::GLenum value)
     {
-        GL_ASSERT( glTextureParameteri( getHandle(), param, value ) );
+        GL_ASSERT( glTextureParameteri( getHandle(), (::gl::GLenum)param, value ) );
         return *this;
     }
 
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    Texture& set(const ::gl::GLenum param, const ::gl::GLfloat value)
+    Texture& set(const TextureParameter param, const ::gl::GLfloat value)
     {
-        GL_ASSERT( glTextureParameterf( getHandle(), param, value ) );
+        GL_ASSERT( glTextureParameterf( getHandle(), (::gl::GLenum)param, value ) );
+        return *this;
+    }
+
+    Texture& set(const TextureMinFilter value)
+    {
+        GL_ASSERT( glTextureParameteri( getHandle(), ::gl::GL_TEXTURE_MIN_FILTER, (::gl::GLenum)value ) );
+        return *this;
+    }
+
+    Texture& set(const TextureMagFilter value)
+    {
+        GL_ASSERT( glTextureParameteri( getHandle(), ::gl::GL_TEXTURE_MAG_FILTER, (::gl::GLenum)value ) );
+        return *this;
+    }
+
+    Texture& set(const TextureWrapAxis param, const TextureWrapMode value)
+    {
+        GL_ASSERT( glTextureParameteri( getHandle(), (::gl::GLenum)param, (::gl::GLenum)value ) );
         return *this;
     }
 

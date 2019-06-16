@@ -44,10 +44,10 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
                                                                      {} );
 
     m_texture->image2D( m_image->getWidth(), m_image->getHeight(), m_image->getData(), false );
-    m_texture->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
-             .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST )
-             .set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
-             .set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_CLAMP_TO_EDGE );
+    m_texture->set( render::gl::TextureMinFilter::Nearest )
+             .set( render::gl::TextureMagFilter::Nearest )
+             .set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
+             .set( render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge );
 
     m_mesh = render::scene::createQuadFullscreen( gsl::narrow<float>( viewport.width ),
                                                   gsl::narrow<float>( viewport.height ),

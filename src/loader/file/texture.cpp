@@ -17,8 +17,8 @@ gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(
 {
     auto result = std::make_shared<render::scene::Material>( shader );
     // Set some defaults
-    texture->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE );
-    texture->set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_CLAMP_TO_EDGE );
+    texture->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge );
+    texture->set( render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge );
     result->getParameter( "u_diffuseTexture" )->set( texture );
     result->getParameter( "u_modelMatrix" )->bindModelMatrix();
     result->getParameter( "u_modelViewMatrix" )->bindModelViewMatrix();
@@ -122,17 +122,16 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 
 void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback)
 {
-    texture = std::make_shared<render::gl::Texture>( ::gl::GL_TEXTURE_2D );
-    texture->setLabel( md5 );
+    texture = std::make_shared<render::gl::Texture>( ::gl::GL_TEXTURE_2D, md5 );
     if( glidos == nullptr )
     {
-        texture->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
-               .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST );
+        texture->set( render::gl::TextureMinFilter::Nearest )
+               .set( render::gl::TextureMagFilter::Nearest );
     }
     else
     {
-        texture->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_LINEAR )
-               .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_LINEAR );
+        texture->set( render::gl::TextureMinFilter::Linear )
+               .set( render::gl::TextureMagFilter::Linear );
     }
     toImage( glidos, statusCallback );
     texture->image2D( image->getWidth(), image->getHeight(), image->getData(), true );

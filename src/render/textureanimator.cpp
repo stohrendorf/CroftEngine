@@ -307,17 +307,16 @@ public:
         }
 
         loader::file::DWordTexture texture;
-        texture.texture = std::make_shared<render::gl::Texture>( ::gl::GL_TEXTURE_2D );
-        texture.texture->setLabel( "animated texture tiles" );
+        texture.texture = std::make_shared<render::gl::Texture>( ::gl::GL_TEXTURE_2D, "animated texture tiles" );
         if( !linear )
         {
-            texture.texture->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
-                   .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST );
+            texture.texture->set( render::gl::TextureMinFilter::Nearest )
+                   .set( render::gl::TextureMagFilter::Nearest );
         }
         else
         {
-            texture.texture->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_LINEAR )
-                   .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_LINEAR );
+            texture.texture->set( render::gl::TextureMinFilter::Linear )
+                   .set( render::gl::TextureMagFilter::Linear );
         }
         img.interleave();
         texture.image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(

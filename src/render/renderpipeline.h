@@ -143,22 +143,22 @@ public:
          *                           `-- position --´
          */
         // === geometryFB setup ===
-        m_geometryColorBuffer->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
-                             .set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_CLAMP_TO_EDGE )
-                             .set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_LINEAR )
-                             .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_LINEAR );
+        m_geometryColorBuffer->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
+                             .set( render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge )
+                             .set( render::gl::TextureMinFilter::Linear )
+                             .set( render::gl::TextureMagFilter::Linear );
         m_fxaaMaterial->getParameter( "u_texture" )->set( m_geometryColorBuffer );
 
-        m_geometryNormalBuffer->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
-                              .set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_CLAMP_TO_EDGE )
-                              .set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
-                              .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST );
+        m_geometryNormalBuffer->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
+                              .set( render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge )
+                              .set( render::gl::TextureMinFilter::Nearest )
+                              .set( render::gl::TextureMagFilter::Nearest );
         m_ssaoMaterial->getParameter( "u_normals" )->set( m_geometryNormalBuffer );
 
-        m_geometryPositionBuffer->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
-                                .set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_CLAMP_TO_EDGE )
-                                .set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
-                                .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST );
+        m_geometryPositionBuffer->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
+                                .set( render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge )
+                                .set( render::gl::TextureMinFilter::Nearest )
+                                .set( render::gl::TextureMagFilter::Nearest );
         m_ssaoMaterial->getParameter( "u_position" )->set( m_geometryPositionBuffer );
 
         m_fxDarknessMaterial->getParameter( "u_depth" )->set( m_geometryDepthBuffer );
@@ -180,10 +180,10 @@ public:
             .build();
 
         // === fxaaFB setup ===
-        m_fxaaColorBuffer->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
-                         .set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_CLAMP_TO_EDGE )
-                         .set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_LINEAR )
-                         .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_LINEAR );
+        m_fxaaColorBuffer->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
+                         .set( render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge )
+                         .set( render::gl::TextureMinFilter::Linear )
+                         .set( render::gl::TextureMagFilter::Linear );
         m_fxDarknessMaterial->getParameter( "u_texture" )->set( m_fxaaColorBuffer );
         m_fxWaterDarknessMaterial->getParameter( "u_texture" )->set( m_fxaaColorBuffer );
 
@@ -192,10 +192,10 @@ public:
             .build();
 
         // === ssaoFB setup ===
-        m_ssaoAOBuffer->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
-                      .set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_CLAMP_TO_EDGE )
-                      .set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
-                      .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST );
+        m_ssaoAOBuffer->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
+                      .set( render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge )
+                      .set( render::gl::TextureMinFilter::Linear )
+                      .set( render::gl::TextureMagFilter::Linear );
         m_ssaoBlurMaterial->getParameter( "u_ao" )->set( m_ssaoAOBuffer );
 
         m_ssaoFb = gl::FrameBufferBuilder()
@@ -203,10 +203,10 @@ public:
             .build();
 
         // === ssaoBlurFB setup ===
-        m_ssaoBlurAOBuffer->set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_CLAMP_TO_EDGE )
-                          .set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_CLAMP_TO_EDGE )
-                          .set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
-                          .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST );
+        m_ssaoBlurAOBuffer->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
+                          .set( render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge )
+                          .set( render::gl::TextureMinFilter::Linear )
+                          .set( render::gl::TextureMagFilter::Linear );
         m_fxDarknessMaterial->getParameter( "u_ao" )->set( m_ssaoBlurAOBuffer );
         m_fxWaterDarknessMaterial->getParameter( "u_ao" )->set( m_ssaoBlurAOBuffer );
 
@@ -219,7 +219,7 @@ public:
         std::uniform_real_distribution<::gl::GLfloat> randomFloats( 0, 1 );
         std::default_random_engine generator{}; // NOLINT(cert-msc32-c)
         std::vector<glm::vec3> ssaoSamples;
-        for( int i = 0; i < 64; ++i )
+        while( ssaoSamples.size() < 64 )
         {
 #define SSAO_UNIFORM_VOLUME_SAMPLING
 #ifdef SSAO_SAMPLE_CONTRACTION
@@ -232,14 +232,13 @@ public:
             const float scale = float( i ) / 64;
             ssaoSamples.emplace_back( sample * glm::mix( 0.1f, 1.0f, scale * scale ) );
 #elif defined(SSAO_UNIFORM_VOLUME_SAMPLING)
-            // https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
-            const auto sigma = randomFloats( generator ) * 2 * glm::pi<float>();
-            const auto phi = glm::acos( 2 * randomFloats( generator ) - 1 );
-            const auto r = glm::pow( randomFloats( generator ), 1.0f / 3 );
-            ssaoSamples.emplace_back( r * glm::cos( sigma ) * glm::sin( phi ),
-                                      r * glm::sin( sigma ) * glm::sin( phi ),
-                                      glm::abs( r * glm::cos( phi ) )
-                                    );
+            glm::vec3 sample{ randomFloats( generator ) * 2 - 1,
+                              randomFloats( generator ) * 2 - 1,
+                              randomFloats( generator )
+            };
+            if( glm::length( sample ) > 1 )
+                continue;
+            ssaoSamples.emplace_back( sample );
 #else
             glm::vec3 sample{ randomFloats( generator ) * 2 - 1,
                               randomFloats( generator ) * 2 - 1,
@@ -260,10 +259,10 @@ public:
         }
 
         m_ssaoNoiseTexture->image2D<gl::RGB32F>( 4, 4, ssaoNoise, false )
-                          .set( ::gl::GL_TEXTURE_WRAP_S, ::gl::GL_REPEAT )
-                          .set( ::gl::GL_TEXTURE_WRAP_T, ::gl::GL_REPEAT )
-                          .set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_NEAREST )
-                          .set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_NEAREST );
+                          .set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::Repeat )
+                          .set( render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::Repeat )
+                          .set( render::gl::TextureMinFilter::Nearest )
+                          .set( render::gl::TextureMagFilter::Nearest );
         m_ssaoMaterial->getParameter( "u_texNoise" )->set( m_ssaoNoiseTexture );
 
         m_fxDarknessMaterial->getParameter( "distortion_power" )->set( -1.0f );
@@ -296,22 +295,22 @@ public:
     {
         m_portalDepthBuffer->depthImage2D( gsl::narrow<::gl::GLint>( viewport.width ),
                                            gsl::narrow<::gl::GLint>( viewport.height ) );
-        m_portalDepthBuffer->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_LINEAR );
-        m_portalDepthBuffer->set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_LINEAR );
+        m_portalDepthBuffer->set( render::gl::TextureMinFilter::Linear )
+                           .set( render::gl::TextureMagFilter::Linear );
         m_geometryDepthBuffer->depthImage2D( gsl::narrow<::gl::GLint>( viewport.width ),
                                              gsl::narrow<::gl::GLint>( viewport.height ) );
-        m_geometryDepthBuffer->set( ::gl::GL_TEXTURE_MIN_FILTER, ::gl::GL_LINEAR );
-        m_geometryDepthBuffer->set( ::gl::GL_TEXTURE_MAG_FILTER, ::gl::GL_LINEAR );
+        m_geometryDepthBuffer->set( render::gl::TextureMinFilter::Linear )
+                             .set( render::gl::TextureMagFilter::Linear );
         m_geometryColorBuffer->image2D<gl::SRGBA8>( gsl::narrow<::gl::GLint>( viewport.width ),
                                                     gsl::narrow<::gl::GLint>( viewport.height ), false );
-        m_geometryPositionBuffer->image2D<gl::RGB16F>( gsl::narrow<::gl::GLint>( viewport.width ),
+        m_geometryPositionBuffer->image2D<gl::RGB32F>( gsl::narrow<::gl::GLint>( viewport.width ),
                                                        gsl::narrow<::gl::GLint>( viewport.height ), false );
         m_geometryNormalBuffer->image2D<gl::RGB16F>( gsl::narrow<::gl::GLint>( viewport.width ),
                                                      gsl::narrow<::gl::GLint>( viewport.height ), false );
-        m_ssaoAOBuffer->image2D<gl::SingleF>( gsl::narrow<::gl::GLint>( viewport.width ),
-                                              gsl::narrow<::gl::GLint>( viewport.height ), false );
-        m_ssaoBlurAOBuffer->image2D<gl::SingleF>( gsl::narrow<::gl::GLint>( viewport.width ),
-                                                  gsl::narrow<::gl::GLint>( viewport.height ), false );
+        m_ssaoAOBuffer->image2D<gl::Scalar32F>( gsl::narrow<::gl::GLint>( viewport.width ),
+                                                gsl::narrow<::gl::GLint>( viewport.height ), false );
+        m_ssaoBlurAOBuffer->image2D<gl::Scalar32F>( gsl::narrow<::gl::GLint>( viewport.width ),
+                                                    gsl::narrow<::gl::GLint>( viewport.height ), false );
         m_fxaaColorBuffer->image2D<gl::SRGBA8>( gsl::narrow<::gl::GLint>( viewport.width ),
                                                 gsl::narrow<::gl::GLint>( viewport.height ), false );
 
