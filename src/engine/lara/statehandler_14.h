@@ -2,6 +2,7 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
+#include "statehandler_standing.h"
 
 namespace engine
 {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/id.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "loader/file/level/game.h"

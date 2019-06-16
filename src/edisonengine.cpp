@@ -4,17 +4,14 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/stacktrace.hpp>
-
-#ifndef BOOST_MSVC
-#    include <signal.h>
+#include <csignal>
 
 void stacktrace_handler(int signum)
 {
-    ::signal(signum, SIG_DFL);
+    std::signal(signum, SIG_DFL);
     std::cerr << "Signal " << signum << " caught; stacktrace:\n" << boost::stacktrace::stacktrace();
-    ::raise(SIGABRT);
+    std::raise(SIGABRT);
 }
-#endif
 
 gsl_api void gsl::fail_fast_assert_handler(char const* const expression,
                                            char const* const message,
@@ -43,10 +40,8 @@ void terminateHandler()
 
 int main()
 {
-#ifndef BOOST_MSVC
-    ::signal(SIGSEGV, &stacktrace_handler);
-    ::signal(SIGABRT, &stacktrace_handler);
-#endif
+    std::signal(SIGSEGV, &stacktrace_handler);
+    std::signal(SIGABRT, &stacktrace_handler);
 
     oldTerminateHandler = std::set_terminate(&terminateHandler);
 
