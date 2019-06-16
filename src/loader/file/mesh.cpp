@@ -323,7 +323,7 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finaliz
         auto va = std::make_shared<render::gl::VertexArray>( indexBuffer, m_vb,
                                                              localPart.material->getShaderProgram()->getHandle(),
                                                              m_label );
-        auto mesh = std::make_shared<render::scene::Mesh>( va, ::gl::GL_TRIANGLES );
+        auto mesh = std::make_shared<render::scene::Mesh>( va, render::gl::PrimitiveType::Triangles );
         mesh->setMaterial( localPart.material );
 
         model->addMesh( mesh );

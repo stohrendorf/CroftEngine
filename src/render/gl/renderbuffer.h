@@ -14,7 +14,7 @@ public:
         : RenderTarget{ ::gl::glGenRenderbuffers,
                         [](const ::gl::GLuint handle) { ::gl::glBindRenderbuffer( ::gl::GL_RENDERBUFFER, handle ); },
                         ::gl::glDeleteRenderbuffers,
-                        ::gl::GL_RENDERBUFFER,
+                        ObjectIdentifier::Renderbuffer,
                         label
     }
           , m_width{ width }

@@ -122,7 +122,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 
 void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback)
 {
-    texture = std::make_shared<render::gl::Texture>( ::gl::GL_TEXTURE_2D, md5 );
+    texture = std::make_shared<render::gl::Texture>( render::gl::TextureTarget::_2D, md5 );
     if( glidos == nullptr )
     {
         texture->set( render::gl::TextureMinFilter::Nearest )

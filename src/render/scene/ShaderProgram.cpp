@@ -212,7 +212,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
     std::string definesStr = replaceDefines( defines );
     definesStr += "\n";
 
-    const size_t SHADER_SOURCE_LENGTH = 3;
+    static constexpr size_t SHADER_SOURCE_LENGTH = 3;
     const ::gl::GLchar* shaderSource[SHADER_SOURCE_LENGTH];
     shaderSource[0] = "#version 410\n";
     shaderSource[1] = definesStr.c_str();
@@ -228,7 +228,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
     }
     shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
 
-    gl::Shader vertexShader{ ::gl::GL_VERTEX_SHADER, vshPath + ";" + boost::algorithm::join( defines, ";" ) };
+    gl::Shader vertexShader{ render::gl::ShaderType::Vertex, vshPath + ";" + boost::algorithm::join( defines, ";" ) };
     vertexShader.setSource( shaderSource, SHADER_SOURCE_LENGTH );
     vertexShader.compile();
     if( !vertexShader.getCompileStatus() )
@@ -255,7 +255,8 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
     }
     shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
 
-    gl::Shader fragmentShader{ ::gl::GL_FRAGMENT_SHADER, fshPath + ";" + boost::algorithm::join( defines, ";" ) };
+    gl::Shader fragmentShader{ render::gl::ShaderType::Fragment,
+                               fshPath + ";" + boost::algorithm::join( defines, ";" ) };
     fragmentShader.setSource( shaderSource, SHADER_SOURCE_LENGTH );
     fragmentShader.compile();
     if( !fragmentShader.getCompileStatus() )

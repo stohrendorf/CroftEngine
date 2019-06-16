@@ -8,104 +8,108 @@ namespace render
 {
 namespace gl
 {
-enum class TextureWrapAxis : std::underlying_type_t<::gl::GLenum>
+enum class TextureWrapAxis : RawGlEnum
 {
-    WrapR = (uint32_t)::gl::GL_TEXTURE_WRAP_R,
-    WrapS = (uint32_t)::gl::GL_TEXTURE_WRAP_S,
-    WrapT = (uint32_t)::gl::GL_TEXTURE_WRAP_T,
+    WrapR = (RawGlEnum)::gl::GL_TEXTURE_WRAP_R,
+    WrapS = (RawGlEnum)::gl::GL_TEXTURE_WRAP_S,
+    WrapT = (RawGlEnum)::gl::GL_TEXTURE_WRAP_T,
 };
 
-enum class TextureWrapMode : std::underlying_type_t<::gl::GLenum>
+enum class TextureWrapMode : RawGlEnum
 {
-    Clamp = (uint32_t)::gl::GL_CLAMP,
-    ClampToBorder = (uint32_t)::gl::GL_CLAMP_TO_BORDER,
-    ClampToEdge = (uint32_t)::gl::GL_CLAMP_TO_EDGE,
-    Repeat = (uint32_t)::gl::GL_REPEAT,
+    Clamp = (RawGlEnum)::gl::GL_CLAMP,
+    ClampToBorder = (RawGlEnum)::gl::GL_CLAMP_TO_BORDER,
+    ClampToEdge = (RawGlEnum)::gl::GL_CLAMP_TO_EDGE,
+    Repeat = (RawGlEnum)::gl::GL_REPEAT,
 };
 
-enum class TextureMinFilter : std::underlying_type_t<::gl::GLenum>
+enum class TextureMinFilter : RawGlEnum
 {
-    Linear = (uint32_t)::gl::GL_LINEAR,
-    LinearMipmapLinear = (uint32_t)::gl::GL_LINEAR_MIPMAP_LINEAR,
-    LinearMipmapNearest = (uint32_t)::gl::GL_LINEAR_MIPMAP_NEAREST,
-    Nearest = (uint32_t)::gl::GL_NEAREST,
-    NearestMipmapLinear = (uint32_t)::gl::GL_NEAREST_MIPMAP_LINEAR,
-    NearestMipmapNearest = (uint32_t)::gl::GL_NEAREST_MIPMAP_NEAREST,
+    Linear = (RawGlEnum)::gl::GL_LINEAR,
+    LinearMipmapLinear = (RawGlEnum)::gl::GL_LINEAR_MIPMAP_LINEAR,
+    LinearMipmapNearest = (RawGlEnum)::gl::GL_LINEAR_MIPMAP_NEAREST,
+    Nearest = (RawGlEnum)::gl::GL_NEAREST,
+    NearestMipmapLinear = (RawGlEnum)::gl::GL_NEAREST_MIPMAP_LINEAR,
+    NearestMipmapNearest = (RawGlEnum)::gl::GL_NEAREST_MIPMAP_NEAREST,
 };
 
-enum class TextureMagFilter : std::underlying_type_t<::gl::GLenum>
+enum class TextureMagFilter : RawGlEnum
 {
-    Linear = (uint32_t)::gl::GL_LINEAR,
-    Nearest = (uint32_t)::gl::GL_NEAREST,
+    Linear = (RawGlEnum)::gl::GL_LINEAR,
+    Nearest = (RawGlEnum)::gl::GL_NEAREST,
 };
 
-enum class TextureParameter : uint32_t
+enum class TextureTarget : RawGlEnum
 {
-    GenerateMipmap = (uint32_t)::gl::GL_GENERATE_MIPMAP,
-    BorderColor = (uint32_t)::gl::GL_TEXTURE_BORDER_COLOR,
-    Priority = (uint32_t)::gl::GL_TEXTURE_PRIORITY,
-    BaseLevel = (uint32_t)::gl::GL_TEXTURE_BASE_LEVEL,
-    CompareMode = (uint32_t)::gl::GL_TEXTURE_COMPARE_MODE,
-    CompareFunc = (uint32_t)::gl::GL_TEXTURE_COMPARE_FUNC,
-    LodBias = (uint32_t)::gl::GL_TEXTURE_LOD_BIAS,
-    MinLod = (uint32_t)::gl::GL_TEXTURE_MIN_LOD,
-    MaxLod = (uint32_t)::gl::GL_TEXTURE_MAX_LOD,
-    MaxLevel = (uint32_t)::gl::GL_TEXTURE_MAX_LEVEL,
-    SwizzleR = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_R,
-    SwizzleG = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_G,
-    SwizzleB = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_B,
-    SwizzleA = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_A,
-    SwizzleRGBA = (uint32_t)::gl::GL_TEXTURE_SWIZZLE_RGBA,
-    DepthStencilMode = (uint32_t)::gl::GL_DEPTH_STENCIL_TEXTURE_MODE,
-    AlphaSize = (uint32_t)::gl::GL_TEXTURE_ALPHA_SIZE,
-    BlueSize = (uint32_t)::gl::GL_TEXTURE_BLUE_SIZE,
-    Border = (uint32_t)::gl::GL_TEXTURE_BORDER,
-    Components = (uint32_t)::gl::GL_TEXTURE_COMPONENTS,
-    GreenSize = (uint32_t)::gl::GL_TEXTURE_GREEN_SIZE,
-    Height = (uint32_t)::gl::GL_TEXTURE_HEIGHT,
-    IntensitySize = (uint32_t)::gl::GL_TEXTURE_INTENSITY_SIZE,
-    Format = (uint32_t)::gl::GL_TEXTURE_INTERNAL_FORMAT,
-    LuminanceSize = (uint32_t)::gl::GL_TEXTURE_LUMINANCE_SIZE,
-    RedSize = (uint32_t)::gl::GL_TEXTURE_RED_SIZE,
-    Resident = (uint32_t)::gl::GL_TEXTURE_RESIDENT,
-    Width = (uint32_t)::gl::GL_TEXTURE_WIDTH,
+    Proxy1D = (RawGlEnum)::gl::GL_PROXY_TEXTURE_1D,
+    Proxy1DArray = (RawGlEnum)::gl::GL_PROXY_TEXTURE_1D_ARRAY,
+    Proxy2D = (RawGlEnum)::gl::GL_PROXY_TEXTURE_2D,
+    Proxy2DArray = (RawGlEnum)::gl::GL_PROXY_TEXTURE_2D_ARRAY,
+    Proxy2DMultisample = (RawGlEnum)::gl::GL_PROXY_TEXTURE_2D_MULTISAMPLE,
+    Proxy2DMultisampleArray = (RawGlEnum)::gl::GL_PROXY_TEXTURE_2D_MULTISAMPLE_ARRAY,
+    Proxy3D = (RawGlEnum)::gl::GL_PROXY_TEXTURE_3D,
+    ProxyCubeMap = (RawGlEnum)::gl::GL_PROXY_TEXTURE_CUBE_MAP,
+    ProxyCubeMapArray = (RawGlEnum)::gl::GL_PROXY_TEXTURE_CUBE_MAP_ARRAY,
+    ProxyRectangle = (RawGlEnum)::gl::GL_PROXY_TEXTURE_RECTANGLE,
+    _1D = (RawGlEnum)::gl::GL_TEXTURE_1D,
+    _2D = (RawGlEnum)::gl::GL_TEXTURE_2D,
+    _3D = (RawGlEnum)::gl::GL_TEXTURE_3D,
+    Rectangle = (RawGlEnum)::gl::GL_TEXTURE_RECTANGLE,
+    CubeMap = (RawGlEnum)::gl::GL_TEXTURE_CUBE_MAP,
+    CubeMapPositiveX = (RawGlEnum)::gl::GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    CubeMapNegativeX = (RawGlEnum)::gl::GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+    CubeMapPositiveY = (RawGlEnum)::gl::GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    CubeMapNegativeY = (RawGlEnum)::gl::GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+    CubeMapPositiveZ = (RawGlEnum)::gl::GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+    CubeMapNegativeZ = (RawGlEnum)::gl::GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+    CubeMapArray = (RawGlEnum)::gl::GL_TEXTURE_CUBE_MAP_ARRAY,
+    _1DArray = (RawGlEnum)::gl::GL_TEXTURE_1D_ARRAY,
+    _2DArray = (RawGlEnum)::gl::GL_TEXTURE_2D_ARRAY,
+    _2DMultisample = (RawGlEnum)::gl::GL_TEXTURE_2D_MULTISAMPLE,
+    _2DMultisampleArray = (RawGlEnum)::gl::GL_TEXTURE_2D_MULTISAMPLE_ARRAY,
+};
+
+enum class TextureParameter : RawGlEnum
+{
+    GenerateMipmap = (RawGlEnum)::gl::GL_GENERATE_MIPMAP,
+    BorderColor = (RawGlEnum)::gl::GL_TEXTURE_BORDER_COLOR,
+    Priority = (RawGlEnum)::gl::GL_TEXTURE_PRIORITY,
+    BaseLevel = (RawGlEnum)::gl::GL_TEXTURE_BASE_LEVEL,
+    CompareMode = (RawGlEnum)::gl::GL_TEXTURE_COMPARE_MODE,
+    CompareFunc = (RawGlEnum)::gl::GL_TEXTURE_COMPARE_FUNC,
+    LodBias = (RawGlEnum)::gl::GL_TEXTURE_LOD_BIAS,
+    MinLod = (RawGlEnum)::gl::GL_TEXTURE_MIN_LOD,
+    MaxLod = (RawGlEnum)::gl::GL_TEXTURE_MAX_LOD,
+    MaxLevel = (RawGlEnum)::gl::GL_TEXTURE_MAX_LEVEL,
+    SwizzleR = (RawGlEnum)::gl::GL_TEXTURE_SWIZZLE_R,
+    SwizzleG = (RawGlEnum)::gl::GL_TEXTURE_SWIZZLE_G,
+    SwizzleB = (RawGlEnum)::gl::GL_TEXTURE_SWIZZLE_B,
+    SwizzleA = (RawGlEnum)::gl::GL_TEXTURE_SWIZZLE_A,
+    SwizzleRGBA = (RawGlEnum)::gl::GL_TEXTURE_SWIZZLE_RGBA,
+    DepthStencilMode = (RawGlEnum)::gl::GL_DEPTH_STENCIL_TEXTURE_MODE,
+    AlphaSize = (RawGlEnum)::gl::GL_TEXTURE_ALPHA_SIZE,
+    BlueSize = (RawGlEnum)::gl::GL_TEXTURE_BLUE_SIZE,
+    Border = (RawGlEnum)::gl::GL_TEXTURE_BORDER,
+    Components = (RawGlEnum)::gl::GL_TEXTURE_COMPONENTS,
+    GreenSize = (RawGlEnum)::gl::GL_TEXTURE_GREEN_SIZE,
+    Height = (RawGlEnum)::gl::GL_TEXTURE_HEIGHT,
+    IntensitySize = (RawGlEnum)::gl::GL_TEXTURE_INTENSITY_SIZE,
+    Format = (RawGlEnum)::gl::GL_TEXTURE_INTERNAL_FORMAT,
+    LuminanceSize = (RawGlEnum)::gl::GL_TEXTURE_LUMINANCE_SIZE,
+    RedSize = (RawGlEnum)::gl::GL_TEXTURE_RED_SIZE,
+    Resident = (RawGlEnum)::gl::GL_TEXTURE_RESIDENT,
+    Width = (RawGlEnum)::gl::GL_TEXTURE_WIDTH,
 };
 
 class Texture : public RenderTarget
 {
 public:
-    explicit Texture(::gl::GLenum type, const std::string& label = {})
-        : RenderTarget{ ::gl::glGenTextures, [type](const ::gl::GLuint handle) { glBindTexture( type, handle ); },
-                        ::gl::glDeleteTextures, ::gl::GL_TEXTURE, label
-    }
-          , m_type{ type }
+    explicit Texture(TextureTarget type, const std::string& label = {})
+        : RenderTarget{ ::gl::glGenTextures,
+                        [type](const ::gl::GLuint handle) { glBindTexture( (::gl::GLenum)type, handle ); },
+                        ::gl::glDeleteTextures, ObjectIdentifier::Texture, label }
+        , m_type{ type }
     {
-    }
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void setLabel(const std::string& lbl)
-    {
-        bind();
-        GL_ASSERT(
-            glObjectLabel( ::gl::GL_TEXTURE, getHandle(), static_cast<::gl::GLsizei>(lbl.length()), lbl.c_str() ) );
-    }
-
-    Texture& set(const TextureParameter param, const ::gl::GLint value)
-    {
-        GL_ASSERT( glTextureParameteri( getHandle(), (::gl::GLenum)param, value ) );
-        return *this;
-    }
-
-    Texture& set(const TextureParameter param, const ::gl::GLenum value)
-    {
-        GL_ASSERT( glTextureParameteri( getHandle(), (::gl::GLenum)param, value ) );
-        return *this;
-    }
-
-    Texture& set(const TextureParameter param, const ::gl::GLfloat value)
-    {
-        GL_ASSERT( glTextureParameterf( getHandle(), (::gl::GLenum)param, value ) );
-        return *this;
     }
 
     Texture& set(const TextureMinFilter value)
@@ -136,7 +140,7 @@ public:
         return m_height;
     }
 
-    ::gl::GLenum getType() const noexcept
+    TextureTarget getType() const noexcept
     {
         return m_type;
     }
@@ -151,12 +155,13 @@ public:
 
         bind();
 
-        GL_ASSERT( glTexImage2D( m_type, 0, T::InternalFormat, m_width, m_height, 0, T::Format, T::TypeId,
+        GL_ASSERT( glTexImage2D( (::gl::GLenum)m_type, 0, T::InternalFormat, m_width, m_height, 0,
+                                 (::gl::GLenum)T::PixelFormat, (::gl::GLenum)T::PixelType,
                                  data.empty() ? nullptr : data.data() ) );
 
         if( m_mipmap )
         {
-            GL_ASSERT( glGenerateMipmap( m_type ) );
+            GL_ASSERT( glGenerateMipmap( (::gl::GLenum)m_type ) );
         }
     }
 
@@ -169,11 +174,13 @@ public:
 
         bind();
 
-        GL_ASSERT( glTexSubImage2D( m_type, 0, 0, 0, m_width, m_height, T::Format, T::TypeId, data.data() ) );
+        GL_ASSERT( glTexSubImage2D( (::gl::GLenum)m_type,
+                                    0, 0, 0, m_width, m_height,
+                                    (::gl::GLenum)T::PixelFormat, (::gl::GLenum)T::PixelType, data.data() ) );
 
         if( m_mipmap )
         {
-            GL_ASSERT( glGenerateMipmap( m_type ) );
+            GL_ASSERT( glGenerateMipmap( (::gl::GLenum)m_type ) );
         }
     }
 
@@ -193,7 +200,8 @@ public:
 
         bind();
 
-        GL_ASSERT( glTexImage2D( m_type, 0, T::InternalFormat, width, height, 0, T::Format, T::TypeId,
+        GL_ASSERT( glTexImage2D( (::gl::GLenum)m_type, 0, (::gl::GLenum)T::InternalFormat, width, height, 0,
+                                 (::gl::GLenum)T::PixelFormat, (::gl::GLenum)T::PixelType,
                                  data.empty() ? nullptr : data.data() ) );
 
         m_width = width;
@@ -202,7 +210,7 @@ public:
 
         if( m_mipmap )
         {
-            GL_ASSERT( glGenerateMipmap( m_type ) );
+            GL_ASSERT( glGenerateMipmap( (::gl::GLenum)m_type ) );
         }
 
         return *this;
@@ -214,8 +222,15 @@ public:
 
         bind();
 
-        GL_ASSERT( glTexImage2D( m_type, 0, ::gl::GL_DEPTH_COMPONENT24, width, height, 0, ::gl::GL_DEPTH_COMPONENT,
-                                 ::gl::GL_UNSIGNED_INT, nullptr ) );
+        GL_ASSERT( glTexImage2D( (::gl::GLenum)m_type,
+                                 0,
+                                 ::gl::GL_DEPTH_COMPONENT24,
+                                 width,
+                                 height,
+                                 0,
+                                 ::gl::GL_DEPTH_COMPONENT,
+                                 ::gl::GL_UNSIGNED_INT,
+                                 nullptr ) );
 
         m_width = width;
         m_height = height;
@@ -228,15 +243,15 @@ public:
         if( m_type != src.m_type )
             BOOST_THROW_EXCEPTION( std::runtime_error( "Refusing to copy image data with different types" ) );
 
-        GL_ASSERT( glCopyImageSubData( src.getHandle(), src.m_type, 0, 0, 0, 0, getHandle(), m_type, 0, 0, 0, 0,
-                                       src.m_width,
-                                       src.m_height, 1 ) );
+        GL_ASSERT( glCopyImageSubData( src.getHandle(), (::gl::GLenum)src.m_type, 0, 0, 0, 0,
+                                       getHandle(), (::gl::GLenum)m_type, 0, 0, 0, 0,
+                                       src.m_width, src.m_height, 1 ) );
         m_width = src.m_width;
         m_height = src.m_height;
     }
 
 private:
-    const ::gl::GLenum m_type;
+    const TextureTarget m_type;
 
     ::gl::GLint m_width = -1;
 

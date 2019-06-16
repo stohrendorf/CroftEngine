@@ -6,6 +6,35 @@ namespace render
 {
 namespace gl
 {
+enum class PixelFormat : RawGlEnum
+{
+    Alpha = (RawGlEnum)::gl::GL_ALPHA,
+    Bgr = (RawGlEnum)::gl::GL_BGR,
+    BgrInteger = (RawGlEnum)::gl::GL_BGR_INTEGER,
+    Bgra = (RawGlEnum)::gl::GL_BGRA,
+    BgraInteger = (RawGlEnum)::gl::GL_BGRA_INTEGER,
+    Blue = (RawGlEnum)::gl::GL_BLUE,
+    BlueInteger = (RawGlEnum)::gl::GL_BLUE_INTEGER,
+    ColorIndex = (RawGlEnum)::gl::GL_COLOR_INDEX,
+    DepthComponent = (RawGlEnum)::gl::GL_DEPTH_COMPONENT,
+    DepthStencil = (RawGlEnum)::gl::GL_DEPTH_STENCIL,
+    Green = (RawGlEnum)::gl::GL_GREEN,
+    GreenInteger = (RawGlEnum)::gl::GL_GREEN_INTEGER,
+    Luminance = (RawGlEnum)::gl::GL_LUMINANCE,
+    LuminanceAlpha = (RawGlEnum)::gl::GL_LUMINANCE_ALPHA,
+    Red = (RawGlEnum)::gl::GL_RED,
+    RedInteger = (RawGlEnum)::gl::GL_RED_INTEGER,
+    Rg = (RawGlEnum)::gl::GL_RG,
+    RgInteger = (RawGlEnum)::gl::GL_RG_INTEGER,
+    Rgb = (RawGlEnum)::gl::GL_RGB,
+    RgbInteger = (RawGlEnum)::gl::GL_RGB_INTEGER,
+    Rgba = (RawGlEnum)::gl::GL_RGBA,
+    RgbaInteger = (RawGlEnum)::gl::GL_RGBA_INTEGER,
+    StencilIndex = (RawGlEnum)::gl::GL_STENCIL_INDEX,
+    UInt = (RawGlEnum)::gl::GL_UNSIGNED_INT,
+    UShort = (RawGlEnum)::gl::GL_UNSIGNED_SHORT,
+};
+
 template<typename T>
 struct SRGBA final
 {
@@ -15,8 +44,9 @@ struct SRGBA final
     using Type = T;
     using Traits = TypeTraits<T>;
 
-    static constexpr const auto TypeId = Traits::TypeId;
-    static constexpr const auto InternalFormat = Traits::SrgbaInternalFormat;
+    static constexpr const PixelFormat PixelFormat = PixelFormat::Rgba;
+    static constexpr const PixelType PixelType = Traits::PixelType;
+    static constexpr const auto InternalFormat = Traits::SrgbaSizedInternalFormat;
     static constexpr const ::gl::GLenum Format = ::gl::GL_RGBA;
 
     explicit SRGBA()
@@ -26,17 +56,17 @@ struct SRGBA final
 
     explicit constexpr SRGBA(Type value) noexcept
         : r{ value }
-          , g{ value }
-          , b{ value }
-          , a{ value }
+        , g{ value }
+        , b{ value }
+        , a{ value }
     {
     }
 
     constexpr SRGBA(Type r_, Type g_, Type b_, Type a_) noexcept
         : r{ r_ }
-          , g{ g_ }
-          , b{ b_ }
-          , a{ a_ }
+        , g{ g_ }
+        , b{ b_ }
+        , a{ a_ }
     {
     }
 
@@ -78,8 +108,9 @@ struct SRGB final
     using Type = T;
     using Traits = TypeTraits<T>;
 
-    static constexpr const auto TypeId = Traits::TypeId;
-    static constexpr const auto InternalFormat = Traits::SrgbInternalFormat;
+    static constexpr const PixelFormat PixelFormat = PixelFormat::Rgb;
+    static constexpr const PixelType PixelType = Traits::PixelType;
+    static constexpr const auto InternalFormat = Traits::SrgbSizedInternalFormat;
     static constexpr const ::gl::GLenum Format = ::gl::GL_RGB;
 
     explicit SRGB()
@@ -89,15 +120,15 @@ struct SRGB final
 
     explicit constexpr SRGB(Type value) noexcept
         : r{ value }
-          , g{ value }
-          , b{ value }
+        , g{ value }
+        , b{ value }
     {
     }
 
     constexpr SRGB(Type r_, Type g_, Type b_) noexcept
         : r{ r_ }
-          , g{ g_ }
-          , b{ b_ }
+        , g{ g_ }
+        , b{ b_ }
     {
     }
 
@@ -129,8 +160,9 @@ struct RGB final
     using Type = T;
     using Traits = TypeTraits<T>;
 
-    static constexpr const auto TypeId = Traits::TypeId;
-    static constexpr const auto InternalFormat = Traits::RgbInternalFormat;
+    static constexpr const PixelFormat PixelFormat = PixelFormat::Rgb;
+    static constexpr const PixelType PixelType = Traits::PixelType;
+    static constexpr const auto InternalFormat = Traits::RgbSizedInternalFormat;
     static constexpr const ::gl::GLenum Format = ::gl::GL_RGB;
 
     explicit RGB()
@@ -140,15 +172,15 @@ struct RGB final
 
     explicit constexpr RGB(Type value) noexcept
         : r{ value }
-          , g{ value }
-          , b{ value }
+        , g{ value }
+        , b{ value }
     {
     }
 
     constexpr RGB(Type r_, Type g_, Type b_) noexcept
         : r{ r_ }
-          , g{ g_ }
-          , b{ b_ }
+        , g{ g_ }
+        , b{ b_ }
     {
     }
 
@@ -180,8 +212,9 @@ struct Scalar final
     using Type = T;
     using Traits = TypeTraits<T>;
 
-    static constexpr const auto TypeId = Traits::TypeId;
-    static constexpr const auto InternalFormat = Traits::RInternalFormat;
+    static constexpr const PixelFormat PixelFormat = PixelFormat::Red;
+    static constexpr const PixelType PixelType = Traits::PixelType;
+    static constexpr const auto InternalFormat = Traits::RSizedInternalFormat;
     static constexpr const ::gl::GLenum Format = ::gl::GL_RED;
 
     explicit Scalar()

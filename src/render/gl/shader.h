@@ -1,24 +1,45 @@
 #pragma once
 
-#include "glew.h"
+#include "bindableresource.h"
+
+#include "gsl-lite.hpp"
 
 namespace render
 {
 namespace gl
 {
+enum class ShaderType : RawGlEnum
+{
+    Compute = (RawGlEnum)::gl::GL_COMPUTE_SHADER,
+    Vertex = (RawGlEnum)::gl::GL_VERTEX_SHADER,
+    TessControl = (RawGlEnum)::gl::GL_TESS_CONTROL_SHADER,
+    TessEvaluation = (RawGlEnum)::gl::GL_TESS_EVALUATION_SHADER,
+    Geometry = (RawGlEnum)::gl::GL_GEOMETRY_SHADER,
+    Fragment = (RawGlEnum)::gl::GL_FRAGMENT_SHADER,
+};
+
+enum class ShaderParameterName : RawGlEnum
+{
+    Type = (RawGlEnum)::gl::GL_SHADER_TYPE,
+    DeleteStatus = (RawGlEnum)::gl::GL_DELETE_STATUS,
+    CompileStatus = (RawGlEnum)::gl::GL_COMPILE_STATUS,
+    InfoLogLength = (RawGlEnum)::gl::GL_INFO_LOG_LENGTH,
+    SourceLength = (RawGlEnum)::gl::GL_SHADER_SOURCE_LENGTH,
+};
+
 class Shader final
 {
 public:
-    explicit Shader(const ::gl::GLenum type, const std::string& label = {})
-        : m_handle{ GL_ASSERT_FN( glCreateShader( type ) ) }
-          , m_type{ type }
+    explicit Shader(const ShaderType type, const std::string& label = {})
+        : m_handle{ GL_ASSERT_FN( glCreateShader( (::gl::GLenum)type ) ) }
+        , m_type{ type }
     {
-        BOOST_ASSERT( type == ::gl::GL_VERTEX_SHADER || type == ::gl::GL_FRAGMENT_SHADER );
-        BOOST_ASSERT( m_handle != 0 );
+        BOOST_ASSERT( type == ShaderType::Vertex || type == ShaderType::Fragment );
+        Expects( m_handle != 0 );
 
         if( !label.empty() )
         {
-            GL_ASSERT( glObjectLabel( ::gl::GL_SHADER, m_handle, -1, label.c_str() ) );
+            GL_ASSERT( glObjectLabel( (::gl::GLenum)ObjectIdentifier::Shader, m_handle, -1, label.c_str() ) );
         }
     }
 
@@ -35,7 +56,7 @@ public:
         GL_ASSERT( glDeleteShader( m_handle ) );
     }
 
-    ::gl::GLenum getType() const noexcept
+    ShaderType getType() const noexcept
     {
         return m_type;
     }
@@ -62,14 +83,14 @@ public:
     bool getCompileStatus() const
     {
         auto success = (::gl::GLint)::gl::GL_FALSE;
-        GL_ASSERT( glGetShaderiv( m_handle, ::gl::GL_COMPILE_STATUS, &success ) );
+        GL_ASSERT( glGetShaderiv( m_handle, (::gl::GLenum)ShaderParameterName::CompileStatus, &success ) );
         return success == (::gl::GLint)::gl::GL_TRUE;
     }
 
     std::string getInfoLog() const
     {
         ::gl::GLint length = 0;
-        GL_ASSERT( glGetShaderiv( m_handle, ::gl::GL_INFO_LOG_LENGTH, &length ) );
+        GL_ASSERT( glGetShaderiv( m_handle, (::gl::GLenum)ShaderParameterName::InfoLogLength, &length ) );
         if( length == 0 )
         {
             length = 4096;
@@ -95,7 +116,7 @@ public:
 private:
     const ::gl::GLuint m_handle;
 
-    const ::gl::GLenum m_type;
+    const ShaderType m_type;
 };
 }
 }

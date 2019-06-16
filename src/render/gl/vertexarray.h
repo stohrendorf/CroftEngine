@@ -24,10 +24,10 @@ public:
         : BindableResource{ ::gl::glGenVertexArrays,
                             ::gl::glBindVertexArray,
                             ::gl::glDeleteVertexArrays,
-                            ::gl::GL_VERTEX_ARRAY, label
-    }
-          , m_indexBuffers{ std::move( indexBuffers ) }
-          , m_vertexBuffers{ std::move( vertexBuffers ) }
+                            ObjectIdentifier::VertexArray,
+                            label }
+        , m_indexBuffers{ std::move( indexBuffers ) }
+        , m_vertexBuffers{ std::move( vertexBuffers ) }
     {
         bind();
         for( const auto& buffer : m_indexBuffers )

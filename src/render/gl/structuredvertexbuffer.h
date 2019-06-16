@@ -20,9 +20,9 @@ public:
 
     explicit StructuredVertexBuffer(const AttributeMapping& mapping, const bool dynamic, const std::string& label = {})
         : VertexBuffer{ label }
-          , m_mapping{ mapping }
-          , m_dynamic{ dynamic }
-          , m_vertexCount{ 0 }
+        , m_mapping{ mapping }
+        , m_dynamic{ dynamic }
+        , m_vertexCount{ 0 }
     {
         BOOST_ASSERT( !mapping.empty() );
 

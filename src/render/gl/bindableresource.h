@@ -8,6 +8,21 @@ namespace render
 {
 namespace gl
 {
+enum class ObjectIdentifier : RawGlEnum
+{
+    Buffer = (RawGlEnum)::gl::GL_BUFFER,
+    Shader = (RawGlEnum)::gl::GL_SHADER,
+    Program = (RawGlEnum)::gl::GL_PROGRAM,
+    VertexArray = (RawGlEnum)::gl::GL_VERTEX_ARRAY,
+    Query = (RawGlEnum)::gl::GL_QUERY,
+    ProgramPipeline = (RawGlEnum)::gl::GL_PROGRAM_PIPELINE,
+    TransformFeedback = (RawGlEnum)::gl::GL_TRANSFORM_FEEDBACK,
+    Sampler = (RawGlEnum)::gl::GL_SAMPLER,
+    Texture = (RawGlEnum)::gl::GL_TEXTURE,
+    Renderbuffer = (RawGlEnum)::gl::GL_RENDERBUFFER,
+    Framebuffer = (RawGlEnum)::gl::GL_FRAMEBUFFER,
+};
+
 class BindableResource
 {
 public:
@@ -35,27 +50,15 @@ public:
     }
 
 protected:
-    using Allocator =
-    void(::gl::GLsizei, ::gl::GLuint
-    *);
-    using Binder =
-    void(::gl::GLuint);
-    using Deleter =
-    void(::gl::GLsizei, ::gl::GLuint
-    *);
+    using Allocator = std::function<void( ::gl::GLsizei, ::gl::GLuint * )>;
+    using Binder = std::function<void( ::gl::GLuint )>;
+    using Deleter = std::function<void( ::gl::GLsizei, ::gl::GLuint * )>;
 
-    explicit BindableResource(const std::function<Allocator>& allocator, const std::function<Binder>& binder,
-                              const std::function<Deleter>& deleter)
-        : BindableResource{ allocator, binder, deleter, ::gl::GL_NONE, {} }
-    {
-    }
-
-    explicit BindableResource(const std::function<Allocator>& allocator, const std::function<Binder>& binder,
-                              const std::function<Deleter>& deleter, const ::gl::GLenum identifier,
-                              const std::string& label)
+    explicit BindableResource(const Allocator& allocator, const Binder& binder, const Deleter& deleter,
+                              const ObjectIdentifier identifier, const std::string& label)
         : m_allocator{ allocator }
-          , m_binder{ binder }
-          , m_deleter{ deleter }
+        , m_binder{ binder }
+        , m_deleter{ deleter }
     {
         BOOST_ASSERT( static_cast<bool>(allocator) );
         BOOST_ASSERT( static_cast<bool>(binder) );
@@ -71,16 +74,16 @@ protected:
             // for certain types of resources, this may fail, e.g. programs which must be linked
             // before they are considered "created".
             bind();
-            setLabel( identifier, label );
+            setLabel( (::gl::GLenum)identifier, label );
             unbind();
         }
     }
 
     explicit BindableResource(BindableResource&& rhs) noexcept
         : m_handle{ rhs.m_handle }
-          , m_allocator{ move( rhs.m_allocator ) }
-          , m_binder{ move( rhs.m_binder ) }
-          , m_deleter{ move( rhs.m_deleter ) }
+        , m_allocator{ move( rhs.m_allocator ) }
+        , m_binder{ move( rhs.m_binder ) }
+        , m_deleter{ move( rhs.m_deleter ) }
     {
         rhs.m_handle = 0;
     }
@@ -119,11 +122,11 @@ protected:
 private:
     ::gl::GLuint m_handle = 0;
 
-    std::function<Allocator> m_allocator;
+    Allocator m_allocator;
 
-    std::function<Binder> m_binder;
+    Binder m_binder;
 
-    std::function<Deleter> m_deleter;
+    Deleter m_deleter;
 };
 }
 }

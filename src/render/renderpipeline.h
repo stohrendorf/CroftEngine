@@ -16,65 +16,74 @@ namespace render
 class RenderPipeline
 {
     const std::shared_ptr<scene::ShaderProgram> m_fxaaShader = scene::ShaderProgram::createFromFile(
-        "shaders/flat.vert",
-        "shaders/fxaa.frag",
-        {} );
+      "shaders/flat.vert",
+      "shaders/fxaa.frag",
+      {} );
     const std::shared_ptr<scene::Material> m_fxaaMaterial = std::make_shared<scene::Material>(
-        m_fxaaShader );
+      m_fxaaShader );
     const std::shared_ptr<scene::ShaderProgram> m_ssaoShader = scene::ShaderProgram::createFromFile(
-        "shaders/flat.vert",
-        "shaders/ssao.frag",
-        {} );
+      "shaders/flat.vert",
+      "shaders/ssao.frag",
+      {} );
     const std::shared_ptr<scene::Material> m_ssaoMaterial = std::make_shared<scene::Material>(
-        m_ssaoShader );
+      m_ssaoShader );
     const std::shared_ptr<scene::ShaderProgram> m_ssaoBlurShader = scene::ShaderProgram::createFromFile(
-        "shaders/flat.vert",
-        "shaders/ssao_blur.frag",
-        {} );
+      "shaders/flat.vert",
+      "shaders/ssao_blur.frag",
+      {} );
     const std::shared_ptr<scene::Material> m_ssaoBlurMaterial = std::make_shared<scene::Material>(
-        m_ssaoBlurShader );
+      m_ssaoBlurShader );
     const std::shared_ptr<scene::ShaderProgram> m_fxDarknessShader = scene::ShaderProgram::createFromFile(
-        "shaders/flat.vert",
-        "shaders/fx_darkness.frag",
-        { "LENS_DISTORTION" } );
+      "shaders/flat.vert",
+      "shaders/fx_darkness.frag",
+      { "LENS_DISTORTION" } );
     const std::shared_ptr<scene::Material> m_fxDarknessMaterial = std::make_shared<scene::Material>(
-        m_fxDarknessShader );
+      m_fxDarknessShader );
     const std::shared_ptr<scene::ShaderProgram> m_fxWaterDarknessShader = scene::ShaderProgram::createFromFile(
-        "shaders/flat.vert",
-        "shaders/fx_darkness.frag",
-        { "WATER", "LENS_DISTORTION" } );
+      "shaders/flat.vert",
+      "shaders/fx_darkness.frag",
+      { "WATER", "LENS_DISTORTION" } );
     const std::shared_ptr<scene::Material> m_fxWaterDarknessMaterial = std::make_shared<scene::Material>(
-        m_fxWaterDarknessShader );
+      m_fxWaterDarknessShader );
 
     const std::shared_ptr<scene::Model> m_fbModel = std::make_shared<scene::Model>();
 
-    const std::shared_ptr<gl::Texture> m_portalDepthBuffer = std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D,
-                                                                                            "portal-depth" );
-    std::shared_ptr<gl::FrameBuffer> m_portalFb;
+    const std::shared_ptr<gl::Texture> m_portalDepthBuffer =
+      std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D,
+                                     "portal-depth" );
+    std::shared_ptr<gl::Framebuffer> m_portalFb;
 
-    const std::shared_ptr<gl::Texture> m_geometryDepthBuffer = std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D,
-                                                                                              "geometry-depth" );
-    const std::shared_ptr<gl::Texture> m_geometryColorBuffer = std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D,
-                                                                                              "geometry-color" );
-    const std::shared_ptr<gl::Texture> m_geometryPositionBuffer = std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D,
-                                                                                                 "geometry-position" );
-    const std::shared_ptr<gl::Texture> m_geometryNormalBuffer = std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D,
-                                                                                               "geometry-normal" );
-    std::shared_ptr<gl::FrameBuffer> m_geometryFb;
+    const std::shared_ptr<gl::Texture> m_geometryDepthBuffer =
+      std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D,
+                                     "geometry-depth" );
+    const std::shared_ptr<gl::Texture> m_geometryColorBuffer =
+      std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D,
+                                     "geometry-color" );
+    const std::shared_ptr<gl::Texture> m_geometryPositionBuffer =
+      std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D,
+                                     "geometry-position" );
+    const std::shared_ptr<gl::Texture> m_geometryNormalBuffer =
+      std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D,
+                                     "geometry-normal" );
+    std::shared_ptr<gl::Framebuffer> m_geometryFb;
 
-    const std::shared_ptr<gl::Texture> m_ssaoNoiseTexture = std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D,
-                                                                                           "ssao-noise" );
-    const std::shared_ptr<gl::Texture> m_ssaoAOBuffer = std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D,
-                                                                                       "ssao-ao" );
-    std::shared_ptr<gl::FrameBuffer> m_ssaoFb;
+    const std::shared_ptr<gl::Texture> m_ssaoNoiseTexture =
+      std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D,
+                                     "ssao-noise" );
+    const std::shared_ptr<gl::Texture> m_ssaoAOBuffer =
+      std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D,
+                                     "ssao-ao" );
+    std::shared_ptr<gl::Framebuffer> m_ssaoFb;
 
-    const std::shared_ptr<gl::Texture> m_ssaoBlurAOBuffer = std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D,
-                                                                                           "ssao-blur-ao" );
-    std::shared_ptr<gl::FrameBuffer> m_ssaoBlurFb;
+    const std::shared_ptr<gl::Texture> m_ssaoBlurAOBuffer =
+      std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D,
+                                     "ssao-blur-ao" );
+    std::shared_ptr<gl::Framebuffer> m_ssaoBlurFb;
 
-    const std::shared_ptr<gl::Texture> m_fxaaColorBuffer = std::make_shared<gl::Texture>( ::gl::GL_TEXTURE_2D,
-                                                                                          "fxaa-color" );
-    std::shared_ptr<gl::FrameBuffer> m_fxaaFb;
+    const std::shared_ptr<gl::Texture> m_fxaaColorBuffer =
+      std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D,
+                                     "fxaa-color" );
+    std::shared_ptr<gl::Framebuffer> m_fxaaFb;
 
 public:
     void bindGeometryFrameBuffer()
@@ -84,7 +93,7 @@ public:
 
     void bindPortalFrameBuffer()
     {
-        gl::FrameBuffer::unbindAll();
+        gl::Framebuffer::unbindAll();
         m_portalDepthBuffer->copyImageSubData( *m_geometryDepthBuffer );
         m_portalFb->bind();
     }
@@ -119,7 +128,7 @@ public:
 
         {
             gl::DebugGroup dbg{ "postprocess-pass" };
-            gl::FrameBuffer::unbindAll();
+            gl::Framebuffer::unbindAll();
             if( water )
                 m_fbModel->getMeshes()[0]->setMaterial( m_fxWaterDarknessMaterial );
             else
@@ -165,19 +174,19 @@ public:
         m_fxWaterDarknessMaterial->getParameter( "u_depth" )->set( m_geometryDepthBuffer );
 
         m_geometryFb = gl::FrameBufferBuilder()
-            .texture( ::gl::GL_COLOR_ATTACHMENT0, m_geometryColorBuffer )
-            .texture( ::gl::GL_COLOR_ATTACHMENT1, m_geometryNormalBuffer )
-            .texture( ::gl::GL_COLOR_ATTACHMENT2, m_geometryPositionBuffer )
-            .texture( ::gl::GL_DEPTH_ATTACHMENT, m_geometryDepthBuffer )
-            .build();
+          .texture( render::gl::FramebufferAttachment::Color0, m_geometryColorBuffer )
+          .texture( render::gl::FramebufferAttachment::Color1, m_geometryNormalBuffer )
+          .texture( render::gl::FramebufferAttachment::Color2, m_geometryPositionBuffer )
+          .texture( render::gl::FramebufferAttachment::Depth, m_geometryDepthBuffer )
+          .build();
 
         // === portalDepthFB setup ===
         m_fxDarknessMaterial->getParameter( "u_portalDepth" )->set( m_portalDepthBuffer );
         m_fxWaterDarknessMaterial->getParameter( "u_portalDepth" )->set( m_portalDepthBuffer );
 
         m_portalFb = gl::FrameBufferBuilder()
-            .texture( ::gl::GL_DEPTH_ATTACHMENT, m_portalDepthBuffer )
-            .build();
+          .texture( render::gl::FramebufferAttachment::Depth, m_portalDepthBuffer )
+          .build();
 
         // === fxaaFB setup ===
         m_fxaaColorBuffer->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
@@ -188,8 +197,8 @@ public:
         m_fxWaterDarknessMaterial->getParameter( "u_texture" )->set( m_fxaaColorBuffer );
 
         m_fxaaFb = gl::FrameBufferBuilder()
-            .texture( ::gl::GL_COLOR_ATTACHMENT0, m_fxaaColorBuffer )
-            .build();
+          .texture( render::gl::FramebufferAttachment::Color0, m_fxaaColorBuffer )
+          .build();
 
         // === ssaoFB setup ===
         m_ssaoAOBuffer->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
@@ -199,8 +208,8 @@ public:
         m_ssaoBlurMaterial->getParameter( "u_ao" )->set( m_ssaoAOBuffer );
 
         m_ssaoFb = gl::FrameBufferBuilder()
-            .texture( ::gl::GL_COLOR_ATTACHMENT0, m_ssaoAOBuffer )
-            .build();
+          .texture( render::gl::FramebufferAttachment::Color0, m_ssaoAOBuffer )
+          .build();
 
         // === ssaoBlurFB setup ===
         m_ssaoBlurAOBuffer->set( render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge )
@@ -211,8 +220,8 @@ public:
         m_fxWaterDarknessMaterial->getParameter( "u_ao" )->set( m_ssaoBlurAOBuffer );
 
         m_ssaoBlurFb = gl::FrameBufferBuilder()
-            .texture( ::gl::GL_COLOR_ATTACHMENT0, m_ssaoBlurAOBuffer )
-            .build();
+          .texture( render::gl::FramebufferAttachment::Color0, m_ssaoBlurAOBuffer )
+          .build();
 
         // === ssao.glsl setup ===
         // generate sample kernel

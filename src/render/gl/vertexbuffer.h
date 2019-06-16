@@ -13,9 +13,8 @@ public:
         : BindableResource{ ::gl::glGenBuffers,
                             [](const ::gl::GLuint handle) { ::gl::glBindBuffer( ::gl::GL_ARRAY_BUFFER, handle ); },
                             ::gl::glDeleteBuffers,
-                            ::gl::GL_BUFFER,
-                            label
-    }
+                            ObjectIdentifier::Buffer,
+                            label }
     {
     }
 

@@ -307,7 +307,8 @@ public:
         }
 
         loader::file::DWordTexture texture;
-        texture.texture = std::make_shared<render::gl::Texture>( ::gl::GL_TEXTURE_2D, "animated texture tiles" );
+        texture.texture = std::make_shared<render::gl::Texture>( render::gl::TextureTarget::_2D,
+                                                                 "animated texture tiles" );
         if( !linear )
         {
             texture.texture->set( render::gl::TextureMinFilter::Nearest )

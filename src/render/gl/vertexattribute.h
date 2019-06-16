@@ -17,21 +17,21 @@ public:
 
     template<typename T, typename U>
     explicit VertexAttribute(const U T::* member, const bool normalized = false)
-        : m_type{ TypeTraits<U>::TypeId }
-          , m_pointer{ &(static_cast<T*>(nullptr)->*member) }
-          , m_size{ TypeTraits<U>::ElementCount }
-          , m_normalized{ normalized }
-          , m_stride{ sizeof( T ) }
+        : m_type{ TypeTraits<U>::VertexAttribPointerType }
+        , m_pointer{ &(static_cast<T*>(nullptr)->*member) }
+        , m_size{ TypeTraits<U>::ElementCount }
+        , m_normalized{ normalized }
+        , m_stride{ sizeof( T ) }
     {
     }
 
     template<typename U>
     explicit VertexAttribute(const SingleAttribute<U>&, const bool normalized = false)
-        : m_type{ TypeTraits<U>::TypeId }
-          , m_pointer{ nullptr }
-          , m_size{ TypeTraits<U>::ElementCount }
-          , m_normalized{ normalized }
-          , m_stride{ sizeof( U ) }
+        : m_type{ TypeTraits<U>::VertexAttribPointerType }
+        , m_pointer{ nullptr }
+        , m_size{ TypeTraits<U>::ElementCount }
+        , m_normalized{ normalized }
+        , m_stride{ sizeof( U ) }
     {
     }
 
@@ -39,7 +39,7 @@ public:
     {
         GL_ASSERT( glVertexAttribPointer( index,
                                           m_size,
-                                          m_type,
+                                          (::gl::GLenum)m_type,
                                           m_normalized ? ::gl::GL_TRUE : ::gl::GL_FALSE,
                                           m_stride,
                                           m_pointer ) );
@@ -57,7 +57,7 @@ public:
     }
 
 private:
-    const ::gl::GLenum m_type;
+    const VertexAttribPointerType m_type;
 
     const ::gl::GLvoid* const m_pointer;
 

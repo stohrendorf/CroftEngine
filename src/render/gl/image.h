@@ -76,8 +76,8 @@ public:
 
     explicit Image(const ::gl::GLint width, const ::gl::GLint height, const StorageType* data = nullptr)
         : m_data{}
-          , m_width{ width }
-          , m_height{ height }
+        , m_width{ width }
+        , m_height{ height }
     {
         Expects( width >= 0 && height >= 0 );
 
@@ -96,8 +96,8 @@ public:
 
     Image(Image&& rhs) noexcept
         : m_data{ std::move( rhs.m_data ) }
-          , m_width{ rhs.m_width }
-          , m_height{ rhs.m_height }
+        , m_width{ rhs.m_width }
+        , m_height{ rhs.m_height }
     {
         rhs.m_width = 0;
         rhs.m_height = 0;

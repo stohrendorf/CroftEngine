@@ -30,7 +30,7 @@ void RenderState::apply(const bool force) const
     if( force || ((m_blendSrc.isInitialized() || m_blendDst.isInitialized())
         && (m_blendSrc != getCurrentState().m_blendSrc || m_blendDst != getCurrentState().m_blendDst)) )
     {
-        GL_ASSERT( glBlendFunc( m_blendSrc.get(), m_blendDst.get() ) );
+        GL_ASSERT( glBlendFunc( (::gl::GLenum)m_blendSrc.get(), (::gl::GLenum)m_blendDst.get() ) );
         getCurrentState().m_blendSrc = m_blendSrc;
         getCurrentState().m_blendDst = m_blendDst;
     }
@@ -48,12 +48,12 @@ void RenderState::apply(const bool force) const
     }
     if( force || (m_cullFaceSide.isInitialized() && (m_cullFaceSide != getCurrentState().m_cullFaceSide)) )
     {
-        GL_ASSERT( glCullFace( m_cullFaceSide.get() ) );
+        GL_ASSERT( glCullFace( (::gl::GLenum)m_cullFaceSide.get() ) );
         getCurrentState().m_cullFaceSide = m_cullFaceSide;
     }
     if( force || (m_frontFace.isInitialized() && m_frontFace != getCurrentState().m_frontFace) )
     {
-        GL_ASSERT( glFrontFace( m_frontFace.get() ) );
+        GL_ASSERT( glFrontFace( (::gl::GLenum)m_frontFace.get() ) );
         getCurrentState().m_frontFace = m_frontFace;
     }
     if( force || (m_lineWidth.isInitialized() && m_lineWidth != getCurrentState().m_lineWidth) )
@@ -93,7 +93,7 @@ void RenderState::apply(const bool force) const
     }
     if( force || (m_depthFunction.isInitialized() && (m_depthFunction != getCurrentState().m_depthFunction)) )
     {
-        GL_ASSERT( glDepthFunc( m_depthFunction.get() ) );
+        GL_ASSERT( glDepthFunc( (::gl::GLenum)m_depthFunction.get() ) );
         getCurrentState().m_depthFunction = m_depthFunction;
     }
 }
@@ -114,12 +114,12 @@ void RenderState::setBlend(const bool enabled)
     m_blendEnabled = enabled;
 }
 
-void RenderState::setBlendSrc(const ::gl::GLenum blend)
+void RenderState::setBlendSrc(const BlendingFactor blend)
 {
     m_blendSrc = blend;
 }
 
-void RenderState::setBlendDst(const ::gl::GLenum blend)
+void RenderState::setBlendDst(const BlendingFactor blend)
 {
     m_blendDst = blend;
 }
@@ -129,12 +129,12 @@ void RenderState::setCullFace(const bool enabled)
     m_cullFaceEnabled = enabled;
 }
 
-void RenderState::setCullFaceSide(const ::gl::GLenum side)
+void RenderState::setCullFaceSide(const CullFaceMode side)
 {
     m_cullFaceSide = side;
 }
 
-void RenderState::setFrontFace(const ::gl::GLenum winding)
+void RenderState::setFrontFace(const FrontFaceDirection winding)
 {
     m_frontFace = winding;
 }
@@ -149,7 +149,7 @@ void RenderState::setDepthWrite(const bool enabled)
     m_depthWriteEnabled = enabled;
 }
 
-void RenderState::setDepthFunction(const ::gl::GLenum func)
+void RenderState::setDepthFunction(const AlphaFunction func)
 {
     m_depthFunction = func;
 }

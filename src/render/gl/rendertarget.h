@@ -9,16 +9,10 @@ namespace gl
 class RenderTarget : public BindableResource
 {
 protected:
-    explicit RenderTarget(const std::function<Allocator>& allocator, const std::function<Binder>& binder,
-                          const std::function<Deleter>& deleter)
-        : BindableResource{ allocator, binder, deleter }
-    {
-    }
-
-    explicit RenderTarget(const std::function<Allocator>& allocator,
-                          const std::function<Binder>& binder,
-                          const std::function<Deleter>& deleter,
-                          const ::gl::GLenum identifier,
+    explicit RenderTarget(const Allocator& allocator,
+                          const Binder& binder,
+                          const Deleter& deleter,
+                          const ObjectIdentifier identifier,
                           const std::string& label)
         : BindableResource{ allocator, binder, deleter, identifier, label }
     {

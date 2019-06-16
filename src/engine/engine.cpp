@@ -1509,7 +1509,7 @@ void Engine::run()
     render::scene::Node dummyNode{ "" };
     context.setCurrentNode( &dummyNode );
 
-    render::gl::FrameBuffer::unbindAll();
+    render::gl::Framebuffer::unbindAll();
 
     screenOverlay->init( m_window->getViewport() );
 
@@ -1746,7 +1746,7 @@ void Engine::drawLoadingScreen(const std::string& state)
                                      );
     abibasFont->drawText( state, 40, gsl::narrow<int>( m_window->getViewport().height - 100 ), 255, 255, 255, 192 );
 
-    render::gl::FrameBuffer::unbindAll();
+    render::gl::Framebuffer::unbindAll();
 
     GL_ASSERT( glClear( ::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT ) );
 

@@ -8,6 +8,54 @@ namespace render
 {
 namespace gl
 {
+enum class CullFaceMode : RawGlEnum
+{
+    Back = (RawGlEnum)::gl::GL_BACK,
+    Front = (RawGlEnum)::gl::GL_FRONT,
+    FrontAndBack = (RawGlEnum)::gl::GL_FRONT_AND_BACK,
+};
+
+enum class FrontFaceDirection : RawGlEnum
+{
+    CCW = (RawGlEnum)::gl::GL_CCW,
+    CW = (RawGlEnum)::gl::GL_CW,
+};
+
+enum class BlendingFactor : RawGlEnum
+{
+    Zero = (RawGlEnum)::gl::GL_ZERO,
+    One = (RawGlEnum)::gl::GL_ONE,
+    SrcColor = (RawGlEnum)::gl::GL_SRC_COLOR,
+    OneMinusSrcColor = (RawGlEnum)::gl::GL_ONE_MINUS_SRC_COLOR,
+    DstColor = (RawGlEnum)::gl::GL_DST_COLOR,
+    OneMinusDstColor = (RawGlEnum)::gl::GL_ONE_MINUS_DST_COLOR,
+    SrcAlpha = (RawGlEnum)::gl::GL_SRC_ALPHA,
+    OneMinusSrcAlpha = (RawGlEnum)::gl::GL_ONE_MINUS_SRC_ALPHA,
+    DstAlpha = (RawGlEnum)::gl::GL_DST_ALPHA,
+    OneMinusDstAlpha = (RawGlEnum)::gl::GL_ONE_MINUS_DST_ALPHA,
+    ConstantColor = (RawGlEnum)::gl::GL_CONSTANT_COLOR,
+    OneMinusConstantColor = (RawGlEnum)::gl::GL_ONE_MINUS_CONSTANT_COLOR,
+    ConstantAlpha = (RawGlEnum)::gl::GL_CONSTANT_ALPHA,
+    OneMinusConstantAlpha = (RawGlEnum)::gl::GL_ONE_MINUS_CONSTANT_ALPHA,
+    SrcAlphaSaturate = (RawGlEnum)::gl::GL_SRC_ALPHA_SATURATE,
+    Src1Color = (RawGlEnum)::gl::GL_SRC1_COLOR,
+    OneMinusSrc1Color = (RawGlEnum)::gl::GL_ONE_MINUS_SRC1_COLOR,
+    Src1Alpha = (RawGlEnum)::gl::GL_SRC1_ALPHA,
+    OneMinusSrc1Alpha = (RawGlEnum)::gl::GL_ONE_MINUS_SRC1_ALPHA,
+};
+
+enum class AlphaFunction : RawGlEnum
+{
+    Always = (RawGlEnum)::gl::GL_ALWAYS,
+    Equal = (RawGlEnum)::gl::GL_EQUAL,
+    GEqual = (RawGlEnum)::gl::GL_GEQUAL,
+    Greater = (RawGlEnum)::gl::GL_GREATER,
+    LEqual = (RawGlEnum)::gl::GL_LEQUAL,
+    Less = (RawGlEnum)::gl::GL_LESS,
+    Never = (RawGlEnum)::gl::GL_NEVER,
+    NotEqual = (RawGlEnum)::gl::GL_NOTEQUAL,
+};
+
 class RenderState final
 {
 public:
@@ -27,21 +75,21 @@ public:
 
     void setBlend(bool enabled);
 
-    void setBlendSrc(::gl::GLenum blend);
+    void setBlendSrc(BlendingFactor blend);
 
-    void setBlendDst(::gl::GLenum blend);
+    void setBlendDst(BlendingFactor blend);
 
     void setCullFace(bool enabled);
 
-    void setCullFaceSide(::gl::GLenum side);
+    void setCullFaceSide(CullFaceMode side);
 
-    void setFrontFace(::gl::GLenum winding);
+    void setFrontFace(FrontFaceDirection winding);
 
     void setDepthTest(bool enabled);
 
     void setDepthWrite(bool enabled);
 
-    void setDepthFunction(::gl::GLenum func);
+    void setDepthFunction(AlphaFunction func);
 
     void setLineWidth(::gl::GLfloat width);
 
@@ -160,17 +208,17 @@ private:
 
     DefaultedOptional<bool, true> m_depthWriteEnabled;
 
-    DefaultedOptional<::gl::GLenum, ::gl::GL_LESS> m_depthFunction;
+    DefaultedOptional<AlphaFunction, AlphaFunction::Less> m_depthFunction;
 
     DefaultedOptional<bool, true> m_blendEnabled;
 
-    DefaultedOptional<::gl::GLenum, ::gl::GL_SRC_ALPHA> m_blendSrc;
+    DefaultedOptional<BlendingFactor, BlendingFactor::SrcAlpha> m_blendSrc;
 
-    DefaultedOptional<::gl::GLenum, ::gl::GL_ONE_MINUS_SRC_ALPHA> m_blendDst;
+    DefaultedOptional<BlendingFactor, BlendingFactor::OneMinusSrcAlpha> m_blendDst;
 
-    DefaultedOptional<::gl::GLenum, ::gl::GL_BACK> m_cullFaceSide;
+    DefaultedOptional<CullFaceMode, CullFaceMode::Back> m_cullFaceSide;
 
-    DefaultedOptional<::gl::GLenum, ::gl::GL_CW> m_frontFace;
+    DefaultedOptional<FrontFaceDirection, FrontFaceDirection::CW> m_frontFace;
 
     DefaultedOptionalF m_lineWidth{ 1.0f };
 

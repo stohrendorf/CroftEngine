@@ -11,6 +11,25 @@ namespace render
 {
 namespace gl
 {
+enum class PrimitiveType : RawGlEnum
+{
+    Lines = (RawGlEnum)::gl::GL_LINES,
+    LinesAdjacency = (RawGlEnum)::gl::GL_LINES_ADJACENCY,
+    LineLoop = (RawGlEnum)::gl::GL_LINE_LOOP,
+    LineStrip = (RawGlEnum)::gl::GL_LINE_STRIP,
+    LineStripAdjacency = (RawGlEnum)::gl::GL_LINE_STRIP_ADJACENCY,
+    Patches = (RawGlEnum)::gl::GL_PATCHES,
+    Points = (RawGlEnum)::gl::GL_POINTS,
+    Polygon = (RawGlEnum)::gl::GL_POLYGON,
+    Quads = (RawGlEnum)::gl::GL_QUADS,
+    QuadStrip = (RawGlEnum)::gl::GL_QUAD_STRIP,
+    Triangles = (RawGlEnum)::gl::GL_TRIANGLES,
+    TrianglesAdjacency = (RawGlEnum)::gl::GL_TRIANGLES_ADJACENCY,
+    Fan = (RawGlEnum)::gl::GL_TRIANGLE_FAN,
+    TriangleStrip = (RawGlEnum)::gl::GL_TRIANGLE_STRIP,
+    TriangleStripAdjacency = (RawGlEnum)::gl::GL_TRIANGLE_STRIP_ADJACENCY,
+};
+
 class IndexBuffer : public BindableResource
 {
 public:
@@ -20,9 +39,8 @@ public:
                               ::gl::glBindBuffer( ::gl::GL_ELEMENT_ARRAY_BUFFER, handle );
                             },
                             ::gl::glDeleteBuffers,
-                            ::gl::GL_BUFFER,
-                            label
-    }
+                            ObjectIdentifier::Buffer,
+                            label }
     {
     }
 
@@ -53,7 +71,7 @@ public:
                                  dynamic ? ::gl::GL_DYNAMIC_DRAW : ::gl::GL_STATIC_DRAW ) );
 
         m_indexCount = indexCount;
-        m_storageType = TypeTraits<T>::TypeId;
+        m_storageType = TypeTraits<T>::DrawElementsType;
     }
 
     template<typename T>
@@ -73,7 +91,12 @@ public:
             BOOST_THROW_EXCEPTION( std::out_of_range{ "Sub-range exceeds buffer range" } );
         }
 
-        if( TypeTraits<T>::TypeId != m_storageType )
+        if( !m_storageType.is_initialized() )
+        {
+            BOOST_THROW_EXCEPTION( std::logic_error{ "Buffer is not initialized" } );
+        }
+
+        if( TypeTraits<T>::DrawElementsType != m_storageType )
         {
             BOOST_THROW_EXCEPTION( std::logic_error{ "Incompatible storage type for buffer sub-data" } );
         }
@@ -84,9 +107,10 @@ public:
                                     gsl::narrow<GLsizeiptr>( indexCount * sizeof( T ) ), indexData.get() ) );
     }
 
-    void draw(const ::gl::GLenum mode) const
+    void draw(const PrimitiveType mode) const
     {
-        GL_ASSERT( glDrawElements( mode, m_indexCount, m_storageType, nullptr ) );
+        Expects( m_storageType.is_initialized() );
+        GL_ASSERT( glDrawElements( (::gl::GLenum)mode, m_indexCount, (::gl::GLenum)*m_storageType, nullptr ) );
     }
 
     ::gl::GLsizei getIndexCount() const
@@ -94,15 +118,10 @@ public:
         return m_indexCount;
     }
 
-    ::gl::GLenum getStorageType() const
-    {
-        return m_storageType;
-    }
-
 private:
     ::gl::GLsizei m_indexCount = 0;
 
-    ::gl::GLenum m_storageType = ::gl::GL_NONE;
+    boost::optional<DrawElementsType> m_storageType;
 };
 }
 }

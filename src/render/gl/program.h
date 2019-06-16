@@ -15,7 +15,7 @@ namespace gl
 class Program : public BindableResource
 {
 public:
-    explicit Program()
+    explicit Program(const std::string& label = {})
         : BindableResource{
         [](const ::gl::GLsizei n, ::gl::GLuint* handle) {
           BOOST_ASSERT( n == 1 && handle != nullptr );
@@ -25,8 +25,9 @@ public:
         [](const ::gl::GLsizei n, const ::gl::GLuint* handle) {
           BOOST_ASSERT( n == 1 && handle != nullptr );
           ::gl::glDeleteProgram( *handle );
-        }
-    }
+        },
+        ObjectIdentifier::Program,
+        label }
     {
     }
 
