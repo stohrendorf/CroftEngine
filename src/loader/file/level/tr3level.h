@@ -12,12 +12,12 @@ class TR3Level : public Level
 {
 public:
     TR3Level(const Game gameVersion, io::SDLReader&& reader)
-        : Level{ gameVersion, std::move( reader ) }
+        : Level{gameVersion, std::move(reader)}
     {
     }
 
     void loadFileData() override;
 };
-}
-}
-}
+} // namespace level
+} // namespace file
+} // namespace loader

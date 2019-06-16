@@ -1,7 +1,7 @@
 #pragma once
 
-#include <type_traits>
 #include <string>
+#include <type_traits>
 
 namespace qs
 {
@@ -21,7 +21,7 @@ struct is_quantity<quantity<A, B>>
 {
     static constexpr bool value = true;
 };
-}
+} // namespace detail
 
 template<typename Unit, typename Type>
 struct quantity
@@ -34,23 +34,25 @@ struct quantity
     using with_type = quantity<unit, T>;
 
     constexpr explicit quantity(type value = type{}) noexcept
-        : value{ value }
-    {}
+        : value{value}
+    {
+    }
 
     constexpr quantity(const self_type& rhs) noexcept
-        : value{ rhs.value }
-    {}
+        : value{rhs.value}
+    {
+    }
 
     template<typename T>
     explicit quantity(T)
     {
         // must use T here, otherwise the static assert will trigger always
-        static_assert( sizeof( T ) > 0 && false, "Can only construct a quantity from its defined value type" );
+        static_assert(sizeof(T) > 0 && false, "Can only construct a quantity from its defined value type");
     }
 
     std::string toString() const
     {
-        return std::to_string( value ) + Unit::suffix();
+        return std::to_string(value) + Unit::suffix();
     }
 
     constexpr type get() const noexcept
@@ -65,20 +67,16 @@ struct quantity
     }
 
     template<typename T>
-    constexpr
-    std::enable_if_t<!detail::is_quantity<T>::value, quantity<unit, T>>
-    retype_as() const
+    constexpr std::enable_if_t<!detail::is_quantity<T>::value, quantity<unit, T>> retype_as() const
     {
-        return quantity<Unit, T>{ static_cast<T>(value) };
+        return quantity<Unit, T>{static_cast<T>(value)};
     }
 
     template<typename Q>
-    constexpr
-    std::enable_if_t<detail::is_quantity<Q>::value, quantity<unit, typename Q::type>>
-    retype_as() const
+    constexpr std::enable_if_t<detail::is_quantity<Q>::value, quantity<unit, typename Q::type>> retype_as() const
     {
-        static_assert( std::is_same<typename Q::unit, unit>::value, "Unit mismatch" );
-        return quantity<unit, typename Q::type>{ static_cast<typename Q::type>(value) };
+        static_assert(std::is_same<typename Q::unit, unit>::value, "Unit mismatch");
+        return quantity<unit, typename Q::type>{static_cast<typename Q::type>(value)};
     }
 
     constexpr self_type& operator+=(self_type r) noexcept
@@ -153,30 +151,29 @@ private:
 };
 
 template<typename Unit, typename Type>
-constexpr std::enable_if_t<std::is_signed<Type>::value, quantity<Unit, Type>>
-operator-(quantity<Unit, Type> l) noexcept
+constexpr std::enable_if_t<std::is_signed<Type>::value, quantity<Unit, Type>> operator-(quantity<Unit, Type> l) noexcept
 {
-    return quantity<Unit, Type>{ static_cast<Type>(-l.get()) };
+    return quantity<Unit, Type>{static_cast<Type>(-l.get())};
 }
 
 template<typename Unit, typename Type>
 constexpr auto operator*(Type l, quantity<Unit, Type> r) noexcept
 {
-    return quantity<Unit, Type>{ static_cast<Type>(l * r.get()) };
+    return quantity<Unit, Type>{static_cast<Type>(l * r.get())};
 }
 
 // abs
 template<typename Type, typename Unit>
 constexpr std::enable_if_t<std::is_signed<Type>::value, quantity<Unit, Type>>
-abs(const quantity<Unit, Type>& v) noexcept
+    abs(const quantity<Unit, Type>& v) noexcept
 {
     return v.get() >= 0 ? v : -v;
 }
 
 template<typename Type, typename Unit>
 constexpr std::enable_if_t<!std::is_signed<Type>::value, quantity<Unit, Type>>
-abs(const quantity<Unit, Type>& v) noexcept
+    abs(const quantity<Unit, Type>& v) noexcept
 {
     return v;
 }
-}
+} // namespace qs

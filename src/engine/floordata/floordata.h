@@ -1,15 +1,13 @@
 #pragma once
 
-#include "types.h"
 #include "core/magic.h"
-
 #include "gsl-lite.hpp"
-
-#include <boost/optional.hpp>
-#include <yaml-cpp/yaml.h>
+#include "types.h"
 
 #include <bitset>
+#include <boost/optional.hpp>
 #include <vector>
+#include <yaml-cpp/yaml.h>
 
 namespace engine
 {
@@ -18,9 +16,9 @@ namespace floordata
 struct FloorDataChunk
 {
     explicit FloorDataChunk(const FloorDataValue fd)
-        : isLast{ extractIsLast( fd ) }
-          , sequenceCondition{ extractSequenceCondition( fd ) }
-          , type{ extractType( fd ) }
+        : isLast{extractIsLast(fd)}
+        , sequenceCondition{extractSequenceCondition(fd)}
+        , type{extractType(fd)}
     {
     }
 
@@ -30,13 +28,13 @@ struct FloorDataChunk
 
     static FloorDataChunkType extractType(const FloorDataValue data)
     {
-        return gsl::narrow_cast<FloorDataChunkType>( data.get() & 0xff );
+        return gsl::narrow_cast<FloorDataChunkType>(data.get() & 0xff);
     }
 
 private:
     static SequenceCondition extractSequenceCondition(const FloorDataValue data)
     {
-        return gsl::narrow_cast<SequenceCondition>( (data.get() & 0x3f00) >> 8 );
+        return gsl::narrow_cast<SequenceCondition>((data.get() & 0x3f00) >> 8);
     }
 
     static constexpr bool extractIsLast(const FloorDataValue data)
@@ -59,11 +57,11 @@ public:
     explicit ActivationState() = default;
 
     explicit ActivationState(const FloorDataValue fd)
-        : m_oneshot{ (fd.get() & Oneshot) != 0 }
-          , m_inverted{ (fd.get() & InvertedActivation) != 0 }
-          , m_locked{ (fd.get() & Locked) != 0 }
-          , m_activationSet{ extractActivationSet( fd ) }
-          , m_timeout{ core::Seconds{ static_cast<core::Seconds::type>(fd.get() & TimeoutMask) } * core::FrameRate }
+        : m_oneshot{(fd.get() & Oneshot) != 0}
+        , m_inverted{(fd.get() & InvertedActivation) != 0}
+        , m_locked{(fd.get() & Locked) != 0}
+        , m_activationSet{extractActivationSet(fd)}
+        , m_timeout{core::Seconds{static_cast<core::Seconds::type>(fd.get() & TimeoutMask)} * core::FrameRate}
     {
     }
 
@@ -134,7 +132,7 @@ public:
 
     bool isInActivationSet(const size_t i) const
     {
-        return m_activationSet.test( i );
+        return m_activationSet.test(i);
     }
 
     core::Frame getTimeout() const noexcept
@@ -145,38 +143,38 @@ public:
     YAML::Node save() const
     {
         YAML::Node node;
-        node.SetStyle( YAML::EmitterStyle::Flow );
+        node.SetStyle(YAML::EmitterStyle::Flow);
         node["oneshot"] = m_oneshot;
         node["inverted"] = m_inverted;
         node["locked"] = m_locked;
-        for( size_t i = 0; i < m_activationSet.size(); ++i )
-            node["activationSet"].push_back( m_activationSet[i] );
+        for(size_t i = 0; i < m_activationSet.size(); ++i)
+            node["activationSet"].push_back(m_activationSet[i]);
         return node;
     }
 
     void load(const YAML::Node& node)
     {
-        if( !node["oneshot"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "ActivationState::oneshot is not scalar" ) );
-        if( !node["inverted"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "ActivationState::inverted is not scalar" ) );
-        if( !node["locked"].IsScalar() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "ActivationState::locked is not scalar" ) );
-        if( !node["activationSet"].IsSequence() )
-            BOOST_THROW_EXCEPTION( std::domain_error( "ActivationState::activationSet is not a sequence" ) );
+        if(!node["oneshot"].IsScalar())
+            BOOST_THROW_EXCEPTION(std::domain_error("ActivationState::oneshot is not scalar"));
+        if(!node["inverted"].IsScalar())
+            BOOST_THROW_EXCEPTION(std::domain_error("ActivationState::inverted is not scalar"));
+        if(!node["locked"].IsScalar())
+            BOOST_THROW_EXCEPTION(std::domain_error("ActivationState::locked is not scalar"));
+        if(!node["activationSet"].IsSequence())
+            BOOST_THROW_EXCEPTION(std::domain_error("ActivationState::activationSet is not a sequence"));
 
         m_oneshot = node["oneshot"].as<bool>();
         m_inverted = node["inverted"].as<bool>();
         m_locked = node["locked"].as<bool>();
-        for( size_t i = 0; i < m_activationSet.size(); ++i )
+        for(size_t i = 0; i < m_activationSet.size(); ++i)
             m_activationSet[i] = node["activationSet"][i].as<bool>();
     }
 
 private:
     static ActivationSet extractActivationSet(const FloorDataValue fd)
     {
-        const auto bits = gsl::narrow_cast<uint16_t>( (fd.get() & ActivationMask) >> 9 );
-        return ActivationSet{ bits };
+        const auto bits = gsl::narrow_cast<uint16_t>((fd.get() & ActivationMask) >> 9);
+        return ActivationSet{bits};
     }
 
     bool m_oneshot = false;
@@ -189,10 +187,10 @@ private:
 struct CameraParameters
 {
     explicit CameraParameters(const FloorDataValue fd)
-        : timeout{ core::Seconds{ static_cast<core::Seconds::type>( int8_t( fd.get() ) ) } }
-          , oneshot{ (fd.get() & 0x100) != 0 }
-          , isLast{ (fd.get() & 0x8000) != 0 }
-          , smoothness{ gsl::narrow_cast<uint8_t>( (fd.get() >> 8) & 0x3e ) }
+        : timeout{core::Seconds{static_cast<core::Seconds::type>(int8_t(fd.get()))}}
+        , oneshot{(fd.get() & 0x100) != 0}
+        , isLast{(fd.get() & 0x8000) != 0}
+        , smoothness{gsl::narrow_cast<uint8_t>((fd.get() >> 8) & 0x3e)}
     {
     }
 
@@ -205,9 +203,9 @@ struct CameraParameters
 struct Command
 {
     explicit Command(const FloorDataValue fd)
-        : isLast{ extractIsLast( fd ) }
-          , opcode{ extractOpcode( fd ) }
-          , parameter{ extractParameter( fd ) }
+        : isLast{extractIsLast(fd)}
+        , opcode{extractOpcode(fd)}
+        , parameter{extractParameter(fd)}
     {
     }
 
@@ -218,7 +216,7 @@ struct Command
 private:
     static CommandOpcode extractOpcode(const FloorDataValue data)
     {
-        return gsl::narrow_cast<CommandOpcode>( (data.get() >> 10) & 0x0f );
+        return gsl::narrow_cast<CommandOpcode>((data.get() >> 10) & 0x0f);
     }
 
     static constexpr uint16_t extractParameter(const FloorDataValue data)
@@ -234,30 +232,30 @@ private:
 
 inline boost::optional<uint8_t> getPortalTarget(const FloorDataValue* fdData)
 {
-    if( fdData == nullptr )
+    if(fdData == nullptr)
         return {};
 
-    FloorDataChunk chunk{ fdData[0] };
-    if( chunk.type == FloorDataChunkType::FloorSlant )
+    FloorDataChunk chunk{fdData[0]};
+    if(chunk.type == FloorDataChunkType::FloorSlant)
     {
-        if( chunk.isLast )
+        if(chunk.isLast)
             return {};
         fdData += 2;
-        chunk = FloorDataChunk{ fdData[0] };
+        chunk = FloorDataChunk{fdData[0]};
     }
-    if( chunk.type == FloorDataChunkType::CeilingSlant )
+    if(chunk.type == FloorDataChunkType::CeilingSlant)
     {
-        if( chunk.isLast )
+        if(chunk.isLast)
             return {};
         fdData += 2;
-        chunk = FloorDataChunk{ fdData[0] };
+        chunk = FloorDataChunk{fdData[0]};
     }
-    if( chunk.type == FloorDataChunkType::PortalSector )
+    if(chunk.type == FloorDataChunkType::PortalSector)
     {
-        return gsl::narrow_cast<uint8_t>( fdData[1].get() );
+        return gsl::narrow_cast<uint8_t>(fdData[1].get());
     }
 
     return {};
 }
-}
-}
+} // namespace floordata
+} // namespace engine

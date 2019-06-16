@@ -1,8 +1,7 @@
 #pragma once
 
-#include "renderable.h"
-
 #include "gsl-lite.hpp"
+#include "renderable.h"
 
 namespace render
 {
@@ -37,7 +36,7 @@ public:
 
     void addMesh(const gsl::not_null<std::shared_ptr<Mesh>>& mesh)
     {
-        m_meshes.emplace_back( mesh );
+        m_meshes.emplace_back(mesh);
     }
 
     void render(RenderContext& context) override;
@@ -45,5 +44,5 @@ public:
 private:
     std::vector<gsl::not_null<std::shared_ptr<Mesh>>> m_meshes{};
 };
-}
-}
+} // namespace scene
+} // namespace render

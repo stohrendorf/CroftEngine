@@ -5,18 +5,14 @@
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-
-#include <zlib.h>
-
-#include <iostream>
-
 #include <boost/throw_exception.hpp>
-
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <utility>
 #include <vector>
+#include <zlib.h>
 
 namespace loader
 {
@@ -36,42 +32,41 @@ public:
     SDLReader& operator=(SDLReader&&) = delete;
 
     explicit SDLReader(std::shared_ptr<DataStreamBuf> stream)
-        : m_streamBuf{ std::move( stream ) }
-          , m_stream{ m_streamBuf.get() }
+        : m_streamBuf{std::move(stream)}
+        , m_stream{m_streamBuf.get()}
     {
     }
 
     SDLReader(SDLReader&& rhs) noexcept
-        : m_memory{ move( rhs.m_memory ) }
-          , m_file{ move( rhs.m_file ) }
-          , m_array{ move( rhs.m_array ) }
-          , m_streamBuf{ move( rhs.m_streamBuf ) }
-          , m_stream{ m_streamBuf.get() }
+        : m_memory{move(rhs.m_memory)}
+        , m_file{move(rhs.m_file)}
+        , m_array{move(rhs.m_array)}
+        , m_streamBuf{move(rhs.m_streamBuf)}
+        , m_stream{m_streamBuf.get()}
     {
     }
 
     explicit SDLReader(const std::string& filename)
-        : m_file{ std::make_unique<boost::iostreams::file>( filename, std::ios::in | std::ios::binary,
-                                                            std::ios::in | std::ios::binary )
-    }
-          , m_streamBuf{ std::make_shared<DataStreamBuf>( *m_file ) }
-          , m_stream{ m_streamBuf.get() }
+        : m_file{std::make_unique<boost::iostreams::file>(
+            filename, std::ios::in | std::ios::binary, std::ios::in | std::ios::binary)}
+        , m_streamBuf{std::make_shared<DataStreamBuf>(*m_file)}
+        , m_stream{m_streamBuf.get()}
     {
     }
 
     explicit SDLReader(const std::vector<char>& data)
-        : m_memory{ data }
-          , m_array{ std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() ) }
-          , m_streamBuf{ std::make_shared<DataStreamBuf>( *m_array ) }
-          , m_stream{ m_streamBuf.get() }
+        : m_memory{data}
+        , m_array{std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size())}
+        , m_streamBuf{std::make_shared<DataStreamBuf>(*m_array)}
+        , m_stream{m_streamBuf.get()}
     {
     }
 
     explicit SDLReader(std::vector<char>&& data)
-        : m_memory{ move( data ) }
-          , m_array{ std::make_unique<boost::iostreams::array>( m_memory.data(), m_memory.size() ) }
-          , m_streamBuf{ std::make_shared<DataStreamBuf>( *m_array ) }
-          , m_stream{ m_streamBuf.get() }
+        : m_memory{move(data)}
+        , m_array{std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size())}
+        , m_streamBuf{std::make_shared<DataStreamBuf>(*m_array)}
+        , m_stream{m_streamBuf.get()}
     {
     }
 
@@ -79,19 +74,22 @@ public:
 
     static SDLReader decompress(const std::vector<uint8_t>& compressed, const size_t uncompressedSize)
     {
-        std::vector<char> uncomp_buffer( uncompressedSize );
+        std::vector<char> uncomp_buffer(uncompressedSize);
 
         auto size = static_cast<uLongf>(uncompressedSize);
-        if( uncompress( reinterpret_cast<Bytef*>(uncomp_buffer.data()), &size, compressed.data(),
-                        static_cast<uLong>(compressed.size()) ) != Z_OK )
-            BOOST_THROW_EXCEPTION( std::runtime_error( "Decompression failed" ) );
+        if(uncompress(reinterpret_cast<Bytef*>(uncomp_buffer.data()),
+                      &size,
+                      compressed.data(),
+                      static_cast<uLong>(compressed.size()))
+           != Z_OK)
+            BOOST_THROW_EXCEPTION(std::runtime_error("Decompression failed"));
 
-        if( size != uncompressedSize )
-            BOOST_THROW_EXCEPTION( std::runtime_error( "Decompressed size mismatch" ) );
+        if(size != uncompressedSize)
+            BOOST_THROW_EXCEPTION(std::runtime_error("Decompressed size mismatch"));
 
-        SDLReader reader( move( uncomp_buffer ) );
-        if( !reader.isOpen() )
-            BOOST_THROW_EXCEPTION( std::runtime_error( "Failed to create reader from decompressed memory" ) );
+        SDLReader reader(move(uncomp_buffer));
+        if(!reader.isOpen())
+            BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create reader from decompressed memory"));
 
         return reader;
     }
@@ -109,31 +107,31 @@ public:
     std::streamsize size()
     {
         const auto pos = m_stream.tellg();
-        m_stream.seekg( 0, std::ios::end );
+        m_stream.seekg(0, std::ios::end);
         const auto size = m_stream.tellg();
-        m_stream.seekg( pos, std::ios::beg );
+        m_stream.seekg(pos, std::ios::beg);
         return size;
     }
 
     void skip(const std::streamoff delta)
     {
-        m_stream.seekg( delta, std::ios::cur );
+        m_stream.seekg(delta, std::ios::cur);
     }
 
     void seek(const std::streampos position)
     {
-        m_stream.seekg( position, std::ios::beg );
+        m_stream.seekg(position, std::ios::beg);
     }
 
     template<typename T>
     void readBytes(T* dest, const size_t n)
     {
-        static_assert( std::is_integral<T>::value && sizeof( T ) == 1,
-                       "readBytes() only allowed for byte-compatible data" );
-        m_stream.read( reinterpret_cast<char*>(dest), n );
-        if( static_cast<size_t>(m_stream.gcount()) != n )
+        static_assert(std::is_integral<T>::value && sizeof(T) == 1,
+                      "readBytes() only allowed for byte-compatible data");
+        m_stream.read(reinterpret_cast<char*>(dest), n);
+        if(static_cast<size_t>(m_stream.gcount()) != n)
         {
-            BOOST_THROW_EXCEPTION( std::runtime_error( "EOF unexpectedly reached" ) );
+            BOOST_THROW_EXCEPTION(std::runtime_error("EOF unexpectedly reached"));
         }
     }
 
@@ -147,33 +145,33 @@ public:
     void readVector(std::vector<T>& elements, size_t count, PtrProducer<T, Args...> producer, Args... args)
     {
         elements.clear();
-        appendVector( elements, count, producer, args... );
+        appendVector(elements, count, producer, args...);
     }
 
     template<typename T, typename... Args>
     void readVector(std::vector<T>& elements, size_t count, StackProducer<T, Args...> producer, Args... args)
     {
         elements.clear();
-        appendVector( elements, count, producer, args... );
+        appendVector(elements, count, producer, args...);
     }
 
     template<typename T, typename... Args>
     void appendVector(std::vector<T>& elements, size_t count, PtrProducer<T, Args...> producer, Args... args)
     {
-        elements.reserve( elements.size() + count );
-        for( size_t i = 0; i < count; ++i )
+        elements.reserve(elements.size() + count);
+        for(size_t i = 0; i < count; ++i)
         {
-            elements.emplace_back( std::move( *producer( *this, args... ) ) );
+            elements.emplace_back(std::move(*producer(*this, args...)));
         }
     }
 
     template<typename T, typename... Args>
     void appendVector(std::vector<T>& elements, size_t count, StackProducer<T, Args...> producer, Args... args)
     {
-        elements.reserve( elements.size() + count );
-        for( size_t i = 0; i < count; ++i )
+        elements.reserve(elements.size() + count);
+        for(size_t i = 0; i < count; ++i)
         {
-            elements.emplace_back( producer( *this, args... ) );
+            elements.emplace_back(producer(*this, args...));
         }
     }
 
@@ -181,31 +179,31 @@ public:
     void readVector(std::vector<T>& elements, size_t count)
     {
         elements.clear();
-        elements.reserve( count );
-        for( size_t i = 0; i < count; ++i )
+        elements.reserve(count);
+        for(size_t i = 0; i < count; ++i)
         {
-            elements.emplace_back( read<T>() );
+            elements.emplace_back(read<T>());
         }
     }
 
     void readVector(std::vector<uint8_t>& elements, const size_t count)
     {
         elements.clear();
-        elements.resize( count );
-        readBytes( elements.data(), count );
+        elements.resize(count);
+        readBytes(elements.data(), count);
     }
 
     void readVector(std::vector<int8_t>& elements, const size_t count)
     {
         elements.clear();
-        elements.resize( count );
-        readBytes( elements.data(), count );
+        elements.resize(count);
+        readBytes(elements.data(), count);
     }
 
     template<typename T>
     T read()
     {
-        return ReadTraits<T>::read( m_stream );
+        return ReadTraits<T>::read(m_stream);
     }
 
     uint8_t readU8()
@@ -275,8 +273,8 @@ private:
         static void doSwap(type_safe::integer<T>& data)
         {
             auto tmp = data.get();
-            SwapTraits<T, sizeof( T ), std::is_integral<T>::value || std::is_floating_point<T>::value>::doSwap( tmp );
-            data = type_safe::integer<T>( tmp );
+            SwapTraits<T, sizeof(T), std::is_integral<T>::value || std::is_floating_point<T>::value>::doSwap(tmp);
+            data = type_safe::integer<T>(tmp);
         }
     };
 
@@ -286,14 +284,13 @@ private:
         static T read(std::istream& stream)
         {
             T result;
-            stream.read( reinterpret_cast<char*>(&result), sizeof( T ) );
-            if( stream.gcount() != sizeof( T ) )
+            stream.read(reinterpret_cast<char*>(&result), sizeof(T));
+            if(stream.gcount() != sizeof(T))
             {
-                BOOST_THROW_EXCEPTION( std::runtime_error( "EOF unexpectedly reached" ) );
+                BOOST_THROW_EXCEPTION(std::runtime_error("EOF unexpectedly reached"));
             }
 
-            SwapTraits<T, sizeof( T ), std::is_integral<T>::value || std::is_floating_point<T>::value>::doSwap(
-                result );
+            SwapTraits<T, sizeof(T), std::is_integral<T>::value || std::is_floating_point<T>::value>::doSwap(result);
 
             return result;
         }
@@ -304,10 +301,10 @@ private:
     {
         static type_safe::integer<T> read(std::istream& stream)
         {
-            return type_safe::integer<T>{ ReadTraits<T>::read( stream ) };
+            return type_safe::integer<T>{ReadTraits<T>::read(stream)};
         }
     };
 };
-}
-}
-}
+} // namespace io
+} // namespace file
+} // namespace loader

@@ -3,18 +3,17 @@
 #include "audio/soundengine.h"
 #include "audio/streamsource.h"
 #include "engine/cameracontroller.h"
-#include "engine/particle.h"
 #include "engine/items/itemnode.h"
 #include "engine/items/pickupitem.h"
+#include "engine/particle.h"
 #include "game.h"
+#include "hid/inputhandler.h"
 #include "loader/file/animation.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
 #include "loader/file/mesh.h"
-#include "hid/inputhandler.h"
 
 #include <boost/filesystem/path.hpp>
-
 #include <memory>
 #include <vector>
 
@@ -29,13 +28,12 @@ namespace file
 {
 namespace level
 {
-
 class Level
 {
 public:
     Level(const Game gameVersion, io::SDLReader&& reader)
-        : m_gameVersion{ gameVersion }
-          , m_reader{ std::move( reader ) }
+        : m_gameVersion{gameVersion}
+        , m_reader{std::move(reader)}
     {
     }
 
@@ -158,8 +156,7 @@ protected:
 
     void readMeshData(io::SDLReader& reader);
 
-    static void
-    convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst);
+    static void convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst);
 
     static void convertTexture(WordTexture& tex, DWordTexture& dst);
 
@@ -168,9 +165,8 @@ protected:
 private:
     static Game probeVersion(io::SDLReader& reader, const std::string& filename);
 
-    static std::shared_ptr<Level>
-    createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath);
+    static std::shared_ptr<Level> createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath);
 };
-}
-}
-}
+} // namespace level
+} // namespace file
+} // namespace loader

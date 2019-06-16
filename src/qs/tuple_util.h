@@ -1,21 +1,17 @@
 #pragma once
 
-#include <type_traits>
 #include <tuple>
+#include <type_traits>
 
 namespace qs
 {
 namespace detail
 {
 template<typename... Args>
-using tuple_concat_t = decltype( std::tuple_cat( std::declval<Args>()... ) );
+using tuple_concat_t = decltype(std::tuple_cat(std::declval<Args>()...));
 
 template<typename T, typename A>
-using drop_if_same_t = std::conditional_t<
-    std::is_same<T, A>::value,
-    std::tuple<>,
-    std::tuple<A>
->;
+using drop_if_same_t = std::conditional_t<std::is_same<T, A>::value, std::tuple<>, std::tuple<A>>;
 
 template<typename, typename>
 struct drop_first;
@@ -37,11 +33,9 @@ struct drop_first<T, std::tuple<A, Args...>>
 {
     using head = drop_if_same_t<T, A>;
 
-    using type = std::conditional_t<
-        std::is_same<head, std::tuple<>>::value,
-        std::tuple<Args...>,
-        tuple_concat_t<head, typename drop_first<T, std::tuple<Args...>>::type>
-    >;
+    using type = std::conditional_t<std::is_same<head, std::tuple<>>::value,
+                                    std::tuple<Args...>,
+                                    tuple_concat_t<head, typename drop_first<T, std::tuple<Args...>>::type>>;
 };
 
 template<typename T, typename Tuple>
@@ -58,7 +52,6 @@ struct first_type<T, Args...>
 {
     using type = T;
 };
-
 
 template<typename... Args>
 using first_type_t = typename first_type<Args...>::type;
@@ -100,16 +93,10 @@ template<typename... Needles, typename... Haystack>
 struct drop_all_once<std::tuple<Needles...>, std::tuple<Haystack...>>
 {
     using _needle0 = first_type_t<Needles...>;
-    using _reduced_haystack = drop_first_t<
-        _needle0,
-        std::tuple<Haystack...>
-    >;
+    using _reduced_haystack = drop_first_t<_needle0, std::tuple<Haystack...>>;
 
     using _reduced_needles = except_first_tuple_t<std::tuple<Needles...>>;
-    using type = typename drop_all_once<
-        _reduced_needles,
-        _reduced_haystack
-    >::type;
+    using type = typename drop_all_once<_reduced_needles, _reduced_haystack>::type;
 };
 
 template<typename T, typename U>
@@ -124,5 +111,5 @@ struct tuple_drop_common<std::tuple<L...>, std::tuple<R...>>
     using reduced_l = drop_all_once_t<std::tuple<R...>, std::tuple<L...>>;
     using reduced_r = drop_all_once_t<std::tuple<L...>, std::tuple<R...>>;
 };
-}
+} // namespace detail
 }

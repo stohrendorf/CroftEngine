@@ -6,32 +6,31 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_13 final
-    : public StateHandler_Underwater
+class StateHandler_13 final : public StateHandler_Underwater
 {
 public:
     explicit StateHandler_13(LaraNode& lara)
-        : StateHandler_Underwater{ lara, LaraStateId::UnderwaterStop }
+        : StateHandler_Underwater{lara, LaraStateId::UnderwaterStop}
     {
     }
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getLara().m_state.health < 0_hp )
+        if(getLara().m_state.health < 0_hp)
         {
-            setGoalAnimState( LaraStateId::WaterDeath );
+            setGoalAnimState(LaraStateId::WaterDeath);
             return;
         }
 
         handleDiveRotationInput();
 
-        if( getEngine().getInputHandler().getInputState().jump )
+        if(getEngine().getInputHandler().getInputState().jump)
         {
-            setGoalAnimState( LaraStateId::UnderwaterForward );
+            setGoalAnimState(LaraStateId::UnderwaterForward);
         }
 
-        getLara().m_state.fallspeed = std::max( 0_spd, getLara().m_state.fallspeed - 6_spd );
+        getLara().m_state.fallspeed = std::max(0_spd, getLara().m_state.fallspeed - 6_spd);
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

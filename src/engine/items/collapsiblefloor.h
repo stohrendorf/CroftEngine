@@ -13,7 +13,7 @@ public:
                      const gsl::not_null<const loader::file::Room*>& room,
                      const loader::file::Item& item,
                      const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{ engine, room, item, true, animatedModel }
+        : ModelItemNode{engine, room, item, true, animatedModel}
     {
     }
 
@@ -21,10 +21,10 @@ public:
 
     void patchFloor(const core::TRVec& pos, core::Length& y) override
     {
-        if( pos.Y > m_state.position.position.Y - 512_len )
+        if(pos.Y > m_state.position.position.Y - 512_len)
             return;
 
-        if( m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as )
+        if(m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as)
             return;
 
         y = m_state.position.position.Y - 512_len;
@@ -32,14 +32,14 @@ public:
 
     void patchCeiling(const core::TRVec& pos, core::Length& y) override
     {
-        if( pos.Y <= m_state.position.position.Y - 512_len )
+        if(pos.Y <= m_state.position.position.Y - 512_len)
             return;
 
-        if( m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as )
+        if(m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as)
             return;
 
         y = m_state.position.position.Y - 256_len;
     }
 };
-}
-}
+} // namespace items
+} // namespace engine

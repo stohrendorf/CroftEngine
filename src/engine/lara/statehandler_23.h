@@ -7,12 +7,11 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_23 final
-    : public AbstractStateHandler
+class StateHandler_23 final : public AbstractStateHandler
 {
 public:
     explicit StateHandler_23(LaraNode& lara)
-        : AbstractStateHandler{ lara, LaraStateId::RollBackward }
+        : AbstractStateHandler{lara, LaraStateId::RollBackward}
     {
     }
 
@@ -25,34 +24,34 @@ public:
         getLara().m_state.falling = false;
         getLara().m_state.fallspeed = 0_spd;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
-        setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.policyFlags.set( CollisionInfo::PolicyFlags::SlopesAreWalls );
+        setMovementAngle(collisionInfo.facingAngle);
+        collisionInfo.policyFlags.set(CollisionInfo::PolicyFlags::SlopesAreWalls);
         collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0_len;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
+        collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
 
-        if( stopIfCeilingBlocked( collisionInfo ) )
+        if(stopIfCeilingBlocked(collisionInfo))
         {
             return;
         }
-        if( tryStartSlide( collisionInfo ) )
+        if(tryStartSlide(collisionInfo))
         {
             return;
         }
 
-        if( collisionInfo.mid.floorSpace.y <= 200_len )
+        if(collisionInfo.mid.floorSpace.y <= 200_len)
         {
-            applyShift( collisionInfo );
-            placeOnFloor( collisionInfo );
+            applyShift(collisionInfo);
+            placeOnFloor(collisionInfo);
             return;
         }
 
-        setAnimation( AnimationId::FREE_FALL_BACK, 1473_frame );
-        setGoalAnimState( LaraStateId::FallBackward );
+        setAnimation(AnimationId::FREE_FALL_BACK, 1473_frame);
+        setGoalAnimState(LaraStateId::FallBackward);
         getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = true;
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

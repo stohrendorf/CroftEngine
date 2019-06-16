@@ -6,14 +6,13 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_36 final
-    : public StateHandler_Pushable
+class StateHandler_36 final : public StateHandler_Pushable
 {
 public:
     explicit StateHandler_36(LaraNode& lara)
-        : StateHandler_Pushable{ lara, LaraStateId::PushablePush }
+        : StateHandler_Pushable{lara, LaraStateId::PushablePush}
     {
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

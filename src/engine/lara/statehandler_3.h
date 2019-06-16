@@ -8,47 +8,46 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_3 final
-    : public AbstractStateHandler
+class StateHandler_3 final : public AbstractStateHandler
 {
 public:
     explicit StateHandler_3(LaraNode& lara)
-        : AbstractStateHandler{ lara, LaraStateId::JumpForward }
+        : AbstractStateHandler{lara, LaraStateId::JumpForward}
     {
     }
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getGoalAnimState() == LaraStateId::SwandiveBegin || getGoalAnimState() == LaraStateId::Reach )
+        if(getGoalAnimState() == LaraStateId::SwandiveBegin || getGoalAnimState() == LaraStateId::Reach)
         {
-            setGoalAnimState( LaraStateId::JumpForward );
+            setGoalAnimState(LaraStateId::JumpForward);
         }
 
-        if( getGoalAnimState() != LaraStateId::Death && getGoalAnimState() != LaraStateId::Stop )
+        if(getGoalAnimState() != LaraStateId::Death && getGoalAnimState() != LaraStateId::Stop)
         {
-            if( getEngine().getInputHandler().getInputState().action && getHandStatus() == HandStatus::None )
+            if(getEngine().getInputHandler().getInputState().action && getHandStatus() == HandStatus::None)
             {
-                setGoalAnimState( LaraStateId::Reach );
+                setGoalAnimState(LaraStateId::Reach);
             }
 
-            if( getEngine().getInputHandler().getInputState().moveSlow && getHandStatus() == HandStatus::None )
+            if(getEngine().getInputHandler().getInputState().moveSlow && getHandStatus() == HandStatus::None)
             {
-                setGoalAnimState( LaraStateId::SwandiveBegin );
+                setGoalAnimState(LaraStateId::SwandiveBegin);
             }
 
-            if( getLara().m_state.fallspeed > core::FreeFallSpeedThreshold )
+            if(getLara().m_state.fallspeed > core::FreeFallSpeedThreshold)
             {
-                setGoalAnimState( LaraStateId::FreeFall );
+                setGoalAnimState(LaraStateId::FreeFall);
             }
         }
 
-        if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left )
+        if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
         {
-            subYRotationSpeed( 2.25_deg, -3_deg );
+            subYRotationSpeed(2.25_deg, -3_deg);
         }
-        else if( getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right )
+        else if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
         {
-            addYRotationSpeed( 2.25_deg, 3_deg );
+            addYRotationSpeed(2.25_deg, 3_deg);
         }
     }
 
@@ -58,36 +57,36 @@ public:
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 192_len;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
-        checkJumpWallSmash( collisionInfo );
+        setMovementAngle(collisionInfo.facingAngle);
+        collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+        checkJumpWallSmash(collisionInfo);
 
-        if( collisionInfo.mid.floorSpace.y > 0_len || getLara().m_state.fallspeed <= 0_spd )
+        if(collisionInfo.mid.floorSpace.y > 0_len || getLara().m_state.fallspeed <= 0_spd)
         {
             return;
         }
 
-        if( applyLandingDamage() )
+        if(applyLandingDamage())
         {
-            setGoalAnimState( LaraStateId::Death );
+            setGoalAnimState(LaraStateId::Death);
         }
-        else if( getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward
-            || getEngine().getInputHandler().getInputState().moveSlow )
+        else if(getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward
+                || getEngine().getInputHandler().getInputState().moveSlow)
         {
-            setGoalAnimState( LaraStateId::Stop );
+            setGoalAnimState(LaraStateId::Stop);
         }
         else
         {
-            setGoalAnimState( LaraStateId::RunForward );
+            setGoalAnimState(LaraStateId::RunForward);
         }
 
         getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = false;
         getLara().m_state.speed = 0_spd;
-        placeOnFloor( collisionInfo );
+        placeOnFloor(collisionInfo);
 
         laraUpdateImpl();
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

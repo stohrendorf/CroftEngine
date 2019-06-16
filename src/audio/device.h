@@ -1,19 +1,16 @@
 #pragma once
 
 #include "filterhandle.h"
+#include "gsl-lite.hpp"
 #include "sourcehandle.h"
 #include "stream.h"
 
-#include "gsl-lite.hpp"
-
 #include <AL/alc.h>
-
 #include <set>
 #include <thread>
 
 namespace audio
 {
-
 class Device final
 {
 public:
@@ -41,52 +38,48 @@ public:
 
     void removeStream(const std::shared_ptr<Stream>& stream)
     {
-        m_streams.erase( stream );
+        m_streams.erase(stream);
     }
 
     void removeStoppedSources()
     {
         std::set<std::shared_ptr<SourceHandle>> cleaned;
-        std::copy_if( m_sources.begin(), m_sources.end(), std::inserter( cleaned, cleaned.end() ),
-                      [](const std::shared_ptr<SourceHandle>& src) {
-                        return !src->isStopped();
-                      } );
+        std::copy_if(m_sources.begin(),
+                     m_sources.end(),
+                     std::inserter(cleaned, cleaned.end()),
+                     [](const std::shared_ptr<SourceHandle>& src) { return !src->isStopped(); });
 
-        m_sources = std::move( cleaned );
+        m_sources = std::move(cleaned);
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     // ReSharper disable once CppMemberFunctionMayBeStatic
     void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
     {
-        AL_ASSERT( alListener3f( AL_POSITION, pos.x, pos.y, pos.z ) );
+        AL_ASSERT(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
 
-        const ALfloat o[6] = {
-            front.x, front.y, front.z,
-            up.x, up.y, up.z
-        };
-        AL_ASSERT( alListenerfv( AL_ORIENTATION, o ) );
+        const ALfloat o[6] = {front.x, front.y, front.z, up.x, up.y, up.z};
+        AL_ASSERT(alListenerfv(AL_ORIENTATION, o));
     }
 
     void applyDirectFilterToAllSources(const std::shared_ptr<FilterHandle>& filter)
     {
-        for( const auto& src : m_sources )
-            src->setDirectFilter( filter );
+        for(const auto& src : m_sources)
+            src->setDirectFilter(filter);
     }
 
-    gsl::not_null<std::shared_ptr<Stream>> createStream(std::unique_ptr<AbstractStreamSource>&& src,
-                                                        const size_t bufferSize,
-                                                        const size_t bufferCount)
+    gsl::not_null<std::shared_ptr<Stream>>
+        createStream(std::unique_ptr<AbstractStreamSource>&& src, const size_t bufferSize, const size_t bufferCount)
     {
-        const auto r = std::make_shared<Stream>( *this, std::move( src ), bufferSize, bufferCount );
-        m_streams.emplace( r );
+        const auto r = std::make_shared<Stream>(*this, std::move(src), bufferSize, bufferCount);
+        m_streams.emplace(r);
         return r;
     }
 
     gsl::not_null<std::shared_ptr<SourceHandle>> createSource()
     {
         const auto r = std::make_shared<SourceHandle>();
-        m_sources.emplace( r );
+        m_sources.emplace(r);
         return r;
     }
 
@@ -101,8 +94,8 @@ private:
 
     void updateStreams()
     {
-        for( const auto& stream : m_streams )
+        for(const auto& stream : m_streams)
             stream->update();
     }
 };
-}
+} // namespace audio

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pixel.h"
 #include "image.h"
+#include "pixel.h"
 
 #include <ft2build.h>
 #include FT_CACHE_H
@@ -56,5 +56,5 @@ private:
 
     const std::string m_filename;
 };
-}
-}
+} // namespace gl
+} // namespace render

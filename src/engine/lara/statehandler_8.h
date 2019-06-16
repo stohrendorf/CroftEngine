@@ -7,12 +7,11 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_8 final
-    : public AbstractStateHandler
+class StateHandler_8 final : public AbstractStateHandler
 {
 public:
     explicit StateHandler_8(LaraNode& lara)
-        : AbstractStateHandler{ lara, LaraStateId::Death }
+        : AbstractStateHandler{lara, LaraStateId::Death}
     {
     }
 
@@ -28,13 +27,13 @@ public:
         collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.collisionRadius = 400_len;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle( collisionInfo.facingAngle );
-        applyShift( collisionInfo );
-        placeOnFloor( collisionInfo );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
+        setMovementAngle(collisionInfo.facingAngle);
+        applyShift(collisionInfo);
+        placeOnFloor(collisionInfo);
+        collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
         getLara().m_state.health = -1_hp;
-        setAir( -1_frame );
+        setAir(-1_frame);
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

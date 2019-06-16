@@ -5,19 +5,19 @@
 
 void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 {
-    if( lara.m_state.health >= 0_hp && isNear( lara, collisionInfo.collisionRadius ) && testBoneCollision( lara ) )
+    if(lara.m_state.health >= 0_hp && isNear(lara, collisionInfo.collisionRadius) && testBoneCollision(lara))
     {
-        int bloodSplats = util::rand15( 2 );
-        if( !lara.m_state.falling )
+        int bloodSplats = util::rand15(2);
+        if(!lara.m_state.falling)
         {
-            if( lara.m_state.speed < 30_spd )
+            if(lara.m_state.speed < 30_spd)
             {
                 return;
             }
         }
         else
         {
-            if( lara.m_state.fallspeed > 0_spd )
+            if(lara.m_state.fallspeed > 0_spd)
             {
                 // immediate death when falling into the spikes
                 bloodSplats = 20;
@@ -25,26 +25,24 @@ void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisio
             }
         }
         lara.m_state.health -= 15_hp;
-        while( bloodSplats-- > 0 )
+        while(bloodSplats-- > 0)
         {
-            auto fx = createBloodSplat( getEngine(),
-                                        core::RoomBoundPosition{
-                                            lara.m_state.position.room,
-                                            lara.m_state.position.position + core::TRVec{
-                                                util::rand15s( 128_len ),
-                                                -util::rand15( 512_len ),
-                                                util::rand15s( 128_len )
-                                            }
-                                        },
-                                        20_spd, util::rand15( +180_deg ) );
-            getEngine().getParticles().emplace_back( fx );
+            auto fx = createBloodSplat(
+                getEngine(),
+                core::RoomBoundPosition{
+                    lara.m_state.position.room,
+                    lara.m_state.position.position
+                        + core::TRVec{util::rand15s(128_len), -util::rand15(512_len), util::rand15s(128_len)}},
+                20_spd,
+                util::rand15(+180_deg));
+            getEngine().getParticles().emplace_back(fx);
         }
-        if( lara.m_state.health <= 0_hp )
+        if(lara.m_state.health <= 0_hp)
         {
-            lara.m_state.anim = &getEngine().getAnimation( AnimationId::SPIKED );
+            lara.m_state.anim = &getEngine().getAnimation(AnimationId::SPIKED);
             lara.m_state.frame_number = 3887_frame;
-            lara.setCurrentAnimState( LaraStateId::Death );
-            lara.setGoalAnimState( LaraStateId::Death );
+            lara.setCurrentAnimState(LaraStateId::Death);
+            lara.setGoalAnimState(LaraStateId::Death);
             lara.m_state.falling = false;
             lara.m_state.position.position.Y = m_state.position.position.Y;
         }

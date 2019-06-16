@@ -11,7 +11,7 @@ struct unit_suffix_helper
 {
     static std::string suffix()
     {
-        return std::string( U::suffix() ) + "*" + unit_suffix_helper<Units...>::suffix();
+        return std::string(U::suffix()) + "*" + unit_suffix_helper<Units...>::suffix();
     }
 };
 
@@ -29,5 +29,5 @@ inline std::string suffix()
 {
     return unit_suffix_helper<Units...>::suffix();
 }
-}
-}
+} // namespace detail
+} // namespace qs

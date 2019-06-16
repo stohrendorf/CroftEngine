@@ -12,7 +12,7 @@ class Visitor
 {
 public:
     explicit Visitor(RenderContext& context)
-        : m_context{ context }
+        : m_context{context}
     {
     }
 
@@ -37,5 +37,5 @@ public:
 private:
     RenderContext& m_context;
 };
-}
-}
+} // namespace scene
+} // namespace render

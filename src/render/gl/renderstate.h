@@ -109,7 +109,7 @@ private:
 
         T get() const
         {
-            return value.get_value_or( DefaultValue );
+            return value.get_value_or(DefaultValue);
         }
 
         void reset()
@@ -140,7 +140,7 @@ private:
 
         void merge(const DefaultedOptional<T, DefaultValue>& other)
         {
-            if( other.isInitialized() )
+            if(other.isInitialized())
                 *this = other;
         }
     };
@@ -150,12 +150,13 @@ private:
         const ::gl::GLfloat DefaultValue;
 
         explicit DefaultedOptionalF(::gl::GLfloat defaultValue)
-            : DefaultValue{ defaultValue }
-        {}
+            : DefaultValue{defaultValue}
+        {
+        }
 
         DefaultedOptionalF& operator=(const DefaultedOptionalF& rhs)
         {
-            BOOST_ASSERT( DefaultValue == rhs.DefaultValue );
+            BOOST_ASSERT(DefaultValue == rhs.DefaultValue);
 
             value = rhs.value;
             return *this;
@@ -165,7 +166,7 @@ private:
 
         ::gl::GLfloat get() const
         {
-            return value.get_value_or( DefaultValue );
+            return value.get_value_or(DefaultValue);
         }
 
         void reset()
@@ -196,7 +197,7 @@ private:
 
         void merge(const DefaultedOptionalF& other)
         {
-            if( other.isInitialized() )
+            if(other.isInitialized())
                 *this = other;
         }
     };
@@ -220,11 +221,11 @@ private:
 
     DefaultedOptional<FrontFaceDirection, FrontFaceDirection::CW> m_frontFace;
 
-    DefaultedOptionalF m_lineWidth{ 1.0f };
+    DefaultedOptionalF m_lineWidth{1.0f};
 
     DefaultedOptional<bool, true> m_lineSmooth;
 
     static inline RenderState& getCurrentState();
 };
-}
-}
+} // namespace gl
+} // namespace render

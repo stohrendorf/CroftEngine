@@ -15,9 +15,9 @@ constexpr auto ClimbLimit2ClickMin = QuarterSectorSize + SteppableHeight;
 constexpr auto ClimbLimit2ClickMax = QuarterSectorSize + ClimbLimit2ClickMin;
 constexpr auto ClimbLimit3ClickMax = QuarterSectorSize + ClimbLimit2ClickMax;
 
-static_assert( SteppableHeight < ClimbLimit2ClickMin, "Constants wrong" );
-static_assert( ClimbLimit2ClickMin < ClimbLimit2ClickMax, "Constants wrong" );
-static_assert( ClimbLimit2ClickMax < ClimbLimit3ClickMax, "Constants wrong" );
+static_assert(SteppableHeight < ClimbLimit2ClickMin, "Constants wrong");
+static_assert(ClimbLimit2ClickMin < ClimbLimit2ClickMax, "Constants wrong");
+static_assert(ClimbLimit2ClickMax < ClimbLimit3ClickMax, "Constants wrong");
 
 constexpr auto LaraWalkHeight = 762_len;
 constexpr auto LaraSwimHeight = 700_len;
@@ -32,9 +32,9 @@ constexpr auto DamageFallSpeedThreshold = 140_spd;
 constexpr auto DeadlyFallSpeedThreshold = 154_spd;
 constexpr auto DeadlyHeadFallSpeedThreshold = 133_spd;
 
-static_assert( FreeFallSpeedThreshold < DamageFallSpeedThreshold, "Constants wrong" );
-static_assert( FreeFallSpeedThreshold < DeadlyHeadFallSpeedThreshold, "Constants wrong" );
-static_assert( DamageFallSpeedThreshold < DeadlyFallSpeedThreshold, "Constants wrong" );
+static_assert(FreeFallSpeedThreshold < DamageFallSpeedThreshold, "Constants wrong");
+static_assert(FreeFallSpeedThreshold < DeadlyHeadFallSpeedThreshold, "Constants wrong");
+static_assert(DamageFallSpeedThreshold < DeadlyFallSpeedThreshold, "Constants wrong");
 
 constexpr auto MaxGrabbableGradient = 60_len;
 
@@ -49,4 +49,4 @@ constexpr auto DefaultCollisionRadiusUnderwater = 300_len;
 constexpr auto CameraWallDistance = QuarterSectorSize + 50_len;
 constexpr auto DefaultCameraLaraDistance = SectorSize * 3 / 2;
 constexpr auto CombatCameraLaraDistance = SectorSize + DefaultCameraLaraDistance;
-}
+} // namespace core

@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Dimension.h"
-
-#include "render/gl/renderstate.h"
 #include "render/gl/pixel.h"
+#include "render/gl/renderstate.h"
 
 #include <chrono>
 
@@ -52,16 +51,15 @@ public:
     }
 
 private:
-    const std::chrono::high_resolution_clock::time_point
-        m_constructionTime{ std::chrono::high_resolution_clock::now() };
+    const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
 
     std::chrono::high_resolution_clock::time_point m_frameLastFPS{}; // The last time the frame count was updated.
-    uint_fast32_t m_frameCount = 0; // The current frame count.
-    float m_frameRate = 0; // The current frame rate.
+    uint_fast32_t m_frameCount = 0;                                  // The current frame count.
+    float m_frameRate = 0;                                           // The current frame rate.
     gl::SRGBA8 m_clearColor; // The clear color value last used for clearing the color buffer.
-    float m_clearDepth = 1; // The clear depth value last used for clearing the depth buffer.
+    float m_clearDepth = 1;  // The clear depth value last used for clearing the depth buffer.
 
     std::shared_ptr<Scene> m_scene;
 };
-}
-}
+} // namespace scene
+} // namespace render

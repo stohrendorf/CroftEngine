@@ -1,10 +1,8 @@
 #pragma once
 
 #include "bindableresource.h"
-
 #include "indexbuffer.h"
 #include "program.h"
-
 #include "structuredvertexbuffer.h"
 
 #include <utility>
@@ -21,19 +19,19 @@ public:
                          std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> vertexBuffers,
                          const Program& program,
                          const std::string& label = {})
-        : BindableResource{ ::gl::glGenVertexArrays,
-                            ::gl::glBindVertexArray,
-                            ::gl::glDeleteVertexArrays,
-                            ObjectIdentifier::VertexArray,
-                            label }
-        , m_indexBuffers{ std::move( indexBuffers ) }
-        , m_vertexBuffers{ std::move( vertexBuffers ) }
+        : BindableResource{::gl::glGenVertexArrays,
+                           ::gl::glBindVertexArray,
+                           ::gl::glDeleteVertexArrays,
+                           ObjectIdentifier::VertexArray,
+                           label}
+        , m_indexBuffers{std::move(indexBuffers)}
+        , m_vertexBuffers{std::move(vertexBuffers)}
     {
         bind();
-        for( const auto& buffer : m_indexBuffers )
+        for(const auto& buffer : m_indexBuffers)
             buffer->bind();
-        for( const auto& buffer : m_vertexBuffers )
-            buffer->bind( program );
+        for(const auto& buffer : m_vertexBuffers)
+            buffer->bind(program);
         unbind();
     }
 
@@ -41,10 +39,10 @@ public:
                          const gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>& vertexBuffer,
                          const Program& program,
                          const std::string& label = {})
-        : VertexArray{ std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>{ indexBuffer },
-                       std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>>{ vertexBuffer },
-                       program, label
-    }
+        : VertexArray{std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>{indexBuffer},
+                      std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>>{vertexBuffer},
+                      program,
+                      label}
     {
     }
 
@@ -63,5 +61,5 @@ private:
 
     std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> m_vertexBuffers;
 };
-}
-}
+} // namespace gl
+} // namespace render

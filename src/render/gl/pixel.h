@@ -38,8 +38,8 @@ enum class PixelFormat : RawGlEnum
 template<typename T>
 struct SRGBA final
 {
-    static_assert( std::is_integral<T>::value || std::is_floating_point<T>::value,
-                   "Pixel may only have channels of integral types" );
+    static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value,
+                  "Pixel may only have channels of integral types");
 
     using Type = T;
     using Traits = TypeTraits<T>;
@@ -50,23 +50,23 @@ struct SRGBA final
     static constexpr const ::gl::GLenum Format = ::gl::GL_RGBA;
 
     explicit SRGBA()
-        : SRGBA{ 0 }
+        : SRGBA{0}
     {
     }
 
     explicit constexpr SRGBA(Type value) noexcept
-        : r{ value }
-        , g{ value }
-        , b{ value }
-        , a{ value }
+        : r{value}
+        , g{value}
+        , b{value}
+        , a{value}
     {
     }
 
     constexpr SRGBA(Type r_, Type g_, Type b_, Type a_) noexcept
-        : r{ r_ }
-        , g{ g_ }
-        , b{ b_ }
-        , a{ a_ }
+        : r{r_}
+        , g{g_}
+        , b{b_}
+        , a{a_}
     {
     }
 
@@ -88,13 +88,11 @@ constexpr bool operator!=(const SRGBA<T>& lhs, const SRGBA<T>& rhs)
 template<typename T>
 inline SRGBA<T> mixAlpha(const SRGBA<T>& lhs, const SRGBA<T>& rhs)
 {
-    const float bias = float( rhs.a ) / std::numeric_limits<T>::max();
-    return {
-        static_cast<T>(lhs.r * (1 - bias) + rhs.r * bias),
-        static_cast<T>(lhs.g * (1 - bias) + rhs.g * bias),
-        static_cast<T>(lhs.b * (1 - bias) + rhs.b * bias),
-        static_cast<T>(lhs.a * (1 - bias) + rhs.a * bias)
-    };
+    const float bias = float(rhs.a) / std::numeric_limits<T>::max();
+    return {static_cast<T>(lhs.r * (1 - bias) + rhs.r * bias),
+            static_cast<T>(lhs.g * (1 - bias) + rhs.g * bias),
+            static_cast<T>(lhs.b * (1 - bias) + rhs.b * bias),
+            static_cast<T>(lhs.a * (1 - bias) + rhs.a * bias)};
 }
 
 using SRGBA8 = SRGBA<::gl::GLubyte>;
@@ -102,8 +100,8 @@ using SRGBA8 = SRGBA<::gl::GLubyte>;
 template<typename T>
 struct SRGB final
 {
-    static_assert( std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<Half, T>,
-                   "Pixel may only have channels of integral types" );
+    static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<Half, T>,
+                  "Pixel may only have channels of integral types");
 
     using Type = T;
     using Traits = TypeTraits<T>;
@@ -114,21 +112,21 @@ struct SRGB final
     static constexpr const ::gl::GLenum Format = ::gl::GL_RGB;
 
     explicit SRGB()
-        : RGB{ 0 }
+        : RGB{0}
     {
     }
 
     explicit constexpr SRGB(Type value) noexcept
-        : r{ value }
-        , g{ value }
-        , b{ value }
+        : r{value}
+        , g{value}
+        , b{value}
     {
     }
 
     constexpr SRGB(Type r_, Type g_, Type b_) noexcept
-        : r{ r_ }
-        , g{ g_ }
-        , b{ b_ }
+        : r{r_}
+        , g{g_}
+        , b{b_}
     {
     }
 
@@ -154,8 +152,8 @@ constexpr bool operator!=(const SRGB<T>& lhs, const SRGB<T>& rhs)
 template<typename T>
 struct RGB final
 {
-    static_assert( std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<Half, T>,
-                   "Pixel may only have channels of integral types" );
+    static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<Half, T>,
+                  "Pixel may only have channels of integral types");
 
     using Type = T;
     using Traits = TypeTraits<T>;
@@ -166,21 +164,21 @@ struct RGB final
     static constexpr const ::gl::GLenum Format = ::gl::GL_RGB;
 
     explicit RGB()
-        : RGB{ 0 }
+        : RGB{0}
     {
     }
 
     explicit constexpr RGB(Type value) noexcept
-        : r{ value }
-        , g{ value }
-        , b{ value }
+        : r{value}
+        , g{value}
+        , b{value}
     {
     }
 
     constexpr RGB(Type r_, Type g_, Type b_) noexcept
-        : r{ r_ }
-        , g{ g_ }
-        , b{ b_ }
+        : r{r_}
+        , g{g_}
+        , b{b_}
     {
     }
 
@@ -206,8 +204,8 @@ using RGB32F = RGB<::gl::GLfloat>;
 template<typename T>
 struct Scalar final
 {
-    static_assert( std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<Half, T>,
-                   "Pixel may only have channels of integral types" );
+    static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<Half, T>,
+                  "Pixel may only have channels of integral types");
 
     using Type = T;
     using Traits = TypeTraits<T>;
@@ -218,12 +216,12 @@ struct Scalar final
     static constexpr const ::gl::GLenum Format = ::gl::GL_RED;
 
     explicit Scalar()
-        : Scalar{ 0 }
+        : Scalar{0}
     {
     }
 
     explicit constexpr Scalar(Type value) noexcept
-        : value{ value }
+        : value{value}
     {
     }
 
@@ -245,5 +243,5 @@ constexpr bool operator!=(const Scalar<T>& lhs, const Scalar<T>& rhs)
 using ScalarByte = Scalar<::gl::GLubyte>;
 using Scalar32F = Scalar<::gl::GLfloat>;
 using Scalar16F = Scalar<Half>;
-}
-}
+} // namespace gl
+} // namespace render

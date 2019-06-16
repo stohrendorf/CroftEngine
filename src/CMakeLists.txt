@@ -298,4 +298,4 @@ if( LINUX OR UNIX )
     )
 endif()
 
-add_subdirectory(qs)
+add_subdirectory( qs )

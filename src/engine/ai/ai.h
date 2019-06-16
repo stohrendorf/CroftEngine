@@ -24,18 +24,13 @@ enum class Mood
 
 inline std::ostream& operator<<(std::ostream& str, const Mood mood)
 {
-    switch( mood )
+    switch(mood)
     {
-    case Mood::Bored:
-        return str << "Bored";
-    case Mood::Attack:
-        return str << "Attack";
-    case Mood::Escape:
-        return str << "Escape";
-    case Mood::Stalk:
-        return str << "Stalk";
-    default:
-        BOOST_THROW_EXCEPTION( std::runtime_error( "Invalid mood" ) );
+    case Mood::Bored: return str << "Bored";
+    case Mood::Attack: return str << "Attack";
+    case Mood::Escape: return str << "Escape";
+    case Mood::Stalk: return str << "Stalk";
+    default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid mood"));
     }
 }
 
@@ -57,7 +52,7 @@ struct SearchNode
 
     uint16_t getSearchVersion() const
     {
-        return search_version & ~uint16_t( 0x8000u );
+        return search_version & ~uint16_t(0x8000u);
     }
 
     bool isBlocked() const
@@ -103,8 +98,8 @@ struct LotInfo
 
     explicit LotInfo(const engine::Engine& engine)
     {
-        for( const auto& box : engine.getBoxes() )
-            nodes.insert( std::make_pair( &box, SearchNode{} ) );
+        for(const auto& box : engine.getBoxes())
+            nodes.insert(std::make_pair(&box, SearchNode{}));
     }
 
     static gsl::span<const uint16_t> getOverlaps(const engine::Engine& engine, uint16_t idx);
@@ -113,10 +108,10 @@ struct LotInfo
     {
         required_box = box;
         const auto zSize = box->zmax - box->zmin - core::SectorSize;
-        target.Z = util::rand15( zSize ) + box->zmin + core::SectorSize / 2;
+        target.Z = util::rand15(zSize) + box->zmin + core::SectorSize / 2;
         const auto xSize = box->xmax - box->xmin - core::SectorSize;
-        target.X = util::rand15( xSize ) + box->xmin + core::SectorSize / 2;
-        if( fly != 0_len )
+        target.X = util::rand15(xSize) + box->xmin + core::SectorSize / 2;
+        if(fly != 0_len)
         {
             target.Y = box->floor - 384_len;
         }
@@ -141,16 +136,16 @@ struct LotInfo
      */
     void updatePath(const engine::Engine& engine, const uint8_t maxDepth)
     {
-        if( required_box != nullptr && required_box != target_box )
+        if(required_box != nullptr && required_box != target_box)
         {
             target_box = required_box;
 
             const auto targetNode = &nodes[target_box];
-            if( targetNode->next_expansion == nullptr && tail != target_box )
+            if(targetNode->next_expansion == nullptr && tail != target_box)
             {
                 targetNode->next_expansion = head;
 
-                if( std::exchange( head, target_box ) == nullptr )
+                if(std::exchange(head, target_box) == nullptr)
                     tail = target_box;
             }
 
@@ -158,49 +153,49 @@ struct LotInfo
             targetNode->exit_box = nullptr;
         }
 
-        Expects( target_box != nullptr );
-        searchPath( engine, maxDepth );
+        Expects(target_box != nullptr);
+        searchPath(engine, maxDepth);
     }
 
     void searchPath(const engine::Engine& engine, const uint8_t maxDepth)
     {
-        if( head == nullptr )
+        if(head == nullptr)
         {
             return;
         }
 
-        const auto zoneRef = loader::file::Box::getZoneRef( engine.roomsAreSwapped(), fly, step );
+        const auto zoneRef = loader::file::Box::getZoneRef(engine.roomsAreSwapped(), fly, step);
         const auto searchZone = head->*zoneRef;
 
-        for( uint8_t i = 0; i < maxDepth; ++i )
+        for(uint8_t i = 0; i < maxDepth; ++i)
         {
-            if( head == nullptr )
+            if(head == nullptr)
             {
                 return;
             }
 
             const auto headNode = &nodes[head];
 
-            for( auto overlapBoxIdx : getOverlaps( engine, head->overlap_index ) )
+            for(auto overlapBoxIdx : getOverlaps(engine, head->overlap_index))
             {
                 overlapBoxIdx &= 0x7FFFu;
                 const auto* overlapBox = &engine.getBoxes()[overlapBoxIdx];
 
-                if( searchZone != overlapBox->*zoneRef )
+                if(searchZone != overlapBox->*zoneRef)
                     continue;
 
                 const auto boxHeightDiff = overlapBox->floor - head->floor;
-                if( boxHeightDiff > step || boxHeightDiff < drop )
+                if(boxHeightDiff > step || boxHeightDiff < drop)
                     continue; // can't reach from this box, but still maybe from another one
 
                 auto overlapNode = &nodes[overlapBox];
 
-                if( headNode->getSearchVersion() < overlapNode->getSearchVersion() )
+                if(headNode->getSearchVersion() < overlapNode->getSearchVersion())
                     continue; // not yet checked if we can reach this box
 
-                if( headNode->isBlocked() )
+                if(headNode->isBlocked())
                 {
-                    if( headNode->getSearchVersion() == overlapNode->getSearchVersion() )
+                    if(headNode->getSearchVersion() == overlapNode->getSearchVersion())
                         continue; // already visited; we don't care if the child is blocked or not
 
                     // mark as visited, will also mark as blocked
@@ -208,23 +203,22 @@ struct LotInfo
                 }
                 else
                 {
-                    if( headNode->getSearchVersion() == overlapNode->getSearchVersion()
-                        && !overlapNode->isBlocked() )
+                    if(headNode->getSearchVersion() == overlapNode->getSearchVersion() && !overlapNode->isBlocked())
                         continue; // already visited and reachable
 
                     // mark as visited, and check if reachable
                     overlapNode->search_version = headNode->search_version;
-                    if( (overlapBox->overlap_index & block_mask) != 0 )
+                    if((overlapBox->overlap_index & block_mask) != 0)
                         overlapNode->markBlocked(); // can't reach this box
                     else
                         overlapNode->exit_box = head; // success! connect both boxes
                 }
 
-                if( overlapNode->next_expansion == nullptr && overlapBox != tail )
+                if(overlapNode->next_expansion == nullptr && overlapBox != tail)
                     tail = nodes[tail].next_expansion = overlapBox; // enqueue for expansion
             }
 
-            head = std::exchange( headNode->next_expansion, nullptr );
+            head = std::exchange(headNode->next_expansion, nullptr);
         }
     }
 
@@ -239,7 +233,7 @@ struct AiInfo
 
     loader::file::ZoneId enemy_zone;
 
-    core::Area distance{ 0 };
+    core::Area distance{0};
 
     bool ahead;
 
@@ -272,21 +266,26 @@ struct CreatureInfo
 
     void rotateHead(const core::Angle& angle)
     {
-        const auto delta = util::clamp( angle - head_rotation, -5_deg, +5_deg );
-        head_rotation = util::clamp( delta + head_rotation, -90_deg, +90_deg );
+        const auto delta = util::clamp(angle - head_rotation, -5_deg, +5_deg);
+        head_rotation = util::clamp(delta + head_rotation, -90_deg, +90_deg);
     }
 
     static sol::usertype<CreatureInfo>& userType()
     {
-        static auto type = sol::usertype<CreatureInfo>(
-            sol::meta_function::construct, sol::no_constructor,
-            "head_rotation", &CreatureInfo::head_rotation,
-            "neck_rotation", &CreatureInfo::neck_rotation,
-            "maximum_turn", &CreatureInfo::maximum_turn,
-            "flags", &CreatureInfo::flags,
-            "mood", &CreatureInfo::mood,
-            "target", &CreatureInfo::target
-                                                      );
+        static auto type = sol::usertype<CreatureInfo>(sol::meta_function::construct,
+                                                       sol::no_constructor,
+                                                       "head_rotation",
+                                                       &CreatureInfo::head_rotation,
+                                                       "neck_rotation",
+                                                       &CreatureInfo::neck_rotation,
+                                                       "maximum_turn",
+                                                       &CreatureInfo::maximum_turn,
+                                                       "flags",
+                                                       &CreatureInfo::flags,
+                                                       "mood",
+                                                       &CreatureInfo::mood,
+                                                       "target",
+                                                       &CreatureInfo::target);
         return type;
     }
 
@@ -296,5 +295,5 @@ struct CreatureInfo
 };
 
 void updateMood(const engine::Engine& engine, const items::ItemState& item, const AiInfo& aiInfo, bool violent);
-}
-}
+} // namespace ai
+} // namespace engine

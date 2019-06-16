@@ -1,10 +1,10 @@
 #pragma once
 
-#include "sounds_tr1.h"
-#include "floordata/floordata.h"
 #include "audio/soundengine.h"
 #include "core/id.h"
+#include "floordata/floordata.h"
 #include "loader/file/audio.h"
+#include "sounds_tr1.h"
 
 #include <map>
 #include <utility>
@@ -27,15 +27,15 @@ struct AudioEngine
                          std::vector<loader::file::SoundDetails> soundDetails,
                          std::vector<int16_t> soundmap,
                          std::vector<uint32_t> sampleIndices)
-        : m_engine{ engine }
-          , m_soundDetails{ std::move( soundDetails ) }
-          , m_soundmap{ std::move( soundmap ) }
-          , m_sampleIndices{ std::move( sampleIndices ) }
+        : m_engine{engine}
+        , m_soundDetails{std::move(soundDetails)}
+        , m_soundmap{std::move(soundmap)}
+        , m_sampleIndices{std::move(sampleIndices)}
     {
     }
 
     explicit AudioEngine(Engine& engine)
-        : AudioEngine{ engine, {}, {}, {} }
+        : AudioEngine{engine, {}, {}, {}}
     {
     }
 
@@ -52,11 +52,11 @@ struct AudioEngine
 
     std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId id, const glm::vec3& pos)
     {
-        const auto handle = playSound( id, nullptr );
-        if( handle == nullptr )
+        const auto handle = playSound(id, nullptr);
+        if(handle == nullptr)
             return nullptr;
 
-        handle->setPosition( pos );
+        handle->setPosition(pos);
         return handle;
     }
 

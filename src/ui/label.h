@@ -11,7 +11,7 @@ namespace file
 {
 struct Palette;
 }
-}
+} // namespace loader
 
 namespace ui
 {
@@ -28,24 +28,20 @@ class CachedFont
 
     static util::CImgWrapper extractChar(const loader::file::Sprite& sprite, const int scaleX, const int scaleY)
     {
-        BOOST_ASSERT( sprite.image != nullptr );
+        BOOST_ASSERT(sprite.image != nullptr);
 
-        const auto dstW = std::lround( (sprite.t1.x - sprite.t0.x) * 256 * scaleX / FontBaseScale );
-        const auto dstH = std::lround( (sprite.t1.y - sprite.t0.y) * 256 * scaleY / FontBaseScale );
+        const auto dstW = std::lround((sprite.t1.x - sprite.t0.x) * 256 * scaleX / FontBaseScale);
+        const auto dstH = std::lround((sprite.t1.y - sprite.t0.y) * 256 * scaleY / FontBaseScale);
 
-        util::CImgWrapper src{
-            reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
-            sprite.image->getWidth(),
-            sprite.image->getHeight(),
-            true
-        };
-        src.crop(
-            gsl::narrow_cast<int>( sprite.t0.x * sprite.image->getWidth() ),
-            gsl::narrow_cast<int>( sprite.t0.y * sprite.image->getHeight() ),
-            gsl::narrow_cast<int>( sprite.t1.x * sprite.image->getWidth() - 1 ),
-            gsl::narrow_cast<int>( sprite.t1.y * sprite.image->getHeight() - 1 )
-                );
-        src.resize( dstW, dstH );
+        util::CImgWrapper src{reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
+                              sprite.image->getWidth(),
+                              sprite.image->getHeight(),
+                              true};
+        src.crop(gsl::narrow_cast<int>(sprite.t0.x * sprite.image->getWidth()),
+                 gsl::narrow_cast<int>(sprite.t0.y * sprite.image->getHeight()),
+                 gsl::narrow_cast<int>(sprite.t1.x * sprite.image->getWidth() - 1),
+                 gsl::narrow_cast<int>(sprite.t1.y * sprite.image->getHeight() - 1));
+        src.resize(dstW, dstH);
 
         return src;
     }
@@ -54,29 +50,29 @@ public:
     explicit CachedFont(const loader::file::SpriteSequence& sequence,
                         const int scaleX = FontBaseScale,
                         const int scaleY = FontBaseScale)
-        : m_scaleX{ scaleX }
-          , m_scaleY{ scaleY }
+        : m_scaleX{scaleX}
+        , m_scaleY{scaleY}
     {
-        for( const auto& spr : sequence.sprites )
+        for(const auto& spr : sequence.sprites)
         {
-            m_images.emplace_back( extractChar( spr, scaleX, scaleY ) );
+            m_images.emplace_back(extractChar(spr, scaleX, scaleY));
         }
     }
 
     const util::CImgWrapper& get(size_t n) const
     {
-        return m_images.at( n );
+        return m_images.at(n);
     }
 
     void draw(size_t n, const int x, const int y, render::gl::Image<render::gl::SRGBA8>& img)
     {
-        auto& src = m_images.at( n );
+        auto& src = m_images.at(n);
 
-        for( int dy = 0; dy < src.height(); ++dy )
+        for(int dy = 0; dy < src.height(); ++dy)
         {
-            for( int dx = 0; dx < src.width(); ++dx )
+            for(int dx = 0; dx < src.width(); ++dx)
             {
-                img.set( x + dx, y + dy, src( dx, dy ), true );
+                img.set(x + dx, y + dy, src(dx, dy), true);
             }
         }
     }
@@ -96,7 +92,12 @@ struct Label
 {
     enum class Alignment
     {
-        None, Top = None, Left = None, Center, Right, Bottom = Right
+        None,
+        Top = None,
+        Left = None,
+        Center,
+        Right,
+        Bottom = Right
     };
 
     bool blink = false;
@@ -119,9 +120,9 @@ struct Label
     std::string text;
 
     explicit Label(int16_t xpos, int16_t ypos, const std::string& string)
-        : posX{ xpos }
-          , posY{ ypos }
-          , text{ string, 0, std::min( std::string::size_type( 64 ), string.size() ) }
+        : posX{xpos}
+        , posY{ypos}
+        , text{string, 0, std::min(std::string::size_type(64), string.size())}
     {
     }
 
@@ -146,11 +147,11 @@ struct Label
     void flashText(bool blink, int16_t blinkTime)
     {
         this->blink = blink;
-        if( blink )
+        if(blink)
         {
             this->blinkTime = blinkTime;
             timeout = blinkTime;
         }
     }
 };
-}
+} // namespace ui

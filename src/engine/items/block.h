@@ -13,10 +13,10 @@ public:
           const gsl::not_null<const loader::file::Room*>& room,
           const loader::file::Item& item,
           const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{ engine, room, item, true, animatedModel }
+        : ModelItemNode{engine, room, item, true, animatedModel}
     {
-        if( m_state.triggerState != TriggerState::Invisible )
-            loader::file::Room::patchHeightsForBlock( *this, -core::SectorSize );
+        if(m_state.triggerState != TriggerState::Invisible)
+            loader::file::Room::patchHeightsForBlock(*this, -core::SectorSize);
     }
 
     void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
@@ -32,5 +32,5 @@ private:
 
     bool canPullBlock(const core::Length& height, core::Axis axis) const;
 };
-}
-}
+} // namespace items
+} // namespace engine

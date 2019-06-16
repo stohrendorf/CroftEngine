@@ -1,12 +1,11 @@
 #pragma once
 
-#include "model.h"
-#include "Visitor.h"
 #include "MaterialParameter.h"
-
-#include <glm/gtc/matrix_transform.hpp>
+#include "Visitor.h"
+#include "model.h"
 
 #include <boost/container/flat_map.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace render
 {
@@ -72,13 +71,13 @@ public:
 
     void removeAllChildren()
     {
-        while( !m_children.empty() )
-            setParent( m_children[0], nullptr );
+        while(!m_children.empty())
+            setParent(m_children[0], nullptr);
     }
 
     const gsl::not_null<std::shared_ptr<Node>>& getChild(const size_t idx) const
     {
-        BOOST_ASSERT( idx < m_children.size() );
+        BOOST_ASSERT(idx < m_children.size());
         return m_children[idx];
     }
 
@@ -95,8 +94,8 @@ public:
 
     void accept(Visitor& visitor)
     {
-        for( const auto& node : m_children )
-            visitor.visit( *node );
+        for(const auto& node : m_children)
+            visitor.visit(*node);
     }
 
     void addMaterialParameterSetter(const std::string& name,
@@ -108,18 +107,18 @@ public:
     void addMaterialParameterSetter(const std::string& name,
                                     std::function<MaterialParameter::UniformValueSetter>&& setter)
     {
-        m_materialParameterSetters[name] = std::move( setter );
+        m_materialParameterSetters[name] = std::move(setter);
     }
 
-    const std::function<MaterialParameter::UniformValueSetter>* findMaterialParameterSetter(
-        const std::string& name) const
+    const std::function<MaterialParameter::UniformValueSetter>*
+        findMaterialParameterSetter(const std::string& name) const
     {
-        const auto it = m_materialParameterSetters.find( name );
-        if( it != m_materialParameterSetters.end() )
+        const auto it = m_materialParameterSetters.find(name);
+        if(it != m_materialParameterSetters.end())
             return &it->second;
 
-        if( auto p = getParent().lock() )
-            return p->findMaterialParameterSetter( name );
+        if(auto p = getParent().lock())
+            return p->findMaterialParameterSetter(name);
 
         return nullptr;
     }
@@ -140,9 +139,9 @@ private:
 
     std::shared_ptr<Renderable> m_drawable = nullptr;
 
-    glm::mat4 m_localMatrix{ 1.0f };
+    glm::mat4 m_localMatrix{1.0f};
 
-    mutable glm::mat4 m_modelMatrix{ 1.0f };
+    mutable glm::mat4 m_modelMatrix{1.0f};
 
     mutable bool m_dirty = false;
 
@@ -154,24 +153,24 @@ private:
 
 inline void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent)
 {
-    if( auto p = node->getParent().lock() )
+    if(auto p = node->getParent().lock())
     {
-        const auto it = std::find( p->m_children.begin(), p->m_children.end(), node );
-        BOOST_ASSERT( it != p->m_children.end() );
-        node->getParent().lock()->m_children.erase( it );
+        const auto it = std::find(p->m_children.begin(), p->m_children.end(), node);
+        BOOST_ASSERT(it != p->m_children.end());
+        node->getParent().lock()->m_children.erase(it);
     }
 
-    if( auto p = node->getParent().lock() )
+    if(auto p = node->getParent().lock())
     {
-        const auto it = std::find( p->m_children.begin(), p->m_children.end(), node );
-        if( it != p->m_children.end() )
-            p->m_children.erase( it );
+        const auto it = std::find(p->m_children.begin(), p->m_children.end(), node);
+        if(it != p->m_children.end())
+            p->m_children.erase(it);
     }
 
     node->m_parent = parent;
 
-    if( parent != nullptr )
-        parent->m_children.emplace_back( node );
+    if(parent != nullptr)
+        parent->m_children.emplace_back(node);
 
     node->transformChanged();
 }
@@ -179,32 +178,32 @@ inline void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shar
 inline void swapChildren(const gsl::not_null<std::shared_ptr<Node>>& a, const gsl::not_null<std::shared_ptr<Node>>& b)
 {
     auto aChildren = a->getChildren();
-    for( auto& child : aChildren )
-        setParent( child, nullptr );
-    BOOST_ASSERT( a->getChildren().empty() );
+    for(auto& child : aChildren)
+        setParent(child, nullptr);
+    BOOST_ASSERT(a->getChildren().empty());
 
     auto bChildren = b->getChildren();
-    for( auto& child : bChildren )
-        setParent( child, nullptr );
-    BOOST_ASSERT( b->getChildren().empty() );
+    for(auto& child : bChildren)
+        setParent(child, nullptr);
+    BOOST_ASSERT(b->getChildren().empty());
 
-    for( auto& child : bChildren )
-        setParent( child, a );
+    for(auto& child : bChildren)
+        setParent(child, a);
 
-    for( auto& child : aChildren )
-        setParent( child, b );
+    for(auto& child : aChildren)
+        setParent(child, b);
 }
 
 inline void addChild(const gsl::not_null<std::shared_ptr<Node>>& node,
                      const gsl::not_null<std::shared_ptr<Node>>& child)
 {
-    if( child->getParent().lock() == node.get() )
+    if(child->getParent().lock() == node.get())
     {
         // This node is already present in our hierarchy
         return;
     }
 
-    setParent( child, node );
+    setParent(child, node);
 }
-}
-}
+} // namespace scene
+} // namespace render

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include "type_safe/flag_set.hpp"
+
+#include <glm/glm.hpp>
 
 namespace render
 {
@@ -72,5 +73,5 @@ private:
     mutable glm::mat4 m_inverseViewProjection;
     mutable type_safe::flag_set<DirtyFlag> m_dirty;
 };
-}
-}
+} // namespace scene
+} // namespace render

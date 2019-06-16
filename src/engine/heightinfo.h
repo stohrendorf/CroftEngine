@@ -43,13 +43,13 @@ struct VerticalSpaceInfo
               const core::Length itemY,
               const core::Length itemHeight)
     {
-        floorSpace = HeightInfo::fromFloor( roomSector, position, itemList );
-        if( floorSpace.y != -core::HeightLimit )
+        floorSpace = HeightInfo::fromFloor(roomSector, position, itemList);
+        if(floorSpace.y != -core::HeightLimit)
             floorSpace.y -= itemY;
 
-        ceilingSpace = HeightInfo::fromCeiling( roomSector, position, itemList );
-        if( ceilingSpace.y != -core::HeightLimit )
+        ceilingSpace = HeightInfo::fromCeiling(roomSector, position, itemList);
+        if(ceilingSpace.y != -core::HeightLimit)
             ceilingSpace.y -= itemY - itemHeight;
     }
 };
-}
+} // namespace engine

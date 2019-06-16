@@ -2,10 +2,10 @@
 
 #include "gsl-lite.hpp"
 
-#include <sndfile.h>
 #include <boost/assert.hpp>
-#include <boost/iostreams/restrict.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/restrict.hpp>
+#include <sndfile.h>
 
 namespace audio
 {
@@ -16,10 +16,10 @@ class MemBufferFileIo : public SF_VIRTUAL_IO
 public:
     MemBufferFileIo(const uint8_t* data, const sf_count_t dataSize)
         : SF_VIRTUAL_IO{}
-          , m_data{ data }
-          , m_dataSize{ dataSize }
+        , m_data{data}
+        , m_dataSize{dataSize}
     {
-        BOOST_ASSERT( data != nullptr );
+        BOOST_ASSERT(data != nullptr);
 
         get_filelen = &MemBufferFileIo::getFileLength;
         seek = &MemBufferFileIo::doSeek;
@@ -37,22 +37,21 @@ public:
     static sf_count_t doSeek(const sf_count_t offset, const int whence, void* user_data)
     {
         auto self = static_cast<MemBufferFileIo*>(user_data);
-        switch( whence )
+        switch(whence)
         {
         case SEEK_SET:
-            BOOST_ASSERT( offset >= 0 && offset <= self->m_dataSize );
+            BOOST_ASSERT(offset >= 0 && offset <= self->m_dataSize);
             self->m_where = offset;
             break;
         case SEEK_CUR:
-            BOOST_ASSERT( self->m_where + offset <= self->m_dataSize && self->m_where + offset >= 0 );
+            BOOST_ASSERT(self->m_where + offset <= self->m_dataSize && self->m_where + offset >= 0);
             self->m_where += offset;
             break;
         case SEEK_END:
-            BOOST_ASSERT( offset >= 0 && offset <= self->m_dataSize );
+            BOOST_ASSERT(offset >= 0 && offset <= self->m_dataSize);
             self->m_where = self->m_dataSize - offset;
             break;
-        default:
-            BOOST_ASSERT( false );
+        default: BOOST_ASSERT(false);
         }
         return self->m_where;
     }
@@ -60,13 +59,13 @@ public:
     static sf_count_t doRead(void* ptr, sf_count_t count, void* user_data)
     {
         auto self = static_cast<MemBufferFileIo*>(user_data);
-        if( self->m_where + count > self->m_dataSize )
+        if(self->m_where + count > self->m_dataSize)
             count = self->m_dataSize - self->m_where;
 
-        BOOST_ASSERT( self->m_where + count <= self->m_dataSize );
+        BOOST_ASSERT(self->m_where + count <= self->m_dataSize);
 
         const auto buf = static_cast<uint8_t*>(ptr);
-        std::copy_n( self->m_data + self->m_where, count, buf );
+        std::copy_n(self->m_data + self->m_where, count, buf);
         self->m_where += count;
         return count;
     }
@@ -93,10 +92,10 @@ class InputStreamViewWrapper : public SF_VIRTUAL_IO
 public:
     InputStreamViewWrapper(std::istream& stream, const std::streamoff begin, const std::streamoff end)
         : SF_VIRTUAL_IO{}
-          , m_restriction{ boost::iostreams::restrict( stream, begin, end - begin ) }
-          , m_stream{ m_restriction }
+        , m_restriction{boost::iostreams::restrict(stream, begin, end - begin)}
+        , m_stream{m_restriction}
     {
-        Expects( begin <= end );
+        Expects(begin <= end);
 
         get_filelen = &InputStreamViewWrapper::getFileLength;
         seek = &InputStreamViewWrapper::doSeek;
@@ -109,32 +108,31 @@ public:
     {
         auto self = static_cast<InputStreamViewWrapper*>(user_data);
         const auto pos = self->m_stream.tellg();
-        self->m_stream.seekg( 0, std::ios::end );
+        self->m_stream.seekg(0, std::ios::end);
         const auto len = self->m_stream.tellg();
-        self->m_stream.seekg( pos, std::ios::beg );
+        self->m_stream.seekg(pos, std::ios::beg);
         return len;
     }
 
     static sf_count_t doSeek(const sf_count_t offset, const int whence, void* user_data)
     {
         auto self = static_cast<InputStreamViewWrapper*>(user_data);
-        switch( whence )
+        switch(whence)
         {
         case SEEK_SET:
-            BOOST_ASSERT( offset >= 0 && offset <= getFileLength( user_data ) );
-            self->m_stream.seekg( offset, std::ios::beg );
+            BOOST_ASSERT(offset >= 0 && offset <= getFileLength(user_data));
+            self->m_stream.seekg(offset, std::ios::beg);
             break;
         case SEEK_CUR:
-            BOOST_ASSERT( self->m_stream.tellg() + offset <= getFileLength( user_data )
-                              && self->m_stream.tellg() + offset >= 0 );
-            self->m_stream.seekg( offset, std::ios::cur );
+            BOOST_ASSERT(self->m_stream.tellg() + offset <= getFileLength(user_data)
+                         && self->m_stream.tellg() + offset >= 0);
+            self->m_stream.seekg(offset, std::ios::cur);
             break;
         case SEEK_END:
-            BOOST_ASSERT( offset >= 0 && offset <= getFileLength( user_data ) );
-            self->m_stream.seekg( offset, std::ios::end );
+            BOOST_ASSERT(offset >= 0 && offset <= getFileLength(user_data));
+            self->m_stream.seekg(offset, std::ios::end);
             break;
-        default:
-            BOOST_ASSERT( false );
+        default: BOOST_ASSERT(false);
         }
         return self->m_stream.tellg();
     }
@@ -142,13 +140,13 @@ public:
     static sf_count_t doRead(void* ptr, sf_count_t count, void* user_data)
     {
         auto self = static_cast<InputStreamViewWrapper*>(user_data);
-        if( self->m_stream.tellg() + count > getFileLength( user_data ) )
-            count = getFileLength( user_data ) - self->m_stream.tellg();
+        if(self->m_stream.tellg() + count > getFileLength(user_data))
+            count = getFileLength(user_data) - self->m_stream.tellg();
 
-        BOOST_ASSERT( self->m_stream.tellg() + count <= getFileLength( user_data ) );
+        BOOST_ASSERT(self->m_stream.tellg() + count <= getFileLength(user_data));
 
         const auto buf = static_cast<char*>(ptr);
-        self->m_stream.read( buf, count );
+        self->m_stream.read(buf, count);
         return self->m_stream.gcount();
     }
 
@@ -167,5 +165,5 @@ private:
     boost::iostreams::restriction<std::istream> m_restriction;
     boost::iostreams::filtering_istream m_stream;
 };
-}
-}
+} // namespace sndfile
+} // namespace audio

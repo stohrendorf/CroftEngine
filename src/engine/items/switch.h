@@ -13,7 +13,7 @@ public:
            const gsl::not_null<const loader::file::Room*>& room,
            const loader::file::Item& item,
            const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{ engine, room, item, true, animatedModel }
+        : ModelItemNode{engine, room, item, true, animatedModel}
     {
     }
 
@@ -22,7 +22,7 @@ public:
     void update() final
     {
         m_state.activationState.fullyActivate();
-        if( !m_state.updateActivationTimeout() )
+        if(!m_state.updateActivationTimeout())
         {
             // reset switch if a timeout is active
             m_state.goal_anim_state = 1_as;
@@ -32,5 +32,5 @@ public:
         ModelItemNode::update();
     }
 };
-}
-}
+} // namespace items
+} // namespace engine

@@ -9,5 +9,5 @@ namespace gl
 using RawGlEnum = std::underlying_type_t<::gl::GLenum>;
 
 extern void initializeGl();
-}
-}
+} // namespace gl
+} // namespace render

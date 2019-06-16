@@ -1,10 +1,9 @@
 #pragma once
 
 #include "bufferhandle.h"
-#include "sourcehandle.h"
 #include "device.h"
-
 #include "gsl-lite.hpp"
+#include "sourcehandle.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -23,7 +22,7 @@ public:
     Emitter() = delete;
 
     Emitter(const Emitter& rhs)
-        : Emitter{ rhs.m_engine }
+        : Emitter{rhs.m_engine}
     {
     }
 
@@ -51,7 +50,7 @@ public:
     Listener() = delete;
 
     Listener(const Listener& rhs)
-        : Listener{ rhs.m_engine }
+        : Listener{rhs.m_engine}
     {
     }
 
@@ -85,15 +84,15 @@ public:
     void addWav(const gsl::not_null<const uint8_t*>& buffer);
 
     gsl::not_null<std::shared_ptr<SourceHandle>>
-    playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos);
+        playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos);
 
     gsl::not_null<std::shared_ptr<SourceHandle>>
-    playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter = nullptr);
+        playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter = nullptr);
 
     bool stopBuffer(size_t bufferId, Emitter* emitter);
 
-    std::vector<gsl::not_null<std::shared_ptr<SourceHandle>>>
-    getSourcesForBuffer(Emitter* emitter, size_t buffer) const;
+    std::vector<gsl::not_null<std::shared_ptr<SourceHandle>>> getSourcesForBuffer(Emitter* emitter,
+                                                                                  size_t buffer) const;
 
     const Device& getDevice() const noexcept
     {

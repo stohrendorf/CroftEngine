@@ -21,14 +21,14 @@ enum class FloorDataChunkType : uint8_t
     CommandSequence = 0x04,
     Death = 0x05,
     Climb = 0x06,
-    FloorTriangleNW = 0x07, //  [_\_]
-    FloorTriangleNE = 0x08, //  [_/_]
-    CeilingTriangleNW = 0x09, //  [_/_]
-    CeilingTriangleNE = 0x0A, //  [_\_]
-    FloorTriangleNWPortalSW = 0x0B, //  [P\_]
-    FloorTriangleNWPortalNE = 0x0C, //  [_\P]
-    FloorTriangleNEPortalSE = 0x0D, //  [_/P]
-    FloorTriangleNEPortalNW = 0x0E, //  [P/_]
+    FloorTriangleNW = 0x07,           //  [_\_]
+    FloorTriangleNE = 0x08,           //  [_/_]
+    CeilingTriangleNW = 0x09,         //  [_/_]
+    CeilingTriangleNE = 0x0A,         //  [_\_]
+    FloorTriangleNWPortalSW = 0x0B,   //  [P\_]
+    FloorTriangleNWPortalNE = 0x0C,   //  [_\P]
+    FloorTriangleNEPortalSE = 0x0D,   //  [_/P]
+    FloorTriangleNEPortalNW = 0x0E,   //  [P/_]
     CeilingTriangleNWPortalSW = 0x0F, //  [P\_]
     CeilingTriangleNWPortalNE = 0x10, //  [_\P]
     CeilingTriangleNEPortalNW = 0x11, //  [P/_]
@@ -44,23 +44,23 @@ enum class FloorDataChunkType : uint8_t
 //! @see CommandOpcode
 enum class SequenceCondition
 {
-    LaraIsHere = 0x00, //!< If Lara is in sector, run (any case).
-    LaraOnGround = 0x01, //!< If Lara is in sector, run (land case).
-    ItemActivated = 0x02, //!< If item is activated, run, else stop.
-    KeyUsed = 0x03, //!< If item is activated, run.
-    ItemPickedUp = 0x04, //!< If item is picked up, run.
-    ItemIsHere = 0x05, //!< If item is in sector, run, else stop.
+    LaraIsHere = 0x00,           //!< If Lara is in sector, run (any case).
+    LaraOnGround = 0x01,         //!< If Lara is in sector, run (land case).
+    ItemActivated = 0x02,        //!< If item is activated, run, else stop.
+    KeyUsed = 0x03,              //!< If item is activated, run.
+    ItemPickedUp = 0x04,         //!< If item is picked up, run.
+    ItemIsHere = 0x05,           //!< If item is in sector, run, else stop.
     LaraOnGroundInverted = 0x06, //!< If Lara is in sector, stop (land case).
-    LaraInCombatMode = 0x07, //!< If Lara is in combat state, run (any case).
-    Dummy = 0x08, //!< If Lara is in sector, run (air case).
-    AntiTrigger = 0x09, //!< TR2-5 only: If Lara is in sector, stop (any case).
-    HeavySwitch = 0x0A, //!< TR3-5 only: If item is activated by item, run.
-    HeavyAntiTrigger = 0x0B, //!< TR3-5 only: If item is activated by item, stop.
-    Monkey = 0x0C, //!< TR3-5 only: If Lara is monkey-swinging, run.
-    Skeleton = 0x0D, //!< TR5 only: Activated by skeleton only?
-    TightRope = 0x0E, //!< TR5 only: If Lara is on tightrope, run.
-    CrawlDuck = 0x0F, //!< TR5 only: If Lara is crawling, run.
-    Climb = 0x10, //!< TR5 only: If Lara is climbing, run.
+    LaraInCombatMode = 0x07,     //!< If Lara is in combat state, run (any case).
+    Dummy = 0x08,                //!< If Lara is in sector, run (air case).
+    AntiTrigger = 0x09,          //!< TR2-5 only: If Lara is in sector, stop (any case).
+    HeavySwitch = 0x0A,          //!< TR3-5 only: If item is activated by item, run.
+    HeavyAntiTrigger = 0x0B,     //!< TR3-5 only: If item is activated by item, stop.
+    Monkey = 0x0C,               //!< TR3-5 only: If Lara is monkey-swinging, run.
+    Skeleton = 0x0D,             //!< TR5 only: Activated by skeleton only?
+    TightRope = 0x0E,            //!< TR5 only: If Lara is on tightrope, run.
+    CrawlDuck = 0x0F,            //!< TR5 only: If Lara is crawling, run.
+    Climb = 0x10,                //!< TR5 only: If Lara is climbing, run.
 };
 
 //! @brief Native trigger function types.
@@ -84,5 +84,5 @@ enum class CommandOpcode
     FlyBy = 0x0C,
     CutScene = 0x0D
 };
-}
+} // namespace floordata
 }

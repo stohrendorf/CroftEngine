@@ -1,9 +1,8 @@
 #pragma once
 
 #include "bindableresource.h"
-#include "typetraits.h"
-
 #include "gsl-lite.hpp"
+#include "typetraits.h"
 
 #include <vector>
 
@@ -34,13 +33,11 @@ class IndexBuffer : public BindableResource
 {
 public:
     explicit IndexBuffer(const std::string& label = {})
-        : BindableResource{ ::gl::glGenBuffers,
-                            [](const ::gl::GLuint handle) {
-                              ::gl::glBindBuffer( ::gl::GL_ELEMENT_ARRAY_BUFFER, handle );
-                            },
-                            ::gl::glDeleteBuffers,
-                            ObjectIdentifier::Buffer,
-                            label }
+        : BindableResource{::gl::glGenBuffers,
+                           [](const ::gl::GLuint handle) { ::gl::glBindBuffer(::gl::GL_ELEMENT_ARRAY_BUFFER, handle); },
+                           ::gl::glDeleteBuffers,
+                           ObjectIdentifier::Buffer,
+                           label}
     {
     }
 
@@ -48,27 +45,27 @@ public:
     const void* map()
     {
         bind();
-        const void* data = GL_ASSERT_FN( glMapBuffer( ::gl::GL_ELEMENT_ARRAY_BUFFER, ::gl::GL_READ_ONLY ) );
+        const void* data = GL_ASSERT_FN(glMapBuffer(::gl::GL_ELEMENT_ARRAY_BUFFER, ::gl::GL_READ_ONLY));
         return data;
     }
 
     static void unmap()
     {
-        GL_ASSERT( glUnmapBuffer( ::gl::GL_ELEMENT_ARRAY_BUFFER ) );
+        GL_ASSERT(glUnmapBuffer(::gl::GL_ELEMENT_ARRAY_BUFFER));
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
     void setData(const gsl::not_null<const T*>& indexData, const ::gl::GLsizei indexCount, const bool dynamic)
     {
-        Expects( indexCount >= 0 );
+        Expects(indexCount >= 0);
 
         bind();
 
-        GL_ASSERT( glBufferData( ::gl::GL_ELEMENT_ARRAY_BUFFER,
-                                 gsl::narrow<::gl::GLsizeiptr>( sizeof( T ) * indexCount ),
-                                 indexData.get(),
-                                 dynamic ? ::gl::GL_DYNAMIC_DRAW : ::gl::GL_STATIC_DRAW ) );
+        GL_ASSERT(glBufferData(::gl::GL_ELEMENT_ARRAY_BUFFER,
+                               gsl::narrow<::gl::GLsizeiptr>(sizeof(T) * indexCount),
+                               indexData.get(),
+                               dynamic ? ::gl::GL_DYNAMIC_DRAW : ::gl::GL_STATIC_DRAW));
 
         m_indexCount = indexCount;
         m_storageType = TypeTraits<T>::DrawElementsType;
@@ -77,40 +74,42 @@ public:
     template<typename T>
     void setData(const std::vector<T>& data, bool dynamic)
     {
-        setData( gsl::not_null<const T*>( data.data() ), gsl::narrow<::gl::GLsizei>( data.size() ), dynamic );
+        setData(gsl::not_null<const T*>(data.data()), gsl::narrow<::gl::GLsizei>(data.size()), dynamic);
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
     void setSubData(const gsl::not_null<const T*>& indexData, ::gl::GLsizei indexStart, ::gl::GLsizei indexCount)
     {
-        Expects( indexStart >= 0 );
-        Expects( indexCount >= 0 );
-        if( indexStart + indexCount > m_indexCount )
+        Expects(indexStart >= 0);
+        Expects(indexCount >= 0);
+        if(indexStart + indexCount > m_indexCount)
         {
-            BOOST_THROW_EXCEPTION( std::out_of_range{ "Sub-range exceeds buffer range" } );
+            BOOST_THROW_EXCEPTION(std::out_of_range{"Sub-range exceeds buffer range"});
         }
 
-        if( !m_storageType.is_initialized() )
+        if(!m_storageType.is_initialized())
         {
-            BOOST_THROW_EXCEPTION( std::logic_error{ "Buffer is not initialized" } );
+            BOOST_THROW_EXCEPTION(std::logic_error{"Buffer is not initialized"});
         }
 
-        if( TypeTraits<T>::DrawElementsType != m_storageType )
+        if(TypeTraits<T>::DrawElementsType != m_storageType)
         {
-            BOOST_THROW_EXCEPTION( std::logic_error{ "Incompatible storage type for buffer sub-data" } );
+            BOOST_THROW_EXCEPTION(std::logic_error{"Incompatible storage type for buffer sub-data"});
         }
 
         bind();
 
-        GL_ASSERT( glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, gsl::narrow<GLintptr>( indexStart * sizeof( T ) ),
-                                    gsl::narrow<GLsizeiptr>( indexCount * sizeof( T ) ), indexData.get() ) );
+        GL_ASSERT(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER,
+                                  gsl::narrow<GLintptr>(indexStart * sizeof(T)),
+                                  gsl::narrow<GLsizeiptr>(indexCount * sizeof(T)),
+                                  indexData.get()));
     }
 
     void draw(const PrimitiveType mode) const
     {
-        Expects( m_storageType.is_initialized() );
-        GL_ASSERT( glDrawElements( (::gl::GLenum)mode, m_indexCount, (::gl::GLenum)*m_storageType, nullptr ) );
+        Expects(m_storageType.is_initialized());
+        GL_ASSERT(glDrawElements((::gl::GLenum)mode, m_indexCount, (::gl::GLenum)*m_storageType, nullptr));
     }
 
     ::gl::GLsizei getIndexCount() const
@@ -123,5 +122,5 @@ private:
 
     boost::optional<DrawElementsType> m_storageType;
 };
-}
-}
+} // namespace gl
+} // namespace render

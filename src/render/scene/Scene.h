@@ -25,13 +25,13 @@ public:
 
     void addNode(const gsl::not_null<std::shared_ptr<Node>>& node)
     {
-        if( node->m_scene == this )
+        if(node->m_scene == this)
         {
             // The node is already a member of this scene.
             return;
         }
 
-        m_nodes.emplace_back( node );
+        m_nodes.emplace_back(node);
         node->m_scene = this;
     }
 
@@ -47,13 +47,13 @@ public:
 
     void accept(Visitor& visitor)
     {
-        for( auto& node : m_nodes )
-            visitor.visit( *node );
+        for(auto& node : m_nodes)
+            visitor.visit(*node);
     }
 
 private:
     std::shared_ptr<Camera> m_activeCamera = nullptr;
     Node::List m_nodes;
 };
-}
-}
+} // namespace scene
+} // namespace render

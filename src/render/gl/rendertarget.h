@@ -14,7 +14,7 @@ protected:
                           const Deleter& deleter,
                           const ObjectIdentifier identifier,
                           const std::string& label)
-        : BindableResource{ allocator, binder, deleter, identifier, label }
+        : BindableResource{allocator, binder, deleter, identifier, label}
     {
     }
 
@@ -23,5 +23,5 @@ public:
 
     virtual ::gl::GLint getHeight() const noexcept = 0;
 };
-}
-}
+} // namespace gl
+} // namespace render

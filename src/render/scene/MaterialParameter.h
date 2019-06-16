@@ -1,11 +1,10 @@
 #pragma once
 
 #include "ShaderProgram.h"
-
 #include "gsl-lite.hpp"
 
-#include <glm/glm.hpp>
 #include <boost/optional.hpp>
+#include <glm/glm.hpp>
 
 namespace render
 {
@@ -59,14 +58,14 @@ public:
     template<typename T>
     void set(const std::vector<T>& values)
     {
-        set( values.data(), values.size() );
+        set(values.data(), values.size());
     }
 
     template<class ClassType, class ValueType>
     void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
     {
         m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
-          uniform.set( (classInstance->*valueMethod)() );
+            uniform.set((classInstance->*valueMethod)());
         };
     }
 
@@ -74,16 +73,17 @@ public:
 
     void bind(std::function<UniformValueSetter>&& setter)
     {
-        m_valueSetter = std::move( setter );
+        m_valueSetter = std::move(setter);
     }
 
     template<class ClassType, class ValueType>
-    void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const,
+    void bind(ClassType* classInstance,
+              ValueType (ClassType::*valueMethod)() const,
               std::size_t (ClassType::*countMethod)() const)
     {
         m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/,
                                                                   const gl::Program::ActiveUniform& uniform) {
-          uniform.set( (classInstance->*valueMethod)(), (classInstance->*countMethod)() );
+            uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)());
         };
     }
 
@@ -104,5 +104,5 @@ private:
 
     boost::optional<std::function<UniformValueSetter>> m_valueSetter;
 };
-}
-}
+} // namespace scene
+} // namespace render

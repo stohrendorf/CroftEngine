@@ -1,34 +1,31 @@
 #pragma once
 
-#include "io/sdlreader.h"
-#include "util/helpers.h"
-#include "core/magic.h"
-#include "core/angle.h"
-#include "core/vec.h"
-#include "core/id.h"
-#include "core/containeroffset.h"
-#include "color.h"
-#include "primitives.h"
-#include "meshes.h"
-#include "texture.h"
 #include "audio.h"
+#include "color.h"
+#include "core/angle.h"
+#include "core/containeroffset.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/vec.h"
 #include "engine/floordata/types.h"
-#include "render/scene/names.h"
+#include "gsl-lite.hpp"
+#include "io/sdlreader.h"
+#include "meshes.h"
+#include "primitives.h"
+#include "render/scene/Node.h"
 #include "render/scene/mesh.h"
 #include "render/scene/model.h"
-#include "render/scene/Node.h"
-
-#include "gsl-lite.hpp"
+#include "render/scene/names.h"
+#include "texture.h"
+#include "util/helpers.h"
 
 #include <array>
+#include <boost/log/trivial.hpp>
+#include <boost/optional.hpp>
+#include <boost/throw_exception.hpp>
+#include <map>
 #include <stdexcept>
 #include <vector>
-#include <map>
-
-#include <boost/log/trivial.hpp>
-#include <boost/throw_exception.hpp>
-#include <boost/optional.hpp>
-
 
 /**
  * @defgroup native Native data interface
@@ -43,7 +40,7 @@ namespace items
 {
 class ItemNode;
 }
-}
+} // namespace engine
 
 namespace loader
 {
@@ -62,7 +59,7 @@ constexpr const uint16_t TextureFlippedMask = 0x8000;
 
 struct Portal
 {
-    core::RoomId16 adjoining_room{ uint16_t( 0 ) }; ///< \brief which room this portal leads to.
+    core::RoomId16 adjoining_room{uint16_t(0)}; ///< \brief which room this portal leads to.
     core::TRVec normal;
     std::array<core::TRVec, 4> vertices;
     std::shared_ptr<render::scene::Mesh> mesh;
@@ -71,11 +68,11 @@ struct Portal
     {
         Portal portal;
         portal.adjoining_room = reader.readU16();
-        portal.normal = readCoordinates16( reader );
-        portal.vertices[0] = readCoordinates16( reader ) + offset;
-        portal.vertices[1] = readCoordinates16( reader ) + offset;
-        portal.vertices[2] = readCoordinates16( reader ) + offset;
-        portal.vertices[3] = readCoordinates16( reader ) + offset;
+        portal.normal = readCoordinates16(reader);
+        portal.vertices[0] = readCoordinates16(reader) + offset;
+        portal.vertices[1] = readCoordinates16(reader) + offset;
+        portal.vertices[2] = readCoordinates16(reader) + offset;
+        portal.vertices[3] = readCoordinates16(reader) + offset;
         return portal;
     }
 
@@ -87,28 +84,23 @@ struct Portal
         };
 
         std::array<Vertex, 4> glVertices;
-        for( size_t i = 0; i < 4; ++i )
+        for(size_t i = 0; i < 4; ++i)
             glVertices[i].pos = vertices[i].toRenderSystem();
 
         render::gl::StructuredVertexBuffer::AttributeMapping layout{
-            { VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{ &Vertex::pos } }
-        };
-        auto vb = std::make_shared<render::gl::StructuredVertexBuffer>( layout, false );
-        vb->assign<Vertex>( &glVertices[0], 4 );
+            {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{&Vertex::pos}}};
+        auto vb = std::make_shared<render::gl::StructuredVertexBuffer>(layout, false);
+        vb->assign<Vertex>(&glVertices[0], 4);
 
-        static const uint16_t indices[6] =
-            {
-                0, 1, 2,
-                0, 2, 3
-            };
+        static const uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
 
         auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
-        indexBuffer->setData( gsl::not_null<const uint16_t*>( &indices[0] ), 6, false );
+        indexBuffer->setData(gsl::not_null<const uint16_t*>(&indices[0]), 6, false);
 
-        auto vao = std::make_shared<render::gl::VertexArray>( indexBuffer, vb,
-                                                              material->getShaderProgram()->getHandle() );
-        mesh = std::make_shared<render::scene::Mesh>( vao );
-        mesh->setMaterial( material );
+        auto vao
+            = std::make_shared<render::gl::VertexArray>(indexBuffer, vb, material->getShaderProgram()->getHandle());
+        mesh = std::make_shared<render::scene::Mesh>(vao);
+        mesh->setMaterial(material);
     }
 };
 
@@ -125,19 +117,15 @@ struct Sector
     const engine::floordata::FloorDataValue* floorData = nullptr;
     Room* portalTarget = nullptr;
 
-    core::BoxId boxIndex{ int16_t( -1 ) }; //!< Index into Boxes[]/Zones[] (-1 if none)
+    core::BoxId boxIndex{int16_t(-1)}; //!< Index into Boxes[]/Zones[] (-1 if none)
     const Box* box = nullptr;
-    core::RoomId8 roomIndexBelow{
-        uint8_t( -1 )
-    }; //!< The number of the room below this one (255 if none)
+    core::RoomId8 roomIndexBelow{uint8_t(-1)}; //!< The number of the room below this one (255 if none)
     Room* roomBelow = nullptr;
     core::Length floorHeight = -core::HeightLimit; //!< Absolute height of floor (multiply by 256 for world coordinates)
-    core::RoomId8 roomIndexAbove{
-        uint8_t( -1 )
-    }; //!< The number of the room above this one (255 if none)
+    core::RoomId8 roomIndexAbove{uint8_t(-1)};     //!< The number of the room above this one (255 if none)
     Room* roomAbove = nullptr;
-    core::Length
-        ceilingHeight = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
+    core::Length ceilingHeight
+        = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
     static Sector read(io::SDLReader& reader)
     {
@@ -156,12 +144,12 @@ struct Sector
         floorDataIndex = 0;
         floorData = nullptr;
         portalTarget = nullptr; // cached from floordata
-        boxIndex = int16_t( -1 );
+        boxIndex = int16_t(-1);
         box = nullptr;
-        roomIndexBelow = uint8_t( -1 );
+        roomIndexBelow = uint8_t(-1);
         roomBelow = nullptr;
         floorHeight = -core::HeightLimit;
-        roomIndexAbove = uint8_t( -1 );
+        roomIndexAbove = uint8_t(-1);
         roomAbove = nullptr;
         ceilingHeight = -core::HeightLimit;
     }
@@ -182,14 +170,14 @@ enum class LightType : uint8_t
 struct Light
 {
     core::TRVec position; // world coords
-    ByteColor color; // three bytes rgb values
-    int16_t intensity; // Light intensity
-    uint16_t intensity2; // Almost always equal to Intensity1 [absent from TR1 data files]
+    ByteColor color;      // three bytes rgb values
+    int16_t intensity;    // Light intensity
+    uint16_t intensity2;  // Almost always equal to Intensity1 [absent from TR1 data files]
     // distance of half light intensity
     core::Length fadeDistance = 0_len;
     core::Length fade2 = 0_len; // Falloff value 2 [absent from TR1 data files]
-    uint8_t light_type; // same as D3D (i.e. 2 is for spotlight)
-    uint8_t unknown; // always 0xff?
+    uint8_t light_type;         // same as D3D (i.e. 2 is for spotlight)
+    uint8_t unknown;            // always 0xff?
     core::Length r_inner = 0_len;
 
     core::Length r_outer = 0_len;
@@ -198,7 +186,7 @@ struct Light
 
     core::Length cutoff = 0_len;
 
-    core::TRVec dir; // direction
+    core::TRVec dir;  // direction
     core::TRVec pos2; // world coords
     core::TRVec dir2; // direction
 
@@ -209,18 +197,13 @@ struct Light
 
     LightType getLightType() const
     {
-        switch( light_type )
+        switch(light_type)
         {
-        case 0:
-            return LightType::Sun;
-        case 1:
-            return LightType::Point;
-        case 2:
-            return LightType::Spotlight;
-        case 3:
-            return LightType::Shadow;
-        default:
-            return LightType::Null;
+        case 0: return LightType::Sun;
+        case 1: return LightType::Point;
+        case 2: return LightType::Spotlight;
+        case 3: return LightType::Shadow;
+        default: return LightType::Null;
         }
     }
 
@@ -232,10 +215,10 @@ struct Light
     static Light readTr1(io::SDLReader& reader)
     {
         Light light;
-        light.position = readCoordinates32( reader );
+        light.position = readCoordinates32(reader);
         // read and make consistent
         light.intensity = reader.readI16();
-        light.fadeDistance = core::Length{ reader.readI32() };
+        light.fadeDistance = core::Length{reader.readI32()};
         // only in TR2
         light.intensity2 = light.intensity;
 
@@ -257,11 +240,11 @@ struct Light
     static Light readTr2(io::SDLReader& reader)
     {
         Light light;
-        light.position = readCoordinates32( reader );
+        light.position = readCoordinates32(reader);
         light.intensity = reader.readU16();
         light.intensity2 = reader.readU16();
-        light.fadeDistance = core::Length{ reader.readI32() };
-        light.fade2 = core::Length{ reader.readI32() };
+        light.fadeDistance = core::Length{reader.readI32()};
+        light.fade2 = core::Length{reader.readI32()};
 
         light.r_outer = light.fadeDistance;
         light.r_inner = light.fadeDistance / 2;
@@ -278,13 +261,13 @@ struct Light
     static Light readTr3(io::SDLReader& reader)
     {
         Light light;
-        light.position = readCoordinates32( reader );
+        light.position = readCoordinates32(reader);
         light.color.r = reader.readU8();
         light.color.g = reader.readU8();
         light.color.b = reader.readU8();
         light.color.a = reader.readU8();
-        light.fadeDistance = core::Length{ reader.readI32() };
-        light.fade2 = core::Length{ reader.readI32() };
+        light.fadeDistance = core::Length{reader.readI32()};
+        light.fade2 = core::Length{reader.readI32()};
 
         light.r_outer = light.fadeDistance;
         light.r_inner = light.fadeDistance / 2;
@@ -296,52 +279,52 @@ struct Light
     static Light readTr4(io::SDLReader& reader)
     {
         Light light;
-        light.position = readCoordinates32( reader );
-        light.color = ByteColor::readTr1( reader );
+        light.position = readCoordinates32(reader);
+        light.color = ByteColor::readTr1(reader);
         light.light_type = reader.readU8();
         light.unknown = reader.readU8();
         light.intensity = reader.readU8();
-        light.r_inner = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
-        light.r_outer = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
-        light.length = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
-        light.cutoff = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
-        light.dir = readCoordinatesF( reader );
+        light.r_inner = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
+        light.r_outer = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
+        light.length = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
+        light.cutoff = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
+        light.dir = readCoordinatesF(reader);
         return light;
     }
 
     static Light readTr5(io::SDLReader& reader)
     {
         Light light;
-        light.position = readCoordinatesF( reader );
-        light.color.r = gsl::narrow<uint8_t>( reader.readF() * 255 ); // r
-        light.color.g = gsl::narrow<uint8_t>( reader.readF() * 255 ); // g
-        light.color.b = gsl::narrow<uint8_t>( reader.readF() * 255 ); // b
-        light.color.a = gsl::narrow<uint8_t>( reader.readF() * 255 ); // a
+        light.position = readCoordinatesF(reader);
+        light.color.r = gsl::narrow<uint8_t>(reader.readF() * 255); // r
+        light.color.g = gsl::narrow<uint8_t>(reader.readF() * 255); // g
+        light.color.b = gsl::narrow<uint8_t>(reader.readF() * 255); // b
+        light.color.a = gsl::narrow<uint8_t>(reader.readF() * 255); // a
         /*
         if ((temp != 0) && (temp != 0xCDCDCDCD))
         BOOST_THROW_EXCEPTION( TR_ReadError("read_tr5_room_light: separator1 has wrong value") );
         */
-        light.r_inner = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
-        light.r_outer = core::Length{ gsl::narrow<core::Length::type>( reader.readF() ) };
+        light.r_inner = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
+        light.r_outer = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
         reader.readF(); // rad_input
         reader.readF(); // rad_output
         reader.readF(); // range
-        light.dir = readCoordinatesF( reader );
-        light.pos2 = readCoordinates32( reader );
-        light.dir2 = readCoordinates32( reader );
+        light.dir = readCoordinatesF(reader);
+        light.pos2 = readCoordinates32(reader);
+        light.dir2 = readCoordinates32(reader);
         light.light_type = reader.readU8();
 
         auto temp = reader.readU8();
-        if( temp != 0xCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room Light: separator2 has wrong value";
+        if(temp != 0xCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room Light: separator2 has wrong value";
 
         temp = reader.readU8();
-        if( temp != 0xCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room Light: separator3 has wrong value";
+        if(temp != 0xCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room Light: separator3 has wrong value";
 
         temp = reader.readU8();
-        if( temp != 0xCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room Light: separator4 has wrong value";
+        if(temp != 0xCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room Light: separator4 has wrong value";
 
         return light;
     }
@@ -349,10 +332,10 @@ struct Light
 
 struct SpriteInstance
 {
-    DECLARE_ID( VertexId, uint16_t );
+    DECLARE_ID(VertexId, uint16_t);
 
-    VertexId vertex{ uint16_t( 0 ) }; // offset into vertex list
-    core::SpriteInstanceId id{ uint16_t( 0 ) };
+    VertexId vertex{uint16_t(0)}; // offset into vertex list
+    core::SpriteInstanceId id{uint16_t(0)};
 
     /// \brief reads a room sprite definition.
     static SpriteInstance read(io::SDLReader& reader)
@@ -417,8 +400,8 @@ struct Layer
         layer.num_triangles = reader.readU16();
         layer.unknown_l3 = reader.readU16();
         layer.unknown_l4 = reader.readU16();
-        if( reader.readU16() != 0 )
-            BOOST_LOG_TRIVIAL( warning ) << "Room Layer: filler2 has wrong value";
+        if(reader.readU16() != 0)
+            BOOST_LOG_TRIVIAL(warning) << "Room Layer: filler2 has wrong value";
 
         layer.bounding_box_x1 = reader.readF();
         layer.bounding_box_y1 = -reader.readF();
@@ -426,8 +409,8 @@ struct Layer
         layer.bounding_box_x2 = reader.readF();
         layer.bounding_box_y2 = -reader.readF();
         layer.bounding_box_z2 = -reader.readF();
-        if( reader.readU32() != 0 )
-            BOOST_LOG_TRIVIAL( warning ) << "Room Layer: filler3 has wrong value";
+        if(reader.readU32() != 0)
+            BOOST_LOG_TRIVIAL(warning) << "Room Layer: filler3 has wrong value";
 
         layer.unknown_l6a = reader.readI16();
         layer.unknown_l6b = reader.readI16();
@@ -454,7 +437,7 @@ struct RoomVertex
     // TR5 -->
     core::TRVec normal;
 
-    glm::vec4 color{ 0.0f };
+    glm::vec4 color{0.0f};
 
     float getBrightness() const
     {
@@ -471,81 +454,79 @@ struct RoomVertex
     static RoomVertex readTr1(io::SDLReader& reader)
     {
         RoomVertex room_vertex;
-        room_vertex.position = readCoordinates16( reader );
+        room_vertex.position = readCoordinates16(reader);
         // read and make consistent
         room_vertex.darkness = reader.readU16();
         // only in TR2
         room_vertex.lighting2 = room_vertex.darkness;
         room_vertex.attributes = 0;
         // only in TR5
-        room_vertex.normal = { 0_len, 0_len, 0_len };
+        room_vertex.normal = {0_len, 0_len, 0_len};
         const auto f = room_vertex.getBrightness();
-        room_vertex.color = { f, f, f, 1 };
+        room_vertex.color = {f, f, f, 1};
         return room_vertex;
     }
 
     static RoomVertex readTr2(io::SDLReader& reader)
     {
         RoomVertex room_vertex;
-        room_vertex.position = readCoordinates16( reader );
+        room_vertex.position = readCoordinates16(reader);
         // read and make consistent
         room_vertex.darkness = (8191 - reader.readI16()) << 2;
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
         // only in TR5
-        room_vertex.normal = { 0_len, 0_len, 0_len };
+        room_vertex.normal = {0_len, 0_len, 0_len};
         auto f = room_vertex.lighting2 / 32768.0f;
-        room_vertex.color = { f, f, f, 1 };
+        room_vertex.color = {f, f, f, 1};
         return room_vertex;
     }
 
     static RoomVertex readTr3(io::SDLReader& reader)
     {
         RoomVertex room_vertex;
-        room_vertex.position = readCoordinates16( reader );
+        room_vertex.position = readCoordinates16(reader);
         // read and make consistent
         room_vertex.darkness = reader.readI16();
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal = { 0_len, 0_len, 0_len };
-        room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
-                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
-                              (room_vertex.lighting2 & 0x001F) / 62.0f,
-                              1
-        };
+        room_vertex.normal = {0_len, 0_len, 0_len};
+        room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
+                             ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
+                             (room_vertex.lighting2 & 0x001F) / 62.0f,
+                             1};
         return room_vertex;
     }
 
     static RoomVertex readTr4(io::SDLReader& reader)
     {
         RoomVertex room_vertex;
-        room_vertex.position = readCoordinates16( reader );
+        room_vertex.position = readCoordinates16(reader);
         // read and make consistent
         room_vertex.darkness = reader.readI16();
         room_vertex.attributes = reader.readU16();
         room_vertex.lighting2 = reader.readI16();
         // only in TR5
-        room_vertex.normal = { 0_len, 0_len, 0_len };
+        room_vertex.normal = {0_len, 0_len, 0_len};
 
-        room_vertex.color = { ((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
-                              ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
-                              (room_vertex.lighting2 & 0x001F) / 31.0f,
-                              1
-        };
+        room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
+                             ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
+                             (room_vertex.lighting2 & 0x001F) / 31.0f,
+                             1};
         return room_vertex;
     }
 
     static RoomVertex readTr5(io::SDLReader& reader)
     {
         RoomVertex vert;
-        vert.position = readCoordinatesF( reader );
-        vert.normal = readCoordinatesF( reader );
+        vert.position = readCoordinatesF(reader);
+        vert.normal = readCoordinatesF(reader);
         auto b = reader.readU8();
         auto g = reader.readU8();
         auto r = reader.readU8();
         auto a = reader.readU8();
-        vert.color = { r, g, b, a };
+        vert.color = {r, g, b, a};
         return vert;
     }
 };
@@ -568,7 +549,7 @@ struct Room
 
     static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN2 = 0x0040; ///< @FIXME: Find what it means!!! Always set by Dxtre3d.
     static constexpr uint16_t TR_ROOM_FLAG_NO_LENSFLARE = 0x0080; // In TR4-5. Was quicksand in TR3.
-    static constexpr uint16_t TR_ROOM_FLAG_MIST = 0x0100; ///< @FIXME: Unknown meaning in TR1!!!
+    static constexpr uint16_t TR_ROOM_FLAG_MIST = 0x0100;         ///< @FIXME: Unknown meaning in TR1!!!
     static constexpr uint16_t TR_ROOM_FLAG_CAUSTICS = 0x0200;
 
     static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN3 = 0x0400;
@@ -578,9 +559,9 @@ struct Room
 
     core::TRVec position;
 
-    core::Length lowestHeight{ 0 };
+    core::Length lowestHeight{0};
 
-    core::Length greatestHeight{ 0 };
+    core::Length greatestHeight{0};
 
     std::vector<Layer> layers;
 
@@ -594,18 +575,16 @@ struct Room
 
     std::vector<Portal> portals;
 
-    int sectorCountZ; // "width" of sector list
-    int sectorCountX; // "height" of sector list
+    int sectorCountZ;            // "width" of sector list
+    int sectorCountX;            // "height" of sector list
     std::vector<Sector> sectors; // [NumXsectors * NumZsectors] list of sectors in this room
-    int16_t ambientDarkness; //!< 0..8191
-    int16_t intensity2; // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
-    int16_t lightMode; // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
-    std::vector<Light> lights; // [NumLights] list of point lights
-    std::vector<RoomStaticMesh> staticMeshes; // [NumStaticMeshes]list of static meshes
-    core::RoomIdI16 alternateRoom{ int16_t( -1 ) }; // number of the room that this room can alternate
-    core::RoomGroupId alternateGroup{
-        uint8_t( 0 )
-    }; // number of group which is used to switch alternate rooms
+    int16_t ambientDarkness;     //!< 0..8191
+    int16_t intensity2;          // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
+    int16_t lightMode;           // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
+    std::vector<Light> lights;   // [NumLights] list of point lights
+    std::vector<RoomStaticMesh> staticMeshes;     // [NumStaticMeshes]list of static meshes
+    core::RoomIdI16 alternateRoom{int16_t(-1)};   // number of the room that this room can alternate
+    core::RoomGroupId alternateGroup{uint8_t(0)}; // number of group which is used to switch alternate rooms
     // with (e.g. empty/filled with water is implemented as an empty room that alternates with a full room)
 
     uint16_t flags;
@@ -614,7 +593,6 @@ struct Room
     {
         return 1 - ambientDarkness / 8191.0f;
     }
-
 
     // Flag bits:
     // 0x0001 - room is filled with water,
@@ -673,34 +651,34 @@ struct Room
       */
     static std::unique_ptr<Room> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Room> room{ std::make_unique<Room>() };
+        std::unique_ptr<Room> room{std::make_unique<Room>()};
 
         // read and change coordinate system
-        room->position.X = core::Length{ reader.readI32() };
+        room->position.X = core::Length{reader.readI32()};
         room->position.Y = 0_len;
-        room->position.Z = core::Length{ reader.readI32() };
-        room->lowestHeight = core::Length{ reader.readI32() };
-        room->greatestHeight = core::Length{ reader.readI32() };
+        room->position.Z = core::Length{reader.readI32()};
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         const std::streamsize num_data_words = reader.readU32();
 
         const auto position = reader.tell();
 
-        reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr1 );
-        reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
-        reader.readVector( room->triangles, reader.readU16(), &Triangle::readTr1 );
-        reader.readVector( room->sprites, reader.readU16(), &SpriteInstance::read );
+        reader.readVector(room->vertices, reader.readU16(), &RoomVertex::readTr1);
+        reader.readVector(room->rectangles, reader.readU16(), &QuadFace::readTr1);
+        reader.readVector(room->triangles, reader.readU16(), &Triangle::readTr1);
+        reader.readVector(room->sprites, reader.readU16(), &SpriteInstance::read);
 
         // set to the right position in case that there is some unused data
-        reader.seek( position + num_data_words * 2 );
+        reader.seek(position + num_data_words * 2);
 
-        room->portals.resize( reader.readU16() );
-        for( auto& p : room->portals )
-            p = Portal::read( reader, room->position );
+        room->portals.resize(reader.readU16());
+        for(auto& p : room->portals)
+            p = Portal::read(reader, room->position);
 
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
-        reader.readVector( room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read );
+        reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
         // read and make consistent
         room->ambientDarkness = reader.readI16();
@@ -709,11 +687,11 @@ struct Room
         // only in TR2
         room->lightMode = 0;
 
-        reader.readVector( room->lights, reader.readU16(), &Light::readTr1 );
-        reader.readVector( room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr1 );
+        reader.readVector(room->lights, reader.readU16(), &Light::readTr1);
+        reader.readVector(room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr1);
 
         room->alternateRoom = reader.readI16();
-        room->alternateGroup = uint8_t( 0 ); // Doesn't exist in TR1-3
+        room->alternateGroup = uint8_t(0); // Doesn't exist in TR1-3
 
         room->flags = reader.readU16();
         room->reverbInfo = ReverbType::MediumRoom;
@@ -727,48 +705,48 @@ struct Room
 
     static std::unique_ptr<Room> readTr2(io::SDLReader& reader)
     {
-        std::unique_ptr<Room> room{ std::make_unique<Room>() };
+        std::unique_ptr<Room> room{std::make_unique<Room>()};
         // read and change coordinate system
-        room->position.X = core::Length{ reader.readI32() };
+        room->position.X = core::Length{reader.readI32()};
         room->position.Y = 0_len;
-        room->position.Z = core::Length{ reader.readI32() };
-        room->lowestHeight = core::Length{ reader.readI32() };
-        room->greatestHeight = core::Length{ reader.readI32() };
+        room->position.Z = core::Length{reader.readI32()};
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         const std::streamsize num_data_words = reader.readU32();
 
         const auto position = reader.tell();
 
-        reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr2 );
-        reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
-        reader.readVector( room->triangles, reader.readU16(), &Triangle::readTr1 );
-        reader.readVector( room->sprites, reader.readU16(), &SpriteInstance::read );
+        reader.readVector(room->vertices, reader.readU16(), &RoomVertex::readTr2);
+        reader.readVector(room->rectangles, reader.readU16(), &QuadFace::readTr1);
+        reader.readVector(room->triangles, reader.readU16(), &Triangle::readTr1);
+        reader.readVector(room->sprites, reader.readU16(), &SpriteInstance::read);
 
         // set to the right position in case that there is some unused data
-        reader.seek( position + num_data_words * 2 );
+        reader.seek(position + num_data_words * 2);
 
-        room->portals.resize( reader.readU16() );
-        for( size_t i = 0; i < room->portals.size(); i++ )
-            room->portals[i] = Portal::read( reader, room->position );
+        room->portals.resize(reader.readU16());
+        for(size_t i = 0; i < room->portals.size(); i++)
+            room->portals[i] = Portal::read(reader, room->position);
 
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
-        reader.readVector( room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read );
+        reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
         // read and make consistent
         room->ambientDarkness = (8191 - reader.readI16()) << 2;
         room->intensity2 = (8191 - reader.readI16()) << 2;
         room->lightMode = reader.readI16();
 
-        reader.readVector( room->lights, reader.readU16(), &Light::readTr2 );
-        reader.readVector( room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr2 );
+        reader.readVector(room->lights, reader.readU16(), &Light::readTr2);
+        reader.readVector(room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr2);
 
         room->alternateRoom = reader.readI16();
-        room->alternateGroup = uint8_t( 0 ); // Doesn't exist in TR1-3
+        room->alternateGroup = uint8_t(0); // Doesn't exist in TR1-3
 
         room->flags = reader.readU16();
 
-        if( room->flags & 0x0020 )
+        if(room->flags & 0x0020)
         {
             room->reverbInfo = ReverbType::Outside;
         }
@@ -786,34 +764,34 @@ struct Room
 
     static std::unique_ptr<Room> readTr3(io::SDLReader& reader)
     {
-        std::unique_ptr<Room> room{ std::make_unique<Room>() };
+        std::unique_ptr<Room> room{std::make_unique<Room>()};
 
         // read and change coordinate system
-        room->position.X = core::Length{ static_cast<core::Length::type>(reader.readI32()) };
+        room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
         room->position.Y = 0_len;
-        room->position.Z = core::Length{ static_cast<core::Length::type>(reader.readI32()) };
-        room->lowestHeight = core::Length{ reader.readI32() };
-        room->greatestHeight = core::Length{ reader.readI32() };
+        room->position.Z = core::Length{static_cast<core::Length::type>(reader.readI32())};
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         const std::streamsize num_data_words = reader.readU32();
 
         const auto position = reader.tell();
 
-        reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr3 );
-        reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
-        reader.readVector( room->triangles, reader.readU16(), &Triangle::readTr1 );
-        reader.readVector( room->sprites, reader.readU16(), &SpriteInstance::read );
+        reader.readVector(room->vertices, reader.readU16(), &RoomVertex::readTr3);
+        reader.readVector(room->rectangles, reader.readU16(), &QuadFace::readTr1);
+        reader.readVector(room->triangles, reader.readU16(), &Triangle::readTr1);
+        reader.readVector(room->sprites, reader.readU16(), &SpriteInstance::read);
 
         // set to the right position in case that there is some unused data
-        reader.seek( position + num_data_words * 2 );
+        reader.seek(position + num_data_words * 2);
 
-        room->portals.resize( reader.readU16() );
-        for( size_t i = 0; i < room->portals.size(); i++ )
-            room->portals[i] = Portal::read( reader, room->position );
+        room->portals.resize(reader.readU16());
+        for(size_t i = 0; i < room->portals.size(); i++)
+            room->portals[i] = Portal::read(reader, room->position);
 
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
-        reader.readVector( room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read );
+        reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
         room->ambientDarkness = reader.readI16();
         room->intensity2 = reader.readI16();
@@ -821,15 +799,15 @@ struct Room
         // only in TR2
         room->lightMode = 0;
 
-        reader.readVector( room->lights, reader.readU16(), &Light::readTr3 );
-        reader.readVector( room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr3 );
+        reader.readVector(room->lights, reader.readU16(), &Light::readTr3);
+        reader.readVector(room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr3);
 
         room->alternateRoom = reader.readI16();
-        room->alternateGroup = uint8_t( 0 ); // Doesn't exist in TR1-3
+        room->alternateGroup = uint8_t(0); // Doesn't exist in TR1-3
 
         room->flags = reader.readU16();
 
-        if( room->flags & 0x0080 )
+        if(room->flags & 0x0080)
         {
             room->flags |= 0x0002; // Move quicksand flag to another bit to avoid confusion with NL flag.
             room->flags ^= 0x0080;
@@ -840,7 +818,7 @@ struct Room
         room->waterScheme = reader.readU8();
         room->reverbInfo = static_cast<ReverbType>(reader.readU8());
 
-        reader.skip( 1 ); // Alternate_group override?
+        reader.skip(1); // Alternate_group override?
 
         room->lightColor.r = room->ambientDarkness / 65534.0f;
         room->lightColor.g = room->ambientDarkness / 65534.0f;
@@ -851,33 +829,33 @@ struct Room
 
     static std::unique_ptr<Room> readTr4(io::SDLReader& reader)
     {
-        std::unique_ptr<Room> room{ std::make_unique<Room>() };
+        std::unique_ptr<Room> room{std::make_unique<Room>()};
         // read and change coordinate system
-        room->position.X = core::Length{ static_cast<core::Length::type>(reader.readI32()) };
+        room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
         room->position.Y = 0_len;
-        room->position.Z = core::Length{ static_cast<core::Length::type>(reader.readI32()) };
-        room->lowestHeight = core::Length{ reader.readI32() };
-        room->greatestHeight = core::Length{ reader.readI32() };
+        room->position.Z = core::Length{static_cast<core::Length::type>(reader.readI32())};
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         const std::streamsize num_data_words = reader.readU32();
 
         const auto position = reader.tell();
 
-        reader.readVector( room->vertices, reader.readU16(), &RoomVertex::readTr4 );
-        reader.readVector( room->rectangles, reader.readU16(), &QuadFace::readTr1 );
-        reader.readVector( room->triangles, reader.readU16(), &Triangle::readTr1 );
-        reader.readVector( room->sprites, reader.readU16(), &SpriteInstance::read );
+        reader.readVector(room->vertices, reader.readU16(), &RoomVertex::readTr4);
+        reader.readVector(room->rectangles, reader.readU16(), &QuadFace::readTr1);
+        reader.readVector(room->triangles, reader.readU16(), &Triangle::readTr1);
+        reader.readVector(room->sprites, reader.readU16(), &SpriteInstance::read);
 
         // set to the right position in case that there is some unused data
-        reader.seek( position + num_data_words * 2 );
+        reader.seek(position + num_data_words * 2);
 
-        room->portals.resize( reader.readU16() );
-        for( size_t i = 0; i < room->portals.size(); i++ )
-            room->portals[i] = Portal::read( reader, room->position );
+        room->portals.resize(reader.readU16());
+        for(size_t i = 0; i < room->portals.size(); i++)
+            room->portals[i] = Portal::read(reader, room->position);
 
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
-        reader.readVector( room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read );
+        reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
         room->ambientDarkness = reader.readI16();
         room->intensity2 = reader.readI16();
@@ -885,8 +863,8 @@ struct Room
         // only in TR2
         room->lightMode = 0;
 
-        reader.readVector( room->lights, reader.readU16(), &Light::readTr4 );
-        reader.readVector( room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr4 );
+        reader.readVector(room->lights, reader.readU16(), &Light::readTr4);
+        reader.readVector(room->staticMeshes, reader.readU16(), &RoomStaticMesh::readTr4);
 
         room->alternateRoom = reader.readI16();
         room->flags = reader.readU16();
@@ -909,36 +887,36 @@ struct Room
 
     static std::unique_ptr<Room> readTr5(io::SDLReader& reader)
     {
-        if( reader.readU32() != 0x414C4558 )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: 'XELA' not found";
+        if(reader.readU32() != 0x414C4558)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: 'XELA' not found";
 
         const std::streamsize room_data_size = reader.readU32();
         const std::streampos position = reader.tell();
         const std::streampos endPos = position + room_data_size;
 
-        std::unique_ptr<Room> room{ std::make_unique<Room>() };
+        std::unique_ptr<Room> room{std::make_unique<Room>()};
         room->ambientDarkness = 32767;
         room->intensity2 = 32767;
         room->lightMode = 0;
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator1 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator1 has wrong value";
 
         /*portal_offset = */
-        reader.readI32(); // StartPortalOffset?   // endSDOffset
+        reader.readI32();                                           // StartPortalOffset?   // endSDOffset
         const std::streampos sector_data_offset = reader.readU32(); // StartSDOffset
         auto temp = reader.readU32();
-        if( temp != 0 && temp != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator2 has wrong value";
+        if(temp != 0 && temp != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator2 has wrong value";
 
         const std::streampos static_meshes_offset = reader.readU32(); // endPortalOffset
         // static_meshes_offset or room_layer_offset
         // read and change coordinate system
-        room->position.X = core::Length{ reader.readI32() };
-        room->position.Y = core::Length{ reader.readI32() };
-        room->position.Z = core::Length{ reader.readI32() };
-        room->lowestHeight = core::Length{ reader.readI32() };
-        room->greatestHeight = core::Length{ reader.readI32() };
+        room->position.X = core::Length{reader.readI32()};
+        room->position.Y = core::Length{reader.readI32()};
+        room->position.Z = core::Length{reader.readI32()};
+        room->lowestHeight = core::Length{reader.readI32()};
+        room->greatestHeight = core::Length{reader.readI32()};
 
         room->sectorCountZ = reader.readU16();
         room->sectorCountX = reader.readU16();
@@ -949,32 +927,32 @@ struct Room
         room->lightColor.a = reader.readU8() / 255.0f;
         //room->light_color.a = 1.0f;
 
-        room->lights.resize( reader.readU16() );
-        if( room->lights.size() > 512 )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: lights.size() > 512";
+        room->lights.resize(reader.readU16());
+        if(room->lights.size() > 512)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: lights.size() > 512";
 
-        room->staticMeshes.resize( reader.readU16() );
-        if( room->staticMeshes.size() > 512 )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: static_meshes.size() > 512";
+        room->staticMeshes.resize(reader.readU16());
+        if(room->staticMeshes.size() > 512)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: static_meshes.size() > 512";
 
         room->reverbInfo = static_cast<ReverbType>(reader.readU8());
         room->alternateGroup = reader.readU8();
-        room->waterScheme = gsl::narrow<uint8_t>( reader.readU16() );
+        room->waterScheme = gsl::narrow<uint8_t>(reader.readU16());
 
-        if( reader.readU32() != 0x00007FFF )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: filler1 has wrong value";
+        if(reader.readU32() != 0x00007FFF)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: filler1 has wrong value";
 
-        if( reader.readU32() != 0x00007FFF )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: filler2 has wrong value";
+        if(reader.readU32() != 0x00007FFF)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: filler2 has wrong value";
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator4 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator4 has wrong value";
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator5 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator5 has wrong value";
 
-        if( reader.readU32() != 0xFFFFFFFF )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator6 has wrong value";
+        if(reader.readU32() != 0xFFFFFFFF)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator6 has wrong value";
 
         room->alternateRoom = reader.readI16();
 
@@ -985,8 +963,8 @@ struct Room
         room->unknown_r3 = reader.readU32();
 
         temp = reader.readU32();
-        if( temp != 0 && temp != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator7 has wrong value";
+        if(temp != 0 && temp != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator7 has wrong value";
 
         room->unknown_r4a = reader.readU16();
         room->unknown_r4b = reader.readU16();
@@ -995,121 +973,121 @@ struct Room
         room->unknown_r5 = reader.readU32();
         room->room_z = -reader.readF();
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator8 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator8 has wrong value";
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator9 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator9 has wrong value";
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator10 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator10 has wrong value";
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator11 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator11 has wrong value";
 
         temp = reader.readU32();
-        if( temp != 0 && temp != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator12 has wrong value";
+        if(temp != 0 && temp != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator12 has wrong value";
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator13 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator13 has wrong value";
 
         auto num_triangles = reader.readU32();
-        if( num_triangles == 0xCDCDCDCD )
+        if(num_triangles == 0xCDCDCDCD)
             num_triangles = 0;
-        if( num_triangles > 512 )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: triangles.size() > 512";
-        room->triangles.resize( num_triangles );
+        if(num_triangles > 512)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: triangles.size() > 512";
+        room->triangles.resize(num_triangles);
 
         auto num_rectangles = reader.readU32();
-        if( num_rectangles == 0xCDCDCDCD )
+        if(num_rectangles == 0xCDCDCDCD)
             num_rectangles = 0;
-        if( num_rectangles > 1024 )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: rectangles.size() > 1024";
-        room->rectangles.resize( num_rectangles );
+        if(num_rectangles > 1024)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: rectangles.size() > 1024";
+        room->rectangles.resize(num_rectangles);
 
-        if( reader.readU32() != 0 )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator14 has wrong value";
+        if(reader.readU32() != 0)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator14 has wrong value";
 
         /*light_size = */
         reader.readU32();
         const auto numL2 = reader.readU32();
-        if( numL2 != room->lights.size() )
-            BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Room: numLights2 != lights.size()" ) );
+        if(numL2 != room->lights.size())
+            BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Room: numLights2 != lights.size()"));
 
         room->unknown_r6 = reader.readU32();
         room->room_y_top = -reader.readF();
         room->room_y_bottom = -reader.readF();
 
-        room->layers.resize( reader.readU32() );
+        room->layers.resize(reader.readU32());
 
         const std::streampos layer_offset = reader.readU32();
         const std::streampos vertices_offset = reader.readU32();
         const std::streampos poly_offset = reader.readU32();
         const std::streampos poly_offset2 = reader.readU32();
-        if( poly_offset != poly_offset2 )
-            BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Room: poly_offset != poly_offset2" ) );
+        if(poly_offset != poly_offset2)
+            BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Room: poly_offset != poly_offset2"));
 
         const auto vertices_size = reader.readU32();
-        if( vertices_size % 28 != 0 )
-            BOOST_THROW_EXCEPTION( std::runtime_error( "TR5 Room: vertices_size has wrong value" ) );
+        if(vertices_size % 28 != 0)
+            BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Room: vertices_size has wrong value"));
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator15 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator15 has wrong value";
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator16 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator16 has wrong value";
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator17 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator17 has wrong value";
 
-        if( reader.readU32() != 0xCDCDCDCD )
-            BOOST_LOG_TRIVIAL( warning ) << "TR5 Room: separator18 has wrong value";
+        if(reader.readU32() != 0xCDCDCDCD)
+            BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator18 has wrong value";
 
-        for( auto& light : room->lights )
-            light = Light::readTr5( reader );
+        for(auto& light : room->lights)
+            light = Light::readTr5(reader);
 
-        reader.seek( position + std::streamoff( 208 ) + sector_data_offset );
+        reader.seek(position + std::streamoff(208) + sector_data_offset);
 
-        reader.readVector( room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read );
+        reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
-        room->portals.resize( reader.readI16() );
-        for( size_t i = 0; i < room->portals.size(); i++ )
-            room->portals[i] = Portal::read( reader, room->position );
+        room->portals.resize(reader.readI16());
+        for(size_t i = 0; i < room->portals.size(); i++)
+            room->portals[i] = Portal::read(reader, room->position);
 
-        reader.seek( position + std::streamoff( 208 ) + static_meshes_offset );
+        reader.seek(position + std::streamoff(208) + static_meshes_offset);
 
-        for( auto& staticMesh : room->staticMeshes )
-            staticMesh = RoomStaticMesh::readTr4( reader );
+        for(auto& staticMesh : room->staticMeshes)
+            staticMesh = RoomStaticMesh::readTr4(reader);
 
-        reader.seek( position + std::streamoff( 208 ) + layer_offset );
+        reader.seek(position + std::streamoff(208) + layer_offset);
 
-        for( auto& layer : room->layers )
-            layer = Layer::read( reader );
+        for(auto& layer : room->layers)
+            layer = Layer::read(reader);
 
-        reader.seek( position + std::streamoff( 208 ) + poly_offset );
+        reader.seek(position + std::streamoff(208) + poly_offset);
 
         {
             loader::file::VertexIndex::index_type vertex_index = 0;
             uint32_t rectangle_index = 0;
             uint32_t triangle_index = 0;
 
-            for( size_t i = 0; i < room->layers.size(); i++ )
+            for(size_t i = 0; i < room->layers.size(); i++)
             {
                 uint32_t j;
 
-                for( j = 0; j < room->layers[i].num_rectangles; j++ )
+                for(j = 0; j < room->layers[i].num_rectangles; j++)
                 {
-                    room->rectangles[rectangle_index] = QuadFace::readTr4( reader );
+                    room->rectangles[rectangle_index] = QuadFace::readTr4(reader);
                     room->rectangles[rectangle_index].vertices[0] += vertex_index;
                     room->rectangles[rectangle_index].vertices[1] += vertex_index;
                     room->rectangles[rectangle_index].vertices[2] += vertex_index;
                     room->rectangles[rectangle_index].vertices[3] += vertex_index;
                     rectangle_index++;
                 }
-                for( j = 0; j < room->layers[i].num_triangles; j++ )
+                for(j = 0; j < room->layers[i].num_triangles; j++)
                 {
-                    room->triangles[triangle_index] = Triangle::readTr4( reader );
+                    room->triangles[triangle_index] = Triangle::readTr4(reader);
                     room->triangles[triangle_index].vertices[0] += vertex_index;
                     room->triangles[triangle_index].vertices[1] += vertex_index;
                     room->triangles[triangle_index].vertices[2] += vertex_index;
@@ -1119,20 +1097,20 @@ struct Room
             }
         }
 
-        reader.seek( position + std::streamoff( 208 ) + vertices_offset );
+        reader.seek(position + std::streamoff(208) + vertices_offset);
 
         {
             uint32_t vertex_index = 0;
-            room->vertices.resize( vertices_size / 28 );
+            room->vertices.resize(vertices_size / 28);
             //int temp1 = room_data_size - (208 + vertices_offset + vertices_size);
-            for( size_t i = 0; i < room->layers.size(); i++ )
+            for(size_t i = 0; i < room->layers.size(); i++)
             {
-                for( uint16_t j = 0; j < room->layers[i].num_vertices; j++ )
-                    room->vertices[vertex_index++] = RoomVertex::readTr5( reader );
+                for(uint16_t j = 0; j < room->layers[i].num_vertices; j++)
+                    room->vertices[vertex_index++] = RoomVertex::readTr5(reader);
             }
         }
 
-        reader.seek( endPos );
+        reader.seek(endPos);
 
         return room;
     }
@@ -1150,13 +1128,13 @@ struct Room
     const Sector* getSectorByAbsolutePosition(core::TRVec worldPos) const
     {
         worldPos -= position;
-        return getSectorByIndex( worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize );
+        return getSectorByIndex(worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize);
     }
 
     gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
     {
         worldPos -= position;
-        return getInnerSectorByIndex( worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize );
+        return getInnerSectorByIndex(worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize);
     }
 
     bool isInnerPositionXZ(core::TRVec worldPos) const
@@ -1169,16 +1147,16 @@ struct Room
 
     const Sector* getSectorByIndex(const int dx, const int dz) const
     {
-        if( dx < 0 || dx >= sectorCountX )
+        if(dx < 0 || dx >= sectorCountX)
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Sector coordinates " << dx << "/" << dz << " out of bounds "
-                                         << sectorCountX << "/" << sectorCountZ << " for room " << node->getId();
+            BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX
+                                       << "/" << sectorCountZ << " for room " << node->getId();
             return nullptr;
         }
-        if( dz < 0 || dz >= sectorCountZ )
+        if(dz < 0 || dz >= sectorCountZ)
         {
-            BOOST_LOG_TRIVIAL( warning ) << "Sector coordinates " << dx << "/" << dz << " out of bounds "
-                                         << sectorCountX << "/" << sectorCountZ << " for room " << node->getId();
+            BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX
+                                       << "/" << sectorCountZ << " for room " << node->getId();
             return nullptr;
         }
         return &sectors[sectorCountZ * dx + dz];
@@ -1186,54 +1164,54 @@ struct Room
 
     gsl::not_null<const Sector*> getInnerSectorByIndex(int dx, int dz) const
     {
-        dx = util::clamp( dx, 1, sectorCountX - 2 );
-        dz = util::clamp( dz, 1, sectorCountZ - 2 );
+        dx = util::clamp(dx, 1, sectorCountX - 2);
+        dz = util::clamp(dz, 1, sectorCountZ - 2);
         return &sectors[sectorCountZ * dx + dz];
     }
 
     gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
     {
-        if( dz <= 0 )
+        if(dz <= 0)
         {
             dz = 0;
-            dx = util::clamp( dx, 1, sectorCountX - 2 );
+            dx = util::clamp(dx, 1, sectorCountX - 2);
         }
-        else if( dz >= sectorCountZ - 1 )
+        else if(dz >= sectorCountZ - 1)
         {
             dz = sectorCountZ - 1;
-            dx = util::clamp( dx, 1, sectorCountX - 2 );
+            dx = util::clamp(dx, 1, sectorCountX - 2);
         }
         else
         {
-            dx = util::clamp( dx, 0, sectorCountX - 1 );
+            dx = util::clamp(dx, 0, sectorCountX - 1);
         }
-        return getSectorByIndex( dx, dz );
+        return getSectorByIndex(dx, dz);
     }
 
     static void patchHeightsForBlock(const engine::items::ItemNode& item, const core::Length& height);
 
     boost::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos) const
     {
-        auto sector = pos.room->getSectorByAbsolutePosition( pos.position );
+        auto sector = pos.room->getSectorByAbsolutePosition(pos.position);
 
-        if( pos.room->isWaterRoom() )
+        if(pos.room->isWaterRoom())
         {
-            while( sector->roomAbove != nullptr )
+            while(sector->roomAbove != nullptr)
             {
-                if( !sector->roomAbove->isWaterRoom() )
+                if(!sector->roomAbove->isWaterRoom())
                     return sector->ceilingHeight;
 
-                sector = sector->roomAbove->getSectorByAbsolutePosition( pos.position );
+                sector = sector->roomAbove->getSectorByAbsolutePosition(pos.position);
             }
         }
         else
         {
-            while( sector->roomBelow != nullptr )
+            while(sector->roomBelow != nullptr)
             {
-                if( sector->roomBelow->isWaterRoom() )
+                if(sector->roomBelow->isWaterRoom())
                     return sector->floorHeight;
 
-                sector = sector->roomBelow->getSectorByAbsolutePosition( pos.position );
+                sector = sector->roomBelow->getSectorByAbsolutePosition(pos.position);
             }
         }
 
@@ -1244,23 +1222,22 @@ struct Room
 extern const Sector* findRealFloorSector(const core::TRVec& position,
                                          const gsl::not_null<gsl::not_null<const Room*>*>& room);
 
-inline const Sector* findRealFloorSector(const core::TRVec& position,
-                                         gsl::not_null<const Room*> room)
+inline const Sector* findRealFloorSector(const core::TRVec& position, gsl::not_null<const Room*> room)
 {
-    return findRealFloorSector( position, &room );
+    return findRealFloorSector(position, &room);
 }
 
 inline const Sector* findRealFloorSector(core::RoomBoundPosition& rbs)
 {
-    return findRealFloorSector( rbs.position, &rbs.room );
+    return findRealFloorSector(rbs.position, &rbs.room);
 }
 
 struct Sprite
 {
-    core::TextureId texture_id{ uint16_t( 0 ) };
+    core::TextureId texture_id{uint16_t(0)};
 
-    std::shared_ptr<render::gl::Image<render::gl::SRGBA8>> image{ nullptr };
-    std::shared_ptr<render::gl::Texture> texture{ nullptr };
+    std::shared_ptr<render::gl::Image<render::gl::SRGBA8>> image{nullptr};
+    std::shared_ptr<render::gl::Texture> texture{nullptr};
 
     glm::vec2 t0;
 
@@ -1276,12 +1253,12 @@ struct Sprite
 
     static std::unique_ptr<Sprite> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Sprite> sprite{ std::make_unique<Sprite>() };
+        std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
 
         sprite->texture_id = reader.readU16();
-        if( sprite->texture_id.get() > 64 )
+        if(sprite->texture_id.get() > 64)
         {
-            BOOST_LOG_TRIVIAL( warning ) << "TR1 Sprite Texture ID > 64";
+            BOOST_LOG_TRIVIAL(warning) << "TR1 Sprite Texture ID > 64";
         }
 
         sprite->t0.x = reader.readU8() / 256.0f;
@@ -1303,11 +1280,11 @@ struct Sprite
 
     static std::unique_ptr<Sprite> readTr4(io::SDLReader& reader)
     {
-        std::unique_ptr<Sprite> sprite{ std::make_unique<Sprite>() };
+        std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
         sprite->texture_id = reader.readU16();
-        if( sprite->texture_id.get() > 128 )
+        if(sprite->texture_id.get() > 128)
         {
-            BOOST_LOG_TRIVIAL( warning ) << "TR4 Sprite Texture ID > 128";
+            BOOST_LOG_TRIVIAL(warning) << "TR4 Sprite Texture ID > 128";
         }
 
         sprite->x0 = reader.readU8();
@@ -1325,37 +1302,37 @@ struct Sprite
 
 struct SpriteSequence
 {
-    core::TypeId type{ uint16_t( 0 ) }; // Item identifier (matched in Items[])
-    int16_t length; // negative of "how many sprites are in this sequence"
-    uint16_t offset; // where (in sprite texture list) this sequence starts
+    core::TypeId type{uint16_t(0)}; // Item identifier (matched in Items[])
+    int16_t length;                 // negative of "how many sprites are in this sequence"
+    uint16_t offset;                // where (in sprite texture list) this sequence starts
 
     gsl::span<const Sprite> sprites;
 
     static std::unique_ptr<SpriteSequence> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<SpriteSequence> sprite_sequence{ std::make_unique<SpriteSequence>() };
+        std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
         sprite_sequence->type = static_cast<core::TypeId::type>(reader.readU32());
         sprite_sequence->length = reader.readI16();
         sprite_sequence->offset = reader.readU16();
 
-        if( sprite_sequence->type.get() >= 191 /*Plant1*/ )
+        if(sprite_sequence->type.get() >= 191 /*Plant1*/)
         {
             sprite_sequence->length = 0;
         }
 
-        BOOST_ASSERT( sprite_sequence->length <= 0 );
+        BOOST_ASSERT(sprite_sequence->length <= 0);
 
         return sprite_sequence;
     }
 
     static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader)
     {
-        std::unique_ptr<SpriteSequence> sprite_sequence{ std::make_unique<SpriteSequence>() };
+        std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
         sprite_sequence->type = static_cast<core::TypeId::type>(reader.readU32());
         sprite_sequence->length = reader.readI16();
         sprite_sequence->offset = reader.readU16();
 
-        BOOST_ASSERT( sprite_sequence->length <= 0 );
+        BOOST_ASSERT(sprite_sequence->length <= 0);
 
         return sprite_sequence;
     }
@@ -1390,12 +1367,12 @@ struct Box
 
     constexpr bool contains(const core::Length x, const core::Length z) const noexcept
     {
-        return containsX( x ) && containsZ( z );
+        return containsX(x) && containsZ(z);
     }
 
     static std::unique_ptr<Box> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Box> box{ std::make_unique<Box>() };
+        std::unique_ptr<Box> box{std::make_unique<Box>()};
         box->zmin = 1_len * reader.readI32();
         box->zmax = 1_len * reader.readI32();
         box->xmin = 1_len * reader.readI32();
@@ -1407,12 +1384,12 @@ struct Box
 
     static std::unique_ptr<Box> readTr2(io::SDLReader& reader)
     {
-        std::unique_ptr<Box> box{ std::make_unique<Box>() };
+        std::unique_ptr<Box> box{std::make_unique<Box>()};
         box->zmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
         box->zmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
         box->xmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
         box->xmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
-        box->floor = core::Length{ static_cast<core::Length::type>(reader.readI16()) };
+        box->floor = core::Length{static_cast<core::Length::type>(reader.readI16())};
         box->overlap_index = reader.readU16();
         return box;
     }
@@ -1424,13 +1401,13 @@ struct Box
     ZoneId zoneGround2 = 0;
     ZoneId zoneGround2Swapped = 0;
 
-    static const ZoneId Box::* getZoneRef(const bool swapped, const core::Length& fly, const core::Length& step)
+    static const ZoneId Box::*getZoneRef(const bool swapped, const core::Length& fly, const core::Length& step)
     {
-        if( fly != 0_len )
+        if(fly != 0_len)
         {
             return swapped ? &Box::zoneFlySwapped : &Box::zoneFly;
         }
-        else if( step == core::QuarterSectorSize )
+        else if(step == core::QuarterSectorSize)
         {
             return swapped ? &Box::zoneGround1Swapped : &Box::zoneGround1;
         }
@@ -1467,9 +1444,9 @@ struct Zones
 {
     void read(const size_t boxCount, io::SDLReader& reader)
     {
-        reader.readVector( groundZone1, boxCount );
-        reader.readVector( groundZone2, boxCount );
-        reader.readVector( flyZone, boxCount );
+        reader.readVector(groundZone1, boxCount);
+        reader.readVector(groundZone2, boxCount);
+        reader.readVector(flyZone, boxCount);
     }
 
     ZoneData groundZone1{};
@@ -1483,15 +1460,13 @@ struct Camera
 {
     core::TRVec position;
 
-    union
-    {
+    union {
         uint16_t room;
 
         uint16_t underwaterCurrentStrength;
     };
 
-    union
-    {
+    union {
         //! @todo mutable flags
         mutable uint16_t flags;
 
@@ -1500,8 +1475,8 @@ struct Camera
 
     static std::unique_ptr<Camera> read(io::SDLReader& reader)
     {
-        std::unique_ptr<Camera> camera{ std::make_unique<Camera>() };
-        camera->position = readCoordinates32( reader );
+        std::unique_ptr<Camera> camera{std::make_unique<Camera>()};
+        camera->position = readCoordinates32(reader);
 
         camera->room = reader.readU16();
         camera->flags = reader.readU16();
@@ -1515,7 +1490,7 @@ struct Camera
 
     void setActive(const bool flg) const noexcept
     {
-        if( flg )
+        if(flg)
             flags |= 1;
         else
             flags &= ~1;
@@ -1544,17 +1519,17 @@ struct FlybyCamera
 
     uint16_t roll;
 
-    core::Frame timer{ 0_frame };
+    core::Frame timer{0_frame};
 
     uint16_t speed;
 
     uint16_t flags;
 
-    core::RoomId32 room_id{ 0u };
+    core::RoomId32 room_id{0u};
 
     static std::unique_ptr<FlybyCamera> read(io::SDLReader& reader)
     {
-        std::unique_ptr<FlybyCamera> camera{ std::make_unique<FlybyCamera>() };
+        std::unique_ptr<FlybyCamera> camera{std::make_unique<FlybyCamera>()};
         camera->cam_x = reader.readI32();
         camera->cam_y = reader.readI32();
         camera->cam_z = reader.readI32();
@@ -1567,7 +1542,7 @@ struct FlybyCamera
 
         camera->fov = reader.readU16();
         camera->roll = reader.readU16();
-        camera->timer = core::Frame{ static_cast<core::Frame::type>(reader.readU16()) };
+        camera->timer = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
         camera->speed = reader.readU16();
         camera->flags = reader.readU16();
 
@@ -1578,7 +1553,7 @@ struct FlybyCamera
 
 struct AIObject
 {
-    core::ItemId object_id{ uint16_t( 0 ) }; // the objectID from the AI object (AI_FOLLOW is 402)
+    core::ItemId object_id{uint16_t(0)}; // the objectID from the AI object (AI_FOLLOW is 402)
     uint16_t room;
 
     int32_t x;
@@ -1594,7 +1569,7 @@ struct AIObject
 
     static std::unique_ptr<AIObject> read(io::SDLReader& reader)
     {
-        std::unique_ptr<AIObject> object{ std::make_unique<AIObject>() };
+        std::unique_ptr<AIObject> object{std::make_unique<AIObject>()};
         object->object_id = reader.readU16();
         object->room = reader.readU16(); // 4
 
@@ -1618,11 +1593,11 @@ struct CinematicFrame
 
     static std::unique_ptr<CinematicFrame> read(io::SDLReader& reader)
     {
-        std::unique_ptr<CinematicFrame> cf{ std::make_unique<CinematicFrame>() };
-        cf->center = readCoordinates16( reader );
-        cf->eye = readCoordinates16( reader );
-        cf->fov = core::auToAngle( reader.readI16() );
-        cf->rotZ = core::auToAngle( reader.readI16() );
+        std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
+        cf->center = readCoordinates16(reader);
+        cf->eye = readCoordinates16(reader);
+        cf->fov = core::auToAngle(reader.readI16());
+        cf->rotZ = core::auToAngle(reader.readI16());
         return cf;
     }
 };
@@ -1634,10 +1609,10 @@ struct LightMap
     /// \brief reads the lightmap.
     static std::unique_ptr<LightMap> read(io::SDLReader& reader)
     {
-        std::unique_ptr<LightMap> lightmap{ std::make_unique<LightMap>() };
-        reader.readBytes( lightmap->map.data(), lightmap->map.size() );
+        std::unique_ptr<LightMap> lightmap{std::make_unique<LightMap>()};
+        reader.readBytes(lightmap->map.data(), lightmap->map.size());
         return lightmap;
     }
 };
-}
-}
+} // namespace file
+} // namespace loader

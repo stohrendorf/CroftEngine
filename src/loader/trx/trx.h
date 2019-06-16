@@ -2,7 +2,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-
 #include <chrono>
 #include <map>
 #include <regex>
@@ -22,11 +21,11 @@ public:
 
     bool operator<(const Rectangle& rhs) const
     {
-        if( m_x0 != rhs.m_x0 )
+        if(m_x0 != rhs.m_x0)
             return m_x0 < rhs.m_x0;
-        if( m_x1 != rhs.m_x1 )
+        if(m_x1 != rhs.m_x1)
             return m_x1 < rhs.m_x1;
-        if( m_y0 != rhs.m_y0 )
+        if(m_y0 != rhs.m_y0)
             return m_y0 < rhs.m_y0;
         return m_y1 < rhs.m_y1;
     }
@@ -79,8 +78,8 @@ public:
     explicit TexturePart(const std::string& serialized);
 
     explicit TexturePart(std::string filename, const Rectangle& r)
-        : m_textureId{ std::move( filename ) }
-          , m_rect{ r }
+        : m_textureId{std::move(filename)}
+        , m_rect{r}
     {
     }
 
@@ -96,7 +95,7 @@ public:
 
     bool operator<(const TexturePart& rhs) const
     {
-        if( m_textureId != rhs.m_textureId )
+        if(m_textureId != rhs.m_textureId)
             return m_textureId < rhs.m_textureId;
 
         return m_rect < rhs.m_rect;
@@ -167,8 +166,7 @@ private:
 class Glidos
 {
 public:
-    explicit Glidos(boost::filesystem::path baseDir,
-                    const std::function<void(const std::string&)>& statusCallback);
+    explicit Glidos(boost::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback);
 
     void dump() const;
 
@@ -187,5 +185,5 @@ private:
     mutable std::map<std::string, std::chrono::system_clock::time_point> m_newestTextureSourceTimestamps;
     std::chrono::system_clock::time_point m_rootTimestamp;
 };
-}
-}
+} // namespace trx
+} // namespace loader

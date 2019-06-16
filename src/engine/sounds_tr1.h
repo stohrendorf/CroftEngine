@@ -1,12 +1,11 @@
 #pragma once
 
 #include <map>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 namespace engine
 {
-
 #include "sounds_tr1_enum.h"
 
 }

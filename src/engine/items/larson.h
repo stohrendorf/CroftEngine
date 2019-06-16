@@ -1,15 +1,13 @@
 #pragma once
 
 #include "aiagent.h"
-
 #include "engine/ai/ai.h"
 
 namespace engine
 {
 namespace items
 {
-class Larson final
-    : public AIAgent
+class Larson final : public AIAgent
 {
 public:
     Larson(const gsl::not_null<Engine*>& engine,
@@ -19,5 +17,5 @@ public:
 
     void update() override;
 };
-}
-}
+} // namespace items
+} // namespace engine

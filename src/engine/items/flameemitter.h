@@ -13,9 +13,9 @@ public:
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{ engine, room, item, true, animatedModel }
+        : ModelItemNode{engine, room, item, true, animatedModel}
     {
-        getSkeleton()->setDrawable( nullptr );
+        getSkeleton()->setDrawable(nullptr);
         getSkeleton()->removeAllChildren();
         getSkeleton()->resetPose();
     }
@@ -27,5 +27,5 @@ private:
 
     void removeParticle();
 };
-}
-}
+} // namespace items
+} // namespace engine

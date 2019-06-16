@@ -1,10 +1,10 @@
 #pragma once
 
-#include "engine/skeletalmodelnode.h"
-#include "loader/file/larastateid.h"
-#include "loader/file/datatypes.h"
-#include "loader/file/animationid.h"
 #include "core/angle.h"
+#include "engine/skeletalmodelnode.h"
+#include "loader/file/animationid.h"
+#include "loader/file/datatypes.h"
+#include "loader/file/larastateid.h"
 
 #include <memory>
 
@@ -28,8 +28,8 @@ class AbstractStateHandler
 {
 public:
     explicit AbstractStateHandler(LaraNode& lara, const LaraStateId id)
-        : m_lara{ lara }
-          , m_id{ id }
+        : m_lara{lara}
+        , m_id{id}
     {
     }
 
@@ -91,11 +91,9 @@ protected:
 
     core::Angle getYRotationSpeed() const;
 
-    void subYRotationSpeed(core::Angle val,
-                           core::Angle limit = -32768_au);
+    void subYRotationSpeed(core::Angle val, core::Angle limit = -32768_au);
 
-    void addYRotationSpeed(core::Angle val,
-                           core::Angle limit = 32767_au);
+    void addYRotationSpeed(core::Angle val, core::Angle limit = 32767_au);
 
     void setFallSpeedOverride(core::Speed v);
 
@@ -161,5 +159,5 @@ protected:
 
     void laraUpdateImpl();
 };
-}
-}
+} // namespace lara
+} // namespace engine

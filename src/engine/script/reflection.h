@@ -19,14 +19,17 @@ struct ObjectInfo
 
     static sol::usertype<ObjectInfo>& userType()
     {
-        static sol::usertype<ObjectInfo> userType(
-            sol::constructors<ObjectInfo()>(),
-            "ai_agent", &ObjectInfo::ai_agent,
-            "radius", &ObjectInfo::radius,
-            "hit_points", &ObjectInfo::hit_points,
-            "pivot_length", &ObjectInfo::pivot_length,
-            "target_update_chance", &ObjectInfo::target_update_chance
-                                                 );
+        static sol::usertype<ObjectInfo> userType(sol::constructors<ObjectInfo()>(),
+                                                  "ai_agent",
+                                                  &ObjectInfo::ai_agent,
+                                                  "radius",
+                                                  &ObjectInfo::radius,
+                                                  "hit_points",
+                                                  &ObjectInfo::hit_points,
+                                                  "pivot_length",
+                                                  &ObjectInfo::pivot_length,
+                                                  "target_update_chance",
+                                                  &ObjectInfo::target_update_chance);
 
         return userType;
     }
@@ -35,21 +38,20 @@ struct ObjectInfo
 struct TrackInfo
 {
     TrackInfo(core::SoundId::type id, audio::TrackType type)
-        : id{ id }
-          , type{ type }
-    {}
+        : id{id}
+        , type{type}
+    {
+    }
 
     core::SoundId::type id;
     audio::TrackType type;
 
     static sol::usertype<TrackInfo>& userType()
     {
-        static sol::usertype<TrackInfo> userType{
-            sol::constructors<TrackInfo(core::SoundId::type, audio::TrackType)>()
-        };
+        static sol::usertype<TrackInfo> userType{sol::constructors<TrackInfo(core::SoundId::type, audio::TrackType)>()};
 
         return userType;
     }
 };
-}
-}
+} // namespace script
+} // namespace engine

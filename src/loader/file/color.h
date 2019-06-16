@@ -1,9 +1,7 @@
 #pragma once
 
-#include "io/sdlreader.h"
-
 #include "gsl-lite.hpp"
-
+#include "io/sdlreader.h"
 #include "render/gl/pixel.h"
 
 namespace loader
@@ -22,32 +20,32 @@ struct ByteColor
 
     static ByteColor readTr1(io::SDLReader& reader)
     {
-        return read( reader, false );
+        return read(reader, false);
     }
 
     static ByteColor readTr2(io::SDLReader& reader)
     {
-        return read( reader, true );
+        return read(reader, true);
     }
 
     render::gl::SRGBA8 toTextureColor() const
     {
-        return render::gl::SRGBA8{ r, g, b, a };
+        return render::gl::SRGBA8{r, g, b, a};
     }
 
     render::gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const
     {
-        return render::gl::SRGBA8{ r, g, b, alphaOverride };
+        return render::gl::SRGBA8{r, g, b, alphaOverride};
     }
 
     glm::vec4 toGLColor() const
     {
-        return glm::vec4{ r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f };
+        return glm::vec4{r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};
     }
 
     glm::vec3 toGLColor3() const
     {
-        return glm::vec3{ r / 255.0f, g / 255.0f, b / 255.0f };
+        return glm::vec3{r / 255.0f, g / 255.0f, b / 255.0f};
     }
 
 private:
@@ -57,7 +55,7 @@ private:
         color.r = reader.readU8() << 2u;
         color.g = reader.readU8() << 2u;
         color.b = reader.readU8() << 2u;
-        if( withAlpha )
+        if(withAlpha)
             color.a = reader.readU8() << 2u;
         else
             color.a = 255;
@@ -75,7 +73,7 @@ struct FloatColor
 
     glm::vec4 toSColor(const float intensity) const
     {
-        BOOST_ASSERT( intensity >= 0 && intensity <= 1 );
+        BOOST_ASSERT(intensity >= 0 && intensity <= 1);
         glm::vec4 col;
         col.x = r * intensity;
         col.y = g * intensity;
@@ -92,19 +90,19 @@ struct Palette
     /// \brief reads the 256 color palette values.
     static std::unique_ptr<Palette> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<Palette> palette{ new Palette() };
-        for( auto& c : gsl::span<ByteColor>( palette->colors ) )
-            c = ByteColor::readTr1( reader );
+        std::unique_ptr<Palette> palette{new Palette()};
+        for(auto& c : gsl::span<ByteColor>(palette->colors))
+            c = ByteColor::readTr1(reader);
         return palette;
     }
 
     static std::unique_ptr<Palette> readTr2(io::SDLReader& reader)
     {
-        std::unique_ptr<Palette> palette{ new Palette() };
-        for( auto& c : gsl::span<ByteColor>( palette->colors ) )
-            c = ByteColor::readTr2( reader );
+        std::unique_ptr<Palette> palette{new Palette()};
+        for(auto& c : gsl::span<ByteColor>(palette->colors))
+            c = ByteColor::readTr2(reader);
         return palette;
     }
 };
-}
-}
+} // namespace file
+} // namespace loader

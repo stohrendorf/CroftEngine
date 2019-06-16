@@ -8,28 +8,27 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_32 final
-    : public AbstractStateHandler
+class StateHandler_32 final : public AbstractStateHandler
 {
 public:
     explicit StateHandler_32(LaraNode& lara)
-        : AbstractStateHandler{ lara, LaraStateId::SlideBackward }
+        : AbstractStateHandler{lara, LaraStateId::SlideBackward}
     {
     }
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getEngine().getInputHandler().getInputState().jump )
+        if(getEngine().getInputHandler().getInputState().jump)
         {
-            setGoalAnimState( LaraStateId::JumpBack );
+            setGoalAnimState(LaraStateId::JumpBack);
         }
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
     {
-        setMovementAngle( getLara().m_state.rotation.Y + 180_deg );
-        commonSlideHandling( collisionInfo );
+        setMovementAngle(getLara().m_state.rotation.Y + 180_deg);
+        commonSlideHandling(collisionInfo);
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

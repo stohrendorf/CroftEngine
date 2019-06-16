@@ -1,12 +1,12 @@
 #include "engine/engine.h"
 
 #include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/stacktrace.hpp>
 
 #ifndef BOOST_MSVC
-#include <signal.h>
+#    include <signal.h>
 
 void stacktrace_handler(int signum)
 {
@@ -16,14 +16,16 @@ void stacktrace_handler(int signum)
 }
 #endif
 
-gsl_api void
-gsl::fail_fast_assert_handler(char const* const expression, char const* const message, char const* const file, int line)
+gsl_api void gsl::fail_fast_assert_handler(char const* const expression,
+                                           char const* const message,
+                                           char const* const file,
+                                           int line)
 {
-    BOOST_LOG_TRIVIAL( error ) << "Expectation failed at " << file << ":" << line;
-    BOOST_LOG_TRIVIAL( error ) << "  - expression " << expression;
-    BOOST_LOG_TRIVIAL( error ) << "  - message " << message;
-    BOOST_LOG_TRIVIAL( error ) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
-    BOOST_THROW_EXCEPTION( gsl::fail_fast(message) );
+    BOOST_LOG_TRIVIAL(error) << "Expectation failed at " << file << ":" << line;
+    BOOST_LOG_TRIVIAL(error) << "  - expression " << expression;
+    BOOST_LOG_TRIVIAL(error) << "  - message " << message;
+    BOOST_LOG_TRIVIAL(error) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
+    BOOST_THROW_EXCEPTION(gsl::fail_fast(message));
 }
 
 namespace
@@ -32,12 +34,12 @@ std::terminate_handler oldTerminateHandler = nullptr;
 
 void terminateHandler()
 {
-    BOOST_LOG_TRIVIAL( error ) << "Abnormal termination. Stacktrace:\n" << boost::stacktrace::stacktrace();
+    BOOST_LOG_TRIVIAL(error) << "Abnormal termination. Stacktrace:\n" << boost::stacktrace::stacktrace();
 
-    if( oldTerminateHandler != nullptr )
+    if(oldTerminateHandler != nullptr)
         oldTerminateHandler();
 }
-}
+} // namespace
 
 int main()
 {
@@ -46,10 +48,10 @@ int main()
     ::signal(SIGABRT, &stacktrace_handler);
 #endif
 
-    oldTerminateHandler = std::set_terminate( &terminateHandler );
+    oldTerminateHandler = std::set_terminate(&terminateHandler);
 
 #ifdef NDEBUG
-    boost::log::core::get()->set_filter( boost::log::trivial::severity >= boost::log::trivial::info );
+    boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
 #endif
 
     try
@@ -59,14 +61,14 @@ int main()
 
         return EXIT_SUCCESS;
     }
-    catch( std::exception& ex )
+    catch(std::exception& ex)
     {
-        BOOST_LOG_TRIVIAL( error ) << "Error: " << ex.what();
+        BOOST_LOG_TRIVIAL(error) << "Error: " << ex.what();
         return EXIT_FAILURE;
     }
-    catch( ... )
+    catch(...)
     {
-        BOOST_LOG_TRIVIAL( error ) << "Unexpected error";
+        BOOST_LOG_TRIVIAL(error) << "Unexpected error";
         return EXIT_FAILURE;
     }
 }

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "render/gl/renderstate.h"
 #include "ShaderProgram.h"
-
 #include "gsl-lite.hpp"
+#include "render/gl/renderstate.h"
 
 namespace render
 {
@@ -28,7 +27,8 @@ public:
 
     ~Material();
 
-    explicit Material(const std::string& vshPath, const std::string& fshPath,
+    explicit Material(const std::string& vshPath,
+                      const std::string& fshPath,
                       const std::vector<std::string>& defines = {});
 
     const gsl::not_null<std::shared_ptr<ShaderProgram>>& getShaderProgram() const
@@ -46,12 +46,11 @@ public:
     }
 
 private:
-
     gsl::not_null<std::shared_ptr<ShaderProgram>> m_shaderProgram;
 
     mutable std::vector<gsl::not_null<std::shared_ptr<MaterialParameter>>> m_parameters;
 
     render::gl::RenderState m_renderState{};
 };
-}
-}
+} // namespace scene
+} // namespace render

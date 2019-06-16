@@ -3,7 +3,6 @@
 #include "render/gl/program.h"
 
 #include <boost/container/flat_map.hpp>
-
 #include <map>
 #include <memory>
 #include <vector>
@@ -47,9 +46,10 @@ public:
     }
 
 private:
-
-    static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath, const std::string& vshSource,
-                                                           const std::string& fshPath, const std::string& fshSource,
+    static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath,
+                                                           const std::string& vshSource,
+                                                           const std::string& fshPath,
+                                                           const std::string& fshSource,
                                                            const std::vector<std::string>& defines = {});
 
     std::string m_id;
@@ -60,5 +60,5 @@ private:
 
     std::map<std::string, gl::Program::ActiveUniform> m_uniforms;
 };
-}
-}
+} // namespace scene
+} // namespace render

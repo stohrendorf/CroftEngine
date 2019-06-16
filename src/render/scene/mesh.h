@@ -1,10 +1,9 @@
 #pragma once
 
-#include "rendercontext.h"
-#include "renderable.h"
-
 #include "render/gl/renderstate.h"
 #include "render/gl/vertexarray.h"
+#include "renderable.h"
+#include "rendercontext.h"
 
 namespace render
 {
@@ -43,7 +42,7 @@ public:
 
     void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
     {
-        m_materialParameterSetters.emplace_back( setter );
+        m_materialParameterSetters.emplace_back(setter);
     }
 
     const auto& getVAO() const
@@ -61,9 +60,7 @@ private:
     const gl::PrimitiveType m_primitiveType;
 };
 
-extern gsl::not_null<std::shared_ptr<Mesh>> createQuadFullscreen(float width,
-                                                                 float height,
-                                                                 const gl::Program& program,
-                                                                 bool invertY = false);
-}
-}
+extern gsl::not_null<std::shared_ptr<Mesh>>
+    createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY = false);
+} // namespace scene
+} // namespace render

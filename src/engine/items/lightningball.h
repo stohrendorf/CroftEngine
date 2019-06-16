@@ -45,5 +45,5 @@ private:
 
     std::shared_ptr<render::scene::Mesh> m_mainBoltMesh;
 };
-}
-}
+} // namespace items
+} // namespace engine

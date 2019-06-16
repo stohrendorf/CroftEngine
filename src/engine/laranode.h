@@ -1,12 +1,12 @@
 #pragma once
 
+#include "ai/ai.h"
+#include "cameracontroller.h"
+#include "collisioninfo.h"
+#include "engine/items/itemnode.h"
+#include "engine/lara/abstractstatehandler.h"
 #include "loader/file/animationid.h"
 #include "loader/file/larastateid.h"
-#include "collisioninfo.h"
-#include "engine/lara/abstractstatehandler.h"
-#include "engine/items/itemnode.h"
-#include "cameracontroller.h"
-#include "ai/ai.h"
 
 namespace engine
 {
@@ -35,11 +35,11 @@ class LaraNode final : public items::ModelItemNode
 
 private:
     //! @brief Additional rotation per TR Engine Frame
-    core::Angle m_yRotationSpeed{ 0_deg };
+    core::Angle m_yRotationSpeed{0_deg};
     core::Speed m_fallSpeedOverride = 0_spd;
-    core::Angle m_movementAngle{ 0_deg };
-    core::Frame m_air{ core::LaraAir };
-    core::Angle m_currentSlideAngle{ 0_deg };
+    core::Angle m_movementAngle{0_deg};
+    core::Frame m_air{core::LaraAir};
+    core::Angle m_currentSlideAngle{0_deg};
 
     HandStatus m_handStatus = HandStatus::None;
 
@@ -50,14 +50,14 @@ public:
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode( engine, room, item, false, animatedModel )
-          , m_underwaterRoute{ *engine }
-          , m_gunFlareLeft{ std::make_shared<render::scene::Node>( "gun flare left" ) }
-          , m_gunFlareRight{ std::make_shared<render::scene::Node>( "gun flare right" ) }
+        : ModelItemNode(engine, room, item, false, animatedModel)
+        , m_underwaterRoute{*engine}
+        , m_gunFlareLeft{std::make_shared<render::scene::Node>("gun flare left")}
+        , m_gunFlareRight{std::make_shared<render::scene::Node>("gun flare right")}
     {
-        setAnimation( AnimationId::STAY_IDLE );
-        setGoalAnimState( LaraStateId::Stop );
-        setMovementAngle( m_state.rotation.Y );
+        setAnimation(AnimationId::STAY_IDLE);
+        setGoalAnimState(LaraStateId::Stop);
+        setMovementAngle(m_state.rotation.Y);
 
         m_underwaterRoute.step = core::SectorSize * 20;
         m_underwaterRoute.drop = -core::SectorSize * 20;
@@ -159,17 +159,17 @@ public:
         m_state.is_hit = true;
         m_state.falling = true;
 
-        const auto& gunFlareModel = getEngine().findAnimatedModelForType( TR1ItemId::Gunflare );
-        if( gunFlareModel == nullptr )
+        const auto& gunFlareModel = getEngine().findAnimatedModelForType(TR1ItemId::Gunflare);
+        if(gunFlareModel == nullptr)
             return;
 
         const auto& mdl = gunFlareModel->models[0];
 
-        m_gunFlareLeft->setDrawable( mdl.get() );
-        m_gunFlareLeft->setVisible( false );
+        m_gunFlareLeft->setDrawable(mdl.get());
+        m_gunFlareLeft->setVisible(false);
 
-        m_gunFlareRight->setDrawable( mdl.get() );
-        m_gunFlareRight->setVisible( false );
+        m_gunFlareRight->setDrawable(mdl.get());
+        m_gunFlareRight->setVisible(false);
     }
 
     LaraNode(const LaraNode&) = delete;
@@ -209,7 +209,7 @@ public:
     void applyShift(const CollisionInfo& collisionInfo)
     {
         m_state.position.position = m_state.position.position + collisionInfo.shift;
-        collisionInfo.shift = { 0_len, 0_len, 0_len };
+        collisionInfo.shift = {0_len, 0_len, 0_len};
     }
 
 private:
@@ -269,12 +269,12 @@ public:
 
     void subYRotationSpeed(const core::Angle val, const core::Angle limit = -32768_au)
     {
-        m_yRotationSpeed = std::max( m_yRotationSpeed - val, limit );
+        m_yRotationSpeed = std::max(m_yRotationSpeed - val, limit);
     }
 
     void addYRotationSpeed(const core::Angle val, const core::Angle limit = 32767_au)
     {
-        m_yRotationSpeed = std::min( m_yRotationSpeed + val, limit );
+        m_yRotationSpeed = std::min(m_yRotationSpeed + val, limit);
     }
 
     void setFallSpeedOverride(const core::Speed v)
@@ -353,11 +353,15 @@ public:
 
     void setCameraModifier(CameraModifier k);
 
-    void addHeadRotationXY(const core::Angle& x, const core::Angle& minX, const core::Angle& maxX, const core::Angle& y,
-                           const core::Angle& minY, const core::Angle& maxY)
+    void addHeadRotationXY(const core::Angle& x,
+                           const core::Angle& minX,
+                           const core::Angle& maxX,
+                           const core::Angle& y,
+                           const core::Angle& minY,
+                           const core::Angle& maxY)
     {
-        m_headRotation.X = util::clamp( m_headRotation.X + x, minX, maxX );
-        m_headRotation.Y = util::clamp( m_headRotation.Y + y, minY, maxY );
+        m_headRotation.X = util::clamp(m_headRotation.X + x, minX, maxX);
+        m_headRotation.Y = util::clamp(m_headRotation.Y + y, minY, maxY);
     }
 
     const core::TRRotation& getHeadRotation() const noexcept
@@ -377,8 +381,8 @@ public:
 
     void resetHeadTorsoRotation()
     {
-        m_headRotation = { 0_deg, 0_deg, 0_deg };
-        m_torsoRotation = { 0_deg, 0_deg, 0_deg };
+        m_headRotation = {0_deg, 0_deg, 0_deg};
+        m_torsoRotation = {0_deg, 0_deg, 0_deg};
     }
 
     core::TRRotation m_headRotation;
@@ -400,18 +404,18 @@ public:
 
     void updateExplosionStumbling()
     {
-        const auto rot = angleFromAtan(
-            forceSourcePosition->X - m_state.position.position.X,
-            forceSourcePosition->Z - m_state.position.position.Z ) - 180_deg;
-        hit_direction = axisFromAngle( m_state.rotation.Y - rot, 45_deg );
-        Expects( hit_direction.is_initialized() );
-        if( hit_frame == 0_frame )
+        const auto rot = angleFromAtan(forceSourcePosition->X - m_state.position.position.X,
+                                       forceSourcePosition->Z - m_state.position.position.Z)
+                         - 180_deg;
+        hit_direction = axisFromAngle(m_state.rotation.Y - rot, 45_deg);
+        Expects(hit_direction.is_initialized());
+        if(hit_frame == 0_frame)
         {
-            playSoundEffect( TR1SoundId::LaraOof );
+            playSoundEffect(TR1SoundId::LaraOof);
         }
 
         hit_frame += 1_frame;
-        if( hit_frame > 34_frame )
+        if(hit_frame > 34_frame)
         {
             hit_frame = 34_frame;
         }
@@ -449,7 +453,7 @@ public:
         YAML::Node save() const
         {
             YAML::Node n;
-            n.SetStyle( YAML::EmitterStyle::Flow );
+            n.SetStyle(YAML::EmitterStyle::Flow);
             n["ammo"] = ammo;
             n["hits"] = hits;
             n["misses"] = misses;
@@ -458,12 +462,12 @@ public:
 
         void load(const YAML::Node& n)
         {
-            if( !n["ammo"].IsScalar() )
-                BOOST_THROW_EXCEPTION( std::domain_error( "Ammo::ammo is not a scalar value" ) );
-            if( !n["hits"].IsScalar() )
-                BOOST_THROW_EXCEPTION( std::domain_error( "Ammo::hits is not a scalar value" ) );
-            if( !n["misses"].IsScalar() )
-                BOOST_THROW_EXCEPTION( std::domain_error( "Ammo::misses is not a scalar value" ) );
+            if(!n["ammo"].IsScalar())
+                BOOST_THROW_EXCEPTION(std::domain_error("Ammo::ammo is not a scalar value"));
+            if(!n["hits"].IsScalar())
+                BOOST_THROW_EXCEPTION(std::domain_error("Ammo::hits is not a scalar value"));
+            if(!n["misses"].IsScalar())
+                BOOST_THROW_EXCEPTION(std::domain_error("Ammo::misses is not a scalar value"));
 
             ammo = n["ammo"].as<int>();
             hits = n["hits"].as<int>();
@@ -482,7 +486,7 @@ public:
     Ammo uziAmmo;
     Ammo shotgunAmmo;
 
-    std::shared_ptr<ModelItemNode> target{ nullptr };
+    std::shared_ptr<ModelItemNode> target{nullptr};
 
     struct Range
     {
@@ -572,8 +576,8 @@ public:
 
     void alignForInteraction(const core::TRVec& offset, const items::ItemState& item)
     {
-        const auto v = item.rotation.toMatrix() * glm::vec4{ offset.toRenderSystem(), 1.0f };
-        const auto p = core::TRVec{ glm::vec3{ v } };
+        const auto v = item.rotation.toMatrix() * glm::vec4{offset.toRenderSystem(), 1.0f};
+        const auto p = core::TRVec{glm::vec3{v}};
         m_state.position.position = item.position.position + p;
     }
 
@@ -581,4 +585,4 @@ public:
 
     void load(const YAML::Node& n) override;
 };
-}
+} // namespace engine

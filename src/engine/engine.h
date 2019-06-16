@@ -1,17 +1,16 @@
 #pragma once
 
+#include "audioengine.h"
 #include "cameracontroller.h"
 #include "floordata/floordata.h"
-#include "loader/file/item.h"
-#include "loader/file/animationid.h"
-#include "util/cimgwrapper.h"
-#include "items_tr1.h"
-#include "audioengine.h"
 #include "inventory.h"
+#include "items_tr1.h"
+#include "loader/file/animationid.h"
+#include "loader/file/item.h"
 #include "render/scene/ScreenOverlay.h"
+#include "util/cimgwrapper.h"
 
 #include <boost/filesystem/path.hpp>
-
 #include <memory>
 
 namespace hid
@@ -39,8 +38,8 @@ struct SpriteSequence;
 struct AnimFrame;
 struct Animation;
 struct CinematicFrame;
-}
-}
+} // namespace file
+} // namespace loader
 
 namespace render
 {
@@ -50,7 +49,7 @@ class Font;
 }
 
 class RenderPipeline;
-}
+} // namespace render
 
 namespace engine
 {
@@ -59,7 +58,7 @@ namespace items
 class ItemNode;
 
 class PickupItem;
-}
+} // namespace items
 
 class Particle;
 
@@ -82,7 +81,7 @@ private:
 
     std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_models;
 
-    int m_uvAnimTime{ 0 };
+    int m_uvAnimTime{0};
 
     std::shared_ptr<render::scene::ShaderProgram> m_lightningShader;
 
@@ -102,8 +101,8 @@ private:
     std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_modelsDirect;
     std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
 
-    std::shared_ptr<render::scene::Material> m_spriteMaterial{ nullptr };
-    std::shared_ptr<render::scene::Material> m_portalMaterial{ nullptr };
+    std::shared_ptr<render::scene::Material> m_spriteMaterial{nullptr};
+    std::shared_ptr<render::scene::Material> m_portalMaterial{nullptr};
 
     std::shared_ptr<render::RenderPipeline> m_renderPipeline;
     std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
@@ -124,8 +123,8 @@ private:
         glm::vec3 position;
 
         PositionalEmitter(const glm::vec3& position, const gsl::not_null<audio::SoundEngine*>& engine)
-            : Emitter{ engine }
-              , position{ position }
+            : Emitter{engine}
+            , position{position}
         {
         }
 
@@ -140,7 +139,7 @@ private:
     core::Frame m_healthBarTimeout = -40_frame;
 
 public:
-    explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = { 1280, 800 });
+    explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = {1280, 800});
 
     ~Engine();
 
@@ -247,7 +246,7 @@ public:
     void run();
 
     std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>
-    createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader);
+        createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader);
 
     std::shared_ptr<LaraNode> createItems();
 
@@ -262,22 +261,22 @@ public:
                                   const core::TRVec& position,
                                   const uint16_t activationState)
     {
-        const auto& model = findAnimatedModelForType( type );
-        if( model == nullptr )
+        const auto& model = findAnimatedModelForType(type);
+        if(model == nullptr)
             return nullptr;
 
         loader::file::Item item;
         item.type = type;
-        item.room = uint16_t( -1 );
+        item.room = uint16_t(-1);
         item.position = position;
         item.rotation = angle;
         item.darkness = 0;
         item.activationState = activationState;
 
-        auto node = std::make_shared<T>( this, room, item, *model );
+        auto node = std::make_shared<T>(this, room, item, *model);
 
-        m_dynamicItems.emplace( node );
-        addChild( room->node, node->getNode() );
+        m_dynamicItems.emplace(node);
+        addChild(room->node, node->getNode());
 
         return node;
     }
@@ -297,28 +296,27 @@ public:
 
     const gsl::not_null<std::shared_ptr<render::scene::Model>>& getModel(const size_t idx) const
     {
-        return m_models.at( idx );
+        return m_models.at(idx);
     }
 
     void scheduleDeletion(items::ItemNode* item)
     {
-        m_scheduledDeletions.insert( item );
+        m_scheduledDeletions.insert(item);
     }
 
     void applyScheduledDeletions()
     {
-        if( m_scheduledDeletions.empty() )
+        if(m_scheduledDeletions.empty())
             return;
 
-        for( const auto& del : m_scheduledDeletions )
+        for(const auto& del : m_scheduledDeletions)
         {
-            auto it = std::find_if( m_dynamicItems.begin(), m_dynamicItems.end(),
-                                    [del](const std::shared_ptr<items::ItemNode>& i) {
-                                      return i.get() == del;
-                                    } );
-            if( it == m_dynamicItems.end() )
+            auto it = std::find_if(m_dynamicItems.begin(),
+                                   m_dynamicItems.end(),
+                                   [del](const std::shared_ptr<items::ItemNode>& i) { return i.get() == del; });
+            if(it == m_dynamicItems.end())
                 continue;
-            m_dynamicItems.erase( it );
+            m_dynamicItems.erase(it);
         }
 
         m_scheduledDeletions.clear();
@@ -370,48 +368,26 @@ public:
 
     void runEffect(const size_t id, items::ItemNode* node)
     {
-        switch( id )
+        switch(id)
         {
-        case 0:
-            Expects( node != nullptr );
-            return turn180Effect( *node );
-        case 1:
-            Expects( node != nullptr );
-            return dinoStompEffect( *node );
-        case 2:
-            return laraNormalEffect();
-        case 3:
-            Expects( node != nullptr );
-            return laraBubblesEffect( *node );
-        case 4:
-            return finishLevelEffect();
-        case 5:
-            return earthquakeEffect();
-        case 6:
-            return floodEffect();
-        case 7:
-            return chandelierEffect();
-        case 8:
-            return raisingBlockEffect();
-        case 9:
-            return stairsToSlopeEffect();
-        case 10:
-            return sandEffect();
-        case 11:
-            return explosionEffect();
-        case 12:
-            return laraHandsFreeEffect();
-        case 13:
-            return flipMapEffect();
-        case 14:
-            Expects( node != nullptr );
-            return unholsterRightGunEffect( *node );
-        case 15:
-            return chainBlockEffect();
-        case 16:
-            return flickerEffect();
-        default:
-            BOOST_LOG_TRIVIAL( warning ) << "Unhandled effect: " << id;
+        case 0: Expects(node != nullptr); return turn180Effect(*node);
+        case 1: Expects(node != nullptr); return dinoStompEffect(*node);
+        case 2: return laraNormalEffect();
+        case 3: Expects(node != nullptr); return laraBubblesEffect(*node);
+        case 4: return finishLevelEffect();
+        case 5: return earthquakeEffect();
+        case 6: return floodEffect();
+        case 7: return chandelierEffect();
+        case 8: return raisingBlockEffect();
+        case 9: return stairsToSlopeEffect();
+        case 10: return sandEffect();
+        case 11: return explosionEffect();
+        case 12: return laraHandsFreeEffect();
+        case 13: return flipMapEffect();
+        case 14: Expects(node != nullptr); return unholsterRightGunEffect(*node);
+        case 15: return chainBlockEffect();
+        case 16: return flickerEffect();
+        default: BOOST_LOG_TRIVIAL(warning) << "Unhandled effect: " << id;
         }
     }
 
@@ -425,11 +401,11 @@ public:
 
     boost::optional<size_t> indexOfModel(const std::shared_ptr<render::scene::Renderable>& m) const
     {
-        if( m == nullptr )
+        if(m == nullptr)
             return boost::none;
 
-        for( size_t i = 0; i < m_models.size(); ++i )
-            if( m_models[i].get() == m )
+        for(size_t i = 0; i < m_models.size(); ++i)
+            if(m_models[i].get() == m)
                 return i;
 
         return boost::none;
@@ -463,16 +439,19 @@ public:
 
     void update(bool godMode);
 
-    static void drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, int x, const int y,
+    static void drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font,
+                         int x,
+                         const int y,
                          const std::string& txt,
-                         const render::gl::SRGBA8& col = { 255, 255, 255, 255 });
+                         const render::gl::SRGBA8& col = {255, 255, 255, 255});
 
     void drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, float fps);
 
     void scaleSplashImage();
 
-    void drawLoadingScreen(const std::string& state);;
+    void drawLoadingScreen(const std::string& state);
+    ;
 
     const std::vector<int16_t>& getPoseFrames() const;
 };
-}
+} // namespace engine

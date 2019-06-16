@@ -7,19 +7,18 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_55 final
-    : public AbstractStateHandler
+class StateHandler_55 final : public AbstractStateHandler
 {
 public:
     explicit StateHandler_55(LaraNode& lara)
-        : AbstractStateHandler{ lara, LaraStateId::OnWaterExit }
+        : AbstractStateHandler{lara, LaraStateId::OnWaterExit}
     {
     }
 
     void handleInput(CollisionInfo& collisionInfo) override
     {
         collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-        setCameraModifier( CameraModifier::FollowCenter );
+        setCameraModifier(CameraModifier::FollowCenter);
     }
 
     void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -29,9 +28,9 @@ public:
         collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle( collisionInfo.facingAngle );
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
+        setMovementAngle(collisionInfo.facingAngle);
+        collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

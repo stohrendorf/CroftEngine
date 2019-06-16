@@ -21,17 +21,17 @@ public:
 private:
     struct Info
     {
-        loader::file::Sector* sector{ nullptr };
+        loader::file::Sector* sector{nullptr};
         loader::file::Sector sectorData;
-        loader::file::Box* box{ nullptr };
+        loader::file::Box* box{nullptr};
 
         void open()
         {
-            if( sector == nullptr )
+            if(sector == nullptr)
                 return;
 
             *sector = sectorData;
-            if( box != nullptr )
+            if(box != nullptr)
             {
                 box->unblock();
             }
@@ -39,11 +39,11 @@ private:
 
         void close()
         {
-            if( sector == nullptr )
+            if(sector == nullptr)
                 return;
 
             sector->reset();
-            if( box != nullptr )
+            if(box != nullptr)
             {
                 box->block();
             }
@@ -51,20 +51,20 @@ private:
 
         void init(const loader::file::Room& room, const core::TRVec& wingsPosition)
         {
-            sector = const_cast<loader::file::Sector*>(room.getSectorByAbsolutePosition( wingsPosition ));
-            Expects( sector != nullptr );
+            sector = const_cast<loader::file::Sector*>(room.getSectorByAbsolutePosition(wingsPosition));
+            Expects(sector != nullptr);
             sectorData = *sector;
 
-            if( sector->portalTarget == nullptr )
+            if(sector->portalTarget == nullptr)
             {
                 box = const_cast<loader::file::Box*>(sector->box);
             }
             else
             {
-                box = const_cast<loader::file::Box*>(sector->portalTarget->getSectorByAbsolutePosition( wingsPosition )
-                                                           ->box);
+                box = const_cast<loader::file::Box*>(
+                    sector->portalTarget->getSectorByAbsolutePosition(wingsPosition)->box);
             }
-            if( box != nullptr && !box->isBlockable() )
+            if(box != nullptr && !box->isBlockable())
             {
                 box = nullptr;
             }
@@ -78,5 +78,5 @@ private:
     Info m_target;
     Info m_alternateTarget;
 };
-}
-}
+} // namespace items
+} // namespace engine

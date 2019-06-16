@@ -1,7 +1,7 @@
 #pragma once
 
-#include "loader/file/item.h"
 #include "itemnode.h"
+#include "loader/file/item.h"
 
 namespace engine
 {
@@ -14,8 +14,8 @@ public:
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
                 const loader::file::SkeletalModelType& animatedModel)
-        : ModelItemNode{ engine, room, item, true, animatedModel }
-          , m_position{ room, item.position }
+        : ModelItemNode{engine, room, item, true, animatedModel}
+        , m_position{room, item.position}
     {
     }
 
@@ -26,5 +26,5 @@ public:
 private:
     core::RoomBoundPosition m_position;
 };
-}
-}
+} // namespace items
+} // namespace engine

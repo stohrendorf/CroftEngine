@@ -1,10 +1,9 @@
 #pragma once
 
 #include "core/magic.h"
+#include "gsl-lite.hpp"
 #include "loader/file/animation.h"
 #include "render/scene/Node.h"
-
-#include "gsl-lite.hpp"
 
 namespace loader
 {
@@ -12,8 +11,8 @@ namespace file
 {
 struct SkeletalModelType;
 struct Animation;
-}
-}
+} // namespace file
+} // namespace loader
 
 namespace engine
 {
@@ -23,8 +22,7 @@ namespace items
 {
 struct ItemState;
 }
-class SkeletalModelNode
-    : public render::scene::Node
+class SkeletalModelNode : public render::scene::Node
 {
 public:
     explicit SkeletalModelNode(const std::string& id,
@@ -44,18 +42,18 @@ public:
     void resetPose()
     {
         m_bonePatches.clear();
-        m_bonePatches.resize( getChildren().size(), glm::mat4{ 1.0f } );
+        m_bonePatches.resize(getChildren().size(), glm::mat4{1.0f});
     }
 
     void patchBone(const size_t idx, const glm::mat4& m)
     {
-        if( m_bonePatches.empty() )
+        if(m_bonePatches.empty())
         {
             resetPose();
         }
 
-        BOOST_ASSERT( m_bonePatches.size() == getChildren().size() );
-        BOOST_ASSERT( idx < m_bonePatches.size() );
+        BOOST_ASSERT(m_bonePatches.size() == getChildren().size());
+        BOOST_ASSERT(idx < m_bonePatches.size());
 
         m_bonePatches[idx] = m;
     }
@@ -70,13 +68,13 @@ public:
 
         const loader::file::AnimFrame* getNearestFrame() const
         {
-            if( bias <= 0.5f )
+            if(bias <= 0.5f)
             {
                 return firstFrame;
             }
             else
             {
-                BOOST_ASSERT( secondFrame != nullptr );
+                BOOST_ASSERT(secondFrame != nullptr);
                 return secondFrame;
             }
         }
@@ -86,10 +84,10 @@ public:
 
     void updatePose(const InterpolationInfo& interpolationInfo)
     {
-        if( interpolationInfo.bias == 0 || interpolationInfo.secondFrame == nullptr )
-            updatePoseKeyframe( interpolationInfo );
+        if(interpolationInfo.bias == 0 || interpolationInfo.secondFrame == nullptr)
+            updatePoseKeyframe(interpolationInfo);
         else
-            updatePoseInterpolated( interpolationInfo );
+            updatePoseInterpolated(interpolationInfo);
     }
 
     struct Sphere
@@ -98,14 +96,14 @@ public:
         const core::Length radius;
 
         Sphere(const glm::mat4& m, const core::Length& radius)
-            : m{ m }
-              , radius{ radius }
+            : m{m}
+            , radius{radius}
         {
         }
 
         glm::vec3 getPosition() const
         {
-            return glm::vec3( m[3] );
+            return glm::vec3(m[3]);
         }
     };
 
@@ -129,4 +127,4 @@ private:
 
     void updatePoseInterpolated(const InterpolationInfo& framePair);
 };
-}
+} // namespace engine

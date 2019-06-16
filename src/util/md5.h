@@ -41,6 +41,6 @@ extern std::string md5(const uint8_t* data, size_t length);
 
 inline std::string md5(const char* data, const size_t length)
 {
-    return md5( reinterpret_cast<const uint8_t*>(data), length );
+    return md5(reinterpret_cast<const uint8_t*>(data), length);
 }
-}
+} // namespace util

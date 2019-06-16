@@ -14,8 +14,9 @@ struct Inventory
     std::map<TR1ItemId, size_t> m_inventory;
 
     explicit Inventory(Engine& engine)
-        : m_engine{ engine }
-    {}
+        : m_engine{engine}
+    {
+    }
 
     void put(core::TypeId id, size_t quantity = 1);
 
@@ -23,8 +24,8 @@ struct Inventory
 
     size_t count(const TR1ItemId id) const
     {
-        const auto it = m_inventory.find( id );
-        if( it == m_inventory.end() )
+        const auto it = m_inventory.find(id);
+        if(it == m_inventory.end())
             return 0;
 
         return it->second;
@@ -37,4 +38,4 @@ struct Inventory
 
     bool tryUse(TR1ItemId id);
 };
-}
+} // namespace engine

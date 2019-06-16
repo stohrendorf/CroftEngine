@@ -1,8 +1,8 @@
 #pragma once
 
+#include "gsl-lite.hpp"
 #include "inputstate.h"
 
-#include "gsl-lite.hpp"
 #include <GLFW/glfw3.h>
 
 namespace hid
@@ -28,4 +28,4 @@ private:
 
     int m_controllerIndex = -1;
 };
-}
+} // namespace hid

@@ -7,21 +7,20 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_11 final
-    : public AbstractStateHandler
+class StateHandler_11 final : public AbstractStateHandler
 {
 public:
     explicit StateHandler_11(LaraNode& lara)
-        : AbstractStateHandler{ lara, LaraStateId::Reach }
+        : AbstractStateHandler{lara, LaraStateId::Reach}
     {
     }
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        setCameraRotationAroundCenterY( 85_deg );
-        if( getLara().m_state.fallspeed > core::FreeFallSpeedThreshold )
+        setCameraRotationAroundCenterY(85_deg);
+        if(getLara().m_state.fallspeed > core::FreeFallSpeedThreshold)
         {
-            setGoalAnimState( LaraStateId::FreeFall );
+            setGoalAnimState(LaraStateId::FreeFall);
         }
     }
 
@@ -29,36 +28,36 @@ public:
     {
         getLara().m_state.falling = true;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle( collisionInfo.facingAngle );
+        setMovementAngle(collisionInfo.facingAngle);
         collisionInfo.badPositiveDistance = core::HeightLimit;
         collisionInfo.badNegativeDistance = 0_len;
         collisionInfo.badCeilingDistance = 192_len;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
+        collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
 
-        if( tryReach( collisionInfo ) )
+        if(tryReach(collisionInfo))
         {
             return;
         }
 
-        jumpAgainstWall( collisionInfo );
-        if( getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floorSpace.y > 0_len )
+        jumpAgainstWall(collisionInfo);
+        if(getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floorSpace.y > 0_len)
         {
             return;
         }
 
-        if( applyLandingDamage() )
+        if(applyLandingDamage())
         {
-            setGoalAnimState( LaraStateId::Death );
+            setGoalAnimState(LaraStateId::Death);
         }
         else
         {
-            setGoalAnimState( LaraStateId::Stop );
+            setGoalAnimState(LaraStateId::Stop);
         }
 
         getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = false;
-        placeOnFloor( collisionInfo );
+        placeOnFloor(collisionInfo);
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

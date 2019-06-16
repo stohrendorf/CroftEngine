@@ -1,8 +1,7 @@
 #pragma once
 
-#include "itemnode.h"
-
 #include "engine/ai/ai.h"
+#include "itemnode.h"
 
 namespace engine
 {
@@ -26,15 +25,15 @@ public:
 protected:
     void rotateCreatureTilt(core::Angle angle)
     {
-        const auto dz = core::Angle::type{ 4 } * angle - m_state.rotation.Z;
-        const core::Angle z = util::clamp( dz, -3_deg, +3_deg );
+        const auto dz = core::Angle::type{4} * angle - m_state.rotation.Z;
+        const core::Angle z = util::clamp(dz, -3_deg, +3_deg);
         m_state.rotation.Z += z;
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void rotateCreatureHead(const core::Angle& angle)
     {
-        m_state.creatureInfo->rotateHead( angle );
+        m_state.creatureInfo->rotateHead(angle);
     }
 
     bool animateCreature(core::Angle angle, core::Angle tilt);
@@ -55,7 +54,6 @@ protected:
                         core::Angle angle);
 
 private:
-
     bool anyMovingEnabledItemInReach() const;
 
     bool isPositionOutOfReach(const core::TRVec& testPosition,
@@ -65,5 +63,5 @@ private:
 
     const core::Length m_collisionRadius;
 };
-}
-}
+} // namespace items
+} // namespace engine

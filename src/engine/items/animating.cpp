@@ -6,7 +6,7 @@ namespace items
 {
 void Animating::update()
 {
-    if( m_state.updateActivationTimeout() )
+    if(m_state.updateActivationTimeout())
     {
         m_state.goal_anim_state = 1_as;
     }
@@ -17,11 +17,11 @@ void Animating::update()
 
     ModelItemNode::update();
     auto room = m_state.position.room;
-    loader::file::findRealFloorSector( m_state.position.position, &room );
-    if( room != m_state.position.room )
+    loader::file::findRealFloorSector(m_state.position.position, &room);
+    if(room != m_state.position.room)
     {
-        setCurrentRoom( room );
+        setCurrentRoom(room);
     }
 }
-}
+} // namespace items
 }

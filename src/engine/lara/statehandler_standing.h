@@ -7,12 +7,11 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_Standing
-    : public AbstractStateHandler
+class StateHandler_Standing : public AbstractStateHandler
 {
 protected:
     explicit StateHandler_Standing(LaraNode& lara, const LaraStateId id)
-        : AbstractStateHandler{ lara, id }
+        : AbstractStateHandler{lara, id}
     {
     }
 
@@ -22,33 +21,33 @@ public:
         getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = false;
         collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-        setMovementAngle( collisionInfo.facingAngle );
+        setMovementAngle(collisionInfo.facingAngle);
         collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
         collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
         collisionInfo.badCeilingDistance = 0_len;
         collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
-        collisionInfo.initHeightInfo( getLara().m_state.position.position, getEngine(), core::LaraWalkHeight );
+        collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
 
-        if( stopIfCeilingBlocked( collisionInfo ) )
+        if(stopIfCeilingBlocked(collisionInfo))
         {
             return;
         }
 
-        if( collisionInfo.mid.floorSpace.y <= core::DefaultCollisionRadius )
+        if(collisionInfo.mid.floorSpace.y <= core::DefaultCollisionRadius)
         {
-            if( !tryStartSlide( collisionInfo ) )
+            if(!tryStartSlide(collisionInfo))
             {
-                applyShift( collisionInfo );
-                placeOnFloor( collisionInfo );
+                applyShift(collisionInfo);
+                placeOnFloor(collisionInfo);
             }
             return;
         }
 
-        setAnimation( AnimationId::FREE_FALL_FORWARD, 492_frame );
-        setGoalAnimState( LaraStateId::JumpForward );
+        setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
+        setGoalAnimState(LaraStateId::JumpForward);
         getLara().m_state.fallspeed = 0_spd;
         getLara().m_state.falling = true;
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

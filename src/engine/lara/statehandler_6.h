@@ -6,59 +6,58 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_6 final
-    : public StateHandler_TurnSlow
+class StateHandler_6 final : public StateHandler_TurnSlow
 {
 public:
     explicit StateHandler_6(LaraNode& lara)
-        : StateHandler_TurnSlow{ lara, LaraStateId::TurnRightSlow }
+        : StateHandler_TurnSlow{lara, LaraStateId::TurnRightSlow}
     {
     }
 
     void handleInput(CollisionInfo& /*collisionInfo*/) override
     {
-        if( getLara().m_state.health <= 0_hp )
+        if(getLara().m_state.health <= 0_hp)
         {
-            setGoalAnimState( LaraStateId::Stop );
+            setGoalAnimState(LaraStateId::Stop);
             return;
         }
 
-        addYRotationSpeed( 2.25_deg );
+        addYRotationSpeed(2.25_deg);
 
-        if( getHandStatus() == HandStatus::Combat )
+        if(getHandStatus() == HandStatus::Combat)
         {
-            setGoalAnimState( LaraStateId::TurnFast );
+            setGoalAnimState(LaraStateId::TurnFast);
         }
-        else if( getYRotationSpeed() > 4_deg )
+        else if(getYRotationSpeed() > 4_deg)
         {
-            if( getEngine().getInputHandler().getInputState().moveSlow )
+            if(getEngine().getInputHandler().getInputState().moveSlow)
             {
-                setYRotationSpeed( 4_deg );
+                setYRotationSpeed(4_deg);
             }
             else
             {
-                setGoalAnimState( LaraStateId::TurnFast );
+                setGoalAnimState(LaraStateId::TurnFast);
             }
         }
 
-        if( getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward )
+        if(getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
         {
-            if( getEngine().getInputHandler().getInputState().xMovement != hid::AxisMovement::Right )
+            if(getEngine().getInputHandler().getInputState().xMovement != hid::AxisMovement::Right)
             {
-                setGoalAnimState( LaraStateId::Stop );
+                setGoalAnimState(LaraStateId::Stop);
             }
             return;
         }
 
-        if( getEngine().getInputHandler().getInputState().moveSlow )
+        if(getEngine().getInputHandler().getInputState().moveSlow)
         {
-            setGoalAnimState( LaraStateId::WalkForward );
+            setGoalAnimState(LaraStateId::WalkForward);
         }
         else
         {
-            setGoalAnimState( LaraStateId::RunForward );
+            setGoalAnimState(LaraStateId::RunForward);
         }
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

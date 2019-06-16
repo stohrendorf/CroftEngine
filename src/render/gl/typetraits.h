@@ -2,10 +2,9 @@
 
 #include "glassert.h"
 
+#include <cstdint>
 #include <glm/glm.hpp>
 #include <glm/gtc/packing.hpp>
-
-#include <cstdint>
 
 namespace render
 {
@@ -18,19 +17,13 @@ enum class DrawElementsType : RawGlEnum
     UInt = (RawGlEnum)::gl::GL_UNSIGNED_INT,
 };
 
-#define _GL_MAKE_CHANNEL_ENUMERATORS(CHN_ENUM, CHN) \
-    CHN_ENUM ## 8 = (RawGlEnum)::gl::GL_R8, \
-    CHN_ENUM ## 8Snorm = (RawGlEnum)::gl::GL_## CHN ##8_SNORM, \
-    CHN_ENUM ## 16 = (RawGlEnum)::gl::GL_## CHN ##16, \
-    CHN_ENUM ## 16Snorm = (RawGlEnum)::gl::GL_## CHN ##16_SNORM, \
-    CHN_ENUM ## 16f = (RawGlEnum)::gl::GL_## CHN ##16F, \
-    CHN_ENUM ## 32f = (RawGlEnum)::gl::GL_## CHN ##32F, \
-    CHN_ENUM ## 8i = (RawGlEnum)::gl::GL_## CHN ##8I, \
-    CHN_ENUM ## 16i = (RawGlEnum)::gl::GL_## CHN ##16I, \
-    CHN_ENUM ## 32i = (RawGlEnum)::gl::GL_## CHN ##32I, \
-    CHN_ENUM ## 8ui = (RawGlEnum)::gl::GL_## CHN ##8UI, \
-    CHN_ENUM ## 16ui = (RawGlEnum)::gl::GL_## CHN ##16UI, \
-    CHN_ENUM ## 32ui = (RawGlEnum)::gl::GL_## CHN ##32UI
+#define _GL_MAKE_CHANNEL_ENUMERATORS(CHN_ENUM, CHN)                                                        \
+    CHN_ENUM##8 = (RawGlEnum)::gl::GL_R8, CHN_ENUM##8Snorm = (RawGlEnum)::gl::GL_##CHN##8_SNORM,           \
+    CHN_ENUM##16 = (RawGlEnum)::gl::GL_##CHN##16, CHN_ENUM##16Snorm = (RawGlEnum)::gl::GL_##CHN##16_SNORM, \
+    CHN_ENUM##16f = (RawGlEnum)::gl::GL_##CHN##16F, CHN_ENUM##32f = (RawGlEnum)::gl::GL_##CHN##32F,        \
+    CHN_ENUM##8i = (RawGlEnum)::gl::GL_##CHN##8I, CHN_ENUM##16i = (RawGlEnum)::gl::GL_##CHN##16I,          \
+    CHN_ENUM##32i = (RawGlEnum)::gl::GL_##CHN##32I, CHN_ENUM##8ui = (RawGlEnum)::gl::GL_##CHN##8UI,        \
+    CHN_ENUM##16ui = (RawGlEnum)::gl::GL_##CHN##16UI, CHN_ENUM##32ui = (RawGlEnum)::gl::GL_##CHN##32UI
 
 enum class InternalFormat : RawGlEnum
 {
@@ -55,43 +48,43 @@ enum class InternalFormat : RawGlEnum
     Luminance8Alpha8 = (RawGlEnum)::gl::GL_LUMINANCE8_ALPHA8,
 
     // Base internal format: GL_RED
-        Red = (RawGlEnum)::gl::GL_RED,
-    _GL_MAKE_CHANNEL_ENUMERATORS( R, R ),
+    Red = (RawGlEnum)::gl::GL_RED,
+    _GL_MAKE_CHANNEL_ENUMERATORS(R, R),
 
     // Base internal format: GL_RG
-        Rg = (RawGlEnum)::gl::GL_RG,
-    _GL_MAKE_CHANNEL_ENUMERATORS( Rg, RG ),
+    Rg = (RawGlEnum)::gl::GL_RG,
+    _GL_MAKE_CHANNEL_ENUMERATORS(Rg, RG),
 
     // Base internal format: GL_RGB
-        Rgb = (RawGlEnum)::gl::GL_RGB,
+    Rgb = (RawGlEnum)::gl::GL_RGB,
     Rgb4 = (RawGlEnum)::gl::GL_RGB4,
     Rgb5 = (RawGlEnum)::gl::GL_RGB5,
     Rgb12 = (RawGlEnum)::gl::GL_RGB12,
     R3G3B2 = (RawGlEnum)::gl::GL_R3_G3_B2,
     R11fG11fB10f = (RawGlEnum)::gl::GL_R11F_G11F_B10F,
     RGB9E5 = (RawGlEnum)::gl::GL_RGB9_E5,
-    _GL_MAKE_CHANNEL_ENUMERATORS( Rgb, RGB ),
+    _GL_MAKE_CHANNEL_ENUMERATORS(Rgb, RGB),
     Srgb = (RawGlEnum)::gl::GL_SRGB,
     SrgbAlpha = (RawGlEnum)::gl::GL_SRGB_ALPHA,
     Srgb8 = (RawGlEnum)::gl::GL_SRGB8,
     Srgb8Alpha8 = (RawGlEnum)::gl::GL_SRGB8_ALPHA8,
 
     // Base internal format: GL_RGBA
-        Rgba = (RawGlEnum)::gl::GL_RGBA,
+    Rgba = (RawGlEnum)::gl::GL_RGBA,
     Rgba4 = (RawGlEnum)::gl::GL_RGBA4,
     Rgb5A1 = (RawGlEnum)::gl::GL_RGB5_A1,
     Rgb10A2 = (RawGlEnum)::gl::GL_RGB10_A2,
     Rgba12 = (RawGlEnum)::gl::GL_RGBA12,
     Rgb10A2ui = (RawGlEnum)::gl::GL_RGB10_A2UI,
-    _GL_MAKE_CHANNEL_ENUMERATORS( Rgba, RGBA ),
+    _GL_MAKE_CHANNEL_ENUMERATORS(Rgba, RGBA),
 
     // Base internal format: GL_DEPTH_COMPONENT
-        DepthComponent = (RawGlEnum)::gl::GL_DEPTH_COMPONENT,
+    DepthComponent = (RawGlEnum)::gl::GL_DEPTH_COMPONENT,
     DepthComponent16 = (RawGlEnum)::gl::GL_DEPTH_COMPONENT16,
     DepthComponent32f = (RawGlEnum)::gl::GL_DEPTH_COMPONENT32F,
 
     // Base internal format: GL_DEPTH_STENCIL
-        DepthStencil = (RawGlEnum)::gl::GL_DEPTH_STENCIL,
+    DepthStencil = (RawGlEnum)::gl::GL_DEPTH_STENCIL,
     Depth24Stencil8 = (RawGlEnum)::gl::GL_DEPTH24_STENCIL8,
     Depth32fStencil8 = (RawGlEnum)::gl::GL_DEPTH32F_STENCIL8,
 
@@ -217,12 +210,12 @@ struct Half final
 {
 private:
 #ifdef __clang__
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+#    pragma clang diagnostic push
+#    pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #endif
     const ::gl::GLhalf __placeholder = 0;
 #ifdef __clang__
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 #endif
 };
 
@@ -246,5 +239,5 @@ template<typename T>
 struct TypeTraits<T&> : TypeTraits<T>
 {
 };
-}
-}
+} // namespace gl
+} // namespace render

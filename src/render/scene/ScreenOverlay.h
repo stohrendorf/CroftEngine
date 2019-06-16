@@ -1,11 +1,10 @@
 #pragma once
 
+#include "render/gl/image.h"
+#include "render/gl/texture.h"
 #include "renderable.h"
 #include "renderer.h"
 #include "window.h"
-
-#include "render/gl/image.h"
-#include "render/gl/texture.h"
 
 #include <memory>
 
@@ -47,13 +46,14 @@ public:
     }
 
 private:
-    const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{ std::make_shared<gl::Image<gl::SRGBA8>>() };
+    const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
 
-    gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{ std::make_shared<gl::Texture>( render::gl::TextureTarget::_2D ) };
+    gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{
+        std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D)};
 
-    std::shared_ptr<Mesh> m_mesh{ nullptr };
+    std::shared_ptr<Mesh> m_mesh{nullptr};
 
-    gsl::not_null<std::shared_ptr<Model>> m_model{ std::make_shared<Model>() };
+    gsl::not_null<std::shared_ptr<Model>> m_model{std::make_shared<Model>()};
 };
-}
-}
+} // namespace scene
+} // namespace render

@@ -28,10 +28,8 @@ struct contains<T, A, Args...>
 };
 
 template<typename T, typename... Args>
-constexpr bool contains_v = contains<
-    std::remove_cv<std::remove_reference_t<T>>,
-    std::remove_cv<std::remove_reference_t<Args>>...
->::value;
+constexpr bool contains_v
+    = contains<std::remove_cv<std::remove_reference_t<T>>, std::remove_cv<std::remove_reference_t<Args>>...>::value;
 
 template<typename... Args>
 struct is_all_enum;
@@ -56,5 +54,5 @@ struct is_all_enum<T, Args...>
 
 template<typename... Args>
 constexpr bool is_all_enum_v = is_all_enum<Args...>::value;
-}
-}
+} // namespace tpl
+} // namespace core

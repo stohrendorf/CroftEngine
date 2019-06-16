@@ -1,7 +1,7 @@
 #pragma once
 
-#include "streamsource.h"
 #include "sourcehandle.h"
+#include "streamsource.h"
 
 namespace audio
 {
@@ -43,15 +43,15 @@ public:
 
     void pause()
     {
-        if( const auto src = m_source.lock() )
+        if(const auto src = m_source.lock())
             src->pause();
     }
 
     void play()
     {
-        if( const auto src = m_source.lock() )
+        if(const auto src = m_source.lock())
         {
-            if( src->isPaused() || src->isStopped() )
+            if(src->isPaused() || src->isStopped())
                 src->play();
         }
         else
@@ -62,8 +62,8 @@ public:
 
     void setGain(const ALfloat gain_value)
     {
-        if( const auto src = m_source.lock() )
-            src->setGain( gain_value );
+        if(const auto src = m_source.lock())
+            src->setGain(gain_value);
     }
 
 private:
@@ -74,10 +74,10 @@ private:
 
 inline bool isPlaying(const std::weak_ptr<Stream>& stream)
 {
-    if( const auto str = stream.lock() )
-        if( const auto src = str->getSource().lock() )
+    if(const auto str = stream.lock())
+        if(const auto src = str->getSource().lock())
             return !src->isPaused() && !src->isStopped();
 
     return false;
 }
-}
+} // namespace audio

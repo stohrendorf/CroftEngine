@@ -7,12 +7,11 @@ namespace engine
 {
 namespace lara
 {
-class StateHandler_14 final
-    : public StateHandler_Standing
+class StateHandler_14 final : public StateHandler_Standing
 {
 public:
     explicit StateHandler_14(LaraNode& lara)
-        : StateHandler_Standing{ lara, LaraStateId::GrabToFall }
+        : StateHandler_Standing{lara, LaraStateId::GrabToFall}
     {
     }
 
@@ -20,5 +19,5 @@ public:
     {
     }
 };
-}
-}
+} // namespace lara
+} // namespace engine

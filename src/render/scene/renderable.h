@@ -4,7 +4,6 @@
 
 namespace render
 {
-
 namespace scene
 {
 class RenderContext;
@@ -34,5 +33,5 @@ public:
 private:
     render::gl::RenderState m_renderState;
 };
-}
-}
+} // namespace scene
+} // namespace render
