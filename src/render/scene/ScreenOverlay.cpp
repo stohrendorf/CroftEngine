@@ -33,7 +33,6 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
 {
     *m_image = gl::Image<gl::SRGBA8>( gsl::narrow<::gl::GLint>( viewport.width ),
                                       gsl::narrow<::gl::GLint>( viewport.height ) );
-    // Update the projection matrix for our batch to match the current viewport
     if( viewport.width <= 0 || viewport.height <= 0 )
     {
         BOOST_THROW_EXCEPTION( std::runtime_error( "Cannot create screen overlay because the viewport is empty" ) );
