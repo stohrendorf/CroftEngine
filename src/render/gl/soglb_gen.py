@@ -366,6 +366,8 @@ def load_xml():
                     f.write('// #define {}\n'.format(_make_version_macro(version, profile_name)))
             f.write('\n')
 
+            total_guards = sum([len(p) for p in versions_profiles.values()])
+
             f.write('// API extensions\n')
             for extension_name, apis_profiles in sorted(extensions_apis_profiles.items()):
                 if api_name in sorted(apis_profiles):
@@ -403,12 +405,14 @@ def load_xml():
                 f.write('enum class {} : core::EnumType\n'.format(enum_name))
                 f.write('{\n')
                 for guards, constant_names in guards_constants.items():
-                    f.write('#if {}\n'.format(_make_guard(guards)))
+                    if len(guards) != total_guards:
+                        f.write('#if {}\n'.format(_make_guard(guards)))
                     for constant_name in sorted(constant_names):
                         constant_value = constants[constant_name]
                         f.write('    {} = {},\n'.format(normalize_constant_name(constant_name), constant_value))
-                    f.write('#endif // {}\n'.format(_make_guard(guards)))
-                f.write('}}; // enum {}\n'.format(enum_name))
+                    if len(guards) != total_guards:
+                        f.write('#endif\n')
+                f.write('};\n')
 
                 if enum_data.is_bitmask:
                     f.write(
@@ -432,10 +436,12 @@ def load_xml():
                 guards_commands[tuple(sorted(guards))].add(command_name)
 
             for guards, command_names in sorted(guards_commands.items()):
-                f.write('#if {}\n'.format(_make_guard(guards)))
+                if len(guards) != total_guards:
+                    f.write('#if {}\n'.format(_make_guard(guards)))
                 for command in command_names:
                     commands[command].print_code(file=f, impl=False)
-                f.write('#endif // {}\n'.format(_make_guard(guards)))
+                if len(guards) != total_guards:
+                    f.write('#endif\n')
 
             f.write('\n')
 
@@ -447,11 +453,13 @@ def load_xml():
             f.write('#include "{}_api_provider.hpp"\n'.format(api_name))
             f.write('namespace {}\n'.format(api_name))
             f.write('{\n')
-            for guards, command_names in guards_commands.items():
-                f.write('#if {}\n'.format(_make_guard(guards)))
-                for command in command_names:
+            for guards, command_names in sorted(guards_commands.items()):
+                if len(guards) != total_guards:
+                    f.write('#if {}\n'.format(_make_guard(guards)))
+                for command in sorted(command_names):
                     commands[command].print_code(file=f, impl=True)
-                f.write('#endif // {}\n'.format(_make_guard(guards)))
+                if len(guards) != total_guards:
+                    f.write('#endif\n')
             f.write('}\n')  # namespace
 
 

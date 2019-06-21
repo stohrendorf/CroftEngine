@@ -244,7 +244,6 @@ namespace gles2
 // enums
 enum class AlphaFunction : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Always = 0x0207,
     Equal = 0x0202,
     Gequal = 0x0206,
@@ -253,29 +252,25 @@ enum class AlphaFunction : core::EnumType
     Less = 0x0201,
     Never = 0x0200,
     Notequal = 0x0205,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum AlphaFunction
+};
 
 enum class AtomicCounterBufferPName : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     AtomicCounterBufferBinding = 0x92C1,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum AtomicCounterBufferPName
+#endif
+};
 
 enum class AttribMask : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ColorBufferBit = 0x00004000,
     DepthBufferBit = 0x00000100,
     StencilBufferBit = 0x00000400,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum AttribMask
+};
 constexpr core::Bitfield<AttribMask> operator|(AttribMask left, AttribMask right) { return core::Bitfield<AttribMask>(left) | right;}
 
 enum class AttributeType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Bool = 0x8B56,
     BoolVec2 = 0x8B57,
     BoolVec3 = 0x8B58,
@@ -289,7 +284,6 @@ enum class AttributeType : core::EnumType
     IntVec2 = 0x8B53,
     IntVec3 = 0x8B54,
     IntVec4 = 0x8B55,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FloatMat2x3 = 0x8B65,
     FloatMat2x4 = 0x8B66,
@@ -297,32 +291,29 @@ enum class AttributeType : core::EnumType
     FloatMat3x4 = 0x8B68,
     FloatMat4x2 = 0x8B69,
     FloatMat4x3 = 0x8B6A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum AttributeType
+#endif
+};
 
 enum class BindTransformFeedbackTarget : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TransformFeedback = 0x8E22,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BindTransformFeedbackTarget
+#endif
+};
 
 enum class BlendEquationModeEXT : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FuncAdd = 0x8006,
     FuncReverseSubtract = 0x800B,
     FuncSubtract = 0x800A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Max = 0x8008,
     Min = 0x8007,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BlendEquationModeEXT
+#endif
+};
 
 enum class BlendingFactor : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ConstantAlpha = 0x8003,
     ConstantColor = 0x8001,
     DstAlpha = 0x0304,
@@ -338,24 +329,19 @@ enum class BlendingFactor : core::EnumType
     SrcAlphaSaturate = 0x0308,
     SrcColor = 0x0300,
     Zero = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BlendingFactor
+};
 
 enum class BlitFramebufferFilter : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Linear = 0x2601,
     Nearest = 0x2600,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BlitFramebufferFilter
+};
 
 enum class Boolean : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     False = 0,
     True = 1,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum Boolean
+};
 
 enum class Buffer : core::EnumType
 {
@@ -363,8 +349,8 @@ enum class Buffer : core::EnumType
     Color = 0x1800,
     Depth = 0x1801,
     Stencil = 0x1802,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum Buffer
+#endif
+};
 
 enum class BufferAccessARB : core::EnumType
 {
@@ -372,45 +358,41 @@ enum class BufferAccessARB : core::EnumType
     ReadOnly = 0x88B8,
     ReadWrite = 0x88BA,
     WriteOnly = 0x88B9,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BufferAccessARB
+#endif
+};
 
 enum class BufferPNameARB : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     BufferSize = 0x8764,
     BufferUsage = 0x8765,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     BufferAccessFlags = 0x911F,
     BufferMapped = 0x88BC,
     BufferMapLength = 0x9120,
     BufferMapOffset = 0x9121,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BufferPNameARB
+#endif
+};
 
 enum class BufferPointerNameARB : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     BufferMapPointer = 0x88BD,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BufferPointerNameARB
+#endif
+};
 
 enum class BufferStorageMask : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     MapReadBit = 0x0001,
     MapWriteBit = 0x0002,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BufferStorageMask
+#endif
+};
 constexpr core::Bitfield<BufferStorageMask> operator|(BufferStorageMask left, BufferStorageMask right) { return core::Bitfield<BufferStorageMask>(left) | right;}
 
 enum class BufferStorageTarget : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ArrayBuffer = 0x8892,
     ElementArrayBuffer = 0x8893,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CopyReadBuffer = 0x8F36,
     CopyWriteBuffer = 0x8F37,
@@ -418,24 +400,22 @@ enum class BufferStorageTarget : core::EnumType
     PixelUnpackBuffer = 0x88EC,
     TransformFeedbackBuffer = 0x8C8E,
     UniformBuffer = 0x8A11,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     AtomicCounterBuffer = 0x92C0,
     DispatchIndirectBuffer = 0x90EE,
     DrawIndirectBuffer = 0x8F3F,
     ShaderStorageBuffer = 0x90D2,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureBuffer = 0x8C2A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BufferStorageTarget
+#endif
+};
 
 enum class BufferTargetARB : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ArrayBuffer = 0x8892,
     ElementArrayBuffer = 0x8893,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CopyReadBuffer = 0x8F36,
     CopyWriteBuffer = 0x8F37,
@@ -443,25 +423,23 @@ enum class BufferTargetARB : core::EnumType
     PixelUnpackBuffer = 0x88EC,
     TransformFeedbackBuffer = 0x8C8E,
     UniformBuffer = 0x8A11,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     AtomicCounterBuffer = 0x92C0,
     DispatchIndirectBuffer = 0x90EE,
     DrawIndirectBuffer = 0x8F3F,
     ShaderStorageBuffer = 0x90D2,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureBuffer = 0x8C2A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BufferTargetARB
+#endif
+};
 
 enum class BufferUsageARB : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DynamicDraw = 0x88E8,
     StaticDraw = 0x88E4,
     StreamDraw = 0x88E0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DynamicCopy = 0x88EA,
     DynamicRead = 0x88E9,
@@ -469,47 +447,39 @@ enum class BufferUsageARB : core::EnumType
     StaticRead = 0x88E5,
     StreamCopy = 0x88E2,
     StreamRead = 0x88E1,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum BufferUsageARB
+#endif
+};
 
 enum class CheckFramebufferStatusTarget : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Framebuffer = 0x8D40,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DrawFramebuffer = 0x8CA9,
     ReadFramebuffer = 0x8CA8,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum CheckFramebufferStatusTarget
+#endif
+};
 
 enum class ClampColorModeARB : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     False = 0,
     True = 1,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ClampColorModeARB
+};
 
 enum class ClearBufferMask : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ColorBufferBit = 0x00004000,
     DepthBufferBit = 0x00000100,
     StencilBufferBit = 0x00000400,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ClearBufferMask
+};
 constexpr core::Bitfield<ClearBufferMask> operator|(ClearBufferMask left, ClearBufferMask right) { return core::Bitfield<ClearBufferMask>(left) | right;}
 
 enum class ColorBuffer : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Back = 0x0405,
     ColorAttachment0 = 0x8CE0,
     Front = 0x0404,
     FrontAndBack = 0x0408,
     None = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ColorAttachment1 = 0x8CE1,
     ColorAttachment10 = 0x8CEA,
@@ -542,21 +512,18 @@ enum class ColorBuffer : core::EnumType
     ColorAttachment7 = 0x8CE7,
     ColorAttachment8 = 0x8CE8,
     ColorAttachment9 = 0x8CE9,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ColorBuffer
+#endif
+};
 
 enum class ColorMaterialFace : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Back = 0x0405,
     Front = 0x0404,
     FrontAndBack = 0x0408,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ColorMaterialFace
+};
 
 enum class ColorPointerType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Byte = 0x1400,
     Float = 0x1406,
     Int = 0x1404,
@@ -564,38 +531,31 @@ enum class ColorPointerType : core::EnumType
     UnsignedByte = 0x1401,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ColorPointerType
+};
 
 enum class CombinerBiasNV : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     None = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum CombinerBiasNV
+};
 
 enum class CombinerScaleNV : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     None = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum CombinerScaleNV
+};
 
 enum class ContextFlagMask : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     ContextFlagDebugBit = 0x00000002,
     ContextFlagRobustAccessBit = 0x00000004,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ContextFlagMask
+#endif
+};
 constexpr core::Bitfield<ContextFlagMask> operator|(ContextFlagMask left, ContextFlagMask right) { return core::Bitfield<ContextFlagMask>(left) | right;}
 
 enum class CopyBufferSubDataTarget : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ArrayBuffer = 0x8892,
     ElementArrayBuffer = 0x8893,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CopyReadBuffer = 0x8F36,
     CopyWriteBuffer = 0x8F37,
@@ -603,45 +563,39 @@ enum class CopyBufferSubDataTarget : core::EnumType
     PixelUnpackBuffer = 0x88EC,
     TransformFeedbackBuffer = 0x8C8E,
     UniformBuffer = 0x8A11,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     AtomicCounterBuffer = 0x92C0,
     DispatchIndirectBuffer = 0x90EE,
     DrawIndirectBuffer = 0x8F3F,
     ShaderStorageBuffer = 0x90D2,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureBuffer = 0x8C2A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum CopyBufferSubDataTarget
+#endif
+};
 
 enum class CullFaceMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Back = 0x0405,
     Front = 0x0404,
     FrontAndBack = 0x0408,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum CullFaceMode
+};
 
 enum class DebugSeverity : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DontCare = 0x1100,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     DebugSeverityHigh = 0x9146,
     DebugSeverityLow = 0x9148,
     DebugSeverityMedium = 0x9147,
     DebugSeverityNotification = 0x826B,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum DebugSeverity
+#endif
+};
 
 enum class DebugSource : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DontCare = 0x1100,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     DebugSourceApi = 0x8246,
     DebugSourceApplication = 0x824A,
@@ -649,14 +603,12 @@ enum class DebugSource : core::EnumType
     DebugSourceShaderCompiler = 0x8248,
     DebugSourceThirdParty = 0x8249,
     DebugSourceWindowSystem = 0x8247,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum DebugSource
+#endif
+};
 
 enum class DebugType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DontCare = 0x1100,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     DebugTypeDeprecatedBehavior = 0x824D,
     DebugTypeError = 0x824C,
@@ -667,12 +619,11 @@ enum class DebugType : core::EnumType
     DebugTypePortability = 0x824F,
     DebugTypePushGroup = 0x8269,
     DebugTypeUndefinedBehavior = 0x824E,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum DebugType
+#endif
+};
 
 enum class DepthFunction : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Always = 0x0207,
     Equal = 0x0202,
     Gequal = 0x0206,
@@ -681,18 +632,15 @@ enum class DepthFunction : core::EnumType
     Less = 0x0201,
     Never = 0x0200,
     Notequal = 0x0205,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum DepthFunction
+};
 
 enum class DrawBufferMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Back = 0x0405,
     ColorAttachment0 = 0x8CE0,
     Front = 0x0404,
     FrontAndBack = 0x0408,
     None = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ColorAttachment1 = 0x8CE1,
     ColorAttachment10 = 0x8CEA,
@@ -725,21 +673,18 @@ enum class DrawBufferMode : core::EnumType
     ColorAttachment7 = 0x8CE7,
     ColorAttachment8 = 0x8CE8,
     ColorAttachment9 = 0x8CE9,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum DrawBufferMode
+#endif
+};
 
 enum class DrawElementsType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     UnsignedByte = 0x1401,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum DrawElementsType
+};
 
 enum class EnableCap : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Blend = 0x0BE2,
     CullFace = 0x0B44,
     DepthTest = 0x0B71,
@@ -750,72 +695,59 @@ enum class EnableCap : core::EnumType
     ScissorTest = 0x0C11,
     StencilTest = 0x0B90,
     Texture2d = 0x0DE1,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     PrimitiveRestartFixedIndex = 0x8D69,
     RasterizerDiscard = 0x8C89,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     SampleMask = 0x8E51,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     DebugOutput = 0x92E0,
     DebugOutputSynchronous = 0x8242,
     SampleShading = 0x8C36,
     VertexArray = 0x8074,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum EnableCap
+#endif
+};
 
 enum class ErrorCode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     InvalidEnum = 0x0500,
     InvalidFramebufferOperation = 0x0506,
     InvalidOperation = 0x0502,
     InvalidValue = 0x0501,
     NoError = 0,
     OutOfMemory = 0x0505,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     StackOverflow = 0x0503,
     StackUnderflow = 0x0504,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ErrorCode
+#endif
+};
 
 enum class FogCoordinatePointerType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Float = 0x1406,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FogCoordinatePointerType
+};
 
 enum class FogMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Linear = 0x2601,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FogMode
+};
 
 enum class FogPointerTypeEXT : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Float = 0x1406,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FogPointerTypeEXT
+};
 
 enum class FogPointerTypeIBM : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Float = 0x1406,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FogPointerTypeIBM
+};
 
 enum class FramebufferAttachment : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ColorAttachment0 = 0x8CE0,
     DepthAttachment = 0x8D00,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ColorAttachment1 = 0x8CE1,
     ColorAttachment10 = 0x8CEA,
@@ -850,16 +782,14 @@ enum class FramebufferAttachment : core::EnumType
     ColorAttachment9 = 0x8CE9,
     DepthStencilAttachment = 0x821A,
     MaxColorAttachments = 0x8CDF,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FramebufferAttachment
+#endif
+};
 
 enum class FramebufferAttachmentParameterName : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FramebufferAttachmentObjectName = 0x8CD1,
     FramebufferAttachmentTextureCubeMapFace = 0x8CD3,
     FramebufferAttachmentTextureLevel = 0x8CD2,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FramebufferAttachmentAlphaSize = 0x8215,
     FramebufferAttachmentBlueSize = 0x8214,
@@ -870,11 +800,11 @@ enum class FramebufferAttachmentParameterName : core::EnumType
     FramebufferAttachmentRedSize = 0x8212,
     FramebufferAttachmentStencilSize = 0x8217,
     FramebufferAttachmentTextureLayer = 0x8CD4,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     FramebufferAttachmentLayered = 0x8DA7,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FramebufferAttachmentParameterName
+#endif
+};
 
 enum class FramebufferParameterName : core::EnumType
 {
@@ -883,77 +813,68 @@ enum class FramebufferParameterName : core::EnumType
     FramebufferDefaultHeight = 0x9311,
     FramebufferDefaultSamples = 0x9313,
     FramebufferDefaultWidth = 0x9310,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     FramebufferDefaultLayers = 0x9312,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FramebufferParameterName
+#endif
+};
 
 enum class FramebufferStatus : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FramebufferComplete = 0x8CD5,
     FramebufferIncompleteAttachment = 0x8CD6,
     FramebufferIncompleteMissingAttachment = 0x8CD7,
     FramebufferUnsupported = 0x8CDD,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FramebufferIncompleteMultisample = 0x8D56,
     FramebufferUndefined = 0x8219,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     FramebufferIncompleteLayerTargets = 0x8DA8,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FramebufferStatus
+#endif
+};
 
 enum class FramebufferTarget : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Framebuffer = 0x8D40,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DrawFramebuffer = 0x8CA9,
     ReadFramebuffer = 0x8CA8,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FramebufferTarget
+#endif
+};
 
 enum class FrontFaceDirection : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Ccw = 0x0901,
     Cw = 0x0900,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum FrontFaceDirection
+};
 
 enum class GetFramebufferParameter : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ImplementationColorReadFormat = 0x8B9B,
     ImplementationColorReadType = 0x8B9A,
     Samples = 0x80A9,
     SampleBuffers = 0x80A8,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FramebufferDefaultFixedSampleLocations = 0x9314,
     FramebufferDefaultHeight = 0x9311,
     FramebufferDefaultSamples = 0x9313,
     FramebufferDefaultWidth = 0x9310,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     FramebufferDefaultLayers = 0x9312,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum GetFramebufferParameter
+#endif
+};
 
 enum class GetMultisamplePNameNV : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     SamplePosition = 0x8E50,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum GetMultisamplePNameNV
+#endif
+};
 
 enum class GetPName : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ActiveTexture = 0x84E0,
     AliasedLineWidthRange = 0x846E,
     AliasedPointSizeRange = 0x846D,
@@ -1036,7 +957,6 @@ enum class GetPName : core::EnumType
     TextureBindingCubeMap = 0x8514,
     UnpackAlignment = 0x0CF5,
     Viewport = 0x0BA2,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DrawFramebufferBinding = 0x8CA6,
     FragmentShaderDerivativeHint = 0x8B8B,
@@ -1090,7 +1010,7 @@ enum class GetPName : core::EnumType
     UnpackSkipPixels = 0x0CF4,
     UnpackSkipRows = 0x0CF3,
     VertexArrayBinding = 0x85B5,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DispatchIndirectBufferBinding = 0x90EF,
     MaxColorTextureSamples = 0x910E,
@@ -1129,7 +1049,7 @@ enum class GetPName : core::EnumType
     VertexBindingDivisor = 0x82D6,
     VertexBindingOffset = 0x82D7,
     VertexBindingStride = 0x82D8,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     ContextFlags = 0x821E,
     DebugGroupStackDepth = 0x826D,
@@ -1154,25 +1074,23 @@ enum class GetPName : core::EnumType
     TextureBindingBuffer = 0x8C2C,
     TextureBufferOffsetAlignment = 0x919F,
     VertexArray = 0x8074,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum GetPName
+#endif
+};
 
 enum class GetPointervPName : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     DebugCallbackFunction = 0x8244,
     DebugCallbackUserParam = 0x8245,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum GetPointervPName
+#endif
+};
 
 enum class GetTextureParameter : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureMagFilter = 0x2800,
     TextureMinFilter = 0x2801,
     TextureWrapS = 0x2802,
     TextureWrapT = 0x2803,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureAlphaSize = 0x805F,
     TextureBlueSize = 0x805E,
@@ -1181,15 +1099,14 @@ enum class GetTextureParameter : core::EnumType
     TextureInternalFormat = 0x1003,
     TextureRedSize = 0x805C,
     TextureWidth = 0x1000,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureBorderColor = 0x1004,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum GetTextureParameter
+#endif
+};
 
 enum class GlslTypeToken : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Bool = 0x8B56,
     BoolVec2 = 0x8B57,
     BoolVec3 = 0x8B58,
@@ -1208,7 +1125,6 @@ enum class GlslTypeToken : core::EnumType
     Sampler2d = 0x8B5E,
     SamplerCube = 0x8B60,
     UnsignedInt = 0x1405,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FloatMat2x3 = 0x8B65,
     FloatMat2x4 = 0x8B66,
@@ -1232,7 +1148,7 @@ enum class GlslTypeToken : core::EnumType
     UnsignedIntVec2 = 0x8DC6,
     UnsignedIntVec3 = 0x8DC7,
     UnsignedIntVec4 = 0x8DC8,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Image2d = 0x904D,
     Image2dArray = 0x9053,
@@ -1250,7 +1166,7 @@ enum class GlslTypeToken : core::EnumType
     UnsignedIntImage3d = 0x9064,
     UnsignedIntImageCube = 0x9066,
     UnsignedIntSampler2dMultisample = 0x910A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     ImageBuffer = 0x9051,
     ImageCubeMapArray = 0x9054,
@@ -1268,60 +1184,50 @@ enum class GlslTypeToken : core::EnumType
     UnsignedIntSampler2dMultisampleArray = 0x910D,
     UnsignedIntSamplerBuffer = 0x8DD8,
     UnsignedIntSamplerCubeMapArray = 0x900F,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum GlslTypeToken
+#endif
+};
 
 enum class GraphicsResetStatus : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     NoError = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     GuiltyContextReset = 0x8253,
     InnocentContextReset = 0x8254,
     UnknownContextReset = 0x8255,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum GraphicsResetStatus
+#endif
+};
 
 enum class HintMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DontCare = 0x1100,
     Fastest = 0x1101,
     Nicest = 0x1102,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum HintMode
+};
 
 enum class HintTarget : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     GenerateMipmapHint = 0x8192,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FragmentShaderDerivativeHint = 0x8B8B,
     ProgramBinaryRetrievableHint = 0x8257,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum HintTarget
+#endif
+};
 
 enum class IndexPointerType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Float = 0x1406,
     Int = 0x1404,
     Short = 0x1402,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum IndexPointerType
+};
 
 enum class InternalFormat : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DepthComponent = 0x1902,
     DepthComponent16 = 0x81A5,
     Rgb = 0x1907,
     Rgb5A1 = 0x8057,
     Rgba = 0x1908,
     Rgba4 = 0x8056,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CompressedR11Eac = 0x9270,
     CompressedRg11Eac = 0x9272,
@@ -1386,33 +1292,28 @@ enum class InternalFormat : core::EnumType
     Srgb = 0x8C40,
     Srgb8 = 0x8C41,
     Srgb8Alpha8 = 0x8C43,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum InternalFormat
+#endif
+};
 
 enum class InternalFormatPName : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Samples = 0x80A9,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     NumSampleCounts = 0x9380,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ImageFormatCompatibilityType = 0x90C7,
     TextureCompressed = 0x86A1,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum InternalFormatPName
+#endif
+};
 
 enum class LightEnvModeSGIX : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Replace = 0x1E01,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum LightEnvModeSGIX
+};
 
 enum class ListNameType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Byte = 0x1400,
     Float = 0x1406,
     Int = 0x1404,
@@ -1420,15 +1321,12 @@ enum class ListNameType : core::EnumType
     UnsignedByte = 0x1401,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ListNameType
+};
 
 enum class LogicOp : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Invert = 0x150A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum LogicOp
+};
 
 enum class MapBufferAccessMask : core::EnumType
 {
@@ -1439,25 +1337,21 @@ enum class MapBufferAccessMask : core::EnumType
     MapReadBit = 0x0001,
     MapUnsynchronizedBit = 0x0020,
     MapWriteBit = 0x0002,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum MapBufferAccessMask
+#endif
+};
 constexpr core::Bitfield<MapBufferAccessMask> operator|(MapBufferAccessMask left, MapBufferAccessMask right) { return core::Bitfield<MapBufferAccessMask>(left) | right;}
 
 enum class MaterialFace : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Back = 0x0405,
     Front = 0x0404,
     FrontAndBack = 0x0408,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum MaterialFace
+};
 
 enum class MatrixMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Texture = 0x1702,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum MatrixMode
+};
 
 enum class MemoryBarrierMask : core::EnumType
 {
@@ -1476,30 +1370,26 @@ enum class MemoryBarrierMask : core::EnumType
     TransformFeedbackBarrierBit = 0x00000800,
     UniformBarrierBit = 0x00000004,
     VertexAttribArrayBarrierBit = 0x00000001,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum MemoryBarrierMask
+#endif
+};
 constexpr core::Bitfield<MemoryBarrierMask> operator|(MemoryBarrierMask left, MemoryBarrierMask right) { return core::Bitfield<MemoryBarrierMask>(left) | right;}
 
 enum class NormalPointerType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Byte = 0x1400,
     Float = 0x1406,
     Int = 0x1404,
     Short = 0x1402,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum NormalPointerType
+};
 
 enum class ObjectIdentifier : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Framebuffer = 0x8D40,
     Renderbuffer = 0x8D41,
     Texture = 0x1702,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TransformFeedback = 0x8E22,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     Buffer = 0x82E0,
     Program = 0x82E2,
@@ -1508,60 +1398,50 @@ enum class ObjectIdentifier : core::EnumType
     Sampler = 0x82E6,
     Shader = 0x82E1,
     VertexArray = 0x8074,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ObjectIdentifier
+#endif
+};
 
 enum class PatchParameterName : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     PatchVertices = 0x8E72,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PatchParameterName
+#endif
+};
 
 enum class PathFillMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Invert = 0x150A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PathFillMode
+};
 
 enum class PathFontStyle : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     None = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PathFontStyle
+};
 
 enum class PathGenMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     None = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PathGenMode
+};
 
 enum class PathTransformType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     None = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PathTransformType
+};
 
 enum class PipelineParameterName : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FragmentShader = 0x8B30,
     InfoLogLength = 0x8B84,
     VertexShader = 0x8B31,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ActiveProgram = 0x8259,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     GeometryShader = 0x8DD9,
     TessControlShader = 0x8E88,
     TessEvaluationShader = 0x8E87,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PipelineParameterName
+#endif
+};
 
 enum class PixelCopyType : core::EnumType
 {
@@ -1569,12 +1449,11 @@ enum class PixelCopyType : core::EnumType
     Color = 0x1800,
     Depth = 0x1801,
     Stencil = 0x1802,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PixelCopyType
+#endif
+};
 
 enum class PixelFormat : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Alpha = 0x1906,
     DepthComponent = 0x1902,
     Luminance = 0x1909,
@@ -1583,7 +1462,6 @@ enum class PixelFormat : core::EnumType
     Rgba = 0x1908,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Blue = 0x1905,
     DepthStencil = 0x84F9,
@@ -1594,18 +1472,16 @@ enum class PixelFormat : core::EnumType
     RgbaInteger = 0x8D99,
     RgbInteger = 0x8D98,
     RgInteger = 0x8228,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     StencilIndex = 0x1901,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PixelFormat
+#endif
+};
 
 enum class PixelStoreParameter : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     PackAlignment = 0x0D05,
     UnpackAlignment = 0x0CF5,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     PackRowLength = 0x0D02,
     PackSkipPixels = 0x0D04,
@@ -1615,23 +1491,20 @@ enum class PixelStoreParameter : core::EnumType
     UnpackSkipImages = 0x806D,
     UnpackSkipPixels = 0x0CF4,
     UnpackSkipRows = 0x0CF3,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PixelStoreParameter
+#endif
+};
 
 enum class PixelTexGenMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Luminance = 0x1909,
     LuminanceAlpha = 0x190A,
     None = 0,
     Rgb = 0x1907,
     Rgba = 0x1908,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PixelTexGenMode
+};
 
 enum class PixelType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Byte = 0x1400,
     Float = 0x1406,
     Int = 0x1404,
@@ -1641,24 +1514,20 @@ enum class PixelType : core::EnumType
     UnsignedShort = 0x1403,
     UnsignedShort4444 = 0x8033,
     UnsignedShort5551 = 0x8034,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PixelType
+};
 
 enum class PrecisionType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     HighFloat = 0x8DF2,
     HighInt = 0x8DF5,
     LowFloat = 0x8DF0,
     LowInt = 0x8DF3,
     MediumFloat = 0x8DF1,
     MediumInt = 0x8DF4,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PrecisionType
+};
 
 enum class PrimitiveType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Lines = 0x0001,
     LineLoop = 0x0002,
     LineStrip = 0x0003,
@@ -1666,7 +1535,6 @@ enum class PrimitiveType : core::EnumType
     Triangles = 0x0004,
     TriangleFan = 0x0006,
     TriangleStrip = 0x0005,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     LinesAdjacency = 0x000A,
     LineStripAdjacency = 0x000B,
@@ -1674,14 +1542,14 @@ enum class PrimitiveType : core::EnumType
     Quads = 0x0007,
     TrianglesAdjacency = 0x000C,
     TriangleStripAdjacency = 0x000D,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum PrimitiveType
+#endif
+};
 
 enum class ProgramInterface : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TransformFeedbackBuffer = 0x8C8E,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     BufferVariable = 0x92E5,
     ProgramInput = 0x92E3,
@@ -1690,8 +1558,8 @@ enum class ProgramInterface : core::EnumType
     TransformFeedbackVarying = 0x92F4,
     Uniform = 0x92E1,
     UniformBlock = 0x92E2,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ProgramInterface
+#endif
+};
 
 enum class ProgramInterfacePName : core::EnumType
 {
@@ -1699,22 +1567,21 @@ enum class ProgramInterfacePName : core::EnumType
     ActiveResources = 0x92F5,
     MaxNameLength = 0x92F6,
     MaxNumActiveVariables = 0x92F7,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ProgramInterfacePName
+#endif
+};
 
 enum class ProgramParameterPName : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ProgramBinaryRetrievableHint = 0x8257,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ProgramSeparable = 0x8258,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ProgramParameterPName
+#endif
+};
 
 enum class ProgramPropertyARB : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ActiveAttributes = 0x8B89,
     ActiveAttributeMaxLength = 0x8B8A,
     ActiveUniforms = 0x8B86,
@@ -1724,7 +1591,6 @@ enum class ProgramPropertyARB : core::EnumType
     InfoLogLength = 0x8B84,
     LinkStatus = 0x8B82,
     ValidateStatus = 0x8B83,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ActiveUniformBlocks = 0x8A36,
     ActiveUniformBlockMaxNameLength = 0x8A35,
@@ -1732,17 +1598,17 @@ enum class ProgramPropertyARB : core::EnumType
     TransformFeedbackBufferMode = 0x8C7F,
     TransformFeedbackVaryings = 0x8C83,
     TransformFeedbackVaryingMaxLength = 0x8C76,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ActiveAtomicCounterBuffers = 0x92D9,
     ComputeWorkGroupSize = 0x8267,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     GeometryInputType = 0x8917,
     GeometryOutputType = 0x8918,
     GeometryVerticesOut = 0x8916,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ProgramPropertyARB
+#endif
+};
 
 enum class ProgramResourceProperty : core::EnumType
 {
@@ -1767,29 +1633,29 @@ enum class ProgramResourceProperty : core::EnumType
     TopLevelArrayStride = 0x930D,
     Type = 0x92FA,
     Uniform = 0x92E1,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     IsPerPatch = 0x92E7,
     ReferencedByGeometryShader = 0x9309,
     ReferencedByTessControlShader = 0x9307,
     ReferencedByTessEvaluationShader = 0x9308,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ProgramResourceProperty
+#endif
+};
 
 enum class QueryObjectParameterName : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     QueryResult = 0x8866,
     QueryResultAvailable = 0x8867,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum QueryObjectParameterName
+#endif
+};
 
 enum class QueryParameterName : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CurrentQuery = 0x8865,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum QueryParameterName
+#endif
+};
 
 enum class QueryTarget : core::EnumType
 {
@@ -1797,19 +1663,17 @@ enum class QueryTarget : core::EnumType
     AnySamplesPassed = 0x8C2F,
     AnySamplesPassedConservative = 0x8D6A,
     TransformFeedbackPrimitivesWritten = 0x8C88,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     PrimitivesGenerated = 0x8C87,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum QueryTarget
+#endif
+};
 
 enum class ReadBufferMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Back = 0x0405,
     ColorAttachment0 = 0x8CE0,
     Front = 0x0404,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ColorAttachment1 = 0x8CE1,
     ColorAttachment10 = 0x8CEA,
@@ -1826,12 +1690,11 @@ enum class ReadBufferMode : core::EnumType
     ColorAttachment7 = 0x8CE7,
     ColorAttachment8 = 0x8CE8,
     ColorAttachment9 = 0x8CE9,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ReadBufferMode
+#endif
+};
 
 enum class RenderbufferParameterName : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     RenderbufferAlphaSize = 0x8D53,
     RenderbufferBlueSize = 0x8D52,
     RenderbufferDepthSize = 0x8D54,
@@ -1841,84 +1704,72 @@ enum class RenderbufferParameterName : core::EnumType
     RenderbufferRedSize = 0x8D50,
     RenderbufferStencilSize = 0x8D55,
     RenderbufferWidth = 0x8D42,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     RenderbufferSamples = 0x8CAB,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum RenderbufferParameterName
+#endif
+};
 
 enum class RenderbufferTarget : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Renderbuffer = 0x8D41,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum RenderbufferTarget
+};
 
 enum class SamplerParameterF : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureMaxLod = 0x813B,
     TextureMinLod = 0x813A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureBorderColor = 0x1004,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum SamplerParameterF
+#endif
+};
 
 enum class SamplerParameterI : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureMagFilter = 0x2800,
     TextureMinFilter = 0x2801,
     TextureWrapS = 0x2802,
     TextureWrapT = 0x2803,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureCompareFunc = 0x884D,
     TextureCompareMode = 0x884C,
     TextureWrapR = 0x8072,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum SamplerParameterI
+#endif
+};
 
 enum class ShaderParameterName : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CompileStatus = 0x8B81,
     DeleteStatus = 0x8B80,
     InfoLogLength = 0x8B84,
     ShaderSourceLength = 0x8B88,
     ShaderType = 0x8B4F,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ShaderParameterName
+};
 
 enum class ShaderType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     FragmentShader = 0x8B30,
     VertexShader = 0x8B31,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ComputeShader = 0x91B9,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     GeometryShader = 0x8DD9,
     TessControlShader = 0x8E88,
     TessEvaluationShader = 0x8E87,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum ShaderType
+#endif
+};
 
 enum class StencilFaceDirection : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Back = 0x0405,
     Front = 0x0404,
     FrontAndBack = 0x0408,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum StencilFaceDirection
+};
 
 enum class StencilFunction : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Always = 0x0207,
     Equal = 0x0202,
     Gequal = 0x0206,
@@ -1927,12 +1778,10 @@ enum class StencilFunction : core::EnumType
     Less = 0x0201,
     Never = 0x0200,
     Notequal = 0x0205,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum StencilFunction
+};
 
 enum class StencilOp : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Decr = 0x1E03,
     DecrWrap = 0x8508,
     Incr = 0x1E02,
@@ -1941,41 +1790,38 @@ enum class StencilOp : core::EnumType
     Keep = 0x1E00,
     Replace = 0x1E01,
     Zero = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum StencilOp
+};
 
 enum class StringName : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Extensions = 0x1F03,
     Renderer = 0x1F01,
     ShadingLanguageVersion = 0x8B8C,
     Vendor = 0x1F00,
     Version = 0x1F02,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum StringName
+};
 
 enum class SubroutineParameterName : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     UniformNameLength = 0x8A39,
     UniformSize = 0x8A38,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum SubroutineParameterName
+#endif
+};
 
 enum class SyncCondition : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     SyncGpuCommandsComplete = 0x9117,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum SyncCondition
+#endif
+};
 
 enum class SyncObjectMask : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     SyncFlushCommandsBit = 0x00000001,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum SyncObjectMask
+#endif
+};
 constexpr core::Bitfield<SyncObjectMask> operator|(SyncObjectMask left, SyncObjectMask right) { return core::Bitfield<SyncObjectMask>(left) | right;}
 
 enum class SyncParameterName : core::EnumType
@@ -1985,8 +1831,8 @@ enum class SyncParameterName : core::EnumType
     SyncCondition = 0x9113,
     SyncFlags = 0x9115,
     SyncStatus = 0x9114,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum SyncParameterName
+#endif
+};
 
 enum class SyncStatus : core::EnumType
 {
@@ -1995,63 +1841,51 @@ enum class SyncStatus : core::EnumType
     ConditionSatisfied = 0x911C,
     TimeoutExpired = 0x911B,
     WaitFailed = 0x911D,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum SyncStatus
+#endif
+};
 
 enum class TexCoordPointerType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Float = 0x1406,
     Int = 0x1404,
     Short = 0x1402,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TexCoordPointerType
+};
 
 enum class TextureCompareMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     None = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CompareRefToTexture = 0x884E,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TextureCompareMode
+#endif
+};
 
 enum class TextureEnvMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Blend = 0x0BE2,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TextureEnvMode
+};
 
 enum class TextureMagFilter : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Linear = 0x2601,
     Nearest = 0x2600,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TextureMagFilter
+};
 
 enum class TextureMinFilter : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Linear = 0x2601,
     LinearMipmapLinear = 0x2703,
     LinearMipmapNearest = 0x2701,
     Nearest = 0x2600,
     NearestMipmapLinear = 0x2702,
     NearestMipmapNearest = 0x2700,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TextureMinFilter
+};
 
 enum class TextureParameterName : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureMagFilter = 0x2800,
     TextureMinFilter = 0x2801,
     TextureWrapS = 0x2802,
     TextureWrapT = 0x2803,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureBaseLevel = 0x813C,
     TextureCompareFunc = 0x884D,
@@ -2064,7 +1898,7 @@ enum class TextureParameterName : core::EnumType
     TextureSwizzleG = 0x8E43,
     TextureSwizzleR = 0x8E42,
     TextureWrapR = 0x8072,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DepthStencilTextureMode = 0x90EA,
     TextureAlphaSize = 0x805F,
@@ -2074,29 +1908,26 @@ enum class TextureParameterName : core::EnumType
     TextureInternalFormat = 0x1003,
     TextureRedSize = 0x805C,
     TextureWidth = 0x1000,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     TextureBorderColor = 0x1004,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TextureParameterName
+#endif
+};
 
 enum class TextureSwizzle : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Alpha = 0x1906,
     One = 1,
     Zero = 0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Blue = 0x1905,
     Green = 0x1904,
     Red = 0x1903,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TextureSwizzle
+#endif
+};
 
 enum class TextureTarget : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Texture2d = 0x0DE1,
     TextureCubeMap = 0x8513,
     TextureCubeMapNegativeX = 0x8516,
@@ -2105,23 +1936,21 @@ enum class TextureTarget : core::EnumType
     TextureCubeMapPositiveX = 0x8515,
     TextureCubeMapPositiveY = 0x8517,
     TextureCubeMapPositiveZ = 0x8519,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Texture2dArray = 0x8C1A,
     Texture3d = 0x806F,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Texture2dMultisample = 0x9100,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     Texture2dMultisampleArray = 0x9102,
     TextureCubeMapArray = 0x9009,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TextureTarget
+#endif
+};
 
 enum class TextureUnit : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Texture0 = 0x84C0,
     Texture1 = 0x84C1,
     Texture10 = 0x84CA,
@@ -2154,29 +1983,26 @@ enum class TextureUnit : core::EnumType
     Texture7 = 0x84C7,
     Texture8 = 0x84C8,
     Texture9 = 0x84C9,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TextureUnit
+};
 
 enum class TextureWrapMode : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ClampToEdge = 0x812F,
     LinearMipmapLinear = 0x2703,
     MirroredRepeat = 0x8370,
     Repeat = 0x2901,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     ClampToBorder = 0x812D,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TextureWrapMode
+#endif
+};
 
 enum class TransformFeedbackBufferMode : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     InterleavedAttribs = 0x8C8C,
     SeparateAttribs = 0x8C8D,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TransformFeedbackBufferMode
+#endif
+};
 
 enum class TransformFeedbackPName : core::EnumType
 {
@@ -2186,8 +2012,8 @@ enum class TransformFeedbackPName : core::EnumType
     TransformFeedbackBufferSize = 0x8C85,
     TransformFeedbackBufferStart = 0x8C84,
     TransformFeedbackPaused = 0x8E23,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum TransformFeedbackPName
+#endif
+};
 
 enum class UniformBlockPName : core::EnumType
 {
@@ -2199,8 +2025,8 @@ enum class UniformBlockPName : core::EnumType
     UniformBlockNameLength = 0x8A41,
     UniformBlockReferencedByFragmentShader = 0x8A46,
     UniformBlockReferencedByVertexShader = 0x8A44,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum UniformBlockPName
+#endif
+};
 
 enum class UniformPName : core::EnumType
 {
@@ -2213,12 +2039,11 @@ enum class UniformPName : core::EnumType
     UniformOffset = 0x8A3B,
     UniformSize = 0x8A38,
     UniformType = 0x8A37,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum UniformPName
+#endif
+};
 
 enum class UniformType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Bool = 0x8B56,
     BoolVec2 = 0x8B57,
     BoolVec3 = 0x8B58,
@@ -2237,7 +2062,6 @@ enum class UniformType : core::EnumType
     Sampler2d = 0x8B5E,
     SamplerCube = 0x8B60,
     UnsignedInt = 0x1405,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     IntSampler2d = 0x8DCA,
     IntSampler2dArray = 0x8DCF,
@@ -2255,12 +2079,12 @@ enum class UniformType : core::EnumType
     UnsignedIntVec2 = 0x8DC6,
     UnsignedIntVec3 = 0x8DC7,
     UnsignedIntVec4 = 0x8DC8,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     IntSampler2dMultisample = 0x9109,
     Sampler2dMultisample = 0x9108,
     UnsignedIntSampler2dMultisample = 0x910A,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     IntSampler2dMultisampleArray = 0x910C,
     IntSamplerBuffer = 0x8DD0,
@@ -2268,8 +2092,8 @@ enum class UniformType : core::EnumType
     SamplerBuffer = 0x8DC2,
     UnsignedIntSampler2dMultisampleArray = 0x910D,
     UnsignedIntSamplerBuffer = 0x8DD8,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum UniformType
+#endif
+};
 
 enum class UseProgramStageMask : core::EnumType
 {
@@ -2278,36 +2102,33 @@ enum class UseProgramStageMask : core::EnumType
     ComputeShaderBit = 0x00000020,
     FragmentShaderBit = 0x00000002,
     VertexShaderBit = 0x00000001,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     GeometryShaderBit = 0x00000004,
     TessControlShaderBit = 0x00000008,
     TessEvaluationShaderBit = 0x00000010,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum UseProgramStageMask
+#endif
+};
 constexpr core::Bitfield<UseProgramStageMask> operator|(UseProgramStageMask left, UseProgramStageMask right) { return core::Bitfield<UseProgramStageMask>(left) | right;}
 
 enum class VertexArrayPName : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     VertexAttribArrayEnabled = 0x8622,
     VertexAttribArrayNormalized = 0x886A,
     VertexAttribArraySize = 0x8623,
     VertexAttribArrayStride = 0x8624,
     VertexAttribArrayType = 0x8625,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     VertexAttribArrayDivisor = 0x88FE,
     VertexAttribArrayInteger = 0x88FD,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     VertexAttribRelativeOffset = 0x82D5,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexArrayPName
+#endif
+};
 
 enum class VertexAttribEnum : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CurrentVertexAttrib = 0x8626,
     VertexAttribArrayBufferBinding = 0x889F,
     VertexAttribArrayEnabled = 0x8622,
@@ -2315,35 +2136,29 @@ enum class VertexAttribEnum : core::EnumType
     VertexAttribArraySize = 0x8623,
     VertexAttribArrayStride = 0x8624,
     VertexAttribArrayType = 0x8625,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     VertexAttribArrayDivisor = 0x88FE,
     VertexAttribArrayInteger = 0x88FD,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexAttribEnum
+#endif
+};
 
 enum class VertexAttribIType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Byte = 0x1400,
     Int = 0x1404,
     Short = 0x1402,
     UnsignedByte = 0x1401,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexAttribIType
+};
 
 enum class VertexAttribPointerPropertyARB : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     VertexAttribArrayPointer = 0x8645,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexAttribPointerPropertyARB
+};
 
 enum class VertexAttribPointerType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Byte = 0x1400,
     Fixed = 0x140C,
     Float = 0x1406,
@@ -2352,18 +2167,16 @@ enum class VertexAttribPointerType : core::EnumType
     UnsignedByte = 0x1401,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     HalfFloat = 0x140B,
     Int2101010Rev = 0x8D9F,
     UnsignedInt10f11f11fRev = 0x8C3B,
     UnsignedInt2101010Rev = 0x8368,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexAttribPointerType
+#endif
+};
 
 enum class VertexAttribPropertyARB : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CurrentVertexAttrib = 0x8626,
     VertexAttribArrayBufferBinding = 0x889F,
     VertexAttribArrayEnabled = 0x8622,
@@ -2371,20 +2184,18 @@ enum class VertexAttribPropertyARB : core::EnumType
     VertexAttribArraySize = 0x8623,
     VertexAttribArrayStride = 0x8624,
     VertexAttribArrayType = 0x8625,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     VertexAttribArrayDivisor = 0x88FE,
     VertexAttribArrayInteger = 0x88FD,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     VertexAttribBinding = 0x82D4,
     VertexAttribRelativeOffset = 0x82D5,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexAttribPropertyARB
+#endif
+};
 
 enum class VertexAttribType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Byte = 0x1400,
     Fixed = 0x140C,
     Float = 0x1406,
@@ -2393,36 +2204,31 @@ enum class VertexAttribType : core::EnumType
     UnsignedByte = 0x1401,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     HalfFloat = 0x140B,
     Int2101010Rev = 0x8D9F,
     UnsignedInt10f11f11fRev = 0x8C3B,
     UnsignedInt2101010Rev = 0x8368,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexAttribType
+#endif
+};
 
 enum class VertexBufferObjectParameter : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     BufferSize = 0x8764,
     BufferUsage = 0x8765,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     BufferAccessFlags = 0x911F,
     BufferMapped = 0x88BC,
     BufferMapLength = 0x9120,
     BufferMapOffset = 0x9121,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexBufferObjectParameter
+#endif
+};
 
 enum class VertexBufferObjectUsage : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DynamicDraw = 0x88E8,
     StaticDraw = 0x88E4,
     StreamDraw = 0x88E0,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     DynamicCopy = 0x88EA,
     DynamicRead = 0x88E9,
@@ -2430,392 +2236,388 @@ enum class VertexBufferObjectUsage : core::EnumType
     StaticRead = 0x88E5,
     StreamCopy = 0x88E2,
     StreamRead = 0x88E1,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexBufferObjectUsage
+#endif
+};
 
 enum class VertexPointerType : core::EnumType
 {
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     Float = 0x1406,
     Int = 0x1404,
     Short = 0x1402,
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexPointerType
+};
 
 enum class VertexProvokingMode : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     FirstVertexConvention = 0x8E4D,
     LastVertexConvention = 0x8E4E,
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
-}; // enum VertexProvokingMode
+#endif
+};
 
 // commands
-#if defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-extern void getTexParameter(TextureTarget target, GetTextureParameter pname, float *params);
-extern void readPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, void *pixels);
-extern bool isRenderbuffer(uint32_t renderbuffer);
-extern void clearStencil(int32_t s);
-extern void generateMipmap(TextureTarget target);
-extern void stencilMask(uint32_t mask);
+extern void vertexAttrib3(uint32_t index, const float *v);
+extern void linkProgram(uint32_t program);
+extern void vertexAttrib4(uint32_t index, float x, float y, float z, float w);
+extern void validateProgram(uint32_t program);
+extern void clearColor(float red, float green, float blue, float alpha);
+extern void uniform1(int32_t location, float v0);
+extern void genFramebuffers(core::SizeType n, uint32_t *framebuffers);
+extern void uniform3(int32_t location, float v0, float v1, float v2);
+extern void deleteShader(uint32_t shader);
 extern void drawArrays(PrimitiveType mode, int32_t first, core::SizeType count);
-extern void stencilOpSeparate(StencilFaceDirection face, StencilOp sfail, StencilOp dpfail, StencilOp dppass);
-extern bool isEnable(EnableCap cap);
-extern void vertexAttrib1(uint32_t index, const float *v);
-extern void getAttachedShaders(uint32_t program, core::SizeType maxCount, core::SizeType *count, uint32_t *shaders);
+extern void getFloatv(GetPName pname, float *data);
+extern void activeTexture(TextureUnit texture);
+extern void enable(EnableCap cap);
+extern void vertexAttribPointer(uint32_t index, int32_t size, VertexAttribPointerType type, bool normalized, core::SizeType stride, const void *pointer);
+extern void texParameter(TextureTarget target, TextureParameterName pname, float param);
+extern void getProgramInfoLog(uint32_t program, core::SizeType bufSize, core::SizeType *length, char *infoLog);
 extern void vertexAttrib2(uint32_t index, const float *v);
 extern void bindTexture(TextureTarget target, uint32_t texture);
-extern void uniform4(int32_t location, core::SizeType count, const int32_t *value);
-extern void uniform2(int32_t location, int32_t v0, int32_t v1);
-extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, int32_t *params);
-extern void getShaderPrecisionFormat(ShaderType shadertype, PrecisionType precisiontype, int32_t *range, int32_t *precision);
-extern void depthRange(float n, float f);
-extern void getVertexAttribPointerv(uint32_t index, VertexAttribPointerPropertyARB pname, void **pointer);
-extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t *params);
-extern void uniformMatrix3(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void polygonOffset(float factor, float units);
-extern void uniform1(int32_t location, float v0);
-extern void uniformMatrix2(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void uniform3(int32_t location, int32_t v0, int32_t v1, int32_t v2);
-extern void blendEquation(BlendEquationModeEXT mode);
-extern void stencilFunc(StencilFunction func, int32_t ref, uint32_t mask);
-extern void pixelStore(PixelStoreParameter pname, int32_t param);
-extern void vertexAttrib1(uint32_t index, float x);
-extern void vertexAttrib3(uint32_t index, float x, float y, float z);
-extern void uniform2(int32_t location, float v0, float v1);
-extern uint32_t createShader(ShaderType type);
-extern core::EnumType getError();
-extern void frontFace(FrontFaceDirection mode);
-extern void getActiveUniform(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, UniformType *type, char *name);
-extern void uniform3(int32_t location, core::SizeType count, const float *value);
 extern void framebufferTexture2D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget textarget, uint32_t texture, int32_t level);
-extern void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void *data);
-extern void getIntegerv(GetPName pname, int32_t *data);
-extern void vertexAttrib3(uint32_t index, const float *v);
-extern void copyTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void stencilOp(StencilOp fail, StencilOp zfail, StencilOp zpass);
-extern void uniform3(int32_t location, core::SizeType count, const int32_t *value);
+extern void bindFramebuffer(FramebufferTarget target, uint32_t framebuffer);
+extern void blendColor(float red, float green, float blue, float alpha);
+extern void renderbufferStorage(RenderbufferTarget target, InternalFormat internalformat, core::SizeType width, core::SizeType height);
+extern void uniform2(int32_t location, core::SizeType count, const int32_t *value);
 extern void compileShader(uint32_t shader);
-extern void texParameter(TextureTarget target, TextureParameterName pname, float param);
+extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, float *params);
+extern bool isShader(uint32_t shader);
+extern void bufferData(BufferTargetARB target, std::size_t size, const void *data, BufferUsageARB usage);
+extern void depthFunc(DepthFunction func);
+extern void clearStencil(int32_t s);
+extern void copyTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void colorMask(bool red, bool green, bool blue, bool alpha);
+extern void disable(EnableCap cap);
+extern void vertexAttrib3(uint32_t index, float x, float y, float z);
+extern void blendFunc(BlendingFactor sfactor, BlendingFactor dfactor);
+extern const uint8_t *getString(StringName name);
+extern void depthMask(bool flag);
+extern void genBuffers(core::SizeType n, uint32_t *buffers);
+extern void vertexAttrib1(uint32_t index, const float *v);
 extern void getBooleanv(GetPName pname, bool *data);
-extern void genRenderbuffers(core::SizeType n, uint32_t *renderbuffers);
-extern void getShaderInfoLog(uint32_t shader, core::SizeType bufSize, core::SizeType *length, char *infoLog);
-extern void compressedTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, core::SizeType imageSize, const void *data);
-extern void attachShader(uint32_t program, uint32_t shader);
+extern void frontFace(FrontFaceDirection mode);
+extern void getAttachedShaders(uint32_t program, core::SizeType maxCount, core::SizeType *count, uint32_t *shaders);
+extern void getShaderPrecisionFormat(ShaderType shadertype, PrecisionType precisiontype, int32_t *range, int32_t *precision);
+extern void finish();
+extern void stencilMask(uint32_t mask);
 extern void enableVertexAttribArray(uint32_t index);
 extern void getRenderbufferParameter(RenderbufferTarget target, RenderbufferParameterName pname, int32_t *params);
-extern void getUniform(uint32_t program, int32_t location, float *params);
-extern void shaderBinary(core::SizeType count, const uint32_t *shaders, core::EnumType binaryformat, const void *binary, core::SizeType length);
-extern void useProgram(uint32_t program);
-extern void vertexAttribPointer(uint32_t index, int32_t size, VertexAttribPointerType type, bool normalized, core::SizeType stride, const void *pointer);
-extern bool isProgram(uint32_t program);
-extern void uniform2(int32_t location, core::SizeType count, const float *value);
-extern bool isTexture(uint32_t texture);
-extern void blendFuncSeparate(BlendingFactor sfactorRGB, BlendingFactor dfactorRGB, BlendingFactor sfactorAlpha, BlendingFactor dfactorAlpha);
-extern void uniform1(int32_t location, int32_t v0);
-extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t *params);
-extern void disable(EnableCap cap);
-extern void disableVertexAttribArray(uint32_t index);
-extern const uint8_t *getString(StringName name);
-extern bool isFramebuffer(uint32_t framebuffer);
-extern void hint(HintTarget target, HintMode mode);
-extern void sampleCoverage(float value, bool invert);
-extern void uniform1(int32_t location, core::SizeType count, const int32_t *value);
-extern void getActiveAttri(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name);
-extern void bindFramebuffer(FramebufferTarget target, uint32_t framebuffer);
-extern uint32_t createProgram();
-extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void stencilMaskSeparate(StencilFaceDirection face, uint32_t mask);
-extern void genTextures(core::SizeType n, uint32_t *textures);
-extern void depthMask(bool flag);
-extern void clearColor(float red, float green, float blue, float alpha);
-extern void validateProgram(uint32_t program);
-extern void colorMask(bool red, bool green, bool blue, bool alpha);
-extern void lineWidth(float width);
-extern bool isShader(uint32_t shader);
-extern void texSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
-extern void drawElements(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices);
-extern int32_t getAttribLocation(uint32_t program, const char *name);
-extern void texImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, PixelFormat format, PixelType type, const void *pixels);
-extern void releaseShaderCompiler();
-extern void depthFunc(DepthFunction func);
-extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, float *params);
-extern void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *params);
-extern void bufferData(BufferTargetARB target, std::size_t size, const void *data, BufferUsageARB usage);
-extern void clearDepth(float d);
-extern void getUniform(uint32_t program, int32_t location, int32_t *params);
-extern void uniform3(int32_t location, float v0, float v1, float v2);
-extern void deleteFramebuffers(core::SizeType n, const uint32_t *framebuffers);
-extern void shaderSource(uint32_t shader, core::SizeType count, const char *const*string, const int32_t *length);
-extern void stencilFuncSeparate(StencilFaceDirection face, StencilFunction func, int32_t ref, uint32_t mask);
-extern void getShaderSource(uint32_t shader, core::SizeType bufSize, core::SizeType *length, char *source);
-extern void genBuffers(core::SizeType n, uint32_t *buffers);
-extern void linkProgram(uint32_t program);
-extern void uniform2(int32_t location, core::SizeType count, const int32_t *value);
-extern void deleteShader(uint32_t shader);
-extern void finish();
-extern void bindBuffer(BufferTargetARB target, uint32_t buffer);
-extern void copyTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, int32_t x, int32_t y, core::SizeType width, core::SizeType height, int32_t border);
-extern void vertexAttrib4(uint32_t index, float x, float y, float z, float w);
+extern void readPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, void *pixels);
 extern void deleteRenderbuffers(core::SizeType n, const uint32_t *renderbuffers);
-extern void renderbufferStorage(RenderbufferTarget target, InternalFormat internalformat, core::SizeType width, core::SizeType height);
-extern core::EnumType checkFramebufferStatus(FramebufferTarget target);
-extern void deleteTextures(core::SizeType n, const uint32_t *textures);
-extern void genFramebuffers(core::SizeType n, uint32_t *framebuffers);
-extern void vertexAttrib2(uint32_t index, float x, float y);
-extern void blendFunc(BlendingFactor sfactor, BlendingFactor dfactor);
-extern void texParameter(TextureTarget target, TextureParameterName pname, const float *params);
-extern void compressedTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, core::SizeType imageSize, const void *data);
-extern void cullFace(CullFaceMode mode);
-extern void clear(core::Bitfield<ClearBufferMask> mask);
-extern void detachShader(uint32_t program, uint32_t shader);
-extern void flush();
-extern void getFramebufferAttachmentParameter(FramebufferTarget target, FramebufferAttachment attachment, FramebufferAttachmentParameterName pname, int32_t *params);
-extern void framebufferRenderbuffer(FramebufferTarget target, FramebufferAttachment attachment, RenderbufferTarget renderbuffertarget, uint32_t renderbuffer);
-extern void blendEquationSeparate(BlendEquationModeEXT modeRGB, BlendEquationModeEXT modeAlpha);
-extern void bindAttribLocation(uint32_t program, uint32_t index, const char *name);
-extern void activeTexture(TextureUnit texture);
-extern bool isBuffer(uint32_t buffer);
-extern void deleteProgram(uint32_t program);
-extern void uniformMatrix4(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void scissor(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
 extern void uniform4(int32_t location, core::SizeType count, const float *value);
-extern void getProgramInfoLog(uint32_t program, core::SizeType bufSize, core::SizeType *length, char *infoLog);
-extern void getShader(uint32_t shader, ShaderParameterName pname, int32_t *params);
-extern void bindRenderbuffer(RenderbufferTarget target, uint32_t renderbuffer);
-extern void enable(EnableCap cap);
-extern int32_t getUniformLocation(uint32_t program, const char *name);
-extern void uniform1(int32_t location, core::SizeType count, const float *value);
-extern void getFloatv(GetPName pname, float *data);
-extern void uniform4(int32_t location, int32_t v0, int32_t v1, int32_t v2, int32_t v3);
-extern void blendColor(float red, float green, float blue, float alpha);
-extern void uniform4(int32_t location, float v0, float v1, float v2, float v3);
-extern void deleteBuffers(core::SizeType n, const uint32_t *buffers);
-extern void vertexAttrib4(uint32_t index, const float *v);
-extern void texParameter(TextureTarget target, TextureParameterName pname, int32_t param);
+extern void cullFace(CullFaceMode mode);
+extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t *params);
+extern void getActiveAttri(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name);
+extern int32_t getAttribLocation(uint32_t program, const char *name);
+extern void depthRange(float n, float f);
+extern void shaderSource(uint32_t shader, core::SizeType count, const char *const*string, const int32_t *length);
+extern void stencilOp(StencilOp fail, StencilOp zfail, StencilOp zpass);
+extern void hint(HintTarget target, HintMode mode);
+extern void deleteFramebuffers(core::SizeType n, const uint32_t *framebuffers);
+extern void stencilMaskSeparate(StencilFaceDirection face, uint32_t mask);
+extern void getUniform(uint32_t program, int32_t location, float *params);
+extern void genTextures(core::SizeType n, uint32_t *textures);
+extern void vertexAttrib1(uint32_t index, float x);
+extern void copyTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, int32_t x, int32_t y, core::SizeType width, core::SizeType height, int32_t border);
+extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
 extern void getProgram(uint32_t program, ProgramPropertyARB pname, int32_t *params);
-#endif // defined(API_LEVEL_GL_ES_VERSION_2_0) || defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+extern void stencilFunc(StencilFunction func, int32_t ref, uint32_t mask);
+extern void uniform1(int32_t location, core::SizeType count, const int32_t *value);
+extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t *params);
+extern void uniformMatrix4(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void uniform4(int32_t location, float v0, float v1, float v2, float v3);
+extern void sampleCoverage(float value, bool invert);
+extern void generateMipmap(TextureTarget target);
+extern bool isRenderbuffer(uint32_t renderbuffer);
+extern void uniform4(int32_t location, int32_t v0, int32_t v1, int32_t v2, int32_t v3);
+extern void getIntegerv(GetPName pname, int32_t *data);
+extern void detachShader(uint32_t program, uint32_t shader);
+extern void uniform4(int32_t location, core::SizeType count, const int32_t *value);
+extern void getActiveUniform(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, UniformType *type, char *name);
+extern void clear(core::Bitfield<ClearBufferMask> mask);
+extern uint32_t createShader(ShaderType type);
+extern void stencilOpSeparate(StencilFaceDirection face, StencilOp sfail, StencilOp dpfail, StencilOp dppass);
+extern int32_t getUniformLocation(uint32_t program, const char *name);
+extern void getFramebufferAttachmentParameter(FramebufferTarget target, FramebufferAttachment attachment, FramebufferAttachmentParameterName pname, int32_t *params);
+extern void attachShader(uint32_t program, uint32_t shader);
+extern void drawElements(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices);
+extern void blendFuncSeparate(BlendingFactor sfactorRGB, BlendingFactor dfactorRGB, BlendingFactor sfactorAlpha, BlendingFactor dfactorAlpha);
+extern void bindAttribLocation(uint32_t program, uint32_t index, const char *name);
+extern void getShaderInfoLog(uint32_t shader, core::SizeType bufSize, core::SizeType *length, char *infoLog);
+extern void uniformMatrix2(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern uint32_t createProgram();
+extern void getShaderSource(uint32_t shader, core::SizeType bufSize, core::SizeType *length, char *source);
+extern void texImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, PixelFormat format, PixelType type, const void *pixels);
+extern bool isEnable(EnableCap cap);
+extern void stencilFuncSeparate(StencilFaceDirection face, StencilFunction func, int32_t ref, uint32_t mask);
+extern void vertexAttrib2(uint32_t index, float x, float y);
+extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, int32_t *params);
+extern void getTexParameter(TextureTarget target, GetTextureParameter pname, float *params);
+extern void blendEquation(BlendEquationModeEXT mode);
+extern void getShader(uint32_t shader, ShaderParameterName pname, int32_t *params);
+extern void texSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
+extern void releaseShaderCompiler();
+extern void uniform2(int32_t location, float v0, float v1);
+extern void uniform2(int32_t location, core::SizeType count, const float *value);
+extern void uniform2(int32_t location, int32_t v0, int32_t v1);
+extern void uniform3(int32_t location, core::SizeType count, const float *value);
+extern void scissor(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void uniform3(int32_t location, core::SizeType count, const int32_t *value);
+extern bool isTexture(uint32_t texture);
+extern core::EnumType getError();
+extern bool isFramebuffer(uint32_t framebuffer);
+extern void deleteBuffers(core::SizeType n, const uint32_t *buffers);
+extern core::EnumType checkFramebufferStatus(FramebufferTarget target);
+extern void vertexAttrib4(uint32_t index, const float *v);
+extern void bindRenderbuffer(RenderbufferTarget target, uint32_t renderbuffer);
+extern void pixelStore(PixelStoreParameter pname, int32_t param);
+extern void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void *data);
+extern void shaderBinary(core::SizeType count, const uint32_t *shaders, core::EnumType binaryformat, const void *binary, core::SizeType length);
+extern void uniform1(int32_t location, core::SizeType count, const float *value);
+extern void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *params);
+extern void deleteTextures(core::SizeType n, const uint32_t *textures);
+extern bool isBuffer(uint32_t buffer);
+extern void texParameter(TextureTarget target, TextureParameterName pname, int32_t param);
+extern void bindBuffer(BufferTargetARB target, uint32_t buffer);
+extern void flush();
+extern void uniformMatrix3(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void polygonOffset(float factor, float units);
+extern void framebufferRenderbuffer(FramebufferTarget target, FramebufferAttachment attachment, RenderbufferTarget renderbuffertarget, uint32_t renderbuffer);
+extern void compressedTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, core::SizeType imageSize, const void *data);
+extern void disableVertexAttribArray(uint32_t index);
+extern void genRenderbuffers(core::SizeType n, uint32_t *renderbuffers);
+extern void getUniform(uint32_t program, int32_t location, int32_t *params);
+extern bool isProgram(uint32_t program);
+extern void uniform3(int32_t location, int32_t v0, int32_t v1, int32_t v2);
+extern void lineWidth(float width);
+extern void uniform1(int32_t location, int32_t v0);
+extern void getVertexAttribPointerv(uint32_t index, VertexAttribPointerPropertyARB pname, void **pointer);
+extern void texParameter(TextureTarget target, TextureParameterName pname, const float *params);
+extern void useProgram(uint32_t program);
+extern void deleteProgram(uint32_t program);
+extern void blendEquationSeparate(BlendEquationModeEXT modeRGB, BlendEquationModeEXT modeAlpha);
+extern void compressedTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, core::SizeType imageSize, const void *data);
+extern void clearDepth(float d);
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-extern void readBuffer(ReadBufferMode src);
-extern void vertexAttribI4(uint32_t index, int32_t x, int32_t y, int32_t z, int32_t w);
-extern void uniform1(int32_t location, uint32_t v0);
-extern void compressedTexImage3D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, int32_t border, core::SizeType imageSize, const void *data);
-extern void *mapBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length, core::Bitfield<MapBufferAccessMask> access);
-extern void samplerParameter(uint32_t sampler, SamplerParameterF pname, float param);
-extern void bindVertexArray(uint32_t array);
-extern void getBufferPointerv(BufferTargetARB target, BufferPointerNameARB pname, void **params);
-extern void getInteger64i_v(core::EnumType target, uint32_t index, int64_t *data);
-extern void uniform4(int32_t location, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3);
-extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, uint32_t *params);
-extern void uniform3(int32_t location, uint32_t v0, uint32_t v1, uint32_t v2);
 extern void bindSampler(uint32_t unit, uint32_t sampler);
-extern void texStorage3D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth);
-extern void drawRangeElements(PrimitiveType mode, uint32_t start, uint32_t end, core::SizeType count, DrawElementsType type, const void *indices);
-extern void uniform3(int32_t location, core::SizeType count, const uint32_t *value);
-extern void getSamplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t *params);
-extern void uniformMatrix3x2(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern bool isVertexArray(uint32_t array);
-extern void samplerParameter(uint32_t sampler, SamplerParameterI pname, const int32_t *param);
-extern void texStorage2D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height);
-extern void deleteSync(core::Sync sync);
-extern void getActiveUniformBlockName(uint32_t program, uint32_t uniformBlockIndex, core::SizeType bufSize, core::SizeType *length, char *uniformBlockName);
-extern void flushMappedBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length);
-extern void beginTransformFeedback(PrimitiveType primitiveMode);
-extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const float *value);
+extern void uniform3(int32_t location, uint32_t v0, uint32_t v1, uint32_t v2);
 extern void uniform4(int32_t location, core::SizeType count, const uint32_t *value);
-extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const int32_t *value);
-extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const uint32_t *value);
-extern void blitFramebuffer(int32_t srcX0, int32_t srcY0, int32_t srcX1, int32_t srcY1, int32_t dstX0, int32_t dstY0, int32_t dstX1, int32_t dstY1, core::Bitfield<ClearBufferMask> mask, BlitFramebufferFilter filter);
-extern void genSampler(core::SizeType count, uint32_t *samplers);
-extern void programParameter(uint32_t program, ProgramParameterPName pname, int32_t value);
-extern void copyTexSubImage3D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void getSamplerParameter(uint32_t sampler, SamplerParameterF pname, float *params);
-extern void renderbufferStorageMultisample(RenderbufferTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height);
-extern void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments);
-extern int32_t getFragDataLocation(uint32_t program, const char *name);
-extern bool isSync(core::Sync sync);
-extern bool isSampler(uint32_t sampler);
-extern void uniformMatrix3x4(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void drawArraysInstance(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount);
-extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, uint32_t *params);
-extern void getTransformFeedbackVarying(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, core::SizeType *size, GlslTypeToken *type, char *name);
-extern void uniformMatrix4x2(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void texImage3D(TextureTarget target, int32_t level, int32_t internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, int32_t border, PixelFormat format, PixelType type, const void *pixels);
-extern bool unmapBuffer(BufferTargetARB target);
-extern void compressedTexSubImage3D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, core::SizeType imageSize, const void *data);
-extern void genVertexArrays(core::SizeType n, uint32_t *arrays);
-extern void deleteSampler(core::SizeType count, const uint32_t *samplers);
-extern void getActiveUniformBlock(uint32_t program, uint32_t uniformBlockIndex, UniformBlockPName pname, int32_t *params);
-extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int64_t *params);
-extern void genTransformFeedback(core::SizeType n, uint32_t *ids);
-extern void copyBufferSubData(CopyBufferSubDataTarget readTarget, CopyBufferSubDataTarget writeTarget, std::intptr_t readOffset, std::intptr_t writeOffset, std::size_t size);
-extern void uniform2(int32_t location, uint32_t v0, uint32_t v1);
-extern void uniformMatrix2x3(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void vertexAttribIPointer(uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void *pointer);
-extern bool isQuery(uint32_t id);
-extern void getUniform(uint32_t program, int32_t location, uint32_t *params);
-extern void getInteger64v(GetPName pname, int64_t *data);
-extern void getInternalformat(TextureTarget target, InternalFormat internalformat, InternalFormatPName pname, core::SizeType bufSize, int32_t *params);
-extern void beginQuery(QueryTarget target, uint32_t id);
-extern void deleteVertexArrays(core::SizeType n, const uint32_t *arrays);
-extern void getQuery(QueryTarget target, QueryParameterName pname, int32_t *params);
-extern void genQuerie(core::SizeType n, uint32_t *ids);
-extern const uint8_t *getString(StringName name, uint32_t index);
-extern bool isTransformFeedback(uint32_t id);
-extern void waitSync(core::Sync sync, uint32_t flags, uint64_t timeout);
-extern void pauseTransformFeedback();
-extern void getActiveUniforms(uint32_t program, core::SizeType uniformCount, const uint32_t *uniformIndices, UniformPName pname, int32_t *params);
-extern void getSync(core::Sync sync, SyncParameterName pname, core::SizeType bufSize, core::SizeType *length, int32_t *values);
-extern uint32_t getUniformBlockIndex(uint32_t program, const char *uniformBlockName);
-extern void vertexAttribI4(uint32_t index, uint32_t x, uint32_t y, uint32_t z, uint32_t w);
-extern void uniform1(int32_t location, core::SizeType count, const uint32_t *value);
-extern void drawElementsInstance(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount);
-extern void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
 extern core::EnumType clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout);
-extern void resumeTransformFeedback();
-extern void bindBufferBase(BufferTargetARB target, uint32_t index, uint32_t buffer);
-extern void samplerParameter(uint32_t sampler, SamplerParameterF pname, const float *param);
-extern void vertexAttribI4(uint32_t index, const int32_t *v);
-extern void uniformMatrix2x4(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void vertexAttribI4(uint32_t index, const uint32_t *v);
-extern core::Sync fenceSync(SyncCondition condition, uint32_t flags);
-extern void transformFeedbackVarying(uint32_t program, core::SizeType count, const char *const*varyings, TransformFeedbackBufferMode bufferMode);
-extern void endQuery(QueryTarget target);
-extern void clearBufferf(Buffer buffer, int32_t drawbuffer, float depth, int32_t stencil);
-extern void getUniformIndice(uint32_t program, core::SizeType uniformCount, const char *const*uniformNames, uint32_t *uniformIndices);
-extern void getProgramBinary(uint32_t program, core::SizeType bufSize, core::SizeType *length, core::EnumType *binaryFormat, void *binary);
-extern void drawBuffers(core::SizeType n, const DrawBufferMode *bufs);
-extern void deleteQuerie(core::SizeType n, const uint32_t *ids);
-extern void uniformBlockBinding(uint32_t program, uint32_t uniformBlockIndex, uint32_t uniformBlockBinding);
-extern void uniform2(int32_t location, core::SizeType count, const uint32_t *value);
-extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, int32_t *params);
-extern void endTransformFeedback();
-extern void uniformMatrix4x3(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void bindTransformFeedback(BindTransformFeedbackTarget target, uint32_t id);
-extern void bindBufferRange(BufferTargetARB target, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size);
-extern void getIntegeri_v(core::EnumType target, uint32_t index, int32_t *data);
-extern void framebufferTextureLayer(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level, int32_t layer);
-extern void samplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t param);
+extern void texStorage3D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth);
 extern void texSubImage3D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, PixelType type, const void *pixels);
-extern void programBinary(uint32_t program, core::EnumType binaryFormat, const void *binary, core::SizeType length);
-extern void vertexAttribDivisor(uint32_t index, uint32_t divisor);
+extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const float *value);
+extern void uniformMatrix2x4(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void vertexAttribI4(uint32_t index, const int32_t *v);
+extern void getQuery(QueryTarget target, QueryParameterName pname, int32_t *params);
+extern void deleteSync(core::Sync sync);
+extern void getInternalformat(TextureTarget target, InternalFormat internalformat, InternalFormatPName pname, core::SizeType bufSize, int32_t *params);
+extern void copyTexSubImage3D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void readBuffer(ReadBufferMode src);
+extern void deleteVertexArrays(core::SizeType n, const uint32_t *arrays);
+extern void flushMappedBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length);
+extern void getUniform(uint32_t program, int32_t location, uint32_t *params);
+extern bool isQuery(uint32_t id);
+extern void uniformMatrix3x4(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void getActiveUniformBlock(uint32_t program, uint32_t uniformBlockIndex, UniformBlockPName pname, int32_t *params);
+extern void drawBuffers(core::SizeType n, const DrawBufferMode *bufs);
+extern void getProgramBinary(uint32_t program, core::SizeType bufSize, core::SizeType *length, core::EnumType *binaryFormat, void *binary);
+extern void drawElementsInstance(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount);
+extern void texImage3D(TextureTarget target, int32_t level, int32_t internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, int32_t border, PixelFormat format, PixelType type, const void *pixels);
+extern void uniformMatrix4x2(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern int32_t getFragDataLocation(uint32_t program, const char *name);
+extern void compressedTexSubImage3D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, core::SizeType imageSize, const void *data);
+extern void framebufferTextureLayer(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level, int32_t layer);
+extern void getActiveUniforms(uint32_t program, core::SizeType uniformCount, const uint32_t *uniformIndices, UniformPName pname, int32_t *params);
+extern void endQuery(QueryTarget target);
+extern void genQuerie(core::SizeType n, uint32_t *ids);
+extern void copyBufferSubData(CopyBufferSubDataTarget readTarget, CopyBufferSubDataTarget writeTarget, std::intptr_t readOffset, std::intptr_t writeOffset, std::size_t size);
+extern bool unmapBuffer(BufferTargetARB target);
+extern core::Sync fenceSync(SyncCondition condition, uint32_t flags);
+extern bool isSync(core::Sync sync);
+extern void uniform4(int32_t location, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3);
+extern void *mapBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length, core::Bitfield<MapBufferAccessMask> access);
+extern void uniformMatrix2x3(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void samplerParameter(uint32_t sampler, SamplerParameterI pname, const int32_t *param);
+extern void deleteSampler(core::SizeType count, const uint32_t *samplers);
+extern void beginQuery(QueryTarget target, uint32_t id);
+extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, int32_t *params);
+extern void renderbufferStorageMultisample(RenderbufferTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height);
+extern bool isTransformFeedback(uint32_t id);
+extern void clearBufferf(Buffer buffer, int32_t drawbuffer, float depth, int32_t stencil);
 extern void deleteTransformFeedback(core::SizeType n, const uint32_t *ids);
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+extern void texStorage2D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height);
+extern void bindBufferBase(BufferTargetARB target, uint32_t index, uint32_t buffer);
+extern bool isVertexArray(uint32_t array);
+extern void vertexAttribIPointer(uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void *pointer);
+extern void drawRangeElements(PrimitiveType mode, uint32_t start, uint32_t end, core::SizeType count, DrawElementsType type, const void *indices);
+extern void getSamplerParameter(uint32_t sampler, SamplerParameterF pname, float *params);
+extern void bindTransformFeedback(BindTransformFeedbackTarget target, uint32_t id);
+extern void drawArraysInstance(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount);
+extern void compressedTexImage3D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, int32_t border, core::SizeType imageSize, const void *data);
+extern void genVertexArrays(core::SizeType n, uint32_t *arrays);
+extern void uniform1(int32_t location, uint32_t v0);
+extern void getInteger64i_v(core::EnumType target, uint32_t index, int64_t *data);
+extern void resumeTransformFeedback();
+extern void bindVertexArray(uint32_t array);
+extern void uniformMatrix4x3(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void uniform2(int32_t location, core::SizeType count, const uint32_t *value);
+extern void genSampler(core::SizeType count, uint32_t *samplers);
+extern const uint8_t *getString(StringName name, uint32_t index);
+extern void samplerParameter(uint32_t sampler, SamplerParameterF pname, float param);
+extern void uniform2(int32_t location, uint32_t v0, uint32_t v1);
+extern void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments);
+extern void samplerParameter(uint32_t sampler, SamplerParameterF pname, const float *param);
+extern void programParameter(uint32_t program, ProgramParameterPName pname, int32_t value);
+extern void samplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t param);
+extern void vertexAttribI4(uint32_t index, int32_t x, int32_t y, int32_t z, int32_t w);
+extern void getUniformIndice(uint32_t program, core::SizeType uniformCount, const char *const*uniformNames, uint32_t *uniformIndices);
+extern void genTransformFeedback(core::SizeType n, uint32_t *ids);
+extern uint32_t getUniformBlockIndex(uint32_t program, const char *uniformBlockName);
+extern void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const int32_t *value);
+extern void getIntegeri_v(core::EnumType target, uint32_t index, int32_t *data);
+extern void getSamplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t *params);
+extern void beginTransformFeedback(PrimitiveType primitiveMode);
+extern void getInteger64v(GetPName pname, int64_t *data);
+extern void transformFeedbackVarying(uint32_t program, core::SizeType count, const char *const*varyings, TransformFeedbackBufferMode bufferMode);
+extern void bindBufferRange(BufferTargetARB target, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size);
+extern void uniform3(int32_t location, core::SizeType count, const uint32_t *value);
+extern void uniformMatrix3x2(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programBinary(uint32_t program, core::EnumType binaryFormat, const void *binary, core::SizeType length);
+extern void waitSync(core::Sync sync, uint32_t flags, uint64_t timeout);
+extern void getBufferPointerv(BufferTargetARB target, BufferPointerNameARB pname, void **params);
+extern void uniformBlockBinding(uint32_t program, uint32_t uniformBlockIndex, uint32_t uniformBlockBinding);
+extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, uint32_t *params);
+extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, uint32_t *params);
+extern void getSync(core::Sync sync, SyncParameterName pname, core::SizeType bufSize, core::SizeType *length, int32_t *values);
+extern void vertexAttribI4(uint32_t index, const uint32_t *v);
+extern void vertexAttribDivisor(uint32_t index, uint32_t divisor);
+extern void deleteQuerie(core::SizeType n, const uint32_t *ids);
+extern void blitFramebuffer(int32_t srcX0, int32_t srcY0, int32_t srcX1, int32_t srcY1, int32_t dstX0, int32_t dstY0, int32_t dstX1, int32_t dstY1, core::Bitfield<ClearBufferMask> mask, BlitFramebufferFilter filter);
+extern bool isSampler(uint32_t sampler);
+extern void vertexAttribI4(uint32_t index, uint32_t x, uint32_t y, uint32_t z, uint32_t w);
+extern void pauseTransformFeedback();
+extern void uniform1(int32_t location, core::SizeType count, const uint32_t *value);
+extern void endTransformFeedback();
+extern void getActiveUniformBlockName(uint32_t program, uint32_t uniformBlockIndex, core::SizeType bufSize, core::SizeType *length, char *uniformBlockName);
+extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const uint32_t *value);
+extern void getTransformFeedbackVarying(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, core::SizeType *size, GlslTypeToken *type, char *name);
+extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int64_t *params);
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
-extern void genProgramPipeline(core::SizeType n, uint32_t *pipelines);
-extern void texStorage2DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, bool fixedsamplelocations);
-extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const float *value);
-extern uint32_t createShaderProgramv(ShaderType type, core::SizeType count, const char *const*strings);
-extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, int32_t *params);
-extern void programUniformMatrix3x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniform4(uint32_t program, int32_t location, int32_t v0, int32_t v1, int32_t v2, int32_t v3);
 extern void getBooleani_v(BufferTargetARB target, uint32_t index, bool *data);
-extern void programUniformMatrix2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void deleteProgramPipeline(core::SizeType n, const uint32_t *pipelines);
-extern void getProgramResource(uint32_t program, ProgramInterface programInterface, uint32_t index, core::SizeType propCount, const ProgramResourceProperty *props, core::SizeType bufSize, core::SizeType *length, int32_t *params);
-extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
-extern void bindVertexBuffer(uint32_t bindingindex, uint32_t buffer, std::intptr_t offset, core::SizeType stride);
-extern void programUniform3(uint32_t program, int32_t location, float v0, float v1, float v2);
-extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const float *value);
-extern void programUniformMatrix4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void useProgramStage(uint32_t pipeline, core::Bitfield<UseProgramStageMask> stages, uint32_t program);
-extern void vertexAttribFormat(uint32_t attribindex, int32_t size, VertexAttribType type, bool normalized, uint32_t relativeoffset);
-extern void getProgramPipeline(uint32_t pipeline, PipelineParameterName pname, int32_t *params);
-extern void programUniform1(uint32_t program, int32_t location, float v0);
+extern void programUniform4(uint32_t program, int32_t location, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3);
 extern void programUniform1(uint32_t program, int32_t location, uint32_t v0);
+extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, int32_t *params);
+extern void activeShaderProgram(uint32_t pipeline, uint32_t program);
+extern void getProgramPipeline(uint32_t pipeline, PipelineParameterName pname, int32_t *params);
+extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
+extern void programUniform1(uint32_t program, int32_t location, float v0);
+extern void useProgramStage(uint32_t pipeline, core::Bitfield<UseProgramStageMask> stages, uint32_t program);
+extern void getProgramInterface(uint32_t program, ProgramInterface programInterface, ProgramInterfacePName pname, int32_t *params);
+extern void programUniformMatrix4x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void dispatchComputeIndirect(std::intptr_t indirect);
+extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
+extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const float *value);
+extern bool isProgramPipeline(uint32_t pipeline);
+extern void texStorage2DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, bool fixedsamplelocations);
+extern void getProgramResource(uint32_t program, ProgramInterface programInterface, uint32_t index, core::SizeType propCount, const ProgramResourceProperty *props, core::SizeType bufSize, core::SizeType *length, int32_t *params);
+extern void genProgramPipeline(core::SizeType n, uint32_t *pipelines);
+extern void programUniformMatrix3x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void vertexBindingDivisor(uint32_t bindingindex, uint32_t divisor);
+extern void programUniformMatrix3x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void drawArraysIndirect(PrimitiveType mode, const void *indirect);
+extern void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float *val);
+extern int32_t getProgramResourceLocation(uint32_t program, ProgramInterface programInterface, const char *name);
+extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
+extern void getProgramResourceName(uint32_t program, ProgramInterface programInterface, uint32_t index, core::SizeType bufSize, core::SizeType *length, char *name);
+extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
+extern void programUniform3(uint32_t program, int32_t location, uint32_t v0, uint32_t v1, uint32_t v2);
 extern void dispatchCompute(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z);
 extern void programUniformMatrix2x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern uint32_t getProgramResourceIndex(uint32_t program, ProgramInterface programInterface, const char *name);
-extern void sampleMask(uint32_t maskNumber, uint32_t mask);
-extern void programUniformMatrix3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void bindImageTexture(uint32_t unit, uint32_t texture, int32_t level, bool layered, int32_t layer, BufferAccessARB access, InternalFormat format);
-extern void programUniform2(uint32_t program, int32_t location, float v0, float v1);
-extern void vertexAttribIFormat(uint32_t attribindex, int32_t size, VertexAttribIType type, uint32_t relativeoffset);
-extern void getProgramResourceName(uint32_t program, ProgramInterface programInterface, uint32_t index, core::SizeType bufSize, core::SizeType *length, char *name);
-extern void programUniform4(uint32_t program, int32_t location, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3);
-extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
-extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const float *value);
-extern void drawElementsIndirect(PrimitiveType mode, DrawElementsType type, const void *indirect);
-extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
-extern void getProgramPipelineInfoLog(uint32_t pipeline, core::SizeType bufSize, core::SizeType *length, char *infoLog);
-extern void programUniform4(uint32_t program, int32_t location, float v0, float v1, float v2, float v3);
-extern void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float *val);
-extern void bindProgramPipeline(uint32_t pipeline);
-extern void validateProgramPipeline(uint32_t pipeline);
-extern void programUniformMatrix4x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void framebufferParameter(FramebufferTarget target, FramebufferParameterName pname, int32_t param);
-extern void programUniform4(uint32_t program, int32_t location, int32_t v0, int32_t v1, int32_t v2, int32_t v3);
-extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
-extern void programUniformMatrix2x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void programUniformMatrix3x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void drawArraysIndirect(PrimitiveType mode, const void *indirect);
-extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
 extern void memoryBarrierByRegion(core::Bitfield<MemoryBarrierMask> barriers);
-extern void programUniformMatrix4x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
 extern void programUniform3(uint32_t program, int32_t location, int32_t v0, int32_t v1, int32_t v2);
-extern int32_t getProgramResourceLocation(uint32_t program, ProgramInterface programInterface, const char *name);
-extern void programUniform3(uint32_t program, int32_t location, uint32_t v0, uint32_t v1, uint32_t v2);
-extern void dispatchComputeIndirect(std::intptr_t indirect);
-extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, float *params);
-extern void getProgramInterface(uint32_t program, ProgramInterface programInterface, ProgramInterfacePName pname, int32_t *params);
-extern void memoryBarrier(core::Bitfield<MemoryBarrierMask> barriers);
-extern void programUniform1(uint32_t program, int32_t location, int32_t v0);
-extern bool isProgramPipeline(uint32_t pipeline);
 extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const float *value);
-extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
-extern void activeShaderProgram(uint32_t pipeline, uint32_t program);
+extern uint32_t getProgramResourceIndex(uint32_t program, ProgramInterface programInterface, const char *name);
+extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const float *value);
+extern void programUniform2(uint32_t program, int32_t location, float v0, float v1);
+extern void programUniform3(uint32_t program, int32_t location, float v0, float v1, float v2);
+extern void programUniformMatrix2x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void vertexAttribFormat(uint32_t attribindex, int32_t size, VertexAttribType type, bool normalized, uint32_t relativeoffset);
+extern void programUniformMatrix4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void drawElementsIndirect(PrimitiveType mode, DrawElementsType type, const void *indirect);
+extern void programUniformMatrix3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void vertexAttribIFormat(uint32_t attribindex, int32_t size, VertexAttribIType type, uint32_t relativeoffset);
 extern void getFramebufferParameter(FramebufferTarget target, FramebufferAttachmentParameterName pname, int32_t *params);
-extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
+extern void programUniformMatrix2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern uint32_t createShaderProgramv(ShaderType type, core::SizeType count, const char *const*strings);
+extern void bindProgramPipeline(uint32_t pipeline);
+extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, float *params);
+extern void programUniform1(uint32_t program, int32_t location, int32_t v0);
+extern void memoryBarrier(core::Bitfield<MemoryBarrierMask> barriers);
+extern void programUniformMatrix4x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const float *value);
 extern void programUniform2(uint32_t program, int32_t location, uint32_t v0, uint32_t v1);
+extern void validateProgramPipeline(uint32_t pipeline);
 extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
-extern void programUniform2(uint32_t program, int32_t location, int32_t v0, int32_t v1);
-extern void vertexBindingDivisor(uint32_t bindingindex, uint32_t divisor);
+extern void programUniform4(uint32_t program, int32_t location, float v0, float v1, float v2, float v3);
+extern void framebufferParameter(FramebufferTarget target, FramebufferParameterName pname, int32_t param);
+extern void sampleMask(uint32_t maskNumber, uint32_t mask);
+extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
 extern void vertexAttribBinding(uint32_t attribindex, uint32_t bindingindex);
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+extern void deleteProgramPipeline(core::SizeType n, const uint32_t *pipelines);
+extern void getProgramPipelineInfoLog(uint32_t pipeline, core::SizeType bufSize, core::SizeType *length, char *infoLog);
+extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
+extern void programUniform2(uint32_t program, int32_t location, int32_t v0, int32_t v1);
+extern void bindVertexBuffer(uint32_t bindingindex, uint32_t buffer, std::intptr_t offset, core::SizeType stride);
+extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
+extern void bindImageTexture(uint32_t unit, uint32_t texture, int32_t level, bool layered, int32_t layer, BufferAccessARB access, InternalFormat format);
+#endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
-extern void copyImageSubData(uint32_t srcName, TextureTarget srcTarget, int32_t srcLevel, int32_t srcX, int32_t srcY, int32_t srcZ, uint32_t dstName, TextureTarget dstTarget, int32_t dstLevel, int32_t dstX, int32_t dstY, int32_t dstZ, core::SizeType srcWidth, core::SizeType srcHeight, core::SizeType srcDepth);
-extern void debugMessageInsert(DebugSource source, DebugType type, uint32_t id, DebugSeverity severity, core::SizeType length, const char *buf);
-extern void disable(EnableCap target, uint32_t index);
-extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, int32_t *params);
-extern uint32_t getDebugMessageLog(uint32_t count, core::SizeType bufSize, DebugSource *sources, DebugType *types, uint32_t *ids, DebugSeverity *severities, core::SizeType *lengths, char *messageLog);
-extern void popDebugGroup();
-extern core::EnumType getGraphicsResetStatus();
-extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const int32_t *param);
-extern void blendFuncSeparate(uint32_t buf, BlendingFactor srcRGB, BlendingFactor dstRGB, BlendingFactor srcAlpha, BlendingFactor dstAlpha);
-extern void getSamplerParameterI(uint32_t sampler, SamplerParameterI pname, uint32_t *params);
-extern void getObjectPtrLabel(const void *ptr, core::SizeType bufSize, core::SizeType *length, char *label);
-extern void texBufferRange(TextureTarget target, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
-extern void texStorage3DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, bool fixedsamplelocations);
-extern void enable(EnableCap target, uint32_t index);
-extern void getPointerv(GetPointervPName pname, void **params);
-extern void patchParameter(PatchParameterName pname, int32_t value);
-extern void drawElementsBaseVertex(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, int32_t basevertex);
-extern void texBuffer(TextureTarget target, InternalFormat internalformat, uint32_t buffer);
-extern void getSamplerParameterI(uint32_t sampler, SamplerParameterI pname, int32_t *params);
-extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, float *params);
-extern void objectLabel(ObjectIdentifier identifier, uint32_t name, core::SizeType length, const char *label);
-extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, uint32_t *params);
-extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, int32_t *params);
-extern void drawElementsInstancedBaseVertex(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount, int32_t basevertex);
-extern void texParameterI(TextureTarget target, TextureParameterName pname, const int32_t *params);
-extern void blendEquationSeparate(uint32_t buf, BlendEquationModeEXT modeRGB, BlendEquationModeEXT modeAlpha);
-extern void getObjectLabel(ObjectIdentifier identifier, uint32_t name, core::SizeType bufSize, core::SizeType *length, char *label);
-extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, uint32_t *params);
-extern void texParameterI(TextureTarget target, TextureParameterName pname, const uint32_t *params);
-extern void objectPtrLabel(const void *ptr, core::SizeType length, const char *label);
-extern void primitiveBoundingBox(float minX, float minY, float minZ, float minW, float maxX, float maxY, float maxZ, float maxW);
-extern void debugMessageCallback(core::DebugProc callback, const void *userParam);
-extern void framebufferTexture(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level);
-extern void blendFunc(uint32_t buf, BlendingFactor src, BlendingFactor dst);
-extern void readnPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, core::SizeType bufSize, void *data);
-extern void colorMask(uint32_t index, bool r, bool g, bool b, bool a);
-extern void debugMessageControl(DebugSource source, DebugType type, DebugSeverity severity, core::SizeType count, const uint32_t *ids, bool enabled);
-extern void pushDebugGroup(DebugSource source, uint32_t id, core::SizeType length, const char *message);
-extern void blendEquation(uint32_t buf, BlendEquationModeEXT mode);
-extern bool isEnabled(EnableCap target, uint32_t index);
-extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const uint32_t *param);
 extern void drawRangeElementsBaseVertex(PrimitiveType mode, uint32_t start, uint32_t end, core::SizeType count, DrawElementsType type, const void *indices, int32_t basevertex);
+extern core::EnumType getGraphicsResetStatus();
+extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, int32_t *params);
+extern void copyImageSubData(uint32_t srcName, TextureTarget srcTarget, int32_t srcLevel, int32_t srcX, int32_t srcY, int32_t srcZ, uint32_t dstName, TextureTarget dstTarget, int32_t dstLevel, int32_t dstX, int32_t dstY, int32_t dstZ, core::SizeType srcWidth, core::SizeType srcHeight, core::SizeType srcDepth);
+extern void enable(EnableCap target, uint32_t index);
+extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, int32_t *params);
+extern bool isEnabled(EnableCap target, uint32_t index);
+extern void primitiveBoundingBox(float minX, float minY, float minZ, float minW, float maxX, float maxY, float maxZ, float maxW);
+extern void blendEquation(uint32_t buf, BlendEquationModeEXT mode);
+extern void colorMask(uint32_t index, bool r, bool g, bool b, bool a);
+extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const uint32_t *param);
 extern void blendBarrier();
+extern void debugMessageCallback(core::DebugProc callback, const void *userParam);
+extern void getObjectPtrLabel(const void *ptr, core::SizeType bufSize, core::SizeType *length, char *label);
+extern void getSamplerParameterI(uint32_t sampler, SamplerParameterI pname, int32_t *params);
+extern void getPointerv(GetPointervPName pname, void **params);
+extern void objectPtrLabel(const void *ptr, core::SizeType length, const char *label);
+extern void objectLabel(ObjectIdentifier identifier, uint32_t name, core::SizeType length, const char *label);
+extern void debugMessageInsert(DebugSource source, DebugType type, uint32_t id, DebugSeverity severity, core::SizeType length, const char *buf);
+extern void popDebugGroup();
+extern void getObjectLabel(ObjectIdentifier identifier, uint32_t name, core::SizeType bufSize, core::SizeType *length, char *label);
+extern void getSamplerParameterI(uint32_t sampler, SamplerParameterI pname, uint32_t *params);
+extern void debugMessageControl(DebugSource source, DebugType type, DebugSeverity severity, core::SizeType count, const uint32_t *ids, bool enabled);
+extern void blendFunc(uint32_t buf, BlendingFactor src, BlendingFactor dst);
+extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, uint32_t *params);
+extern void texBuffer(TextureTarget target, InternalFormat internalformat, uint32_t buffer);
+extern void readnPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, core::SizeType bufSize, void *data);
+extern void pushDebugGroup(DebugSource source, uint32_t id, core::SizeType length, const char *message);
+extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const int32_t *param);
+extern void texParameterI(TextureTarget target, TextureParameterName pname, const int32_t *params);
 extern void minSampleShading(float value);
-#endif // defined(API_LEVEL_GL_ES_VERSION_3_2)
+extern void texBufferRange(TextureTarget target, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
+extern void blendFuncSeparate(uint32_t buf, BlendingFactor srcRGB, BlendingFactor dstRGB, BlendingFactor srcAlpha, BlendingFactor dstAlpha);
+extern uint32_t getDebugMessageLog(uint32_t count, core::SizeType bufSize, DebugSource *sources, DebugType *types, uint32_t *ids, DebugSeverity *severities, core::SizeType *lengths, char *messageLog);
+extern void drawElementsInstancedBaseVertex(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount, int32_t basevertex);
+extern void texStorage3DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, bool fixedsamplelocations);
+extern void drawElementsBaseVertex(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, int32_t basevertex);
+extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, uint32_t *params);
+extern void framebufferTexture(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level);
+extern void texParameterI(TextureTarget target, TextureParameterName pname, const uint32_t *params);
+extern void patchParameter(PatchParameterName pname, int32_t value);
+extern void disable(EnableCap target, uint32_t index);
+extern void blendEquationSeparate(uint32_t buf, BlendEquationModeEXT modeRGB, BlendEquationModeEXT modeAlpha);
+extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, float *params);
+#endif
 
 }
