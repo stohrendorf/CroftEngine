@@ -202,7 +202,7 @@ void Room::createSceneNode(
 
     auto resModel = renderModel.toModel(vbuf, uvCoords);
     resModel->getRenderState().setCullFace(true);
-    resModel->getRenderState().setCullFaceSide(render::gl::CullFaceMode::Back);
+    resModel->getRenderState().setCullFaceSide(::gl::CullFaceMode::Back);
 
     node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
     node->setDrawable(resModel);

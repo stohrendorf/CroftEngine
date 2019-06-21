@@ -49,7 +49,7 @@ public:
             if(it == m_mapping.end())
                 continue;
 
-            it->second.bind(gsl::narrow<::gl::GLuint>(attribute.getLocation()));
+            it->second.bind(attribute.getLocation());
         }
     }
 
@@ -69,7 +69,8 @@ public:
             vertexCount = m_vertexCount - vertexStart;
         }
 
-        GL_ASSERT(glBufferSubData(::gl::GL_ARRAY_BUFFER, vertexStart * m_size, vertexCount * m_size, vertexData));
+        GL_ASSERT(::gl::bufferSubData(
+            ::gl::BufferTargetARB::ArrayBuffer, vertexStart * m_size, vertexCount * m_size, vertexData));
     }
 
     template<typename T>
@@ -86,10 +87,10 @@ public:
         if(vertexCount != 0)
             m_vertexCount = vertexCount;
 
-        GL_ASSERT(glBufferData(::gl::GL_ARRAY_BUFFER,
-                               m_size * m_vertexCount,
-                               vertexData,
-                               m_dynamic ? ::gl::GL_DYNAMIC_DRAW : ::gl::GL_STATIC_DRAW));
+        GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer,
+                                   m_size * m_vertexCount,
+                                   vertexData,
+                                   m_dynamic ? ::gl::BufferUsageARB::DynamicDraw : ::gl::BufferUsageARB::StaticDraw));
     }
 
     template<typename T>
@@ -100,10 +101,10 @@ public:
         if(vertexCount != 0)
             m_vertexCount = vertexCount;
 
-        GL_ASSERT(glBufferData(::gl::GL_ARRAY_BUFFER,
-                               m_size * m_vertexCount,
-                               vertexData,
-                               m_dynamic ? ::gl::GL_DYNAMIC_DRAW : ::gl::GL_STATIC_DRAW));
+        GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer,
+                                   m_size * m_vertexCount,
+                                   vertexData,
+                                   m_dynamic ? ::gl::BufferUsageARB::DynamicDraw : ::gl::BufferUsageARB::StaticDraw));
     }
 
     template<typename T>
@@ -123,10 +124,10 @@ public:
     void reserve(const size_t n)
     {
         m_vertexCount = n;
-        GL_ASSERT(glBufferData(::gl::GL_ARRAY_BUFFER,
-                               m_size * m_vertexCount,
-                               nullptr,
-                               m_dynamic ? ::gl::GL_DYNAMIC_DRAW : ::gl::GL_STATIC_DRAW));
+        GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer,
+                                   m_size * m_vertexCount,
+                                   nullptr,
+                                   m_dynamic ? ::gl::BufferUsageARB::DynamicDraw : ::gl::BufferUsageARB::StaticDraw));
     }
 
     template<typename T>
@@ -163,7 +164,7 @@ public:
         return m_dynamic;
     }
 
-    ::gl::GLsizei getVertexSize() const noexcept
+    auto getVertexSize() const noexcept
     {
         return m_size;
     }
@@ -176,7 +177,7 @@ public:
 private:
     const AttributeMapping m_mapping;
 
-    ::gl::GLsizei m_size = -1;
+    int32_t m_size = -1;
 
     bool m_dynamic;
 

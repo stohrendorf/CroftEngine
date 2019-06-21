@@ -63,7 +63,7 @@ set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
 * sol2
 * cimg
 * ffmpeg
-* glbinding
+* glew
 
 ...or use this, and adjust the triplet:
-> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl lua glm zlib libsndfile freetype yaml-cpp sol2 cimg ffmpeg glbinding`
+> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl lua glm zlib libsndfile freetype yaml-cpp sol2 cimg ffmpeg glew`

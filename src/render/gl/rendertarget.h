@@ -12,16 +12,16 @@ protected:
     explicit RenderTarget(const Allocator& allocator,
                           const Binder& binder,
                           const Deleter& deleter,
-                          const ObjectIdentifier identifier,
+                          const ::gl::ObjectIdentifier identifier,
                           const std::string& label)
         : BindableResource{allocator, binder, deleter, identifier, label}
     {
     }
 
 public:
-    virtual ::gl::GLint getWidth() const noexcept = 0;
+    virtual int32_t getWidth() const noexcept = 0;
 
-    virtual ::gl::GLint getHeight() const noexcept = 0;
+    virtual int32_t getHeight() const noexcept = 0;
 };
 } // namespace gl
 } // namespace render

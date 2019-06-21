@@ -16,7 +16,8 @@ class Mesh : public Renderable
 public:
     using MaterialParameterSetter = void(const Node& node, Material& material);
 
-    explicit Mesh(std::shared_ptr<gl::VertexArray> vao, gl::PrimitiveType primitiveType = gl::PrimitiveType::Triangles);
+    explicit Mesh(std::shared_ptr<gl::VertexArray> vao,
+                  ::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles);
 
     ~Mesh() override;
 
@@ -57,7 +58,7 @@ private:
 
     gsl::not_null<std::shared_ptr<gl::VertexArray>> m_vao;
 
-    const gl::PrimitiveType m_primitiveType;
+    const ::gl::PrimitiveType m_primitiveType;
 };
 
 extern gsl::not_null<std::shared_ptr<Mesh>>

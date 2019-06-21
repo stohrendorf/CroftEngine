@@ -3,42 +3,25 @@
 #include "bindableresource.h"
 #include "gsl-lite.hpp"
 
+#include <render/gl/api/soglb_core.hpp>
+
 namespace render
 {
 namespace gl
 {
-enum class ShaderType : RawGlEnum
-{
-    Compute = (RawGlEnum)::gl::GL_COMPUTE_SHADER,
-    Vertex = (RawGlEnum)::gl::GL_VERTEX_SHADER,
-    TessControl = (RawGlEnum)::gl::GL_TESS_CONTROL_SHADER,
-    TessEvaluation = (RawGlEnum)::gl::GL_TESS_EVALUATION_SHADER,
-    Geometry = (RawGlEnum)::gl::GL_GEOMETRY_SHADER,
-    Fragment = (RawGlEnum)::gl::GL_FRAGMENT_SHADER,
-};
-
-enum class ShaderParameterName : RawGlEnum
-{
-    Type = (RawGlEnum)::gl::GL_SHADER_TYPE,
-    DeleteStatus = (RawGlEnum)::gl::GL_DELETE_STATUS,
-    CompileStatus = (RawGlEnum)::gl::GL_COMPILE_STATUS,
-    InfoLogLength = (RawGlEnum)::gl::GL_INFO_LOG_LENGTH,
-    SourceLength = (RawGlEnum)::gl::GL_SHADER_SOURCE_LENGTH,
-};
-
 class Shader final
 {
 public:
-    explicit Shader(const ShaderType type, const std::string& label = {})
-        : m_handle{GL_ASSERT_FN(glCreateShader((::gl::GLenum)type))}
+    explicit Shader(const ::gl::ShaderType type, const std::string& label = {})
+        : m_handle{GL_ASSERT_FN(::gl::createShader(type))}
         , m_type{type}
     {
-        BOOST_ASSERT(type == ShaderType::Vertex || type == ShaderType::Fragment);
+        BOOST_ASSERT(type == ::gl::ShaderType::VertexShader || type == ::gl::ShaderType::FragmentShader);
         Expects(m_handle != 0);
 
         if(!label.empty())
         {
-            GL_ASSERT(glObjectLabel((::gl::GLenum)ObjectIdentifier::Shader, m_handle, -1, label.c_str()));
+            GL_ASSERT(::gl::objectLabel(::gl::ObjectIdentifier::Shader, m_handle, -1, label.c_str()));
         }
     }
 
@@ -52,10 +35,10 @@ public:
 
     ~Shader()
     {
-        GL_ASSERT(glDeleteShader(m_handle));
+        GL_ASSERT(::gl::deleteShader(m_handle));
     }
 
-    ShaderType getType() const noexcept
+    auto getType() const noexcept
     {
         return m_type;
     }
@@ -63,33 +46,33 @@ public:
     // ReSharper disable once CppMemberFunctionMayBeConst
     void setSource(const std::string& src)
     {
-        const ::gl::GLchar* data[1]{src.c_str()};
-        GL_ASSERT(glShaderSource(m_handle, 1, data, nullptr));
+        const char* data[1]{src.c_str()};
+        GL_ASSERT(::gl::shaderSource(m_handle, 1, data, nullptr));
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
-    void setSource(const ::gl::GLchar* src[], const ::gl::GLsizei n)
+    void setSource(const char* src[], const ::gl::core::SizeType n)
     {
-        GL_ASSERT(glShaderSource(m_handle, n, src, nullptr));
+        GL_ASSERT(::gl::shaderSource(m_handle, n, src, nullptr));
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void compile()
     {
-        GL_ASSERT(glCompileShader(m_handle));
+        GL_ASSERT(::gl::compileShader(m_handle));
     }
 
     bool getCompileStatus() const
     {
-        auto success = (::gl::GLint)::gl::GL_FALSE;
-        GL_ASSERT(glGetShaderiv(m_handle, (::gl::GLenum)ShaderParameterName::CompileStatus, &success));
-        return success == (::gl::GLint)::gl::GL_TRUE;
+        auto success = (int)::gl::Boolean::False;
+        GL_ASSERT(::gl::getShader(m_handle, ::gl::ShaderParameterName::CompileStatus, &success));
+        return success == (int)::gl::Boolean::True;
     }
 
     std::string getInfoLog() const
     {
-        ::gl::GLint length = 0;
-        GL_ASSERT(glGetShaderiv(m_handle, (::gl::GLenum)ShaderParameterName::InfoLogLength, &length));
+        int32_t length = 0;
+        GL_ASSERT(::gl::getShader(m_handle, ::gl::ShaderParameterName::InfoLogLength, &length));
         if(length == 0)
         {
             length = 4096;
@@ -97,7 +80,7 @@ public:
         if(length > 0)
         {
             const auto infoLog = new char[length];
-            GL_ASSERT(glGetShaderInfoLog(m_handle, length, nullptr, infoLog));
+            GL_ASSERT(::gl::getShaderInfoLog(m_handle, length, nullptr, infoLog));
             infoLog[length - 1] = '\0';
             std::string result = infoLog;
             delete[] infoLog;
@@ -107,15 +90,15 @@ public:
         return {};
     }
 
-    ::gl::GLuint getHandle() const noexcept
+    auto getHandle() const noexcept
     {
         return m_handle;
     }
 
 private:
-    const ::gl::GLuint m_handle;
+    const uint32_t m_handle;
 
-    const ShaderType m_type;
+    const ::gl::ShaderType m_type;
 };
 } // namespace gl
 } // namespace render

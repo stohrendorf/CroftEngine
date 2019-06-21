@@ -35,31 +35,31 @@ class RenderPipeline
     const std::shared_ptr<scene::Model> m_fbModel = std::make_shared<scene::Model>();
 
     const std::shared_ptr<gl::Texture> m_portalDepthBuffer
-        = std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D, "portal-depth");
+        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "portal-depth");
     std::shared_ptr<gl::Framebuffer> m_portalFb;
 
     const std::shared_ptr<gl::Texture> m_geometryDepthBuffer
-        = std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D, "geometry-depth");
+        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "geometry-depth");
     const std::shared_ptr<gl::Texture> m_geometryColorBuffer
-        = std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D, "geometry-color");
+        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "geometry-color");
     const std::shared_ptr<gl::Texture> m_geometryPositionBuffer
-        = std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D, "geometry-position");
+        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "geometry-position");
     const std::shared_ptr<gl::Texture> m_geometryNormalBuffer
-        = std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D, "geometry-normal");
+        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "geometry-normal");
     std::shared_ptr<gl::Framebuffer> m_geometryFb;
 
     const std::shared_ptr<gl::Texture> m_ssaoNoiseTexture
-        = std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D, "ssao-noise");
+        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "ssao-noise");
     const std::shared_ptr<gl::Texture> m_ssaoAOBuffer
-        = std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D, "ssao-ao");
+        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "ssao-ao");
     std::shared_ptr<gl::Framebuffer> m_ssaoFb;
 
     const std::shared_ptr<gl::Texture> m_ssaoBlurAOBuffer
-        = std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D, "ssao-blur-ao");
+        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "ssao-blur-ao");
     std::shared_ptr<gl::Framebuffer> m_ssaoBlurFb;
 
     const std::shared_ptr<gl::Texture> m_fxaaColorBuffer
-        = std::make_shared<gl::Texture>(render::gl::TextureTarget::_2D, "fxaa-color");
+        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "fxaa-color");
     std::shared_ptr<gl::Framebuffer> m_fxaaFb;
 
 public:
@@ -129,75 +129,79 @@ public:
          *                           `-- position --´
          */
         // === geometryFB setup ===
-        m_geometryColorBuffer->set(render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureMinFilter::Linear)
-            .set(render::gl::TextureMagFilter::Linear);
+        m_geometryColorBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureMinFilter::Linear)
+            .set(::gl::TextureMagFilter::Linear);
         m_fxaaMaterial->getParameter("u_texture")->set(m_geometryColorBuffer);
 
-        m_geometryNormalBuffer->set(render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureMinFilter::Nearest)
-            .set(render::gl::TextureMagFilter::Nearest);
+        m_geometryNormalBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureMinFilter::Nearest)
+            .set(::gl::TextureMagFilter::Nearest);
         m_ssaoMaterial->getParameter("u_normals")->set(m_geometryNormalBuffer);
 
-        m_geometryPositionBuffer->set(render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureMinFilter::Nearest)
-            .set(render::gl::TextureMagFilter::Nearest);
+        m_geometryPositionBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureMinFilter::Nearest)
+            .set(::gl::TextureMagFilter::Nearest);
         m_ssaoMaterial->getParameter("u_position")->set(m_geometryPositionBuffer);
 
         m_fxDarknessMaterial->getParameter("u_depth")->set(m_geometryDepthBuffer);
         m_fxWaterDarknessMaterial->getParameter("u_depth")->set(m_geometryDepthBuffer);
 
         m_geometryFb = gl::FrameBufferBuilder()
-                           .texture(render::gl::FramebufferAttachment::Color0, m_geometryColorBuffer)
-                           .texture(render::gl::FramebufferAttachment::Color1, m_geometryNormalBuffer)
-                           .texture(render::gl::FramebufferAttachment::Color2, m_geometryPositionBuffer)
-                           .texture(render::gl::FramebufferAttachment::Depth, m_geometryDepthBuffer)
+                           .texture(::gl::FramebufferAttachment::ColorAttachment0, m_geometryColorBuffer)
+                           .texture(::gl::FramebufferAttachment::ColorAttachment1, m_geometryNormalBuffer)
+                           .texture(::gl::FramebufferAttachment::ColorAttachment2, m_geometryPositionBuffer)
+                           .texture(::gl::FramebufferAttachment::DepthAttachment, m_geometryDepthBuffer)
                            .build();
 
         // === portalDepthFB setup ===
         m_fxDarknessMaterial->getParameter("u_portalDepth")->set(m_portalDepthBuffer);
         m_fxWaterDarknessMaterial->getParameter("u_portalDepth")->set(m_portalDepthBuffer);
 
-        m_portalFb
-            = gl::FrameBufferBuilder().texture(render::gl::FramebufferAttachment::Depth, m_portalDepthBuffer).build();
+        m_portalFb = gl::FrameBufferBuilder()
+                         .texture(::gl::FramebufferAttachment::DepthAttachment, m_portalDepthBuffer)
+                         .build();
 
         // === fxaaFB setup ===
-        m_fxaaColorBuffer->set(render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureMinFilter::Linear)
-            .set(render::gl::TextureMagFilter::Linear);
+        m_fxaaColorBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureMinFilter::Linear)
+            .set(::gl::TextureMagFilter::Linear);
         m_fxDarknessMaterial->getParameter("u_texture")->set(m_fxaaColorBuffer);
         m_fxWaterDarknessMaterial->getParameter("u_texture")->set(m_fxaaColorBuffer);
 
-        m_fxaaFb
-            = gl::FrameBufferBuilder().texture(render::gl::FramebufferAttachment::Color0, m_fxaaColorBuffer).build();
+        m_fxaaFb = gl::FrameBufferBuilder()
+                       .texture(::gl::FramebufferAttachment::ColorAttachment0, m_fxaaColorBuffer)
+                       .build();
 
         // === ssaoFB setup ===
-        m_ssaoAOBuffer->set(render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureMinFilter::Linear)
-            .set(render::gl::TextureMagFilter::Linear);
+        m_ssaoAOBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureMinFilter::Linear)
+            .set(::gl::TextureMagFilter::Linear);
         m_ssaoBlurMaterial->getParameter("u_ao")->set(m_ssaoAOBuffer);
 
-        m_ssaoFb = gl::FrameBufferBuilder().texture(render::gl::FramebufferAttachment::Color0, m_ssaoAOBuffer).build();
+        m_ssaoFb
+            = gl::FrameBufferBuilder().texture(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoAOBuffer).build();
 
         // === ssaoBlurFB setup ===
-        m_ssaoBlurAOBuffer->set(render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge)
-            .set(render::gl::TextureMinFilter::Linear)
-            .set(render::gl::TextureMagFilter::Linear);
+        m_ssaoBlurAOBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
+            .set(::gl::TextureMinFilter::Linear)
+            .set(::gl::TextureMagFilter::Linear);
         m_fxDarknessMaterial->getParameter("u_ao")->set(m_ssaoBlurAOBuffer);
         m_fxWaterDarknessMaterial->getParameter("u_ao")->set(m_ssaoBlurAOBuffer);
 
-        m_ssaoBlurFb
-            = gl::FrameBufferBuilder().texture(render::gl::FramebufferAttachment::Color0, m_ssaoBlurAOBuffer).build();
+        m_ssaoBlurFb = gl::FrameBufferBuilder()
+                           .texture(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoBlurAOBuffer)
+                           .build();
 
         // === ssao.glsl setup ===
         // generate sample kernel
-        std::uniform_real_distribution<::gl::GLfloat> randomFloats(0, 1);
+        std::uniform_real_distribution<float> randomFloats(0, 1);
         std::default_random_engine generator{}; // NOLINT(cert-msc32-c)
         std::vector<glm::vec3> ssaoSamples;
         while(ssaoSamples.size() < 64)
@@ -231,10 +235,10 @@ public:
         }
 
         m_ssaoNoiseTexture->image2D<gl::RGB32F>(4, 4, ssaoNoise, false)
-            .set(render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::Repeat)
-            .set(render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::Repeat)
-            .set(render::gl::TextureMinFilter::Nearest)
-            .set(render::gl::TextureMagFilter::Nearest);
+            .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::Repeat)
+            .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::Repeat)
+            .set(::gl::TextureMinFilter::Nearest)
+            .set(::gl::TextureMagFilter::Nearest);
         m_ssaoMaterial->getParameter("u_texNoise")->set(m_ssaoNoiseTexture);
 
         m_fxDarknessMaterial->getParameter("distortion_power")->set(-1.0f);
@@ -262,24 +266,23 @@ public:
 
     void resize(const scene::Dimension2<size_t>& viewport)
     {
-        m_portalDepthBuffer->depthImage2D(gsl::narrow<::gl::GLint>(viewport.width),
-                                          gsl::narrow<::gl::GLint>(viewport.height));
-        m_portalDepthBuffer->set(render::gl::TextureMinFilter::Linear).set(render::gl::TextureMagFilter::Linear);
-        m_geometryDepthBuffer->depthImage2D(gsl::narrow<::gl::GLint>(viewport.width),
-                                            gsl::narrow<::gl::GLint>(viewport.height));
-        m_geometryDepthBuffer->set(render::gl::TextureMinFilter::Linear).set(render::gl::TextureMagFilter::Linear);
+        m_portalDepthBuffer->depthImage2D(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
+        m_portalDepthBuffer->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Linear);
+        m_geometryDepthBuffer->depthImage2D(gsl::narrow<int32_t>(viewport.width),
+                                            gsl::narrow<int32_t>(viewport.height));
+        m_geometryDepthBuffer->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Linear);
         m_geometryColorBuffer->image2D<gl::SRGBA8>(
-            gsl::narrow<::gl::GLint>(viewport.width), gsl::narrow<::gl::GLint>(viewport.height), false);
+            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
         m_geometryPositionBuffer->image2D<gl::RGB32F>(
-            gsl::narrow<::gl::GLint>(viewport.width), gsl::narrow<::gl::GLint>(viewport.height), false);
+            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
         m_geometryNormalBuffer->image2D<gl::RGB16F>(
-            gsl::narrow<::gl::GLint>(viewport.width), gsl::narrow<::gl::GLint>(viewport.height), false);
+            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
         m_ssaoAOBuffer->image2D<gl::Scalar32F>(
-            gsl::narrow<::gl::GLint>(viewport.width), gsl::narrow<::gl::GLint>(viewport.height), false);
+            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
         m_ssaoBlurAOBuffer->image2D<gl::Scalar32F>(
-            gsl::narrow<::gl::GLint>(viewport.width), gsl::narrow<::gl::GLint>(viewport.height), false);
+            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
         m_fxaaColorBuffer->image2D<gl::SRGBA8>(
-            gsl::narrow<::gl::GLint>(viewport.width), gsl::narrow<::gl::GLint>(viewport.height), false);
+            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
 
         const auto proj = glm::ortho(
             0.0f, gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), 0.0f, 0.0f, 1.0f);

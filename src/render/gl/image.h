@@ -73,7 +73,7 @@ class Image
 public:
     using StorageType = TStorage;
 
-    explicit Image(const ::gl::GLint width, const ::gl::GLint height, const StorageType* data = nullptr)
+    explicit Image(const int32_t width, const int32_t height, const StorageType* data = nullptr)
         : m_data{}
         , m_width{width}
         , m_height{height}
@@ -150,17 +150,17 @@ public:
         m_data = std::move(data);
     }
 
-    ::gl::GLint getHeight() const
+    int32_t getHeight() const
     {
         return m_height;
     }
 
-    ::gl::GLint getWidth() const
+    int32_t getWidth() const
     {
         return m_width;
     }
 
-    StorageType& at(const ::gl::GLint x, const ::gl::GLint y)
+    StorageType& at(const int32_t x, const int32_t y)
     {
         Expects(x >= 0);
         Expects(x < m_width);
@@ -175,7 +175,7 @@ public:
         return m_data[y * m_width + x];
     }
 
-    void set(const ::gl::GLint x, const ::gl::GLint y, const StorageType& pixel, const bool blend = false)
+    void set(const int32_t x, const int32_t y, const StorageType& pixel, const bool blend = false)
     {
         if(x < 0 || x >= m_width || y < 0 || y >= m_height)
             return;
@@ -192,7 +192,7 @@ public:
         }
     }
 
-    const StorageType& at(const ::gl::GLint x, const ::gl::GLint y) const
+    const StorageType& at(const int32_t x, const int32_t y) const
     {
         Expects(x >= 0);
         Expects(x < m_width);
@@ -213,20 +213,16 @@ public:
             detail::fill(gsl::not_null<StorageType*>{m_data.data()}, m_data.size(), color);
     }
 
-    void line(::gl::GLint x0,
-              ::gl::GLint y0,
-              const ::gl::GLint x1,
-              const ::gl::GLint y1,
-              const StorageType& color,
-              const bool blend = false)
+    void line(
+        int32_t x0, int32_t y0, const int32_t x1, const int32_t y1, const StorageType& color, const bool blend = false)
     {
         // shamelessly copied from wikipedia
-        const ::gl::GLint dx = abs(x1 - x0);
-        const ::gl::GLint sx = x0 < x1 ? 1 : -1;
-        const ::gl::GLint dy = -abs(y1 - y0);
-        const ::gl::GLint sy = y0 < y1 ? 1 : -1;
+        const int32_t dx = abs(x1 - x0);
+        const int32_t sx = x0 < x1 ? 1 : -1;
+        const int32_t dy = -abs(y1 - y0);
+        const int32_t sy = y0 < y1 ? 1 : -1;
 
-        ::gl::GLint err = dx + dy;
+        int32_t err = dx + dy;
 
         while(true)
         {
@@ -252,9 +248,9 @@ public:
 private:
     std::vector<StorageType> m_data;
 
-    ::gl::GLint m_width;
+    int32_t m_width;
 
-    ::gl::GLint m_height;
+    int32_t m_height;
 };
 } // namespace gl
 } // namespace render

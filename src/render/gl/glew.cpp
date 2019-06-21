@@ -3,64 +3,67 @@
 #include "glassert.h"
 #include "renderstate.h"
 
-#include <GLFW/glfw3.h>
-#include <glbinding/glbinding.h>
+#include <gl/glew.h>
 
 using namespace render::gl;
 
 namespace
 {
-inline const char* glDebugSourceToString(const ::gl::GLenum src)
+inline const char* glDebugSourceToString(const ::gl::DebugSource src)
 {
     switch(src)
     {
-    case ::gl::GL_DEBUG_SOURCE_API: return "API";
-    case ::gl::GL_DEBUG_SOURCE_APPLICATION: return "Application";
-    case ::gl::GL_DEBUG_SOURCE_OTHER: return "Other";
-    case ::gl::GL_DEBUG_SOURCE_SHADER_COMPILER: return "Shader Compiler";
-    case ::gl::GL_DEBUG_SOURCE_THIRD_PARTY: return "Third Party";
-    case ::gl::GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "Window System";
-    default: return "<unknown>";
+    case ::gl::DebugSource::DebugSourceApi: return "API";
+    case ::gl::DebugSource::DebugSourceApplication: return "Application";
+    case ::gl::DebugSource::DebugSourceOther: return "Other";
+    case ::gl::DebugSource::DebugSourceShaderCompiler: return "Shader Compiler";
+    case ::gl::DebugSource::DebugSourceThirdParty: return "Third Party";
+    case ::gl::DebugSource::DebugSourceWindowSystem: return "Window System";
+    case ::gl::DebugSource::DontCare: return "<don't care>";
     }
+    return "<unknown>";
 }
 
-inline const char* glDebugTypeToString(const ::gl::GLenum type)
+inline const char* glDebugTypeToString(const ::gl::DebugType type)
 {
     switch(type)
     {
-    case ::gl::GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "Deprecated Behavior";
-    case ::gl::GL_DEBUG_TYPE_ERROR: return "Error";
-    case ::gl::GL_DEBUG_TYPE_MARKER: return "Marker";
-    case ::gl::GL_DEBUG_TYPE_OTHER: return "Other";
-    case ::gl::GL_DEBUG_TYPE_PERFORMANCE: return "Performance";
-    case ::gl::GL_DEBUG_TYPE_POP_GROUP: return "Pop Group";
-    case ::gl::GL_DEBUG_TYPE_PUSH_GROUP: return "Push Group";
-    case ::gl::GL_DEBUG_TYPE_PORTABILITY: return "Portability";
-    default: return "<unknown>";
+    case ::gl::DebugType::DebugTypeDeprecatedBehavior: return "Deprecated Behavior";
+    case ::gl::DebugType::DebugTypeError: return "Error";
+    case ::gl::DebugType::DebugTypeMarker: return "Marker";
+    case ::gl::DebugType::DebugTypePerformance: return "Performance";
+    case ::gl::DebugType::DebugTypePopGroup: return "Pop Group";
+    case ::gl::DebugType::DebugTypePushGroup: return "Push Group";
+    case ::gl::DebugType::DebugTypePortability: return "Portability";
+    case ::gl::DebugType::DebugTypeOther: return "Other";
+    case ::gl::DebugType::DebugTypeUndefinedBehavior: return "Undefined Behaviour";
+    case ::gl::DebugType::DontCare: return "<don't care>";
     }
+    return "<unknown>";
 }
 
-inline const char* glDebugSeverityToString(const ::gl::GLenum severity)
+inline const char* glDebugSeverityToString(const ::gl::DebugSeverity severity)
 {
     switch(severity)
     {
-    case ::gl::GL_DEBUG_SEVERITY_HIGH: return "High";
-    case ::gl::GL_DEBUG_SEVERITY_LOW: return "Low";
-    case ::gl::GL_DEBUG_SEVERITY_MEDIUM: return "Medium";
-    case ::gl::GL_DEBUG_SEVERITY_NOTIFICATION: return "Notification";
-    default: return "<unknown>";
+    case ::gl::DebugSeverity::DebugSeverityHigh: return "High";
+    case ::gl::DebugSeverity::DebugSeverityLow: return "Low";
+    case ::gl::DebugSeverity::DebugSeverityMedium: return "Medium";
+    case ::gl::DebugSeverity::DebugSeverityNotification: return "Notification";
+    case ::gl::DebugSeverity::DontCare: return "<don't care>";
     }
+    return "<unknown>";
 }
 
-void debugCallback(const ::gl::GLenum source,
-                   const ::gl::GLenum type,
-                   const ::gl::GLuint id,
-                   const ::gl::GLenum severity,
-                   const ::gl::GLsizei /*length*/,
-                   const ::gl::GLchar* message,
-                   const void* /*userParam*/)
+void SOGLB_API debugCallback(::gl::DebugSource source,
+                             ::gl::DebugType type,
+                             uint32_t id,
+                             ::gl::DebugSeverity severity,
+                             ::gl::core::SizeType length,
+                             const char* message,
+                             const void* userParam)
 {
-    if(source == ::gl::GL_DEBUG_SOURCE_APPLICATION)
+    if(source == ::gl::DebugSource::DebugSourceApplication)
         return;
 
     BOOST_LOG_TRIVIAL(debug) << "GLDebug #" << id << ", severity " << glDebugSeverityToString(severity) << ", type "
@@ -71,16 +74,24 @@ void debugCallback(const ::gl::GLenum source,
 
 void render::gl::initializeGl()
 {
-    glbinding::initialize(glfwGetProcAddress);
+    glewExperimental = GL_TRUE; // Let GLEW ignore "GL_INVALID_ENUM in glGetString(GL_EXTENSIONS)"
+    const auto err = glewInit();
+    if(err != GLEW_OK)
+    {
+        BOOST_LOG_TRIVIAL(error) << "glewInit: " << reinterpret_cast<const char*>(glewGetErrorString(err));
+        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLEW"));
+    }
+
+    glGetError(); // clear the error flag
 
 #ifndef NDEBUG
-    GL_ASSERT(glEnable(::gl::GL_DEBUG_OUTPUT));
-    GL_ASSERT(glEnable(::gl::GL_DEBUG_OUTPUT_SYNCHRONOUS));
+    GL_ASSERT(::gl::enable(::gl::EnableCap::DebugOutput));
+    GL_ASSERT(::gl::enable(::gl::EnableCap::DebugOutputSynchronous));
 
-    GL_ASSERT(glDebugMessageCallback(&debugCallback, nullptr));
+    GL_ASSERT(::gl::debugMessageCallback(&debugCallback, nullptr));
 #endif
 
     RenderState::initDefaults();
 
-    GL_ASSERT(glEnable(::gl::GL_FRAMEBUFFER_SRGB));
+    GL_ASSERT(::gl::enable(::gl::EnableCap::FramebufferSrgb));
 }

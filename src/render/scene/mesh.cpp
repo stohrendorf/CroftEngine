@@ -39,7 +39,7 @@ gsl::not_null<std::shared_ptr<Mesh>>
     return std::make_shared<Mesh>(std::make_shared<gl::VertexArray>(indexBuffer, vertexBuffer, program));
 }
 
-Mesh::Mesh(std::shared_ptr<gl::VertexArray> vao, gl::PrimitiveType primitiveType)
+Mesh::Mesh(std::shared_ptr<gl::VertexArray> vao, ::gl::PrimitiveType primitiveType)
     : m_vao{std::move(vao)}
     , m_primitiveType{primitiveType}
 {

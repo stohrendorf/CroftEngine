@@ -19,10 +19,10 @@ public:
                          std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> vertexBuffers,
                          const Program& program,
                          const std::string& label = {})
-        : BindableResource{::gl::glGenVertexArrays,
-                           ::gl::glBindVertexArray,
-                           ::gl::glDeleteVertexArrays,
-                           ObjectIdentifier::VertexArray,
+        : BindableResource{::gl::genVertexArrays,
+                           ::gl::bindVertexArray,
+                           ::gl::deleteVertexArrays,
+                           ::gl::ObjectIdentifier::VertexArray,
                            label}
         , m_indexBuffers{std::move(indexBuffers)}
         , m_vertexBuffers{std::move(vertexBuffers)}

@@ -32,7 +32,7 @@ void ScreenOverlay::render(RenderContext& context)
 void ScreenOverlay::init(const Dimension2<size_t>& viewport)
 {
     *m_image
-        = gl::Image<gl::SRGBA8>(gsl::narrow<::gl::GLint>(viewport.width), gsl::narrow<::gl::GLint>(viewport.height));
+        = gl::Image<gl::SRGBA8>(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
     if(viewport.width <= 0 || viewport.height <= 0)
     {
         BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
@@ -42,10 +42,10 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
         = ShaderProgram::createFromFile("shaders/screenoverlay.vert", "shaders/screenoverlay.frag", {});
 
     m_texture->image2D(m_image->getWidth(), m_image->getHeight(), m_image->getData(), false);
-    m_texture->set(render::gl::TextureMinFilter::Nearest)
-        .set(render::gl::TextureMagFilter::Nearest)
-        .set(render::gl::TextureWrapAxis::WrapS, render::gl::TextureWrapMode::ClampToEdge)
-        .set(render::gl::TextureWrapAxis::WrapT, render::gl::TextureWrapMode::ClampToEdge);
+    m_texture->set(::gl::TextureMinFilter::Nearest)
+        .set(::gl::TextureMagFilter::Nearest)
+        .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
+        .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
 
     m_mesh = render::scene::createQuadFullscreen(gsl::narrow<float>(viewport.width),
                                                  gsl::narrow<float>(viewport.height),

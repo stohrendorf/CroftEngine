@@ -10,11 +10,12 @@ class VertexBuffer : public BindableResource
 {
 public:
     explicit VertexBuffer(const std::string& label = {})
-        : BindableResource{::gl::glGenBuffers,
-                           [](const ::gl::GLuint handle) { ::gl::glBindBuffer(::gl::GL_ARRAY_BUFFER, handle); },
-                           ::gl::glDeleteBuffers,
-                           ObjectIdentifier::Buffer,
-                           label}
+        : BindableResource{
+            ::gl::genBuffers,
+            [](const uint32_t handle) { ::gl::bindBuffer(::gl::BufferTargetARB::ArrayBuffer, handle); },
+            ::gl::deleteBuffers,
+            ::gl::ObjectIdentifier::Buffer,
+            label}
     {
     }
 
@@ -22,19 +23,19 @@ public:
     const void* map()
     {
         bind();
-        return GL_ASSERT_FN(glMapBuffer(::gl::GL_ARRAY_BUFFER, ::gl::GL_READ_ONLY));
+        return GL_ASSERT_FN(::gl::mapBuffer(::gl::BufferTargetARB::ArrayBuffer, ::gl::BufferAccessARB::ReadOnly));
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void* mapRw()
     {
         bind();
-        return GL_ASSERT_FN(glMapBuffer(::gl::GL_ARRAY_BUFFER, ::gl::GL_READ_WRITE));
+        return GL_ASSERT_FN(::gl::mapBuffer(::gl::BufferTargetARB::ArrayBuffer, ::gl::BufferAccessARB::ReadWrite));
     }
 
     static void unmap()
     {
-        GL_ASSERT(glUnmapBuffer(::gl::GL_ARRAY_BUFFER));
+        GL_ASSERT(::gl::unmapBuffer(::gl::BufferTargetARB::ArrayBuffer));
     }
 };
 } // namespace gl

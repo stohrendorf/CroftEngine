@@ -22,14 +22,14 @@ struct BSPTree
     //! @note This is a pure caching mechanism to avoid unnecessary recursion.
     bool isFilled = false;
 
-    ::gl::GLint x = 0;
-    ::gl::GLint y = 0;
-    ::gl::GLint width = 0;
-    ::gl::GLint height = 0;
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t width = 0;
+    int32_t height = 0;
 
     BSPTree() = default;
 
-    BSPTree(const ::gl::GLint x, const ::gl::GLint y, const ::gl::GLint w, const ::gl::GLint h)
+    BSPTree(const int32_t x, const int32_t y, const int32_t w, const int32_t h)
         : x{x}
         , y{y}
         , width{w}
@@ -50,7 +50,7 @@ struct BSPTree
      * @brief Split this node along its Y axis (X is split).
      * @param splitLocation Local X coordinate of the split point
      */
-    void splitX(const ::gl::GLint splitLocation)
+    void splitX(const int32_t splitLocation)
     {
         Expects(splitLocation < width);
         left = std::make_unique<BSPTree>(x, y, splitLocation, height);
@@ -61,14 +61,14 @@ struct BSPTree
      * @brief Split this node along its X axis (Y is split).
      * @param splitLocation Local Y coordinate of the split point
      */
-    void splitY(const ::gl::GLint splitLocation)
+    void splitY(const int32_t splitLocation)
     {
         Expects(splitLocation < height);
         left = std::make_unique<BSPTree>(x, y, width, splitLocation);
         right = std::make_unique<BSPTree>(x, y + splitLocation, width, height - splitLocation);
     }
 
-    bool fits(const ::gl::GLint w, const ::gl::GLint h) const noexcept
+    bool fits(const int32_t w, const int32_t h) const noexcept
     {
         Expects(w > 0);
         Expects(h > 0);
@@ -80,15 +80,14 @@ struct BSPTree
      */
     boost::optional<glm::vec2> tryInsert(const int scale, const glm::vec2& uv)
     {
-        const auto tmp
-            = tryInsert(gsl::narrow_cast<::gl::GLint>(scale * uv.x), gsl::narrow_cast<::gl::GLint>(scale * uv.y));
+        const auto tmp = tryInsert(gsl::narrow_cast<int32_t>(scale * uv.x), gsl::narrow_cast<int32_t>(scale * uv.y));
         if(!tmp.is_initialized())
             return boost::none;
 
         return glm::vec2{tmp->x / float(scale), tmp->y / float(scale)};
     }
 
-    boost::optional<glm::ivec2> tryInsert(const ::gl::GLint width, const ::gl::GLint height)
+    boost::optional<glm::ivec2> tryInsert(const int32_t width, const int32_t height)
     {
         // Could this possibly fit?
         if(!fits(width, height))
@@ -191,7 +190,7 @@ class TextureAtlas
         glm::vec2 newUvMin;
     };
 
-    const ::gl::GLint m_resultPageSize;
+    const int32_t m_resultPageSize;
     std::map<size_t, size_t> m_mappingByProxy{};
     std::vector<Mapping> m_mappings{};
 
@@ -223,7 +222,7 @@ public:
         }
     }
 
-    explicit TextureAtlas(const ::gl::GLint pageSize)
+    explicit TextureAtlas(const int32_t pageSize)
         : m_resultPageSize{pageSize}
     {
         Expects(pageSize > 0);
@@ -309,14 +308,14 @@ public:
 
         loader::file::DWordTexture texture;
         texture.texture
-            = std::make_shared<render::gl::Texture>(render::gl::TextureTarget::_2D, "animated texture tiles");
+            = std::make_shared<render::gl::Texture>(::gl::TextureTarget::Texture2d, "animated texture tiles");
         if(!linear)
         {
-            texture.texture->set(render::gl::TextureMinFilter::Nearest).set(render::gl::TextureMagFilter::Nearest);
+            texture.texture->set(::gl::TextureMinFilter::Nearest).set(::gl::TextureMagFilter::Nearest);
         }
         else
         {
-            texture.texture->set(render::gl::TextureMinFilter::Linear).set(render::gl::TextureMagFilter::Linear);
+            texture.texture->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Linear);
         }
         img.interleave();
         texture.image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
@@ -333,7 +332,7 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
                                  std::vector<loader::file::DWordTexture>& textures,
                                  bool linear)
 {
-    ::gl::GLint maxSize = 0;
+    int32_t maxSize = 0;
     for(const auto& texture : textures)
         maxSize = std::max(maxSize, texture.image->getWidth());
 

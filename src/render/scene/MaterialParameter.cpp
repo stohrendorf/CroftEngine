@@ -36,7 +36,7 @@ void MaterialParameter::set(const float* values, const size_t count)
     std::vector<float> tmp;
     tmp.assign(values, values + count);
     m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
-        uniform.set(tmp.data(), gsl::narrow<::gl::GLsizei>(tmp.size()));
+        uniform.set(tmp.data(), gsl::narrow<::gl::core::SizeType>(tmp.size()));
     };
 }
 
@@ -45,7 +45,7 @@ void MaterialParameter::set(const int* values, const size_t count)
     std::vector<int> tmp;
     tmp.assign(values, values + count);
     m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
-        uniform.set(tmp.data(), gsl::narrow<::gl::GLsizei>(tmp.size()));
+        uniform.set(tmp.data(), gsl::narrow<::gl::core::SizeType>(tmp.size()));
     };
 }
 
@@ -59,7 +59,7 @@ void MaterialParameter::set(const glm::vec2* values, const size_t count)
     std::vector<glm::vec2> tmp;
     tmp.assign(values, values + count);
     m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
-        uniform.set(tmp.data(), gsl::narrow<::gl::GLsizei>(tmp.size()));
+        uniform.set(tmp.data(), gsl::narrow<::gl::core::SizeType>(tmp.size()));
     };
 }
 
@@ -73,7 +73,7 @@ void MaterialParameter::set(const glm::vec3* values, const size_t count)
     std::vector<glm::vec3> tmp;
     tmp.assign(values, values + count);
     m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
-        uniform.set(tmp.data(), gsl::narrow<::gl::GLsizei>(tmp.size()));
+        uniform.set(tmp.data(), gsl::narrow<::gl::core::SizeType>(tmp.size()));
     };
 }
 
@@ -87,7 +87,7 @@ void MaterialParameter::set(const glm::vec4* values, const size_t count)
     std::vector<glm::vec4> tmp;
     tmp.assign(values, values + count);
     m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
-        uniform.set(tmp.data(), gsl::narrow<::gl::GLsizei>(tmp.size()));
+        uniform.set(tmp.data(), gsl::narrow<::gl::core::SizeType>(tmp.size()));
     };
 }
 
@@ -101,7 +101,7 @@ void MaterialParameter::set(const glm::mat4* values, const size_t count)
     std::vector<glm::mat4> tmp;
     tmp.assign(values, values + count);
     m_valueSetter = [tmp](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
-        uniform.set(tmp.data(), gsl::narrow<::gl::GLsizei>(tmp.size()));
+        uniform.set(tmp.data(), gsl::narrow<::gl::core::SizeType>(tmp.size()));
     };
 }
 

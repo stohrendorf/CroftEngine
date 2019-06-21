@@ -35,14 +35,13 @@ public:
     {
     }
 
-    void bind(const ::gl::GLuint index) const
+    void bind(const uint32_t index) const
     {
-        GL_ASSERT(glVertexAttribPointer(
-            index, m_size, (::gl::GLenum)m_type, m_normalized ? ::gl::GL_TRUE : ::gl::GL_FALSE, m_stride, m_pointer));
-        GL_ASSERT(glEnableVertexAttribArray(index));
+        GL_ASSERT(::gl::vertexAttribPointer( index, m_size, m_type, m_normalized, m_stride, m_pointer));
+        GL_ASSERT(::gl::enableVertexAttribArray(index));
     }
 
-    ::gl::GLsizei getStride() const noexcept
+    auto getStride() const noexcept
     {
         return m_stride;
     }
@@ -53,15 +52,15 @@ public:
     }
 
 private:
-    const VertexAttribPointerType m_type;
+    const ::gl::VertexAttribPointerType m_type;
 
-    const ::gl::GLvoid* const m_pointer;
+    const void* const m_pointer;
 
-    const ::gl::GLint m_size;
+    const int32_t m_size;
 
     const bool m_normalized;
 
-    const ::gl::GLsizei m_stride;
+    const ::gl::core::SizeType m_stride;
 };
 } // namespace gl
 } // namespace render

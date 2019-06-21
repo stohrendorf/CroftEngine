@@ -115,7 +115,7 @@ add_library( FFmpeg INTERFACE )
 target_include_directories( FFmpeg INTERFACE ${FFMPEG_INCLUDE_DIR} )
 target_link_libraries( FFmpeg INTERFACE ${FFMPEG_LIBRARY} )
 
-find_package( glbinding CONFIG REQUIRED )
+find_package( GLEW CONFIG REQUIRED )
 
 if( VCPKG_TOOLCHAIN )
     find_package( CImg REQUIRED )

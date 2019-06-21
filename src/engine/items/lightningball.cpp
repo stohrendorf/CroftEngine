@@ -16,7 +16,7 @@ namespace
 gsl::not_null<std::shared_ptr<render::scene::Mesh>>
     createBolt(uint16_t points,
                const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& program,
-               ::gl::GLfloat lineWidth)
+               float lineWidth)
 {
     std::vector<glm::vec3> vertices(points);
 
@@ -35,7 +35,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
     vb->assign<glm::vec3>(&vertices[0], points);
 
     auto vao = std::make_shared<render::gl::VertexArray>(indexBuffer, vb, program->getHandle());
-    auto mesh = std::make_shared<render::scene::Mesh>(vao, render::gl::PrimitiveType::LineStrip);
+    auto mesh = std::make_shared<render::scene::Mesh>(vao, ::gl::PrimitiveType::LineStrip);
 
     mesh->getRenderState().setLineSmooth(true);
     mesh->getRenderState().setLineWidth(lineWidth);

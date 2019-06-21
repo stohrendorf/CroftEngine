@@ -10,34 +10,16 @@ namespace render
 {
 namespace gl
 {
-enum class PrimitiveType : RawGlEnum
-{
-    Lines = (RawGlEnum)::gl::GL_LINES,
-    LinesAdjacency = (RawGlEnum)::gl::GL_LINES_ADJACENCY,
-    LineLoop = (RawGlEnum)::gl::GL_LINE_LOOP,
-    LineStrip = (RawGlEnum)::gl::GL_LINE_STRIP,
-    LineStripAdjacency = (RawGlEnum)::gl::GL_LINE_STRIP_ADJACENCY,
-    Patches = (RawGlEnum)::gl::GL_PATCHES,
-    Points = (RawGlEnum)::gl::GL_POINTS,
-    Polygon = (RawGlEnum)::gl::GL_POLYGON,
-    Quads = (RawGlEnum)::gl::GL_QUADS,
-    QuadStrip = (RawGlEnum)::gl::GL_QUAD_STRIP,
-    Triangles = (RawGlEnum)::gl::GL_TRIANGLES,
-    TrianglesAdjacency = (RawGlEnum)::gl::GL_TRIANGLES_ADJACENCY,
-    Fan = (RawGlEnum)::gl::GL_TRIANGLE_FAN,
-    TriangleStrip = (RawGlEnum)::gl::GL_TRIANGLE_STRIP,
-    TriangleStripAdjacency = (RawGlEnum)::gl::GL_TRIANGLE_STRIP_ADJACENCY,
-};
-
 class IndexBuffer : public BindableResource
 {
 public:
     explicit IndexBuffer(const std::string& label = {})
-        : BindableResource{::gl::glGenBuffers,
-                           [](const ::gl::GLuint handle) { ::gl::glBindBuffer(::gl::GL_ELEMENT_ARRAY_BUFFER, handle); },
-                           ::gl::glDeleteBuffers,
-                           ObjectIdentifier::Buffer,
-                           label}
+        : BindableResource{
+            ::gl::genBuffers,
+            [](const uint32_t handle) { ::gl::bindBuffer(::gl::BufferTargetARB::ElementArrayBuffer, handle); },
+            ::gl::deleteBuffers,
+            ::gl::ObjectIdentifier::Buffer,
+            label}
     {
     }
 
@@ -45,27 +27,27 @@ public:
     const void* map()
     {
         bind();
-        const void* data = GL_ASSERT_FN(glMapBuffer(::gl::GL_ELEMENT_ARRAY_BUFFER, ::gl::GL_READ_ONLY));
+        const void* data
+            = GL_ASSERT_FN(::gl::mapBuffer(::gl::BufferTargetARB::ElementArrayBuffer, ::gl::BufferAccessARB::ReadOnly));
         return data;
     }
 
     static void unmap()
     {
-        GL_ASSERT(glUnmapBuffer(::gl::GL_ELEMENT_ARRAY_BUFFER));
+        GL_ASSERT(::gl::unmapBuffer(::gl::BufferTargetARB::ElementArrayBuffer));
     }
 
-    // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
-    void setData(const gsl::not_null<const T*>& indexData, const ::gl::GLsizei indexCount, const bool dynamic)
+    void setData(const gsl::not_null<const T*>& indexData, const ::gl::core::SizeType indexCount, const bool dynamic)
     {
         Expects(indexCount >= 0);
 
         bind();
 
-        GL_ASSERT(glBufferData(::gl::GL_ELEMENT_ARRAY_BUFFER,
-                               gsl::narrow<::gl::GLsizeiptr>(sizeof(T) * indexCount),
-                               indexData.get(),
-                               dynamic ? ::gl::GL_DYNAMIC_DRAW : ::gl::GL_STATIC_DRAW));
+        GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ElementArrayBuffer,
+                                   gsl::narrow<std::size_t>(sizeof(T) * indexCount),
+                                   indexData.get(),
+                                   dynamic ? ::gl::BufferUsageARB::DynamicDraw : ::gl::BufferUsageARB::StaticDraw));
 
         m_indexCount = indexCount;
         m_storageType = TypeTraits<T>::DrawElementsType;
@@ -74,12 +56,14 @@ public:
     template<typename T>
     void setData(const std::vector<T>& data, bool dynamic)
     {
-        setData(gsl::not_null<const T*>(data.data()), gsl::narrow<::gl::GLsizei>(data.size()), dynamic);
+        setData(gsl::not_null<const T*>(data.data()), gsl::narrow<::gl::core::SizeType>(data.size()), dynamic);
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
-    void setSubData(const gsl::not_null<const T*>& indexData, ::gl::GLsizei indexStart, ::gl::GLsizei indexCount)
+    void setSubData(const gsl::not_null<const T*>& indexData,
+                    ::gl::core::SizeType indexStart,
+                    ::gl::core::SizeType indexCount)
     {
         Expects(indexStart >= 0);
         Expects(indexCount >= 0);
@@ -93,34 +77,34 @@ public:
             BOOST_THROW_EXCEPTION(std::logic_error{"Buffer is not initialized"});
         }
 
-        if(TypeTraits<T>::DrawElementsType != m_storageType)
+        if(TypeTraits<T>::DrawElementsType != *m_storageType)
         {
             BOOST_THROW_EXCEPTION(std::logic_error{"Incompatible storage type for buffer sub-data"});
         }
 
         bind();
 
-        GL_ASSERT(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER,
-                                  gsl::narrow<GLintptr>(indexStart * sizeof(T)),
-                                  gsl::narrow<GLsizeiptr>(indexCount * sizeof(T)),
-                                  indexData.get()));
+        GL_ASSERT(::gl::bufferSubData(::gl::BufferTargetARB::ElementArrayBuffer,
+                                      gsl::narrow<std::intptr_t>(indexStart * sizeof(T)),
+                                      gsl::narrow<std::size_t>(indexCount * sizeof(T)),
+                                      indexData.get()));
     }
 
-    void draw(const PrimitiveType mode) const
+    void draw(const ::gl::PrimitiveType mode) const
     {
         Expects(m_storageType.is_initialized());
-        GL_ASSERT(glDrawElements((::gl::GLenum)mode, m_indexCount, (::gl::GLenum)*m_storageType, nullptr));
+        GL_ASSERT(::gl::drawElements(mode, m_indexCount, *m_storageType, nullptr));
     }
 
-    ::gl::GLsizei getIndexCount() const
+    ::gl::core::SizeType getIndexCount() const
     {
         return m_indexCount;
     }
 
 private:
-    ::gl::GLsizei m_indexCount = 0;
+    ::gl::core::SizeType m_indexCount = 0;
 
-    boost::optional<DrawElementsType> m_storageType;
+    boost::optional<::gl::DrawElementsType> m_storageType;
 };
 } // namespace gl
 } // namespace render

@@ -10,10 +10,12 @@ namespace gl
 class DebugGroup final
 {
 public:
-    explicit DebugGroup(const std::string& message, const ::gl::GLuint id = 0)
+    explicit DebugGroup(const std::string& message, const uint32_t id = 0)
     {
-        GL_ASSERT(glPushDebugGroup(
-            ::gl::GL_DEBUG_SOURCE_APPLICATION, id, gsl::narrow<::gl::GLsizei>(message.length()), message.c_str()));
+        GL_ASSERT(::gl::pushDebugGroup(::gl::DebugSource::DebugSourceApplication,
+                                       id,
+                                       gsl::narrow<::gl::core::SizeType>(message.length()),
+                                       message.c_str()));
     }
 
     DebugGroup(const DebugGroup&) = delete;
@@ -26,7 +28,7 @@ public:
 
     ~DebugGroup()
     {
-        GL_ASSERT(glPopDebugGroup());
+        GL_ASSERT(::gl::popDebugGroup());
     }
 };
 } // namespace gl

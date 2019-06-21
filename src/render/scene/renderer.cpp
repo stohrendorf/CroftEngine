@@ -50,7 +50,7 @@ public:
 void Renderer::render()
 {
     // Graphics Rendering.
-    clear(::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1);
+    clear(::gl::ClearBufferMask::ColorBufferBit | ::gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
     RenderContext context{};
     RenderVisitor visitor{context};
@@ -68,28 +68,30 @@ void Renderer::render()
     }
 }
 
-void Renderer::clear(const ::gl::ClearBufferMask flags, const gl::SRGBA8& clearColor, const float clearDepth)
+void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask> flags,
+                     const gl::SRGBA8& clearColor,
+                     const float clearDepth)
 {
-    ::gl::ClearBufferMask bits = ::gl::GL_NONE_BIT;
-    if((flags & ::gl::GL_COLOR_BUFFER_BIT) != ::gl::GL_NONE_BIT)
+    ::gl::core::Bitfield<::gl::ClearBufferMask> bits;
+    if(flags.isSet(::gl::ClearBufferMask::ColorBufferBit))
     {
         if(clearColor != m_clearColor)
         {
-            GL_ASSERT(glClearColor(
+            GL_ASSERT(::gl::clearColor(
                 clearColor.r / 255.0f, clearColor.g / 255.0f, clearColor.b / 255.0f, clearColor.a / 255.0f));
             m_clearColor = clearColor;
         }
-        bits |= ::gl::GL_COLOR_BUFFER_BIT;
+        bits |= ::gl::ClearBufferMask::ColorBufferBit;
     }
 
-    if((flags & ::gl::GL_DEPTH_BUFFER_BIT) != ::gl::GL_NONE_BIT)
+    if(flags.isSet(::gl::ClearBufferMask::DepthBufferBit))
     {
         if(clearDepth != m_clearDepth)
         {
-            GL_ASSERT(glClearDepth(clearDepth));
+            GL_ASSERT(::gl::clearDepth(clearDepth));
             m_clearDepth = clearDepth;
         }
-        bits |= ::gl::GL_DEPTH_BUFFER_BIT;
+        bits |= ::gl::ClearBufferMask::DepthBufferBit;
 
         // We need to explicitly call the static enableDepthWrite() method on StateBlock
         // to ensure depth writing is enabled before clearing the depth buffer (and to
@@ -97,10 +99,10 @@ void Renderer::clear(const ::gl::ClearBufferMask flags, const gl::SRGBA8& clearC
         render::gl::RenderState::enableDepthWrite();
     }
 
-    GL_ASSERT(glClear(bits));
+    GL_ASSERT(::gl::clear(bits));
 }
 
-void Renderer::clear(const ::gl::ClearBufferMask flags,
+void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask> flags,
                      const uint8_t red,
                      const uint8_t green,
                      const uint8_t blue,

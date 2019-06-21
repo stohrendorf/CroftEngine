@@ -105,7 +105,8 @@ void Window::swapBuffers() const
 void Window::setViewport(const Dimension2<size_t>& viewport)
 {
     m_viewport = viewport;
-    GL_ASSERT(glViewport(0, 0, gsl::narrow<::gl::GLuint>(viewport.width), gsl::narrow<::gl::GLuint>(viewport.height)));
+    GL_ASSERT(::gl::viewport(
+        0, 0, gsl::narrow<::gl::core::SizeType>(viewport.width), gsl::narrow<::gl::core::SizeType>(viewport.height)));
 }
 } // namespace scene
 } // namespace render

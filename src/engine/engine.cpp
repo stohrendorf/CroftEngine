@@ -623,7 +623,7 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<rend
 {
     if(m_lara->isInWater())
     {
-        const auto x0 = gsl::narrow<::gl::GLint>(m_window->getViewport().width - 110);
+        const auto x0 = gsl::narrow<int32_t>(m_window->getViewport().width - 110);
 
         for(int i = 7; i <= 13; ++i)
             image->line(x0 - 1, i, x0 + 101, i, m_level->m_palette->colors[0].toTextureColor());
@@ -1701,9 +1701,7 @@ void Engine::drawLoadingScreen(const std::string& state)
 
     render::gl::Framebuffer::unbindAll();
 
-    GL_ASSERT(glClear(::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT));
-
-    m_renderer->clear(::gl::GL_COLOR_BUFFER_BIT | ::gl::GL_DEPTH_BUFFER_BIT, {0, 0, 0, 0}, 1);
+    m_renderer->clear(::gl::ClearBufferMask::ColorBufferBit | ::gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
     render::scene::RenderContext context{};
     render::scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);

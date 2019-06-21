@@ -538,11 +538,11 @@ struct Scaler
 
         Expects(img.getWidth() >= scaledWidth);
         Expects(img.getHeight() >= scaledHeight);
-        const auto xOffset = static_cast<::gl::GLint>((img.getWidth() - scaledWidth) / 2);
-        const auto yOffset = static_cast<::gl::GLint>((img.getHeight() - scaledHeight) / 2);
+        const auto xOffset = static_cast<int32_t>((img.getWidth() - scaledWidth) / 2);
+        const auto yOffset = static_cast<int32_t>((img.getHeight() - scaledHeight) / 2);
         dst += img.getWidth() * yOffset;
         dst += xOffset;
-        for(::gl::GLint y = 0; y < scaledHeight; ++y)
+        for(int32_t y = 0; y < scaledHeight; ++y)
         {
             std::copy_n(reinterpret_cast<render::gl::SRGBA8*>(srcLineRaw), scaledWidth, dst);
             dst += img.getWidth();

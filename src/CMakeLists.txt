@@ -205,6 +205,7 @@ set( EDISONENGINE_SRCS
      render/textureanimator.cpp
 
      render/gl/glassert.h
+     render/gl/glassert.cpp
      render/gl/shader.h
      render/gl/program.h
      render/gl/bindableresource.h
@@ -225,6 +226,7 @@ set( EDISONENGINE_SRCS
      render/gl/vertexattribute.h
      render/gl/renderstate.cpp
      render/gl/glew.cpp
+     render/gl/api/gl.cpp
 
      render/scene/Camera.cpp
      render/scene/renderer.cpp
@@ -280,8 +282,7 @@ target_link_libraries(
         PNG::PNG
         sol2::sol2
         type_safe
-        glbinding::glbinding
-        glbinding::glbinding-aux
+        GLEW::GLEW
         glfw
         Boost::boost
         OpenGL
