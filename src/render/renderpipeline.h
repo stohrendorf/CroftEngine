@@ -34,32 +34,31 @@ class RenderPipeline
 
     const std::shared_ptr<scene::Model> m_fbModel = std::make_shared<scene::Model>();
 
-    const std::shared_ptr<gl::Texture> m_portalDepthBuffer
-        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "portal-depth");
+    const std::shared_ptr<gl::TextureDepth> m_portalDepthBuffer = std::make_shared<gl::TextureDepth>("portal-depth");
     std::shared_ptr<gl::Framebuffer> m_portalFb;
 
-    const std::shared_ptr<gl::Texture> m_geometryDepthBuffer
-        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "geometry-depth");
-    const std::shared_ptr<gl::Texture> m_geometryColorBuffer
-        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "geometry-color");
-    const std::shared_ptr<gl::Texture> m_geometryPositionBuffer
-        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "geometry-position");
-    const std::shared_ptr<gl::Texture> m_geometryNormalBuffer
-        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "geometry-normal");
+    const std::shared_ptr<gl::TextureDepth> m_geometryDepthBuffer
+        = std::make_shared<gl::TextureDepth>("geometry-depth");
+    const std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_geometryColorBuffer
+        = std::make_shared<gl::Texture2D<gl::SRGBA8>>("geometry-color");
+    const std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_geometryPositionBuffer
+        = std::make_shared<gl::Texture2D<gl::RGB32F>>("geometry-position");
+    const std::shared_ptr<gl::Texture2D<gl::RGB16F>> m_geometryNormalBuffer
+        = std::make_shared<gl::Texture2D<gl::RGB16F>>("geometry-normal");
     std::shared_ptr<gl::Framebuffer> m_geometryFb;
 
-    const std::shared_ptr<gl::Texture> m_ssaoNoiseTexture
-        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "ssao-noise");
-    const std::shared_ptr<gl::Texture> m_ssaoAOBuffer
-        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "ssao-ao");
+    const std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_ssaoNoiseTexture
+        = std::make_shared<gl::Texture2D<gl::RGB32F>>("ssao-noise");
+    const std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_ssaoAOBuffer
+        = std::make_shared<gl::Texture2D<gl::Scalar32F>>("ssao-ao");
     std::shared_ptr<gl::Framebuffer> m_ssaoFb;
 
-    const std::shared_ptr<gl::Texture> m_ssaoBlurAOBuffer
-        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "ssao-blur-ao");
+    const std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_ssaoBlurAOBuffer
+        = std::make_shared<gl::Texture2D<gl::Scalar32F>>("ssao-blur-ao");
     std::shared_ptr<gl::Framebuffer> m_ssaoBlurFb;
 
-    const std::shared_ptr<gl::Texture> m_fxaaColorBuffer
-        = std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d, "fxaa-color");
+    const std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_fxaaColorBuffer
+        = std::make_shared<gl::Texture2D<gl::SRGBA8>>("fxaa-color");
     std::shared_ptr<gl::Framebuffer> m_fxaaFb;
 
 public:
@@ -234,7 +233,7 @@ public:
             ssaoNoise.emplace_back(randomFloats(generator) * 2 - 1, randomFloats(generator) * 2 - 1, 0.0f);
         }
 
-        m_ssaoNoiseTexture->image2D<gl::RGB32F>(4, 4, ssaoNoise)
+        m_ssaoNoiseTexture->image(4, 4, ssaoNoise)
             .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::Repeat)
             .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::Repeat)
             .set(::gl::TextureMinFilter::Nearest)
@@ -266,23 +265,18 @@ public:
 
     void resize(const scene::Dimension2<size_t>& viewport)
     {
-        m_portalDepthBuffer->depthImage2D(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
-        m_portalDepthBuffer->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Linear);
-        m_geometryDepthBuffer->depthImage2D(gsl::narrow<int32_t>(viewport.width),
-                                            gsl::narrow<int32_t>(viewport.height));
-        m_geometryDepthBuffer->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Linear);
-        m_geometryColorBuffer->image2D<gl::SRGBA8>(gsl::narrow<int32_t>(viewport.width),
-                                                   gsl::narrow<int32_t>(viewport.height));
-        m_geometryPositionBuffer->image2D<gl::RGB32F>(gsl::narrow<int32_t>(viewport.width),
-                                                      gsl::narrow<int32_t>(viewport.height));
-        m_geometryNormalBuffer->image2D<gl::RGB16F>(gsl::narrow<int32_t>(viewport.width),
-                                                    gsl::narrow<int32_t>(viewport.height));
-        m_ssaoAOBuffer->image2D<gl::Scalar32F>(gsl::narrow<int32_t>(viewport.width),
-                                               gsl::narrow<int32_t>(viewport.height));
-        m_ssaoBlurAOBuffer->image2D<gl::Scalar32F>(gsl::narrow<int32_t>(viewport.width),
-                                                   gsl::narrow<int32_t>(viewport.height));
-        m_fxaaColorBuffer->image2D<gl::SRGBA8>(gsl::narrow<int32_t>(viewport.width),
-                                               gsl::narrow<int32_t>(viewport.height));
+        m_portalDepthBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height))
+            .set(::gl::TextureMinFilter::Linear)
+            .set(::gl::TextureMagFilter::Linear);
+        m_geometryDepthBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height))
+            .set(::gl::TextureMinFilter::Linear)
+            .set(::gl::TextureMagFilter::Linear);
+        m_geometryColorBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
+        m_geometryPositionBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
+        m_geometryNormalBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
+        m_ssaoAOBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
+        m_ssaoBlurAOBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
+        m_fxaaColorBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
 
         const auto proj = glm::ortho(
             0.0f, gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), 0.0f, 0.0f, 1.0f);

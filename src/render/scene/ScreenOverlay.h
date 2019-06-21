@@ -48,8 +48,7 @@ public:
 private:
     const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
 
-    gsl::not_null<std::shared_ptr<gl::Texture>> m_texture{
-        std::make_shared<gl::Texture>(::gl::TextureTarget::Texture2d)};
+    gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_texture{std::make_shared<gl::Texture2D<gl::SRGBA8>>()};
 
     std::shared_ptr<Mesh> m_mesh{nullptr};
 

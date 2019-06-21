@@ -10,7 +10,7 @@ namespace gl
 {
 class Texture : public RenderTarget
 {
-public:
+protected:
     explicit Texture(::gl::TextureTarget type, const std::string& label = {})
         : RenderTarget{::gl::genTextures,
                        [type](const uint32_t handle) { ::gl::bindTexture(type, handle); },
@@ -21,6 +21,7 @@ public:
     {
     }
 
+public:
     Texture& set(const ::gl::TextureMinFilter value)
     {
         bind();
@@ -42,6 +43,30 @@ public:
         return *this;
     }
 
+    ::gl::TextureTarget getType() const noexcept
+    {
+        return m_type;
+    }
+
+    Texture& generateMipmap()
+    {
+        GL_ASSERT(::gl::generateMipmap(m_type));
+        return *this;
+    }
+
+private:
+    const ::gl::TextureTarget m_type;
+};
+
+template<typename PixelT>
+class Texture2D : public Texture
+{
+public:
+    explicit Texture2D(const std::string& label = {})
+        : Texture{::gl::TextureTarget::Texture2d, label}
+    {
+    }
+
     int32_t getWidth() const noexcept override
     {
         return m_width;
@@ -52,14 +77,35 @@ public:
         return m_height;
     }
 
-    ::gl::TextureTarget getType() const noexcept
+    Texture2D<PixelT>& image(int32_t width, int32_t height)
     {
-        return m_type;
+        return image(width, height, std::vector<PixelT>{});
     }
 
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    template<typename T>
-    Texture& image2D(const std::vector<T>& data)
+    Texture2D<PixelT>& image(const int32_t width, const int32_t height, const std::vector<PixelT>& data)
+    {
+        BOOST_ASSERT(width > 0 && height > 0);
+        BOOST_ASSERT(data.empty() || static_cast<std::size_t>(width) * static_cast<std::size_t>(height) == data.size());
+
+        bind();
+
+        GL_ASSERT(::gl::texImage2D(getType(),
+                                   0,
+                                   PixelT::InternalFormat,
+                                   width,
+                                   height,
+                                   0,
+                                   PixelT::PixelFormat,
+                                   PixelT::PixelType,
+                                   data.empty() ? nullptr : data.data()));
+
+        m_width = width;
+        m_height = height;
+
+        return *this;
+    }
+
+    Texture2D<PixelT>& image(const std::vector<PixelT>& data)
     {
         BOOST_ASSERT(m_width > 0 && m_height > 0);
         BOOST_ASSERT(data.empty()
@@ -69,105 +115,114 @@ public:
 
         GL_ASSERT(::gl::texImage2D(m_type,
                                    0,
-                                   T::InternalFormat,
+                                   PixelT::InternalFormat,
                                    m_width,
                                    m_height,
                                    0,
-                                   T::PixelFormat,
-                                   T::PixelType,
+                                   PixelT::PixelFormat,
+                                   PixelT::PixelType,
                                    data.empty() ? nullptr : data.data()));
 
         return *this;
     }
 
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    template<typename T>
-    Texture& subImage2D(const std::vector<T>& data)
+    Texture2D<PixelT>& subImage(const std::vector<PixelT>& data)
     {
         BOOST_ASSERT(m_width > 0 && m_height > 0);
         BOOST_ASSERT(static_cast<std::size_t>(m_width) * static_cast<std::size_t>(m_height) == data.size());
 
         bind();
 
-        GL_ASSERT(::gl::texSubImage2D(m_type, 0, 0, 0, m_width, m_height, T::PixelFormat, T::PixelType, data.data()));
+        GL_ASSERT(::gl::texSubImage2D(
+            getType(), 0, 0, 0, m_width, m_height, PixelT::PixelFormat, PixelT::PixelType, data.data()));
 
         return *this;
     }
 
-    template<typename T>
-    Texture& image2D(int32_t width, int32_t height)
+    Texture2D<PixelT>& copyImageSubData(const Texture2D& src)
     {
-        return image2D(width, height, std::vector<T>{});
+        GL_ASSERT(::gl::copyImageSubData(
+            src.getHandle(), src.m_type, 0, 0, 0, 0, getHandle(), m_type, 0, 0, 0, 0, src.m_width, src.m_height, 1));
+        m_width = src.m_width;
+        m_height = src.m_height;
+
+        return *this;
     }
 
-    template<typename T>
-    Texture& image2D(const int32_t width, const int32_t height, const std::vector<T>& data)
+private:
+    int32_t m_width = -1;
+
+    int32_t m_height = -1;
+};
+
+class TextureDepth : public Texture
+{
+public:
+    explicit TextureDepth(const std::string& label = {})
+        : Texture{::gl::TextureTarget::Texture2d, label}
+    {
+    }
+
+    int32_t getWidth() const noexcept override
+    {
+        return m_width;
+    }
+
+    int32_t getHeight() const noexcept override
+    {
+        return m_height;
+    }
+
+    TextureDepth& copyImageSubData(const TextureDepth& src)
+    {
+        GL_ASSERT(::gl::copyImageSubData(src.getHandle(),
+                                         src.getType(),
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         getHandle(),
+                                         getType(),
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         src.m_width,
+                                         src.m_height,
+                                         1));
+        m_width = src.m_width;
+        m_height = src.m_height;
+
+        return *this;
+    }
+
+    TextureDepth& image(const int32_t width, const int32_t height)
     {
         BOOST_ASSERT(width > 0 && height > 0);
-        BOOST_ASSERT(data.empty() || static_cast<std::size_t>(width) * static_cast<std::size_t>(height) == data.size());
 
         bind();
 
-        GL_ASSERT(::gl::texImage2D(m_type,
-                                   0,
-                                   T::InternalFormat,
-                                   width,
-                                   height,
-                                   0,
-                                   T::PixelFormat,
-                                   T::PixelType,
-                                   data.empty() ? nullptr : data.data()));
-
-        m_width = width;
-        m_height = height;
-
-        return *this;
-    }
-
-    Texture& generateMipmap()
-    {
-        GL_ASSERT(::gl::generateMipmap(m_type));
-        return *this;
-    }
-
-    void depthImage2D(const int32_t width, const int32_t height)
-    {
-        BOOST_ASSERT(width > 0 && height > 0);
-
-        bind();
-
-        GL_ASSERT(::gl::texImage2D(m_type,
+        GL_ASSERT(::gl::texImage2D(getType(),
                                    0,
                                    ::gl::InternalFormat::DepthComponent32f,
                                    width,
                                    height,
                                    0,
                                    ::gl::PixelFormat::DepthComponent,
-                                   ::gl::PixelType::UnsignedInt,
+                                   ::gl::PixelType::Float,
                                    nullptr));
 
         m_width = width;
         m_height = height;
-    }
 
-    // ReSharper disable once CppMemberFunctionMayBeConst
-    void copyImageSubData(const Texture& src)
-    {
-        if(m_type != src.m_type)
-            BOOST_THROW_EXCEPTION(std::runtime_error("Refusing to copy image data with different types"));
-
-        GL_ASSERT(::gl::copyImageSubData(
-            src.getHandle(), src.m_type, 0, 0, 0, 0, getHandle(), m_type, 0, 0, 0, 0, src.m_width, src.m_height, 1));
-        m_width = src.m_width;
-        m_height = src.m_height;
+        return *this;
     }
 
 private:
-    const ::gl::TextureTarget m_type;
-
     int32_t m_width = -1;
 
     int32_t m_height = -1;
 };
+
 } // namespace gl
 } // namespace render

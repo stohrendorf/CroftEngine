@@ -24,7 +24,7 @@ ScreenOverlay::~ScreenOverlay() = default;
 void ScreenOverlay::render(RenderContext& context)
 {
     context.pushState(getRenderState());
-    m_texture->subImage2D(m_image->getData());
+    m_texture->subImage(m_image->getData());
     m_model->render(context);
     context.popState();
 }
@@ -40,7 +40,7 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
     const auto screenOverlayProgram
         = ShaderProgram::createFromFile("shaders/screenoverlay.vert", "shaders/screenoverlay.frag", {});
 
-    m_texture->image2D(m_image->getWidth(), m_image->getHeight(), m_image->getData());
+    m_texture->image(m_image->getWidth(), m_image->getHeight(), m_image->getData());
     m_texture->set(::gl::TextureMinFilter::Nearest)
         .set(::gl::TextureMagFilter::Nearest)
         .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
@@ -51,7 +51,7 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
                                                  screenOverlayProgram->getHandle(),
                                                  true);
     m_mesh->setMaterial(std::make_shared<Material>(screenOverlayProgram));
-    m_mesh->getMaterial()->getParameter("u_texture")->set(m_texture);
+    m_mesh->getMaterial()->getParameter("u_texture")->set(m_texture.get());
     m_mesh->getMaterial()
         ->getParameter("u_projection")
         ->set(glm::ortho(

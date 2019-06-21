@@ -307,11 +307,10 @@ public:
         }
 
         loader::file::DWordTexture texture;
-        texture.texture
-            = std::make_shared<render::gl::Texture>(::gl::TextureTarget::Texture2d, "animated texture tiles");
+        texture.texture = std::make_shared<render::gl::Texture2D<render::gl::SRGBA8>>("animated texture tiles");
         if(!linear)
         {
-            texture.texture->set(::gl::TextureMinFilter::Nearest).set(::gl::TextureMagFilter::Nearest);
+            texture.texture->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Nearest);
         }
         else
         {
@@ -320,7 +319,8 @@ public:
         img.interleave();
         texture.image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
             img.width(), img.height(), reinterpret_cast<const render::gl::SRGBA8*>(img.data()));
-        texture.texture->image2D(texture.image->getWidth(), texture.image->getHeight(), texture.image->getData(), true);
+        texture.texture->image(texture.image->getWidth(), texture.image->getHeight(), texture.image->getData())
+            .generateMipmap();
 
         textures.emplace_back(std::move(texture));
     }

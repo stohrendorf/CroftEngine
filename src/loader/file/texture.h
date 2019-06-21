@@ -61,7 +61,7 @@ struct DWordTexture final
 {
     render::gl::SRGBA8 pixels[256][256];
     std::shared_ptr<render::gl::Image<render::gl::SRGBA8>> image;
-    std::shared_ptr<render::gl::Texture> texture;
+    std::shared_ptr<render::gl::Texture2D<render::gl::SRGBA8>> texture;
 
     std::string md5;
 
