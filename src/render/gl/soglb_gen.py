@@ -385,7 +385,8 @@ def load_xml():
                                 constant_name = 'GL_' + constant_name
                             constant_val = constants.get(constant_name)
                             if constant_val is None:
-                                logging.warning('Constant not found: {}'.format(constant_name))
+                                logging.warning(
+                                    'Constant referenced by enum {} not found: {}'.format(enum_name, constant_name))
                                 continue
                             if constant_name in profile_data.constants:
                                 constant_guards[constant_name].add(constant_guard)
