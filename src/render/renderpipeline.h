@@ -234,7 +234,7 @@ public:
             ssaoNoise.emplace_back(randomFloats(generator) * 2 - 1, randomFloats(generator) * 2 - 1, 0.0f);
         }
 
-        m_ssaoNoiseTexture->image2D<gl::RGB32F>(4, 4, ssaoNoise, false)
+        m_ssaoNoiseTexture->image2D<gl::RGB32F>(4, 4, ssaoNoise)
             .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::Repeat)
             .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::Repeat)
             .set(::gl::TextureMinFilter::Nearest)
@@ -271,18 +271,18 @@ public:
         m_geometryDepthBuffer->depthImage2D(gsl::narrow<int32_t>(viewport.width),
                                             gsl::narrow<int32_t>(viewport.height));
         m_geometryDepthBuffer->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Linear);
-        m_geometryColorBuffer->image2D<gl::SRGBA8>(
-            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
-        m_geometryPositionBuffer->image2D<gl::RGB32F>(
-            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
-        m_geometryNormalBuffer->image2D<gl::RGB16F>(
-            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
-        m_ssaoAOBuffer->image2D<gl::Scalar32F>(
-            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
-        m_ssaoBlurAOBuffer->image2D<gl::Scalar32F>(
-            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
-        m_fxaaColorBuffer->image2D<gl::SRGBA8>(
-            gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height), false);
+        m_geometryColorBuffer->image2D<gl::SRGBA8>(gsl::narrow<int32_t>(viewport.width),
+                                                   gsl::narrow<int32_t>(viewport.height));
+        m_geometryPositionBuffer->image2D<gl::RGB32F>(gsl::narrow<int32_t>(viewport.width),
+                                                      gsl::narrow<int32_t>(viewport.height));
+        m_geometryNormalBuffer->image2D<gl::RGB16F>(gsl::narrow<int32_t>(viewport.width),
+                                                    gsl::narrow<int32_t>(viewport.height));
+        m_ssaoAOBuffer->image2D<gl::Scalar32F>(gsl::narrow<int32_t>(viewport.width),
+                                               gsl::narrow<int32_t>(viewport.height));
+        m_ssaoBlurAOBuffer->image2D<gl::Scalar32F>(gsl::narrow<int32_t>(viewport.width),
+                                                   gsl::narrow<int32_t>(viewport.height));
+        m_fxaaColorBuffer->image2D<gl::SRGBA8>(gsl::narrow<int32_t>(viewport.width),
+                                               gsl::narrow<int32_t>(viewport.height));
 
         const auto proj = glm::ortho(
             0.0f, gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), 0.0f, 0.0f, 1.0f);

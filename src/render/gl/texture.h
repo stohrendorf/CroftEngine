@@ -59,7 +59,7 @@ public:
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
-    void image2D(const std::vector<T>& data)
+    Texture& image2D(const std::vector<T>& data)
     {
         BOOST_ASSERT(m_width > 0 && m_height > 0);
         BOOST_ASSERT(data.empty()
@@ -77,15 +77,12 @@ public:
                                    T::PixelType,
                                    data.empty() ? nullptr : data.data()));
 
-        if(m_mipmap)
-        {
-            GL_ASSERT(::gl::generateMipmap(m_type));
-        }
+        return *this;
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     template<typename T>
-    void subImage2D(const std::vector<T>& data)
+    Texture& subImage2D(const std::vector<T>& data)
     {
         BOOST_ASSERT(m_width > 0 && m_height > 0);
         BOOST_ASSERT(static_cast<std::size_t>(m_width) * static_cast<std::size_t>(m_height) == data.size());
@@ -94,20 +91,17 @@ public:
 
         GL_ASSERT(::gl::texSubImage2D(m_type, 0, 0, 0, m_width, m_height, T::PixelFormat, T::PixelType, data.data()));
 
-        if(m_mipmap)
-        {
-            GL_ASSERT(::gl::generateMipmap(m_type));
-        }
+        return *this;
     }
 
     template<typename T>
-    Texture& image2D(int32_t width, int32_t height, bool generateMipmaps)
+    Texture& image2D(int32_t width, int32_t height)
     {
-        return image2D(width, height, std::vector<T>{}, generateMipmaps);
+        return image2D(width, height, std::vector<T>{});
     }
 
     template<typename T>
-    Texture& image2D(const int32_t width, const int32_t height, const std::vector<T>& data, const bool generateMipmaps)
+    Texture& image2D(const int32_t width, const int32_t height, const std::vector<T>& data)
     {
         BOOST_ASSERT(width > 0 && height > 0);
         BOOST_ASSERT(data.empty() || static_cast<std::size_t>(width) * static_cast<std::size_t>(height) == data.size());
@@ -126,13 +120,13 @@ public:
 
         m_width = width;
         m_height = height;
-        m_mipmap = generateMipmaps;
 
-        if(m_mipmap)
-        {
-            GL_ASSERT(::gl::generateMipmap(m_type));
-        }
+        return *this;
+    }
 
+    Texture& generateMipmap()
+    {
+        GL_ASSERT(::gl::generateMipmap(m_type));
         return *this;
     }
 
@@ -154,7 +148,6 @@ public:
 
         m_width = width;
         m_height = height;
-        m_mipmap = false;
     }
 
     // ReSharper disable once CppMemberFunctionMayBeConst
@@ -175,8 +168,6 @@ private:
     int32_t m_width = -1;
 
     int32_t m_height = -1;
-
-    bool m_mipmap = false;
 };
 } // namespace gl
 } // namespace render
