@@ -121,11 +121,11 @@ void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void
     texture = std::make_shared<render::gl::Texture2D<render::gl::SRGBA8>>(md5);
     if(glidos == nullptr)
     {
-        texture->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Nearest);
+        texture->set(::gl::TextureMinFilter::LinearMipmapLinear).set(::gl::TextureMagFilter::Nearest);
     }
     else
     {
-        texture->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Linear);
+        texture->set(::gl::TextureMinFilter::LinearMipmapLinear).set(::gl::TextureMagFilter::Linear);
     }
     toImage(glidos, statusCallback);
     texture->image(image->getWidth(), image->getHeight(), image->getData()).generateMipmap();

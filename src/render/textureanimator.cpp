@@ -310,12 +310,13 @@ public:
         texture.texture = std::make_shared<render::gl::Texture2D<render::gl::SRGBA8>>("animated texture tiles");
         if(!linear)
         {
-            texture.texture->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Nearest);
+            texture.texture->set(::gl::TextureMagFilter::Nearest);
         }
         else
         {
-            texture.texture->set(::gl::TextureMinFilter::Linear).set(::gl::TextureMagFilter::Linear);
+            texture.texture->set(::gl::TextureMagFilter::Linear);
         }
+        texture.texture->set(::gl::TextureMinFilter::LinearMipmapLinear).generateMipmap();
         img.interleave();
         texture.image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
             img.width(), img.height(), reinterpret_cast<const render::gl::SRGBA8*>(img.data()));

@@ -50,6 +50,7 @@ public:
 
     Texture& generateMipmap()
     {
+        bind();
         GL_ASSERT(::gl::generateMipmap(m_type));
         return *this;
     }
