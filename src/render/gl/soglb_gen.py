@@ -1,14 +1,13 @@
-import abc
 import logging
 import os
 import re
 import urllib.request
 from collections import defaultdict
 from copy import deepcopy
-from typing import Dict, Set, Union, Iterable
-from typing import FrozenSet
-from typing import List, Optional
-from typing import TextIO, Collection
+from typing import Dict, Set, Iterable
+from typing import Optional
+from typing import TextIO
+from typing import Tuple
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
@@ -122,8 +121,6 @@ class Command:
         # XXX PATCH
         if self.raw_name == 'glTexImage2D':
             xml_command.find('./param[@group="InternalFormat"]/ptype').text = 'GLenum'
-        elif self.raw_name == 'glDrawBuffers':
-            xml_command.find('./param[@group="DrawBufferModeATI"]').attrib['group'] = 'DrawBufferMode'
         elif self.raw_name == 'glCopyImageSubData':
             for param in xml_command.iterfind('./param[@group="CopyBufferSubDataTarget"]'):
                 param.attrib['group'] = 'TextureTarget'
@@ -364,26 +361,26 @@ def load_xml():
             f.write('{\n')
 
             f.write('// API feature levels\n')
-            for version, profiles in versions_profiles.items():
-                for profile_name in profiles.keys():
+            for version, profiles in sorted(versions_profiles.items()):
+                for profile_name in sorted(profiles.keys()):
                     f.write('// #define {}\n'.format(_make_version_macro(version, profile_name)))
             f.write('\n')
 
             f.write('// API extensions\n')
-            for extension_name, apis_profiles in extensions_apis_profiles.items():
-                if api_name in apis_profiles:
+            for extension_name, apis_profiles in sorted(extensions_apis_profiles.items()):
+                if api_name in sorted(apis_profiles):
                     f.write('// #define {}_{}\n'.format(EXTENSION_PREFIX, extension_name))
             f.write('\n')
 
             f.write('// enums\n')
-            for enum_name, enum_data in enums.items():
+            for enum_name, enum_data in sorted(enums.items()):
                 logging.info('enum {}'.format(enum_name))
 
                 constant_guards = defaultdict(set)  # type: Dict[str, Set[str]]
-                for version, profiles in versions_profiles.items():
-                    for profile_name, profile_data in profiles.items():
+                for version, profiles in sorted(versions_profiles.items()):
+                    for profile_name, profile_data in sorted(profiles.items()):
                         constant_guard = _make_version_macro(version, profile_name)
-                        for constant_name in enum_data.constants:
+                        for constant_name in sorted(enum_data.constants):
                             if not constant_name.startswith('GL_'):
                                 constant_name = 'GL_' + constant_name
                             constant_val = constants.get(constant_name)
@@ -393,14 +390,14 @@ def load_xml():
                             if constant_name in profile_data.constants:
                                 constant_guards[constant_name].add(constant_guard)
 
-                # if len(constant_guards) == 0:
-                #    logging.warning('Skipping - no members')
-                #    continue
+                if len(constant_guards) == 0:
+                    logging.warning('Skipping - no members')
+                    continue
 
                 # reverse mapping dir, for less if/endif pairs
-                guards_constants = defaultdict(set)  # type: Dict[FrozenSet[str], Set[str]]
+                guards_constants = defaultdict(set)  # type: Dict[Tuple[str, ...], Set[str]]
                 for constant_name, guards in constant_guards.items():
-                    guards_constants[frozenset(guards)].add(constant_name)
+                    guards_constants[tuple(sorted(guards))].add(constant_name)
 
                 f.write('enum class {} : core::EnumType\n'.format(enum_name))
                 f.write('{\n')
@@ -429,11 +426,11 @@ def load_xml():
                         command_guards[command_name].add(_make_version_macro(version, profile_name))
 
             # reverse mapping dir, for less if/endif pairs
-            guards_commands = defaultdict(set)  # type: Dict[FrozenSet[str], Set[str]]
+            guards_commands = defaultdict(set)  # type: Dict[Tuple[str, ...], Set[str]]
             for command_name, guards in command_guards.items():
-                guards_commands[frozenset(guards)].add(command_name)
+                guards_commands[tuple(sorted(guards))].add(command_name)
 
-            for guards, command_names in guards_commands.items():
+            for guards, command_names in sorted(guards_commands.items()):
                 f.write('#if {}\n'.format(_make_guard(guards)))
                 for command in command_names:
                     commands[command].print_code(file=f, impl=False)

@@ -155,14 +155,14 @@ public:
 
             switch(m_type)
             {
-            case ::gl::AttributeType::Sampler1d:
-            case ::gl::AttributeType::Sampler1dShadow:
-            case ::gl::AttributeType::Sampler2d:
-            case ::gl::AttributeType::Sampler2dShadow:
-            case ::gl::AttributeType::Sampler2dRect:
-            case ::gl::AttributeType::Sampler2dRectShadow:
-            case ::gl::AttributeType::Sampler3d:
-            case ::gl::AttributeType::SamplerCube: m_samplerIndex = samplerIndex; samplerIndex += m_size;
+            case ::gl::UniformType::Sampler1d:
+            case ::gl::UniformType::Sampler1dShadow:
+            case ::gl::UniformType::Sampler2d:
+            case ::gl::UniformType::Sampler2dShadow:
+            case ::gl::UniformType::Sampler2dRect:
+            case ::gl::UniformType::Sampler2dRectShadow:
+            case ::gl::UniformType::Sampler3d:
+            case ::gl::UniformType::SamplerCube: m_samplerIndex = samplerIndex; samplerIndex += m_size;
             default: break;
             }
         }
@@ -317,7 +317,7 @@ public:
     private:
         int32_t m_size = 0;
 
-        ::gl::AttributeType m_type{};
+        ::gl::UniformType m_type{};
 
         std::string m_name{};
 

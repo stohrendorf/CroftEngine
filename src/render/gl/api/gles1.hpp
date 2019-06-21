@@ -75,234 +75,12 @@ namespace gles1
 // #define WITH_API_EXTENSION_GL_QCOM_writeonly_rendering
 
 // enums
-enum class TextureNormalModeEXT : core::EnumType
-{
-}; // enum TextureNormalModeEXT
-
-enum class LightTexturePNameEXT : core::EnumType
-{
-}; // enum LightTexturePNameEXT
-
-enum class VertexShaderCoordOutEXT : core::EnumType
-{
-}; // enum VertexShaderCoordOutEXT
-
-enum class SamplePatternEXT : core::EnumType
-{
-}; // enum SamplePatternEXT
-
-enum class VertexShaderStorageTypeEXT : core::EnumType
-{
-}; // enum VertexShaderStorageTypeEXT
-
-enum class VertexShaderParameterEXT : core::EnumType
-{
-}; // enum VertexShaderParameterEXT
-
-enum class LightTextureModeEXT : core::EnumType
-{
-}; // enum LightTextureModeEXT
-
-enum class VertexShaderOpEXT : core::EnumType
-{
-}; // enum VertexShaderOpEXT
-
-enum class ProgramFormatARB : core::EnumType
-{
-}; // enum ProgramFormatARB
-
-enum class PointParameterNameARB : core::EnumType
-{
-}; // enum PointParameterNameARB
-
-enum class VertexAttribPropertyARB : core::EnumType
-{
-}; // enum VertexAttribPropertyARB
-
-enum class VertexAttribPointerPropertyARB : core::EnumType
-{
-}; // enum VertexAttribPointerPropertyARB
-
-enum class ProgramStringPropertyARB : core::EnumType
-{
-}; // enum ProgramStringPropertyARB
-
-enum class BufferPointerNameARB : core::EnumType
-{
-}; // enum BufferPointerNameARB
-
-enum class BufferPNameARB : core::EnumType
-{
-}; // enum BufferPNameARB
-
-enum class ClampColorModeARB : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    False = 0,
-    True = 1,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum ClampColorModeARB
-
-enum class ClampColorTargetARB : core::EnumType
-{
-}; // enum ClampColorTargetARB
-
-enum class ProgramTargetARB : core::EnumType
-{
-}; // enum ProgramTargetARB
-
-enum class VertexArrayPNameAPPLE : core::EnumType
-{
-}; // enum VertexArrayPNameAPPLE
-
-enum class ObjectTypeAPPLE : core::EnumType
-{
-}; // enum ObjectTypeAPPLE
-
-enum class PreserveModeATI : core::EnumType
-{
-}; // enum PreserveModeATI
-
-enum class TexBumpParameterATI : core::EnumType
-{
-}; // enum TexBumpParameterATI
-
-enum class SwizzleOpATI : core::EnumType
-{
-}; // enum SwizzleOpATI
-
-enum class PNTrianglesPNameATI : core::EnumType
-{
-}; // enum PNTrianglesPNameATI
-
-enum class ArrayObjectUsageATI : core::EnumType
-{
-}; // enum ArrayObjectUsageATI
-
-enum class GetTexBumpParameterATI : core::EnumType
-{
-}; // enum GetTexBumpParameterATI
-
-enum class ArrayObjectPNameATI : core::EnumType
-{
-}; // enum ArrayObjectPNameATI
-
-enum class DrawBufferModeATI : core::EnumType
-{
-}; // enum DrawBufferModeATI
-
-enum class VertexStreamATI : core::EnumType
-{
-}; // enum VertexStreamATI
-
-enum class SpriteParameterNameSGIX : core::EnumType
-{
-}; // enum SpriteParameterNameSGIX
-
-enum class PixelTexGenModeSGIX : core::EnumType
-{
-}; // enum PixelTexGenModeSGIX
-
-enum class IglooFunctionSelectSGIX : core::EnumType
-{
-}; // enum IglooFunctionSelectSGIX
-
-enum class HintTargetPGI : core::EnumType
-{
-}; // enum HintTargetPGI
-
-enum class ImageTransformPNameHP : core::EnumType
-{
-}; // enum ImageTransformPNameHP
-
-enum class ImageTransformTargetHP : core::EnumType
-{
-}; // enum ImageTransformTargetHP
-
-enum class TextureFilterSGIS : core::EnumType
-{
-}; // enum TextureFilterSGIS
-
-enum class OcclusionQueryParameterNameNV : core::EnumType
-{
-}; // enum OcclusionQueryParameterNameNV
-
-enum class GetMultisamplePNameNV : core::EnumType
-{
-}; // enum GetMultisamplePNameNV
-
-enum class MapParameterNV : core::EnumType
-{
-}; // enum MapParameterNV
-
-enum class MapAttribParameterNV : core::EnumType
-{
-}; // enum MapAttribParameterNV
-
-enum class FenceParameterNameNV : core::EnumType
-{
-}; // enum FenceParameterNameNV
-
-enum class CombinerParameterNV : core::EnumType
-{
-}; // enum CombinerParameterNV
-
-enum class CombinerBiasNV : core::EnumType
-{
-}; // enum CombinerBiasNV
-
-enum class CombinerScaleNV : core::EnumType
-{
-}; // enum CombinerScaleNV
-
-enum class CombinerMappingNV : core::EnumType
-{
-}; // enum CombinerMappingNV
-
-enum class CombinerRegisterNV : core::EnumType
-{
-}; // enum CombinerRegisterNV
-
-enum class CombinerVariableNV : core::EnumType
-{
-}; // enum CombinerVariableNV
-
-enum class PixelDataRangeTargetNV : core::EnumType
-{
-}; // enum PixelDataRangeTargetNV
-
-enum class EvalTargetNV : core::EnumType
-{
-}; // enum EvalTargetNV
-
-enum class VertexAttribEnumNV : core::EnumType
-{
-}; // enum VertexAttribEnumNV
-
-enum class FenceConditionNV : core::EnumType
-{
-}; // enum FenceConditionNV
-
-enum class PathCoordType : core::EnumType
-{
-}; // enum PathCoordType
-
 enum class AccumOp : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
     Add = 0x0104,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum AccumOp
-
-enum class AttribMask : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    ColorBufferBit = 0x00004000,
-    DepthBufferBit = 0x00000100,
-    StencilBufferBit = 0x00000400,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum AttribMask
-constexpr core::Bitfield<AttribMask> operator|(AttribMask left, AttribMask right) { return core::Bitfield<AttribMask>(left) | right;}
 
 enum class AlphaFunction : core::EnumType
 {
@@ -318,9 +96,41 @@ enum class AlphaFunction : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum AlphaFunction
 
-enum class BlendEquationModeEXT : core::EnumType
+enum class AttribMask : core::EnumType
 {
-}; // enum BlendEquationModeEXT
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    ColorBufferBit = 0x00004000,
+    DepthBufferBit = 0x00000100,
+    StencilBufferBit = 0x00000400,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum AttribMask
+constexpr core::Bitfield<AttribMask> operator|(AttribMask left, AttribMask right) { return core::Bitfield<AttribMask>(left) | right;}
+
+enum class BlendingFactor : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    DstAlpha = 0x0304,
+    DstColor = 0x0306,
+    One = 1,
+    OneMinusDstAlpha = 0x0305,
+    OneMinusDstColor = 0x0307,
+    OneMinusSrcAlpha = 0x0303,
+    OneMinusSrcColor = 0x0301,
+    Src1Alpha = 0x8589,
+    SrcAlpha = 0x0302,
+    SrcAlphaSaturate = 0x0308,
+    SrcColor = 0x0300,
+    Zero = 0,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum BlendingFactor
+
+enum class BlitFramebufferFilter : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Linear = 0x2601,
+    Nearest = 0x2600,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum BlitFramebufferFilter
 
 enum class Boolean : core::EnumType
 {
@@ -330,10 +140,21 @@ enum class Boolean : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum Boolean
 
-enum class BufferBitQCOM : core::EnumType
+enum class BufferPNameARB : core::EnumType
 {
-}; // enum BufferBitQCOM
-constexpr core::Bitfield<BufferBitQCOM> operator|(BufferBitQCOM left, BufferBitQCOM right) { return core::Bitfield<BufferBitQCOM>(left) | right;}
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    BufferSize = 0x8764,
+    BufferUsage = 0x8765,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum BufferPNameARB
+
+enum class BufferStorageTarget : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    ArrayBuffer = 0x8892,
+    ElementArrayBuffer = 0x8893,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum BufferStorageTarget
 
 enum class BufferTargetARB : core::EnumType
 {
@@ -351,14 +172,13 @@ enum class BufferUsageARB : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum BufferUsageARB
 
-enum class BufferAccessARB : core::EnumType
+enum class ClampColorModeARB : core::EnumType
 {
-}; // enum BufferAccessARB
-
-enum class BufferStorageMask : core::EnumType
-{
-}; // enum BufferStorageMask
-constexpr core::Bitfield<BufferStorageMask> operator|(BufferStorageMask left, BufferStorageMask right) { return core::Bitfield<BufferStorageMask>(left) | right;}
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    False = 0,
+    True = 1,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum ClampColorModeARB
 
 enum class ClearBufferMask : core::EnumType
 {
@@ -369,11 +189,6 @@ enum class ClearBufferMask : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum ClearBufferMask
 constexpr core::Bitfield<ClearBufferMask> operator|(ClearBufferMask left, ClearBufferMask right) { return core::Bitfield<ClearBufferMask>(left) | right;}
-
-enum class ClientAttribMask : core::EnumType
-{
-}; // enum ClientAttribMask
-constexpr core::Bitfield<ClientAttribMask> operator|(ClientAttribMask left, ClientAttribMask right) { return core::Bitfield<ClientAttribMask>(left) | right;}
 
 enum class ClipPlaneName : core::EnumType
 {
@@ -386,6 +201,15 @@ enum class ClipPlaneName : core::EnumType
     ClipPlane5 = 0x3005,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum ClipPlaneName
+
+enum class ColorBuffer : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Back = 0x0405,
+    Front = 0x0404,
+    FrontAndBack = 0x0408,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum ColorBuffer
 
 enum class ColorMaterialFace : core::EnumType
 {
@@ -418,35 +242,13 @@ enum class ColorPointerType : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum ColorPointerType
 
-enum class ColorTableParameterPNameSGI : core::EnumType
+enum class CopyBufferSubDataTarget : core::EnumType
 {
-}; // enum ColorTableParameterPNameSGI
-
-enum class ColorTableTargetSGI : core::EnumType
-{
-}; // enum ColorTableTargetSGI
-
-enum class ContextFlagMask : core::EnumType
-{
-}; // enum ContextFlagMask
-constexpr core::Bitfield<ContextFlagMask> operator|(ContextFlagMask left, ContextFlagMask right) { return core::Bitfield<ContextFlagMask>(left) | right;}
-
-enum class ContextProfileMask : core::EnumType
-{
-}; // enum ContextProfileMask
-constexpr core::Bitfield<ContextProfileMask> operator|(ContextProfileMask left, ContextProfileMask right) { return core::Bitfield<ContextProfileMask>(left) | right;}
-
-enum class ConvolutionBorderModeEXT : core::EnumType
-{
-}; // enum ConvolutionBorderModeEXT
-
-enum class ConvolutionParameterEXT : core::EnumType
-{
-}; // enum ConvolutionParameterEXT
-
-enum class ConvolutionTargetEXT : core::EnumType
-{
-}; // enum ConvolutionTargetEXT
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    ArrayBuffer = 0x8892,
+    ElementArrayBuffer = 0x8893,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum CopyBufferSubDataTarget
 
 enum class CullFaceMode : core::EnumType
 {
@@ -457,9 +259,26 @@ enum class CullFaceMode : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum CullFaceMode
 
-enum class DataType : core::EnumType
+enum class DebugSeverity : core::EnumType
 {
-}; // enum DataType
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    DontCare = 0x1100,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum DebugSeverity
+
+enum class DebugSource : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    DontCare = 0x1100,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum DebugSource
+
+enum class DebugType : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    DontCare = 0x1100,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum DebugType
 
 enum class DepthFunction : core::EnumType
 {
@@ -549,27 +368,6 @@ enum class ErrorCode : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum ErrorCode
 
-enum class ExternalHandleType : core::EnumType
-{
-}; // enum ExternalHandleType
-
-enum class FeedbackType : core::EnumType
-{
-}; // enum FeedbackType
-
-enum class FeedBackToken : core::EnumType
-{
-}; // enum FeedBackToken
-
-enum class FfdMaskSGIX : core::EnumType
-{
-}; // enum FfdMaskSGIX
-constexpr core::Bitfield<FfdMaskSGIX> operator|(FfdMaskSGIX left, FfdMaskSGIX right) { return core::Bitfield<FfdMaskSGIX>(left) | right;}
-
-enum class FfdTargetSGIX : core::EnumType
-{
-}; // enum FfdTargetSGIX
-
 enum class FogCoordinatePointerType : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -585,6 +383,16 @@ enum class FogMode : core::EnumType
     Linear = 0x2601,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum FogMode
+
+enum class FogPName : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    FogDensity = 0x0B62,
+    FogEnd = 0x0B64,
+    FogMode = 0x0B65,
+    FogStart = 0x0B63,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum FogPName
 
 enum class FogParameter : core::EnumType
 {
@@ -611,14 +419,6 @@ enum class FogPointerTypeIBM : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum FogPointerTypeIBM
 
-enum class FragmentLightModelParameterSGIX : core::EnumType
-{
-}; // enum FragmentLightModelParameterSGIX
-
-enum class FramebufferFetchNoncoherent : core::EnumType
-{
-}; // enum FramebufferFetchNoncoherent
-
 enum class FrontFaceDirection : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -627,29 +427,13 @@ enum class FrontFaceDirection : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum FrontFaceDirection
 
-enum class GetColorTableParameterPNameSGI : core::EnumType
+enum class GetFramebufferParameter : core::EnumType
 {
-}; // enum GetColorTableParameterPNameSGI
-
-enum class GetConvolutionParameter : core::EnumType
-{
-}; // enum GetConvolutionParameter
-
-enum class GetHistogramParameterPNameEXT : core::EnumType
-{
-}; // enum GetHistogramParameterPNameEXT
-
-enum class GetMapQuery : core::EnumType
-{
-}; // enum GetMapQuery
-
-enum class GetMinmaxParameterPNameEXT : core::EnumType
-{
-}; // enum GetMinmaxParameterPNameEXT
-
-enum class GetPixelMap : core::EnumType
-{
-}; // enum GetPixelMap
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Samples = 0x80A9,
+    SampleBuffers = 0x80A8,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum GetFramebufferParameter
 
 enum class GetPName : core::EnumType
 {
@@ -803,6 +587,20 @@ enum class GetTextureParameter : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum GetTextureParameter
 
+enum class GlslTypeToken : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Float = 0x1406,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum GlslTypeToken
+
+enum class GraphicsResetStatus : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    NoError = 0,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum GraphicsResetStatus
+
 enum class HintMode : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -823,10 +621,6 @@ enum class HintTarget : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum HintTarget
 
-enum class HistogramTargetEXT : core::EnumType
-{
-}; // enum HistogramTargetEXT
-
 enum class IndexPointerType : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -835,9 +629,21 @@ enum class IndexPointerType : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum IndexPointerType
 
-enum class InterleavedArrayFormat : core::EnumType
+enum class InternalFormat : core::EnumType
 {
-}; // enum InterleavedArrayFormat
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Rgb = 0x1907,
+    Rgba = 0x1908,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum InternalFormat
+
+enum class InternalFormatPName : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    GenerateMipmap = 0x8191,
+    Samples = 0x80A9,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum InternalFormatPName
 
 enum class LightEnvModeSGIX : core::EnumType
 {
@@ -847,14 +653,6 @@ enum class LightEnvModeSGIX : core::EnumType
     Replace = 0x1E01,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum LightEnvModeSGIX
-
-enum class LightEnvParameterSGIX : core::EnumType
-{
-}; // enum LightEnvParameterSGIX
-
-enum class LightModelColorControl : core::EnumType
-{
-}; // enum LightModelColorControl
 
 enum class LightModelParameter : core::EnumType
 {
@@ -894,10 +692,6 @@ enum class LightParameter : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum LightParameter
 
-enum class ListMode : core::EnumType
-{
-}; // enum ListMode
-
 enum class ListNameType : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -908,10 +702,6 @@ enum class ListNameType : core::EnumType
     UnsignedShort = 0x1403,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum ListNameType
-
-enum class ListParameterName : core::EnumType
-{
-}; // enum ListParameterName
 
 enum class LogicOp : core::EnumType
 {
@@ -934,19 +724,6 @@ enum class LogicOp : core::EnumType
     Xor = 0x1506,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum LogicOp
-
-enum class MapBufferAccessMask : core::EnumType
-{
-}; // enum MapBufferAccessMask
-constexpr core::Bitfield<MapBufferAccessMask> operator|(MapBufferAccessMask left, MapBufferAccessMask right) { return core::Bitfield<MapBufferAccessMask>(left) | right;}
-
-enum class MapTarget : core::EnumType
-{
-}; // enum MapTarget
-
-enum class MapTextureFormatINTEL : core::EnumType
-{
-}; // enum MapTextureFormatINTEL
 
 enum class MaterialFace : core::EnumType
 {
@@ -978,27 +755,6 @@ enum class MatrixMode : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum MatrixMode
 
-enum class MemoryBarrierMask : core::EnumType
-{
-}; // enum MemoryBarrierMask
-constexpr core::Bitfield<MemoryBarrierMask> operator|(MemoryBarrierMask left, MemoryBarrierMask right) { return core::Bitfield<MemoryBarrierMask>(left) | right;}
-
-enum class MemoryObjectParameterName : core::EnumType
-{
-}; // enum MemoryObjectParameterName
-
-enum class MeshMode1 : core::EnumType
-{
-}; // enum MeshMode1
-
-enum class MeshMode2 : core::EnumType
-{
-}; // enum MeshMode2
-
-enum class MinmaxTargetEXT : core::EnumType
-{
-}; // enum MinmaxTargetEXT
-
 enum class NormalPointerType : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -1008,9 +764,34 @@ enum class NormalPointerType : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum NormalPointerType
 
-enum class PixelCopyType : core::EnumType
+enum class ObjectIdentifier : core::EnumType
 {
-}; // enum PixelCopyType
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Texture = 0x1702,
+    VertexArray = 0x8074,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum ObjectIdentifier
+
+enum class PathColor : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    PrimaryColor = 0x8577,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum PathColor
+
+enum class PathFillMode : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Invert = 0x150A,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum PathFillMode
+
+enum class PathGenMode : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Constant = 0x8576,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum PathGenMode
 
 enum class PixelFormat : core::EnumType
 {
@@ -1024,18 +805,6 @@ enum class PixelFormat : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum PixelFormat
 
-enum class InternalFormat : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    Rgb = 0x1907,
-    Rgba = 0x1908,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum InternalFormat
-
-enum class PixelMap : core::EnumType
-{
-}; // enum PixelMap
-
 enum class PixelStoreParameter : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -1043,14 +812,6 @@ enum class PixelStoreParameter : core::EnumType
     UnpackAlignment = 0x0CF5,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum PixelStoreParameter
-
-enum class PixelStoreResampleMode : core::EnumType
-{
-}; // enum PixelStoreResampleMode
-
-enum class PixelStoreSubsampleRate : core::EnumType
-{
-}; // enum PixelStoreSubsampleRate
 
 enum class PixelTexGenMode : core::EnumType
 {
@@ -1061,10 +822,6 @@ enum class PixelTexGenMode : core::EnumType
     Rgba = 0x1908,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum PixelTexGenMode
-
-enum class PixelTexGenParameterNameSGIS : core::EnumType
-{
-}; // enum PixelTexGenParameterNameSGIS
 
 enum class PixelTransferParameter : core::EnumType
 {
@@ -1086,6 +843,13 @@ enum class PixelType : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum PixelType
 
+enum class PointParameterNameARB : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    PointFadeThresholdSize = 0x8128,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum PointParameterNameARB
+
 enum class PointParameterNameSGIS : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -1095,10 +859,6 @@ enum class PointParameterNameSGIS : core::EnumType
     PointSizeMin = 0x8126,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum PointParameterNameSGIS
-
-enum class PolygonMode : core::EnumType
-{
-}; // enum PolygonMode
 
 enum class PrimitiveType : core::EnumType
 {
@@ -1113,11 +873,6 @@ enum class PrimitiveType : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum PrimitiveType
 
-enum class OcclusionQueryEventMaskAMD : core::EnumType
-{
-}; // enum OcclusionQueryEventMaskAMD
-constexpr core::Bitfield<OcclusionQueryEventMaskAMD> operator|(OcclusionQueryEventMaskAMD left, OcclusionQueryEventMaskAMD right) { return core::Bitfield<OcclusionQueryEventMaskAMD>(left) | right;}
-
 enum class ReadBufferMode : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -1126,21 +881,15 @@ enum class ReadBufferMode : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum ReadBufferMode
 
-enum class RenderingMode : core::EnumType
+enum class SamplerParameterI : core::EnumType
 {
-}; // enum RenderingMode
-
-enum class SamplePatternSGIS : core::EnumType
-{
-}; // enum SamplePatternSGIS
-
-enum class SemaphoreParameterName : core::EnumType
-{
-}; // enum SemaphoreParameterName
-
-enum class SeparableTargetEXT : core::EnumType
-{
-}; // enum SeparableTargetEXT
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    TextureMagFilter = 0x2800,
+    TextureMinFilter = 0x2801,
+    TextureWrapS = 0x2802,
+    TextureWrapT = 0x2803,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum SamplerParameterI
 
 enum class ShadingModel : core::EnumType
 {
@@ -1195,11 +944,6 @@ enum class StringName : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum StringName
 
-enum class SyncObjectMask : core::EnumType
-{
-}; // enum SyncObjectMask
-constexpr core::Bitfield<SyncObjectMask> operator|(SyncObjectMask left, SyncObjectMask right) { return core::Bitfield<SyncObjectMask>(left) | right;}
-
 enum class TexCoordPointerType : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
@@ -1207,10 +951,6 @@ enum class TexCoordPointerType : core::EnumType
     Short = 0x1402,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum TexCoordPointerType
-
-enum class TextureCoordName : core::EnumType
-{
-}; // enum TextureCoordName
 
 enum class TextureEnvMode : core::EnumType
 {
@@ -1236,18 +976,6 @@ enum class TextureEnvTarget : core::EnumType
     TextureEnv = 0x2300,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum TextureEnvTarget
-
-enum class TextureFilterFuncSGIS : core::EnumType
-{
-}; // enum TextureFilterFuncSGIS
-
-enum class TextureGenMode : core::EnumType
-{
-}; // enum TextureGenMode
-
-enum class TextureGenParameter : core::EnumType
-{
-}; // enum TextureGenParameter
 
 enum class TextureMagFilter : core::EnumType
 {
@@ -1280,10 +1008,14 @@ enum class TextureParameterName : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum TextureParameterName
 
-enum class TextureStorageMaskAMD : core::EnumType
+enum class TextureSwizzle : core::EnumType
 {
-}; // enum TextureStorageMaskAMD
-constexpr core::Bitfield<TextureStorageMaskAMD> operator|(TextureStorageMaskAMD left, TextureStorageMaskAMD right) { return core::Bitfield<TextureStorageMaskAMD>(left) | right;}
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Alpha = 0x1906,
+    One = 1,
+    Zero = 0,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum TextureSwizzle
 
 enum class TextureTarget : core::EnumType
 {
@@ -1291,39 +1023,6 @@ enum class TextureTarget : core::EnumType
     Texture2d = 0x0DE1,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum TextureTarget
-
-enum class TextureWrapMode : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    ClampToEdge = 0x812F,
-    Repeat = 0x2901,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum TextureWrapMode
-
-enum class UseProgramStageMask : core::EnumType
-{
-}; // enum UseProgramStageMask
-constexpr core::Bitfield<UseProgramStageMask> operator|(UseProgramStageMask left, UseProgramStageMask right) { return core::Bitfield<UseProgramStageMask>(left) | right;}
-
-enum class VertexPointerType : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    Float = 0x1406,
-    Short = 0x1402,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum VertexPointerType
-
-enum class FramebufferAttachment : core::EnumType
-{
-}; // enum FramebufferAttachment
-
-enum class RenderbufferTarget : core::EnumType
-{
-}; // enum RenderbufferTarget
-
-enum class FramebufferTarget : core::EnumType
-{
-}; // enum FramebufferTarget
 
 enum class TextureUnit : core::EnumType
 {
@@ -1363,307 +1062,31 @@ enum class TextureUnit : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum TextureUnit
 
-enum class ConditionalRenderMode : core::EnumType
-{
-}; // enum ConditionalRenderMode
-
-enum class FragmentOpATI : core::EnumType
-{
-}; // enum FragmentOpATI
-
-enum class FramebufferStatus : core::EnumType
-{
-}; // enum FramebufferStatus
-
-enum class GraphicsResetStatus : core::EnumType
+enum class TextureWrapMode : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    NoError = 0,
+    ClampToEdge = 0x812F,
+    LinearMipmapLinear = 0x2703,
+    Repeat = 0x2901,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum GraphicsResetStatus
+}; // enum TextureWrapMode
 
-enum class SyncStatus : core::EnumType
-{
-}; // enum SyncStatus
-
-enum class QueryTarget : core::EnumType
-{
-}; // enum QueryTarget
-
-enum class QueryCounterTarget : core::EnumType
-{
-}; // enum QueryCounterTarget
-
-enum class ConvolutionTarget : core::EnumType
-{
-}; // enum ConvolutionTarget
-
-enum class PathFillMode : core::EnumType
+enum class UniformType : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    Invert = 0x150A,
+    Float = 0x1406,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum PathFillMode
+}; // enum UniformType
 
-enum class ColorTableTarget : core::EnumType
-{
-}; // enum ColorTableTarget
-
-enum class VertexBufferObjectParameter : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    BufferSize = 0x8764,
-    BufferUsage = 0x8765,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum VertexBufferObjectParameter
-
-enum class RenderbufferParameterName : core::EnumType
-{
-}; // enum RenderbufferParameterName
-
-enum class VertexBufferObjectUsage : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    DynamicDraw = 0x88E8,
-    StaticDraw = 0x88E4,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum VertexBufferObjectUsage
-
-enum class FramebufferParameterName : core::EnumType
-{
-}; // enum FramebufferParameterName
-
-enum class ProgramParameterPName : core::EnumType
-{
-}; // enum ProgramParameterPName
-
-enum class BlendingFactor : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    DstAlpha = 0x0304,
-    DstColor = 0x0306,
-    One = 1,
-    OneMinusDstAlpha = 0x0305,
-    OneMinusDstColor = 0x0307,
-    OneMinusSrcAlpha = 0x0303,
-    OneMinusSrcColor = 0x0301,
-    Src1Alpha = 0x8589,
-    SrcAlpha = 0x0302,
-    SrcAlphaSaturate = 0x0308,
-    SrcColor = 0x0300,
-    Zero = 0,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum BlendingFactor
-
-enum class BindTransformFeedbackTarget : core::EnumType
-{
-}; // enum BindTransformFeedbackTarget
-
-enum class BlitFramebufferFilter : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    Linear = 0x2601,
-    Nearest = 0x2600,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum BlitFramebufferFilter
-
-enum class BufferStorageTarget : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    ArrayBuffer = 0x8892,
-    ElementArrayBuffer = 0x8893,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum BufferStorageTarget
-
-enum class CheckFramebufferStatusTarget : core::EnumType
-{
-}; // enum CheckFramebufferStatusTarget
-
-enum class Buffer : core::EnumType
-{
-}; // enum Buffer
-
-enum class ClipControlOrigin : core::EnumType
-{
-}; // enum ClipControlOrigin
-
-enum class ClipControlDepth : core::EnumType
-{
-}; // enum ClipControlDepth
-
-enum class CopyBufferSubDataTarget : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    ArrayBuffer = 0x8892,
-    ElementArrayBuffer = 0x8893,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum CopyBufferSubDataTarget
-
-enum class ShaderType : core::EnumType
-{
-}; // enum ShaderType
-
-enum class DebugSource : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    DontCare = 0x1100,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum DebugSource
-
-enum class DebugType : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    DontCare = 0x1100,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum DebugType
-
-enum class DebugSeverity : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    DontCare = 0x1100,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum DebugSeverity
-
-enum class SyncCondition : core::EnumType
-{
-}; // enum SyncCondition
-
-enum class FogPName : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    FogDensity = 0x0B62,
-    FogEnd = 0x0B64,
-    FogMode = 0x0B65,
-    FogStart = 0x0B63,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum FogPName
-
-enum class AtomicCounterBufferPName : core::EnumType
-{
-}; // enum AtomicCounterBufferPName
-
-enum class UniformBlockPName : core::EnumType
-{
-}; // enum UniformBlockPName
-
-enum class UniformPName : core::EnumType
-{
-}; // enum UniformPName
-
-enum class SamplerParameterName : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    TextureMagFilter = 0x2800,
-    TextureMinFilter = 0x2801,
-    TextureWrapS = 0x2802,
-    TextureWrapT = 0x2803,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum SamplerParameterName
-
-enum class VertexProvokingMode : core::EnumType
-{
-}; // enum VertexProvokingMode
-
-enum class PatchParameterName : core::EnumType
-{
-}; // enum PatchParameterName
-
-enum class ObjectIdentifier : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    Texture = 0x1702,
-    VertexArray = 0x8074,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum ObjectIdentifier
-
-enum class ColorBuffer : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    Back = 0x0405,
-    Front = 0x0404,
-    FrontAndBack = 0x0408,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum ColorBuffer
-
-enum class MapQuery : core::EnumType
-{
-}; // enum MapQuery
-
-enum class VertexArrayPName : core::EnumType
-{
-}; // enum VertexArrayPName
-
-enum class TransformFeedbackPName : core::EnumType
-{
-}; // enum TransformFeedbackPName
-
-enum class SyncParameterName : core::EnumType
-{
-}; // enum SyncParameterName
-
-enum class ShaderParameterName : core::EnumType
-{
-}; // enum ShaderParameterName
-
-enum class QueryObjectParameterName : core::EnumType
-{
-}; // enum QueryObjectParameterName
-
-enum class QueryParameterName : core::EnumType
-{
-}; // enum QueryParameterName
-
-enum class ProgramStagePName : core::EnumType
-{
-}; // enum ProgramStagePName
-
-enum class PipelineParameterName : core::EnumType
-{
-}; // enum PipelineParameterName
-
-enum class ProgramInterface : core::EnumType
-{
-}; // enum ProgramInterface
-
-enum class VertexAttribEnum : core::EnumType
-{
-}; // enum VertexAttribEnum
-
-enum class VertexAttribType : core::EnumType
+enum class VertexAttribIType : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
     Byte = 0x1400,
-    Fixed = 0x140C,
-    Float = 0x1406,
     Short = 0x1402,
     UnsignedByte = 0x1401,
     UnsignedShort = 0x1403,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum VertexAttribType
-
-enum class AttributeType : core::EnumType
-{
-}; // enum AttributeType
-
-enum class InternalFormatPName : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    GenerateMipmap = 0x8191,
-    Samples = 0x80A9,
-#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum InternalFormatPName
-
-enum class FramebufferAttachmentParameterName : core::EnumType
-{
-}; // enum FramebufferAttachmentParameterName
-
-enum class ProgramInterfacePName : core::EnumType
-{
-}; // enum ProgramInterfacePName
-
-enum class PrecisionType : core::EnumType
-{
-}; // enum PrecisionType
+}; // enum VertexAttribIType
 
 enum class VertexAttribPointerType : core::EnumType
 {
@@ -1677,226 +1100,188 @@ enum class VertexAttribPointerType : core::EnumType
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 }; // enum VertexAttribPointerType
 
-enum class SubroutineParameterName : core::EnumType
-{
-}; // enum SubroutineParameterName
-
-enum class GetFramebufferParameter : core::EnumType
+enum class VertexAttribType : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    Samples = 0x80A9,
-    SampleBuffers = 0x80A8,
+    Byte = 0x1400,
+    Fixed = 0x140C,
+    Float = 0x1406,
+    Short = 0x1402,
+    UnsignedByte = 0x1401,
+    UnsignedShort = 0x1403,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum GetFramebufferParameter
+}; // enum VertexAttribType
 
-enum class PathStringFormat : core::EnumType
-{
-}; // enum PathStringFormat
-
-enum class PathFontTarget : core::EnumType
-{
-}; // enum PathFontTarget
-
-enum class PathHandleMissingGlyphs : core::EnumType
-{
-}; // enum PathHandleMissingGlyphs
-
-enum class PathParameter : core::EnumType
-{
-}; // enum PathParameter
-
-enum class PathColor : core::EnumType
+enum class VertexBufferObjectParameter : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    PrimaryColor = 0x8577,
+    BufferSize = 0x8764,
+    BufferUsage = 0x8765,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum PathColor
+}; // enum VertexBufferObjectParameter
 
-enum class PathGenMode : core::EnumType
+enum class VertexBufferObjectUsage : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-    Constant = 0x8576,
+    DynamicDraw = 0x88E8,
+    StaticDraw = 0x88E4,
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-}; // enum PathGenMode
+}; // enum VertexBufferObjectUsage
 
-enum class TextureLayout : core::EnumType
+enum class VertexPointerType : core::EnumType
 {
-}; // enum TextureLayout
-
-enum class PathTransformType : core::EnumType
-{
-}; // enum PathTransformType
-
-enum class PathElementType : core::EnumType
-{
-}; // enum PathElementType
-
-enum class PathCoverMode : core::EnumType
-{
-}; // enum PathCoverMode
-
-enum class PathFontStyle : core::EnumType
-{
-}; // enum PathFontStyle
-
-enum class PathMetricMask : core::EnumType
-{
-}; // enum PathMetricMask
-
-enum class PathListMode : core::EnumType
-{
-}; // enum PathListMode
-
-enum class ProgramPropertyARB : core::EnumType
-{
-}; // enum ProgramPropertyARB
+#if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+    Float = 0x1406,
+    Short = 0x1402,
+#endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
+}; // enum VertexPointerType
 
 // commands
 #if defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
-extern void bindBuffer(BufferTargetARB target, uint32_t buffer);
-extern void lightx(LightName light, LightParameter pname, core::Fixed param);
-extern void getLight(LightName light, LightParameter pname, float *params);
-extern void sampleCoverage(float value, bool invert);
-extern void enable(EnableCap cap);
-extern void clearDepthx(core::Fixed depth);
-extern void texCoordPointer(int32_t size, TexCoordPointerType type, core::SizeType stride, const void *pointer);
-extern void clearStencil(int32_t s);
-extern void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *params);
-extern void lineWidthx(core::Fixed width);
-extern void copyTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, int32_t x, int32_t y, core::SizeType width, core::SizeType height, int32_t border);
-extern void texParameterxv(TextureTarget target, GetTextureParameter pname, const core::Fixed *params);
-extern void getFixe(GetPName pname, core::Fixed *params);
-extern void normalPointer(NormalPointerType type, core::SizeType stride, const void *pointer);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const float *params);
-extern void deleteBuffers(core::SizeType n, const uint32_t *buffers);
-extern void getTexEnvxv(TextureEnvTarget target, TextureEnvParameter pname, core::Fixed *params);
-extern void depthMask(bool flag);
 extern void getTexParameter(TextureTarget target, GetTextureParameter pname, float *params);
-extern void getLightxv(LightName light, LightParameter pname, core::Fixed *params);
-extern void lightModel(LightModelParameter pname, float param);
-extern void pointParameterxv(PointParameterNameARB pname, const core::Fixed *params);
-extern void rotate(float angle, float x, float y, float z);
-extern void texEnvx(TextureEnvTarget target, TextureEnvParameter pname, core::Fixed param);
-extern void loadMatrix(const float *m);
-extern void hint(HintTarget target, HintMode mode);
-extern bool isTexture(uint32_t texture);
-extern void lightModelxv(LightModelParameter pname, const core::Fixed *param);
-extern void colorPointer(int32_t size, ColorPointerType type, core::SizeType stride, const void *pointer);
 extern void readPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, void *pixels);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const int32_t *params);
-extern void clearDepth(float d);
-extern void lightxv(LightName light, LightParameter pname, const core::Fixed *params);
-extern void deleteTextures(core::SizeType n, const uint32_t *textures);
-extern void translatex(core::Fixed x, core::Fixed y, core::Fixed z);
-extern void texSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
-extern void getClipPlane(ClipPlaneName plane, float *equation);
-extern void logicOp(LogicOp opcode);
-extern void material(MaterialFace face, MaterialParameter pname, const float *params);
-extern void loadMatrixx(const core::Fixed *m);
-extern void scissor(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void blendFunc(BlendingFactor sfactor, BlendingFactor dfactor);
-extern void lightModelx(LightModelParameter pname, core::Fixed param);
-extern void flush();
-extern void fogx(FogPName pname, core::Fixed param);
-extern void getBooleanv(GetPName pname, bool *data);
-extern void stencilFunc(StencilFunction func, int32_t ref, uint32_t mask);
-extern void finish();
-extern void fog(FogParameter pname, const float *params);
-extern void pointParameter(PointParameterNameARB pname, float param);
-extern void getMaterialxv(MaterialFace face, MaterialParameter pname, core::Fixed *params);
-extern void texParameter(TextureTarget target, TextureParameterName pname, int32_t param);
-extern void getTexParameterxv(TextureTarget target, GetTextureParameter pname, core::Fixed *params);
-extern void compressedTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, core::SizeType imageSize, const void *data);
-extern void bufferData(BufferTargetARB target, std::size_t size, const void *data, BufferUsageARB usage);
-extern void multMatrix(const float *m);
-extern void light(LightName light, LightParameter pname, float param);
-extern void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void *data);
-extern void drawElements(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices);
-extern void genTextures(core::SizeType n, uint32_t *textures);
-extern core::EnumType getError();
-extern void alphaFunc(AlphaFunction func, float ref);
-extern void translate(float x, float y, float z);
-extern void texEnvxv(TextureEnvTarget target, TextureEnvParameter pname, const core::Fixed *params);
-extern void frontFace(FrontFaceDirection mode);
-extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t *params);
-extern void frustumx(core::Fixed l, core::Fixed r, core::Fixed b, core::Fixed t, core::Fixed n, core::Fixed f);
-extern void getIntegerv(GetPName pname, int32_t *data);
-extern void normal3(float nx, float ny, float nz);
-extern void colorMask(bool red, bool green, bool blue, bool alpha);
-extern void clipPlanex(ClipPlaneName plane, const core::Fixed *equation);
-extern void materialxv(MaterialFace face, MaterialParameter pname, const core::Fixed *param);
-extern void scale(float x, float y, float z);
-extern void lightModel(LightModelParameter pname, const float *params);
-extern void color4(float red, float green, float blue, float alpha);
-extern void multiTexCoord4(TextureUnit target, float s, float t, float r, float q);
-extern void fog(FogParameter pname, float param);
-extern void matrixMode(MatrixMode mode);
-extern void polygonOffset(float factor, float units);
-extern void texImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, PixelFormat format, PixelType type, const void *pixels);
-extern void texParameterx(TextureTarget target, GetTextureParameter pname, core::Fixed param);
-extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t *params);
-extern void shadeModel(ShadingModel mode);
-extern void clearColorx(core::Fixed red, core::Fixed green, core::Fixed blue, core::Fixed alpha);
-extern void loadIdentity();
-extern void genBuffers(core::SizeType n, uint32_t *buffers);
-extern void cullFace(CullFaceMode mode);
-extern void disable(EnableCap cap);
-extern void clear(core::Bitfield<ClearBufferMask> mask);
+extern void texCoordPointer(int32_t size, TexCoordPointerType type, core::SizeType stride, const void *pointer);
 extern void polygonOffsetx(core::Fixed factor, core::Fixed units);
-extern void bindTexture(TextureTarget target, uint32_t texture);
-extern void clipPlane(ClipPlaneName p, const float *eqn);
-extern void color4x(core::Fixed red, core::Fixed green, core::Fixed blue, core::Fixed alpha);
-extern void getMaterial(MaterialFace face, MaterialParameter pname, float *params);
-extern void depthRangex(core::Fixed n, core::Fixed f);
-extern void activeTexture(TextureUnit texture);
-extern void rotatex(core::Fixed angle, core::Fixed x, core::Fixed y, core::Fixed z);
-extern void scalex(core::Fixed x, core::Fixed y, core::Fixed z);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, float param);
-extern const uint8_t *getString(StringName name);
-extern void lineWidth(float width);
-extern void multMatrixx(const core::Fixed *m);
-extern void fogxv(FogPName pname, const core::Fixed *param);
-extern void material(MaterialFace face, MaterialParameter pname, float param);
+extern void light(LightName light, LightParameter pname, float param);
+extern void clearStencil(int32_t s);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const int32_t *params);
 extern void stencilMask(uint32_t mask);
-extern void pointParameterx(PointParameterNameARB pname, core::Fixed param);
-extern void getPointerv(GetPointervPName pname, void **params);
-extern void materialx(MaterialFace face, MaterialParameter pname, core::Fixed param);
-extern void clearColor(float red, float green, float blue, float alpha);
-extern void stencilOp(StencilOp fail, StencilOp zfail, StencilOp zpass);
-extern void texParameter(TextureTarget target, TextureParameterName pname, float param);
-extern void normal3x(core::Fixed nx, core::Fixed ny, core::Fixed nz);
-extern void getClipPlanex(ClipPlaneName plane, core::Fixed *equation);
 extern void drawArrays(PrimitiveType mode, int32_t first, core::SizeType count);
-extern void vertexPointer(int32_t size, VertexPointerType type, core::SizeType stride, const void *pointer);
 extern bool isEnable(EnableCap cap);
-extern void alphaFuncx(AlphaFunction func, core::Fixed ref);
-extern void enableClientState(EnableCap array);
-extern void pointSizex(core::Fixed size);
-extern void clientActiveTexture(TextureUnit texture);
-extern void depthFunc(DepthFunction func);
-extern void ortho(float l, float r, float b, float t, float n, float f);
-extern void color4(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
-extern bool isBuffer(uint32_t buffer);
-extern void compressedTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, core::SizeType imageSize, const void *data);
-extern void pointSize(float size);
-extern void copyTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void frustum(float l, float r, float b, float t, float n, float f);
-extern void multiTexCoord4x(TextureUnit texture, core::Fixed s, core::Fixed t, core::Fixed r, core::Fixed q);
-extern void light(LightName light, LightParameter pname, const float *params);
-extern void texParameter(TextureTarget target, TextureParameterName pname, const float *params);
-extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, float *params);
-extern void pointParameter(PointParameterNameARB pname, const float *params);
-extern void popMatrix();
-extern void pushMatrix();
-extern void disableClientState(EnableCap array);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t param);
-extern void orthox(core::Fixed l, core::Fixed r, core::Fixed b, core::Fixed t, core::Fixed n, core::Fixed f);
-extern void pixelStore(PixelStoreParameter pname, int32_t param);
-extern void getFloatv(GetPName pname, float *data);
-extern void sampleCoveragex(GLclampx value, bool invert);
+extern void frustumx(core::Fixed l, core::Fixed r, core::Fixed b, core::Fixed t, core::Fixed n, core::Fixed f);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, float param);
+extern void bindTexture(TextureTarget target, uint32_t texture);
+extern void vertexPointer(int32_t size, VertexPointerType type, core::SizeType stride, const void *pointer);
+extern void texParameterxv(TextureTarget target, GetTextureParameter pname, const core::Fixed *params);
 extern void depthRange(float n, float f);
 extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t *params);
+extern void polygonOffset(float factor, float units);
+extern void multMatrixx(const core::Fixed *m);
+extern void getMaterialxv(MaterialFace face, MaterialParameter pname, core::Fixed *params);
+extern void pointParameterxv(PointParameterNameARB pname, const core::Fixed *params);
+extern void matrixMode(MatrixMode mode);
+extern void getLightxv(LightName light, LightParameter pname, core::Fixed *params);
+extern void fog(FogParameter pname, float param);
+extern void alphaFuncx(AlphaFunction func, core::Fixed ref);
+extern void stencilFunc(StencilFunction func, int32_t ref, uint32_t mask);
+extern void multiTexCoord4(TextureUnit target, float s, float t, float r, float q);
+extern void color4(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+extern void pixelStore(PixelStoreParameter pname, int32_t param);
+extern void fogx(FogPName pname, core::Fixed param);
+extern core::EnumType getError();
+extern void light(LightName light, LightParameter pname, const float *params);
+extern void getClipPlanex(ClipPlaneName plane, core::Fixed *equation);
+extern void frontFace(FrontFaceDirection mode);
+extern void clientActiveTexture(TextureUnit texture);
+extern void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void *data);
+extern void loadMatrixx(const core::Fixed *m);
+extern void normalPointer(NormalPointerType type, core::SizeType stride, const void *pointer);
+extern void orthox(core::Fixed l, core::Fixed r, core::Fixed b, core::Fixed t, core::Fixed n, core::Fixed f);
+extern void scalex(core::Fixed x, core::Fixed y, core::Fixed z);
+extern void getIntegerv(GetPName pname, int32_t *data);
+extern void getPointerv(GetPointervPName pname, void **params);
+extern void pushMatrix();
+extern void disableClientState(EnableCap array);
+extern void material(MaterialFace face, MaterialParameter pname, const float *params);
+extern void copyTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void stencilOp(StencilOp fail, StencilOp zfail, StencilOp zpass);
+extern void texParameter(TextureTarget target, TextureParameterName pname, float param);
+extern void rotatex(core::Fixed angle, core::Fixed x, core::Fixed y, core::Fixed z);
+extern void getBooleanv(GetPName pname, bool *data);
+extern void lineWidthx(core::Fixed width);
+extern void compressedTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, core::SizeType imageSize, const void *data);
+extern void ortho(float l, float r, float b, float t, float n, float f);
+extern bool isTexture(uint32_t texture);
+extern void lightx(LightName light, LightParameter pname, core::Fixed param);
+extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t *params);
+extern void disable(EnableCap cap);
+extern void translatex(core::Fixed x, core::Fixed y, core::Fixed z);
+extern const uint8_t *getString(StringName name);
+extern void hint(HintTarget target, HintMode mode);
+extern void clipPlane(ClipPlaneName p, const float *eqn);
+extern void getTexEnvxv(TextureEnvTarget target, TextureEnvParameter pname, core::Fixed *params);
+extern void sampleCoverage(float value, bool invert);
+extern void fog(FogParameter pname, const float *params);
+extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t *params);
+extern void rotate(float angle, float x, float y, float z);
+extern void lightxv(LightName light, LightParameter pname, const core::Fixed *params);
+extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void multMatrix(const float *m);
+extern void getTexParameterxv(TextureTarget target, GetTextureParameter pname, core::Fixed *params);
+extern void alphaFunc(AlphaFunction func, float ref);
+extern void pointParameterx(PointParameterNameARB pname, core::Fixed param);
+extern void genTextures(core::SizeType n, uint32_t *textures);
+extern void clearDepthx(core::Fixed depth);
+extern void depthMask(bool flag);
+extern void getLight(LightName light, LightParameter pname, float *params);
+extern void clearColor(float red, float green, float blue, float alpha);
+extern void normal3x(core::Fixed nx, core::Fixed ny, core::Fixed nz);
+extern void popMatrix();
+extern void translate(float x, float y, float z);
+extern void frustum(float l, float r, float b, float t, float n, float f);
+extern void colorMask(bool red, bool green, bool blue, bool alpha);
+extern void lineWidth(float width);
+extern void texSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
+extern void normal3(float nx, float ny, float nz);
+extern void drawElements(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices);
+extern void texImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, PixelFormat format, PixelType type, const void *pixels);
+extern void colorPointer(int32_t size, ColorPointerType type, core::SizeType stride, const void *pointer);
+extern void materialx(MaterialFace face, MaterialParameter pname, core::Fixed param);
+extern void materialxv(MaterialFace face, MaterialParameter pname, const core::Fixed *param);
+extern void depthFunc(DepthFunction func);
+extern void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *params);
+extern void bufferData(BufferTargetARB target, std::size_t size, const void *data, BufferUsageARB usage);
+extern void clearDepth(float d);
+extern void lightModel(LightModelParameter pname, const float *params);
+extern void genBuffers(core::SizeType n, uint32_t *buffers);
+extern void loadMatrix(const float *m);
+extern void finish();
+extern void getClipPlane(ClipPlaneName plane, float *equation);
+extern void enableClientState(EnableCap array);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t param);
+extern void bindBuffer(BufferTargetARB target, uint32_t buffer);
+extern void copyTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, int32_t x, int32_t y, core::SizeType width, core::SizeType height, int32_t border);
+extern void lightModelx(LightModelParameter pname, core::Fixed param);
+extern void sampleCoveragex(GLclampx value, bool invert);
+extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, float *params);
+extern void logicOp(LogicOp opcode);
+extern void pointParameter(PointParameterNameARB pname, float param);
+extern void deleteTextures(core::SizeType n, const uint32_t *textures);
+extern void blendFunc(BlendingFactor sfactor, BlendingFactor dfactor);
+extern void texParameter(TextureTarget target, TextureParameterName pname, const float *params);
+extern void compressedTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, core::SizeType imageSize, const void *data);
+extern void fogxv(FogPName pname, const core::Fixed *param);
+extern void cullFace(CullFaceMode mode);
+extern void clear(core::Bitfield<ClearBufferMask> mask);
+extern void flush();
+extern void clearColorx(core::Fixed red, core::Fixed green, core::Fixed blue, core::Fixed alpha);
+extern void shadeModel(ShadingModel mode);
+extern void pointSize(float size);
+extern void lightModel(LightModelParameter pname, float param);
+extern void multiTexCoord4x(TextureUnit texture, core::Fixed s, core::Fixed t, core::Fixed r, core::Fixed q);
+extern void pointSizex(core::Fixed size);
+extern void activeTexture(TextureUnit texture);
+extern bool isBuffer(uint32_t buffer);
+extern void loadIdentity();
+extern void lightModelxv(LightModelParameter pname, const core::Fixed *param);
+extern void scale(float x, float y, float z);
+extern void scissor(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void enable(EnableCap cap);
+extern void clipPlanex(ClipPlaneName plane, const core::Fixed *equation);
+extern void material(MaterialFace face, MaterialParameter pname, float param);
+extern void color4(float red, float green, float blue, float alpha);
+extern void texEnvxv(TextureEnvTarget target, TextureEnvParameter pname, const core::Fixed *params);
+extern void getFloatv(GetPName pname, float *data);
+extern void pointParameter(PointParameterNameARB pname, const float *params);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const float *params);
+extern void texParameterx(TextureTarget target, GetTextureParameter pname, core::Fixed param);
+extern void depthRangex(core::Fixed n, core::Fixed f);
+extern void deleteBuffers(core::SizeType n, const uint32_t *buffers);
+extern void color4x(core::Fixed red, core::Fixed green, core::Fixed blue, core::Fixed alpha);
+extern void getMaterial(MaterialFace face, MaterialParameter pname, float *params);
+extern void texParameter(TextureTarget target, TextureParameterName pname, int32_t param);
+extern void texEnvx(TextureEnvTarget target, TextureEnvParameter pname, core::Fixed param);
+extern void getFixe(GetPName pname, core::Fixed *params);
 #endif // defined(API_LEVEL_GL_VERSION_ES_CM_1_0_common)
 
 }
