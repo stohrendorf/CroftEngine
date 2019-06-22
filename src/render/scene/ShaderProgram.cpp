@@ -209,7 +209,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
 
     static constexpr size_t SHADER_SOURCE_LENGTH = 3;
     const char* shaderSource[SHADER_SOURCE_LENGTH];
-    shaderSource[0] = "#version 410\n";
+    shaderSource[0] = "#version 430\n";
     shaderSource[1] = definesStr.c_str();
 
     std::string vshSourceStr;
