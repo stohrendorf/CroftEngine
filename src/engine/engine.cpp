@@ -542,8 +542,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
 
     for(auto& mesh : m_level->m_meshes)
     {
-        m_models.emplace_back(
-            mesh.createModel(m_level->m_textureTiles, materials, colorMaterial, *m_level->m_palette));
+        m_models.emplace_back(mesh.createModel(m_level->m_textureTiles, materials, colorMaterial, *m_level->m_palette));
     }
 
     for(auto idx : m_level->m_meshIndices)
@@ -1458,6 +1457,90 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                 item->getNode()->getChild(1)->setDrawable(laraPistol->models[1].get());
                 item->getNode()->getChild(4)->setDrawable(laraPistol->models[4].get());
             }
+        }
+    }
+
+    struct Rect
+    {
+        Rect(const std::array<loader::file::UVCoordinates, 4>& cos)
+        {
+            for(const auto& co : cos)
+            {
+                x0 = std::min(x0, co.xpixel);
+                y0 = std::min(y0, co.ypixel);
+                x1 = std::max(x1, co.xpixel);
+                y1 = std::max(y1, co.ypixel);
+            }
+        }
+
+        constexpr bool operator==(const Rect& rhs) const noexcept
+        {
+            return x0 == rhs.x0 && y0 == rhs.y0 && x1 == rhs.x1 && y1 == rhs.y1;
+        }
+
+        constexpr bool operator<(const Rect& rhs) const noexcept
+        {
+            if(x0 != rhs.x0)
+                return x0 < rhs.x0;
+            if(y0 != rhs.y0)
+                return y0 < rhs.y0;
+            if(x1 != rhs.x1)
+                return x1 < rhs.x1;
+            return y1 < rhs.y1;
+        }
+
+        uint8_t x0 = std::numeric_limits<uint8_t>::max(), y0 = std::numeric_limits<uint8_t>::max();
+        uint8_t x1 = std::numeric_limits<uint8_t>::min(), y1 = std::numeric_limits<uint8_t>::min();
+    };
+
+    std::map<int, std::set<Rect>> tilesByTexture;
+    BOOST_LOG_TRIVIAL(debug) << m_level->m_textureTiles.size() << " total texture tiles";
+    for(const auto& tile : m_level->m_textureTiles)
+    {
+        tilesByTexture[tile.textureKey.tileAndFlag & loader::file::TextureIndexMask].emplace(tile.uvCoordinates);
+    }
+
+    size_t totalTiles = 0;
+    for(const auto& textureAndTiles : tilesByTexture)
+        totalTiles += textureAndTiles.second.size();
+    BOOST_LOG_TRIVIAL(debug) << totalTiles << " unique texture tiles";
+
+    size_t processedTiles = 0;
+    for(const auto& textureAndTiles : tilesByTexture)
+    {
+        drawLoadingScreen("Mipmapping (" + std::to_string(processedTiles * 100 / totalTiles) + "%)");
+        processedTiles += textureAndTiles.second.size();
+
+        BOOST_LOG_TRIVIAL(debug) << "Mipmapping textue " << textureAndTiles.first;
+
+        const loader::file::DWordTexture& texture = m_level->m_textures.at(textureAndTiles.first);
+        Expects(texture.image->getWidth() == texture.image->getHeight());
+        const util::CImgWrapper src{reinterpret_cast<uint8_t*>(texture.image->getRawData()),
+                                    texture.image->getWidth(),
+                                    texture.image->getHeight(),
+                                    true};
+        int mipmapLevel = 1;
+        for(auto dstSize = texture.image->getWidth() / 2; dstSize > 1; dstSize /= 2, ++mipmapLevel)
+        {
+            BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize / 2 << ", "
+                                     << textureAndTiles.second.size() << " tiles)";
+            util::CImgWrapper dst{dstSize, dstSize};
+            for(const Rect& r : textureAndTiles.second)
+            {
+                const auto x0 = r.x0 * texture.image->getWidth() / 256;
+                const auto y0 = r.y0 * texture.image->getHeight() / 256;
+                const auto x1 = r.x1 * texture.image->getWidth() / 256;
+                const auto y1 = r.y1 * texture.image->getHeight() / 256;
+                util::CImgWrapper tmp = src.cropped(x0, y0, x1, y1);
+                for(int i = 0; i < mipmapLevel; ++i)
+                    tmp.resizeHalfMipmap();
+                // +1 for doing mathematically correct rounding
+                dst.replace((x0 * dstSize + 1) / texture.image->getWidth(),
+                            (y0 * dstSize + 1) / texture.image->getHeight(),
+                            tmp);
+            }
+            dst.interleave();
+            texture.texture->image(reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), mipmapLevel);
         }
     }
 

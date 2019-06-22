@@ -122,6 +122,23 @@ struct UVCoordinates
     int8_t ycoordinate; // 1 if Ypixel is the low value, -1 if Ypixel is the high value in the object texture
     uint8_t ypixel;
 
+    constexpr bool operator==(const UVCoordinates& rhs) const noexcept
+    {
+        return xcoordinate == rhs.xcoordinate && xpixel == rhs.xpixel && ycoordinate == rhs.ycoordinate
+               && ypixel == rhs.ypixel;
+    }
+
+    constexpr bool operator<(const UVCoordinates& rhs) const noexcept
+    {
+        if(xcoordinate != rhs.xcoordinate)
+            return xcoordinate < rhs.xcoordinate;
+        if(xpixel != rhs.xpixel)
+            return xpixel < rhs.xpixel;
+        if(ycoordinate != rhs.ycoordinate)
+            return ycoordinate < rhs.ycoordinate;
+        return ypixel < rhs.ypixel;
+    }
+
     /// \brief reads object texture vertex definition.
     static UVCoordinates readTr1(io::SDLReader& reader)
     {
@@ -219,11 +236,34 @@ struct TextureTile
 {
     TextureKey textureKey;
 
-    UVCoordinates uvCoordinates[4]; // the four corners of the texture
-    uint32_t unknown1;              // TR4
-    uint32_t unknown2;              // TR4
-    uint32_t x_size;                // TR4
-    uint32_t y_size;                // TR4
+    std::array<UVCoordinates, 4> uvCoordinates; // the four corners of the texture
+    uint32_t unknown1;                          // TR4
+    uint32_t unknown2;                          // TR4
+    uint32_t x_size;                            // TR4
+    uint32_t y_size;                            // TR4
+
+    bool operator==(const TextureTile& rhs) const
+    {
+        return textureKey == rhs.textureKey && uvCoordinates == rhs.uvCoordinates && unknown1 == rhs.unknown1
+               && unknown2 == rhs.unknown2 && x_size == rhs.x_size && y_size == rhs.y_size;
+    }
+
+    bool operator<(const TextureTile& rhs) const
+    {
+        if(!(textureKey == rhs.textureKey))
+            return textureKey < rhs.textureKey;
+
+        if(unknown1 != rhs.unknown1)
+            return unknown1 < rhs.unknown1;
+
+        if(unknown2 != rhs.unknown2)
+            return unknown2 < rhs.unknown2;
+
+        if(x_size != rhs.x_size)
+            return x_size < rhs.x_size;
+
+        return y_size < rhs.y_size;
+    }
 
     /** \brief reads object texture definition.
     *

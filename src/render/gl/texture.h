@@ -106,23 +106,46 @@ public:
         return *this;
     }
 
-    Texture2D<PixelT>& image(const std::vector<PixelT>& data)
+    Texture2D<PixelT>& image(const std::vector<PixelT>& data, uint8_t level = 0)
     {
-        BOOST_ASSERT(m_width > 0 && m_height > 0);
-        BOOST_ASSERT(data.empty()
-                     || static_cast<std::size_t>(m_width) * static_cast<std::size_t>(m_height) == data.size());
+        Expects(level < 32);
+        Expects(m_width > 0 && m_height > 0);
+        const int levelDiv = 1 << level;
+        Expects(data.empty()
+                || static_cast<std::size_t>(m_width / levelDiv) * static_cast<std::size_t>(m_height / levelDiv)
+                       == data.size());
 
         bind();
 
-        GL_ASSERT(::gl::texImage2D(m_type,
-                                   0,
+        GL_ASSERT(::gl::texImage2D(getType(),
+                                   level,
                                    PixelT::InternalFormat,
-                                   m_width,
-                                   m_height,
+                                   m_width / levelDiv,
+                                   m_height / levelDiv,
                                    0,
                                    PixelT::PixelFormat,
                                    PixelT::PixelType,
                                    data.empty() ? nullptr : data.data()));
+
+        return *this;
+    }
+
+    Texture2D<PixelT>& image(const PixelT* data, uint8_t level = 0)
+    {
+        Expects(level < 32);
+        Expects(m_width > 0 && m_height > 0);
+        const int levelDiv = 1 << level;
+        bind();
+
+        GL_ASSERT(::gl::texImage2D(getType(),
+                                   level,
+                                   PixelT::InternalFormat,
+                                   m_width / levelDiv,
+                                   m_height / levelDiv,
+                                   0,
+                                   PixelT::PixelFormat,
+                                   PixelT::PixelType,
+                                   data));
 
         return *this;
     }

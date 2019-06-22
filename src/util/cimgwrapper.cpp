@@ -106,6 +106,15 @@ void CImgWrapper::resize(const int width, const int height)
         m_image->resize(4, width, height, 1, 6);
 }
 
+void CImgWrapper::resizeHalfMipmap()
+{
+    unshare();
+    if(!m_interleaved)
+        m_image->resize(width() / 2, height() / 2, 1, 4, 6, 1);
+    else
+        m_image->resize(4, width() / 2, height() / 2, 1, 6, 1);
+}
+
 void CImgWrapper::crop(const int x0, const int y0, const int x1, const int y1)
 {
     unshare();
@@ -113,6 +122,18 @@ void CImgWrapper::crop(const int x0, const int y0, const int x1, const int y1)
         m_image->crop(x0, y0, 0, 0, x1, y1, 0, 3);
     else
         m_image->crop(0, x0, y0, 0, 3, x1, y1, 0);
+}
+
+CImgWrapper CImgWrapper::cropped(const int x0, const int y0, const int x1, const int y1) const
+{
+    CImgWrapper result{};
+    result.m_interleaved = m_interleaved;
+    if(!m_interleaved)
+        result.m_image = std::make_unique<cimg_library::CImg<uint8_t>>(m_image->get_crop(x0, y0, 0, 0, x1, y1, 0, 3));
+    else
+        result.m_image = std::make_unique<cimg_library::CImg<uint8_t>>(m_image->get_crop(0, x0, y0, 0, 3, x1, y1, 0));
+    result.unshare();
+    return result;
 }
 
 uint8_t& CImgWrapper::operator()(const int x, const int y, const int c)

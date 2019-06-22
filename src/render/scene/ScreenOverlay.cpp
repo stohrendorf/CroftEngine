@@ -24,7 +24,7 @@ ScreenOverlay::~ScreenOverlay() = default;
 void ScreenOverlay::render(RenderContext& context)
 {
     context.pushState(getRenderState());
-    m_texture->subImage(m_image->getData());
+    m_texture->image(m_image->getData());
     m_model->render(context);
     context.popState();
 }
