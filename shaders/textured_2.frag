@@ -6,6 +6,9 @@ uniform float u_time;
 in vec2 v_texCoord;
 in vec3 v_color;
 in vec3 v_vertexPos;
+#ifdef WATER
+in vec3 v_vertexPosWorld;
+#endif
 in vec3 v_normal;
 in vec3 v_ssaoNormal;
 
@@ -79,9 +82,9 @@ void main()
 
 #ifdef WATER
     const float Scale1 = 0.003;
-    out_color.rgb *= clamp(abs(voronoi(v_vertexPos * Scale1))+0.5, 0, 1);
+    out_color.rgb *= clamp(abs(voronoi(v_vertexPosWorld * Scale1))+0.5, 0, 1);
     const float Scale2 = 0.0011;
-    out_color.rgb *= clamp(abs(voronoi(v_vertexPos * Scale2))+0.5, 0, 1);
+    out_color.rgb *= clamp(abs(voronoi(v_vertexPosWorld * Scale2))+0.5, 0, 1);
 #endif
 
     out_color *= calc_positional_lighting(v_normal, v_vertexPos);
