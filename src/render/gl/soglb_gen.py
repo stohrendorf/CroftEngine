@@ -210,6 +210,51 @@ def _make_guard(defines: Iterable[str]) -> str:
     return ' || '.join(['defined({})'.format(x) for x in sorted(defines)])
 
 
+def build_guarded_commands(versions_profiles: Dict[str, Dict[Optional[str], ConstantsCommands]]) -> Dict[str, Set[str]]:
+    command_guards = defaultdict(set)  # type: Dict[str, Set[str]]
+
+    for version, profiles in versions_profiles.items():
+        for profile_name, profile_data in profiles.items():
+            for command_name in sorted(profile_data.commands):
+                command_guards[command_name].add(_make_version_macro(version, profile_name))
+
+    # reverse mapping dir, for less if/endif pairs
+    guards_commands = defaultdict(set)  # type: Dict[Tuple[str, ...], Set[str]]
+    for command_name, guards in command_guards.items():
+        guards_commands[tuple(sorted(guards))].add(command_name)
+
+    return guards_commands
+
+
+def build_guarded_constants(versions_profiles: Dict[str, Dict[Optional[str], ConstantsCommands]],
+                            enum: Enum,
+                            constants: Dict[str, str]) -> Optional[Dict[Tuple[str, ...], Set[str]]]:
+    constant_guards = defaultdict(set)  # type: Dict[str, Set[str]]
+    for version, profiles in versions_profiles.items():
+        for profile_name, profile_data in profiles.items():
+            constant_guard = _make_version_macro(version, profile_name)
+            for constant_name in enum.constants:
+                if not constant_name.startswith('GL_'):
+                    constant_name = 'GL_' + constant_name
+                constant_val = constants.get(constant_name)
+                if constant_val is None:
+                    logging.warning(
+                        'Constant referenced by enum {} not found: {}'.format(enum.name, constant_name))
+                    continue
+                if constant_name in profile_data.constants:
+                    constant_guards[constant_name].add(constant_guard)
+
+    if len(constant_guards) == 0:
+        logging.warning('Skipping - no members')
+        return None
+
+    guards_constants = defaultdict(set)  # type: Dict[Tuple[str, ...], Set[str]]
+    for constant_name, guards in constant_guards.items():
+        guards_constants[tuple(sorted(guards))].add(constant_name)
+
+    return guards_constants
+
+
 def load_xml():
     # load gl.xml
     xml = ElementTree.parse(XML_NAME)  # type: Element
@@ -227,7 +272,7 @@ def load_xml():
             key=lambda x: x[1]
         ))
         for version_name in version_names:
-            logging.info("Loading API version {}".format(version_name))
+            logging.info("  Loading API version {}".format(version_name))
             xml_feature = next(filter(lambda x: x.attrib['name'] == version_name,
                                       xml.iterfind('./feature[@api="{}"]'.format(api_name))))
 
@@ -281,16 +326,16 @@ def load_xml():
             apis_versions_profiles[api_name][version_name] = deepcopy(profile_data)
 
     logging.info('APIs summary')
-    for api_name, versions_profiles in apis_versions_profiles.items():
+    for api_name, versions_profiles in sorted(apis_versions_profiles.items()):
         logging.info('  API {}'.format(api_name))
-        for version_name, profiles in versions_profiles.items():
+        for version_name, profiles in sorted(versions_profiles.items()):
             logging.info('    API version {}'.format(version_name))
 
             if len(profiles) > 1:
                 # drop non-profile in case we have profiles
                 del profiles[None]
 
-            for profile_name, profile_data in profiles.items():
+            for profile_name, profile_data in sorted(profiles.items()):
                 logging.info('      profile {}: {} constants, {} commands'.format(profile_name or "*",
                                                                                   len(profile_data.constants),
                                                                                   len(profile_data.commands)))
@@ -368,39 +413,23 @@ def load_xml():
 
             total_guards = sum([len(p) for p in versions_profiles.values()])
 
+            '''
+            TODO
             f.write('// API extensions\n')
             for extension_name, apis_profiles in sorted(extensions_apis_profiles.items()):
                 if api_name in sorted(apis_profiles):
                     f.write('// #define {}_{}\n'.format(EXTENSION_PREFIX, extension_name))
             f.write('\n')
+            '''
 
             f.write('// enums\n')
             for enum_name, enum_data in sorted(enums.items()):
                 logging.info('enum {}'.format(enum_name))
 
-                constant_guards = defaultdict(set)  # type: Dict[str, Set[str]]
-                for version, profiles in sorted(versions_profiles.items()):
-                    for profile_name, profile_data in sorted(profiles.items()):
-                        constant_guard = _make_version_macro(version, profile_name)
-                        for constant_name in sorted(enum_data.constants):
-                            if not constant_name.startswith('GL_'):
-                                constant_name = 'GL_' + constant_name
-                            constant_val = constants.get(constant_name)
-                            if constant_val is None:
-                                logging.warning(
-                                    'Constant referenced by enum {} not found: {}'.format(enum_name, constant_name))
-                                continue
-                            if constant_name in profile_data.constants:
-                                constant_guards[constant_name].add(constant_guard)
-
-                if len(constant_guards) == 0:
+                guards_constants = build_guarded_constants(versions_profiles, enum_data, constants)
+                if guards_constants is None:
                     logging.warning('Skipping - no members')
                     continue
-
-                # reverse mapping dir, for less if/endif pairs
-                guards_constants = defaultdict(set)  # type: Dict[Tuple[str, ...], Set[str]]
-                for constant_name, guards in constant_guards.items():
-                    guards_constants[tuple(sorted(guards))].add(constant_name)
 
                 f.write('enum class {} : core::EnumType\n'.format(enum_name))
                 f.write('{\n')
@@ -422,29 +451,13 @@ def load_xml():
                 f.write('\n')
 
             f.write('// commands\n')
-
-            command_guards = defaultdict(set)  # type: Dict[str, Set[str]]
-
-            for version, profiles in versions_profiles.items():
-                for profile_name, profile_data in profiles.items():
-                    for command_name in sorted(profile_data.commands):
-                        command_guards[command_name].add(_make_version_macro(version, profile_name))
-
-            # reverse mapping dir, for less if/endif pairs
-            guards_commands = defaultdict(set)  # type: Dict[Tuple[str, ...], Set[str]]
-            for command_name, guards in command_guards.items():
-                guards_commands[tuple(sorted(guards))].add(command_name)
-
-            for guards, command_names in sorted(guards_commands.items()):
+            for guards, command_names in sorted(build_guarded_commands(versions_profiles).items()):
                 if len(guards) != total_guards:
                     f.write('#if {}\n'.format(_make_guard(guards)))
-                for command in command_names:
-                    commands[command].print_code(file=f, impl=False)
+                for command_name in sorted(command_names):
+                    commands[command_name].print_code(file=f, impl=False)
                 if len(guards) != total_guards:
                     f.write('#endif\n')
-
-            f.write('\n')
-
             f.write('}\n')  # namespace
 
         logging.info('Writing implementation for API {}...'.format(api_name))
@@ -453,11 +466,11 @@ def load_xml():
             f.write('#include "{}_api_provider.hpp"\n'.format(api_name))
             f.write('namespace {}\n'.format(api_name))
             f.write('{\n')
-            for guards, command_names in sorted(guards_commands.items()):
+            for guards, command_names in sorted(build_guarded_commands(versions_profiles).items()):
                 if len(guards) != total_guards:
                     f.write('#if {}\n'.format(_make_guard(guards)))
-                for command in sorted(command_names):
-                    commands[command].print_code(file=f, impl=True)
+                for command_name in sorted(command_names):
+                    commands[command_name].print_code(file=f, impl=True)
                 if len(guards) != total_guards:
                     f.write('#endif\n')
             f.write('}\n')  # namespace

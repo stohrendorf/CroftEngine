@@ -32,515 +32,6 @@ namespace gl
 // #define API_LEVEL_GL_VERSION_4_6_compatibility
 // #define API_LEVEL_GL_VERSION_4_6_core
 
-// API extensions
-// #define WITH_API_EXTENSION_GL_3DFX_multisample
-// #define WITH_API_EXTENSION_GL_3DFX_tbuffer
-// #define WITH_API_EXTENSION_GL_3DFX_texture_compression_FXT1
-// #define WITH_API_EXTENSION_GL_AMD_blend_minmax_factor
-// #define WITH_API_EXTENSION_GL_AMD_debug_output
-// #define WITH_API_EXTENSION_GL_AMD_depth_clamp_separate
-// #define WITH_API_EXTENSION_GL_AMD_draw_buffers_blend
-// #define WITH_API_EXTENSION_GL_AMD_framebuffer_multisample_advanced
-// #define WITH_API_EXTENSION_GL_AMD_framebuffer_sample_positions
-// #define WITH_API_EXTENSION_GL_AMD_gpu_shader_half_float
-// #define WITH_API_EXTENSION_GL_AMD_gpu_shader_int64
-// #define WITH_API_EXTENSION_GL_AMD_interleaved_elements
-// #define WITH_API_EXTENSION_GL_AMD_multi_draw_indirect
-// #define WITH_API_EXTENSION_GL_AMD_name_gen_delete
-// #define WITH_API_EXTENSION_GL_AMD_occlusion_query_event
-// #define WITH_API_EXTENSION_GL_AMD_performance_monitor
-// #define WITH_API_EXTENSION_GL_AMD_pinned_memory
-// #define WITH_API_EXTENSION_GL_AMD_query_buffer_object
-// #define WITH_API_EXTENSION_GL_AMD_sample_positions
-// #define WITH_API_EXTENSION_GL_AMD_seamless_cubemap_per_texture
-// #define WITH_API_EXTENSION_GL_AMD_sparse_texture
-// #define WITH_API_EXTENSION_GL_AMD_stencil_operation_extended
-// #define WITH_API_EXTENSION_GL_AMD_transform_feedback4
-// #define WITH_API_EXTENSION_GL_AMD_vertex_shader_tessellator
-// #define WITH_API_EXTENSION_GL_APPLE_aux_depth_stencil
-// #define WITH_API_EXTENSION_GL_APPLE_client_storage
-// #define WITH_API_EXTENSION_GL_APPLE_element_array
-// #define WITH_API_EXTENSION_GL_APPLE_fence
-// #define WITH_API_EXTENSION_GL_APPLE_float_pixels
-// #define WITH_API_EXTENSION_GL_APPLE_flush_buffer_range
-// #define WITH_API_EXTENSION_GL_APPLE_object_purgeable
-// #define WITH_API_EXTENSION_GL_APPLE_rgb_422
-// #define WITH_API_EXTENSION_GL_APPLE_row_bytes
-// #define WITH_API_EXTENSION_GL_APPLE_specular_vector
-// #define WITH_API_EXTENSION_GL_APPLE_texture_range
-// #define WITH_API_EXTENSION_GL_APPLE_transform_hint
-// #define WITH_API_EXTENSION_GL_APPLE_vertex_array_object
-// #define WITH_API_EXTENSION_GL_APPLE_vertex_array_range
-// #define WITH_API_EXTENSION_GL_APPLE_vertex_program_evaluators
-// #define WITH_API_EXTENSION_GL_APPLE_ycbcr_422
-// #define WITH_API_EXTENSION_GL_ARB_ES2_compatibility
-// #define WITH_API_EXTENSION_GL_ARB_ES3_1_compatibility
-// #define WITH_API_EXTENSION_GL_ARB_ES3_2_compatibility
-// #define WITH_API_EXTENSION_GL_ARB_ES3_compatibility
-// #define WITH_API_EXTENSION_GL_ARB_base_instance
-// #define WITH_API_EXTENSION_GL_ARB_bindless_texture
-// #define WITH_API_EXTENSION_GL_ARB_blend_func_extended
-// #define WITH_API_EXTENSION_GL_ARB_buffer_storage
-// #define WITH_API_EXTENSION_GL_ARB_cl_event
-// #define WITH_API_EXTENSION_GL_ARB_clear_buffer_object
-// #define WITH_API_EXTENSION_GL_ARB_clear_texture
-// #define WITH_API_EXTENSION_GL_ARB_clip_control
-// #define WITH_API_EXTENSION_GL_ARB_color_buffer_float
-// #define WITH_API_EXTENSION_GL_ARB_compressed_texture_pixel_storage
-// #define WITH_API_EXTENSION_GL_ARB_compute_shader
-// #define WITH_API_EXTENSION_GL_ARB_compute_variable_group_size
-// #define WITH_API_EXTENSION_GL_ARB_conditional_render_inverted
-// #define WITH_API_EXTENSION_GL_ARB_copy_buffer
-// #define WITH_API_EXTENSION_GL_ARB_copy_image
-// #define WITH_API_EXTENSION_GL_ARB_cull_distance
-// #define WITH_API_EXTENSION_GL_ARB_debug_output
-// #define WITH_API_EXTENSION_GL_ARB_depth_buffer_float
-// #define WITH_API_EXTENSION_GL_ARB_depth_clamp
-// #define WITH_API_EXTENSION_GL_ARB_depth_texture
-// #define WITH_API_EXTENSION_GL_ARB_direct_state_access
-// #define WITH_API_EXTENSION_GL_ARB_draw_buffers
-// #define WITH_API_EXTENSION_GL_ARB_draw_buffers_blend
-// #define WITH_API_EXTENSION_GL_ARB_draw_elements_base_vertex
-// #define WITH_API_EXTENSION_GL_ARB_draw_indirect
-// #define WITH_API_EXTENSION_GL_ARB_draw_instanced
-// #define WITH_API_EXTENSION_GL_ARB_enhanced_layouts
-// #define WITH_API_EXTENSION_GL_ARB_explicit_uniform_location
-// #define WITH_API_EXTENSION_GL_ARB_fragment_program
-// #define WITH_API_EXTENSION_GL_ARB_fragment_shader
-// #define WITH_API_EXTENSION_GL_ARB_framebuffer_no_attachments
-// #define WITH_API_EXTENSION_GL_ARB_framebuffer_object
-// #define WITH_API_EXTENSION_GL_ARB_framebuffer_sRGB
-// #define WITH_API_EXTENSION_GL_ARB_geometry_shader4
-// #define WITH_API_EXTENSION_GL_ARB_get_program_binary
-// #define WITH_API_EXTENSION_GL_ARB_get_texture_sub_image
-// #define WITH_API_EXTENSION_GL_ARB_gl_spirv
-// #define WITH_API_EXTENSION_GL_ARB_gpu_shader5
-// #define WITH_API_EXTENSION_GL_ARB_gpu_shader_fp64
-// #define WITH_API_EXTENSION_GL_ARB_gpu_shader_int64
-// #define WITH_API_EXTENSION_GL_ARB_half_float_pixel
-// #define WITH_API_EXTENSION_GL_ARB_half_float_vertex
-// #define WITH_API_EXTENSION_GL_ARB_imaging
-// #define WITH_API_EXTENSION_GL_ARB_indirect_parameters
-// #define WITH_API_EXTENSION_GL_ARB_instanced_arrays
-// #define WITH_API_EXTENSION_GL_ARB_internalformat_query
-// #define WITH_API_EXTENSION_GL_ARB_internalformat_query2
-// #define WITH_API_EXTENSION_GL_ARB_invalidate_subdata
-// #define WITH_API_EXTENSION_GL_ARB_map_buffer_alignment
-// #define WITH_API_EXTENSION_GL_ARB_map_buffer_range
-// #define WITH_API_EXTENSION_GL_ARB_matrix_palette
-// #define WITH_API_EXTENSION_GL_ARB_multi_bind
-// #define WITH_API_EXTENSION_GL_ARB_multi_draw_indirect
-// #define WITH_API_EXTENSION_GL_ARB_multisample
-// #define WITH_API_EXTENSION_GL_ARB_multitexture
-// #define WITH_API_EXTENSION_GL_ARB_occlusion_query
-// #define WITH_API_EXTENSION_GL_ARB_occlusion_query2
-// #define WITH_API_EXTENSION_GL_ARB_parallel_shader_compile
-// #define WITH_API_EXTENSION_GL_ARB_pipeline_statistics_query
-// #define WITH_API_EXTENSION_GL_ARB_pixel_buffer_object
-// #define WITH_API_EXTENSION_GL_ARB_point_parameters
-// #define WITH_API_EXTENSION_GL_ARB_point_sprite
-// #define WITH_API_EXTENSION_GL_ARB_polygon_offset_clamp
-// #define WITH_API_EXTENSION_GL_ARB_program_interface_query
-// #define WITH_API_EXTENSION_GL_ARB_provoking_vertex
-// #define WITH_API_EXTENSION_GL_ARB_query_buffer_object
-// #define WITH_API_EXTENSION_GL_ARB_robustness
-// #define WITH_API_EXTENSION_GL_ARB_sample_locations
-// #define WITH_API_EXTENSION_GL_ARB_sample_shading
-// #define WITH_API_EXTENSION_GL_ARB_sampler_objects
-// #define WITH_API_EXTENSION_GL_ARB_seamless_cube_map
-// #define WITH_API_EXTENSION_GL_ARB_seamless_cubemap_per_texture
-// #define WITH_API_EXTENSION_GL_ARB_separate_shader_objects
-// #define WITH_API_EXTENSION_GL_ARB_shader_atomic_counters
-// #define WITH_API_EXTENSION_GL_ARB_shader_image_load_store
-// #define WITH_API_EXTENSION_GL_ARB_shader_objects
-// #define WITH_API_EXTENSION_GL_ARB_shader_storage_buffer_object
-// #define WITH_API_EXTENSION_GL_ARB_shader_subroutine
-// #define WITH_API_EXTENSION_GL_ARB_shading_language_100
-// #define WITH_API_EXTENSION_GL_ARB_shading_language_include
-// #define WITH_API_EXTENSION_GL_ARB_shadow
-// #define WITH_API_EXTENSION_GL_ARB_shadow_ambient
-// #define WITH_API_EXTENSION_GL_ARB_sparse_buffer
-// #define WITH_API_EXTENSION_GL_ARB_sparse_texture
-// #define WITH_API_EXTENSION_GL_ARB_spirv_extensions
-// #define WITH_API_EXTENSION_GL_ARB_stencil_texturing
-// #define WITH_API_EXTENSION_GL_ARB_sync
-// #define WITH_API_EXTENSION_GL_ARB_tessellation_shader
-// #define WITH_API_EXTENSION_GL_ARB_texture_barrier
-// #define WITH_API_EXTENSION_GL_ARB_texture_border_clamp
-// #define WITH_API_EXTENSION_GL_ARB_texture_buffer_object
-// #define WITH_API_EXTENSION_GL_ARB_texture_buffer_object_rgb32
-// #define WITH_API_EXTENSION_GL_ARB_texture_buffer_range
-// #define WITH_API_EXTENSION_GL_ARB_texture_compression
-// #define WITH_API_EXTENSION_GL_ARB_texture_compression_bptc
-// #define WITH_API_EXTENSION_GL_ARB_texture_compression_rgtc
-// #define WITH_API_EXTENSION_GL_ARB_texture_cube_map
-// #define WITH_API_EXTENSION_GL_ARB_texture_cube_map_array
-// #define WITH_API_EXTENSION_GL_ARB_texture_env_combine
-// #define WITH_API_EXTENSION_GL_ARB_texture_env_dot3
-// #define WITH_API_EXTENSION_GL_ARB_texture_filter_anisotropic
-// #define WITH_API_EXTENSION_GL_ARB_texture_filter_minmax
-// #define WITH_API_EXTENSION_GL_ARB_texture_float
-// #define WITH_API_EXTENSION_GL_ARB_texture_gather
-// #define WITH_API_EXTENSION_GL_ARB_texture_mirror_clamp_to_edge
-// #define WITH_API_EXTENSION_GL_ARB_texture_mirrored_repeat
-// #define WITH_API_EXTENSION_GL_ARB_texture_multisample
-// #define WITH_API_EXTENSION_GL_ARB_texture_rectangle
-// #define WITH_API_EXTENSION_GL_ARB_texture_rg
-// #define WITH_API_EXTENSION_GL_ARB_texture_rgb10_a2ui
-// #define WITH_API_EXTENSION_GL_ARB_texture_stencil8
-// #define WITH_API_EXTENSION_GL_ARB_texture_storage
-// #define WITH_API_EXTENSION_GL_ARB_texture_storage_multisample
-// #define WITH_API_EXTENSION_GL_ARB_texture_swizzle
-// #define WITH_API_EXTENSION_GL_ARB_texture_view
-// #define WITH_API_EXTENSION_GL_ARB_timer_query
-// #define WITH_API_EXTENSION_GL_ARB_transform_feedback2
-// #define WITH_API_EXTENSION_GL_ARB_transform_feedback3
-// #define WITH_API_EXTENSION_GL_ARB_transform_feedback_instanced
-// #define WITH_API_EXTENSION_GL_ARB_transform_feedback_overflow_query
-// #define WITH_API_EXTENSION_GL_ARB_transpose_matrix
-// #define WITH_API_EXTENSION_GL_ARB_uniform_buffer_object
-// #define WITH_API_EXTENSION_GL_ARB_vertex_array_bgra
-// #define WITH_API_EXTENSION_GL_ARB_vertex_array_object
-// #define WITH_API_EXTENSION_GL_ARB_vertex_attrib_64bit
-// #define WITH_API_EXTENSION_GL_ARB_vertex_attrib_binding
-// #define WITH_API_EXTENSION_GL_ARB_vertex_blend
-// #define WITH_API_EXTENSION_GL_ARB_vertex_buffer_object
-// #define WITH_API_EXTENSION_GL_ARB_vertex_program
-// #define WITH_API_EXTENSION_GL_ARB_vertex_shader
-// #define WITH_API_EXTENSION_GL_ARB_vertex_type_10f_11f_11f_rev
-// #define WITH_API_EXTENSION_GL_ARB_vertex_type_2_10_10_10_rev
-// #define WITH_API_EXTENSION_GL_ARB_viewport_array
-// #define WITH_API_EXTENSION_GL_ARB_window_pos
-// #define WITH_API_EXTENSION_GL_ATI_draw_buffers
-// #define WITH_API_EXTENSION_GL_ATI_element_array
-// #define WITH_API_EXTENSION_GL_ATI_envmap_bumpmap
-// #define WITH_API_EXTENSION_GL_ATI_fragment_shader
-// #define WITH_API_EXTENSION_GL_ATI_map_object_buffer
-// #define WITH_API_EXTENSION_GL_ATI_meminfo
-// #define WITH_API_EXTENSION_GL_ATI_pixel_format_float
-// #define WITH_API_EXTENSION_GL_ATI_pn_triangles
-// #define WITH_API_EXTENSION_GL_ATI_separate_stencil
-// #define WITH_API_EXTENSION_GL_ATI_text_fragment_shader
-// #define WITH_API_EXTENSION_GL_ATI_texture_env_combine3
-// #define WITH_API_EXTENSION_GL_ATI_texture_float
-// #define WITH_API_EXTENSION_GL_ATI_texture_mirror_once
-// #define WITH_API_EXTENSION_GL_ATI_vertex_array_object
-// #define WITH_API_EXTENSION_GL_ATI_vertex_attrib_array_object
-// #define WITH_API_EXTENSION_GL_ATI_vertex_streams
-// #define WITH_API_EXTENSION_GL_EXT_422_pixels
-// #define WITH_API_EXTENSION_GL_EXT_EGL_image_storage
-// #define WITH_API_EXTENSION_GL_EXT_abgr
-// #define WITH_API_EXTENSION_GL_EXT_bgra
-// #define WITH_API_EXTENSION_GL_EXT_bindable_uniform
-// #define WITH_API_EXTENSION_GL_EXT_blend_color
-// #define WITH_API_EXTENSION_GL_EXT_blend_equation_separate
-// #define WITH_API_EXTENSION_GL_EXT_blend_func_separate
-// #define WITH_API_EXTENSION_GL_EXT_blend_minmax
-// #define WITH_API_EXTENSION_GL_EXT_blend_subtract
-// #define WITH_API_EXTENSION_GL_EXT_clip_volume_hint
-// #define WITH_API_EXTENSION_GL_EXT_cmyka
-// #define WITH_API_EXTENSION_GL_EXT_color_subtable
-// #define WITH_API_EXTENSION_GL_EXT_compiled_vertex_array
-// #define WITH_API_EXTENSION_GL_EXT_convolution
-// #define WITH_API_EXTENSION_GL_EXT_coordinate_frame
-// #define WITH_API_EXTENSION_GL_EXT_copy_texture
-// #define WITH_API_EXTENSION_GL_EXT_cull_vertex
-// #define WITH_API_EXTENSION_GL_EXT_debug_label
-// #define WITH_API_EXTENSION_GL_EXT_debug_marker
-// #define WITH_API_EXTENSION_GL_EXT_depth_bounds_test
-// #define WITH_API_EXTENSION_GL_EXT_direct_state_access
-// #define WITH_API_EXTENSION_GL_EXT_draw_buffers2
-// #define WITH_API_EXTENSION_GL_EXT_draw_instanced
-// #define WITH_API_EXTENSION_GL_EXT_draw_range_elements
-// #define WITH_API_EXTENSION_GL_EXT_external_buffer
-// #define WITH_API_EXTENSION_GL_EXT_fog_coord
-// #define WITH_API_EXTENSION_GL_EXT_framebuffer_blit
-// #define WITH_API_EXTENSION_GL_EXT_framebuffer_multisample
-// #define WITH_API_EXTENSION_GL_EXT_framebuffer_multisample_blit_scaled
-// #define WITH_API_EXTENSION_GL_EXT_framebuffer_object
-// #define WITH_API_EXTENSION_GL_EXT_framebuffer_sRGB
-// #define WITH_API_EXTENSION_GL_EXT_geometry_shader4
-// #define WITH_API_EXTENSION_GL_EXT_gpu_program_parameters
-// #define WITH_API_EXTENSION_GL_EXT_gpu_shader4
-// #define WITH_API_EXTENSION_GL_EXT_histogram
-// #define WITH_API_EXTENSION_GL_EXT_index_array_formats
-// #define WITH_API_EXTENSION_GL_EXT_index_func
-// #define WITH_API_EXTENSION_GL_EXT_index_material
-// #define WITH_API_EXTENSION_GL_EXT_light_texture
-// #define WITH_API_EXTENSION_GL_EXT_memory_object
-// #define WITH_API_EXTENSION_GL_EXT_memory_object_fd
-// #define WITH_API_EXTENSION_GL_EXT_memory_object_win32
-// #define WITH_API_EXTENSION_GL_EXT_multi_draw_arrays
-// #define WITH_API_EXTENSION_GL_EXT_multisample
-// #define WITH_API_EXTENSION_GL_EXT_packed_depth_stencil
-// #define WITH_API_EXTENSION_GL_EXT_packed_float
-// #define WITH_API_EXTENSION_GL_EXT_packed_pixels
-// #define WITH_API_EXTENSION_GL_EXT_paletted_texture
-// #define WITH_API_EXTENSION_GL_EXT_pixel_buffer_object
-// #define WITH_API_EXTENSION_GL_EXT_pixel_transform
-// #define WITH_API_EXTENSION_GL_EXT_point_parameters
-// #define WITH_API_EXTENSION_GL_EXT_polygon_offset
-// #define WITH_API_EXTENSION_GL_EXT_polygon_offset_clamp
-// #define WITH_API_EXTENSION_GL_EXT_provoking_vertex
-// #define WITH_API_EXTENSION_GL_EXT_raster_multisample
-// #define WITH_API_EXTENSION_GL_EXT_rescale_normal
-// #define WITH_API_EXTENSION_GL_EXT_secondary_color
-// #define WITH_API_EXTENSION_GL_EXT_semaphore
-// #define WITH_API_EXTENSION_GL_EXT_semaphore_fd
-// #define WITH_API_EXTENSION_GL_EXT_semaphore_win32
-// #define WITH_API_EXTENSION_GL_EXT_separate_shader_objects
-// #define WITH_API_EXTENSION_GL_EXT_separate_specular_color
-// #define WITH_API_EXTENSION_GL_EXT_shader_framebuffer_fetch
-// #define WITH_API_EXTENSION_GL_EXT_shader_framebuffer_fetch_non_coherent
-// #define WITH_API_EXTENSION_GL_EXT_shader_image_load_store
-// #define WITH_API_EXTENSION_GL_EXT_shared_texture_palette
-// #define WITH_API_EXTENSION_GL_EXT_stencil_clear_tag
-// #define WITH_API_EXTENSION_GL_EXT_stencil_two_side
-// #define WITH_API_EXTENSION_GL_EXT_stencil_wrap
-// #define WITH_API_EXTENSION_GL_EXT_subtexture
-// #define WITH_API_EXTENSION_GL_EXT_texture
-// #define WITH_API_EXTENSION_GL_EXT_texture3D
-// #define WITH_API_EXTENSION_GL_EXT_texture_array
-// #define WITH_API_EXTENSION_GL_EXT_texture_buffer_object
-// #define WITH_API_EXTENSION_GL_EXT_texture_compression_latc
-// #define WITH_API_EXTENSION_GL_EXT_texture_compression_rgtc
-// #define WITH_API_EXTENSION_GL_EXT_texture_compression_s3tc
-// #define WITH_API_EXTENSION_GL_EXT_texture_cube_map
-// #define WITH_API_EXTENSION_GL_EXT_texture_env_combine
-// #define WITH_API_EXTENSION_GL_EXT_texture_env_dot3
-// #define WITH_API_EXTENSION_GL_EXT_texture_filter_anisotropic
-// #define WITH_API_EXTENSION_GL_EXT_texture_filter_minmax
-// #define WITH_API_EXTENSION_GL_EXT_texture_integer
-// #define WITH_API_EXTENSION_GL_EXT_texture_lod_bias
-// #define WITH_API_EXTENSION_GL_EXT_texture_mirror_clamp
-// #define WITH_API_EXTENSION_GL_EXT_texture_object
-// #define WITH_API_EXTENSION_GL_EXT_texture_perturb_normal
-// #define WITH_API_EXTENSION_GL_EXT_texture_sRGB
-// #define WITH_API_EXTENSION_GL_EXT_texture_sRGB_R8
-// #define WITH_API_EXTENSION_GL_EXT_texture_sRGB_decode
-// #define WITH_API_EXTENSION_GL_EXT_texture_shared_exponent
-// #define WITH_API_EXTENSION_GL_EXT_texture_snorm
-// #define WITH_API_EXTENSION_GL_EXT_texture_swizzle
-// #define WITH_API_EXTENSION_GL_EXT_timer_query
-// #define WITH_API_EXTENSION_GL_EXT_transform_feedback
-// #define WITH_API_EXTENSION_GL_EXT_vertex_array
-// #define WITH_API_EXTENSION_GL_EXT_vertex_array_bgra
-// #define WITH_API_EXTENSION_GL_EXT_vertex_attrib_64bit
-// #define WITH_API_EXTENSION_GL_EXT_vertex_shader
-// #define WITH_API_EXTENSION_GL_EXT_vertex_weighting
-// #define WITH_API_EXTENSION_GL_EXT_win32_keyed_mutex
-// #define WITH_API_EXTENSION_GL_EXT_window_rectangles
-// #define WITH_API_EXTENSION_GL_EXT_x11_sync_object
-// #define WITH_API_EXTENSION_GL_GREMEDY_frame_terminator
-// #define WITH_API_EXTENSION_GL_GREMEDY_string_marker
-// #define WITH_API_EXTENSION_GL_HP_convolution_border_modes
-// #define WITH_API_EXTENSION_GL_HP_image_transform
-// #define WITH_API_EXTENSION_GL_HP_occlusion_test
-// #define WITH_API_EXTENSION_GL_HP_texture_lighting
-// #define WITH_API_EXTENSION_GL_IBM_cull_vertex
-// #define WITH_API_EXTENSION_GL_IBM_multimode_draw_arrays
-// #define WITH_API_EXTENSION_GL_IBM_rasterpos_clip
-// #define WITH_API_EXTENSION_GL_IBM_static_data
-// #define WITH_API_EXTENSION_GL_IBM_texture_mirrored_repeat
-// #define WITH_API_EXTENSION_GL_IBM_vertex_array_lists
-// #define WITH_API_EXTENSION_GL_INGR_blend_func_separate
-// #define WITH_API_EXTENSION_GL_INGR_color_clamp
-// #define WITH_API_EXTENSION_GL_INGR_interlace_read
-// #define WITH_API_EXTENSION_GL_INTEL_blackhole_render
-// #define WITH_API_EXTENSION_GL_INTEL_conservative_rasterization
-// #define WITH_API_EXTENSION_GL_INTEL_framebuffer_CMAA
-// #define WITH_API_EXTENSION_GL_INTEL_map_texture
-// #define WITH_API_EXTENSION_GL_INTEL_parallel_arrays
-// #define WITH_API_EXTENSION_GL_INTEL_performance_query
-// #define WITH_API_EXTENSION_GL_KHR_blend_equation_advanced
-// #define WITH_API_EXTENSION_GL_KHR_blend_equation_advanced_coherent
-// #define WITH_API_EXTENSION_GL_KHR_context_flush_control
-// #define WITH_API_EXTENSION_GL_KHR_debug
-// #define WITH_API_EXTENSION_GL_KHR_no_error
-// #define WITH_API_EXTENSION_GL_KHR_parallel_shader_compile
-// #define WITH_API_EXTENSION_GL_KHR_robustness
-// #define WITH_API_EXTENSION_GL_KHR_texture_compression_astc_hdr
-// #define WITH_API_EXTENSION_GL_KHR_texture_compression_astc_ldr
-// #define WITH_API_EXTENSION_GL_MESAX_texture_stack
-// #define WITH_API_EXTENSION_GL_MESA_pack_invert
-// #define WITH_API_EXTENSION_GL_MESA_program_binary_formats
-// #define WITH_API_EXTENSION_GL_MESA_resize_buffers
-// #define WITH_API_EXTENSION_GL_MESA_tile_raster_order
-// #define WITH_API_EXTENSION_GL_MESA_window_pos
-// #define WITH_API_EXTENSION_GL_MESA_ycbcr_texture
-// #define WITH_API_EXTENSION_GL_NVX_conditional_render
-// #define WITH_API_EXTENSION_GL_NVX_gpu_memory_info
-// #define WITH_API_EXTENSION_GL_NVX_linked_gpu_multicast
-// #define WITH_API_EXTENSION_GL_NV_alpha_to_coverage_dither_control
-// #define WITH_API_EXTENSION_GL_NV_bindless_multi_draw_indirect
-// #define WITH_API_EXTENSION_GL_NV_bindless_multi_draw_indirect_count
-// #define WITH_API_EXTENSION_GL_NV_bindless_texture
-// #define WITH_API_EXTENSION_GL_NV_blend_equation_advanced
-// #define WITH_API_EXTENSION_GL_NV_blend_equation_advanced_coherent
-// #define WITH_API_EXTENSION_GL_NV_blend_minmax_factor
-// #define WITH_API_EXTENSION_GL_NV_clip_space_w_scaling
-// #define WITH_API_EXTENSION_GL_NV_command_list
-// #define WITH_API_EXTENSION_GL_NV_compute_program5
-// #define WITH_API_EXTENSION_GL_NV_conditional_render
-// #define WITH_API_EXTENSION_GL_NV_conservative_raster
-// #define WITH_API_EXTENSION_GL_NV_conservative_raster_dilate
-// #define WITH_API_EXTENSION_GL_NV_conservative_raster_pre_snap
-// #define WITH_API_EXTENSION_GL_NV_conservative_raster_pre_snap_triangles
-// #define WITH_API_EXTENSION_GL_NV_copy_depth_to_color
-// #define WITH_API_EXTENSION_GL_NV_copy_image
-// #define WITH_API_EXTENSION_GL_NV_deep_texture3D
-// #define WITH_API_EXTENSION_GL_NV_depth_buffer_float
-// #define WITH_API_EXTENSION_GL_NV_depth_clamp
-// #define WITH_API_EXTENSION_GL_NV_draw_texture
-// #define WITH_API_EXTENSION_GL_NV_draw_vulkan_image
-// #define WITH_API_EXTENSION_GL_NV_evaluators
-// #define WITH_API_EXTENSION_GL_NV_explicit_multisample
-// #define WITH_API_EXTENSION_GL_NV_fence
-// #define WITH_API_EXTENSION_GL_NV_fill_rectangle
-// #define WITH_API_EXTENSION_GL_NV_float_buffer
-// #define WITH_API_EXTENSION_GL_NV_fog_distance
-// #define WITH_API_EXTENSION_GL_NV_fragment_coverage_to_color
-// #define WITH_API_EXTENSION_GL_NV_fragment_program
-// #define WITH_API_EXTENSION_GL_NV_fragment_program2
-// #define WITH_API_EXTENSION_GL_NV_framebuffer_mixed_samples
-// #define WITH_API_EXTENSION_GL_NV_framebuffer_multisample_coverage
-// #define WITH_API_EXTENSION_GL_NV_geometry_program4
-// #define WITH_API_EXTENSION_GL_NV_gpu_multicast
-// #define WITH_API_EXTENSION_GL_NV_gpu_program4
-// #define WITH_API_EXTENSION_GL_NV_gpu_program5
-// #define WITH_API_EXTENSION_GL_NV_gpu_shader5
-// #define WITH_API_EXTENSION_GL_NV_half_float
-// #define WITH_API_EXTENSION_GL_NV_internalformat_sample_query
-// #define WITH_API_EXTENSION_GL_NV_light_max_exponent
-// #define WITH_API_EXTENSION_GL_NV_memory_attachment
-// #define WITH_API_EXTENSION_GL_NV_mesh_shader
-// #define WITH_API_EXTENSION_GL_NV_multisample_coverage
-// #define WITH_API_EXTENSION_GL_NV_multisample_filter_hint
-// #define WITH_API_EXTENSION_GL_NV_occlusion_query
-// #define WITH_API_EXTENSION_GL_NV_packed_depth_stencil
-// #define WITH_API_EXTENSION_GL_NV_parameter_buffer_object
-// #define WITH_API_EXTENSION_GL_NV_path_rendering
-// #define WITH_API_EXTENSION_GL_NV_path_rendering_shared_edge
-// #define WITH_API_EXTENSION_GL_NV_pixel_data_range
-// #define WITH_API_EXTENSION_GL_NV_point_sprite
-// #define WITH_API_EXTENSION_GL_NV_present_video
-// #define WITH_API_EXTENSION_GL_NV_primitive_restart
-// #define WITH_API_EXTENSION_GL_NV_query_resource
-// #define WITH_API_EXTENSION_GL_NV_query_resource_tag
-// #define WITH_API_EXTENSION_GL_NV_register_combiners
-// #define WITH_API_EXTENSION_GL_NV_register_combiners2
-// #define WITH_API_EXTENSION_GL_NV_representative_fragment_test
-// #define WITH_API_EXTENSION_GL_NV_robustness_video_memory_purge
-// #define WITH_API_EXTENSION_GL_NV_sample_locations
-// #define WITH_API_EXTENSION_GL_NV_scissor_exclusive
-// #define WITH_API_EXTENSION_GL_NV_shader_buffer_load
-// #define WITH_API_EXTENSION_GL_NV_shader_buffer_store
-// #define WITH_API_EXTENSION_GL_NV_shader_thread_group
-// #define WITH_API_EXTENSION_GL_NV_shading_rate_image
-// #define WITH_API_EXTENSION_GL_NV_tessellation_program5
-// #define WITH_API_EXTENSION_GL_NV_texgen_emboss
-// #define WITH_API_EXTENSION_GL_NV_texgen_reflection
-// #define WITH_API_EXTENSION_GL_NV_texture_barrier
-// #define WITH_API_EXTENSION_GL_NV_texture_env_combine4
-// #define WITH_API_EXTENSION_GL_NV_texture_expand_normal
-// #define WITH_API_EXTENSION_GL_NV_texture_multisample
-// #define WITH_API_EXTENSION_GL_NV_texture_rectangle
-// #define WITH_API_EXTENSION_GL_NV_texture_shader
-// #define WITH_API_EXTENSION_GL_NV_texture_shader2
-// #define WITH_API_EXTENSION_GL_NV_texture_shader3
-// #define WITH_API_EXTENSION_GL_NV_transform_feedback
-// #define WITH_API_EXTENSION_GL_NV_transform_feedback2
-// #define WITH_API_EXTENSION_GL_NV_uniform_buffer_unified_memory
-// #define WITH_API_EXTENSION_GL_NV_vdpau_interop
-// #define WITH_API_EXTENSION_GL_NV_vdpau_interop2
-// #define WITH_API_EXTENSION_GL_NV_vertex_array_range
-// #define WITH_API_EXTENSION_GL_NV_vertex_array_range2
-// #define WITH_API_EXTENSION_GL_NV_vertex_attrib_integer_64bit
-// #define WITH_API_EXTENSION_GL_NV_vertex_buffer_unified_memory
-// #define WITH_API_EXTENSION_GL_NV_vertex_program
-// #define WITH_API_EXTENSION_GL_NV_vertex_program2_option
-// #define WITH_API_EXTENSION_GL_NV_vertex_program3
-// #define WITH_API_EXTENSION_GL_NV_vertex_program4
-// #define WITH_API_EXTENSION_GL_NV_video_capture
-// #define WITH_API_EXTENSION_GL_NV_viewport_swizzle
-// #define WITH_API_EXTENSION_GL_OES_byte_coordinates
-// #define WITH_API_EXTENSION_GL_OES_compressed_paletted_texture
-// #define WITH_API_EXTENSION_GL_OES_fixed_point
-// #define WITH_API_EXTENSION_GL_OES_query_matrix
-// #define WITH_API_EXTENSION_GL_OES_read_format
-// #define WITH_API_EXTENSION_GL_OES_single_precision
-// #define WITH_API_EXTENSION_GL_OML_interlace
-// #define WITH_API_EXTENSION_GL_OML_resample
-// #define WITH_API_EXTENSION_GL_OML_subsample
-// #define WITH_API_EXTENSION_GL_OVR_multiview
-// #define WITH_API_EXTENSION_GL_PGI_misc_hints
-// #define WITH_API_EXTENSION_GL_PGI_vertex_hints
-// #define WITH_API_EXTENSION_GL_REND_screen_coordinates
-// #define WITH_API_EXTENSION_GL_S3_s3tc
-// #define WITH_API_EXTENSION_GL_SGIS_detail_texture
-// #define WITH_API_EXTENSION_GL_SGIS_fog_function
-// #define WITH_API_EXTENSION_GL_SGIS_generate_mipmap
-// #define WITH_API_EXTENSION_GL_SGIS_multisample
-// #define WITH_API_EXTENSION_GL_SGIS_pixel_texture
-// #define WITH_API_EXTENSION_GL_SGIS_point_line_texgen
-// #define WITH_API_EXTENSION_GL_SGIS_point_parameters
-// #define WITH_API_EXTENSION_GL_SGIS_sharpen_texture
-// #define WITH_API_EXTENSION_GL_SGIS_texture4D
-// #define WITH_API_EXTENSION_GL_SGIS_texture_border_clamp
-// #define WITH_API_EXTENSION_GL_SGIS_texture_color_mask
-// #define WITH_API_EXTENSION_GL_SGIS_texture_edge_clamp
-// #define WITH_API_EXTENSION_GL_SGIS_texture_filter4
-// #define WITH_API_EXTENSION_GL_SGIS_texture_lod
-// #define WITH_API_EXTENSION_GL_SGIS_texture_select
-// #define WITH_API_EXTENSION_GL_SGIX_async
-// #define WITH_API_EXTENSION_GL_SGIX_async_histogram
-// #define WITH_API_EXTENSION_GL_SGIX_async_pixel
-// #define WITH_API_EXTENSION_GL_SGIX_blend_alpha_minmax
-// #define WITH_API_EXTENSION_GL_SGIX_calligraphic_fragment
-// #define WITH_API_EXTENSION_GL_SGIX_clipmap
-// #define WITH_API_EXTENSION_GL_SGIX_convolution_accuracy
-// #define WITH_API_EXTENSION_GL_SGIX_depth_texture
-// #define WITH_API_EXTENSION_GL_SGIX_flush_raster
-// #define WITH_API_EXTENSION_GL_SGIX_fog_offset
-// #define WITH_API_EXTENSION_GL_SGIX_fragment_lighting
-// #define WITH_API_EXTENSION_GL_SGIX_framezoom
-// #define WITH_API_EXTENSION_GL_SGIX_igloo_interface
-// #define WITH_API_EXTENSION_GL_SGIX_instruments
-// #define WITH_API_EXTENSION_GL_SGIX_interlace
-// #define WITH_API_EXTENSION_GL_SGIX_ir_instrument1
-// #define WITH_API_EXTENSION_GL_SGIX_list_priority
-// #define WITH_API_EXTENSION_GL_SGIX_pixel_texture
-// #define WITH_API_EXTENSION_GL_SGIX_pixel_tiles
-// #define WITH_API_EXTENSION_GL_SGIX_polynomial_ffd
-// #define WITH_API_EXTENSION_GL_SGIX_reference_plane
-// #define WITH_API_EXTENSION_GL_SGIX_resample
-// #define WITH_API_EXTENSION_GL_SGIX_scalebias_hint
-// #define WITH_API_EXTENSION_GL_SGIX_shadow
-// #define WITH_API_EXTENSION_GL_SGIX_shadow_ambient
-// #define WITH_API_EXTENSION_GL_SGIX_sprite
-// #define WITH_API_EXTENSION_GL_SGIX_subsample
-// #define WITH_API_EXTENSION_GL_SGIX_tag_sample_buffer
-// #define WITH_API_EXTENSION_GL_SGIX_texture_add_env
-// #define WITH_API_EXTENSION_GL_SGIX_texture_coordinate_clamp
-// #define WITH_API_EXTENSION_GL_SGIX_texture_lod_bias
-// #define WITH_API_EXTENSION_GL_SGIX_texture_multi_buffer
-// #define WITH_API_EXTENSION_GL_SGIX_texture_scale_bias
-// #define WITH_API_EXTENSION_GL_SGIX_vertex_preclip
-// #define WITH_API_EXTENSION_GL_SGIX_ycrcb
-// #define WITH_API_EXTENSION_GL_SGIX_ycrcba
-// #define WITH_API_EXTENSION_GL_SGI_color_matrix
-// #define WITH_API_EXTENSION_GL_SGI_color_table
-// #define WITH_API_EXTENSION_GL_SGI_texture_color_table
-// #define WITH_API_EXTENSION_GL_SUNX_constant_data
-// #define WITH_API_EXTENSION_GL_SUN_convolution_border_modes
-// #define WITH_API_EXTENSION_GL_SUN_global_alpha
-// #define WITH_API_EXTENSION_GL_SUN_mesh_array
-// #define WITH_API_EXTENSION_GL_SUN_slice_accum
-// #define WITH_API_EXTENSION_GL_SUN_triangle_list
-// #define WITH_API_EXTENSION_GL_SUN_vertex
-// #define WITH_API_EXTENSION_GL_WIN_phong_shading
-// #define WITH_API_EXTENSION_GL_WIN_specular_fog
-
 // enums
 enum class AccumOp : core::EnumType
 {
@@ -870,12 +361,12 @@ enum class ClampColorTargetARB : core::EnumType
 
 enum class ClearBufferMask : core::EnumType
 {
-#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-    AccumBufferBit = 0x00000200,
-#endif
     ColorBufferBit = 0x00004000,
     DepthBufferBit = 0x00000100,
     StencilBufferBit = 0x00000400,
+#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+    AccumBufferBit = 0x00000200,
+#endif
 };
 constexpr core::Bitfield<ClearBufferMask> operator|(ClearBufferMask left, ClearBufferMask right) { return core::Bitfield<ClearBufferMask>(left) | right;}
 
@@ -1272,13 +763,8 @@ enum class EnableCap : core::EnumType
     StencilTest = 0x0B90,
     Texture1d = 0x0DE0,
     Texture2d = 0x0DE1,
-#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-    ColorArray = 0x8076,
-    EdgeFlagArray = 0x8079,
-    IndexArray = 0x8077,
-    IndexLogicOp = 0x0BF1,
-    NormalArray = 0x8075,
-    TextureCoordArray = 0x8078,
+#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+    VertexArray = 0x8074,
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     ColorLogicOp = 0x0BF2,
@@ -1286,8 +772,13 @@ enum class EnableCap : core::EnumType
     PolygonOffsetLine = 0x2A02,
     PolygonOffsetPoint = 0x2A01,
 #endif
-#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-    VertexArray = 0x8074,
+#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+    ColorArray = 0x8076,
+    EdgeFlagArray = 0x8079,
+    IndexArray = 0x8077,
+    IndexLogicOp = 0x0BF1,
+    NormalArray = 0x8075,
+    TextureCoordArray = 0x8078,
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     Multisample = 0x809D,
@@ -1377,11 +868,11 @@ enum class FogCoordinatePointerType : core::EnumType
 
 enum class FogMode : core::EnumType
 {
+    Linear = 0x2601,
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
     Exp = 0x0800,
     Exp2 = 0x0801,
 #endif
-    Linear = 0x2601,
 };
 
 enum class FogPName : core::EnumType
@@ -1777,6 +1268,16 @@ enum class GetPName : core::EnumType
     UnpackSkipRows = 0x0CF3,
     UnpackSwapBytes = 0x0CF0,
     Viewport = 0x0BA2,
+#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+    ColorLogicOp = 0x0BF2,
+    PolygonOffsetFactor = 0x8038,
+    PolygonOffsetFill = 0x8037,
+    PolygonOffsetLine = 0x2A02,
+    PolygonOffsetPoint = 0x2A01,
+    PolygonOffsetUnits = 0x2A00,
+    TextureBinding1d = 0x8068,
+    TextureBinding2d = 0x8069,
+#endif
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
     ClientAttribStackDepth = 0x0BB1,
     ColorArray = 0x8076,
@@ -1803,16 +1304,6 @@ enum class GetPName : core::EnumType
     VertexArraySize = 0x807A,
     VertexArrayStride = 0x807C,
     VertexArrayType = 0x807B,
-#endif
-#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-    ColorLogicOp = 0x0BF2,
-    PolygonOffsetFactor = 0x8038,
-    PolygonOffsetFill = 0x8037,
-    PolygonOffsetLine = 0x2A02,
-    PolygonOffsetPoint = 0x2A01,
-    PolygonOffsetUnits = 0x2A00,
-    TextureBinding1d = 0x8068,
-    TextureBinding2d = 0x8069,
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     VertexArray = 0x8074,
@@ -2052,10 +1543,6 @@ enum class GetPointervPName : core::EnumType
 
 enum class GetTextureParameter : core::EnumType
 {
-#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-    TextureBorder = 0x1005,
-    TextureComponents = 0x1003,
-#endif
     TextureBorderColor = 0x1004,
     TextureHeight = 0x1001,
     TextureMagFilter = 0x2800,
@@ -2063,6 +1550,10 @@ enum class GetTextureParameter : core::EnumType
     TextureWidth = 0x1000,
     TextureWrapS = 0x2802,
     TextureWrapT = 0x2803,
+#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+    TextureBorder = 0x1005,
+    TextureComponents = 0x1003,
+#endif
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     TextureAlphaSize = 0x805F,
     TextureBlueSize = 0x805E,
@@ -2223,13 +1714,13 @@ enum class HintMode : core::EnumType
 
 enum class HintTarget : core::EnumType
 {
+    LineSmoothHint = 0x0C52,
+    PolygonSmoothHint = 0x0C53,
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
     FogHint = 0x0C54,
     PerspectiveCorrectionHint = 0x0C50,
     PointSmoothHint = 0x0C51,
 #endif
-    LineSmoothHint = 0x0C52,
-    PolygonSmoothHint = 0x0C53,
 #if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     TextureCompressionHint = 0x84EF,
 #endif
@@ -2280,6 +1771,21 @@ enum class InternalFormat : core::EnumType
     Red = 0x1903,
     Rgb = 0x1907,
     Rgba = 0x1908,
+#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+    R3G3B2 = 0x2A10,
+    Rgb10 = 0x8052,
+    Rgb10A2 = 0x8059,
+    Rgb12 = 0x8053,
+    Rgb16 = 0x8054,
+    Rgb4 = 0x804F,
+    Rgb5 = 0x8050,
+    Rgb5A1 = 0x8057,
+    Rgb8 = 0x8051,
+    Rgba12 = 0x805A,
+    Rgba16 = 0x805B,
+    Rgba4 = 0x8056,
+    Rgba8 = 0x8058,
+#endif
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
     Alpha12 = 0x803D,
     Alpha16 = 0x803E,
@@ -2300,21 +1806,6 @@ enum class InternalFormat : core::EnumType
     Luminance6Alpha2 = 0x8044,
     Luminance8 = 0x8040,
     Luminance8Alpha8 = 0x8045,
-#endif
-#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-    R3G3B2 = 0x2A10,
-    Rgb10 = 0x8052,
-    Rgb10A2 = 0x8059,
-    Rgb12 = 0x8053,
-    Rgb16 = 0x8054,
-    Rgb4 = 0x804F,
-    Rgb5 = 0x8050,
-    Rgb5A1 = 0x8057,
-    Rgb8 = 0x8051,
-    Rgba12 = 0x805A,
-    Rgba16 = 0x805B,
-    Rgba4 = 0x8056,
-    Rgba8 = 0x8058,
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     CompressedRgb = 0x84ED,
@@ -2568,11 +2059,6 @@ enum class ListMode : core::EnumType
 
 enum class ListNameType : core::EnumType
 {
-#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-    _2Bytes = 0x1407,
-    _3Bytes = 0x1408,
-    _4Bytes = 0x1409,
-#endif
     Byte = 0x1400,
     Float = 0x1406,
     Int = 0x1404,
@@ -2580,6 +2066,11 @@ enum class ListNameType : core::EnumType
     UnsignedByte = 0x1401,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
+#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+    _2Bytes = 0x1407,
+    _3Bytes = 0x1408,
+    _4Bytes = 0x1409,
+#endif
 };
 
 enum class LogicOp : core::EnumType
@@ -2826,6 +2317,11 @@ enum class PixelCopyType : core::EnumType
 
 enum class PixelFormat : core::EnumType
 {
+#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+    ColorIndex = 0x1900,
+    Luminance = 0x1909,
+    LuminanceAlpha = 0x190A,
+#endif
     Alpha = 0x1906,
     Blue = 0x1905,
     DepthComponent = 0x1902,
@@ -2836,11 +2332,6 @@ enum class PixelFormat : core::EnumType
     StencilIndex = 0x1901,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
-#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-    ColorIndex = 0x1900,
-    Luminance = 0x1909,
-    LuminanceAlpha = 0x190A,
-#endif
 #if defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     Bgr = 0x80E0,
     Bgra = 0x80E1,
@@ -2899,13 +2390,13 @@ enum class PixelStoreParameter : core::EnumType
 
 enum class PixelTexGenMode : core::EnumType
 {
+    None = 0,
+    Rgb = 0x1907,
+    Rgba = 0x1908,
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
     Luminance = 0x1909,
     LuminanceAlpha = 0x190A,
 #endif
-    None = 0,
-    Rgb = 0x1907,
-    Rgba = 0x1908,
 };
 
 enum class PixelTransferParameter : core::EnumType
@@ -2930,9 +2421,6 @@ enum class PixelTransferParameter : core::EnumType
 
 enum class PixelType : core::EnumType
 {
-#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-    Bitmap = 0x1A00,
-#endif
     Byte = 0x1400,
     Float = 0x1406,
     Int = 0x1404,
@@ -2940,6 +2428,9 @@ enum class PixelType : core::EnumType
     UnsignedByte = 0x1401,
     UnsignedInt = 0x1405,
     UnsignedShort = 0x1403,
+#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+    Bitmap = 0x1A00,
+#endif
 #if defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     UnsignedByte332 = 0x8032,
     UnsignedInt1010102 = 0x8036,
@@ -2958,13 +2449,13 @@ enum class PointParameterNameARB : core::EnumType
 
 enum class PointParameterNameSGIS : core::EnumType
 {
+#if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+    PointFadeThresholdSize = 0x8128,
+#endif
 #if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
     PointDistanceAttenuation = 0x8129,
     PointSizeMax = 0x8127,
     PointSizeMin = 0x8126,
-#endif
-#if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-    PointFadeThresholdSize = 0x8128,
 #endif
 };
 
@@ -2989,6 +2480,9 @@ enum class PrecisionType : core::EnumType
 
 enum class PrimitiveType : core::EnumType
 {
+#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+    Quads = 0x0007,
+#endif
     Lines = 0x0001,
     LineLoop = 0x0002,
     LineStrip = 0x0003,
@@ -2999,9 +2493,6 @@ enum class PrimitiveType : core::EnumType
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
     Polygon = 0x0009,
     QuadStrip = 0x0008,
-#endif
-#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-    Quads = 0x0007,
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     LinesAdjacency = 0x000A,
@@ -3517,10 +3008,6 @@ enum class TextureMinFilter : core::EnumType
 
 enum class TextureParameterName : core::EnumType
 {
-#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-    TextureBorder = 0x1005,
-    TextureComponents = 0x1003,
-#endif
     TextureBorderColor = 0x1004,
     TextureHeight = 0x1001,
     TextureMagFilter = 0x2800,
@@ -3528,6 +3015,10 @@ enum class TextureParameterName : core::EnumType
     TextureWidth = 0x1000,
     TextureWrapS = 0x2802,
     TextureWrapT = 0x2803,
+#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+    TextureBorder = 0x1005,
+    TextureComponents = 0x1003,
+#endif
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     TextureAlphaSize = 0x805F,
     TextureBlueSize = 0x805E,
@@ -3662,11 +3153,11 @@ enum class TextureUnit : core::EnumType
 
 enum class TextureWrapMode : core::EnumType
 {
+    LinearMipmapLinear = 0x2703,
+    Repeat = 0x2901,
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
     Clamp = 0x2900,
 #endif
-    LinearMipmapLinear = 0x2703,
-    Repeat = 0x2901,
 #if defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
     ClampToEdge = 0x812F,
 #endif
@@ -4027,1103 +3518,1102 @@ enum class VertexProvokingMode : core::EnumType
 };
 
 // commands
-extern void disable(EnableCap cap);
 extern void blendFunc(BlendingFactor sfactor, BlendingFactor dfactor);
-extern const uint8_t *getString(StringName name);
-extern void depthMask(bool flag);
-extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, int32_t *params);
-extern void getBooleanv(GetPName pname, bool *data);
-extern void frontFace(FrontFaceDirection mode);
-extern void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *params);
-extern void texParameter(TextureTarget target, TextureParameterName pname, int32_t param);
-extern void clearColor(float red, float green, float blue, float alpha);
-extern void getIntegerv(GetPName pname, int32_t *data);
-extern void finish();
-extern void stencilMask(uint32_t mask);
 extern void clear(core::Bitfield<ClearBufferMask> mask);
-extern void flush();
-extern void depthRange(double n, double f);
-extern void readPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, void *pixels);
-extern void logicOp(LogicOp opcode);
-extern void texImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, PixelFormat format, PixelType type, const void *pixels);
-extern void getFloatv(GetPName pname, float *data);
+extern void clearColor(float red, float green, float blue, float alpha);
+extern void clearDepth(double depth);
+extern void clearStencil(int32_t s);
+extern void colorMask(bool red, bool green, bool blue, bool alpha);
 extern void cullFace(CullFaceMode mode);
-extern bool isEnable(EnableCap cap);
-extern void enable(EnableCap cap);
-extern void getDoublev(GetPName pname, double *data);
-extern void texParameter(TextureTarget target, TextureParameterName pname, float param);
-extern void getTexParameter(TextureTarget target, GetTextureParameter pname, float *params);
+extern void depthFunc(DepthFunction func);
+extern void depthMask(bool flag);
+extern void depthRange(double n, double f);
+extern void disable(EnableCap cap);
 extern void drawBuffer(DrawBufferMode buf);
-extern void pointSize(float size);
+extern void enable(EnableCap cap);
+extern void finish();
+extern void flush();
+extern void frontFace(FrontFaceDirection mode);
+extern void getBooleanv(GetPName pname, bool *data);
+extern void getDoublev(GetPName pname, double *data);
+extern core::EnumType getError();
+extern void getFloatv(GetPName pname, float *data);
+extern void getIntegerv(GetPName pname, int32_t *data);
+extern const uint8_t *getString(StringName name);
+extern void getTexImage(TextureTarget target, int32_t level, PixelFormat format, PixelType type, void *pixels);
+extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, float *params);
+extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, int32_t *params);
+extern void getTexParameter(TextureTarget target, GetTextureParameter pname, float *params);
+extern void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *params);
+extern void hint(HintTarget target, HintMode mode);
+extern bool isEnable(EnableCap cap);
 extern void lineWidth(float width);
-extern void stencilOp(StencilOp fail, StencilOp zfail, StencilOp zpass);
+extern void logicOp(LogicOp opcode);
+extern void pixelStore(PixelStoreParameter pname, float param);
+extern void pixelStore(PixelStoreParameter pname, int32_t param);
+extern void pointSize(float size);
 extern void polygonMode(MaterialFace face, PolygonMode mode);
 extern void readBuffer(ReadBufferMode src);
-extern void hint(HintTarget target, HintMode mode);
-extern void texParameter(TextureTarget target, TextureParameterName pname, const float *params);
-extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, float *params);
+extern void readPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, void *pixels);
 extern void scissor(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void clearDepth(double depth);
-extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern core::EnumType getError();
-extern void pixelStore(PixelStoreParameter pname, float param);
-extern void depthFunc(DepthFunction func);
-extern void clearStencil(int32_t s);
 extern void stencilFunc(StencilFunction func, int32_t ref, uint32_t mask);
-extern void colorMask(bool red, bool green, bool blue, bool alpha);
-extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t *params);
+extern void stencilMask(uint32_t mask);
+extern void stencilOp(StencilOp fail, StencilOp zfail, StencilOp zpass);
 extern void texImage1D(TextureTarget target, int32_t level, int32_t internalformat, core::SizeType width, int32_t border, PixelFormat format, PixelType type, const void *pixels);
-extern void getTexImage(TextureTarget target, int32_t level, PixelFormat format, PixelType type, void *pixels);
-extern void pixelStore(PixelStoreParameter pname, int32_t param);
+extern void texImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, PixelFormat format, PixelType type, const void *pixels);
+extern void texParameter(TextureTarget target, TextureParameterName pname, float param);
+extern void texParameter(TextureTarget target, TextureParameterName pname, const float *params);
+extern void texParameter(TextureTarget target, TextureParameterName pname, int32_t param);
+extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t *params);
+extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-extern void rotate(float angle, float x, float y, float z);
-extern void material(MaterialFace face, MaterialParameter pname, float param);
-extern void texCoord4(const int16_t *v);
-extern void color4(int32_t red, int32_t green, int32_t blue, int32_t alpha);
-extern void loadIdentity();
-extern void texCoord4(const int32_t *v);
-extern void evalCoord1(const double *u);
-extern void color4(float red, float green, float blue, float alpha);
-extern uint32_t genList(core::SizeType range);
-extern void getTexGen(TextureCoordName coord, TextureGenParameter pname, float *params);
-extern void index(float c);
-extern void rasterPos4(int32_t x, int32_t y, int32_t z, int32_t w);
-extern void rotate(double angle, double x, double y, double z);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t param);
-extern void texGen(TextureCoordName coord, TextureGenParameter pname, const double *params);
-extern void indexMask(uint32_t mask);
-extern void rect(double x1, double y1, double x2, double y2);
-extern void rasterPos2(const int16_t *v);
-extern void getLight(LightName light, LightParameter pname, int32_t *params);
-extern void getMaterial(MaterialFace face, MaterialParameter pname, int32_t *params);
-extern void texCoord3(double s, double t, double r);
-extern void color3(double red, double green, double blue);
-extern void color4(double red, double green, double blue, double alpha);
-extern void pixelMap(PixelMap map, core::SizeType mapsize, const uint16_t *values);
-extern void pushMatrix();
-extern void scale(double x, double y, double z);
-extern void texCoord4(const float *v);
-extern void rect(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
-extern void scale(float x, float y, float z);
-extern void evalCoord1(const float *u);
-extern void rasterPos4(float x, float y, float z, float w);
-extern void texCoord1(int32_t s);
-extern void evalCoord2(const double *u);
-extern void color3(const float *v);
-extern void copyPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelCopyType type);
-extern void edgeFlag(bool flag);
-extern void pixelTransfer(PixelTransferParameter pname, int32_t param);
-extern void rasterPos2(int16_t x, int16_t y);
-extern void texCoord2(const int32_t *v);
-extern void en();
-extern void bitmap(core::SizeType width, core::SizeType height, float xorig, float yorig, float xmove, float ymove, const uint8_t *bitmap);
-extern void vertex3(float x, float y, float z);
-extern void index(const double *c);
-extern void vertex4(const double *v);
-extern void vertex4(const float *v);
-extern void deleteList(uint32_t list, core::SizeType range);
-extern void mapGrid1(int32_t un, float u1, float u2);
-extern void rasterPos4(const int32_t *v);
-extern void texCoord2(float s, float t);
-extern void clearIndex(float c);
-extern void evalCoord1(float u);
-extern void index(const float *c);
-extern void normal3(int8_t nx, int8_t ny, int8_t nz);
-extern void texCoord1(double s);
-extern void texCoord3(const double *v);
-extern void texCoord1(const int16_t *v);
-extern void rasterPos3(float x, float y, float z);
-extern void color4(uint32_t red, uint32_t green, uint32_t blue, uint32_t alpha);
-extern void color4(uint16_t red, uint16_t green, uint16_t blue, uint16_t alpha);
-extern void vertex3(double x, double y, double z);
-extern void color4(const uint16_t *v);
-extern void light(LightName light, LightParameter pname, const int32_t *params);
-extern void color3(int8_t red, int8_t green, int8_t blue);
-extern void rasterPos4(const int16_t *v);
-extern int32_t renderMode(RenderingMode mode);
-extern void normal3(float nx, float ny, float nz);
-extern void endList();
-extern void rect(const int32_t *v1, const int32_t *v2);
-extern void vertex2(const double *v);
-extern void vertex4(const int16_t *v);
-extern void vertex3(const float *v);
-extern void getMap(MapTarget target, GetMapQuery query, double *v);
-extern void getClipPlane(ClipPlaneName plane, double *equation);
-extern void map1(MapTarget target, double u1, double u2, int32_t stride, int32_t order, const double *points);
-extern void rect(const float *v1, const float *v2);
-extern void vertex3(int16_t x, int16_t y, int16_t z);
-extern void rasterPos2(const double *v);
-extern void rasterPos2(float x, float y);
-extern void color4(int16_t red, int16_t green, int16_t blue, int16_t alpha);
-extern void evalCoord2(float u, float v);
-extern void rasterPos3(const int32_t *v);
-extern void color4(const int16_t *v);
-extern void drawPixel(core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
-extern void listBase(uint32_t base);
-extern void loadMatrix(const float *m);
-extern void fog(FogParameter pname, int32_t param);
-extern void pixelZoom(float xfactor, float yfactor);
-extern void texCoord4(const double *v);
-extern void texCoord2(int32_t s, int32_t t);
-extern void color4(const int32_t *v);
-extern void texGen(TextureCoordName coord, TextureGenParameter pname, const int32_t *params);
-extern void fog(FogParameter pname, const float *params);
-extern void getMap(MapTarget target, GetMapQuery query, float *v);
-extern void vertex4(int16_t x, int16_t y, int16_t z, int16_t w);
-extern void color3(const uint8_t *v);
-extern void edgeFlagv(const bool *flag);
-extern void vertex4(int32_t x, int32_t y, int32_t z, int32_t w);
-extern void color4(const double *v);
-extern void color3(const int8_t *v);
-extern void texCoord1(float s);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, float param);
-extern void texCoord3(int16_t s, int16_t t, int16_t r);
-extern void texCoord4(double s, double t, double r, double q);
-extern void index(int32_t c);
-extern void normal3(int16_t nx, int16_t ny, int16_t nz);
-extern void rasterPos2(int32_t x, int32_t y);
-extern void getMap(MapTarget target, GetMapQuery query, int32_t *v);
-extern void texCoord2(int16_t s, int16_t t);
-extern void index(const int32_t *c);
-extern void color3(const uint32_t *v);
-extern void index(int16_t c);
-extern void initName();
-extern void rasterPos4(double x, double y, double z, double w);
 extern void accum(AccumOp op, float value);
+extern void alphaFunc(AlphaFunction func, float ref);
+extern void begin(PrimitiveType mode);
+extern void bitmap(core::SizeType width, core::SizeType height, float xorig, float yorig, float xmove, float ymove, const uint8_t *bitmap);
+extern void callList(uint32_t list);
+extern void callList(core::SizeType n, ListNameType type, const void *lists);
+extern void clearAccum(float red, float green, float blue, float alpha);
+extern void clearIndex(float c);
+extern void clipPlane(ClipPlaneName plane, const double *equation);
+extern void color3(int8_t red, int8_t green, int8_t blue);
+extern void color3(const int8_t *v);
+extern void color3(double red, double green, double blue);
+extern void color3(const double *v);
+extern void color3(float red, float green, float blue);
+extern void color3(const float *v);
+extern void color3(int32_t red, int32_t green, int32_t blue);
+extern void color3(const int32_t *v);
+extern void color3(int16_t red, int16_t green, int16_t blue);
+extern void color3(const int16_t *v);
+extern void color3(uint8_t red, uint8_t green, uint8_t blue);
+extern void color3(const uint8_t *v);
+extern void color3(uint32_t red, uint32_t green, uint32_t blue);
+extern void color3(const uint32_t *v);
+extern void color3(uint16_t red, uint16_t green, uint16_t blue);
+extern void color3(const uint16_t *v);
+extern void color4(int8_t red, int8_t green, int8_t blue, int8_t alpha);
+extern void color4(const int8_t *v);
+extern void color4(double red, double green, double blue, double alpha);
+extern void color4(const double *v);
+extern void color4(float red, float green, float blue, float alpha);
+extern void color4(const float *v);
+extern void color4(int32_t red, int32_t green, int32_t blue, int32_t alpha);
+extern void color4(const int32_t *v);
+extern void color4(int16_t red, int16_t green, int16_t blue, int16_t alpha);
+extern void color4(const int16_t *v);
+extern void color4(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+extern void color4(const uint8_t *v);
+extern void color4(uint32_t red, uint32_t green, uint32_t blue, uint32_t alpha);
+extern void color4(const uint32_t *v);
+extern void color4(uint16_t red, uint16_t green, uint16_t blue, uint16_t alpha);
+extern void color4(const uint16_t *v);
+extern void colorMaterial(MaterialFace face, ColorMaterialParameter mode);
+extern void copyPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelCopyType type);
+extern void deleteList(uint32_t list, core::SizeType range);
+extern void drawPixel(core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
+extern void edgeFlag(bool flag);
+extern void edgeFlagv(const bool *flag);
+extern void en();
+extern void endList();
+extern void evalCoord1(double u);
+extern void evalCoord1(const double *u);
+extern void evalCoord1(float u);
+extern void evalCoord1(const float *u);
+extern void evalCoord2(double u, double v);
+extern void evalCoord2(const double *u);
+extern void evalCoord2(float u, float v);
+extern void evalCoord2(const float *u);
+extern void evalMesh1(MeshMode1 mode, int32_t i1, int32_t i2);
+extern void evalMesh2(MeshMode2 mode, int32_t i1, int32_t i2, int32_t j1, int32_t j2);
+extern void evalPoint1(int32_t i);
+extern void evalPoint2(int32_t i, int32_t j);
+extern void feedbackBuffer(core::SizeType size, FeedbackType type, float *buffer);
+extern void fog(FogParameter pname, float param);
+extern void fog(FogParameter pname, const float *params);
+extern void fog(FogParameter pname, int32_t param);
+extern void fog(FogParameter pname, const int32_t *params);
+extern void frustum(double left, double right, double bottom, double top, double zNear, double zFar);
+extern uint32_t genList(core::SizeType range);
+extern void getClipPlane(ClipPlaneName plane, double *equation);
+extern void getLight(LightName light, LightParameter pname, float *params);
+extern void getLight(LightName light, LightParameter pname, int32_t *params);
+extern void getMap(MapTarget target, GetMapQuery query, double *v);
+extern void getMap(MapTarget target, GetMapQuery query, float *v);
+extern void getMap(MapTarget target, GetMapQuery query, int32_t *v);
+extern void getMaterial(MaterialFace face, MaterialParameter pname, float *params);
+extern void getMaterial(MaterialFace face, MaterialParameter pname, int32_t *params);
+extern void getPixelMap(PixelMap map, float *values);
+extern void getPixelMap(PixelMap map, uint32_t *values);
+extern void getPixelMap(PixelMap map, uint16_t *values);
 extern void getPolygonStipple(uint8_t *mask);
+extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, float *params);
+extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t *params);
+extern void getTexGen(TextureCoordName coord, TextureGenParameter pname, double *params);
+extern void getTexGen(TextureCoordName coord, TextureGenParameter pname, float *params);
+extern void getTexGen(TextureCoordName coord, TextureGenParameter pname, int32_t *params);
+extern void indexMask(uint32_t mask);
+extern void index(double c);
+extern void index(const double *c);
+extern void index(float c);
+extern void index(const float *c);
+extern void index(int32_t c);
+extern void index(const int32_t *c);
+extern void index(int16_t c);
+extern void index(const int16_t *c);
+extern void initName();
+extern bool isList(uint32_t list);
+extern void lightModel(LightModelParameter pname, float param);
+extern void lightModel(LightModelParameter pname, const float *params);
+extern void lightModel(LightModelParameter pname, int32_t param);
+extern void lightModel(LightModelParameter pname, const int32_t *params);
+extern void light(LightName light, LightParameter pname, float param);
+extern void light(LightName light, LightParameter pname, const float *params);
+extern void light(LightName light, LightParameter pname, int32_t param);
+extern void light(LightName light, LightParameter pname, const int32_t *params);
+extern void lineStipple(int32_t factor, uint16_t pattern);
+extern void listBase(uint32_t base);
+extern void loadIdentity();
+extern void loadMatrix(const double *m);
+extern void loadMatrix(const float *m);
+extern void loadName(uint32_t name);
+extern void map1(MapTarget target, double u1, double u2, int32_t stride, int32_t order, const double *points);
+extern void map1(MapTarget target, float u1, float u2, int32_t stride, int32_t order, const float *points);
+extern void map2(MapTarget target, double u1, double u2, int32_t ustride, int32_t uorder, double v1, double v2, int32_t vstride, int32_t vorder, const double *points);
+extern void map2(MapTarget target, float u1, float u2, int32_t ustride, int32_t uorder, float v1, float v2, int32_t vstride, int32_t vorder, const float *points);
 extern void mapGrid1(int32_t un, double u1, double u2);
+extern void mapGrid1(int32_t un, float u1, float u2);
+extern void mapGrid2(int32_t un, double u1, double u2, int32_t vn, double v1, double v2);
+extern void mapGrid2(int32_t un, float u1, float u2, int32_t vn, float v1, float v2);
+extern void material(MaterialFace face, MaterialParameter pname, float param);
+extern void material(MaterialFace face, MaterialParameter pname, const float *params);
+extern void material(MaterialFace face, MaterialParameter pname, int32_t param);
+extern void material(MaterialFace face, MaterialParameter pname, const int32_t *params);
+extern void matrixMode(MatrixMode mode);
 extern void multMatrix(const double *m);
 extern void multMatrix(const float *m);
+extern void newList(uint32_t list, ListMode mode);
+extern void normal3(int8_t nx, int8_t ny, int8_t nz);
+extern void normal3(const int8_t *v);
 extern void normal3(double nx, double ny, double nz);
-extern void pixelMap(PixelMap map, core::SizeType mapsize, const float *values);
+extern void normal3(const double *v);
+extern void normal3(float nx, float ny, float nz);
+extern void normal3(const float *v);
+extern void normal3(int32_t nx, int32_t ny, int32_t nz);
+extern void normal3(const int32_t *v);
+extern void normal3(int16_t nx, int16_t ny, int16_t nz);
+extern void normal3(const int16_t *v);
 extern void ortho(double left, double right, double bottom, double top, double zNear, double zFar);
+extern void passThrough(float token);
+extern void pixelMap(PixelMap map, core::SizeType mapsize, const float *values);
+extern void pixelMap(PixelMap map, core::SizeType mapsize, const uint32_t *values);
+extern void pixelMap(PixelMap map, core::SizeType mapsize, const uint16_t *values);
+extern void pixelTransfer(PixelTransferParameter pname, float param);
+extern void pixelTransfer(PixelTransferParameter pname, int32_t param);
+extern void pixelZoom(float xfactor, float yfactor);
+extern void polygonStipple(const uint8_t *mask);
+extern void popAttri();
+extern void popMatrix();
+extern void popName();
+extern void pushAttri(core::Bitfield<AttribMask> mask);
+extern void pushMatrix();
+extern void pushName(uint32_t name);
+extern void rasterPos2(double x, double y);
+extern void rasterPos2(const double *v);
+extern void rasterPos2(float x, float y);
+extern void rasterPos2(const float *v);
+extern void rasterPos2(int32_t x, int32_t y);
+extern void rasterPos2(const int32_t *v);
+extern void rasterPos2(int16_t x, int16_t y);
+extern void rasterPos2(const int16_t *v);
+extern void rasterPos3(double x, double y, double z);
+extern void rasterPos3(const double *v);
+extern void rasterPos3(float x, float y, float z);
+extern void rasterPos3(const float *v);
+extern void rasterPos3(int32_t x, int32_t y, int32_t z);
+extern void rasterPos3(const int32_t *v);
+extern void rasterPos3(int16_t x, int16_t y, int16_t z);
+extern void rasterPos3(const int16_t *v);
+extern void rasterPos4(double x, double y, double z, double w);
+extern void rasterPos4(const double *v);
+extern void rasterPos4(float x, float y, float z, float w);
+extern void rasterPos4(const float *v);
+extern void rasterPos4(int32_t x, int32_t y, int32_t z, int32_t w);
+extern void rasterPos4(const int32_t *v);
+extern void rasterPos4(int16_t x, int16_t y, int16_t z, int16_t w);
+extern void rasterPos4(const int16_t *v);
+extern void rect(double x1, double y1, double x2, double y2);
+extern void rect(const double *v1, const double *v2);
+extern void rect(float x1, float y1, float x2, float y2);
+extern void rect(const float *v1, const float *v2);
+extern void rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
+extern void rect(const int32_t *v1, const int32_t *v2);
+extern void rect(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
+extern void rect(const int16_t *v1, const int16_t *v2);
+extern int32_t renderMode(RenderingMode mode);
+extern void rotate(double angle, double x, double y, double z);
+extern void rotate(float angle, float x, float y, float z);
+extern void scale(double x, double y, double z);
+extern void scale(float x, float y, float z);
+extern void selectBuffer(core::SizeType size, uint32_t *buffer);
+extern void shadeModel(ShadingModel mode);
+extern void texCoord1(double s);
+extern void texCoord1(const double *v);
+extern void texCoord1(float s);
+extern void texCoord1(const float *v);
+extern void texCoord1(int32_t s);
+extern void texCoord1(const int32_t *v);
+extern void texCoord1(int16_t s);
+extern void texCoord1(const int16_t *v);
+extern void texCoord2(double s, double t);
+extern void texCoord2(const double *v);
+extern void texCoord2(float s, float t);
+extern void texCoord2(const float *v);
+extern void texCoord2(int32_t s, int32_t t);
+extern void texCoord2(const int32_t *v);
+extern void texCoord2(int16_t s, int16_t t);
+extern void texCoord2(const int16_t *v);
+extern void texCoord3(double s, double t, double r);
+extern void texCoord3(const double *v);
+extern void texCoord3(float s, float t, float r);
+extern void texCoord3(const float *v);
+extern void texCoord3(int32_t s, int32_t t, int32_t r);
+extern void texCoord3(const int32_t *v);
+extern void texCoord3(int16_t s, int16_t t, int16_t r);
+extern void texCoord3(const int16_t *v);
+extern void texCoord4(double s, double t, double r, double q);
+extern void texCoord4(const double *v);
+extern void texCoord4(float s, float t, float r, float q);
+extern void texCoord4(const float *v);
+extern void texCoord4(int32_t s, int32_t t, int32_t r, int32_t q);
+extern void texCoord4(const int32_t *v);
+extern void texCoord4(int16_t s, int16_t t, int16_t r, int16_t q);
+extern void texCoord4(const int16_t *v);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, float param);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const float *params);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t param);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const int32_t *params);
+extern void texGen(TextureCoordName coord, TextureGenParameter pname, double param);
+extern void texGen(TextureCoordName coord, TextureGenParameter pname, const double *params);
+extern void texGen(TextureCoordName coord, TextureGenParameter pname, float param);
 extern void texGen(TextureCoordName coord, TextureGenParameter pname, const float *params);
 extern void texGen(TextureCoordName coord, TextureGenParameter pname, int32_t param);
-extern void texCoord1(const double *v);
-extern void vertex3(const int16_t *v);
-extern void vertex2(int32_t x, int32_t y);
-extern void index(double c);
-extern void vertex2(const float *v);
-extern void fog(FogParameter pname, float param);
-extern void texCoord1(const int32_t *v);
-extern void getPixelMap(PixelMap map, uint16_t *values);
-extern void popName();
-extern void evalCoord1(double u);
-extern void vertex3(int32_t x, int32_t y, int32_t z);
-extern void map1(MapTarget target, float u1, float u2, int32_t stride, int32_t order, const float *points);
-extern void polygonStipple(const uint8_t *mask);
-extern void texCoord3(float s, float t, float r);
-extern void color4(const uint8_t *v);
-extern void rasterPos2(const float *v);
-extern void texCoord4(int16_t s, int16_t t, int16_t r, int16_t q);
-extern void clearAccum(float red, float green, float blue, float alpha);
-extern void color3(uint8_t red, uint8_t green, uint8_t blue);
-extern void color4(int8_t red, int8_t green, int8_t blue, int8_t alpha);
-extern void vertex4(double x, double y, double z, double w);
-extern void normal3(const int16_t *v);
-extern void index(const int16_t *c);
-extern void texCoord4(int32_t s, int32_t t, int32_t r, int32_t q);
-extern void color3(const uint16_t *v);
-extern void material(MaterialFace face, MaterialParameter pname, const float *params);
-extern void texCoord2(double s, double t);
-extern void color3(int32_t red, int32_t green, int32_t blue);
-extern void begin(PrimitiveType mode);
-extern void pushAttri(core::Bitfield<AttribMask> mask);
-extern void light(LightName light, LightParameter pname, int32_t param);
-extern void rasterPos3(int32_t x, int32_t y, int32_t z);
-extern void texCoord1(int16_t s);
-extern void texCoord4(float s, float t, float r, float q);
-extern void lightModel(LightModelParameter pname, const int32_t *params);
-extern void rasterPos4(const double *v);
-extern void texCoord2(const double *v);
-extern void pixelTransfer(PixelTransferParameter pname, float param);
-extern void rect(const double *v1, const double *v2);
-extern void feedbackBuffer(core::SizeType size, FeedbackType type, float *buffer);
-extern void texGen(TextureCoordName coord, TextureGenParameter pname, float param);
-extern void color4(const float *v);
-extern void newList(uint32_t list, ListMode mode);
-extern void popAttri();
-extern void color3(int16_t red, int16_t green, int16_t blue);
-extern void alphaFunc(AlphaFunction func, float ref);
-extern void evalMesh2(MeshMode2 mode, int32_t i1, int32_t i2, int32_t j1, int32_t j2);
-extern void vertex2(float x, float y);
-extern void vertex3(const double *v);
-extern void evalCoord2(double u, double v);
-extern bool isList(uint32_t list);
-extern void rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-extern void getMaterial(MaterialFace face, MaterialParameter pname, float *params);
-extern void color3(uint32_t red, uint32_t green, uint32_t blue);
-extern void mapGrid2(int32_t un, double u1, double u2, int32_t vn, double v1, double v2);
-extern void color3(const double *v);
-extern void getPixelMap(PixelMap map, uint32_t *values);
-extern void texGen(TextureCoordName coord, TextureGenParameter pname, double param);
-extern void getPixelMap(PixelMap map, float *values);
-extern void pushName(uint32_t name);
-extern void rasterPos3(const int16_t *v);
-extern void texCoord3(int32_t s, int32_t t, int32_t r);
-extern void normal3(const int8_t *v);
-extern void vertex2(const int16_t *v);
-extern void lightModel(LightModelParameter pname, const float *params);
-extern void texCoord1(const float *v);
-extern void color4(const int8_t *v);
-extern void color3(const int32_t *v);
-extern void texCoord3(const int16_t *v);
-extern void map2(MapTarget target, double u1, double u2, int32_t ustride, int32_t uorder, double v1, double v2, int32_t vstride, int32_t vorder, const double *points);
+extern void texGen(TextureCoordName coord, TextureGenParameter pname, const int32_t *params);
 extern void translate(double x, double y, double z);
 extern void translate(float x, float y, float z);
-extern void normal3(int32_t nx, int32_t ny, int32_t nz);
-extern void rasterPos2(double x, double y);
-extern void material(MaterialFace face, MaterialParameter pname, const int32_t *params);
-extern void getTexGen(TextureCoordName coord, TextureGenParameter pname, double *params);
-extern void matrixMode(MatrixMode mode);
-extern void lightModel(LightModelParameter pname, float param);
-extern void vertex4(const int32_t *v);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const int32_t *params);
-extern void color3(float red, float green, float blue);
-extern void map2(MapTarget target, float u1, float u2, int32_t ustride, int32_t uorder, float v1, float v2, int32_t vstride, int32_t vorder, const float *points);
-extern void rasterPos3(double x, double y, double z);
-extern void popMatrix();
-extern void rasterPos3(const double *v);
-extern void evalMesh1(MeshMode1 mode, int32_t i1, int32_t i2);
-extern void frustum(double left, double right, double bottom, double top, double zNear, double zFar);
-extern void callList(uint32_t list);
-extern void evalPoint2(int32_t i, int32_t j);
-extern void color4(const uint32_t *v);
-extern void rect(float x1, float y1, float x2, float y2);
-extern void getTexGen(TextureCoordName coord, TextureGenParameter pname, int32_t *params);
-extern void color3(uint16_t red, uint16_t green, uint16_t blue);
-extern void evalCoord2(const float *u);
-extern void rasterPos4(const float *v);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const float *params);
-extern void shadeModel(ShadingModel mode);
-extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, float *params);
-extern void callList(core::SizeType n, ListNameType type, const void *lists);
-extern void vertex3(const int32_t *v);
-extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t *params);
-extern void color4(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
-extern void normal3(const float *v);
-extern void clipPlane(ClipPlaneName plane, const double *equation);
-extern void light(LightName light, LightParameter pname, float param);
-extern void vertex4(float x, float y, float z, float w);
-extern void lineStipple(int32_t factor, uint16_t pattern);
-extern void vertex2(const int32_t *v);
-extern void rect(const int16_t *v1, const int16_t *v2);
-extern void texCoord2(const int16_t *v);
-extern void rasterPos4(int16_t x, int16_t y, int16_t z, int16_t w);
-extern void getLight(LightName light, LightParameter pname, float *params);
-extern void lightModel(LightModelParameter pname, int32_t param);
 extern void vertex2(double x, double y);
-extern void light(LightName light, LightParameter pname, const float *params);
-extern void normal3(const int32_t *v);
-extern void material(MaterialFace face, MaterialParameter pname, int32_t param);
-extern void colorMaterial(MaterialFace face, ColorMaterialParameter mode);
-extern void passThrough(float token);
-extern void loadName(uint32_t name);
-extern void normal3(const double *v);
-extern void pixelMap(PixelMap map, core::SizeType mapsize, const uint32_t *values);
-extern void texCoord2(const float *v);
-extern void mapGrid2(int32_t un, float u1, float u2, int32_t vn, float v1, float v2);
-extern void rasterPos3(int16_t x, int16_t y, int16_t z);
-extern void color3(const int16_t *v);
-extern void selectBuffer(core::SizeType size, uint32_t *buffer);
-extern void fog(FogParameter pname, const int32_t *params);
-extern void rasterPos2(const int32_t *v);
-extern void loadMatrix(const double *m);
-extern void evalPoint1(int32_t i);
-extern void texCoord3(const int32_t *v);
-extern void rasterPos3(const float *v);
+extern void vertex2(const double *v);
+extern void vertex2(float x, float y);
+extern void vertex2(const float *v);
+extern void vertex2(int32_t x, int32_t y);
+extern void vertex2(const int32_t *v);
 extern void vertex2(int16_t x, int16_t y);
-extern void texCoord3(const float *v);
+extern void vertex2(const int16_t *v);
+extern void vertex3(double x, double y, double z);
+extern void vertex3(const double *v);
+extern void vertex3(float x, float y, float z);
+extern void vertex3(const float *v);
+extern void vertex3(int32_t x, int32_t y, int32_t z);
+extern void vertex3(const int32_t *v);
+extern void vertex3(int16_t x, int16_t y, int16_t z);
+extern void vertex3(const int16_t *v);
+extern void vertex4(double x, double y, double z, double w);
+extern void vertex4(const double *v);
+extern void vertex4(float x, float y, float z, float w);
+extern void vertex4(const float *v);
+extern void vertex4(int32_t x, int32_t y, int32_t z, int32_t w);
+extern void vertex4(const int32_t *v);
+extern void vertex4(int16_t x, int16_t y, int16_t z, int16_t w);
+extern void vertex4(const int16_t *v);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void drawElements(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices);
-extern void texSubImage1D(TextureTarget target, int32_t level, int32_t xoffset, core::SizeType width, PixelFormat format, PixelType type, const void *pixels);
+extern void bindTexture(TextureTarget target, uint32_t texture);
+extern void copyTexImage1D(TextureTarget target, int32_t level, InternalFormat internalformat, int32_t x, int32_t y, core::SizeType width, int32_t border);
 extern void copyTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, int32_t x, int32_t y, core::SizeType width, core::SizeType height, int32_t border);
+extern void copyTexSubImage1D(TextureTarget target, int32_t level, int32_t xoffset, int32_t x, int32_t y, core::SizeType width);
+extern void copyTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void deleteTextures(core::SizeType n, const uint32_t *textures);
+extern void drawArrays(PrimitiveType mode, int32_t first, core::SizeType count);
+extern void drawElements(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices);
+extern void genTextures(core::SizeType n, uint32_t *textures);
 extern bool isTexture(uint32_t texture);
 extern void polygonOffset(float factor, float units);
-extern void bindTexture(TextureTarget target, uint32_t texture);
-extern void deleteTextures(core::SizeType n, const uint32_t *textures);
+extern void texSubImage1D(TextureTarget target, int32_t level, int32_t xoffset, core::SizeType width, PixelFormat format, PixelType type, const void *pixels);
 extern void texSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
-extern void drawArrays(PrimitiveType mode, int32_t first, core::SizeType count);
-extern void copyTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void copyTexSubImage1D(TextureTarget target, int32_t level, int32_t xoffset, int32_t x, int32_t y, core::SizeType width);
-extern void copyTexImage1D(TextureTarget target, int32_t level, InternalFormat internalformat, int32_t x, int32_t y, core::SizeType width, int32_t border);
-extern void genTextures(core::SizeType n, uint32_t *textures);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
 extern void getPointerv(GetPointervPName pname, void **params);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+extern bool areTexturesResident(core::SizeType n, const uint32_t *textures, bool *residences);
+extern void arrayElement(int32_t i);
+extern void colorPointer(int32_t size, ColorPointerType type, core::SizeType stride, const void *pointer);
+extern void disableClientState(EnableCap array);
+extern void edgeFlagPointer(core::SizeType stride, const void *pointer);
+extern void enableClientState(EnableCap array);
 extern void indexPointer(IndexPointerType type, core::SizeType stride, const void *pointer);
 extern void index(uint8_t c);
 extern void index(const uint8_t *c);
 extern void interleavedArrays(InterleavedArrayFormat format, core::SizeType stride, const void *pointer);
-extern void popClientAttri();
-extern void texCoordPointer(int32_t size, TexCoordPointerType type, core::SizeType stride, const void *pointer);
-extern void enableClientState(EnableCap array);
-extern void edgeFlagPointer(core::SizeType stride, const void *pointer);
-extern void disableClientState(EnableCap array);
-extern void pushClientAttri(core::Bitfield<ClientAttribMask> mask);
-extern void colorPointer(int32_t size, ColorPointerType type, core::SizeType stride, const void *pointer);
-extern void vertexPointer(int32_t size, VertexPointerType type, core::SizeType stride, const void *pointer);
-extern void prioritizeTextures(core::SizeType n, const uint32_t *textures, const float *priorities);
-extern bool areTexturesResident(core::SizeType n, const uint32_t *textures, bool *residences);
-extern void arrayElement(int32_t i);
 extern void normalPointer(NormalPointerType type, core::SizeType stride, const void *pointer);
+extern void popClientAttri();
+extern void prioritizeTextures(core::SizeType n, const uint32_t *textures, const float *priorities);
+extern void pushClientAttri(core::Bitfield<ClientAttribMask> mask);
+extern void texCoordPointer(int32_t size, TexCoordPointerType type, core::SizeType stride, const void *pointer);
+extern void vertexPointer(int32_t size, VertexPointerType type, core::SizeType stride, const void *pointer);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+extern void copyTexSubImage3D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void drawRangeElements(PrimitiveType mode, uint32_t start, uint32_t end, core::SizeType count, DrawElementsType type, const void *indices);
 extern void texImage3D(TextureTarget target, int32_t level, int32_t internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, int32_t border, PixelFormat format, PixelType type, const void *pixels);
 extern void texSubImage3D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, PixelType type, const void *pixels);
-extern void drawRangeElements(PrimitiveType mode, uint32_t start, uint32_t end, core::SizeType count, DrawElementsType type, const void *indices);
-extern void copyTexSubImage3D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void compressedTexSubImage1D(TextureTarget target, int32_t level, int32_t xoffset, core::SizeType width, PixelFormat format, core::SizeType imageSize, const void *data);
-extern void sampleCoverage(float value, bool invert);
-extern void compressedTexImage1D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, int32_t border, core::SizeType imageSize, const void *data);
 extern void activeTexture(TextureUnit texture);
-extern void compressedTexImage3D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, int32_t border, core::SizeType imageSize, const void *data);
+extern void compressedTexImage1D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, int32_t border, core::SizeType imageSize, const void *data);
 extern void compressedTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, core::SizeType imageSize, const void *data);
-extern void getCompressedTexImage(TextureTarget target, int32_t level, void *img);
+extern void compressedTexImage3D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, int32_t border, core::SizeType imageSize, const void *data);
+extern void compressedTexSubImage1D(TextureTarget target, int32_t level, int32_t xoffset, core::SizeType width, PixelFormat format, core::SizeType imageSize, const void *data);
 extern void compressedTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, core::SizeType imageSize, const void *data);
 extern void compressedTexSubImage3D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, core::SizeType imageSize, const void *data);
+extern void getCompressedTexImage(TextureTarget target, int32_t level, void *img);
+extern void sampleCoverage(float value, bool invert);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-extern void multiTexCoord4(TextureUnit target, const double *v);
-extern void multiTexCoord3(TextureUnit target, int32_t s, int32_t t, int32_t r);
-extern void multiTexCoord3(TextureUnit target, int16_t s, int16_t t, int16_t r);
-extern void multiTexCoord1(TextureUnit target, float s);
-extern void multiTexCoord1(TextureUnit target, const int16_t *v);
-extern void multiTexCoord4(TextureUnit target, int32_t s, int32_t t, int32_t r, int32_t q);
-extern void multiTexCoord3(TextureUnit target, const double *v);
-extern void multiTexCoord1(TextureUnit target, int32_t s);
+extern void clientActiveTexture(TextureUnit texture);
+extern void loadTransposeMatrix(const double *m);
+extern void loadTransposeMatrix(const float *m);
 extern void multTransposeMatrix(const double *m);
+extern void multTransposeMatrix(const float *m);
+extern void multiTexCoord1(TextureUnit target, double s);
+extern void multiTexCoord1(TextureUnit target, const double *v);
+extern void multiTexCoord1(TextureUnit target, float s);
+extern void multiTexCoord1(TextureUnit target, const float *v);
+extern void multiTexCoord1(TextureUnit target, int32_t s);
+extern void multiTexCoord1(TextureUnit target, const int32_t *v);
+extern void multiTexCoord1(TextureUnit target, int16_t s);
+extern void multiTexCoord1(TextureUnit target, const int16_t *v);
+extern void multiTexCoord2(TextureUnit target, double s, double t);
+extern void multiTexCoord2(TextureUnit target, const double *v);
+extern void multiTexCoord2(TextureUnit target, float s, float t);
+extern void multiTexCoord2(TextureUnit target, const float *v);
+extern void multiTexCoord2(TextureUnit target, int32_t s, int32_t t);
+extern void multiTexCoord2(TextureUnit target, const int32_t *v);
+extern void multiTexCoord2(TextureUnit target, int16_t s, int16_t t);
+extern void multiTexCoord2(TextureUnit target, const int16_t *v);
+extern void multiTexCoord3(TextureUnit target, double s, double t, double r);
+extern void multiTexCoord3(TextureUnit target, const double *v);
+extern void multiTexCoord3(TextureUnit target, float s, float t, float r);
+extern void multiTexCoord3(TextureUnit target, const float *v);
+extern void multiTexCoord3(TextureUnit target, int32_t s, int32_t t, int32_t r);
 extern void multiTexCoord3(TextureUnit target, const int32_t *v);
+extern void multiTexCoord3(TextureUnit target, int16_t s, int16_t t, int16_t r);
+extern void multiTexCoord3(TextureUnit target, const int16_t *v);
+extern void multiTexCoord4(TextureUnit target, double s, double t, double r, double q);
+extern void multiTexCoord4(TextureUnit target, const double *v);
+extern void multiTexCoord4(TextureUnit target, float s, float t, float r, float q);
+extern void multiTexCoord4(TextureUnit target, const float *v);
+extern void multiTexCoord4(TextureUnit target, int32_t s, int32_t t, int32_t r, int32_t q);
 extern void multiTexCoord4(TextureUnit target, const int32_t *v);
 extern void multiTexCoord4(TextureUnit target, int16_t s, int16_t t, int16_t r, int16_t q);
-extern void clientActiveTexture(TextureUnit texture);
-extern void multiTexCoord4(TextureUnit target, double s, double t, double r, double q);
-extern void multiTexCoord3(TextureUnit target, const int16_t *v);
-extern void multiTexCoord2(TextureUnit target, double s, double t);
 extern void multiTexCoord4(TextureUnit target, const int16_t *v);
-extern void multiTexCoord1(TextureUnit target, const int32_t *v);
-extern void multiTexCoord2(TextureUnit target, const double *v);
-extern void multiTexCoord3(TextureUnit target, float s, float t, float r);
-extern void multiTexCoord4(TextureUnit target, const float *v);
-extern void multiTexCoord4(TextureUnit target, float s, float t, float r, float q);
-extern void multiTexCoord1(TextureUnit target, const double *v);
-extern void multiTexCoord2(TextureUnit target, int32_t s, int32_t t);
-extern void multiTexCoord1(TextureUnit target, const float *v);
-extern void multiTexCoord3(TextureUnit target, double s, double t, double r);
-extern void multiTexCoord1(TextureUnit target, double s);
-extern void multiTexCoord2(TextureUnit target, const float *v);
-extern void multiTexCoord2(TextureUnit target, const int32_t *v);
-extern void multiTexCoord2(TextureUnit target, const int16_t *v);
-extern void loadTransposeMatrix(const double *m);
-extern void multTransposeMatrix(const float *m);
-extern void multiTexCoord2(TextureUnit target, int16_t s, int16_t t);
-extern void multiTexCoord1(TextureUnit target, int16_t s);
-extern void multiTexCoord2(TextureUnit target, float s, float t);
-extern void loadTransposeMatrix(const float *m);
-extern void multiTexCoord3(TextureUnit target, const float *v);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void blendEquation(BlendEquationModeEXT mode);
-extern void pointParameter(PointParameterNameARB pname, const int32_t *params);
-extern void blendFuncSeparate(BlendingFactor sfactorRGB, BlendingFactor dfactorRGB, BlendingFactor sfactorAlpha, BlendingFactor dfactorAlpha);
-extern void pointParameter(PointParameterNameARB pname, float param);
 extern void blendColor(float red, float green, float blue, float alpha);
-extern void multiDrawElements(PrimitiveType mode, const core::SizeType *count, DrawElementsType type, const void *const*indices, core::SizeType drawcount);
+extern void blendEquation(BlendEquationModeEXT mode);
+extern void blendFuncSeparate(BlendingFactor sfactorRGB, BlendingFactor dfactorRGB, BlendingFactor sfactorAlpha, BlendingFactor dfactorAlpha);
 extern void multiDrawArrays(PrimitiveType mode, const int32_t *first, const core::SizeType *count, core::SizeType drawcount);
+extern void multiDrawElements(PrimitiveType mode, const core::SizeType *count, DrawElementsType type, const void *const*indices, core::SizeType drawcount);
+extern void pointParameter(PointParameterNameARB pname, float param);
 extern void pointParameter(PointParameterNameARB pname, const float *params);
 extern void pointParameter(PointParameterNameARB pname, int32_t param);
+extern void pointParameter(PointParameterNameARB pname, const int32_t *params);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-extern void secondaryColor3(int8_t red, int8_t green, int8_t blue);
-extern void windowPos3(int32_t x, int32_t y, int32_t z);
-extern void secondaryColor3(float red, float green, float blue);
-extern void secondaryColor3(double red, double green, double blue);
-extern void windowPos2(const double *v);
-extern void secondaryColor3(const uint32_t *v);
-extern void windowPos2(int16_t x, int16_t y);
-extern void windowPos2(const int32_t *v);
 extern void fogCoordPointer(FogPointerTypeEXT type, core::SizeType stride, const void *pointer);
-extern void windowPos3(double x, double y, double z);
-extern void windowPos3(const float *v);
-extern void secondaryColor3(const double *v);
-extern void windowPos3(float x, float y, float z);
-extern void fogCoord(float coord);
-extern void windowPos3(const double *v);
 extern void fogCoord(double coord);
-extern void windowPos2(float x, float y);
-extern void secondaryColor3(int16_t red, int16_t green, int16_t blue);
 extern void fogCoord(const double *coord);
-extern void secondaryColor3(const float *v);
-extern void secondaryColor3(const uint16_t *v);
-extern void secondaryColor3(uint32_t red, uint32_t green, uint32_t blue);
-extern void windowPos2(const int16_t *v);
+extern void fogCoord(float coord);
 extern void fogCoord(const float *coord);
+extern void secondaryColor3(int8_t red, int8_t green, int8_t blue);
 extern void secondaryColor3(const int8_t *v);
-extern void secondaryColor3(const int16_t *v);
-extern void windowPos2(double x, double y);
-extern void windowPos3(const int32_t *v);
-extern void secondaryColor3(const int32_t *v);
+extern void secondaryColor3(double red, double green, double blue);
+extern void secondaryColor3(const double *v);
+extern void secondaryColor3(float red, float green, float blue);
+extern void secondaryColor3(const float *v);
 extern void secondaryColor3(int32_t red, int32_t green, int32_t blue);
+extern void secondaryColor3(const int32_t *v);
+extern void secondaryColor3(int16_t red, int16_t green, int16_t blue);
+extern void secondaryColor3(const int16_t *v);
 extern void secondaryColor3(uint8_t red, uint8_t green, uint8_t blue);
 extern void secondaryColor3(const uint8_t *v);
+extern void secondaryColor3(uint32_t red, uint32_t green, uint32_t blue);
+extern void secondaryColor3(const uint32_t *v);
 extern void secondaryColor3(uint16_t red, uint16_t green, uint16_t blue);
+extern void secondaryColor3(const uint16_t *v);
+extern void secondaryColorPointer(int32_t size, ColorPointerType type, core::SizeType stride, const void *pointer);
+extern void windowPos2(double x, double y);
+extern void windowPos2(const double *v);
+extern void windowPos2(float x, float y);
+extern void windowPos2(const float *v);
+extern void windowPos2(int32_t x, int32_t y);
+extern void windowPos2(const int32_t *v);
+extern void windowPos2(int16_t x, int16_t y);
+extern void windowPos2(const int16_t *v);
+extern void windowPos3(double x, double y, double z);
+extern void windowPos3(const double *v);
+extern void windowPos3(float x, float y, float z);
+extern void windowPos3(const float *v);
+extern void windowPos3(int32_t x, int32_t y, int32_t z);
+extern void windowPos3(const int32_t *v);
 extern void windowPos3(int16_t x, int16_t y, int16_t z);
 extern void windowPos3(const int16_t *v);
-extern void windowPos2(const float *v);
-extern void secondaryColorPointer(int32_t size, ColorPointerType type, core::SizeType stride, const void *pointer);
-extern void windowPos2(int32_t x, int32_t y);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
 extern void beginQuery(QueryTarget target, uint32_t id);
+extern void bindBuffer(BufferTargetARB target, uint32_t buffer);
+extern void bufferData(BufferTargetARB target, std::size_t size, const void *data, BufferUsageARB usage);
+extern void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void *data);
+extern void deleteBuffers(core::SizeType n, const uint32_t *buffers);
+extern void deleteQuerie(core::SizeType n, const uint32_t *ids);
 extern void endQuery(QueryTarget target);
 extern void genBuffers(core::SizeType n, uint32_t *buffers);
-extern void getBufferPointerv(BufferTargetARB target, BufferPointerNameARB pname, void **params);
-extern void deleteQuerie(core::SizeType n, const uint32_t *ids);
-extern void deleteBuffers(core::SizeType n, const uint32_t *buffers);
-extern void bufferData(BufferTargetARB target, std::size_t size, const void *data, BufferUsageARB usage);
-extern void getBufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, void *data);
 extern void genQuerie(core::SizeType n, uint32_t *ids);
-extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, int32_t *params);
-extern bool isBuffer(uint32_t buffer);
-extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, uint32_t *params);
 extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t *params);
+extern void getBufferPointerv(BufferTargetARB target, BufferPointerNameARB pname, void **params);
+extern void getBufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, void *data);
+extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, int32_t *params);
+extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, uint32_t *params);
+extern void getQuery(QueryTarget target, QueryParameterName pname, int32_t *params);
+extern bool isBuffer(uint32_t buffer);
 extern bool isQuery(uint32_t id);
 extern void *mapBuffer(BufferTargetARB target, BufferAccessARB access);
-extern void getQuery(QueryTarget target, QueryParameterName pname, int32_t *params);
-extern void bindBuffer(BufferTargetARB target, uint32_t buffer);
 extern bool unmapBuffer(BufferTargetARB target);
-extern void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void *data);
 #endif
 #if defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void vertexAttrib4N(uint32_t index, const uint32_t *v);
-extern void vertexAttrib3(uint32_t index, const float *v);
-extern void linkProgram(uint32_t program);
-extern void vertexAttrib4(uint32_t index, float x, float y, float z, float w);
-extern void validateProgram(uint32_t program);
-extern void vertexAttrib4N(uint32_t index, const int32_t *v);
-extern void vertexAttrib4(uint32_t index, const uint16_t *v);
-extern void uniform1(int32_t location, float v0);
-extern void uniform3(int32_t location, float v0, float v1, float v2);
-extern void deleteShader(uint32_t shader);
-extern void vertexAttrib4N(uint32_t index, const int8_t *v);
-extern void vertexAttribPointer(uint32_t index, int32_t size, VertexAttribPointerType type, bool normalized, core::SizeType stride, const void *pointer);
-extern void vertexAttrib4(uint32_t index, const uint8_t *v);
-extern void getProgramInfoLog(uint32_t program, core::SizeType bufSize, core::SizeType *length, char *infoLog);
-extern void vertexAttrib2(uint32_t index, const float *v);
-extern void vertexAttrib3(uint32_t index, const int16_t *v);
-extern void vertexAttrib2(uint32_t index, const double *v);
-extern void uniform2(int32_t location, core::SizeType count, const int32_t *value);
-extern void compileShader(uint32_t shader);
-extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, float *params);
-extern bool isShader(uint32_t shader);
-extern void vertexAttrib4(uint32_t index, const int8_t *v);
-extern void drawBuffers(core::SizeType n, const DrawBufferMode *bufs);
-extern void vertexAttrib3(uint32_t index, float x, float y, float z);
-extern void vertexAttrib1(uint32_t index, const float *v);
-extern void vertexAttrib2(uint32_t index, double x, double y);
-extern void getAttachedShaders(uint32_t program, core::SizeType maxCount, core::SizeType *count, uint32_t *shaders);
-extern void enableVertexAttribArray(uint32_t index);
-extern void vertexAttrib4N(uint32_t index, const int16_t *v);
-extern void vertexAttrib1(uint32_t index, const int16_t *v);
-extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, double *params);
-extern void vertexAttrib2(uint32_t index, const int16_t *v);
-extern void uniform4(int32_t location, core::SizeType count, const float *value);
-extern void getActiveAttri(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name);
-extern int32_t getAttribLocation(uint32_t program, const char *name);
-extern void vertexAttrib2(uint32_t index, int16_t x, int16_t y);
-extern void shaderSource(uint32_t shader, core::SizeType count, const char *const*string, const int32_t *length);
-extern void vertexAttrib3(uint32_t index, double x, double y, double z);
-extern void vertexAttrib1(uint32_t index, const double *v);
-extern void vertexAttrib3(uint32_t index, int16_t x, int16_t y, int16_t z);
-extern void stencilMaskSeparate(StencilFaceDirection face, uint32_t mask);
-extern void getUniform(uint32_t program, int32_t location, float *params);
-extern void vertexAttrib4N(uint32_t index, const uint8_t *v);
-extern void vertexAttrib4(uint32_t index, double x, double y, double z, double w);
-extern void vertexAttrib4(uint32_t index, const int32_t *v);
-extern void vertexAttrib1(uint32_t index, float x);
-extern void vertexAttrib4N(uint32_t index, const uint16_t *v);
-extern void vertexAttrib4(uint32_t index, const uint32_t *v);
-extern void getProgram(uint32_t program, ProgramPropertyARB pname, int32_t *params);
-extern void uniform1(int32_t location, core::SizeType count, const int32_t *value);
-extern void vertexAttrib4N(uint32_t index, uint8_t x, uint8_t y, uint8_t z, uint8_t w);
-extern void uniformMatrix4(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void uniform4(int32_t location, float v0, float v1, float v2, float v3);
-extern void vertexAttrib4(uint32_t index, int16_t x, int16_t y, int16_t z, int16_t w);
-extern void vertexAttrib1(uint32_t index, int16_t x);
-extern void uniform4(int32_t location, int32_t v0, int32_t v1, int32_t v2, int32_t v3);
-extern void detachShader(uint32_t program, uint32_t shader);
-extern void uniform4(int32_t location, core::SizeType count, const int32_t *value);
-extern void getActiveUniform(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, UniformType *type, char *name);
-extern void stencilOpSeparate(StencilFaceDirection face, StencilOp sfail, StencilOp dpfail, StencilOp dppass);
-extern uint32_t createShader(ShaderType type);
-extern int32_t getUniformLocation(uint32_t program, const char *name);
 extern void attachShader(uint32_t program, uint32_t shader);
 extern void bindAttribLocation(uint32_t program, uint32_t index, const char *name);
-extern void getShaderInfoLog(uint32_t shader, core::SizeType bufSize, core::SizeType *length, char *infoLog);
-extern void uniformMatrix2(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void blendEquationSeparate(BlendEquationModeEXT modeRGB, BlendEquationModeEXT modeAlpha);
+extern void compileShader(uint32_t shader);
 extern uint32_t createProgram();
+extern uint32_t createShader(ShaderType type);
+extern void deleteProgram(uint32_t program);
+extern void deleteShader(uint32_t shader);
+extern void detachShader(uint32_t program, uint32_t shader);
+extern void disableVertexAttribArray(uint32_t index);
+extern void drawBuffers(core::SizeType n, const DrawBufferMode *bufs);
+extern void enableVertexAttribArray(uint32_t index);
+extern void getActiveAttri(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name);
+extern void getActiveUniform(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, UniformType *type, char *name);
+extern void getAttachedShaders(uint32_t program, core::SizeType maxCount, core::SizeType *count, uint32_t *shaders);
+extern int32_t getAttribLocation(uint32_t program, const char *name);
+extern void getProgramInfoLog(uint32_t program, core::SizeType bufSize, core::SizeType *length, char *infoLog);
+extern void getProgram(uint32_t program, ProgramPropertyARB pname, int32_t *params);
+extern void getShaderInfoLog(uint32_t shader, core::SizeType bufSize, core::SizeType *length, char *infoLog);
 extern void getShaderSource(uint32_t shader, core::SizeType bufSize, core::SizeType *length, char *source);
-extern void vertexAttrib1(uint32_t index, double x);
-extern void stencilFuncSeparate(StencilFaceDirection face, StencilFunction func, int32_t ref, uint32_t mask);
-extern void vertexAttrib2(uint32_t index, float x, float y);
-extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, int32_t *params);
 extern void getShader(uint32_t shader, ShaderParameterName pname, int32_t *params);
-extern void vertexAttrib4(uint32_t index, const int16_t *v);
+extern int32_t getUniformLocation(uint32_t program, const char *name);
+extern void getUniform(uint32_t program, int32_t location, float *params);
+extern void getUniform(uint32_t program, int32_t location, int32_t *params);
+extern void getVertexAttribPointerv(uint32_t index, VertexAttribPointerPropertyARB pname, void **pointer);
+extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, double *params);
+extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, float *params);
+extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, int32_t *params);
+extern bool isProgram(uint32_t program);
+extern bool isShader(uint32_t shader);
+extern void linkProgram(uint32_t program);
+extern void shaderSource(uint32_t shader, core::SizeType count, const char *const*string, const int32_t *length);
+extern void stencilFuncSeparate(StencilFaceDirection face, StencilFunction func, int32_t ref, uint32_t mask);
+extern void stencilMaskSeparate(StencilFaceDirection face, uint32_t mask);
+extern void stencilOpSeparate(StencilFaceDirection face, StencilOp sfail, StencilOp dpfail, StencilOp dppass);
+extern void uniform1(int32_t location, float v0);
+extern void uniform1(int32_t location, core::SizeType count, const float *value);
+extern void uniform1(int32_t location, int32_t v0);
+extern void uniform1(int32_t location, core::SizeType count, const int32_t *value);
 extern void uniform2(int32_t location, float v0, float v1);
 extern void uniform2(int32_t location, core::SizeType count, const float *value);
 extern void uniform2(int32_t location, int32_t v0, int32_t v1);
+extern void uniform2(int32_t location, core::SizeType count, const int32_t *value);
+extern void uniform3(int32_t location, float v0, float v1, float v2);
 extern void uniform3(int32_t location, core::SizeType count, const float *value);
-extern void uniform3(int32_t location, core::SizeType count, const int32_t *value);
-extern void vertexAttrib4(uint32_t index, const float *v);
-extern void uniform1(int32_t location, core::SizeType count, const float *value);
-extern void vertexAttrib3(uint32_t index, const double *v);
-extern void vertexAttrib4(uint32_t index, const double *v);
-extern void uniformMatrix3(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void disableVertexAttribArray(uint32_t index);
-extern void getUniform(uint32_t program, int32_t location, int32_t *params);
-extern bool isProgram(uint32_t program);
 extern void uniform3(int32_t location, int32_t v0, int32_t v1, int32_t v2);
-extern void uniform1(int32_t location, int32_t v0);
-extern void getVertexAttribPointerv(uint32_t index, VertexAttribPointerPropertyARB pname, void **pointer);
+extern void uniform3(int32_t location, core::SizeType count, const int32_t *value);
+extern void uniform4(int32_t location, float v0, float v1, float v2, float v3);
+extern void uniform4(int32_t location, core::SizeType count, const float *value);
+extern void uniform4(int32_t location, int32_t v0, int32_t v1, int32_t v2, int32_t v3);
+extern void uniform4(int32_t location, core::SizeType count, const int32_t *value);
+extern void uniformMatrix2(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void uniformMatrix3(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void uniformMatrix4(int32_t location, core::SizeType count, bool transpose, const float *value);
 extern void useProgram(uint32_t program);
-extern void deleteProgram(uint32_t program);
-extern void blendEquationSeparate(BlendEquationModeEXT modeRGB, BlendEquationModeEXT modeAlpha);
+extern void validateProgram(uint32_t program);
+extern void vertexAttrib1(uint32_t index, double x);
+extern void vertexAttrib1(uint32_t index, const double *v);
+extern void vertexAttrib1(uint32_t index, float x);
+extern void vertexAttrib1(uint32_t index, const float *v);
+extern void vertexAttrib1(uint32_t index, int16_t x);
+extern void vertexAttrib1(uint32_t index, const int16_t *v);
+extern void vertexAttrib2(uint32_t index, double x, double y);
+extern void vertexAttrib2(uint32_t index, const double *v);
+extern void vertexAttrib2(uint32_t index, float x, float y);
+extern void vertexAttrib2(uint32_t index, const float *v);
+extern void vertexAttrib2(uint32_t index, int16_t x, int16_t y);
+extern void vertexAttrib2(uint32_t index, const int16_t *v);
+extern void vertexAttrib3(uint32_t index, double x, double y, double z);
+extern void vertexAttrib3(uint32_t index, const double *v);
+extern void vertexAttrib3(uint32_t index, float x, float y, float z);
+extern void vertexAttrib3(uint32_t index, const float *v);
+extern void vertexAttrib3(uint32_t index, int16_t x, int16_t y, int16_t z);
+extern void vertexAttrib3(uint32_t index, const int16_t *v);
+extern void vertexAttrib4N(uint32_t index, const int8_t *v);
+extern void vertexAttrib4N(uint32_t index, const int32_t *v);
+extern void vertexAttrib4N(uint32_t index, const int16_t *v);
+extern void vertexAttrib4N(uint32_t index, uint8_t x, uint8_t y, uint8_t z, uint8_t w);
+extern void vertexAttrib4N(uint32_t index, const uint8_t *v);
+extern void vertexAttrib4N(uint32_t index, const uint32_t *v);
+extern void vertexAttrib4N(uint32_t index, const uint16_t *v);
+extern void vertexAttrib4(uint32_t index, const int8_t *v);
+extern void vertexAttrib4(uint32_t index, double x, double y, double z, double w);
+extern void vertexAttrib4(uint32_t index, const double *v);
+extern void vertexAttrib4(uint32_t index, float x, float y, float z, float w);
+extern void vertexAttrib4(uint32_t index, const float *v);
+extern void vertexAttrib4(uint32_t index, const int32_t *v);
+extern void vertexAttrib4(uint32_t index, int16_t x, int16_t y, int16_t z, int16_t w);
+extern void vertexAttrib4(uint32_t index, const int16_t *v);
+extern void vertexAttrib4(uint32_t index, const uint8_t *v);
+extern void vertexAttrib4(uint32_t index, const uint32_t *v);
+extern void vertexAttrib4(uint32_t index, const uint16_t *v);
+extern void vertexAttribPointer(uint32_t index, int32_t size, VertexAttribPointerType type, bool normalized, core::SizeType stride, const void *pointer);
 #endif
 #if defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void uniformMatrix2x4(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void uniformMatrix4x3(int32_t location, core::SizeType count, bool transpose, const float *value);
 extern void uniformMatrix2x3(int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void uniformMatrix4x2(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void uniformMatrix2x4(int32_t location, core::SizeType count, bool transpose, const float *value);
 extern void uniformMatrix3x2(int32_t location, core::SizeType count, bool transpose, const float *value);
 extern void uniformMatrix3x4(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void uniformMatrix4x2(int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void uniformMatrix4x3(int32_t location, core::SizeType count, bool transpose, const float *value);
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void generateMipmap(TextureTarget target);
-extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, int32_t *params);
-extern void enable(EnableCap target, uint32_t index);
-extern void getBooleani_v(BufferTargetARB target, uint32_t index, bool *data);
-extern bool isRenderbuffer(uint32_t renderbuffer);
-extern bool isEnabled(EnableCap target, uint32_t index);
-extern void vertexAttribI4(uint32_t index, const uint16_t *v);
-extern void colorMask(uint32_t index, bool r, bool g, bool b, bool a);
-extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const int32_t *value);
-extern void uniform3(int32_t location, uint32_t v0, uint32_t v1, uint32_t v2);
-extern void uniform4(int32_t location, core::SizeType count, const uint32_t *value);
-extern void getIntegeri_v(core::EnumType target, uint32_t index, int32_t *data);
-extern void vertexAttribI2(uint32_t index, const int32_t *v);
-extern void getTransformFeedbackVarying(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, core::SizeType *size, GlslTypeToken *type, char *name);
-extern void beginTransformFeedback(PrimitiveType primitiveMode);
-extern void vertexAttribI1(uint32_t index, const uint32_t *v);
-extern void genVertexArrays(core::SizeType n, uint32_t *arrays);
-extern void genFramebuffers(core::SizeType n, uint32_t *framebuffers);
-extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const float *value);
-extern void uniform1(int32_t location, uint32_t v0);
-extern void transformFeedbackVarying(uint32_t program, core::SizeType count, const char *const*varyings, TransformFeedbackBufferMode bufferMode);
-extern void bindBufferRange(BufferTargetARB target, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size);
-extern void uniform3(int32_t location, core::SizeType count, const uint32_t *value);
-extern void getFramebufferAttachmentParameter(FramebufferTarget target, FramebufferAttachment attachment, FramebufferAttachmentParameterName pname, int32_t *params);
-extern void getRenderbufferParameter(RenderbufferTarget target, RenderbufferParameterName pname, int32_t *params);
-extern void vertexAttribI2(uint32_t index, int32_t x, int32_t y);
-extern void framebufferTexture3D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget textarget, uint32_t texture, int32_t level, int32_t zoffset);
-extern void uniform4(int32_t location, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3);
-extern void bindVertexArray(uint32_t array);
-extern void deleteRenderbuffers(core::SizeType n, const uint32_t *renderbuffers);
-extern void *mapBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length, core::Bitfield<MapBufferAccessMask> access);
-extern void vertexAttribI3(uint32_t index, const int32_t *v);
-extern void vertexAttribI4(uint32_t index, const int32_t *v);
-extern void vertexAttribI4(uint32_t index, const uint8_t *v);
-extern void framebufferRenderbuffer(FramebufferTarget target, FramebufferAttachment attachment, RenderbufferTarget renderbuffertarget, uint32_t renderbuffer);
-extern void uniform2(int32_t location, core::SizeType count, const uint32_t *value);
-extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, uint32_t *params);
-extern void vertexAttribI3(uint32_t index, int32_t x, int32_t y, int32_t z);
-extern int32_t getFragDataLocation(uint32_t program, const char *name);
-extern void framebufferTexture1D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget textarget, uint32_t texture, int32_t level);
 extern void beginConditionalRender(uint32_t id, ConditionalRenderMode mode);
-extern void vertexAttribI4(uint32_t index, const int8_t *v);
-extern void genRenderbuffers(core::SizeType n, uint32_t *renderbuffers);
-extern void vertexAttribI1(uint32_t index, int32_t x);
-extern const uint8_t *getString(StringName name, uint32_t index);
-extern void uniform2(int32_t location, uint32_t v0, uint32_t v1);
-extern void vertexAttribI4(uint32_t index, const uint32_t *v);
-extern void vertexAttribI1(uint32_t index, uint32_t x);
-extern void endConditionalRender();
-extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, uint32_t *params);
-extern void deleteVertexArrays(core::SizeType n, const uint32_t *arrays);
-extern void framebufferTexture2D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget textarget, uint32_t texture, int32_t level);
-extern void flushMappedBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length);
-extern void blitFramebuffer(int32_t srcX0, int32_t srcY0, int32_t srcX1, int32_t srcY1, int32_t dstX0, int32_t dstY0, int32_t dstX1, int32_t dstY1, core::Bitfield<ClearBufferMask> mask, BlitFramebufferFilter filter);
-extern void deleteFramebuffers(core::SizeType n, const uint32_t *framebuffers);
-extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, int32_t *params);
-extern void texParameterI(TextureTarget target, TextureParameterName pname, const int32_t *params);
-extern void vertexAttribI2(uint32_t index, uint32_t x, uint32_t y);
-extern void vertexAttribI3(uint32_t index, const uint32_t *v);
-extern void getUniform(uint32_t program, int32_t location, uint32_t *params);
-extern void bindFramebuffer(FramebufferTarget target, uint32_t framebuffer);
-extern void renderbufferStorageMultisample(RenderbufferTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height);
-extern void vertexAttribI4(uint32_t index, uint32_t x, uint32_t y, uint32_t z, uint32_t w);
-extern void vertexAttribI1(uint32_t index, const int32_t *v);
-extern void bindFragDataLocation(uint32_t program, uint32_t color, const char *name);
-extern void vertexAttribI2(uint32_t index, const uint32_t *v);
-extern void vertexAttribI3(uint32_t index, uint32_t x, uint32_t y, uint32_t z);
-extern void renderbufferStorage(RenderbufferTarget target, InternalFormat internalformat, core::SizeType width, core::SizeType height);
-extern void clampColor(ClampColorTargetARB target, ClampColorModeARB clamp);
-extern void uniform1(int32_t location, core::SizeType count, const uint32_t *value);
-extern void endTransformFeedback();
-extern bool isFramebuffer(uint32_t framebuffer);
-extern void clearBufferf(Buffer buffer, int32_t drawbuffer, float depth, int32_t stencil);
-extern core::EnumType checkFramebufferStatus(FramebufferTarget target);
-extern void vertexAttribI4(uint32_t index, int32_t x, int32_t y, int32_t z, int32_t w);
-extern void vertexAttribI4(uint32_t index, const int16_t *v);
-extern void texParameterI(TextureTarget target, TextureParameterName pname, const uint32_t *params);
+extern void beginTransformFeedback(PrimitiveType primitiveMode);
 extern void bindBufferBase(BufferTargetARB target, uint32_t index, uint32_t buffer);
-extern void vertexAttribIPointer(uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void *pointer);
-extern bool isVertexArray(uint32_t array);
-extern void disable(EnableCap target, uint32_t index);
-extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const uint32_t *value);
+extern void bindBufferRange(BufferTargetARB target, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size);
+extern void bindFragDataLocation(uint32_t program, uint32_t color, const char *name);
+extern void bindFramebuffer(FramebufferTarget target, uint32_t framebuffer);
 extern void bindRenderbuffer(RenderbufferTarget target, uint32_t renderbuffer);
+extern void bindVertexArray(uint32_t array);
+extern void blitFramebuffer(int32_t srcX0, int32_t srcY0, int32_t srcX1, int32_t srcY1, int32_t dstX0, int32_t dstY0, int32_t dstX1, int32_t dstY1, core::Bitfield<ClearBufferMask> mask, BlitFramebufferFilter filter);
+extern core::EnumType checkFramebufferStatus(FramebufferTarget target);
+extern void clampColor(ClampColorTargetARB target, ClampColorModeARB clamp);
+extern void clearBufferf(Buffer buffer, int32_t drawbuffer, float depth, int32_t stencil);
+extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const float *value);
+extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const int32_t *value);
+extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const uint32_t *value);
+extern void colorMask(uint32_t index, bool r, bool g, bool b, bool a);
+extern void deleteFramebuffers(core::SizeType n, const uint32_t *framebuffers);
+extern void deleteRenderbuffers(core::SizeType n, const uint32_t *renderbuffers);
+extern void deleteVertexArrays(core::SizeType n, const uint32_t *arrays);
+extern void disable(EnableCap target, uint32_t index);
+extern void enable(EnableCap target, uint32_t index);
+extern void endConditionalRender();
+extern void endTransformFeedback();
+extern void flushMappedBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length);
+extern void framebufferRenderbuffer(FramebufferTarget target, FramebufferAttachment attachment, RenderbufferTarget renderbuffertarget, uint32_t renderbuffer);
+extern void framebufferTexture1D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget textarget, uint32_t texture, int32_t level);
+extern void framebufferTexture2D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget textarget, uint32_t texture, int32_t level);
+extern void framebufferTexture3D(FramebufferTarget target, FramebufferAttachment attachment, TextureTarget textarget, uint32_t texture, int32_t level, int32_t zoffset);
 extern void framebufferTextureLayer(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level, int32_t layer);
+extern void genFramebuffers(core::SizeType n, uint32_t *framebuffers);
+extern void genRenderbuffers(core::SizeType n, uint32_t *renderbuffers);
+extern void genVertexArrays(core::SizeType n, uint32_t *arrays);
+extern void generateMipmap(TextureTarget target);
+extern void getBooleani_v(BufferTargetARB target, uint32_t index, bool *data);
+extern int32_t getFragDataLocation(uint32_t program, const char *name);
+extern void getFramebufferAttachmentParameter(FramebufferTarget target, FramebufferAttachment attachment, FramebufferAttachmentParameterName pname, int32_t *params);
+extern void getIntegeri_v(core::EnumType target, uint32_t index, int32_t *data);
+extern void getRenderbufferParameter(RenderbufferTarget target, RenderbufferParameterName pname, int32_t *params);
+extern const uint8_t *getString(StringName name, uint32_t index);
+extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, int32_t *params);
+extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, uint32_t *params);
+extern void getTransformFeedbackVarying(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, core::SizeType *size, GlslTypeToken *type, char *name);
+extern void getUniform(uint32_t program, int32_t location, uint32_t *params);
+extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, int32_t *params);
+extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, uint32_t *params);
+extern bool isEnabled(EnableCap target, uint32_t index);
+extern bool isFramebuffer(uint32_t framebuffer);
+extern bool isRenderbuffer(uint32_t renderbuffer);
+extern bool isVertexArray(uint32_t array);
+extern void *mapBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length, core::Bitfield<MapBufferAccessMask> access);
+extern void renderbufferStorage(RenderbufferTarget target, InternalFormat internalformat, core::SizeType width, core::SizeType height);
+extern void renderbufferStorageMultisample(RenderbufferTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height);
+extern void texParameterI(TextureTarget target, TextureParameterName pname, const int32_t *params);
+extern void texParameterI(TextureTarget target, TextureParameterName pname, const uint32_t *params);
+extern void transformFeedbackVarying(uint32_t program, core::SizeType count, const char *const*varyings, TransformFeedbackBufferMode bufferMode);
+extern void uniform1(int32_t location, uint32_t v0);
+extern void uniform1(int32_t location, core::SizeType count, const uint32_t *value);
+extern void uniform2(int32_t location, uint32_t v0, uint32_t v1);
+extern void uniform2(int32_t location, core::SizeType count, const uint32_t *value);
+extern void uniform3(int32_t location, uint32_t v0, uint32_t v1, uint32_t v2);
+extern void uniform3(int32_t location, core::SizeType count, const uint32_t *value);
+extern void uniform4(int32_t location, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3);
+extern void uniform4(int32_t location, core::SizeType count, const uint32_t *value);
+extern void vertexAttribI1(uint32_t index, int32_t x);
+extern void vertexAttribI1(uint32_t index, const int32_t *v);
+extern void vertexAttribI1(uint32_t index, uint32_t x);
+extern void vertexAttribI1(uint32_t index, const uint32_t *v);
+extern void vertexAttribI2(uint32_t index, int32_t x, int32_t y);
+extern void vertexAttribI2(uint32_t index, const int32_t *v);
+extern void vertexAttribI2(uint32_t index, uint32_t x, uint32_t y);
+extern void vertexAttribI2(uint32_t index, const uint32_t *v);
+extern void vertexAttribI3(uint32_t index, int32_t x, int32_t y, int32_t z);
+extern void vertexAttribI3(uint32_t index, const int32_t *v);
+extern void vertexAttribI3(uint32_t index, uint32_t x, uint32_t y, uint32_t z);
+extern void vertexAttribI3(uint32_t index, const uint32_t *v);
+extern void vertexAttribI4(uint32_t index, const int8_t *v);
+extern void vertexAttribI4(uint32_t index, int32_t x, int32_t y, int32_t z, int32_t w);
+extern void vertexAttribI4(uint32_t index, const int32_t *v);
+extern void vertexAttribI4(uint32_t index, const int16_t *v);
+extern void vertexAttribI4(uint32_t index, const uint8_t *v);
+extern void vertexAttribI4(uint32_t index, uint32_t x, uint32_t y, uint32_t z, uint32_t w);
+extern void vertexAttribI4(uint32_t index, const uint32_t *v);
+extern void vertexAttribI4(uint32_t index, const uint16_t *v);
+extern void vertexAttribIPointer(uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void *pointer);
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern uint32_t getUniformBlockIndex(uint32_t program, const char *uniformBlockName);
-extern void primitiveRestartIndex(uint32_t index);
+extern void copyBufferSubData(CopyBufferSubDataTarget readTarget, CopyBufferSubDataTarget writeTarget, std::intptr_t readOffset, std::intptr_t writeOffset, std::size_t size);
+extern void drawArraysInstance(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount);
+extern void drawElementsInstance(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount);
+extern void getActiveUniformBlockName(uint32_t program, uint32_t uniformBlockIndex, core::SizeType bufSize, core::SizeType *length, char *uniformBlockName);
+extern void getActiveUniformBlock(uint32_t program, uint32_t uniformBlockIndex, UniformBlockPName pname, int32_t *params);
 extern void getActiveUniformName(uint32_t program, uint32_t uniformIndex, core::SizeType bufSize, core::SizeType *length, char *uniformName);
 extern void getActiveUniforms(uint32_t program, core::SizeType uniformCount, const uint32_t *uniformIndices, UniformPName pname, int32_t *params);
-extern void texBuffer(TextureTarget target, InternalFormat internalformat, uint32_t buffer);
-extern void getActiveUniformBlock(uint32_t program, uint32_t uniformBlockIndex, UniformBlockPName pname, int32_t *params);
-extern void uniformBlockBinding(uint32_t program, uint32_t uniformBlockIndex, uint32_t uniformBlockBinding);
-extern void copyBufferSubData(CopyBufferSubDataTarget readTarget, CopyBufferSubDataTarget writeTarget, std::intptr_t readOffset, std::intptr_t writeOffset, std::size_t size);
-extern void getActiveUniformBlockName(uint32_t program, uint32_t uniformBlockIndex, core::SizeType bufSize, core::SizeType *length, char *uniformBlockName);
-extern void drawArraysInstance(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount);
+extern uint32_t getUniformBlockIndex(uint32_t program, const char *uniformBlockName);
 extern void getUniformIndice(uint32_t program, core::SizeType uniformCount, const char *const*uniformNames, uint32_t *uniformIndices);
-extern void drawElementsInstance(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount);
+extern void primitiveRestartIndex(uint32_t index);
+extern void texBuffer(TextureTarget target, InternalFormat internalformat, uint32_t buffer);
+extern void uniformBlockBinding(uint32_t program, uint32_t uniformBlockIndex, uint32_t uniformBlockBinding);
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+extern core::EnumType clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout);
+extern void deleteSync(core::Sync sync);
+extern void drawElementsBaseVertex(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, int32_t basevertex);
+extern void drawElementsInstancedBaseVertex(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount, int32_t basevertex);
 extern void drawRangeElementsBaseVertex(PrimitiveType mode, uint32_t start, uint32_t end, core::SizeType count, DrawElementsType type, const void *indices, int32_t basevertex);
 extern core::Sync fenceSync(SyncCondition condition, uint32_t flags);
-extern void waitSync(core::Sync sync, uint32_t flags, uint64_t timeout);
-extern void provokingVertex(VertexProvokingMode mode);
-extern void drawElementsInstancedBaseVertex(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount, int32_t basevertex);
-extern bool isSync(core::Sync sync);
-extern void drawElementsBaseVertex(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, int32_t basevertex);
 extern void framebufferTexture(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level);
-extern core::EnumType clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout);
-extern void sampleMask(uint32_t maskNumber, uint32_t mask);
-extern void texImage3DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, bool fixedsamplelocations);
-extern void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float *val);
-extern void texImage2DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, bool fixedsamplelocations);
-extern void getSync(core::Sync sync, SyncParameterName pname, core::SizeType bufSize, core::SizeType *length, int32_t *values);
-extern void multiDrawElementsBaseVertex(PrimitiveType mode, const core::SizeType *count, DrawElementsType type, const void *const*indices, core::SizeType drawcount, const int32_t *basevertex);
-extern void deleteSync(core::Sync sync);
-extern void getInteger64v(GetPName pname, int64_t *data);
-extern void getInteger64i_v(core::EnumType target, uint32_t index, int64_t *data);
 extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int64_t *params);
+extern void getInteger64i_v(core::EnumType target, uint32_t index, int64_t *data);
+extern void getInteger64v(GetPName pname, int64_t *data);
+extern void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float *val);
+extern void getSync(core::Sync sync, SyncParameterName pname, core::SizeType bufSize, core::SizeType *length, int32_t *values);
+extern bool isSync(core::Sync sync);
+extern void multiDrawElementsBaseVertex(PrimitiveType mode, const core::SizeType *count, DrawElementsType type, const void *const*indices, core::SizeType drawcount, const int32_t *basevertex);
+extern void provokingVertex(VertexProvokingMode mode);
+extern void sampleMask(uint32_t maskNumber, uint32_t mask);
+extern void texImage2DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, bool fixedsamplelocations);
+extern void texImage3DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, bool fixedsamplelocations);
+extern void waitSync(core::Sync sync, uint32_t flags, uint64_t timeout);
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void vertexAttribP4(uint32_t index, VertexAttribPointerType type, bool normalized, uint32_t value);
+extern void bindFragDataLocationIndexe(uint32_t program, uint32_t colorNumber, uint32_t index, const char *name);
 extern void bindSampler(uint32_t unit, uint32_t sampler);
-extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const uint32_t *param);
-extern void getSamplerParameter(uint32_t sampler, SamplerParameterF pname, float *params);
-extern void vertexAttribP1(uint32_t index, VertexAttribPointerType type, bool normalized, const uint32_t *value);
-extern void getSamplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t *params);
-extern void vertexAttribP1(uint32_t index, VertexAttribPointerType type, bool normalized, uint32_t value);
+extern void deleteSampler(core::SizeType count, const uint32_t *samplers);
+extern void genSampler(core::SizeType count, uint32_t *samplers);
+extern int32_t getFragDataIndex(uint32_t program, const char *name);
+extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, int64_t *params);
+extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, uint64_t *params);
 extern void getSamplerParameterI(uint32_t sampler, SamplerParameterI pname, int32_t *params);
 extern void getSamplerParameterI(uint32_t sampler, SamplerParameterI pname, uint32_t *params);
-extern void genSampler(core::SizeType count, uint32_t *samplers);
-extern void vertexAttribP4(uint32_t index, VertexAttribPointerType type, bool normalized, const uint32_t *value);
-extern void samplerParameter(uint32_t sampler, SamplerParameterI pname, const int32_t *param);
-extern void vertexAttribP3(uint32_t index, VertexAttribPointerType type, bool normalized, const uint32_t *value);
-extern void deleteSampler(core::SizeType count, const uint32_t *samplers);
-extern void samplerParameter(uint32_t sampler, SamplerParameterF pname, float param);
-extern void vertexAttribDivisor(uint32_t index, uint32_t divisor);
-extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const int32_t *param);
+extern void getSamplerParameter(uint32_t sampler, SamplerParameterF pname, float *params);
+extern void getSamplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t *params);
 extern bool isSampler(uint32_t sampler);
-extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, int64_t *params);
-extern int32_t getFragDataIndex(uint32_t program, const char *name);
-extern void bindFragDataLocationIndexe(uint32_t program, uint32_t colorNumber, uint32_t index, const char *name);
-extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, uint64_t *params);
+extern void queryCounter(uint32_t id, QueryCounterTarget target);
+extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const int32_t *param);
+extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const uint32_t *param);
+extern void samplerParameter(uint32_t sampler, SamplerParameterF pname, float param);
 extern void samplerParameter(uint32_t sampler, SamplerParameterF pname, const float *param);
 extern void samplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t param);
+extern void samplerParameter(uint32_t sampler, SamplerParameterI pname, const int32_t *param);
+extern void vertexAttribDivisor(uint32_t index, uint32_t divisor);
+extern void vertexAttribP1(uint32_t index, VertexAttribPointerType type, bool normalized, uint32_t value);
+extern void vertexAttribP1(uint32_t index, VertexAttribPointerType type, bool normalized, const uint32_t *value);
 extern void vertexAttribP2(uint32_t index, VertexAttribPointerType type, bool normalized, uint32_t value);
-extern void queryCounter(uint32_t id, QueryCounterTarget target);
 extern void vertexAttribP2(uint32_t index, VertexAttribPointerType type, bool normalized, const uint32_t *value);
 extern void vertexAttribP3(uint32_t index, VertexAttribPointerType type, bool normalized, uint32_t value);
+extern void vertexAttribP3(uint32_t index, VertexAttribPointerType type, bool normalized, const uint32_t *value);
+extern void vertexAttribP4(uint32_t index, VertexAttribPointerType type, bool normalized, uint32_t value);
+extern void vertexAttribP4(uint32_t index, VertexAttribPointerType type, bool normalized, const uint32_t *value);
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-extern void colorP3(ColorPointerType type, const uint32_t *color);
-extern void multiTexCoordP3(TextureUnit texture, TexCoordPointerType type, uint32_t coords);
-extern void texCoordP2(TexCoordPointerType type, const uint32_t *coords);
-extern void multiTexCoordP3(TextureUnit texture, TexCoordPointerType type, const uint32_t *coords);
-extern void texCoordP1(TexCoordPointerType type, const uint32_t *coords);
-extern void texCoordP3(TexCoordPointerType type, const uint32_t *coords);
-extern void texCoordP2(TexCoordPointerType type, uint32_t coords);
-extern void normalP3(NormalPointerType type, uint32_t coords);
-extern void secondaryColorP3(ColorPointerType type, uint32_t color);
-extern void vertexP3(VertexPointerType type, const uint32_t *value);
-extern void multiTexCoordP4(TextureUnit texture, TexCoordPointerType type, uint32_t coords);
 extern void colorP3(ColorPointerType type, uint32_t color);
-extern void texCoordP3(TexCoordPointerType type, uint32_t coords);
-extern void multiTexCoordP2(TextureUnit texture, TexCoordPointerType type, const uint32_t *coords);
-extern void texCoordP4(TexCoordPointerType type, const uint32_t *coords);
-extern void multiTexCoordP1(TextureUnit texture, TexCoordPointerType type, uint32_t coords);
-extern void colorP4(ColorPointerType type, const uint32_t *color);
-extern void vertexP2(VertexPointerType type, const uint32_t *value);
+extern void colorP3(ColorPointerType type, const uint32_t *color);
 extern void colorP4(ColorPointerType type, uint32_t color);
-extern void vertexP4(VertexPointerType type, const uint32_t *value);
-extern void texCoordP1(TexCoordPointerType type, uint32_t coords);
-extern void vertexP4(VertexPointerType type, uint32_t value);
-extern void texCoordP4(TexCoordPointerType type, uint32_t coords);
-extern void normalP3(NormalPointerType type, const uint32_t *coords);
-extern void secondaryColorP3(ColorPointerType type, const uint32_t *color);
-extern void multiTexCoordP2(TextureUnit texture, TexCoordPointerType type, uint32_t coords);
+extern void colorP4(ColorPointerType type, const uint32_t *color);
+extern void multiTexCoordP1(TextureUnit texture, TexCoordPointerType type, uint32_t coords);
 extern void multiTexCoordP1(TextureUnit texture, TexCoordPointerType type, const uint32_t *coords);
-extern void vertexP2(VertexPointerType type, uint32_t value);
-extern void vertexP3(VertexPointerType type, uint32_t value);
+extern void multiTexCoordP2(TextureUnit texture, TexCoordPointerType type, uint32_t coords);
+extern void multiTexCoordP2(TextureUnit texture, TexCoordPointerType type, const uint32_t *coords);
+extern void multiTexCoordP3(TextureUnit texture, TexCoordPointerType type, uint32_t coords);
+extern void multiTexCoordP3(TextureUnit texture, TexCoordPointerType type, const uint32_t *coords);
+extern void multiTexCoordP4(TextureUnit texture, TexCoordPointerType type, uint32_t coords);
 extern void multiTexCoordP4(TextureUnit texture, TexCoordPointerType type, const uint32_t *coords);
+extern void normalP3(NormalPointerType type, uint32_t coords);
+extern void normalP3(NormalPointerType type, const uint32_t *coords);
+extern void secondaryColorP3(ColorPointerType type, uint32_t color);
+extern void secondaryColorP3(ColorPointerType type, const uint32_t *color);
+extern void texCoordP1(TexCoordPointerType type, uint32_t coords);
+extern void texCoordP1(TexCoordPointerType type, const uint32_t *coords);
+extern void texCoordP2(TexCoordPointerType type, uint32_t coords);
+extern void texCoordP2(TexCoordPointerType type, const uint32_t *coords);
+extern void texCoordP3(TexCoordPointerType type, uint32_t coords);
+extern void texCoordP3(TexCoordPointerType type, const uint32_t *coords);
+extern void texCoordP4(TexCoordPointerType type, uint32_t coords);
+extern void texCoordP4(TexCoordPointerType type, const uint32_t *coords);
+extern void vertexP2(VertexPointerType type, uint32_t value);
+extern void vertexP2(VertexPointerType type, const uint32_t *value);
+extern void vertexP3(VertexPointerType type, uint32_t value);
+extern void vertexP3(VertexPointerType type, const uint32_t *value);
+extern void vertexP4(VertexPointerType type, uint32_t value);
+extern void vertexP4(VertexPointerType type, const uint32_t *value);
 #endif
 #if defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void getUniform(uint32_t program, int32_t location, double *params);
-extern void uniform3(int32_t location, double x, double y, double z);
-extern void getQueryIndexed(QueryTarget target, uint32_t index, QueryParameterName pname, int32_t *params);
-extern void drawTransformFeedbackStream(PrimitiveType mode, uint32_t id, uint32_t stream);
-extern void blendEquation(uint32_t buf, BlendEquationModeEXT mode);
-extern void uniformSubroutines(ShaderType shadertype, core::SizeType count, const uint32_t *indices);
-extern void uniformMatrix2(int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void bindTransformFeedback(BindTransformFeedbackTarget target, uint32_t id);
-extern void uniform3(int32_t location, core::SizeType count, const double *value);
-extern void uniform1(int32_t location, core::SizeType count, const double *value);
-extern void getActiveSubroutineUniform(uint32_t program, ShaderType shadertype, uint32_t index, SubroutineParameterName pname, int32_t *values);
-extern void resumeTransformFeedback();
-extern int32_t getSubroutineUniformLocation(uint32_t program, ShaderType shadertype, const char *name);
-extern void endQueryIndexe(QueryTarget target, uint32_t index);
-extern void drawArraysIndirect(PrimitiveType mode, const void *indirect);
-extern void uniformMatrix4x3(int32_t location, core::SizeType count, bool transpose, const double *value);
 extern void beginQueryIndexe(QueryTarget target, uint32_t index, uint32_t id);
-extern void uniformMatrix2x4(int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void blendFunc(uint32_t buf, BlendingFactor src, BlendingFactor dst);
-extern void uniformMatrix3x4(int32_t location, core::SizeType count, bool transpose, const double *value);
-extern uint32_t getSubroutineIndex(uint32_t program, ShaderType shadertype, const char *name);
-extern void getProgramStage(uint32_t program, ShaderType shadertype, ProgramStagePName pname, int32_t *values);
-extern void uniformMatrix4(int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void getActiveSubroutineName(uint32_t program, ShaderType shadertype, uint32_t index, core::SizeType bufsize, core::SizeType *length, char *name);
-extern void minSampleShading(float value);
-extern void drawElementsIndirect(PrimitiveType mode, DrawElementsType type, const void *indirect);
-extern void uniform1(int32_t location, double x);
-extern void uniformMatrix2x3(int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void drawTransformFeedback(PrimitiveType mode, uint32_t id);
-extern void patchParameter(PatchParameterName pname, const float *values);
-extern void getUniformSubroutine(ShaderType shadertype, int32_t location, uint32_t *params);
+extern void bindTransformFeedback(BindTransformFeedbackTarget target, uint32_t id);
+extern void blendEquationSeparate(uint32_t buf, BlendEquationModeEXT modeRGB, BlendEquationModeEXT modeAlpha);
+extern void blendEquation(uint32_t buf, BlendEquationModeEXT mode);
 extern void blendFuncSeparate(uint32_t buf, BlendingFactor srcRGB, BlendingFactor dstRGB, BlendingFactor srcAlpha, BlendingFactor dstAlpha);
+extern void blendFunc(uint32_t buf, BlendingFactor src, BlendingFactor dst);
+extern void deleteTransformFeedback(core::SizeType n, const uint32_t *ids);
+extern void drawArraysIndirect(PrimitiveType mode, const void *indirect);
+extern void drawElementsIndirect(PrimitiveType mode, DrawElementsType type, const void *indirect);
+extern void drawTransformFeedback(PrimitiveType mode, uint32_t id);
+extern void drawTransformFeedbackStream(PrimitiveType mode, uint32_t id, uint32_t stream);
+extern void endQueryIndexe(QueryTarget target, uint32_t index);
+extern void genTransformFeedback(core::SizeType n, uint32_t *ids);
+extern void getActiveSubroutineName(uint32_t program, ShaderType shadertype, uint32_t index, core::SizeType bufsize, core::SizeType *length, char *name);
+extern void getActiveSubroutineUniformName(uint32_t program, ShaderType shadertype, uint32_t index, core::SizeType bufsize, core::SizeType *length, char *name);
+extern void getActiveSubroutineUniform(uint32_t program, ShaderType shadertype, uint32_t index, SubroutineParameterName pname, int32_t *values);
+extern void getProgramStage(uint32_t program, ShaderType shadertype, ProgramStagePName pname, int32_t *values);
+extern void getQueryIndexed(QueryTarget target, uint32_t index, QueryParameterName pname, int32_t *params);
+extern uint32_t getSubroutineIndex(uint32_t program, ShaderType shadertype, const char *name);
+extern int32_t getSubroutineUniformLocation(uint32_t program, ShaderType shadertype, const char *name);
+extern void getUniformSubroutine(ShaderType shadertype, int32_t location, uint32_t *params);
+extern void getUniform(uint32_t program, int32_t location, double *params);
+extern bool isTransformFeedback(uint32_t id);
+extern void minSampleShading(float value);
+extern void patchParameter(PatchParameterName pname, const float *values);
+extern void patchParameter(PatchParameterName pname, int32_t value);
 extern void pauseTransformFeedback();
+extern void resumeTransformFeedback();
+extern void uniform1(int32_t location, double x);
+extern void uniform1(int32_t location, core::SizeType count, const double *value);
 extern void uniform2(int32_t location, double x, double y);
 extern void uniform2(int32_t location, core::SizeType count, const double *value);
-extern void uniformMatrix3x2(int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void getActiveSubroutineUniformName(uint32_t program, ShaderType shadertype, uint32_t index, core::SizeType bufsize, core::SizeType *length, char *name);
-extern bool isTransformFeedback(uint32_t id);
-extern void uniformMatrix3(int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void deleteTransformFeedback(core::SizeType n, const uint32_t *ids);
-extern void uniform4(int32_t location, core::SizeType count, const double *value);
+extern void uniform3(int32_t location, double x, double y, double z);
+extern void uniform3(int32_t location, core::SizeType count, const double *value);
 extern void uniform4(int32_t location, double x, double y, double z, double w);
-extern void patchParameter(PatchParameterName pname, int32_t value);
+extern void uniform4(int32_t location, core::SizeType count, const double *value);
+extern void uniformMatrix2(int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void uniformMatrix2x3(int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void uniformMatrix2x4(int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void uniformMatrix3(int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void uniformMatrix3x2(int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void uniformMatrix3x4(int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void uniformMatrix4(int32_t location, core::SizeType count, bool transpose, const double *value);
 extern void uniformMatrix4x2(int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void blendEquationSeparate(uint32_t buf, BlendEquationModeEXT modeRGB, BlendEquationModeEXT modeAlpha);
-extern void genTransformFeedback(core::SizeType n, uint32_t *ids);
+extern void uniformMatrix4x3(int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void uniformSubroutines(ShaderType shadertype, core::SizeType count, const uint32_t *indices);
 #endif
 #if defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void programUniform1(uint32_t program, int32_t location, uint32_t v0);
-extern void programUniform3(uint32_t program, int32_t location, double v0, double v1, double v2);
-extern void getProgramPipeline(uint32_t pipeline, PipelineParameterName pname, int32_t *params);
-extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
-extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const double *value);
-extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
-extern void genProgramPipeline(core::SizeType n, uint32_t *pipelines);
-extern void vertexAttribL4(uint32_t index, double x, double y, double z, double w);
-extern void programUniformMatrix4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void programUniform3(uint32_t program, int32_t location, uint32_t v0, uint32_t v1, uint32_t v2);
-extern void vertexAttribL1(uint32_t index, double x);
-extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const float *value);
-extern void viewportArrayv(uint32_t first, core::SizeType count, const float *v);
-extern void programUniform2(uint32_t program, int32_t location, float v0, float v1);
-extern void programUniformMatrix2x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void programUniformMatrix3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void programUniformMatrix2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void getProgramBinary(uint32_t program, core::SizeType bufSize, core::SizeType *length, core::EnumType *binaryFormat, void *binary);
-extern void programUniformMatrix3x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
 extern void activeShaderProgram(uint32_t pipeline, uint32_t program);
-extern void getShaderPrecisionFormat(ShaderType shadertype, PrecisionType precisiontype, int32_t *range, int32_t *precision);
-extern void useProgramStage(uint32_t pipeline, core::Bitfield<UseProgramStageMask> stages, uint32_t program);
-extern void programUniformMatrix4x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void vertexAttribL2(uint32_t index, double x, double y);
-extern void vertexAttribL3(uint32_t index, double x, double y, double z);
-extern void vertexAttribLPointer(uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void *pointer);
-extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const double *value);
-extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
-extern void getFloati_v(core::EnumType target, uint32_t index, float *data);
-extern void programUniform4(uint32_t program, int32_t location, double v0, double v1, double v2, double v3);
-extern void programUniformMatrix2x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void depthRange(float n, float f);
-extern void programUniformMatrix4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void programUniformMatrix2x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
-extern uint32_t createShaderProgramv(ShaderType type, core::SizeType count, const char *const*strings);
-extern void programUniform1(uint32_t program, int32_t location, int32_t v0);
-extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const double *value);
-extern void programUniformMatrix4x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const float *value);
-extern void programUniform2(uint32_t program, int32_t location, uint32_t v0, uint32_t v1);
-extern void programUniform4(uint32_t program, int32_t location, float v0, float v1, float v2, float v3);
-extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
-extern void programUniform4(uint32_t program, int32_t location, int32_t v0, int32_t v1, int32_t v2, int32_t v3);
-extern void programUniform4(uint32_t program, int32_t location, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3);
-extern void scissorIndexe(uint32_t index, int32_t left, int32_t bottom, core::SizeType width, core::SizeType height);
-extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const float *value);
-extern bool isProgramPipeline(uint32_t pipeline);
-extern void programUniformMatrix3x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void programUniform1(uint32_t program, int32_t location, double v0);
-extern void programUniformMatrix4x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void scissorArrayv(uint32_t first, core::SizeType count, const int32_t *v);
-extern void programUniformMatrix2x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const float *value);
-extern void releaseShaderCompiler();
-extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const double *value);
-extern void programUniformMatrix4x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void getDoublei_v(core::EnumType target, uint32_t index, double *data);
-extern void programParameter(uint32_t program, ProgramParameterPName pname, int32_t value);
-extern void validateProgramPipeline(uint32_t pipeline);
-extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
-extern void programUniformMatrix3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void deleteProgramPipeline(core::SizeType n, const uint32_t *pipelines);
-extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
-extern void programUniform2(uint32_t program, int32_t location, int32_t v0, int32_t v1);
-extern void shaderBinary(core::SizeType count, const uint32_t *shaders, core::EnumType binaryformat, const void *binary, core::SizeType length);
-extern void scissorIndexe(uint32_t index, const int32_t *v);
-extern void viewportIndexed(uint32_t index, float x, float y, float w, float h);
-extern void programUniform1(uint32_t program, int32_t location, float v0);
-extern void getVertexAttribL(uint32_t index, VertexAttribEnum pname, double *params);
-extern void programBinary(uint32_t program, core::EnumType binaryFormat, const void *binary, core::SizeType length);
-extern void programUniformMatrix2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void programUniformMatrix3x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
-extern void programUniformMatrix3x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
-extern void viewportIndexed(uint32_t index, const float *v);
-extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
-extern void programUniform3(uint32_t program, int32_t location, int32_t v0, int32_t v1, int32_t v2);
-extern void vertexAttribL4(uint32_t index, const double *v);
-extern void vertexAttribL3(uint32_t index, const double *v);
-extern void programUniform3(uint32_t program, int32_t location, float v0, float v1, float v2);
-extern void depthRangeIndexe(uint32_t index, double n, double f);
 extern void bindProgramPipeline(uint32_t pipeline);
-extern void depthRangeArrayv(uint32_t first, core::SizeType count, const double *v);
-extern void vertexAttribL1(uint32_t index, const double *v);
-extern void vertexAttribL2(uint32_t index, const double *v);
-extern void getProgramPipelineInfoLog(uint32_t pipeline, core::SizeType bufSize, core::SizeType *length, char *infoLog);
-extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
 extern void clearDepth(float d);
+extern uint32_t createShaderProgramv(ShaderType type, core::SizeType count, const char *const*strings);
+extern void deleteProgramPipeline(core::SizeType n, const uint32_t *pipelines);
+extern void depthRangeArrayv(uint32_t first, core::SizeType count, const double *v);
+extern void depthRangeIndexe(uint32_t index, double n, double f);
+extern void depthRange(float n, float f);
+extern void genProgramPipeline(core::SizeType n, uint32_t *pipelines);
+extern void getDoublei_v(core::EnumType target, uint32_t index, double *data);
+extern void getFloati_v(core::EnumType target, uint32_t index, float *data);
+extern void getProgramBinary(uint32_t program, core::SizeType bufSize, core::SizeType *length, core::EnumType *binaryFormat, void *binary);
+extern void getProgramPipelineInfoLog(uint32_t pipeline, core::SizeType bufSize, core::SizeType *length, char *infoLog);
+extern void getProgramPipeline(uint32_t pipeline, PipelineParameterName pname, int32_t *params);
+extern void getShaderPrecisionFormat(ShaderType shadertype, PrecisionType precisiontype, int32_t *range, int32_t *precision);
+extern void getVertexAttribL(uint32_t index, VertexAttribEnum pname, double *params);
+extern bool isProgramPipeline(uint32_t pipeline);
+extern void programBinary(uint32_t program, core::EnumType binaryFormat, const void *binary, core::SizeType length);
+extern void programParameter(uint32_t program, ProgramParameterPName pname, int32_t value);
+extern void programUniform1(uint32_t program, int32_t location, double v0);
+extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const double *value);
+extern void programUniform1(uint32_t program, int32_t location, float v0);
+extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const float *value);
+extern void programUniform1(uint32_t program, int32_t location, int32_t v0);
+extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
+extern void programUniform1(uint32_t program, int32_t location, uint32_t v0);
+extern void programUniform1(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
 extern void programUniform2(uint32_t program, int32_t location, double v0, double v1);
+extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const double *value);
+extern void programUniform2(uint32_t program, int32_t location, float v0, float v1);
+extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const float *value);
+extern void programUniform2(uint32_t program, int32_t location, int32_t v0, int32_t v1);
+extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
+extern void programUniform2(uint32_t program, int32_t location, uint32_t v0, uint32_t v1);
+extern void programUniform2(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
+extern void programUniform3(uint32_t program, int32_t location, double v0, double v1, double v2);
+extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const double *value);
+extern void programUniform3(uint32_t program, int32_t location, float v0, float v1, float v2);
+extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const float *value);
+extern void programUniform3(uint32_t program, int32_t location, int32_t v0, int32_t v1, int32_t v2);
+extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
+extern void programUniform3(uint32_t program, int32_t location, uint32_t v0, uint32_t v1, uint32_t v2);
+extern void programUniform3(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
+extern void programUniform4(uint32_t program, int32_t location, double v0, double v1, double v2, double v3);
+extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const double *value);
+extern void programUniform4(uint32_t program, int32_t location, float v0, float v1, float v2, float v3);
+extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const float *value);
+extern void programUniform4(uint32_t program, int32_t location, int32_t v0, int32_t v1, int32_t v2, int32_t v3);
+extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const int32_t *value);
+extern void programUniform4(uint32_t program, int32_t location, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3);
+extern void programUniform4(uint32_t program, int32_t location, core::SizeType count, const uint32_t *value);
+extern void programUniformMatrix2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void programUniformMatrix2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniformMatrix2x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void programUniformMatrix2x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniformMatrix2x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void programUniformMatrix2x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniformMatrix3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void programUniformMatrix3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniformMatrix3x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void programUniformMatrix3x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniformMatrix3x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void programUniformMatrix3x4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniformMatrix4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void programUniformMatrix4(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniformMatrix4x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void programUniformMatrix4x2(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void programUniformMatrix4x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const double *value);
+extern void programUniformMatrix4x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float *value);
+extern void releaseShaderCompiler();
+extern void scissorArrayv(uint32_t first, core::SizeType count, const int32_t *v);
+extern void scissorIndexe(uint32_t index, int32_t left, int32_t bottom, core::SizeType width, core::SizeType height);
+extern void scissorIndexe(uint32_t index, const int32_t *v);
+extern void shaderBinary(core::SizeType count, const uint32_t *shaders, core::EnumType binaryformat, const void *binary, core::SizeType length);
+extern void useProgramStage(uint32_t pipeline, core::Bitfield<UseProgramStageMask> stages, uint32_t program);
+extern void validateProgramPipeline(uint32_t pipeline);
+extern void vertexAttribL1(uint32_t index, double x);
+extern void vertexAttribL1(uint32_t index, const double *v);
+extern void vertexAttribL2(uint32_t index, double x, double y);
+extern void vertexAttribL2(uint32_t index, const double *v);
+extern void vertexAttribL3(uint32_t index, double x, double y, double z);
+extern void vertexAttribL3(uint32_t index, const double *v);
+extern void vertexAttribL4(uint32_t index, double x, double y, double z, double w);
+extern void vertexAttribL4(uint32_t index, const double *v);
+extern void vertexAttribLPointer(uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void *pointer);
+extern void viewportArrayv(uint32_t first, core::SizeType count, const float *v);
+extern void viewportIndexed(uint32_t index, float x, float y, float w, float h);
+extern void viewportIndexed(uint32_t index, const float *v);
 #endif
 #if defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void drawElementsInstancedBaseVertexBaseInstance(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount, int32_t basevertex, uint32_t baseinstance);
+extern void bindImageTexture(uint32_t unit, uint32_t texture, int32_t level, bool layered, int32_t layer, BufferAccessARB access, InternalFormat format);
+extern void drawArraysInstancedBaseInstance(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount, uint32_t baseinstance);
 extern void drawElementsInstancedBaseInstance(PrimitiveType mode, core::SizeType count, PrimitiveType type, const void *indices, core::SizeType instancecount, uint32_t baseinstance);
+extern void drawElementsInstancedBaseVertexBaseInstance(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices, core::SizeType instancecount, int32_t basevertex, uint32_t baseinstance);
+extern void drawTransformFeedbackInstance(PrimitiveType mode, uint32_t id, core::SizeType instancecount);
 extern void drawTransformFeedbackStreamInstance(PrimitiveType mode, uint32_t id, uint32_t stream, core::SizeType instancecount);
+extern void getActiveAtomicCounterBuffer(uint32_t program, uint32_t bufferIndex, AtomicCounterBufferPName pname, int32_t *params);
+extern void getInternalformat(TextureTarget target, InternalFormat internalformat, InternalFormatPName pname, core::SizeType bufSize, int32_t *params);
 extern void memoryBarrier(core::Bitfield<MemoryBarrierMask> barriers);
-extern void texStorage3D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth);
 extern void texStorage1D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width);
 extern void texStorage2D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height);
-extern void drawTransformFeedbackInstance(PrimitiveType mode, uint32_t id, core::SizeType instancecount);
-extern void drawArraysInstancedBaseInstance(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount, uint32_t baseinstance);
-extern void getInternalformat(TextureTarget target, InternalFormat internalformat, InternalFormatPName pname, core::SizeType bufSize, int32_t *params);
-extern void getActiveAtomicCounterBuffer(uint32_t program, uint32_t bufferIndex, AtomicCounterBufferPName pname, int32_t *params);
-extern void bindImageTexture(uint32_t unit, uint32_t texture, int32_t level, bool layered, int32_t layer, BufferAccessARB access, InternalFormat format);
+extern void texStorage3D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth);
 #endif
 #if defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void copyImageSubData(uint32_t srcName, TextureTarget srcTarget, int32_t srcLevel, int32_t srcX, int32_t srcY, int32_t srcZ, uint32_t dstName, TextureTarget dstTarget, int32_t dstLevel, int32_t dstX, int32_t dstY, int32_t dstZ, core::SizeType srcWidth, core::SizeType srcHeight, core::SizeType srcDepth);
-extern void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern int32_t getProgramResourceLocationIndex(uint32_t program, ProgramInterface programInterface, const char *name);
-extern void getProgramInterface(uint32_t program, ProgramInterface programInterface, ProgramInterfacePName pname, int32_t *params);
-extern void dispatchComputeIndirect(std::intptr_t indirect);
-extern void invalidateTexSubImage(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth);
-extern void shaderStorageBlockBinding(uint32_t program, uint32_t storageBlockIndex, uint32_t storageBlockBinding);
-extern void debugMessageCallback(core::DebugProc callback, const void *userParam);
-extern void getProgramResource(uint32_t program, ProgramInterface programInterface, uint32_t index, core::SizeType propCount, const ProgramResourceProperty *props, core::SizeType bufSize, core::SizeType *length, int32_t *params);
-extern void texStorage2DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, bool fixedsamplelocations);
-extern void getObjectPtrLabel(const void *ptr, core::SizeType bufSize, core::SizeType *length, char *label);
-extern void objectPtrLabel(const void *ptr, core::SizeType length, const char *label);
-extern void vertexBindingDivisor(uint32_t bindingindex, uint32_t divisor);
-extern void objectLabel(ObjectIdentifier identifier, uint32_t name, core::SizeType length, const char *label);
-extern void invalidateTexImage(uint32_t texture, int32_t level);
-extern void debugMessageInsert(DebugSource source, DebugType type, uint32_t id, DebugSeverity severity, core::SizeType length, const char *buf);
-extern void popDebugGroup();
-extern void getObjectLabel(ObjectIdentifier identifier, uint32_t name, core::SizeType bufSize, core::SizeType *length, char *label);
-extern void debugMessageControl(DebugSource source, DebugType type, DebugSeverity severity, core::SizeType count, const uint32_t *ids, bool enabled);
-extern int32_t getProgramResourceLocation(uint32_t program, ProgramInterface programInterface, const char *name);
-extern void getProgramResourceName(uint32_t program, ProgramInterface programInterface, uint32_t index, core::SizeType bufSize, core::SizeType *length, char *name);
-extern void multiDrawElementsIndirect(PrimitiveType mode, DrawElementsType type, const void *indirect, core::SizeType drawcount, core::SizeType stride);
-extern void textureView(uint32_t texture, TextureTarget target, uint32_t origtexture, InternalFormat internalformat, uint32_t minlevel, uint32_t numlevels, uint32_t minlayer, uint32_t numlayers);
-extern void dispatchCompute(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z);
-extern void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments);
-extern uint32_t getProgramResourceIndex(uint32_t program, ProgramInterface programInterface, const char *name);
-extern void invalidateBufferData(uint32_t buffer);
-extern void pushDebugGroup(DebugSource source, uint32_t id, core::SizeType length, const char *message);
-extern void vertexAttribLFormat(uint32_t attribindex, int32_t size, VertexAttribLType type, uint32_t relativeoffset);
+extern void bindVertexBuffer(uint32_t bindingindex, uint32_t buffer, std::intptr_t offset, core::SizeType stride);
 extern void clearBufferData(BufferStorageTarget target, InternalFormat internalformat, PixelFormat format, PixelType type, const void *data);
+extern void clearBufferSubData(BufferTargetARB target, InternalFormat internalformat, std::intptr_t offset, std::size_t size, PixelFormat format, PixelType type, const void *data);
+extern void copyImageSubData(uint32_t srcName, TextureTarget srcTarget, int32_t srcLevel, int32_t srcX, int32_t srcY, int32_t srcZ, uint32_t dstName, TextureTarget dstTarget, int32_t dstLevel, int32_t dstX, int32_t dstY, int32_t dstZ, core::SizeType srcWidth, core::SizeType srcHeight, core::SizeType srcDepth);
+extern void debugMessageCallback(core::DebugProc callback, const void *userParam);
+extern void debugMessageControl(DebugSource source, DebugType type, DebugSeverity severity, core::SizeType count, const uint32_t *ids, bool enabled);
+extern void debugMessageInsert(DebugSource source, DebugType type, uint32_t id, DebugSeverity severity, core::SizeType length, const char *buf);
+extern void dispatchCompute(uint32_t num_groups_x, uint32_t num_groups_y, uint32_t num_groups_z);
+extern void dispatchComputeIndirect(std::intptr_t indirect);
+extern void framebufferParameter(FramebufferTarget target, FramebufferParameterName pname, int32_t param);
+extern uint32_t getDebugMessageLog(uint32_t count, core::SizeType bufSize, DebugSource *sources, DebugType *types, uint32_t *ids, DebugSeverity *severities, core::SizeType *lengths, char *messageLog);
+extern void getFramebufferParameter(FramebufferTarget target, FramebufferAttachmentParameterName pname, int32_t *params);
 extern void getInternalformat(TextureTarget target, InternalFormat internalformat, InternalFormatPName pname, core::SizeType bufSize, int64_t *params);
+extern void getObjectLabel(ObjectIdentifier identifier, uint32_t name, core::SizeType bufSize, core::SizeType *length, char *label);
+extern void getObjectPtrLabel(const void *ptr, core::SizeType bufSize, core::SizeType *length, char *label);
+extern void getProgramInterface(uint32_t program, ProgramInterface programInterface, ProgramInterfacePName pname, int32_t *params);
+extern uint32_t getProgramResourceIndex(uint32_t program, ProgramInterface programInterface, const char *name);
+extern int32_t getProgramResourceLocation(uint32_t program, ProgramInterface programInterface, const char *name);
+extern int32_t getProgramResourceLocationIndex(uint32_t program, ProgramInterface programInterface, const char *name);
+extern void getProgramResourceName(uint32_t program, ProgramInterface programInterface, uint32_t index, core::SizeType bufSize, core::SizeType *length, char *name);
+extern void getProgramResource(uint32_t program, ProgramInterface programInterface, uint32_t index, core::SizeType propCount, const ProgramResourceProperty *props, core::SizeType bufSize, core::SizeType *length, int32_t *params);
+extern void invalidateBufferData(uint32_t buffer);
+extern void invalidateBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t length);
+extern void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments);
+extern void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void invalidateTexImage(uint32_t texture, int32_t level);
+extern void invalidateTexSubImage(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth);
+extern void multiDrawArraysIndirect(PrimitiveType mode, const void *indirect, core::SizeType drawcount, core::SizeType stride);
+extern void multiDrawElementsIndirect(PrimitiveType mode, DrawElementsType type, const void *indirect, core::SizeType drawcount, core::SizeType stride);
+extern void objectLabel(ObjectIdentifier identifier, uint32_t name, core::SizeType length, const char *label);
+extern void objectPtrLabel(const void *ptr, core::SizeType length, const char *label);
+extern void popDebugGroup();
+extern void pushDebugGroup(DebugSource source, uint32_t id, core::SizeType length, const char *message);
+extern void shaderStorageBlockBinding(uint32_t program, uint32_t storageBlockIndex, uint32_t storageBlockBinding);
+extern void texBufferRange(TextureTarget target, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
+extern void texStorage2DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, bool fixedsamplelocations);
+extern void texStorage3DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, bool fixedsamplelocations);
+extern void textureView(uint32_t texture, TextureTarget target, uint32_t origtexture, InternalFormat internalformat, uint32_t minlevel, uint32_t numlevels, uint32_t minlayer, uint32_t numlayers);
+extern void vertexAttribBinding(uint32_t attribindex, uint32_t bindingindex);
 extern void vertexAttribFormat(uint32_t attribindex, int32_t size, VertexAttribType type, bool normalized, uint32_t relativeoffset);
 extern void vertexAttribIFormat(uint32_t attribindex, int32_t size, VertexAttribIType type, uint32_t relativeoffset);
-extern void getFramebufferParameter(FramebufferTarget target, FramebufferAttachmentParameterName pname, int32_t *params);
-extern void texBufferRange(TextureTarget target, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
-extern void clearBufferSubData(BufferTargetARB target, InternalFormat internalformat, std::intptr_t offset, std::size_t size, PixelFormat format, PixelType type, const void *data);
-extern uint32_t getDebugMessageLog(uint32_t count, core::SizeType bufSize, DebugSource *sources, DebugType *types, uint32_t *ids, DebugSeverity *severities, core::SizeType *lengths, char *messageLog);
-extern void texStorage3DMultisample(TextureTarget target, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, bool fixedsamplelocations);
-extern void framebufferParameter(FramebufferTarget target, FramebufferParameterName pname, int32_t param);
-extern void vertexAttribBinding(uint32_t attribindex, uint32_t bindingindex);
-extern void invalidateBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t length);
-extern void multiDrawArraysIndirect(PrimitiveType mode, const void *indirect, core::SizeType drawcount, core::SizeType stride);
-extern void bindVertexBuffer(uint32_t bindingindex, uint32_t buffer, std::intptr_t offset, core::SizeType stride);
+extern void vertexAttribLFormat(uint32_t attribindex, int32_t size, VertexAttribLType type, uint32_t relativeoffset);
+extern void vertexBindingDivisor(uint32_t bindingindex, uint32_t divisor);
 #endif
 #if defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+extern void bindBuffersBase(BufferTargetARB target, uint32_t first, core::SizeType count, const uint32_t *buffers);
 extern void bindBuffersRange(BufferTargetARB target, uint32_t first, core::SizeType count, const uint32_t *buffers, const std::intptr_t *offsets, const std::size_t *sizes);
 extern void bindImageTextures(uint32_t first, core::SizeType count, const uint32_t *textures);
-extern void bindTextures(uint32_t first, core::SizeType count, const uint32_t *textures);
-extern void clearTexImage(uint32_t texture, int32_t level, PixelFormat format, PixelType type, const void *data);
 extern void bindSampler(uint32_t first, core::SizeType count, const uint32_t *samplers);
-extern void clearTexSubImage(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, PixelType type, const void *data);
-extern void bindBuffersBase(BufferTargetARB target, uint32_t first, core::SizeType count, const uint32_t *buffers);
-extern void bufferStorage(BufferStorageTarget target, std::size_t size, const void *data, core::Bitfield<BufferStorageMask> flags);
+extern void bindTextures(uint32_t first, core::SizeType count, const uint32_t *textures);
 extern void bindVertexBuffers(uint32_t first, core::SizeType count, const uint32_t *buffers, const std::intptr_t *offsets, const core::SizeType *strides);
+extern void bufferStorage(BufferStorageTarget target, std::size_t size, const void *data, core::Bitfield<BufferStorageMask> flags);
+extern void clearTexImage(uint32_t texture, int32_t level, PixelFormat format, PixelType type, const void *data);
+extern void clearTexSubImage(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, PixelType type, const void *data);
 #endif
 #if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void disableVertexArrayAttri(uint32_t vaobj, uint32_t index);
-extern core::EnumType getGraphicsResetStatus();
-extern void copyTextureSubImage1D(uint32_t texture, int32_t level, int32_t xoffset, int32_t x, int32_t y, core::SizeType width);
-extern void getVertexArrayIndexed(uint32_t vaobj, uint32_t index, VertexArrayPName pname, int32_t *param);
-extern void copyTextureSubImage2D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern bool unmapNamedBuffer(uint32_t buffer);
-extern void textureStorage3DMultisample(uint32_t texture, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, bool fixedsamplelocations);
-extern void getTransformFeedbacki_v(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int32_t *param);
-extern void getNamedBufferParameter(uint32_t buffer, VertexBufferObjectParameter pname, int64_t *params);
-extern void *mapNamedBufferRange(uint32_t buffer, std::intptr_t offset, std::size_t length, core::Bitfield<MapBufferAccessMask> access);
-extern void textureParameter(uint32_t texture, TextureParameterName pname, const float *param);
-extern void clipControl(ClipControlOrigin origin, ClipControlDepth depth);
-extern void namedRenderbufferStorage(uint32_t renderbuffer, InternalFormat internalformat, core::SizeType width, core::SizeType height);
-extern void clearNamedFramebufferf(uint32_t framebuffer, Buffer buffer, int32_t drawbuffer, float depth, int32_t stencil);
-extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, double *params);
-extern void textureParameterI(uint32_t texture, TextureParameterName pname, const int32_t *params);
-extern void vertexArrayAttribBinding(uint32_t vaobj, uint32_t attribindex, uint32_t bindingindex);
-extern void createQuerie(QueryTarget target, core::SizeType n, uint32_t *ids);
-extern void textureSubImage2D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
-extern void getNamedFramebufferAttachmentParameter(uint32_t framebuffer, FramebufferAttachment attachment, FramebufferAttachmentParameterName pname, int32_t *params);
-extern void namedBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t size, const void *data);
-extern void getNamedFramebufferParameter(uint32_t framebuffer, GetFramebufferParameter pname, int32_t *param);
-extern void textureStorage2D(uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height);
-extern void createProgramPipeline(core::SizeType n, uint32_t *pipelines);
-extern void invalidateNamedFramebufferSubData(uint32_t framebuffer, core::SizeType numAttachments, const FramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void vertexArrayAttribFormat(uint32_t vaobj, uint32_t attribindex, int32_t size, VertexAttribType type, bool normalized, uint32_t relativeoffset);
-extern void textureBuffer(uint32_t texture, InternalFormat internalformat, uint32_t buffer);
-extern void namedBufferData(uint32_t buffer, std::size_t size, const void *data, VertexBufferObjectUsage usage);
-extern void copyTextureSubImage3D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void generateTextureMipmap(uint32_t texture);
-extern void getNamedBufferPointerv(uint32_t buffer, VertexBufferObjectParameter pname, void **params);
-extern void getTextureLevelParameter(uint32_t texture, int32_t level, GetTextureParameter pname, float *params);
-extern void vertexArrayElementBuffer(uint32_t vaobj, uint32_t buffer);
-extern core::EnumType checkNamedFramebufferStatus(uint32_t framebuffer, FramebufferTarget target);
-extern void textureStorage2DMultisample(uint32_t texture, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, bool fixedsamplelocations);
-extern void createSampler(core::SizeType n, uint32_t *samplers);
-extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, int32_t *params);
-extern void *mapNamedBuffer(uint32_t buffer, BufferAccessARB access);
-extern void clearNamedFramebuffer(uint32_t framebuffer, Buffer buffer, int32_t drawbuffer, const float *value);
-extern void clearNamedFramebuffer(uint32_t framebuffer, Buffer buffer, int32_t drawbuffer, const uint32_t *value);
-extern void createRenderbuffers(core::SizeType n, uint32_t *renderbuffers);
-extern void getTextureParameter(uint32_t texture, GetTextureParameter pname, float *params);
-extern void vertexArrayAttribIFormat(uint32_t vaobj, uint32_t attribindex, int32_t size, VertexAttribIType type, uint32_t relativeoffset);
-extern void getTransformFeedbacki64_v(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int64_t *param);
-extern void textureParameter(uint32_t texture, TextureParameterName pname, int32_t param);
-extern void getNamedBufferParameter(uint32_t buffer, VertexBufferObjectParameter pname, int32_t *params);
-extern void flushMappedNamedBufferRange(uint32_t buffer, std::intptr_t offset, std::size_t length);
-extern void getTextureSubImage(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, PixelType type, core::SizeType bufSize, void *pixels);
-extern void readnPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, core::SizeType bufSize, void *data);
-extern void vertexArrayBindingDivisor(uint32_t vaobj, uint32_t bindingindex, uint32_t divisor);
-extern void transformFeedbackBufferBase(uint32_t xfb, uint32_t index, uint32_t buffer);
-extern void getnTexImage(TextureTarget target, int32_t level, PixelFormat format, PixelType type, core::SizeType bufSize, void *pixels);
-extern void getTextureImage(uint32_t texture, int32_t level, PixelFormat format, PixelType type, core::SizeType bufSize, void *pixels);
-extern void namedFramebufferTextureLayer(uint32_t framebuffer, FramebufferAttachment attachment, uint32_t texture, int32_t level, int32_t layer);
-extern void compressedTextureSubImage1D(uint32_t texture, int32_t level, int32_t xoffset, core::SizeType width, PixelFormat format, core::SizeType imageSize, const void *data);
-extern void getCompressedTextureSubImage(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, core::SizeType bufSize, void *pixels);
-extern void getTextureLevelParameter(uint32_t texture, int32_t level, GetTextureParameter pname, int32_t *params);
-extern void namedFramebufferReadBuffer(uint32_t framebuffer, ColorBuffer src);
-extern void createFramebuffers(core::SizeType n, uint32_t *framebuffers);
-extern void vertexArrayAttribLFormat(uint32_t vaobj, uint32_t attribindex, int32_t size, VertexAttribLType type, uint32_t relativeoffset);
-extern void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset);
-extern void getTextureParameterI(uint32_t texture, GetTextureParameter pname, uint32_t *params);
-extern void clearNamedBufferSubData(uint32_t buffer, InternalFormat internalformat, std::intptr_t offset, std::size_t size, PixelFormat format, PixelType type, const void *data);
-extern void getTextureParameterI(uint32_t texture, GetTextureParameter pname, int32_t *params);
-extern void enableVertexArrayAttri(uint32_t vaobj, uint32_t index);
-extern void textureParameterI(uint32_t texture, TextureParameterName pname, const uint32_t *params);
-extern void invalidateNamedFramebufferData(uint32_t framebuffer, core::SizeType numAttachments, const FramebufferAttachment *attachments);
-extern void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset);
-extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, float *params);
-extern void transformFeedbackBufferRange(uint32_t xfb, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size);
-extern void getVertexArrayIndexed64(uint32_t vaobj, uint32_t index, VertexArrayPName pname, int64_t *param);
-extern void namedFramebufferDrawBuffer(uint32_t framebuffer, ColorBuffer buf);
-extern void getCompressedTextureImage(uint32_t texture, int32_t level, core::SizeType bufSize, void *pixels);
-extern void textureStorage1D(uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width);
-extern void createVertexArrays(core::SizeType n, uint32_t *arrays);
-extern void blitNamedFramebuffer(uint32_t readFramebuffer, uint32_t drawFramebuffer, int32_t srcX0, int32_t srcY0, int32_t srcX1, int32_t srcY1, int32_t dstX0, int32_t dstY0, int32_t dstX1, int32_t dstY1, core::Bitfield<ClearBufferMask> mask, BlitFramebufferFilter filter);
-extern void textureSubImage1D(uint32_t texture, int32_t level, int32_t xoffset, core::SizeType width, PixelFormat format, PixelType type, const void *pixels);
-extern void namedFramebufferDrawBuffers(uint32_t framebuffer, core::SizeType n, const ColorBuffer *bufs);
-extern void namedRenderbufferStorageMultisample(uint32_t renderbuffer, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height);
-extern void getTransformFeedback(uint32_t xfb, TransformFeedbackPName pname, int32_t *param);
-extern void memoryBarrierByRegion(core::Bitfield<MemoryBarrierMask> barriers);
-extern void textureParameter(uint32_t texture, TextureParameterName pname, float param);
-extern void namedFramebufferTexture(uint32_t framebuffer, FramebufferAttachment attachment, uint32_t texture, int32_t level);
-extern void getVertexArray(uint32_t vaobj, VertexArrayPName pname, int32_t *param);
-extern void compressedTextureSubImage3D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, core::SizeType imageSize, const void *data);
-extern void textureBarrier();
-extern void textureParameter(uint32_t texture, TextureParameterName pname, const int32_t *param);
-extern void createTextures(TextureTarget target, core::SizeType n, uint32_t *textures);
-extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, uint32_t *params);
-extern void vertexArrayVertexBuffers(uint32_t vaobj, uint32_t first, core::SizeType count, const uint32_t *buffers, const std::intptr_t *offsets, const core::SizeType *strides);
-extern void createTransformFeedback(core::SizeType n, uint32_t *ids);
-extern void vertexArrayVertexBuffer(uint32_t vaobj, uint32_t bindingindex, uint32_t buffer, std::intptr_t offset, core::SizeType stride);
-extern void clearNamedBufferData(uint32_t buffer, InternalFormat internalformat, PixelFormat format, PixelType type, const void *data);
-extern void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset);
-extern void textureStorage3D(uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth);
-extern void getnCompressedTexImage(TextureTarget target, int32_t lod, core::SizeType bufSize, void *pixels);
-extern void textureSubImage3D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, PixelType type, const void *pixels);
-extern void namedFramebufferRenderbuffer(uint32_t framebuffer, FramebufferAttachment attachment, RenderbufferTarget renderbuffertarget, uint32_t renderbuffer);
-extern void compressedTextureSubImage2D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, core::SizeType imageSize, const void *data);
-extern void copyNamedBufferSubData(uint32_t readBuffer, uint32_t writeBuffer, std::intptr_t readOffset, std::intptr_t writeOffset, std::size_t size);
-extern void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset);
-extern void namedBufferStorage(uint32_t buffer, std::size_t size, const void *data, core::Bitfield<BufferStorageMask> flags);
 extern void bindTextureUnit(uint32_t unit, uint32_t texture);
-extern void createBuffers(core::SizeType n, uint32_t *buffers);
-extern void getNamedBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t size, void *data);
-extern void getTextureParameter(uint32_t texture, GetTextureParameter pname, int32_t *params);
-extern void getNamedRenderbufferParameter(uint32_t renderbuffer, RenderbufferParameterName pname, int32_t *params);
+extern void blitNamedFramebuffer(uint32_t readFramebuffer, uint32_t drawFramebuffer, int32_t srcX0, int32_t srcY0, int32_t srcX1, int32_t srcY1, int32_t dstX0, int32_t dstY0, int32_t dstX1, int32_t dstY1, core::Bitfield<ClearBufferMask> mask, BlitFramebufferFilter filter);
+extern core::EnumType checkNamedFramebufferStatus(uint32_t framebuffer, FramebufferTarget target);
+extern void clearNamedBufferData(uint32_t buffer, InternalFormat internalformat, PixelFormat format, PixelType type, const void *data);
+extern void clearNamedBufferSubData(uint32_t buffer, InternalFormat internalformat, std::intptr_t offset, std::size_t size, PixelFormat format, PixelType type, const void *data);
+extern void clearNamedFramebufferf(uint32_t framebuffer, Buffer buffer, int32_t drawbuffer, float depth, int32_t stencil);
+extern void clearNamedFramebuffer(uint32_t framebuffer, Buffer buffer, int32_t drawbuffer, const float *value);
 extern void clearNamedFramebuffer(uint32_t framebuffer, Buffer buffer, int32_t drawbuffer, const int32_t *value);
-extern void textureBufferRange(uint32_t texture, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
+extern void clearNamedFramebuffer(uint32_t framebuffer, Buffer buffer, int32_t drawbuffer, const uint32_t *value);
+extern void clipControl(ClipControlOrigin origin, ClipControlDepth depth);
+extern void compressedTextureSubImage1D(uint32_t texture, int32_t level, int32_t xoffset, core::SizeType width, PixelFormat format, core::SizeType imageSize, const void *data);
+extern void compressedTextureSubImage2D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, core::SizeType imageSize, const void *data);
+extern void compressedTextureSubImage3D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, core::SizeType imageSize, const void *data);
+extern void copyNamedBufferSubData(uint32_t readBuffer, uint32_t writeBuffer, std::intptr_t readOffset, std::intptr_t writeOffset, std::size_t size);
+extern void copyTextureSubImage1D(uint32_t texture, int32_t level, int32_t xoffset, int32_t x, int32_t y, core::SizeType width);
+extern void copyTextureSubImage2D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void copyTextureSubImage3D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void createBuffers(core::SizeType n, uint32_t *buffers);
+extern void createFramebuffers(core::SizeType n, uint32_t *framebuffers);
+extern void createProgramPipeline(core::SizeType n, uint32_t *pipelines);
+extern void createQuerie(QueryTarget target, core::SizeType n, uint32_t *ids);
+extern void createRenderbuffers(core::SizeType n, uint32_t *renderbuffers);
+extern void createSampler(core::SizeType n, uint32_t *samplers);
+extern void createTextures(TextureTarget target, core::SizeType n, uint32_t *textures);
+extern void createTransformFeedback(core::SizeType n, uint32_t *ids);
+extern void createVertexArrays(core::SizeType n, uint32_t *arrays);
+extern void disableVertexArrayAttri(uint32_t vaobj, uint32_t index);
+extern void enableVertexArrayAttri(uint32_t vaobj, uint32_t index);
+extern void flushMappedNamedBufferRange(uint32_t buffer, std::intptr_t offset, std::size_t length);
+extern void generateTextureMipmap(uint32_t texture);
+extern void getCompressedTextureImage(uint32_t texture, int32_t level, core::SizeType bufSize, void *pixels);
+extern void getCompressedTextureSubImage(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, core::SizeType bufSize, void *pixels);
+extern core::EnumType getGraphicsResetStatus();
+extern void getNamedBufferParameter(uint32_t buffer, VertexBufferObjectParameter pname, int64_t *params);
+extern void getNamedBufferParameter(uint32_t buffer, VertexBufferObjectParameter pname, int32_t *params);
+extern void getNamedBufferPointerv(uint32_t buffer, VertexBufferObjectParameter pname, void **params);
+extern void getNamedBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t size, void *data);
+extern void getNamedFramebufferAttachmentParameter(uint32_t framebuffer, FramebufferAttachment attachment, FramebufferAttachmentParameterName pname, int32_t *params);
+extern void getNamedFramebufferParameter(uint32_t framebuffer, GetFramebufferParameter pname, int32_t *param);
+extern void getNamedRenderbufferParameter(uint32_t renderbuffer, RenderbufferParameterName pname, int32_t *params);
+extern void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset);
+extern void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset);
+extern void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset);
+extern void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset);
+extern void getTextureImage(uint32_t texture, int32_t level, PixelFormat format, PixelType type, core::SizeType bufSize, void *pixels);
+extern void getTextureLevelParameter(uint32_t texture, int32_t level, GetTextureParameter pname, float *params);
+extern void getTextureLevelParameter(uint32_t texture, int32_t level, GetTextureParameter pname, int32_t *params);
+extern void getTextureParameterI(uint32_t texture, GetTextureParameter pname, int32_t *params);
+extern void getTextureParameterI(uint32_t texture, GetTextureParameter pname, uint32_t *params);
+extern void getTextureParameter(uint32_t texture, GetTextureParameter pname, float *params);
+extern void getTextureParameter(uint32_t texture, GetTextureParameter pname, int32_t *params);
+extern void getTextureSubImage(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, PixelType type, core::SizeType bufSize, void *pixels);
+extern void getTransformFeedbacki64_v(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int64_t *param);
+extern void getTransformFeedbacki_v(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int32_t *param);
+extern void getTransformFeedback(uint32_t xfb, TransformFeedbackPName pname, int32_t *param);
+extern void getVertexArrayIndexed64(uint32_t vaobj, uint32_t index, VertexArrayPName pname, int64_t *param);
+extern void getVertexArrayIndexed(uint32_t vaobj, uint32_t index, VertexArrayPName pname, int32_t *param);
+extern void getVertexArray(uint32_t vaobj, VertexArrayPName pname, int32_t *param);
+extern void getnCompressedTexImage(TextureTarget target, int32_t lod, core::SizeType bufSize, void *pixels);
+extern void getnTexImage(TextureTarget target, int32_t level, PixelFormat format, PixelType type, core::SizeType bufSize, void *pixels);
+extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, double *params);
+extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, float *params);
+extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, int32_t *params);
+extern void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, uint32_t *params);
+extern void invalidateNamedFramebufferData(uint32_t framebuffer, core::SizeType numAttachments, const FramebufferAttachment *attachments);
+extern void invalidateNamedFramebufferSubData(uint32_t framebuffer, core::SizeType numAttachments, const FramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void *mapNamedBuffer(uint32_t buffer, BufferAccessARB access);
+extern void *mapNamedBufferRange(uint32_t buffer, std::intptr_t offset, std::size_t length, core::Bitfield<MapBufferAccessMask> access);
+extern void memoryBarrierByRegion(core::Bitfield<MemoryBarrierMask> barriers);
+extern void namedBufferData(uint32_t buffer, std::size_t size, const void *data, VertexBufferObjectUsage usage);
+extern void namedBufferStorage(uint32_t buffer, std::size_t size, const void *data, core::Bitfield<BufferStorageMask> flags);
+extern void namedBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t size, const void *data);
+extern void namedFramebufferDrawBuffer(uint32_t framebuffer, ColorBuffer buf);
+extern void namedFramebufferDrawBuffers(uint32_t framebuffer, core::SizeType n, const ColorBuffer *bufs);
 extern void namedFramebufferParameter(uint32_t framebuffer, FramebufferParameterName pname, int32_t param);
+extern void namedFramebufferReadBuffer(uint32_t framebuffer, ColorBuffer src);
+extern void namedFramebufferRenderbuffer(uint32_t framebuffer, FramebufferAttachment attachment, RenderbufferTarget renderbuffertarget, uint32_t renderbuffer);
+extern void namedFramebufferTexture(uint32_t framebuffer, FramebufferAttachment attachment, uint32_t texture, int32_t level);
+extern void namedFramebufferTextureLayer(uint32_t framebuffer, FramebufferAttachment attachment, uint32_t texture, int32_t level, int32_t layer);
+extern void namedRenderbufferStorage(uint32_t renderbuffer, InternalFormat internalformat, core::SizeType width, core::SizeType height);
+extern void namedRenderbufferStorageMultisample(uint32_t renderbuffer, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height);
+extern void readnPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, core::SizeType bufSize, void *data);
+extern void textureBarrier();
+extern void textureBuffer(uint32_t texture, InternalFormat internalformat, uint32_t buffer);
+extern void textureBufferRange(uint32_t texture, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
+extern void textureParameterI(uint32_t texture, TextureParameterName pname, const int32_t *params);
+extern void textureParameterI(uint32_t texture, TextureParameterName pname, const uint32_t *params);
+extern void textureParameter(uint32_t texture, TextureParameterName pname, float param);
+extern void textureParameter(uint32_t texture, TextureParameterName pname, const float *param);
+extern void textureParameter(uint32_t texture, TextureParameterName pname, int32_t param);
+extern void textureParameter(uint32_t texture, TextureParameterName pname, const int32_t *param);
+extern void textureStorage1D(uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width);
+extern void textureStorage2D(uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height);
+extern void textureStorage2DMultisample(uint32_t texture, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, bool fixedsamplelocations);
+extern void textureStorage3D(uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth);
+extern void textureStorage3DMultisample(uint32_t texture, core::SizeType samples, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, bool fixedsamplelocations);
+extern void textureSubImage1D(uint32_t texture, int32_t level, int32_t xoffset, core::SizeType width, PixelFormat format, PixelType type, const void *pixels);
+extern void textureSubImage2D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
+extern void textureSubImage3D(uint32_t texture, int32_t level, int32_t xoffset, int32_t yoffset, int32_t zoffset, core::SizeType width, core::SizeType height, core::SizeType depth, PixelFormat format, PixelType type, const void *pixels);
+extern void transformFeedbackBufferBase(uint32_t xfb, uint32_t index, uint32_t buffer);
+extern void transformFeedbackBufferRange(uint32_t xfb, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size);
+extern bool unmapNamedBuffer(uint32_t buffer);
+extern void vertexArrayAttribBinding(uint32_t vaobj, uint32_t attribindex, uint32_t bindingindex);
+extern void vertexArrayAttribFormat(uint32_t vaobj, uint32_t attribindex, int32_t size, VertexAttribType type, bool normalized, uint32_t relativeoffset);
+extern void vertexArrayAttribIFormat(uint32_t vaobj, uint32_t attribindex, int32_t size, VertexAttribIType type, uint32_t relativeoffset);
+extern void vertexArrayAttribLFormat(uint32_t vaobj, uint32_t attribindex, int32_t size, VertexAttribLType type, uint32_t relativeoffset);
+extern void vertexArrayBindingDivisor(uint32_t vaobj, uint32_t bindingindex, uint32_t divisor);
+extern void vertexArrayElementBuffer(uint32_t vaobj, uint32_t buffer);
+extern void vertexArrayVertexBuffer(uint32_t vaobj, uint32_t bindingindex, uint32_t buffer, std::intptr_t offset, core::SizeType stride);
+extern void vertexArrayVertexBuffers(uint32_t vaobj, uint32_t first, core::SizeType count, const uint32_t *buffers, const std::intptr_t *offsets, const core::SizeType *strides);
 #endif
 #if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-extern void getnMinmax(MinmaxTargetEXT target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void *values);
-extern void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, float *v);
-extern void getnPixelMap(PixelMap map, core::SizeType bufSize, uint32_t *values);
-extern void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, double *v);
-extern void getnPolygonStipple(core::SizeType bufSize, uint8_t *pattern);
-extern void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, int32_t *v);
 extern void getnColorTable(ColorTableTarget target, PixelFormat format, PixelType type, core::SizeType bufSize, void *table);
-extern void getnPixelMap(PixelMap map, core::SizeType bufSize, float *values);
 extern void getnConvolutionFilter(ConvolutionTarget target, PixelFormat format, PixelType type, core::SizeType bufSize, void *image);
-extern void getnSeparableFilter(SeparableTargetEXT target, PixelFormat format, PixelType type, core::SizeType rowBufSize, void *row, core::SizeType columnBufSize, void *column, void *span);
 extern void getnHistogram(HistogramTargetEXT target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void *values);
+extern void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, double *v);
+extern void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, float *v);
+extern void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, int32_t *v);
+extern void getnMinmax(MinmaxTargetEXT target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void *values);
+extern void getnPixelMap(PixelMap map, core::SizeType bufSize, float *values);
+extern void getnPixelMap(PixelMap map, core::SizeType bufSize, uint32_t *values);
 extern void getnPixelMap(PixelMap map, core::SizeType bufSize, uint16_t *values);
+extern void getnPolygonStipple(core::SizeType bufSize, uint8_t *pattern);
+extern void getnSeparableFilter(SeparableTargetEXT target, PixelFormat format, PixelType type, core::SizeType rowBufSize, void *row, core::SizeType columnBufSize, void *column, void *span);
 #endif
 #if defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
 extern void multiDrawArraysIndirectCount(PrimitiveType mode, const void *indirect, std::intptr_t drawcount, core::SizeType maxdrawcount, core::SizeType stride);
-extern void polygonOffsetClamp(float factor, float units, float clamp);
 extern void multiDrawElementsIndirectCount(PrimitiveType mode, DrawElementsType type, const void *indirect, std::intptr_t drawcount, core::SizeType maxdrawcount, core::SizeType stride);
+extern void polygonOffsetClamp(float factor, float units, float clamp);
 extern void specializeShader(uint32_t shader, const char *pEntryPoint, uint32_t numSpecializationConstants, const uint32_t *pConstantIndex, const uint32_t *pConstantValue);
 #endif
-
 }

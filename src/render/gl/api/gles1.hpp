@@ -6,74 +6,6 @@ namespace gles1
 // API feature levels
 // #define API_LEVEL_GL_VERSION_ES_CM_1_0_common
 
-// API extensions
-// #define WITH_API_EXTENSION_GL_AMD_compressed_3DC_texture
-// #define WITH_API_EXTENSION_GL_AMD_compressed_ATC_texture
-// #define WITH_API_EXTENSION_GL_APPLE_copy_texture_levels
-// #define WITH_API_EXTENSION_GL_APPLE_framebuffer_multisample
-// #define WITH_API_EXTENSION_GL_APPLE_sync
-// #define WITH_API_EXTENSION_GL_APPLE_texture_format_BGRA8888
-// #define WITH_API_EXTENSION_GL_APPLE_texture_max_level
-// #define WITH_API_EXTENSION_GL_EXT_blend_minmax
-// #define WITH_API_EXTENSION_GL_EXT_debug_marker
-// #define WITH_API_EXTENSION_GL_EXT_discard_framebuffer
-// #define WITH_API_EXTENSION_GL_EXT_map_buffer_range
-// #define WITH_API_EXTENSION_GL_EXT_multi_draw_arrays
-// #define WITH_API_EXTENSION_GL_EXT_multisampled_render_to_texture
-// #define WITH_API_EXTENSION_GL_EXT_read_format_bgra
-// #define WITH_API_EXTENSION_GL_EXT_robustness
-// #define WITH_API_EXTENSION_GL_EXT_sRGB
-// #define WITH_API_EXTENSION_GL_EXT_texture_compression_dxt1
-// #define WITH_API_EXTENSION_GL_EXT_texture_filter_anisotropic
-// #define WITH_API_EXTENSION_GL_EXT_texture_format_BGRA8888
-// #define WITH_API_EXTENSION_GL_EXT_texture_lod_bias
-// #define WITH_API_EXTENSION_GL_EXT_texture_storage
-// #define WITH_API_EXTENSION_GL_IMG_multisampled_render_to_texture
-// #define WITH_API_EXTENSION_GL_IMG_read_format
-// #define WITH_API_EXTENSION_GL_IMG_texture_compression_pvrtc
-// #define WITH_API_EXTENSION_GL_IMG_texture_env_enhanced_fixed_function
-// #define WITH_API_EXTENSION_GL_IMG_user_clip_plane
-// #define WITH_API_EXTENSION_GL_NV_fence
-// #define WITH_API_EXTENSION_GL_OES_EGL_image
-// #define WITH_API_EXTENSION_GL_OES_EGL_image_external
-// #define WITH_API_EXTENSION_GL_OES_blend_equation_separate
-// #define WITH_API_EXTENSION_GL_OES_blend_func_separate
-// #define WITH_API_EXTENSION_GL_OES_blend_subtract
-// #define WITH_API_EXTENSION_GL_OES_byte_coordinates
-// #define WITH_API_EXTENSION_GL_OES_compressed_ETC1_RGB8_texture
-// #define WITH_API_EXTENSION_GL_OES_compressed_paletted_texture
-// #define WITH_API_EXTENSION_GL_OES_depth24
-// #define WITH_API_EXTENSION_GL_OES_depth32
-// #define WITH_API_EXTENSION_GL_OES_draw_texture
-// #define WITH_API_EXTENSION_GL_OES_element_index_uint
-// #define WITH_API_EXTENSION_GL_OES_fixed_point
-// #define WITH_API_EXTENSION_GL_OES_framebuffer_object
-// #define WITH_API_EXTENSION_GL_OES_mapbuffer
-// #define WITH_API_EXTENSION_GL_OES_matrix_get
-// #define WITH_API_EXTENSION_GL_OES_matrix_palette
-// #define WITH_API_EXTENSION_GL_OES_packed_depth_stencil
-// #define WITH_API_EXTENSION_GL_OES_point_size_array
-// #define WITH_API_EXTENSION_GL_OES_point_sprite
-// #define WITH_API_EXTENSION_GL_OES_query_matrix
-// #define WITH_API_EXTENSION_GL_OES_read_format
-// #define WITH_API_EXTENSION_GL_OES_required_internalformat
-// #define WITH_API_EXTENSION_GL_OES_rgb8_rgba8
-// #define WITH_API_EXTENSION_GL_OES_single_precision
-// #define WITH_API_EXTENSION_GL_OES_stencil1
-// #define WITH_API_EXTENSION_GL_OES_stencil4
-// #define WITH_API_EXTENSION_GL_OES_stencil8
-// #define WITH_API_EXTENSION_GL_OES_stencil_wrap
-// #define WITH_API_EXTENSION_GL_OES_surfaceless_context
-// #define WITH_API_EXTENSION_GL_OES_texture_cube_map
-// #define WITH_API_EXTENSION_GL_OES_texture_mirrored_repeat
-// #define WITH_API_EXTENSION_GL_OES_vertex_array_object
-// #define WITH_API_EXTENSION_GL_QCOM_driver_control
-// #define WITH_API_EXTENSION_GL_QCOM_extended_get
-// #define WITH_API_EXTENSION_GL_QCOM_extended_get2
-// #define WITH_API_EXTENSION_GL_QCOM_perfmon_global_mode
-// #define WITH_API_EXTENSION_GL_QCOM_tiled_rendering
-// #define WITH_API_EXTENSION_GL_QCOM_writeonly_rendering
-
 // enums
 enum class AccumOp : core::EnumType
 {
@@ -953,149 +885,148 @@ enum class VertexPointerType : core::EnumType
 };
 
 // commands
-extern void rotate(float angle, float x, float y, float z);
-extern void material(MaterialFace face, MaterialParameter pname, float param);
-extern void loadIdentity();
-extern void disableClientState(EnableCap array);
-extern void lightModelx(LightModelParameter pname, core::Fixed param);
-extern void color4(float red, float green, float blue, float alpha);
-extern void clearColor(float red, float green, float blue, float alpha);
-extern void pointParameter(PointParameterNameARB pname, const float *params);
-extern void getLightxv(LightName light, LightParameter pname, core::Fixed *params);
-extern void pushMatrix();
-extern void texParameterxv(TextureTarget target, GetTextureParameter pname, const core::Fixed *params);
-extern void clientActiveTexture(TextureUnit texture);
-extern void drawArrays(PrimitiveType mode, int32_t first, core::SizeType count);
-extern void texEnvxv(TextureEnvTarget target, TextureEnvParameter pname, const core::Fixed *params);
-extern void getFloatv(GetPName pname, float *data);
 extern void activeTexture(TextureUnit texture);
-extern void enable(EnableCap cap);
-extern void scale(float x, float y, float z);
-extern void texParameter(TextureTarget target, TextureParameterName pname, float param);
-extern void rotatex(core::Fixed angle, core::Fixed x, core::Fixed y, core::Fixed z);
-extern void pointSize(float size);
-extern void getFixe(GetPName pname, core::Fixed *params);
-extern void bindTexture(TextureTarget target, uint32_t texture);
-extern void getTexEnvxv(TextureEnvTarget target, TextureEnvParameter pname, core::Fixed *params);
-extern void scalex(core::Fixed x, core::Fixed y, core::Fixed z);
-extern void clearColorx(core::Fixed red, core::Fixed green, core::Fixed blue, core::Fixed alpha);
-extern void getClipPlane(ClipPlaneName plane, float *equation);
-extern void bufferData(BufferTargetARB target, std::size_t size, const void *data, BufferUsageARB usage);
-extern void depthFunc(DepthFunction func);
-extern void clearStencil(int32_t s);
-extern void colorPointer(int32_t size, ColorPointerType type, core::SizeType stride, const void *pointer);
-extern void copyTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void normal3(float nx, float ny, float nz);
-extern void texEnvx(TextureEnvTarget target, TextureEnvParameter pname, core::Fixed param);
-extern void colorMask(bool red, bool green, bool blue, bool alpha);
-extern void translatex(core::Fixed x, core::Fixed y, core::Fixed z);
-extern void normalPointer(NormalPointerType type, core::SizeType stride, const void *pointer);
-extern void lightx(LightName light, LightParameter pname, core::Fixed param);
-extern void disable(EnableCap cap);
-extern void blendFunc(BlendingFactor sfactor, BlendingFactor dfactor);
-extern const uint8_t *getString(StringName name);
-extern void depthMask(bool flag);
-extern void genBuffers(core::SizeType n, uint32_t *buffers);
-extern void getBooleanv(GetPName pname, bool *data);
-extern void frontFace(FrontFaceDirection mode);
-extern void loadMatrixx(const core::Fixed *m);
-extern void loadMatrix(const float *m);
-extern void vertexPointer(int32_t size, VertexPointerType type, core::SizeType stride, const void *pointer);
-extern void pointParameterx(PointParameterNameARB pname, core::Fixed param);
-extern void finish();
-extern void fog(FogParameter pname, const float *params);
-extern void stencilMask(uint32_t mask);
-extern void readPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, void *pixels);
-extern void logicOp(LogicOp opcode);
-extern void cullFace(CullFaceMode mode);
-extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t *params);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, float param);
-extern void clipPlanex(ClipPlaneName plane, const core::Fixed *equation);
-extern void depthRange(float n, float f);
-extern void stencilOp(StencilOp fail, StencilOp zfail, StencilOp zpass);
-extern void normal3x(core::Fixed nx, core::Fixed ny, core::Fixed nz);
-extern void hint(HintTarget target, HintMode mode);
-extern void multMatrix(const float *m);
-extern void clearDepthx(core::Fixed depth);
-extern void fog(FogParameter pname, float param);
-extern void genTextures(core::SizeType n, uint32_t *textures);
-extern void orthox(core::Fixed l, core::Fixed r, core::Fixed b, core::Fixed t, core::Fixed n, core::Fixed f);
-extern void copyTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, int32_t x, int32_t y, core::SizeType width, core::SizeType height, int32_t border);
-extern void polygonOffsetx(core::Fixed factor, core::Fixed units);
-extern void sampleCoveragex(GLclampx value, bool invert);
-extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void stencilFunc(StencilFunction func, int32_t ref, uint32_t mask);
-extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t *params);
-extern void getMaterialxv(MaterialFace face, MaterialParameter pname, core::Fixed *params);
-extern void sampleCoverage(float value, bool invert);
-extern void texParameterx(TextureTarget target, GetTextureParameter pname, core::Fixed param);
-extern void getTexParameterxv(TextureTarget target, GetTextureParameter pname, core::Fixed *params);
-extern void pointParameter(PointParameterNameARB pname, float param);
-extern void material(MaterialFace face, MaterialParameter pname, const float *params);
-extern void getIntegerv(GetPName pname, int32_t *data);
-extern void clear(core::Bitfield<ClearBufferMask> mask);
-extern void pointSizex(core::Fixed size);
-extern void drawElements(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices);
-extern void enableClientState(EnableCap array);
-extern void materialx(MaterialFace face, MaterialParameter pname, core::Fixed param);
-extern void texImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, PixelFormat format, PixelType type, const void *pixels);
-extern bool isEnable(EnableCap cap);
-extern void materialxv(MaterialFace face, MaterialParameter pname, const core::Fixed *param);
 extern void alphaFunc(AlphaFunction func, float ref);
-extern void getTexParameter(TextureTarget target, GetTextureParameter pname, float *params);
-extern void getMaterial(MaterialFace face, MaterialParameter pname, float *params);
-extern void lightModelxv(LightModelParameter pname, const core::Fixed *param);
-extern void texSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
+extern void alphaFuncx(AlphaFunction func, core::Fixed ref);
+extern void bindBuffer(BufferTargetARB target, uint32_t buffer);
+extern void bindTexture(TextureTarget target, uint32_t texture);
+extern void blendFunc(BlendingFactor sfactor, BlendingFactor dfactor);
+extern void bufferData(BufferTargetARB target, std::size_t size, const void *data, BufferUsageARB usage);
+extern void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void *data);
+extern void clear(core::Bitfield<ClearBufferMask> mask);
+extern void clearColor(float red, float green, float blue, float alpha);
+extern void clearColorx(core::Fixed red, core::Fixed green, core::Fixed blue, core::Fixed alpha);
+extern void clearDepth(float d);
+extern void clearDepthx(core::Fixed depth);
+extern void clearStencil(int32_t s);
+extern void clientActiveTexture(TextureUnit texture);
 extern void clipPlane(ClipPlaneName p, const float *eqn);
+extern void clipPlanex(ClipPlaneName plane, const core::Fixed *equation);
+extern void color4(float red, float green, float blue, float alpha);
+extern void color4(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+extern void color4x(core::Fixed red, core::Fixed green, core::Fixed blue, core::Fixed alpha);
+extern void colorMask(bool red, bool green, bool blue, bool alpha);
+extern void colorPointer(int32_t size, ColorPointerType type, core::SizeType stride, const void *pointer);
+extern void compressedTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, core::SizeType imageSize, const void *data);
+extern void compressedTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, core::SizeType imageSize, const void *data);
+extern void copyTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, int32_t x, int32_t y, core::SizeType width, core::SizeType height, int32_t border);
+extern void copyTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void cullFace(CullFaceMode mode);
+extern void deleteBuffers(core::SizeType n, const uint32_t *buffers);
+extern void deleteTextures(core::SizeType n, const uint32_t *textures);
+extern void depthFunc(DepthFunction func);
+extern void depthMask(bool flag);
+extern void depthRange(float n, float f);
+extern void depthRangex(core::Fixed n, core::Fixed f);
+extern void disable(EnableCap cap);
+extern void disableClientState(EnableCap array);
+extern void drawArrays(PrimitiveType mode, int32_t first, core::SizeType count);
+extern void drawElements(PrimitiveType mode, core::SizeType count, DrawElementsType type, const void *indices);
+extern void enable(EnableCap cap);
+extern void enableClientState(EnableCap array);
+extern void finish();
+extern void flush();
+extern void fog(FogParameter pname, float param);
+extern void fog(FogParameter pname, const float *params);
+extern void fogx(FogPName pname, core::Fixed param);
+extern void fogxv(FogPName pname, const core::Fixed *param);
+extern void frontFace(FrontFaceDirection mode);
+extern void frustum(float l, float r, float b, float t, float n, float f);
+extern void frustumx(core::Fixed l, core::Fixed r, core::Fixed b, core::Fixed t, core::Fixed n, core::Fixed f);
+extern void genBuffers(core::SizeType n, uint32_t *buffers);
+extern void genTextures(core::SizeType n, uint32_t *textures);
+extern void getBooleanv(GetPName pname, bool *data);
+extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t *params);
+extern void getClipPlane(ClipPlaneName plane, float *equation);
+extern void getClipPlanex(ClipPlaneName plane, core::Fixed *equation);
+extern core::EnumType getError();
+extern void getFixe(GetPName pname, core::Fixed *params);
+extern void getFloatv(GetPName pname, float *data);
+extern void getIntegerv(GetPName pname, int32_t *data);
+extern void getLight(LightName light, LightParameter pname, float *params);
+extern void getLightxv(LightName light, LightParameter pname, core::Fixed *params);
+extern void getMaterial(MaterialFace face, MaterialParameter pname, float *params);
+extern void getMaterialxv(MaterialFace face, MaterialParameter pname, core::Fixed *params);
+extern void getPointerv(GetPointervPName pname, void **params);
+extern const uint8_t *getString(StringName name);
+extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, float *params);
+extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t *params);
+extern void getTexEnvxv(TextureEnvTarget target, TextureEnvParameter pname, core::Fixed *params);
+extern void getTexParameter(TextureTarget target, GetTextureParameter pname, float *params);
+extern void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *params);
+extern void getTexParameterxv(TextureTarget target, GetTextureParameter pname, core::Fixed *params);
+extern void hint(HintTarget target, HintMode mode);
+extern bool isBuffer(uint32_t buffer);
+extern bool isEnable(EnableCap cap);
+extern bool isTexture(uint32_t texture);
+extern void lightModel(LightModelParameter pname, float param);
+extern void lightModel(LightModelParameter pname, const float *params);
+extern void lightModelx(LightModelParameter pname, core::Fixed param);
+extern void lightModelxv(LightModelParameter pname, const core::Fixed *param);
+extern void light(LightName light, LightParameter pname, float param);
+extern void light(LightName light, LightParameter pname, const float *params);
+extern void lightx(LightName light, LightParameter pname, core::Fixed param);
+extern void lightxv(LightName light, LightParameter pname, const core::Fixed *params);
+extern void lineWidth(float width);
+extern void lineWidthx(core::Fixed width);
+extern void loadIdentity();
+extern void loadMatrix(const float *m);
+extern void loadMatrixx(const core::Fixed *m);
+extern void logicOp(LogicOp opcode);
+extern void material(MaterialFace face, MaterialParameter pname, float param);
+extern void material(MaterialFace face, MaterialParameter pname, const float *params);
+extern void materialx(MaterialFace face, MaterialParameter pname, core::Fixed param);
+extern void materialxv(MaterialFace face, MaterialParameter pname, const core::Fixed *param);
+extern void matrixMode(MatrixMode mode);
+extern void multMatrix(const float *m);
+extern void multMatrixx(const core::Fixed *m);
 extern void multiTexCoord4(TextureUnit target, float s, float t, float r, float q);
 extern void multiTexCoord4x(TextureUnit texture, core::Fixed s, core::Fixed t, core::Fixed r, core::Fixed q);
-extern void depthRangex(core::Fixed n, core::Fixed f);
-extern void lightModel(LightModelParameter pname, const float *params);
-extern void multMatrixx(const core::Fixed *m);
-extern void translate(float x, float y, float z);
-extern void scissor(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern bool isTexture(uint32_t texture);
-extern core::EnumType getError();
-extern void matrixMode(MatrixMode mode);
-extern void lightModel(LightModelParameter pname, float param);
-extern void deleteBuffers(core::SizeType n, const uint32_t *buffers);
-extern void pointParameterxv(PointParameterNameARB pname, const core::Fixed *params);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const int32_t *params);
-extern void popMatrix();
-extern void pixelStore(PixelStoreParameter pname, int32_t param);
-extern void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void *data);
-extern void getClipPlanex(ClipPlaneName plane, core::Fixed *equation);
-extern void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *params);
-extern void deleteTextures(core::SizeType n, const uint32_t *textures);
-extern bool isBuffer(uint32_t buffer);
-extern void texParameter(TextureTarget target, TextureParameterName pname, int32_t param);
-extern void fogxv(FogPName pname, const core::Fixed *param);
-extern void bindBuffer(BufferTargetARB target, uint32_t buffer);
-extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const float *params);
-extern void lineWidthx(core::Fixed width);
-extern void flush();
-extern void shadeModel(ShadingModel mode);
-extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, float *params);
-extern void alphaFuncx(AlphaFunction func, core::Fixed ref);
-extern void getPointerv(GetPointervPName pname, void **params);
-extern void polygonOffset(float factor, float units);
-extern void color4x(core::Fixed red, core::Fixed green, core::Fixed blue, core::Fixed alpha);
-extern void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t *params);
+extern void normal3(float nx, float ny, float nz);
+extern void normal3x(core::Fixed nx, core::Fixed ny, core::Fixed nz);
+extern void normalPointer(NormalPointerType type, core::SizeType stride, const void *pointer);
 extern void ortho(float l, float r, float b, float t, float n, float f);
-extern void fogx(FogPName pname, core::Fixed param);
-extern void color4(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
-extern void compressedTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, core::SizeType imageSize, const void *data);
-extern void light(LightName light, LightParameter pname, float param);
-extern void lineWidth(float width);
+extern void orthox(core::Fixed l, core::Fixed r, core::Fixed b, core::Fixed t, core::Fixed n, core::Fixed f);
+extern void pixelStore(PixelStoreParameter pname, int32_t param);
+extern void pointParameter(PointParameterNameARB pname, float param);
+extern void pointParameter(PointParameterNameARB pname, const float *params);
+extern void pointParameterx(PointParameterNameARB pname, core::Fixed param);
+extern void pointParameterxv(PointParameterNameARB pname, const core::Fixed *params);
+extern void pointSize(float size);
+extern void pointSizex(core::Fixed size);
+extern void polygonOffset(float factor, float units);
+extern void polygonOffsetx(core::Fixed factor, core::Fixed units);
+extern void popMatrix();
+extern void pushMatrix();
+extern void readPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, void *pixels);
+extern void rotate(float angle, float x, float y, float z);
+extern void rotatex(core::Fixed angle, core::Fixed x, core::Fixed y, core::Fixed z);
+extern void sampleCoverage(float value, bool invert);
+extern void sampleCoveragex(GLclampx value, bool invert);
+extern void scale(float x, float y, float z);
+extern void scalex(core::Fixed x, core::Fixed y, core::Fixed z);
+extern void scissor(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void shadeModel(ShadingModel mode);
+extern void stencilFunc(StencilFunction func, int32_t ref, uint32_t mask);
+extern void stencilMask(uint32_t mask);
+extern void stencilOp(StencilOp fail, StencilOp zfail, StencilOp zpass);
 extern void texCoordPointer(int32_t size, TexCoordPointerType type, core::SizeType stride, const void *pointer);
-extern void getLight(LightName light, LightParameter pname, float *params);
-extern void light(LightName light, LightParameter pname, const float *params);
-extern void frustumx(core::Fixed l, core::Fixed r, core::Fixed b, core::Fixed t, core::Fixed n, core::Fixed f);
-extern void texParameter(TextureTarget target, TextureParameterName pname, const float *params);
-extern void compressedTexImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, core::SizeType imageSize, const void *data);
-extern void clearDepth(float d);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, float param);
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const float *params);
 extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, int32_t param);
-extern void frustum(float l, float r, float b, float t, float n, float f);
-extern void lightxv(LightName light, LightParameter pname, const core::Fixed *params);
-
+extern void texEnv(TextureEnvTarget target, TextureEnvParameter pname, const int32_t *params);
+extern void texEnvx(TextureEnvTarget target, TextureEnvParameter pname, core::Fixed param);
+extern void texEnvxv(TextureEnvTarget target, TextureEnvParameter pname, const core::Fixed *params);
+extern void texImage2D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, int32_t border, PixelFormat format, PixelType type, const void *pixels);
+extern void texParameter(TextureTarget target, TextureParameterName pname, float param);
+extern void texParameter(TextureTarget target, TextureParameterName pname, const float *params);
+extern void texParameter(TextureTarget target, TextureParameterName pname, int32_t param);
+extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t *params);
+extern void texParameterx(TextureTarget target, GetTextureParameter pname, core::Fixed param);
+extern void texParameterxv(TextureTarget target, GetTextureParameter pname, const core::Fixed *params);
+extern void texSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int32_t yoffset, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, const void *pixels);
+extern void translate(float x, float y, float z);
+extern void translatex(core::Fixed x, core::Fixed y, core::Fixed z);
+extern void vertexPointer(int32_t size, VertexPointerType type, core::SizeType stride, const void *pointer);
+extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
 }
