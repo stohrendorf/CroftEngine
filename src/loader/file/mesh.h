@@ -119,7 +119,7 @@ struct Mesh
 
         const bool m_hasNormals;
         std::vector<RenderVertex> m_vertices;
-        const std::vector<TextureLayoutProxy>& m_textureProxies;
+        const std::vector<TextureTile>& m_textureTiles;
         const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& m_materials;
         const gsl::not_null<std::shared_ptr<render::scene::Material>> m_colorMaterial;
         const Palette& m_palette;
@@ -140,13 +140,13 @@ struct Mesh
 
         void append(const RenderVertex& v);
 
-        size_t getPartForColor(const core::TextureProxyId proxyId)
+        size_t getPartForColor(const core::TextureTileId tileId)
         {
             TextureKey tk;
             tk.blendingMode = BlendingMode::Solid;
             tk.flags = 0;
             tk.tileAndFlag = 0;
-            tk.colorId = proxyId.get() & 0xff;
+            tk.colorId = tileId.get() & 0xff;
             const auto color = gsl::at(m_palette.colors, tk.colorId.get()).toGLColor3();
 
             if(m_texBuffers.find(tk) == m_texBuffers.end())
@@ -160,21 +160,21 @@ struct Mesh
             return m_texBuffers[tk];
         }
 
-        size_t getPartForTexture(const TextureLayoutProxy& proxy)
+        size_t getPartForTexture(const TextureTile& tile)
         {
-            if(m_texBuffers.find(proxy.textureKey) == m_texBuffers.end())
+            if(m_texBuffers.find(tile.textureKey) == m_texBuffers.end())
             {
-                m_texBuffers[proxy.textureKey] = m_parts.size();
+                m_texBuffers[tile.textureKey] = m_parts.size();
                 m_parts.emplace_back();
-                m_parts.back().material = m_materials.at(proxy.textureKey);
+                m_parts.back().material = m_materials.at(tile.textureKey);
             }
-            return m_texBuffers[proxy.textureKey];
+            return m_texBuffers[tile.textureKey];
         }
 
     public:
         explicit ModelBuilder(
             bool withNormals,
-            const std::vector<TextureLayoutProxy>& textureProxies,
+            const std::vector<TextureTile>& textureTiles,
             const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
             gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
             const Palette& palette,
@@ -188,7 +188,7 @@ struct Mesh
     };
 
     std::shared_ptr<render::scene::Model>
-        createModel(const std::vector<TextureLayoutProxy>& textureProxies,
+        createModel(const std::vector<TextureTile>& textureTiles,
                     const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
                     const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
                     const Palette& palette,

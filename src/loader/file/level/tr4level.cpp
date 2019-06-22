@@ -210,7 +210,7 @@ void TR4Level::loadFileData()
     if(newsrc.readI8() != 'X')
         BOOST_THROW_EXCEPTION(std::runtime_error("TR4 Level: 'TEX' not found"));
 
-    newsrc.readVector(m_textureProxies, newsrc.readU32(), &TextureLayoutProxy::readTr4);
+    newsrc.readVector(m_textureTiles, newsrc.readU32(), &TextureTile::readTr4);
 
     newsrc.readVector(m_items, newsrc.readU32(), &Item::readTr4);
 

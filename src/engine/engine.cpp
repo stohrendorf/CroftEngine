@@ -192,13 +192,13 @@ std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::
                              ? loader::file::TextureIndexMaskTr4
                              : loader::file::TextureIndexMask;
     std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>> materials;
-    for(loader::file::TextureLayoutProxy& proxy : m_level->m_textureProxies)
+    for(loader::file::TextureTile& tile : m_level->m_textureTiles)
     {
-        const auto& key = proxy.textureKey;
+        const auto& key = tile.textureKey;
         if(materials.find(key) != materials.end())
             continue;
 
-        materials.emplace(key, proxy.createMaterial(m_level->m_textures[key.tileAndFlag & texMask].texture, shader));
+        materials.emplace(key, tile.createMaterial(m_level->m_textures[key.tileAndFlag & texMask].texture, shader));
     }
     return materials;
 }
@@ -509,7 +509,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     }
 
     m_textureAnimator = std::make_shared<render::TextureAnimator>(
-        m_level->m_animatedTextures, m_level->m_textureProxies, m_level->m_textures, linearTextureInterpolation);
+        m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures, linearTextureInterpolation);
 
     const auto texturedShader
         = render::scene::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
@@ -543,7 +543,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     for(auto& mesh : m_level->m_meshes)
     {
         m_models.emplace_back(
-            mesh.createModel(m_level->m_textureProxies, materials, colorMaterial, *m_level->m_palette));
+            mesh.createModel(m_level->m_textureTiles, materials, colorMaterial, *m_level->m_palette));
     }
 
     for(auto idx : m_level->m_meshIndices)
@@ -978,7 +978,7 @@ void Engine::animateUV()
     ++m_uvAnimTime;
     if(m_uvAnimTime >= UVAnimTime)
     {
-        m_textureAnimator->updateCoordinates(m_level->m_textureProxies);
+        m_textureAnimator->updateCoordinates(m_level->m_textureTiles);
         m_uvAnimTime -= UVAnimTime;
     }
 }

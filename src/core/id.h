@@ -36,7 +36,7 @@ struct Id
     constexpr Id(T value)
         : m_value{static_cast<type>(value)}
     {
-        static_assert(tpl::contains_v<T, Enums...>, "Incompatible type");
+        static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible type");
     }
 
     constexpr auto& operator=(type value)
@@ -48,7 +48,7 @@ struct Id
     template<typename T>
     constexpr auto& operator=(T value)
     {
-        static_assert(tpl::contains_v<T, Enums...>, "Incompatible type");
+        static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible type");
         m_value = static_cast<type>(value);
         return *this;
     }
@@ -66,7 +66,7 @@ struct Id
     template<typename T>
     constexpr T get_as() const
     {
-        static_assert(tpl::contains_v<T, Enums...>, "Incompatible target type");
+        static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible target type");
         return static_cast<T>(m_value);
     }
 
@@ -143,7 +143,7 @@ DECLARE_ID(RoomIdI16, int16_t);
 DECLARE_ID(RoomId32, uint32_t);
 DECLARE_ID(RoomGroupId, uint8_t);
 DECLARE_ID(AnimStateId, uint16_t);
-DECLARE_ID(TextureProxyId, uint16_t);
+DECLARE_ID(TextureTileId, uint16_t);
 DECLARE_ID(TextureId, uint16_t);
 DECLARE_ID(MeshId, uint32_t);
 DECLARE_ID(StaticMeshId, uint32_t);
@@ -220,3 +220,16 @@ struct as_if<core::Id<Type, Tag, Enums...>, void>
     }
 };
 } // namespace YAML
+
+namespace std
+{
+template<>
+struct hash<core::TextureTileId>
+{
+    size_t operator()(const core::TextureTileId& x) const noexcept
+    {
+        return std::hash<core::TextureTileId::type>()(x.get());
+    }
+};
+
+}

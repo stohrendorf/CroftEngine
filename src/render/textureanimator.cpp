@@ -191,7 +191,7 @@ class TextureAtlas
     };
 
     const int32_t m_resultPageSize;
-    std::map<size_t, size_t> m_mappingByProxy{};
+    std::map<core::TextureTileId, size_t> m_mappingByTile{};
     std::vector<Mapping> m_mappings{};
 
 public:
@@ -230,13 +230,13 @@ public:
 
     ~TextureAtlas() = default;
 
-    void insert(const std::vector<loader::file::TextureLayoutProxy>& textureProxies, const size_t proxyId)
+    void insert(const std::vector<loader::file::TextureTile>& textureTiles, const core::TextureTileId tileId)
     {
-        const auto& proxy = textureProxies.at(proxyId);
+        const auto& tile = textureTiles.at(tileId.get());
         // Determine the canonical texture for this texture.
         // Use only first three vertices to find min, max, because for triangles the last will be 0,0 with no other marker that this is a triangle. As long as all textures are axis-aligned rectangles, this will always return the right result anyway.
         glm::vec2 max{0, 0}, min{1.0f, 1.0f};
-        for(const auto& uv : proxy.uvCoordinates)
+        for(const auto& uv : tile.uvCoordinates)
         {
             const auto gl = uv.toGl();
             max.x = std::max(max.x, gl.x);
@@ -249,7 +249,7 @@ public:
         size_t mappingIdx = std::numeric_limits<size_t>::max();
         for(size_t i = 0; i < m_mappings.size(); i++)
         {
-            if(m_mappings[i].srcTexture == proxy.textureKey && m_mappings[i].uvMin == min && m_mappings[i].uvMax == max)
+            if(m_mappings[i].srcTexture == tile.textureKey && m_mappings[i].uvMin == min && m_mappings[i].uvMax == max)
             {
                 mappingIdx = i;
                 break;
@@ -263,24 +263,24 @@ public:
             m_mappings.emplace_back();
 
             Mapping& mapping = m_mappings.back();
-            mapping.srcTexture = proxy.textureKey;
+            mapping.srcTexture = tile.textureKey;
             mapping.uvMin = min;
             mapping.uvMax = max;
         }
 
-        m_mappingByProxy.emplace(std::make_pair(proxyId, mappingIdx));
+        m_mappingByTile.emplace(std::make_pair(tileId, mappingIdx));
     }
 
     void toTexture(std::vector<loader::file::DWordTexture>& textures,
-                   std::vector<loader::file::TextureLayoutProxy>& textureProxies,
+                   std::vector<loader::file::TextureTile>& textureTiles,
                    bool linear) const
     {
         util::CImgWrapper img{m_resultPageSize};
 
-        for(const auto& proxyToMapping : m_mappingByProxy)
+        for(const auto& tileToMapping : m_mappingByTile)
         {
-            auto& proxy = textureProxies.at(proxyToMapping.first);
-            const auto& mapping = m_mappings.at(proxyToMapping.second);
+            auto& tile = textureTiles.at(tileToMapping.first.get());
+            const auto& mapping = m_mappings.at(tileToMapping.second);
 
             const auto& glSrcImg = textures.at(mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask).image;
             util::CImgWrapper srcImg{reinterpret_cast<const uint8_t*>(glSrcImg->getData().data()),
@@ -295,11 +295,11 @@ public:
                         srcImg);
 
             const auto s = static_cast<float>(m_resultPageSize)
-                           / textures.at(proxy.textureKey.tileAndFlag & 0x7fff).image->getWidth();
+                           / textures.at(tile.textureKey.tileAndFlag & 0x7fff).image->getWidth();
 
-            proxy.textureKey.tileAndFlag &= ~loader::file::TextureIndexMask;
-            proxy.textureKey.tileAndFlag |= gsl::narrow_cast<uint16_t>(textures.size());
-            for(auto& uv : proxy.uvCoordinates)
+            tile.textureKey.tileAndFlag &= ~loader::file::TextureIndexMask;
+            tile.textureKey.tileAndFlag |= gsl::narrow_cast<uint16_t>(textures.size());
+            for(auto& uv : tile.uvCoordinates)
             {
                 const auto d = uv.toGl() - mapping.uvMin;
                 uv = d * s + mapping.newUvMin;
@@ -329,7 +329,7 @@ public:
 } // namespace
 
 TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
-                                 std::vector<loader::file::TextureLayoutProxy>& textureProxies,
+                                 std::vector<loader::file::TextureTile>& textureTiles,
                                  std::vector<loader::file::DWordTexture>& textures,
                                  bool linear)
 {
@@ -340,14 +340,14 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
     Expects(maxSize > 0);
 
     BOOST_LOG_TRIVIAL(debug) << "Extracting animated texture tiles into " << maxSize << "px texture";
-    BOOST_LOG_TRIVIAL(debug) << "  - Collecting animated proxy IDs...";
+    BOOST_LOG_TRIVIAL(debug) << "  - Collecting animated tile IDs...";
 
     TextureAtlas atlas{maxSize};
     {
         const uint16_t* ptr = data.data();
         const auto sequenceCount = *ptr++;
 
-        std::set<uint16_t> animatedProxies;
+        std::set<uint16_t> animatedTiles;
         for(size_t i = 0; i < sequenceCount; ++i)
         {
             Sequence sequence;
@@ -355,13 +355,13 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
             for(size_t j = 0; j <= n; ++j)
             {
                 Expects(ptr <= &data.back());
-                const auto proxyId = *ptr++;
-                if(animatedProxies.emplace(proxyId).second)
+                const auto tileId = *ptr++;
+                if(animatedTiles.emplace(tileId).second)
                 {
-                    atlas.insert(textureProxies, proxyId);
+                    atlas.insert(textureTiles, tileId);
                 }
-                sequence.proxyIds.emplace_back(proxyId);
-                m_sequenceByProxyId.emplace(proxyId, m_sequences.size());
+                sequence.tileIds.emplace_back(tileId);
+                m_sequenceByTileId.emplace(tileId, m_sequences.size());
             }
             m_sequences.emplace_back(std::move(sequence));
         }
@@ -371,6 +371,6 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
     atlas.layOutTextures(textures);
 
     BOOST_LOG_TRIVIAL(debug) << "  - Building texture...";
-    atlas.toTexture(textures, textureProxies, linear);
+    atlas.toTexture(textures, textureTiles, linear);
 }
 }

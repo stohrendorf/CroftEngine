@@ -215,7 +215,7 @@ struct TextureKey
     }
 };
 
-struct TextureLayoutProxy
+struct TextureTile
 {
     TextureKey textureKey;
 
@@ -230,59 +230,59 @@ struct TextureLayoutProxy
     * some sanity checks get done and if they fail an exception gets thrown.
     * all values introduced in TR4 get set appropriately.
     */
-    static std::unique_ptr<TextureLayoutProxy> readTr1(io::SDLReader& reader)
+    static std::unique_ptr<TextureTile> readTr1(io::SDLReader& reader)
     {
-        std::unique_ptr<TextureLayoutProxy> proxy{new TextureLayoutProxy()};
-        proxy->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
-        proxy->textureKey.tileAndFlag = reader.readU16();
-        if(proxy->textureKey.tileAndFlag > 64)
+        std::unique_ptr<TextureTile> tile{std::make_unique<TextureTile>()};
+        tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
+        tile->textureKey.tileAndFlag = reader.readU16();
+        if(tile->textureKey.tileAndFlag > 64)
             BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
 
-        if((proxy->textureKey.tileAndFlag & (1 << 15)) != 0)
+        if((tile->textureKey.tileAndFlag & (1 << 15)) != 0)
             BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
 
         // only in TR4
-        proxy->textureKey.flags = 0;
-        proxy->uvCoordinates[0] = UVCoordinates::readTr1(reader);
-        proxy->uvCoordinates[1] = UVCoordinates::readTr1(reader);
-        proxy->uvCoordinates[2] = UVCoordinates::readTr1(reader);
-        proxy->uvCoordinates[3] = UVCoordinates::readTr1(reader);
+        tile->textureKey.flags = 0;
+        tile->uvCoordinates[0] = UVCoordinates::readTr1(reader);
+        tile->uvCoordinates[1] = UVCoordinates::readTr1(reader);
+        tile->uvCoordinates[2] = UVCoordinates::readTr1(reader);
+        tile->uvCoordinates[3] = UVCoordinates::readTr1(reader);
         // only in TR4
-        proxy->unknown1 = 0;
-        proxy->unknown2 = 0;
-        proxy->x_size = 0;
-        proxy->y_size = 0;
-        return proxy;
+        tile->unknown1 = 0;
+        tile->unknown2 = 0;
+        tile->x_size = 0;
+        tile->y_size = 0;
+        return tile;
     }
 
-    static std::unique_ptr<TextureLayoutProxy> readTr4(io::SDLReader& reader)
+    static std::unique_ptr<TextureTile> readTr4(io::SDLReader& reader)
     {
-        std::unique_ptr<TextureLayoutProxy> proxy{new TextureLayoutProxy()};
-        proxy->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
-        proxy->textureKey.tileAndFlag = reader.readU16();
-        if((proxy->textureKey.tileAndFlag & 0x7FFF) > 128)
+        std::unique_ptr<TextureTile> tile{std::make_unique<TextureTile>()};
+        tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
+        tile->textureKey.tileAndFlag = reader.readU16();
+        if((tile->textureKey.tileAndFlag & 0x7FFF) > 128)
             BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
 
-        proxy->textureKey.flags = reader.readU16();
-        proxy->uvCoordinates[0] = UVCoordinates::readTr4(reader);
-        proxy->uvCoordinates[1] = UVCoordinates::readTr4(reader);
-        proxy->uvCoordinates[2] = UVCoordinates::readTr4(reader);
-        proxy->uvCoordinates[3] = UVCoordinates::readTr4(reader);
-        proxy->unknown1 = reader.readU32();
-        proxy->unknown2 = reader.readU32();
-        proxy->x_size = reader.readU32();
-        proxy->y_size = reader.readU32();
-        return proxy;
+        tile->textureKey.flags = reader.readU16();
+        tile->uvCoordinates[0] = UVCoordinates::readTr4(reader);
+        tile->uvCoordinates[1] = UVCoordinates::readTr4(reader);
+        tile->uvCoordinates[2] = UVCoordinates::readTr4(reader);
+        tile->uvCoordinates[3] = UVCoordinates::readTr4(reader);
+        tile->unknown1 = reader.readU32();
+        tile->unknown2 = reader.readU32();
+        tile->x_size = reader.readU32();
+        tile->y_size = reader.readU32();
+        return tile;
     }
 
-    static std::unique_ptr<TextureLayoutProxy> readTr5(io::SDLReader& reader)
+    static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader)
     {
-        std::unique_ptr<TextureLayoutProxy> proxy = readTr4(reader);
+        std::unique_ptr<TextureTile> tile = readTr4(reader);
         if(reader.readU16() != 0)
         {
             BOOST_LOG_TRIVIAL(warning) << "TR5 Object Texture: unexpected value at end of structure";
         }
-        return proxy;
+        return tile;
     }
 
     gsl::not_null<std::shared_ptr<render::scene::Material>>

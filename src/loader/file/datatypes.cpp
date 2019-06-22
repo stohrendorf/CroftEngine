@@ -113,18 +113,18 @@ void Room::createSceneNode(
 
     for(const QuadFace& quad : rectangles)
     {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at(quad.proxyId.get());
+        const TextureTile& tile = level.m_textureTiles.at(quad.tileId.get());
 
-        if(texBuffers.find(proxy.textureKey) == texBuffers.end())
+        if(texBuffers.find(tile.textureKey) == texBuffers.end())
         {
-            texBuffers[proxy.textureKey] = renderModel.m_parts.size();
+            texBuffers[tile.textureKey] = renderModel.m_parts.size();
 
             renderModel.m_parts.emplace_back();
 
-            auto it = isWaterRoom() ? waterMaterials.at(proxy.textureKey) : materials.at(proxy.textureKey);
+            auto it = isWaterRoom() ? waterMaterials.at(tile.textureKey) : materials.at(tile.textureKey);
             renderModel.m_parts.back().material = it;
         }
-        const auto partId = texBuffers[proxy.textureKey];
+        const auto partId = texBuffers[tile.textureKey];
 
         const auto firstVertex = vbufData.size();
         for(int i = 0; i < 4; ++i)
@@ -132,7 +132,7 @@ void Room::createSceneNode(
             RenderVertex iv;
             iv.position = quad.vertices[i].from(vertices).position.toRenderSystem();
             iv.color = quad.vertices[i].from(vertices).color;
-            uvCoordsData.push_back(proxy.uvCoordinates[i].toGl());
+            uvCoordsData.push_back(tile.uvCoordinates[i].toGl());
 
             if(i <= 2)
             {
@@ -154,25 +154,25 @@ void Room::createSceneNode(
 
         for(int i : {0, 1, 2, 0, 2, 3})
         {
-            animator.registerVertex(quad.proxyId, uvCoords, i, firstVertex + i);
+            animator.registerVertex(quad.tileId, uvCoords, i, firstVertex + i);
             renderModel.m_parts[partId].indices.emplace_back(
                 gsl::narrow<MeshPart::IndexBuffer::value_type>(firstVertex + i));
         }
     }
     for(const Triangle& tri : triangles)
     {
-        const TextureLayoutProxy& proxy = level.m_textureProxies.at(tri.proxyId.get());
+        const TextureTile& tile = level.m_textureTiles.at(tri.tileId.get());
 
-        if(texBuffers.find(proxy.textureKey) == texBuffers.end())
+        if(texBuffers.find(tile.textureKey) == texBuffers.end())
         {
-            texBuffers[proxy.textureKey] = renderModel.m_parts.size();
+            texBuffers[tile.textureKey] = renderModel.m_parts.size();
 
             renderModel.m_parts.emplace_back();
 
-            auto it = isWaterRoom() ? waterMaterials.at(proxy.textureKey) : materials.at(proxy.textureKey);
+            auto it = isWaterRoom() ? waterMaterials.at(tile.textureKey) : materials.at(tile.textureKey);
             renderModel.m_parts.back().material = it;
         }
-        const auto partId = texBuffers[proxy.textureKey];
+        const auto partId = texBuffers[tile.textureKey];
 
         const auto firstVertex = vbufData.size();
         for(int i = 0; i < 3; ++i)
@@ -180,7 +180,7 @@ void Room::createSceneNode(
             RenderVertex iv;
             iv.position = tri.vertices[i].from(vertices).position.toRenderSystem();
             iv.color = tri.vertices[i].from(vertices).color;
-            uvCoordsData.push_back(proxy.uvCoordinates[i].toGl());
+            uvCoordsData.push_back(tile.uvCoordinates[i].toGl());
 
             static const int indices[3] = {0, 1, 2};
             iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(vertices).position,
@@ -192,7 +192,7 @@ void Room::createSceneNode(
 
         for(int i : {0, 1, 2})
         {
-            animator.registerVertex(tri.proxyId, uvCoords, i, firstVertex + i);
+            animator.registerVertex(tri.tileId, uvCoords, i, firstVertex + i);
             renderModel.m_parts[partId].indices.emplace_back(
                 gsl::narrow<MeshPart::IndexBuffer::value_type>(firstVertex + i));
         }

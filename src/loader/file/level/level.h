@@ -67,7 +67,7 @@ public:
 
     std::map<core::TypeId, std::unique_ptr<SkeletalModelType>> m_animatedModels;
 
-    std::vector<TextureLayoutProxy> m_textureProxies;
+    std::vector<TextureTile> m_textureTiles;
 
     size_t m_animatedTexturesUvCount = 0;
 

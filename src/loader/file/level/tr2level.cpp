@@ -78,7 +78,7 @@ void TR2Level::loadFileData()
 
     m_reader.readVector(m_staticMeshes, m_reader.readU32(), &StaticMesh::read);
 
-    m_reader.readVector(m_textureProxies, m_reader.readU32(), &TextureLayoutProxy::readTr1);
+    m_reader.readVector(m_textureTiles, m_reader.readU32(), &TextureTile::readTr1);
 
     m_reader.readVector(m_sprites, m_reader.readU32(), &Sprite::readTr1);
 

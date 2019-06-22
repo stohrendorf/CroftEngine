@@ -39,31 +39,31 @@ class TextureAnimator
             }
         };
 
-        std::vector<core::TextureProxyId> proxyIds;
+        std::vector<core::TextureTileId> tileIds;
         std::map<std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>, std::set<VertexReference>>
             affectedVertices;
 
         void rotate()
         {
-            BOOST_ASSERT(!proxyIds.empty());
-            auto first = proxyIds.front();
-            proxyIds.erase(proxyIds.begin(), std::next(proxyIds.begin()));
-            proxyIds.emplace_back(first);
+            BOOST_ASSERT(!tileIds.empty());
+            auto first = tileIds.front();
+            tileIds.erase(tileIds.begin(), std::next(tileIds.begin()));
+            tileIds.emplace_back(first);
         }
 
         void registerVertex(const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>& buffer,
                             VertexReference vertex,
-                            const core::TextureProxyId proxyId)
+                            const core::TextureTileId tileId)
         {
-            const auto it = std::find(proxyIds.begin(), proxyIds.end(), proxyId);
-            Expects(it != proxyIds.end());
-            vertex.queueOffset = std::distance(proxyIds.begin(), it);
+            const auto it = std::find(tileIds.begin(), tileIds.end(), tileId);
+            Expects(it != tileIds.end());
+            vertex.queueOffset = std::distance(tileIds.begin(), it);
             affectedVertices[buffer].insert(vertex);
         }
 
-        void updateCoordinates(const std::vector<loader::file::TextureLayoutProxy>& proxies)
+        void updateCoordinates(const std::vector<loader::file::TextureTile>& tiles)
         {
-            BOOST_ASSERT(!proxyIds.empty());
+            BOOST_ASSERT(!tileIds.empty());
 
             for(const auto& partAndVertices : affectedVertices)
             {
@@ -75,10 +75,10 @@ class TextureAnimator
                 for(const VertexReference& vref : vertices)
                 {
                     BOOST_ASSERT(vref.bufferIndex < buffer->size());
-                    BOOST_ASSERT(vref.queueOffset < proxyIds.size());
-                    const loader::file::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset].get()];
+                    BOOST_ASSERT(vref.queueOffset < tileIds.size());
+                    const loader::file::TextureTile& tile = tiles[tileIds[vref.queueOffset].get()];
 
-                    uvArray[vref.bufferIndex] = proxy.uvCoordinates[vref.sourceIndex].toGl();
+                    uvArray[vref.bufferIndex] = tile.uvCoordinates[vref.sourceIndex].toGl();
                 }
 
                 buffer->unmap();
@@ -87,32 +87,32 @@ class TextureAnimator
     };
 
     std::vector<Sequence> m_sequences;
-    std::map<core::TextureProxyId, size_t> m_sequenceByProxyId;
+    std::map<core::TextureTileId, size_t> m_sequenceByTileId;
 
 public:
     explicit TextureAnimator(const std::vector<uint16_t>& data,
-                             std::vector<loader::file::TextureLayoutProxy>& textureProxies,
+                             std::vector<loader::file::TextureTile>& textureTiles,
                              std::vector<loader::file::DWordTexture>& textures,
                              bool linear);
 
-    void registerVertex(const core::TextureProxyId proxyId,
+    void registerVertex(const core::TextureTileId tileId,
                         const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>& buffer,
                         const int sourceIndex,
                         const size_t bufferIndex)
     {
-        if(m_sequenceByProxyId.find(proxyId) == m_sequenceByProxyId.end())
+        if(m_sequenceByTileId.find(tileId) == m_sequenceByTileId.end())
             return;
 
-        const size_t sequenceId = m_sequenceByProxyId[proxyId];
-        m_sequences.at(sequenceId).registerVertex(buffer, Sequence::VertexReference(bufferIndex, sourceIndex), proxyId);
+        const size_t sequenceId = m_sequenceByTileId[tileId];
+        m_sequences.at(sequenceId).registerVertex(buffer, Sequence::VertexReference(bufferIndex, sourceIndex), tileId);
     }
 
-    void updateCoordinates(const std::vector<loader::file::TextureLayoutProxy>& proxies)
+    void updateCoordinates(const std::vector<loader::file::TextureTile>& tiles)
     {
         for(Sequence& sequence : m_sequences)
         {
             sequence.rotate();
-            sequence.updateCoordinates(proxies);
+            sequence.updateCoordinates(tiles);
         }
     }
 };

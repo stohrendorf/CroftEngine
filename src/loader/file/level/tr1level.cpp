@@ -89,8 +89,8 @@ void TR1Level::loadFileData()
     BOOST_LOG_TRIVIAL(debug) << "Reading static meshes";
     m_reader.readVector(m_staticMeshes, m_reader.readU32(), &StaticMesh::read);
 
-    BOOST_LOG_TRIVIAL(debug) << "Reading texture proxies";
-    m_reader.readVector(m_textureProxies, m_reader.readU32(), TextureLayoutProxy::readTr1);
+    BOOST_LOG_TRIVIAL(debug) << "Reading texture tiles";
+    m_reader.readVector(m_textureTiles, m_reader.readU32(), TextureTile::readTr1);
 
     BOOST_LOG_TRIVIAL(debug) << "Reading sprite textures";
     m_reader.readVector(m_sprites, m_reader.readU32(), &Sprite::readTr1);

@@ -16,7 +16,7 @@ struct Triangle
 {
     //! Vertex buffer indices
     VertexIndex vertices[3];
-    core::TextureProxyId proxyId{uint16_t(0)}; /**< \brief object-texture index or color index.
+    core::TextureTileId tileId{uint16_t(0)}; /**< \brief object-texture index or color index.
                              * If the triangle is textured, then this is an index into the object-texture list.
                              * If it's not textured, then the low 8 bit contain the index into the 256 color palette
                              * and from TR2 on the high 8 bit contain the index into the 16 bit palette.
@@ -43,7 +43,7 @@ private:
         triangle.vertices[0] = reader.readU16();
         triangle.vertices[1] = reader.readU16();
         triangle.vertices[2] = reader.readU16();
-        triangle.proxyId = reader.readU16();
+        triangle.tileId = reader.readU16();
         if(withLighting)
             triangle.lighting = reader.readU16();
         else
@@ -56,7 +56,7 @@ struct QuadFace
 {
     //! Vertex buffer indices
     VertexIndex vertices[4];
-    core::TextureProxyId proxyId{uint16_t(0)}; /**< \brief object-texture index or color index.
+    core::TextureTileId tileId{uint16_t(0)}; /**< \brief object-texture index or color index.
                              * If the rectangle is textured, then this is an index into the object-texture list.
                              * If it's not textured, then the low 8 bit contain the index into the 256 color palette
                              * and from TR2 on the high 8 bit contain the index into the 16 bit palette.
@@ -86,7 +86,7 @@ private:
         quadFace.vertices[1] = reader.readU16();
         quadFace.vertices[2] = reader.readU16();
         quadFace.vertices[3] = reader.readU16();
-        quadFace.proxyId = reader.readU16();
+        quadFace.tileId = reader.readU16();
         if(withLighting)
             quadFace.lighting = reader.readU16();
         else

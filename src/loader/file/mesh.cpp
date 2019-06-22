@@ -17,13 +17,13 @@ namespace file
 {
 Mesh::ModelBuilder::ModelBuilder(
     const bool withNormals,
-    const std::vector<TextureLayoutProxy>& textureProxies,
+    const std::vector<TextureTile>& textureTiles,
     const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
     gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
     const Palette& palette,
     std::string label)
     : m_hasNormals{withNormals}
-    , m_textureProxies{textureProxies}
+    , m_textureTiles{textureTiles}
     , m_materials{materials}
     , m_colorMaterial{std::move(colorMaterial)}
     , m_palette{palette}
@@ -48,8 +48,8 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
 
     for(const QuadFace& quad : mesh.textured_rectangles)
     {
-        const TextureLayoutProxy& proxy = m_textureProxies.at(quad.proxyId.get());
-        const auto partId = getPartForTexture(proxy);
+        const TextureTile& tile = m_textureTiles.at(quad.tileId.get());
+        const auto partId = getPartForTexture(tile);
 
         glm::vec3 defaultNormal{0.0f};
         if(m_hasNormals)
@@ -96,7 +96,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             }
 
             iv.position = quad.vertices[i].from(mesh.vertices).toRenderSystem();
-            iv.uv = proxy.uvCoordinates[i].toGl();
+            iv.uv = tile.uvCoordinates[i].toGl();
             append(iv);
         }
 
@@ -107,8 +107,8 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
     }
     for(const QuadFace& quad : mesh.colored_rectangles)
     {
-        const TextureLayoutProxy& proxy = m_textureProxies.at(quad.proxyId.get());
-        const auto partId = getPartForColor(quad.proxyId);
+        const TextureTile& tile = m_textureTiles.at(quad.tileId.get());
+        const auto partId = getPartForColor(quad.tileId);
         const auto color = *m_parts[partId].color;
 
         glm::vec3 defaultNormal{0.0f};
@@ -155,7 +155,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 if(iv.normal == glm::vec3{0.0f})
                     iv.normal = defaultNormal;
             }
-            iv.uv = proxy.uvCoordinates[i].toGl();
+            iv.uv = tile.uvCoordinates[i].toGl();
             append(iv);
         }
         for(auto i : {0, 1, 2, 0, 2, 3})
@@ -165,8 +165,8 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
     }
     for(const Triangle& tri : mesh.textured_triangles)
     {
-        const TextureLayoutProxy& proxy = m_textureProxies.at(tri.proxyId.get());
-        const auto partId = getPartForTexture(proxy);
+        const TextureTile& tile = m_textureTiles.at(tri.tileId.get());
+        const auto partId = getPartForTexture(tile);
 
         glm::vec3 defaultNormal{0.0f};
         if(m_hasNormals)
@@ -186,7 +186,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
         {
             RenderVertex iv{};
             iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
-            iv.uv = proxy.uvCoordinates[i].toGl();
+            iv.uv = tile.uvCoordinates[i].toGl();
             if(!m_hasNormals)
             {
                 iv.color = glm::vec3(1 - tri.vertices[i].from(mesh.vertexDarknesses) / 8191.0f);
@@ -208,8 +208,8 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
     }
     for(const Triangle& tri : mesh.colored_triangles)
     {
-        const TextureLayoutProxy& proxy = m_textureProxies.at(tri.proxyId.get());
-        const auto partId = getPartForColor(tri.proxyId);
+        const TextureTile& tile = m_textureTiles.at(tri.tileId.get());
+        const auto partId = getPartForColor(tri.tileId);
         const auto color = *m_parts[partId].color;
 
         glm::vec3 defaultNormal{0.0f};
@@ -246,7 +246,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 if(iv.normal == glm::vec3{0.0f})
                     iv.normal = defaultNormal;
             }
-            iv.uv = proxy.uvCoordinates[i].toGl();
+            iv.uv = tile.uvCoordinates[i].toGl();
             m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(m_vertices.size()));
             append(iv);
         }
@@ -283,13 +283,13 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finaliz
 }
 
 std::shared_ptr<render::scene::Model>
-    Mesh::createModel(const std::vector<TextureLayoutProxy>& textureProxies,
+    Mesh::createModel(const std::vector<TextureTile>& textureTiles,
                       const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
                       const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
                       const Palette& palette,
                       const std::string& label) const
 {
-    ModelBuilder mb{!normals.empty(), textureProxies, materials, colorMaterial, palette, label};
+    ModelBuilder mb{!normals.empty(), textureTiles, materials, colorMaterial, palette, label};
 
     mb.append(*this);
 
