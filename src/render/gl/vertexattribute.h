@@ -6,44 +6,35 @@ namespace render
 {
 namespace gl
 {
+template<typename VertexT>
 class VertexAttribute
 {
 public:
-    template<typename T>
-    struct SingleAttribute
+    struct Single
     {
-        T attribute;
     };
 
-    template<typename T, typename U>
-    explicit VertexAttribute(const U T::*member, const bool normalized = false)
+    template<typename U>
+    VertexAttribute(const U VertexT::*member, const bool normalized = false)
         : m_type{TypeTraits<U>::VertexAttribPointerType}
-        , m_pointer{&(static_cast<T*>(nullptr)->*member)}
+        , m_pointer{&(static_cast<VertexT*>(nullptr)->*member)}
         , m_size{TypeTraits<U>::ElementCount}
         , m_normalized{normalized}
-        , m_stride{sizeof(T)}
     {
     }
 
-    template<typename U>
-    explicit VertexAttribute(const SingleAttribute<U>&, const bool normalized = false)
-        : m_type{TypeTraits<U>::VertexAttribPointerType}
+    VertexAttribute(const Single&, const bool normalized = false)
+        : m_type{TypeTraits<VertexT>::VertexAttribPointerType}
         , m_pointer{nullptr}
-        , m_size{TypeTraits<U>::ElementCount}
+        , m_size{TypeTraits<VertexT>::ElementCount}
         , m_normalized{normalized}
-        , m_stride{sizeof(U)}
     {
     }
 
     void bind(const uint32_t index) const
     {
-        GL_ASSERT(::gl::vertexAttribPointer( index, m_size, m_type, m_normalized, m_stride, m_pointer));
+        GL_ASSERT(::gl::vertexAttribPointer(index, m_size, m_type, m_normalized, sizeof(VertexT), m_pointer));
         GL_ASSERT(::gl::enableVertexAttribArray(index));
-    }
-
-    auto getStride() const noexcept
-    {
-        return m_stride;
     }
 
     std::uintptr_t getOffset() const noexcept
@@ -59,8 +50,6 @@ private:
     const int32_t m_size;
 
     const bool m_normalized;
-
-    const ::gl::core::SizeType m_stride;
 };
 } // namespace gl
 } // namespace render

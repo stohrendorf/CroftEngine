@@ -87,19 +87,18 @@ struct Portal
         for(size_t i = 0; i < 4; ++i)
             glVertices[i].pos = vertices[i].toRenderSystem();
 
-        render::gl::StructuredVertexBuffer::AttributeMapping layout{
-            {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{&Vertex::pos}}};
-        auto vb = std::make_shared<render::gl::StructuredVertexBuffer>(layout, false);
-        vb->assign<Vertex>(&glVertices[0], 4);
+        render::gl::VertexAttributeMapping<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
+        auto vb = std::make_shared<render::gl::StructuredArrayBuffer<Vertex>>(layout);
+        vb->setData(&glVertices[0], 4, ::gl::BufferUsageARB::StaticDraw);
 
         static const uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
 
-        auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
-        indexBuffer->setData(gsl::not_null<const uint16_t*>(&indices[0]), 6, false);
+        auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
+        indexBuffer->setData(&indices[0], 6, ::gl::BufferUsageARB::StaticDraw);
 
-        auto vao
-            = std::make_shared<render::gl::VertexArray>(indexBuffer, vb, material->getShaderProgram()->getHandle());
-        mesh = std::make_shared<render::scene::Mesh>(vao);
+        auto vao = std::make_shared<render::gl::VertexArray<uint16_t, Vertex>>(
+            indexBuffer, vb, material->getShaderProgram()->getHandle());
+        mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
         mesh->setMaterial(material);
     }
 };

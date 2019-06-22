@@ -16,8 +16,10 @@ class Mesh : public Renderable
 public:
     using MaterialParameterSetter = void(const Node& node, Material& material);
 
-    explicit Mesh(std::shared_ptr<gl::VertexArray> vao,
-                  ::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles);
+    explicit Mesh(::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
+        : m_primitiveType{primitiveType}
+    {
+    }
 
     ~Mesh() override;
 
@@ -39,16 +41,11 @@ public:
         return m_material;
     }
 
-    void render(RenderContext& context) override;
+    void render(RenderContext& context) final;
 
     void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
     {
         m_materialParameterSetters.emplace_back(setter);
-    }
-
-    const auto& getVAO() const
-    {
-        return m_vao;
     }
 
 private:
@@ -56,9 +53,54 @@ private:
 
     std::vector<std::function<MaterialParameterSetter>> m_materialParameterSetters;
 
-    gsl::not_null<std::shared_ptr<gl::VertexArray>> m_vao;
-
     const ::gl::PrimitiveType m_primitiveType;
+
+    virtual void drawIndexBuffers(::gl::PrimitiveType primitiveType) = 0;
+};
+
+template<typename IndexT, typename... VertexTs>
+class MeshImpl : public Mesh
+{
+public:
+    using MaterialParameterSetter = void(const Node& node, Material& material);
+
+    explicit MeshImpl(std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vao,
+                      ::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
+        : Mesh{primitiveType}
+        , m_vao{std::move(vao)}
+    {
+    }
+
+    ~MeshImpl() = default;
+
+    MeshImpl(const MeshImpl&) = delete;
+
+    MeshImpl(MeshImpl&&) = delete;
+
+    MeshImpl& operator=(MeshImpl&&) = delete;
+
+    MeshImpl& operator=(const MeshImpl&) = delete;
+
+    const auto& getVAO() const
+    {
+        return m_vao;
+    }
+
+private:
+    gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> m_vao;
+
+    void drawIndexBuffers(::gl::PrimitiveType primitiveType) override
+    {
+        m_vao->bind();
+
+        for(const auto& buffer : m_vao->getIndexBuffers())
+        {
+            GL_ASSERT(
+                ::gl::drawElements(primitiveType, buffer->size(), gl::TypeTraits<IndexT>::DrawElementsType, nullptr));
+        }
+
+        m_vao->unbind();
+    }
 };
 
 extern gsl::not_null<std::shared_ptr<Mesh>>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "loader/file/texture.h"
-#include "render/gl/structuredvertexbuffer.h"
+#include "render/gl/structuredarraybuffer.h"
 
 #include <boost/assert.hpp>
 #include <map>
@@ -40,7 +40,8 @@ class TextureAnimator
         };
 
         std::vector<core::TextureProxyId> proxyIds;
-        std::map<std::shared_ptr<render::gl::StructuredVertexBuffer>, std::set<VertexReference>> affectedVertices;
+        std::map<std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>, std::set<VertexReference>>
+            affectedVertices;
 
         void rotate()
         {
@@ -50,7 +51,7 @@ class TextureAnimator
             proxyIds.emplace_back(first);
         }
 
-        void registerVertex(const std::shared_ptr<render::gl::StructuredVertexBuffer>& buffer,
+        void registerVertex(const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>& buffer,
                             VertexReference vertex,
                             const core::TextureProxyId proxyId)
         {
@@ -66,21 +67,21 @@ class TextureAnimator
 
             for(const auto& partAndVertices : affectedVertices)
             {
-                const std::shared_ptr<render::gl::StructuredVertexBuffer>& buffer = partAndVertices.first;
-                auto* uvArray = buffer->mapTypedRw<glm::vec2>();
+                const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>& buffer = partAndVertices.first;
+                auto* uvArray = buffer->map(::gl::BufferAccessARB::ReadWrite);
 
                 const std::set<VertexReference>& vertices = partAndVertices.second;
 
                 for(const VertexReference& vref : vertices)
                 {
-                    BOOST_ASSERT(vref.bufferIndex < buffer->getVertexCount());
+                    BOOST_ASSERT(vref.bufferIndex < buffer->size());
                     BOOST_ASSERT(vref.queueOffset < proxyIds.size());
                     const loader::file::TextureLayoutProxy& proxy = proxies[proxyIds[vref.queueOffset].get()];
 
                     uvArray[vref.bufferIndex] = proxy.uvCoordinates[vref.sourceIndex].toGl();
                 }
 
-                render::gl::VertexBuffer::unmap();
+                buffer->unmap();
             }
         }
     };
@@ -95,7 +96,7 @@ public:
                              bool linear);
 
     void registerVertex(const core::TextureProxyId proxyId,
-                        const std::shared_ptr<render::gl::StructuredVertexBuffer>& buffer,
+                        const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>& buffer,
                         const int sourceIndex,
                         const size_t bufferIndex)
     {

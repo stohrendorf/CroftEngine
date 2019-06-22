@@ -28,12 +28,12 @@ struct RenderVertex
     glm::vec4 color{1.0f};
     glm::vec3 normal{0.0f};
 
-    static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
+    static const render::gl::VertexAttributeMapping<RenderVertex>& getFormat()
     {
-        static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{&RenderVertex::position}},
-            {VERTEX_ATTRIBUTE_NORMAL_NAME, render::gl::VertexAttribute{&RenderVertex::normal}},
-            {VERTEX_ATTRIBUTE_COLOR_NAME, render::gl::VertexAttribute{&RenderVertex::color}}};
+        static const render::gl::VertexAttributeMapping<RenderVertex> attribs{
+            {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
+            {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
+            {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color}};
 
         return attribs;
     }
@@ -55,8 +55,8 @@ struct RenderModel
     std::vector<MeshPart> m_parts;
 
     std::shared_ptr<render::scene::Model>
-        toModel(const gsl::not_null<std::shared_ptr<render::gl::StructuredVertexBuffer>>& vbuf,
-                const gsl::not_null<std::shared_ptr<render::gl::StructuredVertexBuffer>>& uvBuf)
+        toModel(const gsl::not_null<std::shared_ptr<render::gl::StructuredArrayBuffer<RenderVertex>>>& vbuf,
+                const gsl::not_null<std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>>& uvBuf)
     {
         auto model = std::make_shared<render::scene::Model>();
 
@@ -65,18 +65,20 @@ struct RenderModel
 #ifndef NDEBUG
             for(auto idx : localPart.indices)
             {
-                BOOST_ASSERT(idx < vbuf->getVertexCount());
+                BOOST_ASSERT(idx < vbuf->size());
             }
 #endif
 
-            auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
-            indexBuffer->setData(localPart.indices, true);
+            auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
+            indexBuffer->setData(localPart.indices, ::gl::BufferUsageARB::StaticDraw);
 
-            std::vector<gsl::not_null<std::shared_ptr<render::gl::IndexBuffer>>> indexBufs{indexBuffer};
-            std::vector<gsl::not_null<std::shared_ptr<render::gl::StructuredVertexBuffer>>> vBufs{vbuf, uvBuf};
+            std::vector<gsl::not_null<std::shared_ptr<render::gl::ElementArrayBuffer<uint16_t>>>> indexBufs{
+                indexBuffer};
+            auto vBufs = std::make_tuple(vbuf, uvBuf);
 
-            auto mesh = std::make_shared<render::scene::Mesh>(std::make_shared<render::gl::VertexArray>(
-                indexBufs, vBufs, localPart.material->getShaderProgram()->getHandle()));
+            auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex, glm::vec2>>(
+                std::make_shared<render::gl::VertexArray<uint16_t, RenderVertex, glm::vec2>>(
+                    indexBufs, vBufs, localPart.material->getShaderProgram()->getHandle()));
             mesh->setMaterial(localPart.material);
             model->addMesh(mesh);
         }
@@ -102,12 +104,12 @@ void Room::createSceneNode(
     std::vector<glm::vec2> uvCoordsData;
 
     const auto label = "Room:" + std::to_string(roomId);
-    auto vbuf = std::make_shared<render::gl::StructuredVertexBuffer>(RenderVertex::getFormat(), false, label);
+    auto vbuf
+        = std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
 
-    static const render::gl::StructuredVertexBuffer::AttributeMapping uvAttribs{
-        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME,
-         render::gl::VertexAttribute{render::gl::VertexAttribute::SingleAttribute<glm::vec2>{}}}};
-    auto uvCoords = std::make_shared<render::gl::StructuredVertexBuffer>(uvAttribs, true, label + "-uv");
+    static const render::gl::VertexAttributeMapping<glm::vec2> uvAttribs{
+        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute<glm::vec2>::Single{}}};
+    auto uvCoords = std::make_shared<render::gl::StructuredArrayBuffer<glm::vec2>>(uvAttribs, label + "-uv");
 
     for(const QuadFace& quad : rectangles)
     {
@@ -196,9 +198,8 @@ void Room::createSceneNode(
         }
     }
 
-    vbuf->assign(vbufData);
-
-    uvCoords->assign(uvCoordsData);
+    vbuf->setData(vbufData, ::gl::BufferUsageARB::StaticDraw);
+    uvCoords->setData(uvCoordsData, ::gl::BufferUsageARB::DynamicDraw);
 
     auto resModel = renderModel.toModel(vbuf, uvCoords);
     resModel->getRenderState().setCullFace(true);

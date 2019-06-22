@@ -2,7 +2,7 @@
 
 #include "engine/heightinfo.h"
 #include "engine/laranode.h"
-#include "render/gl/indexbuffer.h"
+#include "render/gl/elementarraybuffer.h"
 #include "render/gl/vertexarray.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
@@ -16,26 +16,26 @@ namespace
 gsl::not_null<std::shared_ptr<render::scene::Mesh>>
     createBolt(uint16_t points,
                const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& program,
-               float lineWidth)
+               float lineWidth,
+               std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>>& vb)
 {
     std::vector<glm::vec3> vertices(points);
 
-    static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
-        {VERTEX_ATTRIBUTE_POSITION_NAME,
-         render::gl::VertexAttribute{render::gl::VertexAttribute::SingleAttribute<glm::vec3>{}}}};
+    static const render::gl::VertexAttributeMapping<glm::vec3> attribs{
+        {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute<glm::vec3>::Single{}}};
 
     std::vector<uint16_t> indices;
     for(uint16_t i = 0; i < points; ++i)
         indices.emplace_back(i);
 
-    auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
-    indexBuffer->setData(indices, false);
+    auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
+    indexBuffer->setData(indices, ::gl::BufferUsageARB::StaticDraw);
 
-    auto vb = std::make_shared<render::gl::StructuredVertexBuffer>(attribs, true);
-    vb->assign<glm::vec3>(&vertices[0], points);
+    vb = std::make_shared<render::gl::StructuredArrayBuffer<glm::vec3>>(attribs);
+    vb->setData(&vertices[0], points, ::gl::BufferUsageARB::DynamicDraw);
 
-    auto vao = std::make_shared<render::gl::VertexArray>(indexBuffer, vb, program->getHandle());
-    auto mesh = std::make_shared<render::scene::Mesh>(vao, ::gl::PrimitiveType::LineStrip);
+    auto vao = std::make_shared<render::gl::VertexArray<uint16_t, glm::vec3>>(indexBuffer, vb, program->getHandle());
+    auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, ::gl::PrimitiveType::LineStrip);
 
     mesh->getRenderState().setLineSmooth(true);
     mesh->getRenderState().setLineWidth(lineWidth);
@@ -51,14 +51,17 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
 
 using Bolt = std::array<core::TRVec, LightningBall::SegmentPoints>;
 
-Bolt updateBolt(core::TRVec start, const core::TRVec& end, const render::scene::Mesh& mesh)
+Bolt updateBolt(core::TRVec start,
+                const core::TRVec& end,
+                const render::scene::Mesh& mesh,
+                const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>>& vb)
 {
     const auto segmentSize = (end - start) / LightningBall::SegmentPoints;
 
     Bolt bolt;
 
-    BOOST_ASSERT(mesh.getVAO()->getVertexBuffers()[0]->getVertexCount() == LightningBall::SegmentPoints);
-    auto boltData = mesh.getVAO()->getVertexBuffers()[0]->mapTypedRw<glm::vec3>();
+    BOOST_ASSERT(vb->size() == LightningBall::SegmentPoints);
+    auto boltData = vb->map(::gl::BufferAccessARB::WriteOnly);
     for(size_t j = 0; j < LightningBall::SegmentPoints; j++)
     {
         core::TRVec buckling{util::rand15s(core::QuarterSectorSize),
@@ -72,7 +75,7 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const render::scene::
         boltData[j] = bolt[j].toRenderSystem();
         start += segmentSize;
     }
-    mesh.getVAO()->getVertexBuffers()[0]->unmap();
+    vb->unmap();
 
     return bolt;
 }
@@ -96,14 +99,14 @@ LightningBall::LightningBall(const gsl::not_null<Engine*>& engine,
         getSkeleton()->getChildren()[i]->setVisible(false);
     }
 
-    m_mainBoltMesh = createBolt(SegmentPoints, boltProgram, 10);
+    m_mainBoltMesh = createBolt(SegmentPoints, boltProgram, 10, m_mainVb);
     auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
     node->setDrawable(m_mainBoltMesh);
     addChild(getSkeleton(), node);
 
     for(auto& childBolt : m_childBolts)
     {
-        childBolt.mesh = createBolt(SegmentPoints, boltProgram, 3);
+        childBolt.mesh = createBolt(SegmentPoints, boltProgram, 3, childBolt.vb);
 
         node = std::make_shared<render::scene::Node>("lightning-bolt-child");
         node->setDrawable(childBolt.mesh);
@@ -226,11 +229,11 @@ void LightningBall::prepareRender()
     const auto segmentStart = core::TRVec{
         glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f))};
 
-    const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd, *m_mainBoltMesh);
+    const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd, *m_mainBoltMesh, m_mainVb);
 
     for(const auto& childBolt : m_childBolts)
     {
-        updateBolt(mainBolt[childBolt.startIndex], childBolt.end, *childBolt.mesh);
+        updateBolt(mainBolt[childBolt.startIndex], childBolt.end, *childBolt.mesh, childBolt.vb);
     }
 }
 

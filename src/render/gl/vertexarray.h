@@ -1,10 +1,11 @@
 #pragma once
 
 #include "bindableresource.h"
-#include "indexbuffer.h"
+#include "elementarraybuffer.h"
 #include "program.h"
-#include "structuredvertexbuffer.h"
+#include "structuredarraybuffer.h"
 
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -12,11 +13,28 @@ namespace render
 {
 namespace gl
 {
+namespace detail
+{
+template<std::size_t I = 0, typename... Ts>
+inline typename std::enable_if<I == sizeof...(Ts), void>::type bindAll(std::tuple<Ts...>&, const Program& program)
+{
+}
+
+template<std::size_t I = 0, typename... Ts>
+inline typename std::enable_if<(I < sizeof...(Ts)), void>::type bindAll(std::tuple<Ts...>& t, const Program& program)
+{
+    std::get<I>(t)->bind(program);
+    bindAll<I + 1, Ts...>(t, program);
+}
+} // namespace detail
+
+template<typename IndexT, typename VertexT0, typename... VertexTs>
 class VertexArray : public BindableResource
 {
 public:
-    explicit VertexArray(std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>> indexBuffers,
-                         std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> vertexBuffers,
+    explicit VertexArray(std::vector<gsl::not_null<std::shared_ptr<ElementArrayBuffer<IndexT>>>> indexBuffers,
+                         std::tuple<gsl::not_null<std::shared_ptr<StructuredArrayBuffer<VertexT0>>>,
+                                    gsl::not_null<std::shared_ptr<StructuredArrayBuffer<VertexTs>>>...> vertexBuffers,
                          const Program& program,
                          const std::string& label = {})
         : BindableResource{::gl::genVertexArrays,
@@ -30,36 +48,37 @@ public:
         bind();
         for(const auto& buffer : m_indexBuffers)
             buffer->bind();
-        for(const auto& buffer : m_vertexBuffers)
-            buffer->bind(program);
+        detail::bindAll(m_vertexBuffers, program);
         unbind();
     }
 
-    explicit VertexArray(const gsl::not_null<std::shared_ptr<IndexBuffer>>& indexBuffer,
-                         const gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>& vertexBuffer,
+    explicit VertexArray(const gsl::not_null<std::shared_ptr<ElementArrayBuffer<IndexT>>>& indexBuffer,
+                         const gsl::not_null<std::shared_ptr<StructuredArrayBuffer<VertexT0>>>& vertexBuffer,
                          const Program& program,
                          const std::string& label = {})
-        : VertexArray{std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>{indexBuffer},
-                      std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>>{vertexBuffer},
+        : VertexArray{std::vector<gsl::not_null<std::shared_ptr<ElementArrayBuffer<IndexT>>>>{indexBuffer},
+                      std::tuple<gsl::not_null<std::shared_ptr<StructuredArrayBuffer<VertexT0>>>>{vertexBuffer},
                       program,
                       label}
     {
     }
 
-    const std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>>& getIndexBuffers() const
+    const auto& getIndexBuffers() const
     {
         return m_indexBuffers;
     }
 
-    const std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>>& getVertexBuffers() const
+    const auto& getVertexBuffers() const
     {
         return m_vertexBuffers;
     }
 
 private:
-    std::vector<gsl::not_null<std::shared_ptr<IndexBuffer>>> m_indexBuffers;
+    std::vector<gsl::not_null<std::shared_ptr<ElementArrayBuffer<IndexT>>>> m_indexBuffers;
 
-    std::vector<gsl::not_null<std::shared_ptr<StructuredVertexBuffer>>> m_vertexBuffers;
+    std::tuple<gsl::not_null<std::shared_ptr<StructuredArrayBuffer<VertexT0>>>,
+               gsl::not_null<std::shared_ptr<StructuredArrayBuffer<VertexTs>>>...>
+        m_vertexBuffers;
 };
 } // namespace gl
 } // namespace render

@@ -5,6 +5,7 @@
 #include "io/util.h"
 #include "primitives.h"
 #include "render/scene/mesh.h"
+#include "render/scene/names.h"
 #include "texture.h"
 
 #include <vector>
@@ -97,17 +98,33 @@ struct Mesh
 
     class ModelBuilder
     {
-        struct RenderVertex;
+        struct RenderVertex
+        {
+            glm::vec3 position;
+            glm::vec3 normal;
+            glm::vec3 color{1.0f};
+            glm::vec2 uv;
+
+            static const render::gl::VertexAttributeMapping<RenderVertex>& getFormat()
+            {
+                static const render::gl::VertexAttributeMapping<RenderVertex> attribs{
+                    {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
+                    {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
+                    {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
+                    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv}};
+
+                return attribs;
+            }
+        };
 
         const bool m_hasNormals;
-        std::vector<float> m_vbuf;
+        std::vector<RenderVertex> m_vertices;
         const std::vector<TextureLayoutProxy>& m_textureProxies;
         const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& m_materials;
         const gsl::not_null<std::shared_ptr<render::scene::Material>> m_colorMaterial;
         const Palette& m_palette;
         std::map<TextureKey, size_t> m_texBuffers;
-        size_t m_vertexCount = 0;
-        std::shared_ptr<render::gl::StructuredVertexBuffer> m_vb;
+        std::shared_ptr<render::gl::StructuredArrayBuffer<RenderVertex>> m_vb;
         const std::string m_label;
 
         struct MeshPart
@@ -157,12 +174,11 @@ struct Mesh
     public:
         explicit ModelBuilder(
             bool withNormals,
-            bool dynamic,
             const std::vector<TextureLayoutProxy>& textureProxies,
             const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
             gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
             const Palette& palette,
-            const std::string& label = {});
+            std::string label = {});
 
         ~ModelBuilder();
 

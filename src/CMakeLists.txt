@@ -210,19 +210,19 @@ set( EDISONENGINE_SRCS
      render/gl/program.h
      render/gl/bindableresource.h
      render/gl/framebuffer.h
-     render/gl/indexbuffer.h
+     render/gl/elementarraybuffer.h
      render/gl/pixel.h
      render/gl/renderbuffer.h
      render/gl/rendertarget.h
      render/gl/texture.h
      render/gl/typetraits.h
      render/gl/vertexarray.h
-     render/gl/vertexbuffer.h
+     render/gl/arraybuffer.h
      render/gl/debuggroup.h
      render/gl/font.cpp
      render/gl/font.h
      render/gl/image.h
-     render/gl/structuredvertexbuffer.h
+     render/gl/structuredarraybuffer.h
      render/gl/vertexattribute.h
      render/gl/renderstate.cpp
      render/gl/glew.cpp

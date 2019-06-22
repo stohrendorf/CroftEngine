@@ -4,7 +4,6 @@
 #include "Node.h"
 #include "mesh.h"
 #include "names.h"
-#include "render/gl/indexbuffer.h"
 #include "render/gl/vertexarray.h"
 
 namespace render
@@ -34,20 +33,20 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
                                   {{x1, y1, 0}, {t1.x, t1.y}},
                                   {{x0, y1, 0}, {t0.x, t1.y}}};
 
-    gl::StructuredVertexBuffer::AttributeMapping layout{
-        {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute{&SpriteVertex::pos}},
-        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&SpriteVertex::uv}},
-        {VERTEX_ATTRIBUTE_COLOR_NAME, gl::VertexAttribute{&SpriteVertex::color}}};
-    auto vb = std::make_shared<render::gl::StructuredVertexBuffer>(layout, false);
-    vb->assign<SpriteVertex>(&vertices[0], 4);
+    gl::VertexAttributeMapping<SpriteVertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &SpriteVertex::pos},
+                                                    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},
+                                                    {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color}};
+    auto vb = std::make_shared<render::gl::StructuredArrayBuffer<SpriteVertex>>(layout);
+    vb->setData(&vertices[0], 4, ::gl::BufferUsageARB::StaticDraw);
 
     static const uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
 
-    auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
-    indexBuffer->setData(gsl::not_null<const uint16_t*>(&indices[0]), 6, false);
+    auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
+    indexBuffer->setData(gsl::not_null<const uint16_t*>(&indices[0]), 6, ::gl::BufferUsageARB::StaticDraw);
 
-    auto vao = std::make_shared<render::gl::VertexArray>(indexBuffer, vb, material->getShaderProgram()->getHandle());
-    auto mesh = std::make_shared<Mesh>(vao);
+    auto vao = std::make_shared<render::gl::VertexArray<uint16_t, SpriteVertex>>(
+        indexBuffer, vb, material->getShaderProgram()->getHandle());
+    auto mesh = std::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
     mesh->setMaterial(material);
 
     mesh->registerMaterialParameterSetter([pole](const Node& node, Material& material) {

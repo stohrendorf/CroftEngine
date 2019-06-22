@@ -15,44 +15,20 @@ namespace loader
 {
 namespace file
 {
-#pragma pack(push, 1)
-
-struct Mesh::ModelBuilder::RenderVertex
-{
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec3 color{1.0f};
-    glm::vec2 uv;
-
-    static const render::gl::StructuredVertexBuffer::AttributeMapping& getFormat()
-    {
-        static const render::gl::StructuredVertexBuffer::AttributeMapping attribs{
-            {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute{&RenderVertex::position}},
-            {VERTEX_ATTRIBUTE_NORMAL_NAME, render::gl::VertexAttribute{&RenderVertex::normal}},
-            {VERTEX_ATTRIBUTE_COLOR_NAME, render::gl::VertexAttribute{&RenderVertex::color}},
-            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute{&RenderVertex::uv}}};
-
-        return attribs;
-    }
-};
-
-#pragma pack(pop)
-
 Mesh::ModelBuilder::ModelBuilder(
     const bool withNormals,
-    bool dynamic,
     const std::vector<TextureLayoutProxy>& textureProxies,
     const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
     gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
     const Palette& palette,
-    const std::string& label)
+    std::string label)
     : m_hasNormals{withNormals}
     , m_textureProxies{textureProxies}
     , m_materials{materials}
     , m_colorMaterial{std::move(colorMaterial)}
     , m_palette{palette}
-    , m_vb{std::make_shared<render::gl::StructuredVertexBuffer>(RenderVertex::getFormat(), dynamic, label)}
-    , m_label{label}
+    , m_vb{std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getFormat(), label)}
+    , m_label{std::move(label)}
 {
 }
 
@@ -60,12 +36,7 @@ Mesh::ModelBuilder::~ModelBuilder() = default;
 
 void Mesh::ModelBuilder::append(const RenderVertex& v)
 {
-    BOOST_ASSERT(sizeof(RenderVertex) == m_vb->getVertexSize());
-
-    const auto* data = reinterpret_cast<const float*>(&v);
-    const auto n = m_vb->getVertexSize() / sizeof(float);
-    std::copy_n(data, n, std::back_inserter(m_vbuf));
-    ++m_vertexCount;
+    m_vertices.emplace_back(v);
 }
 
 void Mesh::ModelBuilder::append(const Mesh& mesh)
@@ -94,7 +65,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             }
         }
 
-        const auto firstVertex = m_vertexCount;
+        const auto firstVertex = m_vertices.size();
         for(int i = 0; i < 4; ++i)
         {
             RenderVertex iv{};
@@ -154,7 +125,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
             }
         }
 
-        const auto firstVertex = m_vertexCount;
+        const auto firstVertex = m_vertices.size();
         for(int i = 0; i < 4; ++i)
         {
             RenderVertex iv{};
@@ -231,7 +202,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                 if(iv.normal == glm::vec3{0.0f})
                     iv.normal = defaultNormal;
             }
-            m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(m_vertexCount));
+            m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(m_vertices.size()));
             append(iv);
         }
     }
@@ -276,7 +247,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
                     iv.normal = defaultNormal;
             }
             iv.uv = proxy.uvCoordinates[i].toGl();
-            m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(m_vertexCount));
+            m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(m_vertices.size()));
             append(iv);
         }
     }
@@ -284,26 +255,25 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
 
 gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finalize()
 {
-    Expects(m_vbuf.size() * sizeof(m_vbuf[0]) == m_vertexCount * m_vb->getVertexSize());
-    m_vb->assignRaw(m_vbuf, m_vertexCount);
+    m_vb->setData(m_vertices, ::gl::BufferUsageARB::StaticDraw);
 
     auto model = std::make_shared<render::scene::Model>();
     for(const MeshPart& localPart : m_parts)
     {
-        static_assert(sizeof(localPart.indices[0]) == sizeof(uint16_t), "Wrong index type");
 #ifndef NDEBUG
         for(auto idx : localPart.indices)
         {
-            BOOST_ASSERT(idx < m_vertexCount);
+            BOOST_ASSERT(idx < m_vertices.size());
         }
 #endif
 
-        auto indexBuffer = std::make_shared<render::gl::IndexBuffer>();
-        indexBuffer->setData(localPart.indices, true);
+        auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
+        indexBuffer->setData(localPart.indices, ::gl::BufferUsageARB::DynamicDraw);
 
-        auto va = std::make_shared<render::gl::VertexArray>(
+        auto va = std::make_shared<render::gl::VertexArray<uint16_t, RenderVertex>>(
             indexBuffer, m_vb, localPart.material->getShaderProgram()->getHandle(), m_label);
-        auto mesh = std::make_shared<render::scene::Mesh>(va, ::gl::PrimitiveType::Triangles);
+        auto mesh
+            = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, ::gl::PrimitiveType::Triangles);
         mesh->setMaterial(localPart.material);
 
         model->addMesh(mesh);
@@ -319,7 +289,7 @@ std::shared_ptr<render::scene::Model>
                       const Palette& palette,
                       const std::string& label) const
 {
-    ModelBuilder mb{!normals.empty(), false, textureProxies, materials, colorMaterial, palette, label};
+    ModelBuilder mb{!normals.empty(), textureProxies, materials, colorMaterial, palette, label};
 
     mb.append(*this);
 

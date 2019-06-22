@@ -39,11 +39,13 @@ private:
         size_t startIndex = 0;
         core::TRVec end{};
         std::shared_ptr<render::scene::Mesh> mesh;
+        std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>> vb;
     };
 
     std::array<ChildBolt, ChildBolts> m_childBolts;
 
     std::shared_ptr<render::scene::Mesh> m_mainBoltMesh;
+    std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>> m_mainVb;
 };
 } // namespace items
 } // namespace engine
