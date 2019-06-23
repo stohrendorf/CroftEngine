@@ -1124,10 +1124,14 @@ struct Room
         const std::shared_ptr<render::scene::Material>& spriteMaterial,
         const std::shared_ptr<render::scene::Material>& portalMaterial);
 
-    const Sector* getSectorByAbsolutePosition(core::TRVec worldPos) const
+    const Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
     {
-        worldPos -= position;
-        return getSectorByIndex(worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize);
+        return getSectorByRelativePosition(worldPos - position);
+    }
+
+    const Sector* getSectorByRelativePosition(const core::TRVec& localPos) const
+    {
+        return getSectorByIndex(localPos.X / core::SectorSize, localPos.Z / core::SectorSize);
     }
 
     gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const

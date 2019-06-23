@@ -86,6 +86,19 @@ struct RenderModel
         return model;
     }
 };
+
+template<size_t N>
+core::TRVec getCenter(const std::array<VertexIndex, N>& faceVertices, const std::vector<RoomVertex>& roomVertices)
+{
+    core::TRVec s{0_len, 0_len, 0_len};
+    for(const auto& v : faceVertices)
+    {
+        const auto& rv = v.from(roomVertices);
+        s += rv.position;
+    }
+
+    return s / faceVertices.size();
+}
 } // namespace
 
 void Room::createSceneNode(
@@ -104,8 +117,7 @@ void Room::createSceneNode(
     std::vector<glm::vec2> uvCoordsData;
 
     const auto label = "Room:" + std::to_string(roomId);
-    auto vbuf
-        = std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
+    auto vbuf = std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
 
     static const render::gl::VertexAttributeMapping<glm::vec2> uvAttribs{
         {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute<glm::vec2>::Single{}}};
@@ -113,6 +125,22 @@ void Room::createSceneNode(
 
     for(const QuadFace& quad : rectangles)
     {
+        // discard water surface polygons
+        const auto center = getCenter(quad.vertices, vertices);
+        if(const auto sector = getSectorByRelativePosition(center))
+        {
+            if(sector->roomAbove != nullptr && sector->roomAbove->isWaterRoom() != isWaterRoom())
+            {
+                if(center.Y + position.Y - sector->ceilingHeight == 0_len)
+                    continue;
+            }
+            if(sector->roomBelow != nullptr && sector->roomBelow->isWaterRoom() != isWaterRoom())
+            {
+                if(center.Y + position.Y - sector->floorHeight == 0_len)
+                    continue;
+            }
+        }
+
         const TextureTile& tile = level.m_textureTiles.at(quad.tileId.get());
 
         if(texBuffers.find(tile.textureKey) == texBuffers.end())
@@ -161,6 +189,22 @@ void Room::createSceneNode(
     }
     for(const Triangle& tri : triangles)
     {
+        // discard water surface polygons
+        const auto center = getCenter(tri.vertices, vertices);
+        if(const auto sector = getSectorByRelativePosition(center))
+        {
+            if(sector->roomAbove != nullptr && sector->roomAbove->isWaterRoom() != isWaterRoom())
+            {
+                if(center.Y + position.Y - sector->ceilingHeight == 0_len)
+                    continue;
+            }
+            if(sector->roomBelow != nullptr && sector->roomBelow->isWaterRoom() != isWaterRoom())
+            {
+                if(center.Y + position.Y - sector->floorHeight == 0_len)
+                    continue;
+            }
+        }
+
         const TextureTile& tile = level.m_textureTiles.at(tri.tileId.get());
 
         if(texBuffers.find(tile.textureKey) == texBuffers.end())

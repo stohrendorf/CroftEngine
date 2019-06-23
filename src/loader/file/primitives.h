@@ -15,13 +15,13 @@ using VertexIndex = core::ContainerIndex<uint32_t, core::TRVec, int16_t, RoomVer
 struct Triangle
 {
     //! Vertex buffer indices
-    VertexIndex vertices[3];
+    std::array<VertexIndex, 3> vertices;
     core::TextureTileId tileId{uint16_t(0)}; /**< \brief object-texture index or color index.
                              * If the triangle is textured, then this is an index into the object-texture list.
                              * If it's not textured, then the low 8 bit contain the index into the 256 color palette
                              * and from TR2 on the high 8 bit contain the index into the 16 bit palette.
                              */
-    uint16_t lighting;                         /**< \brief transparency flag & strength of the highlight (TR4-TR5).
+    uint16_t lighting;                       /**< \brief transparency flag & strength of the highlight (TR4-TR5).
                              * bit0 if set, then alpha channel = intensity (see attribute in tr2_object_texture).<br>
                              * bit1-7 is the strength of the highlight.
                              */
@@ -55,13 +55,13 @@ private:
 struct QuadFace
 {
     //! Vertex buffer indices
-    VertexIndex vertices[4];
+    std::array<VertexIndex, 4> vertices;
     core::TextureTileId tileId{uint16_t(0)}; /**< \brief object-texture index or color index.
                              * If the rectangle is textured, then this is an index into the object-texture list.
                              * If it's not textured, then the low 8 bit contain the index into the 256 color palette
                              * and from TR2 on the high 8 bit contain the index into the 16 bit palette.
                              */
-    uint16_t lighting;                         /**< \brief transparency flag & strength of the highlight (TR4-TR5).
+    uint16_t lighting;                       /**< \brief transparency flag & strength of the highlight (TR4-TR5).
                              *
                              * In TR4, objects can exhibit some kind of light reflection when seen from some particular angles.
                              * - bit0 if set, then alpha channel = intensity (see attribute in tr2_object_texture).
