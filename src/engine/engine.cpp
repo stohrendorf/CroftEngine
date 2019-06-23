@@ -1671,6 +1671,11 @@ void Engine::run()
         {
             render::gl::DebugGroup dbg{"portal-depth-pass"};
             m_renderPipeline->bindPortalFrameBuffer();
+            m_lara->m_lighting.bind(*m_portalMaterial);
+            m_portalMaterial->getParameter("u_viewInv")
+                ->set(glm::mat3(m_cameraController->getCamera()->getInverseViewMatrix()));
+            const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(m_renderer->getGameTime());
+            m_portalMaterial->getParameter("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
             for(const auto& portal : waterEntryPortals)
             {
                 portal->mesh->render(context);

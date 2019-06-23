@@ -51,6 +51,8 @@ public:
 
     void set(const glm::mat4* values, std::size_t count = 1);
 
+    void set(const glm::mat3& value);
+
     void set(const std::shared_ptr<gl::Texture>& texture);
 
     void set(const std::vector<std::shared_ptr<gl::Texture>>& textures);

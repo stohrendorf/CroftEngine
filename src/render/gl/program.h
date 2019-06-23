@@ -205,6 +205,12 @@ public:
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
+        void set(const glm::mat3& value)
+        {
+            GL_ASSERT(::gl::programUniformMatrix3(m_program, m_location, 1, false, value_ptr(value)));
+        }
+
+        // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::mat4* values, const ::gl::core::SizeType count)
         {
             BOOST_ASSERT(values != nullptr);

@@ -170,6 +170,55 @@ using RGB16F = RGB<::gl::core::Half>;
 using RGB32F = RGB<float>;
 
 template<typename T>
+struct RG final
+{
+    static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<::gl::core::Half, T>,
+                  "Pixel may only have channels of integral types");
+
+    using Type = T;
+    using Traits = TypeTraits<T>;
+
+    static constexpr const ::gl::PixelFormat PixelFormat = ::gl::PixelFormat::Rg;
+    static constexpr const ::gl::PixelType PixelType = Traits::PixelType;
+    static constexpr const auto InternalFormat = Traits::RgSizedInternalFormat;
+
+    explicit RG()
+        : RG{0}
+    {
+    }
+
+    explicit constexpr RG(Type value) noexcept
+        : r{value}
+        , g{value}
+    {
+    }
+
+    constexpr RG(Type r_, Type g_, Type b_) noexcept
+        : r{r_}
+        , g{g_}
+    {
+    }
+
+    Type r, g;
+};
+
+template<typename T>
+constexpr bool operator==(const RG<T>& lhs, const RG<T>& rhs)
+{
+    return lhs.r == rhs.r && lhs.g == rhs.g;
+}
+
+template<typename T>
+constexpr bool operator!=(const RG<T>& lhs, const RG<T>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+using RG8 = RG<uint8_t>;
+using RG16F = RG<::gl::core::Half>;
+using RG32F = RG<float>;
+
+template<typename T>
 struct Scalar final
 {
     static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<::gl::core::Half, T>,

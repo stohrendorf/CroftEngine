@@ -28,6 +28,7 @@ struct TypeTraits<uint8_t>
 
     static const constexpr ::gl::InternalFormat RgbaSizedInternalFormat = ::gl::InternalFormat::Rgba8;
     static const constexpr ::gl::InternalFormat RgbSizedInternalFormat = ::gl::InternalFormat::Rgb8;
+    static const constexpr ::gl::InternalFormat RgSizedInternalFormat = ::gl::InternalFormat::Rg8;
 };
 
 template<>
@@ -45,7 +46,8 @@ template<>
 struct TypeTraits<uint32_t>
 {
     static const constexpr ::gl::DrawElementsType DrawElementsType = ::gl::DrawElementsType::UnsignedInt;
-    static const constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::UnsignedInt;
+    static const constexpr ::gl::VertexAttribPointerType VertexAttribPointerType
+        = ::gl::VertexAttribPointerType::UnsignedInt;
     static const constexpr ::gl::PixelType PixelType = ::gl::PixelType::UnsignedInt;
 
     static const constexpr ::gl::core::SizeType ElementCount = 1;
@@ -81,6 +83,7 @@ struct TypeTraits<float>
     static const constexpr ::gl::core::SizeType ElementCount = 1;
 
     static const constexpr ::gl::InternalFormat RgbSizedInternalFormat = ::gl::InternalFormat::Rgb32f;
+    static const constexpr ::gl::InternalFormat RgSizedInternalFormat = ::gl::InternalFormat::Rg32f;
     static const constexpr ::gl::InternalFormat RSizedInternalFormat = ::gl::InternalFormat::R32f;
 };
 
@@ -95,11 +98,13 @@ struct TypeTraits<glm::vec<N, float, glm::defaultp>>
 template<>
 struct TypeTraits<::gl::core::Half>
 {
-    static const constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::HalfFloat;
+    static const constexpr ::gl::VertexAttribPointerType VertexAttribPointerType
+        = ::gl::VertexAttribPointerType::HalfFloat;
     static const constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
     static const constexpr ::gl::core::SizeType ElementCount = 1;
 
     static const constexpr ::gl::InternalFormat RgbSizedInternalFormat = ::gl::InternalFormat::Rgb16f;
+    static const constexpr ::gl::InternalFormat RgSizedInternalFormat = ::gl::InternalFormat::Rg16f;
     static const constexpr ::gl::InternalFormat RSizedInternalFormat = ::gl::InternalFormat::R16f;
 };
 

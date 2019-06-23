@@ -105,6 +105,11 @@ void MaterialParameter::set(const glm::mat4* values, const size_t count)
     };
 }
 
+void MaterialParameter::set(const glm::mat3& value)
+{
+    m_valueSetter = [value](const Node& /*node*/, gl::Program::ActiveUniform& uniform) { uniform.set(value); };
+}
+
 void MaterialParameter::set(const std::shared_ptr<gl::Texture>& texture)
 {
     m_valueSetter = [texture](const Node& /*node*/, gl::Program::ActiveUniform& uniform) { uniform.set(*texture); };

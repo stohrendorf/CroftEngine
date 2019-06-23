@@ -1,5 +1,7 @@
 uniform sampler2D u_texture;
 uniform sampler2D u_portalDepth;
+uniform sampler2D u_portalPerturb;
+uniform sampler2D u_portalLighting;
 uniform sampler2D u_ao;
 uniform mat4 u_camProjection;
 uniform float u_time;
@@ -28,10 +30,10 @@ const float Z_max = 20480;
 float rand1(in vec2 seed)
 {
     const vec2 K1 = vec2(
-        23.14069263277926, // e^pi (Gelfond's constant)
-        2.665144142690225 // 2^sqrt(2) (Gelfond–Schneider constant)
+    23.14069263277926, // e^pi (Gelfond's constant)
+    2.665144142690225// 2^sqrt(2) (Gelfond–Schneider constant)
     );
-    return fract( cos( dot(seed*u_time/40, K1) ) * 12345.6789 );
+    return fract(cos(dot(seed*u_time/40, K1)) * 12345.6789);
 }
 
 float fbm(in vec2 uv) {
@@ -55,6 +57,7 @@ void main()
     vec2 uv = v_texCoord;
 
     float grain = rand1(uv);
+    float waterSpec = 0;
 
 #ifdef LENS_DISTORTION
     do_lens_distortion(uv);
@@ -65,10 +68,11 @@ void main()
 #else
     float d = depth_at(uv) - depth_at(u_portalDepth, uv);
     d = clamp(d*4, 0, 1);
-    if( d > 0 )
+    if (d > 0)
     {
-        // camera ray goes through water surface; scale distortion with underwater ray length
-        do_water_distortion_frq(uv, 0.005, 22.6, 0.00175*fbm(uv));
+        // camera ray goes through water surface; apply perturb
+        uv += texture(u_portalPerturb, uv).xy * 15;
+        waterSpec = texture(u_portalLighting, uv).r;
     }
 #endif
 
@@ -86,7 +90,7 @@ void main()
     // light scatter
     out_color = mix(out_color, WaterColor, d/30);
 #else
-    if( d > 0 )
+    if (d > 0)
     {
         // light absorbtion
         out_color *= mix(vec4(1), WaterColor, d);
@@ -96,6 +100,7 @@ void main()
 #endif
 
     out_color.rgb *= pow(texture(u_ao, uv).r, 1.5);
+    out_color.rgb += vec3(clamp(waterSpec-0.2, 0, 1));
     out_color.rgb *= grain*0.3 + 0.7;
     out_color.a = 1;
 }
