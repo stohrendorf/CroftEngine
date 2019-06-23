@@ -16,15 +16,17 @@ namespace gl
 namespace detail
 {
 template<std::size_t I = 0, typename... Ts>
-inline typename std::enable_if<I == sizeof...(Ts), void>::type bindAll(std::tuple<Ts...>&, const Program& program)
+inline typename std::enable_if<I == sizeof...(Ts), void>::type bindVertexAttributes(const std::tuple<Ts...>&,
+                                                                                    const Program& program)
 {
 }
 
 template<std::size_t I = 0, typename... Ts>
-inline typename std::enable_if<(I < sizeof...(Ts)), void>::type bindAll(std::tuple<Ts...>& t, const Program& program)
+inline typename std::enable_if<(I < sizeof...(Ts)), void>::type bindVertexAttributes(const std::tuple<Ts...>& t,
+                                                                                     const Program& program)
 {
-    std::get<I>(t)->bind(program);
-    bindAll<I + 1, Ts...>(t, program);
+    std::get<I>(t)->bindVertexAttributes(program);
+    bindVertexAttributes<I + 1, Ts...>(t, program);
 }
 } // namespace detail
 
@@ -48,7 +50,7 @@ public:
         bind();
         for(const auto& buffer : m_indexBuffers)
             buffer->bind();
-        detail::bindAll(m_vertexBuffers, program);
+        detail::bindVertexAttributes(m_vertexBuffers, program);
         unbind();
     }
 

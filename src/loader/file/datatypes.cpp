@@ -28,14 +28,14 @@ struct RenderVertex
     glm::vec4 color{1.0f};
     glm::vec3 normal{0.0f};
 
-    static const render::gl::VertexAttributeMapping<RenderVertex>& getFormat()
+    static const render::gl::StructureLayout<RenderVertex>& getLayout()
     {
-        static const render::gl::VertexAttributeMapping<RenderVertex> attribs{
+        static const render::gl::StructureLayout<RenderVertex> layout{
             {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
             {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
             {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color}};
 
-        return attribs;
+        return layout;
     }
 };
 
@@ -117,10 +117,10 @@ void Room::createSceneNode(
     std::vector<glm::vec2> uvCoordsData;
 
     const auto label = "Room:" + std::to_string(roomId);
-    auto vbuf = std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
+    auto vbuf = std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getLayout(), label);
 
-    static const render::gl::VertexAttributeMapping<glm::vec2> uvAttribs{
-        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute<glm::vec2>::Single{}}};
+    static const render::gl::StructureLayout<glm::vec2> uvAttribs{
+        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::StructureMember<glm::vec2>::Trivial{}}};
     auto uvCoords = std::make_shared<render::gl::StructuredArrayBuffer<glm::vec2>>(uvAttribs, label + "-uv");
 
     for(const QuadFace& quad : rectangles)

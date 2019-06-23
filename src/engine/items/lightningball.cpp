@@ -21,8 +21,8 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
 {
     std::vector<glm::vec3> vertices(points);
 
-    static const render::gl::VertexAttributeMapping<glm::vec3> attribs{
-        {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute<glm::vec3>::Single{}}};
+    static const render::gl::StructureLayout<glm::vec3> attribs{
+        {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::StructureMember<glm::vec3>::Trivial{}}};
 
     std::vector<uint16_t> indices;
     for(uint16_t i = 0; i < points; ++i)

@@ -105,9 +105,9 @@ struct Mesh
             glm::vec3 color{1.0f};
             glm::vec2 uv;
 
-            static const render::gl::VertexAttributeMapping<RenderVertex>& getFormat()
+            static const render::gl::StructureLayout<RenderVertex>& getFormat()
             {
-                static const render::gl::VertexAttributeMapping<RenderVertex> attribs{
+                static const render::gl::StructureLayout<RenderVertex> attribs{
                     {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
                     {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
                     {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},

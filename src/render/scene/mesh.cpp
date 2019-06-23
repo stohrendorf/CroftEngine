@@ -24,7 +24,7 @@ gsl::not_null<std::shared_ptr<Mesh>>
                             {{width, height}, {1.0f, invertY ? 1.0f : 0.0f}},
                             {{0.0f, height}, {0.0f, invertY ? 1.0f : 0.0f}}};
 
-    static const gl::VertexAttributeMapping<Vertex> attribs{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos},
+    static const gl::StructureLayout<Vertex> attribs{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos},
                                                             {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &Vertex::uv}};
 
     auto vertexBuffer = std::make_shared<gl::StructuredArrayBuffer<Vertex>>(attribs);

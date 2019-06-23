@@ -3,7 +3,7 @@
 #include "arraybuffer.h"
 #include "gsl-lite.hpp"
 #include "program.h"
-#include "vertexattribute.h"
+#include "typetraits.h"
 
 #include <map>
 
@@ -11,35 +11,81 @@ namespace render
 {
 namespace gl
 {
-template<typename VertexT>
-using VertexAttributeMapping = std::map<std::string, VertexAttribute<VertexT>>;
-
-template<typename VertexT>
-class StructuredArrayBuffer : public ArrayBuffer<VertexT>
+template<typename T>
+class StructureMember final
 {
 public:
-    explicit StructuredArrayBuffer(const VertexAttributeMapping<VertexT>& mapping, const std::string& label = {})
+    struct Trivial
+    {
+    };
+
+    template<typename U>
+    StructureMember(const U T::*member, const bool normalized = false)
+        : m_type{TypeTraits<U>::VertexAttribPointerType}
+        , m_pointer{&(static_cast<T*>(nullptr)->*member)}
+        , m_size{TypeTraits<U>::ElementCount}
+        , m_normalized{normalized}
+    {
+    }
+
+    StructureMember(const Trivial&, const bool normalized = false)
+        : m_type{TypeTraits<T>::VertexAttribPointerType}
+        , m_pointer{nullptr}
+        , m_size{TypeTraits<T>::ElementCount}
+        , m_normalized{normalized}
+    {
+    }
+
+    void bindVertexAttribute(const uint32_t index) const
+    {
+        GL_ASSERT(::gl::vertexAttribPointer(index, m_size, m_type, m_normalized, sizeof(T), m_pointer));
+        GL_ASSERT(::gl::enableVertexAttribArray(index));
+    }
+
+    std::uintptr_t getOffset() const noexcept
+    {
+        return reinterpret_cast<std::uintptr_t>(m_pointer);
+    }
+
+private:
+    const ::gl::VertexAttribPointerType m_type;
+
+    const void* const m_pointer;
+
+    const int32_t m_size;
+
+    const bool m_normalized;
+};
+
+template<typename T>
+using StructureLayout = std::map<std::string, StructureMember<T>>;
+
+template<typename T>
+class StructuredArrayBuffer : public ArrayBuffer<T>
+{
+public:
+    explicit StructuredArrayBuffer(const StructureLayout<T>& mapping, const std::string& label = {})
         : ArrayBuffer{label}
-        , m_mapping{mapping}
+        , m_structureLayout{mapping}
     {
         BOOST_ASSERT(!mapping.empty());
     }
 
-    void bind(const Program& program) const
+    void bindVertexAttributes(const Program& program) const
     {
-        ArrayBuffer::bind();
+        bind();
 
         for(const auto& attribute : program.getActiveAttributes())
         {
-            auto it = m_mapping.find(attribute.getName());
-            if(it == m_mapping.end())
+            auto it = m_structureLayout.find(attribute.getName());
+            if(it == m_structureLayout.end())
                 continue;
 
-            it->second.bind(attribute.getLocation());
+            it->second.bindVertexAttribute(attribute.getLocation());
         }
     }
 
-    void setSubData(const gsl::not_null<const VertexT*>& data, const size_t start, size_t count)
+    void setSubData(const gsl::not_null<const T*>& data, const size_t start, size_t count)
     {
         ArrayBuffer::bind();
 
@@ -48,49 +94,48 @@ public:
             count = size() - start;
         }
 
-        GL_ASSERT(::gl::bufferSubData(
-            ::gl::BufferTargetARB::ArrayBuffer, start * sizeof(VertexT), count * sizeof(VertexT), data));
+        GL_ASSERT(::gl::bufferSubData(::gl::BufferTargetARB::ArrayBuffer, start * sizeof(T), count * sizeof(T), data));
     }
 
-    void setData(const gsl::not_null<const VertexT*>& data, const size_t count, const ::gl::BufferUsageARB access)
+    void setData(const gsl::not_null<const T*>& data, const size_t count, const ::gl::BufferUsageARB access)
     {
         ArrayBuffer::bind();
 
         if(count != 0)
             m_size = gsl::narrow<::gl::core::SizeType>(count);
 
-        GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(VertexT) * size(), data, access));
+        GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(T) * size(), data, access));
     }
 
-    void setDataRaw(const gsl::not_null<const VertexT*>& data, const size_t count, const ::gl::BufferUsageARB access)
+    void setDataRaw(const gsl::not_null<const T*>& data, const size_t count, const ::gl::BufferUsageARB access)
     {
         ArrayBuffer::bind();
 
         if(count != 0)
             m_size = count;
 
-        GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(VertexT) * size(), data, access));
+        GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(T) * size(), data, access));
     }
 
-    void setData(const std::vector<VertexT>& data, const ::gl::BufferUsageARB access)
+    void setData(const std::vector<T>& data, const ::gl::BufferUsageARB access)
     {
         if(!data.empty())
             setData(data.data(), data.size(), access);
     }
 
-    void setDataRaw(const std::vector<VertexT>& data, const size_t count, const ::gl::BufferUsageARB access)
+    void setDataRaw(const std::vector<T>& data, const size_t count, const ::gl::BufferUsageARB access)
     {
         if(!data.empty())
             setDataRaw(data.data(), count, access);
     }
 
-    const VertexAttributeMapping<VertexT>& getAttributeMapping() const
+    const StructureLayout<T>& getStructureLayout() const
     {
-        return m_mapping;
+        return m_structureLayout;
     }
 
 private:
-    const VertexAttributeMapping<VertexT> m_mapping;
+    const StructureLayout<T> m_structureLayout;
 };
 } // namespace gl
 } // namespace render

@@ -87,7 +87,7 @@ struct Portal
         for(size_t i = 0; i < 4; ++i)
             glVertices[i].pos = vertices[i].toRenderSystem();
 
-        render::gl::VertexAttributeMapping<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
+        render::gl::StructureLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
         auto vb = std::make_shared<render::gl::StructuredArrayBuffer<Vertex>>(layout);
         vb->setData(&glVertices[0], 4, ::gl::BufferUsageARB::StaticDraw);
 
