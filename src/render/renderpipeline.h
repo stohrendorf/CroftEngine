@@ -37,8 +37,6 @@ class RenderPipeline
     const std::shared_ptr<gl::TextureDepth> m_portalDepthBuffer = std::make_shared<gl::TextureDepth>("portal-depth");
     const std::shared_ptr<gl::Texture2D<gl::RG32F>> m_portalPerturbBuffer
         = std::make_shared<gl::Texture2D<gl::RG32F>>("portal-perturb");
-    const std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_portalLightingBuffer
-        = std::make_shared<gl::Texture2D<gl::Scalar32F>>("portal-lighting");
     std::shared_ptr<gl::Framebuffer> m_portalFb;
 
     const std::shared_ptr<gl::TextureDepth> m_geometryDepthBuffer
@@ -163,15 +161,12 @@ public:
         // === portalDepthFB setup ===
         m_fxDarknessMaterial->getParameter("u_portalDepth")->set(m_portalDepthBuffer);
         m_fxDarknessMaterial->getParameter("u_portalPerturb")->set(m_portalPerturbBuffer);
-        m_fxDarknessMaterial->getParameter("u_portalLighting")->set(m_portalLightingBuffer);
         m_fxWaterDarknessMaterial->getParameter("u_portalDepth")->set(m_portalDepthBuffer);
         m_fxWaterDarknessMaterial->getParameter("u_portalPerturb")->set(m_portalPerturbBuffer);
-        m_fxWaterDarknessMaterial->getParameter("u_portalLighting")->set(m_portalLightingBuffer);
 
         m_portalFb = gl::FrameBufferBuilder()
                          .texture(::gl::FramebufferAttachment::DepthAttachment, m_portalDepthBuffer)
                          .texture(::gl::FramebufferAttachment::ColorAttachment0, m_portalPerturbBuffer)
-                         .texture(::gl::FramebufferAttachment::ColorAttachment1, m_portalLightingBuffer)
                          .build();
 
         // === fxaaFB setup ===
@@ -276,9 +271,6 @@ public:
     void resize(const scene::Dimension2<size_t>& viewport)
     {
         m_portalDepthBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height))
-            .set(::gl::TextureMinFilter::Linear)
-            .set(::gl::TextureMagFilter::Linear);
-        m_portalLightingBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height))
             .set(::gl::TextureMinFilter::Linear)
             .set(::gl::TextureMagFilter::Linear);
         m_portalPerturbBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height))

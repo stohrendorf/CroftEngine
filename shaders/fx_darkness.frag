@@ -1,7 +1,6 @@
 uniform sampler2D u_texture;
 uniform sampler2D u_portalDepth;
 uniform sampler2D u_portalPerturb;
-uniform sampler2D u_portalLighting;
 uniform sampler2D u_ao;
 uniform mat4 u_camProjection;
 uniform float u_time;
@@ -54,10 +53,13 @@ float fbm(in vec2 uv) {
 
 void main()
 {
+#ifdef WATER
+    vec2 uv = (v_texCoord - vec2(0.5)) * 0.9 + vec2(0.5);  // scale a bit to avoid edge clamping when underwater
+#else
     vec2 uv = v_texCoord;
+#endif
 
     float grain = rand1(uv);
-    float waterSpec = 0;
 
 #ifdef LENS_DISTORTION
     do_lens_distortion(uv);
@@ -65,16 +67,15 @@ void main()
 
 #ifdef WATER
     do_water_distortion(uv);
-#else
+#endif
+
     float d = depth_at(uv) - depth_at(u_portalDepth, uv);
     d = clamp(d*4, 0, 1);
     if (d > 0)
     {
         // camera ray goes through water surface; apply perturb
-        uv += texture(u_portalPerturb, uv).xy * 15;
-        waterSpec = texture(u_portalLighting, uv).r;
+        uv += texture(u_portalPerturb, uv).xy * 512;
     }
-#endif
 
 #ifndef DOF
     out_color.rgb = shaded_texel(uv, depth_at(uv));
@@ -84,7 +85,7 @@ void main()
 
     const vec4 WaterColor = vec4(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f, 1);
 #ifdef WATER
-    float d = clamp(depth_at(u_portalDepth, uv)*4, 0, 1);
+    d = clamp(depth_at(u_portalDepth, uv)*4, 0, 1);
     // light absorbtion
     out_color *= mix(vec4(1), WaterColor, d);
     // light scatter
@@ -100,7 +101,6 @@ void main()
 #endif
 
     out_color.rgb *= pow(texture(u_ao, uv).r, 1.5);
-    out_color.rgb += vec3(clamp(waterSpec-0.2, 0, 1));
     out_color.rgb *= grain*0.3 + 0.7;
     out_color.a = 1;
 }

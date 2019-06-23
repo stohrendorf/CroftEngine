@@ -131,12 +131,12 @@ void Room::createSceneNode(
         {
             if(sector->roomAbove != nullptr && sector->roomAbove->isWaterRoom() != isWaterRoom())
             {
-                if(center.Y + position.Y - sector->ceilingHeight == 0_len)
+                if(center.Y + position.Y == sector->ceilingHeight)
                     continue;
             }
             if(sector->roomBelow != nullptr && sector->roomBelow->isWaterRoom() != isWaterRoom())
             {
-                if(center.Y + position.Y - sector->floorHeight == 0_len)
+                if(center.Y + position.Y == sector->floorHeight)
                     continue;
             }
         }
@@ -195,12 +195,12 @@ void Room::createSceneNode(
         {
             if(sector->roomAbove != nullptr && sector->roomAbove->isWaterRoom() != isWaterRoom())
             {
-                if(center.Y + position.Y - sector->ceilingHeight == 0_len)
+                if(center.Y + position.Y == sector->ceilingHeight)
                     continue;
             }
             if(sector->roomBelow != nullptr && sector->roomBelow->isWaterRoom() != isWaterRoom())
             {
-                if(center.Y + position.Y - sector->floorHeight == 0_len)
+                if(center.Y + position.Y == sector->floorHeight)
                     continue;
             }
         }

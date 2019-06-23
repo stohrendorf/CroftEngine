@@ -101,17 +101,5 @@ struct Lighting
                 uniform.set(static_cast<int32_t>(lights.size()));
             });
     }
-
-    void bind(render::scene::Material& material) const
-    {
-        material.getParameter("u_lightAmbient")->set(ambient);
-        Expects(lights.size() <= MaxLights);
-        for(size_t i = 0; i < lights.size(); ++i)
-        {
-            material.getParameter("u_lights[" + std::to_string(i) + "].intensity")->set(lights[i].intensity);
-            material.getParameter("u_lights[" + std::to_string(i) + "].position")->set(lights[i].position);
-        }
-        material.getParameter("u_numLights")->set(static_cast<int32_t>(lights.size()));
-    }
 };
 } // namespace engine

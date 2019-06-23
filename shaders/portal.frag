@@ -1,13 +1,8 @@
 uniform float u_time;
-uniform mat3 u_viewInv;
 uniform mat4 u_mvp;
 
 in vec3 v_vertexPosWorld;
 layout(location=0) out vec2 out_perturb;
-layout(location=1) out float out_lighting;
-
-#include "lighting.glsl"
-
 
 mat2 rotate2d(in float a){
     return mat2(cos(a), -sin(a), sin(a), cos(a));
@@ -80,13 +75,11 @@ void main()
     vec2 uv = v_vertexPosWorld.xz / TexScale;
     vec2 bm = bumpMap(uv);
     vec3 sn = normalize(vec3(bm.x, 1, bm.y)); // normal in XZ plane (model space)
-    vec3 vn = sn * u_viewInv;
 
     const float IOR = 1.3;
     vec4 orig = u_mvp * vec4(v_vertexPosWorld, 1);
     orig.xyz /= orig.w;
-    vec4 surface = u_mvp * vec4(vec3(sn.x, 0, sn.z)*50 + v_vertexPosWorld, 1);
+    vec4 surface = u_mvp * vec4(vec3(sn.x, 0, sn.z) + v_vertexPosWorld, 1);
     surface.xyz /= surface.w;
     out_perturb = (surface-orig).xy;
-    out_lighting = calc_positional_lighting(vn, v_vertexPosWorld, 0.2, 0.8, 200);
 }
