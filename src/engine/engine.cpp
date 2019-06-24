@@ -536,7 +536,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
 
     m_portalMaterial->getParameter("u_mvp")->bind(
         [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
-                                                             render::gl::Program::ActiveUniform& uniform) {
+                                                             render::gl::Program::Uniform& uniform) {
             uniform.set(camera->getViewProjectionMatrix()); // portals are already in world space
         });
 
@@ -568,7 +568,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     for(const auto& m : waterMaterials | boost::adaptors::map_values)
     {
         m->getParameter("u_time")->bind(
-            [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
+            [this](const render::scene::Node& /*node*/, render::gl::Program::Uniform& uniform) {
                 const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(m_renderer->getGameTime());
                 uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
             });

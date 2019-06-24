@@ -79,24 +79,24 @@ struct Lighting
     {
         node.addMaterialParameterSetter("u_lightAmbient",
                                         [this](const render::scene::Node& /*node*/,
-                                               render::gl::Program::ActiveUniform& uniform) { uniform.set(ambient); });
+                                               render::gl::Program::Uniform& uniform) { uniform.set(ambient); });
         for(size_t i = 0; i < MaxLights; ++i)
         {
             node.addMaterialParameterSetter(
                 "u_lights[" + std::to_string(i) + "].intensity",
-                [this, i](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
+                [this, i](const render::scene::Node& /*node*/, render::gl::Program::Uniform& uniform) {
                     if(i < lights.size())
                         uniform.set(lights[i].intensity);
                 });
             node.addMaterialParameterSetter(
                 "u_lights[" + std::to_string(i) + "].position",
-                [this, i](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
+                [this, i](const render::scene::Node& /*node*/, render::gl::Program::Uniform& uniform) {
                     if(i < lights.size())
                         uniform.set(lights[i].position);
                 });
         }
         node.addMaterialParameterSetter(
-            "u_numLights", [this](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
+            "u_numLights", [this](const render::scene::Node& /*node*/, render::gl::Program::Uniform& uniform) {
                 Expects(lights.size() <= MaxLights);
                 uniform.set(static_cast<int32_t>(lights.size()));
             });

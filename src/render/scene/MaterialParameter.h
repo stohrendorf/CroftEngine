@@ -66,12 +66,12 @@ public:
     template<class ClassType, class ValueType>
     void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
     {
-        m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::ActiveUniform& uniform) {
+        m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::Uniform& uniform) {
             uniform.set((classInstance->*valueMethod)());
         };
     }
 
-    using UniformValueSetter = void(const Node& node, gl::Program::ActiveUniform& uniform);
+    using UniformValueSetter = void(const Node& node, gl::Program::Uniform& uniform);
 
     void bind(std::function<UniformValueSetter>&& setter)
     {
@@ -84,7 +84,7 @@ public:
               std::size_t (ClassType::*countMethod)() const)
     {
         m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/,
-                                                                  const gl::Program::ActiveUniform& uniform) {
+                                                                  const gl::Program::Uniform& uniform) {
             uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)());
         };
     }
@@ -100,7 +100,7 @@ public:
     bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
 private:
-    gl::Program::ActiveUniform* getUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
+    gl::Program::Uniform* getUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
     const std::string m_name;
 

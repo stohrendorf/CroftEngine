@@ -2504,12 +2504,12 @@ void LaraNode::renderGunFlare(const WeaponId weaponId,
     const auto brightness = 1.0f - shade / 8191.0f;
     flareNode->addMaterialParameterSetter(
         "u_lightAmbient",
-        [brightness](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) {
+        [brightness](const render::scene::Node& /*node*/, render::gl::Program::Uniform& uniform) {
             uniform.set(brightness);
         });
     flareNode->addMaterialParameterSetter(
         "u_numLights",
-        [](const render::scene::Node& /*node*/, render::gl::Program::ActiveUniform& uniform) { uniform.set(0); });
+        [](const render::scene::Node& /*node*/, render::gl::Program::Uniform& uniform) { uniform.set(0); });
 }
 
 YAML::Node LaraNode::save() const

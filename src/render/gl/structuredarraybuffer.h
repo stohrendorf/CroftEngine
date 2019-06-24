@@ -75,7 +75,7 @@ public:
     {
         bind();
 
-        for(const auto& attribute : program.getActiveAttributes())
+        for(const auto& attribute : program.getInputs())
         {
             auto it = m_structureLayout.find(attribute.getName());
             if(it == m_structureLayout.end())
