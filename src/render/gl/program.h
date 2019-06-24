@@ -11,6 +11,31 @@ namespace render
 {
 namespace gl
 {
+class Program;
+
+class ProgramInterface
+{
+public:
+    explicit ProgramInterface(const Program& program, ::gl::ProgramInterface type, uint32_t index);
+
+    virtual ~ProgramInterface() = default;
+
+    const std::string& getName() const noexcept
+    {
+        return m_name;
+    }
+
+    auto getLocation() const noexcept
+    {
+        return m_location;
+    }
+
+private:
+    int32_t m_location = -1;
+
+    std::string m_name{};
+};
+
 class Program : public BindableResource
 {
 public:
@@ -46,7 +71,7 @@ public:
 
     bool getLinkStatus() const
     {
-        int32_t success = (int32_t)::gl::Boolean::False;
+        auto success = (int32_t)::gl::Boolean::False;
         GL_ASSERT(::gl::getProgram(getHandle(), ::gl::ProgramPropertyARB::LinkStatus, &success));
         return success == (int32_t)::gl::Boolean::True;
     }
@@ -79,89 +104,26 @@ public:
         return gsl::narrow<uint32_t>(n);
     }
 
-    class Input
+    class Input : public ProgramInterface
     {
     public:
-        explicit Input(const uint32_t program, const uint32_t index)
+        explicit Input(const Program& program, const uint32_t index)
+            : ProgramInterface{program, ::gl::ProgramInterface::ProgramInput, index}
         {
-            constexpr int32_t NumProperties = 2;
-            const ::gl::ProgramResourceProperty properties[NumProperties]
-                = {::gl::ProgramResourceProperty::NameLength, ::gl::ProgramResourceProperty::Location};
-            int32_t values[NumProperties];
-            GL_ASSERT(::gl::getProgramResource(program,
-                                               ::gl::ProgramInterface::ProgramInput,
-                                               index,
-                                               NumProperties,
-                                               properties,
-                                               NumProperties,
-                                               nullptr,
-                                               values));
-
-            m_location = values[1];
-
-            Expects(values[0] > 0);
-            std::vector<char> nameData(values[0]);
-            GL_ASSERT(::gl::getProgramResourceName(program,
-                                                   ::gl::ProgramInterface::ProgramInput,
-                                                   index,
-                                                   gsl::narrow<::gl::core::SizeType>(nameData.size()),
-                                                   nullptr,
-                                                   nameData.data()));
-            m_name.assign(nameData.begin(), std::prev(nameData.end()));
         }
-
-        const std::string& getName() const noexcept
-        {
-            return m_name;
-        }
-
-        auto getLocation() const noexcept
-        {
-            return m_location;
-        }
-
-    private:
-        int32_t m_size = 0;
-
-        std::string m_name{};
-
-        int32_t m_location = -1;
     };
 
-    class Uniform
+    class Uniform : public ProgramInterface
     {
     public:
-        explicit Uniform(const uint32_t program, const uint32_t index, int32_t& samplerIndex)
-            : m_program{program}
+        explicit Uniform(const Program& program, const uint32_t index, int32_t& samplerIndex)
+            : ProgramInterface{program, ::gl::ProgramInterface::Uniform, index}
+            , m_program{program.getHandle()}
         {
-            constexpr int32_t NumProperties = 2;
-            const ::gl::ProgramResourceProperty properties[NumProperties]
-                = {::gl::ProgramResourceProperty::NameLength, ::gl::ProgramResourceProperty::Location};
-            int32_t values[NumProperties];
-            GL_ASSERT(::gl::getProgramResource(program,
-                                               ::gl::ProgramInterface::Uniform,
-                                               index,
-                                               NumProperties,
-                                               properties,
-                                               NumProperties,
-                                               nullptr,
-                                               values));
-
-            m_location = values[1];
-
-            Expects(values[0] > 0);
-            std::vector<char> nameData(values[0]);
-            GL_ASSERT(::gl::getProgramResourceName(program,
-                                                   ::gl::ProgramInterface::Uniform,
-                                                   index,
-                                                   gsl::narrow<::gl::core::SizeType>(nameData.size()),
-                                                   nullptr,
-                                                   nameData.data()));
-            m_name.assign(nameData.begin(), std::prev(nameData.end()));
             int32_t type;
-            GL_ASSERT(::gl::getActiveUniforms(program, 1, &index, ::gl::UniformPName::UniformType, &type));
+            GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformType, &type));
             int32_t size = -1;
-            GL_ASSERT(::gl::getActiveUniforms(program, 1, &index, ::gl::UniformPName::UniformSize, &size));
+            GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformSize, &size));
             Expects(size >= 0);
 
             switch((::gl::UniformType)type)
@@ -178,16 +140,11 @@ public:
             }
         }
 
-        const std::string& getName() const noexcept
-        {
-            return m_name;
-        }
-
         // ReSharper disable once CppMemberFunctionMayBeConst
         template<typename T>
         void set(const T& value)
         {
-            GL_ASSERT(::gl::programUniform1(m_program, m_location, value));
+            GL_ASSERT(::gl::programUniform1(m_program, getLocation(), value));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
@@ -195,19 +152,19 @@ public:
         void set(const T* values, const ::gl::core::SizeType count)
         {
             BOOST_ASSERT(values != nullptr);
-            GL_ASSERT(::gl::programUniform1(m_program, m_location, count, values));
+            GL_ASSERT(::gl::programUniform1(m_program, getLocation(), count, values));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::mat3& value)
         {
-            GL_ASSERT(::gl::programUniformMatrix3(m_program, m_location, 1, false, value_ptr(value)));
+            GL_ASSERT(::gl::programUniformMatrix3(m_program, getLocation(), 1, false, value_ptr(value)));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::mat4& value)
         {
-            GL_ASSERT(::gl::programUniformMatrix4(m_program, m_location, 1, false, value_ptr(value)));
+            GL_ASSERT(::gl::programUniformMatrix4(m_program, getLocation(), 1, false, value_ptr(value)));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
@@ -215,46 +172,46 @@ public:
         {
             BOOST_ASSERT(values != nullptr);
             GL_ASSERT(::gl::programUniformMatrix4(
-                m_program, m_location, count, false, reinterpret_cast<const float*>(values)));
+                m_program, getLocation(), count, false, reinterpret_cast<const float*>(values)));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec2& value)
         {
-            GL_ASSERT(::gl::programUniform2(m_program, m_location, value.x, value.y));
+            GL_ASSERT(::gl::programUniform2(m_program, getLocation(), value.x, value.y));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec2* values, const ::gl::core::SizeType count)
         {
             BOOST_ASSERT(values != nullptr);
-            GL_ASSERT(::gl::programUniform2(m_program, m_location, count, reinterpret_cast<const float*>(values)));
+            GL_ASSERT(::gl::programUniform2(m_program, getLocation(), count, reinterpret_cast<const float*>(values)));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec3* values, const ::gl::core::SizeType count)
         {
             BOOST_ASSERT(values != nullptr);
-            GL_ASSERT(::gl::programUniform3(m_program, m_location, count, reinterpret_cast<const float*>(values)));
+            GL_ASSERT(::gl::programUniform3(m_program, getLocation(), count, reinterpret_cast<const float*>(values)));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec4* values, const ::gl::core::SizeType count)
         {
             BOOST_ASSERT(values != nullptr);
-            GL_ASSERT(::gl::programUniform4(m_program, m_location, count, reinterpret_cast<const float*>(values)));
+            GL_ASSERT(::gl::programUniform4(m_program, getLocation(), count, reinterpret_cast<const float*>(values)));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec3& value)
         {
-            GL_ASSERT(::gl::programUniform3(m_program, m_location, value.x, value.y, value.z));
+            GL_ASSERT(::gl::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
         void set(const glm::vec4& value)
         {
-            GL_ASSERT(::gl::programUniform4(m_program, m_location, value.x, value.y, value.z, value.w));
+            GL_ASSERT(::gl::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
@@ -280,7 +237,7 @@ public:
             // Bind the sampler - this binds the texture and applies sampler state
             texture.bind();
 
-            GL_ASSERT(::gl::programUniform1(m_program, m_location, m_samplerIndex));
+            GL_ASSERT(::gl::programUniform1(m_program, getLocation(), m_samplerIndex));
         }
 
         // ReSharper disable once CppMemberFunctionMayBeConst
@@ -303,21 +260,11 @@ public:
 
             // Pass texture unit array to GL
             GL_ASSERT(::gl::programUniform1(
-                m_program, m_location, static_cast<::gl::core::SizeType>(values.size()), units.data()));
-        }
-
-        int32_t getLocation() const noexcept
-        {
-            return m_location;
+                m_program, getLocation(), static_cast<::gl::core::SizeType>(values.size()), units.data()));
         }
 
     private:
         int32_t m_samplerIndex = -1;
-
-        std::string m_name{};
-
-        int32_t m_location = -1;
-
         const uint32_t m_program;
     };
 
@@ -328,7 +275,7 @@ public:
         std::vector<Input> inputs;
         inputs.reserve(n);
         for(uint32_t i = 0; i < n; ++i)
-            inputs.emplace_back(getHandle(), i);
+            inputs.emplace_back(*this, i);
         return inputs;
     }
 
@@ -340,9 +287,33 @@ public:
         uniforms.reserve(n);
         int32_t samplerIndex = 0;
         for(uint32_t i = 0; i < n; ++i)
-            uniforms.emplace_back(getHandle(), i, samplerIndex);
+            uniforms.emplace_back(*this, i, samplerIndex);
         return uniforms;
     }
 };
+
+inline ProgramInterface::ProgramInterface(const Program& program,
+                                          const ::gl::ProgramInterface type,
+                                          const uint32_t index)
+{
+    constexpr int32_t NumProperties = 2;
+    const ::gl::ProgramResourceProperty properties[NumProperties]
+        = {::gl::ProgramResourceProperty::NameLength, ::gl::ProgramResourceProperty::Location};
+    int32_t values[NumProperties];
+    GL_ASSERT(::gl::getProgramResource(
+        program.getHandle(), type, index, NumProperties, properties, NumProperties, nullptr, values));
+
+    m_location = values[1];
+
+    Expects(values[0] > 0);
+    std::vector<char> nameData(values[0]);
+    GL_ASSERT(::gl::getProgramResourceName(program.getHandle(),
+                                           type,
+                                           index,
+                                           gsl::narrow<::gl::core::SizeType>(nameData.size()),
+                                           nullptr,
+                                           nameData.data()));
+    m_name.assign(nameData.begin(), std::prev(nameData.end()));
+}
 } // namespace gl
 } // namespace render
