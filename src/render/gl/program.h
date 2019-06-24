@@ -107,7 +107,7 @@ public:
         {
             Expects(maxLength >= 0);
             auto* attribName = new char[gsl::narrow_cast<size_t>(maxLength) + 1];
-            GL_ASSERT(::gl::getActiveAttri(program, index, maxLength, nullptr, &m_size, &m_type, attribName));
+            GL_ASSERT(::gl::getActiveAttrib(program, index, maxLength, nullptr, &m_size, &m_type, attribName));
             attribName[maxLength] = '\0';
             m_name = attribName;
             delete[] attribName;
