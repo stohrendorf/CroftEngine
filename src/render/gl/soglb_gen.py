@@ -28,7 +28,7 @@ def normalize_fn_name(name: str) -> str:
         name = name[2:]
     name = name[:1].lower() + name[1:]
 
-    if not any([name.lower().endswith(x) for x in ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays')]):
+    if not any([name.lower().endswith(x) for x in ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib')]):
         # remove type specs
         name = re.sub(r'([1-9]?)(u?(b|s|i|i64)|f|d)(v?)$', r'\1', name)
     if name[:1].isnumeric():

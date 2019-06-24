@@ -2077,7 +2077,7 @@ extern void genFramebuffers(core::SizeType n, uint32_t *framebuffers);
 extern void genRenderbuffers(core::SizeType n, uint32_t *renderbuffers);
 extern void genTextures(core::SizeType n, uint32_t *textures);
 extern void generateMipmap(TextureTarget target);
-extern void getActiveAttri(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name);
+extern void getActiveAttrib(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name);
 extern void getActiveUniform(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, UniformType *type, char *name);
 extern void getAttachedShaders(uint32_t program, core::SizeType maxCount, core::SizeType *count, uint32_t *shaders);
 extern int32_t getAttribLocation(uint32_t program, const char *name);

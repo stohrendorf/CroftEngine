@@ -218,7 +218,7 @@ void generateMipmap(TextureTarget target)
 {
     return glGenerateMipmap(static_cast<GLenum>(target));
 }
-void getActiveAttri(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name)
+void getActiveAttrib(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name)
 {
     return glGetActiveAttrib(static_cast<GLuint>(program), static_cast<GLuint>(index), static_cast<GLsizei>(bufSize), detail::constAway(reinterpret_cast<GLsizei *>(length)), detail::constAway(reinterpret_cast<GLint *>(size)), detail::constAway(reinterpret_cast<GLenum *>(type)), detail::constAway(reinterpret_cast<GLchar *>(name)));
 }

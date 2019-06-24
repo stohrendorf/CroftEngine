@@ -775,7 +775,7 @@ void polygonStipple(const uint8_t *mask)
 {
     return glPolygonStipple(detail::constAway(reinterpret_cast<const GLubyte *>(mask)));
 }
-void popAttri()
+void popAttrib()
 {
     return glPopAttrib();
 }
@@ -787,7 +787,7 @@ void popName()
 {
     return glPopName();
 }
-void pushAttri(core::Bitfield<AttribMask> mask)
+void pushAttrib(core::Bitfield<AttribMask> mask)
 {
     return glPushAttrib(mask.value());
 }
@@ -1333,7 +1333,7 @@ void normalPointer(NormalPointerType type, core::SizeType stride, const void *po
 {
     return glNormalPointer(static_cast<GLenum>(type), static_cast<GLsizei>(stride), detail::constAway(pointer));
 }
-void popClientAttri()
+void popClientAttrib()
 {
     return glPopClientAttrib();
 }
@@ -1341,7 +1341,7 @@ void prioritizeTextures(core::SizeType n, const uint32_t *textures, const float 
 {
     return glPrioritizeTextures(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<const GLuint *>(textures)), detail::constAway(reinterpret_cast<const GLfloat *>(priorities)));
 }
-void pushClientAttri(core::Bitfield<ClientAttribMask> mask)
+void pushClientAttrib(core::Bitfield<ClientAttribMask> mask)
 {
     return glPushClientAttrib(mask.value());
 }
@@ -1879,7 +1879,7 @@ void enableVertexAttribArray(uint32_t index)
 {
     return glEnableVertexAttribArray(static_cast<GLuint>(index));
 }
-void getActiveAttri(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name)
+void getActiveAttrib(uint32_t program, uint32_t index, core::SizeType bufSize, core::SizeType *length, int32_t *size, AttributeType *type, char *name)
 {
     return glGetActiveAttrib(static_cast<GLuint>(program), static_cast<GLuint>(index), static_cast<GLsizei>(bufSize), detail::constAway(reinterpret_cast<GLsizei *>(length)), detail::constAway(reinterpret_cast<GLint *>(size)), detail::constAway(reinterpret_cast<GLenum *>(type)), detail::constAway(reinterpret_cast<GLchar *>(name)));
 }
@@ -3839,11 +3839,11 @@ void createVertexArrays(core::SizeType n, uint32_t *arrays)
 {
     return glCreateVertexArrays(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<GLuint *>(arrays)));
 }
-void disableVertexArrayAttri(uint32_t vaobj, uint32_t index)
+void disableVertexArrayAttrib(uint32_t vaobj, uint32_t index)
 {
     return glDisableVertexArrayAttrib(static_cast<GLuint>(vaobj), static_cast<GLuint>(index));
 }
-void enableVertexArrayAttri(uint32_t vaobj, uint32_t index)
+void enableVertexArrayAttrib(uint32_t vaobj, uint32_t index)
 {
     return glEnableVertexArrayAttrib(static_cast<GLuint>(vaobj), static_cast<GLuint>(index));
 }
