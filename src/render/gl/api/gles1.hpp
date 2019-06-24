@@ -939,7 +939,7 @@ extern void getBooleanv(GetPName pname, bool *data);
 extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t *params);
 extern void getClipPlane(ClipPlaneName plane, float *equation);
 extern void getClipPlanex(ClipPlaneName plane, core::Fixed *equation);
-extern core::EnumType getError();
+extern ErrorCode getError();
 extern void getFixe(GetPName pname, core::Fixed *params);
 extern void getFloatv(GetPName pname, float *data);
 extern void getIntegerv(GetPName pname, int32_t *data);

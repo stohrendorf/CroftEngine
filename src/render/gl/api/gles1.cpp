@@ -218,9 +218,9 @@ void getClipPlanex(ClipPlaneName plane, core::Fixed *equation)
 {
     return glGetClipPlanex(static_cast<GLenum>(plane), detail::constAway(reinterpret_cast<GLfixed *>(equation)));
 }
-core::EnumType getError()
+ErrorCode getError()
 {
-    return glGetError();
+    return static_cast<ErrorCode >(glGetError());
 }
 void getFixe(GetPName pname, core::Fixed *params)
 {
@@ -256,7 +256,7 @@ void getPointerv(GetPointervPName pname, void **params)
 }
 const uint8_t *getString(StringName name)
 {
-    return glGetString(static_cast<GLenum>(name));
+    return static_cast<const uint8_t *>(glGetString(static_cast<GLenum>(name)));
 }
 void getTexEnv(TextureEnvTarget target, TextureEnvParameter pname, float *params)
 {
@@ -288,15 +288,15 @@ void hint(HintTarget target, HintMode mode)
 }
 bool isBuffer(uint32_t buffer)
 {
-    return glIsBuffer(static_cast<GLuint>(buffer));
+    return static_cast<bool >(glIsBuffer(static_cast<GLuint>(buffer)));
 }
 bool isEnable(EnableCap cap)
 {
-    return glIsEnabled(static_cast<GLenum>(cap));
+    return static_cast<bool >(glIsEnabled(static_cast<GLenum>(cap)));
 }
 bool isTexture(uint32_t texture)
 {
-    return glIsTexture(static_cast<GLuint>(texture));
+    return static_cast<bool >(glIsTexture(static_cast<GLuint>(texture)));
 }
 void lightModel(LightModelParameter pname, float param)
 {

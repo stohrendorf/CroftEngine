@@ -58,9 +58,9 @@ void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t siz
 {
     return glBufferSubData(static_cast<GLenum>(target), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), detail::constAway(data));
 }
-core::EnumType checkFramebufferStatus(FramebufferTarget target)
+FramebufferStatus checkFramebufferStatus(FramebufferTarget target)
 {
-    return glCheckFramebufferStatus(static_cast<GLenum>(target));
+    return static_cast<FramebufferStatus >(glCheckFramebufferStatus(static_cast<GLenum>(target)));
 }
 void clear(core::Bitfield<ClearBufferMask> mask)
 {
@@ -104,11 +104,11 @@ void copyTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffset, int
 }
 uint32_t createProgram()
 {
-    return glCreateProgram();
+    return static_cast<uint32_t >(glCreateProgram());
 }
 uint32_t createShader(ShaderType type)
 {
-    return glCreateShader(static_cast<GLenum>(type));
+    return static_cast<uint32_t >(glCreateShader(static_cast<GLenum>(type)));
 }
 void cullFace(CullFaceMode mode)
 {
@@ -232,7 +232,7 @@ void getAttachedShaders(uint32_t program, core::SizeType maxCount, core::SizeTyp
 }
 int32_t getAttribLocation(uint32_t program, const char *name)
 {
-    return glGetAttribLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name)));
+    return static_cast<int32_t >(glGetAttribLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name))));
 }
 void getBooleanv(GetPName pname, bool *data)
 {
@@ -242,9 +242,9 @@ void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t *p
 {
     return glGetBufferParameteriv(static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint *>(params)));
 }
-core::EnumType getError()
+ErrorCode getError()
 {
-    return glGetError();
+    return static_cast<ErrorCode >(glGetError());
 }
 void getFloatv(GetPName pname, float *data)
 {
@@ -288,7 +288,7 @@ void getShader(uint32_t shader, ShaderParameterName pname, int32_t *params)
 }
 const uint8_t *getString(StringName name)
 {
-    return glGetString(static_cast<GLenum>(name));
+    return static_cast<const uint8_t *>(glGetString(static_cast<GLenum>(name)));
 }
 void getTexParameter(TextureTarget target, GetTextureParameter pname, float *params)
 {
@@ -300,7 +300,7 @@ void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *p
 }
 int32_t getUniformLocation(uint32_t program, const char *name)
 {
-    return glGetUniformLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name)));
+    return static_cast<int32_t >(glGetUniformLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name))));
 }
 void getUniform(uint32_t program, int32_t location, float *params)
 {
@@ -328,31 +328,31 @@ void hint(HintTarget target, HintMode mode)
 }
 bool isBuffer(uint32_t buffer)
 {
-    return glIsBuffer(static_cast<GLuint>(buffer));
+    return static_cast<bool >(glIsBuffer(static_cast<GLuint>(buffer)));
 }
 bool isEnable(EnableCap cap)
 {
-    return glIsEnabled(static_cast<GLenum>(cap));
+    return static_cast<bool >(glIsEnabled(static_cast<GLenum>(cap)));
 }
 bool isFramebuffer(uint32_t framebuffer)
 {
-    return glIsFramebuffer(static_cast<GLuint>(framebuffer));
+    return static_cast<bool >(glIsFramebuffer(static_cast<GLuint>(framebuffer)));
 }
 bool isProgram(uint32_t program)
 {
-    return glIsProgram(static_cast<GLuint>(program));
+    return static_cast<bool >(glIsProgram(static_cast<GLuint>(program)));
 }
 bool isRenderbuffer(uint32_t renderbuffer)
 {
-    return glIsRenderbuffer(static_cast<GLuint>(renderbuffer));
+    return static_cast<bool >(glIsRenderbuffer(static_cast<GLuint>(renderbuffer)));
 }
 bool isShader(uint32_t shader)
 {
-    return glIsShader(static_cast<GLuint>(shader));
+    return static_cast<bool >(glIsShader(static_cast<GLuint>(shader)));
 }
 bool isTexture(uint32_t texture)
 {
-    return glIsTexture(static_cast<GLuint>(texture));
+    return static_cast<bool >(glIsTexture(static_cast<GLuint>(texture)));
 }
 void lineWidth(float width)
 {
@@ -619,9 +619,9 @@ void clearBuffer(Buffer buffer, int32_t drawbuffer, const uint32_t *value)
 {
     return glClearBufferuiv(static_cast<GLenum>(buffer), static_cast<GLint>(drawbuffer), detail::constAway(reinterpret_cast<const GLuint *>(value)));
 }
-core::EnumType clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout)
+SyncStatus clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout)
 {
-    return glClientWaitSync(static_cast<GLsync>(sync), flags.value(), static_cast<GLuint64>(timeout));
+    return static_cast<SyncStatus >(glClientWaitSync(static_cast<GLsync>(sync), flags.value(), static_cast<GLuint64>(timeout)));
 }
 void compressedTexImage3D(TextureTarget target, int32_t level, InternalFormat internalformat, core::SizeType width, core::SizeType height, core::SizeType depth, int32_t border, core::SizeType imageSize, const void *data)
 {
@@ -685,7 +685,7 @@ void endTransformFeedback()
 }
 core::Sync fenceSync(SyncCondition condition, uint32_t flags)
 {
-    return glFenceSync(static_cast<GLenum>(condition), static_cast<GLbitfield>(flags));
+    return static_cast<core::Sync >(glFenceSync(static_cast<GLenum>(condition), static_cast<GLbitfield>(flags)));
 }
 void flushMappedBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length)
 {
@@ -733,7 +733,7 @@ void getBufferPointerv(BufferTargetARB target, BufferPointerNameARB pname, void 
 }
 int32_t getFragDataLocation(uint32_t program, const char *name)
 {
-    return glGetFragDataLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name)));
+    return static_cast<int32_t >(glGetFragDataLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name))));
 }
 void getInteger64i_v(core::EnumType target, uint32_t index, int64_t *data)
 {
@@ -773,7 +773,7 @@ void getSamplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t *par
 }
 const uint8_t *getString(StringName name, uint32_t index)
 {
-    return glGetStringi(static_cast<GLenum>(name), static_cast<GLuint>(index));
+    return static_cast<const uint8_t *>(glGetStringi(static_cast<GLenum>(name), static_cast<GLuint>(index)));
 }
 void getSync(core::Sync sync, SyncParameterName pname, core::SizeType bufSize, core::SizeType *length, int32_t *values)
 {
@@ -785,7 +785,7 @@ void getTransformFeedbackVarying(uint32_t program, uint32_t index, core::SizeTyp
 }
 uint32_t getUniformBlockIndex(uint32_t program, const char *uniformBlockName)
 {
-    return glGetUniformBlockIndex(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(uniformBlockName)));
+    return static_cast<uint32_t >(glGetUniformBlockIndex(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(uniformBlockName))));
 }
 void getUniformIndice(uint32_t program, core::SizeType uniformCount, const char *const*uniformNames, uint32_t *uniformIndices)
 {
@@ -813,23 +813,23 @@ void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttach
 }
 bool isQuery(uint32_t id)
 {
-    return glIsQuery(static_cast<GLuint>(id));
+    return static_cast<bool >(glIsQuery(static_cast<GLuint>(id)));
 }
 bool isSampler(uint32_t sampler)
 {
-    return glIsSampler(static_cast<GLuint>(sampler));
+    return static_cast<bool >(glIsSampler(static_cast<GLuint>(sampler)));
 }
 bool isSync(core::Sync sync)
 {
-    return glIsSync(static_cast<GLsync>(sync));
+    return static_cast<bool >(glIsSync(static_cast<GLsync>(sync)));
 }
 bool isTransformFeedback(uint32_t id)
 {
-    return glIsTransformFeedback(static_cast<GLuint>(id));
+    return static_cast<bool >(glIsTransformFeedback(static_cast<GLuint>(id)));
 }
 bool isVertexArray(uint32_t array)
 {
-    return glIsVertexArray(static_cast<GLuint>(array));
+    return static_cast<bool >(glIsVertexArray(static_cast<GLuint>(array)));
 }
 void *mapBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length, core::Bitfield<MapBufferAccessMask> access)
 {
@@ -957,7 +957,7 @@ void uniformMatrix4x3(int32_t location, core::SizeType count, bool transpose, co
 }
 bool unmapBuffer(BufferTargetARB target)
 {
-    return glUnmapBuffer(static_cast<GLenum>(target));
+    return static_cast<bool >(glUnmapBuffer(static_cast<GLenum>(target)));
 }
 void vertexAttribDivisor(uint32_t index, uint32_t divisor)
 {
@@ -1007,7 +1007,7 @@ void bindVertexBuffer(uint32_t bindingindex, uint32_t buffer, std::intptr_t offs
 }
 uint32_t createShaderProgramv(ShaderType type, core::SizeType count, const char *const*strings)
 {
-    return glCreateShaderProgramv(static_cast<GLenum>(type), static_cast<GLsizei>(count), detail::constAway(reinterpret_cast<const GLchar *const*>(strings)));
+    return static_cast<uint32_t >(glCreateShaderProgramv(static_cast<GLenum>(type), static_cast<GLsizei>(count), detail::constAway(reinterpret_cast<const GLchar *const*>(strings))));
 }
 void deleteProgramPipeline(core::SizeType n, const uint32_t *pipelines)
 {
@@ -1063,11 +1063,11 @@ void getProgramPipeline(uint32_t pipeline, PipelineParameterName pname, int32_t 
 }
 uint32_t getProgramResourceIndex(uint32_t program, ProgramInterface programInterface, const char *name)
 {
-    return glGetProgramResourceIndex(static_cast<GLuint>(program), static_cast<GLenum>(programInterface), detail::constAway(reinterpret_cast<const GLchar *>(name)));
+    return static_cast<uint32_t >(glGetProgramResourceIndex(static_cast<GLuint>(program), static_cast<GLenum>(programInterface), detail::constAway(reinterpret_cast<const GLchar *>(name))));
 }
 int32_t getProgramResourceLocation(uint32_t program, ProgramInterface programInterface, const char *name)
 {
-    return glGetProgramResourceLocation(static_cast<GLuint>(program), static_cast<GLenum>(programInterface), detail::constAway(reinterpret_cast<const GLchar *>(name)));
+    return static_cast<int32_t >(glGetProgramResourceLocation(static_cast<GLuint>(program), static_cast<GLenum>(programInterface), detail::constAway(reinterpret_cast<const GLchar *>(name))));
 }
 void getProgramResourceName(uint32_t program, ProgramInterface programInterface, uint32_t index, core::SizeType bufSize, core::SizeType *length, char *name)
 {
@@ -1087,7 +1087,7 @@ void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParamet
 }
 bool isProgramPipeline(uint32_t pipeline)
 {
-    return glIsProgramPipeline(static_cast<GLuint>(pipeline));
+    return static_cast<bool >(glIsProgramPipeline(static_cast<GLuint>(pipeline)));
 }
 void memoryBarrier(core::Bitfield<MemoryBarrierMask> barriers)
 {
@@ -1329,11 +1329,11 @@ void framebufferTexture(FramebufferTarget target, FramebufferAttachment attachme
 }
 uint32_t getDebugMessageLog(uint32_t count, core::SizeType bufSize, DebugSource *sources, DebugType *types, uint32_t *ids, DebugSeverity *severities, core::SizeType *lengths, char *messageLog)
 {
-    return glGetDebugMessageLog(static_cast<GLuint>(count), static_cast<GLsizei>(bufSize), detail::constAway(reinterpret_cast<GLenum *>(sources)), detail::constAway(reinterpret_cast<GLenum *>(types)), detail::constAway(reinterpret_cast<GLuint *>(ids)), detail::constAway(reinterpret_cast<GLenum *>(severities)), detail::constAway(reinterpret_cast<GLsizei *>(lengths)), detail::constAway(reinterpret_cast<GLchar *>(messageLog)));
+    return static_cast<uint32_t >(glGetDebugMessageLog(static_cast<GLuint>(count), static_cast<GLsizei>(bufSize), detail::constAway(reinterpret_cast<GLenum *>(sources)), detail::constAway(reinterpret_cast<GLenum *>(types)), detail::constAway(reinterpret_cast<GLuint *>(ids)), detail::constAway(reinterpret_cast<GLenum *>(severities)), detail::constAway(reinterpret_cast<GLsizei *>(lengths)), detail::constAway(reinterpret_cast<GLchar *>(messageLog))));
 }
-core::EnumType getGraphicsResetStatus()
+GraphicsResetStatus getGraphicsResetStatus()
 {
-    return glGetGraphicsResetStatus();
+    return static_cast<GraphicsResetStatus >(glGetGraphicsResetStatus());
 }
 void getObjectLabel(ObjectIdentifier identifier, uint32_t name, core::SizeType bufSize, core::SizeType *length, char *label)
 {
@@ -1377,7 +1377,7 @@ void getnUniform(uint32_t program, int32_t location, core::SizeType bufSize, uin
 }
 bool isEnabled(EnableCap target, uint32_t index)
 {
-    return glIsEnabledi(static_cast<GLenum>(target), static_cast<GLuint>(index));
+    return static_cast<bool >(glIsEnabledi(static_cast<GLenum>(target), static_cast<GLuint>(index)));
 }
 void minSampleShading(float value)
 {

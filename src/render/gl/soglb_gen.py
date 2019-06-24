@@ -28,7 +28,8 @@ def normalize_fn_name(name: str) -> str:
         name = name[2:]
     name = name[:1].lower() + name[1:]
 
-    if not any([name.lower().endswith(x) for x in ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib')]):
+    if not any([name.lower().endswith(x) for x in
+                ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib')]):
         # remove type specs
         name = re.sub(r'([1-9]?)(u?(b|s|i|i64)|f|d)(v?)$', r'\1', name)
     if name[:1].isnumeric():
@@ -125,7 +126,8 @@ class Command:
             for param in xml_command.iterfind('./param[@group="CopyBufferSubDataTarget"]'):
                 param.attrib['group'] = 'TextureTarget'
 
-        _patch_integral_types(xml_ptype=self.proto.find('ptype'), enum_name=None)
+        self.orig_return_type = _patch_integral_types(xml_ptype=self.proto.find('ptype'),
+                                                      enum_name=self.proto.attrib.get('group', None))
         self.params = []
         self.call_params = []
         for param in map(deepcopy, xml_command.findall('param')):  # type: Element
@@ -153,28 +155,31 @@ class Command:
 
             self.params.append(''.join(param.itertext()))
 
-    def print_code(self, *, file: TextIO, alias: Optional[str] = None, impl: bool = False):
+    def print_code(self, *, file: TextIO, impl: bool = False):
         if self.comment:
             file.write('// {}\n'.format(self.comment))
 
         proto_copy = deepcopy(self.proto)
         proto_copy.find('name').text = normalize_fn_name(proto_copy.findtext('name'))
 
-        if alias is not None:
-            for proto_copy_element in proto_copy:
-                if proto_copy_element.tag == 'name':
-                    proto_copy_element.text = alias
-
         proto = ''.join(proto_copy.itertext())
+        proto_copy = deepcopy(proto_copy)
+        proto_copy.remove(proto_copy.find('name'))
+        return_cast = ''.join(proto_copy.itertext())
 
         if not impl:
             file.write('extern {}({});\n'.format(proto, ', '.join(self.params)))
         else:
             file.write('{}({})\n'.format(proto, ', '.join(self.params)))
             file.write('{\n')
-            file.write(
-                '    return {}({});\n'.format(self.proto.find('name').text if not alias else alias,
-                                              ', '.join(self.call_params)))
+            if self.orig_return_type is None:
+                file.write(
+                    '    return {}({});\n'.format(self.proto.find('name').text, ', '.join(self.call_params)))
+            else:
+                file.write(
+                    '    return static_cast<{}>({}({}));\n'.format(return_cast,
+                                                                   self.proto.find('name').text,
+                                                                   ', '.join(self.call_params)))
             file.write('}\n')
 
 
@@ -210,7 +215,8 @@ def _make_guard(defines: Iterable[str]) -> str:
     return ' || '.join(['defined({})'.format(x) for x in sorted(defines)])
 
 
-def build_guarded_commands(versions_profiles: Dict[str, Dict[Optional[str], ConstantsCommands]]) -> Dict[str, Set[str]]:
+def build_guarded_commands(versions_profiles: Dict[str, Dict[Optional[str], ConstantsCommands]]) -> Dict[
+    Tuple[str, ...], Set[str]]:
     command_guards = defaultdict(set)  # type: Dict[str, Set[str]]
 
     for version, profiles in versions_profiles.items():
@@ -245,7 +251,6 @@ def build_guarded_constants(versions_profiles: Dict[str, Dict[Optional[str], Con
                     constant_guards[constant_name].add(constant_guard)
 
     if len(constant_guards) == 0:
-        logging.warning('Skipping - no members')
         return None
 
     guards_constants = defaultdict(set)  # type: Dict[Tuple[str, ...], Set[str]]
@@ -431,22 +436,42 @@ def load_xml():
                     logging.warning('Skipping - no members')
                     continue
 
-                f.write('enum class {} : core::EnumType\n'.format(enum_name))
-                f.write('{\n')
-                for guards, constant_names in guards_constants.items():
+                if len(guards_constants) == 1:
+                    # only one guard around all constants - promote around enum
+                    guards, constant_names = next(iter(guards_constants.items()))
                     if len(guards) != total_guards:
                         f.write('#if {}\n'.format(_make_guard(guards)))
+                    f.write('enum class {} : core::EnumType\n'.format(enum_name))
+                    f.write('{\n')
                     for constant_name in sorted(constant_names):
                         constant_value = constants[constant_name]
                         f.write('    {} = {},\n'.format(normalize_constant_name(constant_name), constant_value))
+                    f.write('};\n')
+
+                    if enum_data.is_bitmask:
+                        f.write(
+                            'constexpr core::Bitfield<{0}> operator|({0} left, {0} right) {{ return core::Bitfield<{0}>(left) | right;}}\n'.format(
+                                enum_name))
+
                     if len(guards) != total_guards:
                         f.write('#endif\n')
-                f.write('};\n')
+                else:
+                    f.write('enum class {} : core::EnumType\n'.format(enum_name))
+                    f.write('{\n')
+                    for guards, constant_names in sorted(guards_constants.items()):
+                        if len(guards) != total_guards:
+                            f.write('#if {}\n'.format(_make_guard(guards)))
+                        for constant_name in sorted(constant_names):
+                            constant_value = constants[constant_name]
+                            f.write('    {} = {},\n'.format(normalize_constant_name(constant_name), constant_value))
+                        if len(guards) != total_guards:
+                            f.write('#endif\n')
+                    f.write('};\n')
 
-                if enum_data.is_bitmask:
-                    f.write(
-                        'constexpr core::Bitfield<{0}> operator|({0} left, {0} right) {{ return core::Bitfield<{0}>(left) | right;}}\n'.format(
-                            enum_name))
+                    if enum_data.is_bitmask:
+                        f.write(
+                            'constexpr core::Bitfield<{0}> operator|({0} left, {0} right) {{ return core::Bitfield<{0}>(left) | right;}}\n'.format(
+                                enum_name))
 
                 f.write('\n')
 
@@ -484,3 +509,5 @@ if not os.path.isfile(XML_NAME):
         gl_xml.write(data)
 
 load_xml()
+
+logging.info('Everything done.')

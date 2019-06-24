@@ -89,8 +89,7 @@ public:
     {
         bind();
 
-        const auto result
-            = (::gl::FramebufferStatus)GL_ASSERT_FN(::gl::checkFramebufferStatus(::gl::FramebufferTarget::Framebuffer));
+        const auto result = GL_ASSERT_FN(::gl::checkFramebufferStatus(::gl::FramebufferTarget::Framebuffer));
 
 #ifndef NDEBUG
         switch(result)

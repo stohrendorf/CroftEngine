@@ -50,9 +50,9 @@ void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t siz
 {
     return glBufferSubData(static_cast<GLenum>(target), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), detail::constAway(data));
 }
-core::EnumType checkFramebufferStatus(FramebufferTarget target)
+FramebufferStatus checkFramebufferStatus(FramebufferTarget target)
 {
-    return glCheckFramebufferStatus(static_cast<GLenum>(target));
+    return static_cast<FramebufferStatus >(glCheckFramebufferStatus(static_cast<GLenum>(target)));
 }
 void clear(core::Bitfield<ClearBufferMask> mask)
 {
@@ -80,7 +80,7 @@ void compressedTexSubImage2D(TextureTarget target, int32_t level, int32_t xoffse
 }
 uint32_t createProgram()
 {
-    return glCreateProgram();
+    return static_cast<uint32_t >(glCreateProgram());
 }
 void cullFace(CullFaceMode mode)
 {
@@ -164,7 +164,7 @@ void generateMipmap(TextureTarget target)
 }
 int32_t getAttribLocation(uint32_t program, const char *name)
 {
-    return glGetAttribLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name)));
+    return static_cast<int32_t >(glGetAttribLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name))));
 }
 void getBooleanv(GetPName pname, bool *data)
 {
@@ -174,9 +174,9 @@ void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t *p
 {
     return glGetBufferParameteriv(static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint *>(params)));
 }
-core::EnumType getError()
+ErrorCode getError()
 {
-    return glGetError();
+    return static_cast<ErrorCode >(glGetError());
 }
 void getFloatv(GetPName pname, float *data)
 {
@@ -186,9 +186,9 @@ void getFramebufferAttachmentParameter(FramebufferTarget target, FramebufferAtta
 {
     return glGetFramebufferAttachmentParameteriv(static_cast<GLenum>(target), static_cast<GLenum>(attachment), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint *>(params)));
 }
-core::EnumType getGraphicsResetStatus()
+GraphicsResetStatus getGraphicsResetStatus()
 {
-    return glGetGraphicsResetStatus();
+    return static_cast<GraphicsResetStatus >(glGetGraphicsResetStatus());
 }
 void getIntegerv(GetPName pname, int32_t *data)
 {
@@ -204,7 +204,7 @@ void getRenderbufferParameter(RenderbufferTarget target, RenderbufferParameterNa
 }
 const uint8_t *getString(StringName name)
 {
-    return glGetString(static_cast<GLenum>(name));
+    return static_cast<const uint8_t *>(glGetString(static_cast<GLenum>(name)));
 }
 void getTexParameter(TextureTarget target, GetTextureParameter pname, float *params)
 {
@@ -216,7 +216,7 @@ void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t *p
 }
 int32_t getUniformLocation(uint32_t program, const char *name)
 {
-    return glGetUniformLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name)));
+    return static_cast<int32_t >(glGetUniformLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar *>(name))));
 }
 void getVertexAttribPointerv(uint32_t index, VertexAttribPointerPropertyARB pname, void **pointer)
 {
@@ -244,7 +244,7 @@ void hint(HintTarget target, HintMode mode)
 }
 bool isEnable(EnableCap cap)
 {
-    return glIsEnabled(static_cast<GLenum>(cap));
+    return static_cast<bool >(glIsEnabled(static_cast<GLenum>(cap)));
 }
 void lineWidth(float width)
 {
