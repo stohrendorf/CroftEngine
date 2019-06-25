@@ -15,9 +15,12 @@ class Node;
 class MaterialParameter
 {
 public:
-    explicit MaterialParameter(std::string name);
+    explicit MaterialParameter(std::string name)
+        : m_name{std::move(name)}
+    {
+    }
 
-    ~MaterialParameter();
+    ~MaterialParameter() = default;
 
     MaterialParameter(const MaterialParameter&&) = delete;
 
@@ -25,53 +28,26 @@ public:
 
     MaterialParameter& operator=(MaterialParameter&&) = delete;
 
-    const std::string& getName() const;
-
-    void set(float value);
-
-    void set(int value);
-
-    void set(const float* values, std::size_t count = 1);
-
-    void set(const int* values, std::size_t count = 1);
-
-    void set(const glm::vec2& value);
-
-    void set(const glm::vec2* values, std::size_t count = 1);
-
-    void set(const glm::vec3& value);
-
-    void set(const glm::vec3* values, std::size_t count = 1);
-
-    void set(const glm::vec4& value);
-
-    void set(const glm::vec4* values, std::size_t count = 1);
-
-    void set(const glm::mat4& value);
-
-    void set(const glm::mat4* values, std::size_t count = 1);
-
-    void set(const glm::mat3& value);
-
-    void set(const std::shared_ptr<gl::Texture>& texture);
-
-    void set(const std::vector<std::shared_ptr<gl::Texture>>& textures);
+    const std::string& getName() const
+    {
+        return m_name;
+    }
 
     template<typename T>
-    void set(const std::vector<T>& values)
+    void set(const T& value)
     {
-        set(values.data(), values.size());
+        m_valueSetter = [value](const Node& /*node*/, gl::ProgramUniform& uniform) { uniform.set(value); };
     }
 
     template<class ClassType, class ValueType>
     void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
     {
-        m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::Uniform& uniform) {
+        m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::ProgramUniform& uniform) {
             uniform.set((classInstance->*valueMethod)());
         };
     }
 
-    using UniformValueSetter = void(const Node& node, gl::Program::Uniform& uniform);
+    using UniformValueSetter = void(const Node& node, gl::ProgramUniform& uniform);
 
     void bind(std::function<UniformValueSetter>&& setter)
     {
@@ -84,7 +60,7 @@ public:
               std::size_t (ClassType::*countMethod)() const)
     {
         m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/,
-                                                                  const gl::Program::Uniform& uniform) {
+                                                                  const gl::Program::ProgramUniform& uniform) {
             uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)());
         };
     }
@@ -100,7 +76,17 @@ public:
     bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
 
 private:
-    gl::Program::Uniform* getUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
+    gl::ProgramUniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+    {
+        if(const auto uniform = shaderProgram->getUniform(m_name))
+            return uniform;
+
+        // This parameter was not found in the specified effect, so do nothing.
+        BOOST_LOG_TRIVIAL(warning) << "Uniform '" << m_name << "' not found in program '" << shaderProgram->getId()
+                                   << "'";
+
+        return nullptr;
+    }
 
     const std::string m_name;
 

@@ -64,24 +64,24 @@ template<typename T>
 class StructuredArrayBuffer : public ArrayBuffer<T>
 {
 public:
-    explicit StructuredArrayBuffer(const StructureLayout<T>& mapping, const std::string& label = {})
+    explicit StructuredArrayBuffer(const StructureLayout<T>& layout, const std::string& label = {})
         : ArrayBuffer{label}
-        , m_structureLayout{mapping}
+        , m_structureLayout{layout}
     {
-        BOOST_ASSERT(!mapping.empty());
+        BOOST_ASSERT(!layout.empty());
     }
 
     void bindVertexAttributes(const Program& program) const
     {
         bind();
 
-        for(const auto& attribute : program.getInputs())
+        for(const auto& input : program.getInputs())
         {
-            auto it = m_structureLayout.find(attribute.getName());
+            auto it = m_structureLayout.find(input.getName());
             if(it == m_structureLayout.end())
                 continue;
 
-            it->second.bindVertexAttribute(attribute.getLocation());
+            it->second.bindVertexAttribute(input.getLocation());
         }
     }
 

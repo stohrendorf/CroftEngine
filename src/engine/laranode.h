@@ -559,7 +559,7 @@ public:
     void updateAnimNotShotgun(WeaponId weaponId);
 
     bool fireWeapon(WeaponId weaponId,
-                    const std::shared_ptr<ModelItemNode>& target,
+                    const std::shared_ptr<ModelItemNode>& targetItem,
                     const ModelItemNode& gunHolder,
                     const core::TRRotationXY& aimAngle);
 

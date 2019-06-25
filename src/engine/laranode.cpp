@@ -1334,11 +1334,11 @@ void LaraNode::findTarget(const Weapon& weapon)
         if(util::square(d.X) + util::square(d.Y) + util::square(d.Z) >= util::square(weapon.targetDist))
             continue;
 
-        auto target = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelItemNode>(currentEnemy.get()));
-        if(!CameraController::clampPosition(gunPosition, target, getEngine()))
+        auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelItemNode>(currentEnemy.get()));
+        if(!CameraController::clampPosition(gunPosition, enemyPos, getEngine()))
             continue;
 
-        auto aimAngle = getVectorAngles(target.position - gunPosition.position);
+        auto aimAngle = getVectorAngles(enemyPos.position - gunPosition.position);
         aimAngle.X -= m_torsoRotation.X + m_state.rotation.X;
         aimAngle.Y -= m_torsoRotation.Y + m_state.rotation.Y;
         if(aimAngle.Y < weapon.lockAngles.y.min || aimAngle.Y > weapon.lockAngles.y.max
@@ -1461,17 +1461,17 @@ void LaraNode::unholsterShotgun()
 
 void LaraNode::updateAimAngles(const Weapon& weapon, AimInfo& aimInfo) const
 {
-    core::TRRotationXY target{0_deg, 0_deg};
+    core::TRRotationXY targetRot{0_deg, 0_deg};
     if(aimInfo.aiming)
     {
-        target = m_weaponTargetVector;
+        targetRot = m_weaponTargetVector;
     }
 
-    if(aimInfo.aimRotation.X >= target.X - weapon.aimSpeed && aimInfo.aimRotation.X <= target.X + weapon.aimSpeed)
+    if(aimInfo.aimRotation.X >= targetRot.X - weapon.aimSpeed && aimInfo.aimRotation.X <= targetRot.X + weapon.aimSpeed)
     {
-        aimInfo.aimRotation.X = target.X;
+        aimInfo.aimRotation.X = targetRot.X;
     }
-    else if(aimInfo.aimRotation.X >= target.X)
+    else if(aimInfo.aimRotation.X >= targetRot.X)
     {
         aimInfo.aimRotation.X -= weapon.aimSpeed;
     }
@@ -1480,11 +1480,11 @@ void LaraNode::updateAimAngles(const Weapon& weapon, AimInfo& aimInfo) const
         aimInfo.aimRotation.X += weapon.aimSpeed;
     }
 
-    if(aimInfo.aimRotation.Y >= target.Y - weapon.aimSpeed && aimInfo.aimRotation.Y <= weapon.aimSpeed + target.Y)
+    if(aimInfo.aimRotation.Y >= targetRot.Y - weapon.aimSpeed && aimInfo.aimRotation.Y <= weapon.aimSpeed + targetRot.Y)
     {
-        aimInfo.aimRotation.Y = target.Y;
+        aimInfo.aimRotation.Y = targetRot.Y;
     }
-    else if(aimInfo.aimRotation.Y >= target.Y)
+    else if(aimInfo.aimRotation.Y >= targetRot.Y)
     {
         aimInfo.aimRotation.Y -= weapon.aimSpeed;
     }
@@ -1910,7 +1910,7 @@ void LaraNode::updateAnimNotShotgun(const WeaponId weaponId)
 }
 
 bool LaraNode::fireWeapon(const WeaponId weaponId,
-                          const std::shared_ptr<ModelItemNode>& target,
+                          const std::shared_ptr<ModelItemNode>& targetItem,
                           const ModelItemNode& gunHolder,
                           const core::TRRotationXY& aimAngle)
 {
@@ -1968,10 +1968,12 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
                                  +0_deg};
 
     std::vector<SkeletalModelNode::Sphere> spheres;
-    if(target != nullptr)
+    if(targetItem != nullptr)
     {
-        spheres = target->getSkeleton()->getBoneCollisionSpheres(
-            target->m_state, *target->getSkeleton()->getInterpolationInfo(target->m_state).getNearestFrame(), nullptr);
+        spheres = targetItem->getSkeleton()->getBoneCollisionSpheres(
+            targetItem->m_state,
+            *targetItem->getSkeleton()->getInterpolationInfo(targetItem->m_state).getNearestFrame(),
+            nullptr);
     }
     bool hasHit = false;
     glm::vec3 hitPos;
@@ -2008,9 +2010,9 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
     }
     else
     {
-        BOOST_ASSERT(target != nullptr);
+        BOOST_ASSERT(targetItem != nullptr);
         ++ammoPtr->hits;
-        hitTarget(*target, core::TRVec{hitPos}, weapon->damage);
+        hitTarget(*targetItem, core::TRVec{hitPos}, weapon->damage);
     }
 
     return true;
@@ -2503,13 +2505,12 @@ void LaraNode::renderGunFlare(const WeaponId weaponId,
 
     const auto brightness = 1.0f - shade / 8191.0f;
     flareNode->addMaterialParameterSetter(
-        "u_lightAmbient",
-        [brightness](const render::scene::Node& /*node*/, render::gl::Program::Uniform& uniform) {
+        "u_lightAmbient", [brightness](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
             uniform.set(brightness);
         });
     flareNode->addMaterialParameterSetter(
         "u_numLights",
-        [](const render::scene::Node& /*node*/, render::gl::Program::Uniform& uniform) { uniform.set(0); });
+        [](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) { uniform.set(0); });
 }
 
 YAML::Node LaraNode::save() const

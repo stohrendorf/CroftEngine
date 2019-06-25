@@ -32,11 +32,11 @@ public:
 
     const std::string& getId() const;
 
-    const gl::Program::Input* getVertexAttribute(const std::string& name) const;
+    const gl::ProgramInput* getVertexAttribute(const std::string& name) const;
 
-    const gl::Program::Uniform* getUniform(const std::string& name) const;
+    const gl::ProgramUniform* getUniform(const std::string& name) const;
 
-    gl::Program::Uniform* getUniform(const std::string& name);
+    gl::ProgramUniform* getUniform(const std::string& name);
 
     void bind() const;
 
@@ -56,9 +56,9 @@ private:
 
     gl::Program m_handle;
 
-    boost::container::flat_map<std::string, gl::Program::Input> m_vertexAttributes;
+    boost::container::flat_map<std::string, gl::ProgramInput> m_vertexAttributes;
 
-    std::map<std::string, gl::Program::Uniform> m_uniforms;
+    std::map<std::string, gl::ProgramUniform> m_uniforms;
 };
 } // namespace scene
 } // namespace render

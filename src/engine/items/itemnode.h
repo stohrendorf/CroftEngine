@@ -139,11 +139,11 @@ struct ItemState final : public audio::Emitter
         return !activationState.isInverted();
     }
 
-    bool stalkBox(const Engine& engine, const loader::file::Box& box) const;
+    bool stalkBox(const Engine& engine, const loader::file::Box& targetBox) const;
 
-    bool isInsideZoneButNotInBox(const Engine& engine, int16_t zoneId, const loader::file::Box& box) const;
+    bool isInsideZoneButNotInBox(const Engine& engine, int16_t zoneId, const loader::file::Box& targetBox) const;
 
-    bool inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& box) const;
+    bool inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& targetBox) const;
 
     void initCreatureInfo(const Engine& engine);
 

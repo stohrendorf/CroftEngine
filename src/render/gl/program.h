@@ -36,6 +36,166 @@ private:
     std::string m_name{};
 };
 
+class ProgramInput : public ProgramInterface
+{
+public:
+    explicit ProgramInput(const Program& program, const uint32_t index)
+        : ProgramInterface{program, ::gl::ProgramInterface::ProgramInput, index}
+    {
+    }
+};
+
+class ProgramUniform : public ProgramInterface
+{
+public:
+    explicit ProgramUniform(const Program& program, uint32_t index, int32_t& samplerIndex);
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    template<typename T>
+    void set(const T& value)
+    {
+        GL_ASSERT(::gl::programUniform1(m_program, getLocation(), value));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    template<typename T>
+    void set(const std::vector<T>& values)
+    {
+        GL_ASSERT(::gl::programUniform1(
+            m_program, getLocation(), gsl::narrow<::gl::core::SizeType>(values.size()), values.data()));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const glm::mat3& value)
+    {
+        GL_ASSERT(::gl::programUniformMatrix3(m_program, getLocation(), 1, false, value_ptr(value)));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const glm::mat4& value)
+    {
+        GL_ASSERT(::gl::programUniformMatrix4(m_program, getLocation(), 1, false, value_ptr(value)));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const std::vector<glm::mat4>& values)
+    {
+        GL_ASSERT(::gl::programUniformMatrix4(m_program,
+                                              getLocation(),
+                                              gsl::narrow<::gl::core::SizeType>(values.size()),
+                                              false,
+                                              reinterpret_cast<const float*>(values.data())));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const glm::vec2& value)
+    {
+        GL_ASSERT(::gl::programUniform2(m_program, getLocation(), value.x, value.y));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const std::vector<glm::vec2>& values)
+    {
+        GL_ASSERT(::gl::programUniform2(m_program,
+                                        getLocation(),
+                                        gsl::narrow<::gl::core::SizeType>(values.size()),
+                                        reinterpret_cast<const float*>(values.data())));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const std::vector<glm::vec3>& values)
+    {
+        GL_ASSERT(::gl::programUniform3(m_program,
+                                        getLocation(),
+                                        gsl::narrow<::gl::core::SizeType>(values.size()),
+                                        reinterpret_cast<const float*>(values.data())));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const std::vector<glm::vec4>& values)
+    {
+        GL_ASSERT(::gl::programUniform4(m_program,
+                                        getLocation(),
+                                        gsl::narrow<::gl::core::SizeType>(values.size()),
+                                        reinterpret_cast<const float*>(values.data())));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const glm::vec3& value)
+    {
+        GL_ASSERT(::gl::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const glm::vec4& value)
+    {
+        GL_ASSERT(::gl::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
+    }
+
+    static ::gl::TextureUnit textureUnit(size_t n)
+    {
+        Expects(n >= 0 && n < 32);
+        return static_cast<::gl::TextureUnit>(static_cast<::gl::core::EnumType>(::gl::TextureUnit::Texture0) + n);
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const Texture& texture)
+    {
+        BOOST_ASSERT(m_samplerIndex >= 0);
+
+        GL_ASSERT(::gl::activeTexture(textureUnit(m_samplerIndex)));
+
+        // Bind the sampler - this binds the texture and applies sampler state
+        texture.bind();
+
+        GL_ASSERT(::gl::programUniform1(m_program, getLocation(), m_samplerIndex));
+    }
+
+    template<typename T>
+    void set(const Texture2D<T>& texture)
+    {
+        set(static_cast<const Texture&>(texture));
+    }
+
+    void set(const TextureDepth& texture)
+    {
+        set(static_cast<const Texture&>(texture));
+    }
+
+    template<typename T>
+    void set(const std::shared_ptr<T>& value)
+    {
+        set(*value);
+    }
+
+    // ReSharper disable once CppMemberFunctionMayBeConst
+    void set(const std::vector<std::shared_ptr<Texture>>& values)
+    {
+        BOOST_ASSERT(m_samplerIndex >= 0);
+        Expects(values.size() <= 32);
+
+        // Set samplers as active and load texture unit array
+        std::vector<int32_t> units;
+        for(size_t i = 0; i < values.size(); ++i)
+        {
+            GL_ASSERT(::gl::activeTexture(textureUnit(i)));
+
+            // Bind the sampler - this binds the texture and applies sampler state
+            values[i]->bind();
+
+            units.emplace_back(gsl::narrow<int32_t>(m_samplerIndex + i));
+        }
+
+        // Pass texture unit array to GL
+        GL_ASSERT(::gl::programUniform1(
+            m_program, getLocation(), static_cast<::gl::core::SizeType>(values.size()), units.data()));
+    }
+
+private:
+    int32_t m_samplerIndex = -1;
+    const uint32_t m_program;
+};
+
 class Program : public BindableResource
 {
 public:
@@ -104,186 +264,22 @@ public:
         return gsl::narrow<uint32_t>(n);
     }
 
-    class Input : public ProgramInterface
-    {
-    public:
-        explicit Input(const Program& program, const uint32_t index)
-            : ProgramInterface{program, ::gl::ProgramInterface::ProgramInput, index}
-        {
-        }
-    };
-
-    class Uniform : public ProgramInterface
-    {
-    public:
-        explicit Uniform(const Program& program, const uint32_t index, int32_t& samplerIndex)
-            : ProgramInterface{program, ::gl::ProgramInterface::Uniform, index}
-            , m_program{program.getHandle()}
-        {
-            int32_t type;
-            GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformType, &type));
-            int32_t size = -1;
-            GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformSize, &size));
-            Expects(size >= 0);
-
-            switch((::gl::UniformType)type)
-            {
-            case ::gl::UniformType::Sampler1d:
-            case ::gl::UniformType::Sampler1dShadow:
-            case ::gl::UniformType::Sampler2d:
-            case ::gl::UniformType::Sampler2dShadow:
-            case ::gl::UniformType::Sampler2dRect:
-            case ::gl::UniformType::Sampler2dRectShadow:
-            case ::gl::UniformType::Sampler3d:
-            case ::gl::UniformType::SamplerCube: m_samplerIndex = samplerIndex; samplerIndex += size;
-            default: break;
-            }
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        template<typename T>
-        void set(const T& value)
-        {
-            GL_ASSERT(::gl::programUniform1(m_program, getLocation(), value));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        template<typename T>
-        void set(const T* values, const ::gl::core::SizeType count)
-        {
-            BOOST_ASSERT(values != nullptr);
-            GL_ASSERT(::gl::programUniform1(m_program, getLocation(), count, values));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::mat3& value)
-        {
-            GL_ASSERT(::gl::programUniformMatrix3(m_program, getLocation(), 1, false, value_ptr(value)));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::mat4& value)
-        {
-            GL_ASSERT(::gl::programUniformMatrix4(m_program, getLocation(), 1, false, value_ptr(value)));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::mat4* values, const ::gl::core::SizeType count)
-        {
-            BOOST_ASSERT(values != nullptr);
-            GL_ASSERT(::gl::programUniformMatrix4(
-                m_program, getLocation(), count, false, reinterpret_cast<const float*>(values)));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::vec2& value)
-        {
-            GL_ASSERT(::gl::programUniform2(m_program, getLocation(), value.x, value.y));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::vec2* values, const ::gl::core::SizeType count)
-        {
-            BOOST_ASSERT(values != nullptr);
-            GL_ASSERT(::gl::programUniform2(m_program, getLocation(), count, reinterpret_cast<const float*>(values)));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::vec3* values, const ::gl::core::SizeType count)
-        {
-            BOOST_ASSERT(values != nullptr);
-            GL_ASSERT(::gl::programUniform3(m_program, getLocation(), count, reinterpret_cast<const float*>(values)));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::vec4* values, const ::gl::core::SizeType count)
-        {
-            BOOST_ASSERT(values != nullptr);
-            GL_ASSERT(::gl::programUniform4(m_program, getLocation(), count, reinterpret_cast<const float*>(values)));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::vec3& value)
-        {
-            GL_ASSERT(::gl::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const glm::vec4& value)
-        {
-            GL_ASSERT(::gl::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        template<typename T>
-        void set(const std::vector<T>& values)
-        {
-            set(values.data(), gsl::narrow<::gl::core::SizeType>(values.size()));
-        }
-
-        static ::gl::TextureUnit textureUnit(size_t n)
-        {
-            Expects(n >= 0 && n < 32);
-            return static_cast<::gl::TextureUnit>(static_cast<::gl::core::EnumType>(::gl::TextureUnit::Texture0) + n);
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const Texture& texture)
-        {
-            BOOST_ASSERT(m_samplerIndex >= 0);
-
-            GL_ASSERT(::gl::activeTexture(textureUnit(m_samplerIndex)));
-
-            // Bind the sampler - this binds the texture and applies sampler state
-            texture.bind();
-
-            GL_ASSERT(::gl::programUniform1(m_program, getLocation(), m_samplerIndex));
-        }
-
-        // ReSharper disable once CppMemberFunctionMayBeConst
-        void set(const std::vector<std::shared_ptr<Texture>>& values)
-        {
-            BOOST_ASSERT(m_samplerIndex >= 0);
-            Expects(values.size() <= 32);
-
-            // Set samplers as active and load texture unit array
-            std::vector<int32_t> units;
-            for(size_t i = 0; i < values.size(); ++i)
-            {
-                GL_ASSERT(::gl::activeTexture(textureUnit(i)));
-
-                // Bind the sampler - this binds the texture and applies sampler state
-                values[i]->bind();
-
-                units.emplace_back(gsl::narrow<int32_t>(m_samplerIndex + i));
-            }
-
-            // Pass texture unit array to GL
-            GL_ASSERT(::gl::programUniform1(
-                m_program, getLocation(), static_cast<::gl::core::SizeType>(values.size()), units.data()));
-        }
-
-    private:
-        int32_t m_samplerIndex = -1;
-        const uint32_t m_program;
-    };
-
-    std::vector<Input> getInputs() const
+    std::vector<ProgramInput> getInputs() const
     {
         const auto n = getActiveResourceCount(::gl::ProgramInterface::ProgramInput);
 
-        std::vector<Input> inputs;
+        std::vector<ProgramInput> inputs;
         inputs.reserve(n);
         for(uint32_t i = 0; i < n; ++i)
             inputs.emplace_back(*this, i);
         return inputs;
     }
 
-    std::vector<Uniform> getUniforms() const
+    std::vector<ProgramUniform> getUniforms() const
     {
         const auto n = getActiveResourceCount(::gl::ProgramInterface::Uniform);
 
-        std::vector<Uniform> uniforms;
+        std::vector<ProgramUniform> uniforms;
         uniforms.reserve(n);
         int32_t samplerIndex = 0;
         for(uint32_t i = 0; i < n; ++i)
@@ -314,6 +310,30 @@ inline ProgramInterface::ProgramInterface(const Program& program,
                                            nullptr,
                                            nameData.data()));
     m_name.assign(nameData.begin(), std::prev(nameData.end()));
+}
+
+inline ProgramUniform::ProgramUniform(const Program& program, const uint32_t index, int32_t& samplerIndex)
+    : ProgramInterface{program, ::gl::ProgramInterface::Uniform, index}
+    , m_program{program.getHandle()}
+{
+    int32_t type;
+    GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformType, &type));
+    int32_t size = -1;
+    GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformSize, &size));
+    Expects(size >= 0);
+
+    switch((::gl::UniformType)type)
+    {
+    case ::gl::UniformType::Sampler1d:
+    case ::gl::UniformType::Sampler1dShadow:
+    case ::gl::UniformType::Sampler2d:
+    case ::gl::UniformType::Sampler2dShadow:
+    case ::gl::UniformType::Sampler2dRect:
+    case ::gl::UniformType::Sampler2dRectShadow:
+    case ::gl::UniformType::Sampler3d:
+    case ::gl::UniformType::SamplerCube: m_samplerIndex = samplerIndex; samplerIndex += size;
+    default: break;
+    }
 }
 } // namespace gl
 } // namespace render

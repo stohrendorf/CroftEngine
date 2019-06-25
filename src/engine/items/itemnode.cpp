@@ -369,13 +369,14 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<Engine*>& engine,
     m_node->setDrawable(model);
     m_node->addMaterialParameterSetter(
         "u_diffuseTexture",
-        [texture = sprite.texture](const render::scene::Node& /*node*/, render::gl::Program::Uniform& uniform) {
+        [texture = sprite.texture](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
             uniform.set(*texture);
         });
     m_node->addMaterialParameterSetter(
         "u_lightAmbient",
-        [brightness = item.getBrightness()](const render::scene::Node& /*node*/,
-                                            render::gl::Program::Uniform& uniform) { uniform.set(brightness); });
+        [brightness = item.getBrightness()](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
+            uniform.set(brightness);
+        });
 
     addChild(room->node, m_node);
 
@@ -560,10 +561,10 @@ YAML::Node ModelItemNode::save() const
     return n;
 }
 
-bool ItemState::stalkBox(const Engine& engine, const loader::file::Box& box) const
+bool ItemState::stalkBox(const Engine& engine, const loader::file::Box& targetBox) const
 {
-    const auto laraToBoxDistX = (box.xmin + box.xmax) / 2 - engine.getLara().m_state.position.position.X;
-    const auto laraToBoxDistZ = (box.zmin + box.zmax) / 2 - engine.getLara().m_state.position.position.Z;
+    const auto laraToBoxDistX = (targetBox.xmin + targetBox.xmax) / 2 - engine.getLara().m_state.position.position.X;
+    const auto laraToBoxDistZ = (targetBox.zmin + targetBox.zmax) / 2 - engine.getLara().m_state.position.position.Z;
 
     if(abs(laraToBoxDistX) > 3 * core::SectorSize || abs(laraToBoxDistZ) > 3 * core::SectorSize)
     {
@@ -639,31 +640,33 @@ bool ItemState::stalkBox(const Engine& engine, const loader::file::Box& box) con
     BOOST_THROW_EXCEPTION(std::runtime_error("Unreachable code reached"));
 }
 
-bool ItemState::isInsideZoneButNotInBox(const Engine& engine, const int16_t zoneId, const loader::file::Box& box) const
+bool ItemState::isInsideZoneButNotInBox(const Engine& engine,
+                                        const int16_t zoneId,
+                                        const loader::file::Box& targetBox) const
 {
     Expects(creatureInfo != nullptr);
 
     const auto zoneRef
         = loader::file::Box::getZoneRef(engine.roomsAreSwapped(), creatureInfo->lot.fly, creatureInfo->lot.step);
 
-    if(zoneId != box.*zoneRef)
+    if(zoneId != targetBox.*zoneRef)
     {
         return false;
     }
 
-    if((creatureInfo->lot.block_mask & box.overlap_index) != 0)
+    if((creatureInfo->lot.block_mask & targetBox.overlap_index) != 0)
     {
         return false;
     }
 
-    return position.position.Z <= box.zmin || position.position.Z >= box.zmax || position.position.X <= box.xmin
-           || position.position.X >= box.xmax;
+    return position.position.Z <= targetBox.zmin || position.position.Z >= targetBox.zmax
+           || position.position.X <= targetBox.xmin || position.position.X >= targetBox.xmax;
 }
 
-bool ItemState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& box) const
+bool ItemState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& targetBox) const
 {
-    const auto laraToBoxX = (box.xmin + box.xmax) / 2 - engine.getLara().m_state.position.position.X;
-    const auto laraToBoxZ = (box.zmin + box.zmax) / 2 - engine.getLara().m_state.position.position.Z;
+    const auto laraToBoxX = (targetBox.xmin + targetBox.xmax) / 2 - engine.getLara().m_state.position.position.X;
+    const auto laraToBoxZ = (targetBox.zmin + targetBox.zmax) / 2 - engine.getLara().m_state.position.position.Z;
     if(abs(laraToBoxX) < 5 * core::SectorSize && abs(laraToBoxZ) < 5 * core::SectorSize)
         return false;
 
@@ -690,11 +693,11 @@ void ItemState::collectZoneBoxes(const Engine& engine)
     const auto zoneData1 = box->*zoneRef1;
     const auto zoneData2 = box->*zoneRef2;
     creatureInfo->lot.boxes.clear();
-    for(const auto& box : engine.getBoxes())
+    for(const auto& levelBox : engine.getBoxes())
     {
-        if(box.*zoneRef1 == zoneData1 || box.*zoneRef2 == zoneData2)
+        if(levelBox.*zoneRef1 == zoneData1 || levelBox.*zoneRef2 == zoneData2)
         {
-            creatureInfo->lot.boxes.emplace_back(&box);
+            creatureInfo->lot.boxes.emplace_back(&levelBox);
         }
     }
 }

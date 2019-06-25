@@ -280,9 +280,9 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
         return nullptr;
     }
 
-    for(auto&& attrib : shaderProgram->m_handle.getInputs())
+    for(auto&& input : shaderProgram->m_handle.getInputs())
     {
-        shaderProgram->m_vertexAttributes.insert(make_pair(attrib.getName(), std::move(attrib)));
+        shaderProgram->m_vertexAttributes.insert(make_pair(input.getName(), std::move(input)));
     }
 
     for(auto&& uniform : shaderProgram->m_handle.getUniforms())
@@ -298,19 +298,19 @@ const std::string& ShaderProgram::getId() const
     return m_id;
 }
 
-const gl::Program::Input* ShaderProgram::getVertexAttribute(const std::string& name) const
+const gl::ProgramInput* ShaderProgram::getVertexAttribute(const std::string& name) const
 {
     const auto it = m_vertexAttributes.find(name);
     return it == m_vertexAttributes.end() ? nullptr : &it->second;
 }
 
-const gl::Program::Uniform* ShaderProgram::getUniform(const std::string& name) const
+const gl::ProgramUniform* ShaderProgram::getUniform(const std::string& name) const
 {
     const auto it = m_uniforms.find(name);
     return it == m_uniforms.end() ? nullptr : &it->second;
 }
 
-gl::Program::Uniform* ShaderProgram::getUniform(const std::string& name)
+gl::ProgramUniform* ShaderProgram::getUniform(const std::string& name)
 {
     auto it = m_uniforms.find(name);
     return it == m_uniforms.end() ? nullptr : &it->second;
