@@ -9,7 +9,7 @@ mat2 rotate2d(in float a){
 }
 
 float random(vec2 st) {
-    return fract(sin(dot(st.xy, vec2(12.9898, 78.233)))* 43758.5453123);
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
 
 // Based on Morgan McGuire @morgan3d
@@ -27,7 +27,7 @@ float noise(in vec2 st) {
     vec2 u = f * f * (3.0 - 2.0 * f);
 
     return mix(a, b, u.x) +
-    (c - a)* u.y * (1.0 - u.x) +
+    (c - a) * u.y * (1.0 - u.x) +
     (d - b) * u.x * u.y;
 }
 
@@ -49,8 +49,8 @@ float bumpTex(in vec2 uv) {
     vec2 coords1 = rotate2d(.9*PI) * uv + u_time*vec2(0.1, -0.3)*TimeMult;
     vec2 coords2 = rotate2d(.06*PI) * uv - u_time*vec2(0.1, 0.2)*TimeMult;
 
-    float wave1 = fbm(coords1*vec2(30.0, 3.0));
-    float wave2 = fbm(coords2*vec2(30.0, 3.0));
+    float wave1 = fbm(coords1*vec2(30.0, 20.0));
+    float wave2 = fbm(coords2*vec2(30.0, 20.0));
 
     return pow((wave1 + wave2) / 2.0, 2.0);
 }
