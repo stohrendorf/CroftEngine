@@ -293,32 +293,5 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
     return shaderProgram;
 }
 
-const std::string& ShaderProgram::getId() const
-{
-    return m_id;
-}
-
-const gl::ProgramInput* ShaderProgram::getVertexAttribute(const std::string& name) const
-{
-    const auto it = m_vertexAttributes.find(name);
-    return it == m_vertexAttributes.end() ? nullptr : &it->second;
-}
-
-const gl::ProgramUniform* ShaderProgram::getUniform(const std::string& name) const
-{
-    const auto it = m_uniforms.find(name);
-    return it == m_uniforms.end() ? nullptr : &it->second;
-}
-
-gl::ProgramUniform* ShaderProgram::getUniform(const std::string& name)
-{
-    auto it = m_uniforms.find(name);
-    return it == m_uniforms.end() ? nullptr : &it->second;
-}
-
-void ShaderProgram::bind() const
-{
-    m_handle.bind();
-}
 } // namespace scene
 } // namespace render

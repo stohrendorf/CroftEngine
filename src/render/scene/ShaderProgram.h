@@ -30,15 +30,27 @@ public:
                                                          const std::string& fshPath,
                                                          const std::vector<std::string>& defines = {});
 
-    const std::string& getId() const;
+    const std::string& getId() const
+    {
+        return m_id;
+    }
 
-    const gl::ProgramInput* getVertexAttribute(const std::string& name) const;
+    const gl::ProgramUniform* findUniform(const std::string& name) const
+    {
+        auto it = m_uniforms.find(name);
+        return it == m_uniforms.end() ? nullptr : &it->second;
+    }
 
-    const gl::ProgramUniform* getUniform(const std::string& name) const;
+    gl::ProgramUniform* findUniform(const std::string& name)
+    {
+        auto it = m_uniforms.find(name);
+        return it == m_uniforms.end() ? nullptr : &it->second;
+    }
 
-    gl::ProgramUniform* getUniform(const std::string& name);
-
-    void bind() const;
+    void bind() const
+    {
+        m_handle.bind();
+    }
 
     const gl::Program& getHandle() const
     {

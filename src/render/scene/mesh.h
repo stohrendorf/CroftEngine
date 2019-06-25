@@ -71,7 +71,7 @@ public:
     {
     }
 
-    ~MeshImpl() = default;
+    ~MeshImpl() override = default;
 
     MeshImpl(const MeshImpl&) = delete;
 

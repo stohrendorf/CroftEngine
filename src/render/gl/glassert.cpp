@@ -2,12 +2,8 @@
 
 #include "api/gl_api_provider.hpp"
 
-namespace render
-{
-namespace gl
-{
 #ifndef NDEBUG
-void checkGlError(const char* code)
+void render::gl::checkGlError(const char* code)
 {
     const auto error = ::gl::getError();
     if(error == ::gl::ErrorCode::NoError)
@@ -32,5 +28,3 @@ void checkGlError(const char* code)
     BOOST_ASSERT_MSG(false, code);
 }
 #endif
-} // namespace gl
-} // namespace render

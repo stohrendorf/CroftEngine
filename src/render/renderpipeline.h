@@ -289,11 +289,11 @@ public:
         const auto proj = glm::ortho(
             0.0f, gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), 0.0f, 0.0f, 1.0f);
 
-        m_fxaaShader->getUniform("u_projection")->set(proj);
-        m_ssaoShader->getUniform("u_projection")->set(proj);
-        m_ssaoBlurShader->getUniform("u_projection")->set(proj);
-        m_fxDarknessShader->getUniform("u_projection")->set(proj);
-        m_fxWaterDarknessShader->getUniform("u_projection")->set(proj);
+        m_fxaaShader->findUniform("u_projection")->set(proj);
+        m_ssaoShader->findUniform("u_projection")->set(proj);
+        m_ssaoBlurShader->findUniform("u_projection")->set(proj);
+        m_fxDarknessShader->findUniform("u_projection")->set(proj);
+        m_fxWaterDarknessShader->findUniform("u_projection")->set(proj);
 
         auto fxaaMesh = scene::createQuadFullscreen(
             gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), m_fxaaShader->getHandle());

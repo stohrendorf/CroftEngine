@@ -78,7 +78,7 @@ public:
 private:
     gl::ProgramUniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
     {
-        if(const auto uniform = shaderProgram->getUniform(m_name))
+        if(const auto uniform = shaderProgram->findUniform(m_name))
             return uniform;
 
         // This parameter was not found in the specified effect, so do nothing.
