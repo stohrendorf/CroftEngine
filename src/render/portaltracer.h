@@ -7,12 +7,12 @@ namespace render
 {
 struct PortalTracer
 {
-    struct BoundingBox
+    struct CullBox
     {
         glm::vec2 min;
         glm::vec2 max;
 
-        BoundingBox(const float minX, const float minY, const float maxX, const float maxY)
+        CullBox(const float minX, const float minY, const float maxX, const float maxY)
             : min{minX, minY}
             , max{maxX, maxY}
         {
@@ -24,24 +24,24 @@ struct PortalTracer
     {
         std::vector<const loader::file::Room*> seenRooms;
         seenRooms.reserve(32);
-        std::unordered_set<const loader::file::Portal*> waterEntryPortals;
+        std::unordered_set<const loader::file::Portal*> waterSurfacePortals;
         traceRoom(startRoom,
                   {-1, -1, 1, 1},
                   engine,
                   seenRooms,
                   startRoom.isWaterRoom(),
-                  waterEntryPortals,
+                  waterSurfacePortals,
                   startRoom.isWaterRoom());
         Expects(seenRooms.empty());
-        return waterEntryPortals;
+        return waterSurfacePortals;
     }
 
     static bool traceRoom(const loader::file::Room& room,
-                          const BoundingBox& roomBBox,
+                          const CullBox& roomCullBox,
                           const engine::Engine& engine,
                           std::vector<const loader::file::Room*>& seenRooms,
                           const bool inWater,
-                          std::unordered_set<const loader::file::Portal*>& waterEntryPortals,
+                          std::unordered_set<const loader::file::Portal*>& waterSurfacePortals,
                           const bool startFromWater)
     {
         if(std::find(seenRooms.rbegin(), seenRooms.rend(), &room) != seenRooms.rend())
@@ -51,20 +51,20 @@ struct PortalTracer
         room.node->setVisible(true);
         for(const auto& portal : room.portals)
         {
-            if(const auto narrowedBounds = narrowPortal(room, roomBBox, portal, engine.getCameraController()))
+            if(const auto narrowedCullBox = narrowCullBox(room, roomCullBox, portal, engine.getCameraController()))
             {
                 const auto& childRoom = engine.getRooms().at(portal.adjoining_room.get());
                 const bool waterChanged = inWater == startFromWater && childRoom.isWaterRoom() != startFromWater;
                 if(traceRoom(childRoom,
-                             *narrowedBounds,
+                             *narrowedCullBox,
                              engine,
                              seenRooms,
                              inWater || childRoom.isWaterRoom(),
-                             waterEntryPortals,
+                             waterSurfacePortals,
                              startFromWater)
                    && waterChanged)
                 {
-                    waterEntryPortals.emplace(&portal);
+                    waterSurfacePortals.emplace(&portal);
                 }
             }
         }
@@ -72,27 +72,37 @@ struct PortalTracer
         return true;
     }
 
-    static boost::optional<BoundingBox> narrowPortal(const loader::file::Room& parentRoom,
-                                                     const BoundingBox& parentBBox,
-                                                     const loader::file::Portal& portal,
-                                                     const engine::CameraController& camera)
+    static boost::optional<CullBox> narrowCullBox(const loader::file::Room& parentRoom,
+                                                  const CullBox& parentCullBox,
+                                                  const loader::file::Portal& portal,
+                                                  const engine::CameraController& camera)
     {
         static const constexpr auto Eps = 1.0f / (1 << 14);
 
-        const auto portalToCam = glm::vec3{camera.getPosition() - portal.vertices[0].toRenderSystem()};
-        if(dot(portal.normal.toRenderSystem(), portalToCam) <= Eps)
+        if(dot(portal.normal.toRenderSystem(), portal.vertices[0].toRenderSystem() - camera.getPosition()) >= 0)
         {
             return boost::none; // wrong orientation (normals must face the camera)
         }
 
-        // 1. determine the screen bbox of the current portal
+        const auto toView = [&camera](const glm::vec3& v) {
+            const auto tmp = camera.getCamera()->getViewMatrix() * glm::vec4{v, 1.0f};
+            BOOST_ASSERT(tmp.w > std::numeric_limits<float>::epsilon());
+            return glm::vec3{tmp} / tmp.w;
+        };
+
+        const auto toScreen = [&camera](const glm::vec3& v) {
+            const auto tmp = camera.getCamera()->getProjectionMatrix() * glm::vec4{v, 1.0f};
+            BOOST_ASSERT(tmp.w > std::numeric_limits<float>::epsilon());
+            return glm::vec2{tmp} / tmp.w;
+        };
+
+        // 1. determine the screen cull box of the current portal
         // 2. intersect it with the parent's bbox
-        BoundingBox portalBB{1, 1, -1, -1};
+        CullBox portalCullBox{1, 1, -1, -1};
         size_t behindCamera = 0, tooFar = 0;
         for(const auto& vertex : portal.vertices)
         {
-            glm::vec3 camSpace
-                = glm::vec3{camera.getCamera()->getViewMatrix() * glm::vec4{vertex.toRenderSystem(), 1.0f}};
+            const auto camSpace = toView(vertex.toRenderSystem());
             if(-camSpace.z <= camera.getCamera()->getNearPlane())
             {
                 ++behindCamera;
@@ -104,17 +114,16 @@ struct PortalTracer
                 continue;
             }
 
-            auto screen = camera.getCamera()->getProjectionMatrix() * glm::vec4{camSpace, 1.0f};
-            screen /= screen.w;
+            const auto screen = toScreen(camSpace);
 
-            portalBB.min.x = std::min(portalBB.min.x, screen.x);
-            portalBB.min.y = std::min(portalBB.min.y, screen.y);
-            portalBB.max.x = std::max(portalBB.max.x, screen.x);
-            portalBB.max.y = std::max(portalBB.max.y, screen.y);
+            portalCullBox.min.x = std::min(portalCullBox.min.x, screen.x);
+            portalCullBox.min.y = std::min(portalCullBox.min.y, screen.y);
+            portalCullBox.max.x = std::max(portalCullBox.max.x, screen.x);
+            portalCullBox.max.y = std::max(portalCullBox.max.y, screen.y);
 
-            // the first vertex must set the boundingbox to a valid state
-            BOOST_ASSERT(portalBB.min.x <= portalBB.max.x);
-            BOOST_ASSERT(portalBB.min.y <= portalBB.max.y);
+            // the first vertex must set the cull box to a valid state
+            BOOST_ASSERT(portalCullBox.min.x <= portalCullBox.max.x);
+            BOOST_ASSERT(portalCullBox.min.y <= portalCullBox.max.y);
         }
 
         if(behindCamera == portal.vertices.size() || tooFar == portal.vertices.size())
@@ -124,63 +133,63 @@ struct PortalTracer
 
         if(behindCamera > 0)
         {
-            glm::vec3 prev{camera.getCamera()->getViewMatrix()
-                           * glm::vec4{portal.vertices.back().toRenderSystem(), 1.0f}};
+            glm::vec3 prev = toView(portal.vertices.back().toRenderSystem());
             for(const auto& currentPV : portal.vertices)
             {
-                const glm::vec3 current{camera.getCamera()->getViewMatrix()
-                                        * glm::vec4{currentPV.toRenderSystem(), 1.0f}};
+                const glm::vec3 current = toView(currentPV.toRenderSystem());
                 const auto crossing = (-prev.z <= camera.getCamera()->getNearPlane())
                                       != (-current.z <= camera.getCamera()->getNearPlane());
-                prev = current;
 
                 if(!crossing)
                 {
+                    prev = current;
                     continue;
                 }
 
                 // edge crosses the camera plane, max out the bounds
                 if((prev.x < 0) && (current.x < 0))
                 {
-                    portalBB.min.x = -1;
+                    portalCullBox.min.x = -1;
                 }
                 else if((prev.x > 0) && (current.x > 0))
                 {
-                    portalBB.max.x = 1;
+                    portalCullBox.max.x = 1;
                 }
                 else
                 {
-                    portalBB.min.x = -1;
-                    portalBB.max.x = 1;
+                    portalCullBox.min.x = -1;
+                    portalCullBox.max.x = 1;
                 }
 
                 if((prev.y < 0) && (current.y < 0))
                 {
-                    portalBB.min.y = -1;
+                    portalCullBox.min.y = -1;
                 }
                 else if((prev.y > 0) && (current.y > 0))
                 {
-                    portalBB.max.y = 1;
+                    portalCullBox.max.y = 1;
                 }
                 else
                 {
-                    portalBB.min.y = -1;
-                    portalBB.max.y = 1;
+                    portalCullBox.min.y = -1;
+                    portalCullBox.max.y = 1;
                 }
+
+                prev = current;
             }
         }
 
-        portalBB.min.x = std::max(parentBBox.min.x, portalBB.min.x);
-        portalBB.min.y = std::max(parentBBox.min.y, portalBB.min.y);
-        portalBB.max.x = std::min(parentBBox.max.x, portalBB.max.x);
-        portalBB.max.y = std::min(parentBBox.max.y, portalBB.max.y);
+        portalCullBox.min.x = std::max(parentCullBox.min.x, portalCullBox.min.x);
+        portalCullBox.min.y = std::max(parentCullBox.min.y, portalCullBox.min.y);
+        portalCullBox.max.x = std::min(parentCullBox.max.x, portalCullBox.max.x);
+        portalCullBox.max.y = std::min(parentCullBox.max.y, portalCullBox.max.y);
 
-        if(portalBB.min.x + Eps >= portalBB.max.x || portalBB.min.y + Eps >= portalBB.max.y)
+        if(portalCullBox.min.x + Eps >= portalCullBox.max.x || portalCullBox.min.y + Eps >= portalCullBox.max.y)
         {
             return boost::none;
         }
 
-        return portalBB;
+        return portalCullBox;
     }
 };
 } // namespace render

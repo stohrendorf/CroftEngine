@@ -61,6 +61,7 @@ struct Portal
 {
     core::RoomId16 adjoining_room{uint16_t(0)}; ///< \brief which room this portal leads to.
     core::TRVec normal;
+    //! Vertices in world space
     std::array<core::TRVec, 4> vertices;
     std::shared_ptr<render::scene::Mesh> mesh;
 
