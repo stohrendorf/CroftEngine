@@ -3,6 +3,8 @@
 #include "engine/engine.h"
 #include "loader/file/datatypes.h"
 
+#include <boost/range/adaptor/transformed.hpp>
+
 namespace render
 {
 struct PortalTracer
@@ -84,8 +86,8 @@ struct PortalTracer
             return boost::none; // wrong orientation (normals must face the camera)
         }
 
-        const auto toView = [&camera](const glm::vec3& v) {
-            const auto tmp = camera.getCamera()->getViewMatrix() * glm::vec4{v, 1.0f};
+        const auto toView = [&camera](const core::TRVec& v) {
+            const auto tmp = camera.getCamera()->getViewMatrix() * glm::vec4{v.toRenderSystem(), 1.0f};
             BOOST_ASSERT(tmp.w > std::numeric_limits<float>::epsilon());
             return glm::vec3{tmp} / tmp.w;
         };
@@ -100,9 +102,8 @@ struct PortalTracer
         // 2. intersect it with the parent's bbox
         CullBox portalCullBox{1, 1, -1, -1};
         size_t behindCamera = 0, tooFar = 0;
-        for(const auto& vertex : portal.vertices)
+        for(const auto& camSpace : portal.vertices | boost::adaptors::transformed(toView))
         {
-            const auto camSpace = toView(vertex.toRenderSystem());
             if(-camSpace.z <= camera.getCamera()->getNearPlane())
             {
                 ++behindCamera;
@@ -133,10 +134,9 @@ struct PortalTracer
 
         if(behindCamera > 0)
         {
-            glm::vec3 prev = toView(portal.vertices.back().toRenderSystem());
-            for(const auto& currentPV : portal.vertices)
+            glm::vec3 prev = toView(portal.vertices.back());
+            for(const auto& current : portal.vertices | boost::adaptors::transformed(toView))
             {
-                const glm::vec3 current = toView(currentPV.toRenderSystem());
                 const auto crossing = (-prev.z <= camera.getCamera()->getNearPlane())
                                       != (-current.z <= camera.getCamera()->getNearPlane());
 
