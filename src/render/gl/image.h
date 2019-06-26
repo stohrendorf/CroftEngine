@@ -108,10 +108,8 @@ public:
     Image& operator=(Image&& rhs) noexcept
     {
         m_data = std::move(rhs.m_data);
-        m_width = rhs.m_width;
-        m_height = rhs.m_height;
-        rhs.m_width = 0;
-        rhs.m_height = 0;
+        m_width = std::exchange(rhs.m_width, 0);
+        m_height = std::exchange(rhs.m_height, 0);
         return *this;
     }
 

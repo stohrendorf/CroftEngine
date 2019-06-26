@@ -29,6 +29,7 @@ struct TypeTraits<uint8_t>
     static const constexpr ::gl::InternalFormat RgbaSizedInternalFormat = ::gl::InternalFormat::Rgba8;
     static const constexpr ::gl::InternalFormat RgbSizedInternalFormat = ::gl::InternalFormat::Rgb8;
     static const constexpr ::gl::InternalFormat RgSizedInternalFormat = ::gl::InternalFormat::Rg8;
+    static const constexpr ::gl::InternalFormat RSizedInternalFormat = ::gl::InternalFormat::R8;
 };
 
 template<>
@@ -56,6 +57,8 @@ struct TypeTraits<uint32_t>
 template<>
 struct TypeTraits<int8_t>
 {
+    static const constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Byte;
+    static const constexpr ::gl::PixelType PixelType = ::gl::PixelType::Byte;
     static const constexpr ::gl::core::SizeType ElementCount = 1;
 };
 
@@ -82,6 +85,7 @@ struct TypeTraits<float>
     static const constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
     static const constexpr ::gl::core::SizeType ElementCount = 1;
 
+    static const constexpr ::gl::InternalFormat RgbaSizedInternalFormat = ::gl::InternalFormat::Rgba32f;
     static const constexpr ::gl::InternalFormat RgbSizedInternalFormat = ::gl::InternalFormat::Rgb32f;
     static const constexpr ::gl::InternalFormat RgSizedInternalFormat = ::gl::InternalFormat::Rg32f;
     static const constexpr ::gl::InternalFormat RSizedInternalFormat = ::gl::InternalFormat::R32f;
@@ -103,6 +107,7 @@ struct TypeTraits<::gl::core::Half>
     static const constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
     static const constexpr ::gl::core::SizeType ElementCount = 1;
 
+    static const constexpr ::gl::InternalFormat RgbaSizedInternalFormat = ::gl::InternalFormat::Rgba16f;
     static const constexpr ::gl::InternalFormat RgbSizedInternalFormat = ::gl::InternalFormat::Rgb16f;
     static const constexpr ::gl::InternalFormat RgSizedInternalFormat = ::gl::InternalFormat::Rg16f;
     static const constexpr ::gl::InternalFormat RSizedInternalFormat = ::gl::InternalFormat::R16f;
