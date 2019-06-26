@@ -204,26 +204,8 @@ set( EDISONENGINE_SRCS
 
      render/textureanimator.cpp
 
-     render/gl/glassert.h
      render/gl/glassert.cpp
-     render/gl/shader.h
-     render/gl/program.h
-     render/gl/bindableresource.h
-     render/gl/framebuffer.h
-     render/gl/elementarraybuffer.h
-     render/gl/pixel.h
-     render/gl/renderbuffer.h
-     render/gl/rendertarget.h
-     render/gl/texture.h
-     render/gl/typetraits.h
-     render/gl/vertexarray.h
-     render/gl/arraybuffer.h
-     render/gl/debuggroup.h
      render/gl/font.cpp
-     render/gl/font.h
-     render/gl/image.h
-     render/gl/structuredarraybuffer.h
-     render/gl/vertexattribute.h
      render/gl/renderstate.cpp
      render/gl/glew.cpp
      render/gl/api/gl.cpp
@@ -267,7 +249,6 @@ add_executable( edisonengine
 group_files( ${EDISONENGINE_SRCS} )
 
 target_include_directories( edisonengine PRIVATE . )
-target_include_directories( edisonengine PRIVATE ../3rdparty/sdl-controllers )
 
 target_link_libraries(
         edisonengine

@@ -12,8 +12,6 @@ Thumbs.db
 
 src/loader/file/animationid_enum.h
 src/loader/file/larastateid_enum.h
-src/engine/controlleraxis_enum.h
-src/engine/controllerbutton_enum.h
 src/engine/items_tr1_enum.h
 src/engine/sounds_tr1_enum.h
 src/engine/tracks_tr1_enum.h
