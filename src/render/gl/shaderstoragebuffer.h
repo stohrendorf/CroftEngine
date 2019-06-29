@@ -10,12 +10,26 @@ namespace render
 {
 namespace gl
 {
-template<typename T>
 class ShaderStorageBuffer : public Buffer
 {
 public:
     explicit ShaderStorageBuffer(const std::string& label = {})
         : Buffer{::gl::BufferTargetARB::ShaderStorageBuffer, label}
+    {
+    }
+
+    static void unmap()
+    {
+        GL_ASSERT(::gl::unmapBuffer(::gl::BufferTargetARB::ShaderStorageBuffer));
+    }
+};
+
+template<typename T>
+class ShaderStorageBufferImpl : public ShaderStorageBuffer
+{
+public:
+    explicit ShaderStorageBufferImpl(const std::string& label = {})
+        : ShaderStorageBuffer{label}
     {
     }
 
@@ -26,16 +40,19 @@ public:
         return static_cast<const T*>(data);
     }
 
-    static void unmap()
-    {
-        GL_ASSERT(::gl::unmapBuffer(::gl::BufferTargetARB::ShaderStorageBuffer));
-    }
-
     void setData(const T& data, const ::gl::BufferUsageARB usage)
     {
         bind();
 
         GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ShaderStorageBuffer, sizeof(T), &data, usage));
+    }
+
+    void setData(const std::vector<T>& data, const ::gl::BufferUsageARB usage)
+    {
+        bind();
+
+        GL_ASSERT(
+            ::gl::bufferData(::gl::BufferTargetARB::ShaderStorageBuffer, sizeof(T) * data.size(), data.data(), usage));
     }
 };
 } // namespace gl

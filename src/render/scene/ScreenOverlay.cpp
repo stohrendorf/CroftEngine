@@ -51,9 +51,9 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
                                                  screenOverlayProgram->getHandle(),
                                                  true);
     m_mesh->setMaterial(std::make_shared<Material>(screenOverlayProgram));
-    m_mesh->getMaterial()->getParameter("u_texture")->set(m_texture.get());
+    m_mesh->getMaterial()->getUniform("u_texture")->set(m_texture.get());
     m_mesh->getMaterial()
-        ->getParameter("u_projection")
+        ->getUniform("u_projection")
         ->set(glm::ortho(
             0.0f, gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), 0.0f, 0.0f, 1.0f));
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Visitor.h"
+#include "bufferparameter.h"
 #include "model.h"
 #include "uniformparameter.h"
 
@@ -108,6 +109,16 @@ public:
         m_uniformSetters[name] = std::move(setter);
     }
 
+    void addBufferBinder(const std::string& name, const std::function<BufferParameter::BufferBinder>& binder)
+    {
+        m_bufferBinders[name] = binder;
+    }
+
+    void addBufferBinder(const std::string& name, std::function<BufferParameter::BufferBinder>& binder)
+    {
+        m_bufferBinders[name] = std::move(binder);
+    }
+
     const std::function<UniformParameter::UniformValueSetter>* findUniformSetter(const std::string& name) const
     {
         const auto it = m_uniformSetters.find(name);
@@ -116,6 +127,18 @@ public:
 
         if(auto p = getParent().lock())
             return p->findUniformSetter(name);
+
+        return nullptr;
+    }
+
+    const std::function<BufferParameter::BufferBinder>* findShaderStorageBlockBinder(const std::string& name) const
+    {
+        const auto it = m_bufferBinders.find(name);
+        if(it != m_bufferBinders.end())
+            return &it->second;
+
+        if(auto p = getParent().lock())
+            return p->findShaderStorageBlockBinder(name);
 
         return nullptr;
     }
@@ -143,6 +166,7 @@ private:
     mutable bool m_dirty = false;
 
     boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
+    boost::container::flat_map<std::string, std::function<BufferParameter::BufferBinder>> m_bufferBinders;
 
     friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent);
 };

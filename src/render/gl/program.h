@@ -75,8 +75,7 @@ class ProgramShaderStorageBlock : public ProgramInterface
 public:
     explicit ProgramShaderStorageBlock(const Program& program, uint32_t index);
 
-    template<typename T>
-    void bind(const ShaderStorageBuffer<T>& shaderStorageBuffer)
+    void bind(const ShaderStorageBuffer& shaderStorageBuffer)
     {
         GL_ASSERT(::gl::bindBufferBase(
             ::gl::BufferTargetARB::ShaderStorageBuffer, m_binding, shaderStorageBuffer.getHandle()));

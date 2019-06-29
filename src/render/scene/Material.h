@@ -9,6 +9,7 @@ namespace render
 namespace scene
 {
 class UniformParameter;
+class BufferParameter;
 
 class Node;
 
@@ -38,7 +39,8 @@ public:
 
     void bind(const Node& node) const;
 
-    gsl::not_null<std::shared_ptr<UniformParameter>> getParameter(const std::string& name) const;
+    gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const;
+    gsl::not_null<std::shared_ptr<BufferParameter>> getBuffer(const std::string& name) const;
 
     render::gl::RenderState& getRenderState()
     {
@@ -48,7 +50,8 @@ public:
 private:
     gsl::not_null<std::shared_ptr<ShaderProgram>> m_shaderProgram;
 
-    mutable std::vector<gsl::not_null<std::shared_ptr<UniformParameter>>> m_parameters;
+    mutable std::vector<gsl::not_null<std::shared_ptr<UniformParameter>>> m_uniforms;
+    mutable std::vector<gsl::not_null<std::shared_ptr<BufferParameter>>> m_buffers;
 
     render::gl::RenderState m_renderState{};
 };

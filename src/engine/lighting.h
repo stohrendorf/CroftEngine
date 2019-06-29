@@ -16,7 +16,8 @@ struct Lighting
 
     float ambient = 0;
     std::vector<Light> lights;
-    static constexpr const size_t MaxLights = 8;
+
+    render::gl::ShaderStorageBufferImpl<Light> m_buffer;
 
     void updateDynamic(int16_t shade, const core::RoomBoundPosition& pos, const std::vector<loader::file::Room>& rooms)
     {
@@ -61,18 +62,14 @@ struct Lighting
             }
         }
 
-        if(lights.size() > MaxLights)
-        {
-            std::sort(
-                lights.begin(), lights.end(), [](const Light& a, const Light& b) { return a.intensity > b.intensity; });
-            lights.resize(MaxLights);
-        }
+        m_buffer.setData(lights, ::gl::BufferUsageARB::DynamicDraw);
     }
 
     void updateStatic(int16_t shade)
     {
         lights.clear();
         ambient = 1.0f - shade / 8191.0f;
+        m_buffer.setData(lights, ::gl::BufferUsageARB::DynamicDraw);
     }
 
     void bind(render::scene::Node& node) const
@@ -80,24 +77,12 @@ struct Lighting
         node.addUniformSetter(
             "u_lightAmbient",
             [this](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) { uniform.set(ambient); });
-        for(size_t i = 0; i < MaxLights; ++i)
-        {
-            node.addUniformSetter("u_lights[" + std::to_string(i) + "].intensity",
-                                  [this, i](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
-                                      if(i < lights.size())
-                                          uniform.set(lights[i].intensity);
-                                  });
-            node.addUniformSetter("u_lights[" + std::to_string(i) + "].position",
-                                  [this, i](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
-                                      if(i < lights.size())
-                                          uniform.set(lights[i].position);
-                                  });
-        }
-        node.addUniformSetter("u_numLights",
-                              [this](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
-                                  Expects(lights.size() <= MaxLights);
-                                  uniform.set(static_cast<int32_t>(lights.size()));
-                              });
+
+        node.addBufferBinder(
+            "b_lights",
+            [this](const render::scene::Node& node, render::gl::ProgramShaderStorageBlock& shaderStorageBlock) {
+                shaderStorageBlock.bind(m_buffer);
+            });
     }
 };
 } // namespace engine

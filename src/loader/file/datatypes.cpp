@@ -254,9 +254,6 @@ void Room::createSceneNode(
     node->addUniformSetter(
         "u_lightAmbient",
         [](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) { uniform.set(1.0f); });
-    node->addUniformSetter("u_numLights", [](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
-        uniform.set(0);
-    });
 
     for(const RoomStaticMesh& sm : staticMeshes)
     {
@@ -273,9 +270,6 @@ void Room::createSceneNode(
             "u_lightAmbient",
             [brightness = sm.getBrightness()](const render::scene::Node& /*node*/,
                                               render::gl::ProgramUniform& uniform) { uniform.set(brightness); });
-        subNode->addUniformSetter(
-            "u_numLights",
-            [](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) { uniform.set(0); });
         addChild(node, subNode);
     }
     node->setLocalMatrix(translate(glm::mat4{1.0f}, position.toRenderSystem()));

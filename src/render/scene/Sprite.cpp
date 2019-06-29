@@ -75,7 +75,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
                 m[i][j] = i == j ? 1.0f : 0.0f;
         }
 
-        material.getParameter("u_modelViewMatrix")->set(m);
+        material.getUniform("u_modelViewMatrix")->set(m);
     });
 
     return mesh;

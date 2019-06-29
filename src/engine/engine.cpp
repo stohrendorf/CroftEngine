@@ -517,24 +517,22 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
 
     const auto colorMaterial
         = std::make_shared<render::scene::Material>("shaders/colored_2.vert", "shaders/colored_2.frag");
-    colorMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
-    colorMaterial->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
-    colorMaterial->getParameter("u_camProjection")->bindProjectionMatrix();
+    colorMaterial->getUniform("u_modelMatrix")->bindModelMatrix();
+    colorMaterial->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
+    colorMaterial->getUniform("u_camProjection")->bindProjectionMatrix();
 
     BOOST_ASSERT(m_spriteMaterial == nullptr);
     m_spriteMaterial = std::make_shared<render::scene::Material>("shaders/textured_2.vert", "shaders/textured_2.frag");
     m_spriteMaterial->getRenderState().setCullFace(false);
 
-    m_spriteMaterial->getParameter("u_modelMatrix")->bindModelMatrix();
-    m_spriteMaterial->getParameter("u_camProjection")->bindProjectionMatrix();
-
-    m_spriteMaterial->getParameter("u_numLights")->set(0);
+    m_spriteMaterial->getUniform("u_modelMatrix")->bindModelMatrix();
+    m_spriteMaterial->getUniform("u_camProjection")->bindProjectionMatrix();
 
     BOOST_ASSERT(m_portalMaterial == nullptr);
     m_portalMaterial = std::make_shared<render::scene::Material>("shaders/portal.vert", "shaders/portal.frag");
     m_portalMaterial->getRenderState().setCullFace(false);
 
-    m_portalMaterial->getParameter("u_mvp")->bind(
+    m_portalMaterial->getUniform("u_mvp")->bind(
         [camera = m_renderer->getScene()->getActiveCamera()](const render::scene::Node& node,
                                                              render::gl::ProgramUniform& uniform) {
             uniform.set(camera->getViewProjectionMatrix()); // portals are already in world space
@@ -567,11 +565,10 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     auto waterMaterials = createMaterials(waterTexturedShader);
     for(const auto& m : waterMaterials | boost::adaptors::map_values)
     {
-        m->getParameter("u_time")->bind(
-            [this](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
-                const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(m_renderer->getGameTime());
-                uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-            });
+        m->getUniform("u_time")->bind([this](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
+            const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(m_renderer->getGameTime());
+            uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+        });
     }
 
     for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
@@ -1672,7 +1669,7 @@ void Engine::run()
             render::gl::DebugGroup dbg{"portal-depth-pass"};
             m_renderPipeline->bindPortalFrameBuffer();
             const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(m_renderer->getGameTime());
-            m_portalMaterial->getParameter("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+            m_portalMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
             for(const auto& portal : waterEntryPortals)
             {
                 portal->mesh->render(context);

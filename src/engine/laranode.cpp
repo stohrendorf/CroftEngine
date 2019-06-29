@@ -2508,9 +2508,6 @@ void LaraNode::renderGunFlare(const WeaponId weaponId,
                                 [brightness](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
                                     uniform.set(brightness);
                                 });
-    flareNode->addUniformSetter(
-        "u_numLights",
-        [](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) { uniform.set(0); });
 }
 
 YAML::Node LaraNode::save() const

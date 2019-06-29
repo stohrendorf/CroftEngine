@@ -19,10 +19,10 @@ gsl::not_null<std::shared_ptr<render::scene::Material>>
     // Set some defaults
     texture->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge);
     texture->set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
-    result->getParameter("u_diffuseTexture")->set(texture.get());
-    result->getParameter("u_modelMatrix")->bindModelMatrix();
-    result->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
-    result->getParameter("u_camProjection")->bindProjectionMatrix();
+    result->getUniform("u_diffuseTexture")->set(texture.get());
+    result->getUniform("u_modelMatrix")->bindModelMatrix();
+    result->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
+    result->getUniform("u_camProjection")->bindProjectionMatrix();
 
     switch(bmode)
     {

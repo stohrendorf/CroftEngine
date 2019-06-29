@@ -41,8 +41,8 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
     mesh->getRenderState().setLineWidth(lineWidth);
 
     auto material = std::make_shared<render::scene::Material>(program);
-    material->getParameter("u_modelViewMatrix")->bindModelViewMatrix();
-    material->getParameter("u_camProjection")->bindProjectionMatrix();
+    material->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
+    material->getUniform("u_camProjection")->bindProjectionMatrix();
 
     mesh->setMaterial(material);
 

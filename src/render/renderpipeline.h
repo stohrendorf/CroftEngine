@@ -134,22 +134,22 @@ public:
             .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
             .set(::gl::TextureMinFilter::Linear)
             .set(::gl::TextureMagFilter::Linear);
-        m_fxaaMaterial->getParameter("u_texture")->set(m_geometryColorBuffer);
+        m_fxaaMaterial->getUniform("u_texture")->set(m_geometryColorBuffer);
 
         m_geometryNormalBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
             .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
             .set(::gl::TextureMinFilter::Nearest)
             .set(::gl::TextureMagFilter::Nearest);
-        m_ssaoMaterial->getParameter("u_normals")->set(m_geometryNormalBuffer);
+        m_ssaoMaterial->getUniform("u_normals")->set(m_geometryNormalBuffer);
 
         m_geometryPositionBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
             .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
             .set(::gl::TextureMinFilter::Nearest)
             .set(::gl::TextureMagFilter::Nearest);
-        m_ssaoMaterial->getParameter("u_position")->set(m_geometryPositionBuffer);
+        m_ssaoMaterial->getUniform("u_position")->set(m_geometryPositionBuffer);
 
-        m_fxDarknessMaterial->getParameter("u_depth")->set(m_geometryDepthBuffer);
-        m_fxWaterDarknessMaterial->getParameter("u_depth")->set(m_geometryDepthBuffer);
+        m_fxDarknessMaterial->getUniform("u_depth")->set(m_geometryDepthBuffer);
+        m_fxWaterDarknessMaterial->getUniform("u_depth")->set(m_geometryDepthBuffer);
 
         m_geometryFb = gl::FrameBufferBuilder()
                            .texture(::gl::FramebufferAttachment::ColorAttachment0, m_geometryColorBuffer)
@@ -159,10 +159,10 @@ public:
                            .build();
 
         // === portalDepthFB setup ===
-        m_fxDarknessMaterial->getParameter("u_portalDepth")->set(m_portalDepthBuffer);
-        m_fxDarknessMaterial->getParameter("u_portalPerturb")->set(m_portalPerturbBuffer);
-        m_fxWaterDarknessMaterial->getParameter("u_portalDepth")->set(m_portalDepthBuffer);
-        m_fxWaterDarknessMaterial->getParameter("u_portalPerturb")->set(m_portalPerturbBuffer);
+        m_fxDarknessMaterial->getUniform("u_portalDepth")->set(m_portalDepthBuffer);
+        m_fxDarknessMaterial->getUniform("u_portalPerturb")->set(m_portalPerturbBuffer);
+        m_fxWaterDarknessMaterial->getUniform("u_portalDepth")->set(m_portalDepthBuffer);
+        m_fxWaterDarknessMaterial->getUniform("u_portalPerturb")->set(m_portalPerturbBuffer);
 
         m_portalFb = gl::FrameBufferBuilder()
                          .texture(::gl::FramebufferAttachment::DepthAttachment, m_portalDepthBuffer)
@@ -174,8 +174,8 @@ public:
             .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
             .set(::gl::TextureMinFilter::Linear)
             .set(::gl::TextureMagFilter::Linear);
-        m_fxDarknessMaterial->getParameter("u_texture")->set(m_fxaaColorBuffer);
-        m_fxWaterDarknessMaterial->getParameter("u_texture")->set(m_fxaaColorBuffer);
+        m_fxDarknessMaterial->getUniform("u_texture")->set(m_fxaaColorBuffer);
+        m_fxWaterDarknessMaterial->getUniform("u_texture")->set(m_fxaaColorBuffer);
 
         m_fxaaFb = gl::FrameBufferBuilder()
                        .texture(::gl::FramebufferAttachment::ColorAttachment0, m_fxaaColorBuffer)
@@ -186,7 +186,7 @@ public:
             .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
             .set(::gl::TextureMinFilter::Linear)
             .set(::gl::TextureMagFilter::Linear);
-        m_ssaoBlurMaterial->getParameter("u_ao")->set(m_ssaoAOBuffer);
+        m_ssaoBlurMaterial->getUniform("u_ao")->set(m_ssaoAOBuffer);
 
         m_ssaoFb
             = gl::FrameBufferBuilder().texture(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoAOBuffer).build();
@@ -196,8 +196,8 @@ public:
             .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
             .set(::gl::TextureMinFilter::Linear)
             .set(::gl::TextureMagFilter::Linear);
-        m_fxDarknessMaterial->getParameter("u_ao")->set(m_ssaoBlurAOBuffer);
-        m_fxWaterDarknessMaterial->getParameter("u_ao")->set(m_ssaoBlurAOBuffer);
+        m_fxDarknessMaterial->getUniform("u_ao")->set(m_ssaoBlurAOBuffer);
+        m_fxWaterDarknessMaterial->getUniform("u_ao")->set(m_ssaoBlurAOBuffer);
 
         m_ssaoBlurFb = gl::FrameBufferBuilder()
                            .texture(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoBlurAOBuffer)
@@ -228,7 +228,7 @@ public:
             ssaoSamples.emplace_back(sample);
 #endif
         }
-        m_ssaoMaterial->getParameter("u_samples[0]")->set(ssaoSamples);
+        m_ssaoMaterial->getUniform("u_samples[0]")->set(ssaoSamples);
 
         // generate noise texture
         std::vector<gl::RGB32F> ssaoNoise;
@@ -243,10 +243,10 @@ public:
             .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::Repeat)
             .set(::gl::TextureMinFilter::Nearest)
             .set(::gl::TextureMagFilter::Nearest);
-        m_ssaoMaterial->getParameter("u_texNoise")->set(m_ssaoNoiseTexture);
+        m_ssaoMaterial->getUniform("u_texNoise")->set(m_ssaoNoiseTexture);
 
-        m_fxDarknessMaterial->getParameter("distortion_power")->set(-1.0f);
-        m_fxWaterDarknessMaterial->getParameter("distortion_power")->set(-2.0f);
+        m_fxDarknessMaterial->getUniform("distortion_power")->set(-1.0f);
+        m_fxWaterDarknessMaterial->getUniform("distortion_power")->set(-2.0f);
 
         m_fbModel->getRenderState().setCullFace(false);
         m_fbModel->getRenderState().setDepthTest(false);
@@ -257,15 +257,15 @@ public:
     {
         // update uniforms
         const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(time);
-        m_fxDarknessMaterial->getParameter("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-        m_fxWaterDarknessMaterial->getParameter("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+        m_fxDarknessMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+        m_fxWaterDarknessMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
 
-        m_fxDarknessMaterial->getParameter("aspect_ratio")->set(camera.getAspectRatio());
-        m_fxWaterDarknessMaterial->getParameter("aspect_ratio")->set(camera.getAspectRatio());
+        m_fxDarknessMaterial->getUniform("aspect_ratio")->set(camera.getAspectRatio());
+        m_fxWaterDarknessMaterial->getUniform("aspect_ratio")->set(camera.getAspectRatio());
 
-        m_fxDarknessMaterial->getParameter("u_camProjection")->set(camera.getProjectionMatrix());
-        m_fxWaterDarknessMaterial->getParameter("u_camProjection")->set(camera.getProjectionMatrix());
-        m_ssaoMaterial->getParameter("u_camProjection")->set(camera.getProjectionMatrix());
+        m_fxDarknessMaterial->getUniform("u_camProjection")->set(camera.getProjectionMatrix());
+        m_fxWaterDarknessMaterial->getUniform("u_camProjection")->set(camera.getProjectionMatrix());
+        m_ssaoMaterial->getUniform("u_camProjection")->set(camera.getProjectionMatrix());
     }
 
     void resize(const scene::Dimension2<size_t>& viewport)

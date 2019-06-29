@@ -214,6 +214,7 @@ set( EDISONENGINE_SRCS
      render/scene/renderer.cpp
      render/scene/Material.cpp
      render/scene/uniformparameter.cpp
+     render/scene/bufferparameter.cpp
      render/scene/mesh.cpp
      render/scene/model.cpp
      render/scene/Node.cpp
