@@ -14,7 +14,7 @@ class Material;
 class Mesh : public Renderable
 {
 public:
-    using MaterialParameterSetter = void(const Node& node, Material& material);
+    using MaterialUniformSetter = void(const Node& node, Material& material);
 
     explicit Mesh(::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
         : m_primitiveType{primitiveType}
@@ -43,15 +43,15 @@ public:
 
     void render(RenderContext& context) final;
 
-    void registerMaterialParameterSetter(const std::function<MaterialParameterSetter>& setter)
+    void registerMaterialUniformSetter(const std::function<MaterialUniformSetter>& setter)
     {
-        m_materialParameterSetters.emplace_back(setter);
+        m_materialUniformSetters.emplace_back(setter);
     }
 
 private:
     std::shared_ptr<Material> m_material;
 
-    std::vector<std::function<MaterialParameterSetter>> m_materialParameterSetters;
+    std::vector<std::function<MaterialUniformSetter>> m_materialUniformSetters;
 
     const ::gl::PrimitiveType m_primitiveType;
 
@@ -62,8 +62,6 @@ template<typename IndexT, typename... VertexTs>
 class MeshImpl : public Mesh
 {
 public:
-    using MaterialParameterSetter = void(const Node& node, Material& material);
-
     explicit MeshImpl(std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vao,
                       ::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
         : Mesh{primitiveType}

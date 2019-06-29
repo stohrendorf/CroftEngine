@@ -1,9 +1,9 @@
 #include "Material.h"
 
-#include "MaterialParameter.h"
 #include "Node.h"
 #include "ShaderProgram.h"
 #include "names.h"
+#include "uniformparameter.h"
 
 #include <boost/algorithm/string/join.hpp>
 #include <boost/log/trivial.hpp>
@@ -17,16 +17,14 @@ Material::Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram)
     : m_shaderProgram{std::move(shaderProgram)}
 {
     for(const auto& u : m_shaderProgram->getHandle().getUniforms())
-        m_parameters.emplace_back(std::make_shared<MaterialParameter>(u.getName()));
+        m_parameters.emplace_back(std::make_shared<UniformParameter>(u.getName()));
 }
 
 Material::~Material() = default;
 
 Material::Material(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines)
-    : m_shaderProgram{ShaderProgram::createFromFile(vshPath, fshPath, defines)}
+    : Material{ShaderProgram::createFromFile(vshPath, fshPath, defines)}
 {
-    for(const auto& u : m_shaderProgram->getHandle().getUniforms())
-        m_parameters.emplace_back(std::make_shared<MaterialParameter>(u.getName()));
 }
 
 void Material::bind(const Node& node) const
@@ -45,7 +43,7 @@ void Material::bind(const Node& node) const
     m_shaderProgram->bind();
 }
 
-gsl::not_null<std::shared_ptr<MaterialParameter>> Material::getParameter(const std::string& name) const
+gsl::not_null<std::shared_ptr<UniformParameter>> Material::getParameter(const std::string& name) const
 {
     // Search for an existing parameter with this name.
     for(const auto& param : m_parameters)
@@ -57,7 +55,7 @@ gsl::not_null<std::shared_ptr<MaterialParameter>> Material::getParameter(const s
     }
 
     // Create a new parameter and store it in our list.
-    auto param = std::make_shared<MaterialParameter>(name);
+    auto param = std::make_shared<UniformParameter>(name);
     m_parameters.emplace_back(param);
     return param;
 }

@@ -1,4 +1,4 @@
-#include "MaterialParameter.h"
+#include "uniformparameter.h"
 
 #include "Node.h"
 
@@ -9,9 +9,9 @@ namespace render
 {
 namespace scene
 {
-bool MaterialParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
+bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
-    const auto setter = node.findMaterialParameterSetter(m_name);
+    const auto setter = node.findUniformSetter(m_name);
     if(!m_valueSetter && setter == nullptr)
     {
         // don't have an explicit setter present on material or node level, assuming it's set on shader level
@@ -30,22 +30,22 @@ bool MaterialParameter::bind(const Node& node, const gsl::not_null<std::shared_p
     return true;
 }
 
-void MaterialParameter::bindModelMatrix()
+void UniformParameter::bindModelMatrix()
 {
     m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getModelMatrix()); };
 }
 
-void MaterialParameter::bindViewMatrix()
+void UniformParameter::bindViewMatrix()
 {
     m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getViewMatrix()); };
 }
 
-void MaterialParameter::bindModelViewMatrix()
+void UniformParameter::bindModelViewMatrix()
 {
     m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getModelViewMatrix()); };
 }
 
-void MaterialParameter::bindProjectionMatrix()
+void UniformParameter::bindProjectionMatrix()
 {
     m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getProjectionMatrix()); };
 }

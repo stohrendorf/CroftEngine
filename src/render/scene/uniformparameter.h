@@ -12,21 +12,21 @@ namespace scene
 {
 class Node;
 
-class MaterialParameter
+class UniformParameter
 {
 public:
-    explicit MaterialParameter(std::string name)
+    explicit UniformParameter(std::string name)
         : m_name{std::move(name)}
     {
     }
 
-    ~MaterialParameter() = default;
+    ~UniformParameter() = default;
 
-    MaterialParameter(const MaterialParameter&&) = delete;
+    UniformParameter(const UniformParameter&&) = delete;
 
-    MaterialParameter& operator=(const MaterialParameter&) = delete;
+    UniformParameter& operator=(const UniformParameter&) = delete;
 
-    MaterialParameter& operator=(MaterialParameter&&) = delete;
+    UniformParameter& operator=(UniformParameter&&) = delete;
 
     const std::string& getName() const
     {

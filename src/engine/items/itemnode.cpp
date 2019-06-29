@@ -367,12 +367,12 @@ SpriteItemNode::SpriteItemNode(const gsl::not_null<Engine*>& engine,
 
     m_node = std::make_shared<render::scene::Node>(name);
     m_node->setDrawable(model);
-    m_node->addMaterialParameterSetter(
+    m_node->addUniformSetter(
         "u_diffuseTexture",
         [texture = sprite.texture](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
             uniform.set(*texture);
         });
-    m_node->addMaterialParameterSetter(
+    m_node->addUniformSetter(
         "u_lightAmbient",
         [brightness = item.getBrightness()](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
             uniform.set(brightness);

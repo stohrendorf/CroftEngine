@@ -50,8 +50,8 @@ void Mesh::render(RenderContext& context)
 
     context.pushState(getRenderState());
 
-    for(const auto& mps : m_materialParameterSetters)
-        mps(*context.getCurrentNode(), *m_material);
+    for(const auto& setter : m_materialUniformSetters)
+        setter(*context.getCurrentNode(), *m_material);
 
     context.pushState(m_material->getRenderState());
     context.bindState();

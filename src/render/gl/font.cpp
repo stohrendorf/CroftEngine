@@ -1,9 +1,9 @@
 #include "font.h"
 
 #include "gsl-lite.hpp"
-#include "render/scene/MaterialParameter.h"
 #include "render/scene/names.h"
 #include "render/scene/renderer.h"
+#include "render/scene/uniformparameter.h"
 
 #include <boost/log/trivial.hpp>
 #include <utility>

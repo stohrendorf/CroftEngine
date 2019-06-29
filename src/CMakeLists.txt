@@ -213,7 +213,7 @@ set( EDISONENGINE_SRCS
      render/scene/Camera.cpp
      render/scene/renderer.cpp
      render/scene/Material.cpp
-     render/scene/MaterialParameter.cpp
+     render/scene/uniformparameter.cpp
      render/scene/mesh.cpp
      render/scene/model.cpp
      render/scene/Node.cpp

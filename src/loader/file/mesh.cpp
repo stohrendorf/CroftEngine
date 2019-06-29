@@ -2,10 +2,10 @@
 
 #include "color.h"
 #include "render/gl/vertexarray.h"
-#include "render/scene/MaterialParameter.h"
 #include "render/scene/mesh.h"
 #include "render/scene/model.h"
 #include "render/scene/names.h"
+#include "render/scene/uniformparameter.h"
 #include "render/textureanimator.h"
 #include "util.h"
 

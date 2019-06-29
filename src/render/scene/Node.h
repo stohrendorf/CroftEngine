@@ -1,8 +1,8 @@
 #pragma once
 
-#include "MaterialParameter.h"
 #include "Visitor.h"
 #include "model.h"
+#include "uniformparameter.h"
 
 #include <boost/container/flat_map.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -98,27 +98,24 @@ public:
             visitor.visit(*node);
     }
 
-    void addMaterialParameterSetter(const std::string& name,
-                                    const std::function<MaterialParameter::UniformValueSetter>& setter)
+    void addUniformSetter(const std::string& name, const std::function<UniformParameter::UniformValueSetter>& setter)
     {
-        m_materialParameterSetters[name] = setter;
+        m_uniformSetters[name] = setter;
     }
 
-    void addMaterialParameterSetter(const std::string& name,
-                                    std::function<MaterialParameter::UniformValueSetter>&& setter)
+    void addUniformSetter(const std::string& name, std::function<UniformParameter::UniformValueSetter>&& setter)
     {
-        m_materialParameterSetters[name] = std::move(setter);
+        m_uniformSetters[name] = std::move(setter);
     }
 
-    const std::function<MaterialParameter::UniformValueSetter>*
-        findMaterialParameterSetter(const std::string& name) const
+    const std::function<UniformParameter::UniformValueSetter>* findUniformSetter(const std::string& name) const
     {
-        const auto it = m_materialParameterSetters.find(name);
-        if(it != m_materialParameterSetters.end())
+        const auto it = m_uniformSetters.find(name);
+        if(it != m_uniformSetters.end())
             return &it->second;
 
         if(auto p = getParent().lock())
-            return p->findMaterialParameterSetter(name);
+            return p->findUniformSetter(name);
 
         return nullptr;
     }
@@ -145,8 +142,7 @@ private:
 
     mutable bool m_dirty = false;
 
-    boost::container::flat_map<std::string, std::function<MaterialParameter::UniformValueSetter>>
-        m_materialParameterSetters;
+    boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
 
     friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent);
 };

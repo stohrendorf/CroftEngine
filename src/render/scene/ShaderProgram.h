@@ -37,14 +37,22 @@ public:
 
     const gl::ProgramUniform* findUniform(const std::string& name) const
     {
-        auto it = m_uniforms.find(name);
-        return it == m_uniforms.end() ? nullptr : &it->second;
+        return find(m_uniforms, name);
     }
 
     gl::ProgramUniform* findUniform(const std::string& name)
     {
-        auto it = m_uniforms.find(name);
-        return it == m_uniforms.end() ? nullptr : &it->second;
+        return find(m_uniforms, name);
+    }
+
+    const gl::ProgramShaderStorageBlock* findShaderStorageBlock(const std::string& name) const
+    {
+        return find(m_shaderStorageBlocks, name);
+    }
+
+    gl::ProgramShaderStorageBlock* findShaderStorageBlock(const std::string& name)
+    {
+        return find(m_shaderStorageBlocks, name);
     }
 
     void bind() const
@@ -68,9 +76,25 @@ private:
 
     gl::Program m_handle;
 
-    boost::container::flat_map<std::string, gl::ProgramInput> m_vertexAttributes;
+    std::map<std::string, gl::ProgramInput> m_vertexAttributes;
 
     std::map<std::string, gl::ProgramUniform> m_uniforms;
+
+    std::map<std::string, gl::ProgramShaderStorageBlock> m_shaderStorageBlocks;
+
+    template<typename T>
+    static const T* find(const std::map<std::string, T>& map, const std::string& needle)
+    {
+        auto it = map.find(needle);
+        return it == map.end() ? nullptr : &it->second;
+    }
+
+    template<typename T>
+    static T* find(std::map<std::string, T>& map, const std::string& needle)
+    {
+        auto it = map.find(needle);
+        return it == map.end() ? nullptr : &it->second;
+    }
 };
 } // namespace scene
 } // namespace render

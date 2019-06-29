@@ -1,11 +1,11 @@
 #include "ScreenOverlay.h"
 
 #include "Material.h"
-#include "MaterialParameter.h"
 #include "mesh.h"
 #include "model.h"
 #include "render/gl/image.h"
 #include "renderer.h"
+#include "uniformparameter.h"
 
 #include <boost/log/trivial.hpp>
 #include <glm/gtc/matrix_transform.hpp>

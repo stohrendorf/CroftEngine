@@ -49,7 +49,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
     auto mesh = std::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
     mesh->setMaterial(material);
 
-    mesh->registerMaterialParameterSetter([pole](const Node& node, Material& material) {
+    mesh->registerMaterialUniformSetter([pole](const Node& node, Material& material) {
         auto m = node.getModelViewMatrix();
         // clear out rotation component
         for(int i : {0, 1, 2})

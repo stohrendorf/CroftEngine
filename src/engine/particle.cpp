@@ -32,10 +32,9 @@ void Particle::initDrawables(const Engine& engine, const float scale)
             m_spriteTextures.emplace_back(spr.texture);
         }
 
-        addMaterialParameterSetter("u_diffuseTexture",
-                                   [this](const Node& /*node*/, render::gl::ProgramUniform& uniform) {
-                                       uniform.set(*m_spriteTextures.front());
-                                   });
+        addUniformSetter("u_diffuseTexture", [this](const Node& /*node*/, render::gl::ProgramUniform& uniform) {
+            uniform.set(*m_spriteTextures.front());
+        });
     }
     else
     {

@@ -152,10 +152,7 @@ void writeShaderToErrorFile(const std::string& filePath, const std::string& sour
 
 ShaderProgram::ShaderProgram() = default;
 
-ShaderProgram::~ShaderProgram()
-{
-    m_uniforms.clear();
-}
+ShaderProgram::~ShaderProgram() = default;
 
 std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const std::string& vshPath,
                                                              const std::string& fshPath,
@@ -280,14 +277,24 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
         return nullptr;
     }
 
+    BOOST_LOG_TRIVIAL(debug) << "Shader " << vshPath << " + " << fshPath << " + "
+                             << boost::algorithm::join(defines, ";");
     for(auto&& input : shaderProgram->m_handle.getInputs())
     {
+        BOOST_LOG_TRIVIAL(debug) << "  input " << input.getName();
         shaderProgram->m_vertexAttributes.insert(make_pair(input.getName(), std::move(input)));
     }
 
     for(auto&& uniform : shaderProgram->m_handle.getUniforms())
     {
+        BOOST_LOG_TRIVIAL(debug) << "  uniform " << uniform.getName();
         shaderProgram->m_uniforms.emplace(make_pair(uniform.getName(), std::move(uniform)));
+    }
+
+    for(auto&& ssb : shaderProgram->m_handle.getShaderStorageBlocks())
+    {
+        BOOST_LOG_TRIVIAL(debug) << "  shader storage block " << ssb.getName();
+        shaderProgram->m_shaderStorageBlocks.insert(make_pair(ssb.getName(), std::move(ssb)));
     }
 
     return shaderProgram;
