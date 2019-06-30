@@ -2,6 +2,7 @@
 
 #include "ShaderProgram.h"
 #include "gsl-lite.hpp"
+#include "materialparameter.h"
 
 #include <boost/optional.hpp>
 #include <glm/glm.hpp>
@@ -12,26 +13,19 @@ namespace scene
 {
 class Node;
 
-class UniformParameter
+class UniformParameter : public MaterialParameter
 {
 public:
     explicit UniformParameter(std::string name)
-        : m_name{std::move(name)}
+        : MaterialParameter{std::move(name)}
     {
     }
-
-    ~UniformParameter() = default;
 
     UniformParameter(const UniformParameter&&) = delete;
 
     UniformParameter& operator=(const UniformParameter&) = delete;
 
     UniformParameter& operator=(UniformParameter&&) = delete;
-
-    const std::string& getName() const
-    {
-        return m_name;
-    }
 
     template<typename T>
     void set(const T& value)
@@ -73,22 +67,20 @@ public:
 
     void bindProjectionMatrix();
 
-    bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram);
+    bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
 private:
     gl::ProgramUniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
     {
-        if(const auto uniform = shaderProgram->findUniform(m_name))
+        if(const auto uniform = shaderProgram->findUniform(getName()))
             return uniform;
 
         // This parameter was not found in the specified effect, so do nothing.
-        BOOST_LOG_TRIVIAL(warning) << "Uniform '" << m_name << "' not found in program '" << shaderProgram->getId()
+        BOOST_LOG_TRIVIAL(warning) << "Uniform '" << getName() << "' not found in program '" << shaderProgram->getId()
                                    << "'";
 
         return nullptr;
     }
-
-    const std::string m_name;
 
     boost::optional<std::function<UniformValueSetter>> m_valueSetter;
 };

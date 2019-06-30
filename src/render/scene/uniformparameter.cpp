@@ -11,7 +11,7 @@ namespace scene
 {
 bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
-    const auto setter = node.findUniformSetter(m_name);
+    const auto setter = node.findUniformSetter(getName());
     if(!m_valueSetter && setter == nullptr)
     {
         // don't have an explicit setter present on material or node level, assuming it's set on shader level
