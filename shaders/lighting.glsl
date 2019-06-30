@@ -2,7 +2,8 @@ uniform float u_lightAmbient;
 
 struct Light {
     vec3 position;
-    float intensity;
+    float brightness;
+    float fadeDistance;
 };
 
 layout(std430) buffer b_lights {
@@ -24,8 +25,10 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos, in float n)
     float sum = u_lightAmbient;
     for (int i=0; i<lights.length(); ++i)
     {
-        vec3 light_dir = normalize(pos - lights[i].position);
-        sum += pow(lights[i].intensity * max(dot(light_dir, normal), 0), n);
+        vec3 d = pos - lights[i].position;
+        float intensity = lights[i].brightness / (1 + length(d)/lights[i].fadeDistance);
+        vec3 light_dir = normalize(d);
+        sum += pow(intensity * max(dot(light_dir, normal), 0), n);
     }
 
     return sum;
