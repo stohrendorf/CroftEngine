@@ -45,7 +45,7 @@ private:
                 box->blocked = true;
         }
 
-        void init(const loader::file::Room& room, const core::TRVec& wingsPosition)
+        const loader::file::Room* init(const loader::file::Room& room, const core::TRVec& wingsPosition)
         {
             sector = const_cast<loader::file::Sector*>(room.getSectorByAbsolutePosition(wingsPosition));
             Expects(sector != nullptr);
@@ -65,7 +65,9 @@ private:
                 box = nullptr;
             }
 
+            const auto portalTarget = sector->portalTarget;
             close();
+            return portalTarget;
         }
     };
 

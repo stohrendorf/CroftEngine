@@ -28,24 +28,18 @@ Door::Door(const gsl::not_null<engine::Engine*>& engine,
 
     const auto wingsPosition = m_state.position.position + core::TRVec{dx, 0_len, dz};
 
-    m_info.init(*m_state.position.room, wingsPosition);
+    if(const auto portalTarget = m_info.init(*m_state.position.room, wingsPosition))
+    {
+        m_target.init(*portalTarget, m_state.position.position);
+    }
 
     if(m_state.position.room->alternateRoom.get() >= 0)
     {
-        m_alternateInfo.init(getEngine().getRooms().at(m_state.position.room->alternateRoom.get()), wingsPosition);
-    }
-
-    if(m_info.sector->portalTarget == nullptr)
-    {
-        return;
-    }
-
-    m_target.init(*m_info.sector->portalTarget, m_state.position.position);
-
-    if(m_info.sector->portalTarget->alternateRoom.get() >= 0)
-    {
-        m_alternateTarget.init(getEngine().getRooms().at(m_info.sector->portalTarget->alternateRoom.get()),
-                               m_state.position.position);
+        if(const auto alternatePortalTarget
+           = m_alternateInfo.init(getEngine().getRooms().at(m_state.position.room->alternateRoom.get()), wingsPosition))
+        {
+            m_alternateTarget.init(*alternatePortalTarget, m_state.position.position);
+        }
     }
 #endif
 }
