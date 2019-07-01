@@ -308,7 +308,7 @@ public:
 
         loader::file::DWordTexture texture;
         texture.texture = std::make_shared<render::gl::Texture2D<render::gl::SRGBA8>>("animated texture tiles");
-        texture.texture->set(::gl::TextureMinFilter::NearestMipmapNearest).generateMipmap();
+        texture.texture->set(::gl::TextureMinFilter::NearestMipmapLinear).generateMipmap();
         if(!linear)
         {
             texture.texture->set(::gl::TextureMagFilter::Nearest);
