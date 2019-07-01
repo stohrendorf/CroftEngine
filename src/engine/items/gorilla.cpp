@@ -57,8 +57,7 @@ void Gorilla::update()
             {
                 m_state.goal_anim_state = 4_as;
             }
-            else if((m_state.creatureInfo->flags & FlgWantAttack) || aiInfo.zone_number != aiInfo.enemy_zone
-                    || !aiInfo.ahead)
+            else if((m_state.creatureInfo->flags & FlgWantAttack) || !aiInfo.canReachEnemyZone() || !aiInfo.ahead)
             {
                 m_state.goal_anim_state = 3_as;
             }

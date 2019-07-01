@@ -46,7 +46,7 @@ void Wolf::update()
         {
         case LyingDown.get():
             pitch = 0_deg;
-            if(m_state.creatureInfo->mood != ai::Mood::Escape && aiInfo.enemy_zone != aiInfo.zone_number)
+            if(m_state.creatureInfo->mood != ai::Mood::Escape && !aiInfo.canReachEnemyZone())
             {
                 if(util::rand15() < 32)
                 {

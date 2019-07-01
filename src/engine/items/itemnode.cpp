@@ -654,7 +654,7 @@ bool ItemState::isInsideZoneButNotInBox(const Engine& engine,
         return false;
     }
 
-    if((creatureInfo->lot.block_mask & targetBox.overlap_index) != 0)
+    if(!creatureInfo->lot.canVisit(targetBox))
     {
         return false;
     }

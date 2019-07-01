@@ -367,13 +367,8 @@ void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core:
 
     Expects(groundSector->box != nullptr);
 
-    if(!groundSector->box->isBlockable())
-        return;
-
-    if(height >= 0_len)
-        groundSector->box->unblock();
-    else
-        groundSector->box->block();
+    if(groundSector->box->blockable)
+        groundSector->box->blocked = (height < 0_len);
 }
 
 const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_null<gsl::not_null<const Room*>*>& room)

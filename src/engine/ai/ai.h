@@ -41,24 +41,10 @@ struct SearchNode
      */
     const loader::file::Box* exit_box = nullptr;
 
-    uint16_t search_version = 0;
+    uint16_t search_revision = 0;
+    bool blocked = false;
 
     const loader::file::Box* next_expansion = nullptr;
-
-    void markBlocked()
-    {
-        search_version |= 0x8000u;
-    }
-
-    uint16_t getSearchVersion() const
-    {
-        return search_version & ~uint16_t(0x8000u);
-    }
-
-    bool isBlocked() const
-    {
-        return (search_version & 0x8000u) != 0;
-    }
 
     YAML::Node save(const Engine& engine) const;
 
@@ -77,8 +63,17 @@ struct LotInfo
 
     uint16_t m_searchVersion = 0;
 
-    //! @brief Disallows entering certain boxes, marked in the @c loader::Box::overlap_index member.
-    uint16_t block_mask = 0x4000;
+    bool cannotVisitBlocked = true;
+    bool cannotVisitBlockable = false;
+
+    bool canVisit(const loader::file::Box& box) const noexcept
+    {
+        if(cannotVisitBlocked && box.blocked)
+            return false;
+        if(cannotVisitBlockable && box.blockable)
+            return false;
+        return true;
+    }
 
     //! @brief Movement limits
     //! @{
@@ -149,7 +144,7 @@ struct LotInfo
                     tail = target_box;
             }
 
-            targetNode->search_version = ++m_searchVersion;
+            targetNode->search_revision = ++m_searchVersion;
             targetNode->exit_box = nullptr;
         }
 
@@ -176,13 +171,12 @@ struct LotInfo
 
             const auto headNode = &nodes[head];
 
-            for(auto overlapBoxIdx : getOverlaps(engine, head->overlap_index))
+            for(const auto overlapBoxIdx : getOverlaps(engine, head->overlap_index))
             {
-                overlapBoxIdx &= 0x7FFFu;
-                const auto* overlapBox = &engine.getBoxes()[overlapBoxIdx];
+                const auto* overlapBox = &engine.getBoxes().at(overlapBoxIdx & 0x7FFFu);
 
                 if(searchZone != overlapBox->*zoneRef)
-                    continue;
+                    continue; // cannot switch zones
 
                 const auto boxHeightDiff = overlapBox->floor - head->floor;
                 if(boxHeightDiff > step || boxHeightDiff < drop)
@@ -190,26 +184,28 @@ struct LotInfo
 
                 auto overlapNode = &nodes[overlapBox];
 
-                if(headNode->getSearchVersion() < overlapNode->getSearchVersion())
+                if(headNode->search_revision < overlapNode->search_revision)
                     continue; // not yet checked if we can reach this box
 
-                if(headNode->isBlocked())
+                if(headNode->blocked)
                 {
-                    if(headNode->getSearchVersion() == overlapNode->getSearchVersion())
-                        continue; // already visited; we don't care if the child is blocked or not
+                    if(headNode->search_revision == overlapNode->search_revision)
+                        continue; // already visited
 
-                    // mark as visited, will also mark as blocked
-                    overlapNode->search_version = headNode->search_version;
+                    // mark as visited and blocked
+                    overlapNode->search_revision = headNode->search_revision;
+                    overlapNode->blocked = true;
                 }
                 else
                 {
-                    if(headNode->getSearchVersion() == overlapNode->getSearchVersion() && !overlapNode->isBlocked())
-                        continue; // already visited and reachable
+                    if(headNode->search_revision == overlapNode->search_revision && !overlapNode->blocked)
+                        continue; // already visited and marked reachable
 
                     // mark as visited, and check if reachable
-                    overlapNode->search_version = headNode->search_version;
-                    if((overlapBox->overlap_index & block_mask) != 0)
-                        overlapNode->markBlocked(); // can't reach this box
+                    overlapNode->search_revision = headNode->search_revision;
+                    overlapNode->blocked = false;
+                    if(!canVisit(*overlapBox))
+                        overlapNode->blocked = true; // can't reach this box
                     else
                         overlapNode->exit_box = head; // success! connect both boxes
                 }
@@ -232,6 +228,7 @@ struct AiInfo
     loader::file::ZoneId zone_number;
 
     loader::file::ZoneId enemy_zone;
+    bool enemy_unreachable = false;
 
     core::Area distance{0};
 
@@ -244,6 +241,11 @@ struct AiInfo
     core::Angle enemy_facing;
 
     AiInfo(engine::Engine& engine, items::ItemState& item);
+
+    bool canReachEnemyZone() const
+    {
+        return !enemy_unreachable && zone_number == enemy_zone;
+    }
 };
 
 struct CreatureInfo

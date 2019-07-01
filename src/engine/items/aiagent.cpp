@@ -46,7 +46,7 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
     if(sectorBox == nullptr)
         return true;
 
-    if(lotInfo.block_mask & sectorBox->overlap_index)
+    if(!lotInfo.canVisit(*sectorBox))
         return true;
 
     const auto stepHeight = currentBoxFloor - sectorBox->floor;

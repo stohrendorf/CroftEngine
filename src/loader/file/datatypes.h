@@ -1356,8 +1356,10 @@ struct Box
     //! @brief Index into the overlaps list, which lists all boxes that overlap with this one.
     //! @remark Mask @c 0x8000 possibly marks boxes that are not reachable by large NPCs, like the T-Rex.
     //! @remark Mask @c 0x4000 possible marks closed doors.
-    mutable uint16_t overlap_index; // index into Overlaps[]. The high bit is sometimes set; this
+    uint16_t overlap_index; // index into Overlaps[]. The high bit is sometimes set; this
     // occurs in front of swinging doors and the like.
+    mutable bool blocked;
+    bool blockable;
 
     constexpr bool containsX(const core::Length x) const noexcept
     {
@@ -1382,7 +1384,10 @@ struct Box
         box->xmin = 1_len * reader.readI32();
         box->xmax = 1_len * reader.readI32();
         box->floor = 1_len * static_cast<core::Length::type>(reader.readI16());
-        box->overlap_index = reader.readU16();
+        const auto tmp = reader.readU16();
+        box->overlap_index = tmp & ((1<<14)-1);
+        box->blocked = (tmp&0x4000) != 0;
+        box->blockable = (tmp&0x8000) != 0;
         return box;
     }
 
@@ -1394,7 +1399,10 @@ struct Box
         box->xmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
         box->xmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
         box->floor = core::Length{static_cast<core::Length::type>(reader.readI16())};
-        box->overlap_index = reader.readU16();
+        const auto tmp = reader.readU16();
+        box->overlap_index = tmp & ((1<<14)-1);
+        box->blocked = (tmp&0x4000) != 0;
+        box->blockable = (tmp&0x8000) != 0;
         return box;
     }
 
@@ -1419,26 +1427,6 @@ struct Box
         {
             return swapped ? &Box::zoneGround2Swapped : &Box::zoneGround2;
         }
-    }
-
-    constexpr bool isBlockable() const noexcept
-    {
-        return (overlap_index & 0x8000) != 0;
-    }
-
-    constexpr bool isBlocked() const noexcept
-    {
-        return (overlap_index & 0x4000) != 0;
-    }
-
-    void block() const noexcept
-    {
-        overlap_index |= 0x4000;
-    }
-
-    void unblock() const noexcept
-    {
-        overlap_index &= ~0x4000;
     }
 };
 

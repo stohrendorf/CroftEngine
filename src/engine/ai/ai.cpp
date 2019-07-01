@@ -37,7 +37,7 @@ Mood parseMood(const std::string& s)
 
 gsl::span<const uint16_t> LotInfo::getOverlaps(const Engine& engine, const uint16_t idx)
 {
-    const auto first = &engine.getOverlaps().at(idx & 0x3fffu);
+    const auto first = &engine.getOverlaps().at(idx);
     auto last = first;
     const auto endOfUniverse = &engine.getOverlaps().back() + 1;
 
@@ -218,7 +218,7 @@ bool LotInfo::calculateTarget(const Engine& engine, core::TRVec& target, const i
         }
 
         const auto nextBox = this->nodes[box].exit_box;
-        if(nextBox == nullptr || (nextBox->overlap_index & block_mask))
+        if(nextBox == nullptr || !canVisit(*nextBox))
             break;
 
         box = nextBox;
@@ -265,7 +265,8 @@ YAML::Node LotInfo::save(const Engine& engine) const
     if(tail != nullptr)
         node["tail"] = std::distance(&engine.getBoxes()[0], tail);
     node["searchVersion"] = m_searchVersion;
-    node["blockMask"] = block_mask;
+    node["cannotVisitBlockable"] = cannotVisitBlockable;
+    node["cannotVisitBlocked"] = cannotVisitBlocked;
     node["step"] = step;
     node["drop"] = drop;
     node["fly"] = fly;
@@ -295,7 +296,8 @@ void LotInfo::load(const YAML::Node& n, const Engine& engine)
     else
         tail = &engine.getBoxes().at(n["tail"].as<size_t>());
     m_searchVersion = n["searchVersion"].as<uint16_t>();
-    block_mask = n["blockMask"].as<uint16_t>();
+    cannotVisitBlockable = n["cannotVisitBlockable"].as<bool>();
+    cannotVisitBlocked = n["cannotVisitBlocked"].as<bool>();
     step = n["step"].as<core::Length>();
     drop = n["drop"].as<core::Length>();
     fly = n["fly"].as<core::Length>();
@@ -316,8 +318,8 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
         return;
 
     CreatureInfo& creatureInfo = *item.creatureInfo;
-    if(creatureInfo.lot.nodes[item.box].isBlocked()
-       && creatureInfo.lot.nodes[item.box].getSearchVersion() == creatureInfo.lot.m_searchVersion)
+    if(creatureInfo.lot.nodes[item.box].blocked
+       && creatureInfo.lot.nodes[item.box].search_revision == creatureInfo.lot.m_searchVersion)
     {
         creatureInfo.lot.required_box = nullptr;
     }
@@ -325,7 +327,7 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
     if(creatureInfo.mood != Mood::Attack && creatureInfo.lot.required_box != nullptr
        && !item.isInsideZoneButNotInBox(engine, aiInfo.zone_number, *creatureInfo.lot.target_box))
     {
-        if(aiInfo.zone_number == aiInfo.enemy_zone)
+        if(aiInfo.canReachEnemyZone())
         {
             creatureInfo.mood = Mood::Bored;
         }
@@ -342,7 +344,7 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
         {
         case Mood::Bored:
         case Mood::Stalk:
-            if(aiInfo.zone_number == aiInfo.enemy_zone)
+            if(aiInfo.canReachEnemyZone())
             {
                 creatureInfo.mood = Mood::Attack;
             }
@@ -352,13 +354,13 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
             }
             break;
         case Mood::Attack:
-            if(aiInfo.zone_number != aiInfo.enemy_zone)
+            if(!aiInfo.canReachEnemyZone())
             {
                 creatureInfo.mood = Mood::Bored;
             }
             break;
         case Mood::Escape:
-            if(aiInfo.zone_number == aiInfo.enemy_zone)
+            if(aiInfo.canReachEnemyZone())
             {
                 creatureInfo.mood = Mood::Attack;
             }
@@ -371,11 +373,11 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
         {
         case Mood::Bored:
         case Mood::Stalk:
-            if(item.is_hit && (util::rand15() < 2048 || aiInfo.zone_number != aiInfo.enemy_zone))
+            if(item.is_hit && (util::rand15() < 2048 || !aiInfo.canReachEnemyZone()))
             {
                 creatureInfo.mood = Mood::Escape;
             }
-            else if(aiInfo.zone_number == aiInfo.enemy_zone)
+            else if(aiInfo.canReachEnemyZone())
             {
                 if(aiInfo.distance >= util::square(3 * core::SectorSize)
                    && (creatureInfo.mood != Mood::Stalk || creatureInfo.lot.required_box != nullptr))
@@ -389,17 +391,17 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
             }
             break;
         case Mood::Attack:
-            if(item.is_hit && (util::rand15() < 2048 || aiInfo.zone_number != aiInfo.enemy_zone))
+            if(item.is_hit && (util::rand15() < 2048 || !aiInfo.canReachEnemyZone()))
             {
                 creatureInfo.mood = Mood::Escape;
             }
-            else if(aiInfo.zone_number != aiInfo.enemy_zone)
+            else if(!aiInfo.canReachEnemyZone())
             {
                 creatureInfo.mood = Mood::Bored;
             }
             break;
         case Mood::Escape:
-            if(aiInfo.zone_number == aiInfo.enemy_zone && util::rand15() < 256)
+            if(aiInfo.canReachEnemyZone() && util::rand15() < 256)
             {
                 creatureInfo.mood = Mood::Stalk;
             }
@@ -468,7 +470,7 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
         else if(creatureInfo.lot.required_box == nullptr)
         {
             creatureInfo.lot.setRandomSearchTarget(box);
-            if(aiInfo.zone_number != aiInfo.enemy_zone)
+            if(!aiInfo.canReachEnemyZone())
             {
                 creatureInfo.mood = Mood::Bored;
             }
@@ -485,7 +487,7 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
         {
             creatureInfo.lot.setRandomSearchTarget(box);
         }
-        else if(aiInfo.zone_number == aiInfo.enemy_zone && item.stalkBox(engine, *box))
+        else if(aiInfo.canReachEnemyZone() && item.stalkBox(engine, *box))
         {
             creatureInfo.lot.setRandomSearchTarget(box);
             creatureInfo.mood = Mood::Stalk;
@@ -514,11 +516,10 @@ AiInfo::AiInfo(Engine& engine, items::ItemState& item)
     zone_number = item.box->*zoneRef;
     engine.getLara().m_state.box = engine.getLara().m_state.getCurrentSector()->box;
     enemy_zone = engine.getLara().m_state.box->*zoneRef;
-    if((item.creatureInfo->lot.block_mask & engine.getLara().m_state.box->overlap_index) != 0
-       || item.creatureInfo->lot.nodes[item.box].search_version == (item.creatureInfo->lot.m_searchVersion | 0x8000))
-    {
-        enemy_zone |= 0x4000;
-    }
+    enemy_unreachable
+        = (!item.creatureInfo->lot.canVisit(*engine.getLara().m_state.box)
+           || (item.creatureInfo->lot.nodes[item.box].blocked
+               && item.creatureInfo->lot.nodes[item.box].search_revision == item.creatureInfo->lot.m_searchVersion));
 
     auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(item.type.get());
     const core::Length pivotLength{static_cast<core::Length::type>(objectInfo.pivot_length)};
@@ -566,7 +567,10 @@ CreatureInfo::CreatureInfo(const Engine& engine, const core::TypeId type)
 
     case TR1ItemId::TRex:
     case TR1ItemId::Mutant:
-    case TR1ItemId::CentaurMutant: lot.block_mask = 0x8000; break;
+    case TR1ItemId::CentaurMutant:
+        lot.cannotVisitBlockable = true;
+        lot.cannotVisitBlocked = false;
+        break;
 
     default:
         // silence compiler
@@ -601,7 +605,8 @@ void CreatureInfo::load(const YAML::Node& n, const Engine& engine)
 YAML::Node SearchNode::save(const Engine& engine) const
 {
     YAML::Node node;
-    node["searchVersion"] = search_version;
+    node["searchRevision"] = search_revision;
+    node["blocked"] = blocked;
     if(exit_box != nullptr)
         node["exitBox"] = std::distance(&engine.getBoxes()[0], exit_box);
     if(next_expansion != nullptr)
@@ -611,7 +616,8 @@ YAML::Node SearchNode::save(const Engine& engine) const
 
 void SearchNode::load(const YAML::Node& n, const Engine& engine)
 {
-    search_version = n["searchVersion"].as<uint16_t>();
+    search_revision = n["searchRevision"].as<uint16_t>();
+    blocked = n["blocked"].as<uint16_t>();
     if(!n["exitBox"].IsDefined())
         exit_box = nullptr;
     else

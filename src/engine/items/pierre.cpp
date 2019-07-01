@@ -54,6 +54,7 @@ void Pierre::update()
         if(m_state.creatureInfo->flags != 0)
         {
             aiInfo.enemy_zone = -1;
+            aiInfo.enemy_unreachable = true;
             m_state.is_hit = true;
         }
 

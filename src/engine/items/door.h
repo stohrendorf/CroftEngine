@@ -32,9 +32,7 @@ private:
 
             *sector = sectorData;
             if(box != nullptr)
-            {
-                box->unblock();
-            }
+                box->blocked = false;
         }
 
         void close()
@@ -44,9 +42,7 @@ private:
 
             sector->reset();
             if(box != nullptr)
-            {
-                box->block();
-            }
+                box->blocked = true;
         }
 
         void init(const loader::file::Room& room, const core::TRVec& wingsPosition)
@@ -64,7 +60,7 @@ private:
                 box = const_cast<loader::file::Box*>(
                     sector->portalTarget->getSectorByAbsolutePosition(wingsPosition)->box);
             }
-            if(box != nullptr && !box->isBlockable())
+            if(box != nullptr && !box->blockable)
             {
                 box = nullptr;
             }
