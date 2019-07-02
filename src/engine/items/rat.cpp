@@ -29,29 +29,23 @@ void Rat::update()
             updateMood(getEngine(), m_state, aiInfo, true);
             const auto turn = rotateTowardsTarget(3_deg);
 
-            if(m_state.current_anim_state == 1_as)
+            if(m_state.current_anim_state == 1_as && aiInfo.ahead)
             {
-                if(aiInfo.ahead)
+                if(m_state.touch_bits.to_ulong() & 0x300018ful)
                 {
-                    if(m_state.touch_bits.to_ulong() & 0x300018ful)
-                    {
-                        m_state.goal_anim_state = 2_as;
-                    }
+                    m_state.goal_anim_state = 2_as;
                 }
             }
             else if(m_state.current_anim_state == 2_as)
             {
-                if(m_state.required_anim_state == 0_as)
+                if(m_state.required_anim_state == 0_as && aiInfo.ahead)
                 {
-                    if(aiInfo.ahead)
+                    if(m_state.touch_bits.to_ulong() & 0x300018ful)
                     {
-                        if(m_state.touch_bits.to_ulong() & 0x300018ful)
-                        {
-                            emitParticle({0_len, -11_len, 108_len}, 3, &createBloodSplat);
-                            getEngine().getLara().m_state.health -= 20_hp;
-                            getEngine().getLara().m_state.is_hit = true;
-                            m_state.required_anim_state = 1_as;
-                        }
+                        emitParticle({0_len, -11_len, 108_len}, 3, &createBloodSplat);
+                        getEngine().getLara().m_state.health -= 20_hp;
+                        getEngine().getLara().m_state.is_hit = true;
+                        m_state.required_anim_state = 1_as;
                     }
                 }
                 m_state.goal_anim_state = 0_as;
@@ -70,17 +64,16 @@ void Rat::update()
 
                 loadObjectInfo(true);
             }
-            const auto prevY = m_state.position.position.Y;
-            m_state.position.position.Y = m_state.floor;
+            const auto prevY = std::exchange(m_state.position.position.Y, m_state.floor);
             animateCreature(turn, 0_deg);
             if(prevY != -core::HeightLimit)
             {
                 const auto w = *waterHeight;
-                if(w - prevY < -32_len)
+                if(w < prevY - 32_len)
                 {
                     m_state.position.position.Y = prevY - 32_len;
                 }
-                else if(w - prevY > 32_len)
+                else if(w > prevY + 32_len)
                 {
                     m_state.position.position.Y = prevY + 32_len;
                 }
@@ -89,6 +82,7 @@ void Rat::update()
                     m_state.position.position.Y = w;
                 }
             }
+            applyTransform();
         }
         else
         {
@@ -115,6 +109,7 @@ void Rat::update()
                 m_state.frame_number = m_state.anim->firstFrame;
                 m_state.current_anim_state = m_state.goal_anim_state;
                 m_state.position.position.Y = m_state.floor;
+                applyTransform();
 
                 loadObjectInfo(true);
             }
@@ -210,6 +205,7 @@ void Rat::update()
             m_state.goal_anim_state = m_state.anim->state_id;
             m_state.current_anim_state = m_state.anim->state_id;
             m_state.position.position.Y = waterHeight.get();
+            applyTransform();
 
             loadObjectInfo(true);
         }
