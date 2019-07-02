@@ -22,6 +22,8 @@ public:
 
     void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 
+    void loadObjectInfo(bool withoutGameState = false);
+
 protected:
     void rotateCreatureTilt(core::Angle angle)
     {
@@ -61,7 +63,7 @@ private:
                               core::Length nextBoxFloor,
                               const ai::LotInfo& lotInfo) const;
 
-    const core::Length m_collisionRadius;
+    core::Length m_collisionRadius = 0_len;
 };
 } // namespace items
 } // namespace engine

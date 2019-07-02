@@ -12,9 +12,9 @@ namespace script
 struct ObjectInfo
 {
     bool ai_agent = false;
-    int radius = 10;
-    int hit_points = -16384;
-    int pivot_length = 0;
+    core::Length::type radius = 10;
+    core::Health::type hit_points = -16384;
+    core::Length::type pivot_length = 0;
     int target_update_chance = 0;
 
     static sol::usertype<ObjectInfo>& userType()

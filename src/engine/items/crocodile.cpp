@@ -80,6 +80,8 @@ void Crocodile::update()
                 m_state.creatureInfo->lot.step = 256_len;
                 m_state.creatureInfo->lot.drop = -256_len;
                 m_state.creatureInfo->lot.fly = 0_len;
+
+                loadObjectInfo(true);
             }
             getSkeleton()->patchBone(8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
             animateCreature(0_deg, 0_deg);
@@ -117,6 +119,8 @@ void Crocodile::update()
                 m_state.position.position.Y
                     = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getItemNodes()).y;
                 m_state.rotation.X = 0_deg;
+
+                loadObjectInfo(true);
             }
             ModelItemNode::update();
             auto room = m_state.position.room;
@@ -261,6 +265,8 @@ void Crocodile::update()
                 m_state.creatureInfo->lot.drop = -20 * core::SectorSize;
                 m_state.creatureInfo->lot.fly = 16_len;
             }
+
+            loadObjectInfo(true);
         }
         if(m_state.creatureInfo != nullptr)
         {

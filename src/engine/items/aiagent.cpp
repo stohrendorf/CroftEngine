@@ -162,120 +162,133 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     const auto inSectorX = basePosX % core::SectorSize;
     const auto inSectorZ = basePosZ % core::SectorSize;
 
-    auto objectInfo = getEngine().getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(m_state.type.get());
-    const core::Length radius{static_cast<core::Length::type>(objectInfo.radius)};
-
     core::Length moveX = 0_len;
     core::Length moveZ = 0_len;
 
-    if(radius > inSectorZ)
+    if(m_collisionRadius > inSectorZ)
     {
-        if(isPositionOutOfReach(core::TRVec{basePosX, bboxMinY, basePosZ - radius}, currentFloor, nextFloor, lotInfo))
+        if(isPositionOutOfReach(
+               core::TRVec{basePosX, bboxMinY, basePosZ - m_collisionRadius}, currentFloor, nextFloor, lotInfo))
         {
-            moveZ = radius - inSectorZ;
+            moveZ = m_collisionRadius - inSectorZ;
         }
 
-        if(radius > inSectorX)
+        if(m_collisionRadius > inSectorX)
         {
             if(isPositionOutOfReach(
-                   core::TRVec{basePosX - radius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+                   core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
             {
-                moveX = radius - inSectorX;
+                moveX = m_collisionRadius - inSectorX;
             }
             else if(moveZ == 0_len
                     && isPositionOutOfReach(
-                        core::TRVec{basePosX - radius, bboxMinY, basePosZ - radius}, currentFloor, nextFloor, lotInfo))
+                        core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ - m_collisionRadius},
+                        currentFloor,
+                        nextFloor,
+                        lotInfo))
             {
                 if(m_state.rotation.Y > -135_deg && m_state.rotation.Y < 45_deg)
-                    moveZ = radius - inSectorZ;
+                    moveZ = m_collisionRadius - inSectorZ;
                 else
-                    moveX = radius - inSectorX;
+                    moveX = m_collisionRadius - inSectorX;
             }
         }
-        else if(core::SectorSize - radius < inSectorX)
+        else if(core::SectorSize - m_collisionRadius < inSectorX)
         {
             if(isPositionOutOfReach(
-                   core::TRVec{radius + basePosX, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+                   core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
             {
-                moveX = core::SectorSize - radius - inSectorX;
+                moveX = core::SectorSize - m_collisionRadius - inSectorX;
             }
             else if(moveZ == 0_len
                     && isPositionOutOfReach(
-                        core::TRVec{radius + basePosX, bboxMinY, basePosZ - radius}, currentFloor, nextFloor, lotInfo))
+                        core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ - m_collisionRadius},
+                        currentFloor,
+                        nextFloor,
+                        lotInfo))
             {
                 if(m_state.rotation.Y > -45_deg && m_state.rotation.Y < 135_deg)
                 {
-                    moveZ = radius - inSectorZ;
+                    moveZ = m_collisionRadius - inSectorZ;
                 }
                 else
                 {
-                    moveX = core::SectorSize - radius - inSectorX;
+                    moveX = core::SectorSize - m_collisionRadius - inSectorX;
                 }
             }
         }
     }
-    else if(core::SectorSize - radius < inSectorZ)
+    else if(core::SectorSize - m_collisionRadius < inSectorZ)
     {
-        if(isPositionOutOfReach(core::TRVec{basePosX, bboxMinY, basePosZ + radius}, currentFloor, nextFloor, lotInfo))
+        if(isPositionOutOfReach(
+               core::TRVec{basePosX, bboxMinY, basePosZ + m_collisionRadius}, currentFloor, nextFloor, lotInfo))
         {
-            moveZ = core::SectorSize - radius - inSectorZ;
+            moveZ = core::SectorSize - m_collisionRadius - inSectorZ;
         }
 
-        if(radius > inSectorX)
+        if(m_collisionRadius > inSectorX)
         {
             if(isPositionOutOfReach(
-                   core::TRVec{basePosX - radius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+                   core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
             {
-                moveX = radius - inSectorX;
+                moveX = m_collisionRadius - inSectorX;
             }
             else if(moveZ == 0_len
                     && isPositionOutOfReach(
-                        core::TRVec{basePosX - radius, bboxMinY, basePosZ + radius}, currentFloor, nextFloor, lotInfo))
+                        core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ + m_collisionRadius},
+                        currentFloor,
+                        nextFloor,
+                        lotInfo))
             {
                 if(m_state.rotation.Y < 135_deg && m_state.rotation.Y > -45_deg)
                 {
-                    moveX = radius - inSectorX;
+                    moveX = m_collisionRadius - inSectorX;
                 }
                 else
                 {
-                    moveZ = core::SectorSize - radius - inSectorZ;
+                    moveZ = core::SectorSize - m_collisionRadius - inSectorZ;
                 }
             }
         }
-        else if(core::SectorSize - radius < inSectorX)
+        else if(core::SectorSize - m_collisionRadius < inSectorX)
         {
             if(isPositionOutOfReach(
-                   core::TRVec{radius + basePosX, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+                   core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
             {
-                moveX = core::SectorSize - radius - inSectorX;
+                moveX = core::SectorSize - m_collisionRadius - inSectorX;
             }
             else if(moveZ == 0_len
                     && isPositionOutOfReach(
-                        core::TRVec{radius + basePosX, bboxMinY, basePosZ + radius}, currentFloor, nextFloor, lotInfo))
+                        core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ + m_collisionRadius},
+                        currentFloor,
+                        nextFloor,
+                        lotInfo))
             {
                 if(m_state.rotation.Y < 45_deg && m_state.rotation.Y > -135_deg)
                 {
-                    moveX = core::SectorSize - radius - inSectorX;
+                    moveX = core::SectorSize - m_collisionRadius - inSectorX;
                 }
                 else
                 {
-                    moveZ = core::SectorSize - radius - inSectorZ;
+                    moveZ = core::SectorSize - m_collisionRadius - inSectorZ;
                 }
             }
         }
     }
-    else if(radius > inSectorX)
+    else if(m_collisionRadius > inSectorX)
     {
-        if(isPositionOutOfReach(core::TRVec{basePosX - radius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+        if(isPositionOutOfReach(
+               core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
         {
-            moveX = radius - inSectorX;
+            moveX = m_collisionRadius - inSectorX;
         }
     }
-    else if(inSectorX > core::SectorSize - radius)
+    else if(inSectorX > core::SectorSize - m_collisionRadius)
     {
-        if(isPositionOutOfReach(core::TRVec{basePosX + radius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+        if(isPositionOutOfReach(
+               core::TRVec{basePosX + m_collisionRadius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
         {
-            moveX = core::SectorSize - radius - inSectorX;
+            moveX = core::SectorSize - m_collisionRadius - inSectorX;
         }
     }
 
@@ -400,14 +413,12 @@ AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
                  const loader::file::Item& item,
                  const loader::file::SkeletalModelType& animatedModel)
     : ModelItemNode{engine, room, item, true, animatedModel}
-    , m_collisionRadius{static_cast<core::Length::type>(
-          engine->getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(m_state.type.get()).radius)}
 {
     m_state.collidable = true;
     const core::Angle v = util::rand15(180_deg) * 2;
     m_state.rotation.Y += v;
-    m_state.health = core::Health{static_cast<core::Health::type>(
-        engine->getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(m_state.type.get()).hit_points)};
+
+    loadObjectInfo(false);
 }
 
 void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
@@ -481,6 +492,14 @@ bool AIAgent::tryShootAtLara(
     p->angle.Y += angle;
 
     return isHit;
+}
+void AIAgent::loadObjectInfo(bool withoutGameState)
+{
+    m_collisionRadius = core::Length{
+        getEngine().getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(m_state.type.get()).radius};
+
+    if(!withoutGameState)
+        m_state.loadObjectInfo(getEngine().getScriptEngine());
 }
 } // namespace items
 } // namespace engine

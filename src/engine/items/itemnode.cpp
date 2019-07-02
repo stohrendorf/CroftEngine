@@ -2,6 +2,7 @@
 
 #include "engine/laranode.h"
 #include "engine/particle.h"
+#include "engine/script/reflection.h"
 #include "render/scene/Sprite.h"
 
 #include <boost/range/adaptor/indexed.hpp>
@@ -54,7 +55,8 @@ ItemNode::ItemNode(const gsl::not_null<Engine*>& engine,
 {
     BOOST_ASSERT(room->isInnerPositionXZ(item.position));
 
-    m_state.type = item.type;
+    m_state.loadObjectInfo(engine->getScriptEngine());
+
     m_state.position.position = item.position;
     m_state.rotation.Y = item.rotation;
     m_state.shade = item.darkness;
@@ -788,6 +790,10 @@ void ItemState::load(const YAML::Node& n, const Engine& engine)
 glm::vec3 ItemState::getPosition() const
 {
     return position.position.toRenderSystem();
+}
+void ItemState::loadObjectInfo(const sol::state& engine)
+{
+    health = core::Health{engine["getObjectInfo"].call<script::ObjectInfo>(type.get()).hit_points};
 }
 
 ItemState::~ItemState() = default;

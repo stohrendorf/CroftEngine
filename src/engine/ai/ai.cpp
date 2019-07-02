@@ -522,7 +522,7 @@ AiInfo::AiInfo(Engine& engine, items::ItemState& item)
                && item.creatureInfo->lot.nodes[item.box].search_revision == item.creatureInfo->lot.m_searchVersion));
 
     auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(item.type.get());
-    const core::Length pivotLength{static_cast<core::Length::type>(objectInfo.pivot_length)};
+    const core::Length pivotLength{objectInfo.pivot_length};
     const auto d = engine.getLara().m_state.position.position
                    - (item.position.position + util::pitch(pivotLength, item.rotation.Y));
     const auto pivotAngle = angleFromAtan(d.X, d.Z);

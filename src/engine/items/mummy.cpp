@@ -14,8 +14,6 @@ Mummy::Mummy(const gsl::not_null<Engine*>& engine,
              const loader::file::SkeletalModelType& animatedModel)
     : ModelItemNode{engine, room, item, true, animatedModel}
 {
-    m_state.health = core::Health{static_cast<core::Health::type>(
-        engine->getScriptEngine()["getObjectInfo"].call<engine::script::ObjectInfo>(m_state.type.get()).hit_points)};
 }
 
 void Mummy::update()

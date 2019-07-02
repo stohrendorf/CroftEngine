@@ -153,6 +153,8 @@ struct ItemState final : public audio::Emitter
     {
         return position.room->getSectorByAbsolutePosition(position.position);
     }
+
+    void loadObjectInfo(const sol::state& engine);
 };
 
 class ItemNode

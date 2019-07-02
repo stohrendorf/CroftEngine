@@ -67,13 +67,15 @@ void Rat::update()
                 m_state.frame_number = m_state.anim->firstFrame;
                 m_state.goal_anim_state = m_state.anim->state_id;
                 m_state.current_anim_state = m_state.anim->state_id;
+
+                loadObjectInfo(true);
             }
             const auto prevY = m_state.position.position.Y;
             m_state.position.position.Y = m_state.floor;
             animateCreature(turn, 0_deg);
             if(prevY != -core::HeightLimit)
             {
-                const auto w = waterHeight.get_value_or(-core::HeightLimit);
+                const auto w = *waterHeight;
                 if(w - prevY < -32_len)
                 {
                     m_state.position.position.Y = prevY - 32_len;
@@ -113,6 +115,8 @@ void Rat::update()
                 m_state.frame_number = m_state.anim->firstFrame;
                 m_state.current_anim_state = m_state.goal_anim_state;
                 m_state.position.position.Y = m_state.floor;
+
+                loadObjectInfo(true);
             }
         }
     }
@@ -206,6 +210,8 @@ void Rat::update()
             m_state.goal_anim_state = m_state.anim->state_id;
             m_state.current_anim_state = m_state.anim->state_id;
             m_state.position.position.Y = waterHeight.get();
+
+            loadObjectInfo(true);
         }
         getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
         animateCreature(turn, 0_deg);
