@@ -3,6 +3,7 @@
 #include "engine/engine.h"
 #include "engine/items/itemnode.h"
 
+#include <boost/range/adaptor/map.hpp>
 #include <unordered_map>
 
 namespace engine
@@ -41,7 +42,9 @@ struct SearchNode
      */
     const loader::file::Box* exit_box = nullptr;
 
-    uint16_t search_revision = 0;
+    using RevisionType = uint16_t;
+
+    RevisionType search_revision = 0;
     bool blocked = false;
 
     const loader::file::Box* next_expansion = nullptr;
@@ -61,7 +64,7 @@ struct LotInfo
 
     const loader::file::Box* tail = nullptr;
 
-    uint16_t m_searchVersion = 0;
+    SearchNode::RevisionType m_searchVersion = 0;
 
     bool cannotVisitBlocked = true;
     bool cannotVisitBlockable = false;
@@ -116,7 +119,7 @@ struct LotInfo
         }
     }
 
-    bool calculateTarget(const engine::Engine& engine, core::TRVec& target, const items::ItemState& item);
+    bool calculateTarget(const engine::Engine& engine, core::TRVec& moveTarget, const items::ItemState& item);
 
     /**
      * @brief Incrementally calculate all paths to a specific box.
@@ -146,6 +149,23 @@ struct LotInfo
 
             targetNode->search_revision = ++m_searchVersion;
             targetNode->exit_box = nullptr;
+
+            if(m_searchVersion == std::numeric_limits<SearchNode::RevisionType>::max())
+            {
+                // shift revisions while keeping strict ordering
+                SearchNode::RevisionType minRev = std::numeric_limits<SearchNode::RevisionType>::max();
+                for(const auto& node : nodes | boost::adaptors::map_values)
+                {
+                    minRev = std::min(node.search_revision, minRev);
+                }
+
+                Expects(minRev != 0);
+                m_searchVersion -= minRev;
+                for(auto& node : nodes | boost::adaptors::map_values)
+                {
+                    node.search_revision -= minRev;
+                }
+            }
         }
 
         Expects(target_box != nullptr);
@@ -264,7 +284,7 @@ struct CreatureInfo
 
     core::TRVec target;
 
-    CreatureInfo(const engine::Engine& engine, const core::TypeId type);
+    CreatureInfo(const engine::Engine& engine, core::TypeId type);
 
     void rotateHead(const core::Angle& angle)
     {

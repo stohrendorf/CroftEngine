@@ -41,7 +41,7 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const Engine& engine, const uint1
     auto last = first;
     const auto endOfUniverse = &engine.getOverlaps().back() + 1;
 
-    while(last < endOfUniverse && (*last & 0x8000) == 0)
+    while(last < endOfUniverse && (*last & 0x8000u) == 0)
     {
         ++last;
     }
@@ -49,206 +49,210 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const Engine& engine, const uint1
     return gsl::make_span(first, last + 1);
 }
 
-bool LotInfo::calculateTarget(const Engine& engine, core::TRVec& target, const items::ItemState& item)
+bool LotInfo::calculateTarget(const Engine& engine, core::TRVec& moveTarget, const items::ItemState& item)
 {
     updatePath(engine, 5);
 
-    target = item.position.position;
+    moveTarget = item.position.position;
 
-    auto box = item.box;
-    if(box == nullptr)
+    auto here = item.box;
+    if(here == nullptr)
         return false;
 
     core::Length minZ = 0_len, maxZ = 0_len, minX = 0_len, maxX = 0_len;
 
-    const auto clampX = [&minX, &maxX, &box]() {
-        minX = std::max(minX, box->xmin);
-        maxX = std::min(maxX, box->xmax);
+    const auto clampX = [&minX, &maxX, &here]() {
+        minX = std::max(minX, here->xmin);
+        maxX = std::min(maxX, here->xmax);
     };
 
-    const auto clampZ = [&minZ, &maxZ, &box]() {
-        minZ = std::max(minZ, box->zmin);
-        maxZ = std::min(maxZ, box->zmax);
+    const auto clampZ = [&minZ, &maxZ, &here]() {
+        minZ = std::max(minZ, here->zmin);
+        maxZ = std::min(maxZ, here->zmax);
     };
 
-    constexpr auto NoClampXPos = 0x01;
-    constexpr auto NoClampXNeg = 0x02;
-    constexpr auto NoClampZPos = 0x04;
-    constexpr auto NoClampZNeg = 0x08;
-    constexpr auto ClampNone = NoClampXPos | NoClampXNeg | NoClampZPos | NoClampZNeg;
-    constexpr auto Flag10 = 0x10;
+    constexpr uint8_t CanMoveXPos = 0x01u;
+    constexpr uint8_t CanMoveXNeg = 0x02u;
+    constexpr uint8_t CanMoveZPos = 0x04u;
+    constexpr uint8_t CanMoveZNeg = 0x08u;
+    constexpr uint8_t CanMoveAllDirs = CanMoveXPos | CanMoveXNeg | CanMoveZPos | CanMoveZNeg;
+    bool detour = false;
 
-    int unclampedDirs = ClampNone;
+    uint8_t moveDirs = CanMoveAllDirs;
     while(true)
     {
         if(fly != 0_len)
         {
-            if(box->floor - core::SectorSize < target.Y)
-                target.Y = box->floor - core::SectorSize;
+            if(here->floor - core::SectorSize < moveTarget.Y)
+                moveTarget.Y = here->floor - core::SectorSize;
         }
         else
         {
-            if(box->floor < target.Y)
-                target.Y = box->floor;
+            if(here->floor < moveTarget.Y)
+                moveTarget.Y = here->floor;
         }
 
-        if(box->contains(item.position.position.X, item.position.position.Z))
+        if(here->contains(item.position.position.X, item.position.position.Z))
         {
-            minZ = box->zmin;
-            maxZ = box->zmax;
-            minX = box->xmin;
-            maxX = box->xmax;
+            minZ = here->zmin;
+            maxZ = here->zmax;
+            minX = here->xmin;
+            maxX = here->xmax;
         }
         else
         {
-            if(item.position.position.Z < box->zmin)
+            if(item.position.position.Z < here->zmin)
             {
-                if((unclampedDirs & NoClampZNeg) && box->containsX(item.position.position.X))
+                // try to move to -Z
+                if((moveDirs & CanMoveZNeg) && here->containsX(item.position.position.X))
                 {
-                    target.Z = std::max(target.Z, box->zmin + core::SectorSize / 2);
+                    // can move straight to -Z while not leaving the X limits of the current box
+                    moveTarget.Z = std::max(moveTarget.Z, here->zmin + core::SectorSize / 2);
 
-                    if(unclampedDirs & Flag10)
+                    if(detour)
+                        return true;
+
+                    // narrow X to the current box limits, ensure we can only move to -Z from now on
+                    clampX();
+                    moveDirs = CanMoveZNeg;
+                }
+                else if(detour || moveDirs != CanMoveZNeg)
+                {
+                    moveTarget.Z = maxZ - core::SectorSize / 2;
+                    if(detour || moveDirs != CanMoveAllDirs)
+                        return true;
+
+                    detour = true;
+                }
+            }
+            else if(item.position.position.Z > here->zmax)
+            {
+                if((moveDirs & CanMoveZPos) && here->containsX(item.position.position.X))
+                {
+                    moveTarget.Z = std::min(moveTarget.Z, here->zmax - core::SectorSize / 2);
+
+                    if(detour)
                         return true;
 
                     clampX();
 
-                    unclampedDirs = NoClampZNeg;
+                    moveDirs = CanMoveZPos;
                 }
-                else if(unclampedDirs != NoClampZNeg)
+                else if(detour || moveDirs != CanMoveZPos)
                 {
-                    target.Z = maxZ - core::SectorSize / 2;
-                    if(unclampedDirs != ClampNone)
+                    moveTarget.Z = minZ + core::SectorSize / 2;
+                    if(detour || moveDirs != CanMoveAllDirs)
                         return true;
 
-                    unclampedDirs |= Flag10;
-                }
-            }
-            else if(item.position.position.Z > box->zmax)
-            {
-                if((unclampedDirs & NoClampZPos) && box->containsX(item.position.position.X))
-                {
-                    target.Z = std::min(target.Z, box->zmax - core::SectorSize / 2);
-
-                    if(unclampedDirs & Flag10)
-                        return true;
-
-                    clampX();
-
-                    unclampedDirs = NoClampZPos;
-                }
-                else if(unclampedDirs != NoClampZPos)
-                {
-                    target.Z = minZ + core::SectorSize / 2;
-                    if(unclampedDirs != ClampNone)
-                        return true;
-
-                    unclampedDirs |= Flag10;
+                    detour = true;
                 }
             }
 
-            if(item.position.position.X < box->xmin)
+            if(item.position.position.X < here->xmin)
             {
-                if((unclampedDirs & NoClampXNeg) && box->containsZ(item.position.position.Z))
+                if((moveDirs & CanMoveXNeg) && here->containsZ(item.position.position.Z))
                 {
-                    target.X = std::max(target.X, box->xmin + core::SectorSize / 2);
+                    moveTarget.X = std::max(moveTarget.X, here->xmin + core::SectorSize / 2);
 
-                    if(unclampedDirs & Flag10)
+                    if(detour)
                         return true;
 
                     clampZ();
 
-                    unclampedDirs = NoClampXNeg;
+                    moveDirs = CanMoveXNeg;
                 }
-                else if(unclampedDirs != NoClampXNeg)
+                else if(detour || moveDirs != CanMoveXNeg)
                 {
-                    target.X = maxX - core::SectorSize / 2;
-                    if(unclampedDirs != ClampNone)
+                    moveTarget.X = maxX - core::SectorSize / 2;
+                    if(detour || moveDirs != CanMoveAllDirs)
                         return true;
 
-                    unclampedDirs |= Flag10;
+                    detour = true;
                 }
             }
-            else if(item.position.position.X > box->xmax)
+            else if(item.position.position.X > here->xmax)
             {
-                if((unclampedDirs & NoClampXPos) && box->containsZ(item.position.position.Z))
+                if((moveDirs & CanMoveXPos) && here->containsZ(item.position.position.Z))
                 {
-                    target.X = std::min(target.X, box->xmax - core::SectorSize / 2);
+                    moveTarget.X = std::min(moveTarget.X, here->xmax - core::SectorSize / 2);
 
-                    if(unclampedDirs & Flag10)
+                    if(detour)
                         return true;
 
                     clampZ();
 
-                    unclampedDirs = NoClampXPos;
+                    moveDirs = CanMoveXPos;
                 }
-                else if(unclampedDirs != NoClampXPos)
+                else if(detour || moveDirs != CanMoveXPos)
                 {
-                    target.X = minX + core::SectorSize / 2;
-                    if(unclampedDirs != ClampNone)
+                    moveTarget.X = minX + core::SectorSize / 2;
+                    if(detour || moveDirs != CanMoveAllDirs)
                         return true;
 
-                    unclampedDirs |= Flag10;
+                    detour = true;
                 }
             }
         }
 
-        if(box == target_box)
+        if(here == target_box)
         {
-            if(unclampedDirs & (NoClampZPos | NoClampZNeg))
+            if(moveDirs & (CanMoveZPos | CanMoveZNeg))
             {
-                target.Z = this->target.Z;
+                moveTarget.Z = target.Z;
             }
-            else if(!(unclampedDirs & Flag10))
+            else if(!detour)
             {
-                target.Z = util::clamp(target.Z, box->zmin + core::SectorSize / 2, box->zmax - core::SectorSize / 2);
-            }
-
-            if(unclampedDirs & (NoClampXPos | NoClampXNeg))
-            {
-                target.X = this->target.X;
-            }
-            else if(!(unclampedDirs & Flag10))
-            {
-                target.X = util::clamp(target.X, box->xmin + core::SectorSize / 2, box->xmax - core::SectorSize / 2);
+                moveTarget.Z
+                    = util::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
             }
 
-            target.Y = this->target.Y;
+            if(moveDirs & (CanMoveXPos | CanMoveXNeg))
+            {
+                moveTarget.X = target.X;
+            }
+            else if(!detour)
+            {
+                moveTarget.X
+                    = util::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
+            }
+
+            moveTarget.Y = target.Y;
 
             return true;
         }
 
-        const auto nextBox = this->nodes[box].exit_box;
+        const auto nextBox = nodes[here].exit_box;
         if(nextBox == nullptr || !canVisit(*nextBox))
             break;
 
-        box = nextBox;
+        here = nextBox;
     }
 
-    BOOST_ASSERT(box != nullptr);
-    if(unclampedDirs & (NoClampZPos | NoClampZNeg))
+    BOOST_ASSERT(here != nullptr);
+    if(moveDirs & (CanMoveZPos | CanMoveZNeg))
     {
-        const auto center = box->zmax - box->zmin - core::SectorSize;
-        target.Z = util::rand15(center) + box->zmin + core::SectorSize / 2;
+        const auto center = here->zmax - here->zmin - core::SectorSize;
+        moveTarget.Z = util::rand15(center) + here->zmin + core::SectorSize / 2;
     }
-    else if(!(unclampedDirs & Flag10))
+    else if(!detour)
     {
-        target.Z = util::clamp(target.Z, box->zmin + core::SectorSize / 2, box->zmax - core::SectorSize / 2);
+        moveTarget.Z = util::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
     }
 
-    if(unclampedDirs & (NoClampXPos | NoClampXNeg))
+    if(moveDirs & (CanMoveXPos | CanMoveXNeg))
     {
-        const auto center = box->xmax - box->xmin - core::SectorSize;
-        target.X = util::rand15(center) + box->xmin + core::SectorSize / 2;
+        const auto center = here->xmax - here->xmin - core::SectorSize;
+        moveTarget.X = util::rand15(center) + here->xmin + core::SectorSize / 2;
     }
-    else if(!(unclampedDirs & Flag10))
+    else if(!detour)
     {
-        target.X = util::clamp(target.X, box->xmin + core::SectorSize / 2, box->xmax - core::SectorSize / 2);
+        moveTarget.X = util::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
     }
 
     if(fly != 0_len)
-        target.Y = box->floor - 384_len;
+        moveTarget.Y = here->floor - 384_len;
     else
-        target.Y = box->floor;
+        moveTarget.Y = here->floor;
 
     return false;
 }
