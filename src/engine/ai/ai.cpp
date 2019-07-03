@@ -617,7 +617,7 @@ YAML::Node SearchNode::save(const Engine& engine) const
 void SearchNode::load(const YAML::Node& n, const Engine& engine)
 {
     search_revision = n["searchRevision"].as<uint16_t>();
-    blocked = n["blocked"].as<uint16_t>();
+    blocked = n["blocked"].as<bool>();
     if(!n["exitBox"].IsDefined())
         exit_box = nullptr;
     else
