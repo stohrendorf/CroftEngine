@@ -1,4 +1,6 @@
 # EdisonEngine
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine?ref=badge_shield)
+
 
 An open-source Tomb Raider 1-5 engine remake.
 
@@ -7,6 +9,9 @@ An open-source Tomb Raider 1-5 engine remake.
 EdisonEngine is an open-source engine distributed under LGPLv3 license, which means that ANY part of
 the source code must be open-source as well.
     
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine?ref=badge_large)
+
 ## Credits
 
 The following people did extensive work on the [OpenTomb engine](http://opentomb.github.io/), which was
