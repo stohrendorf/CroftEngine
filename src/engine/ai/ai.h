@@ -42,9 +42,6 @@ struct SearchNode
      */
     const loader::file::Box* exit_box = nullptr;
 
-    using RevisionType = uint16_t;
-
-    RevisionType search_revision = 0;
     bool blocked = false;
 
     YAML::Node save(const Engine& engine) const;
@@ -58,9 +55,9 @@ struct LotInfo
 
     std::vector<gsl::not_null<const loader::file::Box*>> boxes;
 
-    std::list<const loader::file::Box*> expansions;
-
-    SearchNode::RevisionType m_searchVersion = 0;
+    std::deque<const loader::file::Box*> expansions;
+    //! Contains all boxes where the "blocked" state has been determined
+    std::unordered_set<const loader::file::Box*> visited;
 
     bool cannotVisitBlocked = true;
     bool cannotVisitBlockable = false;
@@ -128,9 +125,9 @@ struct LotInfo
      * calls to actually calculate the full path.  Until a full path is found, the nodes partially retain the old
      * paths from a previous search.
      */
-    void updatePath(const engine::Engine& engine, const uint8_t maxDepth);
+    void updatePath(const engine::Engine& engine);
 
-    void searchPath(const engine::Engine& engine, const uint8_t maxDepth);
+    void searchPath(const engine::Engine& engine);
 
     YAML::Node save(const Engine& engine) const;
 

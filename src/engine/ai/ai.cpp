@@ -51,7 +51,7 @@ gsl::span<const uint16_t> LotInfo::getOverlaps(const Engine& engine, const uint1
 
 bool LotInfo::calculateTarget(const Engine& engine, core::TRVec& moveTarget, const items::ItemState& item)
 {
-    updatePath(engine, 5);
+    updatePath(engine);
 
     moveTarget = item.position.position;
 
@@ -266,7 +266,6 @@ YAML::Node LotInfo::save(const Engine& engine) const
         node["boxes"].push_back(std::distance(&engine.getBoxes()[0], box.get()));
     for(const auto& box : expansions)
         node["expansions"].push_back(std::distance(&engine.getBoxes()[0], box));
-    node["searchVersion"] = m_searchVersion;
     node["cannotVisitBlockable"] = cannotVisitBlockable;
     node["cannotVisitBlocked"] = cannotVisitBlocked;
     node["step"] = step;
@@ -295,7 +294,6 @@ void LotInfo::load(const YAML::Node& n, const Engine& engine)
         for(const auto& e : n["expansions"])
             expansions.emplace_back(&engine.getBoxes().at(e.as<size_t>()));
     }
-    m_searchVersion = n["searchVersion"].as<uint16_t>();
     cannotVisitBlockable = n["cannotVisitBlockable"].as<bool>();
     cannotVisitBlocked = n["cannotVisitBlocked"].as<bool>();
     step = n["step"].as<core::Length>();
@@ -312,29 +310,30 @@ void LotInfo::load(const YAML::Node& n, const Engine& engine)
     target.load(n["target"]);
 }
 
-void LotInfo::updatePath(const engine::Engine& engine, const uint8_t maxDepth)
+void LotInfo::updatePath(const engine::Engine& engine)
 {
     if(required_box != nullptr && required_box != target_box)
     {
         target_box = required_box;
 
-        const auto targetNode = &nodes[target_box];
+        nodes[target_box].exit_box = nullptr;
         expansions.clear();
         expansions.emplace_back(target_box);
-
-        targetNode->search_revision = ++m_searchVersion;
-        targetNode->exit_box = nullptr;
+        visited.clear();
+        visited.emplace(target_box);
     }
 
     Expects(target_box != nullptr);
-    searchPath(engine, maxDepth);
+    searchPath(engine);
 }
 
-void LotInfo::searchPath(const engine::Engine& engine, const uint8_t maxDepth)
+void LotInfo::searchPath(const engine::Engine& engine)
 {
     const auto zoneRef = loader::file::Box::getZoneRef(engine.roomsAreSwapped(), fly, step);
 
-    for(uint8_t i = 0; i < maxDepth && !expansions.empty(); ++i)
+    static constexpr const uint8_t MaxExpansions = 5;
+
+    for(uint8_t i = 0; i < MaxExpansions && !expansions.empty(); ++i)
     {
         const auto current = expansions.front();
         expansions.pop_front();
@@ -354,29 +353,22 @@ void LotInfo::searchPath(const engine::Engine& engine, const uint8_t maxDepth)
 
             auto overlapNode = &nodes[overlapBox];
 
-            if(headNode->search_revision < overlapNode->search_revision)
-                continue; // node is out-of-date
-
             if(headNode->blocked)
             {
-                if(headNode->search_revision == overlapNode->search_revision)
+                if(!visited.emplace(overlapBox).second)
                     continue; // already visited
 
-                // mark as visited and blocked
-                overlapNode->search_revision = headNode->search_revision;
                 overlapNode->blocked = true;
             }
             else
             {
-                if(headNode->search_revision == overlapNode->search_revision && !overlapNode->blocked)
+                if(!overlapNode->blocked && visited.count(overlapBox) != 0)
                     continue; // already visited and marked reachable
 
-                // mark as visited, and check if reachable
-                overlapNode->search_revision = headNode->search_revision;
-                overlapNode->blocked = false;
-                if(!canVisit(*overlapBox))
-                    overlapNode->blocked = true; // can't reach this box
-                else
+                // mark as visited if not already visited, and check if reachable (may switch blocked to false)
+                visited.emplace(overlapBox);
+                overlapNode->blocked = !canVisit(*overlapBox);
+                if(overlapNode->blocked)
                     overlapNode->exit_box = current; // success! connect both boxes
             }
 
@@ -392,8 +384,7 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
         return;
 
     CreatureInfo& creatureInfo = *item.creatureInfo;
-    if(creatureInfo.lot.nodes[item.box].blocked
-       && creatureInfo.lot.nodes[item.box].search_revision == creatureInfo.lot.m_searchVersion)
+    if(creatureInfo.lot.nodes[item.box].blocked && creatureInfo.lot.visited.count(item.box) != 0)
     {
         creatureInfo.lot.required_box = nullptr;
     }
@@ -592,8 +583,7 @@ AiInfo::AiInfo(Engine& engine, items::ItemState& item)
     enemy_zone = engine.getLara().m_state.box->*zoneRef;
     enemy_unreachable
         = (!item.creatureInfo->lot.canVisit(*engine.getLara().m_state.box)
-           || (item.creatureInfo->lot.nodes[item.box].blocked
-               && item.creatureInfo->lot.nodes[item.box].search_revision == item.creatureInfo->lot.m_searchVersion));
+           || (item.creatureInfo->lot.nodes[item.box].blocked && item.creatureInfo->lot.visited.count(item.box) != 0));
 
     auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(item.type.get());
     const core::Length pivotLength{objectInfo.pivot_length};
@@ -679,7 +669,6 @@ void CreatureInfo::load(const YAML::Node& n, const Engine& engine)
 YAML::Node SearchNode::save(const Engine& engine) const
 {
     YAML::Node node;
-    node["searchRevision"] = search_revision;
     node["blocked"] = blocked;
     if(exit_box != nullptr)
         node["exitBox"] = std::distance(&engine.getBoxes()[0], exit_box);
@@ -688,7 +677,6 @@ YAML::Node SearchNode::save(const Engine& engine) const
 
 void SearchNode::load(const YAML::Node& n, const Engine& engine)
 {
-    search_revision = n["searchRevision"].as<uint16_t>();
     blocked = n["blocked"].as<bool>();
     if(!n["exitBox"].IsDefined())
         exit_box = nullptr;
