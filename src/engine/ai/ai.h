@@ -47,8 +47,6 @@ struct SearchNode
     RevisionType search_revision = 0;
     bool blocked = false;
 
-    const loader::file::Box* next_expansion = nullptr;
-
     YAML::Node save(const Engine& engine) const;
 
     void load(const YAML::Node& n, const Engine& engine);
@@ -60,9 +58,7 @@ struct LotInfo
 
     std::vector<gsl::not_null<const loader::file::Box*>> boxes;
 
-    const loader::file::Box* head = nullptr;
-
-    const loader::file::Box* tail = nullptr;
+    std::list<const loader::file::Box*> expansions;
 
     SearchNode::RevisionType m_searchVersion = 0;
 
@@ -132,111 +128,9 @@ struct LotInfo
      * calls to actually calculate the full path.  Until a full path is found, the nodes partially retain the old
      * paths from a previous search.
      */
-    void updatePath(const engine::Engine& engine, const uint8_t maxDepth)
-    {
-        if(required_box != nullptr && required_box != target_box)
-        {
-            target_box = required_box;
+    void updatePath(const engine::Engine& engine, const uint8_t maxDepth);
 
-            const auto targetNode = &nodes[target_box];
-            if(targetNode->next_expansion == nullptr && tail != target_box)
-            {
-                targetNode->next_expansion = head;
-
-                if(std::exchange(head, target_box) == nullptr)
-                    tail = target_box;
-            }
-
-            targetNode->search_revision = ++m_searchVersion;
-            targetNode->exit_box = nullptr;
-
-            if(m_searchVersion == std::numeric_limits<SearchNode::RevisionType>::max())
-            {
-                // shift revisions while keeping strict ordering
-                SearchNode::RevisionType minRev = std::numeric_limits<SearchNode::RevisionType>::max();
-                for(const auto& node : nodes | boost::adaptors::map_values)
-                {
-                    minRev = std::min(node.search_revision, minRev);
-                }
-
-                Expects(minRev != 0);
-                m_searchVersion -= minRev;
-                for(auto& node : nodes | boost::adaptors::map_values)
-                {
-                    node.search_revision -= minRev;
-                }
-            }
-        }
-
-        Expects(target_box != nullptr);
-        searchPath(engine, maxDepth);
-    }
-
-    void searchPath(const engine::Engine& engine, const uint8_t maxDepth)
-    {
-        if(head == nullptr)
-        {
-            return;
-        }
-
-        const auto zoneRef = loader::file::Box::getZoneRef(engine.roomsAreSwapped(), fly, step);
-        const auto searchZone = head->*zoneRef;
-
-        for(uint8_t i = 0; i < maxDepth; ++i)
-        {
-            if(head == nullptr)
-            {
-                return;
-            }
-
-            const auto headNode = &nodes[head];
-
-            for(const auto overlapBoxIdx : getOverlaps(engine, head->overlap_index))
-            {
-                const auto* overlapBox = &engine.getBoxes().at(overlapBoxIdx & 0x7FFFu);
-
-                if(searchZone != overlapBox->*zoneRef)
-                    continue; // cannot switch zones
-
-                const auto boxHeightDiff = overlapBox->floor - head->floor;
-                if(boxHeightDiff > step || boxHeightDiff < drop)
-                    continue; // can't reach from this box, but still maybe from another one
-
-                auto overlapNode = &nodes[overlapBox];
-
-                if(headNode->search_revision < overlapNode->search_revision)
-                    continue; // not yet checked if we can reach this box
-
-                if(headNode->blocked)
-                {
-                    if(headNode->search_revision == overlapNode->search_revision)
-                        continue; // already visited
-
-                    // mark as visited and blocked
-                    overlapNode->search_revision = headNode->search_revision;
-                    overlapNode->blocked = true;
-                }
-                else
-                {
-                    if(headNode->search_revision == overlapNode->search_revision && !overlapNode->blocked)
-                        continue; // already visited and marked reachable
-
-                    // mark as visited, and check if reachable
-                    overlapNode->search_revision = headNode->search_revision;
-                    overlapNode->blocked = false;
-                    if(!canVisit(*overlapBox))
-                        overlapNode->blocked = true; // can't reach this box
-                    else
-                        overlapNode->exit_box = head; // success! connect both boxes
-                }
-
-                if(overlapNode->next_expansion == nullptr && overlapBox != tail)
-                    tail = nodes[tail].next_expansion = overlapBox; // enqueue for expansion
-            }
-
-            head = std::exchange(headNode->next_expansion, nullptr);
-        }
-    }
+    void searchPath(const engine::Engine& engine, const uint8_t maxDepth);
 
     YAML::Node save(const Engine& engine) const;
 
