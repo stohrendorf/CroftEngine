@@ -266,6 +266,8 @@ YAML::Node LotInfo::save(const Engine& engine) const
         node["boxes"].push_back(std::distance(&engine.getBoxes()[0], box.get()));
     for(const auto& box : expansions)
         node["expansions"].push_back(std::distance(&engine.getBoxes()[0], box));
+    for(const auto& box : visited)
+        node["visited"].push_back(std::distance(&engine.getBoxes()[0], box));
     node["cannotVisitBlockable"] = cannotVisitBlockable;
     node["cannotVisitBlocked"] = cannotVisitBlocked;
     node["step"] = step;
@@ -289,11 +291,11 @@ void LotInfo::load(const YAML::Node& n, const Engine& engine)
     for(const auto& entry : n["boxes"])
         boxes.emplace_back(&engine.getBoxes().at(entry.as<size_t>()));
     expansions.clear();
-    if(n["expansions"].IsDefined())
-    {
-        for(const auto& e : n["expansions"])
-            expansions.emplace_back(&engine.getBoxes().at(e.as<size_t>()));
-    }
+    for(const auto& e : n["expansions"])
+        expansions.emplace_back(&engine.getBoxes().at(e.as<size_t>()));
+    visited.clear();
+    for(const auto& e : n["visited"])
+        visited.emplace(&engine.getBoxes().at(e.as<size_t>()));
     cannotVisitBlockable = n["cannotVisitBlockable"].as<bool>();
     cannotVisitBlocked = n["cannotVisitBlocked"].as<bool>();
     step = n["step"].as<core::Length>();
