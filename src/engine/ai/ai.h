@@ -41,8 +41,7 @@ struct SearchNode
      * @brief The next box on the path.
      */
     const loader::file::Box* exit_box = nullptr;
-
-    bool blocked = false;
+    bool traversable = true;
 
     YAML::Node save(const Engine& engine) const;
 

@@ -319,6 +319,7 @@ void LotInfo::updatePath(const engine::Engine& engine)
         target_box = required_box;
 
         nodes[target_box].exit_box = nullptr;
+        nodes[target_box].traversable = true;
         expansions.clear();
         expansions.emplace_back(target_box);
         visited.clear();
@@ -339,43 +340,44 @@ void LotInfo::searchPath(const engine::Engine& engine)
     {
         const auto current = expansions.front();
         expansions.pop_front();
-        const auto headNode = &nodes[current];
+        const auto& currentNode = nodes[current];
         const auto searchZone = current->*zoneRef;
 
         for(const auto overlapBoxIdx : getOverlaps(engine, current->overlap_index))
         {
-            const auto* overlapBox = &engine.getBoxes().at(overlapBoxIdx & 0x7FFFu);
+            const auto* successorBox = &engine.getBoxes().at(overlapBoxIdx & 0x7FFFu);
 
-            if(searchZone != overlapBox->*zoneRef)
+            if(successorBox == current)
+                continue;
+
+            if(searchZone != successorBox->*zoneRef)
                 continue; // cannot switch zones
 
-            const auto boxHeightDiff = overlapBox->floor - current->floor;
+            const auto boxHeightDiff = successorBox->floor - current->floor;
             if(boxHeightDiff > step || boxHeightDiff < drop)
                 continue; // can't reach from this box, but still maybe from another one
 
-            auto overlapNode = &nodes[overlapBox];
+            auto& successorNode = nodes[successorBox];
 
-            if(headNode->blocked)
+            if(!currentNode.traversable)
             {
-                if(!visited.emplace(overlapBox).second)
-                    continue; // already visited
-
-                overlapNode->blocked = true;
+                if(visited.emplace(successorBox).second)
+                    successorNode.traversable = false;
             }
             else
             {
-                if(!overlapNode->blocked && visited.count(overlapBox) != 0)
+                if(successorNode.traversable && visited.count(successorBox) != 0)
                     continue; // already visited and marked reachable
 
-                // mark as visited if not already visited, and check if reachable (may switch blocked to false)
-                visited.emplace(overlapBox);
-                overlapNode->blocked = !canVisit(*overlapBox);
-                if(overlapNode->blocked)
-                    overlapNode->exit_box = current; // success! connect both boxes
-            }
+                // mark as visited and check if traversable (may switch traversable to true)
+                visited.emplace(successorBox);
+                successorNode.traversable = canVisit(*successorBox);
+                if(successorNode.traversable)
+                    successorNode.exit_box = current; // success! connect both boxes
 
-            if(overlapBox != current && std::find(expansions.begin(), expansions.end(), overlapBox) == expansions.end())
-                expansions.emplace_back(overlapBox);
+                if(std::find(expansions.begin(), expansions.end(), successorBox) == expansions.end())
+                    expansions.emplace_back(successorBox);
+            }
         }
     }
 }
@@ -386,7 +388,7 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
         return;
 
     CreatureInfo& creatureInfo = *item.creatureInfo;
-    if(creatureInfo.lot.nodes[item.box].blocked && creatureInfo.lot.visited.count(item.box) != 0)
+    if(!creatureInfo.lot.nodes[item.box].traversable && creatureInfo.lot.visited.count(item.box) != 0)
     {
         creatureInfo.lot.required_box = nullptr;
     }
@@ -583,9 +585,9 @@ AiInfo::AiInfo(Engine& engine, items::ItemState& item)
     zone_number = item.box->*zoneRef;
     engine.getLara().m_state.box = engine.getLara().m_state.getCurrentSector()->box;
     enemy_zone = engine.getLara().m_state.box->*zoneRef;
-    enemy_unreachable
-        = (!item.creatureInfo->lot.canVisit(*engine.getLara().m_state.box)
-           || (item.creatureInfo->lot.nodes[item.box].blocked && item.creatureInfo->lot.visited.count(item.box) != 0));
+    enemy_unreachable = (!item.creatureInfo->lot.canVisit(*engine.getLara().m_state.box)
+                         || (!item.creatureInfo->lot.nodes[item.box].traversable
+                             && item.creatureInfo->lot.visited.count(item.box) != 0));
 
     auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(item.type.get());
     const core::Length pivotLength{objectInfo.pivot_length};
@@ -671,7 +673,7 @@ void CreatureInfo::load(const YAML::Node& n, const Engine& engine)
 YAML::Node SearchNode::save(const Engine& engine) const
 {
     YAML::Node node;
-    node["blocked"] = blocked;
+    node["traversable"] = traversable;
     if(exit_box != nullptr)
         node["exitBox"] = std::distance(&engine.getBoxes()[0], exit_box);
     return node;
@@ -679,7 +681,7 @@ YAML::Node SearchNode::save(const Engine& engine) const
 
 void SearchNode::load(const YAML::Node& n, const Engine& engine)
 {
-    blocked = n["blocked"].as<bool>();
+    traversable = n["traversable"].as<bool>();
     if(!n["exitBox"].IsDefined())
         exit_box = nullptr;
     else
