@@ -3,6 +3,7 @@
 #include "ai/ai.h"
 #include "cameracontroller.h"
 #include "collisioninfo.h"
+#include "engine/engine.h"
 #include "engine/items/itemnode.h"
 #include "engine/lara/abstractstatehandler.h"
 #include "loader/file/animationid.h"
@@ -230,12 +231,12 @@ private:
     std::bitset<16> m_secretsFoundBitmask = 0;
 
 public:
-    void setAir(const core::Frame a) noexcept
+    void setAir(const core::Frame& a) noexcept
     {
         m_air = a;
     }
 
-    void setMovementAngle(const core::Angle angle) noexcept
+    void setMovementAngle(const core::Angle& angle) noexcept
     {
         m_movementAngle = angle;
     }
@@ -257,7 +258,7 @@ public:
 
     void placeOnFloor(const CollisionInfo& collisionInfo);
 
-    void setYRotationSpeed(const core::Angle spd)
+    void setYRotationSpeed(const core::Angle& spd)
     {
         m_yRotationSpeed = spd;
     }
@@ -267,17 +268,17 @@ public:
         return m_yRotationSpeed;
     }
 
-    void subYRotationSpeed(const core::Angle val, const core::Angle limit = -32768_au)
+    void subYRotationSpeed(const core::Angle& val, const core::Angle& limit = -32768_au)
     {
         m_yRotationSpeed = std::max(m_yRotationSpeed - val, limit);
     }
 
-    void addYRotationSpeed(const core::Angle val, const core::Angle limit = 32767_au)
+    void addYRotationSpeed(const core::Angle& val, const core::Angle& limit = 32767_au)
     {
         m_yRotationSpeed = std::min(m_yRotationSpeed + val, limit);
     }
 
-    void setFallSpeedOverride(const core::Speed v)
+    void setFallSpeedOverride(const core::Speed& v)
     {
         m_fallSpeedOverride = v;
     }
@@ -287,7 +288,7 @@ public:
         return m_currentSlideAngle;
     }
 
-    void setCurrentSlideAngle(const core::Angle a) noexcept
+    void setCurrentSlideAngle(const core::Angle& a) noexcept
     {
         m_currentSlideAngle = a;
     }
@@ -319,16 +320,16 @@ public:
 
     void setAnimation(AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
 
-    void updateFloorHeight(core::Length dy);
+    void updateFloorHeight(const core::Length& dy);
 
     void handleCommandSequence(const engine::floordata::FloorDataValue* floorData, bool fromHeavy);
 
-    void addSwimToDiveKeypressDuration(const core::Frame n) noexcept
+    void addSwimToDiveKeypressDuration(const core::Frame& n) noexcept
     {
         m_swimToDiveKeypressDuration += n;
     }
 
-    void setSwimToDiveKeypressDuration(const core::Frame n) noexcept
+    void setSwimToDiveKeypressDuration(const core::Frame& n) noexcept
     {
         m_swimToDiveKeypressDuration = n;
     }
@@ -343,13 +344,13 @@ public:
         m_underwaterState = u;
     }
 
-    void setCameraRotationAroundCenter(core::Angle x, core::Angle y);
+    void setCameraRotationAroundCenter(const core::Angle& x, const core::Angle& y);
 
-    void setCameraRotationAroundCenterX(core::Angle x);
+    void setCameraRotationAroundCenterX(const core::Angle& x);
 
-    void setCameraRotationAroundCenterY(core::Angle y);
+    void setCameraRotationAroundCenterY(const core::Angle& y);
 
-    void setCameraEyeCenterDistance(core::Length d);
+    void setCameraEyeCenterDistance(const core::Length& d);
 
     void setCameraModifier(CameraModifier k);
 
@@ -393,7 +394,7 @@ public:
 #endif
 
     core::Length m_underwaterCurrentStrength = 0_len;
-    ai::LotInfo m_underwaterRoute;
+    ai::PathFinder m_underwaterRoute;
 
     void handleUnderwaterCurrent(CollisionInfo& collisionInfo);
 
@@ -563,7 +564,7 @@ public:
                     const ModelItemNode& gunHolder,
                     const core::TRRotationXY& aimAngle);
 
-    void hitTarget(ModelItemNode& item, const core::TRVec& hitPos, core::Health damage);
+    void hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const core::Health& damage);
 
     void renderGunFlare(WeaponId weaponId,
                         glm::mat4 m,

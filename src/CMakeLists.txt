@@ -201,6 +201,7 @@ set( EDISONENGINE_SRCS
      engine/items/aiagent.cpp
 
      engine/ai/ai.cpp
+     engine/ai/pathfinder.cpp
 
      render/textureanimator.cpp
 

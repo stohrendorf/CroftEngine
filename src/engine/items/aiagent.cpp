@@ -40,7 +40,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
 bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
                                    const core::Length currentBoxFloor,
                                    const core::Length nextBoxFloor,
-                                   const ai::LotInfo& lotInfo) const
+                                   const ai::PathFinder& lotInfo) const
 {
     const auto sectorBox = loader::file::findRealFloorSector(testPosition, m_state.position.room)->box;
     if(sectorBox == nullptr)
@@ -82,13 +82,13 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
     if(creatureInfo == nullptr)
         return false;
 
-    const auto& lotInfo = creatureInfo->lot;
+    const auto& lotInfo = creatureInfo->pathFinder;
 
     const auto oldPosition = m_state.position.position;
 
     const auto boxFloor = m_state.box->floor;
     const auto zoneRef
-        = loader::file::Box::getZoneRef(getEngine().roomsAreSwapped(), creatureInfo->lot.fly, creatureInfo->lot.step);
+        = loader::file::Box::getZoneRef(getEngine().roomsAreSwapped(), creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
     ModelItemNode::update();
     if(m_state.triggerState == TriggerState::Deactivated)
     {

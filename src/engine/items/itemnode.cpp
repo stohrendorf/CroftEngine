@@ -649,14 +649,14 @@ bool ItemState::isInsideZoneButNotInBox(const Engine& engine,
     Expects(creatureInfo != nullptr);
 
     const auto zoneRef
-        = loader::file::Box::getZoneRef(engine.roomsAreSwapped(), creatureInfo->lot.fly, creatureInfo->lot.step);
+        = loader::file::Box::getZoneRef(engine.roomsAreSwapped(), creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
 
     if(zoneId != targetBox.*zoneRef)
     {
         return false;
     }
 
-    if(!creatureInfo->lot.canVisit(targetBox))
+    if(!creatureInfo->pathFinder.canVisit(targetBox))
     {
         return false;
     }
@@ -688,18 +688,18 @@ void ItemState::initCreatureInfo(const Engine& engine)
 
 void ItemState::collectZoneBoxes(const Engine& engine)
 {
-    const auto zoneRef1 = loader::file::Box::getZoneRef(false, creatureInfo->lot.fly, creatureInfo->lot.step);
-    const auto zoneRef2 = loader::file::Box::getZoneRef(true, creatureInfo->lot.fly, creatureInfo->lot.step);
+    const auto zoneRef1 = loader::file::Box::getZoneRef(false, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
+    const auto zoneRef2 = loader::file::Box::getZoneRef(true, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
 
     box = position.room->getInnerSectorByAbsolutePosition(position.position)->box;
     const auto zoneData1 = box->*zoneRef1;
     const auto zoneData2 = box->*zoneRef2;
-    creatureInfo->lot.boxes.clear();
+    creatureInfo->pathFinder.boxes.clear();
     for(const auto& levelBox : engine.getBoxes())
     {
         if(levelBox.*zoneRef1 == zoneData1 || levelBox.*zoneRef2 == zoneData2)
         {
-            creatureInfo->lot.boxes.emplace_back(&levelBox);
+            creatureInfo->pathFinder.boxes.emplace_back(&levelBox);
         }
     }
 }

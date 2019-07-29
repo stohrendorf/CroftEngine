@@ -77,9 +77,9 @@ void Crocodile::update()
                 m_state.goal_anim_state = m_state.anim->state_id;
                 m_state.current_anim_state = m_state.anim->state_id;
                 m_state.position.position.Y = m_state.floor;
-                m_state.creatureInfo->lot.step = 256_len;
-                m_state.creatureInfo->lot.drop = -256_len;
-                m_state.creatureInfo->lot.fly = 0_len;
+                m_state.creatureInfo->pathFinder.step = 256_len;
+                m_state.creatureInfo->pathFinder.drop = -256_len;
+                m_state.creatureInfo->pathFinder.fly = 0_len;
 
                 loadObjectInfo(true);
             }
@@ -261,9 +261,9 @@ void Crocodile::update()
             m_state.current_anim_state = m_state.anim->state_id;
             if(m_state.creatureInfo != nullptr)
             {
-                m_state.creatureInfo->lot.step = 20 * core::SectorSize;
-                m_state.creatureInfo->lot.drop = -20 * core::SectorSize;
-                m_state.creatureInfo->lot.fly = 16_len;
+                m_state.creatureInfo->pathFinder.step = 20 * core::SectorSize;
+                m_state.creatureInfo->pathFinder.drop = -20 * core::SectorSize;
+                m_state.creatureInfo->pathFinder.fly = 16_len;
             }
 
             loadObjectInfo(true);

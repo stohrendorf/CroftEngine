@@ -557,7 +557,7 @@ void LaraNode::updateImpl()
     drawRoutine();
 }
 
-void LaraNode::updateFloorHeight(const core::Length dy)
+void LaraNode::updateFloorHeight(const core::Length& dy)
 {
     auto pos = m_state.position.position;
     pos.Y += dy;
@@ -787,22 +787,22 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
         getEngine().setGlobalEffect(*flipEffect);
 }
 
-void LaraNode::setCameraRotationAroundCenter(const core::Angle x, const core::Angle y)
+void LaraNode::setCameraRotationAroundCenter(const core::Angle& x, const core::Angle& y)
 {
     getEngine().getCameraController().setRotationAroundCenter(x, y);
 }
 
-void LaraNode::setCameraRotationAroundCenterY(const core::Angle y)
+void LaraNode::setCameraRotationAroundCenterY(const core::Angle& y)
 {
     getEngine().getCameraController().setRotationAroundCenterY(y);
 }
 
-void LaraNode::setCameraRotationAroundCenterX(const core::Angle x)
+void LaraNode::setCameraRotationAroundCenterX(const core::Angle& x)
 {
     getEngine().getCameraController().setRotationAroundCenterX(x);
 }
 
-void LaraNode::setCameraEyeCenterDistance(const core::Length d)
+void LaraNode::setCameraEyeCenterDistance(const core::Length& d)
 {
     getEngine().getCameraController().setEyeCenterDistance(d);
 }
@@ -2018,7 +2018,7 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
     return true;
 }
 
-void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const core::Health damage)
+void LaraNode::hitTarget(ModelItemNode& item, const core::TRVec& hitPos, const core::Health& damage)
 {
     if(item.m_state.health > 0_hp && item.m_state.health <= damage)
     {
@@ -2512,7 +2512,7 @@ void LaraNode::renderGunFlare(const WeaponId weaponId,
 
 YAML::Node LaraNode::save() const
 {
-    YAML::Node node = ItemNode::save();
+    YAML::Node node = ModelItemNode::save();
     node["gun"] = toString(gunType);
     node["requestedGun"] = toString(requestedGunType);
     node["handStatus"] = toString(m_handStatus);
@@ -2553,7 +2553,7 @@ YAML::Node LaraNode::save() const
 
 void LaraNode::load(const YAML::Node& n)
 {
-    ItemNode::load(n);
+    ModelItemNode::load(n);
 
     gunType = parseWeaponId(n["gun"].as<std::string>());
     requestedGunType = parseWeaponId(n["requestedGun"].as<std::string>());
