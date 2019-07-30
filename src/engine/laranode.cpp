@@ -147,7 +147,7 @@ void LaraNode::handleLaraStateOnLand()
         const auto headX = m_headRotation.X;
         if(headX <= -2_deg || headX >= 2_deg)
         {
-            m_headRotation.X = headX - headX / core::Angle::type{8};
+            m_headRotation.X = headX - headX / 8;
         }
         else
         {
@@ -156,7 +156,7 @@ void LaraNode::handleLaraStateOnLand()
         const auto headY = m_headRotation.Y;
         if(headY <= -2_deg || headY >= 2_deg)
         {
-            m_headRotation.Y = headY - headY / core::Angle::type{8};
+            m_headRotation.Y = headY - headY / 8;
         }
         else
         {
@@ -304,10 +304,10 @@ void LaraNode::handleLaraStateSwimming()
 
     if(getEngine().getCameraController().getMode() != CameraMode::FreeLook)
     {
-        m_headRotation.X -= m_headRotation.X / core::Angle::type{8};
-        m_headRotation.Y -= m_headRotation.Y / core::Angle::type{8};
+        m_headRotation.X -= m_headRotation.X / 8;
+        m_headRotation.Y -= m_headRotation.Y / 8;
         m_torsoRotation.X = 0_deg;
-        m_torsoRotation.Y /= core::Angle::type{2};
+        m_torsoRotation.Y /= 2;
     }
 
     if(m_underwaterCurrentStrength != 0_len)
@@ -1117,8 +1117,8 @@ void LaraNode::updateShotgun()
     updateAimAngles(weapons[WeaponId::Shotgun], leftArm);
     if(leftArm.aiming)
     {
-        m_torsoRotation.X = leftArm.aimRotation.X / core::Angle::type{2};
-        m_torsoRotation.Y = leftArm.aimRotation.Y / core::Angle::type{2};
+        m_torsoRotation.X = leftArm.aimRotation.X / 2;
+        m_torsoRotation.Y = leftArm.aimRotation.Y / 2;
         m_headRotation.X = 0_deg;
         m_headRotation.Y = 0_deg;
     }
@@ -1144,18 +1144,18 @@ void LaraNode::updateGuns(const WeaponId weaponId)
     updateAimAngles(weapon, rightArm);
     if(leftArm.aiming && !rightArm.aiming)
     {
-        m_headRotation.Y = m_torsoRotation.Y = leftArm.aimRotation.Y / core::Angle::type{2};
-        m_headRotation.X = m_torsoRotation.X = leftArm.aimRotation.X / core::Angle::type{2};
+        m_headRotation.Y = m_torsoRotation.Y = leftArm.aimRotation.Y / 2;
+        m_headRotation.X = m_torsoRotation.X = leftArm.aimRotation.X / 2;
     }
     else if(rightArm.aiming && !leftArm.aiming)
     {
-        m_headRotation.Y = m_torsoRotation.Y = rightArm.aimRotation.Y / core::Angle::type{2};
-        m_headRotation.X = m_torsoRotation.X = rightArm.aimRotation.X / core::Angle::type{2};
+        m_headRotation.Y = m_torsoRotation.Y = rightArm.aimRotation.Y / 2;
+        m_headRotation.X = m_torsoRotation.X = rightArm.aimRotation.X / 2;
     }
     else if(leftArm.aiming && rightArm.aiming)
     {
-        m_headRotation.Y = m_torsoRotation.Y = (leftArm.aimRotation.Y + rightArm.aimRotation.Y) / core::Angle::type{4};
-        m_headRotation.X = m_torsoRotation.X = (leftArm.aimRotation.X + rightArm.aimRotation.X) / core::Angle::type{4};
+        m_headRotation.Y = m_torsoRotation.Y = (leftArm.aimRotation.Y + rightArm.aimRotation.Y) / 4;
+        m_headRotation.X = m_torsoRotation.X = (leftArm.aimRotation.X + rightArm.aimRotation.X) / 4;
     }
 
     updateAnimNotShotgun(weaponId);
@@ -1724,8 +1724,8 @@ void LaraNode::holsterShotgun()
     rightArm.frame = aimFrame;
     leftArm.frame = aimFrame;
 
-    m_torsoRotation.X /= core::Angle::type{2};
-    m_torsoRotation.Y /= core::Angle::type{2};
+    m_torsoRotation.X /= 2;
+    m_torsoRotation.Y /= 2;
     m_headRotation.X = 0_deg;
     m_headRotation.Y = 0_deg;
 }
@@ -1826,10 +1826,10 @@ void LaraNode::holsterGuns(const WeaponId weaponId)
         leftArm.aiming = false;
     }
 
-    m_headRotation.X = (rightArm.aimRotation.X + leftArm.aimRotation.X) / core::Angle::type{4};
-    m_headRotation.Y = rightArm.aimRotation.Y / core::Angle::type{4};
-    m_torsoRotation.X = (rightArm.aimRotation.X + leftArm.aimRotation.X) / core::Angle::type{4};
-    m_torsoRotation.Y = rightArm.aimRotation.Y / core::Angle::type{4};
+    m_headRotation.X = (rightArm.aimRotation.X + leftArm.aimRotation.X) / 4;
+    m_headRotation.Y = rightArm.aimRotation.Y / 4;
+    m_torsoRotation.X = (rightArm.aimRotation.X + leftArm.aimRotation.X) / 4;
+    m_torsoRotation.Y = rightArm.aimRotation.Y / 4;
 }
 
 void LaraNode::updateAnimNotShotgun(const WeaponId weaponId)
@@ -1963,8 +1963,8 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
     const auto weapon = &weapons[weaponId];
     core::TRVec gunPosition = gunHolder.m_state.position.position;
     gunPosition.Y -= weapon->gunHeight;
-    core::TRRotation shootVector{util::rand15s(weapon->shotAccuracy / core::Angle::type{2}) + aimAngle.X,
-                                 util::rand15s(weapon->shotAccuracy / core::Angle::type{2}) + aimAngle.Y,
+    core::TRRotation shootVector{util::rand15s(weapon->shotAccuracy / 2) + aimAngle.X,
+                                 util::rand15s(weapon->shotAccuracy / 2) + aimAngle.Y,
                                  +0_deg};
 
     std::vector<SkeletalModelNode::Sphere> spheres;

@@ -41,7 +41,7 @@ public:
 
             auto torsoRot = getLara().getTorsoRotation();
             torsoRot.X = 0_deg;
-            torsoRot.Y = getLara().getHeadRotation().Y / core::Angle::type{2};
+            torsoRot.Y = getLara().getHeadRotation().Y / 2;
 
             getLara().setTorsoRotation(torsoRot);
 

@@ -81,7 +81,7 @@ void Larson::update()
             break;
         case 3: // running
             m_state.creatureInfo->maximum_turn = 6_deg;
-            tiltRot = creatureTurn / core::Angle::type{2};
+            tiltRot = creatureTurn / 2;
             if(m_state.creatureInfo->mood == ai::Mood::Bored && util::rand15() < 96)
             {
                 m_state.required_anim_state = 6_as;

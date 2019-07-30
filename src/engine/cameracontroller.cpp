@@ -421,11 +421,11 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
             = angleFromAtan(m_targetItem->m_state.position.position.X - focusedItem->m_state.position.position.X,
                             m_targetItem->m_state.position.position.Z - focusedItem->m_state.position.position.Z)
               - focusedItem->m_state.rotation.Y;
-        eyeRotY /= core::Angle::type{2};
+        eyeRotY /= 2;
         focusBBox = m_targetItem->getBoundingBox();
         auto eyeRotX = angleFromAtan(
             distToFocused, focusY - (focusBBox.minY + focusBBox.maxY) / 2 + m_targetItem->m_state.position.position.Y);
-        eyeRotX /= core::Angle::type{2};
+        eyeRotX /= 2;
 
         if(eyeRotY < 50_deg && eyeRotY > -50_deg && eyeRotX < 85_deg && eyeRotX > -85_deg)
         {

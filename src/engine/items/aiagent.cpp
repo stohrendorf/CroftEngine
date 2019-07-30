@@ -27,7 +27,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
             = m_state.speed * (90_deg).retype_as<core::Speed::type>() / maxRotationSpeed.retype_as<core::Speed::type>();
         if(util::square(dx) + util::square(dz) < util::square(relativeSpeed * 1_frame))
         {
-            maxRotationSpeed /= core::Angle::type{2};
+            maxRotationSpeed /= 2;
         }
     }
 
@@ -301,7 +301,7 @@ bool AIAgent::animateCreature(const core::Angle angle, core::Angle tilt)
             core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room);
 
         m_state.rotation.Y += angle;
-        m_state.rotation.Z += util::clamp(core::Angle::type{8} * tilt - m_state.rotation.Z, -3_deg, +3_deg);
+        m_state.rotation.Z += util::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
     }
 
     if(anyMovingEnabledItemInReach())
