@@ -271,12 +271,12 @@ private:
 
     using ClampCallback = void(core::Length& current1,
                                core::Length& current2,
-                               core::Length target1,
-                               core::Length target2,
-                               core::Length lowLimit1,
-                               core::Length lowLimit2,
-                               core::Length highLimit1,
-                               core::Length highLimit2);
+                               const core::Length& target1,
+                               const core::Length& target2,
+                               const core::Length& lowLimit1,
+                               const core::Length& lowLimit2,
+                               const core::Length& highLimit1,
+                               const core::Length& highLimit2);
 
     void clampBox(core::RoomBoundPosition& eyePositionGoal, const std::function<ClampCallback>& callback) const;
 

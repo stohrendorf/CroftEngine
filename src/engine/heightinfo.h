@@ -40,8 +40,8 @@ struct VerticalSpaceInfo
     void init(const gsl::not_null<const loader::file::Sector*>& roomSector,
               const core::TRVec& position,
               const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList,
-              const core::Length itemY,
-              const core::Length itemHeight)
+              const core::Length& itemY,
+              const core::Length& itemHeight)
     {
         floorSpace = HeightInfo::fromFloor(roomSector, position, itemList);
         if(floorSpace.y != -core::HeightLimit)

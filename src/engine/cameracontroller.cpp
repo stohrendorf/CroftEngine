@@ -729,12 +729,12 @@ void CameraController::handleEnemy(const items::ItemNode& item)
     clampBox(center,
              [this](core::Length& a,
                     core::Length& b,
-                    const core::Length c,
-                    const core::Length d,
-                    const core::Length e,
-                    const core::Length f,
-                    const core::Length g,
-                    const core::Length h) { clampToCorners(m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h); });
+                    const core::Length& c,
+                    const core::Length& d,
+                    const core::Length& e,
+                    const core::Length& f,
+                    const core::Length& g,
+                    const core::Length& h) { clampToCorners(m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h); });
     updatePosition(center, m_smoothness);
 }
 
@@ -964,8 +964,6 @@ void CameraController::clampToCorners(const core::Area& targetHorizontalDistance
     const auto backRightDistSq = targetBackDistSq + targetRightDistSq;
     if(backRightDistSq > targetHorizontalDistanceSq)
     {
-        //BOOST_LOG_TRIVIAL(debug) << "Clamp back right: " << currentFrontBack << " => " << back;
-        //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
         currentFrontBack = back;
         if(targetHorizontalDistanceSq >= targetBackDistSq)
         {
@@ -989,8 +987,6 @@ void CameraController::clampToCorners(const core::Area& targetHorizontalDistance
     const auto targetBackLeftDistSq = targetBackDistSq + targetLeftDistSq;
     if(targetBackLeftDistSq > targetHorizontalDistanceSq)
     {
-        //BOOST_LOG_TRIVIAL(debug) << "Clamp back left: " << currentFrontBack << " => " << back;
-        //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
         currentFrontBack = back;
         if(targetHorizontalDistanceSq >= targetBackDistSq)
         {
@@ -1015,8 +1011,6 @@ void CameraController::clampToCorners(const core::Area& targetHorizontalDistance
 
     if(targetFrontRightDistSq > targetHorizontalDistanceSq)
     {
-        //BOOST_LOG_TRIVIAL(debug) << "Clamp front right";
-        //BOOST_LOG_TRIVIAL(debug) << "Left = " << left << ", right = " << right << ", front = " << front << ", back = " << back;
         if(targetHorizontalDistanceSq >= targetRightDistSq)
         {
             currentLeftRight = right;
