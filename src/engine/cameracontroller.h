@@ -3,7 +3,7 @@
 #include "audio/soundengine.h"
 #include "core/angle.h"
 #include "loader/file/datatypes.h"
-#include "render/scene/Camera.h"
+#include "render/scene/camera.h"
 
 namespace engine
 {

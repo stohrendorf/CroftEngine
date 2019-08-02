@@ -211,7 +211,6 @@ set( EDISONENGINE_SRCS
      render/gl/glew.cpp
      render/gl/api/gl.cpp
 
-     render/scene/Camera.cpp
      render/scene/renderer.cpp
      render/scene/Material.cpp
      render/scene/uniformparameter.cpp

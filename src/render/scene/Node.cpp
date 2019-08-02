@@ -1,18 +1,12 @@
 #include "Node.h"
 
-#include "Camera.h"
 #include "Scene.h"
-#include "names.h"
+#include "camera.h"
 
 namespace render
 {
 namespace scene
 {
-Node::Node(std::string id)
-    : m_id(std::move(id))
-{
-}
-
 Node::~Node()
 {
     if(auto p = getParent().lock())
@@ -30,16 +24,6 @@ Node::~Node()
     transformChanged();
 }
 
-const std::string& Node::getId() const
-{
-    return m_id;
-}
-
-const std::weak_ptr<Node>& Node::getParent() const
-{
-    return m_parent;
-}
-
 Scene* Node::getScene() const
 {
     if(m_scene)
@@ -53,16 +37,6 @@ Scene* Node::getScene() const
             return scene;
     }
     return nullptr;
-}
-
-void Node::setVisible(const bool visible)
-{
-    m_visible = visible;
-}
-
-bool Node::isVisible() const
-{
-    return m_visible;
 }
 
 const glm::mat4& Node::getModelMatrix() const
@@ -85,11 +59,6 @@ const glm::mat4& Node::getModelMatrix() const
         }
     }
     return m_modelMatrix;
-}
-
-glm::mat4 Node::getModelViewMatrix() const
-{
-    return getViewMatrix() * getModelMatrix();
 }
 
 const glm::mat4& Node::getViewMatrix() const
@@ -164,11 +133,6 @@ const glm::mat4& Node::getInverseViewProjectionMatrix() const
     return identity;
 }
 
-glm::vec3 Node::getTranslationWorld() const
-{
-    return glm::vec3(getModelMatrix()[3]);
-}
-
 void Node::transformChanged()
 {
     m_dirty = true;
@@ -178,16 +142,6 @@ void Node::transformChanged()
     {
         child->transformChanged();
     }
-}
-
-const std::shared_ptr<Renderable>& Node::getDrawable() const
-{
-    return m_drawable;
-}
-
-void Node::setDrawable(const std::shared_ptr<Renderable>& drawable)
-{
-    m_drawable = drawable;
 }
 } // namespace scene
 } // namespace render

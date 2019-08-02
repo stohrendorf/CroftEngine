@@ -31,23 +31,41 @@ public:
 
     using List = std::vector<gsl::not_null<std::shared_ptr<Node>>>;
 
-    explicit Node(std::string id);
+    explicit Node(std::string id)
+        : m_id(std::move(id))
+    {
+    }
 
     virtual ~Node();
 
-    const std::string& getId() const;
+    const std::string& getId() const
+    {
+        return m_id;
+    }
 
-    const std::weak_ptr<Node>& getParent() const;
+    const std::weak_ptr<Node>& getParent() const
+    {
+        return m_parent;
+    }
 
     virtual Scene* getScene() const;
 
-    void setVisible(bool visible);
+    void setVisible(bool visible)
+    {
+        m_visible = visible;
+    }
 
-    bool isVisible() const;
+    bool isVisible() const
+    {
+        return m_visible;
+    }
 
     virtual const glm::mat4& getModelMatrix() const;
 
-    glm::mat4 getModelViewMatrix() const;
+    glm::mat4 getModelViewMatrix() const
+    {
+        return getViewMatrix() * getModelMatrix();
+    }
 
     const glm::mat4& getViewMatrix() const;
 
@@ -59,11 +77,20 @@ public:
 
     const glm::mat4& getInverseViewProjectionMatrix() const;
 
-    glm::vec3 getTranslationWorld() const;
+    glm::vec3 getTranslationWorld() const
+    {
+        return glm::vec3(getModelMatrix()[3]);
+    }
 
-    const std::shared_ptr<Renderable>& getDrawable() const;
+    const std::shared_ptr<Renderable>& getDrawable() const
+    {
+        return m_drawable;
+    }
 
-    void setDrawable(const std::shared_ptr<Renderable>& drawable);
+    void setDrawable(const std::shared_ptr<Renderable>& drawable)
+    {
+        m_drawable = drawable;
+    }
 
     const List& getChildren() const
     {
@@ -168,10 +195,10 @@ private:
     boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
     boost::container::flat_map<std::string, std::function<BufferParameter::BufferBinder>> m_bufferBinders;
 
-    friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent);
+    friend void setParent(const gsl::not_null<std::shared_ptr<Node>>& node, const std::shared_ptr<Node>& parent);
 };
 
-inline void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& parent)
+inline void setParent(const gsl::not_null<std::shared_ptr<Node>>& node, const std::shared_ptr<Node>& parent)
 {
     if(auto p = node->getParent().lock())
     {
@@ -193,25 +220,6 @@ inline void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shar
         parent->m_children.emplace_back(node);
 
     node->transformChanged();
-}
-
-inline void swapChildren(const gsl::not_null<std::shared_ptr<Node>>& a, const gsl::not_null<std::shared_ptr<Node>>& b)
-{
-    auto aChildren = a->getChildren();
-    for(auto& child : aChildren)
-        setParent(child, nullptr);
-    BOOST_ASSERT(a->getChildren().empty());
-
-    auto bChildren = b->getChildren();
-    for(auto& child : bChildren)
-        setParent(child, nullptr);
-    BOOST_ASSERT(b->getChildren().empty());
-
-    for(auto& child : bChildren)
-        setParent(child, a);
-
-    for(auto& child : aChildren)
-        setParent(child, b);
 }
 
 inline void addChild(const gsl::not_null<std::shared_ptr<Node>>& node,

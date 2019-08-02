@@ -101,15 +101,5 @@ void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask> flags,
 
     GL_ASSERT(::gl::clear(bits));
 }
-
-void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask> flags,
-                     const uint8_t red,
-                     const uint8_t green,
-                     const uint8_t blue,
-                     const uint8_t alpha,
-                     const float clearDepth)
-{
-    clear(flags, gl::SRGBA8{red, green, blue, alpha}, clearDepth);
-}
 } // namespace scene
 } // namespace render

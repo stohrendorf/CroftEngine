@@ -34,8 +34,8 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
                                   {{x0, y1, 0}, {t0.x, t1.y}}};
 
     gl::StructureLayout<SpriteVertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &SpriteVertex::pos},
-                                                    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},
-                                                    {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color}};
+                                             {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},
+                                             {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color}};
     auto vb = std::make_shared<render::gl::StructuredArrayBuffer<SpriteVertex>>(layout);
     vb->setData(&vertices[0], 4, ::gl::BufferUsageARB::StaticDraw);
 

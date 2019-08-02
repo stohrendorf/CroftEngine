@@ -1,8 +1,6 @@
 #include "ShaderProgram.h"
 
-#include "names.h"
 #include "render/gl/shader.h"
-#include "renderer.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>

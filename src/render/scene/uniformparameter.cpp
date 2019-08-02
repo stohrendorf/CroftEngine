@@ -3,7 +3,6 @@
 #include "Node.h"
 
 #include <boost/log/trivial.hpp>
-#include <utility>
 
 namespace render
 {
