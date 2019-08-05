@@ -30,7 +30,7 @@ Scene* Node::getScene() const
         return m_scene;
 
     // Search our parent for the scene
-    if(auto p = getParent().lock())
+    if(const auto p = getParent().lock())
     {
         const auto scene = p->getScene();
         if(scene)
@@ -49,7 +49,7 @@ const glm::mat4& Node::getModelMatrix() const
 
         // If we have a parent, multiply our parent world transform by our local
         // transform to obtain our final resolved world transform.
-        if(auto p = getParent().lock())
+        if(const auto p = getParent().lock())
         {
             m_modelMatrix = p->getModelMatrix() * getLocalMatrix();
         }

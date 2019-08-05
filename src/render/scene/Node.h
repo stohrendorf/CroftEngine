@@ -48,7 +48,7 @@ public:
         return m_parent;
     }
 
-    virtual Scene* getScene() const;
+    Scene* getScene() const;
 
     void setVisible(bool visible)
     {
@@ -60,7 +60,7 @@ public:
         return m_visible;
     }
 
-    virtual const glm::mat4& getModelMatrix() const;
+    const glm::mat4& getModelMatrix() const;
 
     glm::mat4 getModelViewMatrix() const
     {
@@ -202,7 +202,7 @@ private:
 inline void setParent(const gsl::not_null<std::shared_ptr<Node>>& node, const std::shared_ptr<Node>& parent)
 {
     // first remove from hierarchy
-    if(auto p = node->m_parent.lock())
+    if(const auto p = node->m_parent.lock())
     {
         const auto it = std::find(p->m_children.begin(), p->m_children.end(), node);
         BOOST_ASSERT(it != p->m_children.end());
