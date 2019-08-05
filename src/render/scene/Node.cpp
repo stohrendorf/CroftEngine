@@ -11,7 +11,6 @@ Node::~Node()
 {
     if(auto p = m_parent.lock())
     {
-        BOOST_LOG_TRIVIAL(info) << "parent=" << p->getId() << " self=" << getId();
         const auto it = std::find_if(
             p->m_children.begin(), p->m_children.end(), [this](const gsl::not_null<std::shared_ptr<Node>>& node) {
                 return node.get().get() == this;
