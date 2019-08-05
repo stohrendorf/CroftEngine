@@ -99,8 +99,9 @@ public:
 
     void removeAllChildren()
     {
-        while(!m_children.empty())
-            setParent(m_children[0], nullptr);
+        for(auto& child : m_children)
+            child->m_parent.reset();
+        m_children.clear();
     }
 
     const gsl::not_null<std::shared_ptr<Node>>& getChild(const size_t idx) const
@@ -200,20 +201,16 @@ private:
 
 inline void setParent(const gsl::not_null<std::shared_ptr<Node>>& node, const std::shared_ptr<Node>& parent)
 {
-    if(auto p = node->getParent().lock())
+    // first remove from hierarchy
+    if(auto p = node->m_parent.lock())
     {
         const auto it = std::find(p->m_children.begin(), p->m_children.end(), node);
         BOOST_ASSERT(it != p->m_children.end());
-        node->getParent().lock()->m_children.erase(it);
+        node->m_parent.reset();
+        p->m_children.erase(it);
     }
 
-    if(auto p = node->getParent().lock())
-    {
-        const auto it = std::find(p->m_children.begin(), p->m_children.end(), node);
-        if(it != p->m_children.end())
-            p->m_children.erase(it);
-    }
-
+    // then add to hierarchy again
     node->m_parent = parent;
 
     if(parent != nullptr)

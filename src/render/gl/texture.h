@@ -48,6 +48,27 @@ public:
         return m_type;
     }
 
+    ::gl::CopyImageSubDataTarget getSubDataTarget() const noexcept
+    {
+#define SOGLB_CONVERT_TYPE(x) \
+    case ::gl::TextureTarget::x: return ::gl::CopyImageSubDataTarget::x
+        switch(m_type)
+        {
+            SOGLB_CONVERT_TYPE(Texture1d);
+            SOGLB_CONVERT_TYPE(Texture2d);
+            SOGLB_CONVERT_TYPE(Texture3d);
+            SOGLB_CONVERT_TYPE(TextureCubeMap);
+            SOGLB_CONVERT_TYPE(Texture1dArray);
+            SOGLB_CONVERT_TYPE(Texture2dArray);
+            SOGLB_CONVERT_TYPE(TextureRectangle);
+            SOGLB_CONVERT_TYPE(Texture2dMultisample);
+            SOGLB_CONVERT_TYPE(Texture2dMultisampleArray);
+            SOGLB_CONVERT_TYPE(TextureCubeMapArray);
+        default: BOOST_THROW_EXCEPTION(std::domain_error("Texture type not suitable for copy sub-data operation"));
+        }
+#undef SOGLB_CONVERT_TYPE
+    }
+
     Texture& generateMipmap()
     {
         bind();
@@ -165,8 +186,21 @@ public:
 
     Texture2D<PixelT>& copyImageSubData(const Texture2D& src)
     {
-        GL_ASSERT(::gl::copyImageSubData(
-            src.getHandle(), src.m_type, 0, 0, 0, 0, getHandle(), m_type, 0, 0, 0, 0, src.m_width, src.m_height, 1));
+        GL_ASSERT(::gl::copyImageSubData(src.getHandle(),
+                                         src.getSubDataTarget(),
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         getHandle(),
+                                         getSubDataTarget(),
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         src.m_width,
+                                         src.m_height,
+                                         1));
         m_width = src.m_width;
         m_height = src.m_height;
 
@@ -200,13 +234,13 @@ public:
     TextureDepth& copyImageSubData(const TextureDepth& src)
     {
         GL_ASSERT(::gl::copyImageSubData(src.getHandle(),
-                                         src.getType(),
+                                         src.getSubDataTarget(),
                                          0,
                                          0,
                                          0,
                                          0,
                                          getHandle(),
-                                         getType(),
+                                         getSubDataTarget(),
                                          0,
                                          0,
                                          0,

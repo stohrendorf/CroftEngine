@@ -146,6 +146,11 @@ enum class CopyBufferSubDataTarget : core::EnumType
     ElementArrayBuffer = 0x8893,
 };
 
+enum class CopyImageSubDataTarget : core::EnumType
+{
+    Texture2d = 0x0DE1,
+};
+
 enum class CullFaceMode : core::EnumType
 {
     Back = 0x0405,

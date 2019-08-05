@@ -3535,7 +3535,7 @@ void clearBufferSubData(BufferTargetARB target, InternalFormat internalformat, s
 {
     return glClearBufferSubData(static_cast<GLenum>(target), static_cast<GLenum>(internalformat), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), static_cast<GLenum>(format), static_cast<GLenum>(type), detail::constAway(data));
 }
-void copyImageSubData(uint32_t srcName, TextureTarget srcTarget, int32_t srcLevel, int32_t srcX, int32_t srcY, int32_t srcZ, uint32_t dstName, TextureTarget dstTarget, int32_t dstLevel, int32_t dstX, int32_t dstY, int32_t dstZ, core::SizeType srcWidth, core::SizeType srcHeight, core::SizeType srcDepth)
+void copyImageSubData(uint32_t srcName, CopyImageSubDataTarget srcTarget, int32_t srcLevel, int32_t srcX, int32_t srcY, int32_t srcZ, uint32_t dstName, CopyImageSubDataTarget dstTarget, int32_t dstLevel, int32_t dstX, int32_t dstY, int32_t dstZ, core::SizeType srcWidth, core::SizeType srcHeight, core::SizeType srcDepth)
 {
     return glCopyImageSubData(static_cast<GLuint>(srcName), static_cast<GLenum>(srcTarget), static_cast<GLint>(srcLevel), static_cast<GLint>(srcX), static_cast<GLint>(srcY), static_cast<GLint>(srcZ), static_cast<GLuint>(dstName), static_cast<GLenum>(dstTarget), static_cast<GLint>(dstLevel), static_cast<GLint>(dstX), static_cast<GLint>(dstY), static_cast<GLint>(dstZ), static_cast<GLsizei>(srcWidth), static_cast<GLsizei>(srcHeight), static_cast<GLsizei>(srcDepth));
 }

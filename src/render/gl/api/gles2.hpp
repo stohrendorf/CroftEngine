@@ -343,6 +343,24 @@ enum class CopyBufferSubDataTarget : core::EnumType
 #endif
 };
 
+enum class CopyImageSubDataTarget : core::EnumType
+{
+    Renderbuffer = 0x8D41,
+    Texture2d = 0x0DE1,
+    TextureCubeMap = 0x8513,
+#if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+    Texture2dArray = 0x8C1A,
+    Texture3d = 0x806F,
+#endif
+#if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+    Texture2dMultisample = 0x9100,
+#endif
+#if defined(API_LEVEL_GL_ES_VERSION_3_2)
+    Texture2dMultisampleArray = 0x9102,
+    TextureCubeMapArray = 0x9009,
+#endif
+};
+
 enum class CullFaceMode : core::EnumType
 {
     Back = 0x0405,
@@ -1856,10 +1874,14 @@ enum class UniformType : core::EnumType
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
     IntSampler2dMultisampleArray = 0x910C,
     IntSamplerBuffer = 0x8DD0,
+    IntSamplerCubeMapArray = 0x900E,
     Sampler2dMultisampleArray = 0x910B,
     SamplerBuffer = 0x8DC2,
+    SamplerCubeMapArray = 0x900C,
+    SamplerCubeMapArrayShadow = 0x900D,
     UnsignedIntSampler2dMultisampleArray = 0x910D,
     UnsignedIntSamplerBuffer = 0x8DD8,
+    UnsignedIntSamplerCubeMapArray = 0x900F,
 #endif
 };
 
@@ -2348,7 +2370,7 @@ extern void blendEquation(uint32_t buf, BlendEquationModeEXT mode);
 extern void blendFuncSeparate(uint32_t buf, BlendingFactor srcRGB, BlendingFactor dstRGB, BlendingFactor srcAlpha, BlendingFactor dstAlpha);
 extern void blendFunc(uint32_t buf, BlendingFactor src, BlendingFactor dst);
 extern void colorMask(uint32_t index, bool r, bool g, bool b, bool a);
-extern void copyImageSubData(uint32_t srcName, TextureTarget srcTarget, int32_t srcLevel, int32_t srcX, int32_t srcY, int32_t srcZ, uint32_t dstName, TextureTarget dstTarget, int32_t dstLevel, int32_t dstX, int32_t dstY, int32_t dstZ, core::SizeType srcWidth, core::SizeType srcHeight, core::SizeType srcDepth);
+extern void copyImageSubData(uint32_t srcName, CopyImageSubDataTarget srcTarget, int32_t srcLevel, int32_t srcX, int32_t srcY, int32_t srcZ, uint32_t dstName, CopyImageSubDataTarget dstTarget, int32_t dstLevel, int32_t dstX, int32_t dstY, int32_t dstZ, core::SizeType srcWidth, core::SizeType srcHeight, core::SizeType srcDepth);
 extern void debugMessageCallback(core::DebugProc callback, const void *userParam);
 extern void debugMessageControl(DebugSource source, DebugType type, DebugSeverity severity, core::SizeType count, const uint32_t *ids, bool enabled);
 extern void debugMessageInsert(DebugSource source, DebugType type, uint32_t id, DebugSeverity severity, core::SizeType length, const char *buf);
