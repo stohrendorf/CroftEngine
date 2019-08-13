@@ -89,15 +89,7 @@ private:
 
     void drawIndexBuffers(::gl::PrimitiveType primitiveType) override
     {
-        m_vao->bind();
-
-        for(const auto& buffer : m_vao->getIndexBuffers())
-        {
-            GL_ASSERT(
-                ::gl::drawElements(primitiveType, buffer->size(), gl::TypeTraits<IndexT>::DrawElementsType, nullptr));
-        }
-
-        m_vao->unbind();
+        m_vao->drawIndexBuffers(primitiveType);
     }
 };
 

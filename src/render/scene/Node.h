@@ -69,13 +69,7 @@ public:
 
     const glm::mat4& getViewMatrix() const;
 
-    const glm::mat4& getInverseViewMatrix() const;
-
     const glm::mat4& getProjectionMatrix() const;
-
-    const glm::mat4& getViewProjectionMatrix() const;
-
-    const glm::mat4& getInverseViewProjectionMatrix() const;
 
     glm::vec3 getTranslationWorld() const
     {
@@ -171,10 +165,9 @@ public:
         return nullptr;
     }
 
-protected:
+private:
     void transformChanged();
 
-private:
     Scene* m_scene = nullptr;
 
     std::string m_id;

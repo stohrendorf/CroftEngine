@@ -59,7 +59,6 @@ private:
         if(const auto block = shaderProgram->findShaderStorageBlock(getName()))
             return block;
 
-        // This parameter was not found in the specified effect, so do nothing.
         BOOST_LOG_TRIVIAL(warning) << "Shader storage block '" << getName() << "' not found in program '"
                                    << shaderProgram->getId() << "'";
 

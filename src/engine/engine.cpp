@@ -1529,8 +1529,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
                 const auto x1 = r.x1 * texture.image->getWidth() / 256;
                 const auto y1 = r.y1 * texture.image->getHeight() / 256;
                 util::CImgWrapper tmp = src.cropped(x0, y0, x1, y1);
-                for(int i = 0; i < mipmapLevel; ++i)
-                    tmp.resizeHalfMipmap();
+                tmp.resizePow2Mipmap(mipmapLevel);
                 // +1 for doing mathematically correct rounding
                 dst.replace((x0 * dstSize + 1) / texture.image->getWidth(),
                             (y0 * dstSize + 1) / texture.image->getHeight(),

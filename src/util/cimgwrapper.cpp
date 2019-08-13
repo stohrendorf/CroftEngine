@@ -108,11 +108,17 @@ void CImgWrapper::resize(const int width, const int height)
 
 void CImgWrapper::resizeHalfMipmap()
 {
+    resizePow2Mipmap(1);
+}
+
+void CImgWrapper::resizePow2Mipmap(uint8_t n)
+{
     unshare();
+    const int d = 1 << n;
     if(!m_interleaved)
-        m_image->resize(width() / 2, height() / 2, 1, 4, 6, 1);
+        m_image->resize(width() / d, height() / d, 1, 4, 6, 1);
     else
-        m_image->resize(4, width() / 2, height() / 2, 1, 6, 1);
+        m_image->resize(4, width() / d, height() / d, 1, 6, 1);
 }
 
 void CImgWrapper::crop(const int x0, const int y0, const int x1, const int y1)

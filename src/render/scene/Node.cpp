@@ -51,11 +51,11 @@ const glm::mat4& Node::getModelMatrix() const
         // transform to obtain our final resolved world transform.
         if(const auto p = getParent().lock())
         {
-            m_modelMatrix = p->getModelMatrix() * getLocalMatrix();
+            m_modelMatrix = p->getModelMatrix() * m_localMatrix;
         }
         else
         {
-            m_modelMatrix = getLocalMatrix();
+            m_modelMatrix = m_localMatrix;
         }
     }
     return m_modelMatrix;
@@ -68,21 +68,6 @@ const glm::mat4& Node::getViewMatrix() const
     if(camera)
     {
         return camera->getViewMatrix();
-    }
-    else
-    {
-        static const glm::mat4 identity{1.0f};
-        return identity;
-    }
-}
-
-const glm::mat4& Node::getInverseViewMatrix() const
-{
-    Scene* scene = getScene();
-    const auto camera = scene ? scene->getActiveCamera() : nullptr;
-    if(camera)
-    {
-        return camera->getInverseViewMatrix();
     }
     else
     {
@@ -104,33 +89,6 @@ const glm::mat4& Node::getProjectionMatrix() const
         static const glm::mat4 identity{1.0f};
         return identity;
     }
-}
-
-const glm::mat4& Node::getViewProjectionMatrix() const
-{
-    Scene* scene = getScene();
-    const auto camera = scene ? scene->getActiveCamera() : nullptr;
-    if(camera)
-    {
-        return camera->getViewProjectionMatrix();
-    }
-    else
-    {
-        static const glm::mat4 identity{1.0f};
-        return identity;
-    }
-}
-
-const glm::mat4& Node::getInverseViewProjectionMatrix() const
-{
-    Scene* scene = getScene();
-    const auto camera = scene ? scene->getActiveCamera() : nullptr;
-    if(camera)
-    {
-        return camera->getInverseViewProjectionMatrix();
-    }
-    static const glm::mat4 identity{1.0f};
-    return identity;
 }
 
 void Node::transformChanged()

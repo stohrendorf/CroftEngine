@@ -275,8 +275,8 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
         return nullptr;
     }
 
-    BOOST_LOG_TRIVIAL(debug) << "Shader " << vshPath << " + " << fshPath << " + "
-                             << boost::algorithm::join(defines, ";");
+    BOOST_LOG_TRIVIAL(debug) << "Program vertex=" << vshPath << " fragment=" << fshPath
+                             << " defines=" << boost::algorithm::join(defines, ";");
     for(auto&& input : shaderProgram->m_handle.getInputs())
     {
         BOOST_LOG_TRIVIAL(debug) << "  input " << input.getName();

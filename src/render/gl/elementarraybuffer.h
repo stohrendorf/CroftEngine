@@ -53,6 +53,11 @@ public:
         return m_size;
     }
 
+    void drawElements(::gl::PrimitiveType primitiveType) const
+    {
+        GL_ASSERT(::gl::drawElements(primitiveType, size(), gl::TypeTraits<T>::DrawElementsType, nullptr));
+    }
+
 private:
     ::gl::core::SizeType m_size = 0;
 };

@@ -78,6 +78,18 @@ public:
         return m_vertexBuffers;
     }
 
+    void drawIndexBuffers(::gl::PrimitiveType primitiveType)
+    {
+        bind();
+
+        for(const auto& buffer : m_indexBuffers)
+        {
+            buffer->drawElements(primitiveType);
+        }
+
+        unbind();
+    }
+
 private:
     IndexBuffers m_indexBuffers;
     VertexBuffers m_vertexBuffers;
