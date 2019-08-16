@@ -196,13 +196,6 @@ class Enum:
         self.constants = set([x.attrib['name'] for x in xml.iterfind('./enum')])  # type: Set[str]
         self.is_bitmask = False
 
-        # XXX PATCH
-        if self.name == 'InternalFormat':
-            self.constants.add('GL_RGB32F')
-        elif self.name == 'DrawBufferMode':
-            for i in range(32):
-                self.constants.add('GL_COLOR_ATTACHMENT{}'.format(i))
-
 
 def _make_version_macro(version: str, profile_name: Optional[str]) -> str:
     if profile_name is None:
