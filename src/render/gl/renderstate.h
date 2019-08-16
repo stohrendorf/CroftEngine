@@ -25,27 +25,60 @@ public:
 
     void apply(bool force = false) const;
 
-    void setBlend(bool enabled);
+    void setBlend(bool enabled)
+    {
+        m_blendEnabled = enabled;
+    }
 
-    void setBlendSrc(::gl::BlendingFactor blend);
+    void setBlendSrc(::gl::BlendingFactor blend)
+    {
+        m_blendSrc = blend;
+    }
 
-    void setBlendDst(::gl::BlendingFactor blend);
+    void setBlendDst(::gl::BlendingFactor blend)
+    {
+        m_blendDst = blend;
+    }
 
-    void setCullFace(bool enabled);
+    void setCullFace(bool enabled)
+    {
+        m_cullFaceEnabled = enabled;
+    }
 
-    void setCullFaceSide(::gl::CullFaceMode side);
+    void setCullFaceSide(::gl::CullFaceMode side)
+    {
+        m_cullFaceSide = side;
+    }
 
-    void setFrontFace(::gl::FrontFaceDirection winding);
+    void setFrontFace(::gl::FrontFaceDirection winding)
+    {
+        m_frontFace = winding;
+    }
 
-    void setDepthTest(bool enabled);
+    void setDepthTest(bool enabled)
+    {
+        m_depthTestEnabled = enabled;
+    }
 
-    void setDepthWrite(bool enabled);
+    void setDepthWrite(bool enabled)
+    {
+        m_depthWriteEnabled = enabled;
+    }
 
-    void setDepthFunction(::gl::DepthFunction func);
+    void setDepthFunction(::gl::DepthFunction func)
+    {
+        m_depthFunction = func;
+    }
 
-    void setLineWidth(float width);
+    void setLineWidth(float width)
+    {
+        m_lineWidth = width;
+    }
 
-    void setLineSmooth(bool enabled);
+    void setLineSmooth(bool enabled)
+    {
+        m_lineSmooth = enabled;
+    }
 
     static void initDefaults();
 
