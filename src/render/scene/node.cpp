@@ -1,7 +1,7 @@
-#include "Node.h"
+#include "node.h"
 
-#include "Scene.h"
 #include "camera.h"
+#include "scene.h"
 
 namespace render
 {

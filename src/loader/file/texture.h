@@ -3,7 +3,7 @@
 #include "core/id.h"
 #include "io/sdlreader.h"
 #include "render/gl/image.h"
-#include "render/scene/Material.h"
+#include "render/scene/material.h"
 
 #include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>

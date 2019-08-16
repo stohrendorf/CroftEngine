@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ShaderProgram.h"
 #include "gsl-lite.hpp"
 #include "render/gl/renderstate.h"
+#include "shaderprogram.h"
 
 namespace render
 {

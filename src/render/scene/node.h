@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Visitor.h"
 #include "bufferparameter.h"
 #include "model.h"
 #include "uniformparameter.h"
+#include "visitor.h"
 
 #include <boost/container/flat_map.hpp>
 #include <glm/gtc/matrix_transform.hpp>

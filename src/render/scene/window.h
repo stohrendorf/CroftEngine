@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Dimension.h"
+#include "dimension.h"
 #include "glfw.h"
 
 namespace render

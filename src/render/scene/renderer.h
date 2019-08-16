@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Dimension.h"
+#include "dimension.h"
 #include "render/gl/pixel.h"
 #include "render/gl/renderstate.h"
 

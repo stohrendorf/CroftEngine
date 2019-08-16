@@ -1,8 +1,8 @@
-#include "Material.h"
+#include "material.h"
 
-#include "Node.h"
-#include "ShaderProgram.h"
 #include "names.h"
+#include "node.h"
+#include "shaderprogram.h"
 #include "uniformparameter.h"
 
 #include <boost/algorithm/string/join.hpp>

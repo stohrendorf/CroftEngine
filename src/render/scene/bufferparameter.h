@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ShaderProgram.h"
 #include "gsl-lite.hpp"
 #include "materialparameter.h"
+#include "shaderprogram.h"
 
 #include <boost/optional.hpp>
 #include <glm/glm.hpp>

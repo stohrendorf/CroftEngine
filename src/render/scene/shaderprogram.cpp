@@ -1,4 +1,4 @@
-#include "ShaderProgram.h"
+#include "shaderprogram.h"
 
 #include "render/gl/shader.h"
 

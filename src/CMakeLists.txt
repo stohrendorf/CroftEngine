@@ -212,16 +212,16 @@ set( EDISONENGINE_SRCS
      render/gl/api/gl.cpp
 
      render/scene/renderer.cpp
-     render/scene/Material.cpp
+     render/scene/material.cpp
      render/scene/uniformparameter.cpp
      render/scene/bufferparameter.cpp
      render/scene/mesh.cpp
      render/scene/model.cpp
-     render/scene/Node.cpp
-     render/scene/ScreenOverlay.cpp
-     render/scene/ShaderProgram.cpp
-     render/scene/Sprite.cpp
-     render/scene/Visitor.cpp
+     render/scene/node.cpp
+     render/scene/screenoverlay.cpp
+     render/scene/shaderprogram.cpp
+     render/scene/sprite.cpp
+     render/scene/visitor.cpp
      render/scene/window.cpp
 
      ui/label.cpp

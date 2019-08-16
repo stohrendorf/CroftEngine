@@ -1,6 +1,6 @@
 #include "mesh.h"
 
-#include "Material.h"
+#include "material.h"
 #include "names.h"
 
 #include <utility>

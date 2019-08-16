@@ -1,6 +1,6 @@
-#include "ScreenOverlay.h"
+#include "screenoverlay.h"
 
-#include "Material.h"
+#include "material.h"
 #include "mesh.h"
 #include "model.h"
 #include "render/gl/image.h"
@@ -24,7 +24,7 @@ void ScreenOverlay::render(RenderContext& context)
 {
     context.pushState(getRenderState());
     m_texture->image(m_image->getData());
-    m_model->render(context);
+    m_mesh->render(context);
     context.popState();
 }
 
@@ -56,12 +56,9 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
         ->set(glm::ortho(
             0.0f, gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), 0.0f, 0.0f, 1.0f));
 
-    m_model->getMeshes().clear();
-    m_model->addMesh(m_mesh);
-
-    m_model->getRenderState().setCullFace(false);
-    m_model->getRenderState().setDepthWrite(false);
-    m_model->getRenderState().setDepthTest(false);
+    m_mesh->getRenderState().setCullFace(false);
+    m_mesh->getRenderState().setDepthWrite(false);
+    m_mesh->getRenderState().setDepthTest(false);
 }
 } // namespace scene
 } // namespace render

@@ -7,7 +7,7 @@
 #include "items_tr1.h"
 #include "loader/file/animationid.h"
 #include "loader/file/item.h"
-#include "render/scene/ScreenOverlay.h"
+#include "render/scene/screenoverlay.h"
 #include "util/cimgwrapper.h"
 
 #include <boost/filesystem/path.hpp>

@@ -1,9 +1,9 @@
-#include "Sprite.h"
+#include "sprite.h"
 
-#include "Material.h"
-#include "Node.h"
+#include "material.h"
 #include "mesh.h"
 #include "names.h"
+#include "node.h"
 #include "render/gl/vertexarray.h"
 
 namespace render

@@ -3,7 +3,7 @@
 #include "core/magic.h"
 #include "gsl-lite.hpp"
 #include "loader/file/animation.h"
-#include "render/scene/Node.h"
+#include "render/scene/node.h"
 
 namespace loader
 {

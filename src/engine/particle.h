@@ -5,7 +5,7 @@
 #include "core/vec.h"
 #include "engine/lighting.h"
 #include "items_tr1.h"
-#include "render/scene/Node.h"
+#include "render/scene/node.h"
 
 #include <deque>
 #include <memory>

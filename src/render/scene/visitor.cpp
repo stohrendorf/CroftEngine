@@ -1,6 +1,6 @@
-#include "Visitor.h"
+#include "visitor.h"
 
-#include "Node.h"
+#include "node.h"
 #include "render/gl/debuggroup.h"
 #include "rendercontext.h"
 

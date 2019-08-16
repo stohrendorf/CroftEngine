@@ -51,8 +51,6 @@ private:
     gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_texture{std::make_shared<gl::Texture2D<gl::SRGBA8>>()};
 
     std::shared_ptr<Mesh> m_mesh{nullptr};
-
-    gsl::not_null<std::shared_ptr<Model>> m_model{std::make_shared<Model>()};
 };
 } // namespace scene
 } // namespace render

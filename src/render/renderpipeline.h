@@ -3,8 +3,8 @@
 #include "gl/debuggroup.h"
 #include "gl/framebuffer.h"
 #include "gl/texture.h"
-#include "scene/Dimension.h"
-#include "scene/Material.h"
+#include "render/scene/dimension.h"
+#include "render/scene/material.h"
 #include "scene/model.h"
 #include "scene/rendercontext.h"
 

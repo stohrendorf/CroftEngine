@@ -1,7 +1,7 @@
 #include "particle.h"
 
 #include "engine/laranode.h"
-#include "render/scene/Sprite.h"
+#include "render/scene/sprite.h"
 
 namespace engine
 {

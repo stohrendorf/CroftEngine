@@ -1,9 +1,9 @@
 #include "renderer.h"
 
-#include "Scene.h"
 #include "names.h"
 #include "render/gl/debuggroup.h"
 #include "rendercontext.h"
+#include "scene.h"
 
 namespace render
 {

@@ -1,6 +1,6 @@
 #include "bufferparameter.h"
 
-#include "Node.h"
+#include "node.h"
 
 #include <boost/log/trivial.hpp>
 

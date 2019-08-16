@@ -3,7 +3,7 @@
 #include "engine/laranode.h"
 #include "engine/particle.h"
 #include "engine/script/reflection.h"
-#include "render/scene/Sprite.h"
+#include "render/scene/sprite.h"
 
 #include <boost/range/adaptor/indexed.hpp>
 
