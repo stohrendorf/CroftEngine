@@ -38,9 +38,9 @@ BOOST_AUTO_TEST_CASE(test_first_tuple_t)
 
 BOOST_AUTO_TEST_CASE(test_first_type_t)
 {
-  TEST_SAME(TPL(first_type_t<int, short, char>), int);
-  TEST_SAME(TPL(first_type_t<short>), short);
-  TEST_SAME(TPL(first_type_t<short, int>), short);
+  TEST_SAME(TPL(first_type_t<std::tuple<int, short, char>>), int);
+  TEST_SAME(TPL(first_type_t<std::tuple<short>>), short);
+  TEST_SAME(TPL(first_type_t<std::tuple<short, int>>), short);
 }
 
 BOOST_AUTO_TEST_CASE(test_except_first_tuple_t)

@@ -44,17 +44,17 @@ using drop_first_t = typename drop_first<T, Tuple>::type;
 template<typename T, typename...>
 using first_tuple_t = std::tuple<T>;
 
-template<typename...>
+template<typename>
 struct first_type;
 
 template<typename T, typename... Args>
-struct first_type<T, Args...>
+struct first_type<std::tuple<T, Args...>>
 {
   using type = T;
 };
 
-template<typename... Args>
-using first_type_t = typename first_type<Args...>::type;
+template<typename T>
+using first_type_t = typename first_type<T>::type;
 
 template<typename>
 struct except_first_tuple;
@@ -68,13 +68,14 @@ struct except_first_tuple<std::tuple<T, Args...>>
 template<typename T>
 using except_first_tuple_t = typename except_first_tuple<T>::type;
 
-template<typename, typename>
-struct drop_all_once;
-
-template<typename... Needles>
-struct drop_all_once<std::tuple<Needles...>, std::tuple<>>
+template<typename Needles, typename Haystack>
+struct drop_all_once
 {
-  using type = std::tuple<>;
+  using _needle0 = first_type_t<Needles>;
+  using _reduced_haystack = drop_first_t<_needle0, Haystack>;
+
+  using _reduced_needles = except_first_tuple_t<Needles>;
+  using type = typename drop_all_once<_reduced_needles, _reduced_haystack>::type;
 };
 
 template<>
@@ -83,20 +84,16 @@ struct drop_all_once<std::tuple<>, std::tuple<>>
   using type = std::tuple<>;
 };
 
-template<typename... Haystack>
-struct drop_all_once<std::tuple<>, std::tuple<Haystack...>>
+template<typename Needles>
+struct drop_all_once<Needles, std::tuple<>>
 {
-  using type = std::tuple<Haystack...>;
+  using type = std::tuple<>;
 };
 
-template<typename... Needles, typename... Haystack>
-struct drop_all_once<std::tuple<Needles...>, std::tuple<Haystack...>>
+template<typename Haystack>
+struct drop_all_once<std::tuple<>, Haystack>
 {
-  using _needle0 = first_type_t<Needles...>;
-  using _reduced_haystack = drop_first_t<_needle0, std::tuple<Haystack...>>;
-
-  using _reduced_needles = except_first_tuple_t<std::tuple<Needles...>>;
-  using type = typename drop_all_once<_reduced_needles, _reduced_haystack>::type;
+  using type = Haystack;
 };
 
 template<typename T, typename U>

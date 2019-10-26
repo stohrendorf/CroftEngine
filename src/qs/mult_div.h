@@ -43,8 +43,8 @@ struct flatten_tuple_product<std::tuple<T>>
   using type = T;
 };
 
-template<typename... Args>
-using flatten_tuple_product_t = typename flatten_tuple_product<Args...>::type;
+template<typename T>
+using flatten_tuple_product_t = typename flatten_tuple_product<T>::type;
 
 template<typename, typename>
 struct flattener;
