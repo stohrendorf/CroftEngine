@@ -267,11 +267,12 @@ struct AVDecoder final : public audio::AbstractStreamSource
       std::unique_lock<std::mutex> lock(imgQueueMutex);
       if(audioQueue.size() >= QueueLimit || imgQueue.size() >= QueueLimit)
       {
-        return;
+        break;
       }
     }
 
-    BOOST_LOG_TRIVIAL(info) << "fillQueues done: " << getAvError(err);
+    BOOST_LOG_TRIVIAL(trace) << "fillQueues done: " << getAvError(err) << "; audio=" << audioQueue.size()
+                             << ", video=" << imgQueue.size();
   }
 
   std::queue<AVFramePtr> imgQueue;
@@ -299,7 +300,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
     return img;
   }
 
-  static const constexpr size_t QueueLimit = 3;
+  static const constexpr size_t QueueLimit = 30;
 
   void decodePacket()
   {
