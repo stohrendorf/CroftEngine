@@ -1574,12 +1574,15 @@ void Engine::run()
     BOOST_LOG_TRIVIAL(info) << "Language override is " << language;
   }
 
-  const sol::table levelNames = levelInfo["name"];
-  std::string levelName = levelNames[language];
-  if(levelName.empty())
+  std::string levelName;
+  if(const auto levelNames = levelInfo["name"])
   {
-    BOOST_LOG_TRIVIAL(warning) << "Missing level name, falling back to language en";
-    levelName = levelNames["en"];
+    levelName = levelNames[language];
+    if(levelName.empty())
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Missing level name, falling back to language en";
+      levelName = levelNames["en"];
+    }
   }
 
   bool showDebugInfo = false;
