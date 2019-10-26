@@ -10,207 +10,207 @@ namespace gl
 {
 class RenderState final
 {
-public:
-    RenderState(const RenderState&) = default;
+  public:
+  RenderState(const RenderState&) = default;
 
-    RenderState(RenderState&&) = default;
+  RenderState(RenderState&&) = default;
 
-    RenderState& operator=(const RenderState&) = default;
+  RenderState& operator=(const RenderState&) = default;
 
-    RenderState& operator=(RenderState&&) = default;
+  RenderState& operator=(RenderState&&) = default;
 
-    explicit RenderState() = default;
+  explicit RenderState() = default;
 
-    ~RenderState() = default;
+  ~RenderState() = default;
 
-    void apply(bool force = false) const;
+  void apply(bool force = false) const;
 
-    void setBlend(bool enabled)
+  void setBlend(bool enabled)
+  {
+    m_blendEnabled = enabled;
+  }
+
+  void setBlendSrc(::gl::BlendingFactor blend)
+  {
+    m_blendSrc = blend;
+  }
+
+  void setBlendDst(::gl::BlendingFactor blend)
+  {
+    m_blendDst = blend;
+  }
+
+  void setCullFace(bool enabled)
+  {
+    m_cullFaceEnabled = enabled;
+  }
+
+  void setCullFaceSide(::gl::CullFaceMode side)
+  {
+    m_cullFaceSide = side;
+  }
+
+  void setFrontFace(::gl::FrontFaceDirection winding)
+  {
+    m_frontFace = winding;
+  }
+
+  void setDepthTest(bool enabled)
+  {
+    m_depthTestEnabled = enabled;
+  }
+
+  void setDepthWrite(bool enabled)
+  {
+    m_depthWriteEnabled = enabled;
+  }
+
+  void setDepthFunction(::gl::DepthFunction func)
+  {
+    m_depthFunction = func;
+  }
+
+  void setLineWidth(float width)
+  {
+    m_lineWidth = width;
+  }
+
+  void setLineSmooth(bool enabled)
+  {
+    m_lineSmooth = enabled;
+  }
+
+  static void initDefaults();
+
+  static void enableDepthWrite();
+
+  void merge(const RenderState& other);
+
+  private:
+  template<typename T, const T DefaultValue>
+  struct DefaultedOptional final
+  {
+    boost::optional<T> value{};
+
+    T get() const
     {
-        m_blendEnabled = enabled;
+      return value.get_value_or(DefaultValue);
     }
 
-    void setBlendSrc(::gl::BlendingFactor blend)
+    void reset()
     {
-        m_blendSrc = blend;
+      value.reset();
     }
 
-    void setBlendDst(::gl::BlendingFactor blend)
+    void setDefault()
     {
-        m_blendDst = blend;
+      value = DefaultValue;
     }
 
-    void setCullFace(bool enabled)
+    bool isInitialized() const
     {
-        m_cullFaceEnabled = enabled;
+      return value.is_initialized();
     }
 
-    void setCullFaceSide(::gl::CullFaceMode side)
+    bool operator!=(const DefaultedOptional<T, DefaultValue>& rhs) const
     {
-        m_cullFaceSide = side;
+      return value != rhs.value;
     }
 
-    void setFrontFace(::gl::FrontFaceDirection winding)
+    DefaultedOptional<T, DefaultValue>& operator=(T rhs)
     {
-        m_frontFace = winding;
+      value = rhs;
+      return *this;
     }
 
-    void setDepthTest(bool enabled)
+    void merge(const DefaultedOptional<T, DefaultValue>& other)
     {
-        m_depthTestEnabled = enabled;
+      if(other.isInitialized())
+        *this = other;
+    }
+  };
+
+  struct DefaultedOptionalF final
+  {
+    const float DefaultValue;
+
+    explicit DefaultedOptionalF(float defaultValue)
+        : DefaultValue{defaultValue}
+    {
     }
 
-    void setDepthWrite(bool enabled)
+    DefaultedOptionalF& operator=(const DefaultedOptionalF& rhs)
     {
-        m_depthWriteEnabled = enabled;
+      BOOST_ASSERT(DefaultValue == rhs.DefaultValue);
+
+      value = rhs.value;
+      return *this;
     }
 
-    void setDepthFunction(::gl::DepthFunction func)
+    boost::optional<float> value{};
+
+    float get() const
     {
-        m_depthFunction = func;
+      return value.get_value_or(DefaultValue);
     }
 
-    void setLineWidth(float width)
+    void reset()
     {
-        m_lineWidth = width;
+      value.reset();
     }
 
-    void setLineSmooth(bool enabled)
+    void setDefault()
     {
-        m_lineSmooth = enabled;
+      value = DefaultValue;
     }
 
-    static void initDefaults();
-
-    static void enableDepthWrite();
-
-    void merge(const RenderState& other);
-
-private:
-    template<typename T, const T DefaultValue>
-    struct DefaultedOptional final
+    bool isInitialized() const
     {
-        boost::optional<T> value{};
+      return value.is_initialized();
+    }
 
-        T get() const
-        {
-            return value.get_value_or(DefaultValue);
-        }
-
-        void reset()
-        {
-            value.reset();
-        }
-
-        void setDefault()
-        {
-            value = DefaultValue;
-        }
-
-        bool isInitialized() const
-        {
-            return value.is_initialized();
-        }
-
-        bool operator!=(const DefaultedOptional<T, DefaultValue>& rhs) const
-        {
-            return value != rhs.value;
-        }
-
-        DefaultedOptional<T, DefaultValue>& operator=(T rhs)
-        {
-            value = rhs;
-            return *this;
-        }
-
-        void merge(const DefaultedOptional<T, DefaultValue>& other)
-        {
-            if(other.isInitialized())
-                *this = other;
-        }
-    };
-
-    struct DefaultedOptionalF final
+    bool operator!=(const DefaultedOptionalF& rhs) const
     {
-        const float DefaultValue;
+      return value != rhs.value;
+    }
 
-        explicit DefaultedOptionalF(float defaultValue)
-            : DefaultValue{defaultValue}
-        {
-        }
+    DefaultedOptionalF& operator=(float rhs)
+    {
+      value = rhs;
+      return *this;
+    }
 
-        DefaultedOptionalF& operator=(const DefaultedOptionalF& rhs)
-        {
-            BOOST_ASSERT(DefaultValue == rhs.DefaultValue);
+    void merge(const DefaultedOptionalF& other)
+    {
+      if(other.isInitialized())
+        *this = other;
+    }
+  };
 
-            value = rhs.value;
-            return *this;
-        }
+  // States
+  DefaultedOptional<bool, false> m_cullFaceEnabled;
 
-        boost::optional<float> value{};
+  DefaultedOptional<bool, true> m_depthTestEnabled;
 
-        float get() const
-        {
-            return value.get_value_or(DefaultValue);
-        }
+  DefaultedOptional<bool, true> m_depthWriteEnabled;
 
-        void reset()
-        {
-            value.reset();
-        }
+  DefaultedOptional<::gl::DepthFunction, ::gl::DepthFunction::Less> m_depthFunction;
 
-        void setDefault()
-        {
-            value = DefaultValue;
-        }
+  DefaultedOptional<bool, true> m_blendEnabled;
 
-        bool isInitialized() const
-        {
-            return value.is_initialized();
-        }
+  DefaultedOptional<::gl::BlendingFactor, ::gl::BlendingFactor::SrcAlpha> m_blendSrc;
 
-        bool operator!=(const DefaultedOptionalF& rhs) const
-        {
-            return value != rhs.value;
-        }
+  DefaultedOptional<::gl::BlendingFactor, ::gl::BlendingFactor::OneMinusSrcAlpha> m_blendDst;
 
-        DefaultedOptionalF& operator=(float rhs)
-        {
-            value = rhs;
-            return *this;
-        }
+  DefaultedOptional<::gl::CullFaceMode, ::gl::CullFaceMode::Back> m_cullFaceSide;
 
-        void merge(const DefaultedOptionalF& other)
-        {
-            if(other.isInitialized())
-                *this = other;
-        }
-    };
+  DefaultedOptional<::gl::FrontFaceDirection, ::gl::FrontFaceDirection::Cw> m_frontFace;
 
-    // States
-    DefaultedOptional<bool, false> m_cullFaceEnabled;
+  DefaultedOptionalF m_lineWidth{1.0f};
 
-    DefaultedOptional<bool, true> m_depthTestEnabled;
+  DefaultedOptional<bool, true> m_lineSmooth;
 
-    DefaultedOptional<bool, true> m_depthWriteEnabled;
-
-    DefaultedOptional<::gl::DepthFunction, ::gl::DepthFunction::Less> m_depthFunction;
-
-    DefaultedOptional<bool, true> m_blendEnabled;
-
-    DefaultedOptional<::gl::BlendingFactor, ::gl::BlendingFactor::SrcAlpha> m_blendSrc;
-
-    DefaultedOptional<::gl::BlendingFactor, ::gl::BlendingFactor::OneMinusSrcAlpha> m_blendDst;
-
-    DefaultedOptional<::gl::CullFaceMode, ::gl::CullFaceMode::Back> m_cullFaceSide;
-
-    DefaultedOptional<::gl::FrontFaceDirection, ::gl::FrontFaceDirection::Cw> m_frontFace;
-
-    DefaultedOptionalF m_lineWidth{1.0f};
-
-    DefaultedOptional<bool, true> m_lineSmooth;
-
-    static inline RenderState& getCurrentState();
+  static inline RenderState& getCurrentState();
 };
 } // namespace gl
 } // namespace render

@@ -14,39 +14,39 @@ namespace items
 namespace
 {
 gsl::not_null<std::shared_ptr<render::scene::Mesh>>
-    createBolt(uint16_t points,
-               const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& program,
-               float lineWidth,
-               std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>>& vb)
+  createBolt(uint16_t points,
+             const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& program,
+             float lineWidth,
+             std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>>& vb)
 {
-    std::vector<glm::vec3> vertices(points);
+  std::vector<glm::vec3> vertices(points);
 
-    static const render::gl::StructureLayout<glm::vec3> attribs{
-        {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::StructureMember<glm::vec3>::Trivial{}}};
+  static const render::gl::StructureLayout<glm::vec3> attribs{
+    {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::StructureMember<glm::vec3>::Trivial{}}};
 
-    std::vector<uint16_t> indices;
-    for(uint16_t i = 0; i < points; ++i)
-        indices.emplace_back(i);
+  std::vector<uint16_t> indices;
+  for(uint16_t i = 0; i < points; ++i)
+    indices.emplace_back(i);
 
-    auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
-    indexBuffer->setData(indices, ::gl::BufferUsageARB::StaticDraw);
+  auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
+  indexBuffer->setData(indices, ::gl::BufferUsageARB::StaticDraw);
 
-    vb = std::make_shared<render::gl::StructuredArrayBuffer<glm::vec3>>(attribs);
-    vb->setData(&vertices[0], points, ::gl::BufferUsageARB::DynamicDraw);
+  vb = std::make_shared<render::gl::StructuredArrayBuffer<glm::vec3>>(attribs);
+  vb->setData(&vertices[0], points, ::gl::BufferUsageARB::DynamicDraw);
 
-    auto vao = std::make_shared<render::gl::VertexArray<uint16_t, glm::vec3>>(indexBuffer, vb, program->getHandle());
-    auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, ::gl::PrimitiveType::LineStrip);
+  auto vao = std::make_shared<render::gl::VertexArray<uint16_t, glm::vec3>>(indexBuffer, vb, program->getHandle());
+  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, ::gl::PrimitiveType::LineStrip);
 
-    mesh->getRenderState().setLineSmooth(true);
-    mesh->getRenderState().setLineWidth(lineWidth);
+  mesh->getRenderState().setLineSmooth(true);
+  mesh->getRenderState().setLineWidth(lineWidth);
 
-    auto material = std::make_shared<render::scene::Material>(program);
-    material->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
-    material->getUniform("u_camProjection")->bindProjectionMatrix();
+  auto material = std::make_shared<render::scene::Material>(program);
+  material->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
+  material->getUniform("u_camProjection")->bindProjectionMatrix();
 
-    mesh->setMaterial(material);
+  mesh->setMaterial(material);
 
-    return mesh;
+  return mesh;
 }
 
 using Bolt = std::array<core::TRVec, LightningBall::SegmentPoints>;
@@ -56,28 +56,28 @@ Bolt updateBolt(core::TRVec start,
                 const render::scene::Mesh& mesh,
                 const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>>& vb)
 {
-    const auto segmentSize = (end - start) / LightningBall::SegmentPoints;
+  const auto segmentSize = (end - start) / LightningBall::SegmentPoints;
 
-    Bolt bolt;
+  Bolt bolt;
 
-    BOOST_ASSERT(vb->size() == LightningBall::SegmentPoints);
-    auto boltData = vb->map(::gl::BufferAccessARB::WriteOnly);
-    for(size_t j = 0; j < LightningBall::SegmentPoints; j++)
-    {
-        core::TRVec buckling{util::rand15s(core::QuarterSectorSize),
-                             util::rand15s(core::QuarterSectorSize),
-                             util::rand15s(core::QuarterSectorSize)};
+  BOOST_ASSERT(vb->size() == LightningBall::SegmentPoints);
+  auto boltData = vb->map(::gl::BufferAccessARB::WriteOnly);
+  for(size_t j = 0; j < LightningBall::SegmentPoints; j++)
+  {
+    core::TRVec buckling{util::rand15s(core::QuarterSectorSize),
+                         util::rand15s(core::QuarterSectorSize),
+                         util::rand15s(core::QuarterSectorSize)};
 
-        if(j == LightningBall::SegmentPoints - 1)
-            buckling.Y = 0_len;
+    if(j == LightningBall::SegmentPoints - 1)
+      buckling.Y = 0_len;
 
-        bolt[j] = start + buckling;
-        boltData[j] = bolt[j].toRenderSystem();
-        start += segmentSize;
-    }
-    vb->unmap();
+    bolt[j] = start + buckling;
+    boltData[j] = bolt[j].toRenderSystem();
+    start += segmentSize;
+  }
+  vb->unmap();
 
-    return bolt;
+  return bolt;
 }
 } // namespace
 
@@ -88,173 +88,173 @@ LightningBall::LightningBall(const gsl::not_null<Engine*>& engine,
                              const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& boltProgram)
     : ModelItemNode{engine, room, item, true, animatedModel}
 {
-    if(animatedModel.nMeshes >= 1)
-    {
-        m_poles = static_cast<size_t>(animatedModel.nMeshes - 1);
-    }
+  if(animatedModel.nMeshes >= 1)
+  {
+    m_poles = static_cast<size_t>(animatedModel.nMeshes - 1);
+  }
 
-    for(size_t i = 1; i < getSkeleton()->getChildren().size(); ++i)
-    {
-        getSkeleton()->getChildren()[i]->setDrawable(nullptr);
-        getSkeleton()->getChildren()[i]->setVisible(false);
-    }
+  for(size_t i = 1; i < getSkeleton()->getChildren().size(); ++i)
+  {
+    getSkeleton()->getChildren()[i]->setDrawable(nullptr);
+    getSkeleton()->getChildren()[i]->setVisible(false);
+  }
 
-    m_mainBoltMesh = createBolt(SegmentPoints, boltProgram, 10, m_mainVb);
-    auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
-    node->setDrawable(m_mainBoltMesh);
+  m_mainBoltMesh = createBolt(SegmentPoints, boltProgram, 10, m_mainVb);
+  auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
+  node->setDrawable(m_mainBoltMesh);
+  addChild(getSkeleton(), node);
+
+  for(auto& childBolt : m_childBolts)
+  {
+    childBolt.mesh = createBolt(SegmentPoints, boltProgram, 3, childBolt.vb);
+
+    node = std::make_shared<render::scene::Node>("lightning-bolt-child");
+    node->setDrawable(childBolt.mesh);
     addChild(getSkeleton(), node);
-
-    for(auto& childBolt : m_childBolts)
-    {
-        childBolt.mesh = createBolt(SegmentPoints, boltProgram, 3, childBolt.vb);
-
-        node = std::make_shared<render::scene::Node>("lightning-bolt-child");
-        node->setDrawable(childBolt.mesh);
-        addChild(getSkeleton(), node);
-    }
+  }
 }
 
 void LightningBall::update()
 {
-    if(!m_state.updateActivationTimeout())
-    {
-        m_chargeTimeout = 1;
-        m_shooting = false;
-        m_laraHit = false;
-        if(getEngine().roomsAreSwapped())
-            getEngine().swapAllRooms();
-
-        deactivate();
-        m_state.triggerState = TriggerState::Inactive;
-        prepareRender();
-        return;
-    }
-
-    prepareRender();
-
-    if(--m_chargeTimeout > 0)
-        return;
-
-    if(m_shooting != 0)
-    {
-        m_shooting = false;
-        m_chargeTimeout = 35 + util::rand15(45);
-        m_laraHit = false;
-        if(getEngine().roomsAreSwapped())
-            getEngine().swapAllRooms();
-
-        return;
-    }
-
-    m_shooting = true;
-    m_chargeTimeout = 20;
+  if(!m_state.updateActivationTimeout())
+  {
+    m_chargeTimeout = 1;
+    m_shooting = false;
     m_laraHit = false;
+    if(getEngine().roomsAreSwapped())
+      getEngine().swapAllRooms();
 
-    const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
-    if(getEngine().getLara().isNear(*this, radius))
-    {
-        // target at lara
-        m_mainBoltEnd = getEngine().getLara().m_state.position.position - m_state.position.position;
-        m_mainBoltEnd
-            = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
+    deactivate();
+    m_state.triggerState = TriggerState::Inactive;
+    prepareRender();
+    return;
+  }
 
-        getEngine().getLara().m_state.health -= 400_hp;
-        getEngine().getLara().m_state.is_hit = true;
+  prepareRender();
 
-        m_laraHit = true;
-    }
-    else if(m_poles == 0)
-    {
-        // we don't have poles, so just shoot downwards
-        m_mainBoltEnd = core::TRVec{};
-        const auto sector = loader::file::findRealFloorSector(m_state.position);
-        m_mainBoltEnd.Y = -HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getItemNodes()).y;
-        m_mainBoltEnd.Y -= m_state.position.position.Y;
-    }
-    else
-    {
-        // select a random "pole"
-        const auto itemSpheres = getSkeleton()->getBoneCollisionSpheres(
-            m_state, *getSkeleton()->getInterpolationInfo(m_state).getNearestFrame(), nullptr);
-        m_mainBoltEnd = core::TRVec{itemSpheres[util::rand15(itemSpheres.size() - 1) + 1].getPosition()}
-                        - m_state.position.position;
-        m_mainBoltEnd
-            = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
-    }
+  if(--m_chargeTimeout > 0)
+    return;
 
-    for(auto& childBolt : m_childBolts)
-    {
-        childBolt.startIndex = util::rand15(SegmentPoints - 1);
-        childBolt.end
-            = m_mainBoltEnd
-              + core::TRVec{util::rand15s(core::QuarterSectorSize), 0_len, util::rand15s(core::QuarterSectorSize)};
-    }
+  if(m_shooting != 0)
+  {
+    m_shooting = false;
+    m_chargeTimeout = 35 + util::rand15(45);
+    m_laraHit = false;
+    if(getEngine().roomsAreSwapped())
+      getEngine().swapAllRooms();
 
-    if(!getEngine().roomsAreSwapped())
-        getEngine().swapAllRooms();
+    return;
+  }
 
-    playSoundEffect(TR1SoundId::Chatter);
+  m_shooting = true;
+  m_chargeTimeout = 20;
+  m_laraHit = false;
+
+  const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
+  if(getEngine().getLara().isNear(*this, radius))
+  {
+    // target at lara
+    m_mainBoltEnd = getEngine().getLara().m_state.position.position - m_state.position.position;
+    m_mainBoltEnd
+      = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
+
+    getEngine().getLara().m_state.health -= 400_hp;
+    getEngine().getLara().m_state.is_hit = true;
+
+    m_laraHit = true;
+  }
+  else if(m_poles == 0)
+  {
+    // we don't have poles, so just shoot downwards
+    m_mainBoltEnd = core::TRVec{};
+    const auto sector = loader::file::findRealFloorSector(m_state.position);
+    m_mainBoltEnd.Y = -HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getItemNodes()).y;
+    m_mainBoltEnd.Y -= m_state.position.position.Y;
+  }
+  else
+  {
+    // select a random "pole"
+    const auto itemSpheres = getSkeleton()->getBoneCollisionSpheres(
+      m_state, *getSkeleton()->getInterpolationInfo(m_state).getNearestFrame(), nullptr);
+    m_mainBoltEnd
+      = core::TRVec{itemSpheres[util::rand15(itemSpheres.size() - 1) + 1].getPosition()} - m_state.position.position;
+    m_mainBoltEnd
+      = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
+  }
+
+  for(auto& childBolt : m_childBolts)
+  {
+    childBolt.startIndex = util::rand15(SegmentPoints - 1);
+    childBolt.end
+      = m_mainBoltEnd
+        + core::TRVec{util::rand15s(core::QuarterSectorSize), 0_len, util::rand15s(core::QuarterSectorSize)};
+  }
+
+  if(!getEngine().roomsAreSwapped())
+    getEngine().swapAllRooms();
+
+  playSoundEffect(TR1SoundId::Chatter);
 }
 
 void LightningBall::collide(LaraNode& lara, CollisionInfo& info)
 {
-    if(!m_laraHit)
-        return;
+  if(!m_laraHit)
+    return;
 
-    lara.hit_direction = static_cast<core::Axis>(util::rand15(4));
-    lara.hit_frame += 1_frame;
-    if(lara.hit_frame > 34_frame)
-        lara.hit_frame = 34_frame;
+  lara.hit_direction = static_cast<core::Axis>(util::rand15(4));
+  lara.hit_frame += 1_frame;
+  if(lara.hit_frame > 34_frame)
+    lara.hit_frame = 34_frame;
 }
 
 void LightningBall::prepareRender()
 {
-    ModelItemNode::update();
+  ModelItemNode::update();
 
-    if(m_shooting == 0)
-    {
-        for(size_t i = 1; i < getSkeleton()->getChildren().size(); ++i)
-        {
-            getSkeleton()->getChildren()[i]->setVisible(false);
-        }
-        return;
-    }
-
+  if(m_shooting == 0)
+  {
     for(size_t i = 1; i < getSkeleton()->getChildren().size(); ++i)
     {
-        getSkeleton()->getChildren()[i]->setVisible(i - 1 >= m_poles);
+      getSkeleton()->getChildren()[i]->setVisible(false);
     }
+    return;
+  }
 
-    const auto nearestFrame = getSkeleton()->getInterpolationInfo(m_state).getNearestFrame();
-    const auto segmentStart = core::TRVec{
-        glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f))};
+  for(size_t i = 1; i < getSkeleton()->getChildren().size(); ++i)
+  {
+    getSkeleton()->getChildren()[i]->setVisible(i - 1 >= m_poles);
+  }
 
-    const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd, *m_mainBoltMesh, m_mainVb);
+  const auto nearestFrame = getSkeleton()->getInterpolationInfo(m_state).getNearestFrame();
+  const auto segmentStart = core::TRVec{
+    glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f))};
 
-    for(const auto& childBolt : m_childBolts)
-    {
-        updateBolt(mainBolt[childBolt.startIndex], childBolt.end, *childBolt.mesh, childBolt.vb);
-    }
+  const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd, *m_mainBoltMesh, m_mainVb);
+
+  for(const auto& childBolt : m_childBolts)
+  {
+    updateBolt(mainBolt[childBolt.startIndex], childBolt.end, *childBolt.mesh, childBolt.vb);
+  }
 }
 
 void LightningBall::load(const YAML::Node& n)
 {
-    ModelItemNode::load(n);
+  ModelItemNode::load(n);
 
-    while(getSkeleton()->getChildren().size() > m_poles + 1)
-    {
-        setParent(getSkeleton()->getChildren().back(), nullptr);
-    }
+  while(getSkeleton()->getChildren().size() > m_poles + 1)
+  {
+    setParent(getSkeleton()->getChildren().back(), nullptr);
+  }
 
-    auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
-    node->setDrawable(m_mainBoltMesh);
+  auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
+  node->setDrawable(m_mainBoltMesh);
+  addChild(getSkeleton(), node);
+  for(auto& childBolt : m_childBolts)
+  {
+    node = std::make_shared<render::scene::Node>("lightning-bolt-child");
+    node->setDrawable(childBolt.mesh);
     addChild(getSkeleton(), node);
-    for(auto& childBolt : m_childBolts)
-    {
-        node = std::make_shared<render::scene::Node>("lightning-bolt-child");
-        node->setDrawable(childBolt.mesh);
-        addChild(getSkeleton(), node);
-    }
+  }
 }
 } // namespace items
 } // namespace engine

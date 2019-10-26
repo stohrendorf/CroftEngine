@@ -10,21 +10,21 @@ namespace lara
 {
 class StateHandler_38 final : public StateHandler_Pushable
 {
-public:
-    explicit StateHandler_38(LaraNode& lara)
-        : StateHandler_Pushable{lara, LaraStateId::PushableGrab}
-    {
-    }
+  public:
+  explicit StateHandler_38(LaraNode& lara)
+      : StateHandler_Pushable{lara, LaraStateId::PushableGrab}
+  {
+  }
 
-    void handleInput(CollisionInfo& collisionInfo) override
+  void handleInput(CollisionInfo& collisionInfo) override
+  {
+    collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
+    setCameraRotationAroundCenterY(75_deg);
+    if(!getEngine().getInputHandler().getInputState().action)
     {
-        collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-        setCameraRotationAroundCenterY(75_deg);
-        if(!getEngine().getInputHandler().getInputState().action)
-        {
-            setGoalAnimState(LaraStateId::Stop);
-        }
+      setGoalAnimState(LaraStateId::Stop);
     }
+  }
 };
 } // namespace lara
 } // namespace engine

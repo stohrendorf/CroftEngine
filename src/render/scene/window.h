@@ -9,45 +9,45 @@ namespace scene
 {
 class Window final
 {
-public:
-    explicit Window(bool fullscreen = false, const Dimension2<int>& resolution = {1280, 800});
+  public:
+  explicit Window(bool fullscreen = false, const Dimension2<int>& resolution = {1280, 800});
 
-    bool isVsync() const;
+  bool isVsync() const;
 
-    void setVsync(bool enable);
+  void setVsync(bool enable);
 
-    bool updateWindowSize();
+  bool updateWindowSize();
 
-    bool windowShouldClose() const
-    {
-        glfwPollEvents();
+  bool windowShouldClose() const
+  {
+    glfwPollEvents();
 
-        return glfwWindowShouldClose(m_window) == GLFW_TRUE;
-    }
+    return glfwWindowShouldClose(m_window) == GLFW_TRUE;
+  }
 
-    void swapBuffers() const;
+  void swapBuffers() const;
 
-    GLFWwindow* getWindow() const
-    {
-        return m_window;
-    }
+  GLFWwindow* getWindow() const
+  {
+    return m_window;
+  }
 
-    void setViewport(const Dimension2<size_t>& viewport);
+  void setViewport(const Dimension2<size_t>& viewport);
 
-    float getAspectRatio() const
-    {
-        return static_cast<float>(m_viewport.width) / m_viewport.height;
-    }
+  float getAspectRatio() const
+  {
+    return static_cast<float>(m_viewport.width) / m_viewport.height;
+  }
 
-    const Dimension2<size_t>& getViewport() const
-    {
-        return m_viewport;
-    }
+  const Dimension2<size_t>& getViewport() const
+  {
+    return m_viewport;
+  }
 
-private:
-    GLFWwindow* m_window = nullptr;
-    bool m_vsync = false;
-    Dimension2<size_t> m_viewport; // the games's current viewport.
+  private:
+  GLFWwindow* m_window = nullptr;
+  bool m_vsync = false;
+  Dimension2<size_t> m_viewport; // the games's current viewport.
 };
 } // namespace scene
 } // namespace render

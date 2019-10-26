@@ -41,426 +41,425 @@ namespace items
 {
 struct InteractionLimits
 {
-    core::BoundingBox distance;
-    core::TRRotation minAngle;
-    core::TRRotation maxAngle;
+  core::BoundingBox distance;
+  core::TRRotation minAngle;
+  core::TRRotation maxAngle;
 
-    InteractionLimits(const core::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
-        : distance{bbox}
-        , minAngle{min}
-        , maxAngle{max}
-    {
-        distance.makeValid();
-    }
+  InteractionLimits(const core::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
+      : distance{bbox}
+      , minAngle{min}
+      , maxAngle{max}
+  {
+    distance.makeValid();
+  }
 
-    bool canInteract(const ItemState& item, const ItemState& lara) const;
+  bool canInteract(const ItemState& item, const ItemState& lara) const;
 };
 
 enum class TriggerState
 {
-    Inactive,
-    Active,
-    Deactivated,
-    Invisible
+  Inactive,
+  Active,
+  Deactivated,
+  Invisible
 };
 
 struct ItemState final : public audio::Emitter
 {
-    explicit ItemState(const gsl::not_null<audio::SoundEngine*>& engine,
-                       const gsl::not_null<const loader::file::Room*>& room,
-                       const core::TypeId type)
-        : Emitter{engine}
-        , type{type}
-        , position{room}
+  explicit ItemState(const gsl::not_null<audio::SoundEngine*>& engine,
+                     const gsl::not_null<const loader::file::Room*>& room,
+                     const core::TypeId type)
+      : Emitter{engine}
+      , type{type}
+      , position{room}
+  {
+  }
+
+  ItemState(const ItemState&) = default;
+
+  ItemState(ItemState&&) = default;
+
+  ItemState& operator=(const ItemState&) = default;
+
+  ItemState& operator=(ItemState&&) = default;
+
+  ~ItemState() override;
+
+  glm::vec3 getPosition() const final;
+
+  core::TypeId type;
+  core::RoomBoundPosition position;
+  core::TRRotation rotation;
+  core::Speed speed = 0_spd;
+  core::Speed fallspeed = 0_spd;
+  core::AnimStateId current_anim_state = 0_as;
+  core::AnimStateId goal_anim_state = 0_as;
+  core::AnimStateId required_anim_state = 0_as;
+  const loader::file::Animation* anim = nullptr;
+  core::Frame frame_number = 0_frame;
+  core::Health health = 0_hp;
+  TriggerState triggerState = TriggerState::Inactive;
+  core::Frame timer = 0_frame;
+  floordata::ActivationState activationState;
+  core::Length floor = 0_len;
+  std::bitset<32> touch_bits;
+  const loader::file::Box* box = nullptr;
+  int16_t shade = -1;
+  std::bitset<32> mesh_bits;
+
+  bool falling = false;
+  bool is_hit = false;
+  bool collidable = true;
+  bool already_looked_at = false;
+  bool dynamic_light = false;
+
+  std::shared_ptr<ai::CreatureInfo> creatureInfo;
+
+  YAML::Node save(const Engine& engine) const;
+
+  void load(const YAML::Node& n, const Engine& engine);
+
+  bool updateActivationTimeout()
+  {
+    if(!activationState.isFullyActivated())
     {
+      return activationState.isInverted();
     }
 
-    ItemState(const ItemState&) = default;
+    if(timer == 0_frame)
+      return !activationState.isInverted();
 
-    ItemState(ItemState&&) = default;
+    if(timer < 0_frame)
+      return activationState.isInverted();
 
-    ItemState& operator=(const ItemState&) = default;
+    timer -= 1_frame;
+    if(timer == 0_frame)
+      timer = -1_frame;
 
-    ItemState& operator=(ItemState&&) = default;
+    return !activationState.isInverted();
+  }
 
-    ~ItemState() override;
+  bool stalkBox(const Engine& engine, const loader::file::Box& targetBox) const;
 
-    glm::vec3 getPosition() const final;
+  bool isInsideZoneButNotInBox(const Engine& engine, int16_t zoneId, const loader::file::Box& targetBox) const;
 
-    core::TypeId type;
-    core::RoomBoundPosition position;
-    core::TRRotation rotation;
-    core::Speed speed = 0_spd;
-    core::Speed fallspeed = 0_spd;
-    core::AnimStateId current_anim_state = 0_as;
-    core::AnimStateId goal_anim_state = 0_as;
-    core::AnimStateId required_anim_state = 0_as;
-    const loader::file::Animation* anim = nullptr;
-    core::Frame frame_number = 0_frame;
-    core::Health health = 0_hp;
-    TriggerState triggerState = TriggerState::Inactive;
-    core::Frame timer = 0_frame;
-    floordata::ActivationState activationState;
-    core::Length floor = 0_len;
-    std::bitset<32> touch_bits;
-    const loader::file::Box* box = nullptr;
-    int16_t shade = -1;
-    std::bitset<32> mesh_bits;
+  bool inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& targetBox) const;
 
-    bool falling = false;
-    bool is_hit = false;
-    bool collidable = true;
-    bool already_looked_at = false;
-    bool dynamic_light = false;
+  void initCreatureInfo(const Engine& engine);
 
-    std::shared_ptr<ai::CreatureInfo> creatureInfo;
+  void collectZoneBoxes(const Engine& engine);
 
-    YAML::Node save(const Engine& engine) const;
+  const loader::file::Sector* getCurrentSector() const
+  {
+    return position.room->getSectorByAbsolutePosition(position.position);
+  }
 
-    void load(const YAML::Node& n, const Engine& engine);
-
-    bool updateActivationTimeout()
-    {
-        if(!activationState.isFullyActivated())
-        {
-            return activationState.isInverted();
-        }
-
-        if(timer == 0_frame)
-            return !activationState.isInverted();
-
-        if(timer < 0_frame)
-            return activationState.isInverted();
-
-        timer -= 1_frame;
-        if(timer == 0_frame)
-            timer = -1_frame;
-
-        return !activationState.isInverted();
-    }
-
-    bool stalkBox(const Engine& engine, const loader::file::Box& targetBox) const;
-
-    bool isInsideZoneButNotInBox(const Engine& engine, int16_t zoneId, const loader::file::Box& targetBox) const;
-
-    bool inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& targetBox) const;
-
-    void initCreatureInfo(const Engine& engine);
-
-    void collectZoneBoxes(const Engine& engine);
-
-    const loader::file::Sector* getCurrentSector() const
-    {
-        return position.room->getSectorByAbsolutePosition(position.position);
-    }
-
-    void loadObjectInfo(const sol::state& engine);
+  void loadObjectInfo(const sol::state& engine);
 };
 
 class ItemNode
 {
-    const gsl::not_null<Engine*> m_engine;
+  const gsl::not_null<Engine*> m_engine;
 
-public:
-    ItemState m_state;
+  public:
+  ItemState m_state;
 
-    bool m_isActive = false;
+  bool m_isActive = false;
 
-    const bool m_hasUpdateFunction;
+  const bool m_hasUpdateFunction;
 
-    Lighting m_lighting;
+  Lighting m_lighting;
 
-    enum class AnimCommandOpcode : uint16_t
+  enum class AnimCommandOpcode : uint16_t
+  {
+    SetPosition = 1,
+    StartFalling = 2,
+    EmptyHands = 3,
+    Kill = 4,
+    PlaySound = 5,
+    PlayEffect = 6,
+    Interact = 7
+  };
+
+  ItemNode(const gsl::not_null<Engine*>& engine,
+           const gsl::not_null<const loader::file::Room*>& room,
+           const loader::file::Item& item,
+           bool hasUpdateFunction);
+
+  ItemNode(const ItemNode&) = delete;
+
+  ItemNode(ItemNode&&) = delete;
+
+  ItemNode& operator=(const ItemNode&) = delete;
+
+  ItemNode& operator=(ItemNode&&) = delete;
+
+  virtual ~ItemNode() = default;
+
+  virtual void update() = 0;
+
+  virtual std::shared_ptr<render::scene::Node> getNode() const = 0;
+
+  void setCurrentRoom(const gsl::not_null<const loader::file::Room*>& newRoom);
+
+  void applyTransform();
+
+  void rotate(const core::Angle dx, const core::Angle dy, const core::Angle dz)
+  {
+    m_state.rotation.X += dx;
+    m_state.rotation.Y += dy;
+    m_state.rotation.Z += dz;
+  }
+
+  void move(const core::Length dx, const core::Length dy, const core::Length dz)
+  {
+    m_state.position.position.X += dx;
+    m_state.position.position.Y += dy;
+    m_state.position.position.Z += dz;
+  }
+
+  void move(const glm::vec3& d)
+  {
+    m_state.position.position += core::TRVec(d);
+  }
+
+  void moveLocal(const core::TRVec d)
+  {
+    m_state.position.position += util::pitch(d, m_state.rotation.Y);
+  }
+
+  const Engine& getEngine() const
+  {
+    return *m_engine;
+  }
+
+  Engine& getEngine()
+  {
+    return *m_engine;
+  }
+
+  void dampenHorizontalSpeed(const float f)
+  {
+    m_state.speed -= (m_state.speed.retype_as<float>() * f).retype_as<core::Speed>();
+  }
+
+  virtual void patchFloor(const core::TRVec& /*pos*/, core::Length& /*y*/)
+  {
+  }
+
+  virtual void patchCeiling(const core::TRVec& /*pos*/, core::Length& /*y*/)
+  {
+  }
+
+  void activate();
+
+  void deactivate();
+
+  virtual bool triggerSwitch(core::Frame timeout) = 0;
+
+  std::shared_ptr<audio::SourceHandle> playSoundEffect(core::SoundId id);
+
+  bool triggerPickUp();
+
+  bool triggerKey();
+
+  virtual core::Angle getMovementAngle() const
+  {
+    return m_state.rotation.Y;
+  }
+
+  bool alignTransform(const core::TRVec& speed, const ItemNode& target)
+  {
+    auto targetPos = target.m_state.position.position.toRenderSystem();
+    targetPos += glm::vec3{target.m_state.rotation.toMatrix() * glm::vec4{speed.toRenderSystem(), 1.0f}};
+
+    return alignTransformClamped(core::TRVec{targetPos}, target.m_state.rotation, 16_len, 364_au);
+  }
+
+  void updateLighting();
+
+  virtual loader::file::BoundingBox getBoundingBox() const = 0;
+
+  virtual void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/)
+  {
+  }
+
+  void kill();
+
+  virtual YAML::Node save() const;
+
+  virtual void load(const YAML::Node& n);
+
+  void playShotMissed(const core::RoomBoundPosition& pos);
+
+  boost::optional<core::Length> getWaterSurfaceHeight() const;
+
+  protected:
+  bool alignTransformClamped(const core::TRVec& targetPos,
+                             const core::TRRotation& targetRot,
+                             const core::Length maxDistance,
+                             const core::Angle& maxAngle)
+  {
+    auto d = targetPos - m_state.position.position;
+    const auto dist = d.length();
+    if(maxDistance < dist)
     {
-        SetPosition = 1,
-        StartFalling = 2,
-        EmptyHands = 3,
-        Kill = 4,
-        PlaySound = 5,
-        PlayEffect = 6,
-        Interact = 7
-    };
-
-    ItemNode(const gsl::not_null<Engine*>& engine,
-             const gsl::not_null<const loader::file::Room*>& room,
-             const loader::file::Item& item,
-             bool hasUpdateFunction);
-
-    ItemNode(const ItemNode&) = delete;
-
-    ItemNode(ItemNode&&) = delete;
-
-    ItemNode& operator=(const ItemNode&) = delete;
-
-    ItemNode& operator=(ItemNode&&) = delete;
-
-    virtual ~ItemNode() = default;
-
-    virtual void update() = 0;
-
-    virtual std::shared_ptr<render::scene::Node> getNode() const = 0;
-
-    void setCurrentRoom(const gsl::not_null<const loader::file::Room*>& newRoom);
-
-    void applyTransform();
-
-    void rotate(const core::Angle dx, const core::Angle dy, const core::Angle dz)
+      move(maxDistance.retype_as<float>().get() * normalize(d.toRenderSystem()));
+    }
+    else
     {
-        m_state.rotation.X += dx;
-        m_state.rotation.Y += dy;
-        m_state.rotation.Z += dz;
+      m_state.position.position = targetPos;
     }
 
-    void move(const core::Length dx, const core::Length dy, const core::Length dz)
-    {
-        m_state.position.position.X += dx;
-        m_state.position.position.Y += dy;
-        m_state.position.position.Z += dz;
-    }
+    core::TRRotation phi = targetRot - m_state.rotation;
+    m_state.rotation.X += util::clamp(phi.X, -maxAngle, maxAngle);
+    m_state.rotation.Y += util::clamp(phi.Y, -maxAngle, maxAngle);
+    m_state.rotation.Z += util::clamp(phi.Z, -maxAngle, maxAngle);
 
-    void move(const glm::vec3& d)
-    {
-        m_state.position.position += core::TRVec(d);
-    }
+    phi = targetRot - m_state.rotation;
+    d = targetPos - m_state.position.position;
 
-    void moveLocal(const core::TRVec d)
-    {
-        m_state.position.position += util::pitch(d, m_state.rotation.Y);
-    }
-
-    const Engine& getEngine() const
-    {
-        return *m_engine;
-    }
-
-    Engine& getEngine()
-    {
-        return *m_engine;
-    }
-
-    void dampenHorizontalSpeed(const float f)
-    {
-        m_state.speed -= (m_state.speed.retype_as<float>() * f).retype_as<core::Speed>();
-    }
-
-    virtual void patchFloor(const core::TRVec& /*pos*/, core::Length& /*y*/)
-    {
-    }
-
-    virtual void patchCeiling(const core::TRVec& /*pos*/, core::Length& /*y*/)
-    {
-    }
-
-    void activate();
-
-    void deactivate();
-
-    virtual bool triggerSwitch(core::Frame timeout) = 0;
-
-    std::shared_ptr<audio::SourceHandle> playSoundEffect(core::SoundId id);
-
-    bool triggerPickUp();
-
-    bool triggerKey();
-
-    virtual core::Angle getMovementAngle() const
-    {
-        return m_state.rotation.Y;
-    }
-
-    bool alignTransform(const core::TRVec& speed, const ItemNode& target)
-    {
-        auto targetPos = target.m_state.position.position.toRenderSystem();
-        targetPos += glm::vec3{target.m_state.rotation.toMatrix() * glm::vec4{speed.toRenderSystem(), 1.0f}};
-
-        return alignTransformClamped(core::TRVec{targetPos}, target.m_state.rotation, 16_len, 364_au);
-    }
-
-    void updateLighting();
-
-    virtual loader::file::BoundingBox getBoundingBox() const = 0;
-
-    virtual void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/)
-    {
-    }
-
-    void kill();
-
-    virtual YAML::Node save() const;
-
-    virtual void load(const YAML::Node& n);
-
-    void playShotMissed(const core::RoomBoundPosition& pos);
-
-    boost::optional<core::Length> getWaterSurfaceHeight() const;
-
-protected:
-    bool alignTransformClamped(const core::TRVec& targetPos,
-                               const core::TRRotation& targetRot,
-                               const core::Length maxDistance,
-                               const core::Angle& maxAngle)
-    {
-        auto d = targetPos - m_state.position.position;
-        const auto dist = d.length();
-        if(maxDistance < dist)
-        {
-            move(maxDistance.retype_as<float>().get() * normalize(d.toRenderSystem()));
-        }
-        else
-        {
-            m_state.position.position = targetPos;
-        }
-
-        core::TRRotation phi = targetRot - m_state.rotation;
-        m_state.rotation.X += util::clamp(phi.X, -maxAngle, maxAngle);
-        m_state.rotation.Y += util::clamp(phi.Y, -maxAngle, maxAngle);
-        m_state.rotation.Z += util::clamp(phi.Z, -maxAngle, maxAngle);
-
-        phi = targetRot - m_state.rotation;
-        d = targetPos - m_state.position.position;
-
-        return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au && d.X == 0_len && d.Y == 0_len
-               && d.Z == 0_len;
-    }
+    return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au && d.X == 0_len && d.Y == 0_len && d.Z == 0_len;
+  }
 };
 
 class ModelItemNode : public ItemNode
 {
-protected:
-    std::shared_ptr<SkeletalModelNode> m_skeleton;
+  protected:
+  std::shared_ptr<SkeletalModelNode> m_skeleton;
 
-public:
-    ModelItemNode(const gsl::not_null<Engine*>& engine,
-                  const gsl::not_null<const loader::file::Room*>& room,
-                  const loader::file::Item& item,
-                  bool hasUpdateFunction,
-                  const loader::file::SkeletalModelType& animatedModel);
+  public:
+  ModelItemNode(const gsl::not_null<Engine*>& engine,
+                const gsl::not_null<const loader::file::Room*>& room,
+                const loader::file::Item& item,
+                bool hasUpdateFunction,
+                const loader::file::SkeletalModelType& animatedModel);
 
-    ModelItemNode(const ModelItemNode&) = delete;
+  ModelItemNode(const ModelItemNode&) = delete;
 
-    ModelItemNode(ModelItemNode&&) = delete;
+  ModelItemNode(ModelItemNode&&) = delete;
 
-    ModelItemNode& operator=(const ModelItemNode&) = delete;
+  ModelItemNode& operator=(const ModelItemNode&) = delete;
 
-    ModelItemNode& operator=(ModelItemNode&&) = delete;
+  ModelItemNode& operator=(ModelItemNode&&) = delete;
 
-    ~ModelItemNode() override
+  ~ModelItemNode() override
+  {
+    if(m_skeleton != nullptr)
     {
-        if(m_skeleton != nullptr)
-        {
-            setParent(m_skeleton, nullptr);
-        }
+      setParent(m_skeleton, nullptr);
+    }
+  }
+
+  std::shared_ptr<render::scene::Node> getNode() const override
+  {
+    return m_skeleton;
+  }
+
+  const std::shared_ptr<SkeletalModelNode>& getSkeleton() const
+  {
+    return m_skeleton;
+  }
+
+  bool triggerSwitch(const core::Frame timeout) override
+  {
+    if(m_state.triggerState != TriggerState::Deactivated)
+    {
+      return false;
     }
 
-    std::shared_ptr<render::scene::Node> getNode() const override
+    if(m_state.current_anim_state == 0_as && timeout > 0_frame)
     {
-        return m_skeleton;
+      // switch has a timer
+      m_state.timer = timeout;
+      m_state.triggerState = TriggerState::Active;
+    }
+    else
+    {
+      deactivate();
+      m_state.triggerState = TriggerState::Inactive;
     }
 
-    const std::shared_ptr<SkeletalModelNode>& getSkeleton() const
-    {
-        return m_skeleton;
-    }
+    return true;
+  }
 
-    bool triggerSwitch(const core::Frame timeout) override
-    {
-        if(m_state.triggerState != TriggerState::Deactivated)
-        {
-            return false;
-        }
+  void update() override;
 
-        if(m_state.current_anim_state == 0_as && timeout > 0_frame)
-        {
-            // switch has a timer
-            m_state.timer = timeout;
-            m_state.triggerState = TriggerState::Active;
-        }
-        else
-        {
-            deactivate();
-            m_state.triggerState = TriggerState::Inactive;
-        }
+  void applyMovement(bool forLara);
 
-        return true;
-    }
+  loader::file::BoundingBox getBoundingBox() const override;
 
-    void update() override;
+  bool isNear(const ModelItemNode& other, const core::Length& radius) const;
 
-    void applyMovement(bool forLara);
+  bool isNear(const Particle& other, const core::Length& radius) const;
 
-    loader::file::BoundingBox getBoundingBox() const override;
+  bool testBoneCollision(const ModelItemNode& other);
 
-    bool isNear(const ModelItemNode& other, const core::Length& radius) const;
+  void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 
-    bool isNear(const Particle& other, const core::Length& radius) const;
+  gsl::not_null<std::shared_ptr<Particle>>
+    emitParticle(const core::TRVec& localPosition,
+                 size_t boneIndex,
+                 gsl::not_null<std::shared_ptr<Particle>> (*generate)(
+                   Engine& engine, const core::RoomBoundPosition& pos, core::Speed speed, core::Angle angle));
 
-    bool testBoneCollision(const ModelItemNode& other);
+  void load(const YAML::Node& n) override;
 
-    void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
-
-    gsl::not_null<std::shared_ptr<Particle>>
-        emitParticle(const core::TRVec& localPosition,
-                     size_t boneIndex,
-                     gsl::not_null<std::shared_ptr<Particle>> (*generate)(
-                         Engine& engine, const core::RoomBoundPosition& pos, core::Speed speed, core::Angle angle));
-
-    void load(const YAML::Node& n) override;
-
-    YAML::Node save() const override;
+  YAML::Node save() const override;
 };
 
 class SpriteItemNode : public ItemNode
 {
-private:
-    std::shared_ptr<render::scene::Node> m_node;
+  private:
+  std::shared_ptr<render::scene::Node> m_node;
 
-public:
-    SpriteItemNode(const gsl::not_null<Engine*>& engine,
-                   const std::string& name,
-                   const gsl::not_null<const loader::file::Room*>& room,
-                   const loader::file::Item& item,
-                   bool hasUpdateFunction,
-                   const loader::file::Sprite& sprite,
-                   const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
+  public:
+  SpriteItemNode(const gsl::not_null<Engine*>& engine,
+                 const std::string& name,
+                 const gsl::not_null<const loader::file::Room*>& room,
+                 const loader::file::Item& item,
+                 bool hasUpdateFunction,
+                 const loader::file::Sprite& sprite,
+                 const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
 
-    SpriteItemNode(const SpriteItemNode&) = delete;
+  SpriteItemNode(const SpriteItemNode&) = delete;
 
-    SpriteItemNode(SpriteItemNode&&) = delete;
+  SpriteItemNode(SpriteItemNode&&) = delete;
 
-    SpriteItemNode& operator=(const SpriteItemNode&) = delete;
+  SpriteItemNode& operator=(const SpriteItemNode&) = delete;
 
-    SpriteItemNode& operator=(SpriteItemNode&&) = delete;
+  SpriteItemNode& operator=(SpriteItemNode&&) = delete;
 
-    ~SpriteItemNode() override
+  ~SpriteItemNode() override
+  {
+    if(m_node != nullptr)
     {
-        if(m_node != nullptr)
-        {
-            setParent(m_node, nullptr);
-        }
+      setParent(m_node, nullptr);
     }
+  }
 
-    bool triggerSwitch(core::Frame) override
-    {
-        BOOST_THROW_EXCEPTION(std::runtime_error("triggerSwitch called on sprite"));
-    }
+  bool triggerSwitch(core::Frame) override
+  {
+    BOOST_THROW_EXCEPTION(std::runtime_error("triggerSwitch called on sprite"));
+  }
 
-    std::shared_ptr<render::scene::Node> getNode() const override
-    {
-        return m_node;
-    }
+  std::shared_ptr<render::scene::Node> getNode() const override
+  {
+    return m_node;
+  }
 
-    void update() override
-    {
-    }
+  void update() override
+  {
+  }
 
-    loader::file::BoundingBox getBoundingBox() const override
-    {
-        loader::file::BoundingBox bb;
-        bb.minX = bb.maxX = m_state.position.position.X;
-        bb.minY = bb.maxY = m_state.position.position.Y;
-        bb.minZ = bb.maxZ = m_state.position.position.Z;
-        return bb;
-    }
+  loader::file::BoundingBox getBoundingBox() const override
+  {
+    loader::file::BoundingBox bb;
+    bb.minX = bb.maxX = m_state.position.position.X;
+    bb.minY = bb.maxY = m_state.position.position.Y;
+    bb.minZ = bb.maxZ = m_state.position.position.Z;
+    return bb;
+  }
 };
 } // namespace items
 } // namespace engine

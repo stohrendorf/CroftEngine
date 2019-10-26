@@ -10,7 +10,7 @@ namespace audio
 {
 inline void loadALExtFunctions(const gsl::not_null<ALCdevice*>&)
 {
-    // Nothing to do here
+  // Nothing to do here
 }
 } // namespace audio
 

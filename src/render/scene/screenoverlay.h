@@ -18,39 +18,39 @@ class Model;
 
 class ScreenOverlay : public Renderable
 {
-public:
-    ScreenOverlay(const ScreenOverlay&) = delete;
+  public:
+  ScreenOverlay(const ScreenOverlay&) = delete;
 
-    ScreenOverlay(ScreenOverlay&&) = delete;
+  ScreenOverlay(ScreenOverlay&&) = delete;
 
-    ScreenOverlay& operator=(ScreenOverlay&&) = delete;
+  ScreenOverlay& operator=(ScreenOverlay&&) = delete;
 
-    ScreenOverlay& operator=(const ScreenOverlay&) = delete;
+  ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-    explicit ScreenOverlay(const Dimension2<size_t>& viewport);
+  explicit ScreenOverlay(const Dimension2<size_t>& viewport);
 
-    void init(const Dimension2<size_t>& viewport);
+  void init(const Dimension2<size_t>& viewport);
 
-    ~ScreenOverlay() override;
+  ~ScreenOverlay() override;
 
-    void render(RenderContext& context) override;
+  void render(RenderContext& context) override;
 
-    const auto& getImage() const
-    {
-        return m_image;
-    }
+  const auto& getImage() const
+  {
+    return m_image;
+  }
 
-    auto getTexture() const
-    {
-        return m_texture;
-    }
+  auto getTexture() const
+  {
+    return m_texture;
+  }
 
-private:
-    const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
+  private:
+  const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
 
-    gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_texture{std::make_shared<gl::Texture2D<gl::SRGBA8>>()};
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_texture{std::make_shared<gl::Texture2D<gl::SRGBA8>>()};
 
-    std::shared_ptr<Mesh> m_mesh{nullptr};
+  std::shared_ptr<Mesh> m_mesh{nullptr};
 };
 } // namespace scene
 } // namespace render

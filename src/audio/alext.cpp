@@ -4,7 +4,7 @@
 
 #ifndef AL_ALEXT_PROTOTYPES
 
-#    include <boost/log/trivial.hpp>
+#  include <boost/log/trivial.hpp>
 
 // ReSharper disable IdentifierTypo
 
@@ -49,56 +49,56 @@ LPALGETAUXILIARYEFFECTSLOTFV alGetAuxiliaryEffectSlotfv = nullptr;
 
 void audio::loadALExtFunctions(const gsl::not_null<ALCdevice*>& device)
 {
-    static bool isLoaded = false;
-    if(isLoaded)
-        return;
+  static bool isLoaded = false;
+  if(isLoaded)
+    return;
 
-    BOOST_LOG_TRIVIAL(info) << "OpenAL device extensions: " << alcGetString(device, ALC_EXTENSIONS);
-    BOOST_ASSERT(alcIsExtensionPresent(device, ALC_EXT_EFX_NAME) == ALC_TRUE);
+  BOOST_LOG_TRIVIAL(info) << "OpenAL device extensions: " << alcGetString(device, ALC_EXTENSIONS);
+  BOOST_ASSERT(alcIsExtensionPresent(device, ALC_EXT_EFX_NAME) == ALC_TRUE);
 
-#    define GETPROC(name)                                                               \
-        name = reinterpret_cast<decltype(name)>(AL_ASSERT_FN(alGetProcAddress(#name))); \
-        Expects(name != nullptr)
+#  define GETPROC(name)                                                             \
+    name = reinterpret_cast<decltype(name)>(AL_ASSERT_FN(alGetProcAddress(#name))); \
+    Expects(name != nullptr)
 
-    GETPROC(alGenEffects);
-    GETPROC(alDeleteEffects);
-    GETPROC(alIsEffect);
-    GETPROC(alEffecti);
-    GETPROC(alEffectiv);
-    GETPROC(alEffectf);
-    GETPROC(alEffectfv);
-    GETPROC(alGetEffecti);
-    GETPROC(alGetEffectiv);
-    GETPROC(alGetEffectf);
-    GETPROC(alGetEffectfv);
-    GETPROC(alGenFilters);
-    GETPROC(alDeleteFilters);
-    GETPROC(alIsFilter);
-    GETPROC(alFilteri);
-    GETPROC(alFilteriv);
-    GETPROC(alFilterf);
-    GETPROC(alFilterfv);
-    GETPROC(alGetFilteri);
-    GETPROC(alGetFilteriv);
-    GETPROC(alGetFilterf);
-    GETPROC(alGetFilterfv);
-    GETPROC(alGenAuxiliaryEffectSlots);
-    GETPROC(alDeleteAuxiliaryEffectSlots);
-    GETPROC(alIsAuxiliaryEffectSlot);
-    GETPROC(alAuxiliaryEffectSloti);
-    GETPROC(alAuxiliaryEffectSlotiv);
-    GETPROC(alAuxiliaryEffectSlotf);
-    GETPROC(alAuxiliaryEffectSlotfv);
-    GETPROC(alGetAuxiliaryEffectSloti);
-    GETPROC(alGetAuxiliaryEffectSlotiv);
-    GETPROC(alGetAuxiliaryEffectSlotf);
-    GETPROC(alGetAuxiliaryEffectSlotfv);
+  GETPROC(alGenEffects);
+  GETPROC(alDeleteEffects);
+  GETPROC(alIsEffect);
+  GETPROC(alEffecti);
+  GETPROC(alEffectiv);
+  GETPROC(alEffectf);
+  GETPROC(alEffectfv);
+  GETPROC(alGetEffecti);
+  GETPROC(alGetEffectiv);
+  GETPROC(alGetEffectf);
+  GETPROC(alGetEffectfv);
+  GETPROC(alGenFilters);
+  GETPROC(alDeleteFilters);
+  GETPROC(alIsFilter);
+  GETPROC(alFilteri);
+  GETPROC(alFilteriv);
+  GETPROC(alFilterf);
+  GETPROC(alFilterfv);
+  GETPROC(alGetFilteri);
+  GETPROC(alGetFilteriv);
+  GETPROC(alGetFilterf);
+  GETPROC(alGetFilterfv);
+  GETPROC(alGenAuxiliaryEffectSlots);
+  GETPROC(alDeleteAuxiliaryEffectSlots);
+  GETPROC(alIsAuxiliaryEffectSlot);
+  GETPROC(alAuxiliaryEffectSloti);
+  GETPROC(alAuxiliaryEffectSlotiv);
+  GETPROC(alAuxiliaryEffectSlotf);
+  GETPROC(alAuxiliaryEffectSlotfv);
+  GETPROC(alGetAuxiliaryEffectSloti);
+  GETPROC(alGetAuxiliaryEffectSlotiv);
+  GETPROC(alGetAuxiliaryEffectSlotf);
+  GETPROC(alGetAuxiliaryEffectSlotfv);
 
-    // ReSharper restore IdentifierTypo
+  // ReSharper restore IdentifierTypo
 
-#    undef GETPROC
+#  undef GETPROC
 
-    isLoaded = true;
+  isLoaded = true;
 }
 
 #endif

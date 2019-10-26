@@ -22,12 +22,12 @@ using Area = QS_COMBINE_UNITS(Length, *, Length);
 
 inline Length sqrt(const Area& area)
 {
-    return Length{static_cast<Length::type>(std::sqrt(area.get()))};
+  return Length{static_cast<Length::type>(std::sqrt(area.get()))};
 }
 
 constexpr Length lerp(const Length& a, const Length& b, float bias)
 {
-    return Length{static_cast<Length::type>(a.get() * (1 - bias) + b.get() * bias)};
+  return Length{static_cast<Length::type>(a.get() * (1 - bias) + b.get() * bias)};
 }
 
 using LengthF = Length::with_type<float>;
@@ -46,7 +46,7 @@ using Acceleration = QS_COMBINE_UNITS(Speed, /, Frame);
 
 inline auto sqrt(QS_COMBINE_UNITS(Acceleration, *, Length) value)
 {
-    return Speed{static_cast<Speed::type>(std::sqrt(value.get()))};
+  return Speed{static_cast<Speed::type>(std::sqrt(value.get()))};
 }
 } // namespace core
 

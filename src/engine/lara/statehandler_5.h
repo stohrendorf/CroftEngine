@@ -10,57 +10,57 @@ namespace lara
 {
 class StateHandler_5 final : public AbstractStateHandler
 {
-public:
-    explicit StateHandler_5(LaraNode& lara)
-        : AbstractStateHandler{lara, LaraStateId::RunBack}
+  public:
+  explicit StateHandler_5(LaraNode& lara)
+      : AbstractStateHandler{lara, LaraStateId::RunBack}
+  {
+  }
+
+  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  {
+    setGoalAnimState(LaraStateId::Stop);
+
+    if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
+      subYRotationSpeed(2.25_deg, -6_deg);
+    }
+    else if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    {
+      addYRotationSpeed(2.25_deg, 6_deg);
+    }
+  }
+
+  void postprocessFrame(CollisionInfo& collisionInfo) override
+  {
+    getLara().m_state.fallspeed = 0_spd;
+    getLara().m_state.falling = false;
+    collisionInfo.badPositiveDistance = core::HeightLimit;
+    collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
+    collisionInfo.badCeilingDistance = 0_len;
+    collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
+    collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
+    setMovementAngle(collisionInfo.facingAngle);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    if(stopIfCeilingBlocked(collisionInfo))
+    {
+      return;
     }
 
-    void handleInput(CollisionInfo& /*collisionInfo*/) override
+    if(collisionInfo.mid.floorSpace.y > 200_len)
     {
-        setGoalAnimState(LaraStateId::Stop);
-
-        if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
-        {
-            subYRotationSpeed(2.25_deg, -6_deg);
-        }
-        else if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
-        {
-            addYRotationSpeed(2.25_deg, 6_deg);
-        }
+      setAnimation(AnimationId::FREE_FALL_BACK, 1473_frame);
+      setGoalAnimState(LaraStateId::FallBackward);
+      getLara().m_state.fallspeed = 0_spd;
+      getLara().m_state.falling = true;
+      return;
     }
 
-    void postprocessFrame(CollisionInfo& collisionInfo) override
+    if(checkWallCollision(collisionInfo))
     {
-        getLara().m_state.fallspeed = 0_spd;
-        getLara().m_state.falling = false;
-        collisionInfo.badPositiveDistance = core::HeightLimit;
-        collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-        collisionInfo.badCeilingDistance = 0_len;
-        collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
-        collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
-        setMovementAngle(collisionInfo.facingAngle);
-        collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
-        if(stopIfCeilingBlocked(collisionInfo))
-        {
-            return;
-        }
-
-        if(collisionInfo.mid.floorSpace.y > 200_len)
-        {
-            setAnimation(AnimationId::FREE_FALL_BACK, 1473_frame);
-            setGoalAnimState(LaraStateId::FallBackward);
-            getLara().m_state.fallspeed = 0_spd;
-            getLara().m_state.falling = true;
-            return;
-        }
-
-        if(checkWallCollision(collisionInfo))
-        {
-            setAnimation(AnimationId::STAY_SOLID, 185_frame);
-        }
-        placeOnFloor(collisionInfo);
+      setAnimation(AnimationId::STAY_SOLID, 185_frame);
     }
+    placeOnFloor(collisionInfo);
+  }
 };
 } // namespace lara
 } // namespace engine

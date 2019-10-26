@@ -12,75 +12,75 @@ Stream::Stream(Device& device,
     , m_source{device.createSource().get()}
     , m_sampleBuffer(bufferSize * 2)
 {
-    BOOST_LOG_TRIVIAL(trace) << "Created AL stream with buffer size " << bufferSize << " and " << bufferCount
-                             << " buffers";
+  BOOST_LOG_TRIVIAL(trace) << "Created AL stream with buffer size " << bufferSize << " and " << bufferCount
+                           << " buffers";
 
-    Expects(bufferSize > 0);
-    Expects(bufferCount >= 2);
+  Expects(bufferSize > 0);
+  Expects(bufferCount >= 2);
 
-    m_buffers.reserve(bufferCount);
-    for(size_t i = 0; i < bufferCount; ++i)
-        m_buffers.emplace_back(std::make_shared<BufferHandle>());
+  m_buffers.reserve(bufferCount);
+  for(size_t i = 0; i < bufferCount; ++i)
+    m_buffers.emplace_back(std::make_shared<BufferHandle>());
 
-    init();
+  init();
 }
 
 void Stream::update()
 {
-    const auto src = m_source.lock();
+  const auto src = m_source.lock();
 
-    if(src == nullptr || src->isPaused())
-        return;
+  if(src == nullptr || src->isPaused())
+    return;
 
-    if(src->isStopped() && !m_looping)
-        return;
+  if(src->isStopped() && !m_looping)
+    return;
 
-    ALint processed = src->getBuffersProcessed();
-    Expects(processed >= 0 && static_cast<size_t>(processed) <= m_buffers.size());
+  ALint processed = src->getBuffersProcessed();
+  Expects(processed >= 0 && static_cast<size_t>(processed) <= m_buffers.size());
 
-    if(static_cast<size_t>(processed) >= m_buffers.size())
-        BOOST_LOG_TRIVIAL(warning) << "Lost stream sync";
+  if(static_cast<size_t>(processed) >= m_buffers.size())
+    BOOST_LOG_TRIVIAL(warning) << "Lost stream sync";
 
-    while(processed-- > 0)
+  while(processed-- > 0)
+  {
+    const auto bufId = src->unqueueBuffer();
+
+    bool foundBuffer = false;
+    for(const auto& buffer : m_buffers)
     {
-        const auto bufId = src->unqueueBuffer();
-
-        bool foundBuffer = false;
-        for(const auto& buffer : m_buffers)
-        {
-            if(bufId == buffer->get())
-            {
-                fillBuffer(*buffer);
-                src->queueBuffer(*buffer);
-                foundBuffer = true;
-                break;
-            }
-        }
-
-        if(!foundBuffer)
-            BOOST_LOG_TRIVIAL(warning) << "Got unexpected buffer ID #" << bufId;
+      if(bufId == buffer->get())
+      {
+        fillBuffer(*buffer);
+        src->queueBuffer(*buffer);
+        foundBuffer = true;
+        break;
+      }
     }
+
+    if(!foundBuffer)
+      BOOST_LOG_TRIVIAL(warning) << "Got unexpected buffer ID #" << bufId;
+  }
 }
 
 void Stream::init()
 {
-    const auto src = m_source.lock();
+  const auto src = m_source.lock();
 
-    if(src == nullptr)
-        return;
+  if(src == nullptr)
+    return;
 
-    fillBuffer(*m_buffers[0]);
-    src->queueBuffer(*m_buffers[0]);
+  fillBuffer(*m_buffers[0]);
+  src->queueBuffer(*m_buffers[0]);
 
-    fillBuffer(*m_buffers[1]);
-    src->queueBuffer(*m_buffers[1]);
+  fillBuffer(*m_buffers[1]);
+  src->queueBuffer(*m_buffers[1]);
 
-    src->play();
+  src->play();
 }
 
 void Stream::fillBuffer(BufferHandle& buffer)
 {
-    const auto framesRead = m_stream->readStereo(m_sampleBuffer.data(), m_sampleBuffer.size() / 2, m_looping);
-    buffer.fill(m_sampleBuffer.data(), framesRead * 2, 2, m_stream->getSampleRate());
+  const auto framesRead = m_stream->readStereo(m_sampleBuffer.data(), m_sampleBuffer.size() / 2, m_looping);
+  buffer.fill(m_sampleBuffer.data(), framesRead * 2, 2, m_stream->getSampleRate());
 }
 } // namespace audio

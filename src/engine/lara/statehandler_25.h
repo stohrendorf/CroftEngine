@@ -9,26 +9,26 @@ namespace lara
 {
 class StateHandler_25 final : public AbstractStateHandler
 {
-public:
-    explicit StateHandler_25(LaraNode& lara)
-        : AbstractStateHandler{lara, LaraStateId::JumpBack}
-    {
-    }
+  public:
+  explicit StateHandler_25(LaraNode& lara)
+      : AbstractStateHandler{lara, LaraStateId::JumpBack}
+  {
+  }
 
-    void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  {
+    setCameraRotationAroundCenterY(135_deg);
+    if(getLara().m_state.fallspeed > core::FreeFallSpeedThreshold)
     {
-        setCameraRotationAroundCenterY(135_deg);
-        if(getLara().m_state.fallspeed > core::FreeFallSpeedThreshold)
-        {
-            setGoalAnimState(LaraStateId::FreeFall);
-        }
+      setGoalAnimState(LaraStateId::FreeFall);
     }
+  }
 
-    void postprocessFrame(CollisionInfo& collisionInfo) override
-    {
-        setMovementAngle(getLara().m_state.rotation.Y + 180_deg);
-        commonJumpHandling(collisionInfo);
-    }
+  void postprocessFrame(CollisionInfo& collisionInfo) override
+  {
+    setMovementAngle(getLara().m_state.rotation.Y + 180_deg);
+    commonJumpHandling(collisionInfo);
+  }
 };
 } // namespace lara
 } // namespace engine

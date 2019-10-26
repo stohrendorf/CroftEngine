@@ -18,13 +18,13 @@ namespace file
 
 enum class ReverbType : uint8_t
 {
-    Outside,    // EFX_REVERB_PRESET_CITY
-    SmallRoom,  // EFX_REVERB_PRESET_LIVINGROOM
-    MediumRoom, // EFX_REVERB_PRESET_WOODEN_LONGPASSAGE
-    LargeRoom,  // EFX_REVERB_PRESET_DOME_TOMB
-    Pipe,       // EFX_REVERB_PRESET_PIPE_LARGE
-    Water,      // EFX_REVERB_PRESET_UNDERWATER
-    Sentinel
+  Outside,    // EFX_REVERB_PRESET_CITY
+  SmallRoom,  // EFX_REVERB_PRESET_LIVINGROOM
+  MediumRoom, // EFX_REVERB_PRESET_WOODEN_LONGPASSAGE
+  LargeRoom,  // EFX_REVERB_PRESET_DOME_TOMB
+  Pipe,       // EFX_REVERB_PRESET_PIPE_LARGE
+  Water,      // EFX_REVERB_PRESET_UNDERWATER
+  Sentinel
 };
 
 /** \brief SoundSource.
@@ -36,30 +36,30 @@ enum class ReverbType : uint8_t
 */
 struct SoundSource final
 {
-    core::TRVec position;
-    core::SoundId sound_id{uint16_t(0)};
-    uint16_t flags; // 0x40, 0x80, or 0xc0
+  core::TRVec position;
+  core::SoundId sound_id{uint16_t(0)};
+  uint16_t flags; // 0x40, 0x80, or 0xc0
 
-    static std::unique_ptr<SoundSource> read(io::SDLReader& reader)
-    {
-        std::unique_ptr<SoundSource> sound_source = std::make_unique<SoundSource>();
-        sound_source->position = readCoordinates32(reader);
-        sound_source->sound_id = reader.readU16();
-        sound_source->flags = reader.readU16();
-        return sound_source;
-    }
+  static std::unique_ptr<SoundSource> read(io::SDLReader& reader)
+  {
+    std::unique_ptr<SoundSource> sound_source = std::make_unique<SoundSource>();
+    sound_source->position = readCoordinates32(reader);
+    sound_source->sound_id = reader.readU16();
+    sound_source->flags = reader.readU16();
+    return sound_source;
+  }
 };
 
 enum class PlaybackType
 {
-    //! Play the sample once, then release the resources
-    None,
-    //! Loop the sample
-    Looping,
-    //! Restart already playing sample
-    Restart,
-    //! Sample cannot be played more than once at the same time
-    Wait
+  //! Play the sample once, then release the resources
+  None,
+  //! Loop the sample
+  Looping,
+  //! Restart already playing sample
+  Restart,
+  //! Sample cannot be played more than once at the same time
+  Wait
 };
 
 /** \brief SoundDetails.
@@ -71,98 +71,98 @@ enum class PlaybackType
 */
 struct SoundDetails
 {
-    // Default range and pitch values are required for compatibility with
-    // TR1 and TR2 levels, as there is no such parameters in SoundDetails
-    // structures.
+  // Default range and pitch values are required for compatibility with
+  // TR1 and TR2 levels, as there is no such parameters in SoundDetails
+  // structures.
 
-    static constexpr const int DefaultRange = 8;
-    //! @todo Check default value
-    static constexpr const int DefaultPitch = 128; // 0.0 - only noise
+  static constexpr const int DefaultRange = 8;
+  //! @todo Check default value
+  static constexpr const int DefaultPitch = 128; // 0.0 - only noise
 
-    core::SampleId sample{0u};           // Index into SampleIndices -- NOT USED IN TR4-5!!!
-    uint16_t volume;                     // Global sample value
-    uint16_t sound_range = DefaultRange; // Sound range
-    uint16_t chance;                     // Chance to play
-    int16_t pitch = DefaultPitch;        // Pitch shift
-    uint8_t sampleCountAndLoopType;      // Bits 0-1: Looped flag, bits 2-5: num samples, bits 6-7: UNUSED
-    uint8_t flags;
+  core::SampleId sample{0u};           // Index into SampleIndices -- NOT USED IN TR4-5!!!
+  uint16_t volume;                     // Global sample value
+  uint16_t sound_range = DefaultRange; // Sound range
+  uint16_t chance;                     // Chance to play
+  int16_t pitch = DefaultPitch;        // Pitch shift
+  uint8_t sampleCountAndLoopType;      // Bits 0-1: Looped flag, bits 2-5: num samples, bits 6-7: UNUSED
+  uint8_t flags;
 
-    PlaybackType getPlaybackType(const level::Engine engine) const
+  PlaybackType getPlaybackType(const level::Engine engine) const
+  {
+    if(engine == level::Engine::TR1)
     {
-        if(engine == level::Engine::TR1)
-        {
-            switch(sampleCountAndLoopType & 3u)
-            {
-            case 1: return PlaybackType::Restart;
-            case 2: return PlaybackType::Looping;
-            default: return PlaybackType::Wait;
-            }
-        }
-        else if(engine == level::Engine::TR2)
-        {
-            switch(sampleCountAndLoopType & 3u)
-            {
-            case 1: return PlaybackType::Restart;
-            case 3: return PlaybackType::Looping;
-            default: return PlaybackType::None;
-            }
-        }
-        else
-        {
-            switch(sampleCountAndLoopType & 3u)
-            {
-            case 1: return PlaybackType::Wait;
-            case 2: return PlaybackType::Restart;
-            case 3: return PlaybackType::Looping;
-            default: return PlaybackType::None;
-            }
-        }
+      switch(sampleCountAndLoopType & 3u)
+      {
+      case 1: return PlaybackType::Restart;
+      case 2: return PlaybackType::Looping;
+      default: return PlaybackType::Wait;
+      }
     }
-
-    uint8_t getSampleCount() const
+    else if(engine == level::Engine::TR2)
     {
-        return (sampleCountAndLoopType >> 2u) & 0x0fu;
+      switch(sampleCountAndLoopType & 3u)
+      {
+      case 1: return PlaybackType::Restart;
+      case 3: return PlaybackType::Looping;
+      default: return PlaybackType::None;
+      }
     }
-
-    //! @brief Whether to play this sample without orientation (no panning).
-    bool ignoreOrientation() const
+    else
     {
-        return (flags & 0x10u) != 0;
+      switch(sampleCountAndLoopType & 3u)
+      {
+      case 1: return PlaybackType::Wait;
+      case 2: return PlaybackType::Restart;
+      case 3: return PlaybackType::Looping;
+      default: return PlaybackType::None;
+      }
     }
+  }
 
-    bool useRandomPitch() const
-    {
-        return (flags & 0x20u) != 0;
-    }
+  uint8_t getSampleCount() const
+  {
+    return (sampleCountAndLoopType >> 2u) & 0x0fu;
+  }
 
-    bool useRandomVolume() const
-    {
-        return (flags & 0x40u) != 0;
-    }
+  //! @brief Whether to play this sample without orientation (no panning).
+  bool ignoreOrientation() const
+  {
+    return (flags & 0x10u) != 0;
+  }
 
-    static std::unique_ptr<SoundDetails> readTr1(io::SDLReader& reader)
-    {
-        std::unique_ptr<SoundDetails> sound_details = std::make_unique<SoundDetails>();
-        sound_details->sample = core::SampleId::type(reader.readU16());
-        sound_details->volume = reader.readU16();
-        sound_details->chance = reader.readU16();
-        sound_details->sampleCountAndLoopType = reader.readU8();
-        sound_details->flags = reader.readU8();
-        return sound_details;
-    }
+  bool useRandomPitch() const
+  {
+    return (flags & 0x20u) != 0;
+  }
 
-    static std::unique_ptr<SoundDetails> readTr3(io::SDLReader& reader)
-    {
-        std::unique_ptr<SoundDetails> sound_details = std::make_unique<SoundDetails>();
-        sound_details->sample = core::SampleId::type(reader.readU16());
-        sound_details->volume = reader.readU8();
-        sound_details->sound_range = reader.readU8();
-        sound_details->chance = reader.readU8();
-        sound_details->pitch = reader.readI8();
-        sound_details->sampleCountAndLoopType = reader.readU8();
-        sound_details->flags = reader.readU8();
-        return sound_details;
-    }
+  bool useRandomVolume() const
+  {
+    return (flags & 0x40u) != 0;
+  }
+
+  static std::unique_ptr<SoundDetails> readTr1(io::SDLReader& reader)
+  {
+    std::unique_ptr<SoundDetails> sound_details = std::make_unique<SoundDetails>();
+    sound_details->sample = core::SampleId::type(reader.readU16());
+    sound_details->volume = reader.readU16();
+    sound_details->chance = reader.readU16();
+    sound_details->sampleCountAndLoopType = reader.readU8();
+    sound_details->flags = reader.readU8();
+    return sound_details;
+  }
+
+  static std::unique_ptr<SoundDetails> readTr3(io::SDLReader& reader)
+  {
+    std::unique_ptr<SoundDetails> sound_details = std::make_unique<SoundDetails>();
+    sound_details->sample = core::SampleId::type(reader.readU16());
+    sound_details->volume = reader.readU8();
+    sound_details->sound_range = reader.readU8();
+    sound_details->chance = reader.readU8();
+    sound_details->pitch = reader.readI8();
+    sound_details->sampleCountAndLoopType = reader.readU8();
+    sound_details->flags = reader.readU8();
+    return sound_details;
+  }
 };
 } // namespace file
 } // namespace loader

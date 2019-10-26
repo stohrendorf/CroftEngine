@@ -9,23 +9,23 @@ namespace hid
 {
 class InputHandler final
 {
-public:
-    explicit InputHandler(const gsl::not_null<GLFWwindow*>& window);
+  public:
+  explicit InputHandler(const gsl::not_null<GLFWwindow*>& window);
 
-    void update();
+  void update();
 
-    const InputState& getInputState() const
-    {
-        return m_inputState;
-    }
+  const InputState& getInputState() const
+  {
+    return m_inputState;
+  }
 
-private:
-    InputState m_inputState{};
+  private:
+  InputState m_inputState{};
 
-    const gsl::not_null<GLFWwindow*> m_window;
-    double m_lastCursorX = 0;
-    double m_lastCursorY = 0;
+  const gsl::not_null<GLFWwindow*> m_window;
+  double m_lastCursorX = 0;
+  double m_lastCursorY = 0;
 
-    int m_controllerIndex = -1;
+  int m_controllerIndex = -1;
 };
 } // namespace hid

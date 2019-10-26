@@ -22,120 +22,120 @@ namespace core
 template<typename StorageType, typename Tag, typename... Enums>
 struct Id
 {
-    static_assert(tpl::is_all_enum_v<Enums...>, "Compatible types must be enums");
+  static_assert(tpl::is_all_enum_v<Enums...>, "Compatible types must be enums");
 
-    using type = StorageType;
-    using tag = Tag;
+  using type = StorageType;
+  using tag = Tag;
 
-    constexpr explicit Id(type value)
-        : m_value{value}
-    {
-    }
+  constexpr explicit Id(type value)
+      : m_value{value}
+  {
+  }
 
-    template<typename T>
-    constexpr Id(T value)
-        : m_value{static_cast<type>(value)}
-    {
-        static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible type");
-    }
+  template<typename T>
+  constexpr Id(T value)
+      : m_value{static_cast<type>(value)}
+  {
+    static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible type");
+  }
 
-    constexpr auto& operator=(type value)
-    {
-        m_value = value;
-        return *this;
-    }
+  constexpr auto& operator=(type value)
+  {
+    m_value = value;
+    return *this;
+  }
 
-    template<typename T>
-    constexpr auto& operator=(T value)
-    {
-        static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible type");
-        m_value = static_cast<type>(value);
-        return *this;
-    }
+  template<typename T>
+  constexpr auto& operator=(T value)
+  {
+    static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible type");
+    m_value = static_cast<type>(value);
+    return *this;
+  }
 
-    constexpr explicit operator type() const
-    {
-        return m_value;
-    }
+  constexpr explicit operator type() const
+  {
+    return m_value;
+  }
 
-    constexpr type get() const
-    {
-        return m_value;
-    }
+  constexpr type get() const
+  {
+    return m_value;
+  }
 
-    template<typename T>
-    constexpr T get_as() const
-    {
-        static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible target type");
-        return static_cast<T>(m_value);
-    }
+  template<typename T>
+  constexpr T get_as() const
+  {
+    static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible target type");
+    return static_cast<T>(m_value);
+  }
 
-    constexpr bool operator<(const Id<type, tag, Enums...> r) const
-    {
-        return get() < r.get();
-    }
+  constexpr bool operator<(const Id<type, tag, Enums...> r) const
+  {
+    return get() < r.get();
+  }
 
-    constexpr bool operator==(const Id<type, tag, Enums...> r) const
-    {
-        return get() == r.get();
-    }
+  constexpr bool operator==(const Id<type, tag, Enums...> r) const
+  {
+    return get() == r.get();
+  }
 
-    constexpr bool operator!=(const Id<type, tag, Enums...> r) const
-    {
-        return get() != r.get();
-    }
+  constexpr bool operator!=(const Id<type, tag, Enums...> r) const
+  {
+    return get() != r.get();
+  }
 
-    template<typename T>
-    constexpr bool operator==(const T r) const
-    {
-        return get_as<T>() == r;
-    }
+  template<typename T>
+  constexpr bool operator==(const T r) const
+  {
+    return get_as<T>() == r;
+  }
 
-    template<typename T>
-    constexpr bool operator!=(const T r) const
-    {
-        return get_as<T>() != r;
-    }
+  template<typename T>
+  constexpr bool operator!=(const T r) const
+  {
+    return get_as<T>() != r;
+  }
 
-    template<typename T>
-    constexpr bool operator<(const T r) const
-    {
-        return get_as<T>() < r;
-    }
+  template<typename T>
+  constexpr bool operator<(const T r) const
+  {
+    return get_as<T>() < r;
+  }
 
-    template<typename T>
-    constexpr bool operator<=(const T r) const
-    {
-        return get_as<T>() <= r;
-    }
+  template<typename T>
+  constexpr bool operator<=(const T r) const
+  {
+    return get_as<T>() <= r;
+  }
 
-    template<typename T>
-    constexpr bool operator>(const T r) const
-    {
-        return get_as<T>() > r;
-    }
+  template<typename T>
+  constexpr bool operator>(const T r) const
+  {
+    return get_as<T>() > r;
+  }
 
-    template<typename T>
-    constexpr bool operator>=(const T r) const
-    {
-        return get_as<T>() >= r;
-    }
+  template<typename T>
+  constexpr bool operator>=(const T r) const
+  {
+    return get_as<T>() >= r;
+  }
 
-private:
-    StorageType m_value;
+  private:
+  StorageType m_value;
 };
 
-#define DECLARE_ID(name, type)  \
-    struct name##_generated_tag \
-    {                           \
-    };                          \
-    using name = ::core::Id<type, name##_generated_tag>
+#define DECLARE_ID(name, type) \
+  struct name##_generated_tag  \
+  {                            \
+  };                           \
+  using name = ::core::Id<type, name##_generated_tag>
 
 #define DECLARE_ID_E(name, type, ...) \
-    struct name##_generated_tag       \
-    {                                 \
-    };                                \
-    using name = ::core::Id<type, name##_generated_tag, __VA_ARGS__>
+  struct name##_generated_tag         \
+  {                                   \
+  };                                  \
+  using name = ::core::Id<type, name##_generated_tag, __VA_ARGS__>
 
 DECLARE_ID(RoomId8, uint8_t);
 DECLARE_ID(RoomId16, uint16_t);
@@ -157,7 +157,7 @@ DECLARE_ID_E(SoundId, uint16_t, engine::TR1SoundId);
 
 inline constexpr AnimStateId operator"" _as(unsigned long long value)
 {
-    return AnimStateId{static_cast<AnimStateId::type>(value)};
+  return AnimStateId{static_cast<AnimStateId::type>(value)};
 }
 } // namespace core
 
@@ -168,10 +168,10 @@ namespace std
 template<typename StorageType, typename Tag>
 struct hash<core::Id<StorageType, Tag>>
 {
-    constexpr size_t operator()(const core::Id<StorageType, Tag>& v) const
-    {
-        return hash<StorageType>{}(v.get());
-    }
+  constexpr size_t operator()(const core::Id<StorageType, Tag>& v) const
+  {
+    return hash<StorageType>{}(v.get());
+  }
 };
 } // namespace std
 
@@ -181,43 +181,43 @@ namespace YAML
 template<typename Type, typename Tag, typename... Enums>
 struct convert<core::Id<Type, Tag, Enums...>>
 {
-    static Node encode(const core::Id<Type, Tag, Enums...>& rhs)
-    {
-        Node node{NodeType::Scalar};
-        node = rhs.get();
-        return node;
-    }
+  static Node encode(const core::Id<Type, Tag, Enums...>& rhs)
+  {
+    Node node{NodeType::Scalar};
+    node = rhs.get();
+    return node;
+  }
 
-    static bool decode(const Node& node, core::Id<Type, Tag, Enums...>& rhs)
-    {
-        if(!node.IsScalar())
-            return false;
+  static bool decode(const Node& node, core::Id<Type, Tag, Enums...>& rhs)
+  {
+    if(!node.IsScalar())
+      return false;
 
-        rhs = core::Id<Type, Tag, Enums...>{node.as<Type>()};
-        return true;
-    }
+    rhs = core::Id<Type, Tag, Enums...>{node.as<Type>()};
+    return true;
+  }
 };
 
 template<typename Type, typename Tag, typename... Enums>
 struct as_if<core::Id<Type, Tag, Enums...>, void>
 {
-    explicit as_if(const Node& node_)
-        : node{node_}
-    {
-    }
+  explicit as_if(const Node& node_)
+      : node{node_}
+  {
+  }
 
-    const Node& node;
+  const Node& node;
 
-    core::Id<Type, Tag, Enums...> operator()() const
-    {
-        if(!node.m_pNode)
-            throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
+  core::Id<Type, Tag, Enums...> operator()() const
+  {
+    if(!node.m_pNode)
+      throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
 
-        core::Id<Type, Tag, Enums...> t{Type{0}};
-        if(convert<core::Id<Type, Tag, Enums...>>::decode(node, t))
-            return t;
-        throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
-    }
+    core::Id<Type, Tag, Enums...> t{Type{0}};
+    if(convert<core::Id<Type, Tag, Enums...>>::decode(node, t))
+      return t;
+    throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
+  }
 };
 } // namespace YAML
 
@@ -226,10 +226,10 @@ namespace std
 template<>
 struct hash<core::TextureTileId>
 {
-    size_t operator()(const core::TextureTileId& x) const noexcept
-    {
-        return std::hash<core::TextureTileId::type>()(x.get());
-    }
+  size_t operator()(const core::TextureTileId& x) const noexcept
+  {
+    return std::hash<core::TextureTileId::type>()(x.get());
+  }
 };
 
 }

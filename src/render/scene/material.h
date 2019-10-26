@@ -15,45 +15,45 @@ class Node;
 
 class Material final
 {
-public:
-    explicit Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram);
+  public:
+  explicit Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram);
 
-    Material(const Material&) = delete;
+  Material(const Material&) = delete;
 
-    Material(Material&&) = delete;
+  Material(Material&&) = delete;
 
-    Material& operator=(const Material&) = delete;
+  Material& operator=(const Material&) = delete;
 
-    Material& operator=(Material&&) = delete;
+  Material& operator=(Material&&) = delete;
 
-    ~Material();
+  ~Material();
 
-    explicit Material(const std::string& vshPath,
-                      const std::string& fshPath,
-                      const std::vector<std::string>& defines = {});
+  explicit Material(const std::string& vshPath,
+                    const std::string& fshPath,
+                    const std::vector<std::string>& defines = {});
 
-    const gsl::not_null<std::shared_ptr<ShaderProgram>>& getShaderProgram() const
-    {
-        return m_shaderProgram;
-    }
+  const gsl::not_null<std::shared_ptr<ShaderProgram>>& getShaderProgram() const
+  {
+    return m_shaderProgram;
+  }
 
-    void bind(const Node& node) const;
+  void bind(const Node& node) const;
 
-    gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const;
-    gsl::not_null<std::shared_ptr<BufferParameter>> getBuffer(const std::string& name) const;
+  gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const;
+  gsl::not_null<std::shared_ptr<BufferParameter>> getBuffer(const std::string& name) const;
 
-    render::gl::RenderState& getRenderState()
-    {
-        return m_renderState;
-    }
+  render::gl::RenderState& getRenderState()
+  {
+    return m_renderState;
+  }
 
-private:
-    gsl::not_null<std::shared_ptr<ShaderProgram>> m_shaderProgram;
+  private:
+  gsl::not_null<std::shared_ptr<ShaderProgram>> m_shaderProgram;
 
-    mutable std::vector<gsl::not_null<std::shared_ptr<UniformParameter>>> m_uniforms;
-    mutable std::vector<gsl::not_null<std::shared_ptr<BufferParameter>>> m_buffers;
+  mutable std::vector<gsl::not_null<std::shared_ptr<UniformParameter>>> m_uniforms;
+  mutable std::vector<gsl::not_null<std::shared_ptr<BufferParameter>>> m_buffers;
 
-    render::gl::RenderState m_renderState{};
+  render::gl::RenderState m_renderState{};
 };
 } // namespace scene
 } // namespace render

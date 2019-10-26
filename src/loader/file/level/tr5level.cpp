@@ -7,223 +7,223 @@ using namespace loader::file::level;
 
 void TR5Level::loadFileData()
 {
-    // Version
-    const uint32_t file_version = m_reader.readU32();
+  // Version
+  const uint32_t file_version = m_reader.readU32();
 
-    if(file_version != 0x00345254)
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: Wrong level version"));
+  if(file_version != 0x00345254)
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: Wrong level version"));
 
-    const auto numRoomTextiles = m_reader.readU16();
-    const auto numObjTextiles = m_reader.readU16();
-    const auto numBumpTextiles = m_reader.readU16();
-    const auto numMiscTextiles = 3;
-    const auto numTextiles = numRoomTextiles + numObjTextiles + numBumpTextiles + numMiscTextiles;
+  const auto numRoomTextiles = m_reader.readU16();
+  const auto numObjTextiles = m_reader.readU16();
+  const auto numBumpTextiles = m_reader.readU16();
+  const auto numMiscTextiles = 3;
+  const auto numTextiles = numRoomTextiles + numObjTextiles + numBumpTextiles + numMiscTextiles;
 
-    auto uncomp_size = m_reader.readU32();
-    if(uncomp_size == 0)
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: textiles32 is empty"));
+  auto uncomp_size = m_reader.readU32();
+  if(uncomp_size == 0)
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: textiles32 is empty"));
 
-    auto comp_size = m_reader.readU32();
-    if(comp_size > 0)
+  auto comp_size = m_reader.readU32();
+  if(comp_size > 0)
+  {
+    std::vector<uint8_t> comp_buffer(comp_size);
+    m_reader.readBytes(comp_buffer.data(), comp_size);
+
+    auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
+    newsrc.readVector(m_textures, numTextiles - numMiscTextiles, &DWordTexture::read);
+  }
+
+  uncomp_size = m_reader.readU32();
+  if(uncomp_size == 0)
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: textiles16 is empty"));
+
+  comp_size = m_reader.readU32();
+  std::vector<WordTexture> texture16;
+  if(comp_size > 0)
+  {
+    if(m_textures.empty())
     {
-        std::vector<uint8_t> comp_buffer(comp_size);
-        m_reader.readBytes(comp_buffer.data(), comp_size);
+      std::vector<uint8_t> comp_buffer(comp_size);
+      m_reader.readBytes(comp_buffer.data(), comp_size);
 
-        auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-        newsrc.readVector(m_textures, numTextiles - numMiscTextiles, &DWordTexture::read);
+      auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
+      newsrc.readVector(texture16, numTextiles - numMiscTextiles, &WordTexture::read);
     }
-
-    uncomp_size = m_reader.readU32();
-    if(uncomp_size == 0)
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: textiles16 is empty"));
-
-    comp_size = m_reader.readU32();
-    std::vector<WordTexture> texture16;
-    if(comp_size > 0)
+    else
     {
-        if(m_textures.empty())
-        {
-            std::vector<uint8_t> comp_buffer(comp_size);
-            m_reader.readBytes(comp_buffer.data(), comp_size);
-
-            auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-            newsrc.readVector(texture16, numTextiles - numMiscTextiles, &WordTexture::read);
-        }
-        else
-        {
-            m_reader.skip(comp_size);
-        }
+      m_reader.skip(comp_size);
     }
+  }
 
-    uncomp_size = m_reader.readU32();
-    if(uncomp_size == 0)
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: textiles32d is empty"));
+  uncomp_size = m_reader.readU32();
+  if(uncomp_size == 0)
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: textiles32d is empty"));
 
-    comp_size = m_reader.readU32();
-    if(comp_size > 0)
+  comp_size = m_reader.readU32();
+  if(comp_size > 0)
+  {
+    if(uncomp_size / (256 * 256 * 4) > 3)
+      BOOST_LOG_TRIVIAL(warning) << "TR5 Level: number of misc textiles > 3";
+
+    std::vector<uint8_t> comp_buffer(comp_size);
+    m_reader.readBytes(comp_buffer.data(), comp_size);
+
+    auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
+    newsrc.appendVector(m_textures, numMiscTextiles, &DWordTexture::read);
+  }
+
+  m_laraType = m_reader.readU16();
+  m_weatherType = m_reader.readU16();
+
+  if(m_reader.readU32() != 0)
+    BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 1)";
+
+  if(m_reader.readU32() != 0)
+    BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 2)";
+
+  if(m_reader.readU32() != 0)
+    BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 3)";
+
+  if(m_reader.readU32() != 0)
+    BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 4)";
+
+  if(m_reader.readU32() != 0)
+    BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 5)";
+
+  if(m_reader.readU32() != 0)
+    BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 6)";
+
+  if(m_reader.readU32() != 0)
+    BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 7)";
+
+  // LevelDataSize1
+  m_reader.readU32();
+  // LevelDataSize2
+  m_reader.readU32();
+
+  // Unused
+  if(m_reader.readU32() != 0)
+    BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value for 'unused'";
+
+  m_reader.readVector(m_rooms, m_reader.readU32(), &Room::readTr5);
+
+  m_reader.readVector(m_floorData, m_reader.readU32());
+
+  readMeshData(m_reader);
+
+  m_reader.readVector(m_animations, m_reader.readU32(), &Animation::readTr4);
+
+  m_reader.readVector(m_transitions, m_reader.readU32(), &Transitions::read);
+
+  m_reader.readVector(m_transitionCases, m_reader.readU32(), &TransitionCase::read);
+
+  m_reader.readVector(m_animCommands, m_reader.readU32());
+
+  m_reader.readVector(m_boneTrees, m_reader.readU32());
+
+  m_reader.readVector(m_poseFrames, m_reader.readU32());
+
+  {
+    const auto n = m_reader.readU32();
+    for(uint32_t i = 0; i < n; ++i)
     {
-        if(uncomp_size / (256 * 256 * 4) > 3)
-            BOOST_LOG_TRIVIAL(warning) << "TR5 Level: number of misc textiles > 3";
+      auto m = SkeletalModelType::readTr5(m_reader);
+      if(m_animatedModels.find(m->type) != m_animatedModels.end())
+        BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
-        std::vector<uint8_t> comp_buffer(comp_size);
-        m_reader.readBytes(comp_buffer.data(), comp_size);
-
-        auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-        newsrc.appendVector(m_textures, numMiscTextiles, &DWordTexture::read);
+      m_animatedModels[m->type] = std::move(m);
     }
+  }
 
-    m_laraType = m_reader.readU16();
-    m_weatherType = m_reader.readU16();
+  m_reader.readVector(m_staticMeshes, m_reader.readU32(), &StaticMesh::read);
 
-    if(m_reader.readU32() != 0)
-        BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 1)";
+  if(m_reader.readI8() != 'S')
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
 
-    if(m_reader.readU32() != 0)
-        BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 2)";
+  if(m_reader.readI8() != 'P')
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
 
-    if(m_reader.readU32() != 0)
-        BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 3)";
+  if(m_reader.readI8() != 'R')
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
 
-    if(m_reader.readU32() != 0)
-        BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 4)";
+  if(m_reader.readI8() != 0)
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
 
-    if(m_reader.readU32() != 0)
-        BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 5)";
+  m_reader.readVector(m_sprites, m_reader.readU32(), &Sprite::readTr4);
 
-    if(m_reader.readU32() != 0)
-        BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 6)";
-
-    if(m_reader.readU32() != 0)
-        BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 7)";
-
-    // LevelDataSize1
-    m_reader.readU32();
-    // LevelDataSize2
-    m_reader.readU32();
-
-    // Unused
-    if(m_reader.readU32() != 0)
-        BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value for 'unused'";
-
-    m_reader.readVector(m_rooms, m_reader.readU32(), &Room::readTr5);
-
-    m_reader.readVector(m_floorData, m_reader.readU32());
-
-    readMeshData(m_reader);
-
-    m_reader.readVector(m_animations, m_reader.readU32(), &Animation::readTr4);
-
-    m_reader.readVector(m_transitions, m_reader.readU32(), &Transitions::read);
-
-    m_reader.readVector(m_transitionCases, m_reader.readU32(), &TransitionCase::read);
-
-    m_reader.readVector(m_animCommands, m_reader.readU32());
-
-    m_reader.readVector(m_boneTrees, m_reader.readU32());
-
-    m_reader.readVector(m_poseFrames, m_reader.readU32());
-
+  {
+    const auto n = m_reader.readU32();
+    for(uint32_t i = 0; i < n; ++i)
     {
-        const auto n = m_reader.readU32();
-        for(uint32_t i = 0; i < n; ++i)
-        {
-            auto m = SkeletalModelType::readTr5(m_reader);
-            if(m_animatedModels.find(m->type) != m_animatedModels.end())
-                BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
+      auto m = SpriteSequence::read(m_reader);
+      if(m_spriteSequences.find(m->type) != m_spriteSequences.end())
+        BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
 
-            m_animatedModels[m->type] = std::move(m);
-        }
+      m_spriteSequences[m->type] = std::move(m);
     }
+  }
 
-    m_reader.readVector(m_staticMeshes, m_reader.readU32(), &StaticMesh::read);
+  m_reader.readVector(m_cameras, m_reader.readU32(), &Camera::read);
 
-    if(m_reader.readI8() != 'S')
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
+  m_reader.readVector(m_flybyCameras, m_reader.readU32(), &FlybyCamera::read);
 
-    if(m_reader.readI8() != 'P')
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
+  m_reader.readVector(m_soundSources, m_reader.readU32(), &SoundSource::read);
 
-    if(m_reader.readI8() != 'R')
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
+  m_reader.readVector(m_boxes, m_reader.readU32(), &Box::readTr2);
 
-    if(m_reader.readI8() != 0)
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'SPR\\0' not found"));
+  m_reader.readVector(m_overlaps, m_reader.readU32());
 
-    m_reader.readVector(m_sprites, m_reader.readU32(), &Sprite::readTr4);
+  m_baseZones.read(m_boxes.size(), m_reader);
+  m_alternateZones.read(m_boxes.size(), m_reader);
 
-    {
-        const auto n = m_reader.readU32();
-        for(uint32_t i = 0; i < n; ++i)
-        {
-            auto m = SpriteSequence::read(m_reader);
-            if(m_spriteSequences.find(m->type) != m_spriteSequences.end())
-                BOOST_THROW_EXCEPTION(std::runtime_error("Duplicate type id"));
+  m_reader.readVector(m_animatedTextures, m_reader.readU32());
 
-            m_spriteSequences[m->type] = std::move(m);
-        }
-    }
+  m_animatedTexturesUvCount = m_reader.readU8();
 
-    m_reader.readVector(m_cameras, m_reader.readU32(), &Camera::read);
+  if(m_reader.readI8() != 'T')
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
 
-    m_reader.readVector(m_flybyCameras, m_reader.readU32(), &FlybyCamera::read);
+  if(m_reader.readI8() != 'E')
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
 
-    m_reader.readVector(m_soundSources, m_reader.readU32(), &SoundSource::read);
+  if(m_reader.readI8() != 'X')
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
 
-    m_reader.readVector(m_boxes, m_reader.readU32(), &Box::readTr2);
+  if(m_reader.readI8() != 0)
+    BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
 
-    m_reader.readVector(m_overlaps, m_reader.readU32());
+  m_reader.readVector(m_textureTiles, m_reader.readU32(), &TextureTile::readTr5);
 
-    m_baseZones.read(m_boxes.size(), m_reader);
-    m_alternateZones.read(m_boxes.size(), m_reader);
+  m_reader.readVector(m_items, m_reader.readU32(), &Item::readTr4);
 
-    m_reader.readVector(m_animatedTextures, m_reader.readU32());
+  m_reader.readVector(m_aiObjects, m_reader.readU32(), &AIObject::read);
 
-    m_animatedTexturesUvCount = m_reader.readU8();
+  m_reader.readVector(m_demoData, m_reader.readU16());
 
-    if(m_reader.readI8() != 'T')
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
+  // Soundmap
+  m_reader.readVector(m_soundmap, TR_AUDIO_MAP_SIZE_TR5);
 
-    if(m_reader.readI8() != 'E')
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
+  m_reader.readVector(m_soundDetails, m_reader.readU32(), &SoundDetails::readTr3);
 
-    if(m_reader.readI8() != 'X')
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
+  m_reader.readVector(m_sampleIndices, m_reader.readU32());
 
-    if(m_reader.readI8() != 0)
-        BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Level: 'TEX\\0' not found"));
+  m_reader.skip(6); // In TR5, sample indices are followed by 6 0xCD bytes. - correct - really 0xCDCDCDCDCDCD
 
-    m_reader.readVector(m_textureTiles, m_reader.readU32(), &TextureTile::readTr5);
+  // LOAD SAMPLES
+  if(const auto i = m_reader.readU32())
+  {
+    m_samplesCount = i;
+    // Since sample data is the last part, we simply load whole last
+    // block of file as single array.
+    m_reader.readVector(m_samplesData, static_cast<size_t>(m_reader.size() - m_reader.tell()));
+  }
 
-    m_reader.readVector(m_items, m_reader.readU32(), &Item::readTr4);
+  if(!m_textures.empty())
+    return;
 
-    m_reader.readVector(m_aiObjects, m_reader.readU32(), &AIObject::read);
+  m_textures.resize(texture16.size());
+  for(size_t i = 0; i < texture16.size(); i++)
+    convertTexture(texture16[i], m_textures[i]);
 
-    m_reader.readVector(m_demoData, m_reader.readU16());
-
-    // Soundmap
-    m_reader.readVector(m_soundmap, TR_AUDIO_MAP_SIZE_TR5);
-
-    m_reader.readVector(m_soundDetails, m_reader.readU32(), &SoundDetails::readTr3);
-
-    m_reader.readVector(m_sampleIndices, m_reader.readU32());
-
-    m_reader.skip(6); // In TR5, sample indices are followed by 6 0xCD bytes. - correct - really 0xCDCDCDCDCDCD
-
-    // LOAD SAMPLES
-    if(const auto i = m_reader.readU32())
-    {
-        m_samplesCount = i;
-        // Since sample data is the last part, we simply load whole last
-        // block of file as single array.
-        m_reader.readVector(m_samplesData, static_cast<size_t>(m_reader.size() - m_reader.tell()));
-    }
-
-    if(!m_textures.empty())
-        return;
-
-    m_textures.resize(texture16.size());
-    for(size_t i = 0; i < texture16.size(); i++)
-        convertTexture(texture16[i], m_textures[i]);
-
-    postProcessDataStructures();
+  postProcessDataStructures();
 }

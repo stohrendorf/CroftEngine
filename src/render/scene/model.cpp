@@ -9,12 +9,12 @@ namespace scene
 {
 void Model::render(RenderContext& context)
 {
-    context.pushState(getRenderState());
-    for(const auto& mesh : m_meshes)
-    {
-        mesh->render(context);
-    }
-    context.popState();
+  context.pushState(getRenderState());
+  for(const auto& mesh : m_meshes)
+  {
+    mesh->render(context);
+  }
+  context.popState();
 }
 } // namespace scene
 } // namespace render

@@ -13,87 +13,87 @@ class Material;
 
 class Mesh : public Renderable
 {
-public:
-    using MaterialUniformSetter = void(const Node& node, Material& material);
+  public:
+  using MaterialUniformSetter = void(const Node& node, Material& material);
 
-    explicit Mesh(::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
-        : m_primitiveType{primitiveType}
-    {
-    }
+  explicit Mesh(::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
+      : m_primitiveType{primitiveType}
+  {
+  }
 
-    ~Mesh() override;
+  ~Mesh() override;
 
-    Mesh(const Mesh&) = delete;
+  Mesh(const Mesh&) = delete;
 
-    Mesh(Mesh&&) = delete;
+  Mesh(Mesh&&) = delete;
 
-    Mesh& operator=(Mesh&&) = delete;
+  Mesh& operator=(Mesh&&) = delete;
 
-    Mesh& operator=(const Mesh&) = delete;
+  Mesh& operator=(const Mesh&) = delete;
 
-    void setMaterial(const std::shared_ptr<Material>& material)
-    {
-        m_material = material;
-    }
+  void setMaterial(const std::shared_ptr<Material>& material)
+  {
+    m_material = material;
+  }
 
-    const std::shared_ptr<Material>& getMaterial() const
-    {
-        return m_material;
-    }
+  const std::shared_ptr<Material>& getMaterial() const
+  {
+    return m_material;
+  }
 
-    void render(RenderContext& context) final;
+  void render(RenderContext& context) final;
 
-    void registerMaterialUniformSetter(const std::function<MaterialUniformSetter>& setter)
-    {
-        m_materialUniformSetters.emplace_back(setter);
-    }
+  void registerMaterialUniformSetter(const std::function<MaterialUniformSetter>& setter)
+  {
+    m_materialUniformSetters.emplace_back(setter);
+  }
 
-private:
-    std::shared_ptr<Material> m_material;
+  private:
+  std::shared_ptr<Material> m_material;
 
-    std::vector<std::function<MaterialUniformSetter>> m_materialUniformSetters;
+  std::vector<std::function<MaterialUniformSetter>> m_materialUniformSetters;
 
-    const ::gl::PrimitiveType m_primitiveType;
+  const ::gl::PrimitiveType m_primitiveType;
 
-    virtual void drawIndexBuffers(::gl::PrimitiveType primitiveType) = 0;
+  virtual void drawIndexBuffers(::gl::PrimitiveType primitiveType) = 0;
 };
 
 template<typename IndexT, typename... VertexTs>
 class MeshImpl : public Mesh
 {
-public:
-    explicit MeshImpl(std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vao,
-                      ::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
-        : Mesh{primitiveType}
-        , m_vao{std::move(vao)}
-    {
-    }
+  public:
+  explicit MeshImpl(std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vao,
+                    ::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
+      : Mesh{primitiveType}
+      , m_vao{std::move(vao)}
+  {
+  }
 
-    ~MeshImpl() override = default;
+  ~MeshImpl() override = default;
 
-    MeshImpl(const MeshImpl&) = delete;
+  MeshImpl(const MeshImpl&) = delete;
 
-    MeshImpl(MeshImpl&&) = delete;
+  MeshImpl(MeshImpl&&) = delete;
 
-    MeshImpl& operator=(MeshImpl&&) = delete;
+  MeshImpl& operator=(MeshImpl&&) = delete;
 
-    MeshImpl& operator=(const MeshImpl&) = delete;
+  MeshImpl& operator=(const MeshImpl&) = delete;
 
-    const auto& getVAO() const
-    {
-        return m_vao;
-    }
+  const auto& getVAO() const
+  {
+    return m_vao;
+  }
 
-private:
-    gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> m_vao;
+  private:
+  gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> m_vao;
 
-    void drawIndexBuffers(::gl::PrimitiveType primitiveType) override
-    {
-        m_vao->drawIndexBuffers(primitiveType);
-    }
+  void drawIndexBuffers(::gl::PrimitiveType primitiveType) override
+  {
+    m_vao->drawIndexBuffers(primitiveType);
+  }
 };
 
 extern gsl::not_null<std::shared_ptr<Mesh>>
-    createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY = false);
+  createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY = false);
 } // namespace scene
 } // namespace render

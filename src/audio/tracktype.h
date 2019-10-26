@@ -4,9 +4,9 @@ namespace audio
 {
 enum class TrackType
 {
-    Ambient,
-    Interception,
-    AmbientEffect,
-    LaraTalk
+  Ambient,
+  Interception,
+  AmbientEffect,
+  LaraTalk
 };
 }

@@ -10,11 +10,11 @@ namespace scene
 {
 void Visitor::visit(Node& node)
 {
-    gl::DebugGroup debugGroup{node.getId()};
+  gl::DebugGroup debugGroup{node.getId()};
 
-    m_context.setCurrentNode(&node);
-    node.accept(*this);
-    m_context.setCurrentNode(nullptr);
+  m_context.setCurrentNode(&node);
+  node.accept(*this);
+  m_context.setCurrentNode(nullptr);
 }
 } // namespace scene
 } // namespace render
