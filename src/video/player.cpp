@@ -51,7 +51,7 @@ struct Stream final
     index = av_find_best_stream(fmtContext, type, -1, -1, nullptr, 0);
     if(index < 0)
     {
-      throw std::runtime_error("Could not find stream in input file");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Could not find stream in input file"));
     }
 
     stream = fmtContext->streams[index];
@@ -62,25 +62,25 @@ struct Stream final
     const auto decoder = avcodec_find_decoder(stream->codecpar->codec_id);
     if(decoder == nullptr)
     {
-      throw std::runtime_error("Failed to find codec");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to find codec"));
     }
 
     context = avcodec_alloc_context3(decoder);
     if(context == nullptr)
     {
-      throw std::runtime_error("Failed to allocate the codec context");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to allocate the codec context"));
     }
 
     if(avcodec_parameters_to_context(context, stream->codecpar) < 0)
     {
-      throw std::runtime_error("Failed to copy codec parameters to decoder context");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to copy codec parameters to decoder context"));
     }
 
     AVDictionary* opts = nullptr;
     av_dict_set(&opts, "refcounted_frames", "0", 0);
     if(avcodec_open2(context, decoder, &opts) < 0)
     {
-      throw std::runtime_error("Failed to open codec");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open codec"));
     }
   }
 
@@ -154,12 +154,12 @@ struct FilterGraph
 
     if(avfilter_graph_create_filter(&input, avfilter_get_by_name("buffer"), "in", filterGraphArgs, nullptr, graph) < 0)
     {
-      throw std::runtime_error("Cannot create buffer source");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create buffer source"));
     }
 
     if(avfilter_graph_create_filter(&output, avfilter_get_by_name("buffersink"), "out", nullptr, nullptr, graph) < 0)
     {
-      throw std::runtime_error("Cannot create buffer sink");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create buffer sink"));
     }
 
     outputs->name = av_strdup("in");
@@ -171,10 +171,10 @@ struct FilterGraph
     inputs->pad_idx = 0;
     inputs->next = nullptr;
     if(avfilter_graph_parse_ptr(graph, "gblur, noise=alls=10:allf=t+u", &inputs, &outputs, nullptr) < 0)
-      throw std::runtime_error("Failed to initialize filter graph");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize filter graph"));
 
     if(avfilter_graph_config(graph, nullptr) < 0)
-      throw std::runtime_error("Failed to configure filter graph");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to configure filter graph"));
   }
 };
 
@@ -197,12 +197,12 @@ struct AVDecoder final : public audio::AbstractStreamSource
   {
     if(avformat_open_input(&fmtContext, filename.c_str(), nullptr, nullptr) < 0)
     {
-      throw std::runtime_error("Could not open source file");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Could not open source file"));
     }
 
     if(avformat_find_stream_info(fmtContext, nullptr) < 0)
     {
-      throw std::runtime_error("Could not find stream information");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Could not find stream information"));
     }
 
     videoStream = std::make_unique<Stream>(fmtContext, AVMEDIA_TYPE_VIDEO);
@@ -226,12 +226,12 @@ struct AVDecoder final : public audio::AbstractStreamSource
                                     nullptr);
     if(swrContext == nullptr)
     {
-      throw std::runtime_error("Could not allocate resampler context");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Could not allocate resampler context"));
     }
 
     if(swr_init(swrContext) < 0)
     {
-      throw std::runtime_error("Failed to initialize the resampling context");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize the resampling context"));
     }
 
     filterGraph.init(*videoStream);
@@ -322,7 +322,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
             BOOST_LOG_TRIVIAL(error) << "Video decoder already flushed";
 
           BOOST_LOG_TRIVIAL(error) << "Failed to send packet to video decoder: " << getAvError(err);
-          throw std::runtime_error("Failed to send packet to video decoder");
+          BOOST_THROW_EXCEPTION(std::runtime_error("Failed to send packet to video decoder"));
         }
       }
 
@@ -333,7 +333,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
         if(const auto err = av_buffersrc_add_frame(filterGraph.input, videoFrame.release()))
         {
           BOOST_LOG_TRIVIAL(error) << "Error while feeding the filtergraph: " << getAvError(err);
-          throw std::runtime_error("Error while feeding the filtergraph");
+          BOOST_THROW_EXCEPTION(std::runtime_error("Error while feeding the filtergraph"));
         }
         videoFrame = AVFramePtr();
 
@@ -346,7 +346,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
           if(ret < 0)
           {
             BOOST_LOG_TRIVIAL(error) << "Filter error: " << getAvError(ret);
-            throw std::runtime_error("Filter error");
+            BOOST_THROW_EXCEPTION(std::runtime_error("Filter error"));
           }
 
           std::unique_lock<std::mutex> lock(imgQueueMutex);
@@ -375,7 +375,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
             BOOST_LOG_TRIVIAL(error) << "Audio decoder already flushed";
 
           BOOST_LOG_TRIVIAL(error) << "Failed to send packet to audio decoder: " << getAvError(err);
-          throw std::runtime_error("Failed to send packet to audio decoder");
+          BOOST_THROW_EXCEPTION(std::runtime_error("Failed to send packet to audio decoder"));
         }
       }
 
@@ -399,7 +399,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
                                                audioFrame.frame->nb_samples);
         if(framesDecoded < 0)
         {
-          throw std::runtime_error("Error while converting");
+          BOOST_THROW_EXCEPTION(std::runtime_error("Error while converting"));
         }
 
         audio.resize(framesDecoded * 2);
@@ -507,13 +507,13 @@ struct Scaler
                              nullptr);
     if(context == nullptr)
     {
-      throw std::runtime_error("Failed to create SWS context");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create SWS context"));
     }
 
     av_freep(dstVideoData);
     if(av_image_alloc(dstVideoData, dstVideoLinesize, targetWidth, targetHeight, OutputPixFmt, 1) < 0)
     {
-      throw std::runtime_error("Could not allocate raw video buffer");
+      BOOST_THROW_EXCEPTION(std::runtime_error("Could not allocate raw video buffer"));
     }
   };
 
@@ -555,7 +555,7 @@ void play(const boost::filesystem::path& filename,
           const std::function<bool()>& onFrame)
 {
   if(!boost::filesystem::is_regular_file(filename))
-    throw std::runtime_error("Video file not found");
+    BOOST_THROW_EXCEPTION(std::runtime_error("Video file not found"));
 
   auto decoderPtr = std::make_unique<AVDecoder>(filename.string());
   const auto decoder = decoderPtr.get();
