@@ -2,6 +2,8 @@ object_infos = (require "tr1.object_infos")
 tracks = (require "tr1.audio")
 level_infos = (require "tr1.level_infos")
 
+-- language_override = "en"
+
 cheats = {
     godMode = true,
     inventory = {

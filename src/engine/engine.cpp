@@ -57,8 +57,11 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+#include <boost/locale/generator.hpp>
+#include <boost/locale/info.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <glm/gtx/norm.hpp>
+#include <locale>
 
 namespace engine
 {
@@ -1560,7 +1563,21 @@ void Engine::run()
   static const auto frameDuration
     = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(1)) / core::FrameRate.get();
 
-  const std::string levelName = levelInfo["name"];
+  std::string language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
+  BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << language;
+  if(const sol::optional<std::string> overrideLanguage = getScriptEngine()["language_override"])
+  {
+    language = overrideLanguage.get();
+    BOOST_LOG_TRIVIAL(info) << "Language override is " << language;
+  }
+
+  const sol::table levelNames = levelInfo["name"];
+  std::string levelName = levelNames[language];
+  if(levelName.empty())
+  {
+    BOOST_LOG_TRIVIAL(warning) << "Missing level name, falling back to language en";
+    levelName = levelNames["en"];
+  }
 
   bool showDebugInfo = false;
 

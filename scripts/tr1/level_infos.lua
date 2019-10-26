@@ -1,7 +1,10 @@
 local level_infos = {
     [1] = {
         baseName = "GYM",
-        name = "Lara's home",
+        name = {
+            ["en"] = "Lara's home",
+            ["de"] = "Laras Haus",
+        },
         secrets = 0,
         useAlternativeLara = true,
         inventory = {}
@@ -11,28 +14,40 @@ local level_infos = {
     },
     [3] = {
         baseName = "LEVEL1",
-        name = "Caves",
+        name = {
+            ["en"] = "Caves",
+            ["de"] = "Die Kavernen",
+        },
         track = TR1TrackId.Ambience1,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
     [4] = {
         baseName = "LEVEL2",
-        name = "City of Vilcabamba",
+        name = {
+            ["en"] = "City of Vilcabamba",
+            ["de"] = "Die Stadt Vilcabamba",
+        },
         track = TR1TrackId.Ambience1,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
     [5] = {
         baseName = "LEVEL3A",
-        name = "Lost Valley",
+        name = {
+            ["en"] = "Lost Valley",
+            ["de"] = "Das Verlorene Tal",
+        },
         track = TR1TrackId.Ambience1,
         secrets = 5,
         inventory = { Pistols = 1 }
     },
     [6] = {
         baseName = "LEVEL3B",
-        name = "Tomb of Qualopec",
+        name = {
+            ["en"] = "Tomb of Qualopec",
+            ["de"] = "Das Grab von Qualopec",
+        },
         track = TR1TrackId.Ambience1,
         secrets = 3,
         inventory = { Pistols = 1 }
@@ -49,28 +64,40 @@ local level_infos = {
     },
     [9] = {
         baseName = "LEVEL4",
-        name = "St. Francis' Folly",
+        name = {
+            ["en"] = "St. Francis' Folly",
+            ["de"] = "St. Francis' Folly",
+        },
         track = TR1TrackId.Ambience3,
         secrets = 4,
         inventory = { Pistols = 1 }
     },
     [10] = {
         baseName = "LEVEL5",
-        name = "Colosseum",
+        name = {
+            ["en"] = "Colosseum",
+            ["de"] = "Das Kolosseum",
+        },
         track = TR1TrackId.Ambience3,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
     [11] = {
         baseName = "LEVEL6",
-        name = "Palace Midas",
+        name = {
+            ["en"] = "Palace Midas",
+            ["de"] = "Der Palast des Midas",
+        },
         track = TR1TrackId.Ambience3,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
     [12] = {
         baseName = "LEVEL7A",
-        name = "The Cistern",
+        name = {
+            ["en"] = "The Cistern",
+            ["de"] = "Die Zisterne",
+        },
         track = TR1TrackId.Ambience2,
         secrets = 3,
         inventory = { Pistols = 1 }
@@ -85,7 +112,10 @@ local level_infos = {
     },
     [14] = {
         baseName = "LEVEL7B",
-        name = "Tomb of Tihocan",
+        name = {
+            ["en"] = "Tomb of Tihocan",
+            ["de"] = "Das Grab des Tihocan",
+        },
         track = TR1TrackId.Ambience2,
         secrets = 2,
         inventory = { Pistols = 1 }
@@ -95,21 +125,30 @@ local level_infos = {
     },
     [16] = {
         baseName = "LEVEL8A",
-        name = "City of Khamoon",
+        name = {
+            ["en"] = "City of Khamoon",
+            ["de"] = "Die Stadt Khamoon",
+        },
         track = TR1TrackId.Ambience3,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
     [17] = {
         baseName = "LEVEL8B",
-        name = "Obelisk of Khamoon",
+        name = {
+            ["en"] = "Obelisk of Khamoon",
+            ["de"] = "Der Obelisk von Khamoon",
+        },
         track = TR1TrackId.Ambience3,
         secrets = 3,
         inventory = { Pistols = 1 }
     },
     [18] = {
         baseName = "LEVEL8C",
-        name = "Sanctuary of the Scion",
+        name = {
+            ["en"] = "Sanctuary of the Scion",
+            ["de"] = "Das Heiligtum des Scion",
+        },
         track = TR1TrackId.Ambience3,
         secrets = 1,
         inventory = { Pistols = 1 }
@@ -125,7 +164,10 @@ local level_infos = {
     },
     [21] = {
         baseName = "LEVEL10A",
-        name = "Natla's Mines",
+        name = {
+            ["en"] = "Natla's Mines",
+            ["de"] = "Natlas Katakomben",
+        },
         track = TR1TrackId.Ambience2,
         secrets = 3,
         inventory = { Pistols = 1 }
@@ -141,7 +183,10 @@ local level_infos = {
     },
     [24] = {
         baseName = "LEVEL10B",
-        name = "Atlantis",
+        name = {
+            ["en"] = "Atlantis",
+            ["de"] = "Atlantis",
+        },
         track = TR1TrackId.Ambience4,
         secrets = 3,
         inventory = { Pistols = 1 }
@@ -151,7 +196,10 @@ local level_infos = {
     },
     [26] = {
         baseName = "LEVEL10C",
-        name = "The Great Pyramid",
+        name = {
+            ["en"] = "The Great Pyramid",
+            ["de"] = "Die Gro=e Pyramide",
+        },
         track = TR1TrackId.Ambience4,
         secrets = 3,
         inventory = { Pistols = 1 }

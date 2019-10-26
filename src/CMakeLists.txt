@@ -266,7 +266,6 @@ target_link_libraries(
         type_safe
         GLEW::GLEW
         glfw
-        Boost::boost
         OpenGL
         glm
         Freetype::Freetype
