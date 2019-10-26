@@ -122,9 +122,6 @@ class Command:
         # XXX PATCH
         if self.raw_name == 'glTexImage2D':
             xml_command.find('./param[@group="InternalFormat"]/ptype').text = 'GLenum'
-        elif self.raw_name == 'glCopyImageSubData':
-            for param in xml_command.iterfind('./param[@group="CopyBufferSubDataTarget"]'):
-                param.attrib['group'] = 'TextureTarget'
 
         self.orig_return_type = _patch_integral_types(xml_ptype=self.proto.find('ptype'),
                                                       enum_name=self.proto.attrib.get('group', None))

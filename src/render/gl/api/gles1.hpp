@@ -602,6 +602,15 @@ enum class PathColor : core::EnumType
     PrimaryColor = 0x8577,
 };
 
+enum class PathColorFormat : core::EnumType
+{
+    Alpha = 0x1906,
+    Luminance = 0x1909,
+    LuminanceAlpha = 0x190A,
+    Rgb = 0x1907,
+    Rgba = 0x1908,
+};
+
 enum class PathFillMode : core::EnumType
 {
     Invert = 0x150A,
@@ -688,6 +697,12 @@ enum class SamplerParameterI : core::EnumType
     TextureMinFilter = 0x2801,
     TextureWrapS = 0x2802,
     TextureWrapT = 0x2803,
+};
+
+enum class ScalarType : core::EnumType
+{
+    UnsignedByte = 0x1401,
+    UnsignedShort = 0x1403,
 };
 
 enum class ShadingModel : core::EnumType
@@ -887,6 +902,12 @@ enum class VertexPointerType : core::EnumType
 {
     Float = 0x1406,
     Short = 0x1402,
+};
+
+enum class VertexShaderTextureUnitParameter : core::EnumType
+{
+    CurrentTextureCoords = 0x0B03,
+    TextureMatrix = 0x0BA8,
 };
 
 // commands

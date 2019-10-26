@@ -803,11 +803,11 @@ void getVertexAttribI(uint32_t index, VertexAttribEnum pname, uint32_t *params)
 {
     return glGetVertexAttribIuiv(static_cast<GLuint>(index), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLuint *>(params)));
 }
-void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments)
+void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const InvalidateFramebufferAttachment *attachments)
 {
     return glInvalidateFramebuffer(static_cast<GLenum>(target), static_cast<GLsizei>(numAttachments), detail::constAway(reinterpret_cast<const GLenum *>(attachments)));
 }
-void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height)
+void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const InvalidateFramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height)
 {
     return glInvalidateSubFramebuffer(static_cast<GLenum>(target), static_cast<GLsizei>(numAttachments), detail::constAway(reinterpret_cast<const GLenum *>(attachments)), static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height));
 }

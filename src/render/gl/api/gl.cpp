@@ -3615,11 +3615,11 @@ void invalidateBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t 
 {
     return glInvalidateBufferSubData(static_cast<GLuint>(buffer), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(length));
 }
-void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments)
+void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const InvalidateFramebufferAttachment *attachments)
 {
     return glInvalidateFramebuffer(static_cast<GLenum>(target), static_cast<GLsizei>(numAttachments), detail::constAway(reinterpret_cast<const GLenum *>(attachments)));
 }
-void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height)
+void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const InvalidateFramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height)
 {
     return glInvalidateSubFramebuffer(static_cast<GLenum>(target), static_cast<GLsizei>(numAttachments), detail::constAway(reinterpret_cast<const GLenum *>(attachments)), static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height));
 }

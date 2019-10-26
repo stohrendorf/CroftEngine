@@ -256,11 +256,13 @@ enum class FramebufferAttachment : core::EnumType
 {
     ColorAttachment0 = 0x8CE0,
     DepthAttachment = 0x8D00,
+    StencilAttachment = 0x8D20,
 };
 
 enum class FramebufferAttachmentParameterName : core::EnumType
 {
     FramebufferAttachmentObjectName = 0x8CD1,
+    FramebufferAttachmentObjectType = 0x8CD0,
     FramebufferAttachmentTextureLevel = 0x8CD2,
 };
 
@@ -432,11 +434,18 @@ enum class InternalFormat : core::EnumType
     Rgba = 0x1908,
     Rgba4 = 0x8056,
     Rgba8 = 0x8058,
+    StencilIndex8 = 0x8D48,
 };
 
 enum class InternalFormatPName : core::EnumType
 {
     Samples = 0x80A9,
+};
+
+enum class InvalidateFramebufferAttachment : core::EnumType
+{
+    ColorAttachment0 = 0x8CE0,
+    DepthAttachment = 0x8D00,
 };
 
 enum class LightEnvModeSGIX : core::EnumType
@@ -485,6 +494,13 @@ enum class ObjectIdentifier : core::EnumType
     Framebuffer = 0x8D40,
     Renderbuffer = 0x8D41,
     Texture = 0x1702,
+};
+
+enum class PathColorFormat : core::EnumType
+{
+    None = 0,
+    Rgb = 0x1907,
+    Rgba = 0x1908,
 };
 
 enum class PathFillMode : core::EnumType
@@ -574,6 +590,7 @@ enum class ReadBufferMode : core::EnumType
     Back = 0x0405,
     ColorAttachment0 = 0x8CE0,
     Front = 0x0404,
+    None = 0,
 };
 
 enum class RenderbufferParameterName : core::EnumType
@@ -600,6 +617,13 @@ enum class SamplerParameterI : core::EnumType
     TextureMinFilter = 0x2801,
     TextureWrapS = 0x2802,
     TextureWrapT = 0x2803,
+};
+
+enum class ScalarType : core::EnumType
+{
+    UnsignedByte = 0x1401,
+    UnsignedInt = 0x1405,
+    UnsignedShort = 0x1403,
 };
 
 enum class StencilFaceDirection : core::EnumType

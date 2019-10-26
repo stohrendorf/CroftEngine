@@ -534,6 +534,7 @@ enum class FramebufferAttachment : core::EnumType
 {
     ColorAttachment0 = 0x8CE0,
     DepthAttachment = 0x8D00,
+    StencilAttachment = 0x8D20,
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ColorAttachment1 = 0x8CE1,
     ColorAttachment10 = 0x8CEA,
@@ -567,13 +568,13 @@ enum class FramebufferAttachment : core::EnumType
     ColorAttachment8 = 0x8CE8,
     ColorAttachment9 = 0x8CE9,
     DepthStencilAttachment = 0x821A,
-    MaxColorAttachments = 0x8CDF,
 #endif
 };
 
 enum class FramebufferAttachmentParameterName : core::EnumType
 {
     FramebufferAttachmentObjectName = 0x8CD1,
+    FramebufferAttachmentObjectType = 0x8CD0,
     FramebufferAttachmentTextureCubeMapFace = 0x8CD3,
     FramebufferAttachmentTextureLevel = 0x8CD2,
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
@@ -1014,6 +1015,7 @@ enum class InternalFormat : core::EnumType
     Rgb5A1 = 0x8057,
     Rgba = 0x1908,
     Rgba4 = 0x8056,
+    StencilIndex8 = 0x8D48,
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     CompressedR11Eac = 0x9270,
     CompressedRg11Eac = 0x9272,
@@ -1079,6 +1081,39 @@ enum class InternalFormat : core::EnumType
     Srgb8 = 0x8C41,
     Srgb8Alpha8 = 0x8C43,
 #endif
+#if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+    StencilIndex = 0x1901,
+#endif
+#if defined(API_LEVEL_GL_ES_VERSION_3_2)
+    CompressedRgbaAstc10x10 = 0x93BB,
+    CompressedRgbaAstc10x5 = 0x93B8,
+    CompressedRgbaAstc10x6 = 0x93B9,
+    CompressedRgbaAstc10x8 = 0x93BA,
+    CompressedRgbaAstc12x10 = 0x93BC,
+    CompressedRgbaAstc12x12 = 0x93BD,
+    CompressedRgbaAstc4x4 = 0x93B0,
+    CompressedRgbaAstc5x4 = 0x93B1,
+    CompressedRgbaAstc5x5 = 0x93B2,
+    CompressedRgbaAstc6x5 = 0x93B3,
+    CompressedRgbaAstc6x6 = 0x93B4,
+    CompressedRgbaAstc8x5 = 0x93B5,
+    CompressedRgbaAstc8x6 = 0x93B6,
+    CompressedRgbaAstc8x8 = 0x93B7,
+    CompressedSrgb8Alpha8Astc10x10 = 0x93DB,
+    CompressedSrgb8Alpha8Astc10x5 = 0x93D8,
+    CompressedSrgb8Alpha8Astc10x6 = 0x93D9,
+    CompressedSrgb8Alpha8Astc10x8 = 0x93DA,
+    CompressedSrgb8Alpha8Astc12x10 = 0x93DC,
+    CompressedSrgb8Alpha8Astc12x12 = 0x93DD,
+    CompressedSrgb8Alpha8Astc4x4 = 0x93D0,
+    CompressedSrgb8Alpha8Astc5x4 = 0x93D1,
+    CompressedSrgb8Alpha8Astc5x5 = 0x93D2,
+    CompressedSrgb8Alpha8Astc6x5 = 0x93D3,
+    CompressedSrgb8Alpha8Astc6x6 = 0x93D4,
+    CompressedSrgb8Alpha8Astc8x5 = 0x93D5,
+    CompressedSrgb8Alpha8Astc8x6 = 0x93D6,
+    CompressedSrgb8Alpha8Astc8x8 = 0x93D7,
+#endif
 };
 
 enum class InternalFormatPName : core::EnumType
@@ -1090,6 +1125,49 @@ enum class InternalFormatPName : core::EnumType
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ImageFormatCompatibilityType = 0x90C7,
     TextureCompressed = 0x86A1,
+#endif
+};
+
+enum class InvalidateFramebufferAttachment : core::EnumType
+{
+    ColorAttachment0 = 0x8CE0,
+    DepthAttachment = 0x8D00,
+#if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+    Color = 0x1800,
+    ColorAttachment1 = 0x8CE1,
+    ColorAttachment10 = 0x8CEA,
+    ColorAttachment11 = 0x8CEB,
+    ColorAttachment12 = 0x8CEC,
+    ColorAttachment13 = 0x8CED,
+    ColorAttachment14 = 0x8CEE,
+    ColorAttachment15 = 0x8CEF,
+    ColorAttachment16 = 0x8CF0,
+    ColorAttachment17 = 0x8CF1,
+    ColorAttachment18 = 0x8CF2,
+    ColorAttachment19 = 0x8CF3,
+    ColorAttachment2 = 0x8CE2,
+    ColorAttachment20 = 0x8CF4,
+    ColorAttachment21 = 0x8CF5,
+    ColorAttachment22 = 0x8CF6,
+    ColorAttachment23 = 0x8CF7,
+    ColorAttachment24 = 0x8CF8,
+    ColorAttachment25 = 0x8CF9,
+    ColorAttachment26 = 0x8CFA,
+    ColorAttachment27 = 0x8CFB,
+    ColorAttachment28 = 0x8CFC,
+    ColorAttachment29 = 0x8CFD,
+    ColorAttachment3 = 0x8CE3,
+    ColorAttachment30 = 0x8CFE,
+    ColorAttachment31 = 0x8CFF,
+    ColorAttachment4 = 0x8CE4,
+    ColorAttachment5 = 0x8CE5,
+    ColorAttachment6 = 0x8CE6,
+    ColorAttachment7 = 0x8CE7,
+    ColorAttachment8 = 0x8CE8,
+    ColorAttachment9 = 0x8CE9,
+    Depth = 0x1801,
+    DepthStencilAttachment = 0x821A,
+    Stencil = 0x1802,
 #endif
 };
 
@@ -1193,6 +1271,16 @@ enum class PatchParameterName : core::EnumType
     PatchVertices = 0x8E72,
 };
 #endif
+
+enum class PathColorFormat : core::EnumType
+{
+    Alpha = 0x1906,
+    Luminance = 0x1909,
+    LuminanceAlpha = 0x190A,
+    None = 0,
+    Rgb = 0x1907,
+    Rgba = 0x1908,
+};
 
 enum class PathFillMode : core::EnumType
 {
@@ -1460,6 +1548,7 @@ enum class ReadBufferMode : core::EnumType
     Back = 0x0405,
     ColorAttachment0 = 0x8CE0,
     Front = 0x0404,
+    None = 0,
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
     ColorAttachment1 = 0x8CE1,
     ColorAttachment10 = 0x8CEA,
@@ -1522,6 +1611,13 @@ enum class SamplerParameterI : core::EnumType
     TextureCompareMode = 0x884C,
     TextureWrapR = 0x8072,
 #endif
+};
+
+enum class ScalarType : core::EnumType
+{
+    UnsignedByte = 0x1401,
+    UnsignedInt = 0x1405,
+    UnsignedShort = 0x1403,
 };
 
 enum class ShaderParameterName : core::EnumType
@@ -2246,8 +2342,8 @@ extern void getUniformIndice(uint32_t program, core::SizeType uniformCount, cons
 extern void getUniform(uint32_t program, int32_t location, uint32_t *params);
 extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, int32_t *params);
 extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, uint32_t *params);
-extern void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments);
-extern void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const FramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void invalidateFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const InvalidateFramebufferAttachment *attachments);
+extern void invalidateSubFramebuffer(FramebufferTarget target, core::SizeType numAttachments, const InvalidateFramebufferAttachment *attachments, int32_t x, int32_t y, core::SizeType width, core::SizeType height);
 extern bool isQuery(uint32_t id);
 extern bool isSampler(uint32_t sampler);
 extern bool isSync(core::Sync sync);
