@@ -912,8 +912,7 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
 
   // now swap the rooms and patch the alternate room ids
   std::swap(orig, alternate);
-  orig.alternateRoom = alternate.alternateRoom;
-  alternate.alternateRoom = int16_t(-1);
+  orig.alternateRoom = std::exchange(alternate.alternateRoom, -1);
 
   // patch heights in the new room, and swap item ownerships.
   // note that this is exactly the same code as above,
@@ -1426,11 +1425,8 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
 
     getCameraController().setPosition(pos);
 
-    if(bool(levelInfo["flipRooms"]))
+    if(levelInfo["flipRooms"].get_or(false))
       swapAllRooms();
-
-    for(auto& room : m_level->m_rooms)
-      room.node->setVisible(room.alternateRoom.get() < 0);
 
     if(bool(levelInfo["gunSwap"]))
     {
