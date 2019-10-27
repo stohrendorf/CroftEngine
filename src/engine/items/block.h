@@ -8,7 +8,7 @@ namespace items
 {
 class Block final : public ModelItemNode
 {
-  public:
+public:
   Block(const gsl::not_null<Engine*>& engine,
         const gsl::not_null<const loader::file::Room*>& room,
         const loader::file::Item& item,
@@ -25,7 +25,7 @@ class Block final : public ModelItemNode
 
   void load(const YAML::Node& n) override;
 
-  private:
+private:
   bool isOnFloor(const core::Length& height) const;
 
   bool canPushBlock(const core::Length& height, core::Axis axis) const;

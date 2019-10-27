@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_23 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_23(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::RollBackward}
   {

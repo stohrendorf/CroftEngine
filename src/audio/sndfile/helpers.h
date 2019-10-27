@@ -13,7 +13,7 @@ namespace sndfile
 {
 class MemBufferFileIo : public SF_VIRTUAL_IO
 {
-  public:
+public:
   MemBufferFileIo(const uint8_t* data, const sf_count_t dataSize)
       : SF_VIRTUAL_IO{}
       , m_data{data}
@@ -81,7 +81,7 @@ class MemBufferFileIo : public SF_VIRTUAL_IO
     return self->m_where;
   }
 
-  private:
+private:
   const uint8_t* const m_data;
   const sf_count_t m_dataSize;
   sf_count_t m_where = 0;
@@ -89,7 +89,7 @@ class MemBufferFileIo : public SF_VIRTUAL_IO
 
 class InputStreamViewWrapper : public SF_VIRTUAL_IO
 {
-  public:
+public:
   InputStreamViewWrapper(std::istream& stream, const std::streamoff begin, const std::streamoff end)
       : SF_VIRTUAL_IO{}
       , m_restriction{boost::iostreams::restrict(stream, begin, end - begin)}
@@ -160,7 +160,7 @@ class InputStreamViewWrapper : public SF_VIRTUAL_IO
     return self->m_stream.tellg();
   }
 
-  private:
+private:
   boost::iostreams::restriction<std::istream> m_restriction;
   boost::iostreams::filtering_istream m_stream;
 };

@@ -9,13 +9,13 @@ namespace lara
 {
 class StateHandler_Standing : public AbstractStateHandler
 {
-  protected:
+protected:
   explicit StateHandler_Standing(LaraNode& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
   }
 
-  public:
+public:
   void postprocessFrame(CollisionInfo& collisionInfo) override final
   {
     getLara().m_state.fallspeed = 0_spd;

@@ -9,7 +9,7 @@ namespace items
 {
 class Rat final : public AIAgent
 {
-  public:
+public:
   Rat(const gsl::not_null<Engine*>& engine,
       const gsl::not_null<const loader::file::Room*>& room,
       const loader::file::Item& item,

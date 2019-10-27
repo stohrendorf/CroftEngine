@@ -8,7 +8,7 @@ namespace items
 {
 class KeyHole final : public ModelItemNode
 {
-  public:
+public:
   KeyHole(const gsl::not_null<Engine*>& engine,
           const gsl::not_null<const loader::file::Room*>& room,
           const loader::file::Item& item,

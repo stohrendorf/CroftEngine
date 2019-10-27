@@ -11,7 +11,7 @@ namespace gl
 {
 class Shader final
 {
-  public:
+public:
   explicit Shader(const ::gl::ShaderType type, const std::string& label = {})
       : m_handle{GL_ASSERT_FN(::gl::createShader(type))}
       , m_type{type}
@@ -95,7 +95,7 @@ class Shader final
     return m_handle;
   }
 
-  private:
+private:
   const uint32_t m_handle;
 
   const ::gl::ShaderType m_type;

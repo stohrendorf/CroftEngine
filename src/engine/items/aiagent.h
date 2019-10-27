@@ -14,7 +14,7 @@ namespace items
 {
 class AIAgent : public ModelItemNode
 {
-  public:
+public:
   AIAgent(const gsl::not_null<Engine*>& engine,
           const gsl::not_null<const loader::file::Room*>& room,
           const loader::file::Item& item,
@@ -24,7 +24,7 @@ class AIAgent : public ModelItemNode
 
   void loadObjectInfo(bool withoutGameState = false);
 
-  protected:
+protected:
   void rotateCreatureTilt(core::Angle angle)
   {
     const auto dz = 4 * angle - m_state.rotation.Z;
@@ -55,7 +55,7 @@ class AIAgent : public ModelItemNode
                       size_t boneIndex,
                       core::Angle angle);
 
-  private:
+private:
   bool anyMovingEnabledItemInReach() const;
 
   bool isPositionOutOfReach(const core::TRVec& testPosition,

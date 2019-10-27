@@ -64,7 +64,7 @@ class Particle;
 
 class Engine
 {
-  private:
+private:
   std::shared_ptr<loader::file::level::Level> m_level;
   std::unique_ptr<CameraController> m_cameraController = nullptr;
 
@@ -138,7 +138,7 @@ class Engine
   core::Health m_drawnHealth = core::LaraHealth;
   core::Frame m_healthBarTimeout = -40_frame;
 
-  public:
+public:
   explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = {1280, 800});
 
   ~Engine();

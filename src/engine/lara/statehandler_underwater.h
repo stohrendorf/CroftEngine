@@ -10,7 +10,7 @@ namespace lara
 {
 class StateHandler_Underwater : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_Underwater(LaraNode& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
@@ -69,7 +69,7 @@ class StateHandler_Underwater : public AbstractStateHandler
     getLara().m_state.rotation.X += 2_deg;
   }
 
-  protected:
+protected:
   void handleDiveRotationInput()
   {
     if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)

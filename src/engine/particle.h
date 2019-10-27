@@ -18,7 +18,7 @@ class Particle
     : public render::scene::Node
     , public audio::Emitter
 {
-  public:
+public:
   core::RoomBoundPosition pos;
   core::TRRotation angle{0_deg, 0_deg, 0_deg};
   const core::TypeId object_number;
@@ -28,14 +28,14 @@ class Particle
   int16_t timePerSpriteFrame = 0;
   int16_t shade = 4096;
 
-  private:
+private:
   std::deque<std::shared_ptr<render::scene::Renderable>> m_drawables{};
   std::deque<std::shared_ptr<render::gl::Texture>> m_spriteTextures{};
   Lighting m_lighting;
 
   void initDrawables(const Engine& engine, float scale = 1);
 
-  protected:
+protected:
   void nextFrame()
   {
     --negSpriteFrameId;
@@ -65,7 +65,7 @@ class Particle
     return m_drawables.size();
   }
 
-  public:
+public:
   explicit Particle(const std::string& id,
                     core::TypeId objectNumber,
                     const gsl::not_null<const loader::file::Room*>& room,
@@ -90,7 +90,7 @@ class Particle
 
 class BloodSplatterParticle : public Particle
 {
-  public:
+public:
   explicit BloodSplatterParticle(const core::RoomBoundPosition& pos,
                                  const core::Speed speed_,
                                  const core::Angle angle_,
@@ -106,7 +106,7 @@ class BloodSplatterParticle : public Particle
 
 class SplashParticle : public Particle
 {
-  public:
+public:
   explicit SplashParticle(const core::RoomBoundPosition& pos, Engine& engine, const bool waterfall)
       : Particle{"splash", TR1ItemId::Splash, pos, engine}
   {
@@ -127,7 +127,7 @@ class SplashParticle : public Particle
 
 class RicochetParticle : public Particle
 {
-  public:
+public:
   explicit RicochetParticle(const core::RoomBoundPosition& pos, Engine& engine)
       : Particle{"ricochet", TR1ItemId::Ricochet, pos, engine}
   {
@@ -153,7 +153,7 @@ class RicochetParticle : public Particle
 
 class BubbleParticle : public Particle
 {
-  public:
+public:
   explicit BubbleParticle(const core::RoomBoundPosition& pos, Engine& engine)
       : Particle{"bubble", TR1ItemId::Bubbles, pos, engine, 0.7f}
   {
@@ -169,7 +169,7 @@ class BubbleParticle : public Particle
 
 class SparkleParticle : public Particle
 {
-  public:
+public:
   explicit SparkleParticle(const core::RoomBoundPosition& pos, Engine& engine)
       : Particle{"sparkles", TR1ItemId::Sparkles, pos, engine}
   {
@@ -189,7 +189,7 @@ class SparkleParticle : public Particle
 
 class GunflareParticle : public Particle
 {
-  public:
+public:
   explicit GunflareParticle(const core::RoomBoundPosition& pos, Engine& engine, const core::Angle& yAngle)
       : Particle{"gunflare", TR1ItemId::Gunflare, pos, engine}
   {
@@ -211,7 +211,7 @@ class GunflareParticle : public Particle
 
 class FlameParticle : public Particle
 {
-  public:
+public:
   explicit FlameParticle(const core::RoomBoundPosition& pos, Engine& engine)
       : Particle{"flame", TR1ItemId::Flame, pos, engine}
   {

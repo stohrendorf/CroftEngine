@@ -24,7 +24,7 @@ struct ItemState;
 }
 class SkeletalModelNode : public render::scene::Node
 {
-  public:
+public:
   explicit SkeletalModelNode(const std::string& id,
                              const gsl::not_null<const Engine*>& engine,
                              const loader::file::SkeletalModelType& mdl);
@@ -115,10 +115,10 @@ class SkeletalModelNode : public render::scene::Node
 
   YAML::Node save() const;
 
-  protected:
+protected:
   bool handleStateTransitions(items::ItemState& state);
 
-  private:
+private:
   const gsl::not_null<const Engine*> m_engine;
   const loader::file::SkeletalModelType& m_model;
   std::vector<glm::mat4> m_bonePatches;

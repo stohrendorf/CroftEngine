@@ -10,7 +10,7 @@ namespace lara
 {
 class StateHandler_15 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_15(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::JumpPrepare}
   {

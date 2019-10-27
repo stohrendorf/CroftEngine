@@ -13,7 +13,7 @@ namespace scene
 {
 class ShaderProgram
 {
-  public:
+public:
   explicit ShaderProgram();
 
   ShaderProgram(const ShaderProgram&) = delete;
@@ -65,7 +65,7 @@ class ShaderProgram
     return m_handle;
   }
 
-  private:
+private:
   static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath,
                                                          const std::string& vshSource,
                                                          const std::string& fshPath,

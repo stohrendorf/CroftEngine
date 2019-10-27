@@ -15,7 +15,7 @@ class Node;
 
 class BufferParameter : public MaterialParameter
 {
-  public:
+public:
   explicit BufferParameter(std::string name)
       : MaterialParameter{std::move(name)}
   {
@@ -52,7 +52,7 @@ class BufferParameter : public MaterialParameter
 
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
-  private:
+private:
   gl::ProgramShaderStorageBlock*
     findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
   {

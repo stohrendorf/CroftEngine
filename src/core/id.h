@@ -121,7 +121,7 @@ struct Id
     return get_as<T>() >= r;
   }
 
-  private:
+private:
   StorageType m_value;
 };
 

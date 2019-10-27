@@ -13,7 +13,7 @@ namespace audio
 {
 class Device final
 {
-  public:
+public:
   explicit Device();
 
   explicit Device(const Device&) = delete;
@@ -83,7 +83,7 @@ class Device final
     return r;
   }
 
-  private:
+private:
   ALCdevice* m_device = nullptr;
   ALCcontext* m_context = nullptr;
   std::shared_ptr<FilterHandle> m_underwaterFilter = nullptr;

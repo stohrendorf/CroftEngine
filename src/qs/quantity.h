@@ -146,7 +146,7 @@ struct quantity
     return value != r.value;
   }
 
-  private:
+private:
   type value;
 };
 

@@ -10,7 +10,7 @@ namespace gl
 {
 class Texture : public RenderTarget
 {
-  protected:
+protected:
   explicit Texture(::gl::TextureTarget type, const std::string& label = {})
       : RenderTarget{::gl::genTextures,
                      [type](const uint32_t handle) { ::gl::bindTexture(type, handle); },
@@ -21,7 +21,7 @@ class Texture : public RenderTarget
   {
   }
 
-  public:
+public:
   Texture& set(const ::gl::TextureMinFilter value)
   {
     bind();
@@ -76,14 +76,14 @@ class Texture : public RenderTarget
     return *this;
   }
 
-  private:
+private:
   const ::gl::TextureTarget m_type;
 };
 
 template<typename PixelT>
 class Texture2D : public Texture
 {
-  public:
+public:
   explicit Texture2D(const std::string& label = {})
       : Texture{::gl::TextureTarget::Texture2d, label}
   {
@@ -207,7 +207,7 @@ class Texture2D : public Texture
     return *this;
   }
 
-  private:
+private:
   int32_t m_width = -1;
 
   int32_t m_height = -1;
@@ -215,7 +215,7 @@ class Texture2D : public Texture
 
 class TextureDepth : public Texture
 {
-  public:
+public:
   explicit TextureDepth(const std::string& label = {})
       : Texture{::gl::TextureTarget::Texture2d, label}
   {
@@ -276,7 +276,7 @@ class TextureDepth : public Texture
     return *this;
   }
 
-  private:
+private:
   int32_t m_width = -1;
 
   int32_t m_height = -1;

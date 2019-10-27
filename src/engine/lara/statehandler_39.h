@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_39 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_39(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::PickUp}
   {

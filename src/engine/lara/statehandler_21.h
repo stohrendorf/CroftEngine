@@ -10,7 +10,7 @@ namespace lara
 {
 class StateHandler_21 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_21(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::StepRight}
   {

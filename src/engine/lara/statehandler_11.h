@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_11 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_11(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::Reach}
   {

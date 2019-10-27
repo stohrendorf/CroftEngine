@@ -12,7 +12,7 @@ namespace gl
 {
 class ShaderStorageBuffer : public Buffer
 {
-  public:
+public:
   explicit ShaderStorageBuffer(const std::string& label = {})
       : Buffer{::gl::BufferTargetARB::ShaderStorageBuffer, label}
   {
@@ -27,7 +27,7 @@ class ShaderStorageBuffer : public Buffer
 template<typename T>
 class ShaderStorageBufferImpl : public ShaderStorageBuffer
 {
-  public:
+public:
   explicit ShaderStorageBufferImpl(const std::string& label = {})
       : ShaderStorageBuffer{label}
   {

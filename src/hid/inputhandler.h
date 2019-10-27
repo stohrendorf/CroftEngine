@@ -9,7 +9,7 @@ namespace hid
 {
 class InputHandler final
 {
-  public:
+public:
   explicit InputHandler(const gsl::not_null<GLFWwindow*>& window);
 
   void update();
@@ -19,7 +19,7 @@ class InputHandler final
     return m_inputState;
   }
 
-  private:
+private:
   InputState m_inputState{};
 
   const gsl::not_null<GLFWwindow*> m_window;

@@ -12,7 +12,7 @@ class Material;
 
 class Sprite : public Renderable
 {
-  public:
+public:
   enum class Axis
   {
     X,
@@ -44,7 +44,7 @@ class Sprite : public Renderable
 
   void render(RenderContext& context) override;
 
-  private:
+private:
   static gsl::not_null<std::shared_ptr<Mesh>> createMesh(float x0,
                                                          float y0,
                                                          float x1,

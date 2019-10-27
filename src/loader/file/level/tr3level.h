@@ -10,7 +10,7 @@ namespace level
 {
 class TR3Level : public Level
 {
-  public:
+public:
   TR3Level(const Game gameVersion, io::SDLReader&& reader)
       : Level{gameVersion, std::move(reader)}
   {

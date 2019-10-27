@@ -10,7 +10,7 @@ class RenderContext;
 
 class Renderable
 {
-  public:
+public:
   explicit Renderable() = default;
 
   Renderable(const Renderable&) = delete;
@@ -30,7 +30,7 @@ class Renderable
     return m_renderState;
   }
 
-  private:
+private:
   render::gl::RenderState m_renderState;
 };
 } // namespace scene

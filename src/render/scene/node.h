@@ -20,7 +20,7 @@ class Node
 {
   friend class Scene;
 
-  public:
+public:
   Node(const Node&) = delete;
 
   Node(Node&&) = delete;
@@ -165,7 +165,7 @@ class Node
     return nullptr;
   }
 
-  private:
+private:
   void transformChanged();
 
   Scene* m_scene = nullptr;

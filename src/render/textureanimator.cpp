@@ -194,7 +194,7 @@ class TextureAtlas
   std::map<core::TextureTileId, size_t> m_mappingByTile{};
   std::vector<Mapping> m_mappings{};
 
-  public:
+public:
   void layOutTextures(const std::vector<loader::file::DWordTexture>& textures)
   {
     // First step: Sort the canonical textures by size.

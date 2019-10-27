@@ -170,7 +170,7 @@ struct Animation
     return read(reader, true);
   }
 
-  private:
+private:
   static std::unique_ptr<Animation> read(io::SDLReader& reader, const bool withLateral)
   {
     auto animation = std::make_unique<Animation>();

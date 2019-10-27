@@ -10,7 +10,7 @@ namespace gl
 {
 class RenderState final
 {
-  public:
+public:
   RenderState(const RenderState&) = default;
 
   RenderState(RenderState&&) = default;
@@ -86,7 +86,7 @@ class RenderState final
 
   void merge(const RenderState& other);
 
-  private:
+private:
   template<typename T, const T DefaultValue>
   struct DefaultedOptional final
   {

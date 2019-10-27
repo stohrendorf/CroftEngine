@@ -10,7 +10,7 @@ namespace lara
 {
 class StateHandler_50 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_50(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::UseMidas}
   {

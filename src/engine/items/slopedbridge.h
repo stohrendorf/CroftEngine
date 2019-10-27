@@ -8,10 +8,10 @@ namespace items
 {
 class SlopedBridge : public ModelItemNode
 {
-  private:
+private:
   const int m_div;
 
-  public:
+public:
   SlopedBridge(const gsl::not_null<engine::Engine*>& engine,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
@@ -38,7 +38,7 @@ class SlopedBridge : public ModelItemNode
     y = tmp + core::QuarterSectorSize;
   }
 
-  private:
+private:
   core::Length getBridgeSlopeHeight(const core::TRVec& pos) const
   {
     auto axis = axisFromAngle(m_state.rotation.Y, 1_deg);
@@ -57,7 +57,7 @@ class SlopedBridge : public ModelItemNode
 
 class BridgeSlope1 final : public SlopedBridge
 {
-  public:
+public:
   BridgeSlope1(const gsl::not_null<engine::Engine*>& engine,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
@@ -69,7 +69,7 @@ class BridgeSlope1 final : public SlopedBridge
 
 class BridgeSlope2 final : public SlopedBridge
 {
-  public:
+public:
   BridgeSlope2(const gsl::not_null<engine::Engine*>& engine,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,

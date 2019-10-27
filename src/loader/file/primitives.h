@@ -36,7 +36,7 @@ struct Triangle
     return read(reader, true);
   }
 
-  private:
+private:
   static Triangle read(io::SDLReader& reader, const bool withLighting)
   {
     Triangle triangle;
@@ -78,7 +78,7 @@ struct QuadFace
     return read(reader, true);
   }
 
-  private:
+private:
   static QuadFace read(io::SDLReader& reader, const bool withLighting)
   {
     QuadFace quadFace;

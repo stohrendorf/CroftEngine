@@ -12,7 +12,7 @@ namespace gl
 {
 class Font
 {
-  public:
+public:
   Font(const Font&) = delete;
 
   Font(Font&&) noexcept = delete;
@@ -39,7 +39,7 @@ class Font
     return m_targetImage;
   }
 
-  private:
+private:
   FTC_Manager m_cache = nullptr;
 
   FTC_CMapCache m_cmapCache = nullptr;

@@ -10,7 +10,7 @@ namespace lara
 {
 class StateHandler_2 final : public StateHandler_Standing
 {
-  public:
+public:
   explicit StateHandler_2(LaraNode& lara)
       : StateHandler_Standing{lara, LaraStateId::Stop}
   {

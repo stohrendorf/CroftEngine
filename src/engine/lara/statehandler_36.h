@@ -8,7 +8,7 @@ namespace lara
 {
 class StateHandler_36 final : public StateHandler_Pushable
 {
-  public:
+public:
   explicit StateHandler_36(LaraNode& lara)
       : StateHandler_Pushable{lara, LaraStateId::PushablePush}
   {

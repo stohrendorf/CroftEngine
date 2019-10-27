@@ -8,7 +8,7 @@ namespace items
 {
 class Door final : public ModelItemNode
 {
-  public:
+public:
   Door(const gsl::not_null<Engine*>& engine,
        const gsl::not_null<const loader::file::Room*>& room,
        const loader::file::Item& item,
@@ -18,7 +18,7 @@ class Door final : public ModelItemNode
 
   void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 
-  private:
+private:
   struct Info
   {
     loader::file::Sector* sector{nullptr};

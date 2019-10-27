@@ -18,7 +18,7 @@ class Model;
 
 class ScreenOverlay : public Renderable
 {
-  public:
+public:
   ScreenOverlay(const ScreenOverlay&) = delete;
 
   ScreenOverlay(ScreenOverlay&&) = delete;
@@ -45,7 +45,7 @@ class ScreenOverlay : public Renderable
     return m_texture;
   }
 
-  private:
+private:
   const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
 
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_texture{std::make_shared<gl::Texture2D<gl::SRGBA8>>()};

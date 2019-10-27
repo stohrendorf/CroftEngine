@@ -8,7 +8,7 @@ namespace items
 {
 class PickupItem final : public SpriteItemNode
 {
-  public:
+public:
   PickupItem(const gsl::not_null<Engine*>& engine,
              const std::string& name,
              const gsl::not_null<const loader::file::Room*>& room,

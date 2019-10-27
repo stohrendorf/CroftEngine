@@ -10,7 +10,7 @@ namespace lara
 {
 class StateHandler_30 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_30(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::ShimmyLeft}
   {

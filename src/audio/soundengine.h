@@ -16,7 +16,7 @@ class Emitter
 {
   friend class SoundEngine;
 
-  public:
+public:
   explicit Emitter(const gsl::not_null<SoundEngine*>& engine);
 
   Emitter() = delete;
@@ -36,7 +36,7 @@ class Emitter
 
   virtual ~Emitter();
 
-  private:
+private:
   mutable SoundEngine* m_engine = nullptr;
 };
 
@@ -44,7 +44,7 @@ class Listener
 {
   friend class SoundEngine;
 
-  public:
+public:
   explicit Listener(const gsl::not_null<SoundEngine*>& engine);
 
   Listener() = delete;
@@ -68,7 +68,7 @@ class Listener
 
   virtual ~Listener();
 
-  private:
+private:
   mutable SoundEngine* m_engine = nullptr;
 };
 
@@ -78,7 +78,7 @@ class SoundEngine final
 
   friend class Listener;
 
-  public:
+public:
   ~SoundEngine();
 
   void addWav(const gsl::not_null<const uint8_t*>& buffer);
@@ -112,7 +112,7 @@ class SoundEngine final
 
   void dropEmitter(Emitter* emitter);
 
-  private:
+private:
   Device m_device;
   std::vector<std::shared_ptr<BufferHandle>> m_buffers;
   std::unordered_map<Emitter*, std::unordered_map<size_t, std::vector<std::weak_ptr<SourceHandle>>>> m_sources;

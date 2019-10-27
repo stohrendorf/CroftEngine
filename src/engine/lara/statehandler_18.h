@@ -8,7 +8,7 @@ namespace lara
 {
 class StateHandler_18 final : public StateHandler_Underwater
 {
-  public:
+public:
   explicit StateHandler_18(LaraNode& lara)
       : StateHandler_Underwater{lara, LaraStateId::UnderwaterInertia}
   {

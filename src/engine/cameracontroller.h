@@ -45,7 +45,7 @@ enum class CameraModifier
 
 class CameraController final : public audio::Listener
 {
-  private:
+private:
   gsl::not_null<std::shared_ptr<render::scene::Camera>> m_camera;
 
   Engine* m_engine;
@@ -89,7 +89,7 @@ class CameraController final : public audio::Listener
   int m_currentFixedCameraId = -1;
   core::Frame m_camOverrideTimeout{-1_frame};
 
-  public:
+public:
   explicit CameraController(const gsl::not_null<Engine*>& engine,
                             gsl::not_null<std::shared_ptr<render::scene::Camera>> camera);
 
@@ -234,7 +234,7 @@ class CameraController final : public audio::Listener
   core::TRVec m_cinematicPos{0_len, 0_len, 0_len};
   core::TRRotation m_cinematicRot{0_deg, 0_deg, 0_deg};
 
-  private:
+private:
   std::unordered_set<const loader::file::Portal*> tracePortals();
 
   static bool clampY(const core::TRVec& start,

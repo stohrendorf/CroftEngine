@@ -8,7 +8,7 @@ namespace lara
 {
 class StateHandler_35 final : public StateHandler_Underwater
 {
-  public:
+public:
   explicit StateHandler_35(LaraNode& lara)
       : StateHandler_Underwater{lara, LaraStateId::UnderwaterDiving}
   {

@@ -9,7 +9,7 @@ namespace gl
 {
 class DebugGroup final
 {
-  public:
+public:
   explicit DebugGroup(const std::string& message, const uint32_t id = 0)
   {
     GL_ASSERT(::gl::pushDebugGroup(::gl::DebugSource::DebugSourceApplication,

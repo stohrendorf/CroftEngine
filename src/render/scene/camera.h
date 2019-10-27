@@ -15,7 +15,7 @@ class Camera final
 {
   friend class Node;
 
-  public:
+public:
   Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
       : m_fieldOfView{fieldOfView}
       , m_aspectRatio{aspectRatio}
@@ -123,7 +123,7 @@ class Camera final
     return m_inverseViewProjection;
   }
 
-  private:
+private:
   enum class DirtyFlag
   {
     Projection,

@@ -21,7 +21,7 @@ class FilterHandle final
     return handle;
   }
 
-  public:
+public:
   explicit FilterHandle()
       : m_handle{createHandle()}
   {

@@ -10,7 +10,7 @@ namespace lara
 {
 class StateHandler_32 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_32(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::SlideBackward}
   {

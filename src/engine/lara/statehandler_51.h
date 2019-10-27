@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_51 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_51(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::MidasDeath}
   {

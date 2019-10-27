@@ -11,7 +11,7 @@ class Mesh;
 
 class Model : public Renderable
 {
-  public:
+public:
   explicit Model() = default;
 
   ~Model() override = default;
@@ -41,7 +41,7 @@ class Model : public Renderable
 
   void render(RenderContext& context) override;
 
-  private:
+private:
   std::vector<gsl::not_null<std::shared_ptr<Mesh>>> m_meshes{};
 };
 } // namespace scene

@@ -8,7 +8,7 @@ namespace items
 {
 class ScionPieceItem final : public SpriteItemNode
 {
-  public:
+public:
   ScionPieceItem(const gsl::not_null<Engine*>& engine,
                  const std::string& name,
                  const gsl::not_null<const loader::file::Room*>& room,

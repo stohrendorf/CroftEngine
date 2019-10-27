@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_33 final : public StateHandler_OnWater
 {
-  public:
+public:
   explicit StateHandler_33(LaraNode& lara)
       : StateHandler_OnWater{lara, LaraStateId::OnWaterStop}
   {

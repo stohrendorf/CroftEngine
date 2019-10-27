@@ -8,7 +8,7 @@ namespace lara
 {
 class StateHandler_47 final : public StateHandler_OnWater
 {
-  public:
+public:
   explicit StateHandler_47(LaraNode& lara)
       : StateHandler_OnWater{lara, LaraStateId::OnWaterBackward}
   {

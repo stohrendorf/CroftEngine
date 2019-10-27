@@ -23,7 +23,7 @@ class BufferHandle final
     return handle;
   }
 
-  public:
+public:
   explicit BufferHandle()
       : m_handle{createHandle()}
   {

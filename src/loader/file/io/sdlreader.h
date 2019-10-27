@@ -24,7 +24,7 @@ using DataStreamBuf = boost::iostreams::filtering_istreambuf;
 
 class SDLReader
 {
-  public:
+public:
   SDLReader(const SDLReader&) = delete;
 
   SDLReader& operator=(const SDLReader&) = delete;
@@ -240,7 +240,7 @@ class SDLReader
     return read<float>();
   }
 
-  private:
+private:
   // Do not change the order of these member variables.
   std::vector<char> m_memory;
 

@@ -10,7 +10,7 @@ namespace lara
 {
 class StateHandler_9 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_9(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::FreeFall}
   {

@@ -11,7 +11,7 @@ namespace lara
 {
 class StateHandler_0 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_0(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::WalkForward}
   {

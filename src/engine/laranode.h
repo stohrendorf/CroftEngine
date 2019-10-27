@@ -34,7 +34,7 @@ class LaraNode final : public items::ModelItemNode
   using LaraStateId = loader::file::LaraStateId;
   using AnimationId = loader::file::AnimationId;
 
-  private:
+private:
   //! @brief Additional rotation per TR Engine Frame
   core::Angle m_yRotationSpeed{0_deg};
   core::Speed m_fallSpeedOverride = 0_spd;
@@ -46,7 +46,7 @@ class LaraNode final : public items::ModelItemNode
 
   UnderwaterState m_underwaterState = UnderwaterState::OnLand;
 
-  public:
+public:
   LaraNode(const gsl::not_null<engine::Engine*>& engine,
            const gsl::not_null<const loader::file::Room*>& room,
            const loader::file::Item& item,
@@ -213,7 +213,7 @@ class LaraNode final : public items::ModelItemNode
     collisionInfo.shift = {0_len, 0_len, 0_len};
   }
 
-  private:
+private:
   void handleLaraStateOnLand();
 
   void handleLaraStateDiving();
@@ -230,7 +230,7 @@ class LaraNode final : public items::ModelItemNode
   core::Frame m_swimToDiveKeypressDuration = 0_frame;
   std::bitset<16> m_secretsFoundBitmask = 0;
 
-  public:
+public:
   void setAir(const core::Frame& a) noexcept
   {
     m_air = a;

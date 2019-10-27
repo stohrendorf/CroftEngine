@@ -30,7 +30,7 @@ namespace level
 {
 class Level
 {
-  public:
+public:
   Level(const Game gameVersion, io::SDLReader&& reader)
       : m_gameVersion{gameVersion}
       , m_reader{std::move(reader)}
@@ -149,7 +149,7 @@ class Level
 
   void updateRoomBasedCaches();
 
-  protected:
+protected:
   io::SDLReader m_reader;
 
   bool m_demoOrUb = false;
@@ -162,7 +162,7 @@ class Level
 
   void postProcessDataStructures();
 
-  private:
+private:
   static Game probeVersion(io::SDLReader& reader, const std::string& filename);
 
   static std::shared_ptr<Level> createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath);

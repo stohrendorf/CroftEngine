@@ -9,7 +9,7 @@ namespace gl
 template<typename T>
 class ArrayBuffer : public Buffer
 {
-  public:
+public:
   explicit ArrayBuffer(const std::string& label = {})
       : Buffer{::gl::BufferTargetARB::ArrayBuffer, label}
   {
@@ -32,7 +32,7 @@ class ArrayBuffer : public Buffer
     return m_size;
   }
 
-  protected:
+protected:
   ::gl::core::SizeType m_size = 0;
 };
 } // namespace gl

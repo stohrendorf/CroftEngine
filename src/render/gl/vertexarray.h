@@ -33,7 +33,7 @@ inline typename std::enable_if<(I < sizeof...(Ts)), void>::type bindVertexAttrib
 template<typename IndexT, typename VertexT0, typename... VertexTs>
 class VertexArray : public BindableResource
 {
-  public:
+public:
   template<typename T>
   using VertexBufferPtr = gsl::not_null<std::shared_ptr<StructuredArrayBuffer<T>>>;
   using VertexBuffers = std::tuple<VertexBufferPtr<VertexT0>, VertexBufferPtr<VertexTs>...>;
@@ -90,7 +90,7 @@ class VertexArray : public BindableResource
     unbind();
   }
 
-  private:
+private:
   IndexBuffers m_indexBuffers;
   VertexBuffers m_vertexBuffers;
 };

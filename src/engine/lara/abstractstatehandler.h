@@ -26,7 +26,7 @@ namespace lara
 {
 class AbstractStateHandler
 {
-  public:
+public:
   explicit AbstractStateHandler(LaraNode& lara, const LaraStateId id)
       : m_lara{lara}
       , m_id{id}
@@ -54,13 +54,13 @@ class AbstractStateHandler
     return m_id;
   }
 
-  private:
+private:
   LaraNode& m_lara;
   const LaraStateId m_id;
 
   friend class StateHandler_2;
 
-  protected:
+protected:
   // ReSharper disable once CppMemberFunctionMayBeConst
   LaraNode& getLara()
   {

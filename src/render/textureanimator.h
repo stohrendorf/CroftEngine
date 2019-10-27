@@ -88,7 +88,7 @@ class TextureAnimator
   std::vector<Sequence> m_sequences;
   std::map<core::TextureTileId, size_t> m_sequenceByTileId;
 
-  public:
+public:
   explicit TextureAnimator(const std::vector<uint16_t>& data,
                            std::vector<loader::file::TextureTile>& textureTiles,
                            std::vector<loader::file::DWordTexture>& textures,

@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_41 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_41(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::SwitchUp}
   {

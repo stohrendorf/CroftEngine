@@ -11,13 +11,13 @@ namespace lara
 {
 class StateHandler_OnWater : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_OnWater(LaraNode& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
   }
 
-  protected:
+protected:
   void commonOnWaterHandling(CollisionInfo& collisionInfo)
   {
     collisionInfo.facingAngle = getMovementAngle();
@@ -56,7 +56,7 @@ class StateHandler_OnWater : public AbstractStateHandler
     setUnderwaterState(UnderwaterState::Diving);
   }
 
-  private:
+private:
   void tryClimbOutOfWater(CollisionInfo& collisionInfo)
   {
     if(getMovementAngle() != getLara().m_state.rotation.Y)

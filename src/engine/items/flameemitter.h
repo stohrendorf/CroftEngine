@@ -8,7 +8,7 @@ namespace items
 {
 class FlameEmitter final : public ModelItemNode
 {
-  public:
+public:
   FlameEmitter(const gsl::not_null<Engine*>& engine,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
@@ -22,7 +22,7 @@ class FlameEmitter final : public ModelItemNode
 
   void update() override;
 
-  private:
+private:
   std::shared_ptr<Particle> m_flame;
 
   void removeParticle();

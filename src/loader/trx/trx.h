@@ -14,7 +14,7 @@ namespace trx
 {
 class Rectangle
 {
-  public:
+public:
   explicit Rectangle() = default;
 
   explicit Rectangle(const std::string& serialized);
@@ -60,7 +60,7 @@ class Rectangle
     return m_y1 - m_y0;
   }
 
-  private:
+private:
   uint32_t m_x0 = 0;
   uint32_t m_x1 = 0;
   uint32_t m_y0 = 0;
@@ -74,7 +74,7 @@ inline std::ostream& operator<<(std::ostream& str, const Rectangle& r)
 
 class TexturePart
 {
-  public:
+public:
   explicit TexturePart(const std::string& serialized);
 
   explicit TexturePart(std::string filename, const Rectangle& r)
@@ -101,14 +101,14 @@ class TexturePart
     return m_rect < rhs.m_rect;
   }
 
-  private:
+private:
   std::string m_textureId;
   Rectangle m_rect{};
 };
 
 class EquivalenceSet
 {
-  public:
+public:
   explicit EquivalenceSet(std::ifstream& file);
 
   const std::set<TexturePart>& getParts() const
@@ -126,14 +126,14 @@ class EquivalenceSet
     return m_resolved;
   }
 
-  private:
+private:
   std::set<TexturePart> m_parts;
   mutable bool m_resolved = false;
 };
 
 class Equiv
 {
-  public:
+public:
   explicit Equiv(const boost::filesystem::path& filename);
 
   void resolve(const boost::filesystem::path& root,
@@ -142,13 +142,13 @@ class Equiv
                std::map<TexturePart, boost::filesystem::path>& filesByPart,
                const std::function<void(const std::string&)>& statusCallback) const;
 
-  private:
+private:
   std::vector<EquivalenceSet> m_equivalentSets;
 };
 
 class PathMap
 {
-  public:
+public:
   explicit PathMap(const boost::filesystem::path& baseTxtName,
                    std::map<std::string, std::chrono::system_clock::time_point>& timestamps,
                    std::chrono::system_clock::time_point& rootTimestamp,
@@ -159,13 +159,13 @@ class PathMap
     return m_root;
   }
 
-  private:
+private:
   boost::filesystem::path m_root;
 };
 
 class Glidos
 {
-  public:
+public:
   explicit Glidos(boost::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback);
 
   void dump() const;
@@ -179,7 +179,7 @@ class Glidos
 
   TileMap getMappingsForTexture(const std::string& textureId) const;
 
-  private:
+private:
   std::map<TexturePart, boost::filesystem::path> m_filesByPart;
   const boost::filesystem::path m_baseDir;
   mutable std::map<std::string, std::chrono::system_clock::time_point> m_newestTextureSourceTimestamps;

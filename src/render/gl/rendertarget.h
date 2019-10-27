@@ -8,7 +8,7 @@ namespace gl
 {
 class RenderTarget : public BindableResource
 {
-  protected:
+protected:
   explicit RenderTarget(const Allocator& allocator,
                         const Binder& binder,
                         const Deleter& deleter,
@@ -18,7 +18,7 @@ class RenderTarget : public BindableResource
   {
   }
 
-  public:
+public:
   virtual int32_t getWidth() const noexcept = 0;
 
   virtual int32_t getHeight() const noexcept = 0;

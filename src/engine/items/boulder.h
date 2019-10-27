@@ -9,7 +9,7 @@ namespace items
 {
 class RollingBall final : public ModelItemNode
 {
-  public:
+public:
   RollingBall(const gsl::not_null<Engine*>& engine,
               const gsl::not_null<const loader::file::Room*>& room,
               const loader::file::Item& item,
@@ -23,7 +23,7 @@ class RollingBall final : public ModelItemNode
 
   void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
 
-  private:
+private:
   core::RoomBoundPosition m_position;
 };
 } // namespace items

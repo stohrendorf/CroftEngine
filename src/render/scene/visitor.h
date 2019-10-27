@@ -10,7 +10,7 @@ class Node;
 
 class Visitor
 {
-  public:
+public:
   explicit Visitor(RenderContext& context)
       : m_context{context}
   {
@@ -34,7 +34,7 @@ class Visitor
     return m_context;
   }
 
-  private:
+private:
   RenderContext& m_context;
 };
 } // namespace scene

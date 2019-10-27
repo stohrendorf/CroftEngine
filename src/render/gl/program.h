@@ -16,7 +16,7 @@ class Program;
 
 class ProgramInterface
 {
-  public:
+public:
   explicit ProgramInterface(const Program& program, ::gl::ProgramInterface type, uint32_t index);
 
   virtual ~ProgramInterface() = default;
@@ -31,13 +31,13 @@ class ProgramInterface
     return m_type;
   }
 
-  protected:
+protected:
   static int32_t getProperty(const Program& program,
                              ::gl::ProgramInterface type,
                              uint32_t index,
                              ::gl::ProgramResourceProperty what);
 
-  private:
+private:
   std::string m_name{};
 
   const ::gl::ProgramInterface m_type;
@@ -45,7 +45,7 @@ class ProgramInterface
 
 class LocatableProgramInterface : public ProgramInterface
 {
-  public:
+public:
   explicit LocatableProgramInterface(const Program& program, ::gl::ProgramInterface type, uint32_t index)
       : ProgramInterface{program, type, index}
       , m_location{getProperty(program, type, index, ::gl::ProgramResourceProperty::Location)}
@@ -57,13 +57,13 @@ class LocatableProgramInterface : public ProgramInterface
     return m_location;
   }
 
-  private:
+private:
   const int32_t m_location;
 };
 
 class ProgramInput : public LocatableProgramInterface
 {
-  public:
+public:
   explicit ProgramInput(const Program& program, const uint32_t index)
       : LocatableProgramInterface{program, ::gl::ProgramInterface::ProgramInput, index}
   {
@@ -72,7 +72,7 @@ class ProgramInput : public LocatableProgramInterface
 
 class ProgramShaderStorageBlock : public ProgramInterface
 {
-  public:
+public:
   explicit ProgramShaderStorageBlock(const Program& program, uint32_t index);
 
   void bind(const ShaderStorageBuffer& shaderStorageBuffer)
@@ -81,13 +81,13 @@ class ProgramShaderStorageBlock : public ProgramInterface
       ::gl::bindBufferBase(::gl::BufferTargetARB::ShaderStorageBuffer, m_binding, shaderStorageBuffer.getHandle()));
   }
 
-  private:
+private:
   const uint32_t m_binding;
 };
 
 class ProgramUniform : public LocatableProgramInterface
 {
-  public:
+public:
   explicit ProgramUniform(const Program& program, uint32_t index, int32_t& samplerIndex);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -231,14 +231,14 @@ class ProgramUniform : public LocatableProgramInterface
       ::gl::programUniform1(m_program, getLocation(), static_cast<::gl::core::SizeType>(values.size()), units.data()));
   }
 
-  private:
+private:
   int32_t m_samplerIndex = -1;
   const uint32_t m_program;
 };
 
 class Program : public BindableResource
 {
-  public:
+public:
   explicit Program(const std::string& label = {})
       : BindableResource{[](const ::gl::core::SizeType n, uint32_t* handle) {
                            BOOST_ASSERT(n == 1 && handle != nullptr);

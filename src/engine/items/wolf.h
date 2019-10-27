@@ -9,7 +9,7 @@ namespace items
 {
 class Wolf final : public AIAgent
 {
-  public:
+public:
   Wolf(const gsl::not_null<Engine*>& engine,
        const gsl::not_null<const loader::file::Room*>& room,
        const loader::file::Item& item,

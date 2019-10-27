@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_25 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_25(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::JumpBack}
   {

@@ -9,7 +9,7 @@ namespace items
 {
 class Bear final : public AIAgent
 {
-  public:
+public:
   Bear(const gsl::not_null<Engine*>& engine,
        const gsl::not_null<const loader::file::Room*>& room,
        const loader::file::Item& item,

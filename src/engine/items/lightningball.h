@@ -8,7 +8,7 @@ namespace items
 {
 class LightningBall final : public ModelItemNode
 {
-  public:
+public:
   LightningBall(const gsl::not_null<Engine*>& engine,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
@@ -23,7 +23,7 @@ class LightningBall final : public ModelItemNode
 
   void load(const YAML::Node& n) override;
 
-  private:
+private:
   static constexpr const size_t ChildBolts = 5;
 
   void prepareRender();

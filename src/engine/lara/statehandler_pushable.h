@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_Pushable : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_Pushable(LaraNode& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {

@@ -10,7 +10,7 @@ namespace lara
 {
 class StateHandler_14 final : public StateHandler_Standing
 {
-  public:
+public:
   explicit StateHandler_14(LaraNode& lara)
       : StateHandler_Standing{lara, LaraStateId::GrabToFall}
   {

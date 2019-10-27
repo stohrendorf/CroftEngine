@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_44 final : public StateHandler_Underwater
 {
-  public:
+public:
   explicit StateHandler_44(LaraNode& lara)
       : StateHandler_Underwater{lara, LaraStateId::WaterDeath}
   {

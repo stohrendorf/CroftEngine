@@ -8,7 +8,7 @@ namespace items
 {
 class BridgeFlat final : public ModelItemNode
 {
-  public:
+public:
   BridgeFlat(const gsl::not_null<engine::Engine*>& engine,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,

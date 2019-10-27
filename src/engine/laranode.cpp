@@ -2051,10 +2051,10 @@ namespace
 {
 class MatrixStack
 {
-  private:
+private:
   std::stack<glm::mat4> m_stack;
 
-  public:
+public:
   explicit MatrixStack()
   {
     m_stack.push(glm::mat4{1.0f});
@@ -2146,12 +2146,12 @@ class MatrixStack
 
 class DualMatrixStack
 {
-  private:
+private:
   MatrixStack m_stack1{};
   MatrixStack m_stack2{};
   const float m_bias;
 
-  public:
+public:
   explicit DualMatrixStack(const float bias)
       : m_bias{bias}
   {

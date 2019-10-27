@@ -10,7 +10,7 @@ namespace gl
 {
 class BindableResource
 {
-  public:
+public:
   BindableResource(const BindableResource&) = delete;
 
   BindableResource& operator=(const BindableResource&) = delete;
@@ -34,7 +34,7 @@ class BindableResource
     return m_handle;
   }
 
-  protected:
+protected:
   using Allocator = std::function<void(::gl::core::SizeType, uint32_t*)>;
   using Binder = std::function<void(uint32_t)>;
   using Deleter = std::function<void(::gl::core::SizeType, uint32_t*)>;
@@ -109,7 +109,7 @@ class BindableResource
                         label.empty() ? nullptr : label.substr(0, static_cast<std::size_t>(maxLabelLength)).c_str()));
   }
 
-  private:
+private:
   uint32_t m_handle = 0;
 
   Allocator m_allocator;

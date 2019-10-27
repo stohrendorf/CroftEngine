@@ -9,7 +9,7 @@ namespace scene
 {
 class Window final
 {
-  public:
+public:
   explicit Window(bool fullscreen = false, const Dimension2<int>& resolution = {1280, 800});
 
   bool isVsync() const;
@@ -44,7 +44,7 @@ class Window final
     return m_viewport;
   }
 
-  private:
+private:
   GLFWwindow* m_window = nullptr;
   bool m_vsync = false;
   Dimension2<size_t> m_viewport; // the games's current viewport.

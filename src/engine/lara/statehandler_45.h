@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_45 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_45(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::RollForward}
   {

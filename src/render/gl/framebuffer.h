@@ -15,10 +15,10 @@ class Attachment
 {
   friend Framebuffer;
 
-  private:
+private:
   virtual void attach(const Framebuffer& frameBuffer, const ::gl::FramebufferAttachment attachment) const = 0;
 
-  public:
+public:
   explicit Attachment() = default;
 
   virtual ~Attachment() = default;
@@ -26,7 +26,7 @@ class Attachment
 
 class TextureAttachment final : public Attachment
 {
-  public:
+public:
   explicit TextureAttachment(const std::shared_ptr<Texture>& texture, const int32_t level = 0)
       : m_texture{texture}
       , m_level{level}
@@ -35,21 +35,21 @@ class TextureAttachment final : public Attachment
 
   void attach(const Framebuffer& frameBuffer, const ::gl::FramebufferAttachment attachment) const override;
 
-  private:
+private:
   const std::shared_ptr<Texture> m_texture;
   const int32_t m_level;
 };
 
 class Framebuffer : public BindableResource
 {
-  public:
+public:
   using Attachment = std::pair<std::shared_ptr<Attachment>, ::gl::FramebufferAttachment>;
   using Attachments = std::vector<Attachment>;
 
-  private:
+private:
   Attachments m_attachments;
 
-  public:
+public:
   explicit Framebuffer(Attachments attachments, const std::string& label = {})
       : BindableResource{::gl::genFramebuffers,
                          [](const uint32_t handle) {
@@ -141,10 +141,10 @@ void TextureAttachment::attach(const Framebuffer& frameBuffer, const ::gl::Frame
 
 class FrameBufferBuilder
 {
-  private:
+private:
   Framebuffer::Attachments m_attachments;
 
-  public:
+public:
   std::shared_ptr<Framebuffer> build()
   {
     return std::make_shared<Framebuffer>(std::move(m_attachments));

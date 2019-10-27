@@ -13,7 +13,7 @@ namespace gl
 template<typename T>
 class ElementArrayBuffer : public Buffer
 {
-  public:
+public:
   explicit ElementArrayBuffer(const std::string& label = {})
       : Buffer{::gl::BufferTargetARB::ElementArrayBuffer, label}
   {
@@ -58,7 +58,7 @@ class ElementArrayBuffer : public Buffer
     GL_ASSERT(::gl::drawElements(primitiveType, size(), gl::TypeTraits<T>::DrawElementsType, nullptr));
   }
 
-  private:
+private:
   ::gl::core::SizeType m_size = 0;
 };
 } // namespace gl

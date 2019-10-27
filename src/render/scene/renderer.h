@@ -16,7 +16,7 @@ class RenderContext;
 
 class Renderer final
 {
-  public:
+public:
   Renderer(const Renderer&) = delete;
 
   Renderer(Renderer&&) = delete;
@@ -58,7 +58,7 @@ class Renderer final
     return m_scene;
   }
 
-  private:
+private:
   const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
 
   std::chrono::high_resolution_clock::time_point m_frameLastFPS{}; // The last time the frame count was updated.

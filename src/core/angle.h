@@ -113,7 +113,7 @@ inline boost::optional<Angle> alignRotation(const Angle& angle, const Angle& mar
 
 class TRRotation final
 {
-  public:
+public:
   Angle X;
 
   Angle Y;

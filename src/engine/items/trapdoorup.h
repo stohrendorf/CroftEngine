@@ -8,7 +8,7 @@ namespace items
 {
 class TrapDoorUp final : public ModelItemNode
 {
-  public:
+public:
   TrapDoorUp(const gsl::not_null<Engine*>& engine,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
@@ -35,7 +35,7 @@ class TrapDoorUp final : public ModelItemNode
     y = m_state.position.position.Y + core::QuarterSectorSize;
   }
 
-  private:
+private:
   bool possiblyOnTrapdoor(const core::TRVec& pos) const
   {
     const auto trapdoorSectorX = m_state.position.position.X / core::SectorSize;

@@ -13,7 +13,7 @@ class Node;
 
 class RenderContext final
 {
-  public:
+public:
   explicit RenderContext()
   {
     m_renderStates.push(render::gl::RenderState());
@@ -47,7 +47,7 @@ class RenderContext final
     m_renderStates.pop();
   }
 
-  private:
+private:
   Node* m_currentNode = nullptr;
   std::stack<render::gl::RenderState> m_renderStates{};
 };

@@ -70,7 +70,7 @@ inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
 template<typename TStorage>
 class Image
 {
-  public:
+public:
   using StorageType = TStorage;
 
   explicit Image(const int32_t width, const int32_t height, const StorageType* data = nullptr)
@@ -243,7 +243,7 @@ class Image
     }
   }
 
-  private:
+private:
   std::vector<StorageType> m_data;
 
   int32_t m_width;

@@ -161,7 +161,7 @@ class ItemNode
 {
   const gsl::not_null<Engine*> m_engine;
 
-  public:
+public:
   ItemState m_state;
 
   bool m_isActive = false;
@@ -294,7 +294,7 @@ class ItemNode
 
   boost::optional<core::Length> getWaterSurfaceHeight() const;
 
-  protected:
+protected:
   bool alignTransformClamped(const core::TRVec& targetPos,
                              const core::TRRotation& targetRot,
                              const core::Length maxDistance,
@@ -325,10 +325,10 @@ class ItemNode
 
 class ModelItemNode : public ItemNode
 {
-  protected:
+protected:
   std::shared_ptr<SkeletalModelNode> m_skeleton;
 
-  public:
+public:
   ModelItemNode(const gsl::not_null<Engine*>& engine,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
@@ -410,10 +410,10 @@ class ModelItemNode : public ItemNode
 
 class SpriteItemNode : public ItemNode
 {
-  private:
+private:
   std::shared_ptr<render::scene::Node> m_node;
 
-  public:
+public:
   SpriteItemNode(const gsl::not_null<Engine*>& engine,
                  const std::string& name,
                  const gsl::not_null<const loader::file::Room*>& room,

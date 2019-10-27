@@ -8,7 +8,7 @@ namespace lara
 {
 class StateHandler_20 final : public StateHandler_Standing
 {
-  public:
+public:
   explicit StateHandler_20(LaraNode& lara)
       : StateHandler_Standing{lara, LaraStateId::TurnFast}
   {

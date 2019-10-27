@@ -9,7 +9,7 @@ namespace lara
 {
 class StateHandler_46 final : public AbstractStateHandler
 {
-  public:
+public:
   explicit StateHandler_46(LaraNode& lara)
       : AbstractStateHandler{lara, LaraStateId::BoulderDeath}
   {

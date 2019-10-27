@@ -8,7 +8,7 @@ namespace items
 {
 class StubItem final : public ModelItemNode
 {
-  public:
+public:
   StubItem(const gsl::not_null<Engine*>& engine,
            const gsl::not_null<const loader::file::Room*>& room,
            const loader::file::Item& item,
@@ -20,7 +20,7 @@ class StubItem final : public ModelItemNode
 
 class ScriptedItem final : public ModelItemNode
 {
-  public:
+public:
   ScriptedItem(const gsl::not_null<engine::Engine*>& engine,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
@@ -34,7 +34,7 @@ class ScriptedItem final : public ModelItemNode
       initialise.call(m_state);
   }
 
-  private:
+private:
   sol::table m_objectInfo;
 };
 } // namespace items

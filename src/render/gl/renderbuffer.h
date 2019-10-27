@@ -8,7 +8,7 @@ namespace gl
 {
 class RenderBuffer : public RenderTarget
 {
-  public:
+public:
   explicit RenderBuffer(const int32_t width,
                         const int32_t height,
                         const ::gl::InternalFormat format,
@@ -42,7 +42,7 @@ class RenderBuffer : public RenderTarget
     return m_format;
   }
 
-  private:
+private:
   const int32_t m_width;
 
   const int32_t m_height;

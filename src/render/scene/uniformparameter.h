@@ -15,7 +15,7 @@ class Node;
 
 class UniformParameter : public MaterialParameter
 {
-  public:
+public:
   explicit UniformParameter(std::string name)
       : MaterialParameter{std::move(name)}
   {
@@ -69,7 +69,7 @@ class UniformParameter : public MaterialParameter
 
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
-  private:
+private:
   gl::ProgramUniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
   {
     if(const auto uniform = shaderProgram->findUniform(getName()))

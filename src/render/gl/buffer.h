@@ -12,7 +12,7 @@ namespace gl
 {
 class Buffer : public BindableResource
 {
-  protected:
+protected:
   explicit Buffer(const ::gl::BufferTargetARB type, const std::string& label = {})
       : BindableResource{::gl::genBuffers,
                          [type](const uint32_t handle) { ::gl::bindBuffer(type, handle); },

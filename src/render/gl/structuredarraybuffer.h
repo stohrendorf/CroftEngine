@@ -14,7 +14,7 @@ namespace gl
 template<typename T>
 class StructureMember final
 {
-  public:
+public:
   struct Trivial
   {
   };
@@ -47,7 +47,7 @@ class StructureMember final
     return reinterpret_cast<std::uintptr_t>(m_pointer);
   }
 
-  private:
+private:
   const ::gl::VertexAttribPointerType m_type;
 
   const void* const m_pointer;
@@ -63,7 +63,7 @@ using StructureLayout = std::map<std::string, StructureMember<T>>;
 template<typename T>
 class StructuredArrayBuffer : public ArrayBuffer<T>
 {
-  public:
+public:
   explicit StructuredArrayBuffer(const StructureLayout<T>& layout, const std::string& label = {})
       : ArrayBuffer{label}
       , m_structureLayout{layout}
@@ -134,7 +134,7 @@ class StructuredArrayBuffer : public ArrayBuffer<T>
     return m_structureLayout;
   }
 
-  private:
+private:
   const StructureLayout<T> m_structureLayout;
 };
 } // namespace gl

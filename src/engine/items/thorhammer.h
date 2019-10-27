@@ -8,7 +8,7 @@ namespace items
 {
 class ThorHammerBlock final : public ModelItemNode
 {
-  public:
+public:
   ThorHammerBlock(const gsl::not_null<Engine*>& engine,
                   const gsl::not_null<const loader::file::Room*>& room,
                   const loader::file::Item& item,
@@ -22,7 +22,7 @@ class ThorHammerBlock final : public ModelItemNode
 
 class ThorHammerHandle final : public ModelItemNode
 {
-  public:
+public:
   ThorHammerHandle(const gsl::not_null<Engine*>& engine,
                    const gsl::not_null<const loader::file::Room*>& room,
                    const loader::file::Item& item,
@@ -32,7 +32,7 @@ class ThorHammerHandle final : public ModelItemNode
 
   void collide(LaraNode& node, CollisionInfo& info) override;
 
-  private:
+private:
   std::shared_ptr<ThorHammerBlock> m_block;
 };
 } // namespace items

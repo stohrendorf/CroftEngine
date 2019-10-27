@@ -31,7 +31,7 @@ struct FloorDataChunk
     return gsl::narrow_cast<FloorDataChunkType>(data.get() & 0xff);
   }
 
-  private:
+private:
   static SequenceCondition extractSequenceCondition(const FloorDataValue data)
   {
     return gsl::narrow_cast<SequenceCondition>((data.get() & 0x3f00) >> 8);
@@ -45,7 +45,7 @@ struct FloorDataChunk
 
 class ActivationState
 {
-  public:
+public:
   static constexpr const uint16_t TimeoutMask = 0x00ff;
   static constexpr const uint16_t Oneshot = 0x0100;
   static constexpr const uint16_t ActivationMask = 0x3e00;
@@ -170,7 +170,7 @@ class ActivationState
       m_activationSet[i] = node["activationSet"][i].as<bool>();
   }
 
-  private:
+private:
   static ActivationSet extractActivationSet(const FloorDataValue fd)
   {
     const auto bits = gsl::narrow_cast<uint16_t>((fd.get() & ActivationMask) >> 9);
@@ -213,7 +213,7 @@ struct Command
   CommandOpcode opcode;
   uint16_t parameter;
 
-  private:
+private:
   static CommandOpcode extractOpcode(const FloorDataValue data)
   {
     return gsl::narrow_cast<CommandOpcode>((data.get() >> 10) & 0x0f);

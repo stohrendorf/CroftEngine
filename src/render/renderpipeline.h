@@ -62,7 +62,7 @@ class RenderPipeline
     = std::make_shared<gl::Texture2D<gl::SRGBA8>>("fxaa-color");
   std::shared_ptr<gl::Framebuffer> m_fxaaFb;
 
-  public:
+public:
   void bindGeometryFrameBuffer()
   {
     m_geometryFb->bind();

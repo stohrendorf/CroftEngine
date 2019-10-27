@@ -10,7 +10,7 @@ class Camera;
 
 class Scene final
 {
-  public:
+public:
   explicit Scene() = default;
 
   Scene(const Scene&) = delete;
@@ -51,7 +51,7 @@ class Scene final
       visitor.visit(*node);
   }
 
-  private:
+private:
   std::shared_ptr<Camera> m_activeCamera = nullptr;
   Node::List m_nodes;
 };

@@ -15,7 +15,7 @@ class Node;
 
 class Material final
 {
-  public:
+public:
   explicit Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram);
 
   Material(const Material&) = delete;
@@ -47,7 +47,7 @@ class Material final
     return m_renderState;
   }
 
-  private:
+private:
   gsl::not_null<std::shared_ptr<ShaderProgram>> m_shaderProgram;
 
   mutable std::vector<gsl::not_null<std::shared_ptr<UniformParameter>>> m_uniforms;

@@ -171,7 +171,7 @@ struct Mesh
       return m_texBuffers[tile.textureKey];
     }
 
-public:
+  public:
     explicit ModelBuilder(
       bool withNormals,
       const std::vector<TextureTile>& textureTiles,

@@ -13,7 +13,7 @@ class Material;
 
 class Mesh : public Renderable
 {
-  public:
+public:
   using MaterialUniformSetter = void(const Node& node, Material& material);
 
   explicit Mesh(::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
@@ -48,7 +48,7 @@ class Mesh : public Renderable
     m_materialUniformSetters.emplace_back(setter);
   }
 
-  private:
+private:
   std::shared_ptr<Material> m_material;
 
   std::vector<std::function<MaterialUniformSetter>> m_materialUniformSetters;
@@ -61,7 +61,7 @@ class Mesh : public Renderable
 template<typename IndexT, typename... VertexTs>
 class MeshImpl : public Mesh
 {
-  public:
+public:
   explicit MeshImpl(std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vao,
                     ::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
       : Mesh{primitiveType}
@@ -84,7 +84,7 @@ class MeshImpl : public Mesh
     return m_vao;
   }
 
-  private:
+private:
   gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> m_vao;
 
   void drawIndexBuffers(::gl::PrimitiveType primitiveType) override

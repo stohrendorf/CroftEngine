@@ -12,7 +12,7 @@ namespace audio
 {
 class AbstractStreamSource
 {
-  public:
+public:
   explicit AbstractStreamSource(const AbstractStreamSource&) = delete;
 
   explicit AbstractStreamSource(AbstractStreamSource&&) = delete;
@@ -27,7 +27,7 @@ class AbstractStreamSource
 
   virtual int getSampleRate() const = 0;
 
-  protected:
+protected:
   explicit AbstractStreamSource() = default;
 };
 
@@ -92,7 +92,7 @@ inline size_t readStereo(
 
 class WadStreamSource final : public AbstractStreamSource
 {
-  private:
+private:
   std::ifstream m_wadFile;
   SF_INFO m_sfInfo{};
   SNDFILE* m_sndFile = nullptr;
@@ -105,7 +105,7 @@ class WadStreamSource final : public AbstractStreamSource
   static constexpr size_t WADNameLength = 260;
   static constexpr size_t WADCount = 130;
 
-  public:
+public:
   WadStreamSource(const std::string& filename, const size_t trackIndex)
       : m_wadFile{filename, std::ios::in | std::ios::binary}
   {
@@ -153,11 +153,11 @@ class WadStreamSource final : public AbstractStreamSource
 
 class SndfileStreamSource final : public AbstractStreamSource
 {
-  private:
+private:
   SF_INFO m_sfInfo{};
   SNDFILE* m_sndFile = nullptr;
 
-  public:
+public:
   explicit SndfileStreamSource(const std::string& filename)
   {
     BOOST_LOG_TRIVIAL(trace) << "Creating sndfile stream source from " << filename;

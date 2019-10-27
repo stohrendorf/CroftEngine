@@ -64,7 +64,7 @@ class Bitfield final
 #  pragma clang diagnostic pop
 #endif
 
-  public:
+public:
 #ifdef __clang__
 #  pragma clang diagnostic push
 #  pragma ide diagnostic ignored "google-explicit-constructor"
@@ -152,7 +152,7 @@ namespace detail
 template<typename T>
 class ConstAway final
 {
-  public:
+public:
   explicit constexpr ConstAway(T* ptr)
       : m_ptr{ptr}
   {
@@ -169,7 +169,7 @@ class ConstAway final
     return const_cast<U*>(m_ptr);
   }
 
-  private:
+private:
   T* m_ptr;
 };
 

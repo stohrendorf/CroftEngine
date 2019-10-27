@@ -8,7 +8,7 @@ namespace lara
 {
 class StateHandler_7 final : public StateHandler_TurnSlow
 {
-  public:
+public:
   explicit StateHandler_7(LaraNode& lara)
       : StateHandler_TurnSlow{lara, LaraStateId::TurnLeftSlow}
   {

@@ -20,7 +20,7 @@ namespace
 {
 class RenderVisitor : public Visitor
 {
-  public:
+public:
   explicit RenderVisitor(RenderContext& context)
       : Visitor{context}
   {

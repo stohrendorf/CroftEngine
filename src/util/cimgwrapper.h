@@ -15,11 +15,11 @@ namespace util
 {
 class CImgWrapper
 {
-  private:
+private:
   std::unique_ptr<cimg_library::CImg<uint8_t>> m_image;
   bool m_interleaved = false;
 
-  public:
+public:
   explicit CImgWrapper(const std::string& filename);
 
   explicit CImgWrapper(const uint8_t* data, int width, int height, bool shared);
@@ -77,7 +77,7 @@ class CImgWrapper
 
   void replace(int x, int y, const CImgWrapper& other);
 
-  private:
+private:
   void unshare();
 };
 }

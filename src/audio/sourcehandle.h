@@ -21,7 +21,7 @@ class SourceHandle final
     return handle;
   }
 
-  public:
+public:
   explicit SourceHandle()
       : m_handle{createHandle()}
   {

@@ -46,7 +46,7 @@ class CachedFont
     return src;
   }
 
-  public:
+public:
   explicit CachedFont(const loader::file::SpriteSequence& sequence,
                       const int scaleX = FontBaseScale,
                       const int scaleY = FontBaseScale)

@@ -11,7 +11,7 @@ class ShaderProgram;
 
 class MaterialParameter
 {
-  public:
+public:
   explicit MaterialParameter(std::string name)
       : m_name{std::move(name)}
   {
@@ -26,7 +26,7 @@ class MaterialParameter
     return m_name;
   }
 
-  private:
+private:
   const std::string m_name;
 };
 } // namespace scene

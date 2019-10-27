@@ -8,7 +8,7 @@ namespace items
 {
 class CutsceneActor : public ModelItemNode
 {
-  public:
+public:
   CutsceneActor(const gsl::not_null<Engine*>& engine,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
@@ -19,7 +19,7 @@ class CutsceneActor : public ModelItemNode
 
 class CutsceneActor1 final : public CutsceneActor
 {
-  public:
+public:
   CutsceneActor1(const gsl::not_null<Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
@@ -31,7 +31,7 @@ class CutsceneActor1 final : public CutsceneActor
 
 class CutsceneActor2 final : public CutsceneActor
 {
-  public:
+public:
   CutsceneActor2(const gsl::not_null<Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
@@ -43,7 +43,7 @@ class CutsceneActor2 final : public CutsceneActor
 
 class CutsceneActor3 final : public CutsceneActor
 {
-  public:
+public:
   CutsceneActor3(const gsl::not_null<Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
@@ -55,7 +55,7 @@ class CutsceneActor3 final : public CutsceneActor
 
 class CutsceneActor4 final : public CutsceneActor
 {
-  public:
+public:
   CutsceneActor4(const gsl::not_null<Engine*>& engine,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
