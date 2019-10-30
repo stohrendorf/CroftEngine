@@ -115,7 +115,7 @@ void Font::drawText(const char* text, const int x, const int y, const SRGBA8& co
 {
   BOOST_ASSERT(text);
 
-  const int baseAlpha = color.a;
+  const int baseAlpha = color.channels[3];
   auto currentColor = color;
 
   m_x0 = x;
@@ -144,7 +144,7 @@ void Font::drawText(const char* text, const int x, const int y, const SRGBA8& co
     {
       for(int dx = 0; dx < sbit->width; dx++, i++)
       {
-        currentColor.a = gsl::narrow<uint8_t>(sbit->buffer[i] * baseAlpha / 255);
+        currentColor.channels[3] = gsl::narrow<uint8_t>(sbit->buffer[i] * baseAlpha / 255);
 
         m_targetImage->set(m_x0 + dx + sbit->left, m_y0 + dy - sbit->top, currentColor, true);
       }

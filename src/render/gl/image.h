@@ -52,8 +52,8 @@ struct FastFill<SRGBA8, 4>
 
   static inline void fill(const gsl::not_null<SRGBA8*>& data, const size_t n, const SRGBA8& value)
   {
-    const auto scalar = value.r;
-    if(scalar == value.g && scalar == value.b && scalar == value.a)
+    const auto scalar = value.channels[0];
+    if(scalar == value.channels[1] && scalar == value.channels[2] && scalar == value.channels[3])
       std::memset(data.get(), scalar, n * 4u);
     else
       std::fill_n(data.get(), n, value);

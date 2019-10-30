@@ -77,8 +77,10 @@ void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask> flags,
   {
     if(clearColor != m_clearColor)
     {
-      GL_ASSERT(
-        ::gl::clearColor(clearColor.r / 255.0f, clearColor.g / 255.0f, clearColor.b / 255.0f, clearColor.a / 255.0f));
+      GL_ASSERT(::gl::clearColor(clearColor.channels[0] / 255.0f,
+                                 clearColor.channels[1] / 255.0f,
+                                 clearColor.channels[2] / 255.0f,
+                                 clearColor.channels[3] / 255.0f));
       m_clearColor = clearColor;
     }
     bits |= ::gl::ClearBufferMask::ColorBufferBit;

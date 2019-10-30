@@ -1293,7 +1293,7 @@ void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& fo
                       const std::string& txt,
                       const render::gl::SRGBA8& col)
 {
-  font->drawText(txt, x, y, col.r, col.g, col.b, col.a);
+  font->drawText(txt, x, y, col.channels[0], col.channels[1], col.channels[2], col.channels[3]);
 }
 
 Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution)

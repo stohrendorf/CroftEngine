@@ -56,8 +56,9 @@ int Label::calcWidth() const
 
   for(uint8_t chr : text)
   {
-    const auto origChar = chr;
     if(chr > 129 || (chr > 10 && chr < 32))
+      continue;
+    if(chr == '(' || chr == ')' || chr == '$' || chr == '~')
       continue;
 
     if(chr == ' ')
@@ -72,9 +73,6 @@ int Label::calcWidth() const
       chr += 91;
     else
       chr = charToSprite[chr - ' '];
-
-    if(origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~')
-      continue;
 
     width += (charWidths[chr] + letterSpacing) * scaleX / 0x10000;
   }

@@ -71,7 +71,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
   }
 
   statusCallback("Upgrading texture (upscaling)");
-  util::CImgWrapper original{&pixels[0][0].r, 256, 256, false};
+  util::CImgWrapper original{pixels[0][0].channels.data(), 256, 256, false};
   original.deinterleave();
   original.resize(Resolution, Resolution);
 
