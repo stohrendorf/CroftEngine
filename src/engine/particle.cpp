@@ -3,6 +3,8 @@
 #include "engine/laranode.h"
 #include "render/scene/sprite.h"
 
+#include <utility>
+
 namespace engine
 {
 void Particle::initDrawables(const Engine& engine, const float scale)
@@ -11,7 +13,7 @@ void Particle::initDrawables(const Engine& engine, const float scale)
   {
     for(const auto& model : modelType->models)
     {
-      m_drawables.emplace_back(model.get());
+      m_drawables.emplace_back(model);
     }
   }
   else if(const auto& spriteSequence = engine.findSpriteSequenceForType(object_number))
@@ -20,10 +22,10 @@ void Particle::initDrawables(const Engine& engine, const float scale)
 
     for(const loader::file::Sprite& spr : spriteSequence->sprites)
     {
-      auto sprite = std::make_shared<render::scene::Sprite>(spr.x0 * scale,
-                                                            -spr.y0 * scale,
-                                                            spr.x1 * scale,
-                                                            -spr.y1 * scale,
+      auto sprite = std::make_shared<render::scene::Sprite>(float(spr.x0) * scale,
+                                                            float(-spr.y0) * scale,
+                                                            float(spr.x1) * scale,
+                                                            float(-spr.y1) * scale,
                                                             spr.t0,
                                                             spr.t1,
                                                             engine.getSpriteMaterial(),
@@ -43,8 +45,11 @@ void Particle::initDrawables(const Engine& engine, const float scale)
     return;
   }
 
-  setDrawable(m_drawables.front());
-  m_lighting.bind(*this);
+  if(!m_drawables.empty())
+  {
+    setDrawable(m_drawables.front());
+    m_lighting.bind(*this);
+  }
 }
 
 glm::vec3 Particle::getPosition() const
@@ -65,14 +70,11 @@ Particle::Particle(const std::string& id,
   initDrawables(engine, scale);
 }
 
-Particle::Particle(const std::string& id,
-                   const core::TypeId objectNumber,
-                   const core::RoomBoundPosition& pos,
-                   Engine& engine,
-                   float scale)
+Particle::Particle(
+  const std::string& id, const core::TypeId objectNumber, core::RoomBoundPosition pos, Engine& engine, float scale)
     : Node{id}
     , Emitter{&engine.getSoundEngine()}
-    , pos{pos}
+    , pos{std::move(pos)}
     , object_number{objectNumber}
 {
   initDrawables(engine, scale);
@@ -88,9 +90,7 @@ bool BloodSplatterParticle::update(Engine& engine)
   timePerSpriteFrame = 0;
   nextFrame();
   if(negSpriteFrameId <= engine.findSpriteSequenceForType(object_number)->length)
-  {
     return false;
-  }
 
   applyTransform();
   return true;
@@ -115,9 +115,7 @@ bool BubbleParticle::update(Engine& engine)
 {
   angle.X += 13_deg;
   angle.Y += 9_deg;
-  pos.position.X += util::sin(11_len, angle.Y);
-  pos.position.Y -= 1_frame * speed;
-  pos.position.Z += util::cos(8_len, angle.X);
+  pos.position += util::pitch(11_len, angle.Y, -speed * 1_frame);
   auto sector = findRealFloorSector(pos.position, &pos.room);
   if(sector == nullptr || !pos.room->isWaterRoom())
   {
@@ -204,6 +202,153 @@ bool FlameParticle::update(Engine& engine)
       engine.getAudioEngine().stopSound(TR1SoundId::Burning, this);
       return false;
     }
+  }
+
+  applyTransform();
+  return true;
+}
+
+bool MutantHatchParticle::update(Engine& engine)
+{
+  angle.X += 5_deg;
+  angle.Z += 10_deg;
+  fall_speed += 6_len;
+
+  pos.position += util::pitch(speed * 1_frame, angle.Y, fall_speed);
+
+  const auto sector = findRealFloorSector(pos.position, &pos.room);
+  const auto ceiling = HeightInfo::fromCeiling(sector, pos.position, engine.getItemNodes()).y;
+  if(ceiling > pos.position.Y)
+  {
+    pos.position.Y = ceiling;
+    fall_speed = -fall_speed;
+  }
+
+  const auto floor = HeightInfo::fromFloor(sector, pos.position, engine.getItemNodes()).y;
+
+  bool explode = false;
+
+  if(floor <= pos.position.Y)
+  {
+    if(timePerSpriteFrame == 0)
+      return false;
+
+    explode = true;
+  }
+  else if(engine.getLara().isNear(*this, 2 * core::Length{static_cast<core::Length::type>(timePerSpriteFrame)}))
+  {
+    engine.getLara().m_state.health -= core::Health{static_cast<core::Health::type>(timePerSpriteFrame)};
+    engine.getLara().m_state.is_hit = true;
+    if(timePerSpriteFrame == 0)
+      return false;
+
+    explode = true;
+
+    engine.getLara().forceSourcePosition = &pos.position;
+    engine.getLara().explosionStumblingDuration = 5_frame;
+  }
+
+  setParent(this, pos.room->node);
+  applyTransform();
+
+  if(!explode)
+    return true;
+
+  const auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
+  setParent(particle, pos.room->node);
+  engine.getParticles().emplace_back(particle);
+  engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+  return false;
+}
+
+void MutantAmmoParticle::aimLaraChest(Engine& engine)
+{
+  const auto d = engine.getLara().m_state.position.position - pos.position;
+  const auto bbox = engine.getLara().getSkeleton()->getBoundingBox(engine.getLara().m_state);
+  angle.X = util::rand15s(256_au)
+            - core::angleFromAtan(bbox.maxY + (bbox.minY - bbox.maxY) * 3 / 4 + d.Y,
+                                  sqrt(util::square(d.X) + util::square(d.Z)));
+  angle.Y = util::rand15s(256_au) + core::angleFromAtan(d.X, d.Z);
+}
+
+bool MutantBulletParticle::update(Engine& engine)
+{
+  pos.position += util::yawPitch(speed * 1_frame, angle);
+  const auto sector = loader::file::findRealFloorSector(pos);
+  setParent(this, pos.room->node);
+  if(engine::HeightInfo::fromFloor(sector, pos.position, engine.getItemNodes()).y <= pos.position.Y
+     || engine::HeightInfo::fromCeiling(sector, pos.position, engine.getItemNodes()).y >= pos.position.Y)
+  {
+    auto particle = std::make_shared<engine::RicochetParticle>(pos, engine);
+    particle->timePerSpriteFrame = 6;
+    setParent(particle, pos.room->node);
+    engine.getParticles().emplace_back(particle);
+    engine.getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
+    return false;
+  }
+  else if(engine.getLara().isNear(*this, 200_len))
+  {
+    engine.getLara().m_state.health -= 30_hp;
+    auto particle = std::make_shared<engine::BloodSplatterParticle>(pos, speed, angle.Y, engine);
+    setParent(particle, pos.room->node);
+    engine.getParticles().emplace_back(particle);
+    engine.getAudioEngine().playSound(TR1SoundId::BulletHitsLara, particle.get());
+    engine.getLara().m_state.is_hit = true;
+    angle.Y = engine.getLara().m_state.rotation.Y;
+    speed = engine.getLara().m_state.speed;
+    timePerSpriteFrame = 0;
+    negSpriteFrameId = 0;
+    return false;
+  }
+
+  applyTransform();
+  return true;
+}
+
+bool MutantGrenadeParticle::update(Engine& engine)
+{
+  pos.position += util::yawPitch(speed * 1_frame, angle);
+  const auto sector = loader::file::findRealFloorSector(pos);
+  setParent(this, pos.room->node);
+  if(engine::HeightInfo::fromFloor(sector, pos.position, engine.getItemNodes()).y <= pos.position.Y
+     || engine::HeightInfo::fromCeiling(sector, pos.position, engine.getItemNodes()).y >= pos.position.Y)
+  {
+    auto particle = std::make_shared<engine::ExplosionParticle>(pos, engine, fall_speed, angle);
+    setParent(particle, pos.room->node);
+    engine.getParticles().emplace_back(particle);
+    engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+
+    const auto dd = pos.position - engine.getLara().m_state.position.position;
+    const auto d = util::square(dd.X) + util::square(dd.Y) + util::square(dd.Z);
+    if(d < util::square(1024_len))
+    {
+      engine.getLara().m_state.health -= 100_hp * (util::square(1024_len) - d) / util::square(1024_len);
+      engine.getLara().m_state.is_hit = true;
+    }
+
+    return false;
+  }
+  else if(engine.getLara().isNear(*this, 200_len))
+  {
+    engine.getLara().m_state.health -= 100_hp;
+    auto particle = std::make_shared<engine::ExplosionParticle>(pos, engine, fall_speed, angle);
+    setParent(particle, pos.room->node);
+    engine.getParticles().emplace_back(particle);
+    engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+
+    if(engine.getLara().m_state.health > 0_hp)
+    {
+      engine.getLara().playSoundEffect(TR1SoundId::LaraHurt);
+      engine.getLara().forceSourcePosition = &particle->pos.position;
+      engine.getLara().explosionStumblingDuration = 5_frame;
+    }
+
+    engine.getLara().m_state.is_hit = true;
+    angle.Y = engine.getLara().m_state.rotation.Y;
+    speed = engine.getLara().m_state.speed;
+    timePerSpriteFrame = 0;
+    negSpriteFrameId = 0;
+    return false;
   }
 
   applyTransform();

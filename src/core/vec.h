@@ -5,6 +5,7 @@
 
 #include <glm/glm.hpp>
 #include <sol.hpp>
+#include <utility>
 #include <yaml-cpp/yaml.h>
 
 namespace loader
@@ -135,6 +136,11 @@ struct TRVec
   {
     return sqrt(X * X + Y * Y + Z * Z);
   }
+
+  core::Length absMax() const
+  {
+    return std::max(std::max(abs(X), abs(Y)), abs(Z));
+  }
 };
 
 struct RoomBoundPosition
@@ -143,9 +149,9 @@ struct RoomBoundPosition
 
   TRVec position;
 
-  explicit RoomBoundPosition(const gsl::not_null<const loader::file::Room*>& r, const TRVec& pos = {})
+  explicit RoomBoundPosition(const gsl::not_null<const loader::file::Room*>& r, TRVec pos = {})
       : room{r}
-      , position{pos}
+      , position{std::move(pos)}
   {
   }
 };

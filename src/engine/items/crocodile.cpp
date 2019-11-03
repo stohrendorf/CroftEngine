@@ -70,8 +70,8 @@ void Crocodile::update()
       }
       else
       {
-        m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[0];
         m_state.type = TR1ItemId::CrocodileOnLand;
+        m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[0];
         m_state.frame_number = m_state.anim->firstFrame;
         m_state.rotation.X = 0_deg;
         m_state.goal_anim_state = m_state.anim->state_id;

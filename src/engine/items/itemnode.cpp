@@ -527,7 +527,7 @@ gsl::not_null<std::shared_ptr<Particle>>
   ModelItemNode::emitParticle(const core::TRVec& localPosition,
                               const size_t boneIndex,
                               gsl::not_null<std::shared_ptr<Particle>> (*generate)(
-                                Engine& engine, const core::RoomBoundPosition&, core::Speed, core::Angle))
+                                Engine& engine, const core::RoomBoundPosition&, const core::Speed&, const core::Angle&))
 {
   BOOST_ASSERT(generate != nullptr);
   BOOST_ASSERT(boneIndex < m_skeleton->getChildren().size());
@@ -539,7 +539,7 @@ gsl::not_null<std::shared_ptr<Particle>>
   auto roomPos = m_state.position;
   roomPos.position = core::TRVec{glm::vec3{translate(itemSpheres.at(boneIndex).m, localPosition.toRenderSystem())[3]}};
   auto particle = generate(getEngine(), roomPos, m_state.speed, m_state.rotation.Y);
-  getEngine().getParticles().emplace_back(particle);
+  getEngine().getParticles().push_back(particle);
 
   return particle;
 }

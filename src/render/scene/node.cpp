@@ -26,10 +26,9 @@ Node::~Node()
 
 Scene* Node::getScene() const
 {
-  if(m_scene)
+  if(m_scene != nullptr)
     return m_scene;
 
-  // Search our parent for the scene
   if(const auto p = getParent().lock())
   {
     const auto scene = p->getScene();
@@ -43,12 +42,8 @@ const glm::mat4& Node::getModelMatrix() const
 {
   if(m_dirty)
   {
-    // Clear our dirty flag immediately to prevent this block from being entered if our
-    // parent calls our getModelMatrix() method as a result of the following calculations.
     m_dirty = false;
 
-    // If we have a parent, multiply our parent world transform by our local
-    // transform to obtain our final resolved world transform.
     if(const auto p = getParent().lock())
     {
       m_modelMatrix = p->getModelMatrix() * m_localMatrix;
@@ -63,8 +58,8 @@ const glm::mat4& Node::getModelMatrix() const
 
 const glm::mat4& Node::getViewMatrix() const
 {
-  Scene* scene = getScene();
-  const auto camera = scene ? scene->getActiveCamera() : nullptr;
+  const auto scene = getScene();
+  const auto camera = scene != nullptr ? scene->getActiveCamera() : nullptr;
   if(camera)
   {
     return camera->getViewMatrix();
@@ -95,7 +90,6 @@ void Node::transformChanged()
 {
   m_dirty = true;
 
-  // Notify our children that their transform has also changed (since transforms are inherited).
   for(const auto& child : m_children)
   {
     child->transformChanged();

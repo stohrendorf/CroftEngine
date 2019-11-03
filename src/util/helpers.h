@@ -30,38 +30,40 @@ constexpr auto square(T value)
   return value * value;
 }
 
+constexpr int Rand15Max = 1 << 15;
+
 inline int16_t rand15()
 {
-  return gsl::narrow_cast<int16_t>(std::rand() & ((1 << 15) - 1));
+  return gsl::narrow_cast<int16_t>(std::rand() & (Rand15Max - 1));
 }
 
 template<typename T>
 inline T rand15(T max)
 {
-  return max * rand15() / (1 << 15);
+  return max * rand15() / Rand15Max;
 }
 
 template<typename T, typename U>
 inline auto rand15(qs::quantity<T, U> max)
 {
-  return max * U(rand15()) / U(1 << 15);
+  return max * U(rand15()) / U(Rand15Max);
 }
 
 inline int16_t rand15s()
 {
-  return static_cast<int16_t>(rand15() - (1 << 14));
+  return static_cast<int16_t>(rand15() - Rand15Max / 2);
 }
 
 template<typename T, typename U>
 inline auto rand15s(qs::quantity<T, U> max)
 {
-  return max * U(rand15s()) / U(1 << 15);
+  return max * U(rand15s()) / U(Rand15Max);
 }
 
 template<typename T>
 inline T rand15s(T max)
 {
-  return max * rand15s() / (1 << 15);
+  return max * rand15s() / Rand15Max;
 }
 
 inline glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
@@ -85,9 +87,9 @@ inline core::Length cos(const core::Length& len, const core::Angle& rot)
   return (len.retype_as<float>() * cos(rot)).retype_as<core::Length>();
 }
 
-inline core::TRVec pitch(const core::Length& len, const core::Angle& rot)
+inline core::TRVec pitch(const core::Length& len, const core::Angle& rot, const core::Length& dy = 0_len)
 {
-  return core::TRVec{sin(len, rot), 0_len, cos(len, rot)};
+  return core::TRVec{sin(len, rot), dy, cos(len, rot)};
 }
 
 inline core::TRVec yawPitch(const core::Length& len, const core::TRRotation& rot)

@@ -288,7 +288,7 @@ CreatureInfo::CreatureInfo(const Engine& engine, const core::TypeId type)
     break;
 
   case TR1ItemId::TRex:
-  case TR1ItemId::Mutant:
+  case TR1ItemId::FlyingMutant:
   case TR1ItemId::CentaurMutant:
     pathFinder.cannotVisitBlockable = true;
     pathFinder.cannotVisitBlocked = false;

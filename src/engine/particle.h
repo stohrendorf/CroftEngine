@@ -29,7 +29,7 @@ public:
   int16_t shade = 4096;
 
 private:
-  std::deque<std::shared_ptr<render::scene::Renderable>> m_drawables{};
+  std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_drawables{};
   std::deque<std::shared_ptr<render::gl::Texture>> m_spriteTextures{};
   Lighting m_lighting;
 
@@ -65,6 +65,11 @@ protected:
     return m_drawables.size();
   }
 
+  void clearDrawables()
+  {
+    m_drawables.clear();
+  }
+
 public:
   explicit Particle(const std::string& id,
                     core::TypeId objectNumber,
@@ -72,11 +77,8 @@ public:
                     Engine& engine,
                     float scale = 1);
 
-  explicit Particle(const std::string& id,
-                    core::TypeId objectNumber,
-                    const core::RoomBoundPosition& pos,
-                    Engine& engine,
-                    float scale = 1);
+  explicit Particle(
+    const std::string& id, core::TypeId objectNumber, core::RoomBoundPosition pos, Engine& engine, float scale = 1);
 
   void updateLight()
   {
@@ -88,12 +90,12 @@ public:
   glm::vec3 getPosition() const final;
 };
 
-class BloodSplatterParticle : public Particle
+class BloodSplatterParticle final : public Particle
 {
 public:
   explicit BloodSplatterParticle(const core::RoomBoundPosition& pos,
-                                 const core::Speed speed_,
-                                 const core::Angle angle_,
+                                 const core::Speed& speed_,
+                                 const core::Angle& angle_,
                                  Engine& engine)
       : Particle{"bloodsplat", TR1ItemId::Blood, pos, engine}
   {
@@ -104,7 +106,7 @@ public:
   bool update(Engine& engine) override;
 };
 
-class SplashParticle : public Particle
+class SplashParticle final : public Particle
 {
 public:
   explicit SplashParticle(const core::RoomBoundPosition& pos, Engine& engine, const bool waterfall)
@@ -125,7 +127,7 @@ public:
   bool update(Engine& engine) override;
 };
 
-class RicochetParticle : public Particle
+class RicochetParticle final : public Particle
 {
 public:
   explicit RicochetParticle(const core::RoomBoundPosition& pos, Engine& engine)
@@ -151,7 +153,7 @@ public:
   }
 };
 
-class BubbleParticle : public Particle
+class BubbleParticle final : public Particle
 {
 public:
   explicit BubbleParticle(const core::RoomBoundPosition& pos, Engine& engine)
@@ -167,7 +169,7 @@ public:
   bool update(Engine& engine) override;
 };
 
-class SparkleParticle : public Particle
+class SparkleParticle final : public Particle
 {
 public:
   explicit SparkleParticle(const core::RoomBoundPosition& pos, Engine& engine)
@@ -187,7 +189,7 @@ public:
   }
 };
 
-class GunflareParticle : public Particle
+class GunflareParticle final : public Particle
 {
 public:
   explicit GunflareParticle(const core::RoomBoundPosition& pos, Engine& engine, const core::Angle& yAngle)
@@ -209,7 +211,7 @@ public:
   }
 };
 
-class FlameParticle : public Particle
+class FlameParticle final : public Particle
 {
 public:
   explicit FlameParticle(const core::RoomBoundPosition& pos, Engine& engine)
@@ -223,11 +225,109 @@ public:
   bool update(Engine& engine) override;
 };
 
-inline gsl::not_null<std::shared_ptr<Particle>>
-  createBloodSplat(Engine& engine, const core::RoomBoundPosition& pos, core::Speed speed, core::Angle angle)
+class ExplosionParticle final : public Particle
+{
+public:
+  explicit ExplosionParticle(const core::RoomBoundPosition& pos,
+                             Engine& engine,
+                             const core::Length& fallSpeed,
+                             const core::TRRotation& angle)
+      : Particle{"explosion", TR1ItemId::Explosion, pos, engine}
+  {
+    fall_speed = fallSpeed;
+    this->angle = angle;
+  }
+
+  bool update(Engine& /*engine*/) override
+  {
+    ++timePerSpriteFrame;
+    if(timePerSpriteFrame == 2)
+    {
+      timePerSpriteFrame = 0;
+      --negSpriteFrameId;
+      if(negSpriteFrameId <= getLength())
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+};
+
+class MutantHatchParticle final : public Particle
+{
+public:
+  explicit MutantHatchParticle(const core::RoomBoundPosition& pos,
+                               Engine& engine,
+                               const bool torsoBoss,
+                               const int16_t damageAndRadius)
+      : Particle{"mutantHatch", TR1ItemId::MutantHatch, pos, engine}
+  {
+    clearDrawables();
+
+    angle.Y = core::Angle{util::rand15s() * 2};
+    speed = util::rand15(256_spd);
+    fall_speed = util::rand15(256_len);
+    if(!torsoBoss)
+    {
+      speed /= 2;
+      fall_speed /= 2;
+    }
+
+    timePerSpriteFrame = damageAndRadius;
+  }
+
+  bool update(Engine& engine) override;
+};
+
+class MutantAmmoParticle : public Particle
+{
+protected:
+  explicit MutantAmmoParticle(const core::RoomBoundPosition& pos, Engine& engine, const TR1ItemId itemType)
+      : Particle{"mutantAmmo", itemType, pos, engine}
+  {
+  }
+
+  void aimLaraChest(Engine& engine);
+};
+
+class MutantBulletParticle final : public MutantAmmoParticle
+{
+public:
+  explicit MutantBulletParticle(const core::RoomBoundPosition& pos, Engine& engine, const core::Angle& yAngle)
+      : MutantAmmoParticle{pos, engine, TR1ItemId::MutantBullet}
+  {
+    speed = 250_spd;
+    shade = 3584;
+    angle.Y = yAngle;
+    aimLaraChest(engine);
+  }
+
+  bool update(Engine& engine) override;
+};
+
+class MutantGrenadeParticle final : public MutantAmmoParticle
+{
+public:
+  explicit MutantGrenadeParticle(const core::RoomBoundPosition& pos, Engine& engine, const core::Angle& yAngle)
+      : MutantAmmoParticle{pos, engine, TR1ItemId::MutantGrenade}
+  {
+    speed = 220_spd;
+    angle.Y = yAngle;
+    aimLaraChest(engine);
+  }
+
+  bool update(Engine& engine) override;
+};
+
+inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(Engine& engine,
+                                                                 const core::RoomBoundPosition& pos,
+                                                                 const core::Speed& speed,
+                                                                 const core::Angle& angle)
 {
   auto particle = std::make_shared<BloodSplatterParticle>(pos, speed, angle, engine);
   setParent(particle, pos.room->node);
   return particle;
 }
-}
+} // namespace engine

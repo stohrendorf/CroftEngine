@@ -449,7 +449,7 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
 namespace
 {
 gsl::not_null<std::shared_ptr<Particle>>
-  createGunFlare(Engine& engine, const core::RoomBoundPosition& pos, core::Speed speed, core::Angle angle)
+  createGunFlare(Engine& engine, const core::RoomBoundPosition& pos, const core::Speed& speed, const core::Angle& angle)
 {
   auto particle = std::make_shared<GunflareParticle>(pos, engine, angle);
   setParent(particle, pos.room->node);

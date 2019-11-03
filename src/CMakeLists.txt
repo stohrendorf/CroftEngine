@@ -180,6 +180,8 @@ set( EDISONENGINE_SRCS
      engine/items/lightningball.cpp
      engine/items/lion.cpp
      engine/items/mummy.cpp
+     engine/items/mutant.cpp
+     engine/items/mutantegg.cpp
      engine/items/pickupitem.cpp
      engine/items/pierre.cpp
      engine/items/puzzlehole.cpp

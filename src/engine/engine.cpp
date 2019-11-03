@@ -22,6 +22,8 @@
 #include "items/lightningball.h"
 #include "items/lion.h"
 #include "items/mummy.h"
+#include "items/mutant.h"
+#include "items/mutantegg.h"
 #include "items/pickupitem.h"
 #include "items/pierre.h"
 #include "items/puzzlehole.h"
@@ -407,6 +409,28 @@ std::shared_ptr<LaraNode> Engine::createItems()
       else if(item.type == TR1ItemId::SlammingDoors)
       {
         modelNode = std::make_shared<items::SlammingDoors>(this, room, item, *model);
+      }
+      else if(item.type == TR1ItemId::FlyingMutant)
+      {
+        modelNode = std::make_shared<items::FlyingMutant>(this, room, item, *model);
+      }
+      else if(item.type == TR1ItemId::WalkingMutant1 || item.type == TR1ItemId::WalkingMutant2)
+      {
+        // Special handling, these are just "mutations" of the flying mutants (no wings).
+        modelNode = std::make_shared<items::WalkingMutant>(
+          this, room, item, *findAnimatedModelForType(TR1ItemId::FlyingMutant));
+      }
+      else if(item.type == TR1ItemId::MutantEggSmall || item.type == TR1ItemId::MutantEggBig)
+      {
+        modelNode = std::make_shared<items::MutantEgg>(this, room, item, *model);
+      }
+      else if(item.type == TR1ItemId::CentaurMutant)
+      {
+        modelNode = std::make_shared<items::CentaurMutant>(this, room, item, *model);
+      }
+      else if(item.type == TR1ItemId::TorsoBoss)
+      {
+        modelNode = std::make_shared<items::TorsoBoss>(this, room, item, *model);
       }
       else
       {
@@ -1140,9 +1164,9 @@ void Engine::update(const bool godMode)
   {
     if(particle->update(*this))
     {
-      m_particles.emplace_back(particle);
       setParent(particle, particle->pos.room->node);
       particle->updateLight();
+      m_particles.emplace_back(particle);
     }
     else
     {
@@ -1189,6 +1213,22 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
   {
     int y = 180;
     for(const auto& item : m_itemNodes | boost::adaptors::map_values)
+    {
+      if(!item->m_isActive)
+        continue;
+
+      drawText(font, 10, y, item->getNode()->getId());
+      switch(item->m_state.triggerState)
+      {
+      case items::TriggerState::Inactive: drawText(font, 180, y, "inactive"); break;
+      case items::TriggerState::Active: drawText(font, 180, y, "active"); break;
+      case items::TriggerState::Deactivated: drawText(font, 180, y, "deactivated"); break;
+      case items::TriggerState::Invisible: drawText(font, 180, y, "invisible"); break;
+      }
+      drawText(font, 260, y, item->m_state.timer.toString());
+      y += 20;
+    }
+    for(const auto& item : m_dynamicItems)
     {
       if(!item->m_isActive)
         continue;
@@ -1683,31 +1723,41 @@ void Engine::run()
     if(showDebugInfo)
     {
       drawDebugInfo(font, m_renderer->getFrameRate());
-      for(const auto& ctrl : m_itemNodes | boost::adaptors::map_values)
+
+      const auto drawItemName
+        = [this, &font](const std::shared_ptr<items::ItemNode>& node, const render::gl::SRGBA8& color) {
+            const auto vertex = glm::vec3{m_renderer->getScene()->getActiveCamera()->getViewMatrix()
+                                          * glm::vec4(node->getNode()->getTranslationWorld(), 1)};
+
+            if(vertex.z > -m_renderer->getScene()->getActiveCamera()->getNearPlane())
+            {
+              return;
+            }
+            else if(vertex.z < -m_renderer->getScene()->getActiveCamera()->getFarPlane())
+            {
+              return;
+            }
+
+            glm::vec4 projVertex{vertex, 1};
+            projVertex = m_renderer->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
+            projVertex /= projVertex.w;
+
+            if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
+              return;
+
+            projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().width;
+            projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().height;
+
+            font->drawText(node->getNode()->getId().c_str(), projVertex.x, projVertex.y, color);
+          };
+
+      for(const auto& node : m_itemNodes | boost::adaptors::map_values)
       {
-        const auto vertex = glm::vec3{m_renderer->getScene()->getActiveCamera()->getViewMatrix()
-                                      * glm::vec4(ctrl->getNode()->getTranslationWorld(), 1)};
-
-        if(vertex.z > -m_renderer->getScene()->getActiveCamera()->getNearPlane())
-        {
-          continue;
-        }
-        else if(vertex.z < -m_renderer->getScene()->getActiveCamera()->getFarPlane())
-        {
-          continue;
-        }
-
-        glm::vec4 projVertex{vertex, 1};
-        projVertex = m_renderer->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
-        projVertex /= projVertex.w;
-
-        if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
-          continue;
-
-        projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().width;
-        projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().height;
-
-        font->drawText(ctrl->getNode()->getId().c_str(), projVertex.x, projVertex.y, render::gl::SRGBA8{255});
+        drawItemName(node, render::gl::SRGBA8{255});
+      }
+      for(const auto& node : m_dynamicItems)
+      {
+        drawItemName(node, render::gl::SRGBA8{0, 255, 0, 255});
       }
     }
 

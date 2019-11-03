@@ -136,7 +136,7 @@ public:
     m_bufferBinders[name] = binder;
   }
 
-  void addBufferBinder(const std::string& name, std::function<BufferParameter::BufferBinder>& binder)
+  void addBufferBinder(const std::string& name, std::function<BufferParameter::BufferBinder>&& binder)
   {
     m_bufferBinders[name] = std::move(binder);
   }
@@ -189,27 +189,52 @@ private:
   boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
   boost::container::flat_map<std::string, std::function<BufferParameter::BufferBinder>> m_bufferBinders;
 
-  friend void setParent(const gsl::not_null<std::shared_ptr<Node>>& node, const std::shared_ptr<Node>& parent);
+  friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& newParent);
+  friend void setParent(Node* node, const std::shared_ptr<Node>& newParent);
 };
 
-inline void setParent(const gsl::not_null<std::shared_ptr<Node>>& node, const std::shared_ptr<Node>& parent)
+inline void setParent(gsl::not_null<std::shared_ptr<Node>> node, // NOLINT(performance-unnecessary-value-param)
+                      const std::shared_ptr<Node>& newParent)
 {
   // first remove from hierarchy
-  if(const auto p = node->m_parent.lock())
+  if(const auto currentParent = node->m_parent.lock())
   {
-    const auto it = std::find(p->m_children.begin(), p->m_children.end(), node);
-    BOOST_ASSERT(it != p->m_children.end());
+    if(currentParent == newParent)
+      return;
+
+    const auto it = std::find(currentParent->m_children.begin(), currentParent->m_children.end(), node);
+    BOOST_ASSERT(it != currentParent->m_children.end());
     node->m_parent.reset();
-    p->m_children.erase(it);
+    currentParent->m_children.erase(it);
   }
 
   // then add to hierarchy again
-  node->m_parent = parent;
+  node->m_parent = newParent;
 
-  if(parent != nullptr)
-    parent->m_children.emplace_back(node);
+  if(newParent != nullptr)
+    newParent->m_children.push_back(node);
 
   node->transformChanged();
+}
+
+inline void setParent(Node* node, const std::shared_ptr<Node>& newParent)
+{
+  if(const auto currentParent = node->m_parent.lock())
+  {
+    if(currentParent == newParent)
+      return;
+
+    const auto it
+      = std::find_if(currentParent->m_children.begin(),
+                     currentParent->m_children.end(),
+                     [node](const gsl::not_null<std::shared_ptr<Node>>& ptr) { return ptr.get().get() == node; });
+    BOOST_ASSERT(it != currentParent->m_children.end());
+
+    setParent(*it, newParent);
+    return;
+  }
+
+  BOOST_THROW_EXCEPTION(std::runtime_error("Cannot initially assign parents to raw node pointers"));
 }
 
 inline void addChild(const gsl::not_null<std::shared_ptr<Node>>& node,

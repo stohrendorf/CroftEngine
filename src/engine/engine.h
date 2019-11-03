@@ -73,6 +73,7 @@ private:
   core::Frame m_effectTimer = 0_frame;
   boost::optional<size_t> m_activeEffect{};
 
+  uint16_t m_itemNodeCounter = 0x8000;
   std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>> m_itemNodes;
 
   std::set<gsl::not_null<std::shared_ptr<items::ItemNode>>> m_dynamicItems;
@@ -313,9 +314,22 @@ public:
       auto it = std::find_if(m_dynamicItems.begin(),
                              m_dynamicItems.end(),
                              [del](const std::shared_ptr<items::ItemNode>& i) { return i.get() == del; });
-      if(it == m_dynamicItems.end())
+      if(it != m_dynamicItems.end())
+      {
+        m_dynamicItems.erase(it);
         continue;
-      m_dynamicItems.erase(it);
+      }
+
+      auto it2 = std::find_if(m_itemNodes.begin(),
+                              m_itemNodes.end(),
+                              [del](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& i) {
+                                return i.second.get().get() == del;
+                              });
+      if(it2 != m_itemNodes.end())
+      {
+        m_itemNodes.erase(it2);
+        continue;
+      }
     }
 
     m_scheduledDeletions.clear();
@@ -449,8 +463,15 @@ public:
   void scaleSplashImage();
 
   void drawLoadingScreen(const std::string& state);
-  ;
 
   const std::vector<int16_t>& getPoseFrames() const;
+
+  void registerItem(const gsl::not_null<std::shared_ptr<items::ItemNode>>& item)
+  {
+    if(m_itemNodeCounter == std::numeric_limits<uint16_t>::max())
+      BOOST_THROW_EXCEPTION(std::runtime_error("Artificial item counter exceeded"));
+
+    m_itemNodes.emplace(m_itemNodeCounter++, item);
+  }
 };
 } // namespace engine

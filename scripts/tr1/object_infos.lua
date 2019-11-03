@@ -99,6 +99,34 @@ infos[19].hit_points = 20
 infos[19].pivot_length = 400
 infos[19].target_update_chance = 0x4000
 
+-- FlyingMutant
+infos[20].ai_agent = true
+infos[20].radius = 341
+infos[20].hit_points = 50
+infos[20].pivot_length = 150
+infos[20].target_update_chance = 0x7fff
+
+-- WalkingMutant1
+infos[21].ai_agent = true
+infos[21].radius = 341
+infos[21].hit_points = 5
+infos[21].pivot_length = 150
+infos[21].target_update_chance = 0x2000
+
+-- WalkingMutant2
+infos[22].ai_agent = true
+infos[22].radius = 341
+infos[22].hit_points = 50
+infos[22].pivot_length = 150
+infos[22].target_update_chance = 0x2000
+
+-- CentaurMutant
+infos[23].ai_agent = true
+infos[23].radius = 341
+infos[23].hit_points = 120
+infos[23].pivot_length = 400
+infos[23].target_update_chance = 0x7fff
+
 -- Mummy
 infos[24].hit_points = 18
 
@@ -113,5 +141,11 @@ infos[28].ai_agent = true
 infos[28].radius = 102
 infos[28].hit_points = 70
 infos[28].target_update_chance = 0x7fff
+
+-- TorsoBoss
+infos[34].ai_agent = true
+infos[34].radius = 341
+infos[34].hit_points = 500
+infos[34].target_update_chance = 0x7fff
 
 return infos

@@ -105,7 +105,6 @@ struct ItemState final : public audio::Emitter
   std::bitset<32> touch_bits;
   const loader::file::Box* box = nullptr;
   int16_t shade = -1;
-  std::bitset<32> mesh_bits;
 
   bool falling = false;
   bool is_hit = false;
@@ -400,8 +399,10 @@ public:
   gsl::not_null<std::shared_ptr<Particle>>
     emitParticle(const core::TRVec& localPosition,
                  size_t boneIndex,
-                 gsl::not_null<std::shared_ptr<Particle>> (*generate)(
-                   Engine& engine, const core::RoomBoundPosition& pos, core::Speed speed, core::Angle angle));
+                 gsl::not_null<std::shared_ptr<Particle>> (*generate)(Engine& engine,
+                                                                      const core::RoomBoundPosition& pos,
+                                                                      const core::Speed& speed,
+                                                                      const core::Angle& angle));
 
   void load(const YAML::Node& n) override;
 
