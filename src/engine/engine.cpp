@@ -19,6 +19,7 @@
 #include "items/gorilla.h"
 #include "items/keyhole.h"
 #include "items/larson.h"
+#include "items/lavaparticleemitter.h"
 #include "items/lightningball.h"
 #include "items/lion.h"
 #include "items/mummy.h"
@@ -431,6 +432,10 @@ std::shared_ptr<LaraNode> Engine::createItems()
       else if(item.type == TR1ItemId::TorsoBoss)
       {
         modelNode = std::make_shared<items::TorsoBoss>(this, room, item, *model);
+      }
+      else if(item.type == TR1ItemId::LavaParticleEmitter)
+      {
+        modelNode = std::make_shared<items::LavaParticleEmitter>(this, room, item, *model);
       }
       else
       {

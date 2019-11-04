@@ -27,15 +27,16 @@ public:
 
   BufferParameter& operator=(BufferParameter&&) = delete;
 
-  void set(const std::shared_ptr<gl::ShaderStorageBuffer>& value)
+  template<typename T>
+  void set(const std::shared_ptr<gl::ShaderStorageBuffer<T>>& value)
   {
     m_bufferBinder = [value](const Node& /*node*/, gl::ProgramShaderStorageBlock& shaderStorageBlock) {
       shaderStorageBlock.bind(*value);
     };
   }
 
-  template<class ClassType>
-  void bind(ClassType* classInstance, const gl::ShaderStorageBuffer& (ClassType::*valueMethod)() const)
+  template<class ClassType, typename T>
+  void bind(ClassType* classInstance, const gl::ShaderStorageBuffer<T>& (ClassType::*valueMethod)() const)
   {
     m_bufferBinder
       = [classInstance, valueMethod](const Node& /*node*/, gl::ProgramShaderStorageBlock& shaderStorageBlock) {

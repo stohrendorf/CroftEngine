@@ -321,6 +321,21 @@ public:
   bool update(Engine& engine) override;
 };
 
+class LavaParticle final : public Particle
+{
+public:
+  explicit LavaParticle(const core::RoomBoundPosition& pos, Engine& engine)
+      : Particle{"lava", TR1ItemId::LavaParticles, pos, engine}
+  {
+    angle.Y = util::rand15(180_deg) * 2;
+    speed = util::rand15(512_spd);
+    fall_speed = -util::rand15(165_len);
+    negSpriteFrameId = util::rand15(-4);
+  }
+
+  bool update(Engine& engine) override;
+};
+
 inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(Engine& engine,
                                                                  const core::RoomBoundPosition& pos,
                                                                  const core::Speed& speed,

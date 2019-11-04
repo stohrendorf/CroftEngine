@@ -354,4 +354,26 @@ bool MutantGrenadeParticle::update(Engine& engine)
   applyTransform();
   return true;
 }
+bool LavaParticle::update(Engine& engine)
+{
+  fall_speed += 6_len;
+  pos.position += util::pitch(speed * 1_frame, angle.Y, fall_speed);
+
+  const auto sector = loader::file::findRealFloorSector(pos);
+  setParent(this, pos.room->node);
+  if(HeightInfo::fromFloor(sector, pos.position, engine.getItemNodes()).y <= pos.position.Y
+     || HeightInfo::fromCeiling(sector, pos.position, engine.getItemNodes()).y > pos.position.Y)
+  {
+    return false;
+  }
+
+  if(engine.getLara().isNear(*this, 200_len))
+  {
+    engine.getLara().m_state.health -= 10_hp;
+    engine.getLara().m_state.is_hit = true;
+    return false;
+  }
+
+  return true;
+}
 } // namespace engine

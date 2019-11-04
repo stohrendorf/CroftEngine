@@ -109,7 +109,7 @@ infos[20].target_update_chance = 0x7fff
 -- WalkingMutant1
 infos[21].ai_agent = true
 infos[21].radius = 341
-infos[21].hit_points = 5
+infos[21].hit_points = 50
 infos[21].pivot_length = 150
 infos[21].target_update_chance = 0x2000
 
