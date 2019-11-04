@@ -17,11 +17,12 @@ bool doMutantFx(ModelItemNode& item, const std::bitset<32>& meshMask, int16_t da
     = item.m_state.type == TR1ItemId::WalkingMutant1 || item.m_state.type == TR1ItemId::WalkingMutant2
         ? TR1ItemId::FlyingMutant
         : item.m_state.type;
-  const auto baseIndex = item.getEngine().findAnimatedModelForType(modelSourceType)->mesh_base_index.index;
-  const auto meshCount = item.getEngine().findAnimatedModelForType(modelSourceType)->meshes.size();
-  BOOST_LOG_TRIVIAL(trace) << "Mutant FX: " << meshCount << " meshes";
+  const auto& modelType = item.getEngine().findAnimatedModelForType(modelSourceType);
+  Expects(modelType != nullptr);
+  const auto& meshes = modelType->meshes;
+  BOOST_LOG_TRIVIAL(trace) << "Mutant FX: " << modelType->meshes.size() << " meshes";
 
-  for(size_t i = 0; i < meshCount; ++i)
+  for(size_t i = 0; i < modelType->meshes.size(); ++i)
   {
     if(!meshMask.test(i) || !item.getSkeleton()->getChild(i)->isVisible())
     {
@@ -34,9 +35,10 @@ bool doMutantFx(ModelItemNode& item, const std::bitset<32>& meshMask, int16_t da
       core::RoomBoundPosition{item.m_state.position.room,
                               core::TRVec{item.getSkeleton()->getChild(i)->getTranslationWorld()}},
       item.getEngine(),
+      modelType->models[i],
       isTorsoBoss,
       damageAndRadius);
-    particle->negSpriteFrameId = gsl::narrow<int16_t>(baseIndex + i);
+    particle->negSpriteFrameId = gsl::narrow<int16_t>(modelType->mesh_base_index + i);
     setParent(particle, item.m_state.position.room->node);
     item.getEngine().getParticles().emplace_back(std::move(particle));
 

@@ -75,10 +75,15 @@ public:
                     core::TypeId objectNumber,
                     const gsl::not_null<const loader::file::Room*>& room,
                     Engine& engine,
+                    const std::shared_ptr<render::scene::Renderable>& renderable = nullptr,
                     float scale = 1);
 
-  explicit Particle(
-    const std::string& id, core::TypeId objectNumber, core::RoomBoundPosition pos, Engine& engine, float scale = 1);
+  explicit Particle(const std::string& id,
+                    core::TypeId objectNumber,
+                    core::RoomBoundPosition pos,
+                    Engine& engine,
+                    const std::shared_ptr<render::scene::Renderable>& renderable = nullptr,
+                    float scale = 1);
 
   void updateLight()
   {
@@ -157,7 +162,7 @@ class BubbleParticle final : public Particle
 {
 public:
   explicit BubbleParticle(const core::RoomBoundPosition& pos, Engine& engine)
-      : Particle{"bubble", TR1ItemId::Bubbles, pos, engine, 0.7f}
+      : Particle{"bubble", TR1ItemId::Bubbles, pos, engine, nullptr, 0.7f}
   {
     speed = 10_spd + util::rand15(6_spd);
 
@@ -260,9 +265,10 @@ class MutantHatchParticle final : public Particle
 public:
   explicit MutantHatchParticle(const core::RoomBoundPosition& pos,
                                Engine& engine,
+                               const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
                                const bool torsoBoss,
                                const int16_t damageAndRadius)
-      : Particle{"mutantHatch", TR1ItemId::MutantHatch, pos, engine}
+      : Particle{"mutantHatch", TR1ItemId::MutantHatch, pos, engine, renderable}
   {
     clearDrawables();
 

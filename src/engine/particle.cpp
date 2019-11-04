@@ -61,23 +61,46 @@ Particle::Particle(const std::string& id,
                    const core::TypeId objectNumber,
                    const gsl::not_null<const loader::file::Room*>& room,
                    Engine& engine,
+                   const std::shared_ptr<render::scene::Renderable>& renderable,
                    float scale)
     : Node{id}
     , Emitter{&engine.getSoundEngine()}
     , pos{room}
     , object_number{objectNumber}
 {
-  initDrawables(engine, scale);
+  if(renderable == nullptr)
+  {
+    initDrawables(engine, scale);
+  }
+  else
+  {
+    m_drawables.emplace_back(renderable);
+    setDrawable(m_drawables.front());
+    m_lighting.bind(*this);
+  }
 }
 
-Particle::Particle(
-  const std::string& id, const core::TypeId objectNumber, core::RoomBoundPosition pos, Engine& engine, float scale)
+Particle::Particle(const std::string& id,
+                   const core::TypeId objectNumber,
+                   core::RoomBoundPosition pos,
+                   Engine& engine,
+                   const std::shared_ptr<render::scene::Renderable>& renderable,
+                   float scale)
     : Node{id}
     , Emitter{&engine.getSoundEngine()}
     , pos{std::move(pos)}
     , object_number{objectNumber}
 {
-  initDrawables(engine, scale);
+  if(renderable == nullptr)
+  {
+    initDrawables(engine, scale);
+  }
+  else
+  {
+    m_drawables.emplace_back(renderable);
+    setDrawable(m_drawables.front());
+    m_lighting.bind(*this);
+  }
 }
 
 bool BloodSplatterParticle::update(Engine& engine)
