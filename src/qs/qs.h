@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gsl-lite.hpp"
 #include "mult_div.h"
 #include "quantity.h"
 #include "stream.h"
@@ -8,7 +9,7 @@
 #define QS_DECLARE_QUANTITY(NAME, TYPE, SUFFIX) \
   struct _##NAME##_generated_unit               \
   {                                             \
-    static const char* suffix()                 \
+    static gsl::czstring suffix()               \
     {                                           \
       return SUFFIX;                            \
     }                                           \

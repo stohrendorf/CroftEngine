@@ -20,7 +20,7 @@ FT_Library freeTypeLib = nullptr;
 
 int _dummyFaceId = 0;
 
-const char* getFreeTypeErrorMessage(const FT_Error err)
+gsl::czstring getFreeTypeErrorMessage(const FT_Error err)
 {
 #undef __FTERRORS_H__
 #define FT_ERRORDEF(e, v, s) \
@@ -61,10 +61,10 @@ FT_Library loadFreeTypeLib()
 FT_Error ftcFaceRequester(const FTC_FaceID face_id, const FT_Library library, const FT_Pointer req_data, FT_Face* aface)
 {
   Expects(face_id == &_dummyFaceId);
-  const auto error = FT_New_Face(library, static_cast<const char*>(req_data), 0, aface);
+  const auto error = FT_New_Face(library, static_cast<gsl::czstring>(req_data), 0, aface);
   if(error != FT_Err_Ok)
   {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to load font " << static_cast<const char*>(req_data) << ": "
+    BOOST_LOG_TRIVIAL(fatal) << "Failed to load font " << static_cast<gsl::czstring>(req_data) << ": "
                              << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load font"));
   }
@@ -74,8 +74,8 @@ FT_Error ftcFaceRequester(const FTC_FaceID face_id, const FT_Library library, co
 Font::Font(std::string ttf, const int size)
     : m_filename{std::move(ttf)}
 {
-  auto error
-    = FTC_Manager_New(loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester, const_cast<char*>(m_filename.c_str()), &m_cache);
+  auto error = FTC_Manager_New(
+    loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester, const_cast<gsl::zstring>(m_filename.c_str()), &m_cache);
   if(error != FT_Err_Ok)
   {
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cache manager: " << getFreeTypeErrorMessage(error);
@@ -111,7 +111,7 @@ Font::~Font()
   m_cache = nullptr;
 }
 
-void Font::drawText(const char* text, const int x, const int y, const SRGBA8& color)
+void Font::drawText(gsl::czstring text, const int x, const int y, const SRGBA8& color)
 {
   BOOST_ASSERT(text);
 

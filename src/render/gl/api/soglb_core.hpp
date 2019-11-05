@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gsl-lite.hpp"
+
 #include <cstdint>
 #include <type_traits>
 
@@ -142,7 +144,7 @@ using DebugProc = void(SOGLB_API*)(DebugSource source,
                                    uint32_t id,
                                    DebugSeverity severity,
                                    core::SizeType length,
-                                   const char* message,
+                                   gsl::czstring message,
                                    const void* userParam);
 
 } // namespace core

@@ -235,7 +235,7 @@ void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
   {
     for(int x = 0; x < 256; x++)
     {
-      const int col = tex.pixels[y][x];
+      const auto col = tex.pixels[y][x];
 
       if(col > 0)
         dst.pixels[y][x] = {pal.colors[col].r, pal.colors[col].g, pal.colors[col].b, 255};

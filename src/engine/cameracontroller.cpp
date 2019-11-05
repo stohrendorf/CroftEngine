@@ -11,7 +11,7 @@ namespace engine
 {
 namespace
 {
-const char* toString(const CameraMode mode)
+gsl::czstring toString(const CameraMode mode)
 {
   switch(mode)
   {
@@ -42,7 +42,7 @@ CameraMode parseCameraMode(const std::string& m)
   BOOST_THROW_EXCEPTION(std::domain_error("Invalid CameraMode"));
 }
 
-const char* toString(const CameraModifier mode)
+gsl::czstring toString(const CameraModifier mode)
 {
   switch(mode)
   {

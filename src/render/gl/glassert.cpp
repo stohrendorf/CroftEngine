@@ -3,13 +3,13 @@
 #include "api/gl_api_provider.hpp"
 
 #ifndef NDEBUG
-void render::gl::checkGlError(const char* code)
+void render::gl::checkGlError(gsl::czstring code)
 {
   const auto error = ::gl::getError();
   if(error == ::gl::ErrorCode::NoError)
     return;
 
-  const char* errStr;
+  gsl::czstring errStr;
   switch(error)
   {
   case ::gl::ErrorCode::InvalidEnum: errStr = "invalid enum"; break;

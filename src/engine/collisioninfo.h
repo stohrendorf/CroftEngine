@@ -74,7 +74,7 @@ struct CollisionInfo
   bool checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height, const Engine& engine);
 };
 
-inline const char* toString(CollisionInfo::AxisColl value)
+inline gsl::czstring toString(CollisionInfo::AxisColl value)
 {
   switch(value)
   {

@@ -9,7 +9,7 @@ namespace audio
 {
 namespace detail
 {
-bool checkALError(const char* code, const char* func, const int line)
+bool checkALError(gsl::czstring code, gsl::czstring func, const int line)
 {
   Expects(code != nullptr);
   Expects(func != nullptr);
@@ -17,7 +17,7 @@ bool checkALError(const char* code, const char* func, const int line)
   const ALenum err = alGetError();
   if(err != AL_NO_ERROR)
   {
-    const char* errStr = "<unknown>";
+    gsl::czstring errStr = "<unknown>";
     switch(err)
     {
     case AL_INVALID_NAME: errStr = "INVALID_NAME"; break;

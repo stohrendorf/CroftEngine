@@ -24,7 +24,7 @@ namespace engine
 {
 namespace
 {
-const char* toString(const HandStatus s)
+gsl::czstring toString(const HandStatus s)
 {
   switch(s)
   {
@@ -52,7 +52,7 @@ HandStatus parseHandStatus(const std::string& s)
   BOOST_THROW_EXCEPTION(std::domain_error("Invalid HandStatus"));
 }
 
-const char* toString(const UnderwaterState s)
+gsl::czstring toString(const UnderwaterState s)
 {
   switch(s)
   {
@@ -74,7 +74,7 @@ UnderwaterState parseUnderwaterState(const std::string& s)
   BOOST_THROW_EXCEPTION(std::domain_error("Invalid UnderwaterState"));
 }
 
-const char* toString(const core::Axis a)
+gsl::czstring toString(const core::Axis a)
 {
   switch(a)
   {
@@ -99,7 +99,7 @@ core::Axis parseAxis(const std::string& s)
   BOOST_THROW_EXCEPTION(std::domain_error("Invalid Axis"));
 }
 
-const char* toString(const LaraNode::WeaponId id)
+gsl::czstring toString(const LaraNode::WeaponId id)
 {
   switch(id)
   {

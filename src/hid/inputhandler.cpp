@@ -16,7 +16,7 @@ InputHandler::InputHandler(const gsl::not_null<GLFWwindow*>& window)
     if(glfwJoystickPresent(i) != GLFW_TRUE)
       continue;
 
-    const char* name = glfwGetGamepadName(i);
+    gsl::czstring name = glfwGetGamepadName(i);
     if(name == nullptr)
       continue;
 

@@ -21,7 +21,7 @@ public:
 
   Font& operator=(Font&&) = delete;
 
-  void drawText(const char* text, int x, int y, const SRGBA8& color);
+  void drawText(gsl::czstring text, int x, int y, const SRGBA8& color);
 
   void drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 

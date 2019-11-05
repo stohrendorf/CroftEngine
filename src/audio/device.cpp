@@ -34,7 +34,7 @@ Device::Device()
   {
     BOOST_LOG_TRIVIAL(info) << "Probing OpenAL devices...";
 
-    const char* deviceList = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
+    gsl::czstring deviceList = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
     Expects(deviceList != nullptr);
 
     if(deviceList == nullptr)

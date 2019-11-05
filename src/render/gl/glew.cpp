@@ -9,7 +9,7 @@ using namespace render::gl;
 
 namespace
 {
-inline const char* glDebugSourceToString(const ::gl::DebugSource src)
+inline gsl::czstring glDebugSourceToString(const ::gl::DebugSource src)
 {
   switch(src)
   {
@@ -24,7 +24,7 @@ inline const char* glDebugSourceToString(const ::gl::DebugSource src)
   return "<unknown>";
 }
 
-inline const char* glDebugTypeToString(const ::gl::DebugType type)
+inline gsl::czstring glDebugTypeToString(const ::gl::DebugType type)
 {
   switch(type)
   {
@@ -42,7 +42,7 @@ inline const char* glDebugTypeToString(const ::gl::DebugType type)
   return "<unknown>";
 }
 
-inline const char* glDebugSeverityToString(const ::gl::DebugSeverity severity)
+inline gsl::czstring glDebugSeverityToString(const ::gl::DebugSeverity severity)
 {
   switch(severity)
   {
@@ -60,7 +60,7 @@ void SOGLB_API debugCallback(::gl::DebugSource source,
                              uint32_t id,
                              ::gl::DebugSeverity severity,
                              ::gl::core::SizeType length,
-                             const char* message,
+                             gsl::czstring message,
                              const void* userParam)
 {
   if(source == ::gl::DebugSource::DebugSourceApplication)
@@ -78,7 +78,7 @@ void render::gl::initializeGl()
   const auto err = glewInit();
   if(err != GLEW_OK)
   {
-    BOOST_LOG_TRIVIAL(error) << "glewInit: " << reinterpret_cast<const char*>(glewGetErrorString(err));
+    BOOST_LOG_TRIVIAL(error) << "glewInit: " << reinterpret_cast<gsl::czstring>(glewGetErrorString(err));
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLEW"));
   }
 

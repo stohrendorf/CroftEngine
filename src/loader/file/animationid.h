@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gsl-lite.hpp"
+
 #include <cstdint>
 #include <map>
 #include <stdexcept>

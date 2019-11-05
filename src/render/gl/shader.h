@@ -46,12 +46,12 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void setSource(const std::string& src)
   {
-    const char* data[1]{src.c_str()};
+    gsl::czstring data[1]{src.c_str()};
     GL_ASSERT(::gl::shaderSource(m_handle, 1, data, nullptr));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void setSource(const char* src[], const ::gl::core::SizeType n)
+  void setSource(gsl::czstring src[], const ::gl::core::SizeType n)
   {
     GL_ASSERT(::gl::shaderSource(m_handle, n, src, nullptr));
   }

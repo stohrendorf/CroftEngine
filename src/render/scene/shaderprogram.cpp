@@ -203,7 +203,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   definesStr += "\n";
 
   static constexpr size_t SHADER_SOURCE_LENGTH = 3;
-  const char* shaderSource[SHADER_SOURCE_LENGTH];
+  gsl::czstring shaderSource[SHADER_SOURCE_LENGTH];
   shaderSource[0] = "#version 430\n";
   shaderSource[1] = definesStr.c_str();
 

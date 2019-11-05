@@ -35,7 +35,7 @@ function( wrap_enum name type source dest )
     file( APPEND "${dest}" "};\n\n" )
 
     # toString function
-    file( APPEND "${dest}" "inline const char* toString(${name} val)\n" )
+    file( APPEND "${dest}" "inline gsl::czstring toString(${name} val)\n" )
     file( APPEND "${dest}" "{\n" )
     file( APPEND "${dest}" "    switch(val)\n" )
     file( APPEND "${dest}" "    {\n" )

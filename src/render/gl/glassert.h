@@ -1,6 +1,7 @@
 #pragma once
 
 #include "glew.h"
+#include "gsl-lite.hpp"
 
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
@@ -11,9 +12,9 @@ namespace render
 namespace gl
 {
 #ifndef NDEBUG
-extern void checkGlError(const char* code);
+extern void checkGlError(gsl::czstring code);
 #else
-inline void checkGlError(const char* code)
+inline void checkGlError(gsl::czstring code)
 {
 }
 #endif
@@ -21,7 +22,7 @@ inline void checkGlError(const char* code)
 namespace detail
 {
 template<typename F>
-inline auto glAssertFn(F code, const char* codeStr) -> decltype(code())
+inline auto glAssertFn(F code, gsl::czstring codeStr) -> decltype(code())
 {
   const auto result = code();
   checkGlError(codeStr);

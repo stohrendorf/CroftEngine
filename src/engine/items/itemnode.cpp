@@ -13,7 +13,7 @@ namespace items
 {
 namespace
 {
-const char* toString(const TriggerState s)
+gsl::czstring toString(const TriggerState s)
 {
   switch(s)
   {

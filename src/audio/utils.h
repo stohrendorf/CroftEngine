@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gsl-lite.hpp"
+
 // ReSharper disable once CppUnusedIncludeDirective
 #include <boost/current_function.hpp>
 
@@ -7,10 +9,10 @@ namespace audio
 {
 namespace detail
 {
-extern bool checkALError(const char* code, const char* func, int line);
+extern bool checkALError(gsl::czstring code, gsl::czstring func, int line);
 
 template<typename F>
-inline auto alAssertFn(F code, const char* codeStr, const char* func, int line) -> decltype(code())
+inline auto alAssertFn(F code, gsl::czstring codeStr, gsl::czstring func, int line) -> decltype(code())
 {
   const auto result = code();
 #ifndef NDEBUG

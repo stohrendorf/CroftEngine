@@ -10,7 +10,7 @@ namespace scene
 {
 namespace
 {
-void glErrorCallback(const int err, const char* msg)
+void glErrorCallback(const int err, gsl::czstring msg)
 {
   BOOST_LOG_TRIVIAL(error) << "glfw Error " << err << ": " << msg;
 }

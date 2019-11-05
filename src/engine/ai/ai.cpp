@@ -9,7 +9,7 @@ namespace ai
 {
 namespace
 {
-const char* toString(const Mood m)
+gsl::czstring toString(const Mood m)
 {
   switch(m)
   {
