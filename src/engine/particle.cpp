@@ -155,6 +155,21 @@ bool BubbleParticle::update(Engine& engine)
   return true;
 }
 
+FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, Engine& engine, bool randomize)
+    : Particle{"flame", TR1ItemId::Flame, pos, engine}
+{
+  timePerSpriteFrame = 0;
+  negSpriteFrameId = 0;
+  shade = 4096;
+
+  if(randomize)
+  {
+    timePerSpriteFrame = -util::rand15(engine.getLara().getSkeleton()->getChildren().size()) - 1;
+    for(auto n = util::rand15(getLength()); n != 0; --n)
+      nextFrame();
+  }
+}
+
 bool FlameParticle::update(Engine& engine)
 {
   nextFrame();

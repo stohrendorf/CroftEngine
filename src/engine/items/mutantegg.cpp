@@ -19,10 +19,11 @@ bool shatterModel(ModelItemNode& item, const std::bitset<32>& meshMask, const co
         : item.m_state.type;
   const auto& modelType = item.getEngine().findAnimatedModelForType(modelSourceType);
   Expects(modelType != nullptr);
-  const auto& meshes = modelType->meshes;
-  BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->meshes.size() << " meshes";
+  const auto& models = modelType->models;
+  Expects(models.size() == item.getSkeleton()->getChildren().size());
+  BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->models.size() << " meshes";
 
-  for(size_t i = 0; i < modelType->meshes.size(); ++i)
+  for(size_t i = 0; i < modelType->models.size(); ++i)
   {
     if(!meshMask.test(i) || !item.getSkeleton()->getChild(i)->isVisible())
     {

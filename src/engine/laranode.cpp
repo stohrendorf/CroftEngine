@@ -2588,7 +2588,7 @@ void LaraNode::load(const YAML::Node& n)
 
 void LaraNode::burnIfAlive()
 {
-  if(m_state.health < 0_hp)
+  if(m_state.health <= 0_hp)
     return;
 
   const auto sector = loader::file::findRealFloorSector(m_state.position.position, m_state.position.room);

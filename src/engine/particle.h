@@ -219,20 +219,7 @@ public:
 class FlameParticle final : public Particle
 {
 public:
-  explicit FlameParticle(const core::RoomBoundPosition& pos, Engine& engine, bool randomize = false)
-      : Particle{"flame", TR1ItemId::Flame, pos, engine}
-  {
-    timePerSpriteFrame = 0;
-    negSpriteFrameId = 0;
-    shade = 4096;
-
-    if(randomize)
-    {
-      timePerSpriteFrame = -util::rand15(24) - 1;
-      for(auto n = util::rand15(getLength()); n != 0; --n)
-        nextFrame();
-    }
-  }
+  explicit FlameParticle(const core::RoomBoundPosition& pos, Engine& engine, bool randomize = false);
 
   bool update(Engine& engine) override;
 };
