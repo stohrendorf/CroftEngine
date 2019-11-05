@@ -8,7 +8,7 @@ namespace engine
 {
 namespace items
 {
-bool doMutantFx(ModelItemNode& item, const std::bitset<32>& meshMask, int16_t damageAndRadius)
+bool shatterModel(ModelItemNode& item, const std::bitset<32>& meshMask, const core::Length& damageRadius)
 {
   item.getSkeleton()->updatePose(item.m_state);
   const bool isTorsoBoss = item.m_state.type == TR1ItemId::TorsoBoss;
@@ -20,29 +20,29 @@ bool doMutantFx(ModelItemNode& item, const std::bitset<32>& meshMask, int16_t da
   const auto& modelType = item.getEngine().findAnimatedModelForType(modelSourceType);
   Expects(modelType != nullptr);
   const auto& meshes = modelType->meshes;
-  BOOST_LOG_TRIVIAL(trace) << "Mutant FX: " << modelType->meshes.size() << " meshes";
+  BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->meshes.size() << " meshes";
 
   for(size_t i = 0; i < modelType->meshes.size(); ++i)
   {
     if(!meshMask.test(i) || !item.getSkeleton()->getChild(i)->isVisible())
     {
-      BOOST_LOG_TRIVIAL(trace) << "Mutant FX: mesh " << i << " skipped";
+      BOOST_LOG_TRIVIAL(trace) << "Shatter model: mesh " << i << " skipped";
       continue;
     }
 
     item.getSkeleton()->getChild(i)->setVisible(false);
-    auto particle = std::make_shared<MutantHatchParticle>(
+    auto particle = std::make_shared<MeshShrapnelParticle>(
       core::RoomBoundPosition{item.m_state.position.room,
                               core::TRVec{item.getSkeleton()->getChild(i)->getTranslationWorld()}},
       item.getEngine(),
       modelType->models[i],
       isTorsoBoss,
-      damageAndRadius);
+      damageRadius);
     particle->negSpriteFrameId = gsl::narrow<int16_t>(modelType->mesh_base_index + i);
     setParent(particle, item.m_state.position.room->node);
     item.getEngine().getParticles().emplace_back(std::move(particle));
 
-    BOOST_LOG_TRIVIAL(trace) << "Mutant FX: mesh " << i << " converted";
+    BOOST_LOG_TRIVIAL(trace) << "Shatter model: mesh " << i << " converted";
   }
 
   for(const auto& child : item.getSkeleton()->getChildren())
@@ -118,7 +118,7 @@ void MutantEgg::update()
       for(size_t i = 0; i < getSkeleton()->getChildren().size(); ++i)
         getSkeleton()->getChild(i)->setVisible(i < 24);
 
-      doMutantFx(*this, 0xfffe00, 0);
+      shatterModel(*this, 0xfffe00, 0_len);
 
       if(m_childItem != nullptr)
       {

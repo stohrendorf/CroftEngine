@@ -7,7 +7,7 @@ namespace engine
 {
 namespace items
 {
-extern bool doMutantFx(ModelItemNode& item, const std::bitset<32>& meshMask, int16_t damageAndRadius);
+extern bool shatterModel(ModelItemNode& item, const std::bitset<32>& meshMask, const core::Length& damageRadius);
 
 class MutantEgg final : public ModelItemNode
 {

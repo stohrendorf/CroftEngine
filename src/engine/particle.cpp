@@ -231,13 +231,13 @@ bool FlameParticle::update(Engine& engine)
   return true;
 }
 
-bool MutantHatchParticle::update(Engine& engine)
+bool MeshShrapnelParticle::update(Engine& engine)
 {
   angle.X += 5_deg;
   angle.Z += 10_deg;
-  fall_speed += 6_len;
+  fall_speed += core::Gravity * 1_frame;
 
-  pos.position += util::pitch(speed * 1_frame, angle.Y, fall_speed);
+  pos.position += util::pitch(speed * 1_frame, angle.Y, fall_speed * 1_frame);
 
   const auto sector = findRealFloorSector(pos.position, &pos.room);
   const auto ceiling = HeightInfo::fromCeiling(sector, pos.position, engine.getItemNodes()).y;
@@ -253,18 +253,18 @@ bool MutantHatchParticle::update(Engine& engine)
 
   if(floor <= pos.position.Y)
   {
-    if(timePerSpriteFrame == 0)
+    if(m_damageRadius <= 0_len)
       return false;
 
     explode = true;
   }
-  else if(engine.getLara().isNear(*this, 2 * core::Length{static_cast<core::Length::type>(timePerSpriteFrame)}))
+  else if(engine.getLara().isNear(*this, 2 * m_damageRadius))
   {
-    engine.getLara().m_state.health -= core::Health{static_cast<core::Health::type>(timePerSpriteFrame)};
     engine.getLara().m_state.is_hit = true;
-    if(timePerSpriteFrame == 0)
+    if(m_damageRadius <= 0_len)
       return false;
 
+    engine.getLara().m_state.health -= m_damageRadius * 1_hp / 1_len;
     explode = true;
 
     engine.getLara().forceSourcePosition = &pos.position;
@@ -379,8 +379,8 @@ bool MutantGrenadeParticle::update(Engine& engine)
 }
 bool LavaParticle::update(Engine& engine)
 {
-  fall_speed += 6_len;
-  pos.position += util::pitch(speed * 1_frame, angle.Y, fall_speed);
+  fall_speed += core::Gravity * 1_frame;
+  pos.position += util::pitch(speed * 1_frame, angle.Y, fall_speed * 1_frame);
 
   const auto sector = loader::file::findRealFloorSector(pos);
   setParent(this, pos.room->node);

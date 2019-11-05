@@ -23,7 +23,7 @@ public:
   core::TRRotation angle{0_deg, 0_deg, 0_deg};
   const core::TypeId object_number;
   core::Speed speed = 0_spd;
-  core::Length fall_speed = 0_len;
+  core::Speed fall_speed = 0_spd;
   int16_t negSpriteFrameId = 0;
   int16_t timePerSpriteFrame = 0;
   int16_t shade = 4096;
@@ -235,7 +235,7 @@ class ExplosionParticle final : public Particle
 public:
   explicit ExplosionParticle(const core::RoomBoundPosition& pos,
                              Engine& engine,
-                             const core::Length& fallSpeed,
+                             const core::Speed& fallSpeed,
                              const core::TRRotation& angle)
       : Particle{"explosion", TR1ItemId::Explosion, pos, engine}
   {
@@ -260,31 +260,33 @@ public:
   }
 };
 
-class MutantHatchParticle final : public Particle
+class MeshShrapnelParticle final : public Particle
 {
 public:
-  explicit MutantHatchParticle(const core::RoomBoundPosition& pos,
-                               Engine& engine,
-                               const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
-                               const bool torsoBoss,
-                               const int16_t damageAndRadius)
-      : Particle{"mutantHatch", TR1ItemId::MutantHatch, pos, engine, renderable}
+  explicit MeshShrapnelParticle(const core::RoomBoundPosition& pos,
+                                Engine& engine,
+                                const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
+                                const bool torsoBoss,
+                                const core::Length& damageRadius)
+      : Particle{"meshShrapnel", TR1ItemId::MeshShrapnel, pos, engine, renderable}
+      , m_damageRadius{damageRadius}
   {
     clearDrawables();
 
     angle.Y = core::Angle{util::rand15s() * 2};
     speed = util::rand15(256_spd);
-    fall_speed = util::rand15(256_len);
+    fall_speed = util::rand15(256_spd);
     if(!torsoBoss)
     {
       speed /= 2;
       fall_speed /= 2;
     }
-
-    timePerSpriteFrame = damageAndRadius;
   }
 
   bool update(Engine& engine) override;
+
+private:
+  const core::Length m_damageRadius;
 };
 
 class MutantAmmoParticle : public Particle
@@ -335,7 +337,7 @@ public:
   {
     angle.Y = util::rand15(180_deg) * 2;
     speed = util::rand15(512_spd);
-    fall_speed = -util::rand15(165_len);
+    fall_speed = -util::rand15(165_spd);
     negSpriteFrameId = util::rand15(-4);
   }
 

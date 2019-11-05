@@ -58,7 +58,7 @@ void FlyingMutant::update()
   core::Angle headRot = 0_deg;
   if(getHealth() <= 0_hp)
   {
-    if(doMutantFx(*this, 0xffffffffu, 100))
+    if(shatterModel(*this, 0xffffffffu, 100_len))
     {
       playSoundEffect(TR1SoundId::Mummy);
       m_state.creatureInfo.reset();
@@ -133,10 +133,10 @@ void FlyingMutant::update()
     switch(m_state.current_anim_state.get())
     {
     case DoPrepareAttack.get():
-      m_state.creatureInfo->flags &= ~(8 | ShootBullet | ThrowGrenade);
+      m_state.creatureInfo->flags &= ~(8u | ShootBullet | ThrowGrenade);
       if(m_state.creatureInfo->flags & Flying)
         m_state.goal_anim_state = DoFly;
-      else if((m_state.touch_bits.to_ulong() & 0x678) || (aiInfo.bite && aiInfo.distance < util::square(300_len)))
+      else if((m_state.touch_bits.to_ulong() & 0x678u) || (aiInfo.bite && aiInfo.distance < util::square(300_len)))
         m_state.goal_anim_state = DoHit200;
       else if(aiInfo.bite && aiInfo.distance < util::square(600_len))
         m_state.goal_anim_state = DoHit150;
@@ -173,7 +173,7 @@ void FlyingMutant::update()
       break;
     case DoRun.get():
       m_state.creatureInfo->maximum_turn = 6_deg;
-      if((m_state.creatureInfo->flags & Flying) || (m_state.touch_bits.to_ulong() & 0x678)
+      if((m_state.creatureInfo->flags & Flying) || (m_state.touch_bits.to_ulong() & 0x678u)
          || (aiInfo.bite && aiInfo.distance < util::square(600_len)))
       {
         m_state.goal_anim_state = DoPrepareAttack;
@@ -189,7 +189,7 @@ void FlyingMutant::update()
       }
       break;
     case DoHit150.get():
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x678))
+      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x678u))
       {
         emitParticle(core::TRVec{-27_len, 98_len, 0_len}, 10, &createBloodSplat);
         getEngine().getLara().m_state.health -= 150_hp;
@@ -224,7 +224,7 @@ void FlyingMutant::update()
       }
       break;
     case DoHit100.get():
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x678))
+      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x678u))
       {
         emitParticle(core::TRVec{-27_len, 98_len, 0_len}, 10, &createBloodSplat);
         getEngine().getLara().m_state.health -= 100_hp;
@@ -233,7 +233,7 @@ void FlyingMutant::update()
       }
       break;
     case DoHit200.get():
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x678))
+      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x678u))
       {
         emitParticle(core::TRVec{-27_len, 98_len, 0_len}, 10, &createBloodSplat);
         getEngine().getLara().m_state.health -= 200_hp;
@@ -242,7 +242,7 @@ void FlyingMutant::update()
       }
       break;
     case DoShootBullet.get():
-      m_state.creatureInfo->flags |= (8 | ShootBullet);
+      m_state.creatureInfo->flags |= (8u | ShootBullet);
       if(frontRight)
       {
         m_state.goal_anim_state = DoAttack;
@@ -285,12 +285,12 @@ void FlyingMutant::update()
     }
   }
 
-  if(!(m_state.creatureInfo->flags & 8))
+  if(!(m_state.creatureInfo->flags & 8u))
   {
     m_state.creatureInfo->head_rotation = m_state.creatureInfo->neck_rotation;
   }
   rotateCreatureHead(headRot);
-  if(m_state.creatureInfo->flags & 8)
+  if(m_state.creatureInfo->flags & 8u)
   {
     m_state.creatureInfo->neck_rotation = 0_deg;
   }
@@ -410,7 +410,7 @@ void CentaurMutant::update()
   if(m_state.triggerState == TriggerState::Deactivated)
   {
     playSoundEffect(TR1SoundId::Mummy);
-    doMutantFx(*this, -1, 100);
+    shatterModel(*this, -1, 100_len);
     kill();
     m_state.triggerState = TriggerState::Deactivated;
   }
@@ -612,7 +612,7 @@ void TorsoBoss::update()
   if(m_state.triggerState == TriggerState::Deactivated)
   {
     playSoundEffect(TR1SoundId::Mummy);
-    doMutantFx(*this, -1, 250);
+    shatterModel(*this, -1, 250_len);
     const auto sector = loader::file::findRealFloorSector(m_state.position);
     getEngine().getLara().handleCommandSequence(
       HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getItemNodes()).lastCommandSequenceOrDeath,

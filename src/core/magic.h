@@ -49,4 +49,6 @@ constexpr auto DefaultCollisionRadiusUnderwater = 300_len;
 constexpr auto CameraWallDistance = QuarterSectorSize + 50_len;
 constexpr auto DefaultCameraLaraDistance = SectorSize * 3 / 2;
 constexpr auto CombatCameraLaraDistance = SectorSize + DefaultCameraLaraDistance;
+
+constexpr auto Gravity = 6_spd / 1_frame;
 } // namespace core

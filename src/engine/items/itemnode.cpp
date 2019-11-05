@@ -324,7 +324,7 @@ void ModelItemNode::applyMovement(const bool forLara)
     }
     else
     {
-      m_state.fallspeed += 6_spd;
+      m_state.fallspeed += core::Gravity * 1_frame;
     }
 
     if(forLara)
