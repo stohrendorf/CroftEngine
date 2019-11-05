@@ -582,6 +582,8 @@ public:
     m_state.position.position = item.position.position + p;
   }
 
+  void burnIfAlive();
+
   YAML::Node save() const override;
 
   void load(const YAML::Node& n) override;

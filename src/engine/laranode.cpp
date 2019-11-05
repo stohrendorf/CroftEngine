@@ -581,7 +581,7 @@ void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* fl
     {
       if(m_state.position.position.Y == m_state.floor)
       {
-        //! @todo kill Lara
+        burnIfAlive();
       }
     }
 
@@ -2584,6 +2584,29 @@ void LaraNode::load(const YAML::Node& n)
   leftArm.load(n["leftArm"], getEngine());
   rightArm.load(n["rightArm"], getEngine());
   m_weaponTargetVector.load(n["weaponTargetVector"]);
+}
+
+void LaraNode::burnIfAlive()
+{
+  if(m_state.health < 0_hp)
+    return;
+
+  const auto sector = loader::file::findRealFloorSector(m_state.position.position, m_state.position.room);
+  if(HeightInfo::fromFloor(
+       sector, {m_state.position.position.X, 32000_len, m_state.position.position.Z}, getEngine().getItemNodes())
+       .y
+     != m_state.floor)
+    return;
+
+  m_state.health = -1_hp;
+  m_state.is_hit = true;
+
+  for(size_t i = 0; i < 10; ++i)
+  {
+    auto particle = std::make_shared<FlameParticle>(m_state.position, getEngine(), true);
+    setParent(particle, m_state.position.room->node);
+    getEngine().getParticles().emplace_back(particle);
+  }
 }
 
 YAML::Node LaraNode::AimInfo::save(const engine::Engine& engine) const
