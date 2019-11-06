@@ -86,5 +86,46 @@ void ScionPiece3::update()
     deactivate();
   }
 }
+
+void ScionPiece4::collide(LaraNode& lara, CollisionInfo& info)
+{
+  m_state.rotation = {0_deg, lara.m_state.rotation.Y, 0_deg};
+
+  static const InteractionLimits limits{core::BoundingBox{{-256_len, -206_len, -862_len}, {256_len, 306_len, -200_len}},
+                                        {-10_deg, 0_deg, 0_deg},
+                                        {+10_deg, 0_deg, 0_deg}};
+
+  if(!getEngine().getInputHandler().getInputState().action || lara.getHandStatus() != HandStatus::None
+     || lara.m_state.falling || lara.getCurrentAnimState() != LaraStateId::Stop
+     || !limits.canInteract(m_state, lara.m_state))
+    return;
+
+  static const core::TRVec alignSpeed{0_len, 280_len, -407_len};
+
+  lara.alignTransform(alignSpeed, *this);
+  lara.m_state.anim = getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations;
+  lara.m_state.frame_number = lara.m_state.anim->firstFrame;
+  lara.setCurrentAnimState(LaraStateId::PickUp);
+  lara.setGoalAnimState(LaraStateId::PickUp);
+  lara.setHandStatus(HandStatus::Grabbing);
+  getEngine().getCameraController().m_cinematicFrame = 0;
+  getEngine().getCameraController().setMode(CameraMode::Cinematic);
+  getEngine().getCameraController().m_cinematicPos = lara.m_state.position.position;
+  getEngine().getCameraController().m_cinematicRot = lara.m_state.rotation - core::TRRotation{0_deg, 90_deg, 0_deg};
+}
+
+void ScionHolder::collide(LaraNode& lara, CollisionInfo& info)
+{
+  if(!isNear(lara, info.collisionRadius))
+    return;
+
+  if(!testBoneCollision(lara))
+    return;
+
+  if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+    return;
+
+  enemyPush(lara, info, false, true);
+}
 } // namespace items
 } // namespace engine

@@ -13,6 +13,7 @@
 
 #include <set>
 #include <sol.hpp>
+#include <utility>
 
 namespace loader
 {
@@ -45,10 +46,10 @@ struct InteractionLimits
   core::TRRotation minAngle;
   core::TRRotation maxAngle;
 
-  InteractionLimits(const core::BoundingBox& bbox, const core::TRRotation& min, const core::TRRotation& max)
-      : distance{bbox}
-      , minAngle{min}
-      , maxAngle{max}
+  InteractionLimits(core::BoundingBox bbox, core::TRRotation min, core::TRRotation max)
+      : distance{std::move(bbox)}
+      , minAngle{std::move(min)}
+      , maxAngle{std::move(max)}
   {
     distance.makeValid();
   }
@@ -110,7 +111,6 @@ struct ItemState final : public audio::Emitter
   bool is_hit = false;
   bool collidable = true;
   bool already_looked_at = false;
-  bool dynamic_light = false;
 
   std::shared_ptr<ai::CreatureInfo> creatureInfo;
 
@@ -203,14 +203,14 @@ public:
 
   void applyTransform();
 
-  void rotate(const core::Angle dx, const core::Angle dy, const core::Angle dz)
+  void rotate(const core::Angle& dx, const core::Angle& dy, const core::Angle& dz)
   {
     m_state.rotation.X += dx;
     m_state.rotation.Y += dy;
     m_state.rotation.Z += dz;
   }
 
-  void move(const core::Length dx, const core::Length dy, const core::Length dz)
+  void move(const core::Length& dx, const core::Length& dy, const core::Length& dz)
   {
     m_state.position.position.X += dx;
     m_state.position.position.Y += dy;
@@ -222,7 +222,7 @@ public:
     m_state.position.position += core::TRVec(d);
   }
 
-  void moveLocal(const core::TRVec d)
+  void moveLocal(const core::TRVec& d)
   {
     m_state.position.position += util::pitch(d, m_state.rotation.Y);
   }
@@ -279,7 +279,7 @@ public:
 
   virtual loader::file::BoundingBox getBoundingBox() const = 0;
 
-  virtual void collide(LaraNode& /*other*/, CollisionInfo& /*collisionInfo*/)
+  virtual void collide(LaraNode& /*lara*/, CollisionInfo& /*collisionInfo*/)
   {
   }
 
@@ -296,7 +296,7 @@ public:
 protected:
   bool alignTransformClamped(const core::TRVec& targetPos,
                              const core::TRRotation& targetRot,
-                             const core::Length maxDistance,
+                             const core::Length& maxDistance,
                              const core::Angle& maxAngle)
   {
     auto d = targetPos - m_state.position.position;

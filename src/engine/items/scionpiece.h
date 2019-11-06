@@ -34,7 +34,7 @@ public:
               const gsl::not_null<const loader::file::Room*>& room,
               const loader::file::Item& item,
               const loader::file::SkeletalModelType& animatedModel)
-      : ModelItemNode{engine, room, item, false, animatedModel}
+      : ModelItemNode{engine, room, item, true, animatedModel}
   {
   }
 
@@ -42,6 +42,34 @@ public:
 
 private:
   core::Frame m_deadTime = 0_frame;
+};
+
+class ScionPiece4 final : public ModelItemNode
+{
+public:
+  ScionPiece4(const gsl::not_null<Engine*>& engine,
+              const gsl::not_null<const loader::file::Room*>& room,
+              const loader::file::Item& item,
+              const loader::file::SkeletalModelType& animatedModel)
+      : ModelItemNode{engine, room, item, true, animatedModel}
+  {
+  }
+
+  void collide(LaraNode& lara, CollisionInfo& info) override;
+};
+
+class ScionHolder final : public ModelItemNode
+{
+public:
+  ScionHolder(const gsl::not_null<Engine*>& engine,
+              const gsl::not_null<const loader::file::Room*>& room,
+              const loader::file::Item& item,
+              const loader::file::SkeletalModelType& animatedModel)
+      : ModelItemNode{engine, room, item, true, animatedModel}
+  {
+  }
+
+  void collide(LaraNode& lara, CollisionInfo& info) override;
 };
 } // namespace items
 } // namespace engine

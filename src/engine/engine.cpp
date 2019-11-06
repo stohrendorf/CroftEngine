@@ -446,6 +446,14 @@ std::shared_ptr<LaraNode> Engine::createItems()
       {
         modelNode = std::make_shared<items::ScionPiece3>(this, room, item, *model);
       }
+      else if(item.type == TR1ItemId::ScionPiece4)
+      {
+        modelNode = std::make_shared<items::ScionPiece4>(this, room, item, *model);
+      }
+      else if(item.type == TR1ItemId::ScionHolder)
+      {
+        modelNode = std::make_shared<items::ScionHolder>(this, room, item, *model);
+      }
       else
       {
         BOOST_LOG_TRIVIAL(warning) << "Unimplemented item " << toString(item.type.get_as<TR1ItemId>());
