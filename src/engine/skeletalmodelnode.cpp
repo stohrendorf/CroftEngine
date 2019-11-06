@@ -18,7 +18,7 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
   //setAnimation(mdl.animationIndex);
 }
 
-core::Speed SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const core::Frame frameOffset)
+core::Speed SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const core::Frame& frameOffset)
 {
   const auto scaled
     = state.anim->speed + state.anim->acceleration * (state.frame_number - state.anim->firstFrame + frameOffset);
@@ -122,18 +122,18 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
   for(size_t i = 1; i < m_model.meshes.size(); ++i)
   {
-    if(m_model.boneTree[i - 1].flags & 0x01)
+    if(m_model.boneTree[i - 1].flags & 0x01u)
     {
       transformsFirst.pop();
       transformsSecond.pop();
     }
-    if(m_model.boneTree[i - 1].flags & 0x02)
+    if(m_model.boneTree[i - 1].flags & 0x02u)
     {
       transformsFirst.push({transformsFirst.top()});   // make sure to have a copy, not a reference
       transformsSecond.push({transformsSecond.top()}); // make sure to have a copy, not a reference
     }
 
-    BOOST_ASSERT((m_model.boneTree[i - 1].flags & 0x1c) == 0);
+    BOOST_ASSERT((m_model.boneTree[i - 1].flags & 0x1cu) == 0);
 
     if(framePair.firstFrame->numValues < i)
       transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl()) * m_bonePatches[i];
@@ -172,15 +172,15 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
   if(m_model.meshes.size() <= 1)
     return;
 
-  for(uint16_t i = 1; i < m_model.meshes.size(); ++i)
+  for(size_t i = 1; i < m_model.meshes.size(); ++i)
   {
-    BOOST_ASSERT((m_model.boneTree[i - 1].flags & 0x1c) == 0);
+    BOOST_ASSERT((m_model.boneTree[i - 1].flags & 0x1cu) == 0);
 
-    if(m_model.boneTree[i - 1].flags & 0x01)
+    if(m_model.boneTree[i - 1].flags & 0x01u)
     {
       transforms.pop();
     }
-    if(m_model.boneTree[i - 1].flags & 0x02)
+    if(m_model.boneTree[i - 1].flags & 0x02u)
     {
       transforms.push({transforms.top()}); // make sure to have a copy, not a reference
     }
@@ -218,13 +218,15 @@ bool SkeletalModelNode::handleStateTransitions(items::ItemState& state)
     if(tr.stateId != state.goal_anim_state)
       continue;
 
-    for(const loader::file::TransitionCase& trc : tr.transitionCases)
+    const auto it = std::find_if(
+      tr.transitionCases.cbegin(), tr.transitionCases.cend(), [&state](const loader::file::TransitionCase& trc) {
+        return state.frame_number >= trc.firstFrame && state.frame_number <= trc.lastFrame;
+      });
+
+    if(it != tr.transitionCases.cend())
     {
-      if(state.frame_number >= trc.firstFrame && state.frame_number <= trc.lastFrame)
-      {
-        setAnimation(state, trc.targetAnimation, trc.targetFrame);
-        return true;
-      }
+      setAnimation(state, it->targetAnimation, it->targetFrame);
+      return true;
     }
   }
 
@@ -297,13 +299,13 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
 
   for(gsl::index i = 1; i < m_model.meshes.size(); ++i)
   {
-    BOOST_ASSERT((m_model.boneTree[i - 1].flags & 0x1c) == 0);
+    BOOST_ASSERT((m_model.boneTree[i - 1].flags & 0x1cu) == 0);
 
-    if(m_model.boneTree[i - 1].flags & 0x01)
+    if(m_model.boneTree[i - 1].flags & 0x01u)
     {
       transforms.pop();
     }
-    if(m_model.boneTree[i - 1].flags & 0x02)
+    if(m_model.boneTree[i - 1].flags & 0x02u)
     {
       transforms.push({transforms.top()}); // make sure to have a copy, not a reference
     }

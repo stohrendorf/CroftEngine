@@ -1923,30 +1923,23 @@ bool LaraNode::fireWeapon(const WeaponId weaponId,
   else if(weaponId == WeaponId::AutoPistols)
   {
     ammoPtr = &revolverAmmo;
-    if(true /* FIXME engine::allAmmoCheat */)
-    {
-      revolverAmmo.ammo = 1000;
-    }
   }
   else if(weaponId == WeaponId::Uzi)
   {
     ammoPtr = &uziAmmo;
-    if(true /* FIXME engine::allAmmoCheat */)
-    {
-      uziAmmo.ammo = 1000;
-    }
   }
   else if(weaponId == WeaponId::Shotgun)
   {
     ammoPtr = &shotgunAmmo;
-    if(true /* FIXME engine::allAmmoCheat */)
-    {
-      shotgunAmmo.ammo = 1000;
-    }
   }
   else
   {
     BOOST_THROW_EXCEPTION(std::out_of_range("weaponId"));
+  }
+
+  if(true /* FIXME engine::allAmmoCheat */)
+  {
+    ammoPtr->ammo = 1000;
   }
 
   if(ammoPtr->ammo <= 0)

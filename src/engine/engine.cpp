@@ -442,6 +442,10 @@ std::shared_ptr<LaraNode> Engine::createItems()
       {
         modelNode = std::make_shared<items::AtlanteanLava>(this, room, item, *model);
       }
+      else if(item.type == TR1ItemId::ScionPiece3)
+      {
+        modelNode = std::make_shared<items::ScionPiece3>(this, room, item, *model);
+      }
       else
       {
         BOOST_LOG_TRIVIAL(warning) << "Unimplemented item " << toString(item.type.get_as<TR1ItemId>());
@@ -475,13 +479,13 @@ std::shared_ptr<LaraNode> Engine::createItems()
 
       if(item.type == TR1ItemId::ScionPiece1)
       {
-        node = std::make_shared<items::ScionPieceItem>(this,
-                                                       std::string("sprite(type:")
-                                                         + toString(item.type.get_as<TR1ItemId>()) + ")",
-                                                       room,
-                                                       item,
-                                                       sprite,
-                                                       m_spriteMaterial);
+        node = std::make_shared<items::ScionPiece>(this,
+                                                   std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>())
+                                                     + ")",
+                                                   room,
+                                                   item,
+                                                   sprite,
+                                                   m_spriteMaterial);
       }
       else if(item.type == TR1ItemId::Item141 || item.type == TR1ItemId::Item142 || item.type == TR1ItemId::Key1Sprite
               || item.type == TR1ItemId::Key2Sprite || item.type == TR1ItemId::Key3Sprite

@@ -148,4 +148,7 @@ infos[34].radius = 341
 infos[34].hit_points = 500
 infos[34].target_update_chance = 0x7fff
 
+-- ScionPiece3
+infos[145].hit_points = 5
+
 return infos

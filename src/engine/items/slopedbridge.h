@@ -9,29 +9,29 @@ namespace items
 class SlopedBridge : public ModelItemNode
 {
 private:
-  const int m_div;
+  const int m_flatness;
 
 public:
   SlopedBridge(const gsl::not_null<engine::Engine*>& engine,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const loader::file::SkeletalModelType& animatedModel,
-               const int div)
+               const int flatness)
       : ModelItemNode{engine, room, item, false, animatedModel}
-      , m_div{div}
+      , m_flatness{flatness}
   {
   }
 
-  void patchFloor(const core::TRVec& pos, core::Length& y) override final
+  void patchFloor(const core::TRVec& pos, core::Length& y) final
   {
-    const auto tmp = m_state.position.position.Y + getBridgeSlopeHeight(pos) / m_div;
+    const auto tmp = m_state.position.position.Y + getBridgeSlopeHeight(pos) / m_flatness;
     if(pos.Y <= tmp)
       y = tmp;
   }
 
-  void patchCeiling(const core::TRVec& pos, core::Length& y) override final
+  void patchCeiling(const core::TRVec& pos, core::Length& y) final
   {
-    const auto tmp = m_state.position.position.Y + getBridgeSlopeHeight(pos) / m_div;
+    const auto tmp = m_state.position.position.Y + getBridgeSlopeHeight(pos) / m_flatness;
     if(pos.Y <= tmp)
       return;
 
@@ -46,10 +46,10 @@ private:
 
     switch(*axis)
     {
-    case core::Axis::PosZ: return core::SectorSize - 1_len - pos.X % core::SectorSize;
-    case core::Axis::PosX: return pos.Z % core::SectorSize;
-    case core::Axis::NegZ: return pos.X % core::SectorSize;
-    case core::Axis::NegX: return core::SectorSize - 1_len - pos.Z % core::SectorSize;
+    case core::Axis::PosZ: return core::SectorSize - 1_len - (pos.X % core::SectorSize);
+    case core::Axis::PosX: return (pos.Z % core::SectorSize);
+    case core::Axis::NegZ: return (pos.X % core::SectorSize);
+    case core::Axis::NegX: return core::SectorSize - 1_len - (pos.Z % core::SectorSize);
     default: return 0_len;
     }
   }

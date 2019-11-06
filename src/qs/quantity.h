@@ -91,6 +91,12 @@ struct quantity
     return *this;
   }
 
+  constexpr self_type& operator%=(self_type r) noexcept
+  {
+    value %= r.value;
+    return *this;
+  }
+
   constexpr self_type operator*=(type r) noexcept
   {
     value *= r;
