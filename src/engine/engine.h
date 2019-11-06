@@ -473,5 +473,22 @@ public:
 
     m_itemNodes.emplace(m_itemNodeCounter++, item);
   }
+
+  std::shared_ptr<items::ItemNode> find(const items::ItemNode* node) const
+  {
+    if(node == nullptr)
+      return nullptr;
+
+    auto it = std::find_if(m_itemNodes.begin(),
+                           m_itemNodes.end(),
+                           [node](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& x) {
+                             return x.second.get().get() == node;
+                           });
+
+    if(it == m_itemNodes.end())
+      return nullptr;
+
+    return it->second;
+  }
 };
 } // namespace engine

@@ -162,6 +162,7 @@ set( EDISONENGINE_SRCS
      engine/lara/abstractstatehandler.cpp
 
      engine/items/animating.cpp
+     engine/items/atlanteanlava.cpp
      engine/items/bear.cpp
      engine/items/barricade.cpp
      engine/items/bat.cpp

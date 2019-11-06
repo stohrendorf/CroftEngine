@@ -3,6 +3,7 @@
 #include "audio/tracktype.h"
 #include "floordata/floordata.h"
 #include "items/animating.h"
+#include "items/atlanteanlava.h"
 #include "items/barricade.h"
 #include "items/bat.h"
 #include "items/bear.h"
@@ -436,6 +437,10 @@ std::shared_ptr<LaraNode> Engine::createItems()
       else if(item.type == TR1ItemId::LavaParticleEmitter)
       {
         modelNode = std::make_shared<items::LavaParticleEmitter>(this, room, item, *model);
+      }
+      else if(item.type == TR1ItemId::FlowingAtlanteanLava)
+      {
+        modelNode = std::make_shared<items::AtlanteanLava>(this, room, item, *model);
       }
       else
       {
