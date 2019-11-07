@@ -1072,6 +1072,8 @@ YAML::Node Engine::save() const
 
   result["camera"] = m_cameraController->save();
 
+  result["secretsFound"] = m_secretsFoundBitmask.to_ulong();
+
   return result;
 }
 
@@ -1106,6 +1108,8 @@ void Engine::load(const YAML::Node& node)
   }
 
   getCameraController().load(node["camera"]);
+
+  m_secretsFoundBitmask = node["secretsFound"].as<uint16_t>();
 }
 
 std::shared_ptr<items::PickupItem> Engine::createPickup(const core::TypeId type,
@@ -1883,6 +1887,221 @@ const std::vector<uint16_t>& Engine::getOverlaps() const
 const std::unique_ptr<loader::file::SkeletalModelType>& Engine::findAnimatedModelForType(core::TypeId type) const
 {
   return m_level->findAnimatedModelForType(type);
+}
+
+void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, const bool fromHeavy)
+{
+  if(floorData == nullptr)
+    return;
+
+  floordata::FloorDataChunk chunkHeader{*floorData};
+
+  if(chunkHeader.type == floordata::FloorDataChunkType::Death)
+  {
+    if(!fromHeavy)
+    {
+      if(m_lara->m_state.position.position.Y == m_lara->m_state.floor)
+      {
+        m_lara->burnIfAlive();
+      }
+    }
+
+    if(chunkHeader.isLast)
+      return;
+
+    ++floorData;
+  }
+
+  chunkHeader = floordata::FloorDataChunk{*floorData++};
+  BOOST_ASSERT(chunkHeader.type == floordata::FloorDataChunkType::CommandSequence);
+  const floordata::ActivationState activationRequest{*floorData++};
+
+  m_cameraController->handleCommandSequence(floorData);
+
+  bool conditionFulfilled, switchIsOn = false;
+  if(fromHeavy)
+  {
+    conditionFulfilled = chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemIsHere;
+  }
+  else
+  {
+    switch(chunkHeader.sequenceCondition)
+    {
+    case floordata::SequenceCondition::LaraIsHere: conditionFulfilled = true; break;
+    case floordata::SequenceCondition::LaraOnGround:
+    case floordata::SequenceCondition::LaraOnGroundInverted:
+    {
+      conditionFulfilled = m_lara->m_state.position.position.Y == m_lara->m_state.floor;
+    }
+    break;
+    case floordata::SequenceCondition::ItemActivated:
+    {
+      auto swtch = m_itemNodes.at(floordata::Command{*floorData++}.parameter);
+      if(!swtch->triggerSwitch(activationRequest.getTimeout()))
+        return;
+
+      switchIsOn = (swtch->m_state.current_anim_state == 1_as);
+      conditionFulfilled = true;
+    }
+    break;
+    case floordata::SequenceCondition::KeyUsed:
+    {
+      auto key = m_itemNodes.at(floordata::Command{*floorData++}.parameter);
+      if(key->triggerKey())
+        conditionFulfilled = true;
+      else
+        return;
+    }
+    break;
+    case floordata::SequenceCondition::ItemPickedUp:
+      if(m_itemNodes.at(floordata::Command{*floorData++}.parameter)->triggerPickUp())
+        conditionFulfilled = true;
+      else
+        return;
+      break;
+    case floordata::SequenceCondition::LaraInCombatMode:
+      conditionFulfilled = m_lara->getHandStatus() == HandStatus::Combat;
+      break;
+    case floordata::SequenceCondition::ItemIsHere:
+    case floordata::SequenceCondition::Dummy: return;
+    default: conditionFulfilled = true; break;
+    }
+  }
+
+  if(!conditionFulfilled)
+    return;
+
+  bool swapRooms = false;
+  boost::optional<size_t> flipEffect;
+  while(true)
+  {
+    const floordata::Command command{*floorData++};
+    switch(command.opcode)
+    {
+    case floordata::CommandOpcode::Activate:
+    {
+      auto& item = *m_itemNodes.at(command.parameter);
+      if(item.m_state.activationState.isOneshot())
+        break;
+
+      item.m_state.timer = activationRequest.getTimeout();
+
+      if(chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated)
+        item.m_state.activationState ^= activationRequest.getActivationSet();
+      else if(chunkHeader.sequenceCondition == floordata::SequenceCondition::LaraOnGroundInverted)
+        item.m_state.activationState &= ~activationRequest.getActivationSet();
+      else
+        item.m_state.activationState |= activationRequest.getActivationSet();
+
+      if(!item.m_state.activationState.isFullyActivated())
+        break;
+
+      if(activationRequest.isOneshot())
+        item.m_state.activationState.setOneshot(true);
+
+      if(item.m_isActive)
+        break;
+
+      if(item.m_state.triggerState == items::TriggerState::Inactive
+         || item.m_state.triggerState == items::TriggerState::Invisible
+         || dynamic_cast<items::AIAgent*>(&item) == nullptr)
+      {
+        item.m_state.triggerState = items::TriggerState::Active;
+        item.m_state.touch_bits = 0;
+        item.activate();
+        break;
+      }
+    }
+    break;
+    case floordata::CommandOpcode::SwitchCamera:
+    {
+      const floordata::CameraParameters camParams{*floorData++};
+      m_cameraController->setCamOverride(camParams,
+                                         command.parameter,
+                                         chunkHeader.sequenceCondition,
+                                         fromHeavy,
+                                         activationRequest.getTimeout(),
+                                         switchIsOn);
+      command.isLast = camParams.isLast;
+    }
+    break;
+    case floordata::CommandOpcode::LookAt: m_cameraController->setLookAtItem(getItem(command.parameter)); break;
+    case floordata::CommandOpcode::UnderwaterCurrent:
+    {
+      const auto& sink = m_level->m_cameras.at(command.parameter);
+      if(m_lara->m_underwaterRoute.required_box != &m_level->m_boxes[sink.box_index])
+      {
+        m_lara->m_underwaterRoute.required_box = &m_level->m_boxes[sink.box_index];
+        m_lara->m_underwaterRoute.target = sink.position;
+      }
+      m_lara->m_underwaterCurrentStrength = 6_len * static_cast<core::Length::type>(sink.underwaterCurrentStrength);
+    }
+    break;
+    case floordata::CommandOpcode::FlipMap:
+      BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
+      if(!mapFlipActivationStates[command.parameter].isOneshot())
+      {
+        if(chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated)
+        {
+          mapFlipActivationStates[command.parameter] ^= activationRequest.getActivationSet();
+        }
+        else
+        {
+          mapFlipActivationStates[command.parameter] |= activationRequest.getActivationSet();
+        }
+
+        if(mapFlipActivationStates[command.parameter].isFullyActivated())
+        {
+          if(activationRequest.isOneshot())
+            mapFlipActivationStates[command.parameter].setOneshot(true);
+
+          if(!m_roomsAreSwapped)
+            swapRooms = true;
+        }
+        else if(m_roomsAreSwapped)
+        {
+          swapRooms = true;
+        }
+      }
+      break;
+    case floordata::CommandOpcode::FlipOn:
+      BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
+      if(!m_roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated())
+        swapRooms = true;
+      break;
+    case floordata::CommandOpcode::FlipOff:
+      BOOST_ASSERT(command.parameter < mapFlipActivationStates.size());
+      if(m_roomsAreSwapped && mapFlipActivationStates[command.parameter].isFullyActivated())
+        swapRooms = true;
+      break;
+    case floordata::CommandOpcode::FlipEffect: flipEffect = command.parameter; break;
+    case floordata::CommandOpcode::EndLevel: finishLevel(); break;
+    case floordata::CommandOpcode::PlayTrack:
+      m_audioEngine->triggerCdTrack(
+        static_cast<TR1TrackId>(command.parameter), activationRequest, chunkHeader.sequenceCondition);
+      break;
+    case floordata::CommandOpcode::Secret:
+      BOOST_ASSERT(command.parameter < 16);
+      if(!m_secretsFoundBitmask.test(command.parameter))
+      {
+        m_secretsFoundBitmask.set(command.parameter);
+        m_audioEngine->playStopCdTrack(TR1TrackId::Secret, false);
+      }
+      break;
+    default: break;
+    }
+
+    if(command.isLast)
+      break;
+  }
+
+  if(!swapRooms)
+    return;
+
+  swapAllRooms();
+
+  if(flipEffect.is_initialized())
+    setGlobalEffect(*flipEffect);
 }
 
 Engine::~Engine() = default;

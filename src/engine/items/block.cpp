@@ -8,10 +8,11 @@ namespace engine
 {
 namespace items
 {
-void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
+void Block::collide(CollisionInfo& /*collisionInfo*/)
 {
   if(!getEngine().getInputHandler().getInputState().action || m_state.triggerState == TriggerState::Active
-     || lara.m_state.falling || lara.m_state.position.position.Y != m_state.position.position.Y)
+     || getEngine().getLara().m_state.falling
+     || getEngine().getLara().m_state.position.position.Y != m_state.position.position.Y)
   {
     return;
   }
@@ -20,13 +21,13 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
                                         {-10_deg, -30_deg, -10_deg},
                                         {+10_deg, +30_deg, +10_deg}};
 
-  auto axis = axisFromAngle(lara.m_state.rotation.Y, 45_deg);
+  auto axis = axisFromAngle(getEngine().getLara().m_state.rotation.Y, 45_deg);
   Expects(axis.is_initialized());
 
-  if(lara.getCurrentAnimState() == LaraStateId::Stop)
+  if(getEngine().getLara().getCurrentAnimState() == LaraStateId::Stop)
   {
     if(getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Null
-       || lara.getHandStatus() != HandStatus::None)
+       || getEngine().getLara().getHandStatus() != HandStatus::None)
     {
       return;
     }
@@ -34,12 +35,12 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     const core::Angle y = alignRotation(*axis);
     m_state.rotation.Y = y;
 
-    if(!limits.canInteract(m_state, lara.m_state))
+    if(!limits.canInteract(m_state, getEngine().getLara().m_state))
     {
       return;
     }
 
-    lara.m_state.rotation.Y = y;
+    getEngine().getLara().m_state.rotation.Y = y;
 
     core::Length core::TRVec::*vp;
     core::Length d = 0_len;
@@ -64,19 +65,21 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid axis"));
     }
 
-    lara.m_state.position.position.*vp = (lara.m_state.position.position.*vp / core::SectorSize) * core::SectorSize + d;
+    getEngine().getLara().m_state.position.position.*vp
+      = (getEngine().getLara().m_state.position.position.*vp / core::SectorSize) * core::SectorSize + d;
 
-    lara.setGoalAnimState(LaraStateId::PushableGrab);
-    lara.updateImpl();
-    if(lara.getCurrentAnimState() == LaraStateId::PushableGrab)
+    getEngine().getLara().setGoalAnimState(LaraStateId::PushableGrab);
+    getEngine().getLara().updateImpl();
+    if(getEngine().getLara().getCurrentAnimState() == LaraStateId::PushableGrab)
     {
-      lara.setHandStatus(HandStatus::Grabbing);
+      getEngine().getLara().setHandStatus(HandStatus::Grabbing);
     }
     return;
   }
 
-  if(lara.getCurrentAnimState() != LaraStateId::PushableGrab || lara.m_state.frame_number != 2091_frame
-     || !limits.canInteract(m_state, lara.m_state))
+  if(getEngine().getLara().getCurrentAnimState() != LaraStateId::PushableGrab
+     || getEngine().getLara().m_state.frame_number != 2091_frame
+     || !limits.canInteract(m_state, getEngine().getLara().m_state))
   {
     return;
   }
@@ -89,7 +92,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
 
     m_state.goal_anim_state = 2_as;
-    lara.setGoalAnimState(LaraStateId::PushablePush);
+    getEngine().getLara().setGoalAnimState(LaraStateId::PushablePush);
   }
   else if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
   {
@@ -99,7 +102,7 @@ void Block::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
 
     m_state.goal_anim_state = 3_as;
-    lara.setGoalAnimState(LaraStateId::PushablePull);
+    getEngine().getLara().setGoalAnimState(LaraStateId::PushablePull);
   }
   else
   {
@@ -156,7 +159,7 @@ void Block::update()
   loader::file::Room::patchHeightsForBlock(*this, -core::SectorSize);
   pos = m_state.position;
   sector = loader::file::findRealFloorSector(pos);
-  getEngine().getLara().handleCommandSequence(
+  getEngine().handleCommandSequence(
     HeightInfo::fromFloor(sector, pos.position, getEngine().getItemNodes()).lastCommandSequenceOrDeath, true);
 }
 

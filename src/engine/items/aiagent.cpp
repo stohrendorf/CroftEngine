@@ -417,12 +417,12 @@ AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
   loadObjectInfo(false);
 }
 
-void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void AIAgent::collide(CollisionInfo& collisionInfo)
 {
-  if(!isNear(lara, collisionInfo.collisionRadius))
+  if(!isNear(getEngine().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(lara))
+  if(!testBoneCollision(getEngine().getLara()))
     return;
 
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
@@ -430,7 +430,7 @@ void AIAgent::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 
   const bool enableSpaz
     = m_state.health > 0_hp && collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
-  enemyPush(lara, collisionInfo, enableSpaz, false);
+  enemyPush(collisionInfo, enableSpaz, false);
 }
 
 bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const

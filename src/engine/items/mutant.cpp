@@ -614,7 +614,7 @@ void TorsoBoss::update()
     playSoundEffect(TR1SoundId::Mummy);
     shatterModel(*this, -1, 250_len);
     const auto sector = loader::file::findRealFloorSector(m_state.position);
-    getEngine().getLara().handleCommandSequence(
+    getEngine().handleCommandSequence(
       HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getItemNodes()).lastCommandSequenceOrDeath,
       true);
     kill();

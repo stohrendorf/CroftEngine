@@ -211,7 +211,7 @@ void LaraNode::handleLaraStateOnLand()
   updateFloorHeight(-381_len);
 
   updateLarasWeaponsStatus();
-  handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
+  getEngine().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
 
   applyTransform();
 
@@ -268,7 +268,7 @@ void LaraNode::handleLaraStateDiving()
 
   updateFloorHeight(0_len);
   updateLarasWeaponsStatus();
-  handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
+  getEngine().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
 #ifndef NDEBUG
   lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -325,7 +325,7 @@ void LaraNode::handleLaraStateSwimming()
 
   updateFloorHeight(core::DefaultCollisionRadius);
   updateLarasWeaponsStatus();
-  handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
+  getEngine().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
 #ifndef NDEBUG
   lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -568,223 +568,6 @@ void LaraNode::updateFloorHeight(const core::Length& dy)
   m_state.floor = hi.y;
 }
 
-void LaraNode::handleCommandSequence(const engine::floordata::FloorDataValue* floorData, const bool fromHeavy)
-{
-  if(floorData == nullptr)
-    return;
-
-  floordata::FloorDataChunk chunkHeader{*floorData};
-
-  if(chunkHeader.type == floordata::FloorDataChunkType::Death)
-  {
-    if(!fromHeavy)
-    {
-      if(m_state.position.position.Y == m_state.floor)
-      {
-        burnIfAlive();
-      }
-    }
-
-    if(chunkHeader.isLast)
-      return;
-
-    ++floorData;
-  }
-
-  chunkHeader = floordata::FloorDataChunk{*floorData++};
-  BOOST_ASSERT(chunkHeader.type == floordata::FloorDataChunkType::CommandSequence);
-  const floordata::ActivationState activationRequest{*floorData++};
-
-  getEngine().getCameraController().handleCommandSequence(floorData);
-
-  bool conditionFulfilled, switchIsOn = false;
-  if(fromHeavy)
-  {
-    conditionFulfilled = chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemIsHere;
-  }
-  else
-  {
-    switch(chunkHeader.sequenceCondition)
-    {
-    case floordata::SequenceCondition::LaraIsHere: conditionFulfilled = true; break;
-    case floordata::SequenceCondition::LaraOnGround:
-    case floordata::SequenceCondition::LaraOnGroundInverted:
-    {
-      conditionFulfilled = m_state.position.position.Y == m_state.floor;
-    }
-    break;
-    case floordata::SequenceCondition::ItemActivated:
-    {
-      auto swtch = getEngine().getItemNodes().at(floordata::Command{*floorData++}.parameter);
-      if(!swtch->triggerSwitch(activationRequest.getTimeout()))
-        return;
-
-      switchIsOn = (swtch->m_state.current_anim_state == 1_as);
-      conditionFulfilled = true;
-    }
-    break;
-    case floordata::SequenceCondition::KeyUsed:
-    {
-      auto key = getEngine().getItemNodes().at(floordata::Command{*floorData++}.parameter);
-      if(key->triggerKey())
-        conditionFulfilled = true;
-      else
-        return;
-    }
-    break;
-    case floordata::SequenceCondition::ItemPickedUp:
-      if(getEngine().getItemNodes().at(floordata::Command{*floorData++}.parameter)->triggerPickUp())
-        conditionFulfilled = true;
-      else
-        return;
-      break;
-    case floordata::SequenceCondition::LaraInCombatMode:
-      conditionFulfilled = getHandStatus() == HandStatus::Combat;
-      break;
-    case floordata::SequenceCondition::ItemIsHere:
-    case floordata::SequenceCondition::Dummy: return;
-    default: conditionFulfilled = true; break;
-    }
-  }
-
-  if(!conditionFulfilled)
-    return;
-
-  bool swapRooms = false;
-  boost::optional<size_t> flipEffect;
-  while(true)
-  {
-    const floordata::Command command{*floorData++};
-    switch(command.opcode)
-    {
-    case floordata::CommandOpcode::Activate:
-    {
-      auto& item = *getEngine().getItemNodes().at(command.parameter);
-      if(item.m_state.activationState.isOneshot())
-        break;
-
-      item.m_state.timer = activationRequest.getTimeout();
-
-      if(chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated)
-        item.m_state.activationState ^= activationRequest.getActivationSet();
-      else if(chunkHeader.sequenceCondition == floordata::SequenceCondition::LaraOnGroundInverted)
-        item.m_state.activationState &= ~activationRequest.getActivationSet();
-      else
-        item.m_state.activationState |= activationRequest.getActivationSet();
-
-      if(!item.m_state.activationState.isFullyActivated())
-        break;
-
-      if(activationRequest.isOneshot())
-        item.m_state.activationState.setOneshot(true);
-
-      if(item.m_isActive)
-        break;
-
-      if(item.m_state.triggerState == items::TriggerState::Inactive
-         || item.m_state.triggerState == items::TriggerState::Invisible
-         || dynamic_cast<items::AIAgent*>(&item) == nullptr)
-      {
-        item.m_state.triggerState = items::TriggerState::Active;
-        item.m_state.touch_bits = 0;
-        item.activate();
-        break;
-      }
-    }
-    break;
-    case floordata::CommandOpcode::SwitchCamera:
-    {
-      const floordata::CameraParameters camParams{*floorData++};
-      getEngine().getCameraController().setCamOverride(camParams,
-                                                       command.parameter,
-                                                       chunkHeader.sequenceCondition,
-                                                       fromHeavy,
-                                                       activationRequest.getTimeout(),
-                                                       switchIsOn);
-      command.isLast = camParams.isLast;
-    }
-    break;
-    case floordata::CommandOpcode::LookAt:
-      getEngine().getCameraController().setLookAtItem(getEngine().getItem(command.parameter));
-      break;
-    case floordata::CommandOpcode::UnderwaterCurrent:
-    {
-      const auto& sink = getEngine().getCameras().at(command.parameter);
-      if(m_underwaterRoute.required_box != &getEngine().getBoxes()[sink.box_index])
-      {
-        m_underwaterRoute.required_box = &getEngine().getBoxes()[sink.box_index];
-        m_underwaterRoute.target = sink.position;
-      }
-      m_underwaterCurrentStrength = 6_len * static_cast<core::Length::type>(sink.underwaterCurrentStrength);
-    }
-    break;
-    case floordata::CommandOpcode::FlipMap:
-      BOOST_ASSERT(command.parameter < getEngine().mapFlipActivationStates.size());
-      if(!getEngine().mapFlipActivationStates[command.parameter].isOneshot())
-      {
-        if(chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated)
-        {
-          getEngine().mapFlipActivationStates[command.parameter] ^= activationRequest.getActivationSet();
-        }
-        else
-        {
-          getEngine().mapFlipActivationStates[command.parameter] |= activationRequest.getActivationSet();
-        }
-
-        if(getEngine().mapFlipActivationStates[command.parameter].isFullyActivated())
-        {
-          if(activationRequest.isOneshot())
-            getEngine().mapFlipActivationStates[command.parameter].setOneshot(true);
-
-          if(!getEngine().roomsAreSwapped())
-            swapRooms = true;
-        }
-        else if(getEngine().roomsAreSwapped())
-        {
-          swapRooms = true;
-        }
-      }
-      break;
-    case floordata::CommandOpcode::FlipOn:
-      BOOST_ASSERT(command.parameter < getEngine().mapFlipActivationStates.size());
-      if(!getEngine().roomsAreSwapped() && getEngine().mapFlipActivationStates[command.parameter].isFullyActivated())
-        swapRooms = true;
-      break;
-    case floordata::CommandOpcode::FlipOff:
-      BOOST_ASSERT(command.parameter < getEngine().mapFlipActivationStates.size());
-      if(getEngine().roomsAreSwapped() && getEngine().mapFlipActivationStates[command.parameter].isFullyActivated())
-        swapRooms = true;
-      break;
-    case floordata::CommandOpcode::FlipEffect: flipEffect = command.parameter; break;
-    case floordata::CommandOpcode::EndLevel: getEngine().finishLevel(); break;
-    case floordata::CommandOpcode::PlayTrack:
-      getEngine().getAudioEngine().triggerCdTrack(
-        static_cast<TR1TrackId>(command.parameter), activationRequest, chunkHeader.sequenceCondition);
-      break;
-    case floordata::CommandOpcode::Secret:
-      BOOST_ASSERT(command.parameter < 16);
-      if(!m_secretsFoundBitmask.test(command.parameter))
-      {
-        m_secretsFoundBitmask.set(command.parameter);
-        getEngine().getAudioEngine().playStopCdTrack(TR1TrackId::Secret, false);
-      }
-      break;
-    default: break;
-    }
-
-    if(command.isLast)
-      break;
-  }
-
-  if(!swapRooms)
-    return;
-
-  getEngine().swapAllRooms();
-
-  if(flipEffect.is_initialized())
-    getEngine().setGlobalEffect(*flipEffect);
-}
-
 void LaraNode::setCameraRotationAroundCenter(const core::Angle& x, const core::Angle& y)
 {
   getEngine().getCameraController().setRotationAroundCenter(x, y);
@@ -838,7 +621,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     if(abs(d.X) >= 4 * core::SectorSize || abs(d.Y) >= 4 * core::SectorSize || abs(d.Z) >= 4 * core::SectorSize)
       continue;
 
-    item->collide(*this, collisionInfo);
+    item->collide(collisionInfo);
   }
 
   for(const auto& item : getEngine().getDynamicItems())
@@ -856,7 +639,7 @@ void LaraNode::testInteractions(CollisionInfo& collisionInfo)
     if(abs(d.X) >= 4 * core::SectorSize || abs(d.Y) >= 4 * core::SectorSize || abs(d.Z) >= 4 * core::SectorSize)
       continue;
 
-    item->collide(*this, collisionInfo);
+    item->collide(collisionInfo);
   }
 
   if(getEngine().getLara().explosionStumblingDuration != 0_frame)

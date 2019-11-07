@@ -26,18 +26,18 @@ void Barricade::update()
   }
 }
 
-void Barricade::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void Barricade::collide(CollisionInfo& collisionInfo)
 {
-  if(!isNear(lara, collisionInfo.collisionRadius))
+  if(!isNear(getEngine().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(lara))
+  if(!testBoneCollision(getEngine().getLara()))
     return;
 
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
-  enemyPush(lara, collisionInfo, false, true);
+  enemyPush(collisionInfo, false, true);
 }
 } // namespace items
 } // namespace engine

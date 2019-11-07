@@ -228,7 +228,6 @@ private:
   //!          diving immediately again.
   //! @fixme Move this to the engine
   core::Frame m_swimToDiveKeypressDuration = 0_frame;
-  std::bitset<16> m_secretsFoundBitmask = 0;
 
 public:
   void setAir(const core::Frame& a) noexcept
@@ -321,8 +320,6 @@ public:
   void setAnimation(AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
 
   void updateFloorHeight(const core::Length& dy);
-
-  void handleCommandSequence(const engine::floordata::FloorDataValue* floorData, bool fromHeavy);
 
   void addSwimToDiveKeypressDuration(const core::Frame& n) noexcept
   {

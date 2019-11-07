@@ -3,48 +3,49 @@
 #include "engine/laranode.h"
 #include "engine/particle.h"
 
-void engine::items::TeethSpikes::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void engine::items::TeethSpikes::collide(CollisionInfo& collisionInfo)
 {
-  if(lara.m_state.health >= 0_hp && isNear(lara, collisionInfo.collisionRadius) && testBoneCollision(lara))
+  if(getEngine().getLara().m_state.health >= 0_hp && isNear(getEngine().getLara(), collisionInfo.collisionRadius)
+     && testBoneCollision(getEngine().getLara()))
   {
     int bloodSplats = util::rand15(2);
-    if(!lara.m_state.falling)
+    if(!getEngine().getLara().m_state.falling)
     {
-      if(lara.m_state.speed < 30_spd)
+      if(getEngine().getLara().m_state.speed < 30_spd)
       {
         return;
       }
     }
     else
     {
-      if(lara.m_state.fallspeed > 0_spd)
+      if(getEngine().getLara().m_state.fallspeed > 0_spd)
       {
         // immediate death when falling into the spikes
         bloodSplats = 20;
-        lara.m_state.health = -1_hp;
+        getEngine().getLara().m_state.health = -1_hp;
       }
     }
-    lara.m_state.health -= 15_hp;
+    getEngine().getLara().m_state.health -= 15_hp;
     while(bloodSplats-- > 0)
     {
       auto fx
         = createBloodSplat(getEngine(),
                            core::RoomBoundPosition{
-                             lara.m_state.position.room,
-                             lara.m_state.position.position
+                             getEngine().getLara().m_state.position.room,
+                             getEngine().getLara().m_state.position.position
                                + core::TRVec{util::rand15s(128_len), -util::rand15(512_len), util::rand15s(128_len)}},
                            20_spd,
                            util::rand15(+180_deg));
       getEngine().getParticles().emplace_back(fx);
     }
-    if(lara.m_state.health <= 0_hp)
+    if(getEngine().getLara().m_state.health <= 0_hp)
     {
-      lara.m_state.anim = &getEngine().getAnimation(AnimationId::SPIKED);
-      lara.m_state.frame_number = 3887_frame;
-      lara.setCurrentAnimState(LaraStateId::Death);
-      lara.setGoalAnimState(LaraStateId::Death);
-      lara.m_state.falling = false;
-      lara.m_state.position.position.Y = m_state.position.position.Y;
+      getEngine().getLara().m_state.anim = &getEngine().getAnimation(AnimationId::SPIKED);
+      getEngine().getLara().m_state.frame_number = 3887_frame;
+      getEngine().getLara().setCurrentAnimState(LaraStateId::Death);
+      getEngine().getLara().setGoalAnimState(LaraStateId::Death);
+      getEngine().getLara().m_state.falling = false;
+      getEngine().getLara().m_state.position.position.Y = m_state.position.position.Y;
     }
   }
 }

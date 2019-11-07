@@ -737,7 +737,7 @@ bool AbstractStateHandler::applyLandingDamage()
                             m_lara.m_state.position.position - core::TRVec{0_len, core::LaraWalkHeight, 0_len},
                             getEngine().getItemNodes());
   m_lara.m_state.floor = h.y;
-  m_lara.handleCommandSequence(h.lastCommandSequenceOrDeath, false);
+  getEngine().handleCommandSequence(h.lastCommandSequenceOrDeath, false);
   const auto damageSpeed = m_lara.m_state.fallspeed - core::DamageFallSpeedThreshold;
   if(damageSpeed <= 0_spd)
   {

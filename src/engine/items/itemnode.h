@@ -25,8 +25,6 @@ struct Item;
 
 namespace engine
 {
-class LaraNode;
-
 class Particle;
 
 class Engine;
@@ -279,7 +277,7 @@ public:
 
   virtual loader::file::BoundingBox getBoundingBox() const = 0;
 
-  virtual void collide(LaraNode& /*lara*/, CollisionInfo& /*collisionInfo*/)
+  virtual void collide(CollisionInfo& /*collisionInfo*/)
   {
   }
 
@@ -394,7 +392,7 @@ public:
 
   bool testBoneCollision(const ModelItemNode& other);
 
-  void enemyPush(LaraNode& lara, CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
+  void enemyPush(CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 
   gsl::not_null<std::shared_ptr<Particle>>
     emitParticle(const core::TRVec& localPosition,

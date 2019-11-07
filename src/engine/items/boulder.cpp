@@ -30,7 +30,7 @@ void engine::items::RollingBall::update()
     setCurrentRoom(room);
     const auto hi = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getItemNodes());
     m_state.floor = hi.y;
-    getEngine().getLara().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
+    getEngine().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
     if(m_state.floor - core::QuarterSectorSize <= m_state.position.position.Y)
     {
       m_state.fallspeed = 0_spd;
@@ -64,54 +64,53 @@ void engine::items::RollingBall::update()
   }
 }
 
-void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void engine::items::RollingBall::collide(CollisionInfo& collisionInfo)
 {
   if(m_state.triggerState != TriggerState::Active)
   {
     if(m_state.triggerState != TriggerState::Invisible)
     {
-      if(!isNear(lara, collisionInfo.collisionRadius))
+      if(!isNear(getEngine().getLara(), collisionInfo.collisionRadius))
         return;
 
-      if(!testBoneCollision(lara))
+      if(!testBoneCollision(getEngine().getLara()))
         return;
 
       if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
         return;
 
-      enemyPush(lara, collisionInfo, false, true);
+      enemyPush(collisionInfo, false, true);
     }
     return;
   }
 
-  if(!isNear(lara, collisionInfo.collisionRadius))
+  if(!isNear(getEngine().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(lara))
+  if(!testBoneCollision(getEngine().getLara()))
     return;
 
-  if(!lara.m_state.falling)
+  if(!getEngine().getLara().m_state.falling)
   {
-    lara.m_state.is_hit = true;
-    if(lara.m_state.health <= 0_hp)
+    getEngine().getLara().m_state.is_hit = true;
+    if(getEngine().getLara().m_state.health <= 0_hp)
       return;
 
-    lara.m_state.health = -1_hp;
-    lara.setCurrentRoom(m_state.position.room);
-    lara.setAnimation(AnimationId::SQUASH_BOULDER, 3561_frame);
+    getEngine().getLara().m_state.health = -1_hp;
+    getEngine().getLara().setCurrentRoom(m_state.position.room);
+    getEngine().getLara().setAnimation(AnimationId::SQUASH_BOULDER, 3561_frame);
     getEngine().getCameraController().setModifier(CameraModifier::FollowCenter);
     getEngine().getCameraController().setEyeRotation(-25_deg, 170_deg);
-    lara.m_state.rotation.X = 0_deg;
-    lara.m_state.rotation.Y = m_state.rotation.Y;
-    lara.m_state.rotation.Z = 0_deg;
-    lara.setGoalAnimState(LaraStateId::BoulderDeath);
+    getEngine().getLara().m_state.rotation.X = 0_deg;
+    getEngine().getLara().m_state.rotation.Y = m_state.rotation.Y;
+    getEngine().getLara().m_state.rotation.Z = 0_deg;
+    getEngine().getLara().setGoalAnimState(LaraStateId::BoulderDeath);
     for(int i = 0; i < 15; ++i)
     {
-      const auto x = util::rand15s(128_len) + lara.m_state.position.position.X;
-      const auto y = lara.m_state.position.position.Y - util::rand15s(512_len);
-      const auto z = util::rand15s(128_len) + lara.m_state.position.position.Z;
+      const auto tmp = getEngine().getLara().m_state.position.position
+                       + core::TRVec{util::rand15s(128_len), -util::rand15s(512_len), util::rand15s(128_len)};
       auto fx = createBloodSplat(getEngine(),
-                                 core::RoomBoundPosition{m_state.position.room, core::TRVec{x, y, z}},
+                                 core::RoomBoundPosition{m_state.position.room, tmp},
                                  2 * m_state.speed,
                                  util::rand15s(22.5_deg) + m_state.rotation.Y);
       getEngine().getParticles().emplace_back(fx);
@@ -121,13 +120,13 @@ void engine::items::RollingBall::collide(LaraNode& lara, CollisionInfo& collisio
 
   if(collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
   {
-    enemyPush(lara, collisionInfo, collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz), true);
+    enemyPush(collisionInfo, collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz), true);
   }
-  lara.m_state.health -= 100_hp;
-  const auto x = lara.m_state.position.position.X - m_state.position.position.X;
-  const auto y
-    = lara.m_state.position.position.Y - 350_len - (m_state.position.position.Y - 2 * core::QuarterSectorSize);
-  const auto z = lara.m_state.position.position.Z - m_state.position.position.Z;
+  getEngine().getLara().m_state.health -= 100_hp;
+  const auto x = getEngine().getLara().m_state.position.position.X - m_state.position.position.X;
+  const auto y = getEngine().getLara().m_state.position.position.Y - 350_len
+                 - (m_state.position.position.Y - 2 * core::QuarterSectorSize);
+  const auto z = getEngine().getLara().m_state.position.position.Z - m_state.position.position.Z;
   const auto xyz = std::max(2 * core::QuarterSectorSize, sqrt(util::square(x) + util::square(y) + util::square(z)));
 
   auto fx = createBloodSplat(

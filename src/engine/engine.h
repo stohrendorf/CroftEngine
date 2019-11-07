@@ -139,6 +139,8 @@ private:
   core::Health m_drawnHealth = core::LaraHealth;
   core::Frame m_healthBarTimeout = -40_frame;
 
+  std::bitset<16> m_secretsFoundBitmask = 0;
+
 public:
   explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = {1280, 800});
 
@@ -490,5 +492,7 @@ public:
 
     return it->second;
   }
+
+  void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
 };
 } // namespace engine

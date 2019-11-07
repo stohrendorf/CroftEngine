@@ -20,7 +20,7 @@ public:
           const loader::file::Item& item,
           const loader::file::SkeletalModelType& animatedModel);
 
-  void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
+  void collide(CollisionInfo& collisionInfo) override;
 
   void loadObjectInfo(bool withoutGameState = false);
 

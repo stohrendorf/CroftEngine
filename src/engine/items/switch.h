@@ -17,7 +17,7 @@ public:
   {
   }
 
-  void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
+  void collide(CollisionInfo& collisionInfo) override;
 
   void update() final
   {

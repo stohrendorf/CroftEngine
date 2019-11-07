@@ -19,7 +19,7 @@ public:
   void handleInput(CollisionInfo& collisionInfo) override
   {
     collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-    emitSparkles(getLara(), getEngine());
+    emitSparkles(getEngine());
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -33,16 +33,18 @@ public:
     collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
   }
 
-  static void emitSparkles(const LaraNode& lara, Engine& engine)
+  static void emitSparkles(Engine& engine)
   {
-    const auto spheres = lara.getSkeleton()->getBoneCollisionSpheres(
-      lara.m_state, *lara.getSkeleton()->getInterpolationInfo(lara.m_state).getNearestFrame(), nullptr);
+    const auto spheres = engine.getLara().getSkeleton()->getBoneCollisionSpheres(
+      engine.getLara().m_state,
+      *engine.getLara().getSkeleton()->getInterpolationInfo(engine.getLara().m_state).getNearestFrame(),
+      nullptr);
 
     const auto& normalLara = engine.findAnimatedModelForType(TR1ItemId::Lara);
     Expects(normalLara != nullptr);
     for(size_t i = 0; i < spheres.size(); ++i)
     {
-      if(lara.getNode()->getChild(i)->getDrawable() == normalLara->models[i].get())
+      if(engine.getLara().getNode()->getChild(i)->getDrawable() == normalLara->models[i].get())
         continue;
 
       const auto r = spheres[i].radius;
@@ -50,7 +52,8 @@ public:
       p.X += util::rand15s(r);
       p.Y += util::rand15s(r);
       p.Z += util::rand15s(r);
-      auto fx = std::make_shared<SparkleParticle>(core::RoomBoundPosition{lara.m_state.position.room, p}, engine);
+      auto fx
+        = std::make_shared<SparkleParticle>(core::RoomBoundPosition{engine.getLara().m_state.position.room, p}, engine);
       engine.getParticles().emplace_back(fx);
     }
   }

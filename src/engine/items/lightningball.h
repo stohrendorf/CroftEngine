@@ -17,7 +17,7 @@ public:
 
   void update() override;
 
-  void collide(LaraNode& lara, CollisionInfo& info) override;
+  void collide(CollisionInfo& info) override;
 
   static constexpr const size_t SegmentPoints = 16;
 

@@ -82,13 +82,13 @@ void Door::update()
   ModelItemNode::update();
 }
 
-void Door::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void Door::collide(CollisionInfo& collisionInfo)
 {
 #ifndef NO_DOOR_BLOCK
-  if(!isNear(lara, collisionInfo.collisionRadius))
+  if(!isNear(getEngine().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(lara))
+  if(!testBoneCollision(getEngine().getLara()))
     return;
 
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
@@ -96,14 +96,14 @@ void Door::collide(LaraNode& lara, CollisionInfo& collisionInfo)
 
   if(m_state.current_anim_state == m_state.goal_anim_state)
   {
-    enemyPush(lara, collisionInfo, false, true);
+    enemyPush(collisionInfo, false, true);
   }
   else
   {
     const auto enableSpaz = collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
-    enemyPush(lara, collisionInfo, enableSpaz, true);
+    enemyPush(collisionInfo, enableSpaz, true);
   }
 #endif
 }
 } // namespace items
-}
+} // namespace engine

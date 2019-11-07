@@ -33,9 +33,9 @@ void SlammingDoors::update()
         getEngine().getParticles().emplace_back(std::move(blood));
       };
 
-      for(auto x : {-23_len, 71_len})
+      for(const auto& x : {-23_len, 71_len})
       {
-        for(auto y : {0_len, 10_len, -10_len})
+        for(const auto& y : {0_len, 10_len, -10_len})
           emitBlood({x, y, -1718_len}, 0);
       }
     }
@@ -43,21 +43,21 @@ void SlammingDoors::update()
   ModelItemNode::update();
 }
 
-void SlammingDoors::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void SlammingDoors::collide(CollisionInfo& collisionInfo)
 {
   if(m_state.triggerState == TriggerState::Active)
   {
-    if(isNear(lara, collisionInfo.collisionRadius))
+    if(isNear(getEngine().getLara(), collisionInfo.collisionRadius))
     {
-      testBoneCollision(lara);
+      testBoneCollision(getEngine().getLara());
     }
   }
-  else if(m_state.triggerState != TriggerState::Invisible && isNear(lara, collisionInfo.collisionRadius)
-          && testBoneCollision(lara))
+  else if(m_state.triggerState != TriggerState::Invisible
+          && isNear(getEngine().getLara(), collisionInfo.collisionRadius) && testBoneCollision(getEngine().getLara()))
   {
     if(collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     {
-      enemyPush(lara, collisionInfo, false, true);
+      enemyPush(collisionInfo, false, true);
     }
   }
 }

@@ -49,7 +49,7 @@ public:
       // silence compiler
       break;
     }
-    StateHandler_50::emitSparkles(getLara(), getEngine());
+    StateHandler_50::emitSparkles(getEngine());
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override

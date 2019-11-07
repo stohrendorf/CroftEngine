@@ -7,22 +7,22 @@ namespace engine
 {
 namespace items
 {
-void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
+void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
 {
   static const InteractionLimits limits{core::BoundingBox{{-200_len, 0_len, 312_len}, {200_len, 0_len, 512_len}},
                                         core::TRRotation{-10_deg, -30_deg, -10_deg},
                                         core::TRRotation{10_deg, 30_deg, 10_deg}};
 
-  if(lara.getCurrentAnimState() != LaraStateId::Stop)
+  if(getEngine().getLara().getCurrentAnimState() != LaraStateId::Stop)
     return;
 
-  if(!getEngine().getInputHandler().getInputState().action || lara.getHandStatus() != HandStatus::None
-     || lara.m_state.falling || !limits.canInteract(m_state, lara.m_state))
+  if(!getEngine().getInputHandler().getInputState().action || getEngine().getLara().getHandStatus() != HandStatus::None
+     || getEngine().getLara().m_state.falling || !limits.canInteract(m_state, getEngine().getLara().m_state))
     return;
 
   if(m_state.triggerState == TriggerState::Invisible)
   {
-    lara.playSoundEffect(TR1SoundId::LaraNo);
+    getEngine().getLara().playSoundEffect(TR1SoundId::LaraNo);
     return;
   }
 
@@ -37,20 +37,20 @@ void KeyHole::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
   }
   if(!hasKey)
   {
-    lara.playSoundEffect(TR1SoundId::LaraNo);
+    getEngine().getLara().playSoundEffect(TR1SoundId::LaraNo);
     return;
   }
 
-  lara.alignForInteraction(core::TRVec{0_len, 0_len, 362_len}, m_state);
+  getEngine().getLara().alignForInteraction(core::TRVec{0_len, 0_len, 362_len}, m_state);
 
   do
   {
-    lara.setGoalAnimState(LaraStateId::InsertKey);
-    lara.updateImpl();
-  } while(lara.getCurrentAnimState() != LaraStateId::InsertKey);
+    getEngine().getLara().setGoalAnimState(LaraStateId::InsertKey);
+    getEngine().getLara().updateImpl();
+  } while(getEngine().getLara().getCurrentAnimState() != LaraStateId::InsertKey);
 
-  lara.setGoalAnimState(LaraStateId::Stop);
-  lara.setHandStatus(HandStatus::Grabbing);
+  getEngine().getLara().setGoalAnimState(LaraStateId::Stop);
+  getEngine().getLara().setHandStatus(HandStatus::Grabbing);
   m_state.triggerState = TriggerState::Active;
 }
 } // namespace items

@@ -7,14 +7,14 @@ namespace engine
 {
 namespace items
 {
-void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
+void PickupItem::collide(CollisionInfo& /*collisionInfo*/)
 {
-  m_state.rotation.Y = lara.m_state.rotation.Y;
+  m_state.rotation.Y = getEngine().getLara().m_state.rotation.Y;
   m_state.rotation.Z = 0_deg;
 
-  if(lara.isInWater())
+  if(getEngine().getLara().isInWater())
   {
-    if(!lara.isDiving())
+    if(!getEngine().getLara().isDiving())
     {
       return;
     }
@@ -26,16 +26,16 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     m_state.rotation.X = -25_deg;
 
-    if(!limits.canInteract(m_state, lara.m_state))
+    if(!limits.canInteract(m_state, getEngine().getLara().m_state))
     {
       return;
     }
 
     static const core::TRVec aimSpeed{0_len, -200_len, -350_len};
 
-    if(lara.getCurrentAnimState() == LaraStateId::PickUp)
+    if(getEngine().getLara().getCurrentAnimState() == LaraStateId::PickUp)
     {
-      if(lara.m_state.frame_number == 2970_frame)
+      if(getEngine().getLara().m_state.frame_number == 2970_frame)
       {
         m_state.triggerState = TriggerState::Invisible;
         getEngine().getInventory().put(m_state.type);
@@ -45,14 +45,15 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
       }
     }
     else if(getEngine().getInputHandler().getInputState().action
-            && lara.getCurrentAnimState() == LaraStateId::UnderwaterStop && lara.alignTransform(aimSpeed, *this))
+            && getEngine().getLara().getCurrentAnimState() == LaraStateId::UnderwaterStop
+            && getEngine().getLara().alignTransform(aimSpeed, *this))
     {
-      lara.setGoalAnimState(LaraStateId::PickUp);
+      getEngine().getLara().setGoalAnimState(LaraStateId::PickUp);
       do
       {
-        lara.updateImpl();
-      } while(lara.getCurrentAnimState() != LaraStateId::PickUp);
-      lara.setGoalAnimState(LaraStateId::UnderwaterStop);
+        getEngine().getLara().updateImpl();
+      } while(getEngine().getLara().getCurrentAnimState() != LaraStateId::PickUp);
+      getEngine().getLara().setGoalAnimState(LaraStateId::UnderwaterStop);
     }
   }
   else
@@ -64,21 +65,22 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
 
     m_state.rotation.X = 0_deg;
 
-    if(!limits.canInteract(m_state, lara.m_state))
+    if(!limits.canInteract(m_state, getEngine().getLara().m_state))
     {
       return;
     }
 
-    if(lara.getCurrentAnimState() == LaraStateId::PickUp)
+    if(getEngine().getLara().getCurrentAnimState() == LaraStateId::PickUp)
     {
-      if(lara.m_state.frame_number == 3443_frame)
+      if(getEngine().getLara().m_state.frame_number == 3443_frame)
       {
         if(m_state.type == TR1ItemId::ShotgunSprite)
         {
           const auto& shotgunLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
-          BOOST_ASSERT(gsl::narrow<size_t>(shotgunLara.meshes.size()) == lara.getNode()->getChildren().size());
+          BOOST_ASSERT(gsl::narrow<size_t>(shotgunLara.meshes.size())
+                       == getEngine().getLara().getNode()->getChildren().size());
 
-          lara.getNode()->getChild(7)->setDrawable(shotgunLara.models[7].get());
+          getEngine().getLara().getNode()->getChild(7)->setDrawable(shotgunLara.models[7].get());
         }
 
         m_state.triggerState = TriggerState::Invisible;
@@ -89,18 +91,19 @@ void PickupItem::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     }
     else
     {
-      if(getEngine().getInputHandler().getInputState().action && lara.getHandStatus() == HandStatus::None
-         && !lara.m_state.falling && lara.getCurrentAnimState() == LaraStateId::Stop)
+      if(getEngine().getInputHandler().getInputState().action
+         && getEngine().getLara().getHandStatus() == HandStatus::None && !getEngine().getLara().m_state.falling
+         && getEngine().getLara().getCurrentAnimState() == LaraStateId::Stop)
       {
-        lara.alignForInteraction(core::TRVec{0_len, 0_len, -100_len}, m_state);
+        getEngine().getLara().alignForInteraction(core::TRVec{0_len, 0_len, -100_len}, m_state);
 
-        lara.setGoalAnimState(LaraStateId::PickUp);
+        getEngine().getLara().setGoalAnimState(LaraStateId::PickUp);
         do
         {
-          lara.updateImpl();
-        } while(lara.getCurrentAnimState() != LaraStateId::PickUp);
-        lara.setGoalAnimState(LaraStateId::Stop);
-        lara.setHandStatus(HandStatus::Grabbing);
+          getEngine().getLara().updateImpl();
+        } while(getEngine().getLara().getCurrentAnimState() != LaraStateId::PickUp);
+        getEngine().getLara().setGoalAnimState(LaraStateId::Stop);
+        getEngine().getLara().setHandStatus(HandStatus::Grabbing);
       }
     }
   }

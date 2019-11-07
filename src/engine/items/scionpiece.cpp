@@ -8,37 +8,37 @@ namespace engine
 {
 namespace items
 {
-void ScionPiece::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
+void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
 {
   static const InteractionLimits limits{core::BoundingBox{{-256_len, 540_len, -350_len}, {256_len, 740_len, -200_len}},
                                         {-10_deg, 0_deg, 0_deg},
                                         {10_deg, 0_deg, 0_deg}};
 
   m_state.rotation.X = 0_deg;
-  m_state.rotation.Y = lara.m_state.rotation.Y;
+  m_state.rotation.Y = getEngine().getLara().m_state.rotation.Y;
   m_state.rotation.Z = 0_deg;
 
-  if(!limits.canInteract(m_state, lara.m_state))
+  if(!limits.canInteract(m_state, getEngine().getLara().m_state))
     return;
 
-  if(lara.getCurrentAnimState() != LaraStateId::PickUp)
+  if(getEngine().getLara().getCurrentAnimState() != LaraStateId::PickUp)
   {
-    if(getEngine().getInputHandler().getInputState().action && lara.getHandStatus() == HandStatus::None
-       && !lara.m_state.falling && lara.getCurrentAnimState() == LaraStateId::Stop)
+    if(getEngine().getInputHandler().getInputState().action && getEngine().getLara().getHandStatus() == HandStatus::None
+       && !getEngine().getLara().m_state.falling && getEngine().getLara().getCurrentAnimState() == LaraStateId::Stop)
     {
-      lara.alignForInteraction({0_len, 640_len, -310_len}, m_state);
-      lara.m_state.anim = getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations;
-      lara.setCurrentAnimState(LaraStateId::PickUp);
-      lara.setGoalAnimState(LaraStateId::PickUp);
-      lara.m_state.frame_number = lara.m_state.anim->firstFrame;
+      getEngine().getLara().alignForInteraction({0_len, 640_len, -310_len}, m_state);
+      getEngine().getLara().m_state.anim = getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations;
+      getEngine().getLara().setCurrentAnimState(LaraStateId::PickUp);
+      getEngine().getLara().setGoalAnimState(LaraStateId::PickUp);
+      getEngine().getLara().m_state.frame_number = getEngine().getLara().m_state.anim->firstFrame;
       getEngine().getCameraController().setMode(CameraMode::Cinematic);
-      lara.setHandStatus(HandStatus::Grabbing);
+      getEngine().getLara().setHandStatus(HandStatus::Grabbing);
       getEngine().getCameraController().m_cinematicFrame = 0;
-      getEngine().getCameraController().m_cinematicPos = lara.m_state.position.position;
-      getEngine().getCameraController().m_cinematicRot = lara.m_state.rotation;
+      getEngine().getCameraController().m_cinematicPos = getEngine().getLara().m_state.position.position;
+      getEngine().getCameraController().m_cinematicRot = getEngine().getLara().m_state.rotation;
     }
   }
-  else if(lara.m_state.frame_number == lara.m_state.anim->firstFrame + 44_frame)
+  else if(getEngine().getLara().m_state.frame_number == getEngine().getLara().m_state.anim->firstFrame + 44_frame)
   {
     m_state.triggerState = TriggerState::Invisible;
     getEngine().getInventory().put(m_state.type);
@@ -63,7 +63,7 @@ void ScionPiece3::update()
 
     const auto sector = loader::file::findRealFloorSector(m_state.position.position, m_state.position.room);
     const auto hi = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getItemNodes());
-    getEngine().getLara().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
+    getEngine().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
     getNode()->removeAllChildren();
   }
 
@@ -87,45 +87,46 @@ void ScionPiece3::update()
   }
 }
 
-void ScionPiece4::collide(LaraNode& lara, CollisionInfo& info)
+void ScionPiece4::collide(CollisionInfo& info)
 {
-  m_state.rotation = {0_deg, lara.m_state.rotation.Y, 0_deg};
+  m_state.rotation = {0_deg, getEngine().getLara().m_state.rotation.Y, 0_deg};
 
   static const InteractionLimits limits{core::BoundingBox{{-256_len, -206_len, -862_len}, {256_len, 306_len, -200_len}},
                                         {-10_deg, 0_deg, 0_deg},
                                         {+10_deg, 0_deg, 0_deg}};
 
-  if(!getEngine().getInputHandler().getInputState().action || lara.getHandStatus() != HandStatus::None
-     || lara.m_state.falling || lara.getCurrentAnimState() != LaraStateId::Stop
-     || !limits.canInteract(m_state, lara.m_state))
+  if(!getEngine().getInputHandler().getInputState().action || getEngine().getLara().getHandStatus() != HandStatus::None
+     || getEngine().getLara().m_state.falling || getEngine().getLara().getCurrentAnimState() != LaraStateId::Stop
+     || !limits.canInteract(m_state, getEngine().getLara().m_state))
     return;
 
   static const core::TRVec alignSpeed{0_len, 280_len, -407_len};
 
-  lara.alignTransform(alignSpeed, *this);
-  lara.m_state.anim = getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations;
-  lara.m_state.frame_number = lara.m_state.anim->firstFrame;
-  lara.setCurrentAnimState(LaraStateId::PickUp);
-  lara.setGoalAnimState(LaraStateId::PickUp);
-  lara.setHandStatus(HandStatus::Grabbing);
+  getEngine().getLara().alignTransform(alignSpeed, *this);
+  getEngine().getLara().m_state.anim = getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations;
+  getEngine().getLara().m_state.frame_number = getEngine().getLara().m_state.anim->firstFrame;
+  getEngine().getLara().setCurrentAnimState(LaraStateId::PickUp);
+  getEngine().getLara().setGoalAnimState(LaraStateId::PickUp);
+  getEngine().getLara().setHandStatus(HandStatus::Grabbing);
   getEngine().getCameraController().m_cinematicFrame = 0;
   getEngine().getCameraController().setMode(CameraMode::Cinematic);
-  getEngine().getCameraController().m_cinematicPos = lara.m_state.position.position;
-  getEngine().getCameraController().m_cinematicRot = lara.m_state.rotation - core::TRRotation{0_deg, 90_deg, 0_deg};
+  getEngine().getCameraController().m_cinematicPos = getEngine().getLara().m_state.position.position;
+  getEngine().getCameraController().m_cinematicRot
+    = getEngine().getLara().m_state.rotation - core::TRRotation{0_deg, 90_deg, 0_deg};
 }
 
-void ScionHolder::collide(LaraNode& lara, CollisionInfo& info)
+void ScionHolder::collide(CollisionInfo& info)
 {
-  if(!isNear(lara, info.collisionRadius))
+  if(!isNear(getEngine().getLara(), info.collisionRadius))
     return;
 
-  if(!testBoneCollision(lara))
+  if(!testBoneCollision(getEngine().getLara()))
     return;
 
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
-  enemyPush(lara, info, false, true);
+  enemyPush(info, false, true);
 }
 } // namespace items
 } // namespace engine

@@ -18,7 +18,7 @@ public:
     m_state.collidable = true;
   }
 
-  void collide(LaraNode& lara, CollisionInfo& info) override;
+  void collide(CollisionInfo& info) override;
 
   void update() override;
 };

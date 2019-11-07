@@ -7,7 +7,7 @@ namespace engine
 {
 namespace items
 {
-void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
+void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
 {
   if(!getEngine().getInputHandler().getInputState().action)
     return;
@@ -15,10 +15,10 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
   if(m_state.triggerState != TriggerState::Inactive)
     return;
 
-  if(!lara.isDiving())
+  if(!getEngine().getLara().isDiving())
     return;
 
-  if(lara.getCurrentAnimState() != LaraStateId::UnderwaterStop)
+  if(getEngine().getLara().getCurrentAnimState() != LaraStateId::UnderwaterStop)
     return;
 
   static const InteractionLimits limits{
@@ -26,24 +26,24 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
     {-80_deg, -80_deg, -80_deg},
     {+80_deg, +80_deg, +80_deg}};
 
-  if(!limits.canInteract(m_state, lara.m_state))
+  if(!limits.canInteract(m_state, getEngine().getLara().m_state))
     return;
 
   if(m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as)
     return;
 
   static const core::TRVec alignSpeed{0_len, 0_len, 108_len};
-  if(!lara.alignTransform(alignSpeed, *this))
+  if(!getEngine().getLara().alignTransform(alignSpeed, *this))
     return;
 
-  lara.m_state.fallspeed = 0_spd;
+  getEngine().getLara().m_state.fallspeed = 0_spd;
   do
   {
-    lara.setGoalAnimState(LaraStateId::SwitchDown);
-    lara.updateImpl();
-  } while(lara.getCurrentAnimState() != LaraStateId::SwitchDown);
-  lara.setGoalAnimState(LaraStateId::UnderwaterStop);
-  lara.setHandStatus(HandStatus::Grabbing);
+    getEngine().getLara().setGoalAnimState(LaraStateId::SwitchDown);
+    getEngine().getLara().updateImpl();
+  } while(getEngine().getLara().getCurrentAnimState() != LaraStateId::SwitchDown);
+  getEngine().getLara().setGoalAnimState(LaraStateId::UnderwaterStop);
+  getEngine().getLara().setHandStatus(HandStatus::Grabbing);
   m_state.triggerState = TriggerState::Active;
 
   if(m_state.current_anim_state == 1_as)
@@ -56,7 +56,7 @@ void UnderwaterSwitch::collide(LaraNode& lara, CollisionInfo& /*collisionInfo*/)
   }
 
   activate();
-  ModelItemNode::update();
+  ModelItemNode::update(); // NOLINT(bugprone-parent-virtual-call)
 }
 } // namespace items
 } // namespace engine

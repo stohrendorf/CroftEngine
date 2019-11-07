@@ -414,12 +414,9 @@ bool ModelItemNode::isNear(const Particle& other, const core::Length& radius) co
          && xz.Z <= bbox.maxZ + radius;
 }
 
-void ModelItemNode::enemyPush(LaraNode& lara,
-                              CollisionInfo& collisionInfo,
-                              const bool enableSpaz,
-                              const bool withXZCollRadius)
+void ModelItemNode::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz, const bool withXZCollRadius)
 {
-  const auto laraPosWorld = lara.m_state.position.position - m_state.position.position;
+  const auto laraPosWorld = getEngine().getLara().m_state.position.position - m_state.position.position;
   auto laraPosLocal = util::pitch(laraPosWorld, -m_state.rotation.Y);
   const auto keyFrame = m_skeleton->getInterpolationInfo(m_state).getNearestFrame();
   auto itemBBox = keyFrame->bbox.toBBox();
@@ -457,17 +454,19 @@ void ModelItemNode::enemyPush(LaraNode& lara,
     laraPosLocal.Z = itemBBox.minZ;
   }
   // update lara's position to where she was pushed
-  lara.m_state.position.position = m_state.position.position + util::pitch(laraPosLocal, m_state.rotation.Y);
+  getEngine().getLara().m_state.position.position
+    = m_state.position.position + util::pitch(laraPosLocal, m_state.rotation.Y);
   if(enableSpaz)
   {
     const auto midX = (keyFrame->bbox.toBBox().minX + keyFrame->bbox.toBBox().maxX) / 2;
     const auto midZ = (keyFrame->bbox.toBBox().minZ + keyFrame->bbox.toBBox().maxZ) / 2;
     const auto tmp = laraPosWorld - util::pitch(core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y);
     const auto a = angleFromAtan(tmp.X, tmp.Z) - 180_deg;
-    getEngine().getLara().hit_direction = core::axisFromAngle(lara.m_state.rotation.Y - a, 45_deg).get();
+    getEngine().getLara().hit_direction
+      = core::axisFromAngle(getEngine().getLara().m_state.rotation.Y - a, 45_deg).get();
     if(getEngine().getLara().hit_frame == 0_frame)
     {
-      lara.playSoundEffect(TR1SoundId::LaraOof);
+      getEngine().getLara().playSoundEffect(TR1SoundId::LaraOof);
     }
     getEngine().getLara().hit_frame += 1_frame;
     if(getEngine().getLara().hit_frame > 34_frame)
@@ -479,19 +478,20 @@ void ModelItemNode::enemyPush(LaraNode& lara,
   collisionInfo.badNegativeDistance = -384_len;
   collisionInfo.badCeilingDistance = 0_len;
   const auto facingAngle = collisionInfo.facingAngle;
-  collisionInfo.facingAngle = angleFromAtan(lara.m_state.position.position.X - collisionInfo.oldPosition.X,
-                                            lara.m_state.position.position.Z - collisionInfo.oldPosition.Z);
-  collisionInfo.initHeightInfo(lara.m_state.position.position, getEngine(), core::LaraWalkHeight);
+  collisionInfo.facingAngle
+    = angleFromAtan(getEngine().getLara().m_state.position.position.X - collisionInfo.oldPosition.X,
+                    getEngine().getLara().m_state.position.position.Z - collisionInfo.oldPosition.Z);
+  collisionInfo.initHeightInfo(getEngine().getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
   collisionInfo.facingAngle = facingAngle;
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::None)
   {
-    lara.m_state.position.position.X = collisionInfo.oldPosition.X;
-    lara.m_state.position.position.Z = collisionInfo.oldPosition.Z;
+    getEngine().getLara().m_state.position.position.X = collisionInfo.oldPosition.X;
+    getEngine().getLara().m_state.position.position.Z = collisionInfo.oldPosition.Z;
   }
   else
   {
-    collisionInfo.oldPosition = lara.m_state.position.position;
-    lara.updateFloorHeight(-10_len);
+    collisionInfo.oldPosition = getEngine().getLara().m_state.position.position;
+    getEngine().getLara().updateFloorHeight(-10_len);
   }
 }
 

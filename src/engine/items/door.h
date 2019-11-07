@@ -16,7 +16,7 @@ public:
 
   void update() override;
 
-  void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
+  void collide(CollisionInfo& collisionInfo) override;
 
 private:
   struct Info

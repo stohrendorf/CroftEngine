@@ -17,7 +17,7 @@ public:
 
   void update() override;
 
-  void collide(LaraNode& lara, CollisionInfo& info) override;
+  void collide(CollisionInfo& info) override;
 
 private:
   core::Angle m_headRotation{0_deg};

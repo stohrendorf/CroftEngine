@@ -24,7 +24,7 @@ public:
     updateLighting();
   }
 
-  void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
+  void collide(CollisionInfo& collisionInfo) override;
 };
 
 class ScionPiece3 final : public ModelItemNode
@@ -55,7 +55,7 @@ public:
   {
   }
 
-  void collide(LaraNode& lara, CollisionInfo& info) override;
+  void collide(CollisionInfo& info) override;
 };
 
 class ScionHolder final : public ModelItemNode
@@ -69,7 +69,7 @@ public:
   {
   }
 
-  void collide(LaraNode& lara, CollisionInfo& info) override;
+  void collide(CollisionInfo& info) override;
 };
 } // namespace items
 } // namespace engine

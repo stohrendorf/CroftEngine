@@ -196,15 +196,15 @@ void LightningBall::update()
   playSoundEffect(TR1SoundId::Chatter);
 }
 
-void LightningBall::collide(LaraNode& lara, CollisionInfo& info)
+void LightningBall::collide(CollisionInfo& info)
 {
   if(!m_laraHit)
     return;
 
-  lara.hit_direction = static_cast<core::Axis>(util::rand15(4));
-  lara.hit_frame += 1_frame;
-  if(lara.hit_frame > 34_frame)
-    lara.hit_frame = 34_frame;
+  getEngine().getLara().hit_direction = static_cast<core::Axis>(util::rand15(4));
+  getEngine().getLara().hit_frame += 1_frame;
+  if(getEngine().getLara().hit_frame > 34_frame)
+    getEngine().getLara().hit_frame = 34_frame;
 }
 
 void LightningBall::prepareRender()

@@ -173,6 +173,7 @@ set( EDISONENGINE_SRCS
      engine/items/cutsceneactors.cpp
      engine/items/dart.cpp
      engine/items/door.cpp
+     engine/items/doppelganger.cpp
      engine/items/flameemitter.cpp
      engine/items/gorilla.cpp
      engine/items/itemnode.cpp

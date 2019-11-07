@@ -11,8 +11,8 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<Engine*>& engine,
                                    const loader::file::Item& item,
                                    const loader::file::SkeletalModelType& animatedModel)
     : ModelItemNode{engine, room, item, true, animatedModel}
+    , m_block{engine->createItem<ThorHammerBlock>(TR1ItemId::ThorHammerBlock, room, item.rotation, item.position, 0)}
 {
-  m_block = engine->createItem<ThorHammerBlock>(TR1ItemId::ThorHammerBlock, room, item.rotation, item.position, 0);
   m_block->activate();
   m_block->m_state.triggerState = TriggerState::Active;
 }
@@ -86,7 +86,7 @@ void ThorHammerHandle::update()
   {
     const auto sector = loader::file::findRealFloorSector(m_state.position.position, m_state.position.room);
     const auto hi = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getItemNodes());
-    getEngine().getLara().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
+    getEngine().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
 
     const auto oldPosX = m_state.position.position.X;
     const auto oldPosZ = m_state.position.position.Z;
@@ -129,18 +129,18 @@ void ThorHammerHandle::update()
   m_block->m_state.current_anim_state = m_state.current_anim_state;
 }
 
-void ThorHammerHandle::collide(LaraNode& node, CollisionInfo& info)
+void ThorHammerHandle::collide(CollisionInfo& info)
 {
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
-  if(!isNear(node, info.collisionRadius))
+  if(!isNear(getEngine().getLara(), info.collisionRadius))
     return;
 
-  enemyPush(node, info, false, true);
+  enemyPush(info, false, true);
 }
 
-void ThorHammerBlock::collide(LaraNode& node, CollisionInfo& info)
+void ThorHammerBlock::collide(CollisionInfo& info)
 {
   if(m_state.current_anim_state == 2_as)
     return;
@@ -148,10 +148,10 @@ void ThorHammerBlock::collide(LaraNode& node, CollisionInfo& info)
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
-  if(!isNear(node, info.collisionRadius))
+  if(!isNear(getEngine().getLara(), info.collisionRadius))
     return;
 
-  enemyPush(node, info, false, true);
+  enemyPush(info, false, true);
 }
 } // namespace items
 } // namespace engine

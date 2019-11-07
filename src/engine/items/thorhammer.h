@@ -17,7 +17,7 @@ public:
   {
   }
 
-  void collide(LaraNode& node, CollisionInfo& info) override;
+  void collide(CollisionInfo& info) override;
 };
 
 class ThorHammerHandle final : public ModelItemNode
@@ -30,10 +30,10 @@ public:
 
   void update() override;
 
-  void collide(LaraNode& node, CollisionInfo& info) override;
+  void collide(CollisionInfo& info) override;
 
 private:
-  std::shared_ptr<ThorHammerBlock> m_block;
+  const std::shared_ptr<ThorHammerBlock> m_block;
 };
 } // namespace items
 } // namespace engine

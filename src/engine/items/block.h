@@ -19,7 +19,7 @@ public:
       loader::file::Room::patchHeightsForBlock(*this, -core::SectorSize);
   }
 
-  void collide(LaraNode& lara, CollisionInfo& collisionInfo) override;
+  void collide(CollisionInfo& collisionInfo) override;
 
   void update() override;
 

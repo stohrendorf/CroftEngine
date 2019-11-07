@@ -7,18 +7,18 @@ namespace engine
 {
 namespace items
 {
-void Dart::collide(LaraNode& lara, CollisionInfo& info)
+void Dart::collide(CollisionInfo& info)
 {
-  if(!isNear(lara, info.collisionRadius))
+  if(!isNear(getEngine().getLara(), info.collisionRadius))
     return;
 
-  if(!testBoneCollision(lara))
+  if(!testBoneCollision(getEngine().getLara()))
     return;
 
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
-  enemyPush(lara, info, false, true);
+  enemyPush(info, false, true);
 }
 
 void Dart::update()

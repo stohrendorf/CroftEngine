@@ -48,21 +48,21 @@ void SwingingBlade::update()
   ModelItemNode::update();
 }
 
-void SwingingBlade::collide(LaraNode& lara, CollisionInfo& collisionInfo)
+void SwingingBlade::collide(CollisionInfo& collisionInfo)
 {
   if(m_state.triggerState == TriggerState::Active)
   {
-    if(isNear(lara, collisionInfo.collisionRadius))
+    if(isNear(getEngine().getLara(), collisionInfo.collisionRadius))
     {
-      testBoneCollision(lara);
+      testBoneCollision(getEngine().getLara());
     }
   }
-  else if(m_state.triggerState != TriggerState::Invisible && isNear(lara, collisionInfo.collisionRadius)
-          && testBoneCollision(lara))
+  else if(m_state.triggerState != TriggerState::Invisible
+          && isNear(getEngine().getLara(), collisionInfo.collisionRadius) && testBoneCollision(getEngine().getLara()))
   {
     if(collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     {
-      enemyPush(lara, collisionInfo, false, true);
+      enemyPush(collisionInfo, false, true);
     }
   }
 }
