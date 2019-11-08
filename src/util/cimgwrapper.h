@@ -2,6 +2,7 @@
 
 #include "render/gl/pixel.h"
 
+#include <boost/filesystem/path.hpp>
 #include <memory>
 #include <string>
 
@@ -21,6 +22,11 @@ private:
 
 public:
   explicit CImgWrapper(const std::string& filename);
+
+  explicit CImgWrapper(const boost::filesystem::path& filename)
+      : CImgWrapper{filename.string()}
+  {
+  }
 
   explicit CImgWrapper(const uint8_t* data, int width, int height, bool shared);
 
@@ -75,9 +81,14 @@ public:
 
   void savePng(const std::string& filename);
 
+  void savePng(const boost::filesystem::path& filename)
+  {
+    savePng(filename.string());
+  }
+
   void replace(int x, int y, const CImgWrapper& other);
 
 private:
   void unshare();
 };
-}
+} // namespace util

@@ -1,6 +1,7 @@
 #include "texture.h"
 
 #include "engine/items/itemnode.h"
+#include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
 #include "util/cimgwrapper.h"
 
@@ -55,14 +56,13 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
   constexpr int Scale = Resolution / 256;
 
   auto mapping = glidos->getMappingsForTexture(md5);
-  const auto cacheName = mapping.baseDir / "_edisonengine" / (md5 + ".png");
+  auto cache = loader::file::TextureCache{mapping.baseDir / "_edisonengine"};
 
-  if(is_regular_file(cacheName)
-     && std::chrono::system_clock::from_time_t(last_write_time(cacheName)) > mapping.newestSource)
+  if(cache.exists(md5, 0) && cache.getWriteTime(md5, 0) > mapping.newestSource)
   {
     statusCallback("Loading cached texture...");
-    BOOST_LOG_TRIVIAL(info) << "Loading cached texture " << cacheName << "...";
-    util::CImgWrapper cacheImage{cacheName.string()};
+    BOOST_LOG_TRIVIAL(info) << "Loading cached texture " << cache.buildPngPath(md5, 0) << "...";
+    util::CImgWrapper cacheImage{cache.loadPng(md5, 0)};
 
     cacheImage.interleave();
     image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
@@ -107,9 +107,8 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
   }
 
   statusCallback("Saving texture to cache...");
-  BOOST_LOG_TRIVIAL(info) << "Writing texture cache " << cacheName << "...";
-  create_directories(cacheName.parent_path());
-  original.savePng(cacheName.string());
+  BOOST_LOG_TRIVIAL(info) << "Writing texture cache " << cache.buildPngPath(md5, 0) << "...";
+  cache.savePng(md5, 0, original);
 
   original.interleave();
   image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(

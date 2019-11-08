@@ -78,33 +78,24 @@ struct BSPTree
   /**
      * @brief Find a free space in this node or its children
      */
-  boost::optional<glm::vec2> tryInsert(const int scale, const glm::vec2& uv)
-  {
-    const auto tmp = tryInsert(gsl::narrow_cast<int32_t>(scale * uv.x), gsl::narrow_cast<int32_t>(scale * uv.y));
-    if(!tmp.is_initialized())
-      return boost::none;
-
-    return glm::vec2{tmp->x / float(scale), tmp->y / float(scale)};
-  }
-
-  boost::optional<glm::ivec2> tryInsert(const int32_t width, const int32_t height)
+  boost::optional<glm::ivec2> tryInsert(const int32_t insWidth, const int32_t insHeight)
   {
     // Could this possibly fit?
-    if(!fits(width, height))
+    if(!fits(insWidth, insHeight))
       return boost::none;
 
     if(isSplit())
     {
       // This node is already split => Recurse!
       boost::optional<glm::ivec2> found{};
-      if(width <= left->width && height <= left->height)
+      if(insWidth <= left->width && insHeight <= left->height)
       {
-        found = left->tryInsert(width, height);
+        found = left->tryInsert(insWidth, insHeight);
       }
 
-      if(!found.is_initialized() && width <= right->width && height <= right->height)
+      if(!found.is_initialized() && insWidth <= right->width && insHeight <= right->height)
       {
-        found = right->tryInsert(width, height);
+        found = right->tryInsert(insWidth, insHeight);
       }
 
       // If both children are filled, mark this node as filled and discard the children.
@@ -119,16 +110,16 @@ struct BSPTree
     }
 
     // We may split this node
-    if(this->height == height && this->width == width)
+    if(height == insHeight && width == insWidth)
     {
       // Perfect match
       isFilled = true;
       return glm::ivec2{x, y};
     }
-    else if(this->height == height)
+    else if(height == insHeight)
     {
       // Split horizontally
-      splitX(width);
+      splitX(insWidth);
 
       // height already fits, width fits too now, so this is the result
       left->isFilled = true;
@@ -137,10 +128,10 @@ struct BSPTree
     else
     {
       // In case of doubt do a vertical split
-      splitY(height);
+      splitY(insHeight);
 
       // Recurse, because the width may not match
-      return left->tryInsert(width, height);
+      return left->tryInsert(insWidth, insHeight);
     }
   }
 };
@@ -162,14 +153,14 @@ class TextureAtlas
       const Mapping& m2 = context->m_mappings[index2];
 
       // First order by height.
-      auto tmp = (m1.uvMax.y - m1.uvMin.y) - (m2.uvMax.y - m2.uvMin.y);
+      auto tmp = int(m1.uvMaxY - m1.uvMinY) - int(m2.uvMaxY - m2.uvMinY);
       if(tmp > 0)
         return true;
       else if(tmp < 0)
         return false;
 
       // Then order by width
-      tmp = (m1.uvMax.x - m1.uvMin.x) - (m2.uvMax.x - m2.uvMin.x);
+      tmp = int(m1.uvMaxX - m1.uvMinX) - int(m2.uvMaxX - m2.uvMinX);
       if(tmp > 0)
         return true;
       else if(tmp < 0)
@@ -182,12 +173,12 @@ class TextureAtlas
 
   struct Mapping
   {
-    glm::vec2 uvMin;
-    glm::vec2 uvMax;
+    uint8_t uvMinX, uvMinY;
+    uint8_t uvMaxX, uvMaxY;
 
     loader::file::TextureKey srcTexture;
 
-    glm::vec2 newUvMin;
+    uint8_t newUvMinX, newUvMinY;
   };
 
   const int32_t m_resultPageSize;
@@ -210,15 +201,16 @@ public:
     for(size_t texture = 0; texture < m_mappings.size(); texture++)
     {
       Mapping& mapping = m_mappings[sortedIndices[texture]];
-      const auto mapped = layout.tryInsert(
-        textures.at(mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask).image->getWidth(),
-        mapping.uvMax - mapping.uvMin);
+      const auto& img = textures.at(mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask).image;
+      const auto mapped = layout.tryInsert(img->getWidth() * (mapping.uvMaxX - mapping.uvMinX + 1) / 256,
+                                           img->getHeight() * (mapping.uvMaxY - mapping.uvMinY + 1) / 256);
       if(!mapped.is_initialized())
       {
         BOOST_THROW_EXCEPTION(std::runtime_error("UV animation texture overflow"));
       }
 
-      mapping.newUvMin = *mapped;
+      mapping.newUvMinX = mapped->x * 256 / m_resultPageSize;
+      mapping.newUvMinY = mapped->y * 256 / m_resultPageSize;
     }
   }
 
@@ -235,21 +227,22 @@ public:
     const auto& tile = textureTiles.at(tileId.get());
     // Determine the canonical texture for this texture.
     // Use only first three vertices to find min, max, because for triangles the last will be 0,0 with no other marker that this is a triangle. As long as all textures are axis-aligned rectangles, this will always return the right result anyway.
-    glm::vec2 max{0, 0}, min{1.0f, 1.0f};
+    uint8_t maxX{std::numeric_limits<uint8_t>::min()}, maxY{std::numeric_limits<uint8_t>::min()},
+      minX{std::numeric_limits<uint8_t>::max()}, minY{std::numeric_limits<uint8_t>::max()};
     for(const auto& uv : tile.uvCoordinates)
     {
-      const auto gl = uv.toGl();
-      max.x = std::max(max.x, gl.x);
-      max.y = std::max(max.y, gl.y);
-      min.x = std::min(min.x, gl.x);
-      min.y = std::min(min.y, gl.y);
+      maxX = std::max(maxX, uv.xpixel);
+      maxY = std::max(maxY, uv.ypixel);
+      minX = std::min(minX, uv.xpixel);
+      minY = std::min(minY, uv.ypixel);
     }
 
     // See whether it already exists
     size_t mappingIdx = std::numeric_limits<size_t>::max();
     for(size_t i = 0; i < m_mappings.size(); i++)
     {
-      if(m_mappings[i].srcTexture == tile.textureKey && m_mappings[i].uvMin == min && m_mappings[i].uvMax == max)
+      if(m_mappings[i].srcTexture == tile.textureKey && m_mappings[i].uvMinX == minX && m_mappings[i].uvMinY == minY
+         && m_mappings[i].uvMaxX == maxX && m_mappings[i].uvMaxY == maxY)
       {
         mappingIdx = i;
         break;
@@ -264,8 +257,10 @@ public:
 
       Mapping& mapping = m_mappings.back();
       mapping.srcTexture = tile.textureKey;
-      mapping.uvMin = min;
-      mapping.uvMax = max;
+      mapping.uvMinX = minX;
+      mapping.uvMinY = minY;
+      mapping.uvMaxX = maxX;
+      mapping.uvMaxY = maxY;
     }
 
     m_mappingByTile.emplace(std::make_pair(tileId, mappingIdx));
@@ -287,26 +282,25 @@ public:
                                glSrcImg->getWidth(),
                                glSrcImg->getHeight(),
                                true};
-      srcImg.crop(mapping.uvMin, mapping.uvMax);
-      srcImg.resize(srcImg.width() * m_resultPageSize / glSrcImg->getWidth(),
-                    srcImg.height() * m_resultPageSize / glSrcImg->getHeight());
-      img.replace(static_cast<int>(mapping.newUvMin.x * m_resultPageSize),
-                  static_cast<int>(mapping.newUvMin.y * m_resultPageSize),
-                  srcImg);
-
-      const auto s
-        = static_cast<float>(m_resultPageSize) / textures.at(tile.textureKey.tileAndFlag & 0x7fff).image->getWidth();
+      srcImg.crop(mapping.uvMinX * srcImg.width() / 256,
+                  mapping.uvMinY * srcImg.height() / 256,
+                  mapping.uvMaxX * srcImg.width() / 256,
+                  mapping.uvMaxY * srcImg.height() / 256);
+      srcImg.resize((mapping.uvMaxX - mapping.uvMinX + 1) * m_resultPageSize / 256,
+                    (mapping.uvMaxY - mapping.uvMinY + 1) * m_resultPageSize / 256);
+      img.replace(mapping.newUvMinX * m_resultPageSize / 256, mapping.newUvMinY * m_resultPageSize / 256, srcImg);
 
       tile.textureKey.tileAndFlag &= ~loader::file::TextureIndexMask;
       tile.textureKey.tileAndFlag |= gsl::narrow_cast<uint16_t>(textures.size());
       for(auto& uv : tile.uvCoordinates)
       {
-        const auto d = uv.toGl() - mapping.uvMin;
-        uv = d * s + mapping.newUvMin;
+        uv.xpixel = (uv.xpixel - mapping.uvMinX) + mapping.newUvMinX;
+        uv.ypixel = (uv.ypixel - mapping.uvMinY) + mapping.newUvMinY;
       }
     }
 
     loader::file::DWordTexture texture;
+    texture.md5 = "animated";
     texture.texture = std::make_shared<render::gl::Texture2D<render::gl::SRGBA8>>("animated texture tiles");
     texture.texture->set(::gl::TextureMinFilter::NearestMipmapLinear).generateMipmap();
     if(!linear)
@@ -373,4 +367,4 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
   BOOST_LOG_TRIVIAL(debug) << "  - Building texture...";
   atlas.toTexture(textures, textureTiles, linear);
 }
-}
+} // namespace render

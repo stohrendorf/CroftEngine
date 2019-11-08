@@ -49,6 +49,7 @@
 #include "items/wolf.h"
 #include "laranode.h"
 #include "loader/file/level/level.h"
+#include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
 #include "render/gl/font.h"
 #include "render/renderpipeline.h"
@@ -1365,7 +1366,7 @@ void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& fo
 Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution)
     : m_renderer{std::make_unique<render::scene::Renderer>()}
     , m_window{std::make_unique<render::scene::Window>(fullscreen, resolution)}
-    , splashImage{"splash.png"}
+    , splashImage{boost::filesystem::path{"splash.png"}}
     , abibasFont{std::make_shared<render::gl::Font>("abibas.ttf", 48)}
     , m_scriptEngine{createScriptEngine()}
     , m_inventory{*this}
@@ -1556,16 +1557,20 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
       totalTiles += textureAndTiles.second.size();
     BOOST_LOG_TRIVIAL(debug) << totalTiles << " unique texture tiles";
 
+    const auto cacheBaseDir = glidos != nullptr ? glidos->getBaseDir() : boost::filesystem::path("data/tr1/data");
+    auto cache = loader::file::TextureCache{cacheBaseDir / "_edisonengine"};
+
     size_t processedTiles = 0;
     for(const auto& textureAndTiles : tilesByTexture)
     {
       drawLoadingScreen("Mipmapping (" + std::to_string(processedTiles * 100 / totalTiles) + "%)");
       processedTiles += textureAndTiles.second.size();
 
-      BOOST_LOG_TRIVIAL(debug) << "Mipmapping textue " << textureAndTiles.first;
-
       const loader::file::DWordTexture& texture = m_level->m_textures.at(textureAndTiles.first);
       Expects(texture.image->getWidth() == texture.image->getHeight());
+
+      BOOST_LOG_TRIVIAL(debug) << "Mipmapping texture " << textureAndTiles.first;
+
       const util::CImgWrapper src{reinterpret_cast<uint8_t*>(texture.image->getRawData()),
                                   texture.image->getWidth(),
                                   texture.image->getHeight(),
@@ -1575,21 +1580,35 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
       {
         BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize / 2 << ", "
                                  << textureAndTiles.second.size() << " tiles)";
-        util::CImgWrapper dst{dstSize, dstSize};
-        for(const Rect& r : textureAndTiles.second)
+        if(cache.exists(texture.md5, mipmapLevel))
         {
-          const auto x0 = r.x0 * texture.image->getWidth() / 256;
-          const auto y0 = r.y0 * texture.image->getHeight() / 256;
-          const auto x1 = r.x1 * texture.image->getWidth() / 256;
-          const auto y1 = r.y1 * texture.image->getHeight() / 256;
-          util::CImgWrapper tmp = src.cropped(x0, y0, x1, y1);
-          tmp.resizePow2Mipmap(mipmapLevel);
-          // +1 for doing mathematically correct rounding
-          dst.replace(
-            (x0 * dstSize + 1) / texture.image->getWidth(), (y0 * dstSize + 1) / texture.image->getHeight(), tmp);
+          auto dst = cache.loadPng(texture.md5, mipmapLevel);
+          dst.interleave();
+          texture.texture->image(reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), mipmapLevel);
         }
-        dst.interleave();
-        texture.texture->image(reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), mipmapLevel);
+        else
+        {
+          util::CImgWrapper dst{dstSize, dstSize};
+          for(const Rect& r : textureAndTiles.second)
+          {
+            // (scaled) source coordinates
+            const auto x0 = r.x0 * texture.image->getWidth() / 256;
+            const auto y0 = r.y0 * texture.image->getHeight() / 256;
+            const auto x1 = (r.x1 + 1) * texture.image->getWidth() / 256;
+            const auto y1 = (r.y1 + 1) * texture.image->getHeight() / 256;
+            BOOST_ASSERT(x0 < x1);
+            BOOST_ASSERT(y0 < y1);
+            util::CImgWrapper tmp = src.cropped(x0, y0, x1 - 1, y1 - 1);
+            tmp.resizePow2Mipmap(mipmapLevel);
+            // +1 for doing mathematically correct rounding
+            dst.replace(
+              (x0 * dstSize + 1) / texture.image->getWidth(), (y0 * dstSize + 1) / texture.image->getHeight(), tmp);
+          }
+
+          cache.savePng(texture.md5, mipmapLevel, dst);
+          dst.interleave();
+          texture.texture->image(reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), mipmapLevel);
+        }
       }
     }
   }

@@ -179,6 +179,11 @@ public:
 
   TileMap getMappingsForTexture(const std::string& textureId) const;
 
+  const auto& getBaseDir() const noexcept
+  {
+    return m_baseDir;
+  }
+
 private:
   std::map<TexturePart, boost::filesystem::path> m_filesByPart;
   const boost::filesystem::path m_baseDir;
