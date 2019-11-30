@@ -3,11 +3,7 @@
 #include "core/vec.h"
 #include "sdlreader.h"
 
-namespace loader
-{
-namespace file
-{
-namespace io
+namespace loader::file::io
 {
 inline core::TRVec readCoordinates16(SDLReader& reader)
 {
@@ -35,6 +31,4 @@ inline core::TRVec readCoordinatesF(SDLReader& reader)
   vertex.Z = core::Length{static_cast<core::Length::type>(std::round(reader.readF()))};
   return vertex;
 }
-} // namespace io
-} // namespace file
 } // namespace loader

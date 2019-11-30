@@ -2,11 +2,10 @@
 
 #include "glassert.h"
 
-#include <boost/optional.hpp>
+#include <boost/assert.hpp>
+#include <optional>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 class RenderState final
 {
@@ -90,11 +89,11 @@ private:
   template<typename T, const T DefaultValue>
   struct DefaultedOptional final
   {
-    boost::optional<T> value{};
+    std::optional<T> value{};
 
-    T get() const
+    [[nodiscard]] T get() const
     {
-      return value.get_value_or(DefaultValue);
+      return value.value_or(DefaultValue);
     }
 
     void reset()
@@ -107,9 +106,9 @@ private:
       value = DefaultValue;
     }
 
-    bool isInitialized() const
+    [[nodiscard]] bool isInitialized() const
     {
-      return value.is_initialized();
+      return value.has_value();
     }
 
     bool operator!=(const DefaultedOptional<T, DefaultValue>& rhs) const
@@ -147,11 +146,11 @@ private:
       return *this;
     }
 
-    boost::optional<float> value{};
+    std::optional<float> value{};
 
-    float get() const
+    [[nodiscard]] float get() const
     {
-      return value.get_value_or(DefaultValue);
+      return value.value_or(DefaultValue);
     }
 
     void reset()
@@ -164,9 +163,9 @@ private:
       value = DefaultValue;
     }
 
-    bool isInitialized() const
+    [[nodiscard]] bool isInitialized() const
     {
-      return value.is_initialized();
+      return value.has_value();
     }
 
     bool operator!=(const DefaultedOptionalF& rhs) const
@@ -212,5 +211,4 @@ private:
 
   static inline RenderState& getCurrentState();
 };
-} // namespace gl
 } // namespace render

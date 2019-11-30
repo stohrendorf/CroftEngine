@@ -8,7 +8,10 @@
 
 namespace engine
 {
-class LaraNode;
+namespace objects
+{
+class LaraObject;
+}
 
 class Engine;
 

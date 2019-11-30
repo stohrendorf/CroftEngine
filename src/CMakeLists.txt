@@ -126,112 +126,370 @@ wrap_enum( TR1TrackId int ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt ${CMAKE_CUR
 set( EDISONENGINE_SRCS
      edisonengine.cpp
 
-     engine/engine.cpp
+     engine/lara/abstractstatehandler.h
      engine/lara/abstractstatehandler.cpp
-     engine/cameracontroller.cpp
-     engine/collisioninfo.cpp
-     engine/heightinfo.cpp
-     engine/laranode.cpp
-     engine/particle.cpp
-     engine/skeletalmodelnode.cpp
+     engine/lara/statehandler_0.h
+     engine/lara/statehandler_1.h
+     engine/lara/statehandler_2.h
+     engine/lara/statehandler_3.h
+     engine/lara/statehandler_4.h
+     engine/lara/statehandler_5.h
+     engine/lara/statehandler_6.h
+     engine/lara/statehandler_7.h
+     engine/lara/statehandler_8.h
+     engine/lara/statehandler_9.h
+     engine/lara/statehandler_10.h
+     engine/lara/statehandler_11.h
+     engine/lara/statehandler_12.h
+     engine/lara/statehandler_13.h
+     engine/lara/statehandler_14.h
+     engine/lara/statehandler_15.h
+     engine/lara/statehandler_16.h
+     engine/lara/statehandler_17.h
+     engine/lara/statehandler_18.h
+     engine/lara/statehandler_19.h
+     engine/lara/statehandler_20.h
+     engine/lara/statehandler_21.h
+     engine/lara/statehandler_22.h
+     engine/lara/statehandler_23.h
+     engine/lara/statehandler_24.h
+     engine/lara/statehandler_25.h
+     engine/lara/statehandler_26.h
+     engine/lara/statehandler_27.h
+     engine/lara/statehandler_28.h
+     engine/lara/statehandler_29.h
+     engine/lara/statehandler_30.h
+     engine/lara/statehandler_31.h
+     engine/lara/statehandler_32.h
+     engine/lara/statehandler_33.h
+     engine/lara/statehandler_34.h
+     engine/lara/statehandler_35.h
+     engine/lara/statehandler_36.h
+     engine/lara/statehandler_37.h
+     engine/lara/statehandler_38.h
+     engine/lara/statehandler_39.h
+     engine/lara/statehandler_40.h
+     engine/lara/statehandler_41.h
+     engine/lara/statehandler_42.h
+     engine/lara/statehandler_43.h
+     engine/lara/statehandler_44.h
+     engine/lara/statehandler_45.h
+     engine/lara/statehandler_46.h
+     engine/lara/statehandler_47.h
+     engine/lara/statehandler_48.h
+     engine/lara/statehandler_49.h
+     engine/lara/statehandler_50.h
+     engine/lara/statehandler_51.h
+     engine/lara/statehandler_52.h
+     engine/lara/statehandler_53.h
+     engine/lara/statehandler_54.h
+     engine/lara/statehandler_55.h
+     engine/lara/statehandler_onwater.h
+     engine/lara/statehandler_pushable.h
+     engine/lara/statehandler_standing.h
+     engine/lara/statehandler_turnslow.h
+     engine/lara/statehandler_underwater.h
+
+     engine/audioengine.h
      engine/audioengine.cpp
+     engine/cameracontroller.h
+     engine/cameracontroller.cpp
+     engine/collisioninfo.h
+     engine/collisioninfo.cpp
+     engine/engine.h
+     engine/engine.cpp
+     engine/heightinfo.h
+     engine/heightinfo.cpp
+     engine/inventory.h
      engine/inventory.cpp
+     engine/lighting.h
+     engine/particle.h
+     engine/particle.cpp
+     engine/skeletalmodelnode.h
+     engine/skeletalmodelnode.cpp
+
+     engine/script/reflection.h
+
+     hid/inputstate.h
+     hid/inputhandler.h
      hid/inputhandler.cpp
 
+     loader/file/level/game.h
+     loader/file/level/level.h
      loader/file/level/level.cpp
+     loader/file/level/tr1level.h
      loader/file/level/tr1level.cpp
+     loader/file/level/tr2level.h
      loader/file/level/tr2level.cpp
+     loader/file/level/tr3level.h
      loader/file/level/tr3level.cpp
+     loader/file/level/tr4level.h
      loader/file/level/tr4level.cpp
+     loader/file/level/tr5level.h
      loader/file/level/tr5level.cpp
-
+     loader/file/animation.h
+     loader/file/audio.h
+     loader/file/color.h
+     loader/file/datatypes.h
      loader/file/datatypes.cpp
+     loader/file/item.h
+     loader/file/mesh.h
      loader/file/mesh.cpp
+     loader/file/primitives.h
+     loader/file/texture.h
      loader/file/texture.cpp
+     loader/file/texturecache.h
+     loader/file/util.h
+
+     loader/file/io/sdlreader.h
+     loader/file/io/util.h
+
+     loader/trx/trx.h
      loader/trx/trx.cpp
 
+     audio/alext.h
      audio/alext.cpp
+     audio/bufferhandle.h
+     audio/device.h
      audio/device.cpp
-     audio/utils.cpp
-     audio/stream.cpp
+     audio/filterhandle.h
+     audio/soundengine.h
      audio/soundengine.cpp
+     audio/stream.h
+     audio/stream.cpp
+     audio/streamsource.h
+     audio/tracktype.h
+     audio/utils.h
+     audio/utils.cpp
 
-     util/md5.cpp
+     util/cimgwrapper.h
      util/cimgwrapper.cpp
+     util/helpers.h
+     util/md5.h
+     util/md5.cpp
 
-     engine/lara/abstractstatehandler.cpp
+     engine/objects/objectfactory.h
+     engine/objects/objectfactory.cpp
+     engine/objects/animating.h
+     engine/objects/animating.cpp
+     engine/objects/atlanteanlava.h
+     engine/objects/atlanteanlava.cpp
+     engine/objects/bear.h
+     engine/objects/bear.cpp
+     engine/objects/barricade.h
+     engine/objects/barricade.cpp
+     engine/objects/bat.h
+     engine/objects/bat.cpp
+     engine/objects/block.h
+     engine/objects/block.cpp
+     engine/objects/boulder.h
+     engine/objects/boulder.cpp
+     engine/objects/crocodile.h
+     engine/objects/crocodile.cpp
+     engine/objects/collapsiblefloor.h
+     engine/objects/collapsiblefloor.cpp
+     engine/objects/cutsceneactors.h
+     engine/objects/cutsceneactors.cpp
+     engine/objects/dart.h
+     engine/objects/dart.cpp
+     engine/objects/dartgun.h
+     engine/objects/dartgun.cpp
+     engine/objects/door.h
+     engine/objects/door.cpp
+     engine/objects/doppelganger.h
+     engine/objects/doppelganger.cpp
+     engine/objects/flameemitter.h
+     engine/objects/flameemitter.cpp
+     engine/objects/gorilla.h
+     engine/objects/gorilla.cpp
+     engine/objects/object.h
+     engine/objects/object.cpp
+     engine/objects/objectstate.h
+     engine/objects/objectstate.cpp
+     engine/objects/keyhole.h
+     engine/objects/keyhole.cpp
+     engine/objects/laraobject.h
+     engine/objects/laraobject.cpp
+     engine/objects/larson.h
+     engine/objects/larson.cpp
+     engine/objects/lavaparticleemitter.h
+     engine/objects/lavaparticleemitter.cpp
+     engine/objects/lightningball.h
+     engine/objects/lightningball.cpp
+     engine/objects/lion.h
+     engine/objects/lion.cpp
+     engine/objects/modelobject.h
+     engine/objects/modelobject.cpp
+     engine/objects/mummy.h
+     engine/objects/mummy.cpp
+     engine/objects/mutant.h
+     engine/objects/mutant.cpp
+     engine/objects/mutantegg.h
+     engine/objects/mutantegg.cpp
+     engine/objects/pickupobject.h
+     engine/objects/pickupobject.cpp
+     engine/objects/pierre.h
+     engine/objects/pierre.cpp
+     engine/objects/puzzlehole.h
+     engine/objects/puzzlehole.cpp
+     engine/objects/raptor.h
+     engine/objects/raptor.cpp
+     engine/objects/rat.h
+     engine/objects/rat.cpp
+     engine/objects/scionpiece.h
+     engine/objects/scionpiece.cpp
+     engine/objects/slammingdoors.h
+     engine/objects/slammingdoors.cpp
+     engine/objects/spriteobject.h
+     engine/objects/spriteobject.cpp
+     engine/objects/swingingblade.h
+     engine/objects/swingingblade.cpp
+     engine/objects/switch.h
+     engine/objects/switch.cpp
+     engine/objects/swordofdamocles.h
+     engine/objects/swordofdamocles.cpp
+     engine/objects/tallblock.h
+     engine/objects/tallblock.cpp
+     engine/objects/teethspikes.h
+     engine/objects/teethspikes.cpp
+     engine/objects/thorhammer.h
+     engine/objects/thorhammer.cpp
+     engine/objects/trapdoorup.h
+     engine/objects/trapdoorup.cpp
+     engine/objects/trex.h
+     engine/objects/trex.cpp
+     engine/objects/underwaterswitch.h
+     engine/objects/underwaterswitch.cpp
+     engine/objects/waterfallmist.h
+     engine/objects/waterfallmist.cpp
+     engine/objects/wolf.h
+     engine/objects/wolf.cpp
+     engine/objects/aiagent.h
+     engine/objects/aiagent.cpp
+     engine/objects/bridgeflat.h
+     engine/objects/slopedbridge.h
+     engine/objects/stubobject.h
+     engine/objects/trapdoordown.h
 
-     engine/items/animating.cpp
-     engine/items/atlanteanlava.cpp
-     engine/items/bear.cpp
-     engine/items/barricade.cpp
-     engine/items/bat.cpp
-     engine/items/block.cpp
-     engine/items/boulder.cpp
-     engine/items/crocodile.cpp
-     engine/items/collapsiblefloor.cpp
-     engine/items/cutsceneactors.cpp
-     engine/items/dart.cpp
-     engine/items/door.cpp
-     engine/items/doppelganger.cpp
-     engine/items/flameemitter.cpp
-     engine/items/gorilla.cpp
-     engine/items/itemnode.cpp
-     engine/items/keyhole.cpp
-     engine/items/larson.cpp
-     engine/items/lavaparticleemitter.cpp
-     engine/items/lightningball.cpp
-     engine/items/lion.cpp
-     engine/items/mummy.cpp
-     engine/items/mutant.cpp
-     engine/items/mutantegg.cpp
-     engine/items/pickupitem.cpp
-     engine/items/pierre.cpp
-     engine/items/puzzlehole.cpp
-     engine/items/raptor.cpp
-     engine/items/rat.cpp
-     engine/items/scionpiece.cpp
-     engine/items/slammingdoors.cpp
-     engine/items/swingingblade.cpp
-     engine/items/switch.cpp
-     engine/items/swordofdamocles.cpp
-     engine/items/tallblock.cpp
-     engine/items/teethspikes.cpp
-     engine/items/thorhammer.cpp
-     engine/items/trapdoorup.cpp
-     engine/items/trex.cpp
-     engine/items/underwaterswitch.cpp
-     engine/items/waterfallmist.cpp
-     engine/items/wolf.cpp
-     engine/items/aiagent.cpp
-
+     engine/ai/ai.h
      engine/ai/ai.cpp
+     engine/ai/pathfinder.h
      engine/ai/pathfinder.cpp
 
+     engine/floordata/floordata.h
+     engine/floordata/floordata.cpp
+     engine/floordata/types.h
+
+     render/portaltracer.h
+     render/renderpipeline.h
+     render/textureanimator.h
      render/textureanimator.cpp
 
+     render/gl/arraybuffer.h
+     render/gl/bindableresource.h
+     render/gl/buffer.h
+     render/gl/debuggroup.h
+     render/gl/elementarraybuffer.h
+     render/gl/framebuffer.h
+     render/gl/image.h
+     render/gl/pixel.h
+     render/gl/program.h
+     render/gl/renderbuffer.h
+     render/gl/rendertarget.h
+     render/gl/shader.h
+     render/gl/shaderstoragebuffer.h
+     render/gl/structuredarraybuffer.h
+     render/gl/texture.h
+     render/gl/typetraits.h
+     render/gl/vertexarray.h
+     render/gl/glassert.h
      render/gl/glassert.cpp
+     render/gl/font.h
      render/gl/font.cpp
+     render/gl/renderstate.h
      render/gl/renderstate.cpp
+     render/gl/glew.h
      render/gl/glew.cpp
      render/gl/api/gl.cpp
 
-     render/scene/renderer.cpp
-     render/scene/material.cpp
-     render/scene/uniformparameter.cpp
+     render/scene/bufferparameter.h
      render/scene/bufferparameter.cpp
+     render/scene/camera.h
+     render/scene/dimension.h
+     render/scene/glfw.h
+     render/scene/material.h
+     render/scene/material.cpp
+     render/scene/materialparameter.h
+     render/scene/mesh.h
      render/scene/mesh.cpp
+     render/scene/model.h
      render/scene/model.cpp
+     render/scene/names.h
+     render/scene/node.h
      render/scene/node.cpp
+     render/scene/renderable.h
+     render/scene/rendercontext.h
+     render/scene/renderer.h
+     render/scene/renderer.cpp
+     render/scene/scene.h
+     render/scene/screenoverlay.h
      render/scene/screenoverlay.cpp
+     render/scene/shaderprogram.h
      render/scene/shaderprogram.cpp
+     render/scene/sprite.h
      render/scene/sprite.cpp
+     render/scene/uniformparameter.h
+     render/scene/uniformparameter.cpp
+     render/scene/visitor.h
      render/scene/visitor.cpp
+     render/scene/window.h
      render/scene/window.cpp
 
+     ui/label.h
      ui/label.cpp
 
+     video/player.h
      video/player.cpp
+
+     core/angle.h
+     core/angle.cpp
+     core/boundingbox.h
+     core/containeroffset.h
+     core/id.h
+     core/magic.h
+     core/tpl_helper.h
+     core/units.h
+     core/vec.h
+     core/vec.cpp
+
+     qs/mult_div.h
+     qs/qs.h
+     qs/quantity.h
+     qs/stream.h
+     qs/string_util.h
+     qs/tuple_util.h
+
+     serialization/animation_ptr.h
+     serialization/animframe_ptr.h
+     serialization/array.h
+     serialization/bitset.h
+     serialization/box_ptr.h
+     serialization/deque.h
+     serialization/glm.h
+     serialization/map.h
+     serialization/not_null.h
+     serialization/objectreference.h
+     serialization/optional.h
+     serialization/ptr.h
+     serialization/room_ptr.h
+     serialization/serialization.h
+     serialization/serialization.cpp
+     serialization/serialization_fwd.h
+     serialization/skeletalmodeltype_ptr.h
+     serialization/sprite_ptr.h
+     serialization/unordered_map.h
+     serialization/unordered_set.h
+     serialization/vector.h
      )
 
 if( MSVC )
@@ -254,6 +512,7 @@ add_executable( edisonengine
 
 group_files( ${EDISONENGINE_SRCS} )
 
+
 target_include_directories( edisonengine PRIVATE . )
 
 target_link_libraries(
@@ -275,6 +534,7 @@ target_link_libraries(
         glm
         Freetype::Freetype
         FFmpeg
+        gsl-lite
 )
 
 if( LINUX OR UNIX )

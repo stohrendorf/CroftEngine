@@ -4,7 +4,6 @@
 #include "mult_div.h"
 #include "quantity.h"
 #include "stream.h"
-#include "yaml_io.h"
 
 #define QS_DECLARE_QUANTITY(NAME, TYPE, SUFFIX) \
   struct _##NAME##_generated_unit               \

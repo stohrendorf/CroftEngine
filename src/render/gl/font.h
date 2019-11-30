@@ -6,9 +6,7 @@
 #include <ft2build.h>
 #include FT_CACHE_H
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 class Font
 {
@@ -34,7 +32,7 @@ public:
     m_targetImage = img;
   }
 
-  const std::shared_ptr<Image<SRGBA8>>& getTarget() const
+  [[nodiscard]] const std::shared_ptr<Image<SRGBA8>>& getTarget() const
   {
     return m_targetImage;
   }
@@ -56,5 +54,4 @@ private:
 
   const std::string m_filename;
 };
-} // namespace gl
 } // namespace render

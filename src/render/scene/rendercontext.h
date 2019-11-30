@@ -5,9 +5,7 @@
 
 #include <stack>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Node;
 
@@ -16,10 +14,10 @@ class RenderContext final
 public:
   explicit RenderContext()
   {
-    m_renderStates.push(render::gl::RenderState());
+    m_renderStates.push(gl::RenderState());
   }
 
-  Node* getCurrentNode() const noexcept
+  [[nodiscard]] Node* getCurrentNode() const noexcept
   {
     return m_currentNode;
   }
@@ -29,7 +27,7 @@ public:
     m_currentNode = n;
   }
 
-  void pushState(const render::gl::RenderState& state)
+  void pushState(const gl::RenderState& state)
   {
     auto tmp = m_renderStates.top();
     tmp.merge(state);
@@ -49,7 +47,6 @@ public:
 
 private:
   Node* m_currentNode = nullptr;
-  std::stack<render::gl::RenderState> m_renderStates{};
+  std::stack<gl::RenderState> m_renderStates{};
 };
-} // namespace scene
 } // namespace render

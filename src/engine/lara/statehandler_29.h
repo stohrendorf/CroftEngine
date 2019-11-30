@@ -4,14 +4,12 @@
 #include "engine/collisioninfo.h"
 #include "hid/inputstate.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_29 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_29(LaraNode& lara)
+  explicit StateHandler_29(objects::LaraObject& lara)
       : AbstractStateHandler{lara, LaraStateId::FallBackward}
   {
   }
@@ -23,7 +21,7 @@ public:
       setGoalAnimState(LaraStateId::FreeFall);
     }
 
-    if(getEngine().getInputHandler().getInputState().action && getHandStatus() == HandStatus::None)
+    if(getEngine().getInputHandler().getInputState().action && getHandStatus() == objects::HandStatus::None)
     {
       setGoalAnimState(LaraStateId::Reach);
     }
@@ -58,4 +56,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

@@ -1,5 +1,6 @@
 #include "engine/engine.h"
 
+#include <boost/exception/diagnostic_information.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
@@ -55,6 +56,11 @@ int main()
     engine.run();
 
     return EXIT_SUCCESS;
+  }
+  catch(boost::exception& ex)
+  {
+    BOOST_LOG_TRIVIAL(error) << "Error:\n" << diagnostic_information(ex);
+    return EXIT_FAILURE;
   }
   catch(std::exception& ex)
   {

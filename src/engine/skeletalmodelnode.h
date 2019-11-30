@@ -1,43 +1,39 @@
 #pragma once
 
-#include "core/magic.h"
 #include "gsl-lite.hpp"
 #include "loader/file/animation.h"
 #include "render/scene/node.h"
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 struct SkeletalModelType;
 struct Animation;
-} // namespace file
 } // namespace loader
 
 namespace engine
 {
 class Engine;
 
-namespace items
+namespace objects
 {
-struct ItemState;
+struct ObjectState;
 }
 class SkeletalModelNode : public render::scene::Node
 {
 public:
   explicit SkeletalModelNode(const std::string& id,
                              const gsl::not_null<const Engine*>& engine,
-                             const loader::file::SkeletalModelType& mdl);
+                             const gsl::not_null<const loader::file::SkeletalModelType*>& model);
 
-  void updatePose(items::ItemState& state);
+  void updatePose(objects::ObjectState& state);
 
-  void setAnimation(items::ItemState& state,
+  void setAnimation(objects::ObjectState& state,
                     const gsl::not_null<const loader::file::Animation*>& animation,
                     core::Frame frame);
 
-  static core::Speed calculateFloorSpeed(const items::ItemState& state, const core::Frame& frameOffset = 0_frame);
+  static core::Speed calculateFloorSpeed(const objects::ObjectState& state, const core::Frame& frameOffset = 0_frame);
 
-  loader::file::BoundingBox getBoundingBox(const items::ItemState& state) const;
+  loader::file::BoundingBox getBoundingBox(const objects::ObjectState& state) const;
 
   void resetPose()
   {
@@ -58,7 +54,7 @@ public:
     m_bonePatches[idx] = m;
   }
 
-  bool advanceFrame(items::ItemState& state);
+  bool advanceFrame(objects::ObjectState& state);
 
   struct InterpolationInfo
   {
@@ -66,7 +62,7 @@ public:
     const loader::file::AnimFrame* secondFrame = nullptr;
     float bias = 0;
 
-    const loader::file::AnimFrame* getNearestFrame() const
+    [[nodiscard]] const loader::file::AnimFrame* getNearestFrame() const
     {
       if(bias <= 0.5f)
       {
@@ -80,7 +76,7 @@ public:
     }
   };
 
-  InterpolationInfo getInterpolationInfo(const items::ItemState& state) const;
+  InterpolationInfo getInterpolationInfo(const objects::ObjectState& state) const;
 
   void updatePose(const InterpolationInfo& interpolationInfo)
   {
@@ -101,30 +97,31 @@ public:
     {
     }
 
-    glm::vec3 getPosition() const
+    [[nodiscard]] glm::vec3 getPosition() const
     {
       return glm::vec3(m[3]);
     }
   };
 
-  std::vector<Sphere> getBoneCollisionSpheres(const items::ItemState& state,
+  std::vector<Sphere> getBoneCollisionSpheres(const objects::ObjectState& state,
                                               const loader::file::AnimFrame& frame,
                                               const glm::mat4* baseTransform);
 
-  void load(const YAML::Node& n);
-
-  YAML::Node save() const;
+  void serialize(const serialization::Serializer& ser);
 
 protected:
-  bool handleStateTransitions(items::ItemState& state);
+  bool handleStateTransitions(objects::ObjectState& state);
 
 private:
   const gsl::not_null<const Engine*> m_engine;
-  const loader::file::SkeletalModelType& m_model;
+  gsl::not_null<const loader::file::SkeletalModelType*> m_model;
   std::vector<glm::mat4> m_bonePatches;
 
   void updatePoseKeyframe(const InterpolationInfo& framePair);
 
   void updatePoseInterpolated(const InterpolationInfo& framePair);
 };
+
+void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer& ser);
+
 } // namespace engine

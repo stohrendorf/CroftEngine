@@ -6,11 +6,10 @@
 #include "shaderstoragebuffer.h"
 #include "texture.h"
 
+#include <boost/assert.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 class Program;
 
@@ -21,12 +20,12 @@ public:
 
   virtual ~ProgramInterface() = default;
 
-  const std::string& getName() const noexcept
+  [[nodiscard]] const std::string& getName() const noexcept
   {
     return m_name;
   }
 
-  auto getType() const noexcept
+  [[nodiscard]] auto getType() const noexcept
   {
     return m_type;
   }
@@ -52,7 +51,7 @@ public:
   {
   }
 
-  auto getLocation() const noexcept
+  [[nodiscard]] auto getLocation() const noexcept
   {
     return m_location;
   }
@@ -270,14 +269,14 @@ public:
     setLabel(::gl::ObjectIdentifier::Program, label);
   }
 
-  bool getLinkStatus() const
+  [[nodiscard]] bool getLinkStatus() const
   {
-    auto success = (int32_t)::gl::Boolean::False;
+    auto success = static_cast<int32_t>(::gl::Boolean::False);
     GL_ASSERT(::gl::getProgram(getHandle(), ::gl::ProgramPropertyARB::LinkStatus, &success));
-    return success == (int32_t)::gl::Boolean::True;
+    return success == static_cast<int32_t>(::gl::Boolean::True);
   }
 
-  std::string getInfoLog() const
+  [[nodiscard]] std::string getInfoLog() const
   {
     int32_t length = 0;
     GL_ASSERT(::gl::getProgram(getHandle(), ::gl::ProgramPropertyARB::InfoLogLength, &length));
@@ -287,7 +286,7 @@ public:
     }
     if(length > 0)
     {
-      const auto infoLog = new char[length];
+      const gsl::owner<gsl::zstring> infoLog = new char[length];
       GL_ASSERT(::gl::getProgramInfoLog(getHandle(), length, nullptr, infoLog));
       infoLog[length - 1] = '\0';
       std::string result = infoLog;
@@ -298,14 +297,14 @@ public:
     return {};
   }
 
-  auto getActiveResourceCount(const ::gl::ProgramInterface what) const
+  [[nodiscard]] auto getActiveResourceCount(const ::gl::ProgramInterface what) const
   {
     int32_t n = 0;
     GL_ASSERT(::gl::getProgramInterface(getHandle(), what, ::gl::ProgramInterfacePName::ActiveResources, &n));
     return gsl::narrow<uint32_t>(n);
   }
 
-  std::vector<ProgramInput> getInputs() const
+  [[nodiscard]] std::vector<ProgramInput> getInputs() const
   {
     const auto n = getActiveResourceCount(::gl::ProgramInterface::ProgramInput);
 
@@ -316,7 +315,7 @@ public:
     return inputs;
   }
 
-  std::vector<ProgramUniform> getUniforms() const
+  [[nodiscard]] std::vector<ProgramUniform> getUniforms() const
   {
     const auto n = getActiveResourceCount(::gl::ProgramInterface::Uniform);
 
@@ -328,7 +327,7 @@ public:
     return uniforms;
   }
 
-  std::vector<ProgramShaderStorageBlock> getShaderStorageBlocks() const
+  [[nodiscard]] std::vector<ProgramShaderStorageBlock> getShaderStorageBlocks() const
   {
     const auto n = getActiveResourceCount(::gl::ProgramInterface::ShaderStorageBlock);
 
@@ -376,7 +375,7 @@ inline ProgramUniform::ProgramUniform(const Program& program, const uint32_t ind
   GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformSize, &size));
   Expects(size >= 0);
 
-  switch((::gl::UniformType)type)
+  switch(static_cast<::gl::UniformType>(type))
   {
   case ::gl::UniformType::Sampler1d:
   case ::gl::UniformType::Sampler1dShadow:
@@ -396,5 +395,4 @@ inline ProgramShaderStorageBlock::ProgramShaderStorageBlock(const Program& progr
         program, ::gl::ProgramInterface::ShaderStorageBlock, index, ::gl::ProgramResourceProperty::BufferBinding))}
 {
 }
-} // namespace gl
 } // namespace render

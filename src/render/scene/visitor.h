@@ -1,8 +1,6 @@
 #pragma once
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class RenderContext;
 
@@ -37,5 +35,4 @@ public:
 private:
   RenderContext& m_context;
 };
-} // namespace scene
 } // namespace render

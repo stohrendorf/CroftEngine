@@ -3,8 +3,6 @@
 #include "alext.h"
 #include "utils.h"
 
-#include <boost/log/trivial.hpp>
-
 namespace audio
 {
 class FilterHandle final
@@ -40,7 +38,7 @@ public:
     AL_ASSERT(alDeleteFilters(1, &m_handle));
   }
 
-  ALuint get() const noexcept
+  [[nodiscard]] ALuint get() const noexcept
   {
     return m_handle;
   }

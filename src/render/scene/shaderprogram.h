@@ -7,9 +7,7 @@
 #include <memory>
 #include <vector>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class ShaderProgram
 {
@@ -30,12 +28,12 @@ public:
                                                        const std::string& fshPath,
                                                        const std::vector<std::string>& defines = {});
 
-  const std::string& getId() const
+  [[nodiscard]] const std::string& getId() const
   {
     return m_id;
   }
 
-  const gl::ProgramUniform* findUniform(const std::string& name) const
+  [[nodiscard]] const gl::ProgramUniform* findUniform(const std::string& name) const
   {
     return find(m_uniforms, name);
   }
@@ -45,7 +43,7 @@ public:
     return find(m_uniforms, name);
   }
 
-  const gl::ProgramShaderStorageBlock* findShaderStorageBlock(const std::string& name) const
+  [[nodiscard]] const gl::ProgramShaderStorageBlock* findShaderStorageBlock(const std::string& name) const
   {
     return find(m_shaderStorageBlocks, name);
   }
@@ -60,7 +58,7 @@ public:
     m_handle.bind();
   }
 
-  const gl::Program& getHandle() const
+  [[nodiscard]] const gl::Program& getHandle() const
   {
     return m_handle;
   }
@@ -96,5 +94,4 @@ private:
     return it == map.end() ? nullptr : &it->second;
   }
 };
-} // namespace scene
 } // namespace render

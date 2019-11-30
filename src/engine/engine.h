@@ -53,14 +53,15 @@ class RenderPipeline;
 
 namespace engine
 {
-namespace items
+namespace objects
 {
-class ItemNode;
+class Object;
 
-class PickupItem;
-} // namespace items
+class PickupObject;
+} // namespace objects
 
 class Particle;
+using ObjectId = uint16_t;
 
 class Engine
 {
@@ -71,14 +72,14 @@ private:
   std::unique_ptr<AudioEngine> m_audioEngine;
 
   core::Frame m_effectTimer = 0_frame;
-  boost::optional<size_t> m_activeEffect{};
+  std::optional<size_t> m_activeEffect{};
 
-  uint16_t m_itemNodeCounter = 0x8000;
-  std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>> m_itemNodes;
+  uint16_t m_objectCounter = 0x8000;
+  std::map<ObjectId, gsl::not_null<std::shared_ptr<objects::Object>>> m_objects;
 
-  std::set<gsl::not_null<std::shared_ptr<items::ItemNode>>> m_dynamicItems;
+  std::set<gsl::not_null<std::shared_ptr<objects::Object>>> m_dynamicObjects;
 
-  std::set<items::ItemNode*> m_scheduledDeletions;
+  std::set<objects::Object*> m_scheduledDeletions;
 
   std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_models;
 
@@ -88,7 +89,7 @@ private:
 
   sol::state m_scriptEngine;
 
-  std::shared_ptr<LaraNode> m_lara = nullptr;
+  std::shared_ptr<objects::LaraObject> m_lara = nullptr;
 
   std::shared_ptr<render::TextureAnimator> m_textureAnimator;
 
@@ -156,12 +157,12 @@ public:
     return m_roomsAreSwapped;
   }
 
-  LaraNode& getLara()
+  objects::LaraObject& getLara()
   {
     return *m_lara;
   }
 
-  const LaraNode& getLara() const
+  const objects::LaraObject& getLara() const
   {
     return *m_lara;
   }
@@ -171,19 +172,19 @@ public:
     return m_particles;
   }
 
-  auto& getItemNodes()
+  auto& getObjects()
   {
-    return m_itemNodes;
+    return m_objects;
   }
 
-  const auto& getItemNodes() const
+  const auto& getObjects() const
   {
-    return m_itemNodes;
+    return m_objects;
   }
 
-  const auto& getDynamicItems() const
+  const auto& getDynamicObjects() const
   {
-    return m_dynamicItems;
+    return m_dynamicObjects;
   }
 
   CameraController& getCameraController()
@@ -201,6 +202,7 @@ public:
     return m_spriteMaterial;
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   auto& getSoundEngine()
   {
     return m_audioEngine->m_soundEngine;
@@ -249,20 +251,20 @@ public:
   void run();
 
   std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>
-    createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader);
+    createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader) const;
 
-  std::shared_ptr<LaraNode> createItems();
+  std::shared_ptr<objects::LaraObject> createObjects();
 
   void loadSceneData(bool linearTextureInterpolation);
 
   const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
 
   template<typename T>
-  std::shared_ptr<T> createItem(const core::TypeId type,
-                                const gsl::not_null<const loader::file::Room*>& room,
-                                const core::Angle& angle,
-                                const core::TRVec& position,
-                                const uint16_t activationState)
+  std::shared_ptr<T> createObject(const core::TypeId type,
+                                  const gsl::not_null<const loader::file::Room*>& room,
+                                  const core::Angle& angle,
+                                  const core::TRVec& position,
+                                  const uint16_t activationState)
   {
     const auto& model = findAnimatedModelForType(type);
     if(model == nullptr)
@@ -276,21 +278,21 @@ public:
     item.darkness = 0;
     item.activationState = activationState;
 
-    auto node = std::make_shared<T>(this, room, item, *model);
+    auto object = std::make_shared<T>(this, room, item, model.get());
 
-    m_dynamicItems.emplace(node);
-    addChild(room->node, node->getNode());
+    m_dynamicObjects.emplace(object);
+    addChild(room->node, object->getNode());
 
-    return node;
+    return object;
   }
 
-  std::shared_ptr<items::PickupItem>
+  std::shared_ptr<objects::PickupObject>
     createPickup(core::TypeId type, const gsl::not_null<const loader::file::Room*>& room, const core::TRVec& position);
 
   std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
                                                const core::TRVec& position) const;
 
-  std::shared_ptr<items::ItemNode> getItem(uint16_t id) const;
+  std::shared_ptr<objects::Object> getObject(uint16_t id) const;
 
   void drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::SRGBA8>>>& image);
 
@@ -301,9 +303,9 @@ public:
     return m_models.at(idx);
   }
 
-  void scheduleDeletion(items::ItemNode* item)
+  void scheduleDeletion(objects::Object* object)
   {
-    m_scheduledDeletions.insert(item);
+    m_scheduledDeletions.insert(object);
   }
 
   void applyScheduledDeletions()
@@ -313,23 +315,23 @@ public:
 
     for(const auto& del : m_scheduledDeletions)
     {
-      auto it = std::find_if(m_dynamicItems.begin(),
-                             m_dynamicItems.end(),
-                             [del](const std::shared_ptr<items::ItemNode>& i) { return i.get() == del; });
-      if(it != m_dynamicItems.end())
+      auto it = std::find_if(m_dynamicObjects.begin(),
+                             m_dynamicObjects.end(),
+                             [del](const std::shared_ptr<objects::Object>& i) { return i.get() == del; });
+      if(it != m_dynamicObjects.end())
       {
-        m_dynamicItems.erase(it);
+        m_dynamicObjects.erase(it);
         continue;
       }
 
-      auto it2 = std::find_if(m_itemNodes.begin(),
-                              m_itemNodes.end(),
-                              [del](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& i) {
+      auto it2 = std::find_if(m_objects.begin(),
+                              m_objects.end(),
+                              [del](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& i) {
                                 return i.second.get().get() == del;
                               });
-      if(it2 != m_itemNodes.end())
+      if(it2 != m_objects.end())
       {
-        m_itemNodes.erase(it2);
+        m_objects.erase(it2);
         continue;
       }
     }
@@ -337,13 +339,13 @@ public:
     m_scheduledDeletions.clear();
   }
 
-  void turn180Effect(items::ItemNode& node);
+  void turn180Effect(objects::Object& object);
 
-  void dinoStompEffect(items::ItemNode& node);
+  void dinoStompEffect(objects::Object& object);
 
   void laraNormalEffect();
 
-  void laraBubblesEffect(items::ItemNode& node);
+  void laraBubblesEffect(objects::Object& object);
 
   void finishLevelEffect();
 
@@ -365,7 +367,7 @@ public:
 
   void flipMapEffect();
 
-  void unholsterRightGunEffect(items::ItemNode& node);
+  void unholsterRightGunEffect(objects::Object& object);
 
   void chainBlockEffect();
 
@@ -381,14 +383,14 @@ public:
 
   void doGlobalEffect();
 
-  void runEffect(const size_t id, items::ItemNode* node)
+  void runEffect(const size_t id, objects::Object* object)
   {
     switch(id)
     {
-    case 0: Expects(node != nullptr); return turn180Effect(*node);
-    case 1: Expects(node != nullptr); return dinoStompEffect(*node);
+    case 0: Expects(object != nullptr); return turn180Effect(*object);
+    case 1: Expects(object != nullptr); return dinoStompEffect(*object);
     case 2: return laraNormalEffect();
-    case 3: Expects(node != nullptr); return laraBubblesEffect(*node);
+    case 3: Expects(object != nullptr); return laraBubblesEffect(*object);
     case 4: return finishLevelEffect();
     case 5: return earthquakeEffect();
     case 6: return floodEffect();
@@ -399,7 +401,7 @@ public:
     case 11: return explosionEffect();
     case 12: return laraHandsFreeEffect();
     case 13: return flipMapEffect();
-    case 14: Expects(node != nullptr); return unholsterRightGunEffect(*node);
+    case 14: Expects(object != nullptr); return unholsterRightGunEffect(*object);
     case 15: return chainBlockEffect();
     case 16: return flickerEffect();
     default: BOOST_LOG_TRIVIAL(warning) << "Unhandled effect: " << id;
@@ -410,25 +412,11 @@ public:
 
   void animateUV();
 
-  YAML::Node save() const;
-
-  void load(const YAML::Node& node);
-
-  boost::optional<size_t> indexOfModel(const std::shared_ptr<render::scene::Renderable>& m) const
-  {
-    if(m == nullptr)
-      return boost::none;
-
-    for(size_t i = 0; i < m_models.size(); ++i)
-      if(m_models[i].get() == m)
-        return i;
-
-    return boost::none;
-  }
+  void serialize(const serialization::Serializer& ser);
 
   std::array<floordata::ActivationState, 10> mapFlipActivationStates;
 
-  items::ItemNode* m_pierre = nullptr;
+  objects::Object* m_pierre = nullptr;
 
   const std::vector<loader::file::Box>& getBoxes() const;
 
@@ -468,31 +456,39 @@ public:
 
   const std::vector<int16_t>& getPoseFrames() const;
 
-  void registerItem(const gsl::not_null<std::shared_ptr<items::ItemNode>>& item)
+  void registerObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object)
   {
-    if(m_itemNodeCounter == std::numeric_limits<uint16_t>::max())
-      BOOST_THROW_EXCEPTION(std::runtime_error("Artificial item counter exceeded"));
+    if(m_objectCounter == std::numeric_limits<uint16_t>::max())
+      BOOST_THROW_EXCEPTION(std::runtime_error("Artificial object counter exceeded"));
 
-    m_itemNodes.emplace(m_itemNodeCounter++, item);
+    m_objects.emplace(m_objectCounter++, object);
   }
 
-  std::shared_ptr<items::ItemNode> find(const items::ItemNode* node) const
+  std::shared_ptr<objects::Object> find(const objects::Object* object) const
   {
-    if(node == nullptr)
+    if(object == nullptr)
       return nullptr;
 
-    auto it = std::find_if(m_itemNodes.begin(),
-                           m_itemNodes.end(),
-                           [node](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& x) {
-                             return x.second.get().get() == node;
+    auto it = std::find_if(m_objects.begin(),
+                           m_objects.end(),
+                           [object](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& x) {
+                             return x.second.get().get() == object;
                            });
 
-    if(it == m_itemNodes.end())
+    if(it == m_objects.end())
       return nullptr;
 
     return it->second;
   }
 
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
+
+  core::TypeId find(const loader::file::SkeletalModelType* model) const;
+  core::TypeId find(const loader::file::Sprite* sprite) const;
+
+  const auto& getLightningShader() const
+  {
+    return m_lightningShader;
+  }
 };
 } // namespace engine

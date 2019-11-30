@@ -1,10 +1,10 @@
 #pragma once
 
+#include "serialization/serialization.h"
 #include "tpl_helper.h"
 
 #include <cstdint>
 #include <functional>
-#include <yaml-cpp/yaml.h>
 
 namespace engine
 {
@@ -58,7 +58,7 @@ struct Id
     return m_value;
   }
 
-  constexpr type get() const
+  [[nodiscard]] constexpr type get() const
   {
     return m_value;
   }
@@ -121,6 +121,16 @@ struct Id
     return get_as<T>() >= r;
   }
 
+  void serialize(const serialization::Serializer& ser)
+  {
+    serialization::access::callSerialize(m_value, ser);
+  }
+
+  static Id<StorageType, Tag, Enums...> create(const serialization::Serializer& ser)
+  {
+    return Id<StorageType, Tag, Enums...>{serialization::create(serialization::TypeId<StorageType>{}, ser)};
+  }
+
 private:
   StorageType m_value;
 };
@@ -163,73 +173,20 @@ inline constexpr AnimStateId operator"" _as(unsigned long long value)
 
 using core::operator""_as;
 
-namespace std
-{
 template<typename StorageType, typename Tag>
-struct hash<core::Id<StorageType, Tag>>
+struct std::hash<core::Id<StorageType, Tag>>
 {
   constexpr size_t operator()(const core::Id<StorageType, Tag>& v) const
   {
     return hash<StorageType>{}(v.get());
   }
 };
-} // namespace std
 
-// YAML converters
-namespace YAML
-{
-template<typename Type, typename Tag, typename... Enums>
-struct convert<core::Id<Type, Tag, Enums...>>
-{
-  static Node encode(const core::Id<Type, Tag, Enums...>& rhs)
-  {
-    Node node{NodeType::Scalar};
-    node = rhs.get();
-    return node;
-  }
-
-  static bool decode(const Node& node, core::Id<Type, Tag, Enums...>& rhs)
-  {
-    if(!node.IsScalar())
-      return false;
-
-    rhs = core::Id<Type, Tag, Enums...>{node.as<Type>()};
-    return true;
-  }
-};
-
-template<typename Type, typename Tag, typename... Enums>
-struct as_if<core::Id<Type, Tag, Enums...>, void>
-{
-  explicit as_if(const Node& node_)
-      : node{node_}
-  {
-  }
-
-  const Node& node;
-
-  core::Id<Type, Tag, Enums...> operator()() const
-  {
-    if(!node.m_pNode)
-      throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
-
-    core::Id<Type, Tag, Enums...> t{Type{0}};
-    if(convert<core::Id<Type, Tag, Enums...>>::decode(node, t))
-      return t;
-    throw TypedBadConversion<core::Id<Type, Tag, Enums...>>{node.Mark()};
-  }
-};
-} // namespace YAML
-
-namespace std
-{
 template<>
-struct hash<core::TextureTileId>
+struct std::hash<core::TextureTileId>
 {
   size_t operator()(const core::TextureTileId& x) const noexcept
   {
     return std::hash<core::TextureTileId::type>()(x.get());
   }
 };
-
-}

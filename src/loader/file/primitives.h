@@ -4,9 +4,7 @@
 #include "core/id.h"
 #include "io/sdlreader.h"
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 struct RoomVertex;
 
@@ -94,5 +92,4 @@ private:
     return quadFace;
   }
 };
-} // namespace file
 } // namespace loader

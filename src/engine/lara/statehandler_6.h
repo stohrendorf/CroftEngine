@@ -2,14 +2,12 @@
 
 #include "statehandler_turnslow.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_6 final : public StateHandler_TurnSlow
 {
 public:
-  explicit StateHandler_6(LaraNode& lara)
+  explicit StateHandler_6(objects::LaraObject& lara)
       : StateHandler_TurnSlow{lara, LaraStateId::TurnRightSlow}
   {
   }
@@ -24,7 +22,7 @@ public:
 
     addYRotationSpeed(2.25_deg);
 
-    if(getHandStatus() == HandStatus::Combat)
+    if(getHandStatus() == objects::HandStatus::Combat)
     {
       setGoalAnimState(LaraStateId::TurnFast);
     }
@@ -60,4 +58,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

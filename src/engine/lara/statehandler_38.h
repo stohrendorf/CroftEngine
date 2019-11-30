@@ -4,14 +4,12 @@
 #include "engine/collisioninfo.h"
 #include "hid/inputstate.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_38 final : public StateHandler_Pushable
 {
 public:
-  explicit StateHandler_38(LaraNode& lara)
+  explicit StateHandler_38(objects::LaraObject& lara)
       : StateHandler_Pushable{lara, LaraStateId::PushableGrab}
   {
   }
@@ -27,4 +25,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

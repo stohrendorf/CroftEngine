@@ -1,10 +1,6 @@
 #pragma once
 
-#include "audio/soundengine.h"
-#include "audio/streamsource.h"
-#include "engine/cameracontroller.h"
-#include "engine/items/itemnode.h"
-#include "engine/items/pickupitem.h"
+#include "engine/objects/object.h"
 #include "engine/particle.h"
 #include "game.h"
 #include "hid/inputhandler.h"
@@ -13,7 +9,6 @@
 #include "loader/file/item.h"
 #include "loader/file/mesh.h"
 
-#include <boost/filesystem/path.hpp>
 #include <memory>
 #include <vector>
 
@@ -24,9 +19,7 @@ namespace trx
 class Glidos;
 }
 
-namespace file
-{
-namespace level
+namespace file::level
 {
 class Level
 {
@@ -139,13 +132,13 @@ public:
 
   virtual void loadFileData() = 0;
 
-  const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
+  [[nodiscard]] const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
 
-  int findStaticMeshIndexById(core::StaticMeshId meshId) const;
+  [[nodiscard]] int findStaticMeshIndexById(core::StaticMeshId meshId) const;
 
-  const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
+  [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
 
-  const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
+  [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
 
   void updateRoomBasedCaches();
 
@@ -167,6 +160,5 @@ private:
 
   static std::shared_ptr<Level> createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath);
 };
-} // namespace level
 } // namespace file
 } // namespace loader

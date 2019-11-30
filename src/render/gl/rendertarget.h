@@ -2,9 +2,7 @@
 
 #include "bindableresource.h"
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 class RenderTarget : public BindableResource
 {
@@ -19,9 +17,8 @@ protected:
   }
 
 public:
-  virtual int32_t getWidth() const noexcept = 0;
+  [[nodiscard]] virtual int32_t getWidth() const noexcept = 0;
 
-  virtual int32_t getHeight() const noexcept = 0;
+  [[nodiscard]] virtual int32_t getHeight() const noexcept = 0;
 };
-} // namespace gl
 } // namespace render

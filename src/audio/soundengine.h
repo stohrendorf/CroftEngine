@@ -93,7 +93,7 @@ public:
 
   std::vector<gsl::not_null<std::shared_ptr<SourceHandle>>> getSourcesForBuffer(Emitter* emitter, size_t buffer) const;
 
-  const Device& getDevice() const noexcept
+  [[nodiscard]] const auto& getDevice() const noexcept
   {
     return m_device;
   }

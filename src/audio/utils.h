@@ -5,14 +5,12 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include <boost/current_function.hpp>
 
-namespace audio
-{
-namespace detail
+namespace audio::detail
 {
 extern bool checkALError(gsl::czstring code, gsl::czstring func, int line);
 
 template<typename F>
-inline auto alAssertFn(F code, gsl::czstring codeStr, gsl::czstring func, int line) -> decltype(code())
+auto alAssertFn(F code, gsl::czstring codeStr, gsl::czstring func, int line) -> decltype(code())
 {
   const auto result = code();
 #ifndef NDEBUG
@@ -20,8 +18,7 @@ inline auto alAssertFn(F code, gsl::czstring codeStr, gsl::czstring func, int li
 #endif
   return result;
 }
-} // namespace detail
-} // namespace audio
+} // namespace audio::detail
 
 #define AL_ASSERT_FN(code) ::audio::detail::alAssertFn([&]() { return code; }, #code, BOOST_CURRENT_FUNCTION, __LINE__)
 

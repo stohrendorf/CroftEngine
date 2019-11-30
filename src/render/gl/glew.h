@@ -2,10 +2,7 @@
 
 #include "api/gl.hpp"
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 extern void initializeGl();
-}
 } // namespace render

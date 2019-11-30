@@ -5,13 +5,9 @@
 #include "types.h"
 
 #include <bitset>
-#include <boost/optional.hpp>
-#include <vector>
-#include <yaml-cpp/yaml.h>
+#include <optional>
 
-namespace engine
-{
-namespace floordata
+namespace engine::floordata
 {
 struct FloorDataChunk
 {
@@ -46,11 +42,11 @@ private:
 class ActivationState
 {
 public:
-  static constexpr const uint16_t TimeoutMask = 0x00ff;
-  static constexpr const uint16_t Oneshot = 0x0100;
-  static constexpr const uint16_t ActivationMask = 0x3e00;
-  static constexpr const uint16_t InvertedActivation = 0x4000;
-  static constexpr const uint16_t Locked = 0x8000;
+  static constexpr uint16_t TimeoutMask = 0x00ff;
+  static constexpr uint16_t Oneshot = 0x0100;
+  static constexpr uint16_t ActivationMask = 0x3e00;
+  static constexpr uint16_t InvertedActivation = 0x4000;
+  static constexpr uint16_t Locked = 0x8000;
 
   using ActivationSet = std::bitset<5>;
 
@@ -65,7 +61,7 @@ public:
   {
   }
 
-  bool isOneshot() const noexcept
+  [[nodiscard]] bool isOneshot() const noexcept
   {
     return m_oneshot;
   }
@@ -75,12 +71,12 @@ public:
     m_oneshot = oneshot;
   }
 
-  bool isInverted() const noexcept
+  [[nodiscard]] bool isInverted() const noexcept
   {
     return m_inverted;
   }
 
-  bool isLocked() const noexcept
+  [[nodiscard]] bool isLocked() const noexcept
   {
     return m_locked;
   }
@@ -100,12 +96,12 @@ public:
     m_activationSet &= rhs;
   }
 
-  const ActivationSet& getActivationSet() const noexcept
+  [[nodiscard]] const ActivationSet& getActivationSet() const noexcept
   {
     return m_activationSet;
   }
 
-  bool isFullyActivated() const
+  [[nodiscard]] bool isFullyActivated() const
   {
     return m_activationSet.all();
   }
@@ -130,45 +126,17 @@ public:
     m_locked = locked;
   }
 
-  bool isInActivationSet(const size_t i) const
+  [[nodiscard]] bool isInActivationSet(const size_t i) const
   {
     return m_activationSet.test(i);
   }
 
-  core::Frame getTimeout() const noexcept
+  [[nodiscard]] core::Frame getTimeout() const noexcept
   {
     return m_timeout;
   }
 
-  YAML::Node save() const
-  {
-    YAML::Node node;
-    node.SetStyle(YAML::EmitterStyle::Flow);
-    node["oneshot"] = m_oneshot;
-    node["inverted"] = m_inverted;
-    node["locked"] = m_locked;
-    for(size_t i = 0; i < m_activationSet.size(); ++i)
-      node["activationSet"].push_back(m_activationSet[i]);
-    return node;
-  }
-
-  void load(const YAML::Node& node)
-  {
-    if(!node["oneshot"].IsScalar())
-      BOOST_THROW_EXCEPTION(std::domain_error("ActivationState::oneshot is not scalar"));
-    if(!node["inverted"].IsScalar())
-      BOOST_THROW_EXCEPTION(std::domain_error("ActivationState::inverted is not scalar"));
-    if(!node["locked"].IsScalar())
-      BOOST_THROW_EXCEPTION(std::domain_error("ActivationState::locked is not scalar"));
-    if(!node["activationSet"].IsSequence())
-      BOOST_THROW_EXCEPTION(std::domain_error("ActivationState::activationSet is not a sequence"));
-
-    m_oneshot = node["oneshot"].as<bool>();
-    m_inverted = node["inverted"].as<bool>();
-    m_locked = node["locked"].as<bool>();
-    for(size_t i = 0; i < m_activationSet.size(); ++i)
-      m_activationSet[i] = node["activationSet"][i].as<bool>();
-  }
+  void serialize(const serialization::Serializer& ser);
 
 private:
   static ActivationSet extractActivationSet(const FloorDataValue fd)
@@ -230,7 +198,7 @@ private:
   }
 };
 
-inline boost::optional<uint8_t> getPortalTarget(const FloorDataValue* fdData)
+inline std::optional<uint8_t> getPortalTarget(const FloorDataValue* fdData)
 {
   if(fdData == nullptr)
     return {};
@@ -257,5 +225,4 @@ inline boost::optional<uint8_t> getPortalTarget(const FloorDataValue* fdData)
 
   return {};
 }
-} // namespace floordata
 } // namespace engine

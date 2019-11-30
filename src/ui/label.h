@@ -1,3 +1,5 @@
+#pragma once
+
 #include "loader/file/color.h"
 #include "loader/file/datatypes.h"
 #include "util/cimgwrapper.h"
@@ -5,20 +7,14 @@
 #include <cstdint>
 #include <string>
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 struct Palette;
-}
 } // namespace loader
 
 namespace ui
 {
-namespace
-{
-constexpr const int FontBaseScale = 0x10000;
-}
+constexpr int FontBaseScale = 0x10000;
 
 class CachedFont
 {
@@ -59,7 +55,7 @@ public:
     }
   }
 
-  const util::CImgWrapper& get(size_t n) const
+  [[nodiscard]] const util::CImgWrapper& get(size_t n) const
   {
     return m_images.at(n);
   }
@@ -77,12 +73,12 @@ public:
     }
   }
 
-  int getScaleX() const noexcept
+  [[nodiscard]] int getScaleX() const noexcept
   {
     return m_scaleX;
   }
 
-  int getScaleY() const noexcept
+  [[nodiscard]] int getScaleY() const noexcept
   {
     return m_scaleY;
   }

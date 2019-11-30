@@ -74,16 +74,16 @@ struct PortalTracer
     return true;
   }
 
-  static boost::optional<CullBox> narrowCullBox(const loader::file::Room& parentRoom,
-                                                const CullBox& parentCullBox,
-                                                const loader::file::Portal& portal,
-                                                const engine::CameraController& camera)
+  static std::optional<CullBox> narrowCullBox(const loader::file::Room& parentRoom,
+                                              const CullBox& parentCullBox,
+                                              const loader::file::Portal& portal,
+                                              const engine::CameraController& camera)
   {
-    static const constexpr auto Eps = 1.0f / (1 << 14);
+    static constexpr auto Eps = 1.0f / (1 << 14);
 
     if(dot(portal.normal.toRenderSystem(), portal.vertices[0].toRenderSystem() - camera.getPosition()) >= 0)
     {
-      return boost::none; // wrong orientation (normals must face the camera)
+      return std::nullopt; // wrong orientation (normals must face the camera)
     }
 
     const auto toView = [&camera](const core::TRVec& v) {
@@ -129,7 +129,7 @@ struct PortalTracer
 
     if(behindCamera == portal.vertices.size() || tooFar == portal.vertices.size())
     {
-      return boost::none;
+      return std::nullopt;
     }
 
     if(behindCamera > 0)
@@ -186,7 +186,7 @@ struct PortalTracer
 
     if(portalCullBox.min.x + Eps >= portalCullBox.max.x || portalCullBox.min.y + Eps >= portalCullBox.max.y)
     {
-      return boost::none;
+      return std::nullopt;
     }
 
     return portalCullBox;

@@ -1,11 +1,8 @@
 #include "model.h"
 
 #include "mesh.h"
-#include "names.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 void Model::render(RenderContext& context)
 {
@@ -16,5 +13,4 @@ void Model::render(RenderContext& context)
   }
   context.popState();
 }
-} // namespace scene
 } // namespace render

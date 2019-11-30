@@ -2,16 +2,13 @@
 
 #include "material.h"
 #include "mesh.h"
-#include "model.h"
 #include "render/gl/image.h"
 #include "renderer.h"
 #include "uniformparameter.h"
 
 #include <boost/log/trivial.hpp>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 ScreenOverlay::ScreenOverlay(const Dimension2<size_t>& viewport)
 {
@@ -45,7 +42,7 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
     .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
 
-  m_mesh = render::scene::createQuadFullscreen(
+  m_mesh = createQuadFullscreen(
     gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), screenOverlayProgram->getHandle(), true);
   m_mesh->setMaterial(std::make_shared<Material>(screenOverlayProgram));
   m_mesh->getMaterial()->getUniform("u_texture")->set(m_texture.get());
@@ -57,5 +54,4 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
   m_mesh->getRenderState().setDepthWrite(false);
   m_mesh->getRenderState().setDepthTest(false);
 }
-} // namespace scene
 } // namespace render

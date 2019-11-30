@@ -11,12 +11,9 @@
 #include "util.h"
 #include "util/helpers.h"
 
-#include <boost/range/adaptors.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 namespace
 {
@@ -24,7 +21,7 @@ namespace
 
 struct RenderVertex
 {
-  glm::vec3 position;
+  glm::vec3 position{};
   glm::vec4 color{1.0f};
   glm::vec3 normal{0.0f};
 
@@ -343,14 +340,14 @@ core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core
   return result;
 }
 
-void Room::patchHeightsForBlock(const engine::items::ItemNode& item, const core::Length& height)
+void Room::patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height)
 {
-  auto room = item.m_state.position.room;
+  auto room = object.m_state.position.room;
   //! @todo Ugly const_cast
-  auto groundSector = const_cast<Sector*>(loader::file::findRealFloorSector(item.m_state.position.position, &room));
+  auto groundSector = const_cast<Sector*>(loader::file::findRealFloorSector(object.m_state.position.position, &room));
   Expects(groundSector != nullptr);
   const auto topSector = loader::file::findRealFloorSector(
-    item.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room);
+    object.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room);
 
   if(groundSector->floorHeight == -core::HeightLimit)
   {
@@ -410,5 +407,9 @@ const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_nu
 
   return sector;
 }
-} // namespace file
-} // namespace loader
+
+void Camera::serialize(const serialization::Serializer& ser)
+{
+  ser(S_NVP(flags));
+}
+} // namespace loader::file

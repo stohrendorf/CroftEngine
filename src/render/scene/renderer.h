@@ -1,14 +1,11 @@
 #pragma once
 
-#include "dimension.h"
 #include "render/gl/pixel.h"
 #include "render/gl/renderstate.h"
 
 #include <chrono>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Scene;
 
@@ -29,14 +26,14 @@ public:
 
   ~Renderer();
 
-  std::chrono::high_resolution_clock::time_point getGameTime() const
+  [[nodiscard]] std::chrono::high_resolution_clock::time_point getGameTime() const
   {
     return std::chrono::high_resolution_clock::now() - m_constructionTime.time_since_epoch();
   }
 
   void render();
 
-  float getFrameRate() const
+  [[nodiscard]] float getFrameRate() const
   {
     return m_frameRate;
   }
@@ -53,7 +50,7 @@ public:
     clear(flags, gl::SRGBA8{red, green, blue, alpha}, clearDepth);
   }
 
-  const std::shared_ptr<Scene>& getScene() const
+  [[nodiscard]] const std::shared_ptr<Scene>& getScene() const
   {
     return m_scene;
   }
@@ -69,5 +66,4 @@ private:
 
   std::shared_ptr<Scene> m_scene;
 };
-} // namespace scene
 } // namespace render

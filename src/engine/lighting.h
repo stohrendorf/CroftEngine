@@ -57,14 +57,14 @@ struct Lighting
       }
     }
 
-    m_buffer.setData(lights, ::gl::BufferUsageARB::DynamicDraw);
+    m_buffer.setData(lights, gl::BufferUsageARB::DynamicDraw);
   }
 
   void updateStatic(int16_t shade)
   {
     lights.clear();
     ambient = 1.0f - shade / 8191.0f;
-    m_buffer.setData(lights, ::gl::BufferUsageARB::DynamicDraw);
+    m_buffer.setData(lights, gl::BufferUsageARB::DynamicDraw);
   }
 
   void bind(render::scene::Node& node) const

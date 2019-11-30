@@ -8,9 +8,7 @@
 
 #include <memory>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Mesh;
 
@@ -35,12 +33,12 @@ public:
 
   void render(RenderContext& context) override;
 
-  const auto& getImage() const
+  [[nodiscard]] const auto& getImage() const
   {
     return m_image;
   }
 
-  auto getTexture() const
+  [[nodiscard]] auto getTexture() const
   {
     return m_texture;
   }
@@ -52,5 +50,4 @@ private:
 
   std::shared_ptr<Mesh> m_mesh{nullptr};
 };
-} // namespace scene
-} // namespace render
+} // namespace render::scene

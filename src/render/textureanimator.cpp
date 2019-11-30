@@ -78,22 +78,22 @@ struct BSPTree
   /**
      * @brief Find a free space in this node or its children
      */
-  boost::optional<glm::ivec2> tryInsert(const int32_t insWidth, const int32_t insHeight)
+  std::optional<glm::ivec2> tryInsert(const int32_t insWidth, const int32_t insHeight)
   {
     // Could this possibly fit?
     if(!fits(insWidth, insHeight))
-      return boost::none;
+      return std::nullopt;
 
     if(isSplit())
     {
       // This node is already split => Recurse!
-      boost::optional<glm::ivec2> found{};
+      std::optional<glm::ivec2> found{};
       if(insWidth <= left->width && insHeight <= left->height)
       {
         found = left->tryInsert(insWidth, insHeight);
       }
 
-      if(!found.is_initialized() && insWidth <= right->width && insHeight <= right->height)
+      if(!found.has_value() && insWidth <= right->width && insHeight <= right->height)
       {
         found = right->tryInsert(insWidth, insHeight);
       }
@@ -204,7 +204,7 @@ public:
       const auto& img = textures.at(mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask).image;
       const auto mapped = layout.tryInsert(img->getWidth() * (mapping.uvMaxX - mapping.uvMinX + 1) / 256,
                                            img->getHeight() * (mapping.uvMaxY - mapping.uvMinY + 1) / 256);
-      if(!mapped.is_initialized())
+      if(!mapped.has_value())
       {
         BOOST_THROW_EXCEPTION(std::runtime_error("UV animation texture overflow"));
       }
@@ -301,7 +301,7 @@ public:
 
     loader::file::DWordTexture texture;
     texture.md5 = "animated";
-    texture.texture = std::make_shared<render::gl::Texture2D<render::gl::SRGBA8>>("animated texture tiles");
+    texture.texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>("animated texture tiles");
     texture.texture->set(::gl::TextureMinFilter::NearestMipmapLinear).generateMipmap();
     if(!linear)
     {
@@ -312,8 +312,8 @@ public:
       texture.texture->set(::gl::TextureMagFilter::Linear);
     }
     img.interleave();
-    texture.image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
-      img.width(), img.height(), reinterpret_cast<const render::gl::SRGBA8*>(img.data()));
+    texture.image = std::make_shared<gl::Image<gl::SRGBA8>>(
+      img.width(), img.height(), reinterpret_cast<const gl::SRGBA8*>(img.data()));
     texture.texture->image(texture.image->getWidth(), texture.image->getHeight(), texture.image->getData())
       .generateMipmap();
 

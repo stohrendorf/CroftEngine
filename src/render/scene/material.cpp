@@ -1,6 +1,5 @@
 #include "material.h"
 
-#include "names.h"
 #include "node.h"
 #include "shaderprogram.h"
 #include "uniformparameter.h"
@@ -9,9 +8,7 @@
 #include <boost/log/trivial.hpp>
 #include <utility>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 Material::Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram)
     : m_shaderProgram{std::move(shaderProgram)}
@@ -89,5 +86,4 @@ gsl::not_null<std::shared_ptr<BufferParameter>> Material::getBuffer(const std::s
   m_buffers.emplace_back(param);
   return param;
 }
-} // namespace scene
 } // namespace render

@@ -45,8 +45,8 @@ struct AudioEngine
   audio::SoundEngine m_soundEngine;
   std::weak_ptr<audio::Stream> m_ambientStream;
   std::weak_ptr<audio::Stream> m_interceptStream;
-  boost::optional<TR1TrackId> m_currentTrack;
-  boost::optional<TR1SoundId> m_currentLaraTalk;
+  std::optional<TR1TrackId> m_currentTrack;
+  std::optional<TR1SoundId> m_currentLaraTalk;
 
   std::shared_ptr<audio::SourceHandle> playSound(core::SoundId id, audio::Emitter* emitter);
 

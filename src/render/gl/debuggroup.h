@@ -3,9 +3,7 @@
 #include "glassert.h"
 #include "gsl-lite.hpp"
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 class DebugGroup final
 {
@@ -31,5 +29,4 @@ public:
     GL_ASSERT(::gl::popDebugGroup());
   }
 };
-} // namespace gl
 } // namespace render

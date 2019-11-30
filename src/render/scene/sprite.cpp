@@ -6,9 +6,7 @@
 #include "node.h"
 #include "render/gl/vertexarray.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
                                                         const float y0,
@@ -34,15 +32,15 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
   gl::StructureLayout<SpriteVertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &SpriteVertex::pos},
                                            {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},
                                            {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color}};
-  auto vb = std::make_shared<render::gl::StructuredArrayBuffer<SpriteVertex>>(layout);
+  auto vb = std::make_shared<gl::StructuredArrayBuffer<SpriteVertex>>(layout);
   vb->setData(&vertices[0], 4, ::gl::BufferUsageARB::StaticDraw);
 
   static const uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
   indexBuffer->setData(gsl::not_null<const uint16_t*>(&indices[0]), 6, ::gl::BufferUsageARB::StaticDraw);
 
-  auto vao = std::make_shared<render::gl::VertexArray<uint16_t, SpriteVertex>>(
+  auto vao = std::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
     indexBuffer, vb, material->getShaderProgram()->getHandle());
   auto mesh = std::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
   mesh->setMaterial(material);
@@ -83,5 +81,4 @@ void Sprite::render(RenderContext& context)
 {
   m_mesh->render(context);
 }
-} // namespace scene
 } // namespace render

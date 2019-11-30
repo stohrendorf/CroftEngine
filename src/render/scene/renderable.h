@@ -2,9 +2,7 @@
 
 #include "render/gl/renderstate.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class RenderContext;
 
@@ -25,13 +23,12 @@ public:
 
   virtual void render(RenderContext& context) = 0;
 
-  render::gl::RenderState& getRenderState()
+  gl::RenderState& getRenderState()
   {
     return m_renderState;
   }
 
 private:
-  render::gl::RenderState m_renderState;
+  gl::RenderState m_renderState;
 };
-} // namespace scene
 } // namespace render

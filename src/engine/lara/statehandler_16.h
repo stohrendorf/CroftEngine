@@ -4,14 +4,12 @@
 #include "engine/collisioninfo.h"
 #include "hid/inputstate.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_16 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_16(LaraNode& lara)
+  explicit StateHandler_16(objects::LaraObject& lara)
       : AbstractStateHandler{lara, LaraStateId::WalkBackward}
   {
   }
@@ -86,4 +84,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

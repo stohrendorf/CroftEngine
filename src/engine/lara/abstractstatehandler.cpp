@@ -63,7 +63,7 @@ namespace engine
 {
 namespace lara
 {
-std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(const LaraStateId id, LaraNode& lara)
+std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(const LaraStateId id, objects::LaraObject& lara)
 {
   switch(id)
   {
@@ -146,13 +146,13 @@ core::Angle AbstractStateHandler::getMovementAngle() const noexcept
   return m_lara.getMovementAngle();
 }
 
-HandStatus AbstractStateHandler::getHandStatus() const noexcept
+objects::HandStatus AbstractStateHandler::getHandStatus() const noexcept
 {
   return m_lara.getHandStatus();
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setHandStatus(const HandStatus status) noexcept
+void AbstractStateHandler::setHandStatus(const objects::HandStatus status) noexcept
 {
   m_lara.setHandStatus(status);
 }
@@ -163,7 +163,7 @@ LaraStateId AbstractStateHandler::getCurrentAnimState() const
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setAnimation(const AnimationId anim, const boost::optional<core::Frame>& firstFrame)
+void AbstractStateHandler::setAnimation(const AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
   m_lara.setAnimation(anim, firstFrame);
   m_lara.drawRoutine();
@@ -255,14 +255,14 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
 
   const auto sector = findRealFloorSector(pos, m_lara.m_state.position.room);
   VerticalSpaceInfo space;
-  space.init(sector, pos, getEngine().getItemNodes(), pos.Y, 400_len);
+  space.init(sector, pos, getEngine().getObjects(), pos.Y, 400_len);
   return space.floorSpace.y != -core::HeightLimit && space.floorSpace.y > 0_len && space.ceilingSpace.y < 0_len;
 }
 
 bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getEngine().getInputHandler().getInputState().action || getHandStatus() != HandStatus::None)
+     || !getEngine().getInputHandler().getInputState().action || getHandStatus() != objects::HandStatus::None)
   {
     return false;
   }
@@ -313,7 +313,7 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
   m_lara.m_state.rotation.Y = *alignedRotation;
   m_lara.m_state.falling = false;
   m_lara.m_state.fallspeed = 0_spd;
-  setHandStatus(HandStatus::Grabbing);
+  setHandStatus(objects::HandStatus::Grabbing);
   return true;
 }
 
@@ -338,7 +338,7 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
 bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getEngine().getInputHandler().getInputState().action || getHandStatus() != HandStatus::None)
+     || !getEngine().getInputHandler().getInputState().action || getHandStatus() != objects::HandStatus::None)
   {
     return false;
   }
@@ -369,7 +369,7 @@ bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
     setGoalAnimState(LaraStateId::Stop);
     setAnimation(AnimationId::CLIMB_2CLICK, 759_frame);
     m_lara.m_state.position.position.Y += 2 * core::QuarterSectorSize + climbHeight;
-    setHandStatus(HandStatus::Grabbing);
+    setHandStatus(objects::HandStatus::Grabbing);
   }
   else if(climbHeight >= -core::ClimbLimit3ClickMax && climbHeight <= -core::ClimbLimit2ClickMax)
   {
@@ -383,7 +383,7 @@ bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
     setGoalAnimState(LaraStateId::Stop);
     setAnimation(AnimationId::CLIMB_3CLICK, 614_frame);
     m_lara.m_state.position.position.Y += 3 * core::QuarterSectorSize + climbHeight;
-    setHandStatus(HandStatus::Grabbing);
+    setHandStatus(objects::HandStatus::Grabbing);
   }
   else if(climbHeight >= -core::JumpReachableHeight && climbHeight <= -core::ClimbLimit3ClickMax)
   {
@@ -490,7 +490,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
 bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getEngine().getInputHandler().getInputState().action || getHandStatus() != HandStatus::None)
+     || !getEngine().getInputHandler().getInputState().action || getHandStatus() != objects::HandStatus::None)
   {
     return false;
   }
@@ -535,7 +535,7 @@ bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
   m_lara.m_state.speed = 0_spd;
   m_lara.m_state.fallspeed = 0_spd;
   m_lara.m_state.falling = false;
-  setHandStatus(HandStatus::Grabbing);
+  setHandStatus(objects::HandStatus::Grabbing);
   m_lara.m_state.rotation.Y = *alignedRotation;
 
   return true;
@@ -548,7 +548,7 @@ core::Length AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angl
 
   const auto sector = findRealFloorSector(pos, m_lara.m_state.position.room);
 
-  HeightInfo h = HeightInfo::fromFloor(sector, pos, getEngine().getItemNodes());
+  HeightInfo h = HeightInfo::fromFloor(sector, pos, getEngine().getObjects());
 
   if(h.y != -core::HeightLimit)
   {
@@ -673,7 +673,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   {
     setAnimation(AnimationId::TRY_HANG_VERTICAL, 448_frame);
     setGoalAnimState(LaraStateId::JumpUp);
-    setHandStatus(HandStatus::None);
+    setHandStatus(objects::HandStatus::None);
     const auto bbox = getBoundingBox();
     const auto hangDistance = collisionInfo.front.floorSpace.y - bbox.minY + 2_len;
     const core::TRVec& pos
@@ -735,7 +735,7 @@ bool AbstractStateHandler::applyLandingDamage()
   const HeightInfo h
     = HeightInfo::fromFloor(sector,
                             m_lara.m_state.position.position - core::TRVec{0_len, core::LaraWalkHeight, 0_len},
-                            getEngine().getItemNodes());
+                            getEngine().getObjects());
   m_lara.m_state.floor = h.y;
   getEngine().handleCommandSequence(h.lastCommandSequenceOrDeath, false);
   const auto damageSpeed = m_lara.m_state.fallspeed - core::DamageFallSpeedThreshold;
@@ -783,7 +783,7 @@ core::Frame AbstractStateHandler::getSwimToDiveKeypressDuration() const
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setUnderwaterState(const UnderwaterState u) noexcept
+void AbstractStateHandler::setUnderwaterState(const objects::UnderwaterState u) noexcept
 {
   m_lara.setUnderwaterState(u);
 }

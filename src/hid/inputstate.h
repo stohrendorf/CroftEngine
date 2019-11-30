@@ -42,7 +42,7 @@ struct InputState
       return current;
     }
 
-    bool justPressed() const
+    [[nodiscard]] bool justPressed() const
     {
       return current && current != previous;
     }

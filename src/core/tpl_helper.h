@@ -2,9 +2,7 @@
 
 #include <type_traits>
 
-namespace core
-{
-namespace tpl
+namespace core::tpl
 {
 template<typename T, typename... Args>
 struct contains;
@@ -55,4 +53,3 @@ struct is_all_enum<T, Args...>
 template<typename... Args>
 constexpr bool is_all_enum_v = is_all_enum<Args...>::value;
 } // namespace tpl
-} // namespace core

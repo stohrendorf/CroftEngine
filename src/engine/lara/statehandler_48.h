@@ -2,14 +2,12 @@
 
 #include "statehandler_onwater.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_48 final : public StateHandler_OnWater
 {
 public:
-  explicit StateHandler_48(LaraNode& lara)
+  explicit StateHandler_48(objects::LaraObject& lara)
       : StateHandler_OnWater{lara, LaraStateId::OnWaterLeft}
   {
   }
@@ -48,4 +46,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

@@ -37,9 +37,7 @@ boost::filesystem::path readSymlink(const boost::filesystem::path& root,
 }
 } // namespace
 
-namespace loader
-{
-namespace trx
+namespace loader::trx
 {
 Rectangle::Rectangle(const std::string& serialized)
 {
@@ -321,7 +319,7 @@ Glidos::Glidos(boost::filesystem::path baseDir, const std::function<void(const s
   statusCallback("Glidos - Loading equiv.txt");
 
   BOOST_LOG_TRIVIAL(debug) << "Loading equiv.txt";
-  Equiv equiv{m_baseDir / "equiv.txt"};
+  const Equiv equiv{m_baseDir / "equiv.txt"};
 
   std::vector<PathMap> maps;
 
@@ -389,5 +387,4 @@ Glidos::TileMap Glidos::getMappingsForTexture(const std::string& textureId) cons
 
   return result;
 }
-} // namespace trx
 } // namespace loader

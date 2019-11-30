@@ -4,9 +4,7 @@
 #include "io/sdlreader.h"
 #include "render/gl/pixel.h"
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 /**
 * @brief 8-Bit RGBA color.
@@ -28,22 +26,22 @@ struct ByteColor
     return read(reader, true);
   }
 
-  render::gl::SRGBA8 toTextureColor() const
+  [[nodiscard]] render::gl::SRGBA8 toTextureColor() const
   {
     return render::gl::SRGBA8{r, g, b, a};
   }
 
-  render::gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const
+  [[nodiscard]] render::gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const
   {
     return render::gl::SRGBA8{r, g, b, alphaOverride};
   }
 
-  glm::vec4 toGLColor() const
+  [[nodiscard]] glm::vec4 toGLColor() const
   {
     return glm::vec4{r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};
   }
 
-  glm::vec3 toGLColor3() const
+  [[nodiscard]] glm::vec3 toGLColor3() const
   {
     return glm::vec3{r / 255.0f, g / 255.0f, b / 255.0f};
   }
@@ -71,7 +69,7 @@ struct FloatColor
 {
   float r, g, b, a;
 
-  glm::vec4 toSColor(const float intensity) const
+  [[nodiscard]] glm::vec4 toSColor(const float intensity) const
   {
     BOOST_ASSERT(intensity >= 0 && intensity <= 1);
     glm::vec4 col;
@@ -104,5 +102,4 @@ struct Palette
     return palette;
   }
 };
-} // namespace file
 } // namespace loader

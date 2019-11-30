@@ -21,7 +21,7 @@ public:
 
   void update();
 
-  const std::weak_ptr<SourceHandle>& getSource() const noexcept
+  [[nodiscard]] const std::weak_ptr<SourceHandle>& getSource() const noexcept
   {
     return m_source;
   }
@@ -31,7 +31,7 @@ public:
     return m_source;
   }
 
-  const auto& getStream() const
+  [[nodiscard]] const auto& getStream() const
   {
     return m_stream;
   }
@@ -41,6 +41,7 @@ public:
     m_looping = looping;
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void pause()
   {
     if(const auto src = m_source.lock())
@@ -60,6 +61,7 @@ public:
     }
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void setGain(const ALfloat gain_value)
   {
     if(const auto src = m_source.lock())

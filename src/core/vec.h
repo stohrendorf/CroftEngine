@@ -1,20 +1,17 @@
 #pragma once
 
 #include "gsl-lite.hpp"
+#include "serialization/serialization.h"
 #include "units.h"
 
 #include <glm/glm.hpp>
-#include <sol.hpp>
+#include <sol/sol.hpp>
 #include <utility>
-#include <yaml-cpp/yaml.h>
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 struct Room;
-}
-} // namespace loader
+} // namespace loader::file
 
 namespace core
 {
@@ -42,7 +39,7 @@ struct TRVec
   {
   }
 
-  constexpr TRVec(const Length x, const Length y, const Length z) noexcept
+  constexpr TRVec(const Length& x, const Length& y, const Length& z) noexcept
       : X{x}
       , Y{y}
       , Z{z}
@@ -68,7 +65,7 @@ struct TRVec
     return *this;
   }
 
-  constexpr TRVec operator/(const core::Length::type n) const noexcept
+  constexpr TRVec operator/(const Length::type n) const noexcept
   {
     return {X / n, Y / n, Z / n};
   }
@@ -94,12 +91,12 @@ struct TRVec
     return *this;
   }
 
-  glm::vec3 toRenderSystem() const noexcept
+  [[nodiscard]] glm::vec3 toRenderSystem() const noexcept
   {
     return {gsl::narrow_cast<float>(X.get()), -gsl::narrow_cast<float>(Y.get()), -gsl::narrow_cast<float>(Z.get())};
   }
 
-  Length distanceTo(const TRVec& rhs) const
+  [[nodiscard]] Length distanceTo(const TRVec& rhs) const
   {
     const auto dx = gsl::narrow<float>((X - rhs.X).get());
     const auto dy = gsl::narrow<float>((Y - rhs.Y).get());
@@ -107,43 +104,32 @@ struct TRVec
     return Length{static_cast<Length::type>(glm::sqrt(dx * dx + dy * dy + dz * dz))};
   }
 
-  static sol::usertype<TRVec>& userType()
+  static void registerUserType(sol::state& lua)
   {
-    static sol::usertype<TRVec> userType(
-      sol::constructors<TRVec(), TRVec(Length, Length, Length)>(), "x", &TRVec::X, "y", &TRVec::Y, "z", &TRVec::Z);
-
-    return userType;
+    lua.new_usertype<TRVec>("Vec",
+                            sol::constructors<TRVec(), TRVec(Length, Length, Length)>(),
+                            "x",
+                            &TRVec::X,
+                            "y",
+                            &TRVec::Y,
+                            "z",
+                            &TRVec::Z);
   }
 
-  YAML::Node save() const
-  {
-    YAML::Node n;
-    n.SetStyle(YAML::EmitterStyle::Flow);
-    n["x"] = X;
-    n["y"] = Y;
-    n["z"] = Z;
-    return n;
-  }
+  void serialize(const serialization::Serializer& ser);
 
-  void load(const YAML::Node& n)
-  {
-    X = n["x"].as<Length>();
-    Y = n["y"].as<Length>();
-    Z = n["z"].as<Length>();
-  }
-
-  core::Length length() const
+  [[nodiscard]] Length length() const
   {
     return sqrt(X * X + Y * Y + Z * Z);
   }
 
-  core::Length absMax() const
+  [[nodiscard]] Length absMax() const
   {
     return std::max(std::max(abs(X), abs(Y)), abs(Z));
   }
 };
 
-struct RoomBoundPosition
+struct RoomBoundPosition final
 {
   gsl::not_null<const loader::file::Room*> room;
 
@@ -154,5 +140,8 @@ struct RoomBoundPosition
       , position{std::move(pos)}
   {
   }
+
+  void serialize(const serialization::Serializer& ser);
+  static RoomBoundPosition create(const serialization::Serializer& ser);
 };
 } // namespace core

@@ -2,16 +2,14 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/laranode.h"
+#include "engine/objects/laraobject.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_9 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_9(LaraNode& lara)
+  explicit StateHandler_9(objects::LaraObject& lara)
       : AbstractStateHandler{lara, LaraStateId::FreeFall}
   {
   }
@@ -55,4 +53,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

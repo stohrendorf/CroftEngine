@@ -7,9 +7,7 @@
 
 #include <map>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 template<typename T>
 class StructureMember final
@@ -42,7 +40,7 @@ public:
     GL_ASSERT(::gl::enableVertexAttribArray(index));
   }
 
-  std::uintptr_t getOffset() const noexcept
+  [[nodiscard]] std::uintptr_t getOffset() const noexcept
   {
     return reinterpret_cast<std::uintptr_t>(m_pointer);
   }
@@ -65,7 +63,7 @@ class StructuredArrayBuffer : public ArrayBuffer<T>
 {
 public:
   explicit StructuredArrayBuffer(const StructureLayout<T>& layout, const std::string& label = {})
-      : ArrayBuffer{label}
+      : ArrayBuffer<T>{label}
       , m_structureLayout{layout}
   {
     BOOST_ASSERT(!layout.empty());
@@ -73,7 +71,7 @@ public:
 
   void bindVertexAttributes(const Program& program) const
   {
-    bind();
+    ArrayBuffer<T>::bind();
 
     for(const auto& input : program.getInputs())
     {
@@ -87,11 +85,11 @@ public:
 
   void setSubData(const gsl::not_null<const T*>& data, const size_t start, size_t count)
   {
-    ArrayBuffer::bind();
+    ArrayBuffer<T>::bind();
 
     if(count == 0)
     {
-      count = size() - start;
+      count = ArrayBuffer<T>::size() - start;
     }
 
     GL_ASSERT(::gl::bufferSubData(::gl::BufferTargetARB::ArrayBuffer, start * sizeof(T), count * sizeof(T), data));
@@ -99,22 +97,22 @@ public:
 
   void setData(const gsl::not_null<const T*>& data, const size_t count, const ::gl::BufferUsageARB access)
   {
-    ArrayBuffer::bind();
+    ArrayBuffer<T>::bind();
 
     if(count != 0)
-      m_size = gsl::narrow<::gl::core::SizeType>(count);
+      ArrayBuffer<T>::m_size = gsl::narrow<::gl::core::SizeType>(count);
 
-    GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(T) * size(), data, access));
+    GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(T) * ArrayBuffer<T>::size(), data, access));
   }
 
   void setDataRaw(const gsl::not_null<const T*>& data, const size_t count, const ::gl::BufferUsageARB access)
   {
-    ArrayBuffer::bind();
+    ArrayBuffer<T>::bind();
 
     if(count != 0)
-      m_size = count;
+      ArrayBuffer<T>::m_size = count;
 
-    GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(T) * size(), data, access));
+    GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(T) * ArrayBuffer<T>::size(), data, access));
   }
 
   void setData(const std::vector<T>& data, const ::gl::BufferUsageARB access)
@@ -129,7 +127,7 @@ public:
       setDataRaw(data.data(), count, access);
   }
 
-  const StructureLayout<T>& getStructureLayout() const
+  [[nodiscard]] const StructureLayout<T>& getStructureLayout() const
   {
     return m_structureLayout;
   }
@@ -137,5 +135,4 @@ public:
 private:
   const StructureLayout<T> m_structureLayout;
 };
-} // namespace gl
 } // namespace render

@@ -31,7 +31,7 @@ public:
     removeStoppedSources();
   }
 
-  const std::shared_ptr<FilterHandle>& getUnderwaterFilter() const
+  [[nodiscard]] const auto& getUnderwaterFilter() const
   {
     return m_underwaterFilter;
   }

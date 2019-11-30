@@ -1,8 +1,12 @@
 #include "skeletalmodelnode.h"
 
 #include "engine/engine.h"
-#include "engine/items/itemnode.h"
+#include "engine/objects/object.h"
 #include "loader/file/mesh.h"
+#include "serialization/glm.h"
+#include "serialization/not_null.h"
+#include "serialization/skeletalmodeltype_ptr.h"
+#include "serialization/vector.h"
 
 #include <stack>
 
@@ -10,22 +14,21 @@ namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
                                      const gsl::not_null<const Engine*>& engine,
-                                     const loader::file::SkeletalModelType& mdl)
+                                     const gsl::not_null<const loader::file::SkeletalModelType*>& model)
     : Node{id}
     , m_engine{engine}
-    , m_model{mdl}
+    , m_model{model}
 {
-  //setAnimation(mdl.animationIndex);
 }
 
-core::Speed SkeletalModelNode::calculateFloorSpeed(const items::ItemState& state, const core::Frame& frameOffset)
+core::Speed SkeletalModelNode::calculateFloorSpeed(const objects::ObjectState& state, const core::Frame& frameOffset)
 {
   const auto scaled
     = state.anim->speed + state.anim->acceleration * (state.frame_number - state.anim->firstFrame + frameOffset);
   return scaled / (1 << 16);
 }
 
-SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(const items::ItemState& state) const
+SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(const objects::ObjectState& state) const
 {
   /*
      * == Animation Layout ==
@@ -79,19 +82,19 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
   return result;
 }
 
-void SkeletalModelNode::updatePose(items::ItemState& state)
+void SkeletalModelNode::updatePose(objects::ObjectState& state)
 {
   if(getChildren().empty())
     return;
 
-  BOOST_ASSERT(getChildren().size() >= m_model.meshes.size());
+  BOOST_ASSERT(getChildren().size() >= m_model->meshes.size());
 
   updatePose(getInterpolationInfo(state));
 }
 
 void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePair)
 {
-  BOOST_ASSERT(!m_model.meshes.empty());
+  BOOST_ASSERT(!m_model->meshes.empty());
 
   BOOST_ASSERT(framePair.bias > 0);
   BOOST_ASSERT(framePair.secondFrame != nullptr);
@@ -117,34 +120,34 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
   getChildren()[0]->setLocalMatrix(util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias));
 
-  if(m_model.meshes.size() <= 1)
+  if(m_model->meshes.size() <= 1)
     return;
 
-  for(size_t i = 1; i < m_model.meshes.size(); ++i)
+  for(size_t i = 1; i < m_model->meshes.size(); ++i)
   {
-    if(m_model.boneTree[i - 1].flags & 0x01u)
+    if(m_model->boneTree[i - 1].flags & 0x01u)
     {
       transformsFirst.pop();
       transformsSecond.pop();
     }
-    if(m_model.boneTree[i - 1].flags & 0x02u)
+    if(m_model->boneTree[i - 1].flags & 0x02u)
     {
       transformsFirst.push({transformsFirst.top()});   // make sure to have a copy, not a reference
       transformsSecond.push({transformsSecond.top()}); // make sure to have a copy, not a reference
     }
 
-    BOOST_ASSERT((m_model.boneTree[i - 1].flags & 0x1cu) == 0);
+    BOOST_ASSERT((m_model->boneTree[i - 1].flags & 0x1cu) == 0);
 
     if(framePair.firstFrame->numValues < i)
-      transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl()) * m_bonePatches[i];
+      transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model->boneTree[i - 1].toGl()) * m_bonePatches[i];
     else
-      transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl())
+      transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model->boneTree[i - 1].toGl())
                                * core::fromPackedAngles(angleDataFirst[i]) * m_bonePatches[i];
 
     if(framePair.firstFrame->numValues < i)
-      transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl()) * m_bonePatches[i];
+      transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model->boneTree[i - 1].toGl()) * m_bonePatches[i];
     else
-      transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl())
+      transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model->boneTree[i - 1].toGl())
                                 * core::fromPackedAngles(angleDataSecond[i]) * m_bonePatches[i];
 
     getChildren()[i]->setLocalMatrix(util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias));
@@ -153,7 +156,7 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
 void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
 {
-  BOOST_ASSERT(!m_model.meshes.empty());
+  BOOST_ASSERT(!m_model->meshes.empty());
 
   BOOST_ASSERT(framePair.firstFrame->numValues > 0);
 
@@ -169,33 +172,33 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
 
   getChildren()[0]->setLocalMatrix(transforms.top());
 
-  if(m_model.meshes.size() <= 1)
+  if(m_model->meshes.size() <= 1)
     return;
 
-  for(size_t i = 1; i < m_model.meshes.size(); ++i)
+  for(size_t i = 1; i < m_model->meshes.size(); ++i)
   {
-    BOOST_ASSERT((m_model.boneTree[i - 1].flags & 0x1cu) == 0);
+    BOOST_ASSERT((m_model->boneTree[i - 1].flags & 0x1cu) == 0);
 
-    if(m_model.boneTree[i - 1].flags & 0x01u)
+    if(m_model->boneTree[i - 1].flags & 0x01u)
     {
       transforms.pop();
     }
-    if(m_model.boneTree[i - 1].flags & 0x02u)
+    if(m_model->boneTree[i - 1].flags & 0x02u)
     {
       transforms.push({transforms.top()}); // make sure to have a copy, not a reference
     }
 
     if(framePair.firstFrame->numValues < i)
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl()) * m_bonePatches[i];
+      transforms.top() *= translate(glm::mat4{1.0f}, m_model->boneTree[i - 1].toGl()) * m_bonePatches[i];
     else
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl())
+      transforms.top() *= translate(glm::mat4{1.0f}, m_model->boneTree[i - 1].toGl())
                           * core::fromPackedAngles(angleData[i]) * m_bonePatches[i];
 
     getChildren()[i]->setLocalMatrix(transforms.top());
   }
 }
 
-loader::file::BoundingBox SkeletalModelNode::getBoundingBox(const items::ItemState& state) const
+loader::file::BoundingBox SkeletalModelNode::getBoundingBox(const objects::ObjectState& state) const
 {
   const auto framePair = getInterpolationInfo(state);
   BOOST_ASSERT(framePair.bias >= 0 && framePair.bias <= 1);
@@ -207,7 +210,7 @@ loader::file::BoundingBox SkeletalModelNode::getBoundingBox(const items::ItemSta
   return framePair.firstFrame->bbox.toBBox();
 }
 
-bool SkeletalModelNode::handleStateTransitions(items::ItemState& state)
+bool SkeletalModelNode::handleStateTransitions(objects::ObjectState& state)
 {
   Expects(state.anim != nullptr);
   if(state.anim->state_id == state.goal_anim_state)
@@ -234,11 +237,11 @@ bool SkeletalModelNode::handleStateTransitions(items::ItemState& state)
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void SkeletalModelNode::setAnimation(items::ItemState& state,
+void SkeletalModelNode::setAnimation(objects::ObjectState& state,
                                      const gsl::not_null<const loader::file::Animation*>& animation,
                                      core::Frame frame)
 {
-  BOOST_ASSERT(m_model.meshes.empty() || animation->frames->numValues == m_model.meshes.size());
+  BOOST_ASSERT(m_model->meshes.empty() || animation->frames->numValues == m_model->meshes.size());
 
   if(frame < animation->firstFrame || frame > animation->lastFrame)
     frame = animation->firstFrame;
@@ -248,7 +251,7 @@ void SkeletalModelNode::setAnimation(items::ItemState& state,
   state.current_anim_state = state.anim->state_id;
 }
 
-bool SkeletalModelNode::advanceFrame(items::ItemState& state)
+bool SkeletalModelNode::advanceFrame(objects::ObjectState& state)
 {
   state.frame_number += 1_frame;
   if(handleStateTransitions(state))
@@ -261,12 +264,12 @@ bool SkeletalModelNode::advanceFrame(items::ItemState& state)
   return state.frame_number > state.anim->lastFrame;
 }
 
-std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres(const items::ItemState& state,
+std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres(const objects::ObjectState& state,
                                                                                   const loader::file::AnimFrame& frame,
                                                                                   const glm::mat4* baseTransform)
 {
   BOOST_ASSERT(frame.numValues > 0);
-  BOOST_ASSERT(!m_model.meshes.empty());
+  BOOST_ASSERT(!m_model->meshes.empty());
 
   if(m_bonePatches.empty())
     resetPose();
@@ -294,69 +297,56 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
 
   std::vector<Sphere> result;
   result.emplace_back(translate(glm::mat4{1.0f}, pos.toRenderSystem())
-                        + translate(transforms.top(), m_model.meshes[0]->center.toRenderSystem()),
-                      m_model.meshes[0]->collision_size);
+                        + translate(transforms.top(), m_model->meshes[0]->center.toRenderSystem()),
+                      m_model->meshes[0]->collision_size);
 
-  for(gsl::index i = 1; i < m_model.meshes.size(); ++i)
+  for(gsl::index i = 1; i < m_model->meshes.size(); ++i)
   {
-    BOOST_ASSERT((m_model.boneTree[i - 1].flags & 0x1cu) == 0);
+    BOOST_ASSERT((m_model->boneTree[i - 1].flags & 0x1cu) == 0);
 
-    if(m_model.boneTree[i - 1].flags & 0x01u)
+    if(m_model->boneTree[i - 1].flags & 0x01u)
     {
       transforms.pop();
     }
-    if(m_model.boneTree[i - 1].flags & 0x02u)
+    if(m_model->boneTree[i - 1].flags & 0x02u)
     {
       transforms.push({transforms.top()}); // make sure to have a copy, not a reference
     }
 
     if(frame.numValues < i)
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl()) * m_bonePatches[i];
+      transforms.top() *= translate(glm::mat4{1.0f}, m_model->boneTree[i - 1].toGl()) * m_bonePatches[i];
     else
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model.boneTree[i - 1].toGl())
+      transforms.top() *= translate(glm::mat4{1.0f}, m_model->boneTree[i - 1].toGl())
                           * core::fromPackedAngles(angleData[i]) * m_bonePatches[i];
 
-    auto m = translate(transforms.top(), m_model.meshes[i]->center.toRenderSystem());
+    auto m = translate(transforms.top(), m_model->meshes[i]->center.toRenderSystem());
     m[3] += glm::vec4(pos.toRenderSystem(), 0);
-    result.emplace_back(m, m_model.meshes[i]->collision_size);
+    result.emplace_back(m, m_model->meshes[i]->collision_size);
   }
 
   return result;
 }
 
-void SkeletalModelNode::load(const YAML::Node& n)
+void SkeletalModelNode::serialize(const serialization::Serializer& ser)
 {
-  resetPose();
-
-  if(!n["patches"].IsDefined())
-    return;
-
-  Expects(n["patches"].IsSequence());
-
-  if(n["patches"].size() <= 0 || m_bonePatches.empty())
-    return;
-
-  Expects(n["patches"].size() <= m_bonePatches.size());
-  for(size_t i = 0; i < n["patches"].size(); ++i)
-    for(int x = 0, elem = 0; x < 4; ++x)
-      for(int y = 0; y < 4; ++y, ++elem)
-        m_bonePatches[i][x][y] = n["patches"][i][elem].as<float>();
+  auto id = getId();
+  ser("id", id, "model", m_model, S_NVP(m_bonePatches));
 }
 
-YAML::Node SkeletalModelNode::save() const
+void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer& ser)
 {
-  YAML::Node n;
-
-  for(const glm::mat4& m : m_bonePatches)
+  if(ser.loading)
   {
-    YAML::Node mn;
-    mn.SetStyle(YAML::EmitterStyle::Flow);
-    for(int x = 0; x < 4; ++x)
-      for(int y = 0; y < 4; ++y)
-        mn.push_back(m[x][y]);
-    n["patches"].push_back(mn);
+    const loader::file::SkeletalModelType* model = nullptr;
+    ser("model", model);
+    data = std::make_shared<SkeletalModelNode>(
+      create(serialization::TypeId<std::string>{}, ser["id"]), &ser.engine, model);
   }
-
-  return n;
+  else
+  {
+    Expects(data != nullptr);
+    data->serialize(ser);
+  }
 }
+
 } // namespace engine

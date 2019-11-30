@@ -16,12 +16,11 @@ class ActivationState;
 struct CameraParameters;
 } // namespace floordata
 
-namespace items
+namespace objects
 {
-class ItemNode;
-}
-
-class LaraNode;
+class Object;
+class LaraObject;
+} // namespace objects
 
 class Engine;
 
@@ -51,9 +50,9 @@ private:
   Engine* m_engine;
 
   //! @brief Global camera position.
-  boost::optional<core::RoomBoundPosition> m_eye;
+  std::optional<core::RoomBoundPosition> m_eye;
   //! @brief The point the camera moves around.
-  boost::optional<core::RoomBoundPosition> m_center;
+  std::optional<core::RoomBoundPosition> m_center;
   CameraMode m_mode = CameraMode::Chase;
 
   //! @brief Additional height of the camera above the real position.
@@ -78,11 +77,11 @@ private:
   //! @brief Global camera rotation.
   core::TRRotation m_rotationAroundCenter;
 
-  //! @brief An item to point the camera to.
+  //! @brief An object to point the camera to.
   //! @note Also modifies Lara's head and torso rotation.
-  std::shared_ptr<items::ItemNode> m_targetItem = nullptr;
-  std::shared_ptr<const items::ItemNode> m_previousItem = nullptr;
-  std::shared_ptr<items::ItemNode> m_enemy = nullptr;
+  std::shared_ptr<objects::Object> m_targetObject = nullptr;
+  std::shared_ptr<objects::Object> m_previousObject = nullptr;
+  std::shared_ptr<objects::Object> m_enemy = nullptr;
   //! @brief Movement smoothness for adjusting the pivot position.
   int m_smoothness = 8;
   int m_fixedCameraId = -1;
@@ -136,10 +135,10 @@ public:
                       const core::Frame& timeout,
                       bool switchIsOn);
 
-  void setLookAtItem(const std::shared_ptr<items::ItemNode>& item)
+  void setLookAtObject(const std::shared_ptr<objects::Object>& object)
   {
-    if(item != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy))
-      m_targetItem = item;
+    if(object != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy))
+      m_targetObject = object;
   }
 
   void handleCommandSequence(const floordata::FloorDataValue* cmdSequence);
@@ -163,7 +162,7 @@ public:
 
   const core::RoomBoundPosition& getCenter() const
   {
-    Expects(m_center.is_initialized());
+    Expects(m_center.has_value());
     return *m_center;
   }
 
@@ -193,7 +192,7 @@ public:
 
   const core::RoomBoundPosition& getTRPosition() const
   {
-    Expects(m_eye.is_initialized());
+    Expects(m_eye.has_value());
     return *m_eye;
   }
 
@@ -226,9 +225,7 @@ public:
   std::unordered_set<const loader::file::Portal*> updateCinematic(const loader::file::CinematicFrame& frame,
                                                                   bool ingame);
 
-  YAML::Node save() const;
-
-  void load(const YAML::Node& n);
+  void serialize(const serialization::Serializer& ser);
 
   size_t m_cinematicFrame = 0;
   core::TRVec m_cinematicPos{0_len, 0_len, 0_len};
@@ -263,11 +260,11 @@ private:
 
   void updatePosition(const core::RoomBoundPosition& eyePositionGoal, int smoothFactor);
 
-  void chaseItem(const items::ItemNode& item);
+  void chaseObject(const objects::Object& object);
 
-  void handleFreeLook(const items::ItemNode& item);
+  void handleFreeLook(const objects::Object& object);
 
-  void handleEnemy(const items::ItemNode& item);
+  void handleEnemy(const objects::Object& object);
 
   using ClampCallback = void(core::Length& current1,
                              core::Length& current2,

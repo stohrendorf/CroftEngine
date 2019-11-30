@@ -1,6 +1,7 @@
 #pragma once
 
 #include "loader/file/datatypes.h"
+#include "serialization/serialization.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -9,9 +10,9 @@ namespace engine
 {
 class Engine;
 
-namespace items
+namespace objects
 {
-struct ItemState;
+struct ObjectState;
 }
 
 namespace ai
@@ -24,9 +25,8 @@ struct PathFinderNode
   const loader::file::Box* exit_box = nullptr;
   bool traversable = true;
 
-  YAML::Node save(const Engine& engine) const;
-
-  void load(const YAML::Node& n, const Engine& engine);
+  void serialize(const serialization::Serializer& ser);
+  static PathFinderNode create(const serialization::Serializer& ser);
 };
 
 struct PathFinder
@@ -42,7 +42,7 @@ struct PathFinder
   bool cannotVisitBlocked = true;
   bool cannotVisitBlockable = false;
 
-  bool canVisit(const loader::file::Box& box) const noexcept
+  [[nodiscard]] bool canVisit(const loader::file::Box& box) const noexcept
   {
     if(cannotVisitBlocked && box.blocked)
       return false;
@@ -64,7 +64,7 @@ struct PathFinder
 
   core::TRVec target;
 
-  explicit PathFinder(const engine::Engine& engine);
+  explicit PathFinder(const Engine& engine);
 
   void setRandomSearchTarget(const gsl::not_null<const loader::file::Box*>& box)
   {
@@ -83,12 +83,10 @@ struct PathFinder
     }
   }
 
-  bool calculateTarget(const engine::Engine& engine, core::TRVec& moveTarget, const items::ItemState& item);
+  bool calculateTarget(const Engine& engine, core::TRVec& moveTarget, const objects::ObjectState& objectState);
 
   /**
      * @brief Incrementally calculate all paths to a specific box.
-     * @param lvl The level for acquiring additional needed data.
-     * @param maxDepth Maximum number of nodes of the search tree to expand at a time.
      *
      * @details
      * The algorithm performs a greedy breadth-first search, searching for all paths that lead to
@@ -96,13 +94,11 @@ struct PathFinder
      * calls to actually calculate the full path.  Until a full path is found, the nodes partially retain the old
      * paths from a previous search.
      */
-  void updatePath(const engine::Engine& engine);
+  void updatePath(const Engine& engine);
 
-  void searchPath(const engine::Engine& engine);
+  void searchPath(const Engine& engine);
 
-  YAML::Node save(const Engine& engine) const;
-
-  void load(const YAML::Node& n, const Engine& engine);
+  void serialize(const serialization::Serializer& ser);
 };
 } // namespace ai
-}
+} // namespace engine

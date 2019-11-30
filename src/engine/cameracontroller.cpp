@@ -1,73 +1,15 @@
 #include "cameracontroller.h"
 
 #include "engine.h"
-#include "laranode.h"
+#include "objects/laraobject.h"
 #include "render/portaltracer.h"
+#include "serialization/objectreference.h"
+#include "serialization/optional.h"
 
-#include <queue>
 #include <utility>
 
 namespace engine
 {
-namespace
-{
-gsl::czstring toString(const CameraMode mode)
-{
-  switch(mode)
-  {
-  case CameraMode::Chase: return "Chase";
-  case CameraMode::Fixed: return "Fixed";
-  case CameraMode::FreeLook: return "FreeLook";
-  case CameraMode::Combat: return "Combat";
-  case CameraMode::Cinematic: return "Cinematic";
-  case CameraMode::Heavy: return "Heavy";
-  default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid CameraMode"));
-  }
-}
-
-CameraMode parseCameraMode(const std::string& m)
-{
-  if(m == "Chase")
-    return CameraMode::Chase;
-  if(m == "Fixed")
-    return CameraMode::Fixed;
-  if(m == "FreeLook")
-    return CameraMode::FreeLook;
-  if(m == "Combat")
-    return CameraMode::Combat;
-  if(m == "Cinematic")
-    return CameraMode::Cinematic;
-  if(m == "Heavy")
-    return CameraMode::Heavy;
-  BOOST_THROW_EXCEPTION(std::domain_error("Invalid CameraMode"));
-}
-
-gsl::czstring toString(const CameraModifier mode)
-{
-  switch(mode)
-  {
-  case CameraModifier::None: return "None";
-  case CameraModifier::FollowCenter: return "FollowCenter";
-  case CameraModifier::AllowSteepSlants: return "AllowSteepSlants";
-  case CameraModifier::Chase: return "Chase";
-  default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid CameraModifier"));
-  }
-}
-
-CameraModifier parseCameraModifier(const std::string& m)
-{
-  if(m == "None")
-    return CameraModifier::None;
-  if(m == "FollowCenter")
-    return CameraModifier::FollowCenter;
-  if(m == "AllowSteepSlants")
-    return CameraModifier::AllowSteepSlants;
-  if(m == "Chase")
-    return CameraModifier::Chase;
-  BOOST_THROW_EXCEPTION(std::domain_error("Invalid CameraModifier"));
-}
-} // namespace
-
 CameraController::CameraController(const gsl::not_null<Engine*>& engine,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera)
     : Listener{&engine->getSoundEngine()}
@@ -133,7 +75,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
     m_mode = CameraMode::Fixed;
 }
 
-void CameraController::handleCommandSequence(const engine::floordata::FloorDataValue* cmdSequence)
+void CameraController::handleCommandSequence(const floordata::FloorDataValue* cmdSequence)
 {
   if(m_mode == CameraMode::Heavy)
     return;
@@ -153,7 +95,7 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
     if(command.opcode == floordata::CommandOpcode::LookAt && m_mode != CameraMode::FreeLook
        && m_mode != CameraMode::Combat)
     {
-      m_targetItem = m_engine->getItem(command.parameter);
+      m_targetObject = m_engine->getObject(command.parameter);
     }
     else if(command.opcode == floordata::CommandOpcode::SwitchCamera)
     {
@@ -183,11 +125,11 @@ void CameraController::handleCommandSequence(const engine::floordata::FloorDataV
       break;
   }
 
-  if(m_targetItem == nullptr)
+  if(m_targetObject == nullptr)
     return;
 
-  if(type == Type::NoChange && m_targetItem->m_state.already_looked_at && m_targetItem != m_previousItem)
-    m_targetItem = nullptr;
+  if(type == Type::NoChange && m_targetObject->m_state.already_looked_at && m_targetObject != m_previousObject)
+    m_targetObject = nullptr;
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -204,8 +146,8 @@ bool CameraController::clampY(const core::TRVec& start,
                               const gsl::not_null<const loader::file::Sector*>& sector,
                               const Engine& engine)
 {
-  const HeightInfo floor = HeightInfo::fromFloor(sector, end, engine.getItemNodes());
-  const HeightInfo ceiling = HeightInfo::fromCeiling(sector, end, engine.getItemNodes());
+  const HeightInfo floor = HeightInfo::fromFloor(sector, end, engine.getObjects());
+  const HeightInfo ceiling = HeightInfo::fromCeiling(sector, end, engine.getObjects());
 
   const auto d = end - start;
   if(floor.y < end.Y && floor.y > start.Y)
@@ -267,8 +209,8 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
     }
 
     auto sector = findRealFloorSector(testPos, &end.room);
-    if(testPos.Y > HeightInfo::fromFloor(sector, testPos, engine.getItemNodes()).y
-       || testPos.Y < HeightInfo::fromCeiling(sector, testPos, engine.getItemNodes()).y)
+    if(testPos.Y > HeightInfo::fromFloor(sector, testPos, engine.getObjects()).y
+       || testPos.Y < HeightInfo::fromCeiling(sector, testPos, engine.getObjects()).y)
     {
       end.position = testPos;
       return ClampType::Ceiling;
@@ -278,8 +220,8 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
     heightPos.X += sign * 1_len;
     auto tmp = end.room;
     sector = findRealFloorSector(heightPos, &tmp);
-    if(testPos.Y > HeightInfo::fromFloor(sector, heightPos, engine.getItemNodes()).y
-       || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, engine.getItemNodes()).y)
+    if(testPos.Y > HeightInfo::fromFloor(sector, heightPos, engine.getObjects()).y
+       || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, engine.getObjects()).y)
     {
       end.position = testPos;
       end.room = tmp;
@@ -330,8 +272,8 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
     }
 
     auto sector = findRealFloorSector(testPos, &end.room);
-    if(testPos.Y > HeightInfo::fromFloor(sector, testPos, engine.getItemNodes()).y
-       || testPos.Y < HeightInfo::fromCeiling(sector, testPos, engine.getItemNodes()).y)
+    if(testPos.Y > HeightInfo::fromFloor(sector, testPos, engine.getObjects()).y
+       || testPos.Y < HeightInfo::fromCeiling(sector, testPos, engine.getObjects()).y)
     {
       end.position = testPos;
       return ClampType::Ceiling;
@@ -341,8 +283,8 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
     heightPos.Z += sign * 1_len;
     auto tmp = end.room;
     sector = findRealFloorSector(heightPos, &tmp);
-    if(testPos.Y > HeightInfo::fromFloor(sector, heightPos, engine.getItemNodes()).y
-       || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, engine.getItemNodes()).y)
+    if(testPos.Y > HeightInfo::fromFloor(sector, heightPos, engine.getObjects()).y
+       || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, engine.getObjects()).y)
     {
       end.position = testPos;
       end.room = tmp;
@@ -397,33 +339,34 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
   if(m_modifier != CameraModifier::AllowSteepSlants)
     HeightInfo::skipSteepSlants = true;
 
-  const bool fixed = m_targetItem != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
+  const bool fixed = m_targetObject != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
 
-  // if we have a fixed position, we also have an item we're looking at
-  items::ItemNode* const focusedItem = fixed ? m_targetItem.get() : &m_engine->getLara();
-  BOOST_ASSERT(focusedItem != nullptr);
-  auto focusBBox = focusedItem->getBoundingBox();
-  auto focusY = focusedItem->m_state.position.position.Y;
+  // if we have a fixed position, we also have an object we're looking at
+  objects::Object* const focusedObject = fixed ? m_targetObject.get() : &m_engine->getLara();
+  BOOST_ASSERT(focusedObject != nullptr);
+  auto focusBBox = focusedObject->getBoundingBox();
+  auto focusY = focusedObject->m_state.position.position.Y;
   if(fixed)
     focusY += (focusBBox.minY + focusBBox.maxY) / 2;
   else
     focusY += (focusBBox.minY - focusBBox.maxY) * 3 / 4 + focusBBox.maxY;
 
-  if(m_targetItem != nullptr && !fixed)
+  if(m_targetObject != nullptr && !fixed)
   {
-    // lara moves around and looks at some item, some sort of involuntary free look;
-    // in this case, we have an item to look at, but the camera is _not_ fixed
+    // lara moves around and looks at some object, some sort of involuntary free look;
+    // in this case, we have an object to look at, but the camera is _not_ fixed
 
-    BOOST_ASSERT(m_targetItem.get() != focusedItem);
+    BOOST_ASSERT(m_targetObject.get() != focusedObject);
     const auto distToFocused
-      = m_targetItem->m_state.position.position.distanceTo(focusedItem->m_state.position.position);
-    auto eyeRotY = angleFromAtan(m_targetItem->m_state.position.position.X - focusedItem->m_state.position.position.X,
-                                 m_targetItem->m_state.position.position.Z - focusedItem->m_state.position.position.Z)
-                   - focusedItem->m_state.rotation.Y;
+      = m_targetObject->m_state.position.position.distanceTo(focusedObject->m_state.position.position);
+    auto eyeRotY
+      = angleFromAtan(m_targetObject->m_state.position.position.X - focusedObject->m_state.position.position.X,
+                      m_targetObject->m_state.position.position.Z - focusedObject->m_state.position.position.Z)
+        - focusedObject->m_state.rotation.Y;
     eyeRotY /= 2;
-    focusBBox = m_targetItem->getBoundingBox();
+    focusBBox = m_targetObject->getBoundingBox();
     auto eyeRotX = angleFromAtan(
-      distToFocused, focusY - (focusBBox.minY + focusBBox.maxY) / 2 + m_targetItem->m_state.position.position.Y);
+      distToFocused, focusY - (focusBBox.minY + focusBBox.maxY) / 2 + m_targetObject->m_state.position.position.Y);
     eyeRotX /= 2;
 
     if(eyeRotY < 50_deg && eyeRotY > -50_deg && eyeRotX < 85_deg && eyeRotX > -85_deg)
@@ -437,11 +380,11 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
       m_engine->getLara().m_torsoRotation.X = m_engine->getLara().m_headRotation.X;
 
       m_mode = CameraMode::FreeLook;
-      m_targetItem->m_state.already_looked_at = true;
+      m_targetObject->m_state.already_looked_at = true;
     }
   }
 
-  m_center->room = focusedItem->m_state.position.room;
+  m_center->room = focusedObject->m_state.position.room;
 
   if(m_mode == CameraMode::FreeLook || m_mode == CameraMode::Combat)
   {
@@ -460,19 +403,19 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     }
     m_fixed = false;
     if(m_mode == CameraMode::FreeLook)
-      handleFreeLook(*focusedItem);
+      handleFreeLook(*focusedObject);
     else
-      handleEnemy(*focusedItem);
+      handleEnemy(*focusedObject);
   }
   else
   {
-    m_center->position.X = focusedItem->m_state.position.position.X;
-    m_center->position.Z = focusedItem->m_state.position.position.Z;
+    m_center->position.X = focusedObject->m_state.position.position.X;
+    m_center->position.Z = focusedObject->m_state.position.position.Z;
 
     if(m_modifier == CameraModifier::FollowCenter)
     {
       const auto midZ = (focusBBox.minZ + focusBBox.maxZ) / 2;
-      m_center->position += util::pitch(midZ, focusedItem->m_state.rotation.Y);
+      m_center->position += util::pitch(midZ, focusedObject->m_state.rotation.Y);
     }
 
     if(m_fixed == fixed)
@@ -489,11 +432,11 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     }
 
     const auto sector = loader::file::findRealFloorSector(*m_center);
-    if(HeightInfo::fromFloor(sector, m_center->position, m_engine->getItemNodes()).y < m_center->position.Y)
+    if(HeightInfo::fromFloor(sector, m_center->position, m_engine->getObjects()).y < m_center->position.Y)
       HeightInfo::skipSteepSlants = false;
 
     if(m_mode == CameraMode::Chase || m_modifier == CameraModifier::Chase)
-      chaseItem(*focusedItem);
+      chaseObject(*focusedObject);
     else
       handleFixedCamera();
   }
@@ -504,7 +447,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
   {
     m_modifier = CameraModifier::None;
     m_mode = CameraMode::Chase;
-    m_previousItem = std::exchange(m_targetItem, nullptr);
+    m_previousObject = std::exchange(m_targetObject, nullptr);
     m_rotationAroundCenter.X = m_rotationAroundCenter.Y = 0_deg;
     m_eyeCenterDistance = core::DefaultCameraLaraDistance;
     m_fixedCameraId = -1;
@@ -560,8 +503,8 @@ core::Length CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, co
           && isVerticallyOutsideRoom(pos.position + core::TRVec(margin, 0_len, 0_len), room))
     pos.position.X = sector->box->xmax - margin;
 
-  auto bottom = HeightInfo::fromFloor(sector, pos.position, m_engine->getItemNodes()).y - margin;
-  auto top = HeightInfo::fromCeiling(sector, pos.position, m_engine->getItemNodes()).y + margin;
+  auto bottom = HeightInfo::fromFloor(sector, pos.position, m_engine->getObjects()).y - margin;
+  auto top = HeightInfo::fromCeiling(sector, pos.position, m_engine->getObjects()).y + margin;
   if(bottom < top)
     top = bottom = (bottom + top) / 2;
 
@@ -576,8 +519,8 @@ bool CameraController::isVerticallyOutsideRoom(const core::TRVec& pos,
                                                const gsl::not_null<const loader::file::Room*>& room) const
 {
   const auto sector = findRealFloorSector(pos, room);
-  const auto floor = HeightInfo::fromFloor(sector, pos, m_engine->getItemNodes()).y;
-  const auto ceiling = HeightInfo::fromCeiling(sector, pos, m_engine->getItemNodes()).y;
+  const auto floor = HeightInfo::fromFloor(sector, pos, m_engine->getObjects()).y;
+  const auto ceiling = HeightInfo::fromCeiling(sector, pos, m_engine->getObjects()).y;
   return pos.Y > floor || pos.Y <= ceiling;
 }
 
@@ -587,15 +530,15 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
   HeightInfo::skipSteepSlants = false;
   m_eye->room = eyePositionGoal.room;
   auto sector = loader::file::findRealFloorSector(*m_eye);
-  auto floor = HeightInfo::fromFloor(sector, m_eye->position, m_engine->getItemNodes()).y - core::QuarterSectorSize;
+  auto floor = HeightInfo::fromFloor(sector, m_eye->position, m_engine->getObjects()).y - core::QuarterSectorSize;
   if(floor <= m_eye->position.Y && floor <= eyePositionGoal.position.Y)
   {
     clampPosition(*m_center, *m_eye, *m_engine);
     sector = loader::file::findRealFloorSector(*m_eye);
-    floor = HeightInfo::fromFloor(sector, m_eye->position, m_engine->getItemNodes()).y - core::QuarterSectorSize;
+    floor = HeightInfo::fromFloor(sector, m_eye->position, m_engine->getObjects()).y - core::QuarterSectorSize;
   }
 
-  auto ceiling = HeightInfo::fromCeiling(sector, m_eye->position, m_engine->getItemNodes()).y + core::QuarterSectorSize;
+  auto ceiling = HeightInfo::fromCeiling(sector, m_eye->position, m_engine->getObjects()).y + core::QuarterSectorSize;
   if(floor < ceiling)
   {
     floor = ceiling = (floor + ceiling) / 2;
@@ -636,9 +579,9 @@ void CameraController::updatePosition(const core::RoomBoundPosition& eyePosition
   }
 }
 
-void CameraController::chaseItem(const items::ItemNode& item)
+void CameraController::chaseObject(const objects::Object& object)
 {
-  m_rotationAroundCenter.X += item.m_state.rotation.X;
+  m_rotationAroundCenter.X += object.m_state.rotation.X;
   if(m_rotationAroundCenter.X > 85_deg)
     m_rotationAroundCenter.X = 85_deg;
   else if(m_rotationAroundCenter.X < -85_deg)
@@ -650,38 +593,38 @@ void CameraController::chaseItem(const items::ItemNode& item)
   core::RoomBoundPosition eye(m_eye->room);
   eye.position = {0_len, util::sin(m_eyeCenterDistance, m_rotationAroundCenter.X), 0_len};
 
-  const core::Angle y = m_rotationAroundCenter.Y + item.m_state.rotation.Y;
+  const core::Angle y = m_rotationAroundCenter.Y + object.m_state.rotation.Y;
   eye.position += m_center->position - util::pitch(dist, y);
   clampBox(eye,
            [this](core::Length& a,
                   core::Length& b,
-                  const core::Length c,
-                  const core::Length d,
-                  const core::Length e,
-                  const core::Length f,
-                  const core::Length g,
-                  const core::Length h) { clampToCorners(m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h); });
+                  const core::Length& c,
+                  const core::Length& d,
+                  const core::Length& e,
+                  const core::Length& f,
+                  const core::Length& g,
+                  const core::Length& h) { clampToCorners(m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h); });
 
   updatePosition(eye, m_fixed ? m_smoothness : 12);
 }
 
-void CameraController::handleFreeLook(const items::ItemNode& item)
+void CameraController::handleFreeLook(const objects::Object& object)
 {
   const auto originalCenter = m_center->position;
-  m_center->position.X = item.m_state.position.position.X;
-  m_center->position.Z = item.m_state.position.position.Z;
+  m_center->position.X = object.m_state.position.position.X;
+  m_center->position.Z = object.m_state.position.position.Z;
   m_rotationAroundCenter.X
-    = m_engine->getLara().m_torsoRotation.X + m_engine->getLara().m_headRotation.X + item.m_state.rotation.X;
+    = m_engine->getLara().m_torsoRotation.X + m_engine->getLara().m_headRotation.X + object.m_state.rotation.X;
   m_rotationAroundCenter.Y
-    = m_engine->getLara().m_torsoRotation.Y + m_engine->getLara().m_headRotation.Y + item.m_state.rotation.Y;
+    = m_engine->getLara().m_torsoRotation.Y + m_engine->getLara().m_headRotation.Y + object.m_state.rotation.Y;
   m_eyeCenterDistance = core::DefaultCameraLaraDistance;
   m_eyeYOffset = -util::sin(core::SectorSize / 2, m_rotationAroundCenter.Y);
-  m_center->position += util::pitch(m_eyeYOffset, item.m_state.rotation.Y);
+  m_center->position += util::pitch(m_eyeYOffset, object.m_state.rotation.Y);
 
   if(isVerticallyOutsideRoom(m_center->position, m_eye->room))
   {
-    m_center->position.X = item.m_state.position.position.X;
-    m_center->position.Z = item.m_state.position.position.Z;
+    m_center->position.X = object.m_state.position.position.X;
+    m_center->position.Z = object.m_state.position.position.Z;
   }
 
   m_center->position.Y += moveIntoGeometry(*m_center, core::CameraWallDistance);
@@ -699,22 +642,22 @@ void CameraController::handleFreeLook(const items::ItemNode& item)
   updatePosition(center, m_smoothness);
 }
 
-void CameraController::handleEnemy(const items::ItemNode& item)
+void CameraController::handleEnemy(const objects::Object& object)
 {
-  m_center->position.X = item.m_state.position.position.X;
-  m_center->position.Z = item.m_state.position.position.Z;
+  m_center->position.X = object.m_state.position.position.X;
+  m_center->position.Z = object.m_state.position.position.Z;
 
   if(m_enemy != nullptr)
   {
-    m_rotationAroundCenter.X = m_eyeRotation.X + item.m_state.rotation.X;
-    m_rotationAroundCenter.Y = m_eyeRotation.Y + item.m_state.rotation.Y;
+    m_rotationAroundCenter.X = m_eyeRotation.X + object.m_state.rotation.X;
+    m_rotationAroundCenter.Y = m_eyeRotation.Y + object.m_state.rotation.Y;
   }
   else
   {
     m_rotationAroundCenter.X
-      = m_engine->getLara().m_torsoRotation.X + m_engine->getLara().m_headRotation.X + item.m_state.rotation.X;
+      = m_engine->getLara().m_torsoRotation.X + m_engine->getLara().m_headRotation.X + object.m_state.rotation.X;
     m_rotationAroundCenter.Y
-      = m_engine->getLara().m_torsoRotation.Y + m_engine->getLara().m_headRotation.Y + item.m_state.rotation.Y;
+      = m_engine->getLara().m_torsoRotation.Y + m_engine->getLara().m_headRotation.Y + object.m_state.rotation.Y;
   }
 
   m_eyeCenterDistance = core::CombatCameraLaraDistance;
@@ -1040,8 +983,8 @@ std::unordered_set<const loader::file::Portal*>
   }
   else
   {
-    core::TRVec center = m_eye->position + util::pitch(frame.center, m_eyeRotation.Y);
-    core::TRVec eye = m_eye->position + util::pitch(frame.eye, m_eyeRotation.Y);
+    const core::TRVec center = m_eye->position + util::pitch(frame.center, m_eyeRotation.Y);
+    const core::TRVec eye = m_eye->position + util::pitch(frame.eye, m_eyeRotation.Y);
 
     auto m = lookAt(eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0});
     m = rotate(m, toRad(frame.rotZ), -glm::vec3{m[2]});
@@ -1082,115 +1025,28 @@ CameraController::CameraController(gsl::not_null<Engine*> engine,
   }
 }
 
-YAML::Node CameraController::save() const
+void CameraController::serialize(const serialization::Serializer& ser)
 {
-  YAML::Node result;
-  result["eye"]["position"] = m_eye->position.save();
-  result["eye"]["room"]
-    = std::distance(const_cast<const loader::file::Room*>(&m_engine->getRooms()[0]), m_eye->room.get());
-  result["center"]["position"] = m_center->position.save();
-  result["center"]["room"]
-    = std::distance(const_cast<const loader::file::Room*>(&m_engine->getRooms()[0]), m_center->room.get());
-  result["mode"] = toString(m_mode);
-  result["modifier"] = toString(m_modifier);
-  result["tracking"] = m_fixed;
-  if(m_targetItem != nullptr)
-  {
-    result["item"] = std::find_if(m_engine->getItemNodes().begin(),
-                                  m_engine->getItemNodes().end(),
-                                  [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
-                                    return entry.second == m_targetItem;
-                                  })
-                       ->first;
-  }
-  if(m_previousItem != nullptr)
-  {
-    result["lastItem"] = std::find_if(m_engine->getItemNodes().begin(),
-                                      m_engine->getItemNodes().end(),
-                                      [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
-                                        return entry.second == m_previousItem;
-                                      })
-                           ->first;
-  }
-  if(m_enemy != nullptr)
-  {
-    result["enemy"] = std::find_if(m_engine->getItemNodes().begin(),
-                                   m_engine->getItemNodes().end(),
-                                   [&](const std::pair<uint16_t, std::shared_ptr<items::ItemNode>>& entry) {
-                                     return entry.second == m_enemy;
-                                   })
-                        ->first;
-  }
-  result["yOffset"] = m_eyeYOffset;
-  result["bounce"] = m_bounce;
-  result["eyeCenterDistance"] = m_eyeCenterDistance;
-  result["eyeCenterHorizontalDistanceSq"] = m_eyeCenterHorizontalDistanceSq;
-  result["eyeRotation"] = m_eyeRotation.save();
-  result["currentRotation"] = m_rotationAroundCenter.save();
-  result["trackingSmoothness"] = m_smoothness;
-  result["fixedCameraId"] = m_fixedCameraId;
-  result["currentFixedCameraId"] = m_currentFixedCameraId;
-  result["camOverrideTimeout"] = m_camOverrideTimeout;
-  result["cinematicFrame"] = m_cinematicFrame;
-  result["cinematicPos"] = m_cinematicPos.save();
-  result["cinematicRot"] = m_cinematicRot.save();
-  return result;
-}
-
-void CameraController::load(const YAML::Node& n)
-{
-  m_eye->position.load(n["eye"]["position"]);
-  m_eye->room = &m_engine->getRooms()[n["eye"]["room"].as<size_t>()];
-  m_center->position.load(n["center"]["position"]);
-  m_center->room = &m_engine->getRooms()[n["center"]["room"].as<size_t>()];
-  m_mode = parseCameraMode(n["mode"].as<std::string>());
-  m_modifier = parseCameraModifier(n["modifier"].as<std::string>());
-  m_fixed = n["tracking"].as<bool>();
-  if(!n["item"].IsDefined())
-  {
-    m_targetItem = nullptr;
-  }
-  else
-  {
-    const auto it = m_engine->getItemNodes().find(n["item"].as<uint16_t>());
-    if(it == m_engine->getItemNodes().end())
-      BOOST_THROW_EXCEPTION(std::domain_error("Invalid item reference"));
-    m_targetItem = it->second.get();
-  }
-  if(!n["lastItem"].IsDefined())
-  {
-    m_previousItem = nullptr;
-  }
-  else
-  {
-    const auto it = m_engine->getItemNodes().find(n["lastItem"].as<uint16_t>());
-    if(it == m_engine->getItemNodes().end())
-      BOOST_THROW_EXCEPTION(std::domain_error("Invalid item reference"));
-    m_previousItem = it->second.get();
-  }
-  if(!n["enemy"].IsDefined())
-  {
-    m_enemy = nullptr;
-  }
-  else
-  {
-    const auto it = m_engine->getItemNodes().find(n["enemy"].as<uint16_t>());
-    if(it == m_engine->getItemNodes().end())
-      BOOST_THROW_EXCEPTION(std::domain_error("Invalid item reference"));
-    m_enemy = it->second.get();
-  }
-  m_eyeYOffset = n["yOffset"].as<core::Length>();
-  m_bounce = n["bounce"].as<core::Length>();
-  m_eyeCenterDistance = n["eyeCenterDistance"].as<core::Length>();
-  m_eyeCenterHorizontalDistanceSq = n["eyeCenterHorizontalDistanceSq"].as<core::Area>();
-  m_eyeRotation.load(n["eyeRotation"]);
-  m_rotationAroundCenter.load(n["currentRotation"]);
-  m_smoothness = n["trackingSmoothness"].as<int>();
-  m_fixedCameraId = n["fixedCameraId"].as<int>();
-  m_currentFixedCameraId = n["currentFixedCameraId"].as<int>();
-  m_camOverrideTimeout = n["camOverrideTimeout"].as<core::Frame>();
-  m_cinematicFrame = n["cinematicFrame"].as<size_t>();
-  m_cinematicPos.load(n["cinematicPos"]);
-  m_cinematicRot.load(n["cinematicRot"]);
+  ser(S_NV("eye", m_eye),
+      S_NV("center", m_center),
+      S_NV("mode", m_mode),
+      S_NV("modifier", m_modifier),
+      S_NV("fixed", m_fixed),
+      S_NV("targetObject", serialization::ObjectReference{m_targetObject}),
+      S_NV("previousObject", serialization::ObjectReference{m_previousObject}),
+      S_NV("enemy", serialization::ObjectReference{m_enemy}),
+      S_NV("eyeYOffset", m_eyeYOffset),
+      S_NV("bounce", m_bounce),
+      S_NV("eyeCenterDistance", m_eyeCenterDistance),
+      S_NV("eyeCenterHorizontalDistanceSq", m_eyeCenterHorizontalDistanceSq),
+      S_NV("eyeRotation", m_eyeRotation),
+      S_NV("rotationAroundCenter", m_rotationAroundCenter),
+      S_NV("smoothness", m_smoothness),
+      S_NV("fixedCameraId", m_fixedCameraId),
+      S_NV("currentFixedCameraId", m_currentFixedCameraId),
+      S_NV("camOverrideTimeout", m_camOverrideTimeout),
+      S_NV("cinematicFrame", m_cinematicFrame),
+      S_NV("cinematicPos", m_cinematicPos),
+      S_NV("cinematicRot", m_cinematicRot));
 }
 } // namespace engine

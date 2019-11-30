@@ -3,13 +3,7 @@
 #include "glew.h"
 #include "gsl-lite.hpp"
 
-#include <boost/assert.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/stacktrace.hpp>
-
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 #ifndef NDEBUG
 extern void checkGlError(gsl::czstring code);
@@ -29,7 +23,6 @@ inline auto glAssertFn(F code, gsl::czstring codeStr) -> decltype(code())
   return result;
 }
 } // namespace detail
-} // namespace gl
 } // namespace render
 
 #define GL_ASSERT(gl_code)                \

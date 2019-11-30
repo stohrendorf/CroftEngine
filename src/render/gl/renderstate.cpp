@@ -1,8 +1,6 @@
 #include "renderstate.h"
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 RenderState& RenderState::getCurrentState()
 {
@@ -141,5 +139,4 @@ void RenderState::merge(const RenderState& other)
   MERGE_OPT(m_lineSmooth);
 #undef MERGE_OPT
 }
-} // namespace gl
 } // namespace render

@@ -1,17 +1,15 @@
 #pragma once
 
 #include "engine/cameracontroller.h"
-#include "engine/laranode.h"
+#include "engine/objects/laraobject.h"
 #include "statehandler_standing.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_2 final : public StateHandler_Standing
 {
 public:
-  explicit StateHandler_2(LaraNode& lara)
+  explicit StateHandler_2(objects::LaraObject& lara)
       : StateHandler_Standing{lara, LaraStateId::Stop}
   {
   }
@@ -102,5 +100,4 @@ public:
     }
   }
 };
-} // namespace lara
 } // namespace engine

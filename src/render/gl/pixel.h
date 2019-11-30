@@ -4,9 +4,7 @@
 
 #include <array>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 template<typename T, size_t _Channels, ::gl::PixelFormat _PixelFormat, ::gl::InternalFormat _InternalFormat>
 struct Pixel
@@ -23,9 +21,9 @@ struct Pixel
   using Traits = TypeTraits<T>;
 
   static constexpr auto Channels = _Channels;
-  static constexpr const ::gl::PixelFormat PixelFormat = _PixelFormat;
-  static constexpr const ::gl::InternalFormat InternalFormat = _InternalFormat;
-  static constexpr const ::gl::PixelType PixelType = Traits::PixelType;
+  static constexpr ::gl::PixelFormat PixelFormat = _PixelFormat;
+  static constexpr ::gl::InternalFormat InternalFormat = _InternalFormat;
+  static constexpr ::gl::PixelType PixelType = Traits::PixelType;
 
   std::array<Type, Channels> channels;
 
@@ -100,9 +98,9 @@ struct Scalar final
   using Type = T;
   using Traits = TypeTraits<T>;
 
-  static constexpr const ::gl::PixelFormat PixelFormat = ::gl::PixelFormat::Red;
-  static constexpr const ::gl::PixelType PixelType = Traits::PixelType;
-  static constexpr const auto InternalFormat = Traits::RSizedInternalFormat;
+  static constexpr ::gl::PixelFormat PixelFormat = ::gl::PixelFormat::Red;
+  static constexpr ::gl::PixelType PixelType = Traits::PixelType;
+  static constexpr auto InternalFormat = Traits::RSizedInternalFormat;
 
   explicit Scalar()
       : Scalar{0}
@@ -132,5 +130,4 @@ constexpr bool operator!=(const Scalar<T>& lhs, const Scalar<T>& rhs)
 using ScalarByte = Scalar<uint8_t>;
 using Scalar32F = Scalar<float>;
 using Scalar16F = Scalar<::gl::core::Half>;
-} // namespace gl
 } // namespace render

@@ -1,67 +1,34 @@
 #include "engine.h"
 
 #include "audio/tracktype.h"
+#include "engine/ai/ai.h"
 #include "floordata/floordata.h"
-#include "items/animating.h"
-#include "items/atlanteanlava.h"
-#include "items/barricade.h"
-#include "items/bat.h"
-#include "items/bear.h"
-#include "items/block.h"
-#include "items/boulder.h"
-#include "items/bridgeflat.h"
-#include "items/collapsiblefloor.h"
-#include "items/crocodile.h"
-#include "items/cutsceneactors.h"
-#include "items/dart.h"
-#include "items/dartgun.h"
-#include "items/door.h"
-#include "items/flameemitter.h"
-#include "items/gorilla.h"
-#include "items/keyhole.h"
-#include "items/larson.h"
-#include "items/lavaparticleemitter.h"
-#include "items/lightningball.h"
-#include "items/lion.h"
-#include "items/mummy.h"
-#include "items/mutant.h"
-#include "items/mutantegg.h"
-#include "items/pickupitem.h"
-#include "items/pierre.h"
-#include "items/puzzlehole.h"
-#include "items/raptor.h"
-#include "items/rat.h"
-#include "items/scionpiece.h"
-#include "items/slammingdoors.h"
-#include "items/slopedbridge.h"
-#include "items/stubitem.h"
-#include "items/swingingblade.h"
-#include "items/switch.h"
-#include "items/swordofdamocles.h"
-#include "items/tallblock.h"
-#include "items/teethspikes.h"
-#include "items/thorhammer.h"
-#include "items/trapdoordown.h"
-#include "items/trapdoorup.h"
-#include "items/trex.h"
-#include "items/underwaterswitch.h"
-#include "items/waterfallmist.h"
-#include "items/wolf.h"
-#include "laranode.h"
 #include "loader/file/level/level.h"
 #include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
+#include "objects/aiagent.h"
+#include "objects/block.h"
+#include "objects/laraobject.h"
+#include "objects/modelobject.h"
+#include "objects/objectfactory.h"
+#include "objects/pickupobject.h"
+#include "objects/tallblock.h"
 #include "render/gl/font.h"
 #include "render/renderpipeline.h"
 #include "render/scene/scene.h"
 #include "render/textureanimator.h"
 #include "script/reflection.h"
+#include "serialization/array.h"
+#include "serialization/bitset.h"
+#include "serialization/map.h"
+#include "serialization/not_null.h"
+#include "serialization/optional.h"
+#include "serialization/vector.h"
 #include "tracks_tr1.h"
 #include "ui/label.h"
 #include "video/player.h"
 
 #include <boost/filesystem.hpp>
-#include <boost/format.hpp>
 #include <boost/locale/generator.hpp>
 #include <boost/locale/info.hpp>
 #include <boost/range/adaptor/map.hpp>
@@ -79,20 +46,20 @@ sol::state createScriptEngine()
   engine["package"]["path"] = (boost::filesystem::path("scripts") / "?.lua").string();
   engine["package"]["cpath"] = "";
 
-  engine.set_usertype(core::TRVec::userType());
-  engine.set_usertype(ai::CreatureInfo::userType());
-  engine.set_usertype(script::ObjectInfo::userType());
-  engine.set_usertype(script::TrackInfo::userType());
+  core::TRVec::registerUserType(engine);
+  ai::CreatureInfo::registerUserType(engine);
+  script::ObjectInfo::registerUserType(engine);
+  script::TrackInfo::registerUserType(engine);
 
   engine.new_enum("ActivationState",
                   "INACTIVE",
-                  items::TriggerState::Inactive,
+                  objects::TriggerState::Inactive,
                   "ACTIVE",
-                  items::TriggerState::Active,
+                  objects::TriggerState::Active,
                   "DEACTIVATED",
-                  items::TriggerState::Deactivated,
+                  objects::TriggerState::Deactivated,
                   "INVISIBLE",
-                  items::TriggerState::Invisible);
+                  objects::TriggerState::Invisible);
 
   engine.new_enum(
     "Mood", "BORED", ai::Mood::Bored, "ATTACK", ai::Mood::Attack, "ESCAPE", ai::Mood::Escape, "STALK", ai::Mood::Stalk);
@@ -187,7 +154,7 @@ const std::vector<loader::file::Box>& Engine::getBoxes() const
 }
 
 std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>
-  Engine::createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader)
+  Engine::createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader) const
 {
   const auto texMask = gameToEngine(m_level->m_gameVersion) == loader::file::level::Engine::TR4
                          ? loader::file::TextureIndexMaskTr4
@@ -204,337 +171,27 @@ std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::
   return materials;
 }
 
-std::shared_ptr<LaraNode> Engine::createItems()
+std::shared_ptr<objects::LaraObject> Engine::createObjects()
 {
   m_lightningShader = render::scene::ShaderProgram::createFromFile("shaders/lightning.vert", "shaders/lightning.frag");
 
-  std::shared_ptr<LaraNode> lara = nullptr;
-  int id = -1;
+  std::shared_ptr<objects::LaraObject> lara = nullptr;
+  ObjectId id = -1;
   for(loader::file::Item& item : m_level->m_items)
   {
     ++id;
 
-    const auto* room = &m_level->m_rooms.at(item.room.get());
-
-    if(const auto& model = findAnimatedModelForType(item.type))
+    auto object = objects::createObject(*this, item);
+    if(item.type == TR1ItemId::Lara)
     {
-      std::shared_ptr<items::ItemNode> modelNode;
-
-      if(item.type == TR1ItemId::Lara)
-      {
-        lara = std::make_shared<LaraNode>(this, room, item, *model);
-        modelNode = lara;
-      }
-      else if(auto objectInfo = m_scriptEngine["getObjectInfo"].call(-1))
-      {
-        BOOST_LOG_TRIVIAL(info) << "Instantiating scripted type " << toString(item.type.get_as<TR1ItemId>()) << "/id "
-                                << id;
-
-        modelNode = std::make_shared<items::ScriptedItem>(this, room, item, *model, objectInfo);
-        for(gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex)
-        {
-          auto node = std::make_shared<render::scene::Node>(modelNode->getNode()->getId()
-                                                            + "/bone:" + std::to_string(boneIndex));
-          node->setDrawable(model->models[boneIndex].get());
-          addChild(modelNode->getNode(), node);
-        }
-
-        BOOST_ASSERT(modelNode->getNode()->getChildren().size() == gsl::narrow<size_t>(model->meshes.size()));
-      }
-      else if(item.type == TR1ItemId::Wolf)
-      {
-        modelNode = std::make_shared<items::Wolf>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::Bear)
-      {
-        modelNode = std::make_shared<items::Bear>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::Bat)
-      {
-        modelNode = std::make_shared<items::Bat>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::FallingBlock)
-      {
-        modelNode = std::make_shared<items::CollapsibleFloor>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::SwingingBlade)
-      {
-        modelNode = std::make_shared<items::SwingingBlade>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::RollingBall)
-      {
-        modelNode = std::make_shared<items::RollingBall>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::Dart)
-      {
-        modelNode = std::make_shared<items::Dart>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::DartEmitter)
-      {
-        modelNode = std::make_shared<items::DartGun>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::LiftingDoor)
-      {
-        modelNode = std::make_shared<items::TrapDoorUp>(this, room, item, *model);
-      }
-      else if(item.type >= TR1ItemId::PushableBlock1 && item.type <= TR1ItemId::PushableBlock4)
-      {
-        modelNode = std::make_shared<items::Block>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::MovingBlock)
-      {
-        modelNode = std::make_shared<items::TallBlock>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::WallSwitch)
-      {
-        modelNode = std::make_shared<items::Switch>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::UnderwaterSwitch)
-      {
-        modelNode = std::make_shared<items::UnderwaterSwitch>(this, room, item, *model);
-      }
-      else if(item.type >= TR1ItemId::Door1 && item.type <= TR1ItemId::Door8)
-      {
-        modelNode = std::make_shared<items::Door>(this, room, item, *model);
-      }
-      else if(item.type >= TR1ItemId::Trapdoor1 && item.type <= TR1ItemId::Trapdoor2)
-      {
-        modelNode = std::make_shared<items::TrapDoorDown>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::BridgeFlat)
-      {
-        modelNode = std::make_shared<items::BridgeFlat>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::BridgeTilt1)
-      {
-        modelNode = std::make_shared<items::BridgeSlope1>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::BridgeTilt2)
-      {
-        modelNode = std::make_shared<items::BridgeSlope2>(this, room, item, *model);
-      }
-      else if(item.type >= TR1ItemId::Keyhole1 && item.type <= TR1ItemId::Keyhole4)
-      {
-        modelNode = std::make_shared<items::KeyHole>(this, room, item, *model);
-      }
-      else if(item.type >= TR1ItemId::PuzzleHole1 && item.type <= TR1ItemId::PuzzleHole4)
-      {
-        modelNode = std::make_shared<items::PuzzleHole>(this, room, item, *model);
-      }
-      else if(item.type >= TR1ItemId::Animating1 && item.type <= TR1ItemId::Animating3)
-      {
-        modelNode = std::make_shared<items::Animating>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::TeethSpikes)
-      {
-        modelNode = std::make_shared<items::TeethSpikes>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::Raptor)
-      {
-        modelNode = std::make_shared<items::Raptor>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::SwordOfDamocles || item.type == TR1ItemId::FallingCeiling)
-      {
-        modelNode = std::make_shared<items::SwordOfDamocles>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::CutsceneActor1)
-      {
-        modelNode = std::make_shared<items::CutsceneActor1>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::CutsceneActor2)
-      {
-        modelNode = std::make_shared<items::CutsceneActor2>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::CutsceneActor3)
-      {
-        modelNode = std::make_shared<items::CutsceneActor3>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::CutsceneActor4)
-      {
-        modelNode = std::make_shared<items::CutsceneActor4>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::WaterfallMist)
-      {
-        modelNode = std::make_shared<items::WaterfallMist>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::TRex)
-      {
-        modelNode = std::make_shared<items::TRex>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::Mummy)
-      {
-        modelNode = std::make_shared<items::Mummy>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::Larson)
-      {
-        modelNode = std::make_shared<items::Larson>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::CrocodileOnLand || item.type == TR1ItemId::CrocodileInWater)
-      {
-        modelNode = std::make_shared<items::Crocodile>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::LionMale || item.type == TR1ItemId::LionFemale || item.type == TR1ItemId::Panther)
-      {
-        modelNode = std::make_shared<items::Lion>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::Barricade)
-      {
-        modelNode = std::make_shared<items::Barricade>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::Gorilla)
-      {
-        modelNode = std::make_shared<items::Gorilla>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::Pierre)
-      {
-        modelNode = std::make_shared<items::Pierre>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::ThorHammerBlock)
-      {
-        modelNode = std::make_shared<items::ThorHammerBlock>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::ThorHammerHandle)
-      {
-        modelNode = std::make_shared<items::ThorHammerHandle>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::FlameEmitter)
-      {
-        modelNode = std::make_shared<items::FlameEmitter>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::ThorLightningBall)
-      {
-        modelNode = std::make_shared<items::LightningBall>(this, room, item, *model, m_lightningShader);
-      }
-      else if(item.type == TR1ItemId::RatInWater || item.type == TR1ItemId::RatOnLand)
-      {
-        modelNode = std::make_shared<items::Rat>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::SlammingDoors)
-      {
-        modelNode = std::make_shared<items::SlammingDoors>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::FlyingMutant)
-      {
-        modelNode = std::make_shared<items::FlyingMutant>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::WalkingMutant1 || item.type == TR1ItemId::WalkingMutant2)
-      {
-        // Special handling, these are just "mutations" of the flying mutants (no wings).
-        modelNode = std::make_shared<items::WalkingMutant>(
-          this, room, item, *findAnimatedModelForType(TR1ItemId::FlyingMutant));
-      }
-      else if(item.type == TR1ItemId::MutantEggSmall || item.type == TR1ItemId::MutantEggBig)
-      {
-        modelNode = std::make_shared<items::MutantEgg>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::CentaurMutant)
-      {
-        modelNode = std::make_shared<items::CentaurMutant>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::TorsoBoss)
-      {
-        modelNode = std::make_shared<items::TorsoBoss>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::LavaParticleEmitter)
-      {
-        modelNode = std::make_shared<items::LavaParticleEmitter>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::FlowingAtlanteanLava)
-      {
-        modelNode = std::make_shared<items::AtlanteanLava>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::ScionPiece3)
-      {
-        modelNode = std::make_shared<items::ScionPiece3>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::ScionPiece4)
-      {
-        modelNode = std::make_shared<items::ScionPiece4>(this, room, item, *model);
-      }
-      else if(item.type == TR1ItemId::ScionHolder)
-      {
-        modelNode = std::make_shared<items::ScionHolder>(this, room, item, *model);
-      }
-      else
-      {
-        BOOST_LOG_TRIVIAL(warning) << "Unimplemented item " << toString(item.type.get_as<TR1ItemId>());
-
-        modelNode = std::make_shared<items::StubItem>(this, room, item, *model);
-        if(item.type == TR1ItemId::MidasGoldTouch || item.type == TR1ItemId::CameraTarget
-           || item.type == TR1ItemId::LavaParticleEmitter || item.type == TR1ItemId::FlameEmitter
-           || item.type == TR1ItemId::Earthquake)
-        {
-          modelNode->getNode()->setDrawable(nullptr);
-          modelNode->getNode()->removeAllChildren();
-        }
-      }
-
-      m_itemNodes.emplace(std::make_pair(id, modelNode));
-      addChild(room->node, modelNode->getNode());
-
-      modelNode->applyTransform();
-      modelNode->updateLighting();
-
-      continue;
+      lara = std::dynamic_pointer_cast<objects::LaraObject>(object);
+      Expects(lara != nullptr);
     }
 
-    if(const auto& spriteSequence = findSpriteSequenceForType(item.type))
+    if(object != nullptr)
     {
-      BOOST_ASSERT(!findAnimatedModelForType(item.type));
-      BOOST_ASSERT(!spriteSequence->sprites.empty());
-
-      const loader::file::Sprite& sprite = spriteSequence->sprites[0];
-      std::shared_ptr<items::ItemNode> node;
-
-      if(item.type == TR1ItemId::ScionPiece1)
-      {
-        node = std::make_shared<items::ScionPiece>(this,
-                                                   std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>())
-                                                     + ")",
-                                                   room,
-                                                   item,
-                                                   sprite,
-                                                   m_spriteMaterial);
-      }
-      else if(item.type == TR1ItemId::Item141 || item.type == TR1ItemId::Item142 || item.type == TR1ItemId::Key1Sprite
-              || item.type == TR1ItemId::Key2Sprite || item.type == TR1ItemId::Key3Sprite
-              || item.type == TR1ItemId::Key4Sprite || item.type == TR1ItemId::Puzzle1Sprite
-              || item.type == TR1ItemId::Puzzle2Sprite || item.type == TR1ItemId::Puzzle3Sprite
-              || item.type == TR1ItemId::Puzzle4Sprite || item.type == TR1ItemId::PistolsSprite
-              || item.type == TR1ItemId::ShotgunSprite || item.type == TR1ItemId::MagnumsSprite
-              || item.type == TR1ItemId::UzisSprite || item.type == TR1ItemId::PistolAmmoSprite
-              || item.type == TR1ItemId::ShotgunAmmoSprite || item.type == TR1ItemId::MagnumAmmoSprite
-              || item.type == TR1ItemId::UziAmmoSprite || item.type == TR1ItemId::ExplosiveSprite
-              || item.type == TR1ItemId::SmallMedipackSprite || item.type == TR1ItemId::LargeMedipackSprite
-              || item.type == TR1ItemId::ScionPiece2 || item.type == TR1ItemId::LeadBarSprite)
-      {
-        node = std::make_shared<items::PickupItem>(this,
-                                                   std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>())
-                                                     + ")",
-                                                   room,
-                                                   item,
-                                                   sprite,
-                                                   m_spriteMaterial);
-      }
-      else
-      {
-        BOOST_LOG_TRIVIAL(warning) << "Unimplemented item " << toString(item.type.get_as<TR1ItemId>());
-        node = std::make_shared<items::SpriteItemNode>(this,
-                                                       std::string("sprite(type:")
-                                                         + toString(item.type.get_as<TR1ItemId>()) + ")",
-                                                       room,
-                                                       item,
-                                                       true,
-                                                       sprite,
-                                                       m_spriteMaterial);
-      }
-
-      m_itemNodes.emplace(std::make_pair(id, node));
-      continue;
+      m_objects.emplace(std::make_pair(id, object));
     }
-
-    BOOST_LOG_TRIVIAL(error) << "Failed to find an appropriate animated model for item " << id << "/type "
-                             << int(item.type.get());
   }
 
   return lara;
@@ -617,7 +274,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
-  m_lara = createItems();
+  m_lara = createObjects();
   if(m_lara == nullptr)
   {
     m_cameraController = std::make_unique<CameraController>(this, m_renderer->getScene()->getActiveCamera(), true);
@@ -645,10 +302,10 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
   }
 }
 
-std::shared_ptr<items::ItemNode> Engine::getItem(const uint16_t id) const
+std::shared_ptr<objects::Object> Engine::getObject(uint16_t id) const
 {
-  const auto it = m_itemNodes.find(id);
-  if(it == m_itemNodes.end())
+  const auto it = m_objects.find(id);
+  if(it == m_objects.end())
     return nullptr;
 
   return it->second.get();
@@ -678,7 +335,7 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<rend
     }
   }
 
-  if(m_lara->getHandStatus() == HandStatus::Combat || m_lara->m_state.health <= 0_hp)
+  if(m_lara->getHandStatus() == objects::HandStatus::Combat || m_lara->m_state.health <= 0_hp)
     m_healthBarTimeout = 40_frame;
 
   if(std::exchange(m_drawnHealth, m_lara->m_state.health) != m_lara->m_state.health)
@@ -713,6 +370,7 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<rend
   }
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void Engine::useAlternativeLaraAppearance(const bool withHead)
 {
   const auto& base = *findAnimatedModelForType(TR1ItemId::Lara);
@@ -728,38 +386,39 @@ void Engine::useAlternativeLaraAppearance(const bool withHead)
     m_lara->getNode()->getChild(14)->setDrawable(base.models[14].get());
 }
 
-void Engine::dinoStompEffect(items::ItemNode& node)
+void Engine::dinoStompEffect(objects::Object& object)
 {
-  const auto d = node.m_state.position.position.toRenderSystem() - getCameraController().getPosition();
+  const auto d = object.m_state.position.position.toRenderSystem() - getCameraController().getPosition();
   const auto absD = glm::abs(d);
 
   static constexpr auto MaxD = (16 * core::SectorSize).get_as<float>();
   if(absD.x > MaxD || absD.y > MaxD || absD.z > MaxD)
     return;
 
-  const auto x = (100_len).retype_as<float>() * (1 - glm::length2(d) / util::square(MaxD));
+  const auto x = (100_len).retype_as<float>() * (1 - length2(d) / util::square(MaxD));
   getCameraController().setBounce(x.retype_as<core::Length>());
 }
 
-void Engine::turn180Effect(items::ItemNode& node)
+// ReSharper disable once CppMemberFunctionMayBeStatic
+void Engine::turn180Effect(objects::Object& object)
 {
-  node.m_state.rotation.Y += 180_deg;
+  object.m_state.rotation.Y += 180_deg;
 }
 
 void Engine::laraNormalEffect()
 {
   Expects(m_lara != nullptr);
-  m_lara->setCurrentAnimState(LaraStateId::Stop);
-  m_lara->setRequiredAnimState(LaraStateId::Unknown12);
-  m_lara->m_state.anim = &m_level->m_animations[static_cast<int>(AnimationId::STAY_SOLID)];
+  m_lara->setCurrentAnimState(loader::file::LaraStateId::Stop);
+  m_lara->setRequiredAnimState(loader::file::LaraStateId::Unknown12);
+  m_lara->m_state.anim = &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
   m_lara->m_state.frame_number = 185_frame;
   getCameraController().setMode(CameraMode::Chase);
   getCameraController().getCamera()->setFieldOfView(glm::radians(80.0f));
 }
 
-void Engine::laraBubblesEffect(items::ItemNode& node)
+void Engine::laraBubblesEffect(objects::Object& object)
 {
-  const auto modelNode = dynamic_cast<items::ModelItemNode*>(&node);
+  const auto modelNode = dynamic_cast<objects::ModelObject*>(&object);
   if(modelNode == nullptr)
     return;
 
@@ -767,19 +426,19 @@ void Engine::laraBubblesEffect(items::ItemNode& node)
   if(bubbleCount == 0)
     return;
 
-  node.playSoundEffect(TR1SoundId::LaraUnderwaterGurgle);
+  object.playSoundEffect(TR1SoundId::LaraUnderwaterGurgle);
 
-  const auto itemSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
-    node.m_state, *modelNode->getSkeleton()->getInterpolationInfo(modelNode->m_state).getNearestFrame(), nullptr);
+  const auto boneSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
+    object.m_state, *modelNode->getSkeleton()->getInterpolationInfo(modelNode->m_state).getNearestFrame(), nullptr);
 
   const auto position
-    = core::TRVec{glm::vec3{translate(itemSpheres.at(14).m, core::TRVec{0_len, 0_len, 50_len}.toRenderSystem())[3]}};
+    = core::TRVec{glm::vec3{translate(boneSpheres.at(14).m, core::TRVec{0_len, 0_len, 50_len}.toRenderSystem())[3]}};
 
   while(bubbleCount-- > 0)
   {
     auto particle
-      = std::make_shared<BubbleParticle>(core::RoomBoundPosition{node.m_state.position.room, position}, *this);
-    setParent(particle, node.m_state.position.room->node);
+      = std::make_shared<BubbleParticle>(core::RoomBoundPosition{object.m_state.position.room, position}, *this);
+    setParent(particle, object.m_state.position.room->node);
     m_particles.emplace_back(particle);
   }
 }
@@ -893,9 +552,10 @@ void Engine::explosionEffect()
   m_activeEffect.reset();
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void Engine::laraHandsFreeEffect()
 {
-  m_lara->setHandStatus(HandStatus::None);
+  m_lara->setHandStatus(objects::HandStatus::None);
 }
 
 void Engine::flipMapEffect()
@@ -903,11 +563,12 @@ void Engine::flipMapEffect()
   swapAllRooms();
 }
 
-void Engine::unholsterRightGunEffect(items::ItemNode& node)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void Engine::unholsterRightGunEffect(objects::Object& object)
 {
   const auto& src = *findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
-  BOOST_ASSERT(gsl::narrow<size_t>(src.models.size()) == node.getNode()->getChildren().size());
-  node.getNode()->getChild(10)->setDrawable(src.models[10].get());
+  BOOST_ASSERT(gsl::narrow<size_t>(src.models.size()) == object.getNode()->getChildren().size());
+  object.getNode()->getChild(10)->setDrawable(src.models[10].get());
 }
 
 void Engine::chainBlockEffect()
@@ -942,16 +603,16 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
 {
   // find any blocks in the original room and un-patch the floor heights
 
-  for(const auto& item : m_itemNodes | boost::adaptors::map_values)
+  for(const auto& object : m_objects | boost::adaptors::map_values)
   {
-    if(item->m_state.position.room != &orig)
+    if(object->m_state.position.room != &orig)
       continue;
 
-    if(const auto tmp = std::dynamic_pointer_cast<items::Block>(item.get()))
+    if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
       loader::file::Room::patchHeightsForBlock(*tmp, core::SectorSize);
     }
-    else if(const auto tmp = std::dynamic_pointer_cast<items::TallBlock>(item.get()))
+    else if(const auto tmp = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
       loader::file::Room::patchHeightsForBlock(*tmp, core::SectorSize * 2);
     }
@@ -961,19 +622,19 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
   std::swap(orig, alternate);
   orig.alternateRoom = std::exchange(alternate.alternateRoom, -1);
 
-  // patch heights in the new room, and swap item ownerships.
+  // patch heights in the new room, and swap object ownerships.
   // note that this is exactly the same code as above,
   // except for the heights.
-  for(const auto& item : m_itemNodes | boost::adaptors::map_values)
+  for(const auto& object : m_objects | boost::adaptors::map_values)
   {
-    if(item->m_state.position.room == &orig)
+    if(object->m_state.position.room == &orig)
     {
       // although this seems contradictory, remember the nodes have been swapped above
-      setParent(item->getNode(), orig.node);
+      setParent(object->getNode(), orig.node);
     }
-    else if(item->m_state.position.room == &alternate)
+    else if(object->m_state.position.room == &alternate)
     {
-      setParent(item->getNode(), alternate.node);
+      setParent(object->getNode(), alternate.node);
       continue;
     }
     else
@@ -981,25 +642,25 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
       continue;
     }
 
-    if(const auto tmp = std::dynamic_pointer_cast<items::Block>(item.get()))
+    if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
       loader::file::Room::patchHeightsForBlock(*tmp, -core::SectorSize);
     }
-    else if(const auto tmp = std::dynamic_pointer_cast<items::TallBlock>(item.get()))
+    else if(const auto tmp = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
       loader::file::Room::patchHeightsForBlock(*tmp, -core::SectorSize * 2);
     }
   }
 
-  for(const auto& item : m_dynamicItems)
+  for(const auto& object : m_dynamicObjects)
   {
-    if(item->m_state.position.room == &orig)
+    if(object->m_state.position.room == &orig)
     {
-      setParent(item->getNode(), orig.node);
+      setParent(object->getNode(), orig.node);
     }
-    else if(item->m_state.position.room == &alternate)
+    else if(object->m_state.position.room == &alternate)
     {
-      setParent(item->getNode(), alternate.node);
+      setParent(object->getNode(), alternate.node);
     }
   }
 }
@@ -1016,106 +677,9 @@ void Engine::animateUV()
   }
 }
 
-YAML::Node Engine::save() const
-{
-  YAML::Node result;
-
-  YAML::Node inventory;
-
-  const auto addInventory = [&](const TR1ItemId id) { inventory[toString(id)] = m_inventory.count(id); };
-
-  addInventory(TR1ItemId::Pistols);
-  addInventory(TR1ItemId::Magnums);
-  addInventory(TR1ItemId::MagnumAmmo);
-  addInventory(TR1ItemId::Uzis);
-  addInventory(TR1ItemId::UziAmmo);
-  addInventory(TR1ItemId::Shotgun);
-  addInventory(TR1ItemId::ShotgunAmmo);
-  addInventory(TR1ItemId::SmallMedipack);
-  addInventory(TR1ItemId::LargeMedipack);
-  addInventory(TR1ItemId::ScionPiece1);
-  addInventory(TR1ItemId::Item141);
-  addInventory(TR1ItemId::Item142);
-  addInventory(TR1ItemId::Puzzle1);
-  addInventory(TR1ItemId::Puzzle2);
-  addInventory(TR1ItemId::Puzzle3);
-  addInventory(TR1ItemId::Puzzle4);
-  addInventory(TR1ItemId::Key1);
-  addInventory(TR1ItemId::Key2);
-  addInventory(TR1ItemId::Key3);
-  addInventory(TR1ItemId::Key4);
-  addInventory(TR1ItemId::LeadBar);
-
-  result["inventory"] = inventory;
-
-  YAML::Node flipStatus;
-  for(const auto& state : mapFlipActivationStates)
-  {
-    flipStatus.push_back(state.save());
-  }
-  result["flipStatus"] = flipStatus;
-
-  YAML::Node cameraFlags;
-  for(const auto& camera : m_level->m_cameras)
-  {
-    cameraFlags.push_back(camera.flags);
-  }
-  result["cameraFlags"] = cameraFlags;
-
-  if(m_activeEffect.is_initialized())
-    result["flipEffect"] = *m_activeEffect;
-  result["flipEffectTimer"] = m_effectTimer;
-
-  for(const auto& item : m_itemNodes)
-  {
-    result["items"][item.first] = item.second->save();
-  }
-
-  result["camera"] = m_cameraController->save();
-
-  result["secretsFound"] = m_secretsFoundBitmask.to_ulong();
-
-  return result;
-}
-
-void Engine::load(const YAML::Node& node)
-{
-  m_inventory.clear();
-
-  for(const auto& entry : node["inventory"])
-    m_inventory.put(EnumUtil<TR1ItemId>::fromString(entry.first.as<std::string>()), entry.second.as<size_t>());
-
-  for(size_t i = 0; i < mapFlipActivationStates.size(); ++i)
-  {
-    mapFlipActivationStates[i].load(node["flipStatus"][i]);
-  }
-
-  if(!node["cameraFlags"].IsSequence() || node["cameraFlags"].size() != m_level->m_cameras.size())
-    BOOST_THROW_EXCEPTION(std::domain_error("Camera flag sequence is invalid"));
-
-  for(size_t i = 0; i < m_level->m_cameras.size(); ++i)
-    m_level->m_cameras[i].flags = node["cameraFlags"][i].as<uint16_t>();
-
-  if(!node["flipEffect"].IsDefined())
-    m_activeEffect.reset();
-  else
-    m_activeEffect = node["flipEffect"].as<size_t>();
-
-  m_effectTimer = node["flipEffectTimer"].as<core::Frame>();
-
-  for(const auto& item : m_itemNodes)
-  {
-    item.second->load(node["items"][item.first]);
-  }
-
-  getCameraController().load(node["camera"]);
-
-  m_secretsFoundBitmask = node["secretsFound"].as<uint16_t>();
-}
-
-std::shared_ptr<items::PickupItem> Engine::createPickup(const core::TypeId type,
-                                                        const gsl::not_null<const loader::file::Room*>& room,
-                                                        const core::TRVec& position)
+std::shared_ptr<objects::PickupObject> Engine::createPickup(const core::TypeId type,
+                                                            const gsl::not_null<const loader::file::Room*>& room,
+                                                            const core::TRVec& position)
 {
   loader::file::Item item;
   item.type = type;
@@ -1129,17 +693,17 @@ std::shared_ptr<items::PickupItem> Engine::createPickup(const core::TypeId type,
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const loader::file::Sprite& sprite = spriteSequence->sprites[0];
 
-  auto node = std::make_shared<items::PickupItem>(this, "pickup", room, item, sprite, m_spriteMaterial);
+  auto object = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite, m_spriteMaterial);
 
-  m_dynamicItems.emplace(node);
-  addChild(room->node, node->getNode());
+  m_dynamicObjects.emplace(object);
+  addChild(room->node, object->getNode());
 
-  return node;
+  return object;
 }
 
 void Engine::doGlobalEffect()
 {
-  if(m_activeEffect.is_initialized())
+  if(m_activeEffect.has_value())
     runEffect(*m_activeEffect, nullptr);
 
   m_audioEngine->setUnderwater(getCameraController().getCurrentRoom()->isWaterRoom());
@@ -1167,23 +731,23 @@ const std::vector<int16_t>& Engine::getAnimCommands() const
 
 void Engine::update(const bool godMode)
 {
-  for(const auto& item : m_itemNodes | boost::adaptors::map_values)
+  for(const auto& object : m_objects | boost::adaptors::map_values)
   {
-    if(item.get() == m_lara) // Lara is special and needs to be updated last
+    if(object.get() == m_lara) // Lara is special and needs to be updated last
       continue;
 
-    if(item->m_isActive)
-      item->update();
+    if(object->m_isActive)
+      object->update();
 
-    item->getNode()->setVisible(item->m_state.triggerState != items::TriggerState::Invisible);
+    object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
   }
 
-  for(const auto& item : m_dynamicItems)
+  for(const auto& object : m_dynamicObjects)
   {
-    if(item->m_isActive)
-      item->update();
+    if(object->m_isActive)
+      object->update();
 
-    item->getNode()->setVisible(item->m_state.triggerState != items::TriggerState::Invisible);
+    object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
   }
 
   auto currentParticles = std::move(m_particles);
@@ -1239,36 +803,36 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
   // triggers
   {
     int y = 180;
-    for(const auto& item : m_itemNodes | boost::adaptors::map_values)
+    for(const auto& object : m_objects | boost::adaptors::map_values)
     {
-      if(!item->m_isActive)
+      if(!object->m_isActive)
         continue;
 
-      drawText(font, 10, y, item->getNode()->getId());
-      switch(item->m_state.triggerState)
+      drawText(font, 10, y, object->getNode()->getId());
+      switch(object->m_state.triggerState)
       {
-      case items::TriggerState::Inactive: drawText(font, 180, y, "inactive"); break;
-      case items::TriggerState::Active: drawText(font, 180, y, "active"); break;
-      case items::TriggerState::Deactivated: drawText(font, 180, y, "deactivated"); break;
-      case items::TriggerState::Invisible: drawText(font, 180, y, "invisible"); break;
+      case objects::TriggerState::Inactive: drawText(font, 180, y, "inactive"); break;
+      case objects::TriggerState::Active: drawText(font, 180, y, "active"); break;
+      case objects::TriggerState::Deactivated: drawText(font, 180, y, "deactivated"); break;
+      case objects::TriggerState::Invisible: drawText(font, 180, y, "invisible"); break;
       }
-      drawText(font, 260, y, item->m_state.timer.toString());
+      drawText(font, 260, y, object->m_state.timer.toString());
       y += 20;
     }
-    for(const auto& item : m_dynamicItems)
+    for(const auto& object : m_dynamicObjects)
     {
-      if(!item->m_isActive)
+      if(!object->m_isActive)
         continue;
 
-      drawText(font, 10, y, item->getNode()->getId());
-      switch(item->m_state.triggerState)
+      drawText(font, 10, y, object->getNode()->getId());
+      switch(object->m_state.triggerState)
       {
-      case items::TriggerState::Inactive: drawText(font, 180, y, "inactive"); break;
-      case items::TriggerState::Active: drawText(font, 180, y, "active"); break;
-      case items::TriggerState::Deactivated: drawText(font, 180, y, "deactivated"); break;
-      case items::TriggerState::Invisible: drawText(font, 180, y, "invisible"); break;
+      case objects::TriggerState::Inactive: drawText(font, 180, y, "inactive"); break;
+      case objects::TriggerState::Active: drawText(font, 180, y, "active"); break;
+      case objects::TriggerState::Deactivated: drawText(font, 180, y, "deactivated"); break;
+      case objects::TriggerState::Invisible: drawText(font, 180, y, "invisible"); break;
       }
-      drawText(font, 260, y, item->m_state.timer.toString());
+      drawText(font, 260, y, object->m_state.timer.toString());
       y += 20;
     }
   }
@@ -1364,11 +928,11 @@ void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& fo
 }
 
 Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution)
-    : m_renderer{std::make_unique<render::scene::Renderer>()}
+    : m_scriptEngine{createScriptEngine()}
+    , m_renderer{std::make_unique<render::scene::Renderer>()}
     , m_window{std::make_unique<render::scene::Window>(fullscreen, resolution)}
     , splashImage{boost::filesystem::path{"splash.png"}}
     , abibasFont{std::make_shared<render::gl::Font>("abibas.ttf", 48)}
-    , m_scriptEngine{createScriptEngine()}
     , m_inventory{*this}
 {
   m_renderer->getScene()->setActiveCamera(
@@ -1499,13 +1063,13 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     {
       const auto& laraPistol = findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
       Expects(laraPistol != nullptr);
-      for(const auto& item : m_itemNodes | boost::adaptors::map_values)
+      for(const auto& object : m_objects | boost::adaptors::map_values)
       {
-        if(item->m_state.type != TR1ItemId::CutsceneActor1)
+        if(object->m_state.type != TR1ItemId::CutsceneActor1)
           continue;
 
-        item->getNode()->getChild(1)->setDrawable(laraPistol->models[1].get());
-        item->getNode()->getChild(4)->setDrawable(laraPistol->models[4].get());
+        object->getNode()->getChild(1)->setDrawable(laraPistol->models[1].get());
+        object->getNode()->getChild(4)->setDrawable(laraPistol->models[4].get());
       }
     }
   }
@@ -1769,40 +1333,41 @@ void Engine::run()
     {
       drawDebugInfo(font, m_renderer->getFrameRate());
 
-      const auto drawItemName
-        = [this, &font](const std::shared_ptr<items::ItemNode>& node, const render::gl::SRGBA8& color) {
-            const auto vertex = glm::vec3{m_renderer->getScene()->getActiveCamera()->getViewMatrix()
-                                          * glm::vec4(node->getNode()->getTranslationWorld(), 1)};
+      const auto drawObjectName = [this, &font](const std::shared_ptr<objects::Object>& object,
+                                                const render::gl::SRGBA8& color) {
+        const auto vertex = glm::vec3{m_renderer->getScene()->getActiveCamera()->getViewMatrix()
+                                      * glm::vec4(object->getNode()->getTranslationWorld(), 1)};
 
-            if(vertex.z > -m_renderer->getScene()->getActiveCamera()->getNearPlane())
-            {
-              return;
-            }
-            else if(vertex.z < -m_renderer->getScene()->getActiveCamera()->getFarPlane())
-            {
-              return;
-            }
+        if(vertex.z > -m_renderer->getScene()->getActiveCamera()->getNearPlane())
+        {
+          return;
+        }
+        else if(vertex.z < -m_renderer->getScene()->getActiveCamera()->getFarPlane())
+        {
+          return;
+        }
 
-            glm::vec4 projVertex{vertex, 1};
-            projVertex = m_renderer->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
-            projVertex /= projVertex.w;
+        glm::vec4 projVertex{vertex, 1};
+        projVertex = m_renderer->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
+        projVertex /= projVertex.w;
 
-            if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
-              return;
+        if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
+          return;
 
-            projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().width;
-            projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().height;
+        projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().width;
+        projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().height;
 
-            font->drawText(node->getNode()->getId().c_str(), projVertex.x, projVertex.y, color);
-          };
+        font->drawText(
+          object->getNode()->getId().c_str(), static_cast<int>(projVertex.x), static_cast<int>(projVertex.y), color);
+      };
 
-      for(const auto& node : m_itemNodes | boost::adaptors::map_values)
+      for(const auto& object : m_objects | boost::adaptors::map_values)
       {
-        drawItemName(node, render::gl::SRGBA8{255});
+        drawObjectName(object, render::gl::SRGBA8{255});
       }
-      for(const auto& node : m_dynamicItems)
+      for(const auto& object : m_dynamicObjects)
       {
-        drawItemName(node, render::gl::SRGBA8{0, 255, 0, 255});
+        drawObjectName(object, render::gl::SRGBA8{0, 255, 0, 255});
       }
     }
 
@@ -1819,9 +1384,8 @@ void Engine::run()
       drawLoadingScreen("Saving...");
 
       BOOST_LOG_TRIVIAL(info) << "Save";
-      std::ofstream file{"quicksave.yaml", std::ios::out | std::ios::trunc};
-      Expects(file.is_open());
-      file << save();
+
+      serialization::Serializer::save("quicksave.yaml", *this);
 
       nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
     }
@@ -1831,8 +1395,7 @@ void Engine::run()
       abibasFont->setTarget(screenOverlay->getImage());
       drawLoadingScreen("Loading...");
 
-      BOOST_LOG_TRIVIAL(info) << "Load";
-      load(YAML::LoadFile("quicksave.yaml"));
+      serialization::Serializer::load("quicksave.yaml", *this);
 
       nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
     }
@@ -1846,7 +1409,8 @@ void Engine::scaleSplashImage()
                                      gsl::narrow<float>(m_window->getViewport().height) / splashImage.height());
 
   splashImageScaled = splashImage;
-  splashImageScaled.resize(splashImageScaled.width() * splashScale, splashImageScaled.height() * splashScale);
+  splashImageScaled.resize(static_cast<int>(splashImageScaled.width() * splashScale),
+                           static_cast<int>(splashImageScaled.height() * splashScale));
 
   // crop to boundaries
   const auto centerX = splashImageScaled.width() / 2;
@@ -1880,7 +1444,7 @@ void Engine::drawLoadingScreen(const std::string& state)
 
   render::gl::Framebuffer::unbindAll();
 
-  m_renderer->clear(::gl::ClearBufferMask::ColorBufferBit | ::gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+  m_renderer->clear(gl::ClearBufferMask::ColorBufferBit | gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
   render::scene::RenderContext context{};
   render::scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
@@ -1955,7 +1519,7 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     break;
     case floordata::SequenceCondition::ItemActivated:
     {
-      auto swtch = m_itemNodes.at(floordata::Command{*floorData++}.parameter);
+      auto swtch = m_objects.at(floordata::Command{*floorData++}.parameter);
       if(!swtch->triggerSwitch(activationRequest.getTimeout()))
         return;
 
@@ -1965,7 +1529,7 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     break;
     case floordata::SequenceCondition::KeyUsed:
     {
-      auto key = m_itemNodes.at(floordata::Command{*floorData++}.parameter);
+      auto key = m_objects.at(floordata::Command{*floorData++}.parameter);
       if(key->triggerKey())
         conditionFulfilled = true;
       else
@@ -1973,13 +1537,13 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     }
     break;
     case floordata::SequenceCondition::ItemPickedUp:
-      if(m_itemNodes.at(floordata::Command{*floorData++}.parameter)->triggerPickUp())
+      if(m_objects.at(floordata::Command{*floorData++}.parameter)->triggerPickUp())
         conditionFulfilled = true;
       else
         return;
       break;
     case floordata::SequenceCondition::LaraInCombatMode:
-      conditionFulfilled = m_lara->getHandStatus() == HandStatus::Combat;
+      conditionFulfilled = m_lara->getHandStatus() == objects::HandStatus::Combat;
       break;
     case floordata::SequenceCondition::ItemIsHere:
     case floordata::SequenceCondition::Dummy: return;
@@ -1991,7 +1555,7 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     return;
 
   bool swapRooms = false;
-  boost::optional<size_t> flipEffect;
+  std::optional<size_t> flipEffect;
   while(true)
   {
     const floordata::Command command{*floorData++};
@@ -1999,35 +1563,35 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     {
     case floordata::CommandOpcode::Activate:
     {
-      auto& item = *m_itemNodes.at(command.parameter);
-      if(item.m_state.activationState.isOneshot())
+      auto& object = *m_objects.at(command.parameter);
+      if(object.m_state.activationState.isOneshot())
         break;
 
-      item.m_state.timer = activationRequest.getTimeout();
+      object.m_state.timer = activationRequest.getTimeout();
 
       if(chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated)
-        item.m_state.activationState ^= activationRequest.getActivationSet();
+        object.m_state.activationState ^= activationRequest.getActivationSet();
       else if(chunkHeader.sequenceCondition == floordata::SequenceCondition::LaraOnGroundInverted)
-        item.m_state.activationState &= ~activationRequest.getActivationSet();
+        object.m_state.activationState &= ~activationRequest.getActivationSet();
       else
-        item.m_state.activationState |= activationRequest.getActivationSet();
+        object.m_state.activationState |= activationRequest.getActivationSet();
 
-      if(!item.m_state.activationState.isFullyActivated())
+      if(!object.m_state.activationState.isFullyActivated())
         break;
 
       if(activationRequest.isOneshot())
-        item.m_state.activationState.setOneshot(true);
+        object.m_state.activationState.setOneshot(true);
 
-      if(item.m_isActive)
+      if(object.m_isActive)
         break;
 
-      if(item.m_state.triggerState == items::TriggerState::Inactive
-         || item.m_state.triggerState == items::TriggerState::Invisible
-         || dynamic_cast<items::AIAgent*>(&item) == nullptr)
+      if(object.m_state.triggerState == objects::TriggerState::Inactive
+         || object.m_state.triggerState == objects::TriggerState::Invisible
+         || dynamic_cast<objects::AIAgent*>(&object) == nullptr)
       {
-        item.m_state.triggerState = items::TriggerState::Active;
-        item.m_state.touch_bits = 0;
-        item.activate();
+        object.m_state.triggerState = objects::TriggerState::Active;
+        object.m_state.touch_bits = 0;
+        object.activate();
         break;
       }
     }
@@ -2044,7 +1608,7 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
       command.isLast = camParams.isLast;
     }
     break;
-    case floordata::CommandOpcode::LookAt: m_cameraController->setLookAtItem(getItem(command.parameter)); break;
+    case floordata::CommandOpcode::LookAt: m_cameraController->setLookAtObject(getObject(command.parameter)); break;
     case floordata::CommandOpcode::UnderwaterCurrent:
     {
       const auto& sink = m_level->m_cameras.at(command.parameter);
@@ -2119,8 +1683,43 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
 
   swapAllRooms();
 
-  if(flipEffect.is_initialized())
+  if(flipEffect.has_value())
     setGlobalEffect(*flipEffect);
+}
+
+core::TypeId Engine::find(const loader::file::SkeletalModelType* model) const
+{
+  for(const auto& item : m_level->m_animatedModels)
+  {
+    if(item.second.get() == model)
+      return item.first;
+  }
+
+  BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find model"));
+}
+
+core::TypeId Engine::find(const loader::file::Sprite* sprite) const
+{
+  for(const auto& sequence : m_level->m_spriteSequences)
+  {
+    if(!sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite)
+      return sequence.first;
+  }
+
+  BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find sprite"));
+}
+
+void Engine::serialize(const serialization::Serializer& ser)
+{
+  ser(S_NV("objectCounter", m_objectCounter),
+      S_NV("objects", m_objects),
+      S_NV("inventory", m_inventory),
+      S_NV("mapFlipActivationStates", mapFlipActivationStates),
+      S_NV("cameras", serialization::FrozenVector{m_level->m_cameras}),
+      S_NV("activeEffect", m_activeEffect),
+      S_NV("effectTimer", m_effectTimer),
+      S_NV("cameraController", *m_cameraController),
+      S_NV("secretsFound", m_secretsFoundBitmask));
 }
 
 Engine::~Engine() = default;

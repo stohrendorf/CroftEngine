@@ -1,16 +1,20 @@
 #include "pathfinder.h"
 
 #include "engine/engine.h"
-#include "engine/items/itemnode.h"
+#include "engine/objects/object.h"
+#include "serialization/box_ptr.h"
+#include "serialization/deque.h"
+#include "serialization/not_null.h"
+#include "serialization/unordered_map.h"
+#include "serialization/unordered_set.h"
+#include "serialization/vector.h"
 
-namespace engine
+namespace engine::ai
 {
-namespace ai
-{
-PathFinder::PathFinder(const engine::Engine& engine)
+PathFinder::PathFinder(const Engine& engine)
 {
   for(const auto& box : engine.getBoxes())
-    nodes.insert(std::make_pair(&box, PathFinderNode{}));
+    nodes.emplace(&box, PathFinderNode{});
 }
 
 namespace
@@ -30,13 +34,13 @@ gsl::span<const uint16_t> getOverlaps(const Engine& engine, const uint16_t idx)
 }
 } // namespace
 
-bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, const items::ItemState& item)
+bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, const objects::ObjectState& objectState)
 {
   updatePath(engine);
 
-  moveTarget = item.position.position;
+  moveTarget = objectState.position.position;
 
-  auto here = item.box;
+  auto here = objectState.box;
   if(here == nullptr)
     return false;
 
@@ -73,7 +77,7 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
         moveTarget.Y = here->floor;
     }
 
-    if(here->contains(item.position.position.X, item.position.position.Z))
+    if(here->contains(objectState.position.position.X, objectState.position.position.Z))
     {
       minZ = here->zmin;
       maxZ = here->zmax;
@@ -82,10 +86,10 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
     }
     else
     {
-      if(item.position.position.Z < here->zmin)
+      if(objectState.position.position.Z < here->zmin)
       {
         // try to move to -Z
-        if((moveDirs & CanMoveZNeg) && here->containsX(item.position.position.X))
+        if((moveDirs & CanMoveZNeg) && here->containsX(objectState.position.position.X))
         {
           // can move straight to -Z while not leaving the X limits of the current box
           moveTarget.Z = std::max(moveTarget.Z, here->zmin + core::SectorSize / 2);
@@ -106,9 +110,9 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
           detour = true;
         }
       }
-      else if(item.position.position.Z > here->zmax)
+      else if(objectState.position.position.Z > here->zmax)
       {
-        if((moveDirs & CanMoveZPos) && here->containsX(item.position.position.X))
+        if((moveDirs & CanMoveZPos) && here->containsX(objectState.position.position.X))
         {
           moveTarget.Z = std::min(moveTarget.Z, here->zmax - core::SectorSize / 2);
 
@@ -129,9 +133,9 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
         }
       }
 
-      if(item.position.position.X < here->xmin)
+      if(objectState.position.position.X < here->xmin)
       {
-        if((moveDirs & CanMoveXNeg) && here->containsZ(item.position.position.Z))
+        if((moveDirs & CanMoveXNeg) && here->containsZ(objectState.position.position.Z))
         {
           moveTarget.X = std::max(moveTarget.X, here->xmin + core::SectorSize / 2);
 
@@ -151,9 +155,9 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
           detour = true;
         }
       }
-      else if(item.position.position.X > here->xmax)
+      else if(objectState.position.position.X > here->xmax)
       {
-        if((moveDirs & CanMoveXPos) && here->containsZ(item.position.position.Z))
+        if((moveDirs & CanMoveXPos) && here->containsZ(objectState.position.position.Z))
         {
           moveTarget.X = std::min(moveTarget.X, here->xmax - core::SectorSize / 2);
 
@@ -236,62 +240,7 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
   return false;
 }
 
-YAML::Node PathFinder::save(const Engine& engine) const
-{
-  YAML::Node node;
-  for(const auto& entry : nodes)
-    node["nodes"][std::distance(&engine.getBoxes()[0], entry.first)] = entry.second.save(engine);
-  for(const auto& box : boxes)
-    node["boxes"].push_back(std::distance(&engine.getBoxes()[0], box.get()));
-  for(const auto& box : expansions)
-    node["expansions"].push_back(std::distance(&engine.getBoxes()[0], box));
-  for(const auto& box : visited)
-    node["visited"].push_back(std::distance(&engine.getBoxes()[0], box));
-  node["cannotVisitBlockable"] = cannotVisitBlockable;
-  node["cannotVisitBlocked"] = cannotVisitBlocked;
-  node["step"] = step;
-  node["drop"] = drop;
-  node["fly"] = fly;
-  if(target_box != nullptr)
-    node["targetBox"] = std::distance(&engine.getBoxes()[0], target_box);
-  if(required_box != nullptr)
-    node["requiredBox"] = std::distance(&engine.getBoxes()[0], required_box);
-  node["target"] = target.save();
-
-  return node;
-}
-
-void PathFinder::load(const YAML::Node& n, const Engine& engine)
-{
-  nodes.clear();
-  for(const auto& entry : n["nodes"])
-    nodes[&engine.getBoxes().at(entry.first.as<size_t>())].load(entry.second, engine);
-  boxes.clear();
-  for(const auto& entry : n["boxes"])
-    boxes.emplace_back(&engine.getBoxes().at(entry.as<size_t>()));
-  expansions.clear();
-  for(const auto& e : n["expansions"])
-    expansions.emplace_back(&engine.getBoxes().at(e.as<size_t>()));
-  visited.clear();
-  for(const auto& e : n["visited"])
-    visited.emplace(&engine.getBoxes().at(e.as<size_t>()));
-  cannotVisitBlockable = n["cannotVisitBlockable"].as<bool>();
-  cannotVisitBlocked = n["cannotVisitBlocked"].as<bool>();
-  step = n["step"].as<core::Length>();
-  drop = n["drop"].as<core::Length>();
-  fly = n["fly"].as<core::Length>();
-  if(!n["targetBox"].IsDefined())
-    target_box = nullptr;
-  else
-    target_box = &engine.getBoxes().at(n["targetBox"].as<size_t>());
-  if(!n["requiredBox"].IsDefined())
-    required_box = nullptr;
-  else
-    required_box = &engine.getBoxes().at(n["requiredBox"].as<size_t>());
-  target.load(n["target"]);
-}
-
-void PathFinder::updatePath(const engine::Engine& engine)
+void PathFinder::updatePath(const Engine& engine)
 {
   if(required_box != nullptr && required_box != target_box)
   {
@@ -309,11 +258,11 @@ void PathFinder::updatePath(const engine::Engine& engine)
   searchPath(engine);
 }
 
-void PathFinder::searchPath(const engine::Engine& engine)
+void PathFinder::searchPath(const Engine& engine)
 {
   const auto zoneRef = loader::file::Box::getZoneRef(engine.roomsAreSwapped(), fly, step);
 
-  static constexpr const uint8_t MaxExpansions = 5;
+  static constexpr uint8_t MaxExpansions = 5;
 
   for(uint8_t i = 0; i < MaxExpansions && !expansions.empty(); ++i)
   {
@@ -361,22 +310,31 @@ void PathFinder::searchPath(const engine::Engine& engine)
   }
 }
 
-YAML::Node PathFinderNode::save(const Engine& engine) const
+void PathFinder::serialize(const serialization::Serializer& ser)
 {
-  YAML::Node node;
-  node["traversable"] = traversable;
-  if(exit_box != nullptr)
-    node["exitBox"] = std::distance(&engine.getBoxes()[0], exit_box);
-  return node;
+  ser(S_NVP(nodes),
+      S_NVP(boxes),
+      S_NVP(expansions),
+      S_NVP(visited),
+      S_NVP(cannotVisitBlockable),
+      S_NVP(cannotVisitBlocked),
+      S_NVP(step),
+      S_NVP(drop),
+      S_NVP(fly),
+      S_NVP(target_box),
+      S_NVP(required_box),
+      S_NVP(target));
 }
 
-void PathFinderNode::load(const YAML::Node& n, const Engine& engine)
+void PathFinderNode::serialize(const serialization::Serializer& ser)
 {
-  traversable = n["traversable"].as<bool>();
-  if(!n["exitBox"].IsDefined())
-    exit_box = nullptr;
-  else
-    exit_box = &engine.getBoxes().at(n["exitBox"].as<size_t>());
+  ser(S_NVP(exit_box), S_NVP(traversable));
 }
-} // namespace ai
+
+PathFinderNode PathFinderNode::create(const serialization::Serializer& ser)
+{
+  PathFinderNode tmp{};
+  tmp.serialize(ser);
+  return tmp;
 }
+} // namespace engine::ai

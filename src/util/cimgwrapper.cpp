@@ -214,9 +214,9 @@ CImgWrapper::CImgWrapper(CImgWrapper&& other) noexcept
 {
 }
 
-CImgWrapper& CImgWrapper::operator=(CImgWrapper&& other)
+CImgWrapper& CImgWrapper::operator=(CImgWrapper&& other) noexcept
 {
-  m_image = std::exchange(other.m_image, std::make_unique<cimg_library::CImg<uint8_t>>(0, 0, 1, 4));
+  m_image = std::exchange(other.m_image, std::make_unique<cimg_library::CImg<uint8_t>>(0u, 0u, 1u, 4u));
   m_interleaved = std::exchange(other.m_interleaved, false);
 
   return *this;

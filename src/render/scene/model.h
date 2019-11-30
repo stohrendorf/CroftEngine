@@ -3,9 +3,7 @@
 #include "gsl-lite.hpp"
 #include "renderable.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Mesh;
 
@@ -24,7 +22,7 @@ public:
 
   Model& operator=(const Model&) = delete;
 
-  const auto& getMeshes() const
+  [[nodiscard]] const auto& getMeshes() const
   {
     return m_meshes;
   }
@@ -44,5 +42,4 @@ public:
 private:
   std::vector<gsl::not_null<std::shared_ptr<Mesh>>> m_meshes{};
 };
-} // namespace scene
 } // namespace render

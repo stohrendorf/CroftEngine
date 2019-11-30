@@ -6,7 +6,7 @@
 
 namespace engine
 {
-namespace items
+namespace objects
 {
 class AIAgent;
 }
@@ -50,9 +50,9 @@ struct AiInfo
 
   core::Angle enemy_facing;
 
-  AiInfo(engine::Engine& engine, items::ItemState& item);
+  AiInfo(Engine& engine, objects::ObjectState& objectState);
 
-  bool canReachEnemyZone() const
+  [[nodiscard]] bool canReachEnemyZone() const
   {
     return !enemy_unreachable && zone_number == enemy_zone;
   }
@@ -60,21 +60,16 @@ struct AiInfo
 
 struct CreatureInfo
 {
+  core::TypeId type;
   core::Angle head_rotation = 0_deg;
-
   core::Angle neck_rotation = 0_deg;
-
   core::Angle maximum_turn = 1_deg;
-
   uint16_t flags = 0;
-
   Mood mood = Mood::Bored;
-
   PathFinder pathFinder;
-
   core::TRVec target;
 
-  CreatureInfo(const engine::Engine& engine, core::TypeId type);
+  CreatureInfo(const Engine& engine, core::TypeId type);
 
   void rotateHead(const core::Angle& angle)
   {
@@ -82,30 +77,33 @@ struct CreatureInfo
     head_rotation = util::clamp(delta + head_rotation, -90_deg, +90_deg);
   }
 
-  static sol::usertype<CreatureInfo>& userType()
+  static void registerUserType(sol::state& lua)
   {
-    static auto type = sol::usertype<CreatureInfo>(sol::meta_function::construct,
-                                                   sol::no_constructor,
-                                                   "head_rotation",
-                                                   &CreatureInfo::head_rotation,
-                                                   "neck_rotation",
-                                                   &CreatureInfo::neck_rotation,
-                                                   "maximum_turn",
-                                                   &CreatureInfo::maximum_turn,
-                                                   "flags",
-                                                   &CreatureInfo::flags,
-                                                   "mood",
-                                                   &CreatureInfo::mood,
-                                                   "target",
-                                                   &CreatureInfo::target);
-    return type;
+    lua.new_usertype<CreatureInfo>("CreatureInfo",
+                                   sol::meta_function::construct,
+                                   sol::no_constructor,
+                                   "head_rotation",
+                                   &CreatureInfo::head_rotation,
+                                   "neck_rotation",
+                                   &CreatureInfo::neck_rotation,
+                                   "maximum_turn",
+                                   &CreatureInfo::maximum_turn,
+                                   "flags",
+                                   &CreatureInfo::flags,
+                                   "mood",
+                                   &CreatureInfo::mood,
+                                   "target",
+                                   &CreatureInfo::target);
   }
 
-  YAML::Node save(const Engine& engine) const;
-
-  void load(const YAML::Node& n, const Engine& engine);
+  void serialize(const serialization::Serializer& ser);
 };
 
-void updateMood(const engine::Engine& engine, const items::ItemState& item, const AiInfo& aiInfo, bool violent);
+std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
+                                     const serialization::Serializer& ser);
+
+void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer& ser);
+
+void updateMood(const Engine& engine, const objects::ObjectState& objectState, const AiInfo& aiInfo, bool violent);
 } // namespace ai
 } // namespace engine

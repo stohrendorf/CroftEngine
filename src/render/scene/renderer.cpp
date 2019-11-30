@@ -1,13 +1,10 @@
 #include "renderer.h"
 
-#include "names.h"
 #include "render/gl/debuggroup.h"
 #include "rendercontext.h"
 #include "scene.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 Renderer::Renderer()
     : m_scene{std::make_shared<Scene>()}
@@ -98,10 +95,9 @@ void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask> flags,
     // We need to explicitly call the static enableDepthWrite() method on StateBlock
     // to ensure depth writing is enabled before clearing the depth buffer (and to
     // update the global StateBlock render state to reflect this).
-    render::gl::RenderState::enableDepthWrite();
+    gl::RenderState::enableDepthWrite();
   }
 
   GL_ASSERT(::gl::clear(bits));
 }
-} // namespace scene
 } // namespace render

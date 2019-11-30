@@ -2,11 +2,9 @@
 
 #include "rendertarget.h"
 
-namespace render
+namespace render::gl
 {
-namespace gl
-{
-class RenderBuffer : public RenderTarget
+class RenderBuffer final : public RenderTarget
 {
 public:
   explicit RenderBuffer(const int32_t width,
@@ -14,9 +12,7 @@ public:
                         const ::gl::InternalFormat format,
                         const std::string& label = {})
       : RenderTarget{::gl::genRenderbuffers,
-                     [](const uint32_t handle) {
-                       ::gl::bindRenderbuffer(::gl::RenderbufferTarget::Renderbuffer, handle);
-                     },
+                     [](const uint32_t handle) { bindRenderbuffer(::gl::RenderbufferTarget::Renderbuffer, handle); },
                      ::gl::deleteRenderbuffers,
                      ::gl::ObjectIdentifier::Renderbuffer,
                      label}
@@ -27,17 +23,17 @@ public:
     GL_ASSERT(::gl::renderbufferStorage(::gl::RenderbufferTarget::Renderbuffer, format, width, height));
   }
 
-  int32_t getWidth() const noexcept override
+  [[nodiscard]] int32_t getWidth() const noexcept override
   {
     return m_width;
   }
 
-  int32_t getHeight() const noexcept override
+  [[nodiscard]] int32_t getHeight() const noexcept override
   {
     return m_height;
   }
 
-  auto getFormat() const noexcept
+  [[nodiscard]] auto getFormat() const noexcept
   {
     return m_format;
   }
@@ -49,5 +45,4 @@ private:
 
   const ::gl::InternalFormat m_format;
 };
-} // namespace gl
 } // namespace render

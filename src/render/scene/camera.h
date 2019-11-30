@@ -2,12 +2,9 @@
 
 #include "type_safe/flag_set.hpp"
 
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Node;
 
@@ -71,6 +68,7 @@ public:
     return m_view;
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void setViewMatrix(const glm::mat4& m)
   {
     m_view = m;
@@ -144,5 +142,4 @@ private:
   mutable glm::mat4 m_inverseViewProjection{1.0f};
   mutable type_safe::flag_set<DirtyFlag> m_dirty;
 };
-} // namespace scene
 } // namespace render

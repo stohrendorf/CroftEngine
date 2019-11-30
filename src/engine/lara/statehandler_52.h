@@ -3,14 +3,12 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_52 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_52(LaraNode& lara)
+  explicit StateHandler_52(objects::LaraObject& lara)
       : AbstractStateHandler{lara, LaraStateId::SwandiveBegin}
   {
   }
@@ -46,4 +44,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

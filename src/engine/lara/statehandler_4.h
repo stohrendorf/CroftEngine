@@ -2,14 +2,12 @@
 
 #include "statehandler_standing.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_4 final : public StateHandler_Standing
 {
 public:
-  explicit StateHandler_4(LaraNode& lara)
+  explicit StateHandler_4(objects::LaraObject& lara)
       : StateHandler_Standing{lara, LaraStateId::Pose}
   {
   }
@@ -18,5 +16,4 @@ public:
   {
   }
 };
-} // namespace lara
 } // namespace engine

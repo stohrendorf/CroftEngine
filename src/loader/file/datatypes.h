@@ -21,9 +21,9 @@
 
 #include <array>
 #include <boost/log/trivial.hpp>
-#include <boost/optional.hpp>
 #include <boost/throw_exception.hpp>
 #include <map>
+#include <optional>
 #include <stdexcept>
 #include <vector>
 
@@ -34,28 +34,23 @@
  * TR level data or engine internals.
  */
 
-namespace engine
+namespace engine::objects
 {
-namespace items
-{
-class ItemNode;
-}
+class Object;
 } // namespace engine
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 namespace level
 {
 class Level;
 }
 
-constexpr const uint16_t TextureIndexMaskTr4 = 0x7FFF; // in some custom levels we need to use 0x7FFF flag
-constexpr const uint16_t TextureIndexMask = 0x0FFF;
+constexpr uint16_t TextureIndexMaskTr4 = 0x7FFF; // in some custom levels we need to use 0x7FFF flag
+constexpr uint16_t TextureIndexMask = 0x0FFF;
 
 //constexpr const uint16_t TR_TEXTURE_SHAPE_MASK = 0x7000;          // still not used
-constexpr const uint16_t TextureFlippedMask = 0x8000;
+constexpr uint16_t TextureFlippedMask = 0x8000;
 
 struct Portal
 {
@@ -84,18 +79,18 @@ struct Portal
       glm::vec3 pos;
     };
 
-    std::array<Vertex, 4> glVertices;
+    std::array<Vertex, 4> glVertices{};
     for(size_t i = 0; i < 4; ++i)
       glVertices[i].pos = vertices[i].toRenderSystem();
 
     render::gl::StructureLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
     auto vb = std::make_shared<render::gl::StructuredArrayBuffer<Vertex>>(layout);
-    vb->setData(&glVertices[0], 4, ::gl::BufferUsageARB::StaticDraw);
+    vb->setData(&glVertices[0], 4, gl::BufferUsageARB::StaticDraw);
 
     static const uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
 
     auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
-    indexBuffer->setData(&indices[0], 6, ::gl::BufferUsageARB::StaticDraw);
+    indexBuffer->setData(&indices[0], 6, gl::BufferUsageARB::StaticDraw);
 
     auto vao = std::make_shared<render::gl::VertexArray<uint16_t, Vertex>>(
       indexBuffer, vb, material->getShaderProgram()->getHandle());
@@ -190,12 +185,12 @@ struct Light
   core::TRVec pos2; // world coords
   core::TRVec dir2; // direction
 
-  float getBrightness() const
+  [[nodiscard]] float getBrightness() const
   {
     return intensity / 4096.0f;
   }
 
-  LightType getLightType() const
+  [[nodiscard]] LightType getLightType() const
   {
     switch(light_type)
     {
@@ -392,7 +387,7 @@ struct Layer
 
   static Layer read(io::SDLReader& reader)
   {
-    Layer layer;
+    Layer layer{};
     layer.num_vertices = reader.readU16();
     layer.unknown_l1 = reader.readU16();
     layer.unknown_l2 = reader.readU16();
@@ -439,7 +434,7 @@ struct RoomVertex
 
   glm::vec4 color{0.0f};
 
-  float getBrightness() const
+  [[nodiscard]] float getBrightness() const
   {
     return 1.0f - darkness / 8191.0f;
   }
@@ -477,7 +472,7 @@ struct RoomVertex
     room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
     // only in TR5
     room_vertex.normal = {0_len, 0_len, 0_len};
-    auto f = room_vertex.lighting2 / 32768.0f;
+    const auto f = room_vertex.lighting2 / 32768.0f;
     room_vertex.color = {f, f, f, 1};
     return room_vertex;
   }
@@ -522,10 +517,10 @@ struct RoomVertex
     RoomVertex vert;
     vert.position = readCoordinatesF(reader);
     vert.normal = readCoordinatesF(reader);
-    auto b = reader.readU8();
-    auto g = reader.readU8();
-    auto r = reader.readU8();
-    auto a = reader.readU8();
+    const auto b = reader.readU8();
+    const auto g = reader.readU8();
+    const auto r = reader.readU8();
+    const auto a = reader.readU8();
     vert.color = {r, g, b, a};
     return vert;
   }
@@ -589,7 +584,7 @@ struct Room
 
   uint16_t flags;
 
-  float getAmbientBrightness() const
+  [[nodiscard]] float getAmbientBrightness() const
   {
     return 1 - ambientDarkness / 8191.0f;
   }
@@ -601,7 +596,7 @@ struct Room
   // TR3 most likely has flags for "is raining", "is snowing", "water is cold", and "is
   // filled by quicksand", among others.
 
-  bool isWaterRoom() const noexcept
+  [[nodiscard]] bool isWaterRoom() const noexcept
   {
     return (flags & TR_ROOM_FLAG_WATER) != 0;
   }
@@ -1068,7 +1063,7 @@ struct Room
     reader.seek(position + std::streamoff(208) + poly_offset);
 
     {
-      loader::file::VertexIndex::index_type vertex_index = 0;
+      VertexIndex::index_type vertex_index = 0;
       uint32_t rectangle_index = 0;
       uint32_t triangle_index = 0;
 
@@ -1125,23 +1120,23 @@ struct Room
                     const std::shared_ptr<render::scene::Material>& spriteMaterial,
                     const std::shared_ptr<render::scene::Material>& portalMaterial);
 
-  const Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
+  [[nodiscard]] const Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
   {
     return getSectorByRelativePosition(worldPos - position);
   }
 
-  const Sector* getSectorByRelativePosition(const core::TRVec& localPos) const
+  [[nodiscard]] const Sector* getSectorByRelativePosition(const core::TRVec& localPos) const
   {
     return getSectorByIndex(localPos.X / core::SectorSize, localPos.Z / core::SectorSize);
   }
 
-  gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
+  [[nodiscard]] gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
   {
     worldPos -= position;
     return getInnerSectorByIndex(worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize);
   }
 
-  bool isInnerPositionXZ(core::TRVec worldPos) const
+  [[nodiscard]] bool isInnerPositionXZ(core::TRVec worldPos) const
   {
     worldPos -= position;
     const auto sx = worldPos.X / core::SectorSize;
@@ -1149,7 +1144,7 @@ struct Room
     return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
   }
 
-  const Sector* getSectorByIndex(const int dx, const int dz) const
+  [[nodiscard]] const Sector* getSectorByIndex(const int dx, const int dz) const
   {
     if(dx < 0 || dx >= sectorCountX)
     {
@@ -1166,14 +1161,14 @@ struct Room
     return &sectors[sectorCountZ * dx + dz];
   }
 
-  gsl::not_null<const Sector*> getInnerSectorByIndex(int dx, int dz) const
+  [[nodiscard]] gsl::not_null<const Sector*> getInnerSectorByIndex(int dx, int dz) const
   {
     dx = util::clamp(dx, 1, sectorCountX - 2);
     dz = util::clamp(dz, 1, sectorCountZ - 2);
     return &sectors[sectorCountZ * dx + dz];
   }
 
-  gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
+  [[nodiscard]] gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
   {
     if(dz <= 0)
     {
@@ -1192,9 +1187,9 @@ struct Room
     return getSectorByIndex(dx, dz);
   }
 
-  static void patchHeightsForBlock(const engine::items::ItemNode& item, const core::Length& height);
+  static void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);
 
-  boost::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos) const
+  [[nodiscard]] static std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos)
   {
     auto sector = pos.room->getSectorByAbsolutePosition(pos.position);
 
@@ -1219,7 +1214,7 @@ struct Room
       }
     }
 
-    return boost::none;
+    return std::nullopt;
   }
 };
 
@@ -1361,17 +1356,17 @@ struct Box
   mutable bool blocked;
   bool blockable;
 
-  constexpr bool containsX(const core::Length x) const noexcept
+  constexpr bool containsX(const core::Length& x) const noexcept
   {
     return x >= xmin && x <= xmax;
   }
 
-  constexpr bool containsZ(const core::Length z) const noexcept
+  constexpr bool containsZ(const core::Length& z) const noexcept
   {
     return z >= zmin && z <= zmax;
   }
 
-  constexpr bool contains(const core::Length x, const core::Length z) const noexcept
+  constexpr bool contains(const core::Length& x, const core::Length& z) const noexcept
   {
     return containsX(x) && containsZ(z);
   }
@@ -1464,6 +1459,8 @@ struct Camera
 
     uint16_t box_index;
   };
+
+  void serialize(const serialization::Serializer& ser);
 
   static std::unique_ptr<Camera> read(io::SDLReader& reader)
   {
@@ -1606,5 +1603,4 @@ struct LightMap
     return lightmap;
   }
 };
-} // namespace file
 } // namespace loader

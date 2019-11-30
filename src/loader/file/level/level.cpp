@@ -1,7 +1,6 @@
 #include "level.h"
 
-#include "audio/tracktype.h"
-#include "engine/laranode.h"
+#include "engine/objects/laraobject.h"
 #include "loader/file/level/tr1level.h"
 #include "loader/file/level/tr2level.h"
 #include "loader/file/level/tr3level.h"
@@ -15,7 +14,7 @@
 #include <boost/range/adaptors.hpp>
 
 using namespace loader::file;
-using namespace loader::file::level;
+using namespace level;
 
 Level::~Level() = default;
 
@@ -84,21 +83,21 @@ std::shared_ptr<Level> Level::createLoader(io::SDLReader&& reader, Game game_ver
 
   switch(game_version)
   {
-  case Game::TR1: result = std::make_shared<level::TR1Level>(game_version, std::move(reader)); break;
+  case Game::TR1: result = std::make_shared<TR1Level>(game_version, std::move(reader)); break;
   case Game::TR1Demo:
   case Game::TR1UnfinishedBusiness:
-    result = std::make_shared<level::TR1Level>(game_version, std::move(reader));
+    result = std::make_shared<TR1Level>(game_version, std::move(reader));
     result->m_demoOrUb = true;
     break;
-  case Game::TR2: result = std::make_shared<level::TR2Level>(game_version, std::move(reader)); break;
+  case Game::TR2: result = std::make_shared<TR2Level>(game_version, std::move(reader)); break;
   case Game::TR2Demo:
-    result = std::make_shared<level::TR2Level>(game_version, std::move(reader));
+    result = std::make_shared<TR2Level>(game_version, std::move(reader));
     result->m_demoOrUb = true;
     break;
-  case Game::TR3: result = std::make_shared<level::TR3Level>(game_version, std::move(reader)); break;
+  case Game::TR3: result = std::make_shared<TR3Level>(game_version, std::move(reader)); break;
   case Game::TR4:
-  case Game::TR4Demo: result = std::make_shared<level::TR4Level>(game_version, std::move(reader)); break;
-  case Game::TR5: result = std::make_shared<level::TR5Level>(game_version, std::move(reader)); break;
+  case Game::TR4Demo: result = std::make_shared<TR4Level>(game_version, std::move(reader)); break;
+  case Game::TR5: result = std::make_shared<TR5Level>(game_version, std::move(reader)); break;
   default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid game version"));
   }
 
@@ -296,7 +295,7 @@ void Level::updateRoomBasedCaches()
         sector.floorData = &sector.floorDataIndex.from(m_floorData);
 
         const auto portalTarget = engine::floordata::getPortalTarget(sector.floorData);
-        if(portalTarget.is_initialized())
+        if(portalTarget.has_value())
         {
           sector.portalTarget = &m_rooms.at(*portalTarget);
         }

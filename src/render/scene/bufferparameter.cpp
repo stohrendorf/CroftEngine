@@ -2,16 +2,12 @@
 
 #include "node.h"
 
-#include <boost/log/trivial.hpp>
-
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 bool BufferParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
   const auto binder = node.findShaderStorageBlockBinder(getName());
-  if(!m_bufferBinder.is_initialized() && binder == nullptr)
+  if(!m_bufferBinder.has_value() && binder == nullptr)
   {
     // don't have an explicit binder present on material or node level, assuming it's set on shader level
     return true;
@@ -28,5 +24,4 @@ bool BufferParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr
 
   return true;
 }
-} // namespace scene
 } // namespace render

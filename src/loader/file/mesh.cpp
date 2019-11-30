@@ -4,16 +4,13 @@
 #include "render/gl/vertexarray.h"
 #include "render/scene/mesh.h"
 #include "render/scene/model.h"
-#include "render/scene/names.h"
 #include "render/scene/uniformparameter.h"
 #include "render/textureanimator.h"
 #include "util.h"
 
 #include <utility>
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 Mesh::ModelBuilder::ModelBuilder(
   const bool withNormals,
@@ -255,7 +252,7 @@ void Mesh::ModelBuilder::append(const Mesh& mesh)
 
 gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finalize()
 {
-  m_vb->setData(m_vertices, ::gl::BufferUsageARB::StaticDraw);
+  m_vb->setData(m_vertices, gl::BufferUsageARB::StaticDraw);
 
   auto model = std::make_shared<render::scene::Model>();
   for(const MeshPart& localPart : m_parts)
@@ -268,11 +265,11 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> Mesh::ModelBuilder::finaliz
 #endif
 
     auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
-    indexBuffer->setData(localPart.indices, ::gl::BufferUsageARB::DynamicDraw);
+    indexBuffer->setData(localPart.indices, gl::BufferUsageARB::DynamicDraw);
 
     auto va = std::make_shared<render::gl::VertexArray<uint16_t, RenderVertex>>(
       indexBuffer, m_vb, localPart.material->getShaderProgram()->getHandle(), m_label);
-    auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, ::gl::PrimitiveType::Triangles);
+    auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, gl::PrimitiveType::Triangles);
     mesh->setMaterial(localPart.material);
 
     model->addMesh(mesh);
@@ -294,5 +291,4 @@ std::shared_ptr<render::scene::Model>
 
   return mb.finalize();
 }
-} // namespace file
-} // namespace loader
+} // namespace loader::file

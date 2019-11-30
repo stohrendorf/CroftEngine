@@ -1,10 +1,6 @@
 #pragma once
 
-namespace loader
-{
-namespace file
-{
-namespace level
+namespace loader::file::level
 {
 enum class Game
 {
@@ -50,6 +46,4 @@ inline Engine gameToEngine(const Game game)
   default: return Engine::Unknown;
   }
 }
-} // namespace level
-} // namespace file
 } // namespace loader

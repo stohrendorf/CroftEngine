@@ -6,9 +6,7 @@
 
 #include <vector>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 template<typename T>
 class ElementArrayBuffer : public Buffer
@@ -19,7 +17,7 @@ public:
   {
   }
 
-  T* map(const ::gl::BufferAccessARB access = ::gl::BufferAccessARB::ReadOnly)
+  [[nodiscard]] T* map(const ::gl::BufferAccessARB access = ::gl::BufferAccessARB::ReadOnly)
   {
     bind();
     const void* data = GL_ASSERT_FN(::gl::mapBuffer(::gl::BufferTargetARB::ElementArrayBuffer, access));
@@ -48,7 +46,7 @@ public:
     setData(gsl::not_null<const T*>(data.data()), gsl::narrow<::gl::core::SizeType>(data.size()), usage);
   }
 
-  ::gl::core::SizeType size() const
+  auto size() const noexcept
   {
     return m_size;
   }
@@ -61,5 +59,4 @@ public:
 private:
   ::gl::core::SizeType m_size = 0;
 };
-} // namespace gl
 } // namespace render

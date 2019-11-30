@@ -20,9 +20,7 @@ class Model;
 }
 } // namespace render
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 struct Mesh
 {
@@ -133,7 +131,7 @@ struct Mesh
 
       IndexBuffer indices;
       std::shared_ptr<render::scene::Material> material;
-      boost::optional<glm::vec3> color;
+      std::optional<glm::vec3> color;
     };
 
     std::vector<MeshPart> m_parts;
@@ -187,12 +185,11 @@ struct Mesh
     gsl::not_null<std::shared_ptr<render::scene::Model>> finalize();
   };
 
-  std::shared_ptr<render::scene::Model>
+  [[nodiscard]] std::shared_ptr<render::scene::Model>
     createModel(const std::vector<TextureTile>& textureTiles,
                 const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
                 const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
                 const Palette& palette,
                 const std::string& label = {}) const;
 };
-} // namespace file
-} // namespace loader
+} // namespace loader::file

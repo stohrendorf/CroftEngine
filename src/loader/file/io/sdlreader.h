@@ -14,11 +14,7 @@
 #include <vector>
 #include <zlib.h>
 
-namespace loader
-{
-namespace file
-{
-namespace io
+namespace loader::file::io
 {
 using DataStreamBuf = boost::iostreams::filtering_istreambuf;
 
@@ -94,7 +90,7 @@ public:
     return reader;
   }
 
-  bool isOpen() const
+  [[nodiscard]] bool isOpen() const
   {
     return !m_stream.bad();
   }
@@ -272,7 +268,7 @@ private:
     static void doSwap(type_safe::integer<T>& data)
     {
       auto tmp = data.get();
-      SwapTraits<T, sizeof(T), std::is_integral<T>::value || std::is_floating_point<T>::value>::doSwap(tmp);
+      SwapTraits<T, sizeof(T), std::is_integral_v<T> || std::is_floating_point_v<T>>::doSwap(tmp);
       data = type_safe::integer<T>(tmp);
     }
   };
@@ -304,6 +300,4 @@ private:
     }
   };
 };
-} // namespace io
-} // namespace file
 } // namespace loader

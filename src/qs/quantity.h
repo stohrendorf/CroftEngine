@@ -1,5 +1,7 @@
 #pragma once
 
+#include "serialization/serialization.h"
+
 #include <string>
 #include <type_traits>
 
@@ -50,7 +52,7 @@ struct quantity
     static_assert(sizeof(T) > 0 && false, "Can only construct a quantity from its defined value type");
   }
 
-  std::string toString() const
+  [[nodiscard]] std::string toString() const
   {
     return std::to_string(value) + Unit::suffix();
   }
@@ -150,6 +152,21 @@ struct quantity
   constexpr bool operator!=(self_type r) const noexcept
   {
     return value != r.value;
+  }
+
+  void serialize(const serialization::Serializer& ser)
+  {
+    if(ser.loading)
+    {
+      Expects(ser.node.IsMap() && ser.node.size() == 2);
+      Expects(ser.node["unit"].as<std::string>() == unit::suffix());
+      value = ser.node["value"].as<type>();
+    }
+    else
+    {
+      ser.node["unit"] = unit::suffix();
+      ser.node["value"] = value;
+    }
   }
 
 private:

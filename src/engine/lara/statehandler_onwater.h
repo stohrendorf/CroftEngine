@@ -2,17 +2,15 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "engine/laranode.h"
+#include "engine/objects/laraobject.h"
 #include "hid/inputstate.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_OnWater : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_OnWater(LaraNode& lara, const LaraStateId id)
+  explicit StateHandler_OnWater(objects::LaraObject& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
   }
@@ -43,7 +41,7 @@ protected:
     }
 
     auto wsh = getLara().getWaterSurfaceHeight();
-    if(wsh.is_initialized() && *wsh > getLara().m_state.position.position.Y - core::DefaultCollisionRadius)
+    if(wsh.has_value() && *wsh > getLara().m_state.position.position.Y - core::DefaultCollisionRadius)
     {
       tryClimbOutOfWater(collisionInfo);
       return;
@@ -53,7 +51,7 @@ protected:
     setGoalAnimState(LaraStateId::UnderwaterForward);
     getLara().m_state.rotation.X = -45_deg;
     getLara().m_state.fallspeed = 80_spd;
-    setUnderwaterState(UnderwaterState::Diving);
+    setUnderwaterState(objects::UnderwaterState::Diving);
   }
 
 private:
@@ -101,7 +99,7 @@ private:
     }
 
     const auto yRot = alignRotation(getLara().m_state.rotation.Y, 35_deg);
-    if(!yRot.is_initialized())
+    if(!yRot.has_value())
     {
       return;
     }
@@ -144,9 +142,8 @@ private:
     getLara().m_state.rotation.X = 0_deg;
     getLara().m_state.rotation.Y = *yRot;
     getLara().m_state.rotation.Z = 0_deg;
-    setHandStatus(HandStatus::Grabbing);
-    setUnderwaterState(UnderwaterState::OnLand);
+    setHandStatus(objects::HandStatus::Grabbing);
+    setUnderwaterState(objects::UnderwaterState::OnLand);
   }
 };
 } // namespace lara
-} // namespace engine

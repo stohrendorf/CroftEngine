@@ -2,22 +2,16 @@
 
 #include "level.h"
 
-namespace loader
-{
-namespace file
-{
-namespace level
+namespace loader::file::level
 {
 class TR5Level : public Level
 {
 public:
-  TR5Level(const Game gameVersion, loader::file::io::SDLReader&& reader)
+  TR5Level(const Game gameVersion, io::SDLReader&& reader)
       : Level{gameVersion, std::move(reader)}
   {
   }
 
   void loadFileData() override;
 };
-} // namespace level
-} // namespace file
 } // namespace loader

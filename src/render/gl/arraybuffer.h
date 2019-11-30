@@ -2,9 +2,7 @@
 
 #include "buffer.h"
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 template<typename T>
 class ArrayBuffer : public Buffer
@@ -16,7 +14,7 @@ public:
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  T* map(const ::gl::BufferAccessARB access = ::gl::BufferAccessARB::ReadOnly)
+  [[nodiscard]] T* map(const ::gl::BufferAccessARB access = ::gl::BufferAccessARB::ReadOnly)
   {
     bind();
     return static_cast<T*>(GL_ASSERT_FN(::gl::mapBuffer(::gl::BufferTargetARB::ArrayBuffer, access)));
@@ -35,5 +33,4 @@ public:
 protected:
   ::gl::core::SizeType m_size = 0;
 };
-} // namespace gl
 } // namespace render

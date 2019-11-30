@@ -2,9 +2,7 @@
 
 #include "node.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Camera;
 
@@ -35,7 +33,7 @@ public:
     node->m_scene = this;
   }
 
-  const std::shared_ptr<Camera>& getActiveCamera() const
+  [[nodiscard]] const std::shared_ptr<Camera>& getActiveCamera() const
   {
     return m_activeCamera;
   }
@@ -55,5 +53,4 @@ private:
   std::shared_ptr<Camera> m_activeCamera = nullptr;
   Node::List m_nodes;
 };
-} // namespace scene
 } // namespace render

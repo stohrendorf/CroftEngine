@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gsl-lite.hpp"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <chrono>
@@ -8,9 +10,7 @@
 #include <set>
 #include <utility>
 
-namespace loader
-{
-namespace trx
+namespace loader::trx
 {
 class Rectangle
 {
@@ -30,34 +30,34 @@ public:
     return m_y1 < rhs.m_y1;
   }
 
-  uint32_t getX0() const noexcept
+  [[nodiscard]] uint32_t getX0() const noexcept
   {
     return m_x0;
   }
 
-  uint32_t getX1() const noexcept
+  [[nodiscard]] uint32_t getX1() const noexcept
   {
     return m_x1;
   }
 
-  uint32_t getY0() const noexcept
+  [[nodiscard]] uint32_t getY0() const noexcept
   {
     return m_y0;
   }
 
-  uint32_t getY1() const noexcept
+  [[nodiscard]] uint32_t getY1() const noexcept
   {
     return m_y1;
   }
 
-  int getWidth() const
+  [[nodiscard]] int getWidth() const
   {
-    return m_x1 - m_x0;
+    return gsl::narrow<int>(m_x1 - m_x0);
   }
 
-  int getHeight() const
+  [[nodiscard]] int getHeight() const
   {
-    return m_y1 - m_y0;
+    return gsl::narrow<int>(m_y1 - m_y0);
   }
 
 private:
@@ -83,12 +83,12 @@ public:
   {
   }
 
-  const std::string& getId() const
+  [[nodiscard]] const std::string& getId() const
   {
     return m_textureId;
   }
 
-  const Rectangle& getRectangle() const
+  [[nodiscard]] const Rectangle& getRectangle() const
   {
     return m_rect;
   }
@@ -154,7 +154,7 @@ public:
                    std::chrono::system_clock::time_point& rootTimestamp,
                    std::map<TexturePart, boost::filesystem::path>& filesByPart);
 
-  const boost::filesystem::path& getRoot() const
+  [[nodiscard]] const boost::filesystem::path& getRoot() const
   {
     return m_root;
   }
@@ -190,5 +190,4 @@ private:
   mutable std::map<std::string, std::chrono::system_clock::time_point> m_newestTextureSourceTimestamps;
   std::chrono::system_clock::time_point m_rootTimestamp;
 };
-} // namespace trx
-} // namespace loader
+} // namespace loader::trx

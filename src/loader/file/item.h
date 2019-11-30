@@ -4,9 +4,7 @@
 #include "core/id.h"
 #include "io/util.h"
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 struct Item
 {
@@ -21,7 +19,7 @@ struct Item
 
   uint16_t activationState = 0;
 
-  float getBrightness() const
+  [[nodiscard]] float getBrightness() const
   {
     return 1.0f - darkness / 8191.0f;
   }
@@ -78,5 +76,4 @@ struct Item
     return item;
   }
 };
-} // namespace file
 } // namespace loader

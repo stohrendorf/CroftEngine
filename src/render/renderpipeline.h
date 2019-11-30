@@ -63,11 +63,13 @@ class RenderPipeline
   std::shared_ptr<gl::Framebuffer> m_fxaaFb;
 
 public:
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void bindGeometryFrameBuffer()
   {
     m_geometryFb->bind();
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void bindPortalFrameBuffer()
   {
     gl::Framebuffer::unbindAll();
@@ -75,6 +77,7 @@ public:
     m_portalFb->bind();
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void finalPass(const bool water)
   {
     {
@@ -201,7 +204,7 @@ public:
 
     // === ssao.glsl setup ===
     // generate sample kernel
-    std::uniform_real_distribution<float> randomFloats(0, 1);
+    const std::uniform_real_distribution<float> randomFloats(0, 1);
     std::default_random_engine generator{}; // NOLINT(cert-msc32-c)
     std::vector<glm::vec3> ssaoSamples;
     while(ssaoSamples.size() < 64)
@@ -215,7 +218,7 @@ public:
       ssaoSamples.emplace_back(sample * glm::mix(0.1f, 1.0f, scale * scale));
 #elif defined(SSAO_UNIFORM_VOLUME_SAMPLING)
       glm::vec3 sample{randomFloats(generator) * 2 - 1, randomFloats(generator) * 2 - 1, randomFloats(generator)};
-      if(glm::length(sample) > 1)
+      if(length(sample) > 1)
         continue;
       ssaoSamples.emplace_back(sample);
 #else
@@ -228,6 +231,7 @@ public:
 
     // generate noise texture
     std::vector<gl::RGB32F> ssaoNoise;
+    ssaoNoise.reserve(16);
     for(int i = 0; i < 16; ++i)
     {
       // rotate around z-axis (in tangent space)
@@ -249,6 +253,7 @@ public:
     m_fbModel->getRenderState().setDepthWrite(false);
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void update(const scene::Camera& camera, const std::chrono::high_resolution_clock::time_point& time)
   {
     // update uniforms
@@ -264,6 +269,7 @@ public:
     m_ssaoMaterial->getUniform("u_camProjection")->set(camera.getProjectionMatrix());
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void resize(const scene::Dimension2<size_t>& viewport)
   {
     m_portalDepthBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height))

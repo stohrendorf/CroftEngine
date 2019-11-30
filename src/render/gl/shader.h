@@ -5,9 +5,7 @@
 
 #include <render/gl/api/soglb_core.hpp>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 class Shader final
 {
@@ -38,7 +36,7 @@ public:
     GL_ASSERT(::gl::deleteShader(m_handle));
   }
 
-  auto getType() const noexcept
+  [[nodiscard]] auto getType() const noexcept
   {
     return m_type;
   }
@@ -62,14 +60,14 @@ public:
     GL_ASSERT(::gl::compileShader(m_handle));
   }
 
-  bool getCompileStatus() const
+  [[nodiscard]] bool getCompileStatus() const
   {
-    auto success = (int)::gl::Boolean::False;
+    auto success = static_cast<int>(::gl::Boolean::False);
     GL_ASSERT(::gl::getShader(m_handle, ::gl::ShaderParameterName::CompileStatus, &success));
-    return success == (int)::gl::Boolean::True;
+    return success == static_cast<int>(::gl::Boolean::True);
   }
 
-  std::string getInfoLog() const
+  [[nodiscard]] std::string getInfoLog() const
   {
     int32_t length = 0;
     GL_ASSERT(::gl::getShader(m_handle, ::gl::ShaderParameterName::InfoLogLength, &length));
@@ -79,7 +77,7 @@ public:
     }
     if(length > 0)
     {
-      const auto infoLog = new char[length];
+      const gsl::owner<gsl::zstring> infoLog = new char[length];
       GL_ASSERT(::gl::getShaderInfoLog(m_handle, length, nullptr, infoLog));
       infoLog[length - 1] = '\0';
       std::string result = infoLog;
@@ -90,7 +88,7 @@ public:
     return {};
   }
 
-  auto getHandle() const noexcept
+  [[nodiscard]] auto getHandle() const noexcept
   {
     return m_handle;
   }
@@ -100,5 +98,4 @@ private:
 
   const ::gl::ShaderType m_type;
 };
-} // namespace gl
 } // namespace render

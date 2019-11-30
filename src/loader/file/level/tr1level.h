@@ -2,11 +2,7 @@
 
 #include "level.h"
 
-namespace loader
-{
-namespace file
-{
-namespace level
+namespace loader::file::level
 {
 class TR1Level : public Level
 {
@@ -18,6 +14,4 @@ public:
 
   void loadFileData() override;
 };
-} // namespace level
-} // namespace file
 } // namespace loader

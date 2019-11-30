@@ -1,16 +1,14 @@
 #pragma once
 
-#include "engine/laranode.h"
+#include "engine/objects/laraobject.h"
 #include "statehandler_underwater.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_44 final : public StateHandler_Underwater
 {
 public:
-  explicit StateHandler_44(LaraNode& lara)
+  explicit StateHandler_44(objects::LaraObject& lara)
       : StateHandler_Underwater{lara, LaraStateId::WaterDeath}
   {
   }
@@ -40,9 +38,9 @@ public:
   {
     getLara().m_state.health = -1_hp;
     setAir(-1_frame);
-    setHandStatus(HandStatus::Grabbing);
+    setHandStatus(objects::HandStatus::Grabbing);
     auto h = getLara().getWaterSurfaceHeight();
-    if(h.is_initialized() && *h < getLara().m_state.position.position.Y - core::DefaultCollisionRadius)
+    if(h.has_value() && *h < getLara().m_state.position.position.Y - core::DefaultCollisionRadius)
     {
       getLara().m_state.position.position.Y -= 5_len;
     }
@@ -51,4 +49,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

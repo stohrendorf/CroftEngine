@@ -5,11 +5,9 @@
 #include <AL/al.h>
 #include <boost/log/trivial.hpp>
 
-namespace audio
+namespace audio::detail
 {
-namespace detail
-{
-bool checkALError(gsl::czstring code, gsl::czstring func, const int line)
+bool checkALError(const gsl::czstring code, const gsl::czstring func, const int line)
 {
   Expects(code != nullptr);
   Expects(func != nullptr);
@@ -36,5 +34,4 @@ bool checkALError(gsl::czstring code, gsl::czstring func, const int line)
   }
   return false;
 }
-} // namespace detail
 } // namespace audio

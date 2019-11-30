@@ -2,11 +2,7 @@
 
 #include "node.h"
 
-#include <boost/log/trivial.hpp>
-
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
@@ -48,5 +44,4 @@ void UniformParameter::bindProjectionMatrix()
 {
   m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getProjectionMatrix()); };
 }
-} // namespace scene
-} // namespace render
+} // namespace render::scene

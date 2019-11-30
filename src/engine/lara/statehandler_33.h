@@ -3,14 +3,12 @@
 #include "engine/cameracontroller.h"
 #include "statehandler_onwater.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_33 final : public StateHandler_OnWater
 {
 public:
-  explicit StateHandler_33(LaraNode& lara)
+  explicit StateHandler_33(objects::LaraObject& lara)
       : StateHandler_OnWater{lara, LaraStateId::OnWaterStop}
   {
   }
@@ -97,7 +95,7 @@ public:
     setAnimation(AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041_frame);
     getLara().m_state.rotation.X = -45_deg;
     getLara().m_state.fallspeed = 80_spd;
-    setUnderwaterState(UnderwaterState::Diving);
+    setUnderwaterState(objects::UnderwaterState::Diving);
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -107,4 +105,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

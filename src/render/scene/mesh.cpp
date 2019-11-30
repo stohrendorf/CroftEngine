@@ -3,11 +3,7 @@
 #include "material.h"
 #include "names.h"
 
-#include <utility>
-
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 gsl::not_null<std::shared_ptr<Mesh>>
   createQuadFullscreen(const float width, const float height, const gl::Program& program, const bool invertY)
@@ -63,5 +59,4 @@ void Mesh::render(RenderContext& context)
   context.popState();
   context.popState();
 }
-} // namespace scene
-} // namespace render
+} // namespace render::scene

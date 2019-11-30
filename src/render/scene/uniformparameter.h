@@ -2,18 +2,17 @@
 
 #include "gsl-lite.hpp"
 #include "materialparameter.h"
+#include "render/gl/program.h"
 #include "shaderprogram.h"
 
-#include <boost/optional.hpp>
-#include <glm/glm.hpp>
+#include <boost/log/trivial.hpp>
+#include <optional>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Node;
 
-class UniformParameter : public MaterialParameter
+class UniformParameter final : public MaterialParameter
 {
 public:
   explicit UniformParameter(std::string name)
@@ -36,7 +35,7 @@ public:
   template<class ClassType, class ValueType>
   void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
   {
-    m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Program::ProgramUniform& uniform) {
+    m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::ProgramUniform& uniform) {
       uniform.set((classInstance->*valueMethod)());
     };
   }
@@ -53,10 +52,9 @@ public:
             ValueType (ClassType::*valueMethod)() const,
             std::size_t (ClassType::*countMethod)() const)
   {
-    m_valueSetter
-      = [classInstance, valueMethod, countMethod](const Node& /*node*/, const gl::Program::ProgramUniform& uniform) {
-          uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)());
-        };
+    m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/, const gl::ProgramUniform& uniform) {
+      uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)());
+    };
   }
 
   void bindModelMatrix();
@@ -70,7 +68,8 @@ public:
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
 private:
-  gl::ProgramUniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+  [[nodiscard]] gl::ProgramUniform*
+    findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
   {
     if(const auto uniform = shaderProgram->findUniform(getName()))
       return uniform;
@@ -82,7 +81,6 @@ private:
     return nullptr;
   }
 
-  boost::optional<std::function<UniformValueSetter>> m_valueSetter;
+  std::optional<std::function<UniformValueSetter>> m_valueSetter;
 };
-} // namespace scene
 } // namespace render

@@ -3,9 +3,7 @@
 #include <tuple>
 #include <type_traits>
 
-namespace qs
-{
-namespace detail
+namespace qs::detail
 {
 template<typename... Args>
 using tuple_concat_t = decltype(std::tuple_cat(std::declval<Args>()...));
@@ -108,5 +106,4 @@ struct tuple_drop_common<std::tuple<L...>, std::tuple<R...>>
   using reduced_l = drop_all_once_t<std::tuple<R...>, std::tuple<L...>>;
   using reduced_r = drop_all_once_t<std::tuple<L...>, std::tuple<R...>>;
 };
-} // namespace detail
 }

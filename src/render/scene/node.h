@@ -6,7 +6,6 @@
 #include "visitor.h"
 
 #include <boost/container/flat_map.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace render
 {
@@ -32,7 +31,7 @@ public:
   using List = std::vector<gsl::not_null<std::shared_ptr<Node>>>;
 
   explicit Node(std::string id)
-      : m_id(std::move(id))
+      : m_id{std::move(id)}
   {
   }
 
@@ -147,7 +146,7 @@ public:
     if(it != m_uniformSetters.end())
       return &it->second;
 
-    if(auto p = getParent().lock())
+    if(const auto p = getParent().lock())
       return p->findUniformSetter(name);
 
     return nullptr;
@@ -159,7 +158,7 @@ public:
     if(it != m_bufferBinders.end())
       return &it->second;
 
-    if(auto p = getParent().lock())
+    if(const auto p = getParent().lock())
       return p->findShaderStorageBlockBinder(name);
 
     return nullptr;

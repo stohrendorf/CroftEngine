@@ -2,14 +2,12 @@
 
 #include "statehandler_underwater.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_18 final : public StateHandler_Underwater
 {
 public:
-  explicit StateHandler_18(LaraNode& lara)
+  explicit StateHandler_18(objects::LaraObject& lara)
       : StateHandler_Underwater{lara, LaraStateId::UnderwaterInertia}
   {
   }
@@ -37,4 +35,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

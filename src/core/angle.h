@@ -2,12 +2,12 @@
 
 #include "core/units.h"
 #include "gsl-lite.hpp"
+#include "serialization/serialization.h"
 
-#include <boost/optional.hpp>
 #include <cmath>
 #include <glm/gtx/euler_angles.hpp>
-#include <sol.hpp>
-#include <yaml-cpp/yaml.h>
+#include <optional>
+#include <sol/sol.hpp>
 
 namespace core
 {
@@ -37,7 +37,7 @@ inline Angle angleFromDegrees(const float value)
   return Angle{gsl::narrow_cast<Angle::type>(std::lround(value / 360 * FullRotation * AngleStorageScale))};
 }
 
-inline Angle angleFromAtan(const core::Length& dx, const core::Length& dz)
+inline Angle angleFromAtan(const Length& dx, const Length& dz)
 {
   return angleFromRad(std::atan2(dx.get_as<float>(), dz.get_as<float>()));
 }
@@ -75,7 +75,7 @@ enum class Axis
   NegX
 };
 
-inline boost::optional<Axis> axisFromAngle(const Angle& angle, const Angle& margin)
+inline std::optional<Axis> axisFromAngle(const Angle& angle, const Angle& margin)
 {
   Expects(margin >= 0_deg && margin <= 45_deg);
   if(angle <= +0_deg + margin && angle >= +0_deg - margin)
@@ -102,7 +102,7 @@ inline Angle alignRotation(const Axis& axis)
   }
 }
 
-inline boost::optional<Angle> alignRotation(const Angle& angle, const Angle& margin)
+inline std::optional<Angle> alignRotation(const Angle& angle, const Angle& margin)
 {
   auto axis = axisFromAngle(angle, margin);
   if(!axis)
@@ -129,12 +129,12 @@ public:
   {
   }
 
-  glm::vec3 toDegrees() const
+  [[nodiscard]] glm::vec3 toDegrees() const
   {
     return {core::toDegrees(X), core::toDegrees(Y), core::toDegrees(Z)};
   }
 
-  glm::vec3 toRenderSystem() const
+  [[nodiscard]] glm::vec3 toRenderSystem() const
   {
     return {toRad(X), -toRad(Y), -toRad(Z)};
   }
@@ -144,7 +144,7 @@ public:
     return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
   }
 
-  glm::mat4 toMatrix() const
+  [[nodiscard]] glm::mat4 toMatrix() const
   {
     return glm::yawPitchRoll(-toRad(Y), toRad(X), -toRad(Z));
   }
@@ -154,32 +154,17 @@ public:
     return TRRotation{-X, -Y, -Z};
   }
 
-  YAML::Node save() const
-  {
-    YAML::Node n;
-    n.SetStyle(YAML::EmitterStyle::Flow);
-    n["x"] = X;
-    n["y"] = Y;
-    n["z"] = Z;
-    return n;
-  }
-
-  void load(const YAML::Node& n)
-  {
-    X = n["x"].as<core::Angle>();
-    Y = n["y"].as<core::Angle>();
-    Z = n["z"].as<core::Angle>();
-  }
+  void serialize(const serialization::Serializer& ser);
 };
 
 inline glm::mat4 fromPackedAngles(uint32_t angleData)
 {
   const auto getAngle = [angleData](const uint8_t n) -> Angle {
     BOOST_ASSERT(n < 3);
-    return core::auToAngle(((angleData >> (10u * n)) & 0x3ffu) * 64);
+    return auToAngle(((angleData >> (10u * n)) & 0x3ffu) * 64);
   };
 
-  TRRotation r{getAngle(2), getAngle(1), getAngle(0)};
+  const TRRotation r{getAngle(2), getAngle(1), getAngle(0)};
 
   return r.toMatrix();
 }
@@ -190,27 +175,15 @@ struct TRRotationXY
 
   Angle Y{0_deg};
 
-  glm::mat4 toMatrix() const
+  [[nodiscard]] glm::mat4 toMatrix() const
   {
     return glm::yawPitchRoll(-toRad(Y), toRad(X), 0.0f);
   }
 
-  YAML::Node save() const
-  {
-    YAML::Node n;
-    n["x"] = X;
-    n["y"] = Y;
-    return n;
-  }
-
-  void load(const YAML::Node& n)
-  {
-    X = n["x"].as<core::Angle>();
-    Y = n["y"].as<core::Angle>();
-  }
+  void serialize(const serialization::Serializer& ser);
 };
 
-inline TRRotationXY getVectorAngles(const core::Length& dx, const core::Length& dy, const core::Length& dz)
+inline TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz)
 {
   const auto y = angleFromAtan(dx, dz);
   const auto dxz = sqrt(dx * dx + dz * dz);

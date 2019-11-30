@@ -4,9 +4,7 @@
 #include "render/gl/debuggroup.h"
 #include "rendercontext.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 void Visitor::visit(Node& node)
 {
@@ -16,5 +14,4 @@ void Visitor::visit(Node& node)
   node.accept(*this);
   m_context.setCurrentNode(nullptr);
 }
-} // namespace scene
 } // namespace render

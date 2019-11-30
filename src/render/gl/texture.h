@@ -2,18 +2,17 @@
 
 #include "rendertarget.h"
 
+#include <boost/throw_exception.hpp>
 #include <vector>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 class Texture : public RenderTarget
 {
 protected:
   explicit Texture(::gl::TextureTarget type, const std::string& label = {})
       : RenderTarget{::gl::genTextures,
-                     [type](const uint32_t handle) { ::gl::bindTexture(type, handle); },
+                     [type](const uint32_t handle) { bindTexture(type, handle); },
                      ::gl::deleteTextures,
                      ::gl::ObjectIdentifier::Texture,
                      label}
@@ -25,30 +24,30 @@ public:
   Texture& set(const ::gl::TextureMinFilter value)
   {
     bind();
-    GL_ASSERT(::gl::texParameter(m_type, ::gl::TextureParameterName::TextureMinFilter, (int32_t)value));
+    GL_ASSERT(::gl::texParameter(m_type, ::gl::TextureParameterName::TextureMinFilter, static_cast<int32_t>(value)));
     return *this;
   }
 
   Texture& set(const ::gl::TextureMagFilter value)
   {
     bind();
-    GL_ASSERT(::gl::texParameter(m_type, ::gl::TextureParameterName::TextureMagFilter, (int32_t)value));
+    GL_ASSERT(::gl::texParameter(m_type, ::gl::TextureParameterName::TextureMagFilter, static_cast<int32_t>(value)));
     return *this;
   }
 
   Texture& set(const ::gl::TextureParameterName param, const ::gl::TextureWrapMode value)
   {
     bind();
-    GL_ASSERT(::gl::texParameter(m_type, param, (int32_t)value));
+    GL_ASSERT(::gl::texParameter(m_type, param, static_cast<int32_t>(value)));
     return *this;
   }
 
-  ::gl::TextureTarget getType() const noexcept
+  [[nodiscard]] ::gl::TextureTarget getType() const noexcept
   {
     return m_type;
   }
 
-  ::gl::CopyImageSubDataTarget getSubDataTarget() const noexcept
+  [[nodiscard]] ::gl::CopyImageSubDataTarget getSubDataTarget() const
   {
 #define SOGLB_CONVERT_TYPE(x) \
   case ::gl::TextureTarget::x: return ::gl::CopyImageSubDataTarget::x
@@ -89,12 +88,12 @@ public:
   {
   }
 
-  int32_t getWidth() const noexcept override
+  [[nodiscard]] int32_t getWidth() const noexcept override
   {
     return m_width;
   }
 
-  int32_t getHeight() const noexcept override
+  [[nodiscard]] int32_t getHeight() const noexcept override
   {
     return m_height;
   }
@@ -221,12 +220,12 @@ public:
   {
   }
 
-  int32_t getWidth() const noexcept override
+  [[nodiscard]] int32_t getWidth() const noexcept override
   {
     return m_width;
   }
 
-  int32_t getHeight() const noexcept override
+  [[nodiscard]] int32_t getHeight() const noexcept override
   {
     return m_height;
   }
@@ -282,5 +281,4 @@ private:
   int32_t m_height = -1;
 };
 
-} // namespace gl
 } // namespace render

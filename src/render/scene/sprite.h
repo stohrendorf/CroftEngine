@@ -4,9 +4,7 @@
 #include "mesh.h"
 #include "renderable.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Material;
 
@@ -56,5 +54,4 @@ private:
 
   gsl::not_null<std::shared_ptr<Mesh>> m_mesh;
 };
-} // namespace scene
 } // namespace render

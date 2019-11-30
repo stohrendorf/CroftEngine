@@ -1,15 +1,13 @@
 #include "texture.h"
 
-#include "engine/items/itemnode.h"
+#include "engine/objects/object.h"
 #include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
 #include "util/cimgwrapper.h"
 
 #include <boost/range/adaptor/indexed.hpp>
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 gsl::not_null<std::shared_ptr<render::scene::Material>>
   createMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
@@ -130,5 +128,4 @@ void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void
   toImage(glidos, statusCallback);
   texture->image(image->getWidth(), image->getHeight(), image->getData()).generateMipmap();
 }
-} // namespace file
 } // namespace loader

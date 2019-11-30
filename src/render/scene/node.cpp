@@ -3,9 +3,7 @@
 #include "camera.h"
 #include "scene.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 Node::~Node()
 {
@@ -95,5 +93,4 @@ void Node::transformChanged()
     child->transformChanged();
   }
 }
-} // namespace scene
 } // namespace render

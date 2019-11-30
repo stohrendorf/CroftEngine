@@ -42,7 +42,7 @@ public:
     AL_ASSERT(alDeleteSources(1, &m_handle));
   }
 
-  ALuint get() const noexcept
+  [[nodiscard]] ALuint get() const noexcept
   {
     return m_handle;
   }
@@ -53,7 +53,7 @@ public:
     AL_ASSERT(alSourcei(m_handle, AL_BUFFER, m_buffer == nullptr ? 0 : m_buffer->get()));
   }
 
-  const std::shared_ptr<BufferHandle>& getBuffer() const noexcept
+  [[nodiscard]] const std::shared_ptr<BufferHandle>& getBuffer() const noexcept
   {
     return m_buffer;
   }
@@ -112,7 +112,7 @@ public:
     AL_ASSERT(alSourceStop(m_handle));
   }
 
-  bool isStopped() const
+  [[nodiscard]] bool isStopped() const
   {
     ALenum state = AL_STOPPED;
     AL_ASSERT(alGetSourcei(m_handle, AL_SOURCE_STATE, &state));
@@ -120,7 +120,7 @@ public:
     return state == AL_STOPPED;
   }
 
-  bool isPaused() const
+  [[nodiscard]] bool isPaused() const
   {
     ALenum state = AL_STOPPED;
     AL_ASSERT(alGetSourcei(m_handle, AL_SOURCE_STATE, &state));
@@ -149,7 +149,7 @@ public:
     set(AL_PITCH, util::clamp(pitch_value, 0.5f, 2.0f));
   }
 
-  ALint getBuffersProcessed() const
+  [[nodiscard]] ALint getBuffersProcessed() const
   {
     ALint processed = 0;
     AL_ASSERT(alGetSourcei(m_handle, AL_BUFFERS_PROCESSED, &processed));

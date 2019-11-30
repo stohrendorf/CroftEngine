@@ -14,7 +14,7 @@ public:
 
   void update();
 
-  const InputState& getInputState() const
+  [[nodiscard]] const InputState& getInputState() const
   {
     return m_inputState;
   }

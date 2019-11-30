@@ -4,9 +4,9 @@
 #include "render/gl/glassert.h"
 #include "util/cimgwrapper.h"
 
-namespace render
-{
-namespace scene
+#include <boost/log/trivial.hpp>
+
+namespace render::scene
 {
 namespace
 {
@@ -62,7 +62,7 @@ Window::Window(bool fullscreen, const Dimension2<int>& resolution)
 
   glfwMakeContextCurrent(m_window);
 
-  render::gl::initializeGl();
+  gl::initializeGl();
 
   updateWindowSize();
 
@@ -108,5 +108,4 @@ void Window::setViewport(const Dimension2<size_t>& viewport)
   GL_ASSERT(::gl::viewport(
     0, 0, gsl::narrow<::gl::core::SizeType>(viewport.width), gsl::narrow<::gl::core::SizeType>(viewport.height)));
 }
-} // namespace scene
 } // namespace render

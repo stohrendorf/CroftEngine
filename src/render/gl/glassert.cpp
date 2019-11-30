@@ -2,6 +2,10 @@
 
 #include "api/gl_api_provider.hpp"
 
+#include <boost/assert.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/stacktrace.hpp>
+
 #ifndef NDEBUG
 void render::gl::checkGlError(gsl::czstring code)
 {
@@ -22,8 +26,8 @@ void render::gl::checkGlError(gsl::czstring code)
   default: errStr = "<unknown error>";
   }
 
-  BOOST_LOG_TRIVIAL(error) << "OpenGL error " << (::gl::core::EnumType)error << " after evaluation of '" << code
-                           << "': " << errStr;
+  BOOST_LOG_TRIVIAL(error) << "OpenGL error " << static_cast<::gl::core::EnumType>(error) << " after evaluation of '"
+                           << code << "': " << errStr;
   BOOST_LOG_TRIVIAL(error) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
   BOOST_ASSERT_MSG(false, code);
 }

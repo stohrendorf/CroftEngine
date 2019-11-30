@@ -1,7 +1,6 @@
 #include "font.h"
 
 #include "gsl-lite.hpp"
-#include "render/scene/names.h"
 #include "render/scene/renderer.h"
 #include "render/scene/uniformparameter.h"
 
@@ -10,9 +9,7 @@
 
 #include FT_OUTLINE_H
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 namespace
 {
@@ -167,5 +164,4 @@ void Font::drawText(const std::string& text,
 {
   drawText(text.c_str(), x, y, SRGBA8{red, green, blue, alpha});
 }
-} // namespace gl
 } // namespace render

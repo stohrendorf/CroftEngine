@@ -4,14 +4,12 @@
 #include "engine/collisioninfo.h"
 #include "engine/particle.h"
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 class StateHandler_50 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_50(LaraNode& lara)
+  explicit StateHandler_50(objects::LaraObject& lara)
       : AbstractStateHandler{lara, LaraStateId::UseMidas}
   {
   }
@@ -59,4 +57,3 @@ public:
   }
 };
 } // namespace lara
-} // namespace engine

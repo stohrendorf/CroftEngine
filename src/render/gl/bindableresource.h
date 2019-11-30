@@ -2,11 +2,10 @@
 
 #include "glassert.h"
 
+#include <boost/assert.hpp>
 #include <functional>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 class BindableResource
 {
@@ -28,7 +27,7 @@ public:
     GL_ASSERT(m_binder(0));
   }
 
-  auto getHandle() const
+  [[nodiscard]] auto getHandle() const
   {
     BOOST_ASSERT(m_handle != 0);
     return m_handle;
@@ -67,7 +66,7 @@ protected:
     }
   }
 
-  explicit BindableResource(BindableResource&& rhs) noexcept
+  BindableResource(BindableResource&& rhs) noexcept
       : m_handle{rhs.m_handle}
       , m_allocator{move(rhs.m_allocator)}
       , m_binder{move(rhs.m_binder)}
@@ -76,7 +75,7 @@ protected:
     rhs.m_handle = 0;
   }
 
-  BindableResource& operator=(BindableResource&& rhs)
+  BindableResource& operator=(BindableResource&& rhs) noexcept
   {
     m_handle = rhs.m_handle;
     m_allocator = move(rhs.m_allocator);
@@ -118,5 +117,4 @@ private:
 
   Deleter m_deleter;
 };
-} // namespace gl
-} // namespace render
+} // namespace render::gl

@@ -4,12 +4,10 @@
 #include "materialparameter.h"
 #include "shaderprogram.h"
 
-#include <boost/optional.hpp>
-#include <glm/glm.hpp>
+#include <boost/log/trivial.hpp>
+#include <optional>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Node;
 
@@ -54,7 +52,7 @@ public:
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
 private:
-  gl::ProgramShaderStorageBlock*
+  [[nodiscard]] gl::ProgramShaderStorageBlock*
     findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
   {
     if(const auto block = shaderProgram->findShaderStorageBlock(getName()))
@@ -66,7 +64,6 @@ private:
     return nullptr;
   }
 
-  boost::optional<std::function<BufferBinder>> m_bufferBinder;
+  std::optional<std::function<BufferBinder>> m_bufferBinder;
 };
-} // namespace scene
-} // namespace render
+} // namespace render::scene

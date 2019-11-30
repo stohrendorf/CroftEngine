@@ -40,7 +40,7 @@ class TextureAnimator
     };
 
     std::vector<core::TextureTileId> tileIds;
-    std::map<std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>, std::set<VertexReference>> affectedVertices;
+    std::map<std::shared_ptr<gl::StructuredArrayBuffer<glm::vec2>>, std::set<VertexReference>> affectedVertices;
 
     void rotate()
     {
@@ -50,7 +50,7 @@ class TextureAnimator
       tileIds.emplace_back(first);
     }
 
-    void registerVertex(const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>& buffer,
+    void registerVertex(const std::shared_ptr<gl::StructuredArrayBuffer<glm::vec2>>& buffer,
                         VertexReference vertex,
                         const core::TextureTileId tileId)
     {
@@ -66,7 +66,7 @@ class TextureAnimator
 
       for(const auto& partAndVertices : affectedVertices)
       {
-        const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>& buffer = partAndVertices.first;
+        const std::shared_ptr<gl::StructuredArrayBuffer<glm::vec2>>& buffer = partAndVertices.first;
         auto* uvArray = buffer->map(::gl::BufferAccessARB::ReadWrite);
 
         const std::set<VertexReference>& vertices = partAndVertices.second;
@@ -95,7 +95,7 @@ public:
                            bool linear);
 
   void registerVertex(const core::TextureTileId tileId,
-                      const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>& buffer,
+                      const std::shared_ptr<gl::StructuredArrayBuffer<glm::vec2>>& buffer,
                       const int sourceIndex,
                       const size_t bufferIndex)
   {

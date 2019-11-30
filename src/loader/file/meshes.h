@@ -10,9 +10,7 @@ namespace render
 class TextureAnimator;
 }
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 struct RoomStaticMesh
 {
@@ -23,7 +21,7 @@ struct RoomStaticMesh
   core::StaticMeshId meshId{0u}; // which StaticMesh item to draw
   FloatColor tint;               // extracted from intensity
 
-  float getBrightness() const
+  [[nodiscard]] float getBrightness() const
   {
     return 2.0f - darkness / 8191.0f;
   }
@@ -117,17 +115,17 @@ struct StaticMesh
   uint16_t flags; // Meaning uncertain; it is usually 2, and is 3 for objects Lara can travel through,
   // like TR2's skeletons and underwater vegetation
 
-  bool doNotCollide() const
+  [[nodiscard]] bool doNotCollide() const
   {
     return (flags & 1u) != 0;
   }
 
-  bool isVisible() const
+  [[nodiscard]] bool isVisible() const
   {
     return (flags & 2u) != 0;
   }
 
-  core::BoundingBox getCollisionBox(const core::TRVec& pos, const core::Angle& angle) const;
+  [[nodiscard]] core::BoundingBox getCollisionBox(const core::TRVec& pos, const core::Angle& angle) const;
 
   static std::unique_ptr<StaticMesh> read(io::SDLReader& reader)
   {
@@ -153,5 +151,4 @@ struct StaticMesh
     return mesh;
   }
 };
-} // namespace file
 } // namespace loader

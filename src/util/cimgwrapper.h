@@ -42,7 +42,7 @@ public:
 
   CImgWrapper& operator=(const CImgWrapper& other);
 
-  CImgWrapper& operator=(CImgWrapper&& other);
+  CImgWrapper& operator=(CImgWrapper&& other) noexcept;
 
   ~CImgWrapper();
 
@@ -50,9 +50,9 @@ public:
 
   void deinterleave();
 
-  int width() const;
+  [[nodiscard]] int width() const;
 
-  int height() const;
+  [[nodiscard]] int height() const;
 
   void resize(int width, int height);
 
@@ -62,7 +62,7 @@ public:
 
   void crop(int x0, int y0, int x1, int y1);
 
-  CImgWrapper cropped(int x0, int y0, int x1, int y1) const;
+  [[nodiscard]] CImgWrapper cropped(int x0, int y0, int x1, int y1) const;
 
   void crop(const glm::vec2& uv0, const glm::vec2& uv1);
 
@@ -77,7 +77,7 @@ public:
 
   uint8_t operator()(int x, int y, int c) const;
 
-  const uint8_t* data() const;
+  [[nodiscard]] const uint8_t* data() const;
 
   void savePng(const std::string& filename);
 

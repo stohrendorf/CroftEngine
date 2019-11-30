@@ -4,9 +4,7 @@
 #include "render/gl/renderstate.h"
 #include "shaderprogram.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class UniformParameter;
 class BufferParameter;
@@ -42,7 +40,7 @@ public:
   gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const;
   gsl::not_null<std::shared_ptr<BufferParameter>> getBuffer(const std::string& name) const;
 
-  render::gl::RenderState& getRenderState()
+  gl::RenderState& getRenderState()
   {
     return m_renderState;
   }
@@ -53,7 +51,6 @@ private:
   mutable std::vector<gsl::not_null<std::shared_ptr<UniformParameter>>> m_uniforms;
   mutable std::vector<gsl::not_null<std::shared_ptr<BufferParameter>>> m_buffers;
 
-  render::gl::RenderState m_renderState{};
+  gl::RenderState m_renderState{};
 };
-} // namespace scene
-} // namespace render
+} // namespace render::scene

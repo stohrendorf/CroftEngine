@@ -8,9 +8,7 @@
 #include "io/sdlreader.h"
 #include "render/scene/model.h"
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 #pragma pack(push, 1)
 
@@ -47,7 +45,7 @@ struct BoundingBox
   {
   }
 
-  core::TRVec getCenter() const
+  [[nodiscard]] core::TRVec getCenter() const
   {
     return {(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2};
   }
@@ -59,7 +57,7 @@ struct BoundingBoxIO
   int16_t minY{0}, maxY{0};
   int16_t minZ{0}, maxZ{0};
 
-  BoundingBox toBBox() const
+  [[nodiscard]] BoundingBox toBBox() const
   {
     return BoundingBox{core::Length{static_cast<core::Length::type>(minX)},
                        core::Length{static_cast<core::Length::type>(maxX)},
@@ -76,12 +74,12 @@ struct AnimFrame
   {
     int16_t x, y, z;
 
-    glm::vec3 toGl() const noexcept
+    [[nodiscard]] glm::vec3 toGl() const noexcept
     {
       return toTr().toRenderSystem();
     }
 
-    core::TRVec toTr() const noexcept
+    [[nodiscard]] core::TRVec toTr() const noexcept
     {
       return core::TRVec{core::Length{static_cast<core::Length::type>(x)},
                          core::Length{static_cast<core::Length::type>(y)},
@@ -93,13 +91,13 @@ struct AnimFrame
   Vec pos;
   uint16_t numValues;
 
-  gsl::span<const uint32_t> getAngleData() const noexcept
+  [[nodiscard]] gsl::span<const uint32_t> getAngleData() const noexcept
   {
     const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
     return gsl::make_span(begin, numValues);
   }
 
-  const AnimFrame* next() const
+  [[nodiscard]] const AnimFrame* next() const
   {
     const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
     const auto end = begin + numValues;
@@ -108,7 +106,7 @@ struct AnimFrame
     return next;
   }
 
-  const AnimFrame* next(size_t n) const
+  [[nodiscard]] const AnimFrame* next(size_t n) const
   {
     auto result = this;
     while(n--)
@@ -124,7 +122,46 @@ static_assert(sizeof(AnimFrame) == 20, "AnimFrame has wrong size");
 
 #pragma pack(pop)
 
-struct Transitions;
+struct Animation;
+
+struct TransitionCase
+{
+  core::Frame firstFrame = 0_frame;                               // Lowest frame that uses this range
+  core::Frame lastFrame = 0_frame;                                // Highest frame (+1?) that uses this range
+  core::ContainerIndex<uint16_t, Animation> targetAnimationIndex; // Animation to dispatch to
+  core::Frame targetFrame = 0_frame;                              // Frame offset to dispatch to
+
+  const Animation* targetAnimation = nullptr;
+
+  static std::unique_ptr<TransitionCase> read(io::SDLReader& reader)
+  {
+    std::unique_ptr<TransitionCase> transition{new TransitionCase()};
+    transition->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+    transition->lastFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+    transition->targetAnimationIndex = reader.readU16();
+    transition->targetFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
+    return transition;
+  }
+};
+
+struct Transitions
+{
+  core::AnimStateId stateId{uint16_t(0)};
+  uint16_t transitionCaseCount;                                       // number of ranges (seems to always be 1..5)
+  core::ContainerIndex<uint16_t, TransitionCase> firstTransitionCase; // Offset into AnimDispatches[]
+
+  gsl::span<const TransitionCase> transitionCases{};
+
+  /// \brief reads an animation state change.
+  static std::unique_ptr<Transitions> read(io::SDLReader& reader)
+  {
+    std::unique_ptr<Transitions> state_change = std::make_unique<Transitions>();
+    state_change->stateId = reader.readU16();
+    state_change->transitionCaseCount = reader.readU16();
+    state_change->firstTransitionCase = reader.readU16();
+    return state_change;
+  }
+};
 
 struct Animation
 {
@@ -155,7 +192,7 @@ struct Animation
   const Animation* nextAnimation = nullptr;
   gsl::span<const Transitions> transitions{};
 
-  constexpr core::Frame getFrameCount() const
+  [[nodiscard]] constexpr core::Frame getFrameCount() const
   {
     return lastFrame - firstFrame + 1_frame;
   }
@@ -202,47 +239,6 @@ private:
   }
 };
 
-struct TransitionCase;
-
-struct Transitions
-{
-  core::AnimStateId stateId{uint16_t(0)};
-  uint16_t transitionCaseCount;                                       // number of ranges (seems to always be 1..5)
-  core::ContainerIndex<uint16_t, TransitionCase> firstTransitionCase; // Offset into AnimDispatches[]
-
-  gsl::span<const TransitionCase> transitionCases{};
-
-  /// \brief reads an animation state change.
-  static std::unique_ptr<Transitions> read(io::SDLReader& reader)
-  {
-    std::unique_ptr<Transitions> state_change = std::make_unique<Transitions>();
-    state_change->stateId = reader.readU16();
-    state_change->transitionCaseCount = reader.readU16();
-    state_change->firstTransitionCase = reader.readU16();
-    return state_change;
-  }
-};
-
-struct TransitionCase
-{
-  core::Frame firstFrame = 0_frame;                               // Lowest frame that uses this range
-  core::Frame lastFrame = 0_frame;                                // Highest frame (+1?) that uses this range
-  core::ContainerIndex<uint16_t, Animation> targetAnimationIndex; // Animation to dispatch to
-  core::Frame targetFrame = 0_frame;                              // Frame offset to dispatch to
-
-  const Animation* targetAnimation = nullptr;
-
-  static std::unique_ptr<TransitionCase> read(io::SDLReader& reader)
-  {
-    std::unique_ptr<TransitionCase> transition{new TransitionCase()};
-    transition->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-    transition->lastFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-    transition->targetAnimationIndex = reader.readU16();
-    transition->targetFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-    return transition;
-  }
-};
-
 struct Mesh;
 
 #pragma pack(push, 1)
@@ -253,7 +249,7 @@ struct BoneTreeEntry
 
   int32_t x, y, z;
 
-  glm::vec3 toGl() const noexcept
+  [[nodiscard]] glm::vec3 toGl() const noexcept
   {
     return core::TRVec(core::Length{x}, core::Length{y}, core::Length{z}).toRenderSystem();
   }
@@ -302,5 +298,4 @@ struct SkeletalModelType
     return moveable;
   }
 };
-} // namespace file
 } // namespace loader

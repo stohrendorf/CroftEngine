@@ -5,9 +5,7 @@
 #include "io/util.h"
 #include "loader/file/level/game.h"
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 // In TR3-5, there were 5 reverb / echo effect flags for each
 // room, but they were never used in PC versions - however, level
@@ -75,9 +73,9 @@ struct SoundDetails
   // TR1 and TR2 levels, as there is no such parameters in SoundDetails
   // structures.
 
-  static constexpr const int DefaultRange = 8;
+  static constexpr int DefaultRange = 8;
   //! @todo Check default value
-  static constexpr const int DefaultPitch = 128; // 0.0 - only noise
+  static constexpr int DefaultPitch = 128; // 0.0 - only noise
 
   core::SampleId sample{0u};           // Index into SampleIndices -- NOT USED IN TR4-5!!!
   uint16_t volume;                     // Global sample value
@@ -87,7 +85,7 @@ struct SoundDetails
   uint8_t sampleCountAndLoopType;      // Bits 0-1: Looped flag, bits 2-5: num samples, bits 6-7: UNUSED
   uint8_t flags;
 
-  PlaybackType getPlaybackType(const level::Engine engine) const
+  [[nodiscard]] PlaybackType getPlaybackType(const level::Engine engine) const
   {
     if(engine == level::Engine::TR1)
     {
@@ -119,23 +117,23 @@ struct SoundDetails
     }
   }
 
-  uint8_t getSampleCount() const
+  [[nodiscard]] uint8_t getSampleCount() const
   {
     return (sampleCountAndLoopType >> 2u) & 0x0fu;
   }
 
   //! @brief Whether to play this sample without orientation (no panning).
-  bool ignoreOrientation() const
+  [[nodiscard]] bool ignoreOrientation() const
   {
     return (flags & 0x10u) != 0;
   }
 
-  bool useRandomPitch() const
+  [[nodiscard]] bool useRandomPitch() const
   {
     return (flags & 0x20u) != 0;
   }
 
-  bool useRandomVolume() const
+  [[nodiscard]] bool useRandomVolume() const
   {
     return (flags & 0x40u) != 0;
   }
@@ -164,5 +162,4 @@ struct SoundDetails
     return sound_details;
   }
 };
-} // namespace file
 } // namespace loader

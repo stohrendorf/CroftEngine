@@ -2,7 +2,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
-#include <fstream>
 
 namespace hid
 {
@@ -16,7 +15,7 @@ InputHandler::InputHandler(const gsl::not_null<GLFWwindow*>& window)
     if(glfwJoystickPresent(i) != GLFW_TRUE)
       continue;
 
-    gsl::czstring name = glfwGetGamepadName(i);
+    const gsl::czstring name = glfwGetGamepadName(i);
     if(name == nullptr)
       continue;
 
@@ -40,7 +39,7 @@ InputHandler::InputHandler(const gsl::not_null<GLFWwindow*>& window)
 
 void InputHandler::update()
 {
-  static const constexpr float AxisThreshold = 0.5f;
+  static constexpr float AxisThreshold = 0.5f;
 
   GLFWgamepadstate gamepadState;
   if(m_controllerIndex >= 0)

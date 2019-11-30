@@ -1,53 +1,24 @@
 #include "ai.h"
 
-#include "engine/laranode.h"
+#include "engine/objects/laraobject.h"
 #include "engine/script/reflection.h"
 
-namespace engine
+namespace engine::ai
 {
-namespace ai
+void updateMood(const Engine& engine, const objects::ObjectState& objectState, const AiInfo& aiInfo, const bool violent)
 {
-namespace
-{
-gsl::czstring toString(const Mood m)
-{
-  switch(m)
-  {
-  case Mood::Bored: return "Bored";
-  case Mood::Attack: return "Attack";
-  case Mood::Escape: return "Escape";
-  case Mood::Stalk: return "Stalk";
-  default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid Mood"));
-  }
-}
-
-Mood parseMood(const std::string& s)
-{
-  if(s == "Bored")
-    return Mood::Bored;
-  if(s == "Attack")
-    return Mood::Attack;
-  if(s == "Escape")
-    return Mood::Escape;
-  if(s == "Stalk")
-    return Mood::Stalk;
-  BOOST_THROW_EXCEPTION(std::domain_error("Invalid Mood"));
-}
-} // namespace
-
-void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo& aiInfo, const bool violent)
-{
-  if(item.creatureInfo == nullptr)
+  if(objectState.creatureInfo == nullptr)
     return;
 
-  CreatureInfo& creatureInfo = *item.creatureInfo;
-  if(!creatureInfo.pathFinder.nodes[item.box].traversable && creatureInfo.pathFinder.visited.count(item.box) != 0)
+  CreatureInfo& creatureInfo = *objectState.creatureInfo;
+  if(!creatureInfo.pathFinder.nodes[objectState.box].traversable
+     && creatureInfo.pathFinder.visited.count(objectState.box) != 0)
   {
     creatureInfo.pathFinder.required_box = nullptr;
   }
 
   if(creatureInfo.mood != Mood::Attack && creatureInfo.pathFinder.required_box != nullptr
-     && !item.isInsideZoneButNotInBox(engine, aiInfo.zone_number, *creatureInfo.pathFinder.target_box))
+     && !objectState.isInsideZoneButNotInBox(engine, aiInfo.zone_number, *creatureInfo.pathFinder.target_box))
   {
     if(aiInfo.canReachEnemyZone())
     {
@@ -70,7 +41,7 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
       {
         creatureInfo.mood = Mood::Attack;
       }
-      else if(item.is_hit)
+      else if(objectState.is_hit)
       {
         creatureInfo.mood = Mood::Escape;
       }
@@ -95,7 +66,7 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
     {
     case Mood::Bored:
     case Mood::Stalk:
-      if(item.is_hit && (util::rand15() < 2048 || !aiInfo.canReachEnemyZone()))
+      if(objectState.is_hit && (util::rand15() < 2048 || !aiInfo.canReachEnemyZone()))
       {
         creatureInfo.mood = Mood::Escape;
       }
@@ -113,7 +84,7 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
       }
       break;
     case Mood::Attack:
-      if(item.is_hit && (util::rand15() < 2048 || !aiInfo.canReachEnemyZone()))
+      if(objectState.is_hit && (util::rand15() < 2048 || !aiInfo.canReachEnemyZone()))
       {
         creatureInfo.mood = Mood::Escape;
       }
@@ -144,8 +115,9 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
   switch(creatureInfo.mood)
   {
   case Mood::Attack:
-    if(util::rand15()
-       >= engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(item.type.get()).target_update_chance)
+    if(util::rand15() >= engine.getScriptEngine()["getObjectInfo"]
+                           .call<script::ObjectInfo>(objectState.type.get())
+                           .target_update_chance)
       break;
 
     creatureInfo.pathFinder.target = engine.getLara().m_state.position.position;
@@ -162,10 +134,10 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
   case Mood::Bored:
   {
     const auto box = creatureInfo.pathFinder.boxes[util::rand15(creatureInfo.pathFinder.boxes.size())];
-    if(!item.isInsideZoneButNotInBox(engine, aiInfo.zone_number, *box))
+    if(!objectState.isInsideZoneButNotInBox(engine, aiInfo.zone_number, *box))
       break;
 
-    if(item.stalkBox(engine, *box))
+    if(objectState.stalkBox(engine, *box))
     {
       creatureInfo.pathFinder.setRandomSearchTarget(box);
       creatureInfo.mood = Mood::Stalk;
@@ -178,14 +150,15 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
   }
   case Mood::Stalk:
   {
-    if(creatureInfo.pathFinder.required_box != nullptr && item.stalkBox(engine, *creatureInfo.pathFinder.required_box))
+    if(creatureInfo.pathFinder.required_box != nullptr
+       && objectState.stalkBox(engine, *creatureInfo.pathFinder.required_box))
       break;
 
     const auto box = creatureInfo.pathFinder.boxes[util::rand15(creatureInfo.pathFinder.boxes.size())];
-    if(!item.isInsideZoneButNotInBox(engine, aiInfo.zone_number, *box))
+    if(!objectState.isInsideZoneButNotInBox(engine, aiInfo.zone_number, *box))
       break;
 
-    if(item.stalkBox(engine, *box))
+    if(objectState.stalkBox(engine, *box))
     {
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
@@ -202,15 +175,15 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
   case Mood::Escape:
   {
     const auto box = creatureInfo.pathFinder.boxes[util::rand15(creatureInfo.pathFinder.boxes.size())];
-    if(!item.isInsideZoneButNotInBox(engine, aiInfo.zone_number, *box)
+    if(!objectState.isInsideZoneButNotInBox(engine, aiInfo.zone_number, *box)
        || creatureInfo.pathFinder.required_box != nullptr)
       break;
 
-    if(item.inSameQuadrantAsBoxRelativeToLara(engine, *box))
+    if(objectState.inSameQuadrantAsBoxRelativeToLara(engine, *box))
     {
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
-    else if(aiInfo.canReachEnemyZone() && item.stalkBox(engine, *box))
+    else if(aiInfo.canReachEnemyZone() && objectState.stalkBox(engine, *box))
     {
       creatureInfo.pathFinder.setRandomSearchTarget(box);
       creatureInfo.mood = Mood::Stalk;
@@ -221,43 +194,73 @@ void updateMood(const Engine& engine, const items::ItemState& item, const AiInfo
 
   if(creatureInfo.pathFinder.target_box == nullptr)
   {
-    Expects(item.box != nullptr);
-    creatureInfo.pathFinder.setRandomSearchTarget(item.box);
+    Expects(objectState.box != nullptr);
+    creatureInfo.pathFinder.setRandomSearchTarget(objectState.box);
   }
-  creatureInfo.pathFinder.calculateTarget(engine, creatureInfo.target, item);
+  creatureInfo.pathFinder.calculateTarget(engine, creatureInfo.target, objectState);
 }
 
-AiInfo::AiInfo(Engine& engine, items::ItemState& item)
+std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
+                                     const serialization::Serializer& ser)
 {
-  if(item.creatureInfo == nullptr)
+  if(ser.node.IsNull())
+    return nullptr;
+
+  auto result = std::make_shared<CreatureInfo>(ser.engine, core::TypeId::create(ser["type"]));
+  ser("data", *result);
+  return result;
+}
+
+void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer& ser)
+{
+  if(ser.loading)
+  {
+    data = create(serialization::TypeId<std::shared_ptr<CreatureInfo>>{}, ser);
+  }
+  else
+  {
+    if(data == nullptr)
+    {
+      ser.node = YAML::Node{};
+    }
+    else
+    {
+      ser(S_NV("type", data->type), S_NV("data", *data));
+    }
+  }
+}
+
+AiInfo::AiInfo(Engine& engine, objects::ObjectState& objectState)
+{
+  if(objectState.creatureInfo == nullptr)
     return;
 
   const auto zoneRef = loader::file::Box::getZoneRef(
-    engine.roomsAreSwapped(), item.creatureInfo->pathFinder.fly, item.creatureInfo->pathFinder.step);
+    engine.roomsAreSwapped(), objectState.creatureInfo->pathFinder.fly, objectState.creatureInfo->pathFinder.step);
 
-  item.box = item.getCurrentSector()->box;
-  zone_number = item.box->*zoneRef;
+  objectState.box = objectState.getCurrentSector()->box;
+  zone_number = objectState.box->*zoneRef;
   engine.getLara().m_state.box = engine.getLara().m_state.getCurrentSector()->box;
   enemy_zone = engine.getLara().m_state.box->*zoneRef;
-  enemy_unreachable = (!item.creatureInfo->pathFinder.canVisit(*engine.getLara().m_state.box)
-                       || (!item.creatureInfo->pathFinder.nodes[item.box].traversable
-                           && item.creatureInfo->pathFinder.visited.count(item.box) != 0));
+  enemy_unreachable = (!objectState.creatureInfo->pathFinder.canVisit(*engine.getLara().m_state.box)
+                       || (!objectState.creatureInfo->pathFinder.nodes[objectState.box].traversable
+                           && objectState.creatureInfo->pathFinder.visited.count(objectState.box) != 0));
 
-  auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(item.type.get());
+  auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(objectState.type.get());
   const core::Length pivotLength{objectInfo.pivot_length};
-  const auto d
-    = engine.getLara().m_state.position.position - (item.position.position + util::pitch(pivotLength, item.rotation.Y));
-  const auto pivotAngle = angleFromAtan(d.X, d.Z);
+  const auto d = engine.getLara().m_state.position.position
+                 - (objectState.position.position + util::pitch(pivotLength, objectState.rotation.Y));
+  const auto pivotAngle = core::angleFromAtan(d.X, d.Z);
   distance = util::square(d.X) + util::square(d.Z);
-  angle = pivotAngle - item.rotation.Y;
+  angle = pivotAngle - objectState.rotation.Y;
   enemy_facing = pivotAngle - 180_deg - engine.getLara().m_state.rotation.Y;
   ahead = angle > -90_deg && angle < 90_deg;
   bite = false;
   if(ahead)
   {
     const auto laraY = engine.getLara().m_state.position.position.Y;
-    if(item.position.position.Y - core::QuarterSectorSize < laraY
-       && item.position.position.Y + core::QuarterSectorSize > laraY)
+    if(objectState.position.position.Y - core::QuarterSectorSize < laraY
+       && objectState.position.position.Y + core::QuarterSectorSize > laraY)
     {
       bite = true;
     }
@@ -265,7 +268,8 @@ AiInfo::AiInfo(Engine& engine, items::ItemState& item)
 }
 
 CreatureInfo::CreatureInfo(const Engine& engine, const core::TypeId type)
-    : pathFinder{engine}
+    : type{type}
+    , pathFinder{engine}
 {
   switch(type.get_as<TR1ItemId>())
   {
@@ -300,28 +304,14 @@ CreatureInfo::CreatureInfo(const Engine& engine, const core::TypeId type)
   }
 }
 
-YAML::Node CreatureInfo::save(const Engine& engine) const
+void CreatureInfo::serialize(const serialization::Serializer& ser)
 {
-  YAML::Node node;
-  node["headRot"] = head_rotation;
-  node["neckRot"] = neck_rotation;
-  node["maxTurn"] = maximum_turn;
-  node["flags"] = flags;
-  node["mood"] = toString(mood);
-  node["pathFinder"] = pathFinder.save(engine);
-  node["target"] = target.save();
-  return node;
+  ser(S_NV("headRotation", head_rotation),
+      S_NV("neckRotation", neck_rotation),
+      S_NV("maximumTurn", maximum_turn),
+      S_NV("flags", flags),
+      S_NV("mood", mood),
+      S_NV("pathFinder", pathFinder),
+      S_NV("target", target));
 }
-
-void CreatureInfo::load(const YAML::Node& n, const Engine& engine)
-{
-  head_rotation = n["headRot"].as<core::Angle>();
-  neck_rotation = n["neckRot"].as<core::Angle>();
-  maximum_turn = n["maxTurn"].as<core::Angle>();
-  flags = n["flags"].as<uint16_t>();
-  mood = parseMood(n["mood"].as<std::string>());
-  pathFinder.load(n["pathFinder"], engine);
-  target.load(n["target"]);
-}
-} // namespace ai
-} // namespace engine
+} // namespace engine::ai

@@ -7,9 +7,7 @@
 #include <boost/iostreams/restrict.hpp>
 #include <sndfile.h>
 
-namespace audio
-{
-namespace sndfile
+namespace audio::sndfile
 {
 class MemBufferFileIo : public SF_VIRTUAL_IO
 {
@@ -164,5 +162,4 @@ private:
   boost::iostreams::restriction<std::istream> m_restriction;
   boost::iostreams::filtering_istream m_stream;
 };
-} // namespace sndfile
-} // namespace audio
+} // namespace audio::sndfile

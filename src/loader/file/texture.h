@@ -322,7 +322,7 @@ struct TextureTile
     createMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
                    const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader) const
   {
-    return loader::file::createMaterial(texture, textureKey.blendingMode, shader);
+    return file::createMaterial(texture, textureKey.blendingMode, shader);
   }
 };
 } // namespace file

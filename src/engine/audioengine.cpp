@@ -1,7 +1,7 @@
 #include "audioengine.h"
 
 #include "engine.h"
-#include "laranode.h"
+#include "objects/laraobject.h"
 #include "script/reflection.h"
 #include "tracks_tr1.h"
 
@@ -26,7 +26,7 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
   {
     // 28
     if(m_cdTrackActivationStates[trackId].isOneshot()
-       && m_engine.getLara().getCurrentAnimState() == LaraStateId::JumpUp)
+       && m_engine.getLara().getCurrentAnimState() == loader::file::LaraStateId::JumpUp)
     {
       trackId = TR1TrackId::LaraTalk3;
     }
@@ -41,13 +41,13 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
   else if(trackId == TR1TrackId::LaraTalk15)
   {
     // 41
-    if(m_engine.getLara().getCurrentAnimState() == LaraStateId::Hang)
+    if(m_engine.getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
       triggerNormalCdTrack(trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk16)
   {
     // 42
-    if(m_engine.getLara().getCurrentAnimState() == LaraStateId::Hang)
+    if(m_engine.getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
       triggerNormalCdTrack(TR1TrackId::LaraTalk17, activationRequest, triggerType);
     else
       triggerNormalCdTrack(trackId, activationRequest, triggerType);
@@ -60,7 +60,7 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
   else if(trackId == TR1TrackId::LaraTalk23)
   {
     // 49
-    if(m_engine.getLara().getCurrentAnimState() == LaraStateId::OnWaterStop)
+    if(m_engine.getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterStop)
       triggerNormalCdTrack(trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk24)
@@ -75,7 +75,7 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
         triggerNormalCdTrack(trackId, activationRequest, triggerType);
       }
     }
-    else if(m_engine.getLara().getCurrentAnimState() == LaraStateId::OnWaterExit)
+    else if(m_engine.getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterExit)
     {
       triggerNormalCdTrack(trackId, activationRequest, triggerType);
     }
@@ -113,7 +113,7 @@ void AudioEngine::triggerNormalCdTrack(const TR1TrackId trackId,
   if(activationRequest.isOneshot())
     m_cdTrackActivationStates[trackId].setOneshot(true);
 
-  if(!m_currentTrack.is_initialized() || *m_currentTrack != trackId)
+  if(!m_currentTrack.has_value() || *m_currentTrack != trackId)
     playStopCdTrack(trackId, false);
 }
 
@@ -140,11 +140,11 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
     {
       const auto sfxId = static_cast<TR1SoundId>(trackInfo.id);
 
-      if(!m_currentLaraTalk.is_initialized() || *m_currentLaraTalk != sfxId)
+      if(!m_currentLaraTalk.has_value() || *m_currentLaraTalk != sfxId)
       {
         BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play lara talk " << toString(sfxId);
 
-        if(m_currentLaraTalk.is_initialized())
+        if(m_currentLaraTalk.has_value())
           stopSound(*m_currentLaraTalk, &m_engine.getLara().m_state);
 
         m_engine.getLara().playSoundEffect(sfxId);

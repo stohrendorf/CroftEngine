@@ -56,9 +56,7 @@ struct ContainerOffset
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
-
-    from(const std::vector<T>& v) const
+  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&> from(const std::vector<T>& v) const
   {
     if(offset % sizeof(T) != 0)
       throw std::runtime_error("Offset not dividable by element size");
@@ -67,9 +65,7 @@ struct ContainerOffset
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
-
-    checkedFrom(const std::vector<T>& v) const
+  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&> checkedFrom(const std::vector<T>& v) const
   {
     if(offset % sizeof(T) != 0)
       throw std::runtime_error("Offset not dividable by element size");
@@ -120,9 +116,7 @@ struct ContainerIndex
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
-
-    checkedFrom(const std::vector<T>& v) const
+  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&> checkedFrom(const std::vector<T>& v) const
   {
     return v.at(index);
   }
@@ -147,4 +141,4 @@ struct ContainerIndex
   template<typename T>
   void operator+=(T) = delete;
 };
-}
+} // namespace core

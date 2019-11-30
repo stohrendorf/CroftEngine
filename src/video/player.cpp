@@ -22,7 +22,6 @@ extern "C"
 #include "gsl-lite.hpp"
 
 #include <boost/filesystem/operations.hpp>
-#include <fstream>
 #include <functional>
 #include <mutex>
 #include <queue>
@@ -288,7 +287,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
       frameReadyCondition.wait(lock);
     frameReady = false;
 
-    boost::optional<AVFramePtr> img;
+    std::optional<AVFramePtr> img;
     if(!imgQueue.empty())
     {
       img = std::move(imgQueue.front());
@@ -300,7 +299,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
     return img;
   }
 
-  static const constexpr size_t QueueLimit = 30;
+  static constexpr size_t QueueLimit = 30;
 
   void decodePacket()
   {
@@ -412,7 +411,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
     }
   }
 
-  static constexpr const int SampleRate = 44100;
+  static constexpr int SampleRate = 44100;
   size_t audioFrameDuration = 0;
   size_t audioFramePosition = 0;
 
@@ -461,7 +460,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
 struct Scaler
 {
-  static constexpr const auto OutputPixFmt = AV_PIX_FMT_RGBA;
+  static constexpr auto OutputPixFmt = AV_PIX_FMT_RGBA;
 
   int currentSwsWidth = -1;
   int currentSwsHeight = -1;
@@ -498,7 +497,7 @@ struct Scaler
     sws_freeContext(context);
     context = sws_getContext(filter->w,
                              filter->h,
-                             (AVPixelFormat)filter->format,
+                             static_cast<AVPixelFormat>(filter->format),
                              scaledWidth,
                              scaledHeight,
                              OutputPixFmt,
@@ -555,7 +554,7 @@ void play(const boost::filesystem::path& filename,
           const std::shared_ptr<render::gl::Image<render::gl::SRGBA8>>& img,
           const std::function<bool()>& onFrame)
 {
-  if(!boost::filesystem::is_regular_file(filename))
+  if(!is_regular_file(filename))
     BOOST_THROW_EXCEPTION(std::runtime_error("Video file not found"));
 
   auto decoderPtr = std::make_unique<AVDecoder>(filename.string());
@@ -577,7 +576,6 @@ void play(const boost::filesystem::path& filename,
 
     if(const auto f = decoder->takeFrame())
     {
-      const auto& videoFrame = *f;
       sws.resize(img->getWidth(), img->getHeight());
       sws.scale(*f, *img);
     }

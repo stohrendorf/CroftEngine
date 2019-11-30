@@ -6,12 +6,10 @@
 
 #include <vector>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 template<typename T>
-class ShaderStorageBuffer : public Buffer
+class ShaderStorageBuffer final : public Buffer
 {
 public:
   explicit ShaderStorageBuffer(const std::string& label = {})
@@ -19,7 +17,7 @@ public:
   {
   }
 
-  T* map(const ::gl::BufferAccessARB access = ::gl::BufferAccessARB::ReadOnly)
+  [[nodiscard]] T* map(const ::gl::BufferAccessARB access = ::gl::BufferAccessARB::ReadOnly)
   {
     bind();
     const void* data = GL_ASSERT_FN(::gl::mapBuffer(::gl::BufferTargetARB::ShaderStorageBuffer, access));
@@ -46,5 +44,4 @@ public:
       ::gl::bufferData(::gl::BufferTargetARB::ShaderStorageBuffer, sizeof(T) * data.size(), data.data(), usage));
   }
 };
-} // namespace gl
 } // namespace render

@@ -1,14 +1,11 @@
 #pragma once
 
-#include "glassert.h"
 #include "gsl-lite.hpp"
 #include "pixel.h"
 
 #include <vector>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 namespace detail
 {
@@ -148,12 +145,12 @@ public:
     m_data = std::move(data);
   }
 
-  int32_t getHeight() const
+  [[nodiscard]] int32_t getHeight() const
   {
     return m_height;
   }
 
-  int32_t getWidth() const
+  [[nodiscard]] int32_t getWidth() const
   {
     return m_width;
   }
@@ -250,5 +247,4 @@ private:
 
   int32_t m_height;
 };
-} // namespace gl
 } // namespace render

@@ -4,9 +4,7 @@
 
 #include <vector>
 
-namespace engine
-{
-namespace floordata
+namespace engine::floordata
 {
 using FloorDataValue = type_safe::integer<uint16_t>;
 using FloorData = std::vector<FloorDataValue>;
@@ -84,5 +82,4 @@ enum class CommandOpcode
   FlyBy = 0x0C,
   CutScene = 0x0D
 };
-} // namespace floordata
 }

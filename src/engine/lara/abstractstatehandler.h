@@ -16,18 +16,19 @@ using LaraStateId = loader::file::LaraStateId;
 using AnimationId = loader::file::AnimationId;
 struct CollisionInfo;
 
-class LaraNode;
-
-struct InputState;
-enum class UnderwaterState;
+namespace objects
+{
+class LaraObject;
 enum class HandStatus;
+enum class UnderwaterState;
+} // namespace objects
 
 namespace lara
 {
 class AbstractStateHandler
 {
 public:
-  explicit AbstractStateHandler(LaraNode& lara, const LaraStateId id)
+  explicit AbstractStateHandler(objects::LaraObject& lara, const LaraStateId id)
       : m_lara{lara}
       , m_id{id}
   {
@@ -47,22 +48,22 @@ public:
 
   virtual void handleInput(CollisionInfo& collisionInfo) = 0;
 
-  static std::unique_ptr<AbstractStateHandler> create(LaraStateId id, LaraNode& lara);
+  static std::unique_ptr<AbstractStateHandler> create(LaraStateId id, objects::LaraObject& lara);
 
-  LaraStateId getId() const noexcept
+  [[nodiscard]] LaraStateId getId() const noexcept
   {
     return m_id;
   }
 
 private:
-  LaraNode& m_lara;
+  objects::LaraObject& m_lara;
   const LaraStateId m_id;
 
   friend class StateHandler_2;
 
 protected:
   // ReSharper disable once CppMemberFunctionMayBeConst
-  LaraNode& getLara()
+  objects::LaraObject& getLara()
   {
     return m_lara;
   }
@@ -71,25 +72,25 @@ protected:
 
   void setMovementAngle(core::Angle angle) noexcept;
 
-  core::Angle getMovementAngle() const noexcept;
+  [[nodiscard]] core::Angle getMovementAngle() const noexcept;
 
-  HandStatus getHandStatus() const noexcept;
+  [[nodiscard]] objects::HandStatus getHandStatus() const noexcept;
 
-  void setHandStatus(HandStatus status) noexcept;
+  void setHandStatus(objects::HandStatus status) noexcept;
 
-  LaraStateId getCurrentAnimState() const;
+  [[nodiscard]] LaraStateId getCurrentAnimState() const;
 
-  void setAnimation(AnimationId anim, const boost::optional<core::Frame>& firstFrame = boost::none);
+  void setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame = std::nullopt);
 
-  const engine::Engine& getEngine() const;
+  [[nodiscard]] const Engine& getEngine() const;
 
-  engine::Engine& getEngine();
+  Engine& getEngine();
 
   void placeOnFloor(const CollisionInfo& collisionInfo);
 
   void setYRotationSpeed(core::Angle spd);
 
-  core::Angle getYRotationSpeed() const;
+  [[nodiscard]] core::Angle getYRotationSpeed() const;
 
   void subYRotationSpeed(core::Angle val, core::Angle limit = -32768_au);
 
@@ -99,13 +100,13 @@ protected:
 
   void dampenHorizontalSpeed(float f);
 
-  core::Angle getCurrentSlideAngle() const noexcept;
+  [[nodiscard]] core::Angle getCurrentSlideAngle() const noexcept;
 
   void setCurrentSlideAngle(core::Angle a) noexcept;
 
   void setGoalAnimState(LaraStateId state);
 
-  LaraStateId getGoalAnimState() const;
+  [[nodiscard]] LaraStateId getGoalAnimState() const;
 
   bool stopIfCeilingBlocked(const CollisionInfo& collisionInfo);
 
@@ -123,7 +124,7 @@ protected:
 
   void applyShift(const CollisionInfo& collisionInfo);
 
-  core::Length getRelativeHeightAtDirection(core::Angle angle, core::Length dist) const;
+  [[nodiscard]] core::Length getRelativeHeightAtDirection(core::Angle angle, core::Length dist) const;
 
   void commonJumpHandling(CollisionInfo& collisionInfo);
 
@@ -133,29 +134,29 @@ protected:
 
   bool tryReach(CollisionInfo& collisionInfo);
 
-  bool canClimbOnto(core::Axis axis) const;
+  [[nodiscard]] bool canClimbOnto(core::Axis axis) const;
 
   bool applyLandingDamage();
 
-  loader::file::BoundingBox getBoundingBox() const;
+  [[nodiscard]] loader::file::BoundingBox getBoundingBox() const;
 
   void addSwimToDiveKeypressDuration(core::Frame n) noexcept;
 
   void setSwimToDiveKeypressDuration(core::Frame n) noexcept;
 
-  core::Frame getSwimToDiveKeypressDuration() const;
+  [[nodiscard]] core::Frame getSwimToDiveKeypressDuration() const;
 
-  void setUnderwaterState(UnderwaterState u) noexcept;
+  void setUnderwaterState(objects::UnderwaterState u) noexcept;
 
-  void setCameraRotationAroundCenter(const core::Angle x, const core::Angle y);
+  void setCameraRotationAroundCenter(core::Angle x, core::Angle y);
 
-  void setCameraRotationAroundCenterX(const core::Angle x);
+  void setCameraRotationAroundCenterX(core::Angle x);
 
-  void setCameraRotationAroundCenterY(const core::Angle y);
+  void setCameraRotationAroundCenterY(core::Angle y);
 
   void setCameraEyeCenterDistance(core::Length d);
 
-  void setCameraModifier(const CameraModifier k);
+  void setCameraModifier(CameraModifier k);
 
   void laraUpdateImpl();
 };

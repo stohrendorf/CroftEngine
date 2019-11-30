@@ -1,13 +1,10 @@
 #pragma once
 
-#include "renderbuffer.h"
 #include "texture.h"
 
-#include <initializer_list>
+#include <utility>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 class Framebuffer;
 
@@ -16,7 +13,7 @@ class Attachment
   friend Framebuffer;
 
 private:
-  virtual void attach(const Framebuffer& frameBuffer, const ::gl::FramebufferAttachment attachment) const = 0;
+  virtual void attach(const Framebuffer& frameBuffer, ::gl::FramebufferAttachment attachment) const = 0;
 
 public:
   explicit Attachment() = default;
@@ -27,13 +24,13 @@ public:
 class TextureAttachment final : public Attachment
 {
 public:
-  explicit TextureAttachment(const std::shared_ptr<Texture>& texture, const int32_t level = 0)
-      : m_texture{texture}
+  explicit TextureAttachment(std::shared_ptr<Texture> texture, const int32_t level = 0)
+      : m_texture{std::move(texture)}
       , m_level{level}
   {
   }
 
-  void attach(const Framebuffer& frameBuffer, const ::gl::FramebufferAttachment attachment) const override;
+  void attach(const Framebuffer& frameBuffer, ::gl::FramebufferAttachment attachment) const override;
 
 private:
   const std::shared_ptr<Texture> m_texture;
@@ -52,9 +49,7 @@ private:
 public:
   explicit Framebuffer(Attachments attachments, const std::string& label = {})
       : BindableResource{::gl::genFramebuffers,
-                         [](const uint32_t handle) {
-                           ::gl::bindFramebuffer(::gl::FramebufferTarget::Framebuffer, handle);
-                         },
+                         [](const uint32_t handle) { bindFramebuffer(::gl::FramebufferTarget::Framebuffer, handle); },
                          ::gl::deleteFramebuffers,
                          ::gl::ObjectIdentifier::Framebuffer,
                          label}
@@ -68,7 +63,7 @@ public:
 
       if(attachment.second >= ::gl::FramebufferAttachment::ColorAttachment0
          && attachment.second <= ::gl::FramebufferAttachment::ColorAttachment31)
-        colorAttachments.emplace_back((::gl::DrawBufferMode)attachment.second);
+        colorAttachments.emplace_back(static_cast<::gl::DrawBufferMode>(attachment.second));
     }
     if(!colorAttachments.empty())
       GL_ASSERT(::gl::drawBuffers(gsl::narrow<::gl::core::SizeType>(colorAttachments.size()), colorAttachments.data()));
@@ -79,12 +74,12 @@ public:
     unbind();
   }
 
-  const Attachments& getAttachments() const
+  [[nodiscard]] const Attachments& getAttachments() const
   {
     return m_attachments;
   }
 
-  bool isComplete() const
+  [[nodiscard]] bool isComplete() const
   {
     bind();
 
@@ -133,7 +128,8 @@ public:
   }
 };
 
-void TextureAttachment::attach(const Framebuffer& frameBuffer, const ::gl::FramebufferAttachment attachment) const
+inline void TextureAttachment::attach(const Framebuffer& frameBuffer,
+                                      const ::gl::FramebufferAttachment attachment) const
 {
   GL_ASSERT(
     ::gl::framebufferTexture(::gl::FramebufferTarget::Framebuffer, attachment, m_texture->getHandle(), m_level));
@@ -157,5 +153,4 @@ public:
     return *this;
   }
 };
-} // namespace gl
-} // namespace render
+} // namespace render::gl

@@ -9,21 +9,18 @@
 #include <utility>
 #include <vector>
 
-namespace render
-{
-namespace gl
+namespace render::gl
 {
 namespace detail
 {
 template<std::size_t I = 0, typename... Ts>
-inline typename std::enable_if<I == sizeof...(Ts), void>::type bindVertexAttributes(const std::tuple<Ts...>&,
-                                                                                    const Program& program)
+inline std::enable_if_t<I == sizeof...(Ts), void> bindVertexAttributes(const std::tuple<Ts...>&, const Program& program)
 {
 }
 
 template<std::size_t I = 0, typename... Ts>
-inline typename std::enable_if<(I < sizeof...(Ts)), void>::type bindVertexAttributes(const std::tuple<Ts...>& t,
-                                                                                     const Program& program)
+inline std::enable_if_t<(I < sizeof...(Ts)), void> bindVertexAttributes(const std::tuple<Ts...>& t,
+                                                                        const Program& program)
 {
   std::get<I>(t)->bindVertexAttributes(program);
   bindVertexAttributes<I + 1, Ts...>(t, program);
@@ -94,5 +91,4 @@ private:
   IndexBuffers m_indexBuffers;
   VertexBuffers m_vertexBuffers;
 };
-} // namespace gl
-} // namespace render
+} // namespace render::gl

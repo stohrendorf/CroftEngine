@@ -5,9 +5,7 @@
 #include "renderable.h"
 #include "rendercontext.h"
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Material;
 
@@ -36,7 +34,7 @@ public:
     m_material = material;
   }
 
-  const std::shared_ptr<Material>& getMaterial() const
+  [[nodiscard]] const std::shared_ptr<Material>& getMaterial() const
   {
     return m_material;
   }
@@ -95,5 +93,4 @@ private:
 
 extern gsl::not_null<std::shared_ptr<Mesh>>
   createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY = false);
-} // namespace scene
 } // namespace render

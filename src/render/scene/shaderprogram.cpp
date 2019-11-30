@@ -7,9 +7,7 @@
 #include <fstream>
 #include <set>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 namespace
 {
@@ -64,7 +62,7 @@ void replaceIncludes(const std::string& filepath,
   included.emplace(filepath);
   out += "#line 1\n#pragma file \"" + filepath + "\"\n";
 
-  // Replace the #include "xxxx.xxx" with the sourced file contents of "filepath/xxxx.xxx"
+  // Replace the #include "foo.bar" with the sourced file contents of "filepath/foo.bar"
   size_t headPos = 0;
   size_t line = 1;
   while(headPos < source.length())
@@ -164,13 +162,13 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const std::string& 
   uniqueId += boost::algorithm::join(defines, ";");
 
   // Read source from file.
-  std::string vshSource = readAll(vshPath);
+  const std::string vshSource = readAll(vshPath);
   if(vshSource.empty())
   {
     BOOST_LOG_TRIVIAL(error) << "Failed to read vertex shader from file '" << vshPath << "'.";
     return nullptr;
   }
-  std::string fshSource = readAll(fshPath);
+  const std::string fshSource = readAll(fshPath);
   if(fshSource.empty())
   {
     BOOST_LOG_TRIVIAL(error) << "Failed to read fragment shader from file '" << fshPath << "'.";
@@ -210,7 +208,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   std::string vshSourceStr;
   if(!vshPath.empty())
   {
-    // Replace the #include "xxxxx.xxx" with the sources that come from file paths
+    // Replace the #include "foo.bar" with the sources that come from file paths
     std::set<std::string> included;
     replaceIncludes(vshPath, vshSource, vshSourceStr, included);
     if(!vshSource.empty())
@@ -237,7 +235,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   std::string fshSourceStr;
   if(!fshPath.empty())
   {
-    // Replace the #include "xxxxx.xxx" with the sources that come from file paths
+    // Replace the #include "foo.bar" with the sources that come from file paths
     std::set<std::string> included;
     replaceIncludes(fshPath, fshSource, fshSourceStr, included);
     if(!fshSource.empty())
@@ -297,5 +295,4 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   return shaderProgram;
 }
 
-} // namespace scene
 } // namespace render

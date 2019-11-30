@@ -1,8 +1,8 @@
 #include "heightinfo.h"
 
 #include "cameracontroller.h"
+#include "engine/objects/object.h"
 #include "floordata/floordata.h"
-#include "items/itemnode.h"
 
 namespace engine
 {
@@ -10,7 +10,7 @@ bool HeightInfo::skipSteepSlants = false;
 
 HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::Sector*> roomSector,
                                  const core::TRVec& pos,
-                                 const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList)
+                                 const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects)
 {
   HeightInfo hi;
 
@@ -26,8 +26,8 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::Sector*> room
     return hi;
   }
 
-  // process additional slant and item height patches
-  const engine::floordata::FloorDataValue* fd = roomSector->floorData;
+  // process additional slant and object height patches
+  const floordata::FloorDataValue* fd = roomSector->floorData;
   while(true)
   {
     const floordata::FloorDataChunk chunkHeader{*fd++};
@@ -86,7 +86,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::Sector*> room
 
         if(command.opcode == floordata::CommandOpcode::Activate)
         {
-          itemList.at(command.parameter)->patchFloor(pos, hi.y);
+          objects.at(command.parameter)->patchFloor(pos, hi.y);
         }
         else if(command.opcode == floordata::CommandOpcode::SwitchCamera)
         {
@@ -107,7 +107,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::Sector*> room
 
 HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::file::Sector*> roomSector,
                                    const core::TRVec& pos,
-                                   const std::map<uint16_t, gsl::not_null<std::shared_ptr<items::ItemNode>>>& itemList)
+                                   const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects)
 {
   HeightInfo hi;
 
@@ -120,7 +120,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::file::Sector*> ro
 
   if(roomSector->floorData != nullptr)
   {
-    const engine::floordata::FloorDataValue* fd = roomSector->floorData;
+    const floordata::FloorDataValue* fd = roomSector->floorData;
     floordata::FloorDataChunk chunkHeader{*fd};
     ++fd;
 
@@ -176,7 +176,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::file::Sector*> ro
   if(roomSector->floorData == nullptr)
     return hi;
 
-  const engine::floordata::FloorDataValue* fd = roomSector->floorData;
+  const floordata::FloorDataValue* fd = roomSector->floorData;
   while(true)
   {
     const floordata::FloorDataChunk chunkHeader{*fd++};
@@ -194,7 +194,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::file::Sector*> ro
 
         if(command.opcode == floordata::CommandOpcode::Activate)
         {
-          itemList.at(command.parameter)->patchCeiling(pos, hi.y);
+          objects.at(command.parameter)->patchCeiling(pos, hi.y);
         }
         else if(command.opcode == floordata::CommandOpcode::SwitchCamera)
         {
