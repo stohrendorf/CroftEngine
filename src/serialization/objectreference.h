@@ -36,7 +36,6 @@ struct ObjectReference
 
   void load(const Serializer& ser)
   {
-    ser.tag("objectref");
     if(ser.node.IsNull())
     {
       ptr = nullptr;
@@ -44,6 +43,7 @@ struct ObjectReference
     else
     {
       ser.lazy([pptr = &ptr](const Serializer& ser) {
+        ser.tag("objectref");
         engine::ObjectId id = 0;
         ser("id", id);
         *pptr = ser.engine.getObjects().at(id);

@@ -6,7 +6,7 @@
 
 namespace serialization
 {
-Exception::Exception(const char* msg)
+Exception::Exception(const gsl::czstring msg)
     : std::runtime_error{msg}
 {
   BOOST_LOG_TRIVIAL(fatal) << "Serialization exception: " << msg;
@@ -45,5 +45,22 @@ void Serializer::processQueues()
       current->pop();
     }
   }
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+void Serializer::applyTag()
+{
+  if(m_tag.empty())
+    return;
+
+  if(loading)
+  {
+    if(node.Tag() != m_tag)
+      SERIALIZER_EXCEPTION("Expected tag \"" + m_tag + "\", but got \"" + node.Tag() + "\"");
+  }
+  else
+    node.SetTag(m_tag);
+
+  m_tag.clear();
 }
 } // namespace serialization

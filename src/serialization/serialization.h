@@ -28,7 +28,7 @@ public:
   {
   }
 
-  explicit Exception(const char* msg);
+  explicit Exception(gsl::czstring msg);
 };
 
 #define SERIALIZER_EXCEPTION(msg) BOOST_THROW_EXCEPTION(::serialization::Exception{msg})
@@ -50,49 +50,49 @@ struct access
   template<typename T>
   static auto callSerializeOrLoad(T& data, const Serializer& ser) -> decltype(data.serialize(ser), void())
   {
-    data.serialize(ser);
+    return data.serialize(ser);
   }
 
   template<typename T>
   static auto callSerializeOrLoad(T& data, const Serializer& ser) -> decltype(serialize(data, ser), void())
   {
-    serialize(data, ser);
+    return serialize(data, ser);
   }
 
   template<typename T>
   static auto callSerializeOrLoad(T& data, const Serializer& ser) -> decltype(data.load(ser), void())
   {
-    data.load(ser);
+    return data.load(ser);
   }
 
   template<typename T>
   static auto callSerializeOrLoad(T& data, const Serializer& ser) -> decltype(load(data, ser), void())
   {
-    load(data, ser);
+    return load(data, ser);
   }
 
   template<typename T>
   static auto callSerializeOrSave(T& data, const Serializer& ser) -> decltype(data.serialize(ser), void())
   {
-    data.serialize(ser);
+    return data.serialize(ser);
   }
 
   template<typename T>
   static auto callSerializeOrSave(T& data, const Serializer& ser) -> decltype(serialize(data, ser), void())
   {
-    serialize(data, ser);
+    return serialize(data, ser);
   }
 
   template<typename T>
   static auto callSerializeOrSave(T& data, const Serializer& ser) -> decltype(data.save(ser), void())
   {
-    data.save(ser);
+    return data.save(ser);
   }
 
   template<typename T>
   static auto callSerializeOrSave(T& data, const Serializer& ser) -> decltype(save(data, ser), void())
   {
-    save(data, ser);
+    return save(data, ser);
   }
 
   template<typename T>
@@ -127,18 +127,7 @@ class Serializer final
 
   mutable std::string m_tag{};
 
-  void applyTag()
-  {
-    if(m_tag.empty())
-      return;
-
-    if(loading)
-      Expects(node.Tag() == m_tag);
-    else
-      node.SetTag(m_tag);
-
-    m_tag.clear();
-  }
+  void applyTag();
 
 public:
   mutable YAML::Node node;
@@ -165,7 +154,7 @@ public:
   }
 
   template<typename T>
-  void lazy(const char* name, T& data) const
+  void lazy(const gsl::not_null<gsl::czstring>& name, T& data) const
   {
     lazy([pdata = &data, name = name](const Serializer& ser) { ser(name, *pdata); });
   }
@@ -179,15 +168,18 @@ public:
   }
 
   template<typename T, typename... Ts>
-  const Serializer& operator()(const char* headName, T&& headData, Ts&&... tail) const
+  const Serializer& operator()(const gsl::not_null<gsl::czstring>& headName,
+                               T&& headData,
+                               const gsl::not_null<gsl::czstring>& tailName,
+                               Ts&&... tail) const
   {
     (*this)(headName, std::forward<T>(headData));
-    (*this)(std::forward<Ts>(tail)...);
+    (*this)(tailName, std::forward<Ts>(tail)...);
     return *this;
   }
 
   template<typename T>
-  const Serializer& operator()(const char* name, T& data) const
+  const Serializer& operator()(const gsl::czstring name, T& data) const
   {
     BOOST_LOG_TRIVIAL(trace) << "Serializing node " << name;
 
@@ -232,7 +224,7 @@ public:
     return *this;
   }
 
-  Serializer operator[](const char* name) const
+  Serializer operator[](const gsl::czstring name) const
   {
     return withNode(node[name]);
   }

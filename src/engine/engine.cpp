@@ -1421,8 +1421,8 @@ void Engine::scaleSplashImage()
     gsl::narrow<int>(centerX - m_window->getViewport().width / 2 + m_window->getViewport().width - 1),
     gsl::narrow<int>(centerY - m_window->getViewport().height / 2 + m_window->getViewport().height - 1));
 
-  Expects(stati_cast<size_t>(splashImageScaled.width()) == m_window->getViewport().width);
-  Expects(stati_cast<size_t>(splashImageScaled.height()) == m_window->getViewport().height);
+  Expects(static_cast<size_t>(splashImageScaled.width()) == m_window->getViewport().width);
+  Expects(static_cast<size_t>(splashImageScaled.height()) == m_window->getViewport().height);
 
   splashImageScaled.interleave();
 }
