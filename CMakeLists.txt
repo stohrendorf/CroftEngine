@@ -59,10 +59,10 @@ target_include_directories( OpenGL SYSTEM BEFORE INTERFACE ${OPENGL_INCLUDE_DIR}
 target_link_libraries( OpenGL INTERFACE ${OPENGL_LIBRARIES} )
 
 find_path( LUA_INCLUDE_DIR lua.hpp PATH_SUFFIXES lua5.3 )
-find_library( LUA_LIBRARIES lua )
+find_library( LUA_LIBRARIES NAMES lua5.3 lua NAMES_PER_DIR PATH_SUFFIXES lib )
 
 if( NOT LUA_LIBRARIES OR NOT LUA_INCLUDE_DIR )
-    message( FATAL_ERROR "Lua not found" )
+    message( FATAL_ERROR "Lua not found; libs=${LUA_LIBRARIES}; includes=${LUA_INCLUDE_DIR}" )
 endif()
 
 add_library( Lua INTERFACE )
@@ -131,7 +131,7 @@ target_compile_definitions( CImg::CImg INTERFACE -Dcimg_display=0 -Dcimg_use_png
 if( VCPKG_TOOLCHAIN )
     find_package( sol2 CONFIG REQUIRED )
 else()
-    download( https://github.com/ThePhD/sol2/releases/download/v3.0.3/sol.hpp )
+    download( https://github.com/ThePhD/sol2/releases/download/v3.0.3/sol.hpp "sol-v3.0.3/sol/sol.hpp" )
 
     add_library( sol2::sol2 INTERFACE IMPORTED )
     target_include_directories( sol2::sol2 SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/sol-v3.0.3/" )

@@ -13,7 +13,7 @@ namespace
 {
 gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(Engine& engine,
                                                              const core::RoomBoundPosition& pos,
-                                                             const core::Speed& speed,
+                                                             const core::Speed& /*speed*/,
                                                              const core::Angle& angle)
 {
   auto particle = std::make_shared<MutantGrenadeParticle>(pos, engine, angle);
@@ -22,7 +22,7 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(Engine& engine,
 }
 gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(Engine& engine,
                                                             const core::RoomBoundPosition& pos,
-                                                            const core::Speed& speed,
+                                                            const core::Speed& /*speed*/,
                                                             const core::Angle& angle)
 {
   auto particle = std::make_shared<MutantBulletParticle>(pos, engine, angle);

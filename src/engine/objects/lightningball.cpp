@@ -52,7 +52,6 @@ using Bolt = std::array<core::TRVec, LightningBall::SegmentPoints>;
 
 Bolt updateBolt(core::TRVec start,
                 const core::TRVec& end,
-                const render::scene::Mesh& mesh,
                 const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>>& vb)
 {
   const auto segmentSize = (end - start) / LightningBall::SegmentPoints;
@@ -176,7 +175,7 @@ void LightningBall::update()
   playSoundEffect(TR1SoundId::Chatter);
 }
 
-void LightningBall::collide(CollisionInfo& info)
+void LightningBall::collide(CollisionInfo& /*info*/)
 {
   if(!m_laraHit)
     return;
@@ -209,11 +208,11 @@ void LightningBall::prepareRender()
   const auto segmentStart = core::TRVec{
     glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f))};
 
-  const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd, *m_mainBoltMesh, m_mainVb);
+  const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd, m_mainVb);
 
   for(const auto& childBolt : m_childBolts)
   {
-    updateBolt(mainBolt[childBolt.startIndex], childBolt.end, *childBolt.mesh, childBolt.vb);
+    updateBolt(mainBolt[childBolt.startIndex], childBolt.end, childBolt.vb);
   }
 }
 

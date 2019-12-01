@@ -230,7 +230,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
   m_portalMaterial->getRenderState().setCullFace(false);
 
   m_portalMaterial->getUniform("u_mvp")->bind([camera = m_renderer->getScene()->getActiveCamera()](
-                                                const render::scene::Node& node, render::gl::ProgramUniform& uniform) {
+                                                const render::scene::Node&, render::gl::ProgramUniform& uniform) {
     uniform.set(camera->getViewProjectionMatrix()); // portals are already in world space
   });
 
@@ -1421,8 +1421,8 @@ void Engine::scaleSplashImage()
     gsl::narrow<int>(centerX - m_window->getViewport().width / 2 + m_window->getViewport().width - 1),
     gsl::narrow<int>(centerY - m_window->getViewport().height / 2 + m_window->getViewport().height - 1));
 
-  Expects(splashImageScaled.width() == m_window->getViewport().width);
-  Expects(splashImageScaled.height() == m_window->getViewport().height);
+  Expects(stati_cast<size_t>(splashImageScaled.width()) == m_window->getViewport().width);
+  Expects(stati_cast<size_t>(splashImageScaled.height()) == m_window->getViewport().height);
 
   splashImageScaled.interleave();
 }

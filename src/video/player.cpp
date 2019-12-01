@@ -6,6 +6,7 @@
 extern "C"
 {
 #include <libavcodec/avcodec.h>
+#include <libavcodec/version.h>
 #include <libavfilter/avfilter.h>
 #include <libavfilter/buffersink.h>
 #include <libavfilter/buffersrc.h>
@@ -22,6 +23,7 @@ extern "C"
 #include "gsl-lite.hpp"
 
 #include <boost/filesystem/operations.hpp>
+#include <condition_variable>
 #include <functional>
 #include <mutex>
 #include <queue>
@@ -55,7 +57,11 @@ struct Stream final
 
     stream = fmtContext->streams[index];
     // https://trac.ffmpeg.org/ticket/7859
+#if LIBAVCODEC_VERSION_MAJOR >= 58
     if(stream->codecpar->codec_id == AV_CODEC_ID_PCM_VIDC)
+#else
+    if(stream->codecpar->codec_id == AV_CODEC_ID_NONE)
+#endif
       stream->codecpar->codec_id = AV_CODEC_ID_PCM_U8;
 
     const auto decoder = avcodec_find_decoder(stream->codecpar->codec_id);
@@ -415,7 +421,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
   size_t audioFrameDuration = 0;
   size_t audioFramePosition = 0;
 
-  size_t readStereo(int16_t* buffer, size_t bufferSize, bool looping) override
+  size_t readStereo(int16_t* buffer, size_t bufferSize, bool /*looping*/) override
   {
     fillQueues();
 

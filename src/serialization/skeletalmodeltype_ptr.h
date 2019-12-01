@@ -7,6 +7,7 @@ namespace serialization
 {
 inline core::TypeId::type ptrSave(const loader::file::SkeletalModelType* model, const Serializer& ser)
 {
+  ser.tag("skeletalmodel");
   if(model == nullptr)
     return std::numeric_limits<core::TypeId::type>::max();
 
@@ -16,6 +17,7 @@ inline core::TypeId::type ptrSave(const loader::file::SkeletalModelType* model, 
 inline const loader::file::SkeletalModelType*
   ptrLoad(const TypeId<const loader::file::SkeletalModelType*>&, core::TypeId::type idx, const Serializer& ser)
 {
+  ser.tag("skeletalmodel");
   if(idx == std::numeric_limits<core::TypeId::type>::max())
     return nullptr;
 

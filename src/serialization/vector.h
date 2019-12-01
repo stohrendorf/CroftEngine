@@ -9,6 +9,7 @@ namespace serialization
 template<typename T>
 void save(std::vector<T>& data, const Serializer& ser)
 {
+  ser.tag("vector");
   ser.node = YAML::Node(YAML::NodeType::Sequence);
   for(auto& element : data)
   {
@@ -21,6 +22,7 @@ void save(std::vector<T>& data, const Serializer& ser)
 template<typename T>
 void load(std::vector<T>& data, const Serializer& ser)
 {
+  ser.tag("vector");
   Expects(ser.node.IsSequence());
   data = std::vector<T>();
   data.reserve(ser.node.size());

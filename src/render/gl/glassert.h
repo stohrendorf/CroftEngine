@@ -8,7 +8,7 @@ namespace render::gl
 #ifndef NDEBUG
 extern void checkGlError(gsl::czstring code);
 #else
-inline void checkGlError(gsl::czstring code)
+inline void checkGlError(gsl::czstring /*code*/)
 {
 }
 #endif

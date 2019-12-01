@@ -8,6 +8,7 @@
 #include "render/scene/node.h"
 
 #include <deque>
+#include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 
 namespace engine
@@ -244,7 +245,7 @@ public:
     {
       timePerSpriteFrame = 0;
       --negSpriteFrameId;
-      if(negSpriteFrameId <= getLength())
+      if(negSpriteFrameId <= 0 || static_cast<size_t>(negSpriteFrameId) <= getLength())
       {
         return false;
       }

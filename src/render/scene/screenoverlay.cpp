@@ -7,6 +7,7 @@
 #include "uniformparameter.h"
 
 #include <boost/log/trivial.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace render::scene
 {
@@ -54,4 +55,4 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
   m_mesh->getRenderState().setDepthWrite(false);
   m_mesh->getRenderState().setDepthTest(false);
 }
-} // namespace render
+} // namespace render::scene

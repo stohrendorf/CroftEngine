@@ -1002,8 +1002,6 @@ std::unordered_set<const loader::file::Portal*>
 
     for(const auto& portal : room.portals)
     {
-      if(portal.adjoining_room.get() < 0)
-        continue;
       if(getEngine()->getRooms().at(portal.adjoining_room.get()).isWaterRoom())
         result.emplace(&portal);
     }

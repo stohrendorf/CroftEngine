@@ -53,12 +53,12 @@ struct Mesh
     const auto num_normals = reader.readI16();
     if(num_normals >= 0)
     {
-      Expects(num_normals == mesh->vertices.size());
+      Expects(static_cast<size_t>(num_normals) == mesh->vertices.size());
       reader.readVector(mesh->normals, num_normals, &io::readCoordinates16);
     }
     else
     {
-      Expects(-num_normals == mesh->vertices.size());
+      Expects(static_cast<size_t>(-num_normals) == mesh->vertices.size());
       reader.readVector(mesh->vertexDarknesses, -num_normals);
     }
 

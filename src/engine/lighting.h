@@ -73,10 +73,10 @@ struct Lighting
       "u_lightAmbient",
       [this](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) { uniform.set(ambient); });
 
-    node.addBufferBinder(
-      "b_lights", [this](const render::scene::Node& node, render::gl::ProgramShaderStorageBlock& shaderStorageBlock) {
-        shaderStorageBlock.bind(m_buffer);
-      });
+    node.addBufferBinder("b_lights",
+                         [this](const render::scene::Node&, render::gl::ProgramShaderStorageBlock& shaderStorageBlock) {
+                           shaderStorageBlock.bind(m_buffer);
+                         });
   }
 };
 } // namespace engine

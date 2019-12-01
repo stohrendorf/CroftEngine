@@ -123,11 +123,13 @@ struct Id
 
   void serialize(const serialization::Serializer& ser)
   {
+    ser.tag("id");
     serialization::access::callSerialize(m_value, ser);
   }
 
   static Id<StorageType, Tag, Enums...> create(const serialization::Serializer& ser)
   {
+    ser.tag("id");
     return Id<StorageType, Tag, Enums...>{serialization::create(serialization::TypeId<StorageType>{}, ser)};
   }
 

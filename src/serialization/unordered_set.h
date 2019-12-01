@@ -9,6 +9,7 @@ namespace serialization
 template<typename T>
 void save(std::unordered_set<T>& data, const Serializer& ser)
 {
+  ser.tag("set");
   ser.node = YAML::Node(YAML::NodeType::Sequence);
   for(auto& element : data)
   {
@@ -21,6 +22,7 @@ void save(std::unordered_set<T>& data, const Serializer& ser)
 template<typename T>
 void load(std::unordered_set<T>& data, const Serializer& ser)
 {
+  ser.tag("set");
   data = std::unordered_set<T>();
   data.reserve(ser.node.size());
   for(const auto& element : ser.node)

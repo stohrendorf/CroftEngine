@@ -53,7 +53,7 @@ struct PortalTracer
     room.node->setVisible(true);
     for(const auto& portal : room.portals)
     {
-      if(const auto narrowedCullBox = narrowCullBox(room, roomCullBox, portal, engine.getCameraController()))
+      if(const auto narrowedCullBox = narrowCullBox(roomCullBox, portal, engine.getCameraController()))
       {
         const auto& childRoom = engine.getRooms().at(portal.adjoining_room.get());
         const bool waterChanged = inWater == startFromWater && childRoom.isWaterRoom() != startFromWater;
@@ -74,8 +74,7 @@ struct PortalTracer
     return true;
   }
 
-  static std::optional<CullBox> narrowCullBox(const loader::file::Room& parentRoom,
-                                              const CullBox& parentCullBox,
+  static std::optional<CullBox> narrowCullBox(const CullBox& parentCullBox,
                                               const loader::file::Portal& portal,
                                               const engine::CameraController& camera)
   {

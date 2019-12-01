@@ -156,16 +156,14 @@ struct quantity
 
   void serialize(const serialization::Serializer& ser)
   {
+    ser.tag(unit::suffix());
     if(ser.loading)
     {
-      Expects(ser.node.IsMap() && ser.node.size() == 2);
-      Expects(ser.node["unit"].as<std::string>() == unit::suffix());
-      value = ser.node["value"].as<type>();
+      value = ser.node.as<type>();
     }
     else
     {
-      ser.node["unit"] = unit::suffix();
-      ser.node["value"] = value;
+      ser.node = value;
     }
   }
 

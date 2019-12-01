@@ -7,6 +7,7 @@ namespace serialization
 {
 inline uint32_t ptrSave(const loader::file::Room* room, const Serializer& ser)
 {
+  ser.tag("room");
   if(room == nullptr)
     return std::numeric_limits<uint32_t>::max();
 
@@ -15,6 +16,7 @@ inline uint32_t ptrSave(const loader::file::Room* room, const Serializer& ser)
 
 inline const loader::file::Room* ptrLoad(const TypeId<const loader::file::Room*>&, uint32_t idx, const Serializer& ser)
 {
+  ser.tag("room");
   if(idx == std::numeric_limits<uint32_t>::max())
     return nullptr;
 

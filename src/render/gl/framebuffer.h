@@ -40,7 +40,7 @@ private:
 class Framebuffer : public BindableResource
 {
 public:
-  using Attachment = std::pair<std::shared_ptr<Attachment>, ::gl::FramebufferAttachment>;
+  using Attachment = std::pair<std::shared_ptr<render::gl::Attachment>, ::gl::FramebufferAttachment>;
   using Attachments = std::vector<Attachment>;
 
 private:
@@ -128,7 +128,7 @@ public:
   }
 };
 
-inline void TextureAttachment::attach(const Framebuffer& frameBuffer,
+inline void TextureAttachment::attach(const Framebuffer& /*frameBuffer*/,
                                       const ::gl::FramebufferAttachment attachment) const
 {
   GL_ASSERT(
@@ -146,8 +146,7 @@ public:
     return std::make_shared<Framebuffer>(std::move(m_attachments));
   }
 
-  FrameBufferBuilder&
-    texture(::gl::FramebufferAttachment attachment, const std::shared_ptr<Texture>& texture, int32_t level = 0)
+  FrameBufferBuilder& texture(::gl::FramebufferAttachment attachment, const std::shared_ptr<Texture>& texture)
   {
     m_attachments.emplace_back(std::make_shared<TextureAttachment>(texture), attachment);
     return *this;

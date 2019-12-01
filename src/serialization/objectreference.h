@@ -16,6 +16,7 @@ struct ObjectReference
 
   void save(const Serializer& ser)
   {
+    ser.tag("objectref");
     if(ptr == nullptr)
     {
       ser.node = YAML::Node{};
@@ -35,6 +36,7 @@ struct ObjectReference
 
   void load(const Serializer& ser)
   {
+    ser.tag("objectref");
     if(ser.node.IsNull())
     {
       ptr = nullptr;

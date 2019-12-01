@@ -9,6 +9,7 @@ namespace serialization
 template<typename T, typename U>
 void save(std::map<T, U>& data, const Serializer& ser)
 {
+  ser.tag("map");
   ser.node = YAML::Node(YAML::NodeType::Sequence);
   for(auto& element : data)
   {
@@ -22,8 +23,9 @@ void save(std::map<T, U>& data, const Serializer& ser)
 template<typename T, typename U>
 void load(std::map<T, U>& data, const Serializer& ser)
 {
+  ser.tag("map");
   data = std::map<T, U>();
-  for(auto& element : ser.node)
+  for(const auto& element : ser.node)
   {
     Expects(element.IsMap());
     Expects(element.size() == 2);

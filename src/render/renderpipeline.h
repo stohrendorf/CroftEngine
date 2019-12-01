@@ -204,7 +204,7 @@ public:
 
     // === ssao.glsl setup ===
     // generate sample kernel
-    const std::uniform_real_distribution<float> randomFloats(0, 1);
+    std::uniform_real_distribution<float> randomFloats(0, 1);
     std::default_random_engine generator{}; // NOLINT(cert-msc32-c)
     std::vector<glm::vec3> ssaoSamples;
     while(ssaoSamples.size() < 64)

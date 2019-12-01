@@ -174,7 +174,7 @@ public:
 
   static ::gl::TextureUnit textureUnit(size_t n)
   {
-    Expects(n >= 0 && n < 32);
+    Expects(n < 32);
     return static_cast<::gl::TextureUnit>(static_cast<::gl::core::EnumType>(::gl::TextureUnit::Texture0) + n);
   }
 

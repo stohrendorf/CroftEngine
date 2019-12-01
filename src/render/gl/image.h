@@ -3,6 +3,7 @@
 #include "gsl-lite.hpp"
 #include "pixel.h"
 
+#include <boost/throw_exception.hpp>
 #include <vector>
 
 namespace render::gl
@@ -247,4 +248,4 @@ private:
 
   int32_t m_height;
 };
-} // namespace render
+} // namespace render::gl

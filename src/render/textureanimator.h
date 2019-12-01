@@ -73,7 +73,7 @@ class TextureAnimator
 
         for(const VertexReference& vref : vertices)
         {
-          BOOST_ASSERT(vref.bufferIndex < buffer->size());
+          BOOST_ASSERT(buffer->size() > 0 && vref.bufferIndex < static_cast<size_t>(buffer->size()));
           BOOST_ASSERT(vref.queueOffset < tileIds.size());
           const loader::file::TextureTile& tile = tiles[tileIds[vref.queueOffset].get()];
 

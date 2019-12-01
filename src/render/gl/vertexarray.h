@@ -14,7 +14,7 @@ namespace render::gl
 namespace detail
 {
 template<std::size_t I = 0, typename... Ts>
-inline std::enable_if_t<I == sizeof...(Ts), void> bindVertexAttributes(const std::tuple<Ts...>&, const Program& program)
+inline std::enable_if_t<I == sizeof...(Ts), void> bindVertexAttributes(const std::tuple<Ts...>&, const Program&)
 {
 }
 

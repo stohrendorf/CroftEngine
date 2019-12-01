@@ -367,7 +367,6 @@ void Level::postProcessDataStructures()
     anim.nextAnimation = &m_animations[anim.nextAnimationIndex];
 
     Expects(anim.animCommandIndex + anim.animCommandCount <= m_animCommands.size());
-
     Expects(anim.transitionsIndex + anim.transitionsCount <= m_transitions.size());
     if(anim.transitionsCount > 0)
       anim.transitions = gsl::make_span(&anim.transitionsIndex.checkedFrom(m_transitions), anim.transitionsCount);

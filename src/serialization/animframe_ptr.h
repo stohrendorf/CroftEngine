@@ -7,6 +7,7 @@ namespace serialization
 {
 inline uint32_t ptrSave(const loader::file::AnimFrame* frame, const Serializer& ser)
 {
+  ser.tag("animframe");
   if(frame == nullptr)
     return std::numeric_limits<uint32_t>::max();
 
@@ -17,6 +18,7 @@ inline uint32_t ptrSave(const loader::file::AnimFrame* frame, const Serializer& 
 inline const loader::file::AnimFrame*
   ptrLoad(const TypeId<const loader::file::AnimFrame*>&, uint32_t idx, const Serializer& ser)
 {
+  ser.tag("animframe");
   if(idx == std::numeric_limits<uint32_t>::max())
     return nullptr;
 

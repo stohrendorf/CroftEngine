@@ -9,6 +9,7 @@ namespace serialization
 template<typename T>
 inline void save(std::optional<T>& optional, const Serializer& ser)
 {
+  ser.tag("optional");
   if(optional.has_value())
   {
     ser("value", *optional);
@@ -22,6 +23,7 @@ inline void save(std::optional<T>& optional, const Serializer& ser)
 template<typename T>
 inline void load(std::optional<T>& optional, const Serializer& ser)
 {
+  ser.tag("optional");
   if(ser.node["value"].IsNull())
   {
     optional.reset();

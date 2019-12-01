@@ -86,7 +86,7 @@ void ScionPiece3::update()
   }
 }
 
-void ScionPiece4::collide(CollisionInfo& info)
+void ScionPiece4::collide(CollisionInfo& /*info*/)
 {
   m_state.rotation = {0_deg, getEngine().getLara().m_state.rotation.Y, 0_deg};
 

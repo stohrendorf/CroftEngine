@@ -7,6 +7,7 @@ namespace serialization
 {
 inline core::TypeId::type ptrSave(const loader::file::Sprite* sprite, const Serializer& ser)
 {
+  ser.tag("sprite");
   if(sprite == nullptr)
     return std::numeric_limits<core::TypeId::type>::max();
 
@@ -16,6 +17,7 @@ inline core::TypeId::type ptrSave(const loader::file::Sprite* sprite, const Seri
 inline const loader::file::Sprite*
   ptrLoad(const TypeId<const loader::file::Sprite*>&, core::TypeId::type idx, const Serializer& ser)
 {
+  ser.tag("sprite");
   if(idx == std::numeric_limits<core::TypeId::type>::max())
     return nullptr;
 

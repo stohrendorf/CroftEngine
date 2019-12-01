@@ -5,8 +5,10 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <exception>
 #include <fstream>
 #include <queue>
+#include <string>
 #include <type_traits>
 #include <typeinfo>
 #include <yaml-cpp/yaml.h>
@@ -40,31 +42,10 @@ struct TypeId
 struct access
 {
   template<typename T>
-  static void serializeTrivial(T& data, const Serializer& ser)
-  {
-    if(ser.loading)
-    {
-      if(!ser.node.IsDefined())
-        SERIALIZER_EXCEPTION("Attempted to serialize from an undefined node");
-      data = std::move(ser.node.as<T>());
-    }
-    else
-    {
-      if(ser.node.IsDefined())
-        SERIALIZER_EXCEPTION("Attempted to serialize to an already used node");
-      ser.node = data;
-    }
-  }
+  static void serializeTrivial(T& data, const Serializer& ser);
 
   template<typename T>
-  static std::enable_if_t<std::is_default_constructible_v<T>, T> createTrivial(const TypeId<T>&, const Serializer& ser)
-  {
-    Expects(ser.loading);
-
-    T tmp{};
-    callSerializeOrLoad(tmp, ser);
-    return tmp;
-  }
+  static std::enable_if_t<std::is_default_constructible_v<T>, T> createTrivial(const TypeId<T>&, const Serializer& ser);
 
   template<typename T>
   static auto callSerializeOrLoad(T& data, const Serializer& ser) -> decltype(data.serialize(ser), void())
@@ -115,27 +96,13 @@ struct access
   }
 
   template<typename T>
-  static void callSerialize(T& data, const Serializer& ser)
-  {
-    if(ser.loading)
-      callSerializeOrLoad(data, ser);
-    else
-      callSerializeOrSave(data, ser);
-  }
+  static void callSerialize(T& data, const Serializer& ser);
 
   template<typename T>
-  static auto callCreate(const TypeId<T>&, const Serializer& ser) -> decltype(T::create(ser))
-  {
-    Expects(ser.loading);
-    return T::create(ser);
-  }
+  static auto callCreate(const TypeId<T>&, const Serializer& ser) -> decltype(T::create(ser));
 
   template<typename T>
-  static auto callCreate(const TypeId<T>& tid, const Serializer& ser) -> decltype(create(tid, ser))
-  {
-    Expects(ser.loading);
-    return create(tid, ser);
-  }
+  static auto callCreate(const TypeId<T>& tid, const Serializer& ser) -> decltype(create(tid, ser));
 };
 
 class Serializer final
@@ -158,14 +125,37 @@ class Serializer final
 
   void processQueues();
 
+  mutable std::string m_tag{};
+
+  void applyTag()
+  {
+    if(m_tag.empty())
+      return;
+
+    if(loading)
+      Expects(node.Tag() == m_tag);
+    else
+      node.SetTag(m_tag);
+
+    m_tag.clear();
+  }
+
 public:
   mutable YAML::Node node;
   engine::Engine& engine;
   const bool loading;
 
+  ~Serializer()
+  {
+    applyTag();
+  }
+
   void lazy(const Next& next) const
   {
-    m_nextQueue->emplace([next = next, ser = *this]() { next(ser); });
+    if(loading)
+      m_nextQueue->emplace([next = next, ser = *this]() { next(ser); });
+    else
+      next(*this);
   }
 
   template<typename T>
@@ -183,11 +173,16 @@ public:
   static void save(const std::string& filename, engine::Engine& engine);
   static void load(const std::string& filename, engine::Engine& engine);
 
-  template<typename T, typename... Ts>
-  const Serializer& operator()(const char* headName, T& headData, Ts&... tail) const
+  const Serializer& operator()() const noexcept
   {
-    (*this)(headName, headData);
-    (*this)(tail...);
+    return *this;
+  }
+
+  template<typename T, typename... Ts>
+  const Serializer& operator()(const char* headName, T&& headData, Ts&&... tail) const
+  {
+    (*this)(headName, std::forward<T>(headData));
+    (*this)(std::forward<Ts>(tail)...);
     return *this;
   }
 
@@ -209,10 +204,12 @@ public:
 
     try
     {
+      auto ser = (*this)[name];
       if(loading)
-        access::callSerializeOrLoad(data, (*this)[name]);
+        access::callSerializeOrLoad(data, ser);
       else
-        access::callSerializeOrSave(data, (*this)[name]);
+        access::callSerializeOrSave(data, ser);
+      ser.applyTag();
     }
     catch(Exception&)
     {
@@ -249,7 +246,59 @@ public:
   {
     return Serializer{otherNode, engine, loading, m_nextQueue};
   }
+
+  void tag(std::string tag) const
+  {
+    m_tag = std::move(tag);
+  }
 };
+
+template<typename T>
+inline void access::serializeTrivial(T& data, const Serializer& ser)
+{
+  if(ser.loading)
+  {
+    data = std::move(ser.node.as<T>());
+  }
+  else
+  {
+    ser.node = data;
+  }
+}
+
+template<typename T>
+inline std::enable_if_t<std::is_default_constructible_v<T>, T> access::createTrivial(const TypeId<T>&,
+                                                                                     const Serializer& ser)
+{
+  Expects(ser.loading);
+
+  T tmp{};
+  callSerializeOrLoad(tmp, ser);
+  return tmp;
+}
+
+template<typename T>
+inline void access::callSerialize(T& data, const Serializer& ser)
+{
+  if(ser.loading)
+    callSerializeOrLoad(data, ser);
+  else
+    callSerializeOrSave(data, ser);
+}
+
+template<typename T>
+inline auto access::callCreate(const TypeId<T>&, const Serializer& ser) -> decltype(T::create(ser))
+{
+  Expects(ser.loading);
+  return T::create(ser);
+}
+
+template<typename T>
+inline auto access::callCreate(const TypeId<T>& tid, const Serializer& ser) -> decltype(create(tid, ser))
+{
+  Expects(ser.loading);
+  return create(tid, ser);
+}
 
 inline void serialize(std::string& data, const Serializer& ser)
 {
@@ -280,7 +329,7 @@ std::enable_if_t<std::is_arithmetic_v<T>, T> create(const TypeId<T>& tid, const 
 }
 
 template<typename T>
-std::enable_if_t<std::is_enum_v<T>, T> create(const TypeId<T>& tid, const Serializer& ser)
+std::enable_if_t<std::is_enum_v<T>, T> create(const TypeId<T>&, const Serializer& ser)
 {
   return static_cast<T>(access::createTrivial(TypeId<std::underlying_type_t<T>>{}, ser));
 }

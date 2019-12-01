@@ -3,8 +3,8 @@
 #include "glassert.h"
 #include "renderstate.h"
 
+#include <GL/glew.h>
 #include <boost/log/trivial.hpp>
-#include <gl/glew.h>
 
 using namespace render::gl;
 
@@ -60,9 +60,9 @@ void SOGLB_API debugCallback(gl::DebugSource source,
                              gl::DebugType type,
                              uint32_t id,
                              gl::DebugSeverity severity,
-                             gl::core::SizeType length,
+                             gl::core::SizeType /*length*/,
                              gsl::czstring message,
-                             const void* userParam)
+                             const void* /*userParam*/)
 {
   if(source == gl::DebugSource::DebugSourceApplication)
     return;
