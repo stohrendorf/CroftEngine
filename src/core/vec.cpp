@@ -7,7 +7,7 @@ namespace core
 {
 void RoomBoundPosition::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(room), S_NVP(position));
+  ser(S_NV("room", room), S_NV("position", position));
 }
 
 RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer& ser)
@@ -20,6 +20,6 @@ RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer& ser
 
 void TRVec::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(X), S_NVP(Y), S_NVP(Z));
+  ser(S_NV("x", X), S_NV("y", Y), S_NV("z", Z));
 }
 } // namespace core

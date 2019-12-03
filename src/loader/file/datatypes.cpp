@@ -410,6 +410,6 @@ const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_nu
 
 void Camera::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(flags));
+  ser(S_NV("flags", flags));
 }
 } // namespace loader::file

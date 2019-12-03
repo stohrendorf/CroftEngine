@@ -301,7 +301,7 @@ void Block::serialize(const serialization::Serializer& ser)
     loader::file::Room::patchHeightsForBlock(*this, core::SectorSize);
 
   ModelObject::serialize(ser);
-  ser(S_NVP(m_patched));
+  ser(S_NV("patched", m_patched));
 
   if(m_patched)
     loader::file::Room::patchHeightsForBlock(*this, -core::SectorSize);

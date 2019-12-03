@@ -207,7 +207,7 @@ std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr
     return nullptr;
 
   auto result = std::make_shared<CreatureInfo>(ser.engine, core::TypeId::create(ser["type"]));
-  ser("data", *result);
+  ser(S_NV("data", *result));
   return result;
 }
 

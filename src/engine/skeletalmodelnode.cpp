@@ -332,7 +332,7 @@ void SkeletalModelNode::serialize(const serialization::Serializer& ser)
   m_bonePatches.resize(getChildren().size(), glm::mat4{1.0f});
 
   auto id = getId();
-  ser("id", id, "model", m_model, S_NVP(m_bonePatches));
+  ser(S_NV("id", id), S_NV("model", m_model), S_NV("bonePatches", m_bonePatches));
 }
 
 void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer& ser)
@@ -340,7 +340,7 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
   if(ser.loading)
   {
     const loader::file::SkeletalModelType* model = nullptr;
-    ser("model", model);
+    ser(S_NV("model", model));
     data = std::make_shared<SkeletalModelNode>(
       create(serialization::TypeId<std::string>{}, ser["id"]), &ser.engine, model);
   }
@@ -350,7 +350,6 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
   }
   data->serialize(ser);
 }
-
 
 void SkeletalModelNode::initNodes(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state)
 {

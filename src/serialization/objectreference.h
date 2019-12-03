@@ -28,7 +28,7 @@ struct ObjectReference
         if(obj.second.get() == ptr)
         {
           engine::ObjectId tmp = obj.first;
-          ser("id", tmp);
+          ser(S_NV("id", tmp));
         }
       }
     }
@@ -45,7 +45,7 @@ struct ObjectReference
       ser.lazy([pptr = &ptr](const Serializer& ser) {
         ser.tag("objectref");
         engine::ObjectId id = 0;
-        ser("id", id);
+        ser(S_NV("id", id));
         *pptr = ser.engine.getObjects().at(id);
       });
     }

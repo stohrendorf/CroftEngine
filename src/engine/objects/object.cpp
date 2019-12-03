@@ -193,12 +193,12 @@ void Object::serialize(const serialization::Serializer& ser)
 {
   ser(S_NV("@type", m_state.type),
       S_NV("@position", m_state.position),
-      S_NVP(m_state),
-      S_NVP(m_hasUpdateFunction),
-      S_NVP(m_isActive));
+      S_NV("state", m_state),
+      S_NV("hasUpdateFunction", m_hasUpdateFunction),
+      S_NV("isActive", m_isActive));
 
   ser.lazy([this](const serialization::Serializer& ser) {
-    ser("renderables", serialization::FrozenVector{getNode()->getChildren()});
+    ser(S_NV("renderables", serialization::FrozenVector{getNode()->getChildren()}));
 
     if(ser.loading)
     {

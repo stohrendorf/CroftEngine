@@ -371,7 +371,7 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
     return object
 #define CREATE_PU(ENUM)                                                                                               \
   case TR1ItemId::ENUM:                                                                                               \
-    ser("@name", spriteName);                                                                                         \
+    ser(S_NV("@name", spriteName));                                                                                   \
     object                                                                                                            \
       = std::make_shared<PickupObject>(&ser.engine, position, std::move(spriteName), ser.engine.getSpriteMaterial()); \
     object->serialize(ser);                                                                                           \

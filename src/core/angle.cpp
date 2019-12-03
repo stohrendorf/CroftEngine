@@ -4,11 +4,11 @@ namespace core
 {
 void TRRotationXY::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(X), S_NVP(Y));
+  ser(S_NV("x", X), S_NV("y", Y));
 }
 
 void TRRotation::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(X), S_NVP(Y), S_NVP(Z));
+  ser(S_NV("x", X), S_NV("y", Y), S_NV("z", Z));
 }
 } // namespace core

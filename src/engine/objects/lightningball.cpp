@@ -242,12 +242,12 @@ void LightningBall::init(Engine& engine)
 void LightningBall::serialize(const serialization::Serializer& ser)
 {
   ModelObject::serialize(ser);
-  ser(S_NVP(m_poles),
-      S_NVP(m_laraHit),
-      S_NVP(m_chargeTimeout),
-      S_NVP(m_shooting),
-      S_NVP(m_mainBoltEnd),
-      S_NVP(m_childBolts));
+  ser(S_NV("poles", m_poles),
+      S_NV("laraHit", m_laraHit),
+      S_NV("chargeTimeout", m_chargeTimeout),
+      S_NV("shooting", m_shooting),
+      S_NV("mainBoltEnd", m_mainBoltEnd),
+      S_NV("childBolts", m_childBolts));
 
   if(ser.loading)
   {
@@ -257,6 +257,6 @@ void LightningBall::serialize(const serialization::Serializer& ser)
 
 void LightningBall::ChildBolt::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(startIndex), S_NVP(end));
+  ser(S_NV("startIndex", startIndex), S_NV("end", end));
 }
 } // namespace engine::objects

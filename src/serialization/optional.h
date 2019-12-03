@@ -12,11 +12,11 @@ inline void save(std::optional<T>& optional, const Serializer& ser)
   ser.tag("optional");
   if(optional.has_value())
   {
-    ser("value", *optional);
+    ser(S_NV("value", *optional));
   }
   else
   {
-    ser.node["value"] = YAML::Node();
+    ser.node["value"] = YAML::Node{YAML::NodeType::Null};
   }
 }
 
@@ -31,7 +31,7 @@ inline void load(std::optional<T>& optional, const Serializer& ser)
   else
   {
     if(optional.has_value())
-      ser("value", *optional);
+      ser(S_NV("value", *optional));
     else
       *optional = access::callCreate(TypeId<T>{}, ser["value"]);
   }

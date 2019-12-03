@@ -312,23 +312,23 @@ void PathFinder::searchPath(const Engine& engine)
 
 void PathFinder::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(nodes),
-      S_NVP(boxes),
-      S_NVP(expansions),
-      S_NVP(visited),
-      S_NVP(cannotVisitBlockable),
-      S_NVP(cannotVisitBlocked),
-      S_NVP(step),
-      S_NVP(drop),
-      S_NVP(fly),
-      S_NVP(target_box),
-      S_NVP(required_box),
-      S_NVP(target));
+  ser(S_NV("nodes", nodes),
+      S_NV("boxes", boxes),
+      S_NV("expansions", expansions),
+      S_NV("visited", visited),
+      S_NV("cannotVisitBlockable", cannotVisitBlockable),
+      S_NV("cannotVisitBlocked", cannotVisitBlocked),
+      S_NV("step", step),
+      S_NV("drop", drop),
+      S_NV("fly", fly),
+      S_NV("targetBox", target_box),
+      S_NV("requiredBox", required_box),
+      S_NV("target", target));
 }
 
 void PathFinderNode::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(exit_box), S_NVP(traversable));
+  ser(S_NV("exitBox", exit_box), S_NV("traversable", traversable));
 }
 
 PathFinderNode PathFinderNode::create(const serialization::Serializer& ser)

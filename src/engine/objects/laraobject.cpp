@@ -2203,41 +2203,169 @@ void LaraObject::burnIfAlive()
 void LaraObject::serialize(const serialization::Serializer& ser)
 {
   ModelObject::serialize(ser);
-  ser(S_NVP(gunType),
-      S_NVP(requestedGunType),
-      S_NVP(m_handStatus),
-      S_NVP(m_underwaterState),
-      S_NVP(hit_frame),
-      S_NVP(hit_direction),
-      S_NVP(m_air),
-      S_NVP(m_swimToDiveKeypressDuration),
-      S_NVP(explosionStumblingDuration),
+  ser(S_NV("gunType", gunType),
+      S_NV("requestedGunType", requestedGunType),
+      S_NV("handStatus", m_handStatus),
+      S_NV("underwaterState", m_underwaterState),
+      S_NV("hitFrame", hit_frame),
+      S_NV("hitDirection", hit_direction),
+      S_NV("air", m_air),
+      S_NV("swimToDiveKeypressDuration", m_swimToDiveKeypressDuration),
+      S_NV("explosionStumblingDuration", explosionStumblingDuration),
       // FIXME S_NVP(forceSourcePosition),
-      S_NVP(m_yRotationSpeed),
-      S_NVP(m_movementAngle),
-      S_NVP(m_headRotation),
-      S_NVP(m_torsoRotation),
-      S_NVP(pistolsAmmo),
-      S_NVP(revolverAmmo),
-      S_NVP(uziAmmo),
-      S_NVP(shotgunAmmo),
-      S_NVP(m_underwaterCurrentStrength),
-      S_NVP(m_underwaterRoute),
-      S_NVP(leftArm),
-      S_NVP(rightArm),
-      S_NVP(m_weaponTargetVector));
+      S_NV("yRotationSpeed", m_yRotationSpeed),
+      S_NV("movementAngle", m_movementAngle),
+      S_NV("headRotation", m_headRotation),
+      S_NV("torsoRotation", m_torsoRotation),
+      S_NV("pistolsAmmo", pistolsAmmo),
+      S_NV("revolverAmmo", revolverAmmo),
+      S_NV("uziAmmo", uziAmmo),
+      S_NV("shotgunAmmo", shotgunAmmo),
+      S_NV("underwaterCurrentStrength", m_underwaterCurrentStrength),
+      S_NV("underwaterRoute", m_underwaterRoute),
+      S_NV("leftArm", leftArm),
+      S_NV("rightArm", rightArm),
+      S_NV("weaponTargetVector", m_weaponTargetVector));
 
   if(ser.loading)
     forceSourcePosition = nullptr;
 }
 
+LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
+                       const gsl::not_null<const loader::file::Room*>& room,
+                       const loader::file::Item& item,
+                       const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+    : ModelObject(engine, room, item, false, animatedModel)
+    , m_underwaterRoute{*engine}
+{
+  setAnimation(AnimationId::STAY_IDLE);
+  setGoalAnimState(LaraStateId::Stop);
+  setMovementAngle(m_state.rotation.Y);
+
+  m_underwaterRoute.step = core::SectorSize * 20;
+  m_underwaterRoute.drop = -core::SectorSize * 20;
+  m_underwaterRoute.fly = core::QuarterSectorSize;
+
+  Weapon w{};
+  weapons[WeaponId::None] = w;
+
+  w.lockAngles.y.min = -60_deg;
+  w.lockAngles.y.max = +60_deg;
+  w.lockAngles.x.min = -60_deg;
+  w.lockAngles.x.max = +60_deg;
+  w.leftAngles.y.min = -170_deg;
+  w.leftAngles.y.max = +60_deg;
+  w.leftAngles.x.min = -80_deg;
+  w.leftAngles.x.max = +80_deg;
+  w.rightAngles.y.min = -60_deg;
+  w.rightAngles.y.max = +170_deg;
+  w.rightAngles.x.min = -80_deg;
+  w.rightAngles.x.max = +80_deg;
+  w.aimSpeed = +10_deg;
+  w.shotAccuracy = +8_deg;
+  w.gunHeight = 650_len;
+  w.damage = 1_hp;
+  w.targetDist = core::SectorSize * 8;
+  w.recoilFrame = 9_frame;
+  w.flashTime = 3_frame;
+  w.sampleNum = TR1SoundId::LaraShootPistols;
+  weapons[WeaponId::Pistols] = w;
+
+  w.lockAngles.y.min = -60_deg;
+  w.lockAngles.y.max = +60_deg;
+  w.lockAngles.x.min = -60_deg;
+  w.lockAngles.x.max = +60_deg;
+  w.leftAngles.y.min = -170_deg;
+  w.leftAngles.y.max = +60_deg;
+  w.leftAngles.x.min = -80_deg;
+  w.leftAngles.x.max = +80_deg;
+  w.rightAngles.y.min = -60_deg;
+  w.rightAngles.y.max = +170_deg;
+  w.rightAngles.x.min = -80_deg;
+  w.rightAngles.x.max = +80_deg;
+  w.aimSpeed = +10_deg;
+  w.shotAccuracy = +8_deg;
+  w.gunHeight = 650_len;
+  w.damage = 2_hp;
+  w.targetDist = core::SectorSize * 8;
+  w.recoilFrame = 9_frame;
+  w.flashTime = 3_frame;
+  w.sampleNum = TR1SoundId::CowboyShoot;
+  weapons[WeaponId::AutoPistols] = w;
+
+  w.lockAngles.y.min = -60_deg;
+  w.lockAngles.y.max = +60_deg;
+  w.lockAngles.x.min = -60_deg;
+  w.lockAngles.x.max = +60_deg;
+  w.leftAngles.y.min = -170_deg;
+  w.leftAngles.y.max = +60_deg;
+  w.leftAngles.x.min = -80_deg;
+  w.leftAngles.x.max = +80_deg;
+  w.rightAngles.y.min = -60_deg;
+  w.rightAngles.y.max = +170_deg;
+  w.rightAngles.x.min = -80_deg;
+  w.rightAngles.x.max = +80_deg;
+  w.aimSpeed = +10_deg;
+  w.shotAccuracy = +8_deg;
+  w.gunHeight = 650_len;
+  w.damage = 1_hp;
+  w.targetDist = core::SectorSize * 8;
+  w.recoilFrame = 3_frame;
+  w.flashTime = 2_frame;
+  w.sampleNum = TR1SoundId::LaraShootUzis;
+  weapons[WeaponId::Uzi] = w;
+
+  w.lockAngles.y.min = -60_deg;
+  w.lockAngles.y.max = +60_deg;
+  w.lockAngles.x.min = -55_deg;
+  w.lockAngles.x.max = +55_deg;
+  w.leftAngles.y.min = -80_deg;
+  w.leftAngles.y.max = +80_deg;
+  w.leftAngles.x.min = -65_deg;
+  w.leftAngles.x.max = +65_deg;
+  w.rightAngles.y.min = -80_deg;
+  w.rightAngles.y.max = +80_deg;
+  w.rightAngles.x.min = -65_deg;
+  w.rightAngles.x.max = +65_deg;
+  w.aimSpeed = +10_deg;
+  w.shotAccuracy = 0_deg;
+  w.gunHeight = 500_len;
+  w.damage = 4_hp;
+  w.targetDist = core::SectorSize * 8;
+  w.recoilFrame = 9_frame;
+  w.flashTime = 3_frame;
+  w.sampleNum = TR1SoundId::LaraShootShotgun;
+  weapons[WeaponId::Shotgun] = w;
+
+  m_state.health = core::LaraHealth;
+  m_state.collidable = true;
+  m_state.is_hit = true;
+  m_state.falling = true;
+
+  const auto& gunFlareModel = getEngine().findAnimatedModelForType(TR1ItemId::Gunflare);
+  if(gunFlareModel == nullptr)
+    return;
+
+  const auto& mdl = gunFlareModel->models[0];
+
+  m_gunFlareLeft->setRenderable(mdl.get());
+  m_gunFlareLeft->setVisible(false);
+
+  m_gunFlareRight->setRenderable(mdl.get());
+  m_gunFlareRight->setVisible(false);
+}
+
 void LaraObject::Ammo::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(ammo), S_NVP(hits), S_NVP(misses));
+  ser(S_NV("ammo", ammo), S_NV("hits", hits), S_NV("misses", misses));
 }
 
 void LaraObject::AimInfo::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NVP(weaponAnimData), S_NVP(frame), S_NVP(aiming), S_NVP(aimRotation), S_NVP(flashTimeout));
+  ser(S_NV("weaponAnimData", weaponAnimData),
+      S_NV("frame", frame),
+      S_NV("aiming", aiming),
+      S_NV("aimRotation", aimRotation),
+      S_NV("flashTimeout", flashTimeout));
 }
 } // namespace engine::objects

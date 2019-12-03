@@ -45,7 +45,7 @@ public:
   void serialize(const serialization::Serializer& ser) override
   {
     ModelObject::serialize(ser);
-    ser(S_NVP(m_flatness));
+    ser(S_NV("flatness", m_flatness));
   }
 
 private:
