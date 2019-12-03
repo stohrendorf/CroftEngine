@@ -4,6 +4,8 @@
 #include "engine/script/reflection.h"
 #include "laraobject.h"
 #include "render/scene/sprite.h"
+#include "serialization/node_ptr.h"
+#include "serialization/vector.h"
 
 namespace engine::objects
 {
@@ -194,5 +196,17 @@ void Object::serialize(const serialization::Serializer& ser)
       S_NVP(m_state),
       S_NVP(m_hasUpdateFunction),
       S_NVP(m_isActive));
+
+  ser.lazy([this](const serialization::Serializer& ser) {
+    ser("renderables", serialization::FrozenVector{getNode()->getChildren()});
+
+    if(ser.loading)
+    {
+      setParent(getNode(), m_state.position.room->node);
+
+      applyTransform();
+      updateLighting();
+    }
+  });
 }
 } // namespace engine::objects

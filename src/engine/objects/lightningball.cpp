@@ -220,13 +220,13 @@ void LightningBall::init(Engine& engine)
 {
   for(size_t i = 1; i < getSkeleton()->getChildren().size(); ++i)
   {
-    getSkeleton()->getChildren()[i]->setDrawable(nullptr);
+    getSkeleton()->getChildren()[i]->setRenderable(nullptr);
     getSkeleton()->getChildren()[i]->setVisible(false);
   }
 
   m_mainBoltMesh = createBolt(SegmentPoints, engine.getLightningShader(), 10, m_mainVb);
   auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
-  node->setDrawable(m_mainBoltMesh);
+  node->setRenderable(m_mainBoltMesh);
   addChild(getSkeleton(), node);
 
   for(auto& childBolt : m_childBolts)
@@ -234,7 +234,7 @@ void LightningBall::init(Engine& engine)
     childBolt.mesh = createBolt(SegmentPoints, engine.getLightningShader(), 3, childBolt.vb);
 
     node = std::make_shared<render::scene::Node>("lightning-bolt-child");
-    node->setDrawable(childBolt.mesh);
+    node->setRenderable(childBolt.mesh);
     addChild(getSkeleton(), node);
   }
 }

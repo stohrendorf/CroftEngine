@@ -171,10 +171,10 @@ public:
 
     const auto& mdl = gunFlareModel->models[0];
 
-    m_gunFlareLeft->setDrawable(mdl.get());
+    m_gunFlareLeft->setRenderable(mdl.get());
     m_gunFlareLeft->setVisible(false);
 
-    m_gunFlareRight->setDrawable(mdl.get());
+    m_gunFlareRight->setRenderable(mdl.get());
     m_gunFlareRight->setVisible(false);
   }
 

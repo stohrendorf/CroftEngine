@@ -7,13 +7,13 @@
 
 namespace engine
 {
-void Particle::initDrawables(const Engine& engine, const float scale)
+void Particle::initRenderables(const Engine& engine, const float scale)
 {
   if(const auto& modelType = engine.findAnimatedModelForType(object_number))
   {
     for(const auto& model : modelType->models)
     {
-      m_drawables.emplace_back(model);
+      m_renderables.emplace_back(model);
     }
   }
   else if(const auto& spriteSequence = engine.findSpriteSequenceForType(object_number))
@@ -30,7 +30,7 @@ void Particle::initDrawables(const Engine& engine, const float scale)
                                                             spr.t1,
                                                             engine.getSpriteMaterial(),
                                                             render::scene::Sprite::Axis::Y);
-      m_drawables.emplace_back(sprite);
+      m_renderables.emplace_back(sprite);
       m_spriteTextures.emplace_back(spr.texture);
     }
 
@@ -45,9 +45,9 @@ void Particle::initDrawables(const Engine& engine, const float scale)
     return;
   }
 
-  if(!m_drawables.empty())
+  if(!m_renderables.empty())
   {
-    setDrawable(m_drawables.front());
+    setRenderable(m_renderables.front());
     m_lighting.bind(*this);
   }
 }
@@ -70,12 +70,12 @@ Particle::Particle(const std::string& id,
 {
   if(renderable == nullptr)
   {
-    initDrawables(engine, scale);
+    initRenderables(engine, scale);
   }
   else
   {
-    m_drawables.emplace_back(renderable);
-    setDrawable(m_drawables.front());
+    m_renderables.emplace_back(renderable);
+    setRenderable(m_renderables.front());
     m_lighting.bind(*this);
   }
 }
@@ -93,12 +93,12 @@ Particle::Particle(const std::string& id,
 {
   if(renderable == nullptr)
   {
-    initDrawables(engine, scale);
+    initRenderables(engine, scale);
   }
   else
   {
-    m_drawables.emplace_back(renderable);
-    setDrawable(m_drawables.front());
+    m_renderables.emplace_back(renderable);
+    setRenderable(m_renderables.front());
     m_lighting.bind(*this);
   }
 }

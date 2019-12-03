@@ -13,4 +13,12 @@ void LavaParticleEmitter::update()
 
   playSoundEffect(TR1SoundId::ChoppyWater);
 }
+
+void LavaParticleEmitter::serialize(const serialization::Serializer& ser)
+{
+  ModelObject::serialize(ser);
+  getSkeleton()->setRenderable(nullptr);
+  getSkeleton()->removeAllChildren();
+  getSkeleton()->resetPose();
+}
 } // namespace engine

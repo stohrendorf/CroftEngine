@@ -18,18 +18,7 @@ ModelObject::ModelObject(const gsl::not_null<Engine*>& engine,
     , m_skeleton{std::make_shared<SkeletalModelNode>(
         std::string("skeleton(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", engine, model)}
 {
-  m_skeleton->setAnimation(m_state, model->animations, model->animations->firstFrame);
-
-  for(gsl::index boneIndex = 0; boneIndex < model->meshes.size(); ++boneIndex)
-  {
-    auto node = std::make_shared<render::scene::Node>(m_skeleton->getId() + "/bone:" + std::to_string(boneIndex));
-    node->setDrawable(model->models[boneIndex].get());
-    addChild(m_skeleton, node);
-  }
-
-  BOOST_ASSERT(m_skeleton->getChildren().size() == gsl::narrow<size_t>(model->meshes.size()));
-
-  m_skeleton->updatePose(m_state);
+  SkeletalModelNode::initNodes(m_skeleton, m_state);
   m_lighting.bind(*m_skeleton);
 }
 
@@ -316,7 +305,11 @@ void ModelObject::serialize(const serialization::Serializer& ser)
   Object::serialize(ser);
   ser(S_NV("skeleton", m_skeleton));
   if(ser.loading)
+  {
+    SkeletalModelNode::initNodes(m_skeleton, m_state);
+    m_lighting.bind(*m_skeleton);
     m_skeleton->updatePose(m_state);
+  }
 }
 
 std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer& ser)

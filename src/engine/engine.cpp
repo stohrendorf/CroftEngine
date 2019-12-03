@@ -380,10 +380,10 @@ void Engine::useAlternativeLaraAppearance(const bool withHead)
   BOOST_ASSERT(gsl::narrow<size_t>(alternate.models.size()) == m_lara->getNode()->getChildren().size());
 
   for(size_t i = 0; i < m_lara->getNode()->getChildren().size(); ++i)
-    m_lara->getNode()->getChild(i)->setDrawable(alternate.models[i].get());
+    m_lara->getNode()->getChild(i)->setRenderable(alternate.models[i].get());
 
   if(!withHead)
-    m_lara->getNode()->getChild(14)->setDrawable(base.models[14].get());
+    m_lara->getNode()->getChild(14)->setRenderable(base.models[14].get());
 }
 
 void Engine::dinoStompEffect(objects::Object& object)
@@ -568,7 +568,7 @@ void Engine::unholsterRightGunEffect(objects::Object& object)
 {
   const auto& src = *findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
   BOOST_ASSERT(gsl::narrow<size_t>(src.models.size()) == object.getNode()->getChildren().size());
-  object.getNode()->getChild(10)->setDrawable(src.models[10].get());
+  object.getNode()->getChild(10)->setRenderable(src.models[10].get());
 }
 
 void Engine::chainBlockEffect()
@@ -1068,8 +1068,8 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
         if(object->m_state.type != TR1ItemId::CutsceneActor1)
           continue;
 
-        object->getNode()->getChild(1)->setDrawable(laraPistol->models[1].get());
-        object->getNode()->getChild(4)->setDrawable(laraPistol->models[4].get());
+        object->getNode()->getChild(1)->setRenderable(laraPistol->models[1].get());
+        object->getNode()->getChild(4)->setRenderable(laraPistol->models[4].get());
       }
     }
   }

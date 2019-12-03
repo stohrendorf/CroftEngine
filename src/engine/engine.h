@@ -490,5 +490,17 @@ public:
   {
     return m_lightningShader;
   }
+
+  std::optional<size_t> indexOfModel(const std::shared_ptr<render::scene::Renderable>& m) const
+  {
+    if(m == nullptr)
+      return std::nullopt;
+
+    for(size_t i = 0; i < m_models.size(); ++i)
+      if(m_models[i].get() == m)
+        return i;
+
+    return std::nullopt;
+  }
 };
 } // namespace engine

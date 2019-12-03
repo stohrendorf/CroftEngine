@@ -34,7 +34,7 @@ public:
 
     getContext().setCurrentNode(&node);
 
-    if(auto dr = node.getDrawable())
+    if(auto dr = node.getRenderable())
     {
       dr->render(getContext());
     }

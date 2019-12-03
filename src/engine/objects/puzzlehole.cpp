@@ -86,7 +86,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     for(gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex)
     {
       auto node = std::make_shared<render::scene::Node>("bone:" + std::to_string(boneIndex));
-      node->setDrawable(model->models[boneIndex].get());
+      node->setRenderable(model->models[boneIndex].get());
       addChild(getNode(), node);
     }
 

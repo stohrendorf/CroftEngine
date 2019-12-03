@@ -50,7 +50,7 @@ void SpriteObject::createModel()
                                                              m_material,
                                                              render::scene::Sprite::Axis::Y);
 
-  m_node->setDrawable(model);
+  m_node->setRenderable(model);
   m_node->addUniformSetter(
     "u_diffuseTexture",
     [texture = m_sprite->texture](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {

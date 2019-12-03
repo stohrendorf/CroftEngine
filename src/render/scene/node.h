@@ -7,9 +7,7 @@
 
 #include <boost/container/flat_map.hpp>
 
-namespace render
-{
-namespace scene
+namespace render::scene
 {
 class Renderable;
 
@@ -75,17 +73,22 @@ public:
     return glm::vec3(getModelMatrix()[3]);
   }
 
-  const std::shared_ptr<Renderable>& getDrawable() const
+  const std::shared_ptr<Renderable>& getRenderable() const
   {
-    return m_drawable;
+    return m_renderable;
   }
 
-  void setDrawable(const std::shared_ptr<Renderable>& drawable)
+  void setRenderable(const std::shared_ptr<Renderable>& renderable)
   {
-    m_drawable = drawable;
+    m_renderable = renderable;
   }
 
   const List& getChildren() const
+  {
+    return m_children;
+  }
+
+  List& getChildren()
   {
     return m_children;
   }
@@ -190,7 +193,7 @@ private:
 
   bool m_visible = true;
 
-  std::shared_ptr<Renderable> m_drawable = nullptr;
+  std::shared_ptr<Renderable> m_renderable = nullptr;
 
   glm::mat4 m_localMatrix{1.0f};
 
@@ -256,5 +259,4 @@ inline void addChild(const gsl::not_null<std::shared_ptr<Node>>& node,
 
   setParent(child, node);
 }
-} // namespace scene
 } // namespace render

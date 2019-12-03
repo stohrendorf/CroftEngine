@@ -18,11 +18,13 @@ public:
                       const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
       : ModelObject{engine, room, item, true, animatedModel}
   {
-    getSkeleton()->setDrawable(nullptr);
+    getSkeleton()->setRenderable(nullptr);
     getSkeleton()->removeAllChildren();
     getSkeleton()->resetPose();
   }
 
   void update() override;
+
+  void serialize(const serialization::Serializer& ser) override;
 };
 } // namespace engine

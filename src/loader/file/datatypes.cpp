@@ -244,7 +244,7 @@ void Room::createSceneNode(
   resModel->getRenderState().setCullFaceSide(::gl::CullFaceMode::Back);
 
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
-  node->setDrawable(resModel);
+  node->setRenderable(resModel);
   node->addUniformSetter(
     "u_lightAmbient",
     [](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) { uniform.set(1.0f); });
@@ -256,7 +256,7 @@ void Room::createSceneNode(
       continue;
 
     auto subNode = std::make_shared<render::scene::Node>("staticMesh");
-    subNode->setDrawable(staticMeshModels.at(idx).get());
+    subNode->setRenderable(staticMeshModels.at(idx).get());
     subNode->setLocalMatrix(translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem())
                             * rotate(glm::mat4{1.0f}, toRad(sm.rotation), glm::vec3{0, -1, 0}));
 
@@ -285,7 +285,7 @@ void Room::createSceneNode(
                                                                render::scene::Sprite::Axis::Y);
 
     auto spriteNode = std::make_shared<render::scene::Node>("sprite");
-    spriteNode->setDrawable(model);
+    spriteNode->setRenderable(model);
     const RoomVertex& v = vertices.at(spriteInstance.vertex.get());
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
     spriteNode->addUniformSetter(

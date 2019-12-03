@@ -287,8 +287,8 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
       if(item.type == TR1ItemId::MidasGoldTouch || item.type == TR1ItemId::CameraTarget
          || item.type == TR1ItemId::Earthquake)
       {
-        object->getNode()->setDrawable(nullptr);
         object->getNode()->removeAllChildren();
+        object->getNode()->setRenderable(nullptr);
       }
     }
 
@@ -364,17 +364,10 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
   const auto position = core::RoomBoundPosition::create(ser["@position"]);
   std::shared_ptr<Object> object;
   std::string spriteName;
-#define CREATE(ENUM, TYPE)                                               \
-  case TR1ItemId::ENUM:                                                  \
-    object = std::make_shared<TYPE>(&ser.engine, position);              \
-    object->serialize(ser);                                              \
-    if(ser.loading)                                                      \
-    {                                                                    \
-      setParent(object->getNode(), object->m_state.position.room->node); \
-                                                                         \
-      object->applyTransform();                                          \
-      object->updateLighting();                                          \
-    }                                                                    \
+#define CREATE(ENUM, TYPE)                                  \
+  case TR1ItemId::ENUM:                                     \
+    object = std::make_shared<TYPE>(&ser.engine, position); \
+    object->serialize(ser);                                 \
     return object
 #define CREATE_PU(ENUM)                                                                                               \
   case TR1ItemId::ENUM:                                                                                               \
@@ -382,13 +375,6 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
     object                                                                                                            \
       = std::make_shared<PickupObject>(&ser.engine, position, std::move(spriteName), ser.engine.getSpriteMaterial()); \
     object->serialize(ser);                                                                                           \
-    if(ser.loading)                                                                                                   \
-    {                                                                                                                 \
-      setParent(object->getNode(), object->m_state.position.room->node);                                              \
-                                                                                                                      \
-      object->applyTransform();                                                                                       \
-      object->updateLighting();                                                                                       \
-    }                                                                                                                 \
     return object
 #define CREATE_ID(NAME) CREATE(NAME, NAME)
 
@@ -504,15 +490,8 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
   case TR1ItemId::Earthquake:
     object = std::make_shared<StubObject>(&ser.engine, position);
     object->serialize(ser);
-    object->getNode()->setDrawable(nullptr);
+    object->getNode()->setRenderable(nullptr);
     object->getNode()->removeAllChildren();
-    if(ser.loading)
-    {
-      setParent(object->getNode(), object->m_state.position.room->node);
-
-      object->applyTransform();
-      object->updateLighting();
-    }
     return object;
   default: BOOST_THROW_EXCEPTION(std::domain_error("Cannot create unknown object type " + std::to_string(type.get())));
   }

@@ -30,23 +30,23 @@ public:
   int16_t shade = 4096;
 
 private:
-  std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_drawables{};
+  std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_renderables{};
   std::deque<std::shared_ptr<render::gl::Texture>> m_spriteTextures{};
   Lighting m_lighting;
 
-  void initDrawables(const Engine& engine, float scale = 1);
+  void initRenderables(const Engine& engine, float scale = 1);
 
 protected:
   void nextFrame()
   {
     --negSpriteFrameId;
 
-    if(m_drawables.empty())
+    if(m_renderables.empty())
       return;
 
-    m_drawables.emplace_back(m_drawables.front());
-    m_drawables.pop_front();
-    setDrawable(m_drawables.front());
+    m_renderables.emplace_back(m_renderables.front());
+    m_renderables.pop_front();
+    setRenderable(m_renderables.front());
 
     if(m_spriteTextures.empty())
       return;
@@ -63,12 +63,12 @@ protected:
 
   size_t getLength() const
   {
-    return m_drawables.size();
+    return m_renderables.size();
   }
 
-  void clearDrawables()
+  void clearRenderables()
   {
-    m_drawables.clear();
+    m_renderables.clear();
   }
 
 public:
@@ -266,7 +266,7 @@ public:
       : Particle{"meshShrapnel", TR1ItemId::MeshShrapnel, pos, engine, renderable}
       , m_damageRadius{damageRadius}
   {
-    clearDrawables();
+    clearRenderables();
 
     angle.Y = core::Angle{util::rand15s() * 2};
     speed = util::rand15(256_spd);

@@ -329,6 +329,8 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
 
 void SkeletalModelNode::serialize(const serialization::Serializer& ser)
 {
+  m_bonePatches.resize(getChildren().size(), glm::mat4{1.0f});
+
   auto id = getId();
   ser("id", id, "model", m_model, S_NVP(m_bonePatches));
 }
@@ -345,8 +347,25 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
   else
   {
     Expects(data != nullptr);
-    data->serialize(ser);
   }
+  data->serialize(ser);
+}
+
+
+void SkeletalModelNode::initNodes(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state)
+{
+  skeleton->setAnimation(state, skeleton->m_model->animations, skeleton->m_model->animations->firstFrame);
+
+  for(gsl::index boneIndex = 0; boneIndex < skeleton->m_model->meshes.size(); ++boneIndex)
+  {
+    auto node = std::make_shared<render::scene::Node>(skeleton->getId() + "/bone:" + std::to_string(boneIndex));
+    node->setRenderable(skeleton->m_model->models[boneIndex].get());
+    addChild(skeleton, node);
+  }
+
+  Ensures(skeleton->getChildren().size() == gsl::narrow<size_t>(skeleton->m_model->meshes.size()));
+
+  skeleton->updatePose(state);
 }
 
 } // namespace engine

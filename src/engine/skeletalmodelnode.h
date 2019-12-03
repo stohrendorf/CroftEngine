@@ -109,6 +109,8 @@ public:
 
   void serialize(const serialization::Serializer& ser);
 
+  static void initNodes(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state);
+
 protected:
   bool handleStateTransitions(objects::ObjectState& state);
 
