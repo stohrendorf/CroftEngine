@@ -1,6 +1,8 @@
 #include "texture.h"
 
 #include "engine/objects/object.h"
+#include "io/sdlreader.h"
+#include "io/util.h"
 #include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
 #include "util/cimgwrapper.h"
@@ -128,4 +130,129 @@ void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void
   toImage(glidos, statusCallback);
   texture->image(image->getWidth(), image->getHeight(), image->getData()).generateMipmap();
 }
-} // namespace loader
+
+std::unique_ptr<DWordTexture> DWordTexture::read(io::SDLReader& reader)
+{
+  std::unique_ptr<DWordTexture> texture{std::make_unique<DWordTexture>()};
+
+  for(auto& row : texture->pixels)
+  {
+    for(auto& element : row)
+    {
+      const auto tmp = reader.readU32(); // format is ARGB
+      const uint8_t a = (tmp >> 24) & 0xff;
+      const uint8_t r = (tmp >> 16) & 0xff;
+      const uint8_t g = (tmp >> 8) & 0xff;
+      const uint8_t b = (tmp >> 0) & 0xff;
+      element = {r, g, b, a};
+    }
+  }
+
+  return texture;
+}
+
+std::unique_ptr<ByteTexture> ByteTexture::read(io::SDLReader& reader)
+{
+  std::unique_ptr<ByteTexture> textile{new ByteTexture()};
+  reader.readBytes(reinterpret_cast<uint8_t*>(textile->pixels), 256 * 256);
+  return textile;
+}
+
+std::unique_ptr<WordTexture> WordTexture::read(io::SDLReader& reader)
+{
+  std::unique_ptr<WordTexture> texture{new WordTexture()};
+
+  for(auto& row : texture->pixels)
+  {
+    for(auto& element : row)
+    {
+      element = reader.readU16();
+    }
+  }
+
+  return texture;
+}
+
+UVCoordinates UVCoordinates::readTr1(io::SDLReader& reader)
+{
+  UVCoordinates uv;
+  uv.xcoordinate = reader.readI8();
+  uv.xpixel = reader.readU8();
+  uv.ycoordinate = reader.readI8();
+  uv.ypixel = reader.readU8();
+  return uv;
+}
+
+UVCoordinates UVCoordinates::readTr4(io::SDLReader& reader)
+{
+  UVCoordinates uv;
+  uv.xcoordinate = reader.readI8();
+  uv.xpixel = reader.readU8();
+  uv.ycoordinate = reader.readI8();
+  uv.ypixel = reader.readU8();
+  if(uv.xcoordinate == 0)
+  {
+    uv.xcoordinate = 1;
+  }
+  if(uv.ycoordinate == 0)
+  {
+    uv.ycoordinate = 1;
+  }
+  return uv;
+}
+
+std::unique_ptr<TextureTile> TextureTile::readTr1(io::SDLReader& reader)
+{
+  std::unique_ptr<TextureTile> tile{std::make_unique<TextureTile>()};
+  tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
+  tile->textureKey.tileAndFlag = reader.readU16();
+  if(tile->textureKey.tileAndFlag > 64)
+    BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
+
+  if((tile->textureKey.tileAndFlag & (1 << 15)) != 0)
+    BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
+
+  // only in TR4
+  tile->textureKey.flags = 0;
+  tile->uvCoordinates[0] = UVCoordinates::readTr1(reader);
+  tile->uvCoordinates[1] = UVCoordinates::readTr1(reader);
+  tile->uvCoordinates[2] = UVCoordinates::readTr1(reader);
+  tile->uvCoordinates[3] = UVCoordinates::readTr1(reader);
+  // only in TR4
+  tile->unknown1 = 0;
+  tile->unknown2 = 0;
+  tile->x_size = 0;
+  tile->y_size = 0;
+  return tile;
+}
+
+std::unique_ptr<TextureTile> TextureTile::readTr4(io::SDLReader& reader)
+{
+  std::unique_ptr<TextureTile> tile{std::make_unique<TextureTile>()};
+  tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
+  tile->textureKey.tileAndFlag = reader.readU16();
+  if((tile->textureKey.tileAndFlag & 0x7FFF) > 128)
+    BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
+
+  tile->textureKey.flags = reader.readU16();
+  tile->uvCoordinates[0] = UVCoordinates::readTr4(reader);
+  tile->uvCoordinates[1] = UVCoordinates::readTr4(reader);
+  tile->uvCoordinates[2] = UVCoordinates::readTr4(reader);
+  tile->uvCoordinates[3] = UVCoordinates::readTr4(reader);
+  tile->unknown1 = reader.readU32();
+  tile->unknown2 = reader.readU32();
+  tile->x_size = reader.readU32();
+  tile->y_size = reader.readU32();
+  return tile;
+}
+
+std::unique_ptr<TextureTile> TextureTile::readTr5(io::SDLReader& reader)
+{
+  std::unique_ptr<TextureTile> tile = readTr4(reader);
+  if(reader.readU16() != 0)
+  {
+    BOOST_LOG_TRIVIAL(warning) << "TR5 Object Texture: unexpected value at end of structure";
+  }
+  return tile;
+}
+} // namespace loader::file

@@ -10,7 +10,7 @@
 #include "render/scene/screenoverlay.h"
 #include "util/cimgwrapper.h"
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <memory>
 
 namespace hid

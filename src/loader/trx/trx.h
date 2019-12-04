@@ -3,8 +3,7 @@
 #include "gsl-lite.hpp"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <chrono>
+#include <filesystem>
 #include <map>
 #include <regex>
 #include <set>
@@ -134,12 +133,12 @@ private:
 class Equiv
 {
 public:
-  explicit Equiv(const boost::filesystem::path& filename);
+  explicit Equiv(const std::filesystem::path& filename);
 
-  void resolve(const boost::filesystem::path& root,
-               std::map<std::string, std::chrono::system_clock::time_point>& timestamps,
-               std::chrono::system_clock::time_point& rootTimestamp,
-               std::map<TexturePart, boost::filesystem::path>& filesByPart,
+  void resolve(const std::filesystem::path& root,
+               std::map<std::string, std::filesystem::file_time_type>& timestamps,
+               std::filesystem::file_time_type& rootTimestamp,
+               std::map<TexturePart, std::filesystem::path>& filesByPart,
                const std::function<void(const std::string&)>& statusCallback) const;
 
 private:
@@ -149,32 +148,32 @@ private:
 class PathMap
 {
 public:
-  explicit PathMap(const boost::filesystem::path& baseTxtName,
-                   std::map<std::string, std::chrono::system_clock::time_point>& timestamps,
-                   std::chrono::system_clock::time_point& rootTimestamp,
-                   std::map<TexturePart, boost::filesystem::path>& filesByPart);
+  explicit PathMap(const std::filesystem::path& baseTxtName,
+                   std::map<std::string, std::filesystem::file_time_type>& timestamps,
+                   std::filesystem::file_time_type& rootTimestamp,
+                   std::map<TexturePart, std::filesystem::path>& filesByPart);
 
-  [[nodiscard]] const boost::filesystem::path& getRoot() const
+  [[nodiscard]] const std::filesystem::path& getRoot() const
   {
     return m_root;
   }
 
 private:
-  boost::filesystem::path m_root;
+  std::filesystem::path m_root;
 };
 
 class Glidos
 {
 public:
-  explicit Glidos(boost::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback);
+  explicit Glidos(std::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback);
 
   void dump() const;
 
   struct TileMap
   {
-    std::map<Rectangle, boost::filesystem::path> tiles;
-    std::chrono::system_clock::time_point newestSource;
-    boost::filesystem::path baseDir;
+    std::map<Rectangle, std::filesystem::path> tiles;
+    std::filesystem::file_time_type newestSource;
+    std::filesystem::path baseDir;
   };
 
   TileMap getMappingsForTexture(const std::string& textureId) const;
@@ -185,9 +184,9 @@ public:
   }
 
 private:
-  std::map<TexturePart, boost::filesystem::path> m_filesByPart;
-  const boost::filesystem::path m_baseDir;
-  mutable std::map<std::string, std::chrono::system_clock::time_point> m_newestTextureSourceTimestamps;
-  std::chrono::system_clock::time_point m_rootTimestamp;
+  std::map<TexturePart, std::filesystem::path> m_filesByPart;
+  const std::filesystem::path m_baseDir;
+  mutable std::map<std::string, std::filesystem::file_time_type> m_newestTextureSourceTimestamps;
+  std::filesystem::file_time_type m_rootTimestamp;
 };
 } // namespace loader::trx

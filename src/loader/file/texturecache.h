@@ -2,9 +2,8 @@
 
 #include "util/cimgwrapper.h"
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/log/trivial.hpp>
+#include <filesystem>
 #include <utility>
 
 namespace loader::file
@@ -12,7 +11,7 @@ namespace loader::file
 class TextureCache
 {
 public:
-  explicit TextureCache(boost::filesystem::path basePath)
+  explicit TextureCache(std::filesystem::path basePath)
       : m_basePath{std::move(basePath)}
   {
   }
@@ -29,9 +28,9 @@ public:
     return is_regular_file(buildPngPath(name, mipLevel));
   }
 
-  [[nodiscard]] std::chrono::system_clock::time_point getWriteTime(const std::string& name, uint32_t mipLevel) const
+  [[nodiscard]] auto getWriteTime(const std::string& name, uint32_t mipLevel) const
   {
-    return std::chrono::system_clock::from_time_t(last_write_time(buildPngPath(name, mipLevel)));
+    return last_write_time(buildPngPath(name, mipLevel));
   }
 
   void savePng(const std::string& name, uint32_t mipLevel, util::CImgWrapper& image) const
@@ -42,12 +41,12 @@ public:
     image.savePng(path);
   }
 
-  [[nodiscard]] boost::filesystem::path buildPngPath(const std::string& name, uint32_t mipLevel) const
+  [[nodiscard]] std::filesystem::path buildPngPath(const std::string& name, uint32_t mipLevel) const
   {
     return m_basePath / (name + "_" + std::to_string(mipLevel) + ".png");
   }
 
 private:
-  const boost::filesystem::path m_basePath;
+  const std::filesystem::path m_basePath;
 };
-} // namespace loader
+} // namespace loader::file

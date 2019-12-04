@@ -80,7 +80,7 @@ else()
 endif()
 target_compile_definitions( glm INTERFACE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_RADIANS )
 
-find_package( Boost COMPONENTS system log filesystem locale REQUIRED )
+find_package( Boost COMPONENTS system log locale REQUIRED )
 target_compile_definitions( Boost::boost INTERFACE -DBOOST_LOG_DYN_LINK=0 -DBOOST_ALL_NO_LIB )
 target_include_directories( Boost::boost SYSTEM BEFORE INTERFACE ${Boost_INCLUDE_DIR} )
 target_link_libraries( Boost::boost INTERFACE ${Boost_LIBRARIES} )

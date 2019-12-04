@@ -3,9 +3,9 @@
 #include "engine/objects/object.h"
 #include "engine/particle.h"
 #include "game.h"
-#include "hid/inputhandler.h"
 #include "loader/file/animation.h"
 #include "loader/file/datatypes.h"
+#include "loader/file/io/sdlreader.h"
 #include "loader/file/item.h"
 #include "loader/file/mesh.h"
 
@@ -160,5 +160,5 @@ private:
 
   static std::shared_ptr<Level> createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath);
 };
-} // namespace file
+} // namespace file::level
 } // namespace loader

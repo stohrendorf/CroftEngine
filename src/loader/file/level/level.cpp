@@ -9,9 +9,9 @@
 #include "render/textureanimator.h"
 #include "util/md5.h"
 
-#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/range/adaptors.hpp>
+#include <filesystem>
 
 using namespace loader::file;
 using namespace level;
@@ -59,7 +59,7 @@ void Level::readMeshData(io::SDLReader& reader)
 
 std::shared_ptr<Level> Level::createLoader(const std::string& filename, Game gameVersion)
 {
-  const std::string sfxPath = (boost::filesystem::path(filename).remove_filename() / "MAIN.SFX").string();
+  const std::string sfxPath = (std::filesystem::path(filename).remove_filename() / "MAIN.SFX").string();
 
   io::SDLReader reader(filename);
   if(!reader.isOpen())

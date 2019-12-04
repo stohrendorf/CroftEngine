@@ -228,14 +228,21 @@ set( EDISONENGINE_SRCS
      loader/file/level/tr5level.h
      loader/file/level/tr5level.cpp
      loader/file/animation.h
+     loader/file/animation.cpp
      loader/file/audio.h
+     loader/file/audio.cpp
      loader/file/color.h
+     loader/file/color.cpp
      loader/file/datatypes.h
      loader/file/datatypes.cpp
      loader/file/item.h
+     loader/file/item.cpp
      loader/file/mesh.h
      loader/file/mesh.cpp
+     loader/file/meshes.h
+     loader/file/meshes.cpp
      loader/file/primitives.h
+     loader/file/primitives.cpp
      loader/file/texture.h
      loader/file/texture.cpp
      loader/file/texturecache.h

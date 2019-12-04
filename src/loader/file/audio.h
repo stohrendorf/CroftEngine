@@ -1,12 +1,16 @@
 #pragma once
 
 #include "core/id.h"
-#include "io/sdlreader.h"
-#include "io/util.h"
+#include "core/vec.h"
 #include "loader/file/level/game.h"
 
 namespace loader::file
 {
+namespace io
+{
+class SDLReader;
+}
+
 // In TR3-5, there were 5 reverb / echo effect flags for each
 // room, but they were never used in PC versions - however, level
 // files still contain this info, so we now can re-use these flags
@@ -38,14 +42,7 @@ struct SoundSource final
   core::SoundId sound_id{uint16_t(0)};
   uint16_t flags; // 0x40, 0x80, or 0xc0
 
-  static std::unique_ptr<SoundSource> read(io::SDLReader& reader)
-  {
-    std::unique_ptr<SoundSource> sound_source = std::make_unique<SoundSource>();
-    sound_source->position = readCoordinates32(reader);
-    sound_source->sound_id = reader.readU16();
-    sound_source->flags = reader.readU16();
-    return sound_source;
-  }
+  static std::unique_ptr<SoundSource> read(io::SDLReader& reader);
 };
 
 enum class PlaybackType
@@ -138,28 +135,8 @@ struct SoundDetails
     return (flags & 0x40u) != 0;
   }
 
-  static std::unique_ptr<SoundDetails> readTr1(io::SDLReader& reader)
-  {
-    std::unique_ptr<SoundDetails> sound_details = std::make_unique<SoundDetails>();
-    sound_details->sample = core::SampleId::type(reader.readU16());
-    sound_details->volume = reader.readU16();
-    sound_details->chance = reader.readU16();
-    sound_details->sampleCountAndLoopType = reader.readU8();
-    sound_details->flags = reader.readU8();
-    return sound_details;
-  }
+  static std::unique_ptr<SoundDetails> readTr1(io::SDLReader& reader);
 
-  static std::unique_ptr<SoundDetails> readTr3(io::SDLReader& reader)
-  {
-    std::unique_ptr<SoundDetails> sound_details = std::make_unique<SoundDetails>();
-    sound_details->sample = core::SampleId::type(reader.readU16());
-    sound_details->volume = reader.readU8();
-    sound_details->sound_range = reader.readU8();
-    sound_details->chance = reader.readU8();
-    sound_details->pitch = reader.readI8();
-    sound_details->sampleCountAndLoopType = reader.readU8();
-    sound_details->flags = reader.readU8();
-    return sound_details;
-  }
+  static std::unique_ptr<SoundDetails> readTr3(io::SDLReader& reader);
 };
-} // namespace loader
+} // namespace loader::file

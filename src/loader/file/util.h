@@ -13,4 +13,4 @@ inline glm::vec3 generateNormal(const core::TRVec& o, const core::TRVec& a, cons
 {
   return generateNormal(o.toRenderSystem(), a.toRenderSystem(), b.toRenderSystem());
 }
-}
+} // namespace loader::file

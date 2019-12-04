@@ -1,11 +1,9 @@
 #pragma once
 
 #include "core/id.h"
-#include "io/sdlreader.h"
 #include "render/gl/image.h"
 #include "render/scene/material.h"
 
-#include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
 
 namespace loader
@@ -17,16 +15,16 @@ class Glidos;
 
 namespace file
 {
+namespace io
+{
+class SDLReader;
+}
+
 struct ByteTexture
 {
   uint8_t pixels[256][256];
 
-  static std::unique_ptr<ByteTexture> read(io::SDLReader& reader)
-  {
-    std::unique_ptr<ByteTexture> textile{new ByteTexture()};
-    reader.readBytes(reinterpret_cast<uint8_t*>(textile->pixels), 256 * 256);
-    return textile;
-  }
+  static std::unique_ptr<ByteTexture> read(io::SDLReader& reader);
 };
 
 /** \brief 16-bit texture.
@@ -41,20 +39,7 @@ struct WordTexture
 {
   uint16_t pixels[256][256];
 
-  static std::unique_ptr<WordTexture> read(io::SDLReader& reader)
-  {
-    std::unique_ptr<WordTexture> texture{new WordTexture()};
-
-    for(auto& row : texture->pixels)
-    {
-      for(auto& element : row)
-      {
-        element = reader.readU16();
-      }
-    }
-
-    return texture;
-  }
+  static std::unique_ptr<WordTexture> read(io::SDLReader& reader);
 };
 
 struct DWordTexture final
@@ -65,25 +50,7 @@ struct DWordTexture final
 
   std::string md5;
 
-  static std::unique_ptr<DWordTexture> read(io::SDLReader& reader)
-  {
-    std::unique_ptr<DWordTexture> texture{std::make_unique<DWordTexture>()};
-
-    for(auto& row : texture->pixels)
-    {
-      for(auto& element : row)
-      {
-        const auto tmp = reader.readU32(); // format is ARGB
-        const uint8_t a = (tmp >> 24) & 0xff;
-        const uint8_t r = (tmp >> 16) & 0xff;
-        const uint8_t g = (tmp >> 8) & 0xff;
-        const uint8_t b = (tmp >> 0) & 0xff;
-        element = {r, g, b, a};
-      }
-    }
-
-    return texture;
-  }
+  static std::unique_ptr<DWordTexture> read(io::SDLReader& reader);
 
   void toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback);
 
@@ -140,33 +107,9 @@ struct UVCoordinates
   }
 
   /// \brief reads object texture vertex definition.
-  static UVCoordinates readTr1(io::SDLReader& reader)
-  {
-    UVCoordinates uv;
-    uv.xcoordinate = reader.readI8();
-    uv.xpixel = reader.readU8();
-    uv.ycoordinate = reader.readI8();
-    uv.ypixel = reader.readU8();
-    return uv;
-  }
+  static UVCoordinates readTr1(io::SDLReader& reader);
 
-  static UVCoordinates readTr4(io::SDLReader& reader)
-  {
-    UVCoordinates uv;
-    uv.xcoordinate = reader.readI8();
-    uv.xpixel = reader.readU8();
-    uv.ycoordinate = reader.readI8();
-    uv.ypixel = reader.readU8();
-    if(uv.xcoordinate == 0)
-    {
-      uv.xcoordinate = 1;
-    }
-    if(uv.ycoordinate == 0)
-    {
-      uv.ycoordinate = 1;
-    }
-    return uv;
-  }
+  static UVCoordinates readTr4(io::SDLReader& reader);
 
   glm::vec2 toGl() const
   {
@@ -263,60 +206,11 @@ struct TextureTile
     * some sanity checks get done and if they fail an exception gets thrown.
     * all values introduced in TR4 get set appropriately.
     */
-  static std::unique_ptr<TextureTile> readTr1(io::SDLReader& reader)
-  {
-    std::unique_ptr<TextureTile> tile{std::make_unique<TextureTile>()};
-    tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
-    tile->textureKey.tileAndFlag = reader.readU16();
-    if(tile->textureKey.tileAndFlag > 64)
-      BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
+  static std::unique_ptr<TextureTile> readTr1(io::SDLReader& reader);
 
-    if((tile->textureKey.tileAndFlag & (1 << 15)) != 0)
-      BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
+  static std::unique_ptr<TextureTile> readTr4(io::SDLReader& reader);
 
-    // only in TR4
-    tile->textureKey.flags = 0;
-    tile->uvCoordinates[0] = UVCoordinates::readTr1(reader);
-    tile->uvCoordinates[1] = UVCoordinates::readTr1(reader);
-    tile->uvCoordinates[2] = UVCoordinates::readTr1(reader);
-    tile->uvCoordinates[3] = UVCoordinates::readTr1(reader);
-    // only in TR4
-    tile->unknown1 = 0;
-    tile->unknown2 = 0;
-    tile->x_size = 0;
-    tile->y_size = 0;
-    return tile;
-  }
-
-  static std::unique_ptr<TextureTile> readTr4(io::SDLReader& reader)
-  {
-    std::unique_ptr<TextureTile> tile{std::make_unique<TextureTile>()};
-    tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
-    tile->textureKey.tileAndFlag = reader.readU16();
-    if((tile->textureKey.tileAndFlag & 0x7FFF) > 128)
-      BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
-
-    tile->textureKey.flags = reader.readU16();
-    tile->uvCoordinates[0] = UVCoordinates::readTr4(reader);
-    tile->uvCoordinates[1] = UVCoordinates::readTr4(reader);
-    tile->uvCoordinates[2] = UVCoordinates::readTr4(reader);
-    tile->uvCoordinates[3] = UVCoordinates::readTr4(reader);
-    tile->unknown1 = reader.readU32();
-    tile->unknown2 = reader.readU32();
-    tile->x_size = reader.readU32();
-    tile->y_size = reader.readU32();
-    return tile;
-  }
-
-  static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader)
-  {
-    std::unique_ptr<TextureTile> tile = readTr4(reader);
-    if(reader.readU16() != 0)
-    {
-      BOOST_LOG_TRIVIAL(warning) << "TR5 Object Texture: unexpected value at end of structure";
-    }
-    return tile;
-  }
+  static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader);
 
   gsl::not_null<std::shared_ptr<render::scene::Material>>
     createMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,

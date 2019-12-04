@@ -52,7 +52,7 @@ Window::Window(bool fullscreen, const Dimension2<int>& resolution)
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
   }
 
-  util::CImgWrapper imgWrapper{boost::filesystem::path{"logo.png"}};
+  util::CImgWrapper imgWrapper{std::filesystem::path{"logo.png"}};
   imgWrapper.interleave();
   GLFWimage img;
   img.width = imgWrapper.width();

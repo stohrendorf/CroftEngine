@@ -4,13 +4,14 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/log/trivial.hpp>
+#include <fstream>
 #include <utility>
 
 namespace
 {
-boost::filesystem::path readSymlink(const boost::filesystem::path& root,
-                                    const boost::filesystem::path& ref,
-                                    std::chrono::system_clock::time_point& srcTimestamp)
+std::filesystem::path readSymlink(const std::filesystem::path& root,
+                                  const std::filesystem::path& ref,
+                                  std::filesystem::file_time_type& srcTimestamp)
 {
   if(ref.extension() != ".txt")
     return root / ref;
@@ -32,7 +33,7 @@ boost::filesystem::path readSymlink(const boost::filesystem::path& root,
   head.erase(0, head.find(':') + 1);
   boost::algorithm::trim(head);
   boost::algorithm::replace_all(head, "\\", "/");
-  srcTimestamp = std::max(srcTimestamp, std::chrono::system_clock::from_time_t(last_write_time(root / ref)));
+  srcTimestamp = std::max(srcTimestamp, last_write_time(root / ref));
   return readSymlink(root, head, srcTimestamp);
 }
 } // namespace
@@ -79,7 +80,7 @@ TexturePart::TexturePart(const std::string& serialized)
 EquivalenceSet::EquivalenceSet(std::ifstream& file)
 {
   std::string line;
-  boost::filesystem::path base;
+  std::filesystem::path base;
   while(std::getline(file, line))
   {
     boost::algorithm::trim(line);
@@ -95,7 +96,7 @@ EquivalenceSet::EquivalenceSet(std::ifstream& file)
   }
 }
 
-Equiv::Equiv(const boost::filesystem::path& filename)
+Equiv::Equiv(const std::filesystem::path& filename)
 {
   std::ifstream file{filename.string()};
   if(!file.is_open())
@@ -112,7 +113,7 @@ Equiv::Equiv(const boost::filesystem::path& filename)
   }
 
   std::string line;
-  boost::filesystem::path base;
+  std::filesystem::path base;
   while(std::getline(file, line))
   {
     boost::algorithm::trim(line);
@@ -126,10 +127,10 @@ Equiv::Equiv(const boost::filesystem::path& filename)
   }
 }
 
-void Equiv::resolve(const boost::filesystem::path& root,
-                    std::map<std::string, std::chrono::system_clock::time_point>& timestamps,
-                    std::chrono::system_clock::time_point& rootTimestamp,
-                    std::map<TexturePart, boost::filesystem::path>& filesByPart,
+void Equiv::resolve(const std::filesystem::path& root,
+                    std::map<std::string, std::filesystem::file_time_type>& timestamps,
+                    std::filesystem::file_time_type& rootTimestamp,
+                    std::map<TexturePart, std::filesystem::path>& filesByPart,
                     const std::function<void(const std::string&)>& statusCallback) const
 {
   BOOST_LOG_TRIVIAL(info) << "Resolving " << m_equivalentSets.size() << " equiv sets...";
@@ -145,7 +146,7 @@ void Equiv::resolve(const boost::filesystem::path& root,
       continue;
 
     // first try to find an entry in the equiv set that actually exists
-    boost::filesystem::path partFile;
+    std::filesystem::path partFile;
     for(const auto& part : set.getParts())
     {
       auto it = filesByPart.find(part);
@@ -197,10 +198,10 @@ void Equiv::resolve(const boost::filesystem::path& root,
   }
 }
 
-PathMap::PathMap(const boost::filesystem::path& baseTxtName,
-                 std::map<std::string, std::chrono::system_clock::time_point>& timestamps,
-                 std::chrono::system_clock::time_point& rootTimestamp,
-                 std::map<TexturePart, boost::filesystem::path>& filesByPart)
+PathMap::PathMap(const std::filesystem::path& baseTxtName,
+                 std::map<std::string, std::filesystem::file_time_type>& timestamps,
+                 std::filesystem::file_time_type& rootTimestamp,
+                 std::map<TexturePart, std::filesystem::path>& filesByPart)
 {
   std::ifstream txt{baseTxtName.string()};
   if(!txt.is_open())
@@ -219,10 +220,10 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
   }
 
   // contains root+base
-  std::map<std::string, boost::filesystem::path> dirByTextureId;
+  std::map<std::string, std::filesystem::path> dirByTextureId;
 
   std::string line;
-  boost::filesystem::path base;
+  std::filesystem::path base;
   while(std::getline(txt, line))
   {
     boost::algorithm::trim(line);
@@ -264,7 +265,7 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
     }
   }
 
-  const boost::filesystem::directory_iterator end{};
+  const std::filesystem::directory_iterator end{};
 
   for(const auto& texturePath : dirByTextureId)
   {
@@ -277,7 +278,7 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
       continue;
     }
 
-    for(boost::filesystem::directory_iterator it{fullTexturePath}; it != end; ++it)
+    for(std::filesystem::directory_iterator it{fullTexturePath}; it != end; ++it)
     {
       Rectangle r;
       try
@@ -306,7 +307,7 @@ PathMap::PathMap(const boost::filesystem::path& baseTxtName,
   }
 }
 
-Glidos::Glidos(boost::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback)
+Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback)
     : m_baseDir{std::move(baseDir)}
 {
   if(!is_directory(m_baseDir))
@@ -314,7 +315,7 @@ Glidos::Glidos(boost::filesystem::path baseDir, const std::function<void(const s
 
   BOOST_LOG_TRIVIAL(debug) << "Loading Glidos texture pack from " << m_baseDir;
 
-  m_rootTimestamp = std::chrono::system_clock::from_time_t(last_write_time(m_baseDir / "equiv.txt"));
+  m_rootTimestamp = last_write_time(m_baseDir / "equiv.txt");
 
   statusCallback("Glidos - Loading equiv.txt");
 
@@ -323,8 +324,8 @@ Glidos::Glidos(boost::filesystem::path baseDir, const std::function<void(const s
 
   std::vector<PathMap> maps;
 
-  const boost::filesystem::directory_iterator end{};
-  for(boost::filesystem::directory_iterator it{m_baseDir}; it != end; ++it)
+  const std::filesystem::directory_iterator end{};
+  for(std::filesystem::directory_iterator it{m_baseDir}; it != end; ++it)
   {
     if(!is_regular_file(it->path()))
       continue;
@@ -387,4 +388,4 @@ Glidos::TileMap Glidos::getMappingsForTexture(const std::string& textureId) cons
 
   return result;
 }
-} // namespace loader
+} // namespace loader::trx

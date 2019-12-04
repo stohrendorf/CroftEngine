@@ -3,6 +3,7 @@
 #include "audio/tracktype.h"
 #include "engine/ai/ai.h"
 #include "floordata/floordata.h"
+#include "hid/inputhandler.h"
 #include "loader/file/level/level.h"
 #include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
@@ -28,10 +29,10 @@
 #include "ui/label.h"
 #include "video/player.h"
 
-#include <boost/filesystem.hpp>
 #include <boost/locale/generator.hpp>
 #include <boost/locale/info.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <filesystem>
 #include <glm/gtx/norm.hpp>
 #include <locale>
 
@@ -43,7 +44,7 @@ sol::state createScriptEngine()
 {
   sol::state engine;
   engine.open_libraries(sol::lib::base, sol::lib::math, sol::lib::package);
-  engine["package"]["path"] = (boost::filesystem::path("scripts") / "?.lua").string();
+  engine["package"]["path"] = (std::filesystem::path("scripts") / "?.lua").string();
   engine["package"]["cpath"] = "";
 
   core::TRVec::registerUserType(engine);
@@ -931,7 +932,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     : m_scriptEngine{createScriptEngine()}
     , m_renderer{std::make_unique<render::scene::Renderer>()}
     , m_window{std::make_unique<render::scene::Window>(fullscreen, resolution)}
-    , splashImage{boost::filesystem::path{"splash.png"}}
+    , splashImage{std::filesystem::path{"splash.png"}}
     , abibasFont{std::make_shared<render::gl::Font>("abibas.ttf", 48)}
     , m_inventory{*this}
 {
@@ -959,7 +960,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
   const sol::optional<std::string> glidosPack = m_scriptEngine["getGlidosPack"]();
 
   std::unique_ptr<loader::trx::Glidos> glidos;
-  if(glidosPack && boost::filesystem::is_directory(glidosPack.value()))
+  if(glidosPack && std::filesystem::is_directory(glidosPack.value()))
   {
     drawLoadingScreen("Loading Glidos texture pack");
     glidos = std::make_unique<loader::trx::Glidos>(glidosPack.value(),
@@ -1121,7 +1122,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
       totalTiles += textureAndTiles.second.size();
     BOOST_LOG_TRIVIAL(debug) << totalTiles << " unique texture tiles";
 
-    const auto cacheBaseDir = glidos != nullptr ? glidos->getBaseDir() : boost::filesystem::path("data/tr1/data");
+    const auto cacheBaseDir = glidos != nullptr ? glidos->getBaseDir() : std::filesystem::path("data/tr1/data");
     auto cache = loader::file::TextureCache{cacheBaseDir / "_edisonengine"};
 
     size_t processedTiles = 0;

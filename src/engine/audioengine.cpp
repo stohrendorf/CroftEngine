@@ -5,7 +5,6 @@
 #include "script/reflection.h"
 #include "tracks_tr1.h"
 
-#include <boost/filesystem/convenience.hpp>
 #include <boost/format.hpp>
 
 namespace engine
@@ -206,7 +205,7 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
   static constexpr size_t DefaultBufferCount = 4;
 
   std::shared_ptr<audio::Stream> result;
-  if(boost::filesystem::is_regular_file("data/tr1/audio/CDAUDIO.WAD"))
+  if(std::filesystem::is_regular_file("data/tr1/audio/CDAUDIO.WAD"))
     result = m_soundEngine.getDevice().createStream(
       std::make_unique<audio::WadStreamSource>("data/tr1/audio/CDAUDIO.WAD", trackId),
       DefaultBufferSize,

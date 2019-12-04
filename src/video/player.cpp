@@ -22,8 +22,8 @@ extern "C"
 
 #include "gsl-lite.hpp"
 
-#include <boost/filesystem/operations.hpp>
 #include <condition_variable>
+#include <filesystem>
 #include <functional>
 #include <mutex>
 #include <queue>
@@ -555,7 +555,7 @@ struct Scaler
   }
 };
 
-void play(const boost::filesystem::path& filename,
+void play(const std::filesystem::path& filename,
           audio::Device& audioDevice,
           const std::shared_ptr<render::gl::Image<render::gl::SRGBA8>>& img,
           const std::function<bool()>& onFrame)

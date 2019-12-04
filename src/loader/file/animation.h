@@ -5,11 +5,15 @@
 #include "core/units.h"
 #include "core/vec.h"
 #include "gsl-lite.hpp"
-#include "io/sdlreader.h"
 #include "render/scene/model.h"
 
 namespace loader::file
 {
+namespace io
+{
+class SDLReader;
+}
+
 #pragma pack(push, 1)
 
 struct BoundingBox
@@ -72,7 +76,7 @@ struct AnimFrame
 {
   struct Vec
   {
-    int16_t x, y, z;
+    int16_t x = 0, y = 0, z = 0;
 
     [[nodiscard]] glm::vec3 toGl() const noexcept
     {
@@ -88,8 +92,8 @@ struct AnimFrame
   };
 
   BoundingBoxIO bbox;
-  Vec pos;
-  uint16_t numValues;
+  Vec pos{};
+  uint16_t numValues = 0;
 
   [[nodiscard]] gsl::span<const uint32_t> getAngleData() const noexcept
   {
@@ -133,15 +137,7 @@ struct TransitionCase
 
   const Animation* targetAnimation = nullptr;
 
-  static std::unique_ptr<TransitionCase> read(io::SDLReader& reader)
-  {
-    std::unique_ptr<TransitionCase> transition{new TransitionCase()};
-    transition->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-    transition->lastFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-    transition->targetAnimationIndex = reader.readU16();
-    transition->targetFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-    return transition;
-  }
+  static std::unique_ptr<TransitionCase> read(io::SDLReader& reader);
 };
 
 struct Transitions
@@ -153,14 +149,7 @@ struct Transitions
   gsl::span<const TransitionCase> transitionCases{};
 
   /// \brief reads an animation state change.
-  static std::unique_ptr<Transitions> read(io::SDLReader& reader)
-  {
-    std::unique_ptr<Transitions> state_change = std::make_unique<Transitions>();
-    state_change->stateId = reader.readU16();
-    state_change->transitionCaseCount = reader.readU16();
-    state_change->firstTransitionCase = reader.readU16();
-    return state_change;
-  }
+  static std::unique_ptr<Transitions> read(io::SDLReader& reader);
 };
 
 struct Animation
@@ -197,46 +186,12 @@ struct Animation
     return lastFrame - firstFrame + 1_frame;
   }
 
-  static std::unique_ptr<Animation> readTr1(io::SDLReader& reader)
-  {
-    return read(reader, false);
-  }
+  static std::unique_ptr<Animation> readTr1(io::SDLReader& reader);
 
-  static std::unique_ptr<Animation> readTr4(io::SDLReader& reader)
-  {
-    return read(reader, true);
-  }
+  static std::unique_ptr<Animation> readTr4(io::SDLReader& reader);
 
 private:
-  static std::unique_ptr<Animation> read(io::SDLReader& reader, const bool withLateral)
-  {
-    auto animation = std::make_unique<Animation>();
-    animation->poseDataOffset = reader.readU32();
-    animation->segmentLength = core::Frame{static_cast<core::Frame::type>(reader.readU8())};
-    if(animation->segmentLength == 0_frame)
-      animation->segmentLength = 1_frame;
-    animation->poseDataSize = reader.readU8();
-    animation->state_id = core::AnimStateId{reader.readU16()};
-
-    animation->speed = core::Speed{reader.readI32()};
-    animation->acceleration = core::Acceleration{reader.readI32()};
-    if(withLateral)
-    {
-      animation->lateralSpeed = core::Speed{reader.readI32()};
-      animation->lateralAcceleration = core::Acceleration{reader.readI32()};
-    }
-
-    animation->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-    animation->lastFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-    animation->nextAnimationIndex = reader.readU16();
-    animation->nextFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
-
-    animation->transitionsCount = reader.readU16();
-    animation->transitionsIndex = reader.readU16();
-    animation->animCommandCount = reader.readU16();
-    animation->animCommandIndex = reader.readU16();
-    return animation;
-  }
+  static std::unique_ptr<Animation> read(io::SDLReader& reader, bool withLateral);
 };
 
 struct Mesh;
@@ -278,24 +233,8 @@ struct SkeletalModelType
 
   const Animation* animations = nullptr;
 
-  static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader)
-  {
-    std::unique_ptr<SkeletalModelType> moveable{std::make_unique<SkeletalModelType>()};
-    moveable->type = static_cast<core::TypeId::type>(reader.readU32());
-    moveable->nMeshes = reader.readI16();
-    moveable->mesh_base_index = reader.readU16();
-    moveable->bone_index = reader.readU32();
-    moveable->pose_data_offset = reader.readU32();
-    moveable->animation_index = reader.readU16();
-    return moveable;
-  }
+  static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader);
 
-  static std::unique_ptr<SkeletalModelType> readTr5(io::SDLReader& reader)
-  {
-    std::unique_ptr<SkeletalModelType> moveable = readTr1(reader);
-    if(reader.readU16() != 0xFFEF)
-      BOOST_LOG_TRIVIAL(warning) << "TR5 Moveable: filler has wrong value";
-    return moveable;
-  }
+  static std::unique_ptr<SkeletalModelType> readTr5(io::SDLReader& reader);
 };
 } // namespace loader
