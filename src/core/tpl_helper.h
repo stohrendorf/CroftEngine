@@ -41,13 +41,13 @@ struct is_all_enum<>
 template<typename T>
 struct is_all_enum<T>
 {
-  static constexpr bool value = std::is_enum<T>::value;
+  static constexpr bool value = std::is_enum_v<T>;
 };
 
 template<typename T, typename... Args>
 struct is_all_enum<T, Args...>
 {
-  static constexpr bool value = std::is_enum<T>::value && is_all_enum<Args...>::value;
+  static constexpr bool value = std::is_enum_v<T> && is_all_enum<Args...>::value;
 };
 
 template<typename... Args>

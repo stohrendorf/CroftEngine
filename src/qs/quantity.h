@@ -45,11 +45,19 @@ struct quantity
   {
   }
 
+  constexpr self_type& operator=(const self_type& rhs) noexcept
+  {
+    if(&rhs != this)
+      value = rhs.value;
+    return *this;
+  }
+
   template<typename T>
   explicit quantity(T)
   {
     // must use T here, otherwise the static assert will trigger always
-    static_assert(sizeof(T) > 0 && false, "Can only construct a quantity from its defined value type");
+    static_assert(sizeof(T) < 0,
+                  "Can only construct a quantity from its defined value type"); // NOLINT(bugprone-sizeof-expression)
   }
 
   [[nodiscard]] std::string toString() const
@@ -77,7 +85,7 @@ struct quantity
   template<typename Q>
   constexpr std::enable_if_t<detail::is_quantity<Q>::value, quantity<unit, typename Q::type>> retype_as() const
   {
-    static_assert(std::is_same<typename Q::unit, unit>::value, "Unit mismatch");
+    static_assert(std::is_same_v<typename Q::unit, unit>, "Unit mismatch");
     return quantity<unit, typename Q::type>{static_cast<typename Q::type>(value)};
   }
 
@@ -172,7 +180,7 @@ private:
 };
 
 template<typename Unit, typename Type>
-constexpr std::enable_if_t<std::is_signed<Type>::value, quantity<Unit, Type>> operator-(quantity<Unit, Type> l) noexcept
+constexpr std::enable_if_t<std::is_signed_v<Type>, quantity<Unit, Type>> operator-(quantity<Unit, Type> l) noexcept
 {
   return quantity<Unit, Type>{static_cast<Type>(-l.get())};
 }
@@ -185,15 +193,13 @@ constexpr auto operator*(Type l, quantity<Unit, Type> r) noexcept
 
 // abs
 template<typename Type, typename Unit>
-constexpr std::enable_if_t<std::is_signed<Type>::value, quantity<Unit, Type>>
-  abs(const quantity<Unit, Type>& v) noexcept
+constexpr std::enable_if_t<std::is_signed_v<Type>, quantity<Unit, Type>> abs(const quantity<Unit, Type>& v) noexcept
 {
   return v.get() >= 0 ? v : -v;
 }
 
 template<typename Type, typename Unit>
-constexpr std::enable_if_t<!std::is_signed<Type>::value, quantity<Unit, Type>>
-  abs(const quantity<Unit, Type>& v) noexcept
+constexpr std::enable_if_t<!std::is_signed_v<Type>, quantity<Unit, Type>> abs(const quantity<Unit, Type>& v) noexcept
 {
   return v;
 }

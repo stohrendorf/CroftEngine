@@ -9,7 +9,7 @@ template<typename... Args>
 using tuple_concat_t = decltype(std::tuple_cat(std::declval<Args>()...));
 
 template<typename T, typename A>
-using drop_if_same_t = std::conditional_t<std::is_same<T, A>::value, std::tuple<>, std::tuple<A>>;
+using drop_if_same_t = std::conditional_t<std::is_same_v<T, A>, std::tuple<>, std::tuple<A>>;
 
 template<typename, typename>
 struct drop_first;
@@ -31,7 +31,7 @@ struct drop_first<T, std::tuple<A, Args...>>
 {
   using head = drop_if_same_t<T, A>;
 
-  using type = std::conditional_t<std::is_same<head, std::tuple<>>::value,
+  using type = std::conditional_t<std::is_same_v<head, std::tuple<>>,
                                   std::tuple<Args...>,
                                   tuple_concat_t<head, typename drop_first<T, std::tuple<Args...>>::type>>;
 };

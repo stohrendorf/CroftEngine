@@ -3,6 +3,8 @@
 #include "gsl-lite.hpp"
 #include "renderable.h"
 
+#include <vector>
+
 namespace render::scene
 {
 class Mesh;
@@ -42,4 +44,4 @@ public:
 private:
   std::vector<gsl::not_null<std::shared_ptr<Mesh>>> m_meshes{};
 };
-} // namespace render
+} // namespace render::scene

@@ -52,7 +52,7 @@ struct FastFill<SRGBA8, 4>
   {
     const auto scalar = value.channels[0];
     if(scalar == value.channels[1] && scalar == value.channels[2] && scalar == value.channels[3])
-      std::memset(data.get(), scalar, n * 4u);
+      std::memset(data->channels.data(), scalar, n * 4u);
     else
       std::fill_n(data.get(), n, value);
   }

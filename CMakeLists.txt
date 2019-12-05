@@ -121,10 +121,10 @@ include( cmake/dl_unpack.cmake )
 if( VCPKG_TOOLCHAIN )
     find_package( CImg REQUIRED )
 else()
-    dl_unpack( https://framagit.org/dtschump/CImg/-/archive/v.2.3.6/CImg-v.2.3.6.zip CImg-v.2.3.6.zip CImg-v.2.3.6 )
+    dl_unpack( https://framagit.org/dtschump/CImg/-/archive/v.2.8.0/CImg-v.2.8.0.tar.bz2 CImg-v.2.8.0.zip CImg-v.2.8.0 )
 
     add_library( CImg::CImg INTERFACE IMPORTED )
-    target_include_directories( CImg::CImg SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/CImg-v.2.3.6" )
+    target_include_directories( CImg::CImg SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/CImg-v.2.8.0" )
 endif()
 target_compile_definitions( CImg::CImg INTERFACE -Dcimg_display=0 -Dcimg_use_png )
 
@@ -137,7 +137,7 @@ else()
     target_include_directories( sol2::sol2 SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/sol-v3.0.3/" )
 endif()
 
-download( https://raw.githubusercontent.com/martinmoene/gsl-lite/2871e5be5eb95117cf6b13f508cbd2f4a50e8801/include/gsl/gsl-lite.hpp gsl-lite/gsl-lite.hpp )
+download( https://raw.githubusercontent.com/martinmoene/gsl-lite/6ca6419af54366b708d354a25839353573fb6309/include/gsl/gsl-lite.hpp gsl-lite/gsl-lite.hpp )
 
 add_library( gsl-lite INTERFACE IMPORTED )
 target_include_directories( gsl-lite SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/gsl-lite" )

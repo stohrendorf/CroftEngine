@@ -49,8 +49,7 @@ using Handle = uint32_t;
 template<typename T>
 class Bitfield final
 {
-  static_assert(std::is_same<typename std::underlying_type<T>::type, EnumType>::value,
-                "Invalid bitfield template parameter");
+  static_assert(std::is_same_v<std::underlying_type_t<T>, EnumType>, "Invalid bitfield template parameter");
 
   EnumType m_value;
 
@@ -73,6 +72,11 @@ public:
 #endif
   constexpr Bitfield(T value) noexcept
       : m_value{static_cast<EnumType>(value)}
+  {
+  }
+
+  constexpr Bitfield(const Bitfield<T>& rhs) noexcept
+      : m_value{rhs.m_value}
   {
   }
 

@@ -43,7 +43,7 @@ struct RenderVertex
 struct MeshPart
 {
   using IndexBuffer = std::vector<uint16_t>;
-  static_assert(std::is_unsigned<IndexBuffer::value_type>::value, "Index buffer entries must be unsigned");
+  static_assert(std::is_unsigned_v<IndexBuffer::value_type>, "Index buffer entries must be unsigned");
 
   IndexBuffer indices;
   std::shared_ptr<render::scene::Material> material;

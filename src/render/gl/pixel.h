@@ -9,8 +9,7 @@ namespace render::gl
 template<typename T, size_t _Channels, ::gl::PixelFormat _PixelFormat, ::gl::InternalFormat _InternalFormat>
 struct Pixel
 {
-  static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value
-                  || std::is_same<T, ::gl::core::Half>::value,
+  static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<T, ::gl::core::Half>,
                 "Pixel may only have channels of integral types");
 
   static_assert(_Channels > 0, "Pixel must contain at least one channel");
@@ -27,7 +26,7 @@ struct Pixel
 
   std::array<Type, Channels> channels;
 
-  explicit Pixel()
+  explicit constexpr Pixel() noexcept
       : Pixel{Type(0)}
   {
   }
@@ -130,4 +129,4 @@ constexpr bool operator!=(const Scalar<T>& lhs, const Scalar<T>& rhs)
 using ScalarByte = Scalar<uint8_t>;
 using Scalar32F = Scalar<float>;
 using Scalar16F = Scalar<::gl::core::Half>;
-} // namespace render
+} // namespace render::gl

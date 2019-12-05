@@ -256,9 +256,9 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
 
       if((col & 0x8000) != 0)
       {
-        const auto r = static_cast<const uint8_t>((col & 0x00007c00) >> 7);
-        const auto g = static_cast<const uint8_t>((col & 0x000003e0) >> 2);
-        const auto b = static_cast<const uint8_t>((col & 0x0000001f) << 3);
+        const auto r = static_cast<uint8_t>((col & 0x00007c00) >> 7);
+        const auto g = static_cast<uint8_t>((col & 0x000003e0) >> 2);
+        const auto b = static_cast<uint8_t>((col & 0x0000001f) << 3);
         dst.pixels[y][x] = {r, g, b, 1};
       }
       else

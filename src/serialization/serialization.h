@@ -179,24 +179,24 @@ public:
   }
 
   template<typename T>
-  const Serializer& operator()(const gsl::czstring name, T& data) const
+  const Serializer& operator()(const gsl::not_null<gsl::czstring>& name, T&& data) const
   {
-    BOOST_LOG_TRIVIAL(trace) << "Serializing node " << name;
+    BOOST_LOG_TRIVIAL(trace) << "Serializing node " << name.get();
 
     if(loading)
     {
-      if(!node[name].IsDefined())
-        SERIALIZER_EXCEPTION(std::string{"Node "} + name + " not defined");
+      if(!node[name.get()].IsDefined())
+        SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " not defined");
     }
     else
     {
-      if(node[name].IsDefined())
-        SERIALIZER_EXCEPTION(std::string{"Node "} + name + " already defined");
+      if(node[name.get()].IsDefined())
+        SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " already defined");
     }
 
     try
     {
-      auto ser = (*this)[name];
+      auto ser = (*this)[name.get()];
       if(loading)
         access::callSerializeOrLoad(data, ser);
       else
@@ -205,19 +205,19 @@ public:
     }
     catch(Exception&)
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).name()
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
                                << "\"";
       throw;
     }
     catch(std::exception& ex)
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).name()
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
                                << "\"";
       SERIALIZER_EXCEPTION(ex.what());
     }
     catch(...)
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).name()
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
                                << "\"";
       SERIALIZER_EXCEPTION("Unexpected exception");
     }
