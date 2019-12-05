@@ -23,6 +23,7 @@
 #include "serialization/bitset.h"
 #include "serialization/map.h"
 #include "serialization/not_null.h"
+#include "serialization/objectreference.h"
 #include "serialization/optional.h"
 #include "serialization/vector.h"
 #include "tracks_tr1.h"
@@ -1712,6 +1713,16 @@ core::TypeId Engine::find(const loader::file::Sprite* sprite) const
 
 void Engine::serialize(const serialization::Serializer& ser)
 {
+  if(ser.loading)
+  {
+    m_renderer->getScene()->clear();
+    for(auto& room : m_level->m_rooms)
+    {
+      room.resetScenery();
+      m_renderer->getScene()->addNode(room.node);
+    }
+  }
+
   ser(S_NV("objectCounter", m_objectCounter),
       S_NV("objects", m_objects),
       S_NV("inventory", m_inventory),
@@ -1720,7 +1731,8 @@ void Engine::serialize(const serialization::Serializer& ser)
       S_NV("activeEffect", m_activeEffect),
       S_NV("effectTimer", m_effectTimer),
       S_NV("cameraController", *m_cameraController),
-      S_NV("secretsFound", m_secretsFoundBitmask));
+      S_NV("secretsFound", m_secretsFoundBitmask),
+      S_NV("lara", serialization::ObjectReference{m_lara}));
 }
 
 Engine::~Engine() = default;

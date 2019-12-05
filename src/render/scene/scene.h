@@ -49,8 +49,15 @@ public:
       visitor.visit(*node);
   }
 
+  void clear()
+  {
+    auto tmp = m_nodes;
+    for(const auto& node : tmp)
+      setParent(node, nullptr);
+  }
+
 private:
   std::shared_ptr<Camera> m_activeCamera = nullptr;
   Node::List m_nodes;
 };
-} // namespace render
+} // namespace render::scene

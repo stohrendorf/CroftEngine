@@ -372,7 +372,7 @@ public:
     core::Length targetDist = 0_len;
     core::Frame recoilFrame = 0_frame;
     core::Frame flashTime = 0_frame;
-    TR1SoundId sampleNum = TR1SoundId::LaraFootstep;
+    TR1SoundId shotSound = TR1SoundId::LaraFootstep;
   };
 
   std::unordered_map<WeaponId, Weapon> weapons;

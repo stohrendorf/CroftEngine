@@ -267,7 +267,8 @@ void Room::createSceneNode(
       [brightness = sm.getBrightness()](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
         uniform.set(brightness);
       });
-    addChild(node, subNode);
+
+    sceneryNodes.emplace_back(std::move(subNode));
   }
   node->setLocalMatrix(translate(glm::mat4{1.0f}, position.toRenderSystem()));
 
@@ -301,10 +302,12 @@ void Room::createSceneNode(
         uniform.set(brightness);
       });
 
-    addChild(node, spriteNode);
+    sceneryNodes.emplace_back(std::move(spriteNode));
   }
   for(auto& portal : portals)
     portal.buildMesh(portalMaterial);
+
+  resetScenery();
 }
 
 core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core::Angle& angle) const
@@ -489,7 +492,7 @@ std::unique_ptr<Room> Room::readTr2(io::SDLReader& reader)
 
   room->flags = reader.readU16();
 
-  if(room->flags & 0x0020)
+  if(room->flags & 0x0020u)
   {
     room->reverbInfo = ReverbType::Outside;
   }
@@ -550,10 +553,10 @@ std::unique_ptr<Room> Room::readTr3(io::SDLReader& reader)
 
   room->flags = reader.readU16();
 
-  if(room->flags & 0x0080)
+  if(room->flags & 0x0080u)
   {
-    room->flags |= 0x0002; // Move quicksand flag to another bit to avoid confusion with NL flag.
-    room->flags ^= 0x0080;
+    room->flags |= 0x0002u; // Move quicksand flag to another bit to avoid confusion with NL flag.
+    room->flags &= ~0x0080u;
   }
 
   // Only in TR3-5
@@ -884,6 +887,15 @@ std::optional<core::Length> Room::getWaterSurfaceHeight(const core::RoomBoundPos
   }
 
   return std::nullopt;
+}
+
+void Room::resetScenery()
+{
+  node->removeAllChildren();
+  for(const auto& subNode : sceneryNodes)
+  {
+    addChild(node, subNode);
+  }
 }
 
 const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_null<gsl::not_null<const Room*>*>& room)

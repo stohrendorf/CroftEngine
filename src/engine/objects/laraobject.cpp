@@ -8,6 +8,7 @@
 #include "hid/inputhandler.h"
 #include "render/textureanimator.h"
 #include "serialization/animframe_ptr.h"
+#include "serialization/objectreference.h"
 #include "serialization/optional.h"
 
 #include <boost/range/adaptors.hpp>
@@ -1330,7 +1331,7 @@ void LaraObject::tryShootShotgun()
   }
   if(fireShotgun)
   {
-    playSoundEffect(weapons[WeaponId::Shotgun].sampleNum);
+    playSoundEffect(weapons[WeaponId::Shotgun].shotSound);
   }
 }
 
@@ -1536,7 +1537,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
     if(fireWeapon(weaponId, target, *this, aimAngle))
     {
       rightArm.flashTimeout = weapon.flashTime;
-      playSoundEffect(weapon.sampleNum);
+      playSoundEffect(weapon.shotSound);
     }
     rightArm.frame = 24_frame;
   }
@@ -1572,7 +1573,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
     if(fireWeapon(weaponId, target, *this, aimAngle))
     {
       leftArm.flashTimeout = weapon.flashTime;
-      playSoundEffect(weapon.sampleNum);
+      playSoundEffect(weapon.shotSound);
     }
     leftArm.frame = 24_frame;
   }
@@ -2203,29 +2204,34 @@ void LaraObject::burnIfAlive()
 void LaraObject::serialize(const serialization::Serializer& ser)
 {
   ModelObject::serialize(ser);
-  ser(S_NV("gunType", gunType),
-      S_NV("requestedGunType", requestedGunType),
+  ser(S_NV("yRotationSpeed", m_yRotationSpeed),
+      S_NV("fallSpeedOverride", m_fallSpeedOverride),
+      S_NV("movementAngle", m_movementAngle),
+      S_NV("air", m_air),
+      S_NV("currentSlideAngle", m_currentSlideAngle),
       S_NV("handStatus", m_handStatus),
       S_NV("underwaterState", m_underwaterState),
-      S_NV("hitFrame", hit_frame),
-      S_NV("hitDirection", hit_direction),
-      S_NV("air", m_air),
       S_NV("swimToDiveKeypressDuration", m_swimToDiveKeypressDuration),
-      S_NV("explosionStumblingDuration", explosionStumblingDuration),
-      // FIXME S_NVP(forceSourcePosition),
-      S_NV("yRotationSpeed", m_yRotationSpeed),
-      S_NV("movementAngle", m_movementAngle),
       S_NV("headRotation", m_headRotation),
       S_NV("torsoRotation", m_torsoRotation),
+      S_NV("underwaterCurrentStrength", m_underwaterCurrentStrength),
+      S_NV("underwaterRoute", m_underwaterRoute),
+      S_NV("hitDirection", hit_direction),
+      S_NV("hitFrame", hit_frame),
+      S_NV("explosionStumblingDuration", explosionStumblingDuration),
+      // FIXME S_NVP(forceSourcePosition),
+      S_NV("leftArm", leftArm),
+      S_NV("rightArm", rightArm),
+      S_NV("gunType", gunType),
+      S_NV("requestedGunType", requestedGunType),
       S_NV("pistolsAmmo", pistolsAmmo),
       S_NV("revolverAmmo", revolverAmmo),
       S_NV("uziAmmo", uziAmmo),
       S_NV("shotgunAmmo", shotgunAmmo),
-      S_NV("underwaterCurrentStrength", m_underwaterCurrentStrength),
-      S_NV("underwaterRoute", m_underwaterRoute),
-      S_NV("leftArm", leftArm),
-      S_NV("rightArm", rightArm),
       S_NV("weaponTargetVector", m_weaponTargetVector));
+
+  ser.lazy(
+    [this](const serialization::Serializer& ser) { ser(S_NV("target", serialization::ObjectReference{target})); });
 
   if(ser.loading)
     forceSourcePosition = nullptr;
@@ -2268,7 +2274,7 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 9_frame;
   w.flashTime = 3_frame;
-  w.sampleNum = TR1SoundId::LaraShootPistols;
+  w.shotSound = TR1SoundId::LaraShootPistols;
   weapons[WeaponId::Pistols] = w;
 
   w.lockAngles.y.min = -60_deg;
@@ -2290,7 +2296,7 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 9_frame;
   w.flashTime = 3_frame;
-  w.sampleNum = TR1SoundId::CowboyShoot;
+  w.shotSound = TR1SoundId::CowboyShoot;
   weapons[WeaponId::AutoPistols] = w;
 
   w.lockAngles.y.min = -60_deg;
@@ -2312,7 +2318,7 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 3_frame;
   w.flashTime = 2_frame;
-  w.sampleNum = TR1SoundId::LaraShootUzis;
+  w.shotSound = TR1SoundId::LaraShootUzis;
   weapons[WeaponId::Uzi] = w;
 
   w.lockAngles.y.min = -60_deg;
@@ -2334,7 +2340,7 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 9_frame;
   w.flashTime = 3_frame;
-  w.sampleNum = TR1SoundId::LaraShootShotgun;
+  w.shotSound = TR1SoundId::LaraShootShotgun;
   weapons[WeaponId::Shotgun] = w;
 
   m_state.health = core::LaraHealth;

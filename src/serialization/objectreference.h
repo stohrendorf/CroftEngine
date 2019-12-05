@@ -3,13 +3,17 @@
 #include "engine/engine.h"
 #include "ptr.h"
 
+#include <type_traits>
+
 namespace serialization
 {
-struct ObjectReference
+template<typename T>
+struct ObjectReference final
 {
-  std::shared_ptr<engine::objects::Object>& ptr;
+  static_assert(std::is_base_of_v<engine::objects::Object, T>);
+  std::shared_ptr<T>& ptr;
 
-  explicit ObjectReference(std::shared_ptr<engine::objects::Object>& ptr)
+  explicit ObjectReference(std::shared_ptr<T>& ptr)
       : ptr{ptr}
   {
   }
@@ -46,7 +50,9 @@ struct ObjectReference
         ser.tag("objectref");
         engine::ObjectId id = 0;
         ser(S_NV("id", id));
-        *pptr = ser.engine.getObjects().at(id);
+        auto tmp = ser.engine.getObjects().at(id).get();
+        Expects(tmp != nullptr);
+        *pptr = std::dynamic_pointer_cast<T>(tmp);
       });
     }
   }

@@ -278,6 +278,7 @@ struct RoomVertex
 struct Room
 {
   std::shared_ptr<render::scene::Node> node = nullptr;
+  std::vector<std::shared_ptr<render::scene::Node>> sceneryNodes{};
 
   // Various room flags specify various room options. Mostly, they
   // specify environment type and some additional actions which should
@@ -483,6 +484,8 @@ struct Room
   static void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);
 
   [[nodiscard]] static std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos);
+
+  void resetScenery();
 };
 
 extern const Sector* findRealFloorSector(const core::TRVec& position,

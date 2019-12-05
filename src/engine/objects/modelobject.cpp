@@ -308,6 +308,7 @@ void ModelObject::serialize(const serialization::Serializer& ser)
   {
     SkeletalModelNode::initNodes(m_skeleton, m_state);
     m_lighting.bind(*m_skeleton);
+    m_skeleton->setAnimation(m_state, m_state.anim, m_state.frame_number);
     m_skeleton->updatePose(m_state);
   }
 }
