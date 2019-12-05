@@ -52,6 +52,7 @@ public:
       : ModelObject{engine, position}
       , m_underwaterRoute{*engine}
   {
+    initGunflares();
   }
 
   LaraObject(const gsl::not_null<Engine*>& engine,
@@ -352,12 +353,16 @@ public:
   {
     core::Angle min = 0_deg;
     core::Angle max = 0_deg;
+
+    void serialize(const serialization::Serializer& ser);
   };
 
   struct RangeXY
   {
     Range x{};
     Range y{};
+
+    void serialize(const serialization::Serializer& ser);
   };
 
   struct Weapon
@@ -373,6 +378,15 @@ public:
     core::Frame recoilFrame = 0_frame;
     core::Frame flashTime = 0_frame;
     TR1SoundId shotSound = TR1SoundId::LaraFootstep;
+
+    void serialize(const serialization::Serializer& ser);
+
+    static Weapon create(const serialization::Serializer& ser)
+    {
+      Weapon tmp;
+      tmp.serialize(ser);
+      return tmp;
+    }
   };
 
   std::unordered_map<WeaponId, Weapon> weapons;
@@ -446,6 +460,9 @@ public:
   void burnIfAlive();
 
   void serialize(const serialization::Serializer& ser) override;
+
+private:
+  void initGunflares();
 };
 } // namespace objects
 } // namespace engine

@@ -10,6 +10,7 @@
 #include "serialization/animframe_ptr.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
+#include "serialization/unordered_map.h"
 
 #include <boost/range/adaptors.hpp>
 #include <glm/gtx/norm.hpp>
@@ -2228,7 +2229,8 @@ void LaraObject::serialize(const serialization::Serializer& ser)
       S_NV("revolverAmmo", revolverAmmo),
       S_NV("uziAmmo", uziAmmo),
       S_NV("shotgunAmmo", shotgunAmmo),
-      S_NV("weaponTargetVector", m_weaponTargetVector));
+      S_NV("weaponTargetVector", m_weaponTargetVector),
+      S_NV("weapons", weapons));
 
   ser.lazy(
     [this](const serialization::Serializer& ser) { ser(S_NV("target", serialization::ObjectReference{target})); });
@@ -2348,6 +2350,11 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
   m_state.is_hit = true;
   m_state.falling = true;
 
+  initGunflares();
+}
+
+void LaraObject::initGunflares()
+{
   const auto& gunFlareModel = getEngine().findAnimatedModelForType(TR1ItemId::Gunflare);
   if(gunFlareModel == nullptr)
     return;
@@ -2373,5 +2380,30 @@ void LaraObject::AimInfo::serialize(const serialization::Serializer& ser)
       S_NV("aiming", aiming),
       S_NV("aimRotation", aimRotation),
       S_NV("flashTimeout", flashTimeout));
+}
+
+void LaraObject::Weapon::serialize(const serialization::Serializer& ser)
+{
+  ser(S_NV("lockAngles", lockAngles),
+      S_NV("leftAngles", leftAngles),
+      S_NV("rightAngles", rightAngles),
+      S_NV("aimSpeed", aimSpeed),
+      S_NV("shotAccuracy", shotAccuracy),
+      S_NV("gunHeight", gunHeight),
+      S_NV("damage", damage),
+      S_NV("targetDist", targetDist),
+      S_NV("recoilFrame", recoilFrame),
+      S_NV("flashTime", flashTime),
+      S_NV("shotSound", shotSound));
+}
+
+void LaraObject::Range::serialize(const serialization::Serializer& ser)
+{
+  ser(S_NV("min", min), S_NV("max", max));
+}
+
+void LaraObject::RangeXY::serialize(const serialization::Serializer& ser)
+{
+  ser(S_NV("x", x), S_NV("y", y));
 }
 } // namespace engine::objects
