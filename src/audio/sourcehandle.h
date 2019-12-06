@@ -11,7 +11,7 @@ class SourceHandle final
   const ALuint m_handle;
   std::shared_ptr<BufferHandle> m_buffer;
 
-  static ALuint createHandle()
+  [[nodiscard]] static ALuint createHandle()
   {
     ALuint handle;
     AL_ASSERT(alGenSources(1, &handle));
@@ -156,7 +156,7 @@ public:
     return processed;
   }
 
-  ALuint unqueueBuffer()
+  [[nodiscard]] ALuint unqueueBuffer()
   {
     ALuint result;
     AL_ASSERT(alSourceUnqueueBuffers(m_handle, 1, &result));

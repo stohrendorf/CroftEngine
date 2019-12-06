@@ -169,6 +169,9 @@ Listener::Listener(const gsl::not_null<SoundEngine*>& engine)
 
 Listener& Listener::operator=(const Listener& rhs)
 {
+  if(&rhs == this)
+    return *this;
+
   if(m_engine != rhs.m_engine)
   {
     m_engine->m_listeners.erase(this);
@@ -178,14 +181,14 @@ Listener& Listener::operator=(const Listener& rhs)
   return *this;
 }
 
-Listener::Listener(Listener&& rhs)
+Listener::Listener(Listener&& rhs) noexcept
     : m_engine{std::exchange(rhs.m_engine, nullptr)}
 {
   m_engine->m_listeners.erase(&rhs);
   m_engine->m_listeners.emplace(this);
 }
 
-Listener& Listener::operator=(Listener&& rhs)
+Listener& Listener::operator=(Listener&& rhs) noexcept
 {
   m_engine->m_listeners.erase(this);
   m_engine->m_listeners.erase(&rhs);
@@ -211,6 +214,9 @@ Emitter::Emitter(const gsl::not_null<SoundEngine*>& engine)
 
 Emitter& Emitter::operator=(const Emitter& rhs)
 {
+  if(&rhs == this)
+    return *this;
+
   if(m_engine != rhs.m_engine)
   {
     m_engine->m_emitters.erase(this);
@@ -220,14 +226,14 @@ Emitter& Emitter::operator=(const Emitter& rhs)
   return *this;
 }
 
-Emitter::Emitter(Emitter&& rhs)
+Emitter::Emitter(Emitter&& rhs) noexcept
     : m_engine{std::exchange(rhs.m_engine, nullptr)}
 {
   m_engine->m_emitters.erase(&rhs);
   m_engine->m_emitters.emplace(this);
 }
 
-Emitter& Emitter::operator=(Emitter&& rhs)
+Emitter& Emitter::operator=(Emitter&& rhs) noexcept
 {
   m_engine->m_emitters.erase(this);
   m_engine->m_emitters.erase(&rhs);
@@ -235,4 +241,4 @@ Emitter& Emitter::operator=(Emitter&& rhs)
   m_engine->m_emitters.emplace(this);
   return *this;
 }
-}
+} // namespace audio

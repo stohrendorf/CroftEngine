@@ -15,14 +15,23 @@ enum class TR1TrackId;
 
 class Engine;
 
-struct AudioEngine
+class AudioEngine
 {
   Engine& m_engine;
 
   std::vector<loader::file::SoundDetails> m_soundDetails;
   std::vector<int16_t> m_soundmap;
   std::vector<uint32_t> m_sampleIndices;
+  std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
+  int m_cdTrack50time = 0;
+  std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
+  audio::SoundEngine m_soundEngine;
+  std::weak_ptr<audio::Stream> m_ambientStream;
+  std::weak_ptr<audio::Stream> m_interceptStream;
+  std::optional<TR1TrackId> m_currentTrack;
+  std::optional<TR1SoundId> m_currentLaraTalk;
 
+public:
   explicit AudioEngine(Engine& engine,
                        std::vector<loader::file::SoundDetails> soundDetails,
                        std::vector<int16_t> soundmap,
@@ -38,15 +47,6 @@ struct AudioEngine
       : AudioEngine{engine, {}, {}, {}}
   {
   }
-
-  std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
-  int m_cdTrack50time = 0;
-  std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
-  audio::SoundEngine m_soundEngine;
-  std::weak_ptr<audio::Stream> m_ambientStream;
-  std::weak_ptr<audio::Stream> m_interceptStream;
-  std::optional<TR1TrackId> m_currentTrack;
-  std::optional<TR1SoundId> m_currentLaraTalk;
 
   std::shared_ptr<audio::SourceHandle> playSound(core::SoundId id, audio::Emitter* emitter);
 
@@ -75,5 +75,10 @@ struct AudioEngine
   void stopSound(core::SoundId soundId, audio::Emitter* emitter);
 
   void setUnderwater(bool underwater);
+
+  [[nodiscard]] auto& getSoundEngine()
+  {
+    return m_soundEngine;
+  }
 };
 }

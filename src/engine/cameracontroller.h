@@ -92,7 +92,7 @@ public:
   explicit CameraController(const gsl::not_null<Engine*>& engine,
                             gsl::not_null<std::shared_ptr<render::scene::Camera>> camera);
 
-  explicit CameraController(gsl::not_null<Engine*> engine,
+  explicit CameraController(const gsl::not_null<Engine*>& engine,
                             gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                             bool noLaraTag);
 

@@ -13,7 +13,7 @@ class BufferHandle final
 {
   const ALuint m_handle;
 
-  static ALuint createHandle()
+  [[nodiscard]] static ALuint createHandle()
   {
     ALuint handle;
     AL_ASSERT(alGenBuffers(1, &handle));
@@ -42,7 +42,7 @@ public:
     AL_ASSERT(alDeleteBuffers(1, &m_handle));
   }
 
-  ALuint get() const noexcept
+  [[nodiscard]] ALuint get() const noexcept
   {
     return m_handle;
   }

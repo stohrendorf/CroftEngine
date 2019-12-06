@@ -74,7 +74,7 @@ private:
   void fillBuffer(BufferHandle& buffer);
 };
 
-inline bool isPlaying(const std::weak_ptr<Stream>& stream)
+[[nodiscard]] inline bool isPlaying(const std::weak_ptr<Stream>& stream)
 {
   if(const auto str = stream.lock())
     if(const auto src = str->getSource().lock())

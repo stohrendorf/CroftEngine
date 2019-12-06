@@ -20,12 +20,12 @@ QS_LITERAL_OP_ULL(Length, _len)
 
 using Area = QS_COMBINE_UNITS(Length, *, Length);
 
-inline Length sqrt(const Area& area)
+[[nodiscard]] inline Length sqrt(const Area& area)
 {
   return Length{static_cast<Length::type>(std::sqrt(area.get()))};
 }
 
-constexpr Length lerp(const Length& a, const Length& b, float bias)
+[[nodiscard]] constexpr Length lerp(const Length& a, const Length& b, float bias)
 {
   return Length{static_cast<Length::type>(a.get() * (1 - bias) + b.get() * bias)};
 }
@@ -44,7 +44,7 @@ QS_LITERAL_OP_ULL(Speed, _spd)
 
 using Acceleration = QS_COMBINE_UNITS(Speed, /, Frame);
 
-inline auto sqrt(QS_COMBINE_UNITS(Acceleration, *, Length) value)
+[[nodiscard]] inline auto sqrt(QS_COMBINE_UNITS(Acceleration, *, Length) value)
 {
   return Speed{static_cast<Speed::type>(std::sqrt(value.get()))};
 }

@@ -205,7 +205,7 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   auto& getSoundEngine()
   {
-    return m_audioEngine->m_soundEngine;
+    return m_audioEngine->getSoundEngine();
   }
 
   auto& getScriptEngine()

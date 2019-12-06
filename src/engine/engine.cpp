@@ -297,7 +297,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
   m_positionalEmitters.reserve(m_level->m_soundSources.size());
   for(loader::file::SoundSource& src : m_level->m_soundSources)
   {
-    m_positionalEmitters.emplace_back(src.position.toRenderSystem(), &m_audioEngine->m_soundEngine);
+    m_positionalEmitters.emplace_back(src.position.toRenderSystem(), &m_audioEngine->getSoundEngine());
     auto handle = m_audioEngine->playSound(src.sound_id, &m_positionalEmitters.back());
     Expects(handle != nullptr);
     handle->setLooping(true);
@@ -1011,7 +1011,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     for(const auto offset : m_level->m_sampleIndices)
     {
       Expects(offset < m_level->m_samplesData.size());
-      m_audioEngine->m_soundEngine.addWav(&m_level->m_samplesData[offset]);
+      m_audioEngine->getSoundEngine().addWav(&m_level->m_samplesData[offset]);
     }
 
     for(size_t i = 0; i < m_level->m_textures.size(); ++i)
@@ -1043,7 +1043,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     m_cameraController = std::make_unique<CameraController>(this, m_renderer->getScene()->getActiveCamera(), true);
   }
 
-  m_audioEngine->m_soundEngine.setListener(m_cameraController.get());
+  m_audioEngine->getSoundEngine().setListener(m_cameraController.get());
 
   if(!cutsceneName.empty() && !isVideo)
   {
@@ -1195,7 +1195,7 @@ void Engine::run()
   if(const sol::optional<std::string> video = levelInfo["video"])
   {
     video::play(
-      "data/tr1/fmv/" + video.value(), m_audioEngine->m_soundEngine.getDevice(), screenOverlay->getImage(), [&]() {
+      "data/tr1/fmv/" + video.value(), m_audioEngine->getSoundEngine().getDevice(), screenOverlay->getImage(), [&]() {
         if(m_window->updateWindowSize())
         {
           m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
@@ -1262,7 +1262,7 @@ void Engine::run()
       tmp.draw(trFont, *screenOverlay->getImage(), *m_level->m_palette);
     }
 
-    m_audioEngine->m_soundEngine.update();
+    m_audioEngine->getSoundEngine().update();
     m_inputHandler->update();
 
     if(m_inputHandler->getInputState().debug.justPressed())

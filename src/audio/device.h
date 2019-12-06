@@ -68,7 +68,7 @@ public:
       src->setDirectFilter(filter);
   }
 
-  gsl::not_null<std::shared_ptr<Stream>>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Stream>>
     createStream(std::unique_ptr<AbstractStreamSource>&& src, const size_t bufferSize, const size_t bufferCount)
   {
     const auto r = std::make_shared<Stream>(*this, std::move(src), bufferSize, bufferCount);
@@ -76,7 +76,7 @@ public:
     return r;
   }
 
-  gsl::not_null<std::shared_ptr<SourceHandle>> createSource()
+  [[nodiscard]] gsl::not_null<std::shared_ptr<SourceHandle>> createSource()
   {
     const auto r = std::make_shared<SourceHandle>();
     m_sources.emplace(r);

@@ -64,59 +64,59 @@ struct Id
   }
 
   template<typename T>
-  constexpr T get_as() const
+  [[nodiscard]] constexpr T get_as() const
   {
     static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible target type");
     return static_cast<T>(m_value);
   }
 
-  constexpr bool operator<(const Id<type, tag, Enums...> r) const
+  [[nodiscard]] constexpr bool operator<(const Id<type, tag, Enums...> r) const
   {
     return get() < r.get();
   }
 
-  constexpr bool operator==(const Id<type, tag, Enums...> r) const
+  [[nodiscard]] constexpr bool operator==(const Id<type, tag, Enums...> r) const
   {
     return get() == r.get();
   }
 
-  constexpr bool operator!=(const Id<type, tag, Enums...> r) const
+  [[nodiscard]] constexpr bool operator!=(const Id<type, tag, Enums...> r) const
   {
     return get() != r.get();
   }
 
   template<typename T>
-  constexpr bool operator==(const T r) const
+  [[nodiscard]] constexpr bool operator==(const T r) const
   {
     return get_as<T>() == r;
   }
 
   template<typename T>
-  constexpr bool operator!=(const T r) const
+  [[nodiscard]] constexpr bool operator!=(const T r) const
   {
     return get_as<T>() != r;
   }
 
   template<typename T>
-  constexpr bool operator<(const T r) const
+  [[nodiscard]] constexpr bool operator<(const T r) const
   {
     return get_as<T>() < r;
   }
 
   template<typename T>
-  constexpr bool operator<=(const T r) const
+  [[nodiscard]] constexpr bool operator<=(const T r) const
   {
     return get_as<T>() <= r;
   }
 
   template<typename T>
-  constexpr bool operator>(const T r) const
+  [[nodiscard]] constexpr bool operator>(const T r) const
   {
     return get_as<T>() > r;
   }
 
   template<typename T>
-  constexpr bool operator>=(const T r) const
+  [[nodiscard]] constexpr bool operator>=(const T r) const
   {
     return get_as<T>() >= r;
   }
@@ -127,7 +127,7 @@ struct Id
     serialization::access::callSerialize(m_value, ser);
   }
 
-  static Id<StorageType, Tag, Enums...> create(const serialization::Serializer& ser)
+  [[nodiscard]] static Id<StorageType, Tag, Enums...> create(const serialization::Serializer& ser)
   {
     ser.tag("id");
     return Id<StorageType, Tag, Enums...>{serialization::create(serialization::TypeId<StorageType>{}, ser)};
@@ -167,7 +167,7 @@ DECLARE_ID(ItemId, uint16_t);
 DECLARE_ID_E(TypeId, uint16_t, engine::TR1ItemId);
 DECLARE_ID_E(SoundId, uint16_t, engine::TR1SoundId);
 
-inline constexpr AnimStateId operator"" _as(unsigned long long value)
+[[nodiscard]] inline constexpr AnimStateId operator"" _as(unsigned long long value)
 {
   return AnimStateId{static_cast<AnimStateId::type>(value)};
 }
@@ -178,7 +178,7 @@ using core::operator""_as;
 template<typename StorageType, typename Tag>
 struct std::hash<core::Id<StorageType, Tag>>
 {
-  constexpr size_t operator()(const core::Id<StorageType, Tag>& v) const
+  [[nodiscard]] constexpr size_t operator()(const core::Id<StorageType, Tag>& v) const
   {
     return hash<StorageType>{}(v.get());
   }
@@ -187,7 +187,7 @@ struct std::hash<core::Id<StorageType, Tag>>
 template<>
 struct std::hash<core::TextureTileId>
 {
-  size_t operator()(const core::TextureTileId& x) const noexcept
+  [[nodiscard]] size_t operator()(const core::TextureTileId& x) const noexcept
   {
     return std::hash<core::TextureTileId::type>()(x.get());
   }

@@ -40,7 +40,7 @@ struct ContainerOffset
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> from(std::vector<T>& v) const
+  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> from(std::vector<T>& v) const
   {
     if(offset % sizeof(T) != 0)
       BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
@@ -49,7 +49,7 @@ struct ContainerOffset
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> checkedFrom(std::vector<T>& v) const
+  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> checkedFrom(std::vector<T>& v) const
   {
     if(offset % sizeof(T) != 0)
       BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
@@ -58,7 +58,8 @@ struct ContainerOffset
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&> from(const std::vector<T>& v) const
+  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+    from(const std::vector<T>& v) const
   {
     if(offset % sizeof(T) != 0)
       BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
@@ -67,7 +68,8 @@ struct ContainerOffset
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&> checkedFrom(const std::vector<T>& v) const
+  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+    checkedFrom(const std::vector<T>& v) const
   {
     if(offset % sizeof(T) != 0)
       BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
@@ -98,19 +100,19 @@ struct ContainerIndex
   explicit ContainerIndex(T) = delete;
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> from(std::vector<T>& v) const
+  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> from(std::vector<T>& v) const
   {
     return v[index];
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> checkedFrom(std::vector<T>& v) const
+  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> checkedFrom(std::vector<T>& v) const
   {
     return v[index];
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
 
     from(const std::vector<T>& v) const
   {
@@ -118,7 +120,8 @@ struct ContainerIndex
   }
 
   template<typename T>
-  constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&> checkedFrom(const std::vector<T>& v) const
+  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+    checkedFrom(const std::vector<T>& v) const
   {
     return v.at(index);
   }
@@ -132,7 +135,7 @@ struct ContainerIndex
     return *this;
   }
 
-  auto operator+(const ContainerIndex<IndexType, DataTypes...>& delta) const
+  [[nodiscard]] auto operator+(const ContainerIndex<IndexType, DataTypes...>& delta) const
   {
     if((index > 0) && (delta.index > std::numeric_limits<index_type>::max() - index))
       BOOST_THROW_EXCEPTION(std::out_of_range("Index addition causes overflow"));

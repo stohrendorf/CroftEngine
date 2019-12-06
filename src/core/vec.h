@@ -52,7 +52,7 @@ struct TRVec
 
   constexpr TRVec& operator=(TRVec&&) noexcept = default;
 
-  constexpr TRVec operator-(const TRVec& rhs) const noexcept
+  [[nodiscard]] constexpr TRVec operator-(const TRVec& rhs) const noexcept
   {
     return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
   }
@@ -65,7 +65,7 @@ struct TRVec
     return *this;
   }
 
-  constexpr TRVec operator/(const Length::type n) const noexcept
+  [[nodiscard]] constexpr TRVec operator/(const Length::type n) const noexcept
   {
     return {X / n, Y / n, Z / n};
   }
@@ -78,7 +78,7 @@ struct TRVec
     return *this;
   }
 
-  constexpr TRVec operator+(const TRVec& rhs) const noexcept
+  [[nodiscard]] constexpr TRVec operator+(const TRVec& rhs) const noexcept
   {
     return {X + rhs.X, Y + rhs.Y, Z + rhs.Z};
   }
@@ -135,13 +135,13 @@ struct RoomBoundPosition final
 
   TRVec position;
 
-  explicit RoomBoundPosition(const gsl::not_null<const loader::file::Room*>& r, TRVec pos = {})
-      : room{r}
+  explicit RoomBoundPosition(gsl::not_null<const loader::file::Room*> r, TRVec pos = {})
+      : room{std::move(r)}
       , position{std::move(pos)}
   {
   }
 
   void serialize(const serialization::Serializer& ser);
-  static RoomBoundPosition create(const serialization::Serializer& ser);
+  [[nodiscard]] static RoomBoundPosition create(const serialization::Serializer& ser);
 };
 } // namespace core

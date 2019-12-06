@@ -16,53 +16,53 @@ constexpr int32_t AngleStorageScale = 1u << 16u;
 
 QS_DECLARE_QUANTITY(Angle, int32_t, "au");
 
-constexpr Angle auToAngle(int16_t value) noexcept;
+[[nodiscard]] constexpr Angle auToAngle(int16_t value) noexcept;
 
-constexpr Angle operator"" _deg(unsigned long long value) noexcept;
+[[nodiscard]] constexpr Angle operator"" _deg(unsigned long long value) noexcept;
 
-constexpr Angle operator"" _deg(long double value) noexcept;
+[[nodiscard]] constexpr Angle operator"" _deg(long double value) noexcept;
 
-inline Angle angleFromRad(const float r)
+[[nodiscard]] inline Angle angleFromRad(const float r)
 {
   return Angle{gsl::narrow_cast<Angle::type>(r / 2 / glm::pi<float>() * FullRotation * AngleStorageScale)};
 }
 
-inline Angle angleFromAtan(const float dx, const float dz)
+[[nodiscard]] inline Angle angleFromAtan(const float dx, const float dz)
 {
   return angleFromRad(std::atan2(dx, dz));
 }
 
-inline Angle angleFromDegrees(const float value)
+[[nodiscard]] inline Angle angleFromDegrees(const float value)
 {
   return Angle{gsl::narrow_cast<Angle::type>(std::lround(value / 360 * FullRotation * AngleStorageScale))};
 }
 
-inline Angle angleFromAtan(const Length& dx, const Length& dz)
+[[nodiscard]] inline Angle angleFromAtan(const Length& dx, const Length& dz)
 {
   return angleFromRad(std::atan2(dx.get_as<float>(), dz.get_as<float>()));
 }
 
-constexpr float toDegrees(const Angle& a) noexcept
+[[nodiscard]] constexpr float toDegrees(const Angle& a) noexcept
 {
   return a.get_as<float>() / AngleStorageScale * 360 / FullRotation;
 }
 
-inline float toRad(const Angle& a) noexcept
+[[nodiscard]] inline float toRad(const Angle& a) noexcept
 {
   return a.get_as<float>() / AngleStorageScale * glm::pi<float>() * 2 / FullRotation;
 }
 
-inline float sin(const Angle& a) noexcept
+[[nodiscard]] inline float sin(const Angle& a) noexcept
 {
   return glm::sin(toRad(a));
 }
 
-inline float cos(const Angle& a) noexcept
+[[nodiscard]] inline float cos(const Angle& a) noexcept
 {
   return glm::cos(toRad(a));
 }
 
-inline Angle abs(const Angle& a)
+[[nodiscard]] inline Angle abs(const Angle& a)
 {
   return Angle{glm::abs(a.get())};
 }
@@ -75,7 +75,7 @@ enum class Axis
   NegX
 };
 
-inline std::optional<Axis> axisFromAngle(const Angle& angle, const Angle& margin)
+[[nodiscard]] inline std::optional<Axis> axisFromAngle(const Angle& angle, const Angle& margin)
 {
   Expects(margin >= 0_deg && margin <= 45_deg);
   if(angle <= +0_deg + margin && angle >= +0_deg - margin)
@@ -90,7 +90,7 @@ inline std::optional<Axis> axisFromAngle(const Angle& angle, const Angle& margin
   return {};
 }
 
-inline Angle alignRotation(const Axis& axis)
+[[nodiscard]] inline Angle alignRotation(const Axis& axis)
 {
   switch(axis)
   {
@@ -102,7 +102,7 @@ inline Angle alignRotation(const Axis& axis)
   }
 }
 
-inline std::optional<Angle> alignRotation(const Angle& angle, const Angle& margin)
+[[nodiscard]] inline std::optional<Angle> alignRotation(const Angle& angle, const Angle& margin)
 {
   auto axis = axisFromAngle(angle, margin);
   if(!axis)
@@ -139,7 +139,7 @@ public:
     return {toRad(X), -toRad(Y), -toRad(Z)};
   }
 
-  TRRotation operator-(const TRRotation& rhs) const
+  [[nodiscard]] TRRotation operator-(const TRRotation& rhs) const
   {
     return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
   }
@@ -149,7 +149,7 @@ public:
     return glm::yawPitchRoll(-toRad(Y), toRad(X), -toRad(Z));
   }
 
-  TRRotation operator-() const
+  [[nodiscard]] TRRotation operator-() const
   {
     return TRRotation{-X, -Y, -Z};
   }
@@ -183,7 +183,7 @@ struct TRRotationXY
   void serialize(const serialization::Serializer& ser);
 };
 
-inline TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz)
+[[nodiscard]] inline TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz)
 {
   const auto y = angleFromAtan(dx, dz);
   const auto dxz = sqrt(dx * dx + dz * dz);
@@ -194,22 +194,22 @@ inline TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Le
   return TRRotationXY{x, y};
 }
 
-constexpr Angle auToAngle(int16_t value) noexcept
+[[nodiscard]] constexpr Angle auToAngle(int16_t value) noexcept
 {
   return Angle{static_cast<Angle::type>(value) * AngleStorageScale};
 }
 
-constexpr Angle operator"" _au(const unsigned long long value) noexcept
+[[nodiscard]] constexpr Angle operator"" _au(const unsigned long long value) noexcept
 {
   return auToAngle(static_cast<int16_t>(value));
 }
 
-constexpr Angle operator"" _deg(const unsigned long long value) noexcept
+[[nodiscard]] constexpr Angle operator"" _deg(const unsigned long long value) noexcept
 {
   return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
 }
 
-constexpr Angle operator"" _deg(const long double value) noexcept
+[[nodiscard]] constexpr Angle operator"" _deg(const long double value) noexcept
 {
   return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
 }

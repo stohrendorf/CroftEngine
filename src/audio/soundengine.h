@@ -28,11 +28,11 @@ public:
 
   Emitter& operator=(const Emitter& rhs);
 
-  Emitter(Emitter&& rhs);
+  Emitter(Emitter&& rhs) noexcept;
 
-  Emitter& operator=(Emitter&& rhs);
+  Emitter& operator=(Emitter&& rhs) noexcept;
 
-  virtual glm::vec3 getPosition() const = 0;
+  [[nodiscard]] virtual glm::vec3 getPosition() const = 0;
 
   virtual ~Emitter();
 
@@ -56,15 +56,15 @@ public:
 
   Listener& operator=(const Listener& rhs);
 
-  Listener(Listener&& rhs);
+  Listener(Listener&& rhs) noexcept;
 
-  Listener& operator=(Listener&&);
+  Listener& operator=(Listener&&) noexcept;
 
-  virtual glm::vec3 getPosition() const = 0;
+  [[nodiscard]] virtual glm::vec3 getPosition() const = 0;
 
-  virtual glm::vec3 getFrontVector() const = 0;
+  [[nodiscard]] virtual glm::vec3 getFrontVector() const = 0;
 
-  virtual glm::vec3 getUpVector() const = 0;
+  [[nodiscard]] virtual glm::vec3 getUpVector() const = 0;
 
   virtual ~Listener();
 
@@ -98,7 +98,7 @@ public:
     return m_device;
   }
 
-  Device& getDevice() noexcept
+  [[nodiscard]] auto& getDevice() noexcept
   {
     return m_device;
   }

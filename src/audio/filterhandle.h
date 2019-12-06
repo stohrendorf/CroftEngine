@@ -9,7 +9,7 @@ class FilterHandle final
 {
   const ALuint m_handle;
 
-  static ALuint createHandle()
+  [[nodiscard]] static ALuint createHandle()
   {
     ALuint handle;
     AL_ASSERT(alGenFilters(1, &handle));

@@ -1009,7 +1009,7 @@ std::unordered_set<const loader::file::Portal*>
   return result;
 }
 
-CameraController::CameraController(gsl::not_null<Engine*> engine,
+CameraController::CameraController(const gsl::not_null<Engine*>& engine,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                                    bool /*noLaraTag*/)
     : Listener{&engine->getSoundEngine()}
