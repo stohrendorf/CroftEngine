@@ -20,34 +20,27 @@ BOOST_AUTO_TEST_CASE(test_drop_if_same_t)
   TEST_SAME(TPL(drop_if_same_t<int, short>), std::tuple<short>);
 }
 
-BOOST_AUTO_TEST_CASE(test_drop_first_t)
+BOOST_AUTO_TEST_CASE(test_drop_one_t)
 {
-  TEST_SAME(TPL(drop_first_t<int, std::tuple<>>), std::tuple<>);
-  TEST_SAME(TPL(drop_first_t<int, std::tuple<int>>), std::tuple<>);
-  TEST_SAME(TPL(drop_first_t<int, std::tuple<int, int>>), std::tuple<int>);
-  TEST_SAME(TPL(drop_first_t<int, std::tuple<short>>), std::tuple<short>);
-  TEST_SAME(TPL(drop_first_t<int, std::tuple<short, int>>), std::tuple<short>);
+  TEST_SAME(TPL(drop_one_t<int, std::tuple<>>), std::tuple<>);
+  TEST_SAME(TPL(drop_one_t<int, std::tuple<int>>), std::tuple<>);
+  TEST_SAME(TPL(drop_one_t<int, std::tuple<int, int>>), std::tuple<int>);
+  TEST_SAME(TPL(drop_one_t<int, std::tuple<short>>), std::tuple<short>);
+  TEST_SAME(TPL(drop_one_t<int, std::tuple<short, int>>), std::tuple<short>);
 }
 
-BOOST_AUTO_TEST_CASE(test_first_tuple_t)
+BOOST_AUTO_TEST_CASE(test_first_t)
 {
-  TEST_SAME(TPL(first_tuple_t<int, short, char>), std::tuple<int>);
-  TEST_SAME(TPL(first_tuple_t<short>), std::tuple<short>);
-  TEST_SAME(TPL(first_tuple_t<short, int>), std::tuple<short>);
+  TEST_SAME(TPL(first_t<std::tuple<int, short, char>>), int);
+  TEST_SAME(TPL(first_t<std::tuple<short>>), short);
+  TEST_SAME(TPL(first_t<std::tuple<short, int>>), short);
 }
 
-BOOST_AUTO_TEST_CASE(test_first_type_t)
+BOOST_AUTO_TEST_CASE(test_except_first_t)
 {
-  TEST_SAME(TPL(first_type_t<std::tuple<int, short, char>>), int);
-  TEST_SAME(TPL(first_type_t<std::tuple<short>>), short);
-  TEST_SAME(TPL(first_type_t<std::tuple<short, int>>), short);
-}
-
-BOOST_AUTO_TEST_CASE(test_except_first_tuple_t)
-{
-  TEST_SAME(TPL(except_first_tuple_t<std::tuple<int, short, char>>), TPL(std::tuple<short, char>));
-  TEST_SAME(except_first_tuple_t<std::tuple<short>>, std::tuple<>);
-  TEST_SAME(TPL(except_first_tuple_t<std::tuple<short, int>>), std::tuple<int>);
+  TEST_SAME(TPL(except_first_t<std::tuple<int, short, char>>), TPL(std::tuple<short, char>));
+  TEST_SAME(except_first_t<std::tuple<short>>, std::tuple<>);
+  TEST_SAME(TPL(except_first_t<std::tuple<short, int>>), std::tuple<int>);
 }
 
 BOOST_AUTO_TEST_CASE(test_drop_all_once_t)
@@ -58,19 +51,19 @@ BOOST_AUTO_TEST_CASE(test_drop_all_once_t)
   TEST_SAME(TPL(drop_all_once_t<std::tuple<short>, std::tuple<>>), std::tuple<>);
 }
 
-BOOST_AUTO_TEST_CASE(test_tuple_drop_common)
+BOOST_AUTO_TEST_CASE(test_symmetric_difference)
 {
-  TEST_SAME(TPL(typename tuple_drop_common<std::tuple<int, short>, std::tuple<char>>::reduced_l),
+  TEST_SAME(TPL(typename symmetric_difference<std::tuple<int, short>, std::tuple<char>>::reduced_l),
             TPL(std::tuple<int, short>));
-  TEST_SAME(TPL(typename tuple_drop_common<std::tuple<int, short>, std::tuple<char>>::reduced_r), std::tuple<char>);
-  TEST_SAME(TPL(typename tuple_drop_common<std::tuple<short>, std::tuple<short, int>>::reduced_l), std::tuple<>);
-  TEST_SAME(TPL(typename tuple_drop_common<std::tuple<short>, std::tuple<short, int>>::reduced_r), std::tuple<int>);
-  TEST_SAME(TPL(typename tuple_drop_common<std::tuple<short, short, int>, std::tuple<short, int>>::reduced_l),
+  TEST_SAME(TPL(typename symmetric_difference<std::tuple<int, short>, std::tuple<char>>::reduced_r), std::tuple<char>);
+  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short>, std::tuple<short, int>>::reduced_l), std::tuple<>);
+  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short>, std::tuple<short, int>>::reduced_r), std::tuple<int>);
+  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short, short, int>, std::tuple<short, int>>::reduced_l),
             std::tuple<short>);
-  TEST_SAME(TPL(typename tuple_drop_common<std::tuple<short, short, int>, std::tuple<short, int>>::reduced_r),
+  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short, short, int>, std::tuple<short, int>>::reduced_r),
             std::tuple<>);
-  TEST_SAME(TPL(typename tuple_drop_common<std::tuple<short>, std::tuple<>>::reduced_l), std::tuple<short>);
-  TEST_SAME(TPL(typename tuple_drop_common<std::tuple<short>, std::tuple<>>::reduced_r), std::tuple<>);
+  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short>, std::tuple<>>::reduced_l), std::tuple<short>);
+  TEST_SAME(TPL(typename symmetric_difference<std::tuple<short>, std::tuple<>>::reduced_r), std::tuple<>);
 }
 
 BOOST_AUTO_TEST_CASE(test_fraction_unit_t)

@@ -73,7 +73,7 @@ using flattener_t = typename flattener<A, B>::type;
 template<typename... Top, typename... Bottom>
 struct fraction_unit<std::tuple<Top...>, std::tuple<Bottom...>>
 {
-  using _tmp = detail::tuple_drop_common<std::tuple<Top...>, std::tuple<Bottom...>>;
+  using _tmp = detail::symmetric_difference<std::tuple<Top...>, std::tuple<Bottom...>>;
 
   using top = typename _tmp::reduced_l;
   using bottom = typename _tmp::reduced_r;
