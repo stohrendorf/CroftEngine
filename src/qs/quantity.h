@@ -13,15 +13,13 @@ struct quantity;
 namespace detail
 {
 template<typename T>
-struct is_quantity
+struct is_quantity : std::false_type
 {
-  static constexpr bool value = false;
 };
 
 template<typename A, typename B>
-struct is_quantity<quantity<A, B>>
+struct is_quantity<quantity<A, B>> : std::true_type
 {
-  static constexpr bool value = true;
 };
 } // namespace detail
 
@@ -77,16 +75,17 @@ struct quantity
   }
 
   template<typename T>
-  constexpr std::enable_if_t<!detail::is_quantity<T>::value, quantity<unit, T>> retype_as() const
+  constexpr auto retype_as() const
   {
-    return quantity<Unit, T>{static_cast<T>(value)};
-  }
-
-  template<typename Q>
-  constexpr std::enable_if_t<detail::is_quantity<Q>::value, quantity<unit, typename Q::type>> retype_as() const
-  {
-    static_assert(std::is_same_v<typename Q::unit, unit>, "Unit mismatch");
-    return quantity<unit, typename Q::type>{static_cast<typename Q::type>(value)};
+    if constexpr(!detail::is_quantity<T>::value)
+    {
+      return quantity<Unit, T>{static_cast<T>(value)};
+    }
+    else
+    {
+      static_assert(std::is_same_v<typename T::unit, unit>, "Unit mismatch");
+      return quantity<unit, typename T::type>{static_cast<typename T::type>(value)};
+    }
   }
 
   constexpr self_type& operator+=(self_type r) noexcept
@@ -193,14 +192,11 @@ constexpr auto operator*(Type l, quantity<Unit, Type> r) noexcept
 
 // abs
 template<typename Type, typename Unit>
-constexpr std::enable_if_t<std::is_signed_v<Type>, quantity<Unit, Type>> abs(const quantity<Unit, Type>& v) noexcept
+constexpr quantity<Unit, Type> abs(const quantity<Unit, Type>& v) noexcept
 {
-  return v.get() >= 0 ? v : -v;
-}
-
-template<typename Type, typename Unit>
-constexpr std::enable_if_t<!std::is_signed_v<Type>, quantity<Unit, Type>> abs(const quantity<Unit, Type>& v) noexcept
-{
-  return v;
+  if constexpr(std::is_signed_v<Type>)
+    return v.get() >= 0 ? v : -v;
+  else
+    return v;
 }
 } // namespace qs
