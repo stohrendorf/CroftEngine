@@ -24,6 +24,7 @@ src/engine/tracks_tr1_enum.h
 *.7z
 *.gz
 *.user
+*.cap
 
 shaders/*.err
 gamecontrollerdb.txt
