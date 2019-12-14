@@ -50,8 +50,8 @@ void main()
 {
     out_color.rgb = srgbDecode(v_color);
 
-    out_color *= calc_positional_lighting(v_normal, v_vertexPos);
-    out_color.a = 1;
+    out_color.rgb *= calc_positional_lighting(v_normal, v_vertexPos);
+    out_color.a = 1.0;
 
     out_normal = v_ssaoNormal;
     out_position = v_vertexPos;

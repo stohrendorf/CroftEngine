@@ -14,7 +14,7 @@ public:
 
   BindableResource& operator=(const BindableResource&) = delete;
 
-  void bind() const
+  virtual void bind() const
   {
     if(m_handle == 0)
       return;

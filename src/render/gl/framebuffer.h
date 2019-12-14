@@ -19,22 +19,36 @@ public:
   explicit Attachment() = default;
 
   virtual ~Attachment() = default;
+
+  virtual void bind(::gl::core::Handle buffer) const = 0;
 };
 
 class TextureAttachment final : public Attachment
 {
 public:
-  explicit TextureAttachment(std::shared_ptr<Texture> texture, const int32_t level = 0)
+  explicit TextureAttachment(std::shared_ptr<Texture> texture,
+                             const int32_t level = 0,
+                             ::gl::BlendingFactor src = ::gl::BlendingFactor::SrcAlpha,
+                             ::gl::BlendingFactor dst = ::gl::BlendingFactor::OneMinusSrcAlpha)
       : m_texture{std::move(texture)}
       , m_level{level}
+      , m_srcBlend{src}
+      , m_dstBlend{dst}
   {
   }
 
   void attach(const Framebuffer& frameBuffer, ::gl::FramebufferAttachment attachment) const override;
 
+  void bind(::gl::core::Handle buffer) const override
+  {
+    GL_ASSERT(::gl::blendFunc(buffer, m_srcBlend, m_dstBlend));
+  }
+
 private:
   const std::shared_ptr<Texture> m_texture;
   const int32_t m_level;
+  const ::gl::BlendingFactor m_srcBlend;
+  const ::gl::BlendingFactor m_dstBlend;
 };
 
 class Framebuffer : public BindableResource
@@ -55,7 +69,7 @@ public:
                          label}
       , m_attachments{std::move(attachments)}
   {
-    bind();
+    BindableResource::bind();
     std::vector<::gl::DrawBufferMode> colorAttachments;
     for(const auto& attachment : m_attachments)
     {
@@ -122,6 +136,14 @@ public:
     return result == ::gl::FramebufferStatus::FramebufferComplete;
   }
 
+  void bind() const override
+  {
+    BindableResource::bind();
+
+    for(size_t i = 0; i < m_attachments.size(); ++i)
+      m_attachments[i].first->bind(i);
+  }
+
   static void unbindAll()
   {
     GL_ASSERT(::gl::bindFramebuffer(::gl::FramebufferTarget::Framebuffer, 0));
@@ -146,9 +168,23 @@ public:
     return std::make_shared<Framebuffer>(std::move(m_attachments));
   }
 
-  FrameBufferBuilder& texture(::gl::FramebufferAttachment attachment, const std::shared_ptr<Texture>& texture)
+  FrameBufferBuilder& texture(::gl::FramebufferAttachment attachment,
+                              const std::shared_ptr<Texture>& texture,
+                              const int32_t level = 0,
+                              ::gl::BlendingFactor src = ::gl::BlendingFactor::SrcAlpha,
+                              ::gl::BlendingFactor dst = ::gl::BlendingFactor::OneMinusSrcAlpha)
   {
-    m_attachments.emplace_back(std::make_shared<TextureAttachment>(texture), attachment);
+    m_attachments.emplace_back(std::make_shared<TextureAttachment>(texture, level, src, dst), attachment);
+    return *this;
+  }
+
+  FrameBufferBuilder& textureNoBlend(::gl::FramebufferAttachment attachment,
+                                     const std::shared_ptr<Texture>& texture,
+                                     const int32_t level = 0)
+  {
+    m_attachments.emplace_back(
+      std::make_shared<TextureAttachment>(texture, level, ::gl::BlendingFactor::One, ::gl::BlendingFactor::Zero),
+      attachment);
     return *this;
   }
 };

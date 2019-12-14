@@ -155,9 +155,9 @@ public:
 
     m_geometryFb = gl::FrameBufferBuilder()
                      .texture(::gl::FramebufferAttachment::ColorAttachment0, m_geometryColorBuffer)
-                     .texture(::gl::FramebufferAttachment::ColorAttachment1, m_geometryNormalBuffer)
-                     .texture(::gl::FramebufferAttachment::ColorAttachment2, m_geometryPositionBuffer)
-                     .texture(::gl::FramebufferAttachment::DepthAttachment, m_geometryDepthBuffer)
+                     .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment1, m_geometryNormalBuffer)
+                     .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment2, m_geometryPositionBuffer)
+                     .textureNoBlend(::gl::FramebufferAttachment::DepthAttachment, m_geometryDepthBuffer)
                      .build();
 
     // === portalDepthFB setup ===
@@ -168,7 +168,7 @@ public:
 
     m_portalFb = gl::FrameBufferBuilder()
                    .texture(::gl::FramebufferAttachment::DepthAttachment, m_portalDepthBuffer)
-                   .texture(::gl::FramebufferAttachment::ColorAttachment0, m_portalPerturbBuffer)
+                   .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment0, m_portalPerturbBuffer)
                    .build();
 
     // === fxaaFB setup ===
@@ -189,7 +189,7 @@ public:
       .set(::gl::TextureMagFilter::Linear);
     m_ssaoBlurMaterial->getUniform("u_ao")->set(m_ssaoAOBuffer);
 
-    m_ssaoFb = gl::FrameBufferBuilder().texture(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoAOBuffer).build();
+    m_ssaoFb = gl::FrameBufferBuilder().textureNoBlend(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoAOBuffer).build();
 
     // === ssaoBlurFB setup ===
     m_ssaoBlurAOBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
@@ -200,7 +200,7 @@ public:
     m_fxWaterDarknessMaterial->getUniform("u_ao")->set(m_ssaoBlurAOBuffer);
 
     m_ssaoBlurFb
-      = gl::FrameBufferBuilder().texture(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoBlurAOBuffer).build();
+      = gl::FrameBufferBuilder().textureNoBlend(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoBlurAOBuffer).build();
 
     // === ssao.glsl setup ===
     // generate sample kernel
