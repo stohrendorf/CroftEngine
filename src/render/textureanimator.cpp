@@ -340,6 +340,8 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
   {
     const uint16_t* ptr = data.data();
     const auto sequenceCount = *ptr++;
+    if(sequenceCount == 0)
+      return;
 
     std::set<uint16_t> animatedTiles;
     for(size_t i = 0; i < sequenceCount; ++i)

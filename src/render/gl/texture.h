@@ -70,6 +70,8 @@ public:
 
   Texture& generateMipmap()
   {
+    BOOST_ASSERT(getWidth() > 0 && getHeight() > 0);
+
     bind();
     GL_ASSERT(::gl::generateMipmap(m_type));
     return *this;
@@ -281,4 +283,4 @@ private:
   int32_t m_height = -1;
 };
 
-} // namespace render
+} // namespace render::gl
