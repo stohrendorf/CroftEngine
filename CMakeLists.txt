@@ -4,6 +4,7 @@ list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 project( EdisonEngine )
 
 set( CMAKE_CXX_STANDARD 17 )
+set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
 if( MSVC )
     # C4503: Name too long
@@ -114,7 +115,7 @@ add_library( FFmpeg INTERFACE )
 target_include_directories( FFmpeg SYSTEM BEFORE INTERFACE ${FFMPEG_INCLUDE_DIR} )
 target_link_libraries( FFmpeg INTERFACE ${FFMPEG_LIBRARY} )
 
-find_package( GLEW CONFIG REQUIRED )
+find_package( GLEW REQUIRED )
 
 include( cmake/dl_unpack.cmake )
 

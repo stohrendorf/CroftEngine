@@ -57,7 +57,7 @@ struct Stream final
 
     stream = fmtContext->streams[index];
     // https://trac.ffmpeg.org/ticket/7859
-#if LIBAVCODEC_VERSION_MAJOR >= 58
+#if LIBAVCODEC_VERSION_MAJOR >= 59
     if(stream->codecpar->codec_id == AV_CODEC_ID_PCM_VIDC)
 #else
     if(stream->codecpar->codec_id == AV_CODEC_ID_NONE)

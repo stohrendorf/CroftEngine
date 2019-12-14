@@ -85,6 +85,36 @@ struct TypeTraits<float>
   static constexpr ::gl::InternalFormat RSizedInternalFormat = ::gl::InternalFormat::R32f;
 };
 
+#if GLM_VERSION < 98
+template<>
+struct TypeTraits<glm::vec1>
+{
+  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
+  static constexpr ::gl::core::SizeType ElementCount = 1;
+};
+template<>
+struct TypeTraits<glm::vec2>
+{
+  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
+  static constexpr ::gl::core::SizeType ElementCount = 2;
+};
+template<>
+struct TypeTraits<glm::vec3>
+{
+  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
+  static constexpr ::gl::core::SizeType ElementCount = 3;
+};
+template<>
+struct TypeTraits<glm::vec4>
+{
+  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
+  static constexpr ::gl::core::SizeType ElementCount = 4;
+};
+#else
 template<int N>
 struct TypeTraits<glm::vec<N, float, glm::defaultp>>
 {
@@ -92,6 +122,7 @@ struct TypeTraits<glm::vec<N, float, glm::defaultp>>
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
   static constexpr ::gl::core::SizeType ElementCount = N;
 };
+#endif
 
 template<>
 struct TypeTraits<::gl::core::Half>
@@ -115,4 +146,4 @@ template<typename T>
 struct TypeTraits<T&> : TypeTraits<T>
 {
 };
-} // namespace render
+} // namespace render::gl
