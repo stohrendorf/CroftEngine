@@ -1,26 +1,27 @@
 #pragma once
 
 #include "engine/engine.h"
+#include "optional.h"
 #include "ptr.h"
 
 namespace serialization
 {
-inline uint32_t ptrSave(const loader::file::Animation* anim, const Serializer& ser)
+inline std::optional<uint32_t> ptrSave(const loader::file::Animation* anim, const Serializer& ser)
 {
-  ser.tag("animation");
   if(anim == nullptr)
-    return std::numeric_limits<uint32_t>::max();
+    return std::nullopt;
 
+  ser.tag("animation");
   return gsl::narrow<uint32_t>(std::distance(&ser.engine.getAnimations().at(0), anim));
 }
 
 inline const loader::file::Animation*
-  ptrLoad(const TypeId<const loader::file::Animation*>&, uint32_t idx, const Serializer& ser)
+  ptrLoad(const TypeId<const loader::file::Animation*>&, std::optional<uint32_t> idx, const Serializer& ser)
 {
-  ser.tag("animation");
-  if(idx == std::numeric_limits<uint32_t>::max())
+  if(!idx.has_value())
     return nullptr;
 
-  return &ser.engine.getAnimations().at(idx);
+  ser.tag("animation");
+  return &ser.engine.getAnimations().at(idx.value());
 }
 } // namespace serialization

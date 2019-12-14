@@ -1,27 +1,28 @@
 #pragma once
 
 #include "engine/engine.h"
+#include "optional.h"
 #include "ptr.h"
 
 namespace serialization
 {
-inline uint32_t ptrSave(const loader::file::AnimFrame* frame, const Serializer& ser)
+inline std::optional<uint32_t> ptrSave(const loader::file::AnimFrame* frame, const Serializer& ser)
 {
-  ser.tag("animframe");
   if(frame == nullptr)
-    return std::numeric_limits<uint32_t>::max();
+    return std::nullopt;
 
+  ser.tag("animframe");
   return gsl::narrow<uint32_t>(
     std::distance(&ser.engine.getPoseFrames().at(0), reinterpret_cast<const int16_t*>(frame)));
 }
 
 inline const loader::file::AnimFrame*
-  ptrLoad(const TypeId<const loader::file::AnimFrame*>&, uint32_t idx, const Serializer& ser)
+  ptrLoad(const TypeId<const loader::file::AnimFrame*>&, std::optional<uint32_t> idx, const Serializer& ser)
 {
-  ser.tag("animframe");
-  if(idx == std::numeric_limits<uint32_t>::max())
+  if(!idx.has_value())
     return nullptr;
 
-  return reinterpret_cast<const loader::file::AnimFrame*>(&ser.engine.getPoseFrames().at(idx));
+  ser.tag("animframe");
+  return reinterpret_cast<const loader::file::AnimFrame*>(&ser.engine.getPoseFrames().at(idx.value()));
 }
 } // namespace serialization

@@ -421,6 +421,9 @@ public:
   const std::vector<loader::file::Box>& getBoxes() const;
 
   const std::vector<loader::file::Room>& getRooms() const;
+  std::vector<loader::file::Room>& getRooms();
+
+  const engine::floordata::FloorData& getFloorData() const;
 
   const loader::file::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
 

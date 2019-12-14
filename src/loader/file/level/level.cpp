@@ -275,35 +275,7 @@ void Level::updateRoomBasedCaches()
   {
     for(Sector& sector : room.sectors)
     {
-      if(sector.boxIndex.get() >= 0)
-      {
-        sector.box = &m_boxes.at(sector.boxIndex.get());
-      }
-
-      if(sector.roomIndexBelow.get() != 0xff)
-      {
-        sector.roomBelow = &m_rooms.at(sector.roomIndexBelow.get());
-      }
-
-      if(sector.roomIndexAbove.get() != 0xff)
-      {
-        sector.roomAbove = &m_rooms.at(sector.roomIndexAbove.get());
-      }
-
-      if(sector.floorDataIndex.index != 0)
-      {
-        sector.floorData = &sector.floorDataIndex.from(m_floorData);
-
-        const auto portalTarget = engine::floordata::getPortalTarget(sector.floorData);
-        if(portalTarget.has_value())
-        {
-          sector.portalTarget = &m_rooms.at(*portalTarget);
-        }
-        else
-        {
-          sector.portalTarget = nullptr;
-        }
-      }
+      sector.updateCaches(m_rooms, m_boxes, m_floorData);
     }
   }
 }

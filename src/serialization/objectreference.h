@@ -20,13 +20,13 @@ struct ObjectReference final
 
   void save(const Serializer& ser)
   {
-    ser.tag("objectref");
     if(ptr == nullptr)
     {
-      ser.node = YAML::Node{};
+      ser.node = YAML::Node{YAML::NodeType::Null};
     }
     else
     {
+      ser.tag("objectref");
       for(const auto& obj : ser.engine.getObjects())
       {
         if(obj.second.get() == ptr)

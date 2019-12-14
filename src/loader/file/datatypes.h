@@ -108,6 +108,12 @@ struct Sector
     roomAbove = nullptr;
     ceilingHeight = -core::HeightLimit;
   }
+
+  void serialize(const serialization::Serializer& ser);
+
+  void updateCaches(std::vector<Room>& rooms,
+                    const std::vector<Box>& boxes,
+                    const engine::floordata::FloorData& floorData);
 };
 
 /*

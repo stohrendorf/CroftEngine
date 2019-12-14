@@ -1,25 +1,37 @@
 #pragma once
 
 #include "engine/engine.h"
+#include "optional.h"
 #include "ptr.h"
 
 namespace serialization
 {
-inline uint32_t ptrSave(const loader::file::Box* box, const Serializer& ser)
+inline std::optional<uint32_t> ptrSave(const loader::file::Box* box, const Serializer& ser)
 {
-  ser.tag("box");
   if(box == nullptr)
-    return std::numeric_limits<uint32_t>::max();
+    return std::nullopt;
 
+  ser.tag("box");
   return gsl::narrow<uint32_t>(std::distance(&ser.engine.getBoxes().at(0), box));
 }
 
-inline const loader::file::Box* ptrLoad(const TypeId<const loader::file::Box*>&, uint32_t idx, const Serializer& ser)
+inline std::optional<uint32_t> ptrSave(loader::file::Box* box, const Serializer& ser)
 {
-  ser.tag("box");
-  if(idx == std::numeric_limits<uint32_t>::max())
+  return ptrSave(const_cast<const loader::file::Box*>(box), ser);
+}
+
+inline const loader::file::Box*
+  ptrLoad(const TypeId<const loader::file::Box*>&, std::optional<uint32_t> idx, const Serializer& ser)
+{
+  if(!idx.has_value())
     return nullptr;
 
-  return &ser.engine.getBoxes().at(idx);
+  ser.tag("box");
+  return &ser.engine.getBoxes().at(idx.value());
+}
+
+inline loader::file::Box* ptrLoad(const TypeId<loader::file::Box*>&, std::optional<uint32_t> idx, const Serializer& ser)
+{
+  return const_cast<loader::file::Box*>(ptrLoad(TypeId<const loader::file::Box*>{}, idx, ser));
 }
 } // namespace serialization

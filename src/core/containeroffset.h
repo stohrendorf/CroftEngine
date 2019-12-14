@@ -1,5 +1,6 @@
 #pragma once
 
+#include "serialization/serialization.h"
 #include "tpl_helper.h"
 
 #include <boost/throw_exception.hpp>
@@ -145,5 +146,17 @@ struct ContainerIndex
 
   template<typename T>
   void operator+=(T) = delete;
+
+  void serialize(const serialization::Serializer& ser)
+  {
+    ser(S_NV("index", index));
+  }
+
+  static ContainerIndex<IndexType, DataTypes...> create(const serialization::Serializer& ser)
+  {
+    index_type tmp = 0;
+    ser(S_NV("index", tmp));
+    return {tmp};
+  }
 };
 } // namespace core

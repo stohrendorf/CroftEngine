@@ -150,6 +150,11 @@ const std::vector<loader::file::Room>& Engine::getRooms() const
   return m_level->m_rooms;
 }
 
+std::vector<loader::file::Room>& Engine::getRooms()
+{
+  return m_level->m_rooms;
+}
+
 const std::vector<loader::file::Box>& Engine::getBoxes() const
 {
   return m_level->m_boxes;
@@ -1398,6 +1403,7 @@ void Engine::run()
       drawLoadingScreen("Loading...");
 
       serialization::Serializer::load("quicksave.yaml", *this);
+      m_level->updateRoomBasedCaches();
 
       nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
     }
@@ -1733,6 +1739,11 @@ void Engine::serialize(const serialization::Serializer& ser)
       S_NV("cameraController", *m_cameraController),
       S_NV("secretsFound", m_secretsFoundBitmask),
       S_NV("lara", serialization::ObjectReference{m_lara}));
+}
+
+const engine::floordata::FloorData& Engine::getFloorData() const
+{
+  return m_level->m_floorData;
 }
 
 Engine::~Engine() = default;

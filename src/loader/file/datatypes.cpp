@@ -10,6 +10,7 @@
 #include "render/scene/names.h"
 #include "render/scene/sprite.h"
 #include "render/textureanimator.h"
+#include "serialization/box_ptr.h"
 #include "util.h"
 #include "util/helpers.h"
 
@@ -1003,6 +1004,77 @@ Sector Sector::read(io::SDLReader& reader)
   sector.roomIndexAbove = reader.readU8();
   sector.ceilingHeight = core::QuarterSectorSize * static_cast<core::Length::type>(reader.readI8());
   return sector;
+}
+
+void Sector::serialize(const serialization::Serializer& ser)
+{
+  ser(S_NV("floorDataIndex", floorDataIndex),
+      S_NV("boxIndex", boxIndex),
+      S_NV("box", box),
+      S_NV("roomIndexBelow", roomIndexBelow),
+      S_NV("floorHeight", floorHeight),
+      S_NV("roomIndexAbove", roomIndexAbove),
+      S_NV("ceilingHeight", ceilingHeight));
+
+  if(ser.loading)
+  {
+    roomBelow = nullptr;
+    roomAbove = nullptr;
+    floorData = nullptr;
+    portalTarget = nullptr;
+  }
+}
+
+void Sector::updateCaches(std::vector<Room>& rooms,
+                          const std::vector<Box>& boxes,
+                          const engine::floordata::FloorData& floorData)
+{
+  if(boxIndex.get() >= 0)
+  {
+    box = &boxes.at(boxIndex.get());
+  }
+  else
+  {
+    box = nullptr;
+  }
+
+  if(roomIndexBelow.get() != 0xff)
+  {
+    roomBelow = &rooms.at(roomIndexBelow.get());
+  }
+  else
+  {
+    roomBelow = nullptr;
+  }
+
+  if(roomIndexAbove.get() != 0xff)
+  {
+    roomAbove = &rooms.at(roomIndexAbove.get());
+  }
+  else
+  {
+    roomAbove = nullptr;
+  }
+
+  if(floorDataIndex.index != 0)
+  {
+    this->floorData = &floorDataIndex.from(floorData);
+
+    const auto portalTarget = engine::floordata::getPortalTarget(this->floorData);
+    if(portalTarget.has_value())
+    {
+      this->portalTarget = &rooms.at(*portalTarget);
+    }
+    else
+    {
+      this->portalTarget = nullptr;
+    }
+  }
+  else
+  {
+    this->floorData = nullptr;
+    portalTarget = nullptr;
+  }
 }
 
 Light Light::readTr1(io::SDLReader& reader)

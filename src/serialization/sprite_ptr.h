@@ -1,26 +1,27 @@
 #pragma once
 
 #include "engine/engine.h"
+#include "optional.h"
 #include "ptr.h"
 
 namespace serialization
 {
-inline core::TypeId::type ptrSave(const loader::file::Sprite* sprite, const Serializer& ser)
+inline std::optional<core::TypeId::type> ptrSave(const loader::file::Sprite* sprite, const Serializer& ser)
 {
-  ser.tag("sprite");
   if(sprite == nullptr)
-    return std::numeric_limits<core::TypeId::type>::max();
+    return std::nullopt;
 
+  ser.tag("sprite");
   return ser.engine.find(sprite).get();
 }
 
 inline const loader::file::Sprite*
-  ptrLoad(const TypeId<const loader::file::Sprite*>&, core::TypeId::type idx, const Serializer& ser)
+  ptrLoad(const TypeId<const loader::file::Sprite*>&, std::optional<core::TypeId::type> idx, const Serializer& ser)
 {
-  ser.tag("sprite");
-  if(idx == std::numeric_limits<core::TypeId::type>::max())
+  if(!idx.has_value())
     return nullptr;
 
-  return &ser.engine.findSpriteSequenceForType(core::TypeId{idx})->sprites.at(0);
+  ser.tag("sprite");
+  return &ser.engine.findSpriteSequenceForType(core::TypeId{idx.value()})->sprites.at(0);
 }
 } // namespace serialization

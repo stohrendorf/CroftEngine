@@ -162,19 +162,12 @@ public:
   static void save(const std::string& filename, engine::Engine& engine);
   static void load(const std::string& filename, engine::Engine& engine);
 
-  const Serializer& operator()() const noexcept
-  {
-    return *this;
-  }
-
   template<typename T, typename... Ts>
-  const Serializer& operator()(const gsl::not_null<gsl::czstring>& headName,
-                               T&& headData,
-                               const gsl::not_null<gsl::czstring>& tailName,
-                               Ts&&... tail) const
+  const Serializer& operator()(const gsl::not_null<gsl::czstring>& headName, T&& headData, Ts&&... tail) const
   {
     (*this)(headName, std::forward<T>(headData));
-    (*this)(tailName, std::forward<Ts>(tail)...);
+    if constexpr(sizeof...(tail) > 0)
+      (*this)(std::forward<Ts>(tail)...);
     return *this;
   }
 
@@ -255,6 +248,33 @@ inline void access::serializeTrivial(T& data, const Serializer& ser)
   else
   {
     ser.node = data;
+  }
+}
+
+// some specializations to avoid storing 8-bit numbers as characters
+template<>
+inline void access::serializeTrivial<int8_t>(int8_t& data, const Serializer& ser)
+{
+  if(ser.loading)
+  {
+    data = gsl::narrow<int8_t>(ser.node.as<int16_t>());
+  }
+  else
+  {
+    ser.node = static_cast<int16_t>(data);
+  }
+}
+
+template<>
+inline void access::serializeTrivial<uint8_t>(uint8_t& data, const Serializer& ser)
+{
+  if(ser.loading)
+  {
+    data = gsl::narrow<uint8_t>(ser.node.as<uint16_t>());
+  }
+  else
+  {
+    ser.node = static_cast<uint16_t>(data);
   }
 }
 

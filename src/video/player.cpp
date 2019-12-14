@@ -536,7 +536,7 @@ struct Scaler
     auto srcLineRaw = dstVideoData[0];
     auto dst = img.getRawData();
 
-    Expects(img.getWidth() <= dstVideoLinesize[0] / sizeof(render::gl::SRGBA8));
+    Expects(img.getWidth() <= dstVideoLinesize[0] / int(sizeof(render::gl::SRGBA8)));
 
     img.fill({0, 0, 0, 255});
 
