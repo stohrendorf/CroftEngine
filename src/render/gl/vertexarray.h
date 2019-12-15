@@ -13,17 +13,17 @@ namespace render::gl
 {
 namespace detail
 {
-template<std::size_t I = 0, typename... Ts>
-inline std::enable_if_t<I == sizeof...(Ts), void> bindVertexAttributes(const std::tuple<Ts...>&, const Program&)
+template<typename... Ts, size_t... Is>
+inline void
+  bindVertexAttributes(const std::tuple<Ts...>& t, const Program& p, const std::index_sequence<Is...>& indices)
 {
+  (..., std::get<Is>(t)->bindVertexAttributes(p));
 }
 
-template<std::size_t I = 0, typename... Ts>
-inline std::enable_if_t<(I < sizeof...(Ts)), void> bindVertexAttributes(const std::tuple<Ts...>& t,
-                                                                        const Program& program)
+template<typename... Ts>
+inline void bindVertexAttributes(const std::tuple<Ts...>& t, const Program& p)
 {
-  std::get<I>(t)->bindVertexAttributes(program);
-  bindVertexAttributes<I + 1, Ts...>(t, program);
+  bindVertexAttributes(t, p, std::make_index_sequence<sizeof...(Ts)>());
 }
 } // namespace detail
 
