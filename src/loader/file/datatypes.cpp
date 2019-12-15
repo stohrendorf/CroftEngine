@@ -11,6 +11,7 @@
 #include "render/scene/sprite.h"
 #include "render/textureanimator.h"
 #include "serialization/box_ptr.h"
+#include "serialization/quantity.h"
 #include "util.h"
 #include "util/helpers.h"
 

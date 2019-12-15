@@ -1,6 +1,7 @@
 #include "vec.h"
 
 #include "serialization/not_null.h"
+#include "serialization/quantity.h"
 #include "serialization/room_ptr.h"
 
 namespace core

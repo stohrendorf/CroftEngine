@@ -6,6 +6,7 @@
 #include "serialization/animation_ptr.h"
 #include "serialization/bitset.h"
 #include "serialization/box_ptr.h"
+#include "serialization/quantity.h"
 
 namespace engine::objects
 {

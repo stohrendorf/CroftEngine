@@ -7,7 +7,7 @@
 #define TPL(...) __VA_ARGS__
 #define STR(X) #X
 
-#define TEST_SAME(L, R) BOOST_CHECK_MESSAGE(TPL(std::is_same_v<L, R>), STR(L) " == " STR(R))
+#define TEST_SAME(L, R) BOOST_CHECK_MESSAGE(TPL(std::is_same_v<L, R>), STR(TPL(L)) " == " STR(TPL(R)))
 
 using namespace qs::detail;
 using namespace qs;

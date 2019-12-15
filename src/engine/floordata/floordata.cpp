@@ -1,6 +1,7 @@
 #include "floordata.h"
 
 #include "serialization/bitset.h"
+#include "serialization/serialization.h"
 
 namespace engine::floordata
 {

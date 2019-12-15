@@ -25,6 +25,7 @@
 #include "serialization/not_null.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
+#include "serialization/quantity.h"
 #include "serialization/vector.h"
 #include "tracks_tr1.h"
 #include "ui/label.h"

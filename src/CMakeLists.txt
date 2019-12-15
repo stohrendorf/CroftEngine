@@ -488,6 +488,7 @@ set( EDISONENGINE_SRCS
         serialization/objectreference.h
         serialization/optional.h
         serialization/ptr.h
+        serialization/quantity.h
         serialization/room_ptr.h
         serialization/serialization.h
         serialization/serialization.cpp

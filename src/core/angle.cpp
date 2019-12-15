@@ -1,5 +1,7 @@
 #include "angle.h"
 
+#include "serialization/quantity.h"
+
 namespace core
 {
 void TRRotationXY::serialize(const serialization::Serializer& ser)

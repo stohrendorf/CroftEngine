@@ -20,7 +20,7 @@ public:
 
   virtual ~Attachment() = default;
 
-  virtual void bind(::gl::core::Handle buffer) const = 0;
+  virtual void bind(uint32_t buffer) const = 0;
 };
 
 class TextureAttachment final : public Attachment
@@ -39,7 +39,7 @@ public:
 
   void attach(const Framebuffer& frameBuffer, ::gl::FramebufferAttachment attachment) const override;
 
-  void bind(::gl::core::Handle buffer) const override
+  void bind(uint32_t buffer) const override
   {
     GL_ASSERT(::gl::blendFunc(buffer, m_srcBlend, m_dstBlend));
   }
@@ -141,7 +141,7 @@ public:
     BindableResource::bind();
 
     for(size_t i = 0; i < m_attachments.size(); ++i)
-      m_attachments[i].first->bind(i);
+      m_attachments[i].first->bind(gsl::narrow_cast<uint32_t>(i));
   }
 
   static void unbindAll()

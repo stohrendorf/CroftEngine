@@ -1,7 +1,5 @@
 #pragma once
 
-#include "serialization/serialization.h"
-
 #include <string>
 #include <type_traits>
 
@@ -159,19 +157,6 @@ struct quantity
   constexpr bool operator!=(self_type r) const noexcept
   {
     return value != r.value;
-  }
-
-  void serialize(const serialization::Serializer& ser)
-  {
-    ser.tag(unit::suffix());
-    if(ser.loading)
-    {
-      value = ser.node.as<type>();
-    }
-    else
-    {
-      ser.node = value;
-    }
   }
 
 private:

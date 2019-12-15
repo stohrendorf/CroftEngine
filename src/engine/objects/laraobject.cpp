@@ -10,6 +10,7 @@
 #include "serialization/animframe_ptr.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
+#include "serialization/quantity.h"
 #include "serialization/unordered_map.h"
 
 #include <boost/range/adaptors.hpp>

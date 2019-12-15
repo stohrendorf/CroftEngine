@@ -5,6 +5,7 @@
 #include "render/portaltracer.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
+#include "serialization/quantity.h"
 
 #include <utility>
 

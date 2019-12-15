@@ -2,6 +2,7 @@
 
 #include "core/magic.h"
 #include "gsl-lite.hpp"
+#include "serialization/serialization_fwd.h"
 #include "types.h"
 
 #include <bitset>
@@ -24,18 +25,18 @@ struct FloorDataChunk
 
   static FloorDataChunkType extractType(const FloorDataValue data)
   {
-    return gsl::narrow_cast<FloorDataChunkType>(data.get() & 0xff);
+    return gsl::narrow_cast<FloorDataChunkType>(data.get() & 0xffu);
   }
 
 private:
   static SequenceCondition extractSequenceCondition(const FloorDataValue data)
   {
-    return gsl::narrow_cast<SequenceCondition>((data.get() & 0x3f00) >> 8);
+    return gsl::narrow_cast<SequenceCondition>((data.get() & 0x3f00u) >> 8u);
   }
 
   static constexpr bool extractIsLast(const FloorDataValue data)
   {
-    return (data.get() & 0x8000) != 0;
+    return (data.get() & 0x8000u) != 0;
   }
 };
 
@@ -141,7 +142,7 @@ public:
 private:
   static ActivationSet extractActivationSet(const FloorDataValue fd)
   {
-    const auto bits = gsl::narrow_cast<uint16_t>((fd.get() & ActivationMask) >> 9);
+    const auto bits = gsl::narrow_cast<uint16_t>((fd.get() & ActivationMask) >> 9u);
     return ActivationSet{bits};
   }
 
@@ -156,9 +157,9 @@ struct CameraParameters
 {
   explicit CameraParameters(const FloorDataValue fd)
       : timeout{core::Seconds{static_cast<core::Seconds::type>(int8_t(fd.get()))}}
-      , oneshot{(fd.get() & 0x100) != 0}
-      , isLast{(fd.get() & 0x8000) != 0}
-      , smoothness{gsl::narrow_cast<uint8_t>((fd.get() >> 8) & 0x3e)}
+      , oneshot{(fd.get() & 0x100u) != 0}
+      , isLast{(fd.get() & 0x8000u) != 0}
+      , smoothness{gsl::narrow_cast<uint8_t>((fd.get() >> 8u) & 0x3eu)}
   {
   }
 
@@ -184,7 +185,7 @@ struct Command
 private:
   static CommandOpcode extractOpcode(const FloorDataValue data)
   {
-    return gsl::narrow_cast<CommandOpcode>((data.get() >> 10) & 0x0f);
+    return gsl::narrow_cast<CommandOpcode>((data.get() >> 10u) & 0x0fu);
   }
 
   static constexpr uint16_t extractParameter(const FloorDataValue data)
@@ -225,4 +226,4 @@ inline std::optional<uint8_t> getPortalTarget(const FloorDataValue* fdData)
 
   return {};
 }
-} // namespace engine
+} // namespace engine::floordata

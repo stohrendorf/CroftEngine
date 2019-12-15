@@ -2,6 +2,7 @@
 
 #include "engine/objects/laraobject.h"
 #include "engine/script/reflection.h"
+#include "serialization/quantity.h"
 
 namespace engine::ai
 {

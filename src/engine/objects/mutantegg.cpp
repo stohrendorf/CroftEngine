@@ -4,6 +4,7 @@
 #include "laraobject.h"
 #include "mutant.h"
 #include "serialization/objectreference.h"
+#include "serialization/quantity.h"
 
 namespace engine::objects
 {
