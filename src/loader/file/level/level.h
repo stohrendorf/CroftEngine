@@ -106,7 +106,7 @@ public:
 
   std::vector<int32_t> m_boneTrees;
 
-  std::string m_sfxPath = "MAIN.SFX";
+  std::filesystem::path m_sfxPath = "MAIN.SFX";
 
   engine::floordata::FloorData m_floorData;
   std::vector<Mesh> m_meshes;
@@ -128,7 +128,7 @@ public:
      */
   uint16_t m_weatherType = 0;
 
-  static std::shared_ptr<Level> createLoader(const std::string& filename, Game gameVersion);
+  static std::shared_ptr<Level> createLoader(const std::filesystem::path& filename, Game gameVersion);
 
   virtual void loadFileData() = 0;
 
@@ -156,9 +156,10 @@ protected:
   void postProcessDataStructures();
 
 private:
-  static Game probeVersion(io::SDLReader& reader, const std::string& filename);
+  static Game probeVersion(io::SDLReader& reader, const std::filesystem::path& filename);
 
-  static std::shared_ptr<Level> createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath);
+  static std::shared_ptr<Level>
+    createLoader(io::SDLReader&& reader, Game game_version, const std::filesystem::path& sfxPath);
 };
 } // namespace file::level
 } // namespace loader

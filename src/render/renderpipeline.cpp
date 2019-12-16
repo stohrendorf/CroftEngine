@@ -22,13 +22,13 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
 {
   resize(viewport);
   /*
-       * [geometry] --> geometryFB --- depth --> (copy) -------------> portalDepthFB --- depth ---------------------> fx_darkness.glsl --> @viewport
-       *                           `         `  [portal geometry] --´                                              ´
-       *                           `         `---------------------------------------------------------------------´
-       *                           `-- color --> fxaa.glsl --> fxaaFB ---------------------------------------------´
-       *                           `-- normals ---> ssao.glsl --> ssaoFB --> ssaoBlur.glsl --> ssaoBlurFB --> AO --´
-       *                           `-- position --´
-       */
+   * [geometry] --> geometryFB --- depth --> (copy) -------------> portalDepthFB --- depth ---------------------> fx_darkness.glsl --> @viewport
+   *                           `         `  [portal geometry] --´                                              ´
+   *                           `         `---------------------------------------------------------------------´
+   *                           `-- color --> fxaa.glsl --> fxaaFB ---------------------------------------------´
+   *                           `-- normals ---> ssao.glsl --> ssaoFB --> ssaoBlur.glsl --> ssaoBlurFB --> AO --´
+   *                           `-- position --´
+   */
   // === geometryFB setup ===
   m_geometryColorBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)

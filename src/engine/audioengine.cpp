@@ -205,14 +205,14 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
   static constexpr size_t DefaultBufferCount = 4;
 
   std::shared_ptr<audio::Stream> result;
-  if(std::filesystem::is_regular_file("data/tr1/audio/CDAUDIO.WAD"))
+  if(std::filesystem::is_regular_file(m_rootPath / "CDAUDIO.WAD"))
     result = m_soundEngine.getDevice().createStream(
-      std::make_unique<audio::WadStreamSource>("data/tr1/audio/CDAUDIO.WAD", trackId),
+      std::make_unique<audio::WadStreamSource>(m_rootPath / "CDAUDIO.WAD", trackId),
       DefaultBufferSize,
       DefaultBufferCount);
   else
     result = m_soundEngine.getDevice().createStream(
-      std::make_unique<audio::SndfileStreamSource>((boost::format("data/tr1/audio/%03d.ogg") % trackId).str()),
+      std::make_unique<audio::SndfileStreamSource>(m_rootPath / (boost::format("%03d.ogg") % trackId).str()),
       DefaultBufferSize,
       DefaultBufferCount);
 

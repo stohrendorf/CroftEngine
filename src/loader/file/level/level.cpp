@@ -9,6 +9,7 @@
 #include "render/textureanimator.h"
 #include "util/md5.h"
 
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/format.hpp>
 #include <boost/range/adaptors.hpp>
 #include <filesystem>
@@ -57,11 +58,12 @@ void Level::readMeshData(io::SDLReader& reader)
   reader.seek(endPos);
 }
 
-std::shared_ptr<Level> Level::createLoader(const std::string& filename, Game gameVersion)
+std::shared_ptr<Level> Level::createLoader(const std::filesystem::path& filename, Game gameVersion)
 {
-  const std::string sfxPath = (std::filesystem::path(filename).remove_filename() / "MAIN.SFX").string();
+  std::filesystem::path sfxPath = filename;
+  sfxPath.replace_filename("MAIN.SFX");
 
-  io::SDLReader reader(filename);
+  io::SDLReader reader{filename};
   if(!reader.isOpen())
     return nullptr;
 
@@ -74,7 +76,8 @@ std::shared_ptr<Level> Level::createLoader(const std::string& filename, Game gam
   return createLoader(std::move(reader), gameVersion, sfxPath);
 }
 
-std::shared_ptr<Level> Level::createLoader(io::SDLReader&& reader, Game game_version, const std::string& sfxPath)
+std::shared_ptr<Level>
+  Level::createLoader(io::SDLReader&& reader, Game game_version, const std::filesystem::path& sfxPath)
 {
   if(!reader.isOpen())
     return nullptr;
@@ -105,16 +108,12 @@ std::shared_ptr<Level> Level::createLoader(io::SDLReader&& reader, Game game_ver
   return result;
 }
 
-Game Level::probeVersion(io::SDLReader& reader, const std::string& filename)
+Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& filename)
 {
-  if(!reader.isOpen() || filename.length() < 5)
+  if(!reader.isOpen() || !std::filesystem::is_regular_file(filename))
     return Game::Unknown;
 
-  std::string ext;
-  ext += filename[filename.length() - 4];
-  ext += static_cast<char>(toupper(filename[filename.length() - 3]));
-  ext += static_cast<char>(toupper(filename[filename.length() - 2]));
-  ext += static_cast<char>(toupper(filename[filename.length() - 1]));
+  const std::string ext = boost::algorithm::to_upper_copy(filename.extension().string());
 
   reader.seek(0);
   uint8_t check[4];

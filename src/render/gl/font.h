@@ -6,6 +6,8 @@
 #include <ft2build.h>
 #include FT_CACHE_H
 
+#include <filesystem>
+
 namespace render::gl
 {
 class Font
@@ -23,7 +25,7 @@ public:
 
   void drawText(const std::string& text, int x, int y, uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
-  Font(std::string ttf, int size);
+  Font(std::filesystem::path ttf, int size);
 
   ~Font();
 
@@ -52,6 +54,6 @@ private:
 
   int m_y0 = 0;
 
-  const std::string m_filename;
+  const std::filesystem::path m_filename;
 };
-} // namespace render
+} // namespace render::gl

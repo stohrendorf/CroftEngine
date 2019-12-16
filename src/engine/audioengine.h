@@ -18,6 +18,7 @@ class Engine;
 class AudioEngine
 {
   Engine& m_engine;
+  const std::filesystem::path m_rootPath;
 
   std::vector<loader::file::SoundDetails> m_soundDetails;
   std::vector<int16_t> m_soundmap;
@@ -33,18 +34,20 @@ class AudioEngine
 
 public:
   explicit AudioEngine(Engine& engine,
+                       std::filesystem::path rootPath,
                        std::vector<loader::file::SoundDetails> soundDetails,
                        std::vector<int16_t> soundmap,
                        std::vector<uint32_t> sampleIndices)
       : m_engine{engine}
+      , m_rootPath{std::move(rootPath)}
       , m_soundDetails{std::move(soundDetails)}
       , m_soundmap{std::move(soundmap)}
       , m_sampleIndices{std::move(sampleIndices)}
   {
   }
 
-  explicit AudioEngine(Engine& engine)
-      : AudioEngine{engine, {}, {}, {}}
+  explicit AudioEngine(Engine& engine, const std::filesystem::path& rootPath)
+      : AudioEngine{engine, rootPath, {}, {}, {}}
   {
   }
 
@@ -81,4 +84,4 @@ public:
     return m_soundEngine;
   }
 };
-}
+} // namespace engine

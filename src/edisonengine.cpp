@@ -52,7 +52,7 @@ int main()
 
   try
   {
-    engine::Engine engine;
+    engine::Engine engine{std::filesystem::current_path()};
     engine.run();
 
     return EXIT_SUCCESS;

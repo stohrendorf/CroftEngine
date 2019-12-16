@@ -14,4 +14,7 @@
       <file path="$PROJECT_DIR$/data" />
     </excludeRoots>
   </component>
+  <component name="TaskProjectConfiguration">
+    <server type="GitHub" url="https://github.com" />
+  </component>
 </project>

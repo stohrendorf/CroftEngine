@@ -7,6 +7,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdint>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -42,9 +43,9 @@ public:
   {
   }
 
-  explicit SDLReader(const std::string& filename)
+  explicit SDLReader(const std::filesystem::path& filename)
       : m_file{std::make_unique<boost::iostreams::file>(
-        filename, std::ios::in | std::ios::binary, std::ios::in | std::ios::binary)}
+        filename.string(), std::ios::in | std::ios::binary, std::ios::in | std::ios::binary)}
       , m_streamBuf{std::make_shared<DataStreamBuf>(*m_file)}
       , m_stream{m_streamBuf.get()}
   {
@@ -300,4 +301,4 @@ private:
     }
   };
 };
-} // namespace loader
+} // namespace loader::file::io

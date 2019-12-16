@@ -42,11 +42,11 @@ namespace engine
 {
 namespace
 {
-sol::state createScriptEngine()
+sol::state createScriptEngine(const std::filesystem::path& rootPath)
 {
   sol::state engine;
   engine.open_libraries(sol::lib::base, sol::lib::math, sol::lib::package);
-  engine["package"]["path"] = (std::filesystem::path("scripts") / "?.lua").string();
+  engine["package"]["path"] = (rootPath / "scripts" / "?.lua").string();
   engine["package"]["cpath"] = "";
 
   core::TRVec::registerUserType(engine);
@@ -934,12 +934,13 @@ void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& fo
   font->drawText(txt, x, y, col.channels[0], col.channels[1], col.channels[2], col.channels[3]);
 }
 
-Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution)
-    : m_scriptEngine{createScriptEngine()}
+Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const render::scene::Dimension2<int>& resolution)
+    : m_rootPath{rootPath}
+    , m_scriptEngine{createScriptEngine(rootPath)}
     , m_renderer{std::make_unique<render::scene::Renderer>()}
     , m_window{std::make_unique<render::scene::Window>(fullscreen, resolution)}
-    , splashImage{std::filesystem::path{"splash.png"}}
-    , abibasFont{std::make_shared<render::gl::Font>("abibas.ttf", 48)}
+    , splashImage{m_rootPath / "splash.png"}
+    , abibasFont{std::make_shared<render::gl::Font>(m_rootPath / "abibas.ttf", 48)}
     , m_inventory{*this}
 {
   m_renderer->getScene()->setActiveCamera(
@@ -955,7 +956,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
 
   try
   {
-    m_scriptEngine.safe_script_file("scripts/main.lua");
+    m_scriptEngine.safe_script_file((m_rootPath / "scripts/main.lua").string());
   }
   catch(sol::error& e)
   {
@@ -969,7 +970,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
   if(glidosPack && std::filesystem::is_directory(glidosPack.value()))
   {
     drawLoadingScreen("Loading Glidos texture pack");
-    glidos = std::make_unique<loader::trx::Glidos>(glidosPack.value(),
+    glidos = std::make_unique<loader::trx::Glidos>(m_rootPath / glidosPack.value(),
                                                    [this](const std::string& s) { drawLoadingScreen(s); });
   }
 
@@ -1001,15 +1002,15 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
 
     drawLoadingScreen("Preparing to load " + baseName);
 
-    m_level = loader::file::level::Level::createLoader("data/tr1/data/" + baseName + ".PHD",
+    m_level = loader::file::level::Level::createLoader(m_rootPath / "data/tr1/data" / (baseName + ".PHD"),
                                                        loader::file::level::Game::Unknown);
 
     drawLoadingScreen("Loading " + baseName);
 
     m_level->loadFileData();
 
-    m_audioEngine
-      = std::make_unique<AudioEngine>(*this, m_level->m_soundDetails, m_level->m_soundmap, m_level->m_sampleIndices);
+    m_audioEngine = std::make_unique<AudioEngine>(
+      *this, m_rootPath / "data/tr1/audio", m_level->m_soundDetails, m_level->m_soundmap, m_level->m_sampleIndices);
 
     BOOST_LOG_TRIVIAL(info) << "Loading samples...";
 
@@ -1044,7 +1045,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
   }
   else
   {
-    m_audioEngine = std::make_unique<AudioEngine>(*this);
+    m_audioEngine = std::make_unique<AudioEngine>(*this, m_rootPath / "data/tr1/audio");
     m_cameraController = std::make_unique<CameraController>(this, m_renderer->getScene()->getActiveCamera(), true);
   }
 
@@ -1128,7 +1129,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
       totalTiles += textureAndTiles.second.size();
     BOOST_LOG_TRIVIAL(debug) << totalTiles << " unique texture tiles";
 
-    const auto cacheBaseDir = glidos != nullptr ? glidos->getBaseDir() : std::filesystem::path("data/tr1/data");
+    const auto cacheBaseDir = glidos != nullptr ? glidos->getBaseDir() : m_rootPath / "data" / "tr1" / "data";
     auto cache = loader::file::TextureCache{cacheBaseDir / "_edisonengine"};
 
     size_t processedTiles = 0;
@@ -1199,19 +1200,21 @@ void Engine::run()
 
   if(const sol::optional<std::string> video = levelInfo["video"])
   {
-    video::play(
-      "data/tr1/fmv/" + video.value(), m_audioEngine->getSoundEngine().getDevice(), screenOverlay->getImage(), [&]() {
-        if(m_window->updateWindowSize())
-        {
-          m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
-          screenOverlay->init(m_shaderManager, m_window->getViewport());
-        }
+    video::play(m_rootPath / "data/tr1/fmv" / video.value(),
+                m_audioEngine->getSoundEngine().getDevice(),
+                screenOverlay->getImage(),
+                [&]() {
+                  if(m_window->updateWindowSize())
+                  {
+                    m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
+                    screenOverlay->init(m_shaderManager, m_window->getViewport());
+                  }
 
-        screenOverlay->render(context);
-        m_window->swapBuffers();
-        m_inputHandler->update();
-        return !m_window->windowShouldClose();
-      });
+                  screenOverlay->render(context);
+                  m_window->swapBuffers();
+                  m_inputHandler->update();
+                  return !m_window->windowShouldClose();
+                });
     return;
   }
 
@@ -1239,7 +1242,7 @@ void Engine::run()
 
   bool showDebugInfo = false;
 
-  auto font = std::make_shared<render::gl::Font>("DroidSansMono.ttf", 12);
+  auto font = std::make_shared<render::gl::Font>(m_rootPath / "DroidSansMono.ttf", 12);
   font->setTarget(screenOverlay->getImage());
 
   auto trFont = ui::CachedFont(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics));

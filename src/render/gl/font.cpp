@@ -58,21 +58,24 @@ FT_Library loadFreeTypeLib()
 FT_Error ftcFaceRequester(const FTC_FaceID face_id, const FT_Library library, const FT_Pointer req_data, FT_Face* aface)
 {
   Expects(face_id == &_dummyFaceId);
-  const auto error = FT_New_Face(library, static_cast<gsl::czstring>(req_data), 0, aface);
+
+  const auto* path = static_cast<std::filesystem::path*>(req_data);
+
+  const auto error = FT_New_Face(library, path->string().c_str(), 0, aface);
   if(error != FT_Err_Ok)
   {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to load font " << static_cast<gsl::czstring>(req_data) << ": "
-                             << getFreeTypeErrorMessage(error);
+    BOOST_LOG_TRIVIAL(fatal) << "Failed to load font " << *path << ": " << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load font"));
   }
   return FT_Err_Ok;
 }
 
-Font::Font(std::string ttf, const int size)
+Font::Font(std::filesystem::path ttf, const int size)
     : m_filename{std::move(ttf)}
 {
+  BOOST_LOG_TRIVIAL(debug) << "Loading font " << m_filename;
   auto error = FTC_Manager_New(
-    loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester, const_cast<gsl::zstring>(m_filename.c_str()), &m_cache);
+    loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester, const_cast<std::filesystem::path*>(&m_filename), &m_cache);
   if(error != FT_Err_Ok)
   {
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cache manager: " << getFreeTypeErrorMessage(error);
@@ -164,4 +167,4 @@ void Font::drawText(const std::string& text,
 {
   drawText(text.c_str(), x, y, SRGBA8{red, green, blue, alpha});
 }
-} // namespace render
+} // namespace render::gl

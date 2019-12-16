@@ -5,6 +5,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <filesystem>
 #include <fstream>
 #include <sndfile.h>
 
@@ -106,7 +107,7 @@ private:
   static constexpr size_t WADCount = 130;
 
 public:
-  WadStreamSource(const std::string& filename, const size_t trackIndex)
+  WadStreamSource(const std::filesystem::path& filename, const size_t trackIndex)
       : m_wadFile{filename, std::ios::in | std::ios::binary}
   {
     BOOST_LOG_TRIVIAL(trace) << "Creating WAD stream source from " << filename << ", track " << trackIndex;
@@ -158,13 +159,13 @@ private:
   SNDFILE* m_sndFile = nullptr;
 
 public:
-  explicit SndfileStreamSource(const std::string& filename)
+  explicit SndfileStreamSource(const std::filesystem::path& filename)
   {
     BOOST_LOG_TRIVIAL(trace) << "Creating sndfile stream source from " << filename;
 
     memset(&m_sfInfo, 0, sizeof(m_sfInfo));
 
-    m_sndFile = sf_open(filename.c_str(), SFM_READ, &m_sfInfo);
+    m_sndFile = sf_open(filename.string().c_str(), SFM_READ, &m_sfInfo);
     if(m_sndFile == nullptr)
     {
       BOOST_LOG_TRIVIAL(error) << "Failed to open audio file: " << sf_strerror(nullptr);

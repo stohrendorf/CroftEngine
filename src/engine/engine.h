@@ -67,6 +67,8 @@ using ObjectId = uint16_t;
 class Engine
 {
 private:
+  const std::filesystem::path m_rootPath;
+
   std::shared_ptr<loader::file::level::Level> m_level;
   std::unique_ptr<CameraController> m_cameraController = nullptr;
 
@@ -143,10 +145,12 @@ private:
 
   std::bitset<16> m_secretsFoundBitmask = 0;
 
-  render::scene::ShaderManager m_shaderManager{std::filesystem::current_path() / "shaders"};
+  render::scene::ShaderManager m_shaderManager{m_rootPath / "shaders"};
 
 public:
-  explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = {1280, 800});
+  explicit Engine(const std::filesystem::path& rootPath,
+                  bool fullscreen = false,
+                  const render::scene::Dimension2<int>& resolution = {1280, 800});
 
   ~Engine();
 
