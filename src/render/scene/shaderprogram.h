@@ -3,6 +3,7 @@
 #include "render/gl/program.h"
 
 #include <boost/container/flat_map.hpp>
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <vector>
@@ -24,9 +25,10 @@ public:
 
   ~ShaderProgram();
 
-  static std::shared_ptr<ShaderProgram> createFromFile(const std::string& vshPath,
-                                                       const std::string& fshPath,
-                                                       const std::vector<std::string>& defines = {});
+  static gsl::not_null<std::shared_ptr<ShaderProgram>> createFromFile(const std::string& id,
+                                                                      const std::filesystem::path& vshPath,
+                                                                      const std::filesystem::path& fshPath,
+                                                                      const std::vector<std::string>& defines);
 
   [[nodiscard]] const std::string& getId() const
   {
@@ -64,9 +66,9 @@ public:
   }
 
 private:
-  static std::shared_ptr<ShaderProgram> createFromSource(const std::string& vshPath,
+  static std::shared_ptr<ShaderProgram> createFromSource(const std::filesystem::path& vshPath,
                                                          const std::string& vshSource,
-                                                         const std::string& fshPath,
+                                                         const std::filesystem::path& fshPath,
                                                          const std::string& fshSource,
                                                          const std::vector<std::string>& defines = {});
 
@@ -94,4 +96,4 @@ private:
     return it == map.end() ? nullptr : &it->second;
   }
 };
-} // namespace render
+} // namespace render::scene

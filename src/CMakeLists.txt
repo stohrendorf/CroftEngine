@@ -389,6 +389,7 @@ set( EDISONENGINE_SRCS
 
         render/portaltracer.h
         render/renderpipeline.h
+        render/renderpipeline.cpp
         render/textureanimator.h
         render/textureanimator.cpp
 
@@ -441,6 +442,8 @@ set( EDISONENGINE_SRCS
         render/scene/scene.h
         render/scene/screenoverlay.h
         render/scene/screenoverlay.cpp
+        render/scene/shadermanager.h
+        render/scene/shadermanager.cpp
         render/scene/shaderprogram.h
         render/scene/shaderprogram.cpp
         render/scene/sprite.h

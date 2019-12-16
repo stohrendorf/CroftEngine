@@ -11,8 +11,8 @@
 namespace render::scene
 {
 class Mesh;
-
 class Model;
+class ShaderManager;
 
 class ScreenOverlay : public Renderable
 {
@@ -25,9 +25,9 @@ public:
 
   ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-  explicit ScreenOverlay(const Dimension2<size_t>& viewport);
+  explicit ScreenOverlay(ShaderManager& shaderManager, const Dimension2<size_t>& viewport);
 
-  void init(const Dimension2<size_t>& viewport);
+  void init(ShaderManager& shaderManager, const Dimension2<size_t>& viewport);
 
   ~ScreenOverlay() override;
 

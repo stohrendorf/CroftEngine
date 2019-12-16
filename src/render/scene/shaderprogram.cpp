@@ -11,7 +11,7 @@ namespace render::scene
 {
 namespace
 {
-std::string readAll(const std::string& filePath)
+std::string readAll(const std::filesystem::path& filePath)
 {
   // Open file for reading.
   std::ifstream stream(filePath, std::ios::in | std::ios::binary);
@@ -54,13 +54,13 @@ std::string replaceDefines(const std::vector<std::string>& defines)
   return out;
 }
 
-void replaceIncludes(const std::string& filepath,
+void replaceIncludes(const std::filesystem::path& filepath,
                      const std::string& source,
                      std::string& out,
-                     std::set<std::string>& included)
+                     std::set<std::filesystem::path>& included)
 {
   included.emplace(filepath);
-  out += "#line 1\n#pragma file \"" + filepath + "\"\n";
+  out += "#line 1\n#pragma file \"" + boost::algorithm::replace_all_copy(filepath.string(), "\\", "/") + "\"\n";
 
   // Replace the #include "foo.bar" with the sourced file contents of "filepath/foo.bar"
   size_t headPos = 0;
@@ -110,25 +110,24 @@ void replaceIncludes(const std::string& filepath,
       headPos = endQuote + 1;
 
       // File path to include and 'stitch' in the value in the quotes to the file path and source it.
-      std::string filepathStr = filepath;
-      std::string directoryPath = filepathStr.substr(0, filepathStr.rfind('/') + 1);
       const size_t len = endQuote - startQuote;
-      std::string includeStr = source.substr(startQuote, len);
-      directoryPath.append(includeStr);
-      if(included.count(directoryPath) > 0)
+      const auto includePath = filepath.parent_path() / std::filesystem::path{source.substr(startQuote, len)};
+      if(included.count(includePath) > 0)
       {
         continue;
       }
 
-      std::string includedSource = readAll(directoryPath);
+      std::string includedSource = readAll(includePath);
       if(includedSource.empty())
       {
-        BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepathStr << "' invalid filepath.";
+        BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "': failed to include'" << includePath
+                                 << "'";
         return;
       }
       // Valid file so lets attempt to see if we need to append anything to it too (recurse...)
-      replaceIncludes(directoryPath, includedSource, out, included);
-      out += "#line " + std::to_string(line) + "\n#pragma file \"" + filepath + "\"\n";
+      replaceIncludes(includePath, includedSource, out, included);
+      out += "#line " + std::to_string(line) + "\n#pragma file \""
+             + boost::algorithm::replace_all_copy(filepath.string(), "\\", "/") + "\"\n";
     }
     else
     {
@@ -139,9 +138,9 @@ void replaceIncludes(const std::string& filepath,
   }
 }
 
-void writeShaderToErrorFile(const std::string& filePath, const std::string& source)
+void writeShaderToErrorFile(const std::filesystem::path& filePath, const std::string& source)
 {
-  std::ofstream stream{filePath + ".err", std::ios::out | std::ios::binary | std::ios::trunc};
+  std::ofstream stream{filePath.string() + ".err", std::ios::out | std::ios::binary | std::ios::trunc};
   stream.write(source.c_str(), source.size());
 }
 } // namespace
@@ -150,29 +149,22 @@ ShaderProgram::ShaderProgram() = default;
 
 ShaderProgram::~ShaderProgram() = default;
 
-std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const std::string& vshPath,
-                                                             const std::string& fshPath,
-                                                             const std::vector<std::string>& defines)
+gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(const std::string& id,
+                                                                            const std::filesystem::path& vshPath,
+                                                                            const std::filesystem::path& fshPath,
+                                                                            const std::vector<std::string>& defines)
 {
-  // Search the effect cache for an identical effect that is already loaded.
-  std::string uniqueId = vshPath;
-  uniqueId += ';';
-  uniqueId += fshPath;
-  uniqueId += ';';
-  uniqueId += boost::algorithm::join(defines, ";");
-
-  // Read source from file.
   const std::string vshSource = readAll(vshPath);
   if(vshSource.empty())
   {
     BOOST_LOG_TRIVIAL(error) << "Failed to read vertex shader from file '" << vshPath << "'.";
-    return nullptr;
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader from sources"));
   }
   const std::string fshSource = readAll(fshPath);
   if(fshSource.empty())
   {
     BOOST_LOG_TRIVIAL(error) << "Failed to read fragment shader from file '" << fshPath << "'.";
-    return nullptr;
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader from sources"));
   }
 
   std::shared_ptr<ShaderProgram> shaderProgram = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
@@ -180,19 +172,16 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromFile(const std::string& 
   if(shaderProgram == nullptr)
   {
     BOOST_LOG_TRIVIAL(error) << "Failed to create effect from shaders '" << vshPath << "', '" << fshPath << "'.";
-  }
-  else
-  {
-    // Store this effect in the cache.
-    shaderProgram->m_id = uniqueId;
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader from sources"));
   }
 
+  shaderProgram->m_id = id;
   return shaderProgram;
 }
 
-std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& vshPath,
+std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesystem::path& vshPath,
                                                                const std::string& vshSource,
-                                                               const std::string& fshPath,
+                                                               const std::filesystem::path& fshPath,
                                                                const std::string& fshSource,
                                                                const std::vector<std::string>& defines)
 {
@@ -209,14 +198,15 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   if(!vshPath.empty())
   {
     // Replace the #include "foo.bar" with the sources that come from file paths
-    std::set<std::string> included;
+    std::set<std::filesystem::path> included;
     replaceIncludes(vshPath, vshSource, vshSourceStr, included);
     if(!vshSource.empty())
       vshSourceStr += "\n";
   }
   shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
 
-  gl::Shader vertexShader{::gl::ShaderType::VertexShader, vshPath + ";" + boost::algorithm::join(defines, ";")};
+  gl::Shader vertexShader{::gl::ShaderType::VertexShader,
+                          vshPath.string() + ";" + boost::algorithm::join(defines, ";")};
   vertexShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
   vertexShader.compile();
   if(!vertexShader.getCompileStatus())
@@ -236,14 +226,15 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   if(!fshPath.empty())
   {
     // Replace the #include "foo.bar" with the sources that come from file paths
-    std::set<std::string> included;
-    replaceIncludes(fshPath, fshSource, fshSourceStr, included);
+    std::set<std::filesystem::path> included;
+    replaceIncludes(std::filesystem::path{fshPath}, fshSource, fshSourceStr, included);
     if(!fshSource.empty())
       fshSourceStr += "\n";
   }
   shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
 
-  gl::Shader fragmentShader{::gl::ShaderType::FragmentShader, fshPath + ";" + boost::algorithm::join(defines, ";")};
+  gl::Shader fragmentShader{::gl::ShaderType::FragmentShader,
+                            fshPath.string() + ";" + boost::algorithm::join(defines, ";")};
   fragmentShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
   fragmentShader.compile();
   if(!fragmentShader.getCompileStatus())
@@ -262,7 +253,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   auto shaderProgram = std::make_shared<ShaderProgram>();
   shaderProgram->m_handle.attach(vertexShader);
   shaderProgram->m_handle.attach(fragmentShader);
-  shaderProgram->m_handle.link(vshPath + ";" + fshPath + ";" + boost::algorithm::join(defines, ";"));
+  shaderProgram->m_handle.link(vshPath.string() + ";" + fshPath.string() + ";" + boost::algorithm::join(defines, ";"));
 
   if(!shaderProgram->m_handle.getLinkStatus())
   {
@@ -295,4 +286,4 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   return shaderProgram;
 }
 
-} // namespace render
+} // namespace render::scene

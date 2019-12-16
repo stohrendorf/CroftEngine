@@ -21,11 +21,6 @@ Material::Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram)
 
 Material::~Material() = default;
 
-Material::Material(const std::string& vshPath, const std::string& fshPath, const std::vector<std::string>& defines)
-    : Material{ShaderProgram::createFromFile(vshPath, fshPath, defines)}
-{
-}
-
 void Material::bind(const Node& node) const
 {
   for(const auto& param : m_uniforms)

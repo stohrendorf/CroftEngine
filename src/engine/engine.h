@@ -8,6 +8,7 @@
 #include "loader/file/animationid.h"
 #include "loader/file/item.h"
 #include "render/scene/screenoverlay.h"
+#include "render/scene/shadermanager.h"
 #include "util/cimgwrapper.h"
 
 #include <filesystem>
@@ -142,6 +143,8 @@ private:
 
   std::bitset<16> m_secretsFoundBitmask = 0;
 
+  render::scene::ShaderManager m_shaderManager{std::filesystem::current_path() / "shaders"};
+
 public:
   explicit Engine(bool fullscreen = false, const render::scene::Dimension2<int>& resolution = {1280, 800});
 
@@ -246,6 +249,11 @@ public:
   void finishLevel()
   {
     m_levelFinished = true;
+  }
+
+  auto& getShaderManager()
+  {
+    return m_shaderManager;
   }
 
   void run();

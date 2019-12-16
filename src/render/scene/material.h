@@ -26,10 +26,6 @@ public:
 
   ~Material();
 
-  explicit Material(const std::string& vshPath,
-                    const std::string& fshPath,
-                    const std::vector<std::string>& defines = {});
-
   const gsl::not_null<std::shared_ptr<ShaderProgram>>& getShaderProgram() const
   {
     return m_shaderProgram;

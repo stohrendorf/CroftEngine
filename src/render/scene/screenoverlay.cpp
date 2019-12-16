@@ -4,16 +4,14 @@
 #include "mesh.h"
 #include "render/gl/image.h"
 #include "renderer.h"
+#include "shadermanager.h"
 #include "uniformparameter.h"
-
-#include <boost/log/trivial.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace render::scene
 {
-ScreenOverlay::ScreenOverlay(const Dimension2<size_t>& viewport)
+ScreenOverlay::ScreenOverlay(ShaderManager& shaderManager, const Dimension2<size_t>& viewport)
 {
-  init(viewport);
+  init(shaderManager, viewport);
 }
 
 ScreenOverlay::~ScreenOverlay() = default;
@@ -26,7 +24,7 @@ void ScreenOverlay::render(RenderContext& context)
   context.popState();
 }
 
-void ScreenOverlay::init(const Dimension2<size_t>& viewport)
+void ScreenOverlay::init(ShaderManager& shaderManager, const Dimension2<size_t>& viewport)
 {
   *m_image = gl::Image<gl::SRGBA8>(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
   if(viewport.width == 0 || viewport.height == 0)
@@ -34,8 +32,7 @@ void ScreenOverlay::init(const Dimension2<size_t>& viewport)
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
   }
 
-  const auto screenOverlayProgram
-    = ShaderProgram::createFromFile("shaders/screenoverlay.vert", "shaders/screenoverlay.frag", {});
+  const auto screenOverlayProgram = shaderManager.get("screenoverlay.vert", "screenoverlay.frag", {});
 
   m_texture->image(m_image->getWidth(), m_image->getHeight(), m_image->getData());
   m_texture->set(::gl::TextureMinFilter::Nearest)

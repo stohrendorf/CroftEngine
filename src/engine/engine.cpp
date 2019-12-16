@@ -181,7 +181,7 @@ std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::
 
 std::shared_ptr<objects::LaraObject> Engine::createObjects()
 {
-  m_lightningShader = render::scene::ShaderProgram::createFromFile("shaders/lightning.vert", "shaders/lightning.frag");
+  m_lightningShader = m_shaderManager.get("lightning.vert", "lightning.frag");
 
   std::shared_ptr<objects::LaraObject> lara = nullptr;
   ObjectId id = -1;
@@ -216,25 +216,25 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
   m_textureAnimator = std::make_shared<render::TextureAnimator>(
     m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures, linearTextureInterpolation);
 
-  const auto texturedShader
-    = render::scene::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag");
+  const auto texturedShader = m_shaderManager.get("textured_2.vert", "textured_2.frag");
   const auto materials = createMaterials(texturedShader);
 
   const auto colorMaterial
-    = std::make_shared<render::scene::Material>("shaders/colored_2.vert", "shaders/colored_2.frag");
+    = std::make_shared<render::scene::Material>(m_shaderManager.get("colored_2.vert", "colored_2.frag"));
   colorMaterial->getUniform("u_modelMatrix")->bindModelMatrix();
   colorMaterial->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
   colorMaterial->getUniform("u_camProjection")->bindProjectionMatrix();
 
   BOOST_ASSERT(m_spriteMaterial == nullptr);
-  m_spriteMaterial = std::make_shared<render::scene::Material>("shaders/textured_2.vert", "shaders/textured_2.frag");
+  m_spriteMaterial
+    = std::make_shared<render::scene::Material>(m_shaderManager.get("textured_2.vert", "textured_2.frag"));
   m_spriteMaterial->getRenderState().setCullFace(false);
 
   m_spriteMaterial->getUniform("u_modelMatrix")->bindModelMatrix();
   m_spriteMaterial->getUniform("u_camProjection")->bindProjectionMatrix();
 
   BOOST_ASSERT(m_portalMaterial == nullptr);
-  m_portalMaterial = std::make_shared<render::scene::Material>("shaders/portal.vert", "shaders/portal.frag");
+  m_portalMaterial = std::make_shared<render::scene::Material>(m_shaderManager.get("portal.vert", "portal.frag"));
   m_portalMaterial->getRenderState().setCullFace(false);
 
   m_portalMaterial->getUniform("u_mvp")->bind([camera = m_renderer->getScene()->getActiveCamera()](
@@ -264,8 +264,7 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     }
   }
 
-  const auto waterTexturedShader
-    = render::scene::ShaderProgram::createFromFile("shaders/textured_2.vert", "shaders/textured_2.frag", {"WATER"});
+  const auto waterTexturedShader = m_shaderManager.get("textured_2.vert", "textured_2.frag", {"WATER"});
   auto waterMaterials = createMaterials(waterTexturedShader);
   for(const auto& m : waterMaterials | boost::adaptors::map_values)
   {
@@ -948,7 +947,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
 
   scaleSplashImage();
 
-  screenOverlay = std::make_shared<render::scene::ScreenOverlay>(m_window->getViewport());
+  screenOverlay = std::make_shared<render::scene::ScreenOverlay>(m_shaderManager, m_window->getViewport());
 
   abibasFont->setTarget(screenOverlay->getImage());
 
@@ -1185,7 +1184,7 @@ Engine::Engine(bool fullscreen, const render::scene::Dimension2<int>& resolution
     }
   }
 
-  m_renderPipeline = std::make_shared<render::RenderPipeline>(m_window->getViewport());
+  m_renderPipeline = std::make_shared<render::RenderPipeline>(m_shaderManager, m_window->getViewport());
 }
 
 void Engine::run()
@@ -1196,7 +1195,7 @@ void Engine::run()
 
   render::gl::Framebuffer::unbindAll();
 
-  screenOverlay->init(m_window->getViewport());
+  screenOverlay->init(m_shaderManager, m_window->getViewport());
 
   if(const sol::optional<std::string> video = levelInfo["video"])
   {
@@ -1205,7 +1204,7 @@ void Engine::run()
         if(m_window->updateWindowSize())
         {
           m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
-          screenOverlay->init(m_window->getViewport());
+          screenOverlay->init(m_shaderManager, m_window->getViewport());
         }
 
         screenOverlay->render(context);
@@ -1290,7 +1289,7 @@ void Engine::run()
     {
       m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
       m_renderPipeline->resize(m_window->getViewport());
-      screenOverlay->init(m_window->getViewport());
+      screenOverlay->init(m_shaderManager, m_window->getViewport());
       font->setTarget(screenOverlay->getImage());
     }
 
@@ -1442,7 +1441,7 @@ void Engine::drawLoadingScreen(const std::string& state)
   if(m_window->updateWindowSize())
   {
     m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
-    screenOverlay->init(m_window->getViewport());
+    screenOverlay->init(m_shaderManager, m_window->getViewport());
     abibasFont->setTarget(screenOverlay->getImage());
 
     scaleSplashImage();

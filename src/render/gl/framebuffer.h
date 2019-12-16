@@ -2,6 +2,7 @@
 
 #include "texture.h"
 
+#include <boost/log/trivial.hpp>
 #include <utility>
 
 namespace render::gl
