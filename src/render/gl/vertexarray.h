@@ -40,7 +40,7 @@ public:
 
   explicit VertexArray(IndexBuffers indexBuffers,
                        VertexBuffers vertexBuffers,
-                       const Program& program,
+                       const std::vector<const Program*>& programs,
                        const std::string& label = {})
       : BindableResource{::gl::genVertexArrays,
                          ::gl::bindVertexArray,
@@ -53,15 +53,17 @@ public:
     bind();
     for(const auto& buffer : m_indexBuffers)
       buffer->bind();
-    detail::bindVertexAttributes(m_vertexBuffers, program);
+    for(const auto& program : programs)
+      if(program != nullptr)
+        detail::bindVertexAttributes(m_vertexBuffers, *program);
     unbind();
   }
 
   explicit VertexArray(const IndexBufferPtr& indexBuffer,
                        const VertexBufferPtr<VertexT0>& vertexBuffer,
-                       const Program& program,
+                       const std::vector<const Program*>& programs,
                        const std::string& label = {})
-      : VertexArray{IndexBuffers{indexBuffer}, VertexBuffers{vertexBuffer}, program, label}
+      : VertexArray{IndexBuffers{indexBuffer}, VertexBuffers{vertexBuffer}, programs, label}
   {
   }
 

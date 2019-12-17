@@ -217,13 +217,19 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures, linearTextureInterpolation);
 
   const auto texturedShader = m_shaderManager.get("textured_2.vert", "textured_2.frag");
-  const auto materials = createMaterials(texturedShader);
+  const auto materialsFull = createMaterials(texturedShader);
 
-  const auto colorMaterial
+  const auto colorMaterialFull
     = std::make_shared<render::scene::Material>(m_shaderManager.get("colored_2.vert", "colored_2.frag"));
-  colorMaterial->getUniform("u_modelMatrix")->bindModelMatrix();
-  colorMaterial->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
-  colorMaterial->getUniform("u_camProjection")->bindProjectionMatrix();
+  colorMaterialFull->getUniform("u_modelMatrix")->bindModelMatrix();
+  colorMaterialFull->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
+  colorMaterialFull->getUniform("u_camProjection")->bindProjectionMatrix();
+
+  const auto depthMaterial
+    = std::make_shared<render::scene::Material>(m_shaderManager.get("depth_only.vert", "depth_only.frag"));
+  depthMaterial->getUniform("u_modelMatrix")->bindModelMatrix();
+  depthMaterial->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
+  depthMaterial->getUniform("u_camProjection")->bindProjectionMatrix();
 
   BOOST_ASSERT(m_spriteMaterial == nullptr);
   m_spriteMaterial
@@ -244,7 +250,8 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
 
   for(auto& mesh : m_level->m_meshes)
   {
-    m_models.emplace_back(mesh.createModel(m_level->m_textureTiles, materials, colorMaterial, *m_level->m_palette));
+    m_models.emplace_back(
+      mesh.createModel(m_level->m_textureTiles, materialsFull, colorMaterialFull, depthMaterial, *m_level->m_palette));
   }
 
   for(auto idx : m_level->m_meshIndices)
@@ -265,8 +272,8 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
   }
 
   const auto waterTexturedShader = m_shaderManager.get("textured_2.vert", "textured_2.frag", {"WATER"});
-  auto waterMaterials = createMaterials(waterTexturedShader);
-  for(const auto& m : waterMaterials | boost::adaptors::map_values)
+  auto waterMaterialsFull = createMaterials(waterTexturedShader);
+  for(const auto& m : waterMaterialsFull | boost::adaptors::map_values)
   {
     m->getUniform("u_time")->bind([this](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(m_renderer->getGameTime());
@@ -276,8 +283,15 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
 
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    m_level->m_rooms[i].createSceneNode(
-      i, *m_level, materials, waterMaterials, m_models, *m_textureAnimator, m_spriteMaterial, m_portalMaterial);
+    m_level->m_rooms[i].createSceneNode(i,
+                                        *m_level,
+                                        materialsFull,
+                                        waterMaterialsFull,
+                                        depthMaterial,
+                                        m_models,
+                                        *m_textureAnimator,
+                                        m_spriteMaterial,
+                                        m_portalMaterial);
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
@@ -1190,7 +1204,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
 
 void Engine::run()
 {
-  render::scene::RenderContext context{};
+  render::scene::RenderContext context{render::scene::RenderMode::Full};
   render::scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
 
@@ -1322,7 +1336,7 @@ void Engine::run()
       m_renderer->render();
     }
 
-    render::scene::RenderContext context{};
+    render::scene::RenderContext context{render::scene::RenderMode::Full};
     render::scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
 
@@ -1456,7 +1470,7 @@ void Engine::drawLoadingScreen(const std::string& state)
   render::gl::Framebuffer::unbindAll();
 
   m_renderer->clear(gl::ClearBufferMask::ColorBufferBit | gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-  render::scene::RenderContext context{};
+  render::scene::RenderContext context{render::scene::RenderMode::Full};
   render::scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
   screenOverlay->render(context);

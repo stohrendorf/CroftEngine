@@ -31,15 +31,21 @@ gsl::not_null<std::shared_ptr<Mesh>>
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
   indexBuffer->setData(&indices[0], 6, ::gl::BufferUsageARB::StaticDraw);
 
-  return std::make_shared<MeshImpl<uint16_t, Vertex>>(
-    std::make_shared<gl::VertexArray<uint16_t, Vertex>>(indexBuffer, vertexBuffer, program));
+  return std::make_shared<MeshImpl<uint16_t, Vertex>>(std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
+    indexBuffer, vertexBuffer, std::vector<const gl::Program*>{&program}));
 }
 
 Mesh::~Mesh() = default;
 
 void Mesh::render(RenderContext& context)
 {
-  if(m_material == nullptr)
+  std::shared_ptr<Material> material;
+  switch(context.getRenderMode())
+  {
+  case RenderMode::Full: material = m_materialFull; break;
+  case RenderMode::DepthOnly: material = m_materialDepthOnly; break;
+  }
+  if(material == nullptr)
     return;
 
   BOOST_ASSERT(context.getCurrentNode() != nullptr);
@@ -47,12 +53,12 @@ void Mesh::render(RenderContext& context)
   context.pushState(getRenderState());
 
   for(const auto& setter : m_materialUniformSetters)
-    setter(*context.getCurrentNode(), *m_material);
+    setter(*context.getCurrentNode(), *material);
 
-  context.pushState(m_material->getRenderState());
+  context.pushState(material->getRenderState());
   context.bindState();
 
-  m_material->bind(*context.getCurrentNode());
+  material->bind(*context.getCurrentNode());
 
   drawIndexBuffers(m_primitiveType);
 

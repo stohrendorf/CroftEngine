@@ -24,9 +24,9 @@ public:
                   const float y1,
                   const glm::vec2& t0,
                   const glm::vec2& t1,
-                  const gsl::not_null<std::shared_ptr<Material>>& material,
+                  const gsl::not_null<std::shared_ptr<Material>>& materialFull,
                   const Axis pole)
-      : m_mesh{createMesh(x0, y0, x1, y1, t0, t1, material, pole)}
+      : m_mesh{createMesh(x0, y0, x1, y1, t0, t1, materialFull, pole)}
   {
   }
 
@@ -49,7 +49,7 @@ private:
                                                          float y1,
                                                          const glm::vec2& t0,
                                                          const glm::vec2& t1,
-                                                         const gsl::not_null<std::shared_ptr<Material>>& material,
+                                                         const gsl::not_null<std::shared_ptr<Material>>& materialFull,
                                                          Axis pole);
 
   gsl::not_null<std::shared_ptr<Mesh>> m_mesh;

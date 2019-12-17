@@ -157,26 +157,26 @@ void RenderPipeline::finalPass(const bool water)
   {
     gl::DebugGroup dbg{"ssao-pass"};
     m_ssaoFb->bind();
-    scene::RenderContext context{};
+    scene::RenderContext context{scene::RenderMode::Full};
     scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
 
-    m_fbModel->getMeshes()[0]->setMaterial(m_ssaoMaterial);
+    m_fbModel->getMeshes()[0]->setMaterial(m_ssaoMaterial, scene::RenderMode::Full);
     m_fbModel->render(context);
 
     m_ssaoBlurFb->bind();
-    m_fbModel->getMeshes()[0]->setMaterial(m_ssaoBlurMaterial);
+    m_fbModel->getMeshes()[0]->setMaterial(m_ssaoBlurMaterial, scene::RenderMode::Full);
     m_fbModel->render(context);
   }
 
   {
     gl::DebugGroup dbg{"fxaa-pass"};
     m_fxaaFb->bind();
-    scene::RenderContext context{};
+    scene::RenderContext context{scene::RenderMode::Full};
     scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
 
-    m_fbModel->getMeshes()[0]->setMaterial(m_fxaaMaterial);
+    m_fbModel->getMeshes()[0]->setMaterial(m_fxaaMaterial, scene::RenderMode::Full);
     m_fbModel->render(context);
   }
 
@@ -184,10 +184,10 @@ void RenderPipeline::finalPass(const bool water)
     gl::DebugGroup dbg{"postprocess-pass"};
     gl::Framebuffer::unbindAll();
     if(water)
-      m_fbModel->getMeshes()[0]->setMaterial(m_fxWaterDarknessMaterial);
+      m_fbModel->getMeshes()[0]->setMaterial(m_fxWaterDarknessMaterial, scene::RenderMode::Full);
     else
-      m_fbModel->getMeshes()[0]->setMaterial(m_fxDarknessMaterial);
-    scene::RenderContext context{};
+      m_fbModel->getMeshes()[0]->setMaterial(m_fxDarknessMaterial, scene::RenderMode::Full);
+    scene::RenderContext context{scene::RenderMode::Full};
     scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
     m_fbModel->render(context);
@@ -238,7 +238,7 @@ void RenderPipeline::resize(const scene::Dimension2<size_t>& viewport)
 
   auto fxaaMesh = scene::createQuadFullscreen(
     gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), m_fxaaShader->getHandle());
-  fxaaMesh->setMaterial(m_fxaaMaterial);
+  fxaaMesh->setMaterial(m_fxaaMaterial, scene::RenderMode::Full);
 
   m_fbModel->getMeshes().clear();
   m_fbModel->addMesh(fxaaMesh);

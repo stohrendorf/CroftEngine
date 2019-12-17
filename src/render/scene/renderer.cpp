@@ -49,7 +49,7 @@ void Renderer::render()
   // Graphics Rendering.
   clear(::gl::ClearBufferMask::ColorBufferBit | ::gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
-  RenderContext context{};
+  RenderContext context{RenderMode::Full};
   RenderVisitor visitor{context};
   m_scene->accept(visitor);
 
@@ -65,7 +65,7 @@ void Renderer::render()
   }
 }
 
-void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask> flags,
+void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask>& flags,
                      const gl::SRGBA8& clearColor,
                      const float clearDepth)
 {

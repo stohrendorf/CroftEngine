@@ -1,4 +1,4 @@
-attribute vec3 a_position;
+layout(location=0) in vec3 a_position;
 
 uniform mat4 u_mvp;
 

@@ -29,14 +29,24 @@ public:
 
   Mesh& operator=(const Mesh&) = delete;
 
-  void setMaterial(const std::shared_ptr<Material>& material)
+  void setMaterial(const std::shared_ptr<Material>& material, RenderMode renderMode)
   {
-    m_material = material;
+    switch(renderMode)
+    {
+    case RenderMode::Full: m_materialFull = material; break;
+    case RenderMode::DepthOnly: m_materialDepthOnly = material; break;
+    default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid render mode"));
+    }
   }
 
-  [[nodiscard]] const std::shared_ptr<Material>& getMaterial() const
+  [[nodiscard]] const std::shared_ptr<Material>& getMaterial(RenderMode renderMode) const
   {
-    return m_material;
+    switch(renderMode)
+    {
+    case RenderMode::Full: return m_materialFull; break;
+    case RenderMode::DepthOnly: return m_materialDepthOnly; break;
+    default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid render mode"));
+    }
   }
 
   void render(RenderContext& context) final;
@@ -47,7 +57,8 @@ public:
   }
 
 private:
-  std::shared_ptr<Material> m_material;
+  std::shared_ptr<Material> m_materialFull;
+  std::shared_ptr<Material> m_materialDepthOnly;
 
   std::vector<std::function<MaterialUniformSetter>> m_materialUniformSetters;
 

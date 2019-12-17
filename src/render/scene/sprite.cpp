@@ -14,7 +14,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
                                                         const float y1,
                                                         const glm::vec2& t0,
                                                         const glm::vec2& t1,
-                                                        const gsl::not_null<std::shared_ptr<Material>>& material,
+                                                        const gsl::not_null<std::shared_ptr<Material>>& materialFull,
                                                         const Axis pole)
 {
   struct SpriteVertex
@@ -41,9 +41,9 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
   indexBuffer->setData(gsl::not_null<const uint16_t*>(&indices[0]), 6, ::gl::BufferUsageARB::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
-    indexBuffer, vb, material->getShaderProgram()->getHandle());
+    indexBuffer, vb, std::vector<const gl::Program*>{&materialFull->getShaderProgram()->getHandle()});
   auto mesh = std::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
-  mesh->setMaterial(material);
+  mesh->setMaterial(materialFull, RenderMode::Full);
 
   mesh->registerMaterialUniformSetter([pole](const Node& node, Material& material) {
     auto m = node.getModelViewMatrix();

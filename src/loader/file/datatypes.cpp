@@ -42,13 +42,14 @@ struct RenderVertex
 
 #pragma pack(pop)
 
-struct MeshPart
+struct MeshPart final
 {
   using IndexBuffer = std::vector<uint16_t>;
   static_assert(std::is_unsigned_v<IndexBuffer::value_type>, "Index buffer entries must be unsigned");
 
   IndexBuffer indices;
-  std::shared_ptr<render::scene::Material> material;
+  std::shared_ptr<render::scene::Material> materialFull;
+  std::shared_ptr<render::scene::Material> materialDepthOnly;
 };
 
 struct RenderModel
@@ -78,8 +79,14 @@ struct RenderModel
 
       auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex, glm::vec2>>(
         std::make_shared<render::gl::VertexArray<uint16_t, RenderVertex, glm::vec2>>(
-          indexBufs, vBufs, localPart.material->getShaderProgram()->getHandle()));
-      mesh->setMaterial(localPart.material);
+          indexBufs,
+          vBufs,
+          std::vector<const render::gl::Program*>{&localPart.materialFull->getShaderProgram()->getHandle(),
+                                                  localPart.materialDepthOnly == nullptr
+                                                    ? nullptr
+                                                    : &localPart.materialDepthOnly->getShaderProgram()->getHandle()}));
+      mesh->setMaterial(localPart.materialFull, render::scene::RenderMode::Full);
+      mesh->setMaterial(localPart.materialDepthOnly, render::scene::RenderMode::DepthOnly);
       model->addMesh(mesh);
     }
 
@@ -104,8 +111,9 @@ core::TRVec getCenter(const std::array<VertexIndex, N>& faceVertices, const std:
 void Room::createSceneNode(
   const size_t roomId,
   const level::Level& level,
-  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
-  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
+  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
+  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterialsFull,
+  const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
   const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
   render::TextureAnimator& animator,
   const std::shared_ptr<render::scene::Material>& spriteMaterial,
@@ -149,8 +157,9 @@ void Room::createSceneNode(
 
       renderModel.m_parts.emplace_back();
 
-      auto it = isWaterRoom() ? waterMaterials.at(tile.textureKey) : materials.at(tile.textureKey);
-      renderModel.m_parts.back().material = it;
+      auto materialFull = isWaterRoom() ? waterMaterialsFull.at(tile.textureKey) : materialsFull.at(tile.textureKey);
+      renderModel.m_parts.back().materialFull = materialFull;
+      renderModel.m_parts.back().materialDepthOnly = materialDepthOnly;
     }
     const auto partId = texBuffers[tile.textureKey];
 
@@ -212,8 +221,9 @@ void Room::createSceneNode(
 
       renderModel.m_parts.emplace_back();
 
-      auto it = isWaterRoom() ? waterMaterials.at(tile.textureKey) : materials.at(tile.textureKey);
-      renderModel.m_parts.back().material = it;
+      auto materialFull = isWaterRoom() ? waterMaterialsFull.at(tile.textureKey) : materialsFull.at(tile.textureKey);
+      renderModel.m_parts.back().materialFull = materialFull;
+      renderModel.m_parts.back().materialDepthOnly = materialDepthOnly;
     }
     const auto partId = texBuffers[tile.textureKey];
 
@@ -307,7 +317,7 @@ void Room::createSceneNode(
     sceneryNodes.emplace_back(std::move(spriteNode));
   }
   for(auto& portal : portals)
-    portal.buildMesh(portalMaterial);
+    portal.buildMesh(portalMaterial, nullptr);
 
   resetScenery();
 }
@@ -957,7 +967,8 @@ std::unique_ptr<Camera> Camera::read(io::SDLReader& reader)
   return camera;
 }
 
-void Portal::buildMesh(const std::shared_ptr<render::scene::Material>& material)
+void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
+                       const std::shared_ptr<render::scene::Material>& materialDepthOnly)
 {
   struct Vertex
   {
@@ -978,9 +989,14 @@ void Portal::buildMesh(const std::shared_ptr<render::scene::Material>& material)
   indexBuffer->setData(&indices[0], 6, gl::BufferUsageARB::StaticDraw);
 
   auto vao = std::make_shared<render::gl::VertexArray<uint16_t, Vertex>>(
-    indexBuffer, vb, material->getShaderProgram()->getHandle());
+    indexBuffer,
+    vb,
+    std::vector<const render::gl::Program*>{
+      &materialFull->getShaderProgram()->getHandle(),
+      materialDepthOnly == nullptr ? nullptr : &materialDepthOnly->getShaderProgram()->getHandle()});
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
-  mesh->setMaterial(material);
+  mesh->setMaterial(materialFull, render::scene::RenderMode::Full);
+  mesh->setMaterial(materialDepthOnly, render::scene::RenderMode::DepthOnly);
 }
 
 Portal Portal::read(io::SDLReader& reader, const core::TRVec& offset)

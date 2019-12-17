@@ -66,7 +66,8 @@ struct Portal
 
   static Portal read(io::SDLReader& reader, const core::TRVec& offset);
 
-  void buildMesh(const std::shared_ptr<render::scene::Material>& material);
+  void buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
+                 const std::shared_ptr<render::scene::Material>& materialDepthOnly);
 };
 
 struct Box;
@@ -410,15 +411,16 @@ struct Room
 
   static std::unique_ptr<Room> readTr5(io::SDLReader& reader);
 
-  void
-    createSceneNode(size_t roomId,
-                    const level::Level& level,
-                    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
-                    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterials,
-                    const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
-                    render::TextureAnimator& animator,
-                    const std::shared_ptr<render::scene::Material>& spriteMaterial,
-                    const std::shared_ptr<render::scene::Material>& portalMaterial);
+  void createSceneNode(
+    size_t roomId,
+    const level::Level& level,
+    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
+    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterialsFull,
+    const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
+    const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
+    render::TextureAnimator& animator,
+    const std::shared_ptr<render::scene::Material>& spriteMaterial,
+    const std::shared_ptr<render::scene::Material>& portalMaterial);
 
   [[nodiscard]] const Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
   {

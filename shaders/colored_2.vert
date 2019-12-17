@@ -1,6 +1,6 @@
-attribute vec3 a_position;
-attribute vec3 a_normal;
-attribute vec3 a_color;
+layout(location=0) in vec3 a_position;
+in vec3 a_normal;
+in vec3 a_color;
 
 uniform mat4 u_modelMatrix;
 uniform mat4 u_modelViewMatrix;
@@ -18,7 +18,6 @@ void main()
     gl_Position = u_camProjection * tmp;
     v_color = a_color;
 
-    v_vertexPos = (u_modelMatrix * vec4(a_position, 1)).xyz;
     v_normal = normalize(mat3(u_modelMatrix) * a_normal);
     v_ssaoNormal = normalize(mat3(u_modelViewMatrix) * a_normal);
     v_vertexPos = tmp.xyz;

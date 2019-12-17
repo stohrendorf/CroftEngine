@@ -9,10 +9,17 @@ namespace render::scene
 {
 class Node;
 
+enum class RenderMode
+{
+  Full,
+  DepthOnly
+};
+
 class RenderContext final
 {
 public:
-  explicit RenderContext()
+  explicit RenderContext(RenderMode renderMode)
+      : m_renderMode{renderMode}
   {
     m_renderStates.push(gl::RenderState());
   }
@@ -45,8 +52,14 @@ public:
     m_renderStates.pop();
   }
 
+  RenderMode getRenderMode() const noexcept
+  {
+    return m_renderMode;
+  }
+
 private:
   Node* m_currentNode = nullptr;
   std::stack<gl::RenderState> m_renderStates{};
+  const RenderMode m_renderMode;
 };
 } // namespace render::scene

@@ -7,7 +7,6 @@
 #include "render/scene/mesh.h"
 #include "render/scene/model.h"
 #include "render/scene/uniformparameter.h"
-#include "render/textureanimator.h"
 #include "util.h"
 
 #include <utility>
@@ -16,7 +15,7 @@ namespace loader::file
 {
 namespace
 {
-class ModelBuilder
+class ModelBuilder final
 {
   struct RenderVertex
   {
@@ -40,8 +39,9 @@ class ModelBuilder
   const bool m_hasNormals;
   std::vector<RenderVertex> m_vertices;
   const std::vector<TextureTile>& m_textureTiles;
-  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& m_materials;
-  const gsl::not_null<std::shared_ptr<render::scene::Material>> m_colorMaterial;
+  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& m_materialsFull;
+  const gsl::not_null<std::shared_ptr<render::scene::Material>> m_colorMaterialFull;
+  const gsl::not_null<std::shared_ptr<render::scene::Material>> m_materialDepthOnly;
   const Palette& m_palette;
   std::map<TextureKey, size_t> m_texBuffers;
   std::shared_ptr<render::gl::StructuredArrayBuffer<RenderVertex>> m_vb;
@@ -52,7 +52,8 @@ class ModelBuilder
     using IndexBuffer = std::vector<uint16_t>;
 
     IndexBuffer indices;
-    std::shared_ptr<render::scene::Material> material;
+    std::shared_ptr<render::scene::Material> materialFull;
+    std::shared_ptr<render::scene::Material> materialDepthOnly;
     std::optional<glm::vec3> color;
   };
 
@@ -73,7 +74,8 @@ class ModelBuilder
     {
       m_texBuffers[tk] = m_parts.size();
       m_parts.emplace_back();
-      m_parts.back().material = m_colorMaterial;
+      m_parts.back().materialFull = m_colorMaterialFull;
+      m_parts.back().materialDepthOnly = m_materialDepthOnly;
       m_parts.back().color = color;
     }
 
@@ -86,44 +88,36 @@ class ModelBuilder
     {
       m_texBuffers[tile.textureKey] = m_parts.size();
       m_parts.emplace_back();
-      m_parts.back().material = m_materials.at(tile.textureKey);
+      m_parts.back().materialFull = m_materialsFull.at(tile.textureKey);
+      m_parts.back().materialDepthOnly = m_materialDepthOnly;
     }
     return m_texBuffers[tile.textureKey];
   }
 
 public:
-  explicit ModelBuilder(bool withNormals,
-                        const std::vector<TextureTile>& textureTiles,
-                        const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
-                        gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
-                        const Palette& palette,
-                        std::string label = {});
-
-  ~ModelBuilder();
+  explicit ModelBuilder(
+    bool withNormals,
+    const std::vector<TextureTile>& textureTiles,
+    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
+    gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterialFull,
+    gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
+    const Palette& palette,
+    std::string label = {})
+      : m_hasNormals{withNormals}
+      , m_textureTiles{textureTiles}
+      , m_materialsFull{materialsFull}
+      , m_colorMaterialFull{std::move(colorMaterialFull)}
+      , m_materialDepthOnly{std::move(materialDepthOnly)}
+      , m_palette{palette}
+      , m_vb{std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getFormat(), label)}
+      , m_label{std::move(label)}
+  {
+  }
 
   void append(const Mesh& mesh);
 
   gsl::not_null<std::shared_ptr<render::scene::Model>> finalize();
 };
-
-ModelBuilder::ModelBuilder(
-  const bool withNormals,
-  const std::vector<TextureTile>& textureTiles,
-  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
-  gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterial,
-  const Palette& palette,
-  std::string label)
-    : m_hasNormals{withNormals}
-    , m_textureTiles{textureTiles}
-    , m_materials{materials}
-    , m_colorMaterial{std::move(colorMaterial)}
-    , m_palette{palette}
-    , m_vb{std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getFormat(), label)}
-    , m_label{std::move(label)}
-{
-}
-
-ModelBuilder::~ModelBuilder() = default;
 
 void ModelBuilder::append(const RenderVertex& v)
 {
@@ -362,9 +356,16 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
     indexBuffer->setData(localPart.indices, gl::BufferUsageARB::DynamicDraw);
 
     auto va = std::make_shared<render::gl::VertexArray<uint16_t, RenderVertex>>(
-      indexBuffer, m_vb, localPart.material->getShaderProgram()->getHandle(), m_label);
+      indexBuffer,
+      m_vb,
+      std::vector<const render::gl::Program*>{&localPart.materialFull->getShaderProgram()->getHandle(),
+                                              localPart.materialDepthOnly == nullptr
+                                                ? nullptr
+                                                : &localPart.materialDepthOnly->getShaderProgram()->getHandle()},
+      m_label);
     auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, gl::PrimitiveType::Triangles);
-    mesh->setMaterial(localPart.material);
+    mesh->setMaterial(localPart.materialFull, render::scene::RenderMode::Full);
+    mesh->setMaterial(localPart.materialDepthOnly, render::scene::RenderMode::DepthOnly);
 
     model->addMesh(mesh);
   }
@@ -375,12 +376,19 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
 
 std::shared_ptr<render::scene::Model>
   Mesh::createModel(const std::vector<TextureTile>& textureTiles,
-                    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materials,
-                    const gsl::not_null<std::shared_ptr<render::scene::Material>>& colorMaterial,
+                    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
+                    gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterialFull,
+                    gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
                     const Palette& palette,
                     const std::string& label) const
 {
-  ModelBuilder mb{!normals.empty(), textureTiles, materials, colorMaterial, palette, label};
+  ModelBuilder mb{!normals.empty(),
+                  textureTiles,
+                  materialsFull,
+                  std::move(colorMaterialFull),
+                  std::move(materialDepthOnly),
+                  palette,
+                  label};
 
   mb.append(*this);
 

@@ -33,7 +33,8 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   vb = std::make_shared<render::gl::StructuredArrayBuffer<glm::vec3>>(attribs);
   vb->setData(&vertices[0], points, gl::BufferUsageARB::DynamicDraw);
 
-  auto vao = std::make_shared<render::gl::VertexArray<uint16_t, glm::vec3>>(indexBuffer, vb, program->getHandle());
+  auto vao = std::make_shared<render::gl::VertexArray<uint16_t, glm::vec3>>(
+    indexBuffer, vb, std::vector<const render::gl::Program*>{&program->getHandle()});
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, gl::PrimitiveType::LineStrip);
 
   mesh->getRenderState().setLineSmooth(true);
@@ -43,7 +44,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   material->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
   material->getUniform("u_camProjection")->bindProjectionMatrix();
 
-  mesh->setMaterial(material);
+  mesh->setMaterial(material, render::scene::RenderMode::Full);
 
   return mesh;
 }

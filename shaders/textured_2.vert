@@ -1,7 +1,7 @@
-attribute vec3 a_position;
-attribute vec3 a_normal;
-attribute vec2 a_texCoord;
-attribute vec3 a_color;
+layout(location=0) in vec3 a_position;
+in vec3 a_normal;
+in vec2 a_texCoord;
+in vec3 a_color;
 
 uniform mat4 u_modelMatrix;
 uniform mat4 u_modelViewMatrix;

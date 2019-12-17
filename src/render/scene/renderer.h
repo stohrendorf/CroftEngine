@@ -38,7 +38,7 @@ public:
     return m_frameRate;
   }
 
-  void clear(::gl::core::Bitfield<::gl::ClearBufferMask> flags, const gl::SRGBA8& clearColor, float clearDepth);
+  void clear(const ::gl::core::Bitfield<::gl::ClearBufferMask>& flags, const gl::SRGBA8& clearColor, float clearDepth);
 
   void clear(::gl::core::Bitfield<::gl::ClearBufferMask> flags,
              uint8_t red,
