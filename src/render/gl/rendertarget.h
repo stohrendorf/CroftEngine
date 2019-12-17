@@ -21,4 +21,4 @@ public:
 
   [[nodiscard]] virtual int32_t getHeight() const noexcept = 0;
 };
-} // namespace render
+} // namespace render::gl

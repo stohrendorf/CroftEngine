@@ -30,4 +30,4 @@ public:
     commonSlideHandling(collisionInfo);
   }
 };
-} // namespace lara
+} // namespace engine::lara

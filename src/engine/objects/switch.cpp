@@ -62,4 +62,4 @@ void Switch::collide(CollisionInfo& /*collisionInfo*/)
   activate();
   ModelObject::update();
 }
-} // namespace engine
+} // namespace engine::objects

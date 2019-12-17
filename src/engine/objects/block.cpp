@@ -306,4 +306,4 @@ void Block::serialize(const serialization::Serializer& ser)
   if(m_patched)
     loader::file::Room::patchHeightsForBlock(*this, -core::SectorSize);
 }
-} // namespace engine
+} // namespace engine::objects

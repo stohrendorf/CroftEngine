@@ -18,4 +18,4 @@ protected:
   {
   }
 };
-} // namespace render
+} // namespace render::gl

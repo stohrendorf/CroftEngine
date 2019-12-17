@@ -54,4 +54,4 @@ private:
 
   gsl::not_null<std::shared_ptr<Mesh>> m_mesh;
 };
-} // namespace render
+} // namespace render::scene

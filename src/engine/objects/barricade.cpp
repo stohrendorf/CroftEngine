@@ -34,4 +34,4 @@ void Barricade::collide(CollisionInfo& collisionInfo)
 
   enemyPush(collisionInfo, false, true);
 }
-} // namespace engine
+} // namespace engine::objects

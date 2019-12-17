@@ -27,4 +27,4 @@ public:
 private:
   const std::string m_name;
 };
-} // namespace render
+} // namespace render::scene

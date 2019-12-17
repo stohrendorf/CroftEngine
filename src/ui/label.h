@@ -10,7 +10,7 @@
 namespace loader::file
 {
 struct Palette;
-} // namespace loader
+} // namespace loader::file
 
 namespace ui
 {

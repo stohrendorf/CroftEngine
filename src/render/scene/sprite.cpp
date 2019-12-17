@@ -81,4 +81,4 @@ void Sprite::render(RenderContext& context)
 {
   m_mesh->render(context);
 }
-} // namespace render
+} // namespace render::scene

@@ -28,4 +28,4 @@ public:
     applyShift(collisionInfo);
   }
 };
-} // namespace lara
+} // namespace engine::lara

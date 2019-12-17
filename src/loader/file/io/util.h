@@ -31,4 +31,4 @@ inline core::TRVec readCoordinatesF(SDLReader& reader)
   vertex.Z = core::Length{static_cast<core::Length::type>(std::round(reader.readF()))};
   return vertex;
 }
-} // namespace loader
+} // namespace loader::file::io

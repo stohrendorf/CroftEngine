@@ -5,4 +5,4 @@
 namespace render::gl
 {
 extern void initializeGl();
-} // namespace render
+} // namespace render::gl

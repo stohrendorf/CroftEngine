@@ -91,4 +91,4 @@ protected:
     }
   }
 };
-} // namespace lara
+} // namespace engine::lara

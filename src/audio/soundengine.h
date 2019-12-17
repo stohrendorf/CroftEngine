@@ -121,4 +121,4 @@ private:
   std::unordered_set<Emitter*> m_emitters;
   std::unordered_set<Listener*> m_listeners;
 };
-}
+} // namespace audio

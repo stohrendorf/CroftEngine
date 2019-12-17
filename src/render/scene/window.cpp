@@ -108,4 +108,4 @@ void Window::setViewport(const Dimension2<size_t>& viewport)
   GL_ASSERT(::gl::viewport(
     0, 0, gsl::narrow<::gl::core::SizeType>(viewport.width), gsl::narrow<::gl::core::SizeType>(viewport.height)));
 }
-} // namespace render
+} // namespace render::scene

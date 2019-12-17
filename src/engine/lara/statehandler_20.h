@@ -40,4 +40,4 @@ public:
     setGoalAnimState(LaraStateId::Stop);
   }
 };
-} // namespace lara
+} // namespace engine::lara

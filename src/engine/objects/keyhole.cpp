@@ -51,4 +51,4 @@ void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
   getEngine().getLara().setHandStatus(HandStatus::Grabbing);
   m_state.triggerState = TriggerState::Active;
 }
-} // namespace engine
+} // namespace engine::objects

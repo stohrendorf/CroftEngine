@@ -259,4 +259,4 @@ inline void addChild(const gsl::not_null<std::shared_ptr<Node>>& node,
 
   setParent(child, node);
 }
-} // namespace render
+} // namespace render::scene

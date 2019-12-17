@@ -25,4 +25,4 @@ public:
 
   void update() override;
 };
-} // namespace engine
+} // namespace engine::objects

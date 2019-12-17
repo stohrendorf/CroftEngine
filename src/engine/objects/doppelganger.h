@@ -23,4 +23,4 @@ public:
 private:
   bool m_flag = false;
 };
-} // namespace engine
+} // namespace engine::objects

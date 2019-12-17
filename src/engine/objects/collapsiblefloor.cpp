@@ -55,4 +55,4 @@ void CollapsibleFloor::update()
   m_state.position.position = pos;
   m_state.falling = false;
 }
-} // namespace engine
+} // namespace engine::objects

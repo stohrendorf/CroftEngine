@@ -85,4 +85,4 @@ struct Palette
 
   static std::unique_ptr<Palette> readTr2(io::SDLReader& reader);
 };
-} // namespace loader
+} // namespace loader::file

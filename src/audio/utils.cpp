@@ -34,4 +34,4 @@ bool checkALError(const gsl::czstring code, const gsl::czstring func, const int 
   }
   return false;
 }
-} // namespace audio
+} // namespace audio::detail

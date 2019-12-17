@@ -32,4 +32,4 @@ public:
     setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
   }
 };
-} // namespace lara
+} // namespace engine::lara

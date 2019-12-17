@@ -98,4 +98,4 @@ public:
   {
   }
 };
-} // namespace engine
+} // namespace engine::objects

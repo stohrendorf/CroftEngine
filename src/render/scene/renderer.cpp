@@ -100,4 +100,4 @@ void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask> flags,
 
   GL_ASSERT(::gl::clear(bits));
 }
-} // namespace render
+} // namespace render::scene

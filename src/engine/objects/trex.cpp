@@ -146,4 +146,4 @@ void TRex::update()
   animateCreature(rotationToMoveTarget, 0_deg);
   m_state.collidable = true;
 }
-} // namespace engine
+} // namespace engine::objects

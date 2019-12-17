@@ -25,4 +25,4 @@ public:
 
   void serialize(const serialization::Serializer& ser) override;
 };
-} // namespace engine
+} // namespace engine::objects

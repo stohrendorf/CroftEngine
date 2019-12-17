@@ -49,4 +49,4 @@ private:
   Node* m_currentNode = nullptr;
   std::stack<gl::RenderState> m_renderStates{};
 };
-} // namespace render
+} // namespace render::scene

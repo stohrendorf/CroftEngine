@@ -56,4 +56,4 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
   activate();
   ModelObject::update(); // NOLINT(bugprone-parent-virtual-call)
 }
-} // namespace engine
+} // namespace engine::objects

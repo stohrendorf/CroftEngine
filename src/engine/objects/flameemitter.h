@@ -30,4 +30,4 @@ private:
 
   void removeParticle();
 };
-} // namespace engine
+} // namespace engine::objects

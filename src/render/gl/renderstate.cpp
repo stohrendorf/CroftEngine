@@ -139,4 +139,4 @@ void RenderState::merge(const RenderState& other)
   MERGE_OPT(m_lineSmooth);
 #undef MERGE_OPT
 }
-} // namespace render
+} // namespace render::gl

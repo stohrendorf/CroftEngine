@@ -45,4 +45,4 @@ private:
 
   const ::gl::InternalFormat m_format;
 };
-} // namespace render
+} // namespace render::gl

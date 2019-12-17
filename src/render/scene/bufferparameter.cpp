@@ -24,4 +24,4 @@ bool BufferParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr
 
   return true;
 }
-} // namespace render
+} // namespace render::scene

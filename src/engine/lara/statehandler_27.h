@@ -27,4 +27,4 @@ public:
     commonJumpHandling(collisionInfo);
   }
 };
-} // namespace lara
+} // namespace engine::lara

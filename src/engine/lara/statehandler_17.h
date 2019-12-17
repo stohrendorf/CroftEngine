@@ -30,4 +30,4 @@ public:
     getLara().m_state.fallspeed = std::min(getLara().m_state.fallspeed + 8_spd, 200_spd);
   }
 };
-} // namespace lara
+} // namespace engine::lara

@@ -34,4 +34,4 @@ public:
     y = m_state.position.position.Y + core::QuarterSectorSize;
   }
 };
-} // namespace engine
+} // namespace engine::objects

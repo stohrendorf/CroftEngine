@@ -395,4 +395,4 @@ inline ProgramShaderStorageBlock::ProgramShaderStorageBlock(const Program& progr
         program, ::gl::ProgramInterface::ShaderStorageBlock, index, ::gl::ProgramResourceProperty::BufferBinding))}
 {
 }
-} // namespace render
+} // namespace render::gl

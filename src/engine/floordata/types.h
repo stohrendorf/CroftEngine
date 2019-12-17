@@ -82,4 +82,4 @@ enum class CommandOpcode
   FlyBy = 0x0C,
   CutScene = 0x0D
 };
-}
+} // namespace engine::floordata

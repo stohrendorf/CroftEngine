@@ -29,4 +29,4 @@ public:
 private:
   std::shared_ptr<Object> m_childObject{nullptr};
 };
-} // namespace engine
+} // namespace engine::objects

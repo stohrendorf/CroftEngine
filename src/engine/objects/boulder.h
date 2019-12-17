@@ -30,4 +30,4 @@ public:
 private:
   core::RoomBoundPosition m_position;
 };
-} // namespace engine
+} // namespace engine::objects

@@ -51,4 +51,4 @@ void AtlanteanLava::update()
     getEngine().getCameraController().setRotationAroundCenterY(-180_deg);
   }
 }
-} // namespace engine
+} // namespace engine::objects

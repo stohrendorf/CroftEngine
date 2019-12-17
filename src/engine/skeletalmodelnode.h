@@ -8,7 +8,7 @@ namespace loader::file
 {
 struct SkeletalModelType;
 struct Animation;
-} // namespace loader
+} // namespace loader::file
 
 namespace engine
 {

@@ -135,4 +135,4 @@ public:
 private:
   const StructureLayout<T> m_structureLayout;
 };
-} // namespace render
+} // namespace render::gl

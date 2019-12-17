@@ -224,4 +224,4 @@ void Gorilla::update()
     m_state.frame_number = m_state.anim->firstFrame;
   }
 }
-} // namespace engine
+} // namespace engine::objects

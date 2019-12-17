@@ -70,4 +70,4 @@ void Bat::update()
   }
   animateCreature(rotationToMoveTarget, 0_deg);
 }
-} // namespace engine
+} // namespace engine::objects

@@ -154,4 +154,4 @@ void Raptor::update()
   getSkeleton()->patchBone(20, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
   animateCreature(animAngle, animTilt);
 }
-} // namespace engine
+} // namespace engine::objects

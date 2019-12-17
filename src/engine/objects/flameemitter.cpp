@@ -37,4 +37,4 @@ void FlameEmitter::removeParticle()
   setParent(m_flame, nullptr);
   m_flame.reset();
 }
-} // namespace engine
+} // namespace engine::objects

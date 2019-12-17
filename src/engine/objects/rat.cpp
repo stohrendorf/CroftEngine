@@ -210,4 +210,4 @@ void Rat::update()
     animateCreature(turn, 0_deg);
   }
 }
-} // namespace engine
+} // namespace engine::objects

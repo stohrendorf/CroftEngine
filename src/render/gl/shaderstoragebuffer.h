@@ -44,4 +44,4 @@ public:
       ::gl::bufferData(::gl::BufferTargetARB::ShaderStorageBuffer, sizeof(T) * data.size(), data.data(), usage));
   }
 };
-} // namespace render
+} // namespace render::gl

@@ -53,4 +53,4 @@ private:
 
   void init(Engine& engine);
 };
-} // namespace engine
+} // namespace engine::objects

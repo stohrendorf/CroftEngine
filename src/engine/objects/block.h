@@ -40,4 +40,4 @@ private:
 
   bool m_patched = false;
 };
-} // namespace engine
+} // namespace engine::objects

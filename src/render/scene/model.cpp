@@ -13,4 +13,4 @@ void Model::render(RenderContext& context)
   }
   context.popState();
 }
-} // namespace render
+} // namespace render::scene

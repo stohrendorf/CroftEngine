@@ -66,4 +66,4 @@ private:
 
   std::shared_ptr<Scene> m_scene;
 };
-} // namespace render
+} // namespace render::scene

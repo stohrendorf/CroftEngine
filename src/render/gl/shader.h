@@ -98,4 +98,4 @@ private:
 
   const ::gl::ShaderType m_type;
 };
-} // namespace render
+} // namespace render::gl

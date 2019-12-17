@@ -73,4 +73,4 @@ public:
     getLara().m_state.position.position = collisionInfo.oldPosition;
   }
 };
-} // namespace lara
+} // namespace engine::lara

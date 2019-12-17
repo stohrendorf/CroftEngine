@@ -9,4 +9,4 @@ void TrapDoorUp::update()
   loader::file::findRealFloorSector(pos);
   setCurrentRoom(pos.room);
 }
-} // namespace engine
+} // namespace engine::objects

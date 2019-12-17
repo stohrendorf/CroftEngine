@@ -50,4 +50,4 @@ public:
     commonOnWaterHandling(collisionInfo);
   }
 };
-} // namespace lara
+} // namespace engine::lara

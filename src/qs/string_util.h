@@ -27,4 +27,4 @@ inline std::string suffix()
 {
   return unit_suffix_helper<Units...>::suffix();
 }
-} // namespace qs
+} // namespace qs::detail

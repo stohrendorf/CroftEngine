@@ -59,4 +59,4 @@ public:
 private:
   ::gl::core::SizeType m_size = 0;
 };
-} // namespace render
+} // namespace render::gl

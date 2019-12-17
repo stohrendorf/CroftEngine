@@ -46,4 +46,4 @@ inline Engine gameToEngine(const Game game)
   default: return Engine::Unknown;
   }
 }
-} // namespace loader
+} // namespace loader::file::level

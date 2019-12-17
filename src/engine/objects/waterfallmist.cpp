@@ -18,4 +18,4 @@ void WaterfallMist::update()
   setParent(particle, m_state.position.room->node);
   getEngine().getParticles().emplace_back(particle);
 }
-} // namespace engine
+} // namespace engine::objects

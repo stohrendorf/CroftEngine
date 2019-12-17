@@ -128,4 +128,4 @@ void ScionHolder::collide(CollisionInfo& info)
 
   enemyPush(info, false, true);
 }
-} // namespace engine
+} // namespace engine::objects

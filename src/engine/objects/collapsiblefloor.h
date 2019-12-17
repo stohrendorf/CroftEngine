@@ -44,4 +44,4 @@ public:
     y = m_state.position.position.Y - 256_len;
   }
 };
-} // namespace engine
+} // namespace engine::objects

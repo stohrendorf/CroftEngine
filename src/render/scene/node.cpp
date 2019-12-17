@@ -93,4 +93,4 @@ void Node::transformChanged()
     child->transformChanged();
   }
 }
-} // namespace render
+} // namespace render::scene

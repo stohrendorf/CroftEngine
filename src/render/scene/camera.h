@@ -142,4 +142,4 @@ private:
   mutable glm::mat4 m_inverseViewProjection{1.0f};
   mutable type_safe::flag_set<DirtyFlag> m_dirty;
 };
-} // namespace render
+} // namespace render::scene

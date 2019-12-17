@@ -213,4 +213,4 @@ void Wolf::update()
   getSkeleton()->patchBone(3, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
   animateCreature(rotationToMoveTarget, roll);
 }
-} // namespace engine
+} // namespace engine::objects

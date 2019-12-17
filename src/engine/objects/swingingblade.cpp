@@ -64,4 +64,4 @@ void SwingingBlade::collide(CollisionInfo& collisionInfo)
     }
   }
 }
-} // namespace engine
+} // namespace engine::objects

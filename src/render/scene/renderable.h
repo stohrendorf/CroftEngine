@@ -31,4 +31,4 @@ public:
 private:
   gl::RenderState m_renderState;
 };
-} // namespace render
+} // namespace render::scene

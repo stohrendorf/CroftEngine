@@ -52,4 +52,4 @@ public:
     getLara().m_state.falling = false;
   }
 };
-} // namespace lara
+} // namespace engine::lara

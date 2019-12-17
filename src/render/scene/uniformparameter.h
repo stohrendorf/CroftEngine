@@ -83,4 +83,4 @@ private:
 
   std::optional<std::function<UniformValueSetter>> m_valueSetter;
 };
-} // namespace render
+} // namespace render::scene

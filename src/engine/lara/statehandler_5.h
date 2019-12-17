@@ -60,4 +60,4 @@ public:
     placeOnFloor(collisionInfo);
   }
 };
-} // namespace engine
+} // namespace engine::lara

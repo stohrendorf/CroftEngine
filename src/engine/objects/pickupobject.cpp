@@ -106,4 +106,4 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
     }
   }
 }
-} // namespace engine
+} // namespace engine::objects

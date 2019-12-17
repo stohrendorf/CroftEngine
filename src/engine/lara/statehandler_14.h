@@ -18,4 +18,4 @@ public:
   {
   }
 };
-} // namespace lara
+} // namespace engine::lara

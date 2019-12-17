@@ -59,4 +59,4 @@ void SlammingDoors::collide(CollisionInfo& collisionInfo)
     }
   }
 }
-} // namespace engine
+} // namespace engine::objects

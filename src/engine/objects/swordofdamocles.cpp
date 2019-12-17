@@ -50,4 +50,4 @@ void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
     }
   }
 }
-} // namespace engine
+} // namespace engine::objects

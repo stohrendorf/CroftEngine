@@ -25,4 +25,4 @@ public:
 private:
   core::Angle m_headRotation{0_deg};
 };
-} // namespace engine
+} // namespace engine::objects

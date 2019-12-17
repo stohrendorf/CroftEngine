@@ -158,4 +158,4 @@ Larson::Larson(const gsl::not_null<Engine*>& engine,
     : AIAgent{engine, room, item, animatedModel}
 {
 }
-} // namespace engine
+} // namespace engine::objects

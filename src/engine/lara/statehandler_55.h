@@ -30,4 +30,4 @@ public:
     collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
   }
 };
-} // namespace lara
+} // namespace engine::lara

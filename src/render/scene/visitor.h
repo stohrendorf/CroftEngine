@@ -35,4 +35,4 @@ public:
 private:
   RenderContext& m_context;
 };
-} // namespace render
+} // namespace render::scene

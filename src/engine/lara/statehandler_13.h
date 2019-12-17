@@ -30,4 +30,4 @@ public:
     getLara().m_state.fallspeed = std::max(0_spd, getLara().m_state.fallspeed - core::Gravity * 1_frame);
   }
 };
-} // namespace lara
+} // namespace engine::lara

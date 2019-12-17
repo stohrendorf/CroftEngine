@@ -14,4 +14,4 @@ void Visitor::visit(Node& node)
   node.accept(*this);
   m_context.setCurrentNode(nullptr);
 }
-} // namespace render
+} // namespace render::scene

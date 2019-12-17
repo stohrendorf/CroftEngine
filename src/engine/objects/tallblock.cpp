@@ -45,4 +45,4 @@ void TallBlock::serialize(const serialization::Serializer& ser)
   ModelObject::serialize(ser);
   loader::file::Room::patchHeightsForBlock(*this, -2 * core::SectorSize);
 }
-} // namespace engine
+} // namespace engine::objects

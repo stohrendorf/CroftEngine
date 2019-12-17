@@ -81,4 +81,4 @@ gsl::not_null<std::shared_ptr<BufferParameter>> Material::getBuffer(const std::s
   m_buffers.emplace_back(param);
   return param;
 }
-} // namespace render
+} // namespace render::scene

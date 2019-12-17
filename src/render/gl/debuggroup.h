@@ -29,4 +29,4 @@ public:
     GL_ASSERT(::gl::popDebugGroup());
   }
 };
-} // namespace render
+} // namespace render::gl

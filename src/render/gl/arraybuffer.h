@@ -33,4 +33,4 @@ public:
 protected:
   ::gl::core::SizeType m_size = 0;
 };
-} // namespace render
+} // namespace render::gl

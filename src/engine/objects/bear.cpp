@@ -212,4 +212,4 @@ void Bear::update()
   getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
   animateCreature(rotationToMoveTarget, 0_deg);
 }
-} // namespace engine
+} // namespace engine::objects

@@ -276,4 +276,4 @@ void Crocodile::update()
     }
   }
 }
-} // namespace engine
+} // namespace engine::objects

@@ -43,4 +43,4 @@ public:
 private:
   const std::shared_ptr<ThorHammerBlock> m_block;
 };
-} // namespace engine
+} // namespace engine::objects

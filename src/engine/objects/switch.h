@@ -35,4 +35,4 @@ public:
     ModelObject::update();
   }
 };
-} // namespace engine
+} // namespace engine::objects

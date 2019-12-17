@@ -211,4 +211,4 @@ private:
 
   static inline RenderState& getCurrentState();
 };
-} // namespace render
+} // namespace render::gl

@@ -48,4 +48,4 @@ public:
     StateHandler_Underwater::postprocessFrame(collisionInfo);
   }
 };
-} // namespace lara
+} // namespace engine::lara

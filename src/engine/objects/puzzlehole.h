@@ -22,4 +22,4 @@ public:
 
   void collide(CollisionInfo& collisionInfo) override;
 };
-} // namespace engine
+} // namespace engine::objects

@@ -51,4 +51,4 @@ void Dart::update()
   particle->timePerSpriteFrame = 6;
   getEngine().getParticles().emplace_back(particle);
 }
-} // namespace engine
+} // namespace engine::objects

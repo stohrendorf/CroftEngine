@@ -137,4 +137,4 @@ void Lion::update()
   getSkeleton()->patchBone(20, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
   animateCreature(angle, tiltRot);
 }
-} // namespace engine
+} // namespace engine::objects

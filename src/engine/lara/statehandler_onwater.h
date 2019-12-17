@@ -146,4 +146,4 @@ private:
     setUnderwaterState(objects::UnderwaterState::OnLand);
   }
 };
-} // namespace lara
+} // namespace engine::lara
