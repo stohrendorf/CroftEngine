@@ -16,6 +16,7 @@
 #include "objects/tallblock.h"
 #include "render/gl/font.h"
 #include "render/renderpipeline.h"
+#include "render/scene/rendervisitor.h"
 #include "render/scene/scene.h"
 #include "render/textureanimator.h"
 #include "script/reflection.h"
@@ -174,7 +175,10 @@ std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::
     if(materials.find(key) != materials.end())
       continue;
 
-    materials.emplace(key, tile.createMaterial(m_level->m_textures[key.tileAndFlag & texMask].texture, shader));
+    materials.emplace(key,
+                      tile.createMaterial(m_level->m_textures[key.tileAndFlag & texMask].texture,
+                                          shader,
+                                          m_renderPipeline->getShadowMap()));
   }
   return materials;
 }
@@ -224,12 +228,12 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
   colorMaterialFull->getUniform("u_modelMatrix")->bindModelMatrix();
   colorMaterialFull->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
   colorMaterialFull->getUniform("u_camProjection")->bindProjectionMatrix();
+  colorMaterialFull->getUniform("u_lightMVP")->bindLightModelViewProjection();
+  colorMaterialFull->getUniform("u_lightDepth")->set(m_renderPipeline->getShadowMap());
 
   const auto depthMaterial
     = std::make_shared<render::scene::Material>(m_shaderManager.get("depth_only.vert", "depth_only.frag"));
-  depthMaterial->getUniform("u_modelMatrix")->bindModelMatrix();
-  depthMaterial->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
-  depthMaterial->getUniform("u_camProjection")->bindProjectionMatrix();
+  depthMaterial->getUniform("u_mvp")->bindLightModelViewProjection();
 
   BOOST_ASSERT(m_spriteMaterial == nullptr);
   m_spriteMaterial
@@ -283,15 +287,8 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
 
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    m_level->m_rooms[i].createSceneNode(i,
-                                        *m_level,
-                                        materialsFull,
-                                        waterMaterialsFull,
-                                        depthMaterial,
-                                        m_models,
-                                        *m_textureAnimator,
-                                        m_spriteMaterial,
-                                        m_portalMaterial);
+    m_level->m_rooms[i].createSceneNode(
+      i, *m_level, materialsFull, waterMaterialsFull, m_models, *m_textureAnimator, m_spriteMaterial, m_portalMaterial);
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
@@ -1047,6 +1044,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
     }
 
     drawLoadingScreen("Preparing the game");
+    m_renderPipeline = std::make_shared<render::RenderPipeline>(m_shaderManager, m_window->getViewport());
     loadSceneData(glidos != nullptr);
 
     if(useAlternativeLara)
@@ -1198,8 +1196,6 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
       }
     }
   }
-
-  m_renderPipeline = std::make_shared<render::RenderPipeline>(m_shaderManager, m_window->getViewport());
 }
 
 void Engine::run()
@@ -1331,8 +1327,27 @@ void Engine::run()
     m_renderPipeline->update(*getCameraController().getCamera(), m_renderer->getGameTime());
 
     {
+      render::gl::DebugGroup dbg{"shadow-depth-pass"};
+      m_renderPipeline->bindShadowDepthFrameBuffer();
+      m_renderer->clear(gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+      render::scene::RenderContext context{render::scene::RenderMode::DepthOnly};
+      render::scene::RenderVisitor visitor{context};
+
+      for(const auto& room : m_level->m_rooms)
+      {
+        if(!room.node->isVisible())
+          continue;
+
+        for(const auto& child : room.node->getChildren())
+        {
+          visitor.visit(*child);
+        }
+      }
+    }
+
+    {
       render::gl::DebugGroup dbg{"geometry-pass"};
-      m_renderPipeline->bindGeometryFrameBuffer();
+      m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport().width, m_window->getViewport().height);
       m_renderer->render();
     }
 

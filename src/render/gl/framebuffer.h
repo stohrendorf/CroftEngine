@@ -81,9 +81,14 @@ public:
         colorAttachments.emplace_back(static_cast<::gl::DrawBufferMode>(attachment.second));
     }
     if(!colorAttachments.empty())
+    {
       GL_ASSERT(::gl::drawBuffers(gsl::narrow<::gl::core::SizeType>(colorAttachments.size()), colorAttachments.data()));
+    }
     else
+    {
       GL_ASSERT(::gl::drawBuffer(::gl::DrawBufferMode::None));
+      GL_ASSERT(::gl::readBuffer(::gl::ReadBufferMode::None));
+    }
 
     Expects(isComplete());
     unbind();

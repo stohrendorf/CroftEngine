@@ -14,7 +14,8 @@ namespace loader::file
 gsl::not_null<std::shared_ptr<render::scene::Material>>
   createMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
                  const BlendingMode bmode,
-                 const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader)
+                 const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader,
+                 const gsl::not_null<std::shared_ptr<render::gl::TextureDepth>>& lightDepth)
 {
   auto result = std::make_shared<render::scene::Material>(shader);
   // Set some defaults
@@ -24,6 +25,8 @@ gsl::not_null<std::shared_ptr<render::scene::Material>>
   result->getUniform("u_modelMatrix")->bindModelMatrix();
   result->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
   result->getUniform("u_camProjection")->bindProjectionMatrix();
+  result->getUniform("u_lightMVP")->bindLightModelViewProjection();
+  result->getUniform("u_lightDepth")->set(lightDepth.get());
 
   switch(bmode)
   {

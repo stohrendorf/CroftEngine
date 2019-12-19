@@ -416,7 +416,6 @@ struct Room
     const level::Level& level,
     const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
     const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterialsFull,
-    const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
     const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
     render::TextureAnimator& animator,
     const std::shared_ptr<render::scene::Material>& spriteMaterial,

@@ -1,4 +1,6 @@
 uniform float u_lightAmbient;
+uniform sampler2D u_lightDepth;
+in vec4 v_vertexPosLight;
 
 struct Light {
     vec3 position;
@@ -9,6 +11,24 @@ struct Light {
 layout(std430) buffer b_lights {
     Light lights[];
 };
+
+float shadow_map_multiplier()
+{
+    vec3 projCoords = v_vertexPosLight.xyz / v_vertexPosLight.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float currentDepth = projCoords.z;
+    const float bias = 0.005;
+    const float d = 1.0/2048.0;
+    int n = 0;
+    for (int x=-2; x<=2; ++x) {
+        for (int y=-2; y<=2; ++y) {
+            float closestDepth = texture(u_lightDepth, projCoords.xy + vec2(x*d, y*d)).r;
+            if (currentDepth - bias >= closestDepth)
+            ++n;
+        }
+    }
+    return mix(1.0, 0.5, smoothstep(0.0, 25.0, n));
+}
 
 /*
  * @param normal is the surface normal in world space

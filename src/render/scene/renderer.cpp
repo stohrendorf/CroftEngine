@@ -2,6 +2,7 @@
 
 #include "render/gl/debuggroup.h"
 #include "rendercontext.h"
+#include "rendervisitor.h"
 #include "scene.h"
 
 namespace render::scene
@@ -12,37 +13,6 @@ Renderer::Renderer()
 }
 
 Renderer::~Renderer() = default;
-
-namespace
-{
-class RenderVisitor : public Visitor
-{
-public:
-  explicit RenderVisitor(RenderContext& context)
-      : Visitor{context}
-  {
-  }
-
-  void visit(Node& node) override
-  {
-    if(!node.isVisible())
-    {
-      return;
-    }
-
-    gl::DebugGroup debugGroup{node.getId()};
-
-    getContext().setCurrentNode(&node);
-
-    if(auto dr = node.getRenderable())
-    {
-      dr->render(getContext());
-    }
-
-    Visitor::visit(node);
-  }
-};
-} // namespace
 
 void Renderer::render()
 {

@@ -5,10 +5,12 @@ in vec3 a_color;
 uniform mat4 u_modelMatrix;
 uniform mat4 u_modelViewMatrix;
 uniform mat4 u_camProjection;
+uniform mat4 u_lightMVP;
 
 out vec2 v_texCoord;
 out vec3 v_color;
 out vec3 v_vertexPos;
+out vec4 v_vertexPosLight;
 out vec3 v_normal;
 out vec3 v_ssaoNormal;
 
@@ -21,4 +23,5 @@ void main()
     v_normal = normalize(mat3(u_modelMatrix) * a_normal);
     v_ssaoNormal = normalize(mat3(u_modelViewMatrix) * a_normal);
     v_vertexPos = tmp.xyz;
+    v_vertexPosLight = u_lightMVP * vec4(a_position, 1);
 }

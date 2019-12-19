@@ -69,6 +69,15 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
                  .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment0, m_portalPerturbBuffer)
                  .build();
 
+  m_shadowDepthBuffer->image(ShadowMapSize, ShadowMapSize)
+    .set(::gl::TextureMinFilter::Nearest)
+    .set(::gl::TextureMagFilter::Nearest)
+    .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::Repeat)
+    .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::Repeat);
+  m_shadowDepthFb = gl::FrameBufferBuilder()
+                      .textureNoBlend(::gl::FramebufferAttachment::DepthAttachment, m_shadowDepthBuffer)
+                      .build();
+
   // === fxaaFB setup ===
   m_fxaaColorBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)

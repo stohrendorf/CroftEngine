@@ -439,6 +439,7 @@ set( EDISONENGINE_SRCS
         render/scene/rendercontext.h
         render/scene/renderer.h
         render/scene/renderer.cpp
+        render/scene/rendervisitor.h
         render/scene/scene.h
         render/scene/screenoverlay.h
         render/scene/screenoverlay.cpp

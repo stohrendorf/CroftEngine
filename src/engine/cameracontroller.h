@@ -155,9 +155,9 @@ public:
     return m_mode;
   }
 
-  glm::vec3 getPosition() const override
+  [[nodiscard]] glm::vec3 getPosition() const override
   {
-    return glm::vec3{m_camera->getInverseViewMatrix()[3]};
+    return m_camera->getPosition();
   }
 
   const core::RoomBoundPosition& getCenter() const
@@ -166,18 +166,14 @@ public:
     return *m_center;
   }
 
-  glm::vec3 getFrontVector() const override
+  [[nodiscard]] glm::vec3 getFrontVector() const override
   {
-    auto rs = m_camera->getInverseViewMatrix();
-    rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
-    return glm::vec3{rs * glm::vec4{0, 0, -1, 1}};
+    return m_camera->getFrontVector();
   }
 
-  glm::vec3 getUpVector() const override
+  [[nodiscard]] glm::vec3 getUpVector() const override
   {
-    auto rs = m_camera->getInverseViewMatrix();
-    rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
-    return glm::vec3{rs * glm::vec4{0, 1, 0, 1}};
+    return m_camera->getUpVector();
   }
 
   const gsl::not_null<const loader::file::Room*>& getCurrentRoom() const

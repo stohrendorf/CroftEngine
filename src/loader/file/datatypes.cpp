@@ -113,7 +113,6 @@ void Room::createSceneNode(
   const level::Level& level,
   const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
   const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterialsFull,
-  const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
   const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
   render::TextureAnimator& animator,
   const std::shared_ptr<render::scene::Material>& spriteMaterial,
@@ -159,7 +158,7 @@ void Room::createSceneNode(
 
       auto materialFull = isWaterRoom() ? waterMaterialsFull.at(tile.textureKey) : materialsFull.at(tile.textureKey);
       renderModel.m_parts.back().materialFull = materialFull;
-      renderModel.m_parts.back().materialDepthOnly = materialDepthOnly;
+      renderModel.m_parts.back().materialDepthOnly = nullptr;
     }
     const auto partId = texBuffers[tile.textureKey];
 
@@ -223,7 +222,7 @@ void Room::createSceneNode(
 
       auto materialFull = isWaterRoom() ? waterMaterialsFull.at(tile.textureKey) : materialsFull.at(tile.textureKey);
       renderModel.m_parts.back().materialFull = materialFull;
-      renderModel.m_parts.back().materialDepthOnly = materialDepthOnly;
+      renderModel.m_parts.back().materialDepthOnly = nullptr;
     }
     const auto partId = texBuffers[tile.textureKey];
 

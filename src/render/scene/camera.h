@@ -40,7 +40,7 @@ public:
     m_dirty.set(DirtyFlag::InvViewProjection);
   }
 
-  float getAspectRatio() const
+  [[nodiscard]] float getAspectRatio() const
   {
     return m_aspectRatio;
   }
@@ -53,17 +53,17 @@ public:
     m_dirty.set(DirtyFlag::InvViewProjection);
   }
 
-  float getNearPlane() const
+  [[nodiscard]] float getNearPlane() const
   {
     return m_nearPlane;
   }
 
-  float getFarPlane() const
+  [[nodiscard]] float getFarPlane() const
   {
     return m_farPlane;
   }
 
-  const glm::mat4& getViewMatrix() const
+  [[nodiscard]] const glm::mat4& getViewMatrix() const
   {
     return m_view;
   }
@@ -77,7 +77,7 @@ public:
     m_dirty.set(DirtyFlag::InvView);
   }
 
-  const glm::mat4& getInverseViewMatrix() const
+  [[nodiscard]] const glm::mat4& getInverseViewMatrix() const
   {
     if(m_dirty.is_set(DirtyFlag::InvView))
     {
@@ -88,7 +88,7 @@ public:
     return m_inverseView;
   }
 
-  const glm::mat4& getProjectionMatrix() const
+  [[nodiscard]] const glm::mat4& getProjectionMatrix() const
   {
     if(m_dirty.is_set(DirtyFlag::Projection))
     {
@@ -99,7 +99,7 @@ public:
     return m_projection;
   }
 
-  const glm::mat4& getViewProjectionMatrix() const
+  [[nodiscard]] const glm::mat4& getViewProjectionMatrix() const
   {
     if(m_dirty.is_set(DirtyFlag::ViewProjection))
     {
@@ -110,7 +110,7 @@ public:
     return m_viewProjection;
   }
 
-  const glm::mat4& getInverseViewProjectionMatrix() const
+  [[nodiscard]] const glm::mat4& getInverseViewProjectionMatrix() const
   {
     if(m_dirty.is_set(DirtyFlag::InvViewProjection))
     {
@@ -119,6 +119,25 @@ public:
     }
 
     return m_inverseViewProjection;
+  }
+
+  [[nodiscard]] glm::vec3 getPosition() const
+  {
+    return glm::vec3{getInverseViewMatrix()[3]};
+  }
+
+  [[nodiscard]] glm::vec3 getFrontVector() const
+  {
+    auto rs = getInverseViewMatrix();
+    rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
+    return glm::vec3{rs * glm::vec4{0, 0, -1, 1}};
+  }
+
+  [[nodiscard]] glm::vec3 getUpVector() const
+  {
+    auto rs = getInverseViewMatrix();
+    rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
+    return glm::vec3{rs * glm::vec4{0, 1, 0, 1}};
   }
 
 private:

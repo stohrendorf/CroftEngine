@@ -111,16 +111,17 @@ struct UVCoordinates
 
   static UVCoordinates readTr4(io::SDLReader& reader);
 
-  glm::vec2 toGl() const
+  [[nodiscard]] glm::vec2 toGl() const
   {
     return glm::vec2{(xpixel + 0.5f) / 256.0f, (ypixel + 0.5f) / 256.0f};
   }
 };
 
-extern gsl::not_null<std::shared_ptr<render::scene::Material>>
+[[nodiscard]] extern gsl::not_null<std::shared_ptr<render::scene::Material>>
   createMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
                  BlendingMode bmode,
-                 const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader);
+                 const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader,
+                 const gsl::not_null<std::shared_ptr<render::gl::TextureDepth>>& lightDepth);
 
 struct TextureKey
 {
@@ -212,11 +213,12 @@ struct TextureTile
 
   static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader);
 
-  gsl::not_null<std::shared_ptr<render::scene::Material>>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<render::scene::Material>>
     createMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
-                   const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader) const
+                   const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader,
+                   const gsl::not_null<std::shared_ptr<render::gl::TextureDepth>>& lightDepth) const
   {
-    return file::createMaterial(texture, textureKey.blendingMode, shader);
+    return file::createMaterial(texture, textureKey.blendingMode, shader, lightDepth);
   }
 };
 } // namespace file

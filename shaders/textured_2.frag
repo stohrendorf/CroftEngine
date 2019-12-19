@@ -85,9 +85,9 @@ void main()
     out_color.rgb *= clamp(abs(voronoi(v_vertexPosWorld * Scale1))+0.5, 0, 1);
     const float Scale2 = 0.0011;
     out_color.rgb *= clamp(abs(voronoi(v_vertexPosWorld * Scale2))+0.5, 0, 1);
-#endif
+    #endif
 
-    out_color.rgb *= calc_positional_lighting(v_normal, v_vertexPos);
+    out_color.rgb *= calc_positional_lighting(v_normal, v_vertexPos) * shadow_map_multiplier();
     out_color.a = 1.0;
 
     out_normal = v_ssaoNormal;
