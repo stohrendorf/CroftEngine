@@ -44,7 +44,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   material->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
   material->getUniform("u_camProjection")->bindProjectionMatrix();
 
-  mesh->setMaterial(material, render::scene::RenderMode::Full);
+  mesh->getMaterial().set(render::scene::RenderMode::Full, material);
 
   return mesh;
 }

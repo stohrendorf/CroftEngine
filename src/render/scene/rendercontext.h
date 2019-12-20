@@ -2,19 +2,13 @@
 
 #include "gsl-lite.hpp"
 #include "render/gl/renderstate.h"
+#include "rendermode.h"
 
 #include <stack>
 
 namespace render::scene
 {
 class Node;
-
-enum class RenderMode
-{
-  Full,
-  DepthOnly
-};
-
 class RenderContext final
 {
 public:

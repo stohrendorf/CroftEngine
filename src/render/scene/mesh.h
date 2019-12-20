@@ -1,5 +1,6 @@
 #pragma once
 
+#include "multipassmaterial.h"
 #include "render/gl/renderstate.h"
 #include "render/gl/vertexarray.h"
 #include "renderable.h"
@@ -7,8 +8,6 @@
 
 namespace render::scene
 {
-class Material;
-
 class Mesh : public Renderable
 {
 public:
@@ -29,24 +28,14 @@ public:
 
   Mesh& operator=(const Mesh&) = delete;
 
-  void setMaterial(const std::shared_ptr<Material>& material, RenderMode renderMode)
+  [[nodiscard]] const auto& getMaterial() const
   {
-    switch(renderMode)
-    {
-    case RenderMode::Full: m_materialFull = material; break;
-    case RenderMode::DepthOnly: m_materialDepthOnly = material; break;
-    default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid render mode"));
-    }
+    return m_material;
   }
 
-  [[nodiscard]] const std::shared_ptr<Material>& getMaterial(RenderMode renderMode) const
+  [[nodiscard]] auto& getMaterial()
   {
-    switch(renderMode)
-    {
-    case RenderMode::Full: return m_materialFull; break;
-    case RenderMode::DepthOnly: return m_materialDepthOnly; break;
-    default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid render mode"));
-    }
+    return m_material;
   }
 
   void render(RenderContext& context) final;
@@ -57,11 +46,8 @@ public:
   }
 
 private:
-  std::shared_ptr<Material> m_materialFull;
-  std::shared_ptr<Material> m_materialDepthOnly;
-
+  MultiPassMaterial m_material{};
   std::vector<std::function<MaterialUniformSetter>> m_materialUniformSetters;
-
   const ::gl::PrimitiveType m_primitiveType;
 
   virtual void drawIndexBuffers(::gl::PrimitiveType primitiveType) = 0;

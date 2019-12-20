@@ -364,8 +364,9 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
                                                 : &localPart.materialDepthOnly->getShaderProgram()->getHandle()},
       m_label);
     auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, gl::PrimitiveType::Triangles);
-    mesh->setMaterial(localPart.materialFull, render::scene::RenderMode::Full);
-    mesh->setMaterial(localPart.materialDepthOnly, render::scene::RenderMode::DepthOnly);
+    mesh->getMaterial()
+      .set(render::scene::RenderMode::Full, localPart.materialFull)
+      .set(render::scene::RenderMode::DepthOnly, localPart.materialDepthOnly);
 
     model->addMesh(mesh);
   }

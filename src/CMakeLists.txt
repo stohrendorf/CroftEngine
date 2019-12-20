@@ -432,6 +432,7 @@ set( EDISONENGINE_SRCS
         render/scene/mesh.cpp
         render/scene/model.h
         render/scene/model.cpp
+        render/scene/multipassmaterial.h
         render/scene/names.h
         render/scene/node.h
         render/scene/node.cpp
@@ -439,6 +440,7 @@ set( EDISONENGINE_SRCS
         render/scene/rendercontext.h
         render/scene/renderer.h
         render/scene/renderer.cpp
+        render/scene/rendermode.h
         render/scene/rendervisitor.h
         render/scene/scene.h
         render/scene/screenoverlay.h

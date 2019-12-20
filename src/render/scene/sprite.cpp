@@ -43,7 +43,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
   auto vao = std::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
     indexBuffer, vb, std::vector<const gl::Program*>{&materialFull->getShaderProgram()->getHandle()});
   auto mesh = std::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
-  mesh->setMaterial(materialFull, RenderMode::Full);
+  mesh->getMaterial().set(RenderMode::Full, materialFull);
 
   mesh->registerMaterialUniformSetter([pole](const Node& node, Material& material) {
     auto m = node.getModelViewMatrix();

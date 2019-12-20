@@ -85,8 +85,9 @@ struct RenderModel
                                                   localPart.materialDepthOnly == nullptr
                                                     ? nullptr
                                                     : &localPart.materialDepthOnly->getShaderProgram()->getHandle()}));
-      mesh->setMaterial(localPart.materialFull, render::scene::RenderMode::Full);
-      mesh->setMaterial(localPart.materialDepthOnly, render::scene::RenderMode::DepthOnly);
+      mesh->getMaterial()
+        .set(render::scene::RenderMode::Full, localPart.materialFull)
+        .set(render::scene::RenderMode::DepthOnly, localPart.materialDepthOnly);
       model->addMesh(mesh);
     }
 
@@ -994,8 +995,9 @@ void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Materi
       &materialFull->getShaderProgram()->getHandle(),
       materialDepthOnly == nullptr ? nullptr : &materialDepthOnly->getShaderProgram()->getHandle()});
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
-  mesh->setMaterial(materialFull, render::scene::RenderMode::Full);
-  mesh->setMaterial(materialDepthOnly, render::scene::RenderMode::DepthOnly);
+  mesh->getMaterial()
+    .set(render::scene::RenderMode::Full, materialFull)
+    .set(render::scene::RenderMode::DepthOnly, materialDepthOnly);
 }
 
 Portal Portal::read(io::SDLReader& reader, const core::TRVec& offset)

@@ -39,12 +39,7 @@ Mesh::~Mesh() = default;
 
 void Mesh::render(RenderContext& context)
 {
-  std::shared_ptr<Material> material;
-  switch(context.getRenderMode())
-  {
-  case RenderMode::Full: material = m_materialFull; break;
-  case RenderMode::DepthOnly: material = m_materialDepthOnly; break;
-  }
+  std::shared_ptr<Material> material = m_material.get(context.getRenderMode());
   if(material == nullptr)
     return;
 
