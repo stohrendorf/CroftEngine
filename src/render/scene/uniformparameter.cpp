@@ -47,6 +47,11 @@ void UniformParameter::bindProjectionMatrix()
   m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getProjectionMatrix()); };
 }
 
+void UniformParameter::bindViewProjectionMatrix()
+{
+  m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getViewProjectionMatrix()); };
+}
+
 void UniformParameter::bindLightModelViewProjection()
 {
   m_valueSetter = [](const render::scene::Node& node, render::gl::ProgramUniform& uniform) {

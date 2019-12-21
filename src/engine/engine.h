@@ -7,8 +7,8 @@
 #include "items_tr1.h"
 #include "loader/file/animationid.h"
 #include "loader/file/item.h"
+#include "render/scene/materialmanager.h"
 #include "render/scene/screenoverlay.h"
-#include "render/scene/shadermanager.h"
 #include "util/cimgwrapper.h"
 
 #include <filesystem>
@@ -88,8 +88,6 @@ private:
 
   int m_uvAnimTime{0};
 
-  std::shared_ptr<render::scene::ShaderProgram> m_lightningShader;
-
   sol::state m_scriptEngine;
 
   std::shared_ptr<objects::LaraObject> m_lara = nullptr;
@@ -105,9 +103,6 @@ private:
   // list of meshes and models, resolved through m_meshIndices
   std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_modelsDirect;
   std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
-
-  std::shared_ptr<render::scene::Material> m_spriteMaterial{nullptr};
-  std::shared_ptr<render::scene::Material> m_portalMaterial{nullptr};
 
   std::shared_ptr<render::RenderPipeline> m_renderPipeline;
   std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
@@ -145,7 +140,7 @@ private:
 
   std::bitset<16> m_secretsFoundBitmask = 0;
 
-  render::scene::ShaderManager m_shaderManager{m_rootPath / "shaders"};
+  render::scene::MaterialManager m_materialManager{m_rootPath / "shaders"};
 
 public:
   explicit Engine(const std::filesystem::path& rootPath,
@@ -204,11 +199,6 @@ public:
     return *m_cameraController;
   }
 
-  const auto& getSpriteMaterial() const
-  {
-    return m_spriteMaterial;
-  }
-
   // ReSharper disable once CppMemberFunctionMayBeConst
   auto& getSoundEngine()
   {
@@ -255,15 +245,20 @@ public:
     m_levelFinished = true;
   }
 
-  auto& getShaderManager()
+  auto& getMaterialManager()
   {
-    return m_shaderManager;
+    return m_materialManager;
+  }
+
+  auto& getMaterialManager() const
+  {
+    return m_materialManager;
   }
 
   void run();
 
   std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>
-    createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader) const;
+    createMaterials(bool water);
 
   std::shared_ptr<objects::LaraObject> createObjects();
 
@@ -500,11 +495,6 @@ public:
 
   core::TypeId find(const loader::file::SkeletalModelType* model) const;
   core::TypeId find(const loader::file::Sprite* sprite) const;
-
-  const auto& getLightningShader() const
-  {
-    return m_lightningShader;
-  }
 
   std::optional<size_t> indexOfModel(const std::shared_ptr<render::scene::Renderable>& m) const
   {

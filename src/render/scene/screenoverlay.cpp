@@ -35,7 +35,7 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const Dimension2<size_t>&
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
   }
 
-  const auto screenOverlayProgram = shaderManager.get("screenoverlay.vert", "screenoverlay.frag", {});
+  const auto screenOverlayProgram = shaderManager.getScreenOverlay();
 
   m_texture->image(m_image->getWidth(), m_image->getHeight(), m_image->getData());
   m_texture->set(::gl::TextureMinFilter::Nearest)

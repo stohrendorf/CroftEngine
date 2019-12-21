@@ -9,15 +9,15 @@
 namespace render
 {
 RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene::Dimension2<size_t>& viewport)
-    : m_fxaaShader{shaderManager.get("flat.vert", "fxaa.frag", {})}
+    : m_fxaaShader{shaderManager.getFXAA()}
     , m_fxaaMaterial{std::make_shared<scene::Material>(m_fxaaShader)}
-    , m_ssaoShader{shaderManager.get("flat.vert", "ssao.frag", {})}
+    , m_ssaoShader{shaderManager.getSSAO()}
     , m_ssaoMaterial{std::make_shared<scene::Material>(m_ssaoShader)}
-    , m_ssaoBlurShader{shaderManager.get("flat.vert", "ssao_blur.frag", {})}
+    , m_ssaoBlurShader{shaderManager.getSSAOBlur()}
     , m_ssaoBlurMaterial{std::make_shared<scene::Material>(m_ssaoBlurShader)}
-    , m_fxDarknessShader{shaderManager.get("flat.vert", "fx_darkness.frag", {"LENS_DISTORTION"})}
+    , m_fxDarknessShader{shaderManager.getPostprocessing()}
     , m_fxDarknessMaterial{std::make_shared<scene::Material>(m_fxDarknessShader)}
-    , m_fxWaterDarknessShader{shaderManager.get("flat.vert", "fx_darkness.frag", {"WATER", "LENS_DISTORTION"})}
+    , m_fxWaterDarknessShader{shaderManager.getPostprocessingWater()}
     , m_fxWaterDarknessMaterial{std::make_shared<scene::Material>(m_fxWaterDarknessShader)}
 {
   resize(viewport);

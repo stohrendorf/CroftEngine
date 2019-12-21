@@ -34,7 +34,7 @@ private:
   std::deque<std::shared_ptr<render::gl::Texture>> m_spriteTextures{};
   Lighting m_lighting;
 
-  void initRenderables(const Engine& engine, float scale = 1);
+  void initRenderables(Engine& engine, float scale = 1);
 
 protected:
   void nextFrame()

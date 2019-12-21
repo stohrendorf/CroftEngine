@@ -84,6 +84,21 @@ const glm::mat4& Node::getProjectionMatrix() const
   }
 }
 
+const glm::mat4& Node::getViewProjectionMatrix() const
+{
+  const auto scene = getScene();
+  const auto camera = scene != nullptr ? scene->getActiveCamera() : nullptr;
+  if(camera != nullptr)
+  {
+    return camera->getViewProjectionMatrix();
+  }
+  else
+  {
+    static const glm::mat4 identity{1.0f};
+    return identity;
+  }
+}
+
 void Node::transformChanged()
 {
   m_dirty = true;

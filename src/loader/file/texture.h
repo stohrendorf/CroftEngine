@@ -27,17 +27,9 @@ struct ByteTexture
   static std::unique_ptr<ByteTexture> read(io::SDLReader& reader);
 };
 
-/** \brief 16-bit texture.
-*
-* Each pixel is a color with the following format.<br>
-* - 1-bit transparency (0 ::= transparent, 1 ::= opaque) (0x8000)
-* - 5-bit red channel (0x7c00)
-* - 5-bit green channel (0x03e0)
-* - 5-bit blue channel (0x001f)
-*/
 struct WordTexture
 {
-  uint16_t pixels[256][256];
+  uint16_t pixels[256][256]; //!< R5G5B5A1
 
   static std::unique_ptr<WordTexture> read(io::SDLReader& reader);
 };
@@ -73,14 +65,6 @@ enum class BlendingMode : uint16_t
   AnimatedTexture
 };
 
-/** \brief Object Texture Vertex.
-*
-* It specifies a vertex location in textile coordinates.
-* The Xpixel and Ypixel are the actual coordinates of the vertex's pixel.
-* The Xcoordinate and Ycoordinate values depend on where the other vertices
-* are in the object texture. And if the object texture is used to specify
-* a triangle, then the fourth vertex's values will all be zero.
-*/
 struct UVCoordinates
 {
   int8_t xcoordinate; // 1 if Xpixel is the low value, -1 if Xpixel is the high value in the object texture
@@ -106,22 +90,15 @@ struct UVCoordinates
     return ypixel < rhs.ypixel;
   }
 
-  /// \brief reads object texture vertex definition.
   static UVCoordinates readTr1(io::SDLReader& reader);
 
   static UVCoordinates readTr4(io::SDLReader& reader);
 
   [[nodiscard]] glm::vec2 toGl() const
   {
-    return glm::vec2{(xpixel + 0.5f) / 256.0f, (ypixel + 0.5f) / 256.0f};
+    return glm::vec2{(static_cast<float>(xpixel) + 0.5f) / 256.0f, (static_cast<float>(ypixel) + 0.5f) / 256.0f};
   }
 };
-
-[[nodiscard]] extern gsl::not_null<std::shared_ptr<render::scene::Material>>
-  createMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
-                 BlendingMode bmode,
-                 const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader,
-                 const gsl::not_null<std::shared_ptr<render::gl::TextureDepth>>& lightDepth);
 
 struct TextureKey
 {
@@ -202,24 +179,11 @@ struct TextureTile
     return y_size < rhs.y_size;
   }
 
-  /** \brief reads object texture definition.
-    *
-    * some sanity checks get done and if they fail an exception gets thrown.
-    * all values introduced in TR4 get set appropriately.
-    */
   static std::unique_ptr<TextureTile> readTr1(io::SDLReader& reader);
 
   static std::unique_ptr<TextureTile> readTr4(io::SDLReader& reader);
 
   static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader);
-
-  [[nodiscard]] gsl::not_null<std::shared_ptr<render::scene::Material>>
-    createMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
-                   const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader,
-                   const gsl::not_null<std::shared_ptr<render::gl::TextureDepth>>& lightDepth) const
-  {
-    return file::createMaterial(texture, textureKey.blendingMode, shader, lightDepth);
-  }
 };
 } // namespace file
 } // namespace loader

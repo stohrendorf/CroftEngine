@@ -7,7 +7,7 @@
 
 namespace engine
 {
-void Particle::initRenderables(const Engine& engine, const float scale)
+void Particle::initRenderables(Engine& engine, const float scale)
 {
   if(const auto& modelType = engine.findAnimatedModelForType(object_number))
   {
@@ -28,7 +28,7 @@ void Particle::initRenderables(const Engine& engine, const float scale)
                                                             float(-spr.y1) * scale,
                                                             spr.t0,
                                                             spr.t1,
-                                                            engine.getSpriteMaterial(),
+                                                            engine.getMaterialManager().getSprite(),
                                                             render::scene::Sprite::Axis::Y);
       m_renderables.emplace_back(sprite);
       m_spriteTextures.emplace_back(spr.texture);

@@ -163,7 +163,7 @@ const std::vector<loader::file::Box>& Engine::getBoxes() const
 }
 
 std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>
-  Engine::createMaterials(const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& shader) const
+  Engine::createMaterials(bool water)
 {
   const auto texMask = gameToEngine(m_level->m_gameVersion) == loader::file::level::Engine::TR4
                          ? loader::file::TextureIndexMaskTr4
@@ -176,17 +176,16 @@ std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::
       continue;
 
     materials.emplace(key,
-                      tile.createMaterial(m_level->m_textures[key.tileAndFlag & texMask].texture,
-                                          shader,
-                                          m_renderPipeline->getShadowMap()));
+                      m_materialManager.createTextureMaterial(m_level->m_textures[key.tileAndFlag & texMask].texture,
+                                                              m_renderPipeline->getShadowMap(),
+                                                              water,
+                                                              m_renderer.get()));
   }
   return materials;
 }
 
 std::shared_ptr<objects::LaraObject> Engine::createObjects()
 {
-  m_lightningShader = m_shaderManager.get("lightning.vert", "lightning.frag");
-
   std::shared_ptr<objects::LaraObject> lara = nullptr;
   ObjectId id = -1;
   for(loader::file::Item& item : m_level->m_items)
@@ -220,42 +219,15 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
   m_textureAnimator = std::make_shared<render::TextureAnimator>(
     m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures, linearTextureInterpolation);
 
-  const auto texturedShader = m_shaderManager.get("textured_2.vert", "textured_2.frag");
-  const auto materialsFull = createMaterials(texturedShader);
-
-  const auto colorMaterialFull
-    = std::make_shared<render::scene::Material>(m_shaderManager.get("colored_2.vert", "colored_2.frag"));
-  colorMaterialFull->getUniform("u_modelMatrix")->bindModelMatrix();
-  colorMaterialFull->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
-  colorMaterialFull->getUniform("u_camProjection")->bindProjectionMatrix();
-  colorMaterialFull->getUniform("u_lightMVP")->bindLightModelViewProjection();
-  colorMaterialFull->getUniform("u_lightDepth")->set(m_renderPipeline->getShadowMap());
-
-  const auto depthMaterial
-    = std::make_shared<render::scene::Material>(m_shaderManager.get("depth_only.vert", "depth_only.frag"));
-  depthMaterial->getUniform("u_mvp")->bindLightModelViewProjection();
-
-  BOOST_ASSERT(m_spriteMaterial == nullptr);
-  m_spriteMaterial
-    = std::make_shared<render::scene::Material>(m_shaderManager.get("textured_2.vert", "textured_2.frag"));
-  m_spriteMaterial->getRenderState().setCullFace(false);
-
-  m_spriteMaterial->getUniform("u_modelMatrix")->bindModelMatrix();
-  m_spriteMaterial->getUniform("u_camProjection")->bindProjectionMatrix();
-
-  BOOST_ASSERT(m_portalMaterial == nullptr);
-  m_portalMaterial = std::make_shared<render::scene::Material>(m_shaderManager.get("portal.vert", "portal.frag"));
-  m_portalMaterial->getRenderState().setCullFace(false);
-
-  m_portalMaterial->getUniform("u_mvp")->bind([camera = m_renderer->getScene()->getActiveCamera()](
-                                                const render::scene::Node&, render::gl::ProgramUniform& uniform) {
-    uniform.set(camera->getViewProjectionMatrix()); // portals are already in world space
-  });
+  const auto materialsFull = createMaterials(false);
 
   for(auto& mesh : m_level->m_meshes)
   {
-    m_models.emplace_back(
-      mesh.createModel(m_level->m_textureTiles, materialsFull, colorMaterialFull, depthMaterial, *m_level->m_palette));
+    m_models.emplace_back(mesh.createModel(m_level->m_textureTiles,
+                                           materialsFull,
+                                           m_materialManager.getColor(m_renderPipeline->getShadowMap()),
+                                           m_materialManager.getDepthOnly(),
+                                           *m_level->m_palette));
   }
 
   for(auto idx : m_level->m_meshIndices)
@@ -275,20 +247,18 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     }
   }
 
-  const auto waterTexturedShader = m_shaderManager.get("textured_2.vert", "textured_2.frag", {"WATER"});
-  auto waterMaterialsFull = createMaterials(waterTexturedShader);
-  for(const auto& m : waterMaterialsFull | boost::adaptors::map_values)
-  {
-    m->getUniform("u_time")->bind([this](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
-      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(m_renderer->getGameTime());
-      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-    });
-  }
+  auto waterMaterialsFull = createMaterials(true);
 
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    m_level->m_rooms[i].createSceneNode(
-      i, *m_level, materialsFull, waterMaterialsFull, m_models, *m_textureAnimator, m_spriteMaterial, m_portalMaterial);
+    m_level->m_rooms[i].createSceneNode(i,
+                                        *m_level,
+                                        materialsFull,
+                                        waterMaterialsFull,
+                                        m_models,
+                                        *m_textureAnimator,
+                                        m_materialManager.getSprite(),
+                                        m_materialManager.getPortal(m_renderer.get()));
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
@@ -711,7 +681,8 @@ std::shared_ptr<objects::PickupObject> Engine::createPickup(const core::TypeId t
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const loader::file::Sprite& sprite = spriteSequence->sprites[0];
 
-  auto object = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite, m_spriteMaterial);
+  auto object
+    = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite, m_materialManager.getSprite());
 
   m_dynamicObjects.emplace(object);
   addChild(room->node, object->getNode());
@@ -959,7 +930,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
 
   scaleSplashImage();
 
-  screenOverlay = std::make_shared<render::scene::ScreenOverlay>(m_shaderManager, m_window->getViewport());
+  screenOverlay
+    = std::make_shared<render::scene::ScreenOverlay>(m_materialManager.getShaderManager(), m_window->getViewport());
 
   abibasFont->setTarget(screenOverlay->getImage());
 
@@ -1044,7 +1016,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
     }
 
     drawLoadingScreen("Preparing the game");
-    m_renderPipeline = std::make_shared<render::RenderPipeline>(m_shaderManager, m_window->getViewport());
+    m_renderPipeline
+      = std::make_shared<render::RenderPipeline>(m_materialManager.getShaderManager(), m_window->getViewport());
     loadSceneData(glidos != nullptr);
 
     if(useAlternativeLara)
@@ -1206,7 +1179,7 @@ void Engine::run()
 
   render::gl::Framebuffer::unbindAll();
 
-  screenOverlay->init(m_shaderManager, m_window->getViewport());
+  screenOverlay->init(m_materialManager.getShaderManager(), m_window->getViewport());
 
   if(const sol::optional<std::string> video = levelInfo["video"])
   {
@@ -1217,7 +1190,7 @@ void Engine::run()
                   if(m_window->updateWindowSize())
                   {
                     m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
-                    screenOverlay->init(m_shaderManager, m_window->getViewport());
+                    screenOverlay->init(m_materialManager.getShaderManager(), m_window->getViewport());
                   }
 
                   screenOverlay->render(context);
@@ -1302,7 +1275,7 @@ void Engine::run()
     {
       m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
       m_renderPipeline->resize(m_window->getViewport());
-      screenOverlay->init(m_shaderManager, m_window->getViewport());
+      screenOverlay->init(m_materialManager.getShaderManager(), m_window->getViewport());
       font->setTarget(screenOverlay->getImage());
     }
 
@@ -1358,8 +1331,6 @@ void Engine::run()
     {
       render::gl::DebugGroup dbg{"portal-depth-pass"};
       m_renderPipeline->bindPortalFrameBuffer();
-      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(m_renderer->getGameTime());
-      m_portalMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
       for(const auto& portal : waterEntryPortals)
       {
         portal->mesh->render(context);
@@ -1473,7 +1444,7 @@ void Engine::drawLoadingScreen(const std::string& state)
   if(m_window->updateWindowSize())
   {
     m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
-    screenOverlay->init(m_shaderManager, m_window->getViewport());
+    screenOverlay->init(m_materialManager.getShaderManager(), m_window->getViewport());
     abibasFont->setTarget(screenOverlay->getImage());
 
     scaleSplashImage();

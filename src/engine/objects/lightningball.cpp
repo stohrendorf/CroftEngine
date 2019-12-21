@@ -14,7 +14,7 @@ namespace
 {
 gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   createBolt(uint16_t points,
-             const gsl::not_null<std::shared_ptr<render::scene::ShaderProgram>>& program,
+             const gsl::not_null<std::shared_ptr<render::scene::Material>>& material,
              float lineWidth,
              std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>>& vb)
 {
@@ -34,15 +34,11 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   vb->setData(&vertices[0], points, gl::BufferUsageARB::DynamicDraw);
 
   auto vao = std::make_shared<render::gl::VertexArray<uint16_t, glm::vec3>>(
-    indexBuffer, vb, std::vector<const render::gl::Program*>{&program->getHandle()});
+    indexBuffer, vb, std::vector<const render::gl::Program*>{&material->getShaderProgram()->getHandle()});
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, gl::PrimitiveType::LineStrip);
 
   mesh->getRenderState().setLineSmooth(true);
   mesh->getRenderState().setLineWidth(lineWidth);
-
-  const auto material = std::make_shared<render::scene::Material>(program);
-  material->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
-  material->getUniform("u_camProjection")->bindProjectionMatrix();
 
   mesh->getMaterial().set(render::scene::RenderMode::Full, material);
 
@@ -225,14 +221,14 @@ void LightningBall::init(Engine& engine)
     getSkeleton()->getChildren()[i]->setVisible(false);
   }
 
-  m_mainBoltMesh = createBolt(SegmentPoints, engine.getLightningShader(), 10, m_mainVb);
+  m_mainBoltMesh = createBolt(SegmentPoints, engine.getMaterialManager().getLightning(), 10, m_mainVb);
   auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
   node->setRenderable(m_mainBoltMesh);
   addChild(getSkeleton(), node);
 
   for(auto& childBolt : m_childBolts)
   {
-    childBolt.mesh = createBolt(SegmentPoints, engine.getLightningShader(), 3, childBolt.vb);
+    childBolt.mesh = createBolt(SegmentPoints, engine.getMaterialManager().getLightning(), 3, childBolt.vb);
 
     node = std::make_shared<render::scene::Node>("lightning-bolt-child");
     node->setRenderable(childBolt.mesh);
