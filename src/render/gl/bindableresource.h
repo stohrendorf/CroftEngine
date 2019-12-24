@@ -4,6 +4,7 @@
 
 #include <boost/assert.hpp>
 #include <functional>
+#include <utility>
 
 namespace render::gl
 {
@@ -34,22 +35,22 @@ public:
   }
 
 protected:
-  using Allocator = std::function<void(::gl::core::SizeType, uint32_t*)>;
+  using Allocator = std::function<void(::gl::core::SizeType, ::gl::core::Handle*)>;
   using Binder = std::function<void(uint32_t)>;
-  using Deleter = std::function<void(::gl::core::SizeType, uint32_t*)>;
+  using Deleter = std::function<void(::gl::core::SizeType, ::gl::core::Handle*)>;
 
-  explicit BindableResource(const Allocator& allocator,
-                            const Binder& binder,
-                            const Deleter& deleter,
+  explicit BindableResource(Allocator allocator,
+                            Binder binder,
+                            Deleter deleter,
                             const ::gl::ObjectIdentifier identifier,
                             const std::string& label)
-      : m_allocator{allocator}
-      , m_binder{binder}
-      , m_deleter{deleter}
+      : m_allocator{std::move(allocator)}
+      , m_binder{std::move(binder)}
+      , m_deleter{std::move(deleter)}
   {
-    BOOST_ASSERT(static_cast<bool>(allocator));
-    BOOST_ASSERT(static_cast<bool>(binder));
-    BOOST_ASSERT(static_cast<bool>(deleter));
+    BOOST_ASSERT(static_cast<bool>(m_allocator));
+    BOOST_ASSERT(static_cast<bool>(m_binder));
+    BOOST_ASSERT(static_cast<bool>(m_deleter));
 
     GL_ASSERT(m_allocator(1, &m_handle));
 
@@ -67,12 +68,11 @@ protected:
   }
 
   BindableResource(BindableResource&& rhs) noexcept
-      : m_handle{rhs.m_handle}
+      : m_handle{std::exchange(rhs.m_handle, 0)}
       , m_allocator{move(rhs.m_allocator)}
       , m_binder{move(rhs.m_binder)}
       , m_deleter{move(rhs.m_deleter)}
   {
-    rhs.m_handle = 0;
   }
 
   BindableResource& operator=(BindableResource&& rhs) noexcept
@@ -109,7 +109,7 @@ protected:
   }
 
 private:
-  uint32_t m_handle = 0;
+  ::gl::core::Handle m_handle = 0;
 
   Allocator m_allocator;
 
