@@ -62,7 +62,6 @@ public:
   void bindModelViewMatrix();
   void bindProjectionMatrix();
   void bindViewProjectionMatrix();
-  void bindLightModelViewProjection();
 
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 

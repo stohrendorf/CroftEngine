@@ -120,7 +120,7 @@ class Command:
         self.raw_name = self.proto.findtext('name')
 
         # XXX PATCH
-        if self.raw_name == 'glTexImage2D':
+        if self.raw_name in ('glTexImage2D', 'glTexImage3D'):
             xml_command.find('./param[@group="InternalFormat"]/ptype').text = 'GLenum'
 
         self.orig_return_type = _patch_integral_types(xml_ptype=self.proto.find('ptype'),

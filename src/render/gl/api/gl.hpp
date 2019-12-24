@@ -6531,7 +6531,7 @@ extern void drawRangeElements(
   PrimitiveType mode, uint32_t start, uint32_t end, core::SizeType count, DrawElementsType type, const void* indices);
 extern void texImage3D(TextureTarget target,
                        int32_t level,
-                       int32_t internalformat,
+                       InternalFormat internalformat,
                        core::SizeType width,
                        core::SizeType height,
                        core::SizeType depth,

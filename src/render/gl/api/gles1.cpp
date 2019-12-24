@@ -1,5 +1,4 @@
 #include "gles1.hpp"
-
 #include "gles1_api_provider.hpp"
 namespace gles1
 {

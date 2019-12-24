@@ -184,10 +184,7 @@ public:
     BOOST_ASSERT(m_samplerIndex >= 0);
 
     GL_ASSERT(::gl::activeTexture(textureUnit(m_samplerIndex)));
-
-    // Bind the sampler - this binds the texture and applies sampler state
     texture.bind();
-
     GL_ASSERT(::gl::programUniform1(m_program, getLocation(), m_samplerIndex));
   }
 
@@ -200,6 +197,22 @@ public:
   void set(const TextureDepth& texture)
   {
     set(static_cast<const Texture&>(texture));
+  }
+
+  void set(const std::vector<std::shared_ptr<TextureDepth>>& textures)
+  {
+    BOOST_ASSERT(m_samplerIndex >= 0);
+
+    std::vector<int32_t> indices;
+    for(size_t i = 0; i < textures.size(); ++i)
+    {
+      const auto idx = m_samplerIndex + gsl::narrow_cast<int32_t>(i);
+      GL_ASSERT(::gl::activeTexture(textureUnit(idx)));
+      textures[i]->bind();
+      indices.emplace_back(idx);
+    }
+    GL_ASSERT(::gl::programUniform1(
+      m_program, getLocation(), gsl::narrow_cast<::gl::core::SizeType>(textures.size()), indices.data()));
   }
 
   template<typename T>

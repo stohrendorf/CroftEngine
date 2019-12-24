@@ -140,7 +140,8 @@ private:
 
   std::bitset<16> m_secretsFoundBitmask = 0;
 
-  render::scene::MaterialManager m_materialManager{m_rootPath / "shaders"};
+  std::shared_ptr<render::scene::CSM> m_csm{};
+  std::unique_ptr<render::scene::MaterialManager> m_materialManager{};
 
 public:
   explicit Engine(const std::filesystem::path& rootPath,
@@ -245,12 +246,12 @@ public:
     m_levelFinished = true;
   }
 
-  auto& getMaterialManager()
+  const auto& getMaterialManager()
   {
     return m_materialManager;
   }
 
-  auto& getMaterialManager() const
+  const auto& getMaterialManager() const
   {
     return m_materialManager;
   }

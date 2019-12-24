@@ -28,7 +28,7 @@ void Particle::initRenderables(Engine& engine, const float scale)
                                                             float(-spr.y1) * scale,
                                                             spr.t0,
                                                             spr.t1,
-                                                            engine.getMaterialManager().getSprite(),
+                                                            engine.getMaterialManager()->getSprite(),
                                                             render::scene::Sprite::Axis::Y);
       m_renderables.emplace_back(sprite);
       m_spriteTextures.emplace_back(spr.texture);

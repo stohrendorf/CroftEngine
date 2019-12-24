@@ -2543,7 +2543,7 @@ extern void samplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t 
 extern void samplerParameter(uint32_t sampler, SamplerParameterI pname, const int32_t* param);
 extern void texImage3D(TextureTarget target,
                        int32_t level,
-                       int32_t internalformat,
+                       InternalFormat internalformat,
                        core::SizeType width,
                        core::SizeType height,
                        core::SizeType depth,

@@ -39,9 +39,6 @@ class RenderPipeline
     = std::make_shared<gl::Texture2D<gl::RG32F>>("portal-perturb");
   std::shared_ptr<gl::Framebuffer> m_portalFb;
 
-  const std::shared_ptr<gl::TextureDepth> m_shadowDepthBuffer = std::make_shared<gl::TextureDepth>("shadow-depth");
-  std::shared_ptr<gl::Framebuffer> m_shadowDepthFb;
-
   const std::shared_ptr<gl::TextureDepth> m_geometryDepthBuffer = std::make_shared<gl::TextureDepth>("geometry-depth");
   const std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_geometryColorBuffer
     = std::make_shared<gl::Texture2D<gl::SRGBA8>>("geometry-color");
@@ -65,16 +62,7 @@ class RenderPipeline
     = std::make_shared<gl::Texture2D<gl::SRGBA8>>("fxaa-color");
   std::shared_ptr<gl::Framebuffer> m_fxaaFb;
 
-  static constexpr int32_t ShadowMapSize = 2048;
-
 public:
-  // ReSharper disable once CppMemberFunctionMayBeConst
-  void bindShadowDepthFrameBuffer()
-  {
-    GL_ASSERT(::gl::viewport(0, 0, ShadowMapSize, ShadowMapSize));
-    m_shadowDepthFb->bind();
-  }
-
   // ReSharper disable once CppMemberFunctionMayBeConst
   void bindGeometryFrameBuffer(int32_t width, int32_t height)
   {
@@ -101,10 +89,5 @@ public:
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void resize(const scene::Dimension2<size_t>& viewport);
-
-  [[nodiscard]] const auto& getShadowMap() const
-  {
-    return m_shadowDepthBuffer;
-  }
 };
 } // namespace render

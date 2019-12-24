@@ -16,6 +16,7 @@
 #include "objects/tallblock.h"
 #include "render/gl/font.h"
 #include "render/renderpipeline.h"
+#include "render/scene/csm.h"
 #include "render/scene/rendervisitor.h"
 #include "render/scene/scene.h"
 #include "render/textureanimator.h"
@@ -176,10 +177,8 @@ std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::
       continue;
 
     materials.emplace(key,
-                      m_materialManager.createTextureMaterial(m_level->m_textures[key.tileAndFlag & texMask].texture,
-                                                              m_renderPipeline->getShadowMap(),
-                                                              water,
-                                                              m_renderer.get()));
+                      m_materialManager->createTextureMaterial(
+                        m_level->m_textures[key.tileAndFlag & texMask].texture, water, m_renderer.get()));
   }
   return materials;
 }
@@ -225,8 +224,8 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
   {
     m_models.emplace_back(mesh.createModel(m_level->m_textureTiles,
                                            materialsFull,
-                                           m_materialManager.getColor(m_renderPipeline->getShadowMap()),
-                                           m_materialManager.getDepthOnly(),
+                                           m_materialManager->getColor(),
+                                           m_materialManager->getDepthOnly(),
                                            *m_level->m_palette));
   }
 
@@ -257,8 +256,8 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
                                         waterMaterialsFull,
                                         m_models,
                                         *m_textureAnimator,
-                                        m_materialManager.getSprite(),
-                                        m_materialManager.getPortal(m_renderer.get()));
+                                        m_materialManager->getSprite(),
+                                        m_materialManager->getPortal(m_renderer.get()));
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
@@ -682,7 +681,7 @@ std::shared_ptr<objects::PickupObject> Engine::createPickup(const core::TypeId t
   const loader::file::Sprite& sprite = spriteSequence->sprites[0];
 
   auto object
-    = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite, m_materialManager.getSprite());
+    = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite, m_materialManager->getSprite());
 
   m_dynamicObjects.emplace(object);
   addChild(room->node, object->getNode());
@@ -928,10 +927,13 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
   m_renderer->getScene()->setActiveCamera(
     std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 10.0f, 20480.0f));
 
+  m_csm = std::make_shared<render::scene::CSM>(3, 2048);
+  m_materialManager = std::make_unique<render::scene::MaterialManager>(m_rootPath / "shaders", m_csm);
+
   scaleSplashImage();
 
   screenOverlay
-    = std::make_shared<render::scene::ScreenOverlay>(m_materialManager.getShaderManager(), m_window->getViewport());
+    = std::make_shared<render::scene::ScreenOverlay>(m_materialManager->getShaderManager(), m_window->getViewport());
 
   abibasFont->setTarget(screenOverlay->getImage());
 
@@ -1017,7 +1019,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
 
     drawLoadingScreen("Preparing the game");
     m_renderPipeline
-      = std::make_shared<render::RenderPipeline>(m_materialManager.getShaderManager(), m_window->getViewport());
+      = std::make_shared<render::RenderPipeline>(m_materialManager->getShaderManager(), m_window->getViewport());
     loadSceneData(glidos != nullptr);
 
     if(useAlternativeLara)
@@ -1179,7 +1181,7 @@ void Engine::run()
 
   render::gl::Framebuffer::unbindAll();
 
-  screenOverlay->init(m_materialManager.getShaderManager(), m_window->getViewport());
+  screenOverlay->init(m_materialManager->getShaderManager(), m_window->getViewport());
 
   if(const sol::optional<std::string> video = levelInfo["video"])
   {
@@ -1190,7 +1192,7 @@ void Engine::run()
                   if(m_window->updateWindowSize())
                   {
                     m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
-                    screenOverlay->init(m_materialManager.getShaderManager(), m_window->getViewport());
+                    screenOverlay->init(m_materialManager->getShaderManager(), m_window->getViewport());
                   }
 
                   screenOverlay->render(context);
@@ -1275,7 +1277,7 @@ void Engine::run()
     {
       m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
       m_renderPipeline->resize(m_window->getViewport());
-      screenOverlay->init(m_materialManager.getShaderManager(), m_window->getViewport());
+      screenOverlay->init(m_materialManager->getShaderManager(), m_window->getViewport());
       font->setTarget(screenOverlay->getImage());
     }
 
@@ -1301,19 +1303,30 @@ void Engine::run()
 
     {
       render::gl::DebugGroup dbg{"shadow-depth-pass"};
-      m_renderPipeline->bindShadowDepthFrameBuffer();
-      m_renderer->clear(gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-      render::scene::RenderContext context{render::scene::RenderMode::DepthOnly};
-      render::scene::RenderVisitor visitor{context};
+      m_csm->update(*m_renderer->getScene()->getActiveCamera());
+      m_csm->applyViewport();
 
-      for(const auto& room : m_level->m_rooms)
+      for(size_t i = 0; i < m_csm->getSplits(); ++i)
       {
-        if(!room.node->isVisible())
-          continue;
+        render::gl::DebugGroup dbg2{"shadow-depth-pass/" + std::to_string(i)};
 
-        for(const auto& child : room.node->getChildren())
+        m_csm->setActiveSplit(i);
+
+        m_csm->getActiveFramebuffer()->bind();
+        m_renderer->clear(gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+
+        render::scene::RenderContext context{render::scene::RenderMode::DepthOnly};
+        render::scene::RenderVisitor visitor{context};
+
+        for(const auto& room : m_level->m_rooms)
         {
-          visitor.visit(*child);
+          if(!room.node->isVisible())
+            continue;
+
+          for(const auto& child : room.node->getChildren())
+          {
+            visitor.visit(*child);
+          }
         }
       }
     }
@@ -1444,7 +1457,7 @@ void Engine::drawLoadingScreen(const std::string& state)
   if(m_window->updateWindowSize())
   {
     m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
-    screenOverlay->init(m_materialManager.getShaderManager(), m_window->getViewport());
+    screenOverlay->init(m_materialManager->getShaderManager(), m_window->getViewport());
     abibasFont->setTarget(screenOverlay->getImage());
 
     scaleSplashImage();

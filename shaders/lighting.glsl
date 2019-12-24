@@ -1,6 +1,8 @@
 uniform float u_lightAmbient;
-uniform sampler2D u_lightDepth;
-in vec4 v_vertexPosLight;
+uniform sampler2D u_lightDepth[3];
+uniform float u_csmSplits[3];
+
+in vec4 v_vertexPosLight[3];
 
 struct Light {
     vec3 position;
@@ -14,20 +16,26 @@ layout(std430) buffer b_lights {
 
 float shadow_map_multiplier()
 {
-    vec3 projCoords = v_vertexPosLight.xyz / v_vertexPosLight.w;
+    int cascadeIdx = 0;
+    while (cascadeIdx < u_csmSplits.length()-1 && -v_vertexPos.z > -u_csmSplits[cascadeIdx]) {
+        ++cascadeIdx;
+    }
+
+    vec3 projCoords = v_vertexPosLight[cascadeIdx].xyz / v_vertexPosLight[cascadeIdx].w;
     projCoords = projCoords * 0.5 + 0.5;
     float currentDepth = projCoords.z;
     const float bias = 0.005;
     const float d = 1.0/2048.0;
     int n = 0;
-    for (int x=-2; x<=2; ++x) {
-        for (int y=-2; y<=2; ++y) {
-            float closestDepth = texture(u_lightDepth, projCoords.xy + vec2(x*d, y*d)).r;
-            if (currentDepth - bias >= closestDepth)
-            ++n;
+    for (int x=-1; x<=1; ++x) {
+        for (int y=-1; y<=1; ++y) {
+            float closestDepth = texture(u_lightDepth[cascadeIdx], projCoords.xy + vec2(x*d, y*d)).r;
+            if (currentDepth + bias >= closestDepth) {
+                ++n;
+            }
         }
     }
-    return mix(1.0, 0.5, smoothstep(0.0, 25.0, n));
+    return mix(1.0, 0.5, smoothstep(0.0, 9.0, n));
 }
 
 /*

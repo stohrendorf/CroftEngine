@@ -37,7 +37,7 @@ namespace sndfile
 inline short clampSample(float v) noexcept
 {
   if(v <= -1)
-    return std::numeric_limits<short>::min();
+    return std::numeric_limits<short>::lowest();
   else if(v >= 1)
     return std::numeric_limits<short>::max();
   else

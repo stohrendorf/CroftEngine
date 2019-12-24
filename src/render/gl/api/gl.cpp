@@ -1,5 +1,4 @@
 #include "gl.hpp"
-
 #include "gl_api_provider.hpp"
 namespace gl
 {
@@ -1720,7 +1719,7 @@ void drawRangeElements(
 }
 void texImage3D(TextureTarget target,
                 int32_t level,
-                int32_t internalformat,
+                InternalFormat internalformat,
                 core::SizeType width,
                 core::SizeType height,
                 core::SizeType depth,
@@ -1731,7 +1730,7 @@ void texImage3D(TextureTarget target,
 {
   return glTexImage3D(static_cast<GLenum>(target),
                       static_cast<GLint>(level),
-                      static_cast<GLint>(internalformat),
+                      static_cast<GLenum>(internalformat),
                       static_cast<GLsizei>(width),
                       static_cast<GLsizei>(height),
                       static_cast<GLsizei>(depth),

@@ -315,7 +315,7 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
                                             room,
                                             item,
                                             sprite,
-                                            engine.getMaterialManager().getSprite());
+                                            engine.getMaterialManager()->getSprite());
     }
     else if(item.type == TR1ItemId::Item141 || item.type == TR1ItemId::Item142 || item.type == TR1ItemId::Key1Sprite
             || item.type == TR1ItemId::Key2Sprite || item.type == TR1ItemId::Key3Sprite
@@ -335,7 +335,7 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
                                          room,
                                          item,
                                          &sprite,
-                                         engine.getMaterialManager().getSprite());
+                                         engine.getMaterialManager()->getSprite());
     }
     else
     {
@@ -347,7 +347,7 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
                                          item,
                                          true,
                                          &sprite,
-                                         engine.getMaterialManager().getSprite());
+                                         engine.getMaterialManager()->getSprite());
     }
 
     return object;
@@ -369,12 +369,12 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
     object = std::make_shared<TYPE>(&ser.engine, position); \
     object->serialize(ser);                                 \
     return object
-#define CREATE_PU(ENUM)                                                                           \
-  case TR1ItemId::ENUM:                                                                           \
-    ser(S_NV("@name", spriteName));                                                               \
-    object = std::make_shared<PickupObject>(                                                      \
-      &ser.engine, position, std::move(spriteName), ser.engine.getMaterialManager().getSprite()); \
-    object->serialize(ser);                                                                       \
+#define CREATE_PU(ENUM)                                                                            \
+  case TR1ItemId::ENUM:                                                                            \
+    ser(S_NV("@name", spriteName));                                                                \
+    object = std::make_shared<PickupObject>(                                                       \
+      &ser.engine, position, std::move(spriteName), ser.engine.getMaterialManager()->getSprite()); \
+    object->serialize(ser);                                                                        \
     return object
 #define CREATE_ID(NAME) CREATE(NAME, NAME)
 

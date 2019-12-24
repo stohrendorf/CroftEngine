@@ -51,20 +51,4 @@ void UniformParameter::bindViewProjectionMatrix()
 {
   m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getViewProjectionMatrix()); };
 }
-
-void UniformParameter::bindLightModelViewProjection()
-{
-  m_valueSetter = [](const render::scene::Node& node, render::gl::ProgramUniform& uniform) {
-    const auto camera = node.getScene()->getActiveCamera();
-    const auto pos = camera->getPosition();
-    const auto fwd = glm::normalize(camera->getFrontVector());
-    static constexpr float VolumeSize = 20.0f * 1024;
-    const auto ctr = pos + fwd * VolumeSize / 2.0f;
-    const auto eye = ctr + glm::vec3{0.0f, 1.0f, 0.0f} * VolumeSize / 2.0f;
-    const auto lightView = glm::lookAt(eye, ctr, glm::vec3{1.0f, 0.0f, 0.0f});
-    const auto lightProjection
-      = glm::ortho(-VolumeSize / 2, VolumeSize / 2, VolumeSize / 2, -VolumeSize / 2, 0.0f, VolumeSize);
-    uniform.set(lightProjection * lightView * node.getModelMatrix());
-  };
-}
 } // namespace render::scene

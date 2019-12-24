@@ -126,18 +126,36 @@ public:
     return glm::vec3{getInverseViewMatrix()[3]};
   }
 
-  [[nodiscard]] glm::vec3 getFrontVector() const
+  [[nodiscard]] glm::vec3 getRotatedVector(const glm::vec3& v) const
   {
     auto rs = getInverseViewMatrix();
     rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
-    return glm::vec3{rs * glm::vec4{0, 0, -1, 1}};
+    return glm::vec3{rs * glm::vec4{v, 1}};
+  }
+
+  [[nodiscard]] glm::vec3 getFrontVector() const
+  {
+    return getRotatedVector(glm::vec3{0, 0, -1});
   }
 
   [[nodiscard]] glm::vec3 getUpVector() const
   {
-    auto rs = getInverseViewMatrix();
-    rs[3].x = rs[3].y = rs[3].z = 0; // zero out translation component
-    return glm::vec3{rs * glm::vec4{0, 1, 0, 1}};
+    return getRotatedVector(glm::vec3{0, 1, 0});
+  }
+
+  [[nodiscard]] glm::vec3 getRightVector() const
+  {
+    return getRotatedVector(glm::vec3{1, 0, 0});
+  }
+
+  [[nodiscard]] auto getFieldOfViewX() const
+  {
+    return m_fieldOfView * m_aspectRatio;
+  }
+
+  [[nodiscard]] auto getFieldOfViewY() const
+  {
+    return m_fieldOfView;
   }
 
 private:

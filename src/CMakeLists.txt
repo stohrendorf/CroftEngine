@@ -423,10 +423,14 @@ set( EDISONENGINE_SRCS
         render/scene/bufferparameter.h
         render/scene/bufferparameter.cpp
         render/scene/camera.h
+        render/scene/csm.h
+        render/scene/csm.cpp
         render/scene/dimension.h
         render/scene/glfw.h
         render/scene/material.h
         render/scene/material.cpp
+        render/scene/materialmanager.h
+        render/scene/materialmanager.cpp
         render/scene/materialparameter.h
         render/scene/mesh.h
         render/scene/mesh.cpp
