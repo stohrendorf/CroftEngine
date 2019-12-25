@@ -158,11 +158,6 @@ public:
 
   StorageType& at(const int32_t x, const int32_t y)
   {
-    Expects(x >= 0);
-    Expects(x < m_width);
-    Expects(y >= 0);
-    Expects(y < m_height);
-
     if(x < 0 || x >= m_width || y < 0 || y >= m_height)
     {
       BOOST_THROW_EXCEPTION(std::out_of_range{"Image coordinates out of range"});
@@ -190,11 +185,6 @@ public:
 
   const StorageType& at(const int32_t x, const int32_t y) const
   {
-    Expects(x >= 0);
-    Expects(x < m_width);
-    Expects(y >= 0);
-    Expects(y < m_height);
-
     if(x < 0 || x >= m_width || y < 0 || y >= m_height)
     {
       BOOST_THROW_EXCEPTION(std::out_of_range{"Image coordinates out of range"});
