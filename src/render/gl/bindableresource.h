@@ -15,7 +15,7 @@ public:
 
   BindableResource& operator=(const BindableResource&) = delete;
 
-  virtual void bind() const
+  void bind() const
   {
     if(m_handle == 0)
       return;
@@ -110,11 +110,8 @@ protected:
 
 private:
   ::gl::core::Handle m_handle = 0;
-
   Allocator m_allocator;
-
   Binder m_binder;
-
   Deleter m_deleter;
 };
 } // namespace render::gl

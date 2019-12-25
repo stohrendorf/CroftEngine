@@ -68,7 +68,7 @@ public:
   {
     gl::Framebuffer::unbindAll();
     GL_ASSERT(::gl::viewport(0, 0, width, height));
-    m_geometryFb->bind();
+    m_geometryFb->bindWithAttachments();
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -76,7 +76,7 @@ public:
   {
     gl::Framebuffer::unbindAll();
     m_portalDepthBuffer->copyImageSubData(*m_geometryDepthBuffer);
-    m_portalFb->bind();
+    m_portalFb->bindWithAttachments();
   }
 
   explicit RenderPipeline(scene::ShaderManager& shaderManager, const scene::Dimension2<size_t>& viewport);

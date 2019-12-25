@@ -156,7 +156,7 @@ void RenderPipeline::finalPass(const bool water)
 {
   {
     gl::DebugGroup dbg{"ssao-pass"};
-    m_ssaoFb->bind();
+    m_ssaoFb->bindWithAttachments();
     scene::RenderContext context{scene::RenderMode::Full};
     scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
@@ -164,14 +164,14 @@ void RenderPipeline::finalPass(const bool water)
     m_fbModel->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, m_ssaoMaterial);
     m_fbModel->render(context);
 
-    m_ssaoBlurFb->bind();
+    m_ssaoBlurFb->bindWithAttachments();
     m_fbModel->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, m_ssaoBlurMaterial);
     m_fbModel->render(context);
   }
 
   {
     gl::DebugGroup dbg{"fxaa-pass"};
-    m_fxaaFb->bind();
+    m_fxaaFb->bindWithAttachments();
     scene::RenderContext context{scene::RenderMode::Full};
     scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);

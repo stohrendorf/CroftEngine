@@ -202,6 +202,7 @@ public:
   void set(const std::vector<std::shared_ptr<TextureDepth>>& textures)
   {
     BOOST_ASSERT(m_samplerIndex >= 0);
+    BOOST_ASSERT(textures.size() == static_cast<size_t>(m_size));
 
     std::vector<int32_t> indices;
     for(size_t i = 0; i < textures.size(); ++i)
@@ -222,30 +223,32 @@ public:
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void set(const std::vector<std::shared_ptr<Texture>>& values)
+  void set(const std::vector<std::shared_ptr<Texture>>& textures)
   {
     BOOST_ASSERT(m_samplerIndex >= 0);
-    Expects(values.size() <= 32);
+    BOOST_ASSERT(textures.size() == static_cast<size_t>(m_size));
+    Expects(textures.size() <= 32);
 
     // Set samplers as active and load texture unit array
     std::vector<int32_t> units;
-    for(size_t i = 0; i < values.size(); ++i)
+    for(size_t i = 0; i < textures.size(); ++i)
     {
       GL_ASSERT(::gl::activeTexture(textureUnit(i)));
 
       // Bind the sampler - this binds the texture and applies sampler state
-      values[i]->bind();
+      textures[i]->bind();
 
       units.emplace_back(gsl::narrow<int32_t>(m_samplerIndex + i));
     }
 
     // Pass texture unit array to GL
-    GL_ASSERT(
-      ::gl::programUniform1(m_program, getLocation(), static_cast<::gl::core::SizeType>(values.size()), units.data()));
+    GL_ASSERT(::gl::programUniform1(
+      m_program, getLocation(), static_cast<::gl::core::SizeType>(textures.size()), units.data()));
   }
 
 private:
   int32_t m_samplerIndex = -1;
+  int32_t m_size = -1;
   const uint32_t m_program;
 };
 
@@ -384,9 +387,8 @@ inline ProgramUniform::ProgramUniform(const Program& program, const uint32_t ind
 {
   int32_t type;
   GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformType, &type));
-  int32_t size = -1;
-  GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformSize, &size));
-  Expects(size >= 0);
+  GL_ASSERT(::gl::getActiveUniforms(program.getHandle(), 1, &index, ::gl::UniformPName::UniformSize, &m_size));
+  Expects(m_size >= 0);
 
   switch(static_cast<::gl::UniformType>(type))
   {
@@ -397,7 +399,7 @@ inline ProgramUniform::ProgramUniform(const Program& program, const uint32_t ind
   case ::gl::UniformType::Sampler2dRect:
   case ::gl::UniformType::Sampler2dRectShadow:
   case ::gl::UniformType::Sampler3d:
-  case ::gl::UniformType::SamplerCube: m_samplerIndex = samplerIndex; samplerIndex += size;
+  case ::gl::UniformType::SamplerCube: m_samplerIndex = samplerIndex; samplerIndex += m_size;
   default: break;
   }
 }

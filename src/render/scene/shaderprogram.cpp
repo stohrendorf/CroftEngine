@@ -249,7 +249,6 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
     return nullptr;
   }
 
-  // Create and return the new Effect.
   auto shaderProgram = std::make_shared<ShaderProgram>();
   shaderProgram->m_handle.attach(vertexShader);
   shaderProgram->m_handle.attach(fragmentShader);

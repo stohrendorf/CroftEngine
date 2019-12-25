@@ -142,7 +142,7 @@ public:
     return result == ::gl::FramebufferStatus::FramebufferComplete;
   }
 
-  void bind() const override
+  void bindWithAttachments() const
   {
     BindableResource::bind();
 
@@ -169,9 +169,9 @@ private:
   Framebuffer::Attachments m_attachments;
 
 public:
-  std::shared_ptr<Framebuffer> build()
+  std::shared_ptr<Framebuffer> build(const std::string& label = {})
   {
-    return std::make_shared<Framebuffer>(std::move(m_attachments));
+    return std::make_shared<Framebuffer>(std::move(m_attachments), label);
   }
 
   FrameBufferBuilder& texture(::gl::FramebufferAttachment attachment,
