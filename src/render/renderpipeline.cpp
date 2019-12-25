@@ -56,7 +56,7 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
                    .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment1, m_geometryNormalBuffer)
                    .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment2, m_geometryPositionBuffer)
                    .textureNoBlend(::gl::FramebufferAttachment::DepthAttachment, m_geometryDepthBuffer)
-                   .build();
+                   .build("geometry-fb");
 
   // === portalDepthFB setup ===
   m_fxDarknessMaterial->getUniform("u_portalDepth")->set(m_portalDepthBuffer);
@@ -67,7 +67,7 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
   m_portalFb = gl::FrameBufferBuilder()
                  .texture(::gl::FramebufferAttachment::DepthAttachment, m_portalDepthBuffer)
                  .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment0, m_portalPerturbBuffer)
-                 .build();
+                 .build("portal-fb");
 
   // === fxaaFB setup ===
   m_fxaaColorBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
@@ -77,7 +77,9 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
   m_fxDarknessMaterial->getUniform("u_texture")->set(m_fxaaColorBuffer);
   m_fxWaterDarknessMaterial->getUniform("u_texture")->set(m_fxaaColorBuffer);
 
-  m_fxaaFb = gl::FrameBufferBuilder().texture(::gl::FramebufferAttachment::ColorAttachment0, m_fxaaColorBuffer).build();
+  m_fxaaFb = gl::FrameBufferBuilder()
+               .texture(::gl::FramebufferAttachment::ColorAttachment0, m_fxaaColorBuffer)
+               .build("fxaa-fb");
 
   // === ssaoFB setup ===
   m_ssaoAOBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
@@ -86,8 +88,9 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
     .set(::gl::TextureMagFilter::Linear);
   m_ssaoBlurMaterial->getUniform("u_ao")->set(m_ssaoAOBuffer);
 
-  m_ssaoFb
-    = gl::FrameBufferBuilder().textureNoBlend(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoAOBuffer).build();
+  m_ssaoFb = gl::FrameBufferBuilder()
+               .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoAOBuffer)
+               .build("ssao-fb");
 
   // === ssaoBlurFB setup ===
   m_ssaoBlurAOBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
@@ -99,7 +102,7 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
 
   m_ssaoBlurFb = gl::FrameBufferBuilder()
                    .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoBlurAOBuffer)
-                   .build();
+                   .build("ssao-blur-fb");
 
   // === ssao.glsl setup ===
   // generate sample kernel

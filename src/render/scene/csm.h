@@ -22,7 +22,7 @@ public:
     std::shared_ptr<gl::Framebuffer> framebuffer{};
     float end = 0;
 
-    explicit Split(int32_t resolution);
+    explicit Split(int32_t resolution, size_t idx);
   };
 
   explicit CSM(uint8_t splits, int32_t resolution);

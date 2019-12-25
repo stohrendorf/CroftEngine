@@ -6,14 +6,16 @@
 
 namespace render::scene
 {
-CSM::Split::Split(int32_t resolution)
+CSM::Split::Split(int32_t resolution, size_t idx)
 {
   texture->image(resolution, resolution)
     .set(::gl::TextureMinFilter::Linear)
     .set(::gl::TextureMagFilter::Linear)
     .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
-  framebuffer = gl::FrameBufferBuilder().textureNoBlend(::gl::FramebufferAttachment::DepthAttachment, texture).build();
+  framebuffer = gl::FrameBufferBuilder()
+                  .textureNoBlend(::gl::FramebufferAttachment::DepthAttachment, texture)
+                  .build("csm-split-fb/" + std::to_string(idx));
 }
 
 CSM::CSM(uint8_t splits, int32_t resolution)
@@ -24,7 +26,7 @@ CSM::CSM(uint8_t splits, int32_t resolution)
   m_splits.reserve(splits);
   for(size_t i = 0; i < splits; ++i)
   {
-    m_splits.emplace_back(resolution);
+    m_splits.emplace_back(resolution, i);
   }
 }
 
