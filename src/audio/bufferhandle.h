@@ -63,7 +63,7 @@ public:
     Expects(data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F');
     Expects(data[8] == 'W' && data[9] == 'A' && data[10] == 'V' && data[11] == 'E');
 
-    sndfile::MemBufferFileIo wavMem(data, *reinterpret_cast<const uint32_t*>(data + 4) + 8);
+    sndfile::MemBufferFileIo wavMem(data, static_cast<size_t>(*reinterpret_cast<const uint32_t*>(data + 4)) + 8u);
     SF_INFO sfInfo;
     memset(&sfInfo, 0, sizeof(sfInfo));
     SNDFILE* sfFile = sf_open_virtual(&wavMem, SFM_READ, &sfInfo, &wavMem);

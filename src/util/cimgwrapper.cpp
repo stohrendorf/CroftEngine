@@ -4,10 +4,9 @@
 #  undef _X
 #endif
 
-#include "gsl-lite.hpp"
-
 #include <CImg.h>
 #include <boost/assert.hpp>
+#include <gsl-lite.hpp>
 
 namespace util
 {

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "core/units.h"
-#include "gsl-lite.hpp"
 #include "serialization/serialization.h"
 
 #include <cmath>
 #include <glm/gtx/euler_angles.hpp>
+#include <gsl-lite.hpp>
 #include <optional>
 #include <sol/sol.hpp>
 

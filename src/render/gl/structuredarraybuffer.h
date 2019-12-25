@@ -1,10 +1,10 @@
 #pragma once
 
 #include "arraybuffer.h"
-#include "gsl-lite.hpp"
 #include "program.h"
 #include "typetraits.h"
 
+#include <gsl-lite.hpp>
 #include <map>
 
 namespace render::gl

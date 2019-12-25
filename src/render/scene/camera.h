@@ -148,11 +148,6 @@ public:
     return getRotatedVector(glm::vec3{1, 0, 0});
   }
 
-  [[nodiscard]] auto getFieldOfViewX() const
-  {
-    return m_fieldOfView * m_aspectRatio;
-  }
-
   [[nodiscard]] auto getFieldOfViewY() const
   {
     return m_fieldOfView;

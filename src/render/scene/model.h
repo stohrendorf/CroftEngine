@@ -1,8 +1,8 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "renderable.h"
 
+#include <gsl-lite.hpp>
 #include <vector>
 
 namespace render::scene

@@ -20,11 +20,10 @@ extern "C"
 #include <libswscale/swscale.h>
 }
 
-#include "gsl-lite.hpp"
-
 #include <condition_variable>
 #include <filesystem>
 #include <functional>
+#include <gsl-lite.hpp>
 #include <mutex>
 #include <queue>
 #include <string>
@@ -34,11 +33,11 @@ namespace video
 {
 inline std::string getAvError(int err)
 {
-  char tmp[1024] = "";
-  if(av_strerror(err, tmp, 1024) < 0)
+  std::vector<char> tmp(1024, 0);
+  if(av_strerror(err, tmp.data(), tmp.size()) < 0)
     return "Unknown error " + std::to_string(err);
 
-  return tmp;
+  return tmp.data();
 }
 
 struct Stream final

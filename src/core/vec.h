@@ -1,10 +1,10 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "serialization/serialization.h"
 #include "units.h"
 
 #include <glm/glm.hpp>
+#include <gsl-lite.hpp>
 #include <sol/sol.hpp>
 #include <utility>
 

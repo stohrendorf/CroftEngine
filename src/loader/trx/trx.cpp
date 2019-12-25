@@ -1,10 +1,9 @@
 #include "trx.h"
 
-#include "gsl-lite.hpp"
-
 #include <boost/lexical_cast.hpp>
 #include <boost/log/trivial.hpp>
 #include <fstream>
+#include <gsl-lite.hpp>
 #include <utility>
 
 namespace

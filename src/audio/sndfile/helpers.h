@@ -1,10 +1,9 @@
 #pragma once
 
-#include "gsl-lite.hpp"
-
 #include <boost/assert.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/restrict.hpp>
+#include <gsl-lite.hpp>
 #include <sndfile.h>
 
 namespace audio::sndfile

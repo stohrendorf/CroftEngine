@@ -1,7 +1,8 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "serialization.h"
+
+#include <gsl-lite.hpp>
 
 namespace serialization
 {

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "core/id.h"
-#include "gsl-lite.hpp"
 
+#include <gsl-lite.hpp>
 #include <map>
 
 namespace engine

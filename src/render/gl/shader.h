@@ -1,8 +1,8 @@
 #pragma once
 
 #include "bindableresource.h"
-#include "gsl-lite.hpp"
 
+#include <gsl-lite.hpp>
 #include <render/gl/api/soglb_core.hpp>
 
 namespace render::gl

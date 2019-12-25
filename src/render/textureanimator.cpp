@@ -299,25 +299,25 @@ public:
       }
     }
 
-    loader::file::DWordTexture texture;
-    texture.md5 = "animated";
-    texture.texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>("animated texture tiles");
-    texture.texture->set(::gl::TextureMinFilter::NearestMipmapLinear).generateMipmap();
+    auto texture = std::make_unique<loader::file::DWordTexture>();
+    texture->md5 = "animated";
+    texture->texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>("animated texture tiles");
+    texture->texture->set(::gl::TextureMinFilter::NearestMipmapLinear).generateMipmap();
     if(!linear)
     {
-      texture.texture->set(::gl::TextureMagFilter::Nearest);
+      texture->texture->set(::gl::TextureMagFilter::Nearest);
     }
     else
     {
-      texture.texture->set(::gl::TextureMagFilter::Linear);
+      texture->texture->set(::gl::TextureMagFilter::Linear);
     }
     img.interleave();
-    texture.image = std::make_shared<gl::Image<gl::SRGBA8>>(
+    texture->image = std::make_shared<gl::Image<gl::SRGBA8>>(
       img.width(), img.height(), reinterpret_cast<const gl::SRGBA8*>(img.data()));
-    texture.texture->image(texture.image->getWidth(), texture.image->getHeight(), texture.image->getData())
+    texture->texture->image(texture->image->getWidth(), texture->image->getHeight(), texture->image->getData())
       .generateMipmap();
 
-    textures.emplace_back(std::move(texture));
+    textures.emplace_back(std::move(*texture));
   }
 };
 } // namespace

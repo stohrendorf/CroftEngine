@@ -1,10 +1,10 @@
 #include "font.h"
 
-#include "gsl-lite.hpp"
 #include "render/scene/renderer.h"
 #include "render/scene/uniformparameter.h"
 
 #include <boost/log/trivial.hpp>
+#include <gsl-lite.hpp>
 #include <utility>
 
 #include FT_OUTLINE_H

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "serialization/serialization_fwd.h"
 
+#include <gsl-lite.hpp>
 #include <memory>
 
 namespace loader::file

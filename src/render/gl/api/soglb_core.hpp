@@ -1,8 +1,7 @@
 #pragma once
 
-#include "gsl-lite.hpp"
-
 #include <cstdint>
+#include <gsl-lite.hpp>
 #include <type_traits>
 
 struct __GLsync;

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "filterhandle.h"
-#include "gsl-lite.hpp"
 #include "sourcehandle.h"
 #include "stream.h"
 
 #include <AL/alc.h>
+#include <gsl-lite.hpp>
 #include <set>
 #include <thread>
 

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "sndfile/helpers.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <filesystem>
 #include <fstream>
+#include <gsl-lite.hpp>
 #include <sndfile.h>
 
 namespace audio

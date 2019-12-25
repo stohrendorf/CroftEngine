@@ -1,7 +1,8 @@
 #pragma once
 
 #include "glew.h"
-#include "gsl-lite.hpp"
+
+#include <gsl-lite.hpp>
 
 namespace render::gl
 {

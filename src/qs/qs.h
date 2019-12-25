@@ -1,9 +1,10 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "mult_div.h"
 #include "quantity.h"
 #include "stream.h"
+
+#include <gsl-lite.hpp>
 
 #define QS_DECLARE_QUANTITY(NAME, TYPE, SUFFIX) \
   struct _##NAME##_generated_unit               \

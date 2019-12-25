@@ -1,9 +1,9 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "inputstate.h"
 
 #include <GLFW/glfw3.h>
+#include <gsl-lite.hpp>
 
 namespace hid
 {

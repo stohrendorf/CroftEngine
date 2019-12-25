@@ -1,9 +1,9 @@
 #pragma once
 
 #include "buffer.h"
-#include "gsl-lite.hpp"
 #include "typetraits.h"
 
+#include <gsl-lite.hpp>
 #include <vector>
 
 namespace render::gl

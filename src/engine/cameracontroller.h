@@ -176,7 +176,7 @@ public:
     return m_camera->getUpVector();
   }
 
-  const gsl::not_null<const loader::file::Room*>& getCurrentRoom() const
+  const auto& getCurrentRoom() const
   {
     return m_eye->room;
   }
@@ -213,7 +213,7 @@ public:
     m_bounce = bounce;
   }
 
-  const gsl::not_null<std::shared_ptr<render::scene::Camera>>& getCamera() const
+  const auto& getCamera() const
   {
     return m_camera;
   }

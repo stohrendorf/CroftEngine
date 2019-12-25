@@ -4,8 +4,9 @@
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
-#include "gsl-lite.hpp"
 #include "render/scene/model.h"
+
+#include <gsl-lite.hpp>
 
 namespace loader::file
 {

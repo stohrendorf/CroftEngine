@@ -1,9 +1,9 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "pixel.h"
 
 #include <boost/throw_exception.hpp>
+#include <gsl-lite.hpp>
 #include <vector>
 
 namespace render::gl

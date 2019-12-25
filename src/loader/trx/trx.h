@@ -1,9 +1,8 @@
 #pragma once
 
-#include "gsl-lite.hpp"
-
 #include <boost/algorithm/string.hpp>
 #include <filesystem>
+#include <gsl-lite.hpp>
 #include <map>
 #include <regex>
 #include <set>

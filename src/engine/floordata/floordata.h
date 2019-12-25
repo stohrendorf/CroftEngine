@@ -1,11 +1,11 @@
 #pragma once
 
 #include "core/magic.h"
-#include "gsl-lite.hpp"
 #include "serialization/serialization_fwd.h"
 #include "types.h"
 
 #include <bitset>
+#include <gsl-lite.hpp>
 #include <optional>
 
 namespace engine::floordata

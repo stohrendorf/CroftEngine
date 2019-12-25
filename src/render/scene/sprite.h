@@ -1,8 +1,9 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "mesh.h"
 #include "renderable.h"
+
+#include <gsl-lite.hpp>
 
 namespace render::scene
 {

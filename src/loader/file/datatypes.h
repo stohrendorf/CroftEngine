@@ -8,7 +8,6 @@
 #include "core/magic.h"
 #include "core/vec.h"
 #include "engine/floordata/types.h"
-#include "gsl-lite.hpp"
 #include "meshes.h"
 #include "primitives.h"
 #include "render/scene/mesh.h"
@@ -21,6 +20,7 @@
 #include <array>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <gsl-lite.hpp>
 #include <map>
 #include <optional>
 #include <stdexcept>

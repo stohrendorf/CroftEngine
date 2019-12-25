@@ -1,9 +1,9 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "render/gl/renderstate.h"
 #include "rendermode.h"
 
+#include <gsl-lite.hpp>
 #include <stack>
 
 namespace render::scene

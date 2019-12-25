@@ -1,9 +1,7 @@
 #pragma once
 
-#include "gsl-lite.hpp"
-
-// ReSharper disable once CppUnusedIncludeDirective
 #include <boost/current_function.hpp>
+#include <gsl-lite.hpp>
 
 namespace audio::detail
 {

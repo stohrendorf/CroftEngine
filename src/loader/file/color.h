@@ -1,9 +1,9 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "render/gl/pixel.h"
 
 #include <boost/assert.hpp>
+#include <gsl-lite.hpp>
 
 namespace loader::file
 {

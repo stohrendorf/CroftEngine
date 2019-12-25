@@ -1,9 +1,8 @@
 #include "utils.h"
 
-#include "gsl-lite.hpp"
-
 #include <AL/al.h>
 #include <boost/log/trivial.hpp>
+#include <gsl-lite.hpp>
 
 namespace audio::detail
 {

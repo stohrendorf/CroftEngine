@@ -1,13 +1,13 @@
 #pragma once
 
 #include "glassert.h"
-#include "gsl-lite.hpp"
 #include "shader.h"
 #include "shaderstoragebuffer.h"
 #include "texture.h"
 
 #include <boost/assert.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <gsl-lite.hpp>
 
 namespace render::gl
 {

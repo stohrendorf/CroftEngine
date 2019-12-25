@@ -2,10 +2,10 @@
 
 #include "core/angle.h"
 #include "core/vec.h"
-#include "gsl-lite.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <gsl-lite.hpp>
 
 namespace util
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gsl-lite.hpp"
+#include <gsl-lite.hpp>
 
 namespace render::scene
 {

@@ -1,17 +1,12 @@
 #pragma once
 
-#include "gsl-lite.hpp"
-
 #include <cstdint>
+#include <gsl-lite.hpp>
 #include <map>
 #include <stdexcept>
 #include <string>
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 #include "animationid_enum.h"
-
-}
-} // namespace loader
+} // namespace loader::file

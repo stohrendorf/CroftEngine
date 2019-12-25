@@ -1,12 +1,12 @@
 #pragma once
 
-#include "gsl-lite.hpp"
 #include "serialization_fwd.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
 #include <fstream>
+#include <gsl-lite.hpp>
 #include <queue>
 #include <string>
 #include <type_traits>

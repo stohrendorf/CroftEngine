@@ -1,10 +1,10 @@
 #include "window.h"
 
-#include "gsl-lite.hpp"
 #include "render/gl/glassert.h"
 #include "util/cimgwrapper.h"
 
 #include <boost/log/trivial.hpp>
+#include <gsl-lite.hpp>
 
 namespace render::scene
 {

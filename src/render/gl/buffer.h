@@ -1,8 +1,9 @@
 #pragma once
 
 #include "bindableresource.h"
-#include "gsl-lite.hpp"
 #include "typetraits.h"
+
+#include <gsl-lite.hpp>
 
 namespace render::gl
 {

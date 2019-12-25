@@ -1,12 +1,12 @@
 #pragma once
 
 #include "core/vec.h"
-#include "gsl-lite.hpp"
 #include "render/gl/framebuffer.h"
 #include "render/gl/texture.h"
 
 #include <cstdint>
 #include <glm/glm.hpp>
+#include <gsl-lite.hpp>
 
 namespace render::scene
 {
