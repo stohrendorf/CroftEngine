@@ -77,39 +77,41 @@ void main()
         uv += texture(u_portalPerturb, uv).xy * 512;
     }
 
-#ifndef DOF
-    out_color.rgb = shaded_texel(u_texture, uv, depth_at(uv));
+    vec3 finalColor;
+
+    #ifndef DOF
+    finalColor = shaded_texel(u_texture, uv, depth_at(uv));
     #else
-    out_color.rgb = do_dof(uv);
+    finalColor = do_dof(uv);
     #endif
 
-    const vec4 WaterColor = vec4(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f, 1);
-#ifdef WATER
+    const vec3 WaterColor = vec3(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f);
+    #ifdef WATER
     d = clamp(depth_at(u_portalDepth, uv)*4, 0, 1);
     // light absorbtion
-    out_color *= mix(vec4(1), WaterColor, d);
+    finalColor *= mix(vec3(1), WaterColor, d);
     // light scatter
-    out_color = mix(out_color, WaterColor, d/30);
-#else
+    finalColor = mix(finalColor, WaterColor, d/30);
+    #else
     if (d > 0)
     {
         // light absorbtion
-        out_color *= mix(vec4(1), WaterColor, d);
+        finalColor *= mix(vec3(1), WaterColor, d);
         // light scatter
-        out_color = mix(out_color, WaterColor, d/30);
+        finalColor = mix(finalColor, WaterColor, d/30);
     }
         #endif
 
-    out_color.rgb *= pow(texture(u_ao, uv).r, 1.5);
-    out_color.rgb *= grain*0.3 + 0.7;
+    finalColor *= pow(texture(u_ao, uv).r, 1.5);
+    finalColor *= grain*0.3 + 0.7;
 
     const float velviaAmount = 0.2;
 
     const vec2 velviaFac = vec2(1.0 + 2*velviaAmount, -velviaAmount);
 
-    vec3 velviaColor = vec3(dot(out_color.rgb, velviaFac.xyy), dot(out_color.rgb, velviaFac.yxy), dot(out_color.rgb, velviaFac.yyx));
-    vec3 velviaContrast = vec3(1.0) - clamp((vec3(1.0) - velviaColor*1.05)*1.01, vec3(0.0), vec3(1.0));
-    out_color.rgb = velviaContrast;
+    vec3 velviaColor = vec3(dot(finalColor, velviaFac.xyy), dot(finalColor, velviaFac.yxy), dot(finalColor, velviaFac.yyx));
+    finalColor = vec3(1.0) - clamp((vec3(1.0) - velviaColor*1.05)*1.01, vec3(0.0), vec3(1.0));
 
+    out_color.rgb = finalColor;
     out_color.a = 1;
 }

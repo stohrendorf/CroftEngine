@@ -65,22 +65,20 @@ void main()
 {
     vec4 baseColor = texture(u_diffuseTexture, gpi.texCoord);
 
-    if (baseColor.a < 0.5)
-    discard;
+    if (baseColor.a < 0.5) {
+        discard;
+    }
 
-    out_color.r = baseColor.r * gpi.color.r;
-    out_color.g = baseColor.g * gpi.color.g;
-    out_color.b = baseColor.b * gpi.color.b;
-    out_color.a = baseColor.a;
+    vec3 finalColor = baseColor.rgb * gpi.color.rgb;
 
     #ifdef WATER
     const float Scale1 = 0.003;
-    out_color.rgb *= clamp(abs(voronoi(gpi.vertexPosWorld * Scale1))+0.5, 0, 1);
+    finalColor.rgb *= clamp(abs(voronoi(gpi.vertexPosWorld * Scale1))+0.5, 0, 1);
     const float Scale2 = 0.0011;
-    out_color.rgb *= clamp(abs(voronoi(gpi.vertexPosWorld * Scale2))+0.5, 0, 1);
+    finalColor.rgb *= clamp(abs(voronoi(gpi.vertexPosWorld * Scale2))+0.5, 0, 1);
     #endif
 
-    out_color.rgb *= calc_positional_lighting(gpi.normal, gpi.vertexPos) * shadow_map_multiplier();
+    out_color.rgb = finalColor * calc_positional_lighting(gpi.normal, gpi.vertexPos) * shadow_map_multiplier();
     out_color.a = 1.0;
 
     out_normal = gpi.ssaoNormal;

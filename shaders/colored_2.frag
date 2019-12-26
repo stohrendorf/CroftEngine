@@ -44,9 +44,7 @@ vec3 srgbDecode(in vec3 color)
 
 void main()
 {
-    out_color.rgb = srgbDecode(gpi.color);
-
-    out_color.rgb *= calc_positional_lighting(gpi.normal, gpi.vertexPos) * shadow_map_multiplier();
+    out_color.rgb = srgbDecode(gpi.color) * calc_positional_lighting(gpi.normal, gpi.vertexPos) * shadow_map_multiplier();
     out_color.a = 1.0;
 
     out_normal = gpi.ssaoNormal;
