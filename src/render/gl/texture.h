@@ -70,7 +70,8 @@ public:
 
   Texture& generateMipmap()
   {
-    BOOST_ASSERT(getWidth() > 0 && getHeight() > 0);
+    if(getWidth() <= 0 || getHeight() <= 0)
+      return *this;
 
     bind();
     GL_ASSERT(::gl::generateMipmap(m_type));

@@ -302,7 +302,7 @@ public:
     auto texture = std::make_unique<loader::file::DWordTexture>();
     texture->md5 = "animated";
     texture->texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>("animated texture tiles");
-    texture->texture->set(::gl::TextureMinFilter::NearestMipmapLinear).generateMipmap();
+    texture->texture->set(::gl::TextureMinFilter::NearestMipmapLinear);
     if(!linear)
     {
       texture->texture->set(::gl::TextureMagFilter::Nearest);
