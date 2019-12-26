@@ -72,4 +72,9 @@ bool UniformBlockParameter::bind(const Node& node, const gsl::not_null<std::shar
 
   return true;
 }
+
+void UniformBlockParameter::bindTransformBuffer()
+{
+  m_bufferBinder = [](const Node& node, gl::UniformBlock& ub) { ub.bind(node.getTransformBuffer()); };
+}
 } // namespace render::scene

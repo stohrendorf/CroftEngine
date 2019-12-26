@@ -234,7 +234,7 @@ private:
   glm::mat4 m_localMatrix{1.0f};
   mutable Transform m_transform{};
   mutable bool m_dirty = false;
-  mutable render::gl::ShaderStorageBuffer<Transform> m_transformBuffer{};
+  mutable render::gl::UniformBuffer<Transform> m_transformBuffer{};
 
   boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
   boost::container::flat_map<std::string, std::function<UniformBlockParameter::BufferBinder>> m_uniformBlockBinders;

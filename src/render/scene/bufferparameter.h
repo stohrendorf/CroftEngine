@@ -51,8 +51,6 @@ public:
 
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
-  void bindTransformBuffer();
-
 private:
   [[nodiscard]] gl::ShaderStorageBlock*
     findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const

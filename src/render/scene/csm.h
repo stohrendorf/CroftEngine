@@ -98,6 +98,6 @@ private:
   std::array<Split, CSMBuffer::NSplits> m_splits;
   size_t m_activeSplit = 0;
   CSMBuffer m_bufferData;
-  gl::ShaderStorageBuffer<CSMBuffer> m_buffer{};
+  gl::UniformBuffer<CSMBuffer> m_buffer{};
 };
 } // namespace render::scene

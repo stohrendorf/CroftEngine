@@ -13,7 +13,7 @@ const std::shared_ptr<Material>& MaterialManager::getSprite()
   m_sprite = std::make_shared<Material>(m_shaderManager.getTextured());
   m_sprite->getRenderState().setCullFace(false);
 
-  m_sprite->getBuffer("Transform")->bindTransformBuffer();
+  m_sprite->getUniformBlock("Transform")->bindTransformBuffer();
 
   return m_sprite;
 }
@@ -42,9 +42,9 @@ std::shared_ptr<Material>
   texture->set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
   result->getUniform("u_diffuseTexture")->set(texture.get());
 
-  result->getBuffer("Transform")->bindTransformBuffer();
-  result->getBuffer("CSM")->bind(
-    [this](const Node& node, gl::ShaderStorageBlock& ssb) { ssb.bind(m_csm->getBuffer(node.getModelMatrix())); });
+  result->getUniformBlock("Transform")->bindTransformBuffer();
+  result->getUniformBlock("CSM")->bind(
+    [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
 
   result->getUniform("u_lightDepth[0]")->set(m_csm->getTextures());
 
@@ -65,9 +65,9 @@ const std::shared_ptr<Material>& MaterialManager::getColor()
     return m_color;
 
   m_color = std::make_shared<Material>(m_shaderManager.getColored());
-  m_color->getBuffer("Transform")->bindTransformBuffer();
-  m_color->getBuffer("CSM")->bind(
-    [this](const Node& node, gl::ShaderStorageBlock& ssb) { ssb.bind(m_csm->getBuffer(node.getModelMatrix())); });
+  m_color->getUniformBlock("Transform")->bindTransformBuffer();
+  m_color->getUniformBlock("CSM")->bind(
+    [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
   m_color->getUniform("u_lightDepth[0]")->set(m_csm->getTextures());
 
   return m_color;
@@ -96,7 +96,7 @@ const std::shared_ptr<Material>& MaterialManager::getLightning()
     return m_lightning;
 
   m_lightning = std::make_shared<render::scene::Material>(m_shaderManager.getLightning());
-  m_lightning->getBuffer("Transform")->bindTransformBuffer();
+  m_lightning->getUniformBlock("Transform")->bindTransformBuffer();
 
   return m_lightning;
 }
