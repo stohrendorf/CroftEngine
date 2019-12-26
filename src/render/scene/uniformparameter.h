@@ -29,18 +29,18 @@ public:
   template<typename T>
   void set(const T& value)
   {
-    m_valueSetter = [value](const Node& /*node*/, gl::ProgramUniform& uniform) { uniform.set(value); };
+    m_valueSetter = [value](const Node& /*node*/, gl::Uniform& uniform) { uniform.set(value); };
   }
 
   template<class ClassType, class ValueType>
   void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
   {
-    m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::ProgramUniform& uniform) {
+    m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Uniform& uniform) {
       uniform.set((classInstance->*valueMethod)());
     };
   }
 
-  using UniformValueSetter = void(const Node& node, gl::ProgramUniform& uniform);
+  using UniformValueSetter = void(const Node& node, gl::Uniform& uniform);
 
   void bind(std::function<UniformValueSetter>&& setter)
   {
@@ -52,7 +52,7 @@ public:
             ValueType (ClassType::*valueMethod)() const,
             std::size_t (ClassType::*countMethod)() const)
   {
-    m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/, const gl::ProgramUniform& uniform) {
+    m_valueSetter = [classInstance, valueMethod, countMethod](const Node& /*node*/, const gl::Uniform& uniform) {
       uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)());
     };
   }
@@ -66,8 +66,7 @@ public:
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
 private:
-  [[nodiscard]] gl::ProgramUniform*
-    findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+  [[nodiscard]] gl::Uniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
   {
     if(const auto uniform = shaderProgram->findUniform(getName()))
       return uniform;
@@ -81,4 +80,58 @@ private:
 
   std::optional<std::function<UniformValueSetter>> m_valueSetter;
 };
+
+class UniformBlockParameter : public MaterialParameter
+{
+public:
+  explicit UniformBlockParameter(std::string name)
+      : MaterialParameter{std::move(name)}
+  {
+  }
+
+  UniformBlockParameter(const UniformBlockParameter&&) = delete;
+
+  UniformBlockParameter& operator=(const UniformBlockParameter&) = delete;
+
+  UniformBlockParameter& operator=(UniformBlockParameter&&) = delete;
+
+  template<typename T>
+  void set(const std::shared_ptr<gl::UniformBuffer<T>>& value)
+  {
+    m_bufferBinder = [value](const Node& /*node*/, gl::UniformBlock& uniformBlock) { uniformBlock.bind(*value); };
+  }
+
+  template<class ClassType, typename T>
+  void bind(ClassType* classInstance, const gl::UniformBuffer<T>& (ClassType::*valueMethod)() const)
+  {
+    m_bufferBinder = [classInstance, valueMethod](const Node& /*node*/, gl::UniformBlock& uniformBlock) {
+      uniformBlock.bind((classInstance->*valueMethod)());
+    };
+  }
+
+  using BufferBinder = void(const Node& node, gl::UniformBlock& uniformBlock);
+
+  void bind(std::function<BufferBinder>&& setter)
+  {
+    m_bufferBinder = std::move(setter);
+  }
+
+  bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
+
+private:
+  [[nodiscard]] gl::UniformBlock*
+    findUniformBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+  {
+    if(const auto block = shaderProgram->findUniformBlock(getName()))
+      return block;
+
+    BOOST_LOG_TRIVIAL(warning) << "Uniform block '" << getName() << "' not found in program '" << shaderProgram->getId()
+                               << "'";
+
+    return nullptr;
+  }
+
+  std::optional<std::function<BufferBinder>> m_bufferBinder;
+};
+
 } // namespace render::scene

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "arraybuffer.h"
+#include "buffer.h"
 #include "program.h"
 #include "typetraits.h"
 
@@ -81,50 +81,6 @@ public:
 
       it->second.bindVertexAttribute(input.getLocation());
     }
-  }
-
-  void setSubData(const gsl::not_null<const T*>& data, const size_t start, size_t count)
-  {
-    ArrayBuffer<T>::bind();
-
-    if(count == 0)
-    {
-      count = ArrayBuffer<T>::size() - start;
-    }
-
-    GL_ASSERT(::gl::bufferSubData(::gl::BufferTargetARB::ArrayBuffer, start * sizeof(T), count * sizeof(T), data));
-  }
-
-  void setData(const gsl::not_null<const T*>& data, const size_t count, const ::gl::BufferUsageARB access)
-  {
-    ArrayBuffer<T>::bind();
-
-    if(count != 0)
-      ArrayBuffer<T>::m_size = gsl::narrow<::gl::core::SizeType>(count);
-
-    GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(T) * ArrayBuffer<T>::size(), data, access));
-  }
-
-  void setDataRaw(const gsl::not_null<const T*>& data, const size_t count, const ::gl::BufferUsageARB access)
-  {
-    ArrayBuffer<T>::bind();
-
-    if(count != 0)
-      ArrayBuffer<T>::m_size = count;
-
-    GL_ASSERT(::gl::bufferData(::gl::BufferTargetARB::ArrayBuffer, sizeof(T) * ArrayBuffer<T>::size(), data, access));
-  }
-
-  void setData(const std::vector<T>& data, const ::gl::BufferUsageARB access)
-  {
-    if(!data.empty())
-      setData(data.data(), data.size(), access);
-  }
-
-  void setDataRaw(const std::vector<T>& data, const size_t count, const ::gl::BufferUsageARB access)
-  {
-    if(!data.empty())
-      setDataRaw(data.data(), count, access);
   }
 
   [[nodiscard]] const StructureLayout<T>& getStructureLayout() const

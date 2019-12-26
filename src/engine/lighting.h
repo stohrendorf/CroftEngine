@@ -57,24 +57,24 @@ struct Lighting
       }
     }
 
-    m_buffer.setData(lights, gl::BufferUsageARB::DynamicDraw);
+    m_buffer.setData(lights, gl::BufferUsageARB::StreamDraw);
   }
 
   void updateStatic(int16_t shade)
   {
     lights.clear();
     ambient = 1.0f - shade / 8191.0f;
-    m_buffer.setData(lights, gl::BufferUsageARB::DynamicDraw);
+    m_buffer.setData(lights, gl::BufferUsageARB::StreamDraw);
   }
 
   void bind(render::scene::Node& node) const
   {
-    node.addUniformSetter(
-      "u_lightAmbient",
-      [this](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) { uniform.set(ambient); });
+    node.addUniformSetter("u_lightAmbient", [this](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+      uniform.set(ambient);
+    });
 
     node.addBufferBinder("b_lights",
-                         [this](const render::scene::Node&, render::gl::ProgramShaderStorageBlock& shaderStorageBlock) {
+                         [this](const render::scene::Node&, render::gl::ShaderStorageBlock& shaderStorageBlock) {
                            shaderStorageBlock.bind(m_buffer);
                          });
   }

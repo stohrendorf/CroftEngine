@@ -98,6 +98,8 @@ struct RenderModel
 template<size_t N>
 core::TRVec getCenter(const std::array<VertexIndex, N>& faceVertices, const std::vector<RoomVertex>& roomVertices)
 {
+  static_assert(N <= static_cast<size_t>(std::numeric_limits<core::Length::type>::max()));
+
   core::TRVec s{0_len, 0_len, 0_len};
   for(const auto& v : faceVertices)
   {
@@ -105,7 +107,7 @@ core::TRVec getCenter(const std::array<VertexIndex, N>& faceVertices, const std:
     s += rv.position;
   }
 
-  return s / faceVertices.size();
+  return s / static_cast<core::Length::type>(N);
 }
 } // namespace
 
@@ -259,9 +261,8 @@ void Room::createSceneNode(
 
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
   node->setRenderable(resModel);
-  node->addUniformSetter(
-    "u_lightAmbient",
-    [](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) { uniform.set(1.0f); });
+  node->addUniformSetter("u_lightAmbient",
+                         [](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) { uniform.set(1.0f); });
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {
@@ -276,7 +277,7 @@ void Room::createSceneNode(
 
     subNode->addUniformSetter(
       "u_lightAmbient",
-      [brightness = sm.getBrightness()](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
+      [brightness = sm.getBrightness()](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
         uniform.set(brightness);
       });
 
@@ -290,10 +291,10 @@ void Room::createSceneNode(
 
     const Sprite& sprite = level.m_sprites.at(spriteInstance.id.get());
 
-    const auto model = std::make_shared<render::scene::Sprite>(sprite.x0,
-                                                               -sprite.y0,
-                                                               sprite.x1,
-                                                               -sprite.y1,
+    const auto model = std::make_shared<render::scene::Sprite>(static_cast<float>(sprite.x0),
+                                                               static_cast<float>(-sprite.y0),
+                                                               static_cast<float>(sprite.x1),
+                                                               static_cast<float>(-sprite.y1),
                                                                sprite.t0,
                                                                sprite.t1,
                                                                spriteMaterial,
@@ -303,14 +304,12 @@ void Room::createSceneNode(
     spriteNode->setRenderable(model);
     const RoomVertex& v = vertices.at(spriteInstance.vertex.get());
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
-    spriteNode->addUniformSetter(
-      "u_diffuseTexture",
-      [texture = sprite.texture](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
-        uniform.set(*texture);
-      });
+    spriteNode->addUniformSetter("u_diffuseTexture",
+                                 [texture = sprite.texture](const render::scene::Node& /*node*/,
+                                                            render::gl::Uniform& uniform) { uniform.set(*texture); });
     spriteNode->addUniformSetter(
       "u_lightAmbient",
-      [brightness = v.getBrightness()](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
+      [brightness = v.getBrightness()](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
         uniform.set(brightness);
       });
 

@@ -2,10 +2,8 @@ layout(location=0) in vec3 a_position;
 in vec3 a_normal;
 in vec3 a_color;
 
-uniform mat4 u_modelMatrix;
-uniform mat4 u_modelViewMatrix;
-uniform mat4 u_camProjection;
-uniform mat4 u_lightMVP[3];
+#include "csm_interface.glsl"
+#include "transform_interface.glsl"
 
 out vec2 v_texCoord;
 out vec3 v_color;

@@ -10,8 +10,14 @@
 namespace render::scene
 {
 class Renderable;
-
 class Scene;
+
+struct Transform
+{
+  glm::mat4 modelMatrix{1.0f};
+  glm::mat4 modelViewMatrix{1.0f};
+  glm::mat4 projection{1.0f};
+};
 
 class Node
 {
@@ -57,11 +63,16 @@ public:
     return m_visible;
   }
 
-  const glm::mat4& getModelMatrix() const;
-
-  glm::mat4 getModelViewMatrix() const
+  const glm::mat4& getModelMatrix() const
   {
-    return getViewMatrix() * getModelMatrix();
+    updateMatrices();
+    return m_transform.modelMatrix;
+  }
+
+  const glm::mat4& getModelViewMatrix() const
+  {
+    updateMatrices();
+    return m_transform.modelViewMatrix;
   }
 
   const glm::mat4& getViewMatrix() const;
@@ -143,6 +154,16 @@ public:
     m_bufferBinders[name] = std::move(binder);
   }
 
+  void addUniformBlockBinder(const std::string& name, const std::function<UniformBlockParameter::BufferBinder>& binder)
+  {
+    m_uniformBlockBinders[name] = binder;
+  }
+
+  void addUniformBlockBinder(const std::string& name, std::function<UniformBlockParameter::BufferBinder>&& binder)
+  {
+    m_uniformBlockBinders[name] = std::move(binder);
+  }
+
   const std::function<UniformParameter::UniformValueSetter>* findUniformSetter(const std::string& name) const
   {
     const auto it = m_uniformSetters.find(name);
@@ -151,6 +172,18 @@ public:
 
     if(const auto p = getParent().lock())
       return p->findUniformSetter(name);
+
+    return nullptr;
+  }
+
+  const std::function<UniformBlockParameter::BufferBinder>* findUniformBlockBinder(const std::string& name) const
+  {
+    const auto it = m_uniformBlockBinders.find(name);
+    if(it != m_uniformBlockBinders.end())
+      return &it->second;
+
+    if(const auto p = getParent().lock())
+      return p->findUniformBlockBinder(name);
 
     return nullptr;
   }
@@ -180,28 +213,31 @@ public:
     return *it;
   }
 
+  [[nodiscard]] const auto& getTransformBuffer() const
+  {
+    m_transform.projection = getProjectionMatrix();
+    m_transform.modelViewMatrix = getViewMatrix() * m_transform.modelMatrix;
+    m_transformBuffer.setData(m_transform, ::gl::BufferUsageARB::StreamDraw);
+    return m_transformBuffer;
+  }
+
 private:
   void transformChanged();
+  void updateMatrices() const;
 
   Scene* m_scene = nullptr;
-
   std::string m_id;
-
   List m_children;
-
   std::weak_ptr<Node> m_parent{};
-
   bool m_visible = true;
-
   std::shared_ptr<Renderable> m_renderable = nullptr;
-
   glm::mat4 m_localMatrix{1.0f};
-
-  mutable glm::mat4 m_modelMatrix{1.0f};
-
+  mutable Transform m_transform{};
   mutable bool m_dirty = false;
+  mutable render::gl::ShaderStorageBuffer<Transform> m_transformBuffer{};
 
   boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
+  boost::container::flat_map<std::string, std::function<UniformBlockParameter::BufferBinder>> m_uniformBlockBinders;
   boost::container::flat_map<std::string, std::function<BufferParameter::BufferBinder>> m_bufferBinders;
 
   friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& newParent);

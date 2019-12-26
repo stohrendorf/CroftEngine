@@ -13,8 +13,7 @@ const std::shared_ptr<Material>& MaterialManager::getSprite()
   m_sprite = std::make_shared<Material>(m_shaderManager.getTextured());
   m_sprite->getRenderState().setCullFace(false);
 
-  m_sprite->getUniform("u_modelMatrix")->bindModelMatrix();
-  m_sprite->getUniform("u_camProjection")->bindProjectionMatrix();
+  m_sprite->getBuffer("Transform")->bindTransformBuffer();
 
   return m_sprite;
 }
@@ -25,9 +24,8 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly()
     return m_depthOnly;
 
   m_depthOnly = std::make_shared<Material>(m_shaderManager.getDepthOnly());
-  m_depthOnly->getUniform("u_mvp")->bind([this](const Node& node, gl::ProgramUniform& uniform) {
-    uniform.set(m_csm->getActiveMatrix(node.getModelMatrix()));
-  });
+  m_depthOnly->getUniform("u_mvp")->bind(
+    [this](const Node& node, gl::Uniform& uniform) { uniform.set(m_csm->getActiveMatrix(node.getModelMatrix())); });
   m_depthOnly->getRenderState().setDepthTest(true);
   m_depthOnly->getRenderState().setDepthWrite(true);
 
@@ -43,20 +41,16 @@ std::shared_ptr<Material>
   texture->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge);
   texture->set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
   result->getUniform("u_diffuseTexture")->set(texture.get());
-  result->getUniform("u_modelMatrix")->bindModelMatrix();
-  result->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
-  result->getUniform("u_camProjection")->bindProjectionMatrix();
-  result->getUniform("u_lightMVP[0]")->bind([this](const Node& node, gl::ProgramUniform& uniform) {
-    uniform.set(m_csm->getMatrices(node.getModelMatrix()));
-  });
-  result->getUniform("u_csmSplits[0]")->bind([this](const Node&, gl::ProgramUniform& uniform) {
-    uniform.set(m_csm->getSplitEnds());
-  });
+
+  result->getBuffer("Transform")->bindTransformBuffer();
+  result->getBuffer("CSM")->bind(
+    [this](const Node& node, gl::ShaderStorageBlock& ssb) { ssb.bind(m_csm->getBuffer(node.getModelMatrix())); });
+
   result->getUniform("u_lightDepth[0]")->set(m_csm->getTextures());
 
   if(water)
   {
-    result->getUniform("u_time")->bind([renderer](const Node&, render::gl::ProgramUniform& uniform) {
+    result->getUniform("u_time")->bind([renderer](const Node&, render::gl::Uniform& uniform) {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
@@ -71,15 +65,9 @@ const std::shared_ptr<Material>& MaterialManager::getColor()
     return m_color;
 
   m_color = std::make_shared<Material>(m_shaderManager.getColored());
-  m_color->getUniform("u_modelMatrix")->bindModelMatrix();
-  m_color->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
-  m_color->getUniform("u_camProjection")->bindProjectionMatrix();
-  m_color->getUniform("u_lightMVP[0]")->bind([this](const Node& node, gl::ProgramUniform& uniform) {
-    uniform.set(m_csm->getMatrices(node.getModelMatrix()));
-  });
-  m_color->getUniform("u_csmSplits[0]")->bind([this](const Node&, gl::ProgramUniform& uniform) {
-    uniform.set(m_csm->getSplitEnds());
-  });
+  m_color->getBuffer("Transform")->bindTransformBuffer();
+  m_color->getBuffer("CSM")->bind(
+    [this](const Node& node, gl::ShaderStorageBlock& ssb) { ssb.bind(m_csm->getBuffer(node.getModelMatrix())); });
   m_color->getUniform("u_lightDepth[0]")->set(m_csm->getTextures());
 
   return m_color;
@@ -94,7 +82,7 @@ const std::shared_ptr<Material>& MaterialManager::getPortal(const gsl::not_null<
   m_portal->getRenderState().setCullFace(false);
 
   m_portal->getUniform("u_mvp")->bindViewProjectionMatrix(); // portals are in world space, no model transform needed
-  m_portal->getUniform("u_time")->bind([renderer](const Node&, render::gl::ProgramUniform& uniform) {
+  m_portal->getUniform("u_time")->bind([renderer](const Node&, render::gl::Uniform& uniform) {
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
     uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
   });
@@ -108,8 +96,7 @@ const std::shared_ptr<Material>& MaterialManager::getLightning()
     return m_lightning;
 
   m_lightning = std::make_shared<render::scene::Material>(m_shaderManager.getLightning());
-  m_lightning->getUniform("u_modelViewMatrix")->bindModelViewMatrix();
-  m_lightning->getUniform("u_camProjection")->bindProjectionMatrix();
+  m_lightning->getBuffer("Transform")->bindTransformBuffer();
 
   return m_lightning;
 }

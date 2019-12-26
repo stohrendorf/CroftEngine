@@ -3,10 +3,8 @@ in vec3 a_normal;
 in vec2 a_texCoord;
 in vec3 a_color;
 
-uniform mat4 u_modelMatrix;
-uniform mat4 u_modelViewMatrix;
-uniform mat4 u_camProjection;
-uniform mat4 u_lightMVP[3];
+#include "transform_interface.glsl"
+#include "csm_interface.glsl"
 
 out vec2 v_texCoord;
 out vec3 v_color;

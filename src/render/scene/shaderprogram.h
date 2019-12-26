@@ -35,24 +35,34 @@ public:
     return m_id;
   }
 
-  [[nodiscard]] const gl::ProgramUniform* findUniform(const std::string& name) const
+  [[nodiscard]] const gl::Uniform* findUniform(const std::string& name) const
   {
     return find(m_uniforms, name);
   }
 
-  gl::ProgramUniform* findUniform(const std::string& name)
+  gl::Uniform* findUniform(const std::string& name)
   {
     return find(m_uniforms, name);
   }
 
-  [[nodiscard]] const gl::ProgramShaderStorageBlock* findShaderStorageBlock(const std::string& name) const
+  [[nodiscard]] const gl::ShaderStorageBlock* findShaderStorageBlock(const std::string& name) const
   {
     return find(m_shaderStorageBlocks, name);
   }
 
-  gl::ProgramShaderStorageBlock* findShaderStorageBlock(const std::string& name)
+  gl::ShaderStorageBlock* findShaderStorageBlock(const std::string& name)
   {
     return find(m_shaderStorageBlocks, name);
+  }
+
+  [[nodiscard]] const gl::UniformBlock* findUniformBlock(const std::string& name) const
+  {
+    return find(m_uniformBlocks, name);
+  }
+
+  gl::UniformBlock* findUniformBlock(const std::string& name)
+  {
+    return find(m_uniformBlocks, name);
   }
 
   void bind() const
@@ -73,14 +83,11 @@ private:
                                                          const std::vector<std::string>& defines = {});
 
   std::string m_id;
-
   gl::Program m_handle;
-
   std::map<std::string, gl::ProgramInput> m_vertexAttributes;
-
-  std::map<std::string, gl::ProgramUniform> m_uniforms;
-
-  std::map<std::string, gl::ProgramShaderStorageBlock> m_shaderStorageBlocks;
+  std::map<std::string, gl::Uniform> m_uniforms;
+  std::map<std::string, gl::ShaderStorageBlock> m_shaderStorageBlocks;
+  std::map<std::string, gl::UniformBlock> m_uniformBlocks;
 
   template<typename T>
   static const T* find(const std::map<std::string, T>& map, const std::string& needle)

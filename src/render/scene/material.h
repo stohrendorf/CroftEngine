@@ -8,6 +8,7 @@
 namespace render::scene
 {
 class UniformParameter;
+class UniformBlockParameter;
 class BufferParameter;
 
 class Node;
@@ -35,6 +36,7 @@ public:
   void bind(const Node& node) const;
 
   gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const;
+  gsl::not_null<std::shared_ptr<UniformBlockParameter>> getUniformBlock(const std::string& name) const;
   gsl::not_null<std::shared_ptr<BufferParameter>> getBuffer(const std::string& name) const;
 
   gl::RenderState& getRenderState()
@@ -46,6 +48,7 @@ private:
   gsl::not_null<std::shared_ptr<ShaderProgram>> m_shaderProgram;
 
   mutable std::vector<gsl::not_null<std::shared_ptr<UniformParameter>>> m_uniforms;
+  mutable std::vector<gsl::not_null<std::shared_ptr<UniformBlockParameter>>> m_uniformBlocks;
   mutable std::vector<gsl::not_null<std::shared_ptr<BufferParameter>>> m_buffers;
 
   gl::RenderState m_renderState{};

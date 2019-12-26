@@ -51,16 +51,12 @@ void SpriteObject::createModel()
                                                              render::scene::Sprite::Axis::Y);
 
   m_node->setRenderable(model);
-  m_node->addUniformSetter(
-    "u_diffuseTexture",
-    [texture = m_sprite->texture](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
-      uniform.set(*texture);
-    });
-  m_node->addUniformSetter(
-    "u_lightAmbient",
-    [brightness = m_brightness](const render::scene::Node& /*node*/, render::gl::ProgramUniform& uniform) {
-      uniform.set(brightness);
-    });
+  m_node->addUniformSetter("u_diffuseTexture",
+                           [texture = m_sprite->texture](const render::scene::Node& /*node*/,
+                                                         render::gl::Uniform& uniform) { uniform.set(*texture); });
+  m_node->addUniformSetter("u_lightAmbient",
+                           [brightness = m_brightness](const render::scene::Node& /*node*/,
+                                                       render::gl::Uniform& uniform) { uniform.set(brightness); });
 }
 
 void SpriteObject::serialize(const serialization::Serializer& ser)

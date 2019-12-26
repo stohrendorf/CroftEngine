@@ -205,8 +205,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
   }
   shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
 
-  gl::Shader vertexShader{::gl::ShaderType::VertexShader,
-                          vshPath.string() + ";" + boost::algorithm::join(defines, ";")};
+  gl::VertexShader vertexShader{vshPath.string() + ";" + boost::algorithm::join(defines, ";")};
   vertexShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
   vertexShader.compile();
   if(!vertexShader.getCompileStatus())
@@ -233,8 +232,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
   }
   shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
 
-  gl::Shader fragmentShader{::gl::ShaderType::FragmentShader,
-                            fshPath.string() + ";" + boost::algorithm::join(defines, ";")};
+  gl::FragmentShader fragmentShader{fshPath.string() + ";" + boost::algorithm::join(defines, ";")};
   fragmentShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
   fragmentShader.compile();
   if(!fragmentShader.getCompileStatus())
@@ -264,21 +262,40 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
 
   BOOST_LOG_TRIVIAL(debug) << "Program vertex=" << vshPath << " fragment=" << fshPath
                            << " defines=" << boost::algorithm::join(defines, ";");
+
+  int32_t samplerIndex = 0;
   for(auto&& input : shaderProgram->m_handle.getInputs())
   {
-    BOOST_LOG_TRIVIAL(debug) << "  input " << input.getName();
+    if(input.getLocation() < 0)
+      continue; // only accept directly accessible uniforms
+
+    BOOST_LOG_TRIVIAL(debug) << "  input " << input.getName() << ", location=" << input.getLocation();
+
     shaderProgram->m_vertexAttributes.insert(make_pair(input.getName(), std::move(input)));
   }
 
-  for(auto&& uniform : shaderProgram->m_handle.getUniforms())
+  for(auto&& uniform : shaderProgram->m_handle.getUniforms(samplerIndex))
   {
-    BOOST_LOG_TRIVIAL(debug) << "  uniform " << uniform.getName();
+    if(uniform.getLocation() < 0)
+      continue; // only accept directly accessible uniforms
+
+    BOOST_LOG_TRIVIAL(debug) << "  uniform " << uniform.getName() << ", location=" << uniform.getLocation()
+                             << ", index=" << uniform.getIndex();
+
     shaderProgram->m_uniforms.emplace(make_pair(uniform.getName(), std::move(uniform)));
+  }
+
+  for(auto&& ub : shaderProgram->m_handle.getUniformBlocks(samplerIndex))
+  {
+    BOOST_LOG_TRIVIAL(debug) << "  uniform block " << ub.getName() << ", index=" << ub.getIndex()
+                             << ", binding=" << ub.getBinding();
+    shaderProgram->m_uniformBlocks.emplace(make_pair(ub.getName(), ub));
   }
 
   for(auto&& ssb : shaderProgram->m_handle.getShaderStorageBlocks())
   {
-    BOOST_LOG_TRIVIAL(debug) << "  shader storage block " << ssb.getName();
+    BOOST_LOG_TRIVIAL(debug) << "  shader storage block " << ssb.getName() << ", index=" << ssb.getIndex()
+                             << ", binding=" << ssb.getBinding();
     shaderProgram->m_shaderStorageBlocks.insert(make_pair(ssb.getName(), std::move(ssb)));
   }
 

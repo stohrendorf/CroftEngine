@@ -927,7 +927,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
   m_renderer->getScene()->setActiveCamera(
     std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 10.0f, 20480.0f));
 
-  m_csm = std::make_shared<render::scene::CSM>(3, 2048);
+  m_csm = std::make_shared<render::scene::CSM>(2048);
   m_materialManager = std::make_unique<render::scene::MaterialManager>(m_rootPath / "shaders", m_csm);
 
   scaleSplashImage();

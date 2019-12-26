@@ -1,8 +1,8 @@
 #pragma once
 
+#include "buffer.h"
 #include "glassert.h"
 #include "shader.h"
-#include "shaderstoragebuffer.h"
 #include "texture.h"
 
 #include <boost/assert.hpp>
@@ -13,10 +13,13 @@ namespace render::gl
 {
 class Program;
 
+template<::gl::ProgramInterface _Type>
 class ProgramInterface
 {
 public:
-  explicit ProgramInterface(const Program& program, ::gl::ProgramInterface type, uint32_t index);
+  static constexpr ::gl::ProgramInterface Type = _Type;
+
+  explicit ProgramInterface(const Program& program, uint32_t index);
 
   virtual ~ProgramInterface() = default;
 
@@ -25,29 +28,29 @@ public:
     return m_name;
   }
 
-  [[nodiscard]] auto getType() const noexcept
+  [[nodiscard]] auto getIndex() const
   {
-    return m_type;
+    return m_index;
   }
 
 protected:
-  static int32_t getProperty(const Program& program,
-                             ::gl::ProgramInterface type,
-                             uint32_t index,
-                             ::gl::ProgramResourceProperty what);
+  static int32_t getProperty(const Program& program, uint32_t index, ::gl::ProgramResourceProperty what);
+
+  static std::vector<int32_t>
+    getProperty(const Program& program, uint32_t index, ::gl::ProgramResourceProperty what, ::gl::core::SizeType count);
 
 private:
   std::string m_name{};
-
-  const ::gl::ProgramInterface m_type;
+  const uint32_t m_index;
 };
 
-class LocatableProgramInterface : public ProgramInterface
+template<::gl::ProgramInterface _Type>
+class LocatableProgramInterface : public ProgramInterface<_Type>
 {
 public:
-  explicit LocatableProgramInterface(const Program& program, ::gl::ProgramInterface type, uint32_t index)
-      : ProgramInterface{program, type, index}
-      , m_location{getProperty(program, type, index, ::gl::ProgramResourceProperty::Location)}
+  explicit LocatableProgramInterface(const Program& program, uint32_t index)
+      : ProgramInterface<_Type>{program, index}
+      , m_location{ProgramInterface<_Type>::getProperty(program, index, ::gl::ProgramResourceProperty::Location)}
   {
   }
 
@@ -60,35 +63,44 @@ private:
   const int32_t m_location;
 };
 
-class ProgramInput : public LocatableProgramInterface
-{
-public:
-  explicit ProgramInput(const Program& program, const uint32_t index)
-      : LocatableProgramInterface{program, ::gl::ProgramInterface::ProgramInput, index}
-  {
-  }
-};
+using ProgramInput = LocatableProgramInterface<::gl::ProgramInterface::ProgramInput>;
 
-class ProgramShaderStorageBlock : public ProgramInterface
+template<::gl::ProgramInterface _Type, ::gl::BufferTargetARB _Target>
+class ProgramBlock : public ProgramInterface<_Type>
 {
 public:
-  explicit ProgramShaderStorageBlock(const Program& program, uint32_t index);
+  static_assert(_Type == ::gl::ProgramInterface::UniformBlock || _Type == ::gl::ProgramInterface::ShaderStorageBlock);
+
+  explicit ProgramBlock(const Program& program, const uint32_t index)
+      : ProgramInterface<_Type>{program, index}
+      , m_binding{ProgramInterface<_Type>::getProperty(program, index, ::gl::ProgramResourceProperty::BufferBinding)}
+  {
+    Expects(m_binding >= 0);
+  }
 
   template<typename T>
-  void bind(const ShaderStorageBuffer<T>& shaderStorageBuffer)
+  void bind(const Buffer<T, _Target>& buffer)
   {
-    GL_ASSERT(
-      ::gl::bindBufferBase(::gl::BufferTargetARB::ShaderStorageBuffer, m_binding, shaderStorageBuffer.getHandle()));
+    GL_ASSERT(::gl::bindBufferBase(_Target, m_binding, buffer.getHandle()));
+  }
+
+  [[nodiscard]] auto getBinding() const
+  {
+    return m_binding;
   }
 
 private:
-  const uint32_t m_binding;
+  const int32_t m_binding;
 };
 
-class ProgramUniform : public LocatableProgramInterface
+using ShaderStorageBlock
+  = ProgramBlock<::gl::ProgramInterface::ShaderStorageBlock, ::gl::BufferTargetARB::ShaderStorageBuffer>;
+using UniformBlock = ProgramBlock<::gl::ProgramInterface::UniformBlock, ::gl::BufferTargetARB::UniformBuffer>;
+
+class Uniform : public LocatableProgramInterface<::gl::ProgramInterface::Uniform>
 {
 public:
-  explicit ProgramUniform(const Program& program, uint32_t index, int32_t& samplerIndex);
+  explicit Uniform(const Program& program, uint32_t index, int32_t& samplerIndex);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   template<typename T>
@@ -100,6 +112,14 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   template<typename T>
   void set(const std::vector<T>& values)
+  {
+    GL_ASSERT(
+      ::gl::programUniform1(m_program, getLocation(), gsl::narrow<::gl::core::SizeType>(values.size()), values.data()));
+  }
+
+  // ReSharper disable once CppMemberFunctionMayBeConst
+  template<typename T, size_t N>
+  void set(const std::array<T, N>& values)
   {
     GL_ASSERT(
       ::gl::programUniform1(m_program, getLocation(), gsl::narrow<::gl::core::SizeType>(values.size()), values.data()));
@@ -216,6 +236,24 @@ public:
       m_program, getLocation(), gsl::narrow_cast<::gl::core::SizeType>(textures.size()), indices.data()));
   }
 
+  template<size_t N>
+  void set(const std::array<std::shared_ptr<TextureDepth>, N>& textures)
+  {
+    BOOST_ASSERT(m_samplerIndex >= 0);
+    BOOST_ASSERT(textures.size() == static_cast<size_t>(m_size));
+
+    std::vector<int32_t> indices;
+    for(size_t i = 0; i < textures.size(); ++i)
+    {
+      const auto idx = m_samplerIndex + gsl::narrow_cast<int32_t>(i);
+      GL_ASSERT(::gl::activeTexture(textureUnit(idx)));
+      textures[i]->bind();
+      indices.emplace_back(idx);
+    }
+    GL_ASSERT(::gl::programUniform1(
+      m_program, getLocation(), gsl::narrow_cast<::gl::core::SizeType>(textures.size()), indices.data()));
+  }
+
   template<typename T>
   void set(const std::shared_ptr<T>& value)
   {
@@ -271,7 +309,8 @@ public:
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void attach(const Shader& shader)
+  template<::gl::ShaderType _Type>
+  void attach(const Shader<_Type>& shader)
   {
     BOOST_ASSERT(shader.getCompileStatus());
     GL_ASSERT(::gl::attachShader(getHandle(), shader.getHandle()));
@@ -322,67 +361,86 @@ public:
 
   [[nodiscard]] std::vector<ProgramInput> getInputs() const
   {
-    const auto n = getActiveResourceCount(::gl::ProgramInterface::ProgramInput);
-
-    std::vector<ProgramInput> inputs;
-    inputs.reserve(n);
-    for(uint32_t i = 0; i < n; ++i)
-      inputs.emplace_back(*this, i);
-    return inputs;
+    return getInputs<ProgramInput>(::gl::ProgramInterface::ProgramInput);
   }
 
-  [[nodiscard]] std::vector<ProgramUniform> getUniforms() const
+  [[nodiscard]] std::vector<Uniform> getUniforms(int32_t& samplerIndex) const
   {
-    const auto n = getActiveResourceCount(::gl::ProgramInterface::Uniform);
-
-    std::vector<ProgramUniform> uniforms;
-    uniforms.reserve(n);
-    int32_t samplerIndex = 0;
-    for(uint32_t i = 0; i < n; ++i)
-      uniforms.emplace_back(*this, i, samplerIndex);
-    return uniforms;
+    return getInputs<Uniform>(::gl::ProgramInterface::Uniform, samplerIndex);
   }
 
-  [[nodiscard]] std::vector<ProgramShaderStorageBlock> getShaderStorageBlocks() const
+  [[nodiscard]] std::vector<ShaderStorageBlock> getShaderStorageBlocks() const
   {
-    const auto n = getActiveResourceCount(::gl::ProgramInterface::ShaderStorageBlock);
+    return getInputs<ShaderStorageBlock>(::gl::ProgramInterface::ShaderStorageBlock);
+  }
 
-    std::vector<ProgramShaderStorageBlock> inputs;
+  [[nodiscard]] std::vector<UniformBlock> getUniformBlocks(int32_t& samplerIndex) const
+  {
+    return getInputs<UniformBlock>(::gl::ProgramInterface::UniformBlock);
+  }
+
+private:
+  template<typename T, typename... Args>
+  [[nodiscard]] std::vector<T> getInputs(const ::gl::ProgramInterface type, Args&&... args) const
+  {
+    const auto n = getActiveResourceCount(type);
+    std::vector<T> inputs;
     inputs.reserve(n);
     for(uint32_t i = 0; i < n; ++i)
-      inputs.emplace_back(*this, i);
+    {
+      inputs.emplace_back(*this, i, std::forward<Args>(args)...);
+    }
     return inputs;
   }
 };
 
-inline ProgramInterface::ProgramInterface(const Program& program,
-                                          const ::gl::ProgramInterface type,
-                                          const uint32_t index)
-    : m_type{type}
+template<::gl::ProgramInterface _Type>
+inline ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t index)
+    : m_index{index}
 {
-  const auto nameLength = getProperty(program, type, index, ::gl::ProgramResourceProperty::NameLength);
+  const auto nameLength = getProperty(program, index, ::gl::ProgramResourceProperty::NameLength);
   Expects(nameLength > 0);
-  std::vector<char> nameData(nameLength);
+  std::vector<char> nameData(nameLength, 0);
   GL_ASSERT(::gl::getProgramResourceName(
-    program.getHandle(), type, index, gsl::narrow<::gl::core::SizeType>(nameData.size()), nullptr, nameData.data()));
-  m_name.assign(nameData.begin(), std::prev(nameData.end()));
+    program.getHandle(), Type, index, gsl::narrow<::gl::core::SizeType>(nameData.size()), nullptr, nameData.data()));
+  m_name = nameData.data();
 }
 
-inline int32_t ProgramInterface::getProperty(const Program& program,
-                                             const ::gl::ProgramInterface type,
-                                             const uint32_t index,
-                                             ::gl::ProgramResourceProperty what)
+template<::gl::ProgramInterface _Type>
+inline int32_t
+  ProgramInterface<_Type>::getProperty(const Program& program, const uint32_t index, ::gl::ProgramResourceProperty what)
 {
   constexpr int32_t NumProperties = 1;
   const ::gl::ProgramResourceProperty properties[NumProperties] = {what};
-  int32_t values[NumProperties];
-  GL_ASSERT(::gl::getProgramResource(
-    program.getHandle(), type, index, NumProperties, properties, NumProperties, nullptr, values));
+  int32_t values[1];
+  GL_ASSERT(::gl::getProgramResource(program.getHandle(),
+                                     Type,
+                                     index,
+                                     NumProperties,
+                                     properties,
+                                     gsl::narrow_cast<int>(std::size(values)),
+                                     nullptr,
+                                     values));
   return values[0];
 }
 
-inline ProgramUniform::ProgramUniform(const Program& program, const uint32_t index, int32_t& samplerIndex)
-    : LocatableProgramInterface{program, ::gl::ProgramInterface::Uniform, index}
+template<::gl::ProgramInterface _Type>
+inline std::vector<int32_t> ProgramInterface<_Type>::getProperty(const Program& program,
+                                                                 const uint32_t index,
+                                                                 ::gl::ProgramResourceProperty what,
+                                                                 ::gl::core::SizeType count)
+{
+  constexpr int32_t NumProperties = 1;
+  const ::gl::ProgramResourceProperty properties[NumProperties] = {what};
+  Expects(count >= 0);
+  std::vector<int32_t> values(count, 0);
+  GL_ASSERT(::gl::getProgramResource(
+    program.getHandle(), Type, index, NumProperties, properties, count, nullptr, values.data()));
+  return values;
+}
+
+inline Uniform::Uniform(const Program& program, const uint32_t index, int32_t& samplerIndex)
+    : LocatableProgramInterface{program, index}
     , m_program{program.getHandle()}
 {
   int32_t type;
@@ -402,12 +460,5 @@ inline ProgramUniform::ProgramUniform(const Program& program, const uint32_t ind
   case ::gl::UniformType::SamplerCube: m_samplerIndex = samplerIndex; samplerIndex += m_size;
   default: break;
   }
-}
-
-inline ProgramShaderStorageBlock::ProgramShaderStorageBlock(const Program& program, const uint32_t index)
-    : ProgramInterface{program, ::gl::ProgramInterface::ShaderStorageBlock, index}
-    , m_binding{gsl::narrow<uint32_t>(getProperty(
-        program, ::gl::ProgramInterface::ShaderStorageBlock, index, ::gl::ProgramResourceProperty::BufferBinding))}
-{
 }
 } // namespace render::gl

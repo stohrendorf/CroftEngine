@@ -2,7 +2,7 @@
 
 #include "engine/heightinfo.h"
 #include "laraobject.h"
-#include "render/gl/elementarraybuffer.h"
+#include "render/gl/buffer.h"
 #include "render/gl/vertexarray.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"

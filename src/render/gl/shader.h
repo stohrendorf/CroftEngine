@@ -7,14 +7,15 @@
 
 namespace render::gl
 {
+template<::gl::ShaderType _Type>
 class Shader final
 {
 public:
-  explicit Shader(const ::gl::ShaderType type, const std::string& label = {})
-      : m_handle{GL_ASSERT_FN(::gl::createShader(type))}
-      , m_type{type}
+  static constexpr ::gl::ShaderType Type = _Type;
+
+  explicit Shader(const std::string& label = {})
+      : m_handle{GL_ASSERT_FN(::gl::createShader(Type))}
   {
-    BOOST_ASSERT(type == ::gl::ShaderType::VertexShader || type == ::gl::ShaderType::FragmentShader);
     Expects(m_handle != 0);
 
     if(!label.empty())
@@ -34,11 +35,6 @@ public:
   ~Shader()
   {
     GL_ASSERT(::gl::deleteShader(m_handle));
-  }
-
-  [[nodiscard]] auto getType() const noexcept
-  {
-    return m_type;
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -95,7 +91,8 @@ public:
 
 private:
   const uint32_t m_handle;
-
-  const ::gl::ShaderType m_type;
 };
+
+using FragmentShader = Shader<::gl::ShaderType::FragmentShader>;
+using VertexShader = Shader<::gl::ShaderType::VertexShader>;
 } // namespace render::gl

@@ -29,26 +29,47 @@ bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_pt
 
 void UniformParameter::bindModelMatrix()
 {
-  m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getModelMatrix()); };
+  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getModelMatrix()); };
 }
 
 void UniformParameter::bindViewMatrix()
 {
-  m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getViewMatrix()); };
+  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getViewMatrix()); };
 }
 
 void UniformParameter::bindModelViewMatrix()
 {
-  m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getModelViewMatrix()); };
+  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getModelViewMatrix()); };
 }
 
 void UniformParameter::bindProjectionMatrix()
 {
-  m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getProjectionMatrix()); };
+  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getProjectionMatrix()); };
 }
 
 void UniformParameter::bindViewProjectionMatrix()
 {
-  m_valueSetter = [](const Node& node, gl::ProgramUniform& uniform) { uniform.set(node.getViewProjectionMatrix()); };
+  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getViewProjectionMatrix()); };
+}
+
+bool UniformBlockParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
+{
+  const auto binder = node.findUniformBlockBinder(getName());
+  if(!m_bufferBinder.has_value() && binder == nullptr)
+  {
+    // don't have an explicit binder present on material or node level, assuming it's set on shader level
+    return true;
+  }
+
+  const auto block = findUniformBlock(shaderProgram);
+  if(block == nullptr)
+    return false;
+
+  if(binder != nullptr)
+    (*binder)(node, *block);
+  else
+    (*m_bufferBinder)(node, *block);
+
+  return true;
 }
 } // namespace render::scene

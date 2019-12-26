@@ -6,7 +6,7 @@
 
 namespace render::scene
 {
-CSM::Split::Split(int32_t resolution, size_t idx)
+void CSM::Split::init(int32_t resolution, size_t idx)
 {
   texture->image(resolution, resolution)
     .set(::gl::TextureMinFilter::Linear)
@@ -18,15 +18,14 @@ CSM::Split::Split(int32_t resolution, size_t idx)
                   .build("csm-split-fb/" + std::to_string(idx));
 }
 
-CSM::CSM(uint8_t splits, int32_t resolution)
+CSM::CSM(int32_t resolution)
     : m_resolution{resolution}
 {
-  Expects(splits > 0);
+  static_assert(CSMBuffer::NSplits > 0);
   Expects(resolution > 0);
-  m_splits.reserve(splits);
-  for(size_t i = 0; i < splits; ++i)
+  for(size_t i = 0; i < CSMBuffer::NSplits; ++i)
   {
-    m_splits.emplace_back(resolution, i);
+    m_splits[i].init(resolution, i);
   }
 }
 
@@ -34,28 +33,27 @@ void CSM::applyViewport()
 {
   GL_ASSERT(::gl::viewport(0, 0, m_resolution, m_resolution));
 }
-std::vector<std::shared_ptr<gl::TextureDepth>> CSM::getTextures() const
+
+std::array<std::shared_ptr<gl::TextureDepth>, CSMBuffer::NSplits> CSM::getTextures() const
 {
-  std::vector<std::shared_ptr<gl::TextureDepth>> result;
-  std::transform(
-    m_splits.begin(), m_splits.end(), std::back_inserter(result), [](const Split& split) { return split.texture; });
+  std::array<std::shared_ptr<gl::TextureDepth>, CSMBuffer::NSplits> result{};
+  std::transform(m_splits.begin(), m_splits.end(), result.begin(), [](const Split& split) { return split.texture; });
   return result;
 }
 
-std::vector<glm::mat4> CSM::getMatrices(const glm::mat4& modelMatrix) const
+std::array<glm::mat4, CSMBuffer::NSplits> CSM::getMatrices(const glm::mat4& modelMatrix) const
 {
-  std::vector<glm::mat4> result;
-  std::transform(m_splits.begin(), m_splits.end(), std::back_inserter(result), [modelMatrix](const Split& split) {
+  std::array<glm::mat4, CSMBuffer::NSplits> result{};
+  std::transform(m_splits.begin(), m_splits.end(), result.begin(), [modelMatrix](const Split& split) {
     return split.pvMatrix * modelMatrix;
   });
   return result;
 }
 
-std::vector<float> CSM::getSplitEnds() const
+std::array<float, CSMBuffer::NSplits> CSM::getSplitEnds() const
 {
-  std::vector<float> result;
-  std::transform(
-    m_splits.begin(), m_splits.end(), std::back_inserter(result), [](const Split& split) { return split.end; });
+  std::array<float, CSMBuffer::NSplits> result{};
+  std::transform(m_splits.begin(), m_splits.end(), result.begin(), [](const Split& split) { return split.end; });
   return result;
 }
 
@@ -138,4 +136,5 @@ void CSM::update(const Camera& camera)
     m_splits[cascadeIterator].pvMatrix = lightProjection * lightView;
   }
 }
+
 } // namespace render::scene

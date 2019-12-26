@@ -42,7 +42,7 @@ public:
         };
   }
 
-  using BufferBinder = void(const Node& node, gl::ProgramShaderStorageBlock& shaderStorageBlock);
+  using BufferBinder = void(const Node& node, gl::ShaderStorageBlock& shaderStorageBlock);
 
   void bind(std::function<BufferBinder>&& setter)
   {
@@ -51,8 +51,10 @@ public:
 
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
+  void bindTransformBuffer();
+
 private:
-  [[nodiscard]] gl::ProgramShaderStorageBlock*
+  [[nodiscard]] gl::ShaderStorageBlock*
     findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
   {
     if(const auto block = shaderProgram->findShaderStorageBlock(getName()))

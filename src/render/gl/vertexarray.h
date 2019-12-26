@@ -1,7 +1,6 @@
 #pragma once
 
-#include "bindableresource.h"
-#include "elementarraybuffer.h"
+#include "buffer.h"
 #include "program.h"
 #include "structuredarraybuffer.h"
 
