@@ -6,5 +6,5 @@ layout(location=0) out vec4 out_color;
 
 void main()
 {
-    out_color = texture2D(u_texture, sopi.texCoord);
+    out_color = texture(u_texture, sopi.texCoord);
 }

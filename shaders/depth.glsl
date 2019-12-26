@@ -4,7 +4,7 @@ float depth_at(in sampler2D tex, in vec2 uv)
 {
     vec4 clipSpaceLocation;
     clipSpaceLocation.xy = uv * 2 - vec2(1); // normalized device coordinates
-    clipSpaceLocation.z = texture2D(tex, uv).r * 2.0 - 1.0;
+    clipSpaceLocation.z = texture(tex, uv).r * 2.0 - 1.0;
     clipSpaceLocation.w = 1;
     vec4 camSpaceLocation = inverse(u_camProjection) * clipSpaceLocation;
     float d = length(camSpaceLocation.xyz / camSpaceLocation.w);

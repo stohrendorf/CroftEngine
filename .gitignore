@@ -34,4 +34,4 @@ src/engine/tracks_tr1_enum.h
 *.cap
 
 shaders/*.err
-gamecontrollerdb.txt
+shaders/*.full.glsl

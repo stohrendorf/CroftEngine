@@ -63,7 +63,7 @@ float voronoi(in vec3 p)
 
 void main()
 {
-    vec4 baseColor = texture2D(u_diffuseTexture, gpi.texCoord);
+    vec4 baseColor = texture(u_diffuseTexture, gpi.texCoord);
 
     if (baseColor.a < 0.5)
     discard;
