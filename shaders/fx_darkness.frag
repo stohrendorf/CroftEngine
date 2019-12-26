@@ -54,10 +54,10 @@ float fbm(in vec2 uv) {
 void main()
 {
 #ifdef WATER
-    vec2 uv = (v_texCoord - vec2(0.5)) * 0.9 + vec2(0.5);  // scale a bit to avoid edge clamping when underwater
-#else
+    vec2 uv = (v_texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
+    #else
     vec2 uv = v_texCoord;
-#endif
+    #endif
 
     float grain = rand1(uv);
 
@@ -98,9 +98,18 @@ void main()
         // light scatter
         out_color = mix(out_color, WaterColor, d/30);
     }
-#endif
+        #endif
 
     out_color.rgb *= pow(texture(u_ao, uv).r, 1.5);
     out_color.rgb *= grain*0.3 + 0.7;
+
+    const float velviaAmount = 0.2;
+
+    const vec2 velviaFac = vec2(1.0 + 2*velviaAmount, -velviaAmount);
+
+    vec3 velviaColor = vec3(dot(out_color.rgb, velviaFac.xyy), dot(out_color.rgb, velviaFac.yxy), dot(out_color.rgb, velviaFac.yyx));
+    vec3 velviaContrast = vec3(1.0) - clamp((vec3(1.0) - velviaColor*1.05)*1.01, vec3(0.0), vec3(1.0));
+    out_color.rgb = velviaContrast;
+
     out_color.a = 1;
 }
