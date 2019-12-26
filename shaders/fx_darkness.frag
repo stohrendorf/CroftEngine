@@ -5,7 +5,7 @@ uniform sampler2D u_ao;
 uniform mat4 u_camProjection;
 uniform float u_time;
 
-in vec2 v_texCoord;
+#include "flat_pipeline_interface.glsl"
 
 layout(location=0) out vec4 out_color;
 
@@ -53,21 +53,21 @@ float fbm(in vec2 uv) {
 
 void main()
 {
-#ifdef WATER
-    vec2 uv = (v_texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
+    #ifdef WATER
+    vec2 uv = (fpi.texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
     #else
-    vec2 uv = v_texCoord;
+    vec2 uv = fpi.texCoord;
     #endif
 
     float grain = rand1(uv);
 
-#ifdef LENS_DISTORTION
+    #ifdef LENS_DISTORTION
     do_lens_distortion(uv);
-#endif
+    #endif
 
-#ifdef WATER
+    #ifdef WATER
     do_water_distortion(uv);
-#endif
+    #endif
 
     float d = depth_at(uv) - depth_at(u_portalDepth, uv);
     d = clamp(d*4, 0, 1);
@@ -78,10 +78,10 @@ void main()
     }
 
 #ifndef DOF
-    out_color.rgb = shaded_texel(uv, depth_at(uv));
-#else
+    out_color.rgb = shaded_texel(u_texture, uv, depth_at(uv));
+    #else
     out_color.rgb = do_dof(uv);
-#endif
+    #endif
 
     const vec4 WaterColor = vec4(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f, 1);
 #ifdef WATER

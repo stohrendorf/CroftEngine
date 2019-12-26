@@ -1,9 +1,10 @@
 uniform sampler2D u_texture;
 
-in vec2 v_texCoord;
-out vec4 out_color;
+#include "screenoverlay_pipeline_interface.glsl"
+
+layout(location=0) out vec4 out_color;
 
 void main()
 {
-    out_color = texture2D(u_texture, v_texCoord);
+    out_color = texture2D(u_texture, sopi.texCoord);
 }

@@ -1,11 +1,10 @@
-layout(location=0) in vec3 a_position;
+#include "vtx_input.glsl"
+#include "portal_pipeline_interface.glsl"
 
 uniform mat4 u_mvp;
 
-out vec3 v_vertexPosWorld;
-
 void main()
 {
-    v_vertexPosWorld = a_position;
+    ppi.vertexPosWorld = a_position;
     gl_Position = u_mvp * vec4(a_position, 1);
 }

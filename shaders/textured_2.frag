@@ -1,16 +1,9 @@
+#include "geometry_pipeline_interface.glsl"
+
 uniform sampler2D u_diffuseTexture;
 #ifdef WATER
 uniform float u_time;
 #endif
-
-in vec2 v_texCoord;
-in vec3 v_color;
-in vec3 v_vertexPos;
-#ifdef WATER
-in vec3 v_vertexPosWorld;
-#endif
-in vec3 v_normal;
-in vec3 v_ssaoNormal;
 
 layout(location=0) out vec4 out_color;
 layout(location=1) out vec3 out_normal;
@@ -27,9 +20,9 @@ float cellnoise(in vec3 p)
 vec3 cellnoise3( vec3 p )
 {
     return vec3(
-        cellnoise(p.xyz),
-        cellnoise(p.zxy),
-        cellnoise(p.yzx)
+    cellnoise(p.xyz),
+    cellnoise(p.zxy),
+    cellnoise(p.yzx)
     );
 }
 
@@ -70,26 +63,26 @@ float voronoi(in vec3 p)
 
 void main()
 {
-    vec4 baseColor = texture2D(u_diffuseTexture, v_texCoord);
+    vec4 baseColor = texture2D(u_diffuseTexture, gpi.texCoord);
 
-    if(baseColor.a < 0.5)
-        discard;
+    if (baseColor.a < 0.5)
+    discard;
 
-    out_color.r = baseColor.r * v_color.r;
-    out_color.g = baseColor.g * v_color.g;
-    out_color.b = baseColor.b * v_color.b;
+    out_color.r = baseColor.r * gpi.color.r;
+    out_color.g = baseColor.g * gpi.color.g;
+    out_color.b = baseColor.b * gpi.color.b;
     out_color.a = baseColor.a;
 
-#ifdef WATER
+    #ifdef WATER
     const float Scale1 = 0.003;
-    out_color.rgb *= clamp(abs(voronoi(v_vertexPosWorld * Scale1))+0.5, 0, 1);
+    out_color.rgb *= clamp(abs(voronoi(gpi.vertexPosWorld * Scale1))+0.5, 0, 1);
     const float Scale2 = 0.0011;
-    out_color.rgb *= clamp(abs(voronoi(v_vertexPosWorld * Scale2))+0.5, 0, 1);
-#endif
+    out_color.rgb *= clamp(abs(voronoi(gpi.vertexPosWorld * Scale2))+0.5, 0, 1);
+    #endif
 
-    out_color.rgb *= calc_positional_lighting(v_normal, v_vertexPos) * shadow_map_multiplier();
+    out_color.rgb *= calc_positional_lighting(gpi.normal, gpi.vertexPos) * shadow_map_multiplier();
     out_color.a = 1.0;
 
-    out_normal = v_ssaoNormal;
-    out_position = v_vertexPos;
+    out_normal = gpi.ssaoNormal;
+    out_position = gpi.vertexPos;
 }

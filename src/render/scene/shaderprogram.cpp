@@ -38,18 +38,15 @@ std::string readAll(const std::filesystem::path& filePath)
   return buffer;
 }
 
-std::string replaceDefines(const std::vector<std::string>& defines)
+std::string replaceDefines(const std::vector<std::string>& defines, bool isInput)
 {
   std::string out;
   if(!defines.empty())
   {
-    out += std::string("\n#define ") + boost::algorithm::join(defines, "\n#define ");
+    out += std::string("#define ") + boost::algorithm::join(defines, "\n#define ");
   }
 
-  if(!out.empty())
-  {
-    out += "\n";
-  }
+  out += isInput ? "\n#define IN_OUT in\n" : "\n#define IN_OUT out\n";
 
   return out;
 }
@@ -185,14 +182,9 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
                                                                const std::string& fshSource,
                                                                const std::vector<std::string>& defines)
 {
-  // Replace all comma separated definitions with #define prefix and \n suffix
-  std::string definesStr = replaceDefines(defines);
-  definesStr += "\n";
-
   static constexpr size_t SHADER_SOURCE_LENGTH = 3;
   gsl::czstring shaderSource[SHADER_SOURCE_LENGTH];
   shaderSource[0] = "#version 430\n";
-  shaderSource[1] = definesStr.c_str();
 
   std::string vshSourceStr;
   if(!vshPath.empty())
@@ -200,11 +192,11 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
     // Replace the #include "foo.bar" with the sources that come from file paths
     std::set<std::filesystem::path> included;
     replaceIncludes(vshPath, vshSource, vshSourceStr, included);
-    if(!vshSource.empty())
-      vshSourceStr += "\n";
   }
   shaderSource[2] = !vshPath.empty() ? vshSourceStr.c_str() : vshSource.c_str();
 
+  std::string definesStr = replaceDefines(defines, false);
+  shaderSource[1] = definesStr.c_str();
   gl::VertexShader vertexShader{vshPath.string() + ";" + boost::algorithm::join(defines, ";")};
   vertexShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
   vertexShader.compile();
@@ -227,11 +219,11 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
     // Replace the #include "foo.bar" with the sources that come from file paths
     std::set<std::filesystem::path> included;
     replaceIncludes(std::filesystem::path{fshPath}, fshSource, fshSourceStr, included);
-    if(!fshSource.empty())
-      fshSourceStr += "\n";
   }
   shaderSource[2] = !fshPath.empty() ? fshSourceStr.c_str() : fshSource.c_str();
 
+  definesStr = replaceDefines(defines, true);
+  shaderSource[1] = definesStr.c_str();
   gl::FragmentShader fragmentShader{fshPath.string() + ";" + boost::algorithm::join(defines, ";")};
   fragmentShader.setSource(shaderSource, SHADER_SOURCE_LENGTH);
   fragmentShader.compile();
@@ -297,6 +289,11 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
     BOOST_LOG_TRIVIAL(debug) << "  shader storage block " << ssb.getName() << ", index=" << ssb.getIndex()
                              << ", binding=" << ssb.getBinding();
     shaderProgram->m_shaderStorageBlocks.insert(make_pair(ssb.getName(), std::move(ssb)));
+  }
+
+  for(auto&& output : shaderProgram->m_handle.getOutputs())
+  {
+    BOOST_LOG_TRIVIAL(debug) << "  output " << output.getName() << ", location=" << output.getLocation();
   }
 
   return shaderProgram;

@@ -1,8 +1,6 @@
 uniform sampler2D u_lightDepth[3];
 uniform float u_lightAmbient;
 
-in vec4 v_vertexPosLight[3];
-
 #include "csm_interface.glsl"
 
 struct Light {
@@ -18,11 +16,11 @@ layout(std430, binding=2) buffer b_lights {
 float shadow_map_multiplier()
 {
     int cascadeIdx = 0;
-    while (cascadeIdx < u_csmSplits.length()-1 && -v_vertexPos.z > -u_csmSplits[cascadeIdx]) {
+    while (cascadeIdx < u_csmSplits.length()-1 && -gpi.vertexPos.z > -u_csmSplits[cascadeIdx]) {
         ++cascadeIdx;
     }
 
-    vec3 projCoords = v_vertexPosLight[cascadeIdx].xyz / v_vertexPosLight[cascadeIdx].w;
+    vec3 projCoords = gpi.vertexPosLight[cascadeIdx].xyz / gpi.vertexPosLight[cascadeIdx].w;
     projCoords = projCoords * 0.5 + 0.5;
     float currentDepth = projCoords.z;
     const float bias = 1.0/2048.0;

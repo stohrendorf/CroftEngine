@@ -57,21 +57,22 @@
 #endif
 
 bool fxaaStep(
-         in float lumaNN,
-         inout vec2 posN, inout vec2 posP,
-         inout bool doneN, inout float lumaEndN,
-         inout bool doneP, inout float lumaEndP,
-         in vec2 offNP,
-         in float gradientScaled,
-         in float q)
+in sampler2D tex,
+in float lumaNN,
+inout vec2 posN, inout vec2 posP,
+inout bool doneN, inout float lumaEndN,
+inout bool doneP, inout float lumaEndP,
+in vec2 offNP,
+in float gradientScaled,
+in float q)
 {
     if (!doneN)
     {
-        lumaEndN = luminance(texture(u_texture, posN.xy)) - lumaNN * 0.5;
+        lumaEndN = luminance(texture(tex, posN.xy)) - lumaNN * 0.5;
     }
     if (!doneP)
     {
-        lumaEndP = luminance(texture(u_texture, posP.xy)) - lumaNN * 0.5;
+        lumaEndP = luminance(texture(tex, posP.xy)) - lumaNN * 0.5;
     }
     doneN = abs(lumaEndN) >= gradientScaled;
     if (!doneN)
@@ -90,29 +91,31 @@ bool fxaaStep(
 
 
 vec3 fxaa(
-    in float subpixelAA, // 0..1
-    in float edgeThreshold, // 0.063..0.333
-    in float edgeThresholdMin // 0.0312..0.0833
+in sampler2D tex,
+in vec2 texCoordM,
+in float subpixelAA, // 0..1
+in float edgeThreshold, // 0.063..0.333
+in float edgeThresholdMin// 0.0312..0.0833
 ) {
-    vec2 posM = v_texCoord;
-    vec3 rgbM = texture(u_texture, posM).rgb;
+    vec2 posM = texCoordM;
+    vec3 rgbM = texture(tex, posM).rgb;
     float lumaM = luminance(rgbM);
-    float lumaS = luminance(textureOffset(u_texture, posM, ivec2(0, 1)));
-    float lumaE = luminance(textureOffset(u_texture, posM, ivec2(1, 0)));
-    float lumaN = luminance(textureOffset(u_texture, posM, ivec2(0,-1)));
-    float lumaW = luminance(textureOffset(u_texture, posM, ivec2(-1, 0)));
+    float lumaS = luminance(textureOffset(tex, posM, ivec2(0, 1)));
+    float lumaE = luminance(textureOffset(tex, posM, ivec2(1, 0)));
+    float lumaN = luminance(textureOffset(tex, posM, ivec2(0, -1)));
+    float lumaW = luminance(textureOffset(tex, posM, ivec2(-1, 0)));
 
     float lumaMax = max(max(lumaN, lumaW), max(lumaE, max(lumaS, lumaM)));
     float lumaMin = min(min(lumaN, lumaW), min(lumaE, min(lumaS, lumaM)));
     float lumaRange = lumaMax - lumaMin;
     if (lumaRange < max(edgeThresholdMin, lumaMax * edgeThreshold))
-        return rgbM;
+    return rgbM;
 
-    float lumaNW = luminance(textureOffset(u_texture, posM, ivec2(-1,-1)));
-    float lumaSE = luminance(textureOffset(u_texture, posM, ivec2(1, 1)));
-    float lumaNE = luminance(textureOffset(u_texture, posM, ivec2(1,-1)));
-    float lumaSW = luminance(textureOffset(u_texture, posM, ivec2(-1, 1)));
-/*--------------------------------------------------------------------------*/
+    float lumaNW = luminance(textureOffset(tex, posM, ivec2(-1, -1)));
+    float lumaSE = luminance(textureOffset(tex, posM, ivec2(1, 1)));
+    float lumaNE = luminance(textureOffset(tex, posM, ivec2(1, -1)));
+    float lumaSW = luminance(textureOffset(tex, posM, ivec2(-1, 1)));
+    /*--------------------------------------------------------------------------*/
     float lumaV = lumaN + lumaS;
     float lumaH = lumaW + lumaE;
     float lumaRight = lumaNE + lumaSE;
@@ -121,7 +124,7 @@ vec3 fxaa(
     float lumaBottom = lumaSW + lumaSE;
     float edgeHorz = abs(-2.0 * lumaW + lumaLeft) + abs(-2.0 * lumaM + lumaV) * 2.0 + abs(-2.0 * lumaE + lumaRight);
     float edgeVert = abs(-2.0 * lumaS + lumaBottom) + abs(-2.0 * lumaM + lumaH) * 2.0 + abs(-2.0 * lumaN + lumaTop);
-/*--------------------------------------------------------------------------*/
+    /*--------------------------------------------------------------------------*/
     float lengthSign = 1.0/screenSize.x;
     bool horzSpan = edgeHorz >= edgeVert;
     float subpixA = (lumaV + lumaH) * 2.0 + lumaLeft + lumaRight;
@@ -147,32 +150,32 @@ vec3 fxaa(
     vec2 posB = posM;
     vec2 offNP = horzSpan
         ? vec2(1.0/screenSize.x, 0.0)
-        : vec2(0.0, 1.0/screenSize.y);
+    : vec2(0.0, 1.0/screenSize.y);
     if (!horzSpan) {
         posB.x += lengthSign * 0.5;
     }
     else {
         posB.y += lengthSign * 0.5;
     }
-/*--------------------------------------------------------------------------*/
+    /*--------------------------------------------------------------------------*/
     vec2 posN = posB - offNP * FxaaQualityP[0];
     vec2 posP = posB + offNP * FxaaQualityP[0];
-    float lumaEndN = luminance(texture(u_texture, posN));
-    float lumaEndP = luminance(texture(u_texture, posP));
-/*--------------------------------------------------------------------------*/
+    float lumaEndN = luminance(texture(tex, posN));
+    float lumaEndP = luminance(texture(tex, posP));
+    /*--------------------------------------------------------------------------*/
     if (!pairN) {
         lumaNN = lumaSS;
     }
     float gradientScaled = max(gradientN, gradientS) / 4;
     float lumaMM = lumaM - lumaNN * 0.5;
     float subpixF = -2 * subpixC + 3.0 * subpixC * subpixC;
-/*--------------------------------------------------------------------------*/
+    /*--------------------------------------------------------------------------*/
     bool doneN = false;
     bool doneP = false;
     for(int i=1; i<FxaaQualityP.length(); ++i)
     {
-        if(!fxaaStep(lumaNN, posN, posP, doneN, lumaEndN, doneP, lumaEndP, offNP, gradientScaled, FxaaQualityP[i]))
-            break;
+        if (!fxaaStep(tex, lumaNN, posN, posP, doneN, lumaEndN, doneP, lumaEndP, offNP, gradientScaled, FxaaQualityP[i]))
+        break;
     }
 /*--------------------------------------------------------------------------*/
     float dstN = posM.x - posN.x;
@@ -195,5 +198,5 @@ vec3 fxaa(
     else {
         posM.y += pixelOffsetSubpix * lengthSign;
     }
-    return texture(u_texture, posM).rgb;
+    return texture(tex, posM).rgb;
 }

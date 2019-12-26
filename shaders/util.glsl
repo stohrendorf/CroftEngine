@@ -16,9 +16,9 @@ vec3 shade_texel(in vec3 rgb, in float depth)
     return rgb * brightness(depth);
 }
 
-vec3 shaded_texel(in vec2 uv, in float depth)
+vec3 shaded_texel(in sampler2D tex, in vec2 uv, in float depth)
 {
-    return shade_texel(texture2D(u_texture, uv).rgb, depth);
+    return shade_texel(texture(tex, uv).rgb, depth);
 }
 
 float luminance(in vec3 color)

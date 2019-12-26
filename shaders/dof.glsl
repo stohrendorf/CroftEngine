@@ -32,7 +32,7 @@ vec3 do_dof(in vec2 uv)
 
     float dist_step = dof_blur_radius(depth) / dof_rings;
 
-    vec3 sample_color = shaded_texel(uv, depth_at(uv));
+    vec3 sample_color = shaded_texel(u_texture, uv, depth_at(uv));
     float sample_weight_sum = 1.0;
     for (int i = 1; i <= dof_blends; i += 1)
     {
@@ -44,7 +44,7 @@ vec3 do_dof(in vec2 uv)
             vec2 r = rand2(uv + p) * dist_step / 2.0;
             vec2 peek = uv + p + r;
             float local_weight = 1.0 - smoothstep(j + 1.0, 0.0, dof_rings);
-            sample_color += shaded_texel(peek, depth_at(peek)) * local_weight;
+            sample_color += shaded_texel(u_texture, peek, depth_at(peek)) * local_weight;
             sample_weight_sum += local_weight;
         }
     }

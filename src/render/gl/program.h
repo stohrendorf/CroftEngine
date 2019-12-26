@@ -64,6 +64,7 @@ private:
 };
 
 using ProgramInput = LocatableProgramInterface<::gl::ProgramInterface::ProgramInput>;
+using ProgramOutput = LocatableProgramInterface<::gl::ProgramInterface::ProgramOutput>;
 
 template<::gl::ProgramInterface _Type, ::gl::BufferTargetARB _Target>
 class ProgramBlock : public ProgramInterface<_Type>
@@ -361,29 +362,34 @@ public:
 
   [[nodiscard]] std::vector<ProgramInput> getInputs() const
   {
-    return getInputs<ProgramInput>(::gl::ProgramInterface::ProgramInput);
+    return getInputs<ProgramInput>();
+  }
+
+  [[nodiscard]] std::vector<ProgramOutput> getOutputs() const
+  {
+    return getInputs<ProgramOutput>();
   }
 
   [[nodiscard]] std::vector<Uniform> getUniforms(int32_t& samplerIndex) const
   {
-    return getInputs<Uniform>(::gl::ProgramInterface::Uniform, samplerIndex);
+    return getInputs<Uniform>(samplerIndex);
   }
 
   [[nodiscard]] std::vector<ShaderStorageBlock> getShaderStorageBlocks() const
   {
-    return getInputs<ShaderStorageBlock>(::gl::ProgramInterface::ShaderStorageBlock);
+    return getInputs<ShaderStorageBlock>();
   }
 
   [[nodiscard]] std::vector<UniformBlock> getUniformBlocks(int32_t& samplerIndex) const
   {
-    return getInputs<UniformBlock>(::gl::ProgramInterface::UniformBlock);
+    return getInputs<UniformBlock>();
   }
 
 private:
   template<typename T, typename... Args>
-  [[nodiscard]] std::vector<T> getInputs(const ::gl::ProgramInterface type, Args&&... args) const
+  [[nodiscard]] std::vector<T> getInputs(Args&&... args) const
   {
-    const auto n = getActiveResourceCount(type);
+    const auto n = getActiveResourceCount(T::Type);
     std::vector<T> inputs;
     inputs.reserve(n);
     for(uint32_t i = 0; i < n; ++i)

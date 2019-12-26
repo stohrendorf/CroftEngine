@@ -51,7 +51,7 @@ public:
 
   auto getDepthOnly()
   {
-    return get("depth_only.vert", "depth_only.frag");
+    return get("depth_only.vert", "empty.frag");
   }
 
   auto getPortal()

@@ -1,8 +1,7 @@
 uniform sampler2D u_texture;
-
 vec2 screenSize = textureSize(u_texture, 0);
 
-in vec2 v_texCoord;
+#include "flat_pipeline_interface.glsl"
 
 layout(location=0) out vec4 out_color;
 
@@ -12,6 +11,6 @@ layout(location=0) out vec4 out_color;
 
 void main()
 {
-    out_color.rgb = fxaa(0.75, 0.166, 0.0833);
+    out_color.rgb = fxaa(u_texture, fpi.texCoord, 0.75, 0.166, 0.0833);
     out_color.a = 1;
 }

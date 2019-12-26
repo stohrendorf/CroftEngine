@@ -9,7 +9,7 @@ vec2 screenSize = textureSize(u_position, 0);
 
 layout(location=0) out float out_ao;
 
-in vec2 v_texCoord;
+#include "flat_pipeline_interface.glsl"
 
 void main()
 {
@@ -17,10 +17,10 @@ void main()
     const float bias = 0.025;
 
     // get input for SSAO algorithm
-    vec3 fragPos = texture(u_position, v_texCoord).xyz;
-    vec3 normal = normalize(texture(u_normals, v_texCoord).xyz);
+    vec3 fragPos = texture(u_position, fpi.texCoord).xyz;
+    vec3 normal = normalize(texture(u_normals, fpi.texCoord).xyz);
     // tile noise texture over screen based on screen dimensions divided by noise size
-    vec3 randomVec = normalize(texture(u_texNoise, v_texCoord * screenSize/4).xyz);
+    vec3 randomVec = normalize(texture(u_texNoise, fpi.texCoord * screenSize/4).xyz);
     // create TBN change-of-basis matrix: from tangent-space to view-space
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);

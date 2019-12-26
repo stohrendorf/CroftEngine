@@ -1,7 +1,8 @@
+#include "portal_pipeline_interface.glsl"
+
 uniform float u_time;
 uniform mat4 u_mvp;
 
-in vec3 v_vertexPosWorld;
 layout(location=0) out vec2 out_perturb;
 
 mat2 rotate2d(in float a){
@@ -72,14 +73,14 @@ vec2 bumpMap(in vec2 st){
 
 void main()
 {
-    vec2 uv = v_vertexPosWorld.xz / TexScale;
+    vec2 uv = ppi.vertexPosWorld.xz / TexScale;
     vec2 bm = bumpMap(uv);
     vec3 sn = normalize(vec3(bm.x, 1, bm.y)); // normal in XZ plane (model space)
 
     const float IOR = 1.3;
-    vec4 orig = u_mvp * vec4(v_vertexPosWorld, 1);
+    vec4 orig = u_mvp * vec4(ppi.vertexPosWorld, 1);
     orig.xyz /= orig.w;
-    vec4 surface = u_mvp * vec4(vec3(sn.x, 0, sn.z) + v_vertexPosWorld, 1);
+    vec4 surface = u_mvp * vec4(vec3(sn.x, 0, sn.z) + ppi.vertexPosWorld, 1);
     surface.xyz /= surface.w;
     out_perturb = (surface-orig).xy;
 }

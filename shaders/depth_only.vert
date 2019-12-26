@@ -1,4 +1,4 @@
-layout(location=0) in vec3 a_position;
+#include "vtx_input.glsl"
 
 uniform mat4 u_mvp;
 

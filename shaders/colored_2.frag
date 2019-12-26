@@ -1,8 +1,4 @@
-in vec2 v_texCoord;
-in vec3 v_color;
-in vec3 v_vertexPos;
-in vec3 v_normal;
-in vec3 v_ssaoNormal;
+#include "geometry_pipeline_interface.glsl"
 
 layout(location=0) out vec4 out_color;
 layout(location=1) out vec3 out_normal;
@@ -48,11 +44,11 @@ vec3 srgbDecode(in vec3 color)
 
 void main()
 {
-    out_color.rgb = srgbDecode(v_color);
+    out_color.rgb = srgbDecode(gpi.color);
 
-    out_color.rgb *= calc_positional_lighting(v_normal, v_vertexPos) * shadow_map_multiplier();
+    out_color.rgb *= calc_positional_lighting(gpi.normal, gpi.vertexPos) * shadow_map_multiplier();
     out_color.a = 1.0;
 
-    out_normal = v_ssaoNormal;
-    out_position = v_vertexPos;
+    out_normal = gpi.ssaoNormal;
+    out_position = gpi.vertexPos;
 }
