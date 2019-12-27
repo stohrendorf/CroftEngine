@@ -69,9 +69,10 @@ public:
     return get("flat.vert", "ssao.frag");
   }
 
-  auto getSSAOBlur()
+  auto getBlur(const uint8_t extent)
   {
-    return get("flat.vert", "ssao_blur.frag");
+    Expects(extent > 0);
+    return get("flat.vert", "blur.frag", {"BLUR_EXTENT " + std::to_string(extent)});
   }
 
   auto getPostprocessing()

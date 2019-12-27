@@ -142,6 +142,7 @@ private:
 
   std::shared_ptr<render::scene::CSM> m_csm{};
   std::unique_ptr<render::scene::MaterialManager> m_materialManager{};
+  std::shared_ptr<render::scene::ShaderManager> m_shaderManager{};
 
 public:
   explicit Engine(const std::filesystem::path& rootPath,

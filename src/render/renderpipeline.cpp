@@ -13,7 +13,7 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
     , m_fxaaMaterial{std::make_shared<scene::Material>(m_fxaaShader)}
     , m_ssaoShader{shaderManager.getSSAO()}
     , m_ssaoMaterial{std::make_shared<scene::Material>(m_ssaoShader)}
-    , m_ssaoBlurShader{shaderManager.getSSAOBlur()}
+    , m_ssaoBlurShader{shaderManager.getBlur(2)}
     , m_ssaoBlurMaterial{std::make_shared<scene::Material>(m_ssaoBlurShader)}
     , m_fxDarknessShader{shaderManager.getPostprocessing()}
     , m_fxDarknessMaterial{std::make_shared<scene::Material>(m_fxDarknessShader)}
@@ -86,7 +86,7 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
     .set(::gl::TextureMinFilter::Linear)
     .set(::gl::TextureMagFilter::Linear);
-  m_ssaoBlurMaterial->getUniform("u_ao")->set(m_ssaoAOBuffer);
+  m_ssaoBlurMaterial->getUniform("u_input")->set(m_ssaoAOBuffer);
 
   m_ssaoFb = gl::FrameBufferBuilder()
                .textureNoBlend(::gl::FramebufferAttachment::ColorAttachment0, m_ssaoAOBuffer)
@@ -233,17 +233,14 @@ void RenderPipeline::resize(const scene::Dimension2<size_t>& viewport)
   const auto proj
     = glm::ortho(0.0f, gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), 0.0f, 0.0f, 1.0f);
 
-  m_fxaaShader->findUniform("u_projection")->set(proj);
-  m_ssaoShader->findUniform("u_projection")->set(proj);
-  m_ssaoBlurShader->findUniform("u_projection")->set(proj);
-  m_fxDarknessShader->findUniform("u_projection")->set(proj);
-  m_fxWaterDarknessShader->findUniform("u_projection")->set(proj);
-
-  auto fxaaMesh = scene::createQuadFullscreen(
-    gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), m_fxaaShader->getHandle());
-  fxaaMesh->getMaterial().set(scene::RenderMode::Full, m_fxaaMaterial);
+  m_fxaaMaterial->getUniform("u_projection")->set(proj);
+  m_ssaoMaterial->getUniform("u_projection")->set(proj);
+  m_ssaoBlurMaterial->getUniform("u_projection")->set(proj);
+  m_fxDarknessMaterial->getUniform("u_projection")->set(proj);
+  m_fxWaterDarknessMaterial->getUniform("u_projection")->set(proj);
 
   m_fbModel->getMeshes().clear();
-  m_fbModel->addMesh(fxaaMesh);
+  m_fbModel->addMesh(scene::createQuadFullscreen(
+    gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), m_fxaaShader->getHandle()));
 }
 } // namespace render

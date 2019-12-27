@@ -27,26 +27,6 @@ bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_pt
   return true;
 }
 
-void UniformParameter::bindModelMatrix()
-{
-  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getModelMatrix()); };
-}
-
-void UniformParameter::bindViewMatrix()
-{
-  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getViewMatrix()); };
-}
-
-void UniformParameter::bindModelViewMatrix()
-{
-  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getModelViewMatrix()); };
-}
-
-void UniformParameter::bindProjectionMatrix()
-{
-  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getProjectionMatrix()); };
-}
-
 void UniformParameter::bindViewProjectionMatrix()
 {
   m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getViewProjectionMatrix()); };

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "core/vec.h"
+#include "material.h"
 #include "render/gl/buffer.h"
 #include "render/gl/framebuffer.h"
+#include "render/gl/pixel.h"
 #include "render/gl/texture.h"
 
 #include <cstdint>
@@ -12,10 +14,13 @@
 namespace render::scene
 {
 class Camera;
+class Model;
+class ShaderManager;
 
 struct CSMBuffer
 {
   static constexpr size_t NSplits = 3;
+  static constexpr int32_t BlurExtent = 2;
 
   alignas(16) std::array<glm::mat4, NSplits> lightMVP{};
   alignas(16) std::array<glm::vec4, NSplits> csmSplits{}; // because... well. we need padding.
@@ -27,42 +32,22 @@ public:
   struct Split final
   {
     glm::mat4 pvMatrix{1.0f};
-    const std::shared_ptr<gl::TextureDepth> texture{std::make_shared<gl::TextureDepth>()};
+    std::shared_ptr<gl::TextureDepth> texture;
     std::shared_ptr<gl::Framebuffer> framebuffer{};
     float end = 0;
+    std::shared_ptr<gl::Texture2D<gl::Scalar32F>> blurBuffer;
+    std::shared_ptr<gl::Framebuffer> blurFramebuffer;
+    std::shared_ptr<scene::Material> blurMaterial;
 
-    void init(int32_t resolution, size_t idx);
+    void init(int32_t resolution, size_t idx, const gsl::not_null<std::shared_ptr<ShaderProgram>>& blurShader);
   };
 
-  explicit CSM(int32_t resolution);
-
-  [[nodiscard]] auto getSplits() const
-  {
-    return m_splits.size();
-  }
-
-  [[nodiscard]] const auto& getSplit(size_t idx) const
-  {
-    return m_splits.at(idx);
-  }
-
-  void applyViewport();
+  explicit CSM(int32_t resolution, ShaderManager& shaderManager);
 
   [[nodiscard]] std::array<std::shared_ptr<gl::TextureDepth>, CSMBuffer::NSplits> getTextures() const;
-
-  [[nodiscard]] const auto& getTexture(size_t idx) const
-  {
-    return m_splits.at(idx).texture;
-  }
-
+  [[nodiscard]] std::array<std::shared_ptr<gl::Texture2D<gl::Scalar32F>>, CSMBuffer::NSplits> getBlurBuffers() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
-
   [[nodiscard]] std::array<float, CSMBuffer::NSplits> getSplitEnds() const;
-
-  [[nodiscard]] const auto& getActiveTexture() const
-  {
-    return m_splits.at(m_activeSplit).texture;
-  }
 
   [[nodiscard]] auto getActiveMatrix(const glm::mat4& modelMatrix) const
   {
@@ -74,13 +59,13 @@ public:
     return m_splits.at(m_activeSplit).framebuffer;
   }
 
-  void update(const Camera& camera);
-
   void setActiveSplit(size_t idx)
   {
     Expects(idx < m_splits.size());
     m_activeSplit = idx;
   }
+
+  void update(const Camera& camera);
 
   auto& getBuffer(const glm::mat4& modelMatrix)
   {
@@ -91,6 +76,13 @@ public:
     return m_buffer;
   }
 
+  void applyViewport()
+  {
+    GL_ASSERT(::gl::viewport(0, 0, m_resolution, m_resolution));
+  }
+
+  void renderBlur();
+
 private:
   const int32_t m_resolution;
   const glm::vec3 m_lightDir{core::TRVec{0_len, 1_len, 0_len}.toRenderSystem()};
@@ -99,5 +91,6 @@ private:
   size_t m_activeSplit = 0;
   CSMBuffer m_bufferData;
   gl::UniformBuffer<CSMBuffer> m_buffer{};
+  const std::shared_ptr<Model> m_fbModel;
 };
 } // namespace render::scene

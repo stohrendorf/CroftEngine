@@ -1,4 +1,4 @@
-uniform sampler2D u_lightDepth[3];
+uniform sampler2D u_csmDepth[3];
 uniform float u_lightAmbient;
 
 #include "csm_interface.glsl"
@@ -13,7 +13,7 @@ layout(std430, binding=2) buffer b_lights {
     Light lights[];
 };
 
-float shadow_map_multiplier()
+float shadow_map_multiplier(in float shadow)
 {
     int cascadeIdx = 0;
     while (cascadeIdx < u_csmSplits.length()-1 && -gpi.vertexPos.z > -u_csmSplits[cascadeIdx]) {
@@ -24,17 +24,17 @@ float shadow_map_multiplier()
     projCoords = projCoords * 0.5 + 0.5;
     float currentDepth = projCoords.z;
     const float bias = 1.0/2048.0;
-    const float d = 1.0/2048.0;
-    int n = 0;
-    for (int x=-1; x<=1; ++x) {
-        for (int y=-1; y<=1; ++y) {
-            float closestDepth = texture(u_lightDepth[cascadeIdx], projCoords.xy + vec2(x*d, y*d)).r;
-            if (currentDepth + bias >= closestDepth) {
-                ++n;
-            }
-        }
+    float closestDepth = texture(u_csmDepth[cascadeIdx], projCoords.xy).r;
+    if (currentDepth + bias >= closestDepth) {
+        return shadow;
     }
-    return mix(1.0, 0.5, smoothstep(0.0, 9.0, n));
+    else {
+        return 1.0;
+    }
+}
+
+float shadow_map_multiplier() {
+    return shadow_map_multiplier(0.5);
 }
 
 /*

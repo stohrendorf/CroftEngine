@@ -13,11 +13,8 @@ class CSM;
 class MaterialManager final
 {
 public:
-  explicit MaterialManager(std::filesystem::path root, gsl::not_null<std::shared_ptr<CSM>> csm)
-      : m_shaderManager{std::move(root)}
-      , m_csm{std::move(csm)}
-  {
-  }
+  explicit MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> shaderManager,
+                           gsl::not_null<std::shared_ptr<CSM>> csm);
 
   [[nodiscard]] auto& getShaderManager() const
   {
@@ -45,7 +42,7 @@ public:
   [[nodiscard]] const std::shared_ptr<Material>& getLightning();
 
 private:
-  ShaderManager m_shaderManager;
+  const gsl::not_null<std::shared_ptr<ShaderManager>> m_shaderManager;
 
   std::shared_ptr<Material> m_sprite{nullptr};
   std::shared_ptr<Material> m_depthOnly{nullptr};

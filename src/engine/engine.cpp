@@ -40,6 +40,8 @@
 #include <glm/gtx/norm.hpp>
 #include <locale>
 
+constexpr int32_t CSMResolution = 2048;
+
 namespace engine
 {
 namespace
@@ -927,13 +929,13 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
   m_renderer->getScene()->setActiveCamera(
     std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 10.0f, 20480.0f));
 
-  m_csm = std::make_shared<render::scene::CSM>(2048);
-  m_materialManager = std::make_unique<render::scene::MaterialManager>(m_rootPath / "shaders", m_csm);
+  m_shaderManager = std::make_shared<render::scene::ShaderManager>(m_rootPath / "shaders");
+  m_csm = std::make_shared<render::scene::CSM>(CSMResolution, *m_shaderManager);
+  m_materialManager = std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_csm);
 
   scaleSplashImage();
 
-  screenOverlay
-    = std::make_shared<render::scene::ScreenOverlay>(m_materialManager->getShaderManager(), m_window->getViewport());
+  screenOverlay = std::make_shared<render::scene::ScreenOverlay>(*m_shaderManager, m_window->getViewport());
 
   abibasFont->setTarget(screenOverlay->getImage());
 
@@ -1018,8 +1020,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
     }
 
     drawLoadingScreen("Preparing the game");
-    m_renderPipeline
-      = std::make_shared<render::RenderPipeline>(m_materialManager->getShaderManager(), m_window->getViewport());
+    m_renderPipeline = std::make_shared<render::RenderPipeline>(*m_shaderManager, m_window->getViewport());
     loadSceneData(glidos != nullptr);
 
     if(useAlternativeLara)
@@ -1181,7 +1182,7 @@ void Engine::run()
 
   render::gl::Framebuffer::unbindAll();
 
-  screenOverlay->init(m_materialManager->getShaderManager(), m_window->getViewport());
+  screenOverlay->init(*m_shaderManager, m_window->getViewport());
 
   if(const sol::optional<std::string> video = levelInfo["video"])
   {
@@ -1192,7 +1193,7 @@ void Engine::run()
                   if(m_window->updateWindowSize())
                   {
                     m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
-                    screenOverlay->init(m_materialManager->getShaderManager(), m_window->getViewport());
+                    screenOverlay->init(*m_shaderManager, m_window->getViewport());
                   }
 
                   screenOverlay->render(context);
@@ -1277,7 +1278,7 @@ void Engine::run()
     {
       m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
       m_renderPipeline->resize(m_window->getViewport());
-      screenOverlay->init(m_materialManager->getShaderManager(), m_window->getViewport());
+      screenOverlay->init(*m_shaderManager, m_window->getViewport());
       font->setTarget(screenOverlay->getImage());
     }
 
@@ -1302,16 +1303,15 @@ void Engine::run()
     m_renderPipeline->update(*getCameraController().getCamera(), m_renderer->getGameTime());
 
     {
-      render::gl::DebugGroup dbg{"shadow-depth-pass"};
+      render::gl::DebugGroup dbg{"csm-pass"};
       m_csm->update(*m_renderer->getScene()->getActiveCamera());
       m_csm->applyViewport();
 
-      for(size_t i = 0; i < m_csm->getSplits(); ++i)
+      for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
       {
-        render::gl::DebugGroup dbg2{"shadow-depth-pass/" + std::to_string(i)};
+        render::gl::DebugGroup dbg2{"csm-pass/" + std::to_string(i)};
 
         m_csm->setActiveSplit(i);
-
         m_csm->getActiveFramebuffer()->bind();
         m_renderer->clear(gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
@@ -1329,6 +1329,8 @@ void Engine::run()
           }
         }
       }
+
+      m_csm->renderBlur();
     }
 
     {
@@ -1457,7 +1459,7 @@ void Engine::drawLoadingScreen(const std::string& state)
   if(m_window->updateWindowSize())
   {
     m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
-    screenOverlay->init(m_materialManager->getShaderManager(), m_window->getViewport());
+    screenOverlay->init(*m_shaderManager, m_window->getViewport());
     abibasFont->setTarget(screenOverlay->getImage());
 
     scaleSplashImage();

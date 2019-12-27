@@ -105,7 +105,7 @@ public:
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   template<typename T>
-  void set(const T& value)
+  std::enable_if_t<std::is_trivial_v<T>, void> set(const T& value)
   {
     GL_ASSERT(::gl::programUniform1(m_program, getLocation(), value));
   }
@@ -209,50 +209,35 @@ public:
     GL_ASSERT(::gl::programUniform1(m_program, getLocation(), m_samplerIndex));
   }
 
+  template<typename _It>
+  void setTextures(const _It& begin, const _It& end)
+  {
+    BOOST_ASSERT(m_samplerIndex >= 0);
+
+    std::vector<int32_t> indices;
+    for(auto it = begin; it != end; ++it)
+    {
+      const auto idx = m_samplerIndex + gsl::narrow_cast<int32_t>(indices.size());
+      GL_ASSERT(::gl::activeTexture(textureUnit(idx)));
+      (*it)->bind();
+      indices.emplace_back(idx);
+    }
+
+    BOOST_ASSERT(indices.size() == static_cast<size_t>(m_size));
+    GL_ASSERT(::gl::programUniform1(
+      m_program, getLocation(), gsl::narrow_cast<::gl::core::SizeType>(indices.size()), indices.data()));
+  }
+
   template<typename T>
-  void set(const Texture2D<T>& texture)
+  std::enable_if_t<std::is_base_of_v<Texture, T>, void> set(const std::vector<std::shared_ptr<T>>& textures)
   {
-    set(static_cast<const Texture&>(texture));
+    setTextures(textures.begin(), textures.end());
   }
 
-  void set(const TextureDepth& texture)
+  template<typename T, size_t N>
+  std::enable_if_t<std::is_base_of_v<Texture, T>, void> set(const std::array<std::shared_ptr<T>, N>& textures)
   {
-    set(static_cast<const Texture&>(texture));
-  }
-
-  void set(const std::vector<std::shared_ptr<TextureDepth>>& textures)
-  {
-    BOOST_ASSERT(m_samplerIndex >= 0);
-    BOOST_ASSERT(textures.size() == static_cast<size_t>(m_size));
-
-    std::vector<int32_t> indices;
-    for(size_t i = 0; i < textures.size(); ++i)
-    {
-      const auto idx = m_samplerIndex + gsl::narrow_cast<int32_t>(i);
-      GL_ASSERT(::gl::activeTexture(textureUnit(idx)));
-      textures[i]->bind();
-      indices.emplace_back(idx);
-    }
-    GL_ASSERT(::gl::programUniform1(
-      m_program, getLocation(), gsl::narrow_cast<::gl::core::SizeType>(textures.size()), indices.data()));
-  }
-
-  template<size_t N>
-  void set(const std::array<std::shared_ptr<TextureDepth>, N>& textures)
-  {
-    BOOST_ASSERT(m_samplerIndex >= 0);
-    BOOST_ASSERT(textures.size() == static_cast<size_t>(m_size));
-
-    std::vector<int32_t> indices;
-    for(size_t i = 0; i < textures.size(); ++i)
-    {
-      const auto idx = m_samplerIndex + gsl::narrow_cast<int32_t>(i);
-      GL_ASSERT(::gl::activeTexture(textureUnit(idx)));
-      textures[i]->bind();
-      indices.emplace_back(idx);
-    }
-    GL_ASSERT(::gl::programUniform1(
-      m_program, getLocation(), gsl::narrow_cast<::gl::core::SizeType>(textures.size()), indices.data()));
+    setTextures(textures.begin(), textures.end());
   }
 
   template<typename T>

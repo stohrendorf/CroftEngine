@@ -57,10 +57,6 @@ public:
     };
   }
 
-  void bindModelMatrix();
-  void bindViewMatrix();
-  void bindModelViewMatrix();
-  void bindProjectionMatrix();
   void bindViewProjectionMatrix();
 
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
@@ -71,7 +67,6 @@ private:
     if(const auto uniform = shaderProgram->findUniform(getName()))
       return uniform;
 
-    // This parameter was not found in the specified effect, so do nothing.
     BOOST_LOG_TRIVIAL(warning) << "Uniform '" << getName() << "' not found in program '" << shaderProgram->getId()
                                << "'";
 

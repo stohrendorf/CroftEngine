@@ -137,7 +137,7 @@ void writeShaderToFile(const std::filesystem::path& filePath,
                        gsl::czstring* strings,
                        size_t count)
 {
-  std::ofstream stream{filePath.string() + ext, std::ios::trunc};
+  std::ofstream stream{filePath.string() + ext, std::ios::trunc | std::ios::binary};
   while(count--)
     stream << *strings++;
 }

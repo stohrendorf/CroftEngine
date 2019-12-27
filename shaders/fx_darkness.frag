@@ -16,8 +16,9 @@ const float Z_max = 20480;
 
 #include "water.glsl"
 
-#define DOF
+// #define DOF
 
+#include "depth.glsl"
 #ifdef DOF
 #include "dof.glsl"
 #endif
@@ -80,7 +81,7 @@ void main()
     vec3 finalColor;
 
     #ifndef DOF
-    finalColor = shaded_texel(u_texture, uv, depth_at(uv));
+    finalColor = shaded_texel(u_texture, uv, depth_at(u_portalDepth, uv));
     #else
     finalColor = do_dof(uv);
     #endif
