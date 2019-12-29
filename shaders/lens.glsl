@@ -1,4 +1,3 @@
-uniform float aspect_ratio;
 uniform float distortion_power;
 
 vec2 fisheye(in vec2 polar, in float stationary_radius) {

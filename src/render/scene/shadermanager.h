@@ -31,7 +31,7 @@ public:
 
   auto getScreenOverlay()
   {
-    return get("screenoverlay.vert", "screenoverlay.frag", {});
+    return get("flat.vert", "screenoverlay.frag", {"INVERT_Y"});
   }
 
   auto getTextured()

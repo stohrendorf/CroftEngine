@@ -36,67 +36,6 @@ Scene* Node::getScene() const
   return nullptr;
 }
 
-void Node::updateMatrices() const
-{
-  if(!m_dirty)
-    return;
-
-  m_dirty = false;
-
-  if(const auto p = getParent().lock())
-  {
-    m_transform.modelMatrix = p->getModelMatrix() * m_localMatrix;
-  }
-  else
-  {
-    m_transform.modelMatrix = m_localMatrix;
-  }
-}
-
-const glm::mat4& Node::getViewMatrix() const
-{
-  const auto scene = getScene();
-  if(const auto camera = scene != nullptr ? scene->getActiveCamera() : nullptr)
-  {
-    return camera->getViewMatrix();
-  }
-  else
-  {
-    static const glm::mat4 identity{1.0f};
-    return identity;
-  }
-}
-
-const glm::mat4& Node::getProjectionMatrix() const
-{
-  const auto scene = getScene();
-  const auto camera = scene != nullptr ? scene->getActiveCamera() : nullptr;
-  if(camera != nullptr)
-  {
-    return camera->getProjectionMatrix();
-  }
-  else
-  {
-    static const glm::mat4 identity{1.0f};
-    return identity;
-  }
-}
-
-const glm::mat4& Node::getViewProjectionMatrix() const
-{
-  const auto scene = getScene();
-  const auto camera = scene != nullptr ? scene->getActiveCamera() : nullptr;
-  if(camera != nullptr)
-  {
-    return camera->getViewProjectionMatrix();
-  }
-  else
-  {
-    static const glm::mat4 identity{1.0f};
-    return identity;
-  }
-}
-
 void Node::transformChanged()
 {
   m_dirty = true;

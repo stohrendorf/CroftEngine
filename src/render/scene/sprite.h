@@ -32,11 +32,8 @@ public:
   }
 
   Sprite(const Sprite&) = delete;
-
   Sprite(Sprite&&) = delete;
-
   Sprite& operator=(Sprite&&) = delete;
-
   Sprite& operator=(const Sprite&) = delete;
 
   ~Sprite() override = default;

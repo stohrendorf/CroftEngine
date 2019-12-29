@@ -34,7 +34,7 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
     .set(::gl::TextureMinFilter::Linear)
     .set(::gl::TextureMagFilter::Linear);
-  m_fxaaMaterial->getUniform("u_texture")->set(m_geometryColorBuffer);
+  m_fxaaMaterial->getUniform("u_input")->set(m_geometryColorBuffer);
 
   m_geometryNormalBuffer->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge)
@@ -197,19 +197,17 @@ void RenderPipeline::finalPass(const bool water)
   }
 }
 
-void RenderPipeline::update(const scene::Camera& camera, const std::chrono::high_resolution_clock::time_point& time)
+void RenderPipeline::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
+                            const std::chrono::high_resolution_clock::time_point& time)
 {
   // update uniforms
   const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(time);
   m_fxDarknessMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
   m_fxWaterDarknessMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
 
-  m_fxDarknessMaterial->getUniform("aspect_ratio")->set(camera.getAspectRatio());
-  m_fxWaterDarknessMaterial->getUniform("aspect_ratio")->set(camera.getAspectRatio());
-
-  m_fxDarknessMaterial->getUniform("u_camProjection")->set(camera.getProjectionMatrix());
-  m_fxWaterDarknessMaterial->getUniform("u_camProjection")->set(camera.getProjectionMatrix());
-  m_ssaoMaterial->getUniform("u_camProjection")->set(camera.getProjectionMatrix());
+  m_fxDarknessMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
+  m_fxWaterDarknessMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
+  m_ssaoMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }
 
 void RenderPipeline::resize(const scene::Dimension2<size_t>& viewport)
@@ -229,15 +227,6 @@ void RenderPipeline::resize(const scene::Dimension2<size_t>& viewport)
   m_ssaoAOBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
   m_ssaoBlurAOBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
   m_fxaaColorBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
-
-  const auto proj
-    = glm::ortho(0.0f, gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), 0.0f, 0.0f, 1.0f);
-
-  m_fxaaMaterial->getUniform("u_projection")->set(proj);
-  m_ssaoMaterial->getUniform("u_projection")->set(proj);
-  m_ssaoBlurMaterial->getUniform("u_projection")->set(proj);
-  m_fxDarknessMaterial->getUniform("u_projection")->set(proj);
-  m_fxWaterDarknessMaterial->getUniform("u_projection")->set(proj);
 
   m_fbModel->getMeshes().clear();
   m_fbModel->addMesh(scene::createQuadFullscreen(

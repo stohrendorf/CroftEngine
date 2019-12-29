@@ -5,10 +5,13 @@
 #include "rendervisitor.h"
 #include "scene.h"
 
+#include <utility>
+
 namespace render::scene
 {
-Renderer::Renderer()
+Renderer::Renderer(gsl::not_null<std::shared_ptr<Camera>> camera)
     : m_scene{std::make_shared<Scene>()}
+    , m_camera{std::move(camera)}
 {
 }
 

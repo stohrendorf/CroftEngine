@@ -16,6 +16,7 @@ const std::shared_ptr<Material>& MaterialManager::getSprite()
   m_sprite->getRenderState().setCullFace(false);
 
   m_sprite->getUniformBlock("Transform")->bindTransformBuffer();
+  m_sprite->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
 
   return m_sprite;
 }
@@ -35,17 +36,17 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly()
 }
 
 std::shared_ptr<Material>
-  MaterialManager::createTextureMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture,
-                                         bool water,
-                                         const gsl::not_null<const Renderer*>& renderer)
+  MaterialManager::createTextureMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture, bool water)
 {
   auto result
     = std::make_shared<Material>(water ? m_shaderManager->getTexturedWater() : m_shaderManager->getTextured());
   texture->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge);
   texture->set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
   result->getUniform("u_diffuseTexture")->set(texture.get());
+  result->getUniform("u_spritePole")->set(-1);
 
   result->getUniformBlock("Transform")->bindTransformBuffer();
+  result->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   result->getUniformBlock("CSM")->bind(
     [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
 
@@ -53,7 +54,7 @@ std::shared_ptr<Material>
 
   if(water)
   {
-    result->getUniform("u_time")->bind([renderer](const Node&, render::gl::Uniform& uniform) {
+    result->getUniform("u_time")->bind([renderer = m_renderer](const Node&, render::gl::Uniform& uniform) {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
@@ -69,6 +70,7 @@ const std::shared_ptr<Material>& MaterialManager::getColor()
 
   m_color = std::make_shared<Material>(m_shaderManager->getColored());
   m_color->getUniformBlock("Transform")->bindTransformBuffer();
+  m_color->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m_color->getUniformBlock("CSM")->bind(
     [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
   m_color->getUniform("u_csmDepth[0]")->set(m_csm->getBlurBuffers());
@@ -76,7 +78,7 @@ const std::shared_ptr<Material>& MaterialManager::getColor()
   return m_color;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getPortal(const gsl::not_null<const Renderer*>& renderer)
+const std::shared_ptr<Material>& MaterialManager::getPortal()
 {
   if(m_portal != nullptr)
     return m_color;
@@ -84,8 +86,8 @@ const std::shared_ptr<Material>& MaterialManager::getPortal(const gsl::not_null<
   m_portal = std::make_shared<Material>(m_shaderManager->getPortal());
   m_portal->getRenderState().setCullFace(false);
 
-  m_portal->getUniform("u_mvp")->bindViewProjectionMatrix(); // portals are in world space, no model transform needed
-  m_portal->getUniform("u_time")->bind([renderer](const Node&, render::gl::Uniform& uniform) {
+  m_portal->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m_portal->getUniform("u_time")->bind([renderer = m_renderer](const Node&, render::gl::Uniform& uniform) {
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
     uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
   });
@@ -100,14 +102,17 @@ const std::shared_ptr<Material>& MaterialManager::getLightning()
 
   m_lightning = std::make_shared<render::scene::Material>(m_shaderManager->getLightning());
   m_lightning->getUniformBlock("Transform")->bindTransformBuffer();
+  m_lightning->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
 
   return m_lightning;
 }
 
 MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> shaderManager,
-                                 gsl::not_null<std::shared_ptr<CSM>> csm)
+                                 gsl::not_null<std::shared_ptr<CSM>> csm,
+                                 gsl::not_null<std::shared_ptr<Renderer>> renderer)
     : m_shaderManager{std::move(shaderManager)}
     , m_csm{std::move(csm)}
+    , m_renderer{std::move(renderer)}
 {
 }
 } // namespace render::scene

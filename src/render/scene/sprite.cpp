@@ -1,10 +1,12 @@
 #include "sprite.h"
 
+#include "camera.h"
 #include "material.h"
 #include "mesh.h"
 #include "names.h"
 #include "node.h"
 #include "render/gl/vertexarray.h"
+#include "scene.h"
 
 namespace render::scene
 {
@@ -46,32 +48,7 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
   mesh->getMaterial().set(RenderMode::Full, materialFull);
 
   mesh->registerMaterialUniformSetter([pole](const Node& node, Material& material) {
-    auto m = node.getModelViewMatrix();
-    // clear out rotation component
-    for(int i : {0, 1, 2})
-    {
-      switch(pole)
-      {
-      case Axis::X:
-        if(i == 0)
-          continue;
-        break;
-      case Axis::Y:
-        if(i == 1)
-          continue;
-        break;
-      case Axis::Z:
-        if(i == 2)
-          continue;
-        break;
-      default: continue;
-      }
-
-      for(int j = 0; j < 3; ++j)
-        m[i][j] = i == j ? 1.0f : 0.0f;
-    }
-
-    material.getUniform("u_modelViewMatrix")->set(m);
+    material.getUniform("u_spritePole")->set(static_cast<int32_t>(pole));
   });
 
   return mesh;

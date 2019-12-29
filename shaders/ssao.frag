@@ -3,13 +3,13 @@ uniform sampler2D u_normals;
 uniform sampler2D u_texNoise;
 
 uniform vec3 u_samples[64];
-uniform mat4 u_camProjection;
 
 vec2 screenSize = textureSize(u_position, 0);
 
 layout(location=0) out float out_ao;
 
 #include "flat_pipeline_interface.glsl"
+#include "camera_interface.glsl"
 
 void main()
 {
@@ -33,7 +33,7 @@ void main()
         vec3 smp = fragPos + TBN * u_samples[i] * radius;// from tangent to view-space
 
         // project sample position (to sample texture) (to get position on screen/texture)
-        vec4 offset = u_camProjection * vec4(smp, 1.0);// from view to clip-space
+        vec4 offset = u_projection * vec4(smp, 1.0);// from view to clip-space
         offset.xyz /= offset.w;// perspective divide
         offset.xyz = offset.xyz * 0.5 + 0.5;// transform to range 0.0 - 1.0
 
@@ -41,8 +41,8 @@ void main()
         float sampleDepth = texture(u_position, offset.xy).z;// get depth value of kernel sample
 
         // range check & accumulate
-        if(sampleDepth >= smp.z + bias)
-            occlusion += smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+        if (sampleDepth >= smp.z + bias)
+        occlusion += smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
     }
     out_ao = 1.0 - (occlusion / u_samples.length());
 }

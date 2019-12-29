@@ -1,7 +1,6 @@
-uniform sampler2D u_input;
-
 #include "flat_pipeline_interface.glsl"
 
+uniform sampler2D u_input;
 layout(location=0) out float out_tex;
 
 const int BlurExtent = BLUR_EXTENT;

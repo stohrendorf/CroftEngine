@@ -85,7 +85,8 @@ public:
   void finalPass(bool water);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void update(const scene::Camera& camera, const std::chrono::high_resolution_clock::time_point& time);
+  void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
+              const std::chrono::high_resolution_clock::time_point& time);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void resize(const scene::Dimension2<size_t>& viewport);

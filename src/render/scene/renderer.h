@@ -7,9 +7,9 @@
 
 namespace render::scene
 {
-class Scene;
-
+class Camera;
 class RenderContext;
+class Scene;
 
 class Renderer final
 {
@@ -22,7 +22,7 @@ public:
 
   Renderer& operator=(Renderer&&) = delete;
 
-  explicit Renderer();
+  explicit Renderer(gsl::not_null<std::shared_ptr<Camera>> camera);
 
   ~Renderer();
 
@@ -40,7 +40,7 @@ public:
 
   void clear(const ::gl::core::Bitfield<::gl::ClearBufferMask>& flags, const gl::SRGBA8& clearColor, float clearDepth);
 
-  void clear(::gl::core::Bitfield<::gl::ClearBufferMask> flags,
+  void clear(const ::gl::core::Bitfield<::gl::ClearBufferMask>& flags,
              uint8_t red,
              uint8_t green,
              uint8_t blue,
@@ -50,9 +50,14 @@ public:
     clear(flags, gl::SRGBA8{red, green, blue, alpha}, clearDepth);
   }
 
-  [[nodiscard]] const std::shared_ptr<Scene>& getScene() const
+  [[nodiscard]] const auto& getScene() const
   {
     return m_scene;
+  }
+
+  [[nodiscard]] const auto& getCamera() const
+  {
+    return m_camera;
   }
 
 private:
@@ -65,5 +70,6 @@ private:
   float m_clearDepth = 1;  // The clear depth value last used for clearing the depth buffer.
 
   std::shared_ptr<Scene> m_scene;
+  gsl::not_null<std::shared_ptr<Camera>> m_camera;
 };
 } // namespace render::scene

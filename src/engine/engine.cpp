@@ -178,9 +178,8 @@ std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::
     if(materials.find(key) != materials.end())
       continue;
 
-    materials.emplace(key,
-                      m_materialManager->createTextureMaterial(
-                        m_level->m_textures[key.tileAndFlag & texMask].texture, water, m_renderer.get()));
+    materials.emplace(
+      key, m_materialManager->createTextureMaterial(m_level->m_textures[key.tileAndFlag & texMask].texture, water));
   }
   return materials;
 }
@@ -259,26 +258,26 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
                                         m_models,
                                         *m_textureAnimator,
                                         m_materialManager->getSprite(),
-                                        m_materialManager->getPortal(m_renderer.get()));
+                                        m_materialManager->getPortal());
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
   m_lara = createObjects();
   if(m_lara == nullptr)
   {
-    m_cameraController = std::make_unique<CameraController>(this, m_renderer->getScene()->getActiveCamera(), true);
+    m_cameraController = std::make_unique<CameraController>(this, m_renderer->getCamera(), true);
 
     for(const auto& item : m_level->m_items)
     {
       if(item.type == TR1ItemId::CutsceneActor1)
       {
-        getCameraController().setPosition(item.position);
+        m_cameraController->setPosition(item.position);
       }
     }
   }
   else
   {
-    m_cameraController = std::make_unique<CameraController>(this, m_renderer->getScene()->getActiveCamera());
+    m_cameraController = std::make_unique<CameraController>(this, m_renderer->getCamera());
   }
 
   m_positionalEmitters.reserve(m_level->m_soundSources.size());
@@ -377,7 +376,7 @@ void Engine::useAlternativeLaraAppearance(const bool withHead)
 
 void Engine::dinoStompEffect(objects::Object& object)
 {
-  const auto d = object.m_state.position.position.toRenderSystem() - getCameraController().getPosition();
+  const auto d = object.m_state.position.position.toRenderSystem() - m_cameraController->getPosition();
   const auto absD = glm::abs(d);
 
   static constexpr auto MaxD = (16 * core::SectorSize).get_as<float>();
@@ -385,7 +384,7 @@ void Engine::dinoStompEffect(objects::Object& object)
     return;
 
   const auto x = (100_len).retype_as<float>() * (1 - length2(d) / util::square(MaxD));
-  getCameraController().setBounce(x.retype_as<core::Length>());
+  m_cameraController->setBounce(x.retype_as<core::Length>());
 }
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
@@ -401,8 +400,8 @@ void Engine::laraNormalEffect()
   m_lara->setRequiredAnimState(loader::file::LaraStateId::Unknown12);
   m_lara->m_state.anim = &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
   m_lara->m_state.frame_number = 185_frame;
-  getCameraController().setMode(CameraMode::Chase);
-  getCameraController().getCamera()->setFieldOfView(glm::radians(80.0f));
+  m_cameraController->setMode(CameraMode::Chase);
+  m_renderer->getCamera()->setFieldOfView(glm::radians(80.0f));
 }
 
 void Engine::laraBubblesEffect(objects::Object& object)
@@ -443,7 +442,7 @@ void Engine::earthquakeEffect()
   {
   case 0:
     m_audioEngine->playSound(TR1SoundId::Explosion1, nullptr);
-    getCameraController().setBounce(-250_len);
+    m_cameraController->setBounce(-250_len);
     break;
   case 3: m_audioEngine->playSound(TR1SoundId::RollingBall, nullptr); break;
   case 35: m_audioEngine->playSound(TR1SoundId::Explosion1, nullptr); break;
@@ -476,7 +475,7 @@ void Engine::floodEffect()
     {
       mul = 30_frame - m_effectTimer;
     }
-    pos.Y = 100_len * mul / 1_frame + getCameraController().getCenter().position.Y;
+    pos.Y = 100_len * mul / 1_frame + m_cameraController->getCenter().position.Y;
     m_audioEngine->playSound(TR1SoundId::WaterFlow3, pos.toRenderSystem());
   }
   else
@@ -510,7 +509,7 @@ void Engine::stairsToSlopeEffect()
     {
       m_audioEngine->playSound(TR1SoundId::HeavyDoorSlam, nullptr);
     }
-    auto pos = getCameraController().getCenter().position;
+    auto pos = m_cameraController->getCenter().position;
     pos.Y += 100_spd * m_effectTimer;
     m_audioEngine->playSound(TR1SoundId::FlowingAir, pos.toRenderSystem());
   }
@@ -537,7 +536,7 @@ void Engine::sandEffect()
 void Engine::explosionEffect()
 {
   m_audioEngine->playSound(TR1SoundId::LowPitchedSettling, nullptr);
-  getCameraController().setBounce(-75_len);
+  m_cameraController->setBounce(-75_len);
   m_activeEffect.reset();
 }
 
@@ -696,7 +695,7 @@ void Engine::doGlobalEffect()
   if(m_activeEffect.has_value())
     runEffect(*m_activeEffect, nullptr);
 
-  m_audioEngine->setUnderwater(getCameraController().getCurrentRoom()->isWaterRoom());
+  m_audioEngine->setUnderwater(m_cameraController->getCurrentRoom()->isWaterRoom());
 }
 
 const loader::file::Animation& Engine::getAnimation(loader::file::AnimationId id) const
@@ -920,18 +919,16 @@ void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& fo
 Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const render::scene::Dimension2<int>& resolution)
     : m_rootPath{rootPath}
     , m_scriptEngine{createScriptEngine(rootPath)}
-    , m_renderer{std::make_unique<render::scene::Renderer>()}
     , m_window{std::make_unique<render::scene::Window>(fullscreen, resolution)}
+    , m_renderer{std::make_unique<render::scene::Renderer>(
+        std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 10.0f, 20480.0f))}
     , splashImage{m_rootPath / "splash.png"}
     , abibasFont{std::make_shared<render::gl::Font>(m_rootPath / "abibas.ttf", 48)}
     , m_inventory{*this}
 {
-  m_renderer->getScene()->setActiveCamera(
-    std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 10.0f, 20480.0f));
-
   m_shaderManager = std::make_shared<render::scene::ShaderManager>(m_rootPath / "shaders");
   m_csm = std::make_shared<render::scene::CSM>(CSMResolution, *m_shaderManager);
-  m_materialManager = std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_csm);
+  m_materialManager = std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_csm, m_renderer);
 
   scaleSplashImage();
 
@@ -1034,7 +1031,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
   else
   {
     m_audioEngine = std::make_unique<AudioEngine>(*this, m_rootPath / "data/tr1/audio");
-    m_cameraController = std::make_unique<CameraController>(this, m_renderer->getScene()->getActiveCamera(), true);
+    m_cameraController = std::make_unique<CameraController>(this, m_renderer->getCamera(), true);
   }
 
   m_audioEngine->getSoundEngine().setListener(m_cameraController.get());
@@ -1042,7 +1039,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
   if(!cutsceneName.empty() && !isVideo)
   {
     m_cameraController->setEyeRotation(0_deg, core::angleFromDegrees(levelInfo.get<float>("cameraRot")));
-    auto pos = getCameraController().getTRPosition().position;
+    auto pos = m_cameraController->getTRPosition().position;
     if(auto x = levelInfo["cameraPosX"])
       pos.X = core::Length{x.get<core::Length::type>()};
     if(auto y = levelInfo["cameraPosY"])
@@ -1050,7 +1047,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
     if(auto z = levelInfo["cameraPosZ"])
       pos.Z = core::Length{z.get<core::Length::type>()};
 
-    getCameraController().setPosition(pos);
+    m_cameraController->setPosition(pos);
 
     if(levelInfo["flipRooms"].get_or(false))
       swapAllRooms();
@@ -1192,7 +1189,7 @@ void Engine::run()
                 [&]() {
                   if(m_window->updateWindowSize())
                   {
-                    m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
+                    m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
                     screenOverlay->init(*m_shaderManager, m_window->getViewport());
                   }
 
@@ -1276,7 +1273,7 @@ void Engine::run()
 
     if(m_window->updateWindowSize())
     {
-      m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
+      m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
       m_renderPipeline->resize(m_window->getViewport());
       screenOverlay->init(*m_shaderManager, m_window->getViewport());
       font->setTarget(screenOverlay->getImage());
@@ -1285,26 +1282,26 @@ void Engine::run()
     std::unordered_set<const loader::file::Portal*> waterEntryPortals;
     if(!isCutscene)
     {
-      waterEntryPortals = getCameraController().update();
+      waterEntryPortals = m_cameraController->update();
     }
     else
     {
-      if(++getCameraController().m_cinematicFrame >= m_level->m_cinematicFrames.size())
+      if(++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size())
         break;
 
-      waterEntryPortals = m_cameraController->updateCinematic(
-        m_level->m_cinematicFrames[getCameraController().m_cinematicFrame], false);
+      waterEntryPortals
+        = m_cameraController->updateCinematic(m_level->m_cinematicFrames[m_cameraController->m_cinematicFrame], false);
     }
     doGlobalEffect();
 
     if(m_lara != nullptr)
       drawBars(screenOverlay->getImage());
 
-    m_renderPipeline->update(*getCameraController().getCamera(), m_renderer->getGameTime());
+    m_renderPipeline->update(m_renderer->getCamera(), m_renderer->getGameTime());
 
     {
       render::gl::DebugGroup dbg{"csm-pass"};
-      m_csm->update(*m_renderer->getScene()->getActiveCamera());
+      m_csm->update(*m_renderer->getCamera());
       m_csm->applyViewport();
 
       for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
@@ -1352,7 +1349,7 @@ void Engine::run()
       }
     }
 
-    m_renderPipeline->finalPass(getCameraController().getCurrentRoom()->isWaterRoom());
+    m_renderPipeline->finalPass(m_cameraController->getCurrentRoom()->isWaterRoom());
 
     if(showDebugInfo)
     {
@@ -1360,20 +1357,20 @@ void Engine::run()
 
       const auto drawObjectName = [this, &font](const std::shared_ptr<objects::Object>& object,
                                                 const render::gl::SRGBA8& color) {
-        const auto vertex = glm::vec3{m_renderer->getScene()->getActiveCamera()->getViewMatrix()
+        const auto vertex = glm::vec3{m_renderer->getCamera()->getViewMatrix()
                                       * glm::vec4(object->getNode()->getTranslationWorld(), 1)};
 
-        if(vertex.z > -m_renderer->getScene()->getActiveCamera()->getNearPlane())
+        if(vertex.z > -m_renderer->getCamera()->getNearPlane())
         {
           return;
         }
-        else if(vertex.z < -m_renderer->getScene()->getActiveCamera()->getFarPlane())
+        else if(vertex.z < -m_renderer->getCamera()->getFarPlane())
         {
           return;
         }
 
         glm::vec4 projVertex{vertex, 1};
-        projVertex = m_renderer->getScene()->getActiveCamera()->getProjectionMatrix() * projVertex;
+        projVertex = m_renderer->getCamera()->getProjectionMatrix() * projVertex;
         projVertex /= projVertex.w;
 
         if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
@@ -1458,7 +1455,7 @@ void Engine::drawLoadingScreen(const std::string& state)
   glfwPollEvents();
   if(m_window->updateWindowSize())
   {
-    m_renderer->getScene()->getActiveCamera()->setAspectRatio(m_window->getAspectRatio());
+    m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
     screenOverlay->init(*m_shaderManager, m_window->getViewport());
     abibasFont->setTarget(screenOverlay->getImage());
 

@@ -1,7 +1,7 @@
 #include "portal_pipeline_interface.glsl"
+#include "camera_interface.glsl"
 
 uniform float u_time;
-uniform mat4 u_mvp;
 
 layout(location=0) out vec2 out_perturb;
 
@@ -78,9 +78,9 @@ void main()
     vec3 sn = normalize(vec3(bm.x, 1, bm.y)); // normal in XZ plane (model space)
 
     const float IOR = 1.3;
-    vec4 orig = u_mvp * vec4(ppi.vertexPosWorld, 1);
+    vec4 orig = u_viewProjection * vec4(ppi.vertexPosWorld, 1);
     orig.xyz /= orig.w;
-    vec4 surface = u_mvp * vec4(vec3(sn.x, 0, sn.z) + ppi.vertexPosWorld, 1);
+    vec4 surface = u_viewProjection * vec4(vec3(sn.x, 0, sn.z) + ppi.vertexPosWorld, 1);
     surface.xyz /= surface.w;
     out_perturb = (surface-orig).xy;
 }

@@ -15,10 +15,10 @@ gsl::not_null<std::shared_ptr<Mesh>>
     glm::vec2 uv;
   };
 
-  const Vertex vertices[]{{{0.0f, 0.0f}, {0.0f, invertY ? 0.0f : 1.0f}},
-                          {{width, 0.0f}, {1.0f, invertY ? 0.0f : 1.0f}},
-                          {{width, height}, {1.0f, invertY ? 1.0f : 0.0f}},
-                          {{0.0f, height}, {0.0f, invertY ? 1.0f : 0.0f}}};
+  const Vertex vertices[]{{{0.0f, 0.0f}, {0.0f, invertY ? 1.0f : 0.0f}},
+                          {{width, 0.0f}, {1.0f, invertY ? 1.0f : 0.0f}},
+                          {{width, height}, {1.0f, invertY ? 0.0f : 1.0f}},
+                          {{0.0f, height}, {0.0f, invertY ? 0.0f : 1.0f}}};
 
   static const gl::StructureLayout<Vertex> attribs{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos},
                                                    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &Vertex::uv}};

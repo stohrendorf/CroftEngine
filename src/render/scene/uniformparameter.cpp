@@ -27,11 +27,6 @@ bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_pt
   return true;
 }
 
-void UniformParameter::bindViewProjectionMatrix()
-{
-  m_valueSetter = [](const Node& node, gl::Uniform& uniform) { uniform.set(node.getViewProjectionMatrix()); };
-}
-
 bool UniformBlockParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
   const auto binder = node.findUniformBlockBinder(getName());
@@ -56,5 +51,10 @@ bool UniformBlockParameter::bind(const Node& node, const gsl::not_null<std::shar
 void UniformBlockParameter::bindTransformBuffer()
 {
   m_bufferBinder = [](const Node& node, gl::UniformBlock& ub) { ub.bind(node.getTransformBuffer()); };
+}
+
+void UniformBlockParameter::bindCameraBuffer(const gsl::not_null<std::shared_ptr<Camera>>& camera)
+{
+  m_bufferBinder = [camera](const Node& node, gl::UniformBlock& ub) { ub.bind(camera->getMatricesBuffer()); };
 }
 } // namespace render::scene

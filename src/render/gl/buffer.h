@@ -50,12 +50,22 @@ public:
   void setData(const gsl::not_null<const T*>& data, const ::gl::core::SizeType size, const ::gl::BufferUsageARB usage)
   {
     Expects(size >= 0);
+
+    if(size == 0)
+      return;
+
     bind();
 
-    if(size != 0)
+    if(m_size == size && m_usage == usage)
+    {
+      GL_ASSERT(::gl::bufferSubData(Target, 0, gsl::narrow<std::size_t>(sizeof(T) * m_size), data));
+    }
+    else
+    {
+      m_usage = usage;
       m_size = size;
-
-    GL_ASSERT(::gl::bufferData(Target, gsl::narrow<std::size_t>(sizeof(T) * m_size), data.get(), usage));
+      GL_ASSERT(::gl::bufferData(Target, gsl::narrow<std::size_t>(sizeof(T) * m_size), data, usage));
+    }
   }
 
   void setSubData(const gsl::not_null<const T*>& data, const ::gl::core::SizeType start, ::gl::core::SizeType count)
@@ -71,7 +81,7 @@ public:
     }
 
     GL_ASSERT(::gl::bufferSubData(
-      Target, gsl::narrow<std::intptr_t>(sizeof(T) * start), gsl::narrow<std::size_t>(sizeof(T) * start), data));
+      Target, gsl::narrow<std::intptr_t>(sizeof(T) * start), gsl::narrow<std::size_t>(sizeof(T) * count), data));
   }
 
   [[nodiscard]] auto size() const noexcept
@@ -81,6 +91,7 @@ public:
 
 private:
   ::gl::core::SizeType m_size = 0;
+  ::gl::BufferUsageARB m_usage{static_cast<::gl::BufferUsageARB>(0)};
 };
 
 template<typename T>

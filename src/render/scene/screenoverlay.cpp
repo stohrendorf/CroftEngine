@@ -44,13 +44,9 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const Dimension2<size_t>&
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
 
   m_mesh = createQuadFullscreen(
-    gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), screenOverlayProgram->getHandle(), true);
+    gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), screenOverlayProgram->getHandle());
   m_mesh->getMaterial().set(RenderMode::Full, std::make_shared<Material>(screenOverlayProgram));
-  m_mesh->getMaterial().get(RenderMode::Full)->getUniform("u_texture")->set(m_texture.get());
-  m_mesh->getMaterial()
-    .get(RenderMode::Full)
-    ->getUniform("u_projection")
-    ->set(glm::ortho(0.0f, gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), 0.0f, 0.0f, 1.0f));
+  m_mesh->getMaterial().get(RenderMode::Full)->getUniform("u_input")->set(m_texture.get());
 
   m_mesh->getRenderState().setCullFace(false);
   m_mesh->getRenderState().setDepthWrite(false);

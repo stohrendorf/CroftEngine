@@ -11,6 +11,7 @@
 namespace render::scene
 {
 class Node;
+class Camera;
 
 class UniformParameter final : public MaterialParameter
 {
@@ -56,8 +57,6 @@ public:
       uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)());
     };
   }
-
-  void bindViewProjectionMatrix();
 
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
@@ -114,6 +113,7 @@ public:
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
   void bindTransformBuffer();
+  void bindCameraBuffer(const gsl::not_null<std::shared_ptr<Camera>>& camera);
 
 private:
   [[nodiscard]] gl::UniformBlock*

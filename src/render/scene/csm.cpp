@@ -23,8 +23,6 @@ void CSM::Split::init(int32_t resolution, size_t idx, const gsl::not_null<std::s
 
   blurMaterial = std::make_shared<Material>(blurShader);
   blurMaterial->getUniform("u_input")->set(texture);
-  blurMaterial->getUniform("u_projection")
-    ->set(glm::ortho(0.0f, gsl::narrow<float>(resolution), gsl::narrow<float>(resolution), 0.0f, 0.0f, 1.0f));
 
   framebuffer = gl::FrameBufferBuilder()
                   .textureNoBlend(::gl::FramebufferAttachment::DepthAttachment, texture)

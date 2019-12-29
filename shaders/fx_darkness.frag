@@ -2,15 +2,14 @@ uniform sampler2D u_texture;
 uniform sampler2D u_portalDepth;
 uniform sampler2D u_portalPerturb;
 uniform sampler2D u_ao;
-uniform mat4 u_camProjection;
 uniform float u_time;
 
 #include "flat_pipeline_interface.glsl"
+#include "camera_interface.glsl"
 
 layout(location=0) out vec4 out_color;
 
 const float PI = 3.14159265;
-const float Z_max = 20480;
 
 #include "util.glsl"
 

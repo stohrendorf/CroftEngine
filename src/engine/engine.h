@@ -106,8 +106,8 @@ private:
 
   std::shared_ptr<render::RenderPipeline> m_renderPipeline;
   std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
-  std::unique_ptr<render::scene::Renderer> m_renderer;
   std::unique_ptr<render::scene::Window> m_window;
+  std::shared_ptr<render::scene::Renderer> m_renderer;
   sol::table levelInfo;
 
   const util::CImgWrapper splashImage;

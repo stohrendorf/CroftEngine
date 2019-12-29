@@ -4,8 +4,6 @@
 
 namespace render::scene
 {
-class Camera;
-
 class Scene final
 {
 public:
@@ -33,16 +31,6 @@ public:
     node->m_scene = this;
   }
 
-  [[nodiscard]] const std::shared_ptr<Camera>& getActiveCamera() const
-  {
-    return m_activeCamera;
-  }
-
-  void setActiveCamera(const std::shared_ptr<Camera>& camera)
-  {
-    m_activeCamera = camera;
-  }
-
   void accept(Visitor& visitor)
   {
     for(auto& node : m_nodes)
@@ -57,7 +45,6 @@ public:
   }
 
 private:
-  std::shared_ptr<Camera> m_activeCamera = nullptr;
   Node::List m_nodes;
 };
 } // namespace render::scene

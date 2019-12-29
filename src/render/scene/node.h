@@ -15,8 +15,6 @@ class Scene;
 struct Transform
 {
   glm::mat4 modelMatrix{1.0f};
-  glm::mat4 modelViewMatrix{1.0f};
-  glm::mat4 projection{1.0f};
 };
 
 class Node
@@ -25,11 +23,8 @@ class Node
 
 public:
   Node(const Node&) = delete;
-
   Node(Node&&) = delete;
-
   Node& operator=(Node&&) = delete;
-
   Node& operator=(const Node&) = delete;
 
   using List = std::vector<gsl::not_null<std::shared_ptr<Node>>>;
@@ -65,19 +60,21 @@ public:
 
   const glm::mat4& getModelMatrix() const
   {
-    updateMatrices();
+    if(!m_dirty)
+      return m_transform.modelMatrix;
+
+    m_dirty = false;
+
+    if(const auto p = getParent().lock())
+    {
+      m_transform.modelMatrix = p->getModelMatrix() * m_localMatrix;
+    }
+    else
+    {
+      m_transform.modelMatrix = m_localMatrix;
+    }
     return m_transform.modelMatrix;
   }
-
-  const glm::mat4& getModelViewMatrix() const
-  {
-    updateMatrices();
-    return m_transform.modelViewMatrix;
-  }
-
-  const glm::mat4& getViewMatrix() const;
-  const glm::mat4& getProjectionMatrix() const;
-  const glm::mat4& getViewProjectionMatrix() const;
 
   glm::vec3 getTranslationWorld() const
   {
@@ -215,15 +212,12 @@ public:
 
   [[nodiscard]] const auto& getTransformBuffer() const
   {
-    m_transform.projection = getProjectionMatrix();
-    m_transform.modelViewMatrix = getViewMatrix() * m_transform.modelMatrix;
     m_transformBuffer.setData(m_transform, ::gl::BufferUsageARB::StreamDraw);
     return m_transformBuffer;
   }
 
 private:
   void transformChanged();
-  void updateMatrices() const;
 
   Scene* m_scene = nullptr;
   std::string m_id;
@@ -232,8 +226,9 @@ private:
   bool m_visible = true;
   std::shared_ptr<Renderable> m_renderable = nullptr;
   glm::mat4 m_localMatrix{1.0f};
-  mutable Transform m_transform{};
+
   mutable bool m_dirty = false;
+  mutable Transform m_transform{};
   mutable render::gl::UniformBuffer<Transform> m_transformBuffer{};
 
   boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
