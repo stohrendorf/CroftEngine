@@ -14,7 +14,7 @@ template<>
 struct TypeTraits<uint8_t>
 {
   static constexpr ::gl::DrawElementsType DrawElementsType = ::gl::DrawElementsType::UnsignedByte;
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::UnsignedByte;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::UnsignedByte;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::UnsignedByte;
 
   static constexpr ::gl::core::SizeType ElementCount = 1;
@@ -32,7 +32,7 @@ template<>
 struct TypeTraits<uint16_t>
 {
   static constexpr ::gl::DrawElementsType DrawElementsType = ::gl::DrawElementsType::UnsignedShort;
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::UnsignedShort;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::UnsignedShort;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::UnsignedShort;
 
   static constexpr ::gl::core::SizeType ElementCount = 1;
@@ -42,7 +42,7 @@ template<>
 struct TypeTraits<uint32_t>
 {
   static constexpr ::gl::DrawElementsType DrawElementsType = ::gl::DrawElementsType::UnsignedInt;
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::UnsignedInt;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::UnsignedInt;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::UnsignedInt;
 
   static constexpr ::gl::core::SizeType ElementCount = 1;
@@ -51,7 +51,7 @@ struct TypeTraits<uint32_t>
 template<>
 struct TypeTraits<int8_t>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Byte;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::Byte;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Byte;
   static constexpr ::gl::core::SizeType ElementCount = 1;
 };
@@ -59,7 +59,7 @@ struct TypeTraits<int8_t>
 template<>
 struct TypeTraits<int16_t>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Short;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::Short;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Short;
   static constexpr ::gl::core::SizeType ElementCount = 1;
 };
@@ -67,7 +67,7 @@ struct TypeTraits<int16_t>
 template<>
 struct TypeTraits<int32_t>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Int;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::Int;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Int;
   static constexpr ::gl::core::SizeType ElementCount = 1;
 };
@@ -75,7 +75,7 @@ struct TypeTraits<int32_t>
 template<>
 struct TypeTraits<float>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::Float;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
   static constexpr ::gl::core::SizeType ElementCount = 1;
 
@@ -89,28 +89,28 @@ struct TypeTraits<float>
 template<>
 struct TypeTraits<glm::vec1>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::Float;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
   static constexpr ::gl::core::SizeType ElementCount = 1;
 };
 template<>
 struct TypeTraits<glm::vec2>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::Float;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
   static constexpr ::gl::core::SizeType ElementCount = 2;
 };
 template<>
 struct TypeTraits<glm::vec3>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::Float;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
   static constexpr ::gl::core::SizeType ElementCount = 3;
 };
 template<>
 struct TypeTraits<glm::vec4>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::Float;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
   static constexpr ::gl::core::SizeType ElementCount = 4;
 };
@@ -118,7 +118,7 @@ struct TypeTraits<glm::vec4>
 template<int N>
 struct TypeTraits<glm::vec<N, float, glm::defaultp>>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::Float;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::Float;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
   static constexpr ::gl::core::SizeType ElementCount = N;
 };
@@ -127,7 +127,7 @@ struct TypeTraits<glm::vec<N, float, glm::defaultp>>
 template<>
 struct TypeTraits<::gl::core::Half>
 {
-  static constexpr ::gl::VertexAttribPointerType VertexAttribPointerType = ::gl::VertexAttribPointerType::HalfFloat;
+  static constexpr ::gl::VertexAttribType VertexAttribType = ::gl::VertexAttribType::HalfFloat;
   static constexpr ::gl::PixelType PixelType = ::gl::PixelType::Float;
   static constexpr ::gl::core::SizeType ElementCount = 1;
 

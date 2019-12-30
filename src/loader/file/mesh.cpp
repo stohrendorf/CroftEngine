@@ -24,15 +24,15 @@ class ModelBuilder final
     glm::vec3 color{1.0f};
     glm::vec2 uv;
 
-    static const render::gl::StructureLayout<RenderVertex>& getFormat()
+    static const render::gl::VertexFormat<RenderVertex>& getFormat()
     {
-      static const render::gl::StructureLayout<RenderVertex> attribs{
+      static const render::gl::VertexFormat<RenderVertex> format{
         {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
         {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
         {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
         {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv}};
 
-      return attribs;
+      return format;
     }
   };
 
@@ -44,7 +44,7 @@ class ModelBuilder final
   const gsl::not_null<std::shared_ptr<render::scene::Material>> m_materialDepthOnly;
   const Palette& m_palette;
   std::map<TextureKey, size_t> m_texBuffers;
-  std::shared_ptr<render::gl::StructuredArrayBuffer<RenderVertex>> m_vb;
+  std::shared_ptr<render::gl::VertexBuffer<RenderVertex>> m_vb;
   const std::string m_label;
 
   struct MeshPart
@@ -109,7 +109,7 @@ public:
       , m_colorMaterialFull{std::move(colorMaterialFull)}
       , m_materialDepthOnly{std::move(materialDepthOnly)}
       , m_palette{palette}
-      , m_vb{std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getFormat(), label)}
+      , m_vb{std::make_shared<render::gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label)}
       , m_label{std::move(label)}
   {
   }

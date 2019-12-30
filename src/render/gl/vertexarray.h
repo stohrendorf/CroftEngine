@@ -2,7 +2,7 @@
 
 #include "buffer.h"
 #include "program.h"
-#include "structuredarraybuffer.h"
+#include "vertexbuffer.h"
 
 #include <tuple>
 #include <utility>
@@ -16,7 +16,7 @@ template<typename... Ts, size_t... Is>
 inline void
   bindVertexAttributes(const std::tuple<Ts...>& t, const Program& p, const std::index_sequence<Is...>& indices)
 {
-  (..., std::get<Is>(t)->bindVertexAttributes(p));
+  (..., std::get<Is>(t)->bindVertexAttributes(p, Is));
 }
 
 template<typename... Ts>
@@ -31,7 +31,7 @@ class VertexArray : public BindableResource
 {
 public:
   template<typename T>
-  using VertexBufferPtr = gsl::not_null<std::shared_ptr<StructuredArrayBuffer<T>>>;
+  using VertexBufferPtr = gsl::not_null<std::shared_ptr<VertexBuffer<T>>>;
   using VertexBuffers = std::tuple<VertexBufferPtr<VertexT0>, VertexBufferPtr<VertexTs>...>;
 
   using IndexBufferPtr = gsl::not_null<std::shared_ptr<ElementArrayBuffer<IndexT>>>;

@@ -403,7 +403,7 @@ set( EDISONENGINE_SRCS
         render/gl/renderbuffer.h
         render/gl/rendertarget.h
         render/gl/shader.h
-        render/gl/structuredarraybuffer.h
+        render/gl/vertexbuffer.h
         render/gl/texture.h
         render/gl/typetraits.h
         render/gl/vertexarray.h

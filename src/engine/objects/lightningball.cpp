@@ -16,12 +16,12 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   createBolt(uint16_t points,
              const gsl::not_null<std::shared_ptr<render::scene::Material>>& material,
              float lineWidth,
-             std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>>& vb)
+             std::shared_ptr<render::gl::VertexBuffer<glm::vec3>>& vb)
 {
   std::vector<glm::vec3> vertices(points);
 
-  static const render::gl::StructureLayout<glm::vec3> attribs{
-    {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::StructureMember<glm::vec3>::Trivial{}}};
+  static const render::gl::VertexFormat<glm::vec3> format{
+    {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute<glm::vec3>::Trivial{}}};
 
   std::vector<uint16_t> indices;
   for(uint16_t i = 0; i < points; ++i)
@@ -30,7 +30,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
   indexBuffer->setData(indices, gl::BufferUsageARB::StaticDraw);
 
-  vb = std::make_shared<render::gl::StructuredArrayBuffer<glm::vec3>>(attribs);
+  vb = std::make_shared<render::gl::VertexBuffer<glm::vec3>>(format);
   vb->setData(&vertices[0], points, gl::BufferUsageARB::DynamicDraw);
 
   auto vao = std::make_shared<render::gl::VertexArray<uint16_t, glm::vec3>>(
@@ -49,7 +49,7 @@ using Bolt = std::array<core::TRVec, LightningBall::SegmentPoints>;
 
 Bolt updateBolt(core::TRVec start,
                 const core::TRVec& end,
-                const std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec3>>& vb)
+                const std::shared_ptr<render::gl::VertexBuffer<glm::vec3>>& vb)
 {
   const auto segmentSize = (end - start) / LightningBall::SegmentPoints;
 

@@ -29,14 +29,14 @@ struct RenderVertex
   glm::vec4 color{1.0f};
   glm::vec3 normal{0.0f};
 
-  static const render::gl::StructureLayout<RenderVertex>& getLayout()
+  static const render::gl::VertexFormat<RenderVertex>& getFormat()
   {
-    static const render::gl::StructureLayout<RenderVertex> layout{
+    static const render::gl::VertexFormat<RenderVertex> format{
       {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
       {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
       {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color}};
 
-    return layout;
+    return format;
   }
 };
 
@@ -57,8 +57,8 @@ struct RenderModel
   std::vector<MeshPart> m_parts;
 
   std::shared_ptr<render::scene::Model>
-    toModel(const gsl::not_null<std::shared_ptr<render::gl::StructuredArrayBuffer<RenderVertex>>>& vbuf,
-            const gsl::not_null<std::shared_ptr<render::gl::StructuredArrayBuffer<glm::vec2>>>& uvBuf)
+    toModel(const gsl::not_null<std::shared_ptr<render::gl::VertexBuffer<RenderVertex>>>& vbuf,
+            const gsl::not_null<std::shared_ptr<render::gl::VertexBuffer<glm::vec2>>>& uvBuf)
   {
     auto model = std::make_shared<render::scene::Model>();
 
@@ -127,11 +127,11 @@ void Room::createSceneNode(
   std::vector<glm::vec2> uvCoordsData;
 
   const auto label = "Room:" + std::to_string(roomId);
-  auto vbuf = std::make_shared<render::gl::StructuredArrayBuffer<RenderVertex>>(RenderVertex::getLayout(), label);
+  auto vbuf = std::make_shared<render::gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
 
-  static const render::gl::StructureLayout<glm::vec2> uvAttribs{
-    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::StructureMember<glm::vec2>::Trivial{}}};
-  auto uvCoords = std::make_shared<render::gl::StructuredArrayBuffer<glm::vec2>>(uvAttribs, label + "-uv");
+  static const render::gl::VertexFormat<glm::vec2> uvAttribs{
+    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute<glm::vec2>::Trivial{}}};
+  auto uvCoords = std::make_shared<render::gl::VertexBuffer<glm::vec2>>(uvAttribs, label + "-uv");
 
   for(const QuadFace& quad : rectangles)
   {
@@ -978,8 +978,8 @@ void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Materi
   for(size_t i = 0; i < 4; ++i)
     glVertices[i].pos = vertices[i].toRenderSystem();
 
-  render::gl::StructureLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
-  auto vb = std::make_shared<render::gl::StructuredArrayBuffer<Vertex>>(layout);
+  render::gl::VertexFormat<Vertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
+  auto vb = std::make_shared<render::gl::VertexBuffer<Vertex>>(format);
   vb->setData(&glVertices[0], 4, gl::BufferUsageARB::StaticDraw);
 
   static const uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
