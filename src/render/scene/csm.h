@@ -22,8 +22,8 @@ struct CSMBuffer
   static constexpr size_t NSplits = 3;
   static constexpr int32_t BlurExtent = 2;
 
-  alignas(16) std::array<glm::mat4, NSplits> lightMVP{};
-  alignas(16) std::array<glm::vec4, NSplits> csmSplits{}; // because... well. we need padding.
+  std::array<glm::mat4, NSplits> lightMVP{};
+  std::array<glm::vec4, NSplits> csmSplits{}; // vec4 because... well. we need padding.
 };
 
 class CSM final
@@ -90,7 +90,7 @@ private:
   std::array<Split, CSMBuffer::NSplits> m_splits;
   size_t m_activeSplit = 0;
   CSMBuffer m_bufferData;
-  gl::UniformBuffer<CSMBuffer> m_buffer{};
+  gl::UniformBuffer<CSMBuffer> m_buffer{"csm-data-ubo"};
   const std::shared_ptr<Model> m_fbModel;
 };
 } // namespace render::scene

@@ -19,7 +19,7 @@ struct Lighting
   float ambient = 0;
   std::vector<Light> lights;
 
-  render::gl::ShaderStorageBuffer<Light> m_buffer;
+  render::gl::ShaderStorageBuffer<Light> m_buffer{"lights-buffer"};
 
   void updateDynamic(int16_t shade, const core::RoomBoundPosition& pos, const std::vector<loader::file::Room>& rooms)
   {

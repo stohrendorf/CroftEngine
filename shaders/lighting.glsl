@@ -9,7 +9,7 @@ struct Light {
     float fadeDistance;
 };
 
-layout(std430, binding=2) buffer b_lights {
+readonly layout(std430, binding=2) buffer b_lights {
     Light lights[];
 };
 

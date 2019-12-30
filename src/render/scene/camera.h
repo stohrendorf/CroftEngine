@@ -216,6 +216,6 @@ private:
 
   mutable type_safe::flag_set<CameraMatrices::DirtyFlag> m_dirty;
   mutable CameraMatrices m_matrices{};
-  mutable render::gl::UniformBuffer<CameraMatrices> m_matricesBuffer{};
+  mutable render::gl::UniformBuffer<CameraMatrices> m_matricesBuffer{"camera-matrices-ubo"};
 };
 } // namespace render::scene

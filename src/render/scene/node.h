@@ -31,6 +31,7 @@ public:
 
   explicit Node(std::string id)
       : m_id{std::move(id)}
+      , m_transformBuffer{m_id + "-transform-ubo"}
   {
   }
 
@@ -229,7 +230,7 @@ private:
 
   mutable bool m_dirty = false;
   mutable Transform m_transform{};
-  mutable render::gl::UniformBuffer<Transform> m_transformBuffer{};
+  mutable render::gl::UniformBuffer<Transform> m_transformBuffer;
 
   boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
   boost::container::flat_map<std::string, std::function<UniformBlockParameter::BufferBinder>> m_uniformBlockBinders;
