@@ -81,7 +81,7 @@ const std::shared_ptr<Material>& MaterialManager::getColor()
 const std::shared_ptr<Material>& MaterialManager::getPortal()
 {
   if(m_portal != nullptr)
-    return m_color;
+    return m_portal;
 
   m_portal = std::make_shared<Material>(m_shaderManager->getPortal());
   m_portal->getRenderState().setCullFace(false);

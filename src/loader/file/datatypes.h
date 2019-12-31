@@ -66,8 +66,7 @@ struct Portal
 
   static Portal read(io::SDLReader& reader, const core::TRVec& offset);
 
-  void buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
-                 const std::shared_ptr<render::scene::Material>& materialDepthOnly);
+  void buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly);
 };
 
 struct Box;

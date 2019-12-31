@@ -1336,18 +1336,23 @@ void Engine::run()
       m_renderer->render();
     }
 
-    render::scene::RenderContext context{render::scene::RenderMode::Full};
-    render::scene::Node dummyNode{""};
-    context.setCurrentNode(&dummyNode);
-
     {
       render::gl::DebugGroup dbg{"portal-depth-pass"};
+
+      render::scene::RenderContext context{render::scene::RenderMode::DepthOnly};
+      render::scene::Node dummyNode{""};
+      context.setCurrentNode(&dummyNode);
+
       m_renderPipeline->bindPortalFrameBuffer();
       for(const auto& portal : waterEntryPortals)
       {
         portal->mesh->render(context);
       }
     }
+
+    render::scene::RenderContext context{render::scene::RenderMode::Full};
+    render::scene::Node dummyNode{""};
+    context.setCurrentNode(&dummyNode);
 
     m_renderPipeline->finalPass(m_cameraController->getCurrentRoom()->isWaterRoom());
 

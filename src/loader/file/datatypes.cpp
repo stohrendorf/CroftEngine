@@ -316,7 +316,7 @@ void Room::createSceneNode(
     sceneryNodes.emplace_back(std::move(spriteNode));
   }
   for(auto& portal : portals)
-    portal.buildMesh(portalMaterial, nullptr);
+    portal.buildMesh(portalMaterial);
 
   resetScenery();
 }
@@ -966,8 +966,7 @@ std::unique_ptr<Camera> Camera::read(io::SDLReader& reader)
   return camera;
 }
 
-void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
-                       const std::shared_ptr<render::scene::Material>& materialDepthOnly)
+void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly)
 {
   struct Vertex
   {
@@ -988,14 +987,9 @@ void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Materi
   indexBuffer->setData(&indices[0], 6, gl::BufferUsageARB::StaticDraw);
 
   auto vao = std::make_shared<render::gl::VertexArray<uint16_t, Vertex>>(
-    indexBuffer,
-    vb,
-    std::vector<const render::gl::Program*>{
-      &materialFull->getShaderProgram()->getHandle(),
-      materialDepthOnly == nullptr ? nullptr : &materialDepthOnly->getShaderProgram()->getHandle()});
+    indexBuffer, vb, std::vector<const render::gl::Program*>{&materialDepthOnly->getShaderProgram()->getHandle()});
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
   mesh->getMaterial()
-    .set(render::scene::RenderMode::Full, materialFull)
     .set(render::scene::RenderMode::DepthOnly, materialDepthOnly);
 }
 
