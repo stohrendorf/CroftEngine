@@ -46,10 +46,6 @@ void Mesh::render(RenderContext& context)
   BOOST_ASSERT(context.getCurrentNode() != nullptr);
 
   context.pushState(getRenderState());
-
-  for(const auto& setter : m_materialUniformSetters)
-    setter(*context.getCurrentNode(), *material);
-
   context.pushState(material->getRenderState());
   context.bindState();
 

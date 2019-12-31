@@ -10,14 +10,13 @@
 
 namespace render::scene
 {
-gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
-                                                        const float y0,
-                                                        const float x1,
-                                                        const float y1,
-                                                        const glm::vec2& t0,
-                                                        const glm::vec2& t1,
-                                                        const gsl::not_null<std::shared_ptr<Material>>& materialFull,
-                                                        const Axis pole)
+gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
+                                                      const float y0,
+                                                      const float x1,
+                                                      const float y1,
+                                                      const glm::vec2& t0,
+                                                      const glm::vec2& t1,
+                                                      const gsl::not_null<std::shared_ptr<Material>>& materialFull)
 {
   struct SpriteVertex
   {
@@ -47,15 +46,12 @@ gsl::not_null<std::shared_ptr<Mesh>> Sprite::createMesh(const float x0,
   auto mesh = std::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
   mesh->getMaterial().set(RenderMode::Full, materialFull);
 
-  mesh->registerMaterialUniformSetter([pole](const Node& node, Material& material) {
-    material.getUniform("u_spritePole")->set(static_cast<int32_t>(pole));
-  });
-
   return mesh;
 }
 
-void Sprite::render(RenderContext& context)
+void bindSpritePole(Node& node, const SpritePole pole)
 {
-  m_mesh->render(context);
+  node.addUniformSetter("u_spritePole",
+                        [pole](const Node& node, gl::Uniform& u) { u.set(static_cast<int32_t>(pole)); });
 }
 } // namespace render::scene

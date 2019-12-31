@@ -291,17 +291,16 @@ void Room::createSceneNode(
 
     const Sprite& sprite = level.m_sprites.at(spriteInstance.id.get());
 
-    const auto model = std::make_shared<render::scene::Sprite>(static_cast<float>(sprite.x0),
-                                                               static_cast<float>(-sprite.y0),
-                                                               static_cast<float>(sprite.x1),
-                                                               static_cast<float>(-sprite.y1),
-                                                               sprite.t0,
-                                                               sprite.t1,
-                                                               spriteMaterial,
-                                                               render::scene::Sprite::Axis::Y);
+    const auto mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.x0),
+                                                      static_cast<float>(-sprite.y0),
+                                                      static_cast<float>(sprite.x1),
+                                                      static_cast<float>(-sprite.y1),
+                                                      sprite.t0,
+                                                      sprite.t1,
+                                                      spriteMaterial);
 
     auto spriteNode = std::make_shared<render::scene::Node>("sprite");
-    spriteNode->setRenderable(model);
+    spriteNode->setRenderable(mesh);
     const RoomVertex& v = vertices.at(spriteInstance.vertex.get());
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
     spriteNode->addUniformSetter("u_diffuseTexture",
@@ -312,6 +311,7 @@ void Room::createSceneNode(
       [brightness = v.getBrightness()](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
         uniform.set(brightness);
       });
+    bindSpritePole(*spriteNode, render::scene::SpritePole::Y);
 
     sceneryNodes.emplace_back(std::move(spriteNode));
   }

@@ -22,21 +22,21 @@ void Particle::initRenderables(Engine& engine, const float scale)
 
     for(const loader::file::Sprite& spr : spriteSequence->sprites)
     {
-      auto sprite = std::make_shared<render::scene::Sprite>(float(spr.x0) * scale,
-                                                            float(-spr.y0) * scale,
-                                                            float(spr.x1) * scale,
-                                                            float(-spr.y1) * scale,
-                                                            spr.t0,
-                                                            spr.t1,
-                                                            engine.getMaterialManager()->getSprite(),
-                                                            render::scene::Sprite::Axis::Y);
-      m_renderables.emplace_back(sprite);
+      auto mesh = render::scene::createSpriteMesh(float(spr.x0) * scale,
+                                                  float(-spr.y0) * scale,
+                                                  float(spr.x1) * scale,
+                                                  float(-spr.y1) * scale,
+                                                  spr.t0,
+                                                  spr.t1,
+                                                  engine.getMaterialManager()->getSprite());
+      m_renderables.emplace_back(mesh);
       m_spriteTextures.emplace_back(spr.texture);
     }
 
     addUniformSetter("u_diffuseTexture", [this](const Node& /*node*/, render::gl::Uniform& uniform) {
       uniform.set(*m_spriteTextures.front());
     });
+    bindSpritePole(*this, render::scene::SpritePole::Y);
   }
   else
   {

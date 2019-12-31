@@ -41,22 +41,17 @@ void SpriteObject::createModel()
 {
   Expects(m_sprite != nullptr);
 
-  const auto model = std::make_shared<render::scene::Sprite>(m_sprite->x0,
-                                                             -m_sprite->y0,
-                                                             m_sprite->x1,
-                                                             -m_sprite->y1,
-                                                             m_sprite->t0,
-                                                             m_sprite->t1,
-                                                             m_material,
-                                                             render::scene::Sprite::Axis::Y);
+  const auto mesh = render::scene::createSpriteMesh(
+    m_sprite->x0, -m_sprite->y0, m_sprite->x1, -m_sprite->y1, m_sprite->t0, m_sprite->t1, m_material);
 
-  m_node->setRenderable(model);
+  m_node->setRenderable(mesh);
   m_node->addUniformSetter("u_diffuseTexture",
                            [texture = m_sprite->texture](const render::scene::Node& /*node*/,
                                                          render::gl::Uniform& uniform) { uniform.set(*texture); });
   m_node->addUniformSetter("u_lightAmbient",
                            [brightness = m_brightness](const render::scene::Node& /*node*/,
                                                        render::gl::Uniform& uniform) { uniform.set(brightness); });
+  bindSpritePole(*m_node, render::scene::SpritePole::Y);
 }
 
 void SpriteObject::serialize(const serialization::Serializer& ser)

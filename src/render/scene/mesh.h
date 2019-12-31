@@ -11,8 +11,6 @@ namespace render::scene
 class Mesh : public Renderable
 {
 public:
-  using MaterialUniformSetter = void(const Node& node, Material& material);
-
   explicit Mesh(::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
       : m_primitiveType{primitiveType}
   {
@@ -21,11 +19,8 @@ public:
   ~Mesh() override;
 
   Mesh(const Mesh&) = delete;
-
   Mesh(Mesh&&) = delete;
-
   Mesh& operator=(Mesh&&) = delete;
-
   Mesh& operator=(const Mesh&) = delete;
 
   [[nodiscard]] const auto& getMaterial() const
@@ -40,14 +35,8 @@ public:
 
   void render(RenderContext& context) final;
 
-  void registerMaterialUniformSetter(const std::function<MaterialUniformSetter>& setter)
-  {
-    m_materialUniformSetters.emplace_back(setter);
-  }
-
 private:
   MultiPassMaterial m_material{};
-  std::vector<std::function<MaterialUniformSetter>> m_materialUniformSetters;
   const ::gl::PrimitiveType m_primitiveType;
 
   virtual void drawIndexBuffers(::gl::PrimitiveType primitiveType) = 0;
@@ -67,11 +56,8 @@ public:
   ~MeshImpl() override = default;
 
   MeshImpl(const MeshImpl&) = delete;
-
   MeshImpl(MeshImpl&&) = delete;
-
   MeshImpl& operator=(MeshImpl&&) = delete;
-
   MeshImpl& operator=(const MeshImpl&) = delete;
 
   const auto& getVAO() const

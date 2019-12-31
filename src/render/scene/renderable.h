@@ -10,16 +10,12 @@ class Renderable
 {
 public:
   explicit Renderable() = default;
+  virtual ~Renderable() = default;
 
   Renderable(const Renderable&) = delete;
-
   Renderable(Renderable&&) = delete;
-
   Renderable& operator=(Renderable&&) = delete;
-
   Renderable& operator=(const Renderable&) = delete;
-
-  virtual ~Renderable() = default;
 
   virtual void render(RenderContext& context) = 0;
 
