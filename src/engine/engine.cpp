@@ -40,7 +40,7 @@
 #include <glm/gtx/norm.hpp>
 #include <locale>
 
-constexpr int32_t CSMResolution = 2048;
+constexpr int32_t CSMResolution = 1024;
 
 namespace engine
 {
@@ -927,7 +927,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
     , m_inventory{*this}
 {
   m_shaderManager = std::make_shared<render::scene::ShaderManager>(m_rootPath / "shaders");
-  m_csm = std::make_shared<render::scene::CSM>(CSMResolution, *m_shaderManager);
+  m_csm = std::make_shared<render::scene::CSM>(CSMResolution);
   m_materialManager = std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_csm, m_renderer);
 
   scaleSplashImage();
@@ -1326,8 +1326,6 @@ void Engine::run()
           }
         }
       }
-
-      m_csm->renderBlur();
     }
 
     {

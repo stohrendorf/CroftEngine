@@ -38,6 +38,7 @@ void main()
     gpi.normal = normalize(mat3(u_modelMatrix) * a_normal);
     gpi.ssaoNormal = normalize(mat3(mv) * a_normal);
     gpi.vertexPos = tmp.xyz;
-    for (int i=0; i<3; ++i)
-    gpi.vertexPosLight[i] = u_lightMVP[i] * vec4(a_position, 1);
+    for (int i=0; i<3; ++i) {
+        gpi.vertexPosLight[i] = u_lightMVP[i] * vec4(a_position, 1);
+    }
 }

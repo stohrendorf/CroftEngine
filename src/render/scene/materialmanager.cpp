@@ -50,7 +50,7 @@ std::shared_ptr<Material>
   result->getUniformBlock("CSM")->bind(
     [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
 
-  result->getUniform("u_csmDepth[0]")->set(m_csm->getBlurBuffers());
+  result->getUniform("u_csmDepth[0]")->set(m_csm->getTextures());
 
   if(water)
   {
@@ -73,7 +73,7 @@ const std::shared_ptr<Material>& MaterialManager::getColor()
   m_color->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m_color->getUniformBlock("CSM")->bind(
     [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
-  m_color->getUniform("u_csmDepth[0]")->set(m_csm->getBlurBuffers());
+  m_color->getUniform("u_csmDepth[0]")->set(m_csm->getTextures());
 
   return m_color;
 }

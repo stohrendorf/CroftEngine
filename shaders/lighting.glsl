@@ -9,7 +9,7 @@ struct Light {
     float fadeDistance;
 };
 
-readonly layout(std430, binding=2) buffer b_lights {
+readonly layout(std430, binding=3) buffer b_lights {
     Light lights[];
 };
 
@@ -23,14 +23,21 @@ float shadow_map_multiplier(in float shadow)
     vec3 projCoords = gpi.vertexPosLight[cascadeIdx].xyz / gpi.vertexPosLight[cascadeIdx].w;
     projCoords = projCoords * 0.5 + 0.5;
     float currentDepth = projCoords.z;
-    const float bias = 1.0/2048.0;
-    float closestDepth = texture(u_csmDepth[cascadeIdx], projCoords.xy).r;
-    if (currentDepth + bias >= closestDepth) {
-        return shadow;
+    const float bias = 0.005;
+    const int extent = 2;
+    int inShadow = 0;
+    float d = 1.0/textureSize(u_csmDepth[cascadeIdx], 0).x;
+    for (int x=-extent; x<=extent; ++x) {
+        for (int y=-extent; y<=extent; ++y) {
+            float closestDepth = texture(u_csmDepth[cascadeIdx], projCoords.xy + vec2(x, y)*d).r;
+            if (currentDepth - bias > closestDepth) {
+                ++inShadow;
+            }
+        }
     }
-    else {
-        return 1.0;
-    }
+
+    const float area = pow((extent*2 + 1), 2);
+    return mix(1.0f, shadow, inShadow/area);
 }
 
 float shadow_map_multiplier() {
