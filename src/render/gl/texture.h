@@ -3,6 +3,7 @@
 #include "rendertarget.h"
 
 #include <boost/throw_exception.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
 namespace render::gl
@@ -10,13 +11,13 @@ namespace render::gl
 class Texture : public RenderTarget
 {
 protected:
-  explicit Texture(::gl::TextureTarget type, const std::string& label = {})
+  explicit Texture(::gl::TextureTarget target, const std::string& label = {})
       : RenderTarget{::gl::genTextures,
-                     [type](const uint32_t handle) { bindTexture(type, handle); },
+                     [target](const uint32_t handle) { bindTexture(target, handle); },
                      ::gl::deleteTextures,
                      ::gl::ObjectIdentifier::Texture,
                      label}
-      , m_type{type}
+      , m_target{target}
   {
   }
 
@@ -24,34 +25,41 @@ public:
   Texture& set(const ::gl::TextureMinFilter value)
   {
     bind();
-    GL_ASSERT(::gl::texParameter(m_type, ::gl::TextureParameterName::TextureMinFilter, static_cast<int32_t>(value)));
+    GL_ASSERT(::gl::texParameter(m_target, ::gl::TextureParameterName::TextureMinFilter, static_cast<int32_t>(value)));
     return *this;
   }
 
   Texture& set(const ::gl::TextureMagFilter value)
   {
     bind();
-    GL_ASSERT(::gl::texParameter(m_type, ::gl::TextureParameterName::TextureMagFilter, static_cast<int32_t>(value)));
+    GL_ASSERT(::gl::texParameter(m_target, ::gl::TextureParameterName::TextureMagFilter, static_cast<int32_t>(value)));
     return *this;
   }
 
   Texture& set(const ::gl::TextureParameterName param, const ::gl::TextureWrapMode value)
   {
     bind();
-    GL_ASSERT(::gl::texParameter(m_type, param, static_cast<int32_t>(value)));
+    GL_ASSERT(::gl::texParameter(m_target, param, static_cast<int32_t>(value)));
     return *this;
   }
 
-  [[nodiscard]] ::gl::TextureTarget getType() const noexcept
+  Texture& setBorderColor(const glm::vec4& value)
   {
-    return m_type;
+    bind();
+    GL_ASSERT(::gl::texParameter(m_target, ::gl::TextureParameterName::TextureBorderColor, glm::value_ptr(value)));
+    return *this;
+  }
+
+  [[nodiscard]] ::gl::TextureTarget getTarget() const noexcept
+  {
+    return m_target;
   }
 
   [[nodiscard]] ::gl::CopyImageSubDataTarget getSubDataTarget() const
   {
 #define SOGLB_CONVERT_TYPE(x) \
   case ::gl::TextureTarget::x: return ::gl::CopyImageSubDataTarget::x
-    switch(m_type)
+    switch(m_target)
     {
       SOGLB_CONVERT_TYPE(Texture1d);
       SOGLB_CONVERT_TYPE(Texture2d);
@@ -74,12 +82,12 @@ public:
       return *this;
 
     bind();
-    GL_ASSERT(::gl::generateMipmap(m_type));
+    GL_ASSERT(::gl::generateMipmap(m_target));
     return *this;
   }
 
 private:
-  const ::gl::TextureTarget m_type;
+  const ::gl::TextureTarget m_target;
 };
 
 template<typename PixelT>
@@ -113,7 +121,7 @@ public:
 
     bind();
 
-    GL_ASSERT(::gl::texImage2D(getType(),
+    GL_ASSERT(::gl::texImage2D(getTarget(),
                                0,
                                PixelT::InternalFormat,
                                width,
@@ -140,7 +148,7 @@ public:
 
     bind();
 
-    GL_ASSERT(::gl::texImage2D(getType(),
+    GL_ASSERT(::gl::texImage2D(getTarget(),
                                level,
                                PixelT::InternalFormat,
                                m_width / levelDiv,
@@ -160,7 +168,7 @@ public:
     const int levelDiv = 1 << level;
     bind();
 
-    GL_ASSERT(::gl::texImage2D(getType(),
+    GL_ASSERT(::gl::texImage2D(getTarget(),
                                level,
                                PixelT::InternalFormat,
                                m_width / levelDiv,
@@ -180,8 +188,8 @@ public:
 
     bind();
 
-    GL_ASSERT(
-      ::gl::texSubImage2D(getType(), 0, 0, 0, m_width, m_height, PixelT::PixelFormat, PixelT::PixelType, data.data()));
+    GL_ASSERT(::gl::texSubImage2D(
+      getTarget(), 0, 0, 0, m_width, m_height, PixelT::PixelFormat, PixelT::PixelType, data.data()));
 
     return *this;
   }
@@ -262,7 +270,7 @@ public:
 
     bind();
 
-    GL_ASSERT(::gl::texImage2D(getType(),
+    GL_ASSERT(::gl::texImage2D(getTarget(),
                                0,
                                ::gl::InternalFormat::DepthComponent32f,
                                width,

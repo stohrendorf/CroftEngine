@@ -23,6 +23,10 @@ float shadow_map_multiplier(in float shadow)
     vec3 projCoords = gpi.vertexPosLight[cascadeIdx].xyz / gpi.vertexPosLight[cascadeIdx].w;
     projCoords = projCoords * 0.5 + 0.5;
     float currentDepth = projCoords.z;
+    if (currentDepth > 1.0) {
+        return 1.0;
+    }
+
     const float bias = 0.005;
     const int extent = 2;
     int inShadow = 0;

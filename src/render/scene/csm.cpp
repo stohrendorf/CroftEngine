@@ -12,8 +12,9 @@ void CSM::Split::init(int32_t resolution, size_t idx)
   texture->image(resolution, resolution)
     .set(::gl::TextureMinFilter::Nearest)
     .set(::gl::TextureMagFilter::Nearest)
-    .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
-    .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
+    .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToBorder)
+    .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToBorder)
+    .setBorderColor(glm::vec4{1.0f});
 
   framebuffer = gl::FrameBufferBuilder()
                   .textureNoBlend(::gl::FramebufferAttachment::DepthAttachment, texture)
