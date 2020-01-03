@@ -70,9 +70,8 @@ class ModelBuilder final
     tk.colorId = tileId.get() & 0xff;
     const auto color = gsl::at(m_palette.colors, tk.colorId.get()).toGLColor3();
 
-    if(m_texBuffers.find(tk) == m_texBuffers.end())
+    if(m_texBuffers.emplace(tk, m_parts.size()).second)
     {
-      m_texBuffers[tk] = m_parts.size();
       m_parts.emplace_back();
       m_parts.back().materialFull = m_colorMaterialFull;
       m_parts.back().materialDepthOnly = m_materialDepthOnly;
@@ -84,9 +83,8 @@ class ModelBuilder final
 
   size_t getPartForTexture(const TextureTile& tile)
   {
-    if(m_texBuffers.find(tile.textureKey) == m_texBuffers.end())
+    if(m_texBuffers.emplace(tile.textureKey, m_parts.size()).second)
     {
-      m_texBuffers[tile.textureKey] = m_parts.size();
       m_parts.emplace_back();
       m_parts.back().materialFull = m_materialsFull.at(tile.textureKey);
       m_parts.back().materialDepthOnly = m_materialDepthOnly;

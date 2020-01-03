@@ -21,6 +21,7 @@ struct CameraMatrices
   };
 
   glm::mat4 projection{1.0f};
+  glm::mat4 inverseProjection{1.0f};
   glm::mat4 view{1.0f};
   glm::mat4 inverseView{1.0f};
   glm::mat4 viewProjection{1.0f};
@@ -115,6 +116,7 @@ public:
     if(m_dirty.is_set(CameraMatrices::DirtyFlag::Projection))
     {
       m_matrices.projection = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.near, m_matrices.far);
+      m_matrices.inverseProjection = glm::inverse(m_matrices.projection);
       m_dirty.reset(CameraMatrices::DirtyFlag::Projection);
     }
 
