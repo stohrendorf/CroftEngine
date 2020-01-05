@@ -266,9 +266,8 @@ public:
     m_mappingByTile.emplace(std::make_pair(tileId, mappingIdx));
   }
 
-  void toTexture(std::vector<loader::file::DWordTexture>& textures,
-                 std::vector<loader::file::TextureTile>& textureTiles,
-                 bool linear) const
+  void toImage(std::vector<loader::file::DWordTexture>& textures,
+               std::vector<loader::file::TextureTile>& textureTiles) const
   {
     util::CImgWrapper img{m_resultPageSize};
 
@@ -301,21 +300,9 @@ public:
 
     auto texture = std::make_unique<loader::file::DWordTexture>();
     texture->md5 = "animated";
-    texture->texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>("animated texture tiles");
-    texture->texture->set(::gl::TextureMinFilter::NearestMipmapLinear);
-    if(!linear)
-    {
-      texture->texture->set(::gl::TextureMagFilter::Nearest);
-    }
-    else
-    {
-      texture->texture->set(::gl::TextureMagFilter::Linear);
-    }
     img.interleave();
-    texture->image = std::make_shared<gl::Image<gl::SRGBA8>>(
-      img.width(), img.height(), reinterpret_cast<const gl::SRGBA8*>(img.data()));
-    texture->texture->image(texture->image->getWidth(), texture->image->getHeight(), texture->image->getData())
-      .generateMipmap();
+    texture->image = std::make_shared<gl::Image<gl::SRGBA8>>(glm::ivec2{img.width(), img.height()},
+                                                             reinterpret_cast<const gl::SRGBA8*>(img.data()));
 
     textures.emplace_back(std::move(*texture));
   }
@@ -324,8 +311,7 @@ public:
 
 TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
                                  std::vector<loader::file::TextureTile>& textureTiles,
-                                 std::vector<loader::file::DWordTexture>& textures,
-                                 bool linear)
+                                 std::vector<loader::file::DWordTexture>& textures)
 {
   int32_t maxSize = 0;
   for(const auto& texture : textures)
@@ -367,6 +353,6 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data,
   atlas.layOutTextures(textures);
 
   BOOST_LOG_TRIVIAL(debug) << "  - Building texture...";
-  atlas.toTexture(textures, textureTiles, linear);
+  atlas.toImage(textures, textureTiles);
 }
 } // namespace render

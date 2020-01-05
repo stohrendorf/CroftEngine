@@ -83,6 +83,7 @@ struct TypeTraits<float>
   static constexpr ::gl::InternalFormat RgbSizedInternalFormat = ::gl::InternalFormat::Rgb32f;
   static constexpr ::gl::InternalFormat RgSizedInternalFormat = ::gl::InternalFormat::Rg32f;
   static constexpr ::gl::InternalFormat RSizedInternalFormat = ::gl::InternalFormat::R32f;
+  static constexpr ::gl::InternalFormat DepthInternalFormat = ::gl::InternalFormat::DepthComponent32f;
 };
 
 #if GLM_VERSION < 98

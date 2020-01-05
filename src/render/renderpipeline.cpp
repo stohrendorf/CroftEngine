@@ -8,7 +8,7 @@
 
 namespace render
 {
-RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene::Dimension2<size_t>& viewport)
+RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
     : m_fxaaShader{shaderManager.getFXAA()}
     , m_fxaaMaterial{std::make_shared<scene::Material>(m_fxaaShader)}
     , m_ssaoShader{shaderManager.getSSAO()}
@@ -140,7 +140,8 @@ RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const scene:
     ssaoNoise.emplace_back(randomFloats(generator) * 2 - 1, randomFloats(generator) * 2 - 1, 0.0f);
   }
 
-  m_ssaoNoiseTexture->image(4, 4, ssaoNoise)
+  m_ssaoNoiseTexture->allocate({4, 4})
+    .assign(ssaoNoise.data())
     .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::Repeat)
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::Repeat)
     .set(::gl::TextureMinFilter::Nearest)
@@ -210,26 +211,26 @@ void RenderPipeline::update(const gsl::not_null<std::shared_ptr<scene::Camera>>&
   m_ssaoMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }
 
-void RenderPipeline::resize(const scene::Dimension2<size_t>& viewport)
+void RenderPipeline::resize(const glm::ivec2& viewport)
 {
-  m_portalDepthBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height))
+  m_portalDepthBuffer->allocateMutable(viewport)
     .set(::gl::TextureMinFilter::Linear)
     .set(::gl::TextureMagFilter::Linear);
-  m_portalPerturbBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height))
+  m_portalPerturbBuffer->allocateMutable(viewport)
     .set(::gl::TextureMinFilter::Linear)
     .set(::gl::TextureMagFilter::Linear);
-  m_geometryDepthBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height))
+  m_geometryDepthBuffer->allocateMutable(viewport)
     .set(::gl::TextureMinFilter::Linear)
     .set(::gl::TextureMagFilter::Linear);
-  m_geometryColorBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
-  m_geometryPositionBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
-  m_geometryNormalBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
-  m_ssaoAOBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
-  m_ssaoBlurAOBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
-  m_fxaaColorBuffer->image(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
+  m_geometryColorBuffer->allocateMutable(viewport);
+  m_geometryPositionBuffer->allocateMutable(viewport);
+  m_geometryNormalBuffer->allocateMutable(viewport);
+  m_ssaoAOBuffer->allocateMutable(viewport);
+  m_ssaoBlurAOBuffer->allocateMutable(viewport);
+  m_fxaaColorBuffer->allocateMutable(viewport);
 
   m_fbModel->getMeshes().clear();
   m_fbModel->addMesh(scene::createQuadFullscreen(
-    gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), m_fxaaShader->getHandle()));
+    gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), m_fxaaShader->getHandle()));
 }
 } // namespace render

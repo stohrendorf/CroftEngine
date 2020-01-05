@@ -1,5 +1,4 @@
 #define VTX_INPUT_NORMAL
-#define VTX_INPUT_COLOR
 #define VTX_INPUT_TEXCOORD
 
 #include "vtx_input.glsl"
@@ -33,6 +32,7 @@ void main()
     #endif
     gl_Position = u_projection * tmp;
     gpi.texCoord = a_texCoord;
+    gpi.texIndex = a_texIndex;
     gpi.color = a_color;
 
     gpi.normal = normalize(mat3(u_modelMatrix) * a_normal);

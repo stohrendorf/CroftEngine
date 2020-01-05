@@ -2,7 +2,6 @@
 
 #include "engine/objects/object.h"
 #include "io/sdlreader.h"
-#include "io/util.h"
 #include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
 #include "util/cimgwrapper.h"
@@ -15,14 +14,13 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 {
   if(glidos == nullptr)
   {
-    image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(256, 256, &pixels[0][0]);
+    image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(glm::ivec2{256, 256}, &pixels[0][0]);
     return;
   }
 
   BOOST_LOG_TRIVIAL(info) << "Upgrading texture " << md5 << "...";
 
-  constexpr int Resolution = 2048;
-  constexpr int Scale = Resolution / 256;
+  constexpr int Scale = trx::Glidos::Resolution / 256;
 
   auto mapping = glidos->getMappingsForTexture(md5);
   auto cache = loader::file::TextureCache{mapping.baseDir / "_edisonengine"};
@@ -35,14 +33,15 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 
     cacheImage.interleave();
     image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
-      cacheImage.width(), cacheImage.height(), reinterpret_cast<const render::gl::SRGBA8*>(cacheImage.data()));
+      glm::ivec2{cacheImage.width(), cacheImage.height()},
+      reinterpret_cast<const render::gl::SRGBA8*>(cacheImage.data()));
     return;
   }
 
   statusCallback("Upgrading texture (upscaling)");
   util::CImgWrapper original{pixels[0][0].channels.data(), 256, 256, false};
   original.deinterleave();
-  original.resize(Resolution, Resolution);
+  original.resize(trx::Glidos::Resolution, trx::Glidos::Resolution);
 
   for(const auto& indexedTile : mapping.tiles | boost::adaptors::indexed(0))
   {
@@ -81,23 +80,8 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 
   original.interleave();
   image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
-    Resolution, Resolution, reinterpret_cast<const render::gl::SRGBA8*>(original.data()));
-}
-
-void DWordTexture::toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback)
-{
-  texture = std::make_shared<render::gl::Texture2D<render::gl::SRGBA8>>(md5);
-  texture->set(::gl::TextureMinFilter::NearestMipmapLinear);
-  if(glidos == nullptr)
-  {
-    texture->set(::gl::TextureMagFilter::Nearest);
-  }
-  else
-  {
-    texture->set(::gl::TextureMagFilter::Linear);
-  }
-  toImage(glidos, statusCallback);
-  texture->image(image->getWidth(), image->getHeight(), image->getData()).generateMipmap();
+    glm::ivec2{trx::Glidos::Resolution, trx::Glidos::Resolution},
+    reinterpret_cast<const render::gl::SRGBA8*>(original.data()));
 }
 
 std::unique_ptr<DWordTexture> DWordTexture::read(io::SDLReader& reader)

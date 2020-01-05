@@ -209,6 +209,11 @@ public:
     GL_ASSERT(::gl::programUniform1(m_program, getLocation(), m_samplerIndex));
   }
 
+  void set(const gsl::not_null<std::shared_ptr<Texture>>& texture)
+  {
+    set(*texture);
+  }
+
   template<typename _It>
   void setTextures(const _It& begin, const _It& end)
   {
@@ -443,12 +448,21 @@ inline Uniform::Uniform(const Program& program, const uint32_t index, int32_t& s
   {
   case ::gl::UniformType::Sampler1d:
   case ::gl::UniformType::Sampler1dShadow:
+  case ::gl::UniformType::Sampler1dArray:
+  case ::gl::UniformType::Sampler1dArrayShadow:
   case ::gl::UniformType::Sampler2d:
   case ::gl::UniformType::Sampler2dShadow:
+  case ::gl::UniformType::Sampler2dArray:
+  case ::gl::UniformType::Sampler2dArrayShadow:
   case ::gl::UniformType::Sampler2dRect:
   case ::gl::UniformType::Sampler2dRectShadow:
+  case ::gl::UniformType::Sampler2dMultisample:
+  case ::gl::UniformType::Sampler2dMultisampleArray:
   case ::gl::UniformType::Sampler3d:
-  case ::gl::UniformType::SamplerCube: m_samplerIndex = samplerIndex; samplerIndex += m_size;
+  case ::gl::UniformType::SamplerCube:
+  case ::gl::UniformType::SamplerCubeShadow:
+  case ::gl::UniformType::SamplerCubeMapArray:
+  case ::gl::UniformType::SamplerCubeMapArrayShadow: m_samplerIndex = samplerIndex; samplerIndex += m_size;
   default: break;
   }
 }

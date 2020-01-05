@@ -35,47 +35,42 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly()
   return m_depthOnly;
 }
 
-std::shared_ptr<Material>
-  MaterialManager::createTextureMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture>>& texture, bool water)
+std::shared_ptr<Material> MaterialManager::createMaterial(
+  const gsl::not_null<std::shared_ptr<render::gl::Texture2DArray<render::gl::SRGBA8>>>& texture, bool water)
 {
-  auto result
-    = std::make_shared<Material>(water ? m_shaderManager->getTexturedWater() : m_shaderManager->getTextured());
+  if(!water && m_material != nullptr)
+    return m_material;
+  else if(water && m_materialWater != nullptr)
+    return m_materialWater;
+
   texture->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge);
   texture->set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
-  result->getUniform("u_diffuseTexture")->set(texture.get());
-  result->getUniform("u_spritePole")->set(-1);
 
-  result->getUniformBlock("Transform")->bindTransformBuffer();
-  result->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  result->getUniformBlock("CSM")->bind(
+  auto m = std::make_shared<Material>(water ? m_shaderManager->getTexturedWater() : m_shaderManager->getTextured());
+  m->getUniform("u_diffuseTextures")->set(texture);
+  m->getUniform("u_spritePole")->set(-1);
+
+  m->getUniformBlock("Transform")->bindTransformBuffer();
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("CSM")->bind(
     [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
 
-  result->getUniform("u_csmDepth[0]")->set(m_csm->getTextures());
+  m->getUniform("u_csmDepth[0]")->set(m_csm->getTextures());
 
   if(water)
   {
-    result->getUniform("u_time")->bind([renderer = m_renderer](const Node&, render::gl::Uniform& uniform) {
+    m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, render::gl::Uniform& uniform) {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
   }
 
-  return result;
-}
+  if(water)
+    m_materialWater = m;
+  else
+    m_material = m;
 
-const std::shared_ptr<Material>& MaterialManager::getColor()
-{
-  if(m_color != nullptr)
-    return m_color;
-
-  m_color = std::make_shared<Material>(m_shaderManager->getColored());
-  m_color->getUniformBlock("Transform")->bindTransformBuffer();
-  m_color->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  m_color->getUniformBlock("CSM")->bind(
-    [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
-  m_color->getUniform("u_csmDepth[0]")->set(m_csm->getTextures());
-
-  return m_color;
+  return m;
 }
 
 const std::shared_ptr<Material>& MaterialManager::getPortal()

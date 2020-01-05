@@ -401,10 +401,12 @@ set( EDISONENGINE_SRCS
         render/gl/pixel.h
         render/gl/program.h
         render/gl/renderbuffer.h
-        render/gl/rendertarget.h
         render/gl/shader.h
         render/gl/vertexbuffer.h
         render/gl/texture.h
+        render/gl/texture2d.h
+        render/gl/texture2darray.h
+        render/gl/texturedepth.h
         render/gl/typetraits.h
         render/gl/vertexarray.h
         render/gl/glassert.h
@@ -422,7 +424,6 @@ set( EDISONENGINE_SRCS
         render/scene/camera.h
         render/scene/csm.h
         render/scene/csm.cpp
-        render/scene/dimension.h
         render/scene/glfw.h
         render/scene/material.h
         render/scene/material.cpp

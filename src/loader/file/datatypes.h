@@ -410,15 +410,14 @@ struct Room
 
   static std::unique_ptr<Room> readTr5(io::SDLReader& reader);
 
-  void createSceneNode(
-    size_t roomId,
-    const level::Level& level,
-    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
-    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterialsFull,
-    const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
-    render::TextureAnimator& animator,
-    const std::shared_ptr<render::scene::Material>& spriteMaterial,
-    const std::shared_ptr<render::scene::Material>& portalMaterial);
+  void createSceneNode(size_t roomId,
+                       const level::Level& level,
+                       const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
+                       const gsl::not_null<std::shared_ptr<render::scene::Material>>& waterMaterialFull,
+                       const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
+                       render::TextureAnimator& animator,
+                       const std::shared_ptr<render::scene::Material>& spriteMaterial,
+                       const std::shared_ptr<render::scene::Material>& portalMaterial);
 
   [[nodiscard]] const Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
   {
@@ -512,18 +511,13 @@ struct Sprite
   core::TextureId texture_id{uint16_t(0)};
 
   std::shared_ptr<render::gl::Image<render::gl::SRGBA8>> image{nullptr};
-  std::shared_ptr<render::gl::Texture> texture{nullptr};
 
   glm::vec2 t0{0.0f};
-
   glm::vec2 t1{0.0f};
 
   int16_t x0 = 0;
-
   int16_t y0 = 0;
-
   int16_t x1 = 0;
-
   int16_t y1 = 0;
 
   static std::unique_ptr<Sprite> readTr1(io::SDLReader& reader);

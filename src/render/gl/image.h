@@ -71,14 +71,13 @@ class Image
 public:
   using StorageType = TStorage;
 
-  explicit Image(const int32_t width, const int32_t height, const StorageType* data = nullptr)
+  explicit Image(const glm::ivec2& size, const StorageType* data = nullptr)
       : m_data{}
-      , m_width{width}
-      , m_height{height}
+      , m_size{size}
   {
-    Expects(width >= 0 && height >= 0);
+    Expects(size.x >= 0 && size.y >= 0);
 
-    const auto dataSize = static_cast<size_t>(width * height);
+    const auto dataSize = static_cast<size_t>(size.x * size.y);
     if(data == nullptr)
       m_data.resize(dataSize);
     else
@@ -86,7 +85,7 @@ public:
   }
 
   Image()
-      : Image{0, 0}
+      : Image{{0, 0}}
   {
   }
 
@@ -94,11 +93,8 @@ public:
 
   Image(Image&& rhs) noexcept
       : m_data{std::move(rhs.m_data)}
-      , m_width{rhs.m_width}
-      , m_height{rhs.m_height}
+      , m_size{std::exchange(rhs.m_size, {0, 0})}
   {
-    rhs.m_width = 0;
-    rhs.m_height = 0;
   }
 
   Image& operator=(const Image&) = delete;
@@ -106,8 +102,7 @@ public:
   Image& operator=(Image&& rhs) noexcept
   {
     m_data = std::move(rhs.m_data);
-    m_width = std::exchange(rhs.m_width, 0);
-    m_height = std::exchange(rhs.m_height, 0);
+    m_size = std::exchange(rhs.m_size, {0, 0});
     return *this;
   }
 
@@ -148,30 +143,35 @@ public:
 
   [[nodiscard]] int32_t getHeight() const
   {
-    return m_height;
+    return m_size.y;
   }
 
   [[nodiscard]] int32_t getWidth() const
   {
-    return m_width;
+    return m_size.x;
   }
 
-  StorageType& at(const int32_t x, const int32_t y)
+  [[nodiscard]] const auto& getSize() const
   {
-    if(x < 0 || x >= m_width || y < 0 || y >= m_height)
+    return m_size;
+  }
+
+  [[nodiscard]] StorageType& at(const int32_t x, const int32_t y)
+  {
+    if(x < 0 || x >= m_size.x || y < 0 || y >= m_size.y)
     {
       BOOST_THROW_EXCEPTION(std::out_of_range{"Image coordinates out of range"});
     }
 
-    return m_data[y * m_width + x];
+    return m_data[y * m_size.x + x];
   }
 
   void set(const int32_t x, const int32_t y, const StorageType& pixel, const bool blend = false)
   {
-    if(x < 0 || x >= m_width || y < 0 || y >= m_height)
+    if(x < 0 || x >= m_size.x || y < 0 || y >= m_size.y)
       return;
 
-    const auto o = gsl::narrow_cast<size_t>(y * m_width + x);
+    const auto o = gsl::narrow_cast<size_t>(y * m_size.x + x);
 
     if(!blend)
     {
@@ -185,12 +185,12 @@ public:
 
   const StorageType& at(const int32_t x, const int32_t y) const
   {
-    if(x < 0 || x >= m_width || y < 0 || y >= m_height)
+    if(x < 0 || x >= m_size.x || y < 0 || y >= m_size.y)
     {
       BOOST_THROW_EXCEPTION(std::out_of_range{"Image coordinates out of range"});
     }
 
-    return m_data[y * m_width + x];
+    return m_data[y * m_size.x + x];
   }
 
   void fill(const StorageType& color)
@@ -233,9 +233,6 @@ public:
 
 private:
   std::vector<StorageType> m_data;
-
-  int32_t m_width;
-
-  int32_t m_height;
+  glm::ivec2 m_size{0};
 };
 } // namespace render::gl

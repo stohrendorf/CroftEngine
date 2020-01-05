@@ -1,6 +1,7 @@
 IN_OUT GeometryPipelineInterface {
     vec2 texCoord;
     vec3 color;
+    flat float texIndex;
     vec3 vertexPos;
     vec4 vertexPosLight[3];
     #ifdef WATER

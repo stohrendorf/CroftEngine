@@ -1,7 +1,7 @@
 #pragma once
 
 #include "render/gl/image.h"
-#include "render/gl/texture.h"
+#include "render/gl/texture2d.h"
 #include "renderable.h"
 #include "renderer.h"
 #include "window.h"
@@ -25,9 +25,9 @@ public:
 
   ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-  explicit ScreenOverlay(ShaderManager& shaderManager, const Dimension2<size_t>& viewport);
+  explicit ScreenOverlay(ShaderManager& shaderManager, const glm::ivec2& viewport);
 
-  void init(ShaderManager& shaderManager, const Dimension2<size_t>& viewport);
+  void init(ShaderManager& shaderManager, const glm::ivec2& viewport);
 
   ~ScreenOverlay() override;
 

@@ -45,9 +45,11 @@ void SpriteObject::createModel()
     m_sprite->x0, -m_sprite->y0, m_sprite->x1, -m_sprite->y1, m_sprite->t0, m_sprite->t1, m_material);
 
   m_node->setRenderable(mesh);
-  m_node->addUniformSetter("u_diffuseTexture",
-                           [texture = m_sprite->texture](const render::scene::Node& /*node*/,
-                                                         render::gl::Uniform& uniform) { uniform.set(*texture); });
+  m_node->addUniformSetter(
+    "u_diffuseTextureId",
+    [texture = m_sprite->texture_id](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+      uniform.set(texture.get_as<int32_t>());
+    });
   m_node->addUniformSetter("u_lightAmbient",
                            [brightness = m_brightness](const render::scene::Node& /*node*/,
                                                        render::gl::Uniform& uniform) { uniform.set(brightness); });

@@ -1,12 +1,12 @@
 #include "mesh.h"
 
 #include "color.h"
+#include "datatypes.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "render/gl/vertexarray.h"
 #include "render/scene/mesh.h"
 #include "render/scene/model.h"
-#include "render/scene/uniformparameter.h"
 #include "util.h"
 
 #include <utility>
@@ -17,12 +17,15 @@ namespace
 {
 class ModelBuilder final
 {
+  using IndexType = uint16_t;
+
   struct RenderVertex
   {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec3 color{1.0f};
     glm::vec2 uv;
+    glm::int32_t textureIndex{-1};
 
     static const render::gl::VertexFormat<RenderVertex>& getFormat()
     {
@@ -30,7 +33,8 @@ class ModelBuilder final
         {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
         {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
         {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
-        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv}};
+        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv},
+        {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &RenderVertex::textureIndex}};
 
       return format;
     }
@@ -39,72 +43,25 @@ class ModelBuilder final
   const bool m_hasNormals;
   std::vector<RenderVertex> m_vertices;
   const std::vector<TextureTile>& m_textureTiles;
-  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& m_materialsFull;
-  const gsl::not_null<std::shared_ptr<render::scene::Material>> m_colorMaterialFull;
+  const gsl::not_null<std::shared_ptr<render::scene::Material>> m_materialFull;
   const gsl::not_null<std::shared_ptr<render::scene::Material>> m_materialDepthOnly;
   const Palette& m_palette;
-  std::map<TextureKey, size_t> m_texBuffers;
   std::shared_ptr<render::gl::VertexBuffer<RenderVertex>> m_vb;
   const std::string m_label;
-
-  struct MeshPart
-  {
-    using IndexBuffer = std::vector<uint16_t>;
-
-    IndexBuffer indices;
-    std::shared_ptr<render::scene::Material> materialFull;
-    std::shared_ptr<render::scene::Material> materialDepthOnly;
-    std::optional<glm::vec3> color;
-  };
-
-  std::vector<MeshPart> m_parts;
+  std::vector<IndexType> m_indices{};
 
   void append(const RenderVertex& v);
 
-  size_t getPartForColor(const core::TextureTileId tileId)
-  {
-    TextureKey tk;
-    tk.blendingMode = BlendingMode::Solid;
-    tk.flags = 0;
-    tk.tileAndFlag = 0;
-    tk.colorId = tileId.get() & 0xff;
-    const auto color = gsl::at(m_palette.colors, tk.colorId.get()).toGLColor3();
-
-    if(m_texBuffers.emplace(tk, m_parts.size()).second)
-    {
-      m_parts.emplace_back();
-      m_parts.back().materialFull = m_colorMaterialFull;
-      m_parts.back().materialDepthOnly = m_materialDepthOnly;
-      m_parts.back().color = color;
-    }
-
-    return m_texBuffers[tk];
-  }
-
-  size_t getPartForTexture(const TextureTile& tile)
-  {
-    if(m_texBuffers.emplace(tile.textureKey, m_parts.size()).second)
-    {
-      m_parts.emplace_back();
-      m_parts.back().materialFull = m_materialsFull.at(tile.textureKey);
-      m_parts.back().materialDepthOnly = m_materialDepthOnly;
-    }
-    return m_texBuffers[tile.textureKey];
-  }
-
 public:
-  explicit ModelBuilder(
-    bool withNormals,
-    const std::vector<TextureTile>& textureTiles,
-    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
-    gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterialFull,
-    gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
-    const Palette& palette,
-    std::string label = {})
+  explicit ModelBuilder(bool withNormals,
+                        const std::vector<TextureTile>& textureTiles,
+                        gsl::not_null<std::shared_ptr<render::scene::Material>> materialFull,
+                        gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
+                        const Palette& palette,
+                        std::string label = {})
       : m_hasNormals{withNormals}
       , m_textureTiles{textureTiles}
-      , m_materialsFull{materialsFull}
-      , m_colorMaterialFull{std::move(colorMaterialFull)}
+      , m_materialFull{std::move(materialFull)}
       , m_materialDepthOnly{std::move(materialDepthOnly)}
       , m_palette{palette}
       , m_vb{std::make_shared<render::gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label)}
@@ -132,7 +89,6 @@ void ModelBuilder::append(const Mesh& mesh)
   for(const QuadFace& quad : mesh.textured_rectangles)
   {
     const TextureTile& tile = m_textureTiles.at(quad.tileId.get());
-    const auto partId = getPartForTexture(tile);
 
     glm::vec3 defaultNormal{0.0f};
     if(m_hasNormals)
@@ -152,6 +108,7 @@ void ModelBuilder::append(const Mesh& mesh)
     for(int i = 0; i < 4; ++i)
     {
       RenderVertex iv{};
+      iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
 
       if(!m_hasNormals)
       {
@@ -185,14 +142,13 @@ void ModelBuilder::append(const Mesh& mesh)
 
     for(auto i : {0, 1, 2, 0, 2, 3})
     {
-      m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(firstVertex + i));
+      m_indices.emplace_back(gsl::narrow<IndexType>(firstVertex + i));
     }
   }
   for(const QuadFace& quad : mesh.colored_rectangles)
   {
     const TextureTile& tile = m_textureTiles.at(quad.tileId.get());
-    const auto partId = getPartForColor(quad.tileId);
-    const auto color = *m_parts[partId].color;
+    const auto color = gsl::at(m_palette.colors, quad.tileId.get() & 0xff).toGLColor3();
 
     glm::vec3 defaultNormal{0.0f};
     if(m_hasNormals)
@@ -213,6 +169,7 @@ void ModelBuilder::append(const Mesh& mesh)
     {
       RenderVertex iv{};
       iv.position = quad.vertices[i].from(mesh.vertices).toRenderSystem();
+      iv.textureIndex = -1;
       iv.color = color;
       if(!m_hasNormals)
       {
@@ -243,13 +200,13 @@ void ModelBuilder::append(const Mesh& mesh)
     }
     for(auto i : {0, 1, 2, 0, 2, 3})
     {
-      m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(firstVertex + i));
+      m_indices.emplace_back(gsl::narrow<IndexType>(firstVertex + i));
     }
   }
+
   for(const Triangle& tri : mesh.textured_triangles)
   {
     const TextureTile& tile = m_textureTiles.at(tri.tileId.get());
-    const auto partId = getPartForTexture(tile);
 
     glm::vec3 defaultNormal{0.0f};
     if(m_hasNormals)
@@ -269,6 +226,7 @@ void ModelBuilder::append(const Mesh& mesh)
     {
       RenderVertex iv{};
       iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
+      iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
       iv.uv = tile.uvCoordinates[i].toGl();
       if(!m_hasNormals)
       {
@@ -285,15 +243,15 @@ void ModelBuilder::append(const Mesh& mesh)
         if(iv.normal == glm::vec3{0.0f})
           iv.normal = defaultNormal;
       }
-      m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(m_vertices.size()));
+      m_indices.emplace_back(gsl::narrow<IndexType>(m_vertices.size()));
       append(iv);
     }
   }
+
   for(const Triangle& tri : mesh.colored_triangles)
   {
     const TextureTile& tile = m_textureTiles.at(tri.tileId.get());
-    const auto partId = getPartForColor(tri.tileId);
-    const auto color = *m_parts[partId].color;
+    const auto color = gsl::at(m_palette.colors, tri.tileId.get() & 0xff).toGLColor3();
 
     glm::vec3 defaultNormal{0.0f};
     if(m_hasNormals)
@@ -313,6 +271,7 @@ void ModelBuilder::append(const Mesh& mesh)
     {
       RenderVertex iv{};
       iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
+      iv.textureIndex = -1;
       iv.color = color;
       if(!m_hasNormals)
       {
@@ -330,7 +289,7 @@ void ModelBuilder::append(const Mesh& mesh)
           iv.normal = defaultNormal;
       }
       iv.uv = tile.uvCoordinates[i].toGl();
-      m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(m_vertices.size()));
+      m_indices.emplace_back(gsl::narrow<IndexType>(m_vertices.size()));
       append(iv);
     }
   }
@@ -341,33 +300,28 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
   m_vb->setData(m_vertices, gl::BufferUsageARB::StaticDraw);
 
   auto model = std::make_shared<render::scene::Model>();
-  for(const MeshPart& localPart : m_parts)
-  {
 #ifndef NDEBUG
-    for(auto idx : localPart.indices)
-    {
-      BOOST_ASSERT(idx < m_vertices.size());
-    }
-#endif
-
-    auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
-    indexBuffer->setData(localPart.indices, gl::BufferUsageARB::DynamicDraw);
-
-    auto va = std::make_shared<render::gl::VertexArray<uint16_t, RenderVertex>>(
-      indexBuffer,
-      m_vb,
-      std::vector<const render::gl::Program*>{&localPart.materialFull->getShaderProgram()->getHandle(),
-                                              localPart.materialDepthOnly == nullptr
-                                                ? nullptr
-                                                : &localPart.materialDepthOnly->getShaderProgram()->getHandle()},
-      m_label);
-    auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, gl::PrimitiveType::Triangles);
-    mesh->getMaterial()
-      .set(render::scene::RenderMode::Full, localPart.materialFull)
-      .set(render::scene::RenderMode::DepthOnly, localPart.materialDepthOnly);
-
-    model->addMesh(mesh);
+  for(auto idx : m_indices)
+  {
+    BOOST_ASSERT(idx < m_vertices.size());
   }
+#endif
+  auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
+  indexBuffer->setData(m_indices, gl::BufferUsageARB::DynamicDraw);
+
+  auto va = std::make_shared<render::gl::VertexArray<uint16_t, RenderVertex>>(
+    indexBuffer,
+    m_vb,
+    std::vector<const render::gl::Program*>{
+      &m_materialFull->getShaderProgram()->getHandle(),
+      m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle()},
+    m_label);
+  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, gl::PrimitiveType::Triangles);
+  mesh->getMaterial()
+    .set(render::scene::RenderMode::Full, m_materialFull)
+    .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly);
+
+  model->addMesh(mesh);
 
   return model;
 }
@@ -375,19 +329,12 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
 
 std::shared_ptr<render::scene::Model>
   Mesh::createModel(const std::vector<TextureTile>& textureTiles,
-                    const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
-                    gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterialFull,
+                    const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
                     gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
                     const Palette& palette,
                     const std::string& label) const
 {
-  ModelBuilder mb{!normals.empty(),
-                  textureTiles,
-                  materialsFull,
-                  std::move(colorMaterialFull),
-                  std::move(materialDepthOnly),
-                  palette,
-                  label};
+  ModelBuilder mb{!normals.empty(), textureTiles, materialFull, std::move(materialDepthOnly), palette, label};
 
   mb.append(*this);
 

@@ -28,13 +28,15 @@ struct RenderVertex
   glm::vec3 position{};
   glm::vec4 color{1.0f};
   glm::vec3 normal{0.0f};
+  glm::int32_t textureIndex{-1};
 
   static const render::gl::VertexFormat<RenderVertex>& getFormat()
   {
     static const render::gl::VertexFormat<RenderVertex> format{
       {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
       {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
-      {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color}};
+      {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
+      {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &RenderVertex::textureIndex}};
 
     return format;
   }
@@ -42,19 +44,12 @@ struct RenderVertex
 
 #pragma pack(pop)
 
-struct MeshPart final
-{
-  using IndexBuffer = std::vector<uint16_t>;
-  static_assert(std::is_unsigned_v<IndexBuffer::value_type>, "Index buffer entries must be unsigned");
-
-  IndexBuffer indices;
-  std::shared_ptr<render::scene::Material> materialFull;
-  std::shared_ptr<render::scene::Material> materialDepthOnly;
-};
-
 struct RenderModel
 {
-  std::vector<MeshPart> m_parts;
+  using IndexType = uint16_t;
+  std::vector<IndexType> m_indices;
+  std::shared_ptr<render::scene::Material> m_materialFull;
+  std::shared_ptr<render::scene::Material> m_materialDepthOnly;
 
   std::shared_ptr<render::scene::Model>
     toModel(const gsl::not_null<std::shared_ptr<render::gl::VertexBuffer<RenderVertex>>>& vbuf,
@@ -62,34 +57,30 @@ struct RenderModel
   {
     auto model = std::make_shared<render::scene::Model>();
 
-    for(const MeshPart& localPart : m_parts)
-    {
 #ifndef NDEBUG
-      for(auto idx : localPart.indices)
-      {
-        BOOST_ASSERT(idx < vbuf->size());
-      }
+    for(auto idx : m_indices)
+    {
+      BOOST_ASSERT(idx < vbuf->size());
+    }
 #endif
 
-      auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
-      indexBuffer->setData(localPart.indices, ::gl::BufferUsageARB::StaticDraw);
+    auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<IndexType>>();
+    indexBuffer->setData(m_indices, ::gl::BufferUsageARB::StaticDraw);
 
-      std::vector<gsl::not_null<std::shared_ptr<render::gl::ElementArrayBuffer<uint16_t>>>> indexBufs{indexBuffer};
-      auto vBufs = std::make_tuple(vbuf, uvBuf);
+    std::vector<gsl::not_null<std::shared_ptr<render::gl::ElementArrayBuffer<uint16_t>>>> indexBufs{indexBuffer};
+    auto vBufs = std::make_tuple(vbuf, uvBuf);
 
-      auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex, glm::vec2>>(
-        std::make_shared<render::gl::VertexArray<uint16_t, RenderVertex, glm::vec2>>(
-          indexBufs,
-          vBufs,
-          std::vector<const render::gl::Program*>{&localPart.materialFull->getShaderProgram()->getHandle(),
-                                                  localPart.materialDepthOnly == nullptr
-                                                    ? nullptr
-                                                    : &localPart.materialDepthOnly->getShaderProgram()->getHandle()}));
-      mesh->getMaterial()
-        .set(render::scene::RenderMode::Full, localPart.materialFull)
-        .set(render::scene::RenderMode::DepthOnly, localPart.materialDepthOnly);
-      model->addMesh(mesh);
-    }
+    auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, glm::vec2>>(
+      std::make_shared<render::gl::VertexArray<IndexType, RenderVertex, glm::vec2>>(
+        indexBufs,
+        vBufs,
+        std::vector<const render::gl::Program*>{
+          &m_materialFull->getShaderProgram()->getHandle(),
+          m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle()}));
+    mesh->getMaterial()
+      .set(render::scene::RenderMode::Full, m_materialFull)
+      .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly);
+    model->addMesh(mesh);
 
     return model;
   }
@@ -111,18 +102,23 @@ core::TRVec getCenter(const std::array<VertexIndex, N>& faceVertices, const std:
 }
 } // namespace
 
-void Room::createSceneNode(
-  const size_t roomId,
-  const level::Level& level,
-  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
-  const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& waterMaterialsFull,
-  const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
-  render::TextureAnimator& animator,
-  const std::shared_ptr<render::scene::Material>& spriteMaterial,
-  const std::shared_ptr<render::scene::Material>& portalMaterial)
+void Room::createSceneNode(const size_t roomId,
+                           const level::Level& level,
+                           const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
+                           const gsl::not_null<std::shared_ptr<render::scene::Material>>& waterMaterialFull,
+                           const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
+                           render::TextureAnimator& animator,
+                           const std::shared_ptr<render::scene::Material>& spriteMaterial,
+                           const std::shared_ptr<render::scene::Material>& portalMaterial)
 {
+  const auto texMask = gameToEngine(level.m_gameVersion) == loader::file::level::Engine::TR4
+                         ? loader::file::TextureIndexMaskTr4
+                         : loader::file::TextureIndexMask;
+
   RenderModel renderModel;
-  std::map<TextureKey, size_t> texBuffers;
+  renderModel.m_materialDepthOnly = nullptr;
+  renderModel.m_materialFull = isWaterRoom() ? waterMaterialFull : materialFull;
+
   std::vector<RenderVertex> vbufData;
   std::vector<glm::vec2> uvCoordsData;
 
@@ -153,24 +149,13 @@ void Room::createSceneNode(
 
     const TextureTile& tile = level.m_textureTiles.at(quad.tileId.get());
 
-    if(texBuffers.find(tile.textureKey) == texBuffers.end())
-    {
-      texBuffers[tile.textureKey] = renderModel.m_parts.size();
-
-      renderModel.m_parts.emplace_back();
-
-      auto materialFull = isWaterRoom() ? waterMaterialsFull.at(tile.textureKey) : materialsFull.at(tile.textureKey);
-      renderModel.m_parts.back().materialFull = materialFull;
-      renderModel.m_parts.back().materialDepthOnly = nullptr;
-    }
-    const auto partId = texBuffers[tile.textureKey];
-
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 4; ++i)
     {
       RenderVertex iv;
       iv.position = quad.vertices[i].from(vertices).position.toRenderSystem();
       iv.color = quad.vertices[i].from(vertices).color;
+      iv.textureIndex = tile.textureKey.tileAndFlag & texMask;
       uvCoordsData.push_back(tile.uvCoordinates[i].toGl());
 
       if(i <= 2)
@@ -188,13 +173,13 @@ void Room::createSceneNode(
                                    quad.vertices[indices[(i + 2) % 3]].from(vertices).position);
       }
 
-      vbufData.push_back(iv);
+      vbufData.emplace_back(iv);
     }
 
     for(int i : {0, 1, 2, 0, 2, 3})
     {
       animator.registerVertex(quad.tileId, uvCoords, i, firstVertex + i);
-      renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(firstVertex + i));
+      renderModel.m_indices.emplace_back(gsl::narrow<RenderModel::IndexType>(firstVertex + i));
     }
   }
   for(const Triangle& tri : triangles)
@@ -217,24 +202,13 @@ void Room::createSceneNode(
 
     const TextureTile& tile = level.m_textureTiles.at(tri.tileId.get());
 
-    if(texBuffers.find(tile.textureKey) == texBuffers.end())
-    {
-      texBuffers[tile.textureKey] = renderModel.m_parts.size();
-
-      renderModel.m_parts.emplace_back();
-
-      auto materialFull = isWaterRoom() ? waterMaterialsFull.at(tile.textureKey) : materialsFull.at(tile.textureKey);
-      renderModel.m_parts.back().materialFull = materialFull;
-      renderModel.m_parts.back().materialDepthOnly = nullptr;
-    }
-    const auto partId = texBuffers[tile.textureKey];
-
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 3; ++i)
     {
       RenderVertex iv;
       iv.position = tri.vertices[i].from(vertices).position.toRenderSystem();
       iv.color = tri.vertices[i].from(vertices).color;
+      iv.textureIndex = tile.textureKey.tileAndFlag & texMask;
       uvCoordsData.push_back(tile.uvCoordinates[i].toGl());
 
       static const int indices[3] = {0, 1, 2};
@@ -248,7 +222,7 @@ void Room::createSceneNode(
     for(int i : {0, 1, 2})
     {
       animator.registerVertex(tri.tileId, uvCoords, i, firstVertex + i);
-      renderModel.m_parts[partId].indices.emplace_back(gsl::narrow<MeshPart::IndexBuffer::value_type>(firstVertex + i));
+      renderModel.m_indices.emplace_back(gsl::narrow<RenderModel::IndexType>(firstVertex + i));
     }
   }
 
@@ -303,9 +277,11 @@ void Room::createSceneNode(
     spriteNode->setRenderable(mesh);
     const RoomVertex& v = vertices.at(spriteInstance.vertex.get());
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
-    spriteNode->addUniformSetter("u_diffuseTexture",
-                                 [texture = sprite.texture](const render::scene::Node& /*node*/,
-                                                            render::gl::Uniform& uniform) { uniform.set(*texture); });
+    spriteNode->addUniformSetter(
+      "u_diffuseTextureId",
+      [texture = sprite.texture_id](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+        uniform.set(texture.get());
+      });
     spriteNode->addUniformSetter(
       "u_lightAmbient",
       [brightness = v.getBrightness()](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
@@ -989,8 +965,7 @@ void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Materi
   auto vao = std::make_shared<render::gl::VertexArray<uint16_t, Vertex>>(
     indexBuffer, vb, std::vector<const render::gl::Program*>{&materialDepthOnly->getShaderProgram()->getHandle()});
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
-  mesh->getMaterial()
-    .set(render::scene::RenderMode::DepthOnly, materialDepthOnly);
+  mesh->getMaterial().set(render::scene::RenderMode::DepthOnly, materialDepthOnly);
 }
 
 Portal Portal::read(io::SDLReader& reader, const core::TRVec& offset)

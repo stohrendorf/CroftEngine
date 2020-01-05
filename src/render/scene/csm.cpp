@@ -8,10 +8,13 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx)
 {
-  texture = std::make_shared<gl::TextureDepth>("csm-texture/" + std::to_string(idx));
-  texture->image(resolution, resolution)
-    .set(::gl::TextureMinFilter::Nearest)
-    .set(::gl::TextureMagFilter::Nearest)
+  texture = std::make_shared<gl::TextureDepth<float>>("csm-texture/" + std::to_string(idx));
+  texture->allocate(glm::ivec2{resolution, resolution})
+    .fill(1.0f)
+    .set(::gl::TextureMinFilter::Linear)
+    .set(::gl::TextureMagFilter::Linear)
+    .set(::gl::TextureCompareMode::CompareRefToTexture)
+    .set(::gl::DepthFunction::Gequal)
     .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToBorder)
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToBorder)
     .setBorderColor(glm::vec4{1.0f});
@@ -33,9 +36,9 @@ CSM::CSM(int32_t resolution)
   }
 }
 
-std::array<std::shared_ptr<gl::TextureDepth>, CSMBuffer::NSplits> CSM::getTextures() const
+std::array<std::shared_ptr<gl::TextureDepth<float>>, CSMBuffer::NSplits> CSM::getTextures() const
 {
-  std::array<std::shared_ptr<gl::TextureDepth>, CSMBuffer::NSplits> result{};
+  std::array<std::shared_ptr<gl::TextureDepth<float>>, CSMBuffer::NSplits> result{};
   std::transform(m_splits.begin(), m_splits.end(), result.begin(), [](const Split& split) { return split.texture; });
   return result;
 }

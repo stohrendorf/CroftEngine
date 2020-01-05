@@ -165,23 +165,9 @@ const std::vector<loader::file::Box>& Engine::getBoxes() const
   return m_level->m_boxes;
 }
 
-std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>
-  Engine::createMaterials(bool water)
+gsl::not_null<std::shared_ptr<render::scene::Material>> Engine::createMaterial(bool water)
 {
-  const auto texMask = gameToEngine(m_level->m_gameVersion) == loader::file::level::Engine::TR4
-                         ? loader::file::TextureIndexMaskTr4
-                         : loader::file::TextureIndexMask;
-  std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>> materials;
-  for(loader::file::TextureTile& tile : m_level->m_textureTiles)
-  {
-    const auto& key = tile.textureKey;
-    if(materials.find(key) != materials.end())
-      continue;
-
-    materials.emplace(
-      key, m_materialManager->createTextureMaterial(m_level->m_textures[key.tileAndFlag & texMask].texture, water));
-  }
-  return materials;
+  return m_materialManager->createMaterial(m_allTextures, water);
 }
 
 std::shared_ptr<objects::LaraObject> Engine::createObjects()
@@ -208,26 +194,22 @@ std::shared_ptr<objects::LaraObject> Engine::createObjects()
   return lara;
 }
 
-void Engine::loadSceneData(bool linearTextureInterpolation)
+void Engine::loadSceneData()
 {
   for(auto& sprite : m_level->m_sprites)
   {
-    sprite.texture = m_level->m_textures.at(sprite.texture_id.get()).texture;
     sprite.image = m_level->m_textures[sprite.texture_id.get()].image;
   }
 
   m_textureAnimator = std::make_shared<render::TextureAnimator>(
-    m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures, linearTextureInterpolation);
+    m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures);
 
-  const auto materialsFull = createMaterials(false);
+  const auto materialFull = createMaterial(false);
 
   for(auto& mesh : m_level->m_meshes)
   {
-    m_models.emplace_back(mesh.createModel(m_level->m_textureTiles,
-                                           materialsFull,
-                                           m_materialManager->getColor(),
-                                           m_materialManager->getDepthOnly(),
-                                           *m_level->m_palette));
+    m_models.emplace_back(
+      mesh.createModel(m_level->m_textureTiles, materialFull, m_materialManager->getDepthOnly(), *m_level->m_palette));
   }
 
   for(auto idx : m_level->m_meshIndices)
@@ -247,14 +229,14 @@ void Engine::loadSceneData(bool linearTextureInterpolation)
     }
   }
 
-  auto waterMaterialsFull = createMaterials(true);
+  auto waterMaterialFull = createMaterial(true);
 
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
     m_level->m_rooms[i].createSceneNode(i,
                                         *m_level,
-                                        materialsFull,
-                                        waterMaterialsFull,
+                                        materialFull,
+                                        waterMaterialFull,
                                         m_models,
                                         *m_textureAnimator,
                                         m_materialManager->getSprite(),
@@ -303,7 +285,7 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<rend
 {
   if(m_lara->isInWater())
   {
-    const auto x0 = gsl::narrow<int32_t>(m_window->getViewport().width - 110);
+    const auto x0 = m_window->getViewport().x - 110;
 
     for(int i = 7; i <= 13; ++i)
       image->line(x0 - 1, i, x0 + 101, i, m_level->m_palette->colors[0].toTextureColor());
@@ -916,7 +898,7 @@ void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& fo
   font->drawText(txt, x, y, col.channels[0], col.channels[1], col.channels[2], col.channels[3]);
 }
 
-Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const render::scene::Dimension2<int>& resolution)
+Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution)
     : m_rootPath{rootPath}
     , m_scriptEngine{createScriptEngine(rootPath)}
     , m_window{std::make_unique<render::scene::Window>(fullscreen, resolution)}
@@ -957,6 +939,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
     glidos = std::make_unique<loader::trx::Glidos>(m_rootPath / glidosPack.value(),
                                                    [this](const std::string& s) { drawLoadingScreen(s); });
   }
+
+  m_allTextures = std::make_shared<render::gl::Texture2DArray<render::gl::SRGBA8>>();
 
   levelInfo = m_scriptEngine["getLevelInfo"]();
   const bool isVideo = !levelInfo.get<std::string>("video").empty();
@@ -1012,13 +996,13 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
       else
         drawLoadingScreen("Loading texture " + std::to_string(i + 1) + " of "
                           + std::to_string(m_level->m_textures.size()));
-      m_level->m_textures[i].toTexture(
+      m_level->m_textures[i].toImage(
         glidos.get(), std::function<void(const std::string&)>([this](const std::string& s) { drawLoadingScreen(s); }));
     }
 
     drawLoadingScreen("Preparing the game");
     m_renderPipeline = std::make_shared<render::RenderPipeline>(*m_shaderManager, m_window->getViewport());
-    loadSceneData(glidos != nullptr);
+    loadSceneData();
 
     if(useAlternativeLara)
     {
@@ -1069,6 +1053,25 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
 
   if(m_level != nullptr)
   {
+    const int textureSize = glidos == nullptr ? 256 : loader::trx::Glidos::Resolution;
+    const int textureLevels = std::log2(textureSize) + 1;
+
+    m_allTextures->allocate(glm::ivec3{textureSize, textureSize, gsl::narrow<int>(m_level->m_textures.size())},
+                            textureLevels);
+
+    m_allTextures->set(::gl::TextureMinFilter::NearestMipmapLinear);
+    if(glidos == nullptr)
+    {
+      m_allTextures->set(::gl::TextureMagFilter::Nearest);
+    }
+    else
+    {
+      m_allTextures->set(::gl::TextureMagFilter::Linear);
+    }
+
+    for(size_t i = 0; i < m_level->m_textures.size(); ++i)
+      m_allTextures->assign(m_level->m_textures[i].image->getRawData(), i, 0);
+
     struct Rect
     {
       Rect(const std::array<loader::file::UVCoordinates, 4>& cos)
@@ -1141,7 +1144,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
         {
           auto dst = cache.loadPng(texture.md5, mipmapLevel);
           dst.interleave();
-          texture.texture->image(reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), mipmapLevel);
+          m_allTextures->assign(
+            reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
         }
         else
         {
@@ -1164,7 +1168,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const ren
 
           cache.savePng(texture.md5, mipmapLevel, dst);
           dst.interleave();
-          texture.texture->image(reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), mipmapLevel);
+          m_allTextures->assign(
+            reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
         }
       }
     }
@@ -1330,7 +1335,7 @@ void Engine::run()
 
     {
       render::gl::DebugGroup dbg{"geometry-pass"};
-      m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport().width, m_window->getViewport().height);
+      m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport());
       m_renderer->render();
     }
 
@@ -1379,8 +1384,8 @@ void Engine::run()
         if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
           return;
 
-        projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().width;
-        projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().height;
+        projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().x;
+        projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().y;
 
         font->drawText(
           object->getNode()->getId().c_str(), static_cast<int>(projVertex.x), static_cast<int>(projVertex.y), color);
@@ -1431,8 +1436,8 @@ void Engine::run()
 void Engine::scaleSplashImage()
 {
   // scale splash image so that its aspect ratio is preserved, but the boundaries match
-  const float splashScale = std::max(gsl::narrow<float>(m_window->getViewport().width) / splashImage.width(),
-                                     gsl::narrow<float>(m_window->getViewport().height) / splashImage.height());
+  const float splashScale = std::max(gsl::narrow<float>(m_window->getViewport().x) / splashImage.width(),
+                                     gsl::narrow<float>(m_window->getViewport().y) / splashImage.height());
 
   splashImageScaled = splashImage;
   splashImageScaled.resize(static_cast<int>(splashImageScaled.width() * splashScale),
@@ -1441,14 +1446,13 @@ void Engine::scaleSplashImage()
   // crop to boundaries
   const auto centerX = splashImageScaled.width() / 2;
   const auto centerY = splashImageScaled.height() / 2;
-  splashImageScaled.crop(
-    gsl::narrow<int>(centerX - m_window->getViewport().width / 2),
-    gsl::narrow<int>(centerY - m_window->getViewport().height / 2),
-    gsl::narrow<int>(centerX - m_window->getViewport().width / 2 + m_window->getViewport().width - 1),
-    gsl::narrow<int>(centerY - m_window->getViewport().height / 2 + m_window->getViewport().height - 1));
+  splashImageScaled.crop(gsl::narrow<int>(centerX - m_window->getViewport().x / 2),
+                         gsl::narrow<int>(centerY - m_window->getViewport().y / 2),
+                         gsl::narrow<int>(centerX - m_window->getViewport().x / 2 + m_window->getViewport().x - 1),
+                         gsl::narrow<int>(centerY - m_window->getViewport().y / 2 + m_window->getViewport().y - 1));
 
-  Expects(static_cast<size_t>(splashImageScaled.width()) == m_window->getViewport().width);
-  Expects(static_cast<size_t>(splashImageScaled.height()) == m_window->getViewport().height);
+  Expects(static_cast<size_t>(splashImageScaled.width()) == m_window->getViewport().x);
+  Expects(static_cast<size_t>(splashImageScaled.height()) == m_window->getViewport().y);
 
   splashImageScaled.interleave();
 }
@@ -1465,8 +1469,8 @@ void Engine::drawLoadingScreen(const std::string& state)
     scaleSplashImage();
   }
   screenOverlay->getImage()->assign(reinterpret_cast<const render::gl::SRGBA8*>(splashImageScaled.data()),
-                                    m_window->getViewport().width * m_window->getViewport().height);
-  abibasFont->drawText(state, 40, gsl::narrow<int>(m_window->getViewport().height - 100), 255, 255, 255, 192);
+                                    m_window->getViewport().x * m_window->getViewport().y);
+  abibasFont->drawText(state, 40, m_window->getViewport().y - 100, 255, 255, 255, 192);
 
   render::gl::Framebuffer::unbindAll();
 

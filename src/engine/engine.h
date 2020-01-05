@@ -7,6 +7,8 @@
 #include "items_tr1.h"
 #include "loader/file/animationid.h"
 #include "loader/file/item.h"
+#include "render/gl/pixel.h"
+#include "render/gl/texture2darray.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/screenoverlay.h"
 #include "util/cimgwrapper.h"
@@ -118,6 +120,8 @@ private:
 
   Inventory m_inventory;
 
+  std::shared_ptr<render::gl::Texture2DArray<render::gl::SRGBA8>> m_allTextures;
+
   struct PositionalEmitter final : public audio::Emitter
   {
     glm::vec3 position;
@@ -147,7 +151,7 @@ private:
 public:
   explicit Engine(const std::filesystem::path& rootPath,
                   bool fullscreen = false,
-                  const render::scene::Dimension2<int>& resolution = {1280, 800});
+                  const glm::ivec2& resolution = {1280, 800});
 
   ~Engine();
 
@@ -259,12 +263,11 @@ public:
 
   void run();
 
-  std::map<loader::file::TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>
-    createMaterials(bool water);
+  gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(bool water);
 
   std::shared_ptr<objects::LaraObject> createObjects();
 
-  void loadSceneData(bool linearTextureInterpolation);
+  void loadSceneData();
 
   const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
 

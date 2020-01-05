@@ -9,7 +9,7 @@
 
 namespace render::scene
 {
-ScreenOverlay::ScreenOverlay(ShaderManager& shaderManager, const Dimension2<size_t>& viewport)
+ScreenOverlay::ScreenOverlay(ShaderManager& shaderManager, const glm::ivec2& viewport)
 {
   init(shaderManager, viewport);
 }
@@ -22,29 +22,30 @@ void ScreenOverlay::render(RenderContext& context)
     return;
 
   context.pushState(getRenderState());
-  m_texture->image(m_image->getData());
+  m_texture->assign(m_image->getRawData());
   m_mesh->render(context);
   context.popState();
 }
 
-void ScreenOverlay::init(ShaderManager& shaderManager, const Dimension2<size_t>& viewport)
+void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewport)
 {
-  *m_image = gl::Image<gl::SRGBA8>(gsl::narrow<int32_t>(viewport.width), gsl::narrow<int32_t>(viewport.height));
-  if(viewport.width == 0 || viewport.height == 0)
+  *m_image = gl::Image<gl::SRGBA8>(viewport);
+  if(viewport.x == 0 || viewport.y == 0)
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
   }
 
   const auto screenOverlayProgram = shaderManager.getScreenOverlay();
 
-  m_texture->image(m_image->getWidth(), m_image->getHeight(), m_image->getData());
-  m_texture->set(::gl::TextureMinFilter::Nearest)
+  m_texture->allocateMutable(m_image->getSize())
+    .assign(m_image->getRawData())
+    .set(::gl::TextureMinFilter::Nearest)
     .set(::gl::TextureMagFilter::Nearest)
     .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
     .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
 
   m_mesh = createQuadFullscreen(
-    gsl::narrow<float>(viewport.width), gsl::narrow<float>(viewport.height), screenOverlayProgram->getHandle());
+    gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), screenOverlayProgram->getHandle());
   m_mesh->getMaterial().set(RenderMode::Full, std::make_shared<Material>(screenOverlayProgram));
   m_mesh->getMaterial().get(RenderMode::Full)->getUniform("u_input")->set(m_texture.get());
 

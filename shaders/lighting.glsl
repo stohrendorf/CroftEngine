@@ -1,4 +1,4 @@
-uniform sampler2D u_csmDepth[3];
+uniform sampler2DShadow u_csmDepth[3];
 uniform float u_lightAmbient;
 
 #include "csm_interface.glsl"
@@ -28,15 +28,14 @@ float shadow_map_multiplier(in float shadow)
     }
 
     const float bias = 0.005;
-    const int extent = 2;
-    int inShadow = 0;
+    currentDepth -= bias;
+
+    const int extent = 1;
+    float inShadow = 0;
     float d = 1.0/textureSize(u_csmDepth[cascadeIdx], 0).x;
     for (int x=-extent; x<=extent; ++x) {
         for (int y=-extent; y<=extent; ++y) {
-            float closestDepth = texture(u_csmDepth[cascadeIdx], projCoords.xy + vec2(x, y)*d).r;
-            if (currentDepth - bias > closestDepth) {
-                ++inShadow;
-            }
+            inShadow += texture(u_csmDepth[cascadeIdx], vec3(projCoords.xy + vec2(x, y)*d, currentDepth)).r;
         }
     }
 

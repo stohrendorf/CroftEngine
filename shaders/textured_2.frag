@@ -1,6 +1,6 @@
 #include "geometry_pipeline_interface.glsl"
 
-uniform sampler2D u_diffuseTexture;
+uniform sampler2DArray u_diffuseTextures;
 #ifdef WATER
 uniform float u_time;
 #include "water.glsl"
@@ -14,10 +14,15 @@ layout(location=2) out vec3 out_position;
 
 void main()
 {
-    vec4 baseColor = texture(u_diffuseTexture, gpi.texCoord);
-
-    if (baseColor.a < 0.5) {
-        discard;
+    vec4 baseColor;
+    if (gpi.texIndex >= 0) {
+        baseColor = texture(u_diffuseTextures, vec3(gpi.texCoord, gpi.texIndex));
+        if (baseColor.a < 0.5) {
+            discard;
+        }
+    }
+    else {
+        baseColor = vec4(gpi.color, 1);
     }
 
     vec3 finalColor = baseColor.rgb * gpi.color.rgb;

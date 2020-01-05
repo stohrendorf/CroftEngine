@@ -115,6 +115,32 @@ struct Scalar final
 };
 
 template<typename T>
+struct ScalarDepth final
+{
+  static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<::gl::core::Half, T>,
+                "Pixel may only have channels of integral types");
+
+  using Type = T;
+  using Traits = TypeTraits<T>;
+
+  static constexpr ::gl::PixelFormat PixelFormat = ::gl::PixelFormat::DepthComponent;
+  static constexpr ::gl::PixelType PixelType = Traits::PixelType;
+  static constexpr auto InternalFormat = Traits::DepthInternalFormat;
+
+  explicit ScalarDepth()
+      : ScalarDepth{0}
+  {
+  }
+
+  explicit constexpr ScalarDepth(Type value) noexcept
+      : value{value}
+  {
+  }
+
+  Type value;
+};
+
+template<typename T>
 constexpr bool operator==(const Scalar<T>& lhs, const Scalar<T>& rhs)
 {
   return lhs.value == rhs.value;
@@ -126,7 +152,21 @@ constexpr bool operator!=(const Scalar<T>& lhs, const Scalar<T>& rhs)
   return !(lhs == rhs);
 }
 
+template<typename T>
+constexpr bool operator==(const ScalarDepth<T>& lhs, const ScalarDepth<T>& rhs)
+{
+  return lhs.value == rhs.value;
+}
+
+template<typename T>
+constexpr bool operator!=(const ScalarDepth<T>& lhs, const ScalarDepth<T>& rhs)
+{
+  return !(lhs == rhs);
+}
+
 using ScalarByte = Scalar<uint8_t>;
 using Scalar32F = Scalar<float>;
+using ScalarDepth32F = ScalarDepth<float>;
 using Scalar16F = Scalar<::gl::core::Half>;
+using ScalarDepth16F = ScalarDepth<::gl::core::Half>;
 } // namespace render::gl

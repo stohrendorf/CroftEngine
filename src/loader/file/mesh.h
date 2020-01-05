@@ -51,8 +51,7 @@ struct Mesh
 
   [[nodiscard]] std::shared_ptr<render::scene::Model>
     createModel(const std::vector<TextureTile>& textureTiles,
-                const std::map<TextureKey, gsl::not_null<std::shared_ptr<render::scene::Material>>>& materialsFull,
-                gsl::not_null<std::shared_ptr<render::scene::Material>> colorMaterialFull,
+                const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
                 gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
                 const Palette& palette,
                 const std::string& label = {}) const;

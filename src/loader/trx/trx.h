@@ -164,6 +164,8 @@ private:
 class Glidos
 {
 public:
+  static constexpr int Resolution = 2048;
+
   explicit Glidos(std::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback);
 
   void dump() const;

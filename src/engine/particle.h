@@ -31,7 +31,7 @@ public:
 
 private:
   std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_renderables{};
-  std::deque<std::shared_ptr<render::gl::Texture>> m_spriteTextures{};
+  std::deque<core::TextureId> m_spriteTextures{};
   Lighting m_lighting;
 
   void initRenderables(Engine& engine, float scale = 1);

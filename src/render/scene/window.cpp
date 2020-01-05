@@ -16,7 +16,7 @@ void glErrorCallback(const int err, gsl::czstring msg)
 }
 } // namespace
 
-Window::Window(bool fullscreen, const Dimension2<int>& resolution)
+Window::Window(bool fullscreen, const glm::ivec2& resolution)
 {
   glfwSetErrorCallback(&glErrorCallback);
 
@@ -45,7 +45,7 @@ Window::Window(bool fullscreen, const Dimension2<int>& resolution)
 
   // Create the windows
   m_window = glfwCreateWindow(
-    resolution.width, resolution.height, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
+    resolution.x, resolution.y, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
   if(m_window == nullptr)
   {
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create window";
@@ -84,15 +84,13 @@ bool Window::isVsync() const
 
 bool Window::updateWindowSize()
 {
-  int tmpW, tmpH;
-  glfwGetFramebufferSize(m_window, &tmpW, &tmpH);
+  glm::ivec2 tmpSize;
+  glfwGetFramebufferSize(m_window, &tmpSize.x, &tmpSize.y);
 
-  if(tmpW == m_viewport.width && tmpH == m_viewport.height)
+  if(tmpSize == m_viewport)
     return false;
 
-  m_viewport.width = gsl::narrow<size_t>(tmpW);
-  m_viewport.height = gsl::narrow<size_t>(tmpH);
-
+  m_viewport = tmpSize;
   setViewport(m_viewport);
   return true;
 }
@@ -102,10 +100,9 @@ void Window::swapBuffers() const
   glfwSwapBuffers(m_window);
 }
 
-void Window::setViewport(const Dimension2<size_t>& viewport)
+void Window::setViewport(const glm::ivec2& viewport)
 {
   m_viewport = viewport;
-  GL_ASSERT(::gl::viewport(
-    0, 0, gsl::narrow<::gl::core::SizeType>(viewport.width), gsl::narrow<::gl::core::SizeType>(viewport.height)));
+  GL_ASSERT(::gl::viewport(0, 0, viewport.x, viewport.y));
 }
 } // namespace render::scene

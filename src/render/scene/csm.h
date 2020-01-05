@@ -5,7 +5,7 @@
 #include "render/gl/buffer.h"
 #include "render/gl/framebuffer.h"
 #include "render/gl/pixel.h"
-#include "render/gl/texture.h"
+#include "render/gl/texturedepth.h"
 
 #include <cstdint>
 #include <glm/glm.hpp>
@@ -29,7 +29,7 @@ public:
   struct Split final
   {
     glm::mat4 pvMatrix{1.0f};
-    std::shared_ptr<gl::TextureDepth> texture;
+    std::shared_ptr<gl::TextureDepth<float>> texture;
     std::shared_ptr<gl::Framebuffer> framebuffer{};
     float end = 0;
 
@@ -38,7 +38,7 @@ public:
 
   explicit CSM(int32_t resolution);
 
-  [[nodiscard]] std::array<std::shared_ptr<gl::TextureDepth>, CSMBuffer::NSplits> getTextures() const;
+  [[nodiscard]] std::array<std::shared_ptr<gl::TextureDepth<float>>, CSMBuffer::NSplits> getTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
   [[nodiscard]] std::array<float, CSMBuffer::NSplits> getSplitEnds() const;
 

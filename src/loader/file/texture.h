@@ -38,13 +38,10 @@ struct DWordTexture final
 {
   render::gl::SRGBA8 pixels[256][256];
   std::shared_ptr<render::gl::Image<render::gl::SRGBA8>> image;
-  std::shared_ptr<render::gl::Texture2D<render::gl::SRGBA8>> texture;
 
   std::string md5;
 
   static std::unique_ptr<DWordTexture> read(io::SDLReader& reader);
-
-  void toTexture(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback);
 
   void toImage(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback);
 };

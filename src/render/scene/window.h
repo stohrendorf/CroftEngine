@@ -1,14 +1,15 @@
 #pragma once
 
-#include "dimension.h"
 #include "glfw.h"
+
+#include <glm/glm.hpp>
 
 namespace render::scene
 {
 class Window final
 {
 public:
-  explicit Window(bool fullscreen = false, const Dimension2<int>& resolution = {1280, 800});
+  explicit Window(bool fullscreen = false, const glm::ivec2& resolution = {1280, 800});
 
   [[nodiscard]] bool isVsync() const;
 
@@ -30,14 +31,14 @@ public:
     return m_window;
   }
 
-  void setViewport(const Dimension2<size_t>& viewport);
+  void setViewport(const glm::ivec2& viewport);
 
   [[nodiscard]] float getAspectRatio() const
   {
-    return static_cast<float>(m_viewport.width) / m_viewport.height;
+    return static_cast<float>(m_viewport.x) / m_viewport.y;
   }
 
-  [[nodiscard]] const Dimension2<size_t>& getViewport() const
+  [[nodiscard]] const glm::ivec2& getViewport() const
   {
     return m_viewport;
   }
@@ -45,6 +46,6 @@ public:
 private:
   GLFWwindow* m_window = nullptr;
   bool m_vsync = false;
-  Dimension2<size_t> m_viewport; // the games's current viewport.
+  glm::ivec2 m_viewport{0};
 };
 } // namespace render::scene

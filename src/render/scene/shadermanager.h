@@ -44,11 +44,6 @@ public:
     return get("textured_2.vert", "textured_2.frag", {"WATER"});
   }
 
-  auto getColored()
-  {
-    return get("colored_2.vert", "colored_2.frag");
-  }
-
   auto getDepthOnly()
   {
     return get("depth_only.vert", "empty.frag");
