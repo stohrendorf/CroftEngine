@@ -47,7 +47,7 @@ std::array<glm::mat4, CSMBuffer::NSplits> CSM::getMatrices(const glm::mat4& mode
 {
   std::array<glm::mat4, CSMBuffer::NSplits> result{};
   std::transform(m_splits.begin(), m_splits.end(), result.begin(), [modelMatrix](const Split& split) {
-    return split.pvMatrix * modelMatrix;
+    return split.vpMatrix * modelMatrix;
   });
   return result;
 }
@@ -87,13 +87,13 @@ void CSM::update(const Camera& camera)
   }
 #endif
 
+  const auto position = camera.getPosition();
+  const auto up = camera.getUpVector();
+  const auto right = camera.getRightVector();
+  const auto forward = camera.getFrontVector();
+
   for(size_t cascadeIterator = 0; cascadeIterator < m_splits.size(); ++cascadeIterator)
   {
-    const auto position = camera.getPosition();
-    const auto up = camera.getUpVector();
-    const auto right = camera.getRightVector();
-    const auto forward = camera.getFrontVector();
-
     const auto nc = position + forward * cascadeSplits[cascadeIterator];
     const auto fc = position + forward * cascadeSplits[cascadeIterator + 1];
 
@@ -115,7 +115,7 @@ void CSM::update(const Camera& camera)
     };
 
     // calculate frustum bbox as seen from the light
-    const auto lightViewWS = glm::lookAt(glm::vec3{0.0f}, m_lightDir, m_lightDirOrtho);
+    const auto lightViewWS = glm::lookAt(position - m_lightDir, position, m_lightDirOrtho);
 
     glm::vec3 bboxMin{std::numeric_limits<float>::max()};
     glm::vec3 bboxMax{std::numeric_limits<float>::lowest()};
@@ -138,7 +138,7 @@ void CSM::update(const Camera& camera)
     }
 
     const auto lightProjection = glm::ortho(bboxMin.x, bboxMax.x, bboxMin.y, bboxMax.y, bboxMin.z, bboxMax.z);
-    m_splits[cascadeIterator].pvMatrix = lightProjection * lightViewWS;
+    m_splits[cascadeIterator].vpMatrix = lightProjection * lightViewWS;
   }
 }
 } // namespace render::scene

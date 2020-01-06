@@ -28,7 +28,7 @@ class CSM final
 public:
   struct Split final
   {
-    glm::mat4 pvMatrix{1.0f};
+    glm::mat4 vpMatrix{1.0f};
     std::shared_ptr<gl::TextureDepth<float>> texture;
     std::shared_ptr<gl::Framebuffer> framebuffer{};
     float end = 0;
@@ -44,7 +44,7 @@ public:
 
   [[nodiscard]] auto getActiveMatrix(const glm::mat4& modelMatrix) const
   {
-    return m_splits.at(m_activeSplit).pvMatrix * modelMatrix;
+    return m_splits.at(m_activeSplit).vpMatrix * modelMatrix;
   }
 
   [[nodiscard]] const auto& getActiveFramebuffer() const

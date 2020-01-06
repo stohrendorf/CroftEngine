@@ -35,7 +35,7 @@ float shadow_map_multiplier(in float shadow)
     float d = 1.0/textureSize(u_csmDepth[cascadeIdx], 0).x;
     for (int x=-extent; x<=extent; ++x) {
         for (int y=-extent; y<=extent; ++y) {
-            inShadow += texture(u_csmDepth[cascadeIdx], vec3(projCoords.xy + vec2(x, y)*d, currentDepth)).r;
+            inShadow += texture(u_csmDepth[cascadeIdx], vec3(projCoords.xy + vec2(x, y)*d, currentDepth));
         }
     }
 
