@@ -40,7 +40,7 @@ float shadow_map_multiplier(in float shadow)
     }
 
     const float area = pow((extent*2 + 1), 2);
-    return mix(1.0f, shadow, inShadow/area);
+    return mix(1.0f, shadow, clamp(inShadow/area, 0, 1));
 }
 
 float shadow_map_multiplier() {

@@ -238,6 +238,11 @@ void Room::createSceneNode(const size_t roomId,
   node->addUniformSetter("u_lightAmbient",
                          [](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) { uniform.set(1.0f); });
 
+  static render::gl::ShaderStorageBuffer<engine::Lighting::Light> emptyBuffer{"lights-buffer-empty"};
+  node->addBufferBinder("b_lights", [](const render::scene::Node&, render::gl::ShaderStorageBlock& shaderStorageBlock) {
+    shaderStorageBlock.bind(emptyBuffer);
+  });
+
   for(const RoomStaticMesh& sm : staticMeshes)
   {
     const auto idx = level.findStaticMeshIndexById(sm.meshId);
