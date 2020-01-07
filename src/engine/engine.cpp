@@ -940,7 +940,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
                                                    [this](const std::string& s) { drawLoadingScreen(s); });
   }
 
-  m_allTextures = std::make_shared<render::gl::Texture2DArray<render::gl::SRGBA8>>();
+  const int textureSize = glidos == nullptr ? 256 : loader::trx::Glidos::Resolution;
+  const int textureLevels = std::log2(textureSize) + 1;
 
   levelInfo = m_scriptEngine["getLevelInfo"]();
   const bool isVideo = !levelInfo.get<std::string>("video").empty();
@@ -976,6 +977,20 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     drawLoadingScreen("Loading " + baseName);
 
     m_level->loadFileData();
+
+    m_allTextures = std::make_shared<render::gl::Texture2DArray<render::gl::SRGBA8>>(
+      glm::ivec3{textureSize, textureSize, gsl::narrow<int>(m_level->m_textures.size())},
+      textureLevels,
+      "all-textures");
+    m_allTextures->set(::gl::TextureMinFilter::NearestMipmapLinear);
+    if(glidos == nullptr)
+    {
+      m_allTextures->set(::gl::TextureMagFilter::Nearest);
+    }
+    else
+    {
+      m_allTextures->set(::gl::TextureMagFilter::Linear);
+    }
 
     m_audioEngine = std::make_unique<AudioEngine>(
       *this, m_rootPath / "data/tr1/audio", m_level->m_soundDetails, m_level->m_soundmap, m_level->m_sampleIndices);
@@ -1053,22 +1068,6 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
 
   if(m_level != nullptr)
   {
-    const int textureSize = glidos == nullptr ? 256 : loader::trx::Glidos::Resolution;
-    const int textureLevels = std::log2(textureSize) + 1;
-
-    m_allTextures->allocate(glm::ivec3{textureSize, textureSize, gsl::narrow<int>(m_level->m_textures.size())},
-                            textureLevels);
-
-    m_allTextures->set(::gl::TextureMinFilter::NearestMipmapLinear);
-    if(glidos == nullptr)
-    {
-      m_allTextures->set(::gl::TextureMagFilter::Nearest);
-    }
-    else
-    {
-      m_allTextures->set(::gl::TextureMagFilter::Linear);
-    }
-
     for(size_t i = 0; i < m_level->m_textures.size(); ++i)
       m_allTextures->assign(m_level->m_textures[i].image->getRawData(), i, 0);
 

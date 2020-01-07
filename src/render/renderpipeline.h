@@ -34,34 +34,24 @@ class RenderPipeline
 
   const std::shared_ptr<scene::Model> m_fbModel = std::make_shared<scene::Model>();
 
-  const std::shared_ptr<gl::TextureDepth<float>> m_portalDepthBuffer
-    = std::make_shared<gl::TextureDepth<float>>("portal-depth");
-  const std::shared_ptr<gl::Texture2D<gl::RG32F>> m_portalPerturbBuffer
-    = std::make_shared<gl::Texture2D<gl::RG32F>>("portal-perturb");
+  std::shared_ptr<gl::TextureDepth<float>> m_portalDepthBuffer;
+  std::shared_ptr<gl::Texture2D<gl::RG32F>> m_portalPerturbBuffer;
   std::shared_ptr<gl::Framebuffer> m_portalFb;
 
-  const std::shared_ptr<gl::TextureDepth<float>> m_geometryDepthBuffer
-    = std::make_shared<gl::TextureDepth<float>>("geometry-depth");
-  const std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_geometryColorBuffer
-    = std::make_shared<gl::Texture2D<gl::SRGBA8>>("geometry-color");
-  const std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_geometryPositionBuffer
-    = std::make_shared<gl::Texture2D<gl::RGB32F>>("geometry-position");
-  const std::shared_ptr<gl::Texture2D<gl::RGB16F>> m_geometryNormalBuffer
-    = std::make_shared<gl::Texture2D<gl::RGB16F>>("geometry-normal");
+  std::shared_ptr<gl::TextureDepth<float>> m_geometryDepthBuffer;
+  std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_geometryColorBuffer;
+  std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_geometryPositionBuffer;
+  std::shared_ptr<gl::Texture2D<gl::RGB16F>> m_geometryNormalBuffer;
   std::shared_ptr<gl::Framebuffer> m_geometryFb;
 
-  const std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_ssaoNoiseTexture
-    = std::make_shared<gl::Texture2D<gl::RGB32F>>("ssao-noise");
-  const std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_ssaoAOBuffer
-    = std::make_shared<gl::Texture2D<gl::Scalar32F>>("ssao-ao");
+  std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_ssaoNoiseTexture;
+  std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_ssaoAOBuffer;
   std::shared_ptr<gl::Framebuffer> m_ssaoFb;
 
-  const std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_ssaoBlurAOBuffer
-    = std::make_shared<gl::Texture2D<gl::Scalar32F>>("ssao-blur-ao");
+  std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_ssaoBlurAOBuffer;
   std::shared_ptr<gl::Framebuffer> m_ssaoBlurFb;
 
-  const std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_fxaaColorBuffer
-    = std::make_shared<gl::Texture2D<gl::SRGBA8>>("fxaa-color");
+  std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_fxaaColorBuffer;
   std::shared_ptr<gl::Framebuffer> m_fxaaFb;
 
 public:
@@ -90,7 +80,24 @@ public:
   void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
               const std::chrono::high_resolution_clock::time_point& time);
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
-  void resize(const glm::ivec2& viewport);
+  void resize(const glm::ivec2& viewport)
+  {
+    if(m_size == viewport)
+    {
+      return;
+    }
+
+    m_size = viewport;
+
+    resizeTextures(viewport);
+    buildFramebuffers();
+  }
+
+private:
+  glm::ivec2 m_size{-1};
+
+  void resizeTextures(const glm::ivec2& viewport);
+  void buildFramebuffers();
+  void initSSAONoise();
 };
 } // namespace render

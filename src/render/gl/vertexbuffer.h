@@ -10,6 +10,9 @@
 namespace render::gl
 {
 template<typename T>
+class VertexBuffer;
+
+template<typename T>
 class VertexAttribute final
 {
 public:
@@ -34,12 +37,7 @@ public:
   {
   }
 
-  void bindVertexAttribute(const ProgramInput& input, const uint32_t bindingIndex) const
-  {
-    GL_ASSERT(::gl::enableVertexAttribArray(input.getLocation()));
-    GL_ASSERT(::gl::vertexAttribFormat(input.getLocation(), m_size, m_type, m_normalized, m_relativeOffset));
-    GL_ASSERT(::gl::vertexAttribBinding(input.getLocation(), bindingIndex));
-  }
+  void bindVertexAttribute(::gl::core::Handle vertexArray, const ProgramInput& input, uint32_t bindingIndex) const;
 
 private:
   const ::gl::VertexAttribType m_type;
@@ -62,17 +60,17 @@ public:
     BOOST_ASSERT(!m_format.empty());
   }
 
-  void bindVertexAttributes(const Program& program, const uint32_t bindingIndex) const
+  void bindVertexAttributes(const ::gl::core::Handle vertexArray,
+                            const Program& program,
+                            const uint32_t bindingIndex) const
   {
-    GL_ASSERT(::gl::bindVertexBuffer(bindingIndex, getHandle(), 0, sizeof(T)));
-
     for(const auto& input : program.getInputs())
     {
       auto it = m_format.find(input.getName());
       if(it == m_format.end())
         continue;
 
-      it->second.bindVertexAttribute(input, bindingIndex);
+      it->second.bindVertexAttribute(vertexArray, input, bindingIndex);
     }
   }
 
@@ -81,7 +79,23 @@ public:
     return m_format;
   }
 
+  [[nodiscard]] constexpr int getStride() const
+  {
+    return sizeof(T);
+  }
+
 private:
   const VertexFormat<T> m_format;
 };
+
+template<typename T>
+void VertexAttribute<T>::bindVertexAttribute(const ::gl::core::Handle vertexArray,
+                                             const ProgramInput& input,
+                                             const uint32_t bindingIndex) const
+{
+  GL_ASSERT(::gl::enableVertexArrayAttrib(vertexArray, input.getLocation()));
+  GL_ASSERT(
+    ::gl::vertexArrayAttribFormat(vertexArray, input.getLocation(), m_size, m_type, m_normalized, m_relativeOffset));
+  GL_ASSERT(::gl::vertexArrayAttribBinding(vertexArray, input.getLocation(), bindingIndex));
+}
 } // namespace render::gl

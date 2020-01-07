@@ -30,6 +30,13 @@ constexpr core::Bitfield<AttribMask> operator|(AttribMask left, AttribMask right
   return core::Bitfield<AttribMask>(left) | right;
 }
 
+enum class BinormalPointerTypeEXT : core::EnumType
+{
+  Byte = 0x1400,
+  Float = 0x1406,
+  Short = 0x1402,
+};
+
 enum class BlendEquationModeEXT : core::EnumType
 {
   FuncAdd = 0x8006,
@@ -147,6 +154,16 @@ enum class CombinerBiasNV : core::EnumType
   None = 0,
 };
 
+enum class CombinerComponentUsageNV : core::EnumType
+{
+  Rgb = 0x1907,
+};
+
+enum class CombinerPortionNV : core::EnumType
+{
+  Rgb = 0x1907,
+};
+
 enum class CombinerScaleNV : core::EnumType
 {
   None = 0,
@@ -208,6 +225,13 @@ enum class DrawBufferMode : core::EnumType
 };
 
 enum class DrawElementsType : core::EnumType
+{
+  UnsignedByte = 0x1401,
+  UnsignedInt = 0x1405,
+  UnsignedShort = 0x1403,
+};
+
+enum class ElementPointerTypeATI : core::EnumType
 {
   UnsignedByte = 0x1401,
   UnsignedInt = 0x1405,
@@ -420,6 +444,18 @@ enum class HintTarget : core::EnumType
   GenerateMipmapHint = 0x8192,
 };
 
+enum class IndexFunctionEXT : core::EnumType
+{
+  Always = 0x0207,
+  Equal = 0x0202,
+  Gequal = 0x0206,
+  Greater = 0x0204,
+  Lequal = 0x0203,
+  Less = 0x0201,
+  Never = 0x0200,
+  Notequal = 0x0205,
+};
+
 enum class IndexPointerType : core::EnumType
 {
   Float = 0x1406,
@@ -475,11 +511,23 @@ enum class LogicOp : core::EnumType
   Invert = 0x150A,
 };
 
+enum class MapTypeNV : core::EnumType
+{
+  Float = 0x1406,
+};
+
 enum class MaterialFace : core::EnumType
 {
   Back = 0x0405,
   Front = 0x0404,
   FrontAndBack = 0x0408,
+};
+
+enum class MatrixIndexPointerTypeARB : core::EnumType
+{
+  UnsignedByte = 0x1401,
+  UnsignedInt = 0x1405,
+  UnsignedShort = 0x1403,
 };
 
 enum class MatrixMode : core::EnumType
@@ -617,6 +665,13 @@ enum class RenderbufferTarget : core::EnumType
   Renderbuffer = 0x8D41,
 };
 
+enum class ReplacementCodeTypeSUN : core::EnumType
+{
+  UnsignedByte = 0x1401,
+  UnsignedInt = 0x1405,
+  UnsignedShort = 0x1403,
+};
+
 enum class SamplerParameterI : core::EnumType
 {
   TextureMagFilter = 0x2800,
@@ -630,6 +685,13 @@ enum class ScalarType : core::EnumType
   UnsignedByte = 0x1401,
   UnsignedInt = 0x1405,
   UnsignedShort = 0x1403,
+};
+
+enum class SecondaryColorPointerTypeIBM : core::EnumType
+{
+  Float = 0x1406,
+  Int = 0x1404,
+  Short = 0x1402,
 };
 
 enum class StencilFaceDirection : core::EnumType
@@ -670,6 +732,13 @@ enum class StringName : core::EnumType
   ShadingLanguageVersion = 0x8B8C,
   Vendor = 0x1F00,
   Version = 0x1F02,
+};
+
+enum class TangentPointerTypeEXT : core::EnumType
+{
+  Byte = 0x1400,
+  Float = 0x1406,
+  Short = 0x1402,
 };
 
 enum class TexCoordPointerType : core::EnumType
@@ -863,6 +932,28 @@ enum class VertexPointerType : core::EnumType
   Float = 0x1406,
   Int = 0x1404,
   Short = 0x1402,
+};
+
+enum class VertexShaderWriteMaskEXT : core::EnumType
+{
+  False = 0,
+  True = 1,
+};
+
+enum class VertexWeightPointerTypeEXT : core::EnumType
+{
+  Float = 0x1406,
+};
+
+enum class WeightPointerTypeARB : core::EnumType
+{
+  Byte = 0x1400,
+  Float = 0x1406,
+  Int = 0x1404,
+  Short = 0x1402,
+  UnsignedByte = 0x1401,
+  UnsignedInt = 0x1405,
+  UnsignedShort = 0x1403,
 };
 
 // commands

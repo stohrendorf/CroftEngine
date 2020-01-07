@@ -31,7 +31,8 @@ def normalize_fn_name(name: str) -> str:
     if not any([name.lower().endswith(x) for x in
                 ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib')]):
         # remove type specs
-        name = re.sub(r'([1-9]?)(u?(b|s|i|i64)|f|d)(v?)$', r'\1', name)
+        if not name.startswith('getQueryBufferObject'):
+            name = re.sub(r'([1-9]?)(u?(b|s|i|i64)|f|d)(v?)$', r'\1', name)
     if name[:1].isnumeric():
         name = '_' + name
     return name
@@ -122,6 +123,9 @@ class Command:
         # XXX PATCH
         if self.raw_name in ('glTexImage2D', 'glTexImage3D'):
             xml_command.find('./param[@group="InternalFormat"]/ptype').text = 'GLenum'
+        elif self.raw_name in ('glNamedBufferData',):
+            for param in xml_command.findall('./param[@group="VertexBufferObjectUsage"]'):
+                param.attrib['group'] = 'BufferUsageARB'
 
         self.orig_return_type = _patch_integral_types(xml_ptype=self.proto.find('ptype'),
                                                       enum_name=self.proto.attrib.get('group', None))

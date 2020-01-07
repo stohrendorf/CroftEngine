@@ -51,7 +51,7 @@ void Mesh::render(RenderContext& context)
 
   material->bind(*context.getCurrentNode());
 
-  drawIndexBuffers(m_primitiveType);
+  drawIndexBuffer(m_primitiveType);
 
   context.popState();
   context.popState();

@@ -8,9 +8,9 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx)
 {
-  texture = std::make_shared<gl::TextureDepth<float>>("csm-texture/" + std::to_string(idx));
-  texture->allocate(glm::ivec2{resolution, resolution})
-    .fill(1.0f)
+  texture = std::make_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
+                                                      "csm-texture/" + std::to_string(idx));
+  texture->fill(1.0f)
     .set(::gl::TextureMinFilter::Linear)
     .set(::gl::TextureMagFilter::Linear)
     .set(::gl::TextureCompareMode::CompareRefToTexture)

@@ -14,7 +14,7 @@ public:
   static constexpr ::gl::BufferTargetARB Target = _Target;
 
   explicit Buffer(const std::string& label = {})
-      : BindableResource{::gl::genBuffers,
+      : BindableResource{::gl::createBuffers,
                          [](const uint32_t handle) { bindBuffer(Target, handle); },
                          ::gl::deleteBuffers,
                          ::gl::ObjectIdentifier::Buffer,
@@ -24,14 +24,13 @@ public:
 
   [[nodiscard]] T* map(const ::gl::BufferAccessARB access = ::gl::BufferAccessARB::ReadOnly)
   {
-    bind();
-    const void* data = GL_ASSERT_FN(::gl::mapBuffer(Target, access));
+    const void* data = GL_ASSERT_FN(::gl::mapNamedBuffer(getHandle(), access));
     return static_cast<T*>(const_cast<void*>(data));
   }
 
   void unmap()
   {
-    GL_ASSERT(::gl::unmapBuffer(Target));
+    GL_ASSERT(::gl::unmapNamedBuffer(getHandle()));
   }
 
   void setData(const T& data, const ::gl::BufferUsageARB usage)
@@ -54,16 +53,15 @@ public:
     if(size == 0)
       return;
 
-    bind();
-
     if(m_size == size && m_usage == usage)
     {
-      GL_ASSERT(::gl::bufferSubData(Target, 0, gsl::narrow<std::size_t>(sizeof(T) * m_size), data));
+      GL_ASSERT(::gl::namedBufferSubData(getHandle(), 0, gsl::narrow<std::size_t>(sizeof(T) * m_size), data));
     }
     else
     {
       m_usage = usage;
       m_size = size;
+      bind();
       GL_ASSERT(::gl::bufferData(Target, gsl::narrow<std::size_t>(sizeof(T) * m_size), data, usage));
     }
   }
@@ -72,7 +70,6 @@ public:
   {
     Expects(size >= 0);
     Expects(count >= 0);
-    bind();
 
     if(count == 0)
     {
@@ -80,8 +77,8 @@ public:
       Expects(count >= 0);
     }
 
-    GL_ASSERT(::gl::bufferSubData(
-      Target, gsl::narrow<std::intptr_t>(sizeof(T) * start), gsl::narrow<std::size_t>(sizeof(T) * count), data));
+    GL_ASSERT(::gl::namedBufferSubData(
+      getHandle(), gsl::narrow<std::intptr_t>(sizeof(T) * start), gsl::narrow<std::size_t>(sizeof(T) * count), data));
   }
 
   [[nodiscard]] auto size() const noexcept

@@ -3634,11 +3634,11 @@ void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float* val)
   return glGetMultisamplefv(
     static_cast<GLenum>(pname), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLfloat*>(val)));
 }
-void getSync(core::Sync sync, SyncParameterName pname, core::SizeType bufSize, core::SizeType* length, int32_t* values)
+void getSync(core::Sync sync, SyncParameterName pname, core::SizeType count, core::SizeType* length, int32_t* values)
 {
   return glGetSynciv(static_cast<GLsync>(sync),
                      static_cast<GLenum>(pname),
-                     static_cast<GLsizei>(bufSize),
+                     static_cast<GLsizei>(count),
                      detail::constAway(reinterpret_cast<GLsizei*>(length)),
                      detail::constAway(reinterpret_cast<GLint*>(values)));
 }
@@ -4063,22 +4063,22 @@ void genTransformFeedback(core::SizeType n, uint32_t* ids)
   return glGenTransformFeedbacks(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<GLuint*>(ids)));
 }
 void getActiveSubroutineName(
-  uint32_t program, ShaderType shadertype, uint32_t index, core::SizeType bufsize, core::SizeType* length, char* name)
+  uint32_t program, ShaderType shadertype, uint32_t index, core::SizeType bufSize, core::SizeType* length, char* name)
 {
   return glGetActiveSubroutineName(static_cast<GLuint>(program),
                                    static_cast<GLenum>(shadertype),
                                    static_cast<GLuint>(index),
-                                   static_cast<GLsizei>(bufsize),
+                                   static_cast<GLsizei>(bufSize),
                                    detail::constAway(reinterpret_cast<GLsizei*>(length)),
                                    detail::constAway(reinterpret_cast<GLchar*>(name)));
 }
 void getActiveSubroutineUniformName(
-  uint32_t program, ShaderType shadertype, uint32_t index, core::SizeType bufsize, core::SizeType* length, char* name)
+  uint32_t program, ShaderType shadertype, uint32_t index, core::SizeType bufSize, core::SizeType* length, char* name)
 {
   return glGetActiveSubroutineUniformName(static_cast<GLuint>(program),
                                           static_cast<GLenum>(shadertype),
                                           static_cast<GLuint>(index),
-                                          static_cast<GLsizei>(bufsize),
+                                          static_cast<GLsizei>(bufSize),
                                           detail::constAway(reinterpret_cast<GLsizei*>(length)),
                                           detail::constAway(reinterpret_cast<GLchar*>(name)));
 }
@@ -4931,16 +4931,13 @@ void getActiveAtomicCounterBuffer(uint32_t program,
                                           static_cast<GLenum>(pname),
                                           detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getInternalformat(TextureTarget target,
-                       InternalFormat internalformat,
-                       InternalFormatPName pname,
-                       core::SizeType bufSize,
-                       int32_t* params)
+void getInternalformat(
+  TextureTarget target, InternalFormat internalformat, InternalFormatPName pname, core::SizeType count, int32_t* params)
 {
   return glGetInternalformativ(static_cast<GLenum>(target),
                                static_cast<GLenum>(internalformat),
                                static_cast<GLenum>(pname),
-                               static_cast<GLsizei>(bufSize),
+                               static_cast<GLsizei>(count),
                                detail::constAway(reinterpret_cast<GLint*>(params)));
 }
 void memoryBarrier(core::Bitfield<MemoryBarrierMask> barriers)
@@ -5109,16 +5106,13 @@ void getFramebufferParameter(FramebufferTarget target, FramebufferAttachmentPara
   return glGetFramebufferParameteriv(
     static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getInternalformat(TextureTarget target,
-                       InternalFormat internalformat,
-                       InternalFormatPName pname,
-                       core::SizeType bufSize,
-                       int64_t* params)
+void getInternalformat(
+  TextureTarget target, InternalFormat internalformat, InternalFormatPName pname, core::SizeType count, int64_t* params)
 {
   return glGetInternalformati64v(static_cast<GLenum>(target),
                                  static_cast<GLenum>(internalformat),
                                  static_cast<GLenum>(pname),
-                                 static_cast<GLsizei>(bufSize),
+                                 static_cast<GLsizei>(count),
                                  detail::constAway(reinterpret_cast<GLint64*>(params)));
 }
 void getObjectLabel(
@@ -5185,7 +5179,7 @@ void getProgramResource(uint32_t program,
                         uint32_t index,
                         core::SizeType propCount,
                         const ProgramResourceProperty* props,
-                        core::SizeType bufSize,
+                        core::SizeType count,
                         core::SizeType* length,
                         int32_t* params)
 {
@@ -5194,7 +5188,7 @@ void getProgramResource(uint32_t program,
                                 static_cast<GLuint>(index),
                                 static_cast<GLsizei>(propCount),
                                 detail::constAway(reinterpret_cast<const GLenum*>(props)),
-                                static_cast<GLsizei>(bufSize),
+                                static_cast<GLsizei>(count),
                                 detail::constAway(reinterpret_cast<GLsizei*>(length)),
                                 detail::constAway(reinterpret_cast<GLint*>(params)));
 }
@@ -5817,22 +5811,22 @@ void getNamedRenderbufferParameter(uint32_t renderbuffer, RenderbufferParameterN
   return glGetNamedRenderbufferParameteriv(
     static_cast<GLuint>(renderbuffer), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset)
+void getQueryBufferObjecti64v(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset)
 {
   return glGetQueryBufferObjecti64v(
     static_cast<GLuint>(id), static_cast<GLuint>(buffer), static_cast<GLenum>(pname), static_cast<GLintptr>(offset));
 }
-void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset)
+void getQueryBufferObjectiv(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset)
 {
   return glGetQueryBufferObjectiv(
     static_cast<GLuint>(id), static_cast<GLuint>(buffer), static_cast<GLenum>(pname), static_cast<GLintptr>(offset));
 }
-void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset)
+void getQueryBufferObjectui64v(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset)
 {
   return glGetQueryBufferObjectui64v(
     static_cast<GLuint>(id), static_cast<GLuint>(buffer), static_cast<GLenum>(pname), static_cast<GLintptr>(offset));
 }
-void getQueryBufferObject(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset)
+void getQueryBufferObjectuiv(uint32_t id, uint32_t buffer, QueryObjectParameterName pname, std::intptr_t offset)
 {
   return glGetQueryBufferObjectuiv(
     static_cast<GLuint>(id), static_cast<GLuint>(buffer), static_cast<GLenum>(pname), static_cast<GLintptr>(offset));
@@ -6028,7 +6022,7 @@ void memoryBarrierByRegion(core::Bitfield<MemoryBarrierMask> barriers)
 {
   return glMemoryBarrierByRegion(barriers.value());
 }
-void namedBufferData(uint32_t buffer, std::size_t size, const void* data, VertexBufferObjectUsage usage)
+void namedBufferData(uint32_t buffer, std::size_t size, const void* data, BufferUsageARB usage)
 {
   return glNamedBufferData(
     static_cast<GLuint>(buffer), static_cast<GLsizeiptr>(size), detail::constAway(data), static_cast<GLenum>(usage));

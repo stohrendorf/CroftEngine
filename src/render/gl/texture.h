@@ -4,6 +4,7 @@
 
 #include <boost/throw_exception.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <utility>
 #include <vector>
 
 namespace render::gl
@@ -11,12 +12,12 @@ namespace render::gl
 class Texture : public BindableResource
 {
 protected:
-  explicit Texture(::gl::TextureTarget target, const std::string& label = {})
-      : BindableResource{::gl::genTextures,
-                         [target](const uint32_t handle) { bindTexture(target, handle); },
-                         ::gl::deleteTextures,
-                         ::gl::ObjectIdentifier::Texture,
-                         label}
+  explicit Texture(Allocator allocator,
+                   Binder binder,
+                   Deleter deleter,
+                   const ::gl::ObjectIdentifier identifier,
+                   const std::string& label)
+      : BindableResource{std::move(allocator), std::move(binder), std::move(deleter), identifier, label}
   {
   }
 };
@@ -26,7 +27,12 @@ class TextureImpl : public Texture
 {
 protected:
   explicit TextureImpl(const std::string& label = {})
-      : Texture{_Target, label}
+      : Texture{
+        [](::gl::core::SizeType n, ::gl::core::Handle* textures) { ::gl::createTextures(_Target, n, textures); },
+        [](const uint32_t handle) { bindTexture(_Target, handle); },
+        ::gl::deleteTextures,
+        ::gl::ObjectIdentifier::Texture,
+        label}
   {
   }
 
@@ -36,47 +42,46 @@ public:
 
   TextureImpl<_Target, _PixelT>& set(const ::gl::TextureMinFilter value)
   {
-    bind();
-    GL_ASSERT(::gl::texParameter(_Target, ::gl::TextureParameterName::TextureMinFilter, static_cast<int32_t>(value)));
+    GL_ASSERT(
+      ::gl::textureParameter(getHandle(), ::gl::TextureParameterName::TextureMinFilter, static_cast<int32_t>(value)));
     return *this;
   }
 
   TextureImpl<_Target, _PixelT>& set(const ::gl::TextureMagFilter value)
   {
-    bind();
-    GL_ASSERT(::gl::texParameter(_Target, ::gl::TextureParameterName::TextureMagFilter, static_cast<int32_t>(value)));
+    GL_ASSERT(
+      ::gl::textureParameter(getHandle(), ::gl::TextureParameterName::TextureMagFilter, static_cast<int32_t>(value)));
     return *this;
   }
 
   TextureImpl<_Target, _PixelT>& set(const ::gl::TextureCompareMode value)
   {
-    bind();
-    GL_ASSERT(::gl::texParameter(_Target, ::gl::TextureParameterName::TextureCompareMode, static_cast<int32_t>(value)));
+    GL_ASSERT(
+      ::gl::textureParameter(getHandle(), ::gl::TextureParameterName::TextureCompareMode, static_cast<int32_t>(value)));
     return *this;
   }
 
   TextureImpl<_Target, _PixelT>& set(const ::gl::DepthFunction value)
   {
-    bind();
-    GL_ASSERT(::gl::texParameter(_Target, ::gl::TextureParameterName::TextureCompareFunc, static_cast<int32_t>(value)));
+    GL_ASSERT(
+      ::gl::textureParameter(getHandle(), ::gl::TextureParameterName::TextureCompareFunc, static_cast<int32_t>(value)));
     return *this;
   }
 
   TextureImpl<_Target, _PixelT>& set(const ::gl::TextureParameterName param, const ::gl::TextureWrapMode value)
   {
-    bind();
-    GL_ASSERT(::gl::texParameter(_Target, param, static_cast<int32_t>(value)));
+    GL_ASSERT(::gl::textureParameter(getHandle(), param, static_cast<int32_t>(value)));
     return *this;
   }
 
   TextureImpl<_Target, _PixelT>& setBorderColor(const glm::vec4& value)
   {
-    bind();
-    GL_ASSERT(::gl::texParameter(_Target, ::gl::TextureParameterName::TextureBorderColor, glm::value_ptr(value)));
+    GL_ASSERT(
+      ::gl::textureParameter(getHandle(), ::gl::TextureParameterName::TextureBorderColor, glm::value_ptr(value)));
     return *this;
   }
 
-  [[nodiscard]] ::gl::CopyImageSubDataTarget getSubDataTarget() const
+  [[nodiscard]] static ::gl::CopyImageSubDataTarget getSubDataTarget()
   {
 #define SOGLB_CONVERT_TYPE(x) \
   case ::gl::TextureTarget::x: return ::gl::CopyImageSubDataTarget::x

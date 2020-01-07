@@ -37,8 +37,8 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
 
   const auto screenOverlayProgram = shaderManager.getScreenOverlay();
 
-  m_texture->allocateMutable(m_image->getSize())
-    .assign(m_image->getRawData())
+  m_texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(m_image->getSize());
+  m_texture->assign(m_image->getRawData())
     .set(::gl::TextureMinFilter::Nearest)
     .set(::gl::TextureMagFilter::Nearest)
     .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
@@ -47,7 +47,7 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
   m_mesh = createQuadFullscreen(
     gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), screenOverlayProgram->getHandle());
   m_mesh->getMaterial().set(RenderMode::Full, std::make_shared<Material>(screenOverlayProgram));
-  m_mesh->getMaterial().get(RenderMode::Full)->getUniform("u_input")->set(m_texture.get());
+  m_mesh->getMaterial().get(RenderMode::Full)->getUniform("u_input")->set(m_texture);
 
   m_mesh->getRenderState().setCullFace(false);
   m_mesh->getRenderState().setDepthWrite(false);

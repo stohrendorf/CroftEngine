@@ -72,6 +72,13 @@ enum class BindTransformFeedbackTarget : core::EnumType
 };
 #endif
 
+enum class BinormalPointerTypeEXT : core::EnumType
+{
+  Byte = 0x1400,
+  Float = 0x1406,
+  Short = 0x1402,
+};
+
 enum class BlendEquationModeEXT : core::EnumType
 {
   FuncAdd = 0x8006,
@@ -315,6 +322,21 @@ enum class CombinerBiasNV : core::EnumType
   None = 0,
 };
 
+enum class CombinerComponentUsageNV : core::EnumType
+{
+  Alpha = 0x1906,
+  Rgb = 0x1907,
+#if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+  Blue = 0x1905,
+#endif
+};
+
+enum class CombinerPortionNV : core::EnumType
+{
+  Alpha = 0x1906,
+  Rgb = 0x1907,
+};
+
 enum class CombinerScaleNV : core::EnumType
 {
   None = 0,
@@ -475,6 +497,13 @@ enum class DrawBufferMode : core::EnumType
 };
 
 enum class DrawElementsType : core::EnumType
+{
+  UnsignedByte = 0x1401,
+  UnsignedInt = 0x1405,
+  UnsignedShort = 0x1403,
+};
+
+enum class ElementPointerTypeATI : core::EnumType
 {
   UnsignedByte = 0x1401,
   UnsignedInt = 0x1405,
@@ -1012,6 +1041,18 @@ enum class HintTarget : core::EnumType
 #endif
 };
 
+enum class IndexFunctionEXT : core::EnumType
+{
+  Always = 0x0207,
+  Equal = 0x0202,
+  Gequal = 0x0206,
+  Greater = 0x0204,
+  Lequal = 0x0203,
+  Less = 0x0201,
+  Never = 0x0200,
+  Notequal = 0x0205,
+};
+
 enum class IndexPointerType : core::EnumType
 {
   Float = 0x1406,
@@ -1220,11 +1261,23 @@ constexpr core::Bitfield<MapBufferAccessMask> operator|(MapBufferAccessMask left
 }
 #endif
 
+enum class MapTypeNV : core::EnumType
+{
+  Float = 0x1406,
+};
+
 enum class MaterialFace : core::EnumType
 {
   Back = 0x0405,
   Front = 0x0404,
   FrontAndBack = 0x0408,
+};
+
+enum class MatrixIndexPointerTypeARB : core::EnumType
+{
+  UnsignedByte = 0x1401,
+  UnsignedInt = 0x1405,
+  UnsignedShort = 0x1403,
 };
 
 enum class MatrixMode : core::EnumType
@@ -1607,6 +1660,13 @@ enum class RenderbufferTarget : core::EnumType
   Renderbuffer = 0x8D41,
 };
 
+enum class ReplacementCodeTypeSUN : core::EnumType
+{
+  UnsignedByte = 0x1401,
+  UnsignedInt = 0x1405,
+  UnsignedShort = 0x1403,
+};
+
 enum class SamplerParameterF : core::EnumType
 {
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
@@ -1636,6 +1696,13 @@ enum class ScalarType : core::EnumType
   UnsignedByte = 0x1401,
   UnsignedInt = 0x1405,
   UnsignedShort = 0x1403,
+};
+
+enum class SecondaryColorPointerTypeIBM : core::EnumType
+{
+  Float = 0x1406,
+  Int = 0x1404,
+  Short = 0x1402,
 };
 
 enum class ShaderParameterName : core::EnumType
@@ -1746,6 +1813,13 @@ enum class SyncStatus : core::EnumType
   WaitFailed = 0x911D,
 };
 #endif
+
+enum class TangentPointerTypeEXT : core::EnumType
+{
+  Byte = 0x1400,
+  Float = 0x1406,
+  Short = 0x1402,
+};
 
 enum class TexCoordPointerType : core::EnumType
 {
@@ -1966,6 +2040,12 @@ enum class UniformType : core::EnumType
   SamplerCube = 0x8B60,
   UnsignedInt = 0x1405,
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+  FloatMat2x3 = 0x8B65,
+  FloatMat2x4 = 0x8B66,
+  FloatMat3x2 = 0x8B67,
+  FloatMat3x4 = 0x8B68,
+  FloatMat4x2 = 0x8B69,
+  FloatMat4x3 = 0x8B6A,
   IntSampler2d = 0x8DCA,
   IntSampler2dArray = 0x8DCF,
   IntSampler3d = 0x8DCB,
@@ -2163,6 +2243,28 @@ enum class VertexProvokingMode : core::EnumType
   LastVertexConvention = 0x8E4E,
 };
 #endif
+
+enum class VertexShaderWriteMaskEXT : core::EnumType
+{
+  False = 0,
+  True = 1,
+};
+
+enum class VertexWeightPointerTypeEXT : core::EnumType
+{
+  Float = 0x1406,
+};
+
+enum class WeightPointerTypeARB : core::EnumType
+{
+  Byte = 0x1400,
+  Float = 0x1406,
+  Int = 0x1404,
+  Short = 0x1402,
+  UnsignedByte = 0x1401,
+  UnsignedInt = 0x1405,
+  UnsignedShort = 0x1403,
+};
 
 // commands
 extern void activeTexture(TextureUnit texture);
@@ -2482,7 +2584,7 @@ extern void getIntegeri_v(core::EnumType target, uint32_t index, int32_t* data);
 extern void getInternalformat(TextureTarget target,
                               InternalFormat internalformat,
                               InternalFormatPName pname,
-                              core::SizeType bufSize,
+                              core::SizeType count,
                               int32_t* params);
 extern void getProgramBinary(
   uint32_t program, core::SizeType bufSize, core::SizeType* length, core::EnumType* binaryFormat, void* binary);
@@ -2492,7 +2594,7 @@ extern void getSamplerParameter(uint32_t sampler, SamplerParameterF pname, float
 extern void getSamplerParameter(uint32_t sampler, SamplerParameterI pname, int32_t* params);
 extern const uint8_t* getString(StringName name, uint32_t index);
 extern void
-  getSync(core::Sync sync, SyncParameterName pname, core::SizeType bufSize, core::SizeType* length, int32_t* values);
+  getSync(core::Sync sync, SyncParameterName pname, core::SizeType count, core::SizeType* length, int32_t* values);
 extern void getTransformFeedbackVarying(uint32_t program,
                                         uint32_t index,
                                         core::SizeType bufSize,
@@ -2644,7 +2746,7 @@ extern void getProgramResource(uint32_t program,
                                uint32_t index,
                                core::SizeType propCount,
                                const ProgramResourceProperty* props,
-                               core::SizeType bufSize,
+                               core::SizeType count,
                                core::SizeType* length,
                                int32_t* params);
 extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, float* params);

@@ -8,46 +8,20 @@ template<typename _T>
 class TextureDepth : public TextureImpl<::gl::TextureTarget::Texture2d, ScalarDepth<_T>>
 {
 public:
-  explicit TextureDepth(const std::string& label = {})
+  explicit TextureDepth(const glm::ivec2& size, const std::string& label = {})
       : TextureImpl<::gl::TextureTarget::Texture2d, Pixel>{label}
-  {
-  }
-
-  TextureDepth<_T>& allocate(const glm::ivec2& size)
+      , m_size{size}
   {
     BOOST_ASSERT(size.x > 0);
     BOOST_ASSERT(size.y > 0);
 
-    if(m_size != size)
-    {
-      bind();
-      GL_ASSERT(::gl::texStorage2D(Target, 1, Pixel::InternalFormat, size.x, size.y));
-      m_size = size;
-    }
-
-    return *this;
-  }
-
-  TextureDepth<_T>& allocateMutable(const glm::ivec2& size)
-  {
-    BOOST_ASSERT(size.x > 0);
-    BOOST_ASSERT(size.y > 0);
-
-    if(m_size != size)
-    {
-      bind();
-      GL_ASSERT(::gl::texImage2D(
-        Target, 0, Pixel::InternalFormat, size.x, size.y, 0, Pixel::PixelFormat, Pixel::PixelType, nullptr));
-      m_size = size;
-    }
-
-    return *this;
+    GL_ASSERT(::gl::textureStorage2D(getHandle(), 1, Pixel::InternalFormat, size.x, size.y));
   }
 
   TextureDepth<_T>& assign(const ScalarDepth<_T>* data)
   {
-    bind();
-    GL_ASSERT(::gl::texSubImage2D(Target, 0, 0, 0, m_size.x, m_size.y, Pixel::PixelFormat, Pixel::PixelType, data));
+    GL_ASSERT(
+      ::gl::textureSubImage2D(getHandle(), 0, 0, 0, m_size.x, m_size.y, Pixel::PixelFormat, Pixel::PixelType, data));
     return *this;
   }
 
@@ -65,8 +39,6 @@ public:
 
   void copyFrom(const TextureDepth<_T>& src)
   {
-    allocateMutable(src.m_size);
-
     GL_ASSERT(::gl::copyImageSubData(src.getHandle(),
                                      src.getSubDataTarget(),
                                      0,

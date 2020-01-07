@@ -185,7 +185,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
 {
   static constexpr size_t SHADER_SOURCE_LENGTH = 3;
   gsl::czstring shaderSource[SHADER_SOURCE_LENGTH];
-  shaderSource[0] = "#version 430\n";
+  shaderSource[0] = "#version 460\n";
 
   std::string vshSourceStr;
   if(!vshPath.empty())

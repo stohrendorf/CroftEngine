@@ -39,7 +39,7 @@ private:
   MultiPassMaterial m_material{};
   const ::gl::PrimitiveType m_primitiveType;
 
-  virtual void drawIndexBuffers(::gl::PrimitiveType primitiveType) = 0;
+  virtual void drawIndexBuffer(::gl::PrimitiveType primitiveType) = 0;
 };
 
 template<typename IndexT, typename... VertexTs>
@@ -68,9 +68,9 @@ public:
 private:
   gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> m_vao;
 
-  void drawIndexBuffers(::gl::PrimitiveType primitiveType) override
+  void drawIndexBuffer(::gl::PrimitiveType primitiveType) override
   {
-    m_vao->drawIndexBuffers(primitiveType);
+    m_vao->drawIndexBuffer(primitiveType);
   }
 };
 

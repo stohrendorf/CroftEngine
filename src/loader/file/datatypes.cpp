@@ -67,12 +67,11 @@ struct RenderModel
     auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<IndexType>>();
     indexBuffer->setData(m_indices, ::gl::BufferUsageARB::StaticDraw);
 
-    std::vector<gsl::not_null<std::shared_ptr<render::gl::ElementArrayBuffer<uint16_t>>>> indexBufs{indexBuffer};
     auto vBufs = std::make_tuple(vbuf, uvBuf);
 
     auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, glm::vec2>>(
       std::make_shared<render::gl::VertexArray<IndexType, RenderVertex, glm::vec2>>(
-        indexBufs,
+        indexBuffer,
         vBufs,
         std::vector<const render::gl::Program*>{
           &m_materialFull->getShaderProgram()->getHandle(),
