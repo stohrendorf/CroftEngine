@@ -61,8 +61,7 @@ public:
     {
       m_usage = usage;
       m_size = size;
-      bind();
-      GL_ASSERT(::gl::bufferData(Target, gsl::narrow<std::size_t>(sizeof(T) * m_size), data, usage));
+      GL_ASSERT(::gl::namedBufferData(getHandle(), gsl::narrow<std::size_t>(sizeof(T) * m_size), data, usage));
     }
   }
 

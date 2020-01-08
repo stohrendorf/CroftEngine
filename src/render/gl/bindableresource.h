@@ -58,12 +58,7 @@ protected:
 
     if(!label.empty())
     {
-      // An object must be created (not only reserved) to be able to have a label assigned;
-      // for certain types of resources, this may fail, e.g. programs which must be linked
-      // before they are considered "created".
-      bind();
       setLabel(identifier, label);
-      unbind();
     }
   }
 
