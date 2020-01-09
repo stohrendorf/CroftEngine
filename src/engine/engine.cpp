@@ -1067,7 +1067,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
   if(m_level != nullptr)
   {
     for(size_t i = 0; i < m_level->m_textures.size(); ++i)
-      m_allTextures->assign(m_level->m_textures[i].image->getRawData(), i, 0);
+      m_allTextures->assign(m_level->m_textures[i].image->getRawData(), gsl::narrow_cast<int>(i), 0);
 
     struct Rect
     {

@@ -21,10 +21,12 @@ SpriteObject::SpriteObject(const gsl::not_null<Engine*>& engine,
     , m_brightness{item.getBrightness()}
     , m_material{std::move(material)}
 {
-  createModel();
+  m_lighting.bind(*m_node);
 
+  createModel();
   addChild(room->node, m_node);
   applyTransform();
+  updateLighting();
 }
 
 SpriteObject::SpriteObject(const gsl::not_null<Engine*>& engine,
@@ -35,21 +37,23 @@ SpriteObject::SpriteObject(const gsl::not_null<Engine*>& engine,
     , m_node{std::make_shared<render::scene::Node>(std::move(name))}
     , m_material{std::move(material)}
 {
+  m_lighting.bind(*m_node);
 }
 
 void SpriteObject::createModel()
 {
   Expects(m_sprite != nullptr);
 
-  const auto mesh = render::scene::createSpriteMesh(
-    m_sprite->x0, -m_sprite->y0, m_sprite->x1, -m_sprite->y1, m_sprite->t0, m_sprite->t1, m_material);
+  const auto mesh = render::scene::createSpriteMesh(m_sprite->x0,
+                                                    -m_sprite->y0,
+                                                    m_sprite->x1,
+                                                    -m_sprite->y1,
+                                                    m_sprite->t0,
+                                                    m_sprite->t1,
+                                                    m_material,
+                                                    m_sprite->texture_id.get_as<int32_t>());
 
   m_node->setRenderable(mesh);
-  m_node->addUniformSetter(
-    "u_diffuseTextureId",
-    [texture = m_sprite->texture_id](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
-      uniform.set(texture.get_as<int32_t>());
-    });
   m_node->addUniformSetter("u_lightAmbient",
                            [brightness = m_brightness](const render::scene::Node& /*node*/,
                                                        render::gl::Uniform& uniform) { uniform.set(brightness); });

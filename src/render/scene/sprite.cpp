@@ -16,22 +16,27 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
                                                       const float y1,
                                                       const glm::vec2& t0,
                                                       const glm::vec2& t1,
-                                                      const gsl::not_null<std::shared_ptr<Material>>& materialFull)
+                                                      const gsl::not_null<std::shared_ptr<Material>>& materialFull,
+                                                      const int textureIdx)
 {
+  BOOST_ASSERT(textureIdx >= 0);
+
   struct SpriteVertex
   {
     glm::vec3 pos;
-
     glm::vec2 uv;
-
+    int textureIdx;
     glm::vec3 color{1.0f};
   };
 
-  const SpriteVertex vertices[]{
-    {{x0, y0, 0}, {t0.x, t0.y}}, {{x1, y0, 0}, {t1.x, t0.y}}, {{x1, y1, 0}, {t1.x, t1.y}}, {{x0, y1, 0}, {t0.x, t1.y}}};
+  const SpriteVertex vertices[]{{{x0, y0, 0}, {t0.x, t0.y}, textureIdx},
+                                {{x1, y0, 0}, {t1.x, t0.y}, textureIdx},
+                                {{x1, y1, 0}, {t1.x, t1.y}, textureIdx},
+                                {{x0, y1, 0}, {t0.x, t1.y}, textureIdx}};
 
   gl::VertexFormat<SpriteVertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &SpriteVertex::pos},
                                         {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},
+                                        {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &SpriteVertex::textureIdx},
                                         {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color}};
   auto vb = std::make_shared<gl::VertexBuffer<SpriteVertex>>(format);
   vb->setData(&vertices[0], 4, ::gl::BufferUsageARB::StaticDraw);

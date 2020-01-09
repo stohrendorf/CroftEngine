@@ -213,6 +213,7 @@ public:
 
   [[nodiscard]] const auto& getTransformBuffer() const
   {
+    getModelMatrix(); // update data if dirty
     m_transformBuffer.setData(m_transform, ::gl::BufferUsageARB::StreamDraw);
     return m_transformBuffer;
   }

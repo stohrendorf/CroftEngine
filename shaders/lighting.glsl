@@ -71,7 +71,7 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos, in float n)
         brightest = max(brightest, intensity);
     }
 
-    return sum + brightest;
+    return sum + (brightest + u_lightAmbient)/2;
 }
 
 float calc_positional_lighting(in vec3 normal, in vec3 pos)

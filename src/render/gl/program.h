@@ -259,7 +259,7 @@ public:
     std::vector<int32_t> units;
     for(size_t i = 0; i < textures.size(); ++i)
     {
-      GL_ASSERT(::gl::bindTextureUnit(i, textures[i]->getHandle()));
+      GL_ASSERT(::gl::bindTextureUnit(gsl::narrow_cast<uint32_t>(i), textures[i]->getHandle()));
       units.emplace_back(gsl::narrow<int32_t>(m_samplerIndex + i));
     }
 

@@ -31,7 +31,6 @@ public:
 
 private:
   std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_renderables{};
-  std::deque<core::TextureId> m_spriteTextures{};
   Lighting m_lighting;
 
   void initRenderables(Engine& engine, float scale = 1);
@@ -47,12 +46,6 @@ protected:
     m_renderables.emplace_back(m_renderables.front());
     m_renderables.pop_front();
     setRenderable(m_renderables.front());
-
-    if(m_spriteTextures.empty())
-      return;
-
-    m_spriteTextures.emplace_back(m_spriteTextures.front());
-    m_spriteTextures.pop_front();
   }
 
   void applyTransform()

@@ -275,17 +275,13 @@ void Room::createSceneNode(const size_t roomId,
                                                       static_cast<float>(-sprite.y1),
                                                       sprite.t0,
                                                       sprite.t1,
-                                                      spriteMaterial);
+                                                      spriteMaterial,
+                                                      sprite.texture_id.get_as<int32_t>());
 
     auto spriteNode = std::make_shared<render::scene::Node>("sprite");
     spriteNode->setRenderable(mesh);
     const RoomVertex& v = vertices.at(spriteInstance.vertex.get());
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
-    spriteNode->addUniformSetter(
-      "u_diffuseTextureId",
-      [texture = sprite.texture_id](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
-        uniform.set(texture.get());
-      });
     spriteNode->addUniformSetter(
       "u_lightAmbient",
       [brightness = v.getBrightness()](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {

@@ -34,6 +34,7 @@ struct Lighting
     lights.clear();
     if(pos.room->lights.empty())
     {
+      m_buffer.setData(lights, gl::BufferUsageARB::StreamDraw);
       return;
     }
 
@@ -64,7 +65,7 @@ struct Lighting
   {
     lights.clear();
     ambient = 1.0f - shade / 8191.0f;
-    m_buffer.setData(lights, gl::BufferUsageARB::StreamDraw);
+    m_buffer.setData(lights, gl::BufferUsageARB::StaticDraw);
   }
 
   void bind(render::scene::Node& node) const

@@ -23,7 +23,8 @@ extern gsl::not_null<std::shared_ptr<Mesh>>
                    float y1,
                    const glm::vec2& t0,
                    const glm::vec2& t1,
-                   const gsl::not_null<std::shared_ptr<Material>>& materialFull);
+                   const gsl::not_null<std::shared_ptr<Material>>& materialFull,
+                   int textureIdx);
 
 extern void bindSpritePole(Node& node, SpritePole pole);
 } // namespace render::scene

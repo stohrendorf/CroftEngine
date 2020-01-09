@@ -28,14 +28,11 @@ void Particle::initRenderables(Engine& engine, const float scale)
                                                   float(-spr.y1) * scale,
                                                   spr.t0,
                                                   spr.t1,
-                                                  engine.getMaterialManager()->getSprite());
-      m_renderables.emplace_back(mesh);
-      m_spriteTextures.emplace_back(spr.texture_id);
+                                                  engine.getMaterialManager()->getSprite(),
+                                                  spr.texture_id.get_as<int32_t>());
+      m_renderables.emplace_back(std::move(mesh));
     }
 
-    addUniformSetter("u_diffuseTextureId", [this](const Node& /*node*/, render::gl::Uniform& uniform) {
-      uniform.set(m_spriteTextures.front().get());
-    });
     bindSpritePole(*this, render::scene::SpritePole::Y);
   }
   else

@@ -152,7 +152,7 @@ void Object::playShotMissed(const core::RoomBoundPosition& pos)
 
 std::optional<core::Length> Object::getWaterSurfaceHeight() const
 {
-  return m_state.position.room->getWaterSurfaceHeight(m_state.position);
+  return loader::file::Room::getWaterSurfaceHeight(m_state.position);
 }
 
 void Object::updateLighting()
