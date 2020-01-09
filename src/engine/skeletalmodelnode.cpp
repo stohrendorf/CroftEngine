@@ -62,6 +62,8 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
   Expects(m_engine->isValid(result.secondFrame));
 
   auto segmentDuration = state.anim->segmentLength;
+  const auto segmentFrame = (state.frame_number - state.anim->firstFrame) % state.anim->segmentLength;
+
   if((firstKeyframeIndex + 1) * state.anim->segmentLength >= state.anim->getFrameCount())
   {
     // second keyframe beyond end
@@ -70,14 +72,8 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
       segmentDuration = tmp + 1_frame;
   }
 
-  const auto segmentFrame = (state.frame_number - state.anim->firstFrame) % segmentDuration;
   result.bias = segmentFrame.retype_as<float>() / segmentDuration.retype_as<float>();
   BOOST_ASSERT(result.bias >= 0 && result.bias <= 1);
-
-  if(segmentFrame == 0_frame)
-  {
-    return result;
-  }
 
   return result;
 }
