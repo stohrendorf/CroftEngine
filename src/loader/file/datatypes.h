@@ -244,7 +244,7 @@ struct Layer
 struct RoomVertex
 {
   core::TRVec position; // where this vertex lies (relative to tr2_room_info::x/z)
-  int16_t darkness = 0;
+  core::Shade shade{};
 
   uint16_t attributes = 0; // A set of flags for special rendering effects [absent from TR1 data files]
   // 0x8000 something to do with water surface
@@ -257,11 +257,6 @@ struct RoomVertex
   core::TRVec normal;
 
   glm::vec4 color{0.0f};
-
-  [[nodiscard]] float getBrightness() const
-  {
-    return 1.0f - darkness / 8191.0f;
-  }
 
   /** \brief reads a room vertex definition.
       *
@@ -329,7 +324,7 @@ struct Room
   int sectorCountZ;            // "width" of sector list
   int sectorCountX;            // "height" of sector list
   std::vector<Sector> sectors; // [NumXsectors * NumZsectors] list of sectors in this room
-  int16_t ambientDarkness;     //!< 0..8191
+  core::Shade ambientShade{};
   int16_t intensity2;          // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
   int16_t lightMode;           // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
   std::vector<Light> lights;   // [NumLights] list of point lights
@@ -339,11 +334,6 @@ struct Room
   // with (e.g. empty/filled with water is implemented as an empty room that alternates with a full room)
 
   uint16_t flags;
-
-  [[nodiscard]] float getAmbientBrightness() const
-  {
-    return 1 - ambientDarkness / 8191.0f;
-  }
 
   // Flag bits:
   // 0x0001 - room is filled with water,

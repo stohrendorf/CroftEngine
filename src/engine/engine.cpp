@@ -671,7 +671,7 @@ std::shared_ptr<objects::PickupObject> Engine::createPickup(const core::TypeId t
   item.room = uint16_t(-1);
   item.position = position;
   item.rotation = 0_deg;
-  item.darkness = 0;
+  item.shade = core::Shade{core::Shade::type{0}};
   item.activationState = 0;
 
   const auto& spriteSequence = findSpriteSequenceForType(type);

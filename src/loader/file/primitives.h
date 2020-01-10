@@ -13,7 +13,7 @@ class SDLReader;
 
 struct RoomVertex;
 
-using VertexIndex = core::ContainerIndex<uint32_t, core::TRVec, int16_t, RoomVertex>;
+using VertexIndex = core::ContainerIndex<uint32_t, core::TRVec, core::Shade, RoomVertex>;
 
 struct Triangle
 {

@@ -21,15 +21,10 @@ struct RoomStaticMesh
 {
   core::TRVec position; // world coords
   core::Angle rotation;
-  int16_t darkness;              // Constant lighting; -1 means use mesh lighting
+  core::Shade shade{};           // Constant lighting; -1 means use mesh lighting
   int16_t intensity2;            // Like Intensity 1, and almost always the same value [absent from TR1 data files]
   core::StaticMeshId meshId{0u}; // which StaticMesh item to draw
   FloatColor tint;               // extracted from intensity
-
-  [[nodiscard]] float getBrightness() const
-  {
-    return 2.0f - darkness / 8191.0f;
-  }
 
   /** \brief reads a room static mesh definition.
     *

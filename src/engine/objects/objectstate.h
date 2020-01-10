@@ -83,7 +83,7 @@ public:
   core::Length floor = 0_len;
   std::bitset<32> touch_bits;
   const loader::file::Box* box = nullptr;
-  int16_t shade = -1;
+  core::Shade shade{core::Shade::type{-1}};
 
   bool falling = false;
   bool is_hit = false;

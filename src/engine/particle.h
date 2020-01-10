@@ -27,7 +27,7 @@ public:
   core::Speed fall_speed = 0_spd;
   int16_t negSpriteFrameId = 0;
   int16_t timePerSpriteFrame = 0;
-  int16_t shade = 4096;
+  core::Shade shade{core::Shade::type{4096}};
 
 private:
   std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_renderables{};
@@ -196,7 +196,7 @@ public:
   {
     angle.Y = yAngle;
     timePerSpriteFrame = 3;
-    shade = 4096;
+    shade = core::Shade{core::Shade::type{4096}};
   }
 
   bool update(Engine& /*engine*/) override
@@ -295,7 +295,7 @@ public:
       : MutantAmmoParticle{pos, engine, TR1ItemId::MutantBullet}
   {
     speed = 250_spd;
-    shade = 3584;
+    shade = core::Shade{core::Shade::type{3584}};
     angle.Y = yAngle;
     aimLaraChest(engine);
   }

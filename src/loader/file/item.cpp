@@ -12,7 +12,7 @@ std::unique_ptr<Item> Item::readTr1(io::SDLReader& reader)
   item->room = reader.readU16();
   item->position = readCoordinates32(reader);
   item->rotation = core::auToAngle(reader.readI16());
-  item->darkness = reader.readI16();
+  item->shade = core::Shade{reader.readI16()};
   item->activationState = reader.readU16();
   return item;
 }
@@ -24,7 +24,7 @@ std::unique_ptr<Item> Item::readTr2(io::SDLReader& reader)
   item->room = reader.readU16();
   item->position = readCoordinates32(reader);
   item->rotation = core::auToAngle(reader.readI16());
-  item->darkness = reader.readI16();
+  item->shade = core::Shade{reader.readI16()};
   item->intensity2 = reader.readU16();
   item->activationState = reader.readU16();
   return item;
@@ -37,7 +37,7 @@ std::unique_ptr<Item> Item::readTr3(io::SDLReader& reader)
   item->room = reader.readU16();
   item->position = readCoordinates32(reader);
   item->rotation = core::auToAngle(reader.readI16());
-  item->darkness = reader.readU16();
+  item->shade = core::Shade{reader.readI16()};
   item->intensity2 = reader.readU16();
   item->activationState = reader.readU16();
   return item;
@@ -50,8 +50,8 @@ std::unique_ptr<Item> Item::readTr4(io::SDLReader& reader)
   item->room = reader.readU16();
   item->position = readCoordinates32(reader);
   item->rotation = core::auToAngle(reader.readI16());
-  item->darkness = reader.readU16();
-  item->intensity2 = item->darkness;
+  item->shade = core::Shade{reader.readI16()};
+  item->intensity2 = item->shade.get();
   item->ocb = reader.readU16();
   item->activationState = reader.readU16();
   return item;

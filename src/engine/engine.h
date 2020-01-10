@@ -287,7 +287,7 @@ public:
     item.room = uint16_t(-1);
     item.position = position;
     item.rotation = angle;
-    item.darkness = 0;
+    item.shade = core::Shade{core::Shade::type{0}};
     item.activationState = activationState;
 
     auto object = std::make_shared<T>(this, room, item, model.get());

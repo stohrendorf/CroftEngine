@@ -15,6 +15,12 @@
 #include <vector>
 #include <zlib.h>
 
+namespace qs
+{
+template<typename, typename>
+struct quantity;
+}
+
 namespace loader::file::io
 {
 using DataStreamBuf = boost::iostreams::filtering_istreambuf;
@@ -271,6 +277,17 @@ private:
       auto tmp = data.get();
       SwapTraits<T, sizeof(T), std::is_integral_v<T> || std::is_floating_point_v<T>>::doSwap(tmp);
       data = type_safe::integer<T>(tmp);
+    }
+  };
+
+  template<typename T, int dataSize, typename U>
+  struct SwapTraits<qs::quantity<U, T>, dataSize, false>
+  {
+    static void doSwap(qs::quantity<U, T>& data)
+    {
+      auto tmp = data.get();
+      SwapTraits<T, sizeof(T), std::is_integral_v<T> || std::is_floating_point_v<T>>::doSwap(tmp);
+      data = qs::quantity<U, T>(tmp);
     }
   };
 

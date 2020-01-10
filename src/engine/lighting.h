@@ -16,20 +16,22 @@ struct Lighting
   };
   static_assert(sizeof(Light) == 32, "Invalid Light struct size");
 
-  float ambient = 0;
+  core::Brightness ambient{};
   std::vector<Light> lights;
 
   render::gl::ShaderStorageBuffer<Light> m_buffer{"lights-buffer"};
 
-  void updateDynamic(int16_t shade, const core::RoomBoundPosition& pos, const std::vector<loader::file::Room>& rooms)
+  void updateDynamic(const core::Shade& shade,
+                     const core::RoomBoundPosition& pos,
+                     const std::vector<loader::file::Room>& rooms)
   {
-    if(shade >= 0)
+    if(shade.get() >= 0)
     {
       updateStatic(shade);
       return;
     }
 
-    ambient = pos.room->getAmbientBrightness();
+    ambient = toBrightness(pos.room->ambientShade);
 
     lights.clear();
     if(pos.room->lights.empty())
@@ -61,17 +63,17 @@ struct Lighting
     m_buffer.setData(lights, gl::BufferUsageARB::StreamDraw);
   }
 
-  void updateStatic(int16_t shade)
+  void updateStatic(const core::Shade& shade)
   {
     lights.clear();
-    ambient = 1.0f - shade / 8191.0f;
+    ambient = toBrightness(shade);
     m_buffer.setData(lights, gl::BufferUsageARB::StaticDraw);
   }
 
   void bind(render::scene::Node& node) const
   {
     node.addUniformSetter("u_lightAmbient", [this](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
-      uniform.set(ambient);
+      uniform.set(ambient.get());
     });
 
     node.addBufferBinder("b_lights",

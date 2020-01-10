@@ -18,7 +18,7 @@ void Particle::initRenderables(Engine& engine, const float scale)
   }
   else if(const auto& spriteSequence = engine.findSpriteSequenceForType(object_number))
   {
-    shade = 4096;
+    shade = core::Shade{core::Shade::type{4096}};
 
     for(const loader::file::Sprite& spr : spriteSequence->sprites)
     {
@@ -157,7 +157,7 @@ FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, Engine& engine,
 {
   timePerSpriteFrame = 0;
   negSpriteFrameId = 0;
-  shade = 4096;
+  shade = core::Shade{core::Shade::type{4096}};
 
   if(randomize)
   {

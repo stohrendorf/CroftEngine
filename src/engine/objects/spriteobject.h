@@ -13,7 +13,7 @@ class SpriteObject : public Object
 private:
   std::shared_ptr<render::scene::Node> m_node;
   const loader::file::Sprite* m_sprite = nullptr;
-  float m_brightness = 0.5f;
+  core::Brightness m_brightness{0.5f};
   gsl::not_null<std::shared_ptr<render::scene::Material>> m_material;
 
   void createModel();

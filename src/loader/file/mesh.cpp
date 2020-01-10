@@ -112,7 +112,7 @@ void ModelBuilder::append(const Mesh& mesh)
 
       if(!m_hasNormals)
       {
-        iv.color = glm::vec3(1 - quad.vertices[i].from(mesh.vertexDarknesses) / 8191.0f);
+        iv.color = glm::vec3(toBrightness(quad.vertices[i].from(mesh.vertexShades)).get());
         if(i <= 2)
         {
           static const int indices[3] = {0, 1, 2};
@@ -173,7 +173,7 @@ void ModelBuilder::append(const Mesh& mesh)
       iv.color = color;
       if(!m_hasNormals)
       {
-        iv.color *= 1 - quad.vertices[i].from(mesh.vertexDarknesses) / 8191.0f;
+        iv.color *= toBrightness(quad.vertices[i].from(mesh.vertexShades)).get();
         if(i <= 2)
         {
           static const int indices[3] = {0, 1, 2};
@@ -230,7 +230,7 @@ void ModelBuilder::append(const Mesh& mesh)
       iv.uv = tile.uvCoordinates[i].toGl();
       if(!m_hasNormals)
       {
-        iv.color = glm::vec3(1 - tri.vertices[i].from(mesh.vertexDarknesses) / 8191.0f);
+        iv.color = glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
 
         static const int indices[3] = {0, 1, 2};
         iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
@@ -275,7 +275,7 @@ void ModelBuilder::append(const Mesh& mesh)
       iv.color = color;
       if(!m_hasNormals)
       {
-        iv.color *= glm::vec3(1 - tri.vertices[i].from(mesh.vertexDarknesses) / 8191.0f);
+        iv.color *= glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
 
         static const int indices[3] = {0, 1, 2};
         iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
@@ -359,7 +359,7 @@ std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
   else
   {
     Expects(static_cast<size_t>(-num_normals) == mesh->vertices.size());
-    reader.readVector(mesh->vertexDarknesses, -num_normals);
+    reader.readVector(mesh->vertexShades, -num_normals);
   }
 
   reader.readVector(mesh->textured_rectangles, reader.readU16(), &QuadFace::readTr1);
@@ -385,7 +385,7 @@ std::unique_ptr<Mesh> Mesh::readTr4(io::SDLReader& reader)
   }
   else
   {
-    reader.readVector(mesh->vertexDarknesses, -num_normals);
+    reader.readVector(mesh->vertexShades, -num_normals);
   }
 
   reader.readVector(mesh->textured_rectangles, reader.readU16(), &QuadFace::readTr4);

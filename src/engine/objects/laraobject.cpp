@@ -2142,25 +2142,25 @@ void LaraObject::renderGunFlare(const WeaponId weaponId,
     return;
   }
 
-  uint16_t shade;
+  core::Shade shade{core::Shade::type{0}};
   core::Length dy = 0_len;
   switch(weaponId)
   {
   case WeaponId::None:
   case WeaponId::Pistols:
-    shade = 5120;
+    shade = core::Shade{core::Shade::type{5120}};
     dy = 155_len;
     break;
   case WeaponId::AutoPistols:
-    shade = 4096;
+    shade = core::Shade{core::Shade::type{4096}};
     dy = 155_len;
     break;
   case WeaponId::Uzi:
-    shade = 2560;
+    shade = core::Shade{core::Shade::type{2560}};
     dy = 180_len;
     break;
   case WeaponId::Shotgun:
-    shade = 5120;
+    shade = core::Shade{core::Shade::type{5120}};
     dy = 155_len;
     break;
   default: BOOST_THROW_EXCEPTION(std::domain_error("WeaponId"));
@@ -2173,10 +2173,11 @@ void LaraObject::renderGunFlare(const WeaponId weaponId,
   setParent(flareNode, getNode()->getParent().lock());
   flareNode->setLocalMatrix(getNode()->getLocalMatrix() * m);
 
-  const auto brightness = 1.0f - shade / 8191.0f;
   flareNode->addUniformSetter(
     "u_lightAmbient",
-    [brightness](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) { uniform.set(brightness); });
+    [brightness = toBrightness(shade)](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+      uniform.set(brightness.get());
+    });
 }
 
 void LaraObject::burnIfAlive()

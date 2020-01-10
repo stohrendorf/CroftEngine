@@ -36,7 +36,7 @@ Object::Object(const gsl::not_null<Engine*>& engine,
   m_state.loadObjectInfo(engine->getScriptEngine());
 
   m_state.rotation.Y = item.rotation;
-  m_state.shade = item.darkness;
+  m_state.shade = item.shade;
   m_state.activationState = floordata::ActivationState(item.activationState);
   m_state.timer = m_state.activationState.getTimeout();
 

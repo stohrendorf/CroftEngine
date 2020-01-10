@@ -255,8 +255,8 @@ void Room::createSceneNode(const size_t roomId,
 
     subNode->addUniformSetter(
       "u_lightAmbient",
-      [brightness = sm.getBrightness()](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
-        uniform.set(brightness);
+      [brightness = toBrightness(sm.shade)](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+        uniform.set(brightness.get());
       });
 
     sceneryNodes.emplace_back(std::move(subNode));
@@ -284,8 +284,8 @@ void Room::createSceneNode(const size_t roomId,
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
     spriteNode->addUniformSetter(
       "u_lightAmbient",
-      [brightness = v.getBrightness()](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
-        uniform.set(brightness);
+      [brightness = toBrightness(v.shade)](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+        uniform.set(brightness.get());
       });
     bindSpritePole(*spriteNode, render::scene::SpritePole::Y);
 
@@ -414,9 +414,9 @@ std::unique_ptr<Room> Room::readTr1(io::SDLReader& reader)
   reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
   // read and make consistent
-  room->ambientDarkness = reader.readI16();
+  room->ambientShade = core::Shade{reader.readI16()};
   // only in TR2-TR4
-  room->intensity2 = room->ambientDarkness;
+  room->intensity2 = room->ambientShade.get();
   // only in TR2
   room->lightMode = 0;
 
@@ -467,8 +467,8 @@ std::unique_ptr<Room> Room::readTr2(io::SDLReader& reader)
   reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
   // read and make consistent
-  room->ambientDarkness = (8191 - reader.readI16()) << 2;
-  room->intensity2 = (8191 - reader.readI16()) << 2;
+  room->ambientShade = core::Shade{gsl::narrow<core::Shade::type>((8191 - reader.readI16()) * 4)};
+  room->intensity2 = (8191 - reader.readI16()) * 4;
   room->lightMode = reader.readI16();
 
   reader.readVector(room->lights, reader.readU16(), &Light::readTr2);
@@ -488,9 +488,9 @@ std::unique_ptr<Room> Room::readTr2(io::SDLReader& reader)
     room->reverbInfo = ReverbType::MediumRoom;
   }
 
-  room->lightColor.r = room->ambientDarkness / 16384.0f;
-  room->lightColor.g = room->ambientDarkness / 16384.0f;
-  room->lightColor.b = room->ambientDarkness / 16384.0f;
+  room->lightColor.r = room->ambientShade.get() / 16384.0f;
+  room->lightColor.g = room->ambientShade.get() / 16384.0f;
+  room->lightColor.b = room->ambientShade.get() / 16384.0f;
   room->lightColor.a = 1.0f;
   return room;
 }
@@ -526,7 +526,7 @@ std::unique_ptr<Room> Room::readTr3(io::SDLReader& reader)
   room->sectorCountX = reader.readU16();
   reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
-  room->ambientDarkness = reader.readI16();
+  room->ambientShade = core::Shade{reader.readI16()};
   room->intensity2 = reader.readI16();
 
   // only in TR2
@@ -553,9 +553,9 @@ std::unique_ptr<Room> Room::readTr3(io::SDLReader& reader)
 
   reader.skip(1); // Alternate_group override?
 
-  room->lightColor.r = room->ambientDarkness / 65534.0f;
-  room->lightColor.g = room->ambientDarkness / 65534.0f;
-  room->lightColor.b = room->ambientDarkness / 65534.0f;
+  room->lightColor.r = room->ambientShade.get() / 65534.0f;
+  room->lightColor.g = room->ambientShade.get() / 65534.0f;
+  room->lightColor.b = room->ambientShade.get() / 65534.0f;
   room->lightColor.a = 1.0f;
   return room;
 }
@@ -590,7 +590,7 @@ std::unique_ptr<Room> Room::readTr4(io::SDLReader& reader)
   room->sectorCountX = reader.readU16();
   reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
 
-  room->ambientDarkness = reader.readI16();
+  room->ambientShade = core::Shade{reader.readI16()};
   room->intensity2 = reader.readI16();
 
   // only in TR2
@@ -612,8 +612,8 @@ std::unique_ptr<Room> Room::readTr4(io::SDLReader& reader)
   room->alternateGroup = reader.readU8();
 
   room->lightColor.r = (room->intensity2 & 0x00FF) / 255.0f;
-  room->lightColor.g = ((room->ambientDarkness & 0xFF00) >> 8) / 255.0f;
-  room->lightColor.b = (room->ambientDarkness & 0x00FF) / 255.0f;
+  room->lightColor.g = ((room->ambientShade.get() & 0xFF00) >> 8) / 255.0f;
+  room->lightColor.b = (room->ambientShade.get() & 0x00FF) / 255.0f;
   room->lightColor.a = ((room->intensity2 & 0xFF00) >> 8) / 255.0f;
   return room;
 }
@@ -628,7 +628,7 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   const std::streampos endPos = position + room_data_size;
 
   std::unique_ptr<Room> room{std::make_unique<Room>()};
-  room->ambientDarkness = 32767;
+  room->ambientShade = core::Shade{core::Shade::type{32767}};
   room->intensity2 = 32767;
   room->lightMode = 0;
 
@@ -1216,13 +1216,13 @@ RoomVertex RoomVertex::readTr1(io::SDLReader& reader)
   RoomVertex room_vertex;
   room_vertex.position = readCoordinates16(reader);
   // read and make consistent
-  room_vertex.darkness = reader.readU16();
+  room_vertex.shade = core::Shade{reader.readI16()};
   // only in TR2
-  room_vertex.lighting2 = room_vertex.darkness;
+  room_vertex.lighting2 = room_vertex.shade.get();
   room_vertex.attributes = 0;
   // only in TR5
   room_vertex.normal = {0_len, 0_len, 0_len};
-  const auto f = room_vertex.getBrightness();
+  const auto f = toBrightness(room_vertex.shade).get();
   room_vertex.color = {f, f, f, 1};
   return room_vertex;
 }
@@ -1232,9 +1232,9 @@ RoomVertex RoomVertex::readTr2(io::SDLReader& reader)
   RoomVertex room_vertex;
   room_vertex.position = readCoordinates16(reader);
   // read and make consistent
-  room_vertex.darkness = (8191 - reader.readI16()) << 2;
+  room_vertex.shade = core::Shade{gsl::narrow<core::Shade::type>((8191 - reader.readI16()) * 4)};
   room_vertex.attributes = reader.readU16();
-  room_vertex.lighting2 = (8191 - reader.readI16()) << 2;
+  room_vertex.lighting2 = (8191 - reader.readI16()) * 4;
   // only in TR5
   room_vertex.normal = {0_len, 0_len, 0_len};
   const auto f = room_vertex.lighting2 / 32768.0f;
@@ -1247,7 +1247,7 @@ RoomVertex RoomVertex::readTr3(io::SDLReader& reader)
   RoomVertex room_vertex;
   room_vertex.position = readCoordinates16(reader);
   // read and make consistent
-  room_vertex.darkness = reader.readI16();
+  room_vertex.shade = core::Shade{reader.readI16()};
   room_vertex.attributes = reader.readU16();
   room_vertex.lighting2 = reader.readI16();
   // only in TR5
@@ -1264,7 +1264,7 @@ RoomVertex RoomVertex::readTr4(io::SDLReader& reader)
   RoomVertex room_vertex;
   room_vertex.position = readCoordinates16(reader);
   // read and make consistent
-  room_vertex.darkness = reader.readI16();
+  room_vertex.shade = core::Shade{reader.readI16()};
   room_vertex.attributes = reader.readU16();
   room_vertex.lighting2 = reader.readI16();
   // only in TR5

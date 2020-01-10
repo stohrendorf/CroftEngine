@@ -7,15 +7,12 @@
 namespace core
 {
 QS_DECLARE_QUANTITY(Frame, int32_t, "frame");
-
 QS_LITERAL_OP_ULL(Frame, _frame)
 
 QS_DECLARE_QUANTITY(Health, int32_t, "hp");
-
 QS_LITERAL_OP_ULL(Health, _hp)
 
 QS_DECLARE_QUANTITY(Length, int32_t, "u");
-
 QS_LITERAL_OP_ULL(Length, _len)
 
 using Area = QS_COMBINE_UNITS(Length, *, Length);
@@ -35,11 +32,9 @@ using LengthF = Length::with_type<float>;
 QS_LITERAL_OP_LD(LengthF, _len)
 
 QS_DECLARE_QUANTITY(Seconds, int32_t, "s");
-
 QS_LITERAL_OP_ULL(Seconds, _sec)
 
 using Speed = QS_COMBINE_UNITS(Length, /, Frame);
-
 QS_LITERAL_OP_ULL(Speed, _spd)
 
 using Acceleration = QS_COMBINE_UNITS(Speed, /, Frame);
@@ -47,6 +42,14 @@ using Acceleration = QS_COMBINE_UNITS(Speed, /, Frame);
 [[nodiscard]] inline auto sqrt(QS_COMBINE_UNITS(Acceleration, *, Length) value)
 {
   return Speed{static_cast<Speed::type>(std::sqrt(value.get()))};
+}
+
+QS_DECLARE_QUANTITY(Shade, int16_t, "shade");
+QS_DECLARE_QUANTITY(Brightness, float, "brightness");
+
+[[nodiscard]] inline constexpr Brightness toBrightness(const Shade& shade)
+{
+  return Brightness{1.0f - shade.get_as<float>() / 8191.0f};
 }
 } // namespace core
 

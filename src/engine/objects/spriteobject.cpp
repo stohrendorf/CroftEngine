@@ -2,6 +2,7 @@
 
 #include "loader/file/item.h"
 #include "render/scene/sprite.h"
+#include "serialization/quantity.h"
 #include "serialization/sprite_ptr.h"
 
 #include <utility>
@@ -18,7 +19,7 @@ SpriteObject::SpriteObject(const gsl::not_null<Engine*>& engine,
     : Object{engine, room, item, hasUpdateFunction}
     , m_node{std::make_shared<render::scene::Node>(std::move(name))}
     , m_sprite{sprite}
-    , m_brightness{item.getBrightness()}
+    , m_brightness{toBrightness(item.shade)}
     , m_material{std::move(material)}
 {
   m_lighting.bind(*m_node);
@@ -54,9 +55,10 @@ void SpriteObject::createModel()
                                                     m_sprite->texture_id.get_as<int32_t>());
 
   m_node->setRenderable(mesh);
-  m_node->addUniformSetter("u_lightAmbient",
-                           [brightness = m_brightness](const render::scene::Node& /*node*/,
-                                                       render::gl::Uniform& uniform) { uniform.set(brightness); });
+  m_node->addUniformSetter(
+    "u_lightAmbient", [brightness = m_brightness](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+      uniform.set(brightness.get());
+    });
   bindSpritePole(*m_node, render::scene::SpritePole::Y);
 }
 
