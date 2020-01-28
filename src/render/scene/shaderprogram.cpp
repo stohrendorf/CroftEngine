@@ -1,10 +1,9 @@
 #include "shaderprogram.h"
 
-#include "render/gl/shader.h"
-
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 #include <fstream>
+#include <gl/shader.h>
 #include <set>
 
 namespace render::scene

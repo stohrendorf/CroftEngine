@@ -4,7 +4,7 @@
 #include "renderer.h"
 #include "shadermanager.h"
 
-#include <render/gl/texture2darray.h>
+#include <gl/texture2darray.h>
 #include <utility>
 
 namespace render::scene
@@ -34,8 +34,7 @@ public:
   [[nodiscard]] const std::shared_ptr<Material>& getDepthOnly();
 
   [[nodiscard]] std::shared_ptr<Material>
-    createMaterial(const gsl::not_null<std::shared_ptr<render::gl::Texture2DArray<render::gl::SRGBA8>>>& texture,
-                   bool water);
+    createMaterial(const gsl::not_null<std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>>>& texture, bool water);
 
   [[nodiscard]] const std::shared_ptr<Material>& getPortal();
 

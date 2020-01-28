@@ -4,11 +4,11 @@
 #include "datatypes.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
-#include "render/gl/vertexarray.h"
 #include "render/scene/mesh.h"
 #include "render/scene/model.h"
 #include "util.h"
 
+#include <gl/vertexarray.h>
 #include <utility>
 
 namespace loader::file
@@ -27,14 +27,13 @@ class ModelBuilder final
     glm::vec2 uv;
     glm::int32_t textureIndex{-1};
 
-    static const render::gl::VertexFormat<RenderVertex>& getFormat()
+    static const gl::VertexFormat<RenderVertex>& getFormat()
     {
-      static const render::gl::VertexFormat<RenderVertex> format{
-        {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
-        {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
-        {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
-        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv},
-        {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &RenderVertex::textureIndex}};
+      static const gl::VertexFormat<RenderVertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
+                                                         {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
+                                                         {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
+                                                         {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv},
+                                                         {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &RenderVertex::textureIndex}};
 
       return format;
     }
@@ -46,7 +45,7 @@ class ModelBuilder final
   const gsl::not_null<std::shared_ptr<render::scene::Material>> m_materialFull;
   const gsl::not_null<std::shared_ptr<render::scene::Material>> m_materialDepthOnly;
   const Palette& m_palette;
-  std::shared_ptr<render::gl::VertexBuffer<RenderVertex>> m_vb;
+  std::shared_ptr<gl::VertexBuffer<RenderVertex>> m_vb;
   const std::string m_label;
   std::vector<IndexType> m_indices{};
 
@@ -64,7 +63,7 @@ public:
       , m_materialFull{std::move(materialFull)}
       , m_materialDepthOnly{std::move(materialDepthOnly)}
       , m_palette{palette}
-      , m_vb{std::make_shared<render::gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label)}
+      , m_vb{std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label)}
       , m_label{std::move(label)}
   {
   }
@@ -297,7 +296,7 @@ void ModelBuilder::append(const Mesh& mesh)
 
 gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
 {
-  m_vb->setData(m_vertices, gl::BufferUsageARB::StaticDraw);
+  m_vb->setData(m_vertices, gl::api::BufferUsageARB::StaticDraw);
 
   auto model = std::make_shared<render::scene::Model>();
 #ifndef NDEBUG
@@ -306,17 +305,17 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
     BOOST_ASSERT(idx < m_vertices.size());
   }
 #endif
-  auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
-  indexBuffer->setData(m_indices, gl::BufferUsageARB::DynamicDraw);
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
+  indexBuffer->setData(m_indices, gl::api::BufferUsageARB::DynamicDraw);
 
-  auto va = std::make_shared<render::gl::VertexArray<uint16_t, RenderVertex>>(
+  auto va = std::make_shared<gl::VertexArray<uint16_t, RenderVertex>>(
     indexBuffer,
     m_vb,
-    std::vector<const render::gl::Program*>{
+    std::vector<const gl::Program*>{
       &m_materialFull->getShaderProgram()->getHandle(),
       m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle()},
     m_label);
-  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, gl::PrimitiveType::Triangles);
+  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, gl::api::PrimitiveType::Triangles);
   mesh->getMaterial()
     .set(render::scene::RenderMode::Full, m_materialFull)
     .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly);

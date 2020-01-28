@@ -1,9 +1,8 @@
 #pragma once
 
-#include "util/cimgwrapper.h"
-
 #include <boost/log/trivial.hpp>
 #include <filesystem>
+#include <gl/cimgwrapper.h>
 #include <utility>
 
 namespace loader::file
@@ -16,11 +15,11 @@ public:
   {
   }
 
-  [[nodiscard]] util::CImgWrapper loadPng(const std::string& name, uint32_t mipLevel) const
+  [[nodiscard]] gl::CImgWrapper loadPng(const std::string& name, uint32_t mipLevel) const
   {
     const auto path = buildPngPath(name, mipLevel);
     BOOST_LOG_TRIVIAL(debug) << "Loading " << path;
-    return util::CImgWrapper{path};
+    return gl::CImgWrapper{path};
   }
 
   [[nodiscard]] bool exists(const std::string& name, uint32_t mipLevel) const
@@ -33,7 +32,7 @@ public:
     return last_write_time(buildPngPath(name, mipLevel));
   }
 
-  void savePng(const std::string& name, uint32_t mipLevel, util::CImgWrapper& image) const
+  void savePng(const std::string& name, uint32_t mipLevel, gl::CImgWrapper& image) const
   {
     const auto path = buildPngPath(name, mipLevel);
     BOOST_LOG_TRIVIAL(debug) << "Saving " << path;

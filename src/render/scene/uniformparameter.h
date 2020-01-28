@@ -1,7 +1,7 @@
 #pragma once
 
+#include "gl/program.h"
 #include "materialparameter.h"
-#include "render/gl/program.h"
 #include "shaderprogram.h"
 
 #include <boost/log/trivial.hpp>

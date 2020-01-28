@@ -1,6 +1,6 @@
 #include "label.h"
 
-#include "util/cimgwrapper.h"
+#include <gl/cimgwrapper.h>
 
 namespace ui
 {
@@ -18,7 +18,7 @@ const std::array<const uint8_t, 98> charToSprite{
   17, 18, 19, 20, 21, 22, 23, 24, 25, 80, 76, 81, 97, 98, 77, 26, 27,  28,  29,  30, 31, 32, 33, 34, 35,
   36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 100, 101, 102, 67, 0,  0,  0};
 
-void drawLine(render::gl::Image<render::gl::SRGBA8>& img,
+void drawLine(gl::Image<gl::SRGBA8>& img,
               const int x0,
               const int y0,
               const int width,
@@ -28,7 +28,7 @@ void drawLine(render::gl::Image<render::gl::SRGBA8>& img,
   img.line(x0, y0, x0 + width, y0 + height, color.toTextureColor());
 }
 
-void drawOutline(render::gl::Image<render::gl::SRGBA8>& img,
+void drawOutline(gl::Image<gl::SRGBA8>& img,
                  const int x,
                  const int y,
                  const int width,
@@ -81,9 +81,7 @@ int Label::calcWidth() const
   return width;
 }
 
-void Label::draw(CachedFont& font,
-                 render::gl::Image<render::gl::SRGBA8>& img,
-                 const loader::file::Palette& palette) const
+void Label::draw(CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::file::Palette& palette) const
 {
   Expects(font.getScaleX() == scaleX);
   Expects(font.getScaleY() == scaleY);

@@ -2,12 +2,12 @@
 
 #include "core/vec.h"
 #include "material.h"
-#include "render/gl/buffer.h"
-#include "render/gl/framebuffer.h"
-#include "render/gl/pixel.h"
-#include "render/gl/texturedepth.h"
 
 #include <cstdint>
+#include <gl/buffer.h>
+#include <gl/framebuffer.h>
+#include <gl/pixel.h>
+#include <gl/texturedepth.h>
 #include <glm/glm.hpp>
 #include <gsl-lite.hpp>
 
@@ -65,13 +65,13 @@ public:
     const auto tmp = getSplitEnds();
     std::transform(tmp.begin(), tmp.end(), m_bufferData.csmSplits.begin(), [](float x) { return glm::vec4{x}; });
     m_bufferData.lightMVP = getMatrices(modelMatrix);
-    m_buffer.setData(m_bufferData, ::gl::BufferUsageARB::DynamicDraw);
+    m_buffer.setData(m_bufferData, gl::api::BufferUsageARB::DynamicDraw);
     return m_buffer;
   }
 
   void applyViewport()
   {
-    GL_ASSERT(::gl::viewport(0, 0, m_resolution, m_resolution));
+    GL_ASSERT(gl::api::viewport(0, 0, m_resolution, m_resolution));
   }
 
 private:

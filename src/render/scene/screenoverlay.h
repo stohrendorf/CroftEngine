@@ -1,11 +1,11 @@
 #pragma once
 
-#include "render/gl/image.h"
-#include "render/gl/texture2d.h"
 #include "renderable.h"
 #include "renderer.h"
-#include "window.h"
 
+#include <gl/image.h>
+#include <gl/texture2d.h>
+#include <gl/window.h>
 #include <memory>
 
 namespace render::scene
@@ -18,11 +18,8 @@ class ScreenOverlay : public Renderable
 {
 public:
   ScreenOverlay(const ScreenOverlay&) = delete;
-
   ScreenOverlay(ScreenOverlay&&) = delete;
-
   ScreenOverlay& operator=(ScreenOverlay&&) = delete;
-
   ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
   explicit ScreenOverlay(ShaderManager& shaderManager, const glm::ivec2& viewport);

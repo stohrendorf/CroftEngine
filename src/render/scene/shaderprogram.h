@@ -1,9 +1,8 @@
 #pragma once
 
-#include "render/gl/program.h"
-
 #include <boost/container/flat_map.hpp>
 #include <filesystem>
+#include <gl/program.h>
 #include <map>
 #include <memory>
 #include <vector>

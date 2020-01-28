@@ -1,8 +1,7 @@
 #pragma once
 
-#include "render/gl/pixel.h"
-
 #include <boost/assert.hpp>
+#include <gl/pixel.h>
 #include <gsl-lite.hpp>
 
 namespace loader::file
@@ -32,14 +31,14 @@ struct ByteColor
     return read(reader, true);
   }
 
-  [[nodiscard]] render::gl::SRGBA8 toTextureColor() const
+  [[nodiscard]] gl::SRGBA8 toTextureColor() const
   {
-    return render::gl::SRGBA8{r, g, b, a};
+    return gl::SRGBA8{r, g, b, a};
   }
 
-  [[nodiscard]] render::gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const
+  [[nodiscard]] gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const
   {
-    return render::gl::SRGBA8{r, g, b, alphaOverride};
+    return gl::SRGBA8{r, g, b, alphaOverride};
   }
 
   [[nodiscard]] glm::vec4 toGLColor() const

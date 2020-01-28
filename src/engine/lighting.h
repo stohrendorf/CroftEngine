@@ -19,7 +19,7 @@ struct Lighting
   core::Brightness ambient{};
   std::vector<Light> lights;
 
-  render::gl::ShaderStorageBuffer<Light> m_buffer{"lights-buffer"};
+  gl::ShaderStorageBuffer<Light> m_buffer{"lights-buffer"};
 
   void updateDynamic(const core::Shade& shade,
                      const core::RoomBoundPosition& pos,
@@ -36,7 +36,7 @@ struct Lighting
     lights.clear();
     if(pos.room->lights.empty())
     {
-      m_buffer.setData(lights, gl::BufferUsageARB::StreamDraw);
+      m_buffer.setData(lights, gl::api::BufferUsageARB::StreamDraw);
       return;
     }
 
@@ -60,26 +60,25 @@ struct Lighting
       }
     }
 
-    m_buffer.setData(lights, gl::BufferUsageARB::StreamDraw);
+    m_buffer.setData(lights, gl::api::BufferUsageARB::StreamDraw);
   }
 
   void updateStatic(const core::Shade& shade)
   {
     lights.clear();
     ambient = toBrightness(shade);
-    m_buffer.setData(lights, gl::BufferUsageARB::StaticDraw);
+    m_buffer.setData(lights, gl::api::BufferUsageARB::StaticDraw);
   }
 
   void bind(render::scene::Node& node) const
   {
-    node.addUniformSetter("u_lightAmbient", [this](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+    node.addUniformSetter("u_lightAmbient", [this](const render::scene::Node& /*node*/, gl::Uniform& uniform) {
       uniform.set(ambient.get());
     });
 
-    node.addBufferBinder("b_lights",
-                         [this](const render::scene::Node&, render::gl::ShaderStorageBlock& shaderStorageBlock) {
-                           shaderStorageBlock.bind(m_buffer);
-                         });
+    node.addBufferBinder("b_lights", [this](const render::scene::Node&, gl::ShaderStorageBlock& shaderStorageBlock) {
+      shaderStorageBlock.bind(m_buffer);
+    });
   }
 };
 } // namespace engine

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "core/id.h"
-#include "render/gl/image.h"
 #include "render/scene/material.h"
 
 #include <boost/lexical_cast.hpp>
+#include <gl/image.h>
 
 namespace loader
 {
@@ -36,8 +36,8 @@ struct WordTexture
 
 struct DWordTexture final
 {
-  render::gl::SRGBA8 pixels[256][256];
-  std::shared_ptr<render::gl::Image<render::gl::SRGBA8>> image;
+  gl::SRGBA8 pixels[256][256];
+  std::shared_ptr<gl::Image<gl::SRGBA8>> image;
 
   std::string md5;
 

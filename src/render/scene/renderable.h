@@ -1,6 +1,6 @@
 #pragma once
 
-#include "render/gl/renderstate.h"
+#include <gl/renderstate.h>
 
 namespace render::scene
 {

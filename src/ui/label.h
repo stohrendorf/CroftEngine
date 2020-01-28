@@ -2,9 +2,9 @@
 
 #include "loader/file/color.h"
 #include "loader/file/datatypes.h"
-#include "util/cimgwrapper.h"
 
 #include <cstdint>
+#include <gl/cimgwrapper.h>
 #include <string>
 
 namespace loader::file
@@ -18,21 +18,21 @@ constexpr int FontBaseScale = 0x10000;
 
 class CachedFont
 {
-  std::vector<util::CImgWrapper> m_images;
+  std::vector<gl::CImgWrapper> m_images;
   const int m_scaleX;
   const int m_scaleY;
 
-  static util::CImgWrapper extractChar(const loader::file::Sprite& sprite, const int scaleX, const int scaleY)
+  static gl::CImgWrapper extractChar(const loader::file::Sprite& sprite, const int scaleX, const int scaleY)
   {
     BOOST_ASSERT(sprite.image != nullptr);
 
     const auto dstW = std::lround((sprite.t1.x - sprite.t0.x) * 256 * scaleX / FontBaseScale);
     const auto dstH = std::lround((sprite.t1.y - sprite.t0.y) * 256 * scaleY / FontBaseScale);
 
-    util::CImgWrapper src{reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
-                          sprite.image->getWidth(),
-                          sprite.image->getHeight(),
-                          true};
+    gl::CImgWrapper src{reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
+                        sprite.image->getWidth(),
+                        sprite.image->getHeight(),
+                        true};
     src.crop(gsl::narrow_cast<int>(sprite.t0.x * sprite.image->getWidth()),
              gsl::narrow_cast<int>(sprite.t0.y * sprite.image->getHeight()),
              gsl::narrow_cast<int>(sprite.t1.x * sprite.image->getWidth() - 1),
@@ -55,12 +55,12 @@ public:
     }
   }
 
-  [[nodiscard]] const util::CImgWrapper& get(size_t n) const
+  [[nodiscard]] const gl::CImgWrapper& get(size_t n) const
   {
     return m_images.at(n);
   }
 
-  void draw(size_t n, const int x, const int y, render::gl::Image<render::gl::SRGBA8>& img)
+  void draw(size_t n, const int x, const int y, gl::Image<gl::SRGBA8>& img)
   {
     auto& src = m_images.at(n);
 
@@ -122,7 +122,7 @@ struct Label
   {
   }
 
-  void draw(CachedFont& font, render::gl::Image<render::gl::SRGBA8>& img, const loader::file::Palette& palette) const;
+  void draw(CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::file::Palette& palette) const;
 
   int calcWidth() const;
 

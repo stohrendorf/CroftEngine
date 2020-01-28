@@ -1,8 +1,8 @@
 #pragma once
 
-#include "render/gl/renderstate.h"
 #include "rendermode.h"
 
+#include <gl/renderstate.h>
 #include <gsl-lite.hpp>
 #include <stack>
 

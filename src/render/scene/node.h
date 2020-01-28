@@ -214,7 +214,7 @@ public:
   [[nodiscard]] const auto& getTransformBuffer() const
   {
     getModelMatrix(); // update data if dirty
-    m_transformBuffer.setData(m_transform, ::gl::BufferUsageARB::StreamDraw);
+    m_transformBuffer.setData(m_transform, ::gl::api::BufferUsageARB::StreamDraw);
     return m_transformBuffer;
   }
 
@@ -231,7 +231,7 @@ private:
 
   mutable bool m_dirty = false;
   mutable Transform m_transform{};
-  mutable render::gl::UniformBuffer<Transform> m_transformBuffer;
+  mutable gl::UniformBuffer<Transform> m_transformBuffer;
 
   boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
   boost::container::flat_map<std::string, std::function<UniformBlockParameter::BufferBinder>> m_uniformBlockBinders;

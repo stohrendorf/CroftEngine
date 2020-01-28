@@ -1,9 +1,9 @@
 #pragma once
 
 #include "loader/file/texture.h"
-#include "render/gl/vertexbuffer.h"
 
 #include <boost/assert.hpp>
+#include <gl/vertexbuffer.h>
 #include <map>
 #include <set>
 #include <vector>
@@ -67,7 +67,7 @@ class TextureAnimator
       for(const auto& partAndVertices : affectedVertices)
       {
         const std::shared_ptr<gl::VertexBuffer<glm::vec2>>& buffer = partAndVertices.first;
-        auto* uvArray = buffer->map(::gl::BufferAccessARB::ReadWrite);
+        auto* uvArray = buffer->map(gl::api::BufferAccessARB::ReadWrite);
 
         const std::set<VertexReference>& vertices = partAndVertices.second;
 

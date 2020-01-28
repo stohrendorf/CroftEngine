@@ -2,10 +2,11 @@
 
 #include "material.h"
 #include "mesh.h"
-#include "render/gl/image.h"
 #include "renderer.h"
 #include "shadermanager.h"
 #include "uniformparameter.h"
+
+#include <gl/image.h>
 
 namespace render::scene
 {
@@ -39,10 +40,10 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
 
   m_texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(m_image->getSize());
   m_texture->assign(m_image->getRawData())
-    .set(::gl::TextureMinFilter::Nearest)
-    .set(::gl::TextureMagFilter::Nearest)
-    .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge)
-    .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
+    .set(gl::api::TextureMinFilter::Nearest)
+    .set(gl::api::TextureMagFilter::Nearest)
+    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
 
   m_mesh = createQuadFullscreen(
     gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), screenOverlayProgram->getHandle());

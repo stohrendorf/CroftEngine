@@ -5,8 +5,9 @@
 #include "mesh.h"
 #include "names.h"
 #include "node.h"
-#include "render/gl/vertexarray.h"
 #include "scene.h"
+
+#include <gl/vertexarray.h>
 
 namespace render::scene
 {
@@ -39,12 +40,12 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
                                         {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &SpriteVertex::textureIdx},
                                         {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color}};
   auto vb = std::make_shared<gl::VertexBuffer<SpriteVertex>>(format);
-  vb->setData(&vertices[0], 4, ::gl::BufferUsageARB::StaticDraw);
+  vb->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
   static const uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
-  indexBuffer->setData(gsl::not_null<const uint16_t*>(&indices[0]), 6, ::gl::BufferUsageARB::StaticDraw);
+  indexBuffer->setData(gsl::not_null<const uint16_t*>(&indices[0]), 6, gl::api::BufferUsageARB::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
     indexBuffer, vb, std::vector<const gl::Program*>{&materialFull->getShaderProgram()->getHandle()});

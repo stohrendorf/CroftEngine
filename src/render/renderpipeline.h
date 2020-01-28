@@ -59,7 +59,7 @@ public:
   void bindGeometryFrameBuffer(const glm::ivec2& size)
   {
     gl::Framebuffer::unbindAll();
-    GL_ASSERT(::gl::viewport(0, 0, size.x, size.y));
+    GL_ASSERT(::gl::api::viewport(0, 0, size.x, size.y));
     m_geometryFb->bindWithAttachments();
   }
 

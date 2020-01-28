@@ -500,7 +500,7 @@ struct Sprite
 {
   core::TextureId texture_id{uint16_t(0)};
 
-  std::shared_ptr<render::gl::Image<render::gl::SRGBA8>> image{nullptr};
+  std::shared_ptr<gl::Image<gl::SRGBA8>> image{nullptr};
 
   glm::vec2 t0{0.0f};
   glm::vec2 t1{0.0f};

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "render/gl/buffer.h"
-#include "type_safe/flag_set.hpp"
-
+#include <gl/buffer.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <type_safe/flag_set.hpp>
 
 namespace render::scene
 {
@@ -206,7 +205,7 @@ public:
         m_dirty.reset(CameraMatrices::DirtyFlag::InvViewProjection);
       }
 
-      m_matricesBuffer.setData(m_matrices, ::gl::BufferUsageARB::StreamDraw);
+      m_matricesBuffer.setData(m_matrices, gl::api::BufferUsageARB::StreamDraw);
     }
 
     BOOST_ASSERT(m_dirty.none());
@@ -218,6 +217,6 @@ private:
 
   mutable type_safe::flag_set<CameraMatrices::DirtyFlag> m_dirty;
   mutable CameraMatrices m_matrices{};
-  mutable render::gl::UniformBuffer<CameraMatrices> m_matricesBuffer{"camera-matrices-ubo"};
+  mutable gl::UniformBuffer<CameraMatrices> m_matricesBuffer{"camera-matrices-ubo"};
 };
 } // namespace render::scene

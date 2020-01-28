@@ -7,13 +7,13 @@
 #include "items_tr1.h"
 #include "loader/file/animationid.h"
 #include "loader/file/item.h"
-#include "render/gl/pixel.h"
-#include "render/gl/texture2darray.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/screenoverlay.h"
-#include "util/cimgwrapper.h"
 
 #include <filesystem>
+#include <gl/cimgwrapper.h>
+#include <gl/pixel.h>
+#include <gl/texture2darray.h>
 #include <memory>
 
 namespace hid
@@ -44,13 +44,13 @@ struct CinematicFrame;
 } // namespace file
 } // namespace loader
 
-namespace render
-{
 namespace gl
 {
 class Font;
 }
 
+namespace render
+{
 class RenderPipeline;
 } // namespace render
 
@@ -108,19 +108,19 @@ private:
 
   std::shared_ptr<render::RenderPipeline> m_renderPipeline;
   std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
-  std::unique_ptr<render::scene::Window> m_window;
+  std::unique_ptr<gl::Window> m_window;
   std::shared_ptr<render::scene::Renderer> m_renderer;
   sol::table levelInfo;
 
-  const util::CImgWrapper splashImage;
-  util::CImgWrapper splashImageScaled;
-  std::shared_ptr<render::gl::Font> abibasFont;
+  const gl::CImgWrapper splashImage;
+  gl::CImgWrapper splashImageScaled;
+  std::shared_ptr<gl::Font> abibasFont;
 
   bool m_levelFinished = false;
 
   Inventory m_inventory;
 
-  std::shared_ptr<render::gl::Texture2DArray<render::gl::SRGBA8>> m_allTextures;
+  std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_allTextures;
 
   struct PositionalEmitter final : public audio::Emitter
   {
@@ -306,7 +306,7 @@ public:
 
   std::shared_ptr<objects::Object> getObject(uint16_t id) const;
 
-  void drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::SRGBA8>>>& image);
+  void drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>>& image);
 
   void useAlternativeLaraAppearance(bool withHead = false);
 
@@ -457,13 +457,14 @@ public:
 
   void update(bool godMode);
 
-  static void drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font,
+  static void drawText(gl::Image<gl::SRGBA8>& img,
+                       const gsl::not_null<std::shared_ptr<gl::Font>>& font,
                        int x,
                        const int y,
                        const std::string& txt,
-                       const render::gl::SRGBA8& col = {255, 255, 255, 255});
+                       const gl::SRGBA8& col = {255, 255, 255, 255});
 
-  void drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, float fps);
+  void drawDebugInfo(gl::Image<gl::SRGBA8>& img, const gsl::not_null<std::shared_ptr<gl::Font>>& font, float fps);
 
   void scaleSplashImage();
 

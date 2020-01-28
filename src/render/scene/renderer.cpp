@@ -1,10 +1,10 @@
 #include "renderer.h"
 
-#include "render/gl/debuggroup.h"
 #include "rendercontext.h"
 #include "rendervisitor.h"
 #include "scene.h"
 
+#include <gl/debuggroup.h>
 #include <utility>
 
 namespace render::scene
@@ -20,7 +20,7 @@ Renderer::~Renderer() = default;
 void Renderer::render()
 {
   // Graphics Rendering.
-  clear(::gl::ClearBufferMask::ColorBufferBit | ::gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+  clear(gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
   RenderContext context{RenderMode::Full};
   RenderVisitor visitor{context};
@@ -38,32 +38,32 @@ void Renderer::render()
   }
 }
 
-void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask>& flags,
+void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
                      const gl::SRGBA8& clearColor,
                      const float clearDepth)
 {
-  ::gl::core::Bitfield<::gl::ClearBufferMask> bits;
-  if(flags.isSet(::gl::ClearBufferMask::ColorBufferBit))
+  gl::api::core::Bitfield<gl::api::ClearBufferMask> bits;
+  if(flags.isSet(gl::api::ClearBufferMask::ColorBufferBit))
   {
     if(clearColor != m_clearColor)
     {
-      GL_ASSERT(::gl::clearColor(clearColor.channels[0] / 255.0f,
-                                 clearColor.channels[1] / 255.0f,
-                                 clearColor.channels[2] / 255.0f,
-                                 clearColor.channels[3] / 255.0f));
+      GL_ASSERT(gl::api::clearColor(clearColor.channels[0] / 255.0f,
+                                    clearColor.channels[1] / 255.0f,
+                                    clearColor.channels[2] / 255.0f,
+                                    clearColor.channels[3] / 255.0f));
       m_clearColor = clearColor;
     }
-    bits |= ::gl::ClearBufferMask::ColorBufferBit;
+    bits |= gl::api::ClearBufferMask::ColorBufferBit;
   }
 
-  if(flags.isSet(::gl::ClearBufferMask::DepthBufferBit))
+  if(flags.isSet(gl::api::ClearBufferMask::DepthBufferBit))
   {
     if(clearDepth != m_clearDepth)
     {
-      GL_ASSERT(::gl::clearDepth(clearDepth));
+      GL_ASSERT(gl::api::clearDepth(clearDepth));
       m_clearDepth = clearDepth;
     }
-    bits |= ::gl::ClearBufferMask::DepthBufferBit;
+    bits |= gl::api::ClearBufferMask::DepthBufferBit;
 
     // We need to explicitly call the static enableDepthWrite() method on StateBlock
     // to ensure depth writing is enabled before clearing the depth buffer (and to
@@ -71,6 +71,6 @@ void Renderer::clear(const ::gl::core::Bitfield<::gl::ClearBufferMask>& flags,
     gl::RenderState::enableDepthWrite();
   }
 
-  GL_ASSERT(::gl::clear(bits));
+  GL_ASSERT(gl::api::clear(bits));
 }
 } // namespace render::scene

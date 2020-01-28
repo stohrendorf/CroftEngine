@@ -4,9 +4,9 @@
 #include "io/sdlreader.h"
 #include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
-#include "util/cimgwrapper.h"
 
 #include <boost/range/adaptor/indexed.hpp>
+#include <gl/cimgwrapper.h>
 
 namespace loader::file
 {
@@ -14,7 +14,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
 {
   if(glidos == nullptr)
   {
-    image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(glm::ivec2{256, 256}, &pixels[0][0]);
+    image = std::make_shared<gl::Image<gl::SRGBA8>>(glm::ivec2{256, 256}, &pixels[0][0]);
     return;
   }
 
@@ -29,17 +29,16 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
   {
     statusCallback("Loading cached texture...");
     BOOST_LOG_TRIVIAL(info) << "Loading cached texture " << cache.buildPngPath(md5, 0) << "...";
-    util::CImgWrapper cacheImage{cache.loadPng(md5, 0)};
+    gl::CImgWrapper cacheImage{cache.loadPng(md5, 0)};
 
     cacheImage.interleave();
-    image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
-      glm::ivec2{cacheImage.width(), cacheImage.height()},
-      reinterpret_cast<const render::gl::SRGBA8*>(cacheImage.data()));
+    image = std::make_shared<gl::Image<gl::SRGBA8>>(glm::ivec2{cacheImage.width(), cacheImage.height()},
+                                                    reinterpret_cast<const gl::SRGBA8*>(cacheImage.data()));
     return;
   }
 
   statusCallback("Upgrading texture (upscaling)");
-  util::CImgWrapper original{pixels[0][0].channels.data(), 256, 256, false};
+  gl::CImgWrapper original{glm::value_ptr(pixels[0][0].channels), 256, 256, false};
   original.deinterleave();
   original.resize(trx::Glidos::Resolution, trx::Glidos::Resolution);
 
@@ -55,7 +54,7 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
       continue;
     }
 
-    util::CImgWrapper srcImage{tile.second.string()};
+    gl::CImgWrapper srcImage{tile.second.string()};
     srcImage.resize(tile.first.getWidth() * Scale, tile.first.getHeight() * Scale);
     const auto x0 = tile.first.getX0() * Scale;
     const auto y0 = tile.first.getY0() * Scale;
@@ -79,9 +78,8 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
   cache.savePng(md5, 0, original);
 
   original.interleave();
-  image = std::make_shared<render::gl::Image<render::gl::SRGBA8>>(
-    glm::ivec2{trx::Glidos::Resolution, trx::Glidos::Resolution},
-    reinterpret_cast<const render::gl::SRGBA8*>(original.data()));
+  image = std::make_shared<gl::Image<gl::SRGBA8>>(glm::ivec2{trx::Glidos::Resolution, trx::Glidos::Resolution},
+                                                  reinterpret_cast<const gl::SRGBA8*>(original.data()));
 }
 
 std::unique_ptr<DWordTexture> DWordTexture::read(io::SDLReader& reader)

@@ -2,8 +2,8 @@
 
 #include "loader/file/datatypes.h"
 #include "loader/file/texture.h"
-#include "util/cimgwrapper.h"
 
+#include <gl/cimgwrapper.h>
 #include <memory>
 
 namespace render
@@ -269,7 +269,7 @@ public:
   void toImage(std::vector<loader::file::DWordTexture>& textures,
                std::vector<loader::file::TextureTile>& textureTiles) const
   {
-    util::CImgWrapper img{m_resultPageSize};
+    gl::CImgWrapper img{m_resultPageSize};
 
     for(const auto& tileToMapping : m_mappingByTile)
     {
@@ -277,10 +277,10 @@ public:
       const auto& mapping = m_mappings.at(tileToMapping.second);
 
       const auto& glSrcImg = textures.at(mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask).image;
-      util::CImgWrapper srcImg{reinterpret_cast<const uint8_t*>(glSrcImg->getData().data()),
-                               glSrcImg->getWidth(),
-                               glSrcImg->getHeight(),
-                               true};
+      gl::CImgWrapper srcImg{reinterpret_cast<const uint8_t*>(glSrcImg->getData().data()),
+                             glSrcImg->getWidth(),
+                             glSrcImg->getHeight(),
+                             true};
       srcImg.crop(mapping.uvMinX * srcImg.width() / 256,
                   mapping.uvMinY * srcImg.height() / 256,
                   mapping.uvMaxX * srcImg.width() / 256,

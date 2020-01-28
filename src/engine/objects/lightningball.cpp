@@ -2,11 +2,12 @@
 
 #include "engine/heightinfo.h"
 #include "laraobject.h"
-#include "render/gl/buffer.h"
-#include "render/gl/vertexarray.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "serialization/array.h"
+
+#include <gl/buffer.h>
+#include <gl/vertexarray.h>
 
 namespace engine::objects
 {
@@ -16,26 +17,26 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   createBolt(uint16_t points,
              const gsl::not_null<std::shared_ptr<render::scene::Material>>& material,
              float lineWidth,
-             std::shared_ptr<render::gl::VertexBuffer<glm::vec3>>& vb)
+             std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
   std::vector<glm::vec3> vertices(points);
 
-  static const render::gl::VertexFormat<glm::vec3> format{
-    {VERTEX_ATTRIBUTE_POSITION_NAME, render::gl::VertexAttribute<glm::vec3>::Trivial{}}};
+  static const gl::VertexFormat<glm::vec3> format{
+    {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};
 
   std::vector<uint16_t> indices;
   for(uint16_t i = 0; i < points; ++i)
     indices.emplace_back(i);
 
-  auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
-  indexBuffer->setData(indices, gl::BufferUsageARB::StaticDraw);
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
+  indexBuffer->setData(indices, gl::api::BufferUsageARB::StaticDraw);
 
-  vb = std::make_shared<render::gl::VertexBuffer<glm::vec3>>(format);
-  vb->setData(&vertices[0], points, gl::BufferUsageARB::DynamicDraw);
+  vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(format);
+  vb->setData(&vertices[0], points, gl::api::BufferUsageARB::DynamicDraw);
 
-  auto vao = std::make_shared<render::gl::VertexArray<uint16_t, glm::vec3>>(
-    indexBuffer, vb, std::vector<const render::gl::Program*>{&material->getShaderProgram()->getHandle()});
-  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, gl::PrimitiveType::LineStrip);
+  auto vao = std::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
+    indexBuffer, vb, std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle()});
+  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, gl::api::PrimitiveType::LineStrip);
 
   mesh->getRenderState().setLineSmooth(true);
   mesh->getRenderState().setLineWidth(lineWidth);
@@ -47,16 +48,14 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
 
 using Bolt = std::array<core::TRVec, LightningBall::SegmentPoints>;
 
-Bolt updateBolt(core::TRVec start,
-                const core::TRVec& end,
-                const std::shared_ptr<render::gl::VertexBuffer<glm::vec3>>& vb)
+Bolt updateBolt(core::TRVec start, const core::TRVec& end, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
   const auto segmentSize = (end - start) / LightningBall::SegmentPoints;
 
   Bolt bolt;
 
   BOOST_ASSERT(vb->size() == LightningBall::SegmentPoints);
-  const auto boltData = vb->map(gl::BufferAccessARB::WriteOnly);
+  const auto boltData = vb->map(gl::api::BufferAccessARB::WriteOnly);
   for(size_t j = 0; j < LightningBall::SegmentPoints; j++)
   {
     core::TRVec buckling{util::rand15s(core::QuarterSectorSize),

@@ -1,17 +1,18 @@
 #pragma once
 
 #include "multipassmaterial.h"
-#include "render/gl/renderstate.h"
-#include "render/gl/vertexarray.h"
 #include "renderable.h"
 #include "rendercontext.h"
+
+#include <gl/renderstate.h>
+#include <gl/vertexarray.h>
 
 namespace render::scene
 {
 class Mesh : public Renderable
 {
 public:
-  explicit Mesh(::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
+  explicit Mesh(gl::api::PrimitiveType primitiveType = gl::api::PrimitiveType::Triangles)
       : m_primitiveType{primitiveType}
   {
   }
@@ -37,9 +38,9 @@ public:
 
 private:
   MultiPassMaterial m_material{};
-  const ::gl::PrimitiveType m_primitiveType;
+  const gl::api::PrimitiveType m_primitiveType;
 
-  virtual void drawIndexBuffer(::gl::PrimitiveType primitiveType) = 0;
+  virtual void drawIndexBuffer(gl::api::PrimitiveType primitiveType) = 0;
 };
 
 template<typename IndexT, typename... VertexTs>
@@ -47,7 +48,7 @@ class MeshImpl : public Mesh
 {
 public:
   explicit MeshImpl(std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vao,
-                    ::gl::PrimitiveType primitiveType = ::gl::PrimitiveType::Triangles)
+                    gl::api::PrimitiveType primitiveType = gl::api::PrimitiveType::Triangles)
       : Mesh{primitiveType}
       , m_vao{std::move(vao)}
   {
@@ -68,7 +69,7 @@ public:
 private:
   gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> m_vao;
 
-  void drawIndexBuffer(::gl::PrimitiveType primitiveType) override
+  void drawIndexBuffer(gl::api::PrimitiveType primitiveType) override
   {
     m_vao->drawIndexBuffer(primitiveType);
   }

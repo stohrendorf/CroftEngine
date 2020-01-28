@@ -35,16 +35,17 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly()
   return m_depthOnly;
 }
 
-std::shared_ptr<Material> MaterialManager::createMaterial(
-  const gsl::not_null<std::shared_ptr<render::gl::Texture2DArray<render::gl::SRGBA8>>>& texture, bool water)
+std::shared_ptr<Material>
+  MaterialManager::createMaterial(const gsl::not_null<std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>>>& texture,
+                                  bool water)
 {
   if(!water && m_material != nullptr)
     return m_material;
   else if(water && m_materialWater != nullptr)
     return m_materialWater;
 
-  texture->set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToEdge);
-  texture->set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToEdge);
+  texture->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
+  texture->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
 
   auto m = std::make_shared<Material>(water ? m_shaderManager->getTexturedWater() : m_shaderManager->getTextured());
   m->getUniform("u_diffuseTextures")->set(texture);
@@ -59,7 +60,7 @@ std::shared_ptr<Material> MaterialManager::createMaterial(
 
   if(water)
   {
-    m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, render::gl::Uniform& uniform) {
+    m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
@@ -82,7 +83,7 @@ const std::shared_ptr<Material>& MaterialManager::getPortal()
   m_portal->getRenderState().setCullFace(false);
 
   m_portal->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  m_portal->getUniform("u_time")->bind([renderer = m_renderer](const Node&, render::gl::Uniform& uniform) {
+  m_portal->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
     uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
   });

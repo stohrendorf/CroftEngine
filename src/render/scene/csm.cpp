@@ -11,16 +11,16 @@ void CSM::Split::init(int32_t resolution, size_t idx)
   texture = std::make_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
                                                       "csm-texture/" + std::to_string(idx));
   texture->fill(1.0f)
-    .set(::gl::TextureMinFilter::Linear)
-    .set(::gl::TextureMagFilter::Linear)
-    .set(::gl::TextureCompareMode::CompareRefToTexture)
-    .set(::gl::DepthFunction::Gequal)
-    .set(::gl::TextureParameterName::TextureWrapS, ::gl::TextureWrapMode::ClampToBorder)
-    .set(::gl::TextureParameterName::TextureWrapT, ::gl::TextureWrapMode::ClampToBorder)
+    .set(gl::api::TextureMinFilter::Linear)
+    .set(gl::api::TextureMagFilter::Linear)
+    .set(gl::api::TextureCompareMode::CompareRefToTexture)
+    .set(gl::api::DepthFunction::Gequal)
+    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
+    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder)
     .setBorderColor(glm::vec4{1.0f});
 
   framebuffer = gl::FrameBufferBuilder()
-                  .textureNoBlend(::gl::FramebufferAttachment::DepthAttachment, texture)
+                  .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, texture)
                   .build("csm-split-fb/" + std::to_string(idx));
 }
 

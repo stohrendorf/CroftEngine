@@ -269,8 +269,6 @@ set( EDISONENGINE_SRCS
         audio/utils.h
         audio/utils.cpp
 
-        util/cimgwrapper.h
-        util/cimgwrapper.cpp
         util/helpers.h
         util/md5.h
         util/md5.cpp
@@ -393,38 +391,11 @@ set( EDISONENGINE_SRCS
         render/textureanimator.h
         render/textureanimator.cpp
 
-        render/gl/bindableresource.h
-        render/gl/buffer.h
-        render/gl/debuggroup.h
-        render/gl/framebuffer.h
-        render/gl/image.h
-        render/gl/pixel.h
-        render/gl/program.h
-        render/gl/renderbuffer.h
-        render/gl/shader.h
-        render/gl/vertexbuffer.h
-        render/gl/texture.h
-        render/gl/texture2d.h
-        render/gl/texture2darray.h
-        render/gl/texturedepth.h
-        render/gl/typetraits.h
-        render/gl/vertexarray.h
-        render/gl/glassert.h
-        render/gl/glassert.cpp
-        render/gl/font.h
-        render/gl/font.cpp
-        render/gl/renderstate.h
-        render/gl/renderstate.cpp
-        render/gl/glew.h
-        render/gl/glew.cpp
-        render/gl/api/gl.cpp
-
         render/scene/bufferparameter.h
         render/scene/bufferparameter.cpp
         render/scene/camera.h
         render/scene/csm.h
         render/scene/csm.cpp
-        render/scene/glfw.h
         render/scene/material.h
         render/scene/material.cpp
         render/scene/materialmanager.h
@@ -457,8 +428,6 @@ set( EDISONENGINE_SRCS
         render/scene/uniformparameter.cpp
         render/scene/visitor.h
         render/scene/visitor.cpp
-        render/scene/window.h
-        render/scene/window.cpp
 
         ui/label.h
         ui/label.cpp
@@ -511,10 +480,6 @@ set( EDISONENGINE_SRCS
 if( MSVC )
     list( APPEND EDISONENGINE_SRCS edisonengine.rc )
 endif()
-set_property(
-        SOURCE util/cimgwrapper.cpp
-        PROPERTY COMPILE_DEFINITIONS NDEBUG
-)
 
 add_definitions(
         -DSOL_USE_BOOST
@@ -538,19 +503,16 @@ target_link_libraries(
         ZLIB::ZLIB
         OpenAL::OpenAL
         sndfile-shared
-        CImg::CImg
         Lua
         yaml-cpp
         PNG::PNG
         sol2::sol2
         type_safe
-        GLEW::GLEW
-        glfw
         OpenGL
         glm
-        Freetype::Freetype
         FFmpeg
         gsl-lite
+        soglb
 )
 
 if( LINUX OR UNIX )
@@ -569,4 +531,5 @@ if( LINUX OR UNIX )
     endif()
 endif()
 
+add_subdirectory( soglb )
 add_subdirectory( qs )

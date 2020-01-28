@@ -1,8 +1,9 @@
 #pragma once
 
 #include "node.h"
-#include "render/gl/debuggroup.h"
 #include "visitor.h"
+
+#include <gl/debuggroup.h>
 
 namespace render::scene
 {

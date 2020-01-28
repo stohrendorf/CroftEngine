@@ -14,7 +14,6 @@
 #include "objects/objectfactory.h"
 #include "objects/pickupobject.h"
 #include "objects/tallblock.h"
-#include "render/gl/font.h"
 #include "render/renderpipeline.h"
 #include "render/scene/csm.h"
 #include "render/scene/rendervisitor.h"
@@ -37,6 +36,7 @@
 #include <boost/locale/info.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <filesystem>
+#include <gl/font.h>
 #include <glm/gtx/norm.hpp>
 #include <locale>
 
@@ -46,6 +46,9 @@ namespace engine
 {
 namespace
 {
+constexpr int StatusLineFontSize = 40;
+constexpr int DebugTextFontSize = 12;
+
 sol::state createScriptEngine(const std::filesystem::path& rootPath)
 {
   sol::state engine;
@@ -207,16 +210,16 @@ void Engine::loadSceneData()
   const int textureSize = m_level->m_textures[0].image->getWidth();
   const int textureLevels = std::log2(textureSize) + 1;
 
-  m_allTextures = std::make_shared<render::gl::Texture2DArray<render::gl::SRGBA8>>(
+  m_allTextures = std::make_shared<gl::Texture2DArray<gl::SRGBA8>>(
     glm::ivec3{textureSize, textureSize, gsl::narrow<int>(m_level->m_textures.size())}, textureLevels, "all-textures");
-  m_allTextures->set(::gl::TextureMinFilter::NearestMipmapLinear);
+  m_allTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
   if(textureSize == 256)
   {
-    m_allTextures->set(::gl::TextureMagFilter::Nearest);
+    m_allTextures->set(gl::api::TextureMagFilter::Nearest);
   }
   else
   {
-    m_allTextures->set(::gl::TextureMagFilter::Linear);
+    m_allTextures->set(gl::api::TextureMagFilter::Linear);
   }
 
   const auto materialFull = createMaterial(false);
@@ -296,7 +299,7 @@ std::shared_ptr<objects::Object> Engine::getObject(uint16_t id) const
   return it->second.get();
 }
 
-void Engine::drawBars(const gsl::not_null<std::shared_ptr<render::gl::Image<render::gl::SRGBA8>>>& image)
+void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>>& image)
 {
   if(m_lara->isInWater())
   {
@@ -762,28 +765,30 @@ void Engine::update(const bool godMode)
   animateUV();
 }
 
-void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font, const float fps)
+void Engine::drawDebugInfo(gl::Image<gl::SRGBA8>& img,
+                           const gsl::not_null<std::shared_ptr<gl::Font>>& font,
+                           const float fps)
 {
-  drawText(font, font->getTarget()->getWidth() - 40, font->getTarget()->getHeight() - 20, std::to_string(fps));
+  drawText(img, font, img.getWidth() - 40, img.getHeight() - 20, std::to_string(fps));
 
   if(m_lara != nullptr)
   {
     // position/rotation
-    drawText(font, 10, 40, m_lara->m_state.position.room->node->getId());
+    drawText(img, font, 10, 40, m_lara->m_state.position.room->node->getId());
 
-    drawText(font, 300, 20, std::to_string(std::lround(toDegrees(m_lara->m_state.rotation.Y))) + " deg");
-    drawText(font, 300, 40, "x=" + m_lara->m_state.position.position.X.toString());
-    drawText(font, 300, 60, "y=" + m_lara->m_state.position.position.Y.toString());
-    drawText(font, 300, 80, "z=" + m_lara->m_state.position.position.Z.toString());
+    drawText(img, font, 300, 20, std::to_string(std::lround(toDegrees(m_lara->m_state.rotation.Y))) + " deg");
+    drawText(img, font, 300, 40, "x=" + m_lara->m_state.position.position.X.toString());
+    drawText(img, font, 300, 60, "y=" + m_lara->m_state.position.position.Y.toString());
+    drawText(img, font, 300, 80, "z=" + m_lara->m_state.position.position.Z.toString());
 
     // physics
-    drawText(font, 300, 100, "grav " + m_lara->m_state.fallspeed.toString());
-    drawText(font, 300, 120, "fwd  " + m_lara->m_state.speed.toString());
+    drawText(img, font, 300, 100, "grav " + m_lara->m_state.fallspeed.toString());
+    drawText(img, font, 300, 120, "fwd  " + m_lara->m_state.speed.toString());
 
     // animation
-    drawText(font, 10, 60, std::string("current/anim    ") + toString(m_lara->getCurrentAnimState()));
-    drawText(font, 10, 100, std::string("target          ") + toString(m_lara->getGoalAnimState()));
-    drawText(font, 10, 120, std::string("frame           ") + m_lara->m_state.frame_number.toString());
+    drawText(img, font, 10, 60, std::string("current/anim    ") + toString(m_lara->getCurrentAnimState()));
+    drawText(img, font, 10, 100, std::string("target          ") + toString(m_lara->getGoalAnimState()));
+    drawText(img, font, 10, 120, std::string("frame           ") + m_lara->m_state.frame_number.toString());
   }
 
   // triggers
@@ -794,15 +799,15 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
       if(!object->m_isActive)
         continue;
 
-      drawText(font, 10, y, object->getNode()->getId());
+      drawText(img, font, 10, y, object->getNode()->getId());
       switch(object->m_state.triggerState)
       {
-      case objects::TriggerState::Inactive: drawText(font, 180, y, "inactive"); break;
-      case objects::TriggerState::Active: drawText(font, 180, y, "active"); break;
-      case objects::TriggerState::Deactivated: drawText(font, 180, y, "deactivated"); break;
-      case objects::TriggerState::Invisible: drawText(font, 180, y, "invisible"); break;
+      case objects::TriggerState::Inactive: drawText(img, font, 180, y, "inactive"); break;
+      case objects::TriggerState::Active: drawText(img, font, 180, y, "active"); break;
+      case objects::TriggerState::Deactivated: drawText(img, font, 180, y, "deactivated"); break;
+      case objects::TriggerState::Invisible: drawText(img, font, 180, y, "invisible"); break;
       }
-      drawText(font, 260, y, object->m_state.timer.toString());
+      drawText(img, font, 260, y, object->m_state.timer.toString());
       y += 20;
     }
     for(const auto& object : m_dynamicObjects)
@@ -810,15 +815,15 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
       if(!object->m_isActive)
         continue;
 
-      drawText(font, 10, y, object->getNode()->getId());
+      drawText(img, font, 10, y, object->getNode()->getId());
       switch(object->m_state.triggerState)
       {
-      case objects::TriggerState::Inactive: drawText(font, 180, y, "inactive"); break;
-      case objects::TriggerState::Active: drawText(font, 180, y, "active"); break;
-      case objects::TriggerState::Deactivated: drawText(font, 180, y, "deactivated"); break;
-      case objects::TriggerState::Invisible: drawText(font, 180, y, "invisible"); break;
+      case objects::TriggerState::Inactive: drawText(img, font, 180, y, "inactive"); break;
+      case objects::TriggerState::Active: drawText(img, font, 180, y, "active"); break;
+      case objects::TriggerState::Deactivated: drawText(img, font, 180, y, "deactivated"); break;
+      case objects::TriggerState::Invisible: drawText(img, font, 180, y, "invisible"); break;
       }
-      drawText(font, 260, y, object->m_state.timer.toString());
+      drawText(img, font, 260, y, object->m_state.timer.toString());
       y += 20;
     }
   }
@@ -828,61 +833,73 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
 
 #ifndef NDEBUG
   // collision
-  drawText(font,
+  drawText(img,
+           font,
            400,
            20,
            boost::lexical_cast<std::string>("AxisColl: ") + toString(m_lara->lastUsedCollisionInfo.collisionType));
-  drawText(font,
+  drawText(img,
+           font,
            400,
            40,
            boost::lexical_cast<std::string>("Current floor:   ")
              + m_lara->lastUsedCollisionInfo.mid.floorSpace.y.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            60,
            boost::lexical_cast<std::string>("Current ceiling: ")
              + m_lara->lastUsedCollisionInfo.mid.ceilingSpace.y.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            80,
            boost::lexical_cast<std::string>("Front floor:     ")
              + m_lara->lastUsedCollisionInfo.front.floorSpace.y.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            100,
            boost::lexical_cast<std::string>("Front ceiling:   ")
              + m_lara->lastUsedCollisionInfo.front.ceilingSpace.y.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            120,
            boost::lexical_cast<std::string>("Front/L floor:   ")
              + m_lara->lastUsedCollisionInfo.frontLeft.floorSpace.y.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            140,
            boost::lexical_cast<std::string>("Front/L ceiling: ")
              + m_lara->lastUsedCollisionInfo.frontLeft.ceilingSpace.y.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            160,
            boost::lexical_cast<std::string>("Front/R floor:   ")
              + m_lara->lastUsedCollisionInfo.frontRight.floorSpace.y.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            180,
            boost::lexical_cast<std::string>("Front/R ceiling: ")
              + m_lara->lastUsedCollisionInfo.frontRight.ceilingSpace.y.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            200,
            boost::lexical_cast<std::string>("Need bottom:     ")
              + m_lara->lastUsedCollisionInfo.badPositiveDistance.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            220,
            boost::lexical_cast<std::string>("Need top:        ")
              + m_lara->lastUsedCollisionInfo.badNegativeDistance.toString());
-  drawText(font,
+  drawText(img,
+           font,
            400,
            240,
            boost::lexical_cast<std::string>("Need ceiling:    ")
@@ -890,37 +907,40 @@ void Engine::drawDebugInfo(const gsl::not_null<std::shared_ptr<render::gl::Font>
 #endif
 
   // weapons
-  drawText(font, 400, 280, std::string("L.aiming    ") + (m_lara->leftArm.aiming ? "true" : "false"));
-  drawText(font,
+  drawText(img, font, 400, 280, std::string("L.aiming    ") + (m_lara->leftArm.aiming ? "true" : "false"));
+  drawText(img,
+           font,
            400,
            300,
            std::string("L.aim       X=") + std::to_string(toDegrees(m_lara->leftArm.aimRotation.X))
              + ", Y=" + std::to_string(toDegrees(m_lara->leftArm.aimRotation.Y)));
-  drawText(font, 400, 320, std::string("R.aiming    ") + (m_lara->rightArm.aiming ? "true" : "false"));
-  drawText(font,
+  drawText(img, font, 400, 320, std::string("R.aiming    ") + (m_lara->rightArm.aiming ? "true" : "false"));
+  drawText(img,
+           font,
            400,
            340,
            std::string("R.aim       X=") + std::to_string(toDegrees(m_lara->rightArm.aimRotation.X))
              + ", Y=" + std::to_string(toDegrees(m_lara->rightArm.aimRotation.Y)));
 }
 
-void Engine::drawText(const gsl::not_null<std::shared_ptr<render::gl::Font>>& font,
+void Engine::drawText(gl::Image<gl::SRGBA8>& img,
+                      const gsl::not_null<std::shared_ptr<gl::Font>>& font,
                       const int x,
                       const int y,
                       const std::string& txt,
-                      const render::gl::SRGBA8& col)
+                      const gl::SRGBA8& col)
 {
-  font->drawText(txt, x, y, col.channels[0], col.channels[1], col.channels[2], col.channels[3]);
+  font->drawText(img, txt.c_str(), x, y, col, DebugTextFontSize);
 }
 
 Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution)
     : m_rootPath{rootPath}
     , m_scriptEngine{createScriptEngine(rootPath)}
-    , m_window{std::make_unique<render::scene::Window>(fullscreen, resolution)}
+    , m_window{std::make_unique<gl::Window>(fullscreen, resolution)}
     , m_renderer{std::make_unique<render::scene::Renderer>(
         std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 10.0f, 20480.0f))}
     , splashImage{m_rootPath / "splash.png"}
-    , abibasFont{std::make_shared<render::gl::Font>(m_rootPath / "abibas.ttf", 48)}
+    , abibasFont{std::make_shared<gl::Font>(m_rootPath / "abibas.ttf")}
     , m_inventory{*this}
 {
   m_shaderManager = std::make_shared<render::scene::ShaderManager>(m_rootPath / "shaders");
@@ -930,9 +950,6 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
   scaleSplashImage();
 
   screenOverlay = std::make_shared<render::scene::ScreenOverlay>(*m_shaderManager, m_window->getViewport());
-
-  abibasFont->setTarget(screenOverlay->getImage());
-
   drawLoadingScreen("Booting");
 
   try
@@ -1128,10 +1145,10 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
 
       BOOST_LOG_TRIVIAL(debug) << "Mipmapping texture " << textureAndTiles.first;
 
-      const util::CImgWrapper src{reinterpret_cast<uint8_t*>(texture.image->getRawData()),
-                                  texture.image->getWidth(),
-                                  texture.image->getHeight(),
-                                  true};
+      const gl::CImgWrapper src{reinterpret_cast<uint8_t*>(texture.image->getRawData()),
+                                texture.image->getWidth(),
+                                texture.image->getHeight(),
+                                true};
       int mipmapLevel = 1;
       for(auto dstSize = texture.image->getWidth() / 2; dstSize > 1; dstSize /= 2, ++mipmapLevel)
       {
@@ -1141,12 +1158,11 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
         {
           auto dst = cache.loadPng(texture.md5, mipmapLevel);
           dst.interleave();
-          m_allTextures->assign(
-            reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
+          m_allTextures->assign(reinterpret_cast<const gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
         }
         else
         {
-          util::CImgWrapper dst{dstSize, dstSize};
+          gl::CImgWrapper dst{dstSize, dstSize};
           for(const Rect& r : textureAndTiles.second)
           {
             // (scaled) source coordinates
@@ -1156,7 +1172,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
             const auto y1 = (r.y1 + 1) * texture.image->getHeight() / 256;
             BOOST_ASSERT(x0 < x1);
             BOOST_ASSERT(y0 < y1);
-            util::CImgWrapper tmp = src.cropped(x0, y0, x1 - 1, y1 - 1);
+            gl::CImgWrapper tmp = src.cropped(x0, y0, x1 - 1, y1 - 1);
             tmp.resizePow2Mipmap(mipmapLevel);
             // +1 for doing mathematically correct rounding
             dst.replace(
@@ -1165,8 +1181,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
 
           cache.savePng(texture.md5, mipmapLevel, dst);
           dst.interleave();
-          m_allTextures->assign(
-            reinterpret_cast<const render::gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
+          m_allTextures->assign(reinterpret_cast<const gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
         }
       }
     }
@@ -1179,7 +1194,7 @@ void Engine::run()
   render::scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
 
-  render::gl::Framebuffer::unbindAll();
+  gl::Framebuffer::unbindAll();
 
   screenOverlay->init(*m_shaderManager, m_window->getViewport());
 
@@ -1227,13 +1242,9 @@ void Engine::run()
 
   bool showDebugInfo = false;
 
-  auto font = std::make_shared<render::gl::Font>(m_rootPath / "DroidSansMono.ttf", 12);
-  font->setTarget(screenOverlay->getImage());
-
+  auto font = std::make_shared<gl::Font>(m_rootPath / "DroidSansMono.ttf");
   auto trFont = ui::CachedFont(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics));
-
   auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
-
   const bool isCutscene = !levelInfo.get<std::string>("cutscene").empty();
 
   if(const sol::optional<TR1TrackId> trackToPlay = levelInfo["track"])
@@ -1278,7 +1289,6 @@ void Engine::run()
       m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
       m_renderPipeline->resize(m_window->getViewport());
       screenOverlay->init(*m_shaderManager, m_window->getViewport());
-      font->setTarget(screenOverlay->getImage());
     }
 
     std::unordered_set<const loader::file::Portal*> waterEntryPortals;
@@ -1302,17 +1312,17 @@ void Engine::run()
     m_renderPipeline->update(m_renderer->getCamera(), m_renderer->getGameTime());
 
     {
-      render::gl::DebugGroup dbg{"csm-pass"};
+      gl::DebugGroup dbg{"csm-pass"};
       m_csm->update(*m_renderer->getCamera());
       m_csm->applyViewport();
 
       for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
       {
-        render::gl::DebugGroup dbg2{"csm-pass/" + std::to_string(i)};
+        gl::DebugGroup dbg2{"csm-pass/" + std::to_string(i)};
 
         m_csm->setActiveSplit(i);
         m_csm->getActiveFramebuffer()->bind();
-        m_renderer->clear(gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+        m_renderer->clear(gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
         render::scene::RenderContext context{render::scene::RenderMode::DepthOnly};
         render::scene::RenderVisitor visitor{context};
@@ -1331,13 +1341,13 @@ void Engine::run()
     }
 
     {
-      render::gl::DebugGroup dbg{"geometry-pass"};
+      gl::DebugGroup dbg{"geometry-pass"};
       m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport());
       m_renderer->render();
     }
 
     {
-      render::gl::DebugGroup dbg{"portal-depth-pass"};
+      gl::DebugGroup dbg{"portal-depth-pass"};
 
       render::scene::RenderContext context{render::scene::RenderMode::DepthOnly};
       render::scene::Node dummyNode{""};
@@ -1358,48 +1368,52 @@ void Engine::run()
 
     if(showDebugInfo)
     {
-      drawDebugInfo(font, m_renderer->getFrameRate());
+      drawDebugInfo(*screenOverlay->getImage(), font, m_renderer->getFrameRate());
 
-      const auto drawObjectName = [this, &font](const std::shared_ptr<objects::Object>& object,
-                                                const render::gl::SRGBA8& color) {
-        const auto vertex = glm::vec3{m_renderer->getCamera()->getViewMatrix()
-                                      * glm::vec4(object->getNode()->getTranslationWorld(), 1)};
+      const auto drawObjectName
+        = [this, &font](const std::shared_ptr<objects::Object>& object, const gl::SRGBA8& color) {
+            const auto vertex = glm::vec3{m_renderer->getCamera()->getViewMatrix()
+                                          * glm::vec4(object->getNode()->getTranslationWorld(), 1)};
 
-        if(vertex.z > -m_renderer->getCamera()->getNearPlane())
-        {
-          return;
-        }
-        else if(vertex.z < -m_renderer->getCamera()->getFarPlane())
-        {
-          return;
-        }
+            if(vertex.z > -m_renderer->getCamera()->getNearPlane())
+            {
+              return;
+            }
+            else if(vertex.z < -m_renderer->getCamera()->getFarPlane())
+            {
+              return;
+            }
 
-        glm::vec4 projVertex{vertex, 1};
-        projVertex = m_renderer->getCamera()->getProjectionMatrix() * projVertex;
-        projVertex /= projVertex.w;
+            glm::vec4 projVertex{vertex, 1};
+            projVertex = m_renderer->getCamera()->getProjectionMatrix() * projVertex;
+            projVertex /= projVertex.w;
 
-        if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
-          return;
+            if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
+              return;
 
-        projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().x;
-        projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().y;
+            projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().x;
+            projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().y;
 
-        font->drawText(
-          object->getNode()->getId().c_str(), static_cast<int>(projVertex.x), static_cast<int>(projVertex.y), color);
-      };
+            font->drawText(*screenOverlay->getImage(),
+                           object->getNode()->getId().c_str(),
+                           static_cast<int>(projVertex.x),
+                           static_cast<int>(projVertex.y),
+                           color,
+                           DebugTextFontSize);
+          };
 
       for(const auto& object : m_objects | boost::adaptors::map_values)
       {
-        drawObjectName(object, render::gl::SRGBA8{255});
+        drawObjectName(object, gl::SRGBA8{255});
       }
       for(const auto& object : m_dynamicObjects)
       {
-        drawObjectName(object, render::gl::SRGBA8{0, 255, 0, 255});
+        drawObjectName(object, gl::SRGBA8{0, 255, 0, 255});
       }
     }
 
     {
-      render::gl::DebugGroup dbg{"screen-overlay-pass"};
+      gl::DebugGroup dbg{"screen-overlay-pass"};
       screenOverlay->render(context);
     }
     m_window->swapBuffers();
@@ -1407,7 +1421,6 @@ void Engine::run()
     if(m_inputHandler->getInputState().save.justPressed())
     {
       scaleSplashImage();
-      abibasFont->setTarget(screenOverlay->getImage());
       drawLoadingScreen("Saving...");
 
       BOOST_LOG_TRIVIAL(info) << "Save";
@@ -1419,7 +1432,6 @@ void Engine::run()
     else if(m_inputHandler->getInputState().load.justPressed())
     {
       scaleSplashImage();
-      abibasFont->setTarget(screenOverlay->getImage());
       drawLoadingScreen("Loading...");
 
       serialization::Serializer::load("quicksave.yaml", *this);
@@ -1461,17 +1473,21 @@ void Engine::drawLoadingScreen(const std::string& state)
   {
     m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
     screenOverlay->init(*m_shaderManager, m_window->getViewport());
-    abibasFont->setTarget(screenOverlay->getImage());
-
     scaleSplashImage();
   }
-  screenOverlay->getImage()->assign(reinterpret_cast<const render::gl::SRGBA8*>(splashImageScaled.data()),
+  screenOverlay->getImage()->assign(reinterpret_cast<const gl::SRGBA8*>(splashImageScaled.data()),
                                     m_window->getViewport().x * m_window->getViewport().y);
-  abibasFont->drawText(state, 40, m_window->getViewport().y - 100, 255, 255, 255, 192);
+  abibasFont->drawText(*screenOverlay->getImage(),
+                       state.c_str(),
+                       40,
+                       screenOverlay->getImage()->getHeight() - 100,
+                       gl::SRGBA8{255, 255, 255, 192},
+                       StatusLineFontSize);
 
-  render::gl::Framebuffer::unbindAll();
+  gl::Framebuffer::unbindAll();
 
-  m_renderer->clear(gl::ClearBufferMask::ColorBufferBit | gl::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+  m_renderer->clear(
+    gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
   render::scene::RenderContext context{render::scene::RenderMode::Full};
   render::scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);

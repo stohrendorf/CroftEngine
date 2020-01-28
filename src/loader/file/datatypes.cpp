@@ -4,7 +4,6 @@
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "level/level.h"
-#include "render/gl/vertexarray.h"
 #include "render/scene/material.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
@@ -15,6 +14,7 @@
 #include "util.h"
 #include "util/helpers.h"
 
+#include <gl/vertexarray.h>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace loader::file
@@ -30,13 +30,12 @@ struct RenderVertex
   glm::vec3 normal{0.0f};
   glm::int32_t textureIndex{-1};
 
-  static const render::gl::VertexFormat<RenderVertex>& getFormat()
+  static const gl::VertexFormat<RenderVertex>& getFormat()
   {
-    static const render::gl::VertexFormat<RenderVertex> format{
-      {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
-      {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
-      {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
-      {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &RenderVertex::textureIndex}};
+    static const gl::VertexFormat<RenderVertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
+                                                       {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
+                                                       {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
+                                                       {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &RenderVertex::textureIndex}};
 
     return format;
   }
@@ -52,8 +51,8 @@ struct RenderModel
   std::shared_ptr<render::scene::Material> m_materialDepthOnly;
 
   std::shared_ptr<render::scene::Model>
-    toModel(const gsl::not_null<std::shared_ptr<render::gl::VertexBuffer<RenderVertex>>>& vbuf,
-            const gsl::not_null<std::shared_ptr<render::gl::VertexBuffer<glm::vec2>>>& uvBuf)
+    toModel(const gsl::not_null<std::shared_ptr<gl::VertexBuffer<RenderVertex>>>& vbuf,
+            const gsl::not_null<std::shared_ptr<gl::VertexBuffer<glm::vec2>>>& uvBuf)
   {
     auto model = std::make_shared<render::scene::Model>();
 
@@ -64,16 +63,16 @@ struct RenderModel
     }
 #endif
 
-    auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<IndexType>>();
-    indexBuffer->setData(m_indices, ::gl::BufferUsageARB::StaticDraw);
+    auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<IndexType>>();
+    indexBuffer->setData(m_indices, gl::api::BufferUsageARB::StaticDraw);
 
     auto vBufs = std::make_tuple(vbuf, uvBuf);
 
     auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, glm::vec2>>(
-      std::make_shared<render::gl::VertexArray<IndexType, RenderVertex, glm::vec2>>(
+      std::make_shared<gl::VertexArray<IndexType, RenderVertex, glm::vec2>>(
         indexBuffer,
         vBufs,
-        std::vector<const render::gl::Program*>{
+        std::vector<const gl::Program*>{
           &m_materialFull->getShaderProgram()->getHandle(),
           m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle()}));
     mesh->getMaterial()
@@ -122,11 +121,11 @@ void Room::createSceneNode(const size_t roomId,
   std::vector<glm::vec2> uvCoordsData;
 
   const auto label = "Room:" + std::to_string(roomId);
-  auto vbuf = std::make_shared<render::gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
+  auto vbuf = std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
 
-  static const render::gl::VertexFormat<glm::vec2> uvAttribs{
-    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, render::gl::VertexAttribute<glm::vec2>::Trivial{}}};
-  auto uvCoords = std::make_shared<render::gl::VertexBuffer<glm::vec2>>(uvAttribs, label + "-uv");
+  static const gl::VertexFormat<glm::vec2> uvAttribs{
+    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute<glm::vec2>::Trivial{}}};
+  auto uvCoords = std::make_shared<gl::VertexBuffer<glm::vec2>>(uvAttribs, label + "-uv");
 
   for(const QuadFace& quad : rectangles)
   {
@@ -225,20 +224,20 @@ void Room::createSceneNode(const size_t roomId,
     }
   }
 
-  vbuf->setData(vbufData, ::gl::BufferUsageARB::StaticDraw);
-  uvCoords->setData(uvCoordsData, ::gl::BufferUsageARB::DynamicDraw);
+  vbuf->setData(vbufData, gl::api::BufferUsageARB::StaticDraw);
+  uvCoords->setData(uvCoordsData, gl::api::BufferUsageARB::DynamicDraw);
 
   auto resModel = renderModel.toModel(vbuf, uvCoords);
   resModel->getRenderState().setCullFace(true);
-  resModel->getRenderState().setCullFaceSide(::gl::CullFaceMode::Back);
+  resModel->getRenderState().setCullFaceSide(gl::api::CullFaceMode::Back);
 
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
   node->setRenderable(resModel);
   node->addUniformSetter("u_lightAmbient",
-                         [](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) { uniform.set(1.0f); });
+                         [](const render::scene::Node& /*node*/, gl::Uniform& uniform) { uniform.set(1.0f); });
 
-  static render::gl::ShaderStorageBuffer<engine::Lighting::Light> emptyBuffer{"lights-buffer-empty"};
-  node->addBufferBinder("b_lights", [](const render::scene::Node&, render::gl::ShaderStorageBlock& shaderStorageBlock) {
+  static gl::ShaderStorageBuffer<engine::Lighting::Light> emptyBuffer{"lights-buffer-empty"};
+  node->addBufferBinder("b_lights", [](const render::scene::Node&, gl::ShaderStorageBlock& shaderStorageBlock) {
     shaderStorageBlock.bind(emptyBuffer);
   });
 
@@ -255,7 +254,7 @@ void Room::createSceneNode(const size_t roomId,
 
     subNode->addUniformSetter(
       "u_lightAmbient",
-      [brightness = toBrightness(sm.shade)](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+      [brightness = toBrightness(sm.shade)](const render::scene::Node& /*node*/, gl::Uniform& uniform) {
         uniform.set(brightness.get());
       });
 
@@ -284,7 +283,7 @@ void Room::createSceneNode(const size_t roomId,
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
     spriteNode->addUniformSetter(
       "u_lightAmbient",
-      [brightness = toBrightness(v.shade)](const render::scene::Node& /*node*/, render::gl::Uniform& uniform) {
+      [brightness = toBrightness(v.shade)](const render::scene::Node& /*node*/, gl::Uniform& uniform) {
         uniform.set(brightness.get());
       });
     bindSpritePole(*spriteNode, render::scene::SpritePole::Y);
@@ -953,17 +952,17 @@ void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Materi
   for(size_t i = 0; i < 4; ++i)
     glVertices[i].pos = vertices[i].toRenderSystem();
 
-  render::gl::VertexFormat<Vertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
-  auto vb = std::make_shared<render::gl::VertexBuffer<Vertex>>(format);
-  vb->setData(&glVertices[0], 4, gl::BufferUsageARB::StaticDraw);
+  gl::VertexFormat<Vertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
+  auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(format);
+  vb->setData(&glVertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
   static const uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = std::make_shared<render::gl::ElementArrayBuffer<uint16_t>>();
-  indexBuffer->setData(&indices[0], 6, gl::BufferUsageARB::StaticDraw);
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
+  indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
 
-  auto vao = std::make_shared<render::gl::VertexArray<uint16_t, Vertex>>(
-    indexBuffer, vb, std::vector<const render::gl::Program*>{&materialDepthOnly->getShaderProgram()->getHandle()});
+  auto vao = std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
+    indexBuffer, vb, std::vector<const gl::Program*>{&materialDepthOnly->getShaderProgram()->getHandle()});
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
   mesh->getMaterial().set(render::scene::RenderMode::DepthOnly, materialDepthOnly);
 }

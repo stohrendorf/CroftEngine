@@ -1,8 +1,9 @@
 #include "visitor.h"
 
 #include "node.h"
-#include "render/gl/debuggroup.h"
 #include "rendercontext.h"
+
+#include <gl/debuggroup.h>
 
 namespace render::scene
 {

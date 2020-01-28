@@ -1,9 +1,8 @@
 #pragma once
 
-#include "render/gl/pixel.h"
-#include "render/gl/renderstate.h"
-
 #include <chrono>
+#include <gl/pixel.h>
+#include <gl/renderstate.h>
 
 namespace render::scene
 {
@@ -38,9 +37,11 @@ public:
     return m_frameRate;
   }
 
-  void clear(const ::gl::core::Bitfield<::gl::ClearBufferMask>& flags, const gl::SRGBA8& clearColor, float clearDepth);
+  void clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
+             const gl::SRGBA8& clearColor,
+             float clearDepth);
 
-  void clear(const ::gl::core::Bitfield<::gl::ClearBufferMask>& flags,
+  void clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
              uint8_t red,
              uint8_t green,
              uint8_t blue,

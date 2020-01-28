@@ -105,17 +105,10 @@ else()
     target_link_libraries( sndfile-shared INTERFACE "${LIBSNDFILE_LIBRARIES}" )
 endif()
 
-find_package( Freetype REQUIRED )
-
-find_package( glfw3 3.3 REQUIRED )
-target_compile_definitions( glfw INTERFACE -DGLFW_INCLUDE_NONE )
-
 find_package( FFmpeg REQUIRED )
 add_library( FFmpeg INTERFACE )
 target_include_directories( FFmpeg SYSTEM BEFORE INTERFACE ${FFMPEG_INCLUDE_DIR} )
 target_link_libraries( FFmpeg INTERFACE ${FFMPEG_LIBRARY} )
-
-find_package( GLEW REQUIRED )
 
 include( cmake/dl_unpack.cmake )
 

@@ -41,7 +41,7 @@ private:
     size_t startIndex = 0;
     core::TRVec end{};
     std::shared_ptr<render::scene::Mesh> mesh;
-    std::shared_ptr<render::gl::VertexBuffer<glm::vec3>> vb;
+    std::shared_ptr<gl::VertexBuffer<glm::vec3>> vb;
 
     void serialize(const serialization::Serializer& ser);
   };
@@ -49,7 +49,7 @@ private:
   std::array<ChildBolt, ChildBolts> m_childBolts;
 
   std::shared_ptr<render::scene::Mesh> m_mainBoltMesh;
-  std::shared_ptr<render::gl::VertexBuffer<glm::vec3>> m_mainVb;
+  std::shared_ptr<gl::VertexBuffer<glm::vec3>> m_mainVb;
 
   void init(Engine& engine);
 };
