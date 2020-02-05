@@ -147,6 +147,7 @@ target_compile_definitions(
 add_definitions( -DNOMINMAX -DNOGDI )
 
 find_package( yaml-cpp REQUIRED )
+find_package( Qt5 COMPONENTS Widgets CONFIG REQUIRED )
 
 add_subdirectory( 3rdparty/type_safe )
 add_subdirectory( src )

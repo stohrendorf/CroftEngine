@@ -29,6 +29,7 @@
 #include "serialization/quantity.h"
 #include "serialization/vector.h"
 #include "tracks_tr1.h"
+#include "ui/debug/debugview.h"
 #include "ui/label.h"
 #include "video/player.h"
 
@@ -770,157 +771,6 @@ void Engine::drawDebugInfo(gl::Image<gl::SRGBA8>& img,
                            const float fps)
 {
   drawText(img, font, img.getWidth() - 40, img.getHeight() - 20, std::to_string(fps));
-
-  if(m_lara != nullptr)
-  {
-    // position/rotation
-    drawText(img, font, 10, 40, m_lara->m_state.position.room->node->getId());
-
-    drawText(img, font, 300, 20, std::to_string(std::lround(toDegrees(m_lara->m_state.rotation.Y))) + " deg");
-    drawText(img, font, 300, 40, "x=" + m_lara->m_state.position.position.X.toString());
-    drawText(img, font, 300, 60, "y=" + m_lara->m_state.position.position.Y.toString());
-    drawText(img, font, 300, 80, "z=" + m_lara->m_state.position.position.Z.toString());
-
-    // physics
-    drawText(img, font, 300, 100, "grav " + m_lara->m_state.fallspeed.toString());
-    drawText(img, font, 300, 120, "fwd  " + m_lara->m_state.speed.toString());
-
-    // animation
-    drawText(img, font, 10, 60, std::string("current/anim    ") + toString(m_lara->getCurrentAnimState()));
-    drawText(img, font, 10, 100, std::string("target          ") + toString(m_lara->getGoalAnimState()));
-    drawText(img, font, 10, 120, std::string("frame           ") + m_lara->m_state.frame_number.toString());
-  }
-
-  // triggers
-  {
-    int y = 180;
-    for(const auto& object : m_objects | boost::adaptors::map_values)
-    {
-      if(!object->m_isActive)
-        continue;
-
-      drawText(img, font, 10, y, object->getNode()->getId());
-      switch(object->m_state.triggerState)
-      {
-      case objects::TriggerState::Inactive: drawText(img, font, 180, y, "inactive"); break;
-      case objects::TriggerState::Active: drawText(img, font, 180, y, "active"); break;
-      case objects::TriggerState::Deactivated: drawText(img, font, 180, y, "deactivated"); break;
-      case objects::TriggerState::Invisible: drawText(img, font, 180, y, "invisible"); break;
-      }
-      drawText(img, font, 260, y, object->m_state.timer.toString());
-      y += 20;
-    }
-    for(const auto& object : m_dynamicObjects)
-    {
-      if(!object->m_isActive)
-        continue;
-
-      drawText(img, font, 10, y, object->getNode()->getId());
-      switch(object->m_state.triggerState)
-      {
-      case objects::TriggerState::Inactive: drawText(img, font, 180, y, "inactive"); break;
-      case objects::TriggerState::Active: drawText(img, font, 180, y, "active"); break;
-      case objects::TriggerState::Deactivated: drawText(img, font, 180, y, "deactivated"); break;
-      case objects::TriggerState::Invisible: drawText(img, font, 180, y, "invisible"); break;
-      }
-      drawText(img, font, 260, y, object->m_state.timer.toString());
-      y += 20;
-    }
-  }
-
-  if(m_lara == nullptr)
-    return;
-
-#ifndef NDEBUG
-  // collision
-  drawText(img,
-           font,
-           400,
-           20,
-           boost::lexical_cast<std::string>("AxisColl: ") + toString(m_lara->lastUsedCollisionInfo.collisionType));
-  drawText(img,
-           font,
-           400,
-           40,
-           boost::lexical_cast<std::string>("Current floor:   ")
-             + m_lara->lastUsedCollisionInfo.mid.floorSpace.y.toString());
-  drawText(img,
-           font,
-           400,
-           60,
-           boost::lexical_cast<std::string>("Current ceiling: ")
-             + m_lara->lastUsedCollisionInfo.mid.ceilingSpace.y.toString());
-  drawText(img,
-           font,
-           400,
-           80,
-           boost::lexical_cast<std::string>("Front floor:     ")
-             + m_lara->lastUsedCollisionInfo.front.floorSpace.y.toString());
-  drawText(img,
-           font,
-           400,
-           100,
-           boost::lexical_cast<std::string>("Front ceiling:   ")
-             + m_lara->lastUsedCollisionInfo.front.ceilingSpace.y.toString());
-  drawText(img,
-           font,
-           400,
-           120,
-           boost::lexical_cast<std::string>("Front/L floor:   ")
-             + m_lara->lastUsedCollisionInfo.frontLeft.floorSpace.y.toString());
-  drawText(img,
-           font,
-           400,
-           140,
-           boost::lexical_cast<std::string>("Front/L ceiling: ")
-             + m_lara->lastUsedCollisionInfo.frontLeft.ceilingSpace.y.toString());
-  drawText(img,
-           font,
-           400,
-           160,
-           boost::lexical_cast<std::string>("Front/R floor:   ")
-             + m_lara->lastUsedCollisionInfo.frontRight.floorSpace.y.toString());
-  drawText(img,
-           font,
-           400,
-           180,
-           boost::lexical_cast<std::string>("Front/R ceiling: ")
-             + m_lara->lastUsedCollisionInfo.frontRight.ceilingSpace.y.toString());
-  drawText(img,
-           font,
-           400,
-           200,
-           boost::lexical_cast<std::string>("Need bottom:     ")
-             + m_lara->lastUsedCollisionInfo.badPositiveDistance.toString());
-  drawText(img,
-           font,
-           400,
-           220,
-           boost::lexical_cast<std::string>("Need top:        ")
-             + m_lara->lastUsedCollisionInfo.badNegativeDistance.toString());
-  drawText(img,
-           font,
-           400,
-           240,
-           boost::lexical_cast<std::string>("Need ceiling:    ")
-             + m_lara->lastUsedCollisionInfo.badCeilingDistance.toString());
-#endif
-
-  // weapons
-  drawText(img, font, 400, 280, std::string("L.aiming    ") + (m_lara->leftArm.aiming ? "true" : "false"));
-  drawText(img,
-           font,
-           400,
-           300,
-           std::string("L.aim       X=") + std::to_string(toDegrees(m_lara->leftArm.aimRotation.X))
-             + ", Y=" + std::to_string(toDegrees(m_lara->leftArm.aimRotation.Y)));
-  drawText(img, font, 400, 320, std::string("R.aiming    ") + (m_lara->rightArm.aiming ? "true" : "false"));
-  drawText(img,
-           font,
-           400,
-           340,
-           std::string("R.aim       X=") + std::to_string(toDegrees(m_lara->rightArm.aimRotation.X))
-             + ", Y=" + std::to_string(toDegrees(m_lara->rightArm.aimRotation.Y)));
 }
 
 void Engine::drawText(gl::Image<gl::SRGBA8>& img,
@@ -1190,6 +1040,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
 
 void Engine::run()
 {
+  ui::debug::DebugView debugView{0, nullptr};
+
   render::scene::RenderContext context{render::scene::RenderMode::Full};
   render::scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
@@ -1254,6 +1106,7 @@ void Engine::run()
 
   while(!m_window->windowShouldClose())
   {
+    debugView.processEvents();
     screenOverlay->getImage()->fill({0, 0, 0, 0});
 
     if(!levelName.empty())
@@ -1366,6 +1219,13 @@ void Engine::run()
 
     m_renderPipeline->finalPass(m_cameraController->getCurrentRoom()->isWaterRoom());
 
+    if(debugView.isVisible())
+    {
+      if(m_lara != nullptr)
+      {
+        debugView.update(*m_lara, m_objects, m_dynamicObjects);
+      }
+    }
     if(showDebugInfo)
     {
       drawDebugInfo(*screenOverlay->getImage(), font, m_renderer->getFrameRate());

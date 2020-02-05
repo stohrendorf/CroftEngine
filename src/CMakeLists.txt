@@ -481,6 +481,18 @@ if( MSVC )
     list( APPEND EDISONENGINE_SRCS edisonengine.rc )
 endif()
 
+set( EDISONENGINE_UI_SRCS
+        ui/debug/debugview.cpp
+        ui/debug/larainfowidget.cpp
+        ui/debug/laraaiminfo.cpp
+        )
+
+qt5_wrap_cpp( EDISONENGINE_UI_SRCS
+        ui/debug/debugview.h
+        ui/debug/larainfowidget.h
+        ui/debug/laraaiminfo.h
+        )
+
 add_definitions(
         -DSOL_USE_BOOST
         -DSOL_SAFE_USERTYPE
@@ -489,12 +501,15 @@ add_definitions(
 
 add_executable( edisonengine
         ${EDISONENGINE_SRCS}
+        ${EDISONENGINE_UI_SRCS}
         )
 
-group_files( ${EDISONENGINE_SRCS} )
-
+group_files( ${EDISONENGINE_SRCS} ${EDISONENGINE_UI_SRCS} )
 
 target_include_directories( edisonengine PRIVATE . )
+
+add_subdirectory( soglb )
+add_subdirectory( qs )
 
 target_link_libraries(
         edisonengine
@@ -513,6 +528,7 @@ target_link_libraries(
         FFmpeg
         gsl-lite
         soglb
+        Qt5::Widgets
 )
 
 if( LINUX OR UNIX )
@@ -530,6 +546,3 @@ if( LINUX OR UNIX )
         )
     endif()
 endif()
-
-add_subdirectory( soglb )
-add_subdirectory( qs )
