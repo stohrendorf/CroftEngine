@@ -33,12 +33,7 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(Engine& engine,
 
 void FlyingMutant::update()
 {
-  if(m_state.triggerState == TriggerState::Invisible)
-  {
-    m_state.triggerState = TriggerState::Active;
-  }
-
-  m_state.initCreatureInfo(getEngine());
+  activate();
 
   static constexpr uint16_t ShootBullet = 1;
   static constexpr uint16_t ThrowGrenade = 2;
@@ -57,7 +52,7 @@ void FlyingMutant::update()
 
   core::Angle turnRot = 0_deg;
   core::Angle headRot = 0_deg;
-  if(getHealth() <= 0_hp)
+  if(!alive())
   {
     if(shatterModel(*this, 0xffffffffu, 100_len))
     {
@@ -95,8 +90,7 @@ void FlyingMutant::update()
     {
       if(m_state.current_anim_state == DoFly)
       {
-        if((m_state.creatureInfo->flags & Flying) && m_state.creatureInfo->mood != ai::Mood::Escape
-           && aiInfo.zone_number == aiInfo.enemy_zone)
+        if((m_state.creatureInfo->flags & Flying) && !isEscaping() && aiInfo.zone_number == aiInfo.enemy_zone)
         {
           m_state.creatureInfo->flags &= ~Flying;
         }
@@ -109,9 +103,8 @@ void FlyingMutant::update()
         m_state.creatureInfo->pathFinder.drop = -30720_len;
         aiInfo = ai::AiInfo{getEngine(), m_state};
       }
-      else if(m_state.creatureInfo->mood == ai::Mood::Escape
-              || (aiInfo.zone_number != aiInfo.enemy_zone && !frontRight && !frontLeft
-                  && (!aiInfo.ahead || m_state.creatureInfo->mood == ai::Mood::Bored)))
+      else if(isEscaping()
+              || (aiInfo.zone_number != aiInfo.enemy_zone && !frontRight && !frontLeft && (!aiInfo.ahead || isBored())))
       {
         m_state.creatureInfo->flags |= Flying;
       }
@@ -136,133 +129,114 @@ void FlyingMutant::update()
     case DoPrepareAttack.get():
       m_state.creatureInfo->flags &= ~(8u | ShootBullet | ThrowGrenade);
       if(m_state.creatureInfo->flags & Flying)
-        m_state.goal_anim_state = DoFly;
-      else if((m_state.touch_bits.to_ulong() & 0x678u) || (aiInfo.bite && aiInfo.distance < util::square(300_len)))
-        m_state.goal_anim_state = DoHit200;
+        goal(DoFly);
+      else if(touched(0x678u) || (aiInfo.bite && aiInfo.distance < util::square(300_len)))
+        goal(DoHit200);
       else if(aiInfo.bite && aiInfo.distance < util::square(600_len))
-        m_state.goal_anim_state = DoHit150;
+        goal(DoHit150);
       else if(frontRight)
-        m_state.goal_anim_state = DoShootBullet;
+        goal(DoShootBullet);
       else if(frontLeft)
-        m_state.goal_anim_state = DoThrowGrenade;
-      else if(m_state.creatureInfo->mood == ai::Mood::Bored
-              || (m_state.creatureInfo->mood == ai::Mood::Stalk && aiInfo.distance < util::square(4608_len)))
-        m_state.goal_anim_state = 6;
+        goal(DoThrowGrenade);
+      else if(isBored() || (isStalking() && aiInfo.distance < util::square(4608_len)))
+        goal(6_as);
       else
-        m_state.goal_anim_state = DoRun;
+        goal(DoRun);
       break;
     case DoWalk.get():
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(frontLeft || frontRight || (m_state.creatureInfo->flags & Flying)
-         || m_state.creatureInfo->mood == ai::Mood::Attack || m_state.creatureInfo->mood == ai::Mood::Escape)
+      if(frontLeft || frontRight || (m_state.creatureInfo->flags & Flying) || isAttacking() || isEscaping())
       {
-        m_state.goal_anim_state = DoPrepareAttack;
+        goal(DoPrepareAttack);
       }
-      else if(m_state.creatureInfo->mood == ai::Mood::Bored
-              || (m_state.creatureInfo->mood == ai::Mood::Stalk && aiInfo.zone_number != aiInfo.enemy_zone))
+      else if(isBored() || (isStalking() && aiInfo.zone_number != aiInfo.enemy_zone))
       {
         if(util::rand15() < 80)
         {
-          m_state.goal_anim_state = 6_as;
+          goal(6_as);
         }
       }
-      else if(m_state.creatureInfo->mood == ai::Mood::Stalk && aiInfo.distance > util::square(4608_len))
+      else if(isStalking() && aiInfo.distance > util::square(4608_len))
       {
-        m_state.goal_anim_state = DoPrepareAttack;
+        goal(DoPrepareAttack);
         break;
       }
       break;
     case DoRun.get():
       m_state.creatureInfo->maximum_turn = 6_deg;
-      if((m_state.creatureInfo->flags & Flying) || (m_state.touch_bits.to_ulong() & 0x678u)
+      if((m_state.creatureInfo->flags & Flying) || touched(0x678u)
          || (aiInfo.bite && aiInfo.distance < util::square(600_len)))
       {
-        m_state.goal_anim_state = DoPrepareAttack;
+        goal(DoPrepareAttack);
       }
       else if(aiInfo.ahead && aiInfo.distance < util::square(2560_len))
       {
-        m_state.goal_anim_state = DoHit100;
+        goal(DoHit100);
       }
-      else if(frontLeft || frontRight || m_state.creatureInfo->mood == ai::Mood::Bored
-              || (m_state.creatureInfo->mood == ai::Mood::Stalk && aiInfo.distance < util::square(4608_len)))
+      else if(frontLeft || frontRight || isBored() || (isStalking() && aiInfo.distance < util::square(4608_len)))
       {
-        m_state.goal_anim_state = DoPrepareAttack;
+        goal(DoPrepareAttack);
       }
       break;
     case DoHit150.get():
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x678u))
+      if(m_state.required_anim_state == 0_as && touched(0x678u))
       {
         emitParticle(core::TRVec{-27_len, 98_len, 0_len}, 10, &createBloodSplat);
-        getEngine().getLara().m_state.health -= 150_hp;
-        getEngine().getLara().m_state.is_hit = true;
-        m_state.required_anim_state = DoPrepareAttack;
+        hitLara(150_hp);
+        require(DoPrepareAttack);
       }
       break;
     case 6:
       headRot = 0_deg;
       if(frontRight || frontLeft || (m_state.creatureInfo->flags & Flying))
       {
-        m_state.goal_anim_state = DoPrepareAttack;
+        goal(DoPrepareAttack);
       }
-      else if(m_state.creatureInfo->mood == ai::Mood::Stalk)
+      else if(isStalking())
       {
         if(aiInfo.distance >= util::square(4608_len))
-        {
-          m_state.goal_anim_state = DoPrepareAttack;
-        }
+          goal(DoPrepareAttack);
         else if(aiInfo.zone_number == aiInfo.enemy_zone || util::rand15() < 256)
-        {
-          m_state.goal_anim_state = DoWalk;
-        }
+          goal(DoWalk);
       }
-      else if(m_state.creatureInfo->mood == ai::Mood::Bored && util::rand15() < 256)
+      else if(isBored() && util::rand15() < 256)
       {
-        m_state.goal_anim_state = DoWalk;
+        goal(DoWalk);
       }
-      else if(m_state.creatureInfo->mood == ai::Mood::Escape || m_state.creatureInfo->mood == ai::Mood::Attack)
+      else if(isEscaping() || isAttacking())
       {
-        m_state.goal_anim_state = DoPrepareAttack;
+        goal(DoPrepareAttack);
       }
       break;
     case DoHit100.get():
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x678u))
+      if(m_state.required_anim_state == 0_as && touched(0x678u))
       {
         emitParticle(core::TRVec{-27_len, 98_len, 0_len}, 10, &createBloodSplat);
-        getEngine().getLara().m_state.health -= 100_hp;
-        getEngine().getLara().m_state.is_hit = true;
-        m_state.required_anim_state = DoRun;
+        hitLara(100_hp);
+        require(DoRun);
       }
       break;
     case DoHit200.get():
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x678u))
+      if(m_state.required_anim_state == 0_as && touched(0x678u))
       {
         emitParticle(core::TRVec{-27_len, 98_len, 0_len}, 10, &createBloodSplat);
-        getEngine().getLara().m_state.health -= 200_hp;
-        getEngine().getLara().m_state.is_hit = true;
-        m_state.required_anim_state = DoPrepareAttack;
+        hitLara(200_hp);
+        require(DoPrepareAttack);
       }
       break;
     case DoShootBullet.get():
       m_state.creatureInfo->flags |= (8u | ShootBullet);
       if(frontRight)
-      {
-        m_state.goal_anim_state = DoAttack;
-      }
+        goal(DoAttack);
       else
-      {
-        m_state.goal_anim_state = DoPrepareAttack;
-      }
+        goal(DoPrepareAttack);
       break;
     case DoThrowGrenade.get():
       m_state.creatureInfo->flags |= ThrowGrenade;
       if(frontLeft)
-      {
-        m_state.goal_anim_state = DoAttack;
-      }
+        goal(DoAttack);
       else
-      {
-        m_state.goal_anim_state = DoPrepareAttack;
-      }
+        goal(DoPrepareAttack);
       break;
     case DoAttack.get():
       if(m_state.creatureInfo->flags & ShootBullet)
@@ -276,11 +250,11 @@ void FlyingMutant::update()
         emitParticle({51_len, 213_len, 0_len}, 14, &createMutantGrenade);
       }
       break;
-    case 12: m_state.goal_anim_state = DoPrepareAttack; break;
+    case 12: goal(DoPrepareAttack); break;
     case DoFly.get():
       if(!(m_state.creatureInfo->flags & Flying) && m_state.position.position.Y == m_state.floor)
       {
-        m_state.goal_anim_state = DoPrepareAttack;
+        goal(DoPrepareAttack);
       }
       break;
     }
@@ -308,12 +282,7 @@ void FlyingMutant::update()
 
 void CentaurMutant::update()
 {
-  if(m_state.triggerState == TriggerState::Invisible)
-  {
-    m_state.triggerState = TriggerState::Active;
-  }
-
-  m_state.initCreatureInfo(getEngine());
+  activate();
 
   core::Angle turnRot = 0_deg;
   core::Angle headRot = 0_deg;
@@ -331,66 +300,44 @@ void CentaurMutant::update()
     case 1:
       m_state.creatureInfo->neck_rotation = 0_deg;
       if(m_state.required_anim_state != 0_as)
-      {
-        m_state.goal_anim_state = m_state.required_anim_state;
-      }
+        goal(m_state.required_anim_state);
       else if((aiInfo.bite && aiInfo.distance < util::square(1536_len)) || !canShootAtLara(aiInfo))
-      {
-        m_state.goal_anim_state = 3_as;
-      }
+        goal(3_as);
       else
-      {
-        m_state.goal_anim_state = 4_as;
-      }
+        goal(4_as);
       break;
     case 2:
       if(m_state.required_anim_state == 0_as)
       {
-        m_state.required_anim_state = 4_as;
+        require(4_as);
         m_state.creatureInfo->neck_rotation
           = emitParticle({11_len, 415_len, 41_len}, 13, &createMutantGrenade)->angle.X;
       }
       break;
     case 3:
       if(aiInfo.bite && aiInfo.distance < util::square(1536_len))
-      {
-        m_state.required_anim_state = 6_as;
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as, 6_as);
       else if(canShootAtLara(aiInfo))
-      {
-        m_state.required_anim_state = 4_as;
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as, 4_as);
       else if(util::rand15() < 96)
-      {
-        m_state.required_anim_state = 6_as;
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as, 6_as);
       break;
     case 4:
       if(m_state.required_anim_state != 0_as)
-      {
-        m_state.goal_anim_state = m_state.required_anim_state;
-      }
+        goal(m_state.required_anim_state);
       else if(canShootAtLara(aiInfo))
-      {
-        m_state.goal_anim_state = 2_as;
-      }
+        goal(2_as);
       else
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as);
       break;
     case 6:
       if(m_state.required_anim_state == 0_as)
       {
-        if(m_state.touch_bits.to_ulong() & 0x30199u)
+        if(touched(0x30199u))
         {
           emitParticle({50_len, 30_len, 0_len}, 5, &createBloodSplat);
-          getEngine().getLara().m_state.health -= 200_hp;
-          getEngine().getLara().m_state.is_hit = true;
-          m_state.required_anim_state = 1_as;
+          hitLara(200_hp);
+          require(1_as);
         }
       }
       break;
@@ -419,15 +366,10 @@ void CentaurMutant::update()
 
 void TorsoBoss::update()
 {
-  if(m_state.triggerState == TriggerState::Invisible)
-  {
-    m_state.triggerState = TriggerState::Active;
-  }
-
-  m_state.initCreatureInfo(getEngine());
+  activate();
 
   core::Angle headRot = 0_deg;
-  if(getHealth() > 0_hp)
+  if(alive())
   {
     const ai::AiInfo aiInfo{getEngine(), m_state};
     if(aiInfo.ahead)
@@ -438,10 +380,9 @@ void TorsoBoss::update()
     const auto angleToTarget = angleFromAtan(m_state.creatureInfo->target.X - m_state.position.position.X,
                                              m_state.creatureInfo->target.Z - m_state.position.position.Z)
                                - m_state.rotation.Y;
-    if(m_state.touch_bits.any())
+    if(touched())
     {
-      getEngine().getLara().m_state.health -= 5_hp;
-      getEngine().getLara().m_state.is_hit = true;
+      hitLara(5_hp);
     }
     switch(m_state.current_anim_state.get())
     {
@@ -454,36 +395,32 @@ void TorsoBoss::update()
       m_state.creatureInfo->flags = 0;
       if(angleToTarget > 45_deg)
       {
-        m_state.goal_anim_state = 3_as;
+        goal(3_as);
         break;
       }
       if(angleToTarget < -45_deg)
       {
-        m_state.goal_anim_state = 2_as;
+        goal(2_as);
         break;
       }
       if(aiInfo.distance >= util::square(2600_len))
       {
-        m_state.goal_anim_state = 7_as;
+        goal(7_as);
       }
       else if(getEngine().getLara().m_state.health > 500_hp)
       {
         if(util::rand15(2) == 0)
-        {
-          m_state.goal_anim_state = 5_as;
-        }
+          goal(5_as);
         else
-        {
-          m_state.goal_anim_state = 4_as;
-        }
+          goal(4_as);
       }
       else if(aiInfo.distance >= util::square(2250_len))
       {
-        m_state.goal_anim_state = 7_as;
+        goal(7_as);
       }
       else
       {
-        m_state.goal_anim_state = 6_as;
+        goal(6_as);
       }
       break;
     case 2:
@@ -501,9 +438,7 @@ void TorsoBoss::update()
       }
 
       if(angleToTarget > -45_deg)
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as);
       break;
     case 3:
       if(m_state.creatureInfo->flags == 0)
@@ -520,17 +455,14 @@ void TorsoBoss::update()
       }
 
       if(angleToTarget < 45_deg)
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as);
       break;
     case 4:
       if(m_state.creatureInfo->flags == 0)
       {
-        if(m_state.touch_bits.to_ulong() & 0x3ff8000u)
+        if(touched(0x3ff8000u))
         {
-          getEngine().getLara().m_state.health -= 500_hp;
-          getEngine().getLara().m_state.is_hit = true;
+          hitLara(500_hp);
           m_state.creatureInfo->flags = 1;
         }
       }
@@ -538,18 +470,17 @@ void TorsoBoss::update()
     case 5:
       if(m_state.creatureInfo->flags == 0)
       {
-        if(m_state.touch_bits.to_ulong() & 0x3fffff0u)
+        if(touched(0x3fffff0u))
         {
-          getEngine().getLara().m_state.health -= 500_hp;
-          getEngine().getLara().m_state.is_hit = true;
+          hitLara(500_hp);
           m_state.creatureInfo->flags = 1;
         }
       }
       break;
     case 6:
-      if((m_state.touch_bits.to_ulong() & 0x3ff8000u) || getEngine().getLara().m_state.health <= 0_hp)
+      if(touched(0x3ff8000u) || getEngine().getLara().m_state.health <= 0_hp)
       {
-        m_state.goal_anim_state = 11_as;
+        goal(11_as);
         auto& lara = getEngine().getLara();
         lara.m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0];
         lara.m_state.frame_number = m_state.anim->firstFrame;
@@ -569,16 +500,14 @@ void TorsoBoss::update()
       break;
     case 7:
       // TODO this is just weird, but it's just like the original...
-      m_state.goal_anim_state = m_state.goal_anim_state.get() + util::clamp(angleToTarget, -3_deg, 3_deg).get();
+      goal(m_state.goal_anim_state.get() + util::clamp(angleToTarget, -3_deg, 3_deg).get());
 
       if(abs(angleToTarget) > 45_deg || aiInfo.distance < util::square(2600_len))
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as);
 
       break;
     case 8:
-      m_state.goal_anim_state = 9_as;
+      goal(9_as);
       m_state.falling = true;
       break;
     case 11:
@@ -600,9 +529,8 @@ void TorsoBoss::update()
     ModelObject::update();
     if(m_state.position.position.Y > m_state.floor)
     {
-      m_state.falling = false;
-      m_state.goal_anim_state = 1_as;
-      m_state.position.position.Y = m_state.floor;
+      goal(1_as);
+      settle();
       getEngine().getCameraController().setBounce(500_len);
     }
   }

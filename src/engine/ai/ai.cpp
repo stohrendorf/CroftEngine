@@ -256,7 +256,6 @@ AiInfo::AiInfo(Engine& engine, objects::ObjectState& objectState)
   angle = pivotAngle - objectState.rotation.Y;
   enemy_facing = pivotAngle - 180_deg - engine.getLara().m_state.rotation.Y;
   ahead = angle > -90_deg && angle < 90_deg;
-  bite = false;
   if(ahead)
   {
     const auto laraY = engine.getLara().m_state.position.position.Y;

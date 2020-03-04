@@ -498,4 +498,10 @@ void AIAgent::loadObjectInfo(bool withoutGameState)
   if(!withoutGameState)
     m_state.loadObjectInfo(getEngine().getScriptEngine());
 }
+
+void AIAgent::hitLara(const core::Health& strength)
+{
+  getEngine().getLara().m_state.is_hit = true;
+  getEngine().getLara().m_state.health -= strength;
+}
 } // namespace engine::objects

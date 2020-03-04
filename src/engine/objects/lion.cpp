@@ -7,18 +7,13 @@ namespace engine::objects
 {
 void Lion::update()
 {
-  if(m_state.triggerState == TriggerState::Invisible)
-  {
-    m_state.triggerState = TriggerState::Active;
-  }
-
-  m_state.initCreatureInfo(getEngine());
+  activate();
 
   core::Angle tiltRot = 0_deg;
   core::Angle angle = 0_deg;
   core::Angle headRot = 0_deg;
 
-  if(m_state.health > 0_hp)
+  if(alive())
   {
     const ai::AiInfo aiInfo{getEngine(), m_state};
     if(aiInfo.ahead)
@@ -32,76 +27,54 @@ void Lion::update()
     case 1:
       if(m_state.required_anim_state != 0_as)
       {
-        m_state.goal_anim_state = m_state.required_anim_state;
+        goal(m_state.required_anim_state);
       }
-      else if(m_state.creatureInfo->mood != ai::Mood::Bored)
+      else if(!isBored())
       {
-        if(aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x380066UL))
-        {
-          m_state.goal_anim_state = 7_as;
-        }
+        if(aiInfo.ahead && touched(0x380066UL))
+          goal(7_as);
         else if(aiInfo.ahead && aiInfo.distance < util::square(core::SectorSize))
-        {
-          m_state.goal_anim_state = 4_as;
-        }
+          goal(4_as);
         else
-        {
-          m_state.goal_anim_state = 3_as;
-        }
+          goal(3_as);
       }
       else
       {
-        m_state.goal_anim_state = 2_as;
+        goal(2_as);
       }
       break;
     case 2:
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(m_state.creatureInfo->mood != ai::Mood::Bored)
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+      if(!isBored())
+        goal(1_as);
       else if(util::rand15() < 128)
-      {
-        m_state.required_anim_state = 6_as;
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as, 6_as);
       break;
     case 3:
       tiltRot = angle;
       m_state.creatureInfo->maximum_turn = 5_deg;
-      if(m_state.creatureInfo->mood == ai::Mood::Bored)
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+      if(isBored())
+        goal(1_as);
       else if(aiInfo.ahead && aiInfo.distance < util::square(core::SectorSize))
-      {
-        m_state.goal_anim_state = 1_as;
-      }
-      else if(aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x380066UL))
-      {
-        m_state.goal_anim_state = 1_as;
-      }
-      else if(m_state.creatureInfo->mood != ai::Mood::Escape && util::rand15() < 128)
-      {
-        m_state.required_anim_state = 6_as;
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as);
+      else if(aiInfo.ahead && touched(0x380066UL))
+        goal(1_as);
+      else if(!isEscaping() && util::rand15() < 128)
+        goal(1_as, 6_as);
       break;
     case 4:
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL))
+      if(m_state.required_anim_state == 0_as && touched(0x380066UL))
       {
-        getEngine().getLara().m_state.health -= 150_hp;
-        getEngine().getLara().m_state.is_hit = true;
-        m_state.required_anim_state = 1_as;
+        hitLara(150_hp);
+        require(1_as);
       }
       break;
     case 7:
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x380066UL))
+      if(m_state.required_anim_state == 0_as && touched(0x380066UL))
       {
         emitParticle({-2_len, -10_len, 132_len}, 21, &createBloodSplat);
-        getEngine().getLara().m_state.health -= 250_hp;
-        getEngine().getLara().m_state.is_hit = true;
-        m_state.required_anim_state = 1_as;
+        hitLara(250_hp);
+        require(1_as);
       }
       break;
     default:

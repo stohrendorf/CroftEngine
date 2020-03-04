@@ -60,6 +60,91 @@ protected:
                       size_t boneIndex,
                       const core::Angle& angle);
 
+  bool alive() const
+  {
+    return m_state.health > 0_hp;
+  }
+
+  bool touched() const
+  {
+    return m_state.touch_bits.any();
+  }
+
+  bool touched(unsigned long bits) const
+  {
+    return (m_state.touch_bits.to_ulong() & bits) != 0;
+  }
+
+  void hitLara(const core::Health& strength);
+
+  void require(const core::AnimStateId& require)
+  {
+    m_state.required_anim_state = require;
+  }
+
+  void goal(const core::AnimStateId& goal, const std::optional<core::AnimStateId>& required = std::nullopt)
+  {
+    m_state.goal_anim_state = goal;
+    if(required.has_value())
+      require(required.value());
+  }
+
+  bool isBored() const
+  {
+    return m_state.creatureInfo->mood == ai::Mood::Bored;
+  }
+
+  void bored()
+  {
+    m_state.creatureInfo->mood = ai::Mood::Bored;
+  }
+
+  bool isAttacking() const
+  {
+    return m_state.creatureInfo->mood == ai::Mood::Attack;
+  }
+
+  void attacking()
+  {
+    m_state.creatureInfo->mood = ai::Mood::Attack;
+  }
+
+  bool isStalking() const
+  {
+    return m_state.creatureInfo->mood == ai::Mood::Stalk;
+  }
+
+  void stalking()
+  {
+    m_state.creatureInfo->mood = ai::Mood::Stalk;
+  }
+
+  bool isEscaping() const
+  {
+    return m_state.creatureInfo->mood == ai::Mood::Escape;
+  }
+
+  void escaping()
+  {
+    m_state.creatureInfo->mood = ai::Mood::Escape;
+  }
+
+  void settle()
+  {
+    m_state.position.position.Y = m_state.floor;
+    m_state.falling = false;
+  }
+
+  void activate()
+  {
+    if(m_state.triggerState == TriggerState::Invisible)
+    {
+      m_state.triggerState = TriggerState::Active;
+    }
+
+    m_state.initCreatureInfo(getEngine());
+  }
+
 private:
   bool anyMovingEnabledObjectInReach() const;
 

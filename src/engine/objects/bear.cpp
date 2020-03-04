@@ -7,12 +7,7 @@ namespace engine::objects
 {
 void Bear::update()
 {
-  if(m_state.triggerState == TriggerState::Invisible)
-  {
-    m_state.triggerState = TriggerState::Active;
-  }
-
-  m_state.initCreatureInfo(getEngine());
+  activate();
 
   core::Angle rotationToMoveTarget;
 
@@ -27,7 +22,7 @@ void Bear::update()
   static constexpr auto Biting = 8_as;
   static constexpr auto Dying = 9_as;
 
-  if(getHealth() > 0_hp)
+  if(alive())
   {
     const ai::AiInfo aiInfo{getEngine(), m_state};
     updateMood(getEngine(), m_state, aiInfo, true);
@@ -40,141 +35,94 @@ void Bear::update()
     {
     case Walking.get():
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(getEngine().getLara().m_state.health <= 0_hp && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0
-         && aiInfo.ahead)
+      if(getEngine().getLara().m_state.health <= 0_hp && touched(0x2406cUL) && aiInfo.ahead)
       {
-        m_state.goal_anim_state = GettingDown;
+        goal(GettingDown);
       }
-      else if(m_state.creatureInfo->mood != ai::Mood::Bored)
+      else if(!isBored())
       {
-        m_state.goal_anim_state = GettingDown;
-        if(m_state.creatureInfo->mood == ai::Mood::Escape)
-        {
-          m_state.required_anim_state = 0_as;
-        }
+        goal(GettingDown);
+        if(isEscaping())
+          require(0_as);
       }
       else if(util::rand15() < 80)
       {
-        m_state.required_anim_state = Growling;
-        m_state.goal_anim_state = GettingDown;
+        goal(GettingDown, Growling);
       }
       break;
     case GettingDown.get():
       if(getEngine().getLara().m_state.health <= 0_hp)
       {
         if(aiInfo.bite && aiInfo.distance < util::square(768_len))
-        {
-          m_state.goal_anim_state = Biting;
-        }
+          goal(Biting);
         else
-        {
-          m_state.goal_anim_state = Walking;
-        }
+          goal(Walking);
       }
       else
       {
         if(m_state.required_anim_state != 0_as)
-        {
-          m_state.goal_anim_state = m_state.required_anim_state;
-        }
-        else if(m_state.creatureInfo->mood != ai::Mood::Bored)
-        {
-          m_state.goal_anim_state = Running;
-        }
+          goal(m_state.required_anim_state);
+        else if(!isBored())
+          goal(Running);
         else
-        {
-          m_state.goal_anim_state = Walking;
-        }
+          goal(Walking);
       }
       break;
     case WalkingTall.get():
       if(m_state.creatureInfo->flags != 0)
-      {
-        m_state.required_anim_state = 0_as;
-        m_state.goal_anim_state = RoaringStanding;
-      }
-      else if(aiInfo.ahead && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0)
-      {
-        m_state.goal_anim_state = RoaringStanding;
-      }
-      else if(m_state.creatureInfo->mood == ai::Mood::Escape)
-      {
-        m_state.required_anim_state = 0_as;
-        m_state.goal_anim_state = RoaringStanding;
-      }
-      else if(m_state.creatureInfo->mood == ai::Mood::Bored || util::rand15() < 80)
-      {
-        m_state.required_anim_state = Growling;
-        m_state.goal_anim_state = RoaringStanding;
-      }
+        goal(RoaringStanding, 0_as);
+      else if(aiInfo.ahead && touched(0x2406cUL))
+        goal(RoaringStanding);
+      else if(isEscaping())
+        goal(RoaringStanding, 0_as);
+      else if(isBored() || util::rand15() < 80)
+        goal(RoaringStanding, Growling);
       else if(aiInfo.distance > util::square(2 * core::SectorSize) || util::rand15() < 1536)
-      {
-        m_state.required_anim_state = GettingDown;
-        m_state.goal_anim_state = RoaringStanding;
-      }
+        goal(RoaringStanding, GettingDown);
       break;
     case Running.get():
       m_state.creatureInfo->maximum_turn = 5_deg;
-      if((m_state.touch_bits.to_ulong() & 0x2406cUL) != 0)
+      if(touched(0x2406cUL))
       {
-        getEngine().getLara().m_state.health -= 3_hp;
-        getEngine().getLara().m_state.is_hit = true;
+        hitLara(3_hp);
       }
-      if(m_state.creatureInfo->mood == ai::Mood::Bored || getEngine().getLara().m_state.health <= 0_hp)
+      if(isBored() || getEngine().getLara().m_state.health <= 0_hp)
       {
-        m_state.goal_anim_state = GettingDown;
+        goal(GettingDown);
       }
       else if(aiInfo.ahead && m_state.required_anim_state == 0_as)
       {
         if(m_state.creatureInfo->flags == 0 && aiInfo.distance < util::square(2048_len) && util::rand15() < 768)
-        {
-          m_state.required_anim_state = RoaringStanding;
-          m_state.goal_anim_state = GettingDown;
-        }
+          goal(GettingDown, RoaringStanding);
         else if(aiInfo.distance < util::square(core::SectorSize))
-        {
-          m_state.goal_anim_state = RunningAttack;
-        }
+          goal(RunningAttack);
       }
       break;
     case RoaringStanding.get():
       if(m_state.creatureInfo->flags != 0)
-      {
-        m_state.required_anim_state = 0_as;
-        m_state.goal_anim_state = GettingDown;
-      }
+        goal(GettingDown, 0_as);
       else if(m_state.required_anim_state != 0_as)
-      {
-        m_state.goal_anim_state = m_state.required_anim_state;
-      }
-      else if(m_state.creatureInfo->mood == ai::Mood::Bored || m_state.creatureInfo->mood == ai::Mood::Escape)
-      {
-        m_state.goal_anim_state = GettingDown;
-      }
+        goal(m_state.required_anim_state);
+      else if(isBored() || isEscaping())
+        goal(GettingDown);
       else if(aiInfo.bite && aiInfo.distance < util::square(600_len))
-      {
-        m_state.goal_anim_state = Standing;
-      }
+        goal(Standing);
       else
-      {
-        m_state.goal_anim_state = WalkingTall;
-      }
+        goal(WalkingTall);
       break;
     case RunningAttack.get():
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x2406cUL))
+      if(m_state.required_anim_state == 0_as && touched(0x2406cUL))
       {
         emitParticle(core::TRVec{0_len, 96_len, 335_len}, 14, &createBloodSplat);
-        getEngine().getLara().m_state.health -= 200_hp;
-        getEngine().getLara().m_state.is_hit = true;
-        m_state.required_anim_state = GettingDown;
+        hitLara(200_hp);
+        require(GettingDown);
       }
       break;
     case Standing.get():
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x2406cUL))
+      if(m_state.required_anim_state == 0_as && touched(0x2406cUL))
       {
-        getEngine().getLara().m_state.health -= 400_hp;
-        getEngine().getLara().m_state.is_hit = true;
-        m_state.required_anim_state = RoaringStanding;
+        hitLara(400_hp);
+        require(RoaringStanding);
       }
       break;
     default: break;
@@ -187,21 +135,20 @@ void Bear::update()
     switch(m_state.current_anim_state.get())
     {
     case Walking.get():
-    case Running.get(): m_state.goal_anim_state = GettingDown; break;
+    case Running.get(): goal(GettingDown); break;
     case GettingDown.get():
       m_state.creatureInfo->flags = 0;
-      m_state.goal_anim_state = Dying;
+      goal(Dying);
       break;
-    case WalkingTall.get(): m_state.goal_anim_state = RoaringStanding; break;
+    case WalkingTall.get(): goal(RoaringStanding); break;
     case RoaringStanding.get():
       m_state.creatureInfo->flags = 1;
-      m_state.goal_anim_state = Dying;
+      goal(Dying);
       break;
     case Dying.get():
-      if(m_state.creatureInfo->flags != 0 && (m_state.touch_bits.to_ulong() & 0x2406cUL) != 0)
+      if(m_state.creatureInfo->flags != 0 && touched(0x2406cUL))
       {
-        getEngine().getLara().m_state.health -= 200_hp;
-        getEngine().getLara().m_state.is_hit = true;
+        hitLara(200_hp);
         m_state.creatureInfo->flags = 0;
       }
       break;

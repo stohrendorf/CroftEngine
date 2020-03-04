@@ -27,12 +27,7 @@ void Pierre::update()
     }
   }
 
-  if(m_state.triggerState == TriggerState::Invisible)
-  {
-    m_state.triggerState = TriggerState::Active;
-  }
-
-  m_state.initCreatureInfo(getEngine());
+  activate();
 
   core::Angle tiltRot = 0_deg;
   core::Angle creatureTurn = 0_deg;
@@ -42,7 +37,7 @@ void Pierre::update()
     m_state.health = 40_hp;
     ++m_state.creatureInfo->flags;
   }
-  if(m_state.health > 0_hp)
+  if(alive())
   {
     ai::AiInfo aiInfo{getEngine(), m_state};
     if(aiInfo.ahead)
@@ -64,117 +59,72 @@ void Pierre::update()
     case 1:
       if(m_state.required_anim_state != 0_as)
       {
-        m_state.goal_anim_state = m_state.required_anim_state;
+        goal(m_state.required_anim_state);
       }
-      else if(m_state.creatureInfo->mood == ai::Mood::Bored)
+      else if(isBored())
       {
         if(util::rand15() >= 96)
-        {
-          m_state.goal_anim_state = 2_as;
-        }
+          goal(2_as);
         else
-        {
-          m_state.goal_anim_state = 6_as;
-        }
+          goal(6_as);
       }
-      else if(m_state.creatureInfo->mood == ai::Mood::Escape)
+      else if(isEscaping())
       {
-        m_state.goal_anim_state = 3_as;
+        goal(3_as);
       }
       else
       {
-        m_state.goal_anim_state = 2_as;
+        goal(2_as);
       }
       break;
     case 2:
       m_state.creatureInfo->maximum_turn = 3_deg;
-      if(m_state.creatureInfo->mood == ai::Mood::Bored && util::rand15() < 96)
-      {
-        m_state.required_anim_state = 6_as;
-        m_state.goal_anim_state = 1_as;
-      }
-      else if(m_state.creatureInfo->mood == ai::Mood::Escape)
-      {
-        m_state.required_anim_state = 3_as;
-        m_state.goal_anim_state = 1_as;
-      }
+      if(isBored() && util::rand15() < 96)
+        goal(1_as, 6_as);
+      else if(isEscaping())
+        goal(1_as, 3_as);
       else if(canShootAtLara(aiInfo))
-      {
-        m_state.required_anim_state = 4_as;
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as, 4_as);
       else if(!aiInfo.ahead || aiInfo.distance > util::square(3 * core::SectorSize))
-      {
-        m_state.required_anim_state = 3_as;
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as, 3_as);
       break;
     case 3:
       m_state.creatureInfo->maximum_turn = 6_deg;
       tiltRot = creatureTurn / 2;
-      if(m_state.creatureInfo->mood != ai::Mood::Bored || util::rand15() >= 96)
+      if(isBored() && util::rand15() < 96)
       {
-        if(canShootAtLara(aiInfo))
-        {
-          m_state.required_anim_state = 4_as;
-          m_state.goal_anim_state = 1_as;
-        }
-        else if(aiInfo.ahead && aiInfo.distance < util::square(3 * core::SectorSize))
-        {
-          m_state.required_anim_state = 2_as;
-          m_state.goal_anim_state = 1_as;
-        }
+        goal(1_as, 6_as);
       }
-      else
-      {
-        m_state.required_anim_state = 6_as;
-        m_state.goal_anim_state = 1_as;
-      }
+      else if(canShootAtLara(aiInfo))
+        goal(1_as, 4_as);
+      else if(aiInfo.ahead && aiInfo.distance < util::square(3 * core::SectorSize))
+        goal(1_as, 2_as);
       break;
     case 4:
       if(m_state.required_anim_state != 0_as)
-      {
-        m_state.goal_anim_state = m_state.required_anim_state;
-      }
+        goal(m_state.required_anim_state);
       else if(canShootAtLara(aiInfo))
-      {
-        m_state.goal_anim_state = 7_as;
-      }
+        goal(7_as);
       else
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as);
       break;
     case 6:
-      if(m_state.creatureInfo->mood != ai::Mood::Bored)
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+      if(!isBored())
+        goal(1_as);
       else if(util::rand15() < 96)
-      {
-        m_state.required_anim_state = 2_as;
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as, 2_as);
       break;
     case 7:
       if(m_state.required_anim_state == 0_as)
       {
         if(tryShootAtLara(*this, aiInfo.distance, {60_len, 200_len, 0_len}, 11, headRot))
-        {
-          getEngine().getLara().m_state.health -= 25_hp;
-          getEngine().getLara().m_state.is_hit = true;
-        }
+          hitLara(25_hp);
         if(tryShootAtLara(*this, aiInfo.distance, {-57_len, 200_len, 0_len}, 14, headRot))
-        {
-          getEngine().getLara().m_state.health -= 25_hp;
-          getEngine().getLara().m_state.is_hit = true;
-        }
-        m_state.required_anim_state = 4_as;
+          hitLara(25_hp);
+        require(4_as);
       }
-      if(m_state.creatureInfo->mood == ai::Mood::Escape && util::rand15() > 8192)
-      {
-        m_state.required_anim_state = 1_as;
-      }
+      if(isEscaping() && util::rand15() > 8192)
+        require(1_as);
       break;
     default: break;
     }

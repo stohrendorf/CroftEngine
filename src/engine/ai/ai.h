@@ -3,6 +3,7 @@
 #include "pathfinder.h"
 
 #include <boost/range/adaptor/map.hpp>
+#include <sol/sol.hpp>
 
 namespace engine
 {
@@ -35,20 +36,14 @@ inline std::ostream& operator<<(std::ostream& str, const Mood mood)
 
 struct AiInfo
 {
-  loader::file::ZoneId zone_number;
-
-  loader::file::ZoneId enemy_zone;
+  loader::file::ZoneId zone_number = 0;
+  loader::file::ZoneId enemy_zone = 0;
   bool enemy_unreachable = false;
-
   core::Area distance{0};
-
-  bool ahead;
-
-  bool bite;
-
-  core::Angle angle;
-
-  core::Angle enemy_facing;
+  bool ahead = false;
+  bool bite = false;
+  core::Angle angle = 0_deg;
+  core::Angle enemy_facing = 0_deg;
 
   AiInfo(Engine& engine, objects::ObjectState& objectState);
 
@@ -60,7 +55,7 @@ struct AiInfo
 
 struct CreatureInfo
 {
-  core::TypeId type;
+  core::TypeId type{uint16_t{0}};
   core::Angle head_rotation = 0_deg;
   core::Angle neck_rotation = 0_deg;
   core::Angle maximum_turn = 1_deg;

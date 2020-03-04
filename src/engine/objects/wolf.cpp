@@ -7,12 +7,7 @@ namespace engine::objects
 {
 void Wolf::update()
 {
-  if(m_state.triggerState == TriggerState::Invisible)
-  {
-    m_state.triggerState = TriggerState::Active;
-  }
-
-  m_state.initCreatureInfo(getEngine());
+  activate();
 
   static constexpr auto Walking = 1_as;
   static constexpr auto Running = 2_as;
@@ -29,7 +24,7 @@ void Wolf::update()
   core::Angle pitch = 0_deg;
   core::Angle roll = 0_deg;
   core::Angle rotationToMoveTarget = 0_deg;
-  if(getHealth() > 0_hp)
+  if(alive())
   {
     const ai::AiInfo aiInfo{getEngine(), m_state};
 
@@ -44,108 +39,74 @@ void Wolf::update()
     {
     case LyingDown.get():
       pitch = 0_deg;
-      if(m_state.creatureInfo->mood != ai::Mood::Escape && !aiInfo.canReachEnemyZone())
-      {
-        if(util::rand15() < 32)
-        {
-          m_state.required_anim_state = Running;
-          m_state.goal_anim_state = Walking;
-        }
-      }
-      else
-      {
-        m_state.required_anim_state = PrepareToStrike;
-        m_state.goal_anim_state = Walking;
-      }
+      if(isEscaping() || aiInfo.canReachEnemyZone())
+        goal(Walking, PrepareToStrike);
+      else if(util::rand15() < 32)
+        goal(Walking, Running);
       break;
     case Walking.get():
       if(m_state.required_anim_state != 0_as)
-      {
-        m_state.goal_anim_state = m_state.required_anim_state;
-        m_state.required_anim_state = 0_as;
-      }
+        goal(std::exchange(m_state.required_anim_state, 0_as));
       else
-      {
-        m_state.goal_anim_state = Running;
-      }
+        goal(Running);
       break;
     case Running.get():
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(m_state.creatureInfo->mood != ai::Mood::Bored)
-      {
-        m_state.goal_anim_state = Stalking;
-        m_state.required_anim_state = 0_as;
-      }
+      if(!isBored())
+        goal(Stalking, 0_as);
       else if(util::rand15() < 32)
-      {
-        m_state.goal_anim_state = Walking;
-        m_state.required_anim_state = LyingDown;
-      }
+        goal(Walking, LyingDown);
       break;
     case PrepareToStrike.get():
       if(m_state.required_anim_state != 0_as)
       {
-        m_state.goal_anim_state = m_state.required_anim_state;
-        m_state.required_anim_state = 0_as;
+        goal(std::exchange(m_state.required_anim_state, 0_as));
         break;
       }
-      if(m_state.creatureInfo->mood == ai::Mood::Escape)
-      {
-        m_state.goal_anim_state = Jumping;
-      }
+      if(isEscaping())
+        goal(Jumping);
       else if(aiInfo.distance < util::square(345_len) && aiInfo.bite)
-      {
-        m_state.goal_anim_state = Biting;
-      }
-      else if(m_state.creatureInfo->mood == ai::Mood::Stalk)
-      {
-        m_state.goal_anim_state = Stalking;
-      }
-      else if(m_state.creatureInfo->mood != ai::Mood::Bored)
-      {
-        m_state.goal_anim_state = Jumping;
-      }
+        goal(Biting);
+      else if(isStalking())
+        goal(Stalking);
+      else if(!isBored())
+        goal(Jumping);
       else
-      {
-        m_state.goal_anim_state = Walking;
-      }
+        goal(Walking);
       break;
     case Stalking.get():
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(m_state.creatureInfo->mood == ai::Mood::Escape)
+      if(isEscaping())
       {
-        m_state.goal_anim_state = Jumping;
+        goal(Jumping);
       }
       else if(aiInfo.distance < util::square(345_len) && aiInfo.bite)
       {
-        m_state.goal_anim_state = Biting;
+        goal(Biting);
       }
       else if(aiInfo.distance <= util::square(3 * core::SectorSize))
       {
-        if(m_state.creatureInfo->mood == ai::Mood::Attack)
+        if(isAttacking())
         {
           if(!aiInfo.ahead || aiInfo.distance > util::square(3 * core::SectorSize / 2)
              || (aiInfo.enemy_facing < 90_deg && aiInfo.enemy_facing > -90_deg))
           {
-            m_state.goal_anim_state = Jumping;
+            goal(Jumping);
           }
         }
         else if(util::rand15() >= 384)
         {
-          if(m_state.creatureInfo->mood == ai::Mood::Bored)
-          {
-            m_state.goal_anim_state = PrepareToStrike;
-          }
+          if(isBored())
+            goal(PrepareToStrike);
         }
         else
         {
-          m_state.goal_anim_state = PrepareToStrike;
-          m_state.required_anim_state = Attacking;
+          goal(PrepareToStrike, Attacking);
         }
       }
       else
       {
-        m_state.goal_anim_state = Jumping;
+        goal(Jumping);
       }
       break;
     case Jumping.get():
@@ -156,46 +117,39 @@ void Wolf::update()
         if(aiInfo.distance <= util::square(3 * core::SectorSize / 2) / 2
            || (aiInfo.enemy_facing <= 90_deg && aiInfo.enemy_facing >= -90_deg))
         {
-          m_state.goal_anim_state = JumpAttack;
-          m_state.required_anim_state = 0_as;
+          goal(JumpAttack, 0_as);
         }
         else
         {
-          m_state.goal_anim_state = PrepareToStrike;
-          m_state.required_anim_state = Stalking;
+          goal(PrepareToStrike, Stalking);
         }
       }
-      else if(m_state.creatureInfo->mood != ai::Mood::Stalk || aiInfo.distance >= util::square(3 * core::SectorSize))
+      else if(isStalking() || aiInfo.distance >= util::square(3 * core::SectorSize))
       {
-        if(m_state.creatureInfo->mood == ai::Mood::Bored)
-        {
-          m_state.goal_anim_state = PrepareToStrike;
-        }
+        if(isBored())
+          goal(PrepareToStrike);
       }
       else
       {
-        m_state.goal_anim_state = PrepareToStrike;
-        m_state.required_anim_state = Stalking;
+        goal(PrepareToStrike, Stalking);
       }
       break;
     case JumpAttack.get():
       roll = rotationToMoveTarget;
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL))
+      if(m_state.required_anim_state == 0_as && touched(0x774fUL))
       {
         emitParticle(core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat);
-        getEngine().getLara().m_state.is_hit = true;
-        getEngine().getLara().m_state.health -= 50_hp;
-        m_state.required_anim_state = Jumping;
+        hitLara(50_hp);
+        require(Jumping);
       }
-      m_state.goal_anim_state = Jumping;
+      goal(Jumping);
       break;
     case Biting.get():
-      if(m_state.required_anim_state == 0_as && (m_state.touch_bits.to_ulong() & 0x774fUL) && aiInfo.ahead)
+      if(m_state.required_anim_state == 0_as && touched(0x774fUL) && aiInfo.ahead)
       {
         emitParticle(core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat);
-        getEngine().getLara().m_state.is_hit = true;
-        getEngine().getLara().m_state.health -= 100_hp;
-        m_state.required_anim_state = PrepareToStrike;
+        hitLara(100_hp);
+        require(PrepareToStrike);
       }
       break;
     default: break;

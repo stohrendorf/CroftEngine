@@ -32,9 +32,7 @@ struct PathFinderNode
 struct PathFinder
 {
   std::unordered_map<const loader::file::Box*, PathFinderNode> nodes;
-
   std::vector<gsl::not_null<const loader::file::Box*>> boxes;
-
   std::deque<const loader::file::Box*> expansions;
   //! Contains all boxes where the "traversable" state has been determined
   std::unordered_set<const loader::file::Box*> visited;

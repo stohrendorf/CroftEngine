@@ -7,17 +7,12 @@ namespace engine::objects
 {
 void TRex::update()
 {
-  if(m_state.triggerState == TriggerState::Invisible)
-  {
-    m_state.triggerState = TriggerState::Active;
-  }
-
-  m_state.initCreatureInfo(getEngine());
+  activate();
 
   core::Angle rotationToMoveTarget;
 
   core::Angle creatureHead = 0_deg;
-  if(getHealth() > 0_hp)
+  if(alive())
   {
     const ai::AiInfo aiInfo{getEngine(), m_state};
     if(aiInfo.ahead)
@@ -27,20 +22,16 @@ void TRex::update()
     updateMood(getEngine(), m_state, aiInfo, true);
 
     rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
-    if(m_state.touch_bits.any())
+    if(touched())
     {
       if(m_state.current_anim_state == 3_as)
-      {
         getEngine().getLara().m_state.health -= 10_hp;
-      }
       else
-      {
         getEngine().getLara().m_state.health -= 1_hp;
-      }
     }
 
-    m_state.creatureInfo->flags = m_state.creatureInfo->mood != ai::Mood::Escape && !aiInfo.ahead
-                                  && aiInfo.enemy_facing > -90_deg && aiInfo.enemy_facing < 90_deg;
+    m_state.creatureInfo->flags
+      = !isEscaping() && !aiInfo.ahead && aiInfo.enemy_facing > -90_deg && aiInfo.enemy_facing < 90_deg;
     if(m_state.creatureInfo->flags == 0 && aiInfo.distance > util::square(1500_len)
        && aiInfo.distance < util::square(4 * core::SectorSize) && aiInfo.bite)
     {
@@ -51,60 +42,38 @@ void TRex::update()
     {
     case 1:
       if(m_state.required_anim_state != 0_as)
-      {
-        m_state.goal_anim_state = m_state.required_anim_state;
-      }
+        goal(m_state.required_anim_state);
       else if(aiInfo.distance < util::square(1500_len) && aiInfo.bite)
-      {
-        m_state.goal_anim_state = 7_as;
-      }
-      else if(m_state.creatureInfo->mood != ai::Mood::Bored && m_state.creatureInfo->flags == 0)
-      {
-        m_state.goal_anim_state = 3_as;
-      }
+        goal(7_as);
+      else if(!isBored() && m_state.creatureInfo->flags == 0)
+        goal(3_as);
       else
-      {
-        m_state.goal_anim_state = 2_as;
-      }
+        goal(2_as);
       break;
     case 2:
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(m_state.creatureInfo->mood != ai::Mood::Bored || m_state.creatureInfo->flags == 0)
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+      if(!isBored() || m_state.creatureInfo->flags == 0)
+        goal(1_as);
       else if(aiInfo.ahead && util::rand15() < 512)
-      {
-        m_state.required_anim_state = 6_as;
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as, 6_as);
       break;
     case 3:
       m_state.creatureInfo->maximum_turn = 4_deg;
       if(aiInfo.distance < util::square(5 * core::SectorSize) && aiInfo.bite)
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as);
       else if(m_state.creatureInfo->flags)
-      {
-        m_state.goal_anim_state = 1_as;
-      }
-      else if(m_state.creatureInfo->mood != ai::Mood::Escape && aiInfo.ahead && util::rand15() < 512)
-      {
-        m_state.required_anim_state = 6_as;
-        m_state.goal_anim_state = 1_as;
-      }
-      else if(m_state.creatureInfo->mood == ai::Mood::Bored)
-      {
-        m_state.goal_anim_state = 1_as;
-      }
+        goal(1_as);
+      else if(!isEscaping() && aiInfo.ahead && util::rand15() < 512)
+        goal(1_as, 6_as);
+      else if(isBored())
+        goal(1_as);
       break;
     case 7:
-      if(m_state.touch_bits.to_ulong() & 0x3000UL)
+      if(touched(0x3000UL))
       {
-        m_state.goal_anim_state = 8_as;
+        goal(8_as);
 
-        getEngine().getLara().m_state.is_hit = true;
+        hitLara(1_hp);
         getEngine().getLara().m_state.falling = false;
 
         getEngine().getLara().setCurrentRoom(m_state.position.room);
@@ -121,22 +90,21 @@ void TRex::update()
         getEngine().getLara().gunType = LaraObject::WeaponId::None;
         getEngine().getCameraController().setModifier(CameraModifier::FollowCenter);
         getEngine().getCameraController().setRotationAroundCenter(-25_deg, 170_deg);
-        getEngine().getLara().m_state.health = -1_hp;
         getEngine().getLara().setAir(-1_frame);
         getEngine().useAlternativeLaraAppearance(true);
       }
-      m_state.required_anim_state = 2_as;
+      require(2_as);
       break;
     default: break;
     }
   }
   else if(m_state.current_anim_state == 1_as)
   {
-    m_state.goal_anim_state = 5_as;
+    goal(5_as);
   }
   else
   {
-    m_state.goal_anim_state = 1_as;
+    goal(1_as);
   }
 
   rotateCreatureHead(creatureHead);
