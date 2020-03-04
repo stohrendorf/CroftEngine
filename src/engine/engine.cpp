@@ -1106,7 +1106,6 @@ void Engine::run()
 
   while(!m_window->windowShouldClose())
   {
-    debugView.processEvents();
     screenOverlay->getImage()->fill({0, 0, 0, 0});
 
     if(!levelName.empty())
@@ -1300,6 +1299,8 @@ void Engine::run()
       nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
     }
   }
+
+  debugView.stop();
 }
 
 void Engine::scaleSplashImage()

@@ -9,6 +9,7 @@ namespace ui::debug
 DebugView::DebugView(int argc, char** argv)
     : m_application{argc, argv}
     , m_laraInfo{new LaraInfoWidget()}
+    , m_thread{&DebugView::processEvents, this}
 {
   m_window.resize(640, 480);
   m_window.show();
@@ -26,12 +27,16 @@ DebugView::DebugView(int argc, char** argv)
   m_triggerTable->setColumnCount(3);
 }
 
-DebugView::~DebugView() = default;
+DebugView::~DebugView()
+{
+  stop();
+}
 
 void DebugView::update(const engine::objects::LaraObject& lara,
                        const std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::objects::Object>>>& objects,
                        const std::set<gsl::not_null<std::shared_ptr<engine::objects::Object>>>& dynamicObjects)
 {
+  std::lock_guard<std::recursive_mutex> guard{m_mutex};
   m_laraInfo->update(lara);
 
   m_triggerTable->setRowCount(
