@@ -124,12 +124,8 @@ void updateMood(const Engine& engine, const objects::ObjectState& objectState, c
     creatureInfo.pathFinder.target = engine.getLara().m_state.position.position;
     creatureInfo.pathFinder.required_box = engine.getLara().m_state.box;
     if(creatureInfo.pathFinder.fly != 0_len && engine.getLara().isOnLand())
-      creatureInfo.pathFinder.target.Y += engine.getLara()
-                                            .getSkeleton()
-                                            ->getInterpolationInfo(engine.getLara().m_state)
-                                            .getNearestFrame()
-                                            ->bbox.toBBox()
-                                            .minY;
+      creatureInfo.pathFinder.target.Y
+        += engine.getLara().getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox().minY;
 
     break;
   case Mood::Bored:

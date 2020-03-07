@@ -33,7 +33,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
 
     if(getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
     {
-      if(getEngine().getLara().m_state.frame_number == 2970_frame)
+      if(getEngine().getLara().getSkeleton()->frame_number == 2970_frame)
       {
         m_state.triggerState = TriggerState::Invisible;
         getEngine().getInventory().put(m_state.type);
@@ -70,7 +70,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
 
     if(getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
     {
-      if(getEngine().getLara().m_state.frame_number == 3443_frame)
+      if(getEngine().getLara().getSkeleton()->frame_number == 3443_frame)
       {
         if(m_state.type == TR1ItemId::ShotgunSprite)
         {

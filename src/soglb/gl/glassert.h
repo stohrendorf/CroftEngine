@@ -4,9 +4,11 @@
 
 #include <gsl-lite.hpp>
 
+#define NO_GL_ASSERT
+
 namespace gl
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(NO_GL_ASSERT)
 extern void checkGlError(gsl::czstring code);
 #else
 inline void checkGlError(gsl::czstring /*code*/)

@@ -97,8 +97,8 @@ void Larson::update()
   }
   else if(m_state.current_anim_state != 5_as) // injured/dying
   {
-    m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::Larson)->animations[15];
-    m_state.frame_number = m_state.anim->firstFrame;
+    getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::Larson)->animations[15];
+    getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
     m_state.current_anim_state = 5_as;
   }
   rotateCreatureTilt(tiltRot);

@@ -1,4 +1,4 @@
-IN_OUT GeometryPipelineInterface {
+IN_OUT layout(location=11) GeometryPipelineInterface {
     vec2 texCoord;
     vec3 color;
     flat float texIndex;

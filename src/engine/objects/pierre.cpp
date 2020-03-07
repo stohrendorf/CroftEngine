@@ -131,8 +131,8 @@ void Pierre::update()
   }
   else if(m_state.current_anim_state != 5_as) // injured/dying
   {
-    m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::Pierre)->animations[12];
-    m_state.frame_number = m_state.anim->firstFrame;
+    getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::Pierre)->animations[12];
+    getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
     m_state.current_anim_state = 5_as;
     getEngine().createPickup(TR1ItemId::MagnumsSprite, m_state.position.room, m_state.position.position);
     getEngine().createPickup(TR1ItemId::ScionPiece2, m_state.position.room, m_state.position.position);

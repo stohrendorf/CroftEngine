@@ -41,7 +41,7 @@ void ThorHammerHandle::update()
     }
     break;
   case 2:
-    if(m_state.frame_number > m_state.anim->firstFrame + 30_frame)
+    if(getSkeleton()->frame_number > getSkeleton()->anim->firstFrame + 30_frame)
     {
       auto posX = m_state.position.position.X;
       auto posZ = m_state.position.position.Z;
@@ -69,8 +69,9 @@ void ThorHammerHandle::update()
            && posZ + 520_len > getEngine().getLara().m_state.position.position.Z)
         {
           getEngine().getLara().m_state.health = -1_hp;
-          getEngine().getLara().m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::Lara)->animations[139];
-          getEngine().getLara().m_state.frame_number = 3561_frame;
+          getEngine().getLara().getSkeleton()->anim
+            = &getEngine().findAnimatedModelForType(TR1ItemId::Lara)->animations[139];
+          getEngine().getLara().getSkeleton()->frame_number = 3561_frame;
           getEngine().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
           getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
           getEngine().getLara().m_state.position.position.Y = m_state.position.position.Y;
@@ -118,10 +119,11 @@ void ThorHammerHandle::update()
   ModelObject::update();
 
   // sync anim
-  const auto animIdx
-    = std::distance(&getEngine().findAnimatedModelForType(TR1ItemId::ThorHammerHandle)->animations[0], m_state.anim);
-  m_block->m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::ThorHammerBlock)->animations[animIdx];
-  m_block->m_state.frame_number = m_state.frame_number - m_state.anim->firstFrame + m_block->m_state.anim->firstFrame;
+  const auto animIdx = std::distance(&getEngine().findAnimatedModelForType(TR1ItemId::ThorHammerHandle)->animations[0],
+                                     getSkeleton()->anim);
+  m_block->getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::ThorHammerBlock)->animations[animIdx];
+  m_block->getSkeleton()->frame_number
+    = getSkeleton()->frame_number - getSkeleton()->anim->firstFrame + m_block->getSkeleton()->anim->firstFrame;
   m_block->m_state.current_anim_state = m_state.current_anim_state;
 }
 

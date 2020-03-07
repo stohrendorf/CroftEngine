@@ -107,9 +107,9 @@ void Raptor::update()
   }
   else if(m_state.current_anim_state != 5_as)
   {
-    m_state.anim = getEngine().findAnimatedModelForType(TR1ItemId::Raptor)->animations + 9 + util::rand15(3);
+    getSkeleton()->anim = getEngine().findAnimatedModelForType(TR1ItemId::Raptor)->animations + 9 + util::rand15(3);
+    getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
     m_state.current_anim_state = 5_as;
-    m_state.frame_number = m_state.anim->firstFrame;
   }
 
   rotateCreatureTilt(animTilt);

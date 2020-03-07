@@ -1,9 +1,9 @@
 #ifdef WATER
-const float dof_scale = 200.0 / far_plane;
-const float dof_offset = 80.0 / far_plane;
+float dof_scale = 200.0 / far_plane;
+float dof_offset = 80.0 / far_plane;
 #else
-const float dof_scale = 40.0 / far_plane;
-const float dof_offset = 20.0 / far_plane;
+float dof_scale = 40.0 / far_plane;
+float dof_offset = 20.0 / far_plane;
 #endif
 
 #include "depth.glsl"

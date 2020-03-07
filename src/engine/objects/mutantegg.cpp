@@ -10,7 +10,7 @@ namespace engine::objects
 {
 bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const core::Length& damageRadius)
 {
-  object.getSkeleton()->updatePose(object.m_state);
+  object.getSkeleton()->updatePose();
   const bool isTorsoBoss = object.m_state.type == TR1ItemId::TorsoBoss;
 
   const auto modelSourceType

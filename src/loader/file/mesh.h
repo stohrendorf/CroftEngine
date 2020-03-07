@@ -53,6 +53,7 @@ struct Mesh
     createModel(const std::vector<TextureTile>& textureTiles,
                 const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
                 gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
+                gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
                 const Palette& palette,
                 const std::string& label = {}) const;
 };

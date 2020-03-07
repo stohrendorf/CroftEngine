@@ -175,8 +175,6 @@ void ObjectState::serialize(const serialization::Serializer& ser)
       S_NV("currentAnimState", current_anim_state),
       S_NV("goalAnimState", goal_anim_state),
       S_NV("requiredAnimState", required_anim_state),
-      S_NV("anim", anim),
-      S_NV("frame", frame_number),
       S_NV("health", health),
       S_NV("triggerState", triggerState),
       S_NV("timer", timer),

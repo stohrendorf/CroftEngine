@@ -31,10 +31,10 @@ void ModelObject::update()
 
   if(endOfAnim)
   {
-    const auto* cmd = m_state.anim->animCommandCount == 0
+    const auto* cmd = getSkeleton()->anim->animCommandCount == 0
                         ? nullptr
-                        : &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
-    for(uint16_t i = 0; i < m_state.anim->animCommandCount; ++i)
+                        : &getEngine().getAnimCommands().at(getSkeleton()->anim->animCommandIndex);
+    for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
     {
       BOOST_ASSERT(cmd < &getEngine().getAnimCommands().back());
       const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -60,15 +60,16 @@ void ModelObject::update()
       }
     }
 
-    m_skeleton->setAnimation(m_state, m_state.anim->nextAnimation, m_state.anim->nextFrame);
+    m_skeleton->setAnimation(m_state, getSkeleton()->anim->nextAnimation, getSkeleton()->anim->nextFrame);
     m_state.goal_anim_state = m_state.current_anim_state;
     if(m_state.current_anim_state == m_state.required_anim_state)
       m_state.required_anim_state = 0_as;
   }
 
-  const auto* cmd
-    = m_state.anim->animCommandCount == 0 ? nullptr : &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
-  for(uint16_t i = 0; i < m_state.anim->animCommandCount; ++i)
+  const auto* cmd = getSkeleton()->anim->animCommandCount == 0
+                      ? nullptr
+                      : &getEngine().getAnimCommands().at(getSkeleton()->anim->animCommandIndex);
+  for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
   {
     BOOST_ASSERT(cmd < &getEngine().getAnimCommands().back());
     const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -78,14 +79,14 @@ void ModelObject::update()
     case AnimCommandOpcode::SetPosition: cmd += 3; break;
     case AnimCommandOpcode::StartFalling: cmd += 2; break;
     case AnimCommandOpcode::PlaySound:
-      if(m_state.frame_number.get() == cmd[0])
+      if(getSkeleton()->frame_number.get() == cmd[0])
       {
         playSoundEffect(static_cast<TR1SoundId>(cmd[1]));
       }
       cmd += 2;
       break;
     case AnimCommandOpcode::PlayEffect:
-      if(m_state.frame_number.get() == cmd[0])
+      if(getSkeleton()->frame_number.get() == cmd[0])
       {
         BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
         getEngine().runEffect(cmd[1], this);
@@ -115,13 +116,13 @@ void ModelObject::applyMovement(const bool forLara)
     if(forLara)
     {
       // we only add acceleration here
-      m_state.speed = m_state.speed + m_skeleton->calculateFloorSpeed(m_state, 0_frame)
-                      - m_skeleton->calculateFloorSpeed(m_state, -1_frame);
+      m_state.speed
+        = m_state.speed + m_skeleton->calculateFloorSpeed(0_frame) - m_skeleton->calculateFloorSpeed(-1_frame);
     }
   }
   else
   {
-    m_state.speed = m_skeleton->calculateFloorSpeed(m_state);
+    m_state.speed = m_skeleton->calculateFloorSpeed();
   }
 
   move((util::pitch(m_state.speed * 1_frame, getMovementAngle())
@@ -130,20 +131,20 @@ void ModelObject::applyMovement(const bool forLara)
 
   applyTransform();
 
-  m_skeleton->updatePose(m_state);
+  m_skeleton->updatePose();
   updateLighting();
 }
 
 loader::file::BoundingBox ModelObject::getBoundingBox() const
 {
-  return m_skeleton->getBoundingBox(m_state);
+  return m_skeleton->getBoundingBox();
 }
 
 bool ModelObject::isNear(const ModelObject& other, const core::Length& radius) const
 {
-  const auto aFrame = getSkeleton()->getInterpolationInfo(m_state).getNearestFrame();
+  const auto aFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto aBBox = aFrame->bbox.toBBox();
-  const auto bFrame = other.getSkeleton()->getInterpolationInfo(other.m_state).getNearestFrame();
+  const auto bFrame = other.getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto bBBox = bFrame->bbox.toBBox();
   if(other.m_state.position.position.Y + bBBox.minY >= m_state.position.position.Y + aBBox.maxY
      || m_state.position.position.Y + aBBox.minY >= other.m_state.position.position.Y + bBBox.maxY)
@@ -158,7 +159,7 @@ bool ModelObject::isNear(const ModelObject& other, const core::Length& radius) c
 
 bool ModelObject::isNear(const Particle& other, const core::Length& radius) const
 {
-  const auto frame = getSkeleton()->getInterpolationInfo(m_state).getNearestFrame();
+  const auto frame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto bbox = frame->bbox.toBBox();
   if(other.pos.position.Y >= m_state.position.position.Y + bbox.maxY
      || m_state.position.position.Y + bbox.minY >= other.pos.position.Y)
@@ -175,7 +176,7 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
 {
   const auto laraPosWorld = getEngine().getLara().m_state.position.position - m_state.position.position;
   auto laraPosLocal = util::pitch(laraPosWorld, -m_state.rotation.Y);
-  const auto keyFrame = m_skeleton->getInterpolationInfo(m_state).getNearestFrame();
+  const auto keyFrame = m_skeleton->getInterpolationInfo().getNearestFrame();
   auto objectBBox = keyFrame->bbox.toBBox();
   if(withXZCollRadius)
   {
@@ -254,10 +255,10 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
 bool ModelObject::testBoneCollision(const ModelObject& other)
 {
   m_state.touch_bits = 0;
-  const auto boneSpheres = m_skeleton->getBoneCollisionSpheres(
-    m_state, *m_skeleton->getInterpolationInfo(m_state).getNearestFrame(), nullptr);
+  const auto boneSpheres
+    = m_skeleton->getBoneCollisionSpheres(m_state, *m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
   const auto laraSpheres = other.m_skeleton->getBoneCollisionSpheres(
-    other.m_state, *other.m_skeleton->getInterpolationInfo(other.m_state).getNearestFrame(), nullptr);
+    other.m_state, *other.m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
   for(const auto& boneSphere : boneSpheres | boost::adaptors::indexed(0))
   {
     if(boneSphere.value().radius <= 0_len)
@@ -288,8 +289,8 @@ gsl::not_null<std::shared_ptr<Particle>>
   BOOST_ASSERT(generate != nullptr);
   BOOST_ASSERT(boneIndex < m_skeleton->getChildren().size());
 
-  const auto boneSpheres = m_skeleton->getBoneCollisionSpheres(
-    m_state, *m_skeleton->getInterpolationInfo(m_state).getNearestFrame(), nullptr);
+  const auto boneSpheres
+    = m_skeleton->getBoneCollisionSpheres(m_state, *m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
   BOOST_ASSERT(boneIndex < boneSpheres.size());
 
   auto roomPos = m_state.position;
@@ -308,8 +309,8 @@ void ModelObject::serialize(const serialization::Serializer& ser)
   {
     SkeletalModelNode::initNodes(m_skeleton, m_state);
     m_lighting.bind(*m_skeleton);
-    m_skeleton->setAnimation(m_state, m_state.anim, m_state.frame_number);
-    m_skeleton->updatePose(m_state);
+    m_skeleton->setAnimation(m_state, m_skeleton->anim, m_skeleton->frame_number);
+    m_skeleton->updatePose();
   }
 }
 

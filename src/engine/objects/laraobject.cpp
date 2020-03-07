@@ -376,13 +376,13 @@ void LaraObject::updateImpl()
 {
   const auto endOfAnim = getSkeleton()->advanceFrame(m_state);
 
-  Expects(m_state.anim != nullptr);
+  Expects(getSkeleton()->anim != nullptr);
   if(endOfAnim)
   {
-    if(m_state.anim->animCommandCount > 0)
+    if(getSkeleton()->anim->animCommandCount > 0)
     {
-      const auto* cmd = &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
-      for(uint16_t i = 0; i < m_state.anim->animCommandCount; ++i)
+      const auto* cmd = &getEngine().getAnimCommands().at(getSkeleton()->anim->animCommandIndex);
+      for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
       {
         Expects(cmd < &getEngine().getAnimCommands().back());
         const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -416,13 +416,13 @@ void LaraObject::updateImpl()
       }
     }
 
-    getSkeleton()->setAnimation(m_state, m_state.anim->nextAnimation, m_state.anim->nextFrame);
+    getSkeleton()->setAnimation(m_state, getSkeleton()->anim->nextAnimation, getSkeleton()->anim->nextFrame);
   }
 
-  if(m_state.anim->animCommandCount > 0)
+  if(getSkeleton()->anim->animCommandCount > 0)
   {
-    const auto* cmd = &getEngine().getAnimCommands().at(m_state.anim->animCommandIndex);
-    for(uint16_t i = 0; i < m_state.anim->animCommandCount; ++i)
+    const auto* cmd = &getEngine().getAnimCommands().at(getSkeleton()->anim->animCommandIndex);
+    for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
     {
       Expects(cmd < &getEngine().getAnimCommands().back());
       const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -432,14 +432,14 @@ void LaraObject::updateImpl()
       case AnimCommandOpcode::SetPosition: cmd += 3; break;
       case AnimCommandOpcode::StartFalling: cmd += 2; break;
       case AnimCommandOpcode::PlaySound:
-        if(m_state.frame_number.get() == cmd[0])
+        if(getSkeleton()->frame_number.get() == cmd[0])
         {
           playSoundEffect(static_cast<TR1SoundId>(cmd[1]));
         }
         cmd += 2;
         break;
       case AnimCommandOpcode::PlayEffect:
-        if(m_state.frame_number.get() == cmd[0])
+        if(getSkeleton()->frame_number.get() == cmd[0])
         {
           BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
           getEngine().runEffect(cmd[1], this);
@@ -946,7 +946,7 @@ void LaraObject::unholster()
 
 core::RoomBoundPosition LaraObject::getUpperThirdBBoxCtr(const ModelObject& object)
 {
-  const auto kf = object.getSkeleton()->getInterpolationInfo(object.m_state).getNearestFrame();
+  const auto kf = object.getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto bbox = kf->bbox.toBBox();
 
   const auto ctrX = (bbox.minX + bbox.maxX) / 2;
@@ -1643,9 +1643,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
   if(targetObject != nullptr)
   {
     spheres = targetObject->getSkeleton()->getBoneCollisionSpheres(
-      targetObject->m_state,
-      *targetObject->getSkeleton()->getInterpolationInfo(targetObject->m_state).getNearestFrame(),
-      nullptr);
+      targetObject->m_state, *targetObject->getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
   }
   bool hasHit = false;
   glm::vec3 hitPos;
@@ -1921,7 +1919,7 @@ public:
 
 void LaraObject::drawRoutine()
 {
-  const auto interpolationInfo = getSkeleton()->getInterpolationInfo(m_state);
+  const auto interpolationInfo = getSkeleton()->getInterpolationInfo();
   if(!hit_direction.has_value() && interpolationInfo.firstFrame != interpolationInfo.secondFrame)
   {
     drawRoutineInterpolated(interpolationInfo);

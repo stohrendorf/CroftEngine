@@ -23,18 +23,18 @@ class SkeletalModelNode : public render::scene::Node
 {
 public:
   explicit SkeletalModelNode(const std::string& id,
-                             const gsl::not_null<const Engine*>& engine,
-                             const gsl::not_null<const loader::file::SkeletalModelType*>& model);
+                             gsl::not_null<const Engine*> engine,
+                             gsl::not_null<const loader::file::SkeletalModelType*> model);
 
-  void updatePose(objects::ObjectState& state);
+  void updatePose();
 
   void setAnimation(objects::ObjectState& state,
                     const gsl::not_null<const loader::file::Animation*>& animation,
                     core::Frame frame);
 
-  static core::Speed calculateFloorSpeed(const objects::ObjectState& state, const core::Frame& frameOffset = 0_frame);
+  core::Speed calculateFloorSpeed(const core::Frame& frameOffset = 0_frame) const;
 
-  loader::file::BoundingBox getBoundingBox(const objects::ObjectState& state) const;
+  loader::file::BoundingBox getBoundingBox() const;
 
   void resetPose()
   {
@@ -77,7 +77,7 @@ public:
     }
   };
 
-  InterpolationInfo getInterpolationInfo(const objects::ObjectState& state) const;
+  InterpolationInfo getInterpolationInfo() const;
 
   void updatePose(const InterpolationInfo& interpolationInfo)
   {
@@ -111,6 +111,11 @@ public:
   void serialize(const serialization::Serializer& ser);
 
   static void initNodes(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state);
+
+  bool canBeCulled(const glm::mat4& viewProjection) const override;
+
+  const loader::file::Animation* anim = nullptr;
+  core::Frame frame_number = 0_frame;
 
 protected:
   bool handleStateTransitions(objects::ObjectState& state);

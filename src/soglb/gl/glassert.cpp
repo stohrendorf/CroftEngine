@@ -6,7 +6,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/stacktrace.hpp>
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(NO_GL_ASSERT)
 void gl::checkGlError(gsl::czstring code)
 {
   const auto error = api::getError();

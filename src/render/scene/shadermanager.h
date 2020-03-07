@@ -44,6 +44,11 @@ public:
     return get("textured_2.vert", "textured_2.frag", {"WATER"});
   }
 
+  auto getCSMDepthOnly()
+  {
+    return get("csm_depth_only.vert", "empty.frag");
+  }
+
   auto getDepthOnly()
   {
     return get("depth_only.vert", "empty.frag");

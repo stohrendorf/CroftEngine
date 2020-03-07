@@ -41,7 +41,7 @@
 #include <glm/gtx/norm.hpp>
 #include <locale>
 
-constexpr int32_t CSMResolution = 1024;
+constexpr int32_t CSMResolution = 512;
 
 namespace engine
 {
@@ -227,8 +227,11 @@ void Engine::loadSceneData()
 
   for(auto& mesh : m_level->m_meshes)
   {
-    m_models.emplace_back(
-      mesh.createModel(m_level->m_textureTiles, materialFull, m_materialManager->getDepthOnly(), *m_level->m_palette));
+    m_models.emplace_back(mesh.createModel(m_level->m_textureTiles,
+                                           materialFull,
+                                           m_materialManager->getDepthOnly(),
+                                           m_materialManager->getCSMDepthOnly(),
+                                           *m_level->m_palette));
   }
 
   for(auto idx : m_level->m_meshIndices)
@@ -256,6 +259,7 @@ void Engine::loadSceneData()
                                         *m_level,
                                         materialFull,
                                         waterMaterialFull,
+                                        m_materialManager->getDepthOnly(),
                                         m_models,
                                         *m_textureAnimator,
                                         m_materialManager->getSprite(),
@@ -399,8 +403,8 @@ void Engine::laraNormalEffect()
   Expects(m_lara != nullptr);
   m_lara->setCurrentAnimState(loader::file::LaraStateId::Stop);
   m_lara->setRequiredAnimState(loader::file::LaraStateId::Unknown12);
-  m_lara->m_state.anim = &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
-  m_lara->m_state.frame_number = 185_frame;
+  m_lara->getSkeleton()->anim = &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
+  m_lara->getSkeleton()->frame_number = 185_frame;
   m_cameraController->setMode(CameraMode::Chase);
   m_renderer->getCamera()->setFieldOfView(glm::radians(80.0f));
 }
@@ -418,7 +422,7 @@ void Engine::laraBubblesEffect(objects::Object& object)
   object.playSoundEffect(TR1SoundId::LaraUnderwaterGurgle);
 
   const auto boneSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
-    object.m_state, *modelNode->getSkeleton()->getInterpolationInfo(modelNode->m_state).getNearestFrame(), nullptr);
+    object.m_state, *modelNode->getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
 
   const auto position
     = core::TRVec{glm::vec3{translate(boneSpheres.at(14).m, core::TRVec{0_len, 0_len, 50_len}.toRenderSystem())[3]}};
@@ -788,7 +792,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     , m_scriptEngine{createScriptEngine(rootPath)}
     , m_window{std::make_unique<gl::Window>(fullscreen, resolution)}
     , m_renderer{std::make_unique<render::scene::Renderer>(
-        std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 10.0f, 20480.0f))}
+        std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 20.0f, 20480.0f))}
     , splashImage{m_rootPath / "splash.png"}
     , abibasFont{std::make_shared<gl::Font>(m_rootPath / "abibas.ttf")}
     , m_inventory{*this}
@@ -1042,16 +1046,15 @@ void Engine::run()
 {
   ui::debug::DebugView debugView{0, nullptr};
 
-  render::scene::RenderContext context{render::scene::RenderMode::Full};
-  render::scene::Node dummyNode{""};
-  context.setCurrentNode(&dummyNode);
-
   gl::Framebuffer::unbindAll();
 
   screenOverlay->init(*m_shaderManager, m_window->getViewport());
 
   if(const sol::optional<std::string> video = levelInfo["video"])
   {
+    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+    render::scene::Node dummyNode{""};
+    context.setCurrentNode(&dummyNode);
     video::play(m_rootPath / "data/tr1/fmv" / video.value(),
                 m_audioEngine->getSoundEngine().getDevice(),
                 screenOverlay->getImage(),
@@ -1165,18 +1168,21 @@ void Engine::run()
 
     {
       gl::DebugGroup dbg{"csm-pass"};
+      m_renderer->resetRenderState();
       m_csm->update(*m_renderer->getCamera());
       m_csm->applyViewport();
 
       for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
       {
         gl::DebugGroup dbg2{"csm-pass/" + std::to_string(i)};
+        m_renderer->resetRenderState();
 
         m_csm->setActiveSplit(i);
         m_csm->getActiveFramebuffer()->bind();
         m_renderer->clear(gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
-        render::scene::RenderContext context{render::scene::RenderMode::DepthOnly};
+        render::scene::RenderContext context{render::scene::RenderMode::CSMDepthOnly,
+                                             m_csm->getActiveMatrix(glm::mat4{1.0f})};
         render::scene::RenderVisitor visitor{context};
 
         for(const auto& room : m_level->m_rooms)
@@ -1195,13 +1201,35 @@ void Engine::run()
     {
       gl::DebugGroup dbg{"geometry-pass"};
       m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport());
+      m_renderer->clear(
+        gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+
+      {
+        gl::DebugGroup dbg{"depth-prefill-pass"};
+        m_renderer->resetRenderState();
+        render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
+                                             m_cameraController->getCamera()->getViewProjectionMatrix()};
+        for(const auto& room : m_level->m_rooms)
+        {
+          if(!room.node->isVisible())
+            continue;
+
+          gl::DebugGroup debugGroup{room.node->getId()};
+          context.setCurrentNode(room.node.get());
+          room.node->getRenderable()->render(context);
+        }
+      }
+
+      m_renderer->resetRenderState();
       m_renderer->render();
     }
 
     {
       gl::DebugGroup dbg{"portal-depth-pass"};
+      m_renderer->resetRenderState();
 
-      render::scene::RenderContext context{render::scene::RenderMode::DepthOnly};
+      render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
+                                           m_cameraController->getCamera()->getViewProjectionMatrix()};
       render::scene::Node dummyNode{""};
       context.setCurrentNode(&dummyNode);
 
@@ -1212,7 +1240,8 @@ void Engine::run()
       }
     }
 
-    render::scene::RenderContext context{render::scene::RenderMode::Full};
+    render::scene::RenderContext context{render::scene::RenderMode::Full,
+                                         m_cameraController->getCamera()->getViewProjectionMatrix()};
     render::scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
 
@@ -1273,6 +1302,7 @@ void Engine::run()
 
     {
       gl::DebugGroup dbg{"screen-overlay-pass"};
+      m_renderer->resetRenderState();
       screenOverlay->render(context);
     }
     m_window->swapBuffers();
@@ -1349,7 +1379,7 @@ void Engine::drawLoadingScreen(const std::string& state)
 
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-  render::scene::RenderContext context{render::scene::RenderMode::Full};
+  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   render::scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
   screenOverlay->render(context);

@@ -48,6 +48,7 @@ struct RenderModel
   using IndexType = uint16_t;
   std::vector<IndexType> m_indices;
   std::shared_ptr<render::scene::Material> m_materialFull;
+  std::shared_ptr<render::scene::Material> m_materialCSMDepthOnly;
   std::shared_ptr<render::scene::Material> m_materialDepthOnly;
 
   std::shared_ptr<render::scene::Model>
@@ -74,9 +75,11 @@ struct RenderModel
         vBufs,
         std::vector<const gl::Program*>{
           &m_materialFull->getShaderProgram()->getHandle(),
-          m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle()}));
+          m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle(),
+          m_materialCSMDepthOnly == nullptr ? nullptr : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()}));
     mesh->getMaterial()
       .set(render::scene::RenderMode::Full, m_materialFull)
+      .set(render::scene::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly)
       .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly);
     model->addMesh(mesh);
 
@@ -104,6 +107,7 @@ void Room::createSceneNode(const size_t roomId,
                            const level::Level& level,
                            const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
                            const gsl::not_null<std::shared_ptr<render::scene::Material>>& waterMaterialFull,
+                           const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
                            const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
                            render::TextureAnimator& animator,
                            const std::shared_ptr<render::scene::Material>& spriteMaterial,
@@ -114,7 +118,8 @@ void Room::createSceneNode(const size_t roomId,
                          : loader::file::TextureIndexMask;
 
   RenderModel renderModel;
-  renderModel.m_materialDepthOnly = nullptr;
+  renderModel.m_materialDepthOnly = materialDepthOnly;
+  renderModel.m_materialCSMDepthOnly = nullptr;
   renderModel.m_materialFull = isWaterRoom() ? waterMaterialFull : materialFull;
 
   std::vector<RenderVertex> vbufData;
@@ -230,6 +235,7 @@ void Room::createSceneNode(const size_t roomId,
   auto resModel = renderModel.toModel(vbuf, uvCoords);
   resModel->getRenderState().setCullFace(true);
   resModel->getRenderState().setCullFaceSide(gl::api::CullFaceMode::Back);
+  resModel->getRenderState().setBlend(false);
 
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
   node->setRenderable(resModel);
@@ -941,7 +947,7 @@ std::unique_ptr<Camera> Camera::read(io::SDLReader& reader)
   return camera;
 }
 
-void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly)
+void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
 {
   struct Vertex
   {
@@ -962,9 +968,9 @@ void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Materi
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
-    indexBuffer, vb, std::vector<const gl::Program*>{&materialDepthOnly->getShaderProgram()->getHandle()});
+    indexBuffer, vb, std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle()});
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
-  mesh->getMaterial().set(render::scene::RenderMode::DepthOnly, materialDepthOnly);
+  mesh->getMaterial().set(render::scene::RenderMode::DepthOnly, material);
 }
 
 Portal Portal::read(io::SDLReader& reader, const core::TRVec& offset)

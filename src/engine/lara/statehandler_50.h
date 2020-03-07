@@ -34,9 +34,7 @@ public:
   static void emitSparkles(Engine& engine)
   {
     const auto spheres = engine.getLara().getSkeleton()->getBoneCollisionSpheres(
-      engine.getLara().m_state,
-      *engine.getLara().getSkeleton()->getInterpolationInfo(engine.getLara().m_state).getNearestFrame(),
-      nullptr);
+      engine.getLara().m_state, *engine.getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
 
     const auto& normalLara = engine.findAnimatedModelForType(TR1ItemId::Lara);
     Expects(normalLara != nullptr);

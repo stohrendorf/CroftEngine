@@ -19,10 +19,7 @@ Renderer::~Renderer() = default;
 
 void Renderer::render()
 {
-  // Graphics Rendering.
-  clear(gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-
-  RenderContext context{RenderMode::Full};
+  RenderContext context{RenderMode::Full, std::nullopt};
   RenderVisitor visitor{context};
   m_scene->accept(visitor);
 

@@ -31,6 +31,7 @@ public:
 
   [[nodiscard]] const std::shared_ptr<Material>& getSprite();
 
+  [[nodiscard]] const std::shared_ptr<Material>& getCSMDepthOnly();
   [[nodiscard]] const std::shared_ptr<Material>& getDepthOnly();
 
   [[nodiscard]] std::shared_ptr<Material>
@@ -44,6 +45,7 @@ private:
   const gsl::not_null<std::shared_ptr<ShaderManager>> m_shaderManager;
 
   std::shared_ptr<Material> m_sprite{nullptr};
+  std::shared_ptr<Material> m_csmDepthOnly{nullptr};
   std::shared_ptr<Material> m_depthOnly{nullptr};
   std::shared_ptr<Material> m_materialWater{nullptr};
   std::shared_ptr<Material> m_material{nullptr};

@@ -21,16 +21,30 @@ const std::shared_ptr<Material>& MaterialManager::getSprite()
   return m_sprite;
 }
 
+const std::shared_ptr<Material>& MaterialManager::getCSMDepthOnly()
+{
+  if(m_csmDepthOnly != nullptr)
+    return m_csmDepthOnly;
+
+  m_csmDepthOnly = std::make_shared<Material>(m_shaderManager->getCSMDepthOnly());
+  m_csmDepthOnly->getUniform("u_mvp")->bind(
+    [this](const Node& node, gl::Uniform& uniform) { uniform.set(m_csm->getActiveMatrix(node.getModelMatrix())); });
+  m_csmDepthOnly->getRenderState().setDepthTest(true);
+  m_csmDepthOnly->getRenderState().setDepthWrite(true);
+
+  return m_csmDepthOnly;
+}
+
 const std::shared_ptr<Material>& MaterialManager::getDepthOnly()
 {
   if(m_depthOnly != nullptr)
     return m_depthOnly;
 
   m_depthOnly = std::make_shared<Material>(m_shaderManager->getDepthOnly());
-  m_depthOnly->getUniform("u_mvp")->bind(
-    [this](const Node& node, gl::Uniform& uniform) { uniform.set(m_csm->getActiveMatrix(node.getModelMatrix())); });
   m_depthOnly->getRenderState().setDepthTest(true);
   m_depthOnly->getRenderState().setDepthWrite(true);
+  m_depthOnly->getUniformBlock("Transform")->bindTransformBuffer();
+  m_depthOnly->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
 
   return m_depthOnly;
 }

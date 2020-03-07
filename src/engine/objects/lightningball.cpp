@@ -150,7 +150,7 @@ void LightningBall::update()
   {
     // select a random "pole"
     const auto objectSpheres = getSkeleton()->getBoneCollisionSpheres(
-      m_state, *getSkeleton()->getInterpolationInfo(m_state).getNearestFrame(), nullptr);
+      m_state, *getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
     m_mainBoltEnd = core::TRVec{objectSpheres[util::rand15(objectSpheres.size() - 1) + 1].getPosition()}
                     - m_state.position.position;
     m_mainBoltEnd
@@ -200,7 +200,7 @@ void LightningBall::prepareRender()
     getSkeleton()->getChildren()[i]->setVisible(i - 1 >= m_poles);
   }
 
-  const auto nearestFrame = getSkeleton()->getInterpolationInfo(m_state).getNearestFrame();
+  const auto nearestFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto segmentStart = core::TRVec{
     glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f))};
 

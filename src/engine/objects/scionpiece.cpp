@@ -26,10 +26,11 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
        && getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
     {
       getEngine().getLara().alignForInteraction({0_len, 640_len, -310_len}, m_state);
-      getEngine().getLara().m_state.anim = getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations;
+      getEngine().getLara().getSkeleton()->anim
+        = getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations;
+      getEngine().getLara().getSkeleton()->frame_number = getEngine().getLara().getSkeleton()->anim->firstFrame;
       getEngine().getLara().setCurrentAnimState(loader::file::LaraStateId::PickUp);
       getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
-      getEngine().getLara().m_state.frame_number = getEngine().getLara().m_state.anim->firstFrame;
       getEngine().getCameraController().setMode(CameraMode::Cinematic);
       getEngine().getLara().setHandStatus(HandStatus::Grabbing);
       getEngine().getCameraController().m_cinematicFrame = 0;
@@ -37,7 +38,8 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
       getEngine().getCameraController().m_cinematicRot = getEngine().getLara().m_state.rotation;
     }
   }
-  else if(getEngine().getLara().m_state.frame_number == getEngine().getLara().m_state.anim->firstFrame + 44_frame)
+  else if(getEngine().getLara().getSkeleton()->frame_number
+          == getEngine().getLara().getSkeleton()->anim->firstFrame + 44_frame)
   {
     m_state.triggerState = TriggerState::Invisible;
     getEngine().getInventory().put(m_state.type);
@@ -103,8 +105,9 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
   static const core::TRVec alignSpeed{0_len, 280_len, -407_len};
 
   getEngine().getLara().alignTransform(alignSpeed, *this);
-  getEngine().getLara().m_state.anim = getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations;
-  getEngine().getLara().m_state.frame_number = getEngine().getLara().m_state.anim->firstFrame;
+  getEngine().getLara().getSkeleton()->anim
+    = getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations;
+  getEngine().getLara().getSkeleton()->frame_number = getEngine().getLara().getSkeleton()->anim->firstFrame;
   getEngine().getLara().setCurrentAnimState(loader::file::LaraStateId::PickUp);
   getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
   getEngine().getLara().setHandStatus(HandStatus::Grabbing);

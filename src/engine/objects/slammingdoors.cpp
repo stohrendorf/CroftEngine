@@ -20,7 +20,7 @@ void SlammingDoors::update()
       getEngine().getLara().m_state.is_hit = true;
 
       const auto objectSpheres = getSkeleton()->getBoneCollisionSpheres(
-        m_state, *getSkeleton()->getInterpolationInfo(m_state).getNearestFrame(), nullptr);
+        m_state, *getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
 
       const auto emitBlood = [&objectSpheres, this](const core::TRVec& bitePos, size_t boneId) {
         const auto position

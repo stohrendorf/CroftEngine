@@ -1,5 +1,5 @@
-uniform sampler2DShadow u_csmDepth[3];
-uniform float u_lightAmbient;
+layout(binding=1) uniform sampler2DShadow u_csmDepth[3];
+layout(location=10) uniform float u_lightAmbient;
 
 #include "csm_interface.glsl"
 

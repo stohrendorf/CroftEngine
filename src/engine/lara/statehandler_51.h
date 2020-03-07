@@ -21,7 +21,7 @@ public:
     if(alternateLara == nullptr)
       return;
 
-    const auto frameOffs = getLara().m_state.frame_number - getLara().m_state.anim->firstFrame;
+    const auto frameOffs = getLara().getSkeleton()->frame_number - getLara().getSkeleton()->anim->firstFrame;
     switch(frameOffs.get())
     {
     case 5:

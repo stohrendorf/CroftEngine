@@ -41,7 +41,14 @@ public:
   void setData(const std::vector<T>& data, const api::BufferUsageARB usage)
   {
     if(data.empty())
+    {
+      if(size() != 0)
+      {
+        static const T tmp;
+        setData(&tmp, 0, usage);
+      }
       return;
+    }
 
     setData(gsl::not_null<const T*>(data.data()), gsl::narrow<api::core::SizeType>(data.size()), usage);
   }

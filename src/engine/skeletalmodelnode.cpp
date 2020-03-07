@@ -3,32 +3,34 @@
 #include "engine/engine.h"
 #include "engine/objects/object.h"
 #include "loader/file/mesh.h"
+#include "serialization/animation_ptr.h"
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
+#include "serialization/quantity.h"
 #include "serialization/skeletalmodeltype_ptr.h"
 #include "serialization/vector.h"
 
 #include <stack>
+#include <utility>
 
 namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
-                                     const gsl::not_null<const Engine*>& engine,
-                                     const gsl::not_null<const loader::file::SkeletalModelType*>& model)
+                                     gsl::not_null<const Engine*> engine,
+                                     gsl::not_null<const loader::file::SkeletalModelType*> model)
     : Node{id}
-    , m_engine{engine}
-    , m_model{model}
+    , m_engine{std::move(engine)}
+    , m_model{std::move(model)}
 {
 }
 
-core::Speed SkeletalModelNode::calculateFloorSpeed(const objects::ObjectState& state, const core::Frame& frameOffset)
+core::Speed SkeletalModelNode::calculateFloorSpeed(const core::Frame& frameOffset) const
 {
-  const auto scaled
-    = state.anim->speed + state.anim->acceleration * (state.frame_number - state.anim->firstFrame + frameOffset);
+  const auto scaled = anim->speed + anim->acceleration * (frame_number - anim->firstFrame + frameOffset);
   return scaled / (1 << 16);
 }
 
-SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(const objects::ObjectState& state) const
+SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
 {
   /*
      * == Animation Layout ==
@@ -43,16 +45,16 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
      */
   InterpolationInfo result;
 
-  Expects(state.anim != nullptr);
-  Expects(state.anim->segmentLength > 0_frame);
+  Expects(anim != nullptr);
+  Expects(anim->segmentLength > 0_frame);
 
-  Expects(state.frame_number >= state.anim->firstFrame && state.frame_number <= state.anim->lastFrame);
-  const auto firstKeyframeIndex = (state.frame_number - state.anim->firstFrame) / state.anim->segmentLength;
+  Expects(frame_number >= anim->firstFrame && frame_number <= anim->lastFrame);
+  const auto firstKeyframeIndex = (frame_number - anim->firstFrame) / anim->segmentLength;
 
-  result.firstFrame = state.anim->frames->next(firstKeyframeIndex);
+  result.firstFrame = anim->frames->next(firstKeyframeIndex);
   Expects(m_engine->isValid(result.firstFrame));
 
-  if(state.frame_number >= state.anim->lastFrame)
+  if(frame_number >= anim->lastFrame)
   {
     result.secondFrame = result.firstFrame;
     return result;
@@ -61,13 +63,13 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
   result.secondFrame = result.firstFrame->next();
   Expects(m_engine->isValid(result.secondFrame));
 
-  auto segmentDuration = state.anim->segmentLength;
-  const auto segmentFrame = (state.frame_number - state.anim->firstFrame) % state.anim->segmentLength;
+  auto segmentDuration = anim->segmentLength;
+  const auto segmentFrame = (frame_number - anim->firstFrame) % anim->segmentLength;
 
-  if((firstKeyframeIndex + 1) * state.anim->segmentLength >= state.anim->getFrameCount())
+  if((firstKeyframeIndex + 1) * anim->segmentLength >= anim->getFrameCount())
   {
     // second keyframe beyond end
-    const auto tmp = state.anim->getFrameCount() % state.anim->segmentLength;
+    const auto tmp = anim->getFrameCount() % anim->segmentLength;
     if(tmp != 0_frame)
       segmentDuration = tmp + 1_frame;
   }
@@ -78,14 +80,14 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo(con
   return result;
 }
 
-void SkeletalModelNode::updatePose(objects::ObjectState& state)
+void SkeletalModelNode::updatePose()
 {
   if(getChildren().empty())
     return;
 
   BOOST_ASSERT(getChildren().size() >= m_model->meshes.size());
 
-  updatePose(getInterpolationInfo(state));
+  updatePose(getInterpolationInfo());
 }
 
 void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePair)
@@ -194,9 +196,9 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
   }
 }
 
-loader::file::BoundingBox SkeletalModelNode::getBoundingBox(const objects::ObjectState& state) const
+loader::file::BoundingBox SkeletalModelNode::getBoundingBox() const
 {
-  const auto framePair = getInterpolationInfo(state);
+  const auto framePair = getInterpolationInfo();
   BOOST_ASSERT(framePair.bias >= 0 && framePair.bias <= 1);
 
   if(framePair.secondFrame != nullptr)
@@ -208,18 +210,18 @@ loader::file::BoundingBox SkeletalModelNode::getBoundingBox(const objects::Objec
 
 bool SkeletalModelNode::handleStateTransitions(objects::ObjectState& state)
 {
-  Expects(state.anim != nullptr);
-  if(state.anim->state_id == state.goal_anim_state)
+  Expects(anim != nullptr);
+  if(anim->state_id == state.goal_anim_state)
     return false;
 
-  for(const loader::file::Transitions& tr : state.anim->transitions)
+  for(const loader::file::Transitions& tr : anim->transitions)
   {
     if(tr.stateId != state.goal_anim_state)
       continue;
 
     const auto it = std::find_if(
-      tr.transitionCases.cbegin(), tr.transitionCases.cend(), [&state](const loader::file::TransitionCase& trc) {
-        return state.frame_number >= trc.firstFrame && state.frame_number <= trc.lastFrame;
+      tr.transitionCases.cbegin(), tr.transitionCases.cend(), [this](const loader::file::TransitionCase& trc) {
+        return frame_number >= trc.firstFrame && frame_number <= trc.lastFrame;
       });
 
     if(it != tr.transitionCases.cend())
@@ -242,22 +244,22 @@ void SkeletalModelNode::setAnimation(objects::ObjectState& state,
   if(frame < animation->firstFrame || frame > animation->lastFrame)
     frame = animation->firstFrame;
 
-  state.anim = animation;
-  state.frame_number = frame;
-  state.current_anim_state = state.anim->state_id;
+  anim = animation;
+  frame_number = frame;
+  state.current_anim_state = anim->state_id;
 }
 
 bool SkeletalModelNode::advanceFrame(objects::ObjectState& state)
 {
-  state.frame_number += 1_frame;
+  frame_number += 1_frame;
   if(handleStateTransitions(state))
   {
-    state.current_anim_state = state.anim->state_id;
+    state.current_anim_state = anim->state_id;
     if(state.current_anim_state == state.required_anim_state)
       state.required_anim_state = 0_as;
   }
 
-  return state.frame_number > state.anim->lastFrame;
+  return frame_number > anim->lastFrame;
 }
 
 std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres(const objects::ObjectState& state,
@@ -328,7 +330,11 @@ void SkeletalModelNode::serialize(const serialization::Serializer& ser)
   m_bonePatches.resize(getChildren().size(), glm::mat4{1.0f});
 
   auto id = getId();
-  ser(S_NV("id", id), S_NV("model", m_model), S_NV("bonePatches", m_bonePatches));
+  ser(S_NV("id", id),
+      S_NV("model", m_model),
+      S_NV("bonePatches", m_bonePatches),
+      S_NV("anim", anim),
+      S_NV("frame", frame_number));
 }
 
 void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer& ser)
@@ -360,7 +366,33 @@ void SkeletalModelNode::initNodes(const std::shared_ptr<SkeletalModelNode>& skel
 
   Ensures(skeleton->getChildren().size() == gsl::narrow<size_t>(skeleton->m_model->meshes.size()));
 
-  skeleton->updatePose(state);
+  skeleton->updatePose();
+}
+
+bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
+{
+  const auto bbox = getInterpolationInfo().firstFrame->bbox.toBBox();
+  const glm::vec3 corners[]{
+    core::TRVec{bbox.maxX, bbox.maxY, bbox.maxZ}.toRenderSystem(),
+    core::TRVec{bbox.maxX, bbox.maxY, bbox.minZ}.toRenderSystem(),
+    core::TRVec{bbox.maxX, bbox.minY, bbox.maxZ}.toRenderSystem(),
+    core::TRVec{bbox.maxX, bbox.minY, bbox.minZ}.toRenderSystem(),
+    core::TRVec{bbox.minX, bbox.maxY, bbox.maxZ}.toRenderSystem(),
+    core::TRVec{bbox.minX, bbox.maxY, bbox.minZ}.toRenderSystem(),
+    core::TRVec{bbox.minX, bbox.minY, bbox.maxZ}.toRenderSystem(),
+    core::TRVec{bbox.minX, bbox.minY, bbox.minZ}.toRenderSystem(),
+  };
+
+  glm::vec2 min{1000.0f}, max{-1000.0f};
+  for(const auto& v : corners)
+  {
+    auto proj = viewProjection * getModelMatrix() * glm::vec4{v, 1.0f};
+    proj /= proj.w;
+    min = glm::min(min, glm::vec2{proj});
+    max = glm::max(max, glm::vec2{proj});
+  }
+
+  return min.x > 1 || min.y > 1 || max.x < -1 || max.y < -1;
 }
 
 } // namespace engine

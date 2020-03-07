@@ -5,6 +5,8 @@
 
 #include <gl/debuggroup.h>
 
+// #define RENDER_SYNCHRONOUS
+
 namespace render::scene
 {
 class RenderVisitor : public Visitor
@@ -18,7 +20,10 @@ public:
   void visit(Node& node) override
   {
     if(!node.isVisible())
+      return;
+    if(getContext().getViewProjection().has_value() && node.canBeCulled(getContext().getViewProjection().value()))
     {
+      gl::DebugGroup debugGroup{node.getId() + " <culled>"};
       return;
     }
 
@@ -29,6 +34,9 @@ public:
     if(auto dr = node.getRenderable())
     {
       dr->render(getContext());
+#ifdef RENDER_SYNCHRONOUS
+      GL_ASSERT(gl::api::finish());
+#endif
     }
 
     Visitor::visit(node);

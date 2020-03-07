@@ -141,6 +141,17 @@ public:
   {
     GL_ASSERT(api::bindFramebuffer(api::FramebufferTarget::Framebuffer, 0));
   }
+
+  void invalidate()
+  {
+    std::vector<gl::api::FramebufferAttachment> attachments;
+    attachments.reserve(m_attachments.size());
+    std::transform(m_attachments.begin(), m_attachments.end(), std::back_inserter(attachments), [](const auto& src) {
+      return src.second;
+    });
+    gl::api::invalidateNamedFramebufferData(
+      getHandle(), gsl::narrow<gl::api::core::SizeType>(attachments.size()), attachments.data());
+  }
 };
 
 inline void TextureAttachment::attach(const Framebuffer& framebuffer, api::FramebufferAttachment attachment) const

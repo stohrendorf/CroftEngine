@@ -217,9 +217,7 @@ bool FlameParticle::update(Engine& engine)
     }
 
     const auto itemSpheres = engine.getLara().getSkeleton()->getBoneCollisionSpheres(
-      engine.getLara().m_state,
-      *engine.getLara().getSkeleton()->getInterpolationInfo(engine.getLara().m_state).getNearestFrame(),
-      nullptr);
+      engine.getLara().m_state, *engine.getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
 
     pos.position
       = core::TRVec{glm::vec3{translate(itemSpheres.at(-timePerSpriteFrame - 1).m, pos.position.toRenderSystem())[3]}};
@@ -299,7 +297,7 @@ bool MeshShrapnelParticle::update(Engine& engine)
 void MutantAmmoParticle::aimLaraChest(Engine& engine)
 {
   const auto d = engine.getLara().m_state.position.position - pos.position;
-  const auto bbox = engine.getLara().getSkeleton()->getBoundingBox(engine.getLara().m_state);
+  const auto bbox = engine.getLara().getSkeleton()->getBoundingBox();
   angle.X
     = util::rand15s(256_au)
       - angleFromAtan(bbox.maxY + (bbox.minY - bbox.maxY) * 3 / 4 + d.Y, sqrt(util::square(d.X) + util::square(d.Z)));

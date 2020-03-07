@@ -91,12 +91,12 @@ public:
       if(collisionInfo.front.floorSpace.slantClass == SlantClass::None
          && collisionInfo.front.floorSpace.y < -core::ClimbLimit2ClickMax)
       {
-        if(getLara().m_state.frame_number < 10_frame)
+        if(getLara().getSkeleton()->frame_number < 10_frame)
         {
           setAnimation(AnimationId::WALL_SMASH_LEFT, 800_frame);
           return;
         }
-        if(getLara().m_state.frame_number >= 10_frame && getLara().m_state.frame_number < 22_frame)
+        if(getLara().getSkeleton()->frame_number >= 10_frame && getLara().getSkeleton()->frame_number < 22_frame)
         {
           setAnimation(AnimationId::WALL_SMASH_RIGHT, 815_frame);
           return;
@@ -118,7 +118,7 @@ public:
     if(collisionInfo.mid.floorSpace.y >= -core::ClimbLimit2ClickMin
        && collisionInfo.mid.floorSpace.y < -core::SteppableHeight)
     {
-      if(getLara().m_state.frame_number >= 3_frame && getLara().m_state.frame_number <= 14_frame)
+      if(getLara().getSkeleton()->frame_number >= 3_frame && getLara().getSkeleton()->frame_number <= 14_frame)
       {
         setAnimation(AnimationId::RUN_UP_STEP_LEFT, 837_frame);
       }

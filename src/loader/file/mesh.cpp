@@ -44,6 +44,7 @@ class ModelBuilder final
   const std::vector<TextureTile>& m_textureTiles;
   const gsl::not_null<std::shared_ptr<render::scene::Material>> m_materialFull;
   const gsl::not_null<std::shared_ptr<render::scene::Material>> m_materialDepthOnly;
+  const gsl::not_null<std::shared_ptr<render::scene::Material>> m_materialCSMDepthOnly;
   const Palette& m_palette;
   std::shared_ptr<gl::VertexBuffer<RenderVertex>> m_vb;
   const std::string m_label;
@@ -56,12 +57,14 @@ public:
                         const std::vector<TextureTile>& textureTiles,
                         gsl::not_null<std::shared_ptr<render::scene::Material>> materialFull,
                         gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
+                        gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
                         const Palette& palette,
                         std::string label = {})
       : m_hasNormals{withNormals}
       , m_textureTiles{textureTiles}
       , m_materialFull{std::move(materialFull)}
       , m_materialDepthOnly{std::move(materialDepthOnly)}
+      , m_materialCSMDepthOnly{std::move(materialCSMDepthOnly)}
       , m_palette{palette}
       , m_vb{std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label)}
       , m_label{std::move(label)}
@@ -313,12 +316,14 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
     m_vb,
     std::vector<const gl::Program*>{
       &m_materialFull->getShaderProgram()->getHandle(),
+      m_materialCSMDepthOnly == nullptr ? nullptr : &m_materialCSMDepthOnly->getShaderProgram()->getHandle(),
       m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle()},
     m_label);
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, gl::api::PrimitiveType::Triangles);
   mesh->getMaterial()
     .set(render::scene::RenderMode::Full, m_materialFull)
-    .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly);
+    .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly)
+    .set(render::scene::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly);
 
   model->addMesh(mesh);
 
@@ -330,10 +335,17 @@ std::shared_ptr<render::scene::Model>
   Mesh::createModel(const std::vector<TextureTile>& textureTiles,
                     const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
                     gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
+                    gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
                     const Palette& palette,
                     const std::string& label) const
 {
-  ModelBuilder mb{!normals.empty(), textureTiles, materialFull, std::move(materialDepthOnly), palette, label};
+  ModelBuilder mb{!normals.empty(),
+                  textureTiles,
+                  materialFull,
+                  std::move(materialDepthOnly),
+                  std::move(materialCSMDepthOnly),
+                  palette,
+                  label};
 
   mb.append(*this);
 

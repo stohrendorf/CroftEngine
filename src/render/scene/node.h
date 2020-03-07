@@ -66,6 +66,7 @@ public:
 
     m_dirty = false;
 
+    const auto old = m_transform.modelMatrix;
     if(const auto p = getParent().lock())
     {
       m_transform.modelMatrix = p->getModelMatrix() * m_localMatrix;
@@ -74,6 +75,7 @@ public:
     {
       m_transform.modelMatrix = m_localMatrix;
     }
+    m_bufferDirty |= m_transform.modelMatrix != old;
     return m_transform.modelMatrix;
   }
 
@@ -214,8 +216,17 @@ public:
   [[nodiscard]] const auto& getTransformBuffer() const
   {
     getModelMatrix(); // update data if dirty
+    if(!m_bufferDirty)
+      return m_transformBuffer;
+
+    m_bufferDirty = false;
     m_transformBuffer.setData(m_transform, ::gl::api::BufferUsageARB::StreamDraw);
     return m_transformBuffer;
+  }
+
+  virtual bool canBeCulled(const glm::mat4& viewProjection) const
+  {
+    return false;
   }
 
 private:
@@ -230,6 +241,7 @@ private:
   glm::mat4 m_localMatrix{1.0f};
 
   mutable bool m_dirty = false;
+  mutable bool m_bufferDirty = true;
   mutable Transform m_transform{};
   mutable gl::UniformBuffer<Transform> m_transformBuffer;
 

@@ -47,10 +47,10 @@ void Rat::update()
       if(!waterHeight.has_value())
       {
         m_state.type = TR1ItemId::RatOnLand;
-        m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[0];
-        m_state.frame_number = m_state.anim->firstFrame;
-        goal(m_state.anim->state_id);
-        m_state.current_anim_state = m_state.anim->state_id;
+        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[0];
+        getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+        goal(getSkeleton()->anim->state_id);
+        m_state.current_anim_state = getSkeleton()->anim->state_id;
 
         loadObjectInfo(true);
       }
@@ -78,8 +78,8 @@ void Rat::update()
     {
       if(m_state.current_anim_state != 3_as)
       {
-        m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[2];
-        m_state.frame_number = m_state.anim->firstFrame;
+        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[2];
+        getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         m_state.current_anim_state = 3_as;
       }
       rotateCreatureHead(0_deg);
@@ -94,9 +94,9 @@ void Rat::update()
       if(!getWaterSurfaceHeight().has_value())
       {
         m_state.type = TR1ItemId::RatOnLand;
-        m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8];
+        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8];
+        getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         goal(5_as);
-        m_state.frame_number = m_state.anim->firstFrame;
         m_state.current_anim_state = m_state.goal_anim_state;
         m_state.position.position.Y = m_state.floor;
         applyTransform();
@@ -163,18 +163,18 @@ void Rat::update()
     }
     else if(m_state.current_anim_state != 5_as)
     {
-      m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8];
+      getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8];
+      getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
       m_state.current_anim_state = 5_as;
-      m_state.frame_number = m_state.anim->firstFrame;
     }
     rotateCreatureHead(headRot);
     if(const auto waterHeight = getWaterSurfaceHeight())
     {
       m_state.type = TR1ItemId::RatInWater;
-      m_state.anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0];
-      m_state.frame_number = m_state.anim->firstFrame;
-      goal(m_state.anim->state_id);
-      m_state.current_anim_state = m_state.anim->state_id;
+      getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0];
+      getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+      goal(getSkeleton()->anim->state_id);
+      m_state.current_anim_state = getSkeleton()->anim->state_id;
       m_state.position.position.Y = waterHeight.value();
       applyTransform();
 

@@ -11,15 +11,10 @@ class RenderState final
 {
 public:
   RenderState(const RenderState&) = default;
-
   RenderState(RenderState&&) = default;
-
   RenderState& operator=(const RenderState&) = default;
-
   RenderState& operator=(RenderState&&) = default;
-
   explicit RenderState() = default;
-
   ~RenderState() = default;
 
   void apply(bool force = false) const;
@@ -188,25 +183,15 @@ private:
 
   // States
   DefaultedOptional<bool, false> m_cullFaceEnabled;
-
   DefaultedOptional<bool, true> m_depthTestEnabled;
-
   DefaultedOptional<bool, true> m_depthWriteEnabled;
-
   DefaultedOptional<api::DepthFunction, api::DepthFunction::Less> m_depthFunction;
-
   DefaultedOptional<bool, true> m_blendEnabled;
-
   DefaultedOptional<api::BlendingFactor, api::BlendingFactor::SrcAlpha> m_blendSrc;
-
   DefaultedOptional<api::BlendingFactor, api::BlendingFactor::OneMinusSrcAlpha> m_blendDst;
-
   DefaultedOptional<api::CullFaceMode, api::CullFaceMode::Back> m_cullFaceSide;
-
   DefaultedOptional<api::FrontFaceDirection, api::FrontFaceDirection::Cw> m_frontFace;
-
   DefaultedOptionalF m_lineWidth{1.0f};
-
   DefaultedOptional<bool, true> m_lineSmooth;
 
   static inline RenderState& getCurrentState();

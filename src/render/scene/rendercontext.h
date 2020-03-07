@@ -3,7 +3,9 @@
 #include "rendermode.h"
 
 #include <gl/renderstate.h>
+#include <glm/glm.hpp>
 #include <gsl-lite.hpp>
+#include <optional>
 #include <stack>
 
 namespace render::scene
@@ -12,8 +14,9 @@ class Node;
 class RenderContext final
 {
 public:
-  explicit RenderContext(RenderMode renderMode)
+  explicit RenderContext(RenderMode renderMode, const std::optional<glm::mat4>& viewProjection)
       : m_renderMode{renderMode}
+      , m_viewProjection{viewProjection}
   {
     m_renderStates.push(gl::RenderState());
   }
@@ -46,14 +49,20 @@ public:
     m_renderStates.pop();
   }
 
-  RenderMode getRenderMode() const noexcept
+  [[nodiscard]] RenderMode getRenderMode() const noexcept
   {
     return m_renderMode;
+  }
+
+  [[nodiscard]] const auto& getViewProjection() const noexcept
+  {
+    return m_viewProjection;
   }
 
 private:
   Node* m_currentNode = nullptr;
   std::stack<gl::RenderState> m_renderStates{};
   const RenderMode m_renderMode;
+  const std::optional<glm::mat4> m_viewProjection;
 };
 } // namespace render::scene

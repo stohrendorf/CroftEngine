@@ -38,8 +38,8 @@ void Doppelganger::update()
     const auto laraSector = findRealFloorSector(lara.m_state.position.position, lara.m_state.position.room);
     const auto laraHeight
       = HeightInfo::fromFloor(laraSector, lara.m_state.position.position, getEngine().getObjects()).y;
-    m_state.frame_number = lara.m_state.frame_number;
-    m_state.anim = lara.m_state.anim;
+    getSkeleton()->frame_number = lara.getSkeleton()->frame_number;
+    getSkeleton()->anim = lara.getSkeleton()->anim;
     m_state.position.position = twinPos;
     m_state.rotation = lara.m_state.rotation - core::TRRotation{0_deg, 180_deg, 0_deg};
 

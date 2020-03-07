@@ -74,8 +74,6 @@ public:
   core::AnimStateId current_anim_state = 0_as;
   core::AnimStateId goal_anim_state = 0_as;
   core::AnimStateId required_anim_state = 0_as;
-  const loader::file::Animation* anim = nullptr;
-  core::Frame frame_number = 0_frame;
   core::Health health = 0_hp;
   TriggerState triggerState = TriggerState::Inactive;
   core::Frame timer = 0_frame;

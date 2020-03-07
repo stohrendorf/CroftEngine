@@ -61,6 +61,12 @@ public:
     return m_camera;
   }
 
+  void resetRenderState()
+  {
+    static gl::RenderState state;
+    state.apply(true);
+  }
+
 private:
   const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
 

@@ -13,11 +13,22 @@ struct Lighting
     glm::vec3 position = glm::vec3{std::numeric_limits<float>::quiet_NaN()};
     float brightness = 0;
     float fadeDistance = 0;
+
+    bool operator==(const Light& rhs) const
+    {
+      return position == rhs.position && brightness == rhs.brightness && fadeDistance == rhs.fadeDistance;
+    }
+
+    bool operator!=(const Light& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
   static_assert(sizeof(Light) == 32, "Invalid Light struct size");
 
   core::Brightness ambient{};
   std::vector<Light> lights;
+  std::vector<Light> bufferLights;
 
   gl::ShaderStorageBuffer<Light> m_buffer{"lights-buffer"};
 
@@ -60,7 +71,9 @@ struct Lighting
       }
     }
 
-    m_buffer.setData(lights, gl::api::BufferUsageARB::StreamDraw);
+    if(bufferLights != lights)
+      m_buffer.setData(lights, gl::api::BufferUsageARB::StreamDraw);
+    bufferLights = lights;
   }
 
   void updateStatic(const core::Shade& shade)

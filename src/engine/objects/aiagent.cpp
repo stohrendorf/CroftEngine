@@ -96,7 +96,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     return false;
   }
 
-  const auto bbox = getSkeleton()->getBoundingBox(m_state);
+  const auto bbox = getSkeleton()->getBoundingBox();
   const auto bboxMinY = m_state.position.position.Y + bbox.minY;
 
   auto room = m_state.position.room;

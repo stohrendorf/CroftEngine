@@ -74,7 +74,7 @@ public:
 
     if(checkWallCollision(collisionInfo))
     {
-      const auto fr = getLara().m_state.frame_number;
+      const auto fr = getLara().getSkeleton()->frame_number;
       if(fr >= 29_frame && fr <= 47_frame)
       {
         setAnimation(AnimationId::END_WALK_LEFT, 74_frame);
@@ -99,7 +99,7 @@ public:
 
     if(collisionInfo.mid.floorSpace.y > core::SteppableHeight)
     {
-      const auto fr = getLara().m_state.frame_number;
+      const auto fr = getLara().getSkeleton()->frame_number;
       if(fr < 28_frame || fr > 45_frame)
       {
         setAnimation(AnimationId::WALK_DOWN_RIGHT, 887_frame);
@@ -113,7 +113,7 @@ public:
     if(collisionInfo.mid.floorSpace.y >= -core::ClimbLimit2ClickMin
        && collisionInfo.mid.floorSpace.y < -core::SteppableHeight)
     {
-      const auto fr = getLara().m_state.frame_number;
+      const auto fr = getLara().getSkeleton()->frame_number;
       if(fr < 27_frame || fr > 44_frame)
       {
         setAnimation(AnimationId::WALK_UP_STEP_RIGHT, 844_frame);

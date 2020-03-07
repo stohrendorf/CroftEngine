@@ -40,8 +40,8 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
     }
     if(getEngine().getLara().m_state.health <= 0_hp)
     {
-      getEngine().getLara().m_state.anim = &getEngine().getAnimation(loader::file::AnimationId::SPIKED);
-      getEngine().getLara().m_state.frame_number = 3887_frame;
+      getEngine().getLara().getSkeleton()->anim = &getEngine().getAnimation(loader::file::AnimationId::SPIKED);
+      getEngine().getLara().getSkeleton()->frame_number = 3887_frame;
       getEngine().getLara().setCurrentAnimState(loader::file::LaraStateId::Death);
       getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::Death);
       getEngine().getLara().m_state.falling = false;

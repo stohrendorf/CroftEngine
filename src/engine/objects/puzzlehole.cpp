@@ -61,7 +61,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     m_state.triggerState = TriggerState::Active;
   }
   else if(getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::InsertPuzzle
-          && getEngine().getLara().m_state.frame_number == 3372_frame
+          && getEngine().getLara().getSkeleton()->frame_number == 3372_frame
           && limits.canInteract(m_state, getEngine().getLara().m_state))
   {
     TR1ItemId completeId;

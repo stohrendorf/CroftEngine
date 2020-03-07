@@ -36,7 +36,11 @@ void RenderPipeline::finalPass(const bool water)
   {
     gl::DebugGroup dbg{"ssao-pass"};
     m_ssaoFb->bindWithAttachments();
-    scene::RenderContext context{scene::RenderMode::Full};
+
+    gl::RenderState state;
+    state.setBlend(false);
+    state.apply(true);
+    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
     scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
 
@@ -46,12 +50,17 @@ void RenderPipeline::finalPass(const bool water)
     m_ssaoBlurFb->bindWithAttachments();
     m_fbModel->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, m_ssaoBlurMaterial);
     m_fbModel->render(context);
+    m_ssaoFb->invalidate();
   }
 
   {
     gl::DebugGroup dbg{"fxaa-pass"};
     m_fxaaFb->bindWithAttachments();
-    scene::RenderContext context{scene::RenderMode::Full};
+
+    gl::RenderState state;
+    state.setBlend(false);
+    state.apply(true);
+    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
     scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
 
@@ -66,11 +75,20 @@ void RenderPipeline::finalPass(const bool water)
       m_fbModel->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, m_fxWaterDarknessMaterial);
     else
       m_fbModel->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, m_fxDarknessMaterial);
-    scene::RenderContext context{scene::RenderMode::Full};
+
+    gl::RenderState state;
+    state.setBlend(false);
+    state.apply(true);
+    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
     scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
     m_fbModel->render(context);
+    m_fxaaFb->invalidate();
   }
+
+  m_portalFb->invalidate();
+  m_geometryFb->invalidate();
+  m_ssaoBlurFb->invalidate();
 }
 
 void RenderPipeline::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,

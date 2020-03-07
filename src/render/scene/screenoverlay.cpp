@@ -53,5 +53,6 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
   m_mesh->getRenderState().setCullFace(false);
   m_mesh->getRenderState().setDepthWrite(false);
   m_mesh->getRenderState().setDepthTest(false);
+  m_mesh->getRenderState().setBlend(true);
 }
 } // namespace render::scene

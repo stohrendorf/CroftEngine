@@ -2,7 +2,7 @@ uniform sampler2D u_texture;
 uniform sampler2D u_portalDepth;
 uniform sampler2D u_portalPerturb;
 uniform sampler2D u_ao;
-uniform float u_time;
+layout(location=6) uniform float u_time;
 
 #include "flat_pipeline_interface.glsl"
 #include "camera_interface.glsl"
@@ -15,7 +15,7 @@ const float PI = 3.14159265;
 
 #include "water.glsl"
 
-// #define DOF
+#define DOF
 
 #include "depth.glsl"
 #ifdef DOF

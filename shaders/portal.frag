@@ -1,7 +1,7 @@
 #include "portal_pipeline_interface.glsl"
 #include "camera_interface.glsl"
 
-uniform float u_time;
+layout(location=6) uniform float u_time;
 
 layout(location=0) out vec2 out_perturb;
 
