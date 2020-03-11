@@ -17,7 +17,7 @@ public:
   Renderable& operator=(Renderable&&) = delete;
   Renderable& operator=(const Renderable&) = delete;
 
-  virtual void render(RenderContext& context) = 0;
+  virtual bool render(RenderContext& context) = 0;
 
   gl::RenderState& getRenderState()
   {

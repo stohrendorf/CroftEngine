@@ -9,9 +9,8 @@ layout(location=6) uniform float u_time;
 
 layout(location=0) out vec4 out_color;
 
-const float PI = 3.14159265;
-
 #include "util.glsl"
+#include "constants.glsl"
 
 #include "water.glsl"
 

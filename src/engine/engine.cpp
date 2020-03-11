@@ -41,7 +41,7 @@
 #include <glm/gtx/norm.hpp>
 #include <locale>
 
-constexpr int32_t CSMResolution = 512;
+constexpr int32_t CSMResolution = 1024;
 
 namespace engine
 {
@@ -1218,10 +1218,15 @@ void Engine::run()
           context.setCurrentNode(room.node.get());
           room.node->getRenderable()->render(context);
         }
+        if constexpr(render::RenderPipeline::FlushStages)
+          GL_ASSERT(gl::api::finish());
       }
 
       m_renderer->resetRenderState();
       m_renderer->render();
+
+      if constexpr(render::RenderPipeline::FlushStages)
+        GL_ASSERT(gl::api::finish());
     }
 
     {
@@ -1238,6 +1243,8 @@ void Engine::run()
       {
         portal->mesh->render(context);
       }
+      if constexpr(render::RenderPipeline::FlushStages)
+        GL_ASSERT(gl::api::finish());
     }
 
     render::scene::RenderContext context{render::scene::RenderMode::Full,

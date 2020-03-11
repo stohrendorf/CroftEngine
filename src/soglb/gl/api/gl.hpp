@@ -137,6 +137,23 @@ constexpr core::Bitfield<AttribMask> operator|(AttribMask left, AttribMask right
 
 enum class AttributeType : core::EnumType
 {
+  Float = 0x1406,
+  Int = 0x1404,
+  UnsignedInt = 0x1405,
+#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
+  || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) \
+  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
+  || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_6_core)
+  Double = 0x140A,
+#endif
 #if defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
   || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                                \
   || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                  \
@@ -160,6 +177,12 @@ enum class AttributeType : core::EnumType
   IntVec2 = 0x8B53,
   IntVec3 = 0x8B54,
   IntVec4 = 0x8B55,
+  Sampler1d = 0x8B5D,
+  Sampler1dShadow = 0x8B61,
+  Sampler2d = 0x8B5E,
+  Sampler2dShadow = 0x8B62,
+  Sampler3d = 0x8B5F,
+  SamplerCube = 0x8B60,
 #endif
 #if defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
   || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                  \
@@ -177,6 +200,130 @@ enum class AttributeType : core::EnumType
   FloatMat3x4 = 0x8B68,
   FloatMat4x2 = 0x8B69,
   FloatMat4x3 = 0x8B6A,
+#endif
+#if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  IntSampler1d = 0x8DC9,
+  IntSampler1dArray = 0x8DCE,
+  IntSampler2d = 0x8DCA,
+  IntSampler2dArray = 0x8DCF,
+  IntSampler3d = 0x8DCB,
+  IntSamplerCube = 0x8DCC,
+  Sampler1dArrayShadow = 0x8DC3,
+  Sampler2dArrayShadow = 0x8DC4,
+  SamplerCubeShadow = 0x8DC5,
+  UnsignedIntSampler1d = 0x8DD1,
+  UnsignedIntSampler1dArray = 0x8DD6,
+  UnsignedIntSampler2d = 0x8DD2,
+  UnsignedIntSampler2dArray = 0x8DD7,
+  UnsignedIntSampler3d = 0x8DD3,
+  UnsignedIntSamplerCube = 0x8DD4,
+  UnsignedIntVec2 = 0x8DC6,
+  UnsignedIntVec3 = 0x8DC7,
+  UnsignedIntVec4 = 0x8DC8,
+#endif
+#if defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  IntSampler2dRect = 0x8DCD,
+  IntSamplerBuffer = 0x8DD0,
+  Sampler2dRect = 0x8B63,
+  Sampler2dRectShadow = 0x8B64,
+  SamplerBuffer = 0x8DC2,
+  UnsignedIntSampler2dRect = 0x8DD5,
+  UnsignedIntSamplerBuffer = 0x8DD8,
+#endif
+#if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
+  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) \
+  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) \
+  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) \
+  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) \
+  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) \
+  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) \
+  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) \
+  || defined(API_LEVEL_GL_VERSION_4_6_core)
+  IntSampler2dMultisample = 0x9109,
+  IntSampler2dMultisampleArray = 0x910C,
+  Sampler2dMultisample = 0x9108,
+  Sampler2dMultisampleArray = 0x910B,
+  UnsignedIntSampler2dMultisample = 0x910A,
+  UnsignedIntSampler2dMultisampleArray = 0x910D,
+#endif
+#if defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)  \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  DoubleMat2 = 0x8F46,
+  DoubleMat2x3 = 0x8F49,
+  DoubleMat2x4 = 0x8F4A,
+  DoubleMat3 = 0x8F47,
+  DoubleMat3x2 = 0x8F4B,
+  DoubleMat3x4 = 0x8F4C,
+  DoubleMat4 = 0x8F48,
+  DoubleMat4x2 = 0x8F4D,
+  DoubleMat4x3 = 0x8F4E,
+  DoubleVec2 = 0x8FFC,
+  DoubleVec3 = 0x8FFD,
+  DoubleVec4 = 0x8FFE,
+  IntSamplerCubeMapArray = 0x900E,
+  SamplerCubeMapArray = 0x900C,
+  SamplerCubeMapArrayShadow = 0x900D,
+  UnsignedIntSamplerCubeMapArray = 0x900F,
+#endif
+#if defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)  \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  Image1d = 0x904C,
+  Image1dArray = 0x9052,
+  Image2d = 0x904D,
+  Image2dArray = 0x9053,
+  Image2dMultisample = 0x9055,
+  Image2dMultisampleArray = 0x9056,
+  Image2dRect = 0x904F,
+  Image3d = 0x904E,
+  ImageBuffer = 0x9051,
+  ImageCube = 0x9050,
+  ImageCubeMapArray = 0x9054,
+  IntImage1d = 0x9057,
+  IntImage1dArray = 0x905D,
+  IntImage2d = 0x9058,
+  IntImage2dArray = 0x905E,
+  IntImage2dMultisample = 0x9060,
+  IntImage2dMultisampleArray = 0x9061,
+  IntImage2dRect = 0x905A,
+  IntImage3d = 0x9059,
+  IntImageBuffer = 0x905C,
+  IntImageCube = 0x905B,
+  IntImageCubeMapArray = 0x905F,
+  UnsignedIntImage1d = 0x9062,
+  UnsignedIntImage1dArray = 0x9068,
+  UnsignedIntImage2d = 0x9063,
+  UnsignedIntImage2dArray = 0x9069,
+  UnsignedIntImage2dMultisample = 0x906B,
+  UnsignedIntImage2dMultisampleArray = 0x906C,
+  UnsignedIntImage2dRect = 0x9065,
+  UnsignedIntImage3d = 0x9064,
+  UnsignedIntImageBuffer = 0x9067,
+  UnsignedIntImageCube = 0x9066,
+  UnsignedIntImageCubeMapArray = 0x906A,
 #endif
 };
 
@@ -197,6 +344,7 @@ enum class BinormalPointerTypeEXT : core::EnumType
 {
   Byte = 0x1400,
   Float = 0x1406,
+  Int = 0x1404,
   Short = 0x1402,
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
   || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) \
@@ -2929,6 +3077,9 @@ enum class InterleavedArrayFormat : core::EnumType
 enum class InternalFormat : core::EnumType
 {
   DepthComponent = 0x1902,
+  DepthComponent16Arb = 0x81A5,
+  DepthComponent24Arb = 0x81A6,
+  DepthComponent32Arb = 0x81A7,
   Red = 0x1903,
   Rgb = 0x1907,
   Rgba = 0x1908,
@@ -4971,6 +5122,7 @@ enum class TangentPointerTypeEXT : core::EnumType
 {
   Byte = 0x1400,
   Float = 0x1406,
+  Int = 0x1404,
   Short = 0x1402,
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
   || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) \

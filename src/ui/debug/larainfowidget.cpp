@@ -67,6 +67,7 @@ void LaraInfoWidget::update(const engine::objects::LaraObject& lara)
   m_aimInfoLeft->update(lara.leftArm);
   m_aimInfoRight->update(lara.rightArm);
 
+#ifndef NDEBUG
   m_axisColl->setText(QString("AxisColl: %1").arg(toString(lara.lastUsedCollisionInfo.collisionType)));
   m_currentFloor->setText(
     QString("Current floor: %1").arg(lara.lastUsedCollisionInfo.mid.floorSpace.y.toString().c_str()));
@@ -89,5 +90,6 @@ void LaraInfoWidget::update(const engine::objects::LaraObject& lara)
   m_needTop->setText(QString("Need top: %1").arg(lara.lastUsedCollisionInfo.badNegativeDistance.toString().c_str()));
   m_needCeiling->setText(
     QString("Need ceiling: %1").arg(lara.lastUsedCollisionInfo.badCeilingDistance.toString().c_str()));
+#endif
 }
 } // namespace ui::debug

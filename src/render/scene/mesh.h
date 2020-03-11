@@ -34,7 +34,7 @@ public:
     return m_material;
   }
 
-  void render(RenderContext& context) final;
+  bool render(RenderContext& context) final;
 
 private:
   MultiPassMaterial m_material{};

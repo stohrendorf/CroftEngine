@@ -4,7 +4,7 @@
 
 #include <gsl-lite.hpp>
 
-#define NO_GL_ASSERT
+// #define NO_GL_ASSERT
 
 namespace gl
 {

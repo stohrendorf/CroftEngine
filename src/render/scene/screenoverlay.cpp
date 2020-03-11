@@ -17,15 +17,16 @@ ScreenOverlay::ScreenOverlay(ShaderManager& shaderManager, const glm::ivec2& vie
 
 ScreenOverlay::~ScreenOverlay() = default;
 
-void ScreenOverlay::render(RenderContext& context)
+bool ScreenOverlay::render(RenderContext& context)
 {
   if(context.getRenderMode() != RenderMode::Full)
-    return;
+    return false;
 
   context.pushState(getRenderState());
   m_texture->assign(m_image->getRawData());
   m_mesh->render(context);
   context.popState();
+  return true;
 }
 
 void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewport)

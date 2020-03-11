@@ -182,7 +182,7 @@ private:
   };
 
   // States
-  DefaultedOptional<bool, false> m_cullFaceEnabled;
+  DefaultedOptional<bool, true> m_cullFaceEnabled;
   DefaultedOptional<bool, true> m_depthTestEnabled;
   DefaultedOptional<bool, true> m_depthWriteEnabled;
   DefaultedOptional<api::DepthFunction, api::DepthFunction::Less> m_depthFunction;

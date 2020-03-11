@@ -14,15 +14,14 @@ void main()
     mat4 mv = u_view * u_modelMatrix;
 
     if (u_spritePole >= 0) {
-        for (int i =0; i<3; ++i)
-        {
-            if (i == u_spritePole) {
-                continue;
-            }
-
-            for (int j = 0; j < 3; ++j) {
-                mv[i][j] = i == j ? 1.0f : 0.0f;
-            }
+        if (u_spritePole != 0) {
+            mv[0].xyz = vec3(1, 0, 0);
+        }
+        if (u_spritePole != 1) {
+            mv[1].xyz = vec3(0, 1, 0);
+        }
+        if (u_spritePole != 2) {
+            mv[2].xyz = vec3(0, 0, 1);
         }
     }
 

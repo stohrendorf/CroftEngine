@@ -36,6 +36,11 @@ struct TypeTraits<uint16_t>
   static constexpr api::PixelType PixelType = api::PixelType::UnsignedShort;
 
   static constexpr api::core::SizeType ElementCount = 1;
+
+  static constexpr api::InternalFormat RgbaSizedInternalFormat = api::InternalFormat::Rgba16ui;
+  static constexpr api::InternalFormat RgbSizedInternalFormat = api::InternalFormat::Rgb16ui;
+  static constexpr api::InternalFormat RgSizedInternalFormat = api::InternalFormat::Rg16ui;
+  static constexpr api::InternalFormat RSizedInternalFormat = api::InternalFormat::R16ui;
 };
 
 template<>
@@ -46,6 +51,11 @@ struct TypeTraits<uint32_t>
   static constexpr api::PixelType PixelType = api::PixelType::UnsignedInt;
 
   static constexpr api::core::SizeType ElementCount = 1;
+
+  static constexpr api::InternalFormat RgbaSizedInternalFormat = api::InternalFormat::Rgba32ui;
+  static constexpr api::InternalFormat RgbSizedInternalFormat = api::InternalFormat::Rgb32ui;
+  static constexpr api::InternalFormat RgSizedInternalFormat = api::InternalFormat::Rg32ui;
+  static constexpr api::InternalFormat RSizedInternalFormat = api::InternalFormat::R32ui;
 };
 
 template<>
@@ -54,6 +64,11 @@ struct TypeTraits<int8_t>
   static constexpr api::VertexAttribType VertexAttribType = api::VertexAttribType::Byte;
   static constexpr api::PixelType PixelType = api::PixelType::Byte;
   static constexpr api::core::SizeType ElementCount = 1;
+
+  static constexpr api::InternalFormat RgbaSizedInternalFormat = api::InternalFormat::Rgba8i;
+  static constexpr api::InternalFormat RgbSizedInternalFormat = api::InternalFormat::Rgb8i;
+  static constexpr api::InternalFormat RgSizedInternalFormat = api::InternalFormat::Rg8i;
+  static constexpr api::InternalFormat RSizedInternalFormat = api::InternalFormat::R8i;
 };
 
 template<>
@@ -62,6 +77,12 @@ struct TypeTraits<int16_t>
   static constexpr api::VertexAttribType VertexAttribType = api::VertexAttribType::Short;
   static constexpr api::PixelType PixelType = api::PixelType::Short;
   static constexpr api::core::SizeType ElementCount = 1;
+
+  static constexpr api::InternalFormat RgbaSizedInternalFormat = api::InternalFormat::Rgba16i;
+  static constexpr api::InternalFormat RgbSizedInternalFormat = api::InternalFormat::Rgb16i;
+  static constexpr api::InternalFormat RgSizedInternalFormat = api::InternalFormat::Rg16i;
+  static constexpr api::InternalFormat RSizedInternalFormat = api::InternalFormat::R16i;
+  static constexpr api::InternalFormat DepthInternalFormat = api::InternalFormat::DepthComponent16Arb;
 };
 
 template<>
@@ -70,6 +91,12 @@ struct TypeTraits<int32_t>
   static constexpr api::VertexAttribType VertexAttribType = api::VertexAttribType::Int;
   static constexpr api::PixelType PixelType = api::PixelType::Int;
   static constexpr api::core::SizeType ElementCount = 1;
+
+  static constexpr api::InternalFormat RgbaSizedInternalFormat = api::InternalFormat::Rgba32i;
+  static constexpr api::InternalFormat RgbSizedInternalFormat = api::InternalFormat::Rgb32i;
+  static constexpr api::InternalFormat RgSizedInternalFormat = api::InternalFormat::Rg32i;
+  static constexpr api::InternalFormat RSizedInternalFormat = api::InternalFormat::R32i;
+  static constexpr api::InternalFormat DepthInternalFormat = api::InternalFormat::DepthComponent32Arb;
 };
 
 template<>

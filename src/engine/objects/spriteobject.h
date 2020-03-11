@@ -34,11 +34,8 @@ public:
                gsl::not_null<std::shared_ptr<render::scene::Material>> material);
 
   SpriteObject(const SpriteObject&) = delete;
-
   SpriteObject(SpriteObject&&) = delete;
-
   SpriteObject& operator=(const SpriteObject&) = delete;
-
   SpriteObject& operator=(SpriteObject&&) = delete;
 
   ~SpriteObject() override

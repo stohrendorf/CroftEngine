@@ -6,6 +6,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/stacktrace.hpp>
 #include <csignal>
+#include <iostream>
 
 void stacktrace_handler(int signum)
 {

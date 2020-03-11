@@ -37,11 +37,11 @@ gsl::not_null<std::shared_ptr<Mesh>>
 
 Mesh::~Mesh() = default;
 
-void Mesh::render(RenderContext& context)
+bool Mesh::render(RenderContext& context)
 {
   std::shared_ptr<Material> material = m_material.get(context.getRenderMode());
   if(material == nullptr)
-    return;
+    return false;
 
   BOOST_ASSERT(context.getCurrentNode() != nullptr);
 
@@ -55,5 +55,6 @@ void Mesh::render(RenderContext& context)
 
   context.popState();
   context.popState();
+  return true;
 }
 } // namespace render::scene

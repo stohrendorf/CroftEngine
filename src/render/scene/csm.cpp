@@ -8,8 +8,8 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx)
 {
-  texture = std::make_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
-                                                      "csm-texture/" + std::to_string(idx));
+  texture = std::make_shared<gl::TextureDepth<int32_t>>(glm::ivec2{resolution, resolution},
+                                                        "csm-texture/" + std::to_string(idx));
   texture->fill(1.0f)
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear)
@@ -36,9 +36,9 @@ CSM::CSM(int32_t resolution)
   }
 }
 
-std::array<std::shared_ptr<gl::TextureDepth<float>>, CSMBuffer::NSplits> CSM::getTextures() const
+std::array<std::shared_ptr<gl::TextureDepth<int32_t>>, CSMBuffer::NSplits> CSM::getTextures() const
 {
-  std::array<std::shared_ptr<gl::TextureDepth<float>>, CSMBuffer::NSplits> result{};
+  std::array<std::shared_ptr<gl::TextureDepth<int32_t>>, CSMBuffer::NSplits> result{};
   std::transform(m_splits.begin(), m_splits.end(), result.begin(), [](const Split& split) { return split.texture; });
   return result;
 }
@@ -122,20 +122,14 @@ void CSM::update(const Camera& camera)
     for(const auto& corner : frustumCorners)
     {
       const auto cornerLS = glm::vec3{lightViewWS * glm::vec4{corner, 1.0f}};
-      for(int i : {0, 1, 2})
-      {
-        bboxMin[i] = std::min(bboxMin[i], cornerLS[i]);
-        bboxMax[i] = std::max(bboxMax[i], cornerLS[i]);
-      }
+      bboxMin = glm::min(bboxMin, cornerLS);
+      bboxMax = glm::max(bboxMax, cornerLS);
     }
 
     // extend the bboxes and snap to a grid to avoid some flickering
     static constexpr float SnapSize = 16.0f;
-    for(int i : {0, 1, 2})
-    {
-      bboxMin[i] = glm::floor(bboxMin[i] / SnapSize) * SnapSize;
-      bboxMax[i] = glm::ceil(bboxMax[i] / SnapSize) * SnapSize;
-    }
+    bboxMin = glm::floor(bboxMin / SnapSize) * SnapSize;
+    bboxMax = glm::ceil(bboxMax / SnapSize) * SnapSize;
 
     const auto lightProjection = glm::ortho(bboxMin.x, bboxMax.x, bboxMin.y, bboxMax.y, bboxMin.z, bboxMax.z);
     m_splits[cascadeIterator].vpMatrix = lightProjection * lightViewWS;

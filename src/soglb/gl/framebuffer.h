@@ -14,7 +14,7 @@ class TextureAttachment
   friend Framebuffer;
 
 private:
-  const std::shared_ptr<Texture> m_texture;
+  const gsl::not_null<std::shared_ptr<Texture>> m_texture;
   const int32_t m_level;
   const api::BlendingFactor m_srcBlend;
   const api::BlendingFactor m_dstBlend;
@@ -22,7 +22,7 @@ private:
   void attach(const Framebuffer& framebuffer, api::FramebufferAttachment attachment) const;
 
 public:
-  explicit TextureAttachment(std::shared_ptr<Texture> texture,
+  explicit TextureAttachment(gsl::not_null<std::shared_ptr<Texture>> texture,
                              const int32_t level = 0,
                              api::BlendingFactor src = api::BlendingFactor::SrcAlpha,
                              api::BlendingFactor dst = api::BlendingFactor::OneMinusSrcAlpha)
@@ -44,7 +44,7 @@ public:
 class Framebuffer : public BindableResource
 {
 public:
-  using Attachment = std::pair<std::shared_ptr<TextureAttachment>, api::FramebufferAttachment>;
+  using Attachment = std::pair<gsl::not_null<std::shared_ptr<TextureAttachment>>, api::FramebufferAttachment>;
   using Attachments = std::vector<Attachment>;
 
 private:
@@ -171,7 +171,7 @@ public:
   }
 
   FrameBufferBuilder& texture(api::FramebufferAttachment attachment,
-                              const std::shared_ptr<Texture>& texture,
+                              const gsl::not_null<std::shared_ptr<Texture>>& texture,
                               const int32_t level = 0,
                               api::BlendingFactor src = api::BlendingFactor::SrcAlpha,
                               api::BlendingFactor dst = api::BlendingFactor::OneMinusSrcAlpha)
@@ -181,7 +181,7 @@ public:
   }
 
   FrameBufferBuilder& textureNoBlend(api::FramebufferAttachment attachment,
-                                     const std::shared_ptr<Texture>& texture,
+                                     const gsl::not_null<std::shared_ptr<Texture>>& texture,
                                      const int32_t level = 0)
   {
     m_attachments.emplace_back(

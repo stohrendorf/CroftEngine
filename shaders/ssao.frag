@@ -2,7 +2,7 @@ uniform sampler2D u_position;
 uniform sampler2D u_normals;
 uniform sampler2D u_texNoise;
 
-uniform vec3 u_samples[64];
+uniform vec3 u_samples[16];
 
 vec2 screenSize = textureSize(u_position, 0);
 
@@ -13,7 +13,7 @@ layout(location=0) out float out_ao;
 
 void main()
 {
-    const float radius = 512;
+    const float radius = 64;
     const float bias = 0.025;
 
     // get input for SSAO algorithm
@@ -42,7 +42,9 @@ void main()
 
         // range check & accumulate
         if (sampleDepth >= smp.z + bias)
-        occlusion += smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+        {
+            occlusion += smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+        }
     }
     out_ao = 1.0 - (occlusion / u_samples.length());
 }

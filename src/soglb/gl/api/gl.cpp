@@ -1,4 +1,5 @@
 #include "gl.hpp"
+
 #include "gl_api_provider.hpp"
 namespace gl::api
 {

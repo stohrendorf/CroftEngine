@@ -39,7 +39,7 @@ public:
     m_meshes.emplace_back(mesh);
   }
 
-  void render(RenderContext& context) override;
+  bool render(RenderContext& context) override;
 
 private:
   std::vector<gsl::not_null<std::shared_ptr<Mesh>>> m_meshes{};

@@ -10,14 +10,34 @@ void main()
 {
     vec2 texelSize = 1.0 / vec2(textureSize(u_input, 0));
     float result = 0.0;
-    for (int x = -BlurExtent; x <= BlurExtent; ++x)
+    if (BLUR_DIR == 0)
+    {
+        for (int x = -BlurExtent; x <= BlurExtent; ++x)
+        {
+            for (int y = -BlurExtent; y <= BlurExtent; ++y)
+            {
+                vec2 offset = vec2(float(x), float(y)) * texelSize;
+                result += texture(u_input, fpi.texCoord + offset).r;
+            }
+        }
+        out_tex = result / (BlurSize * BlurSize);
+    }
+    else if (BLUR_DIR == 1)
+    {
+        for (int x = -BlurExtent; x <= BlurExtent; ++x)
+        {
+            vec2 offset = vec2(float(x), 0) * texelSize;
+            result += texture(u_input, fpi.texCoord + offset).r;
+        }
+        out_tex = result / BlurSize;
+    }
+    else if (BLUR_DIR == 2)
     {
         for (int y = -BlurExtent; y <= BlurExtent; ++y)
         {
-            vec2 offset = vec2(float(x), float(y)) * texelSize;
+            vec2 offset = vec2(0, float(y)) * texelSize;
             result += texture(u_input, fpi.texCoord + offset).r;
         }
+        out_tex = result / BlurSize;
     }
-
-    out_tex = result / (BlurSize * BlurSize);
 }

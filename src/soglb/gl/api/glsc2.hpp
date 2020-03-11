@@ -30,10 +30,19 @@ constexpr core::Bitfield<AttribMask> operator|(AttribMask left, AttribMask right
   return core::Bitfield<AttribMask>(left) | right;
 }
 
+enum class AttributeType : core::EnumType
+{
+  Float = 0x1406,
+  Int = 0x1404,
+  Sampler2d = 0x8B5E,
+  UnsignedInt = 0x1405,
+};
+
 enum class BinormalPointerTypeEXT : core::EnumType
 {
   Byte = 0x1400,
   Float = 0x1406,
+  Int = 0x1404,
   Short = 0x1402,
 };
 
@@ -738,6 +747,7 @@ enum class TangentPointerTypeEXT : core::EnumType
 {
   Byte = 0x1400,
   Float = 0x1406,
+  Int = 0x1404,
   Short = 0x1402,
 };
 

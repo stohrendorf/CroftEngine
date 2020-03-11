@@ -1,4 +1,5 @@
 #include "geometry_pipeline_interface.glsl"
+#include "camera_interface.glsl"
 
 layout(binding=4) uniform sampler2DArray u_diffuseTextures;
 #ifdef WATER
@@ -31,7 +32,8 @@ void main()
     finalColor *= water_multiplier(gpi.vertexPosWorld);
     #endif
 
-    out_color.rgb = finalColor * calc_positional_lighting(gpi.normal, gpi.vertexPos) * shadow_map_multiplier();
+    //out_color.rgb = finalColor * calc_positional_lighting(gpi.normal, gpi.vertexPos) * shadow_map_multiplier();
+    out_color.rgb = calc_positional_pbr_lighting(u_inverseView[3].xyz, gpi.normal, gpi.vertexPos, finalColor) * shadow_map_multiplier(gpi.normal);
     out_color.a = 1.0;
 
     out_normal = gpi.ssaoNormal;

@@ -15,12 +15,13 @@ namespace render::scene
 {
 class Camera;
 
-struct CSMBuffer
+struct alignas(16) CSMBuffer
 {
   static constexpr size_t NSplits = 3;
 
   std::array<glm::mat4, NSplits> lightMVP{};
   std::array<glm::vec4, NSplits> csmSplits{}; // vec4 because... well. we need padding.
+  glm::vec3 lightDir;
 };
 
 class CSM final
@@ -29,7 +30,7 @@ public:
   struct Split final
   {
     glm::mat4 vpMatrix{1.0f};
-    std::shared_ptr<gl::TextureDepth<float>> texture;
+    std::shared_ptr<gl::TextureDepth<int32_t>> texture;
     std::shared_ptr<gl::Framebuffer> framebuffer{};
     float end = 0;
 
@@ -38,7 +39,7 @@ public:
 
   explicit CSM(int32_t resolution);
 
-  [[nodiscard]] std::array<std::shared_ptr<gl::TextureDepth<float>>, CSMBuffer::NSplits> getTextures() const;
+  [[nodiscard]] std::array<std::shared_ptr<gl::TextureDepth<int32_t>>, CSMBuffer::NSplits> getTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
   [[nodiscard]] std::array<float, CSMBuffer::NSplits> getSplitEnds() const;
 
@@ -65,6 +66,7 @@ public:
     const auto tmp = getSplitEnds();
     std::transform(tmp.begin(), tmp.end(), m_bufferData.csmSplits.begin(), [](float x) { return glm::vec4{x}; });
     m_bufferData.lightMVP = getMatrices(modelMatrix);
+    m_bufferData.lightDir = m_lightDir;
     m_buffer.setData(m_bufferData, gl::api::BufferUsageARB::DynamicDraw);
     return m_buffer;
   }

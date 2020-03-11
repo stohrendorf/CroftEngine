@@ -185,4 +185,4 @@ constexpr auto constAway(T* ptr)
 }
 
 } // namespace detail
-} // namespace gl
+} // namespace gl::api

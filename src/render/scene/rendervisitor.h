@@ -5,13 +5,12 @@
 
 #include <gl/debuggroup.h>
 
-// #define RENDER_SYNCHRONOUS
-
 namespace render::scene
 {
 class RenderVisitor : public Visitor
 {
 public:
+  static constexpr bool FlushAfterEachRender = false;
   explicit RenderVisitor(RenderContext& context)
       : Visitor{context}
   {
@@ -31,12 +30,16 @@ public:
 
     getContext().setCurrentNode(&node);
 
-    if(auto dr = node.getRenderable())
+    if(auto r = node.getRenderable())
     {
-      dr->render(getContext());
-#ifdef RENDER_SYNCHRONOUS
-      GL_ASSERT(gl::api::finish());
-#endif
+      [[maybe_unused]] bool rendered = r->render(getContext());
+      if constexpr(FlushAfterEachRender)
+      {
+        if(rendered)
+        {
+          GL_ASSERT(gl::api::finish());
+        }
+      }
     }
 
     Visitor::visit(node);

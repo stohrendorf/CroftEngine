@@ -13,7 +13,7 @@ readonly layout(std430, binding=3) buffer b_lights {
     Light lights[];
 };
 
-float shadow_map_multiplier(in float shadow)
+float shadow_map_multiplier(in vec3 normal, in float shadow)
 {
     int cascadeIdx = 0;
     while (cascadeIdx < u_csmSplits.length()-1 && -gpi.vertexPos.z > -u_csmSplits[cascadeIdx]) {
@@ -27,7 +27,9 @@ float shadow_map_multiplier(in float shadow)
         return 1.0;
     }
 
-    const float bias = 0.005;
+    //const float bias = 0.005;
+    float cosTheta = clamp(dot(normalize(normal), normalize(u_csmLightDir)), 0, 1);
+    float bias = clamp(0.01*tan(acos(cosTheta)), 0, 0.01);
     currentDepth -= bias;
 
     const int extent = 1;
@@ -39,12 +41,12 @@ float shadow_map_multiplier(in float shadow)
         }
     }
 
-    const float area = pow((extent*2 + 1), 2);
+    const float area = pow((extent*2) + 1, 2);
     return mix(1.0f, shadow, clamp(inShadow/area, 0, 1));
 }
 
-float shadow_map_multiplier() {
-    return shadow_map_multiplier(0.5);
+float shadow_map_multiplier(in vec3 normal) {
+    return shadow_map_multiplier(normal, 0.5);
 }
 
 /*
@@ -77,4 +79,98 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos, in float n)
 float calc_positional_lighting(in vec3 normal, in vec3 pos)
 {
     return calc_positional_lighting(normal, pos, 1);
+}
+
+    // PBR stuff
+    #include "constants.glsl"
+
+float DistributionGGX(in vec3 N, in vec3 H, in float roughness)
+{
+    float a      = roughness*roughness;
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+
+    float num   = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+
+    return num / denom;
+}
+
+float GeometrySchlickGGX(in float NdotV, in float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
+
+    float num   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return num / denom;
+}
+
+float GeometrySmith(in vec3 N, in vec3 V, in vec3 L, in float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2  = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1  = GeometrySchlickGGX(NdotL, roughness);
+
+    return ggx1 * ggx2;
+}
+
+vec3 fresnelSchlick(in float cosTheta, in vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+vec3 calc_positional_pbr_lighting(in vec3 camPos, in vec3 normal, in vec3 pos, in vec3 albedo)
+{
+    if (lights.length() <= 0 || normal == vec3(0))
+    {
+        return u_lightAmbient * albedo;
+    }
+
+    vec3 N = normalize(normal);
+    vec3 V = normalize(camPos - pos);
+
+    const vec3 F0 = vec3(0.04);
+    const vec3 lightColor = vec3(0.8, 0.9, 1.0);
+    const float roughness = 0.8;
+
+    // reflectance equation
+    vec3 Lo = vec3(0.0);
+    for (int i = 0; i < lights.length(); ++i)
+    {
+        // calculate per-light radiance
+        vec3 L = normalize(lights[i].position - pos);
+        vec3 H = normalize(V + L);
+        vec3 d = pos - lights[i].position;
+        float intensity = lights[i].brightness / (1 + length(d)/lights[i].fadeDistance);
+        vec3 radiance     = lightColor * intensity;
+
+        // cook-torrance brdf
+        float NDF = DistributionGGX(N, H, roughness);
+        float G   = GeometrySmith(N, V, L, roughness);
+        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+        vec3 kS = F;
+        vec3 kD = vec3(1.0) - kS;
+
+        vec3 numerator    = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+        vec3 specular     = numerator / max(denominator, 0.001);
+
+        // add to outgoing radiance Lo
+        float NdotL = max(dot(N, L), 0.0);
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+    }
+
+    vec3 ambient = vec3(0.03) * albedo * u_lightAmbient;
+    vec3 color = ambient + Lo;
+
+    color = color / (color + vec3(1.0));
+    color = pow(color, vec3(1.0/2.2));
+
+    return color;
 }

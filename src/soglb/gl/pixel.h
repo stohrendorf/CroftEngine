@@ -100,6 +100,7 @@ template<typename T>
 using RGB = Pixel<T, 3, api::PixelFormat::Rgb, TypeTraits<T>::RgbSizedInternalFormat>;
 using RGB8 = RGB<uint8_t>;
 using RGB16F = RGB<api::core::Half>;
+using RGB32 = RGB<int32_t>;
 using RGB32F = RGB<float>;
 
 template<typename T>

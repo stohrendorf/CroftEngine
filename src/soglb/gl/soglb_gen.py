@@ -359,28 +359,38 @@ def load_xml():
 
             for xml_ref in xml_require:
                 if xml_ref.tag == 'enum':
-                    for api_name in api_targets:
+                    for ext_api_name in api_targets:
                         for profile in require_profiles:
-                            extension_data[api_name][profile].constants.add(xml_ref.attrib['name'])
+                            extension_data[ext_api_name][profile].constants.add(xml_ref.attrib['name'])
                 elif xml_ref.tag == 'command':
-                    for api_name in api_targets:
+                    for ext_api_name in api_targets:
                         for profile in require_profiles:
-                            extension_data[api_name][profile].commands.add(xml_ref.attrib['name'])
+                            extension_data[ext_api_name][profile].commands.add(xml_ref.attrib['name'])
                 elif xml_ref.tag == 'type':
                     # ignored
                     pass
                 else:
                     raise KeyError('Unexpected tag {}'.format(xml_ref.tag))
 
+    enabled_extensions = ('GL_ARB_depth_texture',)
+
     logging.info('Extensions summary')
-    for extension_name, apis_profiles in extensions_apis_profiles.items():
+    for extension_name, ext_apis_profiles in extensions_apis_profiles.items():
         logging.info('  Extension {}'.format(extension_name))
-        for api_name, profiles in apis_profiles.items():
-            logging.info('    API {}'.format(api_name))
-            for profile_name, profile_data in profiles.items():
-                logging.info('      profile {}: {} constants, {} commands'.format(profile_name or "*",
-                                                                                  len(profile_data.constants),
-                                                                                  len(profile_data.commands)))
+        for ext_api_name, ext_profiles in ext_apis_profiles.items():
+            logging.info('    API {}'.format(ext_api_name))
+            for ext_profile_name, ext_profile_data in ext_profiles.items():
+                logging.info('      profile {}: {} constants, {} commands'.format(ext_profile_name or "*",
+                                                                                  len(ext_profile_data.constants),
+                                                                                  len(ext_profile_data.commands)))
+                if extension_name in enabled_extensions:
+                    for profile_data in apis_versions_profiles[ext_api_name].values():
+                        profiles = (profile_data[ext_profile_name],) if ext_profile_name else profile_data.values()
+                        for profile in profiles:
+                            for ext_constant in ext_profile_data.constants:
+                                profile.constants.add(ext_constant)
+                            for ext_command in ext_profile_data.commands:
+                                profile.commands.add(ext_command)
 
     enums = {e.name: e for e in map(Enum, xml.iterfind('./groups/group'))}  # type: Dict[str, Enum]
 
@@ -427,7 +437,7 @@ def load_xml():
 
                 guards_constants = build_guarded_constants(versions_profiles, enum_data, constants)
                 if guards_constants is None:
-                    logging.warning('Skipping - no members')
+                    logging.warning('Skipping {} - no members'.format(enum_name))
                     continue
 
                 if len(guards_constants) == 1:

@@ -28,7 +28,7 @@ public:
 
   ~ScreenOverlay() override;
 
-  void render(RenderContext& context) override;
+  bool render(RenderContext& context) override;
 
   [[nodiscard]] const auto& getImage() const
   {

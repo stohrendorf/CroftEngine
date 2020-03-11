@@ -35,6 +35,11 @@ constexpr core::Bitfield<AttribMask> operator|(AttribMask left, AttribMask right
   return core::Bitfield<AttribMask>(left) | right;
 }
 
+enum class AttributeType : core::EnumType
+{
+  Float = 0x1406,
+};
+
 enum class BinormalPointerTypeEXT : core::EnumType
 {
   Byte = 0x1400,

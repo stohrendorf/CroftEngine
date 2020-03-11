@@ -4,13 +4,15 @@
 
 namespace render::scene
 {
-void Model::render(RenderContext& context)
+bool Model::render(RenderContext& context)
 {
+  bool anyRendered = false;
   context.pushState(getRenderState());
   for(const auto& mesh : m_meshes)
   {
-    mesh->render(context);
+    anyRendered |= mesh->render(context);
   }
   context.popState();
+  return anyRendered;
 }
 } // namespace render::scene

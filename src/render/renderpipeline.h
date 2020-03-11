@@ -21,54 +21,209 @@ class ShaderManager;
 }
 class RenderPipeline
 {
-  const std::shared_ptr<scene::ShaderProgram> m_fxaaShader;
-  const std::shared_ptr<scene::Material> m_fxaaMaterial;
-  const std::shared_ptr<scene::ShaderProgram> m_ssaoShader;
-  const std::shared_ptr<scene::Material> m_ssaoMaterial;
-  const std::shared_ptr<scene::ShaderProgram> m_ssaoBlurShader;
-  const std::shared_ptr<scene::Material> m_ssaoBlurMaterial;
-  const std::shared_ptr<scene::ShaderProgram> m_fxDarknessShader;
-  const std::shared_ptr<scene::Material> m_fxDarknessMaterial;
-  const std::shared_ptr<scene::ShaderProgram> m_fxWaterDarknessShader;
-  const std::shared_ptr<scene::Material> m_fxWaterDarknessMaterial;
+public:
+  static constexpr bool FlushStages = false;
 
-  const std::shared_ptr<scene::Model> m_fbModel = std::make_shared<scene::Model>();
+private:
+  static std::shared_ptr<scene::Model> makeFbModel();
 
-  std::shared_ptr<gl::TextureDepth<float>> m_portalDepthBuffer;
-  std::shared_ptr<gl::Texture2D<gl::RG32F>> m_portalPerturbBuffer;
-  std::shared_ptr<gl::Framebuffer> m_portalFb;
+  template<typename T>
+  struct SingleBlur
+  {
+    using Texture = gl::Texture2D<gl::Scalar<T>>;
 
-  std::shared_ptr<gl::TextureDepth<float>> m_geometryDepthBuffer;
-  std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_geometryColorBuffer;
-  std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_geometryPositionBuffer;
-  std::shared_ptr<gl::Texture2D<gl::RGB16F>> m_geometryNormalBuffer;
-  std::shared_ptr<gl::Framebuffer> m_geometryFb;
+    const std::string name;
+    std::shared_ptr<Texture> buffer;
+    const std::shared_ptr<scene::Model> model = makeFbModel();
+    const std::shared_ptr<scene::ShaderProgram> shader;
+    const std::shared_ptr<scene::Material> material;
+    std::shared_ptr<gl::Framebuffer> fb;
 
-  std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_ssaoNoiseTexture;
-  std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_ssaoAOBuffer;
-  std::shared_ptr<gl::Framebuffer> m_ssaoFb;
+    explicit SingleBlur(std::string name, scene::ShaderManager& shaderManager, uint8_t n)
+        : name{std::move(name)}
+        , shader{shaderManager.getBlur(2, n)}
+        , material{std::make_shared<scene::Material>(shader)}
+    {
+    }
 
-  std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_ssaoBlurAOBuffer;
-  std::shared_ptr<gl::Framebuffer> m_ssaoBlurFb;
+    void build()
+    {
+      fb = gl::FrameBufferBuilder()
+             .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, buffer)
+             .build(name + "/fb");
+    }
 
-  std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_fxaaColorBuffer;
-  std::shared_ptr<gl::Framebuffer> m_fxaaFb;
+    void resize(const glm::ivec2& viewport, const std::shared_ptr<Texture>& src)
+    {
+      buffer = std::make_shared<Texture>(viewport, name + "/blur");
+      buffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+        .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+        .set(gl::api::TextureMinFilter::Linear)
+        .set(gl::api::TextureMagFilter::Linear);
+
+      material->getUniform("u_input")->set(src);
+
+      model->getMeshes().clear();
+      model->addMesh(scene::createQuadFullscreen(
+        gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), shader->getHandle()));
+      model->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, material);
+    }
+
+    void render(const glm::ivec2& size) const
+    {
+      gl::DebugGroup dbg{name + "/blur-pass"};
+      GL_ASSERT(gl::api::viewport(0, 0, size.x, size.y));
+
+      gl::RenderState state;
+      state.setBlend(false);
+      state.apply(true);
+      scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+      scene::Node dummyNode{""};
+      context.setCurrentNode(&dummyNode);
+
+      fb->bindWithAttachments();
+      model->render(context);
+    }
+  };
+
+  template<typename T>
+  struct BidirBlur
+  {
+    using Texture = gl::Texture2D<gl::Scalar<T>>;
+
+    SingleBlur<T> blur1;
+    SingleBlur<T> blur2;
+
+    explicit BidirBlur(const std::string& name, scene::ShaderManager& shaderManager)
+        : blur1{name + "/blur-1", shaderManager, 1}
+        , blur2{name + "/blur-2", shaderManager, 2}
+    {
+    }
+
+    void build()
+    {
+      blur1.build();
+      blur2.build();
+    }
+
+    void resize(const glm::ivec2& viewport, const std::shared_ptr<Texture>& src)
+    {
+      blur1.resize(viewport, src);
+      blur2.resize(viewport, blur1.buffer);
+    }
+
+    void render(const glm::ivec2& size) const
+    {
+      blur1.render(size);
+      blur2.render(size);
+      blur1.fb->invalidate();
+    }
+  };
+
+  struct PortalStage
+  {
+    std::shared_ptr<gl::TextureDepth<float>> depthBuffer;
+    std::shared_ptr<gl::Texture2D<gl::RG32F>> perturbBuffer;
+    std::shared_ptr<gl::Framebuffer> fb;
+
+    void resize(const glm::ivec2& viewport);
+    void bind(const gl::TextureDepth<float>& depth);
+    void build();
+  };
+
+  struct GeometryStage
+  {
+    std::shared_ptr<gl::TextureDepth<float>> depthBuffer;
+    std::shared_ptr<gl::Texture2D<gl::SRGBA8>> colorBuffer;
+    std::shared_ptr<gl::Texture2D<gl::RGB32F>> positionBuffer;
+    std::shared_ptr<gl::Texture2D<gl::RGB16F>> normalBuffer;
+    std::shared_ptr<gl::Framebuffer> fb;
+
+    void resize(const glm::ivec2& viewport);
+    void bind(const glm::ivec2& size);
+    void build();
+  };
+
+  struct SSAOStage
+  {
+    const std::shared_ptr<scene::Model> renderModel = makeFbModel();
+
+    const std::shared_ptr<scene::ShaderProgram> shader;
+    const std::shared_ptr<scene::Material> material;
+
+    std::shared_ptr<gl::Texture2D<gl::RGB32F>> noiseTexture;
+    std::shared_ptr<gl::Texture2D<gl::ScalarByte>> aoBuffer;
+    std::shared_ptr<gl::Framebuffer> fb;
+
+    BidirBlur<uint8_t> blur;
+
+    explicit SSAOStage(scene::ShaderManager& shaderManager);
+    void build();
+    void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);
+    void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
+
+    void render(const glm::ivec2& size) const;
+  };
+
+  struct FXAAStage
+  {
+    const std::shared_ptr<scene::Model> model = makeFbModel();
+
+    const std::shared_ptr<scene::ShaderProgram> shader;
+    const std::shared_ptr<scene::Material> material;
+    std::shared_ptr<gl::Texture2D<gl::SRGBA8>> colorBuffer;
+    std::shared_ptr<gl::Framebuffer> fb;
+
+    explicit FXAAStage(scene::ShaderManager& shaderManager);
+
+    void bind();
+    void build();
+    void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);
+
+    void render(const glm::ivec2& size);
+  };
+
+  struct PostprocessStage
+  {
+    const std::shared_ptr<scene::Model> model = makeFbModel();
+    const std::shared_ptr<scene::Model> waterModel = makeFbModel();
+
+    const std::shared_ptr<scene::ShaderProgram> darknessShader;
+    const std::shared_ptr<scene::Material> darknessMaterial;
+    const std::shared_ptr<scene::ShaderProgram> waterDarknessShader;
+    const std::shared_ptr<scene::Material> waterDarknessMaterial;
+
+    explicit PostprocessStage(scene::ShaderManager& shaderManager);
+
+    void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
+                const std::chrono::high_resolution_clock::time_point& time);
+
+    void resize(const glm::ivec2& viewport,
+                const GeometryStage& geometryStage,
+                const PortalStage& portalStage,
+                const SSAOStage& ssaoStage,
+                const FXAAStage& fxaaStage);
+
+    void render(bool water);
+  };
+
+  PortalStage m_portalStage;
+  GeometryStage m_geometryStage;
+  SSAOStage m_ssaoStage;
+  FXAAStage m_fxaaStage;
+  PostprocessStage m_postprocessStage;
 
 public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void bindGeometryFrameBuffer(const glm::ivec2& size)
   {
-    gl::Framebuffer::unbindAll();
-    GL_ASSERT(::gl::api::viewport(0, 0, size.x, size.y));
-    m_geometryFb->bindWithAttachments();
+    m_geometryStage.bind(size);
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void bindPortalFrameBuffer()
   {
-    gl::Framebuffer::unbindAll();
-    m_portalDepthBuffer->copyFrom(*m_geometryDepthBuffer);
-    m_portalFb->bindWithAttachments();
+    m_portalStage.bind(*m_geometryStage.depthBuffer);
   }
 
   explicit RenderPipeline(scene::ShaderManager& shaderManager, const glm::ivec2& viewport);
@@ -98,6 +253,5 @@ private:
 
   void resizeTextures(const glm::ivec2& viewport);
   void buildFramebuffers();
-  void initSSAONoise();
 };
 } // namespace render

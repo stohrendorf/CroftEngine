@@ -46,15 +46,20 @@ enum class AttributeType : core::EnumType
   BoolVec2 = 0x8B57,
   BoolVec3 = 0x8B58,
   BoolVec4 = 0x8B59,
+  Float = 0x1406,
   FloatMat2 = 0x8B5A,
   FloatMat3 = 0x8B5B,
   FloatMat4 = 0x8B5C,
   FloatVec2 = 0x8B50,
   FloatVec3 = 0x8B51,
   FloatVec4 = 0x8B52,
+  Int = 0x1404,
   IntVec2 = 0x8B53,
   IntVec3 = 0x8B54,
   IntVec4 = 0x8B55,
+  Sampler2d = 0x8B5E,
+  SamplerCube = 0x8B60,
+  UnsignedInt = 0x1405,
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
   FloatMat2x3 = 0x8B65,
   FloatMat2x4 = 0x8B66,
@@ -62,6 +67,56 @@ enum class AttributeType : core::EnumType
   FloatMat3x4 = 0x8B68,
   FloatMat4x2 = 0x8B69,
   FloatMat4x3 = 0x8B6A,
+  IntSampler2d = 0x8DCA,
+  IntSampler2dArray = 0x8DCF,
+  IntSampler3d = 0x8DCB,
+  IntSamplerCube = 0x8DCC,
+  Sampler2dArrayShadow = 0x8DC4,
+  Sampler2dShadow = 0x8B62,
+  Sampler3d = 0x8B5F,
+  SamplerCubeShadow = 0x8DC5,
+  UnsignedIntSampler2d = 0x8DD2,
+  UnsignedIntSampler2dArray = 0x8DD7,
+  UnsignedIntSampler3d = 0x8DD3,
+  UnsignedIntSamplerCube = 0x8DD4,
+  UnsignedIntVec2 = 0x8DC6,
+  UnsignedIntVec3 = 0x8DC7,
+  UnsignedIntVec4 = 0x8DC8,
+#endif
+#if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+  Image2d = 0x904D,
+  Image2dArray = 0x9053,
+  Image3d = 0x904E,
+  ImageCube = 0x9050,
+  IntImage2d = 0x9058,
+  IntImage2dArray = 0x905E,
+  IntImage3d = 0x9059,
+  IntImageCube = 0x905B,
+  IntSampler2dMultisample = 0x9109,
+  Sampler2dMultisample = 0x9108,
+  UnsignedIntImage2d = 0x9063,
+  UnsignedIntImage2dArray = 0x9069,
+  UnsignedIntImage3d = 0x9064,
+  UnsignedIntImageCube = 0x9066,
+  UnsignedIntSampler2dMultisample = 0x910A,
+#endif
+#if defined(API_LEVEL_GL_ES_VERSION_3_2)
+  ImageBuffer = 0x9051,
+  ImageCubeMapArray = 0x9054,
+  IntImageBuffer = 0x905C,
+  IntImageCubeMapArray = 0x905F,
+  IntSampler2dMultisampleArray = 0x910C,
+  IntSamplerBuffer = 0x8DD0,
+  IntSamplerCubeMapArray = 0x900E,
+  Sampler2dMultisampleArray = 0x910B,
+  SamplerBuffer = 0x8DC2,
+  SamplerCubeMapArray = 0x900C,
+  SamplerCubeMapArrayShadow = 0x900D,
+  UnsignedIntImageBuffer = 0x9067,
+  UnsignedIntImageCubeMapArray = 0x906A,
+  UnsignedIntSampler2dMultisampleArray = 0x910D,
+  UnsignedIntSamplerBuffer = 0x8DD8,
+  UnsignedIntSamplerCubeMapArray = 0x900F,
 #endif
 };
 
@@ -76,6 +131,7 @@ enum class BinormalPointerTypeEXT : core::EnumType
 {
   Byte = 0x1400,
   Float = 0x1406,
+  Int = 0x1404,
   Short = 0x1402,
 };
 
@@ -1818,6 +1874,7 @@ enum class TangentPointerTypeEXT : core::EnumType
 {
   Byte = 0x1400,
   Float = 0x1406,
+  Int = 0x1404,
   Short = 0x1402,
 };
 
