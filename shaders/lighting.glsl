@@ -147,7 +147,7 @@ vec3 calc_positional_pbr_lighting(in vec3 camPos, in vec3 normal, in vec3 pos, i
         vec3 H = normalize(V + L);
         vec3 d = pos - lights[i].position;
         float intensity = lights[i].brightness / (1 + length(d)/lights[i].fadeDistance);
-        vec3 radiance     = lightColor * intensity;
+        vec3 radiance     = lightColor * intensity / 2;
 
         // cook-torrance brdf
         float NDF = DistributionGGX(N, H, roughness);

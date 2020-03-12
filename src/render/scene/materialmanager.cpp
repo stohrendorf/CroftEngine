@@ -78,10 +78,8 @@ std::shared_ptr<Material>
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
-  }
-
-  if(water)
     m_materialWater = m;
+  }
   else
     m_material = m;
 
