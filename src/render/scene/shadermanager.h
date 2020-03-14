@@ -29,9 +29,9 @@ public:
                                                     const std::filesystem::path& fshPath,
                                                     const std::vector<std::string>& defines = {});
 
-  auto getScreenOverlay()
+  auto getFlat()
   {
-    return get("flat.vert", "screenoverlay.frag", {"INVERT_Y"});
+    return get("flat.vert", "flat.frag", {"INVERT_Y"});
   }
 
   auto getTextured()
