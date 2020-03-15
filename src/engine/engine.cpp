@@ -798,7 +798,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     , m_inventory{*this}
 {
   m_shaderManager = std::make_shared<render::scene::ShaderManager>(m_rootPath / "shaders");
-  m_csm = std::make_shared<render::scene::CSM>(CSMResolution);
+  m_csm = std::make_shared<render::scene::CSM>(CSMResolution, *m_shaderManager);
   m_materialManager = std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_csm, m_renderer);
 
   scaleSplashImage();
@@ -1195,6 +1195,8 @@ void Engine::run()
             visitor.visit(*child);
           }
         }
+
+        m_csm->finishSplitRender();
       }
     }
 

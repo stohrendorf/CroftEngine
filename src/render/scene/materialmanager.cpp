@@ -70,7 +70,7 @@ std::shared_ptr<Material>
   m->getUniformBlock("CSM")->bind(
     [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
 
-  m->getUniform("u_csmDepth[0]")->set(m_csm->getTextures());
+  m->getUniform("u_csmVsm[0]")->set(m_csm->getTextures());
 
   if(water)
   {

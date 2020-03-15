@@ -1,4 +1,4 @@
-layout(binding=1) uniform sampler2DShadow u_csmDepth[3];
+layout(binding=1) uniform sampler2D u_csmVsm[3];
 layout(location=10) uniform float u_lightAmbient;
 
 #include "csm_interface.glsl"
@@ -27,22 +27,16 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
         return 1.0;
     }
 
-    //const float bias = 0.005;
-    float cosTheta = clamp(dot(normalize(normal), normalize(u_csmLightDir)), 0, 1);
-    float bias = clamp(0.01*tan(acos(cosTheta)), 0, 0.01);
-    currentDepth -= bias;
-
-    const int extent = 1;
-    float inShadow = 0;
-    float d = 1.0/textureSize(u_csmDepth[cascadeIdx], 0).x;
-    for (int x=-extent; x<=extent; ++x) {
-        for (int y=-extent; y<=extent; ++y) {
-            inShadow += texture(u_csmDepth[cascadeIdx], vec3(projCoords.xy + vec2(x, y)*d, currentDepth));
-        }
+    vec2 moments = texture(u_csmVsm[cascadeIdx], projCoords.xy).xy;
+    if (currentDepth <= moments.x) {
+        return 1.0;
     }
 
-    const float area = pow((extent*2) + 1, 2);
-    return mix(1.0f, shadow, clamp(inShadow/area, 0, 1));
+    float variance = moments.y - moments.x * moments.x;
+    float mD = moments.x - currentDepth;
+    float mD_2 = mD * mD;
+    float p = variance / (variance + mD_2);
+    return mix(shadow, 1.0, max(p, 0));
 }
 
 float shadow_map_multiplier(in vec3 normal) {

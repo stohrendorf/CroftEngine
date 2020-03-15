@@ -56,6 +56,11 @@ public:
                                     1));
   }
 
+  const glm::ivec2& size() const
+  {
+    return m_size;
+  }
+
 private:
   glm::ivec2 m_size{-1};
 };

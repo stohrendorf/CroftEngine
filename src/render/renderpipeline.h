@@ -5,6 +5,7 @@
 #include "gl/pixel.h"
 #include "gl/texture2d.h"
 #include "gl/texturedepth.h"
+#include "scene/blur.h"
 #include "scene/camera.h"
 #include "scene/material.h"
 #include "scene/model.h"
@@ -27,99 +28,6 @@ public:
 private:
   static std::shared_ptr<scene::Model> makeFbModel();
 
-  template<typename T>
-  struct SingleBlur
-  {
-    using Texture = gl::Texture2D<gl::Scalar<T>>;
-
-    const std::string name;
-    std::shared_ptr<Texture> buffer;
-    const std::shared_ptr<scene::Model> model = makeFbModel();
-    const std::shared_ptr<scene::ShaderProgram> shader;
-    const std::shared_ptr<scene::Material> material;
-    std::shared_ptr<gl::Framebuffer> fb;
-
-    explicit SingleBlur(std::string name, scene::ShaderManager& shaderManager, uint8_t n)
-        : name{std::move(name)}
-        , shader{shaderManager.getBlur(2, n)}
-        , material{std::make_shared<scene::Material>(shader)}
-    {
-    }
-
-    void build()
-    {
-      fb = gl::FrameBufferBuilder()
-             .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, buffer)
-             .build(name + "/fb");
-    }
-
-    void resize(const glm::ivec2& viewport, const std::shared_ptr<Texture>& src)
-    {
-      buffer = std::make_shared<Texture>(viewport, name + "/blur");
-      buffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-        .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
-        .set(gl::api::TextureMinFilter::Linear)
-        .set(gl::api::TextureMagFilter::Linear);
-
-      material->getUniform("u_input")->set(src);
-
-      model->getMeshes().clear();
-      model->addMesh(scene::createQuadFullscreen(
-        gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), shader->getHandle()));
-      model->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, material);
-    }
-
-    void render(const glm::ivec2& size) const
-    {
-      gl::DebugGroup dbg{name + "/blur-pass"};
-      GL_ASSERT(gl::api::viewport(0, 0, size.x, size.y));
-
-      gl::RenderState state;
-      state.setBlend(false);
-      state.apply(true);
-      scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-      scene::Node dummyNode{""};
-      context.setCurrentNode(&dummyNode);
-
-      fb->bindWithAttachments();
-      model->render(context);
-    }
-  };
-
-  template<typename T>
-  struct BidirBlur
-  {
-    using Texture = gl::Texture2D<gl::Scalar<T>>;
-
-    SingleBlur<T> blur1;
-    SingleBlur<T> blur2;
-
-    explicit BidirBlur(const std::string& name, scene::ShaderManager& shaderManager)
-        : blur1{name + "/blur-1", shaderManager, 1}
-        , blur2{name + "/blur-2", shaderManager, 2}
-    {
-    }
-
-    void build()
-    {
-      blur1.build();
-      blur2.build();
-    }
-
-    void resize(const glm::ivec2& viewport, const std::shared_ptr<Texture>& src)
-    {
-      blur1.resize(viewport, src);
-      blur2.resize(viewport, blur1.buffer);
-    }
-
-    void render(const glm::ivec2& size) const
-    {
-      blur1.render(size);
-      blur2.render(size);
-      blur1.fb->invalidate();
-    }
-  };
-
   struct PortalStage
   {
     std::shared_ptr<gl::TextureDepth<float>> depthBuffer;
@@ -128,7 +36,6 @@ private:
 
     void resize(const glm::ivec2& viewport);
     void bind(const gl::TextureDepth<float>& depth);
-    void build();
   };
 
   struct GeometryStage
@@ -141,7 +48,6 @@ private:
 
     void resize(const glm::ivec2& viewport);
     void bind(const glm::ivec2& size);
-    void build();
   };
 
   struct SSAOStage
@@ -155,14 +61,13 @@ private:
     std::shared_ptr<gl::Texture2D<gl::ScalarByte>> aoBuffer;
     std::shared_ptr<gl::Framebuffer> fb;
 
-    BidirBlur<uint8_t> blur;
+    scene::SeparableBlur<gl::ScalarByte, 2> blur;
 
     explicit SSAOStage(scene::ShaderManager& shaderManager);
-    void build();
     void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);
     void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
-    void render(const glm::ivec2& size) const;
+    void render(const glm::ivec2& size);
   };
 
   struct FXAAStage
@@ -177,7 +82,6 @@ private:
     explicit FXAAStage(scene::ShaderManager& shaderManager);
 
     void bind();
-    void build();
     void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);
 
     void render(const glm::ivec2& size);
@@ -245,13 +149,11 @@ public:
     m_size = viewport;
 
     resizeTextures(viewport);
-    buildFramebuffers();
   }
 
 private:
   glm::ivec2 m_size{-1};
 
   void resizeTextures(const glm::ivec2& viewport);
-  void buildFramebuffers();
 };
 } // namespace render

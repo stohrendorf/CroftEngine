@@ -104,36 +104,16 @@ using RGB32 = RGB<int32_t>;
 using RGB32F = RGB<float>;
 
 template<typename T>
-using RG = Pixel<T, 3, api::PixelFormat::Rg, TypeTraits<T>::RgSizedInternalFormat>;
+using RG = Pixel<T, 2, api::PixelFormat::Rg, TypeTraits<T>::RgSizedInternalFormat>;
 using RG8 = RG<uint8_t>;
 using RG16F = RG<api::core::Half>;
 using RG32F = RG<float>;
 
 template<typename T>
-struct Scalar final
-{
-  static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<api::core::Half, T>,
-                "Pixel may only have channels of integral types");
-
-  using Type = T;
-  using Traits = TypeTraits<T>;
-
-  static constexpr api::PixelFormat PixelFormat = api::PixelFormat::Red;
-  static constexpr api::PixelType PixelType = Traits::PixelType;
-  static constexpr auto InternalFormat = Traits::RSizedInternalFormat;
-
-  explicit Scalar()
-      : Scalar{0}
-  {
-  }
-
-  explicit constexpr Scalar(Type value) noexcept
-      : value{value}
-  {
-  }
-
-  Type value;
-};
+using Scalar = Pixel<T, 1, api::PixelFormat::Red, TypeTraits<T>::RSizedInternalFormat>;
+using ScalarByte = Scalar<uint8_t>;
+using Scalar32F = Scalar<float>;
+using Scalar16F = Scalar<api::core::Half>;
 
 template<typename T>
 struct ScalarDepth final
@@ -161,17 +141,8 @@ struct ScalarDepth final
   Type value;
 };
 
-template<typename T>
-constexpr bool operator==(const Scalar<T>& lhs, const Scalar<T>& rhs)
-{
-  return lhs.value == rhs.value;
-}
-
-template<typename T>
-constexpr bool operator!=(const Scalar<T>& lhs, const Scalar<T>& rhs)
-{
-  return !(lhs == rhs);
-}
+using ScalarDepth32F = ScalarDepth<float>;
+using ScalarDepth16F = ScalarDepth<api::core::Half>;
 
 template<typename T>
 constexpr bool operator==(const ScalarDepth<T>& lhs, const ScalarDepth<T>& rhs)
@@ -184,10 +155,4 @@ constexpr bool operator!=(const ScalarDepth<T>& lhs, const ScalarDepth<T>& rhs)
 {
   return !(lhs == rhs);
 }
-
-using ScalarByte = Scalar<uint8_t>;
-using Scalar32F = Scalar<float>;
-using ScalarDepth32F = ScalarDepth<float>;
-using Scalar16F = Scalar<api::core::Half>;
-using ScalarDepth16F = ScalarDepth<api::core::Half>;
 } // namespace gl

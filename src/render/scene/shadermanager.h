@@ -69,12 +69,22 @@ public:
     return get("flat.vert", "ssao.frag");
   }
 
-  auto getBlur(const uint8_t extent, uint8_t blurDir)
+  auto getBlur(const uint8_t extent, uint8_t blurDir, uint8_t blurDim)
   {
     Expects(extent > 0);
     Expects(blurDir < 3);
-    return get(
-      "flat.vert", "blur.frag", {"BLUR_EXTENT " + std::to_string(extent), "BLUR_DIR " + std::to_string(blurDir + 0)});
+    Expects(blurDim > 0);
+    Expects(blurDim < 3);
+    return get("flat.vert",
+               "blur.frag",
+               {"BLUR_EXTENT " + std::to_string(extent),
+                "BLUR_DIR " + std::to_string(blurDir + 0),
+                "BLUR_DIM " + std::to_string(blurDim + 0)});
+  }
+
+  auto getVSMSquare()
+  {
+    return get("flat.vert", "vsm_square.frag");
   }
 
   auto getPostprocessing()

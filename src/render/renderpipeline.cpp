@@ -34,7 +34,7 @@ void RenderPipeline::finalPass(const bool water)
   m_fxaaStage.fb->invalidate();
   m_portalStage.fb->invalidate();
   m_geometryStage.fb->invalidate();
-  m_ssaoStage.blur.blur2.fb->invalidate();
+  m_ssaoStage.blur.invalidate();
 }
 
 void RenderPipeline::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
@@ -51,14 +51,6 @@ void RenderPipeline::resizeTextures(const glm::ivec2& viewport)
   m_ssaoStage.resize(viewport / 2, m_geometryStage);
   m_fxaaStage.resize(viewport, m_geometryStage);
   m_postprocessStage.resize(viewport, m_geometryStage, m_portalStage, m_ssaoStage, m_fxaaStage);
-}
-
-void RenderPipeline::buildFramebuffers()
-{
-  m_portalStage.build();
-  m_geometryStage.build();
-  m_fxaaStage.build();
-  m_ssaoStage.build();
 }
 
 RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager)
@@ -111,15 +103,6 @@ RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager)
   material->getUniform("u_texNoise")->set(noiseTexture);
 }
 
-void RenderPipeline::SSAOStage::build()
-{
-  fb = gl::FrameBufferBuilder()
-         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, aoBuffer)
-         .build("ssao-fb");
-
-  blur.build();
-}
-
 void RenderPipeline::SSAOStage::resize(const glm::ivec2& viewport, const RenderPipeline::GeometryStage& geometryStage)
 {
   aoBuffer = std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "ssao-ao");
@@ -137,6 +120,10 @@ void RenderPipeline::SSAOStage::resize(const glm::ivec2& viewport, const RenderP
   renderModel->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, material);
 
   blur.resize(viewport, aoBuffer);
+
+  fb = gl::FrameBufferBuilder()
+         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, aoBuffer)
+         .build("ssao-fb");
 }
 
 void RenderPipeline::PortalStage::resize(const glm::ivec2& viewport)
@@ -145,6 +132,11 @@ void RenderPipeline::PortalStage::resize(const glm::ivec2& viewport)
   depthBuffer->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
   perturbBuffer = std::make_shared<gl::Texture2D<gl::RG32F>>(viewport, "portal-perturb");
   perturbBuffer->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
+
+  fb = gl::FrameBufferBuilder()
+         .texture(gl::api::FramebufferAttachment::DepthAttachment, depthBuffer)
+         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, perturbBuffer)
+         .build("portal-fb");
 }
 
 void RenderPipeline::PortalStage::bind(const gl::TextureDepth<float>& depth)
@@ -154,29 +146,11 @@ void RenderPipeline::PortalStage::bind(const gl::TextureDepth<float>& depth)
   fb->bindWithAttachments();
 }
 
-void RenderPipeline::PortalStage::build()
-{
-  fb = gl::FrameBufferBuilder()
-         .texture(gl::api::FramebufferAttachment::DepthAttachment, depthBuffer)
-         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, perturbBuffer)
-         .build("portal-fb");
-}
-
 void RenderPipeline::GeometryStage::bind(const glm::ivec2& size)
 {
   gl::Framebuffer::unbindAll();
   GL_ASSERT(::gl::api::viewport(0, 0, size.x, size.y));
   fb->bindWithAttachments();
-}
-
-void RenderPipeline::GeometryStage::build()
-{
-  fb = gl::FrameBufferBuilder()
-         .texture(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer)
-         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment1, normalBuffer)
-         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment2, positionBuffer)
-         .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, depthBuffer)
-         .build("geometry-fb");
 }
 
 void RenderPipeline::GeometryStage::resize(const glm::ivec2& viewport)
@@ -201,6 +175,13 @@ void RenderPipeline::GeometryStage::resize(const glm::ivec2& viewport)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Nearest)
     .set(gl::api::TextureMagFilter::Nearest);
+
+  fb = gl::FrameBufferBuilder()
+         .texture(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer)
+         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment1, normalBuffer)
+         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment2, positionBuffer)
+         .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, depthBuffer)
+         .build("geometry-fb");
 }
 
 void RenderPipeline::FXAAStage::resize(const glm::ivec2& viewport, const GeometryStage& geometryStage)
@@ -217,17 +198,14 @@ void RenderPipeline::FXAAStage::resize(const glm::ivec2& viewport, const Geometr
   model->addMesh(
     scene::createQuadFullscreen(gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), shader->getHandle()));
   model->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, material);
+
+  fb = gl::FrameBufferBuilder().texture(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer).build("fxaa-fb");
 }
 
 RenderPipeline::FXAAStage::FXAAStage(scene::ShaderManager& shaderManager)
     : shader{shaderManager.getFXAA()}
     , material{std::make_shared<scene::Material>(shader)}
 {
-}
-
-void RenderPipeline::FXAAStage::build()
-{
-  fb = gl::FrameBufferBuilder().texture(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer).build("fxaa-fb");
 }
 
 void RenderPipeline::FXAAStage::bind()
@@ -259,7 +237,7 @@ void RenderPipeline::SSAOStage::update(const gsl::not_null<std::shared_ptr<scene
   material->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }
 
-void RenderPipeline::SSAOStage::render(const glm::ivec2& size) const
+void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
 {
   gl::DebugGroup dbg{"ssao-pass"};
   GL_ASSERT(gl::api::viewport(0, 0, size.x, size.y));
@@ -311,13 +289,13 @@ void RenderPipeline::PostprocessStage::resize(const glm::ivec2& viewport,
   darknessMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
   darknessMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
   darknessMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
-  darknessMaterial->getUniform("u_ao")->set(ssaoStage.blur.blur2.buffer);
+  darknessMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
   darknessMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
 
   waterDarknessMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
   waterDarknessMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
   waterDarknessMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
-  waterDarknessMaterial->getUniform("u_ao")->set(ssaoStage.blur.blur2.buffer);
+  waterDarknessMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
   waterDarknessMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
 
   model->getMeshes().clear();
