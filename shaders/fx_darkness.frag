@@ -101,7 +101,7 @@ void main()
     }
         #endif
 
-    finalColor *= pow(texture(u_ao, uv).r, 1.5);
+    finalColor *= pow(texture(u_ao, uv).r, 1.1);
     finalColor *= grain*0.3 + 0.7;
 
     const float velviaAmount = 0.2;
