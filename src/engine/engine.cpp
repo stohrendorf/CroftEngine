@@ -953,6 +953,14 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
         }
       }
 
+      Rect(const glm::vec2& t0, const glm::vec2& t1)
+      {
+        x0 = std::min(t0.x, t1.x);
+        y0 = std::min(t0.y, t1.y);
+        x1 = std::max(t0.x, t1.x);
+        y1 = std::max(t0.y, t1.y);
+      }
+
       constexpr bool operator==(const Rect& rhs) const noexcept
       {
         return x0 == rhs.x0 && y0 == rhs.y0 && x1 == rhs.x1 && y1 == rhs.y1;
@@ -978,6 +986,10 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     for(const auto& tile : m_level->m_textureTiles)
     {
       tilesByTexture[tile.textureKey.tileAndFlag & loader::file::TextureIndexMask].emplace(tile.uvCoordinates);
+    }
+    for(const auto& sprite : m_level->m_sprites)
+    {
+      tilesByTexture[sprite.texture_id.get()].emplace(sprite.t0 * 256.0f, sprite.t1 * 256.0f);
     }
 
     size_t totalTiles = 0;
