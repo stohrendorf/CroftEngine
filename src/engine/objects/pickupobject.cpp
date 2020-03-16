@@ -78,7 +78,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
           BOOST_ASSERT(gsl::narrow<size_t>(shotgunLara.meshes.size())
                        == getEngine().getLara().getNode()->getChildren().size());
 
-          getEngine().getLara().getNode()->getChild(7)->setRenderable(shotgunLara.models[7].get());
+          getEngine().getLara().getNode()->getChild(7)->setRenderable(shotgunLara.renderMeshes[7].get());
         }
 
         m_state.triggerState = TriggerState::Invisible;

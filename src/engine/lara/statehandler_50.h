@@ -40,7 +40,7 @@ public:
     Expects(normalLara != nullptr);
     for(size_t i = 0; i < spheres.size(); ++i)
     {
-      if(engine.getLara().getNode()->getChild(i)->getRenderable() == normalLara->models[i].get())
+      if(engine.getLara().getNode()->getChild(i)->getRenderable() == normalLara->renderMeshes[i].get())
         continue;
 
       const auto r = spheres[i].radius;

@@ -11,7 +11,6 @@
 namespace render::scene
 {
 class Mesh;
-class Model;
 class ShaderManager;
 
 class ScreenOverlay : public Renderable

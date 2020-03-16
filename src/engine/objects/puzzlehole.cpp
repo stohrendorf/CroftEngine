@@ -83,10 +83,10 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
 
     m_skeleton = std::make_shared<SkeletalModelNode>(toString(completeId), &getEngine(), model.get());
     m_skeleton->setAnimation(m_state, model->animations, model->animations->firstFrame);
-    for(gsl::index boneIndex = 0; boneIndex < model->models.size(); ++boneIndex)
+    for(gsl::index boneIndex = 0; boneIndex < model->renderMeshes.size(); ++boneIndex)
     {
       auto node = std::make_shared<render::scene::Node>("bone:" + std::to_string(boneIndex));
-      node->setRenderable(model->models[boneIndex].get());
+      node->setRenderable(model->renderMeshes[boneIndex].get());
       addChild(getNode(), node);
     }
 

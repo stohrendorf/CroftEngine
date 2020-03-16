@@ -60,7 +60,7 @@ private:
 
   CameraModifier m_modifier = CameraModifier::None;
 
-  bool m_fixed = false;
+  bool m_wasFixed = false;
 
   /**
      * @brief If <0, bounce randomly around +/- @c m_bounce/2, increasing value by 5 each frame; if >0, do a single Y bounce downwards by @c m_bounce.

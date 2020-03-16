@@ -43,7 +43,7 @@ struct RenderVertex
 
 #pragma pack(pop)
 
-struct RenderModel
+struct RenderMesh
 {
   using IndexType = uint16_t;
   std::vector<IndexType> m_indices;
@@ -51,12 +51,10 @@ struct RenderModel
   std::shared_ptr<render::scene::Material> m_materialCSMDepthOnly;
   std::shared_ptr<render::scene::Material> m_materialDepthOnly;
 
-  std::shared_ptr<render::scene::Model>
-    toModel(const gsl::not_null<std::shared_ptr<gl::VertexBuffer<RenderVertex>>>& vbuf,
-            const gsl::not_null<std::shared_ptr<gl::VertexBuffer<glm::vec2>>>& uvBuf)
+  std::shared_ptr<render::scene::Mesh>
+    toMesh(const gsl::not_null<std::shared_ptr<gl::VertexBuffer<RenderVertex>>>& vbuf,
+           const gsl::not_null<std::shared_ptr<gl::VertexBuffer<glm::vec2>>>& uvBuf)
   {
-    auto model = std::make_shared<render::scene::Model>();
-
 #ifndef NDEBUG
     for(auto idx : m_indices)
     {
@@ -81,9 +79,8 @@ struct RenderModel
       .set(render::scene::RenderMode::Full, m_materialFull)
       .set(render::scene::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly)
       .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly);
-    model->addMesh(mesh);
 
-    return model;
+    return mesh;
   }
 };
 
@@ -108,7 +105,7 @@ void Room::createSceneNode(const size_t roomId,
                            const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
                            const gsl::not_null<std::shared_ptr<render::scene::Material>>& waterMaterialFull,
                            const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
-                           const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
+                           const std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>>& staticRenderMeshes,
                            render::TextureAnimator& animator,
                            const std::shared_ptr<render::scene::Material>& spriteMaterial,
                            const std::shared_ptr<render::scene::Material>& portalMaterial)
@@ -117,10 +114,10 @@ void Room::createSceneNode(const size_t roomId,
                          ? loader::file::TextureIndexMaskTr4
                          : loader::file::TextureIndexMask;
 
-  RenderModel renderModel;
-  renderModel.m_materialDepthOnly = materialDepthOnly;
-  renderModel.m_materialCSMDepthOnly = nullptr;
-  renderModel.m_materialFull = isWaterRoom() ? waterMaterialFull : materialFull;
+  RenderMesh renderMesh;
+  renderMesh.m_materialDepthOnly = materialDepthOnly;
+  renderMesh.m_materialCSMDepthOnly = nullptr;
+  renderMesh.m_materialFull = isWaterRoom() ? waterMaterialFull : materialFull;
 
   std::vector<RenderVertex> vbufData;
   std::vector<glm::vec2> uvCoordsData;
@@ -182,7 +179,7 @@ void Room::createSceneNode(const size_t roomId,
     for(int i : {0, 1, 2, 0, 2, 3})
     {
       animator.registerVertex(quad.tileId, uvCoords, i, firstVertex + i);
-      renderModel.m_indices.emplace_back(gsl::narrow<RenderModel::IndexType>(firstVertex + i));
+      renderMesh.m_indices.emplace_back(gsl::narrow<RenderMesh::IndexType>(firstVertex + i));
     }
   }
   for(const Triangle& tri : triangles)
@@ -225,20 +222,20 @@ void Room::createSceneNode(const size_t roomId,
     for(int i : {0, 1, 2})
     {
       animator.registerVertex(tri.tileId, uvCoords, i, firstVertex + i);
-      renderModel.m_indices.emplace_back(gsl::narrow<RenderModel::IndexType>(firstVertex + i));
+      renderMesh.m_indices.emplace_back(gsl::narrow<RenderMesh::IndexType>(firstVertex + i));
     }
   }
 
   vbuf->setData(vbufData, gl::api::BufferUsageARB::StaticDraw);
   uvCoords->setData(uvCoordsData, gl::api::BufferUsageARB::DynamicDraw);
 
-  auto resModel = renderModel.toModel(vbuf, uvCoords);
-  resModel->getRenderState().setCullFace(true);
-  resModel->getRenderState().setCullFaceSide(gl::api::CullFaceMode::Back);
-  resModel->getRenderState().setBlend(false);
+  auto resMesh = renderMesh.toMesh(vbuf, uvCoords);
+  resMesh->getRenderState().setCullFace(true);
+  resMesh->getRenderState().setCullFaceSide(gl::api::CullFaceMode::Back);
+  resMesh->getRenderState().setBlend(false);
 
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
-  node->setRenderable(resModel);
+  node->setRenderable(resMesh);
   node->addUniformSetter("u_lightAmbient",
                          [](const render::scene::Node& /*node*/, gl::Uniform& uniform) { uniform.set(1.0f); });
 
@@ -254,7 +251,7 @@ void Room::createSceneNode(const size_t roomId,
       continue;
 
     auto subNode = std::make_shared<render::scene::Node>("staticMesh");
-    subNode->setRenderable(staticMeshModels.at(idx).get());
+    subNode->setRenderable(staticRenderMeshes.at(idx).get());
     subNode->setLocalMatrix(translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem())
                             * rotate(glm::mat4{1.0f}, toRad(sm.rotation), glm::vec3{0, -1, 0}));
 

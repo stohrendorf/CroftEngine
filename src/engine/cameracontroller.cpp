@@ -340,19 +340,19 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
   if(m_modifier != CameraModifier::AllowSteepSlants)
     HeightInfo::skipSteepSlants = true;
 
-  const bool fixed = m_targetObject != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
+  const bool isFixed = m_targetObject != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy);
 
   // if we have a fixed position, we also have an object we're looking at
-  objects::Object* const focusedObject = fixed ? m_targetObject.get() : &m_engine->getLara();
+  objects::Object* const focusedObject = isFixed ? m_targetObject.get() : &m_engine->getLara();
   BOOST_ASSERT(focusedObject != nullptr);
   auto focusBBox = focusedObject->getBoundingBox();
   auto focusY = focusedObject->m_state.position.position.Y;
-  if(fixed)
+  if(isFixed)
     focusY += (focusBBox.minY + focusBBox.maxY) / 2;
   else
     focusY += (focusBBox.minY - focusBBox.maxY) * 3 / 4 + focusBBox.maxY;
 
-  if(m_targetObject != nullptr && !fixed)
+  if(m_targetObject != nullptr && !isFixed)
   {
     // lara moves around and looks at some object, some sort of involuntary free look;
     // in this case, we have an object to look at, but the camera is _not_ fixed
@@ -389,7 +389,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
 
   if(m_mode == CameraMode::FreeLook || m_mode == CameraMode::Combat)
   {
-    if(m_fixed)
+    if(m_wasFixed)
     {
       m_center->position.Y = focusY - core::QuarterSectorSize;
       m_smoothness = 1;
@@ -402,7 +402,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
       else
         m_smoothness = 8;
     }
-    m_fixed = false;
+    m_wasFixed = false;
     if(m_mode == CameraMode::FreeLook)
       handleFreeLook(*focusedObject);
     else
@@ -419,15 +419,15 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
       m_center->position += util::pitch(midZ, focusedObject->m_state.rotation.Y);
     }
 
-    if(m_fixed == fixed)
+    if(m_wasFixed == isFixed)
     {
-      m_fixed = false;
+      m_wasFixed = false;
       m_center->position.Y += (focusY - m_center->position.Y) / 4;
     }
     else
     {
       // switching between fixed cameras, so we're not doing any smoothing
-      m_fixed = true;
+      m_wasFixed = true;
       m_center->position.Y = focusY;
       m_smoothness = 1;
     }
@@ -442,7 +442,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
       handleFixedCamera();
   }
 
-  m_fixed = fixed;
+  m_wasFixed = isFixed;
   m_currentFixedCameraId = m_fixedCameraId;
   if(m_mode != CameraMode::Heavy || m_camOverrideTimeout < 0_frame)
   {
@@ -472,7 +472,7 @@ void CameraController::handleFixedCamera()
     moveIntoGeometry(pos, core::QuarterSectorSize);
   }
 
-  m_fixed = true;
+  m_wasFixed = true;
   updatePosition(pos, m_smoothness);
 
   if(m_camOverrideTimeout != 0_frame)
@@ -606,7 +606,7 @@ void CameraController::chaseObject(const objects::Object& object)
                   const core::Length& g,
                   const core::Length& h) { clampToCorners(m_eyeCenterHorizontalDistanceSq, a, b, c, d, e, f, g, h); });
 
-  updatePosition(eye, m_fixed ? m_smoothness : 12);
+  updatePosition(eye, m_wasFixed ? m_smoothness : 12);
 }
 
 void CameraController::handleFreeLook(const objects::Object& object)
@@ -1030,7 +1030,7 @@ void CameraController::serialize(const serialization::Serializer& ser)
       S_NV("center", m_center),
       S_NV("mode", m_mode),
       S_NV("modifier", m_modifier),
-      S_NV("fixed", m_fixed),
+      S_NV("fixed", m_wasFixed),
       S_NV("targetObject", serialization::ObjectReference{m_targetObject}),
       S_NV("previousObject", serialization::ObjectReference{m_previousObject}),
       S_NV("enemy", serialization::ObjectReference{m_enemy}),

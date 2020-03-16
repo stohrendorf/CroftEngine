@@ -12,11 +12,6 @@
 namespace render
 {
 class TextureAnimator;
-
-namespace scene
-{
-class Model;
-}
 } // namespace render
 
 namespace loader::file
@@ -49,12 +44,12 @@ struct Mesh
 
   static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader);
 
-  [[nodiscard]] std::shared_ptr<render::scene::Model>
-    createModel(const std::vector<TextureTile>& textureTiles,
-                const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
-                gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
-                gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
-                const Palette& palette,
-                const std::string& label = {}) const;
+  [[nodiscard]] std::shared_ptr<render::scene::Mesh>
+    toRenderMesh(const std::vector<TextureTile>& textureTiles,
+                 const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
+                 gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
+                 gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
+                 const Palette& palette,
+                 const std::string& label = {}) const;
 };
 } // namespace loader::file

@@ -15,7 +15,7 @@ namespace loader::file
 {
 namespace
 {
-class ModelBuilder final
+class RenderMeshBuilder final
 {
   using IndexType = uint16_t;
 
@@ -53,13 +53,13 @@ class ModelBuilder final
   void append(const RenderVertex& v);
 
 public:
-  explicit ModelBuilder(bool withNormals,
-                        const std::vector<TextureTile>& textureTiles,
-                        gsl::not_null<std::shared_ptr<render::scene::Material>> materialFull,
-                        gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
-                        gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
-                        const Palette& palette,
-                        std::string label = {})
+  explicit RenderMeshBuilder(bool withNormals,
+                             const std::vector<TextureTile>& textureTiles,
+                             gsl::not_null<std::shared_ptr<render::scene::Material>> materialFull,
+                             gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
+                             gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
+                             const Palette& palette,
+                             std::string label = {})
       : m_hasNormals{withNormals}
       , m_textureTiles{textureTiles}
       , m_materialFull{std::move(materialFull)}
@@ -73,15 +73,15 @@ public:
 
   void append(const Mesh& mesh);
 
-  gsl::not_null<std::shared_ptr<render::scene::Model>> finalize();
+  gsl::not_null<std::shared_ptr<render::scene::Mesh>> finalize();
 };
 
-void ModelBuilder::append(const RenderVertex& v)
+void RenderMeshBuilder::append(const RenderVertex& v)
 {
   m_vertices.emplace_back(v);
 }
 
-void ModelBuilder::append(const Mesh& mesh)
+void RenderMeshBuilder::append(const Mesh& mesh)
 {
   if(mesh.normals.empty() && m_hasNormals)
     BOOST_THROW_EXCEPTION(std::runtime_error("Trying to append a mesh with normals to a buffer without normals"));
@@ -297,11 +297,10 @@ void ModelBuilder::append(const Mesh& mesh)
   }
 }
 
-gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
+gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshBuilder::finalize()
 {
   m_vb->setData(m_vertices, gl::api::BufferUsageARB::StaticDraw);
 
-  auto model = std::make_shared<render::scene::Model>();
 #ifndef NDEBUG
   for(auto idx : m_indices)
   {
@@ -325,27 +324,25 @@ gsl::not_null<std::shared_ptr<render::scene::Model>> ModelBuilder::finalize()
     .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly)
     .set(render::scene::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly);
 
-  model->addMesh(mesh);
-
-  return model;
+  return mesh;
 }
 } // namespace
 
-std::shared_ptr<render::scene::Model>
-  Mesh::createModel(const std::vector<TextureTile>& textureTiles,
-                    const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
-                    gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
-                    gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
-                    const Palette& palette,
-                    const std::string& label) const
+std::shared_ptr<render::scene::Mesh>
+  Mesh::toRenderMesh(const std::vector<TextureTile>& textureTiles,
+                     const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
+                     gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
+                     gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
+                     const Palette& palette,
+                     const std::string& label) const
 {
-  ModelBuilder mb{!normals.empty(),
-                  textureTiles,
-                  materialFull,
-                  std::move(materialDepthOnly),
-                  std::move(materialCSMDepthOnly),
-                  palette,
-                  label};
+  RenderMeshBuilder mb{!normals.empty(),
+                       textureTiles,
+                       materialFull,
+                       std::move(materialDepthOnly),
+                       std::move(materialCSMDepthOnly),
+                       palette,
+                       label};
 
   mb.append(*this);
 

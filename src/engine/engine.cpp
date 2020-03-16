@@ -227,17 +227,17 @@ void Engine::loadSceneData()
 
   for(auto& mesh : m_level->m_meshes)
   {
-    m_models.emplace_back(mesh.createModel(m_level->m_textureTiles,
-                                           materialFull,
-                                           m_materialManager->getDepthOnly(),
-                                           m_materialManager->getCSMDepthOnly(),
-                                           *m_level->m_palette));
+    m_renderMeshes.emplace_back(mesh.toRenderMesh(m_level->m_textureTiles,
+                                                  materialFull,
+                                                  m_materialManager->getDepthOnly(),
+                                                  m_materialManager->getCSMDepthOnly(),
+                                                  *m_level->m_palette));
   }
 
   for(auto idx : m_level->m_meshIndices)
   {
-    Expects(idx < m_models.size());
-    m_modelsDirect.emplace_back(m_models[idx]);
+    Expects(idx < m_renderMeshes.size());
+    m_renderMeshesDirect.emplace_back(m_renderMeshes[idx]);
     m_meshesDirect.emplace_back(&m_level->m_meshes[idx]);
   }
 
@@ -246,7 +246,7 @@ void Engine::loadSceneData()
   {
     if(model->nMeshes > 0)
     {
-      model->models = make_span(&model->mesh_base_index.checkedFrom(m_modelsDirect), model->nMeshes);
+      model->renderMeshes = make_span(&model->mesh_base_index.checkedFrom(m_renderMeshesDirect), model->nMeshes);
       model->meshes = make_span(&model->mesh_base_index.checkedFrom(m_meshesDirect), model->nMeshes);
     }
   }
@@ -260,7 +260,7 @@ void Engine::loadSceneData()
                                         materialFull,
                                         waterMaterialFull,
                                         m_materialManager->getDepthOnly(),
-                                        m_models,
+                                        m_renderMeshes,
                                         *m_textureAnimator,
                                         m_materialManager->getSprite(),
                                         m_materialManager->getPortal());
@@ -367,16 +367,16 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>
 void Engine::useAlternativeLaraAppearance(const bool withHead)
 {
   const auto& base = *findAnimatedModelForType(TR1ItemId::Lara);
-  BOOST_ASSERT(gsl::narrow<size_t>(base.models.size()) == m_lara->getNode()->getChildren().size());
+  BOOST_ASSERT(gsl::narrow<size_t>(base.renderMeshes.size()) == m_lara->getNode()->getChildren().size());
 
   const auto& alternate = *findAnimatedModelForType(TR1ItemId::AlternativeLara);
-  BOOST_ASSERT(gsl::narrow<size_t>(alternate.models.size()) == m_lara->getNode()->getChildren().size());
+  BOOST_ASSERT(gsl::narrow<size_t>(alternate.renderMeshes.size()) == m_lara->getNode()->getChildren().size());
 
   for(size_t i = 0; i < m_lara->getNode()->getChildren().size(); ++i)
-    m_lara->getNode()->getChild(i)->setRenderable(alternate.models[i].get());
+    m_lara->getNode()->getChild(i)->setRenderable(alternate.renderMeshes[i].get());
 
   if(!withHead)
-    m_lara->getNode()->getChild(14)->setRenderable(base.models[14].get());
+    m_lara->getNode()->getChild(14)->setRenderable(base.renderMeshes[14].get());
 }
 
 void Engine::dinoStompEffect(objects::Object& object)
@@ -560,8 +560,8 @@ void Engine::flipMapEffect()
 void Engine::unholsterRightGunEffect(objects::Object& object)
 {
   const auto& src = *findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
-  BOOST_ASSERT(gsl::narrow<size_t>(src.models.size()) == object.getNode()->getChildren().size());
-  object.getNode()->getChild(10)->setRenderable(src.models[10].get());
+  BOOST_ASSERT(gsl::narrow<size_t>(src.renderMeshes.size()) == object.getNode()->getChildren().size());
+  object.getNode()->getChild(10)->setRenderable(src.renderMeshes[10].get());
 }
 
 void Engine::chainBlockEffect()
@@ -929,8 +929,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
         if(object->m_state.type != TR1ItemId::CutsceneActor1)
           continue;
 
-        object->getNode()->getChild(1)->setRenderable(laraPistol->models[1].get());
-        object->getNode()->getChild(4)->setRenderable(laraPistol->models[4].get());
+        object->getNode()->getChild(1)->setRenderable(laraPistol->renderMeshes[1].get());
+        object->getNode()->getChild(4)->setRenderable(laraPistol->renderMeshes[4].get());
       }
     }
   }

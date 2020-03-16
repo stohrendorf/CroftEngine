@@ -86,7 +86,7 @@ private:
 
   std::set<objects::Object*> m_scheduledDeletions;
 
-  std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_models;
+  std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>> m_renderMeshes;
 
   int m_uvAnimTime{0};
 
@@ -103,7 +103,7 @@ private:
   std::vector<gsl::not_null<std::shared_ptr<Particle>>> m_particles;
 
   // list of meshes and models, resolved through m_meshIndices
-  std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>> m_modelsDirect;
+  std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>> m_renderMeshesDirect;
   std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
 
   std::shared_ptr<render::RenderPipeline> m_renderPipeline;
@@ -310,9 +310,9 @@ public:
 
   void useAlternativeLaraAppearance(bool withHead = false);
 
-  const gsl::not_null<std::shared_ptr<render::scene::Model>>& getModel(const size_t idx) const
+  const gsl::not_null<std::shared_ptr<render::scene::Mesh>>& getRenderMesh(const size_t idx) const
   {
-    return m_models.at(idx);
+    return m_renderMeshes.at(idx);
   }
 
   void scheduleDeletion(objects::Object* object)
@@ -507,8 +507,8 @@ public:
     if(m == nullptr)
       return std::nullopt;
 
-    for(size_t i = 0; i < m_models.size(); ++i)
-      if(m_models[i].get() == m)
+    for(size_t i = 0; i < m_renderMeshes.size(); ++i)
+      if(m_renderMeshes[i].get() == m)
         return i;
 
     return std::nullopt;

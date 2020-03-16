@@ -405,7 +405,7 @@ struct Room
                        const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
                        const gsl::not_null<std::shared_ptr<render::scene::Material>>& waterMaterialFull,
                        const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
-                       const std::vector<gsl::not_null<std::shared_ptr<render::scene::Model>>>& staticMeshModels,
+                       const std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>>& staticRenderMeshes,
                        render::TextureAnimator& animator,
                        const std::shared_ptr<render::scene::Material>& spriteMaterial,
                        const std::shared_ptr<render::scene::Material>& portalMaterial);

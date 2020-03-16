@@ -35,7 +35,7 @@ inline void load(gsl::not_null<std::shared_ptr<render::scene::Node>>& node, cons
   else
   {
     ser.tag("renderableref");
-    node->setRenderable(ser.engine.getModel(ser.node.as<size_t>()).get());
+    node->setRenderable(ser.engine.getRenderMesh(ser.node.as<size_t>()).get());
   }
 }
 

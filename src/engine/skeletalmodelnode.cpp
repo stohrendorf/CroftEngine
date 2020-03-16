@@ -360,7 +360,7 @@ void SkeletalModelNode::initNodes(const std::shared_ptr<SkeletalModelNode>& skel
   for(gsl::index boneIndex = 0; boneIndex < skeleton->m_model->meshes.size(); ++boneIndex)
   {
     auto node = std::make_shared<render::scene::Node>(skeleton->getId() + "/bone:" + std::to_string(boneIndex));
-    node->setRenderable(skeleton->m_model->models[boneIndex].get());
+    node->setRenderable(skeleton->m_model->renderMeshes[boneIndex].get());
     addChild(skeleton, node);
   }
 
