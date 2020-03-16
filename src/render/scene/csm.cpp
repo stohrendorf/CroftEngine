@@ -51,7 +51,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
     createQuadFullscreen(gsl::narrow<float>(resolution), gsl::narrow<float>(resolution), squareShader->getHandle()));
   squareModel->getMeshes()[0]->getMaterial().set(RenderMode::Full, squareMaterial);
 
-  squareBlur = std::make_shared<SeparableBlur<gl::RG16F, 5>>("squareBlur-" + std::to_string(idx), shaderManager);
+  squareBlur = std::make_shared<SeparableBlur<gl::RG16F, 4>>("squareBlur-" + std::to_string(idx), shaderManager);
   squareBlur->resize(glm::ivec2{resolution, resolution}, squaredTexture);
 }
 
@@ -116,14 +116,14 @@ void CSM::update(const Camera& camera)
 {
   //Start off by calculating the split distances
   const float nearClip = camera.getNearPlane();
-  const float farClip = camera.getFarPlane();
+  const float farClip = camera.getFarPlane() / 2;
 
   std::vector<float> cascadeSplits;
   cascadeSplits.emplace_back(nearClip);
-#if 1
+#if 0
   for(size_t i = 0; i < m_splits.size(); ++i)
   {
-    static constexpr float Lambda = 0.9f;
+    static constexpr float Lambda = 1.0f;
     const auto ir = static_cast<float>(i + 1) / static_cast<float>(m_splits.size());
     const float zi
       = Lambda * nearClip * std::pow(farClip / nearClip, ir) + (1.0f - Lambda) * (nearClip + ir * (farClip - nearClip));

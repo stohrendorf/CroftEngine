@@ -27,16 +27,20 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
         return 1.0;
     }
 
+    float cosTheta = clamp(dot(normalize(normal), normalize(u_csmLightDir)), 0, 1);
+    float bias = clamp(0.01*tan(acos(cosTheta)), 0, 0.01);
+    currentDepth -= bias;
+
     vec2 moments = texture(u_csmVsm[cascadeIdx], projCoords.xy).xy;
     if (currentDepth <= moments.x) {
         return 1.0;
     }
 
     float variance = moments.y - moments.x * moments.x;
-    float mD = moments.x - currentDepth;
+    float mD = currentDepth - moments.x;
     float mD_2 = mD * mD;
     float p = variance / (variance + mD_2);
-    return mix(shadow, 1.0, max(p, 0));
+    return mix(shadow, 1.0, clamp(p, 0, 1));
 }
 
 float shadow_map_multiplier(in vec3 normal) {

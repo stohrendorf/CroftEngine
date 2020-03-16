@@ -42,7 +42,7 @@ public:
     std::shared_ptr<ShaderProgram> squareShader{};
     std::shared_ptr<Material> squareMaterial{};
     const std::shared_ptr<Model> squareModel = std::make_shared<scene::Model>();
-    std::shared_ptr<SeparableBlur<gl::RG16F, 5>> squareBlur;
+    std::shared_ptr<SeparableBlur<gl::RG16F, 4>> squareBlur;
     float end = 0;
 
     void init(int32_t resolution, size_t idx, ShaderManager& shaderManager);
