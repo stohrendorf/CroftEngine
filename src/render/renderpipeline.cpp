@@ -20,16 +20,16 @@ std::shared_ptr<scene::Mesh> RenderPipeline::createFbMesh(const glm::ivec2& size
 RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
     : m_ssaoStage{shaderManager}
     , m_fxaaStage{shaderManager}
-    , m_postprocessStage{shaderManager}
+    , m_compositionStage{shaderManager}
 {
   resize(viewport);
 }
 
-void RenderPipeline::finalPass(const bool water)
+void RenderPipeline::compositionPass(const bool water)
 {
   m_ssaoStage.render(m_size / 2);
   m_fxaaStage.render(m_size);
-  m_postprocessStage.render(water);
+  m_compositionStage.render(water);
 
   m_fxaaStage.fb->invalidate();
   m_portalStage.fb->invalidate();
@@ -40,7 +40,7 @@ void RenderPipeline::finalPass(const bool water)
 void RenderPipeline::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
                             const std::chrono::high_resolution_clock::time_point& time)
 {
-  m_postprocessStage.update(camera, time);
+  m_compositionStage.update(camera, time);
   m_ssaoStage.update(camera);
 }
 
@@ -50,7 +50,7 @@ void RenderPipeline::resizeTextures(const glm::ivec2& viewport)
   m_portalStage.resize(viewport);
   m_ssaoStage.resize(viewport / 2, m_geometryStage);
   m_fxaaStage.resize(viewport, m_geometryStage);
-  m_postprocessStage.resize(viewport, m_geometryStage, m_portalStage, m_ssaoStage, m_fxaaStage);
+  m_compositionStage.resize(viewport, m_geometryStage, m_portalStage, m_ssaoStage, m_fxaaStage);
 }
 
 RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager)
@@ -254,53 +254,53 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
     GL_ASSERT(gl::api::finish());
 }
 
-RenderPipeline::PostprocessStage::PostprocessStage(scene::ShaderManager& shaderManager)
-    : darknessShader{shaderManager.getPostprocessing()}
-    , darknessMaterial{std::make_shared<scene::Material>(darknessShader)}
-    , waterDarknessShader{shaderManager.getPostprocessingWater()}
-    , waterDarknessMaterial{std::make_shared<scene::Material>(waterDarknessShader)}
+RenderPipeline::CompositionStage::CompositionStage(scene::ShaderManager& shaderManager)
+    : compositionShader{shaderManager.getComposition()}
+    , compositionMaterial{std::make_shared<scene::Material>(compositionShader)}
+    , waterCompositionShader{shaderManager.getCompositionWater()}
+    , waterCompositionMaterial{std::make_shared<scene::Material>(waterCompositionShader)}
 
 {
-  darknessMaterial->getUniform("distortion_power")->set(-1.0f);
-  waterDarknessMaterial->getUniform("distortion_power")->set(-2.0f);
+  compositionMaterial->getUniform("distortion_power")->set(-1.0f);
+  waterCompositionMaterial->getUniform("distortion_power")->set(-2.0f);
 }
 
-void RenderPipeline::PostprocessStage::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
+void RenderPipeline::CompositionStage::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
                                               const std::chrono::high_resolution_clock::time_point& time)
 {
   const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(time);
-  darknessMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-  waterDarknessMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+  compositionMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+  waterCompositionMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
 
-  darknessMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
-  waterDarknessMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
+  compositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
+  waterCompositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }
 
-void RenderPipeline::PostprocessStage::resize(const glm::ivec2& viewport,
+void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
                                               const RenderPipeline::GeometryStage& geometryStage,
                                               const RenderPipeline::PortalStage& portalStage,
                                               const RenderPipeline::SSAOStage& ssaoStage,
                                               const RenderPipeline::FXAAStage& fxaaStage)
 {
-  darknessMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
-  darknessMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
-  darknessMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
-  darknessMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
-  darknessMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
+  compositionMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
+  compositionMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
+  compositionMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
+  compositionMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
+  compositionMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
 
-  waterDarknessMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
-  waterDarknessMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
-  waterDarknessMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
-  waterDarknessMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
-  waterDarknessMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
+  waterCompositionMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
+  waterCompositionMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
+  waterCompositionMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
+  waterCompositionMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
+  waterCompositionMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
 
-  mesh = createFbMesh(viewport, darknessShader->getHandle());
-  mesh->getMaterial().set(scene::RenderMode::Full, darknessMaterial);
-  waterMesh = createFbMesh(viewport, waterDarknessShader->getHandle());
-  waterMesh->getMaterial().set(scene::RenderMode::Full, waterDarknessMaterial);
+  mesh = createFbMesh(viewport, compositionShader->getHandle());
+  mesh->getMaterial().set(scene::RenderMode::Full, compositionMaterial);
+  waterMesh = createFbMesh(viewport, waterCompositionShader->getHandle());
+  waterMesh->getMaterial().set(scene::RenderMode::Full, waterCompositionMaterial);
 }
 
-void RenderPipeline::PostprocessStage::render(bool water)
+void RenderPipeline::CompositionStage::render(bool water)
 {
   gl::DebugGroup dbg{"postprocess-pass"};
   gl::Framebuffer::unbindAll();

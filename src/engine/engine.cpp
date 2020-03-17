@@ -1266,7 +1266,7 @@ void Engine::run()
     render::scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
 
-    m_renderPipeline->finalPass(m_cameraController->getCurrentRoom()->isWaterRoom());
+    m_renderPipeline->compositionPass(m_cameraController->getCurrentRoom()->isWaterRoom());
 
     if(debugView.isVisible())
     {

@@ -34,14 +34,14 @@ public:
     return get("flat.vert", "flat.frag", {"INVERT_Y"});
   }
 
-  auto getTextured()
+  auto getGeometry()
   {
-    return get("textured_2.vert", "textured_2.frag");
+    return get("geometry.vert", "geometry.frag");
   }
 
-  auto getTexturedWater()
+  auto getGeometryWater()
   {
-    return get("textured_2.vert", "textured_2.frag", {"WATER"});
+    return get("geometry.vert", "geometry.frag", {"WATER"});
   }
 
   auto getCSMDepthOnly()
@@ -87,14 +87,14 @@ public:
     return get("flat.vert", "vsm_square.frag");
   }
 
-  auto getPostprocessing()
+  auto getComposition()
   {
-    return get("flat.vert", "fx_darkness.frag", {"LENS_DISTORTION"});
+    return get("flat.vert", "composition.frag", {"LENS_DISTORTION"});
   }
 
-  auto getPostprocessingWater()
+  auto getCompositionWater()
   {
-    return get("flat.vert", "fx_darkness.frag", {"WATER", "LENS_DISTORTION"});
+    return get("flat.vert", "composition.frag", {"WATER", "LENS_DISTORTION"});
   }
 
   auto getLightning()

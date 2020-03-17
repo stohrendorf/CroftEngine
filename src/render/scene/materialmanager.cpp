@@ -12,7 +12,7 @@ const std::shared_ptr<Material>& MaterialManager::getSprite()
   if(m_sprite != nullptr)
     return m_sprite;
 
-  m_sprite = std::make_shared<Material>(m_shaderManager->getTextured());
+  m_sprite = std::make_shared<Material>(m_shaderManager->getGeometry());
   m_sprite->getRenderState().setCullFace(false);
 
   m_sprite->getUniformBlock("Transform")->bindTransformBuffer();
@@ -61,7 +61,7 @@ std::shared_ptr<Material>
   texture->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
   texture->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
 
-  auto m = std::make_shared<Material>(water ? m_shaderManager->getTexturedWater() : m_shaderManager->getTextured());
+  auto m = std::make_shared<Material>(water ? m_shaderManager->getGeometryWater() : m_shaderManager->getGeometry());
   m->getUniform("u_diffuseTextures")->set(texture);
   m->getUniform("u_spritePole")->set(-1);
 

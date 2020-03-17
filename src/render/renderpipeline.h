@@ -86,17 +86,17 @@ private:
     void render(const glm::ivec2& size);
   };
 
-  struct PostprocessStage
+  struct CompositionStage
   {
     std::shared_ptr<scene::Mesh> mesh;
     std::shared_ptr<scene::Mesh> waterMesh;
 
-    const std::shared_ptr<scene::ShaderProgram> darknessShader;
-    const std::shared_ptr<scene::Material> darknessMaterial;
-    const std::shared_ptr<scene::ShaderProgram> waterDarknessShader;
-    const std::shared_ptr<scene::Material> waterDarknessMaterial;
+    const std::shared_ptr<scene::ShaderProgram> compositionShader;
+    const std::shared_ptr<scene::Material> compositionMaterial;
+    const std::shared_ptr<scene::ShaderProgram> waterCompositionShader;
+    const std::shared_ptr<scene::Material> waterCompositionMaterial;
 
-    explicit PostprocessStage(scene::ShaderManager& shaderManager);
+    explicit CompositionStage(scene::ShaderManager& shaderManager);
 
     void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
                 const std::chrono::high_resolution_clock::time_point& time);
@@ -114,7 +114,7 @@ private:
   GeometryStage m_geometryStage;
   SSAOStage m_ssaoStage;
   FXAAStage m_fxaaStage;
-  PostprocessStage m_postprocessStage;
+  CompositionStage m_compositionStage;
 
 public:
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -132,7 +132,7 @@ public:
   explicit RenderPipeline(scene::ShaderManager& shaderManager, const glm::ivec2& viewport);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void finalPass(bool water);
+  void compositionPass(bool water);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
