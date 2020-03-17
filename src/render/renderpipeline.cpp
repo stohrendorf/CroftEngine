@@ -8,13 +8,13 @@
 
 namespace render
 {
-std::shared_ptr<scene::Model> RenderPipeline::makeFbModel()
+std::shared_ptr<scene::Mesh> RenderPipeline::createFbMesh(const glm::ivec2& size, const gl::Program& program)
 {
-  auto model = std::make_shared<scene::Model>();
-  model->getRenderState().setCullFace(false);
-  model->getRenderState().setDepthTest(false);
-  model->getRenderState().setDepthWrite(false);
-  return model;
+  auto mesh = scene::createQuadFullscreen(gsl::narrow<float>(size.x), gsl::narrow<float>(size.y), program);
+  mesh->getRenderState().setCullFace(false);
+  mesh->getRenderState().setDepthTest(false);
+  mesh->getRenderState().setDepthWrite(false);
+  return mesh;
 }
 
 RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
@@ -114,10 +114,8 @@ void RenderPipeline::SSAOStage::resize(const glm::ivec2& viewport, const RenderP
   material->getUniform("u_normals")->set(geometryStage.normalBuffer);
   material->getUniform("u_position")->set(geometryStage.positionBuffer);
 
-  renderModel->getMeshes().clear();
-  renderModel->addMesh(
-    scene::createQuadFullscreen(gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), shader->getHandle()));
-  renderModel->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, material);
+  renderMesh = createFbMesh(viewport, shader->getHandle());
+  renderMesh->getMaterial().set(scene::RenderMode::Full, material);
 
   blur.resize(viewport, aoBuffer);
 
@@ -194,10 +192,8 @@ void RenderPipeline::FXAAStage::resize(const glm::ivec2& viewport, const Geometr
 
   material->getUniform("u_input")->set(geometryStage.colorBuffer);
 
-  model->getMeshes().clear();
-  model->addMesh(
-    scene::createQuadFullscreen(gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), shader->getHandle()));
-  model->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, material);
+  mesh = createFbMesh(viewport, shader->getHandle());
+  mesh->getMaterial().set(scene::RenderMode::Full, material);
 
   fb = gl::FrameBufferBuilder().texture(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer).build("fxaa-fb");
 }
@@ -226,7 +222,7 @@ void RenderPipeline::FXAAStage::render(const glm::ivec2& size)
   scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
 
-  model->render(context);
+  mesh->render(context);
 
   if constexpr(FlushStages)
     GL_ASSERT(gl::api::finish());
@@ -250,7 +246,7 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
   scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
 
-  renderModel->render(context);
+  renderMesh->render(context);
   blur.render(size);
   fb->invalidate();
 
@@ -298,14 +294,10 @@ void RenderPipeline::PostprocessStage::resize(const glm::ivec2& viewport,
   waterDarknessMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
   waterDarknessMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
 
-  model->getMeshes().clear();
-  model->addMesh(scene::createQuadFullscreen(
-    gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), darknessShader->getHandle()));
-  model->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, darknessMaterial);
-  waterModel->getMeshes().clear();
-  waterModel->addMesh(scene::createQuadFullscreen(
-    gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), waterDarknessShader->getHandle()));
-  waterModel->getMeshes()[0]->getMaterial().set(scene::RenderMode::Full, waterDarknessMaterial);
+  mesh = createFbMesh(viewport, darknessShader->getHandle());
+  mesh->getMaterial().set(scene::RenderMode::Full, darknessMaterial);
+  waterMesh = createFbMesh(viewport, waterDarknessShader->getHandle());
+  waterMesh->getMaterial().set(scene::RenderMode::Full, waterDarknessMaterial);
 }
 
 void RenderPipeline::PostprocessStage::render(bool water)
@@ -320,9 +312,9 @@ void RenderPipeline::PostprocessStage::render(bool water)
   scene::Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
   if(water)
-    waterModel->render(context);
+    waterMesh->render(context);
   else
-    model->render(context);
+    mesh->render(context);
 
   if constexpr(FlushStages)
     GL_ASSERT(gl::api::finish());

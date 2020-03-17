@@ -38,18 +38,16 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
                         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, squaredTexture)
                         .build("csm-split-fb/" + std::to_string(idx) + "/square");
 
-  squareModel->getRenderState().setCullFace(false);
-  squareModel->getRenderState().setDepthTest(false);
-  squareModel->getRenderState().setDepthWrite(false);
-
   squareShader = shaderManager.getVSMSquare();
   squareMaterial = std::make_shared<Material>(squareShader);
   squareMaterial->getUniform("u_shadow")->set(depthTexture);
 
-  squareModel->getMeshes().clear();
-  squareModel->addMesh(
-    createQuadFullscreen(gsl::narrow<float>(resolution), gsl::narrow<float>(resolution), squareShader->getHandle()));
-  squareModel->getMeshes()[0]->getMaterial().set(RenderMode::Full, squareMaterial);
+  squareMesh
+    = createQuadFullscreen(gsl::narrow<float>(resolution), gsl::narrow<float>(resolution), squareShader->getHandle());
+  squareMesh->getRenderState().setCullFace(false);
+  squareMesh->getRenderState().setDepthTest(false);
+  squareMesh->getRenderState().setDepthWrite(false);
+  squareMesh->getMaterial().set(RenderMode::Full, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F, 4>>("squareBlur-" + std::to_string(idx), shaderManager);
   squareBlur->resize(glm::ivec2{resolution, resolution}, squaredTexture);
@@ -68,7 +66,7 @@ void CSM::Split::renderSquare()
   Node dummyNode{""};
   context.setCurrentNode(&dummyNode);
 
-  squareModel->render(context);
+  squareMesh->render(context);
   depthFramebuffer->invalidate();
 
   squareBlur->render(depthTexture->size());

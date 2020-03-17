@@ -8,7 +8,6 @@
 #include "scene/blur.h"
 #include "scene/camera.h"
 #include "scene/material.h"
-#include "scene/model.h"
 #include "scene/rendercontext.h"
 
 #include <chrono>
@@ -26,7 +25,7 @@ public:
   static constexpr bool FlushStages = false;
 
 private:
-  static std::shared_ptr<scene::Model> makeFbModel();
+  static std::shared_ptr<scene::Mesh> createFbMesh(const glm::ivec2& size, const gl::Program& program);
 
   struct PortalStage
   {
@@ -52,7 +51,7 @@ private:
 
   struct SSAOStage
   {
-    const std::shared_ptr<scene::Model> renderModel = makeFbModel();
+    std::shared_ptr<scene::Mesh> renderMesh;
 
     const std::shared_ptr<scene::ShaderProgram> shader;
     const std::shared_ptr<scene::Material> material;
@@ -72,7 +71,7 @@ private:
 
   struct FXAAStage
   {
-    const std::shared_ptr<scene::Model> model = makeFbModel();
+    std::shared_ptr<scene::Mesh> mesh;
 
     const std::shared_ptr<scene::ShaderProgram> shader;
     const std::shared_ptr<scene::Material> material;
@@ -89,8 +88,8 @@ private:
 
   struct PostprocessStage
   {
-    const std::shared_ptr<scene::Model> model = makeFbModel();
-    const std::shared_ptr<scene::Model> waterModel = makeFbModel();
+    std::shared_ptr<scene::Mesh> mesh;
+    std::shared_ptr<scene::Mesh> waterMesh;
 
     const std::shared_ptr<scene::ShaderProgram> darknessShader;
     const std::shared_ptr<scene::Material> darknessMaterial;

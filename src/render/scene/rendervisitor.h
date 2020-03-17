@@ -1,6 +1,7 @@
 #pragma once
 
 #include "node.h"
+#include "renderable.h"
 #include "visitor.h"
 
 #include <gl/debuggroup.h>

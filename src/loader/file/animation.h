@@ -4,9 +4,13 @@
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
-#include "render/scene/model.h"
 
 #include <gsl-lite.hpp>
+
+namespace render::scene
+{
+class Mesh;
+}
 
 namespace loader::file
 {

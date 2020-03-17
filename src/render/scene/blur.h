@@ -1,7 +1,7 @@
 #pragma once
 
 #include "material.h"
-#include "model.h"
+#include "mesh.h"
 #include "shadermanager.h"
 #include "shaderprogram.h"
 
@@ -24,9 +24,6 @@ public:
       , m_shader{shaderManager.getBlur(_Extent, _Dir, _PixelT::Channels)}
       , m_material{std::make_shared<Material>(m_shader)}
   {
-    m_model->getRenderState().setCullFace(false);
-    m_model->getRenderState().setDepthTest(false);
-    m_model->getRenderState().setDepthWrite(false);
   }
 
   void resize(const glm::ivec2& size, const std::shared_ptr<Texture>& src)
@@ -39,10 +36,11 @@ public:
 
     m_material->getUniform("u_input")->set(src);
 
-    m_model->getMeshes().clear();
-    m_model->addMesh(
-      createQuadFullscreen(gsl::narrow<float>(size.x), gsl::narrow<float>(size.y), m_shader->getHandle()));
-    m_model->getMeshes()[0]->getMaterial().set(RenderMode::Full, m_material);
+    m_mesh = createQuadFullscreen(gsl::narrow<float>(size.x), gsl::narrow<float>(size.y), m_shader->getHandle());
+    m_mesh->getRenderState().setCullFace(false);
+    m_mesh->getRenderState().setDepthTest(false);
+    m_mesh->getRenderState().setDepthWrite(false);
+    m_mesh->getMaterial().set(RenderMode::Full, m_material);
 
     m_framebuffer = gl::FrameBufferBuilder()
                       .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_blurredTexture)
@@ -62,7 +60,7 @@ public:
     context.setCurrentNode(&dummyNode);
 
     m_framebuffer->bindWithAttachments();
-    m_model->render(context);
+    m_mesh->render(context);
   }
 
   void invalidate()
@@ -78,7 +76,7 @@ public:
 private:
   const std::string m_name;
   std::shared_ptr<Texture> m_blurredTexture;
-  const std::shared_ptr<Model> m_model = std::make_shared<scene::Model>();
+  std::shared_ptr<Mesh> m_mesh;
   const std::shared_ptr<ShaderProgram> m_shader;
   const std::shared_ptr<Material> m_material;
   std::shared_ptr<gl::Framebuffer> m_framebuffer;

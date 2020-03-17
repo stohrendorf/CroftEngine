@@ -5,7 +5,6 @@
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "render/scene/mesh.h"
-#include "render/scene/model.h"
 #include "util.h"
 
 #include <gl/vertexarray.h>

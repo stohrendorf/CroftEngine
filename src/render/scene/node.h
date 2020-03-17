@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bufferparameter.h"
-#include "model.h"
 #include "uniformparameter.h"
 #include "visitor.h"
 

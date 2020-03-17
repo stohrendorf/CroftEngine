@@ -11,7 +11,6 @@
 #include "meshes.h"
 #include "primitives.h"
 #include "render/scene/mesh.h"
-#include "render/scene/model.h"
 #include "render/scene/names.h"
 #include "render/scene/node.h"
 #include "texture.h"

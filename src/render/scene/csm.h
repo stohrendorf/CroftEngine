@@ -3,7 +3,7 @@
 #include "blur.h"
 #include "core/vec.h"
 #include "material.h"
-#include "model.h"
+#include "mesh.h"
 
 #include <cstdint>
 #include <gl/buffer.h>
@@ -41,7 +41,7 @@ public:
     std::shared_ptr<gl::Framebuffer> squareFramebuffer{};
     std::shared_ptr<ShaderProgram> squareShader{};
     std::shared_ptr<Material> squareMaterial{};
-    const std::shared_ptr<Model> squareModel = std::make_shared<scene::Model>();
+    std::shared_ptr<Mesh> squareMesh{};
     std::shared_ptr<SeparableBlur<gl::RG16F, 4>> squareBlur;
     float end = 0;
 
