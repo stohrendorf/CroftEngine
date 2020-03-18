@@ -19,11 +19,10 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
         : object.m_state.type;
   const auto& modelType = object.getEngine().findAnimatedModelForType(modelSourceType);
   Expects(modelType != nullptr);
-  const auto& models = modelType->renderMeshes;
-  Expects(models.size() == object.getSkeleton()->getChildren().size());
-  BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->renderMeshes.size() << " meshes";
+  Expects(modelType->bones.size() == object.getSkeleton()->getChildren().size());
+  BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->bones.size() << " meshes";
 
-  for(size_t i = 0; i < modelType->renderMeshes.size(); ++i)
+  for(size_t i = 0; i < modelType->bones.size(); ++i)
   {
     if(!meshMask.test(i) || !object.getSkeleton()->getChild(i)->isVisible())
     {
@@ -36,7 +35,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
       core::RoomBoundPosition{object.m_state.position.room,
                               core::TRVec{object.getSkeleton()->getChild(i)->getTranslationWorld()}},
       object.getEngine(),
-      modelType->renderMeshes[i],
+      modelType->bones[i].mesh,
       isTorsoBoss,
       damageRadius);
     particle->negSpriteFrameId = gsl::narrow<int16_t>(modelType->mesh_base_index + i);

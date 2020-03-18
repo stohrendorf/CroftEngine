@@ -247,8 +247,12 @@ void Engine::loadSceneData()
   {
     if(model->nMeshes > 0)
     {
-      model->renderMeshes = make_span(&model->mesh_base_index.checkedFrom(m_renderMeshesDirect), model->nMeshes);
-      model->meshes = make_span(&model->mesh_base_index.checkedFrom(m_meshesDirect), model->nMeshes);
+      for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
+      {
+        model->bones.emplace_back(m_renderMeshesDirect.at(model->mesh_base_index + i),
+                                  m_meshesDirect.at(model->mesh_base_index + i)->center,
+                                  m_meshesDirect.at(model->mesh_base_index + i)->collision_size);
+      }
     }
   }
 
@@ -368,16 +372,16 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>
 void Engine::useAlternativeLaraAppearance(const bool withHead)
 {
   const auto& base = *findAnimatedModelForType(TR1ItemId::Lara);
-  BOOST_ASSERT(gsl::narrow<size_t>(base.renderMeshes.size()) == m_lara->getNode()->getChildren().size());
+  BOOST_ASSERT(base.bones.size() == m_lara->getNode()->getChildren().size());
 
   const auto& alternate = *findAnimatedModelForType(TR1ItemId::AlternativeLara);
-  BOOST_ASSERT(gsl::narrow<size_t>(alternate.renderMeshes.size()) == m_lara->getNode()->getChildren().size());
+  BOOST_ASSERT(alternate.bones.size() == m_lara->getNode()->getChildren().size());
 
   for(size_t i = 0; i < m_lara->getNode()->getChildren().size(); ++i)
-    m_lara->getNode()->getChild(i)->setRenderable(alternate.renderMeshes[i].get());
+    m_lara->getNode()->getChild(i)->setRenderable(alternate.bones[i].mesh);
 
   if(!withHead)
-    m_lara->getNode()->getChild(14)->setRenderable(base.renderMeshes[14].get());
+    m_lara->getNode()->getChild(14)->setRenderable(base.bones[14].mesh);
 }
 
 void Engine::dinoStompEffect(objects::Object& object)
@@ -561,8 +565,8 @@ void Engine::flipMapEffect()
 void Engine::unholsterRightGunEffect(objects::Object& object)
 {
   const auto& src = *findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
-  BOOST_ASSERT(gsl::narrow<size_t>(src.renderMeshes.size()) == object.getNode()->getChildren().size());
-  object.getNode()->getChild(10)->setRenderable(src.renderMeshes[10].get());
+  BOOST_ASSERT(src.bones.size() == object.getNode()->getChildren().size());
+  object.getNode()->getChild(10)->setRenderable(src.bones[10].mesh);
 }
 
 void Engine::chainBlockEffect()
@@ -930,8 +934,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
         if(object->m_state.type != TR1ItemId::CutsceneActor1)
           continue;
 
-        object->getNode()->getChild(1)->setRenderable(laraPistol->renderMeshes[1].get());
-        object->getNode()->getChild(4)->setRenderable(laraPistol->renderMeshes[4].get());
+        object->getNode()->getChild(1)->setRenderable(laraPistol->bones[1].mesh);
+        object->getNode()->getChild(4)->setRenderable(laraPistol->bones[4].mesh);
       }
     }
   }

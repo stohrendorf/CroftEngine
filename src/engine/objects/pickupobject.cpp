@@ -75,10 +75,9 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         if(m_state.type == TR1ItemId::ShotgunSprite)
         {
           const auto& shotgunLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
-          BOOST_ASSERT(gsl::narrow<size_t>(shotgunLara.meshes.size())
-                       == getEngine().getLara().getNode()->getChildren().size());
+          BOOST_ASSERT(shotgunLara.bones.size() == getEngine().getLara().getNode()->getChildren().size());
 
-          getEngine().getLara().getNode()->getChild(7)->setRenderable(shotgunLara.renderMeshes[7].get());
+          getEngine().getLara().getNode()->getChild(7)->setRenderable(shotgunLara.bones[7].mesh);
         }
 
         m_state.triggerState = TriggerState::Invisible;

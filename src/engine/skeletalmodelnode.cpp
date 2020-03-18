@@ -85,14 +85,14 @@ void SkeletalModelNode::updatePose()
   if(getChildren().empty())
     return;
 
-  BOOST_ASSERT(getChildren().size() >= m_model->meshes.size());
+  BOOST_ASSERT(getChildren().size() >= m_model->bones.size());
 
   updatePose(getInterpolationInfo());
 }
 
 void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePair)
 {
-  BOOST_ASSERT(!m_model->meshes.empty());
+  BOOST_ASSERT(!m_model->bones.empty());
 
   BOOST_ASSERT(framePair.bias > 0);
   BOOST_ASSERT(framePair.secondFrame != nullptr);
@@ -118,10 +118,10 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
   getChildren()[0]->setLocalMatrix(util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias));
 
-  if(m_model->meshes.size() <= 1)
+  if(m_model->bones.size() <= 1)
     return;
 
-  for(size_t i = 1; i < m_model->meshes.size(); ++i)
+  for(size_t i = 1; i < m_model->bones.size(); ++i)
   {
     if(m_model->boneTree[i - 1].flags & 0x01u)
     {
@@ -154,7 +154,7 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
 
 void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
 {
-  BOOST_ASSERT(!m_model->meshes.empty());
+  BOOST_ASSERT(!m_model->bones.empty());
 
   BOOST_ASSERT(framePair.firstFrame->numValues > 0);
 
@@ -170,10 +170,10 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
 
   getChildren()[0]->setLocalMatrix(transforms.top());
 
-  if(m_model->meshes.size() <= 1)
+  if(m_model->bones.size() <= 1)
     return;
 
-  for(size_t i = 1; i < m_model->meshes.size(); ++i)
+  for(size_t i = 1; i < m_model->bones.size(); ++i)
   {
     BOOST_ASSERT((m_model->boneTree[i - 1].flags & 0x1cu) == 0);
 
@@ -239,7 +239,7 @@ void SkeletalModelNode::setAnimation(objects::ObjectState& state,
                                      const gsl::not_null<const loader::file::Animation*>& animation,
                                      core::Frame frame)
 {
-  BOOST_ASSERT(m_model->meshes.empty() || animation->frames->numValues == m_model->meshes.size());
+  BOOST_ASSERT(m_model->bones.empty() || animation->frames->numValues == m_model->bones.size());
 
   if(frame < animation->firstFrame || frame > animation->lastFrame)
     frame = animation->firstFrame;
@@ -267,7 +267,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
                                                                                   const glm::mat4* baseTransform)
 {
   BOOST_ASSERT(frame.numValues > 0);
-  BOOST_ASSERT(!m_model->meshes.empty());
+  BOOST_ASSERT(!m_model->bones.empty());
 
   if(m_bonePatches.empty())
     resetPose();
@@ -295,10 +295,10 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
 
   std::vector<Sphere> result;
   result.emplace_back(translate(glm::mat4{1.0f}, pos.toRenderSystem())
-                        + translate(transforms.top(), m_model->meshes[0]->center.toRenderSystem()),
-                      m_model->meshes[0]->collision_size);
+                        + translate(transforms.top(), m_model->bones[0].center.toRenderSystem()),
+                      m_model->bones[0].collision_size);
 
-  for(gsl::index i = 1; i < m_model->meshes.size(); ++i)
+  for(gsl::index i = 1; i < m_model->bones.size(); ++i)
   {
     BOOST_ASSERT((m_model->boneTree[i - 1].flags & 0x1cu) == 0);
 
@@ -317,9 +317,9 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
       transforms.top() *= translate(glm::mat4{1.0f}, m_model->boneTree[i - 1].toGl())
                           * core::fromPackedAngles(angleData[i]) * m_bonePatches[i];
 
-    auto m = translate(transforms.top(), m_model->meshes[i]->center.toRenderSystem());
+    auto m = translate(transforms.top(), m_model->bones[i].center.toRenderSystem());
     m[3] += glm::vec4(pos.toRenderSystem(), 0);
-    result.emplace_back(m, m_model->meshes[i]->collision_size);
+    result.emplace_back(m, m_model->bones[i].collision_size);
   }
 
   return result;
@@ -357,14 +357,14 @@ void SkeletalModelNode::initNodes(const std::shared_ptr<SkeletalModelNode>& skel
 {
   skeleton->setAnimation(state, skeleton->m_model->animations, skeleton->m_model->animations->firstFrame);
 
-  for(gsl::index boneIndex = 0; boneIndex < skeleton->m_model->meshes.size(); ++boneIndex)
+  for(gsl::index boneIndex = 0; boneIndex < skeleton->m_model->bones.size(); ++boneIndex)
   {
     auto node = std::make_shared<render::scene::Node>(skeleton->getId() + "/bone:" + std::to_string(boneIndex));
-    node->setRenderable(skeleton->m_model->renderMeshes[boneIndex].get());
+    node->setRenderable(skeleton->m_model->bones[boneIndex].mesh);
     addChild(skeleton, node);
   }
 
-  Ensures(skeleton->getChildren().size() == gsl::narrow<size_t>(skeleton->m_model->meshes.size()));
+  Ensures(skeleton->getChildren().size() == gsl::narrow<size_t>(skeleton->m_model->bones.size()));
 
   skeleton->updatePose();
 }

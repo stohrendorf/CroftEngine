@@ -6,6 +6,7 @@
 #include "core/vec.h"
 
 #include <gsl-lite.hpp>
+#include <utility>
 
 namespace render::scene
 {
@@ -230,8 +231,23 @@ struct SkeletalModelType
   core::ContainerOffset<uint32_t, int16_t> pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
   core::ContainerIndex<uint16_t, Animation> animation_index; // offset into Animations[]
 
-  gsl::span<gsl::not_null<const Mesh*>> meshes{};
-  gsl::span<gsl::not_null<std::shared_ptr<render::scene::Mesh>>> renderMeshes{};
+  struct Bone
+  {
+    const gsl::not_null<std::shared_ptr<render::scene::Mesh>> mesh;
+    const core::TRVec center;
+    const core::Length collision_size;
+
+    explicit Bone(gsl::not_null<std::shared_ptr<render::scene::Mesh>> mesh,
+                  core::TRVec center,
+                  const core::Length& collision_size)
+        : mesh{std::move(mesh)}
+        , center{std::move(center)}
+        , collision_size{collision_size}
+    {
+    }
+  };
+
+  std::vector<Bone> bones;
   gsl::span<const BoneTreeEntry> boneTree{};
 
   const AnimFrame* frames = nullptr;

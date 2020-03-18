@@ -11,9 +11,9 @@ void Particle::initRenderables(Engine& engine, const float scale)
 {
   if(const auto& modelType = engine.findAnimatedModelForType(object_number))
   {
-    for(const auto& model : modelType->renderMeshes)
+    for(const auto& bone : modelType->bones)
     {
-      m_renderables.emplace_back(model);
+      m_renderables.emplace_back(bone.mesh);
     }
   }
   else if(const auto& spriteSequence = engine.findSpriteSequenceForType(object_number))
