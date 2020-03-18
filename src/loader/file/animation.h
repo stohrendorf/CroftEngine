@@ -236,14 +236,22 @@ struct SkeletalModelType
     const gsl::not_null<std::shared_ptr<render::scene::Mesh>> mesh;
     const core::TRVec center;
     const core::Length collision_size;
+    const glm::vec3 position;
+    const bool pushMatrix;
+    const bool popMatrix;
 
     explicit Bone(gsl::not_null<std::shared_ptr<render::scene::Mesh>> mesh,
                   core::TRVec center,
-                  const core::Length& collision_size)
+                  const core::Length& collision_size,
+                  const std::optional<BoneTreeEntry>& boneTreeEntry)
         : mesh{std::move(mesh)}
         , center{std::move(center)}
         , collision_size{collision_size}
+        , position{boneTreeEntry.has_value() ? boneTreeEntry->toGl() : glm::vec3{0}}
+        , pushMatrix{boneTreeEntry.has_value() ? (boneTreeEntry->flags & 0x02u) != 0 : false}
+        , popMatrix{boneTreeEntry.has_value() ? (boneTreeEntry->flags & 0x01u) != 0 : false}
     {
+      BOOST_ASSERT(!boneTreeEntry.has_value() || (boneTreeEntry->flags & 0x1cu) == 0);
     }
   };
 

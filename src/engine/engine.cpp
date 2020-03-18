@@ -251,7 +251,8 @@ void Engine::loadSceneData()
       {
         model->bones.emplace_back(m_renderMeshesDirect.at(model->mesh_base_index + i),
                                   m_meshesDirect.at(model->mesh_base_index + i)->center,
-                                  m_meshesDirect.at(model->mesh_base_index + i)->collision_size);
+                                  m_meshesDirect.at(model->mesh_base_index + i)->collision_size,
+                                  i == 0 ? std::nullopt : std::make_optional(model->boneTree[i - 1]));
       }
     }
   }
