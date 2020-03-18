@@ -243,6 +243,8 @@ set( EDISONENGINE_SRCS
         loader/file/meshes.cpp
         loader/file/primitives.h
         loader/file/primitives.cpp
+        loader/file/rendermeshdata.h
+        loader/file/rendermeshdata.cpp
         loader/file/texture.h
         loader/file/texture.cpp
         loader/file/texturecache.h

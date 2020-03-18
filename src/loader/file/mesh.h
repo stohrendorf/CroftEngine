@@ -43,13 +43,5 @@ struct Mesh
   static std::unique_ptr<Mesh> readTr1(io::SDLReader& reader);
 
   static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader);
-
-  [[nodiscard]] std::shared_ptr<render::scene::Mesh>
-    toRenderMesh(const std::vector<TextureTile>& textureTiles,
-                 const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
-                 gsl::not_null<std::shared_ptr<render::scene::Material>> materialDepthOnly,
-                 gsl::not_null<std::shared_ptr<render::scene::Material>> materialCSMDepthOnly,
-                 const Palette& palette,
-                 const std::string& label = {}) const;
 };
 } // namespace loader::file

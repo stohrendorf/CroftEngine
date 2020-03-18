@@ -5,6 +5,7 @@
 #include "floordata/floordata.h"
 #include "hid/inputhandler.h"
 #include "loader/file/level/level.h"
+#include "loader/file/rendermeshdata.h"
 #include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
 #include "objects/aiagent.h"
@@ -225,13 +226,13 @@ void Engine::loadSceneData()
 
   const auto materialFull = createMaterial(false);
 
-  for(auto& mesh : m_level->m_meshes)
+  for(size_t i = 0; i < m_level->m_meshes.size(); ++i)
   {
-    m_renderMeshes.emplace_back(mesh.toRenderMesh(m_level->m_textureTiles,
-                                                  materialFull,
-                                                  m_materialManager->getDepthOnly(),
-                                                  m_materialManager->getCSMDepthOnly(),
-                                                  *m_level->m_palette));
+    loader::file::RenderMeshData data{m_level->m_meshes[i], m_level->m_textureTiles, *m_level->m_palette};
+    m_renderMeshes.emplace_back(data.toMesh(materialFull,
+                                            m_materialManager->getDepthOnly(),
+                                            m_materialManager->getCSMDepthOnly(),
+                                            "mesh-" + std::to_string(i)));
   }
 
   for(auto idx : m_level->m_meshIndices)
