@@ -26,9 +26,9 @@ public:
 private:
   struct Info
   {
-    loader::file::Sector* sector{nullptr};
+    loader::file::Sector* wingsSector{nullptr};
     loader::file::Sector originalSector;
-    loader::file::Box* box{nullptr};
+    loader::file::Box* wingsBox{nullptr};
 
     // ReSharper disable once CppMemberFunctionMayBeConst
     void open();
