@@ -18,7 +18,7 @@ ModelObject::ModelObject(const gsl::not_null<Engine*>& engine,
     , m_skeleton{std::make_shared<SkeletalModelNode>(
         std::string("skeleton(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", engine, model)}
 {
-  SkeletalModelNode::initNodes(m_skeleton, m_state);
+  SkeletalModelNode::buildMesh(m_skeleton, m_state);
   m_lighting.bind(*m_skeleton);
 }
 
@@ -287,7 +287,7 @@ gsl::not_null<std::shared_ptr<Particle>>
                               Engine& engine, const core::RoomBoundPosition&, const core::Speed&, const core::Angle&))
 {
   BOOST_ASSERT(generate != nullptr);
-  BOOST_ASSERT(boneIndex < m_skeleton->getChildren().size());
+  BOOST_ASSERT(boneIndex < m_skeleton->getBoneCount());
 
   const auto boneSpheres
     = m_skeleton->getBoneCollisionSpheres(m_state, *m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
@@ -307,7 +307,7 @@ void ModelObject::serialize(const serialization::Serializer& ser)
   ser(S_NV("skeleton", m_skeleton));
   if(ser.loading)
   {
-    SkeletalModelNode::initNodes(m_skeleton, m_state);
+    SkeletalModelNode::buildMesh(m_skeleton, m_state);
     m_lighting.bind(*m_skeleton);
     m_skeleton->setAnimation(m_state, m_skeleton->anim, m_skeleton->frame_number);
     m_skeleton->updatePose();

@@ -273,9 +273,9 @@ void FlyingMutant::update()
   {
     m_state.creatureInfo->neck_rotation = std::exchange(m_state.creatureInfo->head_rotation, 0_deg);
   }
-  if(getSkeleton()->getChildren().size() >= 2)
+  if(getSkeleton()->getBoneCount() >= 2)
     getSkeleton()->patchBone(1, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
-  if(getSkeleton()->getChildren().size() >= 3)
+  if(getSkeleton()->getBoneCount() >= 3)
     getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->neck_rotation, 0_deg}.toMatrix());
   animateCreature(turnRot, 0_deg);
 }

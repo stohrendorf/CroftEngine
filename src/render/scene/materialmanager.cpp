@@ -12,7 +12,7 @@ const std::shared_ptr<Material>& MaterialManager::getSprite()
   if(m_sprite != nullptr)
     return m_sprite;
 
-  m_sprite = std::make_shared<Material>(m_shaderManager->getGeometry());
+  m_sprite = std::make_shared<Material>(m_shaderManager->getGeometry(false, false));
   m_sprite->getRenderState().setCullFace(false);
 
   m_sprite->getUniformBlock("Transform")->bindTransformBuffer();
@@ -21,51 +21,51 @@ const std::shared_ptr<Material>& MaterialManager::getSprite()
   return m_sprite;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getCSMDepthOnly()
+const std::shared_ptr<Material>& MaterialManager::getCSMDepthOnly(bool skeletal)
 {
-  if(m_csmDepthOnly != nullptr)
-    return m_csmDepthOnly;
+  if(const auto tmp = m_csmDepthOnly[skeletal])
+    return m_csmDepthOnly[skeletal];
 
-  m_csmDepthOnly = std::make_shared<Material>(m_shaderManager->getCSMDepthOnly());
-  m_csmDepthOnly->getUniform("u_mvp")->bind(
+  m_csmDepthOnly[skeletal] = std::make_shared<Material>(m_shaderManager->getCSMDepthOnly(skeletal));
+  m_csmDepthOnly[skeletal]->getUniform("u_mvp")->bind(
     [this](const Node& node, gl::Uniform& uniform) { uniform.set(m_csm->getActiveMatrix(node.getModelMatrix())); });
-  m_csmDepthOnly->getRenderState().setDepthTest(true);
-  m_csmDepthOnly->getRenderState().setDepthWrite(true);
+  m_csmDepthOnly[skeletal]->getRenderState().setDepthTest(true);
+  m_csmDepthOnly[skeletal]->getRenderState().setDepthWrite(true);
+  if(skeletal)
+    m_csmDepthOnly[skeletal]->getBuffer("BoneTransform")->bindBoneTransformBuffer();
 
-  return m_csmDepthOnly;
+  return m_csmDepthOnly[skeletal];
 }
 
-const std::shared_ptr<Material>& MaterialManager::getDepthOnly()
+const std::shared_ptr<Material>& MaterialManager::getDepthOnly(bool skeletal)
 {
-  if(m_depthOnly != nullptr)
-    return m_depthOnly;
+  if(const auto tmp = m_depthOnly[skeletal])
+    return m_depthOnly[skeletal];
 
-  m_depthOnly = std::make_shared<Material>(m_shaderManager->getDepthOnly());
-  m_depthOnly->getRenderState().setDepthTest(true);
-  m_depthOnly->getRenderState().setDepthWrite(true);
-  m_depthOnly->getUniformBlock("Transform")->bindTransformBuffer();
-  m_depthOnly->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m_depthOnly[skeletal] = std::make_shared<Material>(m_shaderManager->getDepthOnly(skeletal));
+  m_depthOnly[skeletal]->getRenderState().setDepthTest(true);
+  m_depthOnly[skeletal]->getRenderState().setDepthWrite(true);
+  m_depthOnly[skeletal]->getUniformBlock("Transform")->bindTransformBuffer();
+  m_depthOnly[skeletal]->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  if(skeletal)
+    m_depthOnly[skeletal]->getBuffer("BoneTransform")->bindBoneTransformBuffer();
 
-  return m_depthOnly;
+  return m_depthOnly[skeletal];
 }
 
-std::shared_ptr<Material>
-  MaterialManager::createMaterial(const gsl::not_null<std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>>>& texture,
-                                  bool water)
+std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal)
 {
-  if(!water && m_material != nullptr)
-    return m_material;
-  else if(water && m_materialWater != nullptr)
-    return m_materialWater;
+  Expects(m_geometryTextures != nullptr);
+  if(const auto tmp = m_geometry[water][skeletal])
+    return tmp;
 
-  texture->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
-  texture->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
-
-  auto m = std::make_shared<Material>(water ? m_shaderManager->getGeometryWater() : m_shaderManager->getGeometry());
-  m->getUniform("u_diffuseTextures")->set(texture);
+  auto m = std::make_shared<Material>(m_shaderManager->getGeometry(water, skeletal));
+  m->getUniform("u_diffuseTextures")->set(m_geometryTextures);
   m->getUniform("u_spritePole")->set(-1);
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
+  if(skeletal)
+    m->getBuffer("BoneTransform")->bindBoneTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("CSM")->bind(
     [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
@@ -78,11 +78,9 @@ std::shared_ptr<Material>
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
-    m_materialWater = m;
   }
-  else
-    m_material = m;
 
+  m_geometry[water][skeletal] = m;
   return m;
 }
 

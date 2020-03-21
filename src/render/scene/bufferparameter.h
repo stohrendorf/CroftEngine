@@ -50,6 +50,7 @@ public:
   }
 
   bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
+  void bindBoneTransformBuffer();
 
 private:
   [[nodiscard]] gl::ShaderStorageBlock*

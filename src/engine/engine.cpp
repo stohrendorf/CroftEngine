@@ -170,11 +170,6 @@ const std::vector<loader::file::Box>& Engine::getBoxes() const
   return m_level->m_boxes;
 }
 
-gsl::not_null<std::shared_ptr<render::scene::Material>> Engine::createMaterial(bool water)
-{
-  return m_materialManager->createMaterial(m_allTextures, water);
-}
-
 std::shared_ptr<objects::LaraObject> Engine::createObjects()
 {
   std::shared_ptr<objects::LaraObject> lara = nullptr;
@@ -223,16 +218,15 @@ void Engine::loadSceneData()
   {
     m_allTextures->set(gl::api::TextureMagFilter::Linear);
   }
-
-  const auto materialFull = createMaterial(false);
+  m_allTextures->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
+  m_allTextures->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+  m_materialManager->setGeometryTextures(m_allTextures);
 
   for(size_t i = 0; i < m_level->m_meshes.size(); ++i)
   {
-    loader::file::RenderMeshData data{m_level->m_meshes[i], m_level->m_textureTiles, *m_level->m_palette};
-    m_renderMeshes.emplace_back(data.toMesh(materialFull,
-                                            m_materialManager->getDepthOnly(),
-                                            m_materialManager->getCSMDepthOnly(),
-                                            "mesh-" + std::to_string(i)));
+    auto data = std::make_shared<loader::file::RenderMeshData>(
+      m_level->m_meshes[i], m_level->m_textureTiles, *m_level->m_palette);
+    m_renderMeshes.emplace_back(data);
   }
 
   for(auto idx : m_level->m_meshIndices)
@@ -247,6 +241,7 @@ void Engine::loadSceneData()
   {
     if(model->nMeshes > 0)
     {
+      BOOST_ASSERT(model->nMeshes == model->boneTree.size() + 1);
       for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
       {
         model->bones.emplace_back(m_renderMeshesDirect.at(model->mesh_base_index + i),
@@ -257,19 +252,15 @@ void Engine::loadSceneData()
     }
   }
 
-  auto waterMaterialFull = createMaterial(true);
+  for(auto& staticMesh : m_level->m_staticMeshes)
+  {
+    loader::file::RenderMeshDataCompositor compositor;
+    staticMesh.renderMesh = compositor.toMesh(*m_materialManager, false, {});
+  }
 
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    m_level->m_rooms[i].createSceneNode(i,
-                                        *m_level,
-                                        materialFull,
-                                        waterMaterialFull,
-                                        m_materialManager->getDepthOnly(),
-                                        m_renderMeshes,
-                                        *m_textureAnimator,
-                                        m_materialManager->getSprite(),
-                                        m_materialManager->getPortal());
+    m_level->m_rooms[i].createSceneNode(i, *m_level, m_renderMeshes, *m_textureAnimator, *m_materialManager);
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
@@ -373,16 +364,18 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>
 void Engine::useAlternativeLaraAppearance(const bool withHead)
 {
   const auto& base = *findAnimatedModelForType(TR1ItemId::Lara);
-  BOOST_ASSERT(base.bones.size() == m_lara->getNode()->getChildren().size());
+  BOOST_ASSERT(base.bones.size() == m_lara->getSkeleton()->getBoneCount());
 
   const auto& alternate = *findAnimatedModelForType(TR1ItemId::AlternativeLara);
-  BOOST_ASSERT(alternate.bones.size() == m_lara->getNode()->getChildren().size());
+  BOOST_ASSERT(alternate.bones.size() == m_lara->getSkeleton()->getBoneCount());
 
-  for(size_t i = 0; i < m_lara->getNode()->getChildren().size(); ++i)
-    m_lara->getNode()->getChild(i)->setRenderable(alternate.bones[i].mesh);
+  for(size_t i = 0; i < m_lara->getSkeleton()->getBoneCount(); ++i)
+    m_lara->getSkeleton()->setMeshPart(i, alternate.bones[i].mesh);
 
   if(!withHead)
-    m_lara->getNode()->getChild(14)->setRenderable(base.bones[14].mesh);
+    m_lara->getSkeleton()->setMeshPart(14, base.bones[14].mesh);
+
+  m_lara->getSkeleton()->rebuildMesh();
 }
 
 void Engine::dinoStompEffect(objects::Object& object)
@@ -563,11 +556,12 @@ void Engine::flipMapEffect()
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void Engine::unholsterRightGunEffect(objects::Object& object)
+void Engine::unholsterRightGunEffect(objects::ModelObject& object)
 {
   const auto& src = *findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
-  BOOST_ASSERT(src.bones.size() == object.getNode()->getChildren().size());
-  object.getNode()->getChild(10)->setRenderable(src.bones[10].mesh);
+  BOOST_ASSERT(src.bones.size() == object.getSkeleton()->getBoneCount());
+  object.getSkeleton()->setMeshPart(10, src.bones[10].mesh);
+  object.getSkeleton()->rebuildMesh();
 }
 
 void Engine::chainBlockEffect()
@@ -935,8 +929,11 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
         if(object->m_state.type != TR1ItemId::CutsceneActor1)
           continue;
 
-        object->getNode()->getChild(1)->setRenderable(laraPistol->bones[1].mesh);
-        object->getNode()->getChild(4)->setRenderable(laraPistol->bones[4].mesh);
+        auto m = std::dynamic_pointer_cast<objects::ModelObject>(object.get());
+        Expects(m != nullptr);
+        m->getSkeleton()->setMeshPart(1, laraPistol->bones[1].mesh);
+        m->getSkeleton()->setMeshPart(4, laraPistol->bones[4].mesh);
+        m->getSkeleton()->rebuildMesh();
       }
     }
   }

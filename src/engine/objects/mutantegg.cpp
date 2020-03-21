@@ -19,23 +19,26 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
         : object.m_state.type;
   const auto& modelType = object.getEngine().findAnimatedModelForType(modelSourceType);
   Expects(modelType != nullptr);
-  Expects(modelType->bones.size() == object.getSkeleton()->getChildren().size());
+  Expects(modelType->bones.size() == object.getSkeleton()->getBoneCount());
   BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->bones.size() << " meshes";
 
   for(size_t i = 0; i < modelType->bones.size(); ++i)
   {
-    if(!meshMask.test(i) || !object.getSkeleton()->getChild(i)->isVisible())
+    if(!meshMask.test(i) || !object.getSkeleton()->isVisible(i))
     {
       BOOST_LOG_TRIVIAL(trace) << "Shatter model: mesh " << i << " skipped";
       continue;
     }
 
-    object.getSkeleton()->getChild(i)->setVisible(false);
+    object.getSkeleton()->setVisible(i, false);
+    object.getSkeleton()->rebuildMesh();
+    loader::file::RenderMeshDataCompositor compositor;
+    compositor.append(*modelType->bones[i].mesh);
     auto particle = std::make_shared<MeshShrapnelParticle>(
       core::RoomBoundPosition{object.m_state.position.room,
                               core::TRVec{object.getSkeleton()->getChild(i)->getTranslationWorld()}},
       object.getEngine(),
-      modelType->bones[i].mesh,
+      compositor.toMesh(*object.getEngine().getMaterialManager(), false, {}),
       isTorsoBoss,
       damageRadius);
     particle->negSpriteFrameId = gsl::narrow<int16_t>(modelType->mesh_base_index + i);
@@ -45,9 +48,9 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     BOOST_LOG_TRIVIAL(trace) << "Shatter model: mesh " << i << " converted";
   }
 
-  for(const auto& child : object.getSkeleton()->getChildren())
+  for(size_t i = 0; i < object.getSkeleton()->getBoneCount(); ++i)
   {
-    if(child->isVisible())
+    if(object.getSkeleton()->isVisible(i))
       return false;
   }
 
@@ -105,10 +108,11 @@ MutantEgg::MutantEgg(const gsl::not_null<Engine*>& engine,
     getEngine().registerObject(m_childObject);
   }
 
-  for(size_t i = 0; i < getSkeleton()->getChildren().size(); ++i)
+  for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
   {
-    getSkeleton()->getChild(i)->setVisible((0xff0001ffu >> i) & 1u);
+    getSkeleton()->setVisible(i, (0xff0001ffu >> i) & 1u);
   }
+  getSkeleton()->rebuildMesh();
 }
 
 void MutantEgg::update()
@@ -121,8 +125,9 @@ void MutantEgg::update()
       BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getId() << ": Hatching " << m_childObject->getNode()->getId();
       m_state.goal_anim_state = 1_as;
       m_state.collidable = false;
-      for(size_t i = 0; i < getSkeleton()->getChildren().size(); ++i)
-        getSkeleton()->getChild(i)->setVisible(i < 24);
+      for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
+        getSkeleton()->setVisible(i, i < 24);
+      getSkeleton()->rebuildMesh();
 
       shatterModel(*this, 0xfffe00, 0_len);
 

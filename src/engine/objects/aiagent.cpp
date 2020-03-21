@@ -102,20 +102,9 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   auto room = m_state.position.room;
   auto sector = findRealFloorSector(m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len}, &room);
   Expects(sector->box != nullptr);
-  auto currentFloor = sector->box->floor;
 
-  core::Length nextFloor = 0_len;
-  if(lotInfo.nodes.at(sector->box).exit_box == nullptr)
-  {
-    nextFloor = currentFloor;
-  }
-  else
-  {
-    nextFloor = lotInfo.nodes.at(sector->box).exit_box->floor;
-  }
-
-  if(sector->box == nullptr || m_state.box->*zoneRef != sector->box->*zoneRef || boxFloor - currentFloor > lotInfo.step
-     || boxFloor - currentFloor < lotInfo.drop)
+  if(sector->box == nullptr || m_state.box->*zoneRef != sector->box->*zoneRef
+     || boxFloor - sector->box->floor > lotInfo.step || boxFloor - sector->box->floor < lotInfo.drop)
   {
     const auto newSectorX = m_state.position.position.X / core::SectorSize;
     const auto newSectorZ = m_state.position.position.Z / core::SectorSize;
@@ -139,17 +128,18 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
     sector
       = findRealFloorSector(core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room);
+  }
 
-    currentFloor = sector->box->floor;
+  Expects(sector->box != nullptr);
 
-    if(lotInfo.nodes.at(sector->box).exit_box == nullptr)
-    {
-      nextFloor = sector->box->floor;
-    }
-    else
-    {
-      nextFloor = lotInfo.nodes.at(sector->box).exit_box->floor;
-    }
+  core::Length nextFloor = 0_len;
+  if(lotInfo.nodes.at(sector->box).exit_box == nullptr)
+  {
+    nextFloor = sector->box->floor;
+  }
+  else
+  {
+    nextFloor = lotInfo.nodes.at(sector->box).exit_box->floor;
   }
 
   const auto basePosX = m_state.position.position.X;
@@ -164,7 +154,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   if(m_collisionRadius > inSectorZ)
   {
     if(isPositionOutOfReach(
-         core::TRVec{basePosX, bboxMinY, basePosZ - m_collisionRadius}, currentFloor, nextFloor, lotInfo))
+         core::TRVec{basePosX, bboxMinY, basePosZ - m_collisionRadius}, sector->box->floor, nextFloor, lotInfo))
     {
       moveZ = m_collisionRadius - inSectorZ;
     }
@@ -172,13 +162,13 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     if(m_collisionRadius > inSectorX)
     {
       if(isPositionOutOfReach(
-           core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+           core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
       {
         moveX = m_collisionRadius - inSectorX;
       }
       else if(moveZ == 0_len
               && isPositionOutOfReach(core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ - m_collisionRadius},
-                                      currentFloor,
+                                      sector->box->floor,
                                       nextFloor,
                                       lotInfo))
       {
@@ -191,13 +181,13 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     else if(core::SectorSize - m_collisionRadius < inSectorX)
     {
       if(isPositionOutOfReach(
-           core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+           core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
       {
         moveX = core::SectorSize - m_collisionRadius - inSectorX;
       }
       else if(moveZ == 0_len
               && isPositionOutOfReach(core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ - m_collisionRadius},
-                                      currentFloor,
+                                      sector->box->floor,
                                       nextFloor,
                                       lotInfo))
       {
@@ -215,7 +205,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   else if(core::SectorSize - m_collisionRadius < inSectorZ)
   {
     if(isPositionOutOfReach(
-         core::TRVec{basePosX, bboxMinY, basePosZ + m_collisionRadius}, currentFloor, nextFloor, lotInfo))
+         core::TRVec{basePosX, bboxMinY, basePosZ + m_collisionRadius}, sector->box->floor, nextFloor, lotInfo))
     {
       moveZ = core::SectorSize - m_collisionRadius - inSectorZ;
     }
@@ -223,13 +213,13 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     if(m_collisionRadius > inSectorX)
     {
       if(isPositionOutOfReach(
-           core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+           core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
       {
         moveX = m_collisionRadius - inSectorX;
       }
       else if(moveZ == 0_len
               && isPositionOutOfReach(core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ + m_collisionRadius},
-                                      currentFloor,
+                                      sector->box->floor,
                                       nextFloor,
                                       lotInfo))
       {
@@ -246,13 +236,13 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     else if(core::SectorSize - m_collisionRadius < inSectorX)
     {
       if(isPositionOutOfReach(
-           core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+           core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
       {
         moveX = core::SectorSize - m_collisionRadius - inSectorX;
       }
       else if(moveZ == 0_len
               && isPositionOutOfReach(core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ + m_collisionRadius},
-                                      currentFloor,
+                                      sector->box->floor,
                                       nextFloor,
                                       lotInfo))
       {
@@ -270,7 +260,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   else if(m_collisionRadius > inSectorX)
   {
     if(isPositionOutOfReach(
-         core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+         core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
     {
       moveX = m_collisionRadius - inSectorX;
     }
@@ -278,7 +268,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   else if(inSectorX > core::SectorSize - m_collisionRadius)
   {
     if(isPositionOutOfReach(
-         core::TRVec{basePosX + m_collisionRadius, bboxMinY, basePosZ}, currentFloor, nextFloor, lotInfo))
+         core::TRVec{basePosX + m_collisionRadius, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
     {
       moveX = core::SectorSize - m_collisionRadius - inSectorX;
     }
@@ -306,7 +296,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   {
     auto moveY = util::clamp(m_state.creatureInfo->target.Y - m_state.position.position.Y, -lotInfo.fly, lotInfo.fly);
 
-    currentFloor
+    const auto currentFloor
       = HeightInfo::fromFloor(sector,
                               core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
                               getEngine().getObjects())
@@ -469,7 +459,7 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
       isHit = true;
 
       getEngine().getLara().emitParticle(
-        core::TRVec{}, util::rand15(getEngine().getLara().getNode()->getChildren().size()), &createBloodSplat);
+        core::TRVec{}, util::rand15(getEngine().getLara().getSkeleton()->getBoneCount()), &createBloodSplat);
 
       if(!getEngine().getLara().isInWater())
         getEngine().getLara().playSoundEffect(TR1SoundId::BulletHitsLara);

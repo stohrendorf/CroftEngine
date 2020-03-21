@@ -10,6 +10,7 @@
 #include "render/scene/materialmanager.h"
 #include "render/scene/screenoverlay.h"
 
+#include <engine/objects/modelobject.h>
 #include <filesystem>
 #include <gl/cimgwrapper.h>
 #include <gl/pixel.h>
@@ -41,6 +42,7 @@ struct SpriteSequence;
 struct AnimFrame;
 struct Animation;
 struct CinematicFrame;
+class RenderMeshData;
 } // namespace file
 } // namespace loader
 
@@ -86,7 +88,7 @@ private:
 
   std::set<objects::Object*> m_scheduledDeletions;
 
-  std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>> m_renderMeshes;
+  std::vector<gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>>> m_renderMeshes;
 
   int m_uvAnimTime{0};
 
@@ -103,7 +105,7 @@ private:
   std::vector<gsl::not_null<std::shared_ptr<Particle>>> m_particles;
 
   // list of meshes and models, resolved through m_meshIndices
-  std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>> m_renderMeshesDirect;
+  std::vector<gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>>> m_renderMeshesDirect;
   std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
 
   std::shared_ptr<render::RenderPipeline> m_renderPipeline;
@@ -263,8 +265,6 @@ public:
 
   void run();
 
-  gsl::not_null<std::shared_ptr<render::scene::Material>> createMaterial(bool water);
-
   std::shared_ptr<objects::LaraObject> createObjects();
 
   void loadSceneData();
@@ -310,9 +310,14 @@ public:
 
   void useAlternativeLaraAppearance(bool withHead = false);
 
-  const gsl::not_null<std::shared_ptr<render::scene::Mesh>>& getRenderMesh(const size_t idx) const
+  const gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>>& getRenderMesh(const size_t idx) const
   {
     return m_renderMeshes.at(idx);
+  }
+
+  const auto& getRenderMeshes() const
+  {
+    return m_renderMeshes;
   }
 
   void scheduleDeletion(objects::Object* object)
@@ -379,7 +384,7 @@ public:
 
   void flipMapEffect();
 
-  void unholsterRightGunEffect(objects::Object& object);
+  void unholsterRightGunEffect(objects::ModelObject& object);
 
   void chainBlockEffect();
 
@@ -413,7 +418,10 @@ public:
     case 11: return explosionEffect();
     case 12: return laraHandsFreeEffect();
     case 13: return flipMapEffect();
-    case 14: Expects(object != nullptr); return unholsterRightGunEffect(*object);
+    case 14:
+      Expects(object != nullptr);
+      if(const auto m = dynamic_cast<objects::ModelObject*>(object))
+        return unholsterRightGunEffect(*m);
     case 15: return chainBlockEffect();
     case 16: return flickerEffect();
     default: BOOST_LOG_TRIVIAL(warning) << "Unhandled effect: " << id;
@@ -501,17 +509,5 @@ public:
 
   core::TypeId find(const loader::file::SkeletalModelType* model) const;
   core::TypeId find(const loader::file::Sprite* sprite) const;
-
-  std::optional<size_t> indexOfModel(const std::shared_ptr<render::scene::Renderable>& m) const
-  {
-    if(m == nullptr)
-      return std::nullopt;
-
-    for(size_t i = 0; i < m_renderMeshes.size(); ++i)
-      if(m_renderMeshes[i].get() == m)
-        return i;
-
-    return std::nullopt;
-  }
 };
 } // namespace engine

@@ -193,18 +193,17 @@ const StaticMesh* Level::findStaticMeshById(const core::StaticMeshId meshId) con
   return nullptr;
 }
 
-int Level::findStaticMeshIndexById(const core::StaticMeshId meshId) const
+std::shared_ptr<render::scene::Mesh> Level::findStaticRenderMeshById(const core::StaticMeshId meshId) const
 {
   for(const auto& mesh : m_staticMeshes)
   {
     if(mesh.isVisible() && mesh.id == meshId)
     {
-      BOOST_ASSERT(mesh.mesh < m_meshIndices.size());
-      return m_meshIndices[mesh.mesh];
+      return mesh.renderMesh;
     }
   }
 
-  return -1;
+  return nullptr;
 }
 
 const std::unique_ptr<SkeletalModelType>& Level::findAnimatedModelForType(const core::TypeId type) const

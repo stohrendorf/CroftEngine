@@ -188,17 +188,19 @@ void LightningBall::prepareRender()
 
   if(m_shooting == 0)
   {
-    for(size_t i = 1; i < getSkeleton()->getChildren().size(); ++i)
+    for(size_t i = 1; i < getSkeleton()->getBoneCount(); ++i)
     {
-      getSkeleton()->getChildren()[i]->setVisible(false);
+      getSkeleton()->setVisible(i, false);
     }
+    getSkeleton()->rebuildMesh();
     return;
   }
 
-  for(size_t i = 1; i < getSkeleton()->getChildren().size(); ++i)
+  for(size_t i = 1; i < getSkeleton()->getBoneCount(); ++i)
   {
-    getSkeleton()->getChildren()[i]->setVisible(i - 1 >= m_poles);
+    getSkeleton()->setVisible(i, i - 1 >= m_poles);
   }
+  getSkeleton()->rebuildMesh();
 
   const auto nearestFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto segmentStart = core::TRVec{
@@ -214,11 +216,11 @@ void LightningBall::prepareRender()
 
 void LightningBall::init(Engine& engine)
 {
-  for(size_t i = 1; i < getSkeleton()->getChildren().size(); ++i)
+  for(size_t i = 1; i < getSkeleton()->getBoneCount(); ++i)
   {
-    getSkeleton()->getChildren()[i]->setRenderable(nullptr);
-    getSkeleton()->getChildren()[i]->setVisible(false);
+    getSkeleton()->setVisible(i, false);
   }
+  getSkeleton()->rebuildMesh();
 
   m_mainBoltMesh = createBolt(SegmentPoints, engine.getMaterialManager()->getLightning(), 10, m_mainVb);
   auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");

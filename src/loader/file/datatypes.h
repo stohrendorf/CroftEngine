@@ -13,6 +13,7 @@
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "render/scene/node.h"
+#include "rendermeshdata.h"
 #include "texture.h"
 #include "util/helpers.h"
 
@@ -37,8 +38,15 @@ namespace engine::objects
 class Object;
 } // namespace engine::objects
 
+namespace render::scene
+{
+class MaterialManager;
+}
+
 namespace loader::file
 {
+class RenderMeshData;
+
 namespace level
 {
 class Level;
@@ -324,9 +332,9 @@ struct Room
   int sectorCountX;            // "height" of sector list
   std::vector<Sector> sectors; // [NumXsectors * NumZsectors] list of sectors in this room
   core::Shade ambientShade{};
-  int16_t intensity2;          // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
-  int16_t lightMode;           // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
-  std::vector<Light> lights;   // [NumLights] list of point lights
+  int16_t intensity2;        // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
+  int16_t lightMode;         // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
+  std::vector<Light> lights; // [NumLights] list of point lights
   std::vector<RoomStaticMesh> staticMeshes;     // [NumStaticMeshes]list of static meshes
   core::RoomIdI16 alternateRoom{int16_t(-1)};   // number of the room that this room can alternate
   core::RoomGroupId alternateGroup{uint8_t(0)}; // number of group which is used to switch alternate rooms
@@ -401,13 +409,9 @@ struct Room
 
   void createSceneNode(size_t roomId,
                        const level::Level& level,
-                       const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
-                       const gsl::not_null<std::shared_ptr<render::scene::Material>>& waterMaterialFull,
-                       const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
-                       const std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>>& staticRenderMeshes,
+                       const std::vector<gsl::not_null<std::shared_ptr<RenderMeshData>>>& staticRenderMeshes,
                        render::TextureAnimator& animator,
-                       const std::shared_ptr<render::scene::Material>& spriteMaterial,
-                       const std::shared_ptr<render::scene::Material>& portalMaterial);
+                       render::scene::MaterialManager& materialManager);
 
   [[nodiscard]] const Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
   {

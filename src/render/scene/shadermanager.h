@@ -34,24 +34,30 @@ public:
     return get("flat.vert", "flat.frag", {"INVERT_Y"});
   }
 
-  auto getGeometry()
+  auto getGeometry(bool water, bool skeletal)
   {
-    return get("geometry.vert", "geometry.frag");
+    std::vector<std::string> defines;
+    if(water)
+      defines.emplace_back("WATER");
+    if(skeletal)
+      defines.emplace_back("SKELETAL");
+    return get("geometry.vert", "geometry.frag", defines);
   }
 
-  auto getGeometryWater()
+  auto getCSMDepthOnly(bool skeletal)
   {
-    return get("geometry.vert", "geometry.frag", {"WATER"});
+    std::vector<std::string> defines;
+    if(skeletal)
+      defines.emplace_back("SKELETAL");
+    return get("csm_depth_only.vert", "empty.frag", defines);
   }
 
-  auto getCSMDepthOnly()
+  auto getDepthOnly(bool skeletal)
   {
-    return get("csm_depth_only.vert", "empty.frag");
-  }
-
-  auto getDepthOnly()
-  {
-    return get("depth_only.vert", "empty.frag");
+    std::vector<std::string> defines;
+    if(skeletal)
+      defines.emplace_back("SKELETAL");
+    return get("depth_only.vert", "empty.frag", defines);
   }
 
   auto getPortal()
@@ -78,8 +84,8 @@ public:
     return get("flat.vert",
                "blur.frag",
                {"BLUR_EXTENT " + std::to_string(extent),
-                "BLUR_DIR " + std::to_string(blurDir + 0),
-                "BLUR_DIM " + std::to_string(blurDim + 0)});
+                "BLUR_DIR " + std::to_string(blurDir),
+                "BLUR_DIM " + std::to_string(blurDim)});
   }
 
   auto getVSMSquare()

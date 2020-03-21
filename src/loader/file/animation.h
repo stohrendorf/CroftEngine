@@ -201,6 +201,7 @@ private:
 };
 
 struct Mesh;
+class RenderMeshData;
 
 #pragma pack(push, 1)
 
@@ -233,14 +234,14 @@ struct SkeletalModelType
 
   struct Bone
   {
-    const gsl::not_null<std::shared_ptr<render::scene::Mesh>> mesh;
+    const gsl::not_null<std::shared_ptr<RenderMeshData>> mesh;
     const core::TRVec center;
     const core::Length collision_size;
     const glm::vec3 position;
     const bool pushMatrix;
     const bool popMatrix;
 
-    explicit Bone(gsl::not_null<std::shared_ptr<render::scene::Mesh>> mesh,
+    explicit Bone(gsl::not_null<std::shared_ptr<RenderMeshData>> mesh,
                   core::TRVec center,
                   const core::Length& collision_size,
                   const std::optional<BoneTreeEntry>& boneTreeEntry)

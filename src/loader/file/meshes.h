@@ -8,7 +8,12 @@
 namespace render
 {
 class TextureAnimator;
+
+namespace scene
+{
+class Mesh;
 }
+} // namespace render
 
 namespace loader::file
 {
@@ -49,6 +54,7 @@ struct StaticMesh
   core::BoundingBox collision_box;
   uint16_t flags = 0; // Meaning uncertain; it is usually 2, and is 3 for objects Lara can travel through,
   // like TR2's skeletons and underwater vegetation
+  std::shared_ptr<render::scene::Mesh> renderMesh{nullptr};
 
   [[nodiscard]] bool doNotCollide() const
   {

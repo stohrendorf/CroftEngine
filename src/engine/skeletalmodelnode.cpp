@@ -3,10 +3,12 @@
 #include "engine/engine.h"
 #include "engine/objects/object.h"
 #include "loader/file/mesh.h"
+#include "loader/file/rendermeshdata.h"
 #include "serialization/animation_ptr.h"
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
 #include "serialization/quantity.h"
+#include "serialization/rendermeshdata_ptr.h"
 #include "serialization/skeletalmodeltype_ptr.h"
 #include "serialization/vector.h"
 
@@ -82,10 +84,10 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() c
 
 void SkeletalModelNode::updatePose()
 {
-  if(getChildren().empty())
+  if(m_meshParts.empty())
     return;
 
-  BOOST_ASSERT(getChildren().size() >= m_model->bones.size());
+  BOOST_ASSERT(m_meshParts.size() >= m_model->bones.size());
 
   updatePose(getInterpolationInfo());
 }
@@ -100,23 +102,19 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
   BOOST_ASSERT(framePair.firstFrame->numValues > 0);
   BOOST_ASSERT(framePair.secondFrame->numValues > 0);
 
-  if(m_bonePatches.empty())
-    resetPose();
-  BOOST_ASSERT(m_bonePatches.size() == getChildren().size());
-
   const auto angleDataFirst = framePair.firstFrame->getAngleData();
   std::stack<glm::mat4> transformsFirst;
   transformsFirst.push(translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl())
-                       * core::fromPackedAngles(angleDataFirst[0]) * m_bonePatches[0]);
+                       * core::fromPackedAngles(angleDataFirst[0]) * m_meshParts[0].patch);
 
   const auto angleDataSecond = framePair.secondFrame->getAngleData();
   std::stack<glm::mat4> transformsSecond;
   transformsSecond.push(translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl())
-                        * core::fromPackedAngles(angleDataSecond[0]) * m_bonePatches[0]);
+                        * core::fromPackedAngles(angleDataSecond[0]) * m_meshParts[0].patch);
 
   BOOST_ASSERT(framePair.bias >= 0 && framePair.bias <= 2);
 
-  getChildren()[0]->setLocalMatrix(util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias));
+  m_meshParts[0].matrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
 
   if(m_model->bones.size() <= 1)
     return;
@@ -135,18 +133,18 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
     }
 
     if(framePair.firstFrame->numValues < i)
-      transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_bonePatches[i];
+      transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
     else
       transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position)
-                               * core::fromPackedAngles(angleDataFirst[i]) * m_bonePatches[i];
+                               * core::fromPackedAngles(angleDataFirst[i]) * m_meshParts[i].patch;
 
     if(framePair.firstFrame->numValues < i)
-      transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_bonePatches[i];
+      transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
     else
       transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position)
-                                * core::fromPackedAngles(angleDataSecond[i]) * m_bonePatches[i];
+                                * core::fromPackedAngles(angleDataSecond[i]) * m_meshParts[i].patch;
 
-    getChildren()[i]->setLocalMatrix(util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias));
+    m_meshParts[i].matrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
   }
 }
 
@@ -156,17 +154,13 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
 
   BOOST_ASSERT(framePair.firstFrame->numValues > 0);
 
-  if(m_bonePatches.empty())
-    resetPose();
-  BOOST_ASSERT(m_bonePatches.size() == getChildren().size());
-
   const auto angleData = framePair.firstFrame->getAngleData();
 
   std::stack<glm::mat4> transforms;
   transforms.push(translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::fromPackedAngles(angleData[0])
-                  * m_bonePatches[0]);
+                  * m_meshParts[0].patch);
 
-  getChildren()[0]->setLocalMatrix(transforms.top());
+  m_meshParts[0].matrix = transforms.top();
 
   if(m_model->bones.size() <= 1)
     return;
@@ -183,12 +177,12 @@ void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
     }
 
     if(framePair.firstFrame->numValues < i)
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_bonePatches[i];
+      transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
     else
       transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * core::fromPackedAngles(angleData[i])
-                          * m_bonePatches[i];
+                          * m_meshParts[i].patch;
 
-    getChildren()[i]->setLocalMatrix(transforms.top());
+    m_meshParts[i].matrix = transforms.top();
   }
 }
 
@@ -265,10 +259,6 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
   BOOST_ASSERT(frame.numValues > 0);
   BOOST_ASSERT(!m_model->bones.empty());
 
-  if(m_bonePatches.empty())
-    resetPose();
-  BOOST_ASSERT(m_bonePatches.size() == getChildren().size());
-
   const auto angleData = frame.getAngleData();
 
   std::stack<glm::mat4> transforms;
@@ -287,7 +277,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
   }
 
   transforms.top()
-    = translate(transforms.top(), frame.pos.toGl()) * core::fromPackedAngles(angleData[0]) * m_bonePatches[0];
+    = translate(transforms.top(), frame.pos.toGl()) * core::fromPackedAngles(angleData[0]) * m_meshParts[0].patch;
 
   std::vector<Sphere> result;
   result.emplace_back(translate(glm::mat4{1.0f}, pos.toRenderSystem())
@@ -306,10 +296,10 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
     }
 
     if(frame.numValues < i)
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_bonePatches[i];
+      transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
     else
       transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * core::fromPackedAngles(angleData[i])
-                          * m_bonePatches[i];
+                          * m_meshParts[i].patch;
 
     auto m = translate(transforms.top(), m_model->bones[i].center.toRenderSystem());
     m[3] += glm::vec4(pos.toRenderSystem(), 0);
@@ -321,14 +311,18 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
 
 void SkeletalModelNode::serialize(const serialization::Serializer& ser)
 {
-  m_bonePatches.resize(getChildren().size(), glm::mat4{1.0f});
-
   auto id = getId();
   ser(S_NV("id", id),
       S_NV("model", m_model),
-      S_NV("bonePatches", m_bonePatches),
+      S_NV("parts", m_meshParts),
       S_NV("anim", anim),
       S_NV("frame", frame_number));
+
+  if(ser.loading)
+    ser.lazy([this](const serialization::Serializer&) {
+      m_needsMeshRebuild = true;
+      rebuildMesh();
+    });
 }
 
 void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer& ser)
@@ -347,20 +341,37 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
   data->serialize(ser);
 }
 
-void SkeletalModelNode::initNodes(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state)
+void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state)
 {
   skeleton->setAnimation(state, skeleton->m_model->animations, skeleton->m_model->animations->firstFrame);
+  skeleton->m_meshParts.clear();
 
-  for(gsl::index boneIndex = 0; boneIndex < skeleton->m_model->bones.size(); ++boneIndex)
+  for(const auto& bone : skeleton->m_model->bones)
   {
-    auto node = std::make_shared<render::scene::Node>(skeleton->getId() + "/bone:" + std::to_string(boneIndex));
-    node->setRenderable(skeleton->m_model->bones[boneIndex].mesh);
-    addChild(skeleton, node);
+    skeleton->m_meshParts.emplace_back(bone.mesh.get());
   }
 
-  Ensures(skeleton->getChildren().size() == gsl::narrow<size_t>(skeleton->m_model->bones.size()));
-
+  skeleton->m_needsMeshRebuild = true;
+  skeleton->rebuildMesh();
   skeleton->updatePose();
+}
+
+void SkeletalModelNode::rebuildMesh()
+{
+  if(!m_needsMeshRebuild)
+    return;
+  m_needsMeshRebuild = false;
+
+  loader::file::RenderMeshDataCompositor compositor;
+  for(const auto& mesh : m_meshParts)
+  {
+    if(mesh.mesh == nullptr || !mesh.visible)
+      compositor.appendEmpty();
+    else
+      compositor.append(*mesh.mesh);
+  }
+
+  setRenderable(compositor.toMesh(*m_engine->getMaterialManager(), true, getId()));
 }
 
 bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
@@ -389,4 +400,16 @@ bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
   return min.x > 1 || min.y > 1 || max.x < -1 || max.y < -1;
 }
 
+void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer& ser)
+{
+  ser(S_NV("patch", patch), S_NV("matrix", matrix), S_NV("mesh", mesh), S_NV("visible", visible));
+}
+
+SkeletalModelNode::MeshPart SkeletalModelNode::MeshPart::create(const serialization::Serializer& ser)
+{
+  Expects(ser.loading);
+  MeshPart tmp{};
+  tmp.serialize(ser);
+  return tmp;
+}
 } // namespace engine

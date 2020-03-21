@@ -31,28 +31,32 @@ public:
 
   [[nodiscard]] const std::shared_ptr<Material>& getSprite();
 
-  [[nodiscard]] const std::shared_ptr<Material>& getCSMDepthOnly();
-  [[nodiscard]] const std::shared_ptr<Material>& getDepthOnly();
+  [[nodiscard]] const std::shared_ptr<Material>& getCSMDepthOnly(bool skeletal);
+  [[nodiscard]] const std::shared_ptr<Material>& getDepthOnly(bool skeletal);
 
-  [[nodiscard]] std::shared_ptr<Material>
-    createMaterial(const gsl::not_null<std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>>>& texture, bool water);
+  [[nodiscard]] std::shared_ptr<Material> getGeometry(bool water, bool skeletal);
 
   [[nodiscard]] const std::shared_ptr<Material>& getPortal();
 
   [[nodiscard]] const std::shared_ptr<Material>& getLightning();
 
+  void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
+  {
+    m_geometryTextures = std::move(geometryTextures);
+  }
+
 private:
   const gsl::not_null<std::shared_ptr<ShaderManager>> m_shaderManager;
 
   std::shared_ptr<Material> m_sprite{nullptr};
-  std::shared_ptr<Material> m_csmDepthOnly{nullptr};
-  std::shared_ptr<Material> m_depthOnly{nullptr};
-  std::shared_ptr<Material> m_materialWater{nullptr};
-  std::shared_ptr<Material> m_material{nullptr};
+  std::array<std::shared_ptr<Material>, 2> m_csmDepthOnly{};
+  std::array<std::shared_ptr<Material>, 2> m_depthOnly{};
+  std::array<std::array<std::shared_ptr<Material>, 2>, 2> m_geometry{};
   std::shared_ptr<Material> m_portal{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
 
   const gsl::not_null<std::shared_ptr<CSM>> m_csm;
   const gsl::not_null<std::shared_ptr<Renderer>> m_renderer;
+  std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_geometryTextures;
 };
 } // namespace render::scene

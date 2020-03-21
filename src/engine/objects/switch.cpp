@@ -7,7 +7,7 @@ namespace engine::objects
 {
 void Switch::collide(CollisionInfo& /*collisionInfo*/)
 {
-  if(!getEngine().getInputHandler().getInputState().action)
+  if(!getEngine().getInputHandler().getInputState().action.justPressed())
     return;
 
   if(getEngine().getLara().getHandStatus() != HandStatus::None)

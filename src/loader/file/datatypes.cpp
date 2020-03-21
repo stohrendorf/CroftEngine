@@ -102,22 +102,18 @@ core::TRVec getCenter(const std::array<VertexIndex, N>& faceVertices, const std:
 
 void Room::createSceneNode(const size_t roomId,
                            const level::Level& level,
-                           const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
-                           const gsl::not_null<std::shared_ptr<render::scene::Material>>& waterMaterialFull,
-                           const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
-                           const std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>>& staticRenderMeshes,
+                           const std::vector<gsl::not_null<std::shared_ptr<RenderMeshData>>>& staticRenderMeshes,
                            render::TextureAnimator& animator,
-                           const std::shared_ptr<render::scene::Material>& spriteMaterial,
-                           const std::shared_ptr<render::scene::Material>& portalMaterial)
+                           render::scene::MaterialManager& materialManager)
 {
   const auto texMask = gameToEngine(level.m_gameVersion) == loader::file::level::Engine::TR4
                          ? loader::file::TextureIndexMaskTr4
                          : loader::file::TextureIndexMask;
 
   RenderMesh renderMesh;
-  renderMesh.m_materialDepthOnly = materialDepthOnly;
+  renderMesh.m_materialDepthOnly = materialManager.getDepthOnly(false);
   renderMesh.m_materialCSMDepthOnly = nullptr;
-  renderMesh.m_materialFull = isWaterRoom() ? waterMaterialFull : materialFull;
+  renderMesh.m_materialFull = materialManager.getGeometry(isWaterRoom(), false);
 
   std::vector<RenderVertex> vbufData;
   std::vector<glm::vec2> uvCoordsData;
@@ -246,12 +242,12 @@ void Room::createSceneNode(const size_t roomId,
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {
-    const auto idx = level.findStaticMeshIndexById(sm.meshId);
-    if(idx < 0)
+    const auto staticRenderMesh = level.findStaticRenderMeshById(sm.meshId);
+    if(staticRenderMesh == nullptr)
       continue;
 
     auto subNode = std::make_shared<render::scene::Node>("staticMesh");
-    subNode->setRenderable(staticRenderMeshes.at(idx).get());
+    subNode->setRenderable(staticRenderMesh);
     subNode->setLocalMatrix(translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem())
                             * rotate(glm::mat4{1.0f}, toRad(sm.rotation), glm::vec3{0, -1, 0}));
 
@@ -277,7 +273,7 @@ void Room::createSceneNode(const size_t roomId,
                                                       static_cast<float>(-sprite.y1),
                                                       sprite.t0,
                                                       sprite.t1,
-                                                      spriteMaterial,
+                                                      materialManager.getSprite(),
                                                       sprite.texture_id.get_as<int32_t>());
 
     auto spriteNode = std::make_shared<render::scene::Node>("sprite");
@@ -294,7 +290,7 @@ void Room::createSceneNode(const size_t roomId,
     sceneryNodes.emplace_back(std::move(spriteNode));
   }
   for(auto& portal : portals)
-    portal.buildMesh(portalMaterial);
+    portal.buildMesh(materialManager.getPortal());
 
   resetScenery();
 }

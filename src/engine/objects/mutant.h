@@ -38,10 +38,11 @@ public:
                 const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
       : FlyingMutant{engine, room, item, animatedModel}
   {
-    for(size_t i = 0; i < getSkeleton()->getChildren().size(); ++i)
+    for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
     {
-      getSkeleton()->getChild(i)->setVisible((0xffe07fffu >> i) & 1u);
+      getSkeleton()->setVisible(i, (0xffe07fffu >> i) & 1u);
     }
+    getSkeleton()->rebuildMesh();
   }
 };
 

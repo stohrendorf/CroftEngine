@@ -1,42 +1,9 @@
 #include "rendermeshdata.h"
 
+#include "render/scene/materialmanager.h"
+
 namespace loader::file
 {
-gsl::not_null<std::shared_ptr<render::scene::Mesh>>
-  RenderMeshData::toMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialFull,
-                         const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialDepthOnly,
-                         const gsl::not_null<std::shared_ptr<render::scene::Material>>& materialCSMDepthOnly,
-                         const std::string& label)
-{
-  auto vb = std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
-  vb->setData(m_vertices, gl::api::BufferUsageARB::StaticDraw);
-
-#ifndef NDEBUG
-  for(auto idx : m_indices)
-  {
-    BOOST_ASSERT(idx < m_vertices.size());
-  }
-#endif
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<IndexType>>();
-  indexBuffer->setData(m_indices, gl::api::BufferUsageARB::DynamicDraw);
-
-  auto va = std::make_shared<gl::VertexArray<uint16_t, RenderVertex>>(
-    indexBuffer,
-    vb,
-    std::vector<const gl::Program*>{
-      &materialFull->getShaderProgram()->getHandle(),
-      materialCSMDepthOnly == nullptr ? nullptr : &materialCSMDepthOnly->getShaderProgram()->getHandle(),
-      materialDepthOnly == nullptr ? nullptr : &materialDepthOnly->getShaderProgram()->getHandle()},
-    label);
-  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, RenderVertex>>(va, gl::api::PrimitiveType::Triangles);
-  mesh->getMaterial()
-    .set(render::scene::RenderMode::Full, materialFull)
-    .set(render::scene::RenderMode::DepthOnly, materialDepthOnly)
-    .set(render::scene::RenderMode::CSMDepthOnly, materialCSMDepthOnly);
-
-  return mesh;
-}
-
 RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>& textureTiles, const Palette& palette)
 {
   for(const QuadFace& quad : mesh.textured_rectangles)
@@ -246,5 +213,42 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       m_vertices.emplace_back(iv);
     }
   }
+}
+
+gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::toMesh(
+  render::scene::MaterialManager& materialManager, bool skeletal, const std::string& label)
+{
+  auto vb = std::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(RenderMeshData::RenderVertex::getFormat(),
+                                                                             label);
+  vb->setData(m_vertices, gl::api::BufferUsageARB::StaticDraw);
+
+#ifndef NDEBUG
+  for(auto idx : m_indices)
+  {
+    BOOST_ASSERT(idx < m_vertices.size());
+  }
+#endif
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>();
+  indexBuffer->setData(m_indices, gl::api::BufferUsageARB::DynamicDraw);
+
+  const auto material = materialManager.getGeometry(false, skeletal);
+  const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal);
+  const auto materialDepthOnly = materialManager.getDepthOnly(skeletal);
+
+  auto va = std::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+    indexBuffer,
+    vb,
+    std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle(),
+                                    &materialDepthOnly->getShaderProgram()->getHandle(),
+                                    &materialCSMDepthOnly->getShaderProgram()->getHandle()},
+    label);
+  auto mesh = std::make_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+    va, gl::api::PrimitiveType::Triangles);
+  mesh->getMaterial()
+    .set(render::scene::RenderMode::Full, material)
+    .set(render::scene::RenderMode::DepthOnly, materialDepthOnly)
+    .set(render::scene::RenderMode::CSMDepthOnly, materialCSMDepthOnly);
+
+  return mesh;
 }
 } // namespace loader::file

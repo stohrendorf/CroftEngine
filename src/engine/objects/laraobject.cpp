@@ -681,8 +681,9 @@ void LaraObject::updateLarasWeaponsStatus()
   {
     {
       const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(normalLara.bones.size() == getNode()->getChildren().size());
-      getNode()->getChild(14)->setRenderable(normalLara.bones[14].mesh);
+      BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+      getSkeleton()->setMeshPart(14, normalLara.bones[14].mesh);
+      getSkeleton()->rebuildMesh();
     }
 
     if(gunType >= WeaponId::Pistols)
@@ -701,8 +702,9 @@ void LaraObject::updateLarasWeaponsStatus()
   {
     {
       const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(normalLara.bones.size() == getNode()->getChildren().size());
-      getNode()->getChild(14)->setRenderable(normalLara.bones[14].mesh);
+      BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+      getSkeleton()->setMeshPart(14, normalLara.bones[14].mesh);
+      getSkeleton()->rebuildMesh();
     }
 
     switch(gunType)
@@ -713,8 +715,9 @@ void LaraObject::updateLarasWeaponsStatus()
         if(getEngine().getInputHandler().getInputState().action)
         {
           const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
-          BOOST_ASSERT(uziLara.bones.size() == getNode()->getChildren().size());
-          getNode()->getChild(14)->setRenderable(uziLara.bones[14].mesh);
+          BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
+          getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
+          getSkeleton()->rebuildMesh();
         }
       }
       if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
@@ -730,8 +733,9 @@ void LaraObject::updateLarasWeaponsStatus()
         if(getEngine().getInputHandler().getInputState().action)
         {
           const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
-          BOOST_ASSERT(uziLara.bones.size() == getNode()->getChildren().size());
-          getNode()->getChild(14)->setRenderable(uziLara.bones[14].mesh);
+          BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
+          getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
+          getSkeleton()->rebuildMesh();
         }
       }
       if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
@@ -747,8 +751,9 @@ void LaraObject::updateLarasWeaponsStatus()
         if(getEngine().getInputHandler().getInputState().action)
         {
           const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
-          BOOST_ASSERT(uziLara.bones.size() == getNode()->getChildren().size());
-          getNode()->getChild(14)->setRenderable(uziLara.bones[14].mesh);
+          BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
+          getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
+          getSkeleton()->rebuildMesh();
         }
       }
       if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
@@ -764,8 +769,9 @@ void LaraObject::updateLarasWeaponsStatus()
         if(getEngine().getInputHandler().getInputState().action)
         {
           const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
-          BOOST_ASSERT(uziLara.bones.size() == getNode()->getChildren().size());
-          getNode()->getChild(14)->setRenderable(uziLara.bones[14].mesh);
+          BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
+          getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
+          getSkeleton()->rebuildMesh();
         }
       }
       if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
@@ -1096,24 +1102,26 @@ void LaraObject::overrideLaraMeshesUnholsterGuns(const WeaponId weaponId)
 
   const auto& src = getEngine().findAnimatedModelForType(id);
   Expects(src != nullptr);
-  BOOST_ASSERT(src->bones.size() == getNode()->getChildren().size());
+  BOOST_ASSERT(src->bones.size() == getSkeleton()->getBoneCount());
   const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
-  BOOST_ASSERT(normalLara.bones.size() == getNode()->getChildren().size());
-  getNode()->getChild(1)->setRenderable(normalLara.bones[1].mesh);
-  getNode()->getChild(4)->setRenderable(normalLara.bones[4].mesh);
-  getNode()->getChild(10)->setRenderable(src->bones[10].mesh);
-  getNode()->getChild(13)->setRenderable(src->bones[13].mesh);
+  BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+  getSkeleton()->setMeshPart(1, normalLara.bones[1].mesh);
+  getSkeleton()->setMeshPart(4, normalLara.bones[4].mesh);
+  getSkeleton()->setMeshPart(10, src->bones[10].mesh);
+  getSkeleton()->setMeshPart(13, src->bones[13].mesh);
+  getSkeleton()->rebuildMesh();
 }
 
 void LaraObject::overrideLaraMeshesUnholsterShotgun()
 {
   const auto& src = *getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
-  BOOST_ASSERT(src.bones.size() == getNode()->getChildren().size());
+  BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
   const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
-  BOOST_ASSERT(normalLara.bones.size() == getNode()->getChildren().size());
-  getNode()->getChild(7)->setRenderable(normalLara.bones[7].mesh);
-  getNode()->getChild(10)->setRenderable(src.bones[10].mesh);
-  getNode()->getChild(13)->setRenderable(src.bones[13].mesh);
+  BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+  getSkeleton()->setMeshPart(7, normalLara.bones[7].mesh);
+  getSkeleton()->setMeshPart(10, src.bones[10].mesh);
+  getSkeleton()->setMeshPart(13, src.bones[13].mesh);
+  getSkeleton()->rebuildMesh();
 }
 
 void LaraObject::unholsterShotgun()
@@ -1382,12 +1390,13 @@ void LaraObject::holsterShotgun()
     if(leftArm.frame == 100_frame)
     {
       const auto& src = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(src.bones.size() == getNode()->getChildren().size());
+      BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
       const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(normalLara.bones.size() == getNode()->getChildren().size());
-      getNode()->getChild(7)->setRenderable(src.bones[7].mesh);
-      getNode()->getChild(10)->setRenderable(normalLara.bones[10].mesh);
-      getNode()->getChild(13)->setRenderable(normalLara.bones[13].mesh);
+      BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+      getSkeleton()->setMeshPart(7, src.bones[7].mesh);
+      getSkeleton()->setMeshPart(10, normalLara.bones[10].mesh);
+      getSkeleton()->setMeshPart(13, normalLara.bones[13].mesh);
+      getSkeleton()->rebuildMesh();
 
       playSoundEffect(TR1SoundId::LaraUnholster);
     }
@@ -1444,11 +1453,12 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
       }
 
       const auto& src = *getEngine().findAnimatedModelForType(srcId);
-      BOOST_ASSERT(src.bones.size() == getNode()->getChildren().size());
+      BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
       const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(normalLara.bones.size() == getNode()->getChildren().size());
-      getNode()->getChild(1)->setRenderable(src.bones[1].mesh);
-      getNode()->getChild(13)->setRenderable(normalLara.bones[13].mesh);
+      BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+      getSkeleton()->setMeshPart(1, src.bones[1].mesh);
+      getSkeleton()->setMeshPart(13, normalLara.bones[13].mesh);
+      getSkeleton()->rebuildMesh();
 
       playSoundEffect(TR1SoundId::LaraHolster);
     }
@@ -1486,11 +1496,12 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
       }
 
       const auto& src = *getEngine().findAnimatedModelForType(srcId);
-      BOOST_ASSERT(src.bones.size() == getNode()->getChildren().size());
+      BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
       const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(normalLara.bones.size() == getNode()->getChildren().size());
-      getNode()->getChild(4)->setRenderable(src.bones[4].mesh);
-      getNode()->getChild(10)->setRenderable(normalLara.bones[10].mesh);
+      BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+      getSkeleton()->setMeshPart(4, src.bones[4].mesh);
+      getSkeleton()->setMeshPart(10, normalLara.bones[10].mesh);
+      getSkeleton()->rebuildMesh();
 
       playSoundEffect(TR1SoundId::LaraHolster);
     }
@@ -1808,7 +1819,7 @@ public:
   void apply(const std::shared_ptr<SkeletalModelNode>& skeleton, const size_t idx)
   {
     BOOST_ASSERT(skeleton != nullptr);
-    skeleton->getChild(idx)->setLocalMatrix(m_stack.top());
+    skeleton->setMeshMatrix(idx, m_stack.top());
   }
 };
 
@@ -1907,7 +1918,7 @@ public:
   void apply(const std::shared_ptr<SkeletalModelNode>& skeleton, const size_t idx)
   {
     BOOST_ASSERT(skeleton != nullptr);
-    skeleton->getChild(idx)->setLocalMatrix(itop());
+    skeleton->setMeshMatrix(idx, itop());
   }
 };
 } // namespace
@@ -2352,7 +2363,9 @@ void LaraObject::initGunflares()
   if(gunFlareModel == nullptr)
     return;
 
-  const auto& mdl = gunFlareModel->bones[0].mesh;
+  loader::file::RenderMeshDataCompositor compositor;
+  compositor.append(*gunFlareModel->bones[0].mesh);
+  auto mdl = compositor.toMesh(*getEngine().getMaterialManager(), false, {});
 
   m_gunFlareLeft->setRenderable(mdl);
   m_gunFlareLeft->setVisible(false);

@@ -4,6 +4,7 @@
 #include "render/scene/node.h"
 
 #include <gsl-lite.hpp>
+#include <utility>
 
 namespace loader::file
 {
@@ -38,21 +39,13 @@ public:
 
   void resetPose()
   {
-    m_bonePatches.clear();
-    m_bonePatches.resize(getChildren().size(), glm::mat4{1.0f});
+    for(auto& part : m_meshParts)
+      part.patch = glm::mat4{1.0f};
   }
 
   void patchBone(const size_t idx, const glm::mat4& m)
   {
-    if(m_bonePatches.empty())
-    {
-      resetPose();
-    }
-
-    BOOST_ASSERT(m_bonePatches.size() == getChildren().size());
-    BOOST_ASSERT(idx < m_bonePatches.size());
-
-    m_bonePatches[idx] = m;
+    m_meshParts.at(idx).patch = m;
   }
 
   bool advanceFrame(objects::ObjectState& state);
@@ -110,23 +103,81 @@ public:
 
   void serialize(const serialization::Serializer& ser);
 
-  static void initNodes(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state);
+  static void buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state);
+
+  void rebuildMesh();
 
   bool canBeCulled(const glm::mat4& viewProjection) const override;
 
   const loader::file::Animation* anim = nullptr;
   core::Frame frame_number = 0_frame;
 
+  void setMeshPart(size_t idx, const std::shared_ptr<loader::file::RenderMeshData>& mesh)
+  {
+    m_needsMeshRebuild |= std::exchange(m_meshParts.at(idx).mesh, mesh) != mesh;
+  }
+
+  const auto& getMeshPart(size_t idx) const
+  {
+    return m_meshParts.at(idx).mesh;
+  }
+
+  size_t getBoneCount() const
+  {
+    return m_meshParts.size();
+  }
+
+  void setMeshMatrix(size_t idx, const glm::mat4& m)
+  {
+    m_meshParts.at(idx).matrix = m;
+  }
+
+  void setVisible(size_t idx, bool visible)
+  {
+    m_needsMeshRebuild |= std::exchange(m_meshParts.at(idx).visible, visible) != visible;
+  }
+
+  bool isVisible(size_t idx) const
+  {
+    return m_meshParts.at(idx).visible;
+  }
+
+  const auto& getMeshMatricesBuffer() const
+  {
+    std::vector<glm::mat4> matrices;
+    for(const auto& part : m_meshParts)
+      matrices.emplace_back(part.matrix);
+    m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsageARB::DynamicDraw);
+    return m_meshMatricesBuffer;
+  }
+
 protected:
   bool handleStateTransitions(objects::ObjectState& state);
 
 private:
+  struct MeshPart
+  {
+    explicit MeshPart(std::shared_ptr<loader::file::RenderMeshData> mesh = nullptr)
+        : mesh{std::move(mesh)}
+    {
+    }
+
+    glm::mat4 patch{1.0f};
+    glm::mat4 matrix{1.0f};
+    std::shared_ptr<loader::file::RenderMeshData> mesh{nullptr};
+    bool visible = true;
+
+    void serialize(const serialization::Serializer& ser);
+    static MeshPart create(const serialization::Serializer& ser);
+  };
+
   const gsl::not_null<const Engine*> m_engine;
   gsl::not_null<const loader::file::SkeletalModelType*> m_model;
-  std::vector<glm::mat4> m_bonePatches;
+  std::vector<MeshPart> m_meshParts{};
+  mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer;
+  bool m_needsMeshRebuild = false;
 
   void updatePoseKeyframe(const InterpolationInfo& framePair);
-
   void updatePoseInterpolated(const InterpolationInfo& framePair);
 };
 

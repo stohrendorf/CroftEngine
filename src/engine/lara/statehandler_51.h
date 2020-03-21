@@ -25,28 +25,29 @@ public:
     switch(frameOffs.get())
     {
     case 5:
-      getLara().getNode()->getChild(3)->setRenderable(alternateLara->bones[3].mesh);
-      getLara().getNode()->getChild(6)->setRenderable(alternateLara->bones[6].mesh);
+      getLara().getSkeleton()->setMeshPart(3, alternateLara->bones[3].mesh);
+      getLara().getSkeleton()->setMeshPart(6, alternateLara->bones[6].mesh);
       break;
-    case 70: getLara().getNode()->getChild(2)->setRenderable(alternateLara->bones[2].mesh); break;
-    case 90: getLara().getNode()->getChild(1)->setRenderable(alternateLara->bones[1].mesh); break;
-    case 100: getLara().getNode()->getChild(5)->setRenderable(alternateLara->bones[5].mesh); break;
+    case 70: getLara().getSkeleton()->setMeshPart(2, alternateLara->bones[2].mesh); break;
+    case 90: getLara().getSkeleton()->setMeshPart(1, alternateLara->bones[1].mesh); break;
+    case 100: getLara().getSkeleton()->setMeshPart(5, alternateLara->bones[5].mesh); break;
     case 120:
-      getLara().getNode()->getChild(0)->setRenderable(alternateLara->bones[0].mesh);
-      getLara().getNode()->getChild(4)->setRenderable(alternateLara->bones[4].mesh);
+      getLara().getSkeleton()->setMeshPart(0, alternateLara->bones[0].mesh);
+      getLara().getSkeleton()->setMeshPart(4, alternateLara->bones[4].mesh);
       break;
-    case 135: getLara().getNode()->getChild(7)->setRenderable(alternateLara->bones[7].mesh); break;
-    case 150: getLara().getNode()->getChild(11)->setRenderable(alternateLara->bones[11].mesh); break;
-    case 163: getLara().getNode()->getChild(12)->setRenderable(alternateLara->bones[12].mesh); break;
-    case 174: getLara().getNode()->getChild(13)->setRenderable(alternateLara->bones[13].mesh); break;
-    case 186: getLara().getNode()->getChild(8)->setRenderable(alternateLara->bones[8].mesh); break;
-    case 195: getLara().getNode()->getChild(9)->setRenderable(alternateLara->bones[9].mesh); break;
-    case 218: getLara().getNode()->getChild(10)->setRenderable(alternateLara->bones[10].mesh); break;
-    case 225: getLara().getNode()->getChild(14)->setRenderable(alternateLara->bones[14].mesh); break;
+    case 135: getLara().getSkeleton()->setMeshPart(7, alternateLara->bones[7].mesh); break;
+    case 150: getLara().getSkeleton()->setMeshPart(11, alternateLara->bones[11].mesh); break;
+    case 163: getLara().getSkeleton()->setMeshPart(12, alternateLara->bones[12].mesh); break;
+    case 174: getLara().getSkeleton()->setMeshPart(13, alternateLara->bones[13].mesh); break;
+    case 186: getLara().getSkeleton()->setMeshPart(8, alternateLara->bones[8].mesh); break;
+    case 195: getLara().getSkeleton()->setMeshPart(9, alternateLara->bones[9].mesh); break;
+    case 218: getLara().getSkeleton()->setMeshPart(10, alternateLara->bones[10].mesh); break;
+    case 225: getLara().getSkeleton()->setMeshPart(14, alternateLara->bones[14].mesh); break;
     default:
       // silence compiler
       break;
     }
+    getLara().getSkeleton()->rebuildMesh();
     StateHandler_50::emitSparkles(getEngine());
   }
 

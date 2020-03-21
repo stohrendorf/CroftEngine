@@ -1,6 +1,7 @@
 #include "particle.h"
 
 #include "engine/objects/laraobject.h"
+#include "loader/file/rendermeshdata.h"
 #include "render/scene/sprite.h"
 
 #include <utility>
@@ -13,7 +14,9 @@ void Particle::initRenderables(Engine& engine, const float scale)
   {
     for(const auto& bone : modelType->bones)
     {
-      m_renderables.emplace_back(bone.mesh);
+      loader::file::RenderMeshDataCompositor compositor;
+      compositor.append(*bone.mesh);
+      m_renderables.emplace_back(compositor.toMesh(*engine.getMaterialManager(), false, {}));
     }
   }
   else if(const auto& spriteSequence = engine.findSpriteSequenceForType(object_number))
@@ -161,7 +164,7 @@ FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, Engine& engine,
 
   if(randomize)
   {
-    timePerSpriteFrame = -int(util::rand15(engine.getLara().getSkeleton()->getChildren().size())) - 1;
+    timePerSpriteFrame = -int(util::rand15(engine.getLara().getSkeleton()->getBoneCount())) - 1;
     for(auto n = util::rand15(getLength()); n != 0; --n)
       nextFrame();
   }
