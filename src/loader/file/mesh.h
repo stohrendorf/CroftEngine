@@ -21,6 +21,8 @@ namespace io
 class SDLReader;
 }
 
+class RenderMeshData;
+
 struct Mesh
 {
   core::TRVec
@@ -34,6 +36,8 @@ struct Mesh
   // the rest is not present in TR4
   std::vector<QuadFace> colored_rectangles; //[NumColoredRectangles]; // list of colored rectangles
   std::vector<Triangle> colored_triangles;  //[NumColoredTriangles]; // list of colored triangles
+
+  std::shared_ptr<RenderMeshData> meshData{nullptr};
 
   /** \brief reads mesh definition.
     *

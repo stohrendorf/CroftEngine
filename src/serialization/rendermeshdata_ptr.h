@@ -16,9 +16,9 @@ void save(std::shared_ptr<loader::file::RenderMeshData>& mesh, const Serializer&
 
   ser.tag("mesh");
   uint32_t idx = 0;
-  for(const auto& existing : ser.engine.getRenderMeshes())
+  for(const auto& existing : ser.engine.getMeshes())
   {
-    if(existing.get() == mesh)
+    if(existing.meshData == mesh)
     {
       ser.node = idx;
       return;

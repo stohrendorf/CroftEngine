@@ -224,15 +224,13 @@ void Engine::loadSceneData()
 
   for(size_t i = 0; i < m_level->m_meshes.size(); ++i)
   {
-    auto data = std::make_shared<loader::file::RenderMeshData>(
+    m_level->m_meshes[i].meshData = std::make_shared<loader::file::RenderMeshData>(
       m_level->m_meshes[i], m_level->m_textureTiles, *m_level->m_palette);
-    m_renderMeshes.emplace_back(data);
   }
 
   for(auto idx : m_level->m_meshIndices)
   {
-    Expects(idx < m_renderMeshes.size());
-    m_renderMeshesDirect.emplace_back(m_renderMeshes[idx]);
+    Expects(idx < m_level->m_meshes.size());
     m_meshesDirect.emplace_back(&m_level->m_meshes[idx]);
   }
 
@@ -244,9 +242,10 @@ void Engine::loadSceneData()
       BOOST_ASSERT(model->nMeshes == model->boneTree.size() + 1);
       for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
       {
-        model->bones.emplace_back(m_renderMeshesDirect.at(model->mesh_base_index + i),
-                                  m_meshesDirect.at(model->mesh_base_index + i)->center,
-                                  m_meshesDirect.at(model->mesh_base_index + i)->collision_size,
+        const auto& mesh = m_meshesDirect.at(model->mesh_base_index + i);
+        model->bones.emplace_back(mesh->meshData,
+                                  mesh->center,
+                                  mesh->collision_size,
                                   i == 0 ? std::nullopt : std::make_optional(model->boneTree[i - 1]));
       }
     }
@@ -255,12 +254,13 @@ void Engine::loadSceneData()
   for(auto& staticMesh : m_level->m_staticMeshes)
   {
     loader::file::RenderMeshDataCompositor compositor;
+    compositor.append(*m_meshesDirect.at(staticMesh.mesh)->meshData);
     staticMesh.renderMesh = compositor.toMesh(*m_materialManager, false, {});
   }
 
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    m_level->m_rooms[i].createSceneNode(i, *m_level, m_renderMeshes, *m_textureAnimator, *m_materialManager);
+    m_level->m_rooms[i].createSceneNode(i, *m_level, *m_textureAnimator, *m_materialManager);
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
@@ -1694,6 +1694,16 @@ void Engine::serialize(const serialization::Serializer& ser)
 const engine::floordata::FloorData& Engine::getFloorData() const
 {
   return m_level->m_floorData;
+}
+
+const gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>>& Engine::getRenderMesh(const size_t idx) const
+{
+  return m_level->m_meshes.at(idx).meshData;
+}
+
+const std::vector<loader::file::Mesh>& Engine::getMeshes() const
+{
+  return m_level->m_meshes;
 }
 
 Engine::~Engine() = default;

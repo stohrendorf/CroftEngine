@@ -102,7 +102,6 @@ core::TRVec getCenter(const std::array<VertexIndex, N>& faceVertices, const std:
 
 void Room::createSceneNode(const size_t roomId,
                            const level::Level& level,
-                           const std::vector<gsl::not_null<std::shared_ptr<RenderMeshData>>>& staticRenderMeshes,
                            render::TextureAnimator& animator,
                            render::scene::MaterialManager& materialManager)
 {
