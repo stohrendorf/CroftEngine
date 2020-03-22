@@ -126,6 +126,9 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
       break;
   }
 
+  if(type == Type::Invalid)
+    m_targetObject = nullptr;
+
   if(m_targetObject == nullptr)
     return;
 

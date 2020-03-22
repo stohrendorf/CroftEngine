@@ -485,6 +485,12 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
     CREATE_PU(LeadBarSprite);
     CREATE(SavegameCrystal, StubObject);
     CREATE_ID(Doppelganger);
+  case TR1ItemId::ScionPiece1:
+    ser(S_NV("@name", spriteName));
+    object = std::make_shared<ScionPiece>(
+      &ser.engine, position, std::move(spriteName), ser.engine.getMaterialManager()->getSprite());
+    object->serialize(ser);
+    return object;
   case TR1ItemId::MidasGoldTouch:
   case TR1ItemId::CameraTarget:
   case TR1ItemId::Earthquake:

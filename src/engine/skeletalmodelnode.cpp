@@ -343,9 +343,10 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
 
 void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state)
 {
-  skeleton->setAnimation(state, skeleton->m_model->animations, skeleton->m_model->animations->firstFrame);
-  skeleton->m_meshParts.clear();
+  if(!skeleton->m_meshParts.empty())
+    return;
 
+  skeleton->setAnimation(state, skeleton->m_model->animations, skeleton->m_model->animations->firstFrame);
   for(const auto& bone : skeleton->m_model->bones)
   {
     skeleton->m_meshParts.emplace_back(bone.mesh.get());

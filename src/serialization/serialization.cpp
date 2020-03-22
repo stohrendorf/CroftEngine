@@ -10,7 +10,6 @@ Exception::Exception(const gsl::czstring msg)
     : std::runtime_error{msg}
 {
   BOOST_LOG_TRIVIAL(fatal) << "Serialization exception: " << msg;
-  BOOST_LOG_TRIVIAL(fatal) << "Stacktrace:";
   BOOST_LOG_TRIVIAL(fatal) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
 }
 

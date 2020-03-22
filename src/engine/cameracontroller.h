@@ -47,7 +47,7 @@ class CameraController final : public audio::Listener
 private:
   gsl::not_null<std::shared_ptr<render::scene::Camera>> m_camera;
 
-  Engine* m_engine;
+  const gsl::not_null<Engine*> m_engine;
 
   //! @brief Global camera position.
   std::optional<core::RoomBoundPosition> m_eye;
@@ -96,7 +96,7 @@ public:
                             gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                             bool noLaraTag);
 
-  const Engine* getEngine() const noexcept
+  const gsl::not_null<Engine*>& getEngine() const noexcept
   {
     return m_engine;
   }
