@@ -228,13 +228,13 @@ public:
     m_underwaterState = u;
   }
 
-  void setCameraRotationAroundCenter(const core::Angle& x, const core::Angle& y);
+  void setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y);
 
-  void setCameraRotationAroundCenterX(const core::Angle& x);
+  void setCameraRotationAroundLaraX(const core::Angle& x);
 
-  void setCameraRotationAroundCenterY(const core::Angle& y);
+  void setCameraRotationAroundLaraY(const core::Angle& y);
 
-  void setCameraEyeCenterDistance(const core::Length& d);
+  void setCameraDistance(const core::Length& d);
 
   void setCameraModifier(CameraModifier k);
 

@@ -183,7 +183,7 @@ void LaraObject::handleLaraStateSwimming()
   collisionInfo.badPositiveDistance = core::HeightLimit;
   collisionInfo.badNegativeDistance = -core::DefaultCollisionRadius;
 
-  setCameraRotationAroundCenterX(-22_deg);
+  setCameraRotationAroundLaraX(-22_deg);
 
   lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
@@ -467,24 +467,24 @@ void LaraObject::updateFloorHeight(const core::Length& dy)
   m_state.floor = hi.y;
 }
 
-void LaraObject::setCameraRotationAroundCenter(const core::Angle& x, const core::Angle& y)
+void LaraObject::setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y)
 {
-  getEngine().getCameraController().setRotationAroundCenter(x, y);
+  getEngine().getCameraController().setRotationAroundLara(x, y);
 }
 
-void LaraObject::setCameraRotationAroundCenterY(const core::Angle& y)
+void LaraObject::setCameraRotationAroundLaraY(const core::Angle& y)
 {
-  getEngine().getCameraController().setRotationAroundCenterY(y);
+  getEngine().getCameraController().setRotationAroundLaraY(y);
 }
 
-void LaraObject::setCameraRotationAroundCenterX(const core::Angle& x)
+void LaraObject::setCameraRotationAroundLaraX(const core::Angle& x)
 {
-  getEngine().getCameraController().setRotationAroundCenterX(x);
+  getEngine().getCameraController().setRotationAroundLaraX(x);
 }
 
-void LaraObject::setCameraEyeCenterDistance(const core::Length& d)
+void LaraObject::setCameraDistance(const core::Length& d)
 {
-  getEngine().getCameraController().setEyeCenterDistance(d);
+  getEngine().getCameraController().setDistance(d);
 }
 
 void LaraObject::setCameraModifier(const CameraModifier k)

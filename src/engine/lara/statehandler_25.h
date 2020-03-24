@@ -15,7 +15,7 @@ public:
 
   void handleInput(CollisionInfo& /*collisionInfo*/) override
   {
-    setCameraRotationAroundCenterY(135_deg);
+    setCameraRotationAroundLaraY(135_deg);
     if(getLara().m_state.fallspeed > core::FreeFallSpeedThreshold)
     {
       setGoalAnimState(LaraStateId::FreeFall);

@@ -16,8 +16,8 @@ public:
   void handleInput(CollisionInfo& collisionInfo) override
   {
     collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-    setCameraRotationAroundCenter(-15_deg, -130_deg);
-    setCameraEyeCenterDistance(1024_len);
+    setCameraRotationAroundLara(-15_deg, -130_deg);
+    setCameraDistance(1024_len);
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override

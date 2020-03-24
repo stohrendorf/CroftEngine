@@ -789,27 +789,27 @@ void AbstractStateHandler::setUnderwaterState(const objects::UnderwaterState u) 
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraRotationAroundCenter(const core::Angle x, const core::Angle y)
+void AbstractStateHandler::setCameraRotationAroundLara(const core::Angle x, const core::Angle y)
 {
-  m_lara.setCameraRotationAroundCenter(x, y);
+  m_lara.setCameraRotationAroundLara(x, y);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraRotationAroundCenterX(const core::Angle x)
+void AbstractStateHandler::setCameraRotationAroundLaraX(const core::Angle x)
 {
-  m_lara.setCameraRotationAroundCenterX(x);
+  m_lara.setCameraRotationAroundLaraX(x);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraRotationAroundCenterY(const core::Angle y)
+void AbstractStateHandler::setCameraRotationAroundLaraY(const core::Angle y)
 {
-  m_lara.setCameraRotationAroundCenterY(y);
+  m_lara.setCameraRotationAroundLaraY(y);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraEyeCenterDistance(const core::Length d)
+void AbstractStateHandler::setCameraDistance(const core::Length d)
 {
-  m_lara.setCameraEyeCenterDistance(d);
+  m_lara.setCameraDistance(d);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst

@@ -27,11 +27,11 @@ class Engine;
 enum class CameraMode
 {
   Chase,
-  Fixed,
+  FixedPosition,
   FreeLook,
   Combat,
   Cinematic,
-  Heavy
+  HeavyFixedPosition //!< like FixedPosition, but disables camera command sequence handling
 };
 
 enum class CameraModifier
@@ -50,17 +50,17 @@ private:
   const gsl::not_null<Engine*> m_engine;
 
   //! @brief Global camera position.
-  std::optional<core::RoomBoundPosition> m_eye;
+  std::optional<core::RoomBoundPosition> m_position;
   //! @brief The point the camera moves around.
-  std::optional<core::RoomBoundPosition> m_center;
+  std::optional<core::RoomBoundPosition> m_lookAt;
   CameraMode m_mode = CameraMode::Chase;
 
   //! @brief Additional height of the camera above the real position.
-  core::Length m_eyeYOffset = 0_len;
+  core::Length m_positionYOffset = 0_len;
 
   CameraModifier m_modifier = CameraModifier::None;
 
-  bool m_wasFixed = false;
+  bool m_isCompletelyFixed = false;
 
   /**
      * @brief If <0, bounce randomly around +/- @c m_bounce/2, increasing value by 5 each frame; if >0, do a single Y bounce downwards by @c m_bounce.
@@ -68,19 +68,19 @@ private:
   core::Length m_bounce = 0_len;
 
   //! @brief Goal distance between the pivot point and the camera.
-  core::Length m_eyeCenterDistance = core::DefaultCameraLaraDistance;
+  core::Length m_distance = core::DefaultCameraLaraDistance;
   //! @brief Floor-projected pivot distance, squared.
-  core::Area m_eyeCenterHorizontalDistanceSq{0};
+  core::Area m_horizontalDistanceSq{0};
 
   core::TRRotation m_eyeRotation;
 
   //! @brief Global camera rotation.
-  core::TRRotation m_rotationAroundCenter;
+  core::TRRotation m_rotationAroundLara;
 
   //! @brief An object to point the camera to.
   //! @note Also modifies Lara's head and torso rotation.
-  std::shared_ptr<objects::Object> m_targetObject = nullptr;
-  std::shared_ptr<objects::Object> m_previousObject = nullptr;
+  std::shared_ptr<objects::Object> m_lookAtObject = nullptr;
+  std::shared_ptr<objects::Object> m_previousLookAtObject = nullptr;
   std::shared_ptr<objects::Object> m_enemy = nullptr;
   //! @brief Movement smoothness for adjusting the pivot position.
   int m_smoothness = 8;
@@ -101,11 +101,11 @@ public:
     return m_engine;
   }
 
-  void setRotationAroundCenter(const core::Angle& x, const core::Angle& y);
+  void setRotationAroundLara(const core::Angle& x, const core::Angle& y);
 
-  void setRotationAroundCenterX(const core::Angle& x);
+  void setRotationAroundLaraX(const core::Angle& x);
 
-  void setRotationAroundCenterY(const core::Angle& y);
+  void setRotationAroundLaraY(const core::Angle& y);
 
   void setEyeRotation(const core::Angle& x, const core::Angle& y)
   {
@@ -118,9 +118,9 @@ public:
     return m_eyeRotation;
   }
 
-  void setEyeCenterDistance(const core::Length& d)
+  void setDistance(const core::Length& d)
   {
-    m_eyeCenterDistance = d;
+    m_distance = d;
   }
 
   void setModifier(const CameraModifier k)
@@ -137,8 +137,8 @@ public:
 
   void setLookAtObject(const std::shared_ptr<objects::Object>& object)
   {
-    if(object != nullptr && (m_mode == CameraMode::Fixed || m_mode == CameraMode::Heavy))
-      m_targetObject = object;
+    if(object != nullptr && (m_mode == CameraMode::FixedPosition || m_mode == CameraMode::HeavyFixedPosition))
+      m_lookAtObject = object;
   }
 
   void handleCommandSequence(const floordata::FloorDataValue* cmdSequence);
@@ -160,10 +160,10 @@ public:
     return m_camera->getPosition();
   }
 
-  const core::RoomBoundPosition& getCenter() const
+  const core::RoomBoundPosition& getLookAt() const
   {
-    Expects(m_center.has_value());
-    return *m_center;
+    Expects(m_lookAt.has_value());
+    return *m_lookAt;
   }
 
   [[nodiscard]] glm::vec3 getFrontVector() const override
@@ -178,23 +178,23 @@ public:
 
   const auto& getCurrentRoom() const
   {
-    return m_eye->room;
+    return m_position->room;
   }
 
   void setPosition(const core::TRVec& p)
   {
-    m_eye->position = p;
+    m_position->position = p;
   }
 
   const core::RoomBoundPosition& getTRPosition() const
   {
-    Expects(m_eye.has_value());
-    return *m_eye;
+    Expects(m_position.has_value());
+    return *m_position;
   }
 
   void setPosition(const core::RoomBoundPosition& p)
   {
-    m_eye = p;
+    m_position = p;
   }
 
   /**
@@ -254,13 +254,13 @@ private:
 
   bool isVerticallyOutsideRoom(const core::TRVec& pos, const gsl::not_null<const loader::file::Room*>& room) const;
 
-  void updatePosition(const core::RoomBoundPosition& eyePositionGoal, int smoothFactor);
+  void updatePosition(const core::RoomBoundPosition& positionGoal, int smoothFactor);
 
-  void chaseObject(const objects::Object& object);
+  void chaseObject(const objects::Object& object, bool fixed);
 
-  void handleFreeLook(const objects::Object& object);
+  void handleFreeLook();
 
-  void handleEnemy(const objects::Object& object);
+  void handleEnemy();
 
   using ClampCallback = void(core::Length& current1,
                              core::Length& current2,

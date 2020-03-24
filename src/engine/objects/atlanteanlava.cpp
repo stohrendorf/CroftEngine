@@ -45,10 +45,10 @@ void AtlanteanLava::update()
     getEngine().getLara().burnIfAlive();
 
     getEngine().getCameraController().setLookAtObject(getEngine().find(this));
-    getEngine().getCameraController().setMode(CameraMode::Fixed);
+    getEngine().getCameraController().setMode(CameraMode::FixedPosition);
     getEngine().getCameraController().setModifier(CameraModifier::Chase);
-    getEngine().getCameraController().setEyeCenterDistance(3 * core::SectorSize);
-    getEngine().getCameraController().setRotationAroundCenterY(-180_deg);
+    getEngine().getCameraController().setDistance(3 * core::SectorSize);
+    getEngine().getCameraController().setRotationAroundLaraY(-180_deg);
   }
 }
 } // namespace engine::objects

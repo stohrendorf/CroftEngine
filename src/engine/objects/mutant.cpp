@@ -494,8 +494,8 @@ void TorsoBoss::update()
         lara.gunType = LaraObject::WeaponId::None;
         lara.setHandStatus(HandStatus::Grabbing);
         lara.m_state.falling = false;
-        getEngine().getCameraController().setMode(CameraMode::Fixed);
-        getEngine().getCameraController().setEyeCenterDistance(2048_len);
+        getEngine().getCameraController().setMode(CameraMode::FixedPosition);
+        getEngine().getCameraController().setDistance(2048_len);
       }
       break;
     case 7:
@@ -511,8 +511,8 @@ void TorsoBoss::update()
       m_state.falling = true;
       break;
     case 11:
-      getEngine().getCameraController().setEyeCenterDistance(2048_len);
-      getEngine().getCameraController().setMode(CameraMode::Fixed);
+      getEngine().getCameraController().setDistance(2048_len);
+      getEngine().getCameraController().setMode(CameraMode::FixedPosition);
       break;
     default: break;
     }

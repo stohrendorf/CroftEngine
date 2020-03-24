@@ -479,7 +479,7 @@ void Engine::floodEffect()
     {
       mul = 30_frame - m_effectTimer;
     }
-    pos.Y = 100_len * mul / 1_frame + m_cameraController->getCenter().position.Y;
+    pos.Y = 100_len * mul / 1_frame + m_cameraController->getLookAt().position.Y;
     m_audioEngine->playSound(TR1SoundId::WaterFlow3, pos.toRenderSystem());
   }
   else
@@ -507,19 +507,19 @@ void Engine::raisingBlockEffect()
 
 void Engine::stairsToSlopeEffect()
 {
-  if(m_effectTimer <= 120_frame)
+  if(m_effectTimer > 120_frame)
+  {
+    m_activeEffect.reset();
+  }
+  else
   {
     if(m_effectTimer == 0_frame)
     {
       m_audioEngine->playSound(TR1SoundId::HeavyDoorSlam, nullptr);
     }
-    auto pos = m_cameraController->getCenter().position;
+    auto pos = m_cameraController->getLookAt().position;
     pos.Y += 100_spd * m_effectTimer;
     m_audioEngine->playSound(TR1SoundId::FlowingAir, pos.toRenderSystem());
-  }
-  else
-  {
-    m_activeEffect.reset();
   }
   m_effectTimer += 1_frame;
 }

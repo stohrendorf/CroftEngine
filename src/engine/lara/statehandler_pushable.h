@@ -17,7 +17,7 @@ public:
   {
     collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
     setCameraModifier(CameraModifier::FollowCenter);
-    setCameraRotationAroundCenter(-25_deg, 35_deg);
+    setCameraRotationAroundLara(-25_deg, 35_deg);
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) final

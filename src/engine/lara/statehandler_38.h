@@ -17,7 +17,7 @@ public:
   void handleInput(CollisionInfo& collisionInfo) override
   {
     collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-    setCameraRotationAroundCenterY(75_deg);
+    setCameraRotationAroundLaraY(75_deg);
     if(!getEngine().getInputHandler().getInputState().action)
     {
       setGoalAnimState(LaraStateId::Stop);

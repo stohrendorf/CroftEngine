@@ -89,7 +89,7 @@ void TRex::update()
         getEngine().getLara().setHandStatus(HandStatus::Grabbing);
         getEngine().getLara().gunType = LaraObject::WeaponId::None;
         getEngine().getCameraController().setModifier(CameraModifier::FollowCenter);
-        getEngine().getCameraController().setRotationAroundCenter(-25_deg, 170_deg);
+        getEngine().getCameraController().setRotationAroundLara(-25_deg, 170_deg);
         getEngine().getLara().setAir(-1_frame);
         getEngine().useAlternativeLaraAppearance(true);
       }
