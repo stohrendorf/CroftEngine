@@ -42,7 +42,8 @@ void CollapsibleFloor::update()
   const auto sector = findRealFloorSector(m_state.position.position, &room);
   setCurrentRoom(room);
 
-  const HeightInfo h = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects());
+  const HeightInfo h
+    = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects());
   m_state.floor = h.y;
   if(m_state.current_anim_state != 2_as || m_state.position.position.Y < h.y)
     return;

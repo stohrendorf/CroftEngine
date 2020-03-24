@@ -255,7 +255,7 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
 
   const auto sector = findRealFloorSector(pos, m_lara.m_state.position.room);
   VerticalSpaceInfo space;
-  space.init(sector, pos, getEngine().getObjects(), pos.Y, 400_len);
+  space.init(sector, pos, getEngine().getObjectManager().getObjects(), pos.Y, 400_len);
   return space.floorSpace.y != -core::HeightLimit && space.floorSpace.y > 0_len && space.ceilingSpace.y < 0_len;
 }
 
@@ -548,7 +548,7 @@ core::Length AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angl
 
   const auto sector = findRealFloorSector(pos, m_lara.m_state.position.room);
 
-  HeightInfo h = HeightInfo::fromFloor(sector, pos, getEngine().getObjects());
+  HeightInfo h = HeightInfo::fromFloor(sector, pos, getEngine().getObjectManager().getObjects());
 
   if(h.y != -core::HeightLimit)
   {
@@ -735,7 +735,7 @@ bool AbstractStateHandler::applyLandingDamage()
   const HeightInfo h
     = HeightInfo::fromFloor(sector,
                             m_lara.m_state.position.position - core::TRVec{0_len, core::LaraWalkHeight, 0_len},
-                            getEngine().getObjects());
+                            getEngine().getObjectManager().getObjects());
   m_lara.m_state.floor = h.y;
   getEngine().handleCommandSequence(h.lastCommandSequenceOrDeath, false);
   const auto damageSpeed = m_lara.m_state.fallspeed - core::DamageFallSpeedThreshold;

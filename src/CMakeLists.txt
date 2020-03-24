@@ -203,6 +203,8 @@ set( EDISONENGINE_SRCS
         engine/inventory.h
         engine/inventory.cpp
         engine/lighting.h
+        engine/objectmanager.h
+        engine/objectmanager.cpp
         engine/particle.h
         engine/particle.cpp
         engine/skeletalmodelnode.h

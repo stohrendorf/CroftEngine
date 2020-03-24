@@ -1,0 +1,74 @@
+#pragma once
+#include "items_tr1.h"
+
+#include <boost/throw_exception.hpp>
+#include <gsl-lite.hpp>
+#include <map>
+#include <set>
+#include <vector>
+
+namespace serialization
+{
+class Serializer;
+}
+
+namespace loader::file
+{
+struct Item;
+}
+
+namespace engine
+{
+namespace objects
+{
+class Object;
+class LaraObject;
+} // namespace objects
+
+class Engine;
+
+using ObjectId = uint16_t;
+
+class ObjectManager
+{
+  std::set<objects::Object*> m_scheduledDeletions;
+  ObjectId m_objectCounter = -1;
+  std::map<ObjectId, gsl::not_null<std::shared_ptr<objects::Object>>> m_objects;
+  std::set<gsl::not_null<std::shared_ptr<objects::Object>>> m_dynamicObjects;
+
+public:
+  auto& getObjects()
+  {
+    return m_objects;
+  }
+
+  [[nodiscard]] const auto& getObjects() const
+  {
+    return m_objects;
+  }
+
+  [[nodiscard]] const auto& getDynamicObjects() const
+  {
+    return m_dynamicObjects;
+  }
+
+  void scheduleDeletion(objects::Object* object)
+  {
+    m_scheduledDeletions.insert(object);
+  }
+
+  void registerDynamicObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object)
+  {
+    m_dynamicObjects.emplace(object);
+  }
+
+  void applyScheduledDeletions();
+  void registerObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object);
+  std::shared_ptr<objects::Object> find(const objects::Object* object) const;
+  std::shared_ptr<objects::LaraObject> createObjects(Engine& engine, std::vector<loader::file::Item>& items);
+  [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;
+  void update(const std::shared_ptr<objects::LaraObject>& lara);
+
+  void serialize(const serialization::Serializer& ser);
+};
+} // namespace engine

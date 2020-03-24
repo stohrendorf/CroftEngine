@@ -112,7 +112,7 @@ void Object::kill()
   {
     getEngine().getLara().target.reset();
   }
-  getEngine().scheduleDeletion(this);
+  getEngine().getObjectManager().scheduleDeletion(this);
   m_state.activationState.setLocked(true);
 }
 

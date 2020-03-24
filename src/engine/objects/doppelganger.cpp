@@ -33,11 +33,12 @@ void Doppelganger::update()
 
     const auto sector = findRealFloorSector(twinPos, &m_state.position.room);
     setParent(getNode(), m_state.position.room->node);
-    m_state.floor = HeightInfo::fromCeiling(sector, twinPos, getEngine().getObjects()).y;
+    m_state.floor = HeightInfo::fromCeiling(sector, twinPos, getEngine().getObjectManager().getObjects()).y;
 
     const auto laraSector = findRealFloorSector(lara.m_state.position.position, lara.m_state.position.room);
     const auto laraHeight
-      = HeightInfo::fromFloor(laraSector, lara.m_state.position.position, getEngine().getObjects()).y;
+      = HeightInfo::fromFloor(laraSector, lara.m_state.position.position, getEngine().getObjectManager().getObjects())
+          .y;
     getSkeleton()->frame_number = lara.getSkeleton()->frame_number;
     getSkeleton()->anim = lara.getSkeleton()->anim;
     m_state.position.position = twinPos;
@@ -63,7 +64,8 @@ void Doppelganger::update()
     ModelObject::update();
     const auto oldPos = m_state.position.position;
     const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
-    const auto hi = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects());
+    const auto hi
+      = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects());
     const auto height = hi.y;
     m_state.floor = height;
     getEngine().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
@@ -73,7 +75,8 @@ void Doppelganger::update()
     m_state.position.position.Y = m_state.floor;
     m_state.floor = hi.y;
     const auto sector2 = findRealFloorSector({oldPos.X, hi.y, oldPos.Z}, m_state.position.room);
-    const auto hi2 = HeightInfo::fromFloor(sector2, {oldPos.X, hi.y, oldPos.Z}, getEngine().getObjects());
+    const auto hi2
+      = HeightInfo::fromFloor(sector2, {oldPos.X, hi.y, oldPos.Z}, getEngine().getObjectManager().getObjects());
     getEngine().handleCommandSequence(hi2.lastCommandSequenceOrDeath, true);
     m_state.fallspeed = 0_spd;
     m_state.goal_anim_state = 8;

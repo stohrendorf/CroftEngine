@@ -145,7 +145,7 @@ bool BubbleParticle::update(Engine& engine)
     return false;
   }
 
-  if(const auto ceiling = HeightInfo::fromCeiling(sector, pos.position, engine.getObjects()).y;
+  if(const auto ceiling = HeightInfo::fromCeiling(sector, pos.position, engine.getObjectManager().getObjects()).y;
      ceiling == -core::HeightLimit || pos.position.Y <= ceiling)
   {
     return false;
@@ -253,14 +253,14 @@ bool MeshShrapnelParticle::update(Engine& engine)
   pos.position += util::pitch(speed * 1_frame, angle.Y, fall_speed * 1_frame);
 
   const auto sector = findRealFloorSector(pos.position, &pos.room);
-  const auto ceiling = HeightInfo::fromCeiling(sector, pos.position, engine.getObjects()).y;
+  const auto ceiling = HeightInfo::fromCeiling(sector, pos.position, engine.getObjectManager().getObjects()).y;
   if(ceiling > pos.position.Y)
   {
     pos.position.Y = ceiling;
     fall_speed = -fall_speed;
   }
 
-  const auto floor = HeightInfo::fromFloor(sector, pos.position, engine.getObjects()).y;
+  const auto floor = HeightInfo::fromFloor(sector, pos.position, engine.getObjectManager().getObjects()).y;
 
   bool explode = false;
 
@@ -312,8 +312,8 @@ bool MutantBulletParticle::update(Engine& engine)
   pos.position += util::yawPitch(speed * 1_frame, angle);
   const auto sector = loader::file::findRealFloorSector(pos);
   setParent(this, pos.room->node);
-  if(HeightInfo::fromFloor(sector, pos.position, engine.getObjects()).y <= pos.position.Y
-     || HeightInfo::fromCeiling(sector, pos.position, engine.getObjects()).y >= pos.position.Y)
+  if(HeightInfo::fromFloor(sector, pos.position, engine.getObjectManager().getObjects()).y <= pos.position.Y
+     || HeightInfo::fromCeiling(sector, pos.position, engine.getObjectManager().getObjects()).y >= pos.position.Y)
   {
     auto particle = std::make_shared<RicochetParticle>(pos, engine);
     particle->timePerSpriteFrame = 6;
@@ -346,8 +346,8 @@ bool MutantGrenadeParticle::update(Engine& engine)
   pos.position += util::yawPitch(speed * 1_frame, angle);
   const auto sector = loader::file::findRealFloorSector(pos);
   setParent(this, pos.room->node);
-  if(HeightInfo::fromFloor(sector, pos.position, engine.getObjects()).y <= pos.position.Y
-     || HeightInfo::fromCeiling(sector, pos.position, engine.getObjects()).y >= pos.position.Y)
+  if(HeightInfo::fromFloor(sector, pos.position, engine.getObjectManager().getObjects()).y <= pos.position.Y
+     || HeightInfo::fromCeiling(sector, pos.position, engine.getObjectManager().getObjects()).y >= pos.position.Y)
   {
     auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
     setParent(particle, pos.room->node);
@@ -397,8 +397,8 @@ bool LavaParticle::update(Engine& engine)
 
   const auto sector = loader::file::findRealFloorSector(pos);
   setParent(this, pos.room->node);
-  if(HeightInfo::fromFloor(sector, pos.position, engine.getObjects()).y <= pos.position.Y
-     || HeightInfo::fromCeiling(sector, pos.position, engine.getObjects()).y > pos.position.Y)
+  if(HeightInfo::fromFloor(sector, pos.position, engine.getObjectManager().getObjects()).y <= pos.position.Y
+     || HeightInfo::fromCeiling(sector, pos.position, engine.getObjectManager().getObjects()).y > pos.position.Y)
   {
     return false;
   }

@@ -104,7 +104,7 @@ void Crocodile::update()
         auto room = m_state.position.room;
         auto sector = findRealFloorSector(m_state.position.position, &room);
         m_state.position.position.Y
-          = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects()).y;
+          = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects()).y;
         m_state.rotation.X = 0_deg;
 
         loadObjectInfo(true);
@@ -112,7 +112,8 @@ void Crocodile::update()
       ModelObject::update();
       auto room = m_state.position.room;
       auto sector = findRealFloorSector(m_state.position.position, &room);
-      m_state.floor = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects()).y;
+      m_state.floor
+        = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects()).y;
       setCurrentRoom(room);
     }
   }

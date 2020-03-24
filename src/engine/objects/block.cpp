@@ -131,7 +131,7 @@ void Block::update()
 
   auto pos = m_state.position;
   auto sector = loader::file::findRealFloorSector(pos);
-  const auto height = HeightInfo::fromFloor(sector, pos.position, getEngine().getObjects()).y;
+  const auto height = HeightInfo::fromFloor(sector, pos.position, getEngine().getObjectManager().getObjects()).y;
   if(height > pos.position.Y)
   {
     m_state.falling = true;
@@ -161,7 +161,8 @@ void Block::update()
   pos = m_state.position;
   sector = loader::file::findRealFloorSector(pos);
   getEngine().handleCommandSequence(
-    HeightInfo::fromFloor(sector, pos.position, getEngine().getObjects()).lastCommandSequenceOrDeath, true);
+    HeightInfo::fromFloor(sector, pos.position, getEngine().getObjectManager().getObjects()).lastCommandSequenceOrDeath,
+    true);
 }
 
 bool Block::isOnFloor(const core::Length& height) const

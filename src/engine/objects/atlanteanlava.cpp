@@ -34,7 +34,7 @@ void AtlanteanLava::update()
     }
 
     const auto sector = findRealFloorSector(pos, m_state.position.room);
-    if(HeightInfo::fromFloor(sector, pos, getEngine().getObjects()).y != m_state.position.position.Y)
+    if(HeightInfo::fromFloor(sector, pos, getEngine().getObjectManager().getObjects()).y != m_state.position.position.Y)
     {
       m_state.triggerState = TriggerState::Deactivated;
     }
@@ -44,7 +44,7 @@ void AtlanteanLava::update()
   {
     getEngine().getLara().burnIfAlive();
 
-    getEngine().getCameraController().setLookAtObject(getEngine().find(this));
+    getEngine().getCameraController().setLookAtObject(getEngine().getObjectManager().find(this));
     getEngine().getCameraController().setMode(CameraMode::FixedPosition);
     getEngine().getCameraController().setModifier(CameraModifier::Chase);
     getEngine().getCameraController().setDistance(3 * core::SectorSize);

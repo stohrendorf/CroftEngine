@@ -23,6 +23,7 @@ class LaraObject;
 } // namespace objects
 
 class Engine;
+class ObjectManager;
 
 enum class CameraMode
 {
@@ -206,7 +207,9 @@ public:
      *
      * @warning Please be aware that the return value is reverted and not what you might expect...
      */
-  static bool clampPosition(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const Engine& engine);
+  static bool clampPosition(const core::RoomBoundPosition& start,
+                            core::RoomBoundPosition& end,
+                            const ObjectManager& objectManager);
 
   void setBounce(const core::Length& bounce)
   {
@@ -233,7 +236,7 @@ private:
   static bool clampY(const core::TRVec& start,
                      core::TRVec& end,
                      const gsl::not_null<const loader::file::Sector*>& sector,
-                     const Engine& engine);
+                     const ObjectManager& objectManager);
 
   enum class ClampType
   {
@@ -243,10 +246,10 @@ private:
   };
 
   static ClampType
-    clampAlongX(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const Engine& engine);
+    clampAlongX(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const ObjectManager& objectManager);
 
   static ClampType
-    clampAlongZ(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const Engine& engine);
+    clampAlongZ(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const ObjectManager& objectManager);
 
   void handleFixedCamera();
 

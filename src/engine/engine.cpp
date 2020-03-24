@@ -170,30 +170,6 @@ const std::vector<loader::file::Box>& Engine::getBoxes() const
   return m_level->m_boxes;
 }
 
-std::shared_ptr<objects::LaraObject> Engine::createObjects()
-{
-  std::shared_ptr<objects::LaraObject> lara = nullptr;
-  ObjectId id = -1;
-  for(loader::file::Item& item : m_level->m_items)
-  {
-    ++id;
-
-    auto object = objects::createObject(*this, item);
-    if(item.type == TR1ItemId::Lara)
-    {
-      lara = std::dynamic_pointer_cast<objects::LaraObject>(object);
-      Expects(lara != nullptr);
-    }
-
-    if(object != nullptr)
-    {
-      m_objects.emplace(std::make_pair(id, object));
-    }
-  }
-
-  return lara;
-}
-
 void Engine::loadSceneData()
 {
   for(auto& sprite : m_level->m_sprites)
@@ -264,7 +240,7 @@ void Engine::loadSceneData()
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
-  m_lara = createObjects();
+  m_lara = m_objectManager.createObjects(*this, m_level->m_items);
   if(m_lara == nullptr)
   {
     m_cameraController = std::make_unique<CameraController>(this, m_renderer->getCamera(), true);
@@ -290,15 +266,6 @@ void Engine::loadSceneData()
     Expects(handle != nullptr);
     handle->setLooping(true);
   }
-}
-
-std::shared_ptr<objects::Object> Engine::getObject(uint16_t id) const
-{
-  const auto it = m_objects.find(id);
-  if(it == m_objects.end())
-    return nullptr;
-
-  return it->second.get();
 }
 
 void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>>& image)
@@ -596,7 +563,7 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
 {
   // find any blocks in the original room and un-patch the floor heights
 
-  for(const auto& object : m_objects | boost::adaptors::map_values)
+  for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
   {
     if(object->m_state.position.room != &orig)
       continue;
@@ -618,7 +585,7 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
   // patch heights in the new room, and swap object ownerships.
   // note that this is exactly the same code as above,
   // except for the heights.
-  for(const auto& object : m_objects | boost::adaptors::map_values)
+  for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
   {
     if(object->m_state.position.room == &orig)
     {
@@ -645,7 +612,7 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
     }
   }
 
-  for(const auto& object : m_dynamicObjects)
+  for(const auto& object : m_objectManager.getDynamicObjects())
   {
     if(object->m_state.position.room == &orig)
     {
@@ -689,7 +656,7 @@ std::shared_ptr<objects::PickupObject> Engine::createPickup(const core::TypeId t
   auto object
     = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite, m_materialManager->getSprite());
 
-  m_dynamicObjects.emplace(object);
+  m_objectManager.registerDynamicObject(object);
   addChild(room->node, object->getNode());
 
   return object;
@@ -725,24 +692,7 @@ const std::vector<int16_t>& Engine::getAnimCommands() const
 
 void Engine::update(const bool godMode)
 {
-  for(const auto& object : m_objects | boost::adaptors::map_values)
-  {
-    if(object.get() == m_lara) // Lara is special and needs to be updated last
-      continue;
-
-    if(object->m_isActive)
-      object->update();
-
-    object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
-  }
-
-  for(const auto& object : m_dynamicObjects)
-  {
-    if(object->m_isActive)
-      object->update();
-
-    object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
-  }
+  m_objectManager.update(m_lara);
 
   auto currentParticles = std::move(m_particles);
   for(const auto& particle : currentParticles)
@@ -766,7 +716,7 @@ void Engine::update(const bool godMode)
     m_lara->update();
   }
 
-  applyScheduledDeletions();
+  m_objectManager.applyScheduledDeletions();
   animateUV();
 }
 
@@ -924,7 +874,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     {
       const auto& laraPistol = findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
       Expects(laraPistol != nullptr);
-      for(const auto& object : m_objects | boost::adaptors::map_values)
+      for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
       {
         if(object->m_state.type != TR1ItemId::CutsceneActor1)
           continue;
@@ -1275,7 +1225,7 @@ void Engine::run()
     {
       if(m_lara != nullptr)
       {
-        debugView.update(*m_lara, m_objects, m_dynamicObjects);
+        debugView.update(*m_lara, m_objectManager.getObjects(), m_objectManager.getDynamicObjects());
       }
     }
     if(showDebugInfo)
@@ -1314,11 +1264,11 @@ void Engine::run()
                            DebugTextFontSize);
           };
 
-      for(const auto& object : m_objects | boost::adaptors::map_values)
+      for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
       {
         drawObjectName(object, gl::SRGBA8{255});
       }
-      for(const auto& object : m_dynamicObjects)
+      for(const auto& object : m_objectManager.getDynamicObjects())
       {
         drawObjectName(object, gl::SRGBA8{0, 255, 0, 255});
       }
@@ -1477,7 +1427,8 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     break;
     case floordata::SequenceCondition::ItemActivated:
     {
-      auto swtch = m_objects.at(floordata::Command{*floorData++}.parameter);
+      auto swtch = m_objectManager.getObject(floordata::Command{*floorData++}.parameter);
+      Expects(swtch != nullptr);
       if(!swtch->triggerSwitch(activationRequest.getTimeout()))
         return;
 
@@ -1487,7 +1438,8 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     break;
     case floordata::SequenceCondition::KeyUsed:
     {
-      auto key = m_objects.at(floordata::Command{*floorData++}.parameter);
+      auto key = m_objectManager.getObject(floordata::Command{*floorData++}.parameter);
+      Expects(key != nullptr);
       if(key->triggerKey())
         conditionFulfilled = true;
       else
@@ -1495,11 +1447,15 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     }
     break;
     case floordata::SequenceCondition::ItemPickedUp:
-      if(m_objects.at(floordata::Command{*floorData++}.parameter)->triggerPickUp())
+    {
+      auto item = m_objectManager.getObject(floordata::Command{*floorData++}.parameter);
+      Expects(item != nullptr);
+      if(item->triggerPickUp())
         conditionFulfilled = true;
       else
         return;
       break;
+    }
     case floordata::SequenceCondition::LaraInCombatMode:
       conditionFulfilled = m_lara->getHandStatus() == objects::HandStatus::Combat;
       break;
@@ -1521,35 +1477,36 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     {
     case floordata::CommandOpcode::Activate:
     {
-      auto& object = *m_objects.at(command.parameter);
-      if(object.m_state.activationState.isOneshot())
+      auto object = m_objectManager.getObject(command.parameter);
+      Expects(object != nullptr);
+      if(object->m_state.activationState.isOneshot())
         break;
 
-      object.m_state.timer = activationRequest.getTimeout();
+      object->m_state.timer = activationRequest.getTimeout();
 
       if(chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated)
-        object.m_state.activationState ^= activationRequest.getActivationSet();
+        object->m_state.activationState ^= activationRequest.getActivationSet();
       else if(chunkHeader.sequenceCondition == floordata::SequenceCondition::LaraOnGroundInverted)
-        object.m_state.activationState &= ~activationRequest.getActivationSet();
+        object->m_state.activationState &= ~activationRequest.getActivationSet();
       else
-        object.m_state.activationState |= activationRequest.getActivationSet();
+        object->m_state.activationState |= activationRequest.getActivationSet();
 
-      if(!object.m_state.activationState.isFullyActivated())
+      if(!object->m_state.activationState.isFullyActivated())
         break;
 
       if(activationRequest.isOneshot())
-        object.m_state.activationState.setOneshot(true);
+        object->m_state.activationState.setOneshot(true);
 
-      if(object.m_isActive)
+      if(object->m_isActive)
         break;
 
-      if(object.m_state.triggerState == objects::TriggerState::Inactive
-         || object.m_state.triggerState == objects::TriggerState::Invisible
-         || dynamic_cast<objects::AIAgent*>(&object) == nullptr)
+      if(object->m_state.triggerState == objects::TriggerState::Inactive
+         || object->m_state.triggerState == objects::TriggerState::Invisible
+         || std::dynamic_pointer_cast<objects::AIAgent>(object) == nullptr)
       {
-        object.m_state.triggerState = objects::TriggerState::Active;
-        object.m_state.touch_bits = 0;
-        object.activate();
+        object->m_state.triggerState = objects::TriggerState::Active;
+        object->m_state.touch_bits = 0;
+        object->activate();
         break;
       }
     }
@@ -1566,7 +1523,9 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
       command.isLast = camParams.isLast;
     }
     break;
-    case floordata::CommandOpcode::LookAt: m_cameraController->setLookAtObject(getObject(command.parameter)); break;
+    case floordata::CommandOpcode::LookAt:
+      m_cameraController->setLookAtObject(m_objectManager.getObject(command.parameter));
+      break;
     case floordata::CommandOpcode::UnderwaterCurrent:
     {
       const auto& sink = m_level->m_cameras.at(command.parameter);
@@ -1679,8 +1638,7 @@ void Engine::serialize(const serialization::Serializer& ser)
     }
   }
 
-  ser(S_NV("objectCounter", m_objectCounter),
-      S_NV("objects", m_objects),
+  ser(S_NV("objectManager", m_objectManager),
       S_NV("inventory", m_inventory),
       S_NV("mapFlipActivationStates", mapFlipActivationStates),
       S_NV("cameras", serialization::FrozenVector{m_level->m_cameras}),
@@ -1696,7 +1654,7 @@ const engine::floordata::FloorData& Engine::getFloorData() const
   return m_level->m_floorData;
 }
 
-const gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>>& Engine::getRenderMesh(const size_t idx) const
+gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> Engine::getRenderMesh(const size_t idx) const
 {
   return m_level->m_meshes.at(idx).meshData;
 }

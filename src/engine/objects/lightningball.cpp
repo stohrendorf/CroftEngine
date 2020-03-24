@@ -143,7 +143,8 @@ void LightningBall::update()
     // we don't have poles, so just shoot downwards
     m_mainBoltEnd = core::TRVec{};
     const auto sector = loader::file::findRealFloorSector(m_state.position);
-    m_mainBoltEnd.Y = -HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects()).y;
+    m_mainBoltEnd.Y
+      = -HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects()).y;
     m_mainBoltEnd.Y -= m_state.position.position.Y;
   }
   else

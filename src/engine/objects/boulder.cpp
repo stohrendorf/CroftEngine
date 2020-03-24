@@ -28,7 +28,8 @@ void engine::objects::RollingBall::update()
     auto room = m_state.position.room;
     auto sector = findRealFloorSector(m_state.position.position, &room);
     setCurrentRoom(room);
-    const auto hi = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects());
+    const auto hi
+      = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects());
     m_state.floor = hi.y;
     getEngine().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
     if(m_state.floor - core::QuarterSectorSize <= m_state.position.position.Y)
@@ -41,7 +42,8 @@ void engine::objects::RollingBall::update()
     // let's see if we hit a wall, and if that's the case, stop.
     const auto testPos = m_state.position.position + util::pitch(core::SectorSize / 2, m_state.rotation.Y);
     sector = findRealFloorSector(testPos, room);
-    if(HeightInfo::fromFloor(sector, testPos, getEngine().getObjects()).y < m_state.position.position.Y)
+    if(HeightInfo::fromFloor(sector, testPos, getEngine().getObjectManager().getObjects()).y
+       < m_state.position.position.Y)
     {
       m_state.fallspeed = 0_spd;
       m_state.touch_bits.reset();

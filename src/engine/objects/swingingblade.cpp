@@ -41,7 +41,8 @@ void SwingingBlade::update()
   auto room = m_state.position.room;
   const auto sector = findRealFloorSector(m_state.position.position, &room);
   setCurrentRoom(room);
-  m_state.floor = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects()).y;
+  m_state.floor
+    = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects()).y;
 
   ModelObject::update();
 }

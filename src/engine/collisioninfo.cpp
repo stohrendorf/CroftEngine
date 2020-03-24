@@ -31,7 +31,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
   const auto refTestPos = laraPos - core::TRVec(0_len, height + core::ScalpToHandsHeight, 0_len);
   const auto currentSector = findRealFloorSector(refTestPos, &room);
 
-  mid.init(currentSector, refTestPos, engine.getObjects(), laraPos.Y, height);
+  mid.init(currentSector, refTestPos, engine.getObjectManager().getObjects(), laraPos.Y, height);
 
   std::tie(floorSlantX, floorSlantZ) = engine.getFloorSlantInfo(currentSector, laraPos);
 
@@ -78,7 +78,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
   // Front
   auto testPos = refTestPos + core::TRVec(frontX, 0_len, frontZ);
   auto sector = findRealFloorSector(testPos, &room);
-  front.init(sector, testPos, engine.getObjects(), laraPos.Y, height);
+  front.init(sector, testPos, engine.getObjectManager().getObjects(), laraPos.Y, height);
   if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && front.floorSpace.slantClass == SlantClass::Steep
      && front.floorSpace.y < 0_len)
   {
@@ -96,7 +96,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
   // Front left
   testPos = refTestPos + core::TRVec(frontLeftX, 0_len, frontLeftZ);
   sector = findRealFloorSector(testPos, &room);
-  frontLeft.init(sector, testPos, engine.getObjects(), laraPos.Y, height);
+  frontLeft.init(sector, testPos, engine.getObjectManager().getObjects(), laraPos.Y, height);
 
   if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && frontLeft.floorSpace.slantClass == SlantClass::Steep
      && frontLeft.floorSpace.y < 0_len)
@@ -116,7 +116,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
   // Front right
   testPos = refTestPos + core::TRVec(frontRightX, 0_len, frontRightZ);
   sector = findRealFloorSector(testPos, &room);
-  frontRight.init(sector, testPos, engine.getObjects(), laraPos.Y, height);
+  frontRight.init(sector, testPos, engine.getObjectManager().getObjects(), laraPos.Y, height);
 
   if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && frontRight.floorSpace.slantClass == SlantClass::Steep
      && frontRight.floorSpace.y < 0_len)

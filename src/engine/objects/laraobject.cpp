@@ -463,7 +463,7 @@ void LaraObject::updateFloorHeight(const core::Length& dy)
   auto room = m_state.position.room;
   const auto sector = findRealFloorSector(pos, &room);
   setCurrentRoom(room);
-  const HeightInfo hi = HeightInfo::fromFloor(sector, pos, getEngine().getObjects());
+  const HeightInfo hi = HeightInfo::fromFloor(sector, pos, getEngine().getObjectManager().getObjects());
   m_state.floor = hi.y;
 }
 
@@ -505,7 +505,7 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
   for(const loader::file::Portal& p : m_state.position.room->portals)
     rooms.insert(&getEngine().getRooms().at(p.adjoining_room.get()));
 
-  for(const auto& object : getEngine().getObjects() | boost::adaptors::map_values)
+  for(const auto& object : getEngine().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
     if(rooms.find(object->m_state.position.room) == rooms.end())
       continue;
@@ -523,7 +523,7 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
     object->collide(collisionInfo);
   }
 
-  for(const auto& object : getEngine().getDynamicObjects())
+  for(const auto& object : getEngine().getObjectManager().getDynamicObjects())
   {
     if(rooms.find(object->m_state.position.room) == rooms.end())
       continue;
@@ -864,7 +864,7 @@ void LaraObject::updateAimingState(const Weapon& weapon)
   auto targetVector = getVectorAngles(enemyChestPos.position - gunPosition.position);
   targetVector.X -= m_state.rotation.X;
   targetVector.Y -= m_state.rotation.Y;
-  if(!CameraController::clampPosition(gunPosition, enemyChestPos, getEngine()))
+  if(!CameraController::clampPosition(gunPosition, enemyChestPos, getEngine().getObjectManager()))
   {
     rightArm.aiming = false;
     leftArm.aiming = false;
@@ -992,7 +992,7 @@ void LaraObject::findTarget(const Weapon& weapon)
   gunPosition.position.Y -= weapons[WeaponId::Shotgun].gunHeight;
   std::shared_ptr<ModelObject> bestEnemy = nullptr;
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
-  for(const auto& currentEnemy : getEngine().getObjects() | boost::adaptors::map_values)
+  for(const auto& currentEnemy : getEngine().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
     if(currentEnemy->m_state.health <= 0_hp || currentEnemy.get().get() == &getEngine().getLara())
       continue;
@@ -1021,7 +1021,7 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
 
     auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelObject>(currentEnemy.get()));
-    if(!CameraController::clampPosition(gunPosition, enemyPos, getEngine()))
+    if(!CameraController::clampPosition(gunPosition, enemyPos, getEngine().getObjectManager()))
       continue;
 
     auto aimAngle = getVectorAngles(enemyPos.position - gunPosition.position);
@@ -1686,7 +1686,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
                                       gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping}};
 
     const core::RoomBoundPosition bulletPos{gunHolder.m_state.position.room, gunPosition};
-    CameraController::clampPosition(bulletPos, aimHitPos, getEngine());
+    CameraController::clampPosition(bulletPos, aimHitPos, getEngine().getObjectManager());
     playShotMissed(aimHitPos);
   }
   else
@@ -2189,8 +2189,9 @@ void LaraObject::burnIfAlive()
     return;
 
   const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
-  if(HeightInfo::fromFloor(
-       sector, {m_state.position.position.X, 32000_len, m_state.position.position.Z}, getEngine().getObjects())
+  if(HeightInfo::fromFloor(sector,
+                           {m_state.position.position.X, 32000_len, m_state.position.position.Z},
+                           getEngine().getObjectManager().getObjects())
        .y
      != m_state.floor)
     return;

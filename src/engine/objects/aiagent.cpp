@@ -60,7 +60,7 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
 
 bool AIAgent::anyMovingEnabledObjectInReach() const
 {
-  for(const auto& object : getEngine().getObjects() | boost::adaptors::map_values)
+  for(const auto& object : getEngine().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
     if(!object->m_isActive || object.get().get() == this || object.get().get() == &getEngine().getLara())
       continue;
@@ -299,7 +299,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     const auto currentFloor
       = HeightInfo::fromFloor(sector,
                               core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                              getEngine().getObjects())
+                              getEngine().getObjectManager().getObjects())
           .y;
 
     if(m_state.position.position.Y + moveY > currentFloor)
@@ -324,7 +324,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       const auto ceiling
         = HeightInfo::fromCeiling(sector,
                                   core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                                  getEngine().getObjects())
+                                  getEngine().getObjectManager().getObjects())
             .y;
 
       const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.minY;
@@ -348,7 +348,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     m_state.floor
       = HeightInfo::fromFloor(sector,
                               core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                              getEngine().getObjects())
+                              getEngine().getObjectManager().getObjects())
           .y;
 
     core::Angle yaw{0_deg};
@@ -383,7 +383,8 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   m_state.rotation.X = 0_au;
 
   sector = findRealFloorSector(m_state.position.position, &room);
-  m_state.floor = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects()).y;
+  m_state.floor
+    = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects()).y;
 
   setCurrentRoom(room);
 
@@ -429,7 +430,7 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
   const auto start = m_state.position;
   auto end = getEngine().getLara().m_state.position;
   end.position.Y -= 768_len;
-  return CameraController::clampPosition(start, end, getEngine());
+  return CameraController::clampPosition(start, end, getEngine().getObjectManager());
 }
 
 namespace

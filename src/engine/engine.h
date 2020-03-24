@@ -7,6 +7,7 @@
 #include "items_tr1.h"
 #include "loader/file/animationid.h"
 #include "loader/file/item.h"
+#include "objectmanager.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/screenoverlay.h"
 
@@ -66,8 +67,6 @@ class PickupObject;
 } // namespace objects
 
 class Particle;
-using ObjectId = uint16_t;
-
 class Engine
 {
 private:
@@ -80,13 +79,6 @@ private:
 
   core::Frame m_effectTimer = 0_frame;
   std::optional<size_t> m_activeEffect{};
-
-  uint16_t m_objectCounter = 0x8000;
-  std::map<ObjectId, gsl::not_null<std::shared_ptr<objects::Object>>> m_objects;
-
-  std::set<gsl::not_null<std::shared_ptr<objects::Object>>> m_dynamicObjects;
-
-  std::set<objects::Object*> m_scheduledDeletions;
 
   int m_uvAnimTime{0};
 
@@ -104,6 +96,8 @@ private:
 
   // list of meshes and models, resolved through m_meshIndices
   std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
+
+  ObjectManager m_objectManager;
 
   std::shared_ptr<render::RenderPipeline> m_renderPipeline;
   std::shared_ptr<render::scene::ScreenOverlay> screenOverlay;
@@ -179,21 +173,6 @@ public:
     return m_particles;
   }
 
-  auto& getObjects()
-  {
-    return m_objects;
-  }
-
-  const auto& getObjects() const
-  {
-    return m_objects;
-  }
-
-  const auto& getDynamicObjects() const
-  {
-    return m_dynamicObjects;
-  }
-
   CameraController& getCameraController()
   {
     return *m_cameraController;
@@ -202,6 +181,16 @@ public:
   const CameraController& getCameraController() const
   {
     return *m_cameraController;
+  }
+
+  ObjectManager& getObjectManager()
+  {
+    return m_objectManager;
+  }
+
+  const ObjectManager& getObjectManager() const
+  {
+    return m_objectManager;
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -262,8 +251,6 @@ public:
 
   void run();
 
-  std::shared_ptr<objects::LaraObject> createObjects();
-
   void loadSceneData();
 
   const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
@@ -289,7 +276,7 @@ public:
 
     auto object = std::make_shared<T>(this, room, item, model.get());
 
-    m_dynamicObjects.emplace(object);
+    m_objectManager.registerDynamicObject(object);
     addChild(room->node, object->getNode());
 
     return object;
@@ -301,51 +288,13 @@ public:
   std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
                                                const core::TRVec& position) const;
 
-  std::shared_ptr<objects::Object> getObject(uint16_t id) const;
-
   void drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>>& image);
 
   void useAlternativeLaraAppearance(bool withHead = false);
 
-  const gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>>& getRenderMesh(const size_t idx) const;
+  gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> getRenderMesh(const size_t idx) const;
 
   const std::vector<loader::file::Mesh>& getMeshes() const;
-
-  void scheduleDeletion(objects::Object* object)
-  {
-    m_scheduledDeletions.insert(object);
-  }
-
-  void applyScheduledDeletions()
-  {
-    if(m_scheduledDeletions.empty())
-      return;
-
-    for(const auto& del : m_scheduledDeletions)
-    {
-      auto it = std::find_if(m_dynamicObjects.begin(),
-                             m_dynamicObjects.end(),
-                             [del](const std::shared_ptr<objects::Object>& i) { return i.get() == del; });
-      if(it != m_dynamicObjects.end())
-      {
-        m_dynamicObjects.erase(it);
-        continue;
-      }
-
-      auto it2 = std::find_if(m_objects.begin(),
-                              m_objects.end(),
-                              [del](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& i) {
-                                return i.second.get().get() == del;
-                              });
-      if(it2 != m_objects.end())
-      {
-        m_objects.erase(it2);
-        continue;
-      }
-    }
-
-    m_scheduledDeletions.clear();
-  }
 
   void turn180Effect(objects::Object& object);
 
@@ -470,31 +419,6 @@ public:
   void drawLoadingScreen(const std::string& state);
 
   const std::vector<int16_t>& getPoseFrames() const;
-
-  void registerObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object)
-  {
-    if(m_objectCounter == std::numeric_limits<uint16_t>::max())
-      BOOST_THROW_EXCEPTION(std::runtime_error("Artificial object counter exceeded"));
-
-    m_objects.emplace(m_objectCounter++, object);
-  }
-
-  std::shared_ptr<objects::Object> find(const objects::Object* object) const
-  {
-    if(object == nullptr)
-      return nullptr;
-
-    auto it = std::find_if(m_objects.begin(),
-                           m_objects.end(),
-                           [object](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& x) {
-                             return x.second.get().get() == object;
-                           });
-
-    if(it == m_objects.end())
-      return nullptr;
-
-    return it->second;
-  }
 
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
 

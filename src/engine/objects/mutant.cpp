@@ -544,7 +544,8 @@ void TorsoBoss::update()
     shatterModel(*this, -1, 250_len);
     const auto sector = loader::file::findRealFloorSector(m_state.position);
     getEngine().handleCommandSequence(
-      HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects()).lastCommandSequenceOrDeath,
+      HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects())
+        .lastCommandSequenceOrDeath,
       true);
     kill();
     m_state.triggerState = TriggerState::Deactivated;

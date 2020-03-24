@@ -105,7 +105,7 @@ MutantEgg::MutantEgg(const gsl::not_null<Engine*>& engine,
   }
   else
   {
-    getEngine().registerObject(m_childObject);
+    getEngine().getObjectManager().registerObject(m_childObject);
   }
 
   for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)

@@ -83,7 +83,8 @@ void ThorHammerHandle::update()
   case 3:
   {
     const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
-    const auto hi = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects());
+    const auto hi
+      = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects());
     getEngine().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
 
     const auto oldPosX = m_state.position.position.X;

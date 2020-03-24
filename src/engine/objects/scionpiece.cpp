@@ -63,7 +63,8 @@ void ScionPiece3::update()
     m_state.health = -16384_hp;
 
     const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
-    const auto hi = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjects());
+    const auto hi
+      = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects());
     getEngine().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
     getNode()->removeAllChildren();
   }

@@ -96,7 +96,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
     if(command.opcode == floordata::CommandOpcode::LookAt && m_mode != CameraMode::FreeLook
        && m_mode != CameraMode::Combat)
     {
-      m_lookAtObject = m_engine->getObject(command.parameter);
+      m_lookAtObject = m_engine->getObjectManager().getObject(command.parameter);
     }
     else if(command.opcode == floordata::CommandOpcode::SwitchCamera)
     {
@@ -148,10 +148,10 @@ std::unordered_set<const loader::file::Portal*> CameraController::tracePortals()
 bool CameraController::clampY(const core::TRVec& start,
                               core::TRVec& end,
                               const gsl::not_null<const loader::file::Sector*>& sector,
-                              const Engine& engine)
+                              const ObjectManager& objectManager)
 {
-  const HeightInfo floor = HeightInfo::fromFloor(sector, end, engine.getObjects());
-  const HeightInfo ceiling = HeightInfo::fromCeiling(sector, end, engine.getObjects());
+  const HeightInfo floor = HeightInfo::fromFloor(sector, end, objectManager.getObjects());
+  const HeightInfo ceiling = HeightInfo::fromCeiling(sector, end, objectManager.getObjects());
 
   const auto d = end - start;
   if(floor.y < end.Y && floor.y > start.Y)
@@ -175,7 +175,7 @@ bool CameraController::clampY(const core::TRVec& start,
 
 CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundPosition& start,
                                                           core::RoomBoundPosition& end,
-                                                          const Engine& engine)
+                                                          const ObjectManager& objectManager)
 {
   if(end.position.X == start.position.X)
   {
@@ -213,8 +213,8 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
     }
 
     auto sector = findRealFloorSector(testPos, &end.room);
-    if(testPos.Y > HeightInfo::fromFloor(sector, testPos, engine.getObjects()).y
-       || testPos.Y < HeightInfo::fromCeiling(sector, testPos, engine.getObjects()).y)
+    if(testPos.Y > HeightInfo::fromFloor(sector, testPos, objectManager.getObjects()).y
+       || testPos.Y < HeightInfo::fromCeiling(sector, testPos, objectManager.getObjects()).y)
     {
       end.position = testPos;
       return ClampType::Ceiling;
@@ -224,8 +224,8 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
     heightPos.X += sign * 1_len;
     auto tmp = end.room;
     sector = findRealFloorSector(heightPos, &tmp);
-    if(testPos.Y > HeightInfo::fromFloor(sector, heightPos, engine.getObjects()).y
-       || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, engine.getObjects()).y)
+    if(testPos.Y > HeightInfo::fromFloor(sector, heightPos, objectManager.getObjects()).y
+       || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, objectManager.getObjects()).y)
     {
       end.position = testPos;
       end.room = tmp;
@@ -238,7 +238,7 @@ CameraController::ClampType CameraController::clampAlongX(const core::RoomBoundP
 
 CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundPosition& start,
                                                           core::RoomBoundPosition& end,
-                                                          const Engine& engine)
+                                                          const ObjectManager& objectManager)
 {
   if(end.position.Z == start.position.Z)
   {
@@ -276,8 +276,8 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
     }
 
     auto sector = findRealFloorSector(testPos, &end.room);
-    if(testPos.Y > HeightInfo::fromFloor(sector, testPos, engine.getObjects()).y
-       || testPos.Y < HeightInfo::fromCeiling(sector, testPos, engine.getObjects()).y)
+    if(testPos.Y > HeightInfo::fromFloor(sector, testPos, objectManager.getObjects()).y
+       || testPos.Y < HeightInfo::fromCeiling(sector, testPos, objectManager.getObjects()).y)
     {
       end.position = testPos;
       return ClampType::Ceiling;
@@ -287,8 +287,8 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
     heightPos.Z += sign * 1_len;
     auto tmp = end.room;
     sector = findRealFloorSector(heightPos, &tmp);
-    if(testPos.Y > HeightInfo::fromFloor(sector, heightPos, engine.getObjects()).y
-       || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, engine.getObjects()).y)
+    if(testPos.Y > HeightInfo::fromFloor(sector, heightPos, objectManager.getObjects()).y
+       || testPos.Y < HeightInfo::fromCeiling(sector, heightPos, objectManager.getObjects()).y)
     {
       end.position = testPos;
       end.room = tmp;
@@ -301,19 +301,19 @@ CameraController::ClampType CameraController::clampAlongZ(const core::RoomBoundP
 
 bool CameraController::clampPosition(const core::RoomBoundPosition& start,
                                      core::RoomBoundPosition& end,
-                                     const Engine& engine)
+                                     const ObjectManager& objectManager)
 {
   bool firstUnclamped;
   ClampType secondClamp;
   if(abs(end.position.Z - start.position.Z) <= abs(end.position.X - start.position.X))
   {
-    firstUnclamped = clampAlongZ(start, end, engine) == ClampType::None;
-    secondClamp = clampAlongX(start, end, engine);
+    firstUnclamped = clampAlongZ(start, end, objectManager) == ClampType::None;
+    secondClamp = clampAlongX(start, end, objectManager);
   }
   else
   {
-    firstUnclamped = clampAlongX(start, end, engine) == ClampType::None;
-    secondClamp = clampAlongZ(start, end, engine);
+    firstUnclamped = clampAlongX(start, end, objectManager) == ClampType::None;
+    secondClamp = clampAlongZ(start, end, objectManager);
   }
 
   if(secondClamp == ClampType::Wall)
@@ -322,7 +322,8 @@ bool CameraController::clampPosition(const core::RoomBoundPosition& start,
   }
 
   const auto sector = loader::file::findRealFloorSector(end);
-  return clampY(start.position, end.position, sector, engine) && firstUnclamped && secondClamp == ClampType::None;
+  return clampY(start.position, end.position, sector, objectManager) && firstUnclamped
+         && secondClamp == ClampType::None;
 }
 
 std::unordered_set<const loader::file::Portal*> CameraController::update()
@@ -437,7 +438,8 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     }
 
     const auto sector = loader::file::findRealFloorSector(*m_lookAt);
-    if(HeightInfo::fromFloor(sector, m_lookAt->position, m_engine->getObjects()).y < m_lookAt->position.Y)
+    if(HeightInfo::fromFloor(sector, m_lookAt->position, m_engine->getObjectManager().getObjects()).y
+       < m_lookAt->position.Y)
       HeightInfo::skipSteepSlants = false;
 
     if(m_mode == CameraMode::Chase || m_modifier == CameraModifier::Chase)
@@ -469,7 +471,7 @@ void CameraController::handleFixedCamera()
   const loader::file::Camera& camera = m_engine->getCameras().at(m_fixedCameraId);
   core::RoomBoundPosition pos{&m_engine->getRooms().at(camera.room), camera.position};
 
-  if(!clampPosition(*m_lookAt, pos, *m_engine))
+  if(!clampPosition(*m_lookAt, pos, m_engine->getObjectManager()))
   {
     // ReSharper disable once CppExpressionWithoutSideEffects
     moveIntoGeometry(pos, core::QuarterSectorSize);
@@ -505,8 +507,8 @@ core::Length CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, co
           && isVerticallyOutsideRoom(pos.position + core::TRVec(margin, 0_len, 0_len), pos.room))
     pos.position.X = sector->box->xmax - margin;
 
-  auto bottom = HeightInfo::fromFloor(sector, pos.position, m_engine->getObjects()).y - margin;
-  auto top = HeightInfo::fromCeiling(sector, pos.position, m_engine->getObjects()).y + margin;
+  auto bottom = HeightInfo::fromFloor(sector, pos.position, m_engine->getObjectManager().getObjects()).y - margin;
+  auto top = HeightInfo::fromCeiling(sector, pos.position, m_engine->getObjectManager().getObjects()).y + margin;
   if(bottom < top)
     top = bottom = (bottom + top) / 2;
 
@@ -521,8 +523,8 @@ bool CameraController::isVerticallyOutsideRoom(const core::TRVec& pos,
                                                const gsl::not_null<const loader::file::Room*>& room) const
 {
   const auto sector = findRealFloorSector(pos, room);
-  const auto floor = HeightInfo::fromFloor(sector, pos, m_engine->getObjects()).y;
-  const auto ceiling = HeightInfo::fromCeiling(sector, pos, m_engine->getObjects()).y;
+  const auto floor = HeightInfo::fromFloor(sector, pos, m_engine->getObjectManager().getObjects()).y;
+  const auto ceiling = HeightInfo::fromCeiling(sector, pos, m_engine->getObjectManager().getObjects()).y;
   return pos.Y >= floor || pos.Y <= ceiling;
 }
 
@@ -532,16 +534,18 @@ void CameraController::updatePosition(const core::RoomBoundPosition& positionGoa
   HeightInfo::skipSteepSlants = false;
   m_position->room = positionGoal.room;
   auto sector = loader::file::findRealFloorSector(*m_position);
-  auto floor = HeightInfo::fromFloor(sector, m_position->position, m_engine->getObjects()).y - core::QuarterSectorSize;
+  auto floor = HeightInfo::fromFloor(sector, m_position->position, m_engine->getObjectManager().getObjects()).y
+               - core::QuarterSectorSize;
   if(floor <= m_position->position.Y && floor <= positionGoal.position.Y)
   {
-    clampPosition(*m_lookAt, *m_position, *m_engine);
+    clampPosition(*m_lookAt, *m_position, m_engine->getObjectManager());
     sector = loader::file::findRealFloorSector(*m_position);
-    floor = HeightInfo::fromFloor(sector, m_position->position, m_engine->getObjects()).y - core::QuarterSectorSize;
+    floor = HeightInfo::fromFloor(sector, m_position->position, m_engine->getObjectManager().getObjects()).y
+            - core::QuarterSectorSize;
   }
 
-  auto ceiling
-    = HeightInfo::fromCeiling(sector, m_position->position, m_engine->getObjects()).y + core::QuarterSectorSize;
+  auto ceiling = HeightInfo::fromCeiling(sector, m_position->position, m_engine->getObjectManager().getObjects()).y
+                 + core::QuarterSectorSize;
   if(floor < ceiling)
   {
     floor = ceiling = (floor + ceiling) / 2;
@@ -685,7 +689,7 @@ void CameraController::handleEnemy()
 void CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal,
                                 const std::function<ClampCallback>& callback) const
 {
-  clampPosition(*m_lookAt, eyePositionGoal, *m_engine);
+  clampPosition(*m_lookAt, eyePositionGoal, m_engine->getObjectManager());
   BOOST_ASSERT(m_lookAt->room->getSectorByAbsolutePosition(m_lookAt->position) != nullptr);
   auto clampBox = m_lookAt->room->getSectorByAbsolutePosition(m_lookAt->position)->box;
   BOOST_ASSERT(clampBox != nullptr);
