@@ -9,7 +9,7 @@ namespace render::scene
 {
 void Visitor::visit(Node& node)
 {
-  gl::DebugGroup debugGroup{node.getId()};
+  gl::DebugGroup debugGroup{node.getName()};
 
   m_context.setCurrentNode(&node);
   node.accept(*this);

@@ -1000,7 +1000,7 @@ void LaraObject::findTarget(const Weapon& weapon)
     const auto modelEnemy = std::dynamic_pointer_cast<ModelObject>(currentEnemy.get());
     if(modelEnemy == nullptr)
     {
-      BOOST_LOG_TRIVIAL(warning) << "Ignoring non-model object " << currentEnemy->getNode()->getId();
+      BOOST_LOG_TRIVIAL(warning) << "Ignoring non-model object " << currentEnemy->getNode()->getName();
       continue;
     }
 

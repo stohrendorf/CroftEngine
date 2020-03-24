@@ -1231,7 +1231,7 @@ void Engine::run()
           if(!room.node->isVisible())
             continue;
 
-          gl::DebugGroup debugGroup{room.node->getId()};
+          gl::DebugGroup debugGroup{room.node->getName()};
           context.setCurrentNode(room.node.get());
           room.node->getRenderable()->render(context);
         }
@@ -1307,7 +1307,7 @@ void Engine::run()
             projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().y;
 
             font->drawText(*screenOverlay->getImage(),
-                           object->getNode()->getId().c_str(),
+                           object->getNode()->getName().c_str(),
                            static_cast<int>(projVertex.x),
                            static_cast<int>(projVertex.y),
                            color,

@@ -441,13 +441,13 @@ struct Room
     if(dx < 0 || dx >= sectorCountX)
     {
       BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/"
-                                 << sectorCountZ << " for room " << node->getId();
+                                 << sectorCountZ << " for room " << node->getName();
       return nullptr;
     }
     if(dz < 0 || dz >= sectorCountZ)
     {
       BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/"
-                                 << sectorCountZ << " for room " << node->getId();
+                                 << sectorCountZ << " for room " << node->getName();
       return nullptr;
     }
     return &sectors[sectorCountZ * dx + dz];

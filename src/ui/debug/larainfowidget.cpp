@@ -56,7 +56,7 @@ void LaraInfoWidget::update(const engine::objects::LaraObject& lara)
                     .arg(toString(lara.getGoalAnimState()))
                     .arg(lara.getSkeleton()->frame_number.toString().c_str()));
   m_location->setText(QString("%1 (%2 %3 %4)")
-                        .arg(lara.m_state.position.room->node->getId().c_str())
+                        .arg(lara.m_state.position.room->node->getName().c_str())
                         .arg(lara.m_state.position.position.X.toString().c_str())
                         .arg(lara.m_state.position.position.Y.toString().c_str())
                         .arg(lara.m_state.position.position.Z.toString().c_str()));

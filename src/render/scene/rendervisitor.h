@@ -23,11 +23,11 @@ public:
       return;
     if(getContext().getViewProjection().has_value() && node.canBeCulled(getContext().getViewProjection().value()))
     {
-      gl::DebugGroup debugGroup{node.getId() + " <culled>"};
+      gl::DebugGroup debugGroup{node.getName() + " <culled>"};
       return;
     }
 
-    gl::DebugGroup debugGroup{node.getId()};
+    gl::DebugGroup debugGroup{node.getName()};
 
     getContext().setCurrentNode(&node);
 

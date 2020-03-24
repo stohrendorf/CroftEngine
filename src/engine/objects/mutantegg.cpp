@@ -122,7 +122,7 @@ void MutantEgg::update()
     if(m_state.activationState.isOneshot() || m_state.type == TR1ItemId::MutantEggBig
        || (getEngine().getLara().m_state.position.position - m_state.position.position).absMax() < 4096_len)
     {
-      BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getId() << ": Hatching " << m_childObject->getNode()->getId();
+      BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getName() << ": Hatching " << m_childObject->getNode()->getName();
       m_state.goal_anim_state = 1_as;
       m_state.collidable = false;
       for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)

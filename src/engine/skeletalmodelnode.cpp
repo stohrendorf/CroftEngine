@@ -311,7 +311,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
 
 void SkeletalModelNode::serialize(const serialization::Serializer& ser)
 {
-  auto id = getId();
+  auto id = getName();
   ser(S_NV("id", id),
       S_NV("model", m_model),
       S_NV("parts", m_meshParts),
@@ -372,7 +372,7 @@ void SkeletalModelNode::rebuildMesh()
       compositor.append(*mesh.mesh);
   }
 
-  setRenderable(compositor.toMesh(*m_engine->getMaterialManager(), true, getId()));
+  setRenderable(compositor.toMesh(*m_engine->getMaterialManager(), true, getName()));
 }
 
 bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const

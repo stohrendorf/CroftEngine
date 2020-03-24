@@ -65,7 +65,7 @@ void SpriteObject::createModel()
 void SpriteObject::serialize(const serialization::Serializer& ser)
 {
   Object::serialize(ser);
-  auto tmp = getNode()->getId();
+  auto tmp = getNode()->getName();
   ser(S_NV("@name", tmp), S_NV("sprite", m_sprite), S_NV("brightness", m_brightness));
   if(ser.loading)
   {

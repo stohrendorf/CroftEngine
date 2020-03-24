@@ -59,7 +59,7 @@ void DebugView::update(const engine::objects::LaraObject& lara,
     }
     Expects(stateStr != nullptr);
 
-    m_triggerTable->setItem(row, 0, new QTableWidgetItem(object.second->getNode()->getId().c_str()));
+    m_triggerTable->setItem(row, 0, new QTableWidgetItem(object.second->getNode()->getName().c_str()));
     m_triggerTable->setItem(row, 1, new QTableWidgetItem(stateStr));
     m_triggerTable->setItem(row, 2, new QTableWidgetItem(object.second->m_state.timer.toString().c_str()));
 
@@ -80,7 +80,7 @@ void DebugView::update(const engine::objects::LaraObject& lara,
     }
     Expects(stateStr != nullptr);
 
-    m_triggerTable->setItem(row, 0, new QTableWidgetItem(object->getNode()->getId().c_str()));
+    m_triggerTable->setItem(row, 0, new QTableWidgetItem(object->getNode()->getName().c_str()));
     m_triggerTable->setItem(row, 1, new QTableWidgetItem(stateStr));
     m_triggerTable->setItem(row, 2, new QTableWidgetItem(object->m_state.timer.toString().c_str()));
 

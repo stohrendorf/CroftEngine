@@ -28,17 +28,17 @@ public:
 
   using List = std::vector<gsl::not_null<std::shared_ptr<Node>>>;
 
-  explicit Node(std::string id)
-      : m_id{std::move(id)}
-      , m_transformBuffer{m_id + "-transform-ubo"}
+  explicit Node(std::string name)
+      : m_name{std::move(name)}
+      , m_transformBuffer{m_name + "-transform-ubo"}
   {
   }
 
   virtual ~Node();
 
-  const std::string& getId() const
+  const std::string& getName() const
   {
-    return m_id;
+    return m_name;
   }
 
   const std::weak_ptr<Node>& getParent() const
@@ -232,7 +232,7 @@ private:
   void transformChanged();
 
   Scene* m_scene = nullptr;
-  std::string m_id;
+  std::string m_name;
   List m_children;
   std::weak_ptr<Node> m_parent{};
   bool m_visible = true;
