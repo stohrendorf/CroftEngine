@@ -104,12 +104,12 @@ void main()
     finalColor *= texture(u_ao, uv).r*0.8 + 0.2;
     finalColor *= grain*0.3 + 0.7;
 
-    const float velviaAmount = 0.2;
+    const float velviaAmount = 0.1;
 
     const vec2 velviaFac = vec2(1.0 + 2*velviaAmount, -velviaAmount);
 
     vec3 velviaColor = vec3(dot(finalColor, velviaFac.xyy), dot(finalColor, velviaFac.yxy), dot(finalColor, velviaFac.yyx));
-    finalColor = vec3(1.0) - clamp((vec3(1.0) - velviaColor*1.05)*1.01, vec3(0.0), vec3(1.0));
+    finalColor = vec3(1.0) - clamp((vec3(1.0) - velviaColor*1.01)*1.01, vec3(0.0), vec3(1.0));
 
     out_color.rgb = finalColor;
     out_color.a = 1;
