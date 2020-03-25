@@ -45,7 +45,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
           == getEngine().getObjectManager().getLara().getSkeleton()->anim->firstFrame + 44_frame)
   {
     m_state.triggerState = TriggerState::Invisible;
-    getEngine().getInventory().put(m_state.type);
+    getEngine().getInventory().put(getEngine().getObjectManager().getLara(), m_state.type);
     setParent(getNode(), nullptr);
     m_state.collidable = false;
   }

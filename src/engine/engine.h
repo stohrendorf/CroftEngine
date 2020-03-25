@@ -107,7 +107,7 @@ private:
 
   bool m_levelFinished = false;
 
-  Inventory m_inventory;
+  Inventory m_inventory{};
 
   std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_allTextures;
 

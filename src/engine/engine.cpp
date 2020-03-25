@@ -722,7 +722,6 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
         std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 20.0f, 20480.0f))}
     , splashImage{m_rootPath / "splash.png"}
     , abibasFont{std::make_shared<gl::Font>(m_rootPath / "abibas.ttf")}
-    , m_inventory{*this}
 {
   m_shaderManager = std::make_shared<render::scene::ShaderManager>(m_rootPath / "shaders");
   m_csm = std::make_shared<render::scene::CSM>(CSMResolution, *m_shaderManager);
@@ -821,7 +820,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     }
 
     for(const auto& item : initInv)
-      m_inventory.put(item.first, item.second);
+      m_inventory.put(m_objectManager.getLara(), item.first, item.second);
   }
   else
   {

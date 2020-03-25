@@ -240,17 +240,17 @@ LaraObject::~LaraObject() = default;
 void LaraObject::update()
 {
   if(getEngine().getInputHandler().getInputState()._1.justPressed())
-    getEngine().getInventory().tryUse(TR1ItemId::Pistols);
+    getEngine().getInventory().tryUse(*this, TR1ItemId::Pistols);
   else if(getEngine().getInputHandler().getInputState()._2.justPressed())
-    getEngine().getInventory().tryUse(TR1ItemId::Shotgun);
+    getEngine().getInventory().tryUse(*this, TR1ItemId::Shotgun);
   else if(getEngine().getInputHandler().getInputState()._3.justPressed())
-    getEngine().getInventory().tryUse(TR1ItemId::Uzis);
+    getEngine().getInventory().tryUse(*this, TR1ItemId::Uzis);
   else if(getEngine().getInputHandler().getInputState()._4.justPressed())
-    getEngine().getInventory().tryUse(TR1ItemId::Magnums);
+    getEngine().getInventory().tryUse(*this, TR1ItemId::Magnums);
   else if(getEngine().getInputHandler().getInputState()._5.justPressed())
-    getEngine().getInventory().tryUse(TR1ItemId::SmallMedipack);
+    getEngine().getInventory().tryUse(*this, TR1ItemId::SmallMedipack);
   else if(getEngine().getInputHandler().getInputState()._6.justPressed())
-    getEngine().getInventory().tryUse(TR1ItemId::LargeMedipack);
+    getEngine().getInventory().tryUse(*this, TR1ItemId::LargeMedipack);
 
   if(m_underwaterState == UnderwaterState::OnLand && m_state.position.room->isWaterRoom())
   {

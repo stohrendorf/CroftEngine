@@ -7,23 +7,22 @@
 
 namespace engine
 {
-class Engine;
+namespace objects
+{
+class LaraObject;
+}
 
 class Inventory
 {
 private:
-  Engine& m_engine;
   std::map<TR1ItemId, size_t> m_inventory;
 
 public:
-  explicit Inventory(Engine& engine)
-      : m_engine{engine}
-  {
-  }
+  explicit Inventory() = default;
 
   void serialize(const serialization::Serializer& ser);
 
-  void put(core::TypeId id, size_t quantity = 1);
+  void put(objects::LaraObject& lara, core::TypeId id, size_t quantity = 1);
 
   bool tryTake(TR1ItemId id, size_t quantity = 1);
 
@@ -41,6 +40,6 @@ public:
     m_inventory.clear();
   }
 
-  bool tryUse(TR1ItemId id);
+  bool tryUse(objects::LaraObject& lara, TR1ItemId id);
 };
 } // namespace engine
