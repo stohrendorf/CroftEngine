@@ -7,12 +7,12 @@ namespace engine::objects
 {
 void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
 {
-  m_state.rotation.Y = getEngine().getLara().m_state.rotation.Y;
+  m_state.rotation.Y = getEngine().getObjectManager().getLara().m_state.rotation.Y;
   m_state.rotation.Z = 0_deg;
 
-  if(getEngine().getLara().isInWater())
+  if(getEngine().getObjectManager().getLara().isInWater())
   {
-    if(!getEngine().getLara().isDiving())
+    if(!getEngine().getObjectManager().getLara().isDiving())
     {
       return;
     }
@@ -24,16 +24,16 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
 
     m_state.rotation.X = -25_deg;
 
-    if(!limits.canInteract(m_state, getEngine().getLara().m_state))
+    if(!limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
     {
       return;
     }
 
     static const core::TRVec aimSpeed{0_len, -200_len, -350_len};
 
-    if(getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
+    if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
     {
-      if(getEngine().getLara().getSkeleton()->frame_number == 2970_frame)
+      if(getEngine().getObjectManager().getLara().getSkeleton()->frame_number == 2970_frame)
       {
         m_state.triggerState = TriggerState::Invisible;
         getEngine().getInventory().put(m_state.type);
@@ -43,15 +43,16 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       }
     }
     else if(getEngine().getInputHandler().getInputState().action
-            && getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::UnderwaterStop
-            && getEngine().getLara().alignTransform(aimSpeed, *this))
+            && getEngine().getObjectManager().getLara().getCurrentAnimState()
+                 == loader::file::LaraStateId::UnderwaterStop
+            && getEngine().getObjectManager().getLara().alignTransform(aimSpeed, *this))
     {
-      getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
+      getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
       do
       {
-        getEngine().getLara().updateImpl();
-      } while(getEngine().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp);
-      getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
+        getEngine().getObjectManager().getLara().updateImpl();
+      } while(getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp);
+      getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
     }
   }
   else
@@ -63,22 +64,23 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
 
     m_state.rotation.X = 0_deg;
 
-    if(!limits.canInteract(m_state, getEngine().getLara().m_state))
+    if(!limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
     {
       return;
     }
 
-    if(getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
+    if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
     {
-      if(getEngine().getLara().getSkeleton()->frame_number == 3443_frame)
+      if(getEngine().getObjectManager().getLara().getSkeleton()->frame_number == 3443_frame)
       {
         if(m_state.type == TR1ItemId::ShotgunSprite)
         {
           const auto& shotgunLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
-          BOOST_ASSERT(shotgunLara.bones.size() == getEngine().getLara().getSkeleton()->getBoneCount());
+          BOOST_ASSERT(shotgunLara.bones.size()
+                       == getEngine().getObjectManager().getLara().getSkeleton()->getBoneCount());
 
-          getEngine().getLara().getSkeleton()->setMeshPart(7, shotgunLara.bones[7].mesh);
-          getEngine().getLara().getSkeleton()->rebuildMesh();
+          getEngine().getObjectManager().getLara().getSkeleton()->setMeshPart(7, shotgunLara.bones[7].mesh);
+          getEngine().getObjectManager().getLara().getSkeleton()->rebuildMesh();
         }
 
         m_state.triggerState = TriggerState::Invisible;
@@ -90,18 +92,19 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
     else
     {
       if(getEngine().getInputHandler().getInputState().action
-         && getEngine().getLara().getHandStatus() == HandStatus::None && !getEngine().getLara().m_state.falling
-         && getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
+         && getEngine().getObjectManager().getLara().getHandStatus() == HandStatus::None
+         && !getEngine().getObjectManager().getLara().m_state.falling
+         && getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
       {
-        getEngine().getLara().alignForInteraction(core::TRVec{0_len, 0_len, -100_len}, m_state);
+        getEngine().getObjectManager().getLara().alignForInteraction(core::TRVec{0_len, 0_len, -100_len}, m_state);
 
-        getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
+        getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
         do
         {
-          getEngine().getLara().updateImpl();
-        } while(getEngine().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp);
-        getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
-        getEngine().getLara().setHandStatus(HandStatus::Grabbing);
+          getEngine().getObjectManager().getLara().updateImpl();
+        } while(getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp);
+        getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
+        getEngine().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
       }
     }
   }

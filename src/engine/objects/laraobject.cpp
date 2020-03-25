@@ -541,13 +541,13 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
     object->collide(collisionInfo);
   }
 
-  if(getEngine().getLara().explosionStumblingDuration != 0_frame)
+  if(getEngine().getObjectManager().getLara().explosionStumblingDuration != 0_frame)
   {
-    getEngine().getLara().updateExplosionStumbling();
+    getEngine().getObjectManager().getLara().updateExplosionStumbling();
   }
-  if(!getEngine().getLara().hit_direction.has_value())
+  if(!getEngine().getObjectManager().getLara().hit_direction.has_value())
   {
-    getEngine().getLara().hit_frame = 0_frame;
+    getEngine().getObjectManager().getLara().hit_frame = 0_frame;
   }
   // TODO selectedPuzzleKey = -1;
 }
@@ -994,7 +994,7 @@ void LaraObject::findTarget(const Weapon& weapon)
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
   for(const auto& currentEnemy : getEngine().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
-    if(currentEnemy->m_state.health <= 0_hp || currentEnemy.get().get() == &getEngine().getLara())
+    if(currentEnemy->m_state.health <= 0_hp || currentEnemy.get() == getEngine().getObjectManager().getLaraPtr())
       continue;
 
     const auto modelEnemy = std::dynamic_pointer_cast<ModelObject>(currentEnemy.get());

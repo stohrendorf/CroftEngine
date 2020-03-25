@@ -28,7 +28,7 @@ void updateMood(const Engine& engine, const objects::ObjectState& objectState, c
     creatureInfo.pathFinder.required_box = nullptr;
   }
   const auto originalMood = creatureInfo.mood;
-  if(engine.getLara().m_state.health <= 0_hp)
+  if(engine.getObjectManager().getLara().m_state.health <= 0_hp)
   {
     creatureInfo.mood = Mood::Bored;
   }
@@ -121,11 +121,16 @@ void updateMood(const Engine& engine, const objects::ObjectState& objectState, c
                            .target_update_chance)
       break;
 
-    creatureInfo.pathFinder.target = engine.getLara().m_state.position.position;
-    creatureInfo.pathFinder.required_box = engine.getLara().m_state.box;
-    if(creatureInfo.pathFinder.fly != 0_len && engine.getLara().isOnLand())
-      creatureInfo.pathFinder.target.Y
-        += engine.getLara().getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox().minY;
+    creatureInfo.pathFinder.target = engine.getObjectManager().getLara().m_state.position.position;
+    creatureInfo.pathFinder.required_box = engine.getObjectManager().getLara().m_state.box;
+    if(creatureInfo.pathFinder.fly != 0_len && engine.getObjectManager().getLara().isOnLand())
+      creatureInfo.pathFinder.target.Y += engine.getObjectManager()
+                                            .getLara()
+                                            .getSkeleton()
+                                            ->getInterpolationInfo()
+                                            .getNearestFrame()
+                                            ->bbox.toBBox()
+                                            .minY;
 
     break;
   case Mood::Bored:
@@ -237,24 +242,24 @@ AiInfo::AiInfo(Engine& engine, objects::ObjectState& objectState)
 
   objectState.box = objectState.getCurrentSector()->box;
   zone_number = objectState.box->*zoneRef;
-  engine.getLara().m_state.box = engine.getLara().m_state.getCurrentSector()->box;
-  enemy_zone = engine.getLara().m_state.box->*zoneRef;
-  enemy_unreachable = (!objectState.creatureInfo->pathFinder.canVisit(*engine.getLara().m_state.box)
+  engine.getObjectManager().getLara().m_state.box = engine.getObjectManager().getLara().m_state.getCurrentSector()->box;
+  enemy_zone = engine.getObjectManager().getLara().m_state.box->*zoneRef;
+  enemy_unreachable = (!objectState.creatureInfo->pathFinder.canVisit(*engine.getObjectManager().getLara().m_state.box)
                        || (!objectState.creatureInfo->pathFinder.nodes[objectState.box].traversable
                            && objectState.creatureInfo->pathFinder.visited.count(objectState.box) != 0));
 
   auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(objectState.type.get());
   const core::Length pivotLength{objectInfo.pivot_length};
-  const auto d = engine.getLara().m_state.position.position
+  const auto d = engine.getObjectManager().getLara().m_state.position.position
                  - (objectState.position.position + util::pitch(pivotLength, objectState.rotation.Y));
   const auto pivotAngle = core::angleFromAtan(d.X, d.Z);
   distance = util::square(d.X) + util::square(d.Z);
   angle = pivotAngle - objectState.rotation.Y;
-  enemy_facing = pivotAngle - 180_deg - engine.getLara().m_state.rotation.Y;
+  enemy_facing = pivotAngle - 180_deg - engine.getObjectManager().getLara().m_state.rotation.Y;
   ahead = angle > -90_deg && angle < 90_deg;
   if(ahead)
   {
-    const auto laraY = engine.getLara().m_state.position.position.Y;
+    const auto laraY = engine.getObjectManager().getLara().m_state.position.position.Y;
     if(objectState.position.position.Y - core::QuarterSectorSize < laraY
        && objectState.position.position.Y + core::QuarterSectorSize > laraY)
     {

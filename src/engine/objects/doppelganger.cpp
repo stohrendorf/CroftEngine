@@ -17,7 +17,7 @@ Doppelganger::Doppelganger(const gsl::not_null<Engine*>& engine,
 
 void Doppelganger::update()
 {
-  auto& lara = getEngine().getLara();
+  auto& lara = getEngine().getObjectManager().getLara();
 
   if(m_state.health < 1000_hp)
   {

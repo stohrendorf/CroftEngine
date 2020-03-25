@@ -164,7 +164,7 @@ FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, Engine& engine,
 
   if(randomize)
   {
-    timePerSpriteFrame = -int(util::rand15(engine.getLara().getSkeleton()->getBoneCount())) - 1;
+    timePerSpriteFrame = -int(util::rand15(engine.getObjectManager().getLara().getSkeleton()->getBoneCount())) - 1;
     for(auto n = util::rand15(getLength()); n != 0; --n)
       nextFrame();
   }
@@ -186,14 +186,15 @@ bool FlameParticle::update(Engine& engine)
       return true;
     }
 
-    if(engine.getLara().isNear(*this, 600_len))
+    if(engine.getObjectManager().getLara().isNear(*this, 600_len))
     {
       // it's hot here, isn't it?
-      engine.getLara().m_state.health -= 3_hp;
-      engine.getLara().m_state.is_hit = true;
+      engine.getObjectManager().getLara().m_state.health -= 3_hp;
+      engine.getObjectManager().getLara().m_state.is_hit = true;
 
-      const auto distSq = util::square(engine.getLara().m_state.position.position.X - pos.position.X)
-                          + util::square(engine.getLara().m_state.position.position.Z - pos.position.Z);
+      const auto distSq
+        = util::square(engine.getObjectManager().getLara().m_state.position.position.X - pos.position.X)
+          + util::square(engine.getObjectManager().getLara().m_state.position.position.Z - pos.position.Z);
       if(distSq < util::square(300_len))
       {
         timePerSpriteFrame = 100;
@@ -219,8 +220,10 @@ bool FlameParticle::update(Engine& engine)
       pos.position.Y = 0_len;
     }
 
-    const auto itemSpheres = engine.getLara().getSkeleton()->getBoneCollisionSpheres(
-      engine.getLara().m_state, *engine.getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
+    const auto itemSpheres = engine.getObjectManager().getLara().getSkeleton()->getBoneCollisionSpheres(
+      engine.getObjectManager().getLara().m_state,
+      *engine.getObjectManager().getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(),
+      nullptr);
 
     pos.position
       = core::TRVec{glm::vec3{translate(itemSpheres.at(-timePerSpriteFrame - 1).m, pos.position.toRenderSystem())[3]}};
@@ -229,8 +232,8 @@ bool FlameParticle::update(Engine& engine)
        !waterHeight.has_value() || waterHeight.value() >= pos.position.Y)
     {
       engine.getAudioEngine().playSound(TR1SoundId::Burning, this);
-      engine.getLara().m_state.health -= 3_hp;
-      engine.getLara().m_state.is_hit = true;
+      engine.getObjectManager().getLara().m_state.health -= 3_hp;
+      engine.getObjectManager().getLara().m_state.is_hit = true;
     }
     else
     {
@@ -271,17 +274,17 @@ bool MeshShrapnelParticle::update(Engine& engine)
 
     explode = true;
   }
-  else if(engine.getLara().isNear(*this, 2 * m_damageRadius))
+  else if(engine.getObjectManager().getLara().isNear(*this, 2 * m_damageRadius))
   {
-    engine.getLara().m_state.is_hit = true;
+    engine.getObjectManager().getLara().m_state.is_hit = true;
     if(m_damageRadius <= 0_len)
       return false;
 
-    engine.getLara().m_state.health -= m_damageRadius * 1_hp / 1_len;
+    engine.getObjectManager().getLara().m_state.health -= m_damageRadius * 1_hp / 1_len;
     explode = true;
 
-    engine.getLara().forceSourcePosition = &pos.position;
-    engine.getLara().explosionStumblingDuration = 5_frame;
+    engine.getObjectManager().getLara().forceSourcePosition = &pos.position;
+    engine.getObjectManager().getLara().explosionStumblingDuration = 5_frame;
   }
 
   setParent(this, pos.room->node);
@@ -299,8 +302,8 @@ bool MeshShrapnelParticle::update(Engine& engine)
 
 void MutantAmmoParticle::aimLaraChest(Engine& engine)
 {
-  const auto d = engine.getLara().m_state.position.position - pos.position;
-  const auto bbox = engine.getLara().getSkeleton()->getBoundingBox();
+  const auto d = engine.getObjectManager().getLara().m_state.position.position - pos.position;
+  const auto bbox = engine.getObjectManager().getLara().getSkeleton()->getBoundingBox();
   angle.X
     = util::rand15s(256_au)
       - angleFromAtan(bbox.maxY + (bbox.minY - bbox.maxY) * 3 / 4 + d.Y, sqrt(util::square(d.X) + util::square(d.Z)));
@@ -322,16 +325,16 @@ bool MutantBulletParticle::update(Engine& engine)
     engine.getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
     return false;
   }
-  else if(engine.getLara().isNear(*this, 200_len))
+  else if(engine.getObjectManager().getLara().isNear(*this, 200_len))
   {
-    engine.getLara().m_state.health -= 30_hp;
+    engine.getObjectManager().getLara().m_state.health -= 30_hp;
     auto particle = std::make_shared<BloodSplatterParticle>(pos, speed, angle.Y, engine);
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
     engine.getAudioEngine().playSound(TR1SoundId::BulletHitsLara, particle.get());
-    engine.getLara().m_state.is_hit = true;
-    angle.Y = engine.getLara().m_state.rotation.Y;
-    speed = engine.getLara().m_state.speed;
+    engine.getObjectManager().getLara().m_state.is_hit = true;
+    angle.Y = engine.getObjectManager().getLara().m_state.rotation.Y;
+    speed = engine.getObjectManager().getLara().m_state.speed;
     timePerSpriteFrame = 0;
     negSpriteFrameId = 0;
     return false;
@@ -354,34 +357,35 @@ bool MutantGrenadeParticle::update(Engine& engine)
     engine.getObjectManager().registerParticle(particle);
     engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
 
-    const auto dd = pos.position - engine.getLara().m_state.position.position;
+    const auto dd = pos.position - engine.getObjectManager().getLara().m_state.position.position;
     const auto d = util::square(dd.X) + util::square(dd.Y) + util::square(dd.Z);
     if(d < util::square(1024_len))
     {
-      engine.getLara().m_state.health -= 100_hp * (util::square(1024_len) - d) / util::square(1024_len);
-      engine.getLara().m_state.is_hit = true;
+      engine.getObjectManager().getLara().m_state.health
+        -= 100_hp * (util::square(1024_len) - d) / util::square(1024_len);
+      engine.getObjectManager().getLara().m_state.is_hit = true;
     }
 
     return false;
   }
-  else if(engine.getLara().isNear(*this, 200_len))
+  else if(engine.getObjectManager().getLara().isNear(*this, 200_len))
   {
-    engine.getLara().m_state.health -= 100_hp;
+    engine.getObjectManager().getLara().m_state.health -= 100_hp;
     auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
     engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
 
-    if(engine.getLara().m_state.health > 0_hp)
+    if(engine.getObjectManager().getLara().m_state.health > 0_hp)
     {
-      engine.getLara().playSoundEffect(TR1SoundId::LaraHurt);
-      engine.getLara().forceSourcePosition = &particle->pos.position;
-      engine.getLara().explosionStumblingDuration = 5_frame;
+      engine.getObjectManager().getLara().playSoundEffect(TR1SoundId::LaraHurt);
+      engine.getObjectManager().getLara().forceSourcePosition = &particle->pos.position;
+      engine.getObjectManager().getLara().explosionStumblingDuration = 5_frame;
     }
 
-    engine.getLara().m_state.is_hit = true;
-    angle.Y = engine.getLara().m_state.rotation.Y;
-    speed = engine.getLara().m_state.speed;
+    engine.getObjectManager().getLara().m_state.is_hit = true;
+    angle.Y = engine.getObjectManager().getLara().m_state.rotation.Y;
+    speed = engine.getObjectManager().getLara().m_state.speed;
     timePerSpriteFrame = 0;
     negSpriteFrameId = 0;
     return false;
@@ -403,10 +407,10 @@ bool LavaParticle::update(Engine& engine)
     return false;
   }
 
-  if(engine.getLara().isNear(*this, 200_len))
+  if(engine.getObjectManager().getLara().isNear(*this, 200_len))
   {
-    engine.getLara().m_state.health -= 10_hp;
-    engine.getLara().m_state.is_hit = true;
+    engine.getObjectManager().getLara().m_state.health -= 10_hp;
+    engine.getObjectManager().getLara().m_state.is_hit = true;
     return false;
   }
 

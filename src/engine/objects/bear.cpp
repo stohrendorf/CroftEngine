@@ -35,7 +35,7 @@ void Bear::update()
     {
     case Walking.get():
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(getEngine().getLara().m_state.health <= 0_hp && touched(0x2406cUL) && aiInfo.ahead)
+      if(getEngine().getObjectManager().getLara().m_state.health <= 0_hp && touched(0x2406cUL) && aiInfo.ahead)
       {
         goal(GettingDown);
       }
@@ -51,7 +51,7 @@ void Bear::update()
       }
       break;
     case GettingDown.get():
-      if(getEngine().getLara().m_state.health <= 0_hp)
+      if(getEngine().getObjectManager().getLara().m_state.health <= 0_hp)
       {
         if(aiInfo.bite && aiInfo.distance < util::square(768_len))
           goal(Biting);
@@ -86,7 +86,7 @@ void Bear::update()
       {
         hitLara(3_hp);
       }
-      if(isBored() || getEngine().getLara().m_state.health <= 0_hp)
+      if(isBored() || getEngine().getObjectManager().getLara().m_state.health <= 0_hp)
       {
         goal(GettingDown);
       }

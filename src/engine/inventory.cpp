@@ -22,9 +22,9 @@ void Inventory::put(const core::TypeId id, const size_t quantity)
     if(const auto clips = count(TR1ItemId::ShotgunAmmoSprite))
     {
       tryTake(TR1ItemId::ShotgunAmmoSprite, clips);
-      m_engine.getLara().shotgunAmmo.ammo += 12u * clips;
+      m_engine.getObjectManager().getLara().shotgunAmmo.ammo += 12u * clips;
     }
-    m_engine.getLara().shotgunAmmo.ammo += 12u * quantity;
+    m_engine.getObjectManager().getLara().shotgunAmmo.ammo += 12u * quantity;
     // TODO replaceItems( ShotgunSprite, ShotgunAmmoSprite );
     m_inventory[TR1ItemId::Shotgun] = 1;
     break;
@@ -33,9 +33,9 @@ void Inventory::put(const core::TypeId id, const size_t quantity)
     if(const auto clips = count(TR1ItemId::MagnumAmmoSprite))
     {
       tryTake(TR1ItemId::MagnumAmmoSprite, clips);
-      m_engine.getLara().revolverAmmo.ammo += 50u * clips;
+      m_engine.getObjectManager().getLara().revolverAmmo.ammo += 50u * clips;
     }
-    m_engine.getLara().revolverAmmo.ammo += 50u * quantity;
+    m_engine.getObjectManager().getLara().revolverAmmo.ammo += 50u * quantity;
     // TODO replaceItems( MagnumsSprite, MagnumAmmoSprite );
     m_inventory[TR1ItemId::Magnums] = 1;
     break;
@@ -44,30 +44,30 @@ void Inventory::put(const core::TypeId id, const size_t quantity)
     if(const auto clips = count(TR1ItemId::UziAmmoSprite))
     {
       tryTake(TR1ItemId::UziAmmoSprite, clips);
-      m_engine.getLara().uziAmmo.ammo += 100u * clips;
+      m_engine.getObjectManager().getLara().uziAmmo.ammo += 100u * clips;
     }
-    m_engine.getLara().uziAmmo.ammo += 100u * quantity;
+    m_engine.getObjectManager().getLara().uziAmmo.ammo += 100u * quantity;
     // TODO replaceItems( UzisSprite, UziAmmoSprite );
     m_inventory[TR1ItemId::Uzis] = 1;
     break;
   case TR1ItemId::ShotgunAmmoSprite:
   case TR1ItemId::ShotgunAmmo:
     if(count(TR1ItemId::ShotgunSprite) > 0)
-      m_engine.getLara().shotgunAmmo.ammo += 12u;
+      m_engine.getObjectManager().getLara().shotgunAmmo.ammo += 12u;
     else
       m_inventory[TR1ItemId::ShotgunAmmo] += quantity;
     break;
   case TR1ItemId::MagnumAmmoSprite:
   case TR1ItemId::MagnumAmmo:
     if(count(TR1ItemId::MagnumsSprite) > 0)
-      m_engine.getLara().revolverAmmo.ammo += 50u;
+      m_engine.getObjectManager().getLara().revolverAmmo.ammo += 50u;
     else
       m_inventory[TR1ItemId::MagnumAmmo] += quantity;
     break;
   case TR1ItemId::UziAmmoSprite:
   case TR1ItemId::UziAmmo:
     if(count(TR1ItemId::UzisSprite) > 0)
-      m_engine.getLara().uziAmmo.ammo += 100u;
+      m_engine.getObjectManager().getLara().uziAmmo.ammo += 100u;
     else
       m_inventory[TR1ItemId::UziAmmo] += quantity;
     break;
@@ -113,11 +113,11 @@ bool Inventory::tryUse(const TR1ItemId id)
     if(count(TR1ItemId::Shotgun) == 0)
       return false;
 
-    m_engine.getLara().requestedGunType = objects::LaraObject::WeaponId::Shotgun;
-    if(m_engine.getLara().getHandStatus() == objects::HandStatus::None
-       && m_engine.getLara().gunType == m_engine.getLara().requestedGunType)
+    m_engine.getObjectManager().getLara().requestedGunType = objects::LaraObject::WeaponId::Shotgun;
+    if(m_engine.getObjectManager().getLara().getHandStatus() == objects::HandStatus::None
+       && m_engine.getObjectManager().getLara().gunType == m_engine.getObjectManager().getLara().requestedGunType)
     {
-      m_engine.getLara().gunType = objects::LaraObject::WeaponId::None;
+      m_engine.getObjectManager().getLara().gunType = objects::LaraObject::WeaponId::None;
     }
   }
   else if(id == TR1ItemId::Pistols || id == TR1ItemId::PistolsSprite)
@@ -125,11 +125,11 @@ bool Inventory::tryUse(const TR1ItemId id)
     if(count(TR1ItemId::Pistols) == 0)
       return false;
 
-    m_engine.getLara().requestedGunType = objects::LaraObject::WeaponId::Pistols;
-    if(m_engine.getLara().getHandStatus() == objects::HandStatus::None
-       && m_engine.getLara().gunType == m_engine.getLara().requestedGunType)
+    m_engine.getObjectManager().getLara().requestedGunType = objects::LaraObject::WeaponId::Pistols;
+    if(m_engine.getObjectManager().getLara().getHandStatus() == objects::HandStatus::None
+       && m_engine.getObjectManager().getLara().gunType == m_engine.getObjectManager().getLara().requestedGunType)
     {
-      m_engine.getLara().gunType = objects::LaraObject::WeaponId::None;
+      m_engine.getObjectManager().getLara().gunType = objects::LaraObject::WeaponId::None;
     }
   }
   else if(id == TR1ItemId::Magnums || id == TR1ItemId::MagnumsSprite)
@@ -137,11 +137,11 @@ bool Inventory::tryUse(const TR1ItemId id)
     if(count(TR1ItemId::Magnums) == 0)
       return false;
 
-    m_engine.getLara().requestedGunType = objects::LaraObject::WeaponId::AutoPistols;
-    if(m_engine.getLara().getHandStatus() == objects::HandStatus::None
-       && m_engine.getLara().gunType == m_engine.getLara().requestedGunType)
+    m_engine.getObjectManager().getLara().requestedGunType = objects::LaraObject::WeaponId::AutoPistols;
+    if(m_engine.getObjectManager().getLara().getHandStatus() == objects::HandStatus::None
+       && m_engine.getObjectManager().getLara().gunType == m_engine.getObjectManager().getLara().requestedGunType)
     {
-      m_engine.getLara().gunType = objects::LaraObject::WeaponId::None;
+      m_engine.getObjectManager().getLara().gunType = objects::LaraObject::WeaponId::None;
     }
   }
   else if(id == TR1ItemId::Uzis || id == TR1ItemId::UzisSprite)
@@ -149,11 +149,11 @@ bool Inventory::tryUse(const TR1ItemId id)
     if(count(TR1ItemId::Uzis) == 0)
       return false;
 
-    m_engine.getLara().requestedGunType = objects::LaraObject::WeaponId::Uzi;
-    if(m_engine.getLara().getHandStatus() == objects::HandStatus::None
-       && m_engine.getLara().gunType == m_engine.getLara().requestedGunType)
+    m_engine.getObjectManager().getLara().requestedGunType = objects::LaraObject::WeaponId::Uzi;
+    if(m_engine.getObjectManager().getLara().getHandStatus() == objects::HandStatus::None
+       && m_engine.getObjectManager().getLara().gunType == m_engine.getObjectManager().getLara().requestedGunType)
     {
-      m_engine.getLara().gunType = objects::LaraObject::WeaponId::None;
+      m_engine.getObjectManager().getLara().gunType = objects::LaraObject::WeaponId::None;
     }
   }
   else if(id == TR1ItemId::LargeMedipack || id == TR1ItemId::LargeMedipackSprite)
@@ -161,36 +161,38 @@ bool Inventory::tryUse(const TR1ItemId id)
     if(count(TR1ItemId::LargeMedipack) == 0)
       return false;
 
-    if(m_engine.getLara().m_state.health <= 0_hp || m_engine.getLara().m_state.health >= core::LaraHealth)
+    if(m_engine.getObjectManager().getLara().m_state.health <= 0_hp
+       || m_engine.getObjectManager().getLara().m_state.health >= core::LaraHealth)
     {
       return false;
     }
 
-    m_engine.getLara().m_state.health += 1000_hp;
-    if(m_engine.getLara().m_state.health > core::LaraHealth)
+    m_engine.getObjectManager().getLara().m_state.health += 1000_hp;
+    if(m_engine.getObjectManager().getLara().m_state.health > core::LaraHealth)
     {
-      m_engine.getLara().m_state.health = core::LaraHealth;
+      m_engine.getObjectManager().getLara().m_state.health = core::LaraHealth;
     }
     tryTake(TR1ItemId::LargeMedipackSprite);
-    m_engine.getAudioEngine().playSound(TR1SoundId::LaraSigh, &m_engine.getLara().m_state);
+    m_engine.getAudioEngine().playSound(TR1SoundId::LaraSigh, &m_engine.getObjectManager().getLara().m_state);
   }
   else if(id == TR1ItemId::SmallMedipack || id == TR1ItemId::SmallMedipackSprite)
   {
     if(count(TR1ItemId::SmallMedipack) == 0)
       return false;
 
-    if(m_engine.getLara().m_state.health <= 0_hp || m_engine.getLara().m_state.health >= core::LaraHealth)
+    if(m_engine.getObjectManager().getLara().m_state.health <= 0_hp
+       || m_engine.getObjectManager().getLara().m_state.health >= core::LaraHealth)
     {
       return false;
     }
 
-    m_engine.getLara().m_state.health += 500_hp;
-    if(m_engine.getLara().m_state.health > core::LaraHealth)
+    m_engine.getObjectManager().getLara().m_state.health += 500_hp;
+    if(m_engine.getObjectManager().getLara().m_state.health > core::LaraHealth)
     {
-      m_engine.getLara().m_state.health = core::LaraHealth;
+      m_engine.getObjectManager().getLara().m_state.health = core::LaraHealth;
     }
     tryTake(TR1ItemId::SmallMedipackSprite);
-    m_engine.getAudioEngine().playSound(TR1SoundId::LaraSigh, &m_engine.getLara().m_state);
+    m_engine.getAudioEngine().playSound(TR1SoundId::LaraSigh, &m_engine.getObjectManager().getLara().m_state);
   }
 
   return true;

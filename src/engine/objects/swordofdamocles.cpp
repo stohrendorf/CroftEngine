@@ -13,8 +13,8 @@ void SwordOfDamocles::update()
   }
   else if(m_state.current_anim_state == 1_as && m_state.touch_bits != 0)
   {
-    getEngine().getLara().m_state.is_hit = true;
-    getEngine().getLara().m_state.health -= 300_hp;
+    getEngine().getObjectManager().getLara().m_state.is_hit = true;
+    getEngine().getObjectManager().getLara().m_state.health -= 300_hp;
   }
 
   ModelObject::update();
@@ -36,13 +36,14 @@ void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
 {
   if(m_state.triggerState == TriggerState::Active)
   {
-    if(isNear(getEngine().getLara(), collisionInfo.collisionRadius))
+    if(isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
     {
-      testBoneCollision(getEngine().getLara());
+      testBoneCollision(getEngine().getObjectManager().getLara());
     }
   }
   else if(m_state.triggerState != TriggerState::Invisible
-          && isNear(getEngine().getLara(), collisionInfo.collisionRadius) && testBoneCollision(getEngine().getLara()))
+          && isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius)
+          && testBoneCollision(getEngine().getObjectManager().getLara()))
   {
     if(collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     {

@@ -25,9 +25,9 @@ void TRex::update()
     if(touched())
     {
       if(m_state.current_anim_state == 3_as)
-        getEngine().getLara().m_state.health -= 10_hp;
+        getEngine().getObjectManager().getLara().m_state.health -= 10_hp;
       else
-        getEngine().getLara().m_state.health -= 1_hp;
+        getEngine().getObjectManager().getLara().m_state.health -= 1_hp;
     }
 
     m_state.creatureInfo->flags
@@ -74,23 +74,24 @@ void TRex::update()
         goal(8_as);
 
         hitLara(1_hp);
-        getEngine().getLara().m_state.falling = false;
+        getEngine().getObjectManager().getLara().m_state.falling = false;
 
-        getEngine().getLara().setCurrentRoom(m_state.position.room);
-        getEngine().getLara().m_state.position.position = m_state.position.position;
-        getEngine().getLara().m_state.rotation.X = 0_deg;
-        getEngine().getLara().m_state.rotation.Y = m_state.rotation.Y;
-        getEngine().getLara().m_state.rotation.Z = 0_deg;
-        getEngine().getLara().getSkeleton()->anim
+        getEngine().getObjectManager().getLara().setCurrentRoom(m_state.position.room);
+        getEngine().getObjectManager().getLara().m_state.position.position = m_state.position.position;
+        getEngine().getObjectManager().getLara().m_state.rotation.X = 0_deg;
+        getEngine().getObjectManager().getLara().m_state.rotation.Y = m_state.rotation.Y;
+        getEngine().getObjectManager().getLara().m_state.rotation.Z = 0_deg;
+        getEngine().getObjectManager().getLara().getSkeleton()->anim
           = &getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1];
-        getEngine().getLara().getSkeleton()->frame_number = getEngine().getLara().getSkeleton()->anim->firstFrame;
-        getEngine().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
-        getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
-        getEngine().getLara().setHandStatus(HandStatus::Grabbing);
-        getEngine().getLara().gunType = LaraObject::WeaponId::None;
+        getEngine().getObjectManager().getLara().getSkeleton()->frame_number
+          = getEngine().getObjectManager().getLara().getSkeleton()->anim->firstFrame;
+        getEngine().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
+        getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
+        getEngine().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
+        getEngine().getObjectManager().getLara().gunType = LaraObject::WeaponId::None;
         getEngine().getCameraController().setModifier(CameraModifier::FollowCenter);
         getEngine().getCameraController().setRotationAroundLara(-25_deg, 170_deg);
-        getEngine().getLara().setAir(-1_frame);
+        getEngine().getObjectManager().getLara().setAir(-1_frame);
         getEngine().useAlternativeLaraAppearance(true);
       }
       require(2_as);

@@ -14,15 +14,17 @@ ObjectState::~ObjectState() = default;
 
 bool ObjectState::stalkBox(const Engine& engine, const loader::file::Box& targetBox) const
 {
-  const auto laraToBoxDistX = (targetBox.xmin + targetBox.xmax) / 2 - engine.getLara().m_state.position.position.X;
-  const auto laraToBoxDistZ = (targetBox.zmin + targetBox.zmax) / 2 - engine.getLara().m_state.position.position.Z;
+  const auto laraToBoxDistX
+    = (targetBox.xmin + targetBox.xmax) / 2 - engine.getObjectManager().getLara().m_state.position.position.X;
+  const auto laraToBoxDistZ
+    = (targetBox.zmin + targetBox.zmax) / 2 - engine.getObjectManager().getLara().m_state.position.position.Z;
 
   if(abs(laraToBoxDistX) > 3 * core::SectorSize || abs(laraToBoxDistZ) > 3 * core::SectorSize)
   {
     return false;
   }
 
-  const auto laraAxisBack = *axisFromAngle(engine.getLara().m_state.rotation.Y + 180_deg, 45_deg);
+  const auto laraAxisBack = *axisFromAngle(engine.getObjectManager().getLara().m_state.rotation.Y + 180_deg, 45_deg);
   core::Axis laraToBoxAxis;
   if(laraToBoxDistZ > 0_len)
   {
@@ -52,9 +54,9 @@ bool ObjectState::stalkBox(const Engine& engine, const loader::file::Box& target
   }
 
   core::Axis objectToLaraAxis;
-  if(position.position.Z <= engine.getLara().m_state.position.position.Z)
+  if(position.position.Z <= engine.getObjectManager().getLara().m_state.position.position.Z)
   {
-    if(position.position.X <= engine.getLara().m_state.position.position.X)
+    if(position.position.X <= engine.getObjectManager().getLara().m_state.position.position.X)
     {
       objectToLaraAxis = core::Axis::PosZ;
     }
@@ -65,7 +67,7 @@ bool ObjectState::stalkBox(const Engine& engine, const loader::file::Box& target
   }
   else
   {
-    if(position.position.X > engine.getLara().m_state.position.position.X)
+    if(position.position.X > engine.getObjectManager().getLara().m_state.position.position.X)
     {
       objectToLaraAxis = core::Axis::PosX;
     }
@@ -116,13 +118,15 @@ bool ObjectState::isInsideZoneButNotInBox(const Engine& engine,
 
 bool ObjectState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& targetBox) const
 {
-  const auto laraToBoxX = (targetBox.xmin + targetBox.xmax) / 2 - engine.getLara().m_state.position.position.X;
-  const auto laraToBoxZ = (targetBox.zmin + targetBox.zmax) / 2 - engine.getLara().m_state.position.position.Z;
+  const auto laraToBoxX
+    = (targetBox.xmin + targetBox.xmax) / 2 - engine.getObjectManager().getLara().m_state.position.position.X;
+  const auto laraToBoxZ
+    = (targetBox.zmin + targetBox.zmax) / 2 - engine.getObjectManager().getLara().m_state.position.position.Z;
   if(abs(laraToBoxX) < 5 * core::SectorSize && abs(laraToBoxZ) < 5 * core::SectorSize)
     return false;
 
-  const auto laraToNpcX = position.position.X - engine.getLara().m_state.position.position.X;
-  const auto laraToNpcZ = position.position.Z - engine.getLara().m_state.position.position.Z;
+  const auto laraToNpcX = position.position.X - engine.getObjectManager().getLara().m_state.position.position.X;
+  const auto laraToNpcZ = position.position.Z - engine.getObjectManager().getLara().m_state.position.position.Z;
   return ((laraToNpcZ > 0_len) == (laraToBoxZ > 0_len)) || ((laraToNpcX > 0_len) == (laraToBoxX > 0_len));
 }
 

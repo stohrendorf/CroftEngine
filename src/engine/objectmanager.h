@@ -37,6 +37,7 @@ class ObjectManager
   std::map<ObjectId, gsl::not_null<std::shared_ptr<objects::Object>>> m_objects;
   std::set<gsl::not_null<std::shared_ptr<objects::Object>>> m_dynamicObjects;
   std::vector<gsl::not_null<std::shared_ptr<Particle>>> m_particles;
+  std::shared_ptr<objects::LaraObject> m_lara = nullptr;
 
 public:
   auto& getObjects()
@@ -59,6 +60,23 @@ public:
     return m_particles;
   }
 
+  objects::LaraObject& getLara()
+  {
+    Expects(m_lara != nullptr);
+    return *m_lara;
+  }
+
+  [[nodiscard]] const auto& getLara() const
+  {
+    Expects(m_lara != nullptr);
+    return *m_lara;
+  }
+
+  [[nodiscard]] const auto& getLaraPtr() const
+  {
+    return m_lara;
+  }
+
   void scheduleDeletion(objects::Object* object)
   {
     m_scheduledDeletions.insert(object);
@@ -79,9 +97,9 @@ public:
   void applyScheduledDeletions();
   void registerObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object);
   std::shared_ptr<objects::Object> find(const objects::Object* object) const;
-  std::shared_ptr<objects::LaraObject> createObjects(Engine& engine, std::vector<loader::file::Item>& items);
+  void createObjects(Engine& engine, std::vector<loader::file::Item>& items);
   [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;
-  void update(Engine& engine);
+  void update(Engine& engine, bool godMode);
 
   void serialize(const serialization::Serializer& ser);
 };

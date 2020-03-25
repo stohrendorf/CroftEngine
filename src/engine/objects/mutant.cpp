@@ -387,7 +387,7 @@ void TorsoBoss::update()
     switch(m_state.current_anim_state.get())
     {
     case 1:
-      if(getEngine().getLara().m_state.health <= 0_hp)
+      if(getEngine().getObjectManager().getLara().m_state.health <= 0_hp)
       {
         break;
       }
@@ -407,7 +407,7 @@ void TorsoBoss::update()
       {
         goal(7_as);
       }
-      else if(getEngine().getLara().m_state.health > 500_hp)
+      else if(getEngine().getObjectManager().getLara().m_state.health > 500_hp)
       {
         if(util::rand15(2) == 0)
           goal(5_as);
@@ -478,10 +478,10 @@ void TorsoBoss::update()
       }
       break;
     case 6:
-      if(touched(0x3ff8000u) || getEngine().getLara().m_state.health <= 0_hp)
+      if(touched(0x3ff8000u) || getEngine().getObjectManager().getLara().m_state.health <= 0_hp)
       {
         goal(11_as);
-        auto& lara = getEngine().getLara();
+        auto& lara = getEngine().getObjectManager().getLara();
         lara.getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0];
         lara.getSkeleton()->frame_number = lara.getSkeleton()->anim->firstFrame;
         lara.setGoalAnimState(LaraStateId::BoulderDeath);

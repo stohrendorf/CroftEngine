@@ -84,8 +84,6 @@ private:
 
   sol::state m_scriptEngine;
 
-  std::shared_ptr<objects::LaraObject> m_lara = nullptr;
-
   std::shared_ptr<render::TextureAnimator> m_textureAnimator;
 
   std::unique_ptr<hid::InputHandler> m_inputHandler;
@@ -154,23 +152,6 @@ public:
   bool roomsAreSwapped() const
   {
     return m_roomsAreSwapped;
-  }
-
-  objects::LaraObject& getLara()
-  {
-    Expects(m_lara != nullptr);
-    return *m_lara;
-  }
-
-  const objects::LaraObject& getLara() const
-  {
-    Expects(m_lara != nullptr);
-    return *m_lara;
-  }
-
-  const auto& getLaraPtr() const
-  {
-    return m_lara;
   }
 
   CameraController& getCameraController()

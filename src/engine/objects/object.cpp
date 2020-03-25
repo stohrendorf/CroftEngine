@@ -92,7 +92,7 @@ std::shared_ptr<audio::SourceHandle> Object::playSoundEffect(const core::SoundId
 
 bool Object::triggerKey()
 {
-  if(getEngine().getLara().getHandStatus() != HandStatus::None)
+  if(getEngine().getObjectManager().getLara().getHandStatus() != HandStatus::None)
   {
     return false;
   }
@@ -108,9 +108,9 @@ bool Object::triggerKey()
 
 void Object::kill()
 {
-  if(this == getEngine().getLara().target.get())
+  if(this == getEngine().getObjectManager().getLara().target.get())
   {
-    getEngine().getLara().target.reset();
+    getEngine().getObjectManager().getLara().target.reset();
   }
   getEngine().getObjectManager().scheduleDeletion(this);
   m_state.activationState.setLocked(true);

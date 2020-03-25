@@ -25,16 +25,17 @@ void SwingingBlade::update()
 
   if(m_state.current_anim_state == 2_as && m_state.touch_bits.any())
   {
-    getEngine().getLara().m_state.is_hit = true;
-    getEngine().getLara().m_state.health -= 100_hp;
+    getEngine().getObjectManager().getLara().m_state.is_hit = true;
+    getEngine().getObjectManager().getLara().m_state.health -= 100_hp;
 
-    const core::TRVec splatPos{getEngine().getLara().m_state.position.position.X + util::rand15s(128_len),
-                               getEngine().getLara().m_state.position.position.Y - util::rand15(745_len),
-                               getEngine().getLara().m_state.position.position.Z + util::rand15s(128_len)};
+    const core::TRVec splatPos{
+      getEngine().getObjectManager().getLara().m_state.position.position.X + util::rand15s(128_len),
+      getEngine().getObjectManager().getLara().m_state.position.position.Y - util::rand15(745_len),
+      getEngine().getObjectManager().getLara().m_state.position.position.Z + util::rand15s(128_len)};
     auto fx = createBloodSplat(getEngine(),
                                core::RoomBoundPosition{m_state.position.room, splatPos},
-                               getEngine().getLara().m_state.speed,
-                               getEngine().getLara().m_state.rotation.Y + util::rand15s(+22_deg));
+                               getEngine().getObjectManager().getLara().m_state.speed,
+                               getEngine().getObjectManager().getLara().m_state.rotation.Y + util::rand15s(+22_deg));
     getEngine().getObjectManager().registerParticle(fx);
   }
 
@@ -51,13 +52,14 @@ void SwingingBlade::collide(CollisionInfo& collisionInfo)
 {
   if(m_state.triggerState == TriggerState::Active)
   {
-    if(isNear(getEngine().getLara(), collisionInfo.collisionRadius))
+    if(isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
     {
-      testBoneCollision(getEngine().getLara());
+      testBoneCollision(getEngine().getObjectManager().getLara());
     }
   }
   else if(m_state.triggerState != TriggerState::Invisible
-          && isNear(getEngine().getLara(), collisionInfo.collisionRadius) && testBoneCollision(getEngine().getLara()))
+          && isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius)
+          && testBoneCollision(getEngine().getObjectManager().getLara()))
   {
     if(collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     {

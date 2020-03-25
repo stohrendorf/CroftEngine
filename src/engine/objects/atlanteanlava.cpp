@@ -42,7 +42,7 @@ void AtlanteanLava::update()
 
   if(m_state.touch_bits.any())
   {
-    getEngine().getLara().burnIfAlive();
+    getEngine().getObjectManager().getLara().burnIfAlive();
 
     getEngine().getCameraController().setLookAtObject(getEngine().getObjectManager().find(this));
     getEngine().getCameraController().setMode(CameraMode::FixedPosition);

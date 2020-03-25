@@ -13,10 +13,10 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
   if(m_state.triggerState != TriggerState::Inactive)
     return;
 
-  if(!getEngine().getLara().isDiving())
+  if(!getEngine().getObjectManager().getLara().isDiving())
     return;
 
-  if(getEngine().getLara().getCurrentAnimState() != loader::file::LaraStateId::UnderwaterStop)
+  if(getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::UnderwaterStop)
     return;
 
   static const InteractionLimits limits{
@@ -24,24 +24,24 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
     {-80_deg, -80_deg, -80_deg},
     {+80_deg, +80_deg, +80_deg}};
 
-  if(!limits.canInteract(m_state, getEngine().getLara().m_state))
+  if(!limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
     return;
 
   if(m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as)
     return;
 
   static const core::TRVec alignSpeed{0_len, 0_len, 108_len};
-  if(!getEngine().getLara().alignTransform(alignSpeed, *this))
+  if(!getEngine().getObjectManager().getLara().alignTransform(alignSpeed, *this))
     return;
 
-  getEngine().getLara().m_state.fallspeed = 0_spd;
+  getEngine().getObjectManager().getLara().m_state.fallspeed = 0_spd;
   do
   {
-    getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::SwitchDown);
-    getEngine().getLara().updateImpl();
-  } while(getEngine().getLara().getCurrentAnimState() != loader::file::LaraStateId::SwitchDown);
-  getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
-  getEngine().getLara().setHandStatus(HandStatus::Grabbing);
+    getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::SwitchDown);
+    getEngine().getObjectManager().getLara().updateImpl();
+  } while(getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::SwitchDown);
+  getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
+  getEngine().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
   m_state.triggerState = TriggerState::Active;
 
   if(m_state.current_anim_state == 1_as)

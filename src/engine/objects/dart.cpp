@@ -7,10 +7,10 @@ namespace engine::objects
 {
 void Dart::collide(CollisionInfo& info)
 {
-  if(!isNear(getEngine().getLara(), info.collisionRadius))
+  if(!isNear(getEngine().getObjectManager().getLara(), info.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getLara()))
+  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
     return;
 
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
@@ -23,8 +23,8 @@ void Dart::update()
 {
   if(m_state.touch_bits != 0)
   {
-    getEngine().getLara().m_state.health -= 50_hp;
-    getEngine().getLara().m_state.is_hit = true;
+    getEngine().getObjectManager().getLara().m_state.health -= 50_hp;
+    getEngine().getObjectManager().getLara().m_state.is_hit = true;
 
     auto fx = createBloodSplat(getEngine(), m_state.position, m_state.speed, m_state.rotation.Y);
     getEngine().getObjectManager().registerParticle(fx);

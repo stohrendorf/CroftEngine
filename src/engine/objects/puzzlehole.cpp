@@ -20,16 +20,17 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
                                         core::TRRotation{-10_deg, -30_deg, -10_deg},
                                         core::TRRotation{10_deg, 30_deg, 10_deg}};
 
-  if(getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
+  if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
     if(!getEngine().getInputHandler().getInputState().action
-       || getEngine().getLara().getHandStatus() != HandStatus::None || getEngine().getLara().m_state.falling
-       || !limits.canInteract(m_state, getEngine().getLara().m_state))
+       || getEngine().getObjectManager().getLara().getHandStatus() != HandStatus::None
+       || getEngine().getObjectManager().getLara().m_state.falling
+       || !limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
       return;
 
     if(m_state.triggerState == TriggerState::Invisible)
     {
-      getEngine().getLara().playSoundEffect(TR1SoundId::LaraNo);
+      getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundId::LaraNo);
       return;
     }
 
@@ -44,25 +45,25 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     }
     if(!hasPuzzlePiece)
     {
-      getEngine().getLara().playSoundEffect(TR1SoundId::LaraNo);
+      getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundId::LaraNo);
       return;
     }
 
-    getEngine().getLara().alignForInteraction(core::TRVec{0_len, 0_len, 327_len}, m_state);
+    getEngine().getObjectManager().getLara().alignForInteraction(core::TRVec{0_len, 0_len, 327_len}, m_state);
 
     do
     {
-      getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::InsertPuzzle);
-      getEngine().getLara().updateImpl();
-    } while(getEngine().getLara().getCurrentAnimState() != loader::file::LaraStateId::InsertPuzzle);
+      getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::InsertPuzzle);
+      getEngine().getObjectManager().getLara().updateImpl();
+    } while(getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::InsertPuzzle);
 
-    getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
-    getEngine().getLara().setHandStatus(HandStatus::Grabbing);
+    getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
+    getEngine().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
     m_state.triggerState = TriggerState::Active;
   }
-  else if(getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::InsertPuzzle
-          && getEngine().getLara().getSkeleton()->frame_number == 3372_frame
-          && limits.canInteract(m_state, getEngine().getLara().m_state))
+  else if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::InsertPuzzle
+          && getEngine().getObjectManager().getLara().getSkeleton()->frame_number == 3372_frame
+          && limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
   {
     TR1ItemId completeId;
 

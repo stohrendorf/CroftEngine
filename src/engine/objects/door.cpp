@@ -92,10 +92,10 @@ void Door::update()
 void Door::collide(CollisionInfo& collisionInfo)
 {
 #ifndef NO_DOOR_BLOCK
-  if(!isNear(getEngine().getLara(), collisionInfo.collisionRadius))
+  if(!isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getLara()))
+  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
     return;
 
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))

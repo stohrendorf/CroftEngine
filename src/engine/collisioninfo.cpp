@@ -27,7 +27,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
   shift = core::TRVec{};
   facingAxis = *axisFromAngle(facingAngle, 45_deg);
 
-  auto room = engine.getLara().m_state.position.room;
+  auto room = engine.getObjectManager().getLara().m_state.position.room;
   const auto refTestPos = laraPos - core::TRVec(0_len, height + core::ScalpToHandsHeight, 0_len);
   const auto currentSector = findRealFloorSector(refTestPos, &room);
 
@@ -214,7 +214,7 @@ std::set<gsl::not_null<const loader::file::Room*>> CollisionInfo::collectTouchin
                                                                                        const Engine& engine)
 {
   std::set<gsl::not_null<const loader::file::Room*>> result;
-  auto room = engine.getLara().m_state.position.room;
+  auto room = engine.getObjectManager().getLara().m_state.position.room;
   result.emplace(room);
 
   const auto roomAt = [position, room](const core::Length& x, const core::Length& y, const core::Length& z) {

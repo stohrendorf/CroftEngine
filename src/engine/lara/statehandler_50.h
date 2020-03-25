@@ -33,14 +33,16 @@ public:
 
   static void emitSparkles(Engine& engine)
   {
-    const auto spheres = engine.getLara().getSkeleton()->getBoneCollisionSpheres(
-      engine.getLara().m_state, *engine.getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
+    const auto spheres = engine.getObjectManager().getLara().getSkeleton()->getBoneCollisionSpheres(
+      engine.getObjectManager().getLara().m_state,
+      *engine.getObjectManager().getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(),
+      nullptr);
 
     const auto& normalLara = engine.findAnimatedModelForType(TR1ItemId::Lara);
     Expects(normalLara != nullptr);
     for(size_t i = 0; i < spheres.size(); ++i)
     {
-      if(engine.getLara().getSkeleton()->getMeshPart(i) == normalLara->bones[i].mesh)
+      if(engine.getObjectManager().getLara().getSkeleton()->getMeshPart(i) == normalLara->bones[i].mesh)
         continue;
 
       const auto r = spheres[i].radius;
@@ -48,8 +50,8 @@ public:
       p.X += util::rand15s(r);
       p.Y += util::rand15s(r);
       p.Z += util::rand15s(r);
-      auto fx
-        = std::make_shared<SparkleParticle>(core::RoomBoundPosition{engine.getLara().m_state.position.room, p}, engine);
+      auto fx = std::make_shared<SparkleParticle>(
+        core::RoomBoundPosition{engine.getObjectManager().getLara().m_state.position.room, p}, engine);
       engine.getObjectManager().registerParticle(fx);
     }
   }

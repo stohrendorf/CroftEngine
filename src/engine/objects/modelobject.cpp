@@ -174,7 +174,8 @@ bool ModelObject::isNear(const Particle& other, const core::Length& radius) cons
 
 void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz, const bool withXZCollRadius)
 {
-  const auto laraPosWorld = getEngine().getLara().m_state.position.position - m_state.position.position;
+  const auto laraPosWorld
+    = getEngine().getObjectManager().getLara().m_state.position.position - m_state.position.position;
   auto laraPosLocal = util::pitch(laraPosWorld, -m_state.rotation.Y);
   const auto keyFrame = m_skeleton->getInterpolationInfo().getNearestFrame();
   auto objectBBox = keyFrame->bbox.toBBox();
@@ -212,7 +213,7 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     laraPosLocal.Z = objectBBox.minZ;
   }
   // update lara's position to where she was pushed
-  getEngine().getLara().m_state.position.position
+  getEngine().getObjectManager().getLara().m_state.position.position
     = m_state.position.position + util::pitch(laraPosLocal, m_state.rotation.Y);
   if(enableSpaz)
   {
@@ -220,15 +221,16 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     const auto midZ = (keyFrame->bbox.toBBox().minZ + keyFrame->bbox.toBBox().maxZ) / 2;
     const auto tmp = laraPosWorld - util::pitch(core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y);
     const auto a = angleFromAtan(tmp.X, tmp.Z) - 180_deg;
-    getEngine().getLara().hit_direction = axisFromAngle(getEngine().getLara().m_state.rotation.Y - a, 45_deg).value();
-    if(getEngine().getLara().hit_frame == 0_frame)
+    getEngine().getObjectManager().getLara().hit_direction
+      = axisFromAngle(getEngine().getObjectManager().getLara().m_state.rotation.Y - a, 45_deg).value();
+    if(getEngine().getObjectManager().getLara().hit_frame == 0_frame)
     {
-      getEngine().getLara().playSoundEffect(TR1SoundId::LaraOof);
+      getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundId::LaraOof);
     }
-    getEngine().getLara().hit_frame += 1_frame;
-    if(getEngine().getLara().hit_frame > 34_frame)
+    getEngine().getObjectManager().getLara().hit_frame += 1_frame;
+    if(getEngine().getObjectManager().getLara().hit_frame > 34_frame)
     {
-      getEngine().getLara().hit_frame = 34_frame;
+      getEngine().getObjectManager().getLara().hit_frame = 34_frame;
     }
   }
   collisionInfo.badPositiveDistance = core::HeightLimit;
@@ -236,19 +238,20 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
   collisionInfo.badCeilingDistance = 0_len;
   const auto facingAngle = collisionInfo.facingAngle;
   collisionInfo.facingAngle
-    = angleFromAtan(getEngine().getLara().m_state.position.position.X - collisionInfo.oldPosition.X,
-                    getEngine().getLara().m_state.position.position.Z - collisionInfo.oldPosition.Z);
-  collisionInfo.initHeightInfo(getEngine().getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    = angleFromAtan(getEngine().getObjectManager().getLara().m_state.position.position.X - collisionInfo.oldPosition.X,
+                    getEngine().getObjectManager().getLara().m_state.position.position.Z - collisionInfo.oldPosition.Z);
+  collisionInfo.initHeightInfo(
+    getEngine().getObjectManager().getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
   collisionInfo.facingAngle = facingAngle;
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::None)
   {
-    getEngine().getLara().m_state.position.position.X = collisionInfo.oldPosition.X;
-    getEngine().getLara().m_state.position.position.Z = collisionInfo.oldPosition.Z;
+    getEngine().getObjectManager().getLara().m_state.position.position.X = collisionInfo.oldPosition.X;
+    getEngine().getObjectManager().getLara().m_state.position.position.Z = collisionInfo.oldPosition.Z;
   }
   else
   {
-    collisionInfo.oldPosition = getEngine().getLara().m_state.position.position;
-    getEngine().getLara().updateFloorHeight(-10_len);
+    collisionInfo.oldPosition = getEngine().getObjectManager().getLara().m_state.position.position;
+    getEngine().getObjectManager().getLara().updateFloorHeight(-10_len);
   }
 }
 

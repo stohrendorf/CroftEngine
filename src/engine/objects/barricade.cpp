@@ -23,10 +23,10 @@ void Barricade::update()
 
 void Barricade::collide(CollisionInfo& collisionInfo)
 {
-  if(!isNear(getEngine().getLara(), collisionInfo.collisionRadius))
+  if(!isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getLara()))
+  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
     return;
 
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))

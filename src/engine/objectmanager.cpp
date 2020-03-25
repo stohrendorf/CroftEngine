@@ -6,16 +6,16 @@
 #include "particle.h"
 #include "serialization/map.h"
 #include "serialization/not_null.h"
+#include "serialization/objectreference.h"
 
 namespace engine
 {
-std::shared_ptr<objects::LaraObject> ObjectManager::createObjects(Engine& engine,
-                                                                  std::vector<loader::file::Item>& items)
+void ObjectManager::createObjects(Engine& engine, std::vector<loader::file::Item>& items)
 {
   Expects(m_objectCounter == ObjectId(-1));
   m_objectCounter = gsl::narrow<ObjectId>(items.size());
 
-  std::shared_ptr<objects::LaraObject> lara = nullptr;
+  m_lara = nullptr;
   ObjectId id = -1;
   for(auto& item : items)
   {
@@ -24,8 +24,8 @@ std::shared_ptr<objects::LaraObject> ObjectManager::createObjects(Engine& engine
     auto object = objects::createObject(engine, item);
     if(item.type == TR1ItemId::Lara)
     {
-      lara = std::dynamic_pointer_cast<objects::LaraObject>(object);
-      Expects(lara != nullptr);
+      m_lara = std::dynamic_pointer_cast<objects::LaraObject>(object);
+      Expects(m_lara != nullptr);
     }
 
     if(object != nullptr)
@@ -33,8 +33,6 @@ std::shared_ptr<objects::LaraObject> ObjectManager::createObjects(Engine& engine
       m_objects.emplace(std::make_pair(id, object));
     }
   }
-
-  return lara;
 }
 
 void ObjectManager::applyScheduledDeletions()
@@ -102,11 +100,11 @@ std::shared_ptr<objects::Object> ObjectManager::getObject(ObjectId id) const
   return it->second.get();
 }
 
-void ObjectManager::update(Engine& engine)
+void ObjectManager::update(Engine& engine, bool godMode)
 {
   for(const auto& object : m_objects | boost::adaptors::map_values)
   {
-    if(object.get() == engine.getLaraPtr()) // Lara is special and needs to be updated last
+    if(object.get() == m_lara) // Lara is special and needs to be updated last
       continue;
 
     if(object->m_isActive)
@@ -137,11 +135,22 @@ void ObjectManager::update(Engine& engine)
       setParent(particle, nullptr);
     }
   }
+
+  if(m_lara != nullptr)
+  {
+    if(godMode)
+      m_lara->m_state.health = core::LaraHealth;
+    m_lara->update();
+  }
+
+  applyScheduledDeletions();
 }
 
 void ObjectManager::serialize(const serialization::Serializer& ser)
 {
-  ser(S_NV("objectCounter", m_objectCounter), S_NV("objects", m_objects));
+  ser(S_NV("objectCounter", m_objectCounter),
+      S_NV("objects", m_objects),
+      S_NV("lara", serialization::ObjectReference{m_lara}));
 }
 
 void ObjectManager::eraseParticle(const std::shared_ptr<Particle>& particle)

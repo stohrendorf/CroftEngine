@@ -126,15 +126,15 @@ void LightningBall::update()
   m_laraHit = false;
 
   const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
-  if(getEngine().getLara().isNear(*this, radius))
+  if(getEngine().getObjectManager().getLara().isNear(*this, radius))
   {
     // target at lara
-    m_mainBoltEnd = getEngine().getLara().m_state.position.position - m_state.position.position;
+    m_mainBoltEnd = getEngine().getObjectManager().getLara().m_state.position.position - m_state.position.position;
     m_mainBoltEnd
       = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
 
-    getEngine().getLara().m_state.health -= 400_hp;
-    getEngine().getLara().m_state.is_hit = true;
+    getEngine().getObjectManager().getLara().m_state.health -= 400_hp;
+    getEngine().getObjectManager().getLara().m_state.is_hit = true;
 
     m_laraHit = true;
   }
@@ -177,10 +177,10 @@ void LightningBall::collide(CollisionInfo& /*info*/)
   if(!m_laraHit)
     return;
 
-  getEngine().getLara().hit_direction = static_cast<core::Axis>(util::rand15(4));
-  getEngine().getLara().hit_frame += 1_frame;
-  if(getEngine().getLara().hit_frame > 34_frame)
-    getEngine().getLara().hit_frame = 34_frame;
+  getEngine().getObjectManager().getLara().hit_direction = static_cast<core::Axis>(util::rand15(4));
+  getEngine().getObjectManager().getLara().hit_frame += 1_frame;
+  if(getEngine().getObjectManager().getLara().hit_frame > 34_frame)
+    getEngine().getObjectManager().getLara().hit_frame = 34_frame;
 }
 
 void LightningBall::prepareRender()

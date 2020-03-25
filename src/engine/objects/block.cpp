@@ -9,8 +9,8 @@ namespace engine::objects
 void Block::collide(CollisionInfo& /*collisionInfo*/)
 {
   if(!getEngine().getInputHandler().getInputState().action || m_state.triggerState == TriggerState::Active
-     || getEngine().getLara().m_state.falling
-     || getEngine().getLara().m_state.position.position.Y != m_state.position.position.Y)
+     || getEngine().getObjectManager().getLara().m_state.falling
+     || getEngine().getObjectManager().getLara().m_state.position.position.Y != m_state.position.position.Y)
   {
     return;
   }
@@ -19,13 +19,13 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
                                         {-10_deg, -30_deg, -10_deg},
                                         {+10_deg, +30_deg, +10_deg}};
 
-  auto axis = axisFromAngle(getEngine().getLara().m_state.rotation.Y, 45_deg);
+  auto axis = axisFromAngle(getEngine().getObjectManager().getLara().m_state.rotation.Y, 45_deg);
   Expects(axis.has_value());
 
-  if(getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
+  if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
     if(getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Null
-       || getEngine().getLara().getHandStatus() != HandStatus::None)
+       || getEngine().getObjectManager().getLara().getHandStatus() != HandStatus::None)
     {
       return;
     }
@@ -33,12 +33,12 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     const core::Angle y = alignRotation(*axis);
     m_state.rotation.Y = y;
 
-    if(!limits.canInteract(m_state, getEngine().getLara().m_state))
+    if(!limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
     {
       return;
     }
 
-    getEngine().getLara().m_state.rotation.Y = y;
+    getEngine().getObjectManager().getLara().m_state.rotation.Y = y;
 
     core::Length core::TRVec::*vp;
     core::Length d = 0_len;
@@ -63,21 +63,22 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid axis"));
     }
 
-    getEngine().getLara().m_state.position.position.*vp
-      = (getEngine().getLara().m_state.position.position.*vp / core::SectorSize) * core::SectorSize + d;
+    getEngine().getObjectManager().getLara().m_state.position.position.*vp
+      = (getEngine().getObjectManager().getLara().m_state.position.position.*vp / core::SectorSize) * core::SectorSize
+        + d;
 
-    getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
-    getEngine().getLara().updateImpl();
-    if(getEngine().getLara().getCurrentAnimState() == loader::file::LaraStateId::PushableGrab)
+    getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
+    getEngine().getObjectManager().getLara().updateImpl();
+    if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PushableGrab)
     {
-      getEngine().getLara().setHandStatus(HandStatus::Grabbing);
+      getEngine().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
     }
     return;
   }
 
-  if(getEngine().getLara().getCurrentAnimState() != loader::file::LaraStateId::PushableGrab
-     || getEngine().getLara().getSkeleton()->frame_number != 2091_frame
-     || !limits.canInteract(m_state, getEngine().getLara().m_state))
+  if(getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PushableGrab
+     || getEngine().getObjectManager().getLara().getSkeleton()->frame_number != 2091_frame
+     || !limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
   {
     return;
   }
@@ -90,7 +91,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     }
 
     m_state.goal_anim_state = 2_as;
-    getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePush);
+    getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePush);
   }
   else if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
   {
@@ -100,7 +101,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     }
 
     m_state.goal_anim_state = 3_as;
-    getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePull);
+    getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePull);
   }
   else
   {
@@ -114,7 +115,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
   m_state.triggerState = TriggerState::Active;
 
   ModelObject::update();
-  getEngine().getLara().updateImpl();
+  getEngine().getObjectManager().getLara().updateImpl();
 }
 
 void Block::update()
@@ -270,7 +271,7 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
     return false;
   }
 
-  laraPos = getEngine().getLara().m_state.position.position;
+  laraPos = getEngine().getObjectManager().getLara().m_state.position.position;
   switch(axis)
   {
   case core::Axis::PosZ:

@@ -16,8 +16,8 @@ void SlammingDoors::update()
     m_state.goal_anim_state = 1_as;
     if(m_state.touch_bits.any() && m_state.current_anim_state == 1_as)
     {
-      getEngine().getLara().m_state.health -= 400_hp;
-      getEngine().getLara().m_state.is_hit = true;
+      getEngine().getObjectManager().getLara().m_state.health -= 400_hp;
+      getEngine().getObjectManager().getLara().m_state.is_hit = true;
 
       const auto objectSpheres = getSkeleton()->getBoneCollisionSpheres(
         m_state, *getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
@@ -45,13 +45,14 @@ void SlammingDoors::collide(CollisionInfo& collisionInfo)
 {
   if(m_state.triggerState == TriggerState::Active)
   {
-    if(isNear(getEngine().getLara(), collisionInfo.collisionRadius))
+    if(isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
     {
-      testBoneCollision(getEngine().getLara());
+      testBoneCollision(getEngine().getObjectManager().getLara());
     }
   }
   else if(m_state.triggerState != TriggerState::Invisible
-          && isNear(getEngine().getLara(), collisionInfo.collisionRadius) && testBoneCollision(getEngine().getLara()))
+          && isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius)
+          && testBoneCollision(getEngine().getObjectManager().getLara()))
   {
     if(collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     {

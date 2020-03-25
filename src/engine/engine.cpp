@@ -240,8 +240,8 @@ void Engine::loadSceneData()
     m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
   }
 
-  m_lara = m_objectManager.createObjects(*this, m_level->m_items);
-  if(m_lara == nullptr)
+  m_objectManager.createObjects(*this, m_level->m_items);
+  if(m_objectManager.getLaraPtr() == nullptr)
   {
     m_cameraController = std::make_unique<CameraController>(this, m_renderer->getCamera(), true);
 
@@ -270,7 +270,7 @@ void Engine::loadSceneData()
 
 void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>>& image)
 {
-  if(m_lara->isInWater())
+  if(m_objectManager.getLara().isInWater())
   {
     const auto x0 = m_window->getViewport().x - 110;
 
@@ -281,7 +281,7 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>
     image->line(x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[19].toTextureColor());
     image->line(x0 - 2, 6, x0 - 2, 14, m_level->m_palette->colors[19].toTextureColor());
 
-    const int p = util::clamp(m_lara->getAir() * 100 / core::LaraAir, 0, 100);
+    const int p = util::clamp(m_objectManager.getLara().getAir() * 100 / core::LaraAir, 0, 100);
     if(p > 0)
     {
       image->line(x0, 8, x0 + p, 8, m_level->m_palette->colors[32].toTextureColor());
@@ -292,10 +292,11 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>
     }
   }
 
-  if(m_lara->getHandStatus() == objects::HandStatus::Combat || m_lara->m_state.health <= 0_hp)
+  if(m_objectManager.getLara().getHandStatus() == objects::HandStatus::Combat
+     || m_objectManager.getLara().m_state.health <= 0_hp)
     m_healthBarTimeout = 40_frame;
 
-  if(std::exchange(m_drawnHealth, m_lara->m_state.health) != m_lara->m_state.health)
+  if(std::exchange(m_drawnHealth, m_objectManager.getLara().m_state.health) != m_objectManager.getLara().m_state.health)
     m_healthBarTimeout = 40_frame;
 
   m_healthBarTimeout -= 1_frame;
@@ -316,7 +317,7 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>
   image->line(x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[19].toTextureColor(alpha), true);
   image->line(x0 - 2, 6, x0 - 2, 14, m_level->m_palette->colors[19].toTextureColor(alpha), true);
 
-  const int p = util::clamp(m_lara->m_state.health * 100 / core::LaraHealth, 0, 100);
+  const int p = util::clamp(m_objectManager.getLara().m_state.health * 100 / core::LaraHealth, 0, 100);
   if(p > 0)
   {
     image->line(x0, 8, x0 + p, 8, m_level->m_palette->colors[8].toTextureColor(alpha), true);
@@ -331,18 +332,18 @@ void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>
 void Engine::useAlternativeLaraAppearance(const bool withHead)
 {
   const auto& base = *findAnimatedModelForType(TR1ItemId::Lara);
-  BOOST_ASSERT(base.bones.size() == m_lara->getSkeleton()->getBoneCount());
+  BOOST_ASSERT(base.bones.size() == m_objectManager.getLara().getSkeleton()->getBoneCount());
 
   const auto& alternate = *findAnimatedModelForType(TR1ItemId::AlternativeLara);
-  BOOST_ASSERT(alternate.bones.size() == m_lara->getSkeleton()->getBoneCount());
+  BOOST_ASSERT(alternate.bones.size() == m_objectManager.getLara().getSkeleton()->getBoneCount());
 
-  for(size_t i = 0; i < m_lara->getSkeleton()->getBoneCount(); ++i)
-    m_lara->getSkeleton()->setMeshPart(i, alternate.bones[i].mesh);
+  for(size_t i = 0; i < m_objectManager.getLara().getSkeleton()->getBoneCount(); ++i)
+    m_objectManager.getLara().getSkeleton()->setMeshPart(i, alternate.bones[i].mesh);
 
   if(!withHead)
-    m_lara->getSkeleton()->setMeshPart(14, base.bones[14].mesh);
+    m_objectManager.getLara().getSkeleton()->setMeshPart(14, base.bones[14].mesh);
 
-  m_lara->getSkeleton()->rebuildMesh();
+  m_objectManager.getLara().getSkeleton()->rebuildMesh();
 }
 
 void Engine::dinoStompEffect(objects::Object& object)
@@ -366,11 +367,11 @@ void Engine::turn180Effect(objects::Object& object)
 
 void Engine::laraNormalEffect()
 {
-  Expects(m_lara != nullptr);
-  m_lara->setCurrentAnimState(loader::file::LaraStateId::Stop);
-  m_lara->setRequiredAnimState(loader::file::LaraStateId::Unknown12);
-  m_lara->getSkeleton()->anim = &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
-  m_lara->getSkeleton()->frame_number = 185_frame;
+  m_objectManager.getLara().setCurrentAnimState(loader::file::LaraStateId::Stop);
+  m_objectManager.getLara().setRequiredAnimState(loader::file::LaraStateId::Unknown12);
+  m_objectManager.getLara().getSkeleton()->anim
+    = &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
+  m_objectManager.getLara().getSkeleton()->frame_number = 185_frame;
   m_cameraController->setMode(CameraMode::Chase);
   m_renderer->getCamera()->setFieldOfView(glm::radians(80.0f));
 }
@@ -436,7 +437,7 @@ void Engine::floodEffect()
 {
   if(m_effectTimer <= 120_frame)
   {
-    auto pos = m_lara->m_state.position.position;
+    auto pos = m_objectManager.getLara().m_state.position.position;
     core::Frame mul = 0_frame;
     if(m_effectTimer >= 30_frame)
     {
@@ -514,7 +515,7 @@ void Engine::explosionEffect()
 // ReSharper disable once CppMemberFunctionMayBeConst
 void Engine::laraHandsFreeEffect()
 {
-  m_lara->setHandStatus(objects::HandStatus::None);
+  m_objectManager.getLara().setHandStatus(objects::HandStatus::None);
 }
 
 void Engine::flipMapEffect()
@@ -692,16 +693,7 @@ const std::vector<int16_t>& Engine::getAnimCommands() const
 
 void Engine::update(const bool godMode)
 {
-  m_objectManager.update(*this);
-
-  if(m_lara != nullptr)
-  {
-    if(godMode)
-      m_lara->m_state.health = core::LaraHealth;
-    m_lara->update();
-  }
-
-  m_objectManager.applyScheduledDeletions();
+  m_objectManager.update(*this, godMode);
   animateUV();
 }
 
@@ -1111,7 +1103,7 @@ void Engine::run()
     }
     doGlobalEffect();
 
-    if(m_lara != nullptr)
+    if(m_objectManager.getLaraPtr() != nullptr)
       drawBars(screenOverlay->getImage());
 
     m_renderPipeline->update(m_renderer->getCamera(), m_renderer->getGameTime());
@@ -1208,9 +1200,9 @@ void Engine::run()
 
     if(debugView.isVisible())
     {
-      if(m_lara != nullptr)
+      if(m_objectManager.getLaraPtr() != nullptr)
       {
-        debugView.update(*m_lara, m_objectManager.getObjects(), m_objectManager.getDynamicObjects());
+        debugView.update(m_objectManager.getLara(), m_objectManager.getObjects(), m_objectManager.getDynamicObjects());
       }
     }
     if(showDebugInfo)
@@ -1376,9 +1368,9 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
   {
     if(!fromHeavy)
     {
-      if(m_lara->m_state.position.position.Y == m_lara->m_state.floor)
+      if(m_objectManager.getLara().m_state.position.position.Y == m_objectManager.getLara().m_state.floor)
       {
-        m_lara->burnIfAlive();
+        m_objectManager.getLara().burnIfAlive();
       }
     }
 
@@ -1407,7 +1399,8 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     case floordata::SequenceCondition::LaraOnGround:
     case floordata::SequenceCondition::LaraOnGroundInverted:
     {
-      conditionFulfilled = m_lara->m_state.position.position.Y == m_lara->m_state.floor;
+      conditionFulfilled
+        = m_objectManager.getLara().m_state.position.position.Y == m_objectManager.getLara().m_state.floor;
     }
     break;
     case floordata::SequenceCondition::ItemActivated:
@@ -1442,7 +1435,7 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
       break;
     }
     case floordata::SequenceCondition::LaraInCombatMode:
-      conditionFulfilled = m_lara->getHandStatus() == objects::HandStatus::Combat;
+      conditionFulfilled = m_objectManager.getLara().getHandStatus() == objects::HandStatus::Combat;
       break;
     case floordata::SequenceCondition::ItemIsHere:
     case floordata::SequenceCondition::Dummy: return;
@@ -1514,12 +1507,13 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     case floordata::CommandOpcode::UnderwaterCurrent:
     {
       const auto& sink = m_level->m_cameras.at(command.parameter);
-      if(m_lara->m_underwaterRoute.required_box != &m_level->m_boxes[sink.box_index])
+      if(m_objectManager.getLara().m_underwaterRoute.required_box != &m_level->m_boxes[sink.box_index])
       {
-        m_lara->m_underwaterRoute.required_box = &m_level->m_boxes[sink.box_index];
-        m_lara->m_underwaterRoute.target = sink.position;
+        m_objectManager.getLara().m_underwaterRoute.required_box = &m_level->m_boxes[sink.box_index];
+        m_objectManager.getLara().m_underwaterRoute.target = sink.position;
       }
-      m_lara->m_underwaterCurrentStrength = 6_len * static_cast<core::Length::type>(sink.underwaterCurrentStrength);
+      m_objectManager.getLara().m_underwaterCurrentStrength
+        = 6_len * static_cast<core::Length::type>(sink.underwaterCurrentStrength);
     }
     break;
     case floordata::CommandOpcode::FlipMap:
@@ -1630,8 +1624,7 @@ void Engine::serialize(const serialization::Serializer& ser)
       S_NV("activeEffect", m_activeEffect),
       S_NV("effectTimer", m_effectTimer),
       S_NV("cameraController", *m_cameraController),
-      S_NV("secretsFound", m_secretsFoundBitmask),
-      S_NV("lara", serialization::ObjectReference{m_lara}));
+      S_NV("secretsFound", m_secretsFoundBitmask));
 }
 
 const engine::floordata::FloorData& Engine::getFloorData() const

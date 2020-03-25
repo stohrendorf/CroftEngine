@@ -61,21 +61,21 @@ void ThorHammerHandle::update()
       {
         posX -= 3 * core::SectorSize;
       }
-      if(getEngine().getLara().m_state.health >= 0_hp)
+      if(getEngine().getObjectManager().getLara().m_state.health >= 0_hp)
       {
-        if(posX - 520_len < getEngine().getLara().m_state.position.position.X
-           && posX + 520_len > getEngine().getLara().m_state.position.position.X
-           && posZ - 520_len < getEngine().getLara().m_state.position.position.Z
-           && posZ + 520_len > getEngine().getLara().m_state.position.position.Z)
+        if(posX - 520_len < getEngine().getObjectManager().getLara().m_state.position.position.X
+           && posX + 520_len > getEngine().getObjectManager().getLara().m_state.position.position.X
+           && posZ - 520_len < getEngine().getObjectManager().getLara().m_state.position.position.Z
+           && posZ + 520_len > getEngine().getObjectManager().getLara().m_state.position.position.Z)
         {
-          getEngine().getLara().m_state.health = -1_hp;
-          getEngine().getLara().getSkeleton()->anim
+          getEngine().getObjectManager().getLara().m_state.health = -1_hp;
+          getEngine().getObjectManager().getLara().getSkeleton()->anim
             = &getEngine().findAnimatedModelForType(TR1ItemId::Lara)->animations[139];
-          getEngine().getLara().getSkeleton()->frame_number = 3561_frame;
-          getEngine().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
-          getEngine().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
-          getEngine().getLara().m_state.position.position.Y = m_state.position.position.Y;
-          getEngine().getLara().m_state.falling = false;
+          getEngine().getObjectManager().getLara().getSkeleton()->frame_number = 3561_frame;
+          getEngine().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
+          getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
+          getEngine().getObjectManager().getLara().m_state.position.position.Y = m_state.position.position.Y;
+          getEngine().getObjectManager().getLara().m_state.falling = false;
         }
       }
     }
@@ -105,7 +105,7 @@ void ThorHammerHandle::update()
     {
       m_state.position.position.X -= 3 * core::SectorSize;
     }
-    if(getEngine().getLara().m_state.health >= 0_hp)
+    if(getEngine().getObjectManager().getLara().m_state.health >= 0_hp)
     {
       m_state.position.room->patchHeightsForBlock(*this, -2 * core::SectorSize);
     }
@@ -133,7 +133,7 @@ void ThorHammerHandle::collide(CollisionInfo& info)
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
-  if(!isNear(getEngine().getLara(), info.collisionRadius))
+  if(!isNear(getEngine().getObjectManager().getLara(), info.collisionRadius))
     return;
 
   enemyPush(info, false, true);
@@ -147,7 +147,7 @@ void ThorHammerBlock::collide(CollisionInfo& info)
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
-  if(!isNear(getEngine().getLara(), info.collisionRadius))
+  if(!isNear(getEngine().getObjectManager().getLara(), info.collisionRadius))
     return;
 
   enemyPush(info, false, true);

@@ -13,7 +13,7 @@ void CollapsibleFloor::update()
 
   if(m_state.current_anim_state == 0_as) // stationary
   {
-    if(m_state.position.position.Y - 512_len != getEngine().getLara().m_state.position.position.Y)
+    if(m_state.position.position.Y - 512_len != getEngine().getObjectManager().getLara().m_state.position.position.Y)
     {
       m_state.triggerState = TriggerState::Inactive;
       deactivate();

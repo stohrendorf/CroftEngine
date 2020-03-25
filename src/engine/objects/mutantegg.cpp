@@ -120,7 +120,8 @@ void MutantEgg::update()
   if(m_state.goal_anim_state != 1_as)
   {
     if(m_state.activationState.isOneshot() || m_state.type == TR1ItemId::MutantEggBig
-       || (getEngine().getLara().m_state.position.position - m_state.position.position).absMax() < 4096_len)
+       || (getEngine().getObjectManager().getLara().m_state.position.position - m_state.position.position).absMax()
+            < 4096_len)
     {
       BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getName() << ": Hatching " << m_childObject->getNode()->getName();
       m_state.goal_anim_state = 1_as;
@@ -153,10 +154,10 @@ void MutantEgg::update()
 
 void MutantEgg::collide(CollisionInfo& info)
 {
-  if(!isNear(getEngine().getLara(), info.collisionRadius))
+  if(!isNear(getEngine().getObjectManager().getLara(), info.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getLara()))
+  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
     return;
 
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))

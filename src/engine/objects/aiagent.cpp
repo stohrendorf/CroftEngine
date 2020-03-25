@@ -62,7 +62,8 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
 {
   for(const auto& object : getEngine().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
-    if(!object->m_isActive || object.get().get() == this || object.get().get() == &getEngine().getLara())
+    if(!object->m_isActive || object.get().get() == this
+       || object.get().get() == &getEngine().getObjectManager().getLara())
       continue;
 
     if(object->m_state.triggerState == TriggerState::Active && object->m_state.speed != 0_spd
@@ -406,10 +407,10 @@ AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
 
 void AIAgent::collide(CollisionInfo& collisionInfo)
 {
-  if(!isNear(getEngine().getLara(), collisionInfo.collisionRadius))
+  if(!isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getLara()))
+  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
     return;
 
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
@@ -428,7 +429,7 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
   }
 
   const auto start = m_state.position;
-  auto end = getEngine().getLara().m_state.position;
+  auto end = getEngine().getObjectManager().getLara().m_state.position;
   end.position.Y -= 768_len;
   return CameraController::clampPosition(start, end, getEngine().getObjectManager());
 }
@@ -459,21 +460,23 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
     {
       isHit = true;
 
-      getEngine().getLara().emitParticle(
-        core::TRVec{}, util::rand15(getEngine().getLara().getSkeleton()->getBoneCount()), &createBloodSplat);
+      getEngine().getObjectManager().getLara().emitParticle(
+        core::TRVec{},
+        util::rand15(getEngine().getObjectManager().getLara().getSkeleton()->getBoneCount()),
+        &createBloodSplat);
 
-      if(!getEngine().getLara().isInWater())
-        getEngine().getLara().playSoundEffect(TR1SoundId::BulletHitsLara);
+      if(!getEngine().getObjectManager().getLara().isInWater())
+        getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundId::BulletHitsLara);
     }
   }
 
   if(!isHit)
   {
-    auto pos = getEngine().getLara().m_state.position;
+    auto pos = getEngine().getObjectManager().getLara().m_state.position;
     pos.position.X += util::rand15s(core::SectorSize / 2);
-    pos.position.Y = getEngine().getLara().m_state.floor;
+    pos.position.Y = getEngine().getObjectManager().getLara().m_state.floor;
     pos.position.Z += util::rand15s(core::SectorSize / 2);
-    getEngine().getLara().playShotMissed(pos);
+    getEngine().getObjectManager().getLara().playShotMissed(pos);
   }
 
   auto p = object.emitParticle(bonePos, boneIndex, &createGunFlare);
@@ -492,7 +495,7 @@ void AIAgent::loadObjectInfo(bool withoutGameState)
 
 void AIAgent::hitLara(const core::Health& strength)
 {
-  getEngine().getLara().m_state.is_hit = true;
-  getEngine().getLara().m_state.health -= strength;
+  getEngine().getObjectManager().getLara().m_state.is_hit = true;
+  getEngine().getObjectManager().getLara().m_state.health -= strength;
 }
 } // namespace engine::objects
