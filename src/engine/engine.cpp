@@ -398,7 +398,7 @@ void Engine::laraBubblesEffect(objects::Object& object)
     auto particle
       = std::make_shared<BubbleParticle>(core::RoomBoundPosition{object.m_state.position.room, position}, *this);
     setParent(particle, object.m_state.position.room->node);
-    m_particles.emplace_back(particle);
+    m_objectManager.registerParticle(particle);
   }
 }
 
@@ -692,22 +692,7 @@ const std::vector<int16_t>& Engine::getAnimCommands() const
 
 void Engine::update(const bool godMode)
 {
-  m_objectManager.update(m_lara);
-
-  auto currentParticles = std::move(m_particles);
-  for(const auto& particle : currentParticles)
-  {
-    if(particle->update(*this))
-    {
-      setParent(particle, particle->pos.room->node);
-      particle->updateLight();
-      m_particles.emplace_back(particle);
-    }
-    else
-    {
-      setParent(particle, nullptr);
-    }
-  }
+  m_objectManager.update(*this);
 
   if(m_lara != nullptr)
   {

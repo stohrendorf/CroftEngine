@@ -16,6 +16,6 @@ void WaterfallMist::update()
 
   auto particle = std::make_shared<SplashParticle>(m_state.position, getEngine(), true);
   setParent(particle, m_state.position.room->node);
-  getEngine().getParticles().emplace_back(particle);
+  getEngine().getObjectManager().registerParticle(particle);
 }
 } // namespace engine::objects

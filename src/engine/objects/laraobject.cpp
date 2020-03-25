@@ -299,7 +299,7 @@ void LaraObject::update()
 
         auto particle = std::make_shared<SplashParticle>(surfacePos, getEngine(), false);
         setParent(particle, surfacePos.room->node);
-        getEngine().getParticles().emplace_back(particle);
+        getEngine().getObjectManager().registerParticle(particle);
       }
     }
   }
@@ -1711,7 +1711,7 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
                              core::RoomBoundPosition{object.m_state.position.room, hitPos},
                              object.m_state.speed,
                              object.m_state.rotation.Y);
-  getEngine().getParticles().emplace_back(fx);
+  getEngine().getObjectManager().registerParticle(fx);
   if(object.m_state.health <= 0_hp)
     return;
 
@@ -2203,7 +2203,7 @@ void LaraObject::burnIfAlive()
   {
     auto particle = std::make_shared<FlameParticle>(m_state.position, getEngine(), true);
     setParent(particle, m_state.position.room->node);
-    getEngine().getParticles().emplace_back(particle);
+    getEngine().getObjectManager().registerParticle(particle);
   }
 }
 

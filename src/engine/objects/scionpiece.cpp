@@ -76,7 +76,7 @@ void ScionPiece3::update()
     const auto particle = std::make_shared<ExplosionParticle>(
       core::RoomBoundPosition{m_state.position.room, pos}, getEngine(), 0_spd, core::TRRotation{0_deg, 0_deg, 0_deg});
     setParent(particle, m_state.position.room->node);
-    getEngine().getParticles().emplace_back(particle);
+    getEngine().getObjectManager().registerParticle(particle);
     getEngine().getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
 
     getEngine().getCameraController().setBounce(-200_len);

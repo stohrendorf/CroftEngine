@@ -28,7 +28,7 @@ void SlammingDoors::update()
 
         auto blood = createBloodSplat(
           getEngine(), core::RoomBoundPosition{m_state.position.room, position}, m_state.speed, m_state.rotation.Y);
-        getEngine().getParticles().emplace_back(std::move(blood));
+        getEngine().getObjectManager().registerParticle(std::move(blood));
       };
 
       for(const auto& x : {-23_len, 71_len})

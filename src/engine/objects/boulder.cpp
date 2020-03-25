@@ -115,7 +115,7 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
                                  core::RoomBoundPosition{m_state.position.room, tmp},
                                  2 * m_state.speed,
                                  util::rand15s(22.5_deg) + m_state.rotation.Y);
-      getEngine().getParticles().emplace_back(fx);
+      getEngine().getObjectManager().registerParticle(fx);
     }
     return;
   }
@@ -140,5 +140,5 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
                   z * core::SectorSize / 2 / xyz + m_state.position.position.Z}},
     m_state.speed,
     m_state.rotation.Y);
-  getEngine().getParticles().emplace_back(fx);
+  getEngine().getObjectManager().registerParticle(fx);
 }

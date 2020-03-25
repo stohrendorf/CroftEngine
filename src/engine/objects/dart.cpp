@@ -27,7 +27,7 @@ void Dart::update()
     getEngine().getLara().m_state.is_hit = true;
 
     auto fx = createBloodSplat(getEngine(), m_state.position, m_state.speed, m_state.rotation.Y);
-    getEngine().getParticles().emplace_back(fx);
+    getEngine().getObjectManager().registerParticle(fx);
   }
 
   ModelObject::update();
@@ -50,6 +50,6 @@ void Dart::update()
   setParent(particle, m_state.position.room->node);
   particle->angle = m_state.rotation;
   particle->timePerSpriteFrame = 6;
-  getEngine().getParticles().emplace_back(particle);
+  getEngine().getObjectManager().registerParticle(particle);
 }
 } // namespace engine::objects

@@ -201,7 +201,7 @@ bool FlameParticle::update(Engine& engine)
         const auto particle = std::make_shared<FlameParticle>(pos, engine);
         particle->timePerSpriteFrame = -1;
         setParent(particle, pos.room->node);
-        engine.getParticles().emplace_back(particle);
+        engine.getObjectManager().registerParticle(particle);
       }
     }
   }
@@ -292,7 +292,7 @@ bool MeshShrapnelParticle::update(Engine& engine)
 
   const auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
   setParent(particle, pos.room->node);
-  engine.getParticles().emplace_back(particle);
+  engine.getObjectManager().registerParticle(particle);
   engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
   return false;
 }
@@ -318,7 +318,7 @@ bool MutantBulletParticle::update(Engine& engine)
     auto particle = std::make_shared<RicochetParticle>(pos, engine);
     particle->timePerSpriteFrame = 6;
     setParent(particle, pos.room->node);
-    engine.getParticles().emplace_back(particle);
+    engine.getObjectManager().registerParticle(particle);
     engine.getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
     return false;
   }
@@ -327,7 +327,7 @@ bool MutantBulletParticle::update(Engine& engine)
     engine.getLara().m_state.health -= 30_hp;
     auto particle = std::make_shared<BloodSplatterParticle>(pos, speed, angle.Y, engine);
     setParent(particle, pos.room->node);
-    engine.getParticles().emplace_back(particle);
+    engine.getObjectManager().registerParticle(particle);
     engine.getAudioEngine().playSound(TR1SoundId::BulletHitsLara, particle.get());
     engine.getLara().m_state.is_hit = true;
     angle.Y = engine.getLara().m_state.rotation.Y;
@@ -351,7 +351,7 @@ bool MutantGrenadeParticle::update(Engine& engine)
   {
     auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
     setParent(particle, pos.room->node);
-    engine.getParticles().emplace_back(particle);
+    engine.getObjectManager().registerParticle(particle);
     engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
 
     const auto dd = pos.position - engine.getLara().m_state.position.position;
@@ -369,7 +369,7 @@ bool MutantGrenadeParticle::update(Engine& engine)
     engine.getLara().m_state.health -= 100_hp;
     auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
     setParent(particle, pos.room->node);
-    engine.getParticles().emplace_back(particle);
+    engine.getObjectManager().registerParticle(particle);
     engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
 
     if(engine.getLara().m_state.health > 0_hp)

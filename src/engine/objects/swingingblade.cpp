@@ -35,7 +35,7 @@ void SwingingBlade::update()
                                core::RoomBoundPosition{m_state.position.room, splatPos},
                                getEngine().getLara().m_state.speed,
                                getEngine().getLara().m_state.rotation.Y + util::rand15s(+22_deg));
-    getEngine().getParticles().emplace_back(fx);
+    getEngine().getObjectManager().registerParticle(fx);
   }
 
   auto room = m_state.position.room;

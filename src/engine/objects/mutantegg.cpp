@@ -43,7 +43,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
       damageRadius);
     particle->negSpriteFrameId = gsl::narrow<int16_t>(modelType->mesh_base_index + i);
     setParent(particle, object.m_state.position.room->node);
-    object.getEngine().getParticles().emplace_back(std::move(particle));
+    object.getEngine().getObjectManager().registerParticle(std::move(particle));
 
     BOOST_LOG_TRIVIAL(trace) << "Shatter model: mesh " << i << " converted";
   }

@@ -296,7 +296,7 @@ gsl::not_null<std::shared_ptr<Particle>>
   auto roomPos = m_state.position;
   roomPos.position = core::TRVec{glm::vec3{translate(boneSpheres.at(boneIndex).m, localPosition.toRenderSystem())[3]}};
   auto particle = generate(getEngine(), roomPos, m_state.speed, m_state.rotation.Y);
-  getEngine().getParticles().push_back(particle);
+  getEngine().getObjectManager().registerParticle(particle);
 
   return particle;
 }

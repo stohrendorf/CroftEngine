@@ -92,8 +92,6 @@ private:
 
   bool m_roomsAreSwapped = false;
 
-  std::vector<gsl::not_null<std::shared_ptr<Particle>>> m_particles;
-
   // list of meshes and models, resolved through m_meshIndices
   std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
 
@@ -160,17 +158,19 @@ public:
 
   objects::LaraObject& getLara()
   {
+    Expects(m_lara != nullptr);
     return *m_lara;
   }
 
   const objects::LaraObject& getLara() const
   {
+    Expects(m_lara != nullptr);
     return *m_lara;
   }
 
-  auto& getParticles()
+  const auto& getLaraPtr() const
   {
-    return m_particles;
+    return m_lara;
   }
 
   CameraController& getCameraController()

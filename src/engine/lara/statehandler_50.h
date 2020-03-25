@@ -50,7 +50,7 @@ public:
       p.Z += util::rand15s(r);
       auto fx
         = std::make_shared<SparkleParticle>(core::RoomBoundPosition{engine.getLara().m_state.position.room, p}, engine);
-      engine.getParticles().emplace_back(fx);
+      engine.getObjectManager().registerParticle(fx);
     }
   }
 };

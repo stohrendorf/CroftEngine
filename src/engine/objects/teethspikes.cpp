@@ -36,7 +36,7 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
                                + core::TRVec{util::rand15s(128_len), -util::rand15(512_len), util::rand15s(128_len)}},
                            20_spd,
                            util::rand15(+180_deg));
-      getEngine().getParticles().emplace_back(fx);
+      getEngine().getObjectManager().registerParticle(fx);
     }
     if(getEngine().getLara().m_state.health <= 0_hp)
     {

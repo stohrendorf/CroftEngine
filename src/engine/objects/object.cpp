@@ -145,7 +145,7 @@ void Object::playShotMissed(const core::RoomBoundPosition& pos)
 {
   const auto particle = std::make_shared<RicochetParticle>(pos, getEngine());
   setParent(particle, m_state.position.room->node);
-  getEngine().getParticles().emplace_back(particle);
+  getEngine().getObjectManager().registerParticle(particle);
   getEngine().getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
 }
 

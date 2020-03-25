@@ -3,6 +3,7 @@
 #include "loader/file/item.h"
 #include "objects/laraobject.h"
 #include "objects/objectfactory.h"
+#include "particle.h"
 #include "serialization/map.h"
 #include "serialization/not_null.h"
 
@@ -101,11 +102,11 @@ std::shared_ptr<objects::Object> ObjectManager::getObject(ObjectId id) const
   return it->second.get();
 }
 
-void ObjectManager::update(const std::shared_ptr<objects::LaraObject>& lara)
+void ObjectManager::update(Engine& engine)
 {
   for(const auto& object : m_objects | boost::adaptors::map_values)
   {
-    if(object.get() == lara) // Lara is special and needs to be updated last
+    if(object.get() == engine.getLaraPtr()) // Lara is special and needs to be updated last
       continue;
 
     if(object->m_isActive)
@@ -121,9 +122,38 @@ void ObjectManager::update(const std::shared_ptr<objects::LaraObject>& lara)
 
     object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
   }
+
+  auto currentParticles = std::move(m_particles);
+  for(const auto& particle : currentParticles)
+  {
+    if(particle->update(engine))
+    {
+      setParent(particle, particle->pos.room->node);
+      particle->updateLight();
+      m_particles.emplace_back(particle);
+    }
+    else
+    {
+      setParent(particle, nullptr);
+    }
+  }
 }
+
 void ObjectManager::serialize(const serialization::Serializer& ser)
 {
   ser(S_NV("objectCounter", m_objectCounter), S_NV("objects", m_objects));
+}
+
+void ObjectManager::eraseParticle(const std::shared_ptr<Particle>& particle)
+{
+  if(particle == nullptr)
+    return;
+
+  const auto it
+    = std::find_if(m_particles.begin(), m_particles.end(), [particle](const auto& p) { return particle == p.get(); });
+  if(it != m_particles.end())
+    m_particles.erase(it);
+
+  setParent(particle, nullptr);
 }
 } // namespace engine
