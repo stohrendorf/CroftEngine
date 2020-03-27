@@ -102,7 +102,6 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   auto room = m_state.position.room;
   auto sector = findRealFloorSector(m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len}, &room);
-  Expects(sector->box != nullptr);
 
   if(sector->box == nullptr || m_state.box->*zoneRef != sector->box->*zoneRef
      || boxFloor - sector->box->floor > lotInfo.step || boxFloor - sector->box->floor < lotInfo.drop)
