@@ -20,13 +20,13 @@ namespace render::scene
 class Camera;
 class ShaderManager;
 
-struct alignas(16) CSMBuffer
+struct CSMBuffer
 {
   static constexpr size_t NSplits = 3;
 
   std::array<glm::mat4, NSplits> lightMVP{};
-  std::array<glm::vec4, NSplits> csmSplits{}; // vec4 because... well. we need padding.
-  glm::vec3 lightDir;
+  glm::vec4 lightDir;
+  std::array<glm::vec4, NSplits> csmSplits{}; // vec4 because... well. we need padding for std140.
 };
 
 class CSM final
@@ -35,7 +35,7 @@ public:
   struct Split final
   {
     glm::mat4 vpMatrix{1.0f};
-    std::shared_ptr<gl::TextureDepth<int32_t>> depthTexture;
+    std::shared_ptr<gl::TextureDepth<float>> depthTexture;
     std::shared_ptr<gl::Framebuffer> depthFramebuffer{};
     std::shared_ptr<gl::Texture2D<gl::RG16F>> squaredTexture;
     std::shared_ptr<gl::Framebuffer> squareFramebuffer{};
@@ -78,7 +78,7 @@ public:
     const auto tmp = getSplitEnds();
     std::transform(tmp.begin(), tmp.end(), m_bufferData.csmSplits.begin(), [](float x) { return glm::vec4{x}; });
     m_bufferData.lightMVP = getMatrices(modelMatrix);
-    m_bufferData.lightDir = m_lightDir;
+    m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
     m_buffer.setData(m_bufferData, gl::api::BufferUsageARB::DynamicDraw);
     return m_buffer;
   }

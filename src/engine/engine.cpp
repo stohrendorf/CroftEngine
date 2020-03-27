@@ -1117,6 +1117,9 @@ void Engine::run()
       {
         gl::DebugGroup dbg2{"csm-pass/" + std::to_string(i)};
         m_renderer->resetRenderState();
+        gl::RenderState renderState;
+        renderState.setDepthClamp(true);
+        renderState.apply();
 
         m_csm->setActiveSplit(i);
         m_csm->getActiveFramebuffer()->bind();

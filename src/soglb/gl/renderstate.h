@@ -59,6 +59,11 @@ public:
     m_depthWriteEnabled = enabled;
   }
 
+  void setDepthClamp(bool enabled)
+  {
+    m_depthClampEnabled = enabled;
+  }
+
   void setDepthFunction(api::DepthFunction func)
   {
     m_depthFunction = func;
@@ -185,6 +190,7 @@ private:
   DefaultedOptional<bool, true> m_cullFaceEnabled;
   DefaultedOptional<bool, true> m_depthTestEnabled;
   DefaultedOptional<bool, true> m_depthWriteEnabled;
+  DefaultedOptional<bool, false> m_depthClampEnabled;
   DefaultedOptional<api::DepthFunction, api::DepthFunction::Less> m_depthFunction;
   DefaultedOptional<bool, true> m_blendEnabled;
   DefaultedOptional<api::BlendingFactor, api::BlendingFactor::SrcAlpha> m_blendSrc;

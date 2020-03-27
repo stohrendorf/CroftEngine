@@ -13,8 +13,8 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManager)
 {
-  depthTexture = std::make_shared<gl::TextureDepth<int32_t>>(glm::ivec2{resolution, resolution},
-                                                             "csm-texture/" + std::to_string(idx));
+  depthTexture = std::make_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
+                                                           "csm-texture/" + std::to_string(idx));
   depthTexture->set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear)
     .set(gl::api::TextureCompareMode::CompareRefToTexture)
@@ -114,14 +114,14 @@ void CSM::update(const Camera& camera)
 {
   //Start off by calculating the split distances
   const float nearClip = camera.getNearPlane();
-  const float farClip = camera.getFarPlane() / 2;
+  const float farClip = camera.getFarPlane();
 
   std::vector<float> cascadeSplits;
   cascadeSplits.emplace_back(nearClip);
 #if 0
   for(size_t i = 0; i < m_splits.size(); ++i)
   {
-    static constexpr float Lambda = 1.0f;
+    static constexpr float Lambda = 0.9f;
     const auto ir = static_cast<float>(i + 1) / static_cast<float>(m_splits.size());
     const float zi
       = Lambda * nearClip * std::pow(farClip / nearClip, ir) + (1.0f - Lambda) * (nearClip + ir * (farClip - nearClip));
@@ -166,7 +166,7 @@ void CSM::update(const Camera& camera)
     };
 
     // calculate frustum bbox as seen from the light
-    const auto lightViewWS = glm::lookAt(position - m_lightDir, position, m_lightDirOrtho);
+    const auto lightViewWS = glm::lookAt(glm::vec3{0.0f}, m_lightDir, m_lightDirOrtho);
 
     glm::vec3 bboxMin{std::numeric_limits<float>::max()};
     glm::vec3 bboxMax{std::numeric_limits<float>::lowest()};
@@ -177,13 +177,22 @@ void CSM::update(const Camera& camera)
       bboxMax = glm::max(bboxMax, cornerLS);
     }
 
-    // extend the bboxes and snap to a grid to avoid some flickering
+    // extend the bboxes and snap to a grid to avoid shadow jumping
     static constexpr float SnapSize = 256.0f;
     bboxMin = glm::floor(bboxMin / SnapSize) * SnapSize;
     bboxMax = glm::ceil(bboxMax / SnapSize) * SnapSize;
 
-    const auto lightProjection = glm::ortho(bboxMin.x, bboxMax.x, bboxMin.y, bboxMax.y, bboxMin.z, bboxMax.z);
-    m_splits[cascadeIterator].vpMatrix = lightProjection * lightViewWS;
+    // recalculate matrices to avoid numerical problems when zNear+zFar ~= 0
+    const auto zNear = -bboxMax.z;
+    const auto zFar = -bboxMin.z;
+    static constexpr float zOffset = 100.0f;
+    const auto zShift = zOffset - zNear;
+    bboxMin.z -= zShift;
+    bboxMax.z -= zShift;
+
+    const auto offset = glm::normalize(m_lightDir) * zShift;
+    m_splits[cascadeIterator].vpMatrix = glm::ortho(bboxMin.x, bboxMax.x, bboxMin.y, bboxMax.y, -bboxMax.z, -bboxMin.z)
+                                         * glm::lookAt(glm::vec3{0.0f} - offset, m_lightDir - offset, m_lightDirOrtho);
   }
 }
 } // namespace render::scene

@@ -88,6 +88,18 @@ void RenderState::apply(const bool force) const
     GL_ASSERT(api::depthMask(m_depthWriteEnabled.get()));
     getCurrentState().m_depthWriteEnabled = m_depthWriteEnabled;
   }
+  if(RS_CHANGED(m_depthClampEnabled))
+  {
+    if(m_depthClampEnabled.get())
+    {
+      GL_ASSERT(api::enable(api::EnableCap::DepthClamp));
+    }
+    else
+    {
+      GL_ASSERT(api::disable(api::EnableCap::DepthClamp));
+    }
+    getCurrentState().m_depthClampEnabled = m_depthClampEnabled;
+  }
   if(RS_CHANGED(m_depthFunction))
   {
     GL_ASSERT(api::depthFunc(m_depthFunction.get()));
@@ -112,6 +124,7 @@ void RenderState::initDefaults()
   getCurrentState().m_cullFaceEnabled.setDefault();
   getCurrentState().m_depthTestEnabled.setDefault();
   getCurrentState().m_depthWriteEnabled.setDefault();
+  getCurrentState().m_depthClampEnabled.setDefault();
   getCurrentState().m_depthFunction.setDefault();
   getCurrentState().m_blendEnabled.setDefault();
   getCurrentState().m_blendSrc.setDefault();
@@ -129,6 +142,7 @@ void RenderState::merge(const RenderState& other)
   MERGE_OPT(m_cullFaceEnabled);
   MERGE_OPT(m_depthTestEnabled);
   MERGE_OPT(m_depthWriteEnabled);
+  MERGE_OPT(m_depthClampEnabled);
   MERGE_OPT(m_depthFunction);
   MERGE_OPT(m_blendEnabled);
   MERGE_OPT(m_blendSrc);
