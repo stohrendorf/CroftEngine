@@ -67,9 +67,11 @@ struct PathFinder
   void setRandomSearchTarget(const gsl::not_null<const loader::file::Box*>& box)
   {
     required_box = box;
-    const auto zSize = box->zmax - box->zmin - core::SectorSize;
+    const auto zSize = box->zmax - box->zmin - core::SectorSize + 1_len;
+    Expects(zSize >= 0_len);
     target.Z = util::rand15(zSize) + box->zmin + core::SectorSize / 2;
-    const auto xSize = box->xmax - box->xmin - core::SectorSize;
+    const auto xSize = box->xmax - box->xmin - core::SectorSize + 1_len;
+    Expects(xSize >= 0_len);
     target.X = util::rand15(xSize) + box->xmin + core::SectorSize / 2;
     if(fly != 0_len)
     {

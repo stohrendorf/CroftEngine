@@ -196,7 +196,6 @@ void updateMood(const Engine& engine, const objects::ObjectState& objectState, c
 
   if(creatureInfo.pathFinder.target_box == nullptr)
   {
-    Expects(objectState.box != nullptr);
     creatureInfo.pathFinder.setRandomSearchTarget(objectState.box);
   }
   creatureInfo.pathFinder.calculateTarget(engine, creatureInfo.target, objectState);

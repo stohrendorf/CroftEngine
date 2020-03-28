@@ -62,8 +62,10 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
 {
   for(const auto& object : getEngine().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
-    if(!object->m_isActive || object.get().get() == this
-       || object.get().get() == &getEngine().getObjectManager().getLara())
+    if(object.get().get() == this)
+      break;
+
+    if(!object->m_isActive || object.get().get() == &getEngine().getObjectManager().getLara())
       continue;
 
     if(object->m_state.triggerState == TriggerState::Active && object->m_state.speed != 0_spd
@@ -151,126 +153,120 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   core::Length moveX = 0_len;
   core::Length moveZ = 0_len;
 
-  if(m_collisionRadius > inSectorZ)
+  const auto boundedMin = m_collisionRadius;
+  const auto boundedMax = core::SectorSize - m_collisionRadius;
+  const core::TRVec base{basePosX, bboxMinY, basePosZ};
+  const core::TRVec testX{m_collisionRadius, 0_len, 0_len};
+  const core::TRVec testZ{0_len, 0_len, m_collisionRadius};
+  const auto minXMove = boundedMin - inSectorX;
+  const auto maxXMove = boundedMax - inSectorX;
+  const auto minZMove = boundedMin - inSectorZ;
+  const auto maxZMove = boundedMax - inSectorZ;
+
+  const auto cannotMoveTo = [this, floor = sector->box->floor, nextFloor = nextFloor, &lotInfo](
+                              const core::TRVec& pos) { return isPositionOutOfReach(pos, floor, nextFloor, lotInfo); };
+
+  if(inSectorZ < boundedMin)
   {
-    if(isPositionOutOfReach(
-         core::TRVec{basePosX, bboxMinY, basePosZ - m_collisionRadius}, sector->box->floor, nextFloor, lotInfo))
+    const auto testBase = base - testZ;
+    if(cannotMoveTo(testBase))
     {
-      moveZ = m_collisionRadius - inSectorZ;
+      moveZ = minZMove;
     }
 
-    if(m_collisionRadius > inSectorX)
+    if(inSectorX < boundedMin)
     {
-      if(isPositionOutOfReach(
-           core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
+      if(cannotMoveTo(base - testX))
       {
-        moveX = m_collisionRadius - inSectorX;
+        moveX = minXMove;
       }
-      else if(moveZ == 0_len
-              && isPositionOutOfReach(core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ - m_collisionRadius},
-                                      sector->box->floor,
-                                      nextFloor,
-                                      lotInfo))
+      else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
       {
-        if(m_state.rotation.Y > -135_deg && m_state.rotation.Y < 45_deg)
-          moveZ = m_collisionRadius - inSectorZ;
-        else
-          moveX = m_collisionRadius - inSectorX;
+        switch(*axisFromAngle(m_state.rotation.Y, 45_deg))
+        {
+        case core::Axis::NegZ:
+        case core::Axis::PosX: moveX = minXMove; break;
+        case core::Axis::PosZ:
+        case core::Axis::NegX: moveZ = minZMove; break;
+        }
       }
     }
-    else if(core::SectorSize - m_collisionRadius < inSectorX)
+    else if(inSectorX > boundedMax)
     {
-      if(isPositionOutOfReach(
-           core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
+      if(cannotMoveTo(base + testX))
       {
-        moveX = core::SectorSize - m_collisionRadius - inSectorX;
+        moveX = maxXMove;
       }
-      else if(moveZ == 0_len
-              && isPositionOutOfReach(core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ - m_collisionRadius},
-                                      sector->box->floor,
-                                      nextFloor,
-                                      lotInfo))
+      else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
       {
-        if(m_state.rotation.Y > -45_deg && m_state.rotation.Y < 135_deg)
+        switch(*axisFromAngle(m_state.rotation.Y, 45_deg))
         {
-          moveZ = m_collisionRadius - inSectorZ;
-        }
-        else
-        {
-          moveX = core::SectorSize - m_collisionRadius - inSectorX;
+        case core::Axis::PosZ:
+        case core::Axis::PosX: moveZ = minZMove; break;
+        case core::Axis::NegZ:
+        case core::Axis::NegX: moveX = maxXMove; break;
         }
       }
     }
   }
-  else if(core::SectorSize - m_collisionRadius < inSectorZ)
+  else if(inSectorZ > boundedMax)
   {
-    if(isPositionOutOfReach(
-         core::TRVec{basePosX, bboxMinY, basePosZ + m_collisionRadius}, sector->box->floor, nextFloor, lotInfo))
+    const auto testBase = base + testZ;
+    if(cannotMoveTo(testBase))
     {
-      moveZ = core::SectorSize - m_collisionRadius - inSectorZ;
+      moveZ = maxZMove;
     }
 
-    if(m_collisionRadius > inSectorX)
+    if(inSectorX < boundedMin)
     {
-      if(isPositionOutOfReach(
-           core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
+      if(cannotMoveTo(base - testX))
       {
-        moveX = m_collisionRadius - inSectorX;
+        moveX = minXMove;
       }
-      else if(moveZ == 0_len
-              && isPositionOutOfReach(core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ + m_collisionRadius},
-                                      sector->box->floor,
-                                      nextFloor,
-                                      lotInfo))
+      else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
       {
-        if(m_state.rotation.Y < 135_deg && m_state.rotation.Y > -45_deg)
+        switch(*axisFromAngle(m_state.rotation.Y, 45_deg))
         {
-          moveX = m_collisionRadius - inSectorX;
-        }
-        else
-        {
-          moveZ = core::SectorSize - m_collisionRadius - inSectorZ;
+        case core::Axis::PosX:
+        case core::Axis::NegZ: moveX = minXMove; break;
+        case core::Axis::NegX:
+        case core::Axis::PosZ: moveZ = maxZMove; break;
         }
       }
     }
-    else if(core::SectorSize - m_collisionRadius < inSectorX)
+    else if(inSectorX > boundedMax)
     {
-      if(isPositionOutOfReach(
-           core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
+      if(cannotMoveTo(base + testX))
       {
-        moveX = core::SectorSize - m_collisionRadius - inSectorX;
+        moveX = maxXMove;
       }
-      else if(moveZ == 0_len
-              && isPositionOutOfReach(core::TRVec{m_collisionRadius + basePosX, bboxMinY, basePosZ + m_collisionRadius},
-                                      sector->box->floor,
-                                      nextFloor,
-                                      lotInfo))
+      else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
       {
-        if(m_state.rotation.Y < 45_deg && m_state.rotation.Y > -135_deg)
+        switch(*axisFromAngle(m_state.rotation.Y, 45_deg))
         {
-          moveX = core::SectorSize - m_collisionRadius - inSectorX;
-        }
-        else
-        {
-          moveZ = core::SectorSize - m_collisionRadius - inSectorZ;
+        case core::Axis::PosZ:
+        case core::Axis::NegX: moveX = maxXMove; break;
+        case core::Axis::NegZ:
+        case core::Axis::PosX: moveZ = maxZMove; break;
         }
       }
     }
   }
-  else if(m_collisionRadius > inSectorX)
+  else
   {
-    if(isPositionOutOfReach(
-         core::TRVec{basePosX - m_collisionRadius, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
+    if(inSectorX < boundedMin)
     {
-      moveX = m_collisionRadius - inSectorX;
+      if(cannotMoveTo(base - testX))
+      {
+        moveX = minXMove;
+      }
     }
-  }
-  else if(inSectorX > core::SectorSize - m_collisionRadius)
-  {
-    if(isPositionOutOfReach(
-         core::TRVec{basePosX + m_collisionRadius, bboxMinY, basePosZ}, sector->box->floor, nextFloor, lotInfo))
+    else if(inSectorX > boundedMax)
     {
-      moveX = core::SectorSize - m_collisionRadius - inSectorX;
+      if(cannotMoveTo(base + testX))
+      {
+        moveX = maxXMove;
+      }
     }
   }
 

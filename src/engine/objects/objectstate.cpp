@@ -14,75 +14,31 @@ ObjectState::~ObjectState() = default;
 
 bool ObjectState::stalkBox(const Engine& engine, const loader::file::Box& targetBox) const
 {
-  const auto laraToBoxDistX
-    = (targetBox.xmin + targetBox.xmax) / 2 - engine.getObjectManager().getLara().m_state.position.position.X;
-  const auto laraToBoxDistZ
-    = (targetBox.zmin + targetBox.zmax) / 2 - engine.getObjectManager().getLara().m_state.position.position.Z;
+  const auto laraPos = engine.getObjectManager().getLara().m_state.position.position;
+
+  const auto laraToBoxDistX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
+  const auto laraToBoxDistZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
 
   if(abs(laraToBoxDistX) > 3 * core::SectorSize || abs(laraToBoxDistZ) > 3 * core::SectorSize)
   {
     return false;
   }
 
-  const auto laraAxisBack = *axisFromAngle(engine.getObjectManager().getLara().m_state.rotation.Y + 180_deg, 45_deg);
-  core::Axis laraToBoxAxis;
-  if(laraToBoxDistZ > 0_len)
-  {
-    if(laraToBoxDistX > 0_len)
-    {
-      laraToBoxAxis = core::Axis::PosX;
-    }
-    else
-    {
-      laraToBoxAxis = core::Axis::NegZ;
-    }
-  }
-  else if(laraToBoxDistX > 0_len)
-  {
-    // Z <= 0, X > 0
-    laraToBoxAxis = core::Axis::NegX;
-  }
-  else
-  {
-    // Z <= 0, X <= 0
-    laraToBoxAxis = core::Axis::PosZ;
-  }
-
-  if(laraAxisBack == laraToBoxAxis)
+  const auto laraAxis = *axisFromAngle(engine.getObjectManager().getLara().m_state.rotation.Y, 45_deg);
+  const auto laraToBoxAxis = *axisFromAngle(angleFromAtan(laraToBoxDistX, laraToBoxDistZ), 45_deg);
+  if(laraAxis == laraToBoxAxis)
   {
     return false;
   }
 
-  core::Axis objectToLaraAxis;
-  if(position.position.Z <= engine.getObjectManager().getLara().m_state.position.position.Z)
-  {
-    if(position.position.X <= engine.getObjectManager().getLara().m_state.position.position.X)
-    {
-      objectToLaraAxis = core::Axis::PosZ;
-    }
-    else
-    {
-      objectToLaraAxis = core::Axis::NegX;
-    }
-  }
-  else
-  {
-    if(position.position.X > engine.getObjectManager().getLara().m_state.position.position.X)
-    {
-      objectToLaraAxis = core::Axis::PosX;
-    }
-    else
-    {
-      objectToLaraAxis = core::Axis::NegZ;
-    }
-  }
-
-  if(laraAxisBack != objectToLaraAxis)
+  const auto laraToObjectAxis
+    = *axisFromAngle(angleFromAtan(position.position.X - laraPos.X, position.position.Z - laraPos.Z), 45_deg);
+  if(laraAxis != laraToObjectAxis)
   {
     return true;
   }
 
-  switch(laraAxisBack)
+  switch(laraAxis)
   {
   case core::Axis::PosZ: return laraToBoxAxis == core::Axis::NegZ;
   case core::Axis::PosX: return laraToBoxAxis == core::Axis::NegX;
@@ -112,22 +68,21 @@ bool ObjectState::isInsideZoneButNotInBox(const Engine& engine,
     return false;
   }
 
-  return position.position.Z <= targetBox.zmin || position.position.Z >= targetBox.zmax
-         || position.position.X <= targetBox.xmin || position.position.X >= targetBox.xmax;
+  return !targetBox.contains(position.position.X, position.position.Z);
 }
 
 bool ObjectState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& targetBox) const
 {
-  const auto laraToBoxX
-    = (targetBox.xmin + targetBox.xmax) / 2 - engine.getObjectManager().getLara().m_state.position.position.X;
-  const auto laraToBoxZ
-    = (targetBox.zmin + targetBox.zmax) / 2 - engine.getObjectManager().getLara().m_state.position.position.Z;
-  if(abs(laraToBoxX) < 5 * core::SectorSize && abs(laraToBoxZ) < 5 * core::SectorSize)
+  const auto laraPos = engine.getObjectManager().getLara().m_state.position.position;
+
+  const auto localBoxCenterX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
+  const auto localBoxCenterZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
+  if(abs(localBoxCenterX) < 5 * core::SectorSize && abs(localBoxCenterZ) < 5 * core::SectorSize)
     return false;
 
-  const auto laraToNpcX = position.position.X - engine.getObjectManager().getLara().m_state.position.position.X;
-  const auto laraToNpcZ = position.position.Z - engine.getObjectManager().getLara().m_state.position.position.Z;
-  return ((laraToNpcZ > 0_len) == (laraToBoxZ > 0_len)) || ((laraToNpcX > 0_len) == (laraToBoxX > 0_len));
+  const auto localPosX = position.position.X - laraPos.X;
+  const auto localPosZ = position.position.Z - laraPos.Z;
+  return ((localPosZ > 0_len) == (localBoxCenterZ > 0_len)) || ((localPosX > 0_len) == (localBoxCenterX > 0_len));
 }
 
 void ObjectState::initCreatureInfo(const Engine& engine)
@@ -147,6 +102,7 @@ void ObjectState::collectZoneBoxes(const Engine& engine)
     = loader::file::Box::getZoneRef(true, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
 
   box = position.room->getInnerSectorByAbsolutePosition(position.position)->box;
+  Ensures(box != nullptr);
   const auto zoneData1 = box->*zoneRef1;
   const auto zoneData2 = box->*zoneRef2;
   creatureInfo->pathFinder.boxes.clear();

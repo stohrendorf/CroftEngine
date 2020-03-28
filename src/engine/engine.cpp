@@ -215,14 +215,15 @@ void Engine::loadSceneData()
   {
     if(model->nMeshes > 0)
     {
-      BOOST_ASSERT(model->nMeshes == model->boneTree.size() + 1);
+      BOOST_ASSERT(model->boneTree.empty() || model->nMeshes == model->boneTree.size() + 1);
       for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
       {
         const auto& mesh = m_meshesDirect.at(model->mesh_base_index + i);
         model->bones.emplace_back(mesh->meshData,
                                   mesh->center,
                                   mesh->collision_size,
-                                  i == 0 ? std::nullopt : std::make_optional(model->boneTree[i - 1]));
+                                  i == 0 || model->boneTree.empty() ? std::nullopt
+                                                                    : std::make_optional(model->boneTree[i - 1]));
       }
     }
   }

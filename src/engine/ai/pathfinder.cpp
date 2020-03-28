@@ -69,13 +69,11 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
   {
     if(fly != 0_len)
     {
-      if(here->floor - core::SectorSize < moveTarget.Y)
-        moveTarget.Y = here->floor - core::SectorSize;
+      moveTarget.Y = std::min(moveTarget.Y, here->floor - core::SectorSize);
     }
     else
     {
-      if(here->floor < moveTarget.Y)
-        moveTarget.Y = here->floor;
+      moveTarget.Y = std::min(moveTarget.Y, here->floor);
     }
 
     if(here->contains(objectState.position.position.X, objectState.position.position.Z))
@@ -190,6 +188,7 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
       {
         moveTarget.Z = util::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
       }
+      Expects(here->containsZ(moveTarget.Z));
 
       if(moveDirs & (CanMoveXPos | CanMoveXNeg))
       {
@@ -199,6 +198,7 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
       {
         moveTarget.X = util::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
       }
+      Expects(here->containsX(moveTarget.X));
 
       moveTarget.Y = target.Y;
 
@@ -215,23 +215,25 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
   BOOST_ASSERT(here != nullptr);
   if(moveDirs & (CanMoveZPos | CanMoveZNeg))
   {
-    const auto center = here->zmax - here->zmin - core::SectorSize;
+    const auto center = here->zmax - here->zmin - core::SectorSize + 1_len;
     moveTarget.Z = util::rand15(center) + here->zmin + core::SectorSize / 2;
   }
   else if(!detour)
   {
     moveTarget.Z = util::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
   }
+  Expects(here->containsZ(moveTarget.Z));
 
   if(moveDirs & (CanMoveXPos | CanMoveXNeg))
   {
-    const auto center = here->xmax - here->xmin - core::SectorSize;
+    const auto center = here->xmax - here->xmin - core::SectorSize + 1_len;
     moveTarget.X = util::rand15(center) + here->xmin + core::SectorSize / 2;
   }
   else if(!detour)
   {
     moveTarget.X = util::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
   }
+  Expects(here->containsX(moveTarget.X));
 
   if(fly != 0_len)
     moveTarget.Y = here->floor - 384_len;

@@ -1376,6 +1376,10 @@ std::unique_ptr<Box> Box::readTr1(io::SDLReader& reader)
   box->overlap_index = tmp & ((1 << 14) - 1);
   box->blocked = (tmp & 0x4000) != 0;
   box->blockable = (tmp & 0x8000) != 0;
+
+  Expects(box->xmax - box->xmin + 1_len >= core::SectorSize);
+  Expects(box->zmax - box->zmin + 1_len >= core::SectorSize);
+
   return box;
 }
 
