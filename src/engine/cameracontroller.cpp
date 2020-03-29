@@ -984,27 +984,21 @@ void CameraController::clampToCorners(const core::Area& targetHorizontalDistance
 std::unordered_set<const loader::file::Portal*>
   CameraController::updateCinematic(const loader::file::CinematicFrame& frame, const bool ingame)
 {
+  const core::TRVec basePos = ingame ? m_cinematicPos : m_position->position;
+  const core::TRVec newLookAt = basePos + util::pitch(frame.lookAt, m_eyeRotation.Y);
+  const core::TRVec newPos = basePos + util::pitch(frame.position, m_eyeRotation.Y);
+
   if(ingame)
   {
-    m_lookAt->position += util::pitch(frame.center, m_cinematicRot.Y);
-    m_cinematicPos += util::pitch(frame.eye, m_cinematicRot.Y);
-
-    auto m = lookAt(m_cinematicPos.toRenderSystem(), m_lookAt->position.toRenderSystem(), {0, 1, 0});
-    m = rotate(m, toRad(frame.rotZ), -glm::vec3{m[2]});
-    m_camera->setViewMatrix(m);
-    m_camera->setFieldOfView(toRad(frame.fov));
+    m_lookAt->position = newLookAt;
+    m_position->position = newPos;
     findRealFloorSector(m_position->position, &m_position->room);
   }
-  else
-  {
-    const core::TRVec center = m_position->position + util::pitch(frame.center, m_eyeRotation.Y);
-    const core::TRVec eye = m_position->position + util::pitch(frame.eye, m_eyeRotation.Y);
 
-    auto m = lookAt(eye.toRenderSystem(), center.toRenderSystem(), {0, 1, 0});
-    m = rotate(m, toRad(frame.rotZ), -glm::vec3{m[2]});
-    m_camera->setViewMatrix(m);
-    m_camera->setFieldOfView(toRad(frame.fov));
-  }
+  auto m = lookAt(newPos.toRenderSystem(), newLookAt.toRenderSystem(), {0, 1, 0});
+  m = rotate(m, toRad(frame.rotZ), -glm::vec3{m[2]});
+  m_camera->setViewMatrix(m);
+  m_camera->setFieldOfView(toRad(frame.fov));
 
   // portal tracing doesn't work here because we always render each room.
   // assuming "sane" room layout here without overlapping rooms.

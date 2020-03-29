@@ -1440,8 +1440,8 @@ std::unique_ptr<AIObject> AIObject::read(io::SDLReader& reader)
 std::unique_ptr<CinematicFrame> CinematicFrame::read(io::SDLReader& reader)
 {
   std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
-  cf->center = readCoordinates16(reader);
-  cf->eye = readCoordinates16(reader);
+  cf->lookAt = readCoordinates16(reader);
+  cf->position = readCoordinates16(reader);
   cf->fov = core::auToAngle(reader.readI16());
   cf->rotZ = core::auToAngle(reader.readI16());
   return cf;

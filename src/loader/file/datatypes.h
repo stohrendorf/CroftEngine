@@ -695,8 +695,8 @@ struct AIObject
 
 struct CinematicFrame
 {
-  core::TRVec center;
-  core::TRVec eye;
+  core::TRVec lookAt;
+  core::TRVec position;
   core::Angle fov;
   core::Angle rotZ;
 
