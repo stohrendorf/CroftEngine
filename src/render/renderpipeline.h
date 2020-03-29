@@ -110,7 +110,7 @@ private:
                 const SSAOStage& ssaoStage,
                 const FXAAStage& fxaaStage);
 
-    void render(bool water);
+    void render(bool water, bool crt);
   };
 
   PortalStage m_portalStage;
@@ -135,7 +135,7 @@ public:
   explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void compositionPass(bool water);
+  void compositionPass(bool water, bool crt);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);

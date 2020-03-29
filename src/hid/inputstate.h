@@ -54,6 +54,7 @@ struct InputState
   Button action;
   Button freeLook;
   Button debug;
+  Button crt;
   Button holster;
   Button _1;
   Button _2;

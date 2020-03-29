@@ -92,6 +92,7 @@ void InputHandler::update()
                           || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_L1] == GLFW_PRESS);
 
   m_inputState.debug = glfwGetKey(m_window, GLFW_KEY_F11) == GLFW_PRESS;
+  m_inputState.crt = glfwGetKey(m_window, GLFW_KEY_F2) == GLFW_PRESS;
 
   m_inputState._1 = glfwGetKey(m_window, GLFW_KEY_1) == GLFW_PRESS
                     || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -AxisThreshold);

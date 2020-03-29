@@ -1038,6 +1038,7 @@ void Engine::run()
   }
 
   bool showDebugInfo = false;
+  bool crt = true;
 
   auto font = std::make_shared<gl::Font>(m_rootPath / "DroidSansMono.ttf");
   auto trFont = ui::CachedFont(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics));
@@ -1069,6 +1070,10 @@ void Engine::run()
     if(m_inputHandler->getInputState().debug.justPressed())
     {
       showDebugInfo = !showDebugInfo;
+    }
+    if(m_inputHandler->getInputState().crt.justPressed())
+    {
+      crt = !crt;
     }
 
     {
@@ -1199,7 +1204,7 @@ void Engine::run()
     render::scene::Node dummyNode{""};
     context.setCurrentNode(&dummyNode);
 
-    m_renderPipeline->compositionPass(m_cameraController->getCurrentRoom()->isWaterRoom());
+    m_renderPipeline->compositionPass(m_cameraController->getCurrentRoom()->isWaterRoom(), crt);
 
     if(debugView.isVisible())
     {

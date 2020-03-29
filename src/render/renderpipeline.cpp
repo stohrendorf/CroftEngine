@@ -26,11 +26,11 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const gl
   resize(viewport);
 }
 
-void RenderPipeline::compositionPass(const bool water)
+void RenderPipeline::compositionPass(const bool water, const bool crt)
 {
   m_ssaoStage.render(m_size / 2);
   m_fxaaStage.render(m_size);
-  m_compositionStage.render(water);
+  m_compositionStage.render(water, crt);
 
   m_fxaaStage.fb->invalidate();
   m_portalStage.fb->invalidate();
@@ -325,10 +325,13 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
   vcrMesh->getMaterial().set(scene::RenderMode::Full, vcrMaterial);
 }
 
-void RenderPipeline::CompositionStage::render(bool water)
+void RenderPipeline::CompositionStage::render(bool water, bool crt)
 {
   gl::DebugGroup dbg{"postprocess-pass"};
-  fb->bindWithAttachments();
+  if(crt)
+    fb->bindWithAttachments();
+  else
+    gl::Framebuffer::unbindAll();
 
   gl::RenderState state;
   state.setBlend(false);
@@ -341,8 +344,11 @@ void RenderPipeline::CompositionStage::render(bool water)
   else
     mesh->render(context);
 
-  gl::Framebuffer::unbindAll();
-  vcrMesh->render(context);
+  if(crt)
+  {
+    gl::Framebuffer::unbindAll();
+    vcrMesh->render(context);
+  }
 
   if constexpr(FlushStages)
     GL_ASSERT(gl::api::finish());
