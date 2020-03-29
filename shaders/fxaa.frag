@@ -2,6 +2,7 @@ uniform sampler2D u_input;
 vec2 screenSize = textureSize(u_input, 0);
 
 #include "flat_pipeline_interface.glsl"
+#include "time_uniform.glsl"
 
 layout(location=0) out vec4 out_color;
 

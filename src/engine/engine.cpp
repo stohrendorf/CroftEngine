@@ -812,7 +812,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     }
 
     drawLoadingScreen("Preparing the game");
-    m_renderPipeline = std::make_shared<render::RenderPipeline>(*m_shaderManager, m_window->getViewport());
+    m_renderPipeline = std::make_shared<render::RenderPipeline>(*m_materialManager, m_window->getViewport());
     loadSceneData();
 
     if(useAlternativeLara)

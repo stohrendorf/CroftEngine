@@ -19,12 +19,7 @@ public:
                            gsl::not_null<std::shared_ptr<CSM>> csm,
                            gsl::not_null<std::shared_ptr<Renderer>> renderer);
 
-  [[nodiscard]] auto& getShaderManager() const
-  {
-    return m_shaderManager;
-  }
-
-  [[nodiscard]] auto& getShaderManager()
+  [[nodiscard]] const auto& getShaderManager() const
   {
     return m_shaderManager;
   }
@@ -40,6 +35,10 @@ public:
 
   [[nodiscard]] const std::shared_ptr<Material>& getLightning();
 
+  [[nodiscard]] std::shared_ptr<Material> getComposition(bool water);
+
+  [[nodiscard]] const std::shared_ptr<Material>& getVcr();
+
   void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
   {
     m_geometryTextures = std::move(geometryTextures);
@@ -54,6 +53,8 @@ private:
   std::array<std::array<std::shared_ptr<Material>, 2>, 2> m_geometry{};
   std::shared_ptr<Material> m_portal{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
+  std::array<std::shared_ptr<Material>, 2> m_composition{};
+  std::shared_ptr<Material> m_vcr{nullptr};
 
   const gsl::not_null<std::shared_ptr<CSM>> m_csm;
   const gsl::not_null<std::shared_ptr<Renderer>> m_renderer;

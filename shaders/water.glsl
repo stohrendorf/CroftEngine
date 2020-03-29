@@ -1,3 +1,5 @@
+#include "time_uniform.glsl"
+
 const float Frq1 = 12.6;
 const float TimeMult1 = 0.005;
 const float Amplitude1 = 0.00175;

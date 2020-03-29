@@ -1,5 +1,6 @@
 #include "renderpipeline.h"
 
+#include "scene/materialmanager.h"
 #include "scene/mesh.h"
 #include "scene/node.h"
 #include "scene/shadermanager.h"
@@ -17,10 +18,10 @@ std::shared_ptr<scene::Mesh> RenderPipeline::createFbMesh(const glm::ivec2& size
   return mesh;
 }
 
-RenderPipeline::RenderPipeline(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
-    : m_ssaoStage{shaderManager}
-    , m_fxaaStage{shaderManager}
-    , m_compositionStage{shaderManager}
+RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport)
+    : m_ssaoStage{*materialManager.getShaderManager()}
+    , m_fxaaStage{*materialManager.getShaderManager()}
+    , m_compositionStage{materialManager}
 {
   resize(viewport);
 }
@@ -254,24 +255,35 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
     GL_ASSERT(gl::api::finish());
 }
 
-RenderPipeline::CompositionStage::CompositionStage(scene::ShaderManager& shaderManager)
-    : compositionShader{shaderManager.getComposition()}
-    , compositionMaterial{std::make_shared<scene::Material>(compositionShader)}
-    , waterCompositionShader{shaderManager.getCompositionWater()}
-    , waterCompositionMaterial{std::make_shared<scene::Material>(waterCompositionShader)}
+RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& materialManager)
+    : compositionMaterial{materialManager.getComposition(false)}
+    , waterCompositionMaterial{materialManager.getComposition(true)}
+    , vcrMaterial{materialManager.getVcr()}
 
 {
-  compositionMaterial->getUniform("distortion_power")->set(-1.0f);
-  waterCompositionMaterial->getUniform("distortion_power")->set(-2.0f);
+  const glm::ivec2 resolution{256, 256};
+
+  std::uniform_real_distribution<float> randomFloats(0, 1);
+  std::default_random_engine generator{}; // NOLINT(cert-msc32-c)
+
+  std::vector<gl::ScalarByte> noiseData;
+  noiseData.resize(resolution.x * resolution.y);
+  for(auto& i : noiseData)
+  {
+    const auto value = randomFloats(generator);
+    i = gl::ScalarByte{static_cast<uint8_t>(value * value * 255)};
+  }
+  noise = std::make_shared<gl::Texture2D<gl::ScalarByte>>(resolution, "composition-noise");
+  noise->assign(noiseData.data())
+    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
+    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
+    .set(gl::api::TextureMinFilter::Linear)
+    .set(gl::api::TextureMagFilter::Linear);
 }
 
 void RenderPipeline::CompositionStage::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
                                               const std::chrono::high_resolution_clock::time_point& time)
 {
-  const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(time);
-  compositionMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-  waterCompositionMaterial->getUniform("u_time")->set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-
   compositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
   waterCompositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }
@@ -294,16 +306,31 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
   waterCompositionMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
   waterCompositionMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
 
-  mesh = createFbMesh(viewport, compositionShader->getHandle());
+  colorBuffer = std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color");
+  colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
+    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
+    .set(gl::api::TextureMinFilter::Linear)
+    .set(gl::api::TextureMagFilter::Linear);
+
+  vcrMaterial->getUniform("u_input")->set(colorBuffer);
+  vcrMaterial->getUniform("u_noise")->set(noise);
+
+  fb = gl::FrameBufferBuilder()
+         .texture(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer)
+         .build("composition-fb");
+
+  mesh = createFbMesh(viewport, compositionMaterial->getShaderProgram()->getHandle());
   mesh->getMaterial().set(scene::RenderMode::Full, compositionMaterial);
-  waterMesh = createFbMesh(viewport, waterCompositionShader->getHandle());
+  waterMesh = createFbMesh(viewport, waterCompositionMaterial->getShaderProgram()->getHandle());
   waterMesh->getMaterial().set(scene::RenderMode::Full, waterCompositionMaterial);
+  vcrMesh = createFbMesh(viewport, vcrMaterial->getShaderProgram()->getHandle());
+  vcrMesh->getMaterial().set(scene::RenderMode::Full, vcrMaterial);
 }
 
 void RenderPipeline::CompositionStage::render(bool water)
 {
   gl::DebugGroup dbg{"postprocess-pass"};
-  gl::Framebuffer::unbindAll();
+  fb->bindWithAttachments();
 
   gl::RenderState state;
   state.setBlend(false);
@@ -315,6 +342,9 @@ void RenderPipeline::CompositionStage::render(bool water)
     waterMesh->render(context);
   else
     mesh->render(context);
+
+  gl::Framebuffer::unbindAll();
+  vcrMesh->render(context);
 
   if constexpr(FlushStages)
     GL_ASSERT(gl::api::finish());

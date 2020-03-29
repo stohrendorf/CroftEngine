@@ -1,9 +1,9 @@
 #include "geometry_pipeline_interface.glsl"
 #include "camera_interface.glsl"
+#include "time_uniform.glsl"
 
 layout(binding=4) uniform sampler2DArray u_diffuseTextures;
 #ifdef WATER
-layout(location=6) uniform float u_time;
 #include "water.glsl"
 #endif
 

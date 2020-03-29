@@ -2,10 +2,10 @@ uniform sampler2D u_texture;
 uniform sampler2D u_portalDepth;
 uniform sampler2D u_portalPerturb;
 uniform sampler2D u_ao;
-layout(location=6) uniform float u_time;
 
 #include "flat_pipeline_interface.glsl"
 #include "camera_interface.glsl"
+#include "time_uniform.glsl"
 
 layout(location=0) out vec4 out_color;
 
@@ -24,15 +24,6 @@ layout(location=0) out vec4 out_color;
 #ifdef LENS_DISTORTION
 #include "lens.glsl"
 #endif
-
-float rand1(in vec2 seed)
-{
-    const vec2 K1 = vec2(
-    23.14069263277926, // e^pi (Gelfond's constant)
-    2.665144142690225// 2^sqrt(2) (Gelfond–Schneider constant)
-    );
-    return fract(cos(dot(seed*u_time/40, K1)) * 12345.6789);
-}
 
 float fbm(in vec2 uv) {
     // Initial values

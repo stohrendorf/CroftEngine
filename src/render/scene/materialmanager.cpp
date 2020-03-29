@@ -121,4 +121,35 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> s
     , m_renderer{std::move(renderer)}
 {
 }
+
+std::shared_ptr<Material> MaterialManager::getComposition(bool water)
+{
+  if(const auto tmp = m_composition[water])
+    return tmp;
+  auto m = std::make_shared<Material>(m_shaderManager->getComposition(water));
+
+  m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
+    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
+    uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+  });
+
+  m->getUniform("distortion_power")->set(water ? -2.0f : -1.0f);
+
+  m_composition[water] = m;
+  return m;
+}
+
+const std::shared_ptr<Material>& MaterialManager::getVcr()
+{
+  if(m_vcr != nullptr)
+    return m_vcr;
+
+  auto m = std::make_shared<Material>(m_shaderManager->getVcr());
+  m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
+    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
+    uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+  });
+  m_vcr = m;
+  return m_vcr;
+}
 } // namespace render::scene

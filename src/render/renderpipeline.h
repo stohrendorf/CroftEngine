@@ -18,6 +18,7 @@ namespace render
 namespace scene
 {
 class ShaderManager;
+class MaterialManager;
 }
 class RenderPipeline
 {
@@ -90,13 +91,16 @@ private:
   {
     std::shared_ptr<scene::Mesh> mesh;
     std::shared_ptr<scene::Mesh> waterMesh;
+    std::shared_ptr<scene::Mesh> vcrMesh;
 
-    const std::shared_ptr<scene::ShaderProgram> compositionShader;
     const std::shared_ptr<scene::Material> compositionMaterial;
-    const std::shared_ptr<scene::ShaderProgram> waterCompositionShader;
     const std::shared_ptr<scene::Material> waterCompositionMaterial;
+    const std::shared_ptr<scene::Material> vcrMaterial;
+    std::shared_ptr<gl::Texture2D<gl::SRGBA8>> colorBuffer;
+    std::shared_ptr<gl::Texture2D<gl::ScalarByte>> noise;
+    std::shared_ptr<gl::Framebuffer> fb;
 
-    explicit CompositionStage(scene::ShaderManager& shaderManager);
+    explicit CompositionStage(scene::MaterialManager& materialManager);
 
     void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
                 const std::chrono::high_resolution_clock::time_point& time);
@@ -129,7 +133,7 @@ public:
     m_portalStage.bind(*m_geometryStage.depthBuffer);
   }
 
-  explicit RenderPipeline(scene::ShaderManager& shaderManager, const glm::ivec2& viewport);
+  explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void compositionPass(bool water);

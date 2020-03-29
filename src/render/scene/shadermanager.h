@@ -93,19 +93,22 @@ public:
     return get("flat.vert", "vsm_square.frag");
   }
 
-  auto getComposition()
+  auto getComposition(bool water)
   {
-    return get("flat.vert", "composition.frag", {"LENS_DISTORTION"});
-  }
-
-  auto getCompositionWater()
-  {
-    return get("flat.vert", "composition.frag", {"WATER", "LENS_DISTORTION"});
+    std::vector<std::string> defines{"LENS_DISTORTION"};
+    if(water)
+      defines.emplace_back("WATER");
+    return get("flat.vert", "composition.frag", defines);
   }
 
   auto getLightning()
   {
     return get("lightning.vert", "lightning.frag");
+  }
+
+  auto getVcr()
+  {
+    return get("flat.vert", "vcr.frag");
   }
 };
 } // namespace render::scene
