@@ -2,7 +2,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <gsl-lite.hpp>
-#include <utf8/cpp11.h>
+#include <utf8.h>
 #include <utility>
 
 #include FT_OUTLINE_H
@@ -51,7 +51,8 @@ FT_Library loadFreeTypeLib()
 }
 } // namespace
 
-FT_Error ftcFaceRequester(const FTC_FaceID face_id, const FT_Library library, const FT_Pointer req_data, FT_Face* aface)
+FT_Error
+  ftcFaceRequester(const FTC_FaceID /*face_id*/, const FT_Library library, const FT_Pointer req_data, FT_Face* aface)
 {
   const auto* path = static_cast<std::filesystem::path*>(req_data);
 
@@ -124,7 +125,9 @@ void Font::drawText(Image<SRGBA8>& img, gsl::czstring text, int x, int y, const 
   imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER;
 
   std::optional<char32_t> prevChar = std::nullopt;
-  for(const char32_t chr : utf8::utf8to32(text))
+  std::vector<char32_t> utf32;
+  utf8::utf8to32(text, text + std::strlen(text), std::back_inserter(utf32));
+  for(const char32_t chr : utf32)
   {
     const auto glyphIndex = getGlyphIndex(chr);
     if(glyphIndex == 0)
@@ -180,7 +183,9 @@ glm::ivec2 Font::getBounds(gsl::czstring text, int size) const
   int y = size;
 
   std::optional<char32_t> prevChar = std::nullopt;
-  for(const char32_t chr : utf8::utf8to32(text))
+  std::vector<char32_t> utf32;
+  utf8::utf8to32(text, text + std::strlen(text), std::back_inserter(utf32));
+  for(const char32_t chr : utf32)
   {
     const auto glyphIndex = getGlyphIndex(chr);
     if(glyphIndex == 0)

@@ -19,7 +19,7 @@ namespace scene
 {
 class ShaderManager;
 class MaterialManager;
-}
+} // namespace scene
 class RenderPipeline
 {
 public:
@@ -102,8 +102,7 @@ private:
 
     explicit CompositionStage(scene::MaterialManager& materialManager);
 
-    void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
-                const std::chrono::high_resolution_clock::time_point& time);
+    void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
     void resize(const glm::ivec2& viewport,
                 const GeometryStage& geometryStage,
@@ -139,8 +138,7 @@ public:
   void compositionPass(bool water);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
-              const std::chrono::high_resolution_clock::time_point& time);
+  void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
   void resize(const glm::ivec2& viewport)
   {

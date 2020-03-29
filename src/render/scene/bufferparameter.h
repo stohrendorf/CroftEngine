@@ -4,6 +4,7 @@
 #include "shaderprogram.h"
 
 #include <boost/log/trivial.hpp>
+#include <gl/program.h>
 #include <gsl-lite.hpp>
 #include <optional>
 
@@ -28,18 +29,16 @@ public:
   template<typename T>
   void set(const std::shared_ptr<gl::ShaderStorageBuffer<T>>& value)
   {
-    m_bufferBinder = [value](const Node& /*node*/, gl::ProgramShaderStorageBlock& shaderStorageBlock) {
-      shaderStorageBlock.bind(*value);
-    };
+    m_bufferBinder
+      = [value](const Node& /*node*/, gl::ShaderStorageBlock& shaderStorageBlock) { shaderStorageBlock.bind(*value); };
   }
 
   template<class ClassType, typename T>
   void bind(ClassType* classInstance, const gl::ShaderStorageBuffer<T>& (ClassType::*valueMethod)() const)
   {
-    m_bufferBinder
-      = [classInstance, valueMethod](const Node& /*node*/, gl::ProgramShaderStorageBlock& shaderStorageBlock) {
-          shaderStorageBlock.bind((classInstance->*valueMethod)());
-        };
+    m_bufferBinder = [classInstance, valueMethod](const Node& /*node*/, gl::ShaderStorageBlock& shaderStorageBlock) {
+      shaderStorageBlock.bind((classInstance->*valueMethod)());
+    };
   }
 
   using BufferBinder = void(const Node& node, gl::ShaderStorageBlock& shaderStorageBlock);

@@ -223,7 +223,7 @@ public:
     return m_transformBuffer;
   }
 
-  virtual bool canBeCulled(const glm::mat4& viewProjection) const
+  virtual bool canBeCulled(const glm::mat4& /*viewProjection*/) const
   {
     return false;
   }

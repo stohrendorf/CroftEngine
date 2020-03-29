@@ -1,16 +1,15 @@
 #include "level.h"
 
 #include "engine/objects/laraobject.h"
-#include "loader/file/level/tr1level.h"
-#include "loader/file/level/tr2level.h"
-#include "loader/file/level/tr3level.h"
-#include "loader/file/level/tr4level.h"
-#include "loader/file/level/tr5level.h"
 #include "render/textureanimator.h"
+#include "tr1level.h"
+#include "tr2level.h"
+#include "tr3level.h"
+#include "tr4level.h"
+#include "tr5level.h"
 #include "util/md5.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
-#include <boost/format.hpp>
 #include <boost/range/adaptors.hpp>
 #include <filesystem>
 
@@ -336,8 +335,8 @@ void Level::postProcessDataStructures()
     Expects(anim.nextAnimationIndex < m_animations.size());
     anim.nextAnimation = &m_animations[anim.nextAnimationIndex];
 
-    Expects(anim.animCommandIndex + anim.animCommandCount <= m_animCommands.size());
-    Expects(anim.transitionsIndex + anim.transitionsCount <= m_transitions.size());
+    Expects(gsl::narrow<size_t>(anim.animCommandIndex + anim.animCommandCount) <= m_animCommands.size());
+    Expects(gsl::narrow<size_t>(anim.transitionsIndex + anim.transitionsCount) <= m_transitions.size());
     if(anim.transitionsCount > 0)
       anim.transitions = gsl::make_span(&anim.transitionsIndex.checkedFrom(m_transitions), anim.transitionsCount);
   }
@@ -353,7 +352,8 @@ void Level::postProcessDataStructures()
 
   for(Transitions& transition : m_transitions)
   {
-    Expects(transition.firstTransitionCase + transition.transitionCaseCount <= m_transitionCases.size());
+    Expects(gsl::narrow<size_t>(transition.firstTransitionCase + transition.transitionCaseCount)
+            <= m_transitionCases.size());
     if(transition.transitionCaseCount > 0)
       transition.transitionCases
         = gsl::make_span(&transition.firstTransitionCase.from(m_transitionCases), transition.transitionCaseCount);
@@ -363,7 +363,7 @@ void Level::postProcessDataStructures()
   {
     Expects(sequence != nullptr);
     Expects(sequence->length <= 0);
-    Expects(sequence->offset - sequence->length <= m_sprites.size());
+    Expects(gsl::narrow<size_t>(sequence->offset - sequence->length) <= m_sprites.size());
     sequence->sprites = gsl::make_span(&m_sprites[sequence->offset], -sequence->length);
   }
 }

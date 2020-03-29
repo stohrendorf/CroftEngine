@@ -8,8 +8,12 @@ template<typename _T>
 class TextureDepth : public TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>
 {
 public:
+  using typename TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>::Pixel;
+  using TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>::getHandle;
+  using TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>::getSubDataTarget;
+
   explicit TextureDepth(const glm::ivec2& size, const std::string& label = {})
-      : TextureImpl<api::TextureTarget::Texture2d, Pixel>{label}
+      : TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>{label}
       , m_size{size}
   {
     BOOST_ASSERT(size.x > 0);
@@ -56,7 +60,7 @@ public:
                                     1));
   }
 
-  const glm::ivec2& size() const
+  [[nodiscard]] const glm::ivec2& size() const
   {
     return m_size;
   }

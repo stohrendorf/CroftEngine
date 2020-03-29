@@ -44,7 +44,7 @@ public:
     {
       if(size() != 0)
       {
-        static const T tmp;
+        static const T tmp{};
         setData(&tmp, 0, usage);
       }
       return;
@@ -112,7 +112,10 @@ class ElementArrayBuffer : public Buffer<T, api::BufferTargetARB::ElementArrayBu
 public:
   void drawElements(api::PrimitiveType primitiveType) const
   {
-    GL_ASSERT(api::drawElements(primitiveType, size(), TypeTraits<T>::DrawElementsType, nullptr));
+    GL_ASSERT(api::drawElements(primitiveType,
+                                Buffer<T, api::BufferTargetARB::ElementArrayBuffer>::size(),
+                                TypeTraits<T>::DrawElementsType,
+                                nullptr));
   }
 };
 } // namespace gl

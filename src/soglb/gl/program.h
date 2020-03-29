@@ -363,7 +363,7 @@ public:
     return getInputs<ShaderStorageBlock>();
   }
 
-  [[nodiscard]] std::vector<UniformBlock> getUniformBlocks(int32_t& samplerIndex) const
+  [[nodiscard]] std::vector<UniformBlock> getUniformBlocks(int32_t& /*samplerIndex*/) const
   {
     return getInputs<UniformBlock>();
   }

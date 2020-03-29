@@ -184,7 +184,6 @@ void CSM::update(const Camera& camera)
 
     // recalculate matrices to avoid numerical problems when zNear+zFar ~= 0
     const auto zNear = -bboxMax.z;
-    const auto zFar = -bboxMin.z;
     static constexpr float zOffset = 100.0f;
     const auto zShift = zOffset - zNear;
     bboxMin.z -= zShift;

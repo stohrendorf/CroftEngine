@@ -33,7 +33,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
 
   mid.init(currentSector, refTestPos, engine.getObjectManager().getObjects(), laraPos.Y, height);
 
-  std::tie(floorSlantX, floorSlantZ) = engine.getFloorSlantInfo(currentSector, laraPos);
+  std::tie(floorSlantX, floorSlantZ) = Engine::getFloorSlantInfo(currentSector, laraPos);
 
   core::Length frontX = 0_len, frontZ = 0_len;
   core::Length frontLeftX = 0_len, frontLeftZ = 0_len;

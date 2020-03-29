@@ -8,6 +8,9 @@ template<typename _PixelT>
 class Texture2DArray : public TextureImpl<api::TextureTarget::Texture2dArray, _PixelT>
 {
 public:
+  using typename TextureImpl<api::TextureTarget::Texture2dArray, _PixelT>::Pixel;
+  using TextureImpl<api::TextureTarget::Texture2dArray, _PixelT>::getHandle;
+
   explicit Texture2DArray(const glm::ivec3& size, int levels = 1, const std::string& label = {})
       : TextureImpl<api::TextureTarget::Texture2dArray, _PixelT>{label}
       , m_size{size}

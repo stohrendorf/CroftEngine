@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization_fwd.h"
+#include "serialization/serialization.h"
 
 #include <bitset>
 

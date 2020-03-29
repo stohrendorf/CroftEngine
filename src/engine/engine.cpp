@@ -103,7 +103,7 @@ sol::state createScriptEngine(const std::filesystem::path& rootPath)
 } // namespace
 
 std::tuple<int8_t, int8_t> Engine::getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
-                                                     const core::TRVec& position) const
+                                                     const core::TRVec& position)
 {
   while(sector->roomBelow != nullptr)
   {
@@ -120,7 +120,7 @@ std::tuple<int8_t, int8_t> Engine::getFloorSlantInfo(gsl::not_null<const loader:
     return zero;
 
   const auto fd = sector->floorData[1];
-  return std::make_tuple(gsl::narrow_cast<int8_t>(fd.get() & 0xff), gsl::narrow_cast<int8_t>(fd.get() >> 8));
+  return std::make_tuple(gsl::narrow_cast<int8_t>(fd.get() & 0xffu), gsl::narrow_cast<int8_t>(fd.get() >> 8u));
 }
 
 void Engine::swapAllRooms()
@@ -181,7 +181,7 @@ void Engine::loadSceneData()
     m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures);
 
   const int textureSize = m_level->m_textures[0].image->getWidth();
-  const int textureLevels = std::log2(textureSize) + 1;
+  const int textureLevels = static_cast<int>(std::log2(textureSize) + 1);
 
   m_allTextures = std::make_shared<gl::Texture2DArray<gl::SRGBA8>>(
     glm::ivec3{textureSize, textureSize, gsl::narrow<int>(m_level->m_textures.size())}, textureLevels, "all-textures");
@@ -215,7 +215,7 @@ void Engine::loadSceneData()
   {
     if(model->nMeshes > 0)
     {
-      BOOST_ASSERT(model->boneTree.empty() || model->nMeshes == model->boneTree.size() + 1);
+      BOOST_ASSERT(model->boneTree.empty() || static_cast<size_t>(model->nMeshes) == model->boneTree.size() + 1);
       for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
       {
         const auto& mesh = m_meshesDirect.at(model->mesh_base_index + i);
@@ -872,7 +872,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
 
     struct Rect
     {
-      Rect(const std::array<loader::file::UVCoordinates, 4>& cos)
+      explicit Rect(const std::array<loader::file::UVCoordinates, 4>& cos)
       {
         for(const auto& co : cos)
         {
@@ -1106,7 +1106,7 @@ void Engine::run()
     if(m_objectManager.getLaraPtr() != nullptr)
       drawBars(screenOverlay->getImage());
 
-    m_renderPipeline->update(m_renderer->getCamera(), m_renderer->getGameTime());
+    m_renderPipeline->update(m_renderer->getCamera());
 
     {
       gl::DebugGroup dbg{"csm-pass"};
@@ -1212,37 +1212,33 @@ void Engine::run()
     {
       drawDebugInfo(*screenOverlay->getImage(), font, m_renderer->getFrameRate());
 
-      const auto drawObjectName
-        = [this, &font](const std::shared_ptr<objects::Object>& object, const gl::SRGBA8& color) {
-            const auto vertex = glm::vec3{m_renderer->getCamera()->getViewMatrix()
-                                          * glm::vec4(object->getNode()->getTranslationWorld(), 1)};
+      const auto drawObjectName = [this, &font](const std::shared_ptr<objects::Object>& object,
+                                                const gl::SRGBA8& color) {
+        const auto vertex = glm::vec3{m_renderer->getCamera()->getViewMatrix()
+                                      * glm::vec4(object->getNode()->getTranslationWorld(), 1)};
 
-            if(vertex.z > -m_renderer->getCamera()->getNearPlane())
-            {
-              return;
-            }
-            else if(vertex.z < -m_renderer->getCamera()->getFarPlane())
-            {
-              return;
-            }
+        if(vertex.z > -m_renderer->getCamera()->getNearPlane() || vertex.z < -m_renderer->getCamera()->getFarPlane())
+        {
+          return;
+        }
 
-            glm::vec4 projVertex{vertex, 1};
-            projVertex = m_renderer->getCamera()->getProjectionMatrix() * projVertex;
-            projVertex /= projVertex.w;
+        glm::vec4 projVertex{vertex, 1};
+        projVertex = m_renderer->getCamera()->getProjectionMatrix() * projVertex;
+        projVertex /= projVertex.w;
 
-            if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
-              return;
+        if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
+          return;
 
-            projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().x;
-            projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().y;
+        projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().x;
+        projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().y;
 
-            font->drawText(*screenOverlay->getImage(),
-                           object->getNode()->getName().c_str(),
-                           static_cast<int>(projVertex.x),
-                           static_cast<int>(projVertex.y),
-                           color,
-                           DebugTextFontSize);
-          };
+        font->drawText(*screenOverlay->getImage(),
+                       object->getNode()->getName().c_str(),
+                       static_cast<int>(projVertex.x),
+                       static_cast<int>(projVertex.y),
+                       color,
+                       DebugTextFontSize);
+      };
 
       for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
       {
@@ -1305,8 +1301,8 @@ void Engine::scaleSplashImage()
                          gsl::narrow<int>(centerX - m_window->getViewport().x / 2 + m_window->getViewport().x - 1),
                          gsl::narrow<int>(centerY - m_window->getViewport().y / 2 + m_window->getViewport().y - 1));
 
-  Expects(static_cast<size_t>(splashImageScaled.width()) == m_window->getViewport().x);
-  Expects(static_cast<size_t>(splashImageScaled.height()) == m_window->getViewport().y);
+  Expects(splashImageScaled.width() == m_window->getViewport().x);
+  Expects(splashImageScaled.height() == m_window->getViewport().y);
 
   splashImageScaled.interleave();
 }

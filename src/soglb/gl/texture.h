@@ -22,7 +22,7 @@ protected:
   }
 };
 
-template<api::TextureTarget _Target, typename _PixelT>
+template<api::TextureTarget _Target, typename PixelT>
 class TextureImpl : public Texture
 {
 protected:
@@ -37,43 +37,43 @@ protected:
 
 public:
   static constexpr auto Target = _Target;
-  using Pixel = _PixelT;
+  using Pixel = PixelT;
 
-  TextureImpl<_Target, _PixelT>& set(const api::TextureMinFilter value)
+  TextureImpl<_Target, PixelT>& set(const api::TextureMinFilter value)
   {
     GL_ASSERT(
       api::textureParameter(getHandle(), api::TextureParameterName::TextureMinFilter, static_cast<int32_t>(value)));
     return *this;
   }
 
-  TextureImpl<_Target, _PixelT>& set(const api::TextureMagFilter value)
+  TextureImpl<_Target, PixelT>& set(const api::TextureMagFilter value)
   {
     GL_ASSERT(
       api::textureParameter(getHandle(), api::TextureParameterName::TextureMagFilter, static_cast<int32_t>(value)));
     return *this;
   }
 
-  TextureImpl<_Target, _PixelT>& set(const api::TextureCompareMode value)
+  TextureImpl<_Target, PixelT>& set(const api::TextureCompareMode value)
   {
     GL_ASSERT(
       api::textureParameter(getHandle(), api::TextureParameterName::TextureCompareMode, static_cast<int32_t>(value)));
     return *this;
   }
 
-  TextureImpl<_Target, _PixelT>& set(const api::DepthFunction value)
+  TextureImpl<_Target, PixelT>& set(const api::DepthFunction value)
   {
     GL_ASSERT(
       api::textureParameter(getHandle(), api::TextureParameterName::TextureCompareFunc, static_cast<int32_t>(value)));
     return *this;
   }
 
-  TextureImpl<_Target, _PixelT>& set(const api::TextureParameterName param, const api::TextureWrapMode value)
+  TextureImpl<_Target, PixelT>& set(const api::TextureParameterName param, const api::TextureWrapMode value)
   {
     GL_ASSERT(api::textureParameter(getHandle(), param, static_cast<int32_t>(value)));
     return *this;
   }
 
-  TextureImpl<_Target, _PixelT>& setBorderColor(const glm::vec4& value)
+  TextureImpl<_Target, PixelT>& setBorderColor(const glm::vec4& value)
   {
     GL_ASSERT(api::textureParameter(getHandle(), api::TextureParameterName::TextureBorderColor, glm::value_ptr(value)));
     return *this;
@@ -95,22 +95,20 @@ public:
 
   [[nodiscard]] static api::CopyImageSubDataTarget getSubDataTarget()
   {
-#define SOGLB_CONVERT_TYPE(x) \
-  case api::TextureTarget::x: return api::CopyImageSubDataTarget::x
-    switch(_Target)
-    {
-      SOGLB_CONVERT_TYPE(Texture1d);
-      SOGLB_CONVERT_TYPE(Texture2d);
-      SOGLB_CONVERT_TYPE(Texture3d);
-      SOGLB_CONVERT_TYPE(TextureCubeMap);
-      SOGLB_CONVERT_TYPE(Texture1dArray);
-      SOGLB_CONVERT_TYPE(Texture2dArray);
-      SOGLB_CONVERT_TYPE(TextureRectangle);
-      SOGLB_CONVERT_TYPE(Texture2dMultisample);
-      SOGLB_CONVERT_TYPE(Texture2dMultisampleArray);
-      SOGLB_CONVERT_TYPE(TextureCubeMapArray);
-    default: BOOST_THROW_EXCEPTION(std::domain_error("Texture type not suitable for copy sub-data operation"));
-    }
+#define SOGLB_CONVERT_TYPE(x)                    \
+  if constexpr(api::TextureTarget::x == _Target) \
+  return api::CopyImageSubDataTarget::x
+    SOGLB_CONVERT_TYPE(Texture1d);
+    else SOGLB_CONVERT_TYPE(Texture2d);
+    else SOGLB_CONVERT_TYPE(Texture3d);
+    else SOGLB_CONVERT_TYPE(TextureCubeMap);
+    else SOGLB_CONVERT_TYPE(Texture1dArray);
+    else SOGLB_CONVERT_TYPE(Texture2dArray);
+    else SOGLB_CONVERT_TYPE(TextureRectangle);
+    else SOGLB_CONVERT_TYPE(Texture2dMultisample);
+    else SOGLB_CONVERT_TYPE(Texture2dMultisampleArray);
+    else SOGLB_CONVERT_TYPE(TextureCubeMapArray);
+    else static_assert(!std::is_same_v<PixelT, PixelT>, "Texture type not suitable for copy sub-data operation");
 #undef SOGLB_CONVERT_TYPE
   }
 };

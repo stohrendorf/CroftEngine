@@ -23,9 +23,7 @@ namespace hid
 class InputHandler;
 }
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 namespace level
 {
@@ -44,8 +42,7 @@ struct AnimFrame;
 struct Animation;
 struct CinematicFrame;
 class RenderMeshData;
-} // namespace file
-} // namespace loader
+} // namespace loader::file
 
 namespace gl
 {
@@ -144,12 +141,12 @@ public:
 
   ~Engine();
 
-  const hid::InputHandler& getInputHandler() const
+  [[nodiscard]] const hid::InputHandler& getInputHandler() const
   {
     return *m_inputHandler;
   }
 
-  bool roomsAreSwapped() const
+  [[nodiscard]] bool roomsAreSwapped() const
   {
     return m_roomsAreSwapped;
   }
@@ -159,7 +156,7 @@ public:
     return *m_cameraController;
   }
 
-  const CameraController& getCameraController() const
+  [[nodiscard]] const CameraController& getCameraController() const
   {
     return *m_cameraController;
   }
@@ -169,7 +166,7 @@ public:
     return m_objectManager;
   }
 
-  const ObjectManager& getObjectManager() const
+  [[nodiscard]] const ObjectManager& getObjectManager() const
   {
     return m_objectManager;
   }
@@ -185,7 +182,7 @@ public:
     return m_scriptEngine;
   }
 
-  const auto& getScriptEngine() const
+  [[nodiscard]] const auto& getScriptEngine() const
   {
     return m_scriptEngine;
   }
@@ -195,7 +192,7 @@ public:
     return *m_audioEngine;
   }
 
-  const auto& getAudioEngine() const
+  [[nodiscard]] const auto& getAudioEngine() const
   {
     return *m_audioEngine;
   }
@@ -205,12 +202,12 @@ public:
     return m_inventory;
   }
 
-  const auto& getInventory() const
+  [[nodiscard]] const auto& getInventory() const
   {
     return m_inventory;
   }
 
-  bool hasLevel() const
+  [[nodiscard]] bool hasLevel() const
   {
     return m_level != nullptr;
   }
@@ -225,7 +222,7 @@ public:
     return m_materialManager;
   }
 
-  const auto& getMaterialManager() const
+  [[nodiscard]] const auto& getMaterialManager() const
   {
     return m_materialManager;
   }
@@ -234,7 +231,8 @@ public:
 
   void loadSceneData();
 
-  const std::unique_ptr<loader::file::SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
+  [[nodiscard]] const std::unique_ptr<loader::file::SkeletalModelType>&
+    findAnimatedModelForType(core::TypeId type) const;
 
   template<typename T>
   std::shared_ptr<T> createObject(const core::TypeId type,
@@ -266,16 +264,16 @@ public:
   std::shared_ptr<objects::PickupObject>
     createPickup(core::TypeId type, const gsl::not_null<const loader::file::Room*>& room, const core::TRVec& position);
 
-  std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
-                                               const core::TRVec& position) const;
+  static std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
+                                                      const core::TRVec& position);
 
   void drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>>& image);
 
   void useAlternativeLaraAppearance(bool withHead = false);
 
-  gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> getRenderMesh(const size_t idx) const;
+  [[nodiscard]] gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> getRenderMesh(size_t idx) const;
 
-  const std::vector<loader::file::Mesh>& getMeshes() const;
+  [[nodiscard]] const std::vector<loader::file::Mesh>& getMeshes() const;
 
   void turn180Effect(objects::Object& object);
 
@@ -343,6 +341,7 @@ public:
       Expects(object != nullptr);
       if(const auto m = dynamic_cast<objects::ModelObject*>(object))
         return unholsterRightGunEffect(*m);
+      break;
     case 15: return chainBlockEffect();
     case 16: return flickerEffect();
     default: BOOST_LOG_TRIVIAL(warning) << "Unhandled effect: " << id;
@@ -359,47 +358,48 @@ public:
 
   objects::Object* m_pierre = nullptr;
 
-  const std::vector<loader::file::Box>& getBoxes() const;
+  [[nodiscard]] const std::vector<loader::file::Box>& getBoxes() const;
 
-  const std::vector<loader::file::Room>& getRooms() const;
+  [[nodiscard]] const std::vector<loader::file::Room>& getRooms() const;
   std::vector<loader::file::Room>& getRooms();
 
-  const engine::floordata::FloorData& getFloorData() const;
+  [[nodiscard]] const engine::floordata::FloorData& getFloorData() const;
 
-  const loader::file::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
+  [[nodiscard]] const loader::file::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
 
-  const std::unique_ptr<loader::file::SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
+  [[nodiscard]] const std::unique_ptr<loader::file::SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
 
   bool isValid(const loader::file::AnimFrame* frame) const;
 
-  const loader::file::Animation& getAnimation(loader::file::AnimationId id) const;
+  [[nodiscard]] const loader::file::Animation& getAnimation(loader::file::AnimationId id) const;
 
-  const std::vector<loader::file::Animation>& getAnimations() const;
+  [[nodiscard]] const std::vector<loader::file::Animation>& getAnimations() const;
 
-  const std::vector<loader::file::CinematicFrame>& getCinematicFrames() const;
+  [[nodiscard]] const std::vector<loader::file::CinematicFrame>& getCinematicFrames() const;
 
-  const std::vector<loader::file::Camera>& getCameras() const;
+  [[nodiscard]] const std::vector<loader::file::Camera>& getCameras() const;
 
-  const std::vector<int16_t>& getAnimCommands() const;
+  [[nodiscard]] const std::vector<int16_t>& getAnimCommands() const;
 
-  const std::vector<uint16_t>& getOverlaps() const;
+  [[nodiscard]] const std::vector<uint16_t>& getOverlaps() const;
 
   void update(bool godMode);
 
   static void drawText(gl::Image<gl::SRGBA8>& img,
                        const gsl::not_null<std::shared_ptr<gl::Font>>& font,
                        int x,
-                       const int y,
+                       int y,
                        const std::string& txt,
                        const gl::SRGBA8& col = {255, 255, 255, 255});
 
-  void drawDebugInfo(gl::Image<gl::SRGBA8>& img, const gsl::not_null<std::shared_ptr<gl::Font>>& font, float fps);
+  static void
+    drawDebugInfo(gl::Image<gl::SRGBA8>& img, const gsl::not_null<std::shared_ptr<gl::Font>>& font, float fps);
 
   void scaleSplashImage();
 
   void drawLoadingScreen(const std::string& state);
 
-  const std::vector<int16_t>& getPoseFrames() const;
+  [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
 
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
 

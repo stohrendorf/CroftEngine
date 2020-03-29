@@ -8,6 +8,9 @@ template<typename _PixelT>
 class Texture2D : public TextureImpl<api::TextureTarget::Texture2d, _PixelT>
 {
 public:
+  using typename TextureImpl<api::TextureTarget::Texture2d, _PixelT>::Pixel;
+  using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::getHandle;
+
   explicit Texture2D(const glm::ivec2& size, const std::string& label = {})
       : Texture2D<_PixelT>{size, 1, label}
   {

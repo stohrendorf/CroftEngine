@@ -4,7 +4,9 @@
 #include "mesh.h"
 #include "shadermanager.h"
 #include "shaderprogram.h"
+#include "uniformparameter.h"
 
+#include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/texture2d.h>
 

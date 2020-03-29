@@ -38,10 +38,9 @@ void RenderPipeline::compositionPass(const bool water)
   m_ssaoStage.blur.invalidate();
 }
 
-void RenderPipeline::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
-                            const std::chrono::high_resolution_clock::time_point& time)
+void RenderPipeline::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
 {
-  m_compositionStage.update(camera, time);
+  m_compositionStage.update(camera);
   m_ssaoStage.update(camera);
 }
 
@@ -281,8 +280,7 @@ RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& mater
     .set(gl::api::TextureMagFilter::Linear);
 }
 
-void RenderPipeline::CompositionStage::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera,
-                                              const std::chrono::high_resolution_clock::time_point& time)
+void RenderPipeline::CompositionStage::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
 {
   compositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
   waterCompositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
