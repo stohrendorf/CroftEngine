@@ -20,7 +20,7 @@ public:
   {
     getSkeleton()->setRenderable(nullptr);
     getSkeleton()->removeAllChildren();
-    getSkeleton()->resetPose();
+    getSkeleton()->clearParts();
   }
 
   void update() override;

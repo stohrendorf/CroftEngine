@@ -37,12 +37,6 @@ public:
 
   loader::file::BoundingBox getBoundingBox() const;
 
-  void resetPose()
-  {
-    for(auto& part : m_meshParts)
-      part.patch = glm::mat4{1.0f};
-  }
-
   void patchBone(const size_t idx, const glm::mat4& m)
   {
     m_meshParts.at(idx).patch = m;
@@ -149,6 +143,13 @@ public:
       matrices.emplace_back(part.matrix);
     m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsageARB::DynamicDraw);
     return m_meshMatricesBuffer;
+  }
+
+  void clearParts()
+  {
+    m_meshParts.clear();
+    m_needsMeshRebuild = true;
+    rebuildMesh();
   }
 
 protected:

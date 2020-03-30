@@ -283,12 +283,13 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
     {
       BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
 
-      object = std::make_shared<StubObject>(&engine, room, item, model.get());
+      const auto stub = std::make_shared<StubObject>(&engine, room, item, model.get());
+      object = stub;
       if(item.type == TR1ItemId::MidasGoldTouch || item.type == TR1ItemId::CameraTarget
          || item.type == TR1ItemId::Earthquake)
       {
-        object->getNode()->removeAllChildren();
-        object->getNode()->setRenderable(nullptr);
+        stub->getSkeleton()->setRenderable(nullptr);
+        stub->getSkeleton()->clearParts();
       }
     }
 
@@ -494,11 +495,13 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
   case TR1ItemId::MidasGoldTouch:
   case TR1ItemId::CameraTarget:
   case TR1ItemId::Earthquake:
-    object = std::make_shared<StubObject>(&ser.engine, position);
-    object->serialize(ser);
-    object->getNode()->setRenderable(nullptr);
-    object->getNode()->removeAllChildren();
-    return object;
+  {
+    const auto stub = std::make_shared<StubObject>(&ser.engine, position);
+    stub->serialize(ser);
+    stub->getSkeleton()->setRenderable(nullptr);
+    stub->getSkeleton()->clearParts();
+    return stub;
+  }
   default: BOOST_THROW_EXCEPTION(std::domain_error("Cannot create unknown object type " + std::to_string(type.get())));
   }
 #undef CREATE

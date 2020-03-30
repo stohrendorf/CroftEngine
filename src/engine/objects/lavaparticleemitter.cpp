@@ -19,6 +19,6 @@ void LavaParticleEmitter::serialize(const serialization::Serializer& ser)
   ModelObject::serialize(ser);
   getSkeleton()->setRenderable(nullptr);
   getSkeleton()->removeAllChildren();
-  getSkeleton()->resetPose();
+  getSkeleton()->clearParts();
 }
 } // namespace engine::objects
