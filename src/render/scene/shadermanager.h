@@ -106,9 +106,9 @@ public:
     return get("lightning.vert", "lightning.frag");
   }
 
-  auto getVcr()
+  auto getCrt()
   {
-    return get("flat.vert", "vcr.frag");
+    return get("flat.vert", "crt.frag");
   }
 };
 } // namespace render::scene

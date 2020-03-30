@@ -37,7 +37,7 @@ public:
 
   [[nodiscard]] std::shared_ptr<Material> getComposition(bool water);
 
-  [[nodiscard]] const std::shared_ptr<Material>& getVcr();
+  [[nodiscard]] const std::shared_ptr<Material>& getCrt();
 
   void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
   {
@@ -54,7 +54,7 @@ private:
   std::shared_ptr<Material> m_portal{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
   std::array<std::shared_ptr<Material>, 2> m_composition{};
-  std::shared_ptr<Material> m_vcr{nullptr};
+  std::shared_ptr<Material> m_crt{nullptr};
 
   const gsl::not_null<std::shared_ptr<CSM>> m_csm;
   const gsl::not_null<std::shared_ptr<Renderer>> m_renderer;

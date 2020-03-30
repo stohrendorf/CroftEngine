@@ -290,7 +290,7 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
 
       const auto stub = std::make_shared<StubObject>(&engine, room, item, model.get());
       object = stub;
-      if(item.type == TR1ItemId::MidasGoldTouch || item.type == TR1ItemId::CameraTarget)
+      if(item.type == TR1ItemId::CameraTarget)
       {
         stub->getSkeleton()->setRenderable(nullptr);
         stub->getSkeleton()->clearParts();
@@ -493,7 +493,6 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
     CREATE_ID(Doppelganger);
     CREATE_ID(Earthquake);
     CREATE_SPRITE(ScionPiece1, ScionPiece);
-  case TR1ItemId::MidasGoldTouch:
   case TR1ItemId::CameraTarget:
   {
     const auto stub = std::make_shared<StubObject>(&ser.engine, position);

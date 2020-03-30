@@ -257,7 +257,7 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
 RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& materialManager)
     : compositionMaterial{materialManager.getComposition(false)}
     , waterCompositionMaterial{materialManager.getComposition(true)}
-    , vcrMaterial{materialManager.getVcr()}
+    , crtMaterial{materialManager.getCrt()}
 
 {
   const glm::ivec2 resolution{256, 256};
@@ -310,8 +310,8 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
 
-  vcrMaterial->getUniform("u_input")->set(colorBuffer);
-  vcrMaterial->getUniform("u_noise")->set(noise);
+  crtMaterial->getUniform("u_input")->set(colorBuffer);
+  crtMaterial->getUniform("u_noise")->set(noise);
 
   fb = gl::FrameBufferBuilder()
          .texture(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer)
@@ -321,8 +321,8 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
   mesh->getMaterial().set(scene::RenderMode::Full, compositionMaterial);
   waterMesh = createFbMesh(viewport, waterCompositionMaterial->getShaderProgram()->getHandle());
   waterMesh->getMaterial().set(scene::RenderMode::Full, waterCompositionMaterial);
-  vcrMesh = createFbMesh(viewport, vcrMaterial->getShaderProgram()->getHandle());
-  vcrMesh->getMaterial().set(scene::RenderMode::Full, vcrMaterial);
+  crtMesh = createFbMesh(viewport, crtMaterial->getShaderProgram()->getHandle());
+  crtMesh->getMaterial().set(scene::RenderMode::Full, crtMaterial);
 }
 
 void RenderPipeline::CompositionStage::render(bool water, bool crt)
@@ -347,7 +347,7 @@ void RenderPipeline::CompositionStage::render(bool water, bool crt)
   if(crt)
   {
     gl::Framebuffer::unbindAll();
-    vcrMesh->render(context);
+    crtMesh->render(context);
   }
 
   if constexpr(FlushStages)

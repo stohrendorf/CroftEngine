@@ -91,11 +91,11 @@ private:
   {
     std::shared_ptr<scene::Mesh> mesh;
     std::shared_ptr<scene::Mesh> waterMesh;
-    std::shared_ptr<scene::Mesh> vcrMesh;
+    std::shared_ptr<scene::Mesh> crtMesh;
 
     const std::shared_ptr<scene::Material> compositionMaterial;
     const std::shared_ptr<scene::Material> waterCompositionMaterial;
-    const std::shared_ptr<scene::Material> vcrMaterial;
+    const std::shared_ptr<scene::Material> crtMaterial;
     std::shared_ptr<gl::Texture2D<gl::SRGBA8>> colorBuffer;
     std::shared_ptr<gl::Texture2D<gl::ScalarByte>> noise;
     std::shared_ptr<gl::Framebuffer> fb;

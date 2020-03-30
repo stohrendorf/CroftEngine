@@ -139,17 +139,17 @@ std::shared_ptr<Material> MaterialManager::getComposition(bool water)
   return m;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getVcr()
+const std::shared_ptr<Material>& MaterialManager::getCrt()
 {
-  if(m_vcr != nullptr)
-    return m_vcr;
+  if(m_crt != nullptr)
+    return m_crt;
 
-  auto m = std::make_shared<Material>(m_shaderManager->getVcr());
+  auto m = std::make_shared<Material>(m_shaderManager->getCrt());
   m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
     uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
   });
-  m_vcr = m;
-  return m_vcr;
+  m_crt = m;
+  return m_crt;
 }
 } // namespace render::scene
