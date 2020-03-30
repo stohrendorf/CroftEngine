@@ -307,6 +307,7 @@ set( EDISONENGINE_SRCS
         engine/objects/door.cpp
         engine/objects/doppelganger.h
         engine/objects/doppelganger.cpp
+        engine/objects/earthquake.cpp
         engine/objects/flameemitter.h
         engine/objects/flameemitter.cpp
         engine/objects/gorilla.h

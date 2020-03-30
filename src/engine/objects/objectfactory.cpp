@@ -15,6 +15,7 @@
 #include "dartgun.h"
 #include "door.h"
 #include "doppelganger.h"
+#include "earthquake.h"
 #include "engine/items_tr1.h"
 #include "flameemitter.h"
 #include "gorilla.h"
@@ -279,14 +280,17 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
     {
       object = std::make_shared<ScionHolder>(&engine, room, item, model.get());
     }
+    else if(item.type == TR1ItemId::Earthquake)
+    {
+      object = std::make_shared<Earthquake>(&engine, room, item, model.get());
+    }
     else
     {
       BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
 
       const auto stub = std::make_shared<StubObject>(&engine, room, item, model.get());
       object = stub;
-      if(item.type == TR1ItemId::MidasGoldTouch || item.type == TR1ItemId::CameraTarget
-         || item.type == TR1ItemId::Earthquake)
+      if(item.type == TR1ItemId::MidasGoldTouch || item.type == TR1ItemId::CameraTarget)
       {
         stub->getSkeleton()->setRenderable(nullptr);
         stub->getSkeleton()->clearParts();
@@ -370,13 +374,14 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
     object = std::make_shared<TYPE>(&ser.engine, position); \
     object->serialize(ser);                                 \
     return object
-#define CREATE_PU(ENUM)                                                                            \
+#define CREATE_SPRITE(ENUM, TYPE)                                                                  \
   case TR1ItemId::ENUM:                                                                            \
     ser(S_NV("@name", spriteName));                                                                \
-    object = std::make_shared<PickupObject>(                                                       \
+    object = std::make_shared<TYPE>(                                                               \
       &ser.engine, position, std::move(spriteName), ser.engine.getMaterialManager()->getSprite()); \
     object->serialize(ser);                                                                        \
     return object
+#define CREATE_PU(ENUM) CREATE_SPRITE(ENUM, PickupObject)
 #define CREATE_ID(NAME) CREATE(NAME, NAME)
 
   switch(type.get_as<TR1ItemId>())
@@ -486,15 +491,10 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
     CREATE_PU(LeadBarSprite);
     CREATE(SavegameCrystal, StubObject);
     CREATE_ID(Doppelganger);
-  case TR1ItemId::ScionPiece1:
-    ser(S_NV("@name", spriteName));
-    object = std::make_shared<ScionPiece>(
-      &ser.engine, position, std::move(spriteName), ser.engine.getMaterialManager()->getSprite());
-    object->serialize(ser);
-    return object;
+    CREATE_ID(Earthquake);
+    CREATE_SPRITE(ScionPiece1, ScionPiece);
   case TR1ItemId::MidasGoldTouch:
   case TR1ItemId::CameraTarget:
-  case TR1ItemId::Earthquake:
   {
     const auto stub = std::make_shared<StubObject>(&ser.engine, position);
     stub->serialize(ser);
