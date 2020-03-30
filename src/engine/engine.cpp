@@ -126,12 +126,15 @@ std::tuple<int8_t, int8_t> Engine::getFloorSlantInfo(gsl::not_null<const loader:
 void Engine::swapAllRooms()
 {
   BOOST_LOG_TRIVIAL(info) << "Swapping rooms";
-  for(auto& room : m_level->m_rooms)
+  Expects(m_level->m_rooms.size() == m_roomOrder.size());
+  for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
+    auto& room = m_level->m_rooms[i];
     if(room.alternateRoom.get() < 0)
       continue;
 
     BOOST_ASSERT(static_cast<size_t>(room.alternateRoom.get()) < m_level->m_rooms.size());
+    std::swap(m_roomOrder[i], m_roomOrder.at(room.alternateRoom.get()));
     swapWithAlternate(room, m_level->m_rooms.at(room.alternateRoom.get()));
   }
 
@@ -787,6 +790,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     drawLoadingScreen("Loading " + baseName);
 
     m_level->loadFileData();
+    while(m_roomOrder.size() < m_level->m_rooms.size())
+      m_roomOrder.emplace_back(m_roomOrder.size());
 
     m_audioEngine = std::make_unique<AudioEngine>(
       *this, m_rootPath / "data/tr1/audio", m_level->m_soundDetails, m_level->m_soundmap, m_level->m_sampleIndices);
@@ -1619,6 +1624,25 @@ void Engine::serialize(const serialization::Serializer& ser)
       room.resetScenery();
       m_renderer->getScene()->addNode(room.node);
     }
+
+    auto currentRoomOrder = m_roomOrder;
+    ser(S_NV("roomOrder", m_roomOrder));
+    Ensures(m_roomOrder.size() == currentRoomOrder.size());
+    for(size_t i = 0; i < m_roomOrder.size(); ++i)
+    {
+      const auto currentIdx = currentRoomOrder[i];
+      Expects(currentIdx < m_level->m_rooms.size());
+      Expects(m_roomOrder[i] < m_level->m_rooms.size());
+      if(currentIdx == m_roomOrder[i])
+        continue;
+
+      const auto otherIdx
+        = std::distance(m_roomOrder.begin(), std::find(m_roomOrder.begin(), m_roomOrder.end(), currentIdx));
+
+      std::swap(m_roomOrder[i], m_roomOrder[otherIdx]);
+      swapWithAlternate(m_level->m_rooms[currentIdx], m_level->m_rooms[otherIdx]);
+      Ensures(currentIdx == m_roomOrder[i]);
+    }
   }
 
   ser(S_NV("objectManager", m_objectManager),
@@ -1628,7 +1652,12 @@ void Engine::serialize(const serialization::Serializer& ser)
       S_NV("activeEffect", m_activeEffect),
       S_NV("effectTimer", m_effectTimer),
       S_NV("cameraController", *m_cameraController),
-      S_NV("secretsFound", m_secretsFoundBitmask));
+      S_NV("secretsFound", m_secretsFoundBitmask),
+      S_NV("roomsAreSwapped", m_roomsAreSwapped),
+      S_NV("roomOrder", m_roomOrder));
+
+  if(ser.loading)
+    m_level->updateRoomBasedCaches();
 }
 
 const engine::floordata::FloorData& Engine::getFloorData() const
