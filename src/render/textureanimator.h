@@ -91,7 +91,8 @@ class TextureAnimator
 public:
   explicit TextureAnimator(const std::vector<uint16_t>& data,
                            std::vector<loader::file::TextureTile>& textureTiles,
-                           std::vector<loader::file::DWordTexture>& textures);
+                           std::vector<loader::file::DWordTexture>& textures,
+                           const std::string& id);
 
   void registerVertex(const core::TextureTileId tileId,
                       const std::shared_ptr<gl::VertexBuffer<glm::vec2>>& buffer,

@@ -230,7 +230,7 @@ public:
 
   void run();
 
-  void loadSceneData();
+  void loadSceneData(const std::string& animatedTextureId);
 
   [[nodiscard]] const std::unique_ptr<loader::file::SkeletalModelType>&
     findAnimatedModelForType(core::TypeId type) const;

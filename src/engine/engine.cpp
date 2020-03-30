@@ -173,7 +173,7 @@ const std::vector<loader::file::Box>& Engine::getBoxes() const
   return m_level->m_boxes;
 }
 
-void Engine::loadSceneData()
+void Engine::loadSceneData(const std::string& animatedTextureId)
 {
   for(auto& sprite : m_level->m_sprites)
   {
@@ -181,7 +181,7 @@ void Engine::loadSceneData()
   }
 
   m_textureAnimator = std::make_shared<render::TextureAnimator>(
-    m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures);
+    m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures, animatedTextureId);
 
   const int textureSize = m_level->m_textures[0].image->getWidth();
   const int textureLevels = static_cast<int>(std::log2(textureSize) + 1);
@@ -818,7 +818,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
 
     drawLoadingScreen("Preparing the game");
     m_renderPipeline = std::make_shared<render::RenderPipeline>(*m_materialManager, m_window->getViewport());
-    loadSceneData();
+    loadSceneData(baseName + "-animated");
 
     if(useAlternativeLara)
     {
