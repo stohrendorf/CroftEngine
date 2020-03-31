@@ -825,8 +825,11 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
       useAlternativeLaraAppearance();
     }
 
-    for(const auto& item : initInv)
-      m_inventory.put(m_objectManager.getLara(), item.first, item.second);
+    if(m_objectManager.getLaraPtr() != nullptr)
+    {
+      for(const auto& item : initInv)
+        m_inventory.put(m_objectManager.getLara(), item.first, item.second);
+    }
   }
   else
   {
