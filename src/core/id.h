@@ -33,7 +33,8 @@ struct Id
   }
 
   template<typename T>
-  constexpr Id(T value)
+  // cppcheck-suppress noExplicitConstructor
+  constexpr Id(T value) // NOLINT(google-explicit-constructor)
       : m_value{static_cast<type>(value)}
   {
     static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible type");
@@ -137,17 +138,18 @@ private:
   StorageType m_value;
 };
 
+#define DECLARE_ID_PAREN_WRAPPER(value) value
 #define DECLARE_ID(name, type) \
   struct name##_generated_tag  \
   {                            \
   };                           \
-  using name = ::core::Id<type, name##_generated_tag>
+  using name = ::core::Id<DECLARE_ID_PAREN_WRAPPER(type), name##_generated_tag>
 
 #define DECLARE_ID_E(name, type, ...) \
   struct name##_generated_tag         \
   {                                   \
   };                                  \
-  using name = ::core::Id<type, name##_generated_tag, __VA_ARGS__>
+  using name = ::core::Id<DECLARE_ID_PAREN_WRAPPER(type), name##_generated_tag, __VA_ARGS__>
 
 DECLARE_ID(RoomId8, uint8_t);
 DECLARE_ID(RoomId16, uint16_t);

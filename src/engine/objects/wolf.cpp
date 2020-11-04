@@ -64,7 +64,7 @@ void Wolf::update()
         break;
       }
       if(isEscaping())
-        goal(Jumping);
+        goal(Jumping); // NOLINT(bugprone-branch-clone)
       else if(aiInfo.distance < util::square(345_len) && aiInfo.bite)
         goal(Biting);
       else if(isStalking())
@@ -77,7 +77,7 @@ void Wolf::update()
     case Stalking.get():
       m_state.creatureInfo->maximum_turn = 2_deg;
       if(isEscaping())
-      {
+      { // NOLINT(bugprone-branch-clone)
         goal(Jumping);
       }
       else if(aiInfo.distance < util::square(345_len) && aiInfo.bite)

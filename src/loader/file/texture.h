@@ -22,21 +22,21 @@ class SDLReader;
 
 struct ByteTexture
 {
-  uint8_t pixels[256][256];
+  std::array<std::array<uint8_t, 256>, 256> pixels;
 
   static std::unique_ptr<ByteTexture> read(io::SDLReader& reader);
 };
 
 struct WordTexture
 {
-  uint16_t pixels[256][256]; //!< R5G5B5A1
+  std::array<std::array<uint16_t, 256>, 256> pixels; //!< R5G5B5A1
 
   static std::unique_ptr<WordTexture> read(io::SDLReader& reader);
 };
 
 struct DWordTexture final
 {
-  gl::SRGBA8 pixels[256][256];
+  std::array<std::array<gl::SRGBA8, 256>, 256> pixels;
   std::shared_ptr<gl::Image<gl::SRGBA8>> image;
 
   std::string md5;
@@ -147,11 +147,11 @@ struct TextureTile
 {
   TextureKey textureKey;
 
-  std::array<UVCoordinates, 4> uvCoordinates; // the four corners of the texture
-  uint32_t unknown1;                          // TR4
-  uint32_t unknown2;                          // TR4
-  uint32_t x_size;                            // TR4
-  uint32_t y_size;                            // TR4
+  std::array<UVCoordinates, 4> uvCoordinates{}; // the four corners of the texture
+  uint32_t unknown1{};                          // TR4
+  uint32_t unknown2{};                          // TR4
+  uint32_t x_size{};                            // TR4
+  uint32_t y_size{};                            // TR4
 
   bool operator==(const TextureTile& rhs) const
   {

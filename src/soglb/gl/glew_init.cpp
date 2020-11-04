@@ -81,7 +81,9 @@ void gl::initializeGl()
   const auto err = glewInit();
   if(err != GLEW_OK)
   {
-    BOOST_LOG_TRIVIAL(error) << "glewInit: " << reinterpret_cast<gsl::czstring>(glewGetErrorString(err));
+    BOOST_LOG_TRIVIAL(error) << "glewInit: "
+                             << reinterpret_cast<gsl::czstring>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                                  glewGetErrorString(err));
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLEW"));
   }
 

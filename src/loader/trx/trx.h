@@ -136,7 +136,7 @@ public:
 
   void resolve(const std::filesystem::path& root,
                std::map<std::string, std::filesystem::file_time_type>& timestamps,
-               std::filesystem::file_time_type& rootTimestamp,
+               const std::filesystem::file_time_type& rootTimestamp,
                std::map<TexturePart, std::filesystem::path>& filesByPart,
                const std::function<void(const std::string&)>& statusCallback) const;
 
@@ -149,7 +149,7 @@ class PathMap
 public:
   explicit PathMap(const std::filesystem::path& baseTxtName,
                    std::map<std::string, std::filesystem::file_time_type>& timestamps,
-                   std::filesystem::file_time_type& rootTimestamp,
+                   const std::filesystem::file_time_type& rootTimestamp,
                    std::map<TexturePart, std::filesystem::path>& filesByPart);
 
   [[nodiscard]] const std::filesystem::path& getRoot() const

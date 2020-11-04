@@ -226,7 +226,6 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::Engine& engine)
 
   core::Angle itemAngle{0_deg};
   engine.getCameraController().getCamera()->setViewMatrix(ringTransform->getView());
-  auto ringMatrix = ringTransform->getModelMatrix();
   for(size_t n = 0; n < currentRing->list.size(); ++n)
   {
     MenuObject* object = &currentRing->list[n];
@@ -255,7 +254,7 @@ void MenuDisplay::clearMenuObjectDescription()
   objectTexts[1].reset();
 }
 
-bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuObject& object)
+bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuObject& object)
 {
   switch(object.type)
   {
@@ -959,8 +958,9 @@ void ResetItemTransformMenuState::handleObject(engine::Engine& engine, MenuDispl
   }
 }
 
-std::unique_ptr<MenuState>
-  ResetItemTransformMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+std::unique_ptr<MenuState> ResetItemTransformMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/,
+                                                                engine::Engine& /*engine*/,
+                                                                MenuDisplay& /*display*/)
 {
   if(m_duration != 0_frame)
   {
@@ -972,7 +972,7 @@ std::unique_ptr<MenuState>
 }
 
 std::unique_ptr<MenuState>
-  FinishItemAnimationMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  FinishItemAnimationMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
 {
   display.updateRingTitle(*display.currentRing, engine);
 
@@ -989,7 +989,7 @@ std::unique_ptr<MenuState>
   return std::move(m_next);
 }
 
-void FinishItemAnimationMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void FinishItemAnimationMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.currentRing->getSelectedObject())
     zeroRotation(object, 256_au);
@@ -998,13 +998,13 @@ void FinishItemAnimationMenuState::handleObject(engine::Engine& engine, MenuDisp
 }
 
 std::unique_ptr<MenuState>
-  DeselectingMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  DeselectingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
 {
   display.updateRingTitle(*display.currentRing, engine);
   return std::make_unique<IdleRingMenuState>(m_ringTransform, false);
 }
 
-void DeselectingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void DeselectingMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.currentRing->getSelectedObject())
     zeroRotation(object, 256_au);
@@ -1020,7 +1020,7 @@ DeselectingMenuState::DeselectingMenuState(const std::shared_ptr<MenuRingTransfo
 }
 
 std::unique_ptr<MenuState>
-  IdleRingMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  IdleRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
 {
   display.updateRingTitle(*display.currentRing, engine);
 
@@ -1137,7 +1137,7 @@ void IdleRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& displa
 }
 
 std::unique_ptr<MenuState>
-  SwitchRingMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  SwitchRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
 {
   if(m_duration != Duration)
   {
@@ -1234,7 +1234,7 @@ std::unique_ptr<MenuState>
   return nullptr;
 }
 
-void SelectedMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void SelectedMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.currentRing->getSelectedObject())
     zeroRotation(object, 256_au);
@@ -1243,7 +1243,7 @@ void SelectedMenuState::handleObject(engine::Engine& engine, MenuDisplay& displa
 }
 
 std::unique_ptr<MenuState>
-  InflateRingMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  InflateRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
 {
   if(m_duration == 0_frame)
   {
@@ -1313,7 +1313,7 @@ void ApplyItemTransformMenuState::handleObject(engine::Engine& engine, MenuDispl
 }
 
 std::unique_ptr<MenuState>
-  ApplyItemTransformMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  ApplyItemTransformMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
 {
   display.updateRingTitle(*display.currentRing, engine);
 
@@ -1340,7 +1340,7 @@ void DeflateRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& dis
 }
 
 std::unique_ptr<MenuState>
-  DeflateRingMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  DeflateRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& /*display*/)
 {
   if(m_duration == 0_frame)
     return std::move(m_next);
@@ -1373,7 +1373,7 @@ void DoneMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, M
 }
 
 std::unique_ptr<MenuState>
-  DoneMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  DoneMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
 {
   display.isDone = true;
   return nullptr;
@@ -1406,7 +1406,7 @@ RotateLeftRightMenuState::RotateLeftRightMenuState(const std::shared_ptr<MenuRin
 }
 
 std::unique_ptr<MenuState>
-  RotateLeftRightMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  RotateLeftRightMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
 {
   display.clearMenuObjectDescription();
   m_ringTransform->ringRotation += m_rotSpeed * 1_frame;

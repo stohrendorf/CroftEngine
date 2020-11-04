@@ -13,7 +13,7 @@ namespace gl
 {
 class Program;
 
-template<api::ProgramInterface _Type>
+template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
 class ProgramInterface
 {
 public:
@@ -43,7 +43,7 @@ private:
   const uint32_t m_index;
 };
 
-template<api::ProgramInterface _Type>
+template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
 class LocatableProgramInterface : public ProgramInterface<_Type>
 {
 public:
@@ -65,7 +65,7 @@ private:
 using ProgramInput = LocatableProgramInterface<api::ProgramInterface::ProgramInput>;
 using ProgramOutput = LocatableProgramInterface<api::ProgramInterface::ProgramOutput>;
 
-template<api::ProgramInterface _Type, api::BufferTargetARB _Target>
+template<api::ProgramInterface _Type, api::BufferTargetARB _Target> // NOLINT(bugprone-reserved-identifier)
 class ProgramBlock final : public ProgramInterface<_Type>
 {
 public:
@@ -140,11 +140,13 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::mat4>& values)
   {
-    GL_ASSERT(api::programUniformMatrix4(m_program,
-                                         getLocation(),
-                                         gsl::narrow<api::core::SizeType>(values.size()),
-                                         false,
-                                         reinterpret_cast<const float*>(values.data())));
+    GL_ASSERT(api::programUniformMatrix4(
+      m_program,
+      getLocation(),
+      gsl::narrow<api::core::SizeType>(values.size()),
+      false,
+      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+      ));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -156,28 +158,34 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec2>& values)
   {
-    GL_ASSERT(api::programUniform2(m_program,
-                                   getLocation(),
-                                   gsl::narrow<api::core::SizeType>(values.size()),
-                                   reinterpret_cast<const float*>(values.data())));
+    GL_ASSERT(api::programUniform2(
+      m_program,
+      getLocation(),
+      gsl::narrow<api::core::SizeType>(values.size()),
+      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+      ));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec3>& values)
   {
-    GL_ASSERT(api::programUniform3(m_program,
-                                   getLocation(),
-                                   gsl::narrow<api::core::SizeType>(values.size()),
-                                   reinterpret_cast<const float*>(values.data())));
+    GL_ASSERT(api::programUniform3(
+      m_program,
+      getLocation(),
+      gsl::narrow<api::core::SizeType>(values.size()),
+      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+      ));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec4>& values)
   {
-    GL_ASSERT(api::programUniform4(m_program,
-                                   getLocation(),
-                                   gsl::narrow<api::core::SizeType>(values.size()),
-                                   reinterpret_cast<const float*>(values.data())));
+    GL_ASSERT(api::programUniform4(
+      m_program,
+      getLocation(),
+      gsl::narrow<api::core::SizeType>(values.size()),
+      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+      ));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -211,7 +219,7 @@ public:
     set(*texture);
   }
 
-  template<typename _It>
+  template<typename _It> // NOLINT(bugprone-reserved-identifier)
   void setTextures(const _It& begin, const _It& end)
   {
     BOOST_ASSERT(m_samplerIndex >= 0);
@@ -292,7 +300,7 @@ public:
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  template<api::ShaderType _Type>
+  template<api::ShaderType _Type> // NOLINT(bugprone-reserved-identifier)
   void attach(const Shader<_Type>& shader)
   {
     BOOST_ASSERT(shader.getCompileStatus());
@@ -382,7 +390,7 @@ private:
   }
 };
 
-template<api::ProgramInterface _Type>
+template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
 ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t index)
     : m_index{index}
 {
@@ -394,37 +402,37 @@ ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t
   m_name = nameData.data();
 }
 
-template<api::ProgramInterface _Type>
+template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
 int32_t ProgramInterface<_Type>::getProperty(const Program& program,
                                              const uint32_t index,
                                              const api::ProgramResourceProperty what)
 {
   constexpr int32_t NumProperties = 1;
-  const api::ProgramResourceProperty properties[NumProperties] = {what};
-  int32_t values[1];
+  const std::array<api::ProgramResourceProperty, NumProperties> properties{what};
+  std::array<int32_t, 1> values{};
   GL_ASSERT(api::getProgramResource(program.getHandle(),
                                     Type,
                                     index,
                                     NumProperties,
-                                    properties,
-                                    gsl::narrow_cast<int>(std::size(values)),
+                                    properties.data(),
+                                    gsl::narrow_cast<api::core::SizeType>(values.size()),
                                     nullptr,
-                                    values));
+                                    values.data()));
   return values[0];
 }
 
-template<api::ProgramInterface _Type>
+template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
 std::vector<int32_t> ProgramInterface<_Type>::getProperty(const Program& program,
                                                           const uint32_t index,
                                                           const api::ProgramResourceProperty what,
                                                           const api::core::SizeType count)
 {
   constexpr int32_t NumProperties = 1;
-  const api::ProgramResourceProperty properties[NumProperties] = {what};
+  const std::array<api::ProgramResourceProperty, NumProperties> properties{what};
   Expects(count >= 0);
   std::vector<int32_t> values(count, 0);
   GL_ASSERT(api::getProgramResource(
-    program.getHandle(), Type, index, NumProperties, properties, count, nullptr, values.data()));
+    program.getHandle(), Type, index, NumProperties, properties.data(), count, nullptr, values.data()));
   return values;
 }
 

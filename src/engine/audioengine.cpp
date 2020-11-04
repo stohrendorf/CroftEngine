@@ -17,7 +17,7 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
     return;
 
   if(trackId < TR1TrackId::LaraTalk2)
-  {
+  { // NOLINT(bugprone-branch-clone)
     // 1..27
     triggerNormalCdTrack(trackId, activationRequest, triggerType);
   }

@@ -28,7 +28,7 @@ Device::Device()
 {
   alcGetError(nullptr); // clear any error
 
-  static const ALCint paramList[] = {ALC_STEREO_SOURCES, 16, ALC_FREQUENCY, 44100, 0};
+  static const std::array<ALCint, 5> paramList{ALC_STEREO_SOURCES, 16, ALC_FREQUENCY, 44100, 0};
 
   if(alcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT") != ALC_TRUE)
   {
@@ -58,7 +58,7 @@ Device::Device()
       if(alcIsExtensionPresent(m_device, ALC_EXT_EFX_NAME) == ALC_TRUE)
       {
         BOOST_LOG_TRIVIAL(info) << "Device supports EFX";
-        m_context = alcCreateContext(m_device, paramList);
+        m_context = alcCreateContext(m_device, paramList.data());
         // fails e.g. with Rapture3D, where EFX is supported
         if(m_context != nullptr)
         {
@@ -77,7 +77,7 @@ Device::Device()
 
     if(m_device != nullptr)
     {
-      m_context = alcCreateContext(m_device, paramList);
+      m_context = alcCreateContext(m_device, paramList.data());
     }
     else
     {

@@ -35,14 +35,14 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
         iv.color = glm::vec3(toBrightness(quad.vertices[i].from(mesh.vertexShades)).get());
         if(i <= 2)
         {
-          static const int indices[3] = {0, 1, 2};
+          static const std::array<int, 3> indices{0, 1, 2};
           iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
                                      quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
                                      quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
         else
         {
-          static const int indices[3] = {0, 2, 3};
+          static const std::array<int, 3> indices{0, 2, 3};
           iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
                                      quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
                                      quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
@@ -60,8 +60,9 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       m_vertices.emplace_back(iv);
     }
 
-    for(auto i : {0, 1, 2, 0, 2, 3})
+    for(size_t i : {0, 1, 2, 0, 2, 3})
     {
+      // cppcheck-suppress useStlAlgorithm
       m_indices.emplace_back(gsl::narrow<IndexType>(firstVertex + i));
     }
   }
@@ -96,14 +97,14 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
         iv.color *= toBrightness(quad.vertices[i].from(mesh.vertexShades)).get();
         if(i <= 2)
         {
-          static const int indices[3] = {0, 1, 2};
+          static const std::array<int, 3> indices{0, 1, 2};
           iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
                                      quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
                                      quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
         else
         {
-          static const int indices[3] = {0, 2, 3};
+          static const std::array<int, 3> indices{0, 2, 3};
           iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
                                      quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
                                      quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
@@ -118,8 +119,9 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.uv = tile.uvCoordinates[i].toGl();
       m_vertices.emplace_back(iv);
     }
-    for(auto i : {0, 1, 2, 0, 2, 3})
+    for(size_t i : {0, 1, 2, 0, 2, 3})
     {
+      // cppcheck-suppress useStlAlgorithm
       m_indices.emplace_back(gsl::narrow<IndexType>(firstVertex + i));
     }
   }
@@ -152,7 +154,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       {
         iv.color = glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
 
-        static const int indices[3] = {0, 1, 2};
+        static const std::array<int, 3> indices{0, 1, 2};
         iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
                                    tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
                                    tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
@@ -197,7 +199,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       {
         iv.color *= glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
 
-        static const int indices[3] = {0, 1, 2};
+        static const std::array<int, 3> indices{0, 1, 2};
         iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
                                    tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
                                    tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));

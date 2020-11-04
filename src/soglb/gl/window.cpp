@@ -43,7 +43,6 @@ Window::Window(const bool fullscreen, const glm::ivec2& resolution)
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
 
-  // Create the windows
   m_window = glfwCreateWindow(
     resolution.x, resolution.y, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
   if(m_window == nullptr)
@@ -57,7 +56,7 @@ Window::Window(const bool fullscreen, const glm::ivec2& resolution)
   GLFWimage img;
   img.width = imgWrapper.width();
   img.height = imgWrapper.height();
-  img.pixels = const_cast<unsigned char*>(imgWrapper.data());
+  img.pixels = const_cast<unsigned char*>(imgWrapper.data()); // NOLINT(cppcoreguidelines-pro-type-const-cast)
   glfwSetWindowIcon(m_window, 1, &img);
 
   glfwMakeContextCurrent(m_window);
@@ -105,4 +104,4 @@ void Window::setViewport(const glm::ivec2& viewport)
   m_viewport = viewport;
   GL_ASSERT(::gl::api::viewport(0, 0, viewport.x, viewport.y));
 }
-} // namespace render::scene
+} // namespace gl

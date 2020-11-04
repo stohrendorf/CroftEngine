@@ -139,8 +139,9 @@ public:
   const auto& getMeshMatricesBuffer() const
   {
     std::vector<glm::mat4> matrices;
-    for(const auto& part : m_meshParts)
-      matrices.emplace_back(part.matrix);
+    std::transform(m_meshParts.begin(), m_meshParts.end(), std::back_inserter(matrices), [](const auto& part) {
+      return part.matrix;
+    });
     m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsageARB::DynamicDraw);
     return m_meshMatricesBuffer;
   }

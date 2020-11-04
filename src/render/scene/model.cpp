@@ -2,16 +2,17 @@
 
 #include "mesh.h"
 
+#include <numeric>
+
 namespace render::scene
 {
 bool Model::render(RenderContext& context)
 {
-  bool anyRendered = false;
   context.pushState(getRenderState());
-  for(const auto& mesh : m_meshes)
-  {
-    anyRendered |= mesh->render(context);
-  }
+  const auto anyRendered
+    = std::accumulate(m_meshes.begin(), m_meshes.end(), false, [&context](bool acc, const auto& mesh) {
+        return acc || mesh->render(context);
+      });
   context.popState();
   return anyRendered;
 }

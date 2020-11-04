@@ -259,7 +259,7 @@ RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& mater
   const glm::ivec2 resolution{256, 256};
 
   std::uniform_real_distribution<float> randomFloats(0, 1);
-  std::default_random_engine generator{}; // NOLINT(cert-msc32-c)
+  std::default_random_engine generator{}; // NOLINT(cert-msc32-c, cert-msc51-cpp)
 
   std::vector<gl::ScalarByte> noiseData;
   noiseData.resize(resolution.x * resolution.y);

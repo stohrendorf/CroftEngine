@@ -54,7 +54,7 @@ void Lion::update()
       tiltRot = angle;
       m_state.creatureInfo->maximum_turn = 5_deg;
       if(isBored())
-        goal(1_as);
+        goal(1_as); // NOLINT(bugprone-branch-clone)
       else if(aiInfo.ahead && aiInfo.distance < util::square(core::SectorSize))
         goal(1_as);
       else if(aiInfo.ahead && touched(0x380066UL))

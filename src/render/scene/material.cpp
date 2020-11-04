@@ -15,10 +15,13 @@ Material::Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram)
 {
   int32_t samplerIndex = 0;
   for(const auto& u : m_shaderProgram->getHandle().getUniforms(samplerIndex))
+    // cppcheck-suppress useStlAlgorithm
     m_uniforms.emplace_back(std::make_shared<UniformParameter>(u.getName()));
   for(const auto& u : m_shaderProgram->getHandle().getUniformBlocks(samplerIndex))
+    // cppcheck-suppress useStlAlgorithm
     m_uniformBlocks.emplace_back(std::make_shared<UniformBlockParameter>(u.getName()));
   for(const auto& u : m_shaderProgram->getHandle().getShaderStorageBlocks())
+    // cppcheck-suppress useStlAlgorithm
     m_buffers.emplace_back(std::make_shared<BufferParameter>(u.getName()));
 }
 
@@ -64,14 +67,10 @@ void Material::bind(const Node& node) const
 
 gsl::not_null<std::shared_ptr<UniformParameter>> Material::getUniform(const std::string& name) const
 {
-  // Search for an existing parameter with this name.
-  for(const auto& param : m_uniforms)
-  {
-    if(param->getName() == name)
-    {
-      return param;
-    }
-  }
+  auto it = std::find_if(
+    m_uniforms.begin(), m_uniforms.end(), [&name](const auto& param) { return param->getName() == name; });
+  if(it != m_uniforms.end())
+    return *it;
 
   // Create a new parameter and store it in our list.
   auto param = std::make_shared<UniformParameter>(name);
@@ -81,14 +80,10 @@ gsl::not_null<std::shared_ptr<UniformParameter>> Material::getUniform(const std:
 
 gsl::not_null<std::shared_ptr<UniformBlockParameter>> Material::getUniformBlock(const std::string& name) const
 {
-  // Search for an existing parameter with this name.
-  for(const auto& param : m_uniformBlocks)
-  {
-    if(param->getName() == name)
-    {
-      return param;
-    }
-  }
+  auto it = std::find_if(
+    m_uniformBlocks.begin(), m_uniformBlocks.end(), [&name](const auto& param) { return param->getName() == name; });
+  if(it != m_uniformBlocks.end())
+    return *it;
 
   // Create a new parameter and store it in our list.
   auto param = std::make_shared<UniformBlockParameter>(name);
@@ -98,14 +93,10 @@ gsl::not_null<std::shared_ptr<UniformBlockParameter>> Material::getUniformBlock(
 
 gsl::not_null<std::shared_ptr<BufferParameter>> Material::getBuffer(const std::string& name) const
 {
-  // Search for an existing parameter with this name.
-  for(const auto& param : m_buffers)
-  {
-    if(param->getName() == name)
-    {
-      return param;
-    }
-  }
+  auto it
+    = std::find_if(m_buffers.begin(), m_buffers.end(), [&name](const auto& param) { return param->getName() == name; });
+  if(it != m_buffers.end())
+    return *it;
 
   // Create a new parameter and store it in our list.
   auto param = std::make_shared<BufferParameter>(name);

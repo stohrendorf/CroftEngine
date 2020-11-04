@@ -79,7 +79,6 @@ TexturePart::TexturePart(const std::string& serialized)
 EquivalenceSet::EquivalenceSet(std::ifstream& file)
 {
   std::string line;
-  std::filesystem::path base;
   while(std::getline(file, line))
   {
     boost::algorithm::trim(line);
@@ -112,7 +111,6 @@ Equiv::Equiv(const std::filesystem::path& filename)
   }
 
   std::string line;
-  std::filesystem::path base;
   while(std::getline(file, line))
   {
     boost::algorithm::trim(line);
@@ -128,7 +126,7 @@ Equiv::Equiv(const std::filesystem::path& filename)
 
 void Equiv::resolve(const std::filesystem::path& root,
                     std::map<std::string, std::filesystem::file_time_type>& timestamps,
-                    std::filesystem::file_time_type& rootTimestamp,
+                    const std::filesystem::file_time_type& rootTimestamp,
                     std::map<TexturePart, std::filesystem::path>& filesByPart,
                     const std::function<void(const std::string&)>& statusCallback) const
 {
@@ -199,7 +197,7 @@ void Equiv::resolve(const std::filesystem::path& root,
 
 PathMap::PathMap(const std::filesystem::path& baseTxtName,
                  std::map<std::string, std::filesystem::file_time_type>& timestamps,
-                 std::filesystem::file_time_type& rootTimestamp,
+                 const std::filesystem::file_time_type& rootTimestamp,
                  std::map<TexturePart, std::filesystem::path>& filesByPart)
 {
   std::ifstream txt{baseTxtName.string()};

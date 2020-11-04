@@ -60,9 +60,6 @@ class SDLReader;
 constexpr uint16_t TextureIndexMaskTr4 = 0x7FFF; // in some custom levels we need to use 0x7FFF flag
 constexpr uint16_t TextureIndexMask = 0x0FFF;
 
-//constexpr const uint16_t TR_TEXTURE_SHAPE_MASK = 0x7000;          // still not used
-constexpr uint16_t TextureFlippedMask = 0x8000;
-
 struct Portal
 {
   core::RoomId16 adjoining_room{uint16_t(0)}; ///< \brief which room this portal leads to.
@@ -126,6 +123,7 @@ struct Sector
 /*
 * lights
 */
+// cppcheck-suppress syntaxError
 enum class LightType : uint8_t
 {
   Null,
@@ -160,7 +158,7 @@ struct Light
 
   [[nodiscard]] float getBrightness() const
   {
-    return intensity / 4096.0f;
+    return gsl::narrow_cast<float>(intensity) / 4096.0f;
   }
 
   [[nodiscard]] LightType getLightType() const
@@ -207,42 +205,25 @@ struct SpriteInstance
 struct Layer
 {
   uint16_t num_vertices;
-
   uint16_t unknown_l1;
-
   uint16_t unknown_l2;
-
   uint16_t num_rectangles;
-
   uint16_t num_triangles;
-
   uint16_t unknown_l3;
-
   uint16_t unknown_l4;
 
   //  The following 6 floats define the bounding box for the layer
   float bounding_box_x1;
-
   float bounding_box_y1;
-
   float bounding_box_z1;
-
   float bounding_box_x2;
-
   float bounding_box_y2;
-
   float bounding_box_z2;
-
   int16_t unknown_l6a;
-
   int16_t unknown_l6b;
-
   int16_t unknown_l7a;
-
   int16_t unknown_l7b;
-
   int16_t unknown_l8a;
-
   int16_t unknown_l8b;
 
   static Layer read(io::SDLReader& reader);
@@ -262,7 +243,6 @@ struct RoomVertex
   int16_t lighting2 = 0; // Almost always equal to Lighting1 [absent from TR1 data files]
   // TR5 -->
   core::TRVec normal;
-
   glm::vec4 color{0.0f};
 
   /** \brief reads a room vertex definition.
@@ -369,25 +349,15 @@ struct Room
   // TR5 only:
 
   float room_x;
-
   float room_z;
-
   float room_y_bottom;
-
   float room_y_top;
-
   uint32_t unknown_r1;
-
   uint32_t unknown_r2;
-
   uint32_t unknown_r3;
-
   uint16_t unknown_r4a;
-
   uint16_t unknown_r4b;
-
   uint32_t unknown_r5;
-
   uint32_t unknown_r6;
 
   /** \brief reads a room definition.
@@ -597,12 +567,10 @@ using ZoneData = std::vector<ZoneId>;
 
 struct Zones
 {
-  void read(const size_t boxCount, io::SDLReader& reader);
+  void read(size_t boxCount, io::SDLReader& reader);
 
   ZoneData groundZone1{};
-
   ZoneData groundZone2{};
-
   ZoneData flyZone{};
 };
 
@@ -612,14 +580,12 @@ struct Camera
 
   union {
     uint16_t room;
-
     uint16_t underwaterCurrentStrength;
   };
 
   union {
-    //! @todo mutable flags
+    // TODO mutable flags
     mutable uint16_t flags;
-
     uint16_t box_index;
   };
 
@@ -629,46 +595,33 @@ struct Camera
 
   constexpr bool isActive() const noexcept
   {
-    return (flags & 1) != 0;
+    return (flags & 1u) != 0;
   }
 
   void setActive(const bool flg) const noexcept
   {
     if(flg)
-      flags |= 1;
+      flags |= 1u;
     else
-      flags &= ~1;
+      flags &= ~1u;
   }
 };
 
 struct FlybyCamera
 {
   int32_t cam_x;
-
   int32_t cam_y;
-
   int32_t cam_z;
-
   int32_t target_x;
-
   int32_t target_y;
-
   int32_t target_z;
-
   uint8_t sequence;
-
   uint8_t index;
-
   uint16_t fov;
-
   uint16_t roll;
-
   core::Frame timer{0_frame};
-
   uint16_t speed;
-
   uint16_t flags;
-
   core::RoomId32 room_id{0u};
 
   static std::unique_ptr<FlybyCamera> read(io::SDLReader& reader);
@@ -678,15 +631,10 @@ struct AIObject
 {
   core::ItemId object_id{uint16_t(0)}; // the objectID from the AI object (AI_FOLLOW is 402)
   uint16_t room;
-
   int32_t x;
-
   int32_t y;
-
   int32_t z;
-
   uint16_t ocb;
-
   uint16_t flags; // The trigger flags (button 1-5, first button has value 2)
   int32_t angle;
 

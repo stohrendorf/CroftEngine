@@ -60,7 +60,7 @@ void TRex::update()
     case 3:
       m_state.creatureInfo->maximum_turn = 4_deg;
       if(aiInfo.distance < util::square(5 * core::SectorSize) && aiInfo.bite)
-        goal(1_as);
+        goal(1_as); // NOLINT(bugprone-branch-clone)
       else if(m_state.creatureInfo->flags)
         goal(1_as);
       else if(!isEscaping() && aiInfo.ahead && util::rand15() < 512)

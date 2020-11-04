@@ -39,8 +39,8 @@ const std::shared_ptr<Material>& MaterialManager::getCSMDepthOnly(bool skeletal)
 
 const std::shared_ptr<Material>& MaterialManager::getDepthOnly(bool skeletal)
 {
-  if(const auto tmp = m_depthOnly[skeletal])
-    return m_depthOnly[skeletal];
+  if(const auto& tmp = m_depthOnly[skeletal])
+    return tmp;
 
   m_depthOnly[skeletal] = std::make_shared<Material>(m_shaderManager->getDepthOnly(skeletal));
   m_depthOnly[skeletal]->getRenderState().setDepthTest(true);

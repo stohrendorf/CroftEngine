@@ -219,6 +219,7 @@ private:
   static constexpr core::Frame Duration = 24_frame;
   size_t m_targetObject{0};
   core::Frame m_duration{Duration};
+  // cppcheck-suppress syntaxError
   QS_COMBINE_UNITS(core::Angle, /, core::Frame) m_rotSpeed;
   std::unique_ptr<MenuState> m_prev;
 

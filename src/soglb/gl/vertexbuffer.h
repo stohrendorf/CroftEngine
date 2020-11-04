@@ -21,14 +21,20 @@ public:
   };
 
   template<typename U>
+  // cppcheck-suppress noExplicitConstructor
+  // NOLINTNEXTLINE(google-explicit-constructor)
   VertexAttribute(const U T::*member, const bool normalized = false)
       : m_type{TypeTraits<U>::VertexAttribType}
-      , m_relativeOffset{static_cast<uint32_t>(reinterpret_cast<uintptr_t>(&(static_cast<T*>(nullptr)->*member)))}
+      , m_relativeOffset{static_cast<uint32_t>(
+          reinterpret_cast<uintptr_t>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+            &(static_cast<T*>(nullptr)->*member)))}
       , m_size{TypeTraits<U>::ElementCount}
       , m_normalized{normalized}
   {
   }
 
+  // cppcheck-suppress noExplicitConstructor
+  // NOLINTNEXTLINE(google-explicit-constructor)
   VertexAttribute(const Trivial&, const bool normalized = false)
       : m_type{TypeTraits<T>::VertexAttribType}
       , m_relativeOffset{0}

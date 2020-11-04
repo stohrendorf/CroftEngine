@@ -41,7 +41,7 @@ struct BSPTree
     Expects(h > 0);
   }
 
-  bool isSplit() const
+  [[nodiscard]] bool isSplit() const
   {
     return left != nullptr && right != nullptr;
   }
@@ -68,7 +68,7 @@ struct BSPTree
     right = std::make_unique<BSPTree>(x, y + splitLocation, width, height - splitLocation);
   }
 
-  bool fits(const int32_t w, const int32_t h) const noexcept
+  [[nodiscard]] bool fits(const int32_t w, const int32_t h) const noexcept
   {
     Expects(w > 0);
     Expects(h > 0);
@@ -278,7 +278,8 @@ public:
       const auto& mapping = m_mappings.at(tileToMapping.second);
 
       const auto& glSrcImg = textures.at(mapping.srcTexture.tileAndFlag & loader::file::TextureIndexMask).image;
-      gl::CImgWrapper srcImg{reinterpret_cast<const uint8_t*>(glSrcImg->getData().data()),
+      gl::CImgWrapper srcImg{reinterpret_cast<const uint8_t*>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                               glSrcImg->getData().data()),
                              glSrcImg->getWidth(),
                              glSrcImg->getHeight(),
                              true};
@@ -302,8 +303,9 @@ public:
     auto texture = std::make_unique<loader::file::DWordTexture>();
     texture->md5 = id;
     img.interleave();
-    texture->image = std::make_shared<gl::Image<gl::SRGBA8>>(glm::ivec2{img.width(), img.height()},
-                                                             reinterpret_cast<const gl::SRGBA8*>(img.data()));
+    texture->image = std::make_shared<gl::Image<gl::SRGBA8>>(
+      glm::ivec2{img.width(), img.height()},
+      reinterpret_cast<const gl::SRGBA8*>(img.data())); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
 
     textures.emplace_back(std::move(*texture));
   }

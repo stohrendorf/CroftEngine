@@ -71,6 +71,7 @@ public:
 
     for(auto i : data.getIndices())
     {
+      // cppcheck-suppress useStlAlgorithm
       m_indices.emplace_back(gsl::narrow<RenderMeshData::IndexType>(i + vertexOffset));
     }
 

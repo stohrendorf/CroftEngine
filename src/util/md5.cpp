@@ -332,7 +332,7 @@ struct State
   }
 
   // return hex representation of digest as string
-  std::string hexdigest() const
+  [[nodiscard]] std::string hexdigest() const
   {
     if(!finalized)
     {

@@ -6,6 +6,7 @@
 
 namespace serialization
 {
+// cppcheck-suppress constParameter
 void save(std::shared_ptr<loader::file::RenderMeshData>& mesh, const Serializer& ser)
 {
   if(mesh == nullptr)

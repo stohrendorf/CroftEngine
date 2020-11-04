@@ -4,7 +4,7 @@
 #include <gsl-lite.hpp>
 #include <type_traits>
 
-struct __GLsync;
+struct __GLsync; // NOLINT(bugprone-reserved-identifier)
 
 namespace gl::api
 {
@@ -36,7 +36,8 @@ struct Fixed
 
 struct Half
 {
-  uint16_t __value = 0;
+  // cppcheck-suppress unusedStructMember
+  uint16_t __value = 0; // NOLINT(bugprone-reserved-identifier)
 };
 
 #ifdef __APPLE__
@@ -50,26 +51,17 @@ class Bitfield final
 {
   static_assert(std::is_same_v<std::underlying_type_t<T>, EnumType>, "Invalid bitfield template parameter");
 
-  EnumType m_value;
+  EnumType m_value{};
 
-#ifdef __clang__
-#  pragma clang diagnostic push
-#  pragma ide diagnostic ignored "google-explicit-constructor"
-#endif
-  constexpr Bitfield(EnumType value)
+  // cppcheck-suppress noExplicitConstructor
+  constexpr Bitfield(EnumType value) // NOLINT(google-explicit-constructor)
       : m_value{value}
   {
   }
-#ifdef __clang__
-#  pragma clang diagnostic pop
-#endif
 
 public:
-#ifdef __clang__
-#  pragma clang diagnostic push
-#  pragma ide diagnostic ignored "google-explicit-constructor"
-#endif
-  constexpr Bitfield(T value) noexcept
+  // cppcheck-suppress noExplicitConstructor
+  constexpr Bitfield(T value) noexcept // NOLINT(google-explicit-constructor)
       : m_value{static_cast<EnumType>(value)}
   {
   }
@@ -79,15 +71,9 @@ public:
   {
   }
 
-  constexpr Bitfield() noexcept
-      : m_value{0}
-  {
-  }
-#ifdef __clang__
-#  pragma clang diagnostic pop
-#endif
+  constexpr Bitfield() noexcept = default;
 
-  constexpr EnumType value() const noexcept
+  [[nodiscard]] constexpr EnumType value() const noexcept
   {
     return m_value;
   }
@@ -163,15 +149,15 @@ public:
   {
   }
 
-  constexpr operator T*() const noexcept
+  constexpr operator T*() const noexcept // NOLINT(google-explicit-constructor)
   {
     return m_ptr;
   }
 
   template<typename U>
-  [[deprecated]] constexpr operator U*() const noexcept
+  [[deprecated]] constexpr operator U*() const noexcept // NOLINT(google-explicit-constructor)
   {
-    return const_cast<U*>(m_ptr);
+    return const_cast<U*>(m_ptr); // NOLINT(cppcoreguidelines-pro-type-const-cast)
   }
 
 private:

@@ -310,23 +310,23 @@ struct AVDecoder final : public audio::AbstractStreamSource
   {
     if(packet.stream_index == videoStream->index)
     {
-      if(const auto err = avcodec_send_packet(videoStream->context, &packet))
+      if(const auto sendPacketErr = avcodec_send_packet(videoStream->context, &packet))
       {
-        if(err == AVERROR(EINVAL))
+        if(sendPacketErr == AVERROR(EINVAL))
         {
           BOOST_LOG_TRIVIAL(info) << "Flushing video decoder";
           avcodec_flush_buffers(videoStream->context);
         }
         else
         {
-          if(err == AVERROR(EAGAIN))
+          if(sendPacketErr == AVERROR(EAGAIN))
             BOOST_LOG_TRIVIAL(error) << "Frames still present in video decoder";
-          else if(err == AVERROR(ENOMEM))
+          else if(sendPacketErr == AVERROR(ENOMEM))
             BOOST_LOG_TRIVIAL(error) << "Failed to add packet to video decoder queue";
-          else if(err == AVERROR_EOF)
+          else if(sendPacketErr == AVERROR_EOF)
             BOOST_LOG_TRIVIAL(error) << "Video decoder already flushed";
 
-          BOOST_LOG_TRIVIAL(error) << "Failed to send packet to video decoder: " << getAvError(err);
+          BOOST_LOG_TRIVIAL(error) << "Failed to send packet to video decoder: " << getAvError(sendPacketErr);
           BOOST_THROW_EXCEPTION(std::runtime_error("Failed to send packet to video decoder"));
         }
       }
@@ -335,9 +335,9 @@ struct AVDecoder final : public audio::AbstractStreamSource
       int err;
       while((err = avcodec_receive_frame(videoStream->context, videoFrame.frame)) == 0)
       {
-        if(const auto err = av_buffersrc_add_frame(filterGraph.input, videoFrame.release()))
+        if(const auto addFrameErr = av_buffersrc_add_frame(filterGraph.input, videoFrame.release()))
         {
-          BOOST_LOG_TRIVIAL(error) << "Error while feeding the filtergraph: " << getAvError(err);
+          BOOST_LOG_TRIVIAL(error) << "Error while feeding the filtergraph: " << getAvError(addFrameErr);
           BOOST_THROW_EXCEPTION(std::runtime_error("Error while feeding the filtergraph"));
         }
         videoFrame = AVFramePtr();
@@ -395,18 +395,21 @@ struct AVDecoder final : public audio::AbstractStreamSource
         }
 
         std::vector<int16_t> audio(outSamples * 2, 0);
-        auto* audioData = reinterpret_cast<uint8_t*>(audio.data());
+        auto* audioData
+          = reinterpret_cast<uint8_t*>(audio.data()); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
 
-        const auto framesDecoded = swr_convert(swrContext,
-                                               &audioData,
-                                               outSamples,
-                                               const_cast<const uint8_t**>(audioFrame.frame->data),
-                                               audioFrame.frame->nb_samples);
+        const auto framesDecoded = swr_convert(
+          swrContext,
+          &audioData,
+          outSamples,
+          const_cast<const uint8_t**>(audioFrame.frame->data), // NOLINT(cppcoreguidelines-pro-type-const-cast)
+          audioFrame.frame->nb_samples);
         if(framesDecoded < 0)
         {
           BOOST_THROW_EXCEPTION(std::runtime_error("Error while converting"));
         }
 
+        // cppcheck-suppress invalidFunctionArg
         audio.resize(framesDecoded * 2);
 
         audioQueue.push(std::move(audio));
@@ -495,9 +498,9 @@ struct Scaler
     currentSwsWidth = targetWidth;
     currentSwsHeight = targetHeight;
 
-    const auto scale = std::min(float(targetWidth) / filter->w, float(targetHeight) / filter->h);
-    scaledWidth = static_cast<int>(filter->w * scale);
-    scaledHeight = static_cast<int>(filter->h * scale);
+    const auto imgScale = std::min(float(targetWidth) / filter->w, float(targetHeight) / filter->h);
+    scaledWidth = static_cast<int>(filter->w * imgScale);
+    scaledHeight = static_cast<int>(filter->h * imgScale);
 
     sws_freeContext(context);
     context = sws_getContext(filter->w,
@@ -547,7 +550,9 @@ struct Scaler
     dst += xOffset;
     for(int32_t y = 0; y < scaledHeight; ++y)
     {
-      std::copy_n(reinterpret_cast<gl::SRGBA8*>(srcLineRaw), scaledWidth, dst);
+      std::copy_n(reinterpret_cast<gl::SRGBA8*>(srcLineRaw), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                  scaledWidth,
+                  dst);
       dst += img.getWidth();
       srcLineRaw += dstVideoLinesize[0];
     }

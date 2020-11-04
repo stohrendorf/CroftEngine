@@ -56,9 +56,10 @@ void audio::loadALExtFunctions(const gsl::not_null<ALCdevice*>& device)
   BOOST_LOG_TRIVIAL(info) << "OpenAL device extensions: " << alcGetString(device, ALC_EXTENSIONS);
   BOOST_ASSERT(alcIsExtensionPresent(device, ALC_EXT_EFX_NAME) == ALC_TRUE);
 
-#  define GETPROC(name)                                                             \
-    name = reinterpret_cast<decltype(name)>(AL_ASSERT_FN(alGetProcAddress(#name))); \
-    Expects(name != nullptr)
+#  define GETPROC(name)                                                                             \
+    name = reinterpret_cast<decltype(name)>(/*NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)*/ \
+                                            AL_ASSERT_FN(alGetProcAddress(#name)));                 \
+    Expects((name) != nullptr)
 
   GETPROC(alGenEffects);
   GETPROC(alDeleteEffects);

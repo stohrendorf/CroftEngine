@@ -45,27 +45,25 @@ void Stream::update()
   {
     const auto bufId = src->unqueueBuffer();
 
-    bool foundBuffer = false;
-    for(const auto& buffer : m_buffers)
+    const auto bufferIt = std::find_if(
+      m_buffers.begin(), m_buffers.end(), [bufId](const gsl::not_null<std::shared_ptr<BufferHandle>>& buffer) {
+        return buffer->get() == bufId;
+      });
+    if(bufferIt == m_buffers.end())
     {
-      if(bufId == buffer->get())
-      {
-        fillBuffer(*buffer);
-        src->queueBuffer(*buffer);
-        foundBuffer = true;
-        break;
-      }
+      BOOST_LOG_TRIVIAL(warning) << "Got unexpected buffer ID #" << bufId;
+      continue;
     }
 
-    if(!foundBuffer)
-      BOOST_LOG_TRIVIAL(warning) << "Got unexpected buffer ID #" << bufId;
+    fillBuffer(**bufferIt);
+    src->queueBuffer(**bufferIt);
+    break;
   }
 }
 
 void Stream::init()
 {
   const auto src = m_source.lock();
-
   if(src == nullptr)
     return;
 

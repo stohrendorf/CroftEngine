@@ -24,9 +24,8 @@ void load(std::deque<T>& data, const Serializer& ser)
 {
   ser.tag("deque");
   data = std::deque<T>();
-  for(const auto& element : ser.node)
-  {
-    data.emplace_back(access::callCreate(TypeId<T>{}, ser.withNode(element)));
-  }
+  std::transform(ser.node.begin(), ser.node.end(), std::back_inserter(data), [&ser](const YAML::Node& element) {
+    return T{access::callCreate(TypeId<T>{}, ser.withNode(element))};
+  });
 }
 } // namespace serialization

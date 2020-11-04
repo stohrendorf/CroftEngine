@@ -44,14 +44,10 @@ void Level::readMeshData(io::SDLReader& reader)
     else
       m_meshes.emplace_back(*Mesh::readTr1(reader));
 
-    for(auto pos : m_meshIndices)
-    {
-      if(pos > meshDataPos)
-      {
-        meshDataPos = pos;
-        break;
-      }
-    }
+    auto it = std::find_if(
+      m_meshIndices.begin(), m_meshIndices.end(), [meshDataPos](uint32_t pos) { return pos > meshDataPos; });
+    if(it != m_meshIndices.end())
+      meshDataPos = *it;
   }
 
   reader.seek(endPos);
@@ -115,8 +111,8 @@ Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& fil
   const std::string ext = boost::algorithm::to_upper_copy(filename.extension().string());
 
   reader.seek(0);
-  uint8_t check[4];
-  reader.readBytes(check, 4);
+  std::array<uint8_t, 4> check{};
+  reader.readBytes(check.data(), check.size());
 
   Game ret = Game::Unknown;
   if(ext == ".PHD")
@@ -151,7 +147,7 @@ Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& fil
        check[1] == 0x52 && // R
        check[2] == 0x34 && // 4
        check[3] == 0x00)
-    {
+    { // NOLINT(bugprone-branch-clone)
       ret = Game::TR4;
     }
     else if(check[0] == 0x54 && // T
@@ -161,10 +157,7 @@ Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& fil
     {
       ret = Game::TR4;
     }
-    else if(check[0] == 0xF0 && // T
-            check[1] == 0xFF && // R
-            check[2] == 0xFF && // 4
-            check[3] == 0xFF)
+    else if(check[0] == 0xF0 && check[1] == 0xFF && check[2] == 0xFF && check[3] == 0xFF)
     {
       ret = Game::TR4;
     }
@@ -173,7 +166,7 @@ Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& fil
   {
     if(check[0] == 0x54 && // T
        check[1] == 0x52 && // R
-       check[2] == 0x34 && // C
+       check[2] == 0x43 && // C
        check[3] == 0x00)
     {
       ret = Game::TR5;
@@ -185,22 +178,21 @@ Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& fil
 
 const StaticMesh* Level::findStaticMeshById(const core::StaticMeshId meshId) const
 {
-  for(const auto& mesh : m_staticMeshes)
-    if(mesh.id == meshId)
-      return &mesh;
+  auto it = std::find_if(
+    m_staticMeshes.begin(), m_staticMeshes.end(), [meshId](const auto& mesh) { return mesh.id == meshId; });
+  if(it != m_staticMeshes.end())
+    return &*it;
 
   return nullptr;
 }
 
 std::shared_ptr<render::scene::Mesh> Level::findStaticRenderMeshById(const core::StaticMeshId meshId) const
 {
-  for(const auto& mesh : m_staticMeshes)
-  {
-    if(mesh.isVisible() && mesh.id == meshId)
-    {
-      return mesh.renderMesh;
-    }
-  }
+  auto it = std::find_if(m_staticMeshes.begin(), m_staticMeshes.end(), [meshId](const auto& mesh) {
+    return mesh.isVisible() && mesh.id == meshId;
+  });
+  if(it != m_staticMeshes.end())
+    return it->renderMesh;
 
   return nullptr;
 }
@@ -249,13 +241,13 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
   {
     for(int x = 0; x < 256; x++)
     {
-      const int col = tex.pixels[y][x];
+      const auto col = tex.pixels[y][x];
 
-      if((col & 0x8000) != 0)
+      if((col & 0x8000u) != 0)
       {
-        const auto r = static_cast<uint8_t>((col & 0x00007c00) >> 7);
-        const auto g = static_cast<uint8_t>((col & 0x000003e0) >> 2);
-        const auto b = static_cast<uint8_t>((col & 0x0000001f) << 3);
+        const auto r = static_cast<uint8_t>((col & 0x00007c00u) >> 7u);
+        const auto g = static_cast<uint8_t>((col & 0x000003e0u) >> 2u);
+        const auto b = static_cast<uint8_t>((col & 0x0000001fu) << 3u);
         dst.pixels[y][x] = {r, g, b, 1};
       }
       else
@@ -308,9 +300,11 @@ void Level::postProcessDataStructures()
                                  << m_poseFrames.size() - 1;
       continue;
     }
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     model->frames = reinterpret_cast<const AnimFrame*>(&model->pose_data_offset.from(m_poseFrames));
     if(model->nMeshes > 1)
     {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       model->boneTree = gsl::make_span(reinterpret_cast<const BoneTreeEntry*>(&model->bone_index.from(m_boneTrees)),
                                        model->nMeshes - 1);
     }
@@ -329,6 +323,7 @@ void Level::postProcessDataStructures()
     }
     else
     {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       anim.frames = reinterpret_cast<const AnimFrame*>(&anim.poseDataOffset.from(m_poseFrames));
     }
 

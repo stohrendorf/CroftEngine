@@ -92,6 +92,11 @@ public:
     m_particles.emplace_back(particle);
   }
 
+  void registerParticle(gsl::not_null<std::shared_ptr<Particle>>&& particle)
+  {
+    m_particles.emplace_back(std::move(particle));
+  }
+
   void eraseParticle(const std::shared_ptr<Particle>& particle);
 
   void applyScheduledDeletions();

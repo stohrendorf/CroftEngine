@@ -7,7 +7,7 @@
 
 namespace gl
 {
-template<api::ShaderType _Type>
+template<api::ShaderType _Type> // NOLINT(bugprone-reserved-identifier)
 class Shader final
 {
 public:
@@ -40,14 +40,14 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void setSource(const std::string& src)
   {
-    gsl::czstring data[1]{src.c_str()};
-    GL_ASSERT(api::shaderSource(m_handle, 1, data, nullptr));
+    std::array<gsl::czstring, 1> data{src.c_str()};
+    GL_ASSERT(api::shaderSource(m_handle, 1, data.data(), nullptr));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void setSource(gsl::czstring src[], const api::core::SizeType n)
+  void setSource(const gsl::span<gsl::czstring>& src)
   {
-    GL_ASSERT(api::shaderSource(m_handle, n, src, nullptr));
+    GL_ASSERT(api::shaderSource(m_handle, gsl::narrow<api::core::SizeType>(src.size()), src.data(), nullptr));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -56,17 +56,16 @@ public:
     GL_ASSERT(api::compileShader(m_handle));
   }
 
-  auto compile(gsl::czstring src[], const api::core::SizeType n)
+  auto compile(const gsl::span<gsl::czstring>& src)
   {
-    setSource(src, n);
+    setSource(src);
     compile();
     return getCompileStatus();
   }
 
   auto compile(const gsl::czstring src)
   {
-    gsl::czstring srcs[]{src};
-    return compile(srcs, 1);
+    return compile(std::array<gsl::czstring, 1>{src});
   }
 
   [[nodiscard]] bool getCompileStatus() const
@@ -86,11 +85,10 @@ public:
     }
     if(length > 0)
     {
-      const gsl::owner<gsl::zstring> infoLog = new char[length];
-      GL_ASSERT(api::getShaderInfoLog(m_handle, length, nullptr, infoLog));
-      infoLog[length - 1] = '\0';
-      std::string result = infoLog;
-      delete[] infoLog;
+      std::vector<char> infoLog(length, '\0');
+      GL_ASSERT(api::getShaderInfoLog(m_handle, length, nullptr, infoLog.data()));
+      infoLog.back() = '\0';
+      std::string result = infoLog.data();
       return result;
     }
 

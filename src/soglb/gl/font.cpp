@@ -2,7 +2,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <gsl-lite.hpp>
-#include <utf8cpp/utf8.h>
+#include <utf8.h>
 #include <utility>
 
 #include FT_OUTLINE_H
@@ -51,8 +51,10 @@ FT_Library loadFreeTypeLib()
 }
 } // namespace
 
-FT_Error
-  ftcFaceRequester(const FTC_FaceID /*face_id*/, const FT_Library library, const FT_Pointer req_data, FT_Face* aface)
+FT_Error ftcFaceRequester(const FTC_FaceID /*face_id*/,
+                          const FT_Library library,  // NOLINT(misc-misplaced-const)
+                          const FT_Pointer req_data, // NOLINT(misc-misplaced-const)
+                          FT_Face* aface)
 {
   const auto* path = static_cast<std::filesystem::path*>(req_data);
 
@@ -69,8 +71,14 @@ Font::Font(std::filesystem::path ttf)
     : m_filename{std::move(ttf)}
 {
   BOOST_LOG_TRIVIAL(debug) << "Loading font " << m_filename;
-  auto error = FTC_Manager_New(
-    loadFreeTypeLib(), 0, 0, 0, &ftcFaceRequester, const_cast<std::filesystem::path*>(&m_filename), &m_cache);
+  auto error
+    = FTC_Manager_New(loadFreeTypeLib(),
+                      0,
+                      0,
+                      0,
+                      &ftcFaceRequester,
+                      const_cast<std::filesystem::path*>(&m_filename), // NOLINT(cppcoreguidelines-pro-type-const-cast)
+                      &m_cache);
   if(error != FT_Err_Ok)
   {
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cache manager: " << getFreeTypeErrorMessage(error);
@@ -122,7 +130,7 @@ void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, int x, int y, 
   imgType.face_id = this;
   imgType.width = size;
   imgType.height = size;
-  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER;
+  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER; // NOLINT(hicpp-signed-bitwise)
 
   std::optional<char32_t> prevChar = std::nullopt;
   std::vector<char32_t> utf32;
@@ -174,10 +182,10 @@ glm::ivec2 Font::getBounds(const gsl::czstring text, int size) const
   size = std::lround(m_lineHeight * static_cast<float>(size));
 
   FTC_ImageTypeRec imgType;
-  imgType.face_id = const_cast<Font*>(this);
+  imgType.face_id = const_cast<Font*>(this); // NOLINT(cppcoreguidelines-pro-type-const-cast)
   imgType.width = size;
   imgType.height = size;
-  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER;
+  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER; // NOLINT(hicpp-signed-bitwise)
 
   int x = 0;
   int y = size;
@@ -243,7 +251,10 @@ FT_Size_Metrics Font::getMetrics()
 FT_Face Font::getFace() const
 {
   FT_Face face = nullptr;
-  if(FTC_Manager_LookupFace(m_cache, const_cast<Font*>(this), &face) != FT_Err_Ok)
+  if(FTC_Manager_LookupFace(m_cache,
+                            const_cast<Font*>(this), // NOLINT(cppcoreguidelines-pro-type-const-cast)
+                            &face)
+     != FT_Err_Ok)
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to retrieve face information"));
   }
@@ -262,6 +273,9 @@ int Font::getGlyphKernAdvance(const FT_UInt left, const FT_UInt right) const
 
 FT_UInt Font::getGlyphIndex(const char32_t chr) const
 {
-  return FTC_CMapCache_Lookup(m_cmapCache, const_cast<Font*>(this), -1, chr);
+  return FTC_CMapCache_Lookup(m_cmapCache,
+                              const_cast<Font*>(this), // NOLINT(cppcoreguidelines-pro-type-const-cast)
+                              -1,
+                              chr);
 }
 } // namespace gl

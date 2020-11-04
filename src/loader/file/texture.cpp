@@ -6,7 +6,6 @@
 #include "loader/trx/trx.h"
 
 #include <boost/range/adaptor/indexed.hpp>
-#include <gl/cimgwrapper.h>
 
 namespace loader::file
 {
@@ -32,8 +31,10 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
     gl::CImgWrapper cacheImage{cache.loadPng(md5, 0)};
 
     cacheImage.interleave();
-    image = std::make_shared<gl::Image<gl::SRGBA8>>(glm::ivec2{cacheImage.width(), cacheImage.height()},
-                                                    reinterpret_cast<const gl::SRGBA8*>(cacheImage.data()));
+    image = std::make_shared<gl::Image<gl::SRGBA8>>(
+      glm::ivec2{cacheImage.width(), cacheImage.height()},
+      reinterpret_cast<const gl::SRGBA8*>(cacheImage.data()) //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    );
     return;
   }
 
@@ -78,8 +79,10 @@ void DWordTexture::toImage(const trx::Glidos* glidos, const std::function<void(c
   cache.savePng(md5, 0, original);
 
   original.interleave();
-  image = std::make_shared<gl::Image<gl::SRGBA8>>(glm::ivec2{trx::Glidos::Resolution, trx::Glidos::Resolution},
-                                                  reinterpret_cast<const gl::SRGBA8*>(original.data()));
+  image = std::make_shared<gl::Image<gl::SRGBA8>>(
+    glm::ivec2{trx::Glidos::Resolution, trx::Glidos::Resolution},
+    reinterpret_cast<const gl::SRGBA8*>(original.data()) //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+  );
 }
 
 std::unique_ptr<DWordTexture> DWordTexture::read(io::SDLReader& reader)
@@ -91,10 +94,10 @@ std::unique_ptr<DWordTexture> DWordTexture::read(io::SDLReader& reader)
     for(auto& element : row)
     {
       const auto tmp = reader.readU32(); // format is ARGB
-      const uint8_t a = (tmp >> 24) & 0xff;
-      const uint8_t r = (tmp >> 16) & 0xff;
-      const uint8_t g = (tmp >> 8) & 0xff;
-      const uint8_t b = (tmp >> 0) & 0xff;
+      const uint8_t a = (tmp >> 24u) & 0xffu;
+      const uint8_t r = (tmp >> 16u) & 0xffu;
+      const uint8_t g = (tmp >> 8u) & 0xffu;
+      const uint8_t b = (tmp >> 0u) & 0xffu;
       element = {r, g, b, a};
     }
   }
@@ -105,20 +108,19 @@ std::unique_ptr<DWordTexture> DWordTexture::read(io::SDLReader& reader)
 std::unique_ptr<ByteTexture> ByteTexture::read(io::SDLReader& reader)
 {
   std::unique_ptr<ByteTexture> textile{new ByteTexture()};
-  reader.readBytes(reinterpret_cast<uint8_t*>(textile->pixels), 256 * 256);
+  reader.readBytes(
+    reinterpret_cast<uint8_t*>(&textile->pixels[0][0]), //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    256 * 256);
   return textile;
 }
 
 std::unique_ptr<WordTexture> WordTexture::read(io::SDLReader& reader)
 {
-  std::unique_ptr<WordTexture> texture{new WordTexture()};
+  std::unique_ptr<WordTexture> texture = std::make_unique<WordTexture>();
 
   for(auto& row : texture->pixels)
   {
-    for(auto& element : row)
-    {
-      element = reader.readU16();
-    }
+    std::generate(row.begin(), row.end(), [&reader]() { return reader.readU16(); });
   }
 
   return texture;
@@ -126,7 +128,7 @@ std::unique_ptr<WordTexture> WordTexture::read(io::SDLReader& reader)
 
 UVCoordinates UVCoordinates::readTr1(io::SDLReader& reader)
 {
-  UVCoordinates uv;
+  UVCoordinates uv{};
   uv.xcoordinate = reader.readI8();
   uv.xpixel = reader.readU8();
   uv.ycoordinate = reader.readI8();
@@ -136,7 +138,7 @@ UVCoordinates UVCoordinates::readTr1(io::SDLReader& reader)
 
 UVCoordinates UVCoordinates::readTr4(io::SDLReader& reader)
 {
-  UVCoordinates uv;
+  UVCoordinates uv{};
   uv.xcoordinate = reader.readI8();
   uv.xpixel = reader.readU8();
   uv.ycoordinate = reader.readI8();
@@ -160,7 +162,7 @@ std::unique_ptr<TextureTile> TextureTile::readTr1(io::SDLReader& reader)
   if(tile->textureKey.tileAndFlag > 64)
     BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
 
-  if((tile->textureKey.tileAndFlag & (1 << 15)) != 0)
+  if((tile->textureKey.tileAndFlag & (1u << 15u)) != 0)
     BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
 
   // only in TR4
@@ -182,7 +184,7 @@ std::unique_ptr<TextureTile> TextureTile::readTr4(io::SDLReader& reader)
   std::unique_ptr<TextureTile> tile{std::make_unique<TextureTile>()};
   tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
   tile->textureKey.tileAndFlag = reader.readU16();
-  if((tile->textureKey.tileAndFlag & 0x7FFF) > 128)
+  if((tile->textureKey.tileAndFlag & 0x7FFFu) > 128)
     BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
 
   tile->textureKey.flags = reader.readU16();

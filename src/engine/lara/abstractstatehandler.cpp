@@ -59,9 +59,7 @@
 
 #include <cstdlib>
 
-namespace engine
-{
-namespace lara
+namespace engine::lara
 {
 std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(const LaraStateId id, objects::LaraObject& lara)
 {
@@ -336,7 +334,7 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
   return true;
 }
 
-bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
+bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
      || !getEngine().getPresenter().getInputHandler().getInputState().action
@@ -411,7 +409,7 @@ void AbstractStateHandler::applyShift(const CollisionInfo& collisionInfo)
   m_lara.applyShift(collisionInfo);
 }
 
-bool AbstractStateHandler::checkWallCollision(CollisionInfo& collisionInfo)
+bool AbstractStateHandler::checkWallCollision(const CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType == CollisionInfo::AxisColl::Front
      || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom)
@@ -489,7 +487,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
   return true;
 }
 
-bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
+bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
      || !getEngine().getPresenter().getInputHandler().getInputState().action
@@ -907,5 +905,4 @@ void AbstractStateHandler::laraUpdateImpl()
 {
   m_lara.updateImpl();
 }
-} // namespace lara
 } // namespace engine

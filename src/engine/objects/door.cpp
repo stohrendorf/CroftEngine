@@ -149,7 +149,7 @@ void Door::serialize(const serialization::Serializer& ser)
   }
 }
 
-void Door::Info::open()
+void Door::Info::open() // NOLINT(readability-make-member-function-const)
 {
   if(wingsSector == nullptr)
     return;
@@ -159,7 +159,7 @@ void Door::Info::open()
     wingsBox->blocked = false;
 }
 
-void Door::Info::close()
+void Door::Info::close() // NOLINT(readability-make-member-function-const)
 {
   if(wingsSector == nullptr)
     return;

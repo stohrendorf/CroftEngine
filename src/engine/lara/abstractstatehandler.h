@@ -110,13 +110,13 @@ protected:
 
   bool stopIfCeilingBlocked(const CollisionInfo& collisionInfo);
 
-  bool tryClimb(CollisionInfo& collisionInfo);
+  bool tryClimb(const CollisionInfo& collisionInfo);
 
-  bool checkWallCollision(CollisionInfo& collisionInfo);
+  bool checkWallCollision(const CollisionInfo& collisionInfo);
 
   bool tryStartSlide(const CollisionInfo& collisionInfo);
 
-  bool tryGrabEdge(CollisionInfo& collisionInfo);
+  bool tryGrabEdge(const CollisionInfo& collisionInfo);
 
   void jumpAgainstWall(CollisionInfo& collisionInfo);
 

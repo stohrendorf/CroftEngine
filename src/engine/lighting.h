@@ -53,22 +53,21 @@ struct Lighting
 
     std::vector<gsl::not_null<const loader::file::Room*>> testRooms;
     testRooms.emplace_back(pos.room);
-    for(const auto& portal : pos.room->portals)
-    {
-      testRooms.emplace_back(&rooms.at(portal.adjoining_room.get()));
-    }
+    std::transform(pos.room->portals.begin(),
+                   pos.room->portals.end(),
+                   std::back_inserter(testRooms),
+                   [&rooms](const auto& portal) { return &rooms.at(portal.adjoining_room.get()); });
 
     for(const auto& room : testRooms)
     {
-      for(const auto& light : room->lights)
-      {
-        // http://www-f9.ijs.si/~matevz/docs/PovRay/pov274.htm
-        // 1 / ( 1 + (d/fade_distance) ^ fade_power );
-        // assuming fade_power = 1, multiply numerator and denominator with fade_distance (identity transform):
-        // fade_distance / ( fade_distance + d )
-        lights.emplace_back(
-          Light{light.position.toRenderSystem(), light.getBrightness(), light.fadeDistance.get<float>()});
-      }
+      // http://www-f9.ijs.si/~matevz/docs/PovRay/pov274.htm
+      // 1 / ( 1 + (d/fade_distance) ^ fade_power );
+      // assuming fade_power = 1, multiply numerator and denominator with fade_distance (identity transform):
+      // fade_distance / ( fade_distance + d )
+      std::transform(
+        room->lights.begin(), room->lights.end(), std::back_inserter(lights), [](const loader::file::Light& light) {
+          return Light{light.position.toRenderSystem(), light.getBrightness(), light.fadeDistance.get<float>()};
+        });
     }
 
     if(bufferLights != lights)

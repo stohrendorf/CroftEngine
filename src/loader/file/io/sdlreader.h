@@ -80,7 +80,7 @@ public:
     std::vector<char> uncomp_buffer(uncompressedSize);
 
     auto size = static_cast<uLongf>(uncompressedSize);
-    if(uncompress(reinterpret_cast<Bytef*>(uncomp_buffer.data()),
+    if(uncompress(reinterpret_cast<Bytef*>(uncomp_buffer.data()), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
                   &size,
                   compressed.data(),
                   static_cast<uLong>(compressed.size()))

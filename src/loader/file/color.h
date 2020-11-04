@@ -43,12 +43,16 @@ struct ByteColor
 
   [[nodiscard]] glm::vec4 toGLColor() const
   {
-    return glm::vec4{r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f};
+    return glm::vec4{gsl::narrow_cast<float>(r) / 255.0f,
+                     gsl::narrow_cast<float>(g) / 255.0f,
+                     gsl::narrow_cast<float>(b) / 255.0f,
+                     gsl::narrow_cast<float>(a) / 255.0f};
   }
 
   [[nodiscard]] glm::vec3 toGLColor3() const
   {
-    return glm::vec3{r / 255.0f, g / 255.0f, b / 255.0f};
+    return glm::vec3{
+      gsl::narrow_cast<float>(r) / 255.0f, gsl::narrow_cast<float>(g) / 255.0f, gsl::narrow_cast<float>(b) / 255.0f};
   }
 
 private:
@@ -77,7 +81,7 @@ struct FloatColor
 
 struct Palette
 {
-  ByteColor colors[256];
+  std::array<ByteColor, 256> colors;
 
   /// \brief reads the 256 color palette values.
   static std::unique_ptr<Palette> readTr1(io::SDLReader& reader);

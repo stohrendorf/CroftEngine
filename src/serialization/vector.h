@@ -26,10 +26,9 @@ void load(std::vector<T>& data, const Serializer& ser)
   Expects(ser.node.IsSequence());
   data = std::vector<T>();
   data.reserve(ser.node.size());
-  for(const auto& element : ser.node)
-  {
-    data.push_back(access::callCreate(TypeId<T>{}, ser.withNode(element)));
-  }
+  std::transform(ser.node.begin(), ser.node.end(), std::back_inserter(data), [&ser](const YAML::Node& element) {
+    return access::callCreate(TypeId<T>{}, ser.withNode(element));
+  });
 }
 
 template<typename T>

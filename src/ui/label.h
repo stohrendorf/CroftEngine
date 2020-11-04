@@ -59,10 +59,12 @@ public:
   explicit CachedFont(const loader::file::SpriteSequence& sequence, const int scale = FontBaseScale)
       : m_scale{scale}
   {
-    for(const auto& spr : sequence.sprites)
-    {
-      m_glyphs.emplace_back(extractChar(spr, scale), spr.x0, spr.y0);
-    }
+    std::transform(sequence.sprites.begin(),
+                   sequence.sprites.end(),
+                   std::back_inserter(m_glyphs),
+                   [scale](const loader::file::Sprite& spr) {
+                     return Glyph{extractChar(spr, scale), spr.x0, spr.y0};
+                   });
   }
 
   [[nodiscard]] const Glyph& get(size_t n) const

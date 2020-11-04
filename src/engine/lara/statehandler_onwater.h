@@ -55,7 +55,7 @@ protected:
   }
 
 private:
-  void tryClimbOutOfWater(CollisionInfo& collisionInfo)
+  void tryClimbOutOfWater(const CollisionInfo& collisionInfo)
   {
     if(getMovementAngle() != getLara().m_state.rotation.Y)
     {

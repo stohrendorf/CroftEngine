@@ -153,7 +153,7 @@ SRGBA8& CImgWrapper::operator()(const int x, const int y)
   BOOST_ASSERT(x >= 0 && x < width());
   BOOST_ASSERT(y >= 0 && y < height());
   interleave();
-  return reinterpret_cast<SRGBA8&>((*m_image)(0, x, y, 0));
+  return reinterpret_cast<SRGBA8&>((*m_image)(0, x, y, 0)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
 }
 
 uint8_t CImgWrapper::operator()(const int x, const int y, const int c) const

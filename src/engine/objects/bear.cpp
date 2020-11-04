@@ -70,7 +70,7 @@ void Bear::update()
       break;
     case WalkingTall.get():
       if(m_state.creatureInfo->flags != 0)
-        goal(RoaringStanding, 0_as);
+        goal(RoaringStanding, 0_as); // NOLINT(bugprone-branch-clone)
       else if(aiInfo.ahead && touched(0x2406cUL))
         goal(RoaringStanding);
       else if(isEscaping())

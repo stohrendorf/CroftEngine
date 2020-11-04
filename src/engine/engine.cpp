@@ -47,6 +47,7 @@
 #include <gl/font.h>
 #include <glm/gtx/norm.hpp>
 #include <locale>
+#include <numeric>
 #include <pybind11/embed.h>
 
 namespace engine
@@ -104,7 +105,9 @@ void Engine::swapAllRooms()
 
 bool Engine::isValid(const loader::file::AnimFrame* frame) const
 {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   return reinterpret_cast<const short*>(frame) >= m_level->m_poseFrames.data()
+         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
          && reinterpret_cast<const short*>(frame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size();
 }
 
@@ -246,6 +249,7 @@ void Engine::dinoStompEffect(objects::Object& object)
 }
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void Engine::turn180Effect(objects::Object& object)
 {
   object.m_state.rotation.Y += 180_deg;
@@ -410,7 +414,8 @@ void Engine::flipMapEffect()
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void Engine::unholsterRightGunEffect(objects::ModelObject& object)
+// NOLINTNEXTLINE(readability-make-member-function-const)
+void Engine::unholsterRightGunEffect(const objects::ModelObject& object)
 {
   const auto& src = *findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
   BOOST_ASSERT(src.bones.size() == object.getSkeleton()->getBoneCount());
@@ -573,8 +578,8 @@ void Engine::update(const bool godMode)
 
 Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution)
     : m_rootPath{rootPath}
-    , m_scriptEngine{createScriptEngine(rootPath)}
     , m_presenter{std::make_shared<Presenter>(rootPath, fullscreen, resolution)}
+    , m_scriptEngine{createScriptEngine(rootPath)}
 {
   try
   {
@@ -775,9 +780,10 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
       tilesByTexture[sprite.texture_id.get()].emplace(sprite.t0 * 256.0f, sprite.t1 * 256.0f);
     }
 
-    size_t totalTiles = 0;
-    for(const auto& textureAndTiles : tilesByTexture)
-      totalTiles += textureAndTiles.second.size();
+    size_t totalTiles = std::accumulate(
+      tilesByTexture.begin(), tilesByTexture.end(), std::size_t{0}, [](size_t n, const auto& textureAndTiles) {
+        return n + textureAndTiles.second.size();
+      });
     BOOST_LOG_TRIVIAL(debug) << totalTiles << " unique texture tiles";
 
     const auto cacheBaseDir = glidos != nullptr ? glidos->getBaseDir() : m_rootPath / "data" / "tr1" / "data";
@@ -794,6 +800,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
 
       BOOST_LOG_TRIVIAL(debug) << "Mipmapping texture " << textureAndTiles.first;
 
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       const gl::CImgWrapper src{reinterpret_cast<uint8_t*>(texture.image->getRawData()),
                                 texture.image->getWidth(),
                                 texture.image->getHeight(),
@@ -808,7 +815,10 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
           auto dst = cache.loadPng(texture.md5, mipmapLevel);
           dst.interleave();
           m_presenter->assignTextures(
-            reinterpret_cast<const gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+            reinterpret_cast<const gl::SRGBA8*>(dst.data()),
+            textureAndTiles.first,
+            mipmapLevel);
         }
         else
         {
@@ -832,7 +842,10 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
           cache.savePng(texture.md5, mipmapLevel, dst);
           dst.interleave();
           m_presenter->assignTextures(
-            reinterpret_cast<const gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+            reinterpret_cast<const gl::SRGBA8*>(dst.data()),
+            textureAndTiles.first,
+            mipmapLevel);
         }
       }
     }
@@ -874,7 +887,7 @@ void Engine::gameLoop(Throttler& throttler, const std::string& levelName, bool g
   }
 }
 
-void Engine::cinematicLoop(Throttler& throttler)
+void Engine::cinematicLoop()
 {
   m_presenter->preFrame();
   update(false);
@@ -944,7 +957,7 @@ void Engine::run()
     {
       if(++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size())
         break;
-      cinematicLoop(throttler);
+      cinematicLoop();
     }
   }
 }
@@ -1197,22 +1210,23 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
 
 core::TypeId Engine::find(const loader::file::SkeletalModelType* model) const
 {
-  for(const auto& item : m_level->m_animatedModels)
-  {
-    if(item.second.get() == model)
-      return item.first;
-  }
+  auto it = std::find_if(m_level->m_animatedModels.begin(),
+                         m_level->m_animatedModels.end(),
+                         [&model](const auto& item) { return item.second.get() == model; });
+  if(it != m_level->m_animatedModels.end())
+    return it->first;
 
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find model"));
 }
 
 core::TypeId Engine::find(const loader::file::Sprite* sprite) const
 {
-  for(const auto& sequence : m_level->m_spriteSequences)
-  {
-    if(!sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite)
-      return sequence.first;
-  }
+  auto it = std::find_if(
+    m_level->m_spriteSequences.begin(), m_level->m_spriteSequences.end(), [&sprite](const auto& sequence) {
+      return !sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite;
+    });
+  if(it != m_level->m_spriteSequences.end())
+    return it->first;
 
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find sprite"));
 }

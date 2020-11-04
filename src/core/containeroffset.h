@@ -22,6 +22,8 @@ struct ContainerOffset
 
   constexpr ContainerOffset() = default;
 
+  // cppcheck-suppress noExplicitConstructor
+  // NOLINTNEXTLINE(google-explicit-constructor)
   constexpr ContainerOffset(offset_type offset)
       : offset{offset}
   {
@@ -73,6 +75,8 @@ struct ContainerIndex
 
   constexpr ContainerIndex() = default;
 
+  // cppcheck-suppress noExplicitConstructor
+  // NOLINTNEXTLINE(google-explicit-constructor)
   constexpr ContainerIndex(index_type index) noexcept
       : index{index}
   {

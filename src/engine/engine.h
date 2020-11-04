@@ -252,7 +252,7 @@ public:
 
   void flipMapEffect();
 
-  void unholsterRightGunEffect(objects::ModelObject& object);
+  void unholsterRightGunEffect(const objects::ModelObject& object);
 
   void chainBlockEffect();
 
@@ -352,6 +352,6 @@ public:
   [[nodiscard]] const loader::file::Palette& getPalette() const;
 
   void gameLoop(Throttler& throttler, const std::string& levelName, bool godMode);
-  void cinematicLoop(Throttler& throttler);
+  void cinematicLoop();
 };
 } // namespace engine

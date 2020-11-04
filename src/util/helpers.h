@@ -99,10 +99,10 @@ inline core::TRVec yawPitch(const core::Length& len, const core::TRRotation& rot
 
 inline core::TRVec pitch(const core::TRVec& vec, const core::Angle& rot)
 {
-  const auto sin = core::sin(rot);
-  const auto cos = core::cos(rot);
-  return core::TRVec{(vec.Z.cast<float>() * sin + vec.X.cast<float>() * cos).cast<core::Length>(),
+  const auto s = sin(rot);
+  const auto c = cos(rot);
+  return core::TRVec{(vec.Z.cast<float>() * s + vec.X.cast<float>() * c).cast<core::Length>(),
                      vec.Y,
-                     (vec.Z.cast<float>() * cos - vec.X.cast<float>() * sin).cast<core::Length>()};
+                     (vec.Z.cast<float>() * c - vec.X.cast<float>() * s).cast<core::Length>()};
 }
 } // namespace util

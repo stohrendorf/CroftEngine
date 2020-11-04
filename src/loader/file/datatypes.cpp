@@ -4,19 +4,11 @@
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "level/level.h"
-#include "render/scene/material.h"
 #include "render/scene/materialmanager.h"
-#include "render/scene/mesh.h"
-#include "render/scene/names.h"
 #include "render/scene/sprite.h"
 #include "render/textureanimator.h"
 #include "serialization/box_ptr.h"
 #include "serialization/quantity.h"
-#include "util.h"
-#include "util/helpers.h"
-
-#include <gl/vertexarray.h>
-#include <glm/gtc/type_ptr.hpp>
 
 namespace loader::file
 {
@@ -156,14 +148,14 @@ void Room::createSceneNode(const size_t roomId,
 
       if(i <= 2)
       {
-        static const int indices[3] = {0, 1, 2};
+        static const std::array<int, 3> indices{0, 1, 2};
         iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(vertices).position,
                                    quad.vertices[indices[(i + 1) % 3]].from(vertices).position,
                                    quad.vertices[indices[(i + 2) % 3]].from(vertices).position);
       }
       else
       {
-        static const int indices[3] = {0, 2, 3};
+        static const std::array<int, 3> indices{0, 2, 3};
         iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(vertices).position,
                                    quad.vertices[indices[(i + 1) % 3]].from(vertices).position,
                                    quad.vertices[indices[(i + 2) % 3]].from(vertices).position);
@@ -207,7 +199,7 @@ void Room::createSceneNode(const size_t roomId,
       iv.textureIndex = tile.textureKey.tileAndFlag & texMask;
       uvCoordsData.push_back(tile.uvCoordinates[i].toGl());
 
-      static const int indices[3] = {0, 1, 2};
+      static const std::array<int, 3> indices{0, 1, 2};
       iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(vertices).position,
                                  tri.vertices[indices[(i + 1) % 3]].from(vertices).position,
                                  tri.vertices[indices[(i + 2) % 3]].from(vertices).position);
@@ -357,7 +349,7 @@ std::unique_ptr<StaticMesh> StaticMesh::read(io::SDLReader& reader)
 void Room::patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height)
 {
   auto room = object.m_state.position.room;
-  //! @todo Ugly const_cast
+  // TODO Ugly const_cast
   auto groundSector = const_cast<Sector*>(loader::file::findRealFloorSector(object.m_state.position.position, &room));
   Expects(groundSector != nullptr);
   const auto topSector = loader::file::findRealFloorSector(
@@ -404,8 +396,8 @@ std::unique_ptr<Room> Room::readTr1(io::SDLReader& reader)
   reader.seek(position + num_data_words * 2);
 
   room->portals.resize(reader.readU16());
-  for(auto& p : room->portals)
-    p = Portal::read(reader, room->position);
+  std::generate(
+    room->portals.begin(), room->portals.end(), [&reader, &room]() { return Portal::read(reader, room->position); });
 
   room->sectorCountZ = reader.readU16();
   room->sectorCountX = reader.readU16();
@@ -486,9 +478,9 @@ std::unique_ptr<Room> Room::readTr2(io::SDLReader& reader)
     room->reverbInfo = ReverbType::MediumRoom;
   }
 
-  room->lightColor.r = room->ambientShade.get() / 16384.0f;
-  room->lightColor.g = room->ambientShade.get() / 16384.0f;
-  room->lightColor.b = room->ambientShade.get() / 16384.0f;
+  room->lightColor.r = gsl::narrow_cast<float>(room->ambientShade.get()) / 16384.0f;
+  room->lightColor.g = gsl::narrow_cast<float>(room->ambientShade.get()) / 16384.0f;
+  room->lightColor.b = gsl::narrow_cast<float>(room->ambientShade.get()) / 16384.0f;
   room->lightColor.a = 1.0f;
   return room;
 }
@@ -551,9 +543,9 @@ std::unique_ptr<Room> Room::readTr3(io::SDLReader& reader)
 
   reader.skip(1); // Alternate_group override?
 
-  room->lightColor.r = room->ambientShade.get() / 65534.0f;
-  room->lightColor.g = room->ambientShade.get() / 65534.0f;
-  room->lightColor.b = room->ambientShade.get() / 65534.0f;
+  room->lightColor.r = gsl::narrow_cast<float>(room->ambientShade.get()) / 65535.0f;
+  room->lightColor.g = gsl::narrow_cast<float>(room->ambientShade.get()) / 65535.0f;
+  room->lightColor.b = gsl::narrow_cast<float>(room->ambientShade.get()) / 65535.0f;
   room->lightColor.a = 1.0f;
   return room;
 }
@@ -609,10 +601,10 @@ std::unique_ptr<Room> Room::readTr4(io::SDLReader& reader)
 
   room->alternateGroup = reader.readU8();
 
-  room->lightColor.r = (room->intensity2 & 0x00FF) / 255.0f;
-  room->lightColor.g = ((room->ambientShade.get() & 0xFF00) >> 8) / 255.0f;
-  room->lightColor.b = (room->ambientShade.get() & 0x00FF) / 255.0f;
-  room->lightColor.a = ((room->intensity2 & 0xFF00) >> 8) / 255.0f;
+  room->lightColor.r = gsl::narrow_cast<float>(room->intensity2 & 0x00FF) / 255.0f;
+  room->lightColor.g = gsl::narrow_cast<float>((room->ambientShade.get() & 0xFF00) >> 8) / 255.0f;
+  room->lightColor.b = gsl::narrow_cast<float>(room->ambientShade.get() & 0x00FF) / 255.0f;
+  room->lightColor.a = gsl::narrow_cast<float>((room->intensity2 & 0xFF00) >> 8) / 255.0f;
   return room;
 }
 
@@ -652,10 +644,10 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   room->sectorCountZ = reader.readU16();
   room->sectorCountX = reader.readU16();
 
-  room->lightColor.b = reader.readU8() / 255.0f;
-  room->lightColor.g = reader.readU8() / 255.0f;
-  room->lightColor.r = reader.readU8() / 255.0f;
-  room->lightColor.a = reader.readU8() / 255.0f;
+  room->lightColor.b = gsl::narrow_cast<float>(reader.readU8()) / 255.0f;
+  room->lightColor.g = gsl::narrow_cast<float>(reader.readU8()) / 255.0f;
+  room->lightColor.r = gsl::narrow_cast<float>(reader.readU8()) / 255.0f;
+  room->lightColor.a = gsl::narrow_cast<float>(reader.readU8()) / 255.0f;
   //room->light_color.a = 1.0f;
 
   room->lights.resize(reader.readU16());
@@ -775,8 +767,7 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   if(reader.readU32() != 0xCDCDCDCD)
     BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator18 has wrong value";
 
-  for(auto& light : room->lights)
-    light = Light::readTr5(reader);
+  std::generate(room->lights.begin(), room->lights.end(), [&reader]() { return Light::readTr5(reader); });
 
   reader.seek(position + std::streamoff(208) + sector_data_offset);
 
@@ -788,13 +779,12 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
 
   reader.seek(position + std::streamoff(208) + static_meshes_offset);
 
-  for(auto& staticMesh : room->staticMeshes)
-    staticMesh = RoomStaticMesh::readTr4(reader);
+  std::generate(
+    room->staticMeshes.begin(), room->staticMeshes.end(), [&reader]() { return RoomStaticMesh::readTr4(reader); });
 
   reader.seek(position + std::streamoff(208) + layer_offset);
 
-  for(auto& layer : room->layers)
-    layer = Layer::read(reader);
+  std::generate(room->layers.begin(), room->layers.end(), [&reader]() { return Layer::read(reader); });
 
   reader.seek(position + std::streamoff(208) + poly_offset);
 
@@ -955,7 +945,7 @@ void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Materi
   auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(format);
   vb->setData(&glVertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
-  static const uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
+  static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
@@ -1235,7 +1225,7 @@ RoomVertex RoomVertex::readTr2(io::SDLReader& reader)
   room_vertex.lighting2 = (8191 - reader.readI16()) * 4;
   // only in TR5
   room_vertex.normal = {0_len, 0_len, 0_len};
-  const auto f = room_vertex.lighting2 / 32768.0f;
+  const auto f = gsl::narrow_cast<float>(room_vertex.lighting2) / 32768.0f;
   room_vertex.color = {f, f, f, 1};
   return room_vertex;
 }
@@ -1250,9 +1240,9 @@ RoomVertex RoomVertex::readTr3(io::SDLReader& reader)
   room_vertex.lighting2 = reader.readI16();
   // only in TR5
   room_vertex.normal = {0_len, 0_len, 0_len};
-  room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
-                       ((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
-                       (room_vertex.lighting2 & 0x001F) / 62.0f,
+  room_vertex.color = {gsl::narrow_cast<float>((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
+                       gsl::narrow_cast<float>((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
+                       gsl::narrow_cast<float>(room_vertex.lighting2 & 0x001F) / 62.0f,
                        1};
   return room_vertex;
 }
@@ -1268,9 +1258,9 @@ RoomVertex RoomVertex::readTr4(io::SDLReader& reader)
   // only in TR5
   room_vertex.normal = {0_len, 0_len, 0_len};
 
-  room_vertex.color = {((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
-                       ((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
-                       (room_vertex.lighting2 & 0x001F) / 31.0f,
+  room_vertex.color = {gsl::narrow_cast<float>((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
+                       gsl::narrow_cast<float>((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
+                       gsl::narrow_cast<float>(room_vertex.lighting2 & 0x001F) / 31.0f,
                        1};
   return room_vertex;
 }
@@ -1298,8 +1288,8 @@ std::unique_ptr<Sprite> Sprite::readTr1(io::SDLReader& reader)
     BOOST_LOG_TRIVIAL(warning) << "TR1 Sprite Texture ID > 64";
   }
 
-  sprite->t0.x = reader.readU8() / 256.0f;
-  sprite->t0.y = reader.readU8() / 256.0f;
+  sprite->t0.x = gsl::narrow_cast<float>(reader.readU8()) / 256.0f;
+  sprite->t0.y = gsl::narrow_cast<float>(reader.readU8()) / 256.0f;
   const auto tw = reader.readU16();
   const auto th = reader.readU16();
   sprite->x0 = reader.readI16();
@@ -1307,8 +1297,8 @@ std::unique_ptr<Sprite> Sprite::readTr1(io::SDLReader& reader)
   sprite->x1 = reader.readI16();
   sprite->y1 = reader.readI16();
 
-  const float w = tw / 256.0f;
-  const float h = th / 256.0f;
+  const float w = gsl::narrow_cast<float>(tw) / 256.0f;
+  const float h = gsl::narrow_cast<float>(th) / 256.0f;
   sprite->t1.x = sprite->t0.x + w / 256.0f;
   sprite->t1.y = sprite->t0.y + h / 256.0f;
 
@@ -1328,10 +1318,10 @@ std::unique_ptr<Sprite> Sprite::readTr4(io::SDLReader& reader)
   sprite->y1 = reader.readU8();
   sprite->x1 = sprite->x0 + reader.readU16() / 256;
   sprite->y0 = sprite->y1 + reader.readU16() / 256;
-  sprite->t0.x = reader.readI16() / 256.0f;
-  sprite->t1.y = reader.readI16() / 256.0f;
-  sprite->t0.y = reader.readI16() / 256.0f;
-  sprite->t1.x = reader.readI16() / 256.0f;
+  sprite->t0.x = gsl::narrow_cast<float>(reader.readI16()) / 256.0f;
+  sprite->t1.y = gsl::narrow_cast<float>(reader.readI16()) / 256.0f;
+  sprite->t0.y = gsl::narrow_cast<float>(reader.readI16()) / 256.0f;
+  sprite->t1.x = gsl::narrow_cast<float>(reader.readI16()) / 256.0f;
 
   return sprite;
 }
@@ -1374,9 +1364,9 @@ std::unique_ptr<Box> Box::readTr1(io::SDLReader& reader)
   box->xmax = 1_len * reader.readI32();
   box->floor = 1_len * static_cast<core::Length::type>(reader.readI16());
   const auto tmp = reader.readU16();
-  box->overlap_index = tmp & ((1 << 14) - 1);
-  box->blocked = (tmp & 0x4000) != 0;
-  box->blockable = (tmp & 0x8000) != 0;
+  box->overlap_index = tmp & ((1u << 14u) - 1u);
+  box->blocked = (tmp & 0x4000u) != 0;
+  box->blockable = (tmp & 0x8000u) != 0;
 
   Expects(box->xmax - box->xmin + 1_len >= core::SectorSize);
   Expects(box->zmax - box->zmin + 1_len >= core::SectorSize);
@@ -1393,9 +1383,9 @@ std::unique_ptr<Box> Box::readTr2(io::SDLReader& reader)
   box->xmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
   box->floor = core::Length{static_cast<core::Length::type>(reader.readI16())};
   const auto tmp = reader.readU16();
-  box->overlap_index = tmp & ((1 << 14) - 1);
-  box->blocked = (tmp & 0x4000) != 0;
-  box->blockable = (tmp & 0x8000) != 0;
+  box->overlap_index = tmp & ((1u << 14u) - 1u);
+  box->blocked = (tmp & 0x4000u) != 0;
+  box->blockable = (tmp & 0x8000u) != 0;
   return box;
 }
 
