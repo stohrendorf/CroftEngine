@@ -22,8 +22,8 @@ public:
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
-       && getEngine().getInputHandler().getInputState().moveSlow)
+    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
+       && getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
     {
       setGoalAnimState(LaraStateId::WalkBackward);
     }
@@ -32,11 +32,11 @@ public:
       setGoalAnimState(LaraStateId::Stop);
     }
 
-    if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(2.25_deg, -4_deg);
     }
-    else if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(2.25_deg, 4_deg);
     }

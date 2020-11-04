@@ -147,7 +147,7 @@ void SoundEngine::addWav(const gsl::not_null<const uint8_t*>& buffer)
 gsl::not_null<std::shared_ptr<SourceHandle>>
   SoundEngine::playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos)
 {
-  const auto handle = playBuffer(bufferId, pitch, volume, nullptr);
+  auto handle = playBuffer(bufferId, pitch, volume, nullptr);
   handle->setPosition(pos);
   return handle;
 }

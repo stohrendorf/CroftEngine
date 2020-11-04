@@ -8,17 +8,10 @@
 #include <csignal>
 #include <iostream>
 
-void stacktrace_handler(int signum)
-{
-  std::signal(signum, SIG_DFL);
-  std::cerr << "Signal " << signum << " caught; stacktrace:\n" << boost::stacktrace::stacktrace();
-  std::raise(SIGABRT);
-}
-
-gsl_api void gsl::fail_fast_assert_handler(char const* const expression,
-                                           char const* const message,
-                                           char const* const file,
-                                           int line)
+[[maybe_unused]] void gsl::fail_fast_assert_handler(char const* const expression,
+                                                    char const* const message,
+                                                    char const* const file,
+                                                    int line)
 {
   BOOST_LOG_TRIVIAL(error) << "Expectation failed at " << file << ":" << line;
   BOOST_LOG_TRIVIAL(error) << "  - expression " << expression;
@@ -29,8 +22,15 @@ gsl_api void gsl::fail_fast_assert_handler(char const* const expression,
 
 namespace
 {
-std::terminate_handler oldTerminateHandler = nullptr;
+void stacktrace_handler(int signum)
+{
+  std::signal(signum, SIG_DFL);
+  std::cerr << "Signal " << signum << " caught; stacktrace:\n" << boost::stacktrace::stacktrace();
+  std::raise(SIGABRT);
+}
 
+void terminateHandler();
+const std::terminate_handler oldTerminateHandler = std::set_terminate(&terminateHandler);
 void terminateHandler()
 {
   BOOST_LOG_TRIVIAL(error) << "Abnormal termination. Stacktrace:\n" << boost::stacktrace::stacktrace();
@@ -45,12 +45,16 @@ int main()
   std::signal(SIGSEGV, &stacktrace_handler);
   std::signal(SIGABRT, &stacktrace_handler);
 
-  oldTerminateHandler = std::set_terminate(&terminateHandler);
-
 #ifdef NDEBUG
   boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
 #endif
 
+#if 1
+  engine::Engine engine{std::filesystem::current_path()};
+  engine.run();
+
+  return EXIT_SUCCESS;
+#else
   try
   {
     engine::Engine engine{std::filesystem::current_path()};
@@ -61,16 +65,20 @@ int main()
   catch(boost::exception& ex)
   {
     BOOST_LOG_TRIVIAL(error) << "Error:\n" << diagnostic_information(ex);
+    BOOST_LOG_TRIVIAL(error) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
     return EXIT_FAILURE;
   }
   catch(std::exception& ex)
   {
     BOOST_LOG_TRIVIAL(error) << "Error: " << ex.what();
+    BOOST_LOG_TRIVIAL(error) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
     return EXIT_FAILURE;
   }
   catch(...)
   {
     BOOST_LOG_TRIVIAL(error) << "Unexpected error";
+    BOOST_LOG_TRIVIAL(error) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
     return EXIT_FAILURE;
   }
+#endif
 }

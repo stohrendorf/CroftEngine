@@ -2,7 +2,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <gsl-lite.hpp>
-#include <utf8.h>
+#include <utf8cpp/utf8.h>
 #include <utility>
 
 #include FT_OUTLINE_H
@@ -94,12 +94,12 @@ Font::Font(std::filesystem::path ttf)
   }
   BOOST_ASSERT(m_sbitCache != nullptr);
 
-  auto face = getFace();
+  const auto face = getFace();
   const auto h = face->ascender - face->descender;
   Expects(h != 0);
-  m_ascender = float(face->ascender) / h;
-  m_descender = float(face->descender) / h;
-  m_lineHeight = float(face->height) / h;
+  m_ascender = static_cast<float>(face->ascender) / h;
+  m_descender = static_cast<float>(face->descender) / h;
+  m_lineHeight = static_cast<float>(face->height) / h;
 }
 
 Font::~Font()
@@ -108,7 +108,7 @@ Font::~Font()
   m_cache = nullptr;
 }
 
-void Font::drawText(Image<SRGBA8>& img, gsl::czstring text, int x, int y, const SRGBA8& color, int size)
+void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, int x, int y, const SRGBA8& color, int size)
 {
   Expects(text);
   Expects(size > 0);
@@ -166,12 +166,12 @@ void Font::drawText(Image<SRGBA8>& img, gsl::czstring text, int x, int y, const 
   }
 }
 
-glm::ivec2 Font::getBounds(gsl::czstring text, int size) const
+glm::ivec2 Font::getBounds(const gsl::czstring text, int size) const
 {
   Expects(text);
   Expects(size > 0);
 
-  size = std::lround(m_lineHeight * float(size));
+  size = std::lround(m_lineHeight * static_cast<float>(size));
 
   FTC_ImageTypeRec imgType;
   imgType.face_id = const_cast<Font*>(this);
@@ -224,7 +224,7 @@ void Font::drawText(Image<SRGBA8>& img,
                     const uint8_t green,
                     const uint8_t blue,
                     const uint8_t alpha,
-                    int size)
+                    const int size)
 {
   drawText(img, text.c_str(), x, y, SRGBA8{red, green, blue, alpha}, size);
 }
@@ -250,7 +250,7 @@ FT_Face Font::getFace() const
   return face;
 }
 
-int Font::getGlyphKernAdvance(FT_UInt left, FT_UInt right) const
+int Font::getGlyphKernAdvance(const FT_UInt left, const FT_UInt right) const
 {
   FT_Vector k{};
   if(FT_Get_Kerning(getFace(), left, right, FT_KERNING_DEFAULT, &k) != FT_Err_Ok)
@@ -260,7 +260,7 @@ int Font::getGlyphKernAdvance(FT_UInt left, FT_UInt right) const
   return std::lround(k.x / 64.0f * m_lineHeight);
 }
 
-FT_UInt Font::getGlyphIndex(char32_t chr) const
+FT_UInt Font::getGlyphIndex(const char32_t chr) const
 {
   return FTC_CMapCache_Lookup(m_cmapCache, const_cast<Font*>(this), -1, chr);
 }

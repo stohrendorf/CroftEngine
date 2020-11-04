@@ -262,7 +262,8 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
 bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getEngine().getInputHandler().getInputState().action || getHandStatus() != objects::HandStatus::None)
+     || !getEngine().getPresenter().getInputHandler().getInputState().action
+     || getHandStatus() != objects::HandStatus::None)
   {
     return false;
   }
@@ -338,7 +339,8 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
 bool AbstractStateHandler::tryClimb(CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getEngine().getInputHandler().getInputState().action || getHandStatus() != objects::HandStatus::None)
+     || !getEngine().getPresenter().getInputHandler().getInputState().action
+     || getHandStatus() != objects::HandStatus::None)
   {
     return false;
   }
@@ -490,7 +492,8 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
 bool AbstractStateHandler::tryGrabEdge(CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getEngine().getInputHandler().getInputState().action || getHandStatus() != objects::HandStatus::None)
+     || !getEngine().getPresenter().getInputHandler().getInputState().action
+     || getHandStatus() != objects::HandStatus::None)
   {
     return false;
   }
@@ -669,7 +672,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   collisionInfo.badCeilingDistance = 0_len;
   collisionInfo.facingAngle = getMovementAngle();
   collisionInfo.initHeightInfo(m_lara.m_state.position.position, getEngine(), core::LaraWalkHeight);
-  if(!getEngine().getInputHandler().getInputState().action || m_lara.m_state.health <= 0_hp)
+  if(!getEngine().getPresenter().getInputHandler().getInputState().action || m_lara.m_state.health <= 0_hp)
   {
     setAnimation(AnimationId::TRY_HANG_VERTICAL, 448_frame);
     setGoalAnimState(LaraStateId::JumpUp);

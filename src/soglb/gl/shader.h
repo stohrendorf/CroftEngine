@@ -63,7 +63,7 @@ public:
     return getCompileStatus();
   }
 
-  auto compile(gsl::czstring src)
+  auto compile(const gsl::czstring src)
   {
     gsl::czstring srcs[]{src};
     return compile(srcs, 1);

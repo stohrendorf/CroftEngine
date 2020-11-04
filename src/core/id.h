@@ -175,20 +175,11 @@ DECLARE_ID_E(SoundId, uint16_t, engine::TR1SoundId);
 
 using core::operator""_as;
 
-template<typename StorageType, typename Tag>
-struct std::hash<core::Id<StorageType, Tag>>
+template<typename StorageType, typename Tag, typename... Enums>
+struct std::hash<core::Id<StorageType, Tag, Enums...>>
 {
-  [[nodiscard]] constexpr size_t operator()(const core::Id<StorageType, Tag>& v) const
+  [[nodiscard]] constexpr size_t operator()(const core::Id<StorageType, Tag, Enums...>& v) const
   {
     return hash<StorageType>{}(v.get());
-  }
-};
-
-template<>
-struct std::hash<core::TextureTileId>
-{
-  [[nodiscard]] size_t operator()(const core::TextureTileId& x) const noexcept
-  {
-    return std::hash<core::TextureTileId::type>()(x.get());
   }
 };

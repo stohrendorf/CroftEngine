@@ -2,6 +2,7 @@
 
 #include "engine.h"
 #include "objects/laraobject.h"
+#include "presenter.h"
 #include "render/portaltracer.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
@@ -13,7 +14,7 @@ namespace engine
 {
 CameraController::CameraController(const gsl::not_null<Engine*>& engine,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera)
-    : Listener{&engine->getSoundEngine()}
+    : Listener{&engine->getPresenter().getSoundEngine()}
     , m_camera{std::move(camera)}
     , m_engine{engine}
     , m_position{engine->getObjectManager().getLara().m_state.position.room}
@@ -1020,7 +1021,7 @@ std::unordered_set<const loader::file::Portal*>
 CameraController::CameraController(const gsl::not_null<Engine*>& engine,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                                    bool /*noLaraTag*/)
-    : Listener{&engine->getSoundEngine()}
+    : Listener{&engine->getPresenter().getSoundEngine()}
     , m_camera{std::move(camera)}
     , m_engine{engine}
 {

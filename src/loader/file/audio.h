@@ -72,15 +72,15 @@ struct SoundDetails
 
   static constexpr int DefaultRange = 8;
   //! @todo Check default value
-  static constexpr int DefaultPitch = 128; // 0.0 - only noise
+  static constexpr int DefaultPitch = 128;
 
   core::SampleId sample{0u};           // Index into SampleIndices -- NOT USED IN TR4-5!!!
-  uint16_t volume;                     // Global sample value
+  uint16_t volume = 0;                 // Global sample value
   uint16_t sound_range = DefaultRange; // Sound range
-  uint16_t chance;                     // Chance to play
+  uint16_t chance = 0;                 // Chance to play
   int16_t pitch = DefaultPitch;        // Pitch shift
-  uint8_t sampleCountAndLoopType;      // Bits 0-1: Looped flag, bits 2-5: num samples, bits 6-7: UNUSED
-  uint8_t flags;
+  uint8_t sampleCountAndLoopType = 0;  // Bits 0-1: Looped flag, bits 2-5: num samples, bits 6-7: UNUSED
+  uint8_t flags = 0;
 
   [[nodiscard]] PlaybackType getPlaybackType(const level::Engine engine) const
   {

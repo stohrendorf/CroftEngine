@@ -3,7 +3,6 @@
 #include "pathfinder.h"
 
 #include <boost/range/adaptor/map.hpp>
-#include <sol/sol.hpp>
 
 namespace engine
 {
@@ -70,25 +69,6 @@ struct CreatureInfo
   {
     const auto delta = util::clamp(angle - head_rotation, -5_deg, +5_deg);
     head_rotation = util::clamp(delta + head_rotation, -90_deg, +90_deg);
-  }
-
-  static void registerUserType(sol::state& lua)
-  {
-    lua.new_usertype<CreatureInfo>("CreatureInfo",
-                                   sol::meta_function::construct,
-                                   sol::no_constructor,
-                                   "head_rotation",
-                                   &CreatureInfo::head_rotation,
-                                   "neck_rotation",
-                                   &CreatureInfo::neck_rotation,
-                                   "maximum_turn",
-                                   &CreatureInfo::maximum_turn,
-                                   "flags",
-                                   &CreatureInfo::flags,
-                                   "mood",
-                                   &CreatureInfo::mood,
-                                   "target",
-                                   &CreatureInfo::target);
   }
 
   void serialize(const serialization::Serializer& ser);

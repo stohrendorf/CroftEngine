@@ -4,6 +4,7 @@
 #include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
 #include "engine/engine.h"
+#include "engine/sounds_tr1.h"
 #include "loader/file/animationid.h"
 #include "loader/file/larastateid.h"
 #include "modelobject.h"

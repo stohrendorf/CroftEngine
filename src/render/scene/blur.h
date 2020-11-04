@@ -58,8 +58,6 @@ public:
     state.setBlend(false);
     state.apply(true);
     RenderContext context{RenderMode::Full, std::nullopt};
-    Node dummyNode{""};
-    context.setCurrentNode(&dummyNode);
 
     m_framebuffer->bindWithAttachments();
     m_mesh->render(context);

@@ -1,5 +1,6 @@
 #include "underwaterswitch.h"
 
+#include "engine/presenter.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
 
@@ -7,7 +8,7 @@ namespace engine::objects
 {
 void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
 {
-  if(!getEngine().getInputHandler().getInputState().action)
+  if(!getEngine().getPresenter().getInputHandler().getInputState().action)
     return;
 
   if(m_state.triggerState != TriggerState::Inactive)

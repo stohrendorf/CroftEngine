@@ -1,6 +1,8 @@
 #include "flameemitter.h"
 
+#include "engine/audioengine.h"
 #include "engine/particle.h"
+#include "engine/presenter.h"
 #include "laraobject.h"
 
 namespace engine::objects
@@ -19,7 +21,7 @@ void FlameEmitter::update()
   else if(m_flame != nullptr)
   {
     removeParticle();
-    getEngine().getAudioEngine().stopSound(TR1SoundId::Burning, m_flame.get());
+    getEngine().getPresenter().getAudioEngine().stopSound(TR1SoundId::Burning, m_flame.get());
   }
 }
 

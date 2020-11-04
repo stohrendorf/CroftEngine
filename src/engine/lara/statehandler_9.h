@@ -1,6 +1,7 @@
 #pragma once
 
 #include "abstractstatehandler.h"
+#include "engine/audioengine.h"
 #include "engine/collisioninfo.h"
 #include "engine/objects/laraobject.h"
 
@@ -46,7 +47,7 @@ public:
       setGoalAnimState(LaraStateId::Stop);
       setAnimation(AnimationId::LANDING_HARD, 358_frame);
     }
-    getEngine().getAudioEngine().stopSound(TR1SoundId::LaraScream, &getLara().m_state);
+    getEngine().getPresenter().getAudioEngine().stopSound(TR1SoundId::LaraScream, &getLara().m_state);
     getLara().m_state.fallspeed = 0_spd;
     placeOnFloor(collisionInfo);
     getLara().m_state.falling = false;

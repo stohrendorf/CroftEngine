@@ -1,6 +1,7 @@
 #include "block.h"
 
 #include "core/boundingbox.h"
+#include "engine/presenter.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
 
@@ -8,8 +9,8 @@ namespace engine::objects
 {
 void Block::collide(CollisionInfo& /*collisionInfo*/)
 {
-  if(!getEngine().getInputHandler().getInputState().action || m_state.triggerState == TriggerState::Active
-     || getEngine().getObjectManager().getLara().m_state.falling
+  if(!getEngine().getPresenter().getInputHandler().getInputState().action
+     || m_state.triggerState == TriggerState::Active || getEngine().getObjectManager().getLara().m_state.falling
      || getEngine().getObjectManager().getLara().m_state.position.position.Y != m_state.position.position.Y)
   {
     return;
@@ -24,7 +25,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
   if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
-    if(getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Null
+    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Null
        || getEngine().getObjectManager().getLara().getHandStatus() != HandStatus::None)
     {
       return;
@@ -83,7 +84,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     return;
   }
 
-  if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+  if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
   {
     if(!canPushBlock(core::SectorSize, *axis))
     {
@@ -93,7 +94,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     m_state.goal_anim_state = 2_as;
     getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePush);
   }
-  else if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+  else if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
   {
     if(!canPullBlock(core::SectorSize, *axis))
     {

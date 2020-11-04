@@ -1,3 +1,3 @@
-IN_OUT layout(location=13) PortalPipelineInterface {
+layout(location=13) IN_OUT PortalPipelineInterface {
     vec3 vertexPosWorld;
 } ppi;

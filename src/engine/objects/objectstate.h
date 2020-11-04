@@ -12,6 +12,11 @@ struct Animation;
 struct Box;
 } // namespace loader::file
 
+namespace pybind11
+{
+class dict;
+}
+
 namespace engine
 {
 class Engine;
@@ -127,7 +132,7 @@ public:
     return position.room->getSectorByAbsolutePosition(position.position);
   }
 
-  void loadObjectInfo(const sol::state& engine);
+  void loadObjectInfo();
 };
 
 } // namespace objects

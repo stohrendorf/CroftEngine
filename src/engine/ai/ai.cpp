@@ -116,9 +116,8 @@ void updateMood(const Engine& engine, const objects::ObjectState& objectState, c
   switch(creatureInfo.mood)
   {
   case Mood::Attack:
-    if(util::rand15() >= engine.getScriptEngine()["getObjectInfo"]
-                           .call<script::ObjectInfo>(objectState.type.get())
-                           .target_update_chance)
+    if(util::rand15()
+       >= pybind11::globals()["getObjectInfo"](objectState.type.get()).cast<script::ObjectInfo>().target_update_chance)
       break;
 
     creatureInfo.pathFinder.target = engine.getObjectManager().getLara().m_state.position.position;
@@ -247,7 +246,7 @@ AiInfo::AiInfo(Engine& engine, objects::ObjectState& objectState)
                        || (!objectState.creatureInfo->pathFinder.nodes[objectState.box].traversable
                            && objectState.creatureInfo->pathFinder.visited.count(objectState.box) != 0));
 
-  auto objectInfo = engine.getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(objectState.type.get());
+  auto objectInfo = pybind11::globals()["getObjectInfo"](objectState.type.get()).cast<script::ObjectInfo>();
   const core::Length pivotLength{objectInfo.pivot_length};
   const auto d = engine.getObjectManager().getLara().m_state.position.position
                  - (objectState.position.position + util::pitch(pivotLength, objectState.rotation.Y));

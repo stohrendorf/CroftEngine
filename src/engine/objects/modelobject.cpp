@@ -18,7 +18,7 @@ ModelObject::ModelObject(const gsl::not_null<Engine*>& engine,
     , m_skeleton{std::make_shared<SkeletalModelNode>(
         std::string("skeleton(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", engine, model)}
 {
-  SkeletalModelNode::buildMesh(m_skeleton, m_state);
+  SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
   m_lighting.bind(*m_skeleton);
 }
 
@@ -60,7 +60,8 @@ void ModelObject::update()
       }
     }
 
-    m_skeleton->setAnimation(m_state, getSkeleton()->anim->nextAnimation, getSkeleton()->anim->nextFrame);
+    m_skeleton->setAnimation(
+      m_state.current_anim_state, getSkeleton()->anim->nextAnimation, getSkeleton()->anim->nextFrame);
     m_state.goal_anim_state = m_state.current_anim_state;
     if(m_state.current_anim_state == m_state.required_anim_state)
       m_state.required_anim_state = 0_as;
@@ -272,7 +273,7 @@ bool ModelObject::testBoneCollision(const ModelObject& other)
       if(laraSphere.radius <= 0_len)
         continue;
       if(distance(laraSphere.getPosition(), boneSphere.value().getPosition())
-         >= (boneSphere.value().radius + laraSphere.radius).get_as<float>())
+         >= (boneSphere.value().radius + laraSphere.radius).get<float>())
         continue;
 
       m_state.touch_bits.set(boneSphere.index());
@@ -310,7 +311,7 @@ void ModelObject::serialize(const serialization::Serializer& ser)
   ser(S_NV("skeleton", m_skeleton));
   if(ser.loading)
   {
-    SkeletalModelNode::buildMesh(m_skeleton, m_state);
+    SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
     m_lighting.bind(*m_skeleton);
   }
 }

@@ -67,7 +67,7 @@ private:
       return;
     }
 
-    if(!getEngine().getInputHandler().getInputState().action)
+    if(!getEngine().getPresenter().getInputHandler().getInputState().action)
     {
       return;
     }

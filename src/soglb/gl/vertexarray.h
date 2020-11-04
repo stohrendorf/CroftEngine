@@ -11,7 +11,7 @@
 namespace gl
 {
 template<typename IndexT, typename VertexT0, typename... VertexTs>
-class VertexArray : public BindableResource
+class VertexArray final : public BindableResource
 {
 private:
   template<typename... Ts, size_t... Is>

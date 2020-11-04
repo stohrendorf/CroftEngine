@@ -1,7 +1,9 @@
 #include "lightningball.h"
 
 #include "engine/heightinfo.h"
+#include "engine/presenter.h"
 #include "laraobject.h"
+#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "serialization/array.h"
@@ -223,14 +225,15 @@ void LightningBall::init(Engine& engine)
   }
   getSkeleton()->rebuildMesh();
 
-  m_mainBoltMesh = createBolt(SegmentPoints, engine.getMaterialManager()->getLightning(), 10, m_mainVb);
+  m_mainBoltMesh = createBolt(SegmentPoints, engine.getPresenter().getMaterialManager()->getLightning(), 10, m_mainVb);
   auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
   node->setRenderable(m_mainBoltMesh);
   addChild(getSkeleton(), node);
 
   for(auto& childBolt : m_childBolts)
   {
-    childBolt.mesh = createBolt(SegmentPoints, engine.getMaterialManager()->getLightning(), 3, childBolt.vb);
+    childBolt.mesh
+      = createBolt(SegmentPoints, engine.getPresenter().getMaterialManager()->getLightning(), 3, childBolt.vb);
 
     node = std::make_shared<render::scene::Node>("lightning-bolt-child");
     node->setRenderable(childBolt.mesh);

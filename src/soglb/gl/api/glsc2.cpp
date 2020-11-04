@@ -1,5 +1,4 @@
 #include "glsc2.hpp"
-
 #include "glsc2_api_provider.hpp"
 namespace glsc2::api
 {

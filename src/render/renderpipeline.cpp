@@ -38,10 +38,10 @@ void RenderPipeline::compositionPass(const bool water, const bool crt)
   m_ssaoStage.blur.invalidate();
 }
 
-void RenderPipeline::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
+void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
 {
-  m_compositionStage.update(camera);
-  m_ssaoStage.update(camera);
+  m_compositionStage.updateCamera(camera);
+  m_ssaoStage.updateCamera(camera);
 }
 
 void RenderPipeline::resizeTextures(const glm::ivec2& viewport)
@@ -219,8 +219,6 @@ void RenderPipeline::FXAAStage::render(const glm::ivec2& size)
   state.setBlend(false);
   state.apply(true);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-  scene::Node dummyNode{""};
-  context.setCurrentNode(&dummyNode);
 
   mesh->render(context);
 
@@ -228,7 +226,7 @@ void RenderPipeline::FXAAStage::render(const glm::ivec2& size)
     GL_ASSERT(gl::api::finish());
 }
 
-void RenderPipeline::SSAOStage::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
+void RenderPipeline::SSAOStage::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
 {
   material->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }
@@ -243,8 +241,6 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
   state.setBlend(false);
   state.apply(true);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-  scene::Node dummyNode{""};
-  context.setCurrentNode(&dummyNode);
 
   renderMesh->render(context);
   blur.render(size);
@@ -280,7 +276,7 @@ RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& mater
     .set(gl::api::TextureMagFilter::Linear);
 }
 
-void RenderPipeline::CompositionStage::update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
+void RenderPipeline::CompositionStage::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
 {
   compositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
   waterCompositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
@@ -337,8 +333,6 @@ void RenderPipeline::CompositionStage::render(bool water, bool crt)
   state.setBlend(false);
   state.apply(true);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-  scene::Node dummyNode{""};
-  context.setCurrentNode(&dummyNode);
   if(water)
     waterMesh->render(context);
   else

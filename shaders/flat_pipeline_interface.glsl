@@ -1,3 +1,3 @@
-IN_OUT layout(location=12) FlatPipelineInterface {
+layout(location=12) IN_OUT FlatPipelineInterface {
     vec2 texCoord;
 } fpi;

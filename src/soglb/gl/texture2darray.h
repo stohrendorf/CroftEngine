@@ -5,7 +5,7 @@
 namespace gl
 {
 template<typename _PixelT>
-class Texture2DArray : public TextureImpl<api::TextureTarget::Texture2dArray, _PixelT>
+class Texture2DArray final : public TextureImpl<api::TextureTarget::Texture2dArray, _PixelT>
 {
 public:
   using typename TextureImpl<api::TextureTarget::Texture2dArray, _PixelT>::Pixel;

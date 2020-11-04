@@ -1,9 +1,11 @@
 #include "laraobject.h"
 
 #include "block.h"
+#include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/particle.h"
+#include "engine/presenter.h"
 #include "engine/tracks_tr1.h"
 #include "hid/inputhandler.h"
 #include "render/textureanimator.h"
@@ -29,7 +31,8 @@ namespace engine::objects
 {
 void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
-  getSkeleton()->setAnimation(m_state, &getEngine().getAnimation(anim), firstFrame.value_or(0_frame));
+  getSkeleton()->setAnimation(
+    m_state.current_anim_state, &getEngine().getAnimation(anim), firstFrame.value_or(0_frame));
 }
 
 void LaraObject::handleLaraStateOnLand()
@@ -239,17 +242,17 @@ LaraObject::~LaraObject() = default;
 
 void LaraObject::update()
 {
-  if(getEngine().getInputHandler().getInputState()._1.justPressed())
+  if(getEngine().getPresenter().getInputHandler().getInputState()._1.justChangedTo(true))
     getEngine().getInventory().tryUse(*this, TR1ItemId::Pistols);
-  else if(getEngine().getInputHandler().getInputState()._2.justPressed())
+  else if(getEngine().getPresenter().getInputHandler().getInputState()._2.justChangedTo(true))
     getEngine().getInventory().tryUse(*this, TR1ItemId::Shotgun);
-  else if(getEngine().getInputHandler().getInputState()._3.justPressed())
+  else if(getEngine().getPresenter().getInputHandler().getInputState()._3.justChangedTo(true))
     getEngine().getInventory().tryUse(*this, TR1ItemId::Uzis);
-  else if(getEngine().getInputHandler().getInputState()._4.justPressed())
+  else if(getEngine().getPresenter().getInputHandler().getInputState()._4.justChangedTo(true))
     getEngine().getInventory().tryUse(*this, TR1ItemId::Magnums);
-  else if(getEngine().getInputHandler().getInputState()._5.justPressed())
+  else if(getEngine().getPresenter().getInputHandler().getInputState()._5.justChangedTo(true))
     getEngine().getInventory().tryUse(*this, TR1ItemId::SmallMedipack);
-  else if(getEngine().getInputHandler().getInputState()._6.justPressed())
+  else if(getEngine().getPresenter().getInputHandler().getInputState()._6.justChangedTo(true))
     getEngine().getInventory().tryUse(*this, TR1ItemId::LargeMedipack);
 
   if(m_underwaterState == UnderwaterState::OnLand && m_state.position.room->isWaterRoom())
@@ -259,7 +262,7 @@ void LaraObject::update()
     m_state.falling = false;
     m_state.position.position.Y += 100_len;
     updateFloorHeight(0_len);
-    getEngine().getAudioEngine().stopSound(TR1SoundId::LaraScream, &m_state);
+    getEngine().getPresenter().getAudioEngine().stopSound(TR1SoundId::LaraScream, &m_state);
     if(getCurrentAnimState() == LaraStateId::SwandiveBegin)
     {
       m_state.rotation.X = -45_deg;
@@ -416,7 +419,8 @@ void LaraObject::updateImpl()
       }
     }
 
-    getSkeleton()->setAnimation(m_state, getSkeleton()->anim->nextAnimation, getSkeleton()->anim->nextFrame);
+    getSkeleton()->setAnimation(
+      m_state.current_anim_state, getSkeleton()->anim->nextAnimation, getSkeleton()->anim->nextFrame);
   }
 
   if(getSkeleton()->anim->animCommandCount > 0)
@@ -622,7 +626,7 @@ void LaraObject::updateLarasWeaponsStatus()
     }
     else if(requestedGunType == gunType)
     {
-      if(getEngine().getInputHandler().getInputState().holster.justPressed())
+      if(getEngine().getPresenter().getInputHandler().getInputState().holster.justChangedTo(true))
       {
         doHolsterUpdate = true;
       }
@@ -712,7 +716,7 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponId::Pistols:
       if(pistolsAmmo.ammo != 0)
       {
-        if(getEngine().getInputHandler().getInputState().action)
+        if(getEngine().getPresenter().getInputHandler().getInputState().action)
         {
           const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -730,7 +734,7 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponId::AutoPistols:
       if(revolverAmmo.ammo != 0)
       {
-        if(getEngine().getInputHandler().getInputState().action)
+        if(getEngine().getPresenter().getInputHandler().getInputState().action)
         {
           const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -748,7 +752,7 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponId::Uzi:
       if(uziAmmo.ammo != 0)
       {
-        if(getEngine().getInputHandler().getInputState().action)
+        if(getEngine().getPresenter().getInputHandler().getInputState().action)
         {
           const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -766,7 +770,7 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponId::Shotgun:
       if(shotgunAmmo.ammo != 0)
       {
-        if(getEngine().getInputHandler().getInputState().action)
+        if(getEngine().getPresenter().getInputHandler().getInputState().action)
         {
           const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -788,7 +792,7 @@ void LaraObject::updateLarasWeaponsStatus()
 
 void LaraObject::updateShotgun()
 {
-  if(getEngine().getInputHandler().getInputState().action)
+  if(getEngine().getPresenter().getInputHandler().getInputState().action)
   {
     updateAimingState(weapons[WeaponId::Shotgun]);
   }
@@ -814,7 +818,7 @@ void LaraObject::updateShotgun()
 void LaraObject::updateGuns(const WeaponId weaponId)
 {
   const auto& weapon = weapons.at(weaponId);
-  if(getEngine().getInputHandler().getInputState().action)
+  if(getEngine().getPresenter().getInputHandler().getInputState().action)
   {
     updateAimingState(weapon);
   }
@@ -1192,7 +1196,7 @@ void LaraObject::updateAnimShotgun()
       const auto nextFrame = leftArm.frame + 1_frame;
       if(leftArm.frame == 47_frame)
       {
-        if(getEngine().getInputHandler().getInputState().action)
+        if(getEngine().getPresenter().getInputHandler().getInputState().action)
         {
           tryShootShotgun();
           rightArm.frame = nextFrame;
@@ -1245,7 +1249,7 @@ void LaraObject::updateAnimShotgun()
     return;
   }
 
-  if(leftArm.frame == 0_frame && getEngine().getInputHandler().getInputState().action)
+  if(leftArm.frame == 0_frame && getEngine().getPresenter().getInputHandler().getInputState().action)
   {
     leftArm.frame += 1_frame;
     rightArm.frame += 1_frame;
@@ -1257,7 +1261,7 @@ void LaraObject::updateAnimShotgun()
     const auto nextFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == 47_frame)
     {
-      if(getEngine().getInputHandler().getInputState().action)
+      if(getEngine().getPresenter().getInputHandler().getInputState().action)
       {
         tryShootShotgun();
         rightArm.frame = aimingFrame + 1_frame;
@@ -1309,7 +1313,7 @@ void LaraObject::updateAnimShotgun()
     aimingFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == 12_frame)
     {
-      if(getEngine().getInputHandler().getInputState().action)
+      if(getEngine().getPresenter().getInputHandler().getInputState().action)
       {
         rightArm.frame = 47_frame;
         leftArm.frame = 47_frame;
@@ -1427,8 +1431,8 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
   }
   else if(leftArm.frame > 0_frame && leftArm.frame < 5_frame)
   {
-    leftArm.aimRotation.X -= leftArm.aimRotation.X / leftArm.frame.get_as<core::Angle::type>();
-    leftArm.aimRotation.Y -= leftArm.aimRotation.Y / leftArm.frame.get_as<core::Angle::type>();
+    leftArm.aimRotation.X -= leftArm.aimRotation.X / leftArm.frame * 1_frame;
+    leftArm.aimRotation.Y -= leftArm.aimRotation.Y / leftArm.frame * 1_frame;
     leftArm.frame -= 1_frame;
   }
   else if(leftArm.frame == 0_frame)
@@ -1470,8 +1474,8 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
   }
   else if(rightArm.frame > 0_frame && rightArm.frame < 5_frame)
   {
-    rightArm.aimRotation.X -= rightArm.aimRotation.X / rightArm.frame.get_as<core::Angle::type>();
-    rightArm.aimRotation.Y -= rightArm.aimRotation.Y / rightArm.frame.get_as<core::Angle::type>();
+    rightArm.aimRotation.X -= rightArm.aimRotation.X / rightArm.frame * 1_frame;
+    rightArm.aimRotation.Y -= rightArm.aimRotation.Y / rightArm.frame * 1_frame;
     rightArm.frame -= 1_frame;
   }
   else if(rightArm.frame == 0_frame)
@@ -1527,7 +1531,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
 {
   const auto& weapon = weapons[weaponId];
 
-  if(!rightArm.aiming && (!getEngine().getInputHandler().getInputState().action || target != nullptr))
+  if(!rightArm.aiming && (!getEngine().getPresenter().getInputHandler().getInputState().action || target != nullptr))
   {
     if(rightArm.frame >= 24_frame)
     {
@@ -1542,7 +1546,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
   {
     rightArm.frame += 1_frame;
   }
-  else if(getEngine().getInputHandler().getInputState().action && rightArm.frame == 4_frame)
+  else if(getEngine().getPresenter().getInputHandler().getInputState().action && rightArm.frame == 4_frame)
   {
     core::TRRotationXY aimAngle;
     aimAngle.X = rightArm.aimRotation.X;
@@ -1563,7 +1567,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
     }
   }
 
-  if(!leftArm.aiming && (!getEngine().getInputHandler().getInputState().action || target != nullptr))
+  if(!leftArm.aiming && (!getEngine().getPresenter().getInputHandler().getInputState().action || target != nullptr))
   {
     if(leftArm.frame >= 24_frame)
     {
@@ -1578,7 +1582,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
   {
     leftArm.frame += 1_frame;
   }
-  else if(getEngine().getInputHandler().getInputState().action && leftArm.frame == 4_frame)
+  else if(getEngine().getPresenter().getInputHandler().getInputState().action && leftArm.frame == 4_frame)
   {
     core::TRRotationXY aimAngle;
     aimAngle.Y = m_state.rotation.Y + leftArm.aimRotation.Y;
@@ -2366,7 +2370,7 @@ void LaraObject::initGunflares()
 
   loader::file::RenderMeshDataCompositor compositor;
   compositor.append(*gunFlareModel->bones[0].mesh);
-  auto mdl = compositor.toMesh(*getEngine().getMaterialManager(), false, {});
+  auto mdl = compositor.toMesh(*getEngine().getPresenter().getMaterialManager(), false, {});
 
   m_gunFlareLeft->setRenderable(mdl);
   m_gunFlareLeft->setVisible(false);

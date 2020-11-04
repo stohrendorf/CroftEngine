@@ -1,5 +1,6 @@
 #pragma once
 
+#include "node.h"
 #include "rendermode.h"
 
 #include <gl/renderstate.h>
@@ -10,12 +11,12 @@
 
 namespace render::scene
 {
-class Node;
 class RenderContext final
 {
 public:
   explicit RenderContext(RenderMode renderMode, const std::optional<glm::mat4>& viewProjection)
-      : m_renderMode{renderMode}
+      : m_currentNode{&m_dummyNode}
+      , m_renderMode{renderMode}
       , m_viewProjection{viewProjection}
   {
     m_renderStates.push(gl::RenderState());
@@ -60,7 +61,8 @@ public:
   }
 
 private:
-  Node* m_currentNode = nullptr;
+  Node m_dummyNode{""};
+  Node* m_currentNode;
   std::stack<gl::RenderState> m_renderStates{};
   const RenderMode m_renderMode;
   const std::optional<glm::mat4> m_viewProjection;

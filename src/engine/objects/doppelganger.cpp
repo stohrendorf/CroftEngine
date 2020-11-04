@@ -12,7 +12,7 @@ Doppelganger::Doppelganger(const gsl::not_null<Engine*>& engine,
     : ModelObject{engine, room, item, true, animatedModel}
 {
   const auto& laraModel = engine->findAnimatedModelForType(TR1ItemId::Lara);
-  getSkeleton()->setAnimation(m_state, laraModel->animations, laraModel->animations->firstFrame);
+  getSkeleton()->setAnimation(m_state.current_anim_state, laraModel->animations, laraModel->animations->firstFrame);
 }
 
 void Doppelganger::update()
@@ -51,7 +51,7 @@ void Doppelganger::update()
       m_state.goal_anim_state = 9_as;
       m_state.current_anim_state = 9_as;
       getSkeleton()->setAnimation(
-        m_state, &getEngine().findAnimatedModelForType(TR1ItemId::Lara)->animations[32], 481_frame);
+        m_state.current_anim_state, &getEngine().findAnimatedModelForType(TR1ItemId::Lara)->animations[32], 481_frame);
       m_state.fallspeed = 0_spd;
       m_state.speed = 0_spd;
       m_state.falling = true;

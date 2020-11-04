@@ -28,6 +28,7 @@ public:
     return static_cast<T*>(const_cast<void*>(data));
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
   void unmap()
   {
     GL_ASSERT(api::unmapNamedBuffer(getHandle()));
@@ -107,7 +108,7 @@ template<typename T>
 using ArrayBuffer = Buffer<T, api::BufferTargetARB::ArrayBuffer>;
 
 template<typename T>
-class ElementArrayBuffer : public Buffer<T, api::BufferTargetARB::ElementArrayBuffer>
+class ElementArrayBuffer final : public Buffer<T, api::BufferTargetARB::ElementArrayBuffer>
 {
 public:
   void drawElements(api::PrimitiveType primitiveType) const

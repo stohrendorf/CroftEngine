@@ -19,7 +19,7 @@ inline void checkGlError(gsl::czstring /*code*/)
 namespace detail
 {
 template<typename F>
-inline auto glAssertFn(F code, gsl::czstring codeStr) -> decltype(code())
+auto glAssertFn(F code, const gsl::czstring codeStr) -> decltype(code())
 {
   const auto result = code();
   checkGlError(codeStr);

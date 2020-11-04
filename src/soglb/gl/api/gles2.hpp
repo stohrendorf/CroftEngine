@@ -2657,7 +2657,7 @@ extern void getTransformFeedbackVarying(uint32_t program,
                                         core::SizeType bufSize,
                                         core::SizeType* length,
                                         core::SizeType* size,
-                                        GlslTypeToken* type,
+                                        AttributeType* type,
                                         char* name);
 extern uint32_t getUniformBlockIndex(uint32_t program, const char* uniformBlockName);
 extern void getUniformIndice(uint32_t program,
@@ -2758,7 +2758,7 @@ extern void vertexAttribI4(uint32_t index, const int32_t* v);
 extern void vertexAttribI4(uint32_t index, uint32_t x, uint32_t y, uint32_t z, uint32_t w);
 extern void vertexAttribI4(uint32_t index, const uint32_t* v);
 extern void vertexAttribIPointer(
-  uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void* pointer);
+  uint32_t index, int32_t size, VertexAttribIType type, core::SizeType stride, const void* pointer);
 extern void waitSync(core::Sync sync, uint32_t flags, uint64_t timeout);
 #endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)

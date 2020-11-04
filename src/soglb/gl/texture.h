@@ -2,10 +2,8 @@
 
 #include "bindableresource.h"
 
-#include <boost/throw_exception.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <utility>
-#include <vector>
 
 namespace gl
 {
@@ -27,7 +25,7 @@ class TextureImpl : public Texture
 {
 protected:
   explicit TextureImpl(const std::string& label = {})
-      : Texture{[](api::core::SizeType n, api::core::Handle* textures) { api::createTextures(_Target, n, textures); },
+      : Texture{[](const api::core::SizeType n, api::core::Handle* textures) { createTextures(_Target, n, textures); },
                 [](const uint32_t handle) { bindTexture(_Target, handle); },
                 api::deleteTextures,
                 api::ObjectIdentifier::Texture,

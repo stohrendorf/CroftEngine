@@ -10,7 +10,6 @@
 #include "engine/skeletalmodelnode.h"
 #include "objectstate.h"
 
-#include <sol/sol.hpp>
 #include <utility>
 
 namespace loader::file
@@ -134,7 +133,7 @@ public:
 
   void dampenHorizontalSpeed(const float f)
   {
-    m_state.speed -= (m_state.speed.retype_as<float>() * f).retype_as<core::Speed>();
+    m_state.speed -= (m_state.speed.cast<float>() * f).cast<core::Speed>();
   }
 
   virtual void patchFloor(const core::TRVec& /*pos*/, core::Length& /*y*/)

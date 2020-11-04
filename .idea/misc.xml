@@ -7,6 +7,7 @@
     </sourceRoots>
     <libraryRoots>
       <file path="$PROJECT_DIR$/3rdparty" />
+      <file path="$PROJECT_DIR$/script_stubs" />
     </libraryRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/assets" />

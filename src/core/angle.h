@@ -7,7 +7,6 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <gsl-lite.hpp>
 #include <optional>
-#include <sol/sol.hpp>
 
 namespace core
 {
@@ -39,17 +38,17 @@ QS_DECLARE_QUANTITY(Angle, int32_t, "au");
 
 [[nodiscard]] inline Angle angleFromAtan(const Length& dx, const Length& dz)
 {
-  return angleFromRad(std::atan2(dx.get_as<float>(), dz.get_as<float>()));
+  return angleFromRad(std::atan2(dx.get<float>(), dz.get<float>()));
 }
 
 [[nodiscard]] constexpr float toDegrees(const Angle& a) noexcept
 {
-  return a.get_as<float>() / AngleStorageScale * 360 / FullRotation;
+  return a.get<float>() / AngleStorageScale * 360 / FullRotation;
 }
 
 [[nodiscard]] inline float toRad(const Angle& a) noexcept
 {
-  return a.get_as<float>() / AngleStorageScale * glm::pi<float>() * 2 / FullRotation;
+  return a.get<float>() / AngleStorageScale * glm::pi<float>() * 2 / FullRotation;
 }
 
 [[nodiscard]] inline float sin(const Angle& a) noexcept
@@ -188,7 +187,7 @@ struct TRRotationXY
   const auto y = angleFromAtan(dx, dz);
   const auto dxz = sqrt(dx * dx + dz * dz);
   auto x = angleFromAtan(dy, dxz);
-  if((dy < 0_len) == std::signbit(toRad(x)))
+  if((dy < 0_len) == (toRad(x) < 0))
     x = -x;
 
   return TRRotationXY{x, y};

@@ -70,21 +70,21 @@ public:
 protected:
   void handleDiveRotationInput()
   {
-    if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
     {
       getLara().m_state.rotation.X -= 2_deg;
     }
-    else if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
     {
       getLara().m_state.rotation.X += 2_deg;
     }
 
-    if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       getLara().m_state.rotation.Y -= 6_deg;
       getLara().m_state.rotation.Z -= 3_deg;
     }
-    else if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       getLara().m_state.rotation.Y += 6_deg;
       getLara().m_state.rotation.Z += 3_deg;

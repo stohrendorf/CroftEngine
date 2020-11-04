@@ -1,5 +1,4 @@
 #include "gles2.hpp"
-
 #include "gles2_api_provider.hpp"
 namespace gles2::api
 {
@@ -1185,7 +1184,7 @@ void getTransformFeedbackVarying(uint32_t program,
                                  core::SizeType bufSize,
                                  core::SizeType* length,
                                  core::SizeType* size,
-                                 GlslTypeToken* type,
+                                 AttributeType* type,
                                  char* name)
 {
   return glGetTransformFeedbackVarying(static_cast<GLuint>(program),
@@ -1539,7 +1538,7 @@ void vertexAttribI4(uint32_t index, const uint32_t* v)
   return glVertexAttribI4uiv(static_cast<GLuint>(index), detail::constAway(reinterpret_cast<const GLuint*>(v)));
 }
 void vertexAttribIPointer(
-  uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void* pointer)
+  uint32_t index, int32_t size, VertexAttribIType type, core::SizeType stride, const void* pointer)
 {
   return glVertexAttribIPointer(static_cast<GLuint>(index),
                                 static_cast<GLint>(size),

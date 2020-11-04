@@ -7,10 +7,13 @@
 
 namespace hid
 {
+extern bool isKeyPressed(int key);
+extern bool isMouseButtonPressed(int button);
+
 class InputHandler final
 {
 public:
-  explicit InputHandler(const gsl::not_null<GLFWwindow*>& window);
+  explicit InputHandler(gsl::not_null<GLFWwindow*> window);
 
   void update();
 

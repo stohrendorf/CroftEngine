@@ -118,26 +118,28 @@ void AudioEngine::triggerNormalCdTrack(const TR1TrackId trackId,
 
 void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
 {
-  const auto trackInfo = m_engine.getScriptEngine()["getTrackInfo"].call<script::TrackInfo>(trackId);
+  const auto trackInfo = pybind11::globals()["getTrackInfo"](trackId).cast<script::TrackInfo>();
 
   switch(trackInfo.type)
   {
   case audio::TrackType::AmbientEffect:
     if(!stop)
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play effect " << toString(static_cast<TR1SoundId>(trackInfo.id));
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play effect "
+                               << toString(static_cast<TR1SoundId>(trackInfo.id.get()));
       playSound(core::SoundId{trackInfo.id}, nullptr);
     }
     else
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop effect " << toString(static_cast<TR1SoundId>(trackInfo.id));
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop effect "
+                               << toString(static_cast<TR1SoundId>(trackInfo.id.get()));
       stopSound(core::SoundId{trackInfo.id}, nullptr);
     }
     break;
   case audio::TrackType::LaraTalk:
     if(!stop)
     {
-      const auto sfxId = static_cast<TR1SoundId>(trackInfo.id);
+      const auto sfxId = static_cast<TR1SoundId>(trackInfo.id.get());
 
       if(!m_currentLaraTalk.has_value() || *m_currentLaraTalk != sfxId)
       {
@@ -153,16 +155,16 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
     else
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop lara talk "
-                               << toString(static_cast<TR1SoundId>(trackInfo.id));
-      stopSound(static_cast<TR1SoundId>(trackInfo.id), &m_engine.getObjectManager().getLara().m_state);
+                               << toString(static_cast<TR1SoundId>(trackInfo.id.get()));
+      stopSound(static_cast<TR1SoundId>(trackInfo.id.get()), &m_engine.getObjectManager().getLara().m_state);
       m_currentLaraTalk.reset();
     }
     break;
   case audio::TrackType::Ambient:
     if(!stop)
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id);
-      m_ambientStream = playStream(trackInfo.id).get();
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id.get());
+      m_ambientStream = playStream(trackInfo.id.get()).get();
       m_ambientStream.lock()->setLooping(true);
       if(isPlaying(m_interceptStream))
         m_ambientStream.lock()->getSource().lock()->pause();
@@ -170,7 +172,7 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
     }
     else if(const auto str = m_ambientStream.lock())
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo.id);
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo.id.get());
       m_soundEngine.getDevice().removeStream(str);
       m_currentTrack.reset();
     }
@@ -178,18 +180,18 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
   case audio::TrackType::Interception:
     if(!stop)
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << static_cast<size_t>(trackInfo.id);
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << static_cast<size_t>(trackInfo.id.get());
       if(const auto str = m_interceptStream.lock())
         m_soundEngine.getDevice().removeStream(str);
       if(const auto str = m_ambientStream.lock())
         str->getSource().lock()->pause();
-      m_interceptStream = playStream(trackInfo.id).get();
+      m_interceptStream = playStream(trackInfo.id.get()).get();
       m_interceptStream.lock()->setLooping(false);
       m_currentTrack = trackId;
     }
     else if(const auto str = m_interceptStream.lock())
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop interception " << static_cast<size_t>(trackInfo.id);
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop interception " << static_cast<size_t>(trackInfo.id.get());
       m_soundEngine.getDevice().removeStream(str);
       if(const auto amb = m_ambientStream.lock())
         amb->play();
@@ -220,36 +222,35 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
   return result;
 }
 
-std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId id, audio::Emitter* emitter)
+std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId& id, audio::Emitter* emitter)
 {
-  const auto snd = m_soundmap.at(id.get());
-  if(snd < 0)
+  const auto detailsIt = m_soundmap.find(id.get());
+  if(detailsIt == m_soundmap.end())
   {
     BOOST_LOG_TRIVIAL(warning) << "No mapped sound for id " << toString(id.get_as<TR1SoundId>());
     return nullptr;
   }
 
-  const loader::file::SoundDetails& details = m_soundDetails.at(snd);
-  if(details.chance != 0 && util::rand15() > details.chance)
+  const auto details = detailsIt->second;
+  if(details->chance != 0 && util::rand15() > details->chance)
     return nullptr;
 
-  size_t sample = details.sample.get();
-  if(details.getSampleCount() > 1)
-    sample += util::rand15(details.getSampleCount());
-  BOOST_ASSERT(sample < m_sampleIndices.size());
+  size_t sample = details->sample.get();
+  if(details->getSampleCount() > 1)
+    sample += util::rand15(details->getSampleCount());
 
   float pitch = 1;
-  if(details.useRandomPitch())
+  if(details->useRandomPitch())
     pitch = 0.9f + util::rand15(0.2f);
 
-  float volume = util::clamp(static_cast<float>(details.volume) / 0x7fff, 0.0f, 1.0f);
-  if(details.useRandomVolume())
+  float volume = util::clamp(static_cast<float>(details->volume) / 0x7fff, 0.0f, 1.0f);
+  if(details->useRandomVolume())
     volume -= util::rand15(0.25f);
   if(volume <= 0)
     return nullptr;
 
   std::shared_ptr<audio::SourceHandle> handle;
-  if(details.getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Looping)
+  if(details->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Looping)
   {
     auto handles = m_soundEngine.getSourcesForBuffer(emitter, sample);
     if(handles.empty())
@@ -265,7 +266,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId 
       handle = handles[0];
     }
   }
-  else if(details.getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Restart)
+  else if(details->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Restart)
   {
     auto handles = m_soundEngine.getSourcesForBuffer(emitter, sample);
     if(!handles.empty())
@@ -285,7 +286,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId 
       handle = m_soundEngine.playBuffer(sample, pitch, volume, emitter);
     }
   }
-  else if(details.getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Wait)
+  else if(details->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Wait)
   {
     auto handles = m_soundEngine.getSourcesForBuffer(emitter, sample);
     if(handles.empty())
@@ -310,9 +311,13 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId 
 
 void AudioEngine::stopSound(const core::SoundId soundId, audio::Emitter* emitter)
 {
-  const auto& details = m_soundDetails.at(m_soundmap.at(soundId.get()));
-  const size_t first = details.sample.get();
-  const size_t last = first + details.getSampleCount();
+  const auto detailsIt = m_soundmap.find(soundId.get());
+  if(detailsIt == m_soundmap.end())
+    return;
+
+  const auto details = detailsIt->second;
+  const size_t first = details->sample.get();
+  const size_t last = first + details->getSampleCount();
 
   bool anyStopped = false;
   for(size_t i = first; i < last; ++i)

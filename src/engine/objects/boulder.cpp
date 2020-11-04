@@ -59,7 +59,8 @@ void engine::objects::RollingBall::update()
     m_state.triggerState = TriggerState::Deactivated;
     m_state.position.position = m_position.position;
     setCurrentRoom(m_position.room);
-    getSkeleton()->setAnimation(m_state, getEngine().findAnimatedModelForType(m_state.type)->animations, 0_frame);
+    getSkeleton()->setAnimation(
+      m_state.current_anim_state, getEngine().findAnimatedModelForType(m_state.type)->animations, 0_frame);
     m_state.goal_anim_state = m_state.current_anim_state;
     m_state.required_anim_state = 0_as;
     deactivate();

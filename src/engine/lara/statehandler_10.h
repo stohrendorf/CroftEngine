@@ -18,13 +18,13 @@ public:
   {
     setCameraRotationAroundLara(-60_deg, 0_deg);
     collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-    if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
-       || getEngine().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Left)
+    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
+       || getEngine().getPresenter().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Left)
     {
       setGoalAnimState(LaraStateId::ShimmyLeft);
     }
-    else if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right
-            || getEngine().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Right)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right
+            || getEngine().getPresenter().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Right)
     {
       setGoalAnimState(LaraStateId::ShimmyRight);
     }
@@ -39,7 +39,7 @@ public:
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
+    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
     {
       return;
     }
@@ -54,7 +54,7 @@ public:
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().moveSlow)
+    if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
     {
       setGoalAnimState(LaraStateId::Handstand);
     }

@@ -50,7 +50,7 @@ template<typename T>
 using VertexFormat = std::map<std::string, VertexAttribute<T>>;
 
 template<typename T>
-class VertexBuffer : public ArrayBuffer<T>
+class VertexBuffer final : public ArrayBuffer<T>
 {
 public:
   explicit VertexBuffer(const VertexFormat<T>& format, const std::string& label = {})
@@ -78,7 +78,7 @@ public:
     return m_format;
   }
 
-  [[nodiscard]] constexpr int getStride() const
+  [[nodiscard]] static constexpr int getStride()
   {
     return sizeof(T);
   }

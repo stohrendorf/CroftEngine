@@ -65,7 +65,7 @@ private:
 
     explicit SSAOStage(scene::ShaderManager& shaderManager);
     void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);
-    void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
+    void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
     void render(const glm::ivec2& size);
   };
@@ -102,7 +102,7 @@ private:
 
     explicit CompositionStage(scene::MaterialManager& materialManager);
 
-    void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
+    void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
     void resize(const glm::ivec2& viewport,
                 const GeometryStage& geometryStage,
@@ -138,7 +138,7 @@ public:
   void compositionPass(bool water, bool crt);
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void update(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
+  void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
   void resize(const glm::ivec2& viewport)
   {

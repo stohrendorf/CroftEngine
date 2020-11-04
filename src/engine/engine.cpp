@@ -1,13 +1,16 @@
 #include "engine.h"
 
 #include "audio/tracktype.h"
+#include "core/pybindmodule.h"
 #include "engine/ai/ai.h"
+#include "engine/audioengine.h"
 #include "floordata/floordata.h"
 #include "hid/inputhandler.h"
 #include "loader/file/level/level.h"
 #include "loader/file/rendermeshdata.h"
 #include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
+#include "menu/menudisplay.h"
 #include "objects/aiagent.h"
 #include "objects/block.h"
 #include "objects/laraobject.h"
@@ -15,10 +18,14 @@
 #include "objects/objectfactory.h"
 #include "objects/pickupobject.h"
 #include "objects/tallblock.h"
+#include "presenter.h"
 #include "render/renderpipeline.h"
 #include "render/scene/csm.h"
+#include "render/scene/materialmanager.h"
+#include "render/scene/renderer.h"
 #include "render/scene/rendervisitor.h"
 #include "render/scene/scene.h"
+#include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
 #include "script/reflection.h"
 #include "serialization/array.h"
@@ -29,10 +36,9 @@
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
 #include "serialization/vector.h"
+#include "throttler.h"
 #include "tracks_tr1.h"
-#include "ui/debug/debugview.h"
 #include "ui/label.h"
-#include "video/player.h"
 
 #include <boost/locale/generator.hpp>
 #include <boost/locale/info.hpp>
@@ -41,64 +47,18 @@
 #include <gl/font.h>
 #include <glm/gtx/norm.hpp>
 #include <locale>
-
-constexpr int32_t CSMResolution = 1024;
+#include <pybind11/embed.h>
 
 namespace engine
 {
 namespace
 {
-constexpr int StatusLineFontSize = 40;
-constexpr int DebugTextFontSize = 12;
-
-sol::state createScriptEngine(const std::filesystem::path& rootPath)
+std::shared_ptr<pybind11::scoped_interpreter> createScriptEngine(const std::filesystem::path& rootPath)
 {
-  sol::state engine;
-  engine.open_libraries(sol::lib::base, sol::lib::math, sol::lib::package);
-  engine["package"]["path"] = (rootPath / "scripts" / "?.lua").string();
-  engine["package"]["cpath"] = "";
-
-  core::TRVec::registerUserType(engine);
-  ai::CreatureInfo::registerUserType(engine);
-  script::ObjectInfo::registerUserType(engine);
-  script::TrackInfo::registerUserType(engine);
-
-  engine.new_enum("ActivationState",
-                  "INACTIVE",
-                  objects::TriggerState::Inactive,
-                  "ACTIVE",
-                  objects::TriggerState::Active,
-                  "DEACTIVATED",
-                  objects::TriggerState::Deactivated,
-                  "INVISIBLE",
-                  objects::TriggerState::Invisible);
-
-  engine.new_enum(
-    "Mood", "BORED", ai::Mood::Bored, "ATTACK", ai::Mood::Attack, "ESCAPE", ai::Mood::Escape, "STALK", ai::Mood::Stalk);
-
-  engine.new_enum("TrackType",
-                  "AMBIENT",
-                  audio::TrackType::Ambient,
-                  "INTERCEPTION",
-                  audio::TrackType::Interception,
-                  "AMBIENT_EFFECT",
-                  audio::TrackType::AmbientEffect,
-                  "LARA_TALK",
-                  audio::TrackType::LaraTalk);
-
-  {
-    sol::table tbl = engine.create_table("TR1SoundId");
-    for(const auto& entry : EnumUtil<TR1SoundId>::all())
-      tbl[entry.second] = static_cast<std::underlying_type_t<TR1SoundId>>(entry.first);
-  }
-
-  {
-    sol::table tbl = engine.create_table("TR1TrackId");
-    for(const auto& entry : EnumUtil<TR1TrackId>::all())
-      tbl[entry.second] = static_cast<std::underlying_type_t<TR1TrackId>>(entry.first);
-  }
-
-  return engine;
+  auto interpreter = std::make_shared<pybind11::scoped_interpreter>();
+  pybind11::module::import("sys").attr("path").cast<pybind11::list>().append(
+    std::filesystem::absolute(rootPath).string());
+  return interpreter;
 }
 } // namespace
 
@@ -180,26 +140,7 @@ void Engine::loadSceneData(const std::string& animatedTextureId)
     sprite.image = m_level->m_textures[sprite.texture_id.get()].image;
   }
 
-  m_textureAnimator = std::make_shared<render::TextureAnimator>(
-    m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures, animatedTextureId);
-
-  const int textureSize = m_level->m_textures[0].image->getWidth();
-  const int textureLevels = static_cast<int>(std::log2(textureSize) + 1);
-
-  m_allTextures = std::make_shared<gl::Texture2DArray<gl::SRGBA8>>(
-    glm::ivec3{textureSize, textureSize, gsl::narrow<int>(m_level->m_textures.size())}, textureLevels, "all-textures");
-  m_allTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
-  if(textureSize == 256)
-  {
-    m_allTextures->set(gl::api::TextureMagFilter::Nearest);
-  }
-  else
-  {
-    m_allTextures->set(gl::api::TextureMagFilter::Linear);
-  }
-  m_allTextures->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
-  m_allTextures->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
-  m_materialManager->setGeometryTextures(m_allTextures);
+  m_presenter->initTextures(*m_level, animatedTextureId);
 
   for(size_t i = 0; i < m_level->m_meshes.size(); ++i)
   {
@@ -235,19 +176,20 @@ void Engine::loadSceneData(const std::string& animatedTextureId)
   {
     loader::file::RenderMeshDataCompositor compositor;
     compositor.append(*m_meshesDirect.at(staticMesh.mesh)->meshData);
-    staticMesh.renderMesh = compositor.toMesh(*m_materialManager, false, {});
+    staticMesh.renderMesh = compositor.toMesh(*m_presenter->getMaterialManager(), false, {});
   }
 
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    m_level->m_rooms[i].createSceneNode(i, *m_level, *m_textureAnimator, *m_materialManager);
-    m_renderer->getScene()->addNode(m_level->m_rooms[i].node);
+    m_level->m_rooms[i].createSceneNode(
+      i, *m_level, m_presenter->getTextureAnimator(), *m_presenter->getMaterialManager());
+    m_presenter->getRenderer().getScene()->addNode(m_level->m_rooms[i].node);
   }
 
   m_objectManager.createObjects(*this, m_level->m_items);
   if(m_objectManager.getLaraPtr() == nullptr)
   {
-    m_cameraController = std::make_unique<CameraController>(this, m_renderer->getCamera(), true);
+    m_cameraController = std::make_unique<CameraController>(this, m_presenter->getRenderer().getCamera(), true);
 
     for(const auto& item : m_level->m_items)
     {
@@ -259,76 +201,16 @@ void Engine::loadSceneData(const std::string& animatedTextureId)
   }
   else
   {
-    m_cameraController = std::make_unique<CameraController>(this, m_renderer->getCamera());
+    m_cameraController = std::make_unique<CameraController>(this, m_presenter->getRenderer().getCamera());
   }
 
   m_positionalEmitters.reserve(m_level->m_soundSources.size());
   for(loader::file::SoundSource& src : m_level->m_soundSources)
   {
-    m_positionalEmitters.emplace_back(src.position.toRenderSystem(), &m_audioEngine->getSoundEngine());
-    auto handle = m_audioEngine->playSound(src.sound_id, &m_positionalEmitters.back());
+    m_positionalEmitters.emplace_back(src.position.toRenderSystem(), &m_presenter->getAudioEngine().getSoundEngine());
+    auto handle = m_presenter->getAudioEngine().playSound(src.sound_id, &m_positionalEmitters.back());
     Expects(handle != nullptr);
     handle->setLooping(true);
-  }
-}
-
-void Engine::drawBars(const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>>& image)
-{
-  if(m_objectManager.getLara().isInWater())
-  {
-    const auto x0 = m_window->getViewport().x - 110;
-
-    for(int i = 7; i <= 13; ++i)
-      image->line(x0 - 1, i, x0 + 101, i, m_level->m_palette->colors[0].toTextureColor());
-    image->line(x0 - 2, 14, x0 + 102, 14, m_level->m_palette->colors[17].toTextureColor());
-    image->line(x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[17].toTextureColor());
-    image->line(x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[19].toTextureColor());
-    image->line(x0 - 2, 6, x0 - 2, 14, m_level->m_palette->colors[19].toTextureColor());
-
-    const int p = util::clamp(m_objectManager.getLara().getAir() * 100 / core::LaraAir, 0, 100);
-    if(p > 0)
-    {
-      image->line(x0, 8, x0 + p, 8, m_level->m_palette->colors[32].toTextureColor());
-      image->line(x0, 9, x0 + p, 9, m_level->m_palette->colors[41].toTextureColor());
-      image->line(x0, 10, x0 + p, 10, m_level->m_palette->colors[32].toTextureColor());
-      image->line(x0, 11, x0 + p, 11, m_level->m_palette->colors[19].toTextureColor());
-      image->line(x0, 12, x0 + p, 12, m_level->m_palette->colors[21].toTextureColor());
-    }
-  }
-
-  if(m_objectManager.getLara().getHandStatus() == objects::HandStatus::Combat
-     || m_objectManager.getLara().m_state.health <= 0_hp)
-    m_healthBarTimeout = 40_frame;
-
-  if(std::exchange(m_drawnHealth, m_objectManager.getLara().m_state.health) != m_objectManager.getLara().m_state.health)
-    m_healthBarTimeout = 40_frame;
-
-  m_healthBarTimeout -= 1_frame;
-  if(m_healthBarTimeout <= -40_frame)
-    return;
-
-  uint8_t alpha = 255;
-  if(m_healthBarTimeout < 0_frame)
-  {
-    alpha = util::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255);
-  }
-
-  const int x0 = 8;
-  for(int i = 7; i <= 13; ++i)
-    image->line(x0 - 1, i, x0 + 101, i, m_level->m_palette->colors[0].toTextureColor(alpha), true);
-  image->line(x0 - 2, 14, x0 + 102, 14, m_level->m_palette->colors[17].toTextureColor(alpha), true);
-  image->line(x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[17].toTextureColor(alpha), true);
-  image->line(x0 + 102, 6, x0 + 102, 14, m_level->m_palette->colors[19].toTextureColor(alpha), true);
-  image->line(x0 - 2, 6, x0 - 2, 14, m_level->m_palette->colors[19].toTextureColor(alpha), true);
-
-  const int p = util::clamp(m_objectManager.getLara().m_state.health * 100 / core::LaraHealth, 0, 100);
-  if(p > 0)
-  {
-    image->line(x0, 8, x0 + p, 8, m_level->m_palette->colors[8].toTextureColor(alpha), true);
-    image->line(x0, 9, x0 + p, 9, m_level->m_palette->colors[11].toTextureColor(alpha), true);
-    image->line(x0, 10, x0 + p, 10, m_level->m_palette->colors[8].toTextureColor(alpha), true);
-    image->line(x0, 11, x0 + p, 11, m_level->m_palette->colors[6].toTextureColor(alpha), true);
-    image->line(x0, 12, x0 + p, 12, m_level->m_palette->colors[24].toTextureColor(alpha), true);
   }
 }
 
@@ -355,12 +237,12 @@ void Engine::dinoStompEffect(objects::Object& object)
   const auto d = object.m_state.position.position.toRenderSystem() - m_cameraController->getPosition();
   const auto absD = glm::abs(d);
 
-  static constexpr auto MaxD = (16 * core::SectorSize).get_as<float>();
+  static constexpr auto MaxD = 16 * core::SectorSize.get<float>();
   if(absD.x > MaxD || absD.y > MaxD || absD.z > MaxD)
     return;
 
-  const auto x = (100_len).retype_as<float>() * (1 - length2(d) / util::square(MaxD));
-  m_cameraController->setBounce(x.retype_as<core::Length>());
+  const auto x = (100_len).cast<float>() * (1 - length2(d) / util::square(MaxD));
+  m_cameraController->setBounce(x.cast<core::Length>());
 }
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
@@ -377,7 +259,7 @@ void Engine::laraNormalEffect()
     = &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
   m_objectManager.getLara().getSkeleton()->frame_number = 185_frame;
   m_cameraController->setMode(CameraMode::Chase);
-  m_renderer->getCamera()->setFieldOfView(glm::radians(80.0f));
+  m_presenter->getRenderer().getCamera()->setFieldOfView(glm::radians(80.0f));
 }
 
 void Engine::laraBubblesEffect(objects::Object& object)
@@ -417,14 +299,14 @@ void Engine::earthquakeEffect()
   switch(m_effectTimer.get())
   {
   case 0:
-    m_audioEngine->playSound(TR1SoundId::Explosion1, nullptr);
+    m_presenter->getAudioEngine().playSound(TR1SoundId::Explosion1, nullptr);
     m_cameraController->setBounce(-250_len);
     break;
-  case 3: m_audioEngine->playSound(TR1SoundId::RollingBall, nullptr); break;
-  case 35: m_audioEngine->playSound(TR1SoundId::Explosion1, nullptr); break;
+  case 3: m_presenter->getAudioEngine().playSound(TR1SoundId::RollingBall, nullptr); break;
+  case 35: m_presenter->getAudioEngine().playSound(TR1SoundId::Explosion1, nullptr); break;
   case 20:
   case 50:
-  case 70: m_audioEngine->playSound(TR1SoundId::TRexFootstep, nullptr); break;
+  case 70: m_presenter->getAudioEngine().playSound(TR1SoundId::TRexFootstep, nullptr); break;
   default:
     // silence compiler
     break;
@@ -452,7 +334,7 @@ void Engine::floodEffect()
       mul = 30_frame - m_effectTimer;
     }
     pos.Y = 100_len * mul / 1_frame + m_cameraController->getLookAt().position.Y;
-    m_audioEngine->playSound(TR1SoundId::WaterFlow3, pos.toRenderSystem());
+    m_presenter->getAudioEngine().playSound(TR1SoundId::WaterFlow3, pos.toRenderSystem());
   }
   else
   {
@@ -463,7 +345,7 @@ void Engine::floodEffect()
 
 void Engine::chandelierEffect()
 {
-  m_audioEngine->playSound(TR1SoundId::GlassyFlow, nullptr);
+  m_presenter->getAudioEngine().playSound(TR1SoundId::GlassyFlow, nullptr);
   m_activeEffect.reset();
 }
 
@@ -472,7 +354,7 @@ void Engine::raisingBlockEffect()
   m_effectTimer += 1_frame;
   if(m_effectTimer == 5_frame)
   {
-    m_audioEngine->playSound(TR1SoundId::Clank, nullptr);
+    m_presenter->getAudioEngine().playSound(TR1SoundId::Clank, nullptr);
     m_activeEffect.reset();
   }
 }
@@ -487,11 +369,11 @@ void Engine::stairsToSlopeEffect()
   {
     if(m_effectTimer == 0_frame)
     {
-      m_audioEngine->playSound(TR1SoundId::HeavyDoorSlam, nullptr);
+      m_presenter->getAudioEngine().playSound(TR1SoundId::HeavyDoorSlam, nullptr);
     }
     auto pos = m_cameraController->getLookAt().position;
     pos.Y += 100_spd * m_effectTimer;
-    m_audioEngine->playSound(TR1SoundId::FlowingAir, pos.toRenderSystem());
+    m_presenter->getAudioEngine().playSound(TR1SoundId::FlowingAir, pos.toRenderSystem());
   }
   m_effectTimer += 1_frame;
 }
@@ -500,7 +382,7 @@ void Engine::sandEffect()
 {
   if(m_effectTimer <= 120_frame)
   {
-    m_audioEngine->playSound(TR1SoundId::LowHum, nullptr);
+    m_presenter->getAudioEngine().playSound(TR1SoundId::LowHum, nullptr);
   }
   else
   {
@@ -511,7 +393,7 @@ void Engine::sandEffect()
 
 void Engine::explosionEffect()
 {
-  m_audioEngine->playSound(TR1SoundId::LowPitchedSettling, nullptr);
+  m_presenter->getAudioEngine().playSound(TR1SoundId::LowPitchedSettling, nullptr);
   m_cameraController->setBounce(-75_len);
   m_activeEffect.reset();
 }
@@ -540,12 +422,12 @@ void Engine::chainBlockEffect()
 {
   if(m_effectTimer == 0_frame)
   {
-    m_audioEngine->playSound(TR1SoundId::SecretFound, nullptr);
+    m_presenter->getAudioEngine().playSound(TR1SoundId::SecretFound, nullptr);
   }
   m_effectTimer += 1_frame;
   if(m_effectTimer == 55_frame)
   {
-    m_audioEngine->playSound(TR1SoundId::LaraFallIntoWater, nullptr);
+    m_presenter->getAudioEngine().playSound(TR1SoundId::LaraFallIntoWater, nullptr);
     m_activeEffect.reset();
   }
 }
@@ -630,18 +512,6 @@ void Engine::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alt
   }
 }
 
-void Engine::animateUV()
-{
-  static constexpr auto UVAnimTime = 10;
-
-  ++m_uvAnimTime;
-  if(m_uvAnimTime >= UVAnimTime)
-  {
-    m_textureAnimator->updateCoordinates(m_level->m_textureTiles);
-    m_uvAnimTime -= UVAnimTime;
-  }
-}
-
 std::shared_ptr<objects::PickupObject> Engine::createPickup(const core::TypeId type,
                                                             const gsl::not_null<const loader::file::Room*>& room,
                                                             const core::TRVec& position)
@@ -658,8 +528,8 @@ std::shared_ptr<objects::PickupObject> Engine::createPickup(const core::TypeId t
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const loader::file::Sprite& sprite = spriteSequence->sprites[0];
 
-  auto object
-    = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite, m_materialManager->getSprite());
+  auto object = std::make_shared<objects::PickupObject>(
+    this, "pickup", room, item, &sprite, m_presenter->getMaterialManager()->getSprite());
 
   m_objectManager.registerDynamicObject(object);
   addChild(room->node, object->getNode());
@@ -672,7 +542,7 @@ void Engine::doGlobalEffect()
   if(m_activeEffect.has_value())
     runEffect(*m_activeEffect, nullptr);
 
-  m_audioEngine->setUnderwater(m_cameraController->getCurrentRoom()->isWaterRoom());
+  m_presenter->getAudioEngine().setUnderwater(m_cameraController->getCurrentRoom()->isWaterRoom());
 }
 
 const loader::file::Animation& Engine::getAnimation(loader::file::AnimationId id) const
@@ -698,126 +568,101 @@ const std::vector<int16_t>& Engine::getAnimCommands() const
 void Engine::update(const bool godMode)
 {
   m_objectManager.update(*this, godMode);
-  animateUV();
-}
-
-void Engine::drawDebugInfo(gl::Image<gl::SRGBA8>& img,
-                           const gsl::not_null<std::shared_ptr<gl::Font>>& font,
-                           const float fps)
-{
-  drawText(img, font, img.getWidth() - 40, img.getHeight() - 20, std::to_string(fps));
-}
-
-void Engine::drawText(gl::Image<gl::SRGBA8>& img,
-                      const gsl::not_null<std::shared_ptr<gl::Font>>& font,
-                      const int x,
-                      const int y,
-                      const std::string& txt,
-                      const gl::SRGBA8& col)
-{
-  font->drawText(img, txt.c_str(), x, y, col, DebugTextFontSize);
+  m_presenter->animateUV(m_level->m_textureTiles);
 }
 
 Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution)
     : m_rootPath{rootPath}
     , m_scriptEngine{createScriptEngine(rootPath)}
-    , m_window{std::make_unique<gl::Window>(fullscreen, resolution)}
-    , m_renderer{std::make_unique<render::scene::Renderer>(
-        std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 20.0f, 20480.0f))}
-    , splashImage{m_rootPath / "splash.png"}
-    , abibasFont{std::make_shared<gl::Font>(m_rootPath / "abibas.ttf")}
+    , m_presenter{std::make_shared<Presenter>(rootPath, fullscreen, resolution)}
 {
-  m_shaderManager = std::make_shared<render::scene::ShaderManager>(m_rootPath / "shaders");
-  m_csm = std::make_shared<render::scene::CSM>(CSMResolution, *m_shaderManager);
-  m_materialManager = std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_csm, m_renderer);
-
-  scaleSplashImage();
-
-  screenOverlay = std::make_shared<render::scene::ScreenOverlay>(*m_shaderManager, m_window->getViewport());
-  drawLoadingScreen("Booting");
-
   try
   {
-    m_scriptEngine.safe_script_file((m_rootPath / "scripts/main.lua").string());
+    pybind11::eval_file((m_rootPath / "scripts/main.py").string());
   }
-  catch(sol::error& e)
+  catch(std::exception& e)
   {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to load main.lua: " << e.what();
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load main.lua"));
+    BOOST_LOG_TRIVIAL(fatal) << "Failed to load main.py: " << e.what();
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load main.py"));
   }
 
-  const sol::optional<std::string> glidosPack = m_scriptEngine["getGlidosPack"]();
+  std::optional<std::string> glidosPack;
+  if(const auto getGlidosPack = core::get<pybind11::handle>(pybind11::globals(), "getGlidosPack"))
+  {
+    const auto pack = getGlidosPack.value()();
+    if(!pack.is_none())
+      glidosPack = pack.cast<std::string>();
+  }
 
   std::unique_ptr<loader::trx::Glidos> glidos;
   if(glidosPack && std::filesystem::is_directory(glidosPack.value()))
   {
-    drawLoadingScreen("Loading Glidos texture pack");
+    m_presenter->drawLoadingScreen("Loading Glidos texture pack");
     glidos = std::make_unique<loader::trx::Glidos>(m_rootPath / glidosPack.value(),
-                                                   [this](const std::string& s) { drawLoadingScreen(s); });
+                                                   [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
   }
 
-  levelInfo = m_scriptEngine["getLevelInfo"]();
-  const bool isVideo = !levelInfo.get<std::string>("video").empty();
-  const auto cutsceneName = levelInfo.get<std::string>("cutscene");
+  levelInfo = pybind11::globals()["getLevelInfo"]();
+  const bool isVideo = !core::get<std::string>(levelInfo, "video").value_or(std::string{}).empty();
+  const auto cutsceneName = core::get<std::string>(levelInfo, "cutscene").value_or(std::string{});
 
-  const auto baseName = cutsceneName.empty() ? levelInfo.get<std::string>("baseName") : cutsceneName;
+  const auto baseName
+    = cutsceneName.empty() ? core::get<std::string>(levelInfo, "baseName").value_or(std::string{}) : cutsceneName;
   Expects(isVideo || !baseName.empty());
-  const bool useAlternativeLara = levelInfo.get_or("useAlternativeLara", false);
-
-  m_inputHandler = std::make_unique<hid::InputHandler>(m_window->getWindow());
+  const bool useAlternativeLara = core::get<bool>(levelInfo, "useAlternativeLara").value_or(false);
 
   if(!isVideo)
   {
     std::map<TR1ItemId, size_t> initInv;
 
-    if(sol::optional<sol::table> tbl = levelInfo["inventory"])
+    if(const auto tbl = core::get<pybind11::dict>(levelInfo, "inventory"))
     {
       for(const auto& kv : *tbl)
-        initInv[EnumUtil<TR1ItemId>::fromString(kv.first.as<std::string>())] += kv.second.as<size_t>();
+        initInv[kv.first.cast<TR1ItemId>()] += kv.second.cast<size_t>();
     }
 
-    if(sol::optional<sol::table> tbl = m_scriptEngine["cheats"]["inventory"])
+    if(const auto tbl = core::get<pybind11::dict>(
+         core::get<pybind11::dict>(levelInfo, "cheats").value_or(pybind11::dict{}), "inventory"))
     {
       for(const auto& kv : *tbl)
-        initInv[EnumUtil<TR1ItemId>::fromString(kv.first.as<std::string>())] += kv.second.as<size_t>();
+        initInv[EnumUtil<TR1ItemId>::fromString(kv.first.cast<std::string>())] += kv.second.cast<size_t>();
     }
 
-    drawLoadingScreen("Preparing to load " + baseName);
+    m_presenter->drawLoadingScreen("Preparing to load " + baseName);
 
     m_level = loader::file::level::Level::createLoader(m_rootPath / "data/tr1/data" / (baseName + ".PHD"),
                                                        loader::file::level::Game::Unknown);
 
-    drawLoadingScreen("Loading " + baseName);
+    m_presenter->drawLoadingScreen("Loading " + baseName);
 
     m_level->loadFileData();
     while(m_roomOrder.size() < m_level->m_rooms.size())
       m_roomOrder.emplace_back(m_roomOrder.size());
 
-    m_audioEngine = std::make_unique<AudioEngine>(
-      *this, m_rootPath / "data/tr1/audio", m_level->m_soundDetails, m_level->m_soundmap, m_level->m_sampleIndices);
+    m_presenter->initAudio(*this, m_level.get(), m_rootPath / "data/tr1/audio");
 
     BOOST_LOG_TRIVIAL(info) << "Loading samples...";
 
     for(const auto offset : m_level->m_sampleIndices)
     {
       Expects(offset < m_level->m_samplesData.size());
-      m_audioEngine->getSoundEngine().addWav(&m_level->m_samplesData[offset]);
+      m_presenter->getAudioEngine().getSoundEngine().addWav(&m_level->m_samplesData[offset]);
     }
 
     for(size_t i = 0; i < m_level->m_textures.size(); ++i)
     {
       if(glidos != nullptr)
-        drawLoadingScreen("Upgrading texture " + std::to_string(i + 1) + " of "
-                          + std::to_string(m_level->m_textures.size()));
+        m_presenter->drawLoadingScreen("Upgrading texture " + std::to_string(i + 1) + " of "
+                                       + std::to_string(m_level->m_textures.size()));
       else
-        drawLoadingScreen("Loading texture " + std::to_string(i + 1) + " of "
-                          + std::to_string(m_level->m_textures.size()));
+        m_presenter->drawLoadingScreen("Loading texture " + std::to_string(i + 1) + " of "
+                                       + std::to_string(m_level->m_textures.size()));
       m_level->m_textures[i].toImage(
-        glidos.get(), std::function<void(const std::string&)>([this](const std::string& s) { drawLoadingScreen(s); }));
+        glidos.get(),
+        std::function<void(const std::string&)>([this](const std::string& s) { m_presenter->drawLoadingScreen(s); }));
     }
 
-    drawLoadingScreen("Preparing the game");
-    m_renderPipeline = std::make_shared<render::RenderPipeline>(*m_materialManager, m_window->getViewport());
+    m_presenter->drawLoadingScreen("Preparing the game");
     loadSceneData(baseName + "-animated");
 
     if(useAlternativeLara)
@@ -833,29 +678,29 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
   }
   else
   {
-    m_audioEngine = std::make_unique<AudioEngine>(*this, m_rootPath / "data/tr1/audio");
-    m_cameraController = std::make_unique<CameraController>(this, m_renderer->getCamera(), true);
+    m_presenter->initAudio(*this, nullptr, m_rootPath / "data/tr1/audio");
+    m_cameraController = std::make_unique<CameraController>(this, m_presenter->getRenderer().getCamera(), true);
   }
 
-  m_audioEngine->getSoundEngine().setListener(m_cameraController.get());
+  m_presenter->getAudioEngine().getSoundEngine().setListener(m_cameraController.get());
 
   if(!cutsceneName.empty() && !isVideo)
   {
-    m_cameraController->setEyeRotation(0_deg, core::angleFromDegrees(levelInfo.get<float>("cameraRot")));
+    m_cameraController->setEyeRotation(0_deg, core::angleFromDegrees(levelInfo["cameraRot"].cast<float>()));
     auto pos = m_cameraController->getTRPosition().position;
-    if(auto x = levelInfo["cameraPosX"])
-      pos.X = core::Length{x.get<core::Length::type>()};
-    if(auto y = levelInfo["cameraPosY"])
-      pos.Y = core::Length{y.get<core::Length::type>()};
-    if(auto z = levelInfo["cameraPosZ"])
-      pos.Z = core::Length{z.get<core::Length::type>()};
+    if(auto x = core::get<core::Length::type>(levelInfo, "cameraPosX"))
+      pos.X = core::Length{x.value()};
+    if(auto y = core::get<core::Length::type>(levelInfo, "cameraPosY"))
+      pos.Y = core::Length{y.value()};
+    if(auto z = core::get<core::Length::type>(levelInfo, "cameraPosZ"))
+      pos.Z = core::Length{z.value()};
 
     m_cameraController->setPosition(pos);
 
-    if(levelInfo["flipRooms"].get_or(false))
+    if(core::get<bool>(levelInfo, "flipRooms").value_or(false))
       swapAllRooms();
 
-    if(bool(levelInfo["gunSwap"]))
+    if(core::get<bool>(levelInfo, "gunSwap").value_or(false))
     {
       const auto& laraPistol = findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
       Expects(laraPistol != nullptr);
@@ -876,7 +721,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
   if(m_level != nullptr)
   {
     for(size_t i = 0; i < m_level->m_textures.size(); ++i)
-      m_allTextures->assign(m_level->m_textures[i].image->getRawData(), gsl::narrow_cast<int>(i), 0);
+      m_presenter->assignTextures(m_level->m_textures[i].image->getRawData(), gsl::narrow_cast<int>(i), 0);
 
     struct Rect
     {
@@ -941,7 +786,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     size_t processedTiles = 0;
     for(const auto& textureAndTiles : tilesByTexture)
     {
-      drawLoadingScreen("Mipmapping (" + std::to_string(processedTiles * 100 / totalTiles) + "%)");
+      m_presenter->drawLoadingScreen("Mipmapping (" + std::to_string(processedTiles * 100 / totalTiles) + "%)");
       processedTiles += textureAndTiles.second.size();
 
       const loader::file::DWordTexture& texture = m_level->m_textures.at(textureAndTiles.first);
@@ -962,7 +807,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
         {
           auto dst = cache.loadPng(texture.md5, mipmapLevel);
           dst.interleave();
-          m_allTextures->assign(reinterpret_cast<const gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
+          m_presenter->assignTextures(
+            reinterpret_cast<const gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
         }
         else
         {
@@ -985,368 +831,122 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
 
           cache.savePng(texture.md5, mipmapLevel, dst);
           dst.interleave();
-          m_allTextures->assign(reinterpret_cast<const gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
+          m_presenter->assignTextures(
+            reinterpret_cast<const gl::SRGBA8*>(dst.data()), textureAndTiles.first, mipmapLevel);
         }
       }
     }
   }
 }
 
+void Engine::gameLoop(Throttler& throttler, const std::string& levelName, bool godMode)
+{
+  m_presenter->preFrame();
+
+  if(!levelName.empty())
+    m_presenter->drawLevelName(getPalette(), levelName);
+
+  update(godMode);
+
+  const auto waterEntryPortals = m_cameraController->update();
+  doGlobalEffect();
+  m_presenter->drawBars(getPalette(), getObjectManager());
+  m_presenter->renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+
+  if(m_presenter->getInputHandler().getInputState().save.justChangedTo(true))
+  {
+    m_presenter->drawLoadingScreen("Saving...");
+
+    BOOST_LOG_TRIVIAL(info) << "Save";
+
+    serialization::Serializer::save("quicksave.yaml", *this);
+
+    throttler.reset();
+  }
+  else if(m_presenter->getInputHandler().getInputState().load.justChangedTo(true))
+  {
+    m_presenter->drawLoadingScreen("Loading...");
+
+    serialization::Serializer::load("quicksave.yaml", *this);
+    m_level->updateRoomBasedCaches();
+
+    throttler.reset();
+  }
+}
+
+void Engine::cinematicLoop(Throttler& throttler)
+{
+  m_presenter->preFrame();
+  update(false);
+
+  const auto waterEntryPortals
+    = m_cameraController->updateCinematic(m_level->m_cinematicFrames[m_cameraController->m_cinematicFrame], false);
+  doGlobalEffect();
+
+  m_presenter->renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+}
+
 void Engine::run()
 {
-  ui::debug::DebugView debugView{0, nullptr};
-
   gl::Framebuffer::unbindAll();
 
-  screenOverlay->init(*m_shaderManager, m_window->getViewport());
-
-  if(const sol::optional<std::string> video = levelInfo["video"])
-  {
-    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-    render::scene::Node dummyNode{""};
-    context.setCurrentNode(&dummyNode);
-    video::play(m_rootPath / "data/tr1/fmv" / video.value(),
-                m_audioEngine->getSoundEngine().getDevice(),
-                screenOverlay->getImage(),
-                [&]() {
-                  if(m_window->updateWindowSize())
-                  {
-                    m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
-                    screenOverlay->init(*m_shaderManager, m_window->getViewport());
-                  }
-
-                  screenOverlay->render(context);
-                  m_window->swapBuffers();
-                  m_inputHandler->update();
-                  return !m_window->windowShouldClose();
-                });
-    return;
-  }
-
-  static const auto frameDuration
-    = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(1)) / core::FrameRate.get();
-
-  std::string language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
+  language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << language;
-  if(const sol::optional<std::string> overrideLanguage = getScriptEngine()["language_override"])
+  if(const std::optional<std::string> overrideLanguage
+     = core::get<std::string>(pybind11::globals(), "language_override"))
   {
-    language = overrideLanguage.get();
+    language = overrideLanguage.value();
     BOOST_LOG_TRIVIAL(info) << "Language override is " << language;
   }
 
-  std::string levelName;
-  if(const auto levelNames = levelInfo["name"])
+  if(const std::optional<std::string> video = core::get<std::string>(levelInfo, "video"))
   {
-    levelName = levelNames[language];
-    if(levelName.empty())
-    {
-      BOOST_LOG_TRIVIAL(warning) << "Missing level name, falling back to language en";
-      levelName = levelNames["en"];
-    }
+    m_presenter->playVideo(m_rootPath / "data/tr1/fmv" / video.value());
+    return;
   }
 
-  bool showDebugInfo = false;
-  bool crt = true;
+  const auto levelName = loadLevel();
+  const bool godMode
+    = core::get<bool>(core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "godMode")
+        .value_or(false);
+  const bool isCutscene = !core::get<std::string>(levelInfo, "cutscene").value_or(std::string{}).empty();
 
-  auto font = std::make_shared<gl::Font>(m_rootPath / "DroidSansMono.ttf");
-  auto trFont = ui::CachedFont(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics));
-  auto nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
-  const bool isCutscene = !levelInfo.get<std::string>("cutscene").empty();
-
-  if(const sol::optional<TR1TrackId> trackToPlay = levelInfo["track"])
+  std::shared_ptr<menu::MenuDisplay> menu;
+  Throttler throttler;
+  while(!m_presenter->shouldClose())
   {
-    m_audioEngine->playStopCdTrack(trackToPlay.value(), false);
-  }
+    throttler.wait();
 
-  while(!m_window->windowShouldClose())
-  {
-    screenOverlay->getImage()->fill({0, 0, 0, 0});
-
-    if(!levelName.empty())
+    if(menu != nullptr)
     {
-      ui::Label tmp{0, -50, levelName};
-      tmp.alignX = ui::Label::Alignment::Center;
-      tmp.alignY = ui::Label::Alignment::Bottom;
-      tmp.outline = true;
-      tmp.addBackground(0, 0, 0, 0);
-      tmp.draw(trFont, *screenOverlay->getImage(), *m_level->m_palette);
+      m_presenter->preFrame();
+      menu->display(*m_presenter->getScreenOverlay().getImage(), *this);
+      render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+      m_presenter->getScreenOverlay().render(context);
+      m_presenter->swapBuffers();
+      if(menu->isDone)
+        menu.reset();
+      continue;
     }
 
-    m_audioEngine->getSoundEngine().update();
-    m_inputHandler->update();
-
-    if(m_inputHandler->getInputState().debug.justPressed())
-    {
-      showDebugInfo = !showDebugInfo;
-    }
-    if(m_inputHandler->getInputState().crt.justPressed())
-    {
-      crt = !crt;
-    }
-
-    {
-      // frame rate throttling
-      // TODO this assumes that the frame rate capacity (the processing power so to speak)
-      // is faster than 30 FPS.
-      std::this_thread::sleep_until(nextFrameTime);
-      nextFrameTime += frameDuration;
-    }
-
-    update(bool(m_scriptEngine["cheats"]["godMode"]));
-
-    if(m_window->updateWindowSize())
-    {
-      m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
-      m_renderPipeline->resize(m_window->getViewport());
-      screenOverlay->init(*m_shaderManager, m_window->getViewport());
-    }
-
-    std::unordered_set<const loader::file::Portal*> waterEntryPortals;
     if(!isCutscene)
     {
-      waterEntryPortals = m_cameraController->update();
+      if(m_presenter->getInputHandler().getInputState().menu.justChangedTo(true))
+      {
+        menu = std::make_shared<menu::MenuDisplay>();
+        menu->init(*this);
+        continue;
+      }
+
+      gameLoop(throttler, levelName, godMode);
     }
     else
     {
       if(++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size())
         break;
-
-      waterEntryPortals
-        = m_cameraController->updateCinematic(m_level->m_cinematicFrames[m_cameraController->m_cinematicFrame], false);
-    }
-    doGlobalEffect();
-
-    if(m_objectManager.getLaraPtr() != nullptr)
-      drawBars(screenOverlay->getImage());
-
-    m_renderPipeline->update(m_renderer->getCamera());
-
-    {
-      gl::DebugGroup dbg{"csm-pass"};
-      m_renderer->resetRenderState();
-      m_csm->update(*m_renderer->getCamera());
-      m_csm->applyViewport();
-
-      for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
-      {
-        gl::DebugGroup dbg2{"csm-pass/" + std::to_string(i)};
-        m_renderer->resetRenderState();
-        gl::RenderState renderState;
-        renderState.setDepthClamp(true);
-        renderState.apply();
-
-        m_csm->setActiveSplit(i);
-        m_csm->getActiveFramebuffer()->bind();
-        m_renderer->clear(gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-
-        render::scene::RenderContext context{render::scene::RenderMode::CSMDepthOnly,
-                                             m_csm->getActiveMatrix(glm::mat4{1.0f})};
-        render::scene::RenderVisitor visitor{context};
-
-        for(const auto& room : m_level->m_rooms)
-        {
-          if(!room.node->isVisible())
-            continue;
-
-          for(const auto& child : room.node->getChildren())
-          {
-            visitor.visit(*child);
-          }
-        }
-
-        m_csm->finishSplitRender();
-      }
-    }
-
-    {
-      gl::DebugGroup dbg{"geometry-pass"};
-      m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport());
-      m_renderer->clear(
-        gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-
-      {
-        gl::DebugGroup dbg{"depth-prefill-pass"};
-        m_renderer->resetRenderState();
-        render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
-                                             m_cameraController->getCamera()->getViewProjectionMatrix()};
-        for(const auto& room : m_level->m_rooms)
-        {
-          if(!room.node->isVisible())
-            continue;
-
-          gl::DebugGroup debugGroup{room.node->getName()};
-          context.setCurrentNode(room.node.get());
-          room.node->getRenderable()->render(context);
-        }
-        if constexpr(render::RenderPipeline::FlushStages)
-          GL_ASSERT(gl::api::finish());
-      }
-
-      m_renderer->resetRenderState();
-      m_renderer->render();
-
-      if constexpr(render::RenderPipeline::FlushStages)
-        GL_ASSERT(gl::api::finish());
-    }
-
-    {
-      gl::DebugGroup dbg{"portal-depth-pass"};
-      m_renderer->resetRenderState();
-
-      render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
-                                           m_cameraController->getCamera()->getViewProjectionMatrix()};
-      render::scene::Node dummyNode{""};
-      context.setCurrentNode(&dummyNode);
-
-      m_renderPipeline->bindPortalFrameBuffer();
-      for(const auto& portal : waterEntryPortals)
-      {
-        portal->mesh->render(context);
-      }
-      if constexpr(render::RenderPipeline::FlushStages)
-        GL_ASSERT(gl::api::finish());
-    }
-
-    render::scene::RenderContext context{render::scene::RenderMode::Full,
-                                         m_cameraController->getCamera()->getViewProjectionMatrix()};
-    render::scene::Node dummyNode{""};
-    context.setCurrentNode(&dummyNode);
-
-    m_renderPipeline->compositionPass(m_cameraController->getCurrentRoom()->isWaterRoom(), crt);
-
-    if(debugView.isVisible())
-    {
-      if(m_objectManager.getLaraPtr() != nullptr)
-      {
-        debugView.update(m_objectManager.getLara(), m_objectManager.getObjects(), m_objectManager.getDynamicObjects());
-      }
-    }
-    if(showDebugInfo)
-    {
-      drawDebugInfo(*screenOverlay->getImage(), font, m_renderer->getFrameRate());
-
-      const auto drawObjectName = [this, &font](const std::shared_ptr<objects::Object>& object,
-                                                const gl::SRGBA8& color) {
-        const auto vertex = glm::vec3{m_renderer->getCamera()->getViewMatrix()
-                                      * glm::vec4(object->getNode()->getTranslationWorld(), 1)};
-
-        if(vertex.z > -m_renderer->getCamera()->getNearPlane() || vertex.z < -m_renderer->getCamera()->getFarPlane())
-        {
-          return;
-        }
-
-        glm::vec4 projVertex{vertex, 1};
-        projVertex = m_renderer->getCamera()->getProjectionMatrix() * projVertex;
-        projVertex /= projVertex.w;
-
-        if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
-          return;
-
-        projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().x;
-        projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().y;
-
-        font->drawText(*screenOverlay->getImage(),
-                       object->getNode()->getName().c_str(),
-                       static_cast<int>(projVertex.x),
-                       static_cast<int>(projVertex.y),
-                       color,
-                       DebugTextFontSize);
-      };
-
-      for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
-      {
-        drawObjectName(object, gl::SRGBA8{255});
-      }
-      for(const auto& object : m_objectManager.getDynamicObjects())
-      {
-        drawObjectName(object, gl::SRGBA8{0, 255, 0, 255});
-      }
-    }
-
-    {
-      gl::DebugGroup dbg{"screen-overlay-pass"};
-      m_renderer->resetRenderState();
-      screenOverlay->render(context);
-    }
-    m_window->swapBuffers();
-
-    if(m_inputHandler->getInputState().save.justPressed())
-    {
-      scaleSplashImage();
-      drawLoadingScreen("Saving...");
-
-      BOOST_LOG_TRIVIAL(info) << "Save";
-
-      serialization::Serializer::save("quicksave.yaml", *this);
-
-      nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
-    }
-    else if(m_inputHandler->getInputState().load.justPressed())
-    {
-      scaleSplashImage();
-      drawLoadingScreen("Loading...");
-
-      serialization::Serializer::load("quicksave.yaml", *this);
-      m_level->updateRoomBasedCaches();
-
-      nextFrameTime = std::chrono::high_resolution_clock::now() + frameDuration;
+      cinematicLoop(throttler);
     }
   }
-
-  debugView.stop();
-}
-
-void Engine::scaleSplashImage()
-{
-  // scale splash image so that its aspect ratio is preserved, but the boundaries match
-  const float splashScale = std::max(gsl::narrow<float>(m_window->getViewport().x) / splashImage.width(),
-                                     gsl::narrow<float>(m_window->getViewport().y) / splashImage.height());
-
-  splashImageScaled = splashImage;
-  splashImageScaled.resize(static_cast<int>(splashImageScaled.width() * splashScale),
-                           static_cast<int>(splashImageScaled.height() * splashScale));
-
-  // crop to boundaries
-  const auto centerX = splashImageScaled.width() / 2;
-  const auto centerY = splashImageScaled.height() / 2;
-  splashImageScaled.crop(gsl::narrow<int>(centerX - m_window->getViewport().x / 2),
-                         gsl::narrow<int>(centerY - m_window->getViewport().y / 2),
-                         gsl::narrow<int>(centerX - m_window->getViewport().x / 2 + m_window->getViewport().x - 1),
-                         gsl::narrow<int>(centerY - m_window->getViewport().y / 2 + m_window->getViewport().y - 1));
-
-  Expects(splashImageScaled.width() == m_window->getViewport().x);
-  Expects(splashImageScaled.height() == m_window->getViewport().y);
-
-  splashImageScaled.interleave();
-}
-
-void Engine::drawLoadingScreen(const std::string& state)
-{
-  glfwPollEvents();
-  if(m_window->updateWindowSize())
-  {
-    m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
-    screenOverlay->init(*m_shaderManager, m_window->getViewport());
-    scaleSplashImage();
-  }
-  screenOverlay->getImage()->assign(reinterpret_cast<const gl::SRGBA8*>(splashImageScaled.data()),
-                                    m_window->getViewport().x * m_window->getViewport().y);
-  abibasFont->drawText(*screenOverlay->getImage(),
-                       state.c_str(),
-                       40,
-                       screenOverlay->getImage()->getHeight() - 100,
-                       gl::SRGBA8{255, 255, 255, 192},
-                       StatusLineFontSize);
-
-  gl::Framebuffer::unbindAll();
-
-  m_renderer->clear(
-    gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-  render::scene::Node dummyNode{""};
-  context.setCurrentNode(&dummyNode);
-  screenOverlay->render(context);
-  m_window->swapBuffers();
 }
 
 const std::vector<int16_t>& Engine::getPoseFrames() const
@@ -1568,7 +1168,7 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
     case floordata::CommandOpcode::FlipEffect: flipEffect = command.parameter; break;
     case floordata::CommandOpcode::EndLevel: finishLevel(); break;
     case floordata::CommandOpcode::PlayTrack:
-      m_audioEngine->triggerCdTrack(
+      m_presenter->getAudioEngine().triggerCdTrack(
         static_cast<TR1TrackId>(command.parameter), activationRequest, chunkHeader.sequenceCondition);
       break;
     case floordata::CommandOpcode::Secret:
@@ -1576,7 +1176,7 @@ void Engine::handleCommandSequence(const floordata::FloorDataValue* floorData, c
       if(!m_secretsFoundBitmask.test(command.parameter))
       {
         m_secretsFoundBitmask.set(command.parameter);
-        m_audioEngine->playStopCdTrack(TR1TrackId::Secret, false);
+        m_presenter->getAudioEngine().playStopCdTrack(TR1TrackId::Secret, false);
       }
       break;
     default: break;
@@ -1621,11 +1221,11 @@ void Engine::serialize(const serialization::Serializer& ser)
 {
   if(ser.loading)
   {
-    m_renderer->getScene()->clear();
+    m_presenter->getRenderer().getScene()->clear();
     for(auto& room : m_level->m_rooms)
     {
       room.resetScenery();
-      m_renderer->getScene()->addNode(room.node);
+      m_presenter->getRenderer().getScene()->addNode(room.node);
     }
 
     auto currentRoomOrder = m_roomOrder;
@@ -1676,6 +1276,34 @@ gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> Engine::getRenderMe
 const std::vector<loader::file::Mesh>& Engine::getMeshes() const
 {
   return m_level->m_meshes;
+}
+
+const loader::file::Palette& Engine::getPalette() const
+{
+  return *m_level->m_palette;
+}
+
+std::string Engine::loadLevel()
+{
+  std::string levelName;
+  if(const auto levelNames = core::get<pybind11::dict>(levelInfo, "name"))
+  {
+    levelName = core::get<std::string>(levelNames.value(), language.c_str()).value_or(std::string{});
+    if(levelName.empty())
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Missing level name, falling back to language en";
+      levelName = levelNames.value()["en"].cast<std::string>();
+    }
+  }
+
+  m_presenter->setTrFont(std::make_unique<ui::CachedFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics)));
+
+  if(const std::optional<TR1TrackId> trackToPlay = core::get<TR1TrackId>(levelInfo, "track"))
+  {
+    m_presenter->getAudioEngine().playStopCdTrack(trackToPlay.value(), false);
+  }
+
+  return levelName;
 }
 
 Engine::~Engine() = default;

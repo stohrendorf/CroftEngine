@@ -121,7 +121,7 @@ else()
     endif()
 endif()
 
-find_package_handle_standard_args( FFMPEG
-                                   FOUND_VAR FFMPEG_FOUND
-                                   REQUIRED_VARS FFMPEG_LIBRARY FFMPEG_INCLUDE_DIR
-                                   )
+find_package_handle_standard_args( FFmpeg
+        FOUND_VAR FFMPEG_FOUND
+        REQUIRED_VARS FFMPEG_LIBRARY FFMPEG_INCLUDE_DIR
+        )

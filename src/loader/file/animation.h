@@ -6,6 +6,7 @@
 #include "core/vec.h"
 
 #include <gsl-lite.hpp>
+#include <optional>
 #include <utility>
 
 namespace render::scene

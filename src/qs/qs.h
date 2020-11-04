@@ -28,4 +28,10 @@
     return TYPE{static_cast<TYPE::type>(value)};             \
   }
 
-#define QS_COMBINE_UNITS(L, OP, R) decltype(std::declval<L>() OP std::declval<R>())
+namespace qs::detail
+{
+template<typename T>
+inline constexpr auto quantity_declval() -> std::enable_if_t<::qs::is_quantity_v<T>, T>;
+}
+
+#define QS_COMBINE_UNITS(L, OP, R) decltype(::qs::detail::quantity_declval<L>() OP ::qs::detail::quantity_declval<R>())

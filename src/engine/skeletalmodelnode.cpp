@@ -2,6 +2,7 @@
 
 #include "engine/engine.h"
 #include "engine/objects/object.h"
+#include "engine/presenter.h"
 #include "loader/file/mesh.h"
 #include "loader/file/rendermeshdata.h"
 #include "serialization/animation_ptr.h"
@@ -76,7 +77,7 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() c
       segmentDuration = tmp + 1_frame;
   }
 
-  result.bias = segmentFrame.retype_as<float>() / segmentDuration.retype_as<float>();
+  result.bias = segmentFrame.cast<float>() / segmentDuration.cast<float>();
   BOOST_ASSERT(result.bias >= 0 && result.bias <= 1);
 
   return result;
@@ -198,15 +199,15 @@ loader::file::BoundingBox SkeletalModelNode::getBoundingBox() const
   return framePair.firstFrame->bbox.toBBox();
 }
 
-bool SkeletalModelNode::handleStateTransitions(objects::ObjectState& state)
+bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, const core::AnimStateId& goal)
 {
   Expects(anim != nullptr);
-  if(anim->state_id == state.goal_anim_state)
+  if(anim->state_id == goal)
     return false;
 
   for(const loader::file::Transitions& tr : anim->transitions)
   {
-    if(tr.stateId != state.goal_anim_state)
+    if(tr.stateId != goal)
       continue;
 
     const auto it = std::find_if(
@@ -216,7 +217,7 @@ bool SkeletalModelNode::handleStateTransitions(objects::ObjectState& state)
 
     if(it != tr.transitionCases.cend())
     {
-      setAnimation(state, it->targetAnimation, it->targetFrame);
+      setAnimation(animState, it->targetAnimation, it->targetFrame);
       return true;
     }
   }
@@ -224,8 +225,7 @@ bool SkeletalModelNode::handleStateTransitions(objects::ObjectState& state)
   return false;
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
-void SkeletalModelNode::setAnimation(objects::ObjectState& state,
+void SkeletalModelNode::setAnimation(core::AnimStateId& animState,
                                      const gsl::not_null<const loader::file::Animation*>& animation,
                                      core::Frame frame)
 {
@@ -236,13 +236,13 @@ void SkeletalModelNode::setAnimation(objects::ObjectState& state,
 
   anim = animation;
   frame_number = frame;
-  state.current_anim_state = anim->state_id;
+  animState = anim->state_id;
 }
 
 bool SkeletalModelNode::advanceFrame(objects::ObjectState& state)
 {
   frame_number += 1_frame;
-  if(handleStateTransitions(state))
+  if(handleStateTransitions(state.current_anim_state, state.goal_anim_state))
   {
     state.current_anim_state = anim->state_id;
     if(state.current_anim_state == state.required_anim_state)
@@ -341,12 +341,12 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
   data->serialize(ser);
 }
 
-void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state)
+void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, core::AnimStateId& animState)
 {
   if(!skeleton->m_meshParts.empty())
     return;
 
-  skeleton->setAnimation(state, skeleton->m_model->animations, skeleton->m_model->animations->firstFrame);
+  skeleton->setAnimation(animState, skeleton->m_model->animations, skeleton->m_model->animations->firstFrame);
   for(const auto& bone : skeleton->m_model->bones)
   {
     skeleton->m_meshParts.emplace_back(bone.mesh.get());
@@ -372,7 +372,7 @@ void SkeletalModelNode::rebuildMesh()
       compositor.append(*mesh.mesh);
   }
 
-  setRenderable(compositor.toMesh(*m_engine->getMaterialManager(), true, getName()));
+  setRenderable(compositor.toMesh(*m_engine->getPresenter().getMaterialManager(), true, getName()));
 }
 
 bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const

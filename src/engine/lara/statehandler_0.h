@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/objects/laraobject.h"
+#include "engine/presenter.h"
 #include "hid/inputhandler.h"
 
 namespace engine::lara
@@ -23,18 +24,18 @@ public:
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(2.25_deg, -4_deg);
     }
-    else if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(2.25_deg, 4_deg);
     }
 
-    if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      if(getEngine().getInputHandler().getInputState().moveSlow)
+      if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
       {
         setGoalAnimState(LaraStateId::WalkForward);
       }

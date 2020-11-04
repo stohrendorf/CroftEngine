@@ -22,7 +22,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
   {
     // the target is behind the current object, so we need a U-turn
     const auto relativeSpeed
-      = m_state.speed * (90_deg).retype_as<core::Speed::type>() / maxRotationSpeed.retype_as<core::Speed::type>();
+      = m_state.speed * (90_deg).cast<core::Speed::type>() / maxRotationSpeed.cast<core::Speed::type>();
     if(util::square(dx) + util::square(dz) < util::square(relativeSpeed * 1_frame))
     {
       maxRotationSpeed /= 2;
@@ -479,13 +479,14 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
 
   return isHit;
 }
+
 void AIAgent::loadObjectInfo(bool withoutGameState)
 {
   m_collisionRadius
-    = core::Length{getEngine().getScriptEngine()["getObjectInfo"].call<script::ObjectInfo>(m_state.type.get()).radius};
+    = core::Length{pybind11::globals()["getObjectInfo"](m_state.type.get()).cast<script::ObjectInfo>().radius};
 
   if(!withoutGameState)
-    m_state.loadObjectInfo(getEngine().getScriptEngine());
+    m_state.loadObjectInfo();
 }
 
 void AIAgent::hitLara(const core::Health& strength)

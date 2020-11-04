@@ -316,7 +316,7 @@ void Level::postProcessDataStructures()
     }
 
     if(model->animation_index.index != 0xffff)
-      model->animations = &model->animation_index.checkedFrom(m_animations);
+      model->animations = &model->animation_index.from(m_animations);
   }
 
   for(Animation& anim : m_animations)
@@ -338,7 +338,7 @@ void Level::postProcessDataStructures()
     Expects(gsl::narrow<size_t>(anim.animCommandIndex + anim.animCommandCount) <= m_animCommands.size());
     Expects(gsl::narrow<size_t>(anim.transitionsIndex + anim.transitionsCount) <= m_transitions.size());
     if(anim.transitionsCount > 0)
-      anim.transitions = gsl::make_span(&anim.transitionsIndex.checkedFrom(m_transitions), anim.transitionsCount);
+      anim.transitions = gsl::make_span(&anim.transitionsIndex.from(m_transitions), anim.transitionsCount);
   }
 
   for(TransitionCase& transitionCase : m_transitionCases)

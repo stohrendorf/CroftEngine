@@ -10,7 +10,7 @@ using namespace gl;
 
 namespace
 {
-inline gsl::czstring glDebugSourceToString(const api::DebugSource src)
+gsl::czstring glDebugSourceToString(const api::DebugSource src)
 {
   switch(src)
   {
@@ -25,7 +25,7 @@ inline gsl::czstring glDebugSourceToString(const api::DebugSource src)
   return "<unknown>";
 }
 
-inline gsl::czstring glDebugTypeToString(const api::DebugType type)
+gsl::czstring glDebugTypeToString(const api::DebugType type)
 {
   switch(type)
   {
@@ -43,7 +43,7 @@ inline gsl::czstring glDebugTypeToString(const api::DebugType type)
   return "<unknown>";
 }
 
-inline gsl::czstring glDebugSeverityToString(const api::DebugSeverity severity)
+gsl::czstring glDebugSeverityToString(const api::DebugSeverity severity)
 {
   switch(severity)
   {
@@ -56,12 +56,13 @@ inline gsl::czstring glDebugSeverityToString(const api::DebugSeverity severity)
   return "<unknown>";
 }
 
-void SOGLB_API debugCallback(api::DebugSource source,
-                             api::DebugType type,
-                             uint32_t id,
-                             api::DebugSeverity severity,
-                             api::core::SizeType /*length*/,
-                             gsl::czstring message,
+#ifndef NDEBUG
+void SOGLB_API debugCallback(const api::DebugSource source,
+                             const api::DebugType type,
+                             const uint32_t id,
+                             const api::DebugSeverity severity,
+                             const api::core::SizeType /*length*/,
+                             const gsl::czstring message,
                              const void* /*userParam*/)
 {
   if(source == api::DebugSource::DebugSourceApplication)
@@ -71,6 +72,7 @@ void SOGLB_API debugCallback(api::DebugSource source,
                            << glDebugTypeToString(type) << ", source " << glDebugSourceToString(source) << ": "
                            << message;
 }
+#endif
 } // namespace
 
 void gl::initializeGl()

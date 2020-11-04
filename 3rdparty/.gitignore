@@ -1,3 +1,6 @@
 CImg-*
-sol-*
 gsl-lite
+pybind*
+
+*.zip
+*.tar.gz

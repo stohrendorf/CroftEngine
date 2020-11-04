@@ -27,7 +27,7 @@ using Area = QS_COMBINE_UNITS(Length, *, Length);
   return Length{static_cast<Length::type>(a.get() * (1 - bias) + b.get() * bias)};
 }
 
-using LengthF = Length::with_type<float>;
+using LengthF = Length::as_type<float>;
 
 QS_LITERAL_OP_LD(LengthF, _len)
 
@@ -49,7 +49,7 @@ QS_DECLARE_QUANTITY(Brightness, float, "brightness");
 
 [[nodiscard]] inline constexpr Brightness toBrightness(const Shade& shade)
 {
-  return Brightness{1.0f - shade.get_as<float>() / 8191.0f};
+  return Brightness{1.0f - shade.get<float>() / 8191.0f};
 }
 } // namespace core
 

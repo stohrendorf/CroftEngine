@@ -3210,7 +3210,7 @@ void getTransformFeedbackVarying(uint32_t program,
                                  core::SizeType bufSize,
                                  core::SizeType* length,
                                  core::SizeType* size,
-                                 GlslTypeToken* type,
+                                 AttributeType* type,
                                  char* name)
 {
   return glGetTransformFeedbackVarying(static_cast<GLuint>(program),
@@ -3439,7 +3439,7 @@ void vertexAttribI4(uint32_t index, const uint16_t* v)
   return glVertexAttribI4usv(static_cast<GLuint>(index), detail::constAway(reinterpret_cast<const GLushort*>(v)));
 }
 void vertexAttribIPointer(
-  uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void* pointer)
+  uint32_t index, int32_t size, VertexAttribIType type, core::SizeType stride, const void* pointer)
 {
   return glVertexAttribIPointer(static_cast<GLuint>(index),
                                 static_cast<GLint>(size),
@@ -4824,7 +4824,7 @@ void vertexAttribL4(uint32_t index, const double* v)
   return glVertexAttribL4dv(static_cast<GLuint>(index), detail::constAway(reinterpret_cast<const GLdouble*>(v)));
 }
 void vertexAttribLPointer(
-  uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void* pointer)
+  uint32_t index, int32_t size, VertexAttribLType type, core::SizeType stride, const void* pointer)
 {
   return glVertexAttribLPointer(static_cast<GLuint>(index),
                                 static_cast<GLint>(size),
@@ -5773,17 +5773,17 @@ GraphicsResetStatus getGraphicsResetStatus()
 {
   return static_cast<GraphicsResetStatus>(glGetGraphicsResetStatus());
 }
-void getNamedBufferParameter(uint32_t buffer, VertexBufferObjectParameter pname, int64_t* params)
+void getNamedBufferParameter(uint32_t buffer, BufferPNameARB pname, int64_t* params)
 {
   return glGetNamedBufferParameteri64v(
     static_cast<GLuint>(buffer), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint64*>(params)));
 }
-void getNamedBufferParameter(uint32_t buffer, VertexBufferObjectParameter pname, int32_t* params)
+void getNamedBufferParameter(uint32_t buffer, BufferPNameARB pname, int32_t* params)
 {
   return glGetNamedBufferParameteriv(
     static_cast<GLuint>(buffer), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getNamedBufferPointerv(uint32_t buffer, VertexBufferObjectParameter pname, void** params)
+void getNamedBufferPointerv(uint32_t buffer, BufferPointerNameARB pname, void** params)
 {
   return glGetNamedBufferPointerv(static_cast<GLuint>(buffer), static_cast<GLenum>(pname), detail::constAway(params));
 }

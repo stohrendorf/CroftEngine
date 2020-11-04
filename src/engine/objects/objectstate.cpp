@@ -8,6 +8,8 @@
 #include "serialization/box_ptr.h"
 #include "serialization/quantity.h"
 
+#include <pybind11/pybind11.h>
+
 namespace engine::objects
 {
 ObjectState::~ObjectState() = default;
@@ -120,9 +122,10 @@ glm::vec3 ObjectState::getPosition() const
   return position.position.toRenderSystem();
 }
 
-void ObjectState::loadObjectInfo(const sol::state& engine)
+void ObjectState::loadObjectInfo()
 {
-  health = core::Health{engine["getObjectInfo"].call<script::ObjectInfo>(type.get()).hit_points};
+  pybind11::object getObjectInfo = pybind11::globals()["getObjectInfo"];
+  health = core::Health{getObjectInfo(type.get()).cast<script::ObjectInfo>().hit_points};
 }
 
 void ObjectState::serialize(const serialization::Serializer& ser)

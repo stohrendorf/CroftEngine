@@ -22,48 +22,69 @@ enum class AxisMovement
 
 struct InputState
 {
-  AxisMovement xMovement = AxisMovement::Null;
-  AxisMovement zMovement = AxisMovement::Null;
-  AxisMovement stepMovement = AxisMovement::Null;
-
-  struct Button
+  template<typename T>
+  struct DebouncedValue
   {
-    bool current = false;
-    bool previous = false;
+    T current;
+    T previous;
 
-    Button& operator=(bool state)
+    explicit DebouncedValue(const T& initial)
+        : current{initial}
+        , previous{initial}
+    {
+    }
+
+    DebouncedValue<T>& operator=(const T& state)
     {
       previous = std::exchange(current, state);
       return *this;
     }
 
-    operator bool() const
+    operator T() const
     {
       return current;
     }
 
-    [[nodiscard]] bool justPressed() const
+    [[nodiscard]] bool justChanged() const
     {
-      return current && current != previous;
+      return current != previous;
+    }
+
+    [[nodiscard]] bool justChangedTo(const T& value) const
+    {
+      return justChanged() && current == value;
+    }
+
+    [[nodiscard]] bool justChangedFrom(const T& value) const
+    {
+      return justChanged() && current != value;
     }
   };
 
-  Button jump;
-  Button moveSlow;
-  Button roll;
-  Button action;
-  Button freeLook;
-  Button debug;
-  Button crt;
-  Button holster;
-  Button _1;
-  Button _2;
-  Button _3;
-  Button _4;
-  Button _5;
-  Button _6;
-  Button save;
-  Button load;
+  using Button = DebouncedValue<bool>;
+  using Axis = DebouncedValue<AxisMovement>;
+
+  Axis xMovement{AxisMovement::Null};
+  Axis zMovement{AxisMovement::Null};
+  Axis stepMovement{AxisMovement::Null};
+
+  Button jump{false};
+  Button moveSlow{false};
+  Button roll{false};
+  Button action{false};
+  Button freeLook{false};
+  Button debug{false};
+  Button crt{false};
+  Button holster{false};
+  Button menu{false};
+  Button _1{false};
+  Button _2{false};
+  Button _3{false};
+  Button _4{false};
+  Button _5{false};
+  Button _6{false};
+  Button save{false};
+  Button load{false};
   glm::vec2 mouseMovement;
 
   void setXAxisMovement(const bool left, const bool right)

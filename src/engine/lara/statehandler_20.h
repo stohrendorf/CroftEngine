@@ -23,7 +23,7 @@ public:
     if(getYRotationSpeed() >= 0_deg)
     {
       setYRotationSpeed(8_deg);
-      if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+      if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
       {
         return;
       }
@@ -31,7 +31,7 @@ public:
     else
     {
       setYRotationSpeed(-8_deg);
-      if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+      if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
       {
         return;
       }

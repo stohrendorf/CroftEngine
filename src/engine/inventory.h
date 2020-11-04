@@ -35,6 +35,12 @@ public:
     return it->second;
   }
 
+  [[nodiscard]] bool any() const
+  {
+    return std::find_if(m_inventory.begin(), m_inventory.end(), [](const auto& kv) { return kv.second != 0; })
+           != m_inventory.end();
+  }
+
   void clear()
   {
     m_inventory.clear();

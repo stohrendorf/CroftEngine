@@ -29,7 +29,7 @@ public:
 
   void updatePose();
 
-  void setAnimation(objects::ObjectState& state,
+  void setAnimation(core::AnimStateId& animState,
                     const gsl::not_null<const loader::file::Animation*>& animation,
                     core::Frame frame);
 
@@ -97,7 +97,7 @@ public:
 
   void serialize(const serialization::Serializer& ser);
 
-  static void buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, objects::ObjectState& state);
+  static void buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, core::AnimStateId& animState);
 
   void rebuildMesh();
 
@@ -153,7 +153,7 @@ public:
   }
 
 protected:
-  bool handleStateTransitions(objects::ObjectState& state);
+  bool handleStateTransitions(core::AnimStateId& animState, const core::AnimStateId& goal);
 
 private:
   struct MeshPart

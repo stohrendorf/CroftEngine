@@ -78,12 +78,12 @@ inline glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
 
 inline core::Length sin(const core::Length& len, const core::Angle& rot)
 {
-  return (len.retype_as<float>() * sin(rot)).retype_as<core::Length>();
+  return (len.cast<float>() * sin(rot)).cast<core::Length>();
 }
 
 inline core::Length cos(const core::Length& len, const core::Angle& rot)
 {
-  return (len.retype_as<float>() * cos(rot)).retype_as<core::Length>();
+  return (len.cast<float>() * cos(rot)).cast<core::Length>();
 }
 
 inline core::TRVec pitch(const core::Length& len, const core::Angle& rot, const core::Length& dy = 0_len)
@@ -101,8 +101,8 @@ inline core::TRVec pitch(const core::TRVec& vec, const core::Angle& rot)
 {
   const auto sin = core::sin(rot);
   const auto cos = core::cos(rot);
-  return core::TRVec{(vec.Z.retype_as<float>() * sin + vec.X.retype_as<float>() * cos).retype_as<core::Length>(),
+  return core::TRVec{(vec.Z.cast<float>() * sin + vec.X.cast<float>() * cos).cast<core::Length>(),
                      vec.Y,
-                     (vec.Z.retype_as<float>() * cos - vec.X.retype_as<float>() * sin).retype_as<core::Length>()};
+                     (vec.Z.cast<float>() * cos - vec.X.cast<float>() * sin).cast<core::Length>()};
 }
 } // namespace util

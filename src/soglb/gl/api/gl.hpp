@@ -7339,7 +7339,7 @@ extern void getTransformFeedbackVarying(uint32_t program,
                                         core::SizeType bufSize,
                                         core::SizeType* length,
                                         core::SizeType* size,
-                                        GlslTypeToken* type,
+                                        AttributeType* type,
                                         char* name);
 extern void getUniform(uint32_t program, int32_t location, uint32_t* params);
 extern void getVertexAttribI(uint32_t index, VertexAttribEnum pname, int32_t* params);
@@ -7396,7 +7396,7 @@ extern void vertexAttribI4(uint32_t index, uint32_t x, uint32_t y, uint32_t z, u
 extern void vertexAttribI4(uint32_t index, const uint32_t* v);
 extern void vertexAttribI4(uint32_t index, const uint16_t* v);
 extern void vertexAttribIPointer(
-  uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void* pointer);
+  uint32_t index, int32_t size, VertexAttribIType type, core::SizeType stride, const void* pointer);
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                \
   || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) \
@@ -7736,7 +7736,7 @@ extern void vertexAttribL3(uint32_t index, const double* v);
 extern void vertexAttribL4(uint32_t index, double x, double y, double z, double w);
 extern void vertexAttribL4(uint32_t index, const double* v);
 extern void vertexAttribLPointer(
-  uint32_t index, int32_t size, VertexAttribPointerType type, core::SizeType stride, const void* pointer);
+  uint32_t index, int32_t size, VertexAttribLType type, core::SizeType stride, const void* pointer);
 extern void viewportArrayv(uint32_t first, core::SizeType count, const float* v);
 extern void viewportIndexed(uint32_t index, float x, float y, float w, float h);
 extern void viewportIndexed(uint32_t index, const float* v);
@@ -8068,9 +8068,9 @@ extern void getCompressedTextureSubImage(uint32_t texture,
                                          core::SizeType bufSize,
                                          void* pixels);
 extern GraphicsResetStatus getGraphicsResetStatus();
-extern void getNamedBufferParameter(uint32_t buffer, VertexBufferObjectParameter pname, int64_t* params);
-extern void getNamedBufferParameter(uint32_t buffer, VertexBufferObjectParameter pname, int32_t* params);
-extern void getNamedBufferPointerv(uint32_t buffer, VertexBufferObjectParameter pname, void** params);
+extern void getNamedBufferParameter(uint32_t buffer, BufferPNameARB pname, int64_t* params);
+extern void getNamedBufferParameter(uint32_t buffer, BufferPNameARB pname, int32_t* params);
+extern void getNamedBufferPointerv(uint32_t buffer, BufferPointerNameARB pname, void** params);
 extern void getNamedBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t size, void* data);
 extern void getNamedFramebufferAttachmentParameter(uint32_t framebuffer,
                                                    FramebufferAttachment attachment,

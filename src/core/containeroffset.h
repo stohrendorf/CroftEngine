@@ -41,16 +41,7 @@ struct ContainerOffset
   }
 
   template<typename T>
-  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> from(std::vector<T>& v) const
-  {
-    if(offset % sizeof(T) != 0)
-      BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
-
-    return v[offset / sizeof(T)];
-  }
-
-  template<typename T>
-  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> checkedFrom(std::vector<T>& v) const
+  [[nodiscard]] constexpr auto from(std::vector<T>& v) const -> std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
   {
     if(offset % sizeof(T) != 0)
       BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
@@ -59,18 +50,8 @@ struct ContainerOffset
   }
 
   template<typename T>
-  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
-    from(const std::vector<T>& v) const
-  {
-    if(offset % sizeof(T) != 0)
-      BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
-
-    return v[offset / sizeof(T)];
-  }
-
-  template<typename T>
-  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
-    checkedFrom(const std::vector<T>& v) const
+  [[nodiscard]] constexpr auto from(const std::vector<T>& v) const
+    -> std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
   {
     if(offset % sizeof(T) != 0)
       BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
@@ -101,28 +82,14 @@ struct ContainerIndex
   explicit ContainerIndex(T) = delete;
 
   template<typename T>
-  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> from(std::vector<T>& v) const
-  {
-    return v[index];
-  }
-
-  template<typename T>
-  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&> checkedFrom(std::vector<T>& v) const
-  {
-    return v[index];
-  }
-
-  template<typename T>
-  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
-
-    from(const std::vector<T>& v) const
+  [[nodiscard]] constexpr auto from(std::vector<T>& v) const -> std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
   {
     return v.at(index);
   }
 
   template<typename T>
-  [[nodiscard]] constexpr std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
-    checkedFrom(const std::vector<T>& v) const
+  [[nodiscard]] constexpr auto from(const std::vector<T>& v) const
+    -> std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
   {
     return v.at(index);
   }

@@ -20,7 +20,6 @@ public:
   static constexpr api::ProgramInterface Type = _Type;
 
   explicit ProgramInterface(const Program& program, uint32_t index);
-
   virtual ~ProgramInterface() = default;
 
   [[nodiscard]] const std::string& getName() const noexcept
@@ -67,7 +66,7 @@ using ProgramInput = LocatableProgramInterface<api::ProgramInterface::ProgramInp
 using ProgramOutput = LocatableProgramInterface<api::ProgramInterface::ProgramOutput>;
 
 template<api::ProgramInterface _Type, api::BufferTargetARB _Target>
-class ProgramBlock : public ProgramInterface<_Type>
+class ProgramBlock final : public ProgramInterface<_Type>
 {
 public:
   static_assert(_Type == api::ProgramInterface::UniformBlock || _Type == api::ProgramInterface::ShaderStorageBlock);
@@ -98,7 +97,7 @@ using ShaderStorageBlock
   = ProgramBlock<api::ProgramInterface::ShaderStorageBlock, api::BufferTargetARB::ShaderStorageBuffer>;
 using UniformBlock = ProgramBlock<api::ProgramInterface::UniformBlock, api::BufferTargetARB::UniformBuffer>;
 
-class Uniform : public LocatableProgramInterface<api::ProgramInterface::Uniform>
+class Uniform final : public LocatableProgramInterface<api::ProgramInterface::Uniform>
 {
 public:
   explicit Uniform(const Program& program, uint32_t index, int32_t& samplerIndex);
@@ -193,7 +192,7 @@ public:
     GL_ASSERT(api::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
   }
 
-  static api::TextureUnit textureUnit(size_t n)
+  static api::TextureUnit textureUnit(const size_t n)
   {
     Expects(n < 32);
     return static_cast<api::TextureUnit>(static_cast<api::core::EnumType>(api::TextureUnit::Texture0) + n);
@@ -274,16 +273,16 @@ private:
   const uint32_t m_program;
 };
 
-class Program : public BindableResource
+class Program final : public BindableResource
 {
 public:
   explicit Program(const std::string& label = {})
-      : BindableResource{[](const api::core::SizeType n, uint32_t* handle) {
+      : BindableResource{[]([[maybe_unused]] const api::core::SizeType n, uint32_t* handle) {
                            BOOST_ASSERT(n == 1 && handle != nullptr);
                            *handle = api::createProgram();
                          },
                          api::useProgram,
-                         [](const api::core::SizeType n, const uint32_t* handle) {
+                         []([[maybe_unused]] const api::core::SizeType n, const uint32_t* handle) {
                            BOOST_ASSERT(n == 1 && handle != nullptr);
                            api::deleteProgram(*handle);
                          },
@@ -384,7 +383,7 @@ private:
 };
 
 template<api::ProgramInterface _Type>
-inline ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t index)
+ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t index)
     : m_index{index}
 {
   const auto nameLength = getProperty(program, index, api::ProgramResourceProperty::NameLength);
@@ -396,8 +395,9 @@ inline ProgramInterface<_Type>::ProgramInterface(const Program& program, const u
 }
 
 template<api::ProgramInterface _Type>
-inline int32_t
-  ProgramInterface<_Type>::getProperty(const Program& program, const uint32_t index, api::ProgramResourceProperty what)
+int32_t ProgramInterface<_Type>::getProperty(const Program& program,
+                                             const uint32_t index,
+                                             const api::ProgramResourceProperty what)
 {
   constexpr int32_t NumProperties = 1;
   const api::ProgramResourceProperty properties[NumProperties] = {what};
@@ -414,10 +414,10 @@ inline int32_t
 }
 
 template<api::ProgramInterface _Type>
-inline std::vector<int32_t> ProgramInterface<_Type>::getProperty(const Program& program,
-                                                                 const uint32_t index,
-                                                                 api::ProgramResourceProperty what,
-                                                                 api::core::SizeType count)
+std::vector<int32_t> ProgramInterface<_Type>::getProperty(const Program& program,
+                                                          const uint32_t index,
+                                                          const api::ProgramResourceProperty what,
+                                                          const api::core::SizeType count)
 {
   constexpr int32_t NumProperties = 1;
   const api::ProgramResourceProperty properties[NumProperties] = {what};

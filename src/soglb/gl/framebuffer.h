@@ -24,8 +24,8 @@ private:
 public:
   explicit TextureAttachment(gsl::not_null<std::shared_ptr<Texture>> texture,
                              const int32_t level = 0,
-                             api::BlendingFactor src = api::BlendingFactor::SrcAlpha,
-                             api::BlendingFactor dst = api::BlendingFactor::OneMinusSrcAlpha)
+                             const api::BlendingFactor src = api::BlendingFactor::SrcAlpha,
+                             const api::BlendingFactor dst = api::BlendingFactor::OneMinusSrcAlpha)
       : m_texture{std::move(texture)}
       , m_level{level}
       , m_srcBlend{src}
@@ -35,13 +35,13 @@ public:
 
   ~TextureAttachment() = default;
 
-  void bind(uint32_t buffer) const
+  void bind(const uint32_t buffer) const
   {
     GL_ASSERT(api::blendFunc(buffer, m_srcBlend, m_dstBlend));
   }
 };
 
-class Framebuffer : public BindableResource
+class Framebuffer final : public BindableResource
 {
 public:
   using Attachment = std::pair<gsl::not_null<std::shared_ptr<TextureAttachment>>, api::FramebufferAttachment>;
@@ -131,7 +131,7 @@ public:
 
   void bindWithAttachments() const
   {
-    BindableResource::bind();
+    bind();
 
     for(size_t i = 0; i < m_attachments.size(); ++i)
       m_attachments[i].first->bind(gsl::narrow_cast<uint32_t>(i));
@@ -144,17 +144,17 @@ public:
 
   void invalidate()
   {
-    std::vector<gl::api::FramebufferAttachment> attachments;
+    std::vector<api::FramebufferAttachment> attachments;
     attachments.reserve(m_attachments.size());
     std::transform(m_attachments.begin(), m_attachments.end(), std::back_inserter(attachments), [](const auto& src) {
       return src.second;
     });
-    gl::api::invalidateNamedFramebufferData(
-      getHandle(), gsl::narrow<gl::api::core::SizeType>(attachments.size()), attachments.data());
+    invalidateNamedFramebufferData(
+      getHandle(), gsl::narrow<api::core::SizeType>(attachments.size()), attachments.data());
   }
 };
 
-inline void TextureAttachment::attach(const Framebuffer& framebuffer, api::FramebufferAttachment attachment) const
+inline void TextureAttachment::attach(const Framebuffer& framebuffer, const api::FramebufferAttachment attachment) const
 {
   GL_ASSERT(api::namedFramebufferTexture(framebuffer.getHandle(), attachment, m_texture->getHandle(), m_level));
 }

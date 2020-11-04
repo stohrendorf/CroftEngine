@@ -22,7 +22,7 @@ public:
 
     handleDiveRotationInput();
 
-    if(getEngine().getInputHandler().getInputState().jump)
+    if(getEngine().getPresenter().getInputHandler().getInputState().jump)
     {
       setGoalAnimState(LaraStateId::UnderwaterForward);
     }

@@ -1,7 +1,10 @@
 #include "particle.h"
 
+#include "engine/audioengine.h"
 #include "engine/objects/laraobject.h"
+#include "engine/presenter.h"
 #include "loader/file/rendermeshdata.h"
+#include "render/scene/materialmanager.h"
 #include "render/scene/sprite.h"
 
 #include <utility>
@@ -16,7 +19,7 @@ void Particle::initRenderables(Engine& engine, const float scale)
     {
       loader::file::RenderMeshDataCompositor compositor;
       compositor.append(*bone.mesh);
-      m_renderables.emplace_back(compositor.toMesh(*engine.getMaterialManager(), false, {}));
+      m_renderables.emplace_back(compositor.toMesh(*engine.getPresenter().getMaterialManager(), false, {}));
     }
   }
   else if(const auto& spriteSequence = engine.findSpriteSequenceForType(object_number))
@@ -31,7 +34,7 @@ void Particle::initRenderables(Engine& engine, const float scale)
                                                   float(-spr.y1) * scale,
                                                   spr.t0,
                                                   spr.t1,
-                                                  engine.getMaterialManager()->getSprite(),
+                                                  engine.getPresenter().getMaterialManager()->getSprite(),
                                                   spr.texture_id.get_as<int32_t>());
       m_renderables.emplace_back(std::move(mesh));
     }
@@ -64,7 +67,7 @@ Particle::Particle(const std::string& id,
                    const std::shared_ptr<render::scene::Renderable>& renderable,
                    float scale)
     : Node{id}
-    , Emitter{&engine.getSoundEngine()}
+    , Emitter{&engine.getPresenter().getSoundEngine()}
     , pos{room}
     , object_number{objectNumber}
 {
@@ -87,7 +90,7 @@ Particle::Particle(const std::string& id,
                    const std::shared_ptr<render::scene::Renderable>& renderable,
                    float scale)
     : Node{id}
-    , Emitter{&engine.getSoundEngine()}
+    , Emitter{&engine.getPresenter().getSoundEngine()}
     , pos{std::move(pos)}
     , object_number{objectNumber}
 {
@@ -178,7 +181,7 @@ bool FlameParticle::update(Engine& engine)
 
   if(timePerSpriteFrame >= 0)
   {
-    engine.getAudioEngine().playSound(TR1SoundId::Burning, this);
+    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Burning, this);
     if(timePerSpriteFrame != 0)
     {
       --timePerSpriteFrame;
@@ -231,14 +234,14 @@ bool FlameParticle::update(Engine& engine)
     if(const auto waterHeight = loader::file::Room::getWaterSurfaceHeight(pos);
        !waterHeight.has_value() || waterHeight.value() >= pos.position.Y)
     {
-      engine.getAudioEngine().playSound(TR1SoundId::Burning, this);
+      engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Burning, this);
       engine.getObjectManager().getLara().m_state.health -= 3_hp;
       engine.getObjectManager().getLara().m_state.is_hit = true;
     }
     else
     {
       timePerSpriteFrame = 0;
-      engine.getAudioEngine().stopSound(TR1SoundId::Burning, this);
+      engine.getPresenter().getAudioEngine().stopSound(TR1SoundId::Burning, this);
       return false;
     }
   }
@@ -296,7 +299,7 @@ bool MeshShrapnelParticle::update(Engine& engine)
   const auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
   setParent(particle, pos.room->node);
   engine.getObjectManager().registerParticle(particle);
-  engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+  engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
   return false;
 }
 
@@ -322,7 +325,7 @@ bool MutantBulletParticle::update(Engine& engine)
     particle->timePerSpriteFrame = 6;
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
-    engine.getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
+    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
     return false;
   }
   else if(engine.getObjectManager().getLara().isNear(*this, 200_len))
@@ -331,7 +334,7 @@ bool MutantBulletParticle::update(Engine& engine)
     auto particle = std::make_shared<BloodSplatterParticle>(pos, speed, angle.Y, engine);
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
-    engine.getAudioEngine().playSound(TR1SoundId::BulletHitsLara, particle.get());
+    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::BulletHitsLara, particle.get());
     engine.getObjectManager().getLara().m_state.is_hit = true;
     angle.Y = engine.getObjectManager().getLara().m_state.rotation.Y;
     speed = engine.getObjectManager().getLara().m_state.speed;
@@ -355,7 +358,7 @@ bool MutantGrenadeParticle::update(Engine& engine)
     auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
-    engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
 
     const auto dd = pos.position - engine.getObjectManager().getLara().m_state.position.position;
     const auto d = util::square(dd.X) + util::square(dd.Y) + util::square(dd.Z);
@@ -374,7 +377,7 @@ bool MutantGrenadeParticle::update(Engine& engine)
     auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
-    engine.getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
 
     if(engine.getObjectManager().getLara().m_state.health > 0_hp)
     {

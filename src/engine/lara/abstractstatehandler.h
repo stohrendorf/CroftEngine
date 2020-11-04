@@ -148,7 +148,7 @@ protected:
 
   void setUnderwaterState(objects::UnderwaterState u) noexcept;
 
-  void setCameraRotationAroundLara(const core::Angle x, const core::Angle y);
+  void setCameraRotationAroundLara(core::Angle x, core::Angle y);
 
   void setCameraRotationAroundLaraX(core::Angle x);
 

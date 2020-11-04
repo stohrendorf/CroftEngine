@@ -18,16 +18,29 @@ constexpr int FontBaseScale = 0x10000;
 
 class CachedFont
 {
-  std::vector<gl::CImgWrapper> m_images;
-  const int m_scaleX;
-  const int m_scaleY;
+  struct Glyph
+  {
+    explicit Glyph(gl::CImgWrapper&& image, int shiftX, int shiftY)
+        : image{std::move(image)}
+        , shiftX{shiftX}
+        , shiftY{shiftY}
+    {
+    }
 
-  static gl::CImgWrapper extractChar(const loader::file::Sprite& sprite, const int scaleX, const int scaleY)
+    gl::CImgWrapper image;
+    const int shiftX;
+    const int shiftY;
+  };
+
+  mutable std::vector<Glyph> m_glyphs;
+  const int m_scale;
+
+  static gl::CImgWrapper extractChar(const loader::file::Sprite& sprite, const int scale)
   {
     BOOST_ASSERT(sprite.image != nullptr);
 
-    const auto dstW = std::lround((sprite.t1.x - sprite.t0.x) * 256 * scaleX / FontBaseScale);
-    const auto dstH = std::lround((sprite.t1.y - sprite.t0.y) * 256 * scaleY / FontBaseScale);
+    const auto dstW = std::lround((sprite.t1.x - sprite.t0.x) * 256 * scale / FontBaseScale);
+    const auto dstH = std::lround((sprite.t1.y - sprite.t0.y) * 256 * scale / FontBaseScale);
 
     gl::CImgWrapper src{reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
                         sprite.image->getWidth(),
@@ -43,44 +56,38 @@ class CachedFont
   }
 
 public:
-  explicit CachedFont(const loader::file::SpriteSequence& sequence,
-                      const int scaleX = FontBaseScale,
-                      const int scaleY = FontBaseScale)
-      : m_scaleX{scaleX}
-      , m_scaleY{scaleY}
+  explicit CachedFont(const loader::file::SpriteSequence& sequence, const int scale = FontBaseScale)
+      : m_scale{scale}
   {
     for(const auto& spr : sequence.sprites)
     {
-      m_images.emplace_back(extractChar(spr, scaleX, scaleY));
+      m_glyphs.emplace_back(extractChar(spr, scale), spr.x0, spr.y0);
     }
   }
 
-  [[nodiscard]] const gl::CImgWrapper& get(size_t n) const
+  [[nodiscard]] const Glyph& get(size_t n) const
   {
-    return m_images.at(n);
+    return m_glyphs.at(n);
   }
 
-  void draw(size_t n, const int x, const int y, gl::Image<gl::SRGBA8>& img)
+  void draw(size_t n, int x, int y, gl::Image<gl::SRGBA8>& img) const
   {
-    auto& src = m_images.at(n);
+    auto& src = m_glyphs.at(n);
+    x += src.shiftX;
+    y += src.shiftY;
 
-    for(int dy = 0; dy < src.height(); ++dy)
+    for(int dy = 0; dy < src.image.height(); ++dy)
     {
-      for(int dx = 0; dx < src.width(); ++dx)
+      for(int dx = 0; dx < src.image.width(); ++dx)
       {
-        img.set(x + dx, y + dy, src(dx, dy), true);
+        img.set(x + dx, y + dy, src.image(dx, dy), true);
       }
     }
   }
 
-  [[nodiscard]] int getScaleX() const noexcept
+  [[nodiscard]] int getScale() const noexcept
   {
-    return m_scaleX;
-  }
-
-  [[nodiscard]] int getScaleY() const noexcept
-  {
-    return m_scaleY;
+    return m_scale;
   }
 };
 
@@ -111,8 +118,7 @@ struct Label
   int16_t bgndSizeY = 0;
   int16_t bgndOffX = 0;
   int16_t bgndOffY = 0;
-  int scaleX = FontBaseScale;
-  int scaleY = FontBaseScale;
+  int scale = FontBaseScale;
   std::string text;
 
   explicit Label(int16_t xpos, int16_t ypos, const std::string& string)
@@ -122,7 +128,7 @@ struct Label
   {
   }
 
-  void draw(CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::file::Palette& palette) const;
+  void draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::file::Palette& palette) const;
 
   int calcWidth() const;
 

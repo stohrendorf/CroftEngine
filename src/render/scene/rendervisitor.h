@@ -21,7 +21,7 @@ public:
   {
     if(!node.isVisible())
       return;
-    if(getContext().getViewProjection().has_value() && node.canBeCulled(getContext().getViewProjection().value()))
+    if(const auto& vp = getContext().getViewProjection(); vp.has_value() && node.canBeCulled(vp.value()))
     {
       gl::DebugGroup debugGroup{node.getName() + " <culled>"};
       return;

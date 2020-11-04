@@ -5,7 +5,7 @@
 namespace gl
 {
 template<typename _T>
-class TextureDepth : public TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>
+class TextureDepth final : public TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>
 {
 public:
   using typename TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>::Pixel;

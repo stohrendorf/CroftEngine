@@ -67,7 +67,7 @@ struct Lighting
         // assuming fade_power = 1, multiply numerator and denominator with fade_distance (identity transform):
         // fade_distance / ( fade_distance + d )
         lights.emplace_back(
-          Light{light.position.toRenderSystem(), light.getBrightness(), light.fadeDistance.get_as<float>()});
+          Light{light.position.toRenderSystem(), light.getBrightness(), light.fadeDistance.get<float>()});
       }
     }
 

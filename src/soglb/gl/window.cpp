@@ -10,13 +10,13 @@ namespace gl
 {
 namespace
 {
-void glErrorCallback(const int err, gsl::czstring msg)
+void glErrorCallback(const int err, const gsl::czstring msg)
 {
   BOOST_LOG_TRIVIAL(error) << "glfw Error " << err << ": " << msg;
 }
 } // namespace
 
-Window::Window(bool fullscreen, const glm::ivec2& resolution)
+Window::Window(const bool fullscreen, const glm::ivec2& resolution)
 {
   glfwSetErrorCallback(&glErrorCallback);
 
@@ -52,7 +52,7 @@ Window::Window(bool fullscreen, const glm::ivec2& resolution)
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
   }
 
-  gl::CImgWrapper imgWrapper{std::filesystem::path{"logo.png"}};
+  CImgWrapper imgWrapper{std::filesystem::path{"logo.png"}};
   imgWrapper.interleave();
   GLFWimage img;
   img.width = imgWrapper.width();
@@ -62,7 +62,7 @@ Window::Window(bool fullscreen, const glm::ivec2& resolution)
 
   glfwMakeContextCurrent(m_window);
 
-  ::gl::initializeGl();
+  initializeGl();
 
   updateWindowSize();
 

@@ -22,7 +22,7 @@ public:
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().roll)
+    if(getEngine().getPresenter().getInputHandler().getInputState().roll)
     {
       setAnimation(AnimationId::ROLL_BEGIN);
       setGoalAnimState(LaraStateId::Stop);
@@ -31,19 +31,20 @@ public:
 
     setGoalAnimState(LaraStateId::Stop);
 
-    if(getEngine().getInputHandler().getInputState().freeLook)
+    if(getEngine().getPresenter().getInputHandler().getInputState().freeLook)
     {
       getEngine().getCameraController().setMode(CameraMode::FreeLook);
-      getLara().addHeadRotationXY((-hid::FreeLookMouseMovementScale.retype_as<float>()
-                                   * (getEngine().getInputHandler().getInputState().mouseMovement.y / 2000))
-                                    .retype_as<core::Angle>(),
-                                  -42_deg,
-                                  22_deg,
-                                  (hid::FreeLookMouseMovementScale.retype_as<float>()
-                                   * (getEngine().getInputHandler().getInputState().mouseMovement.x / 2000))
-                                    .retype_as<core::Angle>(),
-                                  -44_deg,
-                                  44_deg);
+      getLara().addHeadRotationXY(
+        (-hid::FreeLookMouseMovementScale.cast<float>()
+         * (getEngine().getPresenter().getInputHandler().getInputState().mouseMovement.y / 2000))
+          .cast<core::Angle>(),
+        -42_deg,
+        22_deg,
+        (hid::FreeLookMouseMovementScale.cast<float>()
+         * (getEngine().getPresenter().getInputHandler().getInputState().mouseMovement.x / 2000))
+          .cast<core::Angle>(),
+        -44_deg,
+        44_deg);
       getLara().setTorsoRotation(getLara().getHeadRotation());
 
       return;
@@ -54,31 +55,31 @@ public:
       getEngine().getCameraController().setMode(CameraMode::Chase);
     }
 
-    if(getEngine().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Left)
+    if(getEngine().getPresenter().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Left)
     {
       setGoalAnimState(LaraStateId::StepLeft);
     }
-    else if(getEngine().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Right)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Right)
     {
       setGoalAnimState(LaraStateId::StepRight);
     }
 
-    if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       setGoalAnimState(LaraStateId::TurnLeftSlow);
     }
-    else if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       setGoalAnimState(LaraStateId::TurnRightSlow);
     }
 
-    if(getEngine().getInputHandler().getInputState().jump)
+    if(getEngine().getPresenter().getInputHandler().getInputState().jump)
     {
       setGoalAnimState(LaraStateId::JumpPrepare);
     }
-    else if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      if(getEngine().getInputHandler().getInputState().moveSlow)
+      if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
       {
         create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
       }
@@ -87,9 +88,9 @@ public:
         create(LaraStateId::RunForward, getLara())->handleInput(collisionInfo);
       }
     }
-    else if(getEngine().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
     {
-      if(getEngine().getInputHandler().getInputState().moveSlow)
+      if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
       {
         create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
       }

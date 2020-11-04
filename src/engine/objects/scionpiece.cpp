@@ -1,6 +1,8 @@
 #include "scionpiece.h"
 
+#include "engine/audioengine.h"
 #include "engine/particle.h"
+#include "engine/presenter.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
 
@@ -21,7 +23,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
 
   if(getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp)
   {
-    if(getEngine().getInputHandler().getInputState().action
+    if(getEngine().getPresenter().getInputHandler().getInputState().action
        && getEngine().getObjectManager().getLara().getHandStatus() == HandStatus::None
        && !getEngine().getObjectManager().getLara().m_state.falling
        && getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
@@ -81,7 +83,7 @@ void ScionPiece3::update()
       core::RoomBoundPosition{m_state.position.room, pos}, getEngine(), 0_spd, core::TRRotation{0_deg, 0_deg, 0_deg});
     setParent(particle, m_state.position.room->node);
     getEngine().getObjectManager().registerParticle(particle);
-    getEngine().getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+    getEngine().getPresenter().getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
 
     getEngine().getCameraController().setBounce(-200_len);
   }
@@ -101,7 +103,7 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
                                         {-10_deg, 0_deg, 0_deg},
                                         {+10_deg, 0_deg, 0_deg}};
 
-  if(!getEngine().getInputHandler().getInputState().action
+  if(!getEngine().getPresenter().getInputHandler().getInputState().action
      || getEngine().getObjectManager().getLara().getHandStatus() != HandStatus::None
      || getEngine().getObjectManager().getLara().m_state.falling
      || getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::Stop

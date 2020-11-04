@@ -6,6 +6,7 @@
 #include "loader/file/audio.h"
 #include "sounds_tr1.h"
 
+#include <boost/container/flat_map.hpp>
 #include <map>
 #include <utility>
 
@@ -20,9 +21,8 @@ class AudioEngine
   Engine& m_engine;
   const std::filesystem::path m_rootPath;
 
-  std::vector<loader::file::SoundDetails> m_soundDetails;
-  std::vector<int16_t> m_soundmap;
-  std::vector<uint32_t> m_sampleIndices;
+  const std::vector<loader::file::SoundDetails> m_soundDetails;
+  boost::container::flat_map<int, const loader::file::SoundDetails*> m_soundmap{};
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
   int m_cdTrack50time = 0;
   std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
@@ -36,26 +36,30 @@ public:
   explicit AudioEngine(Engine& engine,
                        std::filesystem::path rootPath,
                        std::vector<loader::file::SoundDetails> soundDetails,
-                       std::vector<int16_t> soundmap,
-                       std::vector<uint32_t> sampleIndices)
+                       const std::vector<int16_t>& soundmap)
       : m_engine{engine}
       , m_rootPath{std::move(rootPath)}
       , m_soundDetails{std::move(soundDetails)}
-      , m_soundmap{std::move(soundmap)}
-      , m_sampleIndices{std::move(sampleIndices)}
   {
+    for(size_t i = 0; i < soundmap.size(); ++i)
+    {
+      if(soundmap[i] < 0)
+        continue;
+
+      m_soundmap[gsl::narrow<int>(i)] = &m_soundDetails.at(soundmap[i]);
+    }
   }
 
   explicit AudioEngine(Engine& engine, const std::filesystem::path& rootPath)
-      : AudioEngine{engine, rootPath, {}, {}, {}}
+      : AudioEngine{engine, rootPath, {}, {}}
   {
   }
 
-  std::shared_ptr<audio::SourceHandle> playSound(core::SoundId id, audio::Emitter* emitter);
+  std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId& id, audio::Emitter* emitter);
 
   std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId id, const glm::vec3& pos)
   {
-    const auto handle = playSound(id, nullptr);
+    auto handle = playSound(id, nullptr);
     if(handle == nullptr)
       return nullptr;
 

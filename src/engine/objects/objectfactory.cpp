@@ -17,6 +17,7 @@
 #include "doppelganger.h"
 #include "earthquake.h"
 #include "engine/items_tr1.h"
+#include "engine/presenter.h"
 #include "flameemitter.h"
 #include "gorilla.h"
 #include "keyhole.h"
@@ -33,6 +34,7 @@
 #include "puzzlehole.h"
 #include "raptor.h"
 #include "rat.h"
+#include "render/scene/materialmanager.h"
 #include "scionpiece.h"
 #include "slammingdoors.h"
 #include "slopedbridge.h"
@@ -310,7 +312,7 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
     BOOST_ASSERT(!engine.findAnimatedModelForType(item.type));
     BOOST_ASSERT(!spriteSequence->sprites.empty());
 
-    const loader::file::Sprite& sprite = spriteSequence->sprites.at(0);
+    const loader::file::Sprite& sprite = spriteSequence->sprites[0];
     std::shared_ptr<Object> object;
 
     if(item.type == TR1ItemId::ScionPiece1)
@@ -320,7 +322,7 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
                                             room,
                                             item,
                                             sprite,
-                                            engine.getMaterialManager()->getSprite());
+                                            engine.getPresenter().getMaterialManager()->getSprite());
     }
     else if(item.type == TR1ItemId::Item141 || item.type == TR1ItemId::Item142 || item.type == TR1ItemId::Key1Sprite
             || item.type == TR1ItemId::Key2Sprite || item.type == TR1ItemId::Key3Sprite
@@ -340,7 +342,7 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
                                          room,
                                          item,
                                          &sprite,
-                                         engine.getMaterialManager()->getSprite());
+                                         engine.getPresenter().getMaterialManager()->getSprite());
     }
     else
     {
@@ -352,7 +354,7 @@ std::shared_ptr<Object> createObject(Engine& engine, loader::file::Item& item)
                                          item,
                                          true,
                                          &sprite,
-                                         engine.getMaterialManager()->getSprite());
+                                         engine.getPresenter().getMaterialManager()->getSprite());
     }
 
     return object;
@@ -374,12 +376,12 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
     object = std::make_shared<TYPE>(&ser.engine, position); \
     object->serialize(ser);                                 \
     return object
-#define CREATE_SPRITE(ENUM, TYPE)                                                                  \
-  case TR1ItemId::ENUM:                                                                            \
-    ser(S_NV("@name", spriteName));                                                                \
-    object = std::make_shared<TYPE>(                                                               \
-      &ser.engine, position, std::move(spriteName), ser.engine.getMaterialManager()->getSprite()); \
-    object->serialize(ser);                                                                        \
+#define CREATE_SPRITE(ENUM, TYPE)                                                                                 \
+  case TR1ItemId::ENUM:                                                                                           \
+    ser(S_NV("@name", spriteName));                                                                               \
+    object = std::make_shared<TYPE>(                                                                              \
+      &ser.engine, position, std::move(spriteName), ser.engine.getPresenter().getMaterialManager()->getSprite()); \
+    object->serialize(ser);                                                                                       \
     return object
 #define CREATE_PU(ENUM) CREATE_SPRITE(ENUM, PickupObject)
 #define CREATE_ID(NAME) CREATE(NAME, NAME)

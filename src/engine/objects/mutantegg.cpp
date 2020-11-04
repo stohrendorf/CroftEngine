@@ -1,6 +1,7 @@
 #include "mutantegg.h"
 
 #include "engine/particle.h"
+#include "engine/presenter.h"
 #include "laraobject.h"
 #include "mutant.h"
 #include "serialization/objectreference.h"
@@ -38,7 +39,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
       core::RoomBoundPosition{object.m_state.position.room,
                               core::TRVec{object.getSkeleton()->getChild(i)->getTranslationWorld()}},
       object.getEngine(),
-      compositor.toMesh(*object.getEngine().getMaterialManager(), false, {}),
+      compositor.toMesh(*object.getEngine().getPresenter().getMaterialManager(), false, {}),
       isTorsoBoss,
       damageRadius);
     particle->negSpriteFrameId = gsl::narrow<int16_t>(modelType->mesh_base_index + i);

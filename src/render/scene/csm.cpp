@@ -63,8 +63,6 @@ void CSM::Split::renderSquare()
   state.setBlend(false);
   state.apply(true);
   RenderContext context{RenderMode::Full, std::nullopt};
-  Node dummyNode{""};
-  context.setCurrentNode(&dummyNode);
 
   squareMesh->render(context);
   depthFramebuffer->invalidate();
@@ -110,7 +108,7 @@ std::array<float, CSMBuffer::NSplits> CSM::getSplitEnds() const
   return result;
 }
 
-void CSM::update(const Camera& camera)
+void CSM::updateCamera(const Camera& camera)
 {
   //Start off by calculating the split distances
   const float nearClip = camera.getNearPlane();

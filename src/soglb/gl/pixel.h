@@ -2,8 +2,6 @@
 
 #include "typetraits.h"
 
-#include <array>
-
 namespace gl
 {
 template<typename T, size_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
@@ -64,10 +62,10 @@ struct Pixel
 };
 
 template<typename T, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
-inline Pixel<T, 4, _PixelFormat, _InternalFormat> mixAlpha(const Pixel<T, 4, _PixelFormat, _InternalFormat>& lhs,
-                                                           const Pixel<T, 4, _PixelFormat, _InternalFormat>& rhs)
+Pixel<T, 4, _PixelFormat, _InternalFormat> mixAlpha(const Pixel<T, 4, _PixelFormat, _InternalFormat>& lhs,
+                                                    const Pixel<T, 4, _PixelFormat, _InternalFormat>& rhs)
 {
-  const float bias = float(rhs.channels[3]) / std::numeric_limits<T>::max();
+  const float bias = static_cast<float>(rhs.channels[3]) / std::numeric_limits<T>::max();
   return {static_cast<T>(lhs.channels[0] * (1 - bias) + rhs.channels[0] * bias),
           static_cast<T>(lhs.channels[1] * (1 - bias) + rhs.channels[1] * bias),
           static_cast<T>(lhs.channels[2] * (1 - bias) + rhs.channels[2] * bias),
@@ -75,10 +73,9 @@ inline Pixel<T, 4, _PixelFormat, _InternalFormat> mixAlpha(const Pixel<T, 4, _Pi
 }
 
 template<typename T, size_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
-inline Pixel<T, _Channels, _PixelFormat, _InternalFormat>
-  mix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
-      const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& rhs,
-      float bias)
+Pixel<T, _Channels, _PixelFormat, _InternalFormat> mix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
+                                                       const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& rhs,
+                                                       float bias)
 {
   auto tmp = lhs;
   for(size_t i = 0; i < _Channels; ++i)

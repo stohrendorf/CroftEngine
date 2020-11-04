@@ -1,5 +1,7 @@
 #include "label.h"
 
+#include "util.h"
+
 #include <gl/cimgwrapper.h>
 
 namespace ui
@@ -17,37 +19,6 @@ const std::array<const uint8_t, 98> charToSprite{
   61, 73, 73, 66, 74, 75, 65, 0,  0,  1,  2,  3,  4,  5,  6,  7,  8,   9,   10,  11, 12, 13, 14, 15, 16,
   17, 18, 19, 20, 21, 22, 23, 24, 25, 80, 76, 81, 97, 98, 77, 26, 27,  28,  29,  30, 31, 32, 33, 34, 35,
   36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 100, 101, 102, 67, 0,  0,  0};
-
-void drawLine(gl::Image<gl::SRGBA8>& img,
-              const int x0,
-              const int y0,
-              const int width,
-              const int height,
-              const loader::file::ByteColor& color)
-{
-  img.line(x0, y0, x0 + width, y0 + height, color.toTextureColor());
-}
-
-void drawOutline(gl::Image<gl::SRGBA8>& img,
-                 const int x,
-                 const int y,
-                 const int width,
-                 const int height,
-                 const loader::file::Palette& palette)
-{
-  // top
-  drawLine(img, x, y - 1, width + 1, 0, palette.colors[15]);
-  drawLine(img, x, y, width, 0, palette.colors[31]);
-  //right
-  drawLine(img, x + width, y - 1, 0, height + 1, palette.colors[15]);
-  drawLine(img, x + width + 1, y - 1, 0, height + 2, palette.colors[31]);
-  // bottom
-  drawLine(img, x + width, y + height, -width, 0, palette.colors[15]);
-  drawLine(img, x + width, y + height + 1, -width - 1, 0, palette.colors[31]);
-  // left
-  drawLine(img, x - 1, y + height, 0, -height - 1, palette.colors[15]);
-  drawLine(img, x, y + height, 0, -height, palette.colors[31]);
-}
 } // namespace
 
 int Label::calcWidth() const
@@ -63,7 +34,7 @@ int Label::calcWidth() const
 
     if(chr == ' ')
     {
-      width += (wordSpacing * scaleX) / 0x10000;
+      width += (wordSpacing * scale) / FontBaseScale;
       continue;
     }
 
@@ -74,17 +45,16 @@ int Label::calcWidth() const
     else
       chr = charToSprite[chr - ' '];
 
-    width += (charWidths[chr] + letterSpacing) * scaleX / 0x10000;
+    width += (charWidths[chr] + letterSpacing) * scale / FontBaseScale;
   }
 
   width -= letterSpacing;
   return width;
 }
 
-void Label::draw(CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::file::Palette& palette) const
+void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::file::Palette& palette) const
 {
-  Expects(font.getScaleX() == scaleX);
-  Expects(font.getScaleY() == scaleY);
+  Expects(font.getScale() == scale);
 
   if(blink)
   {
@@ -122,7 +92,7 @@ void Label::draw(CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::fil
   }
 
   auto bgndX = bgndOffX + x - 2;
-  const auto bgndY = bgndOffY + y + 1;
+  const auto bgndY = bgndOffY + y - 15;
 
   int bgndWidth = 0;
   int bgndHeight = 0;
@@ -162,7 +132,7 @@ void Label::draw(CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::fil
 
     if(chr == ' ')
     {
-      x += (wordSpacing * scaleX) / 0x10000;
+      x += (wordSpacing * scale) / FontBaseScale;
       continue;
     }
 
@@ -178,12 +148,12 @@ void Label::draw(CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::fil
     if(origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~')
       continue;
 
-    x += (charWidths[chr] + letterSpacing) * scaleX / 0x10000;
+    x += (charWidths[chr] + letterSpacing) * scale / FontBaseScale;
   }
 
   if(outline)
   {
-    drawOutline(img, bgndX, bgndY, bgndWidth, bgndHeight, palette);
+    drawOutlineBox(img, bgndX, bgndY, bgndWidth, bgndHeight, palette);
   }
 }
 } // namespace ui

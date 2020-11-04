@@ -37,21 +37,18 @@ CImgWrapper::CImgWrapper(const uint8_t* data, int width, int height, bool shared
 
 CImgWrapper::CImgWrapper(const int size)
     : m_image{std::make_unique<cimg_library::CImg<uint8_t>>(size, size, 1, 4)}
-    , m_interleaved{false}
 {
   m_image->fill(0);
 }
 
 CImgWrapper::CImgWrapper(const int w, const int h)
     : m_image{std::make_unique<cimg_library::CImg<uint8_t>>(w, h, 1, 4)}
-    , m_interleaved{false}
 {
   m_image->fill(0);
 }
 
 CImgWrapper::CImgWrapper()
     : m_image{nullptr}
-    , m_interleaved{false}
 {
 }
 
@@ -110,7 +107,7 @@ void CImgWrapper::resizeHalfMipmap()
   resizePow2Mipmap(1);
 }
 
-void CImgWrapper::resizePow2Mipmap(uint8_t n)
+void CImgWrapper::resizePow2Mipmap(const uint8_t n)
 {
   unshare();
   const int d = 1 << n;
@@ -185,7 +182,7 @@ void CImgWrapper::unshare()
     m_image = std::make_unique<cimg_library::CImg<uint8_t>>(*m_image, false);
 }
 
-void CImgWrapper::replace(int x, int y, const CImgWrapper& other)
+void CImgWrapper::replace(const int x, const int y, const CImgWrapper& other)
 {
   if(other.m_interleaved)
     interleave();

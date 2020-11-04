@@ -1,6 +1,7 @@
 #include "dartgun.h"
 
 #include "engine/engine.h"
+#include "engine/sounds_tr1.h"
 
 void engine::objects::DartGun::update()
 {

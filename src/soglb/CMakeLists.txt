@@ -1,4 +1,3 @@
-find_package( Python3 REQUIRED COMPONENTS Interpreter )
 find_package( Freetype REQUIRED )
 find_package( Boost COMPONENTS system log REQUIRED )
 find_package( GLEW REQUIRED )
@@ -7,7 +6,7 @@ target_compile_definitions( glfw INTERFACE -DGLFW_INCLUDE_NONE )
 
 add_custom_target( soglb-gen
         COMMENT "Generating structured OpenGL bindings"
-        COMMAND Python3::Interpreter soglb_gen.py
+        COMMAND ${Python3_EXECUTABLE} soglb_gen.py
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gl
         BYPRODUCTS
         api/gl.hpp

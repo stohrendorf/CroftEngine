@@ -1,5 +1,6 @@
 #include "puzzlehole.h"
 
+#include "engine/presenter.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
 
@@ -22,7 +23,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
 
   if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
-    if(!getEngine().getInputHandler().getInputState().action
+    if(!getEngine().getPresenter().getInputHandler().getInputState().action
        || getEngine().getObjectManager().getLara().getHandStatus() != HandStatus::None
        || getEngine().getObjectManager().getLara().m_state.falling
        || !limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
@@ -83,13 +84,13 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     setParent(m_skeleton, nullptr);
 
     m_skeleton = std::make_shared<SkeletalModelNode>(toString(completeId), &getEngine(), model.get());
-    m_skeleton->setAnimation(m_state, model->animations, model->animations->firstFrame);
+    m_skeleton->setAnimation(m_state.current_anim_state, model->animations, model->animations->firstFrame);
     loader::file::RenderMeshDataCompositor compositor;
     for(auto& bone : model->bones)
     {
       compositor.append(*bone.mesh);
     }
-    m_skeleton->setRenderable(compositor.toMesh(*getEngine().getMaterialManager(), false, {}));
+    m_skeleton->setRenderable(compositor.toMesh(*getEngine().getPresenter().getMaterialManager(), false, {}));
 
     setParent(m_skeleton, parent);
 

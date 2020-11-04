@@ -55,6 +55,6 @@ void UniformBlockParameter::bindTransformBuffer()
 
 void UniformBlockParameter::bindCameraBuffer(const gsl::not_null<std::shared_ptr<Camera>>& camera)
 {
-  m_bufferBinder = [camera](const Node& node, gl::UniformBlock& ub) { ub.bind(camera->getMatricesBuffer()); };
+  m_bufferBinder = [camera](const Node& /*node*/, gl::UniformBlock& ub) { ub.bind(camera->getMatricesBuffer()); };
 }
 } // namespace render::scene

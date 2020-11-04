@@ -1,5 +1,6 @@
 #include "pickupobject.h"
 
+#include "engine/presenter.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
 
@@ -42,7 +43,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         return;
       }
     }
-    else if(getEngine().getInputHandler().getInputState().action
+    else if(getEngine().getPresenter().getInputHandler().getInputState().action
             && getEngine().getObjectManager().getLara().getCurrentAnimState()
                  == loader::file::LaraStateId::UnderwaterStop
             && getEngine().getObjectManager().getLara().alignTransform(aimSpeed, *this))
@@ -91,7 +92,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
     }
     else
     {
-      if(getEngine().getInputHandler().getInputState().action
+      if(getEngine().getPresenter().getInputHandler().getInputState().action
          && getEngine().getObjectManager().getLara().getHandStatus() == HandStatus::None
          && !getEngine().getObjectManager().getLara().m_state.falling
          && getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)

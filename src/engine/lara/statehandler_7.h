@@ -28,7 +28,7 @@ public:
     }
     else if(getYRotationSpeed() < -4_deg)
     {
-      if(getEngine().getInputHandler().getInputState().moveSlow)
+      if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
       {
         setYRotationSpeed(-4_deg);
       }
@@ -38,16 +38,16 @@ public:
       }
     }
 
-    if(getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
+    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
     {
-      if(getEngine().getInputHandler().getInputState().xMovement != hid::AxisMovement::Left)
+      if(getEngine().getPresenter().getInputHandler().getInputState().xMovement != hid::AxisMovement::Left)
       {
         setGoalAnimState(LaraStateId::Stop);
       }
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().moveSlow)
+    if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
     {
       setGoalAnimState(LaraStateId::WalkForward);
     }

@@ -22,6 +22,6 @@ inline const loader::file::Sprite*
     return nullptr;
 
   ser.tag("sprite");
-  return &ser.engine.findSpriteSequenceForType(core::TypeId{idx.value()})->sprites.at(0);
+  return &ser.engine.findSpriteSequenceForType(core::TypeId{idx.value()})->sprites[0];
 }
 } // namespace serialization

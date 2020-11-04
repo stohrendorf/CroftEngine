@@ -16,7 +16,7 @@ endif()
 
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
     message( STATUS "GCC or Clang detected" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fvisibility=hidden" )
     if( MINGW )
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj" )
     endif()
@@ -59,16 +59,7 @@ add_library( OpenGL INTERFACE )
 target_include_directories( OpenGL SYSTEM BEFORE INTERFACE ${OPENGL_INCLUDE_DIR} )
 target_link_libraries( OpenGL INTERFACE ${OPENGL_LIBRARIES} )
 
-find_path( LUA_INCLUDE_DIR lua.hpp PATH_SUFFIXES lua5.3 )
-find_library( LUA_LIBRARIES NAMES lua5.3 lua NAMES_PER_DIR PATH_SUFFIXES lib )
-
-if( NOT LUA_LIBRARIES OR NOT LUA_INCLUDE_DIR )
-    message( FATAL_ERROR "Lua not found; libs=${LUA_LIBRARIES}; includes=${LUA_INCLUDE_DIR}" )
-endif()
-
-add_library( Lua INTERFACE )
-target_link_libraries( Lua INTERFACE ${LUA_LIBRARIES} )
-target_include_directories( Lua SYSTEM BEFORE INTERFACE ${LUA_INCLUDE_DIR} )
+cmake_policy( SET CMP0094 NEW )
 
 if( VCPKG_TOOLCHAIN )
     find_package( glm CONFIG REQUIRED )
@@ -81,6 +72,11 @@ else()
 endif()
 target_compile_definitions( glm INTERFACE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_RADIANS )
 
+if( MSVC )
+    # https://github.com/boostorg/system/issues/32
+    add_definitions( -DHAVE_SNPRINTF )
+endif()
+
 find_package( Boost COMPONENTS system log locale REQUIRED )
 target_compile_definitions( Boost::boost INTERFACE -DBOOST_LOG_DYN_LINK=0 -DBOOST_ALL_NO_LIB )
 target_include_directories( Boost::boost SYSTEM BEFORE INTERFACE ${Boost_INCLUDE_DIR} )
@@ -88,10 +84,8 @@ target_link_libraries( Boost::boost INTERFACE ${Boost_LIBRARIES} )
 
 find_package( ZLIB REQUIRED )
 
-find_package( PNG REQUIRED )
-
 if( VCPKG_TOOLCHAIN )
-    find_package( LibSndFile REQUIRED )
+    find_package( SndFile REQUIRED )
 else()
     find_path( LIBSNDFILE_INCLUDE_DIRS sndfile.h )
     find_library( LIBSNDFILE_LIBRARIES sndfile )
@@ -100,9 +94,9 @@ else()
         message( FATAL_ERROR "Could not find libsndfile" )
     endif()
 
-    add_library( sndfile-shared INTERFACE IMPORTED )
-    target_include_directories( sndfile-shared SYSTEM BEFORE INTERFACE "${LIBSNDFILE_INCLUDE_DIRS}" )
-    target_link_libraries( sndfile-shared INTERFACE "${LIBSNDFILE_LIBRARIES}" )
+    add_library( SndFile::sndfile INTERFACE IMPORTED )
+    target_include_directories( SndFile::sndfile SYSTEM BEFORE INTERFACE "${LIBSNDFILE_INCLUDE_DIRS}" )
+    target_link_libraries( SndFile::sndfile INTERFACE "${LIBSNDFILE_LIBRARIES}" )
 endif()
 
 find_package( FFmpeg REQUIRED )
@@ -115,23 +109,24 @@ include( cmake/dl_unpack.cmake )
 if( VCPKG_TOOLCHAIN )
     find_package( CImg REQUIRED )
 else()
-    dl_unpack( https://framagit.org/dtschump/CImg/-/archive/v.2.8.0/CImg-v.2.8.0.tar.bz2 CImg-v.2.8.0.zip CImg-v.2.8.0 )
+    dl_unpack( https://framagit.org/dtschump/CImg/-/archive/v.2.8.0/CImg-v.2.8.0.tar.bz2 CImg-v.2.8.0.tar.bz2 CImg-v.2.8.0 )
 
     add_library( CImg::CImg INTERFACE IMPORTED )
     target_include_directories( CImg::CImg SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/CImg-v.2.8.0" )
 endif()
 target_compile_definitions( CImg::CImg INTERFACE -Dcimg_display=0 -Dcimg_use_png )
 
-if( VCPKG_TOOLCHAIN )
-    find_package( sol2 CONFIG REQUIRED )
-else()
-    download( https://github.com/ThePhD/sol2/releases/download/v3.0.3/sol.hpp "sol-v3.0.3/sol/sol.hpp" )
+find_package( PNG REQUIRED )
+target_link_libraries( CImg::CImg INTERFACE PNG::PNG )
 
-    add_library( sol2::sol2 INTERFACE IMPORTED )
-    target_include_directories( sol2::sol2 SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/sol-v3.0.3/" )
-endif()
+find_package( Python3 COMPONENTS Development REQUIRED )
 
-download( https://raw.githubusercontent.com/martinmoene/gsl-lite/6ca6419af54366b708d354a25839353573fb6309/include/gsl/gsl-lite.hpp gsl-lite/gsl-lite.hpp )
+dl_unpack( https://github.com/pybind/pybind11/archive/v2.6.0.tar.gz v2.6.0.tar.gz pybind11-2.6.0 )
+set( PYBIND11_FINDPYTHON FALSE )
+set( PYBIND11_NOPYTHON TRUE )
+add_subdirectory( 3rdparty/pybind11-2.6.0 )
+
+download( https://raw.githubusercontent.com/martinmoene/gsl-lite/4b796627ad0fa42640f5fdb96f23c4a0d9ee084f/include/gsl/gsl-lite.hpp gsl-lite/gsl-lite.hpp )
 
 add_library( gsl-lite INTERFACE IMPORTED )
 target_include_directories( gsl-lite SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/gsl-lite" )
@@ -148,6 +143,7 @@ add_definitions( -DNOMINMAX -DNOGDI )
 
 find_package( yaml-cpp REQUIRED )
 find_package( Qt5 COMPONENTS Widgets CONFIG REQUIRED )
+add_definitions( -DQT_NO_KEYWORDS )
 
 add_subdirectory( 3rdparty/type_safe )
 add_subdirectory( src )

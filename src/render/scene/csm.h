@@ -71,7 +71,7 @@ public:
     m_activeSplit = idx;
   }
 
-  void update(const Camera& camera);
+  void updateCamera(const Camera& camera);
 
   auto& getBuffer(const glm::mat4& modelMatrix)
   {

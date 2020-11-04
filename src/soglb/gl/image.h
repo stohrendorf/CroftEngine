@@ -16,7 +16,7 @@ struct FastFill
 {
   static_assert(sizeof(T) == N, "Type size mismatch");
 
-  static inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+  static void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
   {
     std::fill_n(data.get(), n, value);
   }
@@ -27,7 +27,7 @@ struct FastFill<T, 1>
 {
   static_assert(sizeof(T) == 1, "Type size mismatch");
 
-  static inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+  static void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
   {
     std::memset(data.get(), value, n);
   }
@@ -38,7 +38,7 @@ struct FastFill<T, 2>
 {
   static_assert(sizeof(T) == 2, "Type size mismatch");
 
-  static inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+  static void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
   {
     std::wmemset(data.get(), value, n);
   }
@@ -49,18 +49,18 @@ struct FastFill<SRGBA8, 4>
 {
   static_assert(sizeof(SRGBA8) == 4, "Type size mismatch");
 
-  static inline void fill(const gsl::not_null<SRGBA8*>& data, const size_t n, const SRGBA8& value)
+  static void fill(const gsl::not_null<SRGBA8*>& data, const size_t n, const SRGBA8& value)
   {
     const auto scalar = value.channels[0];
     if(scalar == value.channels[1] && scalar == value.channels[2] && scalar == value.channels[3])
-      std::memset(glm::value_ptr(data->channels), scalar, n * 4u);
+      std::memset(value_ptr(data->channels), scalar, n * 4u);
     else
       std::fill_n(data.get(), n, value);
   }
 };
 
 template<typename T>
-inline void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
+void fill(const gsl::not_null<T*>& data, size_t n, const T& value)
 {
   FastFill<T, sizeof(T)>::fill(data, n, value);
 }
@@ -109,7 +109,7 @@ public:
 
   ~Image() = default;
 
-  const std::vector<StorageType>& getData() const
+  [[nodiscard]] const std::vector<StorageType>& getData() const
   {
     return m_data;
   }
@@ -184,7 +184,7 @@ public:
     }
   }
 
-  const StorageType& at(const int32_t x, const int32_t y) const
+  [[nodiscard]] const StorageType& at(const int32_t x, const int32_t y) const
   {
     if(x < 0 || x >= m_size.x || y < 0 || y >= m_size.y)
     {

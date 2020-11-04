@@ -1,6 +1,8 @@
 #include "earthquake.h"
 
+#include "engine/audioengine.h"
 #include "engine/engine.h"
+#include "engine/presenter.h"
 
 namespace engine::objects
 {
@@ -12,12 +14,12 @@ void Earthquake::update()
   if(util::rand15() < 256)
   {
     getEngine().getCameraController().setBounce(-150_len);
-    getEngine().getAudioEngine().playSound(TR1SoundId::RollingBall, nullptr);
+    getEngine().getPresenter().getAudioEngine().playSound(TR1SoundId::RollingBall, nullptr);
   }
   else if(util::rand15() < 1024)
   {
     getEngine().getCameraController().setBounce(50_len);
-    getEngine().getAudioEngine().playSound(TR1SoundId::TRexFootstep, nullptr);
+    getEngine().getPresenter().getAudioEngine().playSound(TR1SoundId::TRexFootstep, nullptr);
   }
 }
 } // namespace engine::objects

@@ -207,9 +207,11 @@ set( EDISONENGINE_SRCS
         engine/objectmanager.cpp
         engine/particle.h
         engine/particle.cpp
+        engine/presenter.h
+        engine/presenter.cpp
+        engine/py_module.cpp
         engine/skeletalmodelnode.h
         engine/skeletalmodelnode.cpp
-
         engine/script/reflection.h
 
         hid/inputstate.h
@@ -436,6 +438,8 @@ set( EDISONENGINE_SRCS
 
         ui/label.h
         ui/label.cpp
+        ui/util.h
+        ui/util.cpp
 
         video/player.h
         video/player.cpp
@@ -446,6 +450,7 @@ set( EDISONENGINE_SRCS
         core/containeroffset.h
         core/id.h
         core/magic.h
+        core/py_module.cpp
         core/tpl_helper.h
         core/units.h
         core/vec.h
@@ -480,6 +485,10 @@ set( EDISONENGINE_SRCS
         serialization/unordered_map.h
         serialization/unordered_set.h
         serialization/vector.h
+
+        menu/menudisplay.cpp
+        menu/menuring.cpp
+        menu/menuobject.cpp
         )
 
 if( MSVC )
@@ -497,12 +506,6 @@ qt5_wrap_cpp( EDISONENGINE_UI_SRCS
         ui/debug/larainfowidget.h
         ui/debug/laraaiminfo.h
         )
-
-add_definitions(
-        -DSOL_USE_BOOST
-        -DSOL_SAFE_USERTYPE
-        -DSOL_SAFE_FUNCTION
-)
 
 add_executable( edisonengine
         ${EDISONENGINE_SRCS}
@@ -522,11 +525,9 @@ target_link_libraries(
         Boost::boost
         ZLIB::ZLIB
         OpenAL::OpenAL
-        sndfile-shared
-        Lua
+        SndFile::sndfile
         yaml-cpp
         PNG::PNG
-        sol2::sol2
         type_safe
         OpenGL
         glm
@@ -534,6 +535,9 @@ target_link_libraries(
         gsl-lite
         soglb
         Qt5::Widgets
+        pybind11::pybind11
+        pybind11::embed
+        Python3::Python
 )
 
 if( LINUX OR UNIX )

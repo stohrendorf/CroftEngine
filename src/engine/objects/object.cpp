@@ -1,6 +1,8 @@
 #include "object.h"
 
+#include "engine/audioengine.h"
 #include "engine/particle.h"
+#include "engine/presenter.h"
 #include "engine/script/reflection.h"
 #include "laraobject.h"
 #include "render/scene/sprite.h"
@@ -16,7 +18,7 @@ void Object::applyTransform()
 
 Object::Object(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
     : m_engine{engine}
-    , m_state{&engine->getSoundEngine(), position}
+    , m_state{&engine->getPresenter().getSoundEngine(), position}
     , m_hasUpdateFunction{false}
 {
 }
@@ -32,7 +34,7 @@ Object::Object(const gsl::not_null<Engine*>& engine,
 
   BOOST_ASSERT(room->isInnerPositionXZ(item.position));
 
-  m_state.loadObjectInfo(engine->getScriptEngine());
+  m_state.loadObjectInfo();
 
   m_state.rotation.Y = item.rotation;
   m_state.shade = item.shade;
@@ -87,7 +89,7 @@ void Object::deactivate()
 
 std::shared_ptr<audio::SourceHandle> Object::playSoundEffect(const core::SoundId id)
 {
-  return getEngine().getAudioEngine().playSound(id, &m_state);
+  return getEngine().getPresenter().getAudioEngine().playSound(id, &m_state);
 }
 
 bool Object::triggerKey()
@@ -146,7 +148,7 @@ void Object::playShotMissed(const core::RoomBoundPosition& pos)
   const auto particle = std::make_shared<RicochetParticle>(pos, getEngine());
   setParent(particle, m_state.position.room->node);
   getEngine().getObjectManager().registerParticle(particle);
-  getEngine().getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
+  getEngine().getPresenter().getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
 }
 
 std::optional<core::Length> Object::getWaterSurfaceHeight() const
@@ -170,7 +172,7 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
   const auto dist = d.length();
   if(maxDistance < dist)
   {
-    move(maxDistance.retype_as<float>().get() * normalize(d.toRenderSystem()));
+    move(maxDistance.cast<float>().get() * normalize(d.toRenderSystem()));
   }
   else
   {

@@ -23,39 +23,39 @@ public:
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().roll)
+    if(getEngine().getPresenter().getInputHandler().getInputState().roll)
     {
       setAnimation(AnimationId::ROLL_BEGIN, 3857_frame);
       setGoalAnimState(LaraStateId::Stop);
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(2.25_deg, -8_deg);
       const core::Angle z = std::max(-11_deg, getLara().m_state.rotation.Z - 1.5_deg);
       getLara().m_state.rotation.Z = z;
     }
-    else if(getEngine().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(2.25_deg, 8_deg);
       const core::Angle z = std::min(+11_deg, getLara().m_state.rotation.Z + 1.5_deg);
       getLara().m_state.rotation.Z = z;
     }
 
-    if(getEngine().getInputHandler().getInputState().jump && !getLara().m_state.falling)
+    if(getEngine().getPresenter().getInputHandler().getInputState().jump && !getLara().m_state.falling)
     {
       setGoalAnimState(LaraStateId::JumpForward);
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
+    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
     {
       setGoalAnimState(LaraStateId::Stop);
       return;
     }
 
-    if(getEngine().getInputHandler().getInputState().moveSlow)
+    if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
     {
       setGoalAnimState(LaraStateId::WalkForward);
     }

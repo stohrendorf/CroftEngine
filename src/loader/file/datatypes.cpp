@@ -5,6 +5,7 @@
 #include "io/util.h"
 #include "level/level.h"
 #include "render/scene/material.h"
+#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "render/scene/sprite.h"

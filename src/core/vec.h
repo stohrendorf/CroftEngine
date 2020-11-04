@@ -5,7 +5,6 @@
 
 #include <glm/glm.hpp>
 #include <gsl-lite.hpp>
-#include <sol/sol.hpp>
 #include <utility>
 
 namespace loader::file
@@ -15,7 +14,7 @@ struct Room;
 
 namespace core
 {
-struct TRVec
+struct TRVec final
 {
   Length X = 0_len, Y = 0_len, Z = 0_len;
 
@@ -102,18 +101,6 @@ struct TRVec
     const auto dy = gsl::narrow<float>((Y - rhs.Y).get());
     const auto dz = gsl::narrow<float>((Z - rhs.Z).get());
     return Length{static_cast<Length::type>(glm::sqrt(dx * dx + dy * dy + dz * dz))};
-  }
-
-  static void registerUserType(sol::state& lua)
-  {
-    lua.new_usertype<TRVec>("Vec",
-                            sol::constructors<TRVec(), TRVec(Length, Length, Length)>(),
-                            "x",
-                            &TRVec::X,
-                            "y",
-                            &TRVec::Y,
-                            "z",
-                            &TRVec::Z);
   }
 
   void serialize(const serialization::Serializer& ser);

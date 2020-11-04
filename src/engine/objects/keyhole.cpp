@@ -1,5 +1,6 @@
 #include "keyhole.h"
 
+#include "engine/presenter.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
 
@@ -14,7 +15,7 @@ void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
   if(getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::Stop)
     return;
 
-  if(!getEngine().getInputHandler().getInputState().action
+  if(!getEngine().getPresenter().getInputHandler().getInputState().action
      || getEngine().getObjectManager().getLara().getHandStatus() != HandStatus::None
      || getEngine().getObjectManager().getLara().m_state.falling
      || !limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
