@@ -10,12 +10,13 @@ template<size_t N>
 void save(std::bitset<N>& data, const Serializer& ser)
 {
   ser.tag("bitset");
-  ser.node = YAML::Node{YAML::NodeType::Sequence};
-  ser.node.SetStyle(YAML::EmitterStyle::Flow);
+  std::string tmp;
+  tmp.reserve(N);
   for(size_t i = 0; i < N; ++i)
   {
-    ser.node.push_back(data.test(i));
+    tmp += data.test(i) ? '1' : '0';
   }
+  ser.node << tmp;
 }
 
 template<size_t N>
@@ -23,11 +24,13 @@ void load(std::bitset<N>& data, const Serializer& ser)
 {
   ser.tag("bitset");
   data.reset();
-  Expects(ser.node.IsSequence());
-  Expects(ser.node.size() == N);
+  std::string tmp;
+  ser.node >> tmp;
+  Expects(tmp.length() == N);
   for(size_t i = 0; i < N; ++i)
   {
-    if(ser.node[i].as<bool>())
+    Expects(tmp[i] == '0' || tmp[i] == '1');
+    if(tmp[i] == '1')
       data.set(i);
   }
 }

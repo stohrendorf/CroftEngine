@@ -11,11 +11,13 @@ void serialize(qs::quantity<U, T>& data, const Serializer& ser)
   ser.tag(U::suffix());
   if(ser.loading)
   {
-    data = qs::quantity<U, T>{ser.node.as<T>()};
+    T tmp{};
+    ser.node >> tmp;
+    data = qs::quantity<U, T>{tmp};
   }
   else
   {
-    ser.node = data.get();
+    ser.node << data.get();
   }
 }
 } // namespace serialization

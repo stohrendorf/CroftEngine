@@ -15,14 +15,14 @@ inline void save(std::optional<T>& optional, const Serializer& ser)
   }
   else
   {
-    ser.node = YAML::Node{YAML::NodeType::Null};
+    ser.setNull();
   }
 }
 
 template<typename T>
 inline void load(std::optional<T>& optional, const Serializer& ser)
 {
-  if(ser.node.IsNull())
+  if(ser.isNull())
   {
     optional.reset();
   }
@@ -38,7 +38,7 @@ inline void load(std::optional<T>& optional, const Serializer& ser)
 template<typename T>
 inline std::optional<T> create(const TypeId<std::optional<T>>&, const Serializer& ser)
 {
-  if(ser.node.IsNull())
+  if(ser.isNull())
   {
     return std::nullopt;
   }

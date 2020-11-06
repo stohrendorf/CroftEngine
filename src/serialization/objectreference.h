@@ -18,11 +18,11 @@ struct ObjectReference final
   {
   }
 
-  void save(const Serializer& ser)
+  void save(const Serializer& ser) const
   {
     if(ptr == nullptr)
     {
-      ser.node = YAML::Node{YAML::NodeType::Null};
+      ser.setNull();
     }
     else
     {
@@ -40,7 +40,7 @@ struct ObjectReference final
 
   void load(const Serializer& ser)
   {
-    if(ser.node.IsNull())
+    if(ser.isNull())
     {
       ptr = nullptr;
     }

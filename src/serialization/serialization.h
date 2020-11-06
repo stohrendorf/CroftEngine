@@ -2,24 +2,42 @@
 
 #include "serialization_fwd.h"
 
+#include <ryml/ryml_std.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
 #include <fstream>
 #include <gsl-lite.hpp>
 #include <queue>
+#include <ryml/ryml.hpp>
 #include <string>
 #include <type_traits>
 #include <typeinfo>
-#include <yaml-cpp/yaml.h>
 
 namespace engine
 {
 class Engine;
 }
 
+template<>
+struct std::iterator_traits<c4::yml::NodeRef::iterator>
+{
+  using iterator_category = std::forward_iterator_tag;
+};
+
 namespace serialization
 {
+namespace util
+{
+inline std::string toString(const c4::csubstr& s)
+{
+  if(!s.has_str())
+    return {};
+
+  return {s.data(), s.size()};
+}
+} // namespace util
+
 class Exception : public std::runtime_error
 {
 public:
@@ -107,50 +125,36 @@ struct access
 
 class Serializer final
 {
-  using NextWithContext = std::function<void()>;
-  using NextQueue = std::queue<NextWithContext>;
+  using LazyWithContext = std::function<void()>;
+  using LazyQueue = std::queue<LazyWithContext>;
 
-  explicit Serializer(const YAML::Node& node,
+  explicit Serializer(const ryml::NodeRef& node,
                       engine::Engine& engine,
                       bool loading,
-                      const std::shared_ptr<NextQueue>& nextQueue)
-      : m_nextQueue{nextQueue == nullptr ? std::make_shared<NextQueue>() : nextQueue}
-      , node{node}
-      , engine{engine}
-      , loading{loading}
-  {
-  }
+                      const std::shared_ptr<LazyQueue>& lazyQueue);
 
-  std::shared_ptr<NextQueue> m_nextQueue;
+  std::shared_ptr<LazyQueue> m_lazyQueue;
+  mutable std::string m_tag;
 
   void processQueues();
 
-  mutable std::string m_tag{};
-
-  void applyTag();
+  void ensureIsMap() const;
+  std::string getQualifiedKey() const;
+  Serializer createMapMemberSerializer(const gsl::not_null<gsl::czstring>& name) const;
 
 public:
-  mutable YAML::Node node;
+  mutable ryml::NodeRef node;
   engine::Engine& engine;
   const bool loading;
 
-  ~Serializer()
-  {
-    applyTag();
-  }
+  ~Serializer();
 
-  void lazy(const Next& next) const
-  {
-    if(loading)
-      m_nextQueue->emplace([next = next, ser = *this]() { next(ser); });
-    else
-      next(*this);
-  }
+  void lazy(const LazyCallback& lazyCallback) const;
 
   template<typename T>
   void lazy(T* instance, void (T::*member)(const Serializer&)) const
   {
-    lazy(Next{instance, member});
+    lazy(LazyCallback{instance, member});
   }
 
   template<typename T>
@@ -174,27 +178,19 @@ public:
   template<typename T>
   const Serializer& operator()(const gsl::not_null<gsl::czstring>& name, T&& data) const
   {
-    BOOST_LOG_TRIVIAL(trace) << "Serializing node " << name.get();
+    ensureIsMap();
+    BOOST_ASSERT(node.valid());
+    BOOST_ASSERT(!node.is_seed());
+    BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name.get();
 
-    if(loading)
-    {
-      if(!node[name.get()].IsDefined())
-        SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " not defined");
-    }
-    else
-    {
-      if(node[name.get()].IsDefined())
-        SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " already defined");
-    }
+    Serializer ser = createMapMemberSerializer(name);
 
     try
     {
-      auto ser = (*this)[name.get()];
       if(loading)
         access::callSerializeOrLoad(data, ser);
       else
         access::callSerializeOrSave(data, ser);
-      ser.applyTag();
     }
     catch(Exception&)
     {
@@ -217,24 +213,27 @@ public:
     return *this;
   }
 
-  Serializer operator[](const gsl::czstring name) const
+  Serializer operator[](gsl::czstring name) const;
+  Serializer operator[](const std::string& name) const;
+  Serializer withNode(const ryml::NodeRef& otherNode) const;
+  Serializer newChild() const;
+  void tag(const std::string& tag) const;
+
+  void setNull() const
   {
-    return withNode(node[name]);
+    if(loading)
+      SERIALIZER_EXCEPTION("Cannot set a node to null when loading");
+
+    node.set_val("~");
+    m_tag = "!!null";
   }
 
-  Serializer operator[](const std::string& name) const
+  bool isNull() const
   {
-    return withNode(node[name]);
-  }
+    if(!loading)
+      SERIALIZER_EXCEPTION("Cannot check a node for null when not loading");
 
-  Serializer withNode(const YAML::Node& otherNode) const
-  {
-    return Serializer{otherNode, engine, loading, m_nextQueue};
-  }
-
-  void tag(std::string tag) const
-  {
-    m_tag = std::move(tag);
+    return node.has_val_tag() && util::toString(node.val_tag()) == "!!null";
   }
 };
 
@@ -243,11 +242,11 @@ inline void access::serializeTrivial(T& data, const Serializer& ser)
 {
   if(ser.loading)
   {
-    data = std::move(ser.node.as<T>());
+    ser.node >> data;
   }
   else
   {
-    ser.node = data;
+    ser.node << data;
   }
 }
 
@@ -257,11 +256,13 @@ inline void access::serializeTrivial<int8_t>(int8_t& data, const Serializer& ser
 {
   if(ser.loading)
   {
-    data = gsl::narrow<int8_t>(ser.node.as<int16_t>());
+    int16_t tmp{};
+    ser.node >> tmp;
+    data = gsl::narrow<int8_t>(tmp);
   }
   else
   {
-    ser.node = static_cast<int16_t>(data);
+    ser.node << static_cast<int16_t>(data);
   }
 }
 
@@ -270,11 +271,13 @@ inline void access::serializeTrivial<uint8_t>(uint8_t& data, const Serializer& s
 {
   if(ser.loading)
   {
-    data = gsl::narrow<uint8_t>(ser.node.as<uint16_t>());
+    uint16_t tmp{};
+    ser.node >> tmp;
+    data = gsl::narrow<uint8_t>(tmp);
   }
   else
   {
-    ser.node = static_cast<uint16_t>(data);
+    ser.node << static_cast<uint16_t>(data);
   }
 }
 
@@ -326,6 +329,7 @@ std::enable_if_t<std::is_arithmetic_v<T>, void> serialize(T& data, const Seriali
 template<typename T>
 std::enable_if_t<std::is_enum_v<T>, void> serialize(T& data, const Serializer& ser)
 {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   access::serializeTrivial(*reinterpret_cast<std::underlying_type_t<T>*>(&data), ser);
 }
 

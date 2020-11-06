@@ -50,7 +50,8 @@ auto serialize(T* const& data, const Serializer& ser) -> decltype(T::ptrSave(dat
 }
 
 template<typename T>
-auto save(T*& data, const Serializer& ser) -> decltype(T::ptrSave(T::ptrLoad(T::ptrSave(data, ser), ser), ser), void())
+auto save(const T*& data, const Serializer& ser)
+  -> decltype(T::ptrSave(T::ptrLoad(T::ptrSave(data, ser), ser), ser), void())
 {
   access::callSerializeOrSave(const_cast<T* const&>(data), ser);
 }

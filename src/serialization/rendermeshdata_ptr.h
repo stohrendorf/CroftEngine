@@ -7,11 +7,11 @@
 namespace serialization
 {
 // cppcheck-suppress constParameter
-void save(std::shared_ptr<loader::file::RenderMeshData>& mesh, const Serializer& ser)
+void save(const std::shared_ptr<loader::file::RenderMeshData>& mesh, const Serializer& ser)
 {
   if(mesh == nullptr)
   {
-    ser.node = YAML::Node{YAML::NodeType::Null};
+    ser.setNull();
     return;
   }
 
@@ -21,7 +21,7 @@ void save(std::shared_ptr<loader::file::RenderMeshData>& mesh, const Serializer&
   {
     if(existing.meshData == mesh)
     {
-      ser.node = idx;
+      ser.node << idx;
       return;
     }
     ++idx;
@@ -31,14 +31,16 @@ void save(std::shared_ptr<loader::file::RenderMeshData>& mesh, const Serializer&
 
 void load(std::shared_ptr<loader::file::RenderMeshData>& data, const Serializer& ser)
 {
-  if(ser.node.IsNull())
+  if(ser.isNull())
   {
     data = nullptr;
     return;
   }
 
   ser.tag("mesh");
-  data = ser.engine.getRenderMesh(ser.node.as<uint32_t>());
+  uint32_t tmp{};
+  ser.node >> tmp;
+  data = ser.engine.getRenderMesh(tmp);
 }
 
 std::shared_ptr<loader::file::RenderMeshData> create(const TypeId<std::shared_ptr<loader::file::RenderMeshData>>&,

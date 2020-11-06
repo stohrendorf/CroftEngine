@@ -7,15 +7,14 @@
 namespace serialization
 {
 template<typename T>
-void save(std::deque<T>& data, const Serializer& ser)
+void save(const std::deque<T>& data, const Serializer& ser)
 {
   ser.tag("deque");
-  ser.node = YAML::Node(YAML::NodeType::Sequence);
+  ser.node |= ryml::SEQ;
   for(auto& element : data)
   {
-    const auto tmp = ser.withNode(YAML::Node{});
+    const auto tmp = ser.newChild();
     access::callSerializeOrSave(element, tmp);
-    ser.node.push_back(tmp.node);
   }
 }
 
@@ -24,7 +23,7 @@ void load(std::deque<T>& data, const Serializer& ser)
 {
   ser.tag("deque");
   data = std::deque<T>();
-  std::transform(ser.node.begin(), ser.node.end(), std::back_inserter(data), [&ser](const YAML::Node& element) {
+  std::transform(ser.node.begin(), ser.node.end(), std::back_inserter(data), [&ser](const ryml::NodeRef& element) {
     return T{access::callCreate(TypeId<T>{}, ser.withNode(element))};
   });
 }

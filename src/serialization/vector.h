@@ -10,12 +10,11 @@ template<typename T>
 void save(std::vector<T>& data, const Serializer& ser)
 {
   ser.tag("vector");
-  ser.node = YAML::Node(YAML::NodeType::Sequence);
+  ser.node |= ryml::SEQ;
   for(auto& element : data)
   {
-    const auto tmp = ser.withNode(YAML::Node{});
+    const auto tmp = ser.newChild();
     access::callSerializeOrSave(element, tmp);
-    ser.node.push_back(tmp.node);
   }
 }
 
@@ -23,10 +22,10 @@ template<typename T>
 void load(std::vector<T>& data, const Serializer& ser)
 {
   ser.tag("vector");
-  Expects(ser.node.IsSequence());
+  Expects(ser.node.is_seq());
   data = std::vector<T>();
-  data.reserve(ser.node.size());
-  std::transform(ser.node.begin(), ser.node.end(), std::back_inserter(data), [&ser](const YAML::Node& element) {
+  data.reserve(ser.node.num_children());
+  std::transform(ser.node.begin(), ser.node.end(), std::back_inserter(data), [&ser](const ryml::NodeRef& element) {
     return access::callCreate(TypeId<T>{}, ser.withNode(element));
   });
 }
@@ -42,22 +41,21 @@ struct FrozenVector
 
   void load(const Serializer& ser)
   {
-    Expects(ser.node.size() == vec.size());
+    Expects(ser.node.num_children() == vec.size());
     auto it = vec.begin();
-    for(const auto& element : ser.node)
+    for(const auto& element : ser.node.children())
     {
       access::callSerializeOrLoad(*it++, ser.withNode(element));
     }
   }
 
-  void save(const Serializer& ser)
+  void save(const Serializer& ser) const
   {
-    ser.node = YAML::Node{YAML::NodeType::Sequence};
+    ser.node |= ryml::SEQ;
     for(auto& element : vec)
     {
-      const auto tmp = ser.withNode(YAML::Node{});
+      const auto tmp = ser.newChild();
       access::callSerializeOrSave(element, tmp);
-      ser.node.push_back(tmp.node);
     }
   }
 };

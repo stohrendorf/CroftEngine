@@ -33,10 +33,13 @@ ContinuationIndentWidth: 2
 Cpp11BracedListStyle: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '<.+>'
-    Priority:        2
-  - Regex:           '.*'
-    Priority:        1
+  - Regex: '<.+/ryml_std\.hpp>'
+    Priority: 2
+    SortPriority: 1
+  - Regex: '<.+>'
+    Priority: 2
+  - Regex: '".+"'
+    Priority: 1
 IncludeIsMainRegex: ""
 IndentCaseLabels: false
 IndentPPDirectives: AfterHash

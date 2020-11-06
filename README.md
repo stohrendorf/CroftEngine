@@ -48,6 +48,8 @@ Translations by: Joey79100 (French), Nickotte (Italian), Lwmte (Russian), SuiKaz
 
 ## Building
 
+Do a `git submodule update --init --recursive`.
+
 EdisonEngine uses [vcpkg](https://github.com/Microsoft/vcpkg); refer to its documentation for basic usage,
 but the only thing you need is to call cmake with
 `-DCMAKE_TOOLCHAIN_FILE=C:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake` (adjust path as necessary).
@@ -63,13 +65,13 @@ set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
 * zlib
 * libsndfile
 * freetype
-* yaml-cpp
 * sol2
 * cimg
 * ffmpeg
 * glew
 * utfcpp
 * python3
+* ryml
 
 ...or use this, and adjust the triplet:
-> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl glm zlib libsndfile freetype yaml-cpp sol2 cimg ffmpeg glew utfcpp python3`
+> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl glm zlib libsndfile freetype sol2 cimg ffmpeg glew utfcpp python3 ryml`

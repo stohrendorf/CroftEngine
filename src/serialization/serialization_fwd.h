@@ -21,7 +21,7 @@ struct TypeId;
 class Serializer;
 struct access;
 
-using Next = std::function<void(const Serializer&)>;
+using LazyCallback = std::function<void(const Serializer&)>;
 
 #define S_NV(name, obj) name, obj
 #define S_NVP(obj) S_NV(#obj, obj)

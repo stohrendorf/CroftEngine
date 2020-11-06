@@ -203,7 +203,7 @@ void updateMood(const Engine& engine, const objects::ObjectState& objectState, c
 std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
                                      const serialization::Serializer& ser)
 {
-  if(ser.node.IsNull())
+  if(!ser.node.has_val())
     return nullptr;
 
   auto result = std::make_shared<CreatureInfo>(ser.engine, core::TypeId::create(ser["type"]));
@@ -221,7 +221,7 @@ void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Seriali
   {
     if(data == nullptr)
     {
-      ser.node = YAML::Node{};
+      ser.node |= ryml::MAP;
     }
     else
     {

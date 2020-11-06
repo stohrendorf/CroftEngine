@@ -9,21 +9,25 @@ namespace serialization
 inline void save(glm::mat4& m, const Serializer& ser)
 {
   ser.tag("mat4");
-  ser.node = YAML::Node{YAML::NodeType::Sequence};
-  ser.node.SetStyle(YAML::EmitterStyle::Flow);
+  ser.node |= ryml::SEQ;
   for(int x = 0; x < 4; ++x)
     for(int y = 0; y < 4; ++y)
-      ser.node.push_back(m[x][y]);
+      ser.node.append_child() << m[x][y];
 }
 
 inline void load(glm::mat4& m, const Serializer& ser)
 {
   ser.tag("mat4");
-  Expects(ser.node.IsSequence() && ser.node.size() == 4 * 4);
+  Expects(ser.node.is_seq() && ser.node.num_children() == 4 * 4);
   auto it = ser.node.begin();
   for(int x = 0; x < 4; ++x)
+  {
     for(int y = 0; y < 4; ++y)
-      m[x][y] = (it++)->as<float>();
+    {
+      *it >> m[x][y];
+      ++it;
+    }
+  }
 }
 
 inline glm::mat4 create(const TypeId<glm::mat4>&, const Serializer& ser)

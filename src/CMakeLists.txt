@@ -526,7 +526,7 @@ target_link_libraries(
         ZLIB::ZLIB
         OpenAL::OpenAL
         SndFile::sndfile
-        yaml-cpp
+        ryml::ryml
         PNG::PNG
         type_safe
         OpenGL

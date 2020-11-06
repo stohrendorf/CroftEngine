@@ -121,7 +121,7 @@ target_link_libraries( CImg::CImg INTERFACE PNG::PNG )
 
 find_package( Python3 COMPONENTS Development REQUIRED )
 
-dl_unpack( https://github.com/pybind/pybind11/archive/v2.6.0.tar.gz v2.6.0.tar.gz pybind11-2.6.0 )
+dl_unpack( https://github.com/pybind/pybind11/archive/v2.6.0.tar.gz pybind11-v2.6.0.tar.gz pybind11-2.6.0 )
 set( PYBIND11_FINDPYTHON FALSE )
 set( PYBIND11_NOPYTHON TRUE )
 add_subdirectory( 3rdparty/pybind11-2.6.0 )
@@ -141,7 +141,6 @@ target_compile_definitions(
 
 add_definitions( -DNOMINMAX -DNOGDI )
 
-find_package( yaml-cpp REQUIRED )
 find_package( Qt5 COMPONENTS Widgets CONFIG REQUIRED )
 add_definitions( -DQT_NO_KEYWORDS )
 
@@ -155,6 +154,8 @@ if( NOT UTF8CPP_INCLUDE_DIR )
 endif()
 add_library( utf8cpp::utf8cpp INTERFACE IMPORTED )
 target_include_directories( utf8cpp::utf8cpp INTERFACE "${UTF8CPP_INCLUDE_DIR}" )
+
+find_package( ryml CONFIG REQUIRED )
 
 add_subdirectory( 3rdparty/type_safe )
 add_subdirectory( src )
