@@ -16,23 +16,23 @@ struct MenuObject
   std::string name;
   engine::TR1ItemId type;
   core::Frame lastMeshAnimFrame;
-  core::Frame meshAnimFrame;
-  core::Frame goalFrame;
   core::Frame openFrame;
-  core::Frame animDirection;
-  core::Frame animStretch;
-  core::Frame animStretchCounter;
   core::Angle selectedBaseRotationX;
-  core::Angle baseRotationX;
   core::Angle selectedRotationX;
-  core::Angle rotationX;
   core::Angle selectedRotationY;
-  core::Angle rotationY;
   core::Length selectedPositionZ;
-  core::Length positionZ;
   std::bitset<32> defaultMeshRenderMask;
   std::bitset<32> meshRenderMask;
 
+  core::Frame meshAnimFrame{0_frame};
+  core::Frame goalFrame{0_frame};
+  core::Frame animDirection{1_frame};
+  core::Frame animStretch{1_frame};
+  core::Frame animStretchCounter{0_frame};
+  core::Angle baseRotationX{0_deg};
+  core::Angle rotationX{0_deg};
+  core::Angle rotationY{0_deg};
+  core::Length positionZ{0_len};
   mutable core::Angle compassNeedleRotation = 0_deg;
   mutable core::Angle compassNeedleRotationMomentum = 0_deg;
 
