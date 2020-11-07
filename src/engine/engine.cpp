@@ -627,10 +627,10 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     }
 
     if(const auto tbl = core::get<pybind11::dict>(
-         core::get<pybind11::dict>(levelInfo, "cheats").value_or(pybind11::dict{}), "inventory"))
+         core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "inventory"))
     {
       for(const auto& kv : *tbl)
-        initInv[EnumUtil<TR1ItemId>::fromString(kv.first.cast<std::string>())] += kv.second.cast<size_t>();
+        initInv[kv.first.cast<TR1ItemId>()] += kv.second.cast<size_t>();
     }
 
     m_presenter->drawLoadingScreen("Preparing to load " + baseName);
