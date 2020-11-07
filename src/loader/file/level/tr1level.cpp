@@ -138,11 +138,11 @@ void TR1Level::loadFileData()
   m_reader.readVector(m_demoData, m_reader.readU16());
 
   // Soundmap
-  BOOST_LOG_TRIVIAL(debug) << "Reading soundmap";
-  m_reader.readVector(m_soundmap, TR_AUDIO_MAP_SIZE_TR1);
+  BOOST_LOG_TRIVIAL(debug) << "Reading sound effects";
+  m_reader.readVector(m_soundEffects, TR_AUDIO_MAP_SIZE_TR1);
 
-  BOOST_LOG_TRIVIAL(debug) << "Reading sound details";
-  m_reader.readVector(m_soundDetails, m_reader.readU32(), &SoundDetails::readTr1);
+  BOOST_LOG_TRIVIAL(debug) << "Reading sound effect properties";
+  m_reader.readVector(m_soundEffectProperties, m_reader.readU32(), &SoundEffectProperties::readTr1);
 
   // LOAD SAMPLES
 

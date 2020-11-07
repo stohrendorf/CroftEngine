@@ -201,9 +201,9 @@ void TR5Level::loadFileData()
   m_reader.readVector(m_demoData, m_reader.readU16());
 
   // Soundmap
-  m_reader.readVector(m_soundmap, TR_AUDIO_MAP_SIZE_TR5);
+  m_reader.readVector(m_soundEffects, TR_AUDIO_MAP_SIZE_TR5);
 
-  m_reader.readVector(m_soundDetails, m_reader.readU32(), &SoundDetails::readTr3);
+  m_reader.readVector(m_soundEffectProperties, m_reader.readU32(), &SoundEffectProperties::readTr3);
 
   m_reader.readVector(m_sampleIndices, m_reader.readU32());
 

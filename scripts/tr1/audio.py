@@ -1,4 +1,4 @@
-from engine import TR1TrackId, TrackInfo, TrackType, TR1SoundId
+from engine import TR1TrackId, TrackInfo, TrackType, TR1SoundEffect
 
 tracks = {
     TR1TrackId.MainTheme: TrackInfo(2, TrackType.INTERCEPTION),  # Main theme
@@ -12,7 +12,7 @@ tracks = {
     TR1TrackId.Midas: TrackInfo(17, TrackType.INTERCEPTION),  # Midas
     TR1TrackId.Level: TrackInfo(18, TrackType.INTERCEPTION),  # Lever
     TR1TrackId.Hmm: TrackInfo(19, TrackType.INTERCEPTION),  # Hmm...
-    TR1TrackId.Secret: TrackInfo(int(TR1SoundId.SecretFound), TrackType.AMBIENT_EFFECT),  # Secret theme
+    TR1TrackId.Secret: TrackInfo(int(TR1SoundEffect.SecretFound), TrackType.AMBIENT_EFFECT),  # Secret theme
     TR1TrackId.BigSecret: TrackInfo(20, TrackType.INTERCEPTION),  # Big secret theme
     TR1TrackId.Raiders: TrackInfo(21, TrackType.INTERCEPTION),  # Raiders
     TR1TrackId.Wolf: TrackInfo(22, TrackType.INTERCEPTION),  # Wolf
@@ -30,7 +30,7 @@ tracks = {
     TR1TrackId.Ambience3: TrackInfo(5, TrackType.AMBIENT),  # PC ONLY: Wind  ambience
     TR1TrackId.Ambience4: TrackInfo(6, TrackType.AMBIENT),  # PC ONLY: Pulse ambience
     **{
-        TR1TrackId(i): TrackInfo(i + int(TR1SoundId.LaraTalk0), TrackType.LARA_TALK)
+        TR1TrackId(int(TR1TrackId.LaraTalk0) + i): TrackInfo(i + int(TR1SoundEffect.LaraTalk0), TrackType.LARA_TALK)
         for i in range(int(TR1TrackId.LaraTalk30) - int(TR1TrackId.LaraTalk0))
     },
 }

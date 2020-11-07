@@ -1,7 +1,7 @@
 #include "dartgun.h"
 
 #include "engine/engine.h"
-#include "engine/sounds_tr1.h"
+#include "engine/soundeffects_tr1.h"
 
 void engine::objects::DartGun::update()
 {
@@ -42,6 +42,6 @@ void engine::objects::DartGun::update()
   dart->activate();
   dart->m_state.triggerState = TriggerState::Active;
 
-  playSoundEffect(TR1SoundId::DartgunShoot);
+  playSoundEffect(TR1SoundEffect::DartgunShoot);
   ModelObject::update();
 }

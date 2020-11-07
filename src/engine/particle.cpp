@@ -181,7 +181,7 @@ bool FlameParticle::update(Engine& engine)
 
   if(timePerSpriteFrame >= 0)
   {
-    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Burning, this);
+    engine.getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::Burning, this);
     if(timePerSpriteFrame != 0)
     {
       --timePerSpriteFrame;
@@ -234,14 +234,14 @@ bool FlameParticle::update(Engine& engine)
     if(const auto waterHeight = loader::file::Room::getWaterSurfaceHeight(pos);
        !waterHeight.has_value() || waterHeight.value() >= pos.position.Y)
     {
-      engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Burning, this);
+      engine.getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::Burning, this);
       engine.getObjectManager().getLara().m_state.health -= 3_hp;
       engine.getObjectManager().getLara().m_state.is_hit = true;
     }
     else
     {
       timePerSpriteFrame = 0;
-      engine.getPresenter().getAudioEngine().stopSound(TR1SoundId::Burning, this);
+      engine.getPresenter().getAudioEngine().stopSoundEffect(TR1SoundEffect::Burning, this);
       return false;
     }
   }
@@ -299,7 +299,7 @@ bool MeshShrapnelParticle::update(Engine& engine)
   const auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
   setParent(particle, pos.room->node);
   engine.getObjectManager().registerParticle(particle);
-  engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+  engine.getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
   return false;
 }
 
@@ -325,7 +325,7 @@ bool MutantBulletParticle::update(Engine& engine)
     particle->timePerSpriteFrame = 6;
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
-    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
+    engine.getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, particle.get());
     return false;
   }
   else if(engine.getObjectManager().getLara().isNear(*this, 200_len))
@@ -334,7 +334,7 @@ bool MutantBulletParticle::update(Engine& engine)
     auto particle = std::make_shared<BloodSplatterParticle>(pos, speed, angle.Y, engine);
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
-    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::BulletHitsLara, particle.get());
+    engine.getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::BulletHitsLara, particle.get());
     engine.getObjectManager().getLara().m_state.is_hit = true;
     angle.Y = engine.getObjectManager().getLara().m_state.rotation.Y;
     speed = engine.getObjectManager().getLara().m_state.speed;
@@ -358,7 +358,7 @@ bool MutantGrenadeParticle::update(Engine& engine)
     auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
-    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+    engine.getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
 
     const auto dd = pos.position - engine.getObjectManager().getLara().m_state.position.position;
     const auto d = util::square(dd.X) + util::square(dd.Y) + util::square(dd.Z);
@@ -377,11 +377,11 @@ bool MutantGrenadeParticle::update(Engine& engine)
     auto particle = std::make_shared<ExplosionParticle>(pos, engine, fall_speed, angle);
     setParent(particle, pos.room->node);
     engine.getObjectManager().registerParticle(particle);
-    engine.getPresenter().getAudioEngine().playSound(TR1SoundId::Explosion2, particle.get());
+    engine.getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
 
     if(engine.getObjectManager().getLara().m_state.health > 0_hp)
     {
-      engine.getObjectManager().getLara().playSoundEffect(TR1SoundId::LaraHurt);
+      engine.getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraHurt);
       engine.getObjectManager().getLara().forceSourcePosition = &particle->pos.position;
       engine.getObjectManager().getLara().explosionStumblingDuration = 5_frame;
     }

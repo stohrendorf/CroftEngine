@@ -25,7 +25,7 @@ class TrackType(Enum):
     LARA_TALK = auto()
 
 
-class TR1SoundId(Enum):
+class TR1SoundEffect(Enum):
     ...
 
 

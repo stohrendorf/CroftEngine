@@ -100,14 +100,14 @@ void TR2Level::loadFileData()
   m_reader.readVector(m_demoData, m_reader.readU16());
 
   // Soundmap
-  m_reader.readVector(m_soundmap, TR_AUDIO_MAP_SIZE_TR2);
+  m_reader.readVector(m_soundEffects, TR_AUDIO_MAP_SIZE_TR2);
 
-  m_reader.readVector(m_soundDetails, m_reader.readU32(), &SoundDetails::readTr1);
+  m_reader.readVector(m_soundEffectProperties, m_reader.readU32(), &SoundEffectProperties::readTr1);
 
   m_reader.readVector(m_sampleIndices, m_reader.readU32());
 
   // remap all sample indices here
-  for(auto& soundDetail : m_soundDetails)
+  for(auto& soundDetail : m_soundEffectProperties)
   {
     if(soundDetail.sample.get() < m_sampleIndices.size())
     {

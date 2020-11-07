@@ -16,13 +16,13 @@ struct ObjectInfo
 
 struct TrackInfo
 {
-  TrackInfo(core::SoundId::type id, audio::TrackType type)
+  TrackInfo(core::SoundEffectId::type id, audio::TrackType type)
       : id{id}
       , type{type}
   {
   }
 
-  core::SoundId id;
+  core::SoundEffectId id;
   audio::TrackType type;
 };
 } // namespace engine::script

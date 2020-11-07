@@ -198,9 +198,9 @@ void TR4Level::loadFileData()
   newsrc.readVector(m_demoData, newsrc.readU16());
 
   // Soundmap
-  newsrc.readVector(m_soundmap, TR_AUDIO_MAP_SIZE_TR4);
+  newsrc.readVector(m_soundEffects, TR_AUDIO_MAP_SIZE_TR4);
 
-  newsrc.readVector(m_soundDetails, newsrc.readU32(), &SoundDetails::readTr3);
+  newsrc.readVector(m_soundEffectProperties, newsrc.readU32(), &SoundEffectProperties::readTr3);
 
   // IMPORTANT NOTE: Sample indices ARE NOT USED in TR4 engine, but are parsed anyway.
   newsrc.readVector(m_sampleIndices, newsrc.readU32());

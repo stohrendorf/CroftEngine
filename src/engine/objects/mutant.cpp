@@ -56,7 +56,7 @@ void FlyingMutant::update()
   {
     if(shatterModel(*this, 0xffffffffu, 100_len))
     {
-      playSoundEffect(TR1SoundId::Mummy);
+      playSoundEffect(TR1SoundEffect::Mummy);
       m_state.creatureInfo.reset();
       kill();
       m_state.triggerState = TriggerState::Deactivated;
@@ -357,7 +357,7 @@ void CentaurMutant::update()
   animateCreature(turnRot, 0_deg);
   if(m_state.triggerState == TriggerState::Deactivated)
   {
-    playSoundEffect(TR1SoundId::Mummy);
+    playSoundEffect(TR1SoundEffect::Mummy);
     shatterModel(*this, -1, 100_len);
     kill();
     m_state.triggerState = TriggerState::Deactivated;
@@ -540,7 +540,7 @@ void TorsoBoss::update()
   }
   if(m_state.triggerState == TriggerState::Deactivated)
   {
-    playSoundEffect(TR1SoundId::Mummy);
+    playSoundEffect(TR1SoundEffect::Mummy);
     shatterModel(*this, -1, 250_len);
     const auto sector = loader::file::findRealFloorSector(m_state.position);
     getEngine().handleCommandSequence(

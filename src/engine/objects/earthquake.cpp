@@ -14,12 +14,12 @@ void Earthquake::update()
   if(util::rand15() < 256)
   {
     getEngine().getCameraController().setBounce(-150_len);
-    getEngine().getPresenter().getAudioEngine().playSound(TR1SoundId::RollingBall, nullptr);
+    getEngine().getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::RollingBall, nullptr);
   }
   else if(util::rand15() < 1024)
   {
     getEngine().getCameraController().setBounce(50_len);
-    getEngine().getPresenter().getAudioEngine().playSound(TR1SoundId::TRexFootstep, nullptr);
+    getEngine().getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::TRexFootstep, nullptr);
   }
 }
 } // namespace engine::objects

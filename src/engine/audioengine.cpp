@@ -125,38 +125,41 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
   case audio::TrackType::AmbientEffect:
     if(!stop)
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play effect "
-                               << toString(static_cast<TR1SoundId>(trackInfo.id.get()));
-      playSound(core::SoundId{trackInfo.id}, nullptr);
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play sound effect "
+                               << toString(static_cast<TR1SoundEffect>(trackInfo.id.get()));
+      playSoundEffect(core::SoundEffectId{trackInfo.id}, nullptr);
     }
     else
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop effect "
-                               << toString(static_cast<TR1SoundId>(trackInfo.id.get()));
-      stopSound(core::SoundId{trackInfo.id}, nullptr);
+                               << toString(static_cast<TR1SoundEffect>(trackInfo.id.get()));
+      stopSoundEffect(core::SoundEffectId{trackInfo.id}, nullptr);
     }
     break;
   case audio::TrackType::LaraTalk:
     if(!stop)
     {
-      const auto sfxId = static_cast<TR1SoundId>(trackInfo.id.get());
+      const auto sfxId = static_cast<TR1SoundEffect>(trackInfo.id.get());
 
       if(!m_currentLaraTalk.has_value() || *m_currentLaraTalk != sfxId)
       {
         BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play lara talk " << toString(sfxId);
 
         if(m_currentLaraTalk.has_value())
-          stopSound(*m_currentLaraTalk, &m_engine.getObjectManager().getLara().m_state);
+          stopSoundEffect(*m_currentLaraTalk, &m_engine.getObjectManager().getLara().m_state);
 
-        m_engine.getObjectManager().getLara().playSoundEffect(sfxId);
+        if(const auto lara = m_engine.getObjectManager().getLaraPtr())
+          lara->playSoundEffect(sfxId);
+        else
+          playSoundEffect(sfxId, nullptr);
         m_currentLaraTalk = sfxId;
       }
     }
     else
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop lara talk "
-                               << toString(static_cast<TR1SoundId>(trackInfo.id.get()));
-      stopSound(static_cast<TR1SoundId>(trackInfo.id.get()), &m_engine.getObjectManager().getLara().m_state);
+                               << toString(static_cast<TR1SoundEffect>(trackInfo.id.get()));
+      stopSoundEffect(static_cast<TR1SoundEffect>(trackInfo.id.get()), &m_engine.getObjectManager().getLara().m_state);
       m_currentLaraTalk.reset();
     }
     break;
@@ -222,40 +225,41 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
   return result;
 }
 
-std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId& id, audio::Emitter* emitter)
+std::shared_ptr<audio::SourceHandle> AudioEngine::playSoundEffect(const core::SoundEffectId& id,
+                                                                  audio::Emitter* emitter)
 {
-  const auto detailsIt = m_soundmap.find(id.get());
-  if(detailsIt == m_soundmap.end())
+  const auto soundEffectIt = m_soundEffects.find(id.get());
+  if(soundEffectIt == m_soundEffects.end())
   {
-    BOOST_LOG_TRIVIAL(warning) << "No mapped sound for id " << toString(id.get_as<TR1SoundId>());
+    BOOST_LOG_TRIVIAL(warning) << "Sound effect " << toString(id.get_as<TR1SoundEffect>()) << " not found";
     return nullptr;
   }
 
-  const auto details = detailsIt->second;
-  if(details->chance != 0 && util::rand15() > details->chance)
+  const auto soundEffect = soundEffectIt->second;
+  if(soundEffect->chance != 0 && util::rand15() > soundEffect->chance)
     return nullptr;
 
-  size_t sample = details->sample.get();
-  if(details->getSampleCount() > 1)
-    sample += util::rand15(details->getSampleCount());
+  size_t sample = soundEffect->sample.get();
+  if(soundEffect->getSampleCount() > 1)
+    sample += util::rand15(soundEffect->getSampleCount());
 
   float pitch = 1;
-  if(details->useRandomPitch())
+  if(soundEffect->useRandomPitch())
     pitch = 0.9f + util::rand15(0.2f);
 
-  float volume = util::clamp(static_cast<float>(details->volume) / 0x7fff, 0.0f, 1.0f);
-  if(details->useRandomVolume())
+  float volume = util::clamp(static_cast<float>(soundEffect->volume) / 0x7fff, 0.0f, 1.0f);
+  if(soundEffect->useRandomVolume())
     volume -= util::rand15(0.25f);
   if(volume <= 0)
     return nullptr;
 
   std::shared_ptr<audio::SourceHandle> handle;
-  if(details->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Looping)
+  if(soundEffect->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Looping)
   {
     auto handles = m_soundEngine.getSourcesForBuffer(emitter, sample);
     if(handles.empty())
     {
-      BOOST_LOG_TRIVIAL(trace) << "Play looping sound " << toString(id.get_as<TR1SoundId>());
+      BOOST_LOG_TRIVIAL(trace) << "Play looping sound effect " << toString(id.get_as<TR1SoundEffect>());
       handle = m_soundEngine.playBuffer(sample, pitch, volume, emitter);
       handle->setLooping(true);
       handle->play();
@@ -266,13 +270,13 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId&
       handle = handles[0];
     }
   }
-  else if(details->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Restart)
+  else if(soundEffect->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Restart)
   {
     auto handles = m_soundEngine.getSourcesForBuffer(emitter, sample);
     if(!handles.empty())
     {
       BOOST_ASSERT(handles.size() == 1);
-      BOOST_LOG_TRIVIAL(debug) << "Update restarting sound " << toString(id.get_as<TR1SoundId>());
+      BOOST_LOG_TRIVIAL(debug) << "Update restarting sound effect " << toString(id.get_as<TR1SoundEffect>());
       handle = handles[0];
       handle->setPitch(pitch);
       handle->setGain(volume);
@@ -282,16 +286,16 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId&
     }
     else
     {
-      BOOST_LOG_TRIVIAL(trace) << "Play restarting sound " << toString(id.get_as<TR1SoundId>());
+      BOOST_LOG_TRIVIAL(trace) << "Play restarting sound effect " << toString(id.get_as<TR1SoundEffect>());
       handle = m_soundEngine.playBuffer(sample, pitch, volume, emitter);
     }
   }
-  else if(details->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Wait)
+  else if(soundEffect->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Wait)
   {
     auto handles = m_soundEngine.getSourcesForBuffer(emitter, sample);
     if(handles.empty())
     {
-      BOOST_LOG_TRIVIAL(trace) << "Play non-playing sound " << toString(id.get_as<TR1SoundId>());
+      BOOST_LOG_TRIVIAL(trace) << "Play non-playing sound effect " << toString(id.get_as<TR1SoundEffect>());
       handle = m_soundEngine.playBuffer(sample, pitch, volume, emitter);
     }
     else
@@ -302,22 +306,22 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSound(const core::SoundId&
   }
   else
   {
-    BOOST_LOG_TRIVIAL(trace) << "Default play mode - playing sound " << toString(id.get_as<TR1SoundId>());
+    BOOST_LOG_TRIVIAL(trace) << "Default play mode - playing sound effect " << toString(id.get_as<TR1SoundEffect>());
     handle = m_soundEngine.playBuffer(sample, pitch, volume, emitter);
   }
 
   return handle;
 }
 
-void AudioEngine::stopSound(const core::SoundId soundId, audio::Emitter* emitter)
+void AudioEngine::stopSoundEffect(core::SoundEffectId id, audio::Emitter* emitter)
 {
-  const auto detailsIt = m_soundmap.find(soundId.get());
-  if(detailsIt == m_soundmap.end())
+  const auto soundEffectIt = m_soundEffects.find(id.get());
+  if(soundEffectIt == m_soundEffects.end())
     return;
 
-  const auto details = detailsIt->second;
-  const size_t first = details->sample.get();
-  const size_t last = first + details->getSampleCount();
+  const auto soundEffect = soundEffectIt->second;
+  const size_t first = soundEffect->sample.get();
+  const size_t last = first + soundEffect->getSampleCount();
 
   bool anyStopped = false;
   for(size_t i = first; i < last; ++i)
@@ -326,10 +330,10 @@ void AudioEngine::stopSound(const core::SoundId soundId, audio::Emitter* emitter
   }
 
   if(!anyStopped)
-    BOOST_LOG_TRIVIAL(debug) << "Attempting to stop sound " << toString(soundId.get_as<TR1SoundId>()) << " (samples "
-                             << first << ".." << (last - 1) << ") didn't stop any sample";
+    BOOST_LOG_TRIVIAL(debug) << "Attempting to stop sound effect " << toString(id.get_as<TR1SoundEffect>())
+                             << " (samples " << first << ".." << (last - 1) << ") didn't stop any sample";
   else
-    BOOST_LOG_TRIVIAL(debug) << "Stopped samples of sound " << toString(soundId.get_as<TR1SoundId>());
+    BOOST_LOG_TRIVIAL(debug) << "Stopped samples of sound effect " << toString(id.get_as<TR1SoundEffect>());
 }
 
 void AudioEngine::setUnderwater(bool underwater)
@@ -344,7 +348,7 @@ void AudioEngine::setUnderwater(bool underwater)
 
     if(m_underwaterAmbience.expired())
     {
-      m_underwaterAmbience = playSound(TR1SoundId::UnderwaterAmbience, nullptr);
+      m_underwaterAmbience = playSoundEffect(TR1SoundEffect::UnderwaterAmbience, nullptr);
       m_underwaterAmbience.lock()->setLooping(true);
     }
   }
@@ -356,7 +360,7 @@ void AudioEngine::setUnderwater(bool underwater)
     if(isPlaying(m_interceptStream))
       m_interceptStream.lock()->getSource().lock()->setDirectFilter(nullptr);
 
-    stopSound(TR1SoundId::UnderwaterAmbience, nullptr);
+    stopSoundEffect(TR1SoundEffect::UnderwaterAmbience, nullptr);
     m_underwaterAmbience.reset();
   }
 

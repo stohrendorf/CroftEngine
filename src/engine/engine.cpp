@@ -211,7 +211,7 @@ void Engine::loadSceneData(const std::string& animatedTextureId)
   for(loader::file::SoundSource& src : m_level->m_soundSources)
   {
     m_positionalEmitters.emplace_back(src.position.toRenderSystem(), &m_presenter->getAudioEngine().getSoundEngine());
-    auto handle = m_presenter->getAudioEngine().playSound(src.sound_id, &m_positionalEmitters.back());
+    auto handle = m_presenter->getAudioEngine().playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
     Expects(handle != nullptr);
     handle->setLooping(true);
   }
@@ -276,7 +276,7 @@ void Engine::laraBubblesEffect(objects::Object& object)
   if(bubbleCount == 0)
     return;
 
-  object.playSoundEffect(TR1SoundId::LaraUnderwaterGurgle);
+  object.playSoundEffect(TR1SoundEffect::LaraUnderwaterGurgle);
 
   const auto boneSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
     object.m_state, *modelNode->getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
@@ -303,14 +303,14 @@ void Engine::earthquakeEffect()
   switch(m_effectTimer.get())
   {
   case 0:
-    m_presenter->getAudioEngine().playSound(TR1SoundId::Explosion1, nullptr);
+    m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion1, nullptr);
     m_cameraController->setBounce(-250_len);
     break;
-  case 3: m_presenter->getAudioEngine().playSound(TR1SoundId::RollingBall, nullptr); break;
-  case 35: m_presenter->getAudioEngine().playSound(TR1SoundId::Explosion1, nullptr); break;
+  case 3: m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::RollingBall, nullptr); break;
+  case 35: m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion1, nullptr); break;
   case 20:
   case 50:
-  case 70: m_presenter->getAudioEngine().playSound(TR1SoundId::TRexFootstep, nullptr); break;
+  case 70: m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::TRexFootstep, nullptr); break;
   default:
     // silence compiler
     break;
@@ -338,7 +338,7 @@ void Engine::floodEffect()
       mul = 30_frame - m_effectTimer;
     }
     pos.Y = 100_len * mul / 1_frame + m_cameraController->getLookAt().position.Y;
-    m_presenter->getAudioEngine().playSound(TR1SoundId::WaterFlow3, pos.toRenderSystem());
+    m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::WaterFlow3, pos.toRenderSystem());
   }
   else
   {
@@ -349,7 +349,7 @@ void Engine::floodEffect()
 
 void Engine::chandelierEffect()
 {
-  m_presenter->getAudioEngine().playSound(TR1SoundId::GlassyFlow, nullptr);
+  m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::GlassyFlow, nullptr);
   m_activeEffect.reset();
 }
 
@@ -358,7 +358,7 @@ void Engine::raisingBlockEffect()
   m_effectTimer += 1_frame;
   if(m_effectTimer == 5_frame)
   {
-    m_presenter->getAudioEngine().playSound(TR1SoundId::Clank, nullptr);
+    m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::Clank, nullptr);
     m_activeEffect.reset();
   }
 }
@@ -373,11 +373,11 @@ void Engine::stairsToSlopeEffect()
   {
     if(m_effectTimer == 0_frame)
     {
-      m_presenter->getAudioEngine().playSound(TR1SoundId::HeavyDoorSlam, nullptr);
+      m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::HeavyDoorSlam, nullptr);
     }
     auto pos = m_cameraController->getLookAt().position;
     pos.Y += 100_spd * m_effectTimer;
-    m_presenter->getAudioEngine().playSound(TR1SoundId::FlowingAir, pos.toRenderSystem());
+    m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::FlowingAir, pos.toRenderSystem());
   }
   m_effectTimer += 1_frame;
 }
@@ -386,7 +386,7 @@ void Engine::sandEffect()
 {
   if(m_effectTimer <= 120_frame)
   {
-    m_presenter->getAudioEngine().playSound(TR1SoundId::LowHum, nullptr);
+    m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::LowHum, nullptr);
   }
   else
   {
@@ -397,7 +397,7 @@ void Engine::sandEffect()
 
 void Engine::explosionEffect()
 {
-  m_presenter->getAudioEngine().playSound(TR1SoundId::LowPitchedSettling, nullptr);
+  m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::LowPitchedSettling, nullptr);
   m_cameraController->setBounce(-75_len);
   m_activeEffect.reset();
 }
@@ -427,12 +427,12 @@ void Engine::chainBlockEffect()
 {
   if(m_effectTimer == 0_frame)
   {
-    m_presenter->getAudioEngine().playSound(TR1SoundId::SecretFound, nullptr);
+    m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::SecretFound, nullptr);
   }
   m_effectTimer += 1_frame;
   if(m_effectTimer == 55_frame)
   {
-    m_presenter->getAudioEngine().playSound(TR1SoundId::LaraFallIntoWater, nullptr);
+    m_presenter->getAudioEngine().playSoundEffect(TR1SoundEffect::LaraFallIntoWater, nullptr);
     m_activeEffect.reset();
   }
 }

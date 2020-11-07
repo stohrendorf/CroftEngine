@@ -82,7 +82,7 @@ void ModelObject::update()
     case AnimCommandOpcode::PlaySound:
       if(getSkeleton()->frame_number.get() == cmd[0])
       {
-        playSoundEffect(static_cast<TR1SoundId>(cmd[1]));
+        playSoundEffect(static_cast<TR1SoundEffect>(cmd[1]));
       }
       cmd += 2;
       break;
@@ -226,7 +226,7 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
       = axisFromAngle(getEngine().getObjectManager().getLara().m_state.rotation.Y - a, 45_deg).value();
     if(getEngine().getObjectManager().getLara().hit_frame == 0_frame)
     {
-      getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundId::LaraOof);
+      getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraOof);
     }
     getEngine().getObjectManager().getLara().hit_frame += 1_frame;
     if(getEngine().getObjectManager().getLara().hit_frame > 34_frame)

@@ -7,5 +7,5 @@
 
 namespace engine
 {
-#include "sounds_tr1_enum.h"
+#include "soundeffects_tr1_enum.h"
 }

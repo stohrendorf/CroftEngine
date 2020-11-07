@@ -150,7 +150,7 @@ public:
 
   virtual bool triggerSwitch(core::Frame timeout) = 0;
 
-  std::shared_ptr<audio::SourceHandle> playSoundEffect(core::SoundId id);
+  std::shared_ptr<audio::SourceHandle> playSoundEffect(core::SoundEffectId id);
 
   bool triggerPickUp();
 

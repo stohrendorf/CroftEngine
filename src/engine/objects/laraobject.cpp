@@ -262,7 +262,7 @@ void LaraObject::update()
     m_state.falling = false;
     m_state.position.position.Y += 100_len;
     updateFloorHeight(0_len);
-    getEngine().getPresenter().getAudioEngine().stopSound(TR1SoundId::LaraScream, &m_state);
+    getEngine().getPresenter().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraScream, &m_state);
     if(getCurrentAnimState() == LaraStateId::SwandiveBegin)
     {
       m_state.rotation.X = -45_deg;
@@ -289,7 +289,7 @@ void LaraObject::update()
 
     if(const auto waterSurfaceHeight = getWaterSurfaceHeight())
     {
-      playSoundEffect(TR1SoundId::LaraFallIntoWater);
+      playSoundEffect(TR1SoundEffect::LaraFallIntoWater);
 
       auto room = m_state.position.room;
       findRealFloorSector(m_state.position.position, &room);
@@ -331,7 +331,7 @@ void LaraObject::update()
       m_state.position.position.Y = *waterSurfaceHeight + 1_len;
       m_swimToDiveKeypressDuration = 11_frame;
       updateFloorHeight(-381_len);
-      playSoundEffect(TR1SoundId::LaraCatchingAir);
+      playSoundEffect(TR1SoundEffect::LaraCatchingAir);
     }
   }
   else if(m_underwaterState == UnderwaterState::Swimming && !m_state.position.room->isWaterRoom())
@@ -438,7 +438,7 @@ void LaraObject::updateImpl()
       case AnimCommandOpcode::PlaySound:
         if(getSkeleton()->frame_number.get() == cmd[0])
         {
-          playSoundEffect(static_cast<TR1SoundId>(cmd[1]));
+          playSoundEffect(static_cast<TR1SoundEffect>(cmd[1]));
         }
         cmd += 2;
         break;
@@ -978,7 +978,7 @@ void LaraObject::unholsterGuns(const WeaponId weaponId)
   else if(nextFrame == 13_frame)
   {
     overrideLaraMeshesUnholsterGuns(weaponId);
-    playSoundEffect(TR1SoundId::LaraUnholster);
+    playSoundEffect(TR1SoundEffect::LaraUnholster);
   }
   else if(nextFrame == 23_frame)
   {
@@ -1139,7 +1139,7 @@ void LaraObject::unholsterShotgun()
   {
     overrideLaraMeshesUnholsterShotgun();
 
-    playSoundEffect(TR1SoundId::LaraUnholster);
+    playSoundEffect(TR1SoundEffect::LaraUnholster);
   }
   else if(nextFrame == 47_frame)
   {
@@ -1228,7 +1228,7 @@ void LaraObject::updateAnimShotgun()
         }
         if(nextFrame == 57_frame)
         {
-          playSoundEffect(TR1SoundId::LaraPistolsCocking);
+          playSoundEffect(TR1SoundEffect::LaraPistolsCocking);
           rightArm.frame = aimingFrame;
           leftArm.frame = aimingFrame;
           return;
@@ -1301,7 +1301,7 @@ void LaraObject::updateAnimShotgun()
       }
       if(nextFrame == 57_frame)
       {
-        playSoundEffect(TR1SoundId::LaraPistolsCocking);
+        playSoundEffect(TR1SoundEffect::LaraPistolsCocking);
         rightArm.frame = aimingFrame;
         leftArm.frame = aimingFrame;
         return;
@@ -1402,7 +1402,7 @@ void LaraObject::holsterShotgun()
       getSkeleton()->setMeshPart(13, normalLara.bones[13].mesh);
       getSkeleton()->rebuildMesh();
 
-      playSoundEffect(TR1SoundId::LaraUnholster);
+      playSoundEffect(TR1SoundEffect::LaraUnholster);
     }
     else if(leftArm.frame == 113_frame)
     {
@@ -1464,7 +1464,7 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
       getSkeleton()->setMeshPart(13, normalLara.bones[13].mesh);
       getSkeleton()->rebuildMesh();
 
-      playSoundEffect(TR1SoundId::LaraHolster);
+      playSoundEffect(TR1SoundEffect::LaraHolster);
     }
   }
 
@@ -1507,7 +1507,7 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
       getSkeleton()->setMeshPart(10, normalLara.bones[10].mesh);
       getSkeleton()->rebuildMesh();
 
-      playSoundEffect(TR1SoundId::LaraHolster);
+      playSoundEffect(TR1SoundEffect::LaraHolster);
     }
   }
 
@@ -1642,7 +1642,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
   if(ammoPtr->ammo <= 0)
   {
     ammoPtr->ammo = 0;
-    playSoundEffect(TR1SoundId::EmptyAmmo);
+    playSoundEffect(TR1SoundEffect::EmptyAmmo);
     requestedGunType = WeaponId::Pistols;
     return false;
   }
@@ -1719,20 +1719,20 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
   if(object.m_state.health <= 0_hp)
     return;
 
-  TR1SoundId soundId;
+  TR1SoundEffect soundEffect;
   switch(object.m_state.type.get_as<TR1ItemId>())
   {
-  case TR1ItemId::Wolf: soundId = TR1SoundId::WolfHurt; break;
-  case TR1ItemId::Bear: soundId = TR1SoundId::BearHurt; break;
+  case TR1ItemId::Wolf: soundEffect = TR1SoundEffect::WolfHurt; break;
+  case TR1ItemId::Bear: soundEffect = TR1SoundEffect::BearHurt; break;
   case TR1ItemId::LionMale:
-  case TR1ItemId::LionFemale: soundId = TR1SoundId::LionHurt; break;
-  case TR1ItemId::RatOnLand: soundId = TR1SoundId::RatHurt; break;
-  case TR1ItemId::SkateboardKid: soundId = TR1SoundId::SkateboardKidHurt; break;
-  case TR1ItemId::TorsoBoss: soundId = TR1SoundId::TorsoBossHurt; break;
+  case TR1ItemId::LionFemale: soundEffect = TR1SoundEffect::LionHurt; break;
+  case TR1ItemId::RatOnLand: soundEffect = TR1SoundEffect::RatHurt; break;
+  case TR1ItemId::SkateboardKid: soundEffect = TR1SoundEffect::SkateboardKidHurt; break;
+  case TR1ItemId::TorsoBoss: soundEffect = TR1SoundEffect::TorsoBossHurt; break;
   default: return;
   }
 
-  playSoundEffect(soundId);
+  playSoundEffect(soundEffect);
 }
 
 namespace
@@ -2285,7 +2285,7 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 9_frame;
   w.flashTime = 3_frame;
-  w.shotSound = TR1SoundId::LaraShootPistols;
+  w.shotSound = TR1SoundEffect::LaraShootPistols;
   weapons[WeaponId::Pistols] = w;
 
   w.lockAngles.y.min = -60_deg;
@@ -2307,7 +2307,7 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 9_frame;
   w.flashTime = 3_frame;
-  w.shotSound = TR1SoundId::CowboyShoot;
+  w.shotSound = TR1SoundEffect::CowboyShoot;
   weapons[WeaponId::AutoPistols] = w;
 
   w.lockAngles.y.min = -60_deg;
@@ -2329,7 +2329,7 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 3_frame;
   w.flashTime = 2_frame;
-  w.shotSound = TR1SoundId::LaraShootUzis;
+  w.shotSound = TR1SoundEffect::LaraShootUzis;
   weapons[WeaponId::Uzi] = w;
 
   w.lockAngles.y.min = -60_deg;
@@ -2351,7 +2351,7 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 9_frame;
   w.flashTime = 3_frame;
-  w.shotSound = TR1SoundId::LaraShootShotgun;
+  w.shotSound = TR1SoundEffect::LaraShootShotgun;
   weapons[WeaponId::Shotgun] = w;
 
   m_state.health = core::LaraHealth;

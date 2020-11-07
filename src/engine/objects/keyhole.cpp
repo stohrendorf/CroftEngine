@@ -23,7 +23,7 @@ void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
 
   if(m_state.triggerState == TriggerState::Invisible)
   {
-    getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundId::LaraNo);
+    getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraNo);
     return;
   }
 
@@ -38,7 +38,7 @@ void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
   }
   if(!hasKey)
   {
-    getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundId::LaraNo);
+    getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraNo);
     return;
   }
 

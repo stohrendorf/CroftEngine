@@ -92,9 +92,9 @@ public:
 
   std::vector<uint8_t> m_demoData;
 
-  std::vector<int16_t> m_soundmap;
+  std::vector<int16_t> m_soundEffects;
 
-  std::vector<SoundDetails> m_soundDetails;
+  std::vector<SoundEffectProperties> m_soundEffectProperties;
 
   size_t m_samplesCount = 0;
 

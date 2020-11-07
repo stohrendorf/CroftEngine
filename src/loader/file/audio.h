@@ -39,7 +39,7 @@ enum class ReverbType : uint8_t
 struct SoundSource final
 {
   core::TRVec position;
-  core::SoundId sound_id{uint16_t(0)};
+  core::SoundEffectId sound_effect_id{uint16_t(0)};
   uint16_t flags; // 0x40, 0x80, or 0xc0
 
   static std::unique_ptr<SoundSource> read(io::SDLReader& reader);
@@ -64,7 +64,7 @@ enum class PlaybackType
 * that is needed to play certain sample, except offset to raw wave buffer,
 * which is unnecessary, as it is managed internally by DirectSound.
 */
-struct SoundDetails
+struct SoundEffectProperties
 {
   // Default range and pitch values are required for compatibility with
   // TR1 and TR2 levels, as there is no such parameters in SoundDetails
@@ -135,8 +135,8 @@ struct SoundDetails
     return (flags & 0x40u) != 0;
   }
 
-  static std::unique_ptr<SoundDetails> readTr1(io::SDLReader& reader);
+  static std::unique_ptr<SoundEffectProperties> readTr1(io::SDLReader& reader);
 
-  static std::unique_ptr<SoundDetails> readTr3(io::SDLReader& reader);
+  static std::unique_ptr<SoundEffectProperties> readTr3(io::SDLReader& reader);
 };
 } // namespace loader::file

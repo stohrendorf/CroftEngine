@@ -398,7 +398,8 @@ void Presenter::initAudio(Engine& engine,
                           const std::filesystem::path& audioRoot)
 {
   if(level != nullptr)
-    m_audioEngine = std::make_unique<AudioEngine>(engine, audioRoot, level->m_soundDetails, level->m_soundmap);
+    m_audioEngine
+      = std::make_unique<AudioEngine>(engine, audioRoot, level->m_soundEffectProperties, level->m_soundEffects);
   else
     m_audioEngine = std::make_unique<AudioEngine>(engine, audioRoot);
 }

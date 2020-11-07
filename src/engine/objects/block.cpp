@@ -145,7 +145,7 @@ void Block::update()
     m_state.falling = false;
     m_state.triggerState = TriggerState::Deactivated;
     getEngine().dinoStompEffect(*this);
-    playSoundEffect(TR1SoundId::TRexFootstep);
+    playSoundEffect(TR1SoundEffect::TRexFootstep);
     applyTransform(); // needed for properly placing geometry on floor
   }
 

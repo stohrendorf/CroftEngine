@@ -4,7 +4,7 @@
 #include "engine/objects/objectstate.h"
 #include "items_tr1.h"
 #include "script/reflection.h"
-#include "sounds_tr1.h"
+#include "soundeffects_tr1.h"
 #include "tracks_tr1.h"
 
 namespace py = pybind11;
@@ -14,7 +14,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   m.doc() = "edisonengine engine module";
   engine::ai::initAiModule(m.def_submodule("ai"));
 
-  py::class_<engine::script::TrackInfo>(m, "TrackInfo").def(py::init<core::SoundId::type, audio::TrackType>());
+  py::class_<engine::script::TrackInfo>(m, "TrackInfo").def(py::init<core::SoundEffectId::type, audio::TrackType>());
 
   py::class_<engine::script::ObjectInfo>(m, "ObjectInfo")
     .def(py::init<>())
@@ -36,8 +36,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
     .value("LARA_TALK", audio::TrackType::LaraTalk);
 
   {
-    auto e = py::enum_<engine::TR1SoundId>(m, "TR1SoundId");
-    for(const auto& entry : engine::EnumUtil<engine::TR1SoundId>::all())
+    auto e = py::enum_<engine::TR1SoundEffect>(m, "TR1SoundEffect");
+    for(const auto& entry : engine::EnumUtil<engine::TR1SoundEffect>::all())
       e.value(entry.second.c_str(), entry.first);
   }
 

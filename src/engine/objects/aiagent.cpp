@@ -461,7 +461,7 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
         &createBloodSplat);
 
       if(!getEngine().getObjectManager().getLara().isInWater())
-        getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundId::BulletHitsLara);
+        getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::BulletHitsLara);
     }
   }
 

@@ -19,7 +19,7 @@ public:
   {
     if(getLara().m_state.fallspeed >= core::DeadlyFallSpeedThreshold)
     {
-      getLara().playSoundEffect(TR1SoundId::LaraScream);
+      getLara().playSoundEffect(TR1SoundEffect::LaraScream);
     }
     dampenHorizontalSpeed(0.05f);
   }
@@ -47,7 +47,7 @@ public:
       setGoalAnimState(LaraStateId::Stop);
       setAnimation(AnimationId::LANDING_HARD, 358_frame);
     }
-    getEngine().getPresenter().getAudioEngine().stopSound(TR1SoundId::LaraScream, &getLara().m_state);
+    getEngine().getPresenter().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraScream, &getLara().m_state);
     getLara().m_state.fallspeed = 0_spd;
     placeOnFloor(collisionInfo);
     getLara().m_state.falling = false;

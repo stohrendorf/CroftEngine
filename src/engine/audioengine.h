@@ -4,7 +4,7 @@
 #include "core/id.h"
 #include "floordata/floordata.h"
 #include "loader/file/audio.h"
-#include "sounds_tr1.h"
+#include "soundeffects_tr1.h"
 
 #include <boost/container/flat_map.hpp>
 #include <map>
@@ -21,8 +21,8 @@ class AudioEngine
   Engine& m_engine;
   const std::filesystem::path m_rootPath;
 
-  const std::vector<loader::file::SoundDetails> m_soundDetails;
-  boost::container::flat_map<int, const loader::file::SoundDetails*> m_soundmap{};
+  const std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties;
+  boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects{};
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
   int m_cdTrack50time = 0;
   std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
@@ -30,23 +30,23 @@ class AudioEngine
   std::weak_ptr<audio::Stream> m_ambientStream;
   std::weak_ptr<audio::Stream> m_interceptStream;
   std::optional<TR1TrackId> m_currentTrack;
-  std::optional<TR1SoundId> m_currentLaraTalk;
+  std::optional<TR1SoundEffect> m_currentLaraTalk;
 
 public:
   explicit AudioEngine(Engine& engine,
                        std::filesystem::path rootPath,
-                       std::vector<loader::file::SoundDetails> soundDetails,
-                       const std::vector<int16_t>& soundmap)
+                       std::vector<loader::file::SoundEffectProperties> soundEffectProperties,
+                       const std::vector<int16_t>& soundEffects)
       : m_engine{engine}
       , m_rootPath{std::move(rootPath)}
-      , m_soundDetails{std::move(soundDetails)}
+      , m_soundEffectProperties{std::move(soundEffectProperties)}
   {
-    for(size_t i = 0; i < soundmap.size(); ++i)
+    for(size_t i = 0; i < soundEffects.size(); ++i)
     {
-      if(soundmap[i] < 0)
+      if(soundEffects[i] < 0)
         continue;
 
-      m_soundmap[gsl::narrow<int>(i)] = &m_soundDetails.at(soundmap[i]);
+      m_soundEffects[gsl::narrow<int>(i)] = &m_soundEffectProperties.at(soundEffects[i]);
     }
   }
 
@@ -55,11 +55,10 @@ public:
   {
   }
 
-  std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId& id, audio::Emitter* emitter);
-
-  std::shared_ptr<audio::SourceHandle> playSound(const core::SoundId id, const glm::vec3& pos)
+  std::shared_ptr<audio::SourceHandle> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
+  std::shared_ptr<audio::SourceHandle> playSoundEffect(const core::SoundEffectId id, const glm::vec3& pos)
   {
-    auto handle = playSound(id, nullptr);
+    auto handle = playSoundEffect(id, nullptr);
     if(handle == nullptr)
       return nullptr;
 
@@ -79,7 +78,7 @@ public:
                       const floordata::ActivationState& activationRequest,
                       floordata::SequenceCondition triggerType);
 
-  void stopSound(core::SoundId soundId, audio::Emitter* emitter);
+  void stopSoundEffect(core::SoundEffectId id, audio::Emitter* emitter);
 
   void setUnderwater(bool underwater);
 

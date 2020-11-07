@@ -87,9 +87,9 @@ void Object::deactivate()
   m_isActive = false;
 }
 
-std::shared_ptr<audio::SourceHandle> Object::playSoundEffect(const core::SoundId id)
+std::shared_ptr<audio::SourceHandle> Object::playSoundEffect(const core::SoundEffectId id)
 {
-  return getEngine().getPresenter().getAudioEngine().playSound(id, &m_state);
+  return getEngine().getPresenter().getAudioEngine().playSoundEffect(id, &m_state);
 }
 
 bool Object::triggerKey()
@@ -148,7 +148,7 @@ void Object::playShotMissed(const core::RoomBoundPosition& pos)
   const auto particle = std::make_shared<RicochetParticle>(pos, getEngine());
   setParent(particle, m_state.position.room->node);
   getEngine().getObjectManager().registerParticle(particle);
-  getEngine().getPresenter().getAudioEngine().playSound(TR1SoundId::Ricochet, particle.get());
+  getEngine().getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, particle.get());
 }
 
 std::optional<core::Length> Object::getWaterSurfaceHeight() const

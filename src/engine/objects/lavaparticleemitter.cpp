@@ -11,7 +11,7 @@ void LavaParticleEmitter::update()
   setParent(particle, m_state.position.room->node);
   getEngine().getObjectManager().registerParticle(particle);
 
-  playSoundEffect(TR1SoundId::ChoppyWater);
+  playSoundEffect(TR1SoundEffect::ChoppyWater);
 }
 
 void LavaParticleEmitter::serialize(const serialization::Serializer& ser)

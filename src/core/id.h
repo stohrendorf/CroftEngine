@@ -9,7 +9,7 @@
 namespace engine
 {
 enum class TR1ItemId;
-enum class TR1SoundId;
+enum class TR1SoundEffect;
 } // namespace engine
 
 namespace core
@@ -167,7 +167,7 @@ DECLARE_ID(SpriteInstanceId, uint16_t);
 DECLARE_ID(ItemId, uint16_t);
 
 DECLARE_ID_E(TypeId, uint16_t, engine::TR1ItemId);
-DECLARE_ID_E(SoundId, uint16_t, engine::TR1SoundId);
+DECLARE_ID_E(SoundEffectId, uint16_t, engine::TR1SoundEffect);
 
 [[nodiscard]] inline constexpr AnimStateId operator"" _as(unsigned long long value)
 {

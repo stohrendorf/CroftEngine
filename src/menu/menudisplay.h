@@ -161,13 +161,11 @@ private:
   core::Frame m_duration{Duration};
   core::Length m_radiusSpeed{};
   core::Angle m_targetCameraRotX{};
-  std::shared_ptr<MenuRing> m_next;
+  size_t m_next;
   const bool m_down;
 
 public:
-  explicit SwitchRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                               std::shared_ptr<MenuRing> next,
-                               bool down);
+  explicit SwitchRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, size_t next, bool down);
 
   void begin() override
   {
@@ -242,6 +240,7 @@ struct MenuDisplay
   int musicVolume = 10;
   int passportPage;
   int selectedOption;
+  bool allowMenuClose = true;
 
   std::unique_ptr<MenuState> m_currentState;
 
@@ -250,22 +249,28 @@ struct MenuDisplay
   void finalize(engine::Engine& engine);
   bool isDone = false;
 
-  std::shared_ptr<MenuRing> keysRing;
-  std::shared_ptr<MenuRing> optionsRing;
-  std::shared_ptr<MenuRing> mainRing;
-  std::shared_ptr<MenuRing> currentRing;
+  std::vector<gsl::not_null<std::shared_ptr<MenuRing>>> rings;
+  size_t currentRingIndex = 0;
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   bool passOpen = false;
   bool doOptions(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuObject& object);
   void updateMenuObjectDescription(engine::Engine& engine, const MenuObject& object);
   void clearMenuObjectDescription();
-  void updateRingTitle(const MenuRing& ring, const engine::Engine& engine);
+  void updateRingTitle();
+
+  [[nodiscard]] MenuRing& getCurrentRing()
+  {
+    return *rings.at(currentRingIndex);
+  }
+
+  [[nodiscard]] const MenuRing& getCurrentRing() const
+  {
+    return *rings.at(currentRingIndex);
+  }
 
 private:
   [[nodiscard]] static std::vector<MenuObject> getOptionRingObjects(bool withHomePolaroid);
   [[nodiscard]] static std::vector<MenuObject> getMainRingObjects(const engine::Engine& engine);
   [[nodiscard]] static std::vector<MenuObject> getKeysRingObjects(const engine::Engine& engine);
-
-  void clearRingTitle();
 };
 } // namespace menu

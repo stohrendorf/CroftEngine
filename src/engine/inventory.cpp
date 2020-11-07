@@ -167,7 +167,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
       lara.m_state.health = core::LaraHealth;
     }
     tryTake(TR1ItemId::LargeMedipackSprite);
-    lara.playSoundEffect(TR1SoundId::LaraSigh);
+    lara.playSoundEffect(TR1SoundEffect::LaraSigh);
   }
   else if(id == TR1ItemId::SmallMedipack || id == TR1ItemId::SmallMedipackSprite)
   {
@@ -185,7 +185,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
       lara.m_state.health = core::LaraHealth;
     }
     tryTake(TR1ItemId::SmallMedipackSprite);
-    lara.playSoundEffect(TR1SoundId::LaraSigh);
+    lara.playSoundEffect(TR1SoundEffect::LaraSigh);
   }
 
   return true;

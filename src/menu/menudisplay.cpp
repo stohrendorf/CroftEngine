@@ -86,62 +86,51 @@ auto exactScale(const qs::quantity<Unit, Type>& value, const core::Frame& x, con
 }
 } // namespace
 
-void MenuDisplay::updateRingTitle(const MenuRing& ring, const engine::Engine& engine)
+void MenuDisplay::updateRingTitle()
 {
-  if(mode == InventoryMode::TitleMode)
+  if(rings.size() == 1)
     return;
 
   if(objectTexts[2] == nullptr)
   {
-    objectTexts[2] = std::make_shared<ui::Label>(0, 26, ring.title);
+    objectTexts[2] = std::make_shared<ui::Label>(0, 26, getCurrentRing().title);
     objectTexts[2]->alignX = ui::Label::Alignment::Center;
   }
-
-  if(mode == InventoryMode::KeysMode || mode == InventoryMode::DeathMode)
+  else
   {
-    return;
+    objectTexts[2]->text = getCurrentRing().title;
   }
 
-  if(objectTexts[3] == nullptr)
+  if(currentRingIndex > 0)
   {
-    if(ring.type == MenuRing::Type::Options || (ring.type == MenuRing::Type::Inventory && engine.getInventory().any()))
+    if(objectTexts[3] == nullptr)
     {
       objectTexts[3] = std::make_shared<ui::Label>(20, 28, "[");
       objectTexts[4] = std::make_shared<ui::Label>(-20, 28, "[");
       objectTexts[4]->alignX = ui::Label::Alignment::Right;
     }
   }
-
-  if(objectTexts[5] != nullptr)
+  else
   {
-    return;
-  }
-
-  if(ring.type == MenuRing::Type::Inventory || ring.type == MenuRing::Type::Items)
-  {
-    objectTexts[5] = std::make_shared<ui::Label>(20, -15, "]");
-    objectTexts[5]->alignY = ui::Label::Alignment::Bottom;
-    objectTexts[6] = std::make_shared<ui::Label>(-20, -15, "]");
-    objectTexts[6]->alignX = ui::Label::Alignment::Right;
-    objectTexts[6]->alignY = ui::Label::Alignment::Bottom;
-  }
-}
-
-void MenuDisplay::clearRingTitle()
-{
-  if(objectTexts[2] == nullptr)
-    return;
-
-  objectTexts[2].reset();
-  if(objectTexts[3] != nullptr)
-  {
-    objectTexts[4].reset();
     objectTexts[3].reset();
+    objectTexts[4].reset();
   }
-  if(objectTexts[5] != nullptr)
+
+  if(currentRingIndex + 1 < rings.size())
   {
-    objectTexts[6].reset();
+    if(objectTexts[5] == nullptr)
+    {
+      objectTexts[5] = std::make_shared<ui::Label>(20, -15, "]");
+      objectTexts[5]->alignY = ui::Label::Alignment::Bottom;
+      objectTexts[6] = std::make_shared<ui::Label>(-20, -15, "]");
+      objectTexts[6]->alignX = ui::Label::Alignment::Right;
+      objectTexts[6]->alignY = ui::Label::Alignment::Bottom;
+    }
+  }
+  else
+  {
     objectTexts[5].reset();
+    objectTexts[6].reset();
   }
 }
 
@@ -226,13 +215,13 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::Engine& engine)
 
   core::Angle itemAngle{0_deg};
   engine.getCameraController().getCamera()->setViewMatrix(ringTransform->getView());
-  for(size_t n = 0; n < currentRing->list.size(); ++n)
+  for(auto& menuObject : getCurrentRing().list)
   {
-    MenuObject* object = &currentRing->list[n];
+    MenuObject* object = &menuObject;
     m_currentState->handleObject(engine, *this, *object);
 
     object->draw(engine, *ringTransform, itemAngle);
-    itemAngle += currentRing->getAnglePerItem();
+    itemAngle += getCurrentRing().getAnglePerItem();
   }
 
   if(auto newState = m_currentState->onFrame(img, engine, *this))
@@ -841,16 +830,29 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::Engine& en
 bool MenuDisplay::init(engine::Engine& engine)
 {
   inventoryChosen.reset();
-  keysRing = std::make_shared<MenuRing>(MenuRing::Type::Items, "ITEMS", getKeysRingObjects(engine));
-  if(mode == InventoryMode::KeysMode && keysRing->list.empty())
+  currentRingIndex = 0;
+
+  if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
+    rings.emplace_back(std::make_shared<MenuRing>(MenuRing::Type::Inventory, "INVENTORY", getMainRingObjects(engine)));
+
+  if(mode != InventoryMode::KeysMode)
   {
-    return false;
+    rings.emplace_back(std::make_shared<MenuRing>(MenuRing::Type::Options,
+                                                  mode == InventoryMode::DeathMode ? "GAME OVER" : "OPTION",
+                                                  getOptionRingObjects(mode == InventoryMode::TitleMode)));
   }
 
-  optionsRing = std::make_shared<MenuRing>(MenuRing::Type::Options,
-                                           mode == InventoryMode::DeathMode ? "GAME OVER" : "OPTION",
-                                           getOptionRingObjects(mode == InventoryMode::TitleMode));
-  mainRing = std::make_shared<MenuRing>(MenuRing::Type::Inventory, "INVENTORY", getMainRingObjects(engine));
+  if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
+  {
+    rings.emplace_back(std::make_shared<MenuRing>(MenuRing::Type::Items, "ITEMS", getKeysRingObjects(engine)));
+    if(rings.back()->list.empty())
+      rings.pop_back();
+
+    if(mode == InventoryMode::KeysMode && rings.empty())
+      return false;
+  }
+
+  Ensures(!rings.empty());
 
   ammoText.reset();
   engine.getCameraController().getCamera()->setFieldOfView(core::toRad(80_deg));
@@ -863,21 +865,9 @@ bool MenuDisplay::init(engine::Engine& engine)
   {
     // TODO setStreamVolume(0);
   }
-
-  currentRing = nullptr;
-  switch(mode)
-  {
-  case InventoryMode::TitleMode:
-  case InventoryMode::SaveMode:
-  case InventoryMode::LoadMode:
-  case InventoryMode::DeathMode: currentRing = optionsRing; break;
-  case InventoryMode::KeysMode: currentRing = keysRing; break;
-  case InventoryMode::GameMode: currentRing = mainRing; break;
-  }
-  Ensures(currentRing != nullptr);
   m_currentState = std::make_unique<InflateRingMenuState>(ringTransform);
   m_currentState->begin();
-  engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::MenuOptionPopup, nullptr);
+  engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
   passOpen = false;
   return true;
 }
@@ -888,7 +878,7 @@ void MenuDisplay::finalize(engine::Engine& engine)
   //Inventory_Displaying = 0;
   if(!inventoryChosen.has_value())
   {
-    if(mode == InventoryMode::TitleMode)
+    if(!allowMenuClose)
     {
       return;
     }
@@ -945,7 +935,7 @@ void MenuDisplay::finalize(engine::Engine& engine)
 
 void ResetItemTransformMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
 {
-  if(&object == &display.currentRing->getSelectedObject())
+  if(&object == &display.getCurrentRing().getSelectedObject())
   {
     display.updateMenuObjectDescription(engine, object);
     object.baseRotationX = exactScale(object.selectedBaseRotationX, m_duration, Duration);
@@ -971,12 +961,13 @@ std::unique_ptr<MenuState> ResetItemTransformMenuState::onFrame(gl::Image<gl::SR
   return std::move(m_next);
 }
 
-std::unique_ptr<MenuState>
-  FinishItemAnimationMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
+std::unique_ptr<MenuState> FinishItemAnimationMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/,
+                                                                 engine::Engine& /*engine*/,
+                                                                 MenuDisplay& display)
 {
-  display.updateRingTitle(*display.currentRing, engine);
+  display.updateRingTitle();
 
-  auto& object = display.currentRing->getSelectedObject();
+  auto& object = display.getCurrentRing().getSelectedObject();
   if(object.animate())
     return nullptr; // play full animation until its end
 
@@ -991,22 +982,22 @@ std::unique_ptr<MenuState>
 
 void FinishItemAnimationMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
 {
-  if(&object != &display.currentRing->getSelectedObject())
+  if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);
   else
     rotateForSelection(object);
 }
 
 std::unique_ptr<MenuState>
-  DeselectingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
+  DeselectingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
 {
-  display.updateRingTitle(*display.currentRing, engine);
+  display.updateRingTitle();
   return std::make_unique<IdleRingMenuState>(m_ringTransform, false);
 }
 
 void DeselectingMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
 {
-  if(&object != &display.currentRing->getSelectedObject())
+  if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);
   else
     rotateForSelection(object);
@@ -1016,34 +1007,33 @@ DeselectingMenuState::DeselectingMenuState(const std::shared_ptr<MenuRingTransfo
                                            engine::Engine& engine)
     : MenuState{ringTransform}
 {
-  engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::MenuOptionEscape, nullptr);
+  engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
 }
 
 std::unique_ptr<MenuState>
   IdleRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
 {
-  display.updateRingTitle(*display.currentRing, engine);
+  display.updateRingTitle();
 
   if(engine.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right)
-     && display.currentRing->list.size() > 1)
+     && display.getCurrentRing().list.size() > 1)
   {
-    engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::MenuMove, nullptr);
+    engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
     return std::make_unique<RotateLeftRightMenuState>(
-      m_ringTransform, true, *display.currentRing, std::move(display.m_currentState));
+      m_ringTransform, true, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
   if(engine.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left)
-     && display.currentRing->list.size() > 1)
+     && display.getCurrentRing().list.size() > 1)
   {
-    engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::MenuMove, nullptr);
+    engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
     return std::make_unique<RotateLeftRightMenuState>(
-      m_ringTransform, false, *display.currentRing, std::move(display.m_currentState));
+      m_ringTransform, false, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
-  if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true)
-     && display.mode != InventoryMode::TitleMode)
+  if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true) && display.allowMenuClose)
   {
-    engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::MenuOptionEscape, nullptr);
+    engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
     display.inventoryChosen.reset();
     return std::make_unique<DeflateRingMenuState>(m_ringTransform, std::make_unique<DoneMenuState>(m_ringTransform));
   }
@@ -1052,26 +1042,28 @@ std::unique_ptr<MenuState>
   {
     display.passOpen = true;
 
-    auto& currentObject = display.currentRing->getSelectedObject();
+    auto& currentObject = display.getCurrentRing().getSelectedObject();
 
     switch(currentObject.type)
     {
     case engine::TR1ItemId::Compass:
-      engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::MenuOptionSelect2, nullptr);
+      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect2, nullptr);
       break;
     case engine::TR1ItemId::LarasHomePolaroid:
-      engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::MenuHome, nullptr);
+      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuHome, nullptr);
       break;
     case engine::TR1ItemId::DirectionKeys:
-      engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::LowTone, nullptr);
+      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::LowTone, nullptr);
       break;
     case engine::TR1ItemId::Pistols:
     case engine::TR1ItemId::Shotgun:
     case engine::TR1ItemId::Magnums:
     case engine::TR1ItemId::Uzis:
-      engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::MenuOptionSelect1, nullptr);
+      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect1, nullptr);
       break;
-    default: engine.getPresenter().getAudioEngine().playSound(engine::TR1SoundId::MenuOptionPopup, nullptr); break;
+    default:
+      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
+      break;
     }
 
     currentObject.goalFrame = currentObject.openFrame;
@@ -1080,44 +1072,16 @@ std::unique_ptr<MenuState>
   }
 
   if(engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward)
-     && display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::KeysMode)
+     && display.currentRingIndex > 0)
   {
-    if(display.currentRing->type == MenuRing::Type::Inventory)
-    {
-      if(!display.keysRing->list.empty())
-      {
-        return std::make_unique<DeflateRingMenuState>(
-          m_ringTransform, std::make_unique<SwitchRingMenuState>(m_ringTransform, display.keysRing, false));
-      }
-    }
-    else if(display.currentRing->type == MenuRing::Type::Options)
-    {
-      if(!display.mainRing->list.empty())
-      {
-        return std::make_unique<DeflateRingMenuState>(
-          m_ringTransform, std::make_unique<SwitchRingMenuState>(m_ringTransform, display.mainRing, false));
-      }
-    }
+    return std::make_unique<DeflateRingMenuState>(
+      m_ringTransform, std::make_unique<SwitchRingMenuState>(m_ringTransform, display.currentRingIndex - 1, false));
   }
   else if(engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward)
-          && display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::KeysMode)
+          && display.currentRingIndex + 1 < display.rings.size())
   {
-    if(display.currentRing->type == MenuRing::Type::Items)
-    {
-      if(!display.mainRing->list.empty())
-      {
-        return std::make_unique<DeflateRingMenuState>(
-          m_ringTransform, std::make_unique<SwitchRingMenuState>(m_ringTransform, display.mainRing, true));
-      }
-    }
-    else if(display.currentRing->type == MenuRing::Type::Inventory)
-    {
-      if(!display.optionsRing->list.empty())
-      {
-        return std::make_unique<DeflateRingMenuState>(
-          m_ringTransform, std::make_unique<SwitchRingMenuState>(m_ringTransform, display.optionsRing, true));
-      }
-    }
+    return std::make_unique<DeflateRingMenuState>(
+      m_ringTransform, std::make_unique<SwitchRingMenuState>(m_ringTransform, display.currentRingIndex + 1, false));
   }
 
   return nullptr;
@@ -1125,7 +1089,7 @@ std::unique_ptr<MenuState>
 
 void IdleRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
 {
-  if(&object == &display.currentRing->getSelectedObject())
+  if(&object == &display.getCurrentRing().getSelectedObject())
   {
     display.updateMenuObjectDescription(engine, object);
     idleRotation(engine, object);
@@ -1148,7 +1112,7 @@ std::unique_ptr<MenuState>
     return nullptr;
   }
 
-  display.currentRing = std::move(m_next);
+  display.currentRingIndex = m_next;
   m_ringTransform->cameraRotX = m_targetCameraRotX;
 
   return std::make_unique<InflateRingMenuState>(m_ringTransform);
@@ -1156,7 +1120,7 @@ std::unique_ptr<MenuState>
 
 void SwitchRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
 {
-  if(&object == &display.currentRing->getSelectedObject())
+  if(&object == &display.getCurrentRing().getSelectedObject())
   {
     display.updateMenuObjectDescription(engine, object);
     idleRotation(engine, object);
@@ -1168,10 +1132,10 @@ void SwitchRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& disp
 }
 
 SwitchRingMenuState::SwitchRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                         std::shared_ptr<MenuRing> next,
+                                         size_t next,
                                          bool down)
     : MenuState{ringTransform}
-    , m_next{std::move(next)}
+    , m_next{next}
     , m_down{down}
 {
 }
@@ -1179,7 +1143,7 @@ SwitchRingMenuState::SwitchRingMenuState(const std::shared_ptr<MenuRingTransform
 std::unique_ptr<MenuState>
   SelectedMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
 {
-  auto& currentObject = display.currentRing->getSelectedObject();
+  auto& currentObject = display.getCurrentRing().getSelectedObject();
   if(currentObject.type == engine::TR1ItemId::PassportClosed)
   {
     currentObject.type = engine::TR1ItemId::PassportOpening;
@@ -1191,7 +1155,7 @@ std::unique_ptr<MenuState>
   const bool autoSelect = display.doOptions(img, engine, currentObject);
   if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
   {
-    if(display.mode != InventoryMode::SaveMode && display.mode != InventoryMode::LoadMode)
+    if(display.rings.size() > 1)
     {
       return std::make_unique<FinishItemAnimationMenuState>(
         m_ringTransform,
@@ -1236,7 +1200,7 @@ std::unique_ptr<MenuState>
 
 void SelectedMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
 {
-  if(&object != &display.currentRing->getSelectedObject())
+  if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);
   else
     rotateForSelection(object);
@@ -1248,9 +1212,7 @@ std::unique_ptr<MenuState>
   if(m_duration == 0_frame)
   {
     bool doAutoSelect = false;
-    if((display.mode == InventoryMode::SaveMode || display.mode == InventoryMode::LoadMode
-        || display.mode == InventoryMode::DeathMode)
-       && !display.passOpen)
+    if(display.rings.size() == 1 && !display.passOpen)
     {
       doAutoSelect = true;
     }
@@ -1260,7 +1222,7 @@ std::unique_ptr<MenuState>
 
   m_duration -= 1_frame;
   m_ringTransform->ringRotation
-    = display.currentRing->getCurrentObjectAngle() - exactScale(90_deg, m_duration, Duration);
+    = display.getCurrentRing().getCurrentObjectAngle() - exactScale(90_deg, m_duration, Duration);
   m_ringTransform->cameraRotX = exactScale(m_initialCameraRotX, m_duration, Duration);
   m_ringTransform->radius += m_radiusSpeed;
   m_ringTransform->cameraPos.Y += m_cameraSpeedY;
@@ -1270,7 +1232,7 @@ std::unique_ptr<MenuState>
 void InflateRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
 {
   display.clearMenuObjectDescription();
-  if(&object == &display.currentRing->getSelectedObject())
+  if(&object == &display.getCurrentRing().getSelectedObject())
   {
     idleRotation(engine, object);
   }
@@ -1287,7 +1249,7 @@ InflateRingMenuState::InflateRingMenuState(const std::shared_ptr<MenuRingTransfo
 
 void ApplyItemTransformMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
 {
-  if(&object != &display.currentRing->getSelectedObject())
+  if(&object != &display.getCurrentRing().getSelectedObject())
   {
     zeroRotation(object, 256_au);
     return;
@@ -1313,9 +1275,9 @@ void ApplyItemTransformMenuState::handleObject(engine::Engine& engine, MenuDispl
 }
 
 std::unique_ptr<MenuState>
-  ApplyItemTransformMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
+  ApplyItemTransformMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
 {
-  display.updateRingTitle(*display.currentRing, engine);
+  display.updateRingTitle();
 
   if(m_duration != Duration)
   {
@@ -1328,7 +1290,7 @@ std::unique_ptr<MenuState>
 
 void DeflateRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
 {
-  if(&object == &display.currentRing->getSelectedObject())
+  if(&object == &display.getCurrentRing().getSelectedObject())
   {
     display.updateMenuObjectDescription(engine, object);
     zeroRotation(object, 256_au);
@@ -1361,7 +1323,7 @@ DeflateRingMenuState::DeflateRingMenuState(const std::shared_ptr<MenuRingTransfo
 
 void DoneMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
 {
-  if(&object == &display.currentRing->getSelectedObject())
+  if(&object == &display.getCurrentRing().getSelectedObject())
   {
     display.updateMenuObjectDescription(engine, object);
     zeroRotation(object, 256_au);
@@ -1381,7 +1343,7 @@ std::unique_ptr<MenuState>
 
 void RotateLeftRightMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
 {
-  if(&object == &display.currentRing->getSelectedObject())
+  if(&object == &display.getCurrentRing().getSelectedObject())
     display.updateMenuObjectDescription(engine, object);
   zeroRotation(object, 512_au);
 }
@@ -1414,8 +1376,8 @@ std::unique_ptr<MenuState>
   if(m_duration != 0_frame)
     return nullptr;
 
-  display.currentRing->currentObject = m_targetObject;
-  m_ringTransform->ringRotation = display.currentRing->getCurrentObjectAngle();
+  display.getCurrentRing().currentObject = m_targetObject;
+  m_ringTransform->ringRotation = display.getCurrentRing().getCurrentObjectAngle();
   return std::move(m_prev);
 }
 } // namespace menu

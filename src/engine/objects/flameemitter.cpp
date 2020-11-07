@@ -21,7 +21,7 @@ void FlameEmitter::update()
   else if(m_flame != nullptr)
   {
     removeParticle();
-    getEngine().getPresenter().getAudioEngine().stopSound(TR1SoundId::Burning, m_flame.get());
+    getEngine().getPresenter().getAudioEngine().stopSoundEffect(TR1SoundEffect::Burning, m_flame.get());
   }
 }
 

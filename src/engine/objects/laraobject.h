@@ -4,7 +4,7 @@
 #include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
 #include "engine/engine.h"
-#include "engine/sounds_tr1.h"
+#include "engine/soundeffects_tr1.h"
 #include "loader/file/animationid.h"
 #include "loader/file/larastateid.h"
 #include "modelobject.h"
@@ -297,7 +297,7 @@ public:
     Expects(hit_direction.has_value());
     if(hit_frame == 0_frame)
     {
-      playSoundEffect(TR1SoundId::LaraOof);
+      playSoundEffect(TR1SoundEffect::LaraOof);
     }
 
     hit_frame += 1_frame;
@@ -378,7 +378,7 @@ public:
     core::Length targetDist = 0_len;
     core::Frame recoilFrame = 0_frame;
     core::Frame flashTime = 0_frame;
-    TR1SoundId shotSound = TR1SoundId::LaraFootstep;
+    TR1SoundEffect shotSound = TR1SoundEffect::LaraFootstep;
 
     void serialize(const serialization::Serializer& ser);
 

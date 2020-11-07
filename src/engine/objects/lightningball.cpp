@@ -171,7 +171,7 @@ void LightningBall::update()
   if(!getEngine().roomsAreSwapped())
     getEngine().swapAllRooms();
 
-  playSoundEffect(TR1SoundId::Chatter);
+  playSoundEffect(TR1SoundEffect::Chatter);
 }
 
 void LightningBall::collide(CollisionInfo& /*info*/)
