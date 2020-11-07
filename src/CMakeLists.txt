@@ -489,6 +489,7 @@ set( EDISONENGINE_SRCS
         menu/menudisplay.cpp
         menu/menuring.cpp
         menu/menuobject.cpp
+        menu/menustates.cpp
         )
 
 if( MSVC )
