@@ -25,8 +25,8 @@ struct MenuDisplay
   ~MenuDisplay();
 
   InventoryMode mode = InventoryMode::GameMode;
-  std::array<std::shared_ptr<ui::Label>, 7> objectTexts;
-  std::shared_ptr<ui::Label> ammoText;
+  std::array<std::unique_ptr<ui::Label>, 7> objectTexts;
+  std::unique_ptr<ui::Label> ammoText;
   std::optional<engine::TR1ItemId> inventoryChosen{};
   int musicVolume = 10;
   int passportPage;
@@ -40,7 +40,7 @@ struct MenuDisplay
   void finalize(engine::Engine& engine);
   bool isDone = false;
 
-  std::vector<gsl::not_null<std::shared_ptr<MenuRing>>> rings;
+  std::vector<gsl::not_null<std::unique_ptr<MenuRing>>> rings;
   size_t currentRingIndex = 0;
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   bool passOpen = false;

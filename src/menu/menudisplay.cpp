@@ -45,7 +45,7 @@ void MenuDisplay::updateRingTitle()
 
   if(objectTexts[2] == nullptr)
   {
-    objectTexts[2] = std::make_shared<ui::Label>(0, 26, getCurrentRing().title);
+    objectTexts[2] = std::make_unique<ui::Label>(0, 26, getCurrentRing().title);
     objectTexts[2]->alignX = ui::Label::Alignment::Center;
   }
   else
@@ -57,8 +57,8 @@ void MenuDisplay::updateRingTitle()
   {
     if(objectTexts[3] == nullptr)
     {
-      objectTexts[3] = std::make_shared<ui::Label>(20, 28, "[");
-      objectTexts[4] = std::make_shared<ui::Label>(-20, 28, "[");
+      objectTexts[3] = std::make_unique<ui::Label>(20, 28, "[");
+      objectTexts[4] = std::make_unique<ui::Label>(-20, 28, "[");
       objectTexts[4]->alignX = ui::Label::Alignment::Right;
     }
   }
@@ -72,9 +72,9 @@ void MenuDisplay::updateRingTitle()
   {
     if(objectTexts[5] == nullptr)
     {
-      objectTexts[5] = std::make_shared<ui::Label>(20, -15, "]");
+      objectTexts[5] = std::make_unique<ui::Label>(20, -15, "]");
       objectTexts[5]->alignY = ui::Label::Alignment::Bottom;
-      objectTexts[6] = std::make_shared<ui::Label>(-20, -15, "]");
+      objectTexts[6] = std::make_unique<ui::Label>(-20, -15, "]");
       objectTexts[6]->alignX = ui::Label::Alignment::Right;
       objectTexts[6]->alignY = ui::Label::Alignment::Bottom;
     }
@@ -96,13 +96,13 @@ void MenuDisplay::updateMenuObjectDescription(engine::Engine& engine, const Menu
       {
         if(const auto objectName = core::get<std::string>(localNames.value(), object.type))
         {
-          objectTexts[0] = std::make_shared<ui::Label>(0, -16, objectName.value());
+          objectTexts[0] = std::make_unique<ui::Label>(0, -16, objectName.value());
         }
       }
     }
 
     if(objectTexts[0] == nullptr)
-      objectTexts[0] = std::make_shared<ui::Label>(0, -16, object.name);
+      objectTexts[0] = std::make_unique<ui::Label>(0, -16, object.name);
 
     objectTexts[0]->alignX = ui::Label::Alignment::Center;
     objectTexts[0]->alignY = ui::Label::Alignment::Bottom;
@@ -151,7 +151,7 @@ void MenuDisplay::updateMenuObjectDescription(engine::Engine& engine, const Menu
 
   if(objectTexts[1] == nullptr && itemCount > 1)
   {
-    objectTexts[1] = std::make_shared<ui::Label>(64, -56, makeAmmoString(std::to_string(totalItemCount) + suffix));
+    objectTexts[1] = std::make_unique<ui::Label>(64, -56, makeAmmoString(std::to_string(totalItemCount) + suffix));
     objectTexts[1]->alignX = ui::Label::Alignment::Center;
     objectTexts[1]->alignY = ui::Label::Alignment::Bottom;
   }
@@ -466,23 +466,25 @@ bool MenuDisplay::init(engine::Engine& engine)
   currentRingIndex = 0;
 
   if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
-    rings.emplace_back(std::make_shared<MenuRing>(MenuRing::Type::Inventory, "INVENTORY", getMainRingObjects(engine)));
+    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Inventory, "INVENTORY", getMainRingObjects(engine)));
 
   if(mode != InventoryMode::KeysMode)
   {
-    rings.emplace_back(std::make_shared<MenuRing>(MenuRing::Type::Options,
+    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Options,
                                                   mode == InventoryMode::DeathMode ? "GAME OVER" : "OPTION",
                                                   getOptionRingObjects(mode == InventoryMode::TitleMode)));
   }
 
   if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
   {
-    rings.emplace_back(std::make_shared<MenuRing>(MenuRing::Type::Items, "ITEMS", getKeysRingObjects(engine)));
+    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Items, "ITEMS", getKeysRingObjects(engine)));
     if(rings.back()->list.empty())
-      rings.pop_back();
+    {
+      if(mode == InventoryMode::KeysMode)
+        return false;
 
-    if(mode == InventoryMode::KeysMode && rings.empty())
-      return false;
+      rings.pop_back();
+    }
   }
 
   Ensures(!rings.empty());
