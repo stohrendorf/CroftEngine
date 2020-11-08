@@ -187,6 +187,8 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::Engine& engine)
       txt->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
   if(ammoText != nullptr)
     ammoText->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
+  if(passportText != nullptr)
+    passportText->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
 }
 
 void MenuDisplay::clearMenuObjectDescription()

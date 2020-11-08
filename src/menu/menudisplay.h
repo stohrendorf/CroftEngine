@@ -27,6 +27,7 @@ struct MenuDisplay
   InventoryMode mode = InventoryMode::GameMode;
   std::array<std::unique_ptr<ui::Label>, 7> objectTexts;
   std::unique_ptr<ui::Label> ammoText;
+  std::unique_ptr<ui::Label> passportText;
   std::optional<engine::TR1ItemId> inventoryChosen{};
   int musicVolume = 10;
   int passportPage;

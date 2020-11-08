@@ -9,6 +9,7 @@ namespace menu
 struct MenuDisplay;
 struct MenuObject;
 struct MenuRing;
+enum class InventoryMode;
 
 class MenuState
 {
@@ -217,6 +218,20 @@ public:
                                     bool left,
                                     const MenuRing& ring,
                                     std::unique_ptr<MenuState>&& prev);
+
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
+  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+};
+
+class PassportMenuState : public MenuState
+{
+private:
+  const bool m_allowExit;
+  const bool m_allowSave;
+  const std::optional<int> m_forcePage;
+
+public:
+  explicit PassportMenuState(InventoryMode mode, const std::shared_ptr<MenuRingTransform>& ringTransform);
 
   std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
   void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
