@@ -49,7 +49,9 @@ void Serializer::processQueues()
 {
   while(!m_lazyQueue->empty())
   {
+#ifdef SERIALIZATION_TRACE
     BOOST_LOG_TRIVIAL(debug) << "Processing serialization queue...";
+#endif
     auto current = std::exchange(m_lazyQueue, std::make_shared<LazyQueue>());
     while(!current->empty())
     {
@@ -59,6 +61,7 @@ void Serializer::processQueues()
   }
 }
 
+#ifdef SERIALIZATION_TRACE
 std::string Serializer::getQualifiedKey() const
 {
   if(!node.has_key())
@@ -78,6 +81,7 @@ std::string Serializer::getQualifiedKey() const
   }
   return result;
 }
+#endif
 
 void Serializer::ensureIsMap() const
 {

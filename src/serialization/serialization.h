@@ -14,6 +14,8 @@
 #include <type_traits>
 #include <typeinfo>
 
+// #define SERIALIZATION_TRACE
+
 namespace engine
 {
 class Engine;
@@ -139,7 +141,9 @@ class Serializer final
   void processQueues();
 
   void ensureIsMap() const;
+#ifdef SERIALIZATION_TRACE
   std::string getQualifiedKey() const;
+#endif
   Serializer createMapMemberSerializer(const gsl::not_null<gsl::czstring>& name) const;
 
 public:
@@ -181,7 +185,9 @@ public:
     ensureIsMap();
     BOOST_ASSERT(node.valid());
     BOOST_ASSERT(!node.is_seed());
+#ifdef SERIALIZATION_TRACE
     BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name.get();
+#endif
 
     Serializer ser = createMapMemberSerializer(name);
 
