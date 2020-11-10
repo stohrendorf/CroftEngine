@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/items_tr1.h"
 #include "menuringtransform.h"
 
 #include <gl/image.h>
@@ -112,6 +113,26 @@ public:
   explicit FinishItemAnimationMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                         std::unique_ptr<MenuState> next)
       : MenuState{ringTransform}
+      , m_next{std::move(next)}
+  {
+  }
+
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
+  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+};
+
+class SetItemTypeMenuState : public MenuState
+{
+private:
+  const engine::TR1ItemId m_type;
+  std::unique_ptr<MenuState> m_next;
+
+public:
+  explicit SetItemTypeMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                const engine::TR1ItemId type,
+                                std::unique_ptr<MenuState> next)
+      : MenuState{ringTransform}
+      , m_type{type}
       , m_next{std::move(next)}
   {
   }
@@ -235,7 +256,7 @@ private:
   const bool m_allowSave;
   const std::optional<int> m_forcePage;
 
-  static void close(MenuDisplay& display, int page, MenuObject& passport);
+  std::unique_ptr<MenuState> close(MenuDisplay& display, int page, MenuObject& passport);
 
 public:
   explicit PassportMenuState(InventoryMode mode, const std::shared_ptr<MenuRingTransform>& ringTransform);

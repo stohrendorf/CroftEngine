@@ -679,11 +679,11 @@ std::unique_ptr<MenuState>
     if(!m_allowExit)
       return nullptr;
 
-    close(display, page, passport);
+    return close(display, page, passport);
   }
   else if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
-    close(display, page, passport);
+    return close(display, page, passport);
   }
 
   return nullptr;
@@ -699,7 +699,7 @@ PassportMenuState::PassportMenuState(InventoryMode mode, const std::shared_ptr<M
 {
 }
 
-void PassportMenuState::close(MenuDisplay& display, int page, MenuObject& passport)
+std::unique_ptr<MenuState> PassportMenuState::close(MenuDisplay& display, int page, MenuObject& passport)
 {
   display.passportText.reset();
 
@@ -713,5 +713,25 @@ void PassportMenuState::close(MenuDisplay& display, int page, MenuObject& passpo
     passport.goalFrame = 0_frame;
     passport.animDirection = -1_frame;
   }
+
+  return std::make_unique<FinishItemAnimationMenuState>(
+    m_ringTransform,
+    std::make_unique<SetItemTypeMenuState>(
+      m_ringTransform,
+      engine::TR1ItemId::PassportClosed,
+      std::make_unique<ResetItemTransformMenuState>(m_ringTransform,
+                                                    std::make_unique<IdleRingMenuState>(m_ringTransform, false))));
+}
+
+std::unique_ptr<MenuState>
+  SetItemTypeMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& /*display*/)
+{
+  return std::move(m_next);
+}
+
+void SetItemTypeMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
+{
+  if(&object == &display.getCurrentRing().getSelectedObject())
+    object.type = m_type;
 }
 } // namespace menu
