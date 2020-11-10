@@ -226,9 +226,16 @@ public:
 class PassportMenuState : public MenuState
 {
 private:
+  static constexpr int LoadGamePage = 0;
+  static constexpr int SaveGamePage = 1;
+  static constexpr int ExitGamePage = 2;
+  static constexpr core::Frame FramesPerPage = 5_frame;
+
   const bool m_allowExit;
   const bool m_allowSave;
   const std::optional<int> m_forcePage;
+
+  static void close(MenuDisplay& display, int page, MenuObject& passport);
 
 public:
   explicit PassportMenuState(InventoryMode mode, const std::shared_ptr<MenuRingTransform>& ringTransform);

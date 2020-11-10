@@ -353,5 +353,10 @@ public:
 
   void gameLoop(Throttler& throttler, const std::string& levelName, bool godMode);
   void cinematicLoop();
+
+  [[nodiscard]] std::filesystem::path getSavegamePath() const
+  {
+    return m_rootPath / "saves";
+  }
 };
 } // namespace engine

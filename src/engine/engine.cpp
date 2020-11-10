@@ -165,7 +165,7 @@ void Engine::loadSceneData(const std::string& animatedTextureId)
       BOOST_ASSERT(model->boneTree.empty() || static_cast<size_t>(model->nMeshes) == model->boneTree.size() + 1);
       for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
       {
-        const auto& mesh = m_meshesDirect.at(model->mesh_base_index + i);
+        const auto& mesh = (model->mesh_base_index + i).from(m_meshesDirect);
         model->bones.emplace_back(mesh->meshData,
                                   mesh->center,
                                   mesh->collision_size,

@@ -37,7 +37,7 @@ struct Id
   constexpr Id(T value) // NOLINT(google-explicit-constructor)
       : m_value{static_cast<type>(value)}
   {
-    static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible type");
+    static_assert(sizeof...(Enums) == 0 || tpl::is_one_of_v<T, Enums...>, "Incompatible type");
   }
 
   constexpr auto& operator=(type value)
@@ -49,7 +49,7 @@ struct Id
   template<typename T>
   constexpr auto& operator=(T value)
   {
-    static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible type");
+    static_assert(sizeof...(Enums) == 0 || tpl::is_one_of_v<T, Enums...>, "Incompatible type");
     m_value = static_cast<type>(value);
     return *this;
   }
@@ -67,7 +67,7 @@ struct Id
   template<typename T>
   [[nodiscard]] constexpr T get_as() const
   {
-    static_assert(sizeof...(Enums) == 0 || tpl::contains_v<T, Enums...>, "Incompatible target type");
+    static_assert(sizeof...(Enums) == 0 || tpl::is_one_of_v<T, Enums...>, "Incompatible target type");
     return static_cast<T>(m_value);
   }
 

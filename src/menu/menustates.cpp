@@ -59,6 +59,23 @@ auto exactScale(const qs::quantity<Unit, Type>& value, const core::Frame& x, con
   const auto f = x.cast<float>() / max.cast<float>();
   return (value.template cast<float>() * f).template cast<Type>();
 }
+
+std::vector<std::filesystem::path> getSavegames(const engine::Engine& engine)
+{
+  if(!std::filesystem::is_directory(engine.getSavegamePath()))
+    return {};
+
+  std::vector<std::filesystem::path> result;
+  for(const auto& p : std::filesystem::directory_iterator(engine.getSavegamePath()))
+  {
+    if(!p.is_regular_file() || p.path().extension() != ".meta")
+      continue;
+
+    result.emplace_back(p.path());
+  }
+
+  return result;
+}
 } // namespace
 
 void ResetItemTransformMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
@@ -526,18 +543,14 @@ std::unique_ptr<MenuState>
   if(animRunning)
     return nullptr;
 
-  static constexpr int LoadGamePage = 0;
-  static constexpr int SaveGamePage = 1;
-  static constexpr int ExitGamePage = 2;
-
-  static constexpr bool isInGame = true;      // FIXME
-  static constexpr bool hasSavedGames = true; // FIXME
+  const bool isInGame = display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::DeathMode;
+  const bool hasSavedGames = !getSavegames(engine).empty();
 
   display.objectTexts[0].reset();
   const auto localFrame = passport.goalFrame - passport.openFrame;
-  auto page = localFrame / 5_frame;
+  auto page = localFrame / FramesPerPage;
   hid::AxisMovement forcePageTurn = hid::AxisMovement::Null;
-  if(localFrame % 5_frame != 0_frame)
+  if(localFrame % FramesPerPage != 0_frame)
   {
     page = -1;
   }
@@ -574,7 +587,7 @@ std::unique_ptr<MenuState>
     }
     break;
   case SaveGamePage:
-    if(display.mode == InventoryMode::DeathMode)
+    if(!m_allowSave)
     {
       // can't save when dead, so just skip this page
       if(passport.animDirection == -1_frame)
@@ -585,15 +598,14 @@ std::unique_ptr<MenuState>
     }
     if(display.passportText == nullptr)
     {
-      display.passportText = std::make_unique<ui::Label>(
-        0, -16, display.mode != InventoryMode::TitleMode && isInGame ? "Save Game" : "New Game");
+      display.passportText = std::make_unique<ui::Label>(0, -16, m_allowSave && isInGame ? "Save Game" : "New Game");
       display.passportText->alignY = ui::Label::Alignment::Bottom;
       display.passportText->alignX = ui::Label::Alignment::Center;
     }
     if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
        || display.mode == InventoryMode::SaveMode)
     {
-      if(display.mode != InventoryMode::TitleMode && isInGame)
+      if(m_allowSave && isInGame)
       {
         display.objectTexts[0].reset();
         display.objectTexts[2].reset();
@@ -618,7 +630,7 @@ std::unique_ptr<MenuState>
   {
     if(hasSavedGames)
     {
-      passport.goalFrame -= 5_frame;
+      passport.goalFrame -= FramesPerPage;
       passport.animDirection = -1_frame;
       if(passport.goalFrame < passport.openFrame)
       {
@@ -631,17 +643,17 @@ std::unique_ptr<MenuState>
       }
       return nullptr;
     }
-    else if(display.mode != InventoryMode::DeathMode)
+    else if(m_allowSave)
     {
-      passport.goalFrame -= 5_frame;
+      passport.goalFrame -= FramesPerPage;
       passport.animDirection = -1_frame;
-      if(passport.goalFrame >= passport.openFrame + 5_frame)
+      if(const auto firstFrame = passport.openFrame + FramesPerPage; passport.goalFrame < firstFrame)
       {
-        display.passportText.reset();
+        passport.goalFrame = firstFrame;
       }
       else
       {
-        passport.goalFrame = passport.openFrame + 5_frame;
+        display.passportText.reset();
       }
       return nullptr;
     }
@@ -649,11 +661,11 @@ std::unique_ptr<MenuState>
   else if(forcePageTurn == hid::AxisMovement::Right
           || engine.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
   {
-    passport.goalFrame += 5_frame;
+    passport.goalFrame += FramesPerPage;
     passport.animDirection = 1_frame;
-    if(passport.goalFrame > passport.lastMeshAnimFrame - 6_frame)
+    if(const auto lastFrame = passport.lastMeshAnimFrame - FramesPerPage - 1_frame; passport.goalFrame > lastFrame)
     {
-      passport.goalFrame = passport.lastMeshAnimFrame - 6_frame;
+      passport.goalFrame = lastFrame;
     }
     else
     {
@@ -665,35 +677,13 @@ std::unique_ptr<MenuState>
   else if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
   {
     if(!m_allowExit)
-    {
       return nullptr;
-    }
 
-    if(page == ExitGamePage)
-    {
-      passport.animDirection = 1_frame;
-      passport.goalFrame = passport.lastMeshAnimFrame - 1_frame;
-    }
-    else
-    {
-      passport.goalFrame = 0_frame;
-      passport.animDirection = -1_frame;
-    }
-    display.passportText.reset();
+    close(display, page, passport);
   }
   else if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
-    display.passportText.reset();
-    if(page == ExitGamePage)
-    {
-      passport.animDirection = 1_frame;
-      passport.goalFrame = passport.lastMeshAnimFrame - 1_frame;
-    }
-    else
-    {
-      passport.goalFrame = 0_frame;
-      passport.animDirection = -1_frame;
-    }
+    close(display, page, passport);
   }
 
   return nullptr;
@@ -701,11 +691,27 @@ std::unique_ptr<MenuState>
 
 PassportMenuState::PassportMenuState(InventoryMode mode, const std::shared_ptr<MenuRingTransform>& ringTransform)
     : MenuState{ringTransform}
-    , m_allowExit{mode != InventoryMode::DeathMode}
-    , m_allowSave{mode != InventoryMode::DeathMode}
+    , m_allowExit{mode != InventoryMode::DeathMode && mode != InventoryMode::TitleMode}
+    , m_allowSave{mode != InventoryMode::DeathMode && mode != InventoryMode::TitleMode}
     , m_forcePage{mode == InventoryMode::LoadMode   ? std::optional<int>{0}
                   : mode == InventoryMode::SaveMode ? std::optional<int>{1}
                                                     : std::nullopt}
 {
+}
+
+void PassportMenuState::close(MenuDisplay& display, int page, MenuObject& passport)
+{
+  display.passportText.reset();
+
+  if(page == ExitGamePage)
+  {
+    passport.goalFrame = passport.lastMeshAnimFrame - 1_frame;
+    passport.animDirection = 1_frame;
+  }
+  else
+  {
+    passport.goalFrame = 0_frame;
+    passport.animDirection = -1_frame;
+  }
 }
 } // namespace menu

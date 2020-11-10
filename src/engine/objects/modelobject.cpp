@@ -33,7 +33,7 @@ void ModelObject::update()
   {
     const auto* cmd = getSkeleton()->anim->animCommandCount == 0
                         ? nullptr
-                        : &getEngine().getAnimCommands().at(getSkeleton()->anim->animCommandIndex);
+                        : &getSkeleton()->anim->animCommandIndex.from(getEngine().getAnimCommands());
     for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
     {
       BOOST_ASSERT(cmd < &getEngine().getAnimCommands().back());
@@ -69,7 +69,7 @@ void ModelObject::update()
 
   const auto* cmd = getSkeleton()->anim->animCommandCount == 0
                       ? nullptr
-                      : &getEngine().getAnimCommands().at(getSkeleton()->anim->animCommandIndex);
+                      : &getSkeleton()->anim->animCommandIndex.from(getEngine().getAnimCommands());
   for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
   {
     BOOST_ASSERT(cmd < &getEngine().getAnimCommands().back());

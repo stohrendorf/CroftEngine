@@ -330,8 +330,8 @@ void Level::postProcessDataStructures()
     Expects(anim.nextAnimationIndex < m_animations.size());
     anim.nextAnimation = &m_animations[anim.nextAnimationIndex];
 
-    Expects(gsl::narrow<size_t>(anim.animCommandIndex + anim.animCommandCount) <= m_animCommands.size());
-    Expects(gsl::narrow<size_t>(anim.transitionsIndex + anim.transitionsCount) <= m_transitions.size());
+    Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
+    Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
     if(anim.transitionsCount > 0)
       anim.transitions = gsl::make_span(&anim.transitionsIndex.from(m_transitions), anim.transitionsCount);
   }
@@ -347,8 +347,7 @@ void Level::postProcessDataStructures()
 
   for(Transitions& transition : m_transitions)
   {
-    Expects(gsl::narrow<size_t>(transition.firstTransitionCase + transition.transitionCaseCount)
-            <= m_transitionCases.size());
+    Expects((transition.firstTransitionCase + transition.transitionCaseCount).exclusiveIn(m_transitionCases));
     if(transition.transitionCaseCount > 0)
       transition.transitionCases
         = gsl::make_span(&transition.firstTransitionCase.from(m_transitionCases), transition.transitionCaseCount);

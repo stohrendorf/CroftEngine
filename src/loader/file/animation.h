@@ -183,7 +183,7 @@ struct Animation
   uint16_t transitionsCount;
   core::ContainerIndex<uint16_t, Transitions> transitionsIndex; // offset into StateChanges[]
   uint16_t animCommandCount;                                    // How many of them to use.
-  uint16_t animCommandIndex;                                    // offset into AnimCommand[]
+  core::ContainerIndex<uint16_t, int16_t> animCommandIndex;     // offset into AnimCommand[]
 
   const Animation* nextAnimation = nullptr;
   gsl::span<const Transitions> transitions{};

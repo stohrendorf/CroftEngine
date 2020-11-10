@@ -22,9 +22,7 @@ struct ContainerOffset
 
   constexpr ContainerOffset() = default;
 
-  // cppcheck-suppress noExplicitConstructor
-  // NOLINTNEXTLINE(google-explicit-constructor)
-  constexpr ContainerOffset(offset_type offset)
+  explicit constexpr ContainerOffset(offset_type offset)
       : offset{offset}
   {
   }
@@ -35,30 +33,31 @@ struct ContainerOffset
   template<typename T>
   offset_type index() const
   {
-    static_assert(tpl::contains_v<T, DataTypes...>, "Can only use declared types for index conversion");
+    static_assert(tpl::is_one_of_v<T, DataTypes...>, "Can only use declared types for index conversion");
     if(offset % sizeof(T) != 0)
-      BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
+      BOOST_THROW_EXCEPTION(std::runtime_error("Offset not a multiple of element size"));
 
     return offset / sizeof(T);
   }
 
   template<typename T>
-  [[nodiscard]] constexpr auto from(std::vector<T>& v) const -> std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
+  [[nodiscard]] constexpr decltype(auto) from(std::vector<T>& v) const
   {
-    if(offset % sizeof(T) != 0)
-      BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
-
-    return v.at(offset / sizeof(T));
+    return v.at(index<T>());
   }
 
   template<typename T>
-  [[nodiscard]] constexpr auto from(const std::vector<T>& v) const
-    -> std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+  [[nodiscard]] constexpr decltype(auto) from(const std::vector<T>& v) const
   {
-    if(offset % sizeof(T) != 0)
-      BOOST_THROW_EXCEPTION(std::runtime_error("Offset not dividable by element size"));
+    return v.at(index<T>());
+  }
+  template<typename T>
+  void operator=(T value) const = delete;
 
-    return v.at(offset / sizeof(T));
+  auto& operator=(offset_type value)
+  {
+    offset = value;
+    return *this;
   }
 };
 
@@ -75,9 +74,7 @@ struct ContainerIndex
 
   constexpr ContainerIndex() = default;
 
-  // cppcheck-suppress noExplicitConstructor
-  // NOLINTNEXTLINE(google-explicit-constructor)
-  constexpr ContainerIndex(index_type index) noexcept
+  explicit constexpr ContainerIndex(index_type index) noexcept
       : index{index}
   {
   }
@@ -86,17 +83,33 @@ struct ContainerIndex
   explicit ContainerIndex(T) = delete;
 
   template<typename T>
-  [[nodiscard]] constexpr auto from(std::vector<T>& v) const -> std::enable_if_t<tpl::contains_v<T, DataTypes...>, T&>
+  [[nodiscard]] constexpr auto from(std::vector<T>& v) const -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, T&>
   {
     return v.at(index);
   }
 
   template<typename T>
   [[nodiscard]] constexpr auto from(const std::vector<T>& v) const
-    -> std::enable_if_t<tpl::contains_v<T, DataTypes...>, const T&>
+    -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, const T&>
   {
     return v.at(index);
   }
+
+  template<typename T>
+  [[nodiscard]] auto in(const std::vector<T>& v) const -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, bool>
+  {
+    return index < v.size();
+  }
+
+  template<typename T>
+  [[nodiscard]] auto exclusiveIn(const std::vector<T>& v) const
+    -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, bool>
+  {
+    return index <= v.size();
+  }
+
+  template<typename T>
+  void operator+=(T delta) = delete;
 
   auto& operator+=(index_type delta)
   {
@@ -107,16 +120,32 @@ struct ContainerIndex
     return *this;
   }
 
-  [[nodiscard]] auto operator+(const ContainerIndex<IndexType, DataTypes...>& delta) const
+  template<typename T>
+  [[nodiscard]] auto operator+(const ContainerIndex<T, DataTypes...>& delta) const
   {
-    if((index > 0) && (delta.index > std::numeric_limits<index_type>::max() - index))
-      BOOST_THROW_EXCEPTION(std::out_of_range("Index addition causes overflow"));
-
-    return index + delta.index;
+    return *this + delta.index;
   }
 
   template<typename T>
-  void operator+=(T) = delete;
+  [[nodiscard]] auto operator+(T delta) const
+  {
+    using LargerType = std::conditional_t<(sizeof(T) > sizeof(index_type)), T, index_type>;
+    if((index > 0) && (delta > std::numeric_limits<LargerType>::max() - LargerType{index}))
+      BOOST_THROW_EXCEPTION(std::out_of_range("Index addition causes overflow"));
+
+    return ContainerIndex<LargerType, DataTypes...>{
+      gsl::narrow_cast<LargerType>(LargerType{index} + LargerType{delta})};
+  }
+
+  template<typename T>
+  // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature, misc-unconventional-assign-operator)
+  auto operator=(T value)
+    -> std::enable_if_t<std::is_integral_v<T> && !std::is_signed_v<T> && sizeof(T) <= sizeof(IndexType),
+                        ContainerIndex<IndexType, DataTypes...>&>
+  {
+    index = value;
+    return *this;
+  }
 
   void serialize(const serialization::Serializer& ser)
   {

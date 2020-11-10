@@ -100,7 +100,7 @@ struct Sector
 
   void reset()
   {
-    floorDataIndex = 0;
+    floorDataIndex = uint16_t{0};
     floorData = nullptr;
     portalTarget = nullptr; // cached from floordata
     boxIndex = int16_t(-1);

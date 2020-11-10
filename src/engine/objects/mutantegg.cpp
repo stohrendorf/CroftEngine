@@ -42,7 +42,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
       compositor.toMesh(*object.getEngine().getPresenter().getMaterialManager(), false, {}),
       isTorsoBoss,
       damageRadius);
-    particle->negSpriteFrameId = gsl::narrow<int16_t>(modelType->mesh_base_index + i);
+    particle->negSpriteFrameId = (modelType->mesh_base_index + i).index;
     setParent(particle, object.m_state.position.room->node);
     object.getEngine().getObjectManager().registerParticle(std::move(particle));
 
