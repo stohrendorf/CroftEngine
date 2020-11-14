@@ -533,7 +533,7 @@ target_link_libraries(
         OpenGL
         glm
         FFmpeg
-        gsl-lite
+        gsl-lite::gsl-lite
         soglb
         Qt5::Widgets
         pybind11::pybind11

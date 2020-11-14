@@ -101,7 +101,7 @@ public:
   }
 
 private:
-  const uint32_t m_handle;
+  const uint32_t m_handle{};
 };
 
 using FragmentShader = Shader<api::ShaderType::FragmentShader>;

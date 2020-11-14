@@ -61,7 +61,8 @@ RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager)
 {
   // generate sample kernel
   std::uniform_real_distribution<float> randomFloats(0, 1);
-  std::default_random_engine generator{}; // NOLINT(cert-msc32-c)
+  // NOLINTNEXTLINE(cert-msc32-c, cert-msc51-cpp)
+  std::default_random_engine generator{};
   std::vector<glm::vec3> ssaoSamples;
   while(ssaoSamples.size() < 16)
   {
@@ -137,6 +138,7 @@ void RenderPipeline::PortalStage::resize(const glm::ivec2& viewport)
          .build("portal-fb");
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void RenderPipeline::PortalStage::bind(const gl::TextureDepth<float>& depth)
 {
   gl::Framebuffer::unbindAll();
@@ -144,6 +146,7 @@ void RenderPipeline::PortalStage::bind(const gl::TextureDepth<float>& depth)
   fb->bindWithAttachments();
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void RenderPipeline::GeometryStage::bind(const glm::ivec2& size)
 {
   gl::Framebuffer::unbindAll();
@@ -204,6 +207,7 @@ RenderPipeline::FXAAStage::FXAAStage(scene::ShaderManager& shaderManager)
 {
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void RenderPipeline::FXAAStage::bind()
 {
   fb->bindWithAttachments();
@@ -321,6 +325,7 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
   crtMesh->getMaterial().set(scene::RenderMode::Full, crtMaterial);
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void RenderPipeline::CompositionStage::render(bool water, bool crt)
 {
   gl::DebugGroup dbg{"postprocess-pass"};

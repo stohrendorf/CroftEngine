@@ -42,6 +42,7 @@ class CachedFont
     const auto dstW = std::lround((sprite.t1.x - sprite.t0.x) * 256 * scale / FontBaseScale);
     const auto dstH = std::lround((sprite.t1.y - sprite.t0.y) * 256 * scale / FontBaseScale);
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     gl::CImgWrapper src{reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
                         sprite.image->getWidth(),
                         sprite.image->getHeight(),

@@ -290,37 +290,37 @@ struct Room
   static constexpr uint16_t TR_ROOM_FLAG_DAMAGE = 0x0800; ///< @FIXME: Is it really damage (D)?
   static constexpr uint16_t TR_ROOM_FLAG_POISON = 0x1000; ///< @FIXME: Is it really poison (P)?
 
-  core::TRVec position;
+  core::TRVec position{};
 
   core::Length lowestHeight{0};
 
   core::Length greatestHeight{0};
 
-  std::vector<Layer> layers;
+  std::vector<Layer> layers{};
 
-  std::vector<RoomVertex> vertices;
+  std::vector<RoomVertex> vertices{};
 
-  std::vector<QuadFace> rectangles;
+  std::vector<QuadFace> rectangles{};
 
-  std::vector<Triangle> triangles;
+  std::vector<Triangle> triangles{};
 
-  std::vector<SpriteInstance> sprites;
+  std::vector<SpriteInstance> sprites{};
 
-  std::vector<Portal> portals;
+  std::vector<Portal> portals{};
 
-  int sectorCountZ;            // "width" of sector list
-  int sectorCountX;            // "height" of sector list
-  std::vector<Sector> sectors; // [NumXsectors * NumZsectors] list of sectors in this room
+  int sectorCountZ{};            // "width" of sector list
+  int sectorCountX{};            // "height" of sector list
+  std::vector<Sector> sectors{}; // [NumXsectors * NumZsectors] list of sectors in this room
   core::Shade ambientShade{};
-  int16_t intensity2;        // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
-  int16_t lightMode;         // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
-  std::vector<Light> lights; // [NumLights] list of point lights
-  std::vector<RoomStaticMesh> staticMeshes;     // [NumStaticMeshes]list of static meshes
+  int16_t intensity2{};        // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
+  int16_t lightMode{};         // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
+  std::vector<Light> lights{}; // [NumLights] list of point lights
+  std::vector<RoomStaticMesh> staticMeshes{};   // [NumStaticMeshes]list of static meshes
   core::RoomIdI16 alternateRoom{int16_t(-1)};   // number of the room that this room can alternate
   core::RoomGroupId alternateGroup{uint8_t(0)}; // number of group which is used to switch alternate rooms
   // with (e.g. empty/filled with water is implemented as an empty room that alternates with a full room)
 
-  uint16_t flags;
+  uint16_t flags{};
 
   // Flag bits:
   // 0x0001 - room is filled with water,
@@ -334,31 +334,31 @@ struct Room
     return (flags & TR_ROOM_FLAG_WATER) != 0;
   }
 
-  uint8_t waterScheme;
+  uint8_t waterScheme{};
 
   // Water scheme is used with various room options, for example, R and M room flags in TRLE.
   // Also, it specifies lighting scheme, when 0x4000 vertex attribute is set.
 
-  ReverbType reverbInfo;
+  ReverbType reverbInfo{};
 
   // Reverb info is used in TR3-5 and contains index that specifies reverb type.
   // 0 - Outside, 1 - Small room, 2 - Medium room, 3 - Large room, 4 - Pipe.
 
-  FloatColor lightColor; // Present in TR5 only
+  FloatColor lightColor{}; // Present in TR5 only
 
   // TR5 only:
 
-  float room_x;
-  float room_z;
-  float room_y_bottom;
-  float room_y_top;
-  uint32_t unknown_r1;
-  uint32_t unknown_r2;
-  uint32_t unknown_r3;
-  uint16_t unknown_r4a;
-  uint16_t unknown_r4b;
-  uint32_t unknown_r5;
-  uint32_t unknown_r6;
+  float room_x{};
+  float room_z{};
+  float room_y_bottom{};
+  float room_y_top{};
+  uint32_t unknown_r1{};
+  uint32_t unknown_r2{};
+  uint32_t unknown_r3{};
+  uint16_t unknown_r4a{};
+  uint16_t unknown_r4b{};
+  uint32_t unknown_r5{};
+  uint32_t unknown_r6{};
 
   /** \brief reads a room definition.
       *
@@ -576,16 +576,18 @@ struct Zones
 
 struct Camera
 {
-  core::TRVec position;
+  core::TRVec position{};
 
-  union {
-    uint16_t room;
+  union
+  {
+    uint16_t room{};
     uint16_t underwaterCurrentStrength;
   };
 
-  union {
+  union
+  {
     // TODO mutable flags
-    mutable uint16_t flags;
+    mutable uint16_t flags{};
     uint16_t box_index;
   };
 
@@ -609,19 +611,19 @@ struct Camera
 
 struct FlybyCamera
 {
-  int32_t cam_x;
-  int32_t cam_y;
-  int32_t cam_z;
-  int32_t target_x;
-  int32_t target_y;
-  int32_t target_z;
-  uint8_t sequence;
-  uint8_t index;
-  uint16_t fov;
-  uint16_t roll;
+  int32_t cam_x{};
+  int32_t cam_y{};
+  int32_t cam_z{};
+  int32_t target_x{};
+  int32_t target_y{};
+  int32_t target_z{};
+  uint8_t sequence{};
+  uint8_t index{};
+  uint16_t fov{};
+  uint16_t roll{};
   core::Frame timer{0_frame};
-  uint16_t speed;
-  uint16_t flags;
+  uint16_t speed{};
+  uint16_t flags{};
   core::RoomId32 room_id{0u};
 
   static std::unique_ptr<FlybyCamera> read(io::SDLReader& reader);
@@ -630,13 +632,13 @@ struct FlybyCamera
 struct AIObject
 {
   core::ItemId object_id{uint16_t(0)}; // the objectID from the AI object (AI_FOLLOW is 402)
-  uint16_t room;
-  int32_t x;
-  int32_t y;
-  int32_t z;
-  uint16_t ocb;
-  uint16_t flags; // The trigger flags (button 1-5, first button has value 2)
-  int32_t angle;
+  uint16_t room{};
+  int32_t x{};
+  int32_t y{};
+  int32_t z{};
+  uint16_t ocb{};
+  uint16_t flags{}; // The trigger flags (button 1-5, first button has value 2)
+  int32_t angle{};
 
   static std::unique_ptr<AIObject> read(io::SDLReader& reader);
 };

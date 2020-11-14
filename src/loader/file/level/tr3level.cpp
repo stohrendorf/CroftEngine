@@ -134,6 +134,7 @@ void TR3Level::loadFileData()
     for(size_t i = 0; i < m_samplesData.size(); i++)
     {
       m_samplesData[i] = newsrc.readU8();
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       if(i >= 4 && *reinterpret_cast<uint32_t*>(m_samplesData.data() + i - 4) == 0x46464952) /// RIFF
       {
         m_samplesCount++;

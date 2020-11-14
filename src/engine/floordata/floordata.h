@@ -3,6 +3,7 @@
 #include "core/magic.h"
 #include "serialization/serialization_fwd.h"
 #include "types.h"
+#include "util/helpers.h"
 
 #include <bitset>
 #include <gsl-lite.hpp>
@@ -45,7 +46,6 @@ class ActivationState
 public:
   static constexpr uint16_t TimeoutMask = 0x00ff;
   static constexpr uint16_t Oneshot = 0x0100;
-  static constexpr uint16_t ActivationMask = 0x3e00;
   static constexpr uint16_t InvertedActivation = 0x4000;
   static constexpr uint16_t Locked = 0x8000;
 
@@ -142,7 +142,7 @@ public:
 private:
   static ActivationSet extractActivationSet(const FloorDataValue fd)
   {
-    const auto bits = gsl::narrow_cast<uint16_t>((fd.get() & ActivationMask) >> 9u);
+    const auto bits = gsl::narrow_cast<uint16_t>(util::bits(fd.get(), 9, 5));
     return ActivationSet{bits};
   }
 
@@ -159,7 +159,7 @@ struct CameraParameters
       : timeout{core::Seconds{static_cast<core::Seconds::type>(int8_t(fd.get()))}}
       , oneshot{(fd.get() & 0x100u) != 0}
       , isLast{(fd.get() & 0x8000u) != 0}
-      , smoothness{gsl::narrow_cast<uint8_t>((fd.get() >> 8u) & 0x3eu)}
+      , smoothness{gsl::narrow_cast<uint8_t>(util::bits(fd.get(), 9, 5) * 2)}
   {
   }
 
@@ -185,7 +185,7 @@ struct Command
 private:
   static CommandOpcode extractOpcode(const FloorDataValue data)
   {
-    return gsl::narrow_cast<CommandOpcode>((data.get() >> 10u) & 0x0fu);
+    return gsl::narrow_cast<CommandOpcode>(util::bits(data.get(), 10, 4));
   }
 
   static constexpr uint16_t extractParameter(const FloorDataValue data)

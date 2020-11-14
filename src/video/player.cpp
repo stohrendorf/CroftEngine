@@ -96,7 +96,7 @@ struct Stream final
 
 struct AVFramePtr
 {
-  AVFrame* frame;
+  AVFrame* frame{};
 
   AVFramePtr()
       : frame{av_frame_alloc()}

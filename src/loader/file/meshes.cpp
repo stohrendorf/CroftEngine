@@ -2,6 +2,7 @@
 
 #include "io/sdlreader.h"
 #include "io/util.h"
+#include "util/helpers.h"
 
 namespace loader::file
 {
@@ -50,9 +51,12 @@ RoomStaticMesh RoomStaticMesh::readTr3(io::SDLReader& reader)
   room_static_mesh.shade = core::Shade{reader.readI16()};
   room_static_mesh.intensity2 = reader.readI16();
   room_static_mesh.meshId = core::StaticMeshId::type(reader.readU16());
-  room_static_mesh.tint.r = gsl::narrow_cast<float>(room_static_mesh.shade.get() & 0x001F) / 62.0f;
-  room_static_mesh.tint.g = gsl::narrow_cast<float>((room_static_mesh.shade.get() & 0x03E0) >> 5) / 62.0f;
-  room_static_mesh.tint.b = gsl::narrow_cast<float>((room_static_mesh.shade.get() & 0x7C00) >> 10) / 62.0f;
+  room_static_mesh.tint.r
+    = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_static_mesh.shade.get()), 0, 5)) / 62.0f;
+  room_static_mesh.tint.g
+    = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_static_mesh.shade.get()), 5, 5)) / 62.0f;
+  room_static_mesh.tint.b
+    = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_static_mesh.shade.get()), 10, 5)) / 62.0f;
   room_static_mesh.tint.a = 1.0f;
   return room_static_mesh;
 }
@@ -65,9 +69,12 @@ RoomStaticMesh RoomStaticMesh::readTr4(io::SDLReader& reader)
   room_static_mesh.shade = core::Shade{reader.readI16()};
   room_static_mesh.intensity2 = reader.readI16();
   room_static_mesh.meshId = core::StaticMeshId::type(reader.readU16());
-  room_static_mesh.tint.r = gsl::narrow_cast<float>(room_static_mesh.shade.get() & 0x001F) / 31.0f;
-  room_static_mesh.tint.g = gsl::narrow_cast<float>((room_static_mesh.shade.get() & 0x03E0) >> 5) / 31.0f;
-  room_static_mesh.tint.b = gsl::narrow_cast<float>((room_static_mesh.shade.get() & 0x7C00) >> 10) / 31.0f;
+  room_static_mesh.tint.r
+    = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_static_mesh.shade.get()), 0, 5)) / 31.0f;
+  room_static_mesh.tint.g
+    = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_static_mesh.shade.get()), 5, 5)) / 31.0f;
+  room_static_mesh.tint.b
+    = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_static_mesh.shade.get()), 10, 5)) / 31.0f;
   room_static_mesh.tint.a = 1.0f;
   return room_static_mesh;
 }

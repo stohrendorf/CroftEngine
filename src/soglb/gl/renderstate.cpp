@@ -13,6 +13,7 @@ void RenderState::apply(const bool force) const
   // Update any state if...
   //   - it is forced
   //   - or it is explicitly set and different than the current state
+  // NOLINTNEXTLINE(bugprone-macro-parentheses)
 #define RS_CHANGED(m) (force || (m.isInitialized() && m != getCurrentState().m))
   if(RS_CHANGED(m_blendEnabled))
   {

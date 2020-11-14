@@ -7,7 +7,7 @@ namespace audio
 {
 class FilterHandle final
 {
-  const ALuint m_handle;
+  const ALuint m_handle{};
 
   [[nodiscard]] static ALuint createHandle()
   {

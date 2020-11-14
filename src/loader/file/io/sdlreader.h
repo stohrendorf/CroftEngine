@@ -57,16 +57,8 @@ public:
   {
   }
 
-  explicit SDLReader(const std::vector<char>& data)
-      : m_memory{data}
-      , m_array{std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size())}
-      , m_streamBuf{std::make_shared<DataStreamBuf>(*m_array)}
-      , m_stream{m_streamBuf.get()}
-  {
-  }
-
-  explicit SDLReader(std::vector<char>&& data)
-      : m_memory{move(data)}
+  explicit SDLReader(std::vector<char> data)
+      : m_memory{std::move(data)}
       , m_array{std::make_unique<boost::iostreams::array>(m_memory.data(), m_memory.size())}
       , m_streamBuf{std::make_shared<DataStreamBuf>(*m_array)}
       , m_stream{m_streamBuf.get()}
@@ -130,6 +122,7 @@ public:
   void readBytes(T* dest, const size_t n)
   {
     static_assert(std::is_integral_v<T> && sizeof(T) == 1, "readBytes() only allowed for byte-compatible data");
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     m_stream.read(reinterpret_cast<char*>(dest), n);
     if(static_cast<size_t>(m_stream.gcount()) != n)
     {
@@ -275,7 +268,7 @@ private:
     static void doSwap(type_safe::integer<T>& data)
     {
       auto tmp = data.get();
-      SwapTraits<T, sizeof(T), std::is_integral_v<T> || std::is_floating_point_v<T>>::doSwap(tmp);
+      SwapTraits<T, sizeof(T), (std::is_integral_v<T> || std::is_floating_point_v<T>)>::doSwap(tmp);
       data = type_safe::integer<T>(tmp);
     }
   };
@@ -286,7 +279,7 @@ private:
     static void doSwap(qs::quantity<U, T>& data)
     {
       auto tmp = data.get();
-      SwapTraits<T, sizeof(T), std::is_integral_v<T> || std::is_floating_point_v<T>>::doSwap(tmp);
+      SwapTraits<T, sizeof(T), (std::is_integral_v<T> || std::is_floating_point_v<T>)>::doSwap(tmp);
       data = qs::quantity<U, T>(tmp);
     }
   };
@@ -297,6 +290,7 @@ private:
     static T read(std::istream& stream)
     {
       T result;
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       stream.read(reinterpret_cast<char*>(&result), sizeof(T));
       if(stream.gcount() != sizeof(T))
       {

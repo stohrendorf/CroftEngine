@@ -38,7 +38,7 @@ public:
 
 private:
   MultiPassMaterial m_material{};
-  const gl::api::PrimitiveType m_primitiveType;
+  const gl::api::PrimitiveType m_primitiveType{};
 
   virtual void drawIndexBuffer(gl::api::PrimitiveType primitiveType) = 0;
 };
@@ -61,7 +61,7 @@ public:
   MeshImpl& operator=(MeshImpl&&) = delete;
   MeshImpl& operator=(const MeshImpl&) = delete;
 
-  const auto& getVAO() const
+  [[nodiscard]] const auto& getVAO() const
   {
     return m_vao;
   }

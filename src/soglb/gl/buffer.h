@@ -7,6 +7,7 @@
 
 namespace gl
 {
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, api::BufferTargetARB _Target>
 class Buffer : public BindableResource
 {
@@ -25,6 +26,7 @@ public:
   [[nodiscard]] T* map(const api::BufferAccessARB access = api::BufferAccessARB::ReadOnly)
   {
     const void* data = GL_ASSERT_FN(api::mapNamedBuffer(getHandle(), access));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return static_cast<T*>(const_cast<void*>(data));
   }
 

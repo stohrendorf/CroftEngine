@@ -39,6 +39,7 @@ QS_LITERAL_OP_ULL(Speed, _spd)
 
 using Acceleration = QS_COMBINE_UNITS(Speed, /, Frame);
 
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 [[nodiscard]] inline auto sqrt(QS_COMBINE_UNITS(Acceleration, *, Length) value)
 {
   return Speed{static_cast<Speed::type>(std::sqrt(value.get()))};

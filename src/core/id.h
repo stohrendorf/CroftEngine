@@ -143,13 +143,13 @@ private:
   struct name##_generated_tag  \
   {                            \
   };                           \
-  using name = ::core::Id<DECLARE_ID_PAREN_WRAPPER(type), name##_generated_tag>
+  using DECLARE_ID_PAREN_WRAPPER(name) = ::core::Id<DECLARE_ID_PAREN_WRAPPER(type), name##_generated_tag>
 
 #define DECLARE_ID_E(name, type, ...) \
   struct name##_generated_tag         \
   {                                   \
   };                                  \
-  using name = ::core::Id<DECLARE_ID_PAREN_WRAPPER(type), name##_generated_tag, __VA_ARGS__>
+  using DECLARE_ID_PAREN_WRAPPER(name) = ::core::Id<DECLARE_ID_PAREN_WRAPPER(type), name##_generated_tag, __VA_ARGS__>
 
 DECLARE_ID(RoomId8, uint8_t);
 DECLARE_ID(RoomId16, uint16_t);

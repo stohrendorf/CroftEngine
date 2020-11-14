@@ -26,7 +26,7 @@ public:
 
   virtual size_t readStereo(int16_t* buffer, size_t bufferSize, bool looping) = 0;
 
-  virtual int getSampleRate() const = 0;
+  [[nodiscard]] virtual int getSampleRate() const = 0;
 
 protected:
   explicit AbstractStreamSource() = default;
@@ -119,15 +119,17 @@ public:
 
     m_wadFile.seekg(trackIndex * WADStride, std::ios::beg);
 
-    char trackName[WADNameLength];
-    m_wadFile.read(trackName, WADNameLength);
+    std::array<char, WADNameLength> trackName{};
+    m_wadFile.read(trackName.data(), WADNameLength);
 
-    BOOST_LOG_TRIVIAL(info) << "Loading WAD track " << trackIndex << ": " << trackName;
+    BOOST_LOG_TRIVIAL(info) << "Loading WAD track " << trackIndex << ": " << trackName.data();
 
     uint32_t offset = 0;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     m_wadFile.read(reinterpret_cast<char*>(&offset), 4);
 
     uint32_t length = 0;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     m_wadFile.read(reinterpret_cast<char*>(&length), 4);
 
     m_wadFile.seekg(offset, std::ios::beg);
@@ -146,7 +148,7 @@ public:
     return sndfile::readStereo(frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1, looping);
   }
 
-  int getSampleRate() const override
+  [[nodiscard]] int getSampleRate() const override
   {
     return m_sfInfo.samplerate;
   }
@@ -178,7 +180,7 @@ public:
     return sndfile::readStereo(frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1, looping);
   }
 
-  int getSampleRate() const override
+  [[nodiscard]] int getSampleRate() const override
   {
     return m_sfInfo.samplerate;
   }

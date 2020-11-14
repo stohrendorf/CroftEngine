@@ -59,9 +59,9 @@ template<typename T>
 class VertexBuffer final : public ArrayBuffer<T>
 {
 public:
-  explicit VertexBuffer(const VertexFormat<T>& format, const std::string& label = {})
+  explicit VertexBuffer(VertexFormat<T> format, const std::string& label = {})
       : ArrayBuffer<T>{label}
-      , m_format{format}
+      , m_format{std::move(format)}
   {
     BOOST_ASSERT(!m_format.empty());
   }

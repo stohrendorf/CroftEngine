@@ -173,12 +173,12 @@ class TextureAtlas
 
   struct Mapping
   {
-    uint8_t uvMinX, uvMinY;
-    uint8_t uvMaxX, uvMaxY;
+    uint8_t uvMinX{}, uvMinY{};
+    uint8_t uvMaxX{}, uvMaxY{};
 
-    loader::file::TextureKey srcTexture;
+    loader::file::TextureKey srcTexture{};
 
-    uint8_t newUvMinX, newUvMinY;
+    uint8_t newUvMinX{}, newUvMinY{};
   };
 
   const int32_t m_resultPageSize;

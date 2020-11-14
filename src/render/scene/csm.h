@@ -25,7 +25,7 @@ struct CSMBuffer
   static constexpr size_t NSplits = 3;
 
   std::array<glm::mat4, NSplits> lightMVP{};
-  glm::vec4 lightDir;
+  glm::vec4 lightDir{};
   std::array<glm::vec4, NSplits> csmSplits{}; // vec4 because... well. we need padding for std140.
 };
 
@@ -83,6 +83,7 @@ public:
     return m_buffer;
   }
 
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void applyViewport()
   {
     GL_ASSERT(gl::api::viewport(0, 0, m_resolution, m_resolution));

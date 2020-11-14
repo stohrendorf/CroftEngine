@@ -61,6 +61,7 @@ public:
     return m_camera;
   }
 
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   void resetRenderState()
   {
     static gl::RenderState state;

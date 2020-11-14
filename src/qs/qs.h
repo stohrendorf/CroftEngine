@@ -17,18 +17,18 @@
       return SUFFIX;                            \
     }                                           \
   };                                            \
-  using NAME = ::qs::quantity<_##NAME##_generated_unit, _QS_PAREN_WRAPPER(TYPE)>
+  using _QS_PAREN_WRAPPER(NAME) = ::qs::quantity<_##NAME##_generated_unit, _QS_PAREN_WRAPPER(TYPE)>
 
-#define QS_LITERAL_OP_ULL(TYPE, NAME)                                                  \
-  constexpr TYPE operator"" NAME(unsigned long long value) noexcept                    \
-  {                                                                                    \
-    return _QS_PAREN_WRAPPER(TYPE){static_cast<_QS_PAREN_WRAPPER(TYPE)::type>(value)}; \
+#define QS_LITERAL_OP_ULL(TYPE, NAME)                                                                     \
+  constexpr _QS_PAREN_WRAPPER(TYPE) operator"" _QS_PAREN_WRAPPER(NAME)(unsigned long long value) noexcept \
+  {                                                                                                       \
+    return _QS_PAREN_WRAPPER(TYPE){static_cast<_QS_PAREN_WRAPPER(TYPE)::type>(value)};                    \
   }
 
-#define QS_LITERAL_OP_LD(TYPE, NAME)                                                   \
-  constexpr TYPE operator"" NAME(long double value) noexcept                           \
-  {                                                                                    \
-    return _QS_PAREN_WRAPPER(TYPE){static_cast<_QS_PAREN_WRAPPER(TYPE)::type>(value)}; \
+#define QS_LITERAL_OP_LD(TYPE, NAME)                                                               \
+  constexpr _QS_PAREN_WRAPPER(TYPE) operator"" _QS_PAREN_WRAPPER(NAME)(long double value) noexcept \
+  {                                                                                                \
+    return _QS_PAREN_WRAPPER(TYPE){static_cast<_QS_PAREN_WRAPPER(TYPE)::type>(value)};             \
   }
 
 namespace qs::detail

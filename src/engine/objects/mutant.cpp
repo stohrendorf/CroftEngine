@@ -5,9 +5,7 @@
 #include "laraobject.h"
 #include "mutantegg.h"
 
-namespace engine
-{
-namespace objects
+namespace engine::objects
 {
 namespace
 {
@@ -551,5 +549,4 @@ void TorsoBoss::update()
     m_state.triggerState = TriggerState::Deactivated;
   }
 }
-} // namespace objects
 } // namespace engine

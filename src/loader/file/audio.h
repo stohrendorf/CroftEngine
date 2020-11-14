@@ -3,6 +3,7 @@
 #include "core/id.h"
 #include "core/vec.h"
 #include "loader/file/level/game.h"
+#include "util/helpers.h"
 
 namespace loader::file
 {
@@ -38,9 +39,9 @@ enum class ReverbType : uint8_t
 */
 struct SoundSource final
 {
-  core::TRVec position;
+  core::TRVec position{};
   core::SoundEffectId sound_effect_id{uint16_t(0)};
-  uint16_t flags; // 0x40, 0x80, or 0xc0
+  uint16_t flags{}; // 0x40, 0x80, or 0xc0
 
   static std::unique_ptr<SoundSource> read(io::SDLReader& reader);
 };
@@ -116,7 +117,7 @@ struct SoundEffectProperties
 
   [[nodiscard]] uint8_t getSampleCount() const
   {
-    return (sampleCountAndLoopType >> 2u) & 0x0fu;
+    return util::bits(sampleCountAndLoopType, 2, 4);
   }
 
   //! @brief Whether to play this sample without orientation (no panning).

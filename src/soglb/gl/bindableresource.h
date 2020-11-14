@@ -89,7 +89,7 @@ protected:
     GL_ASSERT(m_deleter(1, &m_handle));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void setLabel(const api::ObjectIdentifier identifier, const std::string& label)
   {
     int32_t maxLabelLength = 0;

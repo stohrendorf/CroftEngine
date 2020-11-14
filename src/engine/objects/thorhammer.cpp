@@ -107,7 +107,7 @@ void ThorHammerHandle::update()
     }
     if(getEngine().getObjectManager().getLara().m_state.health >= 0_hp)
     {
-      m_state.position.room->patchHeightsForBlock(*this, -2 * core::SectorSize);
+      loader::file::Room::patchHeightsForBlock(*this, -2 * core::SectorSize);
     }
     m_state.position.position.X = oldPosX;
     m_state.position.position.Z = oldPosZ;

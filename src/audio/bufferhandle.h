@@ -11,7 +11,7 @@ namespace audio
 {
 class BufferHandle final
 {
-  const ALuint m_handle;
+  const ALuint m_handle{};
 
   [[nodiscard]] static ALuint createHandle()
   {
@@ -47,7 +47,7 @@ public:
     return m_handle;
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void fill(const int16_t* samples, const size_t sampleCount, const int channels, const int sampleRate)
   {
     AL_ASSERT(alBufferData(m_handle,
@@ -57,12 +57,13 @@ public:
                            sampleRate));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   bool fillFromWav(const uint8_t* data)
   {
     Expects(data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F');
     Expects(data[8] == 'W' && data[9] == 'A' && data[10] == 'V' && data[11] == 'E');
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     sndfile::MemBufferFileIo wavMem(data, static_cast<size_t>(*reinterpret_cast<const uint32_t*>(data + 4)) + 8u);
     SF_INFO sfInfo;
     memset(&sfInfo, 0, sizeof(sfInfo));

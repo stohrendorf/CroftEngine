@@ -2,7 +2,7 @@ if( NOT Python3_EXECUTABLE )
     find_program(
             Python3_EXECUTABLE
             NAMES python3 python
-            HINTS ${Python3_ROOT_DIR}
+            HINTS ENV Python3_ROOT_DIR
     )
     set( Python3_EXECUTABLE "${Python3_EXECUTABLE}" CACHE FILEPATH "Python interpreter path" )
 

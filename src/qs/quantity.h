@@ -66,13 +66,13 @@ struct quantity // NOLINT: performance-unnecessary-value-param
   }
 
   template<typename T = type>
-  constexpr auto get() const noexcept
+  [[nodiscard]] constexpr auto get() const noexcept
   {
     return static_cast<T>(value);
   }
 
   template<typename T>
-  constexpr auto cast() const
+  [[nodiscard]] constexpr auto cast() const
   {
     if constexpr(!is_quantity_v<T>)
     {
@@ -159,7 +159,7 @@ struct quantity // NOLINT: performance-unnecessary-value-param
   }
 
 private:
-  type value;
+  type value{};
 };
 
 template<typename Unit, typename Type>

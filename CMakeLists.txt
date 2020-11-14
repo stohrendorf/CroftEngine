@@ -1,10 +1,17 @@
-cmake_minimum_required( VERSION 3.11.2 )
+cmake_minimum_required( VERSION 3.16 )
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
 project( EdisonEngine )
 
 set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
+
+if( MSVC AND CMAKE_CXX_CLANG_TIDY )
+    set( CMAKE_CXX_CLANG_TIDY "${CMAKE_CXX_CLANG_TIDY};--extra-arg-before=-std=c++${CMAKE_CXX_STANDARD};--extra-arg-before=-EHsc" )
+endif()
+if( CMAKE_CXX_CPPCHECK )
+    set( CMAKE_CXX_CPPCHECK "${CMAKE_CXX_CPPCHECK};--enable=warning,performance,portability,style;--language=c++;--std=c++${CMAKE_CXX_STANDARD};--inline-suppr" )
+endif()
 
 if( MSVC )
     # C4503: Name too long
@@ -128,10 +135,10 @@ add_subdirectory( 3rdparty/pybind11-2.6.0 )
 
 download( https://raw.githubusercontent.com/martinmoene/gsl-lite/4b796627ad0fa42640f5fdb96f23c4a0d9ee084f/include/gsl/gsl-lite.hpp gsl-lite/gsl-lite.hpp )
 
-add_library( gsl-lite INTERFACE IMPORTED )
-target_include_directories( gsl-lite SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/gsl-lite" )
+add_library( gsl-lite::gsl-lite INTERFACE IMPORTED )
+target_include_directories( gsl-lite::gsl-lite SYSTEM BEFORE INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/gsl-lite" )
 target_compile_definitions(
-        gsl-lite INTERFACE
+        gsl-lite::gsl-lite INTERFACE
         -Dgsl_FEATURE_WITH_CONTAINER_TO_STD=${CMAKE_CXX_STANDARD}
         -Dgsl_FEATURE_MAKE_SPAN_TO_STD=${CMAKE_CXX_STANDARD}
         -Dgsl_FEATURE_BYTE_SPAN_TO_STD=${CMAKE_CXX_STANDARD}
@@ -147,7 +154,7 @@ add_definitions( -DQT_NO_KEYWORDS )
 find_path(
         UTF8CPP_INCLUDE_DIR
         NAMES utf8.h
-        HINTS utf8cpp
+        PATH_SUFFIXES utf8cpp
 )
 if( NOT UTF8CPP_INCLUDE_DIR )
     message( FATAL_ERROR "utf8cpp not found" )

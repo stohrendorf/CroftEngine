@@ -29,11 +29,12 @@ constexpr auto square(T value)
   return value * value;
 }
 
-constexpr int Rand15Max = 1 << 15;
+constexpr int Rand15Max = 1u << 15u;
 
 inline int16_t rand15()
 {
-  return gsl::narrow_cast<int16_t>(std::rand() & (Rand15Max - 1));
+  // NOLINTNEXTLINE(cert-msc50-cpp)
+  return gsl::narrow_cast<int16_t>(std::rand() % Rand15Max);
 }
 
 template<typename T>
@@ -104,5 +105,11 @@ inline core::TRVec pitch(const core::TRVec& vec, const core::Angle& rot)
   return core::TRVec{(vec.Z.cast<float>() * s + vec.X.cast<float>() * c).cast<core::Length>(),
                      vec.Y,
                      (vec.Z.cast<float>() * c - vec.X.cast<float>() * s).cast<core::Length>()};
+}
+
+template<typename T>
+auto bits(T value, uint8_t shr, uint8_t n) -> std::enable_if_t<std::is_unsigned_v<T>, T>
+{
+  return static_cast<T>(value >> shr) & ((1u << n) - 1u);
 }
 } // namespace util

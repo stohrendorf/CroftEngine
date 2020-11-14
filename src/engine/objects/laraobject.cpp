@@ -1684,7 +1684,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
   {
     ++ammoPtr->misses;
 
-    static constexpr float VeryLargeDistanceProbablyClipping = 1 << 14;
+    static constexpr float VeryLargeDistanceProbablyClipping = 1u << 14u;
 
     core::RoomBoundPosition aimHitPos{gunHolder.m_state.position.room,
                                       gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping}};
@@ -1918,7 +1918,7 @@ public:
     apply(skeleton, idx);
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void apply(const std::shared_ptr<SkeletalModelNode>& skeleton, const size_t idx)
   {
     BOOST_ASSERT(skeleton != nullptr);

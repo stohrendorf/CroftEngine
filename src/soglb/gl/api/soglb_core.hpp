@@ -78,7 +78,7 @@ public:
     return m_value;
   }
 
-  constexpr bool isSet(T value) const noexcept
+  [[nodiscard]] constexpr bool isSet(T value) const noexcept
   {
     return (m_value & static_cast<EnumType>(value)) != 0;
   }

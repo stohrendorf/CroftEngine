@@ -56,8 +56,8 @@ set_property(
         PROPERTY COMPILE_DEFINITIONS NDEBUG
 )
 
-target_link_libraries( soglb PRIVATE PRIVATE CImg::CImg )
+target_link_libraries( soglb PRIVATE CImg::CImg )
 target_link_libraries( soglb PUBLIC GLEW::GLEW glfw )
-target_link_libraries( soglb PUBLIC gsl-lite Freetype::Freetype ${Boost_LIBRARIES} utf8cpp::utf8cpp )
+target_link_libraries( soglb PUBLIC gsl-lite::gsl-lite Freetype::Freetype ${Boost_LIBRARIES} utf8cpp::utf8cpp )
 target_include_directories( soglb PUBLIC . ${Boost_INCLUDE_DIR} )
 target_compile_definitions( soglb PUBLIC -DBOOST_LOG_DYN_LINK=0 -DBOOST_ALL_NO_LIB )

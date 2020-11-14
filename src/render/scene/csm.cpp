@@ -53,6 +53,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
   squareBlur->resize(glm::ivec2{resolution, resolution}, squaredTexture);
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void CSM::Split::renderSquare()
 {
   gl::DebugGroup dbg{"square-pass"};

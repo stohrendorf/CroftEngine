@@ -40,6 +40,7 @@ struct InputState
       return *this;
     }
 
+    // NOLINTNEXTLINE(google-explicit-constructor)
     operator T() const
     {
       return current;

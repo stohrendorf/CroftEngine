@@ -9,6 +9,7 @@
 #include "render/textureanimator.h"
 #include "serialization/box_ptr.h"
 #include "serialization/quantity.h"
+#include "util/helpers.h"
 
 namespace loader::file
 {
@@ -601,10 +602,12 @@ std::unique_ptr<Room> Room::readTr4(io::SDLReader& reader)
 
   room->alternateGroup = reader.readU8();
 
-  room->lightColor.r = gsl::narrow_cast<float>(room->intensity2 & 0x00FF) / 255.0f;
-  room->lightColor.g = gsl::narrow_cast<float>((room->ambientShade.get() & 0xFF00) >> 8) / 255.0f;
-  room->lightColor.b = gsl::narrow_cast<float>(room->ambientShade.get() & 0x00FF) / 255.0f;
-  room->lightColor.a = gsl::narrow_cast<float>((room->intensity2 & 0xFF00) >> 8) / 255.0f;
+  room->lightColor.r = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room->intensity2), 0, 8)) / 255.0f;
+  room->lightColor.g
+    = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room->ambientShade.get()), 8, 8)) / 255.0f;
+  room->lightColor.b
+    = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room->ambientShade.get()), 0, 8)) / 255.0f;
+  room->lightColor.a = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room->intensity2), 8, 8)) / 255.0f;
   return room;
 }
 
@@ -1240,9 +1243,9 @@ RoomVertex RoomVertex::readTr3(io::SDLReader& reader)
   room_vertex.lighting2 = reader.readI16();
   // only in TR5
   room_vertex.normal = {0_len, 0_len, 0_len};
-  room_vertex.color = {gsl::narrow_cast<float>((room_vertex.lighting2 & 0x7C00) >> 10) / 62.0f,
-                       gsl::narrow_cast<float>((room_vertex.lighting2 & 0x03E0) >> 5) / 62.0f,
-                       gsl::narrow_cast<float>(room_vertex.lighting2 & 0x001F) / 62.0f,
+  room_vertex.color = {gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_vertex.lighting2), 10, 5)) / 62.0f,
+                       gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_vertex.lighting2), 5, 5)) / 62.0f,
+                       gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_vertex.lighting2), 0, 5)) / 62.0f,
                        1};
   return room_vertex;
 }
@@ -1258,9 +1261,9 @@ RoomVertex RoomVertex::readTr4(io::SDLReader& reader)
   // only in TR5
   room_vertex.normal = {0_len, 0_len, 0_len};
 
-  room_vertex.color = {gsl::narrow_cast<float>((room_vertex.lighting2 & 0x7C00) >> 10) / 31.0f,
-                       gsl::narrow_cast<float>((room_vertex.lighting2 & 0x03E0) >> 5) / 31.0f,
-                       gsl::narrow_cast<float>(room_vertex.lighting2 & 0x001F) / 31.0f,
+  room_vertex.color = {gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_vertex.lighting2), 10, 5)) / 31.0f,
+                       gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_vertex.lighting2), 5, 5)) / 31.0f,
+                       gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room_vertex.lighting2), 0, 5)) / 31.0f,
                        1};
   return room_vertex;
 }

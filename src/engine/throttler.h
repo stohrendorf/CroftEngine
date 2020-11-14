@@ -33,6 +33,6 @@ private:
   static constexpr std::chrono::microseconds FrameDuration
     = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(1)) / core::FrameRate.get();
 
-  std::chrono::high_resolution_clock::time_point m_nextFrameTime;
+  std::chrono::high_resolution_clock::time_point m_nextFrameTime{};
 };
 } // namespace engine

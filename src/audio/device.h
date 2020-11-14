@@ -52,14 +52,13 @@ public:
     m_sources = std::move(cleaned);
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
-  // ReSharper disable once CppMemberFunctionMayBeStatic
+  // NOLINTNEXTLINE(readability-make-member-function-const, readability-convert-member-functions-to-static)
   void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
   {
     AL_ASSERT(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
 
-    const ALfloat o[6] = {front.x, front.y, front.z, up.x, up.y, up.z};
-    AL_ASSERT(alListenerfv(AL_ORIENTATION, o));
+    const std::array<ALfloat, 6> o{front.x, front.y, front.z, up.x, up.y, up.z};
+    AL_ASSERT(alListenerfv(AL_ORIENTATION, o.data()));
   }
 
   void applyDirectFilterToAllSources(const std::shared_ptr<FilterHandle>& filter)

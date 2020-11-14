@@ -77,12 +77,12 @@ public:
     }
   }
 
-  const auto& getIndexBuffer() const
+  [[nodiscard]] const auto& getIndexBuffer() const
   {
     return m_indexBuffer;
   }
 
-  const auto& getVertexBuffers() const
+  [[nodiscard]] const auto& getVertexBuffers() const
   {
     return m_vertexBuffers;
   }

@@ -56,7 +56,7 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly(bool skeletal)
 std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal)
 {
   Expects(m_geometryTextures != nullptr);
-  if(const auto tmp = m_geometry[water][skeletal])
+  if(auto tmp = m_geometry[water][skeletal])
     return tmp;
 
   auto m = std::make_shared<Material>(m_shaderManager->getGeometry(water, skeletal));
@@ -124,7 +124,7 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> s
 
 std::shared_ptr<Material> MaterialManager::getComposition(bool water)
 {
-  if(const auto tmp = m_composition[water])
+  if(auto tmp = m_composition[water])
     return tmp;
   auto m = std::make_shared<Material>(m_shaderManager->getComposition(water));
 

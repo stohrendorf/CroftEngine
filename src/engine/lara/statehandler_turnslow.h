@@ -14,7 +14,7 @@ protected:
   }
 
 public:
-  void postprocessFrame(CollisionInfo& collisionInfo) override final
+  void postprocessFrame(CollisionInfo& collisionInfo) final
   {
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;

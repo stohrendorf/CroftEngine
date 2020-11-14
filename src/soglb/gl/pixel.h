@@ -4,6 +4,7 @@
 
 namespace gl
 {
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, size_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
 struct Pixel
 {
@@ -61,6 +62,7 @@ struct Pixel
   }
 };
 
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
 Pixel<T, 4, _PixelFormat, _InternalFormat> mixAlpha(const Pixel<T, 4, _PixelFormat, _InternalFormat>& lhs,
                                                     const Pixel<T, 4, _PixelFormat, _InternalFormat>& rhs)
@@ -72,6 +74,7 @@ Pixel<T, 4, _PixelFormat, _InternalFormat> mixAlpha(const Pixel<T, 4, _PixelForm
           static_cast<T>(lhs.channels[3] * (1 - bias) + rhs.channels[3] * bias)};
 }
 
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, size_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
 Pixel<T, _Channels, _PixelFormat, _InternalFormat> mix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
                                                        const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& rhs,

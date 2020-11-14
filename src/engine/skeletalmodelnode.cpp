@@ -378,7 +378,7 @@ void SkeletalModelNode::rebuildMesh()
 bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
 {
   const auto bbox = getInterpolationInfo().firstFrame->bbox.toBBox();
-  const glm::vec3 corners[]{
+  const std::array<glm::vec3, 8> corners{
     core::TRVec{bbox.maxX, bbox.maxY, bbox.maxZ}.toRenderSystem(),
     core::TRVec{bbox.maxX, bbox.maxY, bbox.minZ}.toRenderSystem(),
     core::TRVec{bbox.maxX, bbox.minY, bbox.maxZ}.toRenderSystem(),

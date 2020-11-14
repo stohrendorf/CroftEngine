@@ -91,3 +91,4 @@ CheckOptions:
     #   namespaces (like, uh, ever heard or inline namespaces for API versioning?)
     # 'nough ranting :/
     value: ^Angle$;^Frame$;^Speed$;^Length$;^Bitfield$
+HeaderFilterRegex: .*[\\/]src[\\/].*

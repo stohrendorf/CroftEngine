@@ -8,7 +8,7 @@ namespace audio
 {
 class SourceHandle final
 {
-  const ALuint m_handle;
+  const ALuint m_handle{};
   std::shared_ptr<BufferHandle> m_buffer;
 
   [[nodiscard]] static ALuint createHandle()
@@ -58,55 +58,55 @@ public:
     return m_buffer;
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void setDirectFilter(const std::shared_ptr<FilterHandle>& f)
   {
     AL_ASSERT(alSourcei(m_handle, AL_DIRECT_FILTER, f ? f->get() : AL_FILTER_NULL));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void set(const ALenum e, const ALint v)
   {
     AL_ASSERT(alSourcei(m_handle, e, v));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void set(const ALenum e, const ALint* v)
   {
     AL_ASSERT(alSourceiv(m_handle, e, v));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void set(const ALenum e, const ALfloat v)
   {
     AL_ASSERT(alSourcef(m_handle, e, v));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void set(const ALenum e, const ALfloat a, const ALfloat b, const ALfloat c)
   {
     AL_ASSERT(alSource3f(m_handle, e, a, b, c));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void set(const ALenum e, const ALfloat* v)
   {
     AL_ASSERT(alSourcefv(m_handle, e, v));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void play()
   {
     AL_ASSERT(alSourcePlay(m_handle));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void pause()
   {
     AL_ASSERT(alSourcePause(m_handle));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void stop()
   {
     AL_ASSERT(alSourceStop(m_handle));
@@ -156,6 +156,7 @@ public:
     return processed;
   }
 
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   [[nodiscard]] ALuint unqueueBuffer()
   {
     ALuint result;
@@ -163,6 +164,7 @@ public:
     return result;
   }
 
+  // NOLINTNEXTLINE(readability-make-member-function-const)
   void queueBuffer(ALuint buffer)
   {
     AL_ASSERT(alSourceQueueBuffers(m_handle, 1, &buffer));

@@ -2,7 +2,6 @@
 
 #include "cameracontroller.h"
 #include "engine/objects/object.h"
-#include "floordata/floordata.h"
 
 namespace engine
 {
@@ -35,9 +34,9 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::Sector*> room
     {
     case floordata::FloorDataChunkType::FloorSlant:
     {
-      const core::Length::type xSlant = gsl::narrow_cast<int8_t>(fd->get() & 0xffu);
+      const core::Length::type xSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 0, 8));
       const core::Length::type absX = std::abs(xSlant);
-      const core::Length::type zSlant = gsl::narrow_cast<int8_t>((fd->get() >> 8u) & 0xffu);
+      const core::Length::type zSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 8, 8));
       const core::Length::type absZ = std::abs(zSlant);
       if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
       {
@@ -134,9 +133,9 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::file::Sector*> ro
 
     if(chunkHeader.type == floordata::FloorDataChunkType::CeilingSlant)
     {
-      const core::Length::type xSlant = gsl::narrow_cast<int8_t>(fd->get() & 0xffu);
+      const core::Length::type xSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 0, 8));
       const core::Length::type absX = std::abs(xSlant);
-      const core::Length::type zSlant = gsl::narrow_cast<int8_t>((fd->get() >> 8u) & 0xffu);
+      const core::Length::type zSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 8, 8));
       const core::Length::type absZ = std::abs(zSlant);
       if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
       {

@@ -24,12 +24,12 @@ class SDLReader;
 
 struct RoomStaticMesh
 {
-  core::TRVec position; // world coords
-  core::Angle rotation;
+  core::TRVec position{}; // world coords
+  core::Angle rotation{};
   core::Shade shade{};           // Constant lighting; -1 means use mesh lighting
-  int16_t intensity2;            // Like Intensity 1, and almost always the same value [absent from TR1 data files]
+  int16_t intensity2{};          // Like Intensity 1, and almost always the same value [absent from TR1 data files]
   core::StaticMeshId meshId{0u}; // which StaticMesh item to draw
-  FloatColor tint;               // extracted from intensity
+  FloatColor tint{};             // extracted from intensity
 
   /** \brief reads a room static mesh definition.
     *

@@ -31,6 +31,7 @@ std::unique_ptr<SoundEffectProperties> SoundEffectProperties::readTr3(io::SDLRea
   result->volume = reader.readU8();
   result->sound_range = reader.readU8();
   result->chance = reader.readU8();
+  // NOLINTNEXTLINE(bugprone-signed-char-misuse, cert-str34-c)
   result->pitch = reader.readI8();
   result->sampleCountAndLoopType = reader.readU8();
   result->flags = reader.readU8();

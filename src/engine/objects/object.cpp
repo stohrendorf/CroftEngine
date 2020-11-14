@@ -10,6 +10,7 @@
 
 namespace engine::objects
 {
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void Object::applyTransform()
 {
   const glm::vec3 tr = m_state.position.position.toRenderSystem() - m_state.position.room->position.toRenderSystem();

@@ -68,7 +68,7 @@ public:
     m_framebuffer->invalidate();
   }
 
-  const std::shared_ptr<Texture>& getBlurredTexture() const
+  [[nodiscard]] const std::shared_ptr<Texture>& getBlurredTexture() const
   {
     return m_blurredTexture;
   }
@@ -112,7 +112,7 @@ public:
     m_blur2.invalidate();
   }
 
-  const std::shared_ptr<Texture>& getBlurredTexture() const
+  [[nodiscard]] const std::shared_ptr<Texture>& getBlurredTexture() const
   {
     return m_blur2.getBlurredTexture();
   }

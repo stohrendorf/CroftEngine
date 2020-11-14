@@ -79,9 +79,9 @@ inline uint32_t I(const uint32_t x, const uint32_t y, const uint32_t z)
 }
 
 // rotate_left rotates x left n bits.
-inline uint32_t rotate_left(const uint32_t x, const int n)
+inline uint32_t rotate_left(const uint32_t x, const uint8_t n)
 {
-  return (x << n) | (x >> (32 - n));
+  return (x << n) | (x >> (32u - n));
 }
 
 // FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
@@ -137,8 +137,8 @@ void decode(uint32_t output[], const uint8_t input[], const size_t len)
 {
   for(size_t i = 0, j = 0; j < len; i++, j += 4)
   {
-    output[i] = static_cast<uint32_t>(input[j]) | (static_cast<uint32_t>(input[j + 1]) << 8)
-                | (static_cast<uint32_t>(input[j + 2]) << 16) | (static_cast<uint32_t>(input[j + 3]) << 24);
+    output[i] = static_cast<uint32_t>(input[j]) | (static_cast<uint32_t>(input[j + 1]) << 8u)
+                | (static_cast<uint32_t>(input[j + 2]) << 16u) | (static_cast<uint32_t>(input[j + 3]) << 24u);
   }
 }
 
@@ -150,10 +150,10 @@ void encode(uint8_t output[], const uint32_t input[], const size_t len)
 {
   for(size_t i = 0, j = 0; j < len; i++, j += 4)
   {
-    output[j] = static_cast<uint8_t>(input[i] & 0xff);
-    output[j + 1] = static_cast<uint8_t>((input[i] >> 8) & 0xff);
-    output[j + 2] = static_cast<uint8_t>((input[i] >> 16) & 0xff);
-    output[j + 3] = static_cast<uint8_t>((input[i] >> 24) & 0xff);
+    output[j] = static_cast<uint8_t>(input[i] & 0xffu);
+    output[j + 1] = static_cast<uint8_t>((input[i] >> 8u) & 0xffu);
+    output[j + 2] = static_cast<uint8_t>((input[i] >> 16u) & 0xffu);
+    output[j + 3] = static_cast<uint8_t>((input[i] >> 24u) & 0xffu);
   }
 }
 
@@ -162,35 +162,35 @@ void encode(uint8_t output[], const uint32_t input[], const size_t len)
 struct State
 {
   bool finalized = false;
-  std::array<uint8_t, Blocksize> buffer; // bytes that didn't fit in last 64 byte chunk
-  std::array<uint32_t, 2> count{{0, 0}}; // 64bit counter for number of bits (lo, hi)
-  uint32_t state[4] = {0x67452301u, 0xefcdab89u, 0x98badcfeu, 0x10325476u}; // digest so far
-  uint8_t digest[16];                                                       // the result
+  std::array<uint8_t, Blocksize> buffer{}; // bytes that didn't fit in last 64 byte chunk
+  std::array<uint32_t, 2> count{0, 0};     // 64bit counter for number of bits (lo, hi)
+  std::array<uint32_t, 4> state{0x67452301u, 0xefcdab89u, 0x98badcfeu, 0x10325476u}; // digest so far
+  std::array<uint8_t, 16> digest{};                                                  // the result
 
   // MD5 finalization. Ends an MD5 message-digest operation, writing the
   // the message digest and zeroizing the context.
   void finalize()
   {
-    static uint8_t padding[64]
-      = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-         0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    static const std::array<uint8_t, 64> padding{0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                                 0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                                 0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     if(!finalized)
     {
       // Save number of bits
-      unsigned char bits[8];
-      encode(bits, count.data(), 8);
+      std::array<uint8_t, 8> bits{};
+      encode(bits.data(), count.data(), 8);
 
       // pad out to 56 mod 64.
       const size_t index = count[0] / 8 % 64;
       const size_t padLen = (index < 56) ? (56 - index) : (120 - index);
-      update(padding, padLen);
+      update(padding.data(), padLen);
 
       // Append length (before padding)
-      update(bits, 8);
+      update(bits.data(), 8);
 
       // Store state in digest
-      encode(digest, state, 16);
+      encode(digest.data(), state.data(), 16);
 
       // Zeroize sensitive information.
       buffer.fill(0);
@@ -204,7 +204,7 @@ struct State
   void transform(const uint8_t block[Blocksize])
   {
     uint32_t a = state[0], b = state[1], c = state[2], d = state[3];
-    std::array<uint32_t, 16> x;
+    std::array<uint32_t, 16> x{};
     decode(x.data(), block, Blocksize);
 
     /* Round 1 */
@@ -296,11 +296,11 @@ struct State
     size_t index = count[0] / 8 % Blocksize;
 
     // Update number of bits
-    if((count[0] += gsl::narrow_cast<uint32_t>(length << 3)) < gsl::narrow_cast<uint32_t>(length << 3))
+    if((count[0] += gsl::narrow_cast<uint32_t>(length << 3u)) < gsl::narrow_cast<uint32_t>(length << 3u))
     {
       ++count[1];
     }
-    count[1] += gsl::narrow_cast<uint32_t>(length >> 29);
+    count[1] += gsl::narrow_cast<uint32_t>(length >> 29u);
 
     // number of bytes we need to fill in buffer
     const size_t firstpart = 64 - index;
@@ -339,14 +339,15 @@ struct State
       return {};
     }
 
-    char buf[33];
+    std::array<char, 33> buf{};
+    buf.fill('\0');
     for(int i = 0; i < 16; i++)
     {
-      sprintf(buf + i * 2, "%02X", digest[i]);
+      sprintf(buf.data() + i * 2, "%02X", digest[i]);
     }
     buf[32] = 0;
 
-    return std::string(buf);
+    return std::string(buf.data());
   }
 };
 

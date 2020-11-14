@@ -332,11 +332,11 @@ public:
     }
     if(length > 0)
     {
-      const gsl::owner<gsl::zstring> infoLog = new char[length];
-      GL_ASSERT(api::getProgramInfoLog(getHandle(), length, nullptr, infoLog));
+      std::vector<char> infoLog;
+      infoLog.resize(length, '\0');
+      GL_ASSERT(api::getProgramInfoLog(getHandle(), length, nullptr, infoLog.data()));
       infoLog[length - 1] = '\0';
-      std::string result = infoLog;
-      delete[] infoLog;
+      std::string result = infoLog.data();
       return result;
     }
 

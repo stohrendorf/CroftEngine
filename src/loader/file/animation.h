@@ -104,14 +104,17 @@ struct AnimFrame
 
   [[nodiscard]] gsl::span<const uint32_t> getAngleData() const noexcept
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
     return gsl::make_span(begin, numValues);
   }
 
   [[nodiscard]] const AnimFrame* next() const
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
     const auto end = begin + numValues;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto next = reinterpret_cast<const AnimFrame*>(end);
     Expects(next->numValues == numValues);
     return next;
@@ -150,8 +153,8 @@ struct TransitionCase
 struct Transitions
 {
   core::AnimStateId stateId{uint16_t(0)};
-  uint16_t transitionCaseCount;                                       // number of ranges (seems to always be 1..5)
-  core::ContainerIndex<uint16_t, TransitionCase> firstTransitionCase; // Offset into AnimDispatches[]
+  uint16_t transitionCaseCount{};                                       // number of ranges (seems to always be 1..5)
+  core::ContainerIndex<uint16_t, TransitionCase> firstTransitionCase{}; // Offset into AnimDispatches[]
 
   gsl::span<const TransitionCase> transitionCases{};
 
@@ -166,24 +169,24 @@ struct Animation
   const AnimFrame* frames = nullptr;
 
   core::Frame segmentLength = 0_frame; // Slowdown factor of this animation
-  uint8_t poseDataSize;                // number of bit16's in Frames[] used by this animation
+  uint8_t poseDataSize{};              // number of bit16's in Frames[] used by this animation
   core::AnimStateId state_id = 0_as;
 
-  core::Speed speed;
-  core::Acceleration acceleration;
+  core::Speed speed{};
+  core::Acceleration acceleration{};
 
-  core::Speed lateralSpeed;               // new in TR4 -->
-  core::Acceleration lateralAcceleration; // lateral speed and acceleration.
+  core::Speed lateralSpeed{};               // new in TR4 -->
+  core::Acceleration lateralAcceleration{}; // lateral speed and acceleration.
 
   core::Frame firstFrame = 0_frame; // first frame in this animation
   core::Frame lastFrame = 0_frame;  // last frame in this animation (numframes = (End - Start) + 1)
-  uint16_t nextAnimationIndex;
+  uint16_t nextAnimationIndex{};
   core::Frame nextFrame = 0_frame;
 
-  uint16_t transitionsCount;
-  core::ContainerIndex<uint16_t, Transitions> transitionsIndex; // offset into StateChanges[]
-  uint16_t animCommandCount;                                    // How many of them to use.
-  core::ContainerIndex<uint16_t, int16_t> animCommandIndex;     // offset into AnimCommand[]
+  uint16_t transitionsCount{};
+  core::ContainerIndex<uint16_t, Transitions> transitionsIndex{}; // offset into StateChanges[]
+  uint16_t animCommandCount{};                                    // How many of them to use.
+  core::ContainerIndex<uint16_t, int16_t> animCommandIndex{};     // offset into AnimCommand[]
 
   const Animation* nextAnimation = nullptr;
   gsl::span<const Transitions> transitions{};
@@ -250,8 +253,8 @@ struct SkeletalModelType
         , center{std::move(center)}
         , collision_size{collision_size}
         , position{boneTreeEntry.has_value() ? boneTreeEntry->toGl() : glm::vec3{0}}
-        , pushMatrix{boneTreeEntry.has_value() ? (boneTreeEntry->flags & 0x02u) != 0 : false}
-        , popMatrix{boneTreeEntry.has_value() ? (boneTreeEntry->flags & 0x01u) != 0 : false}
+        , pushMatrix{(boneTreeEntry.has_value() && (boneTreeEntry->flags & 0x02u) != 0)}
+        , popMatrix{(boneTreeEntry.has_value() && (boneTreeEntry->flags & 0x01u) != 0)}
     {
       BOOST_ASSERT(!boneTreeEntry.has_value() || (boneTreeEntry->flags & 0x1cu) == 0);
     }

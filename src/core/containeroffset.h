@@ -31,7 +31,7 @@ struct ContainerOffset
   explicit ContainerOffset(T) = delete;
 
   template<typename T>
-  offset_type index() const
+  [[nodiscard]] offset_type index() const
   {
     static_assert(tpl::is_one_of_v<T, DataTypes...>, "Can only use declared types for index conversion");
     if(offset % sizeof(T) != 0)

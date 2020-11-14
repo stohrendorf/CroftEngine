@@ -23,7 +23,7 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderManager::get(const std::file
   if(it != m_programs.end())
     return it->second;
 
-  const auto shader = ShaderProgram::createFromFile(id, m_root / vshPath, m_root / fshPath, defines);
+  auto shader = ShaderProgram::createFromFile(id, m_root / vshPath, m_root / fshPath, defines);
   m_programs.emplace(id, shader);
   return shader;
 }
