@@ -185,10 +185,6 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::Engine& engine)
   for(const auto& txt : objectTexts)
     if(txt != nullptr)
       txt->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
-  if(ammoText != nullptr)
-    ammoText->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
-  if(passportText != nullptr)
-    passportText->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
 }
 
 void MenuDisplay::clearMenuObjectDescription()
@@ -491,7 +487,6 @@ bool MenuDisplay::init(engine::Engine& engine)
 
   Ensures(!rings.empty());
 
-  ammoText.reset();
   engine.getCameraController().getCamera()->setFieldOfView(core::toRad(80_deg));
   passportPage = 0;
   selectedOption = 0;

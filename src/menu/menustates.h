@@ -5,6 +5,11 @@
 
 #include <gl/image.h>
 
+namespace ui
+{
+struct Label;
+}
+
 namespace menu
 {
 struct MenuDisplay;
@@ -31,6 +36,12 @@ public:
   virtual void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) = 0;
   virtual std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
     = 0;
+
+  template<typename T, typename... Ts>
+  auto create(Ts&&... args) -> std::enable_if_t<std::is_base_of_v<MenuState, T>, std::unique_ptr<T>>
+  {
+    return std::make_unique<T>(m_ringTransform, std::forward<Ts>(args)...);
+  }
 };
 
 class ResetItemTransformMenuState : public MenuState
@@ -255,11 +266,12 @@ private:
   const bool m_allowExit;
   const bool m_allowSave;
   const std::optional<int> m_forcePage;
+  std::unique_ptr<ui::Label> m_passportText;
 
   std::unique_ptr<MenuState> close(MenuDisplay& display, int page, MenuObject& passport);
 
 public:
-  explicit PassportMenuState(InventoryMode mode, const std::shared_ptr<MenuRingTransform>& ringTransform);
+  explicit PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, InventoryMode mode);
 
   std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
   void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;

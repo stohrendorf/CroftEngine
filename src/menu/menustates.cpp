@@ -137,7 +137,7 @@ std::unique_ptr<MenuState>
   DeselectingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
 {
   display.updateRingTitle();
-  return std::make_unique<IdleRingMenuState>(m_ringTransform, false);
+  return create<IdleRingMenuState>(false);
 }
 
 void DeselectingMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
@@ -164,23 +164,21 @@ std::unique_ptr<MenuState>
      && display.getCurrentRing().list.size() > 1)
   {
     engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
-    return std::make_unique<RotateLeftRightMenuState>(
-      m_ringTransform, true, display.getCurrentRing(), std::move(display.m_currentState));
+    return create<RotateLeftRightMenuState>(true, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
   if(engine.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left)
      && display.getCurrentRing().list.size() > 1)
   {
     engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
-    return std::make_unique<RotateLeftRightMenuState>(
-      m_ringTransform, false, display.getCurrentRing(), std::move(display.m_currentState));
+    return create<RotateLeftRightMenuState>(false, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
   if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true) && display.allowMenuClose)
   {
     engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
     display.inventoryChosen.reset();
-    return std::make_unique<DeflateRingMenuState>(m_ringTransform, std::make_unique<DoneMenuState>(m_ringTransform));
+    return create<DeflateRingMenuState>(create<DoneMenuState>());
   }
 
   if(m_autoSelect || engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
@@ -213,20 +211,18 @@ std::unique_ptr<MenuState>
 
     currentObject.goalFrame = currentObject.openFrame;
     currentObject.animDirection = 1_frame;
-    return std::make_unique<ApplyItemTransformMenuState>(m_ringTransform);
+    return create<ApplyItemTransformMenuState>();
   }
 
   if(engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward)
      && display.currentRingIndex > 0)
   {
-    return std::make_unique<DeflateRingMenuState>(
-      m_ringTransform, std::make_unique<SwitchRingMenuState>(m_ringTransform, display.currentRingIndex - 1, false));
+    return create<DeflateRingMenuState>(create<SwitchRingMenuState>(display.currentRingIndex - 1, false));
   }
   else if(engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward)
           && display.currentRingIndex + 1 < display.rings.size())
   {
-    return std::make_unique<DeflateRingMenuState>(
-      m_ringTransform, std::make_unique<SwitchRingMenuState>(m_ringTransform, display.currentRingIndex + 1, false));
+    return create<DeflateRingMenuState>(create<SwitchRingMenuState>(display.currentRingIndex + 1, false));
   }
 
   return nullptr;
@@ -260,7 +256,7 @@ std::unique_ptr<MenuState>
   display.currentRingIndex = m_next;
   m_ringTransform->cameraRotX = m_targetCameraRotX;
 
-  return std::make_unique<InflateRingMenuState>(m_ringTransform);
+  return create<InflateRingMenuState>();
 }
 
 void SwitchRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
@@ -290,7 +286,7 @@ std::unique_ptr<MenuState>
 {
   auto& currentObject = display.getCurrentRing().getSelectedObject();
   if(currentObject.type == engine::TR1ItemId::PassportClosed)
-    return std::make_unique<PassportMenuState>(display.mode, m_ringTransform);
+    return create<PassportMenuState>(display.mode);
 
   bool animRunning = currentObject.selectedRotationY == currentObject.rotationY ? currentObject.animate() : false;
   if(animRunning)
@@ -301,18 +297,13 @@ std::unique_ptr<MenuState>
   {
     if(display.rings.size() > 1)
     {
-      return std::make_unique<FinishItemAnimationMenuState>(
-        m_ringTransform,
-        std::make_unique<ResetItemTransformMenuState>(m_ringTransform,
-                                                      std::make_unique<DeselectingMenuState>(m_ringTransform, engine)));
+      return create<FinishItemAnimationMenuState>(
+        create<ResetItemTransformMenuState>(create<DeselectingMenuState>(engine)));
     }
     else
     {
-      return std::make_unique<FinishItemAnimationMenuState>(
-        m_ringTransform,
-        std::make_unique<ResetItemTransformMenuState>(
-          m_ringTransform,
-          std::make_unique<DeflateRingMenuState>(m_ringTransform, std::make_unique<DoneMenuState>(m_ringTransform))));
+      return create<FinishItemAnimationMenuState>(
+        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>())));
     }
   }
   else if(autoSelect || engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
@@ -324,18 +315,13 @@ std::unique_ptr<MenuState>
            || currentObject.type == engine::TR1ItemId::DirectionKeys
            || currentObject.type == engine::TR1ItemId::Flashlight))
     {
-      return std::make_unique<FinishItemAnimationMenuState>(
-        m_ringTransform,
-        std::make_unique<ResetItemTransformMenuState>(m_ringTransform,
-                                                      std::make_unique<DeselectingMenuState>(m_ringTransform, engine)));
+      return create<FinishItemAnimationMenuState>(
+        create<ResetItemTransformMenuState>(create<DeselectingMenuState>(engine)));
     }
     else
     {
-      return std::make_unique<FinishItemAnimationMenuState>(
-        m_ringTransform,
-        std::make_unique<ResetItemTransformMenuState>(
-          m_ringTransform,
-          std::make_unique<DeflateRingMenuState>(m_ringTransform, std::make_unique<DoneMenuState>(m_ringTransform))));
+      return create<FinishItemAnimationMenuState>(
+        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>())));
     }
   }
 
@@ -361,7 +347,7 @@ std::unique_ptr<MenuState>
       doAutoSelect = true;
     }
 
-    return std::make_unique<IdleRingMenuState>(m_ringTransform, doAutoSelect);
+    return create<IdleRingMenuState>(doAutoSelect);
   }
 
   m_duration -= 1_frame;
@@ -429,7 +415,7 @@ std::unique_ptr<MenuState>
     return nullptr;
   }
 
-  return std::make_unique<SelectedMenuState>(m_ringTransform);
+  return create<SelectedMenuState>();
 }
 
 void DeflateRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
@@ -534,7 +520,7 @@ void PassportMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& di
 }
 
 std::unique_ptr<MenuState>
-  PassportMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
+  PassportMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
 {
   auto& passport = display.getCurrentRing().getSelectedObject();
   passport.type = engine::TR1ItemId::PassportOpening;
@@ -571,11 +557,11 @@ std::unique_ptr<MenuState>
       forcePageTurn = hid::AxisMovement::Right;
       break;
     }
-    if(display.passportText == nullptr)
+    if(m_passportText == nullptr)
     {
-      display.passportText = std::make_unique<ui::Label>(0, -16, "Load Game");
-      display.passportText->alignY = ui::Label::Alignment::Bottom;
-      display.passportText->alignX = ui::Label::Alignment::Center;
+      m_passportText = std::make_unique<ui::Label>(0, -16, "Load Game");
+      m_passportText->alignY = ui::Label::Alignment::Bottom;
+      m_passportText->alignX = ui::Label::Alignment::Center;
     }
     if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
        || display.mode == InventoryMode::LoadMode)
@@ -596,11 +582,11 @@ std::unique_ptr<MenuState>
         forcePageTurn = hid::AxisMovement::Right;
       break;
     }
-    if(display.passportText == nullptr)
+    if(m_passportText == nullptr)
     {
-      display.passportText = std::make_unique<ui::Label>(0, -16, m_allowSave && isInGame ? "Save Game" : "New Game");
-      display.passportText->alignY = ui::Label::Alignment::Bottom;
-      display.passportText->alignX = ui::Label::Alignment::Center;
+      m_passportText = std::make_unique<ui::Label>(0, -16, m_allowSave && isInGame ? "Save Game" : "New Game");
+      m_passportText->alignY = ui::Label::Alignment::Bottom;
+      m_passportText->alignX = ui::Label::Alignment::Center;
     }
     if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
        || display.mode == InventoryMode::SaveMode)
@@ -615,15 +601,18 @@ std::unique_ptr<MenuState>
     }
     break;
   case ExitGamePage:
-    if(display.passportText == nullptr)
+    if(m_passportText == nullptr)
     {
-      display.passportText = std::make_unique<ui::Label>(0, -16, !isInGame ? "Exit Game" : "Exit to Title");
-      display.passportText->alignY = ui::Label::Alignment::Bottom;
-      display.passportText->alignX = ui::Label::Alignment::Center;
+      m_passportText = std::make_unique<ui::Label>(0, -16, !isInGame ? "Exit Game" : "Exit to Title");
+      m_passportText->alignY = ui::Label::Alignment::Bottom;
+      m_passportText->alignX = ui::Label::Alignment::Center;
     }
     break;
   default: Expects(page == -1); break;
   }
+
+  if(m_passportText != nullptr)
+    m_passportText->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
 
   if(forcePageTurn == hid::AxisMovement::Left
      || engine.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
@@ -639,7 +628,7 @@ std::unique_ptr<MenuState>
       else
       {
         engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
-        display.passportText.reset();
+        m_passportText.reset();
       }
       return nullptr;
     }
@@ -653,7 +642,8 @@ std::unique_ptr<MenuState>
       }
       else
       {
-        display.passportText.reset();
+        engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
+        m_passportText.reset();
       }
       return nullptr;
     }
@@ -670,7 +660,7 @@ std::unique_ptr<MenuState>
     else
     {
       engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
-      display.passportText.reset();
+      m_passportText.reset();
     }
     return nullptr;
   }
@@ -689,7 +679,7 @@ std::unique_ptr<MenuState>
   return nullptr;
 }
 
-PassportMenuState::PassportMenuState(InventoryMode mode, const std::shared_ptr<MenuRingTransform>& ringTransform)
+PassportMenuState::PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, InventoryMode mode)
     : MenuState{ringTransform}
     , m_allowExit{mode != InventoryMode::DeathMode && mode != InventoryMode::TitleMode}
     , m_allowSave{mode != InventoryMode::DeathMode && mode != InventoryMode::TitleMode}
@@ -699,9 +689,9 @@ PassportMenuState::PassportMenuState(InventoryMode mode, const std::shared_ptr<M
 {
 }
 
-std::unique_ptr<MenuState> PassportMenuState::close(MenuDisplay& display, int page, MenuObject& passport)
+std::unique_ptr<MenuState> PassportMenuState::close(MenuDisplay& /*display*/, int page, MenuObject& passport)
 {
-  display.passportText.reset();
+  m_passportText.reset();
 
   if(page == ExitGamePage)
   {
@@ -714,13 +704,8 @@ std::unique_ptr<MenuState> PassportMenuState::close(MenuDisplay& display, int pa
     passport.animDirection = -1_frame;
   }
 
-  return std::make_unique<FinishItemAnimationMenuState>(
-    m_ringTransform,
-    std::make_unique<SetItemTypeMenuState>(
-      m_ringTransform,
-      engine::TR1ItemId::PassportClosed,
-      std::make_unique<ResetItemTransformMenuState>(m_ringTransform,
-                                                    std::make_unique<IdleRingMenuState>(m_ringTransform, false))));
+  return create<FinishItemAnimationMenuState>(create<SetItemTypeMenuState>(
+    engine::TR1ItemId::PassportClosed, create<ResetItemTransformMenuState>(create<IdleRingMenuState>(false))));
 }
 
 std::unique_ptr<MenuState>
