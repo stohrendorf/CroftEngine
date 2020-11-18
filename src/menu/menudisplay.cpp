@@ -58,6 +58,7 @@ void MenuDisplay::updateRingTitle()
     if(objectTexts[3] == nullptr)
     {
       objectTexts[3] = std::make_unique<ui::Label>(20, 28, "[");
+      objectTexts[3]->alignX = ui::Label::Alignment::Left;
       objectTexts[4] = std::make_unique<ui::Label>(-20, 28, "[");
       objectTexts[4]->alignX = ui::Label::Alignment::Right;
     }
@@ -73,6 +74,7 @@ void MenuDisplay::updateRingTitle()
     if(objectTexts[5] == nullptr)
     {
       objectTexts[5] = std::make_unique<ui::Label>(20, -15, "]");
+      objectTexts[5]->alignX = ui::Label::Alignment::Left;
       objectTexts[5]->alignY = ui::Label::Alignment::Bottom;
       objectTexts[6] = std::make_unique<ui::Label>(-20, -15, "]");
       objectTexts[6]->alignX = ui::Label::Alignment::Right;

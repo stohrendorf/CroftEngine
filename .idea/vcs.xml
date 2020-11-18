@@ -2,6 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/rapidyaml" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/rapidyaml/ext/c4core" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/rapidyaml/ext/c4core/cmake" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/rapidyaml/ext/c4core/src/c4/ext/debugbreak" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/type_safe" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/type_safe/external/debug_assert" vcs="Git" />
   </component>

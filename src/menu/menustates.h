@@ -276,4 +276,26 @@ public:
   std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
   void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
 };
+
+class SavegameListMenuState : public MenuState
+{
+private:
+  static constexpr int16_t pixelWidth = 272;
+  static constexpr int16_t lineHeight = 18;
+  static constexpr int16_t yPos = -80;
+  static constexpr int16_t perPage = 10;
+  static constexpr int16_t totalHeight = perPage * lineHeight + 10;
+  static constexpr int16_t yOffset = yPos - totalHeight;
+  static constexpr size_t totalSlots = 20;
+
+  std::unique_ptr<MenuState> m_passport;
+  size_t m_selected = 0;
+  std::vector<std::unique_ptr<ui::Label>> m_labels;
+
+public:
+  explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                 std::unique_ptr<MenuState> passport);
+  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
+};
 } // namespace menu

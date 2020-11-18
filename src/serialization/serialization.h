@@ -2,14 +2,14 @@
 
 #include "serialization_fwd.h"
 
-#include <ryml/ryml_std.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
 #include <fstream>
 #include <gsl-lite.hpp>
 #include <queue>
-#include <ryml/ryml.hpp>
+#include <ryml.hpp>
+#include <ryml_std.hpp>
 #include <string>
 #include <type_traits>
 #include <typeinfo>

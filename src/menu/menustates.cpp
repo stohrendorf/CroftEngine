@@ -288,8 +288,7 @@ std::unique_ptr<MenuState>
   if(currentObject.type == engine::TR1ItemId::PassportClosed)
     return create<PassportMenuState>(display.mode);
 
-  bool animRunning = currentObject.selectedRotationY == currentObject.rotationY ? currentObject.animate() : false;
-  if(animRunning)
+  if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
     return nullptr;
 
   const bool autoSelect = display.doOptions(img, engine, currentObject);
@@ -525,8 +524,7 @@ std::unique_ptr<MenuState>
   auto& passport = display.getCurrentRing().getSelectedObject();
   passport.type = engine::TR1ItemId::PassportOpening;
 
-  bool animRunning = passport.selectedRotationY == passport.rotationY ? passport.animate() : false;
-  if(animRunning)
+  if(passport.selectedRotationY == passport.rotationY && passport.animate())
     return nullptr;
 
   const bool isInGame = display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::DeathMode;
@@ -560,8 +558,8 @@ std::unique_ptr<MenuState>
     if(m_passportText == nullptr)
     {
       m_passportText = std::make_unique<ui::Label>(0, -16, "Load Game");
-      m_passportText->alignY = ui::Label::Alignment::Bottom;
       m_passportText->alignX = ui::Label::Alignment::Center;
+      m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
     if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
        || display.mode == InventoryMode::LoadMode)
@@ -585,8 +583,8 @@ std::unique_ptr<MenuState>
     if(m_passportText == nullptr)
     {
       m_passportText = std::make_unique<ui::Label>(0, -16, m_allowSave && isInGame ? "Save Game" : "New Game");
-      m_passportText->alignY = ui::Label::Alignment::Bottom;
       m_passportText->alignX = ui::Label::Alignment::Center;
+      m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
     if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
        || display.mode == InventoryMode::SaveMode)
@@ -595,8 +593,7 @@ std::unique_ptr<MenuState>
       {
         display.objectTexts[0].reset();
         display.objectTexts[2].reset();
-        BOOST_LOG_TRIVIAL(error) << "save game dialog not implemented yet";
-        return nullptr;
+        return create<SavegameListMenuState>(std::move(display.m_currentState));
       }
     }
     break;
@@ -604,8 +601,8 @@ std::unique_ptr<MenuState>
     if(m_passportText == nullptr)
     {
       m_passportText = std::make_unique<ui::Label>(0, -16, !isInGame ? "Exit Game" : "Exit to Title");
-      m_passportText->alignY = ui::Label::Alignment::Bottom;
       m_passportText->alignX = ui::Label::Alignment::Center;
+      m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
     break;
   default: Expects(page == -1); break;
@@ -718,5 +715,71 @@ void SetItemTypeMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay&
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
     object.type = m_type;
+}
+
+SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                             std::unique_ptr<MenuState> passport)
+    : MenuState{ringTransform}
+    , m_passport{std::move(passport)}
+{
+  for(size_t i = 0; i < totalSlots; ++i)
+  {
+    const auto line = i % perPage;
+    auto lbl = std::make_unique<ui::Label>(0, yOffset + line * lineHeight, "- EMPTY SLOT " + std::to_string(i + 1));
+    lbl->alignX = ui::Label::Alignment::Center;
+    lbl->alignY = ui::Label::Alignment::Bottom;
+    m_labels.emplace_back(std::move(lbl));
+  }
+}
+
+void SavegameListMenuState::handleObject(engine::Engine& engine, MenuDisplay& /*display*/, MenuObject& /*object*/)
+{
+}
+std::unique_ptr<MenuState>
+  SavegameListMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& /*display*/)
+{
+  const auto page = m_selected / perPage;
+  const auto first = page * perPage;
+  const auto last = std::min(first + perPage, m_labels.size());
+  Expects(first < last);
+  for(size_t i = first; i < last; ++i)
+  {
+    const auto& lbl = m_labels.at(i);
+    if(m_selected == i)
+    {
+      lbl->addBackground(pixelWidth - 12, 16, 0, 0);
+      lbl->outline = true;
+    }
+    else
+    {
+      lbl->removeBackground();
+      lbl->outline = false;
+    }
+    lbl->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
+  }
+
+  if(m_selected > 0
+     && engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
+  {
+    --m_selected;
+  }
+  else if(m_selected < totalSlots - 1
+          && engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(
+            hid::AxisMovement::Backward))
+  {
+    ++m_selected;
+  }
+  else if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  {
+    // TODO implement save game action
+    BOOST_LOG_TRIVIAL(warning) << "Save game action not implemented yet";
+    return std::move(m_passport);
+  }
+  else if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+  {
+    return std::move(m_passport);
+  }
+
+  return nullptr;
 }
 } // namespace menu

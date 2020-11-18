@@ -162,7 +162,6 @@ endif()
 add_library( utf8cpp::utf8cpp INTERFACE IMPORTED )
 target_include_directories( utf8cpp::utf8cpp INTERFACE "${UTF8CPP_INCLUDE_DIR}" )
 
-find_package( ryml CONFIG REQUIRED )
-
+add_subdirectory( 3rdparty/rapidyaml )
 add_subdirectory( 3rdparty/type_safe )
 add_subdirectory( src )
