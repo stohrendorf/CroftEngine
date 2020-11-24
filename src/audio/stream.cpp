@@ -9,7 +9,7 @@ Stream::Stream(Device& device,
                const size_t bufferSize,
                const size_t bufferCount)
     : m_stream{std::move(src)}
-    , m_source{device.createSource().get()}
+    , m_source{device.createStreamingSource().get()}
     , m_sampleBuffer(bufferSize * 2)
 {
   BOOST_LOG_TRIVIAL(trace) << "Created AL stream with buffer size " << bufferSize << " and " << bufferCount
@@ -43,20 +43,16 @@ void Stream::update()
 
   while(processed-- > 0)
   {
-    const auto bufId = src->unqueueBuffer();
-
-    const auto bufferIt = std::find_if(
-      m_buffers.begin(), m_buffers.end(), [bufId](const gsl::not_null<std::shared_ptr<BufferHandle>>& buffer) {
-        return buffer->get() == bufId;
-      });
-    if(bufferIt == m_buffers.end())
+    const auto buffer = src->unqueueBuffer();
+    auto it = std::find(m_buffers.begin(), m_buffers.end(), buffer);
+    if(it == m_buffers.end())
     {
-      BOOST_LOG_TRIVIAL(warning) << "Got unexpected buffer ID #" << bufId;
+      BOOST_LOG_TRIVIAL(warning) << "Got unexpected buffer ID #" << buffer->get();
       continue;
     }
 
-    fillBuffer(**bufferIt);
-    src->queueBuffer(**bufferIt);
+    fillBuffer(*buffer);
+    src->queueBuffer(buffer);
     break;
   }
 }
@@ -68,10 +64,10 @@ void Stream::init()
     return;
 
   fillBuffer(*m_buffers[0]);
-  src->queueBuffer(*m_buffers[0]);
+  src->queueBuffer(m_buffers[0]);
 
   fillBuffer(*m_buffers[1]);
-  src->queueBuffer(*m_buffers[1]);
+  src->queueBuffer(m_buffers[1]);
 
   src->play();
 }

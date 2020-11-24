@@ -75,9 +75,17 @@ public:
     return r;
   }
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<SourceHandle>> createSource()
+  [[nodiscard]] gsl::not_null<std::shared_ptr<SimpleSourceHandle>>
+    createSimpleSource(const std::shared_ptr<BufferHandle>& buffer)
   {
-    const auto r = std::make_shared<SourceHandle>();
+    const auto r = std::make_shared<SimpleSourceHandle>(buffer);
+    m_sources.emplace(r);
+    return r;
+  }
+
+  [[nodiscard]] gsl::not_null<std::shared_ptr<StreamingSourceHandle>> createStreamingSource()
+  {
+    const auto r = std::make_shared<StreamingSourceHandle>();
     m_sources.emplace(r);
     return r;
   }

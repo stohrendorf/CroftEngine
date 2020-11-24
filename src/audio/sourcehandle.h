@@ -4,12 +4,13 @@
 #include "filterhandle.h"
 #include "util/helpers.h"
 
+#include <unordered_set>
+
 namespace audio
 {
-class SourceHandle final
+class SourceHandle
 {
   const ALuint m_handle{};
-  std::shared_ptr<BufferHandle> m_buffer;
 
   [[nodiscard]] static ALuint createHandle()
   {
@@ -21,19 +22,20 @@ class SourceHandle final
     return handle;
   }
 
-public:
+protected:
   explicit SourceHandle()
       : m_handle{createHandle()}
   {
     set(AL_MAX_DISTANCE, 8 * 1024);
   }
 
+public:
   explicit SourceHandle(const SourceHandle&) = delete;
   explicit SourceHandle(SourceHandle&&) = delete;
   SourceHandle& operator=(const SourceHandle&) = delete;
   SourceHandle& operator=(SourceHandle&&) = delete;
 
-  ~SourceHandle()
+  virtual ~SourceHandle()
   {
     AL_ASSERT(alSourceStop(m_handle));
     AL_ASSERT(alDeleteSources(1, &m_handle));
@@ -42,17 +44,6 @@ public:
   [[nodiscard]] ALuint get() const noexcept
   {
     return m_handle;
-  }
-
-  void setBuffer(const std::shared_ptr<BufferHandle>& b)
-  {
-    m_buffer = b;
-    AL_ASSERT(alSourcei(m_handle, AL_BUFFER, m_buffer == nullptr ? 0 : m_buffer->get()));
-  }
-
-  [[nodiscard]] const std::shared_ptr<BufferHandle>& getBuffer() const noexcept
-  {
-    return m_buffer;
   }
 
   // NOLINTNEXTLINE(readability-make-member-function-const)
@@ -152,24 +143,59 @@ public:
     AL_ASSERT(alGetSourcei(m_handle, AL_BUFFERS_PROCESSED, &processed));
     return processed;
   }
+};
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  [[nodiscard]] ALuint unqueueBuffer()
+class SimpleSourceHandle : public SourceHandle
+{
+private:
+  std::shared_ptr<BufferHandle> m_buffer;
+
+public:
+  explicit SimpleSourceHandle(const std::shared_ptr<BufferHandle>& buffer)
+      : SourceHandle{}
+      , m_buffer{buffer}
   {
-    ALuint result;
-    AL_ASSERT(alSourceUnqueueBuffers(m_handle, 1, &result));
+    AL_ASSERT(alSourcei(get(), AL_BUFFER, m_buffer == nullptr ? 0 : m_buffer->get()));
+  }
+
+  [[nodiscard]] const std::shared_ptr<BufferHandle>& getBuffer() const noexcept
+  {
+    return m_buffer;
+  }
+};
+
+class StreamingSourceHandle : public SourceHandle
+{
+private:
+  std::unordered_set<std::shared_ptr<BufferHandle>> m_queuedBuffers;
+
+public:
+  // NOLINTNEXTLINE(readability-make-member-function-const)
+  [[nodiscard]] std::shared_ptr<BufferHandle> unqueueBuffer()
+  {
+    ALuint unqueued;
+    AL_ASSERT(alSourceUnqueueBuffers(get(), 1, &unqueued));
+
+    auto it
+      = std::find_if(m_queuedBuffers.begin(),
+                     m_queuedBuffers.end(),
+                     [unqueued](const std::shared_ptr<BufferHandle>& buffer) { return buffer->get() == unqueued; });
+
+    if(it == m_queuedBuffers.end())
+      BOOST_THROW_EXCEPTION(std::runtime_error("Unqueued buffer not in queue"));
+    auto result = *it;
+    m_queuedBuffers.erase(it);
     return result;
   }
 
   // NOLINTNEXTLINE(readability-make-member-function-const)
-  void queueBuffer(ALuint buffer)
+  void queueBuffer(const std::shared_ptr<BufferHandle>& buffer)
   {
-    AL_ASSERT(alSourceQueueBuffers(m_handle, 1, &buffer));
-  }
+    if(!m_queuedBuffers.emplace(buffer).second)
+      BOOST_THROW_EXCEPTION(std::runtime_error("Buffer enqueued more than once"));
 
-  void queueBuffer(const BufferHandle& buffer)
-  {
-    queueBuffer(buffer.get());
+    ALuint bufferId = buffer->get();
+    AL_ASSERT(alSourceQueueBuffers(get(), 1, &bufferId));
   }
 };
 } // namespace audio

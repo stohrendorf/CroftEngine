@@ -89,8 +89,7 @@ bool SoundEngine::stopBuffer(size_t bufferId, Emitter* emitter)
 gsl::not_null<std::shared_ptr<SourceHandle>> SoundEngine::playBuffer(
   const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
 {
-  auto src = m_device.createSource();
-  src->setBuffer(buffer);
+  auto src = m_device.createSimpleSource(buffer);
   src->setPitch(pitch);
   src->setGain(volume);
   if(emitter != nullptr)
