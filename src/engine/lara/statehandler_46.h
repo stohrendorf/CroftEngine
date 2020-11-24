@@ -15,8 +15,8 @@ public:
 
   void handleInput(CollisionInfo& /*collisionInfo*/) override
   {
-    getEngine().getCameraController().setModifier(CameraModifier::FollowCenter);
-    getEngine().getCameraController().setEyeRotation(-25_deg, 170_deg);
+    getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
+    getWorld().getCameraController().setEyeRotation(-25_deg, 170_deg);
   }
 
   void postprocessFrame(CollisionInfo& /*collisionInfo*/) override

@@ -44,7 +44,7 @@ struct AiInfo
   core::Angle angle = 0_deg;
   core::Angle enemy_facing = 0_deg;
 
-  AiInfo(Engine& engine, objects::ObjectState& objectState);
+  AiInfo(World& world, objects::ObjectState& objectState);
 
   [[nodiscard]] bool canReachEnemyZone() const
   {
@@ -63,7 +63,7 @@ struct CreatureInfo
   PathFinder pathFinder;
   core::TRVec target;
 
-  CreatureInfo(const Engine& engine, core::TypeId type);
+  CreatureInfo(const World& world, core::TypeId type);
 
   void rotateHead(const core::Angle& angle)
   {
@@ -79,6 +79,6 @@ std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr
 
 void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer& ser);
 
-void updateMood(const Engine& engine, const objects::ObjectState& objectState, const AiInfo& aiInfo, bool violent);
+void updateMood(const World& world, const objects::ObjectState& objectState, const AiInfo& aiInfo, bool violent);
 } // namespace ai
 } // namespace engine

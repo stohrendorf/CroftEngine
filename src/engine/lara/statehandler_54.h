@@ -26,7 +26,7 @@ public:
     collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
   }
 };
 } // namespace engine::lara

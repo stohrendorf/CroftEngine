@@ -33,7 +33,7 @@ namespace engine
 void Presenter::playVideo(const std::filesystem::path& path)
 {
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-  video::play(path, m_audioEngine->getSoundEngine().getDevice(), m_screenOverlay->getImage(), [&]() {
+  video::play(path, m_soundEngine->getDevice(), m_screenOverlay->getImage(), [&]() {
     if(m_window->updateWindowSize())
     {
       m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
@@ -214,11 +214,6 @@ void Presenter::drawLevelName(const loader::file::Palette& palette, const std::s
   tmp.draw(*m_trFont, *m_screenOverlay->getImage(), palette);
 }
 
-audio::SoundEngine& Presenter::getSoundEngine()
-{
-  return m_audioEngine->getSoundEngine();
-}
-
 void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManager& objectManager)
 {
   auto& image = *m_screenOverlay->getImage();
@@ -280,20 +275,9 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
   }
 }
 
-void Presenter::animateUV(const std::vector<loader::file::TextureTile>& textureTiles)
-{
-  static constexpr auto UVAnimTime = 10_frame;
-
-  m_uvAnimTime += 1_frame;
-  if(m_uvAnimTime >= UVAnimTime)
-  {
-    m_textureAnimator->updateCoordinates(textureTiles);
-    m_uvAnimTime -= UVAnimTime;
-  }
-}
-
 Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution)
     : m_window{std::make_unique<gl::Window>(fullscreen, resolution)}
+    , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(
         std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 20.0f, 20480.0f))}
     , m_splashImage{rootPath / "splash.png"}
@@ -369,45 +353,6 @@ void Presenter::drawLoadingScreen(const std::string& state)
   m_window->swapBuffers();
 }
 
-void Presenter::initTextures(loader::file::level::Level& level, const std::string& animatedTextureId)
-{
-  Expects(!level.m_textures.empty());
-  const int textureSize = level.m_textures[0].image->getWidth();
-  const int textureLevels = static_cast<int>(std::log2(textureSize) + 1);
-
-  m_textureAnimator = std::make_unique<render::TextureAnimator>(
-    level.m_animatedTextures, level.m_textureTiles, level.m_textures, animatedTextureId);
-  m_allTextures = std::make_unique<gl::Texture2DArray<gl::SRGBA8>>(
-    glm::ivec3{textureSize, textureSize, gsl::narrow<int>(level.m_textures.size())}, textureLevels, "all-textures");
-  m_allTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
-  if(textureSize == 256)
-  {
-    m_allTextures->set(gl::api::TextureMagFilter::Nearest);
-  }
-  else
-  {
-    m_allTextures->set(gl::api::TextureMagFilter::Linear);
-  }
-  m_allTextures->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
-  m_allTextures->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
-  m_materialManager->setGeometryTextures(m_allTextures);
-}
-
-void Presenter::initAudio(Engine& engine,
-                          const loader::file::level::Level* level,
-                          const std::filesystem::path& audioRoot)
-{
-  if(level != nullptr)
-    m_audioEngine
-      = std::make_unique<AudioEngine>(engine, audioRoot, level->m_soundEffectProperties, level->m_soundEffects);
-  else
-    m_audioEngine = std::make_unique<AudioEngine>(engine, audioRoot);
-}
-
-void Presenter::assignTextures(const gl::SRGBA8* data, int z, int mipmapLevel)
-{
-  m_allTextures->assign(data, z, mipmapLevel);
-}
 void Presenter::preFrame()
 {
   if(m_window->updateWindowSize())
@@ -418,7 +363,7 @@ void Presenter::preFrame()
   }
   m_screenOverlay->getImage()->fill({0, 0, 0, 0});
 
-  m_audioEngine->getSoundEngine().update();
+  m_soundEngine->update();
   m_inputHandler->update();
 
   if(m_inputHandler->getInputState().debug.justChangedTo(true))

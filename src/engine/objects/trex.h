@@ -8,16 +8,16 @@ namespace engine::objects
 class TRex final : public AIAgent
 {
 public:
-  TRex(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : AIAgent{engine, position}
+  TRex(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : AIAgent{world, position}
   {
   }
 
-  TRex(const gsl::not_null<Engine*>& engine,
+  TRex(const gsl::not_null<World*>& world,
        const gsl::not_null<const loader::file::Room*>& room,
        const loader::file::Item& item,
        const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-      : AIAgent{engine, room, item, animatedModel}
+      : AIAgent{world, room, item, animatedModel}
   {
   }
 

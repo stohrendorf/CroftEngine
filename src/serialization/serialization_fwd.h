@@ -4,7 +4,7 @@
 
 namespace engine
 {
-class Engine;
+class World;
 }
 
 namespace serialization

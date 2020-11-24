@@ -1,16 +1,17 @@
 #include "dart.h"
 
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
 {
 void Dart::collide(CollisionInfo& info)
 {
-  if(!isNear(getEngine().getObjectManager().getLara(), info.collisionRadius))
+  if(!isNear(getWorld().getObjectManager().getLara(), info.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
+  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
     return;
 
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
@@ -23,11 +24,11 @@ void Dart::update()
 {
   if(m_state.touch_bits != 0)
   {
-    getEngine().getObjectManager().getLara().m_state.health -= 50_hp;
-    getEngine().getObjectManager().getLara().m_state.is_hit = true;
+    getWorld().getObjectManager().getLara().m_state.health -= 50_hp;
+    getWorld().getObjectManager().getLara().m_state.is_hit = true;
 
-    auto fx = createBloodSplat(getEngine(), m_state.position, m_state.speed, m_state.rotation.Y);
-    getEngine().getObjectManager().registerParticle(fx);
+    auto fx = createBloodSplat(getWorld(), m_state.position, m_state.speed, m_state.rotation.Y);
+    getWorld().getObjectManager().registerParticle(fx);
   }
 
   ModelObject::update();
@@ -38,7 +39,7 @@ void Dart::update()
     setCurrentRoom(room);
 
   const HeightInfo h
-    = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects());
+    = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects());
   m_state.floor = h.y;
 
   if(m_state.position.position.Y < m_state.floor)
@@ -46,10 +47,10 @@ void Dart::update()
 
   kill();
 
-  const auto particle = std::make_shared<RicochetParticle>(m_state.position, getEngine());
+  const auto particle = std::make_shared<RicochetParticle>(m_state.position, getWorld());
   setParent(particle, m_state.position.room->node);
   particle->angle = m_state.rotation;
   particle->timePerSpriteFrame = 6;
-  getEngine().getObjectManager().registerParticle(particle);
+  getWorld().getObjectManager().registerParticle(particle);
 }
 } // namespace engine::objects

@@ -23,39 +23,39 @@ public:
       return;
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().roll)
+    if(getWorld().getPresenter().getInputHandler().getInputState().roll)
     {
       setAnimation(AnimationId::ROLL_BEGIN, 3857_frame);
       setGoalAnimState(LaraStateId::Stop);
       return;
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(2.25_deg, -8_deg);
       const core::Angle z = std::max(-11_deg, getLara().m_state.rotation.Z - 1.5_deg);
       getLara().m_state.rotation.Z = z;
     }
-    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(2.25_deg, 8_deg);
       const core::Angle z = std::min(+11_deg, getLara().m_state.rotation.Z + 1.5_deg);
       getLara().m_state.rotation.Z = z;
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().jump && !getLara().m_state.falling)
+    if(getWorld().getPresenter().getInputHandler().getInputState().jump && !getLara().m_state.falling)
     {
       setGoalAnimState(LaraStateId::JumpForward);
       return;
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
+    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
     {
       setGoalAnimState(LaraStateId::Stop);
       return;
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
+    if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
     {
       setGoalAnimState(LaraStateId::WalkForward);
     }
@@ -73,7 +73,7 @@ public:
     collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.policyFlags.set(CollisionInfo::PolicyFlags::SlopesAreWalls);
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
 
     if(stopIfCeilingBlocked(collisionInfo))
     {

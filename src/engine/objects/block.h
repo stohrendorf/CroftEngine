@@ -7,16 +7,16 @@ namespace engine::objects
 class Block final : public ModelObject
 {
 public:
-  Block(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : ModelObject{engine, position}
+  Block(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
   {
   }
 
-  Block(const gsl::not_null<Engine*>& engine,
+  Block(const gsl::not_null<World*>& world,
         const gsl::not_null<const loader::file::Room*>& room,
         const loader::file::Item& item,
         const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-      : ModelObject{engine, room, item, true, animatedModel}
+      : ModelObject{world, room, item, true, animatedModel}
   {
     if(m_state.triggerState != TriggerState::Invisible)
     {

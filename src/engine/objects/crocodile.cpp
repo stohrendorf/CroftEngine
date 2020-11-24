@@ -1,25 +1,26 @@
 #include "crocodile.h"
 
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
 {
 void Crocodile::update()
 {
-  activate();
+  activateAi();
 
   if(m_state.type == TR1ItemId::CrocodileInWater)
   {
     core::Angle headRot = 0_deg;
     if(alive())
     {
-      const ai::AiInfo aiInfo{getEngine(), m_state};
+      const ai::AiInfo aiInfo{getWorld(), m_state};
       if(aiInfo.ahead)
       {
         headRot = aiInfo.angle;
       }
-      updateMood(getEngine(), m_state, aiInfo, true);
+      updateMood(getWorld(), m_state, aiInfo, true);
       rotateTowardsTarget(3_deg);
       if(m_state.current_anim_state == 1_as)
       {
@@ -58,7 +59,7 @@ void Crocodile::update()
       else
       {
         m_state.type = TR1ItemId::CrocodileOnLand;
-        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[0];
+        getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[0];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         goal(getSkeleton()->anim->state_id);
         m_state.current_anim_state = getSkeleton()->anim->state_id;
@@ -77,7 +78,7 @@ void Crocodile::update()
     {
       if(m_state.current_anim_state != 3_as)
       {
-        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[4];
+        getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[4];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         m_state.current_anim_state = 3_as;
         m_state.health = -16384_hp;
@@ -96,7 +97,7 @@ void Crocodile::update()
       }
       else
       {
-        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11];
+        getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         m_state.type = TR1ItemId::CrocodileOnLand;
         goal(7_as);
@@ -104,7 +105,7 @@ void Crocodile::update()
         auto room = m_state.position.room;
         auto sector = findRealFloorSector(m_state.position.position, &room);
         m_state.position.position.Y
-          = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects()).y;
+          = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects()).y;
         m_state.rotation.X = 0_deg;
 
         loadObjectInfo(true);
@@ -113,7 +114,7 @@ void Crocodile::update()
       auto room = m_state.position.room;
       auto sector = findRealFloorSector(m_state.position.position, &room);
       m_state.floor
-        = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects()).y;
+        = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects()).y;
       setCurrentRoom(room);
     }
   }
@@ -124,12 +125,12 @@ void Crocodile::update()
     core::Angle headRot = 0_deg;
     if(alive())
     {
-      const ai::AiInfo aiInfo{getEngine(), m_state};
+      const ai::AiInfo aiInfo{getWorld(), m_state};
       if(aiInfo.ahead)
       {
         headRot = aiInfo.angle;
       }
-      updateMood(getEngine(), m_state, aiInfo, true);
+      updateMood(getWorld(), m_state, aiInfo, true);
       if(m_state.current_anim_state == 4_as)
       {
         m_state.rotation.Y += 6_deg;
@@ -200,7 +201,7 @@ void Crocodile::update()
     {
       if(m_state.current_anim_state != 7_as)
       {
-        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11];
+        getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         m_state.current_anim_state = 7_as;
       }
@@ -211,7 +212,7 @@ void Crocodile::update()
     }
     if(m_state.position.room->isWaterRoom())
     {
-      getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[0];
+      getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[0];
       getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
       goal(getSkeleton()->anim->state_id);
       m_state.current_anim_state = getSkeleton()->anim->state_id;

@@ -1,25 +1,26 @@
 #include "rat.h"
 
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
 {
 void Rat::update()
 {
-  activate();
+  activateAi();
 
   if(m_state.type == TR1ItemId::RatInWater)
   {
     if(alive())
     {
-      const ai::AiInfo aiInfo{getEngine(), m_state};
+      const ai::AiInfo aiInfo{getWorld(), m_state};
       core::Angle headRot = 0_deg;
       if(aiInfo.ahead)
       {
         headRot = aiInfo.angle;
       }
-      updateMood(getEngine(), m_state, aiInfo, true);
+      updateMood(getWorld(), m_state, aiInfo, true);
       const auto turn = rotateTowardsTarget(3_deg);
 
       if(m_state.current_anim_state == 1_as && aiInfo.ahead)
@@ -47,7 +48,7 @@ void Rat::update()
       if(!waterHeight.has_value())
       {
         m_state.type = TR1ItemId::RatOnLand;
-        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[0];
+        getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[0];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         goal(getSkeleton()->anim->state_id);
         m_state.current_anim_state = getSkeleton()->anim->state_id;
@@ -78,7 +79,7 @@ void Rat::update()
     {
       if(m_state.current_anim_state != 3_as)
       {
-        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[2];
+        getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[2];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         m_state.current_anim_state = 3_as;
       }
@@ -94,7 +95,7 @@ void Rat::update()
       if(!getWaterSurfaceHeight().has_value())
       {
         m_state.type = TR1ItemId::RatOnLand;
-        getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8];
+        getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         goal(5_as);
         m_state.current_anim_state = m_state.goal_anim_state;
@@ -112,12 +113,12 @@ void Rat::update()
     core::Angle headRot = 0_deg;
     if(alive())
     {
-      const ai::AiInfo aiInfo{getEngine(), m_state};
+      const ai::AiInfo aiInfo{getWorld(), m_state};
       if(aiInfo.ahead)
       {
         headRot = aiInfo.angle;
       }
-      updateMood(getEngine(), m_state, aiInfo, false);
+      updateMood(getWorld(), m_state, aiInfo, false);
       turn = rotateTowardsTarget(6_deg);
 
       switch(m_state.current_anim_state.get())
@@ -163,7 +164,7 @@ void Rat::update()
     }
     else if(m_state.current_anim_state != 5_as)
     {
-      getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8];
+      getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8];
       getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
       m_state.current_anim_state = 5_as;
     }
@@ -171,7 +172,7 @@ void Rat::update()
     if(const auto waterHeight = getWaterSurfaceHeight())
     {
       m_state.type = TR1ItemId::RatInWater;
-      getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0];
+      getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0];
       getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
       goal(getSkeleton()->anim->state_id);
       m_state.current_anim_state = getSkeleton()->anim->state_id;

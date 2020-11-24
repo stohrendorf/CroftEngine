@@ -2,6 +2,7 @@
 
 #include "core/boundingbox.h"
 #include "engine/presenter.h"
+#include "engine/world.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
 
@@ -9,9 +10,9 @@ namespace engine::objects
 {
 void Block::collide(CollisionInfo& /*collisionInfo*/)
 {
-  if(!getEngine().getPresenter().getInputHandler().getInputState().action
-     || m_state.triggerState == TriggerState::Active || getEngine().getObjectManager().getLara().m_state.falling
-     || getEngine().getObjectManager().getLara().m_state.position.position.Y != m_state.position.position.Y)
+  if(!getWorld().getPresenter().getInputHandler().getInputState().action || m_state.triggerState == TriggerState::Active
+     || getWorld().getObjectManager().getLara().m_state.falling
+     || getWorld().getObjectManager().getLara().m_state.position.position.Y != m_state.position.position.Y)
   {
     return;
   }
@@ -20,13 +21,13 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
                                         {-10_deg, -30_deg, -10_deg},
                                         {+10_deg, +30_deg, +10_deg}};
 
-  auto axis = axisFromAngle(getEngine().getObjectManager().getLara().m_state.rotation.Y, 45_deg);
+  auto axis = axisFromAngle(getWorld().getObjectManager().getLara().m_state.rotation.Y, 45_deg);
   Expects(axis.has_value());
 
-  if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
+  if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
-    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Null
-       || getEngine().getObjectManager().getLara().getHandStatus() != HandStatus::None)
+    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Null
+       || getWorld().getObjectManager().getLara().getHandStatus() != HandStatus::None)
     {
       return;
     }
@@ -34,12 +35,12 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     const core::Angle y = alignRotation(*axis);
     m_state.rotation.Y = y;
 
-    if(!limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
+    if(!limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
     {
       return;
     }
 
-    getEngine().getObjectManager().getLara().m_state.rotation.Y = y;
+    getWorld().getObjectManager().getLara().m_state.rotation.Y = y;
 
     core::Length core::TRVec::*vp;
     core::Length d = 0_len;
@@ -64,27 +65,27 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid axis"));
     }
 
-    getEngine().getObjectManager().getLara().m_state.position.position.*vp
-      = (getEngine().getObjectManager().getLara().m_state.position.position.*vp / core::SectorSize) * core::SectorSize
+    getWorld().getObjectManager().getLara().m_state.position.position.*vp
+      = (getWorld().getObjectManager().getLara().m_state.position.position.*vp / core::SectorSize) * core::SectorSize
         + d;
 
-    getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
-    getEngine().getObjectManager().getLara().updateImpl();
-    if(getEngine().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PushableGrab)
+    getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
+    getWorld().getObjectManager().getLara().updateImpl();
+    if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PushableGrab)
     {
-      getEngine().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
+      getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
     }
     return;
   }
 
-  if(getEngine().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PushableGrab
-     || getEngine().getObjectManager().getLara().getSkeleton()->frame_number != 2091_frame
-     || !limits.canInteract(m_state, getEngine().getObjectManager().getLara().m_state))
+  if(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PushableGrab
+     || getWorld().getObjectManager().getLara().getSkeleton()->frame_number != 2091_frame
+     || !limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
   {
     return;
   }
 
-  if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+  if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
   {
     if(!canPushBlock(core::SectorSize, *axis))
     {
@@ -92,9 +93,9 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     }
 
     m_state.goal_anim_state = 2_as;
-    getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePush);
+    getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePush);
   }
-  else if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+  else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
   {
     if(!canPullBlock(core::SectorSize, *axis))
     {
@@ -102,7 +103,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     }
 
     m_state.goal_anim_state = 3_as;
-    getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePull);
+    getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePull);
   }
   else
   {
@@ -116,7 +117,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
   m_state.triggerState = TriggerState::Active;
 
   ModelObject::update();
-  getEngine().getObjectManager().getLara().updateImpl();
+  getWorld().getObjectManager().getLara().updateImpl();
 }
 
 void Block::update()
@@ -133,7 +134,7 @@ void Block::update()
 
   auto pos = m_state.position;
   auto sector = loader::file::findRealFloorSector(pos);
-  const auto height = HeightInfo::fromFloor(sector, pos.position, getEngine().getObjectManager().getObjects()).y;
+  const auto height = HeightInfo::fromFloor(sector, pos.position, getWorld().getObjectManager().getObjects()).y;
   if(height > pos.position.Y)
   {
     m_state.falling = true;
@@ -144,7 +145,7 @@ void Block::update()
     m_state.position.position = pos.position;
     m_state.falling = false;
     m_state.triggerState = TriggerState::Deactivated;
-    getEngine().dinoStompEffect(*this);
+    getWorld().dinoStompEffect(*this);
     playSoundEffect(TR1SoundEffect::TRexFootstep);
     applyTransform(); // needed for properly placing geometry on floor
   }
@@ -162,8 +163,8 @@ void Block::update()
   m_patched = true;
   pos = m_state.position;
   sector = loader::file::findRealFloorSector(pos);
-  getEngine().handleCommandSequence(
-    HeightInfo::fromFloor(sector, pos.position, getEngine().getObjectManager().getObjects()).lastCommandSequenceOrDeath,
+  getWorld().handleCommandSequence(
+    HeightInfo::fromFloor(sector, pos.position, getWorld().getObjectManager().getObjects()).lastCommandSequenceOrDeath,
     true);
 }
 
@@ -193,7 +194,7 @@ bool Block::canPushBlock(const core::Length& height, const core::Axis axis) cons
   CollisionInfo tmp;
   tmp.facingAxis = axis;
   tmp.collisionRadius = 500_len;
-  if(tmp.checkStaticMeshCollisions(pos, 2 * tmp.collisionRadius, getEngine()))
+  if(tmp.checkStaticMeshCollisions(pos, 2 * tmp.collisionRadius, getWorld()))
   {
     return false;
   }
@@ -231,7 +232,7 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
   CollisionInfo tmp;
   tmp.facingAxis = axis;
   tmp.collisionRadius = 500_len;
-  if(tmp.checkStaticMeshCollisions(pos, 2 * tmp.collisionRadius, getEngine()))
+  if(tmp.checkStaticMeshCollisions(pos, 2 * tmp.collisionRadius, getWorld()))
   {
     return false;
   }
@@ -272,7 +273,7 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
     return false;
   }
 
-  laraPos = getEngine().getObjectManager().getLara().m_state.position.position;
+  laraPos = getWorld().getObjectManager().getLara().m_state.position.position;
   switch(axis)
   {
   case core::Axis::PosZ:
@@ -295,7 +296,7 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
   }
   tmp.collisionRadius = core::DefaultCollisionRadius;
 
-  return !tmp.checkStaticMeshCollisions(laraPos, core::LaraWalkHeight, getEngine());
+  return !tmp.checkStaticMeshCollisions(laraPos, core::LaraWalkHeight, getWorld());
 }
 
 void Block::serialize(const serialization::Serializer& ser)

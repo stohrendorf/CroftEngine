@@ -1,25 +1,26 @@
 #include "larson.h"
 
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
 {
 void Larson::update()
 {
-  activate();
+  activateAi();
 
   core::Angle tiltRot = 0_deg;
   core::Angle creatureTurn = 0_deg;
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getEngine(), m_state};
+    const ai::AiInfo aiInfo{getWorld(), m_state};
     if(aiInfo.ahead)
     {
       headRot = aiInfo.angle;
     }
 
-    updateMood(getEngine(), m_state, aiInfo, false);
+    updateMood(getWorld(), m_state, aiInfo, false);
 
     creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
@@ -97,7 +98,7 @@ void Larson::update()
   }
   else if(m_state.current_anim_state != 5_as) // injured/dying
   {
-    getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::Larson)->animations[15];
+    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::Larson)->animations[15];
     getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
     m_state.current_anim_state = 5_as;
   }
@@ -107,11 +108,11 @@ void Larson::update()
   animateCreature(creatureTurn, 0_deg);
 }
 
-Larson::Larson(const gsl::not_null<Engine*>& engine,
+Larson::Larson(const gsl::not_null<World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-    : AIAgent{engine, room, item, animatedModel}
+    : AIAgent{world, room, item, animatedModel}
 {
 }
 } // namespace engine::objects

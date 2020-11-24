@@ -18,11 +18,11 @@ public:
   {
     setGoalAnimState(LaraStateId::Stop);
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(2.25_deg, -6_deg);
     }
-    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(2.25_deg, 6_deg);
     }
@@ -38,7 +38,7 @@ public:
     collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
     if(stopIfCeilingBlocked(collisionInfo))
     {
       return;

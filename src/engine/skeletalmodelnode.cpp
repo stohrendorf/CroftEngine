@@ -1,6 +1,5 @@
 #include "skeletalmodelnode.h"
 
-#include "engine/engine.h"
 #include "engine/objects/object.h"
 #include "engine/presenter.h"
 #include "loader/file/mesh.h"
@@ -19,10 +18,10 @@
 namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
-                                     gsl::not_null<const Engine*> engine,
+                                     gsl::not_null<const World*> world,
                                      gsl::not_null<const loader::file::SkeletalModelType*> model)
     : Node{id}
-    , m_engine{std::move(engine)}
+    , m_world{std::move(world)}
     , m_model{std::move(model)}
 {
 }
@@ -55,7 +54,7 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() c
   const auto firstKeyframeIndex = (frame_number - anim->firstFrame) / anim->segmentLength;
 
   result.firstFrame = anim->frames->next(firstKeyframeIndex);
-  Expects(m_engine->isValid(result.firstFrame));
+  Expects(m_world->isValid(result.firstFrame));
 
   if(frame_number >= anim->lastFrame)
   {
@@ -64,7 +63,7 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() c
   }
 
   result.secondFrame = result.firstFrame->next();
-  Expects(m_engine->isValid(result.secondFrame));
+  Expects(m_world->isValid(result.secondFrame));
 
   auto segmentDuration = anim->segmentLength;
   const auto segmentFrame = (frame_number - anim->firstFrame) % anim->segmentLength;
@@ -331,8 +330,8 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
   {
     const loader::file::SkeletalModelType* model = nullptr;
     ser(S_NV("model", model));
-    data = std::make_shared<SkeletalModelNode>(
-      create(serialization::TypeId<std::string>{}, ser["id"]), &ser.engine, model);
+    data
+      = std::make_shared<SkeletalModelNode>(create(serialization::TypeId<std::string>{}, ser["id"]), &ser.world, model);
   }
   else
   {
@@ -372,7 +371,7 @@ void SkeletalModelNode::rebuildMesh()
       compositor.append(*mesh.mesh);
   }
 
-  setRenderable(compositor.toMesh(*m_engine->getPresenter().getMaterialManager(), true, getName()));
+  setRenderable(compositor.toMesh(*m_world->getPresenter().getMaterialManager(), true, getName()));
 }
 
 bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const

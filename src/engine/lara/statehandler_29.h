@@ -21,7 +21,7 @@ public:
       setGoalAnimState(LaraStateId::FreeFall);
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().action
+    if(getWorld().getPresenter().getInputHandler().getInputState().action
        && getHandStatus() == objects::HandStatus::None)
     {
       setGoalAnimState(LaraStateId::Reach);
@@ -35,7 +35,7 @@ public:
     collisionInfo.badCeilingDistance = 192_len;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraHangingHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraHangingHeight);
     checkJumpWallSmash(collisionInfo);
     if(collisionInfo.mid.floorSpace.y > 0_len || getLara().m_state.fallspeed <= 0_spd)
     {

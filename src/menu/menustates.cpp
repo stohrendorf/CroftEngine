@@ -3,6 +3,7 @@
 #include "engine/audioengine.h"
 #include "engine/engine.h"
 #include "engine/presenter.h"
+#include "engine/world.h"
 #include "menudisplay.h"
 #include "menuobject.h"
 #include "menuring.h"
@@ -27,9 +28,9 @@ void rotateForSelection(MenuObject& object)
   object.rotationY -= object.rotationY % 1024_au;
 }
 
-void idleRotation(engine::Engine& engine, MenuObject& object)
+void idleRotation(engine::World& world, MenuObject& object)
 {
-  if(engine.getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Null)
+  if(world.getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Null)
   {
     object.rotationY += 256_au;
   }
@@ -60,13 +61,13 @@ auto exactScale(const qs::quantity<Unit, Type>& value, const core::Frame& x, con
   return (value.template cast<float>() * f).template cast<Type>();
 }
 
-std::vector<std::filesystem::path> getSavegames(const engine::Engine& engine)
+std::vector<std::filesystem::path> getSavegames(const engine::World& world)
 {
-  if(!std::filesystem::is_directory(engine.getSavegamePath()))
+  if(!std::filesystem::is_directory(world.getEngine().getSavegamePath()))
     return {};
 
   std::vector<std::filesystem::path> result;
-  for(const auto& p : std::filesystem::directory_iterator(engine.getSavegamePath()))
+  for(const auto& p : std::filesystem::directory_iterator(world.getEngine().getSavegamePath()))
   {
     if(!p.is_regular_file() || p.path().extension() != ".meta")
       continue;
@@ -76,13 +77,18 @@ std::vector<std::filesystem::path> getSavegames(const engine::Engine& engine)
 
   return result;
 }
+
+std::string makeSavegameBasename(size_t n)
+{
+  return "save_" + std::to_string(n);
+}
 } // namespace
 
-void ResetItemTransformMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void ResetItemTransformMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(engine, object);
+    display.updateMenuObjectDescription(world, object);
     object.baseRotationX = exactScale(object.selectedBaseRotationX, m_duration, Duration);
     object.rotationX = exactScale(object.selectedRotationX, m_duration, Duration);
     object.positionZ = exactScale(object.selectedPositionZ, m_duration, Duration);
@@ -94,7 +100,7 @@ void ResetItemTransformMenuState::handleObject(engine::Engine& engine, MenuDispl
 }
 
 std::unique_ptr<MenuState> ResetItemTransformMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/,
-                                                                engine::Engine& /*engine*/,
+                                                                engine::World& /*world*/,
                                                                 MenuDisplay& /*display*/)
 {
   if(m_duration != 0_frame)
@@ -106,9 +112,8 @@ std::unique_ptr<MenuState> ResetItemTransformMenuState::onFrame(gl::Image<gl::SR
   return std::move(m_next);
 }
 
-std::unique_ptr<MenuState> FinishItemAnimationMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/,
-                                                                 engine::Engine& /*engine*/,
-                                                                 MenuDisplay& display)
+std::unique_ptr<MenuState>
+  FinishItemAnimationMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
 {
   display.updateRingTitle();
 
@@ -125,7 +130,7 @@ std::unique_ptr<MenuState> FinishItemAnimationMenuState::onFrame(gl::Image<gl::S
   return std::move(m_next);
 }
 
-void FinishItemAnimationMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
+void FinishItemAnimationMenuState::handleObject(engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);
@@ -134,13 +139,13 @@ void FinishItemAnimationMenuState::handleObject(engine::Engine& /*engine*/, Menu
 }
 
 std::unique_ptr<MenuState>
-  DeselectingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
+  DeselectingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
 {
   display.updateRingTitle();
   return create<IdleRingMenuState>(false);
 }
 
-void DeselectingMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
+void DeselectingMenuState::handleObject(engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);
@@ -149,39 +154,39 @@ void DeselectingMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay&
 }
 
 DeselectingMenuState::DeselectingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                           engine::Engine& engine)
+                                           engine::World& world)
     : MenuState{ringTransform}
 {
-  engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
+  world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
 }
 
 std::unique_ptr<MenuState>
-  IdleRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuDisplay& display)
+  IdleRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world, MenuDisplay& display)
 {
   display.updateRingTitle();
 
-  if(engine.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right)
+  if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right)
      && display.getCurrentRing().list.size() > 1)
   {
-    engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
+    world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
     return create<RotateLeftRightMenuState>(true, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
-  if(engine.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left)
+  if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left)
      && display.getCurrentRing().list.size() > 1)
   {
-    engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
+    world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
     return create<RotateLeftRightMenuState>(false, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
-  if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true) && display.allowMenuClose)
+  if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true) && display.allowMenuClose)
   {
-    engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
+    world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
     display.inventoryChosen.reset();
     return create<DeflateRingMenuState>(create<DoneMenuState>());
   }
 
-  if(m_autoSelect || engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  if(m_autoSelect || world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
     display.passOpen = true;
 
@@ -190,23 +195,21 @@ std::unique_ptr<MenuState>
     switch(currentObject.type)
     {
     case engine::TR1ItemId::Compass:
-      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect2, nullptr);
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect2, nullptr);
       break;
     case engine::TR1ItemId::LarasHomePolaroid:
-      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuHome, nullptr);
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuHome, nullptr);
       break;
     case engine::TR1ItemId::DirectionKeys:
-      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::LowTone, nullptr);
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::LowTone, nullptr);
       break;
     case engine::TR1ItemId::Pistols:
     case engine::TR1ItemId::Shotgun:
     case engine::TR1ItemId::Magnums:
     case engine::TR1ItemId::Uzis:
-      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect1, nullptr);
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect1, nullptr);
       break;
-    default:
-      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
-      break;
+    default: world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr); break;
     }
 
     currentObject.goalFrame = currentObject.openFrame;
@@ -214,12 +217,12 @@ std::unique_ptr<MenuState>
     return create<ApplyItemTransformMenuState>();
   }
 
-  if(engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward)
+  if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward)
      && display.currentRingIndex > 0)
   {
     return create<DeflateRingMenuState>(create<SwitchRingMenuState>(display.currentRingIndex - 1, false));
   }
-  else if(engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward)
+  else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward)
           && display.currentRingIndex + 1 < display.rings.size())
   {
     return create<DeflateRingMenuState>(create<SwitchRingMenuState>(display.currentRingIndex + 1, false));
@@ -228,12 +231,12 @@ std::unique_ptr<MenuState>
   return nullptr;
 }
 
-void IdleRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void IdleRingMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(engine, object);
-    idleRotation(engine, object);
+    display.updateMenuObjectDescription(world, object);
+    idleRotation(world, object);
   }
   else
   {
@@ -242,7 +245,7 @@ void IdleRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& displa
 }
 
 std::unique_ptr<MenuState>
-  SwitchRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
+  SwitchRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
 {
   if(m_duration != Duration)
   {
@@ -259,12 +262,12 @@ std::unique_ptr<MenuState>
   return create<InflateRingMenuState>();
 }
 
-void SwitchRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void SwitchRingMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(engine, object);
-    idleRotation(engine, object);
+    display.updateMenuObjectDescription(world, object);
+    idleRotation(world, object);
   }
   else
   {
@@ -282,7 +285,7 @@ SwitchRingMenuState::SwitchRingMenuState(const std::shared_ptr<MenuRingTransform
 }
 
 std::unique_ptr<MenuState>
-  SelectedMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  SelectedMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display)
 {
   auto& currentObject = display.getCurrentRing().getSelectedObject();
   if(currentObject.type == engine::TR1ItemId::PassportClosed)
@@ -291,13 +294,13 @@ std::unique_ptr<MenuState>
   if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
     return nullptr;
 
-  const bool autoSelect = display.doOptions(img, engine, currentObject);
-  if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+  const bool autoSelect = display.doOptions(img, world, currentObject);
+  if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
   {
     if(display.rings.size() > 1)
     {
       return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeselectingMenuState>(engine)));
+        create<ResetItemTransformMenuState>(create<DeselectingMenuState>(world)));
     }
     else
     {
@@ -305,7 +308,7 @@ std::unique_ptr<MenuState>
         create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>())));
     }
   }
-  else if(autoSelect || engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  else if(autoSelect || world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
     display.inventoryChosen = currentObject.type;
     if(display.mode == InventoryMode::TitleMode
@@ -315,7 +318,7 @@ std::unique_ptr<MenuState>
            || currentObject.type == engine::TR1ItemId::Flashlight))
     {
       return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeselectingMenuState>(engine)));
+        create<ResetItemTransformMenuState>(create<DeselectingMenuState>(world)));
     }
     else
     {
@@ -327,7 +330,7 @@ std::unique_ptr<MenuState>
   return nullptr;
 }
 
-void SelectedMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
+void SelectedMenuState::handleObject(engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);
@@ -336,7 +339,7 @@ void SelectedMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& di
 }
 
 std::unique_ptr<MenuState>
-  InflateRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
+  InflateRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
 {
   if(m_duration == 0_frame)
   {
@@ -358,12 +361,12 @@ std::unique_ptr<MenuState>
   return nullptr;
 }
 
-void InflateRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void InflateRingMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   display.clearMenuObjectDescription();
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    idleRotation(engine, object);
+    idleRotation(world, object);
   }
   else
   {
@@ -376,7 +379,7 @@ InflateRingMenuState::InflateRingMenuState(const std::shared_ptr<MenuRingTransfo
 {
 }
 
-void ApplyItemTransformMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void ApplyItemTransformMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
   {
@@ -384,7 +387,7 @@ void ApplyItemTransformMenuState::handleObject(engine::Engine& engine, MenuDispl
     return;
   }
 
-  display.updateMenuObjectDescription(engine, object);
+  display.updateMenuObjectDescription(world, object);
   object.baseRotationX = exactScale(object.selectedBaseRotationX, m_duration, Duration);
   object.rotationX = exactScale(object.selectedRotationX, m_duration, Duration);
   object.positionZ = exactScale(object.selectedPositionZ, m_duration, Duration);
@@ -404,7 +407,7 @@ void ApplyItemTransformMenuState::handleObject(engine::Engine& engine, MenuDispl
 }
 
 std::unique_ptr<MenuState>
-  ApplyItemTransformMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
+  ApplyItemTransformMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
 {
   display.updateRingTitle();
 
@@ -417,21 +420,21 @@ std::unique_ptr<MenuState>
   return create<SelectedMenuState>();
 }
 
-void DeflateRingMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void DeflateRingMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(engine, object);
+    display.updateMenuObjectDescription(world, object);
     zeroRotation(object, 256_au);
   }
   else
   {
-    idleRotation(engine, object);
+    idleRotation(world, object);
   }
 }
 
 std::unique_ptr<MenuState>
-  DeflateRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& /*display*/)
+  DeflateRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& /*display*/)
 {
   if(m_duration == 0_frame)
     return std::move(m_next);
@@ -450,30 +453,30 @@ DeflateRingMenuState::DeflateRingMenuState(const std::shared_ptr<MenuRingTransfo
 {
 }
 
-void DoneMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void DoneMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(engine, object);
+    display.updateMenuObjectDescription(world, object);
     zeroRotation(object, 256_au);
   }
   else
   {
-    idleRotation(engine, object);
+    idleRotation(world, object);
   }
 }
 
 std::unique_ptr<MenuState>
-  DoneMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
+  DoneMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
 {
   display.isDone = true;
   return nullptr;
 }
 
-void RotateLeftRightMenuState::handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object)
+void RotateLeftRightMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
-    display.updateMenuObjectDescription(engine, object);
+    display.updateMenuObjectDescription(world, object);
   zeroRotation(object, 512_au);
 }
 
@@ -497,7 +500,7 @@ RotateLeftRightMenuState::RotateLeftRightMenuState(const std::shared_ptr<MenuRin
 }
 
 std::unique_ptr<MenuState>
-  RotateLeftRightMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& display)
+  RotateLeftRightMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
 {
   display.clearMenuObjectDescription();
   m_ringTransform->ringRotation += m_rotSpeed * 1_frame;
@@ -510,7 +513,7 @@ std::unique_ptr<MenuState>
   return std::move(m_prev);
 }
 
-void PassportMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
+void PassportMenuState::handleObject(engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);
@@ -519,7 +522,7 @@ void PassportMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& di
 }
 
 std::unique_ptr<MenuState>
-  PassportMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  PassportMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display)
 {
   auto& passport = display.getCurrentRing().getSelectedObject();
   passport.type = engine::TR1ItemId::PassportOpening;
@@ -528,7 +531,7 @@ std::unique_ptr<MenuState>
     return nullptr;
 
   const bool isInGame = display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::DeathMode;
-  const bool hasSavedGames = !getSavegames(engine).empty();
+  const bool hasSavedGames = !getSavegames(world).empty();
 
   display.objectTexts[0].reset();
   const auto localFrame = passport.goalFrame - passport.openFrame;
@@ -561,7 +564,7 @@ std::unique_ptr<MenuState>
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
-    if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
+    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
        || display.mode == InventoryMode::LoadMode)
     {
       display.objectTexts[0].reset();
@@ -586,7 +589,7 @@ std::unique_ptr<MenuState>
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
-    if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
+    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
        || display.mode == InventoryMode::SaveMode)
     {
       if(m_allowSave && isInGame)
@@ -609,10 +612,10 @@ std::unique_ptr<MenuState>
   }
 
   if(m_passportText != nullptr)
-    m_passportText->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
+    m_passportText->draw(world.getPresenter().getTrFont(), img, world.getPalette());
 
   if(forcePageTurn == hid::AxisMovement::Left
-     || engine.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
+     || world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
   {
     if(hasSavedGames)
     {
@@ -624,7 +627,7 @@ std::unique_ptr<MenuState>
       }
       else
       {
-        engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
+        world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
         m_passportText.reset();
       }
       return nullptr;
@@ -639,14 +642,14 @@ std::unique_ptr<MenuState>
       }
       else
       {
-        engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
+        world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
         m_passportText.reset();
       }
       return nullptr;
     }
   }
   else if(forcePageTurn == hid::AxisMovement::Right
-          || engine.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
+          || world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
   {
     passport.goalFrame += FramesPerPage;
     passport.animDirection = 1_frame;
@@ -656,19 +659,19 @@ std::unique_ptr<MenuState>
     }
     else
     {
-      engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
       m_passportText.reset();
     }
     return nullptr;
   }
-  else if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
   {
     if(!m_allowExit)
       return nullptr;
 
     return close(display, page, passport);
   }
-  else if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
     return close(display, page, passport);
   }
@@ -706,12 +709,12 @@ std::unique_ptr<MenuState> PassportMenuState::close(MenuDisplay& /*display*/, in
 }
 
 std::unique_ptr<MenuState>
-  SetItemTypeMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& /*engine*/, MenuDisplay& /*display*/)
+  SetItemTypeMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& /*display*/)
 {
   return std::move(m_next);
 }
 
-void SetItemTypeMenuState::handleObject(engine::Engine& /*engine*/, MenuDisplay& display, MenuObject& object)
+void SetItemTypeMenuState::handleObject(engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
     object.type = m_type;
@@ -722,32 +725,33 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     : MenuState{ringTransform}
     , m_passport{std::move(passport)}
 {
-  for(size_t i = 0; i < totalSlots; ++i)
+  for(size_t i = 0; i < TotalSlots; ++i)
   {
-    const auto line = i % perPage;
-    auto lbl = std::make_unique<ui::Label>(0, yOffset + line * lineHeight, "- EMPTY SLOT " + std::to_string(i + 1));
+    const auto line = i % PerPage;
+    auto lbl = std::make_unique<ui::Label>(0, YOffset + line * LineHeight, "- EMPTY SLOT " + std::to_string(i + 1));
     lbl->alignX = ui::Label::Alignment::Center;
     lbl->alignY = ui::Label::Alignment::Bottom;
     m_labels.emplace_back(std::move(lbl));
   }
 }
 
-void SavegameListMenuState::handleObject(engine::Engine& engine, MenuDisplay& /*display*/, MenuObject& /*object*/)
+void SavegameListMenuState::handleObject(engine::World& world, MenuDisplay& /*display*/, MenuObject& /*object*/)
 {
 }
+
 std::unique_ptr<MenuState>
-  SavegameListMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& /*display*/)
+  SavegameListMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& /*display*/)
 {
-  const auto page = m_selected / perPage;
-  const auto first = page * perPage;
-  const auto last = std::min(first + perPage, m_labels.size());
+  const auto page = m_selected / PerPage;
+  const auto first = page * PerPage;
+  const auto last = std::min(first + PerPage, m_labels.size());
   Expects(first < last);
   for(size_t i = first; i < last; ++i)
   {
     const auto& lbl = m_labels.at(i);
     if(m_selected == i)
     {
-      lbl->addBackground(pixelWidth - 12, 16, 0, 0);
+      lbl->addBackground(PixelWidth - 12, 16, 0, 0);
       lbl->outline = true;
     }
     else
@@ -755,27 +759,29 @@ std::unique_ptr<MenuState>
       lbl->removeBackground();
       lbl->outline = false;
     }
-    lbl->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
+    lbl->draw(world.getPresenter().getTrFont(), img, world.getPalette());
   }
 
   if(m_selected > 0
-     && engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
+     && world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
   {
     --m_selected;
   }
-  else if(m_selected < totalSlots - 1
-          && engine.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(
+  else if(m_selected < TotalSlots - 1
+          && world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(
             hid::AxisMovement::Backward))
   {
     ++m_selected;
   }
-  else if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
-    // TODO implement save game action
-    BOOST_LOG_TRIVIAL(warning) << "Save game action not implemented yet";
+    world.getPresenter().drawLoadingScreen("Saving...");
+    BOOST_LOG_TRIVIAL(info) << "Save";
+    serialization::Serializer::save(
+      world.getEngine().getSavegamePath() / (makeSavegameBasename(m_selected) + ".yaml"), world, world);
     return std::move(m_passport);
   }
-  else if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
   {
     return std::move(m_passport);
   }

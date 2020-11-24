@@ -22,21 +22,21 @@ public:
 
     setSwimToDiveKeypressDuration(0_frame);
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       getLara().m_state.rotation.Y -= 4_deg;
     }
-    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       getLara().m_state.rotation.Y += 4_deg;
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
+    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
     {
       setGoalAnimState(LaraStateId::OnWaterStop);
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().jump)
+    if(getWorld().getPresenter().getInputHandler().getInputState().jump)
     {
       setGoalAnimState(LaraStateId::OnWaterStop);
     }

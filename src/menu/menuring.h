@@ -7,11 +7,6 @@
 
 #include <memory>
 
-namespace engine
-{
-class Engine;
-}
-
 namespace menu
 {
 struct MenuRing
@@ -28,7 +23,12 @@ struct MenuRing
   std::vector<MenuObject> list;
   size_t currentObject = 0;
 
-  explicit MenuRing(Type type, std::string title, std::vector<MenuObject> list);
+  explicit MenuRing(Type type, std::string title, std::vector<MenuObject> list)
+      : title{std::move(title)}
+      , type{type}
+      , list{std::move(list)}
+  {
+  }
 
   [[nodiscard]] auto getAnglePerItem() const
   {

@@ -23,13 +23,13 @@ public:
 
     if(getGoalAnimState() != LaraStateId::Death && getGoalAnimState() != LaraStateId::Stop)
     {
-      if(getEngine().getPresenter().getInputHandler().getInputState().action
+      if(getWorld().getPresenter().getInputHandler().getInputState().action
          && getHandStatus() == objects::HandStatus::None)
       {
         setGoalAnimState(LaraStateId::Reach);
       }
 
-      if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow
+      if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow
          && getHandStatus() == objects::HandStatus::None)
       {
         setGoalAnimState(LaraStateId::SwandiveBegin);
@@ -41,11 +41,11 @@ public:
       }
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(2.25_deg, -3_deg);
     }
-    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(2.25_deg, 3_deg);
     }
@@ -58,7 +58,7 @@ public:
     collisionInfo.badCeilingDistance = 192_len;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
     checkJumpWallSmash(collisionInfo);
 
     if(collisionInfo.mid.floorSpace.y > 0_len || getLara().m_state.fallspeed <= 0_spd)
@@ -70,8 +70,8 @@ public:
     {
       setGoalAnimState(LaraStateId::Death);
     }
-    else if(getEngine().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward
-            || getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
+    else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward
+            || getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
     {
       setGoalAnimState(LaraStateId::Stop);
     }

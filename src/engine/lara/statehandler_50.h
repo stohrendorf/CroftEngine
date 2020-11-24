@@ -17,7 +17,7 @@ public:
   void handleInput(CollisionInfo& collisionInfo) override
   {
     collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-    emitSparkles(getEngine());
+    emitSparkles(getWorld());
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -28,21 +28,21 @@ public:
     setMovementAngle(getLara().m_state.rotation.Y);
     collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
   }
 
-  static void emitSparkles(Engine& engine)
+  static void emitSparkles(World& world)
   {
-    const auto spheres = engine.getObjectManager().getLara().getSkeleton()->getBoneCollisionSpheres(
-      engine.getObjectManager().getLara().m_state,
-      *engine.getObjectManager().getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(),
+    const auto spheres = world.getObjectManager().getLara().getSkeleton()->getBoneCollisionSpheres(
+      world.getObjectManager().getLara().m_state,
+      *world.getObjectManager().getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(),
       nullptr);
 
-    const auto& normalLara = engine.findAnimatedModelForType(TR1ItemId::Lara);
+    const auto& normalLara = world.findAnimatedModelForType(TR1ItemId::Lara);
     Expects(normalLara != nullptr);
     for(size_t i = 0; i < spheres.size(); ++i)
     {
-      if(engine.getObjectManager().getLara().getSkeleton()->getMeshPart(i) == normalLara->bones[i].mesh)
+      if(world.getObjectManager().getLara().getSkeleton()->getMeshPart(i) == normalLara->bones[i].mesh)
         continue;
 
       const auto r = spheres[i].radius;
@@ -51,8 +51,8 @@ public:
       p.Y += util::rand15s(r);
       p.Z += util::rand15s(r);
       auto fx = std::make_shared<SparkleParticle>(
-        core::RoomBoundPosition{engine.getObjectManager().getLara().m_state.position.room, p}, engine);
-      engine.getObjectManager().registerParticle(fx);
+        core::RoomBoundPosition{world.getObjectManager().getLara().m_state.position.room, p}, world);
+      world.getObjectManager().registerParticle(fx);
     }
   }
 };

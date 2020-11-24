@@ -1,10 +1,11 @@
+include( FindPackageHandleStandardArgs )
+
 if( NOT Python3_EXECUTABLE )
     find_program(
             Python3_EXECUTABLE
             NAMES python3 python
-            HINTS ENV Python3_ROOT_DIR
+            DOC "Python interpreter path"
     )
-    set( Python3_EXECUTABLE "${Python3_EXECUTABLE}" CACHE FILEPATH "Python interpreter path" )
 
     if( NOT Python3_EXECUTABLE )
         message( FATAL_ERROR "Python executable not found" )
@@ -29,8 +30,6 @@ if( NOT Python3_VERSION )
     set( Python3_VERSION "${Python3_VERSION}" CACHE INTERNAL "Python interpreter version" )
     if( Python3_VERSION VERSION_LESS 3.6 )
         message( FATAL_ERROR "Incompatible Python version ${Python3_VERSION} found" )
-    else()
-        message( STATUS "Found Python ${Python3_VERSION} interpreter" )
     endif()
 endif()
 
@@ -40,7 +39,6 @@ if( NOT Python3_INCLUDE_DIR )
 endif()
 
 if( NOT Python3_LIBRARY )
-
     if( WIN32 )
         _python3_get_config_var( LIB_DIR prefix )
         set( Python3_LIB_DIR "${Python3_LIB_DIR}/libs" )
@@ -76,8 +74,6 @@ if( NOT Python3_LIBRARY )
     set( Python3_LIBRARY "${Python3_LIBRARY}" CACHE FILEPATH "Python library" )
 endif()
 
-message( STATUS "Found Python ${Python3_VERSION}" )
-
 add_library(
         Python3::Python
         UNKNOWN IMPORTED
@@ -98,4 +94,10 @@ add_executable(
 set_property(
         TARGET Python3::Interpreter
         PROPERTY IMPORTED_LOCATION ${Python3_EXECUTABLE}
+)
+
+find_package_handle_standard_args(
+        Python3
+        REQUIRED_VARS Python3_EXECUTABLE Python3_LIBRARY Python3_INCLUDE_DIR
+        VERSION_VAR Python3_VERSION
 )

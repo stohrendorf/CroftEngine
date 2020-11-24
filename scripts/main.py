@@ -20,10 +20,6 @@ cheats = {
 }
 
 
-def getLevelInfo():
-    return level_sequence[5]
-
-
 def getGlidosPack():
     return None
     # return "assets/trx/1SilverlokAllVers/silverlok/"

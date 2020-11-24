@@ -1,11 +1,12 @@
 #include "audioengine.h"
 
-#include "engine.h"
 #include "objects/laraobject.h"
 #include "script/reflection.h"
 #include "tracks_tr1.h"
+#include "world.h"
 
 #include <boost/format.hpp>
+#include <pybind11/pybind11.h>
 
 namespace engine
 {
@@ -25,7 +26,7 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
   {
     // 28
     if(m_cdTrackActivationStates[trackId].isOneshot()
-       && m_engine.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::JumpUp)
+       && m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::JumpUp)
     {
       trackId = TR1TrackId::LaraTalk3;
     }
@@ -38,15 +39,15 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
       triggerNormalCdTrack(trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk15)
-  {
+  { // NOLINT(bugprone-branch-clone)
     // 41
-    if(m_engine.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
+    if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
       triggerNormalCdTrack(trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk16)
   {
     // 42
-    if(m_engine.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
+    if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
       triggerNormalCdTrack(TR1TrackId::LaraTalk17, activationRequest, triggerType);
     else
       triggerNormalCdTrack(trackId, activationRequest, triggerType);
@@ -59,7 +60,7 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
   else if(trackId == TR1TrackId::LaraTalk23)
   {
     // 49
-    if(m_engine.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterStop)
+    if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterStop)
       triggerNormalCdTrack(trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk24)
@@ -69,12 +70,12 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
     {
       if(++m_cdTrack50time == 120)
       {
-        m_engine.finishLevel();
+        m_world.finishLevel();
         m_cdTrack50time = 0;
         triggerNormalCdTrack(trackId, activationRequest, triggerType);
       }
     }
-    else if(m_engine.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterExit)
+    else if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterExit)
     {
       triggerNormalCdTrack(trackId, activationRequest, triggerType);
     }
@@ -146,9 +147,9 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
         BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play lara talk " << toString(sfxId);
 
         if(m_currentLaraTalk.has_value())
-          stopSoundEffect(*m_currentLaraTalk, &m_engine.getObjectManager().getLara().m_state);
+          stopSoundEffect(*m_currentLaraTalk, &m_world.getObjectManager().getLara().m_state);
 
-        if(const auto lara = m_engine.getObjectManager().getLaraPtr())
+        if(const auto lara = m_world.getObjectManager().getLaraPtr())
           lara->playSoundEffect(sfxId);
         else
           playSoundEffect(sfxId, nullptr);
@@ -159,7 +160,7 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop lara talk "
                                << toString(static_cast<TR1SoundEffect>(trackInfo.id.get()));
-      stopSoundEffect(static_cast<TR1SoundEffect>(trackInfo.id.get()), &m_engine.getObjectManager().getLara().m_state);
+      stopSoundEffect(static_cast<TR1SoundEffect>(trackInfo.id.get()), &m_world.getObjectManager().getLara().m_state);
       m_currentLaraTalk.reset();
     }
     break;
@@ -176,7 +177,7 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
     else if(const auto str = m_ambientStream.lock())
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo.id.get());
-      m_soundEngine.getDevice().removeStream(str);
+      m_soundEngine->getDevice().removeStream(str);
       m_currentTrack.reset();
     }
     break;
@@ -185,7 +186,7 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << static_cast<size_t>(trackInfo.id.get());
       if(const auto str = m_interceptStream.lock())
-        m_soundEngine.getDevice().removeStream(str);
+        m_soundEngine->getDevice().removeStream(str);
       if(const auto str = m_ambientStream.lock())
         str->getSource().lock()->pause();
       m_interceptStream = playStream(trackInfo.id.get()).get();
@@ -195,7 +196,7 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
     else if(const auto str = m_interceptStream.lock())
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop interception " << static_cast<size_t>(trackInfo.id.get());
-      m_soundEngine.getDevice().removeStream(str);
+      m_soundEngine->getDevice().removeStream(str);
       if(const auto amb = m_ambientStream.lock())
         amb->play();
       m_currentTrack.reset();
@@ -211,12 +212,12 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
 
   std::shared_ptr<audio::Stream> result;
   if(std::filesystem::is_regular_file(m_rootPath / "CDAUDIO.WAD"))
-    result = m_soundEngine.getDevice().createStream(
+    result = m_soundEngine->getDevice().createStream(
       std::make_unique<audio::WadStreamSource>(m_rootPath / "CDAUDIO.WAD", trackId),
       DefaultBufferSize,
       DefaultBufferCount);
   else
-    result = m_soundEngine.getDevice().createStream(
+    result = m_soundEngine->getDevice().createStream(
       std::make_unique<audio::SndfileStreamSource>(m_rootPath / (boost::format("%03d.ogg") % trackId).str()),
       DefaultBufferSize,
       DefaultBufferCount);
@@ -256,11 +257,11 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSoundEffect(const core::So
   std::shared_ptr<audio::SourceHandle> handle;
   if(soundEffect->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Looping)
   {
-    auto handles = m_soundEngine.getSourcesForBuffer(emitter, sample);
+    auto handles = m_soundEngine->getSourcesForBuffer(emitter, sample);
     if(handles.empty())
     {
       BOOST_LOG_TRIVIAL(trace) << "Play looping sound effect " << toString(id.get_as<TR1SoundEffect>());
-      handle = m_soundEngine.playBuffer(sample, pitch, volume, emitter);
+      handle = m_soundEngine->playBuffer(m_buffers.at(sample), sample, pitch, volume, emitter);
       handle->setLooping(true);
       handle->play();
     }
@@ -272,7 +273,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSoundEffect(const core::So
   }
   else if(soundEffect->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Restart)
   {
-    auto handles = m_soundEngine.getSourcesForBuffer(emitter, sample);
+    auto handles = m_soundEngine->getSourcesForBuffer(emitter, sample);
     if(!handles.empty())
     {
       BOOST_ASSERT(handles.size() == 1);
@@ -287,16 +288,16 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSoundEffect(const core::So
     else
     {
       BOOST_LOG_TRIVIAL(trace) << "Play restarting sound effect " << toString(id.get_as<TR1SoundEffect>());
-      handle = m_soundEngine.playBuffer(sample, pitch, volume, emitter);
+      handle = m_soundEngine->playBuffer(m_buffers.at(sample), sample, pitch, volume, emitter);
     }
   }
   else if(soundEffect->getPlaybackType(loader::file::level::Engine::TR1) == loader::file::PlaybackType::Wait)
   {
-    auto handles = m_soundEngine.getSourcesForBuffer(emitter, sample);
+    auto handles = m_soundEngine->getSourcesForBuffer(emitter, sample);
     if(handles.empty())
     {
       BOOST_LOG_TRIVIAL(trace) << "Play non-playing sound effect " << toString(id.get_as<TR1SoundEffect>());
-      handle = m_soundEngine.playBuffer(sample, pitch, volume, emitter);
+      handle = m_soundEngine->playBuffer(m_buffers.at(sample), sample, pitch, volume, emitter);
     }
     else
     {
@@ -307,7 +308,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSoundEffect(const core::So
   else
   {
     BOOST_LOG_TRIVIAL(trace) << "Default play mode - playing sound effect " << toString(id.get_as<TR1SoundEffect>());
-    handle = m_soundEngine.playBuffer(sample, pitch, volume, emitter);
+    handle = m_soundEngine->playBuffer(m_buffers.at(sample), sample, pitch, volume, emitter);
   }
 
   return handle;
@@ -326,7 +327,7 @@ void AudioEngine::stopSoundEffect(core::SoundEffectId id, audio::Emitter* emitte
   bool anyStopped = false;
   for(size_t i = first; i < last; ++i)
   {
-    anyStopped |= m_soundEngine.stopBuffer(i, emitter);
+    anyStopped |= m_soundEngine->stopBuffer(i, emitter);
   }
 
   if(!anyStopped)
@@ -341,10 +342,10 @@ void AudioEngine::setUnderwater(bool underwater)
   if(underwater)
   {
     if(isPlaying(m_ambientStream))
-      m_ambientStream.lock()->getSource().lock()->setDirectFilter(m_soundEngine.getDevice().getUnderwaterFilter());
+      m_ambientStream.lock()->getSource().lock()->setDirectFilter(m_soundEngine->getDevice().getUnderwaterFilter());
 
     if(isPlaying(m_interceptStream))
-      m_interceptStream.lock()->getSource().lock()->setDirectFilter(m_soundEngine.getDevice().getUnderwaterFilter());
+      m_interceptStream.lock()->getSource().lock()->setDirectFilter(m_soundEngine->getDevice().getUnderwaterFilter());
 
     if(m_underwaterAmbience.expired())
     {
@@ -369,5 +370,12 @@ void AudioEngine::setUnderwater(bool underwater)
     if(const auto str = m_ambientStream.lock())
       str->play();
   }
+}
+
+void AudioEngine::addWav(const gsl::not_null<const uint8_t*>& buffer)
+{
+  auto buf = std::make_shared<audio::BufferHandle>();
+  buf->fillFromWav(buffer.get());
+  m_buffers.emplace_back(std::move(buf));
 }
 } // namespace engine

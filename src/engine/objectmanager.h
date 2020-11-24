@@ -25,8 +25,8 @@ class Object;
 class LaraObject;
 } // namespace objects
 
-class Engine;
 class Particle;
+class World;
 
 using ObjectId = uint16_t;
 
@@ -102,9 +102,9 @@ public:
   void applyScheduledDeletions();
   void registerObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object);
   std::shared_ptr<objects::Object> find(const objects::Object* object) const;
-  void createObjects(Engine& engine, std::vector<loader::file::Item>& items);
+  void createObjects(World& world, std::vector<loader::file::Item>& items);
   [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;
-  void update(Engine& engine, bool godMode);
+  void update(World& world, bool godMode);
 
   void serialize(const serialization::Serializer& ser);
 };

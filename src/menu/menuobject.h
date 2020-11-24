@@ -39,7 +39,6 @@ struct MenuObject
   bool animate();
 
   void updateMeshRenderMask();
-  void
-    draw(const engine::Engine& engine, const MenuRingTransform& ringTransform, const core::Angle& ringItemAngle) const;
+  void draw(const engine::World& world, const MenuRingTransform& ringTransform, const core::Angle& ringItemAngle) const;
 };
 } // namespace menu

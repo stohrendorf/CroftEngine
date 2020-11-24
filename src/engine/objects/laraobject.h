@@ -3,7 +3,6 @@
 #include "engine/ai/ai.h"
 #include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
-#include "engine/engine.h"
 #include "engine/soundeffects_tr1.h"
 #include "loader/file/animationid.h"
 #include "loader/file/larastateid.h"
@@ -49,14 +48,14 @@ private:
   UnderwaterState m_underwaterState = UnderwaterState::OnLand;
 
 public:
-  LaraObject(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : ModelObject{engine, position}
-      , m_underwaterRoute{*engine}
+  LaraObject(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
+      , m_underwaterRoute{*world}
   {
     initGunflares();
   }
 
-  LaraObject(const gsl::not_null<Engine*>& engine,
+  LaraObject(const gsl::not_null<World*>& world,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);

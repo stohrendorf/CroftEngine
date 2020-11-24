@@ -7,16 +7,16 @@ namespace engine::objects
 class ThorHammerBlock final : public ModelObject
 {
 public:
-  ThorHammerBlock(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : ModelObject{engine, position}
+  ThorHammerBlock(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
   {
   }
 
-  ThorHammerBlock(const gsl::not_null<Engine*>& engine,
+  ThorHammerBlock(const gsl::not_null<World*>& world,
                   const gsl::not_null<const loader::file::Room*>& room,
                   const loader::file::Item& item,
                   const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-      : ModelObject{engine, room, item, true, animatedModel}
+      : ModelObject{world, room, item, true, animatedModel}
   {
   }
 
@@ -26,12 +26,12 @@ public:
 class ThorHammerHandle final : public ModelObject
 {
 public:
-  ThorHammerHandle(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : ModelObject{engine, position}
+  ThorHammerHandle(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
   {
   }
 
-  ThorHammerHandle(const gsl::not_null<Engine*>& engine,
+  ThorHammerHandle(const gsl::not_null<World*>& world,
                    const gsl::not_null<const loader::file::Room*>& room,
                    const loader::file::Item& item,
                    const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);

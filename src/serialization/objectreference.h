@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine.h"
+#include "engine/world.h"
 #include "ptr.h"
 
 #include <type_traits>
@@ -27,7 +27,7 @@ struct ObjectReference final
     else
     {
       ser.tag("objectref");
-      for(const auto& obj : ser.engine.getObjectManager().getObjects())
+      for(const auto& obj : ser.world.getObjectManager().getObjects())
       {
         if(obj.second.get() == ptr)
         {
@@ -50,7 +50,7 @@ struct ObjectReference final
         ser.tag("objectref");
         engine::ObjectId id = 0;
         ser(S_NV("id", id));
-        auto tmp = ser.engine.getObjectManager().getObjects().at(id).get();
+        auto tmp = ser.world.getObjectManager().getObjects().at(id).get();
         Expects(tmp != nullptr);
         *pptr = std::dynamic_pointer_cast<T>(tmp);
       });

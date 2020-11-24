@@ -20,8 +20,7 @@ struct Item;
 namespace engine
 {
 class Particle;
-
-class Engine;
+class World;
 
 namespace ai
 {
@@ -51,10 +50,10 @@ struct InteractionLimits
 
 class Object
 {
-  const gsl::not_null<Engine*> m_engine;
+  const gsl::not_null<World*> m_world;
 
 protected:
-  Object(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position);
+  Object(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position);
 
 public:
   ObjectState m_state;
@@ -76,7 +75,7 @@ public:
     Interact = 7
   };
 
-  Object(const gsl::not_null<Engine*>& engine,
+  Object(const gsl::not_null<World*>& world,
          const gsl::not_null<const loader::file::Room*>& room,
          const loader::file::Item& item,
          bool hasUpdateFunction);
@@ -121,14 +120,14 @@ public:
     m_state.position.position += util::pitch(d, m_state.rotation.Y);
   }
 
-  const Engine& getEngine() const
+  const World& getWorld() const
   {
-    return *m_engine;
+    return *m_world;
   }
 
-  Engine& getEngine()
+  World& getWorld()
   {
-    return *m_engine;
+    return *m_world;
   }
 
   void dampenHorizontalSpeed(const float f)

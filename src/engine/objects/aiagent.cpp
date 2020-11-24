@@ -2,9 +2,11 @@
 
 #include "engine/particle.h"
 #include "engine/script/reflection.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 #include <boost/range/adaptors.hpp>
+#include <pybind11/pybind11.h>
 
 namespace engine::objects
 {
@@ -60,12 +62,12 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
 
 bool AIAgent::anyMovingEnabledObjectInReach() const
 {
-  for(const auto& object : getEngine().getObjectManager().getObjects() | boost::adaptors::map_values)
+  for(const auto& object : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
     if(object.get().get() == this)
       break;
 
-    if(!object->m_isActive || object.get().get() == &getEngine().getObjectManager().getLara())
+    if(!object->m_isActive || object.get().get() == &getWorld().getObjectManager().getLara())
       continue;
 
     if(object->m_state.triggerState == TriggerState::Active && object->m_state.speed != 0_spd
@@ -88,7 +90,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   const auto boxFloor = m_state.box->floor;
   const auto zoneRef = loader::file::Box::getZoneRef(
-    getEngine().roomsAreSwapped(), m_state.creatureInfo->pathFinder.fly, m_state.creatureInfo->pathFinder.step);
+    getWorld().roomsAreSwapped(), m_state.creatureInfo->pathFinder.fly, m_state.creatureInfo->pathFinder.step);
   ModelObject::update();
   if(m_state.triggerState == TriggerState::Deactivated)
   {
@@ -295,7 +297,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     const auto currentFloor
       = HeightInfo::fromFloor(sector,
                               core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                              getEngine().getObjectManager().getObjects())
+                              getWorld().getObjectManager().getObjects())
           .y;
 
     if(m_state.position.position.Y + moveY > currentFloor)
@@ -320,7 +322,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       const auto ceiling
         = HeightInfo::fromCeiling(sector,
                                   core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                                  getEngine().getObjectManager().getObjects())
+                                  getWorld().getObjectManager().getObjects())
             .y;
 
       const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.minY;
@@ -344,7 +346,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     m_state.floor
       = HeightInfo::fromFloor(sector,
                               core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
-                              getEngine().getObjectManager().getObjects())
+                              getWorld().getObjectManager().getObjects())
           .y;
 
     core::Angle yaw{0_deg};
@@ -380,18 +382,18 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   sector = findRealFloorSector(m_state.position.position, &room);
   m_state.floor
-    = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects()).y;
+    = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects()).y;
 
   setCurrentRoom(room);
 
   return true;
 }
 
-AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
+AIAgent::AIAgent(const gsl::not_null<World*>& world,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-    : ModelObject{engine, room, item, true, animatedModel}
+    : ModelObject{world, room, item, true, animatedModel}
 {
   m_state.collidable = true;
   const core::Angle v = util::rand15(180_deg) * 2;
@@ -402,10 +404,10 @@ AIAgent::AIAgent(const gsl::not_null<Engine*>& engine,
 
 void AIAgent::collide(CollisionInfo& collisionInfo)
 {
-  if(!isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
+  if(!isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
+  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
     return;
 
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
@@ -424,19 +426,19 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
   }
 
   const auto start = m_state.position;
-  auto end = getEngine().getObjectManager().getLara().m_state.position;
+  auto end = getWorld().getObjectManager().getLara().m_state.position;
   end.position.Y -= 768_len;
-  return CameraController::clampPosition(start, end, getEngine().getObjectManager());
+  return CameraController::clampPosition(start, end, getWorld().getObjectManager());
 }
 
 namespace
 {
-gsl::not_null<std::shared_ptr<Particle>> createGunFlare(Engine& engine,
+gsl::not_null<std::shared_ptr<Particle>> createGunFlare(World& world,
                                                         const core::RoomBoundPosition& pos,
                                                         const core::Speed& /*speed*/,
                                                         const core::Angle& angle)
 {
-  auto particle = std::make_shared<GunflareParticle>(pos, engine, angle);
+  auto particle = std::make_shared<GunflareParticle>(pos, world, angle);
   setParent(particle, pos.room->node);
   return particle;
 }
@@ -455,23 +457,23 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
     {
       isHit = true;
 
-      getEngine().getObjectManager().getLara().emitParticle(
+      getWorld().getObjectManager().getLara().emitParticle(
         core::TRVec{},
-        util::rand15(getEngine().getObjectManager().getLara().getSkeleton()->getBoneCount()),
+        util::rand15(getWorld().getObjectManager().getLara().getSkeleton()->getBoneCount()),
         &createBloodSplat);
 
-      if(!getEngine().getObjectManager().getLara().isInWater())
-        getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::BulletHitsLara);
+      if(!getWorld().getObjectManager().getLara().isInWater())
+        getWorld().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::BulletHitsLara);
     }
   }
 
   if(!isHit)
   {
-    auto pos = getEngine().getObjectManager().getLara().m_state.position;
+    auto pos = getWorld().getObjectManager().getLara().m_state.position;
     pos.position.X += util::rand15s(core::SectorSize / 2);
-    pos.position.Y = getEngine().getObjectManager().getLara().m_state.floor;
+    pos.position.Y = getWorld().getObjectManager().getLara().m_state.floor;
     pos.position.Z += util::rand15s(core::SectorSize / 2);
-    getEngine().getObjectManager().getLara().playShotMissed(pos);
+    getWorld().getObjectManager().getLara().playShotMissed(pos);
   }
 
   auto p = object.emitParticle(bonePos, boneIndex, &createGunFlare);
@@ -491,7 +493,7 @@ void AIAgent::loadObjectInfo(bool withoutGameState)
 
 void AIAgent::hitLara(const core::Health& strength)
 {
-  getEngine().getObjectManager().getLara().m_state.is_hit = true;
-  getEngine().getObjectManager().getLara().m_state.health -= strength;
+  getWorld().getObjectManager().getLara().m_state.is_hit = true;
+  getWorld().getObjectManager().getLara().m_state.health -= strength;
 }
 } // namespace engine::objects

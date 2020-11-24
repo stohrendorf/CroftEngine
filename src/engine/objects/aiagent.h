@@ -15,7 +15,7 @@ namespace objects
 class AIAgent : public ModelObject
 {
 public:
-  AIAgent(const gsl::not_null<Engine*>& engine,
+  AIAgent(const gsl::not_null<World*>& world,
           const gsl::not_null<const loader::file::Room*>& room,
           const loader::file::Item& item,
           const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);
@@ -25,8 +25,8 @@ public:
   void loadObjectInfo(bool withoutGameState = false);
 
 protected:
-  AIAgent(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : ModelObject{engine, position}
+  AIAgent(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
   {
   }
 
@@ -135,14 +135,14 @@ protected:
     m_state.falling = false;
   }
 
-  void activate()
+  void activateAi()
   {
     if(m_state.triggerState == TriggerState::Invisible)
     {
       m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo(getEngine());
+    m_state.initCreatureInfo(getWorld());
   }
 
 private:

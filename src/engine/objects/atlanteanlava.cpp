@@ -1,6 +1,7 @@
 #include "atlanteanlava.h"
 
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
@@ -34,7 +35,7 @@ void AtlanteanLava::update()
     }
 
     const auto sector = findRealFloorSector(pos, m_state.position.room);
-    if(HeightInfo::fromFloor(sector, pos, getEngine().getObjectManager().getObjects()).y != m_state.position.position.Y)
+    if(HeightInfo::fromFloor(sector, pos, getWorld().getObjectManager().getObjects()).y != m_state.position.position.Y)
     {
       m_state.triggerState = TriggerState::Deactivated;
     }
@@ -42,13 +43,13 @@ void AtlanteanLava::update()
 
   if(m_state.touch_bits.any())
   {
-    getEngine().getObjectManager().getLara().burnIfAlive();
+    getWorld().getObjectManager().getLara().burnIfAlive();
 
-    getEngine().getCameraController().setLookAtObject(getEngine().getObjectManager().find(this));
-    getEngine().getCameraController().setMode(CameraMode::FixedPosition);
-    getEngine().getCameraController().setModifier(CameraModifier::Chase);
-    getEngine().getCameraController().setDistance(3 * core::SectorSize);
-    getEngine().getCameraController().setRotationAroundLaraY(-180_deg);
+    getWorld().getCameraController().setLookAtObject(getWorld().getObjectManager().find(this));
+    getWorld().getCameraController().setMode(CameraMode::FixedPosition);
+    getWorld().getCameraController().setModifier(CameraModifier::Chase);
+    getWorld().getCameraController().setDistance(3 * core::SectorSize);
+    getWorld().getCameraController().setRotationAroundLaraY(-180_deg);
   }
 }
 } // namespace engine::objects

@@ -7,12 +7,12 @@ namespace engine::objects
 class LightningBall final : public ModelObject
 {
 public:
-  LightningBall(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : ModelObject{engine, position}
+  LightningBall(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
   {
   }
 
-  LightningBall(const gsl::not_null<Engine*>& engine,
+  LightningBall(const gsl::not_null<World*>& world,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
                 const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);
@@ -51,6 +51,6 @@ private:
   std::shared_ptr<render::scene::Mesh> m_mainBoltMesh;
   std::shared_ptr<gl::VertexBuffer<glm::vec3>> m_mainVb;
 
-  void init(Engine& engine);
+  void init(World& world);
 };
 } // namespace engine::objects

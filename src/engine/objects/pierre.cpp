@@ -1,6 +1,7 @@
 #include "pierre.h"
 
 #include "engine/cameracontroller.h"
+#include "engine/world.h"
 #include "laraobject.h"
 #include "pickupobject.h"
 
@@ -8,18 +9,18 @@ namespace engine::objects
 {
 void Pierre::update()
 {
-  if(getEngine().m_pierre == nullptr)
+  if(getWorld().getPierre() == nullptr)
   {
-    getEngine().m_pierre = this;
+    getWorld().setPierre(this);
   }
-  else if(this != getEngine().m_pierre)
+  else if(this != getWorld().getPierre())
   {
     if(m_state.activationState.isOneshot())
     {
-      if(getEngine().m_pierre != nullptr)
-        getEngine().m_pierre->kill();
+      if(getWorld().getPierre() != nullptr)
+        getWorld().getPierre()->kill();
 
-      getEngine().m_pierre = nullptr;
+      getWorld().setPierre(nullptr);
     }
     else
     {
@@ -27,7 +28,7 @@ void Pierre::update()
     }
   }
 
-  activate();
+  activateAi();
 
   core::Angle tiltRot = 0_deg;
   core::Angle creatureTurn = 0_deg;
@@ -39,7 +40,7 @@ void Pierre::update()
   }
   if(alive())
   {
-    ai::AiInfo aiInfo{getEngine(), m_state};
+    ai::AiInfo aiInfo{getWorld(), m_state};
     if(aiInfo.ahead)
     {
       headRot = aiInfo.angle;
@@ -51,7 +52,7 @@ void Pierre::update()
       m_state.is_hit = true;
     }
 
-    updateMood(getEngine(), m_state, aiInfo, false);
+    updateMood(getWorld(), m_state, aiInfo, false);
 
     creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
@@ -131,12 +132,12 @@ void Pierre::update()
   }
   else if(m_state.current_anim_state != 5_as) // injured/dying
   {
-    getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::Pierre)->animations[12];
+    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::Pierre)->animations[12];
     getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
     m_state.current_anim_state = 5_as;
-    getEngine().createPickup(TR1ItemId::MagnumsSprite, m_state.position.room, m_state.position.position);
-    getEngine().createPickup(TR1ItemId::ScionPiece2, m_state.position.room, m_state.position.position);
-    getEngine().createPickup(TR1ItemId::Key1Sprite, m_state.position.room, m_state.position.position);
+    getWorld().createPickup(TR1ItemId::MagnumsSprite, m_state.position.room, m_state.position.position);
+    getWorld().createPickup(TR1ItemId::ScionPiece2, m_state.position.room, m_state.position.position);
+    getWorld().createPickup(TR1ItemId::Key1Sprite, m_state.position.room, m_state.position.position);
   }
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
@@ -146,8 +147,8 @@ void Pierre::update()
   {
     auto camPos = m_state.position;
     camPos.position.Y -= core::SectorSize;
-    const auto target = getEngine().getCameraController().getTRPosition();
-    if(CameraController::clampPosition(target, camPos, getEngine().getObjectManager()))
+    const auto target = getWorld().getCameraController().getTRPosition();
+    if(CameraController::clampPosition(target, camPos, getWorld().getObjectManager()))
     {
       m_state.creatureInfo->flags = 1;
     }
@@ -156,7 +157,7 @@ void Pierre::update()
       m_state.health = -16384_hp;
       m_state.creatureInfo = nullptr;
       kill();
-      getEngine().m_pierre = nullptr;
+      getWorld().setPierre(nullptr);
     }
   }
   if(getWaterSurfaceHeight().has_value())
@@ -164,15 +165,15 @@ void Pierre::update()
     m_state.health = -16384_hp;
     m_state.creatureInfo = nullptr;
     kill();
-    getEngine().m_pierre = nullptr;
+    getWorld().setPierre(nullptr);
   }
 }
 
-Pierre::Pierre(const gsl::not_null<Engine*>& engine,
+Pierre::Pierre(const gsl::not_null<World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-    : AIAgent{engine, room, item, animatedModel}
+    : AIAgent{world, room, item, animatedModel}
 {
 }
 } // namespace engine::objects

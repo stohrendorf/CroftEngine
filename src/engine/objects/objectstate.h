@@ -19,7 +19,7 @@ class dict;
 
 namespace engine
 {
-class Engine;
+class World;
 
 namespace ai
 {
@@ -117,15 +117,15 @@ public:
     return !activationState.isInverted();
   }
 
-  bool stalkBox(const Engine& engine, const loader::file::Box& targetBox) const;
+  bool stalkBox(const World& world, const loader::file::Box& targetBox) const;
 
-  bool isInsideZoneButNotInBox(const Engine& engine, int16_t zoneId, const loader::file::Box& targetBox) const;
+  bool isInsideZoneButNotInBox(const World& world, int16_t zoneId, const loader::file::Box& targetBox) const;
 
-  bool inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& targetBox) const;
+  bool inSameQuadrantAsBoxRelativeToLara(const World& world, const loader::file::Box& targetBox) const;
 
-  void initCreatureInfo(const Engine& engine);
+  void initCreatureInfo(const World& world);
 
-  void collectZoneBoxes(const Engine& engine);
+  void collectZoneBoxes(const World& world);
 
   const loader::file::Sector* getCurrentSector() const
   {

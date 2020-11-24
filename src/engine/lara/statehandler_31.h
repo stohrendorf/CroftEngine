@@ -18,8 +18,8 @@ public:
   {
     collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
     setCameraRotationAroundLara(-60_deg, 0_deg);
-    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement != hid::AxisMovement::Right
-       && getEngine().getPresenter().getInputHandler().getInputState().stepMovement != hid::AxisMovement::Right)
+    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement != hid::AxisMovement::Right
+       && getWorld().getPresenter().getInputHandler().getInputState().stepMovement != hid::AxisMovement::Right)
     {
       setGoalAnimState(LaraStateId::Hang);
     }

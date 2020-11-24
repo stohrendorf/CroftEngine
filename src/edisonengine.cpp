@@ -51,6 +51,7 @@ int main()
 
 #if 1
   engine::Engine engine{std::filesystem::current_path()};
+  engine.loadWorld(3);
   engine.run();
 
   return EXIT_SUCCESS;

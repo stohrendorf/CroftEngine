@@ -10,18 +10,18 @@ private:
   int m_flatness;
 
 public:
-  SlopedBridge(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : ModelObject{engine, position}
+  SlopedBridge(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
       , m_flatness{0}
   {
   }
 
-  SlopedBridge(const gsl::not_null<Engine*>& engine,
+  SlopedBridge(const gsl::not_null<World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel,
                const int flatness)
-      : ModelObject{engine, room, item, false, animatedModel}
+      : ModelObject{world, room, item, false, animatedModel}
       , m_flatness{flatness}
   {
   }
@@ -68,16 +68,16 @@ private:
 class BridgeSlope1 final : public SlopedBridge
 {
 public:
-  BridgeSlope1(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : SlopedBridge{engine, position}
+  BridgeSlope1(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : SlopedBridge{world, position}
   {
   }
 
-  BridgeSlope1(const gsl::not_null<Engine*>& engine,
+  BridgeSlope1(const gsl::not_null<World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-      : SlopedBridge{engine, room, item, animatedModel, 4}
+      : SlopedBridge{world, room, item, animatedModel, 4}
   {
   }
 };
@@ -85,16 +85,16 @@ public:
 class BridgeSlope2 final : public SlopedBridge
 {
 public:
-  BridgeSlope2(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : SlopedBridge{engine, position}
+  BridgeSlope2(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : SlopedBridge{world, position}
   {
   }
 
-  BridgeSlope2(const gsl::not_null<Engine*>& engine,
+  BridgeSlope2(const gsl::not_null<World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-      : SlopedBridge{engine, room, item, animatedModel, 2}
+      : SlopedBridge{world, room, item, animatedModel, 2}
   {
   }
 };

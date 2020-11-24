@@ -1,7 +1,7 @@
 #include "menuobject.h"
 
-#include "engine/engine.h"
 #include "engine/objects/laraobject.h"
+#include "engine/world.h"
 #include "menuringtransform.h"
 
 namespace menu
@@ -74,7 +74,7 @@ void MenuObject::updateMeshRenderMask()
   }
 }
 
-void MenuObject::draw(const engine::Engine& engine,
+void MenuObject::draw(const engine::World& world,
                       const MenuRingTransform& ringTransform,
                       const core::Angle& ringItemAngle) const
 {
@@ -85,15 +85,15 @@ void MenuObject::draw(const engine::Engine& engine,
       * glm::translate(glm::mat4{1.0f}, core::TRVec{0_len, 0_len, positionZ}.toRenderSystem())
       * core::TRRotation{rotationX, rotationY, 0_deg}.toMatrix();
 
-  if(const auto& spriteSequence = engine.findSpriteSequenceForType(type))
+  if(const auto& spriteSequence = world.findSpriteSequenceForType(type))
   {
     BOOST_LOG_TRIVIAL(warning) << "Menu Sprite: " << toString(type);
     // TODO drawSprite
   }
-  else if(const auto& obj = engine.findAnimatedModelForType(type))
+  else if(const auto& obj = world.findAnimatedModelForType(type))
   {
     // TODO avoid re-creating the model each time
-    auto node = std::make_shared<engine::SkeletalModelNode>("menu-object", &engine, obj.get());
+    auto node = std::make_shared<engine::SkeletalModelNode>("menu-object", &world, obj.get());
     node->setLocalMatrix(nodeMatrix);
     core::AnimStateId animState{0_as};
     engine::SkeletalModelNode::buildMesh(node, animState);
@@ -106,7 +106,7 @@ void MenuObject::draw(const engine::Engine& engine,
 
     if(type == engine::TR1ItemId::Compass)
     {
-      const auto delta = (rotationY + engine.getObjectManager().getLara().m_state.rotation.Y + compassNeedleRotation
+      const auto delta = (rotationY + world.getObjectManager().getLara().m_state.rotation.Y + compassNeedleRotation
                           + util::rand15s(10_deg))
                          / 50;
       compassNeedleRotationMomentum = compassNeedleRotationMomentum * 19 / 20 - delta;

@@ -30,11 +30,8 @@ public:
   }
 
   explicit BufferHandle(const BufferHandle&) = delete;
-
   explicit BufferHandle(BufferHandle&&) = delete;
-
   BufferHandle& operator=(const BufferHandle&) = delete;
-
   BufferHandle& operator=(BufferHandle&&) = delete;
 
   ~BufferHandle()

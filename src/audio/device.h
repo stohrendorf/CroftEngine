@@ -82,6 +82,8 @@ public:
     return r;
   }
 
+  void reset();
+
 private:
   ALCdevice* m_device = nullptr;
   ALCcontext* m_context = nullptr;

@@ -212,6 +212,9 @@ set( EDISONENGINE_SRCS
         engine/py_module.cpp
         engine/skeletalmodelnode.h
         engine/skeletalmodelnode.cpp
+        engine/world.h
+        engine/world.cpp
+
         engine/script/reflection.h
 
         hid/inputstate.h
@@ -487,7 +490,6 @@ set( EDISONENGINE_SRCS
         serialization/vector.h
 
         menu/menudisplay.cpp
-        menu/menuring.cpp
         menu/menuobject.cpp
         menu/menustates.cpp
         )

@@ -53,7 +53,7 @@ void Level::readMeshData(io::SDLReader& reader)
   reader.seek(endPos);
 }
 
-std::shared_ptr<Level> Level::createLoader(const std::filesystem::path& filename, Game gameVersion)
+std::unique_ptr<Level> Level::createLoader(const std::filesystem::path& filename, Game gameVersion)
 {
   std::filesystem::path sfxPath = filename;
   sfxPath.replace_filename("MAIN.SFX");
@@ -71,31 +71,31 @@ std::shared_ptr<Level> Level::createLoader(const std::filesystem::path& filename
   return createLoader(std::move(reader), gameVersion, sfxPath);
 }
 
-std::shared_ptr<Level>
+std::unique_ptr<Level>
   Level::createLoader(io::SDLReader&& reader, Game game_version, const std::filesystem::path& sfxPath)
 {
   if(!reader.isOpen())
     return nullptr;
 
-  std::shared_ptr<Level> result;
+  std::unique_ptr<Level> result;
 
   switch(game_version)
   {
-  case Game::TR1: result = std::make_shared<TR1Level>(game_version, std::move(reader)); break;
+  case Game::TR1: result = std::make_unique<TR1Level>(game_version, std::move(reader)); break;
   case Game::TR1Demo:
   case Game::TR1UnfinishedBusiness:
-    result = std::make_shared<TR1Level>(game_version, std::move(reader));
+    result = std::make_unique<TR1Level>(game_version, std::move(reader));
     result->m_demoOrUb = true;
     break;
-  case Game::TR2: result = std::make_shared<TR2Level>(game_version, std::move(reader)); break;
+  case Game::TR2: result = std::make_unique<TR2Level>(game_version, std::move(reader)); break;
   case Game::TR2Demo:
-    result = std::make_shared<TR2Level>(game_version, std::move(reader));
+    result = std::make_unique<TR2Level>(game_version, std::move(reader));
     result->m_demoOrUb = true;
     break;
-  case Game::TR3: result = std::make_shared<TR3Level>(game_version, std::move(reader)); break;
+  case Game::TR3: result = std::make_unique<TR3Level>(game_version, std::move(reader)); break;
   case Game::TR4:
-  case Game::TR4Demo: result = std::make_shared<TR4Level>(game_version, std::move(reader)); break;
-  case Game::TR5: result = std::make_shared<TR5Level>(game_version, std::move(reader)); break;
+  case Game::TR4Demo: result = std::make_unique<TR4Level>(game_version, std::move(reader)); break;
+  case Game::TR5: result = std::make_unique<TR5Level>(game_version, std::move(reader)); break;
   default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid game version"));
   }
 

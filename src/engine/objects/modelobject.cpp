@@ -1,7 +1,7 @@
 #include "modelobject.h"
 
-#include "engine/engine.h"
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 #include "loader/file/item.h"
 
@@ -9,14 +9,14 @@
 
 namespace engine::objects
 {
-ModelObject::ModelObject(const gsl::not_null<Engine*>& engine,
+ModelObject::ModelObject(const gsl::not_null<World*>& world,
                          const gsl::not_null<const loader::file::Room*>& room,
                          const loader::file::Item& item,
                          const bool hasUpdateFunction,
                          const gsl::not_null<const loader::file::SkeletalModelType*>& model)
-    : Object{engine, room, item, hasUpdateFunction}
+    : Object{world, room, item, hasUpdateFunction}
     , m_skeleton{std::make_shared<SkeletalModelNode>(
-        std::string("skeleton(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", engine, model)}
+        std::string("skeleton(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", world, model)}
 {
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
   m_lighting.bind(*m_skeleton);
@@ -33,10 +33,10 @@ void ModelObject::update()
   {
     const auto* cmd = getSkeleton()->anim->animCommandCount == 0
                         ? nullptr
-                        : &getSkeleton()->anim->animCommandIndex.from(getEngine().getAnimCommands());
+                        : &getSkeleton()->anim->animCommandIndex.from(getWorld().getAnimCommands());
     for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
     {
-      BOOST_ASSERT(cmd < &getEngine().getAnimCommands().back());
+      BOOST_ASSERT(cmd < &getWorld().getAnimCommands().back());
       const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
       ++cmd;
       switch(opcode)
@@ -69,10 +69,10 @@ void ModelObject::update()
 
   const auto* cmd = getSkeleton()->anim->animCommandCount == 0
                       ? nullptr
-                      : &getSkeleton()->anim->animCommandIndex.from(getEngine().getAnimCommands());
+                      : &getSkeleton()->anim->animCommandIndex.from(getWorld().getAnimCommands());
   for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
   {
-    BOOST_ASSERT(cmd < &getEngine().getAnimCommands().back());
+    BOOST_ASSERT(cmd < &getWorld().getAnimCommands().back());
     const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
     ++cmd;
     switch(opcode)
@@ -90,7 +90,7 @@ void ModelObject::update()
       if(getSkeleton()->frame_number.get() == cmd[0])
       {
         BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
-        getEngine().runEffect(cmd[1], this);
+        getWorld().runEffect(cmd[1], this);
       }
       cmd += 2;
       break;
@@ -176,7 +176,7 @@ bool ModelObject::isNear(const Particle& other, const core::Length& radius) cons
 void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz, const bool withXZCollRadius)
 {
   const auto laraPosWorld
-    = getEngine().getObjectManager().getLara().m_state.position.position - m_state.position.position;
+    = getWorld().getObjectManager().getLara().m_state.position.position - m_state.position.position;
   auto laraPosLocal = util::pitch(laraPosWorld, -m_state.rotation.Y);
   const auto keyFrame = m_skeleton->getInterpolationInfo().getNearestFrame();
   auto objectBBox = keyFrame->bbox.toBBox();
@@ -214,7 +214,7 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     laraPosLocal.Z = objectBBox.minZ;
   }
   // update lara's position to where she was pushed
-  getEngine().getObjectManager().getLara().m_state.position.position
+  getWorld().getObjectManager().getLara().m_state.position.position
     = m_state.position.position + util::pitch(laraPosLocal, m_state.rotation.Y);
   if(enableSpaz)
   {
@@ -222,16 +222,16 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     const auto midZ = (keyFrame->bbox.toBBox().minZ + keyFrame->bbox.toBBox().maxZ) / 2;
     const auto tmp = laraPosWorld - util::pitch(core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y);
     const auto a = angleFromAtan(tmp.X, tmp.Z) - 180_deg;
-    getEngine().getObjectManager().getLara().hit_direction
-      = axisFromAngle(getEngine().getObjectManager().getLara().m_state.rotation.Y - a, 45_deg).value();
-    if(getEngine().getObjectManager().getLara().hit_frame == 0_frame)
+    getWorld().getObjectManager().getLara().hit_direction
+      = axisFromAngle(getWorld().getObjectManager().getLara().m_state.rotation.Y - a, 45_deg).value();
+    if(getWorld().getObjectManager().getLara().hit_frame == 0_frame)
     {
-      getEngine().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraOof);
+      getWorld().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraOof);
     }
-    getEngine().getObjectManager().getLara().hit_frame += 1_frame;
-    if(getEngine().getObjectManager().getLara().hit_frame > 34_frame)
+    getWorld().getObjectManager().getLara().hit_frame += 1_frame;
+    if(getWorld().getObjectManager().getLara().hit_frame > 34_frame)
     {
-      getEngine().getObjectManager().getLara().hit_frame = 34_frame;
+      getWorld().getObjectManager().getLara().hit_frame = 34_frame;
     }
   }
   collisionInfo.badPositiveDistance = core::HeightLimit;
@@ -239,20 +239,20 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
   collisionInfo.badCeilingDistance = 0_len;
   const auto facingAngle = collisionInfo.facingAngle;
   collisionInfo.facingAngle
-    = angleFromAtan(getEngine().getObjectManager().getLara().m_state.position.position.X - collisionInfo.oldPosition.X,
-                    getEngine().getObjectManager().getLara().m_state.position.position.Z - collisionInfo.oldPosition.Z);
+    = angleFromAtan(getWorld().getObjectManager().getLara().m_state.position.position.X - collisionInfo.oldPosition.X,
+                    getWorld().getObjectManager().getLara().m_state.position.position.Z - collisionInfo.oldPosition.Z);
   collisionInfo.initHeightInfo(
-    getEngine().getObjectManager().getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    getWorld().getObjectManager().getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
   collisionInfo.facingAngle = facingAngle;
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::None)
   {
-    getEngine().getObjectManager().getLara().m_state.position.position.X = collisionInfo.oldPosition.X;
-    getEngine().getObjectManager().getLara().m_state.position.position.Z = collisionInfo.oldPosition.Z;
+    getWorld().getObjectManager().getLara().m_state.position.position.X = collisionInfo.oldPosition.X;
+    getWorld().getObjectManager().getLara().m_state.position.position.Z = collisionInfo.oldPosition.Z;
   }
   else
   {
-    collisionInfo.oldPosition = getEngine().getObjectManager().getLara().m_state.position.position;
-    getEngine().getObjectManager().getLara().updateFloorHeight(-10_len);
+    collisionInfo.oldPosition = getWorld().getObjectManager().getLara().m_state.position.position;
+    getWorld().getObjectManager().getLara().updateFloorHeight(-10_len);
   }
 }
 
@@ -288,7 +288,7 @@ gsl::not_null<std::shared_ptr<Particle>>
   ModelObject::emitParticle(const core::TRVec& localPosition,
                             const size_t boneIndex,
                             gsl::not_null<std::shared_ptr<Particle>> (*generate)(
-                              Engine& engine, const core::RoomBoundPosition&, const core::Speed&, const core::Angle&))
+                              World& world, const core::RoomBoundPosition&, const core::Speed&, const core::Angle&))
 {
   BOOST_ASSERT(generate != nullptr);
   BOOST_ASSERT(boneIndex < m_skeleton->getBoneCount());
@@ -299,8 +299,8 @@ gsl::not_null<std::shared_ptr<Particle>>
 
   auto roomPos = m_state.position;
   roomPos.position = core::TRVec{glm::vec3{translate(boneSpheres.at(boneIndex).m, localPosition.toRenderSystem())[3]}};
-  auto particle = generate(getEngine(), roomPos, m_state.speed, m_state.rotation.Y);
-  getEngine().getObjectManager().registerParticle(particle);
+  auto particle = generate(getWorld(), roomPos, m_state.speed, m_state.rotation.Y);
+  getWorld().getObjectManager().registerParticle(particle);
 
   return particle;
 }
@@ -318,7 +318,7 @@ void ModelObject::serialize(const serialization::Serializer& ser)
 
 std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer& ser)
 {
-  auto result = std::make_shared<ModelObject>(&ser.engine, core::RoomBoundPosition::create(ser["@position"]));
+  auto result = std::make_shared<ModelObject>(&ser.world, core::RoomBoundPosition::create(ser["@position"]));
   result->serialize(ser);
   return result;
 }

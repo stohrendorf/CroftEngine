@@ -22,8 +22,8 @@ public:
       return;
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
-       && getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
+    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
+       && getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
     {
       setGoalAnimState(LaraStateId::WalkBackward);
     }
@@ -32,11 +32,11 @@ public:
       setGoalAnimState(LaraStateId::Stop);
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(2.25_deg, -4_deg);
     }
-    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(2.25_deg, 4_deg);
     }
@@ -52,7 +52,7 @@ public:
     collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
 
     if(stopIfCeilingBlocked(collisionInfo))
     {

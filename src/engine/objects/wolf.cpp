@@ -1,13 +1,14 @@
 #include "wolf.h"
 
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
 {
 void Wolf::update()
 {
-  activate();
+  activateAi();
 
   static constexpr auto Walking = 1_as;
   static constexpr auto Running = 2_as;
@@ -26,14 +27,14 @@ void Wolf::update()
   core::Angle rotationToMoveTarget = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getEngine(), m_state};
+    const ai::AiInfo aiInfo{getWorld(), m_state};
 
     if(aiInfo.ahead)
     {
       pitch = aiInfo.angle;
     }
 
-    updateMood(getEngine(), m_state, aiInfo, false);
+    updateMood(getWorld(), m_state, aiInfo, false);
     rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
     {
@@ -159,7 +160,7 @@ void Wolf::update()
   {
     const auto r = util::rand15(3);
     getSkeleton()->setAnimation(
-      m_state.current_anim_state, &getEngine().findAnimatedModelForType(m_state.type)->animations[20 + r], 0_frame);
+      m_state.current_anim_state, &getWorld().findAnimatedModelForType(m_state.type)->animations[20 + r], 0_frame);
     BOOST_ASSERT(m_state.current_anim_state == Dying);
   }
   rotateCreatureTilt(roll);

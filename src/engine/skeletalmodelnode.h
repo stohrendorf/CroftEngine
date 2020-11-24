@@ -14,7 +14,7 @@ struct Animation;
 
 namespace engine
 {
-class Engine;
+class World;
 
 namespace objects
 {
@@ -24,7 +24,7 @@ class SkeletalModelNode : public render::scene::Node
 {
 public:
   explicit SkeletalModelNode(const std::string& id,
-                             gsl::not_null<const Engine*> engine,
+                             gsl::not_null<const World*> world,
                              gsl::not_null<const loader::file::SkeletalModelType*> model);
 
   void updatePose();
@@ -173,7 +173,7 @@ private:
     static MeshPart create(const serialization::Serializer& ser);
   };
 
-  const gsl::not_null<const Engine*> m_engine;
+  const gsl::not_null<const World*> m_world;
   gsl::not_null<const loader::file::SkeletalModelType*> m_model;
   std::vector<MeshPart> m_meshParts{};
   mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer;

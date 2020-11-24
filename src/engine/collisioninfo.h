@@ -13,7 +13,7 @@ namespace objects
 class LaraObject;
 }
 
-class Engine;
+class World;
 
 struct CollisionInfo
 {
@@ -35,7 +35,7 @@ struct CollisionInfo
     LavaIsPit,
     EnableBaddiePush,
     EnableSpaz,
-    _flag_set_size
+    _flag_set_size [[maybe_unused]]
   };
 
   using PolicyFlagSet = type_safe::flag_set<PolicyFlags>;
@@ -67,14 +67,14 @@ struct CollisionInfo
 
   bool hasStaticMeshCollision = false;
 
-  void initHeightInfo(const core::TRVec& laraPos, const Engine& engine, const core::Length& height);
+  void initHeightInfo(const core::TRVec& laraPos, const World& world, const core::Length& height);
 
   static std::set<gsl::not_null<const loader::file::Room*>> collectTouchingRooms(const core::TRVec& position,
                                                                                  const core::Length& radius,
                                                                                  const core::Length& height,
-                                                                                 const Engine& engine);
+                                                                                 const World& world);
 
-  bool checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height, const Engine& engine);
+  bool checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height, const World& world);
 };
 
 inline gsl::czstring toString(CollisionInfo::AxisColl value)

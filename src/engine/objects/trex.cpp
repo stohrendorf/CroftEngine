@@ -1,33 +1,34 @@
 #include "trex.h"
 
 #include "engine/cameracontroller.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
 {
 void TRex::update()
 {
-  activate();
+  activateAi();
 
   core::Angle rotationToMoveTarget;
 
   core::Angle creatureHead = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getEngine(), m_state};
+    const ai::AiInfo aiInfo{getWorld(), m_state};
     if(aiInfo.ahead)
     {
       creatureHead = aiInfo.angle;
     }
-    updateMood(getEngine(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, aiInfo, true);
 
     rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     if(touched())
     {
       if(m_state.current_anim_state == 3_as)
-        getEngine().getObjectManager().getLara().m_state.health -= 10_hp;
+        getWorld().getObjectManager().getLara().m_state.health -= 10_hp;
       else
-        getEngine().getObjectManager().getLara().m_state.health -= 1_hp;
+        getWorld().getObjectManager().getLara().m_state.health -= 1_hp;
     }
 
     m_state.creatureInfo->flags
@@ -74,25 +75,25 @@ void TRex::update()
         goal(8_as);
 
         hitLara(1_hp);
-        getEngine().getObjectManager().getLara().m_state.falling = false;
+        getWorld().getObjectManager().getLara().m_state.falling = false;
 
-        getEngine().getObjectManager().getLara().setCurrentRoom(m_state.position.room);
-        getEngine().getObjectManager().getLara().m_state.position.position = m_state.position.position;
-        getEngine().getObjectManager().getLara().m_state.rotation.X = 0_deg;
-        getEngine().getObjectManager().getLara().m_state.rotation.Y = m_state.rotation.Y;
-        getEngine().getObjectManager().getLara().m_state.rotation.Z = 0_deg;
-        getEngine().getObjectManager().getLara().getSkeleton()->anim
-          = &getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1];
-        getEngine().getObjectManager().getLara().getSkeleton()->frame_number
-          = getEngine().getObjectManager().getLara().getSkeleton()->anim->firstFrame;
-        getEngine().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
-        getEngine().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
-        getEngine().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
-        getEngine().getObjectManager().getLara().gunType = LaraObject::WeaponId::None;
-        getEngine().getCameraController().setModifier(CameraModifier::FollowCenter);
-        getEngine().getCameraController().setRotationAroundLara(-25_deg, 170_deg);
-        getEngine().getObjectManager().getLara().setAir(-1_frame);
-        getEngine().useAlternativeLaraAppearance(true);
+        getWorld().getObjectManager().getLara().setCurrentRoom(m_state.position.room);
+        getWorld().getObjectManager().getLara().m_state.position.position = m_state.position.position;
+        getWorld().getObjectManager().getLara().m_state.rotation.X = 0_deg;
+        getWorld().getObjectManager().getLara().m_state.rotation.Y = m_state.rotation.Y;
+        getWorld().getObjectManager().getLara().m_state.rotation.Z = 0_deg;
+        getWorld().getObjectManager().getLara().getSkeleton()->anim
+          = &getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1];
+        getWorld().getObjectManager().getLara().getSkeleton()->frame_number
+          = getWorld().getObjectManager().getLara().getSkeleton()->anim->firstFrame;
+        getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
+        getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
+        getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
+        getWorld().getObjectManager().getLara().gunType = LaraObject::WeaponId::None;
+        getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
+        getWorld().getCameraController().setRotationAroundLara(-25_deg, 170_deg);
+        getWorld().getObjectManager().getLara().setAir(-1_frame);
+        getWorld().useAlternativeLaraAppearance(true);
       }
       require(2_as);
       break;

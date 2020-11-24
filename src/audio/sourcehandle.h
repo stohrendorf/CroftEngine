@@ -29,11 +29,8 @@ public:
   }
 
   explicit SourceHandle(const SourceHandle&) = delete;
-
   explicit SourceHandle(SourceHandle&&) = delete;
-
   SourceHandle& operator=(const SourceHandle&) = delete;
-
   SourceHandle& operator=(SourceHandle&&) = delete;
 
   ~SourceHandle()

@@ -12,15 +12,15 @@
 
 namespace engine
 {
-CameraController::CameraController(const gsl::not_null<Engine*>& engine,
+CameraController::CameraController(const gsl::not_null<World*>& world,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera)
-    : Listener{&engine->getPresenter().getSoundEngine()}
+    : Listener{world->getPresenter().getSoundEngine().get()}
     , m_camera{std::move(camera)}
-    , m_engine{engine}
-    , m_position{engine->getObjectManager().getLara().m_state.position.room}
-    , m_lookAt{core::RoomBoundPosition{engine->getObjectManager().getLara().m_state.position.room,
-                                       engine->getObjectManager().getLara().m_state.position.position}}
-    , m_positionYOffset{engine->getObjectManager().getLara().m_state.position.position.Y - core::SectorSize}
+    , m_world{world}
+    , m_position{world->getObjectManager().getLara().m_state.position.room}
+    , m_lookAt{core::RoomBoundPosition{world->getObjectManager().getLara().m_state.position.room,
+                                       world->getObjectManager().getLara().m_state.position.position}}
+    , m_positionYOffset{world->getObjectManager().getLara().m_state.position.position.Y - core::SectorSize}
 {
   m_lookAt->position.Y -= m_positionYOffset;
   m_position = m_lookAt;
@@ -50,7 +50,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
                                       const core::Frame& timeout,
                                       const bool switchIsOn)
 {
-  if(m_engine->getCameras().at(camId).isActive())
+  if(m_world->getCameras().at(camId).isActive())
     return;
 
   m_fixedCameraId = camId;
@@ -68,7 +68,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
     m_camOverrideTimeout = camParams.timeout * core::FrameRate;
 
   if(camParams.oneshot)
-    m_engine->getCameras()[camId].setActive(true);
+    m_world->getCameras()[camId].setActive(true);
 
   m_smoothness = 1 + (camParams.smoothness * 4);
   if(fromHeavy)
@@ -97,7 +97,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
     if(command.opcode == floordata::CommandOpcode::LookAt && m_mode != CameraMode::FreeLook
        && m_mode != CameraMode::Combat)
     {
-      m_lookAtObject = m_engine->getObjectManager().getObject(command.parameter);
+      m_lookAtObject = m_world->getObjectManager().getObject(command.parameter);
     }
     else if(command.opcode == floordata::CommandOpcode::SwitchCamera)
     {
@@ -140,10 +140,10 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
 // ReSharper disable once CppMemberFunctionMayBeConst
 std::unordered_set<const loader::file::Portal*> CameraController::tracePortals()
 {
-  for(const auto& room : m_engine->getRooms())
+  for(const auto& room : m_world->getRooms())
     room.node->setVisible(false);
 
-  return render::PortalTracer::trace(*m_position->room, *m_engine);
+  return render::PortalTracer::trace(*m_position->room, *m_world);
 }
 
 bool CameraController::clampY(const core::TRVec& start,
@@ -333,12 +333,12 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
 
   if(m_mode == CameraMode::Cinematic)
   {
-    if(++m_cinematicFrame >= m_engine->getCinematicFrames().size())
+    if(++m_cinematicFrame >= m_world->getCinematicFrames().size())
     {
-      m_cinematicFrame = m_engine->getCinematicFrames().size() - 1;
+      m_cinematicFrame = m_world->getCinematicFrames().size() - 1;
     }
 
-    updateCinematic(m_engine->getCinematicFrames()[m_cinematicFrame], true);
+    updateCinematic(m_world->getCinematicFrames()[m_cinematicFrame], true);
     return tracePortals();
   }
 
@@ -350,7 +350,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
 
   // if we have a fixed position, we also have an object we're looking at
   objects::Object* const focusedObject
-    = isCompletelyFixed ? m_lookAtObject.get() : &m_engine->getObjectManager().getLara();
+    = isCompletelyFixed ? m_lookAtObject.get() : &m_world->getObjectManager().getLara();
   BOOST_ASSERT(focusedObject != nullptr);
   auto focusBBox = focusedObject->getBoundingBox();
   auto focusY = focusedObject->m_state.position.position.Y;
@@ -379,15 +379,13 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
 
     if(eyeRotY < 50_deg && eyeRotY > -50_deg && eyeRotX < 85_deg && eyeRotX > -85_deg)
     {
-      eyeRotY -= m_engine->getObjectManager().getLara().m_headRotation.Y;
-      m_engine->getObjectManager().getLara().m_headRotation.Y += util::clamp(eyeRotY, -4_deg, +4_deg);
-      m_engine->getObjectManager().getLara().m_torsoRotation.Y
-        = m_engine->getObjectManager().getLara().m_headRotation.Y;
+      eyeRotY -= m_world->getObjectManager().getLara().m_headRotation.Y;
+      m_world->getObjectManager().getLara().m_headRotation.Y += util::clamp(eyeRotY, -4_deg, +4_deg);
+      m_world->getObjectManager().getLara().m_torsoRotation.Y = m_world->getObjectManager().getLara().m_headRotation.Y;
 
-      eyeRotX -= m_engine->getObjectManager().getLara().m_headRotation.X;
-      m_engine->getObjectManager().getLara().m_headRotation.X += util::clamp(eyeRotX, -4_deg, +4_deg);
-      m_engine->getObjectManager().getLara().m_torsoRotation.X
-        = m_engine->getObjectManager().getLara().m_headRotation.X;
+      eyeRotX -= m_world->getObjectManager().getLara().m_headRotation.X;
+      m_world->getObjectManager().getLara().m_headRotation.X += util::clamp(eyeRotX, -4_deg, +4_deg);
+      m_world->getObjectManager().getLara().m_torsoRotation.X = m_world->getObjectManager().getLara().m_headRotation.X;
 
       m_mode = CameraMode::FreeLook;
       m_lookAtObject->m_state.already_looked_at = true;
@@ -442,7 +440,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     }
 
     const auto sector = loader::file::findRealFloorSector(*m_lookAt);
-    if(HeightInfo::fromFloor(sector, m_lookAt->position, m_engine->getObjectManager().getObjects()).y
+    if(HeightInfo::fromFloor(sector, m_lookAt->position, m_world->getObjectManager().getObjects()).y
        < m_lookAt->position.Y)
       HeightInfo::skipSteepSlants = false;
 
@@ -472,10 +470,10 @@ void CameraController::handleFixedCamera()
 {
   Expects(m_fixedCameraId >= 0);
 
-  const loader::file::Camera& camera = m_engine->getCameras().at(m_fixedCameraId);
-  core::RoomBoundPosition pos{&m_engine->getRooms().at(camera.room), camera.position};
+  const loader::file::Camera& camera = m_world->getCameras().at(m_fixedCameraId);
+  core::RoomBoundPosition pos{&m_world->getRooms().at(camera.room), camera.position};
 
-  if(!clampPosition(*m_lookAt, pos, m_engine->getObjectManager()))
+  if(!clampPosition(*m_lookAt, pos, m_world->getObjectManager()))
   {
     // ReSharper disable once CppExpressionWithoutSideEffects
     moveIntoGeometry(pos, core::QuarterSectorSize);
@@ -511,8 +509,8 @@ core::Length CameraController::moveIntoGeometry(core::RoomBoundPosition& pos, co
           && isVerticallyOutsideRoom(pos.position + core::TRVec(margin, 0_len, 0_len), pos.room))
     pos.position.X = sector->box->xmax - margin;
 
-  auto bottom = HeightInfo::fromFloor(sector, pos.position, m_engine->getObjectManager().getObjects()).y - margin;
-  auto top = HeightInfo::fromCeiling(sector, pos.position, m_engine->getObjectManager().getObjects()).y + margin;
+  auto bottom = HeightInfo::fromFloor(sector, pos.position, m_world->getObjectManager().getObjects()).y - margin;
+  auto top = HeightInfo::fromCeiling(sector, pos.position, m_world->getObjectManager().getObjects()).y + margin;
   if(bottom < top)
     top = bottom = (bottom + top) / 2;
 
@@ -527,8 +525,8 @@ bool CameraController::isVerticallyOutsideRoom(const core::TRVec& pos,
                                                const gsl::not_null<const loader::file::Room*>& room) const
 {
   const auto sector = findRealFloorSector(pos, room);
-  const auto floor = HeightInfo::fromFloor(sector, pos, m_engine->getObjectManager().getObjects()).y;
-  const auto ceiling = HeightInfo::fromCeiling(sector, pos, m_engine->getObjectManager().getObjects()).y;
+  const auto floor = HeightInfo::fromFloor(sector, pos, m_world->getObjectManager().getObjects()).y;
+  const auto ceiling = HeightInfo::fromCeiling(sector, pos, m_world->getObjectManager().getObjects()).y;
   return pos.Y >= floor || pos.Y <= ceiling;
 }
 
@@ -538,17 +536,17 @@ void CameraController::updatePosition(const core::RoomBoundPosition& positionGoa
   HeightInfo::skipSteepSlants = false;
   m_position->room = positionGoal.room;
   auto sector = loader::file::findRealFloorSector(*m_position);
-  auto floor = HeightInfo::fromFloor(sector, m_position->position, m_engine->getObjectManager().getObjects()).y
+  auto floor = HeightInfo::fromFloor(sector, m_position->position, m_world->getObjectManager().getObjects()).y
                - core::QuarterSectorSize;
   if(floor <= m_position->position.Y && floor <= positionGoal.position.Y)
   {
-    clampPosition(*m_lookAt, *m_position, m_engine->getObjectManager());
+    clampPosition(*m_lookAt, *m_position, m_world->getObjectManager());
     sector = loader::file::findRealFloorSector(*m_position);
-    floor = HeightInfo::fromFloor(sector, m_position->position, m_engine->getObjectManager().getObjects()).y
+    floor = HeightInfo::fromFloor(sector, m_position->position, m_world->getObjectManager().getObjects()).y
             - core::QuarterSectorSize;
   }
 
-  auto ceiling = HeightInfo::fromCeiling(sector, m_position->position, m_engine->getObjectManager().getObjects()).y
+  auto ceiling = HeightInfo::fromCeiling(sector, m_position->position, m_world->getObjectManager().getObjects()).y
                  + core::QuarterSectorSize;
   if(floor < ceiling)
   {
@@ -622,22 +620,22 @@ void CameraController::chaseObject(const objects::Object& object, bool fixed)
 void CameraController::handleFreeLook()
 {
   const auto originalCenter = m_lookAt->position;
-  m_lookAt->position.X = m_engine->getObjectManager().getLara().m_state.position.position.X;
-  m_lookAt->position.Z = m_engine->getObjectManager().getLara().m_state.position.position.Z;
-  m_rotationAroundLara.X = m_engine->getObjectManager().getLara().m_torsoRotation.X
-                           + m_engine->getObjectManager().getLara().m_headRotation.X
-                           + m_engine->getObjectManager().getLara().m_state.rotation.X;
-  m_rotationAroundLara.Y = m_engine->getObjectManager().getLara().m_torsoRotation.Y
-                           + m_engine->getObjectManager().getLara().m_headRotation.Y
-                           + m_engine->getObjectManager().getLara().m_state.rotation.Y;
+  m_lookAt->position.X = m_world->getObjectManager().getLara().m_state.position.position.X;
+  m_lookAt->position.Z = m_world->getObjectManager().getLara().m_state.position.position.Z;
+  m_rotationAroundLara.X = m_world->getObjectManager().getLara().m_torsoRotation.X
+                           + m_world->getObjectManager().getLara().m_headRotation.X
+                           + m_world->getObjectManager().getLara().m_state.rotation.X;
+  m_rotationAroundLara.Y = m_world->getObjectManager().getLara().m_torsoRotation.Y
+                           + m_world->getObjectManager().getLara().m_headRotation.Y
+                           + m_world->getObjectManager().getLara().m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;
   m_positionYOffset = -util::sin(core::SectorSize / 2, m_rotationAroundLara.Y);
-  m_lookAt->position += util::pitch(m_positionYOffset, m_engine->getObjectManager().getLara().m_state.rotation.Y);
+  m_lookAt->position += util::pitch(m_positionYOffset, m_world->getObjectManager().getLara().m_state.rotation.Y);
 
   if(isVerticallyOutsideRoom(m_lookAt->position, m_position->room))
   {
-    m_lookAt->position.X = m_engine->getObjectManager().getLara().m_state.position.position.X;
-    m_lookAt->position.Z = m_engine->getObjectManager().getLara().m_state.position.position.Z;
+    m_lookAt->position.X = m_world->getObjectManager().getLara().m_state.position.position.X;
+    m_lookAt->position.Z = m_world->getObjectManager().getLara().m_state.position.position.Z;
   }
 
   m_lookAt->position.Y += moveIntoGeometry(*m_lookAt, core::CameraWallDistance);
@@ -657,22 +655,22 @@ void CameraController::handleFreeLook()
 
 void CameraController::handleEnemy()
 {
-  m_lookAt->position.X = m_engine->getObjectManager().getLara().m_state.position.position.X;
-  m_lookAt->position.Z = m_engine->getObjectManager().getLara().m_state.position.position.Z;
+  m_lookAt->position.X = m_world->getObjectManager().getLara().m_state.position.position.X;
+  m_lookAt->position.Z = m_world->getObjectManager().getLara().m_state.position.position.Z;
 
   if(m_enemy != nullptr)
   {
-    m_rotationAroundLara.X = m_eyeRotation.X + m_engine->getObjectManager().getLara().m_state.rotation.X;
-    m_rotationAroundLara.Y = m_eyeRotation.Y + m_engine->getObjectManager().getLara().m_state.rotation.Y;
+    m_rotationAroundLara.X = m_eyeRotation.X + m_world->getObjectManager().getLara().m_state.rotation.X;
+    m_rotationAroundLara.Y = m_eyeRotation.Y + m_world->getObjectManager().getLara().m_state.rotation.Y;
   }
   else
   {
-    m_rotationAroundLara.X = m_engine->getObjectManager().getLara().m_torsoRotation.X
-                             + m_engine->getObjectManager().getLara().m_headRotation.X
-                             + m_engine->getObjectManager().getLara().m_state.rotation.X;
-    m_rotationAroundLara.Y = m_engine->getObjectManager().getLara().m_torsoRotation.Y
-                             + m_engine->getObjectManager().getLara().m_headRotation.Y
-                             + m_engine->getObjectManager().getLara().m_state.rotation.Y;
+    m_rotationAroundLara.X = m_world->getObjectManager().getLara().m_torsoRotation.X
+                             + m_world->getObjectManager().getLara().m_headRotation.X
+                             + m_world->getObjectManager().getLara().m_state.rotation.X;
+    m_rotationAroundLara.Y = m_world->getObjectManager().getLara().m_torsoRotation.Y
+                             + m_world->getObjectManager().getLara().m_headRotation.Y
+                             + m_world->getObjectManager().getLara().m_state.rotation.Y;
   }
 
   m_distance = core::CombatCameraLaraDistance;
@@ -697,7 +695,7 @@ void CameraController::handleEnemy()
 void CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal,
                                 const std::function<ClampCallback>& callback) const
 {
-  clampPosition(*m_lookAt, eyePositionGoal, m_engine->getObjectManager());
+  clampPosition(*m_lookAt, eyePositionGoal, m_world->getObjectManager());
   BOOST_ASSERT(m_lookAt->room->getSectorByAbsolutePosition(m_lookAt->position) != nullptr);
   auto clampBox = m_lookAt->room->getSectorByAbsolutePosition(m_lookAt->position)->box;
   BOOST_ASSERT(clampBox != nullptr);
@@ -1004,31 +1002,31 @@ std::unordered_set<const loader::file::Portal*>
   // portal tracing doesn't work here because we always render each room.
   // assuming "sane" room layout here without overlapping rooms.
   std::unordered_set<const loader::file::Portal*> result;
-  for(const auto& room : getEngine()->getRooms())
+  for(const auto& room : getWorld()->getRooms())
   {
     if(room.isWaterRoom())
       continue;
 
     for(const auto& portal : room.portals)
     {
-      if(getEngine()->getRooms().at(portal.adjoining_room.get()).isWaterRoom())
+      if(getWorld()->getRooms().at(portal.adjoining_room.get()).isWaterRoom())
         result.emplace(&portal);
     }
   }
   return result;
 }
 
-CameraController::CameraController(const gsl::not_null<Engine*>& engine,
+CameraController::CameraController(const gsl::not_null<World*>& world,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                                    bool /*noLaraTag*/)
-    : Listener{&engine->getPresenter().getSoundEngine()}
+    : Listener{world->getPresenter().getSoundEngine().get()}
     , m_camera{std::move(camera)}
-    , m_engine{engine}
+    , m_world{world}
 {
-  if(engine->hasLevel())
+  if(world->hasLevel())
   {
-    m_position = core::RoomBoundPosition{&engine->getRooms()[0]};
-    m_lookAt = core::RoomBoundPosition{&engine->getRooms()[0]};
+    m_position = core::RoomBoundPosition{&world->getRooms()[0]};
+    m_lookAt = core::RoomBoundPosition{&world->getRooms()[0]};
   }
 }
 

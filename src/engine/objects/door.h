@@ -7,12 +7,12 @@ namespace engine::objects
 class Door final : public ModelObject
 {
 public:
-  Door(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : ModelObject{engine, position}
+  Door(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
   {
   }
 
-  Door(const gsl::not_null<Engine*>& engine,
+  Door(const gsl::not_null<World*>& world,
        const gsl::not_null<const loader::file::Room*>& room,
        const loader::file::Item& item,
        const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);
@@ -30,14 +30,9 @@ private:
     loader::file::Sector originalSector;
     loader::file::Box* wingsBox{nullptr};
 
-    // ReSharper disable once CppMemberFunctionMayBeConst
     void open();
-
-    // ReSharper disable once CppMemberFunctionMayBeConst
     void close();
-
     void init(const loader::file::Room& room, const core::TRVec& wingsPosition);
-
     void serialize(const serialization::Serializer& ser);
   };
 

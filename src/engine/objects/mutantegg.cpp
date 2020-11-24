@@ -18,7 +18,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     = object.m_state.type == TR1ItemId::WalkingMutant1 || object.m_state.type == TR1ItemId::WalkingMutant2
         ? TR1ItemId::FlyingMutant
         : object.m_state.type;
-  const auto& modelType = object.getEngine().findAnimatedModelForType(modelSourceType);
+  const auto& modelType = object.getWorld().findAnimatedModelForType(modelSourceType);
   Expects(modelType != nullptr);
   Expects(modelType->bones.size() == object.getSkeleton()->getBoneCount());
   BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->bones.size() << " meshes";
@@ -38,13 +38,13 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     auto particle = std::make_shared<MeshShrapnelParticle>(
       core::RoomBoundPosition{object.m_state.position.room,
                               core::TRVec{object.getSkeleton()->getChild(i)->getTranslationWorld()}},
-      object.getEngine(),
-      compositor.toMesh(*object.getEngine().getPresenter().getMaterialManager(), false, {}),
+      object.getWorld(),
+      compositor.toMesh(*object.getWorld().getPresenter().getMaterialManager(), false, {}),
       isTorsoBoss,
       damageRadius);
     particle->negSpriteFrameId = (modelType->mesh_base_index + i).index;
     setParent(particle, object.m_state.position.room->node);
-    object.getEngine().getObjectManager().registerParticle(std::move(particle));
+    object.getWorld().getObjectManager().registerParticle(std::move(particle));
 
     BOOST_LOG_TRIVIAL(trace) << "Shatter model: mesh " << i << " converted";
   }
@@ -58,11 +58,11 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
   return true;
 }
 
-MutantEgg::MutantEgg(const gsl::not_null<Engine*>& engine,
+MutantEgg::MutantEgg(const gsl::not_null<World*>& world,
                      const gsl::not_null<const loader::file::Room*>& room,
                      loader::file::Item item,
                      const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-    : ModelObject{engine, room, item, true, animatedModel}
+    : ModelObject{world, room, item, true, animatedModel}
 {
   m_state.activationState = floordata::ActivationState(uint16_t(item.activationState & ~0x3e00u));
 
@@ -70,33 +70,32 @@ MutantEgg::MutantEgg(const gsl::not_null<Engine*>& engine,
   {
   case 1:
     item.type = TR1ItemId::WalkingMutant1;
-    if(engine->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
+    if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
       m_childObject = std::make_shared<WalkingMutant>(
-        engine, room, item, engine->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
+        world, room, item, world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
     break;
   case 2:
     item.type = TR1ItemId::CentaurMutant;
-    if(engine->findAnimatedModelForType(item.type) != nullptr)
+    if(world->findAnimatedModelForType(item.type) != nullptr)
       m_childObject
-        = std::make_shared<CentaurMutant>(engine, room, item, engine->findAnimatedModelForType(item.type).get());
+        = std::make_shared<CentaurMutant>(world, room, item, world->findAnimatedModelForType(item.type).get());
     break;
   case 4:
     item.type = TR1ItemId::TorsoBoss;
-    if(engine->findAnimatedModelForType(item.type) != nullptr)
-      m_childObject
-        = std::make_shared<TorsoBoss>(engine, room, item, engine->findAnimatedModelForType(item.type).get());
+    if(world->findAnimatedModelForType(item.type) != nullptr)
+      m_childObject = std::make_shared<TorsoBoss>(world, room, item, world->findAnimatedModelForType(item.type).get());
     break;
   case 8:
     item.type = TR1ItemId::WalkingMutant2;
-    if(engine->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
+    if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
       m_childObject = std::make_shared<WalkingMutant>(
-        engine, room, item, engine->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
+        world, room, item, world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
     break;
   default:
     item.type = TR1ItemId::FlyingMutant;
-    if(engine->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
+    if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
       m_childObject = std::make_shared<FlyingMutant>(
-        engine, room, item, engine->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
+        world, room, item, world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
     break;
   }
 
@@ -106,7 +105,7 @@ MutantEgg::MutantEgg(const gsl::not_null<Engine*>& engine,
   }
   else
   {
-    getEngine().getObjectManager().registerObject(m_childObject);
+    getWorld().getObjectManager().registerObject(m_childObject);
   }
 
   for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
@@ -121,7 +120,7 @@ void MutantEgg::update()
   if(m_state.goal_anim_state != 1_as)
   {
     if(m_state.activationState.isOneshot() || m_state.type == TR1ItemId::MutantEggBig
-       || (getEngine().getObjectManager().getLara().m_state.position.position - m_state.position.position).absMax()
+       || (getWorld().getObjectManager().getLara().m_state.position.position - m_state.position.position).absMax()
             < 4096_len)
     {
       BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getName() << ": Hatching " << m_childObject->getNode()->getName();
@@ -143,7 +142,7 @@ void MutantEgg::update()
         m_childObject->updateLighting();
 
         m_childObject->m_state.touch_bits.reset();
-        m_childObject->m_state.initCreatureInfo(getEngine());
+        m_childObject->m_state.initCreatureInfo(getWorld());
         m_childObject->activate();
         m_childObject->m_state.triggerState = TriggerState::Active;
       }
@@ -155,10 +154,10 @@ void MutantEgg::update()
 
 void MutantEgg::collide(CollisionInfo& info)
 {
-  if(!isNear(getEngine().getObjectManager().getLara(), info.collisionRadius))
+  if(!isNear(getWorld().getObjectManager().getLara(), info.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
+  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
     return;
 
   if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))

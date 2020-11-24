@@ -1,6 +1,6 @@
 #include "serialization.h"
 
-#include "engine/engine.h"
+#include "engine/world.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/stacktrace.hpp>
@@ -12,37 +12,6 @@ Exception::Exception(const gsl::czstring msg)
 {
   BOOST_LOG_TRIVIAL(fatal) << "Serialization exception: " << msg;
   BOOST_LOG_TRIVIAL(fatal) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
-}
-
-void Serializer::save(const std::string& filename, engine::Engine& engine)
-{
-  std::ofstream file{filename, std::ios::out | std::ios::trunc};
-  Expects(file.is_open());
-  ryml::Tree t;
-  t.rootref() |= ryml::MAP;
-  Serializer ser{t.rootref(), engine, false, nullptr};
-  access::callSerializeOrSave(engine, ser);
-  ser.processQueues();
-  file << ser.node;
-}
-
-void Serializer::load(const std::string& filename, engine::Engine& engine)
-{
-  std::ifstream file{filename, std::ios::in};
-  Expects(file.is_open());
-  file.seekg(0, std::ios::end);
-  const auto size = static_cast<std::size_t>(file.tellg());
-  file.seekg(0, std::ios::beg);
-
-  // Read entire file contents.
-  std::string buffer;
-  buffer.resize(size);
-  file.read(&buffer[0], size);
-  auto tree = ryml::parse(c4::to_csubstr(filename), c4::to_csubstr(buffer));
-
-  Serializer ser{tree.rootref(), engine, true, nullptr};
-  access::callSerializeOrLoad(engine, ser);
-  ser.processQueues();
 }
 
 void Serializer::processQueues()
@@ -151,7 +120,7 @@ Serializer Serializer::operator[](const std::string& name) const
 
 Serializer Serializer::withNode(const ryml::NodeRef& otherNode) const
 {
-  return Serializer{otherNode, engine, loading, m_lazyQueue};
+  return Serializer{otherNode, world, loading, m_lazyQueue};
 }
 
 Serializer Serializer::newChild() const
@@ -183,12 +152,12 @@ void Serializer::tag(const std::string& tag) const
 }
 
 Serializer::Serializer(const ryml::NodeRef& node,
-                       engine::Engine& engine,
+                       engine::World& world,
                        bool loading,
                        const std::shared_ptr<LazyQueue>& lazyQueue)
     : m_lazyQueue{lazyQueue == nullptr ? std::make_shared<LazyQueue>() : lazyQueue}
     , node{node}
-    , engine{engine}
+    , world{world}
     , loading{loading}
 {
   ryml::set_callbacks(ryml::Callbacks{

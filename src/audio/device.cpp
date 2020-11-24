@@ -116,4 +116,14 @@ Device::Device()
     }
   }};
 }
+
+void Device::reset()
+{
+  for(const auto& src : m_sources)
+    src->stop();
+  m_sources.clear();
+  for(const auto& stream : m_streams)
+    stream->pause();
+  m_streams.clear();
+}
 } // namespace audio

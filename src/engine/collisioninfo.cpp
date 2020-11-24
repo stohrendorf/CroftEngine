@@ -2,6 +2,7 @@
 
 #include "core/magic.h"
 #include "objects/laraobject.h"
+#include "world.h"
 
 namespace engine
 {
@@ -21,19 +22,19 @@ core::Length reflectAtSectorBoundary(const core::Length& target, const core::Len
 }
 } // namespace
 
-void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& engine, const core::Length& height)
+void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& world, const core::Length& height)
 {
   collisionType = AxisColl::None;
   shift = core::TRVec{};
   facingAxis = *axisFromAngle(facingAngle, 45_deg);
 
-  auto room = engine.getObjectManager().getLara().m_state.position.room;
+  auto room = world.getObjectManager().getLara().m_state.position.room;
   const auto refTestPos = laraPos - core::TRVec(0_len, height + core::ScalpToHandsHeight, 0_len);
   const auto currentSector = findRealFloorSector(refTestPos, &room);
 
-  mid.init(currentSector, refTestPos, engine.getObjectManager().getObjects(), laraPos.Y, height);
+  mid.init(currentSector, refTestPos, world.getObjectManager().getObjects(), laraPos.Y, height);
 
-  std::tie(floorSlantX, floorSlantZ) = Engine::getFloorSlantInfo(currentSector, laraPos);
+  std::tie(floorSlantX, floorSlantZ) = getFloorSlantInfo(currentSector, laraPos);
 
   core::Length frontX = 0_len, frontZ = 0_len;
   core::Length frontLeftX = 0_len, frontLeftZ = 0_len;
@@ -78,7 +79,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
   // Front
   auto testPos = refTestPos + core::TRVec(frontX, 0_len, frontZ);
   auto sector = findRealFloorSector(testPos, &room);
-  front.init(sector, testPos, engine.getObjectManager().getObjects(), laraPos.Y, height);
+  front.init(sector, testPos, world.getObjectManager().getObjects(), laraPos.Y, height);
   if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && front.floorSpace.slantClass == SlantClass::Steep
      && front.floorSpace.y < 0_len)
   {
@@ -96,7 +97,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
   // Front left
   testPos = refTestPos + core::TRVec(frontLeftX, 0_len, frontLeftZ);
   sector = findRealFloorSector(testPos, &room);
-  frontLeft.init(sector, testPos, engine.getObjectManager().getObjects(), laraPos.Y, height);
+  frontLeft.init(sector, testPos, world.getObjectManager().getObjects(), laraPos.Y, height);
 
   if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && frontLeft.floorSpace.slantClass == SlantClass::Steep
      && frontLeft.floorSpace.y < 0_len)
@@ -116,7 +117,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
   // Front right
   testPos = refTestPos + core::TRVec(frontRightX, 0_len, frontRightZ);
   sector = findRealFloorSector(testPos, &room);
-  frontRight.init(sector, testPos, engine.getObjectManager().getObjects(), laraPos.Y, height);
+  frontRight.init(sector, testPos, world.getObjectManager().getObjects(), laraPos.Y, height);
 
   if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && frontRight.floorSpace.slantClass == SlantClass::Steep
      && frontRight.floorSpace.y < 0_len)
@@ -133,7 +134,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
     frontRight.floorSpace.y = 2 * core::QuarterSectorSize;
   }
 
-  checkStaticMeshCollisions(laraPos, height, engine);
+  checkStaticMeshCollisions(laraPos, height, world);
 
   if(mid.floorSpace.y == -core::HeightLimit)
   {
@@ -211,10 +212,10 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const Engine& eng
 std::set<gsl::not_null<const loader::file::Room*>> CollisionInfo::collectTouchingRooms(const core::TRVec& position,
                                                                                        const core::Length& radius,
                                                                                        const core::Length& height,
-                                                                                       const Engine& engine)
+                                                                                       const World& world)
 {
   std::set<gsl::not_null<const loader::file::Room*>> result;
-  auto room = engine.getObjectManager().getLara().m_state.position.room;
+  auto room = world.getObjectManager().getLara().m_state.position.room;
   result.emplace(room);
 
   const auto roomAt = [position, room](const core::Length& x, const core::Length& y, const core::Length& z) {
@@ -236,9 +237,9 @@ std::set<gsl::not_null<const loader::file::Room*>> CollisionInfo::collectTouchin
 
 bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position,
                                               const core::Length& height,
-                                              const Engine& engine)
+                                              const World& world)
 {
-  const auto rooms = collectTouchingRooms(position, collisionRadius + 50_len, height + 50_len, engine);
+  const auto rooms = collectTouchingRooms(position, collisionRadius + 50_len, height + 50_len, world);
 
   const core::BoundingBox inBox{{position.X - collisionRadius, position.Y - height, position.Z - collisionRadius},
                                 {position.X + collisionRadius, position.Y, position.Z + collisionRadius}};
@@ -249,7 +250,7 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position,
   {
     for(const loader::file::RoomStaticMesh& rsm : room->staticMeshes)
     {
-      const auto sm = engine.findStaticMeshById(rsm.meshId);
+      const auto sm = world.findStaticMeshById(rsm.meshId);
       if(sm->doNotCollide())
         continue;
 

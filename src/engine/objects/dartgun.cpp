@@ -1,7 +1,7 @@
 #include "dartgun.h"
 
-#include "engine/engine.h"
 #include "engine/soundeffects_tr1.h"
+#include "engine/world.h"
 
 void engine::objects::DartGun::update()
 {
@@ -37,7 +37,7 @@ void engine::objects::DartGun::update()
   default: break;
   }
 
-  auto dart = getEngine().createObject<Dart>(
+  auto dart = getWorld().createObject<Dart>(
     TR1ItemId::Dart, m_state.position.room, m_state.rotation.Y, m_state.position.position - d, 0);
   dart->activate();
   dart->m_state.triggerState = TriggerState::Active;

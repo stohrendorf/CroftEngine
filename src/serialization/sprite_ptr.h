@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine.h"
+#include "engine/world.h"
 #include "optional.h"
 #include "ptr.h"
 
@@ -12,7 +12,7 @@ inline std::optional<core::TypeId::type> ptrSave(const loader::file::Sprite* spr
     return std::nullopt;
 
   ser.tag("sprite");
-  return ser.engine.find(sprite).get();
+  return ser.world.find(sprite).get();
 }
 
 inline const loader::file::Sprite*
@@ -22,6 +22,6 @@ inline const loader::file::Sprite*
     return nullptr;
 
   ser.tag("sprite");
-  return &ser.engine.findSpriteSequenceForType(core::TypeId{idx.value()})->sprites[0];
+  return &ser.world.findSpriteSequenceForType(core::TypeId{idx.value()})->sprites[0];
 }
 } // namespace serialization

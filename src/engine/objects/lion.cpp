@@ -1,13 +1,14 @@
 #include "lion.h"
 
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
 {
 void Lion::update()
 {
-  activate();
+  activateAi();
 
   core::Angle tiltRot = 0_deg;
   core::Angle angle = 0_deg;
@@ -15,12 +16,12 @@ void Lion::update()
 
   if(alive())
   {
-    const ai::AiInfo aiInfo{getEngine(), m_state};
+    const ai::AiInfo aiInfo{getWorld(), m_state};
     if(aiInfo.ahead)
     {
       headRot = aiInfo.angle;
     }
-    updateMood(getEngine(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, aiInfo, true);
     angle = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
     {
@@ -88,20 +89,19 @@ void Lion::update()
     {
       if(m_state.type == TR1ItemId::Panther)
       {
-        getSkeleton()->anim
-          = &getEngine().findAnimatedModelForType(TR1ItemId::Panther)->animations[4 + util::rand15(2)];
+        getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::Panther)->animations[4 + util::rand15(2)];
       }
       else if(m_state.type == TR1ItemId::LionMale)
       {
         getSkeleton()->anim
-          = &getEngine().findAnimatedModelForType(TR1ItemId::LionMale)->animations[7 + util::rand15(2)];
+          = &getWorld().findAnimatedModelForType(TR1ItemId::LionMale)->animations[7 + util::rand15(2)];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         m_state.current_anim_state = 5_as;
       }
       else
       {
         getSkeleton()->anim
-          = &getEngine().findAnimatedModelForType(TR1ItemId::LionFemale)->animations[7 + util::rand15(2)];
+          = &getWorld().findAnimatedModelForType(TR1ItemId::LionFemale)->animations[7 + util::rand15(2)];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         m_state.current_anim_state = 5_as;
       }

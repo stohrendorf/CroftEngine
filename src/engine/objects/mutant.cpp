@@ -2,6 +2,7 @@
 
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 #include "mutantegg.h"
 
@@ -9,21 +10,21 @@ namespace engine::objects
 {
 namespace
 {
-gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(Engine& engine,
+gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(World& world,
                                                              const core::RoomBoundPosition& pos,
                                                              const core::Speed& /*speed*/,
                                                              const core::Angle& angle)
 {
-  auto particle = std::make_shared<MutantGrenadeParticle>(pos, engine, angle);
+  auto particle = std::make_shared<MutantGrenadeParticle>(pos, world, angle);
   setParent(particle, pos.room->node);
   return particle;
 }
-gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(Engine& engine,
+gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(World& world,
                                                             const core::RoomBoundPosition& pos,
                                                             const core::Speed& /*speed*/,
                                                             const core::Angle& angle)
 {
-  auto particle = std::make_shared<MutantBulletParticle>(pos, engine, angle);
+  auto particle = std::make_shared<MutantBulletParticle>(pos, world, angle);
   setParent(particle, pos.room->node);
   return particle;
 }
@@ -31,7 +32,7 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(Engine& engine,
 
 void FlyingMutant::update()
 {
-  activate();
+  activateAi();
 
   static constexpr uint16_t ShootBullet = 1;
   static constexpr uint16_t ThrowGrenade = 2;
@@ -66,7 +67,7 @@ void FlyingMutant::update()
     m_state.creatureInfo->pathFinder.step = 256_len;
     m_state.creatureInfo->pathFinder.fly = 0_len;
     m_state.creatureInfo->pathFinder.drop = -256_len;
-    ai::AiInfo aiInfo{getEngine(), m_state};
+    ai::AiInfo aiInfo{getWorld(), m_state};
     bool frontLeft = false;
     bool frontRight = false;
     if(m_state.type != TR1ItemId::WalkingMutant2)
@@ -94,12 +95,12 @@ void FlyingMutant::update()
         }
         if(!(m_state.creatureInfo->flags & Flying))
         {
-          updateMood(getEngine(), m_state, aiInfo, true);
+          updateMood(getWorld(), m_state, aiInfo, true);
         }
         m_state.creatureInfo->pathFinder.step = 30720_len;
         m_state.creatureInfo->pathFinder.fly = 0_len;
         m_state.creatureInfo->pathFinder.drop = -30720_len;
-        aiInfo = ai::AiInfo{getEngine(), m_state};
+        aiInfo = ai::AiInfo{getWorld(), m_state};
       }
       else if(isEscaping()
               || (aiInfo.zone_number != aiInfo.enemy_zone && !frontRight && !frontLeft && (!aiInfo.ahead || isBored())))
@@ -114,11 +115,11 @@ void FlyingMutant::update()
     }
     if(m_state.current_anim_state != DoFly)
     {
-      updateMood(getEngine(), m_state, aiInfo, false);
+      updateMood(getWorld(), m_state, aiInfo, false);
     }
     else if(m_state.creatureInfo->flags & Flying)
     {
-      updateMood(getEngine(), m_state, aiInfo, true);
+      updateMood(getWorld(), m_state, aiInfo, true);
     }
 
     turnRot = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
@@ -280,18 +281,18 @@ void FlyingMutant::update()
 
 void CentaurMutant::update()
 {
-  activate();
+  activateAi();
 
   core::Angle turnRot = 0_deg;
   core::Angle headRot = 0_deg;
   if(getHealth() > 0_hp)
   {
-    const ai::AiInfo aiInfo{getEngine(), m_state};
+    const ai::AiInfo aiInfo{getWorld(), m_state};
     if(aiInfo.ahead)
     {
       headRot = aiInfo.angle;
     }
-    updateMood(getEngine(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, aiInfo, true);
     turnRot = rotateTowardsTarget(4_deg);
     switch(m_state.current_anim_state.get())
     {
@@ -345,7 +346,7 @@ void CentaurMutant::update()
   else if(m_state.current_anim_state != 5_as)
   {
     m_state.current_anim_state = 5_as;
-    getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::CentaurMutant)->animations[8];
+    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CentaurMutant)->animations[8];
     getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
   }
 
@@ -364,17 +365,17 @@ void CentaurMutant::update()
 
 void TorsoBoss::update()
 {
-  activate();
+  activateAi();
 
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getEngine(), m_state};
+    const ai::AiInfo aiInfo{getWorld(), m_state};
     if(aiInfo.ahead)
     {
       headRot = aiInfo.angle;
     }
-    updateMood(getEngine(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, aiInfo, true);
     const auto angleToTarget = angleFromAtan(m_state.creatureInfo->target.X - m_state.position.position.X,
                                              m_state.creatureInfo->target.Z - m_state.position.position.Z)
                                - m_state.rotation.Y;
@@ -385,7 +386,7 @@ void TorsoBoss::update()
     switch(m_state.current_anim_state.get())
     {
     case 1:
-      if(getEngine().getObjectManager().getLara().m_state.health <= 0_hp)
+      if(getWorld().getObjectManager().getLara().m_state.health <= 0_hp)
       {
         break;
       }
@@ -405,7 +406,7 @@ void TorsoBoss::update()
       {
         goal(7_as);
       }
-      else if(getEngine().getObjectManager().getLara().m_state.health > 500_hp)
+      else if(getWorld().getObjectManager().getLara().m_state.health > 500_hp)
       {
         if(util::rand15(2) == 0)
           goal(5_as);
@@ -476,11 +477,11 @@ void TorsoBoss::update()
       }
       break;
     case 6:
-      if(touched(0x3ff8000u) || getEngine().getObjectManager().getLara().m_state.health <= 0_hp)
+      if(touched(0x3ff8000u) || getWorld().getObjectManager().getLara().m_state.health <= 0_hp)
       {
         goal(11_as);
-        auto& lara = getEngine().getObjectManager().getLara();
-        lara.getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0];
+        auto& lara = getWorld().getObjectManager().getLara();
+        lara.getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0];
         lara.getSkeleton()->frame_number = lara.getSkeleton()->anim->firstFrame;
         lara.setGoalAnimState(LaraStateId::BoulderDeath);
         lara.setCurrentAnimState(LaraStateId::BoulderDeath);
@@ -492,8 +493,8 @@ void TorsoBoss::update()
         lara.gunType = LaraObject::WeaponId::None;
         lara.setHandStatus(HandStatus::Grabbing);
         lara.m_state.falling = false;
-        getEngine().getCameraController().setMode(CameraMode::FixedPosition);
-        getEngine().getCameraController().setDistance(2048_len);
+        getWorld().getCameraController().setMode(CameraMode::FixedPosition);
+        getWorld().getCameraController().setDistance(2048_len);
       }
       break;
     case 7:
@@ -509,15 +510,15 @@ void TorsoBoss::update()
       m_state.falling = true;
       break;
     case 11:
-      getEngine().getCameraController().setDistance(2048_len);
-      getEngine().getCameraController().setMode(CameraMode::FixedPosition);
+      getWorld().getCameraController().setDistance(2048_len);
+      getWorld().getCameraController().setMode(CameraMode::FixedPosition);
       break;
     default: break;
     }
   }
   else if(m_state.current_anim_state != 10_as)
   {
-    getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13];
+    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13];
     getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
     m_state.current_anim_state = 10_as;
   }
@@ -529,7 +530,7 @@ void TorsoBoss::update()
     {
       goal(1_as);
       settle();
-      getEngine().getCameraController().setBounce(500_len);
+      getWorld().getCameraController().setBounce(500_len);
     }
   }
   else
@@ -541,8 +542,8 @@ void TorsoBoss::update()
     playSoundEffect(TR1SoundEffect::Mummy);
     shatterModel(*this, -1, 250_len);
     const auto sector = loader::file::findRealFloorSector(m_state.position);
-    getEngine().handleCommandSequence(
-      HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects())
+    getWorld().handleCommandSequence(
+      HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects())
         .lastCommandSequenceOrDeath,
       true);
     kill();

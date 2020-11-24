@@ -16,7 +16,7 @@ public:
 
   void handleInput(CollisionInfo& /*collisionInfo*/) override
   {
-    if(getEngine().getPresenter().getInputHandler().getInputState().jump)
+    if(getWorld().getPresenter().getInputHandler().getInputState().jump)
     {
       setGoalAnimState(LaraStateId::JumpBack);
     }

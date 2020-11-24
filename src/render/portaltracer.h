@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine.h"
+#include "engine/world.h"
 #include "loader/file/datatypes.h"
 
 #include <boost/range/adaptor/transformed.hpp>
@@ -22,14 +22,14 @@ struct PortalTracer
   };
 
   static std::unordered_set<const loader::file::Portal*> trace(const loader::file::Room& startRoom,
-                                                               const engine::Engine& engine)
+                                                               const engine::World& world)
   {
     std::vector<const loader::file::Room*> seenRooms;
     seenRooms.reserve(32);
     std::unordered_set<const loader::file::Portal*> waterSurfacePortals;
     traceRoom(startRoom,
               {-1, -1, 1, 1},
-              engine,
+              world,
               seenRooms,
               startRoom.isWaterRoom(),
               waterSurfacePortals,
@@ -40,7 +40,7 @@ struct PortalTracer
 
   static bool traceRoom(const loader::file::Room& room,
                         const CullBox& roomCullBox,
-                        const engine::Engine& engine,
+                        const engine::World& world,
                         std::vector<const loader::file::Room*>& seenRooms,
                         const bool inWater,
                         std::unordered_set<const loader::file::Portal*>& waterSurfacePortals,
@@ -53,13 +53,13 @@ struct PortalTracer
     room.node->setVisible(true);
     for(const auto& portal : room.portals)
     {
-      if(const auto narrowedCullBox = narrowCullBox(roomCullBox, portal, engine.getCameraController()))
+      if(const auto narrowedCullBox = narrowCullBox(roomCullBox, portal, world.getCameraController()))
       {
-        const auto& childRoom = engine.getRooms().at(portal.adjoining_room.get());
+        const auto& childRoom = world.getRooms().at(portal.adjoining_room.get());
         const bool waterChanged = inWater == startFromWater && childRoom.isWaterRoom() != startFromWater;
         if(traceRoom(childRoom,
                      *narrowedCullBox,
-                     engine,
+                     world,
                      seenRooms,
                      inWater || childRoom.isWaterRoom(),
                      waterSurfacePortals,

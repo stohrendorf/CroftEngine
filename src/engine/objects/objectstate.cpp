@@ -1,6 +1,5 @@
 #include "objectstate.h"
 
-#include "engine/engine.h"
 #include "engine/script/reflection.h"
 #include "laraobject.h"
 #include "serialization/animation_ptr.h"
@@ -14,9 +13,9 @@ namespace engine::objects
 {
 ObjectState::~ObjectState() = default;
 
-bool ObjectState::stalkBox(const Engine& engine, const loader::file::Box& targetBox) const
+bool ObjectState::stalkBox(const World& world, const loader::file::Box& targetBox) const
 {
-  const auto laraPos = engine.getObjectManager().getLara().m_state.position.position;
+  const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
 
   const auto laraToBoxDistX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
   const auto laraToBoxDistZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
@@ -26,7 +25,7 @@ bool ObjectState::stalkBox(const Engine& engine, const loader::file::Box& target
     return false;
   }
 
-  const auto laraAxis = *axisFromAngle(engine.getObjectManager().getLara().m_state.rotation.Y, 45_deg);
+  const auto laraAxis = *axisFromAngle(world.getObjectManager().getLara().m_state.rotation.Y, 45_deg);
   const auto laraToBoxAxis = *axisFromAngle(angleFromAtan(laraToBoxDistX, laraToBoxDistZ), 45_deg);
   if(laraAxis == laraToBoxAxis)
   {
@@ -51,14 +50,14 @@ bool ObjectState::stalkBox(const Engine& engine, const loader::file::Box& target
   BOOST_THROW_EXCEPTION(std::runtime_error("Unreachable code reached"));
 }
 
-bool ObjectState::isInsideZoneButNotInBox(const Engine& engine,
+bool ObjectState::isInsideZoneButNotInBox(const World& world,
                                           const int16_t zoneId,
                                           const loader::file::Box& targetBox) const
 {
   Expects(creatureInfo != nullptr);
 
   const auto zoneRef = loader::file::Box::getZoneRef(
-    engine.roomsAreSwapped(), creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
+    world.roomsAreSwapped(), creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
 
   if(zoneId != targetBox.*zoneRef)
   {
@@ -73,9 +72,9 @@ bool ObjectState::isInsideZoneButNotInBox(const Engine& engine,
   return !targetBox.contains(position.position.X, position.position.Z);
 }
 
-bool ObjectState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const loader::file::Box& targetBox) const
+bool ObjectState::inSameQuadrantAsBoxRelativeToLara(const World& world, const loader::file::Box& targetBox) const
 {
-  const auto laraPos = engine.getObjectManager().getLara().m_state.position.position;
+  const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
 
   const auto localBoxCenterX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
   const auto localBoxCenterZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
@@ -87,16 +86,16 @@ bool ObjectState::inSameQuadrantAsBoxRelativeToLara(const Engine& engine, const 
   return ((localPosZ > 0_len) == (localBoxCenterZ > 0_len)) || ((localPosX > 0_len) == (localBoxCenterX > 0_len));
 }
 
-void ObjectState::initCreatureInfo(const Engine& engine)
+void ObjectState::initCreatureInfo(const World& world)
 {
   if(creatureInfo != nullptr)
     return;
 
-  creatureInfo = std::make_unique<ai::CreatureInfo>(engine, type);
-  collectZoneBoxes(engine);
+  creatureInfo = std::make_unique<ai::CreatureInfo>(world, type);
+  collectZoneBoxes(world);
 }
 
-void ObjectState::collectZoneBoxes(const Engine& engine)
+void ObjectState::collectZoneBoxes(const World& world)
 {
   const auto zoneRef1
     = loader::file::Box::getZoneRef(false, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
@@ -108,7 +107,7 @@ void ObjectState::collectZoneBoxes(const Engine& engine)
   const auto zoneData1 = box->*zoneRef1;
   const auto zoneData2 = box->*zoneRef2;
   creatureInfo->pathFinder.boxes.clear();
-  for(const auto& levelBox : engine.getBoxes())
+  for(const auto& levelBox : world.getBoxes())
   {
     if(levelBox.*zoneRef1 == zoneData1 || levelBox.*zoneRef2 == zoneData2)
     {

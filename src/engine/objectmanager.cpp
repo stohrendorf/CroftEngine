@@ -10,7 +10,7 @@
 
 namespace engine
 {
-void ObjectManager::createObjects(Engine& engine, std::vector<loader::file::Item>& items)
+void ObjectManager::createObjects(World& world, std::vector<loader::file::Item>& items)
 {
   Expects(m_objectCounter == ObjectId(-1));
   m_objectCounter = gsl::narrow<ObjectId>(items.size());
@@ -21,7 +21,7 @@ void ObjectManager::createObjects(Engine& engine, std::vector<loader::file::Item
   {
     ++id;
 
-    auto object = objects::createObject(engine, item);
+    auto object = objects::createObject(world, item);
     if(item.type == TR1ItemId::Lara)
     {
       m_lara = std::dynamic_pointer_cast<objects::LaraObject>(object);
@@ -100,7 +100,7 @@ std::shared_ptr<objects::Object> ObjectManager::getObject(ObjectId id) const
   return it->second.get();
 }
 
-void ObjectManager::update(Engine& engine, bool godMode)
+void ObjectManager::update(World& world, bool godMode)
 {
   for(const auto& object : m_objects | boost::adaptors::map_values)
   {
@@ -124,7 +124,7 @@ void ObjectManager::update(Engine& engine, bool godMode)
   auto currentParticles = std::move(m_particles);
   for(const auto& particle : currentParticles)
   {
-    if(particle->update(engine))
+    if(particle->update(world))
     {
       setParent(particle, particle->pos.room->node);
       particle->updateLight();

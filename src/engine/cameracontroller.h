@@ -22,8 +22,8 @@ class Object;
 class LaraObject;
 } // namespace objects
 
-class Engine;
 class ObjectManager;
+class World;
 
 enum class CameraMode
 {
@@ -48,7 +48,7 @@ class CameraController final : public audio::Listener
 private:
   gsl::not_null<std::shared_ptr<render::scene::Camera>> m_camera;
 
-  const gsl::not_null<Engine*> m_engine;
+  const gsl::not_null<World*> m_world;
 
   //! @brief Global camera position.
   std::optional<core::RoomBoundPosition> m_position;
@@ -90,16 +90,16 @@ private:
   core::Frame m_camOverrideTimeout{-1_frame};
 
 public:
-  explicit CameraController(const gsl::not_null<Engine*>& engine,
+  explicit CameraController(const gsl::not_null<World*>& world,
                             gsl::not_null<std::shared_ptr<render::scene::Camera>> camera);
 
-  explicit CameraController(const gsl::not_null<Engine*>& engine,
+  explicit CameraController(const gsl::not_null<World*>& world,
                             gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                             bool noLaraTag);
 
-  const gsl::not_null<Engine*>& getEngine() const noexcept
+  const gsl::not_null<World*>& getWorld() const noexcept
   {
-    return m_engine;
+    return m_world;
   }
 
   void setRotationAroundLara(const core::Angle& x, const core::Angle& y);
@@ -202,7 +202,6 @@ public:
      * @brief Clamps a point between two endpoints if there is a floordata-defined obstacle
      * @param[in] start Starting point
      * @param[in] end Destination of the movement, clamped if necessary
-     * @param[in] engine For accessing boxes and floordata
      * @retval false if clamped
      *
      * @warning Please be aware that the return value is reverted and not what you might expect...

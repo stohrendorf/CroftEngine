@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine.h"
+#include "engine/world.h"
 #include "optional.h"
 #include "ptr.h"
 
@@ -13,7 +13,7 @@ inline std::optional<uint32_t> ptrSave(const loader::file::AnimFrame* frame, con
 
   ser.tag("animframe");
   return gsl::narrow<uint32_t>(
-    std::distance(&ser.engine.getPoseFrames().at(0), reinterpret_cast<const int16_t*>(frame)));
+    std::distance(&ser.world.getPoseFrames().at(0), reinterpret_cast<const int16_t*>(frame)));
 }
 
 inline const loader::file::AnimFrame*
@@ -23,6 +23,6 @@ inline const loader::file::AnimFrame*
     return nullptr;
 
   ser.tag("animframe");
-  return reinterpret_cast<const loader::file::AnimFrame*>(&ser.engine.getPoseFrames().at(idx.value()));
+  return reinterpret_cast<const loader::file::AnimFrame*>(&ser.world.getPoseFrames().at(idx.value()));
 }
 } // namespace serialization

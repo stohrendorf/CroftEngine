@@ -39,10 +39,7 @@ public:
 
   [[nodiscard]] const std::shared_ptr<Material>& getCrt();
 
-  void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
-  {
-    m_geometryTextures = std::move(geometryTextures);
-  }
+  void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures);
 
 private:
   const gsl::not_null<std::shared_ptr<ShaderManager>> m_shaderManager;

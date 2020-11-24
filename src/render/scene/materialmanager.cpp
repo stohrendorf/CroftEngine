@@ -1,7 +1,6 @@
 #include "materialmanager.h"
 
 #include "csm.h"
-#include "node.h"
 
 #include <utility>
 
@@ -23,8 +22,8 @@ const std::shared_ptr<Material>& MaterialManager::getSprite()
 
 const std::shared_ptr<Material>& MaterialManager::getCSMDepthOnly(bool skeletal)
 {
-  if(const auto tmp = m_csmDepthOnly[skeletal])
-    return m_csmDepthOnly[skeletal];
+  if(const auto& tmp = m_csmDepthOnly[skeletal])
+    return tmp;
 
   m_csmDepthOnly[skeletal] = std::make_shared<Material>(m_shaderManager->getCSMDepthOnly(skeletal));
   m_csmDepthOnly[skeletal]->getUniform("u_mvp")->bind(
@@ -151,5 +150,14 @@ const std::shared_ptr<Material>& MaterialManager::getCrt()
   });
   m_crt = m;
   return m_crt;
+}
+
+void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
+{
+  m_geometryTextures = std::move(geometryTextures);
+  for(const auto& a : m_geometry)
+    for(const auto& b : a)
+      if(b != nullptr)
+        b->getUniform("u_diffuseTextures")->set(m_geometryTextures);
 }
 } // namespace render::scene

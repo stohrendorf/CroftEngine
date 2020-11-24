@@ -24,7 +24,7 @@ public:
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.initHeightInfo(getLara().m_state.position.position
                                    + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
-                                 getEngine(),
+                                 getWorld(),
                                  core::LaraDiveHeight);
 
     applyShift(collisionInfo);
@@ -70,21 +70,21 @@ public:
 protected:
   void handleDiveRotationInput()
   {
-    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
     {
       getLara().m_state.rotation.X -= 2_deg;
     }
-    else if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+    else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
     {
       getLara().m_state.rotation.X += 2_deg;
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       getLara().m_state.rotation.Y -= 6_deg;
       getLara().m_state.rotation.Z -= 3_deg;
     }
-    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       getLara().m_state.rotation.Y += 6_deg;
       getLara().m_state.rotation.Z += 3_deg;

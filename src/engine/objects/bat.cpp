@@ -8,7 +8,7 @@ namespace engine::objects
 {
 void Bat::update()
 {
-  activate();
+  activateAi();
 
   static constexpr uint16_t StartingToFly = 1;
   static constexpr uint16_t FlyingStraight = 2;
@@ -19,8 +19,8 @@ void Bat::update()
   core::Angle rotationToMoveTarget = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getEngine(), m_state};
-    updateMood(getEngine(), m_state, aiInfo, false);
+    const ai::AiInfo aiInfo{getWorld(), m_state};
+    updateMood(getWorld(), m_state, aiInfo, false);
 
     rotationToMoveTarget = rotateTowardsTarget(20_deg);
     switch(m_state.current_anim_state.get())

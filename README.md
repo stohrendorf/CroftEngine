@@ -65,13 +65,10 @@ set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
 * zlib
 * libsndfile
 * freetype
-* sol2
 * cimg
 * ffmpeg
 * glew
 * utfcpp
-* python3
-* ryml
 
 ...or use this, and adjust the triplet:
-> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl glm zlib libsndfile freetype sol2 cimg ffmpeg glew utfcpp python3 ryml`
+> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl glm zlib libsndfile freetype cimg ffmpeg glew utfcpp`

@@ -1,25 +1,26 @@
 #include "raptor.h"
 
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
 {
 void Raptor::update()
 {
-  activate();
+  activateAi();
 
   core::Angle animTilt = 0_deg;
   core::Angle animAngle = 0_deg;
   core::Angle animHead = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getEngine(), m_state};
+    const ai::AiInfo aiInfo{getWorld(), m_state};
     if(aiInfo.ahead)
     {
       animHead = aiInfo.angle;
     }
-    updateMood(getEngine(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, aiInfo, true);
     animAngle = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
     {
@@ -107,7 +108,7 @@ void Raptor::update()
   }
   else if(m_state.current_anim_state != 5_as)
   {
-    getSkeleton()->anim = getEngine().findAnimatedModelForType(TR1ItemId::Raptor)->animations + 9 + util::rand15(3);
+    getSkeleton()->anim = getWorld().findAnimatedModelForType(TR1ItemId::Raptor)->animations + 9 + util::rand15(3);
     getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
     m_state.current_anim_state = 5_as;
   }

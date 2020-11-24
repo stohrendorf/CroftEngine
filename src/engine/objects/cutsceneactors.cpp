@@ -1,16 +1,16 @@
 #include "cutsceneactors.h"
 
-#include "engine/engine.h"
+#include "engine/world.h"
 
 namespace engine
 {
 namespace objects
 {
-CutsceneActor::CutsceneActor(const gsl::not_null<Engine*>& engine,
+CutsceneActor::CutsceneActor(const gsl::not_null<World*>& world,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-    : ModelObject{engine, room, item, true, animatedModel}
+    : ModelObject{world, room, item, true, animatedModel}
 {
   activate();
   m_state.rotation.Y = 0_deg;
@@ -18,8 +18,8 @@ CutsceneActor::CutsceneActor(const gsl::not_null<Engine*>& engine,
 
 void CutsceneActor::update()
 {
-  m_state.rotation.Y = getEngine().getCameraController().getEyeRotation().Y;
-  m_state.position.position = getEngine().getCameraController().getTRPosition().position;
+  m_state.rotation.Y = getWorld().getCameraController().getEyeRotation().Y;
+  m_state.position.position = getWorld().getCameraController().getTRPosition().position;
   ModelObject::update();
 }
 

@@ -8,12 +8,12 @@ namespace engine::objects
 class Mummy final : public ModelObject
 {
 public:
-  Mummy(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : ModelObject{engine, position}
+  Mummy(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
   {
   }
 
-  Mummy(const gsl::not_null<Engine*>& engine,
+  Mummy(const gsl::not_null<World*>& world,
         const gsl::not_null<const loader::file::Room*>& room,
         const loader::file::Item& item,
         const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);

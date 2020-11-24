@@ -2,6 +2,7 @@
 
 #include "engine/heightinfo.h"
 #include "engine/presenter.h"
+#include "engine/world.h"
 #include "laraobject.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
@@ -77,18 +78,18 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const std::shared_ptr
 }
 } // namespace
 
-LightningBall::LightningBall(const gsl::not_null<Engine*>& engine,
+LightningBall::LightningBall(const gsl::not_null<World*>& world,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-    : ModelObject{engine, room, item, true, animatedModel}
+    : ModelObject{world, room, item, true, animatedModel}
 {
   if(animatedModel->nMeshes >= 1)
   {
     m_poles = static_cast<size_t>(animatedModel->nMeshes - 1);
   }
 
-  init(*engine);
+  init(*world);
 }
 
 void LightningBall::update()
@@ -98,8 +99,8 @@ void LightningBall::update()
     m_chargeTimeout = 1;
     m_shooting = false;
     m_laraHit = false;
-    if(getEngine().roomsAreSwapped())
-      getEngine().swapAllRooms();
+    if(getWorld().roomsAreSwapped())
+      getWorld().swapAllRooms();
 
     deactivate();
     m_state.triggerState = TriggerState::Inactive;
@@ -117,8 +118,8 @@ void LightningBall::update()
     m_shooting = false;
     m_chargeTimeout = 35 + util::rand15(45);
     m_laraHit = false;
-    if(getEngine().roomsAreSwapped())
-      getEngine().swapAllRooms();
+    if(getWorld().roomsAreSwapped())
+      getWorld().swapAllRooms();
 
     return;
   }
@@ -128,15 +129,15 @@ void LightningBall::update()
   m_laraHit = false;
 
   const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
-  if(getEngine().getObjectManager().getLara().isNear(*this, radius))
+  if(getWorld().getObjectManager().getLara().isNear(*this, radius))
   {
     // target at lara
-    m_mainBoltEnd = getEngine().getObjectManager().getLara().m_state.position.position - m_state.position.position;
+    m_mainBoltEnd = getWorld().getObjectManager().getLara().m_state.position.position - m_state.position.position;
     m_mainBoltEnd
       = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
 
-    getEngine().getObjectManager().getLara().m_state.health -= 400_hp;
-    getEngine().getObjectManager().getLara().m_state.is_hit = true;
+    getWorld().getObjectManager().getLara().m_state.health -= 400_hp;
+    getWorld().getObjectManager().getLara().m_state.is_hit = true;
 
     m_laraHit = true;
   }
@@ -146,7 +147,7 @@ void LightningBall::update()
     m_mainBoltEnd = core::TRVec{};
     const auto sector = loader::file::findRealFloorSector(m_state.position);
     m_mainBoltEnd.Y
-      = -HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects()).y;
+      = -HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects()).y;
     m_mainBoltEnd.Y -= m_state.position.position.Y;
   }
   else
@@ -168,8 +169,8 @@ void LightningBall::update()
         + core::TRVec{util::rand15s(core::QuarterSectorSize), 0_len, util::rand15s(core::QuarterSectorSize)};
   }
 
-  if(!getEngine().roomsAreSwapped())
-    getEngine().swapAllRooms();
+  if(!getWorld().roomsAreSwapped())
+    getWorld().swapAllRooms();
 
   playSoundEffect(TR1SoundEffect::Chatter);
 }
@@ -179,10 +180,10 @@ void LightningBall::collide(CollisionInfo& /*info*/)
   if(!m_laraHit)
     return;
 
-  getEngine().getObjectManager().getLara().hit_direction = static_cast<core::Axis>(util::rand15(4));
-  getEngine().getObjectManager().getLara().hit_frame += 1_frame;
-  if(getEngine().getObjectManager().getLara().hit_frame > 34_frame)
-    getEngine().getObjectManager().getLara().hit_frame = 34_frame;
+  getWorld().getObjectManager().getLara().hit_direction = static_cast<core::Axis>(util::rand15(4));
+  getWorld().getObjectManager().getLara().hit_frame += 1_frame;
+  if(getWorld().getObjectManager().getLara().hit_frame > 34_frame)
+    getWorld().getObjectManager().getLara().hit_frame = 34_frame;
 }
 
 void LightningBall::prepareRender()
@@ -217,7 +218,7 @@ void LightningBall::prepareRender()
   }
 }
 
-void LightningBall::init(Engine& engine)
+void LightningBall::init(World& world)
 {
   for(size_t i = 1; i < getSkeleton()->getBoneCount(); ++i)
   {
@@ -225,7 +226,7 @@ void LightningBall::init(Engine& engine)
   }
   getSkeleton()->rebuildMesh();
 
-  m_mainBoltMesh = createBolt(SegmentPoints, engine.getPresenter().getMaterialManager()->getLightning(), 10, m_mainVb);
+  m_mainBoltMesh = createBolt(SegmentPoints, world.getPresenter().getMaterialManager()->getLightning(), 10, m_mainVb);
   auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
   node->setRenderable(m_mainBoltMesh);
   addChild(getSkeleton(), node);
@@ -233,7 +234,7 @@ void LightningBall::init(Engine& engine)
   for(auto& childBolt : m_childBolts)
   {
     childBolt.mesh
-      = createBolt(SegmentPoints, engine.getPresenter().getMaterialManager()->getLightning(), 3, childBolt.vb);
+      = createBolt(SegmentPoints, world.getPresenter().getMaterialManager()->getLightning(), 3, childBolt.vb);
 
     node = std::make_shared<render::scene::Node>("lightning-bolt-child");
     node->setRenderable(childBolt.mesh);
@@ -253,7 +254,7 @@ void LightningBall::serialize(const serialization::Serializer& ser)
 
   if(ser.loading)
   {
-    init(ser.engine);
+    init(ser.world);
   }
 }
 

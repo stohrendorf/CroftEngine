@@ -1,5 +1,6 @@
 #include "swordofdamocles.h"
 
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
@@ -13,8 +14,8 @@ void SwordOfDamocles::update()
   }
   else if(m_state.current_anim_state == 1_as && m_state.touch_bits != 0)
   {
-    getEngine().getObjectManager().getLara().m_state.is_hit = true;
-    getEngine().getObjectManager().getLara().m_state.health -= 300_hp;
+    getWorld().getObjectManager().getLara().m_state.is_hit = true;
+    getWorld().getObjectManager().getLara().m_state.health -= 300_hp;
   }
 
   ModelObject::update();
@@ -36,14 +37,14 @@ void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
 {
   if(m_state.triggerState == TriggerState::Active)
   {
-    if(isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
+    if(isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
     {
-      testBoneCollision(getEngine().getObjectManager().getLara());
+      testBoneCollision(getWorld().getObjectManager().getLara());
     }
   }
   else if(m_state.triggerState != TriggerState::Invisible
-          && isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius)
-          && testBoneCollision(getEngine().getObjectManager().getLara()))
+          && isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius)
+          && testBoneCollision(getWorld().getObjectManager().getLara()))
   {
     if(collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     {

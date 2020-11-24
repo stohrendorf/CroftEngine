@@ -17,7 +17,7 @@ public:
   {
     getLara().m_state.falling = false;
     collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
-    const auto& alternateLara = getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+    const auto& alternateLara = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
     if(alternateLara == nullptr)
       return;
 
@@ -48,7 +48,7 @@ public:
       break;
     }
     getLara().getSkeleton()->rebuildMesh();
-    StateHandler_50::emitSparkles(getEngine());
+    StateHandler_50::emitSparkles(getWorld());
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -59,7 +59,7 @@ public:
     setMovementAngle(getLara().m_state.rotation.Y);
     collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
   }
 };
 } // namespace engine::lara

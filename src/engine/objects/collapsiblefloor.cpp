@@ -1,5 +1,6 @@
 #include "collapsiblefloor.h"
 
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
@@ -13,7 +14,7 @@ void CollapsibleFloor::update()
 
   if(m_state.current_anim_state == 0_as) // stationary
   {
-    if(m_state.position.position.Y - 512_len != getEngine().getObjectManager().getLara().m_state.position.position.Y)
+    if(m_state.position.position.Y - 512_len != getWorld().getObjectManager().getLara().m_state.position.position.Y)
     {
       m_state.triggerState = TriggerState::Inactive;
       deactivate();
@@ -43,7 +44,7 @@ void CollapsibleFloor::update()
   setCurrentRoom(room);
 
   const HeightInfo h
-    = HeightInfo::fromFloor(sector, m_state.position.position, getEngine().getObjectManager().getObjects());
+    = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects());
   m_state.floor = h.y;
   if(m_state.current_anim_state != 2_as || m_state.position.position.Y < h.y)
     return;

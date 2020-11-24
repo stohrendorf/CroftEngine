@@ -16,7 +16,7 @@ public:
 
   void handleInput(CollisionInfo& /*collisionInfo*/) override
   {
-    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward
+    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward
        && getRelativeHeightAtDirection(getLara().m_state.rotation.Y, 256_len) >= -core::ClimbLimit2ClickMin)
     {
       setMovementAngle(getLara().m_state.rotation.Y);
@@ -24,20 +24,20 @@ public:
     }
     else
     {
-      if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
+      if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
          && getRelativeHeightAtDirection(getLara().m_state.rotation.Y - 90_deg, 256_len) >= -core::ClimbLimit2ClickMin)
       {
         setMovementAngle(getLara().m_state.rotation.Y - 90_deg);
         setGoalAnimState(LaraStateId::JumpRight);
       }
-      else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right
+      else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right
               && getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 90_deg, 256_len)
                    >= -core::ClimbLimit2ClickMin)
       {
         setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
         setGoalAnimState(LaraStateId::JumpLeft);
       }
-      else if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
+      else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
               && getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 180_deg, 256_len)
                    >= -core::ClimbLimit2ClickMin)
       {
@@ -60,7 +60,7 @@ public:
     collisionInfo.badNegativeDistance = -core::HeightLimit;
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
 
     if(collisionInfo.mid.ceilingSpace.y <= -core::DefaultCollisionRadius)
     {

@@ -33,8 +33,8 @@ public:
   virtual void begin()
   {
   }
-  virtual void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) = 0;
-  virtual std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display)
+  virtual void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) = 0;
+  virtual std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display)
     = 0;
 
   template<typename T, typename... Ts>
@@ -59,8 +59,8 @@ public:
   {
   }
 
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
 };
 
 class ApplyItemTransformMenuState : public MenuState
@@ -75,8 +75,8 @@ public:
   {
   }
 
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
 };
 
 class DoneMenuState : public MenuState
@@ -87,8 +87,8 @@ public:
   {
   }
 
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
 };
 
 class DeflateRingMenuState : public MenuState
@@ -111,8 +111,8 @@ public:
     m_cameraSpeedY = (-256_len - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
   }
 
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 
 class FinishItemAnimationMenuState : public MenuState
@@ -128,8 +128,8 @@ public:
   {
   }
 
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 
 class SetItemTypeMenuState : public MenuState
@@ -148,17 +148,17 @@ public:
   {
   }
 
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 
 class DeselectingMenuState : public MenuState
 {
 public:
-  explicit DeselectingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, engine::Engine& engine);
+  explicit DeselectingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, engine::World& world);
 
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 
 class IdleRingMenuState : public MenuState
@@ -173,8 +173,8 @@ public:
   {
   }
 
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
 };
 
 class SwitchRingMenuState : public MenuState
@@ -197,8 +197,8 @@ public:
     m_targetCameraRotX = m_down ? -45_deg : 45_deg;
   }
 
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 
 class SelectedMenuState : public MenuState
@@ -209,8 +209,8 @@ public:
   {
   }
 
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 
 class InflateRingMenuState : public MenuState
@@ -231,8 +231,8 @@ public:
     m_radiusSpeed = (688_len - m_ringTransform->radius) / Duration * 1_frame;
     m_cameraSpeedY = (-256_len - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
   }
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 
 class RotateLeftRightMenuState : public MenuState
@@ -251,8 +251,8 @@ public:
                                     const MenuRing& ring,
                                     std::unique_ptr<MenuState>&& prev);
 
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 
 class PassportMenuState : public MenuState
@@ -273,20 +273,20 @@ private:
 public:
   explicit PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, InventoryMode mode);
 
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 
 class SavegameListMenuState : public MenuState
 {
 private:
-  static constexpr int16_t pixelWidth = 272;
-  static constexpr int16_t lineHeight = 18;
-  static constexpr int16_t yPos = -80;
-  static constexpr int16_t perPage = 10;
-  static constexpr int16_t totalHeight = perPage * lineHeight + 10;
-  static constexpr int16_t yOffset = yPos - totalHeight;
-  static constexpr size_t totalSlots = 20;
+  static constexpr int16_t PixelWidth = 272;
+  static constexpr int16_t LineHeight = 18;
+  static constexpr int16_t YPos = -80;
+  static constexpr int16_t PerPage = 10;
+  static constexpr int16_t TotalHeight = PerPage * LineHeight + 10;
+  static constexpr int16_t YOffset = YPos - TotalHeight;
+  static constexpr size_t TotalSlots = 20;
 
   std::unique_ptr<MenuState> m_passport;
   size_t m_selected = 0;
@@ -295,7 +295,7 @@ private:
 public:
   explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                  std::unique_ptr<MenuState> passport);
-  void handleObject(engine::Engine& engine, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuDisplay& display) override;
+  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

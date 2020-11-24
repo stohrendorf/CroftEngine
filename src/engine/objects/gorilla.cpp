@@ -1,13 +1,14 @@
 #include "gorilla.h"
 
 #include "engine/particle.h"
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
 {
 void Gorilla::update()
 {
-  activate();
+  activateAi();
 
   static constexpr uint16_t FlgWantAttack = 1;
   static constexpr uint16_t FlgTurnedRight = 2;
@@ -18,10 +19,10 @@ void Gorilla::update()
 
   if(alive())
   {
-    const ai::AiInfo aiInfo{getEngine(), m_state};
+    const ai::AiInfo aiInfo{getWorld(), m_state};
     if(aiInfo.ahead)
       headRot = aiInfo.angle;
-    updateMood(getEngine(), m_state, aiInfo, false);
+    updateMood(getWorld(), m_state, aiInfo, false);
 
     turn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     if(m_state.is_hit || aiInfo.distance < util::square(2 * core::SectorSize))
@@ -135,7 +136,7 @@ void Gorilla::update()
   }
   else if(m_state.current_anim_state != 5_as)
   {
-    getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[7 + util::rand15(2)];
+    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[7 + util::rand15(2)];
     getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
     m_state.current_anim_state = 5_as;
   }
@@ -200,7 +201,7 @@ void Gorilla::update()
     }
 
     m_state.position.position.Y = old.Y;
-    getSkeleton()->anim = &getEngine().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19];
+    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19];
     getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
     m_state.current_anim_state = 11_as;
   }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine.h"
+#include "engine/world.h"
 #include "optional.h"
 #include "ptr.h"
 
@@ -17,7 +17,7 @@ void save(const std::shared_ptr<loader::file::RenderMeshData>& mesh, const Seria
 
   ser.tag("mesh");
   uint32_t idx = 0;
-  for(const auto& existing : ser.engine.getMeshes())
+  for(const auto& existing : ser.world.getMeshes())
   {
     if(existing.meshData == mesh)
     {
@@ -40,7 +40,7 @@ void load(std::shared_ptr<loader::file::RenderMeshData>& data, const Serializer&
   ser.tag("mesh");
   uint32_t tmp{};
   ser.node >> tmp;
-  data = ser.engine.getRenderMesh(tmp);
+  data = ser.world.getRenderMesh(tmp);
 }
 
 std::shared_ptr<loader::file::RenderMeshData> create(const TypeId<std::shared_ptr<loader::file::RenderMeshData>>&,

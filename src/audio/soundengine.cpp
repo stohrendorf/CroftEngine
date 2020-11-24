@@ -86,11 +86,11 @@ bool SoundEngine::stopBuffer(size_t bufferId, Emitter* emitter)
   return any;
 }
 
-gsl::not_null<std::shared_ptr<SourceHandle>>
-  SoundEngine::playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
+gsl::not_null<std::shared_ptr<SourceHandle>> SoundEngine::playBuffer(
+  const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
 {
   auto src = m_device.createSource();
-  src->setBuffer(m_buffers.at(bufferId));
+  src->setBuffer(buffer);
   src->setPitch(pitch);
   src->setGain(volume);
   if(emitter != nullptr)
@@ -137,19 +137,22 @@ SoundEngine::~SoundEngine()
     listener->m_engine = nullptr;
 }
 
-void SoundEngine::addWav(const gsl::not_null<const uint8_t*>& buffer)
+gsl::not_null<std::shared_ptr<SourceHandle>> SoundEngine::playBuffer(
+  const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos)
 {
-  auto buf = std::make_shared<BufferHandle>();
-  buf->fillFromWav(buffer.get());
-  m_buffers.emplace_back(std::move(buf));
-}
-
-gsl::not_null<std::shared_ptr<SourceHandle>>
-  SoundEngine::playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos)
-{
-  auto handle = playBuffer(bufferId, pitch, volume, nullptr);
+  auto handle = playBuffer(buffer, bufferId, pitch, volume, nullptr);
   handle->setPosition(pos);
   return handle;
+}
+
+void SoundEngine::reset()
+{
+  BOOST_LOG_TRIVIAL(debug) << "Resetting sound engine";
+  m_device.reset();
+  m_sources.clear();
+  m_listener = nullptr;
+  m_emitters.clear();
+  m_listeners.clear();
 }
 
 Listener::~Listener()

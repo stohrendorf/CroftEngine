@@ -126,7 +126,7 @@ target_compile_definitions( CImg::CImg INTERFACE -Dcimg_display=0 -Dcimg_use_png
 find_package( PNG REQUIRED )
 target_link_libraries( CImg::CImg INTERFACE PNG::PNG )
 
-find_package( Python3 COMPONENTS Development REQUIRED )
+find_package( Python3 REQUIRED )
 
 dl_unpack( https://github.com/pybind/pybind11/archive/v2.6.0.tar.gz pybind11-v2.6.0.tar.gz pybind11-2.6.0 )
 set( PYBIND11_FINDPYTHON FALSE )

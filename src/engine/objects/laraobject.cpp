@@ -31,8 +31,7 @@ namespace engine::objects
 {
 void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
-  getSkeleton()->setAnimation(
-    m_state.current_anim_state, &getEngine().getAnimation(anim), firstFrame.value_or(0_frame));
+  getSkeleton()->setAnimation(m_state.current_anim_state, &getWorld().getAnimation(anim), firstFrame.value_or(0_frame));
 }
 
 void LaraObject::handleLaraStateOnLand()
@@ -44,7 +43,7 @@ void LaraObject::handleLaraStateOnLand()
 
   lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
-  if(getEngine().getCameraController().getMode() != CameraMode::FreeLook)
+  if(getWorld().getCameraController().getMode() != CameraMode::FreeLook)
   {
     const auto headX = m_headRotation.X;
     if(headX <= -2_deg || headX >= 2_deg)
@@ -113,7 +112,7 @@ void LaraObject::handleLaraStateOnLand()
   updateFloorHeight(-381_len);
 
   updateLarasWeaponsStatus();
-  getEngine().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
+  getWorld().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
 
   applyTransform();
 
@@ -170,7 +169,7 @@ void LaraObject::handleLaraStateDiving()
 
   updateFloorHeight(0_len);
   updateLarasWeaponsStatus();
-  getEngine().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
+  getWorld().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
 #ifndef NDEBUG
   lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -204,7 +203,7 @@ void LaraObject::handleLaraStateSwimming()
     m_state.rotation.Z = 0_deg;
   }
 
-  if(getEngine().getCameraController().getMode() != CameraMode::FreeLook)
+  if(getWorld().getCameraController().getMode() != CameraMode::FreeLook)
   {
     m_headRotation.X -= m_headRotation.X / 8;
     m_headRotation.Y -= m_headRotation.Y / 8;
@@ -227,7 +226,7 @@ void LaraObject::handleLaraStateSwimming()
 
   updateFloorHeight(core::DefaultCollisionRadius);
   updateLarasWeaponsStatus();
-  getEngine().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
+  getWorld().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
 #ifndef NDEBUG
   lastUsedCollisionInfo = collisionInfo;
 #endif
@@ -242,18 +241,18 @@ LaraObject::~LaraObject() = default;
 
 void LaraObject::update()
 {
-  if(getEngine().getPresenter().getInputHandler().getInputState()._1.justChangedTo(true))
-    getEngine().getInventory().tryUse(*this, TR1ItemId::Pistols);
-  else if(getEngine().getPresenter().getInputHandler().getInputState()._2.justChangedTo(true))
-    getEngine().getInventory().tryUse(*this, TR1ItemId::Shotgun);
-  else if(getEngine().getPresenter().getInputHandler().getInputState()._3.justChangedTo(true))
-    getEngine().getInventory().tryUse(*this, TR1ItemId::Uzis);
-  else if(getEngine().getPresenter().getInputHandler().getInputState()._4.justChangedTo(true))
-    getEngine().getInventory().tryUse(*this, TR1ItemId::Magnums);
-  else if(getEngine().getPresenter().getInputHandler().getInputState()._5.justChangedTo(true))
-    getEngine().getInventory().tryUse(*this, TR1ItemId::SmallMedipack);
-  else if(getEngine().getPresenter().getInputHandler().getInputState()._6.justChangedTo(true))
-    getEngine().getInventory().tryUse(*this, TR1ItemId::LargeMedipack);
+  if(getWorld().getPresenter().getInputHandler().getInputState()._1.justChangedTo(true))
+    getWorld().getInventory().tryUse(*this, TR1ItemId::Pistols);
+  else if(getWorld().getPresenter().getInputHandler().getInputState()._2.justChangedTo(true))
+    getWorld().getInventory().tryUse(*this, TR1ItemId::Shotgun);
+  else if(getWorld().getPresenter().getInputHandler().getInputState()._3.justChangedTo(true))
+    getWorld().getInventory().tryUse(*this, TR1ItemId::Uzis);
+  else if(getWorld().getPresenter().getInputHandler().getInputState()._4.justChangedTo(true))
+    getWorld().getInventory().tryUse(*this, TR1ItemId::Magnums);
+  else if(getWorld().getPresenter().getInputHandler().getInputState()._5.justChangedTo(true))
+    getWorld().getInventory().tryUse(*this, TR1ItemId::SmallMedipack);
+  else if(getWorld().getPresenter().getInputHandler().getInputState()._6.justChangedTo(true))
+    getWorld().getInventory().tryUse(*this, TR1ItemId::LargeMedipack);
 
   if(m_underwaterState == UnderwaterState::OnLand && m_state.position.room->isWaterRoom())
   {
@@ -262,7 +261,7 @@ void LaraObject::update()
     m_state.falling = false;
     m_state.position.position.Y += 100_len;
     updateFloorHeight(0_len);
-    getEngine().getPresenter().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraScream, &m_state);
+    getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraScream, &m_state);
     if(getCurrentAnimState() == LaraStateId::SwandiveBegin)
     {
       m_state.rotation.X = -45_deg;
@@ -300,9 +299,9 @@ void LaraObject::update()
         surfacePos.position.Y = *waterSurfaceHeight;
         surfacePos.position.Z = m_state.position.position.Z;
 
-        auto particle = std::make_shared<SplashParticle>(surfacePos, getEngine(), false);
+        auto particle = std::make_shared<SplashParticle>(surfacePos, getWorld(), false);
         setParent(particle, surfacePos.room->node);
-        getEngine().getObjectManager().registerParticle(particle);
+        getWorld().getObjectManager().registerParticle(particle);
       }
     }
   }
@@ -384,10 +383,10 @@ void LaraObject::updateImpl()
   {
     if(getSkeleton()->anim->animCommandCount > 0)
     {
-      const auto* cmd = &getSkeleton()->anim->animCommandIndex.from(getEngine().getAnimCommands());
+      const auto* cmd = &getSkeleton()->anim->animCommandIndex.from(getWorld().getAnimCommands());
       for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
       {
-        Expects(cmd < &getEngine().getAnimCommands().back());
+        Expects(cmd < &getWorld().getAnimCommands().back());
         const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
         ++cmd;
         switch(opcode)
@@ -425,10 +424,10 @@ void LaraObject::updateImpl()
 
   if(getSkeleton()->anim->animCommandCount > 0)
   {
-    const auto* cmd = &getSkeleton()->anim->animCommandIndex.from(getEngine().getAnimCommands());
+    const auto* cmd = &getSkeleton()->anim->animCommandIndex.from(getWorld().getAnimCommands());
     for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
     {
-      Expects(cmd < &getEngine().getAnimCommands().back());
+      Expects(cmd < &getWorld().getAnimCommands().back());
       const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
       ++cmd;
       switch(opcode)
@@ -446,7 +445,7 @@ void LaraObject::updateImpl()
         if(getSkeleton()->frame_number.get() == cmd[0])
         {
           BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
-          getEngine().runEffect(cmd[1], this);
+          getWorld().runEffect(cmd[1], this);
         }
         cmd += 2;
         break;
@@ -467,33 +466,33 @@ void LaraObject::updateFloorHeight(const core::Length& dy)
   auto room = m_state.position.room;
   const auto sector = findRealFloorSector(pos, &room);
   setCurrentRoom(room);
-  const HeightInfo hi = HeightInfo::fromFloor(sector, pos, getEngine().getObjectManager().getObjects());
+  const HeightInfo hi = HeightInfo::fromFloor(sector, pos, getWorld().getObjectManager().getObjects());
   m_state.floor = hi.y;
 }
 
 void LaraObject::setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y)
 {
-  getEngine().getCameraController().setRotationAroundLara(x, y);
+  getWorld().getCameraController().setRotationAroundLara(x, y);
 }
 
 void LaraObject::setCameraRotationAroundLaraY(const core::Angle& y)
 {
-  getEngine().getCameraController().setRotationAroundLaraY(y);
+  getWorld().getCameraController().setRotationAroundLaraY(y);
 }
 
 void LaraObject::setCameraRotationAroundLaraX(const core::Angle& x)
 {
-  getEngine().getCameraController().setRotationAroundLaraX(x);
+  getWorld().getCameraController().setRotationAroundLaraX(x);
 }
 
 void LaraObject::setCameraDistance(const core::Length& d)
 {
-  getEngine().getCameraController().setDistance(d);
+  getWorld().getCameraController().setDistance(d);
 }
 
 void LaraObject::setCameraModifier(const CameraModifier k)
 {
-  getEngine().getCameraController().setModifier(k);
+  getWorld().getCameraController().setModifier(k);
 }
 
 void LaraObject::testInteractions(CollisionInfo& collisionInfo)
@@ -507,9 +506,9 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
   std::set<gsl::not_null<const loader::file::Room*>> rooms;
   rooms.insert(m_state.position.room);
   for(const loader::file::Portal& p : m_state.position.room->portals)
-    rooms.insert(&getEngine().getRooms().at(p.adjoining_room.get()));
+    rooms.insert(&getWorld().getRooms().at(p.adjoining_room.get()));
 
-  for(const auto& object : getEngine().getObjectManager().getObjects() | boost::adaptors::map_values)
+  for(const auto& object : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
     if(rooms.find(object->m_state.position.room) == rooms.end())
       continue;
@@ -527,7 +526,7 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
     object->collide(collisionInfo);
   }
 
-  for(const auto& object : getEngine().getObjectManager().getDynamicObjects())
+  for(const auto& object : getWorld().getObjectManager().getDynamicObjects())
   {
     if(rooms.find(object->m_state.position.room) == rooms.end())
       continue;
@@ -545,13 +544,13 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
     object->collide(collisionInfo);
   }
 
-  if(getEngine().getObjectManager().getLara().explosionStumblingDuration != 0_frame)
+  if(getWorld().getObjectManager().getLara().explosionStumblingDuration != 0_frame)
   {
-    getEngine().getObjectManager().getLara().updateExplosionStumbling();
+    getWorld().getObjectManager().getLara().updateExplosionStumbling();
   }
-  if(!getEngine().getObjectManager().getLara().hit_direction.has_value())
+  if(!getWorld().getObjectManager().getLara().hit_direction.has_value())
   {
-    getEngine().getObjectManager().getLara().hit_frame = 0_frame;
+    getWorld().getObjectManager().getLara().hit_frame = 0_frame;
   }
   // TODO selectedPuzzleKey = -1;
 }
@@ -560,7 +559,7 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
 {
   m_state.box = m_state.getCurrentSector()->box;
   core::TRVec targetPos;
-  if(!m_underwaterRoute.calculateTarget(getEngine(), targetPos, m_state))
+  if(!m_underwaterRoute.calculateTarget(getWorld(), targetPos, m_state))
     return;
 
   targetPos -= m_state.position.position;
@@ -573,7 +572,7 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
                                             m_state.position.position.Z - collisionInfo.oldPosition.Z);
 
   collisionInfo.initHeightInfo(m_state.position.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
-                               getEngine(),
+                               getWorld(),
                                core::LaraDiveHeight);
   if(collisionInfo.collisionType == CollisionInfo::AxisColl::Front)
   {
@@ -626,7 +625,7 @@ void LaraObject::updateLarasWeaponsStatus()
     }
     else if(requestedGunType == gunType)
     {
-      if(getEngine().getPresenter().getInputHandler().getInputState().holster.justChangedTo(true))
+      if(getWorld().getPresenter().getInputHandler().getInputState().holster.justChangedTo(true))
       {
         doHolsterUpdate = true;
       }
@@ -663,19 +662,19 @@ void LaraObject::updateLarasWeaponsStatus()
     {
       if(gunType <= WeaponId::Uzi)
       {
-        if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
-           && getEngine().getCameraController().getMode() != CameraMode::FreeLook)
+        if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
+           && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
         {
-          getEngine().getCameraController().setMode(CameraMode::Combat);
+          getWorld().getCameraController().setMode(CameraMode::Combat);
         }
         unholsterGuns(gunType);
       }
       else if(gunType == WeaponId::Shotgun)
       {
-        if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
-           && getEngine().getCameraController().getMode() != CameraMode::FreeLook)
+        if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
+           && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
         {
-          getEngine().getCameraController().setMode(CameraMode::Combat);
+          getWorld().getCameraController().setMode(CameraMode::Combat);
         }
         unholsterShotgun();
       }
@@ -684,7 +683,7 @@ void LaraObject::updateLarasWeaponsStatus()
   else if(m_handStatus == HandStatus::Holster)
   {
     {
-      const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
+      const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
       getSkeleton()->setMeshPart(14, normalLara.bones[14].mesh);
       getSkeleton()->rebuildMesh();
@@ -705,7 +704,7 @@ void LaraObject::updateLarasWeaponsStatus()
   else if(m_handStatus == HandStatus::Combat)
   {
     {
-      const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
+      const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
       getSkeleton()->setMeshPart(14, normalLara.bones[14].mesh);
       getSkeleton()->rebuildMesh();
@@ -716,72 +715,72 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponId::Pistols:
       if(pistolsAmmo.ammo != 0)
       {
-        if(getEngine().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().getInputState().action)
         {
-          const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
+          const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
           getSkeleton()->rebuildMesh();
         }
       }
-      if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
-         && getEngine().getCameraController().getMode() != CameraMode::FreeLook)
+      if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
+         && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
       {
-        getEngine().getCameraController().setMode(CameraMode::Combat);
+        getWorld().getCameraController().setMode(CameraMode::Combat);
       }
       updateGuns(gunType);
       break;
     case WeaponId::AutoPistols:
       if(revolverAmmo.ammo != 0)
       {
-        if(getEngine().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().getInputState().action)
         {
-          const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
+          const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
           getSkeleton()->rebuildMesh();
         }
       }
-      if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
-         && getEngine().getCameraController().getMode() != CameraMode::FreeLook)
+      if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
+         && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
       {
-        getEngine().getCameraController().setMode(CameraMode::Combat);
+        getWorld().getCameraController().setMode(CameraMode::Combat);
       }
       updateGuns(gunType);
       break;
     case WeaponId::Uzi:
       if(uziAmmo.ammo != 0)
       {
-        if(getEngine().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().getInputState().action)
         {
-          const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
+          const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
           getSkeleton()->rebuildMesh();
         }
       }
-      if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
-         && getEngine().getCameraController().getMode() != CameraMode::FreeLook)
+      if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
+         && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
       {
-        getEngine().getCameraController().setMode(CameraMode::Combat);
+        getWorld().getCameraController().setMode(CameraMode::Combat);
       }
       updateGuns(gunType);
       break;
     case WeaponId::Shotgun:
       if(shotgunAmmo.ammo != 0)
       {
-        if(getEngine().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().getInputState().action)
         {
-          const auto& uziLara = *getEngine().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
+          const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
           getSkeleton()->rebuildMesh();
         }
       }
-      if(getEngine().getCameraController().getMode() != CameraMode::Cinematic
-         && getEngine().getCameraController().getMode() != CameraMode::FreeLook)
+      if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
+         && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
       {
-        getEngine().getCameraController().setMode(CameraMode::Combat);
+        getWorld().getCameraController().setMode(CameraMode::Combat);
       }
       updateShotgun();
       break;
@@ -792,7 +791,7 @@ void LaraObject::updateLarasWeaponsStatus()
 
 void LaraObject::updateShotgun()
 {
-  if(getEngine().getPresenter().getInputHandler().getInputState().action)
+  if(getWorld().getPresenter().getInputHandler().getInputState().action)
   {
     updateAimingState(weapons[WeaponId::Shotgun]);
   }
@@ -818,7 +817,7 @@ void LaraObject::updateShotgun()
 void LaraObject::updateGuns(const WeaponId weaponId)
 {
   const auto& weapon = weapons.at(weaponId);
-  if(getEngine().getPresenter().getInputHandler().getInputState().action)
+  if(getWorld().getPresenter().getInputHandler().getInputState().action)
   {
     updateAimingState(weapon);
   }
@@ -868,7 +867,7 @@ void LaraObject::updateAimingState(const Weapon& weapon)
   auto targetVector = getVectorAngles(enemyChestPos.position - gunPosition.position);
   targetVector.X -= m_state.rotation.X;
   targetVector.Y -= m_state.rotation.Y;
-  if(!CameraController::clampPosition(gunPosition, enemyChestPos, getEngine().getObjectManager()))
+  if(!CameraController::clampPosition(gunPosition, enemyChestPos, getWorld().getObjectManager()))
   {
     rightArm.aiming = false;
     leftArm.aiming = false;
@@ -916,14 +915,14 @@ void LaraObject::unholster()
   target = nullptr;
   if(gunType == WeaponId::None)
   {
-    const auto* positionData = getEngine().findAnimatedModelForType(TR1ItemId::Lara)->frames;
+    const auto* positionData = getWorld().findAnimatedModelForType(TR1ItemId::Lara)->frames;
 
     rightArm.weaponAnimData = positionData;
     leftArm.weaponAnimData = positionData;
   }
   else if(gunType == WeaponId::Pistols || gunType == WeaponId::AutoPistols || gunType == WeaponId::Uzi)
   {
-    const auto* positionData = getEngine().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
+    const auto* positionData = getWorld().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
 
     rightArm.weaponAnimData = positionData;
     leftArm.weaponAnimData = positionData;
@@ -935,7 +934,7 @@ void LaraObject::unholster()
   }
   else if(gunType == WeaponId::Shotgun)
   {
-    const auto* positionData = getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
+    const auto* positionData = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
 
     rightArm.weaponAnimData = positionData;
     leftArm.weaponAnimData = positionData;
@@ -947,7 +946,7 @@ void LaraObject::unholster()
   }
   else
   {
-    const auto* positionData = getEngine().findAnimatedModelForType(TR1ItemId::Lara)->frames;
+    const auto* positionData = getWorld().findAnimatedModelForType(TR1ItemId::Lara)->frames;
 
     rightArm.weaponAnimData = positionData;
     leftArm.weaponAnimData = positionData;
@@ -996,9 +995,9 @@ void LaraObject::findTarget(const Weapon& weapon)
   gunPosition.position.Y -= weapons[WeaponId::Shotgun].gunHeight;
   std::shared_ptr<ModelObject> bestEnemy = nullptr;
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
-  for(const auto& currentEnemy : getEngine().getObjectManager().getObjects() | boost::adaptors::map_values)
+  for(const auto& currentEnemy : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
-    if(currentEnemy->m_state.health <= 0_hp || currentEnemy.get() == getEngine().getObjectManager().getLaraPtr())
+    if(currentEnemy->m_state.health <= 0_hp || currentEnemy.get() == getWorld().getObjectManager().getLaraPtr())
       continue;
 
     const auto modelEnemy = std::dynamic_pointer_cast<ModelObject>(currentEnemy.get());
@@ -1025,7 +1024,7 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
 
     auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelObject>(currentEnemy.get()));
-    if(!CameraController::clampPosition(gunPosition, enemyPos, getEngine().getObjectManager()))
+    if(!CameraController::clampPosition(gunPosition, enemyPos, getWorld().getObjectManager()))
       continue;
 
     auto aimAngle = getVectorAngles(enemyPos.position - gunPosition.position);
@@ -1063,7 +1062,7 @@ void LaraObject::initAimInfoPistol()
   m_headRotation.X = 0_deg;
   target = nullptr;
 
-  rightArm.weaponAnimData = getEngine().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
+  rightArm.weaponAnimData = getWorld().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
   leftArm.weaponAnimData = rightArm.weaponAnimData;
 }
 
@@ -1084,7 +1083,7 @@ void LaraObject::initAimInfoShotgun()
   m_headRotation.X = 0_deg;
   target = nullptr;
 
-  rightArm.weaponAnimData = getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
+  rightArm.weaponAnimData = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
   leftArm.weaponAnimData = rightArm.weaponAnimData;
 }
 
@@ -1104,10 +1103,10 @@ void LaraObject::overrideLaraMeshesUnholsterGuns(const WeaponId weaponId)
     id = TR1ItemId::LaraPistolsAnim;
   }
 
-  const auto& src = getEngine().findAnimatedModelForType(id);
+  const auto& src = getWorld().findAnimatedModelForType(id);
   Expects(src != nullptr);
   BOOST_ASSERT(src->bones.size() == getSkeleton()->getBoneCount());
-  const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
+  const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
   getSkeleton()->setMeshPart(1, normalLara.bones[1].mesh);
   getSkeleton()->setMeshPart(4, normalLara.bones[4].mesh);
@@ -1118,9 +1117,9 @@ void LaraObject::overrideLaraMeshesUnholsterGuns(const WeaponId weaponId)
 
 void LaraObject::overrideLaraMeshesUnholsterShotgun()
 {
-  const auto& src = *getEngine().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+  const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
   BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
-  const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
+  const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
   getSkeleton()->setMeshPart(7, normalLara.bones[7].mesh);
   getSkeleton()->setMeshPart(10, src.bones[10].mesh);
@@ -1196,7 +1195,7 @@ void LaraObject::updateAnimShotgun()
       const auto nextFrame = leftArm.frame + 1_frame;
       if(leftArm.frame == 47_frame)
       {
-        if(getEngine().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().getInputState().action)
         {
           tryShootShotgun();
           rightArm.frame = nextFrame;
@@ -1249,7 +1248,7 @@ void LaraObject::updateAnimShotgun()
     return;
   }
 
-  if(leftArm.frame == 0_frame && getEngine().getPresenter().getInputHandler().getInputState().action)
+  if(leftArm.frame == 0_frame && getWorld().getPresenter().getInputHandler().getInputState().action)
   {
     leftArm.frame += 1_frame;
     rightArm.frame += 1_frame;
@@ -1261,7 +1260,7 @@ void LaraObject::updateAnimShotgun()
     const auto nextFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == 47_frame)
     {
-      if(getEngine().getPresenter().getInputHandler().getInputState().action)
+      if(getWorld().getPresenter().getInputHandler().getInputState().action)
       {
         tryShootShotgun();
         rightArm.frame = aimingFrame + 1_frame;
@@ -1313,7 +1312,7 @@ void LaraObject::updateAnimShotgun()
     aimingFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == 12_frame)
     {
-      if(getEngine().getPresenter().getInputHandler().getInputState().action)
+      if(getWorld().getPresenter().getInputHandler().getInputState().action)
       {
         rightArm.frame = 47_frame;
         leftArm.frame = 47_frame;
@@ -1393,9 +1392,9 @@ void LaraObject::holsterShotgun()
     aimFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == 100_frame)
     {
-      const auto& src = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
+      const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
-      const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
+      const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
       getSkeleton()->setMeshPart(7, src.bones[7].mesh);
       getSkeleton()->setMeshPart(10, normalLara.bones[10].mesh);
@@ -1456,9 +1455,9 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
         srcId = TR1ItemId::LaraUzisAnim;
       }
 
-      const auto& src = *getEngine().findAnimatedModelForType(srcId);
+      const auto& src = *getWorld().findAnimatedModelForType(srcId);
       BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
-      const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
+      const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
       getSkeleton()->setMeshPart(1, src.bones[1].mesh);
       getSkeleton()->setMeshPart(13, normalLara.bones[13].mesh);
@@ -1499,9 +1498,9 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
         srcId = TR1ItemId::LaraUzisAnim;
       }
 
-      const auto& src = *getEngine().findAnimatedModelForType(srcId);
+      const auto& src = *getWorld().findAnimatedModelForType(srcId);
       BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
-      const auto& normalLara = *getEngine().findAnimatedModelForType(TR1ItemId::Lara);
+      const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
       getSkeleton()->setMeshPart(4, src.bones[4].mesh);
       getSkeleton()->setMeshPart(10, normalLara.bones[10].mesh);
@@ -1531,7 +1530,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
 {
   const auto& weapon = weapons[weaponId];
 
-  if(!rightArm.aiming && (!getEngine().getPresenter().getInputHandler().getInputState().action || target != nullptr))
+  if(!rightArm.aiming && (!getWorld().getPresenter().getInputHandler().getInputState().action || target != nullptr))
   {
     if(rightArm.frame >= 24_frame)
     {
@@ -1546,7 +1545,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
   {
     rightArm.frame += 1_frame;
   }
-  else if(getEngine().getPresenter().getInputHandler().getInputState().action && rightArm.frame == 4_frame)
+  else if(getWorld().getPresenter().getInputHandler().getInputState().action && rightArm.frame == 4_frame)
   {
     core::TRRotationXY aimAngle;
     aimAngle.X = rightArm.aimRotation.X;
@@ -1567,7 +1566,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
     }
   }
 
-  if(!leftArm.aiming && (!getEngine().getPresenter().getInputHandler().getInputState().action || target != nullptr))
+  if(!leftArm.aiming && (!getWorld().getPresenter().getInputHandler().getInputState().action || target != nullptr))
   {
     if(leftArm.frame >= 24_frame)
     {
@@ -1582,7 +1581,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
   {
     leftArm.frame += 1_frame;
   }
-  else if(getEngine().getPresenter().getInputHandler().getInputState().action && leftArm.frame == 4_frame)
+  else if(getWorld().getPresenter().getInputHandler().getInputState().action && leftArm.frame == 4_frame)
   {
     core::TRRotationXY aimAngle;
     aimAngle.Y = m_state.rotation.Y + leftArm.aimRotation.Y;
@@ -1690,7 +1689,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
                                       gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping}};
 
     const core::RoomBoundPosition bulletPos{gunHolder.m_state.position.room, gunPosition};
-    CameraController::clampPosition(bulletPos, aimHitPos, getEngine().getObjectManager());
+    CameraController::clampPosition(bulletPos, aimHitPos, getWorld().getObjectManager());
     playShotMissed(aimHitPos);
   }
   else
@@ -1711,11 +1710,11 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
   }
   object.m_state.is_hit = true;
   object.m_state.health -= damage;
-  auto fx = createBloodSplat(getEngine(),
+  auto fx = createBloodSplat(getWorld(),
                              core::RoomBoundPosition{object.m_state.position.room, hitPos},
                              object.m_state.speed,
                              object.m_state.rotation.Y);
-  getEngine().getObjectManager().registerParticle(fx);
+  getWorld().getObjectManager().registerParticle(fx);
   if(object.m_state.health <= 0_hp)
     return;
 
@@ -1936,7 +1935,7 @@ void LaraObject::drawRoutine()
     return;
   }
 
-  const auto& objInfo = *getEngine().findAnimatedModelForType(m_state.type);
+  const auto& objInfo = *getWorld().findAnimatedModelForType(m_state.type);
   const loader::file::AnimFrame* frame;
   if(!hit_direction.has_value())
   {
@@ -1946,10 +1945,10 @@ void LaraObject::drawRoutine()
   {
     switch(*hit_direction)
     {
-    case core::Axis::PosX: frame = getEngine().getAnimation(AnimationId::AH_LEFT).frames; break;
-    case core::Axis::NegZ: frame = getEngine().getAnimation(AnimationId::AH_BACKWARD).frames; break;
-    case core::Axis::NegX: frame = getEngine().getAnimation(AnimationId::AH_RIGHT).frames; break;
-    default: frame = getEngine().getAnimation(AnimationId::AH_FORWARD).frames; break;
+    case core::Axis::PosX: frame = getWorld().getAnimation(AnimationId::AH_LEFT).frames; break;
+    case core::Axis::NegZ: frame = getWorld().getAnimation(AnimationId::AH_BACKWARD).frames; break;
+    case core::Axis::NegX: frame = getWorld().getAnimation(AnimationId::AH_RIGHT).frames; break;
+    default: frame = getWorld().getAnimation(AnimationId::AH_FORWARD).frames; break;
     }
     frame = frame->next(hit_frame.get());
   }
@@ -2048,7 +2047,7 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
 {
   updateLighting();
 
-  const auto& objInfo = *getEngine().findAnimatedModelForType(m_state.type);
+  const auto& objInfo = *getWorld().findAnimatedModelForType(m_state.type);
 
   DualMatrixStack matrixStack{interpolationInfo.bias};
 
@@ -2195,7 +2194,7 @@ void LaraObject::burnIfAlive()
   const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
   if(HeightInfo::fromFloor(sector,
                            {m_state.position.position.X, 32000_len, m_state.position.position.Z},
-                           getEngine().getObjectManager().getObjects())
+                           getWorld().getObjectManager().getObjects())
        .y
      != m_state.floor)
     return;
@@ -2205,9 +2204,9 @@ void LaraObject::burnIfAlive()
 
   for(size_t i = 0; i < 10; ++i)
   {
-    auto particle = std::make_shared<FlameParticle>(m_state.position, getEngine(), true);
+    auto particle = std::make_shared<FlameParticle>(m_state.position, getWorld(), true);
     setParent(particle, m_state.position.room->node);
-    getEngine().getObjectManager().registerParticle(particle);
+    getWorld().getObjectManager().registerParticle(particle);
   }
 }
 
@@ -2248,12 +2247,12 @@ void LaraObject::serialize(const serialization::Serializer& ser)
     forceSourcePosition = nullptr;
 }
 
-LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
+LaraObject::LaraObject(const gsl::not_null<World*>& world,
                        const gsl::not_null<const loader::file::Room*>& room,
                        const loader::file::Item& item,
                        const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-    : ModelObject(engine, room, item, false, animatedModel)
-    , m_underwaterRoute{*engine}
+    : ModelObject(world, room, item, false, animatedModel)
+    , m_underwaterRoute{*world}
 {
   setAnimation(AnimationId::STAY_IDLE);
   setGoalAnimState(LaraStateId::Stop);
@@ -2364,13 +2363,13 @@ LaraObject::LaraObject(const gsl::not_null<Engine*>& engine,
 
 void LaraObject::initGunflares()
 {
-  const auto& gunFlareModel = getEngine().findAnimatedModelForType(TR1ItemId::Gunflare);
+  const auto& gunFlareModel = getWorld().findAnimatedModelForType(TR1ItemId::Gunflare);
   if(gunFlareModel == nullptr)
     return;
 
   loader::file::RenderMeshDataCompositor compositor;
   compositor.append(*gunFlareModel->bones[0].mesh);
-  auto mdl = compositor.toMesh(*getEngine().getPresenter().getMaterialManager(), false, {});
+  auto mdl = compositor.toMesh(*getWorld().getPresenter().getMaterialManager(), false, {});
 
   m_gunFlareLeft->setRenderable(mdl);
   m_gunFlareLeft->setVisible(false);

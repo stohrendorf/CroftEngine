@@ -1,7 +1,7 @@
 #include "pathfinder.h"
 
-#include "engine/engine.h"
 #include "engine/objects/object.h"
+#include "engine/world.h"
 #include "serialization/box_ptr.h"
 #include "serialization/deque.h"
 #include "serialization/not_null.h"
@@ -12,19 +12,19 @@
 
 namespace engine::ai
 {
-PathFinder::PathFinder(const Engine& engine)
+PathFinder::PathFinder(const World& world)
 {
-  for(const auto& box : engine.getBoxes())
+  for(const auto& box : world.getBoxes())
     nodes.emplace(&box, PathFinderNode{});
 }
 
 namespace
 {
-gsl::span<const uint16_t> getOverlaps(const Engine& engine, const uint16_t idx)
+gsl::span<const uint16_t> getOverlaps(const World& world, const uint16_t idx)
 {
-  const auto first = &engine.getOverlaps().at(idx);
+  const auto first = &world.getOverlaps().at(idx);
   auto last = first;
-  const auto endOfUniverse = &engine.getOverlaps().back() + 1;
+  const auto endOfUniverse = &world.getOverlaps().back() + 1;
 
   while(last < endOfUniverse && (*last & 0x8000u) == 0)
   {
@@ -35,9 +35,9 @@ gsl::span<const uint16_t> getOverlaps(const Engine& engine, const uint16_t idx)
 }
 } // namespace
 
-bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, const objects::ObjectState& objectState)
+bool PathFinder::calculateTarget(const World& world, core::TRVec& moveTarget, const objects::ObjectState& objectState)
 {
-  updatePath(engine);
+  updatePath(world);
 
   moveTarget = objectState.position.position;
 
@@ -243,7 +243,7 @@ bool PathFinder::calculateTarget(const Engine& engine, core::TRVec& moveTarget, 
   return false;
 }
 
-void PathFinder::updatePath(const Engine& engine)
+void PathFinder::updatePath(const World& world)
 {
   if(required_box != nullptr && required_box != target_box)
   {
@@ -258,12 +258,12 @@ void PathFinder::updatePath(const Engine& engine)
   }
 
   Expects(target_box != nullptr);
-  searchPath(engine);
+  searchPath(world);
 }
 
-void PathFinder::searchPath(const Engine& engine)
+void PathFinder::searchPath(const World& world)
 {
-  const auto zoneRef = loader::file::Box::getZoneRef(engine.roomsAreSwapped(), fly, step);
+  const auto zoneRef = loader::file::Box::getZoneRef(world.roomsAreSwapped(), fly, step);
 
   static constexpr uint8_t MaxExpansions = 5;
 
@@ -274,9 +274,9 @@ void PathFinder::searchPath(const Engine& engine)
     const auto& currentNode = nodes[current];
     const auto searchZone = current->*zoneRef;
 
-    for(const auto overlapBoxIdx : getOverlaps(engine, current->overlap_index))
+    for(const auto overlapBoxIdx : getOverlaps(world, current->overlap_index))
     {
-      const auto* successorBox = &engine.getBoxes().at(overlapBoxIdx & 0x7FFFu);
+      const auto* successorBox = &world.getBoxes().at(overlapBoxIdx & 0x7FFFu);
 
       if(successorBox == current)
         continue;

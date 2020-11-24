@@ -82,9 +82,9 @@ protected:
 
   void setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame = std::nullopt);
 
-  [[nodiscard]] const Engine& getEngine() const;
+  [[nodiscard]] const World& getWorld() const;
 
-  Engine& getEngine();
+  World& getWorld();
 
   void placeOnFloor(const CollisionInfo& collisionInfo);
 

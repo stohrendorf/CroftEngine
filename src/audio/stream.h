@@ -11,8 +11,8 @@ class Stream : public boost::noncopyable
 {
 private:
   std::unique_ptr<AbstractStreamSource> m_stream;
-  std::weak_ptr<SourceHandle> m_source;
   std::vector<gsl::not_null<std::shared_ptr<BufferHandle>>> m_buffers{};
+  std::weak_ptr<SourceHandle> m_source;
   std::vector<int16_t> m_sampleBuffer;
   bool m_looping = false;
 

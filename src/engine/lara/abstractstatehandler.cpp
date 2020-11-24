@@ -167,23 +167,21 @@ void AbstractStateHandler::setAnimation(const AnimationId anim, const std::optio
   m_lara.drawRoutine();
 }
 
-const Engine& AbstractStateHandler::getEngine() const
+const World& AbstractStateHandler::getWorld() const
 {
-  return m_lara.getEngine();
+  return m_lara.getWorld();
 }
 
-Engine& AbstractStateHandler::getEngine()
+World& AbstractStateHandler::getWorld()
 {
-  return m_lara.getEngine();
+  return m_lara.getWorld();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::placeOnFloor(const CollisionInfo& collisionInfo)
 {
   m_lara.placeOnFloor(collisionInfo);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setYRotationSpeed(const core::Angle spd)
 {
   m_lara.setYRotationSpeed(spd);
@@ -194,25 +192,21 @@ core::Angle AbstractStateHandler::getYRotationSpeed() const
   return m_lara.getYRotationSpeed();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::subYRotationSpeed(const core::Angle val, const core::Angle limit)
 {
   m_lara.subYRotationSpeed(val, limit);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::addYRotationSpeed(const core::Angle val, const core::Angle limit)
 {
   m_lara.addYRotationSpeed(val, limit);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setFallSpeedOverride(const core::Speed v)
 {
   m_lara.setFallSpeedOverride(v);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::dampenHorizontalSpeed(const float f)
 {
   m_lara.dampenHorizontalSpeed(f);
@@ -223,13 +217,11 @@ core::Angle AbstractStateHandler::getCurrentSlideAngle() const noexcept
   return m_lara.getCurrentSlideAngle();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setCurrentSlideAngle(const core::Angle a) noexcept
 {
   m_lara.setCurrentSlideAngle(a);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setGoalAnimState(const LaraStateId state)
 {
   m_lara.setGoalAnimState(state);
@@ -253,14 +245,14 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
 
   const auto sector = findRealFloorSector(pos, m_lara.m_state.position.room);
   VerticalSpaceInfo space;
-  space.init(sector, pos, getEngine().getObjectManager().getObjects(), pos.Y, 400_len);
+  space.init(sector, pos, getWorld().getObjectManager().getObjects(), pos.Y, 400_len);
   return space.floorSpace.y != -core::HeightLimit && space.floorSpace.y > 0_len && space.ceilingSpace.y < 0_len;
 }
 
 bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getEngine().getPresenter().getInputHandler().getInputState().action
+     || !getWorld().getPresenter().getInputHandler().getInputState().action
      || getHandStatus() != objects::HandStatus::None)
   {
     return false;
@@ -337,7 +329,7 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
 bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getEngine().getPresenter().getInputHandler().getInputState().action
+     || !getWorld().getPresenter().getInputHandler().getInputState().action
      || getHandStatus() != objects::HandStatus::None)
   {
     return false;
@@ -490,7 +482,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
 bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getEngine().getPresenter().getInputHandler().getInputState().action
+     || !getWorld().getPresenter().getInputHandler().getInputState().action
      || getHandStatus() != objects::HandStatus::None)
   {
     return false;
@@ -549,7 +541,7 @@ core::Length AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angl
 
   const auto sector = findRealFloorSector(pos, m_lara.m_state.position.room);
 
-  HeightInfo h = HeightInfo::fromFloor(sector, pos, getEngine().getObjectManager().getObjects());
+  HeightInfo h = HeightInfo::fromFloor(sector, pos, getWorld().getObjectManager().getObjects());
 
   if(h.y != -core::HeightLimit)
   {
@@ -565,7 +557,7 @@ void AbstractStateHandler::commonJumpHandling(CollisionInfo& collisionInfo)
   collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
   collisionInfo.badCeilingDistance = 192_len;
   collisionInfo.facingAngle = getMovementAngle();
-  collisionInfo.initHeightInfo(m_lara.m_state.position.position, getEngine(), core::LaraWalkHeight);
+  collisionInfo.initHeightInfo(m_lara.m_state.position.position, getWorld(), core::LaraWalkHeight);
   checkJumpWallSmash(collisionInfo);
   if(m_lara.m_state.fallspeed <= 0_spd || collisionInfo.mid.floorSpace.y > 0_len)
   {
@@ -591,7 +583,7 @@ void AbstractStateHandler::commonSlideHandling(CollisionInfo& collisionInfo)
   collisionInfo.badNegativeDistance = -core::QuarterSectorSize * 2;
   collisionInfo.badCeilingDistance = 0_len;
   collisionInfo.facingAngle = getMovementAngle();
-  collisionInfo.initHeightInfo(m_lara.m_state.position.position, getEngine(), core::LaraWalkHeight);
+  collisionInfo.initHeightInfo(m_lara.m_state.position.position, getWorld(), core::LaraWalkHeight);
 
   if(stopIfCeilingBlocked(collisionInfo))
   {
@@ -631,7 +623,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   collisionInfo.badNegativeDistance = -core::HeightLimit;
   collisionInfo.badCeilingDistance = 0_len;
   collisionInfo.facingAngle = getMovementAngle();
-  collisionInfo.initHeightInfo(m_lara.m_state.position.position, getEngine(), core::LaraWalkHeight);
+  collisionInfo.initHeightInfo(m_lara.m_state.position.position, getWorld(), core::LaraWalkHeight);
   const bool tooSteepToGrab = collisionInfo.front.floorSpace.y < 200_len;
   m_lara.m_state.fallspeed = 0_spd;
   m_lara.m_state.falling = false;
@@ -669,8 +661,8 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
   collisionInfo.badCeilingDistance = 0_len;
   collisionInfo.facingAngle = getMovementAngle();
-  collisionInfo.initHeightInfo(m_lara.m_state.position.position, getEngine(), core::LaraWalkHeight);
-  if(!getEngine().getPresenter().getInputHandler().getInputState().action || m_lara.m_state.health <= 0_hp)
+  collisionInfo.initHeightInfo(m_lara.m_state.position.position, getWorld(), core::LaraWalkHeight);
+  if(!getWorld().getPresenter().getInputHandler().getInputState().action || m_lara.m_state.health <= 0_hp)
   {
     setAnimation(AnimationId::TRY_HANG_VERTICAL, 448_frame);
     setGoalAnimState(LaraStateId::JumpUp);
@@ -736,9 +728,9 @@ bool AbstractStateHandler::applyLandingDamage()
   const HeightInfo h
     = HeightInfo::fromFloor(sector,
                             m_lara.m_state.position.position - core::TRVec{0_len, core::LaraWalkHeight, 0_len},
-                            getEngine().getObjectManager().getObjects());
+                            getWorld().getObjectManager().getObjects());
   m_lara.m_state.floor = h.y;
-  getEngine().handleCommandSequence(h.lastCommandSequenceOrDeath, false);
+  getWorld().handleCommandSequence(h.lastCommandSequenceOrDeath, false);
   const auto damageSpeed = m_lara.m_state.fallspeed - core::DamageFallSpeedThreshold;
   if(damageSpeed <= 0_spd)
   {

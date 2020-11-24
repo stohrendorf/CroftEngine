@@ -4,6 +4,7 @@
 #include "engine/collisioninfo.h"
 #include "engine/objects/laraobject.h"
 #include "engine/presenter.h"
+#include "engine/world.h"
 #include "hid/inputhandler.h"
 
 namespace engine::lara
@@ -24,18 +25,18 @@ public:
       return;
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(2.25_deg, -4_deg);
     }
-    else if(getEngine().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(2.25_deg, 4_deg);
     }
 
-    if(getEngine().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      if(getEngine().getPresenter().getInputHandler().getInputState().moveSlow)
+      if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
       {
         setGoalAnimState(LaraStateId::WalkForward);
       }
@@ -61,7 +62,7 @@ public:
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.policyFlags.set(CollisionInfo::PolicyFlags::LavaIsPit);
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
 
     if(stopIfCeilingBlocked(collisionInfo))
     {

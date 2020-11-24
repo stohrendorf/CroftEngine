@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine.h"
+#include "engine/world.h"
 #include "optional.h"
 #include "ptr.h"
 
@@ -12,7 +12,7 @@ inline std::optional<uint32_t> ptrSave(const loader::file::Animation* anim, cons
     return std::nullopt;
 
   ser.tag("animation");
-  return gsl::narrow<uint32_t>(std::distance(&ser.engine.getAnimations().at(0), anim));
+  return gsl::narrow<uint32_t>(std::distance(&ser.world.getAnimations().at(0), anim));
 }
 
 inline const loader::file::Animation*
@@ -22,6 +22,6 @@ inline const loader::file::Animation*
     return nullptr;
 
   ser.tag("animation");
-  return &ser.engine.getAnimations().at(idx.value());
+  return &ser.world.getAnimations().at(idx.value());
 }
 } // namespace serialization

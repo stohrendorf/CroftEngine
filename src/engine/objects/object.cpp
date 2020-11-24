@@ -4,6 +4,7 @@
 #include "engine/particle.h"
 #include "engine/presenter.h"
 #include "engine/script/reflection.h"
+#include "engine/world.h"
 #include "laraobject.h"
 #include "render/scene/sprite.h"
 #include "serialization/vector.h"
@@ -17,18 +18,18 @@ void Object::applyTransform()
   getNode()->setLocalMatrix(translate(glm::mat4{1.0f}, tr) * m_state.rotation.toMatrix());
 }
 
-Object::Object(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-    : m_engine{engine}
-    , m_state{&engine->getPresenter().getSoundEngine(), position}
+Object::Object(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+    : m_world{world}
+    , m_state{world->getPresenter().getSoundEngine().get(), position}
     , m_hasUpdateFunction{false}
 {
 }
 
-Object::Object(const gsl::not_null<Engine*>& engine,
+Object::Object(const gsl::not_null<World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const bool hasUpdateFunction)
-    : Object{engine, core::RoomBoundPosition{room, item.position}}
+    : Object{world, core::RoomBoundPosition{room, item.position}}
 {
   m_hasUpdateFunction = hasUpdateFunction;
   m_state.type = item.type;
@@ -90,12 +91,12 @@ void Object::deactivate()
 
 std::shared_ptr<audio::SourceHandle> Object::playSoundEffect(const core::SoundEffectId id)
 {
-  return getEngine().getPresenter().getAudioEngine().playSoundEffect(id, &m_state);
+  return getWorld().getAudioEngine().playSoundEffect(id, &m_state);
 }
 
 bool Object::triggerKey()
 {
-  if(getEngine().getObjectManager().getLara().getHandStatus() != HandStatus::None)
+  if(getWorld().getObjectManager().getLara().getHandStatus() != HandStatus::None)
   {
     return false;
   }
@@ -111,11 +112,11 @@ bool Object::triggerKey()
 
 void Object::kill()
 {
-  if(this == getEngine().getObjectManager().getLara().target.get())
+  if(this == getWorld().getObjectManager().getLara().target.get())
   {
-    getEngine().getObjectManager().getLara().target.reset();
+    getWorld().getObjectManager().getLara().target.reset();
   }
-  getEngine().getObjectManager().scheduleDeletion(this);
+  getWorld().getObjectManager().scheduleDeletion(this);
   m_state.activationState.setLocked(true);
 }
 
@@ -146,10 +147,10 @@ bool InteractionLimits::canInteract(const ObjectState& objectState, const Object
 
 void Object::playShotMissed(const core::RoomBoundPosition& pos)
 {
-  const auto particle = std::make_shared<RicochetParticle>(pos, getEngine());
+  const auto particle = std::make_shared<RicochetParticle>(pos, getWorld());
   setParent(particle, m_state.position.room->node);
-  getEngine().getObjectManager().registerParticle(particle);
-  getEngine().getPresenter().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, particle.get());
+  getWorld().getObjectManager().registerParticle(particle);
+  getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, particle.get());
 }
 
 std::optional<core::Length> Object::getWaterSurfaceHeight() const
@@ -161,7 +162,7 @@ void Object::updateLighting()
 {
   auto tmp = m_state.position;
   tmp.position += getBoundingBox().getCenter();
-  m_lighting.updateDynamic(m_state.shade, tmp, m_engine->getRooms());
+  m_lighting.updateDynamic(m_state.shade, tmp, m_world->getRooms());
 }
 
 bool Object::alignTransformClamped(const core::TRVec& targetPos,

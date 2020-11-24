@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine.h"
+#include "engine/world.h"
 #include "ptr.h"
 
 namespace serialization
@@ -11,7 +11,7 @@ inline core::TypeId::type ptrSave(const loader::file::SkeletalModelType* model, 
   if(model == nullptr)
     return std::numeric_limits<core::TypeId::type>::max();
 
-  return ser.engine.find(model).get();
+  return ser.world.find(model).get();
 }
 
 inline const loader::file::SkeletalModelType*
@@ -21,6 +21,6 @@ inline const loader::file::SkeletalModelType*
   if(idx == std::numeric_limits<core::TypeId::type>::max())
     return nullptr;
 
-  return ser.engine.findAnimatedModelForType(core::TypeId{idx}).get();
+  return ser.world.findAnimatedModelForType(core::TypeId{idx}).get();
 }
 } // namespace serialization

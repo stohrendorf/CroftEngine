@@ -10,12 +10,12 @@ protected:
   std::shared_ptr<SkeletalModelNode> m_skeleton;
 
 public:
-  ModelObject(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : Object{engine, position}
+  ModelObject(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : Object{world, position}
   {
   }
 
-  ModelObject(const gsl::not_null<Engine*>& engine,
+  ModelObject(const gsl::not_null<World*>& world,
               const gsl::not_null<const loader::file::Room*>& room,
               const loader::file::Item& item,
               bool hasUpdateFunction,
@@ -84,7 +84,7 @@ public:
   gsl::not_null<std::shared_ptr<Particle>>
     emitParticle(const core::TRVec& localPosition,
                  size_t boneIndex,
-                 gsl::not_null<std::shared_ptr<Particle>> (*generate)(Engine& engine,
+                 gsl::not_null<std::shared_ptr<Particle>> (*generate)(World& world,
                                                                       const core::RoomBoundPosition& pos,
                                                                       const core::Speed& speed,
                                                                       const core::Angle& angle));

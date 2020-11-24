@@ -20,7 +20,7 @@ protected:
   {
     collisionInfo.facingAngle = getMovementAngle();
     collisionInfo.initHeightInfo(getLara().m_state.position.position + core::TRVec(0_len, core::LaraSwimHeight, 0_len),
-                                 getEngine(),
+                                 getWorld(),
                                  core::LaraSwimHeight);
     applyShift(collisionInfo);
     if(collisionInfo.mid.floorSpace.y < 0_len || collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront
@@ -67,7 +67,7 @@ private:
       return;
     }
 
-    if(!getEngine().getPresenter().getInputHandler().getInputState().action)
+    if(!getWorld().getPresenter().getInputHandler().getInputState().action)
     {
       return;
     }

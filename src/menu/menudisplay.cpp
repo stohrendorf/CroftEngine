@@ -5,6 +5,7 @@
 #include "engine/engine.h"
 #include "engine/objects/laraobject.h"
 #include "engine/presenter.h"
+#include "engine/world.h"
 #include "hid/inputhandler.h"
 #include "menuring.h"
 #include "menustates.h"
@@ -88,13 +89,13 @@ void MenuDisplay::updateRingTitle()
   }
 }
 
-void MenuDisplay::updateMenuObjectDescription(engine::Engine& engine, const MenuObject& object)
+void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuObject& object)
 {
   if(objectTexts[0] == nullptr)
   {
-    if(const auto names = core::get<pybind11::dict>(engine.getLevelInfo(), "names"))
+    if(const auto names = core::get<pybind11::dict>(world.getLevelInfo(), "names"))
     {
-      if(const auto localNames = core::get<pybind11::dict>(names.value(), engine.getLanguage()))
+      if(const auto localNames = core::get<pybind11::dict>(names.value(), world.getEngine().getLanguage()))
       {
         if(const auto objectName = core::get<std::string>(localNames.value(), object.type))
         {
@@ -110,7 +111,7 @@ void MenuDisplay::updateMenuObjectDescription(engine::Engine& engine, const Menu
     objectTexts[0]->alignY = ui::Label::Alignment::Bottom;
   }
 
-  const size_t itemCount = engine.getInventory().count(object.type);
+  const size_t itemCount = world.getInventory().count(object.type);
   size_t totalItemCount = itemCount;
   std::string suffix;
 
@@ -132,21 +133,21 @@ void MenuDisplay::updateMenuObjectDescription(engine::Engine& engine, const Menu
   case engine::TR1ItemId::UziAmmo:
   case engine::TR1ItemId::ShotgunAmmo: totalItemCount *= 2; break;
   case engine::TR1ItemId::Shotgun:
-    totalItemCount = engine.getObjectManager().getLara().shotgunAmmo.ammo / 6;
+    totalItemCount = world.getObjectManager().getLara().shotgunAmmo.ammo / 6;
     suffix = " A";
     break;
   case engine::TR1ItemId::Magnums:
-    totalItemCount = engine.getObjectManager().getLara().revolverAmmo.ammo;
+    totalItemCount = world.getObjectManager().getLara().revolverAmmo.ammo;
     suffix = " B";
     break;
   case engine::TR1ItemId::Uzis:
-    totalItemCount = engine.getObjectManager().getLara().uziAmmo.ammo;
+    totalItemCount = world.getObjectManager().getLara().uziAmmo.ammo;
     suffix = " C";
     break;
   case engine::TR1ItemId::SmallMedipack:
   case engine::TR1ItemId::LargeMedipack:
-    engine.getPresenter().setHealthBarTimeout(40_frame);
-    engine.getPresenter().drawBars(engine.getPalette(), engine.getObjectManager());
+    world.getPresenter().setHealthBarTimeout(40_frame);
+    world.getPresenter().drawBars(world.getPalette(), world.getObjectManager());
     break;
   default: break;
   }
@@ -163,22 +164,22 @@ void MenuDisplay::updateMenuObjectDescription(engine::Engine& engine, const Menu
   }
 }
 
-void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::Engine& engine)
+void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::World& world)
 {
   ringTransform->cameraPos.Z = 598_len + ringTransform->radius;
 
   core::Angle itemAngle{0_deg};
-  engine.getCameraController().getCamera()->setViewMatrix(ringTransform->getView());
+  world.getCameraController().getCamera()->setViewMatrix(ringTransform->getView());
   for(auto& menuObject : getCurrentRing().list)
   {
     MenuObject* object = &menuObject;
-    m_currentState->handleObject(engine, *this, *object);
+    m_currentState->handleObject(world, *this, *object);
 
-    object->draw(engine, *ringTransform, itemAngle);
+    object->draw(world, *ringTransform, itemAngle);
     itemAngle += getCurrentRing().getAnglePerItem();
   }
 
-  if(auto newState = m_currentState->onFrame(img, engine, *this))
+  if(auto newState = m_currentState->onFrame(img, world, *this))
   {
     m_currentState = std::move(newState);
     m_currentState->begin();
@@ -186,7 +187,7 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::Engine& engine)
 
   for(const auto& txt : objectTexts)
     if(txt != nullptr)
-      txt->draw(engine.getPresenter().getTrFont(), img, engine.getPalette());
+      txt->draw(world.getPresenter().getTrFont(), img, world.getPalette());
 }
 
 void MenuDisplay::clearMenuObjectDescription()
@@ -195,7 +196,7 @@ void MenuDisplay::clearMenuObjectDescription()
   objectTexts[1].reset();
 }
 
-bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engine, MenuObject& object)
+bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world, MenuObject& object)
 {
   switch(object.type)
   {
@@ -225,16 +226,16 @@ bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& /*img*/, engine::Engine& engi
   case engine::TR1ItemId::Flashlight: /* TODO doGammaOptions(); */ break;
   case engine::TR1ItemId::PassportOpening: /* TODO doPassportOptions(); */ break;
   case engine::TR1ItemId::Compass:
-    if(engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true)
-       || engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+    if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true)
+       || world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
     {
       object.animDirection = 1_frame;
       object.goalFrame = object.lastMeshAnimFrame - 1_frame;
     }
     break;
   default:
-    if(engine.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
-       || engine.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
+       || world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
     {
       object.animDirection = -1_frame;
       object.goalFrame = 0_frame;
@@ -297,12 +298,12 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(bool withHomePolaroid)
   return objects;
 }
 
-std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::Engine& engine)
+std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& world)
 {
   std::vector<MenuObject> objects{
     MenuObject{"Compass", engine::TR1ItemId::Compass, 25_frame, 10_frame, 24_deg, -45_deg, 0_deg, 456_len, 0x05, 0x05}};
 
-  if(engine.getInventory().count(engine::TR1ItemId::Pistols) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Pistols) > 0)
   {
     objects.emplace_back(MenuObject{"Pistols",
                                     engine::TR1ItemId::Pistols,
@@ -315,7 +316,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::Engine& en
                                     0xffffffff,
                                     0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Shotgun) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Shotgun) > 0)
   {
     objects.emplace_back(MenuObject{"Shotgun",
                                     engine::TR1ItemId::Shotgun,
@@ -328,7 +329,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::Engine& en
                                     0xffffffff,
                                     0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Magnums) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Magnums) > 0)
   {
     objects.emplace_back(MenuObject{"Magnums",
                                     engine::TR1ItemId::Magnums,
@@ -341,12 +342,12 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::Engine& en
                                     0xffffffff,
                                     0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Uzis) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Uzis) > 0)
   {
     objects.emplace_back(MenuObject{
       "Uzis", engine::TR1ItemId::Uzis, 13_frame, 12_frame, 18_deg, -20_deg, 0_deg, 296_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Explosive) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Explosive) > 0)
   {
     objects.emplace_back(MenuObject{"Grenade",
                                     engine::TR1ItemId::Explosive,
@@ -359,7 +360,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::Engine& en
                                     0xffffffff,
                                     0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::LargeMedipack) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::LargeMedipack) > 0)
   {
     objects.emplace_back(MenuObject{"Large Medi Pack",
                                     engine::TR1ItemId::LargeMedipack,
@@ -372,7 +373,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::Engine& en
                                     0xffffffff,
                                     0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::SmallMedipack) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::SmallMedipack) > 0)
   {
     objects.emplace_back(MenuObject{"Small Medi Pack",
                                     engine::TR1ItemId::SmallMedipack,
@@ -389,11 +390,11 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::Engine& en
   return objects;
 }
 
-std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::Engine& engine)
+std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& world)
 {
   std::vector<MenuObject> objects{};
 
-  if(engine.getInventory().count(engine::TR1ItemId::LeadBar) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::LeadBar) > 0)
   {
     objects.emplace_back(MenuObject{"Lead Bar",
                                     engine::TR1ItemId::LeadBar,
@@ -406,52 +407,52 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::Engine& en
                                     0xffffffff,
                                     0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Key1) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Key1) > 0)
   {
     objects.emplace_back(MenuObject{
       "Key", engine::TR1ItemId::Key1, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Key2) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Key2) > 0)
   {
     objects.emplace_back(MenuObject{
       "Key", engine::TR1ItemId::Key2, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Key3) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Key3) > 0)
   {
     objects.emplace_back(MenuObject{
       "Key", engine::TR1ItemId::Key3, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Key4) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Key4) > 0)
   {
     objects.emplace_back(MenuObject{
       "Key", engine::TR1ItemId::Key4, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Puzzle4) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Puzzle4) > 0)
   {
     objects.emplace_back(MenuObject{
       "Puzzle", engine::TR1ItemId::Puzzle4, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Puzzle3) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Puzzle3) > 0)
   {
     objects.emplace_back(MenuObject{
       "Puzzle", engine::TR1ItemId::Puzzle3, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Puzzle2) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Puzzle2) > 0)
   {
     objects.emplace_back(MenuObject{
       "Puzzle", engine::TR1ItemId::Puzzle2, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Puzzle1) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Puzzle1) > 0)
   {
     objects.emplace_back(MenuObject{
       "Puzzle", engine::TR1ItemId::Puzzle1, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Item149) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Item149) > 0)
   {
     objects.emplace_back(MenuObject{
       "Pickup", engine::TR1ItemId::Item149, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
-  if(engine.getInventory().count(engine::TR1ItemId::Item148) > 0)
+  if(world.getInventory().count(engine::TR1ItemId::Item148) > 0)
   {
     objects.emplace_back(MenuObject{
       "Pickup", engine::TR1ItemId::Item148, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
@@ -460,13 +461,13 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::Engine& en
   return objects;
 }
 
-bool MenuDisplay::init(engine::Engine& engine)
+bool MenuDisplay::init(engine::World& world)
 {
   inventoryChosen.reset();
   currentRingIndex = 0;
 
   if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
-    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Inventory, "INVENTORY", getMainRingObjects(engine)));
+    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Inventory, "INVENTORY", getMainRingObjects(world)));
 
   if(mode != InventoryMode::KeysMode)
   {
@@ -477,7 +478,7 @@ bool MenuDisplay::init(engine::Engine& engine)
 
   if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
   {
-    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Items, "ITEMS", getKeysRingObjects(engine)));
+    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Items, "ITEMS", getKeysRingObjects(world)));
     if(rings.back()->list.empty())
     {
       if(mode == InventoryMode::KeysMode)
@@ -489,7 +490,7 @@ bool MenuDisplay::init(engine::Engine& engine)
 
   Ensures(!rings.empty());
 
-  engine.getCameraController().getCamera()->setFieldOfView(core::toRad(80_deg));
+  world.getCameraController().getCamera()->setFieldOfView(core::toRad(80_deg));
   passportPage = 0;
   selectedOption = 0;
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
@@ -501,12 +502,12 @@ bool MenuDisplay::init(engine::Engine& engine)
   }
   m_currentState = std::make_unique<InflateRingMenuState>(ringTransform);
   m_currentState->begin();
-  engine.getPresenter().getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
+  world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
   passOpen = false;
   return true;
 }
 
-void MenuDisplay::finalize(engine::Engine& engine)
+void MenuDisplay::finalize(engine::World& world)
 {
   //RemoveInventoryText();
   //Inventory_Displaying = 0;
@@ -538,27 +539,27 @@ void MenuDisplay::finalize(engine::Engine& engine)
   }
   else if(inventoryChosen.value() == engine::TR1ItemId::Pistols)
   {
-    engine.getInventory().tryUse(engine.getObjectManager().getLara(), engine::TR1ItemId::Pistols);
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Pistols);
   }
   else if(inventoryChosen.value() == engine::TR1ItemId::Shotgun)
   {
-    engine.getInventory().tryUse(engine.getObjectManager().getLara(), engine::TR1ItemId::Shotgun);
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Shotgun);
   }
   else if(inventoryChosen.value() == engine::TR1ItemId::Magnums)
   {
-    engine.getInventory().tryUse(engine.getObjectManager().getLara(), engine::TR1ItemId::Magnums);
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Magnums);
   }
   else if(inventoryChosen.value() == engine::TR1ItemId::Uzis)
   {
-    engine.getInventory().tryUse(engine.getObjectManager().getLara(), engine::TR1ItemId::Uzis);
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Uzis);
   }
   else if(inventoryChosen.value() == engine::TR1ItemId::SmallMedipack)
   {
-    engine.getInventory().tryUse(engine.getObjectManager().getLara(), engine::TR1ItemId::SmallMedipack);
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::SmallMedipack);
   }
   else if(inventoryChosen.value() == engine::TR1ItemId::LargeMedipack)
   {
-    engine.getInventory().tryUse(engine.getObjectManager().getLara(), engine::TR1ItemId::LargeMedipack);
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::LargeMedipack);
   }
 
   if(mode != InventoryMode::TitleMode && musicVolume != 0)

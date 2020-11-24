@@ -18,23 +18,19 @@ class Emitter
 
 public:
   explicit Emitter(const gsl::not_null<SoundEngine*>& engine);
-
-  Emitter() = delete;
+  virtual ~Emitter();
 
   Emitter(const Emitter& rhs)
       : Emitter{rhs.m_engine}
   {
   }
 
+  Emitter() = delete;
+
   Emitter& operator=(const Emitter& rhs);
-
   Emitter(Emitter&& rhs) noexcept;
-
   Emitter& operator=(Emitter&& rhs) noexcept;
-
   [[nodiscard]] virtual glm::vec3 getPosition() const = 0;
-
-  virtual ~Emitter();
 
 private:
   mutable SoundEngine* m_engine = nullptr;
@@ -46,27 +42,22 @@ class Listener
 
 public:
   explicit Listener(const gsl::not_null<SoundEngine*>& engine);
-
-  Listener() = delete;
+  virtual ~Listener();
 
   Listener(const Listener& rhs)
       : Listener{rhs.m_engine}
   {
   }
 
+  Listener() = delete;
+
   Listener& operator=(const Listener& rhs);
-
   Listener(Listener&& rhs) noexcept;
-
   Listener& operator=(Listener&&) noexcept;
 
   [[nodiscard]] virtual glm::vec3 getPosition() const = 0;
-
   [[nodiscard]] virtual glm::vec3 getFrontVector() const = 0;
-
   [[nodiscard]] virtual glm::vec3 getUpVector() const = 0;
-
-  virtual ~Listener();
 
 private:
   mutable SoundEngine* m_engine = nullptr;
@@ -75,19 +66,19 @@ private:
 class SoundEngine final
 {
   friend class Emitter;
-
   friend class Listener;
 
 public:
   ~SoundEngine();
 
-  void addWav(const gsl::not_null<const uint8_t*>& buffer);
+  gsl::not_null<std::shared_ptr<SourceHandle>> playBuffer(
+    const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos);
 
-  gsl::not_null<std::shared_ptr<SourceHandle>>
-    playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos);
-
-  gsl::not_null<std::shared_ptr<SourceHandle>>
-    playBuffer(size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter = nullptr);
+  gsl::not_null<std::shared_ptr<SourceHandle>> playBuffer(const std::shared_ptr<BufferHandle>& buffer,
+                                                          size_t bufferId,
+                                                          ALfloat pitch,
+                                                          ALfloat volume,
+                                                          Emitter* emitter = nullptr);
 
   bool stopBuffer(size_t bufferId, Emitter* emitter);
 
@@ -112,9 +103,10 @@ public:
 
   void dropEmitter(Emitter* emitter);
 
+  void reset();
+
 private:
   Device m_device;
-  std::vector<std::shared_ptr<BufferHandle>> m_buffers;
   std::unordered_map<Emitter*, std::unordered_map<size_t, std::vector<std::weak_ptr<SourceHandle>>>> m_sources;
   const Listener* m_listener = nullptr;
 

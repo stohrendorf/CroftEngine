@@ -13,34 +13,40 @@
 namespace engine
 {
 enum class TR1TrackId;
-
-class Engine;
+class World;
 
 class AudioEngine
 {
-  Engine& m_engine;
+  World& m_world;
   const std::filesystem::path m_rootPath;
+  const std::shared_ptr<audio::SoundEngine> m_soundEngine;
 
-  const std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties;
+  std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties{};
   boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects{};
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
   int m_cdTrack50time = 0;
   std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
-  audio::SoundEngine m_soundEngine;
   std::weak_ptr<audio::Stream> m_ambientStream;
   std::weak_ptr<audio::Stream> m_interceptStream;
   std::optional<TR1TrackId> m_currentTrack;
   std::optional<TR1SoundEffect> m_currentLaraTalk;
+  std::vector<std::shared_ptr<audio::BufferHandle>> m_buffers;
 
 public:
-  explicit AudioEngine(Engine& engine,
+  explicit AudioEngine(World& world,
                        std::filesystem::path rootPath,
-                       std::vector<loader::file::SoundEffectProperties> soundEffectProperties,
-                       const std::vector<int16_t>& soundEffects)
-      : m_engine{engine}
+                       const std::shared_ptr<audio::SoundEngine>& soundEngine)
+      : m_world{world}
       , m_rootPath{std::move(rootPath)}
-      , m_soundEffectProperties{std::move(soundEffectProperties)}
+      , m_soundEngine{soundEngine}
   {
+  }
+
+  void init(const std::vector<loader::file::SoundEffectProperties>& soundEffectProperties,
+            const std::vector<int16_t>& soundEffects)
+  {
+    m_soundEffectProperties = soundEffectProperties;
+    m_soundEffects.clear();
     for(size_t i = 0; i < soundEffects.size(); ++i)
     {
       if(soundEffects[i] < 0)
@@ -48,11 +54,13 @@ public:
 
       m_soundEffects[gsl::narrow<int>(i)] = &m_soundEffectProperties.at(soundEffects[i]);
     }
-  }
-
-  explicit AudioEngine(Engine& engine, const std::filesystem::path& rootPath)
-      : AudioEngine{engine, rootPath, {}, {}}
-  {
+    m_cdTrackActivationStates.clear();
+    m_cdTrack50time = 0;
+    m_underwaterAmbience.reset();
+    m_ambientStream.reset();
+    m_interceptStream.reset();
+    m_currentTrack.reset();
+    m_currentLaraTalk.reset();
   }
 
   std::shared_ptr<audio::SourceHandle> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
@@ -82,9 +90,6 @@ public:
 
   void setUnderwater(bool underwater);
 
-  [[nodiscard]] auto& getSoundEngine()
-  {
-    return m_soundEngine;
-  }
+  void addWav(const gsl::not_null<const uint8_t*>& buffer);
 };
 } // namespace engine

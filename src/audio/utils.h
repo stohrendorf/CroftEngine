@@ -5,7 +5,7 @@
 
 namespace audio::detail
 {
-extern bool checkALError(gsl::czstring code, gsl::czstring func, int line);
+extern void checkALError(gsl::czstring code, gsl::czstring func, int line);
 
 template<typename F>
 auto alAssertFn(F code, gsl::czstring codeStr, gsl::czstring func, int line) -> decltype(code())

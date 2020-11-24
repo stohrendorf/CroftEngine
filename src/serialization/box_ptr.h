@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine.h"
+#include "engine/world.h"
 #include "optional.h"
 #include "ptr.h"
 
@@ -12,7 +12,7 @@ inline std::optional<uint32_t> ptrSave(const loader::file::Box* box, const Seria
     return std::nullopt;
 
   ser.tag("box");
-  return gsl::narrow<uint32_t>(std::distance(&ser.engine.getBoxes().at(0), box));
+  return gsl::narrow<uint32_t>(std::distance(&ser.world.getBoxes().at(0), box));
 }
 
 inline std::optional<uint32_t> ptrSave(loader::file::Box* box, const Serializer& ser)
@@ -27,7 +27,7 @@ inline const loader::file::Box*
     return nullptr;
 
   ser.tag("box");
-  return &ser.engine.getBoxes().at(idx.value());
+  return &ser.world.getBoxes().at(idx.value());
 }
 
 inline loader::file::Box* ptrLoad(const TypeId<loader::file::Box*>&, std::optional<uint32_t> idx, const Serializer& ser)

@@ -7,11 +7,11 @@ namespace engine::objects
 {
 // #define NO_DOOR_BLOCK
 
-Door::Door(const gsl::not_null<Engine*>& engine,
+Door::Door(const gsl::not_null<World*>& world,
            const gsl::not_null<const loader::file::Room*>& room,
            const loader::file::Item& item,
            const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-    : ModelObject{engine, room, item, true, animatedModel}
+    : ModelObject{world, room, item, true, animatedModel}
 {
 #ifndef NO_DOOR_BLOCK
   core::Length dx = 0_len, dz = 0_len;
@@ -30,7 +30,7 @@ Door::Door(const gsl::not_null<Engine*>& engine,
   m_info.init(*m_state.position.room, m_wingsPosition);
   if(m_state.position.room->alternateRoom.get() >= 0)
   {
-    m_alternateInfo.init(getEngine().getRooms().at(m_state.position.room->alternateRoom.get()), m_wingsPosition);
+    m_alternateInfo.init(getWorld().getRooms().at(m_state.position.room->alternateRoom.get()), m_wingsPosition);
   }
 
   m_info.close();
@@ -92,10 +92,10 @@ void Door::update()
 void Door::collide(CollisionInfo& collisionInfo)
 {
 #ifndef NO_DOOR_BLOCK
-  if(!isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
+  if(!isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
+  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
     return;
 
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
@@ -136,7 +136,7 @@ void Door::serialize(const serialization::Serializer& ser)
       if(m_state.position.room->alternateRoom.get() >= 0)
       {
         m_alternateInfo.wingsSector
-          = const_cast<loader::file::Sector*>(ser.engine.getRooms()
+          = const_cast<loader::file::Sector*>(ser.world.getRooms()
                                                 .at(m_state.position.room->alternateRoom.get())
                                                 .getSectorByAbsolutePosition(m_wingsPosition));
         if(m_alternateInfo.originalSector.portalTarget != nullptr)
@@ -197,7 +197,7 @@ void Door::Info::serialize(const serialization::Serializer& ser)
   {
     wingsSector = nullptr;
     ser.lazy([this](const serialization::Serializer& ser) {
-      originalSector.updateCaches(ser.engine.getRooms(), ser.engine.getBoxes(), ser.engine.getFloorData());
+      originalSector.updateCaches(ser.world.getRooms(), ser.world.getBoxes(), ser.world.getFloorData());
     });
   }
 }

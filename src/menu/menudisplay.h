@@ -34,17 +34,17 @@ struct MenuDisplay
 
   std::unique_ptr<MenuState> m_currentState;
 
-  bool init(engine::Engine& engine);
-  void display(gl::Image<gl::SRGBA8>& img, engine::Engine& engine);
-  void finalize(engine::Engine& engine);
+  bool init(engine::World& world);
+  void display(gl::Image<gl::SRGBA8>& img, engine::World& world);
+  void finalize(engine::World& world);
   bool isDone = false;
 
   std::vector<gsl::not_null<std::unique_ptr<MenuRing>>> rings;
   size_t currentRingIndex = 0;
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   bool passOpen = false;
-  bool doOptions(gl::Image<gl::SRGBA8>& img, engine::Engine& engine, MenuObject& object);
-  void updateMenuObjectDescription(engine::Engine& engine, const MenuObject& object);
+  bool doOptions(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuObject& object);
+  void updateMenuObjectDescription(engine::World& world, const MenuObject& object);
   void clearMenuObjectDescription();
   void updateRingTitle();
 
@@ -60,7 +60,7 @@ struct MenuDisplay
 
 private:
   [[nodiscard]] static std::vector<MenuObject> getOptionRingObjects(bool withHomePolaroid);
-  [[nodiscard]] static std::vector<MenuObject> getMainRingObjects(const engine::Engine& engine);
-  [[nodiscard]] static std::vector<MenuObject> getKeysRingObjects(const engine::Engine& engine);
+  [[nodiscard]] static std::vector<MenuObject> getMainRingObjects(const engine::World& world);
+  [[nodiscard]] static std::vector<MenuObject> getKeysRingObjects(const engine::World& world);
 };
 } // namespace menu

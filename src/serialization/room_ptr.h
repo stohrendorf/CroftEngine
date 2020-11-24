@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine.h"
+#include "engine/world.h"
 #include "optional.h"
 #include "ptr.h"
 
@@ -12,8 +12,7 @@ inline std::optional<uint32_t> ptrSave(const loader::file::Room* room, const Ser
     return std::nullopt;
 
   ser.tag("room");
-  return gsl::narrow<uint32_t>(
-    std::distance(const_cast<const loader::file::Room*>(&ser.engine.getRooms().at(0)), room));
+  return gsl::narrow<uint32_t>(std::distance(const_cast<const loader::file::Room*>(&ser.world.getRooms().at(0)), room));
 }
 
 inline const loader::file::Room*
@@ -23,6 +22,6 @@ inline const loader::file::Room*
     return nullptr;
 
   ser.tag("room");
-  return &ser.engine.getRooms().at(idx.value());
+  return &ser.world.getRooms().at(idx.value());
 }
 } // namespace serialization

@@ -1,5 +1,6 @@
 #include "barricade.h"
 
+#include "engine/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
@@ -23,10 +24,10 @@ void Barricade::update()
 
 void Barricade::collide(CollisionInfo& collisionInfo)
 {
-  if(!isNear(getEngine().getObjectManager().getLara(), collisionInfo.collisionRadius))
+  if(!isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(getEngine().getObjectManager().getLara()))
+  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
     return;
 
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))

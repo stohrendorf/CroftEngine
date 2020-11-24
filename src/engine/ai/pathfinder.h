@@ -8,7 +8,7 @@
 
 namespace engine
 {
-class Engine;
+class World;
 
 namespace objects
 {
@@ -62,7 +62,7 @@ struct PathFinder
 
   core::TRVec target;
 
-  explicit PathFinder(const Engine& engine);
+  explicit PathFinder(const World& world);
 
   void setRandomSearchTarget(const gsl::not_null<const loader::file::Box*>& box)
   {
@@ -83,7 +83,7 @@ struct PathFinder
     }
   }
 
-  bool calculateTarget(const Engine& engine, core::TRVec& moveTarget, const objects::ObjectState& objectState);
+  bool calculateTarget(const World& world, core::TRVec& moveTarget, const objects::ObjectState& objectState);
 
   /**
      * @brief Incrementally calculate all paths to a specific box.
@@ -94,9 +94,9 @@ struct PathFinder
      * calls to actually calculate the full path.  Until a full path is found, the nodes partially retain the old
      * paths from a previous search.
      */
-  void updatePath(const Engine& engine);
+  void updatePath(const World& world);
 
-  void searchPath(const Engine& engine);
+  void searchPath(const World& world);
 
   void serialize(const serialization::Serializer& ser);
 };

@@ -128,7 +128,7 @@ public:
      */
   uint16_t m_weatherType = 0;
 
-  static std::shared_ptr<Level> createLoader(const std::filesystem::path& filename, Game gameVersion);
+  static std::unique_ptr<Level> createLoader(const std::filesystem::path& filename, Game gameVersion);
 
   virtual void loadFileData() = 0;
 
@@ -158,7 +158,7 @@ protected:
 private:
   static Game probeVersion(io::SDLReader& reader, const std::filesystem::path& filename);
 
-  static std::shared_ptr<Level>
+  static std::unique_ptr<Level>
     createLoader(io::SDLReader&& reader, Game game_version, const std::filesystem::path& sfxPath);
 };
 } // namespace file::level

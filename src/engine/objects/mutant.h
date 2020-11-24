@@ -8,16 +8,16 @@ namespace engine::objects
 class FlyingMutant : public AIAgent
 {
 public:
-  FlyingMutant(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : AIAgent{engine, position}
+  FlyingMutant(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : AIAgent{world, position}
   {
   }
 
-  FlyingMutant(const gsl::not_null<Engine*>& engine,
+  FlyingMutant(const gsl::not_null<World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-      : AIAgent{engine, room, item, animatedModel}
+      : AIAgent{world, room, item, animatedModel}
   {
   }
 
@@ -27,16 +27,16 @@ public:
 class WalkingMutant final : public FlyingMutant
 {
 public:
-  WalkingMutant(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : FlyingMutant{engine, position}
+  WalkingMutant(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : FlyingMutant{world, position}
   {
   }
 
-  WalkingMutant(const gsl::not_null<Engine*>& engine,
+  WalkingMutant(const gsl::not_null<World*>& world,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
                 const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-      : FlyingMutant{engine, room, item, animatedModel}
+      : FlyingMutant{world, room, item, animatedModel}
   {
     for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
     {
@@ -49,16 +49,16 @@ public:
 class CentaurMutant final : public AIAgent
 {
 public:
-  CentaurMutant(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : AIAgent{engine, position}
+  CentaurMutant(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : AIAgent{world, position}
   {
   }
 
-  CentaurMutant(const gsl::not_null<Engine*>& engine,
+  CentaurMutant(const gsl::not_null<World*>& world,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
                 const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-      : AIAgent{engine, room, item, animatedModel}
+      : AIAgent{world, room, item, animatedModel}
   {
   }
 
@@ -68,16 +68,16 @@ public:
 class TorsoBoss final : public AIAgent
 {
 public:
-  TorsoBoss(const gsl::not_null<Engine*>& engine, const core::RoomBoundPosition& position)
-      : AIAgent{engine, position}
+  TorsoBoss(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : AIAgent{world, position}
   {
   }
 
-  TorsoBoss(const gsl::not_null<Engine*>& engine,
+  TorsoBoss(const gsl::not_null<World*>& world,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,
             const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
-      : AIAgent{engine, room, item, animatedModel}
+      : AIAgent{world, room, item, animatedModel}
   {
   }
 

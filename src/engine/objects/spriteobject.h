@@ -4,7 +4,7 @@
 
 namespace engine
 {
-class Engine;
+class World;
 
 namespace objects
 {
@@ -19,13 +19,13 @@ private:
   void createModel();
 
 protected:
-  SpriteObject(const gsl::not_null<Engine*>& engine,
+  SpriteObject(const gsl::not_null<World*>& world,
                const core::RoomBoundPosition& position,
                std::string name,
                gsl::not_null<std::shared_ptr<render::scene::Material>> material);
 
 public:
-  SpriteObject(const gsl::not_null<Engine*>& engine,
+  SpriteObject(const gsl::not_null<World*>& world,
                std::string name,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,

@@ -9,14 +9,14 @@
 
 namespace engine::objects
 {
-SpriteObject::SpriteObject(const gsl::not_null<Engine*>& engine,
+SpriteObject::SpriteObject(const gsl::not_null<World*>& world,
                            std::string name,
                            const gsl::not_null<const loader::file::Room*>& room,
                            const loader::file::Item& item,
                            const bool hasUpdateFunction,
                            const gsl::not_null<const loader::file::Sprite*>& sprite,
                            gsl::not_null<std::shared_ptr<render::scene::Material>> material)
-    : Object{engine, room, item, hasUpdateFunction}
+    : Object{world, room, item, hasUpdateFunction}
     , m_node{std::make_shared<render::scene::Node>(std::move(name))}
     , m_sprite{sprite}
     , m_brightness{toBrightness(item.shade)}
@@ -30,11 +30,11 @@ SpriteObject::SpriteObject(const gsl::not_null<Engine*>& engine,
   updateLighting();
 }
 
-SpriteObject::SpriteObject(const gsl::not_null<Engine*>& engine,
+SpriteObject::SpriteObject(const gsl::not_null<World*>& world,
                            const core::RoomBoundPosition& position,
                            std::string name,
                            gsl::not_null<std::shared_ptr<render::scene::Material>> material)
-    : Object{engine, position}
+    : Object{world, position}
     , m_node{std::make_shared<render::scene::Node>(std::move(name))}
     , m_material{std::move(material)}
 {

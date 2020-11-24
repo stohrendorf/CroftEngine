@@ -29,7 +29,7 @@ public:
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
 
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getEngine(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
   }
 };
 } // namespace engine::lara

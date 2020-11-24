@@ -1,6 +1,5 @@
 #include "datatypes.h"
 
-#include "engine/engine.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "level/level.h"
