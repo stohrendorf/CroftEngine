@@ -1188,7 +1188,7 @@ void World::loadTextures(const std::filesystem::path& cacheBaseDir)
     int mipmapLevel = 1;
     for(auto dstSize = texture.image->getWidth() / 2; dstSize > 1; dstSize /= 2, ++mipmapLevel)
     {
-      BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize / 2 << ", "
+      BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", "
                                << textureAndTiles.second.size() << " tiles)";
       if(cache.exists(texture.md5, mipmapLevel))
       {
