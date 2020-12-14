@@ -159,7 +159,9 @@ void Equiv::resolve(const std::filesystem::path& root,
 
     if(partFile.empty())
     {
-      //BOOST_LOG_TRIVIAL( debug ) << "Invalid equiv set: No entry references a known texture part";
+      const auto first = *set.getParts().begin();
+      BOOST_LOG_TRIVIAL(debug) << "Invalid equiv set: No entry references a known texture part (example: "
+                               << first.getId() << "/" << first.getRectangle() << ")";
       continue;
     }
 

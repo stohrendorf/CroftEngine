@@ -21,14 +21,12 @@ struct RenderVertex
   glm::vec3 position{};
   glm::vec4 color{1.0f};
   glm::vec3 normal{0.0f};
-  glm::int32_t textureIndex{-1};
 
   static const gl::VertexFormat<RenderVertex>& getFormat()
   {
     static const gl::VertexFormat<RenderVertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
                                                        {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
-                                                       {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
-                                                       {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &RenderVertex::textureIndex}};
+                                                       {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color}};
 
     return format;
   }
@@ -46,7 +44,7 @@ struct RenderMesh
 
   std::shared_ptr<render::scene::Mesh>
     toMesh(const gsl::not_null<std::shared_ptr<gl::VertexBuffer<RenderVertex>>>& vbuf,
-           const gsl::not_null<std::shared_ptr<gl::VertexBuffer<glm::vec2>>>& uvBuf)
+           const gsl::not_null<std::shared_ptr<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>>& uvBuf)
   {
 #ifndef NDEBUG
     for(auto idx : m_indices)
@@ -60,8 +58,8 @@ struct RenderMesh
 
     auto vBufs = std::make_tuple(vbuf, uvBuf);
 
-    auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, glm::vec2>>(
-      std::make_shared<gl::VertexArray<IndexType, RenderVertex, glm::vec2>>(
+    auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
+      std::make_shared<gl::VertexArray<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
         indexBuffer,
         vBufs,
         std::vector<const gl::Program*>{
@@ -108,14 +106,18 @@ void Room::createSceneNode(const size_t roomId,
   renderMesh.m_materialFull = materialManager.getGeometry(isWaterRoom(), false);
 
   std::vector<RenderVertex> vbufData;
-  std::vector<glm::vec2> uvCoordsData;
+  std::vector<render::TextureAnimator::AnimatedUV> uvCoordsData;
 
   const auto label = "Room:" + std::to_string(roomId);
   auto vbuf = std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
 
-  static const gl::VertexFormat<glm::vec2> uvAttribs{
-    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute<glm::vec2>::Trivial{}}};
-  auto uvCoords = std::make_shared<gl::VertexBuffer<glm::vec2>>(uvAttribs, label + "-uv");
+  static const gl::VertexFormat<render::TextureAnimator::AnimatedUV> uvAttribs{
+    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME,
+     gl::VertexAttribute<render::TextureAnimator::AnimatedUV>{&render::TextureAnimator::AnimatedUV::uv}},
+    {VERTEX_ATTRIBUTE_TEXINDEX_NAME,
+     gl::VertexAttribute<render::TextureAnimator::AnimatedUV>{&render::TextureAnimator::AnimatedUV::index}},
+  };
+  auto uvCoords = std::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
 
   for(const QuadFace& quad : rectangles)
   {
@@ -143,8 +145,7 @@ void Room::createSceneNode(const size_t roomId,
       RenderVertex iv;
       iv.position = quad.vertices[i].from(vertices).position.toRenderSystem();
       iv.color = quad.vertices[i].from(vertices).color;
-      iv.textureIndex = tile.textureKey.tileAndFlag & texMask;
-      uvCoordsData.push_back(tile.uvCoordinates[i].toGl());
+      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & texMask, tile.uvCoordinates[i].toGl());
 
       if(i <= 2)
       {
@@ -196,8 +197,7 @@ void Room::createSceneNode(const size_t roomId,
       RenderVertex iv;
       iv.position = tri.vertices[i].from(vertices).position.toRenderSystem();
       iv.color = tri.vertices[i].from(vertices).color;
-      iv.textureIndex = tile.textureKey.tileAndFlag & texMask;
-      uvCoordsData.push_back(tile.uvCoordinates[i].toGl());
+      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & texMask, tile.uvCoordinates[i].toGl());
 
       static const std::array<int, 3> indices{0, 1, 2};
       iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(vertices).position,
@@ -259,12 +259,12 @@ void Room::createSceneNode(const size_t roomId,
 
     const Sprite& sprite = level.m_sprites.at(spriteInstance.id.get());
 
-    const auto mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.x0),
-                                                      static_cast<float>(-sprite.y0),
-                                                      static_cast<float>(sprite.x1),
-                                                      static_cast<float>(-sprite.y1),
-                                                      sprite.t0,
-                                                      sprite.t1,
+    const auto mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
+                                                      static_cast<float>(-sprite.render0.y),
+                                                      static_cast<float>(sprite.render1.x),
+                                                      static_cast<float>(-sprite.render1.y),
+                                                      sprite.uv0.toGl(),
+                                                      sprite.uv1.toGl(),
                                                       materialManager.getSprite(),
                                                       sprite.texture_id.get_as<int32_t>());
 
@@ -1290,19 +1290,16 @@ std::unique_ptr<Sprite> Sprite::readTr1(io::SDLReader& reader)
     BOOST_LOG_TRIVIAL(warning) << "TR1 Sprite Texture ID > 64";
   }
 
-  sprite->t0.x = gsl::narrow_cast<float>(reader.readU8()) / 256.0f;
-  sprite->t0.y = gsl::narrow_cast<float>(reader.readU8()) / 256.0f;
-  const auto tw = reader.readU16();
-  const auto th = reader.readU16();
-  sprite->x0 = reader.readI16();
-  sprite->y0 = reader.readI16();
-  sprite->x1 = reader.readI16();
-  sprite->y1 = reader.readI16();
+  sprite->uv0.x = UVCoordinates::Component{gsl::narrow_cast<UVCoordinates::Component::type>(reader.readU8() * 256)};
+  sprite->uv0.y = UVCoordinates::Component{gsl::narrow_cast<UVCoordinates::Component::type>(reader.readU8() * 256)};
+  auto uvSize = UVCoordinates::read(reader);
+  sprite->uv1.x = sprite->uv0.x + uvSize.x;
+  sprite->uv1.y = sprite->uv0.y + uvSize.y;
 
-  const float w = gsl::narrow_cast<float>(tw) / 256.0f;
-  const float h = gsl::narrow_cast<float>(th) / 256.0f;
-  sprite->t1.x = sprite->t0.x + w / 256.0f;
-  sprite->t1.y = sprite->t0.y + h / 256.0f;
+  sprite->render0.x = reader.readI16();
+  sprite->render0.y = reader.readI16();
+  sprite->render1.x = reader.readI16();
+  sprite->render1.y = reader.readI16();
 
   return sprite;
 }
@@ -1316,14 +1313,12 @@ std::unique_ptr<Sprite> Sprite::readTr4(io::SDLReader& reader)
     BOOST_LOG_TRIVIAL(warning) << "TR4 Sprite Texture ID > 128";
   }
 
-  sprite->x0 = reader.readU8();
-  sprite->y1 = reader.readU8();
-  sprite->x1 = sprite->x0 + reader.readU16() / 256;
-  sprite->y0 = sprite->y1 + reader.readU16() / 256;
-  sprite->t0.x = gsl::narrow_cast<float>(reader.readI16()) / 256.0f;
-  sprite->t1.y = gsl::narrow_cast<float>(reader.readI16()) / 256.0f;
-  sprite->t0.y = gsl::narrow_cast<float>(reader.readI16()) / 256.0f;
-  sprite->t1.x = gsl::narrow_cast<float>(reader.readI16()) / 256.0f;
+  sprite->render0.x = reader.readI8() * 256;
+  sprite->render0.y = reader.readI8() * 256;
+  sprite->render1.x = sprite->render0.x + reader.readI16();
+  sprite->render1.y = sprite->render0.y + reader.readI16();
+  sprite->uv0 = UVCoordinates::read(reader);
+  sprite->uv1 = UVCoordinates::read(reader);
 
   return sprite;
 }

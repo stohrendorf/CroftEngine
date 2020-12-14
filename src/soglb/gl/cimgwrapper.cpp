@@ -217,4 +217,14 @@ CImgWrapper& CImgWrapper::operator=(CImgWrapper&& other) noexcept
 
   return *this;
 }
+
+void CImgWrapper::extendBorder(int margin)
+{
+  Expects(margin >= 0);
+  unshare();
+  if(!m_interleaved)
+    m_image->resize(width() + 2 * margin, height() + 2 * margin, -100, -100, 0, 1, 0.5f, 0.5f, 0, 0);
+  else
+    m_image->resize(-100, width() + 2 * margin, height() + 2 * margin, -100, 0, 1, 0, 0.5f, 0.5f, 0);
+}
 } // namespace gl

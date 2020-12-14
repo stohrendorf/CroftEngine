@@ -15,34 +15,34 @@ public:
   {
   }
 
-  [[nodiscard]] gl::CImgWrapper loadPng(const std::string& name, uint32_t mipLevel) const
+  [[nodiscard]] gl::CImgWrapper loadPng(const std::string& name, uint32_t index, uint32_t mipLevel) const
   {
-    const auto path = buildPngPath(name, mipLevel);
+    const auto path = buildPngPath(name, index, mipLevel);
     BOOST_LOG_TRIVIAL(debug) << "Loading " << path;
     return gl::CImgWrapper{path};
   }
 
-  [[nodiscard]] bool exists(const std::string& name, uint32_t mipLevel) const
+  [[nodiscard]] bool exists(const std::string& name, uint32_t index, uint32_t mipLevel) const
   {
-    return is_regular_file(buildPngPath(name, mipLevel));
+    return is_regular_file(buildPngPath(name, index, mipLevel));
   }
 
-  [[nodiscard]] auto getWriteTime(const std::string& name, uint32_t mipLevel) const
+  [[nodiscard]] auto getWriteTime(const std::string& name, uint32_t index, uint32_t mipLevel) const
   {
-    return last_write_time(buildPngPath(name, mipLevel));
+    return last_write_time(buildPngPath(name, index, mipLevel));
   }
 
-  void savePng(const std::string& name, uint32_t mipLevel, gl::CImgWrapper& image) const
+  void savePng(const std::string& name, uint32_t index, uint32_t mipLevel, gl::CImgWrapper& image) const
   {
-    const auto path = buildPngPath(name, mipLevel);
+    const auto path = buildPngPath(name, index, mipLevel);
     BOOST_LOG_TRIVIAL(debug) << "Saving " << path;
     create_directories(path.parent_path());
     image.savePng(path);
   }
 
-  [[nodiscard]] std::filesystem::path buildPngPath(const std::string& name, uint32_t mipLevel) const
+  [[nodiscard]] std::filesystem::path buildPngPath(const std::string& name, uint32_t index, uint32_t mipLevel) const
   {
-    return m_basePath / (name + "_" + std::to_string(mipLevel) + ".png");
+    return m_basePath / (name + "_" + std::to_string(index) + "_" + std::to_string(mipLevel) + ".png");
   }
 
 private:

@@ -12,6 +12,11 @@
 #include <pybind11/pytypes.h>
 #include <soglb/gl/texture2darray.h>
 
+namespace gl
+{
+class CImgWrapper;
+}
+
 namespace render
 {
 class TextureAnimator;
@@ -152,7 +157,7 @@ public:
   void chainBlockEffect();
   void flickerEffect();
   void doGlobalEffect();
-  void loadSceneData(const std::string& animatedTextureId);
+  void loadSceneData();
   std::shared_ptr<objects::PickupObject>
     createPickup(core::TypeId type, const gsl::not_null<const loader::file::Room*>& room, const core::TRVec& position);
   void useAlternativeLaraAppearance(bool withHead = false);
@@ -233,9 +238,11 @@ public:
   }
 
 private:
-  void loadTextures(const std::filesystem::path& cacheBaseDir);
+  void createMipmaps(const std::filesystem::path& cacheBaseDir,
+                     const std::string& baseName,
+                     const std::vector<std::shared_ptr<gl::CImgWrapper>>& images,
+                     size_t nMips);
   std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
-  void initTextures(const std::string& animatedTextureId);
 
   Engine& m_engine;
 

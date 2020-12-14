@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <gsl-lite.hpp>
 #include <map>
+#include <optional>
 #include <regex>
 #include <set>
 #include <utility>
@@ -16,6 +17,14 @@ public:
   explicit Rectangle() = default;
 
   explicit Rectangle(const std::string& serialized);
+
+  explicit Rectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
+      : m_x0{x0}
+      , m_x1{x1}
+      , m_y0{y0}
+      , m_y1{y1}
+  {
+  }
 
   bool operator<(const Rectangle& rhs) const
   {
@@ -58,6 +67,11 @@ public:
     return gsl::narrow<int>(m_y1 - m_y0);
   }
 
+  bool contains(uint32_t x, uint32_t y) const
+  {
+    return x >= m_x0 && x <= m_x1 && y >= m_y0 && y <= m_y1;
+  }
+
 private:
   uint32_t m_x0 = 0;
   uint32_t m_x1 = 0;
@@ -75,8 +89,8 @@ class TexturePart
 public:
   explicit TexturePart(const std::string& serialized);
 
-  explicit TexturePart(std::string filename, const Rectangle& r)
-      : m_textureId{std::move(filename)}
+  explicit TexturePart(std::string textureId, const Rectangle& r)
+      : m_textureId{std::move(textureId)}
       , m_rect{r}
   {
   }
@@ -164,8 +178,6 @@ private:
 class Glidos
 {
 public:
-  static constexpr int Resolution = 2048;
-
   explicit Glidos(std::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback);
 
   void dump() const;

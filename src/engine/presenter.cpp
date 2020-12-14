@@ -334,8 +334,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
     scaleSplashImage();
   }
 
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  m_screenOverlay->getImage()->assign(reinterpret_cast<const gl::SRGBA8*>(m_splashImageScaled.data()),
+  m_screenOverlay->getImage()->assign(m_splashImageScaled.pixels<gl::SRGBA8>().data(),
                                       m_window->getViewport().x * m_window->getViewport().y);
   m_abibasFont->drawText(*m_screenOverlay->getImage(),
                          state.c_str(),

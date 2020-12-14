@@ -28,12 +28,12 @@ void Particle::initRenderables(World& world, const float scale)
 
     for(const loader::file::Sprite& spr : spriteSequence->sprites)
     {
-      auto mesh = render::scene::createSpriteMesh(float(spr.x0) * scale,
-                                                  float(-spr.y0) * scale,
-                                                  float(spr.x1) * scale,
-                                                  float(-spr.y1) * scale,
-                                                  spr.t0,
-                                                  spr.t1,
+      auto mesh = render::scene::createSpriteMesh(static_cast<float>(spr.render0.x) * scale,
+                                                  static_cast<float>(-spr.render0.y) * scale,
+                                                  static_cast<float>(spr.render1.x) * scale,
+                                                  static_cast<float>(-spr.render1.y) * scale,
+                                                  spr.uv0.toGl(),
+                                                  spr.uv1.toGl(),
                                                   world.getPresenter().getMaterialManager()->getSprite(),
                                                   spr.texture_id.get_as<int32_t>());
       m_renderables.emplace_back(std::move(mesh));

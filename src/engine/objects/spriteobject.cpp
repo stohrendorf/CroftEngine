@@ -45,12 +45,12 @@ void SpriteObject::createModel()
 {
   Expects(m_sprite != nullptr);
 
-  const auto mesh = render::scene::createSpriteMesh(m_sprite->x0,
-                                                    -m_sprite->y0,
-                                                    m_sprite->x1,
-                                                    -m_sprite->y1,
-                                                    m_sprite->t0,
-                                                    m_sprite->t1,
+  const auto mesh = render::scene::createSpriteMesh(static_cast<float>(m_sprite->render0.x),
+                                                    static_cast<float>(-m_sprite->render0.y),
+                                                    static_cast<float>(m_sprite->render1.x),
+                                                    static_cast<float>(-m_sprite->render1.y),
+                                                    m_sprite->uv0.toGl(),
+                                                    m_sprite->uv1.toGl(),
                                                     m_material,
                                                     m_sprite->texture_id.get_as<int32_t>());
 

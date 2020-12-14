@@ -33,6 +33,11 @@
  * TR level data or engine internals.
  */
 
+namespace gl
+{
+class CImgWrapper;
+}
+
 namespace engine::objects
 {
 class Object;
@@ -473,18 +478,15 @@ struct Sprite
 {
   core::TextureId texture_id{uint16_t(0)};
 
-  std::shared_ptr<gl::Image<gl::SRGBA8>> image{nullptr};
+  std::shared_ptr<gl::CImgWrapper> image{nullptr};
 
-  glm::vec2 t0{0.0f};
-  glm::vec2 t1{0.0f};
+  UVCoordinates uv0;
+  UVCoordinates uv1;
 
-  int16_t x0 = 0;
-  int16_t y0 = 0;
-  int16_t x1 = 0;
-  int16_t y1 = 0;
+  glm::ivec2 render0;
+  glm::ivec2 render1;
 
   static std::unique_ptr<Sprite> readTr1(io::SDLReader& reader);
-
   static std::unique_ptr<Sprite> readTr4(io::SDLReader& reader);
 };
 

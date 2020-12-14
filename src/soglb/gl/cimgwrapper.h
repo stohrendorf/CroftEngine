@@ -79,6 +79,15 @@ public:
 
   [[nodiscard]] const uint8_t* data() const;
 
+  template<typename T>
+  [[nodiscard]] gsl::span<const T> pixels()
+  {
+    static_assert(sizeof(T) == 4, "Pixel type must be 4-byte RGBA");
+    interleave();
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return gsl::make_span(reinterpret_cast<const T*>(data()), width() * height());
+  }
+
   void savePng(const std::string& filename);
 
   void savePng(const std::filesystem::path& filename)
@@ -87,6 +96,8 @@ public:
   }
 
   void replace(int x, int y, const CImgWrapper& other);
+
+  void extendBorder(int margin);
 
 private:
   void unshare();

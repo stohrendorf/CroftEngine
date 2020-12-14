@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/id.h"
+#include "qs/qs.h"
 #include "render/scene/material.h"
 
 #include <boost/lexical_cast.hpp>
@@ -43,7 +44,7 @@ struct DWordTexture final
 
   static std::unique_ptr<DWordTexture> read(io::SDLReader& reader);
 
-  void toImage(const trx::Glidos* glidos, const std::function<void(const std::string&)>& statusCallback);
+  void toImage();
 };
 
 enum class BlendingMode : uint16_t
@@ -64,36 +65,57 @@ enum class BlendingMode : uint16_t
 
 struct UVCoordinates
 {
-  int8_t xcoordinate; // 1 if Xpixel is the low value, -1 if Xpixel is the high value in the object texture
-  uint8_t xpixel;
+  QS_DECLARE_QUANTITY(Component, uint16_t, "uv");
+  static constexpr float ComponentScale = std::numeric_limits<uint16_t>::max() + 1;
 
-  int8_t ycoordinate; // 1 if Ypixel is the low value, -1 if Ypixel is the high value in the object texture
-  uint8_t ypixel;
+  Component x{};
+  Component y{};
 
   constexpr bool operator==(const UVCoordinates& rhs) const noexcept
   {
-    return xcoordinate == rhs.xcoordinate && xpixel == rhs.xpixel && ycoordinate == rhs.ycoordinate
-           && ypixel == rhs.ypixel;
+    return x == rhs.x && y == rhs.y;
   }
 
   constexpr bool operator<(const UVCoordinates& rhs) const noexcept
   {
-    if(xcoordinate != rhs.xcoordinate)
-      return xcoordinate < rhs.xcoordinate;
-    if(xpixel != rhs.xpixel)
-      return xpixel < rhs.xpixel;
-    if(ycoordinate != rhs.ycoordinate)
-      return ycoordinate < rhs.ycoordinate;
-    return ypixel < rhs.ypixel;
+    if(x != rhs.x)
+      return x < rhs.x;
+    return y < rhs.y;
   }
 
-  static UVCoordinates readTr1(io::SDLReader& reader);
-
-  static UVCoordinates readTr4(io::SDLReader& reader);
+  static UVCoordinates read(io::SDLReader& reader);
 
   [[nodiscard]] glm::vec2 toGl() const
   {
-    return glm::vec2{(static_cast<float>(xpixel) + 0.5f) / 256.0f, (static_cast<float>(ypixel) + 0.5f) / 256.0f};
+    return glm::vec2{x.get<float>() / ComponentScale, y.get<float>() / ComponentScale};
+  }
+
+  [[nodiscard]] glm::ivec2 toPx(int w, int h) const
+  {
+    return glm::ivec2{toGl() * glm::vec2{w, h}};
+  }
+
+  [[nodiscard]] glm::ivec2 toPx(int wh) const
+  {
+    return toPx(wh, wh);
+  }
+
+  [[nodiscard]] glm::ivec2 toNearestPx(int size) const
+  {
+    return glm::round(toGl() * gsl::narrow_cast<float>(size));
+  }
+
+  [[nodiscard]] glm::vec2 toNearestGl(int size) const
+  {
+    return glm::vec2{toNearestPx(size)} / gsl::narrow_cast<float>(size);
+  }
+
+  void set(const glm::vec2& uv)
+  {
+    BOOST_ASSERT(uv.x >= 0 && uv.x < 1);
+    BOOST_ASSERT(uv.y >= 0 && uv.y < 1);
+    x = Component{gsl::narrow_cast<Component::type>(uv.x * ComponentScale)};
+    y = Component{gsl::narrow_cast<Component::type>(uv.y * ComponentScale)};
   }
 };
 
@@ -181,6 +203,54 @@ struct TextureTile
   static std::unique_ptr<TextureTile> readTr4(io::SDLReader& reader);
 
   static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader);
+
+  std::pair<glm::ivec2, glm::ivec2> getMinMaxPx(int size) const
+  {
+    glm::ivec2 xy0{std::numeric_limits<glm::int32>::max()};
+    glm::ivec2 xy1{std::numeric_limits<glm::int32>::min()};
+    for(const auto& uvComponent : uvCoordinates)
+    {
+      if(uvComponent.x.get() == 0 && uvComponent.y.get() == 0)
+        continue;
+
+      const auto px = uvComponent.toPx(size);
+      xy0 = glm::min(px, xy0);
+      xy1 = glm::max(px, xy1);
+    }
+    return {xy0, xy1};
+  }
+
+  std::pair<glm::vec2, glm::vec2> getNearestMinMaxGl(int size) const
+  {
+    glm::vec2 xy0{std::numeric_limits<glm::float32>::max()};
+    glm::vec2 xy1{std::numeric_limits<glm::float32>::lowest()};
+    for(const auto& uvComponent : uvCoordinates)
+    {
+      if(uvComponent.x.get() == 0 && uvComponent.y.get() == 0)
+        continue;
+
+      const auto uv = glm::vec2{uvComponent.toNearestPx(size)} / 256.0f;
+      xy0 = glm::min(uv, xy0);
+      xy1 = glm::max(uv, xy1);
+    }
+    return {xy0, xy1};
+  }
+
+  std::pair<glm::ivec2, glm::ivec2> getNearestMinMaxPx(int size) const
+  {
+    glm::ivec2 xy0{std::numeric_limits<glm::int32>::max()};
+    glm::ivec2 xy1{std::numeric_limits<glm::int32>::min()};
+    for(const auto& uvComponent : uvCoordinates)
+    {
+      if(uvComponent.x.get() == 0 && uvComponent.y.get() == 0)
+        continue;
+
+      const auto px = uvComponent.toNearestPx(size);
+      xy0 = glm::min(px, xy0);
+      xy1 = glm::max(px, xy1);
+    }
+    return {xy0, xy1};
+  }
 };
 } // namespace file
 } // namespace loader

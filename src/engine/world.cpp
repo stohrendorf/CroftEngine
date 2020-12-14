@@ -16,6 +16,7 @@
 #include "render/scene/renderer.h"
 #include "render/scene/scene.h"
 #include "render/textureanimator.h"
+#include "render/textureatlas.h"
 #include "serialization/array.h"
 #include "serialization/bitset.h"
 #include "serialization/map.h"
@@ -106,15 +107,8 @@ const std::vector<loader::file::Box>& World::getBoxes() const
   return m_level->m_boxes;
 }
 
-void World::loadSceneData(const std::string& animatedTextureId)
+void World::loadSceneData()
 {
-  for(auto& sprite : m_level->m_sprites)
-  {
-    sprite.image = m_level->m_textures[sprite.texture_id.get()].image;
-  }
-
-  initTextures(animatedTextureId);
-
   for(size_t i = 0; i < m_level->m_meshes.size(); ++i)
   {
     m_level->m_meshes[i].meshData = std::make_shared<loader::file::RenderMeshData>(
@@ -958,6 +952,59 @@ void World::save(const std::filesystem::path& filename)
   serialization::Serializer::save(filename, *this, *this);
 }
 
+namespace
+{
+glm::vec2 remap(glm::vec2 from, glm::vec2 srcMin, glm::vec2 dstMin, glm::vec2 scale)
+{
+  auto uv = from - srcMin;
+  uv *= scale;
+  uv += dstMin;
+  BOOST_ASSERT(uv.x >= 0 && uv.x <= 1);
+  BOOST_ASSERT(uv.y >= 0 && uv.y <= 1);
+  return uv;
+}
+
+void remap(loader::file::TextureTile& tile,
+           size_t atlas,
+           const glm::vec2& replacementUvPos,
+           const glm::vec2& replacementUvSize)
+{
+  tile.textureKey.tileAndFlag &= ~loader::file::TextureIndexMask;
+  tile.textureKey.tileAndFlag |= atlas;
+
+  // re-map uv coordinates
+  auto tileUvRange = tile.getNearestMinMaxGl(256);
+  auto tileUvPos = tileUvRange.first;
+  auto tileUvSize = tileUvRange.second - tileUvPos;
+  for(auto& uvComponent : tile.uvCoordinates)
+  {
+    if(uvComponent.x.get() == 0 && uvComponent.y.get() == 0)
+      continue;
+
+    const auto rem = glm::mod(uvComponent.toGl(), glm::vec2{1.0f});
+    auto uv = remap(uvComponent.toGl(), tileUvPos, replacementUvPos, replacementUvSize / tileUvSize);
+    uvComponent.set(uv);
+  }
+}
+void remap(loader::file::Sprite& sprite,
+           size_t atlas,
+           const glm::vec2& replacementUvPos,
+           const glm::vec2& replacementUvSize)
+{
+  sprite.texture_id = core::TextureId{atlas};
+
+  // re-map uv coordinates
+  std::pair<glm::vec2, glm::vec2> spriteUvRange{sprite.uv0.toNearestGl(256), sprite.uv1.toNearestGl(256)};
+  auto spriteUvSize = spriteUvRange.second - spriteUvRange.first;
+
+  auto uv = remap(sprite.uv0.toGl(), spriteUvRange.first, replacementUvPos, replacementUvSize / spriteUvSize);
+  sprite.uv0.set(uv);
+
+  uv = remap(sprite.uv1.toGl(), spriteUvRange.first, replacementUvPos, replacementUvSize / spriteUvSize);
+  sprite.uv1.set(uv);
+}
+} // namespace
+
 World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared_ptr<Presenter>> presenter)
     : m_engine{engine}
     , m_presenter{std::move(presenter)}
@@ -1008,8 +1055,176 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
       m_engine.getRootPath() / "data" / "tr1" / "data" / (baseName + ".PHD"), loader::file::level::Game::Unknown);
 
     m_presenter->drawLoadingScreen("Loading " + baseName);
-
     m_level->loadFileData();
+
+    m_presenter->drawLoadingScreen("Building textures");
+    for(size_t i = 0; i < m_level->m_textures.size(); ++i)
+    {
+      m_level->m_textures[i].toImage();
+    }
+
+    if(glidos != nullptr)
+    {
+      BOOST_LOG_TRIVIAL(info) << "Building texture atlases";
+
+      std::unordered_set<loader::file::TextureTile*> doneTiles;
+      std::unordered_set<loader::file::Sprite*> doneSprites;
+
+      render::MultiTextureAtlas atlases{2048};
+      for(size_t texIdx = 0; texIdx < m_level->m_textures.size(); ++texIdx)
+      {
+        const auto& texture = m_level->m_textures[texIdx];
+        const auto mappings = glidos->getMappingsForTexture(texture.md5);
+        for(const auto& tileAndPath : mappings.tiles)
+        {
+          std::unique_ptr<gl::CImgWrapper> replacementImg;
+          if(tileAndPath.second.empty() || !std::filesystem::is_regular_file(tileAndPath.second))
+          {
+            replacementImg = std::make_unique<gl::CImgWrapper>(
+              reinterpret_cast<const uint8_t*>(texture.image->getRawData()), 256, 256, true);
+            replacementImg->crop(tileAndPath.first.getX0(),
+                                 tileAndPath.first.getY0(),
+                                 tileAndPath.first.getX1(),
+                                 tileAndPath.first.getY1());
+          }
+          else
+          {
+            replacementImg = std::make_unique<gl::CImgWrapper>(tileAndPath.second);
+          }
+
+          auto replacementPos = atlases.put(*replacementImg);
+          const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
+          const auto replacementUvSize = glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
+                                         / gsl::narrow_cast<float>(atlases.getSize());
+
+          bool remapped = false;
+          for(auto& tile : m_level->m_textureTiles)
+          {
+            if(doneTiles.count(&tile) != 0)
+              continue;
+
+            if((tile.textureKey.tileAndFlag & loader::file::TextureIndexMask) != texIdx)
+              continue;
+
+            auto minMaxPx = tile.getMinMaxPx(256);
+            if(!tileAndPath.first.contains(minMaxPx.first.x, minMaxPx.first.y))
+              continue;
+            if(!tileAndPath.first.contains(minMaxPx.second.x, minMaxPx.second.y))
+              continue;
+
+            doneTiles.emplace(&tile);
+            remapped = true;
+            remap(tile, replacementPos.first, replacementUvPos, replacementUvSize);
+          }
+
+          for(auto& sprite : m_level->m_sprites)
+          {
+            if(doneSprites.count(&sprite) != 0)
+              continue;
+
+            if(sprite.texture_id.get() != texIdx)
+              continue;
+            sprite.texture_id = texIdx;
+
+            std::pair<glm::ivec2, glm::ivec2> minMaxPx{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
+            if(!tileAndPath.first.contains(minMaxPx.first.x, minMaxPx.first.y))
+              continue;
+            if(!tileAndPath.first.contains(minMaxPx.second.x, minMaxPx.second.y))
+              continue;
+
+            doneSprites.emplace(&sprite);
+            remapped = true;
+            remap(sprite, replacementPos.first, replacementUvPos, replacementUvSize);
+          }
+
+          if(!remapped)
+          {
+            BOOST_LOG_TRIVIAL(error) << "Failed to re-map texture tile " << tileAndPath.first;
+          }
+        }
+      }
+
+      BOOST_LOG_TRIVIAL(debug) << "Re-mapped " << doneTiles.size() << " tiles and " << doneSprites.size() << " sprites";
+      for(auto& tile : m_level->m_textureTiles)
+      {
+        if(!doneTiles.emplace(&tile).second)
+          continue;
+        const auto& texture = m_level->m_textures.at(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask);
+        auto replacementImg = std::make_unique<gl::CImgWrapper>(
+          reinterpret_cast<const uint8_t*>(texture.image->getRawData()), 256, 256, true);
+        const auto srcDims = tile.getMinMaxPx(256);
+        replacementImg->crop(srcDims.first.x, srcDims.first.y, srcDims.second.x, srcDims.second.y);
+
+        auto replacementPos = atlases.put(*replacementImg);
+        const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
+        const auto replacementUvSize = glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
+                                       / gsl::narrow_cast<float>(atlases.getSize());
+
+        remap(tile, replacementPos.first, replacementUvPos, replacementUvSize);
+      }
+
+      for(auto& sprite : m_level->m_sprites)
+      {
+        if(!doneSprites.emplace(&sprite).second)
+          continue;
+
+        std::pair<glm::ivec2, glm::ivec2> minMaxPx{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
+        const auto& texture = m_level->m_textures.at(sprite.texture_id.get());
+        auto replacementImg = std::make_unique<gl::CImgWrapper>(
+          reinterpret_cast<const uint8_t*>(texture.image->getRawData()), 256, 256, true);
+        replacementImg->crop(minMaxPx.first.x, minMaxPx.first.y, minMaxPx.second.x, minMaxPx.second.y);
+
+        auto replacementPos = atlases.put(*replacementImg);
+        const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
+        const auto replacementUvSize = glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
+                                       / gsl::narrow_cast<float>(atlases.getSize());
+        remap(sprite, replacementPos.first, replacementUvPos, replacementUvSize);
+        sprite.texture_id = replacementPos.first;
+      }
+
+      const int textureLevels = static_cast<int>(std::log2(atlases.getSize()) + 1) / 2;
+      auto images = atlases.takeImages();
+      m_allTextures = std::make_unique<gl::Texture2DArray<gl::SRGBA8>>(
+        glm::ivec3{atlases.getSize(), atlases.getSize(), gsl::narrow<int>(images.size())},
+        textureLevels,
+        "all-textures");
+      m_allTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
+      m_allTextures->set(gl::api::TextureMagFilter::Linear);
+      m_allTextures->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
+      m_allTextures->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+      m_presenter->getMaterialManager()->setGeometryTextures(m_allTextures);
+
+      for(size_t i = 0; i < images.size(); ++i)
+        m_allTextures->assign(images[i]->pixels<gl::SRGBA8>().data(), gsl::narrow_cast<int>(i), 0);
+      createMipmaps(glidos->getBaseDir(), baseName, images, textureLevels);
+
+      for(auto& sprite : m_level->m_sprites)
+        sprite.image = images[sprite.texture_id.get()];
+    }
+    else
+    {
+      const int textureLevels = static_cast<int>(std::log2(256) + 1) / 2;
+      std::vector<std::shared_ptr<gl::CImgWrapper>> images{};
+      for(auto& texture : m_level->m_textures)
+        images.emplace_back(std::make_shared<gl::CImgWrapper>(
+          reinterpret_cast<const uint8_t*>(texture.image->getRawData()), 256, 256, true));
+      m_allTextures = std::make_unique<gl::Texture2DArray<gl::SRGBA8>>(
+        glm::ivec3{256, 256, gsl::narrow<int>(images.size())}, textureLevels, "all-textures");
+      m_allTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
+      m_allTextures->set(gl::api::TextureMagFilter::Nearest);
+      m_allTextures->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
+      m_allTextures->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+      m_presenter->getMaterialManager()->setGeometryTextures(m_allTextures);
+      for(size_t i = 0; i < images.size(); ++i)
+        m_allTextures->assign(images[i]->pixels<gl::SRGBA8>().data(), gsl::narrow_cast<int>(i), 0);
+      createMipmaps(m_engine.getRootPath() / "data" / "tr1" / "data", baseName, images, textureLevels);
+
+      for(auto& sprite : m_level->m_sprites)
+        sprite.image = images[sprite.texture_id.get()];
+    }
+
+    m_textureAnimator = std::make_unique<render::TextureAnimator>(m_level->m_animatedTextures);
+
     m_audioEngine->init(m_level->m_soundEffectProperties, m_level->m_soundEffects);
     while(m_roomOrder.size() < m_level->m_rooms.size())
       m_roomOrder.emplace_back(m_roomOrder.size());
@@ -1022,21 +1237,8 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
       m_audioEngine->addWav(&m_level->m_samplesData[offset]);
     }
 
-    for(size_t i = 0; i < m_level->m_textures.size(); ++i)
-    {
-      if(glidos != nullptr)
-        m_presenter->drawLoadingScreen("Upgrading texture " + std::to_string(i + 1) + " of "
-                                       + std::to_string(m_level->m_textures.size()));
-      else
-        m_presenter->drawLoadingScreen("Loading texture " + std::to_string(i + 1) + " of "
-                                       + std::to_string(m_level->m_textures.size()));
-      m_level->m_textures[i].toImage(
-        glidos.get(),
-        std::function<void(const std::string&)>([this](const std::string& s) { m_presenter->drawLoadingScreen(s); }));
-    }
-
     m_presenter->drawLoadingScreen("Preparing the game");
-    loadSceneData(baseName + "-animated");
+    loadSceneData();
 
     if(useAlternativeLara)
     {
@@ -1092,7 +1294,6 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
 
   if(m_level != nullptr)
   {
-    loadTextures(glidos != nullptr ? glidos->getBaseDir() : m_engine.getRootPath() / "data" / "tr1" / "data");
     m_presenter->setTrFont(std::make_unique<ui::CachedFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics)));
   }
 
@@ -1104,53 +1305,58 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
 
 World::~World() = default;
 
-void World::loadTextures(const std::filesystem::path& cacheBaseDir)
+void World::createMipmaps(const std::filesystem::path& cacheBaseDir,
+                          const std::string& baseName,
+                          const std::vector<std::shared_ptr<gl::CImgWrapper>>& images,
+                          size_t nMips)
 {
-  for(size_t i = 0; i < m_level->m_textures.size(); ++i)
-    m_allTextures->assign(m_level->m_textures[i].image->getRawData(), gsl::narrow_cast<int>(i), 0);
-
-  struct Rect
+  struct UVRect
   {
-    explicit Rect(const std::array<loader::file::UVCoordinates, 4>& cos)
+    explicit UVRect(const std::array<loader::file::UVCoordinates, 4>& cos)
     {
+      xy0.x = xy0.y = loader::file::UVCoordinates::Component{std::numeric_limits<uint16_t>::max()};
+      xy1.x = xy1.y = loader::file::UVCoordinates::Component{std::numeric_limits<uint16_t>::min()};
       for(const auto& co : cos)
       {
-        x0 = std::min(x0, co.xpixel);
-        y0 = std::min(y0, co.ypixel);
-        x1 = std::max(x1, co.xpixel);
-        y1 = std::max(y1, co.ypixel);
+        if(co.x.get() == 0 && co.y.get() == 0)
+          continue;
+
+        xy0.x = std::min(xy0.x, co.x);
+        xy0.y = std::min(xy0.y, co.y);
+        xy1.x = std::max(xy1.x, co.x);
+        xy1.y = std::max(xy1.y, co.y);
       }
     }
 
-    Rect(const glm::vec2& t0, const glm::vec2& t1)
+    UVRect(const loader::file::UVCoordinates& t0, const loader::file::UVCoordinates& t1)
     {
-      x0 = std::min(t0.x, t1.x);
-      y0 = std::min(t0.y, t1.y);
-      x1 = std::max(t0.x, t1.x);
-      y1 = std::max(t0.y, t1.y);
+      xy0.x = std::min(t0.x, t1.x);
+      xy0.y = std::min(t0.y, t1.y);
+      xy1.x = std::max(t0.x, t1.x);
+      xy1.y = std::max(t0.y, t1.y);
     }
 
-    constexpr bool operator==(const Rect& rhs) const noexcept
+    constexpr bool operator==(const UVRect& rhs) const noexcept
     {
-      return x0 == rhs.x0 && y0 == rhs.y0 && x1 == rhs.x1 && y1 == rhs.y1;
+      return xy0 == rhs.xy0 && xy1 == rhs.xy1;
     }
 
-    constexpr bool operator<(const Rect& rhs) const noexcept
+    constexpr bool operator<(const UVRect& rhs) const noexcept
     {
-      if(x0 != rhs.x0)
-        return x0 < rhs.x0;
-      if(y0 != rhs.y0)
-        return y0 < rhs.y0;
-      if(x1 != rhs.x1)
-        return x1 < rhs.x1;
-      return y1 < rhs.y1;
+      if(xy0.x != rhs.xy0.x)
+        return xy0.x < rhs.xy0.x;
+      if(xy0.y != rhs.xy1.y)
+        return xy0.y < rhs.xy0.y;
+      if(xy1.x != rhs.xy1.x)
+        return xy1.x < rhs.xy1.x;
+      return xy1.y < rhs.xy1.y;
     }
 
-    uint8_t x0 = std::numeric_limits<uint8_t>::max(), y0 = std::numeric_limits<uint8_t>::max();
-    uint8_t x1 = std::numeric_limits<uint8_t>::min(), y1 = std::numeric_limits<uint8_t>::min();
+    loader::file::UVCoordinates xy0{};
+    loader::file::UVCoordinates xy1{};
   };
 
-  std::map<int, std::set<Rect>> tilesByTexture;
+  std::map<int, std::set<UVRect>> tilesByTexture;
   BOOST_LOG_TRIVIAL(debug) << m_level->m_textureTiles.size() << " total texture tiles";
   for(const auto& tile : m_level->m_textureTiles)
   {
@@ -1158,7 +1364,7 @@ void World::loadTextures(const std::filesystem::path& cacheBaseDir)
   }
   for(const auto& sprite : m_level->m_sprites)
   {
-    tilesByTexture[sprite.texture_id.get()].emplace(sprite.t0 * 256.0f, sprite.t1 * 256.0f);
+    tilesByTexture[sprite.texture_id.get()].emplace(sprite.uv0, sprite.uv1);
   }
 
   size_t totalTiles = std::accumulate(
@@ -1172,60 +1378,54 @@ void World::loadTextures(const std::filesystem::path& cacheBaseDir)
   size_t processedTiles = 0;
   for(const auto& textureAndTiles : tilesByTexture)
   {
-    m_presenter->drawLoadingScreen("Mipmapping (" + std::to_string(processedTiles * 100 / totalTiles) + "%)");
-    processedTiles += textureAndTiles.second.size();
-
-    const loader::file::DWordTexture& texture = m_level->m_textures.at(textureAndTiles.first);
-    Expects(texture.image->getWidth() == texture.image->getHeight());
+    const gl::CImgWrapper& src = *images.at(textureAndTiles.first);
+    Expects(src.width() == src.height());
 
     BOOST_LOG_TRIVIAL(debug) << "Mipmapping texture " << textureAndTiles.first;
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    const gl::CImgWrapper src{reinterpret_cast<uint8_t*>(texture.image->getRawData()),
-                              texture.image->getWidth(),
-                              texture.image->getHeight(),
-                              true};
-    int mipmapLevel = 1;
-    for(auto dstSize = texture.image->getWidth() / 2; dstSize > 1; dstSize /= 2, ++mipmapLevel)
+    auto dstSize = src.width() / 2;
+    auto margin = render::MultiTextureAtlas::BoundaryMargin / 2;
+    for(int mipmapLevel = 1; static_cast<size_t>(mipmapLevel) < nMips; dstSize /= 2, margin /= 2, ++mipmapLevel)
     {
+      m_presenter->drawLoadingScreen("Mipmapping (" + std::to_string(processedTiles * 100 / (totalTiles * (nMips - 1)))
+                                     + "%)");
+      processedTiles += textureAndTiles.second.size();
+
       BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", "
                                << textureAndTiles.second.size() << " tiles)";
-      if(cache.exists(texture.md5, mipmapLevel))
+      if(cache.exists(baseName, textureAndTiles.first, mipmapLevel))
       {
-        auto dst = cache.loadPng(texture.md5, mipmapLevel);
-        dst.interleave();
-        m_allTextures->assign(
-          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-          reinterpret_cast<const gl::SRGBA8*>(dst.data()),
-          textureAndTiles.first,
-          mipmapLevel);
+        auto dst = cache.loadPng(baseName, textureAndTiles.first, mipmapLevel);
+        m_allTextures->assign(dst.pixels<gl::SRGBA8>().data(), textureAndTiles.first, mipmapLevel);
       }
       else
       {
         gl::CImgWrapper dst{dstSize, dstSize};
-        for(const Rect& r : textureAndTiles.second)
+        for(const UVRect& r : textureAndTiles.second)
         {
           // (scaled) source coordinates
-          const auto x0 = r.x0 * texture.image->getWidth() / 256;
-          const auto y0 = r.y0 * texture.image->getHeight() / 256;
-          const auto x1 = (r.x1 + 1) * texture.image->getWidth() / 256;
-          const auto y1 = (r.y1 + 1) * texture.image->getHeight() / 256;
-          BOOST_ASSERT(x0 < x1);
-          BOOST_ASSERT(y0 < y1);
-          gl::CImgWrapper tmp = src.cropped(x0, y0, x1 - 1, y1 - 1);
+          auto xy0 = r.xy0.toNearestPx(src.width());
+          auto xy1 = r.xy1.toNearestPx(src.width());
+
+          if(xy0.x > xy1.x)
+            std::swap(xy0.x, xy1.x);
+          if(xy0.y > xy1.y)
+            std::swap(xy0.y, xy1.y);
+
+          BOOST_ASSERT(xy0.x <= xy1.x);
+          BOOST_ASSERT(xy0.y <= xy1.y);
+          gl::CImgWrapper tmp = src.cropped(xy0.x - render::MultiTextureAtlas::BoundaryMargin,
+                                            xy0.y - render::MultiTextureAtlas::BoundaryMargin,
+                                            xy1.x + render::MultiTextureAtlas::BoundaryMargin,
+                                            xy1.y + render::MultiTextureAtlas::BoundaryMargin);
           tmp.resizePow2Mipmap(mipmapLevel);
-          // +1 for doing mathematically correct rounding
-          dst.replace(
-            (x0 * dstSize + 1) / texture.image->getWidth(), (y0 * dstSize + 1) / texture.image->getHeight(), tmp);
+
+          const auto targetPos = r.xy0.toPx(dstSize) - glm::ivec2{margin};
+          dst.replace(targetPos.x, targetPos.y, tmp);
         }
 
-        cache.savePng(texture.md5, mipmapLevel, dst);
-        dst.interleave();
-        m_allTextures->assign(
-          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-          reinterpret_cast<const gl::SRGBA8*>(dst.data()),
-          textureAndTiles.first,
-          mipmapLevel);
+        cache.savePng(baseName, textureAndTiles.first, mipmapLevel, dst);
+        m_allTextures->assign(dst.pixels<gl::SRGBA8>().data(), textureAndTiles.first, mipmapLevel);
       }
     }
   }
@@ -1249,29 +1449,5 @@ std::unique_ptr<loader::trx::Glidos> World::loadGlidosPack() const
   }
 
   return nullptr;
-}
-
-void World::initTextures(const std::string& animatedTextureId)
-{
-  Expects(!m_level->m_textures.empty());
-  const int textureSize = m_level->m_textures[0].image->getWidth();
-  const int textureLevels = static_cast<int>(std::log2(textureSize) + 1);
-
-  m_textureAnimator = std::make_unique<render::TextureAnimator>(
-    m_level->m_animatedTextures, m_level->m_textureTiles, m_level->m_textures, animatedTextureId);
-  m_allTextures = std::make_unique<gl::Texture2DArray<gl::SRGBA8>>(
-    glm::ivec3{textureSize, textureSize, gsl::narrow<int>(m_level->m_textures.size())}, textureLevels, "all-textures");
-  m_allTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
-  if(textureSize == 256)
-  {
-    m_allTextures->set(gl::api::TextureMagFilter::Nearest);
-  }
-  else
-  {
-    m_allTextures->set(gl::api::TextureMagFilter::Linear);
-  }
-  m_allTextures->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
-  m_allTextures->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
-  m_presenter->getMaterialManager()->setGeometryTextures(m_allTextures);
 }
 } // namespace engine

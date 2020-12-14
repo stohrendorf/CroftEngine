@@ -39,18 +39,14 @@ class CachedFont
   {
     BOOST_ASSERT(sprite.image != nullptr);
 
-    const auto dstW = std::lround((sprite.t1.x - sprite.t0.x) * 256 * scale / FontBaseScale);
-    const auto dstH = std::lround((sprite.t1.y - sprite.t0.y) * 256 * scale / FontBaseScale);
+    const auto dstW = glm::abs(sprite.render1.x - sprite.render0.x) * scale / FontBaseScale;
+    const auto dstH = glm::abs(sprite.render1.y - sprite.render0.y) * scale / FontBaseScale;
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    gl::CImgWrapper src{reinterpret_cast<const uint8_t*>(sprite.image->getData().data()),
-                        sprite.image->getWidth(),
-                        sprite.image->getHeight(),
-                        true};
-    src.crop(gsl::narrow_cast<int>(sprite.t0.x * sprite.image->getWidth()),
-             gsl::narrow_cast<int>(sprite.t0.y * sprite.image->getHeight()),
-             gsl::narrow_cast<int>(sprite.t1.x * sprite.image->getWidth() - 1),
-             gsl::narrow_cast<int>(sprite.t1.y * sprite.image->getHeight() - 1));
+    gl::CImgWrapper src{*sprite.image};
+    src.crop(sprite.uv0.toNearestPx(sprite.image->width()).x,
+             sprite.uv0.toNearestPx(sprite.image->height()).y,
+             sprite.uv1.toNearestPx(sprite.image->width()).x,
+             sprite.uv1.toNearestPx(sprite.image->height()).y);
     src.resize(dstW, dstH);
 
     return src;
@@ -64,7 +60,7 @@ public:
                    sequence.sprites.end(),
                    std::back_inserter(m_glyphs),
                    [scale](const loader::file::Sprite& spr) {
-                     return Glyph{extractChar(spr, scale), spr.x0, spr.y0};
+                     return Glyph{extractChar(spr, scale), spr.render0.x, spr.render0.y};
                    });
   }
 

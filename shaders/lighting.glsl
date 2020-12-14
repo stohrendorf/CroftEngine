@@ -37,10 +37,16 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
         return 1.0;
     }
 
-    float variance = moments.y - moments.x * moments.x;
-    float mD = currentDepth - moments.x;
-    float p = variance / (variance + mD * mD);
-    return mix(shadow, 1.0, clamp(p, 0, 1));
+    const float ShadowBias = 0.001;
+    float variance = max(moments.y - moments.x * moments.x, ShadowBias);
+    float mD = moments.x - currentDepth;
+    float pMax = variance / (variance + mD * mD);
+
+    // light bleeding
+    const float BleedBias = 0.05;
+    pMax = clamp((pMax - BleedBias) / (1.0 - BleedBias), 0.0, 1.0);
+
+    return mix(shadow, 1.0, pMax);
 }
 
 float shadow_map_multiplier(in vec3 normal) {
