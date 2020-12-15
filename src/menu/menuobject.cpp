@@ -95,6 +95,8 @@ void MenuObject::draw(const engine::World& world,
     // TODO avoid re-creating the model each time
     auto node = std::make_shared<engine::SkeletalModelNode>("menu-object", &world, obj.get());
     node->setLocalMatrix(nodeMatrix);
+    node->addUniformSetter("u_lightAmbient",
+                           [](const render::scene::Node& /*node*/, gl::Uniform& uniform) { uniform.set(0.5f); });
     core::AnimStateId animState{0_as};
     engine::SkeletalModelNode::buildMesh(node, animState);
     node->setAnimation(animState, obj->animations, meshAnimFrame);
