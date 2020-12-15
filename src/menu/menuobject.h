@@ -8,6 +8,11 @@
 #include <cstdint>
 #include <string>
 
+namespace engine
+{
+class SkeletalModelNode;
+}
+
 namespace menu
 {
 struct MenuRingTransform;
@@ -35,6 +40,9 @@ struct MenuObject
   core::Length positionZ{0_len};
   mutable core::Angle compassNeedleRotation = 0_deg;
   mutable core::Angle compassNeedleRotationMomentum = 0_deg;
+
+  std::shared_ptr<engine::SkeletalModelNode> node;
+  void initModel(const engine::World& world);
 
   bool animate();
 

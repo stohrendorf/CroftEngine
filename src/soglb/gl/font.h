@@ -35,12 +35,11 @@ public:
   Font& operator=(const Font&) = delete;
   Font& operator=(Font&&) = delete;
 
-  void drawText(Image<SRGBA8>& img, gsl::czstring text, int x, int y, const SRGBA8& color, int size);
+  void drawText(Image<SRGBA8>& img, gsl::czstring text, glm::ivec2 xy, const SRGBA8& color, int size);
   glm::ivec2 getBounds(gsl::czstring text, int size) const;
   void drawText(Image<SRGBA8>& img,
                 const std::string& text,
-                int x,
-                int y,
+                const glm::ivec2& xy,
                 uint8_t red,
                 uint8_t green,
                 uint8_t blue,

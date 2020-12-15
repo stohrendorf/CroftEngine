@@ -113,7 +113,7 @@ std::unique_ptr<MenuState> ResetItemTransformMenuState::onFrame(gl::Image<gl::SR
 }
 
 std::unique_ptr<MenuState>
-  FinishItemAnimationMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
+  FinishItemAnimationMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world, MenuDisplay& display)
 {
   display.updateRingTitle();
 
@@ -125,6 +125,7 @@ std::unique_ptr<MenuState>
   {
     object.type = engine::TR1ItemId::PassportClosed;
     object.meshAnimFrame = 0_frame;
+    object.initModel(world);
   }
 
   return std::move(m_next);
@@ -526,6 +527,7 @@ std::unique_ptr<MenuState>
 {
   auto& passport = display.getCurrentRing().getSelectedObject();
   passport.type = engine::TR1ItemId::PassportOpening;
+  passport.initModel(world);
 
   if(passport.selectedRotationY == passport.rotationY && passport.animate())
     return nullptr;
@@ -560,7 +562,7 @@ std::unique_ptr<MenuState>
     }
     if(m_passportText == nullptr)
     {
-      m_passportText = std::make_unique<ui::Label>(0, -16, "Load Game");
+      m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, "Load Game");
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
@@ -585,7 +587,8 @@ std::unique_ptr<MenuState>
     }
     if(m_passportText == nullptr)
     {
-      m_passportText = std::make_unique<ui::Label>(0, -16, m_allowSave && isInGame ? "Save Game" : "New Game");
+      m_passportText
+        = std::make_unique<ui::Label>(glm::ivec2{0, -16}, m_allowSave && isInGame ? "Save Game" : "New Game");
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
@@ -603,7 +606,7 @@ std::unique_ptr<MenuState>
   case ExitGamePage:
     if(m_passportText == nullptr)
     {
-      m_passportText = std::make_unique<ui::Label>(0, -16, !isInGame ? "Exit Game" : "Exit to Title");
+      m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, !isInGame ? "Exit Game" : "Exit to Title");
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
@@ -714,10 +717,13 @@ std::unique_ptr<MenuState>
   return std::move(m_next);
 }
 
-void SetItemTypeMenuState::handleObject(engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
+void SetItemTypeMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
+  {
     object.type = m_type;
+    object.initModel(world);
+  }
 }
 
 SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
@@ -728,7 +734,8 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
   for(size_t i = 0; i < TotalSlots; ++i)
   {
     const auto line = i % PerPage;
-    auto lbl = std::make_unique<ui::Label>(0, YOffset + line * LineHeight, "- EMPTY SLOT " + std::to_string(i + 1));
+    auto lbl = std::make_unique<ui::Label>(glm::ivec2{0, YOffset + line * LineHeight},
+                                           "- EMPTY SLOT " + std::to_string(i + 1));
     lbl->alignX = ui::Label::Alignment::Center;
     lbl->alignY = ui::Label::Alignment::Bottom;
     m_labels.emplace_back(std::move(lbl));
@@ -751,7 +758,7 @@ std::unique_ptr<MenuState>
     const auto& lbl = m_labels.at(i);
     if(m_selected == i)
     {
-      lbl->addBackground(PixelWidth - 12, 16, 0, 0);
+      lbl->addBackground(glm::ivec2{PixelWidth - 12, 16}, glm::ivec2{0});
       lbl->outline = true;
     }
     else

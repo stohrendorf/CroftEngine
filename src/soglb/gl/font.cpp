@@ -116,7 +116,7 @@ Font::~Font()
   m_cache = nullptr;
 }
 
-void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, int x, int y, const SRGBA8& color, int size)
+void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, glm::ivec2 xy, const SRGBA8& color, int size)
 {
   Expects(text);
   Expects(size > 0);
@@ -159,15 +159,15 @@ void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, int x, int y, 
       for(int dx = 0; dx < sbit->width; dx++, i++)
       {
         currentColor.channels[3] = gsl::narrow_cast<uint8_t>(sbit->buffer[i] * baseAlpha / 255);
-        img.set(x + dx + sbit->left, y + dy - sbit->top, currentColor, true);
+        img.set(xy + glm::ivec2{dx + sbit->left, dy - sbit->top}, currentColor, true);
       }
     }
 
     if(prevChar.has_value())
-      x += getGlyphKernAdvance(prevChar.value(), chr);
+      xy.x += getGlyphKernAdvance(prevChar.value(), chr);
 
-    x += sbit->xadvance;
-    y += sbit->yadvance;
+    xy.x += sbit->xadvance;
+    xy.y += sbit->yadvance;
 
     FTC_Node_Unref(node, m_cache);
     prevChar = chr;
@@ -226,15 +226,14 @@ glm::ivec2 Font::getBounds(const gsl::czstring text, int size) const
 
 void Font::drawText(Image<SRGBA8>& img,
                     const std::string& text,
-                    const int x,
-                    const int y,
+                    const glm::ivec2& xy,
                     const uint8_t red,
                     const uint8_t green,
                     const uint8_t blue,
                     const uint8_t alpha,
                     const int size)
 {
-  drawText(img, text.c_str(), x, y, SRGBA8{red, green, blue, alpha}, size);
+  drawText(img, text.c_str(), xy, SRGBA8{red, green, blue, alpha}, size);
 }
 
 FT_Size_Metrics Font::getMetrics()

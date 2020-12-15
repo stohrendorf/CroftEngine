@@ -38,7 +38,7 @@ int Label::calcWidth() const
       continue;
     }
 
-    if(chr < 11)
+    if(chr <= 10)
       chr += 81;
     else if(chr < 16)
       chr += 91;
@@ -69,59 +69,55 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
     }
   }
 
-  auto y = posY;
-  auto x = posX;
+  auto xy = pos;
   const auto textWidth = calcWidth();
 
   if(alignX == Alignment::Center)
   {
-    x += (img.getWidth() - textWidth) / 2;
+    xy.x += (img.getWidth() - textWidth) / 2;
   }
   else if(alignX == Alignment::Right)
   {
-    x += img.getWidth() - textWidth;
+    xy.x += img.getWidth() - textWidth;
   }
 
   if(alignY == Alignment::Center)
   {
-    y += img.getHeight() / 2;
+    xy.y += img.getHeight() / 2;
   }
   else if(alignY == Alignment::Bottom)
   {
-    y += img.getHeight();
+    xy.y += img.getHeight();
   }
 
-  auto bgndX = bgndOffX + x - 2;
-  const auto bgndY = bgndOffY + y - 15;
-
-  int bgndWidth = 0;
-  int bgndHeight = 0;
+  auto bgnd = bgndOff + xy - glm::ivec2{2, 15};
+  glm::ivec2 effectiveBgndSize{0};
   if(fillBackground || outline)
   {
-    if(bgndSizeX != 0)
+    if(bgndSize.x != 0)
     {
-      bgndWidth = bgndSizeX + 4;
-      bgndX += (textWidth - bgndSizeX) / 2;
+      effectiveBgndSize.x = bgndSize.x + 4;
+      bgnd.x += (textWidth - bgndSize.x) / 2;
     }
     else
     {
-      bgndWidth = textWidth + 4;
+      effectiveBgndSize.x = textWidth + 4;
     }
 
-    if(bgndSizeY != 0)
+    if(bgndSize.y != 0)
     {
-      bgndHeight = bgndSizeY;
+      effectiveBgndSize.y = bgndSize.y;
     }
     else
     {
-      bgndHeight = 16;
+      effectiveBgndSize.y = 16;
     }
   }
 
   if(fillBackground)
   {
-    for(int dy = 0; dy < bgndHeight; ++dy)
-      img.line(bgndX, bgndY + dy, bgndX + bgndWidth - 1, bgndY + dy, {0, 0, 0, 192}, true);
+    for(int dy = 0; dy < effectiveBgndSize.y; ++dy)
+      img.line(bgnd + glm::ivec2{0, dy}, bgnd + glm::ivec2{effectiveBgndSize.x - 1, dy}, {0, 0, 0, 192}, true);
   }
 
   for(uint8_t chr : text)
@@ -132,7 +128,7 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
 
     if(chr == ' ')
     {
-      x += (wordSpacing * scale) / FontBaseScale;
+      xy.x += (wordSpacing * scale) / FontBaseScale;
       continue;
     }
 
@@ -143,17 +139,17 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
     else
       chr = charToSprite[chr - ' '];
 
-    font.draw(chr, x, y, img);
+    font.draw(chr, xy, img);
 
     if(origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~')
       continue;
 
-    x += (charWidths[chr] + letterSpacing) * scale / FontBaseScale;
+    xy.x += (charWidths[chr] + letterSpacing) * scale / FontBaseScale;
   }
 
   if(outline)
   {
-    drawOutlineBox(img, bgndX, bgndY, bgndWidth, bgndHeight, palette);
+    drawOutlineBox(img, bgnd, effectiveBgndSize, palette);
   }
 }
 } // namespace ui

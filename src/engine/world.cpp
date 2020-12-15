@@ -1248,7 +1248,10 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
     if(m_objectManager.getLaraPtr() != nullptr)
     {
       for(const auto& item : initInv)
-        m_inventory.put(m_objectManager.getLara(), item.first, item.second);
+      {
+        if(m_level->findAnimatedModelForType(item.first) != nullptr)
+          m_inventory.put(m_objectManager.getLara(), item.first, item.second);
+      }
     }
   }
   else

@@ -59,7 +59,7 @@ struct MenuDisplay
   }
 
 private:
-  [[nodiscard]] static std::vector<MenuObject> getOptionRingObjects(bool withHomePolaroid);
+  [[nodiscard]] static std::vector<MenuObject> getOptionRingObjects(const engine::World& world, bool withHomePolaroid);
   [[nodiscard]] static std::vector<MenuObject> getMainRingObjects(const engine::World& world);
   [[nodiscard]] static std::vector<MenuObject> getKeysRingObjects(const engine::World& world);
 };

@@ -8,9 +8,13 @@ struct ByteColor;
 
 namespace ui
 {
-extern void
-  drawOutlineBox(gl::Image<gl::SRGBA8>& img, int x, int y, int width, int height, const loader::file::Palette& palette);
+extern void drawOutlineBox(gl::Image<gl::SRGBA8>& img,
+                           const glm::ivec2& xy,
+                           const glm::ivec2& size,
+                           const loader::file::Palette& palette);
 
-extern void
-  drawLine(gl::Image<gl::SRGBA8>& img, int x0, int y0, int width, int height, const loader::file::ByteColor& color);
+extern void drawLine(gl::Image<gl::SRGBA8>& img,
+                     const glm::ivec2& xy0,
+                     const glm::ivec2& size,
+                     const loader::file::ByteColor& color);
 } // namespace ui

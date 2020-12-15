@@ -152,12 +152,12 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
   }
   if(m_showDebugInfo)
   {
-    m_debugFont->drawText(*m_screenOverlay->getImage(),
-                          std::to_string(m_renderer->getFrameRate()).c_str(),
-                          m_screenOverlay->getImage()->getWidth() - 40,
-                          m_screenOverlay->getImage()->getHeight() - 20,
-                          gl::SRGBA8{255},
-                          DebugTextFontSize);
+    m_debugFont->drawText(
+      *m_screenOverlay->getImage(),
+      std::to_string(m_renderer->getFrameRate()).c_str(),
+      glm::ivec2{m_screenOverlay->getImage()->getWidth() - 40, m_screenOverlay->getImage()->getHeight() - 20},
+      gl::SRGBA8{255},
+      DebugTextFontSize);
 
     const auto drawObjectName = [this](const std::shared_ptr<objects::Object>& object, const gl::SRGBA8& color) {
       const auto vertex
@@ -180,8 +180,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
       m_debugFont->drawText(*m_screenOverlay->getImage(),
                             object->getNode()->getName().c_str(),
-                            static_cast<int>(projVertex.x),
-                            static_cast<int>(projVertex.y),
+                            glm::ivec2{static_cast<int>(projVertex.x), static_cast<int>(projVertex.y)},
                             color,
                             DebugTextFontSize);
     };
@@ -206,11 +205,11 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
 void Presenter::drawLevelName(const loader::file::Palette& palette, const std::string& levelName)
 {
-  ui::Label tmp{0, -50, levelName};
+  ui::Label tmp{{0, -50}, levelName};
   tmp.alignX = ui::Label::Alignment::Center;
   tmp.alignY = ui::Label::Alignment::Bottom;
   tmp.outline = true;
-  tmp.addBackground(0, 0, 0, 0);
+  tmp.addBackground({0, 0}, {0, 0});
   tmp.draw(*m_trFont, *m_screenOverlay->getImage(), palette);
 }
 
@@ -222,20 +221,20 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
     const auto x0 = m_window->getViewport().x - 110;
 
     for(int i = 7; i <= 13; ++i)
-      image.line(x0 - 1, i, x0 + 101, i, palette.colors[0].toTextureColor());
-    image.line(x0 - 2, 14, x0 + 102, 14, palette.colors[17].toTextureColor());
-    image.line(x0 + 102, 6, x0 + 102, 14, palette.colors[17].toTextureColor());
-    image.line(x0 + 102, 6, x0 + 102, 14, palette.colors[19].toTextureColor());
-    image.line(x0 - 2, 6, x0 - 2, 14, palette.colors[19].toTextureColor());
+      image.line({x0 - 1, i}, {x0 + 101, i}, palette.colors[0].toTextureColor());
+    image.line({x0 - 2, 14}, {x0 + 102, 14}, palette.colors[17].toTextureColor());
+    image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[17].toTextureColor());
+    image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[19].toTextureColor());
+    image.line({x0 - 2, 6}, {x0 - 2, 14}, palette.colors[19].toTextureColor());
 
     const int p = util::clamp(objectManager.getLara().getAir() * 100 / core::LaraAir, 0, 100);
     if(p > 0)
     {
-      image.line(x0, 8, x0 + p, 8, palette.colors[32].toTextureColor());
-      image.line(x0, 9, x0 + p, 9, palette.colors[41].toTextureColor());
-      image.line(x0, 10, x0 + p, 10, palette.colors[32].toTextureColor());
-      image.line(x0, 11, x0 + p, 11, palette.colors[19].toTextureColor());
-      image.line(x0, 12, x0 + p, 12, palette.colors[21].toTextureColor());
+      image.line({x0, 8}, {x0 + p, 8}, palette.colors[32].toTextureColor());
+      image.line({x0, 9}, {x0 + p, 9}, palette.colors[41].toTextureColor());
+      image.line({x0, 10}, {x0 + p, 10}, palette.colors[32].toTextureColor());
+      image.line({x0, 11}, {x0 + p, 11}, palette.colors[19].toTextureColor());
+      image.line({x0, 12}, {x0 + p, 12}, palette.colors[21].toTextureColor());
     }
   }
 
@@ -258,20 +257,20 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
 
   const int x0 = 8;
   for(int i = 7; i <= 13; ++i)
-    image.line(x0 - 1, i, x0 + 101, i, palette.colors[0].toTextureColor(alpha), true);
-  image.line(x0 - 2, 14, x0 + 102, 14, palette.colors[17].toTextureColor(alpha), true);
-  image.line(x0 + 102, 6, x0 + 102, 14, palette.colors[17].toTextureColor(alpha), true);
-  image.line(x0 + 102, 6, x0 + 102, 14, palette.colors[19].toTextureColor(alpha), true);
-  image.line(x0 - 2, 6, x0 - 2, 14, palette.colors[19].toTextureColor(alpha), true);
+    image.line({x0 - 1, i}, {x0 + 101, i}, palette.colors[0].toTextureColor(alpha), true);
+  image.line({x0 - 2, 14}, {x0 + 102, 14}, palette.colors[17].toTextureColor(alpha), true);
+  image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[17].toTextureColor(alpha), true);
+  image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[19].toTextureColor(alpha), true);
+  image.line({x0 - 2, 6}, {x0 - 2, 14}, palette.colors[19].toTextureColor(alpha), true);
 
   const int p = util::clamp(objectManager.getLara().m_state.health * 100 / core::LaraHealth, 0, 100);
   if(p > 0)
   {
-    image.line(x0, 8, x0 + p, 8, palette.colors[8].toTextureColor(alpha), true);
-    image.line(x0, 9, x0 + p, 9, palette.colors[11].toTextureColor(alpha), true);
-    image.line(x0, 10, x0 + p, 10, palette.colors[8].toTextureColor(alpha), true);
-    image.line(x0, 11, x0 + p, 11, palette.colors[6].toTextureColor(alpha), true);
-    image.line(x0, 12, x0 + p, 12, palette.colors[24].toTextureColor(alpha), true);
+    image.line({x0, 8}, {x0 + p, 8}, palette.colors[8].toTextureColor(alpha), true);
+    image.line({x0, 9}, {x0 + p, 9}, palette.colors[11].toTextureColor(alpha), true);
+    image.line({x0, 10}, {x0 + p, 10}, palette.colors[8].toTextureColor(alpha), true);
+    image.line({x0, 11}, {x0 + p, 11}, palette.colors[6].toTextureColor(alpha), true);
+    image.line({x0, 12}, {x0 + p, 12}, palette.colors[24].toTextureColor(alpha), true);
   }
 }
 
@@ -338,8 +337,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
                                       m_window->getViewport().x * m_window->getViewport().y);
   m_abibasFont->drawText(*m_screenOverlay->getImage(),
                          state.c_str(),
-                         40,
-                         m_screenOverlay->getImage()->getHeight() - 100,
+                         glm::ivec2{40, m_screenOverlay->getImage()->getHeight() - 100},
                          gl::SRGBA8{255, 255, 255, 192},
                          StatusLineFontSize);
 

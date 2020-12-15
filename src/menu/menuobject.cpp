@@ -37,41 +37,63 @@ bool MenuObject::animate()
 
 void MenuObject::updateMeshRenderMask()
 {
+  auto setMask = [this](uint32_t mask) {
+    if(std::exchange(meshRenderMask, mask) == mask)
+      return;
+
+    for(size_t i = 0; i < node->getChildren().size(); ++i)
+    {
+      node->setVisible(i, meshRenderMask.test(i));
+    }
+    node->rebuildMesh();
+  };
+
   if(type == engine::TR1ItemId::PassportOpening)
   {
     if(meshAnimFrame <= 14_frame)
     {
-      meshRenderMask = 0x57;
+      setMask(0x57);
     }
     else if(meshAnimFrame <= 18_frame)
     {
-      meshRenderMask = 0x5f;
+      setMask(0x5f);
     }
     else if(meshAnimFrame == 19_frame)
     {
-      meshRenderMask = 0x5b;
+      setMask(0x5b);
     }
     else if(meshAnimFrame <= 23_frame)
     {
-      meshRenderMask = 0x7b;
+      setMask(0x7b);
     }
     else if(meshAnimFrame <= 28_frame)
     {
-      meshRenderMask = 0x3b;
+      setMask(0x3b);
     }
     else if(meshAnimFrame == 29_frame)
     {
-      meshRenderMask = 0x13;
+      setMask(0x13);
     }
   }
   else if(type == engine::TR1ItemId::Compass && (meshAnimFrame == 0_frame || meshAnimFrame >= 18_frame))
   {
-    meshRenderMask = defaultMeshRenderMask;
+    setMask(defaultMeshRenderMask.to_ulong());
   }
   else
   {
-    meshRenderMask.set();
+    setMask(0xffffffff);
   }
+}
+
+void MenuObject::initModel(const engine::World& world)
+{
+  const auto& obj = world.findAnimatedModelForType(type);
+  Expects(obj != nullptr);
+  node = std::make_shared<engine::SkeletalModelNode>("menu-object", &world, obj.get());
+  node->addUniformSetter("u_lightAmbient",
+                         [](const render::scene::Node& /*node*/, gl::Uniform& uniform) { uniform.set(0.5f); });
+  core::AnimStateId animState{0_as};
+  engine::SkeletalModelNode::buildMesh(node, animState);
 }
 
 void MenuObject::draw(const engine::World& world,
@@ -93,18 +115,9 @@ void MenuObject::draw(const engine::World& world,
   else if(const auto& obj = world.findAnimatedModelForType(type))
   {
     // TODO avoid re-creating the model each time
-    auto node = std::make_shared<engine::SkeletalModelNode>("menu-object", &world, obj.get());
     node->setLocalMatrix(nodeMatrix);
-    node->addUniformSetter("u_lightAmbient",
-                           [](const render::scene::Node& /*node*/, gl::Uniform& uniform) { uniform.set(0.5f); });
     core::AnimStateId animState{0_as};
-    engine::SkeletalModelNode::buildMesh(node, animState);
     node->setAnimation(animState, obj->animations, meshAnimFrame);
-    for(size_t i = 0; i < static_cast<size_t>(obj->nMeshes); ++i)
-    {
-      node->setVisible(i, meshRenderMask.test(i));
-    }
-    node->rebuildMesh();
 
     if(type == engine::TR1ItemId::Compass)
     {

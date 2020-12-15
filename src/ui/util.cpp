@@ -5,33 +5,29 @@
 namespace ui
 {
 void drawOutlineBox(gl::Image<gl::SRGBA8>& img,
-                    const int x,
-                    const int y,
-                    const int width,
-                    const int height,
+                    const glm::ivec2& xy,
+                    const glm::ivec2& size,
                     const loader::file::Palette& palette)
 {
   // top
-  drawLine(img, x, y - 1, width + 1, 0, palette.colors[15]);
-  drawLine(img, x, y, width, 0, palette.colors[31]);
+  drawLine(img, xy - glm::ivec2{0, 1}, {size.x + 1, 0}, palette.colors[15]);
+  drawLine(img, xy, {size.x, 0}, palette.colors[31]);
   //right
-  drawLine(img, x + width, y - 1, 0, height + 1, palette.colors[15]);
-  drawLine(img, x + width + 1, y - 1, 0, height + 2, palette.colors[31]);
+  drawLine(img, xy + glm::ivec2{size.x, -1}, {0, size.y + 1}, palette.colors[15]);
+  drawLine(img, xy + glm::ivec2{size.x + 1, -1}, {0, size.y + 2}, palette.colors[31]);
   // bottom
-  drawLine(img, x + width, y + height, -width, 0, palette.colors[15]);
-  drawLine(img, x + width, y + height + 1, -width - 1, 0, palette.colors[31]);
+  drawLine(img, xy + size, {-size.x, 0}, palette.colors[15]);
+  drawLine(img, xy + size + glm::ivec2{0, 1}, {-size.x - 1, 0}, palette.colors[31]);
   // left
-  drawLine(img, x - 1, y + height, 0, -height - 1, palette.colors[15]);
-  drawLine(img, x, y + height, 0, -height, palette.colors[31]);
+  drawLine(img, xy + glm::ivec2{-1, size.y}, {0, -size.y - 1}, palette.colors[15]);
+  drawLine(img, xy + glm::ivec2{0, size.y}, {0, -size.y}, palette.colors[31]);
 }
 
 void drawLine(gl::Image<gl::SRGBA8>& img,
-              const int x0,
-              const int y0,
-              const int width,
-              const int height,
+              const glm::ivec2& xy0,
+              const glm::ivec2& size,
               const loader::file::ByteColor& color)
 {
-  img.line(x0, y0, x0 + width, y0 + height, color.toTextureColor());
+  img.line(xy0, xy0 + size, color.toTextureColor());
 }
 } // namespace ui

@@ -46,7 +46,7 @@ void MenuDisplay::updateRingTitle()
 
   if(objectTexts[2] == nullptr)
   {
-    objectTexts[2] = std::make_unique<ui::Label>(0, 26, getCurrentRing().title);
+    objectTexts[2] = std::make_unique<ui::Label>(glm::ivec2{0, 26}, getCurrentRing().title);
     objectTexts[2]->alignX = ui::Label::Alignment::Center;
   }
   else
@@ -58,9 +58,9 @@ void MenuDisplay::updateRingTitle()
   {
     if(objectTexts[3] == nullptr)
     {
-      objectTexts[3] = std::make_unique<ui::Label>(20, 28, "[");
+      objectTexts[3] = std::make_unique<ui::Label>(glm::ivec2{20, 28}, "[");
       objectTexts[3]->alignX = ui::Label::Alignment::Left;
-      objectTexts[4] = std::make_unique<ui::Label>(-20, 28, "[");
+      objectTexts[4] = std::make_unique<ui::Label>(glm::ivec2{-20, 28}, "[");
       objectTexts[4]->alignX = ui::Label::Alignment::Right;
     }
   }
@@ -74,10 +74,10 @@ void MenuDisplay::updateRingTitle()
   {
     if(objectTexts[5] == nullptr)
     {
-      objectTexts[5] = std::make_unique<ui::Label>(20, -15, "]");
+      objectTexts[5] = std::make_unique<ui::Label>(glm::ivec2{20, -15}, "]");
       objectTexts[5]->alignX = ui::Label::Alignment::Left;
       objectTexts[5]->alignY = ui::Label::Alignment::Bottom;
-      objectTexts[6] = std::make_unique<ui::Label>(-20, -15, "]");
+      objectTexts[6] = std::make_unique<ui::Label>(glm::ivec2{-20, -15}, "]");
       objectTexts[6]->alignX = ui::Label::Alignment::Right;
       objectTexts[6]->alignY = ui::Label::Alignment::Bottom;
     }
@@ -99,13 +99,13 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
       {
         if(const auto objectName = core::get<std::string>(localNames.value(), object.type))
         {
-          objectTexts[0] = std::make_unique<ui::Label>(0, -16, objectName.value());
+          objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, -16}, objectName.value());
         }
       }
     }
 
     if(objectTexts[0] == nullptr)
-      objectTexts[0] = std::make_unique<ui::Label>(0, -16, object.name);
+      objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, -16}, object.name);
 
     objectTexts[0]->alignX = ui::Label::Alignment::Center;
     objectTexts[0]->alignY = ui::Label::Alignment::Bottom;
@@ -154,11 +154,12 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
 
   if(objectTexts[1] == nullptr && itemCount > 1)
   {
-    objectTexts[1] = std::make_unique<ui::Label>(64, -56, makeAmmoString(std::to_string(totalItemCount) + suffix));
+    objectTexts[1]
+      = std::make_unique<ui::Label>(glm::ivec2{64, -56}, makeAmmoString(std::to_string(totalItemCount) + suffix));
     objectTexts[1]->alignX = ui::Label::Alignment::Center;
     objectTexts[1]->alignY = ui::Label::Alignment::Bottom;
   }
-  else
+  else if(itemCount <= 1)
   {
     objectTexts[1].reset();
   }
@@ -246,7 +247,7 @@ bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world
   return false;
 }
 
-std::vector<MenuObject> MenuDisplay::getOptionRingObjects(bool withHomePolaroid)
+std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& world, bool withHomePolaroid)
 {
   std::vector<MenuObject> objects{
     MenuObject{
@@ -294,6 +295,9 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(bool withHomePolaroid)
                                     0xffffffff,
                                     0xffffffff});
   }
+
+  for(auto& object : objects)
+    object.initModel(world);
 
   return objects;
 }
@@ -387,6 +391,9 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
                                     0xffffffff});
   }
 
+  for(auto& object : objects)
+    object.initModel(world);
+
   return objects;
 }
 
@@ -458,6 +465,9 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
       "Pickup", engine::TR1ItemId::Item148, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
   }
 
+  for(auto& object : objects)
+    object.initModel(world);
+
   return objects;
 }
 
@@ -473,7 +483,7 @@ bool MenuDisplay::init(engine::World& world)
   {
     rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Options,
                                                   mode == InventoryMode::DeathMode ? "GAME OVER" : "OPTION",
-                                                  getOptionRingObjects(mode == InventoryMode::TitleMode)));
+                                                  getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
   }
 
   if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)

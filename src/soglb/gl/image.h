@@ -157,22 +157,22 @@ public:
     return m_size;
   }
 
-  [[nodiscard]] StorageType& at(const int32_t x, const int32_t y)
+  [[nodiscard]] StorageType& at(const glm::ivec2& xy)
   {
-    if(x < 0 || x >= m_size.x || y < 0 || y >= m_size.y)
+    if(xy.x < 0 || xy.x >= m_size.x || xy.y < 0 || xy.y >= m_size.y)
     {
       BOOST_THROW_EXCEPTION(std::out_of_range{"Image coordinates out of range"});
     }
 
-    return m_data[y * m_size.x + x];
+    return m_data[xy.y * m_size.x + xy.x];
   }
 
-  void set(const int32_t x, const int32_t y, const StorageType& pixel, const bool blend = false)
+  void set(const glm::ivec2& xy, const StorageType& pixel, const bool blend = false)
   {
-    if(x < 0 || x >= m_size.x || y < 0 || y >= m_size.y)
+    if(xy.x < 0 || xy.x >= m_size.x || xy.y < 0 || xy.y >= m_size.y)
       return;
 
-    const auto o = gsl::narrow_cast<size_t>(y * m_size.x + x);
+    const auto o = gsl::narrow_cast<size_t>(xy.y * m_size.x + xy.x);
 
     if(!blend)
     {
@@ -184,14 +184,14 @@ public:
     }
   }
 
-  [[nodiscard]] const StorageType& at(const int32_t x, const int32_t y) const
+  [[nodiscard]] const StorageType& at(const glm::ivec2& xy) const
   {
-    if(x < 0 || x >= m_size.x || y < 0 || y >= m_size.y)
+    if(xy.x < 0 || xy.x >= m_size.x || xy.y < 0 || xy.y >= m_size.y)
     {
       BOOST_THROW_EXCEPTION(std::out_of_range{"Image coordinates out of range"});
     }
 
-    return m_data[y * m_size.x + x];
+    return m_data[xy.y * m_size.x + xy.x];
   }
 
   void fill(const StorageType& color)
@@ -200,34 +200,34 @@ public:
       detail::fill(gsl::not_null<StorageType*>{m_data.data()}, m_data.size(), color);
   }
 
-  void
-    line(int32_t x0, int32_t y0, const int32_t x1, const int32_t y1, const StorageType& color, const bool blend = false)
+  void line(glm::ivec2 xy0, const glm::ivec2& xy1, const StorageType& color, const bool blend = false)
   {
     // shamelessly copied from wikipedia
-    const int32_t dx = abs(x1 - x0);
-    const int32_t sx = x0 < x1 ? 1 : -1;
-    const int32_t dy = -abs(y1 - y0);
-    const int32_t sy = y0 < y1 ? 1 : -1;
+    const int32_t dx = abs(xy1.x - xy0.x);
+    const int32_t dy = -abs(xy1.y - xy0.y);
+
+    const int32_t sx = xy0.x < xy1.x ? 1 : -1;
+    const int32_t sy = xy0.y < xy1.y ? 1 : -1;
 
     int32_t err = dx + dy;
 
     while(true)
     {
-      set(x0, y0, color, blend);
+      set(xy0, color, blend);
 
-      if(x0 == x1 && y0 == y1)
+      if(xy0 == xy1)
         break;
 
       const auto e2 = 2 * err;
       if(e2 > dy)
       {
         err += dy;
-        x0 += sx;
+        xy0.x += sx;
       }
       if(e2 < dx)
       {
         err += dx;
-        y0 += sy;
+        xy0.y += sy;
       }
     }
   }

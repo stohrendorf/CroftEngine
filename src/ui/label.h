@@ -20,16 +20,14 @@ class CachedFont
 {
   struct Glyph
   {
-    explicit Glyph(gl::CImgWrapper&& image, int shiftX, int shiftY)
+    explicit Glyph(gl::CImgWrapper&& image, glm::ivec2 shift)
         : image{std::move(image)}
-        , shiftX{shiftX}
-        , shiftY{shiftY}
+        , shift{shift}
     {
     }
 
     gl::CImgWrapper image;
-    const int shiftX;
-    const int shiftY;
+    const glm::ivec2 shift;
   };
 
   mutable std::vector<Glyph> m_glyphs;
@@ -43,10 +41,10 @@ class CachedFont
     const auto dstH = glm::abs(sprite.render1.y - sprite.render0.y) * scale / FontBaseScale;
 
     gl::CImgWrapper src{*sprite.image};
-    src.crop(sprite.uv0.toNearestPx(sprite.image->width()).x,
-             sprite.uv0.toNearestPx(sprite.image->height()).y,
-             sprite.uv1.toNearestPx(sprite.image->width()).x,
-             sprite.uv1.toNearestPx(sprite.image->height()).y);
+    src.crop(sprite.uv0.toPx(sprite.image->width()).x,
+             sprite.uv0.toPx(sprite.image->height()).y,
+             sprite.uv1.toPx(sprite.image->width()).x,
+             sprite.uv1.toPx(sprite.image->height()).y);
     src.resize(dstW, dstH);
 
     return src;
@@ -60,7 +58,7 @@ public:
                    sequence.sprites.end(),
                    std::back_inserter(m_glyphs),
                    [scale](const loader::file::Sprite& spr) {
-                     return Glyph{extractChar(spr, scale), spr.render0.x, spr.render0.y};
+                     return Glyph{extractChar(spr, scale), spr.render0};
                    });
   }
 
@@ -69,17 +67,16 @@ public:
     return m_glyphs.at(n);
   }
 
-  void draw(size_t n, int x, int y, gl::Image<gl::SRGBA8>& img) const
+  void draw(size_t n, glm::ivec2 xy, gl::Image<gl::SRGBA8>& img) const
   {
     auto& src = m_glyphs.at(n);
-    x += src.shiftX;
-    y += src.shiftY;
+    xy += src.shift;
 
     for(int dy = 0; dy < src.image.height(); ++dy)
     {
       for(int dx = 0; dx < src.image.width(); ++dx)
       {
-        img.set(x + dx, y + dy, src.image(dx, dy), true);
+        img.set(xy + glm::ivec2{dx, dy}, src.image(dx, dy), true);
       }
     }
   }
@@ -107,22 +104,18 @@ struct Label
   Alignment alignY = Alignment::Top;
   bool fillBackground = false;
   bool outline = false;
-  int16_t posX = 0;
-  int16_t posY = 0;
+  glm::ivec2 pos{0};
   int16_t letterSpacing = 1;
   int16_t wordSpacing = 6;
   int16_t blinkTime = 0;
   mutable int16_t timeout = 0;
-  int16_t bgndSizeX = 0;
-  int16_t bgndSizeY = 0;
-  int16_t bgndOffX = 0;
-  int16_t bgndOffY = 0;
+  glm::ivec2 bgndSize{0};
+  glm::ivec2 bgndOff{0};
   int scale = FontBaseScale;
   std::string text;
 
-  explicit Label(int16_t xpos, int16_t ypos, const std::string& string)
-      : posX{xpos}
-      , posY{ypos}
+  explicit Label(const glm::ivec2& pos, const std::string& string)
+      : pos{pos}
       , text{string, 0, std::min(std::string::size_type(64), string.size())}
   {
   }
@@ -131,12 +124,10 @@ struct Label
 
   int calcWidth() const;
 
-  void addBackground(int16_t xsize, int16_t ysize, int16_t xoff, int16_t yoff)
+  void addBackground(const glm::ivec2& size, const glm::ivec2& off)
   {
-    bgndSizeX = xsize;
-    bgndSizeY = ysize;
-    bgndOffX = xoff;
-    bgndOffY = yoff;
+    bgndSize = size;
+    bgndOff = off;
     fillBackground = true;
   }
 
