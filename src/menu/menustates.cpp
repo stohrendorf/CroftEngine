@@ -468,9 +468,43 @@ void DoneMenuState::handleObject(engine::World& world, MenuDisplay& display, Men
 }
 
 std::unique_ptr<MenuState>
-  DoneMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
+  DoneMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world, MenuDisplay& display)
 {
+  if(!display.allowMenuClose)
+  {
+    return nullptr;
+  }
+
   display.isDone = true;
+  if(display.musicVolume != 0)
+  {
+    world.getPresenter().getSoundEngine()->getDevice().setStreamGain(static_cast<float>(5 + 25 * display.musicVolume)
+                                                                     / 255.0f);
+  }
+
+  switch(display.inventoryChosen.value_or(engine::TR1ItemId::Lara))
+  {
+  case engine::TR1ItemId::Pistols:
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Pistols);
+    break;
+  case engine::TR1ItemId::Shotgun:
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Shotgun);
+    break;
+  case engine::TR1ItemId::Magnums:
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Magnums);
+    break;
+  case engine::TR1ItemId::Uzis:
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Uzis);
+    break;
+  case engine::TR1ItemId::SmallMedipack:
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::SmallMedipack);
+    break;
+  case engine::TR1ItemId::LargeMedipack:
+    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::LargeMedipack);
+    break;
+  default: break;
+  }
+
   return nullptr;
 }
 

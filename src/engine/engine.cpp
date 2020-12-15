@@ -118,8 +118,7 @@ void Engine::run()
     {
       if(m_presenter->getInputHandler().getInputState().menu.justChangedTo(true))
       {
-        menu = std::make_shared<menu::MenuDisplay>();
-        menu->init(*m_world);
+        menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, *m_world);
         continue;
       }
 

@@ -26,8 +26,8 @@ struct MenuObject
   core::Angle selectedRotationX;
   core::Angle selectedRotationY;
   core::Length selectedPositionZ;
-  std::bitset<32> defaultMeshRenderMask;
-  std::bitset<32> meshRenderMask;
+  std::bitset<32> defaultMeshRenderMask{0xffffffffull};
+  std::bitset<32> meshRenderMask{0xffffffffull};
 
   core::Frame meshAnimFrame{0_frame};
   core::Frame goalFrame{0_frame};

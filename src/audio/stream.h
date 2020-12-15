@@ -61,7 +61,6 @@ public:
     }
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void setGain(const ALfloat gain_value)
   {
     if(const auto src = m_source.lock())

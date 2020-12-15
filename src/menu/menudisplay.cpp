@@ -152,14 +152,15 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
   default: break;
   }
 
-  if(objectTexts[1] == nullptr && itemCount > 1)
+  if(itemCount > 1)
   {
-    objectTexts[1]
-      = std::make_unique<ui::Label>(glm::ivec2{64, -56}, makeAmmoString(std::to_string(totalItemCount) + suffix));
+    if(objectTexts[1] == nullptr)
+      objectTexts[1]
+        = std::make_unique<ui::Label>(glm::ivec2{64, -56}, makeAmmoString(std::to_string(totalItemCount) + suffix));
     objectTexts[1]->alignX = ui::Label::Alignment::Center;
     objectTexts[1]->alignY = ui::Label::Alignment::Bottom;
   }
-  else if(itemCount <= 1)
+  else
   {
     objectTexts[1].reset();
   }
@@ -252,48 +253,13 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
   std::vector<MenuObject> objects{
     MenuObject{
       "Game", engine::TR1ItemId::PassportClosed, 30_frame, 14_frame, 25_deg, -24_deg, 0_deg, 384_len, 0x13, 0x13},
-    MenuObject{"Controls",
-               engine::TR1ItemId::DirectionKeys,
-               1_frame,
-               0_frame,
-               30_deg,
-               8_deg,
-               0_deg,
-               352_len,
-               0xffffffff,
-               0xffffffff},
-    MenuObject{"Sound",
-               engine::TR1ItemId::CassettePlayer,
-               1_frame,
-               0_frame,
-               26_deg,
-               -13_deg,
-               0_deg,
-               368_len,
-               0xffffffff,
-               0xffffffff},
-    MenuObject{"Detail Levels",
-               engine::TR1ItemId::Sunglasses,
-               1_frame,
-               0_frame,
-               23_deg,
-               -37_deg,
-               0_deg,
-               424_len,
-               0xffffffff,
-               0xffffffff}};
+    MenuObject{"Controls", engine::TR1ItemId::DirectionKeys, 1_frame, 0_frame, 30_deg, 8_deg, 0_deg, 352_len},
+    MenuObject{"Sound", engine::TR1ItemId::CassettePlayer, 1_frame, 0_frame, 26_deg, -13_deg, 0_deg, 368_len},
+    MenuObject{"Detail Levels", engine::TR1ItemId::Sunglasses, 1_frame, 0_frame, 23_deg, -37_deg, 0_deg, 424_len}};
   if(withHomePolaroid)
   {
-    objects.emplace_back(MenuObject{"Lara's home",
-                                    engine::TR1ItemId::LarasHomePolaroid,
-                                    1_frame,
-                                    0_frame,
-                                    25_deg,
-                                    -24_deg,
-                                    0_deg,
-                                    384_len,
-                                    0xffffffff,
-                                    0xffffffff});
+    objects.emplace_back(MenuObject{
+      "Lara's home", engine::TR1ItemId::LarasHomePolaroid, 1_frame, 0_frame, 25_deg, -24_deg, 0_deg, 384_len});
   }
 
   for(auto& object : objects)
@@ -309,86 +275,38 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
 
   if(world.getInventory().count(engine::TR1ItemId::Pistols) > 0)
   {
-    objects.emplace_back(MenuObject{"Pistols",
-                                    engine::TR1ItemId::Pistols,
-                                    12_frame,
-                                    11_frame,
-                                    18_deg,
-                                    -21_deg,
-                                    0_deg,
-                                    296_len,
-                                    0xffffffff,
-                                    0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Pistols", engine::TR1ItemId::Pistols, 12_frame, 11_frame, 18_deg, -21_deg, 0_deg, 296_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Shotgun) > 0)
   {
-    objects.emplace_back(MenuObject{"Shotgun",
-                                    engine::TR1ItemId::Shotgun,
-                                    13_frame,
-                                    12_frame,
-                                    18_deg,
-                                    0_deg,
-                                    -45_deg,
-                                    296_len,
-                                    0xffffffff,
-                                    0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Shotgun", engine::TR1ItemId::Shotgun, 13_frame, 12_frame, 18_deg, 0_deg, -45_deg, 296_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Magnums) > 0)
   {
-    objects.emplace_back(MenuObject{"Magnums",
-                                    engine::TR1ItemId::Magnums,
-                                    12_frame,
-                                    11_frame,
-                                    18_deg,
-                                    -20_deg,
-                                    0_deg,
-                                    296_len,
-                                    0xffffffff,
-                                    0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Magnums", engine::TR1ItemId::Magnums, 12_frame, 11_frame, 18_deg, -20_deg, 0_deg, 296_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Uzis) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Uzis", engine::TR1ItemId::Uzis, 13_frame, 12_frame, 18_deg, -20_deg, 0_deg, 296_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Uzis", engine::TR1ItemId::Uzis, 13_frame, 12_frame, 18_deg, -20_deg, 0_deg, 296_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Explosive) > 0)
   {
-    objects.emplace_back(MenuObject{"Grenade",
-                                    engine::TR1ItemId::Explosive,
-                                    15_frame,
-                                    14_frame,
-                                    28_deg,
-                                    0_deg,
-                                    0_deg,
-                                    368_len,
-                                    0xffffffff,
-                                    0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Grenade", engine::TR1ItemId::Explosive, 15_frame, 14_frame, 28_deg, 0_deg, 0_deg, 368_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::LargeMedipack) > 0)
   {
-    objects.emplace_back(MenuObject{"Large Medi Pack",
-                                    engine::TR1ItemId::LargeMedipack,
-                                    20_frame,
-                                    19_frame,
-                                    20_deg,
-                                    -45_deg,
-                                    -22.5_deg,
-                                    352_len,
-                                    0xffffffff,
-                                    0xffffffff});
+    objects.emplace_back(MenuObject{
+      "Large Medi Pack", engine::TR1ItemId::LargeMedipack, 20_frame, 19_frame, 20_deg, -45_deg, -22.5_deg, 352_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::SmallMedipack) > 0)
   {
-    objects.emplace_back(MenuObject{"Small Medi Pack",
-                                    engine::TR1ItemId::SmallMedipack,
-                                    26_frame,
-                                    25_frame,
-                                    22_deg,
-                                    -40_deg,
-                                    -22.5_deg,
-                                    216_len,
-                                    0xffffffff,
-                                    0xffffffff});
+    objects.emplace_back(MenuObject{
+      "Small Medi Pack", engine::TR1ItemId::SmallMedipack, 26_frame, 25_frame, 22_deg, -40_deg, -22.5_deg, 216_len});
   }
 
   for(auto& object : objects)
@@ -403,66 +321,54 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
 
   if(world.getInventory().count(engine::TR1ItemId::LeadBar) > 0)
   {
-    objects.emplace_back(MenuObject{"Lead Bar",
-                                    engine::TR1ItemId::LeadBar,
-                                    1_frame,
-                                    0_frame,
-                                    20_deg,
-                                    -45_deg,
-                                    -22.5_deg,
-                                    352_len,
-                                    0xffffffff,
-                                    0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Lead Bar", engine::TR1ItemId::LeadBar, 1_frame, 0_frame, 20_deg, -45_deg, -22.5_deg, 352_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Key1) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Key", engine::TR1ItemId::Key1, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(MenuObject{"Key", engine::TR1ItemId::Key1, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Key2) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Key", engine::TR1ItemId::Key2, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(MenuObject{"Key", engine::TR1ItemId::Key2, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Key3) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Key", engine::TR1ItemId::Key3, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(MenuObject{"Key", engine::TR1ItemId::Key3, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Key4) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Key", engine::TR1ItemId::Key4, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(MenuObject{"Key", engine::TR1ItemId::Key4, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Puzzle4) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Puzzle", engine::TR1ItemId::Puzzle4, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle4, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Puzzle3) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Puzzle", engine::TR1ItemId::Puzzle3, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle3, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Puzzle2) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Puzzle", engine::TR1ItemId::Puzzle2, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle2, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Puzzle1) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Puzzle", engine::TR1ItemId::Puzzle1, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Puzzle", engine::TR1ItemId::Puzzle1, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Item149) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Pickup", engine::TR1ItemId::Item149, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Pickup", engine::TR1ItemId::Item149, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Item148) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Pickup", engine::TR1ItemId::Item148, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len, 0xffffffff, 0xffffffff});
+    objects.emplace_back(
+      MenuObject{"Pickup", engine::TR1ItemId::Item148, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
 
   for(auto& object : objects)
@@ -471,10 +377,11 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
   return objects;
 }
 
-bool MenuDisplay::init(engine::World& world)
+MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
+    : mode{mode}
+    , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform)}
 {
-  inventoryChosen.reset();
-  currentRingIndex = 0;
+  m_currentState->begin();
 
   if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
     rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Inventory, "INVENTORY", getMainRingObjects(world)));
@@ -492,7 +399,9 @@ bool MenuDisplay::init(engine::World& world)
     if(rings.back()->list.empty())
     {
       if(mode == InventoryMode::KeysMode)
-        return false;
+      {
+        return;
+      }
 
       rings.pop_back();
     }
@@ -501,83 +410,15 @@ bool MenuDisplay::init(engine::World& world)
   Ensures(!rings.empty());
 
   world.getCameraController().getCamera()->setFieldOfView(core::toRad(80_deg));
-  passportPage = 0;
-  selectedOption = 0;
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
   // TODO stopAmbientSamples();
   // TODO soundStopAllSamples();
   if(mode != InventoryMode::TitleMode)
   {
-    // TODO setStreamVolume(0);
+    world.getPresenter().getSoundEngine()->getDevice().setStreamGain(0.0f);
   }
-  m_currentState = std::make_unique<InflateRingMenuState>(ringTransform);
-  m_currentState->begin();
   world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
-  passOpen = false;
-  return true;
 }
 
-void MenuDisplay::finalize(engine::World& world)
-{
-  //RemoveInventoryText();
-  //Inventory_Displaying = 0;
-  if(!inventoryChosen.has_value())
-  {
-    if(!allowMenuClose)
-    {
-      return;
-    }
-    if(musicVolume != 0)
-    {
-      // TODO setStreamVolume(25 * musicVolume + 5);
-    }
-    return;
-  }
-
-  if(inventoryChosen.value() == engine::TR1ItemId::PassportOpening)
-  {
-    if(passportPage == 1 && musicVolume != 0)
-    {
-      // TODO setStreamVolume(25 * musicVolume + 5);
-    }
-    return;
-  }
-  else if(inventoryChosen.value() == engine::TR1ItemId::LarasHomePolaroid)
-  {
-    selectedOption = 0;
-    return;
-  }
-  else if(inventoryChosen.value() == engine::TR1ItemId::Pistols)
-  {
-    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Pistols);
-  }
-  else if(inventoryChosen.value() == engine::TR1ItemId::Shotgun)
-  {
-    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Shotgun);
-  }
-  else if(inventoryChosen.value() == engine::TR1ItemId::Magnums)
-  {
-    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Magnums);
-  }
-  else if(inventoryChosen.value() == engine::TR1ItemId::Uzis)
-  {
-    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Uzis);
-  }
-  else if(inventoryChosen.value() == engine::TR1ItemId::SmallMedipack)
-  {
-    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::SmallMedipack);
-  }
-  else if(inventoryChosen.value() == engine::TR1ItemId::LargeMedipack)
-  {
-    world.getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::LargeMedipack);
-  }
-
-  if(mode != InventoryMode::TitleMode && musicVolume != 0)
-  {
-    // TODO setStreamVolume(25 * musicVolume + 5);
-  }
-}
-
-MenuDisplay::MenuDisplay() = default;
 MenuDisplay::~MenuDisplay() = default;
 } // namespace menu

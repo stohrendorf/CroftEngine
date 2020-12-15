@@ -17,11 +17,8 @@ public:
   explicit Device();
 
   explicit Device(const Device&) = delete;
-
   explicit Device(Device&&) = delete;
-
   Device& operator=(const Device&) = delete;
-
   Device& operator=(Device&&) = delete;
 
   ~Device();
@@ -72,6 +69,7 @@ public:
   {
     const auto r = std::make_shared<Stream>(*this, std::move(src), bufferSize, bufferCount);
     m_streams.emplace(r);
+    r->setGain(m_streamGain);
     return r;
   }
 
@@ -92,6 +90,13 @@ public:
 
   void reset();
 
+  void setStreamGain(ALfloat gain)
+  {
+    m_streamGain = gain;
+    for(const auto& stream : m_streams)
+      stream->setGain(m_streamGain);
+  }
+
 private:
   ALCdevice* m_device = nullptr;
   ALCcontext* m_context = nullptr;
@@ -100,6 +105,7 @@ private:
   std::set<std::shared_ptr<Stream>> m_streams;
   std::thread m_streamUpdater;
   bool m_shutdown = false;
+  ALfloat m_streamGain{0.8f};
 
   void updateStreams()
   {

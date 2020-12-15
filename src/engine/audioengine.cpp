@@ -222,7 +222,6 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
       DefaultBufferSize,
       DefaultBufferCount);
 
-  result->setGain(0.8f);
   return result;
 }
 
