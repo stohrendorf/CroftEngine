@@ -10,7 +10,7 @@ const float Amplitude2 = 0.0125;
 
 void do_water_distortion_frq(inout vec2 uv, in float timeMult, in float scale, in float amplitude)
 {
-    vec2 phase = vec2(u_time * timeMult) + uv * scale;
+    vec2 phase = uv * scale + vec2(u_time * timeMult);
 
     uv += vec2(sin(phase.x), sin(phase.y)) * amplitude;
 }

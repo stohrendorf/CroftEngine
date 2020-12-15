@@ -34,8 +34,8 @@ void main()
 
         // project sample position (to sample texture) (to get position on screen/texture)
         vec4 offset = u_projection * vec4(smp, 1.0);// from view to clip-space
-        offset.xyz /= offset.w;// perspective divide
-        offset.xyz = offset.xyz * 0.5 + 0.5;// transform to range 0.0 - 1.0
+        offset /= offset.w;// perspective divide
+        offset = offset * 0.5 + 0.5;// transform to range 0.0 - 1.0
 
         // get sample depth
         float sampleDepth = texture(u_position, offset.xy).z;// get depth value of kernel sample

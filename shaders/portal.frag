@@ -5,7 +5,9 @@
 layout(location=0) out vec2 out_perturb;
 
 mat2 rotate2d(in float a){
-    return mat2(cos(a), -sin(a), sin(a), cos(a));
+    float ca = cos(a);
+    float sa = sin(a);
+    return mat2(ca, -sa, sa, ca);
 }
 
 float random(vec2 st) {
@@ -78,8 +80,8 @@ void main()
 
     const float IOR = 1.3;
     vec4 orig = u_viewProjection * vec4(ppi.vertexPosWorld, 1);
-    orig.xyz /= orig.w;
+    orig /= orig.w;
     vec4 surface = u_viewProjection * vec4(vec3(sn.x, 0, sn.z) + ppi.vertexPosWorld, 1);
-    surface.xyz /= surface.w;
+    surface /= surface.w;
     out_perturb = (surface-orig).xy;
 }

@@ -66,10 +66,7 @@ void CSM::Split::renderSquare()
   RenderContext context{RenderMode::Full, std::nullopt};
 
   squareMesh->render(context);
-  depthFramebuffer->invalidate();
-
   squareBlur->render(depthTexture->size());
-  squareFramebuffer->invalidate();
 }
 
 CSM::CSM(int32_t resolution, ShaderManager& shaderManager)

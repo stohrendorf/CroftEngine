@@ -63,11 +63,6 @@ public:
     m_mesh->render(context);
   }
 
-  void invalidate()
-  {
-    m_framebuffer->invalidate();
-  }
-
   [[nodiscard]] const std::shared_ptr<Texture>& getBlurredTexture() const
   {
     return m_blurredTexture;
@@ -104,12 +99,6 @@ public:
   {
     m_blur1.render(size);
     m_blur2.render(size);
-    m_blur1.invalidate();
-  }
-
-  void invalidate()
-  {
-    m_blur2.invalidate();
   }
 
   [[nodiscard]] const std::shared_ptr<Texture>& getBlurredTexture() const

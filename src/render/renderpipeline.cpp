@@ -31,11 +31,6 @@ void RenderPipeline::compositionPass(const bool water, const bool crt)
   m_ssaoStage.render(m_size / 2);
   m_fxaaStage.render(m_size);
   m_compositionStage.render(water, crt);
-
-  m_fxaaStage.fb->invalidate();
-  m_portalStage.fb->invalidate();
-  m_geometryStage.fb->invalidate();
-  m_ssaoStage.blur.invalidate();
 }
 
 void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
@@ -248,7 +243,6 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
 
   renderMesh->render(context);
   blur.render(size);
-  fb->invalidate();
 
   if constexpr(FlushStages)
     GL_ASSERT(gl::api::finish());

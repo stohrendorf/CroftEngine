@@ -12,6 +12,5 @@ layout(location=0) out vec4 out_color;
 
 void main()
 {
-    out_color.rgb = fxaa(u_input, fpi.texCoord, 0.75, 0.166, 0.0833);
-    out_color.a = 1;
+    out_color = vec4(fxaa(u_input, fpi.texCoord, 0.75, 0.166, 0.0833), 1.0);
 }

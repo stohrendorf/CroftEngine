@@ -22,6 +22,7 @@ Node::~Node()
   transformChanged();
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 Scene* Node::getScene() const
 {
   if(m_scene != nullptr)
@@ -36,6 +37,7 @@ Scene* Node::getScene() const
   return nullptr;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void Node::transformChanged()
 {
   m_dirty = true;

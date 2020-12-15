@@ -8,10 +8,10 @@ namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 #define _SOGLB_LINE_NAME(prefix) prefix##__LINE__
-#define SOGLB_DEBUGGROUP(message)                                         \
+#define SOGLB_DEBUGGROUP(name)                                            \
   [[maybe_unused]] ::gl::DebugGroup _SOGLB_LINE_NAME(_soglb_debug_group_) \
   {                                                                       \
-    message                                                               \
+    name                                                                  \
   }
 
 class DebugGroup final
