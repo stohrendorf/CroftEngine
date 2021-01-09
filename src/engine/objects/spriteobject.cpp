@@ -72,4 +72,13 @@ void SpriteObject::serialize(const serialization::Serializer& ser)
     createModel();
   }
 }
+
+gl::CImgWrapper SpriteObject::getCroppedImage() const
+{
+  Expects(m_sprite != nullptr);
+  return m_sprite->image->cropped(m_sprite->uv0.toPx(m_sprite->image->width()).x,
+                                  m_sprite->uv0.toPx(m_sprite->image->height()).y,
+                                  m_sprite->uv1.toPx(m_sprite->image->width()).x,
+                                  m_sprite->uv1.toPx(m_sprite->image->height()).y);
+}
 } // namespace engine::objects

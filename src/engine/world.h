@@ -5,6 +5,7 @@
 #include "loader/file/animationid.h"
 #include "loader/file/level/level.h"
 #include "objectmanager.h"
+#include "ui/pickupwidget.h"
 
 #include <gl/texture2darray.h>
 #include <memory>
@@ -237,12 +238,19 @@ public:
     return *m_textureAnimator;
   }
 
+  void addPickupWidget(gl::CImgWrapper image)
+  {
+    m_pickupWidgets.emplace_back(75_frame, std::move(image));
+  }
+
 private:
   void createMipmaps(const std::filesystem::path& cacheBaseDir,
                      const std::string& baseName,
                      const std::vector<std::shared_ptr<gl::CImgWrapper>>& images,
                      size_t nMips);
   std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
+
+  void drawPickupWidgets();
 
   Engine& m_engine;
 
@@ -294,5 +302,7 @@ private:
   std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_allTextures;
   core::Frame m_uvAnimTime = 0_frame;
   std::unique_ptr<render::TextureAnimator> m_textureAnimator;
+
+  std::vector<ui::PickupWidget> m_pickupWidgets{};
 };
 } // namespace engine

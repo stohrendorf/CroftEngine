@@ -15,6 +15,7 @@
 #include "render/scene/materialmanager.h"
 #include "render/scene/renderer.h"
 #include "render/scene/scene.h"
+#include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
 #include "render/textureatlas.h"
 #include "serialization/array.h"
@@ -527,6 +528,13 @@ void World::update(const bool godMode)
     m_textureAnimator->updateCoordinates(m_level->m_textureTiles);
     m_uvAnimTime -= UVAnimTime;
   }
+
+  m_pickupWidgets.erase(std::remove_if(m_pickupWidgets.begin(),
+                                       m_pickupWidgets.end(),
+                                       [](const ui::PickupWidget& w) { return w.expired(); }),
+                        m_pickupWidgets.end());
+  for(auto& w : m_pickupWidgets)
+    w.nextFrame();
 }
 
 void World::runEffect(const size_t id, objects::Object* object)
@@ -920,6 +928,7 @@ void World::gameLoop(const std::string& levelName, bool godMode)
   const auto waterEntryPortals = m_cameraController->update();
   doGlobalEffect();
   m_presenter->drawBars(getPalette(), getObjectManager());
+  drawPickupWidgets();
   m_presenter->renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
 }
 
@@ -1452,5 +1461,21 @@ std::unique_ptr<loader::trx::Glidos> World::loadGlidosPack() const
   }
 
   return nullptr;
+}
+
+void World::drawPickupWidgets()
+{
+  auto& img = *m_presenter->getScreenOverlay().getImage();
+  auto x = img.getWidth() * 9 / 10;
+  auto y = img.getHeight() * 9 / 10;
+  auto widthPerWidget = img.getWidth() / 10 * 4 / 3;
+  for(const auto& widget : m_pickupWidgets)
+  {
+    if(widget.expired())
+      continue;
+
+    widget.draw(img, x, y);
+    x -= widthPerWidget;
+  }
 }
 } // namespace engine

@@ -117,6 +117,16 @@ void CImgWrapper::resizePow2Mipmap(const uint8_t n)
     m_image->resize(4, width() / d, height() / d, 1, 6, 1);
 }
 
+void CImgWrapper::scale(const float f)
+{
+  Expects(f > 0);
+  unshare();
+  if(!m_interleaved)
+    m_image->resize(static_cast<int>(width() * f), static_cast<int>(height() * f), 1, 4, 6);
+  else
+    m_image->resize(4, static_cast<int>(width() * f), static_cast<int>(height() * f), 1, 6);
+}
+
 void CImgWrapper::crop(const int x0, const int y0, const int x1, const int y1)
 {
   unshare();

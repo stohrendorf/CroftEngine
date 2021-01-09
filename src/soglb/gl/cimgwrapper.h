@@ -60,6 +60,8 @@ public:
 
   void resizePow2Mipmap(uint8_t n);
 
+  void scale(float f);
+
   void crop(int x0, int y0, int x1, int y1);
 
   [[nodiscard]] CImgWrapper cropped(int x0, int y0, int x1, int y1) const;
