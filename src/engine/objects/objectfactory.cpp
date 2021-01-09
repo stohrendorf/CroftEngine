@@ -289,14 +289,16 @@ std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
     }
     else
     {
-      BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
-
       const auto stub = std::make_shared<StubObject>(&world, room, item, model.get());
       object = stub;
       if(item.type == TR1ItemId::CameraTarget)
       {
         stub->getSkeleton()->setRenderable(nullptr);
         stub->getSkeleton()->clearParts();
+      }
+      else
+      {
+        BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
       }
     }
 
