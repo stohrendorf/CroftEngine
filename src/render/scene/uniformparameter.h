@@ -6,7 +6,6 @@
 
 #include <boost/log/trivial.hpp>
 #include <gsl-lite.hpp>
-#include <optional>
 
 namespace render::scene
 {
@@ -63,7 +62,7 @@ public:
 private:
   [[nodiscard]] gl::Uniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
   {
-    if(const auto uniform = shaderProgram->findUniform(getName()))
+    if(const auto uniform = shaderProgram->findUniform(getName().c_str()))
       return uniform;
 
     BOOST_LOG_TRIVIAL(warning) << "Uniform '" << getName() << "' not found in program '" << shaderProgram->getId()
@@ -72,7 +71,7 @@ private:
     return nullptr;
   }
 
-  std::optional<std::function<UniformValueSetter>> m_valueSetter;
+  std::function<UniformValueSetter> m_valueSetter;
 };
 
 class UniformBlockParameter : public MaterialParameter
@@ -119,7 +118,7 @@ private:
   [[nodiscard]] gl::UniformBlock*
     findUniformBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
   {
-    if(const auto block = shaderProgram->findUniformBlock(getName()))
+    if(const auto block = shaderProgram->findUniformBlock(getName().c_str()))
       return block;
 
     BOOST_LOG_TRIVIAL(warning) << "Uniform block '" << getName() << "' not found in program '" << shaderProgram->getId()
@@ -128,7 +127,7 @@ private:
     return nullptr;
   }
 
-  std::optional<std::function<BufferBinder>> m_bufferBinder;
+  std::function<BufferBinder> m_bufferBinder;
 };
 
 } // namespace render::scene

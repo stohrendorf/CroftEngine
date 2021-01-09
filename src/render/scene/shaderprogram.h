@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/container/flat_map.hpp>
+#include <boost/static_string.hpp>
 #include <filesystem>
 #include <gl/program.h>
 #include <map>
@@ -34,32 +35,32 @@ public:
     return m_id;
   }
 
-  [[nodiscard]] const gl::Uniform* findUniform(const std::string& name) const
+  [[nodiscard]] const gl::Uniform* findUniform(const gsl::not_null<gsl::czstring>& name) const
   {
     return find(m_uniforms, name);
   }
 
-  gl::Uniform* findUniform(const std::string& name)
+  gl::Uniform* findUniform(const gsl::not_null<gsl::czstring>& name)
   {
     return find(m_uniforms, name);
   }
 
-  [[nodiscard]] const gl::ShaderStorageBlock* findShaderStorageBlock(const std::string& name) const
+  [[nodiscard]] const gl::ShaderStorageBlock* findShaderStorageBlock(const gsl::not_null<gsl::czstring>& name) const
   {
     return find(m_shaderStorageBlocks, name);
   }
 
-  gl::ShaderStorageBlock* findShaderStorageBlock(const std::string& name)
+  gl::ShaderStorageBlock* findShaderStorageBlock(const gsl::not_null<gsl::czstring>& name)
   {
     return find(m_shaderStorageBlocks, name);
   }
 
-  [[nodiscard]] const gl::UniformBlock* findUniformBlock(const std::string& name) const
+  [[nodiscard]] const gl::UniformBlock* findUniformBlock(const gsl::not_null<gsl::czstring>& name) const
   {
     return find(m_uniformBlocks, name);
   }
 
-  gl::UniformBlock* findUniformBlock(const std::string& name)
+  gl::UniformBlock* findUniformBlock(const gsl::not_null<gsl::czstring>& name)
   {
     return find(m_uniformBlocks, name);
   }
@@ -83,22 +84,25 @@ private:
 
   std::string m_id;
   gl::Program m_handle;
-  std::map<std::string, gl::ProgramInput> m_vertexAttributes;
-  std::map<std::string, gl::Uniform> m_uniforms;
-  std::map<std::string, gl::ShaderStorageBlock> m_shaderStorageBlocks;
-  std::map<std::string, gl::UniformBlock> m_uniformBlocks;
+
+  using IdentifierString = boost::static_string<64>;
+  boost::container::flat_map<IdentifierString, gl::ProgramInput> m_vertexAttributes;
+  boost::container::flat_map<IdentifierString, gl::Uniform> m_uniforms;
+  boost::container::flat_map<IdentifierString, gl::ShaderStorageBlock> m_shaderStorageBlocks;
+  boost::container::flat_map<IdentifierString, gl::UniformBlock> m_uniformBlocks;
 
   template<typename T>
-  static const T* find(const std::map<std::string, T>& map, const std::string& needle)
+  static const T* find(const boost::container::flat_map<IdentifierString, T>& map,
+                       const gsl::not_null<gsl::czstring>& needle)
   {
-    auto it = map.find(needle);
+    auto it = map.find(needle.get());
     return it == map.end() ? nullptr : &it->second;
   }
 
   template<typename T>
-  static T* find(std::map<std::string, T>& map, const std::string& needle)
+  static T* find(boost::container::flat_map<IdentifierString, T>& map, const gsl::not_null<gsl::czstring>& needle)
   {
-    auto it = map.find(needle);
+    auto it = map.find(needle.get());
     return it == map.end() ? nullptr : &it->second;
   }
 };

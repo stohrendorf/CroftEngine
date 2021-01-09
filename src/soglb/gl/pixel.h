@@ -43,6 +43,11 @@ struct Pixel
     static_assert(sizeof...(U) + 2 == _Channels, "Invalid constructor call");
   }
 
+  explicit constexpr Pixel(Vec channels) noexcept
+      : channels{std::move(channels)}
+  {
+  }
+
   constexpr bool operator==(const Self& rhs) const
   {
     return channels == rhs.channels;
@@ -68,10 +73,7 @@ Pixel<T, 4, _PixelFormat, _InternalFormat> mixAlpha(const Pixel<T, 4, _PixelForm
                                                     const Pixel<T, 4, _PixelFormat, _InternalFormat>& rhs)
 {
   const float bias = static_cast<float>(rhs.channels[3]) / std::numeric_limits<T>::max();
-  return {static_cast<T>(lhs.channels[0] * (1 - bias) + rhs.channels[0] * bias),
-          static_cast<T>(lhs.channels[1] * (1 - bias) + rhs.channels[1] * bias),
-          static_cast<T>(lhs.channels[2] * (1 - bias) + rhs.channels[2] * bias),
-          static_cast<T>(lhs.channels[3] * (1 - bias) + rhs.channels[3] * bias)};
+  return Pixel<T, 4, _PixelFormat, _InternalFormat>{glm::mix(lhs.channels, rhs.channels, bias)};
 }
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)

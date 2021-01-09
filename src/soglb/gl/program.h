@@ -13,7 +13,8 @@ namespace gl
 {
 class Program;
 
-template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ProgramInterface _Type>
 class ProgramInterface
 {
 public:
@@ -21,6 +22,17 @@ public:
 
   explicit ProgramInterface(const Program& program, uint32_t index);
   virtual ~ProgramInterface() = default;
+
+  explicit ProgramInterface(ProgramInterface<_Type>&& rhs)
+      : m_index{std::exchange(rhs.m_index, InvalidIndex)}
+  {
+  }
+
+  ProgramInterface<_Type>& operator=(ProgramInterface<_Type>&& rhs)
+  {
+    m_index = std::exchange(rhs.m_index, InvalidIndex);
+    return *this;
+  }
 
   [[nodiscard]] const std::string& getName() const noexcept
   {
@@ -40,10 +52,12 @@ protected:
 
 private:
   std::string m_name{};
-  const uint32_t m_index;
+  uint32_t m_index;
+  static constexpr uint32_t InvalidIndex = std::numeric_limits<uint32_t>::max();
 };
 
-template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ProgramInterface _Type>
 class LocatableProgramInterface : public ProgramInterface<_Type>
 {
 public:
@@ -53,19 +67,33 @@ public:
   {
   }
 
+  explicit LocatableProgramInterface(LocatableProgramInterface<_Type>&& rhs)
+      : ProgramInterface<_Type>{std::move(rhs)}
+      , m_location{std::exchange(rhs.m_location, -1)}
+  {
+  }
+
+  LocatableProgramInterface<_Type>& operator=(LocatableProgramInterface<_Type>&& rhs)
+  {
+    ProgramInterface<_Type>::operator=(std::move(rhs));
+    m_location = std::exchange(rhs.m_location, -1);
+    return *this;
+  }
+
   [[nodiscard]] auto getLocation() const noexcept
   {
     return m_location;
   }
 
 private:
-  const int32_t m_location;
+  int32_t m_location;
 };
 
 using ProgramInput = LocatableProgramInterface<api::ProgramInterface::ProgramInput>;
 using ProgramOutput = LocatableProgramInterface<api::ProgramInterface::ProgramOutput>;
 
-template<api::ProgramInterface _Type, api::BufferTargetARB _Target> // NOLINT(bugprone-reserved-identifier)
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ProgramInterface _Type, api::BufferTargetARB _Target>
 class ProgramBlock final : public ProgramInterface<_Type>
 {
 public:
@@ -78,9 +106,23 @@ public:
     Expects(m_binding >= 0);
   }
 
+  explicit ProgramBlock(ProgramBlock<_Type, _Target>&& rhs)
+      : ProgramInterface<_Type>{std::move(rhs)}
+      , m_binding{std::exchange(rhs.m_binding, -1)}
+  {
+  }
+
+  ProgramBlock<_Type, _Target>& operator=(ProgramBlock<_Type, _Target>&& rhs)
+  {
+    ProgramInterface<_Type>::operator=(std::move(rhs));
+    m_binding = std::exchange(rhs.m_binding, -1);
+    return *this;
+  }
+
   template<typename T>
   void bind(const Buffer<T, _Target>& buffer)
   {
+    Expects(m_binding >= 0);
     GL_ASSERT(api::bindBufferBase(_Target, m_binding, buffer.getHandle()));
   }
 
@@ -90,7 +132,7 @@ public:
   }
 
 private:
-  const int32_t m_binding;
+  int32_t m_binding;
 };
 
 using ShaderStorageBlock
@@ -102,10 +144,28 @@ class Uniform final : public LocatableProgramInterface<api::ProgramInterface::Un
 public:
   explicit Uniform(const Program& program, uint32_t index, int32_t& samplerIndex);
 
+  explicit Uniform(Uniform&& rhs)
+      : LocatableProgramInterface<api::ProgramInterface::Uniform>{std::move(rhs)}
+      , m_samplerIndex{std::exchange(rhs.m_samplerIndex, -1)}
+      , m_size{std::exchange(rhs.m_size, -1)}
+      , m_program{std::exchange(rhs.m_program, InvalidProgram)}
+  {
+  }
+
+  Uniform& operator=(Uniform&& rhs)
+  {
+    LocatableProgramInterface<api::ProgramInterface::Uniform>::operator=(std::move(rhs));
+    m_samplerIndex = std::exchange(rhs.m_samplerIndex, -1);
+    m_size = std::exchange(rhs.m_size, -1);
+    m_program = std::exchange(rhs.m_program, InvalidProgram);
+    return *this;
+  }
+
   // ReSharper disable once CppMemberFunctionMayBeConst
   template<typename T>
   std::enable_if_t<std::is_trivial_v<T>, void> set(const T& value)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniform1(m_program, getLocation(), value));
   }
 
@@ -113,6 +173,7 @@ public:
   template<typename T>
   void set(const std::vector<T>& values)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(
       api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
   }
@@ -121,6 +182,7 @@ public:
   template<typename T, size_t N>
   void set(const std::array<T, N>& values)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(
       api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
   }
@@ -128,18 +190,21 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::mat3& value)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniformMatrix3(m_program, getLocation(), 1, false, value_ptr(value)));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::mat4& value)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniformMatrix4(m_program, getLocation(), 1, false, value_ptr(value)));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::mat4>& values)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniformMatrix4(
       m_program,
       getLocation(),
@@ -152,12 +217,14 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::vec2& value)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniform2(m_program, getLocation(), value.x, value.y));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec2>& values)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniform2(
       m_program,
       getLocation(),
@@ -169,6 +236,7 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec3>& values)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniform3(
       m_program,
       getLocation(),
@@ -180,6 +248,7 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec4>& values)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniform4(
       m_program,
       getLocation(),
@@ -191,25 +260,28 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::vec3& value)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::vec4& value)
   {
+    Expects(m_program != InvalidProgram);
     GL_ASSERT(api::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
   }
 
   static api::TextureUnit textureUnit(const size_t n)
   {
-    Expects(n < 32);
+    Expects(n < api::TextureUnitCount);
     return static_cast<api::TextureUnit>(static_cast<api::core::EnumType>(api::TextureUnit::Texture0) + n);
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const Texture& texture)
   {
-    BOOST_ASSERT(m_samplerIndex >= 0);
+    Expects(m_program != InvalidProgram);
+    Expects(m_samplerIndex >= 0);
     GL_ASSERT(api::bindTextureUnit(m_samplerIndex, texture.getHandle()));
     GL_ASSERT(api::programUniform1(m_program, getLocation(), m_samplerIndex));
   }
@@ -222,7 +294,7 @@ public:
   template<typename _It> // NOLINT(bugprone-reserved-identifier)
   void setTextures(const _It& begin, const _It& end)
   {
-    BOOST_ASSERT(m_samplerIndex >= 0);
+    Expects(m_program != InvalidProgram && m_samplerIndex >= 0 && m_size >= 0);
 
     std::vector<int32_t> indices;
     for(auto it = begin; it != end; ++it)
@@ -232,7 +304,7 @@ public:
       indices.emplace_back(idx);
     }
 
-    BOOST_ASSERT(indices.size() == static_cast<size_t>(m_size));
+    Expects(indices.size() == static_cast<size_t>(m_size));
     GL_ASSERT(api::programUniform1(
       m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(indices.size()), indices.data()));
   }
@@ -258,9 +330,8 @@ public:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<std::shared_ptr<Texture>>& textures)
   {
-    BOOST_ASSERT(m_samplerIndex >= 0);
-    BOOST_ASSERT(textures.size() == static_cast<size_t>(m_size));
-    Expects(textures.size() <= 32);
+    Expects(m_samplerIndex >= 0 && m_size >= 0 && textures.size() == static_cast<size_t>(m_size)
+            && textures.size() <= api::TextureUnitCount);
 
     // Set samplers as active and load texture unit array
     std::vector<int32_t> units;
@@ -276,9 +347,11 @@ public:
   }
 
 private:
+  static constexpr uint32_t InvalidProgram = std::numeric_limits<uint32_t>::max();
+
   int32_t m_samplerIndex = -1;
   int32_t m_size = -1;
-  const uint32_t m_program;
+  uint32_t m_program;
 };
 
 class Program final : public BindableResource
@@ -390,7 +463,8 @@ private:
   }
 };
 
-template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ProgramInterface _Type>
 ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t index)
     : m_index{index}
 {
@@ -402,7 +476,8 @@ ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t
   m_name = nameData.data();
 }
 
-template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ProgramInterface _Type>
 int32_t ProgramInterface<_Type>::getProperty(const Program& program,
                                              const uint32_t index,
                                              const api::ProgramResourceProperty what)
@@ -421,7 +496,8 @@ int32_t ProgramInterface<_Type>::getProperty(const Program& program,
   return values[0];
 }
 
-template<api::ProgramInterface _Type> // NOLINT(bugprone-reserved-identifier)
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ProgramInterface _Type>
 std::vector<int32_t> ProgramInterface<_Type>::getProperty(const Program& program,
                                                           const uint32_t index,
                                                           const api::ProgramResourceProperty what,

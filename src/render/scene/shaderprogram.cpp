@@ -269,7 +269,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
 
     BOOST_LOG_TRIVIAL(debug) << "  input " << input.getName() << ", location=" << input.getLocation();
 
-    shaderProgram->m_vertexAttributes.insert(make_pair(input.getName(), std::move(input)));
+    shaderProgram->m_vertexAttributes.emplace(input.getName(), std::move(input));
   }
 
   for(auto&& uniform : shaderProgram->m_handle.getUniforms(samplerIndex))
@@ -280,21 +280,21 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
     BOOST_LOG_TRIVIAL(debug) << "  uniform " << uniform.getName() << ", location=" << uniform.getLocation()
                              << ", index=" << uniform.getIndex();
 
-    shaderProgram->m_uniforms.emplace(make_pair(uniform.getName(), std::move(uniform)));
+    shaderProgram->m_uniforms.emplace(uniform.getName(), std::move(uniform));
   }
 
   for(auto&& ub : shaderProgram->m_handle.getUniformBlocks(samplerIndex))
   {
     BOOST_LOG_TRIVIAL(debug) << "  uniform block " << ub.getName() << ", index=" << ub.getIndex()
                              << ", binding=" << ub.getBinding();
-    shaderProgram->m_uniformBlocks.emplace(make_pair(ub.getName(), ub));
+    shaderProgram->m_uniformBlocks.emplace(ub.getName(), std::move(ub));
   }
 
   for(auto&& ssb : shaderProgram->m_handle.getShaderStorageBlocks())
   {
     BOOST_LOG_TRIVIAL(debug) << "  shader storage block " << ssb.getName() << ", index=" << ssb.getIndex()
                              << ", binding=" << ssb.getBinding();
-    shaderProgram->m_shaderStorageBlocks.insert(make_pair(ssb.getName(), std::move(ssb)));
+    shaderProgram->m_shaderStorageBlocks.emplace(ssb.getName(), std::move(ssb));
   }
 
   for(auto&& output : shaderProgram->m_handle.getOutputs())

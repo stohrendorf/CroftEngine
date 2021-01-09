@@ -17,6 +17,8 @@ enum class DebugSource : core::EnumType;
 enum class DebugType : core::EnumType;
 enum class DebugSeverity : core::EnumType;
 
+constexpr core::EnumType TextureUnitCount = 32;
+
 namespace core
 {
 using SizeType = int32_t;
@@ -169,6 +171,5 @@ constexpr auto constAway(T* ptr)
 {
   return ConstAway<T>(ptr);
 }
-
 } // namespace detail
 } // namespace gl::api

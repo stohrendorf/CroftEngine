@@ -55,7 +55,7 @@ private:
   [[nodiscard]] gl::ShaderStorageBlock*
     findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
   {
-    if(const auto block = shaderProgram->findShaderStorageBlock(getName()))
+    if(const auto block = shaderProgram->findShaderStorageBlock(getName().c_str()))
       return block;
 
     BOOST_LOG_TRIVIAL(warning) << "Shader storage block '" << getName() << "' not found in program '"
@@ -64,6 +64,6 @@ private:
     return nullptr;
   }
 
-  std::optional<std::function<BufferBinder>> m_bufferBinder;
+  std::function<BufferBinder> m_bufferBinder;
 };
 } // namespace render::scene

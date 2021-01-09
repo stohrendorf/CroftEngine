@@ -22,7 +22,7 @@ bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_pt
   if(setter != nullptr)
     (*setter)(node, *uniform);
   else
-    (*m_valueSetter)(node, *uniform);
+    m_valueSetter(node, *uniform);
 
   return true;
 }
@@ -30,7 +30,7 @@ bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_pt
 bool UniformBlockParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
   const auto binder = node.findUniformBlockBinder(getName());
-  if(!m_bufferBinder.has_value() && binder == nullptr)
+  if(!m_bufferBinder && binder == nullptr)
   {
     // don't have an explicit binder present on material or node level, assuming it's set on shader level
     return true;
@@ -43,7 +43,7 @@ bool UniformBlockParameter::bind(const Node& node, const gsl::not_null<std::shar
   if(binder != nullptr)
     (*binder)(node, *block);
   else
-    (*m_bufferBinder)(node, *block);
+    m_bufferBinder(node, *block);
 
   return true;
 }
