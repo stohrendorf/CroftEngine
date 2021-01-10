@@ -2,6 +2,15 @@ from engine import TR1TrackId, TR1ItemId
 
 level_sequence = (
     {
+        "baseName": "TITLE",
+        "name": {
+            "en": "Tomb Raider",
+            "de": "Tomb Raider",
+        },
+        "secrets": 0,
+        "inventory": {}
+    },
+    {
         "baseName": "GYM",
         "name": {
             "en": "Lara's home",

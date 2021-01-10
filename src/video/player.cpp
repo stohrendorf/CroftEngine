@@ -42,13 +42,13 @@ inline std::string getAvError(int err)
 
 struct Stream final
 {
-  int index = -1;
+  const int index;
   AVCodecContext* context = nullptr;
   AVStream* stream = nullptr;
 
   Stream(AVFormatContext* fmtContext, AVMediaType type)
+      : index{av_find_best_stream(fmtContext, type, -1, -1, nullptr, 0)}
   {
-    index = av_find_best_stream(fmtContext, type, -1, -1, nullptr, 0);
     if(index < 0)
     {
       BOOST_THROW_EXCEPTION(std::runtime_error("Could not find stream in input file"));
@@ -576,6 +576,8 @@ void play(const std::filesystem::path& filename,
   stream->setLooping(true);
   stream->play();
 
+  const auto streamFinisher = gsl::finally([&stream, &audioDevice]() { audioDevice.removeStream(stream); });
+
   while(!decoder->stopped)
   {
     if(const auto x = stream->getSource().lock())
@@ -592,7 +594,5 @@ void play(const std::filesystem::path& filename,
 
     decoder->stopped |= !onFrame();
   }
-
-  audioDevice.removeStream(stream);
 }
 } // namespace video

@@ -19,6 +19,16 @@ struct MenuObject;
 struct MenuRing;
 class MenuState;
 
+enum class MenuResult
+{
+  None,
+  Closed,
+  ExitToTitle,
+  ExitGame,
+  NewGame,
+  LaraHome
+};
+
 struct MenuDisplay
 {
   explicit MenuDisplay(InventoryMode mode, engine::World& world);
@@ -27,14 +37,14 @@ struct MenuDisplay
   const InventoryMode mode;
   std::array<std::unique_ptr<ui::Label>, 7> objectTexts;
   std::optional<engine::TR1ItemId> inventoryChosen{};
-  int musicVolume = 8; // range 0..10
+  float streamGain;
   bool allowMenuClose = true;
 
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   std::unique_ptr<MenuState> m_currentState;
 
   void display(gl::Image<gl::SRGBA8>& img, engine::World& world);
-  bool isDone = false;
+  MenuResult result = MenuResult::None;
 
   std::vector<gsl::not_null<std::unique_ptr<MenuRing>>> rings;
   size_t currentRingIndex = 0;

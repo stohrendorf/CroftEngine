@@ -16,6 +16,7 @@ struct MenuDisplay;
 struct MenuObject;
 struct MenuRing;
 enum class InventoryMode;
+enum class MenuResult;
 
 class MenuState
 {
@@ -82,13 +83,17 @@ public:
 class DoneMenuState : public MenuState
 {
 public:
-  explicit DoneMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform)
+  explicit DoneMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, MenuResult result)
       : MenuState{ringTransform}
+      , m_result{result}
   {
   }
 
   void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
   std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+
+private:
+  const MenuResult m_result;
 };
 
 class DeflateRingMenuState : public MenuState
@@ -265,7 +270,7 @@ private:
 
   const bool m_allowExit;
   const bool m_allowSave;
-  const std::optional<int> m_forcePage;
+  std::optional<int> m_forcePage;
   std::unique_ptr<ui::Label> m_passportText;
 
   std::unique_ptr<MenuState> close(MenuDisplay& display, int page, MenuObject& passport);

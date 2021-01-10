@@ -96,6 +96,11 @@ public:
     m_levelFinished = true;
   }
 
+  bool levelFinished() const
+  {
+    return m_levelFinished;
+  }
+
   void setGlobalEffect(size_t fx)
   {
     m_activeEffect = fx;

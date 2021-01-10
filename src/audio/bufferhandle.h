@@ -36,7 +36,10 @@ public:
 
   ~BufferHandle()
   {
-    AL_ASSERT(alDeleteBuffers(1, &m_handle));
+    // it's not possible to check if a buffer is in use using the OpenAL API.
+    // thus errors are ignored here.
+    alDeleteBuffers(1, &m_handle);
+    alGetError();
   }
 
   [[nodiscard]] ALuint get() const noexcept

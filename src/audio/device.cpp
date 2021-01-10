@@ -10,7 +10,10 @@ Device::~Device()
   m_underwaterFilter.reset();
 
   m_sources.clear();
-  m_streams.clear();
+  {
+    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
+    m_streams.clear();
+  }
 
   if(m_context != nullptr)
   {
@@ -119,11 +122,17 @@ Device::Device()
 
 void Device::reset()
 {
-  for(const auto& src : m_sources)
-    src->stop();
-  m_sources.clear();
-  for(const auto& stream : m_streams)
-    stream->pause();
+  {
+    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
+    for(const auto& stream : m_streams)
+    {
+      stream->setLooping(false);
+      stream->stop();
+    }
+  }
+
+  std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
   m_streams.clear();
+  m_sources.clear();
 }
 } // namespace audio

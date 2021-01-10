@@ -48,6 +48,13 @@ public:
       src->pause();
   }
 
+  // ReSharper disable once CppMemberFunctionMayBeConst
+  void stop()
+  {
+    if(const auto src = m_source.lock())
+      src->stop();
+  }
+
   void play()
   {
     if(const auto src = m_source.lock())

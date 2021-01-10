@@ -19,10 +19,10 @@ public:
   explicit Rectangle(const std::string& serialized);
 
   explicit Rectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
-      : m_x0{x0}
-      , m_x1{x1}
-      , m_y0{y0}
-      , m_y1{y1}
+      : m_x0{std::min(x0, x1)}
+      , m_x1{std::max(x0, x1)}
+      , m_y0{std::min(y0, y1)}
+      , m_y1{std::max(y0, y1)}
   {
   }
 

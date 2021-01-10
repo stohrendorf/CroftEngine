@@ -72,7 +72,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
   }
 }
 
-void Engine::run()
+RunResult Engine::run()
 {
   gl::Framebuffer::unbindAll();
 
@@ -88,7 +88,7 @@ void Engine::run()
   if(const std::optional<std::string> video = core::get<std::string>(m_world->getLevelInfo(), "video"))
   {
     m_presenter->playVideo(m_rootPath / "data/tr1/fmv" / video.value());
-    return;
+    return RunResult::NextLevel;
   }
 
   const bool godMode
@@ -98,8 +98,18 @@ void Engine::run()
 
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
-  while(!m_presenter->shouldClose())
+  while(true)
   {
+    if(m_presenter->shouldClose())
+    {
+      return RunResult::ExitApp;
+    }
+
+    if(m_world->levelFinished())
+    {
+      return RunResult::NextLevel;
+    }
+
     throttler.wait();
 
     if(menu != nullptr)
@@ -109,8 +119,15 @@ void Engine::run()
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       m_presenter->getScreenOverlay().render(context);
       m_presenter->swapBuffers();
-      if(menu->isDone)
-        menu.reset();
+      switch(menu->result)
+      {
+      case menu::MenuResult::None: break;
+      case menu::MenuResult::Closed: menu.reset(); break;
+      case menu::MenuResult::ExitToTitle: return RunResult::TitleLevel;
+      case menu::MenuResult::ExitGame: return RunResult::ExitApp;
+      case menu::MenuResult::NewGame: return RunResult::NextLevel;
+      case menu::MenuResult::LaraHome: return RunResult::LaraHomeLevel;
+      }
       continue;
     }
 
@@ -138,7 +155,47 @@ void Engine::run()
     else
     {
       if(!m_world->cinematicLoop())
-        break;
+        return RunResult::NextLevel;
+    }
+  }
+}
+
+RunResult Engine::runTitleMenu()
+{
+  gl::Framebuffer::unbindAll();
+
+  language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
+  BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << language;
+  if(const std::optional<std::string> overrideLanguage
+     = core::get<std::string>(pybind11::globals(), "language_override"))
+  {
+    language = overrideLanguage.value();
+    BOOST_LOG_TRIVIAL(info) << "Language override is " << language;
+  }
+  const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, *m_world);
+  Throttler throttler;
+  while(true)
+  {
+    if(m_presenter->shouldClose())
+    {
+      return RunResult::ExitApp;
+    }
+
+    throttler.wait();
+
+    m_presenter->preFrame();
+    menu->display(*m_presenter->getScreenOverlay().getImage(), *m_world);
+    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+    m_presenter->getScreenOverlay().render(context);
+    m_presenter->swapBuffers();
+    switch(menu->result)
+    {
+    case menu::MenuResult::None: break;
+    case menu::MenuResult::Closed: return RunResult::ExitApp;
+    case menu::MenuResult::ExitToTitle: return RunResult::TitleLevel;
+    case menu::MenuResult::ExitGame: return RunResult::ExitApp;
+    case menu::MenuResult::NewGame: return RunResult::NextLevel;
+    case menu::MenuResult::LaraHome: return RunResult::LaraHomeLevel;
     }
   }
 }

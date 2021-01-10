@@ -184,7 +184,7 @@ std::unique_ptr<MenuState>
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
     display.inventoryChosen.reset();
-    return create<DeflateRingMenuState>(create<DoneMenuState>());
+    return create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed));
   }
 
   if(m_autoSelect || world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
@@ -200,7 +200,8 @@ std::unique_ptr<MenuState>
       break;
     case engine::TR1ItemId::LarasHomePolaroid:
       world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuHome, nullptr);
-      break;
+      return create<FinishItemAnimationMenuState>(
+        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::LaraHome))));
     case engine::TR1ItemId::DirectionKeys:
       world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::LowTone, nullptr);
       break;
@@ -306,7 +307,7 @@ std::unique_ptr<MenuState>
     else
     {
       return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>())));
+        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed))));
     }
   }
   else if(autoSelect || world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
@@ -324,7 +325,7 @@ std::unique_ptr<MenuState>
     else
     {
       return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>())));
+        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed))));
     }
   }
 
@@ -475,12 +476,7 @@ std::unique_ptr<MenuState>
     return nullptr;
   }
 
-  display.isDone = true;
-  if(display.musicVolume != 0)
-  {
-    world.getPresenter().getSoundEngine()->getDevice().setStreamGain(static_cast<float>(5 + 25 * display.musicVolume)
-                                                                     / 255.0f);
-  }
+  display.result = m_result;
 
   switch(display.inventoryChosen.value_or(engine::TR1ItemId::Lara))
   {
@@ -582,8 +578,10 @@ std::unique_ptr<MenuState>
     page = -1;
     if(page < *m_forcePage)
       forcePageTurn = hid::AxisMovement::Right;
-    else
+    else if(page > *m_forcePage)
       forcePageTurn = hid::AxisMovement::Left;
+    else
+      m_forcePage.reset();
   }
 
   switch(page)
@@ -610,7 +608,7 @@ std::unique_ptr<MenuState>
     }
     break;
   case SaveGamePage:
-    if(!m_allowSave)
+    if(!m_allowSave && display.mode != InventoryMode::TitleMode)
     {
       // can't save when dead, so just skip this page
       if(passport.animDirection == -1_frame)
@@ -626,14 +624,20 @@ std::unique_ptr<MenuState>
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
-    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
-       || display.mode == InventoryMode::SaveMode)
+    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
     {
-      if(m_allowSave && isInGame)
+      if(display.mode == InventoryMode::SaveMode)
       {
-        display.objectTexts[0].reset();
-        display.objectTexts[2].reset();
-        return create<SavegameListMenuState>(std::move(display.m_currentState));
+        if(m_allowSave && isInGame)
+        {
+          display.objectTexts[0].reset();
+          display.objectTexts[2].reset();
+          return create<SavegameListMenuState>(std::move(display.m_currentState));
+        }
+      }
+      else
+      {
+        return create<DoneMenuState>(MenuResult::NewGame);
       }
     }
     break;
@@ -643,6 +647,10 @@ std::unique_ptr<MenuState>
       m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, !isInGame ? "Exit Game" : "Exit to Title");
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
+    }
+    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+    {
+      display.result = !isInGame ? MenuResult::ExitGame : MenuResult::ExitToTitle;
     }
     break;
   default: Expects(page == -1); break;
@@ -669,7 +677,7 @@ std::unique_ptr<MenuState>
       }
       return nullptr;
     }
-    else if(m_allowSave)
+    else if(m_allowSave || display.mode == InventoryMode::TitleMode)
     {
       passport.goalFrame -= FramesPerPage;
       passport.animDirection = -1_frame;
@@ -703,7 +711,7 @@ std::unique_ptr<MenuState>
   }
   else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
   {
-    if(!m_allowExit)
+    if(!m_allowExit && display.mode != InventoryMode::TitleMode)
       return nullptr;
 
     return close(display, page, passport);

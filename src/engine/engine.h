@@ -48,6 +48,14 @@ class Presenter;
 class Throttler;
 class World;
 
+enum class RunResult
+{
+  NextLevel,
+  TitleLevel,
+  LaraHomeLevel,
+  ExitApp,
+};
+
 class Engine
 {
 private:
@@ -89,7 +97,8 @@ public:
     return *m_scriptEngine;
   }
 
-  void run();
+  RunResult run();
+  RunResult runTitleMenu();
 
   [[nodiscard]] const std::string& getLanguage() const
   {

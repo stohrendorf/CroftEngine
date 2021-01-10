@@ -49,37 +49,27 @@ int main()
   boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
 #endif
 
-#if 1
   engine::Engine engine{std::filesystem::current_path()};
-  engine.loadWorld(3);
-  engine.run();
+  size_t levelIndex = 0;
+  while(true)
+  {
+    engine.loadWorld(levelIndex);
+    const auto result = levelIndex == 0 ? engine.runTitleMenu() : engine.run();
+    switch(result)
+    {
+    case engine::RunResult::ExitApp: return EXIT_SUCCESS;
+    case engine::RunResult::NextLevel:
+      if(levelIndex == 0)
+        levelIndex = 2;
+      else if(levelIndex == 1)
+        levelIndex = 0;
+      else
+        ++levelIndex;
+      break;
+    case engine::RunResult::TitleLevel: levelIndex = 0; break;
+    case engine::RunResult::LaraHomeLevel: levelIndex = 1; break;
+    }
+  }
 
   return EXIT_SUCCESS;
-#else
-  try
-  {
-    engine::Engine engine{std::filesystem::current_path()};
-    engine.run();
-
-    return EXIT_SUCCESS;
-  }
-  catch(boost::exception& ex)
-  {
-    BOOST_LOG_TRIVIAL(error) << "Error:\n" << diagnostic_information(ex);
-    BOOST_LOG_TRIVIAL(error) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
-    return EXIT_FAILURE;
-  }
-  catch(std::exception& ex)
-  {
-    BOOST_LOG_TRIVIAL(error) << "Error: " << ex.what();
-    BOOST_LOG_TRIVIAL(error) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
-    return EXIT_FAILURE;
-  }
-  catch(...)
-  {
-    BOOST_LOG_TRIVIAL(error) << "Unexpected error";
-    BOOST_LOG_TRIVIAL(error) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
-    return EXIT_FAILURE;
-  }
-#endif
 }

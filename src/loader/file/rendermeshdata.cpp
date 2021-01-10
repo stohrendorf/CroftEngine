@@ -68,7 +68,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
   }
   for(const QuadFace& quad : mesh.colored_rectangles)
   {
-    const TextureTile& tile = textureTiles.at(quad.tileId.get());
     const auto color = gsl::at(palette.colors, quad.tileId.get() & 0xffu).toGLColor3();
 
     glm::vec3 defaultNormal{0.0f};
@@ -116,7 +115,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
         if(iv.normal == glm::vec3{0.0f})
           iv.normal = defaultNormal;
       }
-      iv.uv = tile.uvCoordinates[i].toGl();
       m_vertices.emplace_back(iv);
     }
     for(size_t i : {0, 1, 2, 0, 2, 3})
@@ -172,7 +170,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
 
   for(const Triangle& tri : mesh.colored_triangles)
   {
-    const TextureTile& tile = textureTiles.at(tri.tileId.get());
     const auto color = gsl::at(palette.colors, tri.tileId.get() & 0xffu).toGLColor3();
 
     glm::vec3 defaultNormal{0.0f};
@@ -210,7 +207,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
         if(iv.normal == glm::vec3{0.0f})
           iv.normal = defaultNormal;
       }
-      iv.uv = tile.uvCoordinates[i].toGl();
       m_indices.emplace_back(gsl::narrow<IndexType>(m_vertices.size()));
       m_vertices.emplace_back(iv);
     }

@@ -190,6 +190,9 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::World& world)
   for(const auto& txt : objectTexts)
     if(txt != nullptr)
       txt->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+
+  if(result != MenuResult::None)
+    world.getPresenter().getSoundEngine()->getDevice().setStreamGain(streamGain);
 }
 
 void MenuDisplay::clearMenuObjectDescription()
@@ -380,6 +383,7 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
 MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
     : mode{mode}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform)}
+    , streamGain{world.getPresenter().getSoundEngine()->getDevice().getStreamGain()}
 {
   m_currentState->begin();
 

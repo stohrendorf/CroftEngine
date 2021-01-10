@@ -6,6 +6,7 @@
 
 #include <AL/alc.h>
 #include <gsl-lite.hpp>
+#include <mutex>
 #include <set>
 #include <thread>
 
@@ -35,6 +36,9 @@ public:
 
   void removeStream(const std::shared_ptr<Stream>& stream)
   {
+    stream->setLooping(false);
+    stream->stop();
+    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
     m_streams.erase(stream);
   }
 
@@ -68,8 +72,10 @@ public:
     createStream(std::unique_ptr<AbstractStreamSource>&& src, const size_t bufferSize, const size_t bufferCount)
   {
     const auto r = std::make_shared<Stream>(*this, std::move(src), bufferSize, bufferCount);
-    m_streams.emplace(r);
     r->setGain(m_streamGain);
+
+    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
+    m_streams.emplace(r);
     return r;
   }
 
@@ -93,8 +99,14 @@ public:
   void setStreamGain(ALfloat gain)
   {
     m_streamGain = gain;
+    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
     for(const auto& stream : m_streams)
       stream->setGain(m_streamGain);
+  }
+
+  auto getStreamGain() const
+  {
+    return m_streamGain;
   }
 
 private:
@@ -104,11 +116,13 @@ private:
   std::set<std::shared_ptr<SourceHandle>> m_sources;
   std::set<std::shared_ptr<Stream>> m_streams;
   std::thread m_streamUpdater;
+  std::recursive_mutex m_streamsLock;
   bool m_shutdown = false;
   ALfloat m_streamGain{0.8f};
 
   void updateStreams()
   {
+    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
     for(const auto& stream : m_streams)
       stream->update();
   }
