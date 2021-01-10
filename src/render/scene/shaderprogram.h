@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/container/flat_map.hpp>
-#include <boost/static_string.hpp>
 #include <filesystem>
 #include <gl/program.h>
 #include <map>
@@ -16,11 +15,8 @@ public:
   explicit ShaderProgram();
 
   ShaderProgram(const ShaderProgram&) = delete;
-
   ShaderProgram(ShaderProgram&&) = delete;
-
   ShaderProgram& operator=(const ShaderProgram&) = delete;
-
   ShaderProgram& operator=(ShaderProgram&&) = delete;
 
   ~ShaderProgram();
@@ -85,14 +81,13 @@ private:
   std::string m_id;
   gl::Program m_handle;
 
-  using IdentifierString = boost::static_string<64>;
-  boost::container::flat_map<IdentifierString, gl::ProgramInput> m_vertexAttributes;
-  boost::container::flat_map<IdentifierString, gl::Uniform> m_uniforms;
-  boost::container::flat_map<IdentifierString, gl::ShaderStorageBlock> m_shaderStorageBlocks;
-  boost::container::flat_map<IdentifierString, gl::UniformBlock> m_uniformBlocks;
+  boost::container::flat_map<std::string, gl::ProgramInput> m_vertexAttributes;
+  boost::container::flat_map<std::string, gl::Uniform> m_uniforms;
+  boost::container::flat_map<std::string, gl::ShaderStorageBlock> m_shaderStorageBlocks;
+  boost::container::flat_map<std::string, gl::UniformBlock> m_uniformBlocks;
 
   template<typename T>
-  static const T* find(const boost::container::flat_map<IdentifierString, T>& map,
+  static const T* find(const boost::container::flat_map<std::string, T>& map,
                        const gsl::not_null<gsl::czstring>& needle)
   {
     auto it = map.find(needle.get());
@@ -100,7 +95,7 @@ private:
   }
 
   template<typename T>
-  static T* find(boost::container::flat_map<IdentifierString, T>& map, const gsl::not_null<gsl::czstring>& needle)
+  static T* find(boost::container::flat_map<std::string, T>& map, const gsl::not_null<gsl::czstring>& needle)
   {
     auto it = map.find(needle.get());
     return it == map.end() ? nullptr : &it->second;

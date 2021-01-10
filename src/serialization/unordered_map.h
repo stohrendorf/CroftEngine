@@ -11,10 +11,10 @@ void save(std::unordered_map<T, U>& data, const Serializer& ser)
 {
   ser.tag("map");
   ser.node |= ryml::SEQ;
-  for(auto& element : data)
+  for(auto& [key, value] : data)
   {
     const auto tmp = ser.newChild();
-    tmp(S_NV("key", const_cast<T&>(element.first)), S_NV("value", element.second));
+    tmp(S_NV("key", const_cast<T&>(key)), S_NV("value", value));
   }
 }
 

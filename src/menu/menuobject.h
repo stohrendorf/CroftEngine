@@ -41,7 +41,7 @@ struct MenuObject
   mutable core::Angle compassNeedleRotation = 0_deg;
   mutable core::Angle compassNeedleRotationMomentum = 0_deg;
 
-  std::shared_ptr<engine::SkeletalModelNode> node;
+  std::shared_ptr<engine::SkeletalModelNode> node{nullptr};
   void initModel(const engine::World& world);
 
   bool animate();

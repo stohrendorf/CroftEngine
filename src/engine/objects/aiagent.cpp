@@ -31,7 +31,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
     }
   }
 
-  turnAngle = util::clamp(turnAngle, -maxRotationSpeed, maxRotationSpeed);
+  turnAngle = std::clamp(turnAngle, -maxRotationSpeed, maxRotationSpeed);
 
   m_state.rotation.Y += turnAngle;
   return turnAngle;
@@ -281,7 +281,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       = findRealFloorSector(core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room);
 
     m_state.rotation.Y += angle;
-    m_state.rotation.Z += util::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
+    m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
   }
 
   if(anyMovingEnabledObjectInReach())
@@ -292,7 +292,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   if(lotInfo.fly != 0_len)
   {
-    auto moveY = util::clamp(m_state.creatureInfo->target.Y - m_state.position.position.Y, -lotInfo.fly, lotInfo.fly);
+    auto moveY = std::clamp(m_state.creatureInfo->target.Y - m_state.position.position.Y, -lotInfo.fly, lotInfo.fly);
 
     const auto currentFloor
       = HeightInfo::fromFloor(sector,

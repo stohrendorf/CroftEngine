@@ -30,7 +30,7 @@ void ObjectManager::createObjects(World& world, std::vector<loader::file::Item>&
 
     if(object != nullptr)
     {
-      m_objects.emplace(std::make_pair(id, object));
+      m_objects.emplace(id, object);
     }
   }
 }

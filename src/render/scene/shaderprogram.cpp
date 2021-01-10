@@ -163,7 +163,7 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(cons
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader from sources"));
   }
 
-  std::shared_ptr<ShaderProgram> shaderProgram = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
+  auto shaderProgram = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
 
   if(shaderProgram == nullptr)
   {

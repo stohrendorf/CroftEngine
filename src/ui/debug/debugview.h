@@ -28,13 +28,13 @@ public:
 
   [[nodiscard]] bool isVisible() const
   {
-    std::lock_guard<std::recursive_mutex> guard{m_mutex};
+    std::lock_guard guard{m_mutex};
     return m_window.isVisible();
   }
 
   void toggleVisibility()
   {
-    std::lock_guard<std::recursive_mutex> guard{m_mutex};
+    std::lock_guard guard{m_mutex};
     if(isVisible())
       m_window.hide();
     else

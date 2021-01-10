@@ -145,7 +145,7 @@ public:
   explicit Uniform(const Program& program, uint32_t index, int32_t& samplerIndex);
 
   explicit Uniform(Uniform&& rhs)
-      : LocatableProgramInterface<api::ProgramInterface::Uniform>{std::move(rhs)}
+      : LocatableProgramInterface{std::move(rhs)}
       , m_samplerIndex{std::exchange(rhs.m_samplerIndex, -1)}
       , m_size{std::exchange(rhs.m_size, -1)}
       , m_program{std::exchange(rhs.m_program, InvalidProgram)}
@@ -154,7 +154,7 @@ public:
 
   Uniform& operator=(Uniform&& rhs)
   {
-    LocatableProgramInterface<api::ProgramInterface::Uniform>::operator=(std::move(rhs));
+    LocatableProgramInterface::operator=(std::move(rhs));
     m_samplerIndex = std::exchange(rhs.m_samplerIndex, -1);
     m_size = std::exchange(rhs.m_size, -1);
     m_program = std::exchange(rhs.m_program, InvalidProgram);

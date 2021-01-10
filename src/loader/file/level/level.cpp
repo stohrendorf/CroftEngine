@@ -333,7 +333,7 @@ void Level::postProcessDataStructures()
     Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
     Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
     if(anim.transitionsCount > 0)
-      anim.transitions = gsl::make_span(&anim.transitionsIndex.from(m_transitions), anim.transitionsCount);
+      anim.transitions = {&anim.transitionsIndex.from(m_transitions), anim.transitionsCount};
   }
 
   for(TransitionCase& transitionCase : m_transitionCases)
@@ -350,7 +350,7 @@ void Level::postProcessDataStructures()
     Expects((transition.firstTransitionCase + transition.transitionCaseCount).exclusiveIn(m_transitionCases));
     if(transition.transitionCaseCount > 0)
       transition.transitionCases
-        = gsl::make_span(&transition.firstTransitionCase.from(m_transitionCases), transition.transitionCaseCount);
+        = {&transition.firstTransitionCase.from(m_transitionCases), transition.transitionCaseCount};
   }
 
   for(const auto& sequence : m_spriteSequences | boost::adaptors::map_values)

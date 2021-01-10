@@ -11,7 +11,7 @@ Device::~Device()
 
   m_sources.clear();
   {
-    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
+    std::lock_guard lock{m_streamsLock};
     m_streams.clear();
   }
 
@@ -123,7 +123,7 @@ Device::Device()
 void Device::reset()
 {
   {
-    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
+    std::lock_guard lock{m_streamsLock};
     for(const auto& stream : m_streams)
     {
       stream->setLooping(false);
@@ -131,7 +131,7 @@ void Device::reset()
     }
   }
 
-  std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
+  std::lock_guard lock{m_streamsLock};
   m_streams.clear();
   m_sources.clear();
 }

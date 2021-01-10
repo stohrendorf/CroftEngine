@@ -16,7 +16,7 @@ void DWordTexture::toImage()
 
 std::unique_ptr<DWordTexture> DWordTexture::read(io::SDLReader& reader)
 {
-  std::unique_ptr<DWordTexture> texture{std::make_unique<DWordTexture>()};
+  auto texture = std::make_unique<DWordTexture>();
 
   for(auto& row : texture->pixels)
   {
@@ -36,7 +36,7 @@ std::unique_ptr<DWordTexture> DWordTexture::read(io::SDLReader& reader)
 
 std::unique_ptr<ByteTexture> ByteTexture::read(io::SDLReader& reader)
 {
-  std::unique_ptr<ByteTexture> textile{new ByteTexture()};
+  auto textile = std::make_unique<ByteTexture>();
   reader.readBytes(
     reinterpret_cast<uint8_t*>(&textile->pixels[0][0]), //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
     256 * 256);
@@ -45,7 +45,7 @@ std::unique_ptr<ByteTexture> ByteTexture::read(io::SDLReader& reader)
 
 std::unique_ptr<WordTexture> WordTexture::read(io::SDLReader& reader)
 {
-  std::unique_ptr<WordTexture> texture = std::make_unique<WordTexture>();
+  auto texture = std::make_unique<WordTexture>();
 
   for(auto& row : texture->pixels)
   {
@@ -65,7 +65,7 @@ UVCoordinates UVCoordinates::read(io::SDLReader& reader)
 
 std::unique_ptr<TextureTile> TextureTile::readTr1(io::SDLReader& reader)
 {
-  std::unique_ptr<TextureTile> tile{std::make_unique<TextureTile>()};
+  auto tile = std::make_unique<TextureTile>();
   tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
   tile->textureKey.tileAndFlag = reader.readU16();
   if(tile->textureKey.tileAndFlag > 64)
@@ -88,7 +88,7 @@ std::unique_ptr<TextureTile> TextureTile::readTr1(io::SDLReader& reader)
 
 std::unique_ptr<TextureTile> TextureTile::readTr4(io::SDLReader& reader)
 {
-  std::unique_ptr<TextureTile> tile{std::make_unique<TextureTile>()};
+  auto tile = std::make_unique<TextureTile>();
   tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
   tile->textureKey.tileAndFlag = reader.readU16();
   if((tile->textureKey.tileAndFlag & 0x7FFFu) > 128)
@@ -106,7 +106,7 @@ std::unique_ptr<TextureTile> TextureTile::readTr4(io::SDLReader& reader)
 
 std::unique_ptr<TextureTile> TextureTile::readTr5(io::SDLReader& reader)
 {
-  std::unique_ptr<TextureTile> tile = readTr4(reader);
+  auto tile = readTr4(reader);
   if(reader.readU16() != 0)
   {
     BOOST_LOG_TRIVIAL(warning) << "TR5 Object Texture: unexpected value at end of structure";

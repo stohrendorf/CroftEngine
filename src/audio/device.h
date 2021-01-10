@@ -38,7 +38,7 @@ public:
   {
     stream->setLooping(false);
     stream->stop();
-    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
+    std::lock_guard lock{m_streamsLock};
     m_streams.erase(stream);
   }
 
@@ -74,7 +74,7 @@ public:
     const auto r = std::make_shared<Stream>(*this, std::move(src), bufferSize, bufferCount);
     r->setGain(m_streamGain);
 
-    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
+    std::lock_guard lock{m_streamsLock};
     m_streams.emplace(r);
     return r;
   }
@@ -122,7 +122,7 @@ private:
 
   void updateStreams()
   {
-    std::lock_guard<std::recursive_mutex> lock{m_streamsLock};
+    std::lock_guard lock{m_streamsLock};
     for(const auto& stream : m_streams)
       stream->update();
   }

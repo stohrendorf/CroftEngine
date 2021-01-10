@@ -430,8 +430,8 @@ struct Room
 
   [[nodiscard]] gsl::not_null<const Sector*> getInnerSectorByIndex(int dx, int dz) const
   {
-    dx = util::clamp(dx, 1, sectorCountX - 2);
-    dz = util::clamp(dz, 1, sectorCountZ - 2);
+    dx = std::clamp(dx, 1, sectorCountX - 2);
+    dz = std::clamp(dz, 1, sectorCountZ - 2);
     return &sectors[sectorCountZ * dx + dz];
   }
 
@@ -440,16 +440,16 @@ struct Room
     if(dz <= 0)
     {
       dz = 0;
-      dx = util::clamp(dx, 1, sectorCountX - 2);
+      dx = std::clamp(dx, 1, sectorCountX - 2);
     }
     else if(dz >= sectorCountZ - 1)
     {
       dz = sectorCountZ - 1;
-      dx = util::clamp(dx, 1, sectorCountX - 2);
+      dx = std::clamp(dx, 1, sectorCountX - 2);
     }
     else
     {
-      dx = util::clamp(dx, 0, sectorCountX - 1);
+      dx = std::clamp(dx, 0, sectorCountX - 1);
     }
     return getSectorByIndex(dx, dz);
   }

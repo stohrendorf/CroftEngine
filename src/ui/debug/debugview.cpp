@@ -36,7 +36,7 @@ void DebugView::update(const engine::objects::LaraObject& lara,
                        const std::map<uint16_t, gsl::not_null<std::shared_ptr<engine::objects::Object>>>& objects,
                        const std::set<gsl::not_null<std::shared_ptr<engine::objects::Object>>>& dynamicObjects)
 {
-  std::lock_guard<std::recursive_mutex> guard{m_mutex};
+  std::lock_guard guard{m_mutex};
   m_laraInfo->update(lara);
 
   m_triggerTable->setRowCount(
@@ -44,13 +44,13 @@ void DebugView::update(const engine::objects::LaraObject& lara,
     + std::count_if(dynamicObjects.begin(), dynamicObjects.end(), [](const auto& o) { return o->m_isActive; }));
 
   int row = 0;
-  for(const auto& object : objects)
+  for(const auto& [objectId, object] : objects)
   {
-    if(!object.second->m_isActive)
+    if(!object->m_isActive)
       continue;
 
     gsl::czstring stateStr = nullptr;
-    switch(object.second->m_state.triggerState)
+    switch(object->m_state.triggerState)
     {
     case engine::objects::TriggerState::Inactive: stateStr = "inactive"; break;
     case engine::objects::TriggerState::Active: stateStr = "active"; break;
@@ -59,9 +59,9 @@ void DebugView::update(const engine::objects::LaraObject& lara,
     }
     Expects(stateStr != nullptr);
 
-    m_triggerTable->setItem(row, 0, new QTableWidgetItem(object.second->getNode()->getName().c_str()));
+    m_triggerTable->setItem(row, 0, new QTableWidgetItem(object->getNode()->getName().c_str()));
     m_triggerTable->setItem(row, 1, new QTableWidgetItem(stateStr));
-    m_triggerTable->setItem(row, 2, new QTableWidgetItem(object.second->m_state.timer.toString().c_str()));
+    m_triggerTable->setItem(row, 2, new QTableWidgetItem(object->m_state.timer.toString().c_str()));
 
     ++row;
   }

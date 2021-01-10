@@ -10,20 +10,6 @@
 namespace util
 {
 template<typename T>
-T clamp(const T& v, const T& min, const T& max)
-{
-  if(v < min)
-  {
-    return min;
-  }
-  if(max < v)
-  {
-    return max;
-  }
-  return v;
-}
-
-template<typename T>
 constexpr auto square(T value)
 {
   return value * value;

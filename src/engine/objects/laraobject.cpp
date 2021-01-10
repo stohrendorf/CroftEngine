@@ -149,9 +149,9 @@ void LaraObject::handleLaraStateDiving()
       m_state.rotation.Z = 0_deg;
     }
   }
-  const core::Angle x = util::clamp(m_state.rotation.X, -100_deg, +100_deg);
+  const core::Angle x = std::clamp(m_state.rotation.X, -100_deg, +100_deg);
   m_state.rotation.X = x;
-  const core::Angle z = util::clamp(m_state.rotation.Z, -22_deg, +22_deg);
+  const core::Angle z = std::clamp(m_state.rotation.Z, -22_deg, +22_deg);
   m_state.rotation.Z = z;
 
   if(m_underwaterCurrentStrength != 0_len)
@@ -563,9 +563,9 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     return;
 
   targetPos -= m_state.position.position;
-  m_state.position.position.X += util::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
-  m_state.position.position.Y += util::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
-  m_state.position.position.Z += util::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+  m_state.position.position.X += std::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+  m_state.position.position.Y += std::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+  m_state.position.position.Z += std::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
 
   m_underwaterCurrentStrength = 0_len;
   collisionInfo.facingAngle = angleFromAtan(m_state.position.position.X - collisionInfo.oldPosition.X,

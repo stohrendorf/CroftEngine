@@ -27,11 +27,11 @@ struct ObjectReference final
     else
     {
       ser.tag("objectref");
-      for(const auto& obj : ser.world.getObjectManager().getObjects())
+      for(const auto& [objId, obj] : ser.world.getObjectManager().getObjects())
       {
-        if(obj.second.get() == ptr)
+        if(obj.get() == ptr)
         {
-          engine::ObjectId tmp = obj.first;
+          engine::ObjectId tmp = objId;
           ser(S_NV("id", tmp));
         }
       }

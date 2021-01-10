@@ -6,7 +6,7 @@ namespace loader::file
 {
 std::unique_ptr<TransitionCase> TransitionCase::read(io::SDLReader& reader)
 {
-  std::unique_ptr<TransitionCase> transition{new TransitionCase()};
+  auto transition = std::make_unique<TransitionCase>();
   transition->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
   transition->lastFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};
   transition->targetAnimationIndex = reader.readU16();
@@ -16,7 +16,7 @@ std::unique_ptr<TransitionCase> TransitionCase::read(io::SDLReader& reader)
 
 std::unique_ptr<Transitions> Transitions::read(io::SDLReader& reader)
 {
-  std::unique_ptr<Transitions> state_change = std::make_unique<Transitions>();
+  auto state_change = std::make_unique<Transitions>();
   state_change->stateId = reader.readU16();
   state_change->transitionCaseCount = reader.readU16();
   state_change->firstTransitionCase = reader.readU16();
@@ -65,7 +65,7 @@ std::unique_ptr<Animation> Animation::read(io::SDLReader& reader, const bool wit
 
 std::unique_ptr<SkeletalModelType> SkeletalModelType::readTr1(io::SDLReader& reader)
 {
-  std::unique_ptr<SkeletalModelType> moveable{std::make_unique<SkeletalModelType>()};
+  auto moveable = std::make_unique<SkeletalModelType>();
   moveable->type = static_cast<core::TypeId::type>(reader.readU32());
   moveable->nMeshes = reader.readI16();
   moveable->mesh_base_index = reader.readU16();
@@ -77,7 +77,7 @@ std::unique_ptr<SkeletalModelType> SkeletalModelType::readTr1(io::SDLReader& rea
 
 std::unique_ptr<SkeletalModelType> SkeletalModelType::readTr5(io::SDLReader& reader)
 {
-  std::unique_ptr<SkeletalModelType> moveable = readTr1(reader);
+  auto moveable = readTr1(reader);
   if(reader.readU16() != 0xFFEF)
     BOOST_LOG_TRIVIAL(warning) << "TR5 Moveable: filler has wrong value";
   return moveable;

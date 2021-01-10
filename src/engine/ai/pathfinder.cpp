@@ -31,7 +31,7 @@ gsl::span<const uint16_t> getOverlaps(const World& world, const uint16_t idx)
     ++last;
   }
 
-  return gsl::make_span(first, last + 1);
+  return gsl::span{first, last + 1};
 }
 } // namespace
 
@@ -186,7 +186,8 @@ bool PathFinder::calculateTarget(const World& world, core::TRVec& moveTarget, co
       }
       else if(!detour)
       {
-        moveTarget.Z = util::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
+        moveTarget.Z
+          = std::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2 + 1_len);
       }
       Expects(here->containsZ(moveTarget.Z));
 
@@ -196,7 +197,8 @@ bool PathFinder::calculateTarget(const World& world, core::TRVec& moveTarget, co
       }
       else if(!detour)
       {
-        moveTarget.X = util::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
+        moveTarget.X
+          = std::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2 + 1_len);
       }
       Expects(here->containsX(moveTarget.X));
 
@@ -220,7 +222,8 @@ bool PathFinder::calculateTarget(const World& world, core::TRVec& moveTarget, co
   }
   else if(!detour)
   {
-    moveTarget.Z = util::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
+    moveTarget.Z
+      = std::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2 + 1_len);
   }
   Expects(here->containsZ(moveTarget.Z));
 
@@ -231,7 +234,8 @@ bool PathFinder::calculateTarget(const World& world, core::TRVec& moveTarget, co
   }
   else if(!detour)
   {
-    moveTarget.X = util::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
+    moveTarget.X
+      = std::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2 + 1_len);
   }
   Expects(here->containsX(moveTarget.X));
 

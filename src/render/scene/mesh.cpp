@@ -31,8 +31,8 @@ gsl::not_null<std::shared_ptr<Mesh>>
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
 
-  return std::make_shared<MeshImpl<uint16_t, Vertex>>(std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
-    indexBuffer, vertexBuffer, std::vector<const gl::Program*>{&program}));
+  return std::make_shared<MeshImpl<uint16_t, Vertex>>(
+    std::make_shared<gl::VertexArray<uint16_t, Vertex>>(indexBuffer, vertexBuffer, std::vector{&program}));
 }
 
 Mesh::~Mesh() = default;

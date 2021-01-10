@@ -109,12 +109,9 @@ private:
     {
       BOOST_ASSERT(!tileIds.empty());
 
-      for(const auto& partAndVertices : affectedVertices)
+      for(const auto& [buffer, vertices] : affectedVertices)
       {
-        const auto& buffer = partAndVertices.first;
         auto* uvArray = buffer->map(gl::api::BufferAccessARB::ReadWrite);
-
-        const std::set<VertexReference>& vertices = partAndVertices.second;
 
         for(const VertexReference& vref : vertices)
         {

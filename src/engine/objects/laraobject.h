@@ -245,8 +245,8 @@ public:
                          const core::Angle& minY,
                          const core::Angle& maxY)
   {
-    m_headRotation.X = util::clamp(m_headRotation.X + x, minX, maxX);
-    m_headRotation.Y = util::clamp(m_headRotation.Y + y, minY, maxY);
+    m_headRotation.X = std::clamp(m_headRotation.X + x, minX, maxX);
+    m_headRotation.Y = std::clamp(m_headRotation.Y + y, minY, maxY);
   }
 
   const core::TRRotation& getHeadRotation() const noexcept

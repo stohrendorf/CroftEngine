@@ -60,13 +60,12 @@ public:
       , m_attachments{std::move(attachments)}
   {
     std::vector<api::ColorBuffer> colorAttachments;
-    for(const auto& attachment : m_attachments)
+    for(const auto& [attachment, slot] : m_attachments)
     {
-      attachment.first->attach(*this, attachment.second);
+      attachment->attach(*this, slot);
 
-      if(attachment.second >= api::FramebufferAttachment::ColorAttachment0
-         && attachment.second <= api::FramebufferAttachment::ColorAttachment31)
-        colorAttachments.emplace_back(static_cast<api::ColorBuffer>(attachment.second));
+      if(slot >= api::FramebufferAttachment::ColorAttachment0 && slot <= api::FramebufferAttachment::ColorAttachment31)
+        colorAttachments.emplace_back(static_cast<api::ColorBuffer>(slot));
     }
     if(!colorAttachments.empty())
     {

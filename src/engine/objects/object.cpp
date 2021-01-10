@@ -182,9 +182,9 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
   }
 
   core::TRRotation phi = targetRot - m_state.rotation;
-  m_state.rotation.X += util::clamp(phi.X, -maxAngle, maxAngle);
-  m_state.rotation.Y += util::clamp(phi.Y, -maxAngle, maxAngle);
-  m_state.rotation.Z += util::clamp(phi.Z, -maxAngle, maxAngle);
+  m_state.rotation.X += std::clamp(phi.X, -maxAngle, maxAngle);
+  m_state.rotation.Y += std::clamp(phi.Y, -maxAngle, maxAngle);
+  m_state.rotation.Z += std::clamp(phi.Z, -maxAngle, maxAngle);
 
   phi = targetRot - m_state.rotation;
   d = targetPos - m_state.position.position;

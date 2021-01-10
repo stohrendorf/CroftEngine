@@ -78,14 +78,13 @@ RunResult Engine::run()
 
   language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << language;
-  if(const std::optional<std::string> overrideLanguage
-     = core::get<std::string>(pybind11::globals(), "language_override"))
+  if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
   {
     language = overrideLanguage.value();
     BOOST_LOG_TRIVIAL(info) << "Language override is " << language;
   }
 
-  if(const std::optional<std::string> video = core::get<std::string>(m_world->getLevelInfo(), "video"))
+  if(const std::optional video = core::get<std::string>(m_world->getLevelInfo(), "video"))
   {
     m_presenter->playVideo(m_rootPath / "data/tr1/fmv" / video.value());
     return RunResult::NextLevel;
@@ -166,8 +165,7 @@ RunResult Engine::runTitleMenu()
 
   language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << language;
-  if(const std::optional<std::string> overrideLanguage
-     = core::get<std::string>(pybind11::globals(), "language_override"))
+  if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
   {
     language = overrideLanguage.value();
     BOOST_LOG_TRIVIAL(info) << "Language override is " << language;

@@ -255,7 +255,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
   void fillQueues()
   {
     {
-      std::unique_lock<std::mutex> lock(imgQueueMutex);
+      std::unique_lock lock(imgQueueMutex);
       if(audioQueue.size() >= QueueLimit || imgQueue.size() >= QueueLimit)
       {
         return;
@@ -268,7 +268,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
       decodePacket();
       av_packet_unref(&packet);
 
-      std::unique_lock<std::mutex> lock(imgQueueMutex);
+      std::unique_lock lock(imgQueueMutex);
       if(audioQueue.size() >= QueueLimit || imgQueue.size() >= QueueLimit)
       {
         break;
@@ -287,7 +287,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
   auto takeFrame()
   {
-    std::unique_lock<std::mutex> lock{imgQueueMutex};
+    std::unique_lock lock{imgQueueMutex};
     while(!frameReady)
       frameReadyCondition.wait(lock);
     frameReady = false;
@@ -354,7 +354,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
             BOOST_THROW_EXCEPTION(std::runtime_error("Filter error"));
           }
 
-          std::unique_lock<std::mutex> lock(imgQueueMutex);
+          std::unique_lock lock(imgQueueMutex);
           imgQueue.push(std::move(filteredFrame));
         }
       }
@@ -452,7 +452,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
     while(audioFramePosition >= audioFrameDuration)
     {
       audioFramePosition -= audioFrameDuration;
-      std::unique_lock<std::mutex> lock{imgQueueMutex};
+      std::unique_lock lock{imgQueueMutex};
       frameReady = true;
       frameReadyCondition.notify_one();
     }

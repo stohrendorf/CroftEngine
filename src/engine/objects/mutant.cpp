@@ -499,7 +499,7 @@ void TorsoBoss::update()
       break;
     case 7:
       // TODO this is just weird, but it's just like the original...
-      goal(m_state.goal_anim_state.get() + util::clamp(angleToTarget, -3_deg, 3_deg).get());
+      goal(m_state.goal_anim_state.get() + std::clamp(angleToTarget, -3_deg, 3_deg).get());
 
       if(abs(angleToTarget) > 45_deg || aiInfo.distance < util::square(2600_len))
         goal(1_as);

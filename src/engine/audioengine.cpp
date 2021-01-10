@@ -210,19 +210,16 @@ gsl::not_null<std::shared_ptr<audio::Stream>> AudioEngine::playStream(size_t tra
   static constexpr size_t DefaultBufferSize = 8192;
   static constexpr size_t DefaultBufferCount = 4;
 
-  std::shared_ptr<audio::Stream> result;
   if(std::filesystem::is_regular_file(m_rootPath / "CDAUDIO.WAD"))
-    result = m_soundEngine->getDevice().createStream(
+    return m_soundEngine->getDevice().createStream(
       std::make_unique<audio::WadStreamSource>(m_rootPath / "CDAUDIO.WAD", trackId),
       DefaultBufferSize,
       DefaultBufferCount);
   else
-    result = m_soundEngine->getDevice().createStream(
+    return m_soundEngine->getDevice().createStream(
       std::make_unique<audio::SndfileStreamSource>(m_rootPath / (boost::format("%03d.ogg") % trackId).str()),
       DefaultBufferSize,
       DefaultBufferCount);
-
-  return result;
 }
 
 std::shared_ptr<audio::SourceHandle> AudioEngine::playSoundEffect(const core::SoundEffectId& id,
@@ -247,7 +244,7 @@ std::shared_ptr<audio::SourceHandle> AudioEngine::playSoundEffect(const core::So
   if(soundEffect->useRandomPitch())
     pitch = 0.9f + util::rand15(0.2f);
 
-  float volume = util::clamp(static_cast<float>(soundEffect->volume) / 0x7fff, 0.0f, 1.0f);
+  float volume = std::clamp(static_cast<float>(soundEffect->volume) / 0x7fff, 0.0f, 1.0f);
   if(soundEffect->useRandomVolume())
     volume -= util::rand15(0.25f);
   if(volume <= 0)

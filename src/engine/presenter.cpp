@@ -227,7 +227,7 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
     image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[19].toTextureColor());
     image.line({x0 - 2, 6}, {x0 - 2, 14}, palette.colors[19].toTextureColor());
 
-    const int p = util::clamp(objectManager.getLara().getAir() * 100 / core::LaraAir, 0, 100);
+    const int p = std::clamp(objectManager.getLara().getAir() * 100 / core::LaraAir, 0, 100);
     if(p > 0)
     {
       image.line({x0, 8}, {x0 + p, 8}, palette.colors[32].toTextureColor());
@@ -252,7 +252,7 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
   uint8_t alpha = 255;
   if(m_healthBarTimeout < 0_frame)
   {
-    alpha = util::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255);
+    alpha = std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255);
   }
 
   const int x0 = 8;
@@ -263,7 +263,7 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
   image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[19].toTextureColor(alpha), true);
   image.line({x0 - 2, 6}, {x0 - 2, 14}, palette.colors[19].toTextureColor(alpha), true);
 
-  const int p = util::clamp(objectManager.getLara().m_state.health * 100 / core::LaraHealth, 0, 100);
+  const int p = std::clamp(objectManager.getLara().m_state.health * 100 / core::LaraHealth, 0, 100);
   if(p > 0)
   {
     image.line({x0, 8}, {x0 + p, 8}, palette.colors[8].toTextureColor(alpha), true);

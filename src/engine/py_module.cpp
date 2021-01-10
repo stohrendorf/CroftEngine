@@ -37,19 +37,19 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
 
   {
     auto e = py::enum_<engine::TR1SoundEffect>(m, "TR1SoundEffect");
-    for(const auto& entry : engine::EnumUtil<engine::TR1SoundEffect>::all())
-      e.value(entry.second.c_str(), entry.first);
+    for(const auto& [key, value] : engine::EnumUtil<engine::TR1SoundEffect>::all())
+      e.value(value.c_str(), key);
   }
 
   {
     auto e = py::enum_<engine::TR1TrackId>(m, "TR1TrackId");
-    for(const auto& entry : engine::EnumUtil<engine::TR1TrackId>::all())
-      e.value(entry.second.c_str(), entry.first);
+    for(const auto& [key, value] : engine::EnumUtil<engine::TR1TrackId>::all())
+      e.value(value.c_str(), key);
   }
 
   {
     auto e = py::enum_<engine::TR1ItemId>(m, "TR1ItemId");
-    for(const auto& entry : engine::EnumUtil<engine::TR1ItemId>::all())
-      e.value(entry.second.c_str(), entry.first);
+    for(const auto& [key, value] : engine::EnumUtil<engine::TR1ItemId>::all())
+      e.value(value.c_str(), key);
   }
 }

@@ -253,7 +253,7 @@ bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world
 
 std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& world, bool withHomePolaroid)
 {
-  std::vector<MenuObject> objects{
+  std::vector objects{
     MenuObject{
       "Game", engine::TR1ItemId::PassportClosed, 30_frame, 14_frame, 25_deg, -24_deg, 0_deg, 384_len, 0x13, 0x13},
     MenuObject{"Controls", engine::TR1ItemId::DirectionKeys, 1_frame, 0_frame, 30_deg, 8_deg, 0_deg, 352_len},
@@ -273,7 +273,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
 
 std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& world)
 {
-  std::vector<MenuObject> objects{
+  std::vector objects{
     MenuObject{"Compass", engine::TR1ItemId::Compass, 25_frame, 10_frame, 24_deg, -45_deg, 0_deg, 456_len, 0x05, 0x05}};
 
   if(world.getInventory().count(engine::TR1ItemId::Pistols) > 0)
@@ -382,8 +382,8 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
 
 MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
     : mode{mode}
-    , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform)}
     , streamGain{world.getPresenter().getSoundEngine()->getDevice().getStreamGain()}
+    , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform)}
 {
   m_currentState->begin();
 

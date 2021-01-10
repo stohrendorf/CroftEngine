@@ -329,7 +329,7 @@ bool CameraController::clampPosition(const core::RoomBoundPosition& start,
 
 std::unordered_set<const loader::file::Portal*> CameraController::update()
 {
-  m_rotationAroundLara.X = util::clamp(m_rotationAroundLara.X, -85_deg, +85_deg);
+  m_rotationAroundLara.X = std::clamp(m_rotationAroundLara.X, -85_deg, +85_deg);
 
   if(m_mode == CameraMode::Cinematic)
   {
@@ -380,11 +380,11 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     if(eyeRotY < 50_deg && eyeRotY > -50_deg && eyeRotX < 85_deg && eyeRotX > -85_deg)
     {
       eyeRotY -= m_world->getObjectManager().getLara().m_headRotation.Y;
-      m_world->getObjectManager().getLara().m_headRotation.Y += util::clamp(eyeRotY, -4_deg, +4_deg);
+      m_world->getObjectManager().getLara().m_headRotation.Y += std::clamp(eyeRotY, -4_deg, +4_deg);
       m_world->getObjectManager().getLara().m_torsoRotation.Y = m_world->getObjectManager().getLara().m_headRotation.Y;
 
       eyeRotX -= m_world->getObjectManager().getLara().m_headRotation.X;
-      m_world->getObjectManager().getLara().m_headRotation.X += util::clamp(eyeRotX, -4_deg, +4_deg);
+      m_world->getObjectManager().getLara().m_headRotation.X += std::clamp(eyeRotX, -4_deg, +4_deg);
       m_world->getObjectManager().getLara().m_torsoRotation.X = m_world->getObjectManager().getLara().m_headRotation.X;
 
       m_mode = CameraMode::FreeLook;

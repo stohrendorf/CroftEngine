@@ -38,7 +38,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   vb->setData(&vertices[0], points, gl::api::BufferUsageARB::DynamicDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
-    indexBuffer, vb, std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle()});
+    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()});
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, gl::api::PrimitiveType::LineStrip);
 
   mesh->getRenderState().setLineSmooth(true);

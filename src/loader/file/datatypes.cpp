@@ -62,10 +62,10 @@ struct RenderMesh
       std::make_shared<gl::VertexArray<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
         indexBuffer,
         vBufs,
-        std::vector<const gl::Program*>{
-          &m_materialFull->getShaderProgram()->getHandle(),
-          m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle(),
-          m_materialCSMDepthOnly == nullptr ? nullptr : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()}));
+        std::vector{&m_materialFull->getShaderProgram()->getHandle(),
+                    m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle(),
+                    m_materialCSMDepthOnly == nullptr ? nullptr
+                                                      : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()}));
     mesh->getMaterial()
       .set(render::scene::RenderMode::Full, m_materialFull)
       .set(render::scene::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly)
@@ -112,10 +112,8 @@ void Room::createSceneNode(const size_t roomId,
   auto vbuf = std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
 
   static const gl::VertexFormat<render::TextureAnimator::AnimatedUV> uvAttribs{
-    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME,
-     gl::VertexAttribute<render::TextureAnimator::AnimatedUV>{&render::TextureAnimator::AnimatedUV::uv}},
-    {VERTEX_ATTRIBUTE_TEXINDEX_NAME,
-     gl::VertexAttribute<render::TextureAnimator::AnimatedUV>{&render::TextureAnimator::AnimatedUV::index}},
+    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::uv}},
+    {VERTEX_ATTRIBUTE_TEXINDEX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::index}},
   };
   auto uvCoords = std::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
 
@@ -324,7 +322,7 @@ core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core
 
 std::unique_ptr<StaticMesh> StaticMesh::read(io::SDLReader& reader)
 {
-  std::unique_ptr<StaticMesh> mesh = std::make_unique<StaticMesh>();
+  auto mesh = std::make_unique<StaticMesh>();
   mesh->id = reader.readU32();
   mesh->mesh = reader.readU16();
 
@@ -374,7 +372,7 @@ void Room::patchHeightsForBlock(const engine::objects::Object& object, const cor
 
 std::unique_ptr<Room> Room::readTr1(io::SDLReader& reader)
 {
-  std::unique_ptr<Room> room{std::make_unique<Room>()};
+  auto room = std::make_unique<Room>();
 
   // read and change coordinate system
   room->position.X = core::Length{reader.readI32()};
@@ -428,7 +426,7 @@ std::unique_ptr<Room> Room::readTr1(io::SDLReader& reader)
 
 std::unique_ptr<Room> Room::readTr2(io::SDLReader& reader)
 {
-  std::unique_ptr<Room> room{std::make_unique<Room>()};
+  auto room = std::make_unique<Room>();
   // read and change coordinate system
   room->position.X = core::Length{reader.readI32()};
   room->position.Y = 0_len;
@@ -487,7 +485,7 @@ std::unique_ptr<Room> Room::readTr2(io::SDLReader& reader)
 
 std::unique_ptr<Room> Room::readTr3(io::SDLReader& reader)
 {
-  std::unique_ptr<Room> room{std::make_unique<Room>()};
+  auto room = std::make_unique<Room>();
 
   // read and change coordinate system
   room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
@@ -552,7 +550,7 @@ std::unique_ptr<Room> Room::readTr3(io::SDLReader& reader)
 
 std::unique_ptr<Room> Room::readTr4(io::SDLReader& reader)
 {
-  std::unique_ptr<Room> room{std::make_unique<Room>()};
+  auto room = std::make_unique<Room>();
   // read and change coordinate system
   room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
   room->position.Y = 0_len;
@@ -619,7 +617,7 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   const std::streampos position = reader.tell();
   const std::streampos endPos = position + room_data_size;
 
-  std::unique_ptr<Room> room{std::make_unique<Room>()};
+  auto room = std::make_unique<Room>();
   room->ambientShade = core::Shade{core::Shade::type{32767}};
   room->intensity2 = 32767;
   room->lightMode = 0;
@@ -924,7 +922,7 @@ void Camera::serialize(const serialization::Serializer& ser)
 
 std::unique_ptr<Camera> Camera::read(io::SDLReader& reader)
 {
-  std::unique_ptr<Camera> camera{std::make_unique<Camera>()};
+  auto camera = std::make_unique<Camera>();
   camera->position = readCoordinates32(reader);
 
   camera->room = reader.readU16();
@@ -953,7 +951,7 @@ void Portal::buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Materi
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
-    indexBuffer, vb, std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle()});
+    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()});
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
   mesh->getMaterial().set(render::scene::RenderMode::DepthOnly, material);
 }
@@ -1282,7 +1280,7 @@ RoomVertex RoomVertex::readTr5(io::SDLReader& reader)
 
 std::unique_ptr<Sprite> Sprite::readTr1(io::SDLReader& reader)
 {
-  std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
+  auto sprite = std::make_unique<Sprite>();
 
   sprite->texture_id = reader.readU16();
   if(sprite->texture_id.get() > 64)
@@ -1306,7 +1304,7 @@ std::unique_ptr<Sprite> Sprite::readTr1(io::SDLReader& reader)
 
 std::unique_ptr<Sprite> Sprite::readTr4(io::SDLReader& reader)
 {
-  std::unique_ptr<Sprite> sprite{std::make_unique<Sprite>()};
+  auto sprite = std::make_unique<Sprite>();
   sprite->texture_id = reader.readU16();
   if(sprite->texture_id.get() > 128)
   {
@@ -1325,7 +1323,7 @@ std::unique_ptr<Sprite> Sprite::readTr4(io::SDLReader& reader)
 
 std::unique_ptr<SpriteSequence> SpriteSequence::readTr1(io::SDLReader& reader)
 {
-  std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
+  auto sprite_sequence = std::make_unique<SpriteSequence>();
   sprite_sequence->type = static_cast<core::TypeId::type>(reader.readU32());
   sprite_sequence->length = reader.readI16();
   sprite_sequence->offset = reader.readU16();
@@ -1342,7 +1340,7 @@ std::unique_ptr<SpriteSequence> SpriteSequence::readTr1(io::SDLReader& reader)
 
 std::unique_ptr<SpriteSequence> SpriteSequence::read(io::SDLReader& reader)
 {
-  std::unique_ptr<SpriteSequence> sprite_sequence{std::make_unique<SpriteSequence>()};
+  auto sprite_sequence = std::make_unique<SpriteSequence>();
   sprite_sequence->type = static_cast<core::TypeId::type>(reader.readU32());
   sprite_sequence->length = reader.readI16();
   sprite_sequence->offset = reader.readU16();
@@ -1354,7 +1352,7 @@ std::unique_ptr<SpriteSequence> SpriteSequence::read(io::SDLReader& reader)
 
 std::unique_ptr<Box> Box::readTr1(io::SDLReader& reader)
 {
-  std::unique_ptr<Box> box{std::make_unique<Box>()};
+  auto box = std::make_unique<Box>();
   box->zmin = 1_len * reader.readI32();
   box->zmax = 1_len * reader.readI32();
   box->xmin = 1_len * reader.readI32();
@@ -1373,7 +1371,7 @@ std::unique_ptr<Box> Box::readTr1(io::SDLReader& reader)
 
 std::unique_ptr<Box> Box::readTr2(io::SDLReader& reader)
 {
-  std::unique_ptr<Box> box{std::make_unique<Box>()};
+  auto box = std::make_unique<Box>();
   box->zmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
   box->zmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
   box->xmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
@@ -1388,7 +1386,7 @@ std::unique_ptr<Box> Box::readTr2(io::SDLReader& reader)
 
 std::unique_ptr<FlybyCamera> FlybyCamera::read(io::SDLReader& reader)
 {
-  std::unique_ptr<FlybyCamera> camera{std::make_unique<FlybyCamera>()};
+  auto camera = std::make_unique<FlybyCamera>();
   camera->cam_x = reader.readI32();
   camera->cam_y = reader.readI32();
   camera->cam_z = reader.readI32();
@@ -1411,7 +1409,7 @@ std::unique_ptr<FlybyCamera> FlybyCamera::read(io::SDLReader& reader)
 
 std::unique_ptr<AIObject> AIObject::read(io::SDLReader& reader)
 {
-  std::unique_ptr<AIObject> object{std::make_unique<AIObject>()};
+  auto object = std::make_unique<AIObject>();
   object->object_id = reader.readU16();
   object->room = reader.readU16(); // 4
 
@@ -1427,7 +1425,7 @@ std::unique_ptr<AIObject> AIObject::read(io::SDLReader& reader)
 
 std::unique_ptr<CinematicFrame> CinematicFrame::read(io::SDLReader& reader)
 {
-  std::unique_ptr<CinematicFrame> cf{std::make_unique<CinematicFrame>()};
+  auto cf = std::make_unique<CinematicFrame>();
   cf->lookAt = readCoordinates16(reader);
   cf->position = readCoordinates16(reader);
   cf->fov = core::auToAngle(reader.readI16());
@@ -1437,7 +1435,7 @@ std::unique_ptr<CinematicFrame> CinematicFrame::read(io::SDLReader& reader)
 
 std::unique_ptr<LightMap> LightMap::read(io::SDLReader& reader)
 {
-  std::unique_ptr<LightMap> lightmap{std::make_unique<LightMap>()};
+  auto lightmap = std::make_unique<LightMap>();
   reader.readBytes(lightmap->map.data(), lightmap->map.size());
   return lightmap;
 }

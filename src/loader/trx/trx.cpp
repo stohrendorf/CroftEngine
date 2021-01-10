@@ -377,12 +377,12 @@ Glidos::TileMap Glidos::getMappingsForTexture(const std::string& textureId) cons
   result.newestSource = std::max(m_newestTextureSourceTimestamps[textureId], m_rootTimestamp);
   result.baseDir = m_baseDir;
 
-  for(const auto& link : m_filesByPart)
+  for(const auto& [part, file] : m_filesByPart)
   {
-    if(link.first.getId() != textureId)
+    if(part.getId() != textureId)
       continue;
 
-    result.tiles[link.first.getRectangle()] = link.second;
+    result.tiles[part.getRectangle()] = file;
   }
 
   return result;

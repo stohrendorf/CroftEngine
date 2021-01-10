@@ -106,7 +106,7 @@ struct AnimFrame
   {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
-    return gsl::make_span(begin, numValues);
+    return gsl::span(begin, numValues);
   }
 
   [[nodiscard]] const AnimFrame* next() const

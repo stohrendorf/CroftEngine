@@ -7,7 +7,7 @@ namespace loader::file
 {
 std::unique_ptr<Item> Item::readTr1(io::SDLReader& reader)
 {
-  std::unique_ptr<Item> item{std::make_unique<Item>()};
+  auto item = std::make_unique<Item>();
   item->type = reader.readU16();
   item->room = reader.readU16();
   item->position = readCoordinates32(reader);
@@ -19,7 +19,7 @@ std::unique_ptr<Item> Item::readTr1(io::SDLReader& reader)
 
 std::unique_ptr<Item> Item::readTr2(io::SDLReader& reader)
 {
-  std::unique_ptr<Item> item{std::make_unique<Item>()};
+  auto item = std::make_unique<Item>();
   item->type = reader.readU16();
   item->room = reader.readU16();
   item->position = readCoordinates32(reader);
@@ -32,7 +32,7 @@ std::unique_ptr<Item> Item::readTr2(io::SDLReader& reader)
 
 std::unique_ptr<Item> Item::readTr3(io::SDLReader& reader)
 {
-  std::unique_ptr<Item> item{std::make_unique<Item>()};
+  auto item = std::make_unique<Item>();
   item->type = reader.readU16();
   item->room = reader.readU16();
   item->position = readCoordinates32(reader);
@@ -45,7 +45,7 @@ std::unique_ptr<Item> Item::readTr3(io::SDLReader& reader)
 
 std::unique_ptr<Item> Item::readTr4(io::SDLReader& reader)
 {
-  std::unique_ptr<Item> item{std::make_unique<Item>()};
+  auto item = std::make_unique<Item>();
   item->type = reader.readU16();
   item->room = reader.readU16();
   item->position = readCoordinates32(reader);

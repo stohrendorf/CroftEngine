@@ -197,7 +197,7 @@ public:
   void fill(const StorageType& color)
   {
     if(!m_data.empty())
-      detail::fill(gsl::not_null<StorageType*>{m_data.data()}, m_data.size(), color);
+      detail::fill(gsl::not_null{m_data.data()}, m_data.size(), color);
   }
 
   void line(glm::ivec2 xy0, const glm::ivec2& xy1, const StorageType& color, const bool blend = false)

@@ -11,11 +11,11 @@ void save(std::map<T, U>& data, const Serializer& ser)
 {
   ser.node |= ryml::SEQ;
   ser.tag("map");
-  for(auto& element : data)
+  for(auto& [key, value] : data)
   {
     const auto tmp = ser.newChild();
-    access::callSerializeOrSave(const_cast<T&>(element.first), tmp["key"]);
-    access::callSerializeOrSave(element.second, tmp["value"]);
+    access::callSerializeOrSave(const_cast<T&>(key), tmp["key"]);
+    access::callSerializeOrSave(value, tmp["value"]);
   }
 }
 

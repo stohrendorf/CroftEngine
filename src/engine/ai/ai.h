@@ -67,8 +67,8 @@ struct CreatureInfo
 
   void rotateHead(const core::Angle& angle)
   {
-    const auto delta = util::clamp(angle - head_rotation, -5_deg, +5_deg);
-    head_rotation = util::clamp(delta + head_rotation, -90_deg, +90_deg);
+    const auto delta = std::clamp(angle - head_rotation, -5_deg, +5_deg);
+    head_rotation = std::clamp(delta + head_rotation, -90_deg, +90_deg);
   }
 
   void serialize(const serialization::Serializer& ser);

@@ -33,7 +33,7 @@ protected:
   void rotateCreatureTilt(const core::Angle& angle)
   {
     const auto dz = 4 * angle - m_state.rotation.Z;
-    const core::Angle z = util::clamp(dz, -3_deg, +3_deg);
+    const core::Angle z = std::clamp(dz, -3_deg, +3_deg);
     m_state.rotation.Z += z;
   }
 

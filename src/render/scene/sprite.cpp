@@ -45,10 +45,10 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
-  indexBuffer->setData(gsl::not_null<const uint16_t*>(&indices[0]), 6, gl::api::BufferUsageARB::StaticDraw);
+  indexBuffer->setData(gsl::not_null(&indices[0]), 6, gl::api::BufferUsageARB::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
-    indexBuffer, vb, std::vector<const gl::Program*>{&materialFull->getShaderProgram()->getHandle()});
+    indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()});
   auto mesh = std::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
   mesh->getMaterial().set(RenderMode::Full, materialFull);
 

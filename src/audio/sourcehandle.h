@@ -123,7 +123,7 @@ public:
 
   void setGain(const ALfloat gain_value)
   {
-    set(AL_GAIN, util::clamp(gain_value, 0.0f, 1.0f));
+    set(AL_GAIN, std::clamp(gain_value, 0.0f, 1.0f));
   }
 
   void setPosition(const glm::vec3& position)
@@ -134,7 +134,7 @@ public:
   void setPitch(const ALfloat pitch_value)
   {
     // Clamp pitch value according to specs
-    set(AL_PITCH, util::clamp(pitch_value, 0.5f, 2.0f));
+    set(AL_PITCH, std::clamp(pitch_value, 0.5f, 2.0f));
   }
 
   [[nodiscard]] ALint getBuffersProcessed() const

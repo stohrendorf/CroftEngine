@@ -31,8 +31,8 @@ private:
                               std::vector<int>& strides,
                               const std::index_sequence<Is...>&)
   {
-    handles = std::vector<api::core::Handle>{std::get<Is>(t)->getHandle()...};
-    strides = std::vector<int>{std::get<Is>(t)->getStride()...};
+    handles = std::vector{std::get<Is>(t)->getHandle()...};
+    strides = std::vector{std::get<Is>(t)->getStride()...};
   }
 
   void extractBindContextData(std::vector<api::core::Handle>& handles, std::vector<int>& strides)

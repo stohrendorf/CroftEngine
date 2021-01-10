@@ -16,22 +16,21 @@ void SoundEngine::update()
     BOOST_LOG_TRIVIAL(warning) << "No listener set";
   }
 
-  for(auto& emitterMap : m_sources)
+  for(auto& [emitter, idsAndHandles] : m_sources)
   {
     glm::vec3 pos;
-    if(emitterMap.first != nullptr)
-      pos = emitterMap.first->getPosition();
+    if(emitter != nullptr)
+      pos = emitter->getPosition();
 
-    for(auto& handleMap : emitterMap.second)
+    for(auto& [id, handles] : idsAndHandles)
     {
-      auto old = std::move(handleMap.second);
-      std::copy_if(
-        old.begin(), old.end(), std::back_inserter(handleMap.second), [](const auto& h) { return !h.expired(); });
+      auto old = std::move(handles);
+      std::copy_if(old.begin(), old.end(), std::back_inserter(handles), [](const auto& h) { return !h.expired(); });
 
-      if(emitterMap.first == nullptr)
+      if(emitter == nullptr)
         continue;
 
-      for(const auto& handle : handleMap.second)
+      for(const auto& handle : handles)
       {
         if(const auto locked = handle.lock())
         {
@@ -116,8 +115,8 @@ void SoundEngine::dropEmitter(Emitter* emitter)
   if(it == m_sources.end())
     return;
 
-  for(const auto& bufferMap : it->second)
-    for(const auto& src : bufferMap.second)
+  for(const auto& [id, handles] : it->second)
+    for(const auto& src : handles)
       if(const auto locked = src.lock())
         locked->stop();
 

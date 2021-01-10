@@ -15,7 +15,7 @@ namespace loader::file
 {
 std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
 {
-  std::unique_ptr<Mesh> mesh{std::make_unique<Mesh>()};
+  auto mesh = std::make_unique<Mesh>();
   mesh->center = readCoordinates16(reader);
   mesh->collision_size = core::Length{core::Length::type{reader.readI16()}};
   reader.skip(2); // some unknown flags
@@ -44,7 +44,7 @@ std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
 
 std::unique_ptr<Mesh> Mesh::readTr4(io::SDLReader& reader)
 {
-  std::unique_ptr<Mesh> mesh{std::make_unique<Mesh>()};
+  auto mesh = std::make_unique<Mesh>();
   mesh->center = readCoordinates16(reader);
   mesh->collision_size = core::Length{reader.readI32()};
 

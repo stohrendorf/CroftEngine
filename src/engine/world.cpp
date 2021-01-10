@@ -35,6 +35,201 @@
 
 namespace engine
 {
+namespace
+{
+struct UVRect
+{
+  explicit UVRect(const std::array<loader::file::UVCoordinates, 4>& cos)
+  {
+    xy0.x = xy0.y = loader::file::UVCoordinates::Component{std::numeric_limits<uint16_t>::max()};
+    xy1.x = xy1.y = loader::file::UVCoordinates::Component{std::numeric_limits<uint16_t>::min()};
+    for(const auto& co : cos)
+    {
+      if(co.x.get() == 0 && co.y.get() == 0)
+        continue;
+
+      xy0.x = std::min(xy0.x, co.x);
+      xy0.y = std::min(xy0.y, co.y);
+      xy1.x = std::max(xy1.x, co.x);
+      xy1.y = std::max(xy1.y, co.y);
+    }
+  }
+
+  UVRect(const loader::file::UVCoordinates& t0, const loader::file::UVCoordinates& t1)
+  {
+    xy0.x = std::min(t0.x, t1.x);
+    xy0.y = std::min(t0.y, t1.y);
+    xy1.x = std::max(t0.x, t1.x);
+    xy1.y = std::max(t0.y, t1.y);
+  }
+
+  constexpr bool operator==(const UVRect& rhs) const noexcept
+  {
+    return xy0 == rhs.xy0 && xy1 == rhs.xy1;
+  }
+
+  constexpr bool operator<(const UVRect& rhs) const noexcept
+  {
+    if(xy0.x != rhs.xy0.x)
+      return xy0.x < rhs.xy0.x;
+    if(xy0.y != rhs.xy1.y)
+      return xy0.y < rhs.xy0.y;
+    if(xy1.x != rhs.xy1.x)
+      return xy1.x < rhs.xy1.x;
+    return xy1.y < rhs.xy1.y;
+  }
+
+  loader::file::UVCoordinates xy0{};
+  loader::file::UVCoordinates xy1{};
+};
+
+gl::CImgWrapper
+  mipmap(const gl::CImgWrapper& src, const std::set<UVRect>& tiles, int dstSize, int mipmapLevel, int margin)
+{
+  gl::CImgWrapper dst{dstSize, dstSize};
+  for(const UVRect& r : tiles)
+  {
+    // (scaled) source coordinates
+    auto xy0 = r.xy0.toNearestPx(src.width());
+    auto xy1 = r.xy1.toNearestPx(src.width());
+
+    if(xy0.x > xy1.x)
+      std::swap(xy0.x, xy1.x);
+    if(xy0.y > xy1.y)
+      std::swap(xy0.y, xy1.y);
+
+    BOOST_ASSERT(xy0.x <= xy1.x);
+    BOOST_ASSERT(xy0.y <= xy1.y);
+    gl::CImgWrapper tmp = src.cropped(xy0.x - render::MultiTextureAtlas::BoundaryMargin,
+                                      xy0.y - render::MultiTextureAtlas::BoundaryMargin,
+                                      xy1.x + render::MultiTextureAtlas::BoundaryMargin,
+                                      xy1.y + render::MultiTextureAtlas::BoundaryMargin);
+    tmp.resizePow2Mipmap(mipmapLevel);
+
+    const auto targetPos = r.xy0.toPx(dstSize) - glm::ivec2{margin};
+    dst.replace(targetPos.x, targetPos.y, tmp);
+  }
+
+  return dst;
+}
+
+void activateCommand(objects::Object& object,
+                     const floordata::ActivationState& activationRequest,
+                     floordata::SequenceCondition condition)
+{
+  if(object.m_state.activationState.isOneshot())
+    return;
+
+  object.m_state.timer = activationRequest.getTimeout();
+
+  if(condition == floordata::SequenceCondition::ItemActivated)
+    object.m_state.activationState ^= activationRequest.getActivationSet();
+  else if(condition == floordata::SequenceCondition::LaraOnGroundInverted)
+    object.m_state.activationState &= ~activationRequest.getActivationSet();
+  else
+    object.m_state.activationState |= activationRequest.getActivationSet();
+
+  if(!object.m_state.activationState.isFullyActivated())
+    return;
+
+  if(activationRequest.isOneshot())
+    object.m_state.activationState.setOneshot(true);
+
+  if(object.m_isActive)
+    return;
+
+  if(object.m_state.triggerState == objects::TriggerState::Inactive
+     || object.m_state.triggerState == objects::TriggerState::Invisible
+     || dynamic_cast<objects::AIAgent*>(&object) == nullptr)
+  {
+    object.m_state.triggerState = objects::TriggerState::Active;
+    object.m_state.touch_bits = 0;
+    object.activate();
+  }
+}
+
+bool flipMapCommand(floordata::ActivationState& state,
+                    const floordata::ActivationState& request,
+                    floordata::SequenceCondition condition,
+                    bool roomsAreSwapped)
+{
+  if(state.isOneshot())
+    return false;
+
+  if(condition == floordata::SequenceCondition::ItemActivated)
+  {
+    state ^= request.getActivationSet();
+  }
+  else
+  {
+    state |= request.getActivationSet();
+  }
+
+  if(state.isFullyActivated())
+  {
+    if(request.isOneshot())
+      state.setOneshot(true);
+
+    if(!roomsAreSwapped)
+      return true;
+  }
+  else if(roomsAreSwapped)
+  {
+    return true;
+  }
+
+  return false;
+}
+
+std::optional<bool> evaluateCondition(floordata::SequenceCondition condition,
+                                      const floordata::ActivationState& request,
+                                      const ObjectManager& objectManager,
+                                      const floordata::FloorDataValue*& floorData,
+                                      bool& switchIsOn)
+{
+  switch(condition)
+  {
+  case floordata::SequenceCondition::LaraIsHere: return true;
+  case floordata::SequenceCondition::LaraOnGround:
+  case floordata::SequenceCondition::LaraOnGroundInverted:
+    return objectManager.getLara().m_state.position.position.Y == objectManager.getLara().m_state.floor;
+  case floordata::SequenceCondition::ItemActivated:
+  {
+    auto swtch = objectManager.getObject(floordata::Command{*floorData++}.parameter);
+    Expects(swtch != nullptr);
+    if(!swtch->triggerSwitch(request.getTimeout()))
+      return std::nullopt;
+
+    switchIsOn = (swtch->m_state.current_anim_state == 1_as);
+    return true;
+  }
+  case floordata::SequenceCondition::KeyUsed:
+  {
+    auto key = objectManager.getObject(floordata::Command{*floorData++}.parameter);
+    Expects(key != nullptr);
+    if(key->triggerKey())
+      return true;
+    else
+      return std::nullopt;
+  }
+  case floordata::SequenceCondition::ItemPickedUp:
+  {
+    auto item = objectManager.getObject(floordata::Command{*floorData++}.parameter);
+    Expects(item != nullptr);
+    if(item->triggerPickUp())
+      return true;
+    else
+      return std::nullopt;
+  }
+  case floordata::SequenceCondition::LaraInCombatMode:
+    return objectManager.getLara().getHandStatus() == objects::HandStatus::Combat;
+  case floordata::SequenceCondition::ItemIsHere:
+  case floordata::SequenceCondition::Dummy: return std::nullopt;
+  default: return true;
+  }
+}
+} // namespace
+
 std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
                                              const core::TRVec& position)
 {
@@ -657,54 +852,12 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
   }
   else
   {
-    switch(chunkHeader.sequenceCondition)
-    {
-    case floordata::SequenceCondition::LaraIsHere: conditionFulfilled = true; break;
-    case floordata::SequenceCondition::LaraOnGround:
-    case floordata::SequenceCondition::LaraOnGroundInverted:
-    {
-      conditionFulfilled
-        = m_objectManager.getLara().m_state.position.position.Y == m_objectManager.getLara().m_state.floor;
-    }
-    break;
-    case floordata::SequenceCondition::ItemActivated:
-    {
-      auto swtch = m_objectManager.getObject(floordata::Command{*floorData++}.parameter);
-      Expects(swtch != nullptr);
-      if(!swtch->triggerSwitch(activationRequest.getTimeout()))
-        return;
+    auto evalResult
+      = evaluateCondition(chunkHeader.sequenceCondition, activationRequest, m_objectManager, floorData, switchIsOn);
+    if(!evalResult.has_value())
+      return;
 
-      switchIsOn = (swtch->m_state.current_anim_state == 1_as);
-      conditionFulfilled = true;
-    }
-    break;
-    case floordata::SequenceCondition::KeyUsed:
-    {
-      auto key = m_objectManager.getObject(floordata::Command{*floorData++}.parameter);
-      Expects(key != nullptr);
-      if(key->triggerKey())
-        conditionFulfilled = true;
-      else
-        return;
-    }
-    break;
-    case floordata::SequenceCondition::ItemPickedUp:
-    {
-      auto item = m_objectManager.getObject(floordata::Command{*floorData++}.parameter);
-      Expects(item != nullptr);
-      if(item->triggerPickUp())
-        conditionFulfilled = true;
-      else
-        return;
-      break;
-    }
-    case floordata::SequenceCondition::LaraInCombatMode:
-      conditionFulfilled = m_objectManager.getLara().getHandStatus() == objects::HandStatus::Combat;
-      break;
-    case floordata::SequenceCondition::ItemIsHere:
-    case floordata::SequenceCondition::Dummy: return;
-    default: conditionFulfilled = true; break;
-    }
+    conditionFulfilled = evalResult.value();
   }
 
   if(!conditionFulfilled)
@@ -721,36 +874,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     {
       auto object = m_objectManager.getObject(command.parameter);
       Expects(object != nullptr);
-      if(object->m_state.activationState.isOneshot())
-        break;
-
-      object->m_state.timer = activationRequest.getTimeout();
-
-      if(chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated)
-        object->m_state.activationState ^= activationRequest.getActivationSet();
-      else if(chunkHeader.sequenceCondition == floordata::SequenceCondition::LaraOnGroundInverted)
-        object->m_state.activationState &= ~activationRequest.getActivationSet();
-      else
-        object->m_state.activationState |= activationRequest.getActivationSet();
-
-      if(!object->m_state.activationState.isFullyActivated())
-        break;
-
-      if(activationRequest.isOneshot())
-        object->m_state.activationState.setOneshot(true);
-
-      if(object->m_isActive)
-        break;
-
-      if(object->m_state.triggerState == objects::TriggerState::Inactive
-         || object->m_state.triggerState == objects::TriggerState::Invisible
-         || std::dynamic_pointer_cast<objects::AIAgent>(object) == nullptr)
-      {
-        object->m_state.triggerState = objects::TriggerState::Active;
-        object->m_state.touch_bits = 0;
-        object->activate();
-        break;
-      }
+      activateCommand(*object, activationRequest, chunkHeader.sequenceCondition);
     }
     break;
     case floordata::CommandOpcode::SwitchCamera:
@@ -781,31 +905,10 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     }
     break;
     case floordata::CommandOpcode::FlipMap:
-      BOOST_ASSERT(command.parameter < m_mapFlipActivationStates.size());
-      if(!m_mapFlipActivationStates[command.parameter].isOneshot())
-      {
-        if(chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemActivated)
-        {
-          m_mapFlipActivationStates[command.parameter] ^= activationRequest.getActivationSet();
-        }
-        else
-        {
-          m_mapFlipActivationStates[command.parameter] |= activationRequest.getActivationSet();
-        }
-
-        if(m_mapFlipActivationStates[command.parameter].isFullyActivated())
-        {
-          if(activationRequest.isOneshot())
-            m_mapFlipActivationStates[command.parameter].setOneshot(true);
-
-          if(!m_roomsAreSwapped)
-            swapRooms = true;
-        }
-        else if(m_roomsAreSwapped)
-        {
-          swapRooms = true;
-        }
-      }
+      swapRooms = flipMapCommand(m_mapFlipActivationStates.at(command.parameter),
+                                 activationRequest,
+                                 chunkHeader.sequenceCondition,
+                                 m_roomsAreSwapped);
       break;
     case floordata::CommandOpcode::FlipOn:
       BOOST_ASSERT(command.parameter < m_mapFlipActivationStates.size());
@@ -982,9 +1085,8 @@ void remap(loader::file::TextureTile& tile,
   tile.textureKey.tileAndFlag |= atlas;
 
   // re-map uv coordinates
-  auto tileUvRange = tile.getNearestMinMaxGl(256);
-  auto tileUvPos = tileUvRange.first;
-  auto tileUvSize = tileUvRange.second - tileUvPos;
+  auto [tileUvPos, tileUvMax] = tile.getNearestMinMaxGl(256);
+  auto tileUvSize = tileUvMax - tileUvPos;
   if(tileUvSize.x == 0 || tileUvSize.y == 0)
     return;
 
@@ -993,7 +1095,6 @@ void remap(loader::file::TextureTile& tile,
     if(uvComponent.x.get() == 0 && uvComponent.y.get() == 0)
       continue;
 
-    const auto rem = glm::mod(uvComponent.toGl(), glm::vec2{1.0f});
     auto uv = remap(uvComponent.toGl(), tileUvPos, replacementUvPos, replacementUvSize / tileUvSize);
     uvComponent.set(uv);
   }
@@ -1006,7 +1107,7 @@ void remap(loader::file::Sprite& sprite,
   sprite.texture_id = core::TextureId{atlas};
 
   // re-map uv coordinates
-  std::pair<glm::vec2, glm::vec2> spriteUvRange{sprite.uv0.toNearestGl(256), sprite.uv1.toNearestGl(256)};
+  std::pair spriteUvRange{sprite.uv0.toNearestGl(256), sprite.uv1.toNearestGl(256)};
   auto spriteUvSize = spriteUvRange.second - spriteUvRange.first;
 
   auto uv = remap(sprite.uv0.toGl(), spriteUvRange.first, replacementUvPos, replacementUvSize / spriteUvSize);
@@ -1020,9 +1121,9 @@ void remap(loader::file::Sprite& sprite,
 World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared_ptr<Presenter>> presenter)
     : m_engine{engine}
     , m_presenter{std::move(presenter)}
-    , m_levelInfo{std::move(levelInfo)}
     , m_audioEngine{std::make_unique<AudioEngine>(
         *this, engine.getRootPath() / "data" / "tr1" / "audio", m_presenter->getSoundEngine())}
+    , m_levelInfo{std::move(levelInfo)}
 {
   if(const auto levelNames = core::get<pybind11::dict>(m_levelInfo, "name"))
   {
@@ -1070,9 +1171,9 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
     m_level->loadFileData();
 
     m_presenter->drawLoadingScreen("Building textures");
-    for(size_t i = 0; i < m_level->m_textures.size(); ++i)
+    for(auto& texture : m_level->m_textures)
     {
-      m_level->m_textures[i].toImage();
+      texture.toImage();
     }
 
     BOOST_LOG_TRIVIAL(info) << "Building texture atlases";
@@ -1108,7 +1209,7 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
           if(sprite.texture_id != texIdx)
             continue;
 
-          std::pair<glm::ivec2, glm::ivec2> px{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
+          std::pair px{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
           mappings.tiles[loader::trx::Rectangle{gsl::narrow<uint32_t>(px.first.x),
                                                 gsl::narrow<uint32_t>(px.first.y),
                                                 gsl::narrow<uint32_t>(px.second.x),
@@ -1116,44 +1217,47 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
             = std::filesystem::path{};
         }
       }
-      for(const auto& tileAndPath : mappings.tiles)
+      for(const auto& [tile, path] : mappings.tiles)
       {
         std::unique_ptr<gl::CImgWrapper> replacementImg;
-        if(tileAndPath.second.empty() || !std::filesystem::is_regular_file(tileAndPath.second))
+        if(path.empty() || !std::filesystem::is_regular_file(path))
         {
           replacementImg = std::make_unique<gl::CImgWrapper>(
-            reinterpret_cast<const uint8_t*>(texture.image->getRawData()), 256, 256, true);
-          replacementImg->crop(
-            tileAndPath.first.getX0(), tileAndPath.first.getY0(), tileAndPath.first.getX1(), tileAndPath.first.getY1());
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+            reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
+            256,
+            256,
+            true);
+          replacementImg->crop(tile.getX0(), tile.getY0(), tile.getX1(), tile.getY1());
         }
         else
         {
-          replacementImg = std::make_unique<gl::CImgWrapper>(tileAndPath.second);
+          replacementImg = std::make_unique<gl::CImgWrapper>(path);
         }
 
-        auto replacementPos = atlases.put(*replacementImg);
-        const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
+        auto [page, replacementPos] = atlases.put(*replacementImg);
+        const auto replacementUvPos = glm::vec2{replacementPos} / gsl::narrow_cast<float>(atlases.getSize());
         const auto replacementUvSize = glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
                                        / gsl::narrow_cast<float>(atlases.getSize());
 
         bool remapped = false;
-        for(auto& tile : m_level->m_textureTiles)
+        for(auto& srcTile : m_level->m_textureTiles)
         {
-          if(doneTiles.count(&tile) != 0)
+          if(doneTiles.count(&srcTile) != 0)
             continue;
 
-          if((tile.textureKey.tileAndFlag & loader::file::TextureIndexMask) != texIdx)
+          if((srcTile.textureKey.tileAndFlag & loader::file::TextureIndexMask) != texIdx)
             continue;
 
-          auto minMaxPx = tile.getMinMaxPx(256);
-          if(!tileAndPath.first.contains(minMaxPx.first.x, minMaxPx.first.y))
+          auto minMaxPx = srcTile.getMinMaxPx(256);
+          if(!tile.contains(minMaxPx.first.x, minMaxPx.first.y))
             continue;
-          if(!tileAndPath.first.contains(minMaxPx.second.x, minMaxPx.second.y))
+          if(!tile.contains(minMaxPx.second.x, minMaxPx.second.y))
             continue;
 
-          doneTiles.emplace(&tile);
+          doneTiles.emplace(&srcTile);
           remapped = true;
-          remap(tile, replacementPos.first, replacementUvPos, replacementUvSize);
+          remap(srcTile, page, replacementUvPos, replacementUvSize);
         }
 
         for(auto& sprite : m_level->m_sprites)
@@ -1165,20 +1269,20 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
             continue;
           sprite.texture_id = texIdx;
 
-          std::pair<glm::ivec2, glm::ivec2> minMaxPx{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
-          if(!tileAndPath.first.contains(minMaxPx.first.x, minMaxPx.first.y))
+          std::pair minMaxPx{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
+          if(!tile.contains(minMaxPx.first.x, minMaxPx.first.y))
             continue;
-          if(!tileAndPath.first.contains(minMaxPx.second.x, minMaxPx.second.y))
+          if(!tile.contains(minMaxPx.second.x, minMaxPx.second.y))
             continue;
 
           doneSprites.emplace(&sprite);
           remapped = true;
-          remap(sprite, replacementPos.first, replacementUvPos, replacementUvSize);
+          remap(sprite, page, replacementUvPos, replacementUvSize);
         }
 
         if(!remapped)
         {
-          BOOST_LOG_TRIVIAL(error) << "Failed to re-map texture tile " << tileAndPath.first;
+          BOOST_LOG_TRIVIAL(error) << "Failed to re-map texture tile " << tile;
         }
       }
     }
@@ -1190,7 +1294,11 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
         continue;
       const auto& texture = m_level->m_textures.at(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask);
       auto replacementImg = std::make_unique<gl::CImgWrapper>(
-        reinterpret_cast<const uint8_t*>(texture.image->getRawData()), 256, 256, true);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
+        256,
+        256,
+        true);
       const auto srcDims = tile.getMinMaxPx(256);
       replacementImg->crop(srcDims.first.x, srcDims.first.y, srcDims.second.x, srcDims.second.y);
 
@@ -1207,18 +1315,22 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
       if(!doneSprites.emplace(&sprite).second)
         continue;
 
-      std::pair<glm::ivec2, glm::ivec2> minMaxPx{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
+      std::pair minMaxPx{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
       const auto& texture = m_level->m_textures.at(sprite.texture_id.get());
       auto replacementImg = std::make_unique<gl::CImgWrapper>(
-        reinterpret_cast<const uint8_t*>(texture.image->getRawData()), 256, 256, true);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
+        256,
+        256,
+        true);
       replacementImg->crop(minMaxPx.first.x, minMaxPx.first.y, minMaxPx.second.x, minMaxPx.second.y);
 
-      auto replacementPos = atlases.put(*replacementImg);
-      const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
+      auto [textureId, replacementPos] = atlases.put(*replacementImg);
+      const auto replacementUvPos = glm::vec2{replacementPos} / gsl::narrow_cast<float>(atlases.getSize());
       const auto replacementUvSize = glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
                                      / gsl::narrow_cast<float>(atlases.getSize());
-      remap(sprite, replacementPos.first, replacementUvPos, replacementUvSize);
-      sprite.texture_id = replacementPos.first;
+      remap(sprite, textureId, replacementUvPos, replacementUvSize);
+      sprite.texture_id = textureId;
     }
 
     const int textureLevels = static_cast<int>(std::log2(atlases.getSize()) + 1) / 2;
@@ -1268,10 +1380,10 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
 
     if(m_objectManager.getLaraPtr() != nullptr)
     {
-      for(const auto& item : initInv)
+      for(const auto& [item, qty] : initInv)
       {
-        if(m_level->findAnimatedModelForType(item.first) != nullptr)
-          m_inventory.put(m_objectManager.getLara(), item.first, item.second);
+        if(m_level->findAnimatedModelForType(item) != nullptr)
+          m_inventory.put(m_objectManager.getLara(), item, qty);
       }
     }
   }
@@ -1321,7 +1433,7 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
     m_presenter->setTrFont(std::make_unique<ui::CachedFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics)));
   }
 
-  if(const std::optional<TR1TrackId> trackToPlay = core::get<TR1TrackId>(m_levelInfo, "track"))
+  if(const std::optional trackToPlay = core::get<TR1TrackId>(m_levelInfo, "track"))
   {
     m_audioEngine->playStopCdTrack(trackToPlay.value(), false);
   }
@@ -1334,52 +1446,6 @@ void World::createMipmaps(const std::filesystem::path& cacheBaseDir,
                           const std::vector<std::shared_ptr<gl::CImgWrapper>>& images,
                           size_t nMips)
 {
-  struct UVRect
-  {
-    explicit UVRect(const std::array<loader::file::UVCoordinates, 4>& cos)
-    {
-      xy0.x = xy0.y = loader::file::UVCoordinates::Component{std::numeric_limits<uint16_t>::max()};
-      xy1.x = xy1.y = loader::file::UVCoordinates::Component{std::numeric_limits<uint16_t>::min()};
-      for(const auto& co : cos)
-      {
-        if(co.x.get() == 0 && co.y.get() == 0)
-          continue;
-
-        xy0.x = std::min(xy0.x, co.x);
-        xy0.y = std::min(xy0.y, co.y);
-        xy1.x = std::max(xy1.x, co.x);
-        xy1.y = std::max(xy1.y, co.y);
-      }
-    }
-
-    UVRect(const loader::file::UVCoordinates& t0, const loader::file::UVCoordinates& t1)
-    {
-      xy0.x = std::min(t0.x, t1.x);
-      xy0.y = std::min(t0.y, t1.y);
-      xy1.x = std::max(t0.x, t1.x);
-      xy1.y = std::max(t0.y, t1.y);
-    }
-
-    constexpr bool operator==(const UVRect& rhs) const noexcept
-    {
-      return xy0 == rhs.xy0 && xy1 == rhs.xy1;
-    }
-
-    constexpr bool operator<(const UVRect& rhs) const noexcept
-    {
-      if(xy0.x != rhs.xy0.x)
-        return xy0.x < rhs.xy0.x;
-      if(xy0.y != rhs.xy1.y)
-        return xy0.y < rhs.xy0.y;
-      if(xy1.x != rhs.xy1.x)
-        return xy1.x < rhs.xy1.x;
-      return xy1.y < rhs.xy1.y;
-    }
-
-    loader::file::UVCoordinates xy0{};
-    loader::file::UVCoordinates xy1{};
-  };
-
   std::map<int, std::set<UVRect>> tilesByTexture;
   BOOST_LOG_TRIVIAL(debug) << m_level->m_textureTiles.size() << " total texture tiles";
   for(const auto& tile : m_level->m_textureTiles)
@@ -1400,12 +1466,12 @@ void World::createMipmaps(const std::filesystem::path& cacheBaseDir,
   auto cache = loader::file::TextureCache{cacheBaseDir / "_edisonengine"};
 
   size_t processedTiles = 0;
-  for(const auto& textureAndTiles : tilesByTexture)
+  for(const auto& [texture, tiles] : tilesByTexture)
   {
-    const gl::CImgWrapper& src = *images.at(textureAndTiles.first);
+    const gl::CImgWrapper& src = *images.at(texture);
     Expects(src.width() == src.height());
 
-    BOOST_LOG_TRIVIAL(debug) << "Mipmapping texture " << textureAndTiles.first;
+    BOOST_LOG_TRIVIAL(debug) << "Mipmapping texture " << texture;
 
     auto dstSize = src.width() / 2;
     auto margin = render::MultiTextureAtlas::BoundaryMargin / 2;
@@ -1413,43 +1479,20 @@ void World::createMipmaps(const std::filesystem::path& cacheBaseDir,
     {
       m_presenter->drawLoadingScreen("Mipmapping (" + std::to_string(processedTiles * 100 / (totalTiles * (nMips - 1)))
                                      + "%)");
-      processedTiles += textureAndTiles.second.size();
+      processedTiles += tiles.size();
 
-      BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", "
-                               << textureAndTiles.second.size() << " tiles)";
-      if(cache.exists(baseName, textureAndTiles.first, mipmapLevel))
+      BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", " << tiles.size()
+                               << " tiles)";
+      if(cache.exists(baseName, texture, mipmapLevel))
       {
-        auto dst = cache.loadPng(baseName, textureAndTiles.first, mipmapLevel);
-        m_allTextures->assign(dst.pixels<gl::SRGBA8>().data(), textureAndTiles.first, mipmapLevel);
+        auto dst = cache.loadPng(baseName, texture, mipmapLevel);
+        m_allTextures->assign(dst.pixels<gl::SRGBA8>().data(), texture, mipmapLevel);
       }
       else
       {
-        gl::CImgWrapper dst{dstSize, dstSize};
-        for(const UVRect& r : textureAndTiles.second)
-        {
-          // (scaled) source coordinates
-          auto xy0 = r.xy0.toNearestPx(src.width());
-          auto xy1 = r.xy1.toNearestPx(src.width());
-
-          if(xy0.x > xy1.x)
-            std::swap(xy0.x, xy1.x);
-          if(xy0.y > xy1.y)
-            std::swap(xy0.y, xy1.y);
-
-          BOOST_ASSERT(xy0.x <= xy1.x);
-          BOOST_ASSERT(xy0.y <= xy1.y);
-          gl::CImgWrapper tmp = src.cropped(xy0.x - render::MultiTextureAtlas::BoundaryMargin,
-                                            xy0.y - render::MultiTextureAtlas::BoundaryMargin,
-                                            xy1.x + render::MultiTextureAtlas::BoundaryMargin,
-                                            xy1.y + render::MultiTextureAtlas::BoundaryMargin);
-          tmp.resizePow2Mipmap(mipmapLevel);
-
-          const auto targetPos = r.xy0.toPx(dstSize) - glm::ivec2{margin};
-          dst.replace(targetPos.x, targetPos.y, tmp);
-        }
-
-        cache.savePng(baseName, textureAndTiles.first, mipmapLevel, dst);
-        m_allTextures->assign(dst.pixels<gl::SRGBA8>().data(), textureAndTiles.first, mipmapLevel);
+        auto dst = mipmap(src, tiles, dstSize, mipmapLevel, margin);
+        cache.savePng(baseName, texture, mipmapLevel, dst);
+        m_allTextures->assign(dst.pixels<gl::SRGBA8>().data(), texture, mipmapLevel);
       }
     }
   }
