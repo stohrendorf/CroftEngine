@@ -37,7 +37,7 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
         return 1.0;
     }
 
-    const float ShadowBias = 0.001;
+    const float ShadowBias = 0.005;
     float variance = max(moments.y - moments.x * moments.x, ShadowBias);
     float mD = moments.x - currentDepth;
     float pMax = variance / (variance + mD * mD);

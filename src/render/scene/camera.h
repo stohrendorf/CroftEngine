@@ -190,6 +190,7 @@ public:
       {
         m_matrices.projection
           = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.near, m_matrices.far);
+        m_matrices.inverseProjection = glm::inverse(m_matrices.projection);
         m_dirty.reset(CameraMatrices::DirtyFlag::Projection);
       }
 
