@@ -498,24 +498,9 @@ if( MSVC )
     list( APPEND EDISONENGINE_SRCS edisonengine.rc )
 endif()
 
-set( EDISONENGINE_UI_SRCS
-        ui/debug/debugview.cpp
-        ui/debug/larainfowidget.cpp
-        ui/debug/laraaiminfo.cpp
-        )
+add_executable( edisonengine ${EDISONENGINE_SRCS} )
 
-qt5_wrap_cpp( EDISONENGINE_UI_SRCS
-        ui/debug/debugview.h
-        ui/debug/larainfowidget.h
-        ui/debug/laraaiminfo.h
-        )
-
-add_executable( edisonengine
-        ${EDISONENGINE_SRCS}
-        ${EDISONENGINE_UI_SRCS}
-        )
-
-group_files( ${EDISONENGINE_SRCS} ${EDISONENGINE_UI_SRCS} )
+group_files( ${EDISONENGINE_SRCS} )
 
 target_include_directories( edisonengine PRIVATE . )
 
@@ -537,7 +522,6 @@ target_link_libraries(
         FFmpeg
         gsl-lite::gsl-lite
         soglb
-        Qt5::Widgets
         pybind11::pybind11
         pybind11::embed
         Python3::Python

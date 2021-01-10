@@ -14,7 +14,6 @@
 #include "render/scene/rendervisitor.h"
 #include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
-#include "ui/debug/debugview.h"
 #include "ui/label.h"
 #include "video/player.h"
 
@@ -143,13 +142,6 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
   m_renderPipeline->compositionPass(cameraController.getCurrentRoom()->isWaterRoom(), m_crtEffect);
 
-  if(m_debugView->isVisible())
-  {
-    if(objectManager.getLaraPtr() != nullptr)
-    {
-      m_debugView->update(objectManager.getLara(), objectManager.getObjects(), objectManager.getDynamicObjects());
-    }
-  }
   if(m_showDebugInfo)
   {
     m_debugFont->drawText(
@@ -283,7 +275,6 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_abibasFont{std::make_unique<gl::Font>(rootPath / "abibas.ttf")}
     , m_debugFont{std::make_unique<gl::Font>(rootPath / "DroidSansMono.ttf")}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow())}
-    , m_debugView{std::make_unique<ui::debug::DebugView>(0, nullptr)}
     , m_shaderManager{std::make_shared<render::scene::ShaderManager>(rootPath / "shaders")}
     , m_csm{std::make_shared<render::scene::CSM>(CSMResolution, *m_shaderManager)}
     , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_csm, m_renderer)}

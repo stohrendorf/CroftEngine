@@ -29,11 +29,6 @@ class SoundEngine;
 namespace ui
 {
 class CachedFont;
-
-namespace debug
-{
-class DebugView;
-}
 } // namespace ui
 
 namespace render
@@ -160,7 +155,6 @@ private:
   core::Frame m_healthBarTimeout = -40_frame;
   const std::unique_ptr<hid::InputHandler> m_inputHandler;
   std::unique_ptr<ui::CachedFont> m_trFont;
-  const std::unique_ptr<ui::debug::DebugView> m_debugView;
 
   const std::shared_ptr<render::scene::ShaderManager> m_shaderManager{};
   const std::shared_ptr<render::scene::CSM> m_csm{};

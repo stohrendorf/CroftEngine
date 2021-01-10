@@ -148,9 +148,6 @@ target_compile_definitions(
 
 add_definitions( -DNOMINMAX -DNOGDI )
 
-find_package( Qt5 COMPONENTS Widgets CONFIG REQUIRED )
-add_definitions( -DQT_NO_KEYWORDS )
-
 find_path(
         UTF8CPP_INCLUDE_DIR
         NAMES utf8.h
