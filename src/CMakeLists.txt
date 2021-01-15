@@ -254,7 +254,6 @@ set( EDISONENGINE_SRCS
         loader/file/rendermeshdata.cpp
         loader/file/texture.h
         loader/file/texture.cpp
-        loader/file/texturecache.h
         loader/file/util.h
 
         loader/file/io/sdlreader.h

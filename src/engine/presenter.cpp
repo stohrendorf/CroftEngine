@@ -42,7 +42,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
     m_screenOverlay->render(context);
     m_window->swapBuffers();
     m_inputHandler->update();
-    return !m_window->windowShouldClose();
+    return !m_window->windowShouldClose() && !m_inputHandler->getInputState().menu.justChangedTo(true);
   });
 }
 

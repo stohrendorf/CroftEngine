@@ -8,7 +8,6 @@
 #include "hid/inputhandler.h"
 #include "loader/file/level/level.h"
 #include "loader/file/rendermeshdata.h"
-#include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
 #include "menu/menudisplay.h"
 #include "objects/aiagent.h"

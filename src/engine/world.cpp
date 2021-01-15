@@ -3,7 +3,6 @@
 #include "audioengine.h"
 #include "core/pybindmodule.h"
 #include "engine.h"
-#include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
 #include "objects/aiagent.h"
 #include "objects/block.h"
@@ -82,36 +81,6 @@ struct UVRect
   loader::file::UVCoordinates xy0{};
   loader::file::UVCoordinates xy1{};
 };
-
-gl::CImgWrapper
-  mipmap(const gl::CImgWrapper& src, const std::set<UVRect>& tiles, int dstSize, int mipmapLevel, int margin)
-{
-  gl::CImgWrapper dst{dstSize, dstSize};
-  for(const UVRect& r : tiles)
-  {
-    // (scaled) source coordinates
-    auto xy0 = r.xy0.toNearestPx(src.width());
-    auto xy1 = r.xy1.toNearestPx(src.width());
-
-    if(xy0.x > xy1.x)
-      std::swap(xy0.x, xy1.x);
-    if(xy0.y > xy1.y)
-      std::swap(xy0.y, xy1.y);
-
-    BOOST_ASSERT(xy0.x <= xy1.x);
-    BOOST_ASSERT(xy0.y <= xy1.y);
-    gl::CImgWrapper tmp = src.cropped(xy0.x - render::MultiTextureAtlas::BoundaryMargin,
-                                      xy0.y - render::MultiTextureAtlas::BoundaryMargin,
-                                      xy1.x + render::MultiTextureAtlas::BoundaryMargin,
-                                      xy1.y + render::MultiTextureAtlas::BoundaryMargin);
-    tmp.resizePow2Mipmap(mipmapLevel);
-
-    const auto targetPos = r.xy0.toPx(dstSize) - glm::ivec2{margin};
-    dst.replace(targetPos.x, targetPos.y, tmp);
-  }
-
-  return dst;
-}
 
 void activateCommand(objects::Object& object,
                      const floordata::ActivationState& activationRequest,
@@ -1463,12 +1432,10 @@ void World::createMipmaps(const std::filesystem::path& cacheBaseDir,
     });
   BOOST_LOG_TRIVIAL(debug) << totalTiles << " unique texture tiles";
 
-  auto cache = loader::file::TextureCache{cacheBaseDir / "_edisonengine"};
-
   size_t processedTiles = 0;
   for(const auto& [texture, tiles] : tilesByTexture)
   {
-    const gl::CImgWrapper& src = *images.at(texture);
+    auto src = *images.at(texture);
     Expects(src.width() == src.height());
 
     BOOST_LOG_TRIVIAL(debug) << "Mipmapping texture " << texture;
@@ -1483,17 +1450,8 @@ void World::createMipmaps(const std::filesystem::path& cacheBaseDir,
 
       BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", " << tiles.size()
                                << " tiles)";
-      if(cache.exists(baseName, texture, mipmapLevel))
-      {
-        auto dst = cache.loadPng(baseName, texture, mipmapLevel);
-        m_allTextures->assign(dst.pixels<gl::SRGBA8>().data(), texture, mipmapLevel);
-      }
-      else
-      {
-        auto dst = mipmap(src, tiles, dstSize, mipmapLevel, margin);
-        cache.savePng(baseName, texture, mipmapLevel, dst);
-        m_allTextures->assign(dst.pixels<gl::SRGBA8>().data(), texture, mipmapLevel);
-      }
+      src.resizePow2Mipmap(1);
+      m_allTextures->assign(src.pixels<gl::SRGBA8>().data(), texture, mipmapLevel);
     }
   }
 }

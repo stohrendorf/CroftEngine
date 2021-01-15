@@ -2,10 +2,7 @@
 
 #include "engine/objects/object.h"
 #include "io/sdlreader.h"
-#include "loader/file/texturecache.h"
 #include "loader/trx/trx.h"
-
-#include <boost/range/adaptor/indexed.hpp>
 
 namespace loader::file
 {
