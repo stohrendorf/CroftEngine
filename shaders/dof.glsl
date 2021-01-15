@@ -43,7 +43,7 @@ vec3 do_dof(in vec2 uv)
             p.y = cos(i*angle_step) * dist_step * j;
             vec2 r = rand2(uv + p) * dist_step / 2.0;
             vec2 peek = uv + p + r;
-            float local_weight = 1.0 - smoothstep(j + 1.0, 0.0, dof_rings);
+            float local_weight = 1.0 - smoothstep(j + 1.0, 0.0, float(dof_rings));
             sample_color += shaded_texel(u_texture, peek, depth_at(peek)) * local_weight;
             sample_weight_sum += local_weight;
         }
