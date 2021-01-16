@@ -116,6 +116,12 @@ public:
     return m_meshParts.at(idx).mesh;
   }
 
+  glm::vec3 getMeshPartTranslationWorld(size_t idx) const
+  {
+    auto m = getModelMatrix() * m_meshParts.at(idx).matrix;
+    return glm::vec3{m[3]};
+  }
+
   size_t getBoneCount() const
   {
     return m_meshParts.size();
