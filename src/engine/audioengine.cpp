@@ -165,6 +165,13 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
     }
     break;
   case audio::TrackType::Ambient:
+    if(const auto str = m_ambientStream.lock())
+    {
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo.id.get());
+      m_soundEngine->getDevice().removeStream(str);
+      m_currentTrack.reset();
+    }
+
     if(!stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id.get());
@@ -173,12 +180,6 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
       if(isPlaying(m_interceptStream))
         m_ambientStream.lock()->getSource().lock()->pause();
       m_currentTrack = trackId;
-    }
-    else if(const auto str = m_ambientStream.lock())
-    {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop ambient " << static_cast<size_t>(trackInfo.id.get());
-      m_soundEngine->getDevice().removeStream(str);
-      m_currentTrack.reset();
     }
     break;
   case audio::TrackType::Interception:
