@@ -65,19 +65,16 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos, in float n)
     }
 
     normal = normalize(normal);
-    float sum = 0;
-    float brightest = u_lightAmbient;// the brightest light gives ambient brightness if it is brighter than ambient
+    float sum = u_lightAmbient;
     for (int i=0; i<lights.length(); ++i)
     {
         vec3 d = pos - lights[i].position;
         float intensity = lights[i].brightness / (1 + length(d)/lights[i].fadeDistance);
         vec3 light_dir = normalize(d);
         sum += pow(intensity * max(dot(light_dir, normal), 0), n);
-
-        brightest = max(brightest, intensity);
     }
 
-    return sum + (brightest + u_lightAmbient)/2;
+    return sum;
 }
 
 float calc_positional_lighting(in vec3 normal, in vec3 pos)
