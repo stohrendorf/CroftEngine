@@ -1035,27 +1035,32 @@ void World::save(const std::filesystem::path& filename)
 
 namespace
 {
-glm::vec2 remap(glm::vec2 from, glm::vec2 srcMin, glm::vec2 dstMin, glm::vec2 scale)
+void remapRange(loader::file::UVCoordinates& co,
+                const glm::vec2& rangeAMin,
+                const glm::vec2& rangeAMax,
+                const glm::vec2& rangeBMin,
+                const glm::vec2& rangeBMax)
 {
-  auto uv = from - srcMin;
-  uv *= scale;
-  uv += dstMin;
-  BOOST_ASSERT(uv.x >= 0 && uv.x <= 1);
-  BOOST_ASSERT(uv.y >= 0 && uv.y <= 1);
-  return uv;
+  auto value = co.toGl();
+  value -= rangeAMin;
+  value /= rangeAMax - rangeAMin;
+  value *= rangeBMax - rangeBMin;
+  value += rangeBMin;
+  BOOST_ASSERT(value.x >= 0 && value.x <= 1);
+  BOOST_ASSERT(value.y >= 0 && value.y <= 1);
+  co.set(value);
 }
 
 void remap(loader::file::TextureTile& tile,
            size_t atlas,
            const glm::vec2& replacementUvPos,
-           const glm::vec2& replacementUvSize)
+           const glm::vec2& replacementUvMax)
 {
   tile.textureKey.tileAndFlag &= ~loader::file::TextureIndexMask;
   tile.textureKey.tileAndFlag |= atlas;
 
-  // re-map uv coordinates
-  auto [tileUvPos, tileUvMax] = tile.getNearestMinMaxGl(256);
-  auto tileUvSize = tileUvMax - tileUvPos;
+  const auto [tileUvMin, tileUvMax] = tile.getNearestMinMaxGl(256);
+  const auto tileUvSize = tileUvMax - tileUvMin;
   if(tileUvSize.x == 0 || tileUvSize.y == 0)
     return;
 
@@ -1064,26 +1069,22 @@ void remap(loader::file::TextureTile& tile,
     if(uvComponent.x.get() == 0 && uvComponent.y.get() == 0)
       continue;
 
-    auto uv = remap(uvComponent.toGl(), tileUvPos, replacementUvPos, replacementUvSize / tileUvSize);
-    uvComponent.set(uv);
+    remapRange(uvComponent, tileUvMin, tileUvMax, replacementUvPos, replacementUvMax);
   }
 }
 void remap(loader::file::Sprite& sprite,
            size_t atlas,
            const glm::vec2& replacementUvPos,
-           const glm::vec2& replacementUvSize)
+           const glm::vec2& replacementUvMax)
 {
   sprite.texture_id = core::TextureId{atlas};
 
   // re-map uv coordinates
-  std::pair spriteUvRange{sprite.uv0.toNearestGl(256), sprite.uv1.toNearestGl(256)};
-  auto spriteUvSize = spriteUvRange.second - spriteUvRange.first;
+  const auto a = sprite.uv0.toNearestGl(256);
+  const auto b = sprite.uv1.toNearestGl(256);
 
-  auto uv = remap(sprite.uv0.toGl(), spriteUvRange.first, replacementUvPos, replacementUvSize / spriteUvSize);
-  sprite.uv0.set(uv);
-
-  uv = remap(sprite.uv1.toGl(), spriteUvRange.first, replacementUvPos, replacementUvSize / spriteUvSize);
-  sprite.uv1.set(uv);
+  remapRange(sprite.uv0, a, b, replacementUvPos, replacementUvMax);
+  remapRange(sprite.uv1, a, b, replacementUvPos, replacementUvMax);
 }
 } // namespace
 
@@ -1151,112 +1152,83 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
     std::unordered_set<loader::file::Sprite*> doneSprites;
 
     render::MultiTextureAtlas atlases{2048};
-    for(size_t texIdx = 0; texIdx < m_level->m_textures.size(); ++texIdx)
+    if(glidos != nullptr)
     {
-      const auto& texture = m_level->m_textures[texIdx];
-      loader::trx::Glidos::TileMap mappings;
-      if(glidos != nullptr)
+      for(size_t texIdx = 0; texIdx < m_level->m_textures.size(); ++texIdx)
       {
-        mappings = glidos->getMappingsForTexture(texture.md5);
-      }
-      else
-      {
-        for(auto& tile : m_level->m_textureTiles)
+        const auto& texture = m_level->m_textures[texIdx];
+        const auto mappings = glidos->getMappingsForTexture(texture.md5);
+
+        for(const auto& [tile, path] : mappings.tiles)
         {
-          if((tile.textureKey.tileAndFlag & loader::file::TextureIndexMask) != texIdx)
-            continue;
+          std::unique_ptr<gl::CImgWrapper> replacementImg;
+          if(path.empty() || !std::filesystem::is_regular_file(path))
+          {
+            replacementImg = std::make_unique<gl::CImgWrapper>(
+              // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+              reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
+              256,
+              256,
+              true);
+            replacementImg->crop(tile.getX0(), tile.getY0(), tile.getX1(), tile.getY1());
+          }
+          else
+          {
+            replacementImg = std::make_unique<gl::CImgWrapper>(path);
+          }
 
-          const auto px = tile.getMinMaxPx(256);
-          mappings.tiles[loader::trx::Rectangle{gsl::narrow<uint32_t>(px.first.x),
-                                                gsl::narrow<uint32_t>(px.first.y),
-                                                gsl::narrow<uint32_t>(px.second.x),
-                                                gsl::narrow<uint32_t>(px.second.y)}]
-            = std::filesystem::path{};
-        }
-        for(auto& sprite : m_level->m_sprites)
-        {
-          if(sprite.texture_id != texIdx)
-            continue;
+          auto [page, replacementPos] = atlases.put(*replacementImg);
+          const auto replacementUvPos = glm::vec2{replacementPos} / gsl::narrow_cast<float>(atlases.getSize());
+          const auto replacementUvMax = replacementUvPos
+                                        + glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
+                                            / gsl::narrow_cast<float>(atlases.getSize());
 
-          std::pair px{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
-          mappings.tiles[loader::trx::Rectangle{gsl::narrow<uint32_t>(px.first.x),
-                                                gsl::narrow<uint32_t>(px.first.y),
-                                                gsl::narrow<uint32_t>(px.second.x),
-                                                gsl::narrow<uint32_t>(px.second.y)}]
-            = std::filesystem::path{};
-        }
-      }
-      for(const auto& [tile, path] : mappings.tiles)
-      {
-        std::unique_ptr<gl::CImgWrapper> replacementImg;
-        if(path.empty() || !std::filesystem::is_regular_file(path))
-        {
-          replacementImg = std::make_unique<gl::CImgWrapper>(
-            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
-            256,
-            256,
-            true);
-          replacementImg->crop(tile.getX0(), tile.getY0(), tile.getX1(), tile.getY1());
-        }
-        else
-        {
-          replacementImg = std::make_unique<gl::CImgWrapper>(path);
-        }
+          bool remapped = false;
+          for(auto& srcTile : m_level->m_textureTiles)
+          {
+            if(doneTiles.count(&srcTile) != 0)
+              continue;
 
-        auto [page, replacementPos] = atlases.put(*replacementImg);
-        const auto replacementUvPos = glm::vec2{replacementPos} / gsl::narrow_cast<float>(atlases.getSize());
-        const auto replacementUvSize = glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
-                                       / gsl::narrow_cast<float>(atlases.getSize());
+            if((srcTile.textureKey.tileAndFlag & loader::file::TextureIndexMask) != texIdx)
+              continue;
 
-        bool remapped = false;
-        for(auto& srcTile : m_level->m_textureTiles)
-        {
-          if(doneTiles.count(&srcTile) != 0)
-            continue;
+            const auto [min, max] = srcTile.getMinMaxPx(256);
+            if(!tile.contains(min.x, min.y) || !tile.contains(max.x, max.y))
+              continue;
 
-          if((srcTile.textureKey.tileAndFlag & loader::file::TextureIndexMask) != texIdx)
-            continue;
+            doneTiles.emplace(&srcTile);
+            remapped = true;
+            remap(srcTile, page, replacementUvPos, replacementUvMax);
+          }
 
-          auto minMaxPx = srcTile.getMinMaxPx(256);
-          if(!tile.contains(minMaxPx.first.x, minMaxPx.first.y))
-            continue;
-          if(!tile.contains(minMaxPx.second.x, minMaxPx.second.y))
-            continue;
+          for(auto& sprite : m_level->m_sprites)
+          {
+            if(doneSprites.count(&sprite) != 0)
+              continue;
 
-          doneTiles.emplace(&srcTile);
-          remapped = true;
-          remap(srcTile, page, replacementUvPos, replacementUvSize);
-        }
+            if(sprite.texture_id.get() != texIdx)
+              continue;
 
-        for(auto& sprite : m_level->m_sprites)
-        {
-          if(doneSprites.count(&sprite) != 0)
-            continue;
+            const auto a = sprite.uv0.toPx(256);
+            const auto b = sprite.uv1.toPx(256);
+            if(!tile.contains(a.x, a.y) || !tile.contains(b.x, b.y))
+              continue;
 
-          if(sprite.texture_id.get() != texIdx)
-            continue;
-          sprite.texture_id = texIdx;
+            doneSprites.emplace(&sprite);
+            remapped = true;
+            remap(sprite, page, replacementUvPos, replacementUvMax);
+          }
 
-          std::pair minMaxPx{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
-          if(!tile.contains(minMaxPx.first.x, minMaxPx.first.y))
-            continue;
-          if(!tile.contains(minMaxPx.second.x, minMaxPx.second.y))
-            continue;
-
-          doneSprites.emplace(&sprite);
-          remapped = true;
-          remap(sprite, page, replacementUvPos, replacementUvSize);
-        }
-
-        if(!remapped)
-        {
-          BOOST_LOG_TRIVIAL(error) << "Failed to re-map texture tile " << tile;
+          if(!remapped)
+          {
+            BOOST_LOG_TRIVIAL(error) << "Failed to re-map texture tile " << tile;
+          }
         }
       }
+
+      BOOST_LOG_TRIVIAL(debug) << "Re-mapped " << doneTiles.size() << " tiles and " << doneSprites.size() << " sprites";
     }
 
-    BOOST_LOG_TRIVIAL(debug) << "Re-mapped " << doneTiles.size() << " tiles and " << doneSprites.size() << " sprites";
     for(auto& tile : m_level->m_textureTiles)
     {
       if(!doneTiles.emplace(&tile).second)
@@ -1273,10 +1245,11 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
 
       auto replacementPos = atlases.put(*replacementImg);
       const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
-      const auto replacementUvSize = glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
-                                     / gsl::narrow_cast<float>(atlases.getSize());
+      const auto replacementUvMax = replacementUvPos
+                                    + glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
+                                        / gsl::narrow_cast<float>(atlases.getSize());
 
-      remap(tile, replacementPos.first, replacementUvPos, replacementUvSize);
+      remap(tile, replacementPos.first, replacementUvPos, replacementUvMax);
     }
 
     for(auto& sprite : m_level->m_sprites)
@@ -1296,11 +1269,15 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
 
       auto [textureId, replacementPos] = atlases.put(*replacementImg);
       const auto replacementUvPos = glm::vec2{replacementPos} / gsl::narrow_cast<float>(atlases.getSize());
-      const auto replacementUvSize = glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
-                                     / gsl::narrow_cast<float>(atlases.getSize());
-      remap(sprite, textureId, replacementUvPos, replacementUvSize);
+      const auto replacementUvMax = replacementUvPos
+                                    + glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
+                                        / gsl::narrow_cast<float>(atlases.getSize());
+      remap(sprite, textureId, replacementUvPos, replacementUvMax);
       sprite.texture_id = textureId;
     }
+
+    Expects(doneTiles.size() == m_level->m_textureTiles.size());
+    Expects(doneSprites.size() == m_level->m_sprites.size());
 
     const int textureLevels = static_cast<int>(std::log2(atlases.getSize()) + 1) / 2;
     auto images = atlases.takeImages();
