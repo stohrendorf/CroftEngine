@@ -260,29 +260,29 @@ private:
 
   void chaseObject(const objects::Object& object, bool fixed);
 
-  void handleFreeLook();
+  void handleFreeLook(const objects::Object& object);
 
   void handleEnemy();
 
-  using ClampCallback = void(core::Length& current1,
-                             core::Length& current2,
-                             const core::Length& target1,
-                             const core::Length& target2,
-                             const core::Length& lowLimit1,
-                             const core::Length& lowLimit2,
-                             const core::Length& highLimit1,
-                             const core::Length& highLimit2);
+  using ClampCallback = void(core::Length& x,
+                             core::Length& y,
+                             const core::Length& targetX,
+                             const core::Length& targetY,
+                             const core::Length& minX,
+                             const core::Length& minY,
+                             const core::Length& maxX,
+                             const core::Length& maxY);
 
   void clampBox(core::RoomBoundPosition& eyePositionGoal, const std::function<ClampCallback>& callback) const;
 
-  static void freeLookClamp(core::Length& currentFrontBack,
-                            core::Length& currentLeftRight,
-                            const core::Length& targetFrontBack,
-                            const core::Length& targetLeftRight,
-                            const core::Length& back,
-                            const core::Length& right,
-                            const core::Length& front,
-                            const core::Length& left);
+  static void freeLookClamp(core::Length& x,
+                            core::Length& y,
+                            const core::Length& targetX,
+                            const core::Length& targetY,
+                            const core::Length& minX,
+                            const core::Length& minY,
+                            const core::Length& maxX,
+                            const core::Length& maxY);
 
   static void clampToCorners(const core::Area& targetHorizontalDistanceSq,
                              core::Length& currentFrontBack,

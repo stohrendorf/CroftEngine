@@ -349,9 +349,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     = m_lookAtObject != nullptr && (m_mode == CameraMode::FixedPosition || m_mode == CameraMode::HeavyFixedPosition);
 
   // if we have a fixed position, we also have an object we're looking at
-  objects::Object* const focusedObject
-    = isCompletelyFixed ? m_lookAtObject.get() : &m_world->getObjectManager().getLara();
-  BOOST_ASSERT(focusedObject != nullptr);
+  const gsl::not_null focusedObject = isCompletelyFixed ? m_lookAtObject.get() : &m_world->getObjectManager().getLara();
   auto focusBBox = focusedObject->getBoundingBox();
   auto focusY = focusedObject->m_state.position.position.Y;
   if(isCompletelyFixed)
@@ -411,7 +409,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     }
     m_isCompletelyFixed = false;
     if(m_mode == CameraMode::FreeLook)
-      handleFreeLook();
+      handleFreeLook(*focusedObject);
     else
       handleEnemy();
   }
@@ -617,25 +615,23 @@ void CameraController::chaseObject(const objects::Object& object, bool fixed)
   updatePosition(eye, fixed ? m_smoothness : 12);
 }
 
-void CameraController::handleFreeLook()
+void CameraController::handleFreeLook(const objects::Object& object)
 {
   const auto originalCenter = m_lookAt->position;
-  m_lookAt->position.X = m_world->getObjectManager().getLara().m_state.position.position.X;
-  m_lookAt->position.Z = m_world->getObjectManager().getLara().m_state.position.position.Z;
+  m_lookAt->position.X = object.m_state.position.position.X;
+  m_lookAt->position.Z = object.m_state.position.position.Z;
   m_rotationAroundLara.X = m_world->getObjectManager().getLara().m_torsoRotation.X
-                           + m_world->getObjectManager().getLara().m_headRotation.X
-                           + m_world->getObjectManager().getLara().m_state.rotation.X;
+                           + m_world->getObjectManager().getLara().m_headRotation.X + object.m_state.rotation.X;
   m_rotationAroundLara.Y = m_world->getObjectManager().getLara().m_torsoRotation.Y
-                           + m_world->getObjectManager().getLara().m_headRotation.Y
-                           + m_world->getObjectManager().getLara().m_state.rotation.Y;
+                           + m_world->getObjectManager().getLara().m_headRotation.Y + object.m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;
   m_positionYOffset = -util::sin(core::SectorSize / 2, m_rotationAroundLara.Y);
-  m_lookAt->position += util::pitch(m_positionYOffset, m_world->getObjectManager().getLara().m_state.rotation.Y);
+  m_lookAt->position += util::pitch(m_positionYOffset, object.m_state.rotation.Y);
 
   if(isVerticallyOutsideRoom(m_lookAt->position, m_position->room))
   {
-    m_lookAt->position.X = m_world->getObjectManager().getLara().m_state.position.position.X;
-    m_lookAt->position.Z = m_world->getObjectManager().getLara().m_state.position.position.Z;
+    m_lookAt->position.X = object.m_state.position.position.X;
+    m_lookAt->position.Z = object.m_state.position.position.Z;
   }
 
   m_lookAt->position.Y += moveIntoGeometry(*m_lookAt, core::CameraWallDistance);
@@ -696,15 +692,16 @@ void CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal,
                                 const std::function<ClampCallback>& callback) const
 {
   clampPosition(*m_lookAt, eyePositionGoal, m_world->getObjectManager());
-  BOOST_ASSERT(m_lookAt->room->getSectorByAbsolutePosition(m_lookAt->position) != nullptr);
-  auto clampBox = m_lookAt->room->getSectorByAbsolutePosition(m_lookAt->position)->box;
-  BOOST_ASSERT(clampBox != nullptr);
-  BOOST_ASSERT(eyePositionGoal.room->getSectorByAbsolutePosition(eyePositionGoal.position) != nullptr);
-  if(const auto idealBox = eyePositionGoal.room->getSectorByAbsolutePosition(eyePositionGoal.position)->box)
+  const auto lookAtSector = m_lookAt->room->getSectorByAbsolutePosition(m_lookAt->position);
+  auto clampBox = lookAtSector == nullptr ? nullptr : lookAtSector->box;
+  if(const gsl::not_null eyeSector = eyePositionGoal.room->getSectorByAbsolutePosition(eyePositionGoal.position);
+     const auto idealBox = eyeSector->box)
   {
-    if(!clampBox->contains(eyePositionGoal.position.X, eyePositionGoal.position.Z))
+    if(lookAtSector == nullptr || !clampBox->contains(eyePositionGoal.position.X, eyePositionGoal.position.Z))
       clampBox = idealBox;
   }
+
+  Expects(clampBox != nullptr);
 
   core::TRVec testPos = eyePositionGoal.position;
   testPos.Z = (testPos.Z / core::SectorSize) * core::SectorSize - 1_len;
@@ -875,29 +872,24 @@ void CameraController::clampBox(core::RoomBoundPosition& eyePositionGoal,
   }
 }
 
-void CameraController::freeLookClamp(core::Length& currentFrontBack,
-                                     core::Length& currentLeftRight,
-                                     const core::Length& targetFrontBack,
-                                     const core::Length& targetLeftRight,
-                                     const core::Length& back,
-                                     const core::Length& right,
-                                     const core::Length& front,
-                                     const core::Length& left)
+void CameraController::freeLookClamp(core::Length& x,
+                                     core::Length& y,
+                                     const core::Length& targetX,
+                                     const core::Length& targetY,
+                                     const core::Length& minX,
+                                     const core::Length& minY,
+                                     const core::Length& maxX,
+                                     const core::Length& maxY)
 {
-  if((front > back) != (targetFrontBack < back))
+  if(minX < maxX != targetX < minX)
   {
-    currentFrontBack = back;
-    currentLeftRight
-      = targetLeftRight
-        + (currentLeftRight - targetLeftRight) * (back - targetFrontBack) / (currentFrontBack - targetFrontBack);
+    y = targetY + (y - targetY) * (minX - targetX) / (x - targetX);
+    x = minX;
   }
-  else if((right < left && targetLeftRight > right && right > currentLeftRight)
-          || (right > left && targetLeftRight < right && right < currentLeftRight))
+  if(minY < maxY && minY < targetY && y < minY || maxY < minY && targetY < minY && minY < y)
   {
-    currentFrontBack
-      = targetFrontBack
-        + (currentFrontBack - targetFrontBack) * (right - targetLeftRight) / (currentLeftRight - targetLeftRight);
-    currentLeftRight = right;
+    x = (x - targetX) * (minY - targetY) / (y - targetY) + targetX;
+    y = minY;
   }
 }
 
