@@ -140,6 +140,8 @@ public:
 
   void swapBuffers();
 
+  void clear();
+
 private:
   static constexpr int32_t CSMResolution = 1024;
 

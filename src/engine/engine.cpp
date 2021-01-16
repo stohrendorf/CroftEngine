@@ -202,6 +202,7 @@ void Engine::loadWorld(size_t levelIndex)
   auto levelInfo = pybind11::globals()["level_sequence"][pybind11::cast(levelIndex)];
   m_presenter->getSoundEngine()->reset();
   m_world.reset();
+  m_presenter->clear();
   m_world = std::make_unique<World>(*this, levelInfo, m_presenter);
 }
 

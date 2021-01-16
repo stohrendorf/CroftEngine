@@ -70,4 +70,9 @@ void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& fl
 
   GL_ASSERT(gl::api::clear(bits));
 }
+
+void Renderer::resetScene()
+{
+  m_scene = std::make_shared<Scene>();
+}
 } // namespace render::scene

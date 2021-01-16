@@ -14,11 +14,8 @@ class Renderer final
 {
 public:
   Renderer(const Renderer&) = delete;
-
   Renderer(Renderer&&) = delete;
-
   Renderer& operator=(const Renderer&) = delete;
-
   Renderer& operator=(Renderer&&) = delete;
 
   explicit Renderer(gsl::not_null<std::shared_ptr<Camera>> camera);
@@ -67,6 +64,8 @@ public:
     static gl::RenderState state;
     state.apply(true);
   }
+
+  void resetScene();
 
 private:
   const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};

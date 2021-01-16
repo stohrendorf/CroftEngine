@@ -381,4 +381,9 @@ void Presenter::swapBuffers()
 {
   m_window->swapBuffers();
 }
+
+void Presenter::clear()
+{
+  m_renderer->resetScene();
+}
 } // namespace engine
