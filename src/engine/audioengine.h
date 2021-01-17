@@ -25,12 +25,12 @@ class AudioEngine
   boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects{};
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
   int m_cdTrack50time = 0;
-  std::weak_ptr<audio::SourceHandle> m_underwaterAmbience;
-  std::weak_ptr<audio::Stream> m_ambientStream;
-  std::weak_ptr<audio::Stream> m_interceptStream;
+  std::shared_ptr<audio::Voice> m_underwaterAmbience;
+  std::shared_ptr<audio::Voice> m_ambientStream;
+  std::shared_ptr<audio::Voice> m_interceptStream;
   std::optional<TR1TrackId> m_currentTrack;
   std::optional<TR1SoundEffect> m_currentLaraTalk;
-  std::vector<std::shared_ptr<audio::BufferHandle>> m_buffers;
+  std::vector<std::shared_ptr<SoLoud::AudioSource>> m_samples;
 
 public:
   explicit AudioEngine(World& world,
@@ -63,18 +63,10 @@ public:
     m_currentLaraTalk.reset();
   }
 
-  std::shared_ptr<audio::SourceHandle> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
-  std::shared_ptr<audio::SourceHandle> playSoundEffect(const core::SoundEffectId id, const glm::vec3& pos)
-  {
-    auto handle = playSoundEffect(id, nullptr);
-    if(handle == nullptr)
-      return nullptr;
+  std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
+  void playSoundEffect(const core::SoundEffectId id, const glm::vec3& pos);
 
-    handle->setPosition(pos);
-    return handle;
-  }
-
-  gsl::not_null<std::shared_ptr<audio::Stream>> playStream(size_t trackId);
+  gsl::not_null<std::shared_ptr<audio::Voice>> playStream(size_t trackId);
 
   void playStopCdTrack(TR1TrackId trackId, bool stop);
 

@@ -16,7 +16,7 @@ struct CameraMatrices
     InvView,
     ViewProjection,
     InvViewProjection,
-    _flag_set_size
+    _flag_set_size [[maybe_unused]]
   };
 
   glm::mat4 projection{1.0f};
@@ -26,8 +26,8 @@ struct CameraMatrices
   glm::mat4 viewProjection{1.0f};
   glm::mat4 inverseViewProjection{1.0f};
   float aspectRatio = 1;
-  float near = 0;
-  float far = 1;
+  float nearPlane = 0;
+  float farPlane = 1;
 };
 
 class Camera final
@@ -40,8 +40,8 @@ public:
   {
     m_dirty.set_all();
     m_matrices.aspectRatio = aspectRatio;
-    m_matrices.near = nearPlane;
-    m_matrices.far = farPlane;
+    m_matrices.nearPlane = nearPlane;
+    m_matrices.farPlane = farPlane;
   }
 
   Camera(const Camera&) = delete;
@@ -77,12 +77,12 @@ public:
 
   [[nodiscard]] float getNearPlane() const
   {
-    return m_matrices.near;
+    return m_matrices.nearPlane;
   }
 
   [[nodiscard]] float getFarPlane() const
   {
-    return m_matrices.far;
+    return m_matrices.farPlane;
   }
 
   [[nodiscard]] const glm::mat4& getViewMatrix() const
@@ -114,7 +114,8 @@ public:
   {
     if(m_dirty.is_set(CameraMatrices::DirtyFlag::Projection))
     {
-      m_matrices.projection = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.near, m_matrices.far);
+      m_matrices.projection
+        = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.nearPlane, m_matrices.farPlane);
       m_matrices.inverseProjection = glm::inverse(m_matrices.projection);
       m_dirty.reset(CameraMatrices::DirtyFlag::Projection);
     }
@@ -189,7 +190,7 @@ public:
       if(m_dirty.is_set(CameraMatrices::DirtyFlag::Projection))
       {
         m_matrices.projection
-          = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.near, m_matrices.far);
+          = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.nearPlane, m_matrices.farPlane);
         m_matrices.inverseProjection = glm::inverse(m_matrices.projection);
         m_dirty.reset(CameraMatrices::DirtyFlag::Projection);
       }

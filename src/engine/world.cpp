@@ -339,9 +339,9 @@ void World::loadSceneData()
   for(loader::file::SoundSource& src : m_level->m_soundSources)
   {
     m_positionalEmitters.emplace_back(src.position.toRenderSystem(), m_presenter->getSoundEngine().get());
-    auto handle = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
-    Expects(handle != nullptr);
-    handle->setLooping(true);
+    auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
+    Expects(voice != nullptr);
+    voice->setLooping(true);
   }
 }
 

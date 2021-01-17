@@ -192,7 +192,7 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::World& world)
       txt->draw(world.getPresenter().getTrFont(), img, world.getPalette());
 
   if(result != MenuResult::None)
-    world.getPresenter().getSoundEngine()->getDevice().setStreamGain(streamGain);
+    world.getPresenter().getSoundEngine()->getSoLoud().setGlobalVolume(streamGain);
 }
 
 void MenuDisplay::clearMenuObjectDescription()
@@ -382,7 +382,7 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
 
 MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
     : mode{mode}
-    , streamGain{world.getPresenter().getSoundEngine()->getDevice().getStreamGain()}
+    , streamGain{world.getPresenter().getSoundEngine()->getSoLoud().getGlobalVolume()}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform)}
 {
   m_currentState->begin();
@@ -419,7 +419,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
   // TODO soundStopAllSamples();
   if(mode != InventoryMode::TitleMode)
   {
-    world.getPresenter().getSoundEngine()->getDevice().setStreamGain(0.0f);
+    world.getPresenter().getSoundEngine()->getSoLoud().setGlobalVolume(0.0f);
   }
   world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
 }

@@ -4,15 +4,15 @@
 #include <functional>
 #include <gl/image.h>
 
-namespace audio
+namespace SoLoud
 {
-class Device;
+class Soloud;
 }
 
 namespace video
 {
 extern void play(const std::filesystem::path& filename,
-                 audio::Device& audioDevice,
+                 SoLoud::Soloud& soLoud,
                  const std::shared_ptr<gl::Image<gl::SRGBA8>>& img,
                  const std::function<bool()>& onFrame);
 }

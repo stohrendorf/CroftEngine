@@ -51,17 +51,6 @@ function( group_files )
     endforeach()
 endfunction()
 
-if( VCPKG_TOOLCHAIN )
-    find_package( OpenAL CONFIG REQUIRED )
-else()
-    find_package( OpenAL REQUIRED )
-    if( NOT TARGET OpenAL::OpenAL )
-        add_library( OpenAL::OpenAL INTERFACE IMPORTED )
-        target_include_directories( OpenAL::OpenAL SYSTEM BEFORE INTERFACE ${OPENAL_INCLUDE_DIR} )
-        target_link_libraries( OpenAL::OpenAL INTERFACE ${OPENAL_LIBRARY} )
-    endif()
-endif()
-
 find_package( OpenGL REQUIRED )
 add_library( OpenGL INTERFACE )
 target_include_directories( OpenGL SYSTEM BEFORE INTERFACE ${OPENGL_INCLUDE_DIR} )
@@ -147,7 +136,35 @@ target_compile_definitions(
         -Dgsl_CONFIG_CONTRACT_VIOLATION_CALLS_HANDLER
 )
 
-add_definitions( -DNOMINMAX -DNOGDI )
+dl_unpack( http://sol.gfxile.net/soloud/soloud_20200207_lite.zip soloud_20200207_lite.zip soloud20200207 )
+
+if( WIN32 )
+    set( _SOLOUD_BACKEND wasapi )
+    set( _SOLOUD_BACKEND_DEF WITH_WASAPI )
+elseif( UNIX )
+    set( _SOLOUD_BACKEND oss )
+    set( _SOLOUD_BACKEND_DEF WITH_OSS )
+elseif( APPLE )
+    set( _SOLOUD_BACKEND portaudio )
+    set( _SOLOUD_BACKEND_DEF WITH_PORTAUDIO )
+else()
+    message( FATAL_ERROR "Cannot determine audio backend" )
+endif()
+
+file(
+        GLOB_RECURSE _SOLOUD_SRCS
+        "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/core/*.c"
+        "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/core/*.cpp"
+        "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/backend/${_SOLOUD_BACKEND}/*.c"
+        "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/backend/${_SOLOUD_BACKEND}/*.cpp"
+        "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/audiosource/wav/*.c"
+        "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/audiosource/wav/*.cpp"
+)
+add_library( soloud STATIC ${_SOLOUD_SRCS} "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/filter/soloud_biquadresonantfilter.cpp" )
+target_include_directories( soloud PUBLIC "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/include" )
+target_compile_definitions( soloud PUBLIC -D${_SOLOUD_BACKEND_DEF} )
+
+add_definitions( -DNOMINMAX -DNOGDI -DNOBITMAP )
 
 find_path(
         UTF8CPP_INCLUDE_DIR

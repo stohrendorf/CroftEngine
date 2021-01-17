@@ -6,78 +6,72 @@ namespace audio
 {
 void SoundEngine::update()
 {
-  m_device.update();
   if(m_listener != nullptr)
   {
-    m_device.setListenerTransform(m_listener->getPosition(), m_listener->getFrontVector(), m_listener->getUpVector());
+    const auto pos = m_listener->getPosition();
+    m_soLoud->set3dListenerPosition(pos.x, pos.y, pos.z);
+    const auto front = m_listener->getFrontVector();
+    m_soLoud->set3dListenerAt(front.x, front.y, front.z);
+    const auto up = m_listener->getUpVector();
+    m_soLoud->set3dListenerUp(up.x, up.y, up.z);
   }
   else
   {
     BOOST_LOG_TRIVIAL(warning) << "No listener set";
   }
 
-  for(auto& [emitter, idsAndHandles] : m_sources)
+  for(auto& [emitter, sourcesAndVoices] : m_voices)
   {
     glm::vec3 pos;
     if(emitter != nullptr)
       pos = emitter->getPosition();
 
-    for(auto& [id, handles] : idsAndHandles)
+    for(auto& [source, voices] : sourcesAndVoices)
     {
-      auto old = std::move(handles);
-      std::copy_if(old.begin(), old.end(), std::back_inserter(handles), [](const auto& h) { return !h.expired(); });
+      auto old = std::move(voices);
+      std::copy_if(old.begin(), old.end(), std::back_inserter(voices), [](const auto& h) { return h->isValid(); });
 
       if(emitter == nullptr)
         continue;
 
-      for(const auto& handle : handles)
+      for(const auto& voice : voices)
       {
-        if(const auto locked = handle.lock())
-        {
-          locked->setPosition(pos);
-        }
+        voice->setPosition(pos);
       }
     }
   }
+
+  m_soLoud->update3dAudio();
 }
 
-std::vector<gsl::not_null<std::shared_ptr<SourceHandle>>> SoundEngine::getSourcesForBuffer(Emitter* emitter,
-                                                                                           size_t buffer) const
+std::vector<gsl::not_null<std::shared_ptr<Voice>>>
+  SoundEngine::getVoicesForAudioSource(Emitter* emitter, const std::shared_ptr<SoLoud::AudioSource>& audioSource) const
 {
-  const auto it1 = m_sources.find(emitter);
-  if(it1 == m_sources.end())
+  const auto it1 = m_voices.find(emitter);
+  if(it1 == m_voices.end())
     return {};
 
-  const auto it2 = it1->second.find(buffer);
+  const auto it2 = it1->second.find(audioSource);
   if(it2 == it1->second.end())
     return {};
 
-  std::vector<gsl::not_null<std::shared_ptr<SourceHandle>>> result;
-  for(const auto& h : it2->second)
-    if(auto locked = h.lock())
-      result.emplace_back(std::move(locked));
-
-  return result;
+  return it2->second;
 }
 
-bool SoundEngine::stopBuffer(size_t bufferId, Emitter* emitter)
+bool SoundEngine::stop(const std::shared_ptr<SoLoud::AudioSource>& audioSource, Emitter* emitter)
 {
-  auto it1 = m_sources.find(emitter);
-  if(it1 == m_sources.end())
+  auto it1 = m_voices.find(emitter);
+  if(it1 == m_voices.end())
     return false;
 
-  const auto it2 = it1->second.find(bufferId);
+  const auto it2 = it1->second.find(audioSource);
   if(it2 == it1->second.end())
     return false;
 
-  bool any = false;
+  bool any = !it2->second.empty();
   for(const auto& src : it2->second)
   {
-    if(const auto locked = src.lock())
-    {
-      locked->stop();
-      any = true;
-    }
+    src->stop();
   }
 
   it1->second.erase(it2);
@@ -85,42 +79,42 @@ bool SoundEngine::stopBuffer(size_t bufferId, Emitter* emitter)
   return any;
 }
 
-gsl::not_null<std::shared_ptr<SourceHandle>> SoundEngine::playBuffer(
-  const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
+gsl::not_null<std::shared_ptr<Voice>> SoundEngine::play(const std::shared_ptr<SoLoud::AudioSource>& audioSource,
+                                                        float pitch,
+                                                        float volume,
+                                                        Emitter* emitter)
 {
-  auto src = m_device.createSimpleSource(buffer);
-  src->setPitch(pitch);
-  src->setGain(volume);
+  std::shared_ptr<Voice> voice;
   if(emitter != nullptr)
   {
-    src->setPosition(emitter->getPosition());
+    const auto pos = emitter->getPosition();
+    voice = std::make_shared<Voice>(
+      m_soLoud, audioSource, m_soLoud->play3d(*audioSource, pos.x, pos.y, pos.z, 0, 0, 0, volume, true));
+    voice->init3dParams(20480);
   }
   else
   {
-    src->set(AL_SOURCE_RELATIVE, AL_TRUE);
-    src->set(AL_POSITION, 0, 0, 0);
-    src->set(AL_VELOCITY, 0, 0, 0);
+    voice = std::make_shared<Voice>(m_soLoud, audioSource, m_soLoud->play(*audioSource, volume, 0, true));
   }
+  Ensures(voice != nullptr);
 
-  src->play();
-
-  m_sources[emitter][bufferId].emplace_back(src.get());
-
-  return src;
+  voice->setRelativePlaySpeed(pitch);
+  m_voices[emitter][audioSource].emplace_back(voice);
+  voice->play();
+  return voice;
 }
 
 void SoundEngine::dropEmitter(Emitter* emitter)
 {
-  const auto it = m_sources.find(emitter);
-  if(it == m_sources.end())
+  const auto it = m_voices.find(emitter);
+  if(it == m_voices.end())
     return;
 
-  for(const auto& [id, handles] : it->second)
-    for(const auto& src : handles)
-      if(const auto locked = src.lock())
-        locked->stop();
+  for(const auto& [source, voices] : it->second)
+    for(const auto& voice : voices)
+      voice->stop();
 
-  m_sources.erase(it);
+  m_voices.erase(it);
 }
 
 SoundEngine::~SoundEngine()
@@ -133,24 +127,35 @@ SoundEngine::~SoundEngine()
 
   for(auto& listener : m_listeners)
     listener->m_engine = nullptr;
+
+  m_soLoud->deinit();
 }
 
-gsl::not_null<std::shared_ptr<SourceHandle>> SoundEngine::playBuffer(
-  const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos)
+gsl::not_null<std::shared_ptr<Voice>> SoundEngine::play(const std::shared_ptr<SoLoud::AudioSource>& audioSource,
+                                                        float pitch,
+                                                        float volume,
+                                                        const glm::vec3& pos)
 {
-  auto handle = playBuffer(buffer, bufferId, pitch, volume, nullptr);
-  handle->setPosition(pos);
-  return handle;
+  auto voice = play(audioSource, pitch, volume, nullptr);
+  voice->setPosition(pos);
+  return voice;
 }
 
 void SoundEngine::reset()
 {
   BOOST_LOG_TRIVIAL(debug) << "Resetting sound engine";
-  m_device.reset();
-  m_sources.clear();
+  m_soLoud->stopAll();
+  m_voices.clear();
   m_listener = nullptr;
   m_emitters.clear();
   m_listeners.clear();
+}
+
+SoundEngine::SoundEngine()
+    : m_soLoud{std::make_shared<SoLoud::Soloud>()}
+{
+  Expects(m_soLoud->init() == SoLoud::SO_NO_ERROR);
+  m_underwaterFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 250, 0.1f);
 }
 
 Listener::~Listener()

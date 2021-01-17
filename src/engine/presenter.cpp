@@ -32,7 +32,7 @@ namespace engine
 void Presenter::playVideo(const std::filesystem::path& path)
 {
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-  video::play(path, m_soundEngine->getDevice(), m_screenOverlay->getImage(), [&]() {
+  video::play(path, m_soundEngine->getSoLoud(), m_screenOverlay->getImage(), [&]() {
     if(m_window->updateWindowSize())
     {
       m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());

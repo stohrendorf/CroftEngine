@@ -1,10 +1,11 @@
 #pragma once
 
-#include "bufferhandle.h"
-#include "device.h"
-#include "sourcehandle.h"
+#include "voice.h"
+#include "wav.h"
 
+#include <glm/glm.hpp>
 #include <gsl-lite.hpp>
+#include <soloud_biquadresonantfilter.h>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -69,29 +70,31 @@ class SoundEngine final
   friend class Listener;
 
 public:
+  SoundEngine();
+
   ~SoundEngine();
 
-  gsl::not_null<std::shared_ptr<SourceHandle>> playBuffer(
-    const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos);
+  gsl::not_null<std::shared_ptr<Voice>>
+    play(const std::shared_ptr<SoLoud::AudioSource>& audioSource, float pitch, float volume, const glm::vec3& pos);
 
-  gsl::not_null<std::shared_ptr<SourceHandle>> playBuffer(const std::shared_ptr<BufferHandle>& buffer,
-                                                          size_t bufferId,
-                                                          ALfloat pitch,
-                                                          ALfloat volume,
-                                                          Emitter* emitter = nullptr);
+  gsl::not_null<std::shared_ptr<Voice>> play(const std::shared_ptr<SoLoud::AudioSource>& audioSource,
+                                             float pitch,
+                                             float volume,
+                                             Emitter* emitter = nullptr);
 
-  bool stopBuffer(size_t bufferId, Emitter* emitter);
+  bool stop(const std::shared_ptr<SoLoud::AudioSource>& audioSource, Emitter* emitter);
 
-  std::vector<gsl::not_null<std::shared_ptr<SourceHandle>>> getSourcesForBuffer(Emitter* emitter, size_t buffer) const;
+  std::vector<gsl::not_null<std::shared_ptr<Voice>>>
+    getVoicesForAudioSource(Emitter* emitter, const std::shared_ptr<SoLoud::AudioSource>& audioSource) const;
 
-  [[nodiscard]] const auto& getDevice() const noexcept
+  [[nodiscard]] const auto& getSoLoud() const noexcept
   {
-    return m_device;
+    return *m_soLoud;
   }
 
-  [[nodiscard]] auto& getDevice() noexcept
+  [[nodiscard]] auto& getSoLoud() noexcept
   {
-    return m_device;
+    return *m_soLoud;
   }
 
   void setListener(const Listener* listener)
@@ -105,12 +108,27 @@ public:
 
   void reset();
 
+  SoLoud::Filter& getUnderwaterFilter()
+  {
+    return m_underwaterFilter;
+  }
+
+  gsl::not_null<std::shared_ptr<Voice>> play(const std::shared_ptr<SoLoud::AudioSource>& audioSource)
+  {
+    return std::make_shared<audio::Voice>(m_soLoud, audioSource, m_soLoud->play(*audioSource, 1.0f));
+  }
+
 private:
-  Device m_device;
-  std::unordered_map<Emitter*, std::unordered_map<size_t, std::vector<std::weak_ptr<SourceHandle>>>> m_sources;
+  gsl::not_null<std::shared_ptr<SoLoud::Soloud>> m_soLoud;
+  std::unordered_map<
+    Emitter*,
+    std::unordered_map<std::shared_ptr<SoLoud::AudioSource>, std::vector<gsl::not_null<std::shared_ptr<audio::Voice>>>>>
+    m_voices;
   const Listener* m_listener = nullptr;
 
   std::unordered_set<Emitter*> m_emitters;
   std::unordered_set<Listener*> m_listeners;
+
+  SoLoud::BiquadResonantFilter m_underwaterFilter{};
 };
 } // namespace audio

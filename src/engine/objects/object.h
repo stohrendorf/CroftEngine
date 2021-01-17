@@ -1,7 +1,6 @@
 #pragma once
 
 #include "audio/soundengine.h"
-#include "audio/sourcehandle.h"
 #include "core/boundingbox.h"
 #include "core/units.h"
 #include "engine/collisioninfo.h"
@@ -149,7 +148,7 @@ public:
 
   virtual bool triggerSwitch(core::Frame timeout) = 0;
 
-  std::shared_ptr<audio::SourceHandle> playSoundEffect(core::SoundEffectId id);
+  std::shared_ptr<audio::Voice> playSoundEffect(core::SoundEffectId id);
 
   bool triggerPickUp();
 

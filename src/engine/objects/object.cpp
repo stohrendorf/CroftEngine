@@ -89,7 +89,7 @@ void Object::deactivate()
   m_isActive = false;
 }
 
-std::shared_ptr<audio::SourceHandle> Object::playSoundEffect(const core::SoundEffectId id)
+std::shared_ptr<audio::Voice> Object::playSoundEffect(const core::SoundEffectId id)
 {
   return getWorld().getAudioEngine().playSoundEffect(id, &m_state);
 }

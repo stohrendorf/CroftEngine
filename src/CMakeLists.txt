@@ -262,20 +262,10 @@ set( EDISONENGINE_SRCS
         loader/trx/trx.h
         loader/trx/trx.cpp
 
-        audio/alext.h
-        audio/alext.cpp
-        audio/bufferhandle.h
-        audio/device.h
-        audio/device.cpp
-        audio/filterhandle.h
         audio/soundengine.h
         audio/soundengine.cpp
-        audio/stream.h
-        audio/stream.cpp
         audio/streamsource.h
         audio/tracktype.h
-        audio/utils.h
-        audio/utils.cpp
 
         util/helpers.h
         util/md5.h
@@ -511,7 +501,7 @@ target_link_libraries(
         PRIVATE
         Boost::boost
         ZLIB::ZLIB
-        OpenAL::OpenAL
+        soloud
         SndFile::sndfile
         ryml
         PNG::PNG

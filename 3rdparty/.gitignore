@@ -1,6 +1,7 @@
 CImg-*
 gsl-lite
 pybind*
+soloud*
 
 *.zip
 *.tar.gz
