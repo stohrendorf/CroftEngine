@@ -1731,7 +1731,7 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
   default: return;
   }
 
-  playSoundEffect(soundEffect);
+  object.playSoundEffect(soundEffect);
 }
 
 namespace

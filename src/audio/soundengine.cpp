@@ -90,7 +90,7 @@ gsl::not_null<std::shared_ptr<Voice>> SoundEngine::play(const std::shared_ptr<So
     const auto pos = emitter->getPosition();
     voice = std::make_shared<Voice>(
       m_soLoud, audioSource, m_soLoud->play3d(*audioSource, pos.x, pos.y, pos.z, 0, 0, 0, volume, true));
-    voice->init3dParams(20480);
+    voice->init3dParams();
   }
   else
   {
@@ -155,7 +155,12 @@ SoundEngine::SoundEngine()
     : m_soLoud{std::make_shared<SoLoud::Soloud>()}
 {
   Expects(m_soLoud->init() == SoLoud::SO_NO_ERROR);
-  m_underwaterFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 250, 0.1f);
+  BOOST_LOG_TRIVIAL(info) << "SoLoud version " << m_soLoud->getVersion() << " initialized";
+  BOOST_LOG_TRIVIAL(info) << "Backend " << m_soLoud->getBackendString() << " with " << m_soLoud->getBackendChannels()
+                          << " channels at " << m_soLoud->getBackendSamplerate() << " Hz and buffer size "
+                          << m_soLoud->getBackendBufferSize();
+
+  m_underwaterFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 250, 1);
 }
 
 Listener::~Listener()

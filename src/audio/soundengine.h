@@ -1,7 +1,7 @@
 #pragma once
 
+#include "util.h"
 #include "voice.h"
-#include "wav.h"
 
 #include <glm/glm.hpp>
 #include <gsl-lite.hpp>
@@ -113,9 +113,10 @@ public:
     return m_underwaterFilter;
   }
 
-  gsl::not_null<std::shared_ptr<Voice>> play(const std::shared_ptr<SoLoud::AudioSource>& audioSource)
+  gsl::not_null<std::shared_ptr<Voice>> playBackground(const std::shared_ptr<SoLoud::AudioSource>& audioSource,
+                                                       float volume)
   {
-    return std::make_shared<audio::Voice>(m_soLoud, audioSource, m_soLoud->play(*audioSource, 1.0f));
+    return std::make_shared<audio::Voice>(m_soLoud, audioSource, m_soLoud->playBackground(*audioSource, volume));
   }
 
 private:

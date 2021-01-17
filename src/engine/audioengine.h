@@ -24,13 +24,14 @@ class AudioEngine
   std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties{};
   boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects{};
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
-  int m_cdTrack50time = 0;
+  core::Frame m_cdTrack50time = 0_frame;
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
   std::shared_ptr<audio::Voice> m_ambientStream;
   std::shared_ptr<audio::Voice> m_interceptStream;
   std::optional<TR1TrackId> m_currentTrack;
   std::optional<TR1SoundEffect> m_currentLaraTalk;
   std::vector<std::shared_ptr<SoLoud::AudioSource>> m_samples;
+  float m_streamVolume = 0.8f;
 
 public:
   explicit AudioEngine(World& world,
@@ -55,7 +56,7 @@ public:
       m_soundEffects[gsl::narrow<int>(i)] = &m_soundEffectProperties.at(soundEffects[i]);
     }
     m_cdTrackActivationStates.clear();
-    m_cdTrack50time = 0;
+    m_cdTrack50time = 0_frame;
     m_underwaterAmbience.reset();
     m_ambientStream.reset();
     m_interceptStream.reset();
@@ -83,5 +84,15 @@ public:
   void setUnderwater(bool underwater);
 
   void addWav(const gsl::not_null<const uint8_t*>& buffer);
+
+  void setStreamVolume(float volume)
+  {
+    Expects(volume >= 0);
+    m_streamVolume = volume;
+    if(m_ambientStream != nullptr)
+      m_ambientStream->fadeVolume(volume, std::chrono::milliseconds(2000));
+    if(m_interceptStream != nullptr)
+      m_interceptStream->fadeVolume(volume, std::chrono::milliseconds(2000));
+  }
 };
 } // namespace engine

@@ -69,10 +69,11 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
     // LaraTalk24 "Right. Now I better take off these wet clothes"
     if(m_cdTrackActivationStates[trackId].isOneshot())
     {
-      if(++m_cdTrack50time == 120)
+      m_cdTrack50time += 1_frame;
+      if(m_cdTrack50time == 120_frame)
       {
         m_world.finishLevel();
-        m_cdTrack50time = 0;
+        m_cdTrack50time = 0_frame;
         triggerNormalCdTrack(trackId, activationRequest, triggerType);
       }
     }
@@ -172,26 +173,22 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
     if(!stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id.get());
-      auto str = playStream(trackInfo.id.get());
-      m_ambientStream = str;
-      str->setLooping(true);
+      m_ambientStream = playStream(trackInfo.id.get());
+      m_ambientStream->setLooping(true);
       m_interceptStream.reset();
       m_currentTrack = trackId;
     }
     break;
   case audio::TrackType::Interception:
+    m_interceptStream.reset();
+    m_currentTrack.reset();
+
     if(!stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << static_cast<size_t>(trackInfo.id.get());
       m_interceptStream = playStream(trackInfo.id.get());
       m_interceptStream->setLooping(false);
       m_currentTrack = trackId;
-    }
-    else if(m_interceptStream != nullptr)
-    {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop interception " << static_cast<size_t>(trackInfo.id.get());
-      m_interceptStream.reset();
-      m_currentTrack.reset();
     }
     break;
   }
@@ -201,8 +198,9 @@ gsl::not_null<std::shared_ptr<audio::Voice>> AudioEngine::playStream(size_t trac
 {
   auto wav = std::make_shared<SoLoud::WavStream>();
   wav->load((m_rootPath / (boost::format("%03d.ogg") % trackId).str()).string().c_str());
-
-  return m_soundEngine->play(wav);
+  auto voice = m_soundEngine->playBackground(wav, m_streamVolume);
+  voice->setProtect(true);
+  return voice;
 }
 
 std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter)
@@ -308,11 +306,10 @@ void AudioEngine::setUnderwater(bool underwater)
 {
   if(underwater)
   {
-    m_soundEngine->getSoLoud().setGlobalFilter(0, &m_soundEngine->getUnderwaterFilter());
-    m_soundEngine->getSoLoud().setFilterParameter(0, 0, SoLoud::BiquadResonantFilter::WET, 0.3f);
-
     if(m_underwaterAmbience == nullptr)
     {
+      m_soundEngine->getSoLoud().setGlobalFilter(0, &m_soundEngine->getUnderwaterFilter());
+      m_soundEngine->getSoLoud().setFilterParameter(0, 0, SoLoud::BiquadResonantFilter::WET, 0.5f);
       m_underwaterAmbience = playSoundEffect(TR1SoundEffect::UnderwaterAmbience, nullptr);
       m_underwaterAmbience->setLooping(true);
     }

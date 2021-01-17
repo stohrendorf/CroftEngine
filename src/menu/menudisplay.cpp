@@ -192,7 +192,7 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::World& world)
       txt->draw(world.getPresenter().getTrFont(), img, world.getPalette());
 
   if(result != MenuResult::None)
-    world.getPresenter().getSoundEngine()->getSoLoud().setGlobalVolume(streamGain);
+    world.getAudioEngine().setStreamVolume(streamGain);
 }
 
 void MenuDisplay::clearMenuObjectDescription()
@@ -419,7 +419,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
   // TODO soundStopAllSamples();
   if(mode != InventoryMode::TitleMode)
   {
-    world.getPresenter().getSoundEngine()->getSoLoud().setGlobalVolume(0.0f);
+    world.getAudioEngine().setStreamVolume(0);
   }
   world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
 }
