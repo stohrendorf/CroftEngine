@@ -138,31 +138,59 @@ target_compile_definitions(
 
 dl_unpack( http://sol.gfxile.net/soloud/soloud_20200207_lite.zip soloud_20200207_lite.zip soloud20200207 )
 
-if( WIN32 )
-    set( _SOLOUD_BACKEND wasapi )
-    set( _SOLOUD_BACKEND_DEF WITH_WASAPI )
-elseif( UNIX )
-    set( _SOLOUD_BACKEND oss )
-    set( _SOLOUD_BACKEND_DEF WITH_OSS )
-elseif( APPLE )
-    set( _SOLOUD_BACKEND portaudio )
-    set( _SOLOUD_BACKEND_DEF WITH_PORTAUDIO )
-else()
-    message( FATAL_ERROR "Cannot determine audio backend" )
-endif()
-
 file(
-        GLOB_RECURSE _SOLOUD_SRCS
+        GLOB_RECURSE _SOLOUD_CORE_SRCS
         "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/core/*.c"
         "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/core/*.cpp"
-        "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/backend/${_SOLOUD_BACKEND}/*.c"
-        "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/backend/${_SOLOUD_BACKEND}/*.cpp"
         "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/audiosource/wav/*.c"
         "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/audiosource/wav/*.cpp"
 )
-add_library( soloud STATIC ${_SOLOUD_SRCS} "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/filter/soloud_biquadresonantfilter.cpp" )
+add_library(
+        soloud STATIC
+        ${_SOLOUD_CORE_SRCS}
+        "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/filter/soloud_biquadresonantfilter.cpp"
+)
 target_include_directories( soloud PUBLIC "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/include" )
-target_compile_definitions( soloud PUBLIC -D${_SOLOUD_BACKEND_DEF} )
+
+function( add_soloud_backend name definition )
+    file(
+            GLOB_RECURSE _SOLOUD_BACKEND_SRCS
+            "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/backend/${name}/*.c"
+            "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/src/backend/${name}/*.cpp"
+    )
+    add_library(
+            soloud_backend_${name} STATIC
+            ${_SOLOUD_BACKEND_SRCS}
+    )
+    target_include_directories( soloud_backend_${name} PUBLIC "${CMAKE_SOURCE_DIR}/3rdparty/soloud20200207/include" )
+    target_compile_definitions( soloud_backend_${name} PUBLIC -DWITH_${definition} )
+    target_link_libraries( soloud PUBLIC soloud_backend_${name} )
+endfunction()
+
+if( VCPKG_TOOLCHAIN )
+    find_package( OpenAL CONFIG REQUIRED )
+else()
+    find_package( OpenAL REQUIRED )
+    if( NOT TARGET OpenAL::OpenAL )
+        add_library( OpenAL::OpenAL INTERFACE IMPORTED )
+        target_include_directories( OpenAL::OpenAL SYSTEM BEFORE INTERFACE ${OPENAL_INCLUDE_DIR} )
+        target_link_libraries( OpenAL::OpenAL INTERFACE ${OPENAL_LIBRARY} )
+    endif()
+endif()
+add_soloud_backend( openal OPENAL )
+target_link_libraries( soloud_backend_openal PUBLIC OpenAL::OpenAL )
+
+if( WIN32 )
+    add_soloud_backend( wasapi WASAPI )
+    add_soloud_backend( winmm WINMM )
+    add_soloud_backend( xaudio2 XAUDIO2 )
+elseif( UNIX )
+    add_soloud_backend( oss OSS )
+elseif( APPLE )
+    add_soloud_backend( portaudio PORTAUDIO )
+else()
+    message( FATAL_ERROR "Cannot determine audio backend" )
+endif()
 
 add_definitions( -DNOMINMAX -DNOGDI -DNOBITMAP )
 
