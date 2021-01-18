@@ -1105,8 +1105,6 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
     }
   }
 
-  auto glidos = loadGlidosPack();
-
   const bool isVideo = !core::get<std::string>(m_levelInfo, "video").value_or(std::string{}).empty();
   const auto cutsceneName = core::get<std::string>(m_levelInfo, "cutscene").value_or(std::string{});
 
@@ -1152,8 +1150,11 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
     std::unordered_set<loader::file::Sprite*> doneSprites;
 
     render::MultiTextureAtlas atlases{2048};
-    if(glidos != nullptr)
+    bool hasGlidosPack = false;
+    if(const auto glidos = loadGlidosPack())
     {
+      hasGlidosPack = true;
+
       for(size_t texIdx = 0; texIdx < m_level->m_textures.size(); ++texIdx)
       {
         const auto& texture = m_level->m_textures[texIdx];
@@ -1284,7 +1285,7 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
     m_allTextures = std::make_unique<gl::Texture2DArray<gl::SRGBA8>>(
       glm::ivec3{atlases.getSize(), atlases.getSize(), gsl::narrow<int>(images.size())}, textureLevels, "all-textures");
     m_allTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
-    if(glidos != nullptr)
+    if(hasGlidosPack)
       m_allTextures->set(gl::api::TextureMagFilter::Linear);
     else
       m_allTextures->set(gl::api::TextureMagFilter::Nearest);
@@ -1294,10 +1295,7 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
 
     for(size_t i = 0; i < images.size(); ++i)
       m_allTextures->assign(images[i]->pixels<gl::SRGBA8>().data(), gsl::narrow_cast<int>(i), 0);
-    if(glidos != nullptr)
-      createMipmaps(glidos->getBaseDir(), baseName, images, textureLevels);
-    else
-      createMipmaps(m_engine.getRootPath() / "data" / "tr1" / "data", baseName, images, textureLevels);
+    createMipmaps(images, textureLevels);
 
     for(auto& sprite : m_level->m_sprites)
       sprite.image = images[sprite.texture_id.get()];
@@ -1387,10 +1385,7 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
 
 World::~World() = default;
 
-void World::createMipmaps(const std::filesystem::path& cacheBaseDir,
-                          const std::string& baseName,
-                          const std::vector<std::shared_ptr<gl::CImgWrapper>>& images,
-                          size_t nMips)
+void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips)
 {
   std::map<int, std::set<UVRect>> tilesByTexture;
   BOOST_LOG_TRIVIAL(debug) << m_level->m_textureTiles.size() << " total texture tiles";

@@ -249,10 +249,7 @@ public:
   }
 
 private:
-  void createMipmaps(const std::filesystem::path& cacheBaseDir,
-                     const std::string& baseName,
-                     const std::vector<std::shared_ptr<gl::CImgWrapper>>& images,
-                     size_t nMips);
+  void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips);
   std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
 
   void drawPickupWidgets();
