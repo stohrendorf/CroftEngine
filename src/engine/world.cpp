@@ -308,19 +308,19 @@ void World::loadSceneData()
   {
     loader::file::RenderMeshDataCompositor compositor;
     compositor.append(*m_meshesDirect.at(staticMesh.mesh)->meshData);
-    staticMesh.renderMesh = compositor.toMesh(*m_presenter->getMaterialManager(), false, {});
+    staticMesh.renderMesh = compositor.toMesh(*getPresenter().getMaterialManager(), false, {});
   }
 
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    m_level->m_rooms[i].createSceneNode(i, *m_level, *m_textureAnimator, *m_presenter->getMaterialManager());
-    m_presenter->getRenderer().getScene()->addNode(m_level->m_rooms[i].node);
+    m_level->m_rooms[i].createSceneNode(i, *m_level, *m_textureAnimator, *getPresenter().getMaterialManager());
+    getPresenter().getRenderer().getScene()->addNode(m_level->m_rooms[i].node);
   }
 
   m_objectManager.createObjects(*this, m_level->m_items);
   if(m_objectManager.getLaraPtr() == nullptr)
   {
-    m_cameraController = std::make_unique<CameraController>(this, m_presenter->getRenderer().getCamera(), true);
+    m_cameraController = std::make_unique<CameraController>(this, getPresenter().getRenderer().getCamera(), true);
 
     for(const auto& item : m_level->m_items)
     {
@@ -332,13 +332,13 @@ void World::loadSceneData()
   }
   else
   {
-    m_cameraController = std::make_unique<CameraController>(this, m_presenter->getRenderer().getCamera());
+    m_cameraController = std::make_unique<CameraController>(this, getPresenter().getRenderer().getCamera());
   }
 
   m_positionalEmitters.reserve(m_level->m_soundSources.size());
   for(loader::file::SoundSource& src : m_level->m_soundSources)
   {
-    m_positionalEmitters.emplace_back(src.position.toRenderSystem(), m_presenter->getSoundEngine().get());
+    m_positionalEmitters.emplace_back(src.position.toRenderSystem(), getPresenter().getSoundEngine().get());
     auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
     Expects(voice != nullptr);
     voice->setLooping(true);
@@ -383,7 +383,7 @@ void World::laraNormalEffect()
     = &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
   m_objectManager.getLara().getSkeleton()->frame_number = 185_frame;
   m_cameraController->setMode(CameraMode::Chase);
-  m_presenter->getRenderer().getCamera()->setFieldOfView(glm::radians(80.0f));
+  getPresenter().getRenderer().getCamera()->setFieldOfView(glm::radians(80.0f));
 }
 
 void World::laraBubblesEffect(objects::Object& object)
@@ -644,7 +644,7 @@ std::shared_ptr<objects::PickupObject> World::createPickup(const core::TypeId ty
   const loader::file::Sprite& sprite = spriteSequence->sprites[0];
 
   auto object = std::make_shared<objects::PickupObject>(
-    this, "pickup", room, item, &sprite, m_presenter->getMaterialManager()->getSprite());
+    this, "pickup", room, item, &sprite, getPresenter().getMaterialManager()->getSprite());
 
   m_objectManager.registerDynamicObject(object);
   addChild(room->node, object->getNode());
@@ -946,11 +946,11 @@ void World::serialize(const serialization::Serializer& ser)
 {
   if(ser.loading)
   {
-    m_presenter->getRenderer().getScene()->clear();
+    getPresenter().getRenderer().getScene()->clear();
     for(auto& room : m_level->m_rooms)
     {
       room.resetScenery();
-      m_presenter->getRenderer().getScene()->addNode(room.node);
+      getPresenter().getRenderer().getScene()->addNode(room.node);
     }
 
     auto currentRoomOrder = m_roomOrder;
@@ -990,30 +990,30 @@ void World::serialize(const serialization::Serializer& ser)
 
 void World::gameLoop(const std::string& levelName, bool godMode)
 {
-  m_presenter->preFrame();
+  getPresenter().preFrame();
 
   if(!levelName.empty())
-    m_presenter->drawLevelName(getPalette(), levelName);
+    getPresenter().drawLevelName(getPalette(), levelName);
 
   update(godMode);
 
   const auto waterEntryPortals = m_cameraController->update();
   doGlobalEffect();
-  m_presenter->drawBars(getPalette(), getObjectManager());
+  getPresenter().drawBars(getPalette(), getObjectManager());
   drawPickupWidgets();
-  m_presenter->renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
 }
 
 bool World::cinematicLoop()
 {
-  m_presenter->preFrame();
+  getPresenter().preFrame();
   update(false);
 
   const auto waterEntryPortals
     = m_cameraController->updateCinematic(m_level->m_cinematicFrames[m_cameraController->m_cinematicFrame], false);
   doGlobalEffect();
 
-  m_presenter->renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
   if(++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size())
     return false;
   return true;
@@ -1021,14 +1021,14 @@ bool World::cinematicLoop()
 
 void World::load(const std::filesystem::path& filename)
 {
-  m_presenter->drawLoadingScreen("Loading...");
+  getPresenter().drawLoadingScreen("Loading...");
   serialization::Serializer::load(filename, *this, *this);
   m_level->updateRoomBasedCaches();
 }
 
 void World::save(const std::filesystem::path& filename)
 {
-  m_presenter->drawLoadingScreen("Saving...");
+  getPresenter().drawLoadingScreen("Saving...");
   BOOST_LOG_TRIVIAL(info) << "Save";
   serialization::Serializer::save(filename, *this, *this);
 }
@@ -1088,57 +1088,27 @@ void remap(loader::file::Sprite& sprite,
 }
 } // namespace
 
-World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared_ptr<Presenter>> presenter)
+World::World(Engine& engine,
+             std::unique_ptr<loader::file::level::Level>&& level,
+             std::string title,
+             const std::optional<TR1TrackId>& track,
+             bool useAlternativeLara,
+             std::unordered_map<TR1ItemId, size_t> initialInventory)
     : m_engine{engine}
-    , m_presenter{std::move(presenter)}
     , m_audioEngine{std::make_unique<AudioEngine>(
-        *this, engine.getRootPath() / "data" / "tr1" / "audio", m_presenter->getSoundEngine())}
-    , m_levelInfo{std::move(levelInfo)}
+        *this, engine.getRootPath() / "data" / "tr1" / "audio", engine.getPresenter().getSoundEngine())}
+    , m_level{std::move(level)}
+    , m_title{std::move(title)}
 {
-  if(const auto levelNames = core::get<pybind11::dict>(m_levelInfo, "name"))
   {
-    m_title = core::get<std::string>(levelNames.value(), engine.getLanguage()).value_or(std::string{});
-    if(m_title.empty())
-    {
-      BOOST_LOG_TRIVIAL(warning) << "Missing level name translation, falling back to language en";
-      m_title = levelNames.value()["en"].cast<std::string>();
-    }
-  }
-
-  const bool isVideo = !core::get<std::string>(m_levelInfo, "video").value_or(std::string{}).empty();
-  const auto cutsceneName = core::get<std::string>(m_levelInfo, "cutscene").value_or(std::string{});
-
-  const auto baseName
-    = cutsceneName.empty() ? core::get<std::string>(m_levelInfo, "baseName").value_or(std::string{}) : cutsceneName;
-  Expects(isVideo || !baseName.empty());
-  const bool useAlternativeLara = core::get<bool>(m_levelInfo, "useAlternativeLara").value_or(false);
-
-  if(!isVideo)
-  {
-    std::map<TR1ItemId, size_t> initInv;
-
-    if(const auto tbl = core::get<pybind11::dict>(m_levelInfo, "inventory"))
-    {
-      for(const auto& kv : *tbl)
-        initInv[kv.first.cast<TR1ItemId>()] += kv.second.cast<size_t>();
-    }
-
     if(const auto tbl = core::get<pybind11::dict>(
          core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "inventory"))
     {
-      for(const auto& kv : *tbl)
-        initInv[kv.first.cast<TR1ItemId>()] += kv.second.cast<size_t>();
+      for(const auto& [type, qty] : *tbl)
+        initialInventory[type.cast<TR1ItemId>()] += qty.cast<size_t>();
     }
 
-    m_presenter->drawLoadingScreen("Preparing to load " + baseName);
-
-    m_level = loader::file::level::Level::createLoader(
-      m_engine.getRootPath() / "data" / "tr1" / "data" / (baseName + ".PHD"), loader::file::level::Game::Unknown);
-
-    m_presenter->drawLoadingScreen("Loading " + baseName);
-    m_level->loadFileData();
-
-    m_presenter->drawLoadingScreen("Building textures");
+    getPresenter().drawLoadingScreen("Building textures");
     for(auto& texture : m_level->m_textures)
     {
       texture.toImage();
@@ -1291,7 +1261,7 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
       m_allTextures->set(gl::api::TextureMagFilter::Nearest);
     m_allTextures->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
     m_allTextures->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
-    m_presenter->getMaterialManager()->setGeometryTextures(m_allTextures);
+    getPresenter().getMaterialManager()->setGeometryTextures(m_allTextures);
 
     for(size_t i = 0; i < images.size(); ++i)
       m_allTextures->assign(images[i]->pixels<gl::SRGBA8>().data(), gsl::narrow_cast<int>(i), 0);
@@ -1314,7 +1284,7 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
       m_audioEngine->addWav(&m_level->m_samplesData[offset]);
     }
 
-    m_presenter->drawLoadingScreen("Preparing the game");
+    getPresenter().drawLoadingScreen("Preparing the game");
     loadSceneData();
 
     if(useAlternativeLara)
@@ -1324,63 +1294,18 @@ World::World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared
 
     if(m_objectManager.getLaraPtr() != nullptr)
     {
-      for(const auto& [item, qty] : initInv)
+      for(const auto& [item, qty] : initialInventory)
       {
         if(m_level->findAnimatedModelForType(item) != nullptr)
           m_inventory.put(m_objectManager.getLara(), item, qty);
       }
     }
   }
-  else
-  {
-    m_cameraController = std::make_unique<CameraController>(this, m_presenter->getRenderer().getCamera(), true);
-  }
 
-  m_presenter->getSoundEngine()->setListener(m_cameraController.get());
-
-  if(!cutsceneName.empty() && !isVideo)
-  {
-    m_cameraController->setEyeRotation(0_deg, core::angleFromDegrees(m_levelInfo["cameraRot"].cast<float>()));
-    auto pos = m_cameraController->getTRPosition().position;
-    if(auto x = core::get<core::Length::type>(m_levelInfo, "cameraPosX"))
-      pos.X = core::Length{x.value()};
-    if(auto y = core::get<core::Length::type>(m_levelInfo, "cameraPosY"))
-      pos.Y = core::Length{y.value()};
-    if(auto z = core::get<core::Length::type>(m_levelInfo, "cameraPosZ"))
-      pos.Z = core::Length{z.value()};
-
-    m_cameraController->setPosition(pos);
-
-    if(core::get<bool>(m_levelInfo, "flipRooms").value_or(false))
-      swapAllRooms();
-
-    if(core::get<bool>(m_levelInfo, "gunSwap").value_or(false))
-    {
-      const auto& laraPistol = findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
-      Expects(laraPistol != nullptr);
-      for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
-      {
-        if(object->m_state.type != TR1ItemId::CutsceneActor1)
-          continue;
-
-        auto m = std::dynamic_pointer_cast<objects::ModelObject>(object.get());
-        Expects(m != nullptr);
-        m->getSkeleton()->setMeshPart(1, laraPistol->bones[1].mesh);
-        m->getSkeleton()->setMeshPart(4, laraPistol->bones[4].mesh);
-        m->getSkeleton()->rebuildMesh();
-      }
-    }
-  }
-
-  if(m_level != nullptr)
-  {
-    m_presenter->setTrFont(std::make_unique<ui::CachedFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics)));
-  }
-
-  if(const std::optional trackToPlay = core::get<TR1TrackId>(m_levelInfo, "track"))
-  {
-    m_audioEngine->playStopCdTrack(trackToPlay.value(), false);
-  }
+  getPresenter().getSoundEngine()->setListener(m_cameraController.get());
+  getPresenter().setTrFont(std::make_unique<ui::CachedFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics)));
+  if(track.has_value())
+    m_audioEngine->playStopCdTrack(track.value(), false);
 }
 
 World::~World() = default;
@@ -1416,8 +1341,8 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
     auto margin = render::MultiTextureAtlas::BoundaryMargin / 2;
     for(int mipmapLevel = 1; static_cast<size_t>(mipmapLevel) < nMips; dstSize /= 2, margin /= 2, ++mipmapLevel)
     {
-      m_presenter->drawLoadingScreen("Mipmapping (" + std::to_string(processedTiles * 100 / (totalTiles * (nMips - 1)))
-                                     + "%)");
+      getPresenter().drawLoadingScreen("Mipmapping ("
+                                       + std::to_string(processedTiles * 100 / (totalTiles * (nMips - 1))) + "%)");
       processedTiles += tiles.size();
 
       BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", " << tiles.size()
@@ -1440,9 +1365,10 @@ std::unique_ptr<loader::trx::Glidos> World::loadGlidosPack() const
     if(!std::filesystem::is_directory(glidosPack))
       return nullptr;
 
-    m_presenter->drawLoadingScreen("Loading Glidos texture pack");
-    return std::make_unique<loader::trx::Glidos>(m_engine.getRootPath() / glidosPack,
-                                                 [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
+    m_engine.getPresenter().drawLoadingScreen("Loading Glidos texture pack");
+    return std::make_unique<loader::trx::Glidos>(m_engine.getRootPath() / glidosPack, [this](const std::string& s) {
+      m_engine.getPresenter().drawLoadingScreen(s);
+    });
   }
 
   return nullptr;
@@ -1450,7 +1376,7 @@ std::unique_ptr<loader::trx::Glidos> World::loadGlidosPack() const
 
 void World::drawPickupWidgets()
 {
-  auto& img = *m_presenter->getScreenOverlay().getImage();
+  auto& img = *getPresenter().getScreenOverlay().getImage();
   auto x = img.getWidth() * 9 / 10;
   auto y = img.getHeight() * 9 / 10;
   auto widthPerWidget = img.getWidth() / 10 * 4 / 3;
@@ -1462,5 +1388,15 @@ void World::drawPickupWidgets()
     widget.draw(img, x, y);
     x -= widthPerWidget;
   }
+}
+
+const Presenter& World::getPresenter() const
+{
+  return m_engine.getPresenter();
+}
+
+Presenter& World::getPresenter()
+{
+  return m_engine.getPresenter();
 }
 } // namespace engine

@@ -93,6 +93,8 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
 {
   if(objectTexts[0] == nullptr)
   {
+    // FIXME
+#if 0
     if(const auto names = core::get<pybind11::dict>(world.getLevelInfo(), "names"))
     {
       if(const auto localNames = core::get<pybind11::dict>(names.value(), world.getEngine().getLanguage()))
@@ -103,6 +105,7 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
         }
       }
     }
+#endif
 
     if(objectTexts[0] == nullptr)
       objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, -16}, object.name);

@@ -66,8 +66,6 @@ private:
 
   std::string language;
 
-  std::unique_ptr<World> m_world;
-
 public:
   explicit Engine(const std::filesystem::path& rootPath,
                   bool fullscreen = false,
@@ -97,8 +95,8 @@ public:
     return *m_scriptEngine;
   }
 
-  RunResult run();
-  RunResult runTitleMenu();
+  RunResult run(World& world, bool isCutscene);
+  RunResult runTitleMenu(World& world);
 
   [[nodiscard]] const std::string& getLanguage() const
   {
@@ -118,6 +116,6 @@ public:
     return m_rootPath;
   }
 
-  void loadWorld(size_t levelIndex);
+  RunResult runLevelSequenceItem(size_t levelIndex);
 };
 } // namespace engine

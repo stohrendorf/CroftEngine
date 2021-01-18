@@ -5,6 +5,7 @@
 #include "loader/file/animationid.h"
 #include "loader/file/level/level.h"
 #include "objectmanager.h"
+#include "tracks_tr1.h"
 #include "ui/pickupwidget.h"
 
 #include <gl/texture2darray.h>
@@ -41,7 +42,12 @@ class AudioEngine;
 class World final
 {
 public:
-  explicit World(Engine& engine, pybind11::dict levelInfo, gsl::not_null<std::shared_ptr<Presenter>> presenter);
+  explicit World(Engine& engine,
+                 std::unique_ptr<loader::file::level::Level>&& level,
+                 std::string title,
+                 const std::optional<TR1TrackId>& track,
+                 bool useAlternativeLara,
+                 std::unordered_map<TR1ItemId, size_t> initialInventory);
 
   ~World();
 
@@ -187,14 +193,9 @@ public:
   bool cinematicLoop();
   void load(const std::filesystem::path& filename);
   void save(const std::filesystem::path& filename);
-  [[nodiscard]] const auto& getPresenter() const
-  {
-    return *m_presenter;
-  }
-  [[nodiscard]] auto& getPresenter()
-  {
-    return *m_presenter;
-  }
+
+  [[nodiscard]] const Presenter& getPresenter() const;
+  [[nodiscard]] Presenter& getPresenter();
 
   auto getPierre() const
   {
@@ -204,11 +205,6 @@ public:
   void setPierre(objects::Object* pierre)
   {
     m_pierre = pierre;
-  }
-
-  [[nodiscard]] const pybind11::dict& getLevelInfo() const
-  {
-    return m_levelInfo;
   }
 
   const Engine& getEngine() const
@@ -256,7 +252,6 @@ private:
 
   Engine& m_engine;
 
-  gsl::not_null<std::shared_ptr<Presenter>> m_presenter;
   std::unique_ptr<AudioEngine> m_audioEngine;
 
   std::unique_ptr<loader::file::level::Level> m_level;
@@ -299,7 +294,6 @@ private:
 
   std::array<floordata::ActivationState, 10> m_mapFlipActivationStates;
   objects::Object* m_pierre = nullptr;
-  pybind11::dict m_levelInfo;
   std::string m_title{};
   std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_allTextures;
   core::Frame m_uvAnimTime = 0_frame;

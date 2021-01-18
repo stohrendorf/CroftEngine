@@ -71,7 +71,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
   }
 }
 
-RunResult Engine::run()
+RunResult Engine::run(World& world, bool isCutscene)
 {
   gl::Framebuffer::unbindAll();
 
@@ -83,16 +83,9 @@ RunResult Engine::run()
     BOOST_LOG_TRIVIAL(info) << "Language override is " << language;
   }
 
-  if(const std::optional video = core::get<std::string>(m_world->getLevelInfo(), "video"))
-  {
-    m_presenter->playVideo(m_rootPath / "data/tr1/fmv" / video.value());
-    return RunResult::NextLevel;
-  }
-
   const bool godMode
     = core::get<bool>(core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "godMode")
         .value_or(false);
-  const bool isCutscene = !core::get<std::string>(m_world->getLevelInfo(), "cutscene").value_or(std::string{}).empty();
 
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
@@ -103,7 +96,7 @@ RunResult Engine::run()
       return RunResult::ExitApp;
     }
 
-    if(m_world->levelFinished())
+    if(world.levelFinished())
     {
       return RunResult::NextLevel;
     }
@@ -113,7 +106,7 @@ RunResult Engine::run()
     if(menu != nullptr)
     {
       m_presenter->preFrame();
-      menu->display(*m_presenter->getScreenOverlay().getImage(), *m_world);
+      menu->display(*m_presenter->getScreenOverlay().getImage(), world);
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       m_presenter->getScreenOverlay().render(context);
       m_presenter->swapBuffers();
@@ -133,32 +126,32 @@ RunResult Engine::run()
     {
       if(m_presenter->getInputHandler().getInputState().menu.justChangedTo(true))
       {
-        menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, *m_world);
+        menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world);
         continue;
       }
 
       if(m_presenter->getInputHandler().getInputState().save.justChangedTo(true))
       {
-        m_world->save(getSavegamePath() / "quicksave.yaml");
+        world.save(getSavegamePath() / "quicksave.yaml");
         throttler.reset();
       }
       else if(m_presenter->getInputHandler().getInputState().load.justChangedTo(true))
       {
-        m_world->load(getSavegamePath() / "quicksave.yaml");
+        world.load(getSavegamePath() / "quicksave.yaml");
         throttler.reset();
       }
 
-      m_world->gameLoop(m_world->getTitle(), godMode);
+      world.gameLoop(world.getTitle(), godMode);
     }
     else
     {
-      if(!m_world->cinematicLoop())
+      if(!world.cinematicLoop())
         return RunResult::NextLevel;
     }
   }
 }
 
-RunResult Engine::runTitleMenu()
+RunResult Engine::runTitleMenu(World& world)
 {
   gl::Framebuffer::unbindAll();
 
@@ -169,7 +162,7 @@ RunResult Engine::runTitleMenu()
     language = overrideLanguage.value();
     BOOST_LOG_TRIVIAL(info) << "Language override is " << language;
   }
-  const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, *m_world);
+  const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
   Throttler throttler;
   while(true)
   {
@@ -181,7 +174,7 @@ RunResult Engine::runTitleMenu()
     throttler.wait();
 
     m_presenter->preFrame();
-    menu->display(*m_presenter->getScreenOverlay().getImage(), *m_world);
+    menu->display(*m_presenter->getScreenOverlay().getImage(), world);
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
     m_presenter->getScreenOverlay().render(context);
     m_presenter->swapBuffers();
@@ -197,13 +190,13 @@ RunResult Engine::runTitleMenu()
   }
 }
 
-void Engine::loadWorld(size_t levelIndex)
+RunResult Engine::runLevelSequenceItem(size_t levelIndex)
 {
-  auto levelInfo = pybind11::globals()["level_sequence"][pybind11::cast(levelIndex)];
   m_presenter->getSoundEngine()->reset();
-  m_world.reset();
   m_presenter->clear();
-  m_world = std::make_unique<World>(*this, levelInfo, m_presenter);
+  gsl::not_null item
+    = pybind11::globals()["level_sequence"][pybind11::cast(levelIndex)].cast<script::LevelSequenceItem*>();
+  return item->run(*this);
 }
 
 Engine::~Engine() = default;

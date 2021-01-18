@@ -1,207 +1,201 @@
-from engine import TR1TrackId, TR1ItemId
+from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level
 
-level_sequence = (
-    {
-        "baseName": "TITLE",
-        "name": {
+level_sequence = [
+    Level(
+        name="TITLE",
+        titles={
             "en": "Tomb Raider",
             "de": "Tomb Raider",
         },
-        "secrets": 0,
-        "inventory": {}
-    },
-    {
-        "baseName": "GYM",
-        "name": {
+        track=TR1TrackId.MainTheme,
+        secrets=0,
+    ),
+    Level(
+        name="GYM",
+        titles={
             "en": "Lara's home",
             "de": "Laras Haus",
         },
-        "secrets": 0,
-        "useAlternativeLara": True,
-        "inventory": {}
-    },
-    {
-        "video": "SNOW.RPL"
-    },
-    {
-        "baseName": "LEVEL1",
-        "name": {
+        track=TR1TrackId.Ambience1,
+        secrets=0,
+        use_alternative_lara=True,
+    ),
+    Video("SNOW.RPL"),
+    Level(
+        name="LEVEL1",
+        titles={
             "en": "Caves",
             "de": "Die Kavernen",
         },
-        "track": TR1TrackId.Ambience1,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1}
-    },
-    {
-        "baseName": "LEVEL2",
-        "name": {
+        track=TR1TrackId.Ambience1,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+    ),
+    Level(
+        name="LEVEL2",
+        titles={
             "en": "City of Vilcabamba",
             "de": "Die Stadt Vilcabamba",
         },
-        "track": TR1TrackId.Ambience1,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience1,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Puzzle1: "Gold Idol",
                 TR1ItemId.Key1: "Silver Key",
             },
-        }
-    },
-    {
-        "baseName": "LEVEL3A",
-        "name": {
+        },
+    ),
+    Level(
+        name="LEVEL3A",
+        titles={
             "en": "Lost Valley",
             "de": "Das Verlorene Tal",
         },
-        "track": TR1TrackId.Ambience1,
-        "secrets": 5,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience1,
+        secrets=5,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Puzzle1: "Machine Cog",
             },
-        }
-    },
-    {
-        "baseName": "LEVEL3B",
-        "name": {
+        },
+    ),
+    Level(
+        name="LEVEL3B",
+        titles={
             "en": "Tomb of Qualopec",
             "de": "Das Grab von Qualopec",
         },
-        "track": TR1TrackId.Ambience1,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1}
-    },
-    {
-        "cutscene": "CUT1",
-        "track": TR1TrackId.Cutscene2,
-        "cameraPosX": 36668,
-        "cameraPosZ": 63180,
-        "cameraRot": -128
-    },
-    {
-        "video": "LIFT.RPL"
-    },
-    {
-        "baseName": "LEVEL4",
-        "name": {
+        track=TR1TrackId.Ambience1,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+    ),
+    Cutscene(
+        name="CUT1",
+        track=TR1TrackId.Cutscene2,
+        camera_pos_x=36668,
+        camera_pos_z=63180,
+        camera_rot=-128.0,
+    ),
+    Video("LIFT.RPL"),
+    Level(
+        name="LEVEL4",
+        titles={
             "en": "St. Francis' Folly",
             "de": "St. Francis' Folly",
         },
-        "track": TR1TrackId.Ambience3,
-        "secrets": 4,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience3,
+        secrets=4,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Key1: "Neptune Key",
                 TR1ItemId.Key2: "Atlas Key",
                 TR1ItemId.Key3: "Damocles Key",
                 TR1ItemId.Key4: "Thor Key",
             },
-        }
-    },
-    {
-        "baseName": "LEVEL5",
-        "name": {
+        },
+    ),
+    Level(
+        name="LEVEL5",
+        titles={
             "en": "Colosseum",
             "de": "Das Kolosseum",
         },
-        "track": TR1TrackId.Ambience3,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience3,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Key1: "Rusty Key",
             },
-        }
-    },
-    {
-        "baseName": "LEVEL6",
-        "name": {
+        },
+    ),
+    Level(
+        name="LEVEL6",
+        titles={
             "en": "Palace Midas",
             "de": "Der Palast des Midas",
         },
-        "track": TR1TrackId.Ambience3,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience3,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Puzzle1: "Gold Bar",
             },
-        }
-    },
-    {
-        "baseName": "LEVEL7A",
-        "name": {
+        },
+    ),
+    Level(
+        name="LEVEL7A",
+        titles={
             "en": "The Cistern",
             "de": "Die Zisterne",
         },
-        "track": TR1TrackId.Ambience2,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience2,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Key1: "Gold Key",
                 TR1ItemId.Key2: "Silver Key",
                 TR1ItemId.Key3: "Rusty Key",
             },
-        }
-    },
-    {
-        "cutscene": "CUT2",
-        "track": TR1TrackId.Cutscene4,
-        "cameraPosX": 51962,
-        "cameraPosZ": 53760,
-        "cameraRot": 90,
-        "gunSwap": True
-    },
-    {
-        "baseName": "LEVEL7B",
-        "name": {
+        },
+    ),
+    Cutscene(
+        name="CUT2",
+        track=TR1TrackId.Cutscene4,
+        camera_pos_x=51962,
+        camera_pos_z=53760,
+        camera_rot=90.0,
+        gun_swap=True,
+    ),
+    Level(
+        name="LEVEL7B",
+        titles={
             "en": "Tomb of Tihocan",
             "de": "Das Grab des Tihocan",
         },
-        "track": TR1TrackId.Ambience2,
-        "secrets": 2,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience2,
+        secrets=2,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Key1: "Gold Key",
                 TR1ItemId.Key2: "Rusty Key",
                 TR1ItemId.Key3: "Rusty Key",
             },
-        }
-    },
-    {
-        "video": "VISION.RPL"
-    },
-    {
-        "baseName": "LEVEL8A",
-        "name": {
+        },
+    ),
+    Video("VISION.RPL"),
+    Level(
+        name="LEVEL8A",
+        titles={
             "en": "City of Khamoon",
             "de": "Die Stadt Khamoon",
         },
-        "track": TR1TrackId.Ambience3,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience3,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Key1: "Saphire Key",
             },
-        }
-    },
-    {
-        "baseName": "LEVEL8B",
-        "name": {
+        },
+    ),
+    Level(
+        name="LEVEL8B",
+        titles={
             "en": "Obelisk of Khamoon",
             "de": "Der Obelisk von Khamoon",
         },
-        "track": TR1TrackId.Ambience3,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience3,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Puzzle1: "Eye of Horus",
                 TR1ItemId.Puzzle2: "Scarab",
@@ -209,81 +203,75 @@ level_sequence = (
                 TR1ItemId.Puzzle4: "Ankh",
                 TR1ItemId.Key1: "Saphire Key",
             },
-        }
-    },
-    {
-        "baseName": "LEVEL8C",
-        "name": {
+        },
+    ),
+    Level(
+        name="LEVEL8C",
+        titles={
             "en": "Sanctuary of the Scion",
             "de": "Das Heiligtum des Scion",
         },
-        "track": TR1TrackId.Ambience3,
-        "secrets": 1,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience3,
+        secrets=1,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Puzzle1: "Ankh",
                 TR1ItemId.Puzzle2: "Scarab",
                 TR1ItemId.Key1: "Gold Key",
             },
-        }
-    },
-    {
-        "cutscene": "CUT3",
-        "track": TR1TrackId.Cutscene3,
-        "flipRooms": True,
-        "cameraRot": 90
-    },
-    {
-        "video": "CANYON.RPL"
-    },
-    {
-        "baseName": "LEVEL10A",
-        "name": {
+        },
+    ),
+    Cutscene(
+        name="CUT3",
+        track=TR1TrackId.Cutscene3,
+        flip_rooms=True,
+        camera_rot=90.0,
+    ),
+    Video("CANYON.RPL"),
+    Level(
+        name="LEVEL10A",
+        titles={
             "en": "Natla's Mines",
             "de": "Natlas Katakomben",
         },
-        "track": TR1TrackId.Ambience2,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1},
-        "names": {
+        track=TR1TrackId.Ambience2,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
             "en": {
                 TR1ItemId.Puzzle1: "Fuse",
                 TR1ItemId.Puzzle2: "Pyramid Key",
                 TR1ItemId.Key1: "Gold Key",
             },
-        }
-    },
-    {
-        "cutscene": "CUT4",
-        "track": TR1TrackId.Cutscene1,
-        "cameraRot": 90,
-        "gunSwap": True
-    },
-    {
-        "video": "PYRAMID.RPL"
-    },
-    {
-        "baseName": "LEVEL10B",
-        "name": {
+        },
+    ),
+    Cutscene(
+        name="CUT4",
+        track=TR1TrackId.Cutscene1,
+        camera_rot=90.0,
+        gun_swap=True,
+    ),
+    Video("PYRAMID.RPL"),
+    Level(
+        name="LEVEL10B",
+        titles={
             "en": "Atlantis",
             "de": "Atlantis",
         },
-        "track": TR1TrackId.Ambience4,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1}
-    },
-    {
-        "video": "PRISON.RPL"
-    },
-    {
-        "baseName": "LEVEL10C",
-        "name": {
+        track=TR1TrackId.Ambience4,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1},
+    ),
+    Video("PRISON.RPL"),
+    Level(
+        name="LEVEL10C",
+        titles={
             "en": "The Great Pyramid",
             "de": "Die Gro=e Pyramide",
         },
-        "track": TR1TrackId.Ambience4,
-        "secrets": 3,
-        "inventory": {TR1ItemId.Pistols: 1}
-    }
-)
+        track=TR1TrackId.Ambience4,
+        secrets=3,
+        inventory={TR1ItemId.Pistols: 1}
+    ),
+]

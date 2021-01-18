@@ -216,6 +216,7 @@ set( EDISONENGINE_SRCS
         engine/world.cpp
 
         engine/script/reflection.h
+        engine/script/reflection.cpp
 
         hid/inputstate.h
         hid/inputhandler.h

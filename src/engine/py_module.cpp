@@ -5,7 +5,8 @@
 #include "items_tr1.h"
 #include "script/reflection.h"
 #include "soundeffects_tr1.h"
-#include "tracks_tr1.h"
+
+#include <memory>
 
 namespace py = pybind11;
 
@@ -23,6 +24,49 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
     .def_readwrite("hit_points", &engine::script::ObjectInfo::hit_points)
     .def_readwrite("pivot_length", &engine::script::ObjectInfo::pivot_length)
     .def_readwrite("target_update_chance", &engine::script::ObjectInfo::target_update_chance);
+
+  py::class_<engine::script::LevelSequenceItem, std::shared_ptr<engine::script::LevelSequenceItem>>(
+    m, "LevelSequenceItem", py::is_final{});
+  py::class_<engine::script::Video, engine::script::LevelSequenceItem, std::shared_ptr<engine::script::Video>>(
+    m, "Video", py::is_final{})
+    .def(py::init<std::string>());
+
+  py::class_<engine::script::Cutscene, engine::script::LevelSequenceItem, std::shared_ptr<engine::script::Cutscene>>(
+    m, "Cutscene", py::is_final{})
+    .def(py::init<std::string, engine::TR1TrackId, bool, bool, float>(),
+         py::kw_only{},
+         py::arg("name"),
+         py::arg("track"),
+         py::arg("flip_rooms") = false,
+         py::arg("gun_swap") = false,
+         py::arg("camera_rot"))
+    .def(py::init<std::string, engine::TR1TrackId, bool, bool, float, int, int>(),
+         py::kw_only{},
+         py::arg("name"),
+         py::arg("track"),
+         py::arg("flip_rooms") = false,
+         py::arg("gun_swap") = false,
+         py::arg("camera_rot"),
+         py::arg("camera_pos_x"),
+         py::arg("camera_pos_z"));
+
+  py::class_<engine::script::Level, engine::script::LevelSequenceItem, std::shared_ptr<engine::script::Level>>(
+    m, "Level", py::is_final{})
+    .def(py::init<std::string,
+                  int,
+                  bool,
+                  std::unordered_map<std::string, std::string>,
+                  std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
+                  std::unordered_map<engine::TR1ItemId, size_t>,
+                  engine::TR1TrackId>(),
+         py::kw_only{},
+         py::arg("name"),
+         py::arg("secrets"),
+         py::arg("use_alternative_lara") = false,
+         py::arg("titles"),
+         py::arg("item_titles") = py::dict{},
+         py::arg("inventory") = py::dict{},
+         py::arg("track"));
 
   py::enum_<engine::objects::TriggerState>(m, "ActivationState")
     .value("INACTIVE", engine::objects::TriggerState::Inactive)

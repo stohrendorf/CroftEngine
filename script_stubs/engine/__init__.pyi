@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import Optional, Dict
 
 
 class ObjectInfo:
@@ -39,4 +40,37 @@ class TR1ItemId(Enum):
 
 class TrackInfo:
     def __init__(self, soundid: int, tracktype: TrackType, /):
+        ...
+
+class LevelSequenceItem:
+    ...
+
+class Level(LevelSequenceItem):
+    def __init__(
+            self, *,
+            name: str,
+            secrets: int,
+            titles: Dict[str, str],
+            track: TR1TrackId,
+            item_titles: Dict[str, Dict[TR1ItemId, str]] = {},
+            inventory: Dict[TR1ItemId, int] = {},
+            use_alternative_lara: bool = False,
+    ):
+        ...
+
+class Video(LevelSequenceItem):
+    def __init__(self, name: str):
+        ...
+
+class Cutscene(LevelSequenceItem):
+    def __init__(
+            self, *,
+            name: str,
+            track: TR1TrackId,
+            camera_rot: float,
+            gun_swap: bool = False,
+            flip_rooms: bool=False,
+            camera_pos_x: Optional[int] = None,
+            camera_pos_z: Optional[int] = None,
+    ):
         ...

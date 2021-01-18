@@ -53,8 +53,7 @@ int main()
   size_t levelIndex = 0;
   while(true)
   {
-    engine.loadWorld(levelIndex);
-    const auto result = levelIndex == 0 ? engine.runTitleMenu() : engine.run();
+    const auto result = engine.runLevelSequenceItem(levelIndex);
     switch(result)
     {
     case engine::RunResult::ExitApp: return EXIT_SUCCESS;
