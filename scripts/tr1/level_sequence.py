@@ -1,25 +1,27 @@
-from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level
+from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu
+
+title_menu = TitleMenu(
+    name="TITLE",
+    titles={
+        "en": "Tomb Raider",
+        "de": "Tomb Raider",
+    },
+    track=TR1TrackId.MainTheme,
+    secrets=0,
+)
+
+lara_home = Level(
+    name="GYM",
+    titles={
+        "en": "Lara's home",
+        "de": "Laras Haus",
+    },
+    track=TR1TrackId.Ambience1,
+    secrets=0,
+    use_alternative_lara=True,
+)
 
 level_sequence = [
-    Level(
-        name="TITLE",
-        titles={
-            "en": "Tomb Raider",
-            "de": "Tomb Raider",
-        },
-        track=TR1TrackId.MainTheme,
-        secrets=0,
-    ),
-    Level(
-        name="GYM",
-        titles={
-            "en": "Lara's home",
-            "de": "Laras Haus",
-        },
-        track=TR1TrackId.Ambience1,
-        secrets=0,
-        use_alternative_lara=True,
-    ),
     Video("SNOW.RPL"),
     Level(
         name="LEVEL1",

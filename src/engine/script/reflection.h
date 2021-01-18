@@ -53,6 +53,9 @@ private:
   const std::unordered_map<TR1ItemId, size_t> m_inventory;
   const TR1TrackId m_track;
 
+protected:
+  RunResult run(Engine& engine, bool isTitleMenu);
+
 public:
   explicit Level(std::string name,
                  int secrets,
@@ -68,6 +71,26 @@ public:
       , m_itemTitles{std::move(itemTitles)}
       , m_inventory{std::move(inventory)}
       , m_track{track}
+  {
+  }
+
+  RunResult run(Engine& engine) override
+  {
+    return run(engine, false);
+  }
+};
+
+class TitleMenu : public Level
+{
+public:
+  TitleMenu(const std::string& name,
+            int secrets,
+            bool useAlternativeLara,
+            const std::unordered_map<std::string, std::string>& titles,
+            const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
+            const std::unordered_map<TR1ItemId, size_t>& inventory,
+            TR1TrackId track)
+      : Level{name, secrets, useAlternativeLara, titles, itemTitles, inventory, track}
   {
   }
 

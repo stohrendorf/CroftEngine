@@ -68,6 +68,24 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("inventory") = py::dict{},
          py::arg("track"));
 
+  py::class_<engine::script::TitleMenu, engine::script::Level, std::shared_ptr<engine::script::TitleMenu>>(
+    m, "TitleMenu", py::is_final{})
+    .def(py::init<std::string,
+                  int,
+                  bool,
+                  std::unordered_map<std::string, std::string>,
+                  std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
+                  std::unordered_map<engine::TR1ItemId, size_t>,
+                  engine::TR1TrackId>(),
+         py::kw_only{},
+         py::arg("name"),
+         py::arg("secrets"),
+         py::arg("use_alternative_lara") = false,
+         py::arg("titles"),
+         py::arg("item_titles") = py::dict{},
+         py::arg("inventory") = py::dict{},
+         py::arg("track"));
+
   py::enum_<engine::objects::TriggerState>(m, "ActivationState")
     .value("INACTIVE", engine::objects::TriggerState::Inactive)
     .value("DEACTIVATED", engine::objects::TriggerState::Deactivated)

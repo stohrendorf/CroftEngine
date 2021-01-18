@@ -63,7 +63,7 @@ RunResult Cutscene::run(Engine& engine)
   return engine.run(*world, true);
 }
 
-RunResult Level::run(Engine& engine)
+RunResult Level::run(Engine& engine, bool isTitleMenu)
 {
   auto titleIt = m_titles.find(engine.getLanguage());
   if(titleIt == m_titles.end())
@@ -78,7 +78,11 @@ RunResult Level::run(Engine& engine)
   auto world
     = std::make_unique<World>(engine, loadLevel(engine, m_name), title, m_track, m_useAlternativeLara, m_inventory);
 
-  // FIXME remove the "TITLE" hack
-  return m_name == "TITLE" ? engine.runTitleMenu(*world) : engine.run(*world, false);
+  return isTitleMenu ? engine.runTitleMenu(*world) : engine.run(*world, false);
+}
+
+RunResult TitleMenu::run(Engine& engine)
+{
+  return Level::run(engine, true);
 }
 } // namespace engine::script

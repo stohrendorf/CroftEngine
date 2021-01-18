@@ -190,13 +190,11 @@ RunResult Engine::runTitleMenu(World& world)
   }
 }
 
-RunResult Engine::runLevelSequenceItem(size_t levelIndex)
+RunResult Engine::runLevelSequenceItem(script::LevelSequenceItem& item)
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
-  gsl::not_null item
-    = pybind11::globals()["level_sequence"][pybind11::cast(levelIndex)].cast<script::LevelSequenceItem*>();
-  return item->run(*this);
+  return item.run(*this);
 }
 
 Engine::~Engine() = default;

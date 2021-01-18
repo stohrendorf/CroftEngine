@@ -1,4 +1,5 @@
 #include "engine/engine.h"
+#include "engine/script/reflection.h"
 
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/log/core.hpp>
@@ -51,24 +52,50 @@ int main()
 
   engine::Engine engine{std::filesystem::current_path()};
   size_t levelIndex = 0;
+  enum class Mode
+  {
+    Title,
+    Gym,
+    Game
+  };
+  auto mode = Mode::Title;
   while(true)
   {
-    const auto result = engine.runLevelSequenceItem(levelIndex);
-    switch(result)
+    switch(mode)
     {
-    case engine::RunResult::ExitApp: return EXIT_SUCCESS;
-    case engine::RunResult::NextLevel:
-      if(levelIndex == 0)
-        levelIndex = 2;
-      else if(levelIndex == 1)
+    case Mode::Title:
+      switch(engine.runLevelSequenceItem(
+        *gsl::not_null{pybind11::globals()["title_menu"].cast<engine::script::LevelSequenceItem*>()}))
+      {
+      case engine::RunResult::ExitApp: return EXIT_SUCCESS;
+      case engine::RunResult::NextLevel:
         levelIndex = 0;
-      else
-        ++levelIndex;
+        mode = Mode::Game;
+        break;
+      case engine::RunResult::TitleLevel: mode = Mode::Title; break;
+      case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
+      }
       break;
-    case engine::RunResult::TitleLevel: levelIndex = 0; break;
-    case engine::RunResult::LaraHomeLevel: levelIndex = 1; break;
+    case Mode::Gym:
+      switch(engine.runLevelSequenceItem(
+        *gsl::not_null{pybind11::globals()["lara_home"].cast<engine::script::LevelSequenceItem*>()}))
+      {
+      case engine::RunResult::ExitApp: return EXIT_SUCCESS;
+      case engine::RunResult::NextLevel: mode = Mode::Title; break;
+      case engine::RunResult::TitleLevel: mode = Mode::Title; break;
+      case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
+      }
+      break;
+    case Mode::Game:
+      switch(engine.runLevelSequenceItem(*gsl::not_null{
+        pybind11::globals()["level_sequence"][pybind11::cast(levelIndex)].cast<engine::script::LevelSequenceItem*>()}))
+      {
+      case engine::RunResult::ExitApp: return EXIT_SUCCESS;
+      case engine::RunResult::NextLevel: ++levelIndex; break;
+      case engine::RunResult::TitleLevel: mode = Mode::Title; break;
+      case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
+      }
+      break;
     }
   }
-
-  return EXIT_SUCCESS;
 }

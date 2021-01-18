@@ -43,6 +43,11 @@ class Object;
 class PickupObject;
 } // namespace objects
 
+namespace script
+{
+class LevelSequenceItem;
+}
+
 class Particle;
 class Presenter;
 class Throttler;
@@ -116,6 +121,6 @@ public:
     return m_rootPath;
   }
 
-  RunResult runLevelSequenceItem(size_t levelIndex);
+  RunResult runLevelSequenceItem(script::LevelSequenceItem& item);
 };
 } // namespace engine

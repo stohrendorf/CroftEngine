@@ -58,6 +58,9 @@ class Level(LevelSequenceItem):
     ):
         ...
 
+class TitleMenu(Level):
+    ...
+
 class Video(LevelSequenceItem):
     def __init__(self, name: str):
         ...
