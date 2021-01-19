@@ -23,12 +23,12 @@ public:
   explicit ProgramInterface(const Program& program, uint32_t index);
   virtual ~ProgramInterface() = default;
 
-  explicit ProgramInterface(ProgramInterface<_Type>&& rhs)
+  explicit ProgramInterface(ProgramInterface<_Type>&& rhs) noexcept
       : m_index{std::exchange(rhs.m_index, InvalidIndex)}
   {
   }
 
-  ProgramInterface<_Type>& operator=(ProgramInterface<_Type>&& rhs)
+  ProgramInterface<_Type>& operator=(ProgramInterface<_Type>&& rhs) noexcept
   {
     m_index = std::exchange(rhs.m_index, InvalidIndex);
     return *this;
@@ -67,13 +67,13 @@ public:
   {
   }
 
-  explicit LocatableProgramInterface(LocatableProgramInterface<_Type>&& rhs)
+  explicit LocatableProgramInterface(LocatableProgramInterface<_Type>&& rhs) noexcept
       : ProgramInterface<_Type>{std::move(rhs)}
       , m_location{std::exchange(rhs.m_location, -1)}
   {
   }
 
-  LocatableProgramInterface<_Type>& operator=(LocatableProgramInterface<_Type>&& rhs)
+  LocatableProgramInterface<_Type>& operator=(LocatableProgramInterface<_Type>&& rhs) noexcept
   {
     ProgramInterface<_Type>::operator=(std::move(rhs));
     m_location = std::exchange(rhs.m_location, -1);
@@ -106,13 +106,13 @@ public:
     Expects(m_binding >= 0);
   }
 
-  explicit ProgramBlock(ProgramBlock<_Type, _Target>&& rhs)
+  explicit ProgramBlock(ProgramBlock<_Type, _Target>&& rhs) noexcept
       : ProgramInterface<_Type>{std::move(rhs)}
       , m_binding{std::exchange(rhs.m_binding, -1)}
   {
   }
 
-  ProgramBlock<_Type, _Target>& operator=(ProgramBlock<_Type, _Target>&& rhs)
+  ProgramBlock<_Type, _Target>& operator=(ProgramBlock<_Type, _Target>&& rhs) noexcept
   {
     ProgramInterface<_Type>::operator=(std::move(rhs));
     m_binding = std::exchange(rhs.m_binding, -1);
@@ -126,7 +126,7 @@ public:
     GL_ASSERT(api::bindBufferBase(_Target, m_binding, buffer.getHandle()));
   }
 
-  [[nodiscard]] auto getBinding() const
+  [[nodiscard]] auto getBinding() const noexcept
   {
     return m_binding;
   }
@@ -152,7 +152,7 @@ public:
   {
   }
 
-  Uniform& operator=(Uniform&& rhs)
+  Uniform& operator=(Uniform&& rhs) noexcept
   {
     LocatableProgramInterface::operator=(std::move(rhs));
     m_samplerIndex = std::exchange(rhs.m_samplerIndex, -1);
@@ -523,23 +523,26 @@ inline Uniform::Uniform(const Program& program, const uint32_t index, int32_t& s
 
   switch(static_cast<api::UniformType>(type))
   {
-  case api::UniformType::Sampler1d:
-  case api::UniformType::Sampler1dShadow:
-  case api::UniformType::Sampler1dArray:
-  case api::UniformType::Sampler1dArrayShadow:
-  case api::UniformType::Sampler2d:
-  case api::UniformType::Sampler2dShadow:
-  case api::UniformType::Sampler2dArray:
-  case api::UniformType::Sampler2dArrayShadow:
-  case api::UniformType::Sampler2dRect:
-  case api::UniformType::Sampler2dRectShadow:
-  case api::UniformType::Sampler2dMultisample:
-  case api::UniformType::Sampler2dMultisampleArray:
-  case api::UniformType::Sampler3d:
-  case api::UniformType::SamplerCube:
-  case api::UniformType::SamplerCubeShadow:
-  case api::UniformType::SamplerCubeMapArray:
-  case api::UniformType::SamplerCubeMapArrayShadow: m_samplerIndex = samplerIndex; samplerIndex += m_size;
+  case api::UniformType::Sampler1d: [[fallthrough]];
+  case api::UniformType::Sampler1dShadow: [[fallthrough]];
+  case api::UniformType::Sampler1dArray: [[fallthrough]];
+  case api::UniformType::Sampler1dArrayShadow: [[fallthrough]];
+  case api::UniformType::Sampler2d: [[fallthrough]];
+  case api::UniformType::Sampler2dShadow: [[fallthrough]];
+  case api::UniformType::Sampler2dArray: [[fallthrough]];
+  case api::UniformType::Sampler2dArrayShadow: [[fallthrough]];
+  case api::UniformType::Sampler2dRect: [[fallthrough]];
+  case api::UniformType::Sampler2dRectShadow: [[fallthrough]];
+  case api::UniformType::Sampler2dMultisample: [[fallthrough]];
+  case api::UniformType::Sampler2dMultisampleArray: [[fallthrough]];
+  case api::UniformType::Sampler3d: [[fallthrough]];
+  case api::UniformType::SamplerCube: [[fallthrough]];
+  case api::UniformType::SamplerCubeShadow: [[fallthrough]];
+  case api::UniformType::SamplerCubeMapArray: [[fallthrough]];
+  case api::UniformType::SamplerCubeMapArrayShadow:
+    m_samplerIndex = samplerIndex;
+    samplerIndex += m_size;
+    break;
   default: break;
   }
 }

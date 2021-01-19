@@ -53,8 +53,6 @@
 #include "waterfallmist.h"
 #include "wolf.h"
 
-#include <boost/log/trivial.hpp>
-
 namespace engine::objects
 {
 std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
@@ -65,233 +63,100 @@ std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
   {
     std::shared_ptr<Object> object;
 
-    if(item.type == TR1ItemId::Lara)
+#define CREATE_OBJECT(ENUM, CLASS)                                     \
+  case TR1ItemId::ENUM:                                                \
+    object = std::make_shared<CLASS>(&world, room, item, model.get()); \
+    break
+#define CREATE_OBJECT_ID(ENUM) CREATE_OBJECT(ENUM, ENUM)
+
+    switch(item.type.get_as<TR1ItemId>())
     {
-      object = std::make_shared<LaraObject>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Wolf)
-    {
-      object = std::make_shared<Wolf>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Bear)
-    {
-      object = std::make_shared<Bear>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Bat)
-    {
-      object = std::make_shared<Bat>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::FallingBlock)
-    {
-      object = std::make_shared<CollapsibleFloor>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::SwingingBlade)
-    {
-      object = std::make_shared<SwingingBlade>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::RollingBall)
-    {
-      object = std::make_shared<RollingBall>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Dart)
-    {
-      object = std::make_shared<Dart>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::DartEmitter)
-    {
-      object = std::make_shared<DartGun>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::LiftingDoor)
-    {
-      object = std::make_shared<TrapDoorUp>(&world, room, item, model.get());
-    }
-    else if(item.type >= TR1ItemId::PushableBlock1 && item.type <= TR1ItemId::PushableBlock4)
-    {
-      object = std::make_shared<Block>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::MovingBlock)
-    {
-      object = std::make_shared<TallBlock>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::WallSwitch)
-    {
-      object = std::make_shared<Switch>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::UnderwaterSwitch)
-    {
-      object = std::make_shared<UnderwaterSwitch>(&world, room, item, model.get());
-    }
-    else if(item.type >= TR1ItemId::Door1 && item.type <= TR1ItemId::Door8)
-    {
-      object = std::make_shared<Door>(&world, room, item, model.get());
-    }
-    else if(item.type >= TR1ItemId::Trapdoor1 && item.type <= TR1ItemId::Trapdoor2)
-    {
-      object = std::make_shared<TrapDoorDown>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::BridgeFlat)
-    {
-      object = std::make_shared<BridgeFlat>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::BridgeTilt1)
-    {
-      object = std::make_shared<BridgeSlope1>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::BridgeTilt2)
-    {
-      object = std::make_shared<BridgeSlope2>(&world, room, item, model.get());
-    }
-    else if(item.type >= TR1ItemId::Keyhole1 && item.type <= TR1ItemId::Keyhole4)
-    {
-      object = std::make_shared<KeyHole>(&world, room, item, model.get());
-    }
-    else if(item.type >= TR1ItemId::PuzzleHole1 && item.type <= TR1ItemId::PuzzleHole4)
-    {
-      object = std::make_shared<PuzzleHole>(&world, room, item, model.get());
-    }
-    else if(item.type >= TR1ItemId::Animating1 && item.type <= TR1ItemId::Animating3)
-    {
-      object = std::make_shared<Animating>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::TeethSpikes)
-    {
-      object = std::make_shared<TeethSpikes>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Raptor)
-    {
-      object = std::make_shared<Raptor>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::SwordOfDamocles || item.type == TR1ItemId::FallingCeiling)
-    {
-      object = std::make_shared<SwordOfDamocles>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::CutsceneActor1)
-    {
-      object = std::make_shared<CutsceneActor1>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::CutsceneActor2)
-    {
-      object = std::make_shared<CutsceneActor2>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::CutsceneActor3)
-    {
-      object = std::make_shared<CutsceneActor3>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::CutsceneActor4)
-    {
-      object = std::make_shared<CutsceneActor4>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::WaterfallMist)
-    {
-      object = std::make_shared<WaterfallMist>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::TRex)
-    {
-      object = std::make_shared<TRex>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Mummy)
-    {
-      object = std::make_shared<Mummy>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Larson)
-    {
-      object = std::make_shared<Larson>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::CrocodileOnLand || item.type == TR1ItemId::CrocodileInWater)
-    {
-      object = std::make_shared<Crocodile>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::LionMale || item.type == TR1ItemId::LionFemale || item.type == TR1ItemId::Panther)
-    {
-      object = std::make_shared<Lion>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Barricade)
-    {
-      object = std::make_shared<Barricade>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Gorilla)
-    {
-      object = std::make_shared<Gorilla>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Pierre)
-    {
-      object = std::make_shared<Pierre>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::ThorHammerBlock)
-    {
-      object = std::make_shared<ThorHammerBlock>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::ThorHammerHandle)
-    {
-      object = std::make_shared<ThorHammerHandle>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::FlameEmitter)
-    {
-      object = std::make_shared<FlameEmitter>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::ThorLightningBall)
-    {
-      object = std::make_shared<LightningBall>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::RatInWater || item.type == TR1ItemId::RatOnLand)
-    {
-      object = std::make_shared<Rat>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::SlammingDoors)
-    {
-      object = std::make_shared<SlammingDoors>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::FlyingMutant)
-    {
-      object = std::make_shared<FlyingMutant>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::WalkingMutant1 || item.type == TR1ItemId::WalkingMutant2)
-    {
+      CREATE_OBJECT(Lara, LaraObject);
+      CREATE_OBJECT_ID(Wolf);
+      CREATE_OBJECT_ID(Bear);
+      CREATE_OBJECT(FallingBlock, CollapsibleFloor);
+      CREATE_OBJECT_ID(SwingingBlade);
+      CREATE_OBJECT_ID(RollingBall);
+      CREATE_OBJECT_ID(Dart);
+      CREATE_OBJECT(DartEmitter, DartGun);
+      CREATE_OBJECT(LiftingDoor, TrapDoorUp);
+      CREATE_OBJECT(PushableBlock1, Block);
+      CREATE_OBJECT(PushableBlock2, Block);
+      CREATE_OBJECT(PushableBlock3, Block);
+      CREATE_OBJECT(PushableBlock4, Block);
+      CREATE_OBJECT(MovingBlock, TallBlock);
+      CREATE_OBJECT(WallSwitch, Switch);
+      CREATE_OBJECT_ID(UnderwaterSwitch);
+      CREATE_OBJECT(Door1, Door);
+      CREATE_OBJECT(Door2, Door);
+      CREATE_OBJECT(Door3, Door);
+      CREATE_OBJECT(Door4, Door);
+      CREATE_OBJECT(Door5, Door);
+      CREATE_OBJECT(Door6, Door);
+      CREATE_OBJECT(Door7, Door);
+      CREATE_OBJECT(Door8, Door);
+      CREATE_OBJECT(Trapdoor1, TrapDoorDown);
+      CREATE_OBJECT(Trapdoor2, TrapDoorDown);
+      CREATE_OBJECT_ID(BridgeFlat);
+      CREATE_OBJECT(BridgeTilt1, BridgeSlope1);
+      CREATE_OBJECT(BridgeTilt2, BridgeSlope2);
+      CREATE_OBJECT(Keyhole1, KeyHole);
+      CREATE_OBJECT(Keyhole2, KeyHole);
+      CREATE_OBJECT(Keyhole3, KeyHole);
+      CREATE_OBJECT(Keyhole4, KeyHole);
+      CREATE_OBJECT(PuzzleHole1, PuzzleHole);
+      CREATE_OBJECT(PuzzleHole2, PuzzleHole);
+      CREATE_OBJECT(PuzzleHole3, PuzzleHole);
+      CREATE_OBJECT(PuzzleHole4, PuzzleHole);
+      CREATE_OBJECT(Animating1, Animating);
+      CREATE_OBJECT(Animating2, Animating);
+      CREATE_OBJECT(Animating3, Animating);
+      CREATE_OBJECT_ID(TeethSpikes);
+      CREATE_OBJECT_ID(Raptor);
+      CREATE_OBJECT(SwordOfDamocles, SwordOfDamocles);
+      CREATE_OBJECT(FallingCeiling, SwordOfDamocles);
+      CREATE_OBJECT_ID(CutsceneActor1);
+      CREATE_OBJECT_ID(CutsceneActor2);
+      CREATE_OBJECT_ID(CutsceneActor3);
+      CREATE_OBJECT_ID(CutsceneActor4);
+      CREATE_OBJECT_ID(WaterfallMist);
+      CREATE_OBJECT_ID(TRex);
+      CREATE_OBJECT_ID(Mummy);
+      CREATE_OBJECT_ID(Larson);
+      CREATE_OBJECT(CrocodileOnLand, Crocodile);
+      CREATE_OBJECT(CrocodileInWater, Crocodile);
+      CREATE_OBJECT(LionMale, Lion);
+      CREATE_OBJECT(LionFemale, Lion);
+      CREATE_OBJECT(Panther, Lion);
+      CREATE_OBJECT_ID(Barricade);
+      CREATE_OBJECT_ID(Gorilla);
+      CREATE_OBJECT_ID(Pierre);
+      CREATE_OBJECT_ID(ThorHammerBlock);
+      CREATE_OBJECT_ID(ThorHammerHandle);
+      CREATE_OBJECT_ID(FlameEmitter);
+      CREATE_OBJECT(ThorLightningBall, LightningBall);
+      CREATE_OBJECT(RatInWater, Rat);
+      CREATE_OBJECT(RatOnLand, Rat);
+      CREATE_OBJECT_ID(SlammingDoors);
+      CREATE_OBJECT_ID(FlyingMutant);
+    case TR1ItemId::WalkingMutant1:
+    case TR1ItemId::WalkingMutant2:
       // Special handling, these are just "mutations" of the flying mutants (no wings).
       object = std::make_shared<WalkingMutant>(
         &world, room, item, world.findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
-    }
-    else if(item.type == TR1ItemId::MutantEggSmall || item.type == TR1ItemId::MutantEggBig)
-    {
-      object = std::make_shared<MutantEgg>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::CentaurMutant)
-    {
-      object = std::make_shared<CentaurMutant>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::TorsoBoss)
-    {
-      object = std::make_shared<TorsoBoss>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::LavaParticleEmitter)
-    {
-      object = std::make_shared<LavaParticleEmitter>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::FlowingAtlanteanLava)
-    {
-      object = std::make_shared<AtlanteanLava>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::ScionPiece3)
-    {
-      object = std::make_shared<ScionPiece3>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::ScionPiece4)
-    {
-      object = std::make_shared<ScionPiece4>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::ScionHolder)
-    {
-      object = std::make_shared<ScionHolder>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Earthquake)
-    {
-      object = std::make_shared<Earthquake>(&world, room, item, model.get());
-    }
-    else if(item.type == TR1ItemId::Doppelganger)
-    {
-      object = std::make_shared<Doppelganger>(&world, room, item, model.get());
-    }
-    else
+      break;
+      CREATE_OBJECT(MutantEggSmall, MutantEgg);
+      CREATE_OBJECT(MutantEggBig, MutantEgg);
+      CREATE_OBJECT_ID(CentaurMutant);
+      CREATE_OBJECT_ID(TorsoBoss);
+      CREATE_OBJECT_ID(LavaParticleEmitter);
+      CREATE_OBJECT(FlowingAtlanteanLava, AtlanteanLava);
+      CREATE_OBJECT_ID(ScionPiece3);
+      CREATE_OBJECT_ID(ScionPiece4);
+      CREATE_OBJECT_ID(ScionHolder);
+      CREATE_OBJECT_ID(Earthquake);
+      CREATE_OBJECT_ID(Doppelganger);
+    default:
     {
       const auto stub = std::make_shared<StubObject>(&world, room, item, model.get());
       object = stub;
@@ -305,6 +170,10 @@ std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
         BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
       }
     }
+    }
+
+#undef CREATE_OBJECT
+#undef CREATE_OBJECT_ID
 
     addChild(room->node, object->getNode());
 

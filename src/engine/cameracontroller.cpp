@@ -878,12 +878,12 @@ void CameraController::freeLookClamp(core::Length& x,
                                      const core::Length& maxX,
                                      const core::Length& maxY)
 {
-  if(minX < maxX != targetX < minX)
+  if((minX < maxX) != (targetX < minX))
   {
     y = targetY + (y - targetY) * (minX - targetX) / (x - targetX);
     x = minX;
   }
-  if(minY < maxY && minY < targetY && y < minY || maxY < minY && targetY < minY && minY < y)
+  if((minY < maxY && minY < targetY && y < minY) || (maxY < minY && targetY < minY && minY < y))
   {
     x = (x - targetX) * (minY - targetY) / (y - targetY) + targetX;
     y = minY;

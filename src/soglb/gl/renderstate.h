@@ -10,12 +10,12 @@ namespace gl
 class RenderState final
 {
 public:
-  RenderState(const RenderState&) = default;
-  RenderState(RenderState&&) = default;
-  RenderState& operator=(const RenderState&) = default;
-  RenderState& operator=(RenderState&&) = default;
-  explicit RenderState() = default;
-  ~RenderState() = default;
+  RenderState(const RenderState&) noexcept = default;
+  RenderState(RenderState&&) noexcept = default;
+  RenderState& operator=(const RenderState&) noexcept = default;
+  RenderState& operator=(RenderState&&) noexcept = default;
+  explicit RenderState() noexcept = default;
+  ~RenderState() noexcept = default;
 
   void apply(bool force = false) const;
 
@@ -91,38 +91,38 @@ private:
   {
     std::optional<T> value{};
 
-    [[nodiscard]] T get() const
+    [[nodiscard]] T get() const noexcept
     {
       return value.value_or(DefaultValue);
     }
 
-    void reset()
+    void reset() noexcept
     {
       value.reset();
     }
 
-    void setDefault()
+    void setDefault() noexcept
     {
       value = DefaultValue;
     }
 
-    [[nodiscard]] bool isInitialized() const
+    [[nodiscard]] bool isInitialized() const noexcept
     {
       return value.has_value();
     }
 
-    bool operator!=(const DefaultedOptional<T, DefaultValue>& rhs) const
+    bool operator!=(const DefaultedOptional<T, DefaultValue>& rhs) const noexcept
     {
       return value != rhs.value;
     }
 
-    DefaultedOptional<T, DefaultValue>& operator=(T rhs)
+    DefaultedOptional<T, DefaultValue>& operator=(T rhs) noexcept
     {
       value = rhs;
       return *this;
     }
 
-    void merge(const DefaultedOptional<T, DefaultValue>& other)
+    void merge(const DefaultedOptional<T, DefaultValue>& other) noexcept
     {
       if(other.isInitialized())
         *this = other;
@@ -133,7 +133,7 @@ private:
   {
     const float DefaultValue;
 
-    explicit DefaultedOptionalF(const float defaultValue)
+    explicit DefaultedOptionalF(const float defaultValue) noexcept
         : DefaultValue{defaultValue}
     {
     }
@@ -148,38 +148,38 @@ private:
 
     std::optional<float> value{};
 
-    [[nodiscard]] float get() const
+    [[nodiscard]] float get() const noexcept
     {
       return value.value_or(DefaultValue);
     }
 
-    void reset()
+    void reset() noexcept
     {
       value.reset();
     }
 
-    void setDefault()
+    void setDefault() noexcept
     {
       value = DefaultValue;
     }
 
-    [[nodiscard]] bool isInitialized() const
+    [[nodiscard]] bool isInitialized() const noexcept
     {
       return value.has_value();
     }
 
-    bool operator!=(const DefaultedOptionalF& rhs) const
+    bool operator!=(const DefaultedOptionalF& rhs) const noexcept
     {
       return value != rhs.value;
     }
 
-    DefaultedOptionalF& operator=(float rhs)
+    DefaultedOptionalF& operator=(float rhs) noexcept
     {
       value = rhs;
       return *this;
     }
 
-    void merge(const DefaultedOptionalF& other)
+    void merge(const DefaultedOptionalF& other) noexcept
     {
       if(other.isInitialized())
         *this = other;

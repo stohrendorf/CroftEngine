@@ -72,7 +72,7 @@ void ModelObject::update()
                       : &getSkeleton()->anim->animCommandIndex.from(getWorld().getAnimCommands());
   for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
   {
-    BOOST_ASSERT(cmd < &getWorld().getAnimCommands().back());
+    BOOST_ASSERT(cmd != nullptr && cmd < &getWorld().getAnimCommands().back());
     const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
     ++cmd;
     switch(opcode)
