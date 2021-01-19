@@ -287,6 +287,10 @@ std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
     {
       object = std::make_shared<Earthquake>(&world, room, item, model.get());
     }
+    else if(item.type == TR1ItemId::Doppelganger)
+    {
+      object = std::make_shared<Doppelganger>(&world, room, item, model.get());
+    }
     else
     {
       const auto stub = std::make_shared<StubObject>(&world, room, item, model.get());
