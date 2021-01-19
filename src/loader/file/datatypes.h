@@ -461,15 +461,15 @@ struct Room
   void resetScenery();
 };
 
-extern const Sector* findRealFloorSector(const core::TRVec& position,
-                                         const gsl::not_null<gsl::not_null<const Room*>*>& room);
+extern gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
+                                                        const gsl::not_null<gsl::not_null<const Room*>*>& room);
 
-inline const Sector* findRealFloorSector(const core::TRVec& position, gsl::not_null<const Room*> room)
+inline gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position, gsl::not_null<const Room*> room)
 {
   return findRealFloorSector(position, &room);
 }
 
-inline const Sector* findRealFloorSector(core::RoomBoundPosition& rbs)
+inline gsl::not_null<const Sector*> findRealFloorSector(core::RoomBoundPosition& rbs)
 {
   return findRealFloorSector(rbs.position, &rbs.room);
 }

@@ -92,11 +92,6 @@ public:
     return m_inventory;
   }
 
-  [[nodiscard]] bool hasLevel() const
-  {
-    return m_level != nullptr;
-  }
-
   void finishLevel()
   {
     m_levelFinished = true;
@@ -254,7 +249,7 @@ private:
 
   std::unique_ptr<AudioEngine> m_audioEngine;
 
-  std::unique_ptr<loader::file::level::Level> m_level;
+  gsl::not_null<std::unique_ptr<loader::file::level::Level>> m_level;
   std::unique_ptr<CameraController> m_cameraController = nullptr;
 
   core::Frame m_effectTimer = 0_frame;

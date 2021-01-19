@@ -51,9 +51,9 @@ private:
   const gsl::not_null<World*> m_world;
 
   //! @brief Global camera position.
-  std::optional<core::RoomBoundPosition> m_position;
+  core::RoomBoundPosition m_position;
   //! @brief The point the camera moves around.
-  std::optional<core::RoomBoundPosition> m_lookAt;
+  core::RoomBoundPosition m_lookAt;
   CameraMode m_mode = CameraMode::Chase;
 
   //! @brief Additional height of the camera above the real position.
@@ -70,8 +70,6 @@ private:
 
   //! @brief Goal distance between the pivot point and the camera.
   core::Length m_distance = core::DefaultCameraLaraDistance;
-  //! @brief Floor-projected pivot distance, squared.
-  core::Area m_horizontalDistanceSq{0};
 
   core::TRRotation m_eyeRotation;
 
@@ -163,8 +161,7 @@ public:
 
   const core::RoomBoundPosition& getLookAt() const
   {
-    Expects(m_lookAt.has_value());
-    return *m_lookAt;
+    return m_lookAt;
   }
 
   [[nodiscard]] glm::vec3 getFrontVector() const override
@@ -179,18 +176,17 @@ public:
 
   const auto& getCurrentRoom() const
   {
-    return m_position->room;
+    return m_position.room;
   }
 
   void setPosition(const core::TRVec& p)
   {
-    m_position->position = p;
+    m_position.position = p;
   }
 
   const core::RoomBoundPosition& getTRPosition() const
   {
-    Expects(m_position.has_value());
-    return *m_position;
+    return m_position;
   }
 
   void setPosition(const core::RoomBoundPosition& p)
@@ -285,13 +281,13 @@ private:
                             const core::Length& maxY);
 
   static void clampToCorners(const core::Area& targetHorizontalDistanceSq,
-                             core::Length& currentFrontBack,
-                             core::Length& currentLeftRight,
-                             const core::Length& targetFrontBack,
-                             const core::Length& targetLeftRight,
-                             const core::Length& back,
-                             const core::Length& right,
-                             const core::Length& front,
-                             const core::Length& left);
+                             core::Length& x,
+                             core::Length& y,
+                             const core::Length& targetX,
+                             const core::Length& targetY,
+                             const core::Length& minX,
+                             const core::Length& minY,
+                             const core::Length& maxX,
+                             const core::Length& maxY);
 };
 } // namespace engine

@@ -348,8 +348,8 @@ void Room::patchHeightsForBlock(const engine::objects::Object& object, const cor
 {
   auto room = object.m_state.position.room;
   // TODO Ugly const_cast
-  auto groundSector = const_cast<Sector*>(loader::file::findRealFloorSector(object.m_state.position.position, &room));
-  Expects(groundSector != nullptr);
+  gsl::not_null groundSector
+    = const_cast<Sector*>(loader::file::findRealFloorSector(object.m_state.position.position, &room).get());
   const auto topSector = loader::file::findRealFloorSector(
     object.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room);
 
@@ -873,7 +873,8 @@ void Room::resetScenery()
   }
 }
 
-const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_null<gsl::not_null<const Room*>*>& room)
+gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
+                                                 const gsl::not_null<gsl::not_null<const Room*>*>& room)
 {
   const Sector* sector;
   // follow portals
@@ -893,22 +894,24 @@ const Sector* findRealFloorSector(const core::TRVec& position, const gsl::not_nu
   Expects(sector != nullptr);
   if(position.Y >= sector->floorHeight)
   {
-    while(position.Y >= sector->floorHeight && sector->roomBelow != nullptr)
+    while(position.Y >= sector->floorHeight)
     {
+      if(sector->roomBelow == nullptr)
+        break;
       *room = sector->roomBelow;
       sector = (*room)->getSectorByAbsolutePosition(position);
-      if(sector == nullptr)
-        return nullptr;
+      Expects(sector != nullptr);
     }
   }
   else
   {
     while(position.Y < sector->ceilingHeight && sector->roomAbove != nullptr)
     {
+      if(sector->roomAbove == nullptr)
+        break;
       *room = sector->roomAbove;
       sector = (*room)->getSectorByAbsolutePosition(position);
-      if(sector == nullptr)
-        return nullptr;
+      Expects(sector != nullptr);
     }
   }
 

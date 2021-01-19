@@ -143,7 +143,7 @@ bool BubbleParticle::update(World& world)
   angle.Y += 9_deg;
   pos.position += util::pitch(11_len, angle.Y, -speed * 1_frame);
   auto sector = findRealFloorSector(pos.position, &pos.room);
-  if(sector == nullptr || !pos.room->isWaterRoom())
+  if(!pos.room->isWaterRoom())
   {
     return false;
   }
