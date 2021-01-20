@@ -20,9 +20,9 @@ public:
              const std::string& name,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
-             const loader::file::Sprite& sprite,
+             const gsl::not_null<const loader::file::Sprite*>& sprite,
              const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
-      : SpriteObject{world, name, room, item, true, &sprite, material}
+      : SpriteObject{world, name, room, item, true, sprite, material}
   {
   }
 

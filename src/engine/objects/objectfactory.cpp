@@ -55,126 +55,317 @@
 
 namespace engine::objects
 {
+namespace
+{
+/* NOLINTNEXTLINE(altera-struct-pack-align) */
+struct ObjectFactory
+{
+  virtual ~ObjectFactory() = default;
+
+  [[nodiscard]] virtual std::shared_ptr<Object> createNew(World& world, loader::file::Item& item) const = 0;
+  [[nodiscard]] virtual std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,
+                                                               const serialization::Serializer& ser) const = 0;
+};
+
+#define CREATE_MODEL_FACTORY_STRUCT(CLASS)                                                                    \
+  /* NOLINTNEXTLINE(altera-struct-pack-align) */                                                              \
+  struct Factory : public ObjectFactory                                                                       \
+  {                                                                                                           \
+    [[nodiscard]] std::shared_ptr<Object> createNew(World& world, loader::file::Item& item) const override    \
+    {                                                                                                         \
+      const auto* room = &world.getRooms().at(item.room.get());                                               \
+      const auto& model = world.findAnimatedModelForType(item.type);                                          \
+      Expects(model != nullptr);                                                                              \
+      auto object = std::make_shared<CLASS>(&world, room, item, model.get());                                 \
+      addChild(room->node, object->getNode());                                                                \
+      object->applyTransform();                                                                               \
+      object->updateLighting();                                                                               \
+      return object;                                                                                          \
+    }                                                                                                         \
+                                                                                                              \
+    [[nodiscard]] std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,             \
+                                                         const serialization::Serializer& ser) const override \
+    {                                                                                                         \
+      auto object = std::make_shared<CLASS>(&ser.world, position);                                            \
+      object->serialize(ser);                                                                                 \
+      return object;                                                                                          \
+    }                                                                                                         \
+  }
+
+#define CREATE_SPRITE_FACTORY_STRUCT(CLASS)                                                                       \
+  /* NOLINTNEXTLINE(altera-struct-pack-align) */                                                                  \
+  struct Factory : public ObjectFactory                                                                           \
+  {                                                                                                               \
+    [[nodiscard]] std::shared_ptr<Object> createNew(World& world, loader::file::Item& item) const override        \
+    {                                                                                                             \
+      const auto* room = &world.getRooms().at(item.room.get());                                                   \
+                                                                                                                  \
+      const auto& spriteSequence = world.findSpriteSequenceForType(item.type);                                    \
+      Expects(spriteSequence != nullptr);                                                                         \
+      Expects(!spriteSequence->sprites.empty());                                                                  \
+                                                                                                                  \
+      const loader::file::Sprite& sprite = spriteSequence->sprites[0];                                            \
+      return std::make_shared<CLASS>(&world,                                                                      \
+                                     std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", \
+                                     room,                                                                        \
+                                     item,                                                                        \
+                                     &sprite,                                                                     \
+                                     world.getPresenter().getMaterialManager()->getSprite());                     \
+    }                                                                                                             \
+                                                                                                                  \
+    [[nodiscard]] std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,                 \
+                                                         const serialization::Serializer& ser) const override     \
+    {                                                                                                             \
+      std::string spriteName;                                                                                     \
+      ser(S_NV("@name", spriteName));                                                                             \
+      auto object = std::make_shared<CLASS>(                                                                      \
+        &ser.world, position, std::move(spriteName), ser.world.getPresenter().getMaterialManager()->getSprite()); \
+      object->serialize(ser);                                                                                     \
+      return object;                                                                                              \
+    }                                                                                                             \
+  }
+
+#define CREATE_MODEL_FACTORY(CLASS)         \
+  ([]() -> std::unique_ptr<ObjectFactory> { \
+    CREATE_MODEL_FACTORY_STRUCT(CLASS);     \
+    return std::make_unique<Factory>();     \
+  })()
+
+#define CREATE_SPRITE_FACTORY(CLASS)        \
+  ([]() -> std::unique_ptr<ObjectFactory> { \
+    CREATE_SPRITE_FACTORY_STRUCT(CLASS);    \
+    return std::make_unique<Factory>();     \
+  })()
+
+#define MODEL_FACTORY(ENUM, CLASS)               \
+  std::pair                                      \
+  {                                              \
+    TR1ItemId::ENUM, CREATE_MODEL_FACTORY(CLASS) \
+  }
+
+#define SPRITE_FACTORY(ENUM, CLASS)               \
+  std::pair                                       \
+  {                                               \
+    TR1ItemId::ENUM, CREATE_SPRITE_FACTORY(CLASS) \
+  }
+
+/* NOLINTNEXTLINE(altera-struct-pack-align) */
+struct WalkingMutantFactory : public ObjectFactory
+{
+  [[nodiscard]] std::shared_ptr<Object> createNew(World& world, loader::file::Item& item) const override
+  {
+    const auto* room = &world.getRooms().at(item.room.get());
+    const auto& model = world.findAnimatedModelForType(item.type);
+    Expects(model != nullptr);
+    auto object = std::make_shared<WalkingMutant>(&world, room, item, model.get());
+    addChild(room->node, object->getNode());
+    object->applyTransform();
+    object->updateLighting();
+    return object;
+  }
+
+  [[nodiscard]] std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,
+                                                       const serialization::Serializer& ser) const override
+  {
+    auto object = std::make_shared<WalkingMutant>(&ser.world, position);
+    object->serialize(ser);
+    return object;
+  }
+};
+
+/* NOLINTNEXTLINE(altera-struct-pack-align) */
+struct CameraTargetFactory : public ObjectFactory
+{
+  [[nodiscard]] std::shared_ptr<Object> createNew(World& world, loader::file::Item& item) const override
+  {
+    const auto* room = &world.getRooms().at(item.room.get());
+    const auto& model = world.findAnimatedModelForType(item.type);
+    Expects(model != nullptr);
+    auto object = std::make_shared<StubObject>(&world, room, item, model.get());
+    addChild(room->node, object->getNode());
+    object->applyTransform();
+    object->updateLighting();
+    object->getSkeleton()->setRenderable(nullptr);
+    object->getSkeleton()->clearParts();
+    return object;
+  }
+
+  [[nodiscard]] std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,
+                                                       const serialization::Serializer& ser) const override
+  {
+    auto object = std::make_shared<StubObject>(&ser.world, position);
+    object->serialize(ser);
+    object->getSkeleton()->setRenderable(nullptr);
+    object->getSkeleton()->clearParts();
+    return object;
+  }
+};
+
+/* NOLINTNEXTLINE(altera-struct-pack-align) */
+struct SavegameCrystalFactory : public ObjectFactory
+{
+  [[nodiscard]] std::shared_ptr<Object> createNew(World& world, loader::file::Item& item) const override
+  {
+    const auto* room = &world.getRooms().at(item.room.get());
+    const auto& model = world.findAnimatedModelForType(item.type);
+    Expects(model != nullptr);
+    auto object = std::make_shared<StubObject>(&world, room, item, model.get());
+    addChild(room->node, object->getNode());
+    object->applyTransform();
+    object->updateLighting();
+    object->getSkeleton()->setRenderable(nullptr);
+    object->getSkeleton()->clearParts();
+    return object;
+  }
+
+  [[nodiscard]] std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,
+                                                       const serialization::Serializer& ser) const override
+  {
+    auto object = std::make_shared<StubObject>(&ser.world, position);
+    object->serialize(ser);
+    object->getSkeleton()->setRenderable(nullptr);
+    object->getSkeleton()->clearParts();
+    return object;
+  }
+};
+
+const std::pair<TR1ItemId, std::unique_ptr<ObjectFactory>> factories[]{
+  MODEL_FACTORY(Lara, LaraObject),
+  MODEL_FACTORY(Wolf, Wolf),
+  MODEL_FACTORY(Bear, Bear),
+  MODEL_FACTORY(FallingBlock, CollapsibleFloor),
+  MODEL_FACTORY(SwingingBlade, SwingingBlade),
+  MODEL_FACTORY(RollingBall, RollingBall),
+  MODEL_FACTORY(Dart, Dart),
+  MODEL_FACTORY(Bat, Bat),
+  MODEL_FACTORY(DartEmitter, DartGun),
+  MODEL_FACTORY(LiftingDoor, TrapDoorUp),
+  MODEL_FACTORY(PushableBlock1, Block),
+  MODEL_FACTORY(PushableBlock2, Block),
+  MODEL_FACTORY(PushableBlock3, Block),
+  MODEL_FACTORY(PushableBlock4, Block),
+  MODEL_FACTORY(MovingBlock, TallBlock),
+  MODEL_FACTORY(WallSwitch, Switch),
+  MODEL_FACTORY(UnderwaterSwitch, UnderwaterSwitch),
+  MODEL_FACTORY(Door1, Door),
+  MODEL_FACTORY(Door2, Door),
+  MODEL_FACTORY(Door3, Door),
+  MODEL_FACTORY(Door4, Door),
+  MODEL_FACTORY(Door5, Door),
+  MODEL_FACTORY(Door6, Door),
+  MODEL_FACTORY(Door7, Door),
+  MODEL_FACTORY(Door8, Door),
+  MODEL_FACTORY(Trapdoor1, TrapDoorDown),
+  MODEL_FACTORY(Trapdoor2, TrapDoorDown),
+  MODEL_FACTORY(BridgeFlat, BridgeFlat),
+  MODEL_FACTORY(BridgeTilt1, BridgeSlope1),
+  MODEL_FACTORY(BridgeTilt2, BridgeSlope2),
+  MODEL_FACTORY(Keyhole1, KeyHole),
+  MODEL_FACTORY(Keyhole2, KeyHole),
+  MODEL_FACTORY(Keyhole3, KeyHole),
+  MODEL_FACTORY(Keyhole4, KeyHole),
+  MODEL_FACTORY(PuzzleHole1, PuzzleHole),
+  MODEL_FACTORY(PuzzleHole2, PuzzleHole),
+  MODEL_FACTORY(PuzzleHole3, PuzzleHole),
+  MODEL_FACTORY(PuzzleHole4, PuzzleHole),
+  MODEL_FACTORY(Animating1, Animating),
+  MODEL_FACTORY(Animating2, Animating),
+  MODEL_FACTORY(Animating3, Animating),
+  MODEL_FACTORY(TeethSpikes, TeethSpikes),
+  MODEL_FACTORY(Raptor, Raptor),
+  MODEL_FACTORY(SwordOfDamocles, SwordOfDamocles),
+  MODEL_FACTORY(FallingCeiling, SwordOfDamocles),
+  MODEL_FACTORY(CutsceneActor1, CutsceneActor1),
+  MODEL_FACTORY(CutsceneActor2, CutsceneActor2),
+  MODEL_FACTORY(CutsceneActor3, CutsceneActor3),
+  MODEL_FACTORY(CutsceneActor4, CutsceneActor4),
+  MODEL_FACTORY(WaterfallMist, WaterfallMist),
+  MODEL_FACTORY(TRex, TRex),
+  MODEL_FACTORY(Mummy, Mummy),
+  MODEL_FACTORY(Larson, Larson),
+  MODEL_FACTORY(CrocodileOnLand, Crocodile),
+  MODEL_FACTORY(CrocodileInWater, Crocodile),
+  MODEL_FACTORY(LionMale, Lion),
+  MODEL_FACTORY(LionFemale, Lion),
+  MODEL_FACTORY(Panther, Lion),
+  MODEL_FACTORY(Barricade, Barricade),
+  MODEL_FACTORY(Gorilla, Gorilla),
+  MODEL_FACTORY(Pierre, Pierre),
+  MODEL_FACTORY(ThorHammerBlock, ThorHammerBlock),
+  MODEL_FACTORY(ThorHammerHandle, ThorHammerHandle),
+  MODEL_FACTORY(FlameEmitter, FlameEmitter),
+  MODEL_FACTORY(ThorLightningBall, LightningBall),
+  MODEL_FACTORY(RatInWater, Rat),
+  MODEL_FACTORY(RatOnLand, Rat),
+  MODEL_FACTORY(SlammingDoors, SlammingDoors),
+  MODEL_FACTORY(FlyingMutant, FlyingMutant),
+  MODEL_FACTORY(MutantEggSmall, MutantEgg),
+  MODEL_FACTORY(MutantEggBig, MutantEgg),
+  MODEL_FACTORY(CentaurMutant, CentaurMutant),
+  MODEL_FACTORY(TorsoBoss, TorsoBoss),
+  MODEL_FACTORY(LavaParticleEmitter, LavaParticleEmitter),
+  MODEL_FACTORY(FlowingAtlanteanLava, AtlanteanLava),
+  MODEL_FACTORY(ScionPiece3, ScionPiece3),
+  MODEL_FACTORY(ScionPiece4, ScionPiece4),
+  MODEL_FACTORY(ScionHolder, ScionHolder),
+  MODEL_FACTORY(Earthquake, Earthquake),
+  MODEL_FACTORY(Doppelganger, Doppelganger),
+  MODEL_FACTORY(LarasHomePolaroid, StubObject),
+  std::pair{TR1ItemId::WalkingMutant1,
+            ([]() -> std::unique_ptr<ObjectFactory> { return std::make_unique<WalkingMutantFactory>(); })()},
+  std::pair{TR1ItemId::WalkingMutant2,
+            ([]() -> std::unique_ptr<ObjectFactory> { return std::make_unique<WalkingMutantFactory>(); })()},
+  std::pair{TR1ItemId::CameraTarget,
+            ([]() -> std::unique_ptr<ObjectFactory> { return std::make_unique<CameraTargetFactory>(); })()},
+  std::pair{TR1ItemId::SavegameCrystal,
+            ([]() -> std::unique_ptr<ObjectFactory> { return std::make_unique<SavegameCrystalFactory>(); })()},
+  SPRITE_FACTORY(ScionPiece1, ScionPiece),
+  SPRITE_FACTORY(Item141, PickupObject),
+  SPRITE_FACTORY(Item142, PickupObject),
+  SPRITE_FACTORY(Key1Sprite, PickupObject),
+  SPRITE_FACTORY(Key2Sprite, PickupObject),
+  SPRITE_FACTORY(Key3Sprite, PickupObject),
+  SPRITE_FACTORY(Key4Sprite, PickupObject),
+  SPRITE_FACTORY(Puzzle1Sprite, PickupObject),
+  SPRITE_FACTORY(Puzzle2Sprite, PickupObject),
+  SPRITE_FACTORY(Puzzle3Sprite, PickupObject),
+  SPRITE_FACTORY(Puzzle4Sprite, PickupObject),
+  SPRITE_FACTORY(PistolsSprite, PickupObject),
+  SPRITE_FACTORY(ShotgunSprite, PickupObject),
+  SPRITE_FACTORY(MagnumsSprite, PickupObject),
+  SPRITE_FACTORY(UzisSprite, PickupObject),
+  SPRITE_FACTORY(PistolAmmoSprite, PickupObject),
+  SPRITE_FACTORY(ShotgunAmmoSprite, PickupObject),
+  SPRITE_FACTORY(MagnumAmmoSprite, PickupObject),
+  SPRITE_FACTORY(UziAmmoSprite, PickupObject),
+  SPRITE_FACTORY(ExplosiveSprite, PickupObject),
+  SPRITE_FACTORY(SmallMedipackSprite, PickupObject),
+  SPRITE_FACTORY(LargeMedipackSprite, PickupObject),
+  SPRITE_FACTORY(ScionPiece2, PickupObject),
+  SPRITE_FACTORY(LeadBarSprite, PickupObject),
+};
+
+ObjectFactory* findFactory(TR1ItemId type)
+{
+  for(const auto& factory : factories)
+    if(factory.first == type)
+      return factory.second.get();
+
+  return nullptr;
+}
+} // namespace
+
 std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
 {
+  if(const auto factory = findFactory(item.type.get_as<TR1ItemId>()))
+    return factory->createNew(world, item);
+
   const auto* room = &world.getRooms().at(item.room.get());
 
   if(const auto& model = world.findAnimatedModelForType(item.type))
   {
-    std::shared_ptr<Object> object;
-
-#define CREATE_OBJECT(ENUM, CLASS)                                     \
-  case TR1ItemId::ENUM:                                                \
-    object = std::make_shared<CLASS>(&world, room, item, model.get()); \
-    break
-#define CREATE_OBJECT_ID(ENUM) CREATE_OBJECT(ENUM, ENUM)
-
-    switch(item.type.get_as<TR1ItemId>())
-    {
-      CREATE_OBJECT(Lara, LaraObject);
-      CREATE_OBJECT_ID(Wolf);
-      CREATE_OBJECT_ID(Bear);
-      CREATE_OBJECT(FallingBlock, CollapsibleFloor);
-      CREATE_OBJECT_ID(SwingingBlade);
-      CREATE_OBJECT_ID(RollingBall);
-      CREATE_OBJECT_ID(Dart);
-      CREATE_OBJECT_ID(Bat);
-      CREATE_OBJECT(DartEmitter, DartGun);
-      CREATE_OBJECT(LiftingDoor, TrapDoorUp);
-      CREATE_OBJECT(PushableBlock1, Block);
-      CREATE_OBJECT(PushableBlock2, Block);
-      CREATE_OBJECT(PushableBlock3, Block);
-      CREATE_OBJECT(PushableBlock4, Block);
-      CREATE_OBJECT(MovingBlock, TallBlock);
-      CREATE_OBJECT(WallSwitch, Switch);
-      CREATE_OBJECT_ID(UnderwaterSwitch);
-      CREATE_OBJECT(Door1, Door);
-      CREATE_OBJECT(Door2, Door);
-      CREATE_OBJECT(Door3, Door);
-      CREATE_OBJECT(Door4, Door);
-      CREATE_OBJECT(Door5, Door);
-      CREATE_OBJECT(Door6, Door);
-      CREATE_OBJECT(Door7, Door);
-      CREATE_OBJECT(Door8, Door);
-      CREATE_OBJECT(Trapdoor1, TrapDoorDown);
-      CREATE_OBJECT(Trapdoor2, TrapDoorDown);
-      CREATE_OBJECT_ID(BridgeFlat);
-      CREATE_OBJECT(BridgeTilt1, BridgeSlope1);
-      CREATE_OBJECT(BridgeTilt2, BridgeSlope2);
-      CREATE_OBJECT(Keyhole1, KeyHole);
-      CREATE_OBJECT(Keyhole2, KeyHole);
-      CREATE_OBJECT(Keyhole3, KeyHole);
-      CREATE_OBJECT(Keyhole4, KeyHole);
-      CREATE_OBJECT(PuzzleHole1, PuzzleHole);
-      CREATE_OBJECT(PuzzleHole2, PuzzleHole);
-      CREATE_OBJECT(PuzzleHole3, PuzzleHole);
-      CREATE_OBJECT(PuzzleHole4, PuzzleHole);
-      CREATE_OBJECT(Animating1, Animating);
-      CREATE_OBJECT(Animating2, Animating);
-      CREATE_OBJECT(Animating3, Animating);
-      CREATE_OBJECT_ID(TeethSpikes);
-      CREATE_OBJECT_ID(Raptor);
-      CREATE_OBJECT(SwordOfDamocles, SwordOfDamocles);
-      CREATE_OBJECT(FallingCeiling, SwordOfDamocles);
-      CREATE_OBJECT_ID(CutsceneActor1);
-      CREATE_OBJECT_ID(CutsceneActor2);
-      CREATE_OBJECT_ID(CutsceneActor3);
-      CREATE_OBJECT_ID(CutsceneActor4);
-      CREATE_OBJECT_ID(WaterfallMist);
-      CREATE_OBJECT_ID(TRex);
-      CREATE_OBJECT_ID(Mummy);
-      CREATE_OBJECT_ID(Larson);
-      CREATE_OBJECT(CrocodileOnLand, Crocodile);
-      CREATE_OBJECT(CrocodileInWater, Crocodile);
-      CREATE_OBJECT(LionMale, Lion);
-      CREATE_OBJECT(LionFemale, Lion);
-      CREATE_OBJECT(Panther, Lion);
-      CREATE_OBJECT_ID(Barricade);
-      CREATE_OBJECT_ID(Gorilla);
-      CREATE_OBJECT_ID(Pierre);
-      CREATE_OBJECT_ID(ThorHammerBlock);
-      CREATE_OBJECT_ID(ThorHammerHandle);
-      CREATE_OBJECT_ID(FlameEmitter);
-      CREATE_OBJECT(ThorLightningBall, LightningBall);
-      CREATE_OBJECT(RatInWater, Rat);
-      CREATE_OBJECT(RatOnLand, Rat);
-      CREATE_OBJECT_ID(SlammingDoors);
-      CREATE_OBJECT_ID(FlyingMutant);
-    case TR1ItemId::WalkingMutant1: [[fallthrough]];
-    case TR1ItemId::WalkingMutant2:
-      // Special handling, these are just "mutations" of the flying mutants (no wings).
-      object = std::make_shared<WalkingMutant>(
-        &world, room, item, world.findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
-      break;
-      CREATE_OBJECT(MutantEggSmall, MutantEgg);
-      CREATE_OBJECT(MutantEggBig, MutantEgg);
-      CREATE_OBJECT_ID(CentaurMutant);
-      CREATE_OBJECT_ID(TorsoBoss);
-      CREATE_OBJECT_ID(LavaParticleEmitter);
-      CREATE_OBJECT(FlowingAtlanteanLava, AtlanteanLava);
-      CREATE_OBJECT_ID(ScionPiece3);
-      CREATE_OBJECT_ID(ScionPiece4);
-      CREATE_OBJECT_ID(ScionHolder);
-      CREATE_OBJECT_ID(Earthquake);
-      CREATE_OBJECT_ID(Doppelganger);
-    default:
-    {
-      const auto stub = std::make_shared<StubObject>(&world, room, item, model.get());
-      object = stub;
-      if(item.type == TR1ItemId::CameraTarget)
-      {
-        stub->getSkeleton()->setRenderable(nullptr);
-        stub->getSkeleton()->clearParts();
-      }
-      else
-      {
-        BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
-      }
-    }
-    }
-
-#undef CREATE_OBJECT
-#undef CREATE_OBJECT_ID
+    auto object = std::make_shared<StubObject>(&world, room, item, model.get());
+    BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
 
     addChild(room->node, object->getNode());
 
@@ -186,55 +377,19 @@ std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
 
   if(const auto& spriteSequence = world.findSpriteSequenceForType(item.type))
   {
-    BOOST_ASSERT(!world.findAnimatedModelForType(item.type));
     BOOST_ASSERT(!spriteSequence->sprites.empty());
 
     const loader::file::Sprite& sprite = spriteSequence->sprites[0];
     std::shared_ptr<Object> object;
 
-    if(item.type == TR1ItemId::ScionPiece1)
-    {
-      object = std::make_shared<ScionPiece>(&world,
-                                            std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")",
-                                            room,
-                                            item,
-                                            sprite,
-                                            world.getPresenter().getMaterialManager()->getSprite());
-    }
-    else if(item.type == TR1ItemId::Item141 || item.type == TR1ItemId::Item142 || item.type == TR1ItemId::Key1Sprite
-            || item.type == TR1ItemId::Key2Sprite || item.type == TR1ItemId::Key3Sprite
-            || item.type == TR1ItemId::Key4Sprite || item.type == TR1ItemId::Puzzle1Sprite
-            || item.type == TR1ItemId::Puzzle2Sprite || item.type == TR1ItemId::Puzzle3Sprite
-            || item.type == TR1ItemId::Puzzle4Sprite || item.type == TR1ItemId::PistolsSprite
-            || item.type == TR1ItemId::ShotgunSprite || item.type == TR1ItemId::MagnumsSprite
-            || item.type == TR1ItemId::UzisSprite || item.type == TR1ItemId::PistolAmmoSprite
-            || item.type == TR1ItemId::ShotgunAmmoSprite || item.type == TR1ItemId::MagnumAmmoSprite
-            || item.type == TR1ItemId::UziAmmoSprite || item.type == TR1ItemId::ExplosiveSprite
-            || item.type == TR1ItemId::SmallMedipackSprite || item.type == TR1ItemId::LargeMedipackSprite
-            || item.type == TR1ItemId::ScionPiece2 || item.type == TR1ItemId::LeadBarSprite)
-    {
-      object
-        = std::make_shared<PickupObject>(&world,
-                                         std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")",
-                                         room,
-                                         item,
-                                         &sprite,
-                                         world.getPresenter().getMaterialManager()->getSprite());
-    }
-    else
-    {
-      BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
-      object
-        = std::make_shared<SpriteObject>(&world,
-                                         std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")",
-                                         room,
-                                         item,
-                                         true,
-                                         &sprite,
-                                         world.getPresenter().getMaterialManager()->getSprite());
-    }
-
-    return object;
+    BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
+    return std::make_shared<SpriteObject>(&world,
+                                          std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")",
+                                          room,
+                                          item,
+                                          true,
+                                          &sprite,
+                                          world.getPresenter().getMaterialManager()->getSprite());
   }
 
   BOOST_LOG_TRIVIAL(error) << "Failed to find an appropriate animated model for object type " << int(item.type.get());
@@ -246,145 +401,11 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
 {
   const auto type = core::TypeId::create(ser["@type"]);
   const auto position = core::RoomBoundPosition::create(ser["@position"]);
-  std::shared_ptr<Object> object;
-  std::string spriteName;
-#define CREATE(ENUM, TYPE)                                 \
-  case TR1ItemId::ENUM:                                    \
-    object = std::make_shared<TYPE>(&ser.world, position); \
-    object->serialize(ser);                                \
-    return object
-#define CREATE_SPRITE(ENUM, TYPE)                                                                               \
-  case TR1ItemId::ENUM:                                                                                         \
-    ser(S_NV("@name", spriteName));                                                                             \
-    object = std::make_shared<TYPE>(                                                                            \
-      &ser.world, position, std::move(spriteName), ser.world.getPresenter().getMaterialManager()->getSprite()); \
-    object->serialize(ser);                                                                                     \
-    return object
-#define CREATE_PU(ENUM) CREATE_SPRITE(ENUM, PickupObject)
-#define CREATE_ID(NAME) CREATE(NAME, NAME)
 
-  switch(type.get_as<TR1ItemId>())
-  {
-    CREATE(Lara, LaraObject);
-    CREATE_ID(Wolf);
-    CREATE_ID(Bear);
-    CREATE_ID(Bat);
-    CREATE(FallingBlock, CollapsibleFloor);
-    CREATE_ID(SwingingBlade);
-    CREATE_ID(RollingBall);
-    CREATE_ID(Dart);
-    CREATE(DartEmitter, DartGun);
-    CREATE(LiftingDoor, TrapDoorUp);
-    CREATE(PushableBlock1, Block);
-    CREATE(PushableBlock2, Block);
-    CREATE(PushableBlock3, Block);
-    CREATE(PushableBlock4, Block);
-    CREATE(MovingBlock, TallBlock);
-    CREATE(WallSwitch, Switch);
-    CREATE_ID(UnderwaterSwitch);
-    CREATE(Door1, Door);
-    CREATE(Door2, Door);
-    CREATE(Door3, Door);
-    CREATE(Door4, Door);
-    CREATE(Door5, Door);
-    CREATE(Door6, Door);
-    CREATE(Door7, Door);
-    CREATE(Door8, Door);
-    CREATE(Trapdoor1, TrapDoorDown);
-    CREATE(Trapdoor2, TrapDoorDown);
-    CREATE_ID(BridgeFlat);
-    CREATE(BridgeTilt1, BridgeSlope1);
-    CREATE(BridgeTilt2, BridgeSlope2);
-    CREATE(Keyhole1, KeyHole);
-    CREATE(Keyhole2, KeyHole);
-    CREATE(Keyhole3, KeyHole);
-    CREATE(Keyhole4, KeyHole);
-    CREATE(PuzzleHole1, PuzzleHole);
-    CREATE(PuzzleHole2, PuzzleHole);
-    CREATE(PuzzleHole3, PuzzleHole);
-    CREATE(PuzzleHole4, PuzzleHole);
-    CREATE(Animating1, Animating);
-    CREATE(Animating2, Animating);
-    CREATE(Animating3, Animating);
-    CREATE_ID(TeethSpikes);
-    CREATE_ID(Raptor);
-    CREATE_ID(SwordOfDamocles);
-    CREATE(FallingCeiling, SwordOfDamocles);
-    CREATE_ID(CutsceneActor1);
-    CREATE_ID(CutsceneActor2);
-    CREATE_ID(CutsceneActor3);
-    CREATE_ID(CutsceneActor4);
-    CREATE_ID(WaterfallMist);
-    CREATE_ID(TRex);
-    CREATE_ID(Mummy);
-    CREATE_ID(Larson);
-    CREATE(CrocodileOnLand, Crocodile);
-    CREATE(CrocodileInWater, Crocodile);
-    CREATE(LionMale, Lion);
-    CREATE(LionFemale, Lion);
-    CREATE(Panther, Lion);
-    CREATE_ID(Barricade);
-    CREATE_ID(Gorilla);
-    CREATE_ID(Pierre);
-    CREATE_ID(ThorHammerBlock);
-    CREATE_ID(ThorHammerHandle);
-    CREATE_ID(FlameEmitter);
-    CREATE(ThorLightningBall, LightningBall);
-    CREATE(RatInWater, Rat);
-    CREATE(RatOnLand, Rat);
-    CREATE_ID(SlammingDoors);
-    CREATE_ID(FlyingMutant);
-    CREATE(WalkingMutant1, WalkingMutant);
-    CREATE(WalkingMutant2, WalkingMutant);
-    CREATE(MutantEggSmall, MutantEgg);
-    CREATE(MutantEggBig, MutantEgg);
-    CREATE_ID(CentaurMutant);
-    CREATE_ID(TorsoBoss);
-    CREATE_ID(LavaParticleEmitter);
-    CREATE(FlowingAtlanteanLava, AtlanteanLava);
-    CREATE_ID(ScionPiece3);
-    CREATE_ID(ScionPiece4);
-    CREATE_ID(ScionHolder);
-    CREATE_PU(Item141);
-    CREATE_PU(Item142);
-    CREATE_PU(Key1Sprite);
-    CREATE_PU(Key2Sprite);
-    CREATE_PU(Key3Sprite);
-    CREATE_PU(Key4Sprite);
-    CREATE_PU(Puzzle1Sprite);
-    CREATE_PU(Puzzle2Sprite);
-    CREATE_PU(Puzzle3Sprite);
-    CREATE_PU(Puzzle4Sprite);
-    CREATE_PU(PistolsSprite);
-    CREATE_PU(ShotgunSprite);
-    CREATE_PU(MagnumsSprite);
-    CREATE_PU(UzisSprite);
-    CREATE_PU(PistolAmmoSprite);
-    CREATE_PU(ShotgunAmmoSprite);
-    CREATE_PU(MagnumAmmoSprite);
-    CREATE_PU(UziAmmoSprite);
-    CREATE_PU(ExplosiveSprite);
-    CREATE_PU(SmallMedipackSprite);
-    CREATE_PU(LargeMedipackSprite);
-    CREATE_PU(ScionPiece2);
-    CREATE_PU(LeadBarSprite);
-    CREATE(SavegameCrystal, StubObject);
-    CREATE_ID(Doppelganger);
-    CREATE_ID(Earthquake);
-    CREATE_SPRITE(ScionPiece1, ScionPiece);
-  case TR1ItemId::CameraTarget:
-  {
-    const auto stub = std::make_shared<StubObject>(&ser.world, position);
-    stub->serialize(ser);
-    stub->getSkeleton()->setRenderable(nullptr);
-    stub->getSkeleton()->clearParts();
-    return stub;
-  }
-  default: BOOST_THROW_EXCEPTION(std::domain_error("Cannot create unknown object type " + std::to_string(type.get())));
-  }
-#undef CREATE
-#undef CREATE_ID
-#undef CREATE_PU
+  if(const auto factory = findFactory(type.get_as<TR1ItemId>()))
+    return factory->createFromSave(position, ser);
+
+  BOOST_THROW_EXCEPTION(std::domain_error("Cannot create unknown object type " + std::to_string(type.get())));
 }
 } // namespace engine::objects
 
