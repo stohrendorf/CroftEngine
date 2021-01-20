@@ -194,18 +194,6 @@ public:
     m_position = p;
   }
 
-  /**
-     * @brief Clamps a point between two endpoints if there is a floordata-defined obstacle
-     * @param[in] start Starting point
-     * @param[in] end Destination of the movement, clamped if necessary
-     * @retval false if clamped
-     *
-     * @warning Please be aware that the return value is reverted and not what you might expect...
-     */
-  static bool clampPosition(const core::RoomBoundPosition& start,
-                            core::RoomBoundPosition& end,
-                            const ObjectManager& objectManager);
-
   void setBounce(const core::Length& bounce)
   {
     m_bounce = bounce;
@@ -228,29 +216,9 @@ public:
 private:
   std::unordered_set<const loader::file::Portal*> tracePortals();
 
-  static bool clampY(const core::TRVec& start,
-                     core::TRVec& end,
-                     const gsl::not_null<const loader::file::Sector*>& sector,
-                     const ObjectManager& objectManager);
-
-  enum class ClampType
-  {
-    Ceiling,
-    Wall,
-    None
-  };
-
-  static ClampType
-    clampAlongX(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const ObjectManager& objectManager);
-
-  static ClampType
-    clampAlongZ(const core::RoomBoundPosition& start, core::RoomBoundPosition& end, const ObjectManager& objectManager);
-
   void handleFixedCamera();
 
-  core::Length moveIntoGeometry(core::RoomBoundPosition& pos, const core::Length& margin) const;
-
-  bool isVerticallyOutsideRoom(const core::TRVec& pos, const gsl::not_null<const loader::file::Room*>& room) const;
+  core::Length moveIntoGeometry(core::RoomBoundPosition& goal, const core::Length& margin) const;
 
   void updatePosition(const core::RoomBoundPosition& positionGoal, int smoothFactor);
 
@@ -258,36 +226,19 @@ private:
 
   void handleFreeLook(const objects::Object& object);
 
-  void handleEnemy();
-
-  using ClampCallback = void(core::Length& x,
-                             core::Length& y,
-                             const core::Length& targetX,
-                             const core::Length& targetY,
-                             const core::Length& minX,
-                             const core::Length& minY,
-                             const core::Length& maxX,
-                             const core::Length& maxY);
-
-  void clampBox(core::RoomBoundPosition& eyePositionGoal, const std::function<ClampCallback>& callback) const;
-
-  static void freeLookClamp(core::Length& x,
-                            core::Length& y,
-                            const core::Length& targetX,
-                            const core::Length& targetY,
-                            const core::Length& minX,
-                            const core::Length& minY,
-                            const core::Length& maxX,
-                            const core::Length& maxY);
-
-  static void clampToCorners(const core::Area& targetHorizontalDistanceSq,
-                             core::Length& x,
-                             core::Length& y,
-                             const core::Length& targetX,
-                             const core::Length& targetY,
-                             const core::Length& minX,
-                             const core::Length& minY,
-                             const core::Length& maxX,
-                             const core::Length& maxY);
+  void handleEnemy(objects::Object& object);
 };
+
+/**
+   * @brief Clamps a point between two endpoints if there is a floordata-defined obstacle
+   * @param[in] start Starting point
+   * @param[in] goal Destination of the movement, clamped if necessary
+   * @retval false if clamped
+   *
+   * @warning Please be aware that the return value is reverted and not what you might expect...
+   */
+extern bool raycastLineOfSight(const core::RoomBoundPosition& start,
+                               core::RoomBoundPosition& goal,
+                               const ObjectManager& objectManager);
+
 } // namespace engine

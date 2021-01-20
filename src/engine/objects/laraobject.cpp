@@ -867,7 +867,7 @@ void LaraObject::updateAimingState(const Weapon& weapon)
   auto targetVector = getVectorAngles(enemyChestPos.position - gunPosition.position);
   targetVector.X -= m_state.rotation.X;
   targetVector.Y -= m_state.rotation.Y;
-  if(!CameraController::clampPosition(gunPosition, enemyChestPos, getWorld().getObjectManager()))
+  if(!raycastLineOfSight(gunPosition, enemyChestPos, getWorld().getObjectManager()))
   {
     rightArm.aiming = false;
     leftArm.aiming = false;
@@ -1024,7 +1024,7 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
 
     auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelObject>(currentEnemy.get()));
-    if(!CameraController::clampPosition(gunPosition, enemyPos, getWorld().getObjectManager()))
+    if(!raycastLineOfSight(gunPosition, enemyPos, getWorld().getObjectManager()))
       continue;
 
     auto aimAngle = getVectorAngles(enemyPos.position - gunPosition.position);
@@ -1689,7 +1689,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
                                       gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping}};
 
     const core::RoomBoundPosition bulletPos{gunHolder.m_state.position.room, gunPosition};
-    CameraController::clampPosition(bulletPos, aimHitPos, getWorld().getObjectManager());
+    raycastLineOfSight(bulletPos, aimHitPos, getWorld().getObjectManager());
     playShotMissed(aimHitPos);
   }
   else

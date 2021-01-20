@@ -78,6 +78,7 @@ std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
       CREATE_OBJECT_ID(SwingingBlade);
       CREATE_OBJECT_ID(RollingBall);
       CREATE_OBJECT_ID(Dart);
+      CREATE_OBJECT_ID(Bat);
       CREATE_OBJECT(DartEmitter, DartGun);
       CREATE_OBJECT(LiftingDoor, TrapDoorUp);
       CREATE_OBJECT(PushableBlock1, Block);
@@ -139,7 +140,7 @@ std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
       CREATE_OBJECT(RatOnLand, Rat);
       CREATE_OBJECT_ID(SlammingDoors);
       CREATE_OBJECT_ID(FlyingMutant);
-    case TR1ItemId::WalkingMutant1:
+    case TR1ItemId::WalkingMutant1: [[fallthrough]];
     case TR1ItemId::WalkingMutant2:
       // Special handling, these are just "mutations" of the flying mutants (no wings).
       object = std::make_shared<WalkingMutant>(

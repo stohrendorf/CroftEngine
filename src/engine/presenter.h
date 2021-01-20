@@ -160,7 +160,7 @@ private:
 
   const std::shared_ptr<render::scene::ShaderManager> m_shaderManager{};
   const std::shared_ptr<render::scene::CSM> m_csm{};
-  const std::unique_ptr<render::scene::MaterialManager> m_materialManager{};
+  const std::unique_ptr<render::scene::MaterialManager> m_materialManager;
 
   const std::unique_ptr<render::RenderPipeline> m_renderPipeline;
   const std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;

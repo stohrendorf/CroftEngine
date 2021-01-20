@@ -426,9 +426,9 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
   }
 
   const auto start = m_state.position;
-  auto end = getWorld().getObjectManager().getLara().m_state.position;
-  end.position.Y -= 768_len;
-  return CameraController::clampPosition(start, end, getWorld().getObjectManager());
+  auto goal = getWorld().getObjectManager().getLara().m_state.position;
+  goal.position.Y -= 768_len;
+  return raycastLineOfSight(start, goal, getWorld().getObjectManager());
 }
 
 namespace

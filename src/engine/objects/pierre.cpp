@@ -148,7 +148,7 @@ void Pierre::update()
     auto camPos = m_state.position;
     camPos.position.Y -= core::SectorSize;
     const auto& target = getWorld().getCameraController().getTRPosition();
-    if(CameraController::clampPosition(target, camPos, getWorld().getObjectManager()))
+    if(raycastLineOfSight(target, camPos, getWorld().getObjectManager()))
     {
       m_state.creatureInfo->flags = 1;
     }
