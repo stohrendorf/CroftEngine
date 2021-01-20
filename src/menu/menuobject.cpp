@@ -114,7 +114,6 @@ void MenuObject::draw(const engine::World& world,
   }
   else if(const auto& obj = world.findAnimatedModelForType(type))
   {
-    // TODO avoid re-creating the model each time
     node->setLocalMatrix(nodeMatrix);
     core::AnimStateId animState{0_as};
     node->setAnimation(animState, obj->animations, meshAnimFrame);

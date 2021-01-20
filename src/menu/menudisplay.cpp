@@ -418,8 +418,6 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
 
   world.getCameraController().getCamera()->setFieldOfView(core::toRad(80_deg));
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
-  // TODO stopAmbientSamples();
-  // TODO soundStopAllSamples();
   if(mode != InventoryMode::TitleMode)
   {
     world.getAudioEngine().setStreamVolume(0);
