@@ -21,7 +21,6 @@ public:
     if(m_state.triggerState != TriggerState::Invisible)
     {
       loader::file::Room::patchHeightsForBlock(*this, -core::SectorSize);
-      m_patched = true;
     }
   }
 
@@ -37,7 +36,5 @@ private:
   bool canPushBlock(const core::Length& height, core::Axis axis) const;
 
   bool canPullBlock(const core::Length& height, core::Axis axis) const;
-
-  bool m_patched = false;
 };
 } // namespace engine::objects

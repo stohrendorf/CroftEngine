@@ -5,6 +5,7 @@
 #include "engine/world.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
+#include "serialization/quantity.h"
 
 namespace engine::objects
 {
@@ -113,7 +114,6 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
   // start moving the block, remove it from the floordata
   activate();
   loader::file::Room::patchHeightsForBlock(*this, core::SectorSize);
-  m_patched = false;
   m_state.triggerState = TriggerState::Active;
 
   ModelObject::update();
@@ -125,7 +125,6 @@ void Block::update()
   if(m_state.activationState.isOneshot())
   {
     loader::file::Room::patchHeightsForBlock(*this, core::SectorSize);
-    m_patched = false;
     kill();
     return;
   }
@@ -160,7 +159,6 @@ void Block::update()
   m_state.triggerState = TriggerState::Inactive;
   deactivate();
   loader::file::Room::patchHeightsForBlock(*this, -core::SectorSize);
-  m_patched = true;
   pos = m_state.position;
   sector = loader::file::findRealFloorSector(pos);
   getWorld().handleCommandSequence(
@@ -301,13 +299,15 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
 
 void Block::serialize(const serialization::Serializer& ser)
 {
-  if(m_patched)
-    loader::file::Room::patchHeightsForBlock(*this, core::SectorSize);
-
   ModelObject::serialize(ser);
-  ser(S_NV("patched", m_patched));
 
-  if(m_patched)
-    loader::file::Room::patchHeightsForBlock(*this, -core::SectorSize);
+  ser.lazy([this](const serialization::Serializer& ser) {
+    gsl::not_null groundSector = const_cast<loader::file::Sector*>(
+      loader::file::findRealFloorSector(m_state.position.position, m_state.position.room).get());
+
+    Expects(groundSector->box != nullptr);
+
+    ser(S_NV("floorHeight", groundSector->floorHeight), S_NV("blocked", groundSector->box->blocked));
+  });
 }
 } // namespace engine::objects
