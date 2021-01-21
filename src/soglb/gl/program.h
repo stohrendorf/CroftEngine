@@ -23,13 +23,15 @@ public:
   explicit ProgramInterface(const Program& program, uint32_t index);
   virtual ~ProgramInterface() = default;
 
-  explicit ProgramInterface(ProgramInterface<_Type>&& rhs) noexcept
-      : m_index{std::exchange(rhs.m_index, InvalidIndex)}
+  ProgramInterface(ProgramInterface<_Type>&& rhs) noexcept
+      : m_name{std::move(rhs.m_name)}
+      , m_index{std::exchange(rhs.m_index, InvalidIndex)}
   {
   }
 
   ProgramInterface<_Type>& operator=(ProgramInterface<_Type>&& rhs) noexcept
   {
+    m_name = std::move(rhs.m_name);
     m_index = std::exchange(rhs.m_index, InvalidIndex);
     return *this;
   }

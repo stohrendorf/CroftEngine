@@ -81,13 +81,10 @@ CSM::CSM(int32_t resolution, ShaderManager& shaderManager)
   }
 }
 
-std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> CSM::getTextures() const
+std::shared_ptr<gl::Texture2D<gl::RG16F>> CSM::getTexture(size_t n) const
 {
-  std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> result{};
-  std::transform(m_splits.begin(), m_splits.end(), result.begin(), [](const Split& split) {
-    return split.squareBlur->getBlurredTexture();
-  });
-  return result;
+  Expects(n < CSMBuffer::NSplits);
+  return m_splits.at(n).squareBlur->getBlurredTexture();
 }
 
 std::array<glm::mat4, CSMBuffer::NSplits> CSM::getMatrices(const glm::mat4& modelMatrix) const

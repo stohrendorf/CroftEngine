@@ -10,9 +10,9 @@ cmake-build-*/
 .idea/**/contentModel.xml
 .idea/**/dynamic.xml
 
-save/
-data/
-assets/
+/saves
+/data
+/assets
 
 # Thank you, Windows!
 Thumbs.db
@@ -37,3 +37,7 @@ shaders/*.err
 shaders/*.full.glsl
 
 __pycache__
+
+# mesa dumps
+/shader_*.frag
+/shader_*.vert

@@ -28,7 +28,9 @@ struct CameraMatrices
   float aspectRatio = 1;
   float nearPlane = 0;
   float farPlane = 1;
+  float _pad = 0;
 };
+static_assert(sizeof(CameraMatrices) % 16 == 0);
 
 class Camera final
 {
@@ -207,7 +209,7 @@ public:
         m_dirty.reset(CameraMatrices::DirtyFlag::InvViewProjection);
       }
 
-      m_matricesBuffer.setData(m_matrices, gl::api::BufferUsageARB::StreamDraw);
+      m_matricesBuffer.setData(m_matrices, gl::api::BufferUsageARB::DynamicDraw);
     }
 
     BOOST_ASSERT(m_dirty.none());

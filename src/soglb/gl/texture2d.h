@@ -4,6 +4,7 @@
 
 namespace gl
 {
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename _PixelT>
 class Texture2D final : public TextureImpl<api::TextureTarget::Texture2d, _PixelT>
 {
@@ -29,16 +30,24 @@ public:
   Texture2D<_PixelT>& assign(const gsl::not_null<const _PixelT*>& data, int level = 0)
   {
     const int levelDiv = 1 << level;
+    const auto sizeX = glm::max(1, m_size.x / levelDiv);
+    const auto sizeY = glm::max(1, m_size.y / levelDiv);
 
-    GL_ASSERT(api::textureSubImage2D(getHandle(),
-                                     level,
-                                     0,
-                                     0,
-                                     glm::max(1, m_size.x / levelDiv),
-                                     glm::max(1, m_size.y / levelDiv),
-                                     Pixel::PixelFormat,
-                                     Pixel::PixelType,
-                                     data.get()));
+    GL_ASSERT(
+      api::textureSubImage2D(getHandle(), level, 0, 0, sizeX, sizeY, Pixel::PixelFormat, Pixel::PixelType, data.get()));
+    return *this;
+  }
+
+  Texture2D<_PixelT>& fill(const _PixelT& pixel, int level = 0)
+  {
+    const int levelDiv = 1 << level;
+    const auto sizeX = glm::max(1, m_size.x / levelDiv);
+    const auto sizeY = glm::max(1, m_size.y / levelDiv);
+    std::vector<_PixelT> pixels;
+    pixels.resize(sizeX * sizeY, pixel);
+
+    GL_ASSERT(api::textureSubImage2D(
+      getHandle(), level, 0, 0, sizeX, sizeY, Pixel::PixelFormat, Pixel::PixelType, pixels.data()));
     return *this;
   }
 

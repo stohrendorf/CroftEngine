@@ -1,4 +1,6 @@
-layout(binding=1) uniform sampler2D u_csmVsm[3];
+layout(binding=1) uniform sampler2D u_csmVsm1;
+layout(binding=1) uniform sampler2D u_csmVsm2;
+layout(binding=1) uniform sampler2D u_csmVsm3;
 layout(location=10) uniform float u_lightAmbient;
 
 #include "csm_interface.glsl"
@@ -15,13 +17,22 @@ readonly layout(std430, binding=3) buffer b_lights {
 
 float shadow_map_multiplier(in vec3 normal, in float shadow)
 {
-    int cascadeIdx = 0;
-    while (cascadeIdx < u_csmSplits.length()-1 && -gpi.vertexPos.z > -u_csmSplits[cascadeIdx]) {
-        ++cascadeIdx;
+    vec3 projCoords;
+    vec2 moments;
+
+    if (-gpi.vertexPos.z > -u_csmSplits3) {
+        projCoords = gpi.vertexPosLight3;
+        moments = texture(u_csmVsm3, projCoords.xy).xy;
+    }
+    else if (-gpi.vertexPos.z > -u_csmSplits2) {
+        projCoords = gpi.vertexPosLight2;
+        moments = texture(u_csmVsm2, projCoords.xy).xy;
+    }
+    else {
+        projCoords = gpi.vertexPosLight1;
+        moments = texture(u_csmVsm1, projCoords.xy).xy;
     }
 
-    vec3 projCoords = gpi.vertexPosLight[cascadeIdx].xyz / gpi.vertexPosLight[cascadeIdx].w;
-    projCoords = projCoords * 0.5 + 0.5;
     float currentDepth = projCoords.z;
     if (currentDepth > 1.0) {
         return 1.0;
@@ -32,7 +43,6 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
     float bias = cosTheta > BiasExceedOne ? sqrt(1-cosTheta*cosTheta) / cosTheta : 1;
     currentDepth -= 0.01*bias;
 
-    vec2 moments = texture(u_csmVsm[cascadeIdx], projCoords.xy).xy;
     if (currentDepth < moments.x) {
         return 1.0;
     }

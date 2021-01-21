@@ -26,8 +26,10 @@ struct CSMBuffer
 
   std::array<glm::mat4, NSplits> lightMVP{};
   glm::vec4 lightDir{};
-  std::array<glm::vec4, NSplits> csmSplits{}; // vec4 because... well. we need padding for std140.
+  std::array<float, NSplits> csmSplits{};
+  float _pad = 0;
 };
+static_assert(sizeof(CSMBuffer) % 16 == 0);
 
 class CSM final
 {
@@ -51,7 +53,7 @@ public:
 
   explicit CSM(int32_t resolution, ShaderManager& shaderManager);
 
-  [[nodiscard]] std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> getTextures() const;
+  [[nodiscard]] std::shared_ptr<gl::Texture2D<gl::RG16F>> getTexture(size_t n) const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
   [[nodiscard]] std::array<float, CSMBuffer::NSplits> getSplitEnds() const;
 
@@ -75,8 +77,7 @@ public:
 
   auto& getBuffer(const glm::mat4& modelMatrix)
   {
-    const auto tmp = getSplitEnds();
-    std::transform(tmp.begin(), tmp.end(), m_bufferData.csmSplits.begin(), [](float x) { return glm::vec4{x}; });
+    m_bufferData.csmSplits = getSplitEnds();
     m_bufferData.lightMVP = getMatrices(modelMatrix);
     m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
     m_buffer.setData(m_bufferData, gl::api::BufferUsageARB::DynamicDraw);

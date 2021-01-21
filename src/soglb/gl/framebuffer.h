@@ -16,28 +16,28 @@ class TextureAttachment
 private:
   const gsl::not_null<std::shared_ptr<Texture>> m_texture;
   const int32_t m_level;
-  const api::BlendingFactor m_srcBlend;
-  const api::BlendingFactor m_dstBlend;
+  const bool m_alphaBlend;
 
   void attach(const Framebuffer& framebuffer, api::FramebufferAttachment attachment) const;
 
 public:
   explicit TextureAttachment(gsl::not_null<std::shared_ptr<Texture>> texture,
                              const int32_t level = 0,
-                             const api::BlendingFactor src = api::BlendingFactor::SrcAlpha,
-                             const api::BlendingFactor dst = api::BlendingFactor::OneMinusSrcAlpha)
+                             bool alphaBlend = true)
       : m_texture{std::move(texture)}
       , m_level{level}
-      , m_srcBlend{src}
-      , m_dstBlend{dst}
+      , m_alphaBlend{alphaBlend}
   {
   }
 
   ~TextureAttachment() = default;
 
-  void bind(const uint32_t buffer) const
+  void setAlphaBlend(const uint32_t slot) const
   {
-    GL_ASSERT(api::blendFunc(buffer, m_srcBlend, m_dstBlend));
+    if(m_alphaBlend)
+      GL_ASSERT(api::enable(api::EnableCap::Blend, slot));
+    else
+      GL_ASSERT(api::disable(api::EnableCap::Blend, slot));
   }
 };
 
@@ -132,8 +132,12 @@ public:
   {
     bind();
 
-    for(size_t i = 0; i < m_attachments.size(); ++i)
-      m_attachments[i].first->bind(gsl::narrow_cast<uint32_t>(i));
+    for(const auto& [attachment, slot] : m_attachments)
+    {
+      if(slot >= api::FramebufferAttachment::ColorAttachment0 && slot <= api::FramebufferAttachment::ColorAttachment31)
+        attachment->setAlphaBlend(static_cast<uint32_t>(slot)
+                                  - static_cast<uint32_t>(api::FramebufferAttachment::ColorAttachment0));
+    }
   }
 
   static void unbindAll()
@@ -172,10 +176,9 @@ public:
   FrameBufferBuilder& texture(api::FramebufferAttachment attachment,
                               const gsl::not_null<std::shared_ptr<Texture>>& texture,
                               const int32_t level = 0,
-                              api::BlendingFactor src = api::BlendingFactor::SrcAlpha,
-                              api::BlendingFactor dst = api::BlendingFactor::OneMinusSrcAlpha)
+                              bool alphaBlend = true)
   {
-    m_attachments.emplace_back(std::make_shared<TextureAttachment>(texture, level, src, dst), attachment);
+    m_attachments.emplace_back(std::make_shared<TextureAttachment>(texture, level, alphaBlend), attachment);
     return *this;
   }
 
@@ -183,9 +186,7 @@ public:
                                      const gsl::not_null<std::shared_ptr<Texture>>& texture,
                                      const int32_t level = 0)
   {
-    m_attachments.emplace_back(
-      std::make_shared<TextureAttachment>(texture, level, api::BlendingFactor::One, api::BlendingFactor::Zero),
-      attachment);
+    m_attachments.emplace_back(std::make_shared<TextureAttachment>(texture, level, false), attachment);
     return *this;
   }
 };
