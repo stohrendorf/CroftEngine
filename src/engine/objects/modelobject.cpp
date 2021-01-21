@@ -133,7 +133,6 @@ void ModelObject::applyMovement(const bool forLara)
   applyTransform();
 
   m_skeleton->updatePose();
-  updateLighting();
 }
 
 loader::file::BoundingBox ModelObject::getBoundingBox() const

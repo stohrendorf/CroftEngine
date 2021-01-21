@@ -25,11 +25,6 @@ public:
   {
   }
 
-  void update() override
-  {
-    updateLighting();
-  }
-
   void collide(CollisionInfo& collisionInfo) override;
 };
 } // namespace engine::objects

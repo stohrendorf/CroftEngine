@@ -53,7 +53,7 @@ public:
       return;
     }
 
-    setData(gsl::not_null(data.data()), gsl::narrow<api::core::SizeType>(data.size()), usage);
+    setData(gsl::not_null{data.data()}, gsl::narrow<api::core::SizeType>(data.size()), usage);
   }
 
   void setData(const gsl::not_null<const T*>& data, const api::core::SizeType size, const api::BufferUsageARB usage)

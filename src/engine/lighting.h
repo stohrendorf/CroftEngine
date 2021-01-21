@@ -4,6 +4,8 @@
 #include "loader/file/datatypes.h"
 #include "util/helpers.h"
 
+#include <set>
+
 namespace engine
 {
 struct Lighting
@@ -27,6 +29,7 @@ struct Lighting
   static_assert(sizeof(Light) == 32, "Invalid Light struct size");
 
   core::Brightness ambient{};
+  core::Brightness targetAmbient{};
   std::vector<Light> lights;
   std::vector<Light> bufferLights;
 
@@ -42,7 +45,8 @@ struct Lighting
       return;
     }
 
-    ambient = toBrightness(pos.room->ambientShade);
+    targetAmbient = toBrightness(pos.room->ambientShade);
+    ambient += (targetAmbient - ambient) / 50.0f;
 
     lights.clear();
     if(pos.room->lights.empty())
@@ -51,14 +55,24 @@ struct Lighting
       return;
     }
 
-    std::vector<gsl::not_null<const loader::file::Room*>> testRooms;
-    testRooms.emplace_back(pos.room);
+    std::set<gsl::not_null<const loader::file::Room*>> testRooms;
+    testRooms.emplace(pos.room);
     std::transform(pos.room->portals.begin(),
                    pos.room->portals.end(),
-                   std::back_inserter(testRooms),
+                   std::inserter(testRooms, testRooms.end()),
                    [&rooms](const auto& portal) { return &rooms.at(portal.adjoining_room.get()); });
 
+    std::set<gsl::not_null<const loader::file::Room*>> testRooms2;
     for(const auto& room : testRooms)
+    {
+      testRooms2.emplace(room);
+      std::transform(room->portals.begin(),
+                     room->portals.end(),
+                     std::inserter(testRooms2, testRooms2.end()),
+                     [&rooms](const auto& portal) { return &rooms.at(portal.adjoining_room.get()); });
+    }
+
+    for(const auto& room : testRooms2)
     {
       // http://www-f9.ijs.si/~matevz/docs/PovRay/pov274.htm
       // 1 / ( 1 + (d/fade_distance) ^ fade_power );
@@ -71,14 +85,15 @@ struct Lighting
     }
 
     if(bufferLights != lights)
-      m_buffer.setData(lights, gl::api::BufferUsageARB::StreamDraw);
+      m_buffer.setData(lights, gl::api::BufferUsageARB::DynamicDraw);
     bufferLights = lights;
   }
 
   void updateStatic(const core::Shade& shade)
   {
     lights.clear();
-    ambient = toBrightness(shade);
+    targetAmbient = toBrightness(shade);
+    ambient += (targetAmbient - ambient) / 50.0f;
     m_buffer.setData(lights, gl::api::BufferUsageARB::StaticDraw);
   }
 

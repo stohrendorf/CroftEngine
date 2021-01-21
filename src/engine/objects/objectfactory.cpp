@@ -79,7 +79,6 @@ struct ModelFactory : public ObjectFactory
     auto object = std::make_shared<T>(&world, room, item, model.get());
     addChild(room->node, object->getNode());
     object->applyTransform();
-    object->updateLighting();
     return object;
   }
 
@@ -146,7 +145,6 @@ struct WalkingMutantFactory : public ObjectFactory
     auto object = std::make_shared<WalkingMutant>(&world, room, item, model.get());
     addChild(room->node, object->getNode());
     object->applyTransform();
-    object->updateLighting();
     return object;
   }
 
@@ -322,7 +320,6 @@ std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
     addChild(room->node, object->getNode());
 
     object->applyTransform();
-    object->updateLighting();
 
     return object;
   }

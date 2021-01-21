@@ -110,6 +110,7 @@ void ObjectManager::update(World& world, bool godMode)
     if(object->m_isActive)
       object->update();
 
+    object->updateLighting();
     object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
   }
 
@@ -118,6 +119,7 @@ void ObjectManager::update(World& world, bool godMode)
     if(object->m_isActive)
       object->update();
 
+    object->updateLighting();
     object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
   }
 
@@ -141,6 +143,7 @@ void ObjectManager::update(World& world, bool godMode)
     if(godMode)
       m_lara->m_state.health = core::LaraHealth;
     m_lara->update();
+    m_lara->updateLighting();
   }
 
   applyScheduledDeletions();

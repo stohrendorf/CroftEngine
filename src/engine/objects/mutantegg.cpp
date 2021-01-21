@@ -139,7 +139,6 @@ void MutantEgg::update()
         addChild(m_state.position.room->node, m_childObject->getNode());
 
         m_childObject->applyTransform();
-        m_childObject->updateLighting();
 
         m_childObject->m_state.touch_bits.reset();
         m_childObject->m_state.initCreatureInfo(getWorld());

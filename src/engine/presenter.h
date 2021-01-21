@@ -143,7 +143,7 @@ public:
   void clear();
 
 private:
-  static constexpr int32_t CSMResolution = 1024;
+  static constexpr int32_t CSMResolution = 2048;
 
   const std::unique_ptr<gl::Window> m_window;
 

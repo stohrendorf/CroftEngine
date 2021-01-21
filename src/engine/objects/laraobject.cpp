@@ -1953,8 +1953,6 @@ void LaraObject::drawRoutine()
     frame = frame->next(hit_frame.get());
   }
 
-  updateLighting();
-
   MatrixStack matrixStack;
 
   matrixStack.push();
@@ -2045,8 +2043,6 @@ void LaraObject::drawRoutine()
 
 void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo)
 {
-  updateLighting();
-
   const auto& objInfo = *getWorld().findAnimatedModelForType(m_state.type);
 
   DualMatrixStack matrixStack{interpolationInfo.bias};

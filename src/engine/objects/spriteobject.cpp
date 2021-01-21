@@ -27,7 +27,6 @@ SpriteObject::SpriteObject(const gsl::not_null<World*>& world,
   createModel();
   addChild(room->node, m_node);
   applyTransform();
-  updateLighting();
 }
 
 SpriteObject::SpriteObject(const gsl::not_null<World*>& world,

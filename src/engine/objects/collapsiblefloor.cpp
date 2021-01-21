@@ -7,8 +7,6 @@ namespace engine::objects
 {
 void CollapsibleFloor::update()
 {
-  updateLighting();
-
   if(!m_isActive)
     return;
 

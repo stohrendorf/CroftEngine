@@ -208,7 +208,6 @@ void Object::serialize(const serialization::Serializer& ser)
       setParent(getNode(), m_state.position.room->node);
 
       applyTransform();
-      updateLighting();
     }
   });
 }
