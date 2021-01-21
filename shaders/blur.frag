@@ -26,6 +26,7 @@ void main()
 {
     vec2 texelSize = 1.0 / vec2(textureSize(u_input, 0));
     BLUR_TYPE result = BLUR_TYPE(0.0);
+BLUR_TYPE center = texture(u_input, fpi.texCoord).BLUR_ACCESSOR;
 #if BLUR_DIR == 0
     for (int x = -BLUR_EXTENT; x <= BLUR_EXTENT; ++x)
     {
@@ -48,5 +49,5 @@ void main()
         result += texture(u_input, fpi.texCoord + offset).BLUR_ACCESSOR * Gauss[y+BLUR_EXTENT];
     }
         #endif
-    out_tex = result;
+    out_tex = min(center, result);
 }
