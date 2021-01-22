@@ -16,6 +16,15 @@ const float Gauss[5] = { 0.06136, 0.24477, 0.38774, 0.24477, 0.06136 };
 const float Gauss[7] = { 0.00598, 0.060626, 0.241843, 0.383103, 0.241843, 0.060626, 0.00598 };
 #elif BLUR_EXTENT == 4
 const float Gauss[9] = { 0.000229, 0.005977, 0.060598, 0.241732, 0.382928, 0.241732, 0.060598, 0.005977, 0.000229 };
+#elif BLUR_EXTENT == 10
+// from https://graphics.stanford.edu/~mdfisher/Code/ShadowMap/GaussianBlurX.ps.html
+const float Gauss[21] = {
+    0.000272337, 0.00089296, 0.002583865, 0.00659813, 0.014869116,
+    0.029570767, 0.051898313, 0.080381679, 0.109868729, 0.132526984,
+    0.14107424,
+    0.132526984, 0.109868729, 0.080381679, 0.051898313, 0.029570767,
+    0.014869116, 0.00659813, 0.002583865, 0.00089296, 0.000272337
+};
 #endif
 #define BLUR_MULTIPLIER(i) Gauss[(i)+BLUR_EXTENT]
 #else
@@ -30,33 +39,36 @@ void main()
 {
     vec2 texelSize = 1.0 / vec2(textureSize(u_input, 0));
     BLUR_TYPE result = BLUR_TYPE(0.0);
-#ifdef BLUR_CLAMP
     BLUR_TYPE center = BLUR_TYPE(texture(u_input, fpi.texCoord));
-#endif
-#if BLUR_DIR == 0
-    for (int x = -BLUR_EXTENT; x <= BLUR_EXTENT; ++x)
-    {
-        for (int y = -BLUR_EXTENT; y <= BLUR_EXTENT; ++y)
-        {
-            vec2 offset = vec2(float(x), float(y)) * texelSize;
-            result += BLUR_TYPE(texture(u_input, fpi.texCoord + offset)) * BLUR_MULTIPLIER(x) * BLUR_MULTIPLIER(y);
-        }
-    }
-#elif BLUR_DIR == 1
+    BLUR_TYPE l, r;
+#if BLUR_DIR == 1
     for (int x = -BLUR_EXTENT; x <= BLUR_EXTENT; ++x)
     {
         vec2 offset = vec2(float(x), 0) * texelSize;
-        result += BLUR_TYPE(texture(u_input, fpi.texCoord + offset)) * BLUR_MULTIPLIER(x);
+        BLUR_TYPE texel = BLUR_TYPE(texture(u_input, fpi.texCoord + offset));
+        if(x == -1) l = texel;
+        else if(x == 1) r = texel;
+        result += texel * BLUR_MULTIPLIER(x);
     }
 #elif BLUR_DIR == 2
     for (int y = -BLUR_EXTENT; y <= BLUR_EXTENT; ++y)
     {
         vec2 offset = vec2(0, float(y)) * texelSize;
-        result += BLUR_TYPE(texture(u_input, fpi.texCoord + offset)) * BLUR_MULTIPLIER(y);
+        BLUR_TYPE texel = BLUR_TYPE(texture(u_input, fpi.texCoord + offset));
+        if(y == -1) l = texel;
+        else if(y == 1) r = texel;
+        result += texel * BLUR_MULTIPLIER(y);
     }
+#else
+#error "Invalid Blur Dir"
 #endif
 #ifdef BLUR_CLAMP
-    out_tex = min(center, result);
+    BLUR_TYPE clamped = center.x > result.x ? result : mix(center, result, 0.01);;
+    if( center.x > max(l.x, r.x) ) {
+        clamped = (l+r)*0.5;
+        clamped = l;
+    }
+    out_tex = clamped;
 #else
     out_tex = result;
 #endif
