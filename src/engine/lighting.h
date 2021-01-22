@@ -28,7 +28,7 @@ struct Lighting
   };
   static_assert(sizeof(Light) == 32, "Invalid Light struct size");
 
-  core::Brightness ambient{};
+  core::Brightness ambient{-1.0f};
   core::Brightness targetAmbient{};
   std::vector<Light> lights;
   std::vector<Light> bufferLights;
@@ -45,11 +45,7 @@ struct Lighting
       return;
     }
 
-    targetAmbient = toBrightness(pos.room->ambientShade);
-    if(ambient.get() == 0)
-      ambient = targetAmbient;
-    else
-      ambient += (targetAmbient - ambient) / 50.0f;
+    setAmbient(pos.room->ambientShade);
 
     lights.clear();
     if(pos.room->lights.empty())
@@ -95,9 +91,17 @@ struct Lighting
   void updateStatic(const core::Shade& shade)
   {
     lights.clear();
-    targetAmbient = toBrightness(shade);
-    ambient += (targetAmbient - ambient) / 50.0f;
+    setAmbient(shade);
     m_buffer.setData(lights, gl::api::BufferUsageARB::StaticDraw);
+  }
+
+  void setAmbient(const core::Shade& shade)
+  {
+    targetAmbient = toBrightness(shade);
+    if(ambient.get() < 0)
+      ambient = targetAmbient;
+    else
+      ambient += (targetAmbient - ambient) / 50.0f;
   }
 
   void bind(render::scene::Node& node) const
