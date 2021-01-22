@@ -552,7 +552,12 @@ std::unordered_set<const loader::file::Portal*> CameraController::tracePortals()
   for(const auto& room : m_world->getRooms())
     room.node->setVisible(false);
 
-  return render::PortalTracer::trace(*m_position.room, *m_world);
+  auto result = render::PortalTracer::trace(*m_position.room, *m_world);
+
+  for(const auto& portal : m_position.room->portals)
+    m_world->getRooms().at(portal.adjoining_room.get()).node->setVisible(true);
+
+  return result;
 }
 
 bool raycastLineOfSight(const core::RoomBoundPosition& start,

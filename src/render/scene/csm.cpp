@@ -49,8 +49,9 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
   squareMesh->getRenderState().setDepthWrite(false);
   squareMesh->getMaterial().set(RenderMode::Full, squareMaterial);
 
-  squareBlur = std::make_shared<SeparableBlur<gl::RG16F, 3>>("squareBlur-" + std::to_string(idx), shaderManager);
-  squareBlur->resize(glm::ivec2{resolution, resolution}, squaredTexture);
+  squareBlur
+    = std::make_shared<SeparableBlur<gl::RG16F>>("squareBlur-" + std::to_string(idx), shaderManager, 3, true, true);
+  squareBlur->setInput(squaredTexture);
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
@@ -66,7 +67,7 @@ void CSM::Split::renderSquare()
   RenderContext context{RenderMode::Full, std::nullopt};
 
   squareMesh->render(context);
-  squareBlur->render(depthTexture->size());
+  squareBlur->render();
 }
 
 CSM::CSM(int32_t resolution, ShaderManager& shaderManager)
@@ -171,7 +172,7 @@ void CSM::updateCamera(const Camera& camera)
     }
 
     // extend the bboxes and snap to a grid to avoid shadow jumping
-    static constexpr float SnapSize = 256.0f;
+    static constexpr float SnapSize = 1024.0f;
     bboxMin = glm::floor(bboxMin / SnapSize) * SnapSize;
     bboxMax = glm::ceil(bboxMax / SnapSize) * SnapSize;
 

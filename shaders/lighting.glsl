@@ -60,7 +60,7 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
 }
 
 float shadow_map_multiplier(in vec3 normal) {
-    return shadow_map_multiplier(normal, 0.3);
+    return shadow_map_multiplier(normal, 0.5);
 }
 
 /*

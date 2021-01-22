@@ -58,10 +58,10 @@ private:
     const std::shared_ptr<scene::Material> material;
 
     std::shared_ptr<gl::Texture2D<gl::RGB32F>> noiseTexture;
-    std::shared_ptr<gl::Texture2D<gl::ScalarByte>> aoBuffer;
+    std::shared_ptr<gl::Texture2D<gl::Scalar16F>> aoBuffer;
     std::shared_ptr<gl::Framebuffer> fb;
 
-    scene::SeparableBlur<gl::ScalarByte, 4> blur;
+    scene::SeparableBlur<gl::Scalar16F> blur;
 
     explicit SSAOStage(scene::ShaderManager& shaderManager);
     void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);

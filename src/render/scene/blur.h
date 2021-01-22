@@ -12,25 +12,25 @@
 
 namespace render::scene
 {
-template<typename _PixelT, uint8_t _Dir, uint8_t _Extent>
+template<typename PixelT>
 class SingleBlur
 {
-  static_assert(_Dir == 1 || _Dir == 2);
-  static_assert(_Extent > 0);
-
 public:
-  using Texture = gl::Texture2D<_PixelT>;
+  using Texture = gl::Texture2D<PixelT>;
 
-  explicit SingleBlur(std::string name, ShaderManager& shaderManager)
+  explicit SingleBlur(
+    std::string name, ShaderManager& shaderManager, uint8_t dir, uint8_t extent, bool gauss, bool clamp)
       : m_name{std::move(name)}
-      , m_shader{shaderManager.getBlur(_Extent, _Dir, _PixelT::Channels)}
+      , m_shader{shaderManager.getBlur(extent, dir, PixelT::Channels, gauss, clamp)}
       , m_material{std::make_shared<Material>(m_shader)}
   {
+    Expects(dir == 1 || dir == 2);
+    Expects(extent > 0);
   }
 
-  void resize(const glm::ivec2& size, const std::shared_ptr<Texture>& src)
+  void setInput(const std::shared_ptr<Texture>& src)
   {
-    m_blurredTexture = std::make_shared<Texture>(size, m_name + "/blurred");
+    m_blurredTexture = std::make_shared<Texture>(src->size(), m_name + "/blurred");
     m_blurredTexture->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
       .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
       .set(gl::api::TextureMinFilter::Linear)
@@ -38,7 +38,8 @@ public:
 
     m_material->getUniform("u_input")->set(src);
 
-    m_mesh = createQuadFullscreen(gsl::narrow<float>(size.x), gsl::narrow<float>(size.y), m_shader->getHandle());
+    m_mesh = createQuadFullscreen(
+      gsl::narrow<float>(src->size().x), gsl::narrow<float>(src->size().y), m_shader->getHandle());
     m_mesh->getRenderState().setCullFace(false);
     m_mesh->getRenderState().setDepthTest(false);
     m_mesh->getRenderState().setDepthWrite(false);
@@ -49,10 +50,10 @@ public:
                       .build(m_name + "/framebuffer");
   }
 
-  void render(const glm::ivec2& size) const
+  void render() const
   {
     gl::DebugGroup dbg{m_name + "/blur-pass"};
-    GL_ASSERT(gl::api::viewport(0, 0, size.x, size.y));
+    GL_ASSERT(gl::api::viewport(0, 0, m_blurredTexture->size().x, m_blurredTexture->size().y));
 
     gl::RenderState state;
     state.setBlend(false);
@@ -77,28 +78,28 @@ private:
   std::shared_ptr<gl::Framebuffer> m_framebuffer;
 };
 
-template<typename _PixelT, uint8_t _Extent>
+template<typename PixelT>
 class SeparableBlur
 {
 public:
-  using Texture = gl::Texture2D<_PixelT>;
+  using Texture = gl::Texture2D<PixelT>;
 
-  explicit SeparableBlur(const std::string& name, ShaderManager& shaderManager)
-      : m_blur1{name + "/blur-1", shaderManager}
-      , m_blur2{name + "/blur-2", shaderManager}
+  explicit SeparableBlur(const std::string& name, ShaderManager& shaderManager, uint8_t extent, bool gauss, bool clamp)
+      : m_blur1{name + "/blur-1", shaderManager, 1, extent, gauss, clamp}
+      , m_blur2{name + "/blur-2", shaderManager, 2, extent, gauss, clamp}
   {
   }
 
-  void resize(const glm::ivec2& size, const std::shared_ptr<Texture>& src)
+  void setInput(const std::shared_ptr<Texture>& src)
   {
-    m_blur1.resize(size, src);
-    m_blur2.resize(size, m_blur1.getBlurredTexture());
+    m_blur1.setInput(src);
+    m_blur2.setInput(m_blur1.getBlurredTexture());
   }
 
-  void render(const glm::ivec2& size)
+  void render()
   {
-    m_blur1.render(size);
-    m_blur2.render(size);
+    m_blur1.render();
+    m_blur2.render();
   }
 
   [[nodiscard]] const std::shared_ptr<Texture>& getBlurredTexture() const
@@ -107,7 +108,7 @@ public:
   }
 
 private:
-  SingleBlur<_PixelT, 1, _Extent> m_blur1;
-  SingleBlur<_PixelT, 2, _Extent> m_blur2;
+  SingleBlur<PixelT> m_blur1;
+  SingleBlur<PixelT> m_blur2;
 };
 } // namespace render::scene

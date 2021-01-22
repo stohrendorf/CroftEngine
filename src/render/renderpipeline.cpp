@@ -51,7 +51,7 @@ void RenderPipeline::resizeTextures(const glm::ivec2& viewport)
 RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager)
     : shader{shaderManager.getSSAO()}
     , material{std::make_shared<scene::Material>(shader)}
-    , blur{"ssao", shaderManager}
+    , blur{"ssao", shaderManager, 4, true, false}
 
 {
   // generate sample kernel
@@ -101,7 +101,7 @@ RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager)
 
 void RenderPipeline::SSAOStage::resize(const glm::ivec2& viewport, const RenderPipeline::GeometryStage& geometryStage)
 {
-  aoBuffer = std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "ssao-ao");
+  aoBuffer = std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao");
   aoBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
@@ -113,7 +113,7 @@ void RenderPipeline::SSAOStage::resize(const glm::ivec2& viewport, const RenderP
   renderMesh = createFbMesh(viewport, shader->getHandle());
   renderMesh->getMaterial().set(scene::RenderMode::Full, material);
 
-  blur.resize(viewport, aoBuffer);
+  blur.setInput(aoBuffer);
 
   fb = gl::FrameBufferBuilder()
          .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, aoBuffer)
@@ -242,7 +242,7 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
 
   renderMesh->render(context);
-  blur.render(size);
+  blur.render();
 
   if constexpr(FlushStages)
     GL_ASSERT(gl::api::finish());
