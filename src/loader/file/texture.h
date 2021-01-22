@@ -204,7 +204,7 @@ struct TextureTile
 
   static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader);
 
-  std::pair<glm::ivec2, glm::ivec2> getMinMaxPx(int size) const
+  [[nodiscard]] std::pair<glm::ivec2, glm::ivec2> getMinMaxPx(int size) const
   {
     glm::ivec2 xy0{std::numeric_limits<glm::int32>::max()};
     glm::ivec2 xy1{std::numeric_limits<glm::int32>::min()};
@@ -220,7 +220,7 @@ struct TextureTile
     return {xy0, xy1};
   }
 
-  std::pair<glm::vec2, glm::vec2> getNearestMinMaxGl(int size) const
+  [[nodiscard]] std::pair<glm::vec2, glm::vec2> getNearestMinMaxGl(int size) const
   {
     glm::vec2 xy0{std::numeric_limits<glm::float32>::max()};
     glm::vec2 xy1{std::numeric_limits<glm::float32>::lowest()};
@@ -236,7 +236,7 @@ struct TextureTile
     return {xy0, xy1};
   }
 
-  std::pair<glm::ivec2, glm::ivec2> getNearestMinMaxPx(int size) const
+  [[nodiscard]] std::pair<glm::ivec2, glm::ivec2> getNearestMinMaxPx(int size) const
   {
     glm::ivec2 xy0{std::numeric_limits<glm::int32>::max()};
     glm::ivec2 xy1{std::numeric_limits<glm::int32>::min()};

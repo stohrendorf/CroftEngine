@@ -1200,25 +1200,64 @@ World::World(Engine& engine,
       BOOST_LOG_TRIVIAL(debug) << "Re-mapped " << doneTiles.size() << " tiles and " << doneSprites.size() << " sprites";
     }
 
+    struct SourceTile final
+    {
+      int textureId;
+      std::pair<glm::ivec2, glm::ivec2> px;
+
+      bool operator<(const SourceTile& rhs) const noexcept
+      {
+        if(textureId != rhs.textureId)
+          return textureId < rhs.textureId;
+
+        if(px.first.x != rhs.px.first.x)
+          return px.first.x < rhs.px.first.x;
+        if(px.first.y != rhs.px.first.y)
+          return px.first.y < rhs.px.first.y;
+        if(px.second.x != rhs.px.second.x)
+          return px.second.x < rhs.px.second.x;
+        return px.second.y < rhs.px.second.y;
+      }
+
+      bool operator==(const SourceTile& rhs) const noexcept
+      {
+        return textureId == rhs.textureId && px == rhs.px;
+      }
+    };
+
+    std::map<SourceTile, std::pair<size_t, glm::ivec2>> replaced;
+
     for(auto& tile : m_level->m_textureTiles)
     {
       if(!doneTiles.emplace(&tile).second)
         continue;
-      const auto& texture = m_level->m_textures.at(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask);
-      auto replacementImg = std::make_unique<gl::CImgWrapper>(
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
-        256,
-        256,
-        true);
+      auto textureId = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
       const auto srcDims = tile.getMinMaxPx(256);
-      replacementImg->crop(srcDims.first.x, srcDims.first.y, srcDims.second.x, srcDims.second.y);
+      const SourceTile srcTile{textureId, srcDims};
+      auto it = replaced.find(srcTile);
+      std::pair<size_t, glm::ivec2> replacementPos;
+      if(it == replaced.end())
+      {
+        const auto& texture = m_level->m_textures.at(textureId);
+        auto replacementImg = std::make_unique<gl::CImgWrapper>(
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+          reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
+          256,
+          256,
+          true);
+        replacementImg->crop(srcDims.first.x, srcDims.first.y, srcDims.second.x, srcDims.second.y);
 
-      auto replacementPos = atlases.put(*replacementImg);
+        replacementPos = atlases.put(*replacementImg);
+        replaced[srcTile] = replacementPos;
+      }
+      else
+      {
+        replacementPos = it->second;
+      }
+
       const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
-      const auto replacementUvMax = replacementUvPos
-                                    + glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
-                                        / gsl::narrow_cast<float>(atlases.getSize());
+      const auto dim = glm::vec2{srcDims.second - srcDims.first} - glm::vec2{1};
+      const auto replacementUvMax = replacementUvPos + dim / gsl::narrow_cast<float>(atlases.getSize());
 
       remap(tile, replacementPos.first, replacementUvPos, replacementUvMax);
     }
@@ -1229,22 +1268,34 @@ World::World(Engine& engine,
         continue;
 
       std::pair minMaxPx{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
-      const auto& texture = m_level->m_textures.at(sprite.texture_id.get());
-      auto replacementImg = std::make_unique<gl::CImgWrapper>(
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
-        256,
-        256,
-        true);
-      replacementImg->crop(minMaxPx.first.x, minMaxPx.first.y, minMaxPx.second.x, minMaxPx.second.y);
 
-      auto [textureId, replacementPos] = atlases.put(*replacementImg);
-      const auto replacementUvPos = glm::vec2{replacementPos} / gsl::narrow_cast<float>(atlases.getSize());
-      const auto replacementUvMax = replacementUvPos
-                                    + glm::vec2{replacementImg->width() - 1, replacementImg->height() - 1}
-                                        / gsl::narrow_cast<float>(atlases.getSize());
-      remap(sprite, textureId, replacementUvPos, replacementUvMax);
-      sprite.texture_id = textureId;
+      const SourceTile srcTile{sprite.texture_id.get(), minMaxPx};
+      auto it = replaced.find(srcTile);
+      std::pair<size_t, glm::ivec2> replacementPos;
+
+      if(it == replaced.end())
+      {
+        const auto& texture = m_level->m_textures.at(sprite.texture_id.get());
+        auto replacementImg = std::make_unique<gl::CImgWrapper>(
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+          reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
+          256,
+          256,
+          true);
+        replacementImg->crop(minMaxPx.first.x, minMaxPx.first.y, minMaxPx.second.x, minMaxPx.second.y);
+
+        replacementPos = atlases.put(*replacementImg);
+        replaced[srcTile] = replacementPos;
+      }
+      else
+      {
+        replacementPos = it->second;
+      }
+      const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
+      const auto dim = glm::vec2{minMaxPx.second - minMaxPx.first} - glm::vec2{1};
+      const auto replacementUvMax = replacementUvPos + dim / gsl::narrow_cast<float>(atlases.getSize());
+      remap(sprite, replacementPos.first, replacementUvPos, replacementUvMax);
+      sprite.texture_id = replacementPos.first;
     }
 
     Expects(doneTiles.size() == m_level->m_textureTiles.size());
