@@ -46,7 +46,10 @@ struct Lighting
     }
 
     targetAmbient = toBrightness(pos.room->ambientShade);
-    ambient += (targetAmbient - ambient) / 50.0f;
+    if(ambient.get() == 0)
+      ambient = targetAmbient;
+    else
+      ambient += (targetAmbient - ambient) / 50.0f;
 
     lights.clear();
     if(pos.room->lights.empty())

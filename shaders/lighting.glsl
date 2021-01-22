@@ -84,10 +84,10 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos, in float n)
         sum += pow(intensity * max(dot(light_dir, normal), 0), n);
     }
 
-    return sum;
+    return sqrt(sum);
 }
 
 float calc_positional_lighting(in vec3 normal, in vec3 pos)
 {
-    return calc_positional_lighting(normal, pos, 1);
+    return calc_positional_lighting(normal, pos, 1.5);
 }
