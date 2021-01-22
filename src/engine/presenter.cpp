@@ -40,7 +40,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
     }
 
     m_screenOverlay->render(context);
-    m_window->swapBuffers();
+    swapBuffers();
     m_inputHandler->update();
     return !m_window->windowShouldClose() && !m_inputHandler->getInputState().menu.justChangedTo(true);
   });
@@ -192,7 +192,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     m_renderer->resetRenderState();
     m_screenOverlay->render(context);
   }
-  m_window->swapBuffers();
+  swapBuffers();
 }
 
 void Presenter::drawLevelName(const loader::file::Palette& palette, const std::string& levelName)
@@ -338,7 +338,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   m_screenOverlay->render(context);
-  m_window->swapBuffers();
+  swapBuffers();
 }
 
 void Presenter::preFrame()
@@ -351,7 +351,6 @@ void Presenter::preFrame()
   }
   m_screenOverlay->getImage()->fill({0, 0, 0, 0});
 
-  m_soundEngine->update();
   m_inputHandler->update();
 
   if(m_inputHandler->getInputState().debug.justChangedTo(true))
@@ -380,6 +379,7 @@ void Presenter::setTrFont(std::unique_ptr<ui::CachedFont>&& font)
 void Presenter::swapBuffers()
 {
   m_window->swapBuffers();
+  m_soundEngine->update();
 }
 
 void Presenter::clear()
