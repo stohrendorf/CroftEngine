@@ -621,7 +621,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
   else
     focusY += (focusBBox.minY - focusBBox.maxY) * 3 / 4 + focusBBox.maxY;
 
-  if(m_lookAtObject != nullptr && !(m_mode == CameraMode::FixedPosition || m_mode == CameraMode::HeavyFixedPosition))
+  if(m_lookAtObject != nullptr && !isCompletelyFixed)
   {
     // lara moves around and looks at some object, some sort of involuntary free look;
     // in this case, we have an object to look at, but the camera is _not_ fixed
@@ -655,17 +655,17 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
   }
 
   m_lookAt.room = focusedObject->m_state.position.room;
-
   if(m_mode == CameraMode::FreeLook || m_mode == CameraMode::Combat)
   {
+    focusY -= core::QuarterSectorSize;
     if(m_isCompletelyFixed)
     {
-      m_lookAt.position.Y = focusY - core::QuarterSectorSize;
+      m_lookAt.position.Y = focusY;
       m_smoothness = 1;
     }
     else
     {
-      m_lookAt.position.Y += (focusY - core::QuarterSectorSize - m_lookAt.position.Y) / 4;
+      m_lookAt.position.Y += (focusY - m_lookAt.position.Y) / 4;
       if(m_mode == CameraMode::FreeLook)
         m_smoothness = 4;
       else
@@ -688,17 +688,17 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
       m_lookAt.position += util::pitch(midZ, focusedObject->m_state.rotation.Y);
     }
 
-    bool fixedMove = false;
     if(m_isCompletelyFixed == isCompletelyFixed)
     {
       m_lookAt.position.Y += (focusY - m_lookAt.position.Y) / 4;
+      m_isCompletelyFixed = false;
     }
     else
     {
       // switching between fixed cameras, so we're not doing any smoothing
-      fixedMove = true;
       m_smoothness = 1;
       m_lookAt.position.Y = focusY;
+      m_isCompletelyFixed = true;
     }
 
     const auto sector = loader::file::findRealFloorSector(m_lookAt);
@@ -707,7 +707,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
       HeightInfo::skipSteepSlants = false;
 
     if(m_mode == CameraMode::Chase || m_modifier == CameraModifier::Chase)
-      chaseObject(*focusedObject, fixedMove);
+      chaseObject(*focusedObject);
     else
       handleFixedCamera();
   }
@@ -845,7 +845,7 @@ void CameraController::updatePosition(const core::RoomBoundPosition& positionGoa
   }
 }
 
-void CameraController::chaseObject(const objects::Object& object, bool fixed)
+void CameraController::chaseObject(const objects::Object& object)
 {
   m_rotationAroundLara.X += object.m_state.rotation.X;
   if(m_rotationAroundLara.X > 85_deg)
@@ -856,7 +856,7 @@ void CameraController::chaseObject(const objects::Object& object, bool fixed)
   const auto dist = util::cos(m_distance, m_rotationAroundLara.X);
   core::RoomBoundPosition eye{m_position.room,
                               m_lookAt.position
-                              - util::pitch(dist,
+                                - util::pitch(dist,
                                             m_rotationAroundLara.Y + object.m_state.rotation.Y,
                                             -util::sin(m_distance, m_rotationAroundLara.X))};
 
@@ -873,22 +873,23 @@ void CameraController::chaseObject(const objects::Object& object, bool fixed)
                                   const core::Length& h) { clampToCorners(distSq, a, b, c, d, e, f, g, h); },
     m_world->getObjectManager());
 
-  updatePosition(eye, fixed ? m_smoothness : 12);
+  updatePosition(eye, m_isCompletelyFixed ? m_smoothness : 12);
 }
 
 void CameraController::handleFreeLook(const objects::Object& object)
 {
+  const auto originalLookAt = m_lookAt.position;
+  m_lookAt.position.X = object.m_state.position.position.X;
+  m_lookAt.position.Z = object.m_state.position.position.Z;
+
   m_rotationAroundLara.X = m_world->getObjectManager().getLara().m_torsoRotation.X
                            + m_world->getObjectManager().getLara().m_headRotation.X + object.m_state.rotation.X;
   m_rotationAroundLara.Y = m_world->getObjectManager().getLara().m_torsoRotation.Y
                            + m_world->getObjectManager().getLara().m_headRotation.Y + object.m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;
-  m_positionYOffset = -util::sin(core::SectorSize / 2, m_rotationAroundLara.Y);
+  m_positionYOffset = -util::sin(core::SectorSize / 2, m_rotationAroundLara.X);
   m_lookAt.position += util::pitch(m_positionYOffset, object.m_state.rotation.Y);
 
-  const auto originalLookAt = m_lookAt.position;
-  m_lookAt.position.X = object.m_state.position.position.X;
-  m_lookAt.position.Z = object.m_state.position.position.Z;
   if(isVerticallyOutsideRoom(m_lookAt.position, m_position.room, m_world->getObjectManager()))
   {
     m_lookAt.position.X = object.m_state.position.position.X;

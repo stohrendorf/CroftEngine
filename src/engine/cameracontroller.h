@@ -222,7 +222,7 @@ private:
 
   void updatePosition(const core::RoomBoundPosition& positionGoal, int smoothFactor);
 
-  void chaseObject(const objects::Object& object, bool fixed);
+  void chaseObject(const objects::Object& object);
 
   void handleFreeLook(const objects::Object& object);
 
