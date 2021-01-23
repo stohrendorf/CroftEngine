@@ -69,18 +69,20 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     BOOST_LOG_TRIVIAL(fatal) << "Failed to load main.py: " << e.what();
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load main.py"));
   }
+
+  m_glidos = loadGlidosPack();
 }
 
 RunResult Engine::run(World& world, bool isCutscene)
 {
   gl::Framebuffer::unbindAll();
 
-  language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
-  BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << language;
+  m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
+  BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
   if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
   {
-    language = overrideLanguage.value();
-    BOOST_LOG_TRIVIAL(info) << "Language override is " << language;
+    m_language = overrideLanguage.value();
+    BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
   }
 
   const bool godMode
@@ -155,12 +157,12 @@ RunResult Engine::runTitleMenu(World& world)
 {
   gl::Framebuffer::unbindAll();
 
-  language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
-  BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << language;
+  m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
+  BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
   if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
   {
-    language = overrideLanguage.value();
-    BOOST_LOG_TRIVIAL(info) << "Language override is " << language;
+    m_language = overrideLanguage.value();
+    BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
   }
   const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
   Throttler throttler;
@@ -198,4 +200,24 @@ RunResult Engine::runLevelSequenceItem(script::LevelSequenceItem& item)
 }
 
 Engine::~Engine() = default;
+
+std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
+{
+  if(const auto getGlidosPack = core::get<pybind11::handle>(pybind11::globals(), "getGlidosPack"))
+  {
+    const auto pack = getGlidosPack.value()();
+    if(pack.is_none())
+      return nullptr;
+
+    auto glidosPack = pack.cast<std::string>();
+    if(!std::filesystem::is_directory(glidosPack))
+      return nullptr;
+
+    m_presenter->drawLoadingScreen("Loading Glidos texture pack");
+    return std::make_unique<loader::trx::Glidos>(m_rootPath / glidosPack,
+                                                 [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
+  }
+
+  return nullptr;
+}
 } // namespace engine

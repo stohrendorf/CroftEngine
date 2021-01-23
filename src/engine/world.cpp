@@ -1121,7 +1121,7 @@ World::World(Engine& engine,
 
     render::MultiTextureAtlas atlases{2048};
     bool hasGlidosPack = false;
-    if(const auto glidos = loadGlidosPack())
+    if(const auto& glidos = m_engine.getGlidos())
     {
       hasGlidosPack = true;
 
@@ -1402,27 +1402,6 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
       m_allTextures->assign(src.pixels<gl::SRGBA8>().data(), texture, mipmapLevel);
     }
   }
-}
-
-std::unique_ptr<loader::trx::Glidos> World::loadGlidosPack() const
-{
-  if(const auto getGlidosPack = core::get<pybind11::handle>(pybind11::globals(), "getGlidosPack"))
-  {
-    const auto pack = getGlidosPack.value()();
-    if(pack.is_none())
-      return nullptr;
-
-    auto glidosPack = pack.cast<std::string>();
-    if(!std::filesystem::is_directory(glidosPack))
-      return nullptr;
-
-    m_engine.getPresenter().drawLoadingScreen("Loading Glidos texture pack");
-    return std::make_unique<loader::trx::Glidos>(m_engine.getRootPath() / glidosPack, [this](const std::string& s) {
-      m_engine.getPresenter().drawLoadingScreen(s);
-    });
-  }
-
-  return nullptr;
 }
 
 void World::drawPickupWidgets()

@@ -69,7 +69,10 @@ private:
 
   std::shared_ptr<pybind11::scoped_interpreter> m_scriptEngine;
 
-  std::string language;
+  std::string m_language;
+
+  std::unique_ptr<loader::trx::Glidos> m_glidos;
+  std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
 
 public:
   explicit Engine(const std::filesystem::path& rootPath,
@@ -105,7 +108,7 @@ public:
 
   [[nodiscard]] const std::string& getLanguage() const
   {
-    return language;
+    return m_language;
   }
 
   [[nodiscard]] std::filesystem::path getSavegamePath() const
@@ -122,5 +125,10 @@ public:
   }
 
   RunResult runLevelSequenceItem(script::LevelSequenceItem& item);
+
+  const auto& getGlidos() const noexcept
+  {
+    return m_glidos;
+  }
 };
 } // namespace engine
