@@ -28,6 +28,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
     glm::vec2 uv;
     int textureIdx;
     glm::vec3 color{1.0f};
+    glm::vec3 normal{0, 0, 1};
   };
 
   const std::array<SpriteVertex, 4> vertices{SpriteVertex{{x0, y0, 0}, {t0.x, t0.y}, textureIdx},
@@ -38,7 +39,8 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
   gl::VertexFormat<SpriteVertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &SpriteVertex::pos},
                                         {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},
                                         {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &SpriteVertex::textureIdx},
-                                        {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color}};
+                                        {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color},
+                                        {VERTEX_ATTRIBUTE_NORMAL_NAME, &SpriteVertex::normal}};
   auto vb = std::make_shared<gl::VertexBuffer<SpriteVertex>>(format);
   vb->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
