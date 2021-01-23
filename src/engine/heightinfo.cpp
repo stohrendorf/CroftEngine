@@ -71,7 +71,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::Sector*> room
         }
       }
     }
-      // Fall-through
+      [[fallthrough]];
     case floordata::FloorDataChunkType::CeilingSlant: ++fd; break;
     case floordata::FloorDataChunkType::PortalSector: ++fd; break;
     case floordata::FloorDataChunkType::Death: hi.lastCommandSequenceOrDeath = fd - 1; break;

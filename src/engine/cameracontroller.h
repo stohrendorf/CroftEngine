@@ -56,9 +56,6 @@ private:
   core::RoomBoundPosition m_lookAt;
   CameraMode m_mode = CameraMode::Chase;
 
-  //! @brief Additional height of the camera above the real position.
-  core::Length m_positionYOffset = 0_len;
-
   CameraModifier m_modifier = CameraModifier::None;
 
   bool m_isCompletelyFixed = false;
@@ -220,7 +217,7 @@ private:
 
   core::Length moveIntoGeometry(core::RoomBoundPosition& goal, const core::Length& margin) const;
 
-  void updatePosition(const core::RoomBoundPosition& positionGoal, int smoothFactor);
+  void updatePosition(const core::RoomBoundPosition& goal, int smoothFactor);
 
   void chaseObject(const objects::Object& object);
 

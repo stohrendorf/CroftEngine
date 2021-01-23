@@ -178,14 +178,13 @@ void clampToCorners(const core::Area& targetHorizontalDistanceSq,
                     const core::Length& maxX,
                     const core::Length& maxY)
 {
-  const auto dxSqLeft = util::square(targetX - minX);
-  const auto dySqTop = util::square(targetY - minY);
+  const auto dxSqMinX = util::square(targetX - minX);
+  const auto dySqMinY = util::square(targetY - minY);
 
-  const auto dxySqTopLeft = dxSqLeft + dySqTop;
-  if(dxySqTopLeft > targetHorizontalDistanceSq)
+  if(const auto dxySqMin = dxSqMinX + dySqMinY; dxySqMin > targetHorizontalDistanceSq)
   {
     x = minX;
-    if(const auto delta = targetHorizontalDistanceSq - dxSqLeft; delta >= util::square(0_len))
+    if(const auto delta = targetHorizontalDistanceSq - dxSqMinX; delta >= util::square(0_len))
     {
       auto tmp = sqrt(delta);
       if(minY < maxY)
@@ -194,19 +193,17 @@ void clampToCorners(const core::Area& targetHorizontalDistanceSq,
     }
     return;
   }
-
-  if(dxySqTopLeft > util::square(core::QuarterSectorSize))
+  else if(dxySqMin > util::square(core::QuarterSectorSize))
   {
     x = minX;
     y = minY;
     return;
   }
 
-  const auto dxySqBottomLeft = dxSqLeft + util::square(targetY - maxY);
-  if(dxySqBottomLeft > targetHorizontalDistanceSq)
+  if(const auto dxySqMinXMaxY = dxSqMinX + util::square(targetY - maxY); dxySqMinXMaxY > targetHorizontalDistanceSq)
   {
     x = minX;
-    if(const auto delta = targetHorizontalDistanceSq - dxSqLeft; delta >= util::square(0_len))
+    if(const auto delta = targetHorizontalDistanceSq - dxSqMinX; delta >= util::square(0_len))
     {
       auto tmp = sqrt(delta);
       if(minY >= maxY)
@@ -215,25 +212,21 @@ void clampToCorners(const core::Area& targetHorizontalDistanceSq,
     }
     return;
   }
-
-  if(dxySqBottomLeft > util::square(core::QuarterSectorSize))
+  else if(dxySqMinXMaxY > util::square(core::QuarterSectorSize))
   {
     x = minX;
     y = maxY;
     return;
   }
 
-  const auto dxSqRight = util::square(targetX - maxX);
-  const auto dxySqTopRight = dxSqRight + dySqTop;
-
-  if(targetHorizontalDistanceSq >= dxySqTopRight)
+  const auto dxySqMaxXMinY = util::square(targetX - maxX) + dySqMinY;
+  if(targetHorizontalDistanceSq >= dxySqMaxXMinY)
   {
     x = maxX;
     y = minY;
     return;
   }
-
-  if(const auto delta = targetHorizontalDistanceSq - dySqTop; delta >= util::square(0_len))
+  if(const auto delta = targetHorizontalDistanceSq - dySqMinY; delta >= util::square(0_len))
   {
     y = minY;
     auto tmp = sqrt(delta);
@@ -401,10 +394,10 @@ CameraController::CameraController(const gsl::not_null<World*>& world,
     , m_world{world}
     , m_position{world->getObjectManager().getLara().m_state.position}
     , m_lookAt{world->getObjectManager().getLara().m_state.position}
-    , m_positionYOffset{world->getObjectManager().getLara().m_state.position.position.Y - core::SectorSize}
 {
-  m_lookAt.position.Y -= m_positionYOffset;
-  m_position.position.Y -= m_positionYOffset;
+  const auto yOffset = world->getObjectManager().getLara().m_state.position.position.Y - core::SectorSize;
+  m_lookAt.position.Y -= yOffset;
+  m_position.position.Y -= yOffset;
   m_position.position.Z -= 100_len;
 }
 
@@ -759,15 +752,15 @@ core::Length CameraController::moveIntoGeometry(core::RoomBoundPosition& goal, c
   return 0_len;
 }
 
-void CameraController::updatePosition(const core::RoomBoundPosition& positionGoal, const int smoothFactor)
+void CameraController::updatePosition(const core::RoomBoundPosition& goal, const int smoothFactor)
 {
-  m_position.position += (positionGoal.position - m_position.position) / smoothFactor;
-  m_position.room = positionGoal.room;
+  m_position.position += (goal.position - m_position.position) / smoothFactor;
+  m_position.room = goal.room;
   HeightInfo::skipSteepSlants = false;
   auto sector = loader::file::findRealFloorSector(m_position);
   auto floor = HeightInfo::fromFloor(sector, m_position.position, m_world->getObjectManager().getObjects()).y
                - core::QuarterSectorSize;
-  if(floor <= m_position.position.Y && floor <= positionGoal.position.Y)
+  if(floor <= std::min(m_position.position.Y, goal.position.Y))
   {
     raycastLineOfSight(m_lookAt, m_position, m_world->getObjectManager());
     sector = loader::file::findRealFloorSector(m_position);
@@ -796,15 +789,11 @@ void CameraController::updatePosition(const core::RoomBoundPosition& positionGoa
     m_bounce = 0_len;
   }
 
-  if(m_position.position.Y > floor)
-    m_positionYOffset = floor - m_position.position.Y;
-  else if(m_position.position.Y < ceiling)
-    m_positionYOffset = ceiling - m_position.position.Y;
-  else
-    m_positionYOffset = 0_len;
-
   auto camPos = m_position.position;
-  camPos.Y += m_positionYOffset;
+  if(m_position.position.Y > floor)
+    camPos.Y = floor;
+  else if(m_position.position.Y < ceiling)
+    camPos.Y = ceiling;
 
   // update current room
   findRealFloorSector(camPos, &m_position.room);
@@ -826,15 +815,15 @@ void CameraController::chaseObject(const objects::Object& object)
     m_rotationAroundLara.X = -85_deg;
 
   const auto dist = util::cos(m_distance, m_rotationAroundLara.X);
-  core::RoomBoundPosition eye{m_position.room,
-                              m_lookAt.position
-                                - util::pitch(dist,
-                                              m_rotationAroundLara.Y + object.m_state.rotation.Y,
-                                              -util::sin(m_distance, m_rotationAroundLara.X))};
+  core::RoomBoundPosition goal{m_position.room,
+                               m_lookAt.position
+                                 - util::pitch(dist,
+                                               m_rotationAroundLara.Y + object.m_state.rotation.Y,
+                                               -util::sin(m_distance, m_rotationAroundLara.X))};
 
   clampBox(
     m_lookAt,
-    eye,
+    goal,
     [distSq = util::square(dist)](core::Length& a,
                                   core::Length& b,
                                   const core::Length& c,
@@ -845,7 +834,7 @@ void CameraController::chaseObject(const objects::Object& object)
                                   const core::Length& h) { clampToCorners(distSq, a, b, c, d, e, f, g, h); },
     m_world->getObjectManager());
 
-  updatePosition(eye, m_isCompletelyFixed ? m_smoothness : 12);
+  updatePosition(goal, m_isCompletelyFixed ? m_smoothness : 12);
 }
 
 void CameraController::handleFreeLook(const objects::Object& object)
@@ -859,8 +848,7 @@ void CameraController::handleFreeLook(const objects::Object& object)
   m_rotationAroundLara.Y = m_world->getObjectManager().getLara().m_torsoRotation.Y
                            + m_world->getObjectManager().getLara().m_headRotation.Y + object.m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;
-  m_positionYOffset = -util::sin(core::SectorSize / 2, m_rotationAroundLara.X);
-  m_lookAt.position += util::pitch(m_positionYOffset, object.m_state.rotation.Y);
+  m_lookAt.position += util::pitch(-util::sin(core::SectorSize / 2, m_rotationAroundLara.X), object.m_state.rotation.Y);
 
   if(isVerticallyOutsideRoom(m_lookAt.position, m_position.room, m_world->getObjectManager()))
   {
@@ -978,7 +966,6 @@ void CameraController::serialize(const serialization::Serializer& ser)
       S_NV("lookAtObject", serialization::ObjectReference{m_lookAtObject}),
       S_NV("previousLookAtObject", serialization::ObjectReference{m_previousLookAtObject}),
       S_NV("enemy", serialization::ObjectReference{m_enemy}),
-      S_NV("positionYOffset", m_positionYOffset),
       S_NV("bounce", m_bounce),
       S_NV("distance", m_distance),
       S_NV("eyeRotation", m_eyeRotation),
