@@ -199,7 +199,7 @@ struct AVDecoder final : public SoLoud::AudioSource
 
     bool hasEnded() override
     {
-      return m_decoder->audioQueue.empty() || m_decoder->stopped;
+      return m_decoder->stopped;
     }
 
     unsigned int getAudio(float* buffer, unsigned int framesToRead, unsigned int /*aBufferSize*/) override
@@ -236,8 +236,12 @@ struct AVDecoder final : public SoLoud::AudioSource
         }
       }
 
-      //std::fill_n(buffer, framesToRead, 0);
+      for(int c = 0; c < m_decoder->audioStream->context->channels; ++c)
+      {
+        std::fill_n(&buffer[c * stride], framesToRead, 0.0f);
+      }
       buffer += framesToRead;
+      written += framesToRead;
 
       m_decoder->audioFrameOffset += written;
       Expects(m_decoder->audioFrameSize > 0);
