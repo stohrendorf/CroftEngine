@@ -116,6 +116,11 @@ struct TRVec final
   }
 };
 
+inline constexpr bool operator==(const TRVec& lhs, const TRVec& rhs) noexcept
+{
+  return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
+}
+
 struct RoomBoundPosition final
 {
   gsl::not_null<const loader::file::Room*> room;

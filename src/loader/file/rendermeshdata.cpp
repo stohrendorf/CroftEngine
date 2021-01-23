@@ -10,20 +10,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
   {
     const TextureTile& tile = textureTiles.at(quad.tileId.get());
 
-    glm::vec3 defaultNormal{0.0f};
-    if(!mesh.normals.empty())
-    {
-      for(auto v : quad.vertices)
-      {
-        const auto n = v.from(mesh.normals).toRenderSystem();
-        if(n != glm::vec3{0.0f})
-        {
-          defaultNormal = n;
-          break;
-        }
-      }
-    }
-
     const auto firstVertex = m_vertices.size();
     for(int i = 0; i < 4; ++i)
     {
@@ -31,8 +17,10 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
 
       if(mesh.normals.empty())
-      {
         iv.color = glm::vec3(toBrightness(quad.vertices[i].from(mesh.vertexShades)).get());
+
+      if(mesh.normals.empty() || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
+      {
         if(i <= 2)
         {
           static const std::array<int, 3> indices{0, 1, 2};
@@ -51,8 +39,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       else
       {
         iv.normal = quad.vertices[i].from(mesh.normals).toRenderSystem();
-        if(iv.normal == glm::vec3{0.0f})
-          iv.normal = defaultNormal;
       }
 
       iv.position = quad.vertices[i].from(mesh.vertices).toRenderSystem();
@@ -70,20 +56,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
   {
     const auto color = gsl::at(palette.colors, quad.tileId.get() & 0xffu).toGLColor3();
 
-    glm::vec3 defaultNormal{0.0f};
-    if(!mesh.normals.empty())
-    {
-      for(auto v : quad.vertices)
-      {
-        const auto n = v.from(mesh.normals).toRenderSystem();
-        if(n != glm::vec3{0.0f})
-        {
-          defaultNormal = n;
-          break;
-        }
-      }
-    }
-
     const auto firstVertex = m_vertices.size();
     for(int i = 0; i < 4; ++i)
     {
@@ -92,8 +64,10 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = -1;
       iv.color = color;
       if(mesh.normals.empty())
-      {
         iv.color *= toBrightness(quad.vertices[i].from(mesh.vertexShades)).get();
+
+      if(mesh.normals.empty() || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
+      {
         if(i <= 2)
         {
           static const std::array<int, 3> indices{0, 1, 2};
@@ -112,8 +86,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       else
       {
         iv.normal = quad.vertices[i].from(mesh.normals).toRenderSystem();
-        if(iv.normal == glm::vec3{0.0f})
-          iv.normal = defaultNormal;
       }
       m_vertices.emplace_back(iv);
     }
@@ -128,20 +100,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
   {
     const TextureTile& tile = textureTiles.at(tri.tileId.get());
 
-    glm::vec3 defaultNormal{0.0f};
-    if(!mesh.normals.empty())
-    {
-      for(auto v : tri.vertices)
-      {
-        const auto n = v.from(mesh.normals).toRenderSystem();
-        if(n != glm::vec3{0.0f})
-        {
-          defaultNormal = n;
-          break;
-        }
-      }
-    }
-
     for(int i = 0; i < 3; ++i)
     {
       RenderVertex iv{};
@@ -149,9 +107,10 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
       iv.uv = tile.uvCoordinates[i].toGl();
       if(mesh.normals.empty())
-      {
         iv.color = glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
 
+      if(mesh.normals.empty() || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
+      {
         static const std::array<int, 3> indices{0, 1, 2};
         iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
                                    tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
@@ -160,8 +119,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       else
       {
         iv.normal = tri.vertices[i].from(mesh.normals).toRenderSystem();
-        if(iv.normal == glm::vec3{0.0f})
-          iv.normal = defaultNormal;
       }
       m_indices.emplace_back(gsl::narrow<IndexType>(m_vertices.size()));
       m_vertices.emplace_back(iv);
@@ -172,20 +129,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
   {
     const auto color = gsl::at(palette.colors, tri.tileId.get() & 0xffu).toGLColor3();
 
-    glm::vec3 defaultNormal{0.0f};
-    if(!mesh.normals.empty())
-    {
-      for(auto v : tri.vertices)
-      {
-        const auto n = v.from(mesh.normals).toRenderSystem();
-        if(n != glm::vec3{0.0f})
-        {
-          defaultNormal = n;
-          break;
-        }
-      }
-    }
-
     for(int i = 0; i < 3; ++i)
     {
       RenderVertex iv{};
@@ -193,9 +136,10 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = -1;
       iv.color = color;
       if(mesh.normals.empty())
-      {
         iv.color *= glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
 
+      if(mesh.normals.empty() || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
+      {
         static const std::array<int, 3> indices{0, 1, 2};
         iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
                                    tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
@@ -204,8 +148,6 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       else
       {
         iv.normal = tri.vertices[i].from(mesh.normals).toRenderSystem();
-        if(iv.normal == glm::vec3{0.0f})
-          iv.normal = defaultNormal;
       }
       m_indices.emplace_back(gsl::narrow<IndexType>(m_vertices.size()));
       m_vertices.emplace_back(iv);
