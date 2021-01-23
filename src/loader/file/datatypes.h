@@ -459,6 +459,8 @@ struct Room
   [[nodiscard]] static std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos);
 
   void resetScenery();
+
+  void serialize(const serialization::Serializer& ser);
 };
 
 extern gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
@@ -562,6 +564,11 @@ struct Box
     {
       return swapped ? &Box::zoneGround2Swapped : &Box::zoneGround2;
     }
+  }
+
+  void serialize(const serialization::Serializer& ser)
+  {
+    ser(S_NV("blocked", blocked), S_NV("blockable", blockable));
   }
 };
 

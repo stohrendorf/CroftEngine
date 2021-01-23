@@ -8,6 +8,7 @@
 #include "render/textureanimator.h"
 #include "serialization/box_ptr.h"
 #include "serialization/quantity.h"
+#include "serialization/vector.h"
 #include "util/helpers.h"
 
 namespace loader::file
@@ -871,6 +872,11 @@ void Room::resetScenery()
   {
     addChild(node, subNode);
   }
+}
+
+void Room::serialize(const serialization::Serializer& ser)
+{
+  ser(S_NV("sectors", serialization::FrozenVector{sectors}));
 }
 
 gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,

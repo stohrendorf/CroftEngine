@@ -296,18 +296,4 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
 
   return !tmp.checkStaticMeshCollisions(laraPos, core::LaraWalkHeight, getWorld());
 }
-
-void Block::serialize(const serialization::Serializer& ser)
-{
-  ModelObject::serialize(ser);
-
-  ser.lazy([this](const serialization::Serializer& ser) {
-    gsl::not_null groundSector = const_cast<loader::file::Sector*>(
-      loader::file::findRealFloorSector(m_state.position.position, m_state.position.room).get());
-
-    Expects(groundSector->box != nullptr);
-
-    ser(S_NV("floorHeight", groundSector->floorHeight), S_NV("blocked", groundSector->box->blocked));
-  });
-}
 } // namespace engine::objects

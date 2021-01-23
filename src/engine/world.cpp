@@ -982,7 +982,9 @@ void World::serialize(const serialization::Serializer& ser)
       S_NV("cameraController", *m_cameraController),
       S_NV("secretsFound", m_secretsFoundBitmask),
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
-      S_NV("roomOrder", m_roomOrder));
+      S_NV("roomOrder", m_roomOrder),
+      S_NV("rooms", serialization::FrozenVector{m_level->m_rooms}),
+      S_NV("boxes", serialization::FrozenVector{m_level->m_boxes}));
 
   if(ser.loading)
     m_level->updateRoomBasedCaches();

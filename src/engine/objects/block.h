@@ -28,8 +28,6 @@ public:
 
   void update() override;
 
-  void serialize(const serialization::Serializer& ser) override;
-
 private:
   bool isOnFloor(const core::Length& height) const;
 
