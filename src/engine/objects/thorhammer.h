@@ -26,10 +26,7 @@ public:
 class ThorHammerHandle final : public ModelObject
 {
 public:
-  ThorHammerHandle(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
-      : ModelObject{world, position}
-  {
-  }
+  ThorHammerHandle(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position);
 
   ThorHammerHandle(const gsl::not_null<World*>& world,
                    const gsl::not_null<const loader::file::Room*>& room,
@@ -39,6 +36,8 @@ public:
   void update() override;
 
   void collide(CollisionInfo& info) override;
+
+  void serialize(const serialization::Serializer& ser) override;
 
 private:
   const std::shared_ptr<ThorHammerBlock> m_block;

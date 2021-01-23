@@ -16,6 +16,12 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<World*>& world,
   m_block->m_state.triggerState = TriggerState::Active;
 }
 
+ThorHammerHandle::ThorHammerHandle(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+    : ModelObject{world, position}
+    , m_block{world->createObject<ThorHammerBlock>(TR1ItemId::ThorHammerBlock, position)}
+{
+}
+
 void ThorHammerHandle::update()
 {
   switch(m_state.current_anim_state.get())
@@ -138,6 +144,12 @@ void ThorHammerHandle::collide(CollisionInfo& info)
     return;
 
   enemyPush(info, false, true);
+}
+
+void ThorHammerHandle::serialize(const serialization::Serializer& ser)
+{
+  ModelObject::serialize(ser);
+  ser.lazy([this](const serialization::Serializer& ser) { ser(S_NV("block", *m_block)); });
 }
 
 void ThorHammerBlock::collide(CollisionInfo& info)

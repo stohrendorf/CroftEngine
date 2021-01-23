@@ -135,6 +135,17 @@ public:
     return object;
   }
 
+  template<typename T>
+  std::shared_ptr<T> createObject(TR1ItemId type, const core::RoomBoundPosition& position)
+  {
+    const gsl::not_null model = findAnimatedModelForType(type).get();
+    auto object = std::make_shared<T>(this, position);
+
+    m_objectManager.registerDynamicObject(object);
+
+    return object;
+  }
+
   void swapAllRooms();
   bool isValid(const loader::file::AnimFrame* frame) const;
   void swapWithAlternate(loader::file::Room& orig, loader::file::Room& alternate);

@@ -113,7 +113,7 @@ void LightningBall::update()
   if(--m_chargeTimeout > 0)
     return;
 
-  if(m_shooting != 0)
+  if(m_shooting)
   {
     m_shooting = false;
     m_chargeTimeout = 35 + util::rand15(45);
@@ -189,22 +189,15 @@ void LightningBall::collide(CollisionInfo& /*info*/)
 void LightningBall::prepareRender()
 {
   ModelObject::update();
-
-  if(m_shooting == 0)
-  {
-    for(size_t i = 1; i < getSkeleton()->getBoneCount(); ++i)
-    {
-      getSkeleton()->setVisible(i, false);
-    }
-    getSkeleton()->rebuildMesh();
-    return;
-  }
-
   for(size_t i = 1; i < getSkeleton()->getBoneCount(); ++i)
-  {
-    getSkeleton()->setVisible(i, i - 1 >= m_poles);
-  }
+    getSkeleton()->setVisible(i, false);
   getSkeleton()->rebuildMesh();
+
+  m_mainBoltNode->setVisible(m_shooting);
+  for(const auto& child : m_childBolts)
+    child.node->setVisible(m_shooting);
+  if(!m_shooting)
+    return;
 
   const auto nearestFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto segmentStart = core::TRVec{
@@ -220,25 +213,21 @@ void LightningBall::prepareRender()
 
 void LightningBall::init(World& world)
 {
-  for(size_t i = 1; i < getSkeleton()->getBoneCount(); ++i)
-  {
-    getSkeleton()->setVisible(i, false);
-  }
-  getSkeleton()->rebuildMesh();
-
   m_mainBoltMesh = createBolt(SegmentPoints, world.getPresenter().getMaterialManager()->getLightning(), 10, m_mainVb);
-  auto node = std::make_shared<render::scene::Node>("lightning-bolt-main");
-  node->setRenderable(m_mainBoltMesh);
-  addChild(getSkeleton(), node);
+  m_mainBoltNode = std::make_shared<render::scene::Node>("lightning-bolt-main");
+  m_mainBoltNode->setRenderable(m_mainBoltMesh);
+  m_mainBoltNode->setVisible(false);
+  addChild(getSkeleton(), m_mainBoltNode);
 
   for(auto& childBolt : m_childBolts)
   {
     childBolt.mesh
       = createBolt(SegmentPoints, world.getPresenter().getMaterialManager()->getLightning(), 3, childBolt.vb);
 
-    node = std::make_shared<render::scene::Node>("lightning-bolt-child");
-    node->setRenderable(childBolt.mesh);
-    addChild(getSkeleton(), node);
+    childBolt.node = std::make_shared<render::scene::Node>("lightning-bolt-child");
+    childBolt.node->setRenderable(childBolt.mesh);
+    childBolt.node->setVisible(false);
+    addChild(getSkeleton(), childBolt.node);
   }
 }
 
