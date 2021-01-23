@@ -44,7 +44,7 @@ bool isVerticallyOutsideRoom(const core::TRVec& pos,
   const auto sector = findRealFloorSector(pos, room);
   const auto floor = HeightInfo::fromFloor(sector, pos, objectManager.getObjects()).y;
   const auto ceiling = HeightInfo::fromCeiling(sector, pos, objectManager.getObjects()).y;
-  return pos.Y > floor || pos.Y < ceiling;
+  return pos.Y >= floor || pos.Y <= ceiling;
 }
 
 enum class ClampType
@@ -253,21 +253,21 @@ using ClampCallback = void(core::Length& goalX,
                            const core::Length& maxY);
 
 void clampBox(const core::RoomBoundPosition& start,
-              core::RoomBoundPosition& eyePositionGoal,
+              core::RoomBoundPosition& goal,
               const std::function<ClampCallback>& callback,
               const ObjectManager& objectManager)
 {
-  raycastLineOfSight(start, eyePositionGoal, objectManager);
-  const auto lookAtSector = start.room->getSectorByAbsolutePosition(start.position);
-  auto clampBox = lookAtSector == nullptr ? nullptr : lookAtSector->box;
-  if(const gsl::not_null eyeSector = eyePositionGoal.room->getSectorByAbsolutePosition(eyePositionGoal.position);
-     const auto idealBox = eyeSector->box)
+  raycastLineOfSight(start, goal, objectManager);
+  const gsl::not_null startSector = start.room->getSectorByAbsolutePosition(start.position);
+  auto box = startSector->box;
+  if(const gsl::not_null goalSector = goal.room->getSectorByAbsolutePosition(goal.position);
+     const auto goalBox = goalSector->box)
   {
-    if(lookAtSector == nullptr || !clampBox->contains(eyePositionGoal.position.X, eyePositionGoal.position.Z))
-      clampBox = idealBox;
+    if(box == nullptr || !box->contains(goal.position.X, goal.position.Z))
+      box = goalBox;
   }
 
-  Expects(clampBox != nullptr);
+  Expects(box != nullptr);
 
   static const auto alignMin = [](core::Length& x) {
     x = (x / core::SectorSize) * core::SectorSize - 1_len;
@@ -278,115 +278,87 @@ void clampBox(const core::RoomBoundPosition& start,
     BOOST_ASSERT(x % core::SectorSize == 0_len);
   };
 
-  core::TRVec testPos = eyePositionGoal.position;
+  core::TRVec testPos = goal.position;
+
+  const auto testPosInvalid
+    = [&testPos, &goal, &objectManager] { return isVerticallyOutsideRoom(testPos, goal.room, objectManager); };
+
   alignMin(testPos.Z);
-  BOOST_ASSERT(abs(testPos.Z - eyePositionGoal.position.Z) <= core::SectorSize);
-
-  auto clampZMin = clampBox->zmin;
-  const bool negZVerticallyOutside = isVerticallyOutsideRoom(testPos, eyePositionGoal.room, objectManager);
-  if(!negZVerticallyOutside && findRealFloorSector(testPos, eyePositionGoal.room)->box != nullptr)
+  BOOST_ASSERT(abs(testPos.Z - goal.position.Z) <= core::SectorSize);
+  auto minZ = box->zmin;
+  const bool invalidMinZ = testPosInvalid();
+  if(!invalidMinZ && findRealFloorSector(testPos, goal.room)->box != nullptr)
   {
-    clampZMin = std::min(clampZMin, findRealFloorSector(testPos, eyePositionGoal.room)->box->zmin);
+    minZ = std::min(minZ, findRealFloorSector(testPos, goal.room)->box->zmin);
   }
-  clampZMin += core::QuarterSectorSize;
+  minZ += core::QuarterSectorSize;
 
-  testPos = eyePositionGoal.position;
+  testPos = goal.position;
   alignMax(testPos.Z);
-  BOOST_ASSERT(abs(testPos.Z - eyePositionGoal.position.Z) <= core::SectorSize);
-
-  auto clampZMax = clampBox->zmax;
-  const bool posZVerticallyOutside = isVerticallyOutsideRoom(testPos, eyePositionGoal.room, objectManager);
-  if(!posZVerticallyOutside && findRealFloorSector(testPos, eyePositionGoal.room)->box != nullptr)
+  BOOST_ASSERT(abs(testPos.Z - goal.position.Z) <= core::SectorSize);
+  auto maxZ = box->zmax;
+  const bool invalidMaxZ = testPosInvalid();
+  if(!invalidMaxZ && findRealFloorSector(testPos, goal.room)->box != nullptr)
   {
-    clampZMax = std::max(clampZMax, findRealFloorSector(testPos, eyePositionGoal.room)->box->zmax);
+    maxZ = std::max(maxZ, findRealFloorSector(testPos, goal.room)->box->zmax);
   }
-  clampZMax -= core::QuarterSectorSize;
+  maxZ -= core::QuarterSectorSize;
 
-  testPos = eyePositionGoal.position;
+  testPos = goal.position;
   alignMin(testPos.X);
-  BOOST_ASSERT(abs(testPos.X - eyePositionGoal.position.X) <= core::SectorSize);
-
-  auto clampXMin = clampBox->xmin;
-  const bool negXVerticallyOutside = isVerticallyOutsideRoom(testPos, eyePositionGoal.room, objectManager);
-  if(!negXVerticallyOutside && findRealFloorSector(testPos, eyePositionGoal.room)->box != nullptr)
+  BOOST_ASSERT(abs(testPos.X - goal.position.X) <= core::SectorSize);
+  auto minX = box->xmin;
+  const bool invalidMinX = testPosInvalid();
+  if(!invalidMinX && findRealFloorSector(testPos, goal.room)->box != nullptr)
   {
-    clampXMin = std::max(clampXMin, findRealFloorSector(testPos, eyePositionGoal.room)->box->xmin);
+    minX = std::max(minX, findRealFloorSector(testPos, goal.room)->box->xmin);
   }
-  clampXMin += core::QuarterSectorSize;
+  minX += core::QuarterSectorSize;
 
-  testPos = eyePositionGoal.position;
+  testPos = goal.position;
   alignMax(testPos.X);
-  BOOST_ASSERT(abs(testPos.X - eyePositionGoal.position.X) <= core::SectorSize);
-
-  auto clampXMax = clampBox->xmax;
-  const bool posXVerticallyOutside = isVerticallyOutsideRoom(testPos, eyePositionGoal.room, objectManager);
-  if(!posXVerticallyOutside && findRealFloorSector(testPos, eyePositionGoal.room)->box != nullptr)
+  BOOST_ASSERT(abs(testPos.X - goal.position.X) <= core::SectorSize);
+  auto maxX = box->xmax;
+  const bool invalidMaxX = testPosInvalid();
+  if(!invalidMaxX && findRealFloorSector(testPos, goal.room)->box != nullptr)
   {
-    clampXMax = std::max(clampXMax, findRealFloorSector(testPos, eyePositionGoal.room)->box->xmax);
+    maxX = std::max(maxX, findRealFloorSector(testPos, goal.room)->box->xmax);
   }
-  clampXMax -= core::QuarterSectorSize;
+  maxX -= core::QuarterSectorSize;
 
-  core::Length minX{clampXMin}, maxX{clampXMax};
-  if(eyePositionGoal.position.X >= start.position.X)
-    std::swap(minX, maxX);
-
-  core::Length minZ{clampZMin}, maxZ{clampZMax};
-  if(eyePositionGoal.position.Z >= start.position.Z)
-    std::swap(minZ, maxZ);
-
-  if(negZVerticallyOutside && eyePositionGoal.position.Z < clampZMin)
+  if(invalidMinZ && goal.position.Z < minZ)
   {
-    callback(eyePositionGoal.position.Z,
-             eyePositionGoal.position.X,
-             start.position.Z,
-             start.position.X,
-             clampZMin,
-             minX,
-             clampZMax,
-             maxX);
-    loader::file::findRealFloorSector(eyePositionGoal);
+    if(goal.position.X >= start.position.X)
+      std::swap(minX, maxX);
+    callback(goal.position.Z, goal.position.X, start.position.Z, start.position.X, minZ, minX, maxZ, maxX);
+    loader::file::findRealFloorSector(goal);
     return;
   }
 
-  if(posZVerticallyOutside && eyePositionGoal.position.Z > clampZMax)
+  if(invalidMaxZ && goal.position.Z > maxZ)
   {
-    callback(eyePositionGoal.position.Z,
-             eyePositionGoal.position.X,
-             start.position.Z,
-             start.position.X,
-             clampZMax,
-             minX,
-             clampZMin,
-             maxX);
-    loader::file::findRealFloorSector(eyePositionGoal);
+    if(goal.position.X >= start.position.X)
+      std::swap(minX, maxX);
+    callback(goal.position.Z, goal.position.X, start.position.Z, start.position.X, maxZ, minX, minZ, maxX);
+    loader::file::findRealFloorSector(goal);
     return;
   }
 
-  if(negXVerticallyOutside && eyePositionGoal.position.X < clampXMin)
+  if(invalidMinX && goal.position.X < minX)
   {
-    callback(eyePositionGoal.position.X,
-             eyePositionGoal.position.Z,
-             start.position.X,
-             start.position.Z,
-             clampXMin,
-             minZ,
-             clampXMax,
-             maxZ);
-    loader::file::findRealFloorSector(eyePositionGoal);
+    if(goal.position.Z >= start.position.Z)
+      std::swap(minZ, maxZ);
+    callback(goal.position.X, goal.position.Z, start.position.X, start.position.Z, minX, minZ, maxX, maxZ);
+    loader::file::findRealFloorSector(goal);
     return;
   }
 
-  if(posXVerticallyOutside && eyePositionGoal.position.X > clampXMax)
+  if(invalidMaxX && goal.position.X > maxX)
   {
-    callback(eyePositionGoal.position.X,
-             eyePositionGoal.position.Z,
-             start.position.X,
-             start.position.Z,
-             clampXMax,
-             minZ,
-             clampXMin,
-             maxZ);
-    loader::file::findRealFloorSector(eyePositionGoal);
+    if(goal.position.Z >= start.position.Z)
+      std::swap(minZ, maxZ);
+    callback(goal.position.X, goal.position.Z, start.position.X, start.position.Z, maxX, minZ, minX, maxZ);
+    loader::file::findRealFloorSector(goal);
     return;
   }
 }
@@ -857,8 +829,8 @@ void CameraController::chaseObject(const objects::Object& object)
   core::RoomBoundPosition eye{m_position.room,
                               m_lookAt.position
                                 - util::pitch(dist,
-                                            m_rotationAroundLara.Y + object.m_state.rotation.Y,
-                                            -util::sin(m_distance, m_rotationAroundLara.X))};
+                                              m_rotationAroundLara.Y + object.m_state.rotation.Y,
+                                              -util::sin(m_distance, m_rotationAroundLara.X))};
 
   clampBox(
     m_lookAt,
