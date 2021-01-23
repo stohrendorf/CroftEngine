@@ -371,7 +371,10 @@ void SkeletalModelNode::rebuildMesh()
       compositor.append(*mesh.mesh);
   }
 
-  setRenderable(compositor.toMesh(*m_world->getPresenter().getMaterialManager(), true, getName()));
+  if(compositor.empty())
+    setRenderable(nullptr);
+  else
+    setRenderable(compositor.toMesh(*m_world->getPresenter().getMaterialManager(), true, getName()));
 }
 
 bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const

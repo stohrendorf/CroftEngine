@@ -86,6 +86,11 @@ public:
   gsl::not_null<std::shared_ptr<render::scene::Mesh>>
     toMesh(render::scene::MaterialManager& materialManager, bool skeletal, const std::string& label);
 
+  bool empty() const
+  {
+    return m_vertices.empty() || m_indices.empty();
+  }
+
 private:
   std::vector<RenderMeshData::RenderVertex> m_vertices{};
   std::vector<RenderMeshData::IndexType> m_indices{};
