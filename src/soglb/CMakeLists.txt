@@ -1,8 +1,7 @@
-find_package( Freetype REQUIRED )
-find_package( Boost COMPONENTS system log REQUIRED )
-find_package( GLEW REQUIRED )
-find_package( glfw3 3.3 REQUIRED )
-target_compile_definitions( glfw INTERFACE -DGLFW_INCLUDE_NONE )
+include( get_freetype )
+include( get_boost )
+include( get_glew )
+include( get_glfw )
 
 add_custom_target( soglb-gen
         COMMENT "Generating structured OpenGL bindings"
@@ -57,7 +56,5 @@ set_property(
 )
 
 target_link_libraries( soglb PRIVATE CImg::CImg )
-target_link_libraries( soglb PUBLIC GLEW::GLEW glfw )
-target_link_libraries( soglb PUBLIC gsl-lite::gsl-lite Freetype::Freetype ${Boost_LIBRARIES} utf8cpp::utf8cpp )
-target_include_directories( soglb PUBLIC . ${Boost_INCLUDE_DIR} )
-target_compile_definitions( soglb PUBLIC -DBOOST_LOG_DYN_LINK=0 -DBOOST_ALL_NO_LIB )
+target_link_libraries( soglb PUBLIC GLEW::GLEW glfw gsl-lite::gsl-lite Freetype::Freetype Boost::log utf8cpp::utf8cpp )
+target_include_directories( soglb PUBLIC . )

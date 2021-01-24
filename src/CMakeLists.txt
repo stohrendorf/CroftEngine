@@ -500,8 +500,9 @@ add_subdirectory( qs )
 target_link_libraries(
         edisonengine
         PRIVATE
-        Boost::boost
-        ZLIB::ZLIB
+        Boost::system
+        Boost::locale
+        Boost::log
         soloud
         SndFile::sndfile
         ryml
