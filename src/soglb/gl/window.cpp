@@ -47,7 +47,9 @@ Window::Window(const bool fullscreen, const glm::ivec2& resolution)
     resolution.x, resolution.y, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
   if(m_window == nullptr)
   {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to create window";
+    const char* message;
+    glfwGetError(&message);
+    BOOST_LOG_TRIVIAL(fatal) << "Failed to create window: " << message;
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
   }
 

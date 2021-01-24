@@ -87,6 +87,14 @@ void gl::initializeGl()
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLEW"));
   }
 
+  BOOST_LOG_TRIVIAL(info) << "OpenGL version: "
+                          << reinterpret_cast<const char*>(api::getString(api::StringName::Version));
+  BOOST_LOG_TRIVIAL(info) << "GLSL version: "
+                          << reinterpret_cast<const char*>(api::getString(api::StringName::ShadingLanguageVersion));
+  BOOST_LOG_TRIVIAL(info) << "OpenGL vendor: "
+                          << reinterpret_cast<const char*>(api::getString(api::StringName::Vendor));
+  BOOST_LOG_TRIVIAL(info) << "OpenGL renderer: "
+                          << reinterpret_cast<const char*>(api::getString(api::StringName::Renderer));
   glGetError(); // clear the error flag
 
 #ifndef NDEBUG
