@@ -23,4 +23,14 @@ void TRVec::serialize(const serialization::Serializer& ser)
 {
   ser(S_NV("x", X), S_NV("y", Y), S_NV("z", Z));
 }
+
+std::ostream& operator<<(std::ostream& stream, const TRVec& rhs)
+{
+  return stream << "(" << rhs.X << ", " << rhs.Y << ", " << rhs.Z << ")";
+}
+
+std::ostream& operator<<(std::ostream& stream, const RoomBoundPosition& rhs)
+{
+  return stream << "[" << rhs.room->node->getName() << " " << rhs.position << "]";
+}
 } // namespace core

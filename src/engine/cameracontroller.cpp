@@ -54,118 +54,82 @@ enum class ClampType
   None
 };
 
-ClampType
-  clampAlongZ(const core::RoomBoundPosition& from, core::RoomBoundPosition& goal, const ObjectManager& objectManager)
+ClampType clampAlongMajorMinor(const core::RoomBoundPosition& from,
+                               core::RoomBoundPosition& goal,
+                               const ObjectManager& objectManager,
+                               core::Length(core::TRVec::*major),
+                               core::Length(core::TRVec::*minor))
 {
-  if(goal.position.Z == from.position.Z)
+  if(goal.position.*major == from.position.*major)
   {
     return ClampType::None;
   }
 
   const auto delta = goal.position - from.position;
-  const auto dir = delta.Z < 0_len ? -1 : 1;
+  const auto dir = delta.*major < 0_len ? -1 : 1;
 
   core::TRVec current;
-  current.Z = (from.position.Z / core::SectorSize) * core::SectorSize;
+  current.*major = (from.position.*major / core::SectorSize) * core::SectorSize;
   if(dir > 0)
-    current.Z += core::SectorSize - 1_len;
+    current.*major += core::SectorSize - 1_len;
 
-  current.X = from.position.X + (current.Z - from.position.Z) * delta.X / delta.Z;
-  current.Y = from.position.Y + (current.Z - from.position.Z) * delta.Y / delta.Z;
+  current.*minor = from.position.*minor + (current.*major - from.position.*major) * delta.*minor / delta.*major;
+  current.Y = from.position.Y + (current.*major - from.position.*major) * delta.Y / delta.*major;
 
   core::TRVec step;
-  step.Z = dir * core::SectorSize;
-  step.X = step.Z * delta.X / delta.Z;
-  step.Y = step.Z * delta.Y / delta.Z;
+  step.*major = dir * core::SectorSize;
+  step.*minor = step.*major * delta.*minor / delta.*major;
+  step.Y = step.*major * delta.Y / delta.*major;
 
   goal.room = from.room;
 
+  auto testHit = [&goal, &objectManager](const core::TRVec& pos) {
+    const auto sector = findRealFloorSector(pos, &goal.room);
+    const auto floor = HeightInfo::fromFloor(sector, pos, objectManager.getObjects()).y;
+    const auto ceiling = HeightInfo::fromCeiling(sector, pos, objectManager.getObjects()).y;
+    return pos.Y > floor || pos.Y < ceiling;
+  };
+
   while(true)
   {
-    if(dir > 0 && current.Z >= goal.position.Z)
+    if(dir > 0 && current.*major >= goal.position.*major)
     {
       return ClampType::None;
     }
-    if(dir < 0 && current.Z <= goal.position.Z)
+    if(dir < 0 && current.*major <= goal.position.*major)
     {
       return ClampType::None;
     }
 
-    if(isVerticallyOutsideRoom(current, goal.room, objectManager))
+    if(testHit(current))
     {
       goal.position = current;
       return ClampType::Ceiling;
     }
 
     auto nextSector = current;
-    nextSector.Z += dir * 1_len;
-    BOOST_ASSERT(current.Z / core::SectorSize != nextSector.Z / core::SectorSize);
-    if(isVerticallyOutsideRoom(nextSector, goal.room, objectManager))
+    nextSector.*major += dir * 1_len;
+    BOOST_ASSERT(current.*major / core::SectorSize != nextSector.*major / core::SectorSize);
+    if(testHit(nextSector))
     {
       goal.position = current;
       return ClampType::Wall;
     }
 
     current += step;
-    loader::file::findRealFloorSector(current, &goal.room);
   }
+}
+
+ClampType
+  clampAlongZ(const core::RoomBoundPosition& from, core::RoomBoundPosition& goal, const ObjectManager& objectManager)
+{
+  return clampAlongMajorMinor(from, goal, objectManager, &core::TRVec::Z, &core::TRVec::X);
 }
 
 ClampType
   clampAlongX(const core::RoomBoundPosition& from, core::RoomBoundPosition& goal, const ObjectManager& objectManager)
 {
-  if(goal.position.X == from.position.X)
-  {
-    return ClampType::None;
-  }
-
-  const auto delta = goal.position - from.position;
-  const auto dir = delta.X < 0_len ? -1 : 1;
-
-  core::TRVec current;
-  current.X = (from.position.X / core::SectorSize) * core::SectorSize;
-  if(dir > 0)
-    current.X += core::SectorSize - 1_len;
-
-  current.Y = from.position.Y + (current.X - from.position.X) * delta.Y / delta.X;
-  current.Z = from.position.Z + (current.X - from.position.X) * delta.Z / delta.X;
-
-  core::TRVec step;
-  step.X = dir * core::SectorSize;
-  step.Y = step.X * delta.Y / delta.X;
-  step.Z = step.X * delta.Z / delta.X;
-
-  goal.room = from.room;
-
-  while(true)
-  {
-    if(dir > 0 && current.X >= goal.position.X)
-    {
-      return ClampType::None;
-    }
-    if(dir < 0 && current.X <= goal.position.X)
-    {
-      return ClampType::None;
-    }
-
-    if(isVerticallyOutsideRoom(current, goal.room, objectManager))
-    {
-      goal.position = current;
-      return ClampType::Ceiling;
-    }
-
-    auto nextSector = current;
-    nextSector.X += dir * 1_len;
-    BOOST_ASSERT(current.X / core::SectorSize != nextSector.X / core::SectorSize);
-    if(isVerticallyOutsideRoom(nextSector, goal.room, objectManager))
-    {
-      goal.position = current;
-      return ClampType::Wall;
-    }
-
-    current += step;
-    loader::file::findRealFloorSector(current, &goal.room);
-  }
+  return clampAlongMajorMinor(from, goal, objectManager, &core::TRVec::X, &core::TRVec::Z);
 }
 
 void clampToCorners(const core::Area& targetHorizontalDistanceSq,
@@ -262,6 +226,7 @@ void clampBox(const core::RoomBoundPosition& start,
 
   Expects(box != nullptr);
 
+  // align to the closest border of the next sector
   static const auto alignMin = [](core::Length& x) {
     x = (x / core::SectorSize) * core::SectorSize - 1_len;
     BOOST_ASSERT(x % core::SectorSize == core::SectorSize - 1_len);

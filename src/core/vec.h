@@ -121,6 +121,8 @@ inline constexpr bool operator==(const TRVec& lhs, const TRVec& rhs) noexcept
   return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
 }
 
+extern std::ostream& operator<<(std::ostream& stream, const TRVec& rhs);
+
 struct RoomBoundPosition final
 {
   gsl::not_null<const loader::file::Room*> room;
@@ -136,4 +138,6 @@ struct RoomBoundPosition final
   void serialize(const serialization::Serializer& ser);
   [[nodiscard]] static RoomBoundPosition create(const serialization::Serializer& ser);
 };
+
+extern std::ostream& operator<<(std::ostream& stream, const RoomBoundPosition& rhs);
 } // namespace core
