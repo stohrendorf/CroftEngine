@@ -1061,7 +1061,7 @@ void remap(loader::file::TextureTile& tile,
   tile.textureKey.tileAndFlag &= ~loader::file::TextureIndexMask;
   tile.textureKey.tileAndFlag |= atlas;
 
-  const auto [tileUvMin, tileUvMax] = tile.getNearestMinMaxGl(256);
+  const auto [tileUvMin, tileUvMax] = tile.getMinMaxUv();
   const auto tileUvSize = tileUvMax - tileUvMin;
   if(tileUvSize.x == 0 || tileUvSize.y == 0)
     return;
@@ -1122,6 +1122,7 @@ World::World(Engine& engine,
     std::unordered_set<loader::file::Sprite*> doneSprites;
 
     render::MultiTextureAtlas atlases{2048};
+    const auto atlasUvScale = 256.0f / gsl::narrow_cast<float>(atlases.getSize());
     bool hasGlidosPack = false;
     if(const auto& glidos = m_engine.getGlidos())
     {
@@ -1234,8 +1235,8 @@ World::World(Engine& engine,
       if(!doneTiles.emplace(&tile).second)
         continue;
       auto textureId = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
-      const auto srcDims = tile.getMinMaxPx(256);
-      const SourceTile srcTile{textureId, srcDims};
+      const auto srcPxDims = tile.getMinMaxPx(256);
+      const SourceTile srcTile{textureId, srcPxDims};
       auto it = replaced.find(srcTile);
       std::pair<size_t, glm::ivec2> replacementPos;
       if(it == replaced.end())
@@ -1247,7 +1248,7 @@ World::World(Engine& engine,
           256,
           256,
           true);
-        replacementImg->crop(srcDims.first.x, srcDims.first.y, srcDims.second.x, srcDims.second.y);
+        replacementImg->crop(srcPxDims.first.x, srcPxDims.first.y, srcPxDims.second.x, srcPxDims.second.y);
 
         replacementPos = atlases.put(*replacementImg);
         replaced[srcTile] = replacementPos;
@@ -1257,11 +1258,12 @@ World::World(Engine& engine,
         replacementPos = it->second;
       }
 
+      const auto srcUvDims = tile.getMinMaxUv();
       const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
-      const auto dim = glm::vec2{srcDims.second - srcDims.first} - glm::vec2{1};
-      const auto replacementUvMax = replacementUvPos + dim / gsl::narrow_cast<float>(atlases.getSize());
-
-      remap(tile, replacementPos.first, replacementUvPos, replacementUvMax);
+      remap(tile,
+            replacementPos.first,
+            replacementUvPos,
+            replacementUvPos + (srcUvDims.second - srcUvDims.first) * atlasUvScale);
     }
 
     for(auto& sprite : m_level->m_sprites)
@@ -1294,9 +1296,11 @@ World::World(Engine& engine,
         replacementPos = it->second;
       }
       const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
-      const auto dim = glm::vec2{minMaxPx.second - minMaxPx.first} - glm::vec2{1};
-      const auto replacementUvMax = replacementUvPos + dim / gsl::narrow_cast<float>(atlases.getSize());
-      remap(sprite, replacementPos.first, replacementUvPos, replacementUvMax);
+      std::pair minMaxUv{sprite.uv0.toGl(), sprite.uv1.toGl()};
+      remap(sprite,
+            replacementPos.first,
+            replacementUvPos,
+            replacementUvPos + (minMaxUv.second - minMaxUv.first) * atlasUvScale);
       sprite.texture_id = replacementPos.first;
     }
 
