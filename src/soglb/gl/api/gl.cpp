@@ -3181,7 +3181,7 @@ void getFramebufferAttachmentParameter(FramebufferTarget target,
                                                static_cast<GLenum>(pname),
                                                detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getIntegeri_v(core::EnumType target, uint32_t index, int32_t* data)
+void getIntegeri_v(GetPName target, uint32_t index, int32_t* data)
 {
   return glGetIntegeri_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLint*>(data)));
@@ -3605,10 +3605,6 @@ void drawRangeElementsBaseVertex(PrimitiveType mode,
                                        detail::constAway(indices),
                                        static_cast<GLint>(basevertex));
 }
-core::Sync fenceSync(SyncCondition condition, uint32_t flags)
-{
-  return static_cast<core::Sync>(glFenceSync(static_cast<GLenum>(condition), static_cast<GLbitfield>(flags)));
-}
 void framebufferTexture(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level)
 {
   return glFramebufferTexture(static_cast<GLenum>(target),
@@ -3621,7 +3617,7 @@ void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int64_t* p
   return glGetBufferParameteri64v(
     static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint64*>(params)));
 }
-void getInteger64i_v(core::EnumType target, uint32_t index, int64_t* data)
+void getInteger64i_v(GetPName target, uint32_t index, int64_t* data)
 {
   return glGetInteger64i_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLint64*>(data)));
@@ -3698,10 +3694,6 @@ void texImage3DMultisample(TextureTarget target,
                                  static_cast<GLsizei>(height),
                                  static_cast<GLsizei>(depth),
                                  static_cast<GLboolean>(fixedsamplelocations));
-}
-void waitSync(core::Sync sync, uint32_t flags, uint64_t timeout)
-{
-  return glWaitSync(static_cast<GLsync>(sync), static_cast<GLbitfield>(flags), static_cast<GLuint64>(timeout));
 }
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)  \
@@ -4315,12 +4307,12 @@ void genProgramPipeline(core::SizeType n, uint32_t* pipelines)
 {
   return glGenProgramPipelines(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<GLuint*>(pipelines)));
 }
-void getDoublei_v(core::EnumType target, uint32_t index, double* data)
+void getDoublei_v(GetPName target, uint32_t index, double* data)
 {
   return glGetDoublei_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLdouble*>(data)));
 }
-void getFloati_v(core::EnumType target, uint32_t index, float* data)
+void getFloati_v(GetPName target, uint32_t index, float* data)
 {
   return glGetFloati_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLfloat*>(data)));
@@ -4768,15 +4760,6 @@ void scissorIndexe(uint32_t index, int32_t left, int32_t bottom, core::SizeType 
 void scissorIndexe(uint32_t index, const int32_t* v)
 {
   return glScissorIndexedv(static_cast<GLuint>(index), detail::constAway(reinterpret_cast<const GLint*>(v)));
-}
-void shaderBinary(
-  core::SizeType count, const uint32_t* shaders, core::EnumType binaryformat, const void* binary, core::SizeType length)
-{
-  return glShaderBinary(static_cast<GLsizei>(count),
-                        detail::constAway(reinterpret_cast<const GLuint*>(shaders)),
-                        static_cast<GLenum>(binaryformat),
-                        detail::constAway(binary),
-                        static_cast<GLsizei>(length));
 }
 void useProgramStage(uint32_t pipeline, core::Bitfield<UseProgramStageMask> stages, uint32_t program)
 {
@@ -6394,7 +6377,7 @@ void getnConvolutionFilter(
                                  detail::constAway(image));
 }
 void getnHistogram(
-  HistogramTargetEXT target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void* values)
+  HistogramTarget target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void* values)
 {
   return glGetnHistogram(static_cast<GLenum>(target),
                          static_cast<GLboolean>(reset),
@@ -6425,7 +6408,7 @@ void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, int32_t* 
                      detail::constAway(reinterpret_cast<GLint*>(v)));
 }
 void getnMinmax(
-  MinmaxTargetEXT target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void* values)
+  MinmaxTarget target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void* values)
 {
   return glGetnMinmax(static_cast<GLenum>(target),
                       static_cast<GLboolean>(reset),
@@ -6453,7 +6436,7 @@ void getnPolygonStipple(core::SizeType bufSize, uint8_t* pattern)
 {
   return glGetnPolygonStipple(static_cast<GLsizei>(bufSize), detail::constAway(reinterpret_cast<GLubyte*>(pattern)));
 }
-void getnSeparableFilter(SeparableTargetEXT target,
+void getnSeparableFilter(SeparableTarget target,
                          PixelFormat format,
                          PixelType type,
                          core::SizeType rowBufSize,

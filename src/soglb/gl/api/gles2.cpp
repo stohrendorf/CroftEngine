@@ -547,15 +547,6 @@ void scissor(int32_t x, int32_t y, core::SizeType width, core::SizeType height)
   return glScissor(
     static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height));
 }
-void shaderBinary(
-  core::SizeType count, const uint32_t* shaders, core::EnumType binaryformat, const void* binary, core::SizeType length)
-{
-  return glShaderBinary(static_cast<GLsizei>(count),
-                        detail::constAway(reinterpret_cast<const GLuint*>(shaders)),
-                        static_cast<GLenum>(binaryformat),
-                        detail::constAway(binary),
-                        static_cast<GLsizei>(length));
-}
 void shaderSource(uint32_t shader, core::SizeType count, const char* const* string, const int32_t* length)
 {
   return glShaderSource(static_cast<GLuint>(shader),
@@ -1042,10 +1033,6 @@ void endTransformFeedback()
 {
   return glEndTransformFeedback();
 }
-core::Sync fenceSync(SyncCondition condition, uint32_t flags)
-{
-  return static_cast<core::Sync>(glFenceSync(static_cast<GLenum>(condition), static_cast<GLbitfield>(flags)));
-}
 void flushMappedBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length)
 {
   return glFlushMappedBufferRange(
@@ -1115,7 +1102,7 @@ int32_t getFragDataLocation(uint32_t program, const char* name)
   return static_cast<int32_t>(
     glGetFragDataLocation(static_cast<GLuint>(program), detail::constAway(reinterpret_cast<const GLchar*>(name))));
 }
-void getInteger64i_v(core::EnumType target, uint32_t index, int64_t* data)
+void getInteger64i_v(GetPName target, uint32_t index, int64_t* data)
 {
   return glGetInteger64i_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLint64*>(data)));
@@ -1124,7 +1111,7 @@ void getInteger64v(GetPName pname, int64_t* data)
 {
   return glGetInteger64v(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint64*>(data)));
 }
-void getIntegeri_v(core::EnumType target, uint32_t index, int32_t* data)
+void getIntegeri_v(GetPName target, uint32_t index, int32_t* data)
 {
   return glGetIntegeri_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLint*>(data)));
@@ -1545,10 +1532,6 @@ void vertexAttribIPointer(
                                 static_cast<GLenum>(type),
                                 static_cast<GLsizei>(stride),
                                 detail::constAway(pointer));
-}
-void waitSync(core::Sync sync, uint32_t flags, uint64_t timeout)
-{
-  return glWaitSync(static_cast<GLsync>(sync), static_cast<GLbitfield>(flags), static_cast<GLuint64>(timeout));
 }
 #endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)

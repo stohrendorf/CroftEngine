@@ -117,7 +117,7 @@ class Command:
     def __init__(self, *, xml_command: Element):
         self.comment = xml_command.attrib.get('comment', None)
         self.aliases = set([e.attrib['name'] for e in xml_command.findall('alias')])
-        self.proto = deepcopy(xml_command.find('proto'))  # type: Element
+        self.proto: Element = deepcopy(xml_command.find('proto'))
         self.raw_name = self.proto.findtext('name')
 
         # XXX PATCH
@@ -186,15 +186,15 @@ class Command:
 
 class ConstantsCommands:
     def __init__(self):
-        self.constants = set()  # type: Set[str]
-        self.commands = set()  # type: Set[str]
+        self.constants: Set[str] = set()
+        self.commands: Set[str] = set()
 
 
 class Enum:
     def __init__(self, xml: Element):
         assert xml.tag == 'group'
-        self.name = xml.attrib['name']  # type: str
-        self.constants = set([x.attrib['name'] for x in xml.iterfind('./enum')])  # type: Set[str]
+        self.name: str = xml.attrib['name']
+        self.constants: Set[str] = set([x.attrib['name'] for x in xml.iterfind('./enum')])
         self.is_bitmask = False
 
 
@@ -211,7 +211,7 @@ def _make_guard(defines: Iterable[str]) -> str:
 
 def build_guarded_commands(versions_profiles: Dict[str, Dict[Optional[str], ConstantsCommands]]) -> Dict[
     Tuple[str, ...], Set[str]]:
-    command_guards = defaultdict(set)  # type: Dict[str, Set[str]]
+    command_guards: Dict[str, Set[str]] = defaultdict(set)
 
     for version, profiles in versions_profiles.items():
         for profile_name, profile_data in profiles.items():
@@ -219,7 +219,7 @@ def build_guarded_commands(versions_profiles: Dict[str, Dict[Optional[str], Cons
                 command_guards[command_name].add(_make_version_macro(version, profile_name))
 
     # reverse mapping dir, for less if/endif pairs
-    guards_commands = defaultdict(set)  # type: Dict[Tuple[str, ...], Set[str]]
+    guards_commands: Dict[Tuple[str, ...], Set[str]] = defaultdict(set)
     for command_name, guards in command_guards.items():
         guards_commands[tuple(sorted(guards))].add(command_name)
 
@@ -229,7 +229,7 @@ def build_guarded_commands(versions_profiles: Dict[str, Dict[Optional[str], Cons
 def build_guarded_constants(versions_profiles: Dict[str, Dict[Optional[str], ConstantsCommands]],
                             enum: Enum,
                             constants: Dict[str, str]) -> Optional[Dict[Tuple[str, ...], Set[str]]]:
-    constant_guards = defaultdict(set)  # type: Dict[str, Set[str]]
+    constant_guards: Dict[str, Set[str]] = defaultdict(set)
     for version, profiles in versions_profiles.items():
         for profile_name, profile_data in profiles.items():
             constant_guard = _make_version_macro(version, profile_name)
@@ -247,7 +247,7 @@ def build_guarded_constants(versions_profiles: Dict[str, Dict[Optional[str], Con
     if len(constant_guards) == 0:
         return None
 
-    guards_constants = defaultdict(set)  # type: Dict[Tuple[str, ...], Set[str]]
+    guards_constants: Dict[Tuple[str, ...], Set[str]] = defaultdict(set)
     for constant_name, guards in constant_guards.items():
         guards_constants[tuple(sorted(guards))].add(constant_name)
 
@@ -256,14 +256,14 @@ def build_guarded_constants(versions_profiles: Dict[str, Dict[Optional[str], Con
 
 def load_xml():
     # load gl.xml
-    xml = ElementTree.parse(XML_NAME)  # type: Element
+    xml: ElementTree = ElementTree.parse(XML_NAME)
 
     # api, api_version, profile, (enums,commands)
     logging.info('Loading APIs')
-    apis_versions_profiles = defaultdict(dict)  # type: Dict[str, Dict[str, Dict[Optional[str], ConstantsCommands]]]
+    apis_versions_profiles: Dict[str, Dict[str, Dict[Optional[str], ConstantsCommands]]] = defaultdict(dict)
     for api_name in set([e.attrib['api'] for e in xml.iterfind('./feature[@api]')]):
         logging.info("Loading API {}".format(api_name))
-        profile_data = {None: ConstantsCommands()}  # type: Dict[Optional[str], ConstantsCommands]
+        profile_data: Dict[Optional[str], ConstantsCommands] = {None: ConstantsCommands()}
 
         version_names = map(lambda x: x[0], sorted(
             [(feature.attrib['name'], feature.attrib['number']) for feature in
@@ -341,8 +341,8 @@ def load_xml():
 
     logging.info('Loading extensions')
     # extension, api, profile, (enums,commands)
-    extensions_apis_profiles = defaultdict(lambda: defaultdict(
-        lambda: defaultdict(ConstantsCommands)))  # type: Dict[str, Dict[str, Dict[str, ConstantsCommands]]]
+    extensions_apis_profiles: Dict[str, Dict[str, Dict[str, ConstantsCommands]]] = defaultdict(lambda: defaultdict(
+        lambda: defaultdict(ConstantsCommands)))
 
     for xml_extension in xml.iterfind('./extensions/extension'):
         extension_name = xml_extension.attrib['name']
@@ -392,7 +392,7 @@ def load_xml():
                             for ext_command in ext_profile_data.commands:
                                 profile.commands.add(ext_command)
 
-    enums = {e.name: e for e in map(Enum, xml.iterfind('./groups/group'))}  # type: Dict[str, Enum]
+    enums: Dict[str, Enum] = {e.name: e for e in map(Enum, xml.iterfind('./groups/group'))}
 
     for bm in xml.iterfind('./enums[@type="bitmask"]'):
         enum = enums.get(bm.attrib['group'])
@@ -400,9 +400,16 @@ def load_xml():
             enum.is_bitmask = True
 
     constants = {e.attrib['name']: e.attrib['value'] for e in xml.iterfind('./enums/enum')}
-    commands = {}  # type: Dict[str, Command]
+    commands: Dict[str, Command] = {}
     for cmd in map(lambda x: Command(xml_command=x), xml.findall('./commands/command')):
         assert cmd.raw_name not in commands
+        # XXX PATCH
+        if cmd.raw_name == "glShaderBinary":
+            # there are no default formats available, so the required enum will not be generated
+            continue
+        elif cmd.raw_name in ("glFenceSync", "glWaitSync"):
+            # again, undefined enum
+            continue
         commands[cmd.raw_name] = cmd
 
     for api_name, versions_profiles in apis_versions_profiles.items():
@@ -484,6 +491,8 @@ def load_xml():
                 if len(guards) != total_guards:
                     f.write('#if {}\n'.format(_make_guard(guards)))
                 for command_name in sorted(command_names):
+                    if command_name not in commands:
+                        continue
                     commands[command_name].print_code(file=f, impl=False)
                 if len(guards) != total_guards:
                     f.write('#endif\n')
@@ -499,6 +508,8 @@ def load_xml():
                 if len(guards) != total_guards:
                     f.write('#if {}\n'.format(_make_guard(guards)))
                 for command_name in sorted(command_names):
+                    if command_name not in commands:
+                        continue
                     commands[command_name].print_code(file=f, impl=True)
                 if len(guards) != total_guards:
                     f.write('#endif\n')

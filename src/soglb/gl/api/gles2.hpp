@@ -2477,11 +2477,6 @@ extern void renderbufferStorage(RenderbufferTarget target,
                                 core::SizeType height);
 extern void sampleCoverage(float value, bool invert);
 extern void scissor(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
-extern void shaderBinary(core::SizeType count,
-                         const uint32_t* shaders,
-                         core::EnumType binaryformat,
-                         const void* binary,
-                         core::SizeType length);
 extern void shaderSource(uint32_t shader, core::SizeType count, const char* const* string, const int32_t* length);
 extern void stencilFunc(StencilFunction func, int32_t ref, uint32_t mask);
 extern void stencilFuncSeparate(StencilFaceDirection face, StencilFunction func, int32_t ref, uint32_t mask);
@@ -2618,7 +2613,6 @@ extern void drawRangeElements(
   PrimitiveType mode, uint32_t start, uint32_t end, core::SizeType count, DrawElementsType type, const void* indices);
 extern void endQuery(QueryTarget target);
 extern void endTransformFeedback();
-extern core::Sync fenceSync(SyncCondition condition, uint32_t flags);
 extern void flushMappedBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length);
 extern void framebufferTextureLayer(
   FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level, int32_t layer);
@@ -2635,9 +2629,9 @@ extern void getActiveUniforms(
 extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int64_t* params);
 extern void getBufferPointerv(BufferTargetARB target, BufferPointerNameARB pname, void** params);
 extern int32_t getFragDataLocation(uint32_t program, const char* name);
-extern void getInteger64i_v(core::EnumType target, uint32_t index, int64_t* data);
+extern void getInteger64i_v(GetPName target, uint32_t index, int64_t* data);
 extern void getInteger64v(GetPName pname, int64_t* data);
-extern void getIntegeri_v(core::EnumType target, uint32_t index, int32_t* data);
+extern void getIntegeri_v(GetPName target, uint32_t index, int32_t* data);
 extern void getInternalformat(TextureTarget target,
                               InternalFormat internalformat,
                               InternalFormatPName pname,
@@ -2759,7 +2753,6 @@ extern void vertexAttribI4(uint32_t index, uint32_t x, uint32_t y, uint32_t z, u
 extern void vertexAttribI4(uint32_t index, const uint32_t* v);
 extern void vertexAttribIPointer(
   uint32_t index, int32_t size, VertexAttribIType type, core::SizeType stride, const void* pointer);
-extern void waitSync(core::Sync sync, uint32_t flags, uint64_t timeout);
 #endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 extern void activeShaderProgram(uint32_t pipeline, uint32_t program);

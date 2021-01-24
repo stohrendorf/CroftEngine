@@ -1008,6 +1008,27 @@ enum class ColorPointerType : core::EnumType
 #endif
 };
 
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class ColorTableTarget : core::EnumType
+{
+  ColorTable = 0x80D0,
+  PostColorMatrixColorTable = 0x80D2,
+  PostConvolutionColorTable = 0x80D1,
+};
+#endif
+
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class ColorTableTargetSGI : core::EnumType
+{
+  ColorTable = 0x80D0,
+  PostColorMatrixColorTable = 0x80D2,
+  PostConvolutionColorTable = 0x80D1,
+  ProxyColorTable = 0x80D3,
+  ProxyPostColorMatrixColorTable = 0x80D5,
+  ProxyPostConvolutionColorTable = 0x80D4,
+};
+#endif
+
 enum class CombinerBiasNV : core::EnumType
 {
   None = 0,
@@ -1106,6 +1127,22 @@ constexpr core::Bitfield<ContextProfileMask> operator|(ContextProfileMask left, 
 {
   return core::Bitfield<ContextProfileMask>(left) | right;
 }
+#endif
+
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class ConvolutionTarget : core::EnumType
+{
+  Convolution1d = 0x8010,
+  Convolution2d = 0x8011,
+};
+#endif
+
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class ConvolutionTargetEXT : core::EnumType
+{
+  Convolution1d = 0x8010,
+  Convolution2d = 0x8011,
+};
 #endif
 
 enum class CopyBufferSubDataTarget : core::EnumType
@@ -3001,6 +3038,14 @@ enum class HintTarget : core::EnumType
 #endif
 };
 
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class HistogramTargetEXT : core::EnumType
+{
+  Histogram = 0x8024,
+  ProxyHistogram = 0x8025,
+};
+#endif
+
 enum class IndexFunctionEXT : core::EnumType
 {
   Always = 0x0207,
@@ -3812,6 +3857,13 @@ enum class MeshMode2 : core::EnumType
   Line = 0x1B01,
   Point = 0x1B00,
 };
+
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class MinmaxTargetEXT : core::EnumType
+{
+  Minmax = 0x802E,
+};
+#endif
 
 enum class NormalPointerType : core::EnumType
 {
@@ -4879,6 +4931,13 @@ enum class SecondaryColorPointerTypeIBM : core::EnumType
   Double = 0x140A,
 #endif
 };
+
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class SeparableTargetEXT : core::EnumType
+{
+  Separable2d = 0x8012,
+};
+#endif
 
 #if defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
   || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                                \
@@ -7329,7 +7388,7 @@ extern void getFramebufferAttachmentParameter(FramebufferTarget target,
                                               FramebufferAttachment attachment,
                                               FramebufferAttachmentParameterName pname,
                                               int32_t* params);
-extern void getIntegeri_v(core::EnumType target, uint32_t index, int32_t* data);
+extern void getIntegeri_v(GetPName target, uint32_t index, int32_t* data);
 extern void getRenderbufferParameter(RenderbufferTarget target, RenderbufferParameterName pname, int32_t* params);
 extern const uint8_t* getString(StringName name, uint32_t index);
 extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, int32_t* params);
@@ -7458,11 +7517,10 @@ extern void drawRangeElementsBaseVertex(PrimitiveType mode,
                                         DrawElementsType type,
                                         const void* indices,
                                         int32_t basevertex);
-extern core::Sync fenceSync(SyncCondition condition, uint32_t flags);
 extern void
   framebufferTexture(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level);
 extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int64_t* params);
-extern void getInteger64i_v(core::EnumType target, uint32_t index, int64_t* data);
+extern void getInteger64i_v(GetPName target, uint32_t index, int64_t* data);
 extern void getInteger64v(GetPName pname, int64_t* data);
 extern void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float* val);
 extern void
@@ -7489,7 +7547,6 @@ extern void texImage3DMultisample(TextureTarget target,
                                   core::SizeType height,
                                   core::SizeType depth,
                                   bool fixedsamplelocations);
-extern void waitSync(core::Sync sync, uint32_t flags, uint64_t timeout);
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)  \
   || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) \
@@ -7636,8 +7693,8 @@ extern void depthRangeArrayv(uint32_t first, core::SizeType count, const double*
 extern void depthRangeIndexe(uint32_t index, double n, double f);
 extern void depthRange(float n, float f);
 extern void genProgramPipeline(core::SizeType n, uint32_t* pipelines);
-extern void getDoublei_v(core::EnumType target, uint32_t index, double* data);
-extern void getFloati_v(core::EnumType target, uint32_t index, float* data);
+extern void getDoublei_v(GetPName target, uint32_t index, double* data);
+extern void getFloati_v(GetPName target, uint32_t index, float* data);
 extern void getProgramBinary(
   uint32_t program, core::SizeType bufSize, core::SizeType* length, core::EnumType* binaryFormat, void* binary);
 extern void getProgramPipelineInfoLog(uint32_t pipeline, core::SizeType bufSize, core::SizeType* length, char* infoLog);
@@ -7720,11 +7777,6 @@ extern void releaseShaderCompiler();
 extern void scissorArrayv(uint32_t first, core::SizeType count, const int32_t* v);
 extern void scissorIndexe(uint32_t index, int32_t left, int32_t bottom, core::SizeType width, core::SizeType height);
 extern void scissorIndexe(uint32_t index, const int32_t* v);
-extern void shaderBinary(core::SizeType count,
-                         const uint32_t* shaders,
-                         core::EnumType binaryformat,
-                         const void* binary,
-                         core::SizeType length);
 extern void useProgramStage(uint32_t pipeline, core::Bitfield<UseProgramStageMask> stages, uint32_t program);
 extern void validateProgramPipeline(uint32_t pipeline);
 extern void vertexAttribL1(uint32_t index, double x);
@@ -8254,17 +8306,17 @@ extern void
 extern void getnConvolutionFilter(
   ConvolutionTarget target, PixelFormat format, PixelType type, core::SizeType bufSize, void* image);
 extern void getnHistogram(
-  HistogramTargetEXT target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void* values);
+  HistogramTarget target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void* values);
 extern void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, double* v);
 extern void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, float* v);
 extern void getnMap(MapTarget target, MapQuery query, core::SizeType bufSize, int32_t* v);
-extern void getnMinmax(
-  MinmaxTargetEXT target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void* values);
+extern void
+  getnMinmax(MinmaxTarget target, bool reset, PixelFormat format, PixelType type, core::SizeType bufSize, void* values);
 extern void getnPixelMap(PixelMap map, core::SizeType bufSize, float* values);
 extern void getnPixelMap(PixelMap map, core::SizeType bufSize, uint32_t* values);
 extern void getnPixelMap(PixelMap map, core::SizeType bufSize, uint16_t* values);
 extern void getnPolygonStipple(core::SizeType bufSize, uint8_t* pattern);
-extern void getnSeparableFilter(SeparableTargetEXT target,
+extern void getnSeparableFilter(SeparableTarget target,
                                 PixelFormat format,
                                 PixelType type,
                                 core::SizeType rowBufSize,
