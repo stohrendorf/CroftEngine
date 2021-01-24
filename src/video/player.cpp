@@ -146,9 +146,9 @@ struct FilterGraph
 
   void init(const Stream& stream)
   {
-    char filterGraphArgs[512];
-    snprintf(filterGraphArgs,
-             sizeof(filterGraphArgs),
+    std::array<char, 512> filterGraphArgs;
+    snprintf(filterGraphArgs.data(),
+             filterGraphArgs.size(),
              "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
              stream.stream->codecpar->width,
              stream.stream->codecpar->height,
@@ -157,8 +157,11 @@ struct FilterGraph
              stream.stream->time_base.den,
              stream.stream->codecpar->sample_aspect_ratio.num,
              stream.stream->codecpar->sample_aspect_ratio.den);
+    gsl::ensure_z(filterGraphArgs.data(), filterGraphArgs.size());
 
-    if(avfilter_graph_create_filter(&input, avfilter_get_by_name("buffer"), "in", filterGraphArgs, nullptr, graph) < 0)
+    if(avfilter_graph_create_filter(
+         &input, avfilter_get_by_name("buffer"), "in", filterGraphArgs.data(), nullptr, graph)
+       < 0)
     {
       BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create buffer source"));
     }
@@ -322,7 +325,7 @@ struct AVDecoder final : public SoLoud::AudioSource
     packet.size = 0;
     fillQueues();
 
-    SoLoud::AudioSource::mBaseSamplerate = audioStream->context->sample_rate;
+    SoLoud::AudioSource::mBaseSamplerate = static_cast<float>(audioStream->context->sample_rate);
     SoLoud::AudioSource::mChannels = audioStream->context->channels;
   }
 
@@ -524,8 +527,8 @@ struct Scaler
   int scaledHeight = -1;
   SwsContext* context = nullptr;
   AVFilterLink* filter;
-  uint8_t* dstVideoData[4] = {nullptr};
-  int dstVideoLinesize[4] = {0};
+  std::array<uint8_t*, 4> dstVideoData{nullptr};
+  std::array<int, 4> dstVideoLinesize{0};
 
   explicit Scaler(AVFilterLink* filter)
       : filter{filter}
@@ -535,7 +538,7 @@ struct Scaler
   ~Scaler()
   {
     sws_freeContext(context);
-    av_freep(dstVideoData);
+    av_freep(dstVideoData.data());
   }
 
   void resize(int targetWidth, int targetHeight)
@@ -547,8 +550,8 @@ struct Scaler
     currentSwsHeight = targetHeight;
 
     const auto imgScale = std::min(float(targetWidth) / filter->w, float(targetHeight) / filter->h);
-    scaledWidth = static_cast<int>(filter->w * imgScale);
-    scaledHeight = static_cast<int>(filter->h * imgScale);
+    scaledWidth = static_cast<int>(gsl::narrow<float>(filter->w) * imgScale);
+    scaledHeight = static_cast<int>(gsl::narrow<float>(filter->h) * imgScale);
 
     sws_freeContext(context);
     context = sws_getContext(filter->w,
@@ -566,8 +569,8 @@ struct Scaler
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create SWS context"));
     }
 
-    av_freep(dstVideoData);
-    if(av_image_alloc(dstVideoData, dstVideoLinesize, targetWidth, targetHeight, OutputPixFmt, 1) < 0)
+    av_freep(dstVideoData.data());
+    if(av_image_alloc(dstVideoData.data(), dstVideoLinesize.data(), targetWidth, targetHeight, OutputPixFmt, 1) < 0)
     {
       BOOST_THROW_EXCEPTION(std::runtime_error("Could not allocate raw video buffer"));
     }
@@ -580,8 +583,8 @@ struct Scaler
               videoFrame.frame->linesize,
               0,
               videoFrame.frame->height,
-              dstVideoData,
-              dstVideoLinesize);
+              dstVideoData.data(),
+              dstVideoLinesize.data());
 
     auto srcLineRaw = dstVideoData[0];
     auto dst = img.getRawData();

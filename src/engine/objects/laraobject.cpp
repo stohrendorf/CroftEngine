@@ -410,7 +410,10 @@ void LaraObject::updateImpl()
           m_state.falling = true;
           cmd += 2;
           break;
-        case AnimCommandOpcode::EmptyHands: setHandStatus(HandStatus::None); break;
+        case AnimCommandOpcode::EmptyHands:
+          setHandStatus(HandStatus::None);
+          break;
+          // NOLINTNEXTLINE(bugprone-branch-clone)
         case AnimCommandOpcode::PlaySound: cmd += 2; break;
         case AnimCommandOpcode::PlayEffect: cmd += 2; break;
         default: break;

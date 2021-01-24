@@ -207,10 +207,12 @@ void CImgWrapper::replace(const int x, const int y, const CImgWrapper& other)
 
 void CImgWrapper::crop(const glm::vec2& uv0, const glm::vec2& uv1)
 {
-  const auto x0 = static_cast<int>(uv0.x * width());
-  const auto y0 = static_cast<int>(uv0.y * height());
-  const auto x1 = static_cast<int>(uv1.x * width());
-  const auto y1 = static_cast<int>(uv1.y * height());
+  const auto w = float(width());
+  const auto h = float(height());
+  const auto x0 = static_cast<int>(uv0.x * w);
+  const auto y0 = static_cast<int>(uv0.y * h);
+  const auto x1 = static_cast<int>(uv1.x * w);
+  const auto y1 = static_cast<int>(uv1.y * h);
   crop(x0, y0, x1 + 1, y1 + 1);
 }
 

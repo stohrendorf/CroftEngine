@@ -124,14 +124,16 @@ struct SpriteFactory : public ObjectFactory
   }
 };
 
-#define MODEL_FACTORY(ENUM, CLASS)                           \
-  {                                                          \
-    TR1ItemId::ENUM, std::make_shared<ModelFactory<CLASS>>() \
+#define _PAREN_WRAPPER(ARG) ARG
+
+#define MODEL_FACTORY(ENUM, CLASS)                                                           \
+  {                                                                                          \
+    TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<ModelFactory<_PAREN_WRAPPER(CLASS)>>() \
   }
 
-#define SPRITE_FACTORY(ENUM, CLASS)                           \
-  {                                                           \
-    TR1ItemId::ENUM, std::make_shared<SpriteFactory<CLASS>>() \
+#define SPRITE_FACTORY(ENUM, CLASS)                                                           \
+  {                                                                                           \
+    TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<SpriteFactory<_PAREN_WRAPPER(CLASS)>>() \
   }
 
 /* NOLINTNEXTLINE(altera-struct-pack-align) */

@@ -29,8 +29,8 @@ public:
   Emitter() = delete;
 
   Emitter& operator=(const Emitter& rhs);
-  Emitter(Emitter&& rhs) noexcept;
-  Emitter& operator=(Emitter&& rhs) noexcept;
+  Emitter(Emitter&& rhs);
+  Emitter& operator=(Emitter&& rhs);
   [[nodiscard]] virtual glm::vec3 getPosition() const = 0;
 
 private:
@@ -53,8 +53,8 @@ public:
   Listener() = delete;
 
   Listener& operator=(const Listener& rhs);
-  Listener(Listener&& rhs) noexcept;
-  Listener& operator=(Listener&&) noexcept;
+  Listener(Listener&& rhs);
+  Listener& operator=(Listener&&);
 
   [[nodiscard]] virtual glm::vec3 getPosition() const = 0;
   [[nodiscard]] virtual glm::vec3 getFrontVector() const = 0;

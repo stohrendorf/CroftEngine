@@ -192,14 +192,14 @@ Listener& Listener::operator=(const Listener& rhs)
   return *this;
 }
 
-Listener::Listener(Listener&& rhs) noexcept
+Listener::Listener(Listener&& rhs)
     : m_engine{std::exchange(rhs.m_engine, nullptr)}
 {
   m_engine->m_listeners.erase(&rhs);
   m_engine->m_listeners.emplace(this);
 }
 
-Listener& Listener::operator=(Listener&& rhs) noexcept
+Listener& Listener::operator=(Listener&& rhs)
 {
   m_engine->m_listeners.erase(this);
   m_engine->m_listeners.erase(&rhs);
@@ -237,14 +237,14 @@ Emitter& Emitter::operator=(const Emitter& rhs)
   return *this;
 }
 
-Emitter::Emitter(Emitter&& rhs) noexcept
+Emitter::Emitter(Emitter&& rhs)
     : m_engine{std::exchange(rhs.m_engine, nullptr)}
 {
   m_engine->m_emitters.erase(&rhs);
   m_engine->m_emitters.emplace(this);
 }
 
-Emitter& Emitter::operator=(Emitter&& rhs) noexcept
+Emitter& Emitter::operator=(Emitter&& rhs)
 {
   m_engine->m_emitters.erase(this);
   m_engine->m_emitters.erase(&rhs);

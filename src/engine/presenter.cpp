@@ -292,12 +292,13 @@ Presenter::~Presenter() = default;
 void Presenter::scaleSplashImage()
 {
   // scale splash image so that its aspect ratio is preserved, but the boundaries match
-  const float splashScale = std::max(gsl::narrow<float>(m_window->getViewport().x) / m_splashImage.width(),
-                                     gsl::narrow<float>(m_window->getViewport().y) / m_splashImage.height());
+  const float splashScale
+    = std::max(gsl::narrow<float>(m_window->getViewport().x) / gsl::narrow<float>(m_splashImage.width()),
+               gsl::narrow<float>(m_window->getViewport().y) / gsl::narrow<float>(m_splashImage.height()));
 
   m_splashImageScaled = m_splashImage;
-  m_splashImageScaled.resize(static_cast<int>(m_splashImageScaled.width() * splashScale),
-                             static_cast<int>(m_splashImageScaled.height() * splashScale));
+  m_splashImageScaled.resize(static_cast<int>(gsl::narrow<float>(m_splashImageScaled.width()) * splashScale),
+                             static_cast<int>(gsl::narrow<float>(m_splashImageScaled.height()) * splashScale));
 
   // crop to boundaries
   const auto centerX = m_splashImageScaled.width() / 2;

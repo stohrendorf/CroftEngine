@@ -2,9 +2,7 @@
 
 #include "engine/world.h"
 
-namespace engine
-{
-namespace objects
+namespace engine::objects
 {
 CutsceneActor::CutsceneActor(const gsl::not_null<World*>& world,
                              const gsl::not_null<const loader::file::Room*>& room,
@@ -27,5 +25,4 @@ void CutsceneActor4::update()
 {
   ModelObject::update(); // NOLINT(bugprone-parent-virtual-call)
 }
-} // namespace objects
-} // namespace engine
+} // namespace engine::objects

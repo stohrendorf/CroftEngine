@@ -53,6 +53,7 @@ void ModelObject::update()
         m_state.falling = true;
         cmd += 2;
         break;
+        // NOLINTNEXTLINE(bugprone-branch-clone)
       case AnimCommandOpcode::PlaySound: cmd += 2; break;
       case AnimCommandOpcode::PlayEffect: cmd += 2; break;
       case AnimCommandOpcode::Kill: m_state.triggerState = TriggerState::Deactivated; break;
