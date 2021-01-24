@@ -1230,12 +1230,28 @@ World::World(Engine& engine,
 
     std::map<SourceTile, std::pair<size_t, glm::ivec2>> replaced;
 
+    std::vector<loader::file::TextureTile*> tilesOrderedBySize;
     for(auto& tile : m_level->m_textureTiles)
+      tilesOrderedBySize.emplace_back(&tile);
+
+    std::sort(tilesOrderedBySize.begin(),
+              tilesOrderedBySize.end(),
+              [](loader::file::TextureTile* a, loader::file::TextureTile* b) {
+                const auto aDims = a->getMinMaxUv();
+                const auto aSize = aDims.second - aDims.first;
+                const auto aArea = glm::abs(aSize.x * aSize.y);
+                const auto bDims = b->getMinMaxUv();
+                const auto bSize = bDims.second - bDims.first;
+                const auto bArea = glm::abs(bSize.x * bSize.y);
+                return aArea > bArea;
+              });
+
+    for(auto* tile : tilesOrderedBySize)
     {
-      if(!doneTiles.emplace(&tile).second)
+      if(!doneTiles.emplace(tile).second)
         continue;
-      auto textureId = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
-      const auto srcPxDims = tile.getMinMaxPx(256);
+      auto textureId = tile->textureKey.tileAndFlag & loader::file::TextureIndexMask;
+      const auto srcPxDims = tile->getMinMaxPx(256);
       const SourceTile srcTile{textureId, srcPxDims};
       auto it = replaced.find(srcTile);
       std::pair<size_t, glm::ivec2> replacementPos;
@@ -1258,28 +1274,41 @@ World::World(Engine& engine,
         replacementPos = it->second;
       }
 
-      const auto srcUvDims = tile.getMinMaxUv();
+      const auto srcUvDims = tile->getMinMaxUv();
       const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
-      remap(tile,
+      remap(*tile,
             replacementPos.first,
             replacementUvPos,
             replacementUvPos + (srcUvDims.second - srcUvDims.first) * atlasUvScale);
     }
 
+    std::vector<loader::file::Sprite*> spritesOrderedBySize;
     for(auto& sprite : m_level->m_sprites)
+      spritesOrderedBySize.emplace_back(&sprite);
+
+    std::sort(
+      spritesOrderedBySize.begin(), spritesOrderedBySize.end(), [](loader::file::Sprite* a, loader::file::Sprite* b) {
+        const auto aSize = a->uv1.toGl() - a->uv1.toGl();
+        const auto aArea = glm::abs(aSize.x * aSize.y);
+        const auto bSize = b->uv1.toGl() - b->uv1.toGl();
+        const auto bArea = glm::abs(bSize.x * bSize.y);
+        return aArea > bArea;
+      });
+
+    for(auto* sprite : spritesOrderedBySize)
     {
-      if(!doneSprites.emplace(&sprite).second)
+      if(!doneSprites.emplace(sprite).second)
         continue;
 
-      std::pair minMaxPx{sprite.uv0.toPx(256), sprite.uv1.toPx(256)};
+      std::pair minMaxPx{sprite->uv0.toPx(256), sprite->uv1.toPx(256)};
 
-      const SourceTile srcTile{sprite.texture_id.get(), minMaxPx};
+      const SourceTile srcTile{sprite->texture_id.get(), minMaxPx};
       auto it = replaced.find(srcTile);
       std::pair<size_t, glm::ivec2> replacementPos;
 
       if(it == replaced.end())
       {
-        const auto& texture = m_level->m_textures.at(sprite.texture_id.get());
+        const auto& texture = m_level->m_textures.at(sprite->texture_id.get());
         auto replacementImg = std::make_unique<gl::CImgWrapper>(
           // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
           reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
@@ -1296,12 +1325,12 @@ World::World(Engine& engine,
         replacementPos = it->second;
       }
       const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
-      std::pair minMaxUv{sprite.uv0.toGl(), sprite.uv1.toGl()};
-      remap(sprite,
+      std::pair minMaxUv{sprite->uv0.toGl(), sprite->uv1.toGl()};
+      remap(*sprite,
             replacementPos.first,
             replacementUvPos,
             replacementUvPos + (minMaxUv.second - minMaxUv.first) * atlasUvScale);
-      sprite.texture_id = replacementPos.first;
+      sprite->texture_id = replacementPos.first;
     }
 
     Expects(doneTiles.size() == m_level->m_textureTiles.size());
