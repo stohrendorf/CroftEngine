@@ -566,10 +566,10 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     eyeRotY /= 2;
     focusBBox = m_lookAtObject->getBoundingBox();
     auto eyeRotX = angleFromAtan(
-      distToFocused, focusY - (focusBBox.minY + focusBBox.maxY) / 2 + m_lookAtObject->m_state.position.position.Y);
+      focusY - ((focusBBox.minY + focusBBox.maxY) / 2 + m_lookAtObject->m_state.position.position.Y), distToFocused);
     eyeRotX /= 2;
 
-    if(eyeRotY < 50_deg && eyeRotY > -50_deg && eyeRotX < 85_deg && eyeRotX > -85_deg)
+    if(abs(eyeRotY) < 50_deg && abs(eyeRotX) < 85_deg)
     {
       eyeRotY -= m_world->getObjectManager().getLara().m_headRotation.Y;
       m_world->getObjectManager().getLara().m_headRotation.Y += std::clamp(eyeRotY, -4_deg, +4_deg);
