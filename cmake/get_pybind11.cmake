@@ -4,7 +4,8 @@ endif()
 
 include( ./dl_unpack )
 
-dl_unpack( https://github.com/pybind/pybind11/archive/v2.6.0.tar.gz pybind11-v2.6.0.tar.gz pybind11-2.6.0 )
+set( _pybind11_version "2.6.1" )
+dl_unpack( https://github.com/pybind/pybind11/archive/v${_pybind11_version}.tar.gz pybind11-v${_pybind11_version}.tar.gz pybind11-${_pybind11_version} )
 set( PYBIND11_FINDPYTHON FALSE )
 set( PYBIND11_NOPYTHON TRUE )
-add_subdirectory( ${EXTERNAL_SRC_ROOT}/pybind11-2.6.0 )
+add_subdirectory( ${EXTERNAL_SRC_ROOT}/pybind11-${_pybind11_version} )
