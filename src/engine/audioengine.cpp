@@ -249,7 +249,6 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   case loader::file::PlaybackType::Restart:
     if(auto voices = m_soundEngine->getVoicesForAudioSource(emitter, audioSource); !voices.empty())
     {
-      BOOST_ASSERT(voices.size() == 1);
       auto handle = voices[0];
       if(!handle->isValid())
         return m_soundEngine->play(audioSource, pitch, volume, emitter);

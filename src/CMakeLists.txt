@@ -210,6 +210,8 @@ set( EDISONENGINE_SRCS
         engine/presenter.h
         engine/presenter.cpp
         engine/py_module.cpp
+        engine/raycast.h
+        engine/raycast.cpp
         engine/skeletalmodelnode.h
         engine/skeletalmodelnode.cpp
         engine/world.h

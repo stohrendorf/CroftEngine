@@ -3,6 +3,7 @@
 #include "engine.h"
 #include "objects/laraobject.h"
 #include "presenter.h"
+#include "raycast.h"
 #include "render/portaltracer.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
@@ -45,91 +46,6 @@ bool isVerticallyOutsideRoom(const core::TRVec& pos,
   const auto floor = HeightInfo::fromFloor(sector, pos, objectManager.getObjects()).y;
   const auto ceiling = HeightInfo::fromCeiling(sector, pos, objectManager.getObjects()).y;
   return pos.Y >= floor || pos.Y <= ceiling;
-}
-
-enum class ClampType
-{
-  Ceiling,
-  Wall,
-  None
-};
-
-ClampType clampAlongMajorMinor(const core::RoomBoundPosition& from,
-                               core::RoomBoundPosition& goal,
-                               const ObjectManager& objectManager,
-                               core::Length(core::TRVec::*major),
-                               core::Length(core::TRVec::*minor))
-{
-  if(goal.position.*major == from.position.*major)
-  {
-    return ClampType::None;
-  }
-
-  const auto delta = goal.position - from.position;
-  const auto dir = delta.*major < 0_len ? -1 : 1;
-
-  core::TRVec current;
-  current.*major = (from.position.*major / core::SectorSize) * core::SectorSize;
-  if(dir > 0)
-    current.*major += core::SectorSize - 1_len;
-
-  current.*minor = from.position.*minor + (current.*major - from.position.*major) * delta.*minor / delta.*major;
-  current.Y = from.position.Y + (current.*major - from.position.*major) * delta.Y / delta.*major;
-
-  core::TRVec step;
-  step.*major = dir * core::SectorSize;
-  step.*minor = step.*major * delta.*minor / delta.*major;
-  step.Y = step.*major * delta.Y / delta.*major;
-
-  goal.room = from.room;
-
-  auto testHit = [&goal, &objectManager](const core::TRVec& pos) {
-    const auto sector = findRealFloorSector(pos, &goal.room);
-    const auto floor = HeightInfo::fromFloor(sector, pos, objectManager.getObjects()).y;
-    const auto ceiling = HeightInfo::fromCeiling(sector, pos, objectManager.getObjects()).y;
-    return pos.Y > floor || pos.Y < ceiling;
-  };
-
-  while(true)
-  {
-    if(dir > 0 && current.*major >= goal.position.*major)
-    {
-      return ClampType::None;
-    }
-    if(dir < 0 && current.*major <= goal.position.*major)
-    {
-      return ClampType::None;
-    }
-
-    if(testHit(current))
-    {
-      goal.position = current;
-      return ClampType::Ceiling;
-    }
-
-    auto nextSector = current;
-    nextSector.*major += dir * 1_len;
-    BOOST_ASSERT(current.*major / core::SectorSize != nextSector.*major / core::SectorSize);
-    if(testHit(nextSector))
-    {
-      goal.position = current;
-      return ClampType::Wall;
-    }
-
-    current += step;
-  }
-}
-
-ClampType
-  clampAlongZ(const core::RoomBoundPosition& from, core::RoomBoundPosition& goal, const ObjectManager& objectManager)
-{
-  return clampAlongMajorMinor(from, goal, objectManager, &core::TRVec::Z, &core::TRVec::X);
-}
-
-ClampType
-  clampAlongX(const core::RoomBoundPosition& from, core::RoomBoundPosition& goal, const ObjectManager& objectManager)
-{
-  return clampAlongMajorMinor(from, goal, objectManager, &core::TRVec::X, &core::TRVec::Z);
 }
 
 void clampToCorners(const core::Area& targetHorizontalDistanceSq,
@@ -209,18 +125,18 @@ using ClampCallback = void(core::Length& goalX,
                            const core::Length& maxX,
                            const core::Length& maxY);
 
-void clampBox(const core::RoomBoundPosition& start,
-              core::RoomBoundPosition& goal,
-              const std::function<ClampCallback>& callback,
-              const ObjectManager& objectManager)
+core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
+                                 const core::TRVec& goal,
+                                 const std::function<ClampCallback>& callback,
+                                 const ObjectManager& objectManager)
 {
-  raycastLineOfSight(start, goal, objectManager);
+  auto [success, result] = raycastLineOfSight(start, goal, objectManager);
   const gsl::not_null startSector = start.room->getSectorByAbsolutePosition(start.position);
   auto box = startSector->box;
-  if(const gsl::not_null goalSector = goal.room->getSectorByAbsolutePosition(goal.position);
+  if(const gsl::not_null goalSector = result.room->getSectorByAbsolutePosition(result.position);
      const auto goalBox = goalSector->box)
   {
-    if(box == nullptr || !box->contains(goal.position.X, goal.position.Z))
+    if(box == nullptr || !box->contains(result.position.X, result.position.Z))
       box = goalBox;
   }
 
@@ -236,119 +152,91 @@ void clampBox(const core::RoomBoundPosition& start,
     BOOST_ASSERT(x % core::SectorSize == 0_len);
   };
 
-  core::TRVec testPos = goal.position;
+  core::TRVec testPos = result.position;
 
   const auto testPosInvalid
-    = [&testPos, &goal, &objectManager] { return isVerticallyOutsideRoom(testPos, goal.room, objectManager); };
+    = [&testPos, &result, &objectManager] { return isVerticallyOutsideRoom(testPos, result.room, objectManager); };
 
   alignMin(testPos.Z);
-  BOOST_ASSERT(abs(testPos.Z - goal.position.Z) <= core::SectorSize);
+  BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= core::SectorSize);
   auto minZ = box->zmin;
   const bool invalidMinZ = testPosInvalid();
-  if(!invalidMinZ && findRealFloorSector(testPos, goal.room)->box != nullptr)
+  if(!invalidMinZ && findRealFloorSector(testPos, result.room)->box != nullptr)
   {
-    minZ = std::min(minZ, findRealFloorSector(testPos, goal.room)->box->zmin);
+    minZ = std::min(minZ, findRealFloorSector(testPos, result.room)->box->zmin);
   }
   minZ += core::QuarterSectorSize;
 
-  testPos = goal.position;
+  testPos = result.position;
   alignMax(testPos.Z);
-  BOOST_ASSERT(abs(testPos.Z - goal.position.Z) <= core::SectorSize);
+  BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= core::SectorSize);
   auto maxZ = box->zmax;
   const bool invalidMaxZ = testPosInvalid();
-  if(!invalidMaxZ && findRealFloorSector(testPos, goal.room)->box != nullptr)
+  if(!invalidMaxZ && findRealFloorSector(testPos, result.room)->box != nullptr)
   {
-    maxZ = std::max(maxZ, findRealFloorSector(testPos, goal.room)->box->zmax);
+    maxZ = std::max(maxZ, findRealFloorSector(testPos, result.room)->box->zmax);
   }
   maxZ -= core::QuarterSectorSize;
 
-  testPos = goal.position;
+  testPos = result.position;
   alignMin(testPos.X);
-  BOOST_ASSERT(abs(testPos.X - goal.position.X) <= core::SectorSize);
+  BOOST_ASSERT(abs(testPos.X - result.position.X) <= core::SectorSize);
   auto minX = box->xmin;
   const bool invalidMinX = testPosInvalid();
-  if(!invalidMinX && findRealFloorSector(testPos, goal.room)->box != nullptr)
+  if(!invalidMinX && findRealFloorSector(testPos, result.room)->box != nullptr)
   {
-    minX = std::max(minX, findRealFloorSector(testPos, goal.room)->box->xmin);
+    minX = std::max(minX, findRealFloorSector(testPos, result.room)->box->xmin);
   }
   minX += core::QuarterSectorSize;
 
-  testPos = goal.position;
+  testPos = result.position;
   alignMax(testPos.X);
-  BOOST_ASSERT(abs(testPos.X - goal.position.X) <= core::SectorSize);
+  BOOST_ASSERT(abs(testPos.X - result.position.X) <= core::SectorSize);
   auto maxX = box->xmax;
   const bool invalidMaxX = testPosInvalid();
-  if(!invalidMaxX && findRealFloorSector(testPos, goal.room)->box != nullptr)
+  if(!invalidMaxX && findRealFloorSector(testPos, result.room)->box != nullptr)
   {
-    maxX = std::max(maxX, findRealFloorSector(testPos, goal.room)->box->xmax);
+    maxX = std::max(maxX, findRealFloorSector(testPos, result.room)->box->xmax);
   }
   maxX -= core::QuarterSectorSize;
 
-  if(invalidMinZ && goal.position.Z < minZ)
+  if(invalidMinZ && result.position.Z < minZ)
   {
-    if(goal.position.X >= start.position.X)
+    if(result.position.X >= start.position.X)
       std::swap(minX, maxX);
-    callback(goal.position.Z, goal.position.X, start.position.Z, start.position.X, minZ, minX, maxZ, maxX);
-    loader::file::findRealFloorSector(goal);
-    return;
+    callback(result.position.Z, result.position.X, start.position.Z, start.position.X, minZ, minX, maxZ, maxX);
+    loader::file::findRealFloorSector(result);
+    return result;
   }
 
-  if(invalidMaxZ && goal.position.Z > maxZ)
+  if(invalidMaxZ && result.position.Z > maxZ)
   {
-    if(goal.position.X >= start.position.X)
+    if(result.position.X >= start.position.X)
       std::swap(minX, maxX);
-    callback(goal.position.Z, goal.position.X, start.position.Z, start.position.X, maxZ, minX, minZ, maxX);
-    loader::file::findRealFloorSector(goal);
-    return;
+    callback(result.position.Z, result.position.X, start.position.Z, start.position.X, maxZ, minX, minZ, maxX);
+    loader::file::findRealFloorSector(result);
+    return result;
   }
 
-  if(invalidMinX && goal.position.X < minX)
+  if(invalidMinX && result.position.X < minX)
   {
-    if(goal.position.Z >= start.position.Z)
+    if(result.position.Z >= start.position.Z)
       std::swap(minZ, maxZ);
-    callback(goal.position.X, goal.position.Z, start.position.X, start.position.Z, minX, minZ, maxX, maxZ);
-    loader::file::findRealFloorSector(goal);
-    return;
+    callback(result.position.X, result.position.Z, start.position.X, start.position.Z, minX, minZ, maxX, maxZ);
+    loader::file::findRealFloorSector(result);
+    return result;
   }
 
-  if(invalidMaxX && goal.position.X > maxX)
+  if(invalidMaxX && result.position.X > maxX)
   {
-    if(goal.position.Z >= start.position.Z)
+    if(result.position.Z >= start.position.Z)
       std::swap(minZ, maxZ);
-    callback(goal.position.X, goal.position.Z, start.position.X, start.position.Z, maxX, minZ, minX, maxZ);
-    loader::file::findRealFloorSector(goal);
-    return;
-  }
-}
-
-bool clampY(const core::TRVec& start,
-            core::TRVec& goal,
-            const gsl::not_null<const loader::file::Sector*>& sector,
-            const ObjectManager& objectManager)
-{
-  const auto delta = goal - start;
-
-  const HeightInfo floor = HeightInfo::fromFloor(sector, goal, objectManager.getObjects());
-  if(floor.y < goal.Y && floor.y > start.Y)
-  {
-    goal.Y = floor.y;
-    const auto dy = floor.y - start.Y;
-    goal.X = delta.X * dy / delta.Y + start.X;
-    goal.Z = delta.Z * dy / delta.Y + start.Z;
-    return false;
+    callback(result.position.X, result.position.Z, start.position.X, start.position.Z, maxX, minZ, minX, maxZ);
+    loader::file::findRealFloorSector(result);
+    return result;
   }
 
-  const HeightInfo ceiling = HeightInfo::fromCeiling(sector, goal, objectManager.getObjects());
-  if(ceiling.y > goal.Y && ceiling.y < start.Y)
-  {
-    goal.Y = ceiling.y;
-    const auto dy = ceiling.y - start.Y;
-    goal.X = delta.X * dy / delta.Y + start.X;
-    goal.Z = delta.Z * dy / delta.Y + start.Z;
-    return false;
-  }
-
-  return true;
+  return result;
 }
 } // namespace
 
@@ -488,37 +376,6 @@ std::unordered_set<const loader::file::Portal*> CameraController::tracePortals()
     m_world->getRooms().at(portal.adjoining_room.get()).node->setVisible(true);
 
   return result;
-}
-
-bool raycastLineOfSight(const core::RoomBoundPosition& start,
-                        core::RoomBoundPosition& goal,
-                        const ObjectManager& objectManager)
-{
-  goal.room = start.room;
-
-  bool firstUnclamped;
-  ClampType secondClamp;
-  if(abs(goal.position.Z - start.position.Z) <= abs(goal.position.X - start.position.X))
-  {
-    firstUnclamped = clampAlongZ(start, goal, objectManager) == ClampType::None;
-    secondClamp = clampAlongX(start, goal, objectManager);
-  }
-  else
-  {
-    firstUnclamped = clampAlongX(start, goal, objectManager) == ClampType::None;
-    secondClamp = clampAlongZ(start, goal, objectManager);
-  }
-  const auto invariantCheck
-    = gsl::finally([&goal]() { Ensures(goal.room->getSectorByAbsolutePosition(goal.position) != nullptr); });
-
-  if(secondClamp == ClampType::Wall)
-  {
-    return false;
-  }
-
-  const auto sector = loader::file::findRealFloorSector(goal);
-  return clampY(start.position, goal.position, sector, objectManager) && firstUnclamped
-         && secondClamp == ClampType::None;
 }
 
 std::unordered_set<const loader::file::Portal*> CameraController::update()
@@ -663,9 +520,8 @@ void CameraController::handleFixedCamera()
   Expects(m_fixedCameraId >= 0);
 
   const loader::file::Camera& camera = m_world->getCameras().at(m_fixedCameraId);
-  core::RoomBoundPosition goal{&m_world->getRooms().at(camera.room), camera.position};
-
-  if(!raycastLineOfSight(m_lookAt, goal, m_world->getObjectManager()))
+  auto [success, goal] = raycastLineOfSight(m_lookAt, camera.position, m_world->getObjectManager());
+  if(!success)
   {
     // ReSharper disable once CppExpressionWithoutSideEffects
     moveIntoGeometry(goal, core::QuarterSectorSize);
@@ -727,7 +583,7 @@ void CameraController::updatePosition(const core::RoomBoundPosition& goal, const
                - core::QuarterSectorSize;
   if(floor <= std::min(m_position.position.Y, goal.position.Y))
   {
-    raycastLineOfSight(m_lookAt, m_position, m_world->getObjectManager());
+    m_position = raycastLineOfSight(m_lookAt, m_position.position, m_world->getObjectManager()).second;
     sector = loader::file::findRealFloorSector(m_position);
     floor = HeightInfo::fromFloor(sector, m_position.position, m_world->getObjectManager().getObjects()).y
             - core::QuarterSectorSize;
@@ -780,15 +636,11 @@ void CameraController::chaseObject(const objects::Object& object)
     m_rotationAroundLara.X = -85_deg;
 
   const auto dist = util::cos(m_distance, m_rotationAroundLara.X);
-  core::RoomBoundPosition goal{m_position.room,
-                               m_lookAt.position
-                                 - util::pitch(dist,
-                                               m_rotationAroundLara.Y + object.m_state.rotation.Y,
-                                               -util::sin(m_distance, m_rotationAroundLara.X))};
-
-  clampBox(
+  auto goal = clampBox(
     m_lookAt,
-    goal,
+    m_lookAt.position
+      - util::pitch(
+        dist, m_rotationAroundLara.Y + object.m_state.rotation.Y, -util::sin(m_distance, m_rotationAroundLara.X)),
     [distSq = util::square(dist)](core::Length& a,
                                   core::Length& b,
                                   const core::Length& c,
@@ -822,11 +674,11 @@ void CameraController::handleFreeLook(const objects::Object& object)
   }
   m_lookAt.position.Y += moveIntoGeometry(m_lookAt, core::CameraWallDistance);
 
-  auto goal = m_lookAt;
-  goal.room = m_position.room;
-  goal.position -= util::pitch(m_distance, m_rotationAroundLara.Y, -util::sin(m_distance, m_rotationAroundLara.X));
-
-  clampBox(m_lookAt, goal, &freeLookClamp, m_world->getObjectManager());
+  auto goal = clampBox(
+    m_lookAt,
+    m_lookAt.position - util::pitch(m_distance, m_rotationAroundLara.Y, -util::sin(m_distance, m_rotationAroundLara.X)),
+    &freeLookClamp,
+    m_world->getObjectManager());
 
   m_lookAt.position.X = originalLookAt.X + (m_lookAt.position.X - originalLookAt.X) / m_smoothness;
   m_lookAt.position.Z = originalLookAt.Z + (m_lookAt.position.Z - originalLookAt.Z) / m_smoothness;
@@ -856,12 +708,9 @@ void CameraController::handleEnemy(objects::Object& object)
 
   m_distance = core::CombatCameraLaraDistance;
   const auto dist = util::cos(m_distance, m_rotationAroundLara.X);
-  auto eye = m_lookAt;
-  eye.position -= util::pitch(dist, m_rotationAroundLara.Y, -util::sin(m_distance, m_rotationAroundLara.X));
-
-  clampBox(
+  auto eye = clampBox(
     m_lookAt,
-    eye,
+    m_lookAt.position - util::pitch(dist, m_rotationAroundLara.Y, -util::sin(m_distance, m_rotationAroundLara.X)),
     [distSq = util::square(dist)](core::Length& a,
                                   core::Length& b,
                                   const core::Length& c,

@@ -225,17 +225,4 @@ private:
 
   void handleEnemy(objects::Object& object);
 };
-
-/**
-   * @brief Clamps a point between two endpoints if there is a floordata-defined obstacle
-   * @param[in] start Starting point
-   * @param[in] goal Destination of the movement, clamped if necessary
-   * @retval false if clamped
-   *
-   * @warning Please be aware that the return value is reverted and not what you might expect...
-   */
-extern bool raycastLineOfSight(const core::RoomBoundPosition& start,
-                               core::RoomBoundPosition& goal,
-                               const ObjectManager& objectManager);
-
 } // namespace engine

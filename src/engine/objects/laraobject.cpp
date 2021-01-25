@@ -6,6 +6,7 @@
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/particle.h"
 #include "engine/presenter.h"
+#include "engine/raycast.h"
 #include "engine/tracks_tr1.h"
 #include "hid/inputhandler.h"
 #include "render/textureanimator.h"
@@ -866,11 +867,11 @@ void LaraObject::updateAimingState(const Weapon& weapon)
 
   core::RoomBoundPosition gunPosition{m_state.position};
   gunPosition.position.Y -= weapon.gunHeight;
-  auto enemyChestPos = getUpperThirdBBoxCtr(*target);
+  const auto enemyChestPos = getUpperThirdBBoxCtr(*target);
   auto targetVector = getVectorAngles(enemyChestPos.position - gunPosition.position);
   targetVector.X -= m_state.rotation.X;
   targetVector.Y -= m_state.rotation.Y;
-  if(!raycastLineOfSight(gunPosition, enemyChestPos, getWorld().getObjectManager()))
+  if(!raycastLineOfSight(gunPosition, enemyChestPos.position, getWorld().getObjectManager()).first)
   {
     rightArm.aiming = false;
     leftArm.aiming = false;
@@ -1027,7 +1028,8 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
 
     auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelObject>(currentEnemy.get()));
-    if(!raycastLineOfSight(gunPosition, enemyPos, getWorld().getObjectManager()))
+    const auto canShoot = raycastLineOfSight(gunPosition, enemyPos.position, getWorld().getObjectManager()).first;
+    if(!canShoot)
       continue;
 
     auto aimAngle = getVectorAngles(enemyPos.position - gunPosition.position);
@@ -1688,11 +1690,11 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
 
     static constexpr float VeryLargeDistanceProbablyClipping = 1u << 14u;
 
-    core::RoomBoundPosition aimHitPos{gunHolder.m_state.position.room,
-                                      gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping}};
-
     const core::RoomBoundPosition bulletPos{gunHolder.m_state.position.room, gunPosition};
-    raycastLineOfSight(bulletPos, aimHitPos, getWorld().getObjectManager());
+    const auto aimHitPos = raycastLineOfSight(bulletPos,
+                                              gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping},
+                                              getWorld().getObjectManager())
+                             .second;
     playShotMissed(aimHitPos);
   }
   else

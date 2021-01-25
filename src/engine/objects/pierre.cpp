@@ -1,6 +1,7 @@
 #include "pierre.h"
 
 #include "engine/cameracontroller.h"
+#include "engine/raycast.h"
 #include "engine/world.h"
 #include "laraobject.h"
 #include "pickupobject.h"
@@ -145,10 +146,10 @@ void Pierre::update()
   getSkeleton()->patchBone(7, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
   if(m_state.creatureInfo->flags != 0)
   {
-    auto camPos = m_state.position;
-    camPos.position.Y -= core::SectorSize;
-    const auto& target = getWorld().getCameraController().getTRPosition();
-    if(raycastLineOfSight(target, camPos, getWorld().getObjectManager()))
+    if(raycastLineOfSight(getWorld().getCameraController().getTRPosition(),
+                          m_state.position.position - core::TRVec{0_len, core::SectorSize, 0_len},
+                          getWorld().getObjectManager())
+         .first)
     {
       m_state.creatureInfo->flags = 1;
     }

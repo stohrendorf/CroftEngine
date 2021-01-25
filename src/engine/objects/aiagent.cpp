@@ -1,6 +1,7 @@
 #include "aiagent.h"
 
 #include "engine/particle.h"
+#include "engine/raycast.h"
 #include "engine/script/reflection.h"
 #include "engine/world.h"
 #include "laraobject.h"
@@ -425,10 +426,10 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
     return false;
   }
 
-  const auto start = m_state.position;
-  auto goal = getWorld().getObjectManager().getLara().m_state.position;
-  goal.position.Y -= 768_len;
-  return raycastLineOfSight(start, goal, getWorld().getObjectManager());
+  return raycastLineOfSight(m_state.position,
+                            getWorld().getObjectManager().getLara().m_state.position.position
+                              - core::TRVec{0_len, 768_len, 0_len},
+                            getWorld().getObjectManager()).first;
 }
 
 namespace
