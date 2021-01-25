@@ -96,6 +96,47 @@ set_property(
         PROPERTY IMPORTED_LOCATION ${Python3_EXECUTABLE}
 )
 
+if( WIN32 )
+    _python3_get_config_var( INSTALLED_BASE installed_base )
+    _python3_get_config_var( VERSION_NODOT py_version_nodot )
+    _python3_get_config_var( LIBDEST LIBDEST )
+
+    set( Python3_DLL ${Python3_INSTALLED_BASE}/python${Python3_VERSION_NODOT}.dll )
+    if( NOT EXISTS ${Python3_DLL} )
+        message( FATAL_ERROR "Could not find Python DLL ${Python3_DLL}" )
+    endif()
+
+    file(
+            GLOB_RECURSE Python3_LIB_FILES
+            RELATIVE ${Python3_INSTALLED_BASE}
+            ${Python3_LIBDEST}/*
+    )
+    list( FILTER Python3_LIB_FILES EXCLUDE REGEX "__pycache__|site-packages|/tests?/|/test_|_test\.|\.pyc\$" )
+endif()
+
+function( copy_python3_deps target )
+    if( WIN32 )
+        get_target_property( _bin_dir ${target} BINARY_DIR )
+
+        add_custom_target(
+                ${target}-python3-deps
+                COMMENT "Copy ${Python3_DLL} and lib dir"
+                COMMAND ${CMAKE_COMMAND} -E copy ${Python3_DLL} ${_bin_dir}
+        )
+
+        foreach( _file ${Python3_LIB_FILES} )
+            get_filename_component( _dirname ${_file} DIRECTORY )
+            add_custom_command(
+                    TARGET ${target}-python3-deps
+                    POST_BUILD
+                    COMMENT "Copy ${_file}"
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/${_dirname}
+                    COMMAND ${CMAKE_COMMAND} -E copy ${Python3_INSTALLED_BASE}/${_file} ${_bin_dir}/${_dirname}/
+            )
+        endforeach()
+    endif()
+endfunction()
+
 find_package_handle_standard_args(
         Python3
         REQUIRED_VARS Python3_EXECUTABLE Python3_LIBRARY Python3_INCLUDE_DIR

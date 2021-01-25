@@ -535,3 +535,24 @@ if( LINUX OR UNIX )
         )
     endif()
 endif()
+
+if( WIN32 )
+    file(
+            GLOB _shaders
+            ${CMAKE_SOURCE_DIR}/shaders/*.frag
+            ${CMAKE_SOURCE_DIR}/shaders/*.vert
+            ${CMAKE_SOURCE_DIR}/shaders/*.glsl
+    )
+    list( FILTER _shaders EXCLUDE REGEX "\.full\." )
+
+    add_custom_command(
+            TARGET edisonengine
+            POST_BUILD
+            COMMENT "Copy shaders"
+            DEPENDS ${_shaders}
+            COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:edisonengine>/shaders
+            COMMAND ${CMAKE_COMMAND} -E copy ${_shaders} $<TARGET_FILE_DIR:edisonengine>/shaders/
+    )
+
+    copy_python3_deps( edisonengine )
+endif()
