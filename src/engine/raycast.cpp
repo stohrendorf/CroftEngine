@@ -4,7 +4,11 @@
 #include "loader/file/datatypes.h"
 #include "objectmanager.h"
 
+#include <algorithm>
+
 namespace engine
+{
+namespace
 {
 bool clampY(const core::TRVec& start,
             core::TRVec& goal,
@@ -36,25 +40,26 @@ bool clampY(const core::TRVec& start,
   return true;
 }
 
-enum class ClampType
+enum class CollisionType
 {
   Ceiling,
   Wall,
   None
 };
 
-ClampType clampAlongMajorMinor(const core::RoomBoundPosition& from,
-                               core::RoomBoundPosition& goal,
-                               const ObjectManager& objectManager,
-                               core::Length(core::TRVec::*major),
-                               core::Length(core::TRVec::*minor))
+std::pair<CollisionType, core::RoomBoundPosition> clampAlongMajorMinor(const core::RoomBoundPosition& from,
+                                                                       const core::TRVec& goal,
+                                                                       const ObjectManager& objectManager,
+                                                                       core::Length(core::TRVec::*major),
+                                                                       core::Length(core::TRVec::*minor))
 {
-  if(goal.position.*major == from.position.*major)
+  core::RoomBoundPosition result{from.room, goal};
+  if(goal.*major == from.position.*major)
   {
-    return ClampType::None;
+    return {CollisionType::None, result};
   }
 
-  const auto delta = goal.position - from.position;
+  const auto delta = goal - from.position;
   const auto dir = delta.*major < 0_len ? -1 : 1;
 
   core::TRVec current;
@@ -70,10 +75,8 @@ ClampType clampAlongMajorMinor(const core::RoomBoundPosition& from,
   step.*minor = step.*major * delta.*minor / delta.*major;
   step.Y = step.*major * delta.Y / delta.*major;
 
-  goal.room = from.room;
-
-  auto testHit = [&goal, &objectManager](const core::TRVec& pos) {
-    const auto sector = findRealFloorSector(pos, &goal.room);
+  auto testHit = [&result, &objectManager](const core::TRVec& pos) {
+    const auto sector = findRealFloorSector(pos, &result.room);
     const auto floor = HeightInfo::fromFloor(sector, pos, objectManager.getObjects()).y;
     const auto ceiling = HeightInfo::fromCeiling(sector, pos, objectManager.getObjects()).y;
     return pos.Y > floor || pos.Y < ceiling;
@@ -81,19 +84,19 @@ ClampType clampAlongMajorMinor(const core::RoomBoundPosition& from,
 
   while(true)
   {
-    if(dir > 0 && current.*major >= goal.position.*major)
+    if(dir > 0 && current.*major >= result.position.*major)
     {
-      return ClampType::None;
+      return {CollisionType::None, result};
     }
-    if(dir < 0 && current.*major <= goal.position.*major)
+    if(dir < 0 && current.*major <= result.position.*major)
     {
-      return ClampType::None;
+      return {CollisionType::None, result};
     }
 
     if(testHit(current))
     {
-      goal.position = current;
-      return ClampType::Ceiling;
+      result.position = current;
+      return {CollisionType::Ceiling, result};
     }
 
     auto nextSector = current;
@@ -101,53 +104,40 @@ ClampType clampAlongMajorMinor(const core::RoomBoundPosition& from,
     BOOST_ASSERT(current.*major / core::SectorSize != nextSector.*major / core::SectorSize);
     if(testHit(nextSector))
     {
-      goal.position = current;
-      return ClampType::Wall;
+      result.position = current;
+      return {CollisionType::Wall, result};
     }
 
     current += step;
   }
 }
 
-ClampType
-  clampAlongZ(const core::RoomBoundPosition& from, core::RoomBoundPosition& goal, const ObjectManager& objectManager)
-{
-  return clampAlongMajorMinor(from, goal, objectManager, &core::TRVec::Z, &core::TRVec::X);
-}
-
-ClampType
-  clampAlongX(const core::RoomBoundPosition& from, core::RoomBoundPosition& goal, const ObjectManager& objectManager)
-{
-  return clampAlongMajorMinor(from, goal, objectManager, &core::TRVec::X, &core::TRVec::Z);
-}
+} // namespace
 
 std::pair<bool, core::RoomBoundPosition>
   raycastLineOfSight(const core::RoomBoundPosition& start, const core::TRVec& goal, const ObjectManager& objectManager)
 {
-  core::RoomBoundPosition result{start.room, goal};
-  bool firstUnclamped;
-  ClampType secondClamp;
-  if(abs(goal.Z - start.position.Z) <= abs(goal.X - start.position.X))
-  {
-    firstUnclamped = clampAlongZ(start, result, objectManager) == ClampType::None;
-    secondClamp = clampAlongX(start, result, objectManager);
-  }
-  else
-  {
-    firstUnclamped = clampAlongX(start, result, objectManager) == ClampType::None;
-    secondClamp = clampAlongZ(start, result, objectManager);
-  }
+  auto collide = [&start, &goal, &objectManager](core::Length(core::TRVec::*first), core::Length(core::TRVec::*second))
+    -> std::tuple<CollisionType, CollisionType, core::RoomBoundPosition> {
+    auto [firstType, firstPos] = clampAlongMajorMinor(start, goal, objectManager, first, second);
+    auto [secondType, secondPos] = clampAlongMajorMinor(start, firstPos.position, objectManager, second, first);
+    return {firstType, secondType, secondPos};
+  };
+
+  auto [firstCollision, secondCollision, result] = abs(goal.Z - start.position.Z) <= abs(goal.X - start.position.X)
+                                                     ? collide(&core::TRVec::Z, &core::TRVec::X)
+                                                     : collide(&core::TRVec::X, &core::TRVec::Z);
   const auto invariantCheck
     = gsl::finally([&result]() { Ensures(result.room->getSectorByAbsolutePosition(result.position) != nullptr); });
 
-  if(secondClamp == ClampType::Wall)
+  if(secondCollision == CollisionType::Wall)
   {
     return {false, result};
   }
 
   const auto sector = loader::file::findRealFloorSector(result);
-  bool success = clampY(start.position, result.position, sector, objectManager) && firstUnclamped
-                 && secondClamp == ClampType::None;
+  bool success = clampY(start.position, result.position, sector, objectManager) && firstCollision == CollisionType::None
+                 && secondCollision == CollisionType::None;
   return {success, result};
 }
 } // namespace engine
