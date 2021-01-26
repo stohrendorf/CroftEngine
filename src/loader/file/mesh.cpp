@@ -16,9 +16,9 @@ namespace loader::file
 std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
 {
   auto mesh = std::make_unique<Mesh>();
-  mesh->center = readCoordinates16(reader);
-  mesh->collision_size = core::Length{core::Length::type{reader.readI16()}};
-  reader.skip(2); // some unknown flags
+  mesh->collisionCenter = readCoordinates16(reader);
+  mesh->collisionRadius = core::Length{core::Length::type{reader.readI16()}};
+  mesh->flags = reader.readU16();
 
   reader.readVector(mesh->vertices, reader.readU16(), &io::readCoordinates16);
 
@@ -45,8 +45,8 @@ std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
 std::unique_ptr<Mesh> Mesh::readTr4(io::SDLReader& reader)
 {
   auto mesh = std::make_unique<Mesh>();
-  mesh->center = readCoordinates16(reader);
-  mesh->collision_size = core::Length{reader.readI32()};
+  mesh->collisionCenter = readCoordinates16(reader);
+  mesh->collisionRadius = core::Length{reader.readI32()};
 
   reader.readVector(mesh->vertices, reader.readU16(), &io::readCoordinates16);
 

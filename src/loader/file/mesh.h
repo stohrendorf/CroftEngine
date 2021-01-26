@@ -25,9 +25,11 @@ class RenderMeshData;
 
 struct Mesh
 {
-  core::TRVec
-    center; // This is usually close to the mesh's centroid, and appears to be the center of a sphere used for collision testing.
-  core::Length collision_size = 0_len;   // This appears to be the radius of that aforementioned collisional sphere.
+  static constexpr uint16_t DrawAlways = 0x02;
+
+  uint16_t flags;
+  core::TRVec collisionCenter;
+  core::Length collisionRadius;
   std::vector<core::TRVec> vertices;     //[NumVertices]; // list of vertices (relative coordinates)
   std::vector<core::TRVec> normals;      //[NumNormals]; // list of normals (if NumNormals is positive)
   std::vector<core::Shade> vertexShades; //[-NumNormals]; // list of light values (if NumNormals is negative), 0..8191

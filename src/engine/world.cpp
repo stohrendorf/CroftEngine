@@ -296,8 +296,8 @@ void World::loadSceneData()
       {
         const auto& mesh = (model->mesh_base_index + i).from(m_meshesDirect);
         model->bones.emplace_back(mesh->meshData,
-                                  mesh->center,
-                                  mesh->collision_size,
+                                  mesh->collisionCenter,
+                                  mesh->collisionRadius,
                                   i == 0 || model->boneTree.empty() ? std::nullopt
                                                                     : std::make_optional(model->boneTree[i - 1]));
       }
