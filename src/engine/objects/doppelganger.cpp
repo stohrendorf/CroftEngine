@@ -20,10 +20,10 @@ void Doppelganger::update()
 {
   auto& lara = getWorld().getObjectManager().getLara();
 
-  if(m_state.health < 1000_hp)
+  if(m_state.health < core::LaraHealth)
   {
-    lara.m_state.health -= 10 * (1000_hp - m_state.health);
-    m_state.health = 1000_hp;
+    lara.m_state.health -= 10 * (core::LaraHealth - m_state.health);
+    m_state.health = core::LaraHealth;
   }
 
   if(!m_flag)

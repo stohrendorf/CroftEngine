@@ -25,7 +25,7 @@ void Mummy::update()
     m_headRotation += std::clamp(head - m_headRotation, -5_deg, +5_deg);
     getSkeleton()->patchBone(3, core::TRRotation{0_deg, m_headRotation, 0_deg}.toMatrix());
 
-    if(m_state.health <= 0_hp || m_state.touch_bits.any())
+    if(m_state.isDead() || m_state.touch_bits.any())
     {
       m_state.goal_anim_state = 2_as;
     }
@@ -36,7 +36,7 @@ void Mummy::update()
   if(m_state.triggerState == TriggerState::Deactivated)
   {
     deactivate();
-    m_state.health = -16384_hp;
+    m_state.health = core::DeadHealth;
   }
 }
 

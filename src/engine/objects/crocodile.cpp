@@ -81,7 +81,7 @@ void Crocodile::update()
         getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[4];
         getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
         m_state.current_anim_state = 3_as;
-        m_state.health = -16384_hp;
+        m_state.health = core::DeadHealth;
       }
       if(const auto waterSurfaceHeight = getWaterSurfaceHeight())
       {

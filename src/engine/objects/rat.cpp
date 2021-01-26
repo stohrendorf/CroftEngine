@@ -89,7 +89,7 @@ void Rat::update()
       if(m_state.triggerState == TriggerState::Deactivated)
       {
         m_state.collidable = false;
-        m_state.health = -16384_hp;
+        m_state.health = core::DeadHealth;
         m_state.triggerState = TriggerState::Active;
       }
       if(!getWaterSurfaceHeight().has_value())

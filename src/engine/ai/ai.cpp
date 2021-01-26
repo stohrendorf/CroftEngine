@@ -30,7 +30,7 @@ void updateMood(const World& world, const objects::ObjectState& objectState, con
     creatureInfo.pathFinder.required_box = nullptr;
   }
   const auto originalMood = creatureInfo.mood;
-  if(world.getObjectManager().getLara().m_state.health <= 0_hp)
+  if(world.getObjectManager().getLara().isDead())
   {
     creatureInfo.mood = Mood::Bored;
   }

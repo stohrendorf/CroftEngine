@@ -42,6 +42,7 @@ constexpr auto FrameRate = 30_frame / 1_sec;
 
 constexpr auto LaraAir = 1800_frame;
 constexpr auto LaraHealth = 1000_hp;
+constexpr auto DeadHealth = -16384_hp;
 
 constexpr auto DefaultCollisionRadius = 100_len;
 constexpr auto DefaultCollisionRadiusUnderwater = 300_len;

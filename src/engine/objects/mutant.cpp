@@ -386,7 +386,7 @@ void TorsoBoss::update()
     switch(m_state.current_anim_state.get())
     {
     case 1:
-      if(getWorld().getObjectManager().getLara().m_state.health <= 0_hp)
+      if(getWorld().getObjectManager().getLara().isDead())
       {
         break;
       }
@@ -406,7 +406,7 @@ void TorsoBoss::update()
       {
         goal(7_as);
       }
-      else if(getWorld().getObjectManager().getLara().m_state.health > 500_hp)
+      else if(getWorld().getObjectManager().getLara().m_state.health > core::LaraHealth / 2)
       {
         if(util::rand15(2) == 0)
           goal(5_as);
@@ -477,7 +477,7 @@ void TorsoBoss::update()
       }
       break;
     case 6:
-      if(touched(0x3ff8000u) || getWorld().getObjectManager().getLara().m_state.health <= 0_hp)
+      if(touched(0x3ff8000u) || getWorld().getObjectManager().getLara().isDead())
       {
         goal(11_as);
         auto& lara = getWorld().getObjectManager().getLara();
@@ -488,7 +488,7 @@ void TorsoBoss::update()
         lara.setCurrentRoom(m_state.position.room);
         lara.m_state.position = m_state.position;
         lara.m_state.rotation = {0_deg, m_state.rotation.Y, 0_deg};
-        lara.m_state.health = -1_hp;
+        lara.m_state.health = core::DeadHealth;
         lara.setAir(-1_frame);
         lara.gunType = LaraObject::WeaponId::None;
         lara.setHandStatus(HandStatus::Grabbing);
@@ -550,4 +550,4 @@ void TorsoBoss::update()
     m_state.triggerState = TriggerState::Deactivated;
   }
 }
-} // namespace engine
+} // namespace engine::objects

@@ -62,7 +62,7 @@ protected:
 
   bool alive() const
   {
-    return m_state.health > 0_hp;
+    return !m_state.isDead();
   }
 
   bool touched() const

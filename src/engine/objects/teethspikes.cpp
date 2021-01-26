@@ -6,7 +6,7 @@
 
 void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
 {
-  if(getWorld().getObjectManager().getLara().m_state.health >= 0_hp
+  if(!getWorld().getObjectManager().getLara().isDead()
      && isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius)
      && testBoneCollision(getWorld().getObjectManager().getLara()))
   {
@@ -24,7 +24,7 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
       {
         // immediate death when falling into the spikes
         bloodSplats = 20;
-        getWorld().getObjectManager().getLara().m_state.health = -1_hp;
+        getWorld().getObjectManager().getLara().m_state.health = core::DeadHealth;
       }
     }
     getWorld().getObjectManager().getLara().m_state.health -= 15_hp;
@@ -40,7 +40,7 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
                            util::rand15(+180_deg));
       getWorld().getObjectManager().registerParticle(fx);
     }
-    if(getWorld().getObjectManager().getLara().m_state.health <= 0_hp)
+    if(getWorld().getObjectManager().getLara().isDead())
     {
       getWorld().getObjectManager().getLara().getSkeleton()->anim
         = &getWorld().getAnimation(loader::file::AnimationId::SPIKED);

@@ -68,14 +68,14 @@ void ThorHammerHandle::update()
       {
         posX -= 3 * core::SectorSize;
       }
-      if(getWorld().getObjectManager().getLara().m_state.health >= 0_hp)
+      if(!getWorld().getObjectManager().getLara().isDead())
       {
         if(posX - 520_len < getWorld().getObjectManager().getLara().m_state.position.position.X
            && posX + 520_len > getWorld().getObjectManager().getLara().m_state.position.position.X
            && posZ - 520_len < getWorld().getObjectManager().getLara().m_state.position.position.Z
            && posZ + 520_len > getWorld().getObjectManager().getLara().m_state.position.position.Z)
         {
-          getWorld().getObjectManager().getLara().m_state.health = -1_hp;
+          getWorld().getObjectManager().getLara().m_state.health = core::DeadHealth;
           getWorld().getObjectManager().getLara().getSkeleton()->anim
             = &getWorld().findAnimatedModelForType(TR1ItemId::Lara)->animations[139];
           getWorld().getObjectManager().getLara().getSkeleton()->frame_number = 3561_frame;
@@ -112,7 +112,7 @@ void ThorHammerHandle::update()
     {
       m_state.position.position.X -= 3 * core::SectorSize;
     }
-    if(getWorld().getObjectManager().getLara().m_state.health >= 0_hp)
+    if(!getWorld().getObjectManager().getLara().isDead())
     {
       loader::file::Room::patchHeightsForBlock(*this, -2 * core::SectorSize);
     }

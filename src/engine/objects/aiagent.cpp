@@ -95,7 +95,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   ModelObject::update();
   if(m_state.triggerState == TriggerState::Deactivated)
   {
-    m_state.health = -16384_hp;
+    m_state.health = core::DeadHealth;
     m_state.collidable = false;
     m_state.creatureInfo.reset();
     deactivate();
@@ -414,8 +414,7 @@ void AIAgent::collide(CollisionInfo& collisionInfo)
   if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
-  const bool enableSpaz
-    = m_state.health > 0_hp && collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
+  const bool enableSpaz = !m_state.isDead() && collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
   enemyPush(collisionInfo, enableSpaz, false);
 }
 
@@ -429,7 +428,8 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
   return raycastLineOfSight(m_state.position,
                             getWorld().getObjectManager().getLara().m_state.position.position
                               - core::TRVec{0_len, 768_len, 0_len},
-                            getWorld().getObjectManager()).first;
+                            getWorld().getObjectManager())
+    .first;
 }
 
 namespace

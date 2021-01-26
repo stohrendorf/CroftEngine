@@ -133,6 +133,11 @@ public:
   }
 
   void loadObjectInfo();
+
+  bool isDead() const
+  {
+    return health <= 0_hp;
+  }
 };
 
 } // namespace objects

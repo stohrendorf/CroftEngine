@@ -749,7 +749,7 @@ bool AbstractStateHandler::applyLandingDamage()
   {
     m_lara.m_state.health = -1_hp;
   }
-  return m_lara.m_state.health <= 0_hp;
+  return m_lara.isDead();
 }
 
 loader::file::BoundingBox AbstractStateHandler::getBoundingBox() const

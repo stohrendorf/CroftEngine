@@ -354,7 +354,7 @@ void LaraObject::update()
   }
   else if(m_underwaterState == UnderwaterState::Diving)
   {
-    if(m_state.health >= 0_hp)
+    if(!isDead())
     {
       m_air -= 1_frame;
       if(m_air < 0_frame)
@@ -367,7 +367,7 @@ void LaraObject::update()
   }
   else if(m_underwaterState == UnderwaterState::Swimming)
   {
-    if(m_state.health >= 0_hp)
+    if(!isDead())
     {
       m_air = std::min(m_air + 10_frame, core::LaraAir);
     }
@@ -504,7 +504,7 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
   m_state.is_hit = false;
   hit_direction.reset();
 
-  if(m_state.health < 0_hp)
+  if(isDead())
     return;
 
   std::set<gsl::not_null<const loader::file::Room*>> rooms;
@@ -614,7 +614,7 @@ void LaraObject::updateLarasWeaponsStatus()
     rightArm.flashTimeout -= 1_frame;
   }
   bool doHolsterUpdate = false;
-  if(m_state.health <= 0_hp)
+  if(isDead())
   {
     m_handStatus = HandStatus::None;
   }
@@ -1001,7 +1001,7 @@ void LaraObject::findTarget(const Weapon& weapon)
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
   for(const auto& currentEnemy : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
-    if(currentEnemy->m_state.health <= 0_hp || currentEnemy.get() == getWorld().getObjectManager().getLaraPtr())
+    if(currentEnemy->m_state.isDead() || currentEnemy.get() == getWorld().getObjectManager().getLaraPtr())
       continue;
 
     const auto modelEnemy = std::dynamic_pointer_cast<ModelObject>(currentEnemy.get());
@@ -1690,8 +1690,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
 
     static constexpr float VeryLargeDistanceProbablyClipping = 1u << 14u;
 
-    const core::RoomBoundPosition bulletPos{gunHolder.m_state.position.room, gunPosition};
-    const auto aimHitPos = raycastLineOfSight(bulletPos,
+    const auto aimHitPos = raycastLineOfSight(core::RoomBoundPosition{gunHolder.m_state.position.room, gunPosition},
                                               gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping},
                                               getWorld().getObjectManager())
                              .second;
@@ -1709,7 +1708,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
 
 void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const core::Health& damage)
 {
-  if(object.m_state.health > 0_hp && object.m_state.health <= damage)
+  if(!object.m_state.isDead() && object.m_state.health <= damage)
   {
     // TODO ++g_numKills;
   }
@@ -1720,7 +1719,7 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
                              object.m_state.speed,
                              object.m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);
-  if(object.m_state.health <= 0_hp)
+  if(object.m_state.isDead())
     return;
 
   TR1SoundEffect soundEffect;
@@ -2189,7 +2188,7 @@ void LaraObject::renderGunFlare(const WeaponId weaponId,
 
 void LaraObject::burnIfAlive()
 {
-  if(m_state.health <= 0_hp)
+  if(isDead())
     return;
 
   const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);

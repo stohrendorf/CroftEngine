@@ -17,7 +17,7 @@ public:
   {
     getLara().m_state.fallspeed = std::max(0_spd, getLara().m_state.fallspeed - 4_spd);
 
-    if(getLara().m_state.health <= 0_hp)
+    if(getLara().isDead())
     {
       setGoalAnimState(LaraStateId::WaterDeath);
       return;

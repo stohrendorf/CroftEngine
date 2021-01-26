@@ -97,10 +97,10 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
   if(!getWorld().getObjectManager().getLara().m_state.falling)
   {
     getWorld().getObjectManager().getLara().m_state.is_hit = true;
-    if(getWorld().getObjectManager().getLara().m_state.health <= 0_hp)
+    if(getWorld().getObjectManager().getLara().isDead())
       return;
 
-    getWorld().getObjectManager().getLara().m_state.health = -1_hp;
+    getWorld().getObjectManager().getLara().m_state.health = core::DeadHealth;
     getWorld().getObjectManager().getLara().setCurrentRoom(m_state.position.room);
     getWorld().getObjectManager().getLara().setAnimation(loader::file::AnimationId::SQUASH_BOULDER, 3561_frame);
     getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);

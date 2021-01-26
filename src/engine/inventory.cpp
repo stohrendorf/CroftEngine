@@ -156,16 +156,12 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::LargeMedipack) == 0)
       return false;
 
-    if(lara.m_state.health <= 0_hp || lara.m_state.health >= core::LaraHealth)
+    if(lara.isDead() || lara.m_state.health >= core::LaraHealth)
     {
       return false;
     }
 
-    lara.m_state.health += 1000_hp;
-    if(lara.m_state.health > core::LaraHealth)
-    {
-      lara.m_state.health = core::LaraHealth;
-    }
+    lara.m_state.health = std::min(lara.m_state.health + core::LaraHealth, core::LaraHealth);
     tryTake(TR1ItemId::LargeMedipackSprite);
     lara.playSoundEffect(TR1SoundEffect::LaraSigh);
   }
@@ -174,16 +170,12 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::SmallMedipack) == 0)
       return false;
 
-    if(lara.m_state.health <= 0_hp || lara.m_state.health >= core::LaraHealth)
+    if(lara.isDead() || lara.m_state.health >= core::LaraHealth)
     {
       return false;
     }
 
-    lara.m_state.health += 500_hp;
-    if(lara.m_state.health > core::LaraHealth)
-    {
-      lara.m_state.health = core::LaraHealth;
-    }
+    lara.m_state.health = std::min(lara.m_state.health + core::LaraHealth/2, core::LaraHealth);
     tryTake(TR1ItemId::SmallMedipackSprite);
     lara.playSoundEffect(TR1SoundEffect::LaraSigh);
   }

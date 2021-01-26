@@ -57,7 +57,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
 
 void ScionPiece3::update()
 {
-  if(m_state.health > 0_hp)
+  if(!m_state.isDead())
   {
     m_deadTime = 0_frame;
     ModelObject::update();
@@ -67,7 +67,7 @@ void ScionPiece3::update()
   if(m_deadTime == 0_frame)
   {
     m_state.triggerState = TriggerState::Invisible;
-    m_state.health = -16384_hp;
+    m_state.health = core::DeadHealth;
 
     const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
     const auto hi

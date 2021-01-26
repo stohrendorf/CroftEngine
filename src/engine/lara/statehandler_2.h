@@ -16,7 +16,7 @@ public:
 
   void handleInput(CollisionInfo& collisionInfo) override
   {
-    if(getLara().m_state.health <= 0_hp)
+    if(getLara().isDead())
     {
       setGoalAnimState(LaraStateId::Death);
       return;

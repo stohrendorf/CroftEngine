@@ -31,8 +31,7 @@ void TRex::update()
         getWorld().getObjectManager().getLara().m_state.health -= 1_hp;
     }
 
-    m_state.creatureInfo->flags
-      = !isEscaping() && !aiInfo.ahead && aiInfo.enemy_facing > -90_deg && aiInfo.enemy_facing < 90_deg;
+    m_state.creatureInfo->flags = !isEscaping() && !aiInfo.ahead && abs(aiInfo.enemy_facing) < 90_deg;
     if(m_state.creatureInfo->flags == 0 && aiInfo.distance > util::square(1500_len)
        && aiInfo.distance < util::square(4 * core::SectorSize) && aiInfo.bite)
     {

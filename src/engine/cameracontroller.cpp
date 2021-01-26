@@ -130,7 +130,7 @@ core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
                                  const std::function<ClampCallback>& callback,
                                  const ObjectManager& objectManager)
 {
-  auto [success, result] = raycastLineOfSight(start, goal, objectManager);
+  auto result = raycastLineOfSight(start, goal, objectManager).second;
   const gsl::not_null startSector = start.room->getSectorByAbsolutePosition(start.position);
   auto box = startSector->box;
   if(const gsl::not_null goalSector = result.room->getSectorByAbsolutePosition(result.position);
@@ -523,7 +523,6 @@ void CameraController::handleFixedCamera()
   auto [success, goal] = raycastLineOfSight(m_lookAt, camera.position, m_world->getObjectManager());
   if(!success)
   {
-    // ReSharper disable once CppExpressionWithoutSideEffects
     moveIntoGeometry(goal, core::QuarterSectorSize);
   }
 

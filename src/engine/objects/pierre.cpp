@@ -155,7 +155,7 @@ void Pierre::update()
     }
     else if(m_state.creatureInfo->flags > 10)
     {
-      m_state.health = -16384_hp;
+      m_state.health = core::DeadHealth;
       m_state.creatureInfo = nullptr;
       kill();
       getWorld().setPierre(nullptr);
@@ -163,7 +163,7 @@ void Pierre::update()
   }
   if(getWaterSurfaceHeight().has_value())
   {
-    m_state.health = -16384_hp;
+    m_state.health = core::DeadHealth;
     m_state.creatureInfo = nullptr;
     kill();
     getWorld().setPierre(nullptr);

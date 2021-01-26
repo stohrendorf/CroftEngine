@@ -365,7 +365,7 @@ bool MutantGrenadeParticle::update(World& world)
     if(d < util::square(1024_len))
     {
       world.getObjectManager().getLara().m_state.health
-        -= 100_hp * (util::square(1024_len) - d) / util::square(1024_len);
+        -= 100_hp * (util::square(core::SectorSize) - d) / util::square(core::SectorSize);
       world.getObjectManager().getLara().m_state.is_hit = true;
     }
 
@@ -379,7 +379,7 @@ bool MutantGrenadeParticle::update(World& world)
     world.getObjectManager().registerParticle(particle);
     world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
 
-    if(world.getObjectManager().getLara().m_state.health > 0_hp)
+    if(!world.getObjectManager().getLara().isDead())
     {
       world.getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraHurt);
       world.getObjectManager().getLara().forceSourcePosition = &particle->pos.position;

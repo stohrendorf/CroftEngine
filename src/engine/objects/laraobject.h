@@ -461,6 +461,11 @@ public:
 
   void serialize(const serialization::Serializer& ser) override;
 
+  bool isDead() const
+  {
+    return m_state.isDead();
+  }
+
 private:
   void initGunflares();
 };
