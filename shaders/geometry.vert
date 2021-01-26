@@ -45,13 +45,15 @@ void main()
     gpi.normal = normalize(mat3(mm) * a_normal);
     gpi.ssaoNormal = normalize(mat3(mv) * a_normal);
     gpi.vertexPos = tmp.xyz;
+    float dist = 16 * clamp(1.0 - dot(normalize(u_csmLightDir), gpi.normal), 0.0, 1.0);
+    vec4 pos = vec4(a_position + dist * gpi.normal, 1);
     {
         #ifdef SKELETAL
         mat4 lmvp = u_lightMVP1 * u_bones[int(a_boneIndex)];
         #else
         mat4 lmvp = u_lightMVP1;
         #endif
-        vec4 tmp = lmvp * vec4(a_position, 1);
+        vec4 tmp = lmvp * pos;
         gpi.vertexPosLight1 = tmp.xyz / tmp.w * 0.5 + 0.5;
     }
     {
@@ -60,7 +62,7 @@ void main()
         #else
         mat4 lmvp = u_lightMVP2;
         #endif
-        vec4 tmp = lmvp * vec4(a_position, 1);
+        vec4 tmp = lmvp * pos;
         gpi.vertexPosLight2 = tmp.xyz / tmp.w * 0.5 + 0.5;
     }
     {
@@ -69,7 +71,7 @@ void main()
         #else
         mat4 lmvp = u_lightMVP3;
         #endif
-        vec4 tmp = lmvp * vec4(a_position, 1);
+        vec4 tmp = lmvp * pos;
         gpi.vertexPosLight3 = tmp.xyz / tmp.w * 0.5 + 0.5;
     }
 }

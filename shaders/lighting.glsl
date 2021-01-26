@@ -34,16 +34,7 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
     }
 
     float currentDepth = projCoords.z;
-    if (currentDepth > 1.0) {
-        return 1.0;
-    }
-
-    float cosTheta = abs(dot(normalize(normal), normalize(u_csmLightDir)));
-    const float BiasExceedOne = sqrt(0.5);
-    float bias = cosTheta > BiasExceedOne ? sqrt(1-cosTheta*cosTheta) / cosTheta : 1;
-    currentDepth -= 0.01*bias;
-
-    if (currentDepth < moments.x) {
+    if (currentDepth > 1.0 || currentDepth < moments.x) {
         return 1.0;
     }
 
