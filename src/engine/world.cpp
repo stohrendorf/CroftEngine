@@ -1095,12 +1095,14 @@ World::World(Engine& engine,
              std::string title,
              const std::optional<TR1TrackId>& track,
              bool useAlternativeLara,
-             std::unordered_map<TR1ItemId, size_t> initialInventory)
+             std::unordered_map<TR1ItemId, size_t> initialInventory,
+             std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles)
     : m_engine{engine}
     , m_audioEngine{std::make_unique<AudioEngine>(
         *this, engine.getRootPath() / "data" / "tr1" / "audio", engine.getPresenter().getSoundEngine())}
     , m_level{std::move(level)}
     , m_title{std::move(title)}
+    , m_itemTitles{std::move(itemTitles)}
 {
   {
     if(const auto tbl = core::get<pybind11::dict>(
@@ -1463,5 +1465,25 @@ const Presenter& World::getPresenter() const
 Presenter& World::getPresenter()
 {
   return m_engine.getPresenter();
+}
+
+std::optional<std::string> World::getItemTitle(TR1ItemId id) const
+{
+  if(auto langIt = m_itemTitles.find(m_engine.getLanguage()); langIt != m_itemTitles.end())
+  {
+    if(auto itemIt = langIt->second.find(id); itemIt != langIt->second.end())
+    {
+      return itemIt->second;
+    }
+  }
+  if(auto langIt = m_itemTitles.find("en"); langIt != m_itemTitles.end())
+  {
+    if(auto itemIt = langIt->second.find(id); itemIt != langIt->second.end())
+    {
+      return itemIt->second;
+    }
+  }
+
+  return std::nullopt;
 }
 } // namespace engine

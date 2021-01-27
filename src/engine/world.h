@@ -47,7 +47,8 @@ public:
                  std::string title,
                  const std::optional<TR1TrackId>& track,
                  bool useAlternativeLara,
-                 std::unordered_map<TR1ItemId, size_t> initialInventory);
+                 std::unordered_map<TR1ItemId, size_t> initialInventory,
+                 std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles);
 
   ~World();
 
@@ -136,9 +137,8 @@ public:
   }
 
   template<typename T>
-  std::shared_ptr<T> createObject(TR1ItemId type, const core::RoomBoundPosition& position)
+  std::shared_ptr<T> createObject(const core::RoomBoundPosition& position)
   {
-    const gsl::not_null model = findAnimatedModelForType(type).get();
     auto object = std::make_shared<T>(this, position);
 
     m_objectManager.registerDynamicObject(object);
@@ -250,6 +250,8 @@ public:
     m_pickupWidgets.emplace_back(75_frame, std::move(image));
   }
 
+  std::optional<std::string> getItemTitle(TR1ItemId id) const;
+
 private:
   void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips);
 
@@ -300,6 +302,7 @@ private:
   std::array<floordata::ActivationState, 10> m_mapFlipActivationStates;
   objects::Object* m_pierre = nullptr;
   std::string m_title{};
+  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles{};
   std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_allTextures;
   core::Frame m_uvAnimTime = 0_frame;
   std::unique_ptr<render::TextureAnimator> m_textureAnimator;

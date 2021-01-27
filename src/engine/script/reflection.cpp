@@ -28,8 +28,13 @@ RunResult Video::run(Engine& engine)
 
 RunResult Cutscene::run(Engine& engine)
 {
-  auto world = std::make_unique<World>(
-    engine, loadLevel(engine, m_name), std::string{}, m_track, false, std::unordered_map<TR1ItemId, size_t>{});
+  auto world = std::make_unique<World>(engine,
+                                       loadLevel(engine, m_name),
+                                       std::string{},
+                                       m_track,
+                                       false,
+                                       std::unordered_map<TR1ItemId, size_t>{},
+                                       std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{});
 
   world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
   auto pos = world->getCameraController().getTRPosition().position;
@@ -75,8 +80,8 @@ RunResult Level::run(Engine& engine, bool isTitleMenu)
     BOOST_LOG_TRIVIAL(error) << "Missing level title";
 
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
-  auto world
-    = std::make_unique<World>(engine, loadLevel(engine, m_name), title, m_track, m_useAlternativeLara, m_inventory);
+  auto world = std::make_unique<World>(
+    engine, loadLevel(engine, m_name), title, m_track, m_useAlternativeLara, m_inventory, m_itemTitles);
 
   return isTitleMenu ? engine.runTitleMenu(*world) : engine.run(*world, false);
 }

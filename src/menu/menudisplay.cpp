@@ -93,19 +93,10 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
 {
   if(objectTexts[0] == nullptr)
   {
-    // FIXME
-#if 0
-    if(const auto names = core::get<pybind11::dict>(world.getLevelInfo(), "names"))
+    if(const auto objectName = world.getItemTitle(object.type))
     {
-      if(const auto localNames = core::get<pybind11::dict>(names.value(), world.getEngine().getLanguage()))
-      {
-        if(const auto objectName = core::get<std::string>(localNames.value(), object.type))
-        {
-          objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, -16}, objectName.value());
-        }
-      }
+      objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, -16}, objectName.value());
     }
-#endif
 
     if(objectTexts[0] == nullptr)
       objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, -16}, object.name);

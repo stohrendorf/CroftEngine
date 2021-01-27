@@ -86,7 +86,7 @@ enum class Axis
   if(angle >= 180_deg - margin || angle <= -180_deg + margin)
     return Axis::NegZ;
 
-  return {};
+  return std::nullopt;
 }
 
 [[nodiscard]] inline Angle alignRotation(const Axis& axis)

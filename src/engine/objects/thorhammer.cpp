@@ -18,7 +18,7 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<World*>& world,
 
 ThorHammerHandle::ThorHammerHandle(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
     : ModelObject{world, position}
-    , m_block{world->createObject<ThorHammerBlock>(TR1ItemId::ThorHammerBlock, position)}
+    , m_block{world->createObject<ThorHammerBlock>(position)}
 {
 }
 
