@@ -200,6 +200,11 @@ public:
       detail::fill(gsl::not_null{m_data.data()}, m_data.size(), color);
   }
 
+  void lineDxy(glm::ivec2 xy0, const glm::ivec2& size, const StorageType& color, const bool blend = false)
+  {
+    line(xy0, xy0 + size, color, blend);
+  }
+
   void line(glm::ivec2 xy0, const glm::ivec2& xy1, const StorageType& color, const bool blend = false)
   {
     // shamelessly copied from wikipedia
