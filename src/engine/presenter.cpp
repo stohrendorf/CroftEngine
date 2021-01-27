@@ -216,7 +216,7 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
       image.line({x0 - 1, i}, {x0 + 101, i}, palette.colors[0].toTextureColor());
     image.line({x0 - 2, 14}, {x0 + 102, 14}, palette.colors[17].toTextureColor());
     image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[17].toTextureColor());
-    image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[19].toTextureColor());
+    image.line({x0 - 2, 6}, {x0 + 102, 6}, palette.colors[19].toTextureColor());
     image.line({x0 - 2, 6}, {x0 - 2, 14}, palette.colors[19].toTextureColor());
 
     if(const int p = std::clamp(objectManager.getLara().getAir() * 100 / core::LaraAir, 0, 100); p > 0)
@@ -250,7 +250,7 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
     image.line({x0 - 1, i}, {x0 + 101, i}, palette.colors[0].toTextureColor(alpha), true);
   image.line({x0 - 2, 14}, {x0 + 102, 14}, palette.colors[17].toTextureColor(alpha), true);
   image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[17].toTextureColor(alpha), true);
-  image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[19].toTextureColor(alpha), true);
+  image.line({x0 - 2, 6}, {x0 + 102, 6}, palette.colors[19].toTextureColor(alpha), true);
   image.line({x0 - 2, 6}, {x0 - 2, 14}, palette.colors[19].toTextureColor(alpha), true);
 
   if(const int p = std::clamp(objectManager.getLara().m_state.health * 100 / core::LaraHealth, 0, 100); p > 0)
