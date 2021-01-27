@@ -2,6 +2,7 @@
 
 #include "loader/file/color.h"
 #include "loader/file/datatypes.h"
+#include "util.h"
 
 #include <cstdint>
 #include <gl/cimgwrapper.h>
@@ -105,6 +106,8 @@ struct Label
   Alignment alignX = Alignment::Left;
   Alignment alignY = Alignment::Top;
   bool fillBackground = false;
+  // top left, top right, bottom right, bottom left
+  std::optional<std::array<BoxGouraud, 4>> backgroundGouraud;
   bool outline = false;
   glm::ivec2 pos{0};
   int16_t letterSpacing = 1;

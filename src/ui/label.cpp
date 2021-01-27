@@ -139,8 +139,21 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
 
   if(fillBackground)
   {
-    for(int dy = 0; dy < effectiveBgndSize.y; ++dy)
-      img.line(bgnd + glm::ivec2{0, dy}, bgnd + glm::ivec2{effectiveBgndSize.x - 1, dy}, {0, 0, 0, 192}, true);
+    if(!backgroundGouraud.has_value())
+    {
+      for(int dy = 0; dy < effectiveBgndSize.y; ++dy)
+        img.line(bgnd + glm::ivec2{0, dy}, bgnd + glm::ivec2{effectiveBgndSize.x - 1, dy}, {0, 0, 0, 192}, true);
+    }
+    else
+    {
+      const auto half = effectiveBgndSize / 2;
+      const auto half2 = effectiveBgndSize - half;
+      const auto& g = backgroundGouraud.value();
+      drawBox(img, bgnd, half, g[0]);
+      drawBox(img, bgnd + glm::ivec2{half.x, 0}, {half2.x, half.y}, g[1]);
+      drawBox(img, bgnd + half, {half.x, half2.y}, g[2]);
+      drawBox(img, bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g[3]);
+    }
   }
 
   for(uint8_t chr : text)

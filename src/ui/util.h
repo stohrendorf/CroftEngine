@@ -1,3 +1,5 @@
+#pragma once
+
 #include "gl/image.h"
 
 namespace loader::file
@@ -8,13 +10,16 @@ struct ByteColor;
 
 namespace ui
 {
+// top left, top right, bottom right, bottom left
+using BoxGouraud = std::array<gl::SRGBA8, 4>;
+
 extern void drawOutlineBox(gl::Image<gl::SRGBA8>& img,
                            const glm::ivec2& xy,
                            const glm::ivec2& size,
                            const loader::file::Palette& palette);
-
-extern void drawLine(gl::Image<gl::SRGBA8>& img,
-                     const glm::ivec2& xy0,
-                     const glm::ivec2& size,
-                     const loader::file::ByteColor& color);
+extern void drawBox(gl::Image<gl::SRGBA8>& img,
+                    const glm::ivec2& xy,
+                    const glm::ivec2& size,
+                    const BoxGouraud& gouraud,
+                    bool blend = false);
 } // namespace ui

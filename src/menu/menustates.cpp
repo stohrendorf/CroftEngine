@@ -776,11 +776,24 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
   m_heading->alignX = ui::Label::Alignment::Center;
   m_heading->alignY = ui::Label::Alignment::Bottom;
   m_heading->addBackground({PixelWidth - 4, 0}, {0, 0});
+  const auto black = gl::SRGBA8{0, 0, 0, 0};
+  const auto greenish = gl::SRGBA8{16, 128, 56, 128};
+  m_heading->backgroundGouraud = std::array{ui::BoxGouraud{black, black, greenish, black},
+                                            ui::BoxGouraud{black, black, black, greenish},
+                                            ui::BoxGouraud{greenish, black, black, black},
+                                            ui::BoxGouraud{black, greenish, black, black}};
   m_heading->outline = true;
 
   m_background->alignX = ui::Label::Alignment::Center;
   m_background->alignY = ui::Label::Alignment::Bottom;
   m_background->addBackground({PixelWidth, LineHeight + TotalHeight + 12}, {0, 0});
+
+  const auto dark = gl::SRGBA8{0, 32, 0, 32};
+  const auto lighter = gl::SRGBA8{0, 96, 0, 96};
+  m_background->backgroundGouraud = std::array{ui::BoxGouraud{dark, dark, lighter, dark},
+                                               ui::BoxGouraud{dark, dark, dark, lighter},
+                                               ui::BoxGouraud{lighter, dark, dark, dark},
+                                               ui::BoxGouraud{dark, lighter, dark, dark}};
   m_background->outline = true;
 
   for(size_t i = 0; i < TotalSlots; ++i)
