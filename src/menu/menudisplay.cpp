@@ -1,7 +1,6 @@
 #include "menudisplay.h"
 
 #include "core/pybindmodule.h"
-#include "decoration.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
 #include "engine/objects/laraobject.h"

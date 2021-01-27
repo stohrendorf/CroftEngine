@@ -626,14 +626,11 @@ std::unique_ptr<MenuState>
     }
     if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
     {
-      if(display.mode == InventoryMode::SaveMode)
+      if(display.mode == InventoryMode::SaveMode || (m_allowSave && isInGame))
       {
-        if(m_allowSave && isInGame)
-        {
-          display.objectTexts[0].reset();
-          display.objectTexts[2].reset();
-          return create<SavegameListMenuState>(std::move(display.m_currentState));
-        }
+        display.objectTexts[0].reset();
+        display.objectTexts[2].reset();
+        return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text);
       }
       else
       {
@@ -769,10 +766,23 @@ void SetItemTypeMenuState::handleObject(engine::World& world, MenuDisplay& displ
 }
 
 SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                             std::unique_ptr<MenuState> passport)
+                                             std::unique_ptr<MenuState> previous,
+                                             const std::string& heading)
     : MenuState{ringTransform}
-    , m_passport{std::move(passport)}
+    , m_previous{std::move(previous)}
+    , m_heading{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - LineHeight - 10}, heading)}
+    , m_background{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - LineHeight - 12}, " ")}
 {
+  m_heading->alignX = ui::Label::Alignment::Center;
+  m_heading->alignY = ui::Label::Alignment::Bottom;
+  m_heading->addBackground({PixelWidth - 4, 0}, {0, 0});
+  m_heading->outline = true;
+
+  m_background->alignX = ui::Label::Alignment::Center;
+  m_background->alignY = ui::Label::Alignment::Bottom;
+  m_background->addBackground({PixelWidth, LineHeight + TotalHeight + 12}, {0, 0});
+  m_background->outline = true;
+
   for(size_t i = 0; i < TotalSlots; ++i)
   {
     const auto line = i % PerPage;
@@ -791,6 +801,8 @@ void SavegameListMenuState::handleObject(engine::World& /*world*/, MenuDisplay& 
 std::unique_ptr<MenuState>
   SavegameListMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& /*display*/)
 {
+  m_background->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+
   const auto page = m_selected / PerPage;
   const auto first = page * PerPage;
   const auto last = std::min(first + PerPage, m_labels.size());
@@ -811,6 +823,9 @@ std::unique_ptr<MenuState>
     lbl->draw(world.getPresenter().getTrFont(), img, world.getPalette());
   }
 
+  if(!m_heading->text.empty())
+    m_heading->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+
   if(m_selected > 0
      && world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
   {
@@ -828,11 +843,11 @@ std::unique_ptr<MenuState>
     BOOST_LOG_TRIVIAL(info) << "Save";
     serialization::Serializer::save(
       world.getEngine().getSavegamePath() / (makeSavegameBasename(m_selected) + ".yaml"), world, world);
-    return std::move(m_passport);
+    return std::move(m_previous);
   }
   else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
   {
-    return std::move(m_passport);
+    return std::move(m_previous);
   }
 
   return nullptr;
