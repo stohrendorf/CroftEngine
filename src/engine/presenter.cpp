@@ -384,4 +384,10 @@ void Presenter::clear()
 {
   m_renderer->resetScene();
 }
+
+void Presenter::debounceInput()
+{
+  m_inputHandler->update();
+  m_inputHandler->update();
+}
 } // namespace engine

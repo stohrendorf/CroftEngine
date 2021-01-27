@@ -142,6 +142,8 @@ public:
 
   void clear();
 
+  void debounceInput();
+
 private:
   static constexpr int32_t CSMResolution = 2048;
 

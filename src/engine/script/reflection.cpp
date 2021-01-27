@@ -70,6 +70,8 @@ RunResult Cutscene::run(Engine& engine)
 
 RunResult Level::run(Engine& engine, bool isTitleMenu)
 {
+  engine.getPresenter().debounceInput();
+
   auto titleIt = m_titles.find(engine.getLanguage());
   if(titleIt == m_titles.end())
   {
