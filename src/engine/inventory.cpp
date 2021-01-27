@@ -134,7 +134,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Magnums) == 0)
       return false;
 
-    lara.requestedGunType = objects::LaraObject::WeaponId::AutoPistols;
+    lara.requestedGunType = objects::LaraObject::WeaponId::Magnums;
     if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
     {
       lara.gunType = objects::LaraObject::WeaponId::None;
@@ -145,7 +145,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Uzis) == 0)
       return false;
 
-    lara.requestedGunType = objects::LaraObject::WeaponId::Uzi;
+    lara.requestedGunType = objects::LaraObject::WeaponId::Uzis;
     if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
     {
       lara.gunType = objects::LaraObject::WeaponId::None;

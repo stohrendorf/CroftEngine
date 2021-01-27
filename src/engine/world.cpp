@@ -1002,6 +1002,31 @@ void World::gameLoop(const std::string& levelName, bool godMode)
   const auto waterEntryPortals = m_cameraController->update();
   doGlobalEffect();
   getPresenter().drawBars(getPalette(), getObjectManager());
+  if(getObjectManager().getLara().getHandStatus() == engine::objects::HandStatus::Combat
+     && getObjectManager().getLara().gunType != engine::objects::LaraObject::WeaponId::Pistols)
+  {
+    size_t n = 0;
+    std::string suffix;
+    switch(getObjectManager().getLara().gunType)
+    {
+    case objects::LaraObject::WeaponId::Shotgun:
+      n = getObjectManager().getLara().shotgunAmmo.ammo / 6;
+      suffix = " A";
+      break;
+    case objects::LaraObject::WeaponId::Magnums:
+      n = getObjectManager().getLara().revolverAmmo.ammo;
+      suffix = " B";
+      break;
+    case objects::LaraObject::WeaponId::Uzis:
+      n = getObjectManager().getLara().uziAmmo.ammo;
+      suffix = " C";
+      break;
+    }
+    auto text = ui::Label{{-17, 22}, ui::makeAmmoString(std::to_string(n) + suffix)};
+    text.alignX = ui::Label::Alignment::Right;
+    text.draw(getPresenter().getTrFont(), *getPresenter().getScreenOverlay().getImage(), *m_level->m_palette);
+  }
+
   drawPickupWidgets();
   getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
 }

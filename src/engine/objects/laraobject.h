@@ -322,8 +322,8 @@ public:
   {
     None,
     Pistols,
-    AutoPistols,
-    Uzi,
+    Magnums,
+    Uzis,
     Shotgun
   };
 

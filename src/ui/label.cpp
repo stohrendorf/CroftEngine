@@ -21,6 +21,29 @@ const std::array<const uint8_t, 98> charToSprite{
   36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 100, 101, 102, 67, 0,  0,  0};
 } // namespace
 
+std::string makeAmmoString(const std::string& str)
+{
+  std::string result;
+  for(const char c : str)
+  {
+    if(c == ' ')
+    {
+      result += c;
+      continue;
+    }
+
+    if(c < 'A')
+    {
+      result += static_cast<char>(int(c) - int('0') + 1);
+    }
+    else
+    {
+      result += static_cast<char>(int(c) - int('A') + 12);
+    }
+  }
+  return result;
+}
+
 int Label::calcWidth() const
 {
   int width = 0;
@@ -123,7 +146,7 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
   for(uint8_t chr : text)
   {
     const auto origChar = chr;
-    if(chr > 129 || (chr > 10 && chr < 32))
+    if(chr > 15 && chr < 32)
       continue;
 
     if(chr == ' ')
@@ -137,7 +160,7 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
     else if(chr <= 15)
       chr += 91;
     else
-      chr = charToSprite[chr - ' '];
+      chr = charToSprite.at(chr - 32);
 
     font.draw(chr, xy, img);
 

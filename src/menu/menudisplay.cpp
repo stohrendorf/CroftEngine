@@ -1,6 +1,7 @@
 #include "menudisplay.h"
 
 #include "core/pybindmodule.h"
+#include "decoration.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
 #include "engine/objects/laraobject.h"
@@ -13,32 +14,6 @@
 
 namespace menu
 {
-namespace
-{
-std::string makeAmmoString(const std::string& str)
-{
-  std::string result;
-  for(const char c : str)
-  {
-    if(c == ' ')
-    {
-      result += c;
-      continue;
-    }
-
-    if(c < 'A')
-    {
-      result += static_cast<char>(c - '0' + 1);
-    }
-    else
-    {
-      result += static_cast<char>(c - 'A' + 12);
-    }
-  }
-  return result;
-}
-} // namespace
-
 void MenuDisplay::updateRingTitle()
 {
   if(rings.size() == 1)
@@ -150,7 +125,7 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
   {
     if(objectTexts[1] == nullptr)
       objectTexts[1]
-        = std::make_unique<ui::Label>(glm::ivec2{64, -56}, makeAmmoString(std::to_string(totalItemCount) + suffix));
+        = std::make_unique<ui::Label>(glm::ivec2{64, -56}, ui::makeAmmoString(std::to_string(totalItemCount) + suffix));
     objectTexts[1]->alignX = ui::Label::Alignment::Center;
     objectTexts[1]->alignY = ui::Label::Alignment::Bottom;
   }

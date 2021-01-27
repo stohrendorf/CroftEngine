@@ -14,6 +14,8 @@ struct Palette;
 
 namespace ui
 {
+extern std::string makeAmmoString(const std::string& str);
+
 constexpr int FontBaseScale = 0x10000;
 
 class CachedFont
