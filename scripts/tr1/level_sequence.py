@@ -22,6 +22,9 @@ lara_home = Level(
 )
 
 level_sequence = [
+    Video("CORE.RPL"),
+    Video("ESCAPE.RPL"),
+    Video("CAFE.RPL"),
     Video("SNOW.RPL"),
     Level(
         name="LEVEL1",
@@ -276,4 +279,5 @@ level_sequence = [
         secrets=3,
         inventory={TR1ItemId.Pistols: 1}
     ),
+    Video("END.RPL"),
 ]
