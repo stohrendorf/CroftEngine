@@ -630,7 +630,7 @@ std::unique_ptr<MenuState>
       {
         display.objectTexts[0].reset();
         display.objectTexts[2].reset();
-        return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text);
+        return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text, world);
       }
       else
       {
@@ -767,7 +767,8 @@ void SetItemTypeMenuState::handleObject(engine::World& world, MenuDisplay& displ
 
 SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                              std::unique_ptr<MenuState> previous,
-                                             const std::string& heading)
+                                             const std::string& heading,
+                                             const engine::World& world)
     : MenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_heading{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - LineHeight - 10}, heading)}
@@ -786,11 +787,17 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
   m_background->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGBA8{0, 96, 0, 96}, gl::SRGBA8{0, 32, 0, 32});
   m_background->outline = true;
 
+  const auto savedGames = world.getSavedGames();
+
   for(size_t i = 0; i < TotalSlots; ++i)
   {
     const auto line = i % PerPage;
-    auto lbl = std::make_unique<ui::Label>(glm::ivec2{0, YOffset + line * LineHeight},
-                                           "- EMPTY SLOT " + std::to_string(i + 1));
+    std::string name;
+    if(auto it = savedGames.find(i); it != savedGames.end())
+      name = it->second.title;
+    else
+      name = "- EMPTY SLOT " + std::to_string(i + 1);
+    auto lbl = std::make_unique<ui::Label>(glm::ivec2{0, YOffset + line * LineHeight}, name);
     lbl->alignX = ui::Label::Alignment::Center;
     lbl->alignY = ui::Label::Alignment::Bottom;
     m_labels.emplace_back(std::move(lbl));

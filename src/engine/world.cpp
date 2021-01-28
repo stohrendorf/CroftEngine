@@ -1047,25 +1047,14 @@ bool World::cinematicLoop()
   return true;
 }
 
-struct SavegameMeta
-{
-  std::string filename;
-  std::string title;
-
-  void serialize(const serialization::Serializer<World>& ser)
-  {
-    ser(S_NV("filename", filename), S_NV("title", title));
-  }
-};
-
 void World::load(const std::filesystem::path& filename)
 {
   getPresenter().drawLoadingScreen("Loading...");
   BOOST_LOG_TRIVIAL(info) << "Load";
   serialization::YAMLDocument<true> doc{m_engine.getSavegamePath() / filename};
   SavegameMeta meta{};
-  doc.load("meta", *this, meta);
-  if(meta.filename != m_level->getFilename())
+  doc.load("meta", meta, meta);
+  if(meta.filename != std::filesystem::relative(m_level->getFilename(), m_engine.getRootPath()))
   {
     BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
                              << m_level->getFilename();
@@ -1080,10 +1069,27 @@ void World::save(const std::filesystem::path& filename)
   getPresenter().drawLoadingScreen("Saving...");
   BOOST_LOG_TRIVIAL(info) << "Save";
   serialization::YAMLDocument<false> doc{m_engine.getSavegamePath() / filename};
-  SavegameMeta meta{m_level->getFilename(), m_title};
-  doc.save("meta", *this, meta);
+  SavegameMeta meta{std::filesystem::relative(m_level->getFilename(), m_engine.getRootPath()), m_title};
+  doc.save("meta", meta, meta);
   doc.save("data", *this, *this);
   doc.write();
+}
+
+std::map<size_t, SavegameMeta> World::getSavedGames() const
+{
+  std::map<size_t, SavegameMeta> result;
+  for(size_t i = 0; i < 100; ++i)
+  {
+    const auto path = m_engine.getSavegamePath() / ("save_" + std::to_string(i) + ".yaml");
+    if(!std::filesystem::is_regular_file(path))
+      continue;
+
+    serialization::YAMLDocument<true> doc{path};
+    SavegameMeta meta{};
+    doc.load("meta", meta, meta);
+    result.emplace(i, std::move(meta));
+  }
+  return result;
 }
 
 namespace
@@ -1536,5 +1542,10 @@ std::optional<std::string> World::getItemTitle(TR1ItemId id) const
   }
 
   return std::nullopt;
+}
+
+void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser)
+{
+  ser(S_NV("filename", filename), S_NV("title", title));
 }
 } // namespace engine

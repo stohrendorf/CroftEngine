@@ -302,7 +302,8 @@ private:
 public:
   explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                  std::unique_ptr<MenuState> previous,
-                                 const std::string& heading);
+                                 const std::string& heading,
+                                 const engine::World& world);
   void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
   std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
 };

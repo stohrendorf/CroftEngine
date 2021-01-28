@@ -39,6 +39,14 @@ class Presenter;
 class Engine;
 class AudioEngine;
 
+struct SavegameMeta
+{
+  std::string filename;
+  std::string title;
+
+  void serialize(const serialization::Serializer<SavegameMeta>& ser);
+};
+
 class World final
 {
 public:
@@ -199,6 +207,7 @@ public:
   bool cinematicLoop();
   void load(const std::filesystem::path& filename);
   void save(const std::filesystem::path& filename);
+  std::map<size_t, SavegameMeta> getSavedGames() const;
 
   [[nodiscard]] const Presenter& getPresenter() const;
   [[nodiscard]] Presenter& getPresenter();
