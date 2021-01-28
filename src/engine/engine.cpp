@@ -134,12 +134,12 @@ RunResult Engine::run(World& world, bool isCutscene)
 
       if(m_presenter->getInputHandler().getInputState().save.justChangedTo(true))
       {
-        world.save(getSavegamePath() / "quicksave.yaml");
+        world.save("quicksave.yaml");
         throttler.reset();
       }
       else if(m_presenter->getInputHandler().getInputState().load.justChangedTo(true))
       {
-        world.load(getSavegamePath() / "quicksave.yaml");
+        world.load("quicksave.yaml");
         throttler.reset();
       }
 

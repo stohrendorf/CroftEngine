@@ -7,6 +7,7 @@
 #include "soundeffects_tr1.h"
 
 #include <boost/container/flat_map.hpp>
+#include <filesystem>
 #include <map>
 #include <utility>
 

@@ -6,8 +6,6 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
-#include <filesystem>
-#include <fstream>
 #include <gsl-lite.hpp>
 #include <queue>
 #include <ryml.hpp>
@@ -154,9 +152,15 @@ inline void serializeTrivial(uint8_t& data, const Serializer<TContext>& ser)
 }
 }; // namespace access
 
+template<bool>
+class YAMLDocument;
+
 template<typename TContext>
 class Serializer final
 {
+  template<bool>
+  friend class YAMLDocument;
+
   using LazyWithContext = std::function<void()>;
   using LazyQueue = std::queue<LazyWithContext>;
 
@@ -277,60 +281,6 @@ public:
   void lazy(const gsl::not_null<gsl::czstring>& name, T& data) const
   {
     lazy([pdata = &data, name = name](const Serializer<TContext>& ser) { ser(name, *pdata); });
-  }
-
-  template<typename T>
-  static void save(const std::filesystem::path& filename, TContext& context, T& data)
-  {
-    std::ofstream file{filename, std::ios::out | std::ios::trunc};
-    Expects(file.is_open());
-    ryml::Tree t;
-    t.rootref() |= ryml::MAP;
-    Serializer ser{t.rootref(), context, false, nullptr};
-    access::callSerializeOrSave(data, ser);
-    ser.processQueues();
-    file << ser.node;
-  }
-
-  template<typename T>
-  static void load(const std::filesystem::path& filename, TContext& context, T& data)
-  {
-    std::ifstream file{filename, std::ios::in};
-    Expects(file.is_open());
-    file.seekg(0, std::ios::end);
-    const auto size = static_cast<std::size_t>(file.tellg());
-    file.seekg(0, std::ios::beg);
-
-    // Read entire file contents.
-    std::string buffer;
-    buffer.resize(size);
-    file.read(&buffer[0], size);
-    auto tree = ryml::parse(c4::to_csubstr(filename.string()), c4::to_csubstr(buffer));
-
-    Serializer ser{tree.rootref(), context, true, nullptr};
-    access::callSerializeOrLoad(data, ser);
-    ser.processQueues();
-  }
-
-  template<typename T>
-  static T load(const std::filesystem::path& filename, TContext& context)
-  {
-    std::ifstream file{filename, std::ios::in};
-    Expects(file.is_open());
-    file.seekg(0, std::ios::end);
-    const auto size = static_cast<std::size_t>(file.tellg());
-    file.seekg(0, std::ios::beg);
-
-    // Read entire file contents.
-    std::string buffer;
-    buffer.resize(size);
-    file.read(&buffer[0], size);
-    auto tree = ryml::parse(c4::to_csubstr(filename.string()), c4::to_csubstr(buffer));
-
-    Serializer ser{tree.rootref(), context, true, nullptr};
-    auto result = access::callCreate(TypeId<T>{}, ser);
-    ser.processQueues();
-    return result;
   }
 
   template<typename T, typename... Ts>

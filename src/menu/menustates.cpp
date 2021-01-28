@@ -842,10 +842,7 @@ std::unique_ptr<MenuState>
   }
   else if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
-    world.getPresenter().drawLoadingScreen("Saving...");
-    BOOST_LOG_TRIVIAL(info) << "Save";
-    serialization::Serializer<engine::World>::save(
-      world.getEngine().getSavegamePath() / (makeSavegameBasename(m_selected) + ".yaml"), world, world);
+    world.save(makeSavegameBasename(m_selected) + ".yaml");
     return std::move(m_previous);
   }
   else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))

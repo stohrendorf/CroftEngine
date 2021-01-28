@@ -25,6 +25,7 @@
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
 #include "serialization/vector.h"
+#include "serialization/yamldocument.h"
 #include "tracks_tr1.h"
 #include "ui/label.h"
 
@@ -1049,7 +1050,8 @@ bool World::cinematicLoop()
 void World::load(const std::filesystem::path& filename)
 {
   getPresenter().drawLoadingScreen("Loading...");
-  serialization::Serializer<World>::load(filename, *this, *this);
+  serialization::YAMLDocument<true> doc{m_engine.getSavegamePath() / filename};
+  doc.load("data", *this, *this);
   m_level->updateRoomBasedCaches();
 }
 
@@ -1057,7 +1059,9 @@ void World::save(const std::filesystem::path& filename)
 {
   getPresenter().drawLoadingScreen("Saving...");
   BOOST_LOG_TRIVIAL(info) << "Save";
-  serialization::Serializer<World>::save(filename, *this, *this);
+  serialization::YAMLDocument<false> doc{m_engine.getSavegamePath() / filename};
+  doc.save("data", *this, *this);
+  doc.write();
 }
 
 namespace
