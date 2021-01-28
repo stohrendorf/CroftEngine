@@ -102,12 +102,27 @@ struct Label
     Bottom = Right
   };
 
+  struct BackgroundGouraud
+  {
+    BoxGouraud topLeft;
+    BoxGouraud topRight;
+    BoxGouraud bottomRight;
+    BoxGouraud bottomLeft;
+  };
+
+  static BackgroundGouraud makeBackgroundCircle(const gl::SRGBA8& center, const gl::SRGBA8& outer)
+  {
+    return {ui::BoxGouraud{outer, outer, center, outer},
+            ui::BoxGouraud{outer, outer, outer, center},
+            ui::BoxGouraud{center, outer, outer, outer},
+            ui::BoxGouraud{outer, center, outer, outer}};
+  }
+
   bool blink = false;
   Alignment alignX = Alignment::Left;
   Alignment alignY = Alignment::Top;
   bool fillBackground = false;
-  // top left, top right, bottom right, bottom left
-  std::optional<std::array<BoxGouraud, 4>> backgroundGouraud;
+  std::optional<BackgroundGouraud> backgroundGouraud;
   bool outline = false;
   glm::ivec2 pos{0};
   int16_t letterSpacing = 1;

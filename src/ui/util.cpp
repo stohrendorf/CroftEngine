@@ -31,8 +31,9 @@ void drawBox(
 {
   for(int y = 0; y < size.y; ++y)
   {
-    const auto left = gl::mix(gouraud[0], gouraud[3], static_cast<float>(y) / static_cast<float>(size.y));
-    const auto right = gl::mix(gouraud[1], gouraud[2], static_cast<float>(y) / static_cast<float>(size.y));
+    const auto left = gl::mix(gouraud.topLeft, gouraud.bottomLeft, static_cast<float>(y) / static_cast<float>(size.y));
+    const auto right
+      = gl::mix(gouraud.topRight, gouraud.bottomRight, static_cast<float>(y) / static_cast<float>(size.y));
 
     for(int x = 0; x < size.x; ++x)
     {

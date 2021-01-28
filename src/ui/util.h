@@ -10,8 +10,13 @@ struct ByteColor;
 
 namespace ui
 {
-// top left, top right, bottom right, bottom left
-using BoxGouraud = std::array<gl::SRGBA8, 4>;
+struct alignas(16) BoxGouraud
+{
+  gl::SRGBA8 topLeft;
+  gl::SRGBA8 topRight;
+  gl::SRGBA8 bottomRight;
+  gl::SRGBA8 bottomLeft;
+};
 
 extern void drawOutlineBox(gl::Image<gl::SRGBA8>& img,
                            const glm::ivec2& xy,
