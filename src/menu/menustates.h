@@ -298,12 +298,14 @@ private:
   std::vector<std::unique_ptr<ui::Label>> m_labels;
   std::unique_ptr<ui::Label> m_heading;
   std::unique_ptr<ui::Label> m_background;
+  const bool m_loading;
 
 public:
   explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                  std::unique_ptr<MenuState> previous,
                                  const std::string& heading,
-                                 const engine::World& world);
+                                 const engine::World& world,
+                                 bool loading);
   void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
   std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
 };

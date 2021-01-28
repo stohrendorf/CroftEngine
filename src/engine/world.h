@@ -206,8 +206,17 @@ public:
   void gameLoop(const std::string& levelName, bool godMode);
   bool cinematicLoop();
   void load(const std::filesystem::path& filename);
+  void load(size_t slot)
+  {
+    load(makeSavegameFilename(slot));
+  }
   void save(const std::filesystem::path& filename);
-  std::map<size_t, SavegameMeta> getSavedGames() const;
+  void save(size_t slot)
+  {
+    save(makeSavegameFilename(slot));
+  }
+  [[nodiscard]] std::map<size_t, SavegameMeta> getSavedGames() const;
+  [[nodiscard]] bool hasSavedGames() const;
 
   [[nodiscard]] const Presenter& getPresenter() const;
   [[nodiscard]] Presenter& getPresenter();
@@ -317,5 +326,10 @@ private:
   std::unique_ptr<render::TextureAnimator> m_textureAnimator;
 
   std::vector<ui::PickupWidget> m_pickupWidgets{};
+
+  static std::string makeSavegameFilename(size_t n)
+  {
+    return "save_" + std::to_string(n) + ".yaml";
+  }
 };
 } // namespace engine

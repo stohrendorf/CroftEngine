@@ -1080,7 +1080,7 @@ std::map<size_t, SavegameMeta> World::getSavedGames() const
   std::map<size_t, SavegameMeta> result;
   for(size_t i = 0; i < 100; ++i)
   {
-    const auto path = m_engine.getSavegamePath() / ("save_" + std::to_string(i) + ".yaml");
+    const auto path = m_engine.getSavegamePath() / makeSavegameFilename(i);
     if(!std::filesystem::is_regular_file(path))
       continue;
 
@@ -1090,6 +1090,19 @@ std::map<size_t, SavegameMeta> World::getSavedGames() const
     result.emplace(i, std::move(meta));
   }
   return result;
+}
+
+bool World::hasSavedGames() const
+{
+  for(size_t i = 0; i < 100; ++i)
+  {
+    const auto path = m_engine.getSavegamePath() / makeSavegameFilename(i);
+    if(!std::filesystem::is_regular_file(path))
+      continue;
+
+    return true;
+  }
+  return false;
 }
 
 namespace

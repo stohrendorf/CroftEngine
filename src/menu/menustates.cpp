@@ -60,28 +60,6 @@ auto exactScale(const qs::quantity<Unit, Type>& value, const core::Frame& x, con
   const auto f = x.cast<float>() / max.cast<float>();
   return (value.template cast<float>() * f).template cast<Type>();
 }
-
-std::vector<std::filesystem::path> getSavegames(const engine::World& world)
-{
-  if(!std::filesystem::is_directory(world.getEngine().getSavegamePath()))
-    return {};
-
-  std::vector<std::filesystem::path> result;
-  for(const auto& p : std::filesystem::directory_iterator(world.getEngine().getSavegamePath()))
-  {
-    if(!p.is_regular_file() || p.path().extension() != ".meta")
-      continue;
-
-    result.emplace_back(p.path());
-  }
-
-  return result;
-}
-
-std::string makeSavegameBasename(size_t n)
-{
-  return "save_" + std::to_string(n);
-}
 } // namespace
 
 void ResetItemTransformMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
@@ -563,7 +541,7 @@ std::unique_ptr<MenuState>
     return nullptr;
 
   const bool isInGame = display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::DeathMode;
-  const bool hasSavedGames = !getSavegames(world).empty();
+  const bool hasSavedGames = world.hasSavedGames();
 
   display.objectTexts[0].reset();
   const auto localFrame = passport.goalFrame - passport.openFrame;
@@ -603,8 +581,7 @@ std::unique_ptr<MenuState>
     {
       display.objectTexts[0].reset();
       display.objectTexts[2].reset();
-      BOOST_LOG_TRIVIAL(error) << "load game dialog not implemented yet";
-      return nullptr;
+      return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text, world, true);
     }
     break;
   case SaveGamePage:
@@ -630,7 +607,7 @@ std::unique_ptr<MenuState>
       {
         display.objectTexts[0].reset();
         display.objectTexts[2].reset();
-        return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text, world);
+        return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text, world, false);
       }
       else
       {
@@ -768,11 +745,13 @@ void SetItemTypeMenuState::handleObject(engine::World& world, MenuDisplay& displ
 SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                              std::unique_ptr<MenuState> previous,
                                              const std::string& heading,
-                                             const engine::World& world)
+                                             const engine::World& world,
+                                             bool loading)
     : MenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_heading{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - LineHeight - 10}, heading)}
     , m_background{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - LineHeight - 12}, " ")}
+    , m_loading{loading}
 {
   m_heading->alignX = ui::Label::Alignment::Center;
   m_heading->alignY = ui::Label::Alignment::Bottom;
@@ -847,9 +826,20 @@ std::unique_ptr<MenuState>
   {
     ++m_selected;
   }
+  if(m_selected >= PerPage
+     && world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
+  {
+    m_selected -= PerPage;
+  }
+  else if(m_selected < TotalSlots - PerPage
+          && world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
+  {
+    m_selected += PerPage;
+  }
   else if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
-    world.save(makeSavegameBasename(m_selected) + ".yaml");
+    if(!m_loading)
+      world.save(m_selected);
     return std::move(m_previous);
   }
   else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
