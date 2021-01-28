@@ -1047,10 +1047,30 @@ bool World::cinematicLoop()
   return true;
 }
 
+struct SavegameMeta
+{
+  std::string filename;
+  std::string title;
+
+  void serialize(const serialization::Serializer<World>& ser)
+  {
+    ser(S_NV("filename", filename), S_NV("title", title));
+  }
+};
+
 void World::load(const std::filesystem::path& filename)
 {
   getPresenter().drawLoadingScreen("Loading...");
+  BOOST_LOG_TRIVIAL(info) << "Load";
   serialization::YAMLDocument<true> doc{m_engine.getSavegamePath() / filename};
+  SavegameMeta meta{};
+  doc.load("meta", *this, meta);
+  if(meta.filename != m_level->getFilename())
+  {
+    BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
+                             << m_level->getFilename();
+    return;
+  }
   doc.load("data", *this, *this);
   m_level->updateRoomBasedCaches();
 }
@@ -1060,6 +1080,8 @@ void World::save(const std::filesystem::path& filename)
   getPresenter().drawLoadingScreen("Saving...");
   BOOST_LOG_TRIVIAL(info) << "Save";
   serialization::YAMLDocument<false> doc{m_engine.getSavegamePath() / filename};
+  SavegameMeta meta{m_level->getFilename(), m_title};
+  doc.save("meta", *this, meta);
   doc.save("data", *this, *this);
   doc.write();
 }

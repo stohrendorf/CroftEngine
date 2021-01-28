@@ -10,6 +10,7 @@
 #include "loader/file/mesh.h"
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace loader
@@ -24,9 +25,10 @@ namespace file::level
 class Level
 {
 public:
-  Level(const Game gameVersion, io::SDLReader&& reader)
+  Level(const Game gameVersion, io::SDLReader&& reader, std::filesystem::path filename)
       : m_gameVersion{gameVersion}
       , m_reader{std::move(reader)}
+      , m_filename{std::move(filename)}
   {
   }
 
@@ -142,6 +144,11 @@ public:
 
   void updateRoomBasedCaches();
 
+  const auto& getFilename() const
+  {
+    return m_filename;
+  }
+
 protected:
   io::SDLReader m_reader;
 
@@ -156,10 +163,14 @@ protected:
   void postProcessDataStructures();
 
 private:
+  const std::filesystem::path m_filename;
+
   static Game probeVersion(io::SDLReader& reader, const std::filesystem::path& filename);
 
-  static std::unique_ptr<Level>
-    createLoader(io::SDLReader&& reader, Game game_version, const std::filesystem::path& sfxPath);
+  static std::unique_ptr<Level> createLoader(io::SDLReader&& reader,
+                                             std::filesystem::path filename,
+                                             Game game_version,
+                                             const std::filesystem::path& sfxPath);
 };
 } // namespace file::level
 } // namespace loader
