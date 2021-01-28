@@ -44,7 +44,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     getWorld().getObjectManager().getLara().m_state.rotation.Y = y;
 
     core::Length core::TRVec::*vp;
-    core::Length d = 0_len;
+    core::Length d;
     switch(*axis)
     {
     case core::Axis::PosZ:

@@ -329,9 +329,9 @@ public:
 
   struct Ammo
   {
-    int ammo = 0;
-    int hits = 0;
-    int misses = 0;
+    size_t ammo = 0;
+    uint32_t hits = 0;
+    uint32_t misses = 0;
 
     void serialize(const serialization::Serializer<World>& ser);
   };

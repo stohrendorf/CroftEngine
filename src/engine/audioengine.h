@@ -35,12 +35,10 @@ class AudioEngine
   float m_streamVolume = 0.8f;
 
 public:
-  explicit AudioEngine(World& world,
-                       std::filesystem::path rootPath,
-                       const std::shared_ptr<audio::SoundEngine>& soundEngine)
+  explicit AudioEngine(World& world, std::filesystem::path rootPath, std::shared_ptr<audio::SoundEngine> soundEngine)
       : m_world{world}
       , m_rootPath{std::move(rootPath)}
-      , m_soundEngine{soundEngine}
+      , m_soundEngine{std::move(soundEngine)}
   {
   }
 
@@ -66,7 +64,7 @@ public:
   }
 
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
-  void playSoundEffect(const core::SoundEffectId id, const glm::vec3& pos);
+  void playSoundEffect(core::SoundEffectId id, const glm::vec3& pos);
 
   gsl::not_null<std::shared_ptr<audio::Voice>> playStream(size_t trackId);
 

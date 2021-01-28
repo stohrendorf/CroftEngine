@@ -1643,9 +1643,8 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
     ammoPtr->ammo = 1000;
   }
 
-  if(ammoPtr->ammo <= 0)
+  if(ammoPtr->ammo == 0)
   {
-    ammoPtr->ammo = 0;
     playSoundEffect(TR1SoundEffect::EmptyAmmo);
     requestedGunType = WeaponId::Pistols;
     return false;

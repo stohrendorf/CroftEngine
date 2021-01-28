@@ -72,7 +72,7 @@ private:
   std::string m_language;
 
   std::unique_ptr<loader::trx::Glidos> m_glidos;
-  std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
+  [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
 
 public:
   explicit Engine(const std::filesystem::path& rootPath,
@@ -93,16 +93,6 @@ public:
     return *m_presenter;
   }
 
-  auto& getScriptEngine()
-  {
-    return *m_scriptEngine;
-  }
-
-  [[nodiscard]] const auto& getScriptEngine() const
-  {
-    return *m_scriptEngine;
-  }
-
   RunResult run(World& world, bool isCutscene);
   RunResult runTitleMenu(World& world);
 
@@ -119,14 +109,14 @@ public:
     return p;
   }
 
-  const std::filesystem::path& getRootPath() const
+  [[nodiscard]] const std::filesystem::path& getRootPath() const
   {
     return m_rootPath;
   }
 
   RunResult runLevelSequenceItem(script::LevelSequenceItem& item);
 
-  const auto& getGlidos() const noexcept
+  [[nodiscard]] const auto& getGlidos() const noexcept
   {
     return m_glidos;
   }

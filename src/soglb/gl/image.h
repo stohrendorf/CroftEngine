@@ -78,7 +78,7 @@ public:
   {
     Expects(size.x >= 0 && size.y >= 0);
 
-    const auto dataSize = static_cast<size_t>(size.x * size.y);
+    const auto dataSize = static_cast<size_t>(size.x) * static_cast<size_t>(size.y);
     if(data == nullptr)
       m_data.resize(dataSize);
     else
