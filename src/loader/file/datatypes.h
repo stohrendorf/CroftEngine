@@ -118,7 +118,7 @@ struct Sector
     ceilingHeight = -core::HeightLimit;
   }
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<engine::World>& ser);
 
   void updateCaches(std::vector<Room>& rooms,
                     const std::vector<Box>& boxes,
@@ -460,7 +460,7 @@ struct Room
 
   void resetScenery();
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<engine::World>& ser);
 };
 
 extern gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
@@ -566,7 +566,7 @@ struct Box
     }
   }
 
-  void serialize(const serialization::Serializer& ser)
+  void serialize(const serialization::Serializer<engine::World>& ser)
   {
     ser(S_NV("blocked", blocked), S_NV("blockable", blockable));
   }
@@ -600,7 +600,7 @@ struct Camera
     uint16_t box_index;
   };
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<engine::World>& ser);
 
   static std::unique_ptr<Camera> read(io::SDLReader& reader);
 

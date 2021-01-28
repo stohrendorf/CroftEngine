@@ -177,7 +177,7 @@ public:
 
   void kill();
 
-  virtual void serialize(const serialization::Serializer& ser);
+  virtual void serialize(const serialization::Serializer<World>& ser);
 
   void playShotMissed(const core::RoomBoundPosition& pos);
 

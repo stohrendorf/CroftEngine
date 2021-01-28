@@ -12,6 +12,8 @@ namespace objects
 class LaraObject;
 }
 
+class World;
+
 class Inventory
 {
 private:
@@ -20,7 +22,7 @@ private:
 public:
   explicit Inventory() = default;
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<World>& ser);
 
   void put(objects::LaraObject& lara, core::TypeId id, size_t quantity = 1);
 

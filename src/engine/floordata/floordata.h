@@ -137,7 +137,7 @@ public:
     return m_timeout;
   }
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<World>& ser);
 
 private:
   static ActivationSet extractActivationSet(const FloorDataValue fd)

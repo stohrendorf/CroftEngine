@@ -71,7 +71,7 @@ public:
     return bb;
   }
 
-  void serialize(const serialization::Serializer& ser) override;
+  void serialize(const serialization::Serializer<World>& ser) override;
 };
 } // namespace objects
 } // namespace engine

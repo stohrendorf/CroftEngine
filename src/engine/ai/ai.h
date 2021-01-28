@@ -71,13 +71,13 @@ struct CreatureInfo
     head_rotation = std::clamp(delta + head_rotation, -90_deg, +90_deg);
   }
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<World>& ser);
 };
 
 std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
-                                     const serialization::Serializer& ser);
+                                     const serialization::Serializer<World>& ser);
 
-void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer& ser);
+void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer<World>& ser);
 
 void updateMood(const World& world, const objects::ObjectState& objectState, const AiInfo& aiInfo, bool violent);
 } // namespace ai

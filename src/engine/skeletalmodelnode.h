@@ -95,7 +95,7 @@ public:
                                               const loader::file::AnimFrame& frame,
                                               const glm::mat4* baseTransform);
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<World>& ser);
 
   static void buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, core::AnimStateId& animState);
 
@@ -175,8 +175,8 @@ private:
     std::shared_ptr<loader::file::RenderMeshData> mesh{nullptr};
     bool visible = true;
 
-    void serialize(const serialization::Serializer& ser);
-    static MeshPart create(const serialization::Serializer& ser);
+    void serialize(const serialization::Serializer<World>& ser);
+    static MeshPart create(const serialization::Serializer<World>& ser);
   };
 
   const gsl::not_null<const World*> m_world;
@@ -189,6 +189,6 @@ private:
   void updatePoseInterpolated(const InterpolationInfo& framePair);
 };
 
-void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer& ser);
+void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<World>& ser);
 
 } // namespace engine

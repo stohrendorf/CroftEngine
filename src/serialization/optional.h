@@ -6,8 +6,8 @@
 
 namespace serialization
 {
-template<typename T>
-inline void save(std::optional<T>& optional, const Serializer& ser)
+template<typename T, typename TContext>
+inline void save(std::optional<T>& optional, const Serializer<TContext>& ser)
 {
   if(optional.has_value())
   {
@@ -19,8 +19,8 @@ inline void save(std::optional<T>& optional, const Serializer& ser)
   }
 }
 
-template<typename T>
-inline void load(std::optional<T>& optional, const Serializer& ser)
+template<typename T, typename TContext>
+inline void load(std::optional<T>& optional, const Serializer<TContext>& ser)
 {
   if(ser.isNull())
   {
@@ -35,8 +35,8 @@ inline void load(std::optional<T>& optional, const Serializer& ser)
   }
 }
 
-template<typename T>
-inline std::optional<T> create(const TypeId<std::optional<T>>&, const Serializer& ser)
+template<typename T, typename TContext>
+inline std::optional<T> create(const TypeId<std::optional<T>>&, const Serializer<TContext>& ser)
 {
   if(ser.isNull())
   {

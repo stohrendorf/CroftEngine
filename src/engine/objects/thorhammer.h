@@ -37,7 +37,7 @@ public:
 
   void collide(CollisionInfo& info) override;
 
-  void serialize(const serialization::Serializer& ser) override;
+  void serialize(const serialization::Serializer<World>& ser) override;
 
 private:
   const std::shared_ptr<ThorHammerBlock> m_block;

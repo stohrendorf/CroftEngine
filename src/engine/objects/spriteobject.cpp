@@ -61,7 +61,7 @@ void SpriteObject::createModel()
   bindSpritePole(*m_node, render::scene::SpritePole::Y);
 }
 
-void SpriteObject::serialize(const serialization::Serializer& ser)
+void SpriteObject::serialize(const serialization::Serializer<World>& ser)
 {
   Object::serialize(ser);
   auto tmp = getNode()->getName();

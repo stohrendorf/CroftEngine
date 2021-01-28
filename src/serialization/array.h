@@ -6,8 +6,8 @@
 
 namespace serialization
 {
-template<typename T, size_t N>
-void save(std::array<T, N>& data, const Serializer& ser)
+template<typename T, size_t N, typename TContext>
+void save(std::array<T, N>& data, const Serializer<TContext>& ser)
 {
   ser.tag("array");
   ser.node |= ryml::SEQ;
@@ -18,8 +18,8 @@ void save(std::array<T, N>& data, const Serializer& ser)
   }
 }
 
-template<typename T, size_t N>
-void load(std::array<T, N>& data, const Serializer& ser)
+template<typename T, size_t N, typename TContext>
+void load(std::array<T, N>& data, const Serializer<TContext>& ser)
 {
   ser.tag("array");
   Expects(ser.node.is_seq());

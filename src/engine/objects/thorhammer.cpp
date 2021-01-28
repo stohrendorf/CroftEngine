@@ -146,10 +146,10 @@ void ThorHammerHandle::collide(CollisionInfo& info)
   enemyPush(info, false, true);
 }
 
-void ThorHammerHandle::serialize(const serialization::Serializer& ser)
+void ThorHammerHandle::serialize(const serialization::Serializer<World>& ser)
 {
   ModelObject::serialize(ser);
-  ser.lazy([this](const serialization::Serializer& ser) { ser(S_NV("block", *m_block)); });
+  ser.lazy([this](const serialization::Serializer<World>& ser) { ser(S_NV("block", *m_block)); });
 }
 
 void ThorHammerBlock::collide(CollisionInfo& info)

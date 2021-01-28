@@ -147,12 +147,14 @@ struct ContainerIndex
     return *this;
   }
 
-  void serialize(const serialization::Serializer& ser)
+  template<typename TContext>
+  void serialize(const serialization::Serializer<TContext>& ser)
   {
     ser(S_NV("index", index));
   }
 
-  static ContainerIndex<IndexType, DataTypes...> create(const serialization::Serializer& ser)
+  template<typename TContext>
+  static ContainerIndex<IndexType, DataTypes...> create(const serialization::Serializer<TContext>& ser)
   {
     index_type tmp = 0;
     ser(S_NV("index", tmp));

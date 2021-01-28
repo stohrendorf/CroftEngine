@@ -89,11 +89,11 @@ public:
                                                                       const core::Speed& speed,
                                                                       const core::Angle& angle));
 
-  void serialize(const serialization::Serializer& ser) override;
+  void serialize(const serialization::Serializer<World>& ser) override;
 
-  static std::shared_ptr<ModelObject> create(serialization::Serializer& ser);
+  static std::shared_ptr<ModelObject> create(serialization::Serializer<World>& ser);
 };
 
 std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
-                                    serialization::Serializer& ser);
+                                    serialization::Serializer<World>& ser);
 } // namespace engine::objects

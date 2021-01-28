@@ -192,7 +192,7 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
   return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au && d.X == 0_len && d.Y == 0_len && d.Z == 0_len;
 }
 
-void Object::serialize(const serialization::Serializer& ser)
+void Object::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("@type", m_state.type),
       S_NV("@position", m_state.position),
@@ -200,7 +200,7 @@ void Object::serialize(const serialization::Serializer& ser)
       S_NV("hasUpdateFunction", m_hasUpdateFunction),
       S_NV("isActive", m_isActive));
 
-  ser.lazy([this](const serialization::Serializer& ser) {
+  ser.lazy([this](const serialization::Serializer<World>& ser) {
     // FIXME ser(S_NV("renderables", serialization::FrozenVector{getNode()->getChildren()}));
 
     if(ser.loading)

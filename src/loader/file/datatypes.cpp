@@ -874,7 +874,7 @@ void Room::resetScenery()
   }
 }
 
-void Room::serialize(const serialization::Serializer& ser)
+void Room::serialize(const serialization::Serializer<engine::World>& ser)
 {
   ser(S_NV("sectors", serialization::FrozenVector{sectors}));
 }
@@ -924,7 +924,7 @@ gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
   return sector;
 }
 
-void Camera::serialize(const serialization::Serializer& ser)
+void Camera::serialize(const serialization::Serializer<engine::World>& ser)
 {
   ser(S_NV("flags", flags));
 }
@@ -989,7 +989,7 @@ Sector Sector::read(io::SDLReader& reader)
   return sector;
 }
 
-void Sector::serialize(const serialization::Serializer& ser)
+void Sector::serialize(const serialization::Serializer<engine::World>& ser)
 {
   ser(S_NV("floorDataIndex", floorDataIndex),
       S_NV("boxIndex", boxIndex),

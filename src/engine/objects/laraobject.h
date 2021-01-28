@@ -315,7 +315,7 @@ public:
     core::TRRotationXY aimRotation{};
     core::Frame flashTimeout = 0_frame;
 
-    void serialize(const serialization::Serializer& ser);
+    void serialize(const serialization::Serializer<World>& ser);
   };
 
   enum class WeaponId
@@ -333,7 +333,7 @@ public:
     int hits = 0;
     int misses = 0;
 
-    void serialize(const serialization::Serializer& ser);
+    void serialize(const serialization::Serializer<World>& ser);
   };
 
   AimInfo leftArm;
@@ -354,7 +354,7 @@ public:
     core::Angle min = 0_deg;
     core::Angle max = 0_deg;
 
-    void serialize(const serialization::Serializer& ser);
+    void serialize(const serialization::Serializer<World>& ser);
   };
 
   struct RangeXY
@@ -362,7 +362,7 @@ public:
     Range x{};
     Range y{};
 
-    void serialize(const serialization::Serializer& ser);
+    void serialize(const serialization::Serializer<World>& ser);
   };
 
   struct Weapon
@@ -379,9 +379,9 @@ public:
     core::Frame flashTime = 0_frame;
     TR1SoundEffect shotSound = TR1SoundEffect::LaraFootstep;
 
-    void serialize(const serialization::Serializer& ser);
+    void serialize(const serialization::Serializer<World>& ser);
 
-    static Weapon create(const serialization::Serializer& ser)
+    static Weapon create(const serialization::Serializer<World>& ser)
     {
       Weapon tmp;
       tmp.serialize(ser);
@@ -459,7 +459,7 @@ public:
 
   void burnIfAlive();
 
-  void serialize(const serialization::Serializer& ser) override;
+  void serialize(const serialization::Serializer<World>& ser) override;
 
   bool isDead() const
   {

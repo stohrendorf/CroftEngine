@@ -5,7 +5,7 @@
 
 namespace engine::floordata
 {
-void ActivationState::serialize(const serialization::Serializer& ser)
+void ActivationState::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("oneshot", m_oneshot),
       S_NV("inverted", m_inverted),

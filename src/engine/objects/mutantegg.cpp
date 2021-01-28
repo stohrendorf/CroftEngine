@@ -165,7 +165,7 @@ void MutantEgg::collide(CollisionInfo& info)
   enemyPush(info, false, true);
 }
 
-void MutantEgg::serialize(const serialization::Serializer& ser)
+void MutantEgg::serialize(const serialization::Serializer<World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("childObject", serialization::ObjectReference{m_childObject}));

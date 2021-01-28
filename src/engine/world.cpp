@@ -942,7 +942,7 @@ core::TypeId World::find(const loader::file::Sprite* sprite) const
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find sprite"));
 }
 
-void World::serialize(const serialization::Serializer& ser)
+void World::serialize(const serialization::Serializer<World>& ser)
 {
   if(ser.loading)
   {
@@ -1049,7 +1049,7 @@ bool World::cinematicLoop()
 void World::load(const std::filesystem::path& filename)
 {
   getPresenter().drawLoadingScreen("Loading...");
-  serialization::Serializer::load(filename, *this, *this);
+  serialization::Serializer<World>::load(filename, *this, *this);
   m_level->updateRoomBasedCaches();
 }
 
@@ -1057,7 +1057,7 @@ void World::save(const std::filesystem::path& filename)
 {
   getPresenter().drawLoadingScreen("Saving...");
   BOOST_LOG_TRIVIAL(info) << "Save";
-  serialization::Serializer::save(filename, *this, *this);
+  serialization::Serializer<World>::save(filename, *this, *this);
 }
 
 namespace

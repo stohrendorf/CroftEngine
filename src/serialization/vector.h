@@ -6,8 +6,8 @@
 
 namespace serialization
 {
-template<typename T>
-void save(std::vector<T>& data, const Serializer& ser)
+template<typename T, typename TContext>
+void save(std::vector<T>& data, const Serializer<TContext>& ser)
 {
   ser.tag("vector");
   ser.node |= ryml::SEQ;
@@ -18,8 +18,8 @@ void save(std::vector<T>& data, const Serializer& ser)
   }
 }
 
-template<typename T>
-void load(std::vector<T>& data, const Serializer& ser)
+template<typename T, typename TContext>
+void load(std::vector<T>& data, const Serializer<TContext>& ser)
 {
   ser.tag("vector");
   Expects(ser.node.is_seq());
@@ -39,7 +39,8 @@ struct FrozenVector
   {
   }
 
-  void load(const Serializer& ser)
+  template<typename TContext>
+  void load(const Serializer<TContext>& ser)
   {
     Expects(ser.node.num_children() == vec.size());
     auto it = vec.begin();
@@ -49,7 +50,8 @@ struct FrozenVector
     }
   }
 
-  void save(const Serializer& ser) const
+  template<typename TContext>
+  void save(const Serializer<TContext>& ser) const
   {
     ser.node |= ryml::SEQ;
     for(auto& element : vec)

@@ -6,8 +6,8 @@
 
 namespace serialization
 {
-template<size_t N>
-void save(std::bitset<N>& data, const Serializer& ser)
+template<size_t N, typename TContext>
+void save(std::bitset<N>& data, const Serializer<TContext>& ser)
 {
   ser.tag("bitset");
   std::string tmp;
@@ -19,8 +19,8 @@ void save(std::bitset<N>& data, const Serializer& ser)
   ser.node << tmp;
 }
 
-template<size_t N>
-void load(std::bitset<N>& data, const Serializer& ser)
+template<size_t N, typename TContext>
+void load(std::bitset<N>& data, const Serializer<TContext>& ser)
 {
   ser.tag("bitset");
   data.reset();

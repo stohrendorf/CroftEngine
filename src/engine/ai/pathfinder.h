@@ -25,8 +25,8 @@ struct PathFinderNode
   const loader::file::Box* exit_box = nullptr;
   bool traversable = true;
 
-  void serialize(const serialization::Serializer& ser);
-  static PathFinderNode create(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<World>& ser);
+  static PathFinderNode create(const serialization::Serializer<World>& ser);
 };
 
 struct PathFinder
@@ -98,7 +98,7 @@ struct PathFinder
 
   void searchPath(const World& world);
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<World>& ser);
 };
 } // namespace ai
 } // namespace engine

@@ -23,7 +23,7 @@ public:
 
   static constexpr size_t SegmentPoints = 16;
 
-  void serialize(const serialization::Serializer& ser) override;
+  void serialize(const serialization::Serializer<World>& ser) override;
 
 private:
   static constexpr size_t ChildBolts = 5;
@@ -44,7 +44,7 @@ private:
     std::shared_ptr<render::scene::Node> node;
     std::shared_ptr<gl::VertexBuffer<glm::vec3>> vb;
 
-    void serialize(const serialization::Serializer& ser);
+    void serialize(const serialization::Serializer<World>& ser);
   };
 
   std::array<ChildBolt, ChildBolts> m_childBolts;

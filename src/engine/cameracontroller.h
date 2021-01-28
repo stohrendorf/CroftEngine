@@ -204,7 +204,7 @@ public:
   std::unordered_set<const loader::file::Portal*> updateCinematic(const loader::file::CinematicFrame& frame,
                                                                   bool ingame);
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<World>& ser);
 
   size_t m_cinematicFrame = 0;
   core::TRVec m_cinematicPos{0_len, 0_len, 0_len};

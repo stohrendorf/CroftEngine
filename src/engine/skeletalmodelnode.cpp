@@ -308,7 +308,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
   return result;
 }
 
-void SkeletalModelNode::serialize(const serialization::Serializer& ser)
+void SkeletalModelNode::serialize(const serialization::Serializer<World>& ser)
 {
   auto id = getName();
   ser(S_NV("id", id),
@@ -318,20 +318,20 @@ void SkeletalModelNode::serialize(const serialization::Serializer& ser)
       S_NV("frame", frame_number));
 
   if(ser.loading)
-    ser.lazy([this](const serialization::Serializer&) {
+    ser.lazy([this](const serialization::Serializer<World>&) {
       m_needsMeshRebuild = true;
       rebuildMesh();
     });
 }
 
-void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer& ser)
+void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<World>& ser)
 {
   if(ser.loading)
   {
     const loader::file::SkeletalModelType* model = nullptr;
     ser(S_NV("model", model));
-    data
-      = std::make_shared<SkeletalModelNode>(create(serialization::TypeId<std::string>{}, ser["id"]), &ser.world, model);
+    data = std::make_shared<SkeletalModelNode>(
+      create(serialization::TypeId<std::string>{}, ser["id"]), &ser.context, model);
   }
   else
   {
@@ -403,12 +403,12 @@ bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
   return min.x > 1 || min.y > 1 || max.x < -1 || max.y < -1;
 }
 
-void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer& ser)
+void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("patch", patch), S_NV("matrix", matrix), S_NV("mesh", mesh), S_NV("visible", visible));
 }
 
-SkeletalModelNode::MeshPart SkeletalModelNode::MeshPart::create(const serialization::Serializer& ser)
+SkeletalModelNode::MeshPart SkeletalModelNode::MeshPart::create(const serialization::Serializer<World>& ser)
 {
   Expects(ser.loading);
   MeshPart tmp{};

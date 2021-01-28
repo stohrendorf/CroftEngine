@@ -194,7 +194,7 @@ public:
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   core::TypeId find(const loader::file::SkeletalModelType* model) const;
   core::TypeId find(const loader::file::Sprite* sprite) const;
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<World>& ser);
   void gameLoop(const std::string& levelName, bool godMode);
   bool cinematicLoop();
   void load(const std::filesystem::path& filename);

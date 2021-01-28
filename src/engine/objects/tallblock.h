@@ -23,6 +23,6 @@ public:
 
   void update() override;
 
-  void serialize(const serialization::Serializer& ser) override;
+  void serialize(const serialization::Serializer<World>& ser) override;
 };
 } // namespace engine::objects

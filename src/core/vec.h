@@ -7,6 +7,11 @@
 #include <gsl-lite.hpp>
 #include <utility>
 
+namespace engine
+{
+class World;
+}
+
 namespace loader::file
 {
 struct Room;
@@ -103,7 +108,7 @@ struct TRVec final
     return Length{static_cast<Length::type>(glm::sqrt(dx * dx + dy * dy + dz * dz))};
   }
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<engine::World>& ser);
 
   [[nodiscard]] Length length() const
   {
@@ -135,8 +140,8 @@ struct RoomBoundPosition final
   {
   }
 
-  void serialize(const serialization::Serializer& ser);
-  [[nodiscard]] static RoomBoundPosition create(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<engine::World>& ser);
+  [[nodiscard]] static RoomBoundPosition create(const serialization::Serializer<engine::World>& ser);
 };
 
 extern std::ostream& operator<<(std::ostream& stream, const RoomBoundPosition& rhs);

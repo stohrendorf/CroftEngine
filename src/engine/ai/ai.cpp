@@ -203,17 +203,17 @@ void updateMood(const World& world, const objects::ObjectState& objectState, con
 }
 
 std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
-                                     const serialization::Serializer& ser)
+                                     const serialization::Serializer<World>& ser)
 {
   if(!ser.node.has_val())
     return nullptr;
 
-  auto result = std::make_shared<CreatureInfo>(ser.world, core::TypeId::create(ser["type"]));
+  auto result = std::make_shared<CreatureInfo>(ser.context, core::TypeId::create(ser["type"]));
   ser(S_NV("data", *result));
   return result;
 }
 
-void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer& ser)
+void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer<World>& ser)
 {
   if(ser.loading)
   {
@@ -305,7 +305,7 @@ CreatureInfo::CreatureInfo(const World& world, const core::TypeId type)
   }
 }
 
-void CreatureInfo::serialize(const serialization::Serializer& ser)
+void CreatureInfo::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("headRotation", head_rotation),
       S_NV("neckRotation", neck_rotation),

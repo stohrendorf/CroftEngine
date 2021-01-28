@@ -95,7 +95,7 @@ public:
 
   std::shared_ptr<ai::CreatureInfo> creatureInfo;
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<World>& ser);
 
   bool updateActivationTimeout()
   {

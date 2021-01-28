@@ -15,7 +15,7 @@ void LavaParticleEmitter::update()
   playSoundEffect(TR1SoundEffect::ChoppyWater);
 }
 
-void LavaParticleEmitter::serialize(const serialization::Serializer& ser)
+void LavaParticleEmitter::serialize(const serialization::Serializer<World>& ser)
 {
   ModelObject::serialize(ser);
   getSkeleton()->setRenderable(nullptr);

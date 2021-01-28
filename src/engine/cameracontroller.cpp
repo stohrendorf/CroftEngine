@@ -769,7 +769,7 @@ CameraController::CameraController(const gsl::not_null<World*>& world,
 {
 }
 
-void CameraController::serialize(const serialization::Serializer& ser)
+void CameraController::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("position", m_position),
       S_NV("lookAt", m_lookAt),

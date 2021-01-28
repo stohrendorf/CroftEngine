@@ -317,7 +317,7 @@ void PathFinder::searchPath(const World& world)
   }
 }
 
-void PathFinder::serialize(const serialization::Serializer& ser)
+void PathFinder::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("nodes", nodes),
       S_NV("boxes", boxes),
@@ -333,12 +333,12 @@ void PathFinder::serialize(const serialization::Serializer& ser)
       S_NV("target", target));
 }
 
-void PathFinderNode::serialize(const serialization::Serializer& ser)
+void PathFinderNode::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("exitBox", exit_box), S_NV("traversable", traversable));
 }
 
-PathFinderNode PathFinderNode::create(const serialization::Serializer& ser)
+PathFinderNode PathFinderNode::create(const serialization::Serializer<World>& ser)
 {
   PathFinderNode tmp{};
   tmp.serialize(ser);

@@ -21,7 +21,7 @@ public:
 
   void collide(CollisionInfo& collisionInfo) override;
 
-  void serialize(const serialization::Serializer& ser) override;
+  void serialize(const serialization::Serializer<World>& ser) override;
 
 private:
   struct Info
@@ -33,7 +33,7 @@ private:
     void open();
     void close();
     void init(const loader::file::Room& room, const core::TRVec& wingsPosition);
-    void serialize(const serialization::Serializer& ser);
+    void serialize(const serialization::Serializer<World>& ser);
   };
 
   Info m_info;

@@ -8,6 +8,11 @@
 #include <gsl-lite.hpp>
 #include <optional>
 
+namespace engine
+{
+class World;
+}
+
 namespace core
 {
 constexpr int32_t FullRotation = 1u << 16u;
@@ -153,7 +158,7 @@ public:
     return TRRotation{-X, -Y, -Z};
   }
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<engine::World>& ser);
 };
 
 inline glm::mat4 fromPackedAngles(uint32_t angleData)
@@ -179,7 +184,7 @@ struct TRRotationXY
     return glm::yawPitchRoll(-toRad(Y), toRad(X), 0.0f);
   }
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<engine::World>& ser);
 };
 
 [[nodiscard]] inline TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz)

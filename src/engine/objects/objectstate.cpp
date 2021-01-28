@@ -127,7 +127,7 @@ void ObjectState::loadObjectInfo()
   health = core::Health{getObjectInfo(type.get()).cast<script::ObjectInfo>().hit_points};
 }
 
-void ObjectState::serialize(const serialization::Serializer& ser)
+void ObjectState::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("position", position),
       S_NV("type", type),

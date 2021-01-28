@@ -305,7 +305,7 @@ gsl::not_null<std::shared_ptr<Particle>>
   return particle;
 }
 
-void ModelObject::serialize(const serialization::Serializer& ser)
+void ModelObject::serialize(const serialization::Serializer<World>& ser)
 {
   Object::serialize(ser);
   ser(S_NV("skeleton", m_skeleton));
@@ -316,15 +316,15 @@ void ModelObject::serialize(const serialization::Serializer& ser)
   }
 }
 
-std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer& ser)
+std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<World>& ser)
 {
-  auto result = std::make_shared<ModelObject>(&ser.world, core::RoomBoundPosition::create(ser["@position"]));
+  auto result = std::make_shared<ModelObject>(&ser.context, core::RoomBoundPosition::create(ser["@position"]));
   result->serialize(ser);
   return result;
 }
 
 std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
-                                    serialization::Serializer& ser)
+                                    serialization::Serializer<World>& ser)
 {
   return ModelObject::create(ser);
 }

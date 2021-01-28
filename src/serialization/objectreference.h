@@ -18,7 +18,7 @@ struct ObjectReference final
   {
   }
 
-  void save(const Serializer& ser) const
+  void save(const Serializer<engine::World>& ser) const
   {
     if(ptr == nullptr)
     {
@@ -27,7 +27,7 @@ struct ObjectReference final
     else
     {
       ser.tag("objectref");
-      for(const auto& [objId, obj] : ser.world.getObjectManager().getObjects())
+      for(const auto& [objId, obj] : ser.context.getObjectManager().getObjects())
       {
         if(obj.get() == ptr)
         {
@@ -38,7 +38,7 @@ struct ObjectReference final
     }
   }
 
-  void load(const Serializer& ser)
+  void load(const Serializer<engine::World>& ser)
   {
     if(ser.isNull())
     {
@@ -46,11 +46,11 @@ struct ObjectReference final
     }
     else
     {
-      ser.lazy([pptr = &ptr](const Serializer& ser) {
+      ser.lazy([pptr = &ptr](const Serializer<engine::World>& ser) {
         ser.tag("objectref");
         engine::ObjectId id = 0;
         ser(S_NV("id", id));
-        auto tmp = ser.world.getObjectManager().getObjects().at(id).get();
+        auto tmp = ser.context.getObjectManager().getObjects().at(id).get();
         Expects(tmp != nullptr);
         *pptr = std::dynamic_pointer_cast<T>(tmp);
       });

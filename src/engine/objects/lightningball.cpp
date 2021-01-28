@@ -231,7 +231,7 @@ void LightningBall::init(World& world)
   }
 }
 
-void LightningBall::serialize(const serialization::Serializer& ser)
+void LightningBall::serialize(const serialization::Serializer<World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("poles", m_poles),
@@ -243,11 +243,11 @@ void LightningBall::serialize(const serialization::Serializer& ser)
 
   if(ser.loading)
   {
-    init(ser.world);
+    init(ser.context);
   }
 }
 
-void LightningBall::ChildBolt::serialize(const serialization::Serializer& ser)
+void LightningBall::ChildBolt::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("startIndex", startIndex), S_NV("end", end));
 }

@@ -5,8 +5,8 @@
 
 namespace serialization
 {
-template<typename U, typename T>
-void serialize(qs::quantity<U, T>& data, const Serializer& ser)
+template<typename U, typename T, typename TContext>
+void serialize(qs::quantity<U, T>& data, const Serializer<TContext>& ser)
 {
   ser.tag(U::suffix());
   if(ser.loading)

@@ -2210,7 +2210,7 @@ void LaraObject::burnIfAlive()
   }
 }
 
-void LaraObject::serialize(const serialization::Serializer& ser)
+void LaraObject::serialize(const serialization::Serializer<World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("yRotationSpeed", m_yRotationSpeed),
@@ -2240,8 +2240,9 @@ void LaraObject::serialize(const serialization::Serializer& ser)
       S_NV("weaponTargetVector", m_weaponTargetVector),
       S_NV("weapons", weapons));
 
-  ser.lazy(
-    [this](const serialization::Serializer& ser) { ser(S_NV("target", serialization::ObjectReference{target})); });
+  ser.lazy([this](const serialization::Serializer<World>& ser) {
+    ser(S_NV("target", serialization::ObjectReference{target}));
+  });
 
   if(ser.loading)
     forceSourcePosition = nullptr;
@@ -2378,12 +2379,12 @@ void LaraObject::initGunflares()
   m_gunFlareRight->setVisible(false);
 }
 
-void LaraObject::Ammo::serialize(const serialization::Serializer& ser)
+void LaraObject::Ammo::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("ammo", ammo), S_NV("hits", hits), S_NV("misses", misses));
 }
 
-void LaraObject::AimInfo::serialize(const serialization::Serializer& ser)
+void LaraObject::AimInfo::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("weaponAnimData", weaponAnimData),
       S_NV("frame", frame),
@@ -2392,7 +2393,7 @@ void LaraObject::AimInfo::serialize(const serialization::Serializer& ser)
       S_NV("flashTimeout", flashTimeout));
 }
 
-void LaraObject::Weapon::serialize(const serialization::Serializer& ser)
+void LaraObject::Weapon::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("lockAngles", lockAngles),
       S_NV("leftAngles", leftAngles),
@@ -2407,12 +2408,12 @@ void LaraObject::Weapon::serialize(const serialization::Serializer& ser)
       S_NV("shotSound", shotSound));
 }
 
-void LaraObject::Range::serialize(const serialization::Serializer& ser)
+void LaraObject::Range::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("min", min), S_NV("max", max));
 }
 
-void LaraObject::RangeXY::serialize(const serialization::Serializer& ser)
+void LaraObject::RangeXY::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("x", x), S_NV("y", y));
 }

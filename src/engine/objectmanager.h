@@ -9,6 +9,7 @@
 
 namespace serialization
 {
+template<typename TContext>
 class Serializer;
 }
 
@@ -106,6 +107,6 @@ public:
   [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;
   void update(World& world, bool godMode);
 
-  void serialize(const serialization::Serializer& ser);
+  void serialize(const serialization::Serializer<engine::World>& ser);
 };
 } // namespace engine

@@ -64,7 +64,7 @@ struct ObjectFactory
 
   [[nodiscard]] virtual std::shared_ptr<Object> createNew(World& world, loader::file::Item& item) const = 0;
   [[nodiscard]] virtual std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,
-                                                               const serialization::Serializer& ser) const = 0;
+                                                               const serialization::Serializer<World>& ser) const = 0;
 };
 
 template<typename T>
@@ -83,9 +83,9 @@ struct ModelFactory : public ObjectFactory
   }
 
   [[nodiscard]] std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,
-                                                       const serialization::Serializer& ser) const override
+                                                       const serialization::Serializer<World>& ser) const override
   {
-    auto object = std::make_shared<T>(&ser.world, position);
+    auto object = std::make_shared<T>(&ser.context, position);
     object->serialize(ser);
     return object;
   }
@@ -113,12 +113,12 @@ struct SpriteFactory : public ObjectFactory
   }
 
   [[nodiscard]] std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,
-                                                       const serialization::Serializer& ser) const override
+                                                       const serialization::Serializer<World>& ser) const override
   {
     std::string spriteName;
     ser(S_NV("@name", spriteName));
     auto object = std::make_shared<T>(
-      &ser.world, position, std::move(spriteName), ser.world.getPresenter().getMaterialManager()->getSprite());
+      &ser.context, position, std::move(spriteName), ser.context.getPresenter().getMaterialManager()->getSprite());
     object->serialize(ser);
     return object;
   }
@@ -151,9 +151,9 @@ struct WalkingMutantFactory : public ObjectFactory
   }
 
   [[nodiscard]] std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,
-                                                       const serialization::Serializer& ser) const override
+                                                       const serialization::Serializer<World>& ser) const override
   {
-    auto object = std::make_shared<WalkingMutant>(&ser.world, position);
+    auto object = std::make_shared<WalkingMutant>(&ser.context, position);
     object->serialize(ser);
     return object;
   }
@@ -171,7 +171,7 @@ struct HiddenModelFactory : public ModelFactory<StubObject>
   }
 
   [[nodiscard]] std::shared_ptr<Object> createFromSave(const core::RoomBoundPosition& position,
-                                                       const serialization::Serializer& ser) const override
+                                                       const serialization::Serializer<World>& ser) const override
   {
     auto object = std::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createFromSave(position, ser));
     object->getSkeleton()->setRenderable(nullptr);
@@ -348,7 +348,7 @@ std::shared_ptr<Object> createObject(World& world, loader::file::Item& item)
 }
 
 gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::not_null<std::shared_ptr<Object>>>&,
-                                              const serialization::Serializer& ser)
+                                              const serialization::Serializer<World>& ser)
 {
   const auto type = core::TypeId::create(ser["@type"]);
   const auto position = core::RoomBoundPosition::create(ser["@position"]);
@@ -360,7 +360,7 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
 }
 } // namespace engine::objects
 
-void serialization::serialize(std::shared_ptr<engine::objects::Object>& ptr, const Serializer& ser)
+void serialization::serialize(std::shared_ptr<engine::objects::Object>& ptr, const Serializer<engine::World>& ser)
 {
   Expects(!ser.loading);
   Expects(ptr != nullptr);

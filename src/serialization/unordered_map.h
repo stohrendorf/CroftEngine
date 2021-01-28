@@ -6,8 +6,8 @@
 
 namespace serialization
 {
-template<typename T, typename U>
-void save(std::unordered_map<T, U>& data, const Serializer& ser)
+template<typename T, typename U, typename TContext>
+void save(std::unordered_map<T, U>& data, const Serializer<TContext>& ser)
 {
   ser.tag("map");
   ser.node |= ryml::SEQ;
@@ -18,8 +18,8 @@ void save(std::unordered_map<T, U>& data, const Serializer& ser)
   }
 }
 
-template<typename T, typename U>
-void load(std::unordered_map<T, U>& data, const Serializer& ser)
+template<typename T, typename U, typename TContext>
+void load(std::unordered_map<T, U>& data, const Serializer<TContext>& ser)
 {
   ser.tag("map");
   data = std::unordered_map<T, U>();

@@ -149,7 +149,7 @@ void ObjectManager::update(World& world, bool godMode)
   applyScheduledDeletions();
 }
 
-void ObjectManager::serialize(const serialization::Serializer& ser)
+void ObjectManager::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("objectCounter", m_objectCounter),
       S_NV("objects", m_objects),

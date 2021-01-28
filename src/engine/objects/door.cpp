@@ -113,7 +113,7 @@ void Door::collide(CollisionInfo& collisionInfo)
 #endif
 }
 
-void Door::serialize(const serialization::Serializer& ser)
+void Door::serialize(const serialization::Serializer<World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("info", m_info),
@@ -124,7 +124,7 @@ void Door::serialize(const serialization::Serializer& ser)
 
   if(ser.loading)
   {
-    ser.lazy([this](const serialization::Serializer& ser) {
+    ser.lazy([this](const serialization::Serializer<World>& ser) {
       m_info.wingsSector
         = const_cast<loader::file::Sector*>(m_state.position.room->getSectorByAbsolutePosition(m_wingsPosition));
       if(m_info.originalSector.portalTarget != nullptr)
@@ -136,7 +136,7 @@ void Door::serialize(const serialization::Serializer& ser)
       if(m_state.position.room->alternateRoom.get() >= 0)
       {
         m_alternateInfo.wingsSector
-          = const_cast<loader::file::Sector*>(ser.world.getRooms()
+          = const_cast<loader::file::Sector*>(ser.context.getRooms()
                                                 .at(m_state.position.room->alternateRoom.get())
                                                 .getSectorByAbsolutePosition(m_wingsPosition));
         if(m_alternateInfo.originalSector.portalTarget != nullptr)
@@ -190,14 +190,14 @@ void Door::Info::init(const loader::file::Room& room, const core::TRVec& wingsPo
   }
 }
 
-void Door::Info::serialize(const serialization::Serializer& ser)
+void Door::Info::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("originalSector", originalSector), S_NV("box", wingsBox));
   if(ser.loading)
   {
     wingsSector = nullptr;
-    ser.lazy([this](const serialization::Serializer& ser) {
-      originalSector.updateCaches(ser.world.getRooms(), ser.world.getBoxes(), ser.world.getFloorData());
+    ser.lazy([this](const serialization::Serializer<World>& ser) {
+      originalSector.updateCaches(ser.context.getRooms(), ser.context.getBoxes(), ser.context.getFloorData());
     });
   }
 }

@@ -844,7 +844,7 @@ std::unique_ptr<MenuState>
   {
     world.getPresenter().drawLoadingScreen("Saving...");
     BOOST_LOG_TRIVIAL(info) << "Save";
-    serialization::Serializer::save(
+    serialization::Serializer<engine::World>::save(
       world.getEngine().getSavegamePath() / (makeSavegameBasename(m_selected) + ".yaml"), world, world);
     return std::move(m_previous);
   }

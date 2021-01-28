@@ -202,7 +202,7 @@ bool Inventory::tryTake(const TR1ItemId id, const size_t quantity)
   return true;
 }
 
-void Inventory::serialize(const serialization::Serializer& ser)
+void Inventory::serialize(const serialization::Serializer<World>& ser)
 {
   ser(S_NV("inventory", m_inventory));
 }

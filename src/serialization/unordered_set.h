@@ -6,8 +6,8 @@
 
 namespace serialization
 {
-template<typename T>
-void save(std::unordered_set<T>& data, const Serializer& ser)
+template<typename T, typename TContext>
+void save(std::unordered_set<T>& data, const Serializer<TContext>& ser)
 {
   ser.tag("set");
   ser.node |= ryml::SEQ;
@@ -18,8 +18,8 @@ void save(std::unordered_set<T>& data, const Serializer& ser)
   }
 }
 
-template<typename T>
-void load(std::unordered_set<T>& data, const Serializer& ser)
+template<typename T, typename TContext>
+void load(std::unordered_set<T>& data, const Serializer<TContext>& ser)
 {
   ser.tag("set");
   data = std::unordered_set<T>();

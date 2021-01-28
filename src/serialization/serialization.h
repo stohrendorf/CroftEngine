@@ -2,6 +2,7 @@
 
 #include "serialization_fwd.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
@@ -16,11 +17,6 @@
 #include <typeinfo>
 
 // #define SERIALIZATION_TRACE
-
-namespace engine
-{
-class World;
-}
 
 template<>
 struct std::iterator_traits<c4::yml::NodeRef::iterator>
@@ -60,129 +56,244 @@ struct TypeId
   using type = T;
 };
 
-struct access
+namespace access
 {
-  template<typename T>
-  static void serializeTrivial(T& data, const Serializer& ser);
+template<typename T, typename TContext>
+static void serializeTrivial(T& data, const Serializer<TContext>& ser);
 
-  template<typename T>
-  static std::enable_if_t<std::is_default_constructible_v<T>, T> createTrivial(const TypeId<T>&, const Serializer& ser);
+template<typename T, typename TContext>
+static std::enable_if_t<std::is_default_constructible_v<T>, T> createTrivial(const TypeId<T>&,
+                                                                             const Serializer<TContext>& ser);
 
-  template<typename T>
-  static auto callSerializeOrLoad(T& data, const Serializer& ser) -> decltype(data.serialize(ser), void())
+template<typename T, typename TContext>
+static auto callSerializeOrLoad(T& data, const Serializer<TContext>& ser) -> decltype(data.serialize(ser), void())
+{
+  return data.serialize(ser);
+}
+
+template<typename T, typename TContext>
+static auto callSerializeOrLoad(T& data, const Serializer<TContext>& ser) -> decltype(serialize(data, ser), void())
+{
+  return serialize(data, ser);
+}
+
+template<typename T, typename TContext>
+static auto callSerializeOrLoad(T& data, const Serializer<TContext>& ser) -> decltype(data.load(ser), void())
+{
+  return data.load(ser);
+}
+
+template<typename T, typename TContext>
+static auto callSerializeOrLoad(T& data, const Serializer<TContext>& ser) -> decltype(load(data, ser), void())
+{
+  return load(data, ser);
+}
+
+template<typename T, typename TContext>
+static auto callSerializeOrSave(T& data, const Serializer<TContext>& ser) -> decltype(data.serialize(ser), void())
+{
+  return data.serialize(ser);
+}
+
+template<typename T, typename TContext>
+static auto callSerializeOrSave(T& data, const Serializer<TContext>& ser) -> decltype(serialize(data, ser), void())
+{
+  return serialize(data, ser);
+}
+
+template<typename T, typename TContext>
+static auto callSerializeOrSave(T& data, const Serializer<TContext>& ser) -> decltype(data.save(ser), void())
+{
+  return data.save(ser);
+}
+
+template<typename T, typename TContext>
+static auto callSerializeOrSave(T& data, const Serializer<TContext>& ser) -> decltype(save(data, ser), void())
+{
+  return save(data, ser);
+}
+
+template<typename T, typename TContext>
+static void callSerialize(T& data, const Serializer<TContext>& ser);
+
+template<typename T, typename TContext>
+static auto callCreate(const TypeId<T>&, const Serializer<TContext>& ser) -> decltype(T::create(ser));
+
+template<typename T, typename TContext>
+static auto callCreate(const TypeId<T>& tid, const Serializer<TContext>& ser) -> decltype(create(tid, ser));
+
+// some specializations to avoid storing 8-bit numbers as characters
+template<typename TContext>
+inline void serializeTrivial(int8_t& data, const Serializer<TContext>& ser)
+{
+  if(ser.loading)
   {
-    return data.serialize(ser);
+    int16_t tmp{};
+    ser.node >> tmp;
+    data = gsl::narrow<int8_t>(tmp);
   }
-
-  template<typename T>
-  static auto callSerializeOrLoad(T& data, const Serializer& ser) -> decltype(serialize(data, ser), void())
+  else
   {
-    return serialize(data, ser);
+    ser.node << static_cast<int16_t>(data);
   }
+}
 
-  template<typename T>
-  static auto callSerializeOrLoad(T& data, const Serializer& ser) -> decltype(data.load(ser), void())
+template<typename TContext>
+inline void serializeTrivial(uint8_t& data, const Serializer<TContext>& ser)
+{
+  if(ser.loading)
   {
-    return data.load(ser);
+    uint16_t tmp{};
+    ser.node >> tmp;
+    data = gsl::narrow<uint8_t>(tmp);
   }
-
-  template<typename T>
-  static auto callSerializeOrLoad(T& data, const Serializer& ser) -> decltype(load(data, ser), void())
+  else
   {
-    return load(data, ser);
+    ser.node << static_cast<uint16_t>(data);
   }
+}
+}; // namespace access
 
-  template<typename T>
-  static auto callSerializeOrSave(T& data, const Serializer& ser) -> decltype(data.serialize(ser), void())
-  {
-    return data.serialize(ser);
-  }
-
-  template<typename T>
-  static auto callSerializeOrSave(T& data, const Serializer& ser) -> decltype(serialize(data, ser), void())
-  {
-    return serialize(data, ser);
-  }
-
-  template<typename T>
-  static auto callSerializeOrSave(T& data, const Serializer& ser) -> decltype(data.save(ser), void())
-  {
-    return data.save(ser);
-  }
-
-  template<typename T>
-  static auto callSerializeOrSave(T& data, const Serializer& ser) -> decltype(save(data, ser), void())
-  {
-    return save(data, ser);
-  }
-
-  template<typename T>
-  static void callSerialize(T& data, const Serializer& ser);
-
-  template<typename T>
-  static auto callCreate(const TypeId<T>&, const Serializer& ser) -> decltype(T::create(ser));
-
-  template<typename T>
-  static auto callCreate(const TypeId<T>& tid, const Serializer& ser) -> decltype(create(tid, ser));
-};
-
+template<typename TContext>
 class Serializer final
 {
   using LazyWithContext = std::function<void()>;
   using LazyQueue = std::queue<LazyWithContext>;
 
   explicit Serializer(const ryml::NodeRef& node,
-                      engine::World& world,
+                      TContext& context,
                       bool loading,
-                      const std::shared_ptr<LazyQueue>& lazyQueue);
+                      const std::shared_ptr<LazyQueue>& lazyQueue)
+      : m_lazyQueue{lazyQueue == nullptr ? std::make_shared<LazyQueue>() : lazyQueue}
+      , node{node}
+      , context{context}
+      , loading{loading}
+  {
+    ryml::set_callbacks(ryml::Callbacks{
+      nullptr,
+      [](size_t length, void* /*hint*/, void* /*user_data*/) -> gsl::owner<void*> { return new char[length]; },
+      [](gsl::owner<void*> mem, size_t /*length*/, void* /*user_data*/) { delete[] static_cast<char*>(mem); },
+      [](const char* msg, size_t msg_len, ryml::Location /*location*/, void* /*user_data*/) {
+        const std::string msgStr{msg, msg_len};
+        SERIALIZER_EXCEPTION(msgStr);
+      }});
+  }
 
   std::shared_ptr<LazyQueue> m_lazyQueue;
   mutable std::string m_tag;
 
-  void processQueues();
-
-  void ensureIsMap() const;
+  void processQueues()
+  {
+    while(!m_lazyQueue->empty())
+    {
 #ifdef SERIALIZATION_TRACE
-  std::string getQualifiedKey() const;
+      BOOST_LOG_TRIVIAL(debug) << "Processing serialization queue...";
 #endif
-  Serializer createMapMemberSerializer(const gsl::not_null<gsl::czstring>& name) const;
+      auto current = std::exchange(m_lazyQueue, std::make_shared<LazyQueue>());
+      while(!current->empty())
+      {
+        current->front()();
+        current->pop();
+      }
+    }
+  }
+
+  void ensureIsMap() const
+  {
+    if(!loading)
+      node |= ryml::MAP;
+
+    Expects(node.is_map());
+  }
+#ifdef SERIALIZATION_TRACE
+  std::string getQualifiedKey() const
+  {
+    if(!node.has_key())
+    {
+      return {};
+    }
+
+    std::string result = util::toString(node.key());
+    auto cursor = node;
+    while(!cursor.is_root() && cursor.has_parent())
+    {
+      cursor = cursor.parent();
+      if(cursor.has_key())
+        result = util::toString(cursor.key()) + "::" + result;
+      else
+        result = "??::" + result;
+    }
+    return result;
+  }
+#endif
+  Serializer<TContext> createMapMemberSerializer(const gsl::not_null<gsl::czstring>& name) const
+  {
+    ensureIsMap();
+    auto childNode = node.find_child(c4::to_csubstr(name.get()));
+    const bool exists = !childNode.is_seed() && childNode.valid() && childNode.type() != ryml::NOTYPE;
+    if(loading)
+    {
+      if(!exists)
+        SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " not defined");
+    }
+    else
+    {
+      if(exists)
+        SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " already defined");
+
+      childNode = node.append_child();
+      childNode.set_key(node.tree()->copy_to_arena(c4::to_csubstr(name.get())));
+    }
+
+    return withNode(childNode);
+  }
 
 public:
   mutable ryml::NodeRef node;
-  engine::World& world;
+  TContext& context;
   const bool loading;
 
-  ~Serializer();
+  ~Serializer()
+  {
+    if(!loading && node.has_val())
+      node.set_val_tag(node.tree()->copy_to_arena(c4::to_csubstr(m_tag)));
+  }
 
-  void lazy(const LazyCallback& lazyCallback) const;
+  void lazy(const LazyCallback<TContext>& lazyCallback) const
+  {
+    if(loading)
+      m_lazyQueue->emplace([lazyCallback = lazyCallback, ser = *this]() { lazyCallback(ser); });
+    else
+      lazyCallback(*this);
+  }
 
   template<typename T>
-  void lazy(T* instance, void (T::*member)(const Serializer&)) const
+  void lazy(T* instance, void (T::*member)(const Serializer<TContext>&)) const
   {
-    lazy(LazyCallback{instance, member});
+    lazy(LazyCallback<TContext>{instance, member});
   }
 
   template<typename T>
   void lazy(const gsl::not_null<gsl::czstring>& name, T& data) const
   {
-    lazy([pdata = &data, name = name](const Serializer& ser) { ser(name, *pdata); });
+    lazy([pdata = &data, name = name](const Serializer<TContext>& ser) { ser(name, *pdata); });
   }
 
   template<typename T>
-  static void save(const std::filesystem::path& filename, engine::World& world, T& data)
+  static void save(const std::filesystem::path& filename, TContext& context, T& data)
   {
     std::ofstream file{filename, std::ios::out | std::ios::trunc};
     Expects(file.is_open());
     ryml::Tree t;
     t.rootref() |= ryml::MAP;
-    Serializer ser{t.rootref(), world, false, nullptr};
+    Serializer ser{t.rootref(), context, false, nullptr};
     access::callSerializeOrSave(data, ser);
     ser.processQueues();
     file << ser.node;
   }
 
   template<typename T>
-  static void load(const std::filesystem::path& filename, engine::World& world, T& data)
+  static void load(const std::filesystem::path& filename, TContext& context, T& data)
   {
     std::ifstream file{filename, std::ios::in};
     Expects(file.is_open());
@@ -196,13 +307,13 @@ public:
     file.read(&buffer[0], size);
     auto tree = ryml::parse(c4::to_csubstr(filename.string()), c4::to_csubstr(buffer));
 
-    Serializer ser{tree.rootref(), world, true, nullptr};
+    Serializer ser{tree.rootref(), context, true, nullptr};
     access::callSerializeOrLoad(data, ser);
     ser.processQueues();
   }
 
   template<typename T>
-  static T load(const std::filesystem::path& filename, engine::World& world)
+  static T load(const std::filesystem::path& filename, TContext& context)
   {
     std::ifstream file{filename, std::ios::in};
     Expects(file.is_open());
@@ -216,14 +327,14 @@ public:
     file.read(&buffer[0], size);
     auto tree = ryml::parse(c4::to_csubstr(filename.string()), c4::to_csubstr(buffer));
 
-    Serializer ser{tree.rootref(), world, true, nullptr};
+    Serializer ser{tree.rootref(), context, true, nullptr};
     auto result = access::callCreate(TypeId<T>{}, ser);
     ser.processQueues();
     return result;
   }
 
   template<typename T, typename... Ts>
-  const Serializer& operator()(const gsl::not_null<gsl::czstring>& headName, T&& headData, Ts&&... tail) const
+  const Serializer<TContext>& operator()(const gsl::not_null<gsl::czstring>& headName, T&& headData, Ts&&... tail) const
   {
     (*this)(headName, std::forward<T>(headData));
     if constexpr(sizeof...(tail) > 0)
@@ -232,7 +343,7 @@ public:
   }
 
   template<typename T>
-  const Serializer& operator()(const gsl::not_null<gsl::czstring>& name, T&& data) const
+  const Serializer<TContext>& operator()(const gsl::not_null<gsl::czstring>& name, T&& data) const
   {
     ensureIsMap();
     BOOST_ASSERT(node.valid());
@@ -241,7 +352,7 @@ public:
     BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name.get();
 #endif
 
-    Serializer ser = createMapMemberSerializer(name);
+    auto ser = createMapMemberSerializer(name);
 
     try
     {
@@ -271,11 +382,66 @@ public:
     return *this;
   }
 
-  Serializer operator[](gsl::czstring name) const;
-  Serializer operator[](const std::string& name) const;
-  Serializer withNode(const ryml::NodeRef& otherNode) const;
-  Serializer newChild() const;
-  void tag(const std::string& tag) const;
+  Serializer<TContext> operator[](gsl::czstring name) const
+  {
+    return (*this)[std::string{name}];
+  }
+
+  Serializer<TContext> operator[](const std::string& name) const
+  {
+    ensureIsMap();
+    auto existing = node[c4::to_csubstr(name)];
+    if(!loading)
+    {
+      if(existing.is_seed() || !existing.valid() || existing.type() == ryml::NOTYPE)
+      {
+        auto ser = newChild();
+        ser.node.set_key(node.tree()->copy_to_arena(c4::to_csubstr(name)));
+        return ser;
+      }
+      else
+      {
+        return withNode(existing);
+      }
+    }
+    else
+    {
+      return withNode(existing);
+    }
+  }
+
+  Serializer<TContext> withNode(const ryml::NodeRef& otherNode) const
+  {
+    return Serializer{otherNode, context, loading, m_lazyQueue};
+  }
+
+  Serializer<TContext> newChild() const
+  {
+    return withNode(node.append_child());
+  }
+
+  void tag(const std::string& tag) const
+  {
+    Expects(!tag.empty());
+
+    auto normalizedTag
+      = std::string{"!<"}
+        + boost::algorithm::replace_all_copy(boost::algorithm::replace_all_copy(tag, ">", "&gt;"), " ", "%20") + ">";
+    if(loading)
+    {
+      if(!node.has_val())
+        return;
+
+      if(!node.has_val_tag())
+        SERIALIZER_EXCEPTION(("Expected tag \"" + normalizedTag + "\", but got no tag"));
+
+      std::string existingTag = util::toString(node.val_tag());
+      if(existingTag != normalizedTag)
+        SERIALIZER_EXCEPTION("Expected tag \"" + normalizedTag + "\", but got \"" + existingTag + "\"");
+    }
+    else
+      m_tag = normalizedTag;
+  }
 
   void setNull() const
   {
@@ -295,8 +461,8 @@ public:
   }
 };
 
-template<typename T>
-inline void access::serializeTrivial(T& data, const Serializer& ser)
+template<typename T, typename TContext>
+inline void access::serializeTrivial(T& data, const Serializer<TContext>& ser)
 {
   if(ser.loading)
   {
@@ -308,40 +474,9 @@ inline void access::serializeTrivial(T& data, const Serializer& ser)
   }
 }
 
-// some specializations to avoid storing 8-bit numbers as characters
-template<>
-inline void access::serializeTrivial<int8_t>(int8_t& data, const Serializer& ser)
-{
-  if(ser.loading)
-  {
-    int16_t tmp{};
-    ser.node >> tmp;
-    data = gsl::narrow<int8_t>(tmp);
-  }
-  else
-  {
-    ser.node << static_cast<int16_t>(data);
-  }
-}
-
-template<>
-inline void access::serializeTrivial<uint8_t>(uint8_t& data, const Serializer& ser)
-{
-  if(ser.loading)
-  {
-    uint16_t tmp{};
-    ser.node >> tmp;
-    data = gsl::narrow<uint8_t>(tmp);
-  }
-  else
-  {
-    ser.node << static_cast<uint16_t>(data);
-  }
-}
-
-template<typename T>
+template<typename T, typename TContext>
 inline std::enable_if_t<std::is_default_constructible_v<T>, T> access::createTrivial(const TypeId<T>&,
-                                                                                     const Serializer& ser)
+                                                                                     const Serializer<TContext>& ser)
 {
   Expects(ser.loading);
 
@@ -350,8 +485,8 @@ inline std::enable_if_t<std::is_default_constructible_v<T>, T> access::createTri
   return tmp;
 }
 
-template<typename T>
-inline void access::callSerialize(T& data, const Serializer& ser)
+template<typename T, typename TContext>
+inline void access::callSerialize(T& data, const Serializer<TContext>& ser)
 {
   if(ser.loading)
     callSerializeOrLoad(data, ser);
@@ -359,61 +494,65 @@ inline void access::callSerialize(T& data, const Serializer& ser)
     callSerializeOrSave(data, ser);
 }
 
-template<typename T>
-inline auto access::callCreate(const TypeId<T>&, const Serializer& ser) -> decltype(T::create(ser))
+template<typename T, typename TContext>
+inline auto access::callCreate(const TypeId<T>&, const Serializer<TContext>& ser) -> decltype(T::create(ser))
 {
   Expects(ser.loading);
   return T::create(ser);
 }
 
-template<typename T>
-inline auto access::callCreate(const TypeId<T>& tid, const Serializer& ser) -> decltype(create(tid, ser))
+template<typename T, typename TContext>
+inline auto access::callCreate(const TypeId<T>& tid, const Serializer<TContext>& ser) -> decltype(create(tid, ser))
 {
   Expects(ser.loading);
   return create(tid, ser);
 }
 
-inline void serialize(std::string& data, const Serializer& ser)
+template<typename TContext>
+inline void serialize(std::string& data, const Serializer<TContext>& ser)
 {
   access::serializeTrivial(data, ser);
 }
 
-template<typename T>
-std::enable_if_t<std::is_arithmetic_v<T>, void> serialize(T& data, const Serializer& ser)
+template<typename T, typename TContext>
+std::enable_if_t<std::is_arithmetic_v<T>, void> serialize(T& data, const Serializer<TContext>& ser)
 {
   access::serializeTrivial(data, ser);
 }
 
-template<typename T>
-std::enable_if_t<std::is_enum_v<T>, void> serialize(T& data, const Serializer& ser)
+template<typename T, typename TContext>
+std::enable_if_t<std::is_enum_v<T>, void> serialize(T& data, const Serializer<TContext>& ser)
 {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   access::serializeTrivial(*reinterpret_cast<std::underlying_type_t<T>*>(&data), ser);
 }
 
-inline void serialize(bool& data, const Serializer& ser)
+template<typename TContext>
+inline void serialize(bool& data, const Serializer<TContext>& ser)
 {
   access::serializeTrivial(data, ser);
 }
 
-template<typename T>
-std::enable_if_t<std::is_arithmetic_v<T>, T> create(const TypeId<T>& tid, const Serializer& ser)
+template<typename T, typename TContext>
+std::enable_if_t<std::is_arithmetic_v<T>, T> create(const TypeId<T>& tid, const Serializer<TContext>& ser)
 {
   return access::createTrivial(tid, ser);
 }
 
-template<typename T>
-std::enable_if_t<std::is_enum_v<T>, T> create(const TypeId<T>&, const Serializer& ser)
+template<typename T, typename TContext>
+std::enable_if_t<std::is_enum_v<T>, T> create(const TypeId<T>&, const Serializer<TContext>& ser)
 {
   return static_cast<T>(access::createTrivial(TypeId<std::underlying_type_t<T>>{}, ser));
 }
 
-inline bool create(const TypeId<bool>& tid, const Serializer& ser)
+template<typename TContext>
+inline bool create(const TypeId<bool>& tid, const Serializer<TContext>& ser)
 {
   return access::createTrivial(tid, ser);
 }
 
-inline std::string create(const TypeId<std::string>& tid, const Serializer& ser)
+template<typename TContext>
+inline std::string create(const TypeId<std::string>& tid, const Serializer<TContext>& ser)
 {
   return access::createTrivial(tid, ser);
 }
