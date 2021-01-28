@@ -22,6 +22,7 @@ src/loader/file/larastateid_enum.h
 src/engine/items_tr1_enum.h
 src/engine/soundeffects_tr1_enum.h
 src/engine/tracks_tr1_enum.h
+src/engine/i18n_enum.h
 
 *.log
 *.dll

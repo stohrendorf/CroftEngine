@@ -122,6 +122,7 @@ wrap_enum( LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_C
 wrap_enum( TR1ItemId int ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1_enum.h )
 wrap_enum( TR1SoundEffect int ${CMAKE_CURRENT_SOURCE_DIR}/soundeffects_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/soundeffects_tr1_enum.h )
 wrap_enum( TR1TrackId int ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1_enum.h )
+wrap_enum( I18n int ${CMAKE_CURRENT_SOURCE_DIR}/i18n.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/i18n_enum.h )
 
 set( EDISONENGINE_SRCS
         edisonengine.cpp

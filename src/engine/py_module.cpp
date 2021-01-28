@@ -1,6 +1,7 @@
 #include "ai/py_module.h"
 
 #include "core/pybindmodule.h"
+#include "engine/i18n.h"
 #include "engine/objects/objectstate.h"
 #include "items_tr1.h"
 #include "script/reflection.h"
@@ -112,6 +113,12 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   {
     auto e = py::enum_<engine::TR1ItemId>(m, "TR1ItemId");
     for(const auto& [key, value] : engine::EnumUtil<engine::TR1ItemId>::all())
+      e.value(value.c_str(), key);
+  }
+
+  {
+    auto e = py::enum_<engine::I18n>(m, "I18n");
+    for(const auto& [key, value] : engine::EnumUtil<engine::I18n>::all())
       e.value(value.c_str(), key);
   }
 }

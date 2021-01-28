@@ -6,6 +6,7 @@
 #include "engine/audioengine.h"
 #include "floordata/floordata.h"
 #include "hid/inputhandler.h"
+#include "i18n.h"
 #include "loader/file/level/level.h"
 #include "loader/file/rendermeshdata.h"
 #include "loader/trx/trx.h"
@@ -70,13 +71,6 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load main.py"));
   }
 
-  m_glidos = loadGlidosPack();
-}
-
-RunResult Engine::run(World& world, bool isCutscene)
-{
-  gl::Framebuffer::unbindAll();
-
   m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
   if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
@@ -84,6 +78,31 @@ RunResult Engine::run(World& world, bool isCutscene)
     m_language = overrideLanguage.value();
     BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
   }
+
+  m_glidos = loadGlidosPack();
+
+  for(const auto& [key, name] : EnumUtil<I18n>::all())
+  {
+    const auto values = pybind11::globals()[pybind11::cast("i18n")][pybind11::cast(key)];
+    Expects(!values.is_none());
+    if(const auto loc = core::get<std::string>(values, m_language))
+    {
+      m_i18n.emplace(key, loc.value());
+    }
+    else if(const auto en = core::get<std::string>(values, "en"))
+    {
+      m_i18n.emplace(key, en.value());
+    }
+    else
+    {
+      m_i18n.emplace(key, std::string{"MISSING i18n: "} + name);
+    }
+  }
+}
+
+RunResult Engine::run(World& world, bool isCutscene)
+{
+  gl::Framebuffer::unbindAll();
 
   const bool godMode
     = core::get<bool>(core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "godMode")
@@ -219,5 +238,10 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
   }
 
   return nullptr;
+}
+
+std::string Engine::i18n(I18n key) const
+{
+  return m_i18n.at(key);
 }
 } // namespace engine

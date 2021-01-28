@@ -52,6 +52,7 @@ class Particle;
 class Presenter;
 class Throttler;
 class World;
+enum class I18n;
 
 enum class RunResult
 {
@@ -73,6 +74,8 @@ private:
 
   std::unique_ptr<loader::trx::Glidos> m_glidos;
   [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
+
+  std::unordered_map<I18n, std::string> m_i18n;
 
 public:
   explicit Engine(const std::filesystem::path& rootPath,
@@ -120,5 +123,7 @@ public:
   {
     return m_glidos;
   }
+
+  std::string i18n(I18n key) const;
 };
 } // namespace engine

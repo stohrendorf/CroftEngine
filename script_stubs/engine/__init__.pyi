@@ -38,6 +38,10 @@ class TR1ItemId(Enum):
     ...
 
 
+class I18n(Enum):
+    ...
+
+
 class TrackInfo:
     def __init__(self, soundid: int, tracktype: TrackType, /):
         ...

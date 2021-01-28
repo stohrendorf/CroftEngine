@@ -3,6 +3,7 @@
 #include "core/pybindmodule.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
+#include "engine/i18n.h"
 #include "engine/objects/laraobject.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
@@ -221,16 +222,50 @@ bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world
 
 std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& world, bool withHomePolaroid)
 {
-  std::vector objects{
-    MenuObject{
-      "Game", engine::TR1ItemId::PassportClosed, 30_frame, 14_frame, 25_deg, -24_deg, 0_deg, 384_len, 0x13, 0x13},
-    MenuObject{"Controls", engine::TR1ItemId::DirectionKeys, 1_frame, 0_frame, 30_deg, 8_deg, 0_deg, 352_len},
-    MenuObject{"Sound", engine::TR1ItemId::CassettePlayer, 1_frame, 0_frame, 26_deg, -13_deg, 0_deg, 368_len},
-    MenuObject{"Detail Levels", engine::TR1ItemId::Sunglasses, 1_frame, 0_frame, 23_deg, -37_deg, 0_deg, 424_len}};
+  std::vector objects{MenuObject{world.getEngine().i18n(engine::I18n::Game),
+                                 engine::TR1ItemId::PassportClosed,
+                                 30_frame,
+                                 14_frame,
+                                 25_deg,
+                                 -24_deg,
+                                 0_deg,
+                                 384_len,
+                                 0x13,
+                                 0x13},
+                      MenuObject{world.getEngine().i18n(engine::I18n::Controls),
+                                 engine::TR1ItemId::DirectionKeys,
+                                 1_frame,
+                                 0_frame,
+                                 30_deg,
+                                 8_deg,
+                                 0_deg,
+                                 352_len},
+                      MenuObject{world.getEngine().i18n(engine::I18n::Sound),
+                                 engine::TR1ItemId::CassettePlayer,
+                                 1_frame,
+                                 0_frame,
+                                 26_deg,
+                                 -13_deg,
+                                 0_deg,
+                                 368_len},
+                      MenuObject{world.getEngine().i18n(engine::I18n::DetailLevels),
+                                 engine::TR1ItemId::Sunglasses,
+                                 1_frame,
+                                 0_frame,
+                                 23_deg,
+                                 -37_deg,
+                                 0_deg,
+                                 424_len}};
   if(withHomePolaroid)
   {
-    objects.emplace_back(MenuObject{
-      "Lara's home", engine::TR1ItemId::LarasHomePolaroid, 1_frame, 0_frame, 25_deg, -24_deg, 0_deg, 384_len});
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::LarasHome),
+                                    engine::TR1ItemId::LarasHomePolaroid,
+                                    1_frame,
+                                    0_frame,
+                                    25_deg,
+                                    -24_deg,
+                                    0_deg,
+                                    384_len});
   }
 
   for(auto& object : objects)
@@ -241,43 +276,93 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
 
 std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& world)
 {
-  std::vector objects{
-    MenuObject{"Compass", engine::TR1ItemId::Compass, 25_frame, 10_frame, 24_deg, -45_deg, 0_deg, 456_len, 0x05, 0x05}};
+  std::vector objects{MenuObject{world.getEngine().i18n(engine::I18n::Compass),
+                                 engine::TR1ItemId::Compass,
+                                 25_frame,
+                                 10_frame,
+                                 24_deg,
+                                 -45_deg,
+                                 0_deg,
+                                 456_len,
+                                 0x05,
+                                 0x05}};
 
   if(world.getInventory().count(engine::TR1ItemId::Pistols) > 0)
   {
-    objects.emplace_back(
-      MenuObject{"Pistols", engine::TR1ItemId::Pistols, 12_frame, 11_frame, 18_deg, -21_deg, 0_deg, 296_len});
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Controls),
+                                    engine::TR1ItemId::Pistols,
+                                    12_frame,
+                                    11_frame,
+                                    18_deg,
+                                    -21_deg,
+                                    0_deg,
+                                    296_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Shotgun) > 0)
   {
-    objects.emplace_back(
-      MenuObject{"Shotgun", engine::TR1ItemId::Shotgun, 13_frame, 12_frame, 18_deg, 0_deg, -45_deg, 296_len});
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Shotgun),
+                                    engine::TR1ItemId::Shotgun,
+                                    13_frame,
+                                    12_frame,
+                                    18_deg,
+                                    0_deg,
+                                    -45_deg,
+                                    296_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Magnums) > 0)
   {
-    objects.emplace_back(
-      MenuObject{"Magnums", engine::TR1ItemId::Magnums, 12_frame, 11_frame, 18_deg, -20_deg, 0_deg, 296_len});
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Magnums),
+                                    engine::TR1ItemId::Magnums,
+                                    12_frame,
+                                    11_frame,
+                                    18_deg,
+                                    -20_deg,
+                                    0_deg,
+                                    296_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Uzis) > 0)
   {
-    objects.emplace_back(
-      MenuObject{"Uzis", engine::TR1ItemId::Uzis, 13_frame, 12_frame, 18_deg, -20_deg, 0_deg, 296_len});
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Uzis),
+                                    engine::TR1ItemId::Uzis,
+                                    13_frame,
+                                    12_frame,
+                                    18_deg,
+                                    -20_deg,
+                                    0_deg,
+                                    296_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::Explosive) > 0)
   {
-    objects.emplace_back(
-      MenuObject{"Grenade", engine::TR1ItemId::Explosive, 15_frame, 14_frame, 28_deg, 0_deg, 0_deg, 368_len});
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Grenade),
+                                    engine::TR1ItemId::Explosive,
+                                    15_frame,
+                                    14_frame,
+                                    28_deg,
+                                    0_deg,
+                                    0_deg,
+                                    368_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::LargeMedipack) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Large Medi Pack", engine::TR1ItemId::LargeMedipack, 20_frame, 19_frame, 20_deg, -45_deg, -22.5_deg, 352_len});
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::LargeMediPack),
+                                    engine::TR1ItemId::LargeMedipack,
+                                    20_frame,
+                                    19_frame,
+                                    20_deg,
+                                    -45_deg,
+                                    -22.5_deg,
+                                    352_len});
   }
   if(world.getInventory().count(engine::TR1ItemId::SmallMedipack) > 0)
   {
-    objects.emplace_back(MenuObject{
-      "Small Medi Pack", engine::TR1ItemId::SmallMedipack, 26_frame, 25_frame, 22_deg, -40_deg, -22.5_deg, 216_len});
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::SmallMediPack),
+                                    engine::TR1ItemId::SmallMedipack,
+                                    26_frame,
+                                    25_frame,
+                                    22_deg,
+                                    -40_deg,
+                                    -22.5_deg,
+                                    216_len});
   }
 
   for(auto& object : objects)
@@ -356,18 +441,21 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
   m_currentState->begin();
 
   if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
-    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Inventory, "INVENTORY", getMainRingObjects(world)));
+    rings.emplace_back(std::make_unique<MenuRing>(
+      MenuRing::Type::Inventory, world.getEngine().i18n(engine::I18n::Inventory), getMainRingObjects(world)));
 
   if(mode != InventoryMode::KeysMode)
   {
-    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Options,
-                                                  mode == InventoryMode::DeathMode ? "GAME OVER" : "OPTION",
-                                                  getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
+    rings.emplace_back(std::make_unique<MenuRing>(
+      MenuRing::Type::Options,
+      world.getEngine().i18n(mode == InventoryMode::DeathMode ? engine::I18n::GameOver : engine::I18n::Option),
+      getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
   }
 
   if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
   {
-    rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Items, "ITEMS", getKeysRingObjects(world)));
+    rings.emplace_back(std::make_unique<MenuRing>(
+      MenuRing::Type::Items, world.getEngine().i18n(engine::I18n::Items), getKeysRingObjects(world)));
     if(rings.back()->list.empty())
     {
       if(mode == InventoryMode::KeysMode)

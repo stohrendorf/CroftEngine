@@ -2,6 +2,7 @@
 
 #include "engine/audioengine.h"
 #include "engine/engine.h"
+#include "engine/i18n.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "menudisplay.h"
@@ -572,7 +573,7 @@ std::unique_ptr<MenuState>
     }
     if(m_passportText == nullptr)
     {
-      m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, "Load Game");
+      m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, world.getEngine().i18n(engine::I18n::LoadGame));
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
@@ -596,8 +597,9 @@ std::unique_ptr<MenuState>
     }
     if(m_passportText == nullptr)
     {
-      m_passportText
-        = std::make_unique<ui::Label>(glm::ivec2{0, -16}, m_allowSave && isInGame ? "Save Game" : "New Game");
+      m_passportText = std::make_unique<ui::Label>(
+        glm::ivec2{0, -16},
+        world.getEngine().i18n(m_allowSave && isInGame ? engine::I18n::SaveGame : engine::I18n::NewGame));
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
@@ -618,7 +620,8 @@ std::unique_ptr<MenuState>
   case ExitGamePage:
     if(m_passportText == nullptr)
     {
-      m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, !isInGame ? "Exit Game" : "Exit to Title");
+      m_passportText = std::make_unique<ui::Label>(
+        glm::ivec2{0, -16}, world.getEngine().i18n(!isInGame ? engine::I18n::ExitGame : engine::I18n::ExitToTitle));
       m_passportText->alignX = ui::Label::Alignment::Center;
       m_passportText->alignY = ui::Label::Alignment::Bottom;
     }
@@ -775,7 +778,8 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     if(auto it = savedGames.find(i); it != savedGames.end())
       name = it->second.title;
     else
-      name = "- EMPTY SLOT " + std::to_string(i + 1);
+      name = boost::algorithm::replace_all_copy(
+        world.getEngine().i18n(engine::I18n::EmptySlot), "{}", std::to_string(i + 1));
     auto lbl = std::make_unique<ui::Label>(glm::ivec2{0, YOffset + line * LineHeight}, name);
     lbl->alignX = ui::Label::Alignment::Center;
     lbl->alignY = ui::Label::Alignment::Bottom;
