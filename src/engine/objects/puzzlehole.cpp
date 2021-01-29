@@ -67,30 +67,66 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
           && getWorld().getObjectManager().getLara().getSkeleton()->frame_number == 3372_frame
           && limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
   {
-    TR1ItemId completeId;
-
-    switch(m_state.type.get_as<TR1ItemId>())
-    {
-    case TR1ItemId::PuzzleHole1: completeId = TR1ItemId::PuzzleDone1; break;
-    case TR1ItemId::PuzzleHole2: completeId = TR1ItemId::PuzzleDone2; break;
-    case TR1ItemId::PuzzleHole3: completeId = TR1ItemId::PuzzleDone3; break;
-    case TR1ItemId::PuzzleHole4: completeId = TR1ItemId::PuzzleDone4; break;
-    default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid puzzle ID"));
-    }
-
-    const auto& model = getWorld().findAnimatedModelForType(completeId);
-    Expects(model != nullptr);
-
-    const auto parent = m_skeleton->getParent().lock();
-    setParent(m_skeleton, nullptr);
-    m_state.type = completeId;
-    m_skeleton = std::make_shared<SkeletalModelNode>(toString(completeId), &getWorld(), model.get());
-    m_skeleton->setAnimation(m_state.current_anim_state, model->animations, model->animations->firstFrame);
-    setParent(m_skeleton, parent);
-    SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
-    m_lighting.bind(*m_skeleton);
-
-    ModelObject::update();
+    swapPuzzleState();
   }
+}
+
+void PuzzleHole::initMesh()
+{
+  const auto& model = getWorld().findAnimatedModelForType(m_state.type);
+  Expects(model != nullptr);
+
+  const auto parent = m_skeleton->getParent().lock();
+  setParent(m_skeleton, nullptr);
+  m_skeleton
+    = std::make_shared<SkeletalModelNode>(toString(m_state.type.get_as<TR1ItemId>()), &getWorld(), model.get());
+  m_skeleton->setAnimation(m_state.current_anim_state, model->animations, model->animations->firstFrame);
+  setParent(m_skeleton, parent);
+  SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
+  m_lighting.bind(*m_skeleton);
+
+  ModelObject::update();
+}
+
+void PuzzleHole::swapPuzzleState()
+{
+  TR1ItemId completeId;
+
+  switch(m_state.type.get_as<TR1ItemId>())
+  {
+  case TR1ItemId::PuzzleHole1: completeId = TR1ItemId::PuzzleDone1; break;
+  case TR1ItemId::PuzzleHole2: completeId = TR1ItemId::PuzzleDone2; break;
+  case TR1ItemId::PuzzleHole3: completeId = TR1ItemId::PuzzleDone3; break;
+  case TR1ItemId::PuzzleHole4: completeId = TR1ItemId::PuzzleDone4; break;
+  case TR1ItemId::PuzzleDone1: completeId = TR1ItemId::PuzzleHole1; break;
+  case TR1ItemId::PuzzleDone2: completeId = TR1ItemId::PuzzleHole2; break;
+  case TR1ItemId::PuzzleDone3: completeId = TR1ItemId::PuzzleHole3; break;
+  case TR1ItemId::PuzzleDone4: completeId = TR1ItemId::PuzzleHole4; break;
+  default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid puzzle ID"));
+  }
+
+  m_state.type = completeId;
+  initMesh();
+}
+
+PuzzleHole::PuzzleHole(const gsl::not_null<World*>& world,
+                       const gsl::not_null<const loader::file::Room*>& room,
+                       const loader::file::Item& item,
+                       const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+    : ModelObject{world, room, item, false, animatedModel}
+{
+  initMesh();
+}
+
+void PuzzleHole::serialize(const serialization::Serializer<World>& ser)
+{
+  ModelObject::serialize(ser);
+  if(ser.loading)
+    initMesh();
+}
+
+PuzzleHole::PuzzleHole(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+    : ModelObject{world, position}
+{
 }
 } // namespace engine::objects
