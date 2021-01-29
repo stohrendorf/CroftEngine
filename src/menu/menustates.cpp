@@ -495,10 +495,10 @@ RotateLeftRightMenuState::RotateLeftRightMenuState(const std::shared_ptr<MenuRin
                                                    const MenuRing& ring,
                                                    std::unique_ptr<MenuState>&& prev)
     : MenuState{ringTransform}
+    , m_targetObject{ring.currentObject + (left ? -1 : 1)}
     , m_rotSpeed{(left ? -ring.getAnglePerItem() : ring.getAnglePerItem()) / Duration}
     , m_prev{std::move(prev)}
 {
-  m_targetObject = ring.currentObject + (left ? -1 : 1);
   if(m_targetObject == std::numeric_limits<size_t>::max())
   {
     m_targetObject = ring.list.size() - 1;
@@ -529,6 +529,99 @@ void PassportMenuState::handleObject(engine::World& /*world*/, MenuDisplay& disp
     zeroRotation(object, 256_au);
   else
     rotateForSelection(object);
+}
+
+std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(engine::World& world,
+                                                                              MenuDisplay& display)
+{
+  if(m_passportText == nullptr)
+  {
+    m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, world.getEngine().i18n(engine::I18n::LoadGame));
+    m_passportText->alignX = ui::Label::Alignment::Center;
+    m_passportText->alignY = ui::Label::Alignment::Bottom;
+  }
+  if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
+     || display.mode == InventoryMode::LoadMode)
+  {
+    display.objectTexts[0].reset();
+    display.objectTexts[2].reset();
+    return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text, world, true);
+  }
+
+  return std::nullopt;
+}
+
+std::optional<std::unique_ptr<MenuState>>
+  PassportMenuState::showSaveGamePage(engine::World& world, MenuDisplay& display, bool isInGame)
+{
+  if(m_passportText == nullptr)
+  {
+    m_passportText = std::make_unique<ui::Label>(
+      glm::ivec2{0, -16},
+      world.getEngine().i18n(m_allowSave && isInGame ? engine::I18n::SaveGame : engine::I18n::NewGame));
+    m_passportText->alignX = ui::Label::Alignment::Center;
+    m_passportText->alignY = ui::Label::Alignment::Bottom;
+  }
+  if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  {
+    if(display.mode == InventoryMode::SaveMode || (m_allowSave && isInGame))
+    {
+      display.objectTexts[0].reset();
+      display.objectTexts[2].reset();
+      return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text, world, false);
+    }
+    else
+    {
+      return create<DoneMenuState>(MenuResult::NewGame);
+    }
+  }
+
+  return std::nullopt;
+}
+
+void PassportMenuState::showExitGamePage(engine::World& world, MenuDisplay& display, bool isInGame)
+{
+  if(m_passportText == nullptr)
+  {
+    m_passportText = std::make_unique<ui::Label>(
+      glm::ivec2{0, -16}, world.getEngine().i18n(!isInGame ? engine::I18n::ExitGame : engine::I18n::ExitToTitle));
+    m_passportText->alignX = ui::Label::Alignment::Center;
+    m_passportText->alignY = ui::Label::Alignment::Bottom;
+  }
+  if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  {
+    display.result = !isInGame ? MenuResult::ExitGame : MenuResult::ExitToTitle;
+  }
+}
+
+void PassportMenuState::prevPage(const core::Frame& minFrame, MenuObject& passport, engine::World& world)
+{
+  passport.goalFrame -= FramesPerPage;
+  passport.animDirection = -1_frame;
+  if(const auto firstFrame = passport.openFrame + minFrame; passport.goalFrame < firstFrame)
+  {
+    passport.goalFrame = firstFrame;
+  }
+  else
+  {
+    world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
+    m_passportText.reset();
+  }
+}
+
+void PassportMenuState::nextPage(MenuObject& passport, engine::World& world)
+{
+  passport.goalFrame += FramesPerPage;
+  passport.animDirection = 1_frame;
+  if(const auto lastFrame = passport.lastMeshAnimFrame - FramesPerPage - 1_frame; passport.goalFrame > lastFrame)
+  {
+    passport.goalFrame = lastFrame;
+  }
+  else
+  {
+    world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
+    m_passportText.reset();
+  }
 }
 
 std::unique_ptr<MenuState>
@@ -571,19 +664,8 @@ std::unique_ptr<MenuState>
       forcePageTurn = hid::AxisMovement::Right;
       break;
     }
-    if(m_passportText == nullptr)
-    {
-      m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, world.getEngine().i18n(engine::I18n::LoadGame));
-      m_passportText->alignX = ui::Label::Alignment::Center;
-      m_passportText->alignY = ui::Label::Alignment::Bottom;
-    }
-    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
-       || display.mode == InventoryMode::LoadMode)
-    {
-      display.objectTexts[0].reset();
-      display.objectTexts[2].reset();
-      return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text, world, true);
-    }
+    if(auto tmp = showLoadGamePage(world, display))
+      return std::move(tmp.value());
     break;
   case SaveGamePage:
     if(!m_allowSave && display.mode != InventoryMode::TitleMode)
@@ -595,41 +677,10 @@ std::unique_ptr<MenuState>
         forcePageTurn = hid::AxisMovement::Right;
       break;
     }
-    if(m_passportText == nullptr)
-    {
-      m_passportText = std::make_unique<ui::Label>(
-        glm::ivec2{0, -16},
-        world.getEngine().i18n(m_allowSave && isInGame ? engine::I18n::SaveGame : engine::I18n::NewGame));
-      m_passportText->alignX = ui::Label::Alignment::Center;
-      m_passportText->alignY = ui::Label::Alignment::Bottom;
-    }
-    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
-    {
-      if(display.mode == InventoryMode::SaveMode || (m_allowSave && isInGame))
-      {
-        display.objectTexts[0].reset();
-        display.objectTexts[2].reset();
-        return create<SavegameListMenuState>(std::move(display.m_currentState), m_passportText->text, world, false);
-      }
-      else
-      {
-        return create<DoneMenuState>(MenuResult::NewGame);
-      }
-    }
+    if(auto tmp = showSaveGamePage(world, display, isInGame))
+      return std::move(tmp.value());
     break;
-  case ExitGamePage:
-    if(m_passportText == nullptr)
-    {
-      m_passportText = std::make_unique<ui::Label>(
-        glm::ivec2{0, -16}, world.getEngine().i18n(!isInGame ? engine::I18n::ExitGame : engine::I18n::ExitToTitle));
-      m_passportText->alignX = ui::Label::Alignment::Center;
-      m_passportText->alignY = ui::Label::Alignment::Bottom;
-    }
-    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
-    {
-      display.result = !isInGame ? MenuResult::ExitGame : MenuResult::ExitToTitle;
-    }
-    break;
+  case ExitGamePage: showExitGamePage(world, display, isInGame); break;
   default: Expects(page == -1); break;
   }
 
@@ -641,49 +692,19 @@ std::unique_ptr<MenuState>
   {
     if(hasSavedGames)
     {
-      passport.goalFrame -= FramesPerPage;
-      passport.animDirection = -1_frame;
-      if(passport.goalFrame < passport.openFrame)
-      {
-        passport.goalFrame = passport.openFrame;
-      }
-      else
-      {
-        world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
-        m_passportText.reset();
-      }
+      prevPage(0_frame, passport, world);
       return nullptr;
     }
     else if(m_allowSave || display.mode == InventoryMode::TitleMode)
     {
-      passport.goalFrame -= FramesPerPage;
-      passport.animDirection = -1_frame;
-      if(const auto firstFrame = passport.openFrame + FramesPerPage; passport.goalFrame < firstFrame)
-      {
-        passport.goalFrame = firstFrame;
-      }
-      else
-      {
-        world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
-        m_passportText.reset();
-      }
+      prevPage(FramesPerPage, passport, world);
       return nullptr;
     }
   }
   else if(forcePageTurn == hid::AxisMovement::Right
           || world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
   {
-    passport.goalFrame += FramesPerPage;
-    passport.animDirection = 1_frame;
-    if(const auto lastFrame = passport.lastMeshAnimFrame - FramesPerPage - 1_frame; passport.goalFrame > lastFrame)
-    {
-      passport.goalFrame = lastFrame;
-    }
-    else
-    {
-      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
-      m_passportText.reset();
-    }
+    nextPage(passport, world);
     return nullptr;
   }
   else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))

@@ -10,6 +10,11 @@ namespace ui
 struct Label;
 }
 
+namespace hid
+{
+enum class AxisMovement;
+}
+
 namespace menu
 {
 struct MenuDisplay;
@@ -274,6 +279,12 @@ private:
   std::unique_ptr<ui::Label> m_passportText;
 
   std::unique_ptr<MenuState> close(MenuDisplay& display, int page, MenuObject& passport);
+
+  std::optional<std::unique_ptr<MenuState>> showLoadGamePage(engine::World& world, MenuDisplay& display);
+  std::optional<std::unique_ptr<MenuState>> showSaveGamePage(engine::World& world, MenuDisplay& display, bool isInGame);
+  void showExitGamePage(engine::World& world, MenuDisplay& display, bool isInGame);
+  void prevPage(const core::Frame& minFrame, MenuObject& passport, engine::World& world);
+  void nextPage(MenuObject& passport, engine::World& world);
 
 public:
   explicit PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, InventoryMode mode);
