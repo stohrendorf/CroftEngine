@@ -1442,7 +1442,7 @@ World::World(Engine& engine,
       m_audioEngine->addWav(&m_level->m_samplesData[offset]);
     }
 
-    getPresenter().drawLoadingScreen("Preparing the game");
+    getPresenter().drawLoadingScreen(util::unescape(m_title));
     loadSceneData();
 
     if(useAlternativeLara)

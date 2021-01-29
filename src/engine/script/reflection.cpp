@@ -10,11 +10,12 @@ namespace engine::script
 {
 namespace
 {
-std::unique_ptr<loader::file::level::Level> loadLevel(Engine& engine, const std::string& name)
+std::unique_ptr<loader::file::level::Level>
+  loadLevel(Engine& engine, const std::string& basename, const std::string& title)
 {
-  engine.getPresenter().drawLoadingScreen("Loading " + name);
+  engine.getPresenter().drawLoadingScreen("Loading " + title);
   auto level = loader::file::level::Level::createLoader(
-    engine.getRootPath() / "data" / "tr1" / "data" / (name + ".PHD"), loader::file::level::Game::Unknown);
+    engine.getRootPath() / "data" / "tr1" / "data" / (basename + ".PHD"), loader::file::level::Game::Unknown);
   level->loadFileData();
   return level;
 }
@@ -29,7 +30,7 @@ RunResult Video::run(Engine& engine)
 RunResult Cutscene::run(Engine& engine)
 {
   auto world = std::make_unique<World>(engine,
-                                       loadLevel(engine, m_name),
+                                       loadLevel(engine, m_name, m_name),
                                        std::string{},
                                        m_track,
                                        false,
@@ -82,8 +83,13 @@ RunResult Level::run(Engine& engine, bool isTitleMenu)
     BOOST_LOG_TRIVIAL(error) << "Missing level title";
 
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
-  auto world = std::make_unique<World>(
-    engine, loadLevel(engine, m_name), title, m_track, m_useAlternativeLara, m_inventory, m_itemTitles);
+  auto world = std::make_unique<World>(engine,
+                                       loadLevel(engine, m_name, util::unescape(title)),
+                                       title,
+                                       m_track,
+                                       m_useAlternativeLara,
+                                       m_inventory,
+                                       m_itemTitles);
 
   return isTitleMenu ? engine.runTitleMenu(*world) : engine.run(*world, false);
 }
