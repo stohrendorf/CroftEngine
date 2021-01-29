@@ -22,5 +22,9 @@ public:
   }
 
   void update() override;
+
+private:
+  void updateInWater();
+  void updateOnLand();
 };
 } // namespace engine::objects

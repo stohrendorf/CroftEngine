@@ -1,5 +1,5 @@
 # - Try to find ffmpeg libraries (libavcodec, libavformat and libavutil)
-# Once done this will define
+# Once swapPuzzleState this will define
 #
 # FFMPEG_FOUND - system has ffmpeg or libav
 # FFMPEG_INCLUDE_DIR - the ffmpeg include directory
