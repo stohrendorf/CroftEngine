@@ -179,8 +179,7 @@ std::unique_ptr<MenuState>
       break;
     case engine::TR1ItemId::LarasHomePolaroid:
       world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuHome, nullptr);
-      return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::LaraHome))));
+      break;
     case engine::TR1ItemId::DirectionKeys:
       world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::LowTone, nullptr);
       break;
@@ -303,8 +302,10 @@ std::unique_ptr<MenuState>
     }
     else
     {
+      const auto result
+        = currentObject.type == engine::TR1ItemId::LarasHomePolaroid ? MenuResult::LaraHome : MenuResult::Closed;
       return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed))));
+        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>(result))));
     }
   }
 
