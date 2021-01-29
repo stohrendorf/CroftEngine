@@ -1015,11 +1015,11 @@ void World::gameLoop(const std::string& levelName, bool godMode)
       suffix = " A";
       break;
     case objects::LaraObject::WeaponId::Magnums:
-      n = getObjectManager().getLara().revolverAmmo.ammo;
+      n = getObjectManager().getLara().magnumsAmmo.ammo;
       suffix = " B";
       break;
     case objects::LaraObject::WeaponId::Uzis:
-      n = getObjectManager().getLara().uziAmmo.ammo;
+      n = getObjectManager().getLara().uzisAmmo.ammo;
       suffix = " C";
       break;
     }

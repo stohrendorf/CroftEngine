@@ -32,9 +32,9 @@ void Inventory::put(objects::LaraObject& lara, const core::TypeId id, const size
     if(const auto clips = count(TR1ItemId::MagnumAmmoSprite))
     {
       tryTake(TR1ItemId::MagnumAmmoSprite, clips);
-      lara.revolverAmmo.ammo += 50u * clips;
+      lara.magnumsAmmo.ammo += 50u * clips;
     }
-    lara.revolverAmmo.ammo += 50u * quantity;
+    lara.magnumsAmmo.ammo += 50u * quantity;
     // TODO replaceItems( MagnumsSprite, MagnumAmmoSprite );
     m_inventory[TR1ItemId::Magnums] = 1;
     break;
@@ -43,9 +43,9 @@ void Inventory::put(objects::LaraObject& lara, const core::TypeId id, const size
     if(const auto clips = count(TR1ItemId::UziAmmoSprite))
     {
       tryTake(TR1ItemId::UziAmmoSprite, clips);
-      lara.uziAmmo.ammo += 100u * clips;
+      lara.uzisAmmo.ammo += 100u * clips;
     }
-    lara.uziAmmo.ammo += 100u * quantity;
+    lara.uzisAmmo.ammo += 100u * quantity;
     // TODO replaceItems( UzisSprite, UziAmmoSprite );
     m_inventory[TR1ItemId::Uzis] = 1;
     break;
@@ -59,14 +59,14 @@ void Inventory::put(objects::LaraObject& lara, const core::TypeId id, const size
   case TR1ItemId::MagnumAmmoSprite:
   case TR1ItemId::MagnumAmmo:
     if(count(TR1ItemId::MagnumsSprite) > 0)
-      lara.revolverAmmo.ammo += 50u;
+      lara.magnumsAmmo.ammo += 50u;
     else
       m_inventory[TR1ItemId::MagnumAmmo] += quantity;
     break;
   case TR1ItemId::UziAmmoSprite:
   case TR1ItemId::UziAmmo:
     if(count(TR1ItemId::UzisSprite) > 0)
-      lara.uziAmmo.ammo += 100u;
+      lara.uzisAmmo.ammo += 100u;
     else
       m_inventory[TR1ItemId::UziAmmo] += quantity;
     break;

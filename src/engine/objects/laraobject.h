@@ -343,8 +343,8 @@ public:
   WeaponId requestedGunType = WeaponId::None;
 
   Ammo pistolsAmmo;
-  Ammo revolverAmmo;
-  Ammo uziAmmo;
+  Ammo magnumsAmmo;
+  Ammo uzisAmmo;
   Ammo shotgunAmmo;
 
   std::shared_ptr<ModelObject> target{nullptr};

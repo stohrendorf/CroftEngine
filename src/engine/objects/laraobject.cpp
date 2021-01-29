@@ -735,7 +735,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateGuns(gunType);
       break;
     case WeaponId::Magnums:
-      if(revolverAmmo.ammo != 0)
+      if(magnumsAmmo.ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().getInputState().action)
         {
@@ -753,7 +753,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateGuns(gunType);
       break;
     case WeaponId::Uzis:
-      if(uziAmmo.ammo != 0)
+      if(uzisAmmo.ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().getInputState().action)
         {
@@ -1616,26 +1616,16 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
   Expects(weaponId != WeaponId::None);
 
   Ammo* ammoPtr;
-  if(weaponId == WeaponId::Pistols)
+  switch(weaponId)
   {
+  case WeaponId::Pistols:
     ammoPtr = &pistolsAmmo;
     pistolsAmmo.ammo = 1000;
-  }
-  else if(weaponId == WeaponId::Magnums)
-  {
-    ammoPtr = &revolverAmmo;
-  }
-  else if(weaponId == WeaponId::Uzis)
-  {
-    ammoPtr = &uziAmmo;
-  }
-  else if(weaponId == WeaponId::Shotgun)
-  {
-    ammoPtr = &shotgunAmmo;
-  }
-  else
-  {
-    BOOST_THROW_EXCEPTION(std::out_of_range("weaponId"));
+    break;
+  case WeaponId::Magnums: ammoPtr = &magnumsAmmo; break;
+  case WeaponId::Uzis: ammoPtr = &uzisAmmo; break;
+  case WeaponId::Shotgun: ammoPtr = &shotgunAmmo; break;
+  default: BOOST_THROW_EXCEPTION(std::out_of_range("weaponId"));
   }
 
   if(true /* FIXME engine::allAmmoCheat */)
@@ -2233,8 +2223,8 @@ void LaraObject::serialize(const serialization::Serializer<World>& ser)
       S_NV("gunType", gunType),
       S_NV("requestedGunType", requestedGunType),
       S_NV("pistolsAmmo", pistolsAmmo),
-      S_NV("revolverAmmo", revolverAmmo),
-      S_NV("uziAmmo", uziAmmo),
+      S_NV("magnumsAmmo", magnumsAmmo),
+      S_NV("uzisAmmo", uzisAmmo),
       S_NV("shotgunAmmo", shotgunAmmo),
       S_NV("weaponTargetVector", m_weaponTargetVector),
       S_NV("weapons", weapons));

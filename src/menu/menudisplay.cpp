@@ -106,11 +106,11 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
     suffix = " A";
     break;
   case engine::TR1ItemId::Magnums:
-    totalItemCount = world.getObjectManager().getLara().revolverAmmo.ammo;
+    totalItemCount = world.getObjectManager().getLara().magnumsAmmo.ammo;
     suffix = " B";
     break;
   case engine::TR1ItemId::Uzis:
-    totalItemCount = world.getObjectManager().getLara().uziAmmo.ammo;
+    totalItemCount = world.getObjectManager().getLara().uzisAmmo.ammo;
     suffix = " C";
     break;
   case engine::TR1ItemId::SmallMedipack:
