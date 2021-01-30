@@ -26,7 +26,8 @@ enum class MenuResult
   ExitToTitle,
   ExitGame,
   NewGame,
-  LaraHome
+  LaraHome,
+  RequestLoad
 };
 
 struct MenuDisplay
@@ -45,6 +46,7 @@ struct MenuDisplay
 
   void display(gl::Image<gl::SRGBA8>& img, engine::World& world);
   MenuResult result = MenuResult::None;
+  std::optional<size_t> requestLoad;
 
   std::vector<gsl::not_null<std::unique_ptr<MenuRing>>> rings;
   size_t currentRingIndex = 0;

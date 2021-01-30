@@ -307,6 +307,7 @@ private:
   std::unique_ptr<MenuState> m_previous;
   size_t m_selected = 0;
   std::vector<std::unique_ptr<ui::Label>> m_labels;
+  std::vector<bool> m_hasSavegame;
   std::unique_ptr<ui::Label> m_heading;
   std::unique_ptr<ui::Label> m_background;
   const bool m_loading;

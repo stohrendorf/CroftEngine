@@ -28,6 +28,7 @@
 #include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
 #include "script/reflection.h"
+#include "serialization/yamldocument.h"
 #include "throttler.h"
 #include "tracks_tr1.h"
 #include "ui/label.h"
@@ -100,7 +101,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
   }
 }
 
-RunResult Engine::run(World& world, bool isCutscene)
+std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCutscene)
 {
   gl::Framebuffer::unbindAll();
 
@@ -114,12 +115,12 @@ RunResult Engine::run(World& world, bool isCutscene)
   {
     if(m_presenter->shouldClose())
     {
-      return RunResult::ExitApp;
+      return {RunResult::ExitApp, std::nullopt};
     }
 
     if(world.levelFinished())
     {
-      return RunResult::NextLevel;
+      return {RunResult::NextLevel, std::nullopt};
     }
 
     throttler.wait();
@@ -135,10 +136,13 @@ RunResult Engine::run(World& world, bool isCutscene)
       {
       case menu::MenuResult::None: break;
       case menu::MenuResult::Closed: menu.reset(); break;
-      case menu::MenuResult::ExitToTitle: return RunResult::TitleLevel;
-      case menu::MenuResult::ExitGame: return RunResult::ExitApp;
-      case menu::MenuResult::NewGame: return RunResult::NextLevel;
-      case menu::MenuResult::LaraHome: return RunResult::LaraHomeLevel;
+      case menu::MenuResult::ExitToTitle: return {RunResult::TitleLevel, std::nullopt};
+      case menu::MenuResult::ExitGame: return {RunResult::ExitApp, std::nullopt};
+      case menu::MenuResult::NewGame: return {RunResult::NextLevel, std::nullopt};
+      case menu::MenuResult::LaraHome: return {RunResult::LaraHomeLevel, std::nullopt};
+      case menu::MenuResult::RequestLoad:
+        Expects(menu->requestLoad.has_value());
+        return {RunResult::RequestLoad, menu->requestLoad};
       }
       continue;
     }
@@ -158,8 +162,7 @@ RunResult Engine::run(World& world, bool isCutscene)
       }
       else if(m_presenter->getInputHandler().getInputState().load.justChangedTo(true))
       {
-        world.load("quicksave.yaml");
-        throttler.reset();
+        return {RunResult::RequestLoad, std::nullopt};
       }
 
       world.gameLoop(world.getTitle(), godMode);
@@ -167,12 +170,12 @@ RunResult Engine::run(World& world, bool isCutscene)
     else
     {
       if(!world.cinematicLoop())
-        return RunResult::NextLevel;
+        return {RunResult::NextLevel, std::nullopt};
     }
   }
 }
 
-RunResult Engine::runTitleMenu(World& world)
+std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
 {
   gl::Framebuffer::unbindAll();
 
@@ -189,7 +192,7 @@ RunResult Engine::runTitleMenu(World& world)
   {
     if(m_presenter->shouldClose())
     {
-      return RunResult::ExitApp;
+      return {RunResult::ExitApp, std::nullopt};
     }
 
     throttler.wait();
@@ -202,20 +205,31 @@ RunResult Engine::runTitleMenu(World& world)
     switch(menu->result)
     {
     case menu::MenuResult::None: break;
-    case menu::MenuResult::Closed: return RunResult::ExitApp;
-    case menu::MenuResult::ExitToTitle: return RunResult::TitleLevel;
-    case menu::MenuResult::ExitGame: return RunResult::ExitApp;
-    case menu::MenuResult::NewGame: return RunResult::NextLevel;
-    case menu::MenuResult::LaraHome: return RunResult::LaraHomeLevel;
+    case menu::MenuResult::Closed: return {RunResult::ExitApp, std::nullopt};
+    case menu::MenuResult::ExitToTitle: return {RunResult::TitleLevel, std::nullopt};
+    case menu::MenuResult::ExitGame: return {RunResult::ExitApp, std::nullopt};
+    case menu::MenuResult::NewGame: return {RunResult::NextLevel, std::nullopt};
+    case menu::MenuResult::LaraHome: return {RunResult::LaraHomeLevel, std::nullopt};
+    case menu::MenuResult::RequestLoad:
+      Expects(menu->requestLoad.has_value());
+      return {RunResult::RequestLoad, menu->requestLoad};
     }
   }
 }
 
-RunResult Engine::runLevelSequenceItem(script::LevelSequenceItem& item)
+std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItem(script::LevelSequenceItem& item)
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
   return item.run(*this);
+}
+
+std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItemFromSave(script::LevelSequenceItem& item,
+                                                                                 const std::optional<size_t>& slot)
+{
+  m_presenter->getSoundEngine()->reset();
+  m_presenter->clear();
+  return item.runFromSave(*this, slot);
 }
 
 Engine::~Engine() = default;
@@ -243,5 +257,13 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
 std::string Engine::i18n(I18n key) const
 {
   return m_i18n.at(key);
+}
+
+SavegameMeta Engine::getSavegameMeta(const std::filesystem::path& filename) const
+{
+  serialization::YAMLDocument<true> doc{getSavegamePath() / filename};
+  SavegameMeta meta{};
+  doc.load("meta", meta, meta);
+  return meta;
 }
 } // namespace engine

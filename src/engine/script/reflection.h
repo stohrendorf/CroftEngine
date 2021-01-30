@@ -6,6 +6,8 @@
 #include "core/units.h"
 #include "engine/tracks_tr1.h"
 
+#include <filesystem>
+
 namespace engine
 {
 enum class RunResult;
@@ -39,7 +41,14 @@ class LevelSequenceItem
 {
 public:
   virtual ~LevelSequenceItem() = default;
-  virtual RunResult run(Engine& engine) = 0;
+  virtual std::pair<RunResult, std::optional<size_t>> run(Engine& engine) = 0;
+  virtual std::pair<RunResult, std::optional<size_t>> runFromSave(Engine& engine, const std::optional<size_t>& slot)
+  {
+    BOOST_LOG_TRIVIAL(error) << "Cannot run from save";
+    BOOST_THROW_EXCEPTION(std::runtime_error("Cannot run from save"));
+  }
+
+  virtual bool isLevel(const std::filesystem::path& path) const = 0;
 };
 
 class Level : public LevelSequenceItem
@@ -54,7 +63,7 @@ private:
   const TR1TrackId m_track;
 
 protected:
-  RunResult run(Engine& engine, bool isTitleMenu);
+  [[nodiscard]] std::unique_ptr<engine::World> loadWorld(Engine& engine);
 
 public:
   explicit Level(std::string name,
@@ -74,10 +83,10 @@ public:
   {
   }
 
-  RunResult run(Engine& engine) override
-  {
-    return run(engine, false);
-  }
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
+  std::pair<RunResult, std::optional<size_t>> runFromSave(Engine& engine, const std::optional<size_t>& slot) override;
+
+  bool isLevel(const std::filesystem::path& path) const override;
 };
 
 class TitleMenu : public Level
@@ -94,7 +103,12 @@ public:
   {
   }
 
-  RunResult run(Engine& engine) override;
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
+
+  bool isLevel(const std::filesystem::path& path) const override
+  {
+    return false;
+  }
 };
 
 class Video : public LevelSequenceItem
@@ -108,7 +122,12 @@ public:
   {
   }
 
-  RunResult run(Engine& engine) override;
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
+
+  bool isLevel(const std::filesystem::path& path) const override
+  {
+    return false;
+  }
 };
 
 class Cutscene : public LevelSequenceItem
@@ -146,6 +165,11 @@ public:
   {
   }
 
-  RunResult run(Engine& engine) override;
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
+
+  bool isLevel(const std::filesystem::path& path) const override
+  {
+    return false;
+  }
 };
 } // namespace engine::script

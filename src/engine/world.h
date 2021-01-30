@@ -38,14 +38,7 @@ extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::
 class Presenter;
 class Engine;
 class AudioEngine;
-
-struct SavegameMeta
-{
-  std::string filename;
-  std::string title;
-
-  void serialize(const serialization::Serializer<SavegameMeta>& ser);
-};
+struct SavegameMeta;
 
 class World final
 {
@@ -206,15 +199,9 @@ public:
   void gameLoop(const std::string& levelName, bool godMode);
   bool cinematicLoop();
   void load(const std::filesystem::path& filename);
-  void load(size_t slot)
-  {
-    load(makeSavegameFilename(slot));
-  }
+  void load(size_t slot);
   void save(const std::filesystem::path& filename);
-  void save(size_t slot)
-  {
-    save(makeSavegameFilename(slot));
-  }
+  void save(size_t slot);
   [[nodiscard]] std::map<size_t, SavegameMeta> getSavedGames() const;
   [[nodiscard]] bool hasSavedGames() const;
 
@@ -326,10 +313,5 @@ private:
   std::unique_ptr<render::TextureAnimator> m_textureAnimator;
 
   std::vector<ui::PickupWidget> m_pickupWidgets{};
-
-  static std::string makeSavegameFilename(size_t n)
-  {
-    return "save_" + std::to_string(n) + ".yaml";
-  }
 };
 } // namespace engine

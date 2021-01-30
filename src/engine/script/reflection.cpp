@@ -10,24 +10,29 @@ namespace engine::script
 {
 namespace
 {
+std::filesystem::path getLocalLevelPath(const std::string& basename)
+{
+  return std::filesystem::path{"data"} / "tr1" / "data" / (basename + ".PHD");
+}
+
 std::unique_ptr<loader::file::level::Level>
   loadLevel(Engine& engine, const std::string& basename, const std::string& title)
 {
   engine.getPresenter().drawLoadingScreen("Loading " + title);
-  auto level = loader::file::level::Level::createLoader(
-    engine.getRootPath() / "data" / "tr1" / "data" / (basename + ".PHD"), loader::file::level::Game::Unknown);
+  auto level = loader::file::level::Level::createLoader(engine.getRootPath() / getLocalLevelPath(basename),
+                                                        loader::file::level::Game::Unknown);
   level->loadFileData();
   return level;
 }
 } // namespace
 
-RunResult Video::run(Engine& engine)
+std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine)
 {
   engine.getPresenter().playVideo(engine.getRootPath() / "data/tr1/fmv" / m_name);
-  return RunResult::NextLevel;
+  return {RunResult::NextLevel, std::nullopt};
 }
 
-RunResult Cutscene::run(Engine& engine)
+std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine)
 {
   auto world = std::make_unique<World>(engine,
                                        loadLevel(engine, m_name, m_name),
@@ -69,7 +74,7 @@ RunResult Cutscene::run(Engine& engine)
   return engine.run(*world, true);
 }
 
-RunResult Level::run(Engine& engine, bool isTitleMenu)
+std::unique_ptr<engine::World> Level::loadWorld(Engine& engine)
 {
   engine.getPresenter().debounceInput();
 
@@ -83,19 +88,39 @@ RunResult Level::run(Engine& engine, bool isTitleMenu)
     BOOST_LOG_TRIVIAL(error) << "Missing level title";
 
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
-  auto world = std::make_unique<World>(engine,
-                                       loadLevel(engine, m_name, util::unescape(title)),
-                                       title,
-                                       m_track,
-                                       m_useAlternativeLara,
-                                       m_inventory,
-                                       m_itemTitles);
-
-  return isTitleMenu ? engine.runTitleMenu(*world) : engine.run(*world, false);
+  return std::make_unique<World>(engine,
+                                 loadLevel(engine, m_name, util::unescape(title)),
+                                 title,
+                                 m_track,
+                                 m_useAlternativeLara,
+                                 m_inventory,
+                                 m_itemTitles);
 }
 
-RunResult TitleMenu::run(Engine& engine)
+bool Level::isLevel(const std::filesystem::path& path) const
 {
-  return Level::run(engine, true);
+  return getLocalLevelPath(m_name) == path;
+}
+
+std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine)
+{
+  auto world = loadWorld(engine);
+  return engine.run(*world, false);
+}
+
+std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine, const std::optional<size_t>& slot)
+{
+  auto world = loadWorld(engine);
+  if(slot.has_value())
+    world->load(slot.value());
+  else
+    world->load("quicksave.yaml");
+  return engine.run(*world, false);
+}
+
+std::pair<RunResult, std::optional<size_t>> TitleMenu::run(Engine& engine)
+{
+  auto world = loadWorld(engine);
+  return engine.runTitleMenu(*world);
 }
 } // namespace engine::script

@@ -1557,6 +1557,16 @@ std::optional<std::string> World::getItemTitle(TR1ItemId id) const
   return std::nullopt;
 }
 
+void World::load(size_t slot)
+{
+  load(makeSavegameFilename(slot));
+}
+
+void World::save(size_t slot)
+{
+  save(makeSavegameFilename(slot));
+}
+
 void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser)
 {
   ser(S_NV("filename", filename), S_NV("title", title));

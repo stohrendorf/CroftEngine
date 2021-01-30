@@ -62,7 +62,7 @@ public:
   template<typename T, typename TContext, bool DelayLoading = Loading>
   auto save(const std::string& key, TContext& context, T& data) -> std::enable_if_t<!DelayLoading, void>
   {
-    Serializer ser{m_tree.rootref()[c4::to_csubstr(key)], context, false, nullptr};
+    Serializer ser{m_tree.rootref()[m_tree.copy_to_arena(c4::to_csubstr(key))], context, false, nullptr};
     access::callSerializeOrSave(data, ser);
     ser.processQueues();
   }

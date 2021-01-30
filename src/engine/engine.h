@@ -60,7 +60,21 @@ enum class RunResult
   TitleLevel,
   LaraHomeLevel,
   ExitApp,
+  RequestLoad,
 };
+
+struct SavegameMeta
+{
+  std::string filename;
+  std::string title;
+
+  void serialize(const serialization::Serializer<SavegameMeta>& ser);
+};
+
+inline std::string makeSavegameFilename(size_t n)
+{
+  return "save_" + std::to_string(n) + ".yaml";
+}
 
 class Engine
 {
@@ -96,8 +110,8 @@ public:
     return *m_presenter;
   }
 
-  RunResult run(World& world, bool isCutscene);
-  RunResult runTitleMenu(World& world);
+  std::pair<RunResult, std::optional<size_t>> run(World& world, bool isCutscene);
+  std::pair<RunResult, std::optional<size_t>> runTitleMenu(World& world);
 
   [[nodiscard]] const std::string& getLanguage() const
   {
@@ -117,7 +131,9 @@ public:
     return m_rootPath;
   }
 
-  RunResult runLevelSequenceItem(script::LevelSequenceItem& item);
+  std::pair<RunResult, std::optional<size_t>> runLevelSequenceItem(script::LevelSequenceItem& item);
+  std::pair<RunResult, std::optional<size_t>> runLevelSequenceItemFromSave(script::LevelSequenceItem& item,
+                                                                           const std::optional<size_t>& slot);
 
   [[nodiscard]] const auto& getGlidos() const noexcept
   {
@@ -125,5 +141,11 @@ public:
   }
 
   std::string i18n(I18n key) const;
+
+  SavegameMeta getSavegameMeta(const std::filesystem::path& filename) const;
+  SavegameMeta getSavegameMeta(size_t slot) const
+  {
+    return getSavegameMeta(makeSavegameFilename(slot));
+  }
 };
 } // namespace engine

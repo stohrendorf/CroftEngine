@@ -798,10 +798,16 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     const auto line = i % PerPage;
     std::string name;
     if(auto it = savedGames.find(i); it != savedGames.end())
+    {
       name = it->second.title;
+      m_hasSavegame.emplace_back(true);
+    }
     else
+    {
       name = boost::algorithm::replace_all_copy(
         world.getEngine().i18n(engine::I18n::EmptySlot), "{}", std::to_string(i + 1));
+      m_hasSavegame.emplace_back(false);
+    }
     auto lbl = std::make_unique<ui::Label>(glm::ivec2{0, YOffset + line * LineHeight}, name);
     lbl->alignX = ui::Label::Alignment::Center;
     lbl->alignY = ui::Label::Alignment::Bottom;
@@ -814,7 +820,7 @@ void SavegameListMenuState::handleObject(engine::World& /*world*/, MenuDisplay& 
 }
 
 std::unique_ptr<MenuState>
-  SavegameListMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& /*display*/)
+  SavegameListMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display)
 {
   m_background->draw(world.getPresenter().getTrFont(), img, world.getPalette());
 
@@ -865,7 +871,13 @@ std::unique_ptr<MenuState>
   else if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
     if(!m_loading)
+      // TODO confirm overwrite if necessary
       world.save(m_selected);
+    else if(m_hasSavegame.at(m_selected))
+    {
+      display.requestLoad = m_selected;
+      display.result = MenuResult::RequestLoad;
+    }
     return std::move(m_previous);
   }
   else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))

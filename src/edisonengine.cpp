@@ -60,30 +60,69 @@ int main()
     Game
   };
   auto mode = Mode::Title;
+  std::optional<size_t> loadSlot;
+  bool doLoad = false;
+
+  auto processLoadRequest = [&engine, &levelSequenceIndex, &levelSequenceLength, &mode, &loadSlot, &doLoad](
+                              const std::optional<size_t>& slot) -> void {
+    std::string filename;
+    if(!slot.has_value())
+    {
+      filename = engine.getSavegameMeta("quicksave.yaml").filename;
+    }
+    else
+    {
+      filename = engine.getSavegameMeta(slot.value()).filename;
+    }
+    for(levelSequenceIndex = 0; levelSequenceIndex < levelSequenceLength; ++levelSequenceIndex)
+    {
+      if(gsl::not_null {
+           pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
+             .cast<engine::script::LevelSequenceItem*>()
+         }->isLevel(filename))
+        break;
+    }
+    Expects(levelSequenceIndex < levelSequenceLength);
+    loadSlot = slot;
+    doLoad = true;
+    mode = Mode::Game;
+  };
+
   while(true)
   {
-    engine::RunResult runResult;
+    std::pair<engine::RunResult, std::optional<size_t>> runResult;
     switch(mode)
     {
     case Mode::Title:
+      Expects(!doLoad);
       runResult = engine.runLevelSequenceItem(
         *gsl::not_null{pybind11::globals()["title_menu"].cast<engine::script::LevelSequenceItem*>()});
       break;
     case Mode::Gym:
+      Expects(!doLoad);
       runResult = engine.runLevelSequenceItem(
         *gsl::not_null{pybind11::globals()["lara_home"].cast<engine::script::LevelSequenceItem*>()});
       break;
     case Mode::Game:
-      runResult = engine.runLevelSequenceItem(
-        *gsl::not_null{pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
-                         .cast<engine::script::LevelSequenceItem*>()});
+      if(doLoad)
+        runResult = engine.runLevelSequenceItemFromSave(
+          *gsl::not_null{pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
+                           .cast<engine::script::LevelSequenceItem*>()},
+          loadSlot);
+      else
+        runResult = engine.runLevelSequenceItem(
+          *gsl::not_null{pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
+                           .cast<engine::script::LevelSequenceItem*>()});
       break;
     }
+
+    loadSlot.reset();
+    doLoad = false;
 
     switch(mode)
     {
     case Mode::Title:
-      switch(runResult)
+      switch(runResult.first)
       {
       case engine::RunResult::ExitApp: return EXIT_SUCCESS;
       case engine::RunResult::NextLevel:
@@ -92,19 +131,21 @@ int main()
         break;
       case engine::RunResult::TitleLevel: mode = Mode::Title; break;
       case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
+      case engine::RunResult::RequestLoad: processLoadRequest(runResult.second); break;
       }
       break;
     case Mode::Gym:
-      switch(runResult)
+      switch(runResult.first)
       {
       case engine::RunResult::ExitApp: return EXIT_SUCCESS;
       case engine::RunResult::NextLevel: mode = Mode::Title; break;
       case engine::RunResult::TitleLevel: mode = Mode::Title; break;
       case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
+      case engine::RunResult::RequestLoad: processLoadRequest(runResult.second); break;
       }
       break;
     case Mode::Game:
-      switch(runResult)
+      switch(runResult.first)
       {
       case engine::RunResult::ExitApp: return EXIT_SUCCESS;
       case engine::RunResult::NextLevel:
@@ -117,6 +158,7 @@ int main()
         break;
       case engine::RunResult::TitleLevel: mode = Mode::Title; break;
       case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
+      case engine::RunResult::RequestLoad: processLoadRequest(runResult.second); break;
       }
       break;
     }
