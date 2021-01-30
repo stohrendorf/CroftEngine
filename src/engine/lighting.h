@@ -10,11 +10,12 @@ namespace engine
 {
 struct Lighting
 {
-  struct alignas(16) Light
+  struct Light
   {
-    alignas(16) glm::vec3 position = glm::vec3{std::numeric_limits<float>::quiet_NaN()};
-    alignas(16) float brightness = 0;
-    alignas(4) float fadeDistance = 0;
+    glm::vec3 position{std::numeric_limits<float>::quiet_NaN()};
+    float brightness = 0;
+    float fadeDistance = 0;
+    float _pad[3];
 
     bool operator==(const Light& rhs) const
     {
