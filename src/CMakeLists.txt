@@ -557,6 +557,23 @@ if( WIN32 )
             COMMAND ${CMAKE_COMMAND} -E copy ${_shaders} ${_bin_dir}/shaders/
     )
 
+    file(
+            GLOB_RECURSE _scripts
+            RELATIVE ${CMAKE_SOURCE_DIR}
+            ${CMAKE_SOURCE_DIR}/scripts/*.py
+    )
+
+    foreach( _file ${_scripts} )
+        get_filename_component( _dirname ${_file} DIRECTORY )
+        add_custom_command(
+                TARGET edisonengine
+                POST_BUILD
+                COMMENT "Copy script ${_file}"
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/${_dirname}
+                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/${_file} ${_bin_dir}/${_dirname}/
+        )
+    endforeach()
+
     add_custom_command(
             TARGET edisonengine
             POST_BUILD
