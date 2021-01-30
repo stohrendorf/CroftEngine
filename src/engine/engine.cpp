@@ -83,7 +83,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
 
   for(const auto& [key, name] : EnumUtil<I18n>::all())
   {
-    const auto values = pybind11::globals()[pybind11::cast("i18n")][pybind11::cast(key)];
+    const auto values = pybind11::globals()["i18n"][pybind11::cast(key)];
     Expects(!values.is_none());
     if(const auto loc = core::get<std::string>(values, m_language))
     {
