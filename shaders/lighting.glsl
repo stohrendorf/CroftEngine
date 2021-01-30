@@ -5,10 +5,11 @@ layout(location=10) uniform float u_lightAmbient;
 
 #include "csm_interface.glsl"
 
-layout(std430) struct Light {
-    layout(offset=0) vec3 position;
-    layout(offset=12) float brightness;
-    layout(offset=16) float fadeDistance;
+struct Light {
+    vec3 position;
+    float brightness;
+    float fadeDistance;
+    float _pad[2];
 };
 
 readonly layout(std430, binding=3) buffer b_lights {

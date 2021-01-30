@@ -12,10 +12,10 @@ struct Lighting
 {
   struct Light
   {
-    glm::vec3 position{std::numeric_limits<float>::quiet_NaN()};
+    glm::vec4 position{std::numeric_limits<float>::quiet_NaN()};
     float brightness = 0;
     float fadeDistance = 0;
-    float _pad[3];
+    float _pad[2];
 
     bool operator==(const Light& rhs) const
     {
@@ -80,7 +80,8 @@ struct Lighting
       // fade_distance / ( fade_distance + d )
       std::transform(
         room->lights.begin(), room->lights.end(), std::back_inserter(lights), [](const loader::file::Light& light) {
-          return Light{light.position.toRenderSystem(), light.getBrightness(), light.fadeDistance.get<float>()};
+          return Light{
+            glm::vec4{light.position.toRenderSystem(), 0.0f}, light.getBrightness(), light.fadeDistance.get<float>()};
         });
     }
 
