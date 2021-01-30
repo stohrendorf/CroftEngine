@@ -51,7 +51,8 @@ int main()
 #endif
 
   engine::Engine engine{std::filesystem::current_path()};
-  size_t levelIndex = 0;
+  size_t levelSequenceIndex = 0;
+  const size_t levelSequenceLength = pybind11::len(pybind11::globals()["level_sequence"]);
   enum class Mode
   {
     Title,
@@ -61,15 +62,32 @@ int main()
   auto mode = Mode::Title;
   while(true)
   {
+    engine::RunResult runResult;
     switch(mode)
     {
     case Mode::Title:
-      switch(engine.runLevelSequenceItem(
-        *gsl::not_null{pybind11::globals()["title_menu"].cast<engine::script::LevelSequenceItem*>()}))
+      runResult = engine.runLevelSequenceItem(
+        *gsl::not_null{pybind11::globals()["title_menu"].cast<engine::script::LevelSequenceItem*>()});
+      break;
+    case Mode::Gym:
+      runResult = engine.runLevelSequenceItem(
+        *gsl::not_null{pybind11::globals()["lara_home"].cast<engine::script::LevelSequenceItem*>()});
+      break;
+    case Mode::Game:
+      runResult = engine.runLevelSequenceItem(
+        *gsl::not_null{pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
+                         .cast<engine::script::LevelSequenceItem*>()});
+      break;
+    }
+
+    switch(mode)
+    {
+    case Mode::Title:
+      switch(runResult)
       {
       case engine::RunResult::ExitApp: return EXIT_SUCCESS;
       case engine::RunResult::NextLevel:
-        levelIndex = 0;
+        levelSequenceIndex = 0;
         mode = Mode::Game;
         break;
       case engine::RunResult::TitleLevel: mode = Mode::Title; break;
@@ -77,8 +95,7 @@ int main()
       }
       break;
     case Mode::Gym:
-      switch(engine.runLevelSequenceItem(
-        *gsl::not_null{pybind11::globals()["lara_home"].cast<engine::script::LevelSequenceItem*>()}))
+      switch(runResult)
       {
       case engine::RunResult::ExitApp: return EXIT_SUCCESS;
       case engine::RunResult::NextLevel: mode = Mode::Title; break;
@@ -87,11 +104,17 @@ int main()
       }
       break;
     case Mode::Game:
-      switch(engine.runLevelSequenceItem(*gsl::not_null{
-        pybind11::globals()["level_sequence"][pybind11::cast(levelIndex)].cast<engine::script::LevelSequenceItem*>()}))
+      switch(runResult)
       {
       case engine::RunResult::ExitApp: return EXIT_SUCCESS;
-      case engine::RunResult::NextLevel: ++levelIndex; break;
+      case engine::RunResult::NextLevel:
+        ++levelSequenceIndex;
+        if(levelSequenceIndex >= levelSequenceLength)
+        {
+          levelSequenceIndex = 0;
+          mode = Mode::Title;
+        }
+        break;
       case engine::RunResult::TitleLevel: mode = Mode::Title; break;
       case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
       }
