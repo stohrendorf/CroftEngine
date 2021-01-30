@@ -1069,7 +1069,7 @@ void World::save(const std::filesystem::path& filename)
   getPresenter().drawLoadingScreen("Saving...");
   BOOST_LOG_TRIVIAL(info) << "Save";
   serialization::YAMLDocument<false> doc{m_engine.getSavegamePath() / filename};
-  SavegameMeta meta{std::filesystem::relative(m_level->getFilename(), m_engine.getRootPath()), m_title};
+  SavegameMeta meta{std::filesystem::relative(m_level->getFilename(), m_engine.getRootPath()).string(), m_title};
   doc.save("meta", meta, meta);
   doc.save("data", *this, *this);
   doc.write();
