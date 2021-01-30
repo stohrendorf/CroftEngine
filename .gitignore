@@ -1,6 +1,7 @@
-build/
-cmake-build-*/
-.vs/
+/build
+/cmake-build-*
+/.vs
+/release
 
 .idea/**/workspace.xml
 .idea/**/tasks.xml
