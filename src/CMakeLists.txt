@@ -538,6 +538,8 @@ if( LINUX OR UNIX )
 endif()
 
 if( WIN32 )
+    get_target_property( _bin_dir edisonengine BINARY_DIR )
+
     file(
             GLOB _shaders
             ${CMAKE_SOURCE_DIR}/shaders/*.frag
@@ -551,8 +553,20 @@ if( WIN32 )
             POST_BUILD
             COMMENT "Copy shaders"
             DEPENDS ${_shaders}
-            COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:edisonengine>/shaders
-            COMMAND ${CMAKE_COMMAND} -E copy ${_shaders} $<TARGET_FILE_DIR:edisonengine>/shaders/
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/shaders
+            COMMAND ${CMAKE_COMMAND} -E copy ${_shaders} ${_bin_dir}/shaders/
+    )
+
+    add_custom_command(
+            TARGET edisonengine
+            POST_BUILD
+            COMMENT "Copy runtime assets"
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/abibas.ttf ${_bin_dir}/
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/Apache License.txt" ${_bin_dir}/
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/DroidSansMono.ttf ${_bin_dir}/
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/LICENSE ${_bin_dir}/
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/logo.png ${_bin_dir}/
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/splash.png ${_bin_dir}/
     )
 
     copy_python3_deps( edisonengine )
