@@ -29,15 +29,16 @@ void drawOutlineBox(gl::Image<gl::SRGBA8>& img,
 void drawBox(
   gl::Image<gl::SRGBA8>& img, const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud, bool blend)
 {
-  for(int y = 0; y < size.y; ++y)
-  {
-    const auto left = gl::mix(gouraud.topLeft, gouraud.bottomLeft, static_cast<float>(y) / static_cast<float>(size.y));
-    const auto right
-      = gl::mix(gouraud.topRight, gouraud.bottomRight, static_cast<float>(y) / static_cast<float>(size.y));
+  Expects(size.x >= 0 && size.y >= 0);
 
-    for(int x = 0; x < size.x; ++x)
+  for(uint32_t y = 0; y < static_cast<uint32_t>(size.y); ++y)
+  {
+    const auto left = gl::imix(gouraud.topLeft, gouraud.bottomLeft, y, static_cast<uint32_t>(size.y));
+    const auto right = gl::imix(gouraud.topRight, gouraud.bottomRight, y, static_cast<uint32_t>(size.y));
+
+    for(uint32_t x = 0; x < static_cast<uint32_t>(size.x); ++x)
     {
-      const auto c = gl::mix(left, right, static_cast<float>(x) / static_cast<float>(size.x));
+      const auto c = gl::imix(left, right, x, static_cast<uint32_t>(size.x));
       img.set(xy + glm::ivec2{x, y}, c, blend);
     }
   }

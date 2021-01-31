@@ -68,24 +68,34 @@ struct Pixel
 };
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<typename T, typename U, size_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
+auto imix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
+          const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& rhs,
+          U bias,
+          U biasMax = std::numeric_limits<U>::max())
+  -> std::enable_if_t<std::is_unsigned_v<T> == std::is_unsigned_v<U>,
+                      Pixel<T, _Channels, _PixelFormat, _InternalFormat>>
+{
+  if(bias >= biasMax)
+    return rhs;
+  else if(bias <= 0)
+    return lhs;
+
+  const auto invBias = biasMax - bias;
+  auto tmp = lhs;
+  for(size_t i = 0; i < _Channels; ++i)
+  {
+    tmp.channels[i] = static_cast<T>(lhs.channels[i] * invBias / biasMax + rhs.channels[i] * bias / biasMax);
+  }
+  return tmp;
+}
+
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
 Pixel<T, 4, _PixelFormat, _InternalFormat> mixAlpha(const Pixel<T, 4, _PixelFormat, _InternalFormat>& lhs,
                                                     const Pixel<T, 4, _PixelFormat, _InternalFormat>& rhs)
 {
-  const float bias = static_cast<float>(rhs.channels[3]) / std::numeric_limits<T>::max();
-  return Pixel<T, 4, _PixelFormat, _InternalFormat>{glm::mix(lhs.channels, rhs.channels, bias)};
-}
-
-// NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, size_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
-Pixel<T, _Channels, _PixelFormat, _InternalFormat> mix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
-                                                       const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& rhs,
-                                                       float bias)
-{
-  auto tmp = lhs;
-  for(size_t i = 0; i < _Channels; ++i)
-    tmp.channels[i] = static_cast<T>(lhs.channels[i] * (1 - bias) + rhs.channels[i] * bias);
-  return tmp;
+  return imix(lhs, rhs, rhs.channels[3]);
 }
 
 template<typename T>
