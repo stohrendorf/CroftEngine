@@ -6,9 +6,7 @@ layout(location=11) IN_OUT GeometryPipelineInterface {
     vec3 vertexPosLight1;
     vec3 vertexPosLight2;
     vec3 vertexPosLight3;
-    #ifdef WATER
     vec3 vertexPosWorld;
-    #endif
     vec3 normal;
     vec3 ssaoNormal;
 } gpi;

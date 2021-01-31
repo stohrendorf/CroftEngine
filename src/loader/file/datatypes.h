@@ -140,10 +140,10 @@ enum class LightType : uint8_t
 
 struct Light
 {
-  core::TRVec position;    // world coords
-  ByteColor color;         // three bytes rgb values
-  int16_t intensity = 0;   // Light intensity
-  uint16_t intensity2 = 0; // Almost always equal to Intensity1 [absent from TR1 data files]
+  core::TRVec position;       // world coords
+  ByteColor color;            // three bytes rgb values
+  core::Intensity intensity;  // Light intensity
+  core::Intensity intensity2; // Almost always equal to Intensity1 [absent from TR1 data files]
   // distance of half light intensity
   core::Length fadeDistance = 0_len;
   core::Length fade2 = 0_len; // Falloff value 2 [absent from TR1 data files]
@@ -160,11 +160,6 @@ struct Light
   core::TRVec dir;  // direction
   core::TRVec pos2; // world coords
   core::TRVec dir2; // direction
-
-  [[nodiscard]] float getBrightness() const
-  {
-    return gsl::narrow_cast<float>(intensity) / 4096.0f;
-  }
 
   [[nodiscard]] LightType getLightType() const
   {

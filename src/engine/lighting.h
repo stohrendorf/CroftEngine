@@ -78,11 +78,15 @@ struct Lighting
       // 1 / ( 1 + (d/fade_distance) ^ fade_power );
       // assuming fade_power = 1, multiply numerator and denominator with fade_distance (identity transform):
       // fade_distance / ( fade_distance + d )
-      std::transform(
-        room->lights.begin(), room->lights.end(), std::back_inserter(lights), [](const loader::file::Light& light) {
-          return Light{
-            glm::vec4{light.position.toRenderSystem(), 0.0f}, light.getBrightness(), light.fadeDistance.get<float>()};
-        });
+
+      for(const auto& light : room->lights)
+      {
+        if(light.intensity.get() <= 0)
+          continue;
+        lights.emplace_back(Light{glm::vec4{light.position.toRenderSystem(), 0.0f},
+                                  toBrightness(light.intensity).get(),
+                                  light.fadeDistance.get<float>()});
+      }
     }
 
     if(bufferLights != lights)

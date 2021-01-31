@@ -32,7 +32,7 @@ void main()
     finalColor *= water_multiplier(gpi.vertexPosWorld);
     #endif
 
-    out_color.rgba = vec4(finalColor * calc_positional_lighting(gpi.normal, gpi.vertexPos) * shadow_map_multiplier(gpi.normal), 1.0);
+    out_color.rgba = vec4(finalColor * calc_positional_lighting(gpi.normal, gpi.vertexPosWorld) * shadow_map_multiplier(gpi.normal), 1.0);
     out_normal = gpi.ssaoNormal;
     out_position = gpi.vertexPos;
 }

@@ -1064,24 +1064,8 @@ Light Light::readTr1(io::SDLReader& reader)
 {
   Light light;
   light.position = readCoordinates32(reader);
-  // read and make consistent
-  light.intensity = reader.readI16();
+  light.intensity = core::Intensity{reader.readI16()};
   light.fadeDistance = core::Length{reader.readI32()};
-  // only in TR2
-  light.intensity2 = light.intensity;
-
-  light.fade2 = light.fadeDistance;
-
-  light.r_outer = light.fadeDistance;
-  light.r_inner = light.fadeDistance / 2;
-
-  light.light_type = 1; // Point light
-
-  // all white
-  light.color.r = 0xff;
-  light.color.g = 0xff;
-  light.color.b = 0xff;
-  light.color.a = 0xff;
   return light;
 }
 
@@ -1089,8 +1073,8 @@ Light Light::readTr2(io::SDLReader& reader)
 {
   Light light;
   light.position = readCoordinates32(reader);
-  light.intensity = reader.readU16();
-  light.intensity2 = reader.readU16();
+  light.intensity = core::Intensity{reader.readI16()};
+  light.intensity2 = core::Intensity{reader.readI16()};
   light.fadeDistance = core::Length{reader.readI32()};
   light.fade2 = core::Length{reader.readI32()};
 
@@ -1131,7 +1115,7 @@ Light Light::readTr4(io::SDLReader& reader)
   light.color = ByteColor::readTr1(reader);
   light.light_type = reader.readU8();
   light.unknown = reader.readU8();
-  light.intensity = reader.readU8();
+  light.intensity = core::Intensity{static_cast<int16_t>(static_cast<uint16_t>(reader.readU8()))};
   light.r_inner = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
   light.r_outer = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
   light.length = core::Length{gsl::narrow<core::Length::type>(reader.readF())};

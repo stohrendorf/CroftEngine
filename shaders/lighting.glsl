@@ -6,7 +6,7 @@ layout(location=10) uniform float u_lightAmbient;
 #include "csm_interface.glsl"
 
 struct Light {
-    vec3 position;
+    vec4 position;
     float brightness;
     float fadeDistance;
     float _pad[2];
@@ -70,16 +70,17 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos, in float n)
     float sum = u_lightAmbient;
     for (int i=0; i<lights.length(); ++i)
     {
-        vec3 d = pos - lights[i].position;
-        float intensity = lights[i].brightness / (1 + length(d)/lights[i].fadeDistance);
+        vec3 d = pos - lights[i].position.xyz;
+        float r = length(d)/lights[i].fadeDistance;
+        float intensity = lights[i].brightness / (r*r + 1.0);
         vec3 light_dir = normalize(d);
-        sum += pow(intensity * max(dot(light_dir, normal), 0), n);
+        sum += pow(intensity * max(-dot(light_dir, normal), 0), n);
     }
 
-    return pow(sum, 0.75);
+    return sum;
 }
 
 float calc_positional_lighting(in vec3 normal, in vec3 pos)
 {
-    return calc_positional_lighting(normal, pos, 1.5);
+    return calc_positional_lighting(normal, pos, 1.0);
 }

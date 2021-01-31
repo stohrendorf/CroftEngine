@@ -34,9 +34,7 @@ void main()
     }
 
     vec4 tmp = mv * vec4(a_position, 1);
-    #ifdef WATER
     gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1));
-    #endif
     gl_Position = u_projection * tmp;
     gpi.texCoord = a_texCoord;
     gpi.texIndex = a_texIndex;
