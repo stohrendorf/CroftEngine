@@ -66,7 +66,9 @@ void CSM::Split::renderSquare()
   state.apply(true);
   RenderContext context{RenderMode::Full, std::nullopt};
 
+  depthTexture->set(gl::api::TextureCompareMode::None);
   squareMesh->render(context);
+  depthTexture->set(gl::api::TextureCompareMode::CompareRefToTexture);
   squareBlur->render();
 }
 
