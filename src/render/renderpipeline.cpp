@@ -251,8 +251,10 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
 void RenderPipeline::CompositionStage::initMaterials(scene::MaterialManager& materialManager,
                                                      const RenderSettings& renderSettings)
 {
-  compositionMaterial = materialManager.getComposition(false, renderSettings.lensDistortion, renderSettings.dof);
-  waterCompositionMaterial = materialManager.getComposition(true, renderSettings.lensDistortion, renderSettings.dof);
+  compositionMaterial = materialManager.getComposition(
+    false, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain);
+  waterCompositionMaterial
+    = materialManager.getComposition(true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain);
 }
 
 RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& materialManager,

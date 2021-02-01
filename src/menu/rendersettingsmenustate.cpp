@@ -60,6 +60,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     "Lens Distortion",
     [this]() { return m_pipeline->getRenderSettings().lensDistortion; },
     [this]() { m_pipeline->toggleLensDistortion(*m_materialManager); });
+  addSetting(
+    "Film Grain",
+    [this]() { return m_pipeline->getRenderSettings().filmGrain; },
+    [this]() { m_pipeline->toggleFilmGrain(*m_materialManager); });
 }
 
 void RenderSettingsMenuState::handleObject(engine::World& /*world*/, MenuDisplay& /*display*/, MenuObject& /*object*/)

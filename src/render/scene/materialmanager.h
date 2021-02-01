@@ -35,7 +35,7 @@ public:
 
   [[nodiscard]] const std::shared_ptr<Material>& getLightning();
 
-  [[nodiscard]] std::shared_ptr<Material> getComposition(bool water, bool lensDistortion, bool dof);
+  [[nodiscard]] std::shared_ptr<Material> getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain);
 
   [[nodiscard]] const std::shared_ptr<Material>& getCrt();
 
@@ -50,7 +50,7 @@ private:
   std::array<std::array<std::shared_ptr<Material>, 2>, 2> m_geometry{};
   std::shared_ptr<Material> m_portal{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
-  std::array<std::array<std::array<std::shared_ptr<Material>, 2>, 2>, 2> m_composition{};
+  std::array<std::array<std::array<std::array<std::shared_ptr<Material>, 2>, 2>, 2>, 2> m_composition{};
   std::shared_ptr<Material> m_crt{nullptr};
 
   const gsl::not_null<std::shared_ptr<CSM>> m_csm;

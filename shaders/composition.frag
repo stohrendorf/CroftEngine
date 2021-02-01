@@ -43,11 +43,13 @@ void main()
 {
 #ifdef WATER
     vec2 uv = (fpi.texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
-    #else
+#else
     vec2 uv = fpi.texCoord;
     #endif
 
+    #ifdef FILM_GRAIN
     float grain = rand1(uv);
+    #endif
 
     #ifdef LENS_DISTORTION
     do_lens_distortion(uv);
@@ -91,7 +93,9 @@ void main()
         #endif
 
     finalColor *= texture(u_ao, uv).r*0.8 + 0.2;
+    #ifdef FILM_GRAIN
     finalColor *= grain*0.3 + 0.7;
+    #endif
 
     const float velviaAmount = 0.03;
 

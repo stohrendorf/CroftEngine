@@ -123,21 +123,22 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> s
 {
 }
 
-std::shared_ptr<Material> MaterialManager::getComposition(bool water, bool lensDistortion, bool dof)
+std::shared_ptr<Material> MaterialManager::getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain)
 {
-  if(auto tmp = m_composition[water][lensDistortion][dof])
+  if(auto tmp = m_composition[water][lensDistortion][dof][filmGrain])
     return tmp;
-  auto m = std::make_shared<Material>(m_shaderManager->getComposition(water, lensDistortion, dof));
+  auto m = std::make_shared<Material>(m_shaderManager->getComposition(water, lensDistortion, dof, filmGrain));
 
-  m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
-    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-    uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-  });
+  if(m->getShaderProgram()->findUniform("u_time") != nullptr)
+    m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
+      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
+      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+    });
 
   if(lensDistortion)
     m->getUniform("distortion_power")->set(water ? -2.0f : -1.0f);
 
-  m_composition[water][lensDistortion][dof] = m;
+  m_composition[water][lensDistortion][dof][filmGrain] = m;
   return m;
 }
 

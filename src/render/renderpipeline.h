@@ -26,6 +26,7 @@ struct RenderSettings
   bool crt = true;
   bool dof = true;
   bool lensDistortion = true;
+  bool filmGrain = true;
 };
 
 class RenderPipeline
@@ -182,6 +183,13 @@ public:
   void toggleLensDistortion(scene::MaterialManager& materialManager)
   {
     m_renderSettings.lensDistortion = !m_renderSettings.lensDistortion;
+    m_compositionStage.initMaterials(materialManager, m_renderSettings);
+    resize(m_size, true);
+  }
+
+  void toggleFilmGrain(scene::MaterialManager& materialManager)
+  {
+    m_renderSettings.filmGrain = !m_renderSettings.filmGrain;
     m_compositionStage.initMaterials(materialManager, m_renderSettings);
     resize(m_size, true);
   }
