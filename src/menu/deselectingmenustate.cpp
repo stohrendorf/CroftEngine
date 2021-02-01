@@ -24,10 +24,8 @@ void DeselectingMenuState::handleObject(engine::World& /*world*/, MenuDisplay& d
     rotateForSelection(object);
 }
 
-DeselectingMenuState::DeselectingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                           engine::World& world)
+DeselectingMenuState::DeselectingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform)
     : MenuState{ringTransform}
 {
-  world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
 }
 } // namespace menu

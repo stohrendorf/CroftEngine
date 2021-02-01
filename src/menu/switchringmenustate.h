@@ -20,7 +20,7 @@ private:
 public:
   explicit SwitchRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, size_t next, bool down);
 
-  void begin() override;
+  void begin(engine::World& world) override;
 
   std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
   void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;

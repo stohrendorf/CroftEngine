@@ -48,7 +48,7 @@ SwitchRingMenuState::SwitchRingMenuState(const std::shared_ptr<MenuRingTransform
 {
 }
 
-void SwitchRingMenuState::begin()
+void SwitchRingMenuState::begin(engine::World& /*world*/)
 {
   m_radiusSpeed = m_ringTransform->radius / Duration * 1_frame;
   m_targetCameraRotX = m_down ? -45_deg : 45_deg;

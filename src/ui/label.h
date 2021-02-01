@@ -110,6 +110,12 @@ struct Label
     BoxGouraud bottomLeft;
   };
 
+  static BackgroundGouraud makeBackgroundCircle(const gl::SRGB8& color, uint8_t innerAlpha, uint8_t outerAlpha)
+  {
+    return makeBackgroundCircle(gl::SRGBA8{color.channels[0], color.channels[1], color.channels[2], innerAlpha},
+                                gl::SRGBA8{color.channels[0], color.channels[1], color.channels[2], outerAlpha});
+  }
+
   static BackgroundGouraud makeBackgroundCircle(const gl::SRGBA8& center, const gl::SRGBA8& outer)
   {
     return {ui::BoxGouraud{outer, outer, center, outer},

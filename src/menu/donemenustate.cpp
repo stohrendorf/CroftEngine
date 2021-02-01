@@ -24,11 +24,6 @@ void DoneMenuState::handleObject(engine::World& world, MenuDisplay& display, Men
 std::unique_ptr<MenuState>
   DoneMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world, MenuDisplay& display)
 {
-  if(!display.allowMenuClose)
-  {
-    return nullptr;
-  }
-
   display.result = m_result;
 
   switch(display.inventoryChosen.value_or(engine::TR1ItemId::Lara))

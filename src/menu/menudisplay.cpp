@@ -153,7 +153,7 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::World& world)
   if(auto newState = m_currentState->onFrame(img, world, *this))
   {
     m_currentState = std::move(newState);
-    m_currentState->begin();
+    m_currentState->begin(world);
   }
 
   for(const auto& txt : objectTexts)
@@ -436,9 +436,10 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
 MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
     : mode{mode}
     , streamGain{world.getPresenter().getSoundEngine()->getSoLoud().getGlobalVolume()}
+    , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform)}
 {
-  m_currentState->begin();
+  m_currentState->begin(world);
 
   if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
     rings.emplace_back(std::make_unique<MenuRing>(

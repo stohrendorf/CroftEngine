@@ -48,7 +48,7 @@ InflateRingMenuState::InflateRingMenuState(const std::shared_ptr<MenuRingTransfo
 {
 }
 
-void InflateRingMenuState::begin()
+void InflateRingMenuState::begin(engine::World& /*world*/)
 {
   m_initialCameraRotX = m_ringTransform->cameraRotX;
   m_radiusSpeed = (688_len - m_ringTransform->radius) / Duration * 1_frame;

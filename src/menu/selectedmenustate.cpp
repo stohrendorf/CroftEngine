@@ -10,6 +10,7 @@
 #include "menudisplay.h"
 #include "menuring.h"
 #include "passportmenustate.h"
+#include "rendersettingsmenustate.h"
 #include "resetitemtransformmenustate.h"
 #include "util.h"
 
@@ -21,6 +22,9 @@ std::unique_ptr<MenuState>
   auto& currentObject = display.getCurrentRing().getSelectedObject();
   if(currentObject.type == engine::TR1ItemId::PassportClosed)
     return create<PassportMenuState>(display.mode);
+  else if(currentObject.type == engine::TR1ItemId::Sunglasses)
+    return create<RenderSettingsMenuState>(
+      create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())));
 
   if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
     return nullptr;
@@ -28,10 +32,9 @@ std::unique_ptr<MenuState>
   const bool autoSelect = display.doOptions(img, world, currentObject);
   if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
   {
-    if(display.rings.size() > 1)
+    if(display.rings.size() > 1 || !display.allowMenuClose)
     {
-      return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeselectingMenuState>(world)));
+      return create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>()));
     }
     else
     {
@@ -48,8 +51,7 @@ std::unique_ptr<MenuState>
            || currentObject.type == engine::TR1ItemId::DirectionKeys
            || currentObject.type == engine::TR1ItemId::Flashlight))
     {
-      return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeselectingMenuState>(world)));
+      return create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>()));
     }
     else
     {

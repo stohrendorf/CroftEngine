@@ -62,7 +62,7 @@ struct Pixel
   Self operator*(U rhs) const
   {
     Self tmp = *this;
-    std::transform(channels.begin(), channels.end(), tmp.channels.begin(), [rhs](Type v) { return v * rhs; });
+    std::transform(&channels[0], &channels[0] + _Channels, &tmp.channels[0], [rhs](Type v) { return v * rhs; });
     return tmp;
   }
 };

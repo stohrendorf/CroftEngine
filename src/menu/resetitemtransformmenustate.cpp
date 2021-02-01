@@ -1,5 +1,7 @@
 #include "resetitemtransformmenustate.h"
 
+#include "engine/audioengine.h"
+#include "engine/world.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "util.h"
@@ -32,5 +34,10 @@ std::unique_ptr<MenuState> ResetItemTransformMenuState::onFrame(gl::Image<gl::SR
   }
 
   return std::move(m_next);
+}
+
+void ResetItemTransformMenuState::begin(engine::World& world)
+{
+  world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
 }
 } // namespace menu

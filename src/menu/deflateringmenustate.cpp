@@ -39,7 +39,7 @@ DeflateRingMenuState::DeflateRingMenuState(const std::shared_ptr<MenuRingTransfo
 {
 }
 
-void DeflateRingMenuState::begin()
+void DeflateRingMenuState::begin(engine::World& /*world*/)
 {
   // TODO fadeOutInventory(mode != InventoryMode::TitleMode);
   m_initialRadius = m_ringTransform->radius;

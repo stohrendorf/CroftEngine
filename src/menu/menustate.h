@@ -27,7 +27,7 @@ public:
 
   virtual ~MenuState() = default;
 
-  virtual void begin()
+  virtual void begin(engine::World& /*world*/)
   {
   }
   virtual void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) = 0;

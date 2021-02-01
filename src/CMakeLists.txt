@@ -492,6 +492,7 @@ set( EDISONENGINE_SRCS
         menu/idleringmenustate.cpp
         menu/inflateringmenustate.cpp
         menu/passportmenustate.cpp
+        menu/rendersettingsmenustate.cpp
         menu/resetitemtransformmenustate.cpp
         menu/rotateleftrightmenustate.cpp
         menu/savegamelistmenustate.cpp
