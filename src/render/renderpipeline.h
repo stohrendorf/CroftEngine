@@ -41,7 +41,13 @@ private:
   {
     std::shared_ptr<gl::TextureDepth<float>> depthBuffer;
     std::shared_ptr<gl::Texture2D<gl::RG32F>> perturbBuffer;
+    scene::SeparableBlur<gl::RG32F> blur;
     std::shared_ptr<gl::Framebuffer> fb;
+
+    explicit PortalStage(scene::ShaderManager& shaderManager)
+        : blur{"perturb", shaderManager, 4, true, false}
+    {
+    }
 
     void resize(const glm::ivec2& viewport);
     void bind(const gl::TextureDepth<float>& depth);

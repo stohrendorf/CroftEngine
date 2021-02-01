@@ -19,7 +19,8 @@ std::shared_ptr<scene::Mesh> RenderPipeline::createFbMesh(const glm::ivec2& size
 }
 
 RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport)
-    : m_ssaoStage{*materialManager.getShaderManager()}
+    : m_portalStage{*materialManager.getShaderManager()}
+    , m_ssaoStage{*materialManager.getShaderManager()}
     , m_fxaaStage{*materialManager.getShaderManager()}
     , m_compositionStage{materialManager, m_renderSettings}
 {
@@ -28,6 +29,7 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const gl
 
 void RenderPipeline::compositionPass(const bool water)
 {
+  m_portalStage.blur.render();
   m_ssaoStage.render(m_size / 2);
   m_fxaaStage.render(m_size);
   m_compositionStage.render(water, m_renderSettings);
@@ -126,6 +128,8 @@ void RenderPipeline::PortalStage::resize(const glm::ivec2& viewport)
   depthBuffer->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
   perturbBuffer = std::make_shared<gl::Texture2D<gl::RG32F>>(viewport, "portal-perturb");
   perturbBuffer->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
+
+  blur.setInput(perturbBuffer);
 
   fb = gl::FrameBufferBuilder()
          .texture(gl::api::FramebufferAttachment::DepthAttachment, depthBuffer)
@@ -298,13 +302,13 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
                                               const RenderPipeline::FXAAStage& fxaaStage)
 {
   compositionMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
-  compositionMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
+  compositionMaterial->getUniform("u_portalPerturb")->set(portalStage.blur.getBlurredTexture());
   compositionMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
   compositionMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
   compositionMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
 
   waterCompositionMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
-  waterCompositionMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
+  waterCompositionMaterial->getUniform("u_portalPerturb")->set(portalStage.blur.getBlurredTexture());
   waterCompositionMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
   waterCompositionMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
   waterCompositionMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
