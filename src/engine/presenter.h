@@ -132,6 +132,12 @@ public:
     return *m_screenOverlay;
   }
 
+  [[nodiscard]] const auto& getRenderPipeline() const
+  {
+    BOOST_ASSERT(m_renderPipeline != nullptr);
+    return m_renderPipeline;
+  }
+
   void drawLoadingScreen(const std::string& state);
   void preFrame();
   [[nodiscard]] bool shouldClose() const;

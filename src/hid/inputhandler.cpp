@@ -147,9 +147,6 @@ void InputHandler::update()
     = isKeyPressed(GLFW_KEY_ESCAPE) || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_HOME] == GLFW_PRESS);
 
   m_inputState.debug = isKeyPressed(GLFW_KEY_F11);
-  m_inputState.crt = isKeyPressed(GLFW_KEY_F2);
-  m_inputState.dof = isKeyPressed(GLFW_KEY_F3);
-  m_inputState.lensDistortion = isKeyPressed(GLFW_KEY_F4);
 
   m_inputState._1 = isKeyPressed(GLFW_KEY_1)
                     || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -AxisDeadzone);

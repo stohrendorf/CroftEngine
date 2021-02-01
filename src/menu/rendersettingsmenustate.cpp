@@ -5,23 +5,18 @@
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "menudisplay.h"
-#include "ui/label.h"
+#include "render/renderpipeline.h"
 
 namespace menu
 {
 namespace
 {
-constexpr auto green(uint8_t g)
-{
-  return gl::SRGB8{0, g, 0};
-}
-
 void setEnabledBackground(ui::Label& lbl, bool enabled)
 {
   if(enabled)
   {
     lbl.addBackground(glm::ivec2{RenderSettingsMenuState::PixelWidth - 12, 16}, {0, 0});
-    lbl.backgroundGouraud = ui::Label::makeBackgroundCircle(green(255), 255, 32);
+    lbl.backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 255, 32);
   }
   else
   {
@@ -31,32 +26,40 @@ void setEnabledBackground(ui::Label& lbl, bool enabled)
 } // namespace
 
 RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                                 std::unique_ptr<MenuState> previous)
+                                                 std::unique_ptr<MenuState> previous,
+                                                 const gsl::not_null<render::RenderPipeline*>& pipeline,
+                                                 const gsl::not_null<render::scene::MaterialManager*>& materialManager)
     : MenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_background{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - 12}, " ")}
+    , m_pipeline{pipeline}
+    , m_materialManager{materialManager}
 {
   m_background->alignX = ui::Label::Alignment::Center;
   m_background->alignY = ui::Label::Alignment::Bottom;
   m_background->addBackground({PixelWidth, TotalHeight + 12}, {0, 0});
-  m_background->backgroundGouraud = ui::Label::makeBackgroundCircle(green(32 * 3), 255, 96);
+  m_background->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 96, 32);
   m_background->outline = true;
 
-  auto addSetting = [this](const std::string& name, bool enabled) {
+  auto addSetting = [this](const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler) {
     auto lbl = std::make_shared<ui::Label>(glm::ivec2{0, YOffset + m_labels.size() * LineHeight}, name);
     lbl->alignX = ui::Label::Alignment::Center;
     lbl->alignY = ui::Label::Alignment::Bottom;
     setEnabledBackground(*lbl, true); // needed to initialize background size for outlining
-    setEnabledBackground(*lbl, enabled);
-    m_labels.emplace_back(lbl, enabled);
+    setEnabledBackground(*lbl, getter());
+    m_labels.emplace_back(lbl, std::move(getter), std::move(toggler));
   };
 
-  addSetting("CRT", false);
-  addSetting("Depth-of-Field", false);
-  addSetting("Lens Distortion", false);
-  addSetting("SSAO", false);
-  addSetting("FXAA", false);
-  addSetting("Film Grain", false);
+  addSetting(
+    "CRT", [this]() { return m_pipeline->getRenderSettings().crt; }, [this]() { m_pipeline->toggleCrt(); });
+  addSetting(
+    "Depth-of-Field",
+    [this]() { return m_pipeline->getRenderSettings().dof; },
+    [this]() { m_pipeline->toggleDof(*m_materialManager); });
+  addSetting(
+    "Lens Distortion",
+    [this]() { return m_pipeline->getRenderSettings().lensDistortion; },
+    [this]() { m_pipeline->toggleLensDistortion(*m_materialManager); });
 }
 
 void RenderSettingsMenuState::handleObject(engine::World& /*world*/, MenuDisplay& /*display*/, MenuObject& /*object*/)
@@ -70,7 +73,7 @@ std::unique_ptr<MenuState>
 
   for(size_t i = 0; i < m_labels.size(); ++i)
   {
-    const auto& [lbl, enabled] = m_labels.at(i);
+    const auto& [lbl, getter, toggler] = m_labels.at(i);
     if(m_selected == i)
     {
       lbl->outline = true;
@@ -95,9 +98,9 @@ std::unique_ptr<MenuState>
   }
   else if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
   {
-    auto& entry = m_labels.at(m_selected);
-    entry.second = !entry.second;
-    setEnabledBackground(*entry.first, entry.second);
+    const auto& [lbl, getter, toggler] = m_labels.at(m_selected);
+    toggler();
+    setEnabledBackground(*lbl, getter());
   }
   else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
   {

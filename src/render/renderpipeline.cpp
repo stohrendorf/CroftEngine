@@ -21,7 +21,7 @@ std::shared_ptr<scene::Mesh> RenderPipeline::createFbMesh(const glm::ivec2& size
 RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport)
     : m_ssaoStage{*materialManager.getShaderManager()}
     , m_fxaaStage{*materialManager.getShaderManager()}
-    , m_compositionStage{materialManager}
+    , m_compositionStage{materialManager, m_renderSettings}
 {
   resize(viewport);
 }
@@ -30,7 +30,7 @@ void RenderPipeline::compositionPass(const bool water)
 {
   m_ssaoStage.render(m_size / 2);
   m_fxaaStage.render(m_size);
-  m_compositionStage.render(water);
+  m_compositionStage.render(water, m_renderSettings);
 }
 
 void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
@@ -248,17 +248,19 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
     GL_ASSERT(gl::api::finish());
 }
 
-void RenderPipeline::CompositionStage::initMaterials(scene::MaterialManager& materialManager)
+void RenderPipeline::CompositionStage::initMaterials(scene::MaterialManager& materialManager,
+                                                     const RenderSettings& renderSettings)
 {
-  compositionMaterial = materialManager.getComposition(false, m_lensDistorion, m_dof);
-  waterCompositionMaterial = materialManager.getComposition(true, m_lensDistorion, m_dof);
+  compositionMaterial = materialManager.getComposition(false, renderSettings.lensDistortion, renderSettings.dof);
+  waterCompositionMaterial = materialManager.getComposition(true, renderSettings.lensDistortion, renderSettings.dof);
 }
 
-RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& materialManager)
+RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& materialManager,
+                                                   const RenderSettings& renderSettings)
     : crtMaterial{materialManager.getCrt()}
 
 {
-  initMaterials(materialManager);
+  initMaterials(materialManager, renderSettings);
 
   const glm::ivec2 resolution{256, 256};
 
@@ -327,10 +329,10 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void RenderPipeline::CompositionStage::render(bool water)
+void RenderPipeline::CompositionStage::render(bool water, const RenderSettings& renderSettings)
 {
   gl::DebugGroup dbg{"postprocess-pass"};
-  if(m_crt)
+  if(renderSettings.crt)
     fb->bindWithAttachments();
   else
     gl::Framebuffer::unbindAll();
@@ -344,7 +346,7 @@ void RenderPipeline::CompositionStage::render(bool water)
   else
     mesh->render(context);
 
-  if(m_crt)
+  if(renderSettings.crt)
   {
     gl::Framebuffer::unbindAll();
     crtMesh->render(context);

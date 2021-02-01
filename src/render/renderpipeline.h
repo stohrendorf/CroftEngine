@@ -21,6 +21,13 @@ class ShaderManager;
 class MaterialManager;
 } // namespace scene
 
+struct RenderSettings
+{
+  bool crt = true;
+  bool dof = true;
+  bool lensDistortion = true;
+};
+
 class RenderPipeline
 {
 public:
@@ -101,7 +108,7 @@ private:
     std::shared_ptr<gl::Texture2D<gl::ScalarByte>> noise;
     std::shared_ptr<gl::Framebuffer> fb;
 
-    explicit CompositionStage(scene::MaterialManager& materialManager);
+    explicit CompositionStage(scene::MaterialManager& materialManager, const RenderSettings& renderSettings);
 
     void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
@@ -111,53 +118,20 @@ private:
                 const SSAOStage& ssaoStage,
                 const FXAAStage& fxaaStage);
 
-    void render(bool water);
+    void render(bool water, const RenderSettings& renderSettings);
 
-    void setDof(scene::MaterialManager& materialManager, bool value)
-    {
-      if(m_dof != std::exchange(m_dof, value))
-        initMaterials(materialManager);
-    }
-
-    void toggleDof(scene::MaterialManager& materialManager)
-    {
-      setDof(materialManager, !m_dof);
-    }
-
-    void setLensDistortion(scene::MaterialManager& materialManager, bool value)
-    {
-      if(m_lensDistorion != std::exchange(m_lensDistorion, value))
-        initMaterials(materialManager);
-    }
-
-    void toggleLensDistortion(scene::MaterialManager& materialManager)
-    {
-      setLensDistortion(materialManager, !m_lensDistorion);
-    }
-
-    void setCrt(bool value)
-    {
-      m_crt = value;
-    }
-
-    void toggleCrt()
-    {
-      setCrt(!m_crt);
-    }
-
-  private:
-    bool m_lensDistorion = true;
-    bool m_dof = true;
-    bool m_crt = true;
-
-    void initMaterials(scene::MaterialManager& materialManager);
+    void initMaterials(scene::MaterialManager& materialManager, const RenderSettings& renderSettings);
   };
 
+  RenderSettings m_renderSettings{};
+  glm::ivec2 m_size{-1};
   PortalStage m_portalStage;
   GeometryStage m_geometryStage;
   SSAOStage m_ssaoStage;
   FXAAStage m_fxaaStage;
   CompositionStage m_compositionStage;
+
+  void resizeTextures(const glm::ivec2& viewport);
 
 public:
   void bindGeometryFrameBuffer(const glm::ivec2& size)
@@ -188,24 +162,28 @@ public:
     resizeTextures(viewport);
   }
 
+  [[nodiscard]] const auto& getRenderSettings() const noexcept
+  {
+    return m_renderSettings;
+  }
+
   void toggleCrt()
   {
-    m_compositionStage.toggleCrt();
+    m_renderSettings.crt = !m_renderSettings.crt;
   }
 
   void toggleDof(scene::MaterialManager& materialManager)
   {
-    m_compositionStage.toggleDof(materialManager);
+    m_renderSettings.dof = !m_renderSettings.dof;
+    m_compositionStage.initMaterials(materialManager, m_renderSettings);
+    resize(m_size, true);
   }
 
   void toggleLensDistortion(scene::MaterialManager& materialManager)
   {
-    m_compositionStage.toggleLensDistortion(materialManager);
+    m_renderSettings.lensDistortion = !m_renderSettings.lensDistortion;
+    m_compositionStage.initMaterials(materialManager, m_renderSettings);
+    resize(m_size, true);
   }
-
-private:
-  glm::ivec2 m_size{-1};
-
-  void resizeTextures(const glm::ivec2& viewport);
 };
 } // namespace render
