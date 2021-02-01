@@ -10,6 +10,14 @@
 .idea/**/shelf
 .idea/**/contentModel.xml
 .idea/**/dynamic.xml
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+.idea/**/deployment.xml
+.idea/webServers.xml
 
 /saves
 /data

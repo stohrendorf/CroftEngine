@@ -13,6 +13,7 @@
       <file path="$PROJECT_DIR$/assets" />
       <file path="$PROJECT_DIR$/build" />
       <file path="$PROJECT_DIR$/data" />
+      <file path="$PROJECT_DIR$/release" />
     </excludeRoots>
   </component>
   <component name="TaskProjectConfiguration">
