@@ -484,7 +484,21 @@ set( EDISONENGINE_SRCS
 
         menu/menudisplay.cpp
         menu/menuobject.cpp
-        menu/menustates.cpp
+        menu/applyitemtransformmenustate.cpp
+        menu/deflateringmenustate.cpp
+        menu/deselectingmenustate.cpp
+        menu/donemenustate.cpp
+        menu/finishitemanimationmenustate.cpp
+        menu/idleringmenustate.cpp
+        menu/inflateringmenustate.cpp
+        menu/passportmenustate.cpp
+        menu/resetitemtransformmenustate.cpp
+        menu/rotateleftrightmenustate.cpp
+        menu/savegamelistmenustate.cpp
+        menu/selectedmenustate.cpp
+        menu/setitemtypemenustate.cpp
+        menu/switchringmenustate.cpp
+        menu/util.cpp
         )
 
 if( MSVC )

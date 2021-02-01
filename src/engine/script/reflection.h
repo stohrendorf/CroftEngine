@@ -42,13 +42,14 @@ class LevelSequenceItem
 public:
   virtual ~LevelSequenceItem() = default;
   virtual std::pair<RunResult, std::optional<size_t>> run(Engine& engine) = 0;
-  virtual std::pair<RunResult, std::optional<size_t>> runFromSave(Engine& engine, const std::optional<size_t>& slot)
+  virtual std::pair<RunResult, std::optional<size_t>> runFromSave(Engine& /*engine*/,
+                                                                  const std::optional<size_t>& /*slot*/)
   {
     BOOST_LOG_TRIVIAL(error) << "Cannot run from save";
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot run from save"));
   }
 
-  virtual bool isLevel(const std::filesystem::path& path) const = 0;
+  [[nodiscard]] virtual bool isLevel(const std::filesystem::path& path) const = 0;
 };
 
 class Level : public LevelSequenceItem
@@ -105,7 +106,7 @@ public:
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
 
-  bool isLevel(const std::filesystem::path& path) const override
+  bool isLevel(const std::filesystem::path& /*path*/) const override
   {
     return false;
   }
@@ -124,7 +125,7 @@ public:
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
 
-  bool isLevel(const std::filesystem::path& path) const override
+  [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
     return false;
   }
@@ -167,7 +168,7 @@ public:
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
 
-  bool isLevel(const std::filesystem::path& path) const override
+  [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
     return false;
   }

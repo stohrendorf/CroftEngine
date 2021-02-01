@@ -15,7 +15,7 @@ struct Lighting
     glm::vec4 position{std::numeric_limits<float>::quiet_NaN()};
     float brightness = 0;
     float fadeDistance = 0;
-    float _pad[2];
+    float _pad[2]{0.0f, 0.0f};
 
     bool operator==(const Light& rhs) const
     {

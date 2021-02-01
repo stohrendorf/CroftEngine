@@ -8,8 +8,8 @@
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "hid/inputhandler.h"
+#include "inflateringmenustate.h"
 #include "menuring.h"
-#include "menustates.h"
 #include "ui/util.h"
 
 namespace menu
