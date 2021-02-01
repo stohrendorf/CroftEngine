@@ -14,8 +14,6 @@ layout(location=0) out vec4 out_color;
 
 #include "water.glsl"
 
-#define DOF
-
 #include "depth.glsl"
 #ifdef DOF
 #include "dof.glsl"
@@ -43,7 +41,7 @@ float fbm(in vec2 uv) {
 
 void main()
 {
-    #ifdef WATER
+#ifdef WATER
     vec2 uv = (fpi.texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
     #else
     vec2 uv = fpi.texCoord;

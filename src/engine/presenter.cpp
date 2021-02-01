@@ -140,7 +140,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
   render::scene::RenderContext context{render::scene::RenderMode::Full,
                                        cameraController.getCamera()->getViewProjectionMatrix()};
 
-  m_renderPipeline->compositionPass(cameraController.getCurrentRoom()->isWaterRoom(), m_crtEffect);
+  m_renderPipeline->compositionPass(cameraController.getCurrentRoom()->isWaterRoom());
 
   if(m_showDebugInfo)
   {
@@ -357,8 +357,21 @@ void Presenter::preFrame()
   }
   if(m_inputHandler->getInputState().crt.justChangedTo(true))
   {
-    m_crtEffect = !m_crtEffect;
+    m_renderPipeline->toggleCrt();
   }
+  bool effectsChanged = false;
+  if(m_inputHandler->getInputState().dof.justChangedTo(true))
+  {
+    m_renderPipeline->toggleDof(*m_materialManager);
+    effectsChanged = true;
+  }
+  if(m_inputHandler->getInputState().lensDistortion.justChangedTo(true))
+  {
+    m_renderPipeline->toggleLensDistortion(*m_materialManager);
+    effectsChanged = true;
+  }
+  if(effectsChanged)
+    m_renderPipeline->resize(m_window->getViewport(), true);
 
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);

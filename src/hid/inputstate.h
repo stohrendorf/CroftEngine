@@ -76,6 +76,8 @@ struct InputState
   Button freeLook{false};
   Button debug{false};
   Button crt{false};
+  Button dof{false};
+  Button lensDistortion{false};
   Button holster{false};
   Button menu{false};
   Button _1{false};

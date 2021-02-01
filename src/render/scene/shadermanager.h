@@ -96,11 +96,15 @@ public:
     return get("flat.vert", "vsm_square.frag");
   }
 
-  auto getComposition(bool water)
+  auto getComposition(bool water, bool lensDistortion, bool dof)
   {
-    std::vector<std::string> defines{"LENS_DISTORTION"};
+    std::vector<std::string> defines;
     if(water)
       defines.emplace_back("WATER");
+    if(lensDistortion)
+      defines.emplace_back("LENS_DISTORTION");
+    if(dof)
+      defines.emplace_back("DOF");
     return get("flat.vert", "composition.frag", defines);
   }
 

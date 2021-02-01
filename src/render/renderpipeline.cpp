@@ -26,11 +26,11 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const gl
   resize(viewport);
 }
 
-void RenderPipeline::compositionPass(const bool water, const bool crt)
+void RenderPipeline::compositionPass(const bool water)
 {
   m_ssaoStage.render(m_size / 2);
   m_fxaaStage.render(m_size);
-  m_compositionStage.render(water, crt);
+  m_compositionStage.render(water);
 }
 
 void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
@@ -248,12 +248,18 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
     GL_ASSERT(gl::api::finish());
 }
 
+void RenderPipeline::CompositionStage::initMaterials(scene::MaterialManager& materialManager)
+{
+  compositionMaterial = materialManager.getComposition(false, m_lensDistorion, m_dof);
+  waterCompositionMaterial = materialManager.getComposition(true, m_lensDistorion, m_dof);
+}
+
 RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& materialManager)
-    : compositionMaterial{materialManager.getComposition(false)}
-    , waterCompositionMaterial{materialManager.getComposition(true)}
-    , crtMaterial{materialManager.getCrt()}
+    : crtMaterial{materialManager.getCrt()}
 
 {
+  initMaterials(materialManager);
+
   const glm::ivec2 resolution{256, 256};
 
   std::uniform_real_distribution<float> randomFloats(0, 1);
@@ -274,6 +280,7 @@ RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& mater
     .set(gl::api::TextureMagFilter::Linear);
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void RenderPipeline::CompositionStage::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
 {
   compositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
@@ -320,10 +327,10 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void RenderPipeline::CompositionStage::render(bool water, bool crt)
+void RenderPipeline::CompositionStage::render(bool water)
 {
   gl::DebugGroup dbg{"postprocess-pass"};
-  if(crt)
+  if(m_crt)
     fb->bindWithAttachments();
   else
     gl::Framebuffer::unbindAll();
@@ -337,7 +344,7 @@ void RenderPipeline::CompositionStage::render(bool water, bool crt)
   else
     mesh->render(context);
 
-  if(crt)
+  if(m_crt)
   {
     gl::Framebuffer::unbindAll();
     crtMesh->render(context);

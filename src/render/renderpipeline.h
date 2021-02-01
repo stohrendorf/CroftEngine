@@ -20,6 +20,7 @@ namespace scene
 class ShaderManager;
 class MaterialManager;
 } // namespace scene
+
 class RenderPipeline
 {
 public:
@@ -93,8 +94,8 @@ private:
     std::shared_ptr<scene::Mesh> waterMesh;
     std::shared_ptr<scene::Mesh> crtMesh;
 
-    const std::shared_ptr<scene::Material> compositionMaterial;
-    const std::shared_ptr<scene::Material> waterCompositionMaterial;
+    std::shared_ptr<scene::Material> compositionMaterial;
+    std::shared_ptr<scene::Material> waterCompositionMaterial;
     const std::shared_ptr<scene::Material> crtMaterial;
     std::shared_ptr<gl::Texture2D<gl::SRGBA8>> colorBuffer;
     std::shared_ptr<gl::Texture2D<gl::ScalarByte>> noise;
@@ -110,7 +111,46 @@ private:
                 const SSAOStage& ssaoStage,
                 const FXAAStage& fxaaStage);
 
-    void render(bool water, bool crt);
+    void render(bool water);
+
+    void setDof(scene::MaterialManager& materialManager, bool value)
+    {
+      if(m_dof != std::exchange(m_dof, value))
+        initMaterials(materialManager);
+    }
+
+    void toggleDof(scene::MaterialManager& materialManager)
+    {
+      setDof(materialManager, !m_dof);
+    }
+
+    void setLensDistortion(scene::MaterialManager& materialManager, bool value)
+    {
+      if(m_lensDistorion != std::exchange(m_lensDistorion, value))
+        initMaterials(materialManager);
+    }
+
+    void toggleLensDistortion(scene::MaterialManager& materialManager)
+    {
+      setLensDistortion(materialManager, !m_lensDistorion);
+    }
+
+    void setCrt(bool value)
+    {
+      m_crt = value;
+    }
+
+    void toggleCrt()
+    {
+      setCrt(!m_crt);
+    }
+
+  private:
+    bool m_lensDistorion = true;
+    bool m_dof = true;
+    bool m_crt = true;
+
+    void initMaterials(scene::MaterialManager& materialManager);
   };
 
   PortalStage m_portalStage;
@@ -120,13 +160,11 @@ private:
   CompositionStage m_compositionStage;
 
 public:
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void bindGeometryFrameBuffer(const glm::ivec2& size)
   {
     m_geometryStage.bind(size);
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void bindPortalFrameBuffer()
   {
     m_portalStage.bind(*m_geometryStage.depthBuffer);
@@ -134,15 +172,13 @@ public:
 
   explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
-  void compositionPass(bool water, bool crt);
+  void compositionPass(bool water);
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
-  void resize(const glm::ivec2& viewport)
+  void resize(const glm::ivec2& viewport, bool force = false)
   {
-    if(m_size == viewport)
+    if(!force && m_size == viewport)
     {
       return;
     }
@@ -150,6 +186,21 @@ public:
     m_size = viewport;
 
     resizeTextures(viewport);
+  }
+
+  void toggleCrt()
+  {
+    m_compositionStage.toggleCrt();
+  }
+
+  void toggleDof(scene::MaterialManager& materialManager)
+  {
+    m_compositionStage.toggleDof(materialManager);
+  }
+
+  void toggleLensDistortion(scene::MaterialManager& materialManager)
+  {
+    m_compositionStage.toggleLensDistortion(materialManager);
   }
 
 private:

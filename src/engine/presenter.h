@@ -167,7 +167,6 @@ private:
   const std::unique_ptr<render::RenderPipeline> m_renderPipeline;
   const std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
-  bool m_crtEffect = true;
   bool m_showDebugInfo = false;
 
   void scaleSplashImage();

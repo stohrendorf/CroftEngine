@@ -123,20 +123,21 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> s
 {
 }
 
-std::shared_ptr<Material> MaterialManager::getComposition(bool water)
+std::shared_ptr<Material> MaterialManager::getComposition(bool water, bool lensDistortion, bool dof)
 {
-  if(auto tmp = m_composition[water])
+  if(auto tmp = m_composition[water][lensDistortion][dof])
     return tmp;
-  auto m = std::make_shared<Material>(m_shaderManager->getComposition(water));
+  auto m = std::make_shared<Material>(m_shaderManager->getComposition(water, lensDistortion, dof));
 
   m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
     uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
   });
 
-  m->getUniform("distortion_power")->set(water ? -2.0f : -1.0f);
+  if(lensDistortion)
+    m->getUniform("distortion_power")->set(water ? -2.0f : -1.0f);
 
-  m_composition[water] = m;
+  m_composition[water][lensDistortion][dof] = m;
   return m;
 }
 
