@@ -1,53 +1,70 @@
 #ifdef WATER
-float dof_scale = 200.0 / far_plane;
-float dof_offset = 80.0 / far_plane;
+float dof_start = 32.0/far_plane;
+float dof_dist = 4*1024.0/far_plane;
+float dof_focal_depth = 1536.0/far_plane;
 #else
-float dof_scale = 40.0 / far_plane;
-float dof_offset = 20.0 / far_plane;
+float dof_start = 128.0/far_plane;
+float dof_dist = 20*1024.0/far_plane;
+// autofocus
+float dof_focal_depth = depth_at(vec2(0.5, 0.5));
 #endif
+const float dof_blur_range = 3;
 
 #include "depth.glsl"
 
-// autofocus
-float dof_focal_depth = depth_at(vec2(0.5, 0.5));
+vec2 dof_texel = 1.0 / vec2(textureSize(u_texture, 0));
 
 #include "util.glsl"
 
-float dof_focal_point_distance(in float depth)
+vec3 dof_color(in vec2 uv, in float blur_amount)//processing the sample
 {
-    return clamp(abs(depth - dof_focal_depth) / dof_focal_depth, 0.0, 1.0);
-}
+    const float fringe = 0.7;//bokeh chromatic aberration/fringing
+    vec2 dr = vec2(0.0, 1.0)*dof_texel*fringe*blur_amount;
+    vec2 dg = vec2(-0.866, -0.5)*dof_texel*fringe*blur_amount;
+    vec2 db = vec2(0.866, -0.5)*dof_texel*fringe*blur_amount;
 
-float dof_blur_radius(in float depth) {
-    return dof_focal_point_distance(depth) * dof_scale + dof_offset;
+    vec3 col;
+    col.r = shaded_texel(u_texture, uv+dr, depth_at(uv+dr)).r;
+    col.g = shaded_texel(u_texture, uv+dg, depth_at(uv+dg)).g;
+    col.b = shaded_texel(u_texture, uv+db, depth_at(uv+db)).b;
+
+    const vec3 lumcoeff = vec3(0.299, 0.587, 0.114);
+    const float threshold = 0.7;//highlight threshold;
+    const float gain = 100.0;//highlight gain;
+
+    float thresh = max((dot(col, lumcoeff)-threshold)*gain, 0.0);
+    return col + col*thresh*blur_amount;
 }
 
 vec3 do_dof(in vec2 uv)
 {
     float depth = depth_at(uv);
+    float blur_amount = clamp((abs(depth-dof_focal_depth) - dof_start) / dof_dist, -dof_blur_range, dof_blur_range);
 
-    const int dof_blends = 6;
-    const int dof_rings = 6;
-    const float angle_step = PI*2.0 / dof_blends;
+    const float namount = 0.0001;//dither amount
+    vec2 noise = rand2(uv)*namount*blur_amount;
 
-    float dist_step = dof_blur_radius(depth) / dof_rings;
+    const int samples = 3;//samples on the first ring
+    const float bokeh_bias = 0.5;//bokeh edge bias
+    vec2 blur_radius = dof_texel * blur_amount + noise;
 
-    vec3 sample_color = shaded_texel(u_texture, uv, depth_at(uv));
-    float sample_weight_sum = 1.0;
-    for (int i = 1; i <= dof_blends; i += 1)
+    vec3 col = shaded_texel(u_texture, uv, depth_at(uv));
+    float weight_sum = 1.0;
+
+    const int rings = 3;
+    for (int i = 1; i <= rings; ++i)
     {
-        for (int j = 0; j < dof_rings; j += 1)
+        int ringsamples = i * samples;
+
+        for (int j = 0; j < ringsamples; ++j)
         {
-            vec2 p;
-            p.x = sin(i*angle_step) * dist_step * j;
-            p.y = cos(i*angle_step) * dist_step * j;
-            vec2 r = rand2(uv + p) * dist_step / 2.0;
-            vec2 peek = uv + p + r;
-            float local_weight = 1.0 - smoothstep(j + 1.0, 0.0, float(dof_rings));
-            sample_color += shaded_texel(u_texture, peek, depth_at(peek)) * local_weight;
-            sample_weight_sum += local_weight;
+            float angle = float(j) * PI * 2.0 / float(ringsamples);
+            vec2 dxy = vec2(cos(angle), sin(angle)) * float(i);
+            float weight = mix(1.0, float(i)/float(rings), bokeh_bias);
+            col += dof_color(uv + dxy*blur_radius, blur_amount) * weight;
+            weight_sum += weight;
         }
     }
-    sample_color /= sample_weight_sum;
-    return sample_color;
+    col /= weight_sum;
+    return col;
 }
