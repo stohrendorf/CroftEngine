@@ -118,13 +118,6 @@ PuzzleHole::PuzzleHole(const gsl::not_null<World*>& world,
   initMesh();
 }
 
-void PuzzleHole::serialize(const serialization::Serializer<World>& ser)
-{
-  ModelObject::serialize(ser);
-  if(ser.loading)
-    initMesh();
-}
-
 PuzzleHole::PuzzleHole(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
     : ModelObject{world, position}
 {

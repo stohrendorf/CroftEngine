@@ -259,7 +259,7 @@ public:
 
   ~Serializer()
   {
-    if(!loading && node.has_val())
+    if(!loading && node.has_val() && !m_tag.empty())
       node.set_val_tag(node.tree()->copy_to_arena(c4::to_csubstr(m_tag)));
   }
 

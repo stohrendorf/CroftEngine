@@ -15,7 +15,7 @@ std::shared_ptr<scene::Mesh> RenderPipeline::createFbMesh(const glm::ivec2& size
   mesh->getRenderState().setCullFace(false);
   mesh->getRenderState().setDepthTest(false);
   mesh->getRenderState().setDepthWrite(false);
-  return std::move(mesh);
+  return mesh;
 }
 
 RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport)

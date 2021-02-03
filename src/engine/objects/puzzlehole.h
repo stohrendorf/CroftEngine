@@ -16,8 +16,6 @@ public:
 
   void collide(CollisionInfo& collisionInfo) override;
 
-  void serialize(const serialization::Serializer<World>& ser) override;
-
 private:
   void swapPuzzleState();
   void initMesh();
