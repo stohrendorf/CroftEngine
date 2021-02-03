@@ -94,6 +94,38 @@ public:
   static std::shared_ptr<ModelObject> create(serialization::Serializer<World>& ser);
 };
 
+class NullRenderModelObject : public ModelObject
+{
+public:
+  NullRenderModelObject(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+      : ModelObject{world, position}
+  {
+  }
+
+  NullRenderModelObject(const gsl::not_null<World*>& world,
+                        const gsl::not_null<const loader::file::Room*>& room,
+                        const loader::file::Item& item,
+                        bool hasUpdateFunction,
+                        const gsl::not_null<const loader::file::SkeletalModelType*>& model)
+      : ModelObject{world, room, item, hasUpdateFunction, model}
+  {
+    getSkeleton()->setRenderable(nullptr);
+    getSkeleton()->removeAllChildren();
+    getSkeleton()->clearParts();
+  }
+
+  void serialize(const serialization::Serializer<World>& ser) override
+  {
+    ModelObject::serialize(ser);
+    if(ser.loading)
+    {
+      getSkeleton()->setRenderable(nullptr);
+      getSkeleton()->removeAllChildren();
+      getSkeleton()->clearParts();
+    }
+  }
+};
+
 std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
                                     serialization::Serializer<World>& ser);
 } // namespace engine::objects
