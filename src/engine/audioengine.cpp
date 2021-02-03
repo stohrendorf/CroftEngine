@@ -243,22 +243,22 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     {
       auto voice = m_soundEngine->play(audioSource, pitch, volume, emitter);
       voice->setLooping(true);
-      voice->play();
       return voice;
     }
   case loader::file::PlaybackType::Restart:
     if(auto voices = m_soundEngine->getVoicesForAudioSource(emitter, audioSource); !voices.empty())
     {
-      auto handle = voices[0];
-      if(!handle->isValid())
+      auto voice = voices[0];
+      if(!voice->isValid())
         return m_soundEngine->play(audioSource, pitch, volume, emitter);
 
-      handle->setRelativePlaySpeed(pitch);
-      handle->setVolume(volume);
+      voice->pause();
+      voice->setRelativePlaySpeed(pitch);
+      voice->setVolume(volume);
       if(emitter != nullptr)
-        handle->setPosition(emitter->getPosition());
-      handle->restart();
-      return handle;
+        voice->setPosition(emitter->getPosition());
+      voice->restart();
+      return voice;
     }
     else
     {
