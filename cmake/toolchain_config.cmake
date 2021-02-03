@@ -15,11 +15,9 @@ if( CMAKE_CXX_CPPCHECK )
 endif()
 
 if( MSVC )
-    # C4503: Name too long
-    # C4996: "Call to 'std::copy_n' with parameters that may be unsafe" etc...
+    include( dl_unpack )
     add_definitions( -D_CRT_SECURE_NO_WARNINGS )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /experimental:external /external:anglebrackets /MP" )
-    #set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4503 /wd4996 /wd4251 /wd4275 /experimental:external /external:anglebrackets /MP" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /experimental:external /external:I ${EXTERNAL_SRC_ROOT} /MP" )
     string( REPLACE "/Ob0" "/Ob1" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" )
     set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /RTC1" )
 endif()
