@@ -41,14 +41,14 @@ struct alignas(64) BSPTree final
     Expects(h > 0);
   }
 
-  explicit BSPTree(BSPTree&& rhs)
+  BSPTree(BSPTree&& rhs) noexcept
       : left{std::move(rhs.left)}
       , right{std::move(rhs.right)}
-      , isFilled{std::move(rhs.isFilled)}
-      , x{std::move(rhs.x)}
-      , y{std::move(rhs.y)}
-      , width{std::move(rhs.width)}
-      , height{std::move(rhs.height)}
+      , isFilled{rhs.isFilled}
+      , x{rhs.x}
+      , y{rhs.y}
+      , width{rhs.width}
+      , height{rhs.height}
   {
   }
 
@@ -162,7 +162,7 @@ public:
 
   ~TextureAtlas() = default;
 
-  explicit TextureAtlas(TextureAtlas&& rhs)
+  TextureAtlas(TextureAtlas&& rhs) noexcept
       : m_layout{std::move(rhs.m_layout)}
       , m_image{std::move(rhs.m_image)}
   {
@@ -205,12 +205,12 @@ public:
 
   ~MultiTextureAtlas() = default;
 
-  const auto getSize() const
+  [[nodiscard]] auto getSize() const
   {
     return m_pageSize;
   }
 
-  const auto getAtlasCount() const
+  [[nodiscard]] auto getAtlasCount() const
   {
     return m_atlases.size();
   }

@@ -6,7 +6,7 @@
 
 namespace ui
 {
-class Label;
+struct Label;
 }
 
 namespace render

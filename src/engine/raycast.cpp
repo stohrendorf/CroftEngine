@@ -127,8 +127,8 @@ std::pair<bool, core::RoomBoundPosition>
   auto [firstCollision, secondCollision, result] = abs(goal.Z - start.position.Z) <= abs(goal.X - start.position.X)
                                                      ? collide(&core::TRVec::Z, &core::TRVec::X)
                                                      : collide(&core::TRVec::X, &core::TRVec::Z);
-  const auto invariantCheck
-    = gsl::finally([&result]() { Ensures(result.room->getSectorByAbsolutePosition(result.position) != nullptr); });
+  const auto invariantCheck = gsl::finally(
+    [&result = result]() { Ensures(result.room->getSectorByAbsolutePosition(result.position) != nullptr); });
 
   if(secondCollision == CollisionType::Wall)
   {

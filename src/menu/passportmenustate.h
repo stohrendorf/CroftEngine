@@ -7,7 +7,7 @@
 
 namespace ui
 {
-class Label;
+struct Label;
 }
 
 namespace menu

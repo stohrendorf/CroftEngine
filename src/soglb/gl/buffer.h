@@ -77,7 +77,7 @@ public:
 
   void setSubData(const gsl::not_null<const T*>& data, const api::core::SizeType start, api::core::SizeType count)
   {
-    Expects(size >= 0);
+    Expects(m_size >= 0);
     Expects(count >= 0);
 
     if(count == 0)
