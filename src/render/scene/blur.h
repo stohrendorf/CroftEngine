@@ -19,9 +19,9 @@ public:
   using Texture = gl::Texture2D<PixelT>;
 
   explicit SingleBlur(
-    std::string name, ShaderManager& shaderManager, uint8_t dir, uint8_t extent, bool gauss, bool clamp)
+    std::string name, ShaderManager& shaderManager, uint8_t dir, uint8_t extent, bool gauss, bool fillGaps)
       : m_name{std::move(name)}
-      , m_shader{shaderManager.getBlur(extent, dir, PixelT::Channels, gauss, clamp)}
+      , m_shader{shaderManager.getBlur(extent, dir, PixelT::Channels, gauss, fillGaps)}
       , m_material{std::make_shared<Material>(m_shader)}
   {
     Expects(dir == 1 || dir == 2);
@@ -84,9 +84,10 @@ class SeparableBlur
 public:
   using Texture = gl::Texture2D<PixelT>;
 
-  explicit SeparableBlur(const std::string& name, ShaderManager& shaderManager, uint8_t extent, bool gauss, bool clamp)
-      : m_blur1{name + "/blur-1", shaderManager, 1, extent, gauss, clamp}
-      , m_blur2{name + "/blur-2", shaderManager, 2, extent, gauss, clamp}
+  explicit SeparableBlur(
+    const std::string& name, ShaderManager& shaderManager, uint8_t extent, bool gauss, bool fillGaps)
+      : m_blur1{name + "/blur-1", shaderManager, 1, extent, gauss, fillGaps}
+      , m_blur2{name + "/blur-2", shaderManager, 2, extent, gauss, fillGaps}
   {
   }
 

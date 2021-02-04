@@ -62,11 +62,10 @@ void main()
 #else
 #error "Invalid Blur Dir"
 #endif
-#ifdef BLUR_CLAMP
+#ifdef FILL_GAPS
     BLUR_TYPE clamped = center.x > result.x ? result : mix(center, result, 0.01);;
     if( center.x > max(l.x, r.x) ) {
         clamped = (l+r)*0.5;
-        clamped = l;
     }
     out_tex = clamped;
 #else
