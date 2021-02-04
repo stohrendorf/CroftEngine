@@ -75,6 +75,9 @@ struct InputState
   Button action{false};
   Button freeLook{false};
   Button debug{false};
+#ifndef NDEBUG
+  Button cheatDive{false};
+#endif
   Button holster{false};
   Button menu{false};
   Button _1{false};

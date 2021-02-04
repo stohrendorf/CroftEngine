@@ -47,6 +47,12 @@ private:
 
   UnderwaterState m_underwaterState = UnderwaterState::OnLand;
 
+#ifndef NDEBUG
+  bool m_cheatDive = false;
+#else
+  constexpr bool m_cheatDive = false;
+#endif
+
 public:
   LaraObject(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}

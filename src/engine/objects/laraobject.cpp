@@ -255,7 +255,12 @@ void LaraObject::update()
   else if(getWorld().getPresenter().getInputHandler().getInputState()._6.justChangedTo(true))
     getWorld().getInventory().tryUse(*this, TR1ItemId::LargeMedipack);
 
-  if(m_underwaterState == UnderwaterState::OnLand && m_state.position.room->isWaterRoom())
+#ifndef NDEBUG
+  if(getWorld().getPresenter().getInputHandler().getInputState().cheatDive.justChangedTo(true))
+    m_cheatDive = !m_cheatDive;
+#endif
+
+  if(m_underwaterState == UnderwaterState::OnLand && (m_cheatDive || m_state.position.room->isWaterRoom()))
   {
     m_air = core::LaraAir;
     m_underwaterState = UnderwaterState::Diving;
@@ -306,7 +311,7 @@ void LaraObject::update()
       }
     }
   }
-  else if(m_underwaterState == UnderwaterState::Diving && !m_state.position.room->isWaterRoom())
+  else if(m_underwaterState == UnderwaterState::Diving && !(m_cheatDive || m_state.position.room->isWaterRoom()))
   {
     auto waterSurfaceHeight = getWaterSurfaceHeight();
     m_state.fallspeed = 0_spd;
@@ -334,7 +339,7 @@ void LaraObject::update()
       playSoundEffect(TR1SoundEffect::LaraCatchingAir);
     }
   }
-  else if(m_underwaterState == UnderwaterState::Swimming && !m_state.position.room->isWaterRoom())
+  else if(m_underwaterState == UnderwaterState::Swimming && !(m_cheatDive || m_state.position.room->isWaterRoom()))
   {
     m_underwaterState = UnderwaterState::OnLand;
     setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
@@ -354,7 +359,7 @@ void LaraObject::update()
   }
   else if(m_underwaterState == UnderwaterState::Diving)
   {
-    if(!isDead())
+    if(!isDead() && !m_cheatDive)
     {
       m_air -= 1_frame;
       if(m_air < 0_frame)
