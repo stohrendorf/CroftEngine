@@ -72,8 +72,8 @@ gsl::not_null<std::shared_ptr<UniformParameter>> Material::getUniform(const std:
   if(it != m_uniforms.end())
     return *it;
 
-  // Create a new parameter and store it in our list.
-  auto param = std::make_shared<UniformParameter>(name);
+  Expects(m_shaderProgram->findUniform(name.c_str()) != nullptr);
+  auto param = std::make_shared<UniformParameter>(std::string{name.begin(), name.end()});
   m_uniforms.emplace_back(param);
   return param;
 }
@@ -85,8 +85,8 @@ gsl::not_null<std::shared_ptr<UniformBlockParameter>> Material::getUniformBlock(
   if(it != m_uniformBlocks.end())
     return *it;
 
-  // Create a new parameter and store it in our list.
-  auto param = std::make_shared<UniformBlockParameter>(name);
+  Expects(m_shaderProgram->findUniformBlock(name.c_str()) != nullptr);
+  auto param = std::make_shared<UniformBlockParameter>(std::string{name.begin(), name.end()});
   m_uniformBlocks.emplace_back(param);
   return param;
 }
@@ -98,8 +98,8 @@ gsl::not_null<std::shared_ptr<BufferParameter>> Material::getBuffer(const std::s
   if(it != m_buffers.end())
     return *it;
 
-  // Create a new parameter and store it in our list.
-  auto param = std::make_shared<BufferParameter>(name);
+  Expects(m_shaderProgram->findShaderStorageBlock(name.c_str()) != nullptr);
+  auto param = std::make_shared<BufferParameter>(std::string{name.begin(), name.end()});
   m_buffers.emplace_back(param);
   return param;
 }
