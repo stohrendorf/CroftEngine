@@ -66,7 +66,7 @@ enum class BlendingMode : uint16_t
 struct UVCoordinates
 {
   QS_DECLARE_QUANTITY(Component, uint16_t, "uv");
-  static constexpr float ComponentScale = std::numeric_limits<uint16_t>::max() + 1;
+  static constexpr float ComponentScale = static_cast<float>(std::numeric_limits<uint16_t>::max() + 1);
 
   Component x{};
   Component y{};

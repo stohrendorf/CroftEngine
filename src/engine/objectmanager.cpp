@@ -8,19 +8,18 @@
 #include "serialization/not_null.h"
 #include "serialization/objectreference.h"
 
+#include <boost/range/adaptor/indexed.hpp>
+
 namespace engine
 {
 void ObjectManager::createObjects(World& world, std::vector<loader::file::Item>& items)
 {
-  Expects(m_objectCounter == ObjectId(-1));
+  Expects(m_objectCounter == 0);
   m_objectCounter = gsl::narrow<ObjectId>(items.size());
 
   m_lara = nullptr;
-  ObjectId id = -1;
-  for(auto& item : items)
+  for(const auto& [id, item] : items | boost::adaptors::indexed())
   {
-    ++id;
-
     auto object = objects::createObject(world, item);
     if(item.type == TR1ItemId::Lara)
     {
@@ -30,7 +29,7 @@ void ObjectManager::createObjects(World& world, std::vector<loader::file::Item>&
 
     if(object != nullptr)
     {
-      m_objects.emplace(id, object);
+      m_objects.emplace(gsl::narrow<ObjectId>(id), object);
     }
   }
 }
@@ -68,7 +67,7 @@ void ObjectManager::applyScheduledDeletions()
 
 void ObjectManager::registerObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object)
 {
-  if(m_objectCounter == std::numeric_limits<uint16_t>::max())
+  if(m_objectCounter == std::numeric_limits<ObjectId>::max())
     BOOST_THROW_EXCEPTION(std::runtime_error("Artificial object counter exceeded"));
 
   m_objects.emplace(m_objectCounter++, object);

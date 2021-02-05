@@ -5,7 +5,7 @@
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, size_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
+template<typename T, glm::length_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
 struct Pixel
 {
   static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<T, api::core::Half>,
@@ -68,7 +68,11 @@ struct Pixel
 };
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, typename U, size_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
+template<typename T,
+         typename U,
+         glm::length_t _Channels,
+         api::PixelFormat _PixelFormat,
+         api::InternalFormat _InternalFormat>
 auto imix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
           const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& rhs,
           U bias,
@@ -83,7 +87,7 @@ auto imix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
 
   const auto invBias = biasMax - bias;
   auto tmp = lhs;
-  for(size_t i = 0; i < _Channels; ++i)
+  for(glm::length_t i = 0; i < _Channels; ++i)
   {
     tmp.channels[i] = static_cast<T>(lhs.channels[i] * invBias / biasMax + rhs.channels[i] * bias / biasMax);
   }

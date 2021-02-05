@@ -34,7 +34,7 @@ using ObjectId = uint16_t;
 class ObjectManager
 {
   std::set<objects::Object*> m_scheduledDeletions;
-  ObjectId m_objectCounter = -1;
+  ObjectId m_objectCounter = 0;
   std::map<ObjectId, gsl::not_null<std::shared_ptr<objects::Object>>> m_objects;
   std::set<gsl::not_null<std::shared_ptr<objects::Object>>> m_dynamicObjects;
   std::vector<gsl::not_null<std::shared_ptr<Particle>>> m_particles;

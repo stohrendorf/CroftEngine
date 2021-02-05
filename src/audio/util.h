@@ -33,7 +33,9 @@ inline std::shared_ptr<SoLoud::Wav> loadWav(const uint8_t* data)
   sf_readf_short(sfFile, pcm.data(), sfInfo.frames);
 
   auto wav = std::make_shared<SoLoud::Wav>();
-  if(wav->loadRawWave16(pcm.data(), pcm.size(), sfInfo.samplerate, sfInfo.channels) != SoLoud::SO_NO_ERROR)
+  if(wav->loadRawWave16(
+       pcm.data(), gsl::narrow<unsigned int>(pcm.size()), static_cast<float>(sfInfo.samplerate), sfInfo.channels)
+     != SoLoud::SO_NO_ERROR)
   {
     BOOST_LOG_TRIVIAL(error) << "Failed to create WAV from memory";
   }
