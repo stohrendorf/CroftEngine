@@ -27,13 +27,7 @@ vec3 dof_color(in vec2 uv, in float blur_amount)//processing the sample
     col.r = shaded_texel(u_texture, uv+dr, depth_at(uv+dr)).r;
     col.g = shaded_texel(u_texture, uv+dg, depth_at(uv+dg)).g;
     col.b = shaded_texel(u_texture, uv+db, depth_at(uv+db)).b;
-
-    const vec3 lumcoeff = vec3(0.299, 0.587, 0.114);
-    const float threshold = 0.7;//highlight threshold;
-    const float gain = 100.0;//highlight gain;
-
-    float thresh = max((dot(col, lumcoeff)-threshold)*gain, 0.0);
-    return col + col*thresh*blur_amount;
+    return col;
 }
 
 vec3 do_dof(in vec2 uv)
