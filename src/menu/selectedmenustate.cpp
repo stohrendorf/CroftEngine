@@ -25,8 +25,7 @@ std::unique_ptr<MenuState>
   else if(currentObject.type == engine::TR1ItemId::Sunglasses)
     return create<RenderSettingsMenuState>(
       create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),
-      world.getPresenter().getRenderPipeline().get(),
-      world.getPresenter().getMaterialManager().get());
+      world.getPresenter());
 
   if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
     return nullptr;

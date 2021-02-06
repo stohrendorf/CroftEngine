@@ -17,6 +17,8 @@ void glErrorCallback(const int err, const gsl::czstring msg)
 } // namespace
 
 Window::Window(const bool fullscreen, const glm::ivec2& resolution)
+    : m_windowPos{0, 0}
+    , m_windowSize{resolution}
 {
   glfwSetErrorCallback(&glErrorCallback);
 
@@ -43,8 +45,8 @@ Window::Window(const bool fullscreen, const glm::ivec2& resolution)
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
 
-  m_window = glfwCreateWindow(
-    resolution.x, resolution.y, "EdisonEngine", fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
+  m_window = glfwCreateWindow(resolution.x, resolution.y, "EdisonEngine", nullptr, nullptr);
+
   if(m_window == nullptr)
   {
     const char* message;
@@ -52,6 +54,9 @@ Window::Window(const bool fullscreen, const glm::ivec2& resolution)
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create window: " << message;
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
   }
+
+  if(fullscreen)
+    setFullscreen();
 
   CImgWrapper imgWrapper{std::filesystem::path{"logo.png"}};
   imgWrapper.interleave();
@@ -105,5 +110,34 @@ void Window::setViewport(const glm::ivec2& viewport)
 {
   m_viewport = viewport;
   GL_ASSERT(::gl::api::viewport(0, 0, viewport.x, viewport.y));
+}
+
+void Window::setFullscreen()
+{
+  if(m_isFullscreen)
+    return;
+
+  const auto mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+  Expects(mode != nullptr);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+
+  glfwGetWindowPos(m_window, &m_windowPos.x, &m_windowPos.y);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  glfwGetWindowSize(m_window, &m_windowSize.x, &m_windowSize.y);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+
+  glfwSetWindowMonitor(m_window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  m_isFullscreen = true;
+}
+
+void Window::setWindowed()
+{
+  if(!m_isFullscreen)
+    return;
+
+  glfwSetWindowMonitor(m_window, nullptr, m_windowPos.x, m_windowPos.y, m_windowSize.x, m_windowSize.y, GLFW_DONT_CARE);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  m_isFullscreen = false;
 }
 } // namespace gl

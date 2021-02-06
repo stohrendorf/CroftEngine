@@ -150,6 +150,11 @@ public:
 
   void debounceInput();
 
+  void setFullscreen(bool value)
+  {
+    m_window->setFullscreen(value);
+  }
+
 private:
   static constexpr int32_t CSMResolution = 2048;
 

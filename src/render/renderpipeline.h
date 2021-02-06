@@ -27,6 +27,7 @@ struct RenderSettings
   bool dof = true;
   bool lensDistortion = true;
   bool filmGrain = true;
+  bool fullscreen = false;
 };
 
 class RenderPipeline
@@ -196,6 +197,13 @@ public:
   void toggleFilmGrain(scene::MaterialManager& materialManager)
   {
     m_renderSettings.filmGrain = !m_renderSettings.filmGrain;
+    m_compositionStage.initMaterials(materialManager, m_renderSettings);
+    resize(m_size, true);
+  }
+
+  void toggleFullscreen(scene::MaterialManager& materialManager)
+  {
+    m_renderSettings.fullscreen = !m_renderSettings.fullscreen;
     m_compositionStage.initMaterials(materialManager, m_renderSettings);
     resize(m_size, true);
   }
