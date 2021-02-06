@@ -19,6 +19,7 @@ lara_home = Level(
     track=TR1TrackId.Ambience1,
     secrets=0,
     use_alternative_lara=True,
+    allow_save=False,
 )
 
 level_sequence = [

@@ -216,10 +216,12 @@ std::unique_ptr<MenuState>
   return nullptr;
 }
 
-PassportMenuState::PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, InventoryMode mode)
+PassportMenuState::PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                     InventoryMode mode,
+                                     bool allowSave)
     : MenuState{ringTransform}
     , m_allowExit{mode != InventoryMode::DeathMode && mode != InventoryMode::TitleMode}
-    , m_allowSave{mode != InventoryMode::DeathMode && mode != InventoryMode::TitleMode}
+    , m_allowSave{allowSave && (mode != InventoryMode::DeathMode && mode != InventoryMode::TitleMode)}
     , m_forcePage{mode == InventoryMode::LoadMode   ? std::optional<int>{0}
                   : mode == InventoryMode::SaveMode ? std::optional<int>{1}
                                                     : std::nullopt}

@@ -59,7 +59,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::unordered_map<std::string, std::string>,
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
                   std::unordered_map<engine::TR1ItemId, size_t>,
-                  engine::TR1TrackId>(),
+                  engine::TR1TrackId,
+                  bool>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("secrets"),
@@ -67,7 +68,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
          py::arg("inventory") = py::dict{},
-         py::arg("track"));
+         py::arg("track"),
+         py::arg("allow_save") = true);
 
   py::class_<engine::script::TitleMenu, engine::script::Level, std::shared_ptr<engine::script::TitleMenu>>(
     m, "TitleMenu", py::is_final{})

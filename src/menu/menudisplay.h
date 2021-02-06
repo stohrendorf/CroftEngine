@@ -9,7 +9,6 @@ enum class InventoryMode
 {
   GameMode,
   TitleMode,
-  KeysMode,
   SaveMode,
   LoadMode,
   DeathMode
@@ -40,6 +39,7 @@ struct MenuDisplay
   std::optional<engine::TR1ItemId> inventoryChosen{};
   float streamGain;
   bool allowMenuClose = true;
+  bool allowSave = true;
 
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   std::unique_ptr<MenuState> m_currentState;

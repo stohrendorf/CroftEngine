@@ -441,29 +441,21 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
 {
   m_currentState->begin(world);
 
-  if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
+  if(mode == InventoryMode::GameMode)
     rings.emplace_back(std::make_unique<MenuRing>(
       MenuRing::Type::Inventory, world.getEngine().i18n(engine::I18n::Inventory), getMainRingObjects(world)));
 
-  if(mode != InventoryMode::KeysMode)
-  {
-    rings.emplace_back(std::make_unique<MenuRing>(
-      MenuRing::Type::Options,
-      world.getEngine().i18n(mode == InventoryMode::DeathMode ? engine::I18n::GameOver : engine::I18n::Option),
-      getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
-  }
+  rings.emplace_back(std::make_unique<MenuRing>(
+    MenuRing::Type::Options,
+    world.getEngine().i18n(mode == InventoryMode::DeathMode ? engine::I18n::GameOver : engine::I18n::Option),
+    getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
 
-  if(mode == InventoryMode::KeysMode || mode == InventoryMode::GameMode)
+  if(mode == InventoryMode::GameMode)
   {
     rings.emplace_back(std::make_unique<MenuRing>(
       MenuRing::Type::Items, world.getEngine().i18n(engine::I18n::Items), getKeysRingObjects(world)));
     if(rings.back()->list.empty())
     {
-      if(mode == InventoryMode::KeysMode)
-      {
-        return;
-      }
-
       rings.pop_back();
     }
   }

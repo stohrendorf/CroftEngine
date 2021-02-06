@@ -101,7 +101,7 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
   }
 }
 
-std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCutscene)
+std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCutscene, bool allowSave)
 {
   gl::Framebuffer::unbindAll();
 
@@ -152,10 +152,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
       if(m_presenter->getInputHandler().getInputState().menu.justChangedTo(true))
       {
         menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world);
+        menu->allowSave = allowSave;
         continue;
       }
 
-      if(m_presenter->getInputHandler().getInputState().save.justChangedTo(true))
+      if(allowSave && m_presenter->getInputHandler().getInputState().save.justChangedTo(true))
       {
         world.save("quicksave.yaml");
         throttler.reset();

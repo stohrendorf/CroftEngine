@@ -62,6 +62,7 @@ private:
   const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles;
   const std::unordered_map<TR1ItemId, size_t> m_inventory;
   const TR1TrackId m_track;
+  const bool m_allowSave;
 
 protected:
   [[nodiscard]] std::unique_ptr<engine::World> loadWorld(Engine& engine);
@@ -73,7 +74,8 @@ public:
                  std::unordered_map<std::string, std::string> titles,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
                  std::unordered_map<TR1ItemId, size_t> inventory,
-                 TR1TrackId track)
+                 TR1TrackId track,
+                 bool allowSave)
       : m_name{std::move(name)}
       , m_secrets{secrets}
       , m_useAlternativeLara{useAlternativeLara}
@@ -81,6 +83,7 @@ public:
       , m_itemTitles{std::move(itemTitles)}
       , m_inventory{std::move(inventory)}
       , m_track{track}
+      , m_allowSave{allowSave}
   {
   }
 
@@ -100,7 +103,7 @@ public:
             const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
             const std::unordered_map<TR1ItemId, size_t>& inventory,
             TR1TrackId track)
-      : Level{name, secrets, useAlternativeLara, titles, itemTitles, inventory, track}
+      : Level{name, secrets, useAlternativeLara, titles, itemTitles, inventory, track, false}
   {
   }
 

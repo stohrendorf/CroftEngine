@@ -110,7 +110,7 @@ public:
     return *m_presenter;
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(World& world, bool isCutscene);
+  std::pair<RunResult, std::optional<size_t>> run(World& world, bool isCutscene, bool allowSave);
   std::pair<RunResult, std::optional<size_t>> runTitleMenu(World& world);
 
   [[nodiscard]] const std::string& getLanguage() const

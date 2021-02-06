@@ -21,7 +21,7 @@ std::unique_ptr<MenuState>
 {
   auto& currentObject = display.getCurrentRing().getSelectedObject();
   if(currentObject.type == engine::TR1ItemId::PassportClosed)
-    return create<PassportMenuState>(display.mode);
+    return create<PassportMenuState>(display.mode, display.allowSave);
   else if(currentObject.type == engine::TR1ItemId::Sunglasses)
     return create<RenderSettingsMenuState>(
       create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),

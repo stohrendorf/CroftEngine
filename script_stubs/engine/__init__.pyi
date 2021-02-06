@@ -59,6 +59,7 @@ class Level(LevelSequenceItem):
             item_titles: Dict[str, Dict[TR1ItemId, str]] = {},
             inventory: Dict[TR1ItemId, int] = {},
             use_alternative_lara: bool = False,
+            allow_save: bool = True,
     ):
         ...
 

@@ -36,7 +36,9 @@ private:
   void nextPage(MenuObject& passport, engine::World& world);
 
 public:
-  explicit PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, InventoryMode mode);
+  explicit PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                             InventoryMode mode,
+                             bool allowSave);
 
   std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
   void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;

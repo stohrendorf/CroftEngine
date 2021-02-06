@@ -71,7 +71,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine)
     }
   }
 
-  return engine.run(*world, true);
+  return engine.run(*world, true, false);
 }
 
 std::unique_ptr<engine::World> Level::loadWorld(Engine& engine)
@@ -105,17 +105,18 @@ bool Level::isLevel(const std::filesystem::path& path) const
 std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine)
 {
   auto world = loadWorld(engine);
-  return engine.run(*world, false);
+  return engine.run(*world, false, m_allowSave);
 }
 
 std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine, const std::optional<size_t>& slot)
 {
+  Expects(m_allowSave);
   auto world = loadWorld(engine);
   if(slot.has_value())
     world->load(slot.value());
   else
     world->load("quicksave.yaml");
-  return engine.run(*world, false);
+  return engine.run(*world, false, m_allowSave);
 }
 
 std::pair<RunResult, std::optional<size_t>> TitleMenu::run(Engine& engine)
