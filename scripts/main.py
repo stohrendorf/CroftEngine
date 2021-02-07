@@ -57,8 +57,8 @@ i18n = {
         "de": "Zur~uck zum Titel",
     },
     I18n.EmptySlot: {
-        "en": "- EMPTY SLOT {}",
-        "de": "- LEERER SLOT {}",
+        "en": "- EMPTY SLOT %1%",
+        "de": "- LEERER SLOT %1%",
     },
     I18n.Items: {
         "en": "ITEMS",
@@ -127,6 +127,30 @@ i18n = {
     I18n.SmallMediPack: {
         "en": "Small Medi Pack",
         "de": "Kleines Medi Pack",
+    },
+    I18n.Loading: {
+        "en": "Loading...",
+        "de": "Lade...",
+    },
+    I18n.Saving: {
+        "en": "Saving...",
+        "de": "Speichere..",
+    },
+    I18n.BuildingTextures: {
+        "en": "Building textures",
+        "de": "Erstelle Texturen",
+    },
+    I18n.LoadingLevel: {
+        "en": "Loading %1%",
+        "de": "Lade %1%",
+    },
+    I18n.CreatingMipmaps: {
+        "en": "Creating mipmaps (%1%%%)",
+        "de": "Erstelle Mipmaps (%1%%%)",
+    },
+    I18n.LoadingGlidos: {
+        "en": "Loading Glidos texture pack",
+        "de": "Lade Glidos Textur Paket",
     },
 }
 

@@ -1,9 +1,11 @@
 #include "reflection.h"
 
 #include "engine/engine.h"
+#include "engine/i18n.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 
+#include <boost/format.hpp>
 #include <boost/range/adaptors.hpp>
 
 namespace engine::script
@@ -18,7 +20,7 @@ std::filesystem::path getLocalLevelPath(const std::string& basename)
 std::unique_ptr<loader::file::level::Level>
   loadLevel(Engine& engine, const std::string& basename, const std::string& title)
 {
-  engine.getPresenter().drawLoadingScreen("Loading " + title);
+  engine.getPresenter().drawLoadingScreen(engine.i18n(I18n::LoadingLevel, title));
   auto level = loader::file::level::Level::createLoader(engine.getRootPath() / getLocalLevelPath(basename),
                                                         loader::file::level::Game::Unknown);
   level->loadFileData();

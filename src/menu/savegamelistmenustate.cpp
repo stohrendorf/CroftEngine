@@ -7,6 +7,8 @@
 #include "menudisplay.h"
 #include "ui/label.h"
 
+#include <boost/format.hpp>
+
 namespace menu
 {
 SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
@@ -45,8 +47,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     }
     else
     {
-      name = boost::algorithm::replace_all_copy(
-        world.getEngine().i18n(engine::I18n::EmptySlot), "{}", std::to_string(i + 1));
+      name = world.getEngine().i18n(engine::I18n::EmptySlot, i + 1);
       m_hasSavegame.emplace_back(false);
     }
     auto lbl = std::make_unique<ui::Label>(glm::ivec2{0, YOffset + line * LineHeight}, name);

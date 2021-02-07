@@ -247,7 +247,7 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
     if(!std::filesystem::is_directory(glidosPack))
       return nullptr;
 
-    m_presenter->drawLoadingScreen("Loading Glidos texture pack");
+    m_presenter->drawLoadingScreen(i18n(I18n::LoadingGlidos));
     return std::make_unique<loader::trx::Glidos>(m_rootPath / glidosPack,
                                                  [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
   }

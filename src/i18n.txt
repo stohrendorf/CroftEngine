@@ -21,3 +21,9 @@ Uzis
 Grenade
 LargeMediPack
 SmallMediPack
+Loading
+Saving
+BuildingTextures
+LoadingLevel
+CreatingMipmaps
+LoadingGlidos

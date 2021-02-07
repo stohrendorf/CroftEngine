@@ -9,6 +9,7 @@
 #include "loader/file/item.h"
 #include "objectmanager.h"
 
+#include <boost/format/format_fwd.hpp>
 #include <filesystem>
 #include <gl/pixel.h>
 #include <gl/texture2darray.h>
@@ -141,6 +142,12 @@ public:
   }
 
   std::string i18n(I18n key) const;
+
+  template<typename... Args>
+  std::string i18n(I18n key, Args&&... args) const
+  {
+    return ((boost::format(i18n(key)) % ... % std::forward<Args>(args))).str();
+  }
 
   SavegameMeta getSavegameMeta(const std::filesystem::path& filename) const;
   SavegameMeta getSavegameMeta(size_t slot) const

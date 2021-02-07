@@ -3,6 +3,7 @@
 #include "audioengine.h"
 #include "core/pybindmodule.h"
 #include "engine.h"
+#include "engine/i18n.h"
 #include "loader/trx/trx.h"
 #include "objects/aiagent.h"
 #include "objects/block.h"
@@ -29,6 +30,7 @@
 #include "tracks_tr1.h"
 #include "ui/label.h"
 
+#include <boost/format.hpp>
 #include <glm/gtx/norm.hpp>
 #include <numeric>
 #include <utility>
@@ -1049,7 +1051,7 @@ bool World::cinematicLoop()
 
 void World::load(const std::filesystem::path& filename)
 {
-  getPresenter().drawLoadingScreen("Loading...");
+  getPresenter().drawLoadingScreen(m_engine.i18n(I18n::Loading));
   BOOST_LOG_TRIVIAL(info) << "Load";
   serialization::YAMLDocument<true> doc{m_engine.getSavegamePath() / filename};
   SavegameMeta meta{};
@@ -1066,7 +1068,7 @@ void World::load(const std::filesystem::path& filename)
 
 void World::save(const std::filesystem::path& filename)
 {
-  getPresenter().drawLoadingScreen("Saving...");
+  getPresenter().drawLoadingScreen(m_engine.i18n(I18n::Saving));
   BOOST_LOG_TRIVIAL(info) << "Save";
   serialization::YAMLDocument<false> doc{m_engine.getSavegamePath() / filename};
   SavegameMeta meta{std::filesystem::relative(m_level->getFilename(), m_engine.getRootPath()).string(), m_title};
@@ -1182,7 +1184,7 @@ World::World(Engine& engine,
         initialInventory[type.cast<TR1ItemId>()] += qty.cast<size_t>();
     }
 
-    getPresenter().drawLoadingScreen("Building textures");
+    getPresenter().drawLoadingScreen(m_engine.i18n(I18n::BuildingTextures));
     for(auto& texture : m_level->m_textures)
     {
       texture.toImage();
@@ -1499,8 +1501,8 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
     auto margin = render::MultiTextureAtlas::BoundaryMargin / 2;
     for(int mipmapLevel = 1; static_cast<size_t>(mipmapLevel) < nMips; dstSize /= 2, margin /= 2, ++mipmapLevel)
     {
-      getPresenter().drawLoadingScreen("Mipmapping ("
-                                       + std::to_string(processedTiles * 100 / (totalTiles * (nMips - 1))) + "%)");
+      getPresenter().drawLoadingScreen(
+        m_engine.i18n(I18n::CreatingMipmaps, processedTiles * 100 / (totalTiles * (nMips - 1))));
       processedTiles += tiles.size();
 
       BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", " << tiles.size()
