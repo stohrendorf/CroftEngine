@@ -17,7 +17,8 @@ class RenderMeshData;
 
 struct Mesh
 {
-  static constexpr uint16_t DrawAlways = 0x02;
+  static constexpr uint16_t FlatShaded = 0x0001;
+  static constexpr uint16_t DrawAlways = 0x0002;
 
   uint16_t flags;
   core::TRVec collisionCenter;
@@ -33,13 +34,17 @@ struct Mesh
 
   std::shared_ptr<RenderMeshData> meshData{nullptr};
 
+  bool isFlatShaded() const noexcept
+  {
+    return (flags & FlatShaded) != 0;
+  }
+
   /** \brief reads mesh definition.
     *
     * The read num_normals value is positive when normals are available and negative when light
     * values are available. The values get set appropriately.
     */
   static std::unique_ptr<Mesh> readTr1(io::SDLReader& reader);
-
   static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader);
 };
 } // namespace loader::file

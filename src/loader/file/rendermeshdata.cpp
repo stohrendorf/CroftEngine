@@ -26,7 +26,8 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       if(mesh.normals.empty())
         iv.color = glm::vec3(toBrightness(quad.vertices[i].from(mesh.vertexShades)).get());
 
-      if(mesh.normals.empty() || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
+      if(mesh.isFlatShaded() || mesh.normals.empty()
+         || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
       {
         if(i <= 2)
         {
@@ -73,7 +74,8 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       if(mesh.normals.empty())
         iv.color *= toBrightness(quad.vertices[i].from(mesh.vertexShades)).get();
 
-      if(mesh.normals.empty() || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
+      if(mesh.isFlatShaded() || mesh.normals.empty()
+         || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
       {
         if(i <= 2)
         {
@@ -116,7 +118,8 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       if(mesh.normals.empty())
         iv.color = glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
 
-      if(mesh.normals.empty() || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
+      if(mesh.isFlatShaded() || mesh.normals.empty()
+         || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
       {
         static const std::array<int, 3> indices{0, 1, 2};
         iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
@@ -145,7 +148,8 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       if(mesh.normals.empty())
         iv.color *= glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
 
-      if(mesh.normals.empty() || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
+      if(mesh.isFlatShaded() || mesh.normals.empty()
+         || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
       {
         static const std::array<int, 3> indices{0, 1, 2};
         iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
