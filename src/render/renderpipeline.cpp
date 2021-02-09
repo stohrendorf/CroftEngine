@@ -5,6 +5,7 @@
 #include "scene/node.h"
 #include "scene/shadermanager.h"
 
+#include <gl/texturedepth.h>
 #include <random>
 
 namespace render

@@ -1,18 +1,17 @@
 #pragma once
 
-#include "loader/file/datatypes.h"
-#include "loader/file/texture.h"
+#include "core/id.h"
 
 #include <boost/assert.hpp>
 #include <gl/soglb_fwd.h>
-#include <gl/vertexbuffer.h>
+#include <glm/glm.hpp>
 #include <map>
 #include <set>
 #include <vector>
 
-namespace gl
+namespace loader::file
 {
-class CImgWrapper;
+struct TextureTile;
 }
 
 namespace render
@@ -106,27 +105,7 @@ private:
       affectedVertices[buffer].insert(vertex);
     }
 
-    void updateCoordinates(const std::vector<loader::file::TextureTile>& tiles)
-    {
-      BOOST_ASSERT(!tileIds.empty());
-
-      for(const auto& [buffer, vertices] : affectedVertices)
-      {
-        auto* uvArray = buffer->map(gl::api::BufferAccessARB::ReadWrite);
-
-        for(const VertexReference& vref : vertices)
-        {
-          BOOST_ASSERT(buffer->size() > 0 && vref.bufferIndex < static_cast<size_t>(buffer->size()));
-          BOOST_ASSERT(vref.queueOffset < tileIds.size());
-          const loader::file::TextureTile& tile = tiles[tileIds[vref.queueOffset].get()];
-
-          uvArray[vref.bufferIndex].uv = tile.uvCoordinates[vref.sourceIndex].toGl();
-          uvArray[vref.bufferIndex].index = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
-        }
-
-        buffer->unmap();
-      }
-    }
+    void updateCoordinates(const std::vector<loader::file::TextureTile>& tiles);
   };
 
   std::vector<Sequence> m_sequences;

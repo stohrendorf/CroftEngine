@@ -1,13 +1,13 @@
 #pragma once
 
-#include "mesh.h"
-#include "renderable.h"
-
+#include <glm/glm.hpp>
 #include <gsl-lite.hpp>
 
 namespace render::scene
 {
 class Material;
+class Mesh;
+class Node;
 
 enum class SpritePole
 {

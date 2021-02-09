@@ -1,5 +1,9 @@
 #include "shadermanager.h"
 
+#include "shaderprogram.h"
+
+#include <boost/algorithm/string/join.hpp>
+
 namespace render::scene
 {
 std::string ShaderManager::makeId(const std::filesystem::path& vshPath,

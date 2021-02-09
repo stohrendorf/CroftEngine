@@ -33,4 +33,16 @@ void BufferParameter::bindBoneTransformBuffer()
       ssb.bind(mo->getMeshMatricesBuffer());
   };
 }
+
+gl::ShaderStorageBlock*
+  BufferParameter::findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+{
+  if(const auto block = shaderProgram->findShaderStorageBlock(getName().c_str()))
+    return block;
+
+  BOOST_LOG_TRIVIAL(warning) << "Shader storage block '" << getName() << "' not found in program '"
+                             << shaderProgram->getId() << "'";
+
+  return nullptr;
+}
 } // namespace render::scene

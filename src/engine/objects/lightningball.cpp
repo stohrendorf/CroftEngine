@@ -4,6 +4,7 @@
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "laraobject.h"
+#include "render/scene/material.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"

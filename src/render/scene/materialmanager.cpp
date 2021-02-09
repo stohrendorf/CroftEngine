@@ -1,6 +1,8 @@
 #include "materialmanager.h"
 
 #include "csm.h"
+#include "node.h"
+#include "renderer.h"
 
 #include <gl/texture2darray.h>
 #include <utility>

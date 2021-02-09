@@ -1,10 +1,10 @@
 #pragma once
 
-#include "gl/program.h"
 #include "materialparameter.h"
 #include "shaderprogram.h"
 
 #include <boost/log/trivial.hpp>
+#include <gl/program.h>
 #include <gsl-lite.hpp>
 
 namespace render::scene

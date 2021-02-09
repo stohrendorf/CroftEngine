@@ -2,12 +2,14 @@
 
 #include "multipassmaterial.h"
 #include "renderable.h"
-#include "rendercontext.h"
 
+#include <gl/api/gl.hpp>
 #include <gl/soglb_fwd.h>
 
 namespace render::scene
 {
+class RenderContext;
+
 class Mesh : public Renderable
 {
 public:

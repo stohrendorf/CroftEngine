@@ -1,8 +1,8 @@
 #pragma once
 
 #include "renderable.h"
-#include "renderer.h"
 
+#include <gl/image.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <memory>

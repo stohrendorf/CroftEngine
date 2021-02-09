@@ -1,7 +1,11 @@
 #include "portaltracer.h"
 
 #include "engine/cameracontroller.h"
+#include "engine/world.h"
+#include "loader/file/datatypes.h"
 #include "scene/camera.h"
+
+#include <boost/range/adaptor/transformed.hpp>
 
 namespace render
 {
@@ -156,5 +160,17 @@ bool PortalTracer::traceRoom(const loader::file::Room& room,
   }
   seenRooms.pop_back();
   return true;
+}
+
+std::unordered_set<const loader::file::Portal*> PortalTracer::trace(const loader::file::Room& startRoom,
+                                                                    const engine::World& world)
+{
+  std::vector<const loader::file::Room*> seenRooms;
+  seenRooms.reserve(32);
+  std::unordered_set<const loader::file::Portal*> waterSurfacePortals;
+  traceRoom(
+    startRoom, {-1, -1, 1, 1}, world, seenRooms, startRoom.isWaterRoom(), waterSurfacePortals, startRoom.isWaterRoom());
+  Expects(seenRooms.empty());
+  return waterSurfacePortals;
 }
 } // namespace render

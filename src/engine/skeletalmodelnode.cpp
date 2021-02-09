@@ -2,6 +2,7 @@
 
 #include "engine/objects/object.h"
 #include "engine/presenter.h"
+#include "loader/file/animation.h"
 #include "loader/file/mesh.h"
 #include "loader/file/rendermeshdata.h"
 #include "render/scene/mesh.h"

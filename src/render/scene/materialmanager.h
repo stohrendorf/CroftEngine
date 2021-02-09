@@ -1,9 +1,6 @@
 #pragma once
 
-#include "material.h"
-#include "renderer.h"
-#include "shadermanager.h"
-
+#include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <utility>
 
@@ -11,6 +8,9 @@ namespace render::scene
 {
 class CSM;
 class Camera;
+class Material;
+class Renderer;
+class ShaderManager;
 
 class MaterialManager final
 {

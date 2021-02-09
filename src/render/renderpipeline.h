@@ -1,16 +1,13 @@
 #pragma once
 
-#include "gl/debuggroup.h"
-#include "gl/framebuffer.h"
-#include "gl/pixel.h"
-#include "gl/texture2d.h"
-#include "gl/texturedepth.h"
 #include "scene/blur.h"
 #include "scene/camera.h"
 #include "scene/material.h"
 #include "scene/rendercontext.h"
 
 #include <chrono>
+#include <gl/pixel.h>
+#include <gl/soglb_fwd.h>
 #include <memory>
 
 namespace render

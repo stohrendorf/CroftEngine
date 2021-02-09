@@ -19,10 +19,10 @@ void ObjectManager::createObjects(World& world, std::vector<loader::file::Item>&
   m_objectCounter = gsl::narrow<ObjectId>(items.size());
 
   m_lara = nullptr;
-  for(const auto& [id, item] : items | boost::adaptors::indexed())
+  for(const auto& idItem : items | boost::adaptors::indexed())
   {
-    auto object = objects::createObject(world, item);
-    if(item.type == TR1ItemId::Lara)
+    auto object = objects::createObject(world, idItem.value());
+    if(idItem.value().type == TR1ItemId::Lara)
     {
       m_lara = std::dynamic_pointer_cast<objects::LaraObject>(object);
       Expects(m_lara != nullptr);
@@ -30,7 +30,7 @@ void ObjectManager::createObjects(World& world, std::vector<loader::file::Item>&
 
     if(object != nullptr)
     {
-      m_objects.emplace(gsl::narrow<ObjectId>(id), object);
+      m_objects.emplace(gsl::narrow<ObjectId>(idItem.index()), object);
     }
   }
 }

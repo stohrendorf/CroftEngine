@@ -2,8 +2,6 @@
 
 #include "blur.h"
 #include "core/vec.h"
-#include "material.h"
-#include "mesh.h"
 
 #include <cstdint>
 #include <gl/buffer.h>
@@ -11,11 +9,12 @@
 #include <gl/soglb_fwd.h>
 #include <glm/glm.hpp>
 #include <gsl-lite.hpp>
-#include <soglb/gl/texture2d.h>
 
 namespace render::scene
 {
 class Camera;
+class Material;
+class Mesh;
 class ShaderManager;
 
 struct CSMBuffer

@@ -3,6 +3,7 @@
 #include "serialization_fwd.h"
 
 #include <map>
+#include <ryml.hpp>
 
 namespace serialization
 {

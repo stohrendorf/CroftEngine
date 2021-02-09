@@ -2,6 +2,7 @@
 
 #include "engine/world.h"
 #include "ptr.h"
+#include "serialization.h"
 
 #include <type_traits>
 

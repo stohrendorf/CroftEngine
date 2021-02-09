@@ -1,7 +1,5 @@
 #pragma once
 
-#include "loader/file/texture.h"
-
 #include <cstdint>
 #include <gl/cimgwrapper.h>
 #include <gsl-lite.hpp>
@@ -208,11 +206,6 @@ public:
   [[nodiscard]] auto getSize() const
   {
     return m_pageSize;
-  }
-
-  [[nodiscard]] auto getAtlasCount() const
-  {
-    return m_atlases.size();
   }
 
   std::pair<size_t, glm::ivec2> put(gl::CImgWrapper& img)

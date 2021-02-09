@@ -1,16 +1,15 @@
 #pragma once
 
 #include "materialparameter.h"
-#include "shaderprogram.h"
 
-#include <boost/log/trivial.hpp>
+#include <gl/buffer.h>
 #include <gl/program.h>
 #include <gsl-lite.hpp>
-#include <optional>
 
 namespace render::scene
 {
 class Node;
+class ShaderProgram;
 
 class BufferParameter : public MaterialParameter
 {
@@ -53,16 +52,7 @@ public:
 
 private:
   [[nodiscard]] gl::ShaderStorageBlock*
-    findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
-  {
-    if(const auto block = shaderProgram->findShaderStorageBlock(getName().c_str()))
-      return block;
-
-    BOOST_LOG_TRIVIAL(warning) << "Shader storage block '" << getName() << "' not found in program '"
-                               << shaderProgram->getId() << "'";
-
-    return nullptr;
-  }
+    findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const;
 
   std::function<BufferBinder> m_bufferBinder;
 };

@@ -5,6 +5,7 @@
 #include "objects/laraobject.h"
 #include "presenter.h"
 #include "render/scene/materialmanager.h"
+#include "render/scene/mesh.h"
 #include "render/scene/sprite.h"
 #include "world.h"
 

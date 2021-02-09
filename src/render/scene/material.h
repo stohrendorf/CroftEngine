@@ -1,17 +1,15 @@
 #pragma once
 
-#include "shaderprogram.h"
-
 #include <gl/renderstate.h>
 #include <gsl-lite.hpp>
 
 namespace render::scene
 {
-class UniformParameter;
-class UniformBlockParameter;
 class BufferParameter;
-
 class Node;
+class ShaderProgram;
+class UniformBlockParameter;
+class UniformParameter;
 
 class Material final
 {

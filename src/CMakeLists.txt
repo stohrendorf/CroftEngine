@@ -423,8 +423,6 @@ set( EDISONENGINE_SRCS
         render/scene/materialparameter.h
         render/scene/mesh.h
         render/scene/mesh.cpp
-        render/scene/model.h
-        render/scene/model.cpp
         render/scene/multipassmaterial.h
         render/scene/names.h
         render/scene/node.h

@@ -2,6 +2,7 @@
 
 #include "material.h"
 #include "names.h"
+#include "rendercontext.h"
 
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>

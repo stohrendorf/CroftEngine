@@ -1,6 +1,7 @@
 #include "spriteobject.h"
 
 #include "loader/file/item.h"
+#include "render/scene/mesh.h"
 #include "render/scene/sprite.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"

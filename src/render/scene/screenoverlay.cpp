@@ -2,6 +2,7 @@
 
 #include "material.h"
 #include "mesh.h"
+#include "rendercontext.h"
 #include "renderer.h"
 #include "shadermanager.h"
 #include "uniformparameter.h"

@@ -1,14 +1,13 @@
 #pragma once
 
-#include "shaderprogram.h"
-
-#include <boost/algorithm/string/join.hpp>
 #include <filesystem>
+#include <gsl-lite.hpp>
 #include <unordered_map>
-#include <utility>
 
 namespace render::scene
 {
+class ShaderProgram;
+
 class ShaderManager final
 {
   std::unordered_map<std::string, gsl::not_null<std::shared_ptr<ShaderProgram>>> m_programs{};

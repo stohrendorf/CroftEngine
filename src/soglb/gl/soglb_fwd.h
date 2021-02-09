@@ -57,4 +57,6 @@ class VertexAttribute;
 template<typename T>
 class VertexBuffer;
 class Window;
+template<typename T>
+class ElementArrayBuffer;
 } // namespace gl

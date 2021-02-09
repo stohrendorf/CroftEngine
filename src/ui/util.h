@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gl/image.h"
+#include <gl/image.h>
 
 namespace loader::file
 {
