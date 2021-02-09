@@ -3,6 +3,8 @@
 #include "engine/objects/laraobject.h"
 #include "engine/world.h"
 #include "menuringtransform.h"
+#include "render/scene/renderable.h"
+#include "render/scene/rendercontext.h"
 
 namespace menu
 {

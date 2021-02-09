@@ -1,8 +1,9 @@
 #pragma once
 
 #include "core/units.h"
-#include "serialization/serialization.h"
+#include "serialization/serialization_fwd.h"
 
+#include <boost/assert.hpp>
 #include <cmath>
 #include <glm/gtx/euler_angles.hpp>
 #include <gsl-lite.hpp>

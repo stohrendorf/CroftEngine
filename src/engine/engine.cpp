@@ -28,6 +28,7 @@
 #include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
 #include "script/reflection.h"
+#include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
 #include "throttler.h"
 #include "tracks_tr1.h"

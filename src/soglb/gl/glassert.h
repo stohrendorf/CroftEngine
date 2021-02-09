@@ -1,7 +1,5 @@
 #pragma once
 
-#include "glew_init.h"
-
 #include <gsl-lite.hpp>
 
 // #define NO_GL_ASSERT

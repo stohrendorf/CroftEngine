@@ -1,15 +1,17 @@
 #pragma once
 
-#include "datatypes.h"
 #include "mesh.h"
-#include "util.h"
+#include "render/scene/names.h"
+#include "texture.h"
 
-#include <gl/vertexarray.h>
+#include <gl/vertexbuffer.h>
+#include <glm/common.hpp>
 
 namespace render::scene
 {
 class MaterialManager;
-}
+class Mesh;
+} // namespace render::scene
 
 namespace loader::file
 {

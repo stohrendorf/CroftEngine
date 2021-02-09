@@ -5,9 +5,11 @@
 #include "presenter.h"
 #include "raycast.h"
 #include "render/portaltracer.h"
+#include "render/scene/camera.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 
 #include <utility>
 
@@ -790,5 +792,20 @@ void CameraController::serialize(const serialization::Serializer<World>& ser)
       S_NV("cinematicFrame", m_cinematicFrame),
       S_NV("cinematicPos", m_cinematicPos),
       S_NV("cinematicRot", m_cinematicRot));
+}
+
+glm::vec3 CameraController::getPosition() const
+{
+  return m_camera->getPosition();
+}
+
+glm::vec3 CameraController::getFrontVector() const
+{
+  return m_camera->getFrontVector();
+}
+
+glm::vec3 CameraController::getUpVector() const
+{
+  return m_camera->getUpVector();
 }
 } // namespace engine

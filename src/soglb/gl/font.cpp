@@ -1,5 +1,7 @@
 #include "font.h"
 
+#include "image.h"
+
 #include <boost/log/trivial.hpp>
 #include <gsl-lite.hpp>
 #include <utf8.h>

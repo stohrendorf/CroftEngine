@@ -4,6 +4,8 @@
 #include "core/pybindmodule.h"
 #include "engine.h"
 #include "engine/i18n.h"
+#include "loader/file/level/level.h"
+#include "loader/file/rendermeshdata.h"
 #include "loader/trx/trx.h"
 #include "objects/aiagent.h"
 #include "objects/block.h"
@@ -12,6 +14,7 @@
 #include "objects/pickupobject.h"
 #include "objects/tallblock.h"
 #include "presenter.h"
+#include "render/scene/camera.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/renderer.h"
 #include "render/scene/scene.h"
@@ -25,12 +28,14 @@
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 #include "serialization/vector.h"
 #include "serialization/yamldocument.h"
 #include "tracks_tr1.h"
 #include "ui/label.h"
 
 #include <boost/format.hpp>
+#include <gl/texture2darray.h>
 #include <glm/gtx/norm.hpp>
 #include <numeric>
 #include <utility>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glassert.h"
+#include "api/gl.hpp"
 
 #include <boost/assert.hpp>
 #include <optional>

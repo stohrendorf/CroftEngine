@@ -7,6 +7,7 @@
 #include "uniformparameter.h"
 
 #include <gl/image.h>
+#include <gl/texture2d.h>
 
 namespace render::scene
 {

@@ -2,8 +2,9 @@
 
 #include "core/units.h"
 
-#include <chrono>
 #include <gl/cimgwrapper.h>
+#include <gl/image.h>
+#include <gl/pixel.h>
 
 namespace ui
 {

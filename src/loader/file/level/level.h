@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/audioengine.h"
 #include "engine/objects/object.h"
 #include "engine/particle.h"
 #include "game.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization.h"
+#include "serialization_fwd.h"
 
 #include <filesystem>
 #include <fstream>

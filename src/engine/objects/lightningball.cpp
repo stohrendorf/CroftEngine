@@ -8,9 +8,11 @@
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "serialization/array.h"
+#include "serialization/serialization.h"
 
 #include <gl/buffer.h>
 #include <gl/vertexarray.h>
+#include <gl/vertexbuffer.h>
 
 namespace engine::objects
 {

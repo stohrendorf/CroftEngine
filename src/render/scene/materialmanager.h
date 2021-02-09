@@ -4,7 +4,7 @@
 #include "renderer.h"
 #include "shadermanager.h"
 
-#include <gl/texture2darray.h>
+#include <gl/soglb_fwd.h>
 #include <utility>
 
 namespace render::scene

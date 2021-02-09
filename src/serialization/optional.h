@@ -1,7 +1,5 @@
 #pragma once
 
-#include "serialization.h"
-
 #include <optional>
 
 namespace serialization

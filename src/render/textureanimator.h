@@ -4,6 +4,7 @@
 #include "loader/file/texture.h"
 
 #include <boost/assert.hpp>
+#include <gl/soglb_fwd.h>
 #include <gl/vertexbuffer.h>
 #include <map>
 #include <set>

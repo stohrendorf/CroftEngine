@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization/serialization.h"
+#include "serialization/serialization_fwd.h"
 #include "tpl_helper.h"
 
 #include <boost/throw_exception.hpp>

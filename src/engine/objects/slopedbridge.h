@@ -42,11 +42,7 @@ public:
     y = tmp + core::QuarterSectorSize;
   }
 
-  void serialize(const serialization::Serializer<World>& ser) override
-  {
-    ModelObject::serialize(ser);
-    ser(S_NV("flatness", m_flatness));
-  }
+  void serialize(const serialization::Serializer<World>& ser) override;
 
 private:
   core::Length getBridgeSlopeHeight(const core::TRVec& pos) const

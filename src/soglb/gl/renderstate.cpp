@@ -1,5 +1,7 @@
 #include "renderstate.h"
 
+#include "glassert.h"
+
 namespace gl
 {
 RenderState& RenderState::getCurrentState()

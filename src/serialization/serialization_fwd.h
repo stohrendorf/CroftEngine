@@ -4,12 +4,6 @@
 
 namespace serialization
 {
-namespace detail
-{
-template<typename T>
-T Result();
-}
-
 template<typename T>
 struct TypeId;
 

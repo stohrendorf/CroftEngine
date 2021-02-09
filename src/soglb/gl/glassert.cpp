@@ -1,11 +1,13 @@
 #include "glassert.h"
 
-#if !defined(NDEBUG) && !defined(NO_GL_ASSERT)
-#include "api/gl_api_provider.hpp"
+#include "api/gl.hpp"
 
-#include <boost/assert.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/stacktrace.hpp>
+#if !defined(NDEBUG) && !defined(NO_GL_ASSERT)
+#  include "api/gl_api_provider.hpp"
+
+#  include <boost/assert.hpp>
+#  include <boost/log/trivial.hpp>
+#  include <boost/stacktrace.hpp>
 
 void gl::checkGlError(gsl::czstring code)
 {

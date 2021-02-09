@@ -3,6 +3,7 @@
 #include "pixel.h"
 
 #include <filesystem>
+#include <glm/common.hpp>
 #include <memory>
 #include <string>
 

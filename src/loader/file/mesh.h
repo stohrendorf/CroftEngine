@@ -3,16 +3,8 @@
 #include "color.h"
 #include "core/vec.h"
 #include "primitives.h"
-#include "render/scene/mesh.h"
-#include "render/scene/names.h"
-#include "texture.h"
 
 #include <vector>
-
-namespace render
-{
-class TextureAnimator;
-} // namespace render
 
 namespace loader::file
 {

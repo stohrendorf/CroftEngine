@@ -3,6 +3,7 @@
 #include "items_tr1.h"
 #include "objects/laraobject.h"
 #include "serialization/map.h"
+#include "serialization/serialization.h"
 
 #include <boost/log/trivial.hpp>
 
@@ -175,7 +176,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
       return false;
     }
 
-    lara.m_state.health = std::min(lara.m_state.health + core::LaraHealth/2, core::LaraHealth);
+    lara.m_state.health = std::min(lara.m_state.health + core::LaraHealth / 2, core::LaraHealth);
     tryTake(TR1ItemId::SmallMedipackSprite);
     lara.playSoundEffect(TR1SoundEffect::LaraSigh);
   }

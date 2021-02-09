@@ -3,9 +3,12 @@
 #include "engine/particle.h"
 #include "engine/presenter.h"
 #include "laraobject.h"
+#include "loader/file/rendermeshdata.h"
 #include "mutant.h"
+#include "render/scene/mesh.h"
 #include "serialization/objectreference.h"
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {

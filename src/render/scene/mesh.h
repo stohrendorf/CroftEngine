@@ -4,8 +4,7 @@
 #include "renderable.h"
 #include "rendercontext.h"
 
-#include <gl/renderstate.h>
-#include <gl/vertexarray.h>
+#include <gl/soglb_fwd.h>
 
 namespace render::scene
 {

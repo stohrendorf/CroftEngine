@@ -3,12 +3,10 @@
 #include "color.h"
 #include "core/angle.h"
 #include "core/boundingbox.h"
-#include "texture.h"
+#include "core/id.h"
 
 namespace render
 {
-class TextureAnimator;
-
 namespace scene
 {
 class Mesh;

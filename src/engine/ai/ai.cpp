@@ -5,6 +5,7 @@
 #include "engine/script/reflection.h"
 #include "engine/world.h"
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 
 namespace engine::ai
 {

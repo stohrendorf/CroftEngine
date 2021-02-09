@@ -8,6 +8,7 @@
 #include "scene.h"
 
 #include <gl/vertexarray.h>
+#include <gl/vertexbuffer.h>
 
 namespace render::scene
 {

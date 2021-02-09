@@ -1,5 +1,6 @@
 #include "cutsceneactors.h"
 
+#include "engine/cameracontroller.h"
 #include "engine/world.h"
 
 namespace engine::objects

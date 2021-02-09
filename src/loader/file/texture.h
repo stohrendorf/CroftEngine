@@ -2,18 +2,13 @@
 
 #include "core/id.h"
 #include "qs/qs.h"
-#include "render/scene/material.h"
 
-#include <boost/lexical_cast.hpp>
-#include <gl/image.h>
+#include <boost/assert.hpp>
+#include <gl/pixel.h>
+#include <gl/soglb_fwd.h>
 
 namespace loader
 {
-namespace trx
-{
-class Glidos;
-}
-
 namespace file
 {
 namespace io

@@ -2,6 +2,7 @@
 
 #include "csm.h"
 
+#include <gl/texture2darray.h>
 #include <utility>
 
 namespace render::scene

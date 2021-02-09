@@ -6,6 +6,7 @@
 #include "serialization/bitset.h"
 #include "serialization/box_ptr.h"
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 
 #include <pybind11/pybind11.h>
 

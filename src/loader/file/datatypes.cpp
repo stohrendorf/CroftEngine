@@ -4,12 +4,18 @@
 #include "io/util.h"
 #include "level/level.h"
 #include "render/scene/materialmanager.h"
+#include "render/scene/names.h"
 #include "render/scene/sprite.h"
 #include "render/textureanimator.h"
 #include "serialization/box_ptr.h"
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 #include "serialization/vector.h"
+#include "util.h"
 #include "util/helpers.h"
+
+#include <gl/vertexarray.h>
+#include <gl/vertexbuffer.h>
 
 namespace loader::file
 {
@@ -1375,6 +1381,11 @@ std::unique_ptr<Box> Box::readTr2(io::SDLReader& reader)
   box->blocked = (tmp & 0x4000u) != 0;
   box->blockable = (tmp & 0x8000u) != 0;
   return box;
+}
+
+void Box::serialize(const serialization::Serializer<engine::World>& ser)
+{
+  ser(S_NV("blocked", blocked), S_NV("blockable", blockable));
 }
 
 std::unique_ptr<FlybyCamera> FlybyCamera::read(io::SDLReader& reader)

@@ -2,7 +2,7 @@
 
 #include "core/id.h"
 #include "core/vec.h"
-#include "loader/file/level/game.h"
+#include "level/game.h"
 #include "util/helpers.h"
 
 namespace loader::file
@@ -11,24 +11,6 @@ namespace io
 {
 class SDLReader;
 }
-
-// In TR3-5, there were 5 reverb / echo effect flags for each
-// room, but they were never used in PC versions - however, level
-// files still contain this info, so we now can re-use these flags
-// to assign reverb/echo presets to each room->
-// Also, underwater environment can be considered as additional
-// reverb flag, so overall amount is 6.
-
-enum class ReverbType : uint8_t
-{
-  Outside,    // EFX_REVERB_PRESET_CITY
-  SmallRoom,  // EFX_REVERB_PRESET_LIVINGROOM
-  MediumRoom, // EFX_REVERB_PRESET_WOODEN_LONGPASSAGE
-  LargeRoom,  // EFX_REVERB_PRESET_DOME_TOMB
-  Pipe,       // EFX_REVERB_PRESET_PIPE_LARGE
-  Water,      // EFX_REVERB_PRESET_UNDERWATER
-  Sentinel
-};
 
 /** \brief SoundSource.
 *

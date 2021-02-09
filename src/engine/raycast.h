@@ -1,6 +1,12 @@
 #pragma once
 
-#include "core/vec.h"
+#include <utility>
+
+namespace core
+{
+struct TRVec;
+struct RoomBoundPosition;
+} // namespace core
 
 namespace engine
 {

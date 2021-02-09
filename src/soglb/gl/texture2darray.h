@@ -4,6 +4,7 @@
 
 namespace gl
 {
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename _PixelT>
 class Texture2DArray final : public TextureImpl<api::TextureTarget::Texture2dArray, _PixelT>
 {

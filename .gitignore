@@ -26,12 +26,12 @@
 # Thank you, Windows!
 Thumbs.db
 
-src/loader/file/animationid_enum.h
-src/loader/file/larastateid_enum.h
-src/engine/items_tr1_enum.h
-src/engine/soundeffects_tr1_enum.h
-src/engine/tracks_tr1_enum.h
-src/engine/i18n_enum.h
+src/loader/file/animationid.h
+src/loader/file/larastateid.h
+src/engine/items_tr1.h
+src/engine/soundeffects_tr1.h
+src/engine/tracks_tr1.h
+src/engine/i18n.h
 
 *.log
 *.dll

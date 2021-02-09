@@ -1,11 +1,24 @@
-function( wrap_enum name type source dest )
+function( wrap_enum namespace name type source dest )
     if( EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}" )
         return()
     endif()
     message( STATUS "Generating enum include ${dest} from ${source}" )
     file( STRINGS "${source}" _vals )
     file( WRITE "${dest}" "" )
+
+    # headers
+    file( APPEND "${dest}" "#pragma once\n" )
+    file( APPEND "${dest}" "\n" )
+    file( APPEND "${dest}" "#include <cstdint>\n" )
+    file( APPEND "${dest}" "#include <gsl-lite.hpp>\n" )
+    file( APPEND "${dest}" "#include <map>\n" )
+    file( APPEND "${dest}" "#include <stdexcept>\n" )
+    file( APPEND "${dest}" "#include <string>\n" )
+    file( APPEND "${dest}" "\n" )
+
     # Write enum
+    file( APPEND "${dest}" "namespace ${namespace}\n" )
+    file( APPEND "${dest}" "{\n" )
     file( APPEND "${dest}" "enum class ${name} : ${type}\n" )
     file( APPEND "${dest}" "{\n" )
     foreach( _val IN LISTS _vals )
@@ -115,14 +128,15 @@ function( wrap_enum name type source dest )
     file( APPEND "${dest}" "    }\n" )
 
     file( APPEND "${dest}" "};\n" )
+    file( APPEND "${dest}" "} // namespace ${namespace}\n" )
 endfunction()
 
-wrap_enum( AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/animationid_enum.h )
-wrap_enum( LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/larastateid_enum.h )
-wrap_enum( TR1ItemId int ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1_enum.h )
-wrap_enum( TR1SoundEffect int ${CMAKE_CURRENT_SOURCE_DIR}/soundeffects_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/soundeffects_tr1_enum.h )
-wrap_enum( TR1TrackId int ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1_enum.h )
-wrap_enum( I18n int ${CMAKE_CURRENT_SOURCE_DIR}/i18n.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/i18n_enum.h )
+wrap_enum( loader::file AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/animationid.h )
+wrap_enum( loader::file LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/larastateid.h )
+wrap_enum( engine TR1ItemId int32_t ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1.h )
+wrap_enum( engine TR1SoundEffect int32_t ${CMAKE_CURRENT_SOURCE_DIR}/soundeffects_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/soundeffects_tr1.h )
+wrap_enum( engine TR1TrackId int32_t ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1.h )
+wrap_enum( engine I18n int32_t ${CMAKE_CURRENT_SOURCE_DIR}/i18n.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/i18n.h )
 
 set( EDISONENGINE_SRCS
         edisonengine.cpp
@@ -272,6 +286,7 @@ set( EDISONENGINE_SRCS
         audio/tracktype.h
 
         util/helpers.h
+        util/helpers.cpp
         util/md5.h
         util/md5.cpp
 
@@ -376,6 +391,7 @@ set( EDISONENGINE_SRCS
         engine/objects/aiagent.cpp
         engine/objects/bridgeflat.h
         engine/objects/slopedbridge.h
+        engine/objects/slopedbridge.cpp
         engine/objects/stubobject.h
         engine/objects/trapdoordown.h
 
@@ -389,6 +405,7 @@ set( EDISONENGINE_SRCS
         engine/floordata/types.h
 
         render/portaltracer.h
+        render/portaltracer.cpp
         render/renderpipeline.h
         render/renderpipeline.cpp
         render/textureanimator.h

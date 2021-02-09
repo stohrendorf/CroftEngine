@@ -1,8 +1,10 @@
 #pragma once
 
 #include "loader/file/datatypes.h"
-#include "serialization/serialization.h"
+#include "serialization/serialization_fwd.h"
+#include "util/helpers.h"
 
+#include <deque>
 #include <unordered_map>
 #include <unordered_set>
 

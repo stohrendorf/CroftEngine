@@ -2,6 +2,7 @@
 
 #include "engine/world.h"
 #include "laraobject.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {

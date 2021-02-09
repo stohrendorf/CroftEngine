@@ -3,8 +3,6 @@
 #include "bindableresource.h"
 #include "typetraits.h"
 
-#include <gsl-lite.hpp>
-
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)

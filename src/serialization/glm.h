@@ -1,7 +1,5 @@
 #pragma once
 
-#include "serialization.h"
-
 #include <glm/glm.hpp>
 
 namespace serialization

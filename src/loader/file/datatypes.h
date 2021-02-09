@@ -1,8 +1,6 @@
 #pragma once
 
-#include "audio.h"
 #include "color.h"
-#include "core/angle.h"
 #include "core/containeroffset.h"
 #include "core/id.h"
 #include "core/magic.h"
@@ -10,21 +8,12 @@
 #include "engine/floordata/types.h"
 #include "meshes.h"
 #include "primitives.h"
-#include "render/scene/mesh.h"
-#include "render/scene/names.h"
 #include "render/scene/node.h"
-#include "rendermeshdata.h"
 #include "texture.h"
-#include "util/helpers.h"
 
 #include <array>
-#include <boost/log/trivial.hpp>
-#include <boost/throw_exception.hpp>
-#include <gsl-lite.hpp>
-#include <map>
-#include <optional>
-#include <stdexcept>
-#include <vector>
+#include <cstdint>
+#include <memory>
 
 /**
  * @defgroup native Native data interface
@@ -43,10 +32,17 @@ namespace engine::objects
 class Object;
 } // namespace engine::objects
 
+namespace render
+{
+class TextureAnimator;
+}
+
 namespace render::scene
 {
+class Material;
 class MaterialManager;
-}
+class Mesh;
+} // namespace render::scene
 
 namespace loader::file
 {
@@ -261,6 +257,24 @@ struct RoomVertex
   static RoomVertex readTr4(io::SDLReader& reader);
 
   static RoomVertex readTr5(io::SDLReader& reader);
+};
+
+// In TR3-5, there were 5 reverb / echo effect flags for each
+// room, but they were never used in PC versions - however, level
+// files still contain this info, so we now can re-use these flags
+// to assign reverb/echo presets to each room->
+// Also, underwater environment can be considered as additional
+// reverb flag, so overall amount is 6.
+
+enum class ReverbType : uint8_t
+{
+  Outside,    // EFX_REVERB_PRESET_CITY
+  SmallRoom,  // EFX_REVERB_PRESET_LIVINGROOM
+  MediumRoom, // EFX_REVERB_PRESET_WOODEN_LONGPASSAGE
+  LargeRoom,  // EFX_REVERB_PRESET_DOME_TOMB
+  Pipe,       // EFX_REVERB_PRESET_PIPE_LARGE
+  Water,      // EFX_REVERB_PRESET_UNDERWATER
+  Sentinel
 };
 
 struct Room
@@ -561,10 +575,7 @@ struct Box
     }
   }
 
-  void serialize(const serialization::Serializer<engine::World>& ser)
-  {
-    ser(S_NV("blocked", blocked), S_NV("blockable", blockable));
-  }
+  void serialize(const serialization::Serializer<engine::World>& ser);
 };
 
 using ZoneData = std::vector<ZoneId>;

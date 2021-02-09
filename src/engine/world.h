@@ -1,22 +1,33 @@
 #pragma once
 
-#include "cameracontroller.h"
+#include "audio/soundengine.h"
+#include "floordata/floordata.h"
 #include "inventory.h"
-#include "loader/file/animationid.h"
-#include "loader/file/level/level.h"
+#include "loader/file/datatypes.h"
+#include "loader/file/item.h"
 #include "objectmanager.h"
-#include "tracks_tr1.h"
 #include "ui/pickupwidget.h"
 
-#include <gl/texture2darray.h>
-#include <memory>
-#include <optional>
 #include <pybind11/pytypes.h>
-#include <soglb/gl/texture2darray.h>
 
 namespace gl
 {
 class CImgWrapper;
+}
+
+namespace loader::file
+{
+enum class AnimationId : uint16_t;
+class RenderMeshData;
+struct Animation;
+struct AnimFrame;
+struct Mesh;
+struct SkeletalModelType;
+} // namespace loader::file
+
+namespace loader::file::level
+{
+class Level;
 }
 
 namespace render
@@ -39,6 +50,8 @@ class Presenter;
 class Engine;
 class AudioEngine;
 struct SavegameMeta;
+class CameraController;
+enum class TR1TrackId : int32_t;
 
 class World final
 {

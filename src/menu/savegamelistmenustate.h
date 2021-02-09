@@ -2,6 +2,8 @@
 
 #include "menustate.h"
 
+#include <vector>
+
 namespace ui
 {
 struct Label;

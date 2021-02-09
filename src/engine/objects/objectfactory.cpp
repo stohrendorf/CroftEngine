@@ -37,6 +37,7 @@
 #include "rat.h"
 #include "render/scene/materialmanager.h"
 #include "scionpiece.h"
+#include "serialization/serialization.h"
 #include "slammingdoors.h"
 #include "slopedbridge.h"
 #include "stubobject.h"

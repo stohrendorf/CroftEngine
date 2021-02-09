@@ -2,6 +2,8 @@
 
 #include "io/sdlreader.h"
 
+#include <boost/log/trivial.hpp>
+
 namespace loader::file
 {
 std::unique_ptr<TransitionCase> TransitionCase::read(io::SDLReader& reader)

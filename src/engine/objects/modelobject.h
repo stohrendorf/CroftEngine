@@ -114,16 +114,7 @@ public:
     getSkeleton()->clearParts();
   }
 
-  void serialize(const serialization::Serializer<World>& ser) override
-  {
-    ModelObject::serialize(ser);
-    if(ser.loading)
-    {
-      getSkeleton()->setRenderable(nullptr);
-      getSkeleton()->removeAllChildren();
-      getSkeleton()->clearParts();
-    }
-  }
+  void serialize(const serialization::Serializer<World>& ser) override;
 };
 
 std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,

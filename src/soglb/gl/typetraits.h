@@ -1,9 +1,9 @@
 #pragma once
 
-#include "glassert.h"
+#include "api/gl.hpp"
 
 #include <cstdint>
-#include <glm/gtc/packing.hpp>
+#include <glm/fwd.hpp>
 
 namespace gl
 {

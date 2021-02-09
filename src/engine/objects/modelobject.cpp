@@ -4,6 +4,7 @@
 #include "engine/world.h"
 #include "laraobject.h"
 #include "loader/file/item.h"
+#include "serialization/serialization.h"
 
 #include <boost/range/adaptor/indexed.hpp>
 
@@ -327,5 +328,16 @@ std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<
                                     serialization::Serializer<World>& ser)
 {
   return ModelObject::create(ser);
+}
+
+void NullRenderModelObject::serialize(const serialization::Serializer<World>& ser)
+{
+  ModelObject::serialize(ser);
+  if(ser.loading)
+  {
+    getSkeleton()->setRenderable(nullptr);
+    getSkeleton()->removeAllChildren();
+    getSkeleton()->clearParts();
+  }
 }
 } // namespace engine::objects

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "api/gl.hpp"
 #include "glassert.h"
 
 #include <gsl-lite.hpp>

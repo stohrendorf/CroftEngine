@@ -2,6 +2,7 @@
 
 #include "cimgwrapper.h"
 #include "glassert.h"
+#include "glew_init.h"
 
 #include <boost/log/trivial.hpp>
 #include <gsl-lite.hpp>

@@ -4,6 +4,7 @@
 
 namespace gl
 {
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename _T>
 class TextureDepth final : public TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>
 {

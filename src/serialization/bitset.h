@@ -1,7 +1,5 @@
 #pragma once
 
-#include "serialization/serialization.h"
-
 #include <bitset>
 
 namespace serialization

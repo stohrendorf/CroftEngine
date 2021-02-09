@@ -2,6 +2,8 @@
 
 #include "typetraits.h"
 
+#include <glm/glm.hpp>
+
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)

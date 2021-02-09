@@ -3,6 +3,7 @@
 #include "loader/file/item.h"
 #include "render/scene/sprite.h"
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 #include "serialization/sprite_ptr.h"
 
 #include <utility>

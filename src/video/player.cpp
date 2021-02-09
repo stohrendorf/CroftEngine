@@ -25,6 +25,7 @@ extern "C"
 #include <condition_variable>
 #include <filesystem>
 #include <functional>
+#include <gl/image.h>
 #include <gsl-lite.hpp>
 #include <mutex>
 #include <queue>

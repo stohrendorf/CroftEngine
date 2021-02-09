@@ -29,7 +29,7 @@ auto serialize(T*& data, const Serializer<TContext>& ser)
 
 template<typename T, typename TContext>
 auto create(const TypeId<T*>&, const Serializer<TContext>& ser)
-  -> decltype(ptrSave(ptrLoad(TypeId<T*>{}, ptrSave(std::declval<T*>(), ser), ser), ser), detail::Result<T*>())
+  -> decltype(ptrSave(ptrLoad(TypeId<T*>{}, ptrSave(std::declval<T*>(), ser), ser), ser), static_cast<T*>(nullptr))
 {
   using IdxType = decltype(ptrSave(std::declval<T*>(), ser));
   return ptrLoad(TypeId<T*>{}, access::callCreate(TypeId<IdxType>{}, ser), ser);

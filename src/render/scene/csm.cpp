@@ -7,6 +7,7 @@
 #include "shadermanager.h"
 
 #include <gl/debuggroup.h>
+#include <gl/texturedepth.h>
 #include <numeric>
 
 namespace render::scene

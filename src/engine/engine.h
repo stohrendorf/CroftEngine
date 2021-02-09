@@ -1,20 +1,19 @@
 #pragma once
 
-#include "cameracontroller.h"
-#include "engine/objects/modelobject.h"
-#include "floordata/floordata.h"
-#include "inventory.h"
-#include "items_tr1.h"
-#include "loader/file/animationid.h"
-#include "loader/file/item.h"
-#include "objectmanager.h"
+#include "serialization/serialization_fwd.h"
 
-#include <boost/format/format_fwd.hpp>
+#include <boost/assert.hpp>
+#include <boost/format.hpp>
 #include <filesystem>
-#include <gl/pixel.h>
-#include <gl/texture2darray.h>
+#include <glm/glm.hpp>
 #include <memory>
+#include <optional>
 #include <pybind11/embed.h>
+
+namespace loader::trx
+{
+class Glidos;
+}
 
 namespace loader::file
 {
@@ -146,7 +145,7 @@ public:
   template<typename... Args>
   std::string i18n(I18n key, Args&&... args) const
   {
-    return ((boost::format(i18n(key)) % ... % std::forward<Args>(args))).str();
+    return (boost::format(i18n(key)) % ... % std::forward<Args>(args)).str();
   }
 
   SavegameMeta getSavegameMeta(const std::filesystem::path& filename) const;

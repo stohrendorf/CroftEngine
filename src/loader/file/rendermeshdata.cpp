@@ -1,6 +1,13 @@
 #include "rendermeshdata.h"
 
+#include "datatypes.h"
 #include "render/scene/materialmanager.h"
+#include "render/scene/mesh.h"
+#include "render/scene/rendermode.h"
+#include "util.h"
+
+#include <gl/vertexarray.h>
+#include <render/renderpipeline.h>
 
 namespace loader::file
 {
@@ -14,7 +21,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
     for(int i = 0; i < 4; ++i)
     {
       RenderVertex iv{};
-      iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
+      iv.textureIndex = tile.textureKey.tileAndFlag & TextureIndexMask;
 
       if(mesh.normals.empty())
         iv.color = glm::vec3(toBrightness(quad.vertices[i].from(mesh.vertexShades)).get());
@@ -104,7 +111,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
     {
       RenderVertex iv{};
       iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
-      iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
+      iv.textureIndex = tile.textureKey.tileAndFlag & TextureIndexMask;
       iv.uv = tile.uvCoordinates[i].toGl();
       if(mesh.normals.empty())
         iv.color = glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());

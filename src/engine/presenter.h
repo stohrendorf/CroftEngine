@@ -3,6 +3,7 @@
 #include "core/magic.h"
 #include "hid/inputhandler.h"
 
+#include <boost/assert.hpp>
 #include <filesystem>
 #include <gl/cimgwrapper.h>
 #include <gl/window.h>

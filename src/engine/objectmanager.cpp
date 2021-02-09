@@ -7,6 +7,7 @@
 #include "serialization/map.h"
 #include "serialization/not_null.h"
 #include "serialization/objectreference.h"
+#include "serialization/serialization.h"
 
 #include <boost/range/adaptor/indexed.hpp>
 

@@ -1,6 +1,7 @@
 #include "particle.h"
 
 #include "audioengine.h"
+#include "loader/file/rendermeshdata.h"
 #include "objects/laraobject.h"
 #include "presenter.h"
 #include "render/scene/materialmanager.h"

@@ -10,6 +10,7 @@
 #include "hid/inputhandler.h"
 #include "inflateringmenustate.h"
 #include "menuring.h"
+#include "render/scene/camera.h"
 #include "ui/util.h"
 
 namespace menu

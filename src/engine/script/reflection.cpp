@@ -1,9 +1,12 @@
 #include "reflection.h"
 
+#include "engine/cameracontroller.h"
 #include "engine/engine.h"
 #include "engine/i18n.h"
+#include "engine/objects/modelobject.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
+#include "loader/file/level/level.h"
 
 #include <boost/format.hpp>
 #include <boost/range/adaptors.hpp>

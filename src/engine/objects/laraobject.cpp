@@ -9,11 +9,14 @@
 #include "engine/raycast.h"
 #include "engine/tracks_tr1.h"
 #include "hid/inputhandler.h"
+#include "loader/file/rendermeshdata.h"
+#include "render/scene/mesh.h"
 #include "render/textureanimator.h"
 #include "serialization/animframe_ptr.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 #include "serialization/unordered_map.h"
 
 #include <boost/range/adaptors.hpp>

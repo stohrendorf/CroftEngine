@@ -1,13 +1,8 @@
 #pragma once
 
 #include "buffer.h"
-#include "glassert.h"
 #include "shader.h"
 #include "texture.h"
-
-#include <boost/assert.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <gsl-lite.hpp>
 
 namespace gl
 {

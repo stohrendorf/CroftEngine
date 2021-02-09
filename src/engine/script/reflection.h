@@ -6,6 +6,7 @@
 #include "core/units.h"
 #include "engine/tracks_tr1.h"
 
+#include <boost/log/trivial.hpp>
 #include <filesystem>
 
 namespace engine

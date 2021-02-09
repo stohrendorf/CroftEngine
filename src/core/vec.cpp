@@ -3,6 +3,7 @@
 #include "serialization/not_null.h"
 #include "serialization/quantity.h"
 #include "serialization/room_ptr.h"
+#include "serialization/serialization.h"
 
 namespace core
 {

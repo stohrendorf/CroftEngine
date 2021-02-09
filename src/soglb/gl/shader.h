@@ -1,13 +1,14 @@
 #pragma once
 
-#include "api/soglb_core.hpp"
-#include "bindableresource.h"
+#include "api/gl.hpp"
+#include "glassert.h"
 
 #include <gsl-lite.hpp>
 
 namespace gl
 {
-template<api::ShaderType _Type> // NOLINT(bugprone-reserved-identifier)
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ShaderType _Type>
 class Shader final
 {
 public:

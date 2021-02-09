@@ -4,6 +4,8 @@
 #include "io/sdlreader.h"
 #include "loader/trx/trx.h"
 
+#include <gl/image.h>
+
 namespace loader::file
 {
 void DWordTexture::toImage()

@@ -1,10 +1,10 @@
 #pragma once
 
+#include "api/gl.hpp"
 #include "glassert.h"
 
 #include <boost/assert.hpp>
 #include <functional>
-#include <utility>
 
 namespace gl
 {

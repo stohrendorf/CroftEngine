@@ -3,9 +3,8 @@
 #include "renderable.h"
 #include "renderer.h"
 
-#include <gl/image.h>
-#include <gl/texture2d.h>
-#include <gl/window.h>
+#include <gl/pixel.h>
+#include <gl/soglb_fwd.h>
 #include <memory>
 
 namespace render::scene

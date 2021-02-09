@@ -7,6 +7,7 @@
 #include "engine/world.h"
 #include "laraobject.h"
 #include "render/scene/sprite.h"
+#include "serialization/serialization.h"
 #include "serialization/vector.h"
 
 namespace engine::objects

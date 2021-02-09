@@ -2,6 +2,7 @@
 
 #include "laraobject.h"
 #include "serialization/box_ptr.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {

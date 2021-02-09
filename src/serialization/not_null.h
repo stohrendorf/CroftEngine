@@ -1,14 +1,13 @@
 #pragma once
 
-#include "serialization.h"
-
 #include <gsl-lite.hpp>
+#include <type_traits>
 
 namespace serialization
 {
 template<typename T, typename TContext>
 auto create(const TypeId<gsl::not_null<T>>&, const Serializer<TContext>& ser)
-  -> decltype(access::callCreate(TypeId<T>{}, ser), detail::Result<gsl::not_null<T>>())
+  -> std::remove_reference_t<decltype(access::callCreate(TypeId<T>{}, ser), std::declval<gsl::not_null<T>>())>
 {
   Expects(ser.loading);
   return gsl::not_null<T>{access::callCreate(TypeId<T>{}, ser)};

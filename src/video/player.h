@@ -2,7 +2,8 @@
 
 #include <filesystem>
 #include <functional>
-#include <gl/image.h>
+#include <gl/pixel.h>
+#include <gl/soglb_fwd.h>
 
 namespace SoLoud
 {

@@ -20,6 +20,7 @@ protected:
   }
 };
 
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<api::TextureTarget _Target, typename PixelT>
 class TextureImpl : public Texture
 {

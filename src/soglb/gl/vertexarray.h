@@ -1,8 +1,7 @@
 #pragma once
 
-#include "buffer.h"
-#include "program.h"
-#include "vertexbuffer.h"
+#include "bindableresource.h"
+#include "soglb_fwd.h"
 
 #include <tuple>
 #include <utility>

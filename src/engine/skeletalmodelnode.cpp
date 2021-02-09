@@ -4,11 +4,13 @@
 #include "engine/presenter.h"
 #include "loader/file/mesh.h"
 #include "loader/file/rendermeshdata.h"
+#include "render/scene/mesh.h"
 #include "serialization/animation_ptr.h"
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
 #include "serialization/quantity.h"
 #include "serialization/rendermeshdata_ptr.h"
+#include "serialization/serialization.h"
 #include "serialization/skeletalmodeltype_ptr.h"
 #include "serialization/vector.h"
 

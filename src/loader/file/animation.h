@@ -5,6 +5,7 @@
 #include "core/units.h"
 #include "core/vec.h"
 
+#include <boost/assert.hpp>
 #include <gsl-lite.hpp>
 #include <optional>
 #include <utility>

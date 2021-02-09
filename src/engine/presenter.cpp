@@ -4,6 +4,7 @@
 #include "engine.h"
 #include "engine/objects/laraobject.h"
 #include "loader/file/level/level.h"
+#include "objectmanager.h"
 #include "render/renderpipeline.h"
 #include "render/scene/camera.h"
 #include "render/scene/csm.h"

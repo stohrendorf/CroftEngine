@@ -7,10 +7,8 @@
 
 #include <cstdint>
 #include <gl/buffer.h>
-#include <gl/framebuffer.h>
 #include <gl/pixel.h>
-#include <gl/texture2d.h>
-#include <gl/texturedepth.h>
+#include <gl/soglb_fwd.h>
 #include <glm/glm.hpp>
 #include <gsl-lite.hpp>
 #include <soglb/gl/texture2d.h>

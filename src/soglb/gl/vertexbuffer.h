@@ -2,7 +2,7 @@
 
 #include "buffer.h"
 #include "program.h"
-#include "typetraits.h"
+#include "soglb_fwd.h"
 
 #include <gsl-lite.hpp>
 #include <map>

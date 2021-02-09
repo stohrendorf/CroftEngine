@@ -4,7 +4,6 @@
 #include "rendervisitor.h"
 #include "scene.h"
 
-#include <gl/debuggroup.h>
 #include <utility>
 
 namespace render::scene

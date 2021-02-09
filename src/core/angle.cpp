@@ -1,6 +1,7 @@
 #include "angle.h"
 
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 
 namespace core
 {

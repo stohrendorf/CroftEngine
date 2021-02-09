@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization/serialization.h"
+#include "serialization/serialization_fwd.h"
 #include "units.h"
 
 #include <glm/glm.hpp>

@@ -2,27 +2,33 @@
 
 #include "audio/soundengine.h"
 #include "core/angle.h"
-#include "loader/file/datatypes.h"
-#include "render/scene/camera.h"
+#include "core/vec.h"
+#include "floordata/types.h"
+
+namespace render::scene
+{
+class Camera;
+}
+
+namespace loader::file
+{
+struct CinematicFrame;
+struct Portal;
+} // namespace loader::file
 
 namespace engine
 {
 namespace floordata
 {
 enum class SequenceCondition;
-
-class ActivationState;
-
 struct CameraParameters;
 } // namespace floordata
 
 namespace objects
 {
 class Object;
-class LaraObject;
-} // namespace objects
+}
 
-class ObjectManager;
 class World;
 
 enum class CameraMode
@@ -151,25 +157,16 @@ public:
     return m_mode;
   }
 
-  [[nodiscard]] glm::vec3 getPosition() const override
-  {
-    return m_camera->getPosition();
-  }
+  [[nodiscard]] glm::vec3 getPosition() const override;
 
   const core::RoomBoundPosition& getLookAt() const
   {
     return m_lookAt;
   }
 
-  [[nodiscard]] glm::vec3 getFrontVector() const override
-  {
-    return m_camera->getFrontVector();
-  }
+  [[nodiscard]] glm::vec3 getFrontVector() const override;
 
-  [[nodiscard]] glm::vec3 getUpVector() const override
-  {
-    return m_camera->getUpVector();
-  }
+  [[nodiscard]] glm::vec3 getUpVector() const override;
 
   const auto& getCurrentRoom() const
   {

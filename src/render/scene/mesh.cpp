@@ -3,6 +3,9 @@
 #include "material.h"
 #include "names.h"
 
+#include <gl/vertexarray.h>
+#include <gl/vertexbuffer.h>
+
 namespace render::scene
 {
 gsl::not_null<std::shared_ptr<Mesh>>
@@ -11,7 +14,6 @@ gsl::not_null<std::shared_ptr<Mesh>>
   struct Vertex
   {
     glm::vec2 pos;
-
     glm::vec2 uv;
   };
 

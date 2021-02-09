@@ -6,6 +6,7 @@
 #include "serialization/deque.h"
 #include "serialization/not_null.h"
 #include "serialization/quantity.h"
+#include "serialization/serialization.h"
 #include "serialization/unordered_map.h"
 #include "serialization/unordered_set.h"
 #include "serialization/vector.h"
