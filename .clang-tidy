@@ -1,5 +1,6 @@
 Checks: >
   *,
+  -altera-struct-pack-align,
   -android-*,
   -cert-con36-c,
   -cert-con54-cpp,
