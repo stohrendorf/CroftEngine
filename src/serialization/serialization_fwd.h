@@ -14,5 +14,8 @@ class Serializer;
 template<typename TContext>
 using LazyCallback = std::function<void(const Serializer<TContext>&)>;
 
+template<typename T>
+struct access;
+
 #define S_NV(name, obj) name, obj
 } // namespace serialization

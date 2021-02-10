@@ -15,7 +15,7 @@ void save(std::array<T, N>& data, const Serializer<TContext>& ser)
   for(typename std::array<T, N>::size_type i = 0; i < N; ++i)
   {
     const auto tmp = ser.newChild();
-    access::callSerializeOrSave(data[i], tmp);
+    access<T>::callSerializeOrSave(data[i], tmp);
   }
 }
 
@@ -27,7 +27,7 @@ void load(std::array<T, N>& data, const Serializer<TContext>& ser)
   Expects(ser.node.num_children() == N);
   for(typename std::array<T, N>::size_type i = 0; i < N; ++i)
   {
-    access::callSerializeOrLoad(data[i], ser.withNode(ser.node[i]));
+    access<T>::callSerializeOrLoad(data[i], ser.withNode(ser.node[i]));
   }
 }
 } // namespace serialization

@@ -15,8 +15,8 @@ void save(std::map<T, U>& data, const Serializer<TContext>& ser)
   for(auto& [key, value] : data)
   {
     const auto tmp = ser.newChild();
-    access::callSerializeOrSave(const_cast<T&>(key), tmp["key"]);
-    access::callSerializeOrSave(value, tmp["value"]);
+    access<T>::callSerializeOrSave(const_cast<T&>(key), tmp["key"]);
+    access<U>::callSerializeOrSave(value, tmp["value"]);
   }
 }
 
@@ -31,8 +31,8 @@ void load(std::map<T, U>& data, const Serializer<TContext>& ser)
     Expects(element.num_children() == 2);
     Expects(element["key"].valid() && element["value"].valid());
 
-    data.emplace(access::callCreate(TypeId<T>{}, ser.withNode(element["key"])),
-                 access::callCreate(TypeId<U>{}, ser.withNode(element["value"])));
+    data.emplace(access<T>::callCreate(ser.withNode(element["key"])),
+                 access<U>::callCreate(ser.withNode(element["value"])));
   }
 }
 } // namespace serialization

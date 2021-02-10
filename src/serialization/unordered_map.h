@@ -29,7 +29,7 @@ void load(std::unordered_map<T, U>& data, const Serializer<TContext>& ser)
     Expects(element.is_map());
     Expects(element.num_children() == 2);
     auto elemSer = ser.withNode(element);
-    data.emplace(access::callCreate(TypeId<T>{}, elemSer["key"]), access::callCreate(TypeId<U>{}, elemSer["value"]));
+    data.emplace(access<T>::callCreate(elemSer["key"]), access<U>::callCreate(elemSer["value"]));
   }
 }
 } // namespace serialization

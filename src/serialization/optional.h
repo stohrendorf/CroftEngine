@@ -11,7 +11,7 @@ inline void save(std::optional<T>& optional, const Serializer<TContext>& ser)
 {
   if(optional.has_value())
   {
-    access::callSerializeOrSave(*optional, ser);
+    access<T>::callSerializeOrSave(*optional, ser);
   }
   else
   {
@@ -29,9 +29,9 @@ inline void load(std::optional<T>& optional, const Serializer<TContext>& ser)
   else
   {
     if(optional.has_value())
-      access::callSerializeOrLoad(*optional, ser);
+      access<T>::callSerializeOrLoad(*optional, ser);
     else
-      *optional = access::callCreate(TypeId<T>{}, ser);
+      *optional = access<T>::callCreate(ser);
   }
 }
 
@@ -44,7 +44,7 @@ inline std::optional<T> create(const TypeId<std::optional<T>>&, const Serializer
   }
   else
   {
-    return access::callCreate(TypeId<T>{}, ser);
+    return access<T>::callCreate(ser);
   }
 }
 } // namespace serialization

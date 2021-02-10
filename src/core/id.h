@@ -126,14 +126,14 @@ struct Id
   void serialize(const serialization::Serializer<TContext>& ser)
   {
     ser.tag("id");
-    serialization::access::callSerialize(m_value, ser);
+    serialization::access<StorageType>::callSerialize(m_value, ser);
   }
 
   template<typename TContext>
   [[nodiscard]] static Id<StorageType, Tag, Enums...> create(const serialization::Serializer<TContext>& ser)
   {
     ser.tag("id");
-    return Id<StorageType, Tag, Enums...>{serialization::create(serialization::TypeId<StorageType>{}, ser)};
+    return Id<StorageType, Tag, Enums...>{serialization::access<StorageType>::callCreate(ser)};
   }
 
 private:

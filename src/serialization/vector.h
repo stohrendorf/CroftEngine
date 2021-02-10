@@ -15,7 +15,7 @@ void save(std::vector<T>& data, const Serializer<TContext>& ser)
   for(auto& element : data)
   {
     const auto tmp = ser.newChild();
-    access::callSerializeOrSave(element, tmp);
+    access<T>::callSerializeOrSave(element, tmp);
   }
 }
 
@@ -27,7 +27,7 @@ void load(std::vector<T>& data, const Serializer<TContext>& ser)
   data = std::vector<T>();
   data.reserve(ser.node.num_children());
   std::transform(ser.node.begin(), ser.node.end(), std::back_inserter(data), [&ser](const ryml::NodeRef& element) {
-    return access::callCreate(TypeId<T>{}, ser.withNode(element));
+    return access<T>::callCreate(ser.withNode(element));
   });
 }
 
@@ -47,7 +47,7 @@ struct FrozenVector
     auto it = vec.begin();
     for(const auto& element : ser.node.children())
     {
-      access::callSerializeOrLoad(*it++, ser.withNode(element));
+      access<T>::callSerializeOrLoad(*it++, ser.withNode(element));
     }
   }
 
@@ -58,7 +58,7 @@ struct FrozenVector
     for(auto& element : vec)
     {
       const auto tmp = ser.newChild();
-      access::callSerializeOrSave(element, tmp);
+      access<T>::callSerializeOrSave(element, tmp);
     }
   }
 };

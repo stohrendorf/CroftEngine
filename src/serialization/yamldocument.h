@@ -46,7 +46,7 @@ public:
   auto load(const std::string& key, TContext& context) -> std::enable_if_t<DelayLoading, T>
   {
     Serializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, true, nullptr};
-    auto result = access::callCreate(TypeId<T>{}, ser);
+    auto result = access<T>::callCreate(ser);
     ser.processQueues();
     return result;
   }
@@ -55,7 +55,7 @@ public:
   auto load(const std::string& key, TContext& context, T& data) -> std::enable_if_t<DelayLoading, void>
   {
     Serializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, true, nullptr};
-    access::callSerializeOrLoad(data, ser);
+    access<T>::callSerializeOrLoad(data, ser);
     ser.processQueues();
   }
 
@@ -63,7 +63,7 @@ public:
   auto save(const std::string& key, TContext& context, T& data) -> std::enable_if_t<!DelayLoading, void>
   {
     Serializer ser{m_tree.rootref()[m_tree.copy_to_arena(c4::to_csubstr(key))], context, false, nullptr};
-    access::callSerializeOrSave(data, ser);
+    access<T>::callSerializeOrSave(data, ser);
     ser.processQueues();
   }
 

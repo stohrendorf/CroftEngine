@@ -208,9 +208,9 @@ public:
     try
     {
       if(loading)
-        access::callSerializeOrLoad(data, ser);
+        access<T>::callSerializeOrLoad(data, ser);
       else
-        access::callSerializeOrSave(data, ser);
+        access<T>::callSerializeOrSave(data, ser);
     }
     catch(Exception&)
     {
@@ -365,7 +365,7 @@ inline std::enable_if_t<std::is_default_constructible_v<T>, T> createTrivial(con
   Expects(ser.loading);
 
   T tmp{};
-  access::callSerializeOrLoad(tmp, ser);
+  access<T>::callSerializeOrLoad(tmp, ser);
   return tmp;
 }
 } // namespace detail
