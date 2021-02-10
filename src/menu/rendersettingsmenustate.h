@@ -11,7 +11,7 @@ struct Label;
 
 namespace engine
 {
-class Presenter;
+class Engine;
 }
 
 namespace menu
@@ -34,7 +34,7 @@ public:
 
   explicit RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                    std::unique_ptr<MenuState> previous,
-                                   engine::Presenter& presenter);
+                                   engine::Engine& engine);
   void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
   std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
 };

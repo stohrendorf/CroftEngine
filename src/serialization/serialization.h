@@ -8,6 +8,7 @@
 #include <boost/throw_exception.hpp>
 #include <exception>
 #include <gsl-lite.hpp>
+#include <optional>
 #include <queue>
 #include <ryml.hpp>
 #include <ryml_std.hpp>
@@ -55,6 +56,9 @@ struct TypeId
 
 template<bool>
 class YAMLDocument;
+
+template<typename T>
+struct Default;
 
 template<typename TContext>
 class Serializer final
@@ -131,7 +135,8 @@ class Serializer final
     return result;
   }
 #endif
-  Serializer<TContext> createMapMemberSerializer(const gsl::not_null<gsl::czstring>& name) const
+  std::optional<Serializer<TContext>> createMapMemberSerializer(const gsl::not_null<gsl::czstring>& name,
+                                                                bool required) const
   {
     ensureIsMap();
     auto childNode = node.find_child(c4::to_csubstr(name.get()));
@@ -139,7 +144,12 @@ class Serializer final
     if(loading)
     {
       if(!exists)
-        SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " not defined");
+      {
+        if(required)
+          SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " not defined");
+        else
+          return std::nullopt;
+      }
     }
     else
     {
@@ -151,6 +161,36 @@ class Serializer final
     }
 
     return withNode(childNode);
+  }
+
+  template<typename T>
+  void doSerialize(const gsl::not_null<gsl::czstring>& name, T&& data, Serializer<TContext>& ser) const
+  {
+    try
+    {
+      if(loading)
+        access<T>::callSerializeOrLoad(data, ser);
+      else
+        access<T>::callSerializeOrSave(data, ser);
+    }
+    catch(Exception&)
+    {
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
+                               << "\"";
+      throw;
+    }
+    catch(std::exception& ex)
+    {
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
+                               << "\"";
+      SERIALIZER_EXCEPTION(ex.what());
+    }
+    catch(...)
+    {
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
+                               << "\"";
+      SERIALIZER_EXCEPTION("Unexpected exception");
+    }
   }
 
 public:
@@ -203,32 +243,36 @@ public:
     BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name.get();
 #endif
 
-    auto ser = createMapMemberSerializer(name);
+    auto ser = createMapMemberSerializer(name, true);
+    Expects(ser.has_value());
+    doSerialize(name, data, *ser);
+    return *this;
+  }
 
-    try
+  template<typename T>
+  const Serializer<TContext>& operator()(const gsl::not_null<gsl::czstring>& name, Default<T>&& data) const
+  {
+    ensureIsMap();
+    BOOST_ASSERT(node.valid());
+    BOOST_ASSERT(!node.is_seed());
+#ifdef SERIALIZATION_TRACE
+    BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name.get();
+#endif
+
+    if(loading)
     {
-      if(loading)
-        access<T>::callSerializeOrLoad(data, ser);
-      else
-        access<T>::callSerializeOrSave(data, ser);
+      auto ser = createMapMemberSerializer(name, false);
+      if(!ser.has_value())
+      {
+        data.value = data.defaultValue;
+        return *this;
+      }
+      doSerialize(name, data.value, *ser);
     }
-    catch(Exception&)
+    else
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
-                               << "\"";
-      throw;
-    }
-    catch(std::exception& ex)
-    {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
-                               << "\"";
-      SERIALIZER_EXCEPTION(ex.what());
-    }
-    catch(...)
-    {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
-                               << "\"";
-      SERIALIZER_EXCEPTION("Unexpected exception");
+      auto ser = createMapMemberSerializer(name, true);
+      doSerialize(name, data.value, *ser);
     }
     return *this;
   }

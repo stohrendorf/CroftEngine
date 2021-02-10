@@ -387,4 +387,10 @@ void Presenter::debounceInput()
   m_inputHandler->update();
   m_inputHandler->update();
 }
+
+void Presenter::apply(const render::RenderSettings& renderSettings)
+{
+  setFullscreen(renderSettings.fullscreen);
+  m_renderPipeline->apply(renderSettings, *m_materialManager);
+}
 } // namespace engine

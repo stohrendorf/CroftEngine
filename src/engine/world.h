@@ -236,6 +236,11 @@ public:
     return m_engine;
   }
 
+  Engine& getEngine()
+  {
+    return m_engine;
+  }
+
   const AudioEngine& getAudioEngine() const
   {
     return *m_audioEngine;

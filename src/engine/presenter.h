@@ -35,6 +35,7 @@ class CachedFont;
 namespace render
 {
 class RenderPipeline;
+struct RenderSettings;
 
 namespace scene
 {
@@ -138,6 +139,8 @@ public:
     BOOST_ASSERT(m_renderPipeline != nullptr);
     return m_renderPipeline;
   }
+
+  void apply(const render::RenderSettings& renderSettings);
 
   void drawLoadingScreen(const std::string& state);
   void preFrame();

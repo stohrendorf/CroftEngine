@@ -63,6 +63,13 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     , m_presenter{std::make_shared<Presenter>(rootPath, fullscreen, resolution)}
     , m_scriptEngine{createScriptEngine(rootPath)}
 {
+  if(std::filesystem::is_regular_file(m_rootPath / "config.yaml"))
+  {
+    serialization::YAMLDocument<true> doc{m_rootPath / "config.yaml"};
+    doc.load("config", m_engineConfig, m_engineConfig);
+    m_presenter->apply(m_engineConfig.renderSettings);
+  }
+
   try
   {
     pybind11::eval_file((m_rootPath / "scripts" / "main.py").string());
@@ -97,9 +104,17 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     }
     else
     {
+      BOOST_LOG_TRIVIAL(error) << "Missing i18n: " << name;
       m_i18n.emplace(key, std::string{"MISSING i18n: "} + name);
     }
   }
+}
+
+Engine::~Engine()
+{
+  serialization::YAMLDocument<false> doc{m_rootPath / "config.yaml"};
+  doc.save("config", m_engineConfig, m_engineConfig);
+  doc.write();
 }
 
 std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCutscene, bool allowSave)
@@ -233,8 +248,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItemFromSave
   m_presenter->clear();
   return item.runFromSave(*this, slot);
 }
-
-Engine::~Engine() = default;
 
 std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
 {

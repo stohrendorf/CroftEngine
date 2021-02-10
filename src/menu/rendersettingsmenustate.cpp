@@ -27,7 +27,7 @@ void setEnabledBackground(ui::Label& lbl, bool enabled)
 
 RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                                  std::unique_ptr<MenuState> previous,
-                                                 engine::Presenter& presenter)
+                                                 engine::Engine& engine)
     : MenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_background{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - 12}, " ")}
@@ -47,29 +47,31 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     m_labels.emplace_back(lbl, std::move(getter), std::move(toggler));
   };
 
+  static const auto toggle = [](engine::Engine& engine, bool& value) {
+    value = !value;
+    engine.getPresenter().apply(engine.getEngineConfig().renderSettings);
+  };
+
   addSetting(
     "CRT",
-    [&presenter]() { return presenter.getRenderPipeline()->getRenderSettings().crt; },
-    [&presenter]() { presenter.getRenderPipeline()->toggleCrt(); });
+    [&engine]() { return engine.getEngineConfig().renderSettings.crt; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.crt); });
   addSetting(
     "Depth-of-Field",
-    [&presenter]() { return presenter.getRenderPipeline()->getRenderSettings().dof; },
-    [&presenter]() { presenter.getRenderPipeline()->toggleDof(*presenter.getMaterialManager()); });
+    [&engine]() { return engine.getEngineConfig().renderSettings.dof; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.dof); });
   addSetting(
     "Lens Distortion",
-    [&presenter]() { return presenter.getRenderPipeline()->getRenderSettings().lensDistortion; },
-    [&presenter]() { presenter.getRenderPipeline()->toggleLensDistortion(*presenter.getMaterialManager()); });
+    [&engine]() { return engine.getEngineConfig().renderSettings.lensDistortion; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.lensDistortion); });
   addSetting(
     "Film Grain",
-    [&presenter]() { return presenter.getRenderPipeline()->getRenderSettings().filmGrain; },
-    [&presenter]() { presenter.getRenderPipeline()->toggleFilmGrain(*presenter.getMaterialManager()); });
+    [&engine]() { return engine.getEngineConfig().renderSettings.filmGrain; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.filmGrain); });
   addSetting(
     "Fullscreen",
-    [&presenter]() { return presenter.getRenderPipeline()->getRenderSettings().fullscreen; },
-    [&presenter]() {
-      presenter.getRenderPipeline()->toggleFullscreen(*presenter.getMaterialManager());
-      presenter.setFullscreen(presenter.getRenderPipeline()->getRenderSettings().fullscreen);
-    });
+    [&engine]() { return engine.getEngineConfig().renderSettings.fullscreen; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.fullscreen); });
 }
 
 void RenderSettingsMenuState::handleObject(engine::World& /*world*/, MenuDisplay& /*display*/, MenuObject& /*object*/)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rendersettings.h"
 #include "scene/blur.h"
 #include "scene/camera.h"
 #include "scene/material.h"
@@ -17,15 +18,6 @@ namespace scene
 class ShaderManager;
 class MaterialManager;
 } // namespace scene
-
-struct RenderSettings
-{
-  bool crt = true;
-  bool dof = true;
-  bool lensDistortion = true;
-  bool filmGrain = true;
-  bool fullscreen = false;
-};
 
 class RenderPipeline
 {
@@ -167,41 +159,10 @@ public:
     resizeTextures(viewport);
   }
 
-  [[nodiscard]] const auto& getRenderSettings() const noexcept
+  void apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager)
   {
-    return m_renderSettings;
-  }
-
-  void toggleCrt()
-  {
-    m_renderSettings.crt = !m_renderSettings.crt;
-  }
-
-  void toggleDof(scene::MaterialManager& materialManager)
-  {
-    m_renderSettings.dof = !m_renderSettings.dof;
-    m_compositionStage.initMaterials(materialManager, m_renderSettings);
-    resize(m_size, true);
-  }
-
-  void toggleLensDistortion(scene::MaterialManager& materialManager)
-  {
-    m_renderSettings.lensDistortion = !m_renderSettings.lensDistortion;
-    m_compositionStage.initMaterials(materialManager, m_renderSettings);
-    resize(m_size, true);
-  }
-
-  void toggleFilmGrain(scene::MaterialManager& materialManager)
-  {
-    m_renderSettings.filmGrain = !m_renderSettings.filmGrain;
-    m_compositionStage.initMaterials(materialManager, m_renderSettings);
-    resize(m_size, true);
-  }
-
-  void toggleFullscreen(scene::MaterialManager& materialManager)
-  {
-    m_renderSettings.fullscreen = !m_renderSettings.fullscreen;
-    m_compositionStage.initMaterials(materialManager, m_renderSettings);
+    m_renderSettings = renderSettings;
+    m_compositionStage.initMaterials(materialManager, renderSettings);
     resize(m_size, true);
   }
 };

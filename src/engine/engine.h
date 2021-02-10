@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h"
+#include "engineconfig.h"
 
 #include <boost/assert.hpp>
 #include <boost/format.hpp>
@@ -80,6 +80,7 @@ class Engine
 {
 private:
   const std::filesystem::path m_rootPath;
+  EngineConfig m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
 
   std::shared_ptr<pybind11::scoped_interpreter> m_scriptEngine;
@@ -152,6 +153,16 @@ public:
   SavegameMeta getSavegameMeta(size_t slot) const
   {
     return getSavegameMeta(makeSavegameFilename(slot));
+  }
+
+  auto& getEngineConfig()
+  {
+    return m_engineConfig;
+  }
+
+  const auto& getEngineConfig() const
+  {
+    return m_engineConfig;
   }
 };
 } // namespace engine
