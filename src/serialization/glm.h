@@ -1,6 +1,9 @@
 #pragma once
 
+#include "serialization_fwd.h"
+
 #include <glm/glm.hpp>
+#include <ryml.hpp>
 
 namespace serialization
 {

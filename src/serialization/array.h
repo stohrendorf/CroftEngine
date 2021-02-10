@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization_fwd.h"
+#include "access.h"
 
 #include <array>
 #include <ryml.hpp>

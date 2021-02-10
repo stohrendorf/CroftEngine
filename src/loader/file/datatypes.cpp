@@ -1018,7 +1018,7 @@ void Sector::serialize(const serialization::Serializer<engine::World>& ser)
 
 void Sector::updateCaches(std::vector<Room>& rooms,
                           const std::vector<Box>& boxes,
-                          const engine::floordata::FloorData& floorData)
+                          const engine::floordata::FloorData& newFloorData)
 {
   if(boxIndex.get() >= 0)
   {
@@ -1049,21 +1049,20 @@ void Sector::updateCaches(std::vector<Room>& rooms,
 
   if(floorDataIndex.index != 0)
   {
-    this->floorData = &floorDataIndex.from(floorData);
+    floorData = &floorDataIndex.from(newFloorData);
 
-    const auto portalTarget = engine::floordata::getPortalTarget(this->floorData);
-    if(portalTarget.has_value())
+    if(const auto newPortalTarget = engine::floordata::getPortalTarget(floorData); newPortalTarget.has_value())
     {
-      this->portalTarget = &rooms.at(*portalTarget);
+      portalTarget = &rooms.at(*newPortalTarget);
     }
     else
     {
-      this->portalTarget = nullptr;
+      portalTarget = nullptr;
     }
   }
   else
   {
-    this->floorData = nullptr;
+    floorData = nullptr;
     portalTarget = nullptr;
   }
 }

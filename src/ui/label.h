@@ -162,13 +162,13 @@ struct Label
     fillBackground = false;
   }
 
-  void flashText(bool blink, int16_t blinkTime)
+  void flashText(bool newBlink, int16_t newBlinkTime)
   {
-    this->blink = blink;
-    if(blink)
+    blink = newBlink;
+    if(newBlink)
     {
-      this->blinkTime = blinkTime;
-      timeout = blinkTime;
+      blinkTime = newBlinkTime;
+      timeout = newBlinkTime;
     }
   }
 };

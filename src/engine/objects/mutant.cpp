@@ -442,7 +442,7 @@ void TorsoBoss::update()
     case 3:
       if(m_state.creatureInfo->flags == 0)
       {
-        m_state.creatureInfo->flags = getSkeleton()->frame_number.get();
+        m_state.creatureInfo->flags = gsl::narrow_cast<uint16_t>(getSkeleton()->frame_number.get());
       }
       else
       {
@@ -540,7 +540,7 @@ void TorsoBoss::update()
   if(m_state.triggerState == TriggerState::Deactivated)
   {
     playSoundEffect(TR1SoundEffect::Mummy);
-    shatterModel(*this, -1, 250_len);
+    shatterModel(*this, ~0u, 250_len);
     const auto sector = loader::file::findRealFloorSector(m_state.position);
     getWorld().handleCommandSequence(
       HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects())

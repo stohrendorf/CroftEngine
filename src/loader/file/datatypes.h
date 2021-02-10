@@ -118,7 +118,7 @@ struct Sector
 
   void updateCaches(std::vector<Room>& rooms,
                     const std::vector<Box>& boxes,
-                    const engine::floordata::FloorData& floorData);
+                    const engine::floordata::FloorData& newFloorData);
 };
 
 /*

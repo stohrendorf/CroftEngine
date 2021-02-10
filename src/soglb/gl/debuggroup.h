@@ -7,12 +7,17 @@
 
 namespace gl
 {
+// https://stackoverflow.com/a/35087985
+
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-#define _SOGLB_LINE_NAME(prefix) prefix##__LINE__
-#define SOGLB_DEBUGGROUP(name)                                            \
-  [[maybe_unused]] ::gl::DebugGroup _SOGLB_LINE_NAME(_soglb_debug_group_) \
-  {                                                                       \
-    name                                                                  \
+#define _SOGLB_PASTE(x, y) x##y
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+#define _SOGLB_CAT(x, y) _SOGLB_PASTE(x, y)
+
+#define SOGLB_DEBUGGROUP(name)                                                \
+  [[maybe_unused]] ::gl::DebugGroup _SOGLB_CAT(_soglb_debug_group_, __LINE__) \
+  {                                                                           \
+    name                                                                      \
   }
 
 class DebugGroup final

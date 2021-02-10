@@ -1,5 +1,7 @@
 #pragma once
 
+#include "access.h"
+
 #include <optional>
 
 namespace serialization

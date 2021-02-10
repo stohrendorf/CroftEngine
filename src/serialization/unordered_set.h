@@ -1,7 +1,8 @@
 #pragma once
 
-#include "serialization_fwd.h"
+#include "access.h"
 
+#include <ryml.hpp>
 #include <unordered_set>
 
 namespace serialization

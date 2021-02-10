@@ -2,6 +2,7 @@
 
 #include <gl/renderstate.h>
 #include <gsl-lite.hpp>
+#include <vector>
 
 namespace render::scene
 {

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "serialization_fwd.h"
+#include "access.h"
 
 #include <deque>
+#include <ryml.hpp>
 
 namespace serialization
 {

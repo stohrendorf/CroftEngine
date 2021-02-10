@@ -215,7 +215,7 @@ std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::S
     sector = sector->roomBelow->getSectorByAbsolutePosition(position);
   }
 
-  static const auto zero = std::make_tuple(0, 0);
+  static const auto zero = std::make_tuple(int8_t{0}, int8_t{0});
 
   if(position.Y + core::QuarterSectorSize * 2 < sector->floorHeight)
     return zero;
@@ -582,9 +582,9 @@ void World::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alte
     {
       loader::file::Room::patchHeightsForBlock(*tmp, core::SectorSize);
     }
-    else if(const auto tmp = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
+    else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      loader::file::Room::patchHeightsForBlock(*tmp, core::SectorSize * 2);
+      loader::file::Room::patchHeightsForBlock(*tmp2, core::SectorSize * 2);
     }
   }
 
@@ -616,9 +616,9 @@ void World::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alte
     {
       loader::file::Room::patchHeightsForBlock(*tmp, -core::SectorSize);
     }
-    else if(const auto tmp = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
+    else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      loader::file::Room::patchHeightsForBlock(*tmp, -core::SectorSize * 2);
+      loader::file::Room::patchHeightsForBlock(*tmp2, -core::SectorSize * 2);
     }
   }
 

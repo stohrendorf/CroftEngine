@@ -1,5 +1,7 @@
 #pragma once
 
+#include "serialization_fwd.h"
+
 #include <bitset>
 
 namespace serialization

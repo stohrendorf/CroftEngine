@@ -10,7 +10,7 @@ struct ByteColor;
 
 namespace ui
 {
-struct alignas(16) BoxGouraud
+struct BoxGouraud
 {
   gl::SRGBA8 topLeft;
   gl::SRGBA8 topRight;

@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <gsl-lite.hpp>
+#include <optional>
 #include <unordered_set>
 #include <vector>
 

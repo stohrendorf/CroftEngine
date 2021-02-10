@@ -243,7 +243,7 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
   uint8_t alpha = 255;
   if(m_healthBarTimeout < 0_frame)
   {
-    alpha = std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255);
+    alpha = gsl::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
   }
 
   const int x0 = 8;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "access.h"
 #include "serialization_fwd.h"
 
 #include <boost/algorithm/string.hpp>
@@ -10,8 +11,6 @@
 #include <queue>
 #include <ryml.hpp>
 #include <ryml_std.hpp>
-#include <string>
-#include <type_traits>
 #include <typeinfo>
 
 // #define SERIALIZATION_TRACE
@@ -53,95 +52,6 @@ struct TypeId
 {
   using type = T;
 };
-
-namespace access
-{
-template<typename T, typename TContext>
-inline void serializeTrivial(T& data, const Serializer<TContext>& ser);
-
-template<typename T, typename TContext>
-inline std::enable_if_t<std::is_default_constructible_v<T>, T> createTrivial(const TypeId<T>&,
-                                                                             const Serializer<TContext>& ser);
-
-template<typename T, typename TContext>
-inline auto callSerializeOrLoad(T& data, const Serializer<TContext>& ser) -> decltype(data.serialize(ser), void())
-{
-  return data.serialize(ser);
-}
-
-template<typename T, typename TContext>
-inline auto callSerializeOrLoad(T& data, const Serializer<TContext>& ser) -> decltype(serialize(data, ser), void())
-{
-  return serialize(data, ser);
-}
-
-template<typename T, typename TContext>
-inline auto callSerializeOrLoad(T& data, const Serializer<TContext>& ser) -> decltype(data.load(ser), void())
-{
-  return data.load(ser);
-}
-
-template<typename T, typename TContext>
-inline auto callSerializeOrLoad(T& data, const Serializer<TContext>& ser) -> decltype(load(data, ser), void())
-{
-  return load(data, ser);
-}
-
-template<typename T, typename TContext>
-inline auto callSerializeOrSave(T& data, const Serializer<TContext>& ser) -> decltype(data.serialize(ser), void())
-{
-  return data.serialize(ser);
-}
-
-template<typename T, typename TContext>
-inline auto callSerializeOrSave(T& data, const Serializer<TContext>& ser) -> decltype(serialize(data, ser), void())
-{
-  return serialize(data, ser);
-}
-
-template<typename T, typename TContext>
-inline auto callSerializeOrSave(T& data, const Serializer<TContext>& ser) -> decltype(data.save(ser), void())
-{
-  return data.save(ser);
-}
-
-template<typename T, typename TContext>
-inline auto callSerializeOrSave(T& data, const Serializer<TContext>& ser) -> decltype(save(data, ser), void())
-{
-  return save(data, ser);
-}
-
-// some specializations to avoid storing 8-bit numbers as characters
-template<typename TContext>
-inline void serializeTrivial(int8_t& data, const Serializer<TContext>& ser)
-{
-  if(ser.loading)
-  {
-    int16_t tmp{};
-    ser.node >> tmp;
-    data = gsl::narrow<int8_t>(tmp);
-  }
-  else
-  {
-    ser.node << static_cast<int16_t>(data);
-  }
-}
-
-template<typename TContext>
-inline void serializeTrivial(uint8_t& data, const Serializer<TContext>& ser)
-{
-  if(ser.loading)
-  {
-    uint16_t tmp{};
-    ser.node >> tmp;
-    data = gsl::narrow<uint8_t>(tmp);
-  }
-  else
-  {
-    ser.node << static_cast<uint16_t>(data);
-  }
-}
-}; // namespace access
 
 template<bool>
 class YAMLDocument;
@@ -402,8 +312,41 @@ public:
   }
 };
 
+namespace detail
+{
+// some specializations to avoid storing 8-bit numbers as characters
+template<typename TContext>
+inline void serializeTrivial(int8_t& data, const Serializer<TContext>& ser)
+{
+  if(ser.loading)
+  {
+    int16_t tmp{};
+    ser.node >> tmp;
+    data = gsl::narrow<int8_t>(tmp);
+  }
+  else
+  {
+    ser.node << static_cast<int16_t>(data);
+  }
+}
+
+template<typename TContext>
+inline void serializeTrivial(uint8_t& data, const Serializer<TContext>& ser)
+{
+  if(ser.loading)
+  {
+    uint16_t tmp{};
+    ser.node >> tmp;
+    data = gsl::narrow<uint8_t>(tmp);
+  }
+  else
+  {
+    ser.node << static_cast<uint16_t>(data);
+  }
+}
+
 template<typename T, typename TContext>
-inline void access::serializeTrivial(T& data, const Serializer<TContext>& ser)
+inline void serializeTrivial(T& data, const Serializer<TContext>& ser)
 {
   if(ser.loading)
   {
@@ -416,85 +359,63 @@ inline void access::serializeTrivial(T& data, const Serializer<TContext>& ser)
 }
 
 template<typename T, typename TContext>
-inline std::enable_if_t<std::is_default_constructible_v<T>, T> access::createTrivial(const TypeId<T>&,
-                                                                                     const Serializer<TContext>& ser)
+inline std::enable_if_t<std::is_default_constructible_v<T>, T> createTrivial(const TypeId<T>&,
+                                                                             const Serializer<TContext>& ser)
 {
   Expects(ser.loading);
 
   T tmp{};
-  callSerializeOrLoad(tmp, ser);
+  access::callSerializeOrLoad(tmp, ser);
   return tmp;
 }
-
-template<typename T, typename TContext>
-inline void access::callSerialize(T& data, const Serializer<TContext>& ser)
-{
-  if(ser.loading)
-    callSerializeOrLoad(data, ser);
-  else
-    callSerializeOrSave(data, ser);
-}
-
-template<typename T, typename TContext>
-inline auto access::callCreate(const TypeId<T>&, const Serializer<TContext>& ser) -> decltype(T::create(ser))
-{
-  Expects(ser.loading);
-  return T::create(ser);
-}
-
-template<typename T, typename TContext>
-inline auto access::callCreate(const TypeId<T>& tid, const Serializer<TContext>& ser) -> decltype(create(tid, ser))
-{
-  Expects(ser.loading);
-  return create(tid, ser);
-}
+} // namespace detail
 
 template<typename TContext>
 inline void serialize(std::string& data, const Serializer<TContext>& ser)
 {
-  access::serializeTrivial(data, ser);
+  detail::serializeTrivial(data, ser);
 }
 
 template<typename T, typename TContext>
 inline std::enable_if_t<std::is_arithmetic_v<T>, void> serialize(T& data, const Serializer<TContext>& ser)
 {
-  access::serializeTrivial(data, ser);
+  detail::serializeTrivial(data, ser);
 }
 
 template<typename T, typename TContext>
 inline std::enable_if_t<std::is_enum_v<T>, void> serialize(T& data, const Serializer<TContext>& ser)
 {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  access::serializeTrivial(*reinterpret_cast<std::underlying_type_t<T>*>(&data), ser);
+  detail::serializeTrivial(*reinterpret_cast<std::underlying_type_t<T>*>(&data), ser);
 }
 
 template<typename TContext>
 inline void serialize(bool& data, const Serializer<TContext>& ser)
 {
-  access::serializeTrivial(data, ser);
+  detail::serializeTrivial(data, ser);
 }
 
 template<typename T, typename TContext>
 inline std::enable_if_t<std::is_arithmetic_v<T>, T> create(const TypeId<T>& tid, const Serializer<TContext>& ser)
 {
-  return access::createTrivial(tid, ser);
+  return detail::createTrivial(tid, ser);
 }
 
 template<typename T, typename TContext>
 inline std::enable_if_t<std::is_enum_v<T>, T> create(const TypeId<T>&, const Serializer<TContext>& ser)
 {
-  return static_cast<T>(access::createTrivial(TypeId<std::underlying_type_t<T>>{}, ser));
+  return static_cast<T>(detail::createTrivial(TypeId<std::underlying_type_t<T>>{}, ser));
 }
 
 template<typename TContext>
 inline bool create(const TypeId<bool>& tid, const Serializer<TContext>& ser)
 {
-  return access::createTrivial(tid, ser);
+  return detail::createTrivial(tid, ser);
 }
 
 template<typename TContext>
 inline std::string create(const TypeId<std::string>& tid, const Serializer<TContext>& ser)
 {
-  return access::createTrivial(tid, ser);
+  return detail::createTrivial(tid, ser);
 }
 } // namespace serialization
