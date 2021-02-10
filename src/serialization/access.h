@@ -7,6 +7,8 @@
 
 namespace serialization
 {
+namespace
+{
 template<typename T>
 struct access
 {
@@ -85,4 +87,5 @@ struct access
     return create(TypeId<T>{}, ser);
   }
 };
+} // namespace
 } // namespace serialization
