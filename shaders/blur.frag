@@ -64,11 +64,9 @@ void main()
 #endif
 #ifdef FILL_GAPS
     BLUR_TYPE clamped = center.x > result.x ? result : mix(center, result, 0.01);;
-    if( center.x > max(l.x, r.x) ) {
-        clamped = (l+r)*0.5;
-    }
+    clamped = min(center, max(l, r));
     out_tex = clamped;
-#else
+    #else
     out_tex = result;
 #endif
 }
