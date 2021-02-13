@@ -50,8 +50,8 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
   squareMesh->getRenderState().setDepthWrite(false);
   squareMesh->getMaterial().set(RenderMode::Full, squareMaterial);
 
-  squareBlur
-    = std::make_shared<SeparableBlur<gl::RG16F>>("squareBlur-" + std::to_string(idx), shaderManager, 10, true, true);
+  squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
+    "squareBlur-" + std::to_string(idx), shaderManager, uint8_t{10}, true, true);
   squareBlur->setInput(squaredTexture);
 }
 
@@ -85,10 +85,12 @@ CSM::CSM(int32_t resolution, ShaderManager& shaderManager)
   }
 }
 
-std::shared_ptr<gl::Texture2D<gl::RG16F>> CSM::getTexture(size_t n) const
+std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> CSM::getTextures() const
 {
-  Expects(n < CSMBuffer::NSplits);
-  return m_splits.at(n).squareBlur->getBlurredTexture();
+  std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> result;
+  for(size_t i = 0; i < CSMBuffer::NSplits; ++i)
+    result[i] = m_splits.at(i).squareBlur->getBlurredTexture();
+  return result;
 }
 
 std::array<glm::mat4, CSMBuffer::NSplits> CSM::getMatrices(const glm::mat4& modelMatrix) const
@@ -175,7 +177,7 @@ void CSM::updateCamera(const Camera& camera)
     }
 
     // extend the bboxes and snap to a grid to avoid shadow jumping
-    static constexpr float SnapSize = 1024.0f;
+    static constexpr float SnapSize = 256.0f;
     bboxMin = glm::floor(bboxMin / SnapSize) * SnapSize;
     bboxMax = glm::ceil(bboxMax / SnapSize) * SnapSize;
 

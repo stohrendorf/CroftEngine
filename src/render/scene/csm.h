@@ -19,12 +19,12 @@ class ShaderManager;
 
 struct CSMBuffer
 {
-  static constexpr size_t NSplits = 3;
+  static constexpr size_t NSplits = 5;
 
   std::array<glm::mat4, NSplits> lightMVP{};
   glm::vec4 lightDir{};
   std::array<float, NSplits> csmSplits{};
-  float _pad = 0;
+  float _pad[3]{};
 };
 static_assert(sizeof(CSMBuffer) % 16 == 0);
 
@@ -50,7 +50,7 @@ public:
 
   explicit CSM(int32_t resolution, ShaderManager& shaderManager);
 
-  [[nodiscard]] std::shared_ptr<gl::Texture2D<gl::RG16F>> getTexture(size_t n) const;
+  [[nodiscard]] std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> getTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
   [[nodiscard]] std::array<float, CSMBuffer::NSplits> getSplitEnds() const;
 

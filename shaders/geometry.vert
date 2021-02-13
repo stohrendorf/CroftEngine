@@ -72,4 +72,22 @@ void main()
         vec4 tmp = lmvp * pos;
         gpi.vertexPosLight3 = tmp.xyz / tmp.w * 0.5 + 0.5;
     }
+    {
+        #ifdef SKELETAL
+        mat4 lmvp = u_lightMVP4 * u_bones[int(a_boneIndex)];
+        #else
+        mat4 lmvp = u_lightMVP4;
+        #endif
+        vec4 tmp = lmvp * pos;
+        gpi.vertexPosLight4 = tmp.xyz / tmp.w * 0.5 + 0.5;
+    }
+    {
+        #ifdef SKELETAL
+        mat4 lmvp = u_lightMVP5 * u_bones[int(a_boneIndex)];
+        #else
+        mat4 lmvp = u_lightMVP5;
+        #endif
+        vec4 tmp = lmvp * pos;
+        gpi.vertexPosLight5 = tmp.xyz / tmp.w * 0.5 + 0.5;
+    }
 }
