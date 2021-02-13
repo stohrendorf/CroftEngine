@@ -315,7 +315,8 @@ void Presenter::scaleSplashImage()
 void Presenter::drawLoadingScreen(const std::string& state)
 {
   glfwPollEvents();
-  if(m_window->updateWindowSize())
+  if(m_window->updateWindowSize() || m_splashImageScaled.width() != m_window->getViewport().x
+     || m_splashImageScaled.height() != m_window->getViewport().y)
   {
     m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
     m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
