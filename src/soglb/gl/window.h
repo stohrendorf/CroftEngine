@@ -31,8 +31,6 @@ public:
     return m_window;
   }
 
-  void setViewport(const glm::ivec2& viewport);
-
   [[nodiscard]] float getAspectRatio() const
   {
     return static_cast<float>(m_viewport.x) / m_viewport.y;

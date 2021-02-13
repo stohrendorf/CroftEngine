@@ -98,19 +98,13 @@ bool Window::updateWindowSize()
     return false;
 
   m_viewport = tmpSize;
-  setViewport(m_viewport);
+  GL_ASSERT(::gl::api::viewport(0, 0, m_viewport.x, m_viewport.y));
   return true;
 }
 
 void Window::swapBuffers() const
 {
   glfwSwapBuffers(m_window);
-}
-
-void Window::setViewport(const glm::ivec2& viewport)
-{
-  m_viewport = viewport;
-  GL_ASSERT(::gl::api::viewport(0, 0, viewport.x, viewport.y));
 }
 
 void Window::setFullscreen()
