@@ -50,7 +50,7 @@ private:
 #ifndef NDEBUG
   bool m_cheatDive = false;
 #else
-  constexpr bool m_cheatDive = false;
+  static constexpr bool m_cheatDive = false;
 #endif
 
 public:

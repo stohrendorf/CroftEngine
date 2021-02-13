@@ -118,10 +118,16 @@ function( copy_python3_deps target )
     if( WIN32 )
         get_target_property( _bin_dir ${target} BINARY_DIR )
 
+        add_custom_command(
+                TARGET ${target}
+                POST_BUILD
+                COMMENT "Copy ${Python3_DLL}"
+                COMMAND ${CMAKE_COMMAND} -E copy ${Python3_DLL} ${_bin_dir}
+        )
+
         add_custom_target(
                 ${target}-python3-deps
-                COMMENT "Copy ${Python3_DLL} and lib dir"
-                COMMAND ${CMAKE_COMMAND} -E copy ${Python3_DLL} ${_bin_dir}
+                COMMENT "Copy Python3 lib dir"
         )
 
         foreach( _file ${Python3_LIB_FILES} )
