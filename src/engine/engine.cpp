@@ -88,8 +88,6 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
   }
 
-  m_glidos = loadGlidosPack();
-
   for(const auto& [key, name] : EnumUtil<I18n>::all())
   {
     const auto values = pybind11::globals()["i18n"][pybind11::cast(key)];
@@ -108,6 +106,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
       m_i18n.emplace(key, std::string{"MISSING i18n: "} + name);
     }
   }
+
+  m_glidos = loadGlidosPack();
 }
 
 Engine::~Engine()
