@@ -66,6 +66,10 @@ class CameraController;
 class Presenter final
 {
 public:
+  static const constexpr float DefaultNearPlane = 20.0f;
+  static const constexpr float DefaultFarPlane = 20480.0f;
+  static const constexpr float DefaultFov = glm::radians(80.0f);
+
   explicit Presenter(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution);
   ~Presenter();
 

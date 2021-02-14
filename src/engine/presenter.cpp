@@ -267,8 +267,8 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
 Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution)
     : m_window{std::make_unique<gl::Window>(fullscreen, resolution)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
-    , m_renderer{std::make_shared<render::scene::Renderer>(
-        std::make_shared<render::scene::Camera>(glm::radians(80.0f), m_window->getAspectRatio(), 20.0f, 20480.0f))}
+    , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
+        DefaultFov, m_window->getAspectRatio(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImage{rootPath / "splash.png"}
     , m_abibasFont{std::make_unique<gl::Font>(rootPath / "abibas.ttf")}
     , m_debugFont{std::make_unique<gl::Font>(rootPath / "DroidSansMono.ttf")}
@@ -380,6 +380,7 @@ void Presenter::swapBuffers()
 void Presenter::clear()
 {
   m_renderer->resetScene();
+  m_renderer->getCamera()->setFieldOfView(DefaultFov);
 }
 
 void Presenter::debounceInput()
