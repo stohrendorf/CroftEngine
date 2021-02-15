@@ -52,6 +52,11 @@ public:
       setWindowed();
   }
 
+  bool isMinimized() const noexcept
+  {
+    return m_viewport.x <= 0 || m_viewport.y <= 0;
+  }
+
 private:
   GLFWwindow* m_window = nullptr;
   bool m_vsync = false;

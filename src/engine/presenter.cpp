@@ -36,9 +36,15 @@ void Presenter::playVideo(const std::filesystem::path& path)
   video::play(path, m_soundEngine->getSoLoud(), m_screenOverlay->getImage(), [&]() {
     if(m_window->updateWindowSize())
     {
+      if(m_window->isMinimized())
+        return true;
+
       m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
       m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
     }
+
+    if(m_window->isMinimized())
+      return true;
 
     m_screenOverlay->render(context);
     swapBuffers();
@@ -318,10 +324,16 @@ void Presenter::drawLoadingScreen(const std::string& state)
   if(m_window->updateWindowSize() || m_splashImageScaled.width() != m_window->getViewport().x
      || m_splashImageScaled.height() != m_window->getViewport().y)
   {
+    if(m_window->isMinimized())
+      return;
+
     m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
     m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
     scaleSplashImage();
   }
+
+  if(m_window->isMinimized())
+    return;
 
   m_screenOverlay->getImage()->assign(m_splashImageScaled.pixels<gl::SRGBA8>().data(),
                                       m_window->getViewport().x * m_window->getViewport().y);
@@ -340,14 +352,21 @@ void Presenter::drawLoadingScreen(const std::string& state)
   swapBuffers();
 }
 
-void Presenter::preFrame()
+bool Presenter::preFrame()
 {
   if(m_window->updateWindowSize())
   {
+    if(m_window->isMinimized())
+      return false;
+
     m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
     m_renderPipeline->resize(m_window->getViewport());
     m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
   }
+
+  if(m_window->isMinimized())
+    return false;
+
   m_screenOverlay->getImage()->fill({0, 0, 0, 0});
 
   m_inputHandler->update();
@@ -359,6 +378,8 @@ void Presenter::preFrame()
 
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+
+  return true;
 }
 
 bool Presenter::shouldClose() const

@@ -1000,8 +1000,6 @@ void World::serialize(const serialization::Serializer<World>& ser)
 
 void World::gameLoop(const std::string& levelName, bool godMode)
 {
-  getPresenter().preFrame();
-
   if(!levelName.empty())
     getPresenter().drawLevelName(getPalette(), levelName);
 
@@ -1041,7 +1039,6 @@ void World::gameLoop(const std::string& levelName, bool godMode)
 
 bool World::cinematicLoop()
 {
-  getPresenter().preFrame();
   update(false);
 
   const auto waterEntryPortals

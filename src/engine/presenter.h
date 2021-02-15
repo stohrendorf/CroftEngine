@@ -147,7 +147,7 @@ public:
   void apply(const render::RenderSettings& renderSettings);
 
   void drawLoadingScreen(const std::string& state);
-  void preFrame();
+  bool preFrame();
   [[nodiscard]] bool shouldClose() const;
 
   void setTrFont(std::unique_ptr<ui::CachedFont>&& font);

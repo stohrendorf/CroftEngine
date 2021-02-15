@@ -140,10 +140,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
     }
 
     throttler.wait();
+    if(!m_presenter->preFrame())
+      continue;
 
     if(menu != nullptr)
     {
-      m_presenter->preFrame();
       menu->display(*m_presenter->getScreenOverlay().getImage(), world);
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       m_presenter->getScreenOverlay().render(context);
@@ -214,7 +215,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
 
     throttler.wait();
 
-    m_presenter->preFrame();
+    if(!m_presenter->preFrame())
+      continue;
+
     menu->display(*m_presenter->getScreenOverlay().getImage(), world);
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
     m_presenter->getScreenOverlay().render(context);
