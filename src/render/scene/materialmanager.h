@@ -29,7 +29,7 @@ public:
   [[nodiscard]] const std::shared_ptr<Material>& getCSMDepthOnly(bool skeletal);
   [[nodiscard]] const std::shared_ptr<Material>& getDepthOnly(bool skeletal);
 
-  [[nodiscard]] std::shared_ptr<Material> getGeometry(bool water, bool skeletal);
+  [[nodiscard]] std::shared_ptr<Material> getGeometry(bool water, bool skeletal, bool roomShadowing);
 
   [[nodiscard]] const std::shared_ptr<Material>& getPortal();
 
@@ -47,7 +47,7 @@ private:
   std::shared_ptr<Material> m_sprite{nullptr};
   std::array<std::shared_ptr<Material>, 2> m_csmDepthOnly{};
   std::array<std::shared_ptr<Material>, 2> m_depthOnly{};
-  std::array<std::array<std::shared_ptr<Material>, 2>, 2> m_geometry{};
+  std::array<std::array<std::array<std::shared_ptr<Material>, 2>, 2>, 2> m_geometry{};
   std::shared_ptr<Material> m_portal{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
   std::array<std::array<std::array<std::array<std::shared_ptr<Material>, 2>, 2>, 2>, 2> m_composition{};

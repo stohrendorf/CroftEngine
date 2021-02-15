@@ -33,13 +33,15 @@ public:
     return get("flat.vert", "flat.frag", {"INVERT_Y"});
   }
 
-  auto getGeometry(bool water, bool skeletal)
+  auto getGeometry(bool water, bool skeletal, bool roomShadowing)
   {
     std::vector<std::string> defines;
     if(water)
       defines.emplace_back("WATER");
     if(skeletal)
       defines.emplace_back("SKELETAL");
+    if(roomShadowing)
+      defines.emplace_back("ROOM_SHADOWING");
     return get("geometry.vert", "geometry.frag", defines);
   }
 

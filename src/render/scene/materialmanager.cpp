@@ -14,7 +14,7 @@ const std::shared_ptr<Material>& MaterialManager::getSprite()
   if(m_sprite != nullptr)
     return m_sprite;
 
-  m_sprite = std::make_shared<Material>(m_shaderManager->getGeometry(false, false));
+  m_sprite = std::make_shared<Material>(m_shaderManager->getGeometry(false, false, true));
   m_sprite->getRenderState().setCullFace(false);
 
   m_sprite->getUniformBlock("Transform")->bindTransformBuffer();
@@ -55,13 +55,13 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly(bool skeletal)
   return m_depthOnly[skeletal];
 }
 
-std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal)
+std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal, bool roomShadowing)
 {
   Expects(m_geometryTextures != nullptr);
-  if(auto tmp = m_geometry[water][skeletal])
+  if(auto tmp = m_geometry[water][skeletal][roomShadowing])
     return tmp;
 
-  auto m = std::make_shared<Material>(m_shaderManager->getGeometry(water, skeletal));
+  auto m = std::make_shared<Material>(m_shaderManager->getGeometry(water, skeletal, roomShadowing));
   m->getUniform("u_diffuseTextures")->set(m_geometryTextures);
   m->getUniform("u_spritePole")->set(-1);
 
@@ -82,7 +82,7 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
     });
   }
 
-  m_geometry[water][skeletal] = m;
+  m_geometry[water][skeletal][roomShadowing] = m;
   return m;
 }
 
@@ -162,7 +162,8 @@ void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl:
   m_geometryTextures = std::move(geometryTextures);
   for(const auto& a : m_geometry)
     for(const auto& b : a)
-      if(b != nullptr)
-        b->getUniform("u_diffuseTextures")->set(m_geometryTextures);
+      for(const auto& c : b)
+        if(c != nullptr)
+          c->getUniform("u_diffuseTextures")->set(m_geometryTextures);
 }
 } // namespace render::scene

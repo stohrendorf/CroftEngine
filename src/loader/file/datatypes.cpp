@@ -112,7 +112,7 @@ void Room::createSceneNode(const size_t roomId,
   RenderMesh renderMesh;
   renderMesh.m_materialDepthOnly = materialManager.getDepthOnly(false);
   renderMesh.m_materialCSMDepthOnly = nullptr;
-  renderMesh.m_materialFull = materialManager.getGeometry(isWaterRoom(), false);
+  renderMesh.m_materialFull = materialManager.getGeometry(isWaterRoom(), false, true);
 
   std::vector<RenderVertex> vbufData;
   std::vector<render::TextureAnimator::AnimatedUV> uvCoordsData;

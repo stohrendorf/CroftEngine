@@ -16,6 +16,13 @@ readonly layout(std430, binding=3) buffer b_lights {
 
 float shadow_map_multiplier(in vec3 normal, in float shadow)
 {
+    #ifdef ROOM_SHADOWING
+    float d = dot(normalize(normal), normalize(u_csmLightDir));
+    if (d > 0) {
+        return 1.0;
+    }
+        #endif
+
     vec3 projCoords;
     vec2 moments;
 
@@ -54,7 +61,11 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
     const float BleedBias = 0.05;
     pMax = clamp((pMax - BleedBias) / (1.0 - BleedBias), 0.0, 1.0);
 
-    return mix(shadow, 1.0, pMax);
+    float result = mix(shadow, 1.0, pMax);
+    #ifdef ROOM_SHADOWING
+    result = mix(1.0, result, -d);
+    #endif
+    return result;
 }
 
 float shadow_map_multiplier(in vec3 normal) {
