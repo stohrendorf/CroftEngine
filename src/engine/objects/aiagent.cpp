@@ -87,7 +87,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   const auto& lotInfo = m_state.creatureInfo->pathFinder;
 
-  const auto oldPosition = m_state.position.position;
+  const auto oldPosition = m_state.position;
 
   const auto boxFloor = m_state.box->floor;
   const auto zoneRef = loader::file::Box::getZoneRef(
@@ -111,28 +111,25 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   if(sector->box == nullptr || m_state.box->*zoneRef != sector->box->*zoneRef
      || boxFloor - sector->box->floor > lotInfo.step || boxFloor - sector->box->floor < lotInfo.drop)
   {
-    const auto newSectorX = m_state.position.position.X / core::SectorSize;
-    const auto newSectorZ = m_state.position.position.Z / core::SectorSize;
-
-    const auto oldSectorX = oldPosition.X / core::SectorSize;
-    const auto oldSectorZ = oldPosition.Z / core::SectorSize;
-
-    static const auto shoveMin = [](const core::Length& l) { return l - (l % core::SectorSize); };
-
+    static const auto shoveMin = [](const core::Length& l) { return l / core::SectorSize * core::SectorSize; };
     static const auto shoveMax = [](const core::Length& l) { return shoveMin(l) + core::SectorSize - 1_len; };
 
+    const auto oldSectorX = oldPosition.position.X / core::SectorSize;
+    const auto newSectorX = m_state.position.position.X / core::SectorSize;
     if(newSectorX < oldSectorX)
-      m_state.position.position.X = shoveMin(oldPosition.X);
+      m_state.position.position.X = shoveMin(oldPosition.position.X);
     else if(newSectorX > oldSectorX)
-      m_state.position.position.X = shoveMax(oldPosition.X);
+      m_state.position.position.X = shoveMax(oldPosition.position.X);
 
+    const auto oldSectorZ = oldPosition.position.Z / core::SectorSize;
+    const auto newSectorZ = m_state.position.position.Z / core::SectorSize;
     if(newSectorZ < oldSectorZ)
-      m_state.position.position.Z = shoveMin(oldPosition.Z);
+      m_state.position.position.Z = shoveMin(oldPosition.position.Z);
     else if(newSectorZ > oldSectorZ)
-      m_state.position.position.Z = shoveMax(oldPosition.Z);
+      m_state.position.position.Z = shoveMax(oldPosition.position.Z);
 
-    sector
-      = findRealFloorSector(core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room);
+    room = oldPosition.room;
+    sector = findRealFloorSector(m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len}, &room);
   }
 
   Expects(sector->box != nullptr);
@@ -287,7 +284,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   if(anyMovingEnabledObjectInReach())
   {
-    m_state.position.position = oldPosition;
+    m_state.position = oldPosition;
     return true;
   }
 
@@ -308,8 +305,8 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       if(m_state.position.position.Y > currentFloor)
       {
         // we're already below the floor, so fix it
-        m_state.position.position.X = oldPosition.X;
-        m_state.position.position.Z = oldPosition.Z;
+        m_state.position.position.X = oldPosition.position.X;
+        m_state.position.position.Z = oldPosition.position.Z;
         moveY = -lotInfo.fly;
       }
       else
@@ -332,8 +329,8 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       {
         if(m_state.position.position.Y + y < ceiling)
         {
-          m_state.position.position.X = oldPosition.X;
-          m_state.position.position.Z = oldPosition.Z;
+          m_state.position.position.X = oldPosition.position.X;
+          m_state.position.position.Z = oldPosition.position.Z;
           moveY = lotInfo.fly;
         }
         else
