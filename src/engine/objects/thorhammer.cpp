@@ -49,7 +49,7 @@ void ThorHammerHandle::update()
     }
     break;
   case 2:
-    if(getSkeleton()->frame_number > getSkeleton()->anim->firstFrame + 30_frame)
+    if(getSkeleton()->getLocalFrame() > 30_frame)
     {
       auto posX = m_state.position.position.X;
       auto posZ = m_state.position.position.Z;
@@ -77,9 +77,8 @@ void ThorHammerHandle::update()
            && posZ + 520_len > getWorld().getObjectManager().getLara().m_state.position.position.Z)
         {
           getWorld().getObjectManager().getLara().m_state.health = core::DeadHealth;
-          getWorld().getObjectManager().getLara().getSkeleton()->anim
-            = &getWorld().findAnimatedModelForType(TR1ItemId::Lara)->animations[139];
-          getWorld().getObjectManager().getLara().getSkeleton()->frame_number = 3561_frame;
+          getWorld().getObjectManager().getLara().getSkeleton()->setAnim(
+            &getWorld().findAnimatedModelForType(TR1ItemId::Lara)->animations[139], 3561_frame);
           getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
           getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
           getWorld().getObjectManager().getLara().m_state.position.position.Y = m_state.position.position.Y;
@@ -129,10 +128,10 @@ void ThorHammerHandle::update()
 
   // sync anim
   const auto animIdx = std::distance(&getWorld().findAnimatedModelForType(TR1ItemId::ThorHammerHandle)->animations[0],
-                                     getSkeleton()->anim);
-  m_block->getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::ThorHammerBlock)->animations[animIdx];
-  m_block->getSkeleton()->frame_number
-    = getSkeleton()->frame_number - getSkeleton()->anim->firstFrame + m_block->getSkeleton()->anim->firstFrame;
+                                     getSkeleton()->getAnim());
+  m_block->getSkeleton()->replaceAnim(
+    &getWorld().findAnimatedModelForType(TR1ItemId::ThorHammerBlock)->animations[animIdx],
+    getSkeleton()->getLocalFrame());
   m_block->m_state.current_anim_state = m_state.current_anim_state;
 }
 

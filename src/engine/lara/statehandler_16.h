@@ -67,7 +67,7 @@ public:
     if(collisionInfo.mid.floorSpace.y > core::QuarterSectorSize
        && collisionInfo.mid.floorSpace.y < core::ClimbLimit2ClickMin)
     {
-      if(getLara().getSkeleton()->frame_number < 964_frame || getLara().getSkeleton()->frame_number > 993_frame)
+      if(getLara().getSkeleton()->getFrame() < 964_frame || getLara().getSkeleton()->getFrame() > 993_frame)
       {
         setAnimation(AnimationId::WALK_DOWN_BACK_LEFT, 899_frame);
       }

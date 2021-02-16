@@ -25,7 +25,7 @@ void Crocodile::updateInWater()
     }
     else if(m_state.current_anim_state == 2_as)
     {
-      if(getSkeleton()->frame_number == getSkeleton()->anim->firstFrame)
+      if(getSkeleton()->getLocalFrame() == 0_frame)
       {
         require(0_as);
       }
@@ -55,10 +55,9 @@ void Crocodile::updateInWater()
     else
     {
       m_state.type = TR1ItemId::CrocodileOnLand;
-      getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[0];
-      getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
-      goal(getSkeleton()->anim->state_id);
-      m_state.current_anim_state = getSkeleton()->anim->state_id;
+      getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[0]);
+      goal(getSkeleton()->getAnim()->state_id);
+      m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
       m_state.rotation.X = 0_deg;
       m_state.position.position.Y = m_state.floor;
       m_state.creatureInfo->pathFinder.step = 256_len;
@@ -74,8 +73,7 @@ void Crocodile::updateInWater()
   {
     if(m_state.current_anim_state != 3_as)
     {
-      getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[4];
-      getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+      getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[4]);
       m_state.current_anim_state = 3_as;
       m_state.health = core::DeadHealth;
     }
@@ -93,8 +91,7 @@ void Crocodile::updateInWater()
     }
     else
     {
-      getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11];
-      getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+      getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]);
       m_state.type = TR1ItemId::CrocodileOnLand;
       goal(7_as);
       m_state.current_anim_state = m_state.goal_anim_state;
@@ -197,8 +194,7 @@ void Crocodile::updateOnLand()
   {
     if(m_state.current_anim_state != 7_as)
     {
-      getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11];
-      getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+      getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]);
       m_state.current_anim_state = 7_as;
     }
   }
@@ -208,10 +204,9 @@ void Crocodile::updateOnLand()
   }
   if(m_state.position.room->isWaterRoom())
   {
-    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[0];
-    getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
-    goal(getSkeleton()->anim->state_id);
-    m_state.current_anim_state = getSkeleton()->anim->state_id;
+    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[0]);
+    goal(getSkeleton()->getAnim()->state_id);
+    m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
     m_state.type = TR1ItemId::CrocodileInWater;
     if(m_state.creatureInfo != nullptr)
     {

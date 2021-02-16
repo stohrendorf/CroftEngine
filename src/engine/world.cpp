@@ -387,9 +387,8 @@ void World::laraNormalEffect()
 {
   m_objectManager.getLara().setCurrentAnimState(loader::file::LaraStateId::Stop);
   m_objectManager.getLara().setRequiredAnimState(loader::file::LaraStateId::Unknown12);
-  m_objectManager.getLara().getSkeleton()->anim
-    = &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)];
-  m_objectManager.getLara().getSkeleton()->frame_number = 185_frame;
+  m_objectManager.getLara().getSkeleton()->setAnim(
+    &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)], 185_frame);
   m_cameraController->setMode(CameraMode::Chase);
   getPresenter().getRenderer().getCamera()->setFieldOfView(glm::radians(80.0f));
 }

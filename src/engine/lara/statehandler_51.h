@@ -21,8 +21,7 @@ public:
     if(alternateLara == nullptr)
       return;
 
-    const auto frameOffs = getLara().getSkeleton()->frame_number - getLara().getSkeleton()->anim->firstFrame;
-    switch(frameOffs.get())
+    switch(getLara().getSkeleton()->getLocalFrame().get())
     {
     case 5:
       getLara().getSkeleton()->setMeshPart(3, alternateLara->bones[3].mesh);

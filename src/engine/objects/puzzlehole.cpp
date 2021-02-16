@@ -64,7 +64,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     m_state.triggerState = TriggerState::Active;
   }
   else if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::InsertPuzzle
-          && getWorld().getObjectManager().getLara().getSkeleton()->frame_number == 3372_frame
+          && getWorld().getObjectManager().getLara().getSkeleton()->getFrame() == 3372_frame
           && limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
   {
     swapPuzzleState();

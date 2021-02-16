@@ -346,8 +346,7 @@ void CentaurMutant::update()
   else if(m_state.current_anim_state != 5_as)
   {
     m_state.current_anim_state = 5_as;
-    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::CentaurMutant)->animations[8];
-    getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::CentaurMutant)->animations[8]);
   }
 
   rotateCreatureHead(headRot);
@@ -425,11 +424,11 @@ void TorsoBoss::update()
     case 2:
       if(m_state.creatureInfo->flags == 0)
       {
-        m_state.creatureInfo->flags = getSkeleton()->frame_number.get();
+        m_state.creatureInfo->flags = getSkeleton()->getFrame().get();
       }
       else
       {
-        const auto frameDelta = getSkeleton()->frame_number.get() - m_state.creatureInfo->flags;
+        const auto frameDelta = getSkeleton()->getFrame().get() - m_state.creatureInfo->flags;
         if(frameDelta > 13 && frameDelta < 23)
         {
           m_state.rotation.Y -= 9_deg;
@@ -442,11 +441,11 @@ void TorsoBoss::update()
     case 3:
       if(m_state.creatureInfo->flags == 0)
       {
-        m_state.creatureInfo->flags = gsl::narrow_cast<uint16_t>(getSkeleton()->frame_number.get());
+        m_state.creatureInfo->flags = gsl::narrow_cast<uint16_t>(getSkeleton()->getFrame().get());
       }
       else
       {
-        const auto frameDelta = getSkeleton()->frame_number.get() - m_state.creatureInfo->flags;
+        const auto frameDelta = getSkeleton()->getFrame().get() - m_state.creatureInfo->flags;
         if(frameDelta > 16 && frameDelta < 23)
         {
           m_state.rotation.Y += 14_deg;
@@ -481,8 +480,7 @@ void TorsoBoss::update()
       {
         goal(11_as);
         auto& lara = getWorld().getObjectManager().getLara();
-        lara.getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0];
-        lara.getSkeleton()->frame_number = lara.getSkeleton()->anim->firstFrame;
+        lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]);
         lara.setGoalAnimState(LaraStateId::BoulderDeath);
         lara.setCurrentAnimState(LaraStateId::BoulderDeath);
         lara.setCurrentRoom(m_state.position.room);
@@ -518,8 +516,7 @@ void TorsoBoss::update()
   }
   else if(m_state.current_anim_state != 10_as)
   {
-    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13];
-    getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13]);
     m_state.current_anim_state = 10_as;
   }
   rotateCreatureHead(headRot);

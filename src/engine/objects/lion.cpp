@@ -89,22 +89,20 @@ void Lion::update()
     {
       if(m_state.type == TR1ItemId::Panther)
       {
-        getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::Panther)->animations[4 + util::rand15(2)];
+        getSkeleton()->setAnim(
+          &getWorld().findAnimatedModelForType(TR1ItemId::Panther)->animations[4 + util::rand15(2)]);
       }
       else if(m_state.type == TR1ItemId::LionMale)
       {
-        getSkeleton()->anim
-          = &getWorld().findAnimatedModelForType(TR1ItemId::LionMale)->animations[7 + util::rand15(2)];
-        getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
-        m_state.current_anim_state = 5_as;
+        getSkeleton()->setAnim(
+          &getWorld().findAnimatedModelForType(TR1ItemId::LionMale)->animations[7 + util::rand15(2)]);
       }
       else
       {
-        getSkeleton()->anim
-          = &getWorld().findAnimatedModelForType(TR1ItemId::LionFemale)->animations[7 + util::rand15(2)];
-        getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
-        m_state.current_anim_state = 5_as;
+        getSkeleton()->setAnim(
+          &getWorld().findAnimatedModelForType(TR1ItemId::LionFemale)->animations[7 + util::rand15(2)]);
       }
+      m_state.current_anim_state = 5_as;
     }
   }
 

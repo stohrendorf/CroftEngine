@@ -32,10 +32,10 @@ void ModelObject::update()
 
   if(endOfAnim)
   {
-    const auto* cmd = getSkeleton()->anim->animCommandCount == 0
+    const auto* cmd = getSkeleton()->getAnim()->animCommandCount == 0
                         ? nullptr
-                        : &getSkeleton()->anim->animCommandIndex.from(getWorld().getAnimCommands());
-    for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
+                        : &getSkeleton()->getAnim()->animCommandIndex.from(getWorld().getAnimCommands());
+    for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
     {
       BOOST_ASSERT(cmd < &getWorld().getAnimCommands().back());
       const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -63,16 +63,16 @@ void ModelObject::update()
     }
 
     m_skeleton->setAnimation(
-      m_state.current_anim_state, getSkeleton()->anim->nextAnimation, getSkeleton()->anim->nextFrame);
+      m_state.current_anim_state, getSkeleton()->getAnim()->nextAnimation, getSkeleton()->getAnim()->nextFrame);
     m_state.goal_anim_state = m_state.current_anim_state;
     if(m_state.current_anim_state == m_state.required_anim_state)
       m_state.required_anim_state = 0_as;
   }
 
-  const auto* cmd = getSkeleton()->anim->animCommandCount == 0
+  const auto* cmd = getSkeleton()->getAnim()->animCommandCount == 0
                       ? nullptr
-                      : &getSkeleton()->anim->animCommandIndex.from(getWorld().getAnimCommands());
-  for(uint16_t i = 0; i < getSkeleton()->anim->animCommandCount; ++i)
+                      : &getSkeleton()->getAnim()->animCommandIndex.from(getWorld().getAnimCommands());
+  for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
   {
     BOOST_ASSERT(cmd != nullptr && cmd < &getWorld().getAnimCommands().back());
     const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -82,14 +82,14 @@ void ModelObject::update()
     case AnimCommandOpcode::SetPosition: cmd += 3; break;
     case AnimCommandOpcode::StartFalling: cmd += 2; break;
     case AnimCommandOpcode::PlaySound:
-      if(getSkeleton()->frame_number.get() == cmd[0])
+      if(getSkeleton()->getFrame().get() == cmd[0])
       {
         playSoundEffect(static_cast<TR1SoundEffect>(cmd[1]));
       }
       cmd += 2;
       break;
     case AnimCommandOpcode::PlayEffect:
-      if(getSkeleton()->frame_number.get() == cmd[0])
+      if(getSkeleton()->getFrame().get() == cmd[0])
       {
         BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
         getWorld().runEffect(cmd[1], this);

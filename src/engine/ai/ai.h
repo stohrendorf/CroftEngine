@@ -58,7 +58,7 @@ struct CreatureInfo
   core::Angle head_rotation = 0_deg;
   core::Angle neck_rotation = 0_deg;
   core::Angle maximum_turn = 1_deg;
-  uint16_t flags = 0;
+  uint16_t flags = 0; // TODO: this is an auxiliary field containing highly object-specific data, move to concrete types
   Mood mood = Mood::Bored;
   PathFinder pathFinder;
   core::TRVec target;

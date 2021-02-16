@@ -31,7 +31,7 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
 
 core::Speed SkeletalModelNode::calculateFloorSpeed(const core::Frame& frameOffset) const
 {
-  const auto scaled = anim->speed + anim->acceleration * (frame_number - anim->firstFrame + frameOffset);
+  const auto scaled = m_anim->speed + m_anim->acceleration * (m_frame - m_anim->firstFrame + frameOffset);
   return scaled / (1 << 16);
 }
 
@@ -50,16 +50,16 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() c
      */
   InterpolationInfo result;
 
-  Expects(anim != nullptr);
-  Expects(anim->segmentLength > 0_frame);
+  Expects(m_anim != nullptr);
+  Expects(m_anim->segmentLength > 0_frame);
 
-  Expects(frame_number >= anim->firstFrame && frame_number <= anim->lastFrame);
-  const auto firstKeyframeIndex = (frame_number - anim->firstFrame) / anim->segmentLength;
+  Expects(m_frame >= m_anim->firstFrame && m_frame <= m_anim->lastFrame);
+  const auto firstKeyframeIndex = (m_frame - m_anim->firstFrame) / m_anim->segmentLength;
 
-  result.firstFrame = anim->frames->next(firstKeyframeIndex);
+  result.firstFrame = m_anim->frames->next(firstKeyframeIndex);
   Expects(m_world->isValid(result.firstFrame));
 
-  if(frame_number >= anim->lastFrame)
+  if(m_frame >= m_anim->lastFrame)
   {
     result.secondFrame = result.firstFrame;
     return result;
@@ -68,13 +68,13 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() c
   result.secondFrame = result.firstFrame->next();
   Expects(m_world->isValid(result.secondFrame));
 
-  auto segmentDuration = anim->segmentLength;
-  const auto segmentFrame = (frame_number - anim->firstFrame) % anim->segmentLength;
+  auto segmentDuration = m_anim->segmentLength;
+  const auto segmentFrame = (m_frame - m_anim->firstFrame) % m_anim->segmentLength;
 
-  if((firstKeyframeIndex + 1) * anim->segmentLength >= anim->getFrameCount())
+  if((firstKeyframeIndex + 1) * m_anim->segmentLength >= m_anim->getFrameCount())
   {
     // second keyframe beyond end
-    const auto tmp = anim->getFrameCount() % anim->segmentLength;
+    const auto tmp = m_anim->getFrameCount() % m_anim->segmentLength;
     if(tmp != 0_frame)
       segmentDuration = tmp + 1_frame;
   }
@@ -203,18 +203,18 @@ loader::file::BoundingBox SkeletalModelNode::getBoundingBox() const
 
 bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, const core::AnimStateId& goal)
 {
-  Expects(anim != nullptr);
-  if(anim->state_id == goal)
+  Expects(m_anim != nullptr);
+  if(m_anim->state_id == goal)
     return false;
 
-  for(const loader::file::Transitions& tr : anim->transitions)
+  for(const loader::file::Transitions& tr : m_anim->transitions)
   {
     if(tr.stateId != goal)
       continue;
 
     const auto it = std::find_if(
       tr.transitionCases.cbegin(), tr.transitionCases.cend(), [this](const loader::file::TransitionCase& trc) {
-        return frame_number >= trc.firstFrame && frame_number <= trc.lastFrame;
+        return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
       });
 
     if(it != tr.transitionCases.cend())
@@ -236,22 +236,22 @@ void SkeletalModelNode::setAnimation(core::AnimStateId& animState,
   if(frame < animation->firstFrame || frame > animation->lastFrame)
     frame = animation->firstFrame;
 
-  anim = animation;
-  frame_number = frame;
-  animState = anim->state_id;
+  m_anim = animation;
+  m_frame = frame;
+  animState = m_anim->state_id;
 }
 
 bool SkeletalModelNode::advanceFrame(objects::ObjectState& state)
 {
-  frame_number += 1_frame;
+  m_frame += 1_frame;
   if(handleStateTransitions(state.current_anim_state, state.goal_anim_state))
   {
-    state.current_anim_state = anim->state_id;
+    state.current_anim_state = m_anim->state_id;
     if(state.current_anim_state == state.required_anim_state)
       state.required_anim_state = 0_as;
   }
 
-  return frame_number > anim->lastFrame;
+  return m_frame > m_anim->lastFrame;
 }
 
 std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres(const objects::ObjectState& state,
@@ -314,11 +314,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
 void SkeletalModelNode::serialize(const serialization::Serializer<World>& ser)
 {
   auto id = getName();
-  ser(S_NV("id", id),
-      S_NV("model", m_model),
-      S_NV("parts", m_meshParts),
-      S_NV("anim", anim),
-      S_NV("frame", frame_number));
+  ser(S_NV("id", id), S_NV("model", m_model), S_NV("parts", m_meshParts), S_NV("anim", m_anim), S_NV("frame", m_frame));
 
   if(ser.loading)
     ser.lazy([this](const serialization::Serializer<World>&) {
@@ -404,6 +400,24 @@ bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
   }
 
   return min.x > 1 || min.y > 1 || max.x < -1 || max.y < -1;
+}
+
+void SkeletalModelNode::setAnim(const gsl::not_null<const loader::file::Animation*>& anim,
+                                const std::optional<core::Frame>& frame)
+{
+  m_anim = anim;
+  m_frame = frame.value_or(anim->firstFrame);
+}
+
+core::Frame SkeletalModelNode::getLocalFrame() const
+{
+  return m_frame - m_anim->firstFrame;
+}
+
+void SkeletalModelNode::replaceAnim(const gsl::not_null<const loader::file::Animation*>& anim,
+                                    const core::Frame& localFrame)
+{
+  setAnim(anim, anim->firstFrame + localFrame);
 }
 
 void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<World>& ser)

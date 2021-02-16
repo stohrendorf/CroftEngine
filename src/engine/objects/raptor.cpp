@@ -108,8 +108,7 @@ void Raptor::update()
   }
   else if(m_state.current_anim_state != 5_as)
   {
-    getSkeleton()->anim = getWorld().findAnimatedModelForType(TR1ItemId::Raptor)->animations + 9 + util::rand15(3);
-    getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+    getSkeleton()->setAnim(getWorld().findAnimatedModelForType(TR1ItemId::Raptor)->animations + 9 + util::rand15(3));
     m_state.current_anim_state = 5_as;
   }
 

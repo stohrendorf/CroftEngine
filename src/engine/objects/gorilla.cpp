@@ -136,8 +136,7 @@ void Gorilla::update()
   }
   else if(m_state.current_anim_state != 5_as)
   {
-    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[7 + util::rand15(2)];
-    getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[7 + util::rand15(2)]);
     m_state.current_anim_state = 5_as;
   }
   rotateCreatureHead(headRot);
@@ -201,8 +200,7 @@ void Gorilla::update()
     }
 
     m_state.position.position.Y = old.Y;
-    getSkeleton()->anim = &getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19];
-    getSkeleton()->frame_number = getSkeleton()->anim->firstFrame;
+    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19]);
     m_state.current_anim_state = 11_as;
   }
 }

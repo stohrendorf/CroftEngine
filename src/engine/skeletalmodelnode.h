@@ -103,9 +103,6 @@ public:
 
   bool canBeCulled(const glm::mat4& viewProjection) const override;
 
-  const loader::file::Animation* anim = nullptr;
-  core::Frame frame_number = 0_frame;
-
   void setMeshPart(size_t idx, const std::shared_ptr<loader::file::RenderMeshData>& mesh)
   {
     m_needsMeshRebuild |= std::exchange(m_meshParts.at(idx).mesh, mesh) != mesh;
@@ -159,6 +156,23 @@ public:
     rebuildMesh();
   }
 
+  void setAnim(const gsl::not_null<const loader::file::Animation*>& anim,
+               const std::optional<core::Frame>& frame = std::nullopt);
+
+  void replaceAnim(const gsl::not_null<const loader::file::Animation*>& anim, const core::Frame& localFrame);
+
+  [[nodiscard]] const auto& getFrame() const
+  {
+    return m_frame;
+  }
+
+  [[nodiscard]] core::Frame getLocalFrame() const;
+
+  [[nodiscard]] const auto& getAnim() const
+  {
+    return m_anim;
+  }
+
 protected:
   bool handleStateTransitions(core::AnimStateId& animState, const core::AnimStateId& goal);
 
@@ -184,6 +198,9 @@ private:
   std::vector<MeshPart> m_meshParts{};
   mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer;
   bool m_needsMeshRebuild = false;
+
+  const loader::file::Animation* m_anim = nullptr;
+  core::Frame m_frame = 0_frame;
 
   void updatePoseKeyframe(const InterpolationInfo& framePair);
   void updatePoseInterpolated(const InterpolationInfo& framePair);
