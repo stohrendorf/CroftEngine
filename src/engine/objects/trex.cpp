@@ -3,11 +3,17 @@
 #include "engine/cameracontroller.h"
 #include "engine/world.h"
 #include "laraobject.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {
 void TRex::update()
 {
+  static constexpr auto Think = 1_as;
+  static constexpr auto Attack = 2_as;
+  static constexpr auto RunningAttack = 3_as;
+  static constexpr auto BiteToDeath = 7_as;
+
   activateAi();
 
   core::Angle rotationToMoveTarget;
@@ -25,50 +31,50 @@ void TRex::update()
     rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     if(touched())
     {
-      if(m_state.current_anim_state == 3_as)
+      if(m_state.current_anim_state == RunningAttack)
         getWorld().getObjectManager().getLara().m_state.health -= 10_hp;
       else
         getWorld().getObjectManager().getLara().m_state.health -= 1_hp;
     }
 
-    m_state.creatureInfo->flags = !isEscaping() && !aiInfo.ahead && abs(aiInfo.enemy_facing) < 90_deg;
-    if(m_state.creatureInfo->flags == 0 && aiInfo.distance > util::square(1500_len)
-       && aiInfo.distance < util::square(4 * core::SectorSize) && aiInfo.bite)
+    m_wantAttack = !isEscaping() && !aiInfo.ahead && abs(aiInfo.enemy_facing) < 90_deg;
+    if(!m_wantAttack && aiInfo.distance > util::square(1500_len) && aiInfo.distance < util::square(4 * core::SectorSize)
+       && aiInfo.bite)
     {
-      m_state.creatureInfo->flags = 1;
+      m_wantAttack = true;
     }
 
     switch(m_state.current_anim_state.get())
     {
-    case 1:
+    case Think.get():
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
       else if(aiInfo.distance < util::square(1500_len) && aiInfo.bite)
-        goal(7_as);
-      else if(!isBored() && m_state.creatureInfo->flags == 0)
-        goal(3_as);
+        goal(BiteToDeath);
+      else if(isBored() || m_wantAttack)
+        goal(Attack);
       else
-        goal(2_as);
+        goal(RunningAttack);
       break;
-    case 2:
+    case Attack.get():
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(!isBored() || m_state.creatureInfo->flags == 0)
-        goal(1_as);
+      if(!isBored() || !m_wantAttack)
+        goal(Think);
       else if(aiInfo.ahead && util::rand15() < 512)
-        goal(1_as, 6_as);
+        goal(Think, 6_as);
       break;
-    case 3:
+    case RunningAttack.get():
       m_state.creatureInfo->maximum_turn = 4_deg;
       if(aiInfo.distance < util::square(5 * core::SectorSize) && aiInfo.bite)
-        goal(1_as); // NOLINT(bugprone-branch-clone)
-      else if(m_state.creatureInfo->flags)
-        goal(1_as);
+        goal(Think); // NOLINT(bugprone-branch-clone)
+      else if(m_wantAttack)
+        goal(Think);
       else if(!isEscaping() && aiInfo.ahead && util::rand15() < 512)
-        goal(1_as, 6_as);
+        goal(Think, 6_as);
       else if(isBored())
-        goal(1_as);
+        goal(Think);
       break;
-    case 7:
+    case BiteToDeath.get():
       if(touched(0x3000UL))
       {
         goal(8_as);
@@ -92,18 +98,21 @@ void TRex::update()
         getWorld().getObjectManager().getLara().setAir(-1_frame);
         getWorld().useAlternativeLaraAppearance(true);
       }
-      require(2_as);
+      require(Attack);
       break;
     default: break;
     }
   }
-  else if(m_state.current_anim_state == 1_as)
-  {
-    goal(5_as);
-  }
   else
   {
-    goal(1_as);
+    if(m_state.current_anim_state == Think)
+    {
+      goal(5_as);
+    }
+    else
+    {
+      goal(1_as);
+    }
   }
 
   rotateCreatureHead(creatureHead);
@@ -112,5 +121,11 @@ void TRex::update()
   getSkeleton()->patchBone(12, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
   animateCreature(rotationToMoveTarget, 0_deg);
   m_state.collidable = true;
+}
+
+void TRex::serialize(const serialization::Serializer<World>& ser)
+{
+  AIAgent::serialize(ser);
+  ser(S_NV("wantAttack", m_wantAttack));
 }
 } // namespace engine::objects

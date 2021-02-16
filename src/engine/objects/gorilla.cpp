@@ -3,16 +3,13 @@
 #include "engine/particle.h"
 #include "engine/world.h"
 #include "laraobject.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {
 void Gorilla::update()
 {
   activateAi();
-
-  static constexpr uint16_t FlgWantAttack = 1;
-  static constexpr uint16_t FlgTurnedRight = 2;
-  static constexpr uint16_t FlgTurnedLeft = 4;
 
   core::Angle headRot = 0_deg;
   core::Angle turn = 0_deg;
@@ -27,21 +24,21 @@ void Gorilla::update()
     turn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     if(m_state.is_hit || aiInfo.distance < util::square(2 * core::SectorSize))
     {
-      m_state.creatureInfo->flags |= FlgWantAttack;
+      m_wantAttack = true;
     }
     switch(m_state.current_anim_state.get())
     {
     case 1:
       // standing
-      if(m_state.creatureInfo->flags & FlgTurnedRight)
+      if(m_turnedRight)
       {
         m_state.rotation.Y -= 90_deg;
-        m_state.creatureInfo->flags &= ~FlgTurnedRight;
+        m_turnedRight = false;
       }
-      else if(m_state.creatureInfo->flags & FlgTurnedLeft)
+      else if(m_turnedLeft)
       {
         m_state.rotation.Y += 90_deg;
-        m_state.creatureInfo->flags &= ~FlgTurnedLeft;
+        m_turnedLeft = false;
       }
       if(m_state.required_anim_state != 0_as)
       {
@@ -51,7 +48,7 @@ void Gorilla::update()
       {
         goal(4_as);
       }
-      else if((m_state.creatureInfo->flags & FlgWantAttack) || !aiInfo.canReachEnemyZone() || !aiInfo.ahead)
+      else if(m_wantAttack || !aiInfo.canReachEnemyZone() || !aiInfo.ahead)
       {
         goal(3_as);
       }
@@ -85,7 +82,7 @@ void Gorilla::update()
     case 3:
       // running
       m_state.creatureInfo->maximum_turn = 5_deg;
-      if(m_state.creatureInfo->flags == 0 && aiInfo.angle > -45_deg && aiInfo.angle < 45_deg)
+      if(!m_wantAttack && !m_turnedRight && !m_turnedLeft && aiInfo.angle > -45_deg && aiInfo.angle < 45_deg)
       {
         goal(1_as);
       }
@@ -115,19 +112,19 @@ void Gorilla::update()
       break;
     case 8:
       // turn left
-      if(!(m_state.creatureInfo->flags & FlgTurnedLeft))
+      if(!m_turnedLeft)
       {
         m_state.rotation.Y -= 90_deg;
-        m_state.creatureInfo->flags |= FlgTurnedLeft;
+        m_turnedLeft = true;
       }
       goal(1_as);
       break;
     case 9:
       // turn right
-      if(!(m_state.creatureInfo->flags & FlgTurnedRight))
+      if(!m_turnedRight)
       {
         m_state.rotation.Y += 90_deg;
-        m_state.creatureInfo->flags |= FlgTurnedRight;
+        m_turnedRight = true;
       }
       goal(1_as);
       break;
@@ -148,15 +145,15 @@ void Gorilla::update()
   }
   else
   {
-    if(m_state.creatureInfo->flags & FlgTurnedRight)
+    if(m_turnedRight)
     {
       m_state.rotation.Y -= 90_deg;
-      m_state.creatureInfo->flags &= ~FlgTurnedRight;
+      m_turnedRight = false;
     }
-    else if(m_state.creatureInfo->flags & FlgTurnedLeft)
+    else if(m_turnedLeft)
     {
       m_state.rotation.Y += 90_deg;
-      m_state.creatureInfo->flags &= ~FlgTurnedLeft;
+      m_turnedLeft = false;
     }
     const auto old = m_state.position.position;
     getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
@@ -203,5 +200,11 @@ void Gorilla::update()
     getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19]);
     m_state.current_anim_state = 11_as;
   }
+}
+
+void Gorilla::serialize(const serialization::Serializer<World>& ser)
+{
+  AIAgent::serialize(ser);
+  ser(S_NV("wantAttack", m_wantAttack), S_NV("turnedRight", m_turnedRight), S_NV("turnedLeft", m_turnedLeft));
 }
 } // namespace engine::objects

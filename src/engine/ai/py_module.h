@@ -15,7 +15,6 @@ void initAiModule(const py::module& m)
     .def_readwrite("head_rotation", &CreatureInfo::head_rotation)
     .def_readwrite("neck_rotation", &CreatureInfo::neck_rotation)
     .def_readwrite("maximum_turn", &CreatureInfo::maximum_turn)
-    .def_readwrite("flags", &CreatureInfo::flags)
     .def_readwrite("mood", &CreatureInfo::mood)
     .def_readwrite("target", &CreatureInfo::target);
 

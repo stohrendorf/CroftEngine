@@ -19,5 +19,10 @@ public:
          const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);
 
   void update() override;
+
+  void serialize(const serialization::Serializer<World>& ser) override;
+
+private:
+  core::Frame m_fleeTime = 0_frame;
 };
 } // namespace engine::objects

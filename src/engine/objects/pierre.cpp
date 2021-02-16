@@ -5,6 +5,8 @@
 #include "engine/world.h"
 #include "laraobject.h"
 #include "pickupobject.h"
+#include "serialization/quantity.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {
@@ -37,7 +39,7 @@ void Pierre::update()
   if(m_state.health <= 40_hp && !m_state.activationState.isOneshot())
   {
     m_state.health = 40_hp;
-    ++m_state.creatureInfo->flags;
+    m_fleeTime += 1_frame;
   }
   if(alive())
   {
@@ -46,7 +48,7 @@ void Pierre::update()
     {
       headRot = aiInfo.angle;
     }
-    if(m_state.creatureInfo->flags != 0)
+    if(m_fleeTime != 0_frame)
     {
       aiInfo.enemy_zone = -1;
       aiInfo.enemy_unreachable = true;
@@ -143,16 +145,16 @@ void Pierre::update()
   rotateCreatureHead(headRot);
   animateCreature(creatureTurn, 0_deg);
   getSkeleton()->patchBone(7, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
-  if(m_state.creatureInfo->flags != 0)
+  if(m_fleeTime != 0_frame)
   {
     if(raycastLineOfSight(getWorld().getCameraController().getTRPosition(),
                           m_state.position.position - core::TRVec{0_len, core::SectorSize, 0_len},
                           getWorld().getObjectManager())
          .first)
     {
-      m_state.creatureInfo->flags = 1;
+      m_fleeTime = 1_frame;
     }
-    else if(m_state.creatureInfo->flags > 10)
+    else if(m_fleeTime > 10_frame)
     {
       m_state.health = core::DeadHealth;
       m_state.creatureInfo = nullptr;
@@ -175,5 +177,11 @@ Pierre::Pierre(const gsl::not_null<World*>& world,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
     : AIAgent{world, room, item, animatedModel}
 {
+}
+
+void Pierre::serialize(const serialization::Serializer<World>& ser)
+{
+  AIAgent::serialize(ser);
+  ser(S_NV("fleeTime", m_fleeTime));
 }
 } // namespace engine::objects

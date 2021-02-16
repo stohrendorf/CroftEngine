@@ -311,7 +311,6 @@ void CreatureInfo::serialize(const serialization::Serializer<World>& ser)
   ser(S_NV("headRotation", head_rotation),
       S_NV("neckRotation", neck_rotation),
       S_NV("maximumTurn", maximum_turn),
-      S_NV("flags", flags),
       S_NV("mood", mood),
       S_NV("pathFinder", pathFinder),
       S_NV("target", target));

@@ -22,6 +22,14 @@ public:
   }
 
   void update() final;
+
+  void serialize(const serialization::Serializer<World>& ser) override;
+
+private:
+  bool m_shootBullet = false;
+  bool m_throwGrenade = false;
+  bool m_flying = false;
+  bool m_lookingAround = false;
 };
 
 class WalkingMutant final : public FlyingMutant
@@ -82,6 +90,12 @@ public:
   }
 
   void update() override;
+
+  void serialize(const serialization::Serializer<World>& ser) override;
+
+private:
+  bool m_hasHitLara = false;
+  core::Frame m_turnStartFrame = 0_frame;
 };
 
 } // namespace engine::objects

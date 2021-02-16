@@ -5,6 +5,8 @@
 #include "engine/world.h"
 #include "laraobject.h"
 #include "mutantegg.h"
+#include "serialization/quantity.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {
@@ -33,10 +35,6 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(World& world,
 void FlyingMutant::update()
 {
   activateAi();
-
-  static constexpr uint16_t ShootBullet = 1;
-  static constexpr uint16_t ThrowGrenade = 2;
-  static constexpr uint16_t Flying = 4;
 
   static constexpr auto DoPrepareAttack = 1_as;
   static constexpr auto DoWalk = 2_as;
@@ -89,11 +87,11 @@ void FlyingMutant::update()
     {
       if(m_state.current_anim_state == DoFly)
       {
-        if((m_state.creatureInfo->flags & Flying) && !isEscaping() && aiInfo.zone_number == aiInfo.enemy_zone)
+        if(m_flying && !isEscaping() && aiInfo.zone_number == aiInfo.enemy_zone)
         {
-          m_state.creatureInfo->flags &= ~Flying;
+          m_flying = false;
         }
-        if(!(m_state.creatureInfo->flags & Flying))
+        if(!m_flying)
         {
           updateMood(getWorld(), m_state, aiInfo, true);
         }
@@ -105,7 +103,7 @@ void FlyingMutant::update()
       else if(isEscaping()
               || (aiInfo.zone_number != aiInfo.enemy_zone && !frontRight && !frontLeft && (!aiInfo.ahead || isBored())))
       {
-        m_state.creatureInfo->flags |= Flying;
+        m_flying = true;
       }
     }
 
@@ -117,7 +115,7 @@ void FlyingMutant::update()
     {
       updateMood(getWorld(), m_state, aiInfo, false);
     }
-    else if(m_state.creatureInfo->flags & Flying)
+    else if(m_flying)
     {
       updateMood(getWorld(), m_state, aiInfo, true);
     }
@@ -126,8 +124,10 @@ void FlyingMutant::update()
     switch(m_state.current_anim_state.get())
     {
     case DoPrepareAttack.get():
-      m_state.creatureInfo->flags &= ~(8u | ShootBullet | ThrowGrenade);
-      if(m_state.creatureInfo->flags & Flying)
+      m_shootBullet = false;
+      m_throwGrenade = false;
+      m_lookingAround = false;
+      if(m_flying)
         goal(DoFly);
       else if(touched(0x678u) || (aiInfo.bite && aiInfo.distance < util::square(300_len)))
         goal(DoHit200);
@@ -144,7 +144,7 @@ void FlyingMutant::update()
       break;
     case DoWalk.get():
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(frontLeft || frontRight || (m_state.creatureInfo->flags & Flying) || isAttacking() || isEscaping())
+      if(frontLeft || frontRight || m_flying || isAttacking() || isEscaping())
       {
         goal(DoPrepareAttack);
       }
@@ -163,8 +163,7 @@ void FlyingMutant::update()
       break;
     case DoRun.get():
       m_state.creatureInfo->maximum_turn = 6_deg;
-      if((m_state.creatureInfo->flags & Flying) || touched(0x678u)
-         || (aiInfo.bite && aiInfo.distance < util::square(600_len)))
+      if(m_flying || touched(0x678u) || (aiInfo.bite && aiInfo.distance < util::square(600_len)))
       {
         goal(DoPrepareAttack);
       }
@@ -187,7 +186,7 @@ void FlyingMutant::update()
       break;
     case 6:
       headRot = 0_deg;
-      if(frontRight || frontLeft || (m_state.creatureInfo->flags & Flying))
+      if(frontRight || frontLeft || m_flying)
       {
         goal(DoPrepareAttack);
       }
@@ -224,34 +223,35 @@ void FlyingMutant::update()
       }
       break;
     case DoShootBullet.get():
-      m_state.creatureInfo->flags |= (8u | ShootBullet);
+      m_shootBullet = true;
+      m_lookingAround = true;
       if(frontRight)
         goal(DoAttack);
       else
         goal(DoPrepareAttack);
       break;
     case DoThrowGrenade.get():
-      m_state.creatureInfo->flags |= ThrowGrenade;
+      m_throwGrenade = true;
       if(frontLeft)
         goal(DoAttack);
       else
         goal(DoPrepareAttack);
       break;
     case DoAttack.get():
-      if(m_state.creatureInfo->flags & ShootBullet)
+      if(m_shootBullet)
       {
-        m_state.creatureInfo->flags &= ~ShootBullet;
+        m_shootBullet = false;
         emitParticle({-35_len, 269_len, 0_len}, 9, &createMutantBullet);
       }
-      else if(m_state.creatureInfo->flags & ThrowGrenade)
+      else if(m_throwGrenade)
       {
-        m_state.creatureInfo->flags &= ~ThrowGrenade;
+        m_throwGrenade = false;
         emitParticle({51_len, 213_len, 0_len}, 14, &createMutantGrenade);
       }
       break;
     case 12: goal(DoPrepareAttack); break;
     case DoFly.get():
-      if(!(m_state.creatureInfo->flags & Flying) && m_state.position.position.Y == m_state.floor)
+      if(!m_flying && m_state.position.position.Y == m_state.floor)
       {
         goal(DoPrepareAttack);
       }
@@ -259,24 +259,33 @@ void FlyingMutant::update()
     }
   }
 
-  if(!(m_state.creatureInfo->flags & 8u))
+  if(!m_lookingAround)
   {
     m_state.creatureInfo->head_rotation = m_state.creatureInfo->neck_rotation;
   }
   rotateCreatureHead(headRot);
-  if(m_state.creatureInfo->flags & 8u)
+  if(!m_lookingAround)
   {
-    m_state.creatureInfo->neck_rotation = 0_deg;
+    m_state.creatureInfo->neck_rotation = std::exchange(m_state.creatureInfo->head_rotation, 0_deg);
   }
   else
   {
-    m_state.creatureInfo->neck_rotation = std::exchange(m_state.creatureInfo->head_rotation, 0_deg);
+    m_state.creatureInfo->neck_rotation = 0_deg;
   }
   if(getSkeleton()->getBoneCount() >= 2)
     getSkeleton()->patchBone(1, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
   if(getSkeleton()->getBoneCount() >= 3)
     getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->neck_rotation, 0_deg}.toMatrix());
   animateCreature(turnRot, 0_deg);
+}
+
+void FlyingMutant::serialize(const serialization::Serializer<World>& ser)
+{
+  AIAgent::serialize(ser);
+  ser(S_NV("shootBullet", m_shootBullet),
+      S_NV("throwGrenade", m_throwGrenade),
+      S_NV("flying", m_flying),
+      S_NV("lookingAround", m_lookingAround));
 }
 
 void CentaurMutant::update()
@@ -364,6 +373,18 @@ void CentaurMutant::update()
 
 void TorsoBoss::update()
 {
+  static constexpr auto Think = 1_as;
+  static constexpr auto TurnLeft = 2_as;
+  static constexpr auto TurnRight = 3_as;
+  static constexpr auto Attack1 = 4_as;
+  static constexpr auto Attack2 = 5_as;
+  static constexpr auto KillOnTouch = 6_as;
+  static constexpr auto Approach = 7_as;
+  static constexpr auto Initial = 8_as;
+  static constexpr auto Falling = 9_as;
+  static constexpr auto BossKilled = 10_as;
+  static constexpr auto LaraKilled = 11_as;
+
   activateAi();
 
   core::Angle headRot = 0_deg;
@@ -378,107 +399,103 @@ void TorsoBoss::update()
     const auto angleToTarget = angleFromAtan(m_state.creatureInfo->target.X - m_state.position.position.X,
                                              m_state.creatureInfo->target.Z - m_state.position.position.Z)
                                - m_state.rotation.Y;
+
     if(touched())
     {
       hitLara(5_hp);
     }
     switch(m_state.current_anim_state.get())
     {
-    case 1:
+    case Think.get():
       if(getWorld().getObjectManager().getLara().isDead())
       {
         break;
       }
 
-      m_state.creatureInfo->flags = 0;
+      m_hasHitLara = false;
+      m_turnStartFrame = 0_frame;
       if(angleToTarget > 45_deg)
       {
-        goal(3_as);
+        goal(TurnRight);
         break;
       }
       if(angleToTarget < -45_deg)
       {
-        goal(2_as);
+        goal(TurnLeft);
         break;
       }
       if(aiInfo.distance >= util::square(2600_len))
       {
-        goal(7_as);
+        goal(Approach);
       }
       else if(getWorld().getObjectManager().getLara().m_state.health > core::LaraHealth / 2)
       {
         if(util::rand15(2) == 0)
-          goal(5_as);
+          goal(Attack2);
         else
-          goal(4_as);
+          goal(Attack1);
       }
       else if(aiInfo.distance >= util::square(2250_len))
       {
-        goal(7_as);
+        goal(Approach);
       }
       else
       {
-        goal(6_as);
+        goal(KillOnTouch);
       }
       break;
-    case 2:
-      if(m_state.creatureInfo->flags == 0)
+    case TurnLeft.get():
+      if(m_turnStartFrame == 0_frame)
       {
-        m_state.creatureInfo->flags = getSkeleton()->getFrame().get();
+        m_turnStartFrame = getSkeleton()->getFrame();
       }
       else
       {
-        const auto frameDelta = getSkeleton()->getFrame().get() - m_state.creatureInfo->flags;
-        if(frameDelta > 13 && frameDelta < 23)
+        const auto frameDelta = getSkeleton()->getFrame() - m_turnStartFrame;
+        if(frameDelta > 13_frame && frameDelta < 23_frame)
         {
           m_state.rotation.Y -= 9_deg;
         }
       }
 
       if(angleToTarget > -45_deg)
-        goal(1_as);
+        goal(Think);
       break;
-    case 3:
-      if(m_state.creatureInfo->flags == 0)
+    case TurnRight.get():
+      if(m_turnStartFrame == 0_frame)
       {
-        m_state.creatureInfo->flags = gsl::narrow_cast<uint16_t>(getSkeleton()->getFrame().get());
+        m_turnStartFrame = getSkeleton()->getFrame();
       }
       else
       {
-        const auto frameDelta = getSkeleton()->getFrame().get() - m_state.creatureInfo->flags;
-        if(frameDelta > 16 && frameDelta < 23)
+        const auto frameDelta = getSkeleton()->getFrame() - m_turnStartFrame;
+        if(frameDelta > 16_frame && frameDelta < 23_frame)
         {
           m_state.rotation.Y += 14_deg;
         }
       }
 
       if(angleToTarget < 45_deg)
-        goal(1_as);
+        goal(Think);
       break;
-    case 4:
-      if(m_state.creatureInfo->flags == 0)
+    case Attack1.get():
+      if(!m_hasHitLara && touched(0x3ff8000u))
       {
-        if(touched(0x3ff8000u))
-        {
-          hitLara(500_hp);
-          m_state.creatureInfo->flags = 1;
-        }
+        hitLara(500_hp);
+        m_hasHitLara = true;
       }
       break;
-    case 5:
-      if(m_state.creatureInfo->flags == 0)
+    case Attack2.get():
+      if(!m_hasHitLara && touched(0x3fffff0u))
       {
-        if(touched(0x3fffff0u))
-        {
-          hitLara(500_hp);
-          m_state.creatureInfo->flags = 1;
-        }
+        hitLara(500_hp);
+        m_hasHitLara = true;
       }
       break;
-    case 6:
+    case KillOnTouch.get():
       if(touched(0x3ff8000u) || getWorld().getObjectManager().getLara().isDead())
       {
-        goal(11_as);
+        goal(LaraKilled);
         auto& lara = getWorld().getObjectManager().getLara();
         lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]);
         lara.setGoalAnimState(LaraStateId::BoulderDeath);
@@ -495,37 +512,41 @@ void TorsoBoss::update()
         getWorld().getCameraController().setDistance(2048_len);
       }
       break;
-    case 7:
+    case Approach.get():
       // TODO this is just weird, but it's just like the original...
       goal(m_state.goal_anim_state.get() + std::clamp(angleToTarget, -3_deg, 3_deg).get());
 
       if(abs(angleToTarget) > 45_deg || aiInfo.distance < util::square(2600_len))
-        goal(1_as);
+        goal(Think);
 
       break;
-    case 8:
-      goal(9_as);
+    case Initial.get():
+      goal(Falling);
       m_state.falling = true;
       break;
-    case 11:
+    case LaraKilled.get():
       getWorld().getCameraController().setDistance(2048_len);
       getWorld().getCameraController().setMode(CameraMode::FixedPosition);
       break;
     default: break;
     }
   }
-  else if(m_state.current_anim_state != 10_as)
+  else
   {
-    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13]);
-    m_state.current_anim_state = 10_as;
+    if(m_state.current_anim_state != BossKilled)
+    {
+      getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13]);
+      m_state.current_anim_state = BossKilled;
+    }
   }
+
   rotateCreatureHead(headRot);
-  if(m_state.current_anim_state == 9_as)
+  if(m_state.current_anim_state == Falling)
   {
     ModelObject::update();
     if(m_state.position.position.Y > m_state.floor)
     {
-      goal(1_as);
+      goal(Think);
       settle();
       getWorld().getCameraController().setBounce(500_len);
     }
@@ -534,6 +555,7 @@ void TorsoBoss::update()
   {
     animateCreature(0_deg, 0_deg);
   }
+
   if(m_state.triggerState == TriggerState::Deactivated)
   {
     playSoundEffect(TR1SoundEffect::Mummy);
@@ -546,5 +568,11 @@ void TorsoBoss::update()
     kill();
     m_state.triggerState = TriggerState::Deactivated;
   }
+}
+
+void TorsoBoss::serialize(const serialization::Serializer<World>& ser)
+{
+  AIAgent::serialize(ser);
+  ser(S_NV("hasHitLara", m_hasHitLara), S_NV("turnStartFrame", m_turnStartFrame));
 }
 } // namespace engine::objects

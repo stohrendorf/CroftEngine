@@ -22,5 +22,10 @@ public:
   }
 
   void update() override;
+
+  void serialize(const serialization::Serializer<World>& ser) override;
+
+private:
+  bool m_hurt = false;
 };
 } // namespace engine::objects

@@ -3,6 +3,7 @@
 #include "engine/particle.h"
 #include "engine/world.h"
 #include "laraobject.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {
@@ -30,7 +31,7 @@ void Bear::update()
 
     rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     if(m_state.is_hit)
-      m_state.creatureInfo->flags = 1;
+      m_hurt = true;
 
     switch(m_state.current_anim_state.get())
     {
@@ -70,7 +71,7 @@ void Bear::update()
       }
       break;
     case WalkingTall.get():
-      if(m_state.creatureInfo->flags != 0)
+      if(m_hurt)
         goal(RoaringStanding, 0_as); // NOLINT(bugprone-branch-clone)
       else if(aiInfo.ahead && touched(0x2406cUL))
         goal(RoaringStanding);
@@ -93,14 +94,14 @@ void Bear::update()
       }
       else if(aiInfo.ahead && m_state.required_anim_state == 0_as)
       {
-        if(m_state.creatureInfo->flags == 0 && aiInfo.distance < util::square(2048_len) && util::rand15() < 768)
+        if(!m_hurt && aiInfo.distance < util::square(2048_len) && util::rand15() < 768)
           goal(GettingDown, RoaringStanding);
         else if(aiInfo.distance < util::square(core::SectorSize))
           goal(RunningAttack);
       }
       break;
     case RoaringStanding.get():
-      if(m_state.creatureInfo->flags != 0)
+      if(m_hurt)
         goal(GettingDown, 0_as);
       else if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
@@ -138,19 +139,19 @@ void Bear::update()
     case Walking.get():
     case Running.get(): goal(GettingDown); break;
     case GettingDown.get():
-      m_state.creatureInfo->flags = 0;
+      m_hurt = false;
       goal(Dying);
       break;
     case WalkingTall.get(): goal(RoaringStanding); break;
     case RoaringStanding.get():
-      m_state.creatureInfo->flags = 1;
+      m_hurt = true;
       goal(Dying);
       break;
     case Dying.get():
-      if(m_state.creatureInfo->flags != 0 && touched(0x2406cUL))
+      if(m_hurt && touched(0x2406cUL))
       {
         hitLara(200_hp);
-        m_state.creatureInfo->flags = 0;
+        m_hurt = false;
       }
       break;
     default: break;
@@ -159,5 +160,11 @@ void Bear::update()
   }
   getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
   animateCreature(rotationToMoveTarget, 0_deg);
+}
+
+void Bear::serialize(const serialization::Serializer<World>& ser)
+{
+  AIAgent::serialize(ser);
+  ser(S_NV("hurt", m_hurt));
 }
 } // namespace engine::objects

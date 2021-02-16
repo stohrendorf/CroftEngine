@@ -22,5 +22,11 @@ public:
   }
 
   void update() override;
+  void serialize(const serialization::Serializer<World>& ser) override;
+
+private:
+  bool m_wantAttack = false;
+  bool m_turnedRight = false;
+  bool m_turnedLeft = false;
 };
 } // namespace engine::objects
