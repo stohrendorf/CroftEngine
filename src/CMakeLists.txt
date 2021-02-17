@@ -1,142 +1,55 @@
-function( wrap_enum namespace name type source dest )
-    if( EXISTS "${dest}" AND "${dest}" IS_NEWER_THAN "${source}" )
-        return()
-    endif()
-    message( STATUS "Generating enum include ${dest} from ${source}" )
-    file( STRINGS "${source}" _vals )
-    file( WRITE "${dest}" "" )
+include( wrap_enum )
 
-    # headers
-    file( APPEND "${dest}" "#pragma once\n" )
-    file( APPEND "${dest}" "\n" )
-    file( APPEND "${dest}" "#include <cstdint>\n" )
-    file( APPEND "${dest}" "#include <gsl-lite.hpp>\n" )
-    file( APPEND "${dest}" "#include <map>\n" )
-    file( APPEND "${dest}" "#include <stdexcept>\n" )
-    file( APPEND "${dest}" "#include <string>\n" )
-    file( APPEND "${dest}" "\n" )
-
-    # Write enum
-    file( APPEND "${dest}" "namespace ${namespace}\n" )
-    file( APPEND "${dest}" "{\n" )
-    file( APPEND "${dest}" "enum class ${name} : ${type}\n" )
-    file( APPEND "${dest}" "{\n" )
-    foreach( _val IN LISTS _vals )
-        # remove trailing whitespace/comments
-        string( REGEX REPLACE "//.*\$" "" _val "${_val}" )
-        string( REPLACE " " "" _val "${_val}" )
-        string( REPLACE "\t" "" _val "${_val}" )
-        if( _val STREQUAL "" )
-            continue()
-        endif()
-
-        # remove "= 123" part
-        string( REGEX REPLACE "=.+\$" "" _ename "${_val}" )
-        if( _ename STREQUAL "" )
-            continue()
-        endif()
-        if( _val MATCHES ".+=.+" )
-            # extract value of "= 123" part
-            string( REGEX REPLACE "^.+=([0-9]+)" "\\1" _eval "${_val}" )
-            # emit: Value = IntValue,
-            file( APPEND "${dest}" "    ${_ename} = ${_eval},\n" )
-        else()
-            # emit: Value,
-            file( APPEND "${dest}" "    ${_ename},\n" )
-        endif()
-    endforeach()
-    file( APPEND "${dest}" "};\n\n" )
-
-    # toString function
-    file( APPEND "${dest}" "inline gsl::czstring toString(${name} val)\n" )
-    file( APPEND "${dest}" "{\n" )
-    file( APPEND "${dest}" "    switch(val)\n" )
-    file( APPEND "${dest}" "    {\n" )
-    foreach( _val IN LISTS _vals )
-        # remove trailing whitespace/comments
-        string( REGEX REPLACE "//.*\$" "" _val "${_val}" )
-        string( REPLACE " " "" _val "${_val}" )
-        string( REPLACE "\t" "" _val "${_val}" )
-        if( _val STREQUAL "" )
-            continue()
-        endif()
-        # remove "= 123" part
-        string( REGEX REPLACE "=.+\$" "" _ename "${_val}" )
-        if( _ename STREQUAL "" )
-            continue()
-        endif()
-        # emit: case Enum::Value: return "Value";
-        file( APPEND "${dest}" "        case ${name}::${_ename}: return \"${_ename}\";\n" )
-    endforeach()
-    file( APPEND "${dest}" "        default: return nullptr;\n" )
-    file( APPEND "${dest}" "    }\n" )
-    file( APPEND "${dest}" "}\n\n" )
-
-    # EnumUtil forward declaration
-    file( APPEND "${dest}" "template<typename T> struct EnumUtil;\n\n" )
-    # EnumUtil specialization
-    file( APPEND "${dest}" "template<> struct EnumUtil<${name}>\n" )
-    file( APPEND "${dest}" "{\n" )
-
-    # fromString()
-    file( APPEND "${dest}" "    static ${name} fromString(const std::string& value)\n" )
-    file( APPEND "${dest}" "    {\n" )
-    foreach( _val IN LISTS _vals )
-        # remove trailing whitespace/comments
-        string( REGEX REPLACE "//.*\$" "" _val "${_val}" )
-        string( REPLACE " " "" _val "${_val}" )
-        string( REPLACE "\t" "" _val "${_val}" )
-        if( _val STREQUAL "" )
-            continue()
-        endif()
-        string( REGEX REPLACE "=.+\$" "" _ename "${_val}" )
-        if( _ename STREQUAL "" )
-            continue()
-        endif()
-        if( _eval STREQUAL "" )
-            continue()
-        endif()
-        # emit: if(value == "Value") return Enum::Value;
-        file( APPEND "${dest}" "        if(value == \"${_ename}\") return ${name}::${_ename};\n" )
-    endforeach()
-    file( APPEND "${dest}" "        throw std::domain_error(\"Value '\" + value + \"' invalid for enum '${name}'\");\n" )
-    file( APPEND "${dest}" "    }\n" )
-
-    # all()
-    file( APPEND "${dest}" "    static std::map<${name}, std::string> all()\n" )
-    file( APPEND "${dest}" "    {\n" )
-    file( APPEND "${dest}" "        return {\n" )
-    foreach( _val IN LISTS _vals )
-        # remove trailing whitespace/comments
-        string( REGEX REPLACE "//.*\$" "" _val "${_val}" )
-        string( REPLACE " " "" _val "${_val}" )
-        string( REPLACE "\t" "" _val "${_val}" )
-        if( _val STREQUAL "" )
-            continue()
-        endif()
-        string( REGEX REPLACE "=.+\$" "" _ename "${_val}" )
-        if( _ename STREQUAL "" )
-            continue()
-        endif()
-        if( _eval STREQUAL "" )
-            continue()
-        endif()
-        # emit: { enum, string },
-        file( APPEND "${dest}" "            {${name}::${_ename}, \"${_ename}\"},\n" )
-    endforeach()
-    file( APPEND "${dest}" "        };\n" )
-    file( APPEND "${dest}" "    }\n" )
-
-    file( APPEND "${dest}" "};\n" )
-    file( APPEND "${dest}" "} // namespace ${namespace}\n" )
-endfunction()
-
-wrap_enum( loader::file AnimationId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/animationid.h )
-wrap_enum( loader::file LaraStateId uint16_t ${CMAKE_CURRENT_SOURCE_DIR}/states.txt ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/larastateid.h )
-wrap_enum( engine TR1ItemId int32_t ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1.h )
-wrap_enum( engine TR1SoundEffect int32_t ${CMAKE_CURRENT_SOURCE_DIR}/soundeffects_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/soundeffects_tr1.h )
-wrap_enum( engine TR1TrackId int32_t ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1.h )
-wrap_enum( engine I18n int32_t ${CMAKE_CURRENT_SOURCE_DIR}/i18n.txt ${CMAKE_CURRENT_SOURCE_DIR}/engine/i18n.h )
+wrap_enum(
+        NAMESPACE loader::file
+        NAME AnimationId
+        TYPE uint16_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/animationid.h
+)
+wrap_enum(
+        NAMESPACE loader::file
+        NAME LaraStateId
+        TYPE uint16_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/states.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/larastateid.h
+)
+wrap_enum(
+        NAMESPACE engine
+        NAME TR1ItemId
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1.h
+)
+wrap_enum(
+        NAMESPACE engine
+        NAME TR1SoundEffect
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/soundeffects_tr1.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/soundeffects_tr1.h
+)
+wrap_enum(
+        NAMESPACE engine
+        NAME TR1TrackId
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1.h
+)
+wrap_enum(
+        NAMESPACE engine
+        NAME I18n
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/i18n.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/i18n.h
+)
+wrap_enum(
+        NAMESPACE hid
+        NAME GlfwKey
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/glfw_keys.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_keys.h
+        WITH_INCLUDES "<GLFW/glfw3.h>"
+)
 
 set( EDISONENGINE_SRCS
         edisonengine.cpp

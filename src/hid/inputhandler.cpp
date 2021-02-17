@@ -1,5 +1,7 @@
 #include "inputhandler.h"
 
+#include "glfw_keys.h"
+
 #include <boost/log/trivial.hpp>
 #include <unordered_set>
 #include <utility>
@@ -8,29 +10,19 @@ namespace hid
 {
 namespace
 {
-std::unordered_set<int> pressedKeys;
-std::optional<int> mostRecentPressedKey;
+std::unordered_set<GlfwKey> pressedKeys;
+std::optional<GlfwKey> mostRecentPressedKey;
 void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)
 {
+  auto typed = static_cast<GlfwKey>(key);
   switch(action)
   {
   case GLFW_PRESS:
-    pressedKeys.emplace(key);
-    mostRecentPressedKey = key;
+    pressedKeys.emplace(typed);
+    mostRecentPressedKey = typed;
     break;
-  case GLFW_RELEASE: pressedKeys.erase(key); break;
+  case GLFW_RELEASE: pressedKeys.erase(typed); break;
   case GLFW_REPEAT: break;
-  default: Expects(false);
-  }
-}
-
-std::unordered_set<int> pressedMouseButtons;
-void mouseButtonCallback(GLFWwindow* /*window*/, int button, int action, int /*mods*/)
-{
-  switch(action)
-  {
-  case GLFW_PRESS: pressedMouseButtons.emplace(button); break;
-  case GLFW_RELEASE: pressedMouseButtons.erase(button); break;
   default: Expects(false);
   }
 }
@@ -43,25 +35,18 @@ void installHandlers(GLFWwindow* window)
     return;
 
   glfwSetKeyCallback(window, &keyCallback);
-  glfwSetMouseButtonCallback(window, &mouseButtonCallback);
   installed = true;
 }
 } // namespace
 
-bool isKeyPressed(int key)
+bool isKeyPressed(GlfwKey key)
 {
   return pressedKeys.count(key) > 0;
-}
-
-bool isMouseButtonPressed(int button)
-{
-  return pressedMouseButtons.count(button) > 0;
 }
 
 InputHandler::InputHandler(gsl::not_null<GLFWwindow*> window)
     : m_window{std::move(window)}
 {
-  glfwGetCursorPos(m_window, &m_lastCursorX, &m_lastCursorY);
   installHandlers(m_window);
 
   for(auto i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i)
@@ -100,70 +85,69 @@ void InputHandler::update()
   if(m_controllerIndex >= 0)
     glfwGetGamepadState(m_controllerIndex, &gamepadState);
 
-  auto left = isKeyPressed(GLFW_KEY_A);
+  auto left = isKeyPressed(GlfwKey::A);
   if(m_controllerIndex >= 0 && gamepadState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT] == GLFW_PRESS)
     left = true;
 
-  auto right = isKeyPressed(GLFW_KEY_D);
+  auto right = isKeyPressed(GlfwKey::D);
   if(m_controllerIndex >= 0 && gamepadState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT] == GLFW_PRESS)
     right = true;
 
-  auto stepLeft = isKeyPressed(GLFW_KEY_Q);
+  auto stepLeft = isKeyPressed(GlfwKey::Q);
   if(m_controllerIndex >= 0 && gamepadState.axes[PS1_L2] > AxisDeadzone)
     stepLeft = true;
 
-  auto stepRight = isKeyPressed(GLFW_KEY_E);
+  auto stepRight = isKeyPressed(GlfwKey::E);
   if(m_controllerIndex >= 0 && gamepadState.axes[PS1_R2] > AxisDeadzone)
     stepRight = true;
 
-  auto forward = isKeyPressed(GLFW_KEY_W);
+  auto forward = isKeyPressed(GlfwKey::W);
   if(m_controllerIndex >= 0 && gamepadState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_UP] == GLFW_PRESS)
     forward = true;
 
-  auto backward = isKeyPressed(GLFW_KEY_S);
+  auto backward = isKeyPressed(GlfwKey::S);
   if(m_controllerIndex >= 0 && gamepadState.buttons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN] == GLFW_PRESS)
     backward = true;
 
-  m_inputState.moveSlow = isKeyPressed(GLFW_KEY_LEFT_SHIFT) || isKeyPressed(GLFW_KEY_RIGHT_SHIFT)
+  m_inputState.moveSlow = isKeyPressed(GlfwKey::LeftShift) || isKeyPressed(GlfwKey::RightShift)
                           || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_R1] == GLFW_PRESS);
 
-  m_inputState.action = isKeyPressed(GLFW_KEY_LEFT_CONTROL) || isKeyPressed(GLFW_KEY_RIGHT_CONTROL)
-                        || isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)
+  m_inputState.action = isKeyPressed(GlfwKey::LeftControl) || isKeyPressed(GlfwKey::RightControl)
                         || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_CROSS] == GLFW_PRESS);
 
-  m_inputState.holster = isKeyPressed(GLFW_KEY_R) || isMouseButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE)
-                         || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_TRIANGLE] == GLFW_PRESS);
+  m_inputState.holster
+    = isKeyPressed(GlfwKey::R) || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_TRIANGLE] == GLFW_PRESS);
 
   m_inputState.jump
-    = isKeyPressed(GLFW_KEY_SPACE) || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_SQUARE] == GLFW_PRESS);
+    = isKeyPressed(GlfwKey::Space) || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_SQUARE] == GLFW_PRESS);
 
   m_inputState.roll
-    = isKeyPressed(GLFW_KEY_X) || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_CIRCLE] == GLFW_PRESS);
+    = isKeyPressed(GlfwKey::X) || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_CIRCLE] == GLFW_PRESS);
 
-  m_inputState.freeLook = isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT)
-                          || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_L1] == GLFW_PRESS);
+  m_inputState.freeLook
+    = isKeyPressed(GlfwKey::Kp0) || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_L1] == GLFW_PRESS);
 
   m_inputState.menu
-    = isKeyPressed(GLFW_KEY_ESCAPE) || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_HOME] == GLFW_PRESS);
+    = isKeyPressed(GlfwKey::Escape) || (m_controllerIndex >= 0 && gamepadState.buttons[PS1_HOME] == GLFW_PRESS);
 
-  m_inputState.debug = isKeyPressed(GLFW_KEY_F11);
+  m_inputState.debug = isKeyPressed(GlfwKey::F11);
 #ifndef NDEBUG
-  m_inputState.cheatDive = isKeyPressed(GLFW_KEY_F10);
+  m_inputState.cheatDive = isKeyPressed(GlfwKey::F10);
 #endif
 
-  m_inputState._1 = isKeyPressed(GLFW_KEY_1)
+  m_inputState._1 = isKeyPressed(GlfwKey::Num1)
                     || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] < -AxisDeadzone);
-  m_inputState._2 = isKeyPressed(GLFW_KEY_2)
+  m_inputState._2 = isKeyPressed(GlfwKey::Num2)
                     || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] > AxisDeadzone);
-  m_inputState._3 = isKeyPressed(GLFW_KEY_3)
+  m_inputState._3 = isKeyPressed(GlfwKey::Num3)
                     || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] < -AxisDeadzone);
-  m_inputState._4 = isKeyPressed(GLFW_KEY_4)
+  m_inputState._4 = isKeyPressed(GlfwKey::Num4)
                     || (m_controllerIndex >= 0 && gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] > AxisDeadzone);
-  m_inputState._5 = isKeyPressed(GLFW_KEY_5);
-  m_inputState._6 = isKeyPressed(GLFW_KEY_6);
+  m_inputState._5 = isKeyPressed(GlfwKey::Num5);
+  m_inputState._6 = isKeyPressed(GlfwKey::Num6);
 
-  m_inputState.save = isKeyPressed(GLFW_KEY_F5);
-  m_inputState.load = isKeyPressed(GLFW_KEY_F6);
+  m_inputState.save = isKeyPressed(GlfwKey::F5);
+  m_inputState.load = isKeyPressed(GlfwKey::F6);
 
   double x, y;
   glfwGetCursorPos(m_window, &x, &y);
@@ -187,8 +171,6 @@ void InputHandler::update()
         right = true;
     }
   }
-
-  m_inputState.mouseMovement = glm::vec2(x - std::exchange(m_lastCursorX, x), y - std::exchange(m_lastCursorY, y));
 
   m_inputState.setXAxisMovement(left, right);
   m_inputState.setZAxisMovement(backward, forward);

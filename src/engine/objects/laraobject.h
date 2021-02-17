@@ -244,14 +244,13 @@ public:
 
   void setCameraModifier(CameraModifier k);
 
-  void addHeadRotationXY(const core::Angle& x,
-                         const core::Angle& minX,
-                         const core::Angle& maxX,
-                         const core::Angle& y,
-                         const core::Angle& minY,
-                         const core::Angle& maxY)
+  void addHeadRotationX(const core::Angle& x, const core::Angle& minX, const core::Angle& maxX)
   {
     m_headRotation.X = std::clamp(m_headRotation.X + x, minX, maxX);
+  }
+
+  void addHeadRotationY(const core::Angle& y, const core::Angle& minY, const core::Angle& maxY)
+  {
     m_headRotation.Y = std::clamp(m_headRotation.Y + y, minY, maxY);
   }
 

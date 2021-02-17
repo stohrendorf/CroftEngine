@@ -4,11 +4,6 @@
 
 namespace hid
 {
-namespace
-{
-const core::Angle FreeLookMouseMovementScale{50_deg};
-}
-
 enum class AxisMovement
 {
   Positive,
@@ -88,7 +83,6 @@ struct InputState
   Button _6{false};
   Button save{false};
   Button load{false};
-  glm::vec2 mouseMovement;
 
   void setXAxisMovement(const bool left, const bool right)
   {

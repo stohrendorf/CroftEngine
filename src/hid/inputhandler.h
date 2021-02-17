@@ -7,8 +7,9 @@
 
 namespace hid
 {
-extern bool isKeyPressed(int key);
-extern bool isMouseButtonPressed(int button);
+enum class GlfwKey;
+
+extern bool isKeyPressed(GlfwKey key);
 
 class InputHandler final
 {
@@ -26,8 +27,6 @@ private:
   InputState m_inputState{};
 
   const gsl::not_null<GLFWwindow*> m_window;
-  double m_lastCursorX = 0;
-  double m_lastCursorY = 0;
 
   int m_controllerIndex = -1;
 };

@@ -35,17 +35,24 @@ public:
     if(getWorld().getPresenter().getInputHandler().getInputState().freeLook)
     {
       getWorld().getCameraController().setMode(CameraMode::FreeLook);
-      getLara().addHeadRotationXY(
-        (-hid::FreeLookMouseMovementScale.cast<float>()
-         * (getWorld().getPresenter().getInputHandler().getInputState().mouseMovement.y / 2000))
-          .cast<core::Angle>(),
-        -42_deg,
-        22_deg,
-        (hid::FreeLookMouseMovementScale.cast<float>()
-         * (getWorld().getPresenter().getInputHandler().getInputState().mouseMovement.x / 2000))
-          .cast<core::Angle>(),
-        -44_deg,
-        44_deg);
+      if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+      {
+        getLara().addHeadRotationY(-2_deg, -44_deg, 44_deg);
+      }
+      else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+      {
+        getLara().addHeadRotationY(2_deg, -44_deg, 44_deg);
+      }
+
+      if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+      {
+        getLara().addHeadRotationX(-2_deg, -42_deg, 22_deg);
+      }
+      else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+      {
+        getLara().addHeadRotationX(2_deg, -42_deg, 22_deg);
+      }
+
       getLara().setTorsoRotation(getLara().getHeadRotation());
 
       return;
