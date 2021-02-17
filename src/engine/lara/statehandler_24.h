@@ -18,7 +18,7 @@ public:
   {
     setCameraModifier(CameraModifier::AllowSteepSlants);
     setCameraRotationAroundLaraX(-45_deg);
-    if(getWorld().getPresenter().getInputHandler().getInputState().jump)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
     {
       setGoalAnimState(LaraStateId::JumpForward);
     }

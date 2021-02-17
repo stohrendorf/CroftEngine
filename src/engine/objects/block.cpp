@@ -11,8 +11,8 @@ namespace engine::objects
 {
 void Block::collide(CollisionInfo& /*collisionInfo*/)
 {
-  if(!getWorld().getPresenter().getInputHandler().getInputState().action || m_state.triggerState == TriggerState::Active
-     || getWorld().getObjectManager().getLara().m_state.falling
+  if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
+     || m_state.triggerState == TriggerState::Active || getWorld().getObjectManager().getLara().m_state.falling
      || getWorld().getObjectManager().getLara().m_state.position.position.Y != m_state.position.position.Y)
   {
     return;

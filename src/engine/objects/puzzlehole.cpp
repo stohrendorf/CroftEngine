@@ -24,7 +24,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
 
   if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
-    if(!getWorld().getPresenter().getInputHandler().getInputState().action
+    if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
        || getWorld().getObjectManager().getLara().getHandStatus() != HandStatus::None
        || getWorld().getObjectManager().getLara().m_state.falling
        || !limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))

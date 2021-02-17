@@ -50,6 +50,21 @@ wrap_enum(
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_keys.h
         WITH_INCLUDES "<GLFW/glfw3.h>"
 )
+wrap_enum(
+        NAMESPACE hid
+        NAME GlfwGamepadButton
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/glfw_gamepad_buttons.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_gamepad_buttons.h
+        WITH_INCLUDES "<GLFW/glfw3.h>"
+)
+wrap_enum(
+        NAMESPACE hid
+        NAME Action
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/actions.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/actions.h
+)
 
 set( EDISONENGINE_SRCS
         edisonengine.cpp
@@ -153,6 +168,7 @@ set( EDISONENGINE_SRCS
         hid/inputstate.h
         hid/inputhandler.h
         hid/inputhandler.cpp
+        hid/py_module.cpp
 
         loader/file/level/game.h
         loader/file/level/level.h

@@ -22,7 +22,7 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().roll)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Roll))
     {
       setAnimation(AnimationId::ROLL_BEGIN);
       setGoalAnimState(LaraStateId::Stop);
@@ -32,7 +32,7 @@ public:
 
     setGoalAnimState(LaraStateId::Stop);
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().freeLook)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::FreeLook))
     {
       getWorld().getCameraController().setMode(CameraMode::FreeLook);
       if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
@@ -81,13 +81,13 @@ public:
       setGoalAnimState(LaraStateId::TurnRightSlow);
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().jump)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
     {
       setGoalAnimState(LaraStateId::JumpPrepare);
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
       {
         create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
       }
@@ -98,7 +98,7 @@ public:
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
       {
         create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
       }

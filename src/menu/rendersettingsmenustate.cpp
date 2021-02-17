@@ -108,13 +108,13 @@ std::unique_ptr<MenuState>
   {
     ++m_selected;
   }
-  else if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     const auto& [lbl, getter, toggler] = m_labels.at(m_selected);
     toggler();
     setEnabledBackground(*lbl, getter());
   }
-  else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
     return std::move(m_previous);
   }

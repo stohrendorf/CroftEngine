@@ -166,19 +166,19 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
 
     if(!isCutscene)
     {
-      if(m_presenter->getInputHandler().getInputState().menu.justChangedTo(true))
+      if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
       {
         menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world);
         menu->allowSave = allowSave;
         continue;
       }
 
-      if(allowSave && m_presenter->getInputHandler().getInputState().save.justChangedTo(true))
+      if(allowSave && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Save))
       {
         world.save("quicksave.yaml");
         throttler.reset();
       }
-      else if(m_presenter->getInputHandler().getInputState().load.justChangedTo(true))
+      else if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
       {
         return {RunResult::RequestLoad, std::nullopt};
       }

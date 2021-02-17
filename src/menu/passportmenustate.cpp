@@ -34,7 +34,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }
-  if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action)
      || display.mode == InventoryMode::LoadMode)
   {
     display.objectTexts[0].reset();
@@ -56,7 +56,7 @@ std::optional<std::unique_ptr<MenuState>>
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }
-  if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     if(display.mode == InventoryMode::SaveMode || (m_allowSave && isInGame))
     {
@@ -82,7 +82,7 @@ void PassportMenuState::showExitGamePage(engine::World& world, MenuDisplay& disp
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }
-  if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     display.result = !isInGame ? MenuResult::ExitGame : MenuResult::ExitToTitle;
   }
@@ -201,14 +201,14 @@ std::unique_ptr<MenuState>
     nextPage(passport, world);
     return nullptr;
   }
-  else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
     if(!m_allowExit && display.mode != InventoryMode::TitleMode)
       return nullptr;
 
     return close(display, page, passport);
   }
-  else if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     return close(display, page, passport);
   }

@@ -68,7 +68,7 @@ private:
       return;
     }
 
-    if(!getWorld().getPresenter().getInputHandler().getInputState().action)
+    if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
     {
       return;
     }

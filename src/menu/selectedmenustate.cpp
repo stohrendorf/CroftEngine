@@ -31,7 +31,7 @@ std::unique_ptr<MenuState>
     return nullptr;
 
   const bool autoSelect = display.doOptions(img, world, currentObject);
-  if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
     if(display.rings.size() > 1 || !display.allowMenuClose)
     {
@@ -43,7 +43,7 @@ std::unique_ptr<MenuState>
         create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed))));
     }
   }
-  else if(autoSelect || world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  else if(autoSelect || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     display.inventoryChosen = currentObject.type;
     if(display.mode == InventoryMode::TitleMode

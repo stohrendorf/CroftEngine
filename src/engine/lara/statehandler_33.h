@@ -23,7 +23,7 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().freeLook)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::FreeLook))
     {
       getWorld().getCameraController().setMode(CameraMode::FreeLook);
 
@@ -86,7 +86,7 @@ public:
       setGoalAnimState(LaraStateId::OnWaterRight);
     }
 
-    if(!getWorld().getPresenter().getInputHandler().getInputState().jump)
+    if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
     {
       setSwimToDiveKeypressDuration(0_frame);
       return;

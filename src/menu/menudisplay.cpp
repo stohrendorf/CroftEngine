@@ -201,16 +201,16 @@ bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world
   case engine::TR1ItemId::Flashlight: /* TODO doGammaOptions(); */ break;
   case engine::TR1ItemId::PassportOpening: /* TODO doPassportOptions(); */ break;
   case engine::TR1ItemId::Compass:
-    if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true)
-       || world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu)
+       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
     {
       object.animDirection = 1_frame;
       object.goalFrame = object.lastMeshAnimFrame - 1_frame;
     }
     break;
   default:
-    if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true)
-       || world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action)
+       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
     {
       object.animDirection = -1_frame;
       object.goalFrame = 0_frame;

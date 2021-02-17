@@ -34,6 +34,8 @@ src/engine/soundeffects_tr1.h
 src/engine/tracks_tr1.h
 src/engine/i18n.h
 src/hid/glfw_keys.h
+src/hid/glfw_gamepad_buttons.h
+src/hid/actions.h
 
 *.log
 *.dll

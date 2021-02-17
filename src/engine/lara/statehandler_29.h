@@ -21,7 +21,7 @@ public:
       setGoalAnimState(LaraStateId::FreeFall);
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().action
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
        && getHandStatus() == objects::HandStatus::None)
     {
       setGoalAnimState(LaraStateId::Reach);

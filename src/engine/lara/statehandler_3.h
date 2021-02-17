@@ -23,13 +23,13 @@ public:
 
     if(getGoalAnimState() != LaraStateId::Death && getGoalAnimState() != LaraStateId::Stop)
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().action
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
          && getHandStatus() == objects::HandStatus::None)
       {
         setGoalAnimState(LaraStateId::Reach);
       }
 
-      if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow)
          && getHandStatus() == objects::HandStatus::None)
       {
         setGoalAnimState(LaraStateId::SwandiveBegin);
@@ -71,7 +71,7 @@ public:
       setGoalAnimState(LaraStateId::Death);
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward
-            || getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
+            || getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
     {
       setGoalAnimState(LaraStateId::Stop);
     }

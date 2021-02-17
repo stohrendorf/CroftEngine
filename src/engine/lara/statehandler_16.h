@@ -23,7 +23,7 @@ public:
     }
 
     if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
-       && getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
+       && getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
     {
       setGoalAnimState(LaraStateId::WalkBackward);
     }

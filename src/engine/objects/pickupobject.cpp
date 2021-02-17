@@ -45,7 +45,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         return;
       }
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().action
+    else if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
             && getWorld().getObjectManager().getLara().getCurrentAnimState()
                  == loader::file::LaraStateId::UnderwaterStop
             && getWorld().getObjectManager().getLara().alignTransform(aimSpeed, *this))
@@ -95,7 +95,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
     }
     else
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().action
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
          && getWorld().getObjectManager().getLara().getHandStatus() == HandStatus::None
          && !getWorld().getObjectManager().getLara().m_state.falling
          && getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)

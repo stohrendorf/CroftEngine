@@ -245,21 +245,21 @@ LaraObject::~LaraObject() = default;
 
 void LaraObject::update()
 {
-  if(getWorld().getPresenter().getInputHandler().getInputState()._1.justChangedTo(true))
+  if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawPistols))
     getWorld().getInventory().tryUse(*this, TR1ItemId::Pistols);
-  else if(getWorld().getPresenter().getInputHandler().getInputState()._2.justChangedTo(true))
+  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawShotgun))
     getWorld().getInventory().tryUse(*this, TR1ItemId::Shotgun);
-  else if(getWorld().getPresenter().getInputHandler().getInputState()._3.justChangedTo(true))
+  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawUzis))
     getWorld().getInventory().tryUse(*this, TR1ItemId::Uzis);
-  else if(getWorld().getPresenter().getInputHandler().getInputState()._4.justChangedTo(true))
+  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawMagnums))
     getWorld().getInventory().tryUse(*this, TR1ItemId::Magnums);
-  else if(getWorld().getPresenter().getInputHandler().getInputState()._5.justChangedTo(true))
+  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeSmallMedipack))
     getWorld().getInventory().tryUse(*this, TR1ItemId::SmallMedipack);
-  else if(getWorld().getPresenter().getInputHandler().getInputState()._6.justChangedTo(true))
+  else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeLargeMedipack))
     getWorld().getInventory().tryUse(*this, TR1ItemId::LargeMedipack);
 
 #ifndef NDEBUG
-  if(getWorld().getPresenter().getInputHandler().getInputState().cheatDive.justChangedTo(true))
+  if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::CheatDive))
     m_cheatDive = !m_cheatDive;
 #endif
 
@@ -641,7 +641,7 @@ void LaraObject::updateLarasWeaponsStatus()
     }
     else if(requestedGunType == gunType)
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().holster.justChangedTo(true))
+      if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Holster))
       {
         doHolsterUpdate = true;
       }
@@ -731,7 +731,7 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponId::Pistols:
       if(pistolsAmmo.ammo != 0)
       {
-        if(getWorld().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -749,7 +749,7 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponId::Magnums:
       if(magnumsAmmo.ammo != 0)
       {
-        if(getWorld().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -767,7 +767,7 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponId::Uzis:
       if(uzisAmmo.ammo != 0)
       {
-        if(getWorld().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -785,7 +785,7 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponId::Shotgun:
       if(shotgunAmmo.ammo != 0)
       {
-        if(getWorld().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
@@ -807,7 +807,7 @@ void LaraObject::updateLarasWeaponsStatus()
 
 void LaraObject::updateShotgun()
 {
-  if(getWorld().getPresenter().getInputHandler().getInputState().action)
+  if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
   {
     updateAimingState(weapons[WeaponId::Shotgun]);
   }
@@ -833,7 +833,7 @@ void LaraObject::updateShotgun()
 void LaraObject::updateGuns(const WeaponId weaponId)
 {
   const auto& weapon = weapons.at(weaponId);
-  if(getWorld().getPresenter().getInputHandler().getInputState().action)
+  if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
   {
     updateAimingState(weapon);
   }
@@ -1212,7 +1212,7 @@ void LaraObject::updateAnimShotgun()
       const auto nextFrame = leftArm.frame + 1_frame;
       if(leftArm.frame == 47_frame)
       {
-        if(getWorld().getPresenter().getInputHandler().getInputState().action)
+        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
           tryShootShotgun();
           rightArm.frame = nextFrame;
@@ -1265,7 +1265,7 @@ void LaraObject::updateAnimShotgun()
     return;
   }
 
-  if(leftArm.frame == 0_frame && getWorld().getPresenter().getInputHandler().getInputState().action)
+  if(leftArm.frame == 0_frame && getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
   {
     leftArm.frame += 1_frame;
     rightArm.frame += 1_frame;
@@ -1277,7 +1277,7 @@ void LaraObject::updateAnimShotgun()
     const auto nextFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == 47_frame)
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().action)
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
       {
         tryShootShotgun();
         rightArm.frame = aimingFrame + 1_frame;
@@ -1329,7 +1329,7 @@ void LaraObject::updateAnimShotgun()
     aimingFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == 12_frame)
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().action)
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
       {
         rightArm.frame = 47_frame;
         leftArm.frame = 47_frame;
@@ -1547,7 +1547,8 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
 {
   const auto& weapon = weapons[weaponId];
 
-  if(!rightArm.aiming && (!getWorld().getPresenter().getInputHandler().getInputState().action || target != nullptr))
+  if(!rightArm.aiming
+     && (!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || target != nullptr))
   {
     if(rightArm.frame >= 24_frame)
     {
@@ -1562,7 +1563,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
   {
     rightArm.frame += 1_frame;
   }
-  else if(getWorld().getPresenter().getInputHandler().getInputState().action && rightArm.frame == 4_frame)
+  else if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) && rightArm.frame == 4_frame)
   {
     core::TRRotationXY aimAngle;
     aimAngle.X = rightArm.aimRotation.X;
@@ -1583,7 +1584,8 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
     }
   }
 
-  if(!leftArm.aiming && (!getWorld().getPresenter().getInputHandler().getInputState().action || target != nullptr))
+  if(!leftArm.aiming
+     && (!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || target != nullptr))
   {
     if(leftArm.frame >= 24_frame)
     {
@@ -1598,7 +1600,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
   {
     leftArm.frame += 1_frame;
   }
-  else if(getWorld().getPresenter().getInputHandler().getInputState().action && leftArm.frame == 4_frame)
+  else if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) && leftArm.frame == 4_frame)
   {
     core::TRRotationXY aimAngle;
     aimAngle.Y = m_state.rotation.Y + leftArm.aimRotation.Y;

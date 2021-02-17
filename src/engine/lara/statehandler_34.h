@@ -36,7 +36,7 @@ public:
       setGoalAnimState(LaraStateId::OnWaterStop);
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().jump)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
     {
       setGoalAnimState(LaraStateId::OnWaterStop);
     }

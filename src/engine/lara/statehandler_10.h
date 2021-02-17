@@ -54,7 +54,7 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
     {
       setGoalAnimState(LaraStateId::Handstand);
     }

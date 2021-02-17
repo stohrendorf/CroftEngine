@@ -33,14 +33,14 @@ std::unique_ptr<MenuState>
     return create<RotateLeftRightMenuState>(false, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
-  if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true) && display.allowMenuClose)
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu) && display.allowMenuClose)
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
     display.inventoryChosen.reset();
     return create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed));
   }
 
-  if(m_autoSelect || world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  if(m_autoSelect || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     display.passOpen = true;
 

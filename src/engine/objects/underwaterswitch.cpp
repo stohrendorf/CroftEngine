@@ -9,7 +9,7 @@ namespace engine::objects
 {
 void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
 {
-  if(!getWorld().getPresenter().getInputHandler().getInputState().action)
+  if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
     return;
 
   if(m_state.triggerState != TriggerState::Inactive)

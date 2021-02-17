@@ -24,7 +24,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
 
   if(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp)
   {
-    if(getWorld().getPresenter().getInputHandler().getInputState().action
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
        && getWorld().getObjectManager().getLara().getHandStatus() == HandStatus::None
        && !getWorld().getObjectManager().getLara().m_state.falling
        && getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
@@ -102,7 +102,7 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
                                         {-10_deg, 0_deg, 0_deg},
                                         {+10_deg, 0_deg, 0_deg}};
 
-  if(!getWorld().getPresenter().getInputHandler().getInputState().action
+  if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
      || getWorld().getObjectManager().getLara().getHandStatus() != HandStatus::None
      || getWorld().getObjectManager().getLara().m_state.falling
      || getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::Stop

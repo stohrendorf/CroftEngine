@@ -23,7 +23,7 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().roll)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Roll))
     {
       setAnimation(AnimationId::ROLL_BEGIN, 3857_frame);
       setGoalAnimState(LaraStateId::Stop);
@@ -44,7 +44,7 @@ public:
       getLara().m_state.rotation.Z = z;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().jump && !getLara().m_state.falling)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump) && !getLara().m_state.falling)
     {
       setGoalAnimState(LaraStateId::JumpForward);
       return;
@@ -56,7 +56,7 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
     {
       setGoalAnimState(LaraStateId::WalkForward);
     }

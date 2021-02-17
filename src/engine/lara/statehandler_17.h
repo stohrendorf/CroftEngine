@@ -22,7 +22,7 @@ public:
 
     handleDiveRotationInput();
 
-    if(!getWorld().getPresenter().getInputHandler().getInputState().jump)
+    if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
     {
       setGoalAnimState(LaraStateId::UnderwaterInertia);
     }

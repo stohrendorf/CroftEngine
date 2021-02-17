@@ -49,7 +49,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
     m_screenOverlay->render(context);
     swapBuffers();
     m_inputHandler->update();
-    return !m_window->windowShouldClose() && !m_inputHandler->getInputState().menu.justChangedTo(true);
+    return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
   });
 }
 
@@ -371,7 +371,7 @@ bool Presenter::preFrame()
 
   m_inputHandler->update();
 
-  if(m_inputHandler->getInputState().debug.justChangedTo(true))
+  if(m_inputHandler->hasDebouncedAction(hid::Action::Debug))
   {
     m_showDebugInfo = !m_showDebugInfo;
   }

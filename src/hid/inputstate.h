@@ -1,6 +1,8 @@
 #pragma once
 
-#include "core/angle.h"
+#include "actions.h"
+
+#include <boost/container/flat_map.hpp>
 
 namespace hid
 {
@@ -23,7 +25,7 @@ struct InputState
     T current;
     T previous;
 
-    explicit DebouncedValue(const T& initial)
+    explicit DebouncedValue(const T& initial = {})
         : current{initial}
         , previous{initial}
     {
@@ -64,25 +66,27 @@ struct InputState
   Axis zMovement{AxisMovement::Null};
   Axis stepMovement{AxisMovement::Null};
 
-  Button jump{false};
-  Button moveSlow{false};
-  Button roll{false};
-  Button action{false};
-  Button freeLook{false};
-  Button debug{false};
+  boost::container::flat_map<Action, Button> actions{
+    {Action::Jump, Button{false}},
+    {Action::MoveSlow, Button{false}},
+    {Action::Roll, Button{false}},
+    {Action::Action, Button{false}},
+    {Action::FreeLook, Button{false}},
+    {Action::Debug, Button{false}},
+    {Action::Holster, Button{false}},
+    {Action::Menu, Button{false}},
+    {Action::DrawPistols, Button{false}},
+    {Action::DrawShotgun, Button{false}},
+    {Action::DrawUzis, Button{false}},
+    {Action::DrawMagnums, Button{false}},
+    {Action::ConsumeSmallMedipack, Button{false}},
+    {Action::ConsumeLargeMedipack, Button{false}},
+    {Action::Save, Button{false}},
+    {Action::Load, Button{false}},
 #ifndef NDEBUG
-  Button cheatDive{false};
+    {Action::CheatDive, Button{false}},
 #endif
-  Button holster{false};
-  Button menu{false};
-  Button _1{false};
-  Button _2{false};
-  Button _3{false};
-  Button _4{false};
-  Button _5{false};
-  Button _6{false};
-  Button save{false};
-  Button load{false};
+  };
 
   void setXAxisMovement(const bool left, const bool right)
   {

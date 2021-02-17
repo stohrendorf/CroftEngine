@@ -110,7 +110,7 @@ std::unique_ptr<MenuState>
   {
     m_selected += PerPage;
   }
-  else if(world.getPresenter().getInputHandler().getInputState().action.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     if(!m_loading)
       // TODO confirm overwrite if necessary
@@ -122,7 +122,7 @@ std::unique_ptr<MenuState>
     }
     return std::move(m_previous);
   }
-  else if(world.getPresenter().getInputHandler().getInputState().menu.justChangedTo(true))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
     return std::move(m_previous);
   }

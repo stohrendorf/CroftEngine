@@ -257,7 +257,7 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
 bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getWorld().getPresenter().getInputHandler().getInputState().action
+     || !getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
      || getHandStatus() != objects::HandStatus::None)
   {
     return false;
@@ -336,7 +336,7 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
 bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getWorld().getPresenter().getInputHandler().getInputState().action
+     || !getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
      || getHandStatus() != objects::HandStatus::None)
   {
     return false;
@@ -494,7 +494,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
 bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getWorld().getPresenter().getInputHandler().getInputState().action
+     || !getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
      || getHandStatus() != objects::HandStatus::None)
   {
     return false;
@@ -677,7 +677,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   collisionInfo.badCeilingDistance = 0_len;
   collisionInfo.facingAngle = getMovementAngle();
   collisionInfo.initHeightInfo(m_lara.m_state.position.position, getWorld(), core::LaraWalkHeight);
-  if(!getWorld().getPresenter().getInputHandler().getInputState().action || m_lara.m_state.health <= 0_hp)
+  if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || m_lara.m_state.health <= 0_hp)
   {
     setAnimation(AnimationId::TRY_HANG_VERTICAL, 448_frame);
     setGoalAnimState(LaraStateId::JumpUp);

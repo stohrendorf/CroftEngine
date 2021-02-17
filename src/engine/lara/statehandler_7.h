@@ -28,7 +28,7 @@ public:
     }
     else if(getYRotationSpeed() < -4_deg)
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
       {
         setYRotationSpeed(-4_deg);
       }
@@ -47,7 +47,7 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().moveSlow)
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
     {
       setGoalAnimState(LaraStateId::WalkForward);
     }
