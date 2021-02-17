@@ -43,46 +43,6 @@ bool isKeyPressed(GlfwKey key)
 
 InputHandler::InputHandler(gsl::not_null<GLFWwindow*> window)
     : m_window{std::move(window)}
-    , m_inputKeyMap{
-        {Action::MoveSlow, GlfwKey::LeftShift},
-        {Action::Action, GlfwKey::LeftControl},
-        {Action::Holster, GlfwKey::R},
-        {Action::Jump, GlfwKey::Space},
-        {Action::Roll, GlfwKey::X},
-        {Action::FreeLook, GlfwKey::Kp0},
-        {Action::Menu, GlfwKey::Escape},
-        {Action::Debug, GlfwKey::F11},
-        {Action::DrawPistols, GlfwKey::Num1},
-        {Action::DrawShotgun, GlfwKey::Num2},
-        {Action::DrawUzis, GlfwKey::Num3},
-        {Action::DrawMagnums, GlfwKey::Num4},
-        {Action::ConsumeSmallMedipack, GlfwKey::Num5},
-        {Action::ConsumeLargeMedipack, GlfwKey::Num6},
-        {Action::Save, GlfwKey::F5},
-        {Action::Load, GlfwKey::F6},
-        {Action::Left, GlfwKey::A},
-        {Action::Right, GlfwKey::D},
-        {Action::Forward, GlfwKey::W},
-        {Action::Backward, GlfwKey::S},
-        {Action::StepLeft, GlfwKey::Q},
-        {Action::StepRight, GlfwKey::E},
-#ifndef NDEBUG
-        {Action::CheatDive, GlfwKey::F10},
-#endif
-      },
-    m_inputGamepadMap{
-      {Action::MoveSlow, GlfwGamepadButton::RightBumper},
-      {Action::Action, GlfwGamepadButton::A},
-      {Action::Holster, GlfwGamepadButton::Y},
-      {Action::Jump, GlfwGamepadButton::X},
-      {Action::Roll, GlfwGamepadButton::B},
-      {Action::FreeLook, GlfwGamepadButton::LeftBumper},
-      {Action::Menu, GlfwGamepadButton::Start},
-      {Action::Left, GlfwGamepadButton::DPadLeft},
-      {Action::Right, GlfwGamepadButton::DPadRight},
-      {Action::Forward, GlfwGamepadButton::DPadUp},
-      {Action::Backward, GlfwGamepadButton::DPadDown},
-    }
 {
   installHandlers(m_window);
 
@@ -122,5 +82,36 @@ void InputHandler::update()
   m_inputState.setXAxisMovement(m_inputState.actions[Action::Left], m_inputState.actions[Action::Right]);
   m_inputState.setZAxisMovement(m_inputState.actions[Action::Backward], m_inputState.actions[Action::Forward]);
   m_inputState.setStepMovement(m_inputState.actions[Action::StepLeft], m_inputState.actions[Action::StepRight]);
+}
+
+void InputHandler::setMapping(const InputMapping& inputMapping)
+{
+  m_inputGamepadMap.clear();
+  m_inputKeyMap.clear();
+
+  for(const auto& [action, inputs] : inputMapping)
+  {
+    for(const auto& input : inputs)
+    {
+      if(std::holds_alternative<GlfwGamepadButton>(input))
+      {
+        if(auto it = m_inputGamepadMap.find(action); it != m_inputGamepadMap.end())
+        {
+          BOOST_LOG_TRIVIAL(warning) << "Multiple gamepad mappings present for action " << toString(action);
+        }
+        m_inputGamepadMap[action] = std::get<GlfwGamepadButton>(input);
+      }
+      else if(std::holds_alternative<GlfwKey>(input))
+      {
+        if(auto it = m_inputKeyMap.find(action); it != m_inputKeyMap.end())
+        {
+          BOOST_LOG_TRIVIAL(warning) << "Multiple gamepad mappings present for action " << toString(action);
+        }
+        m_inputKeyMap[action] = std::get<GlfwKey>(input);
+      }
+      else
+        BOOST_THROW_EXCEPTION(std::runtime_error("Invalid input type"));
+    }
+  }
 }
 } // namespace hid

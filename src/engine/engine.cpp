@@ -44,6 +44,7 @@
 #include <locale>
 #include <numeric>
 #include <pybind11/embed.h>
+#include <pybind11/stl.h>
 
 namespace engine
 {
@@ -87,6 +88,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     m_language = overrideLanguage.value();
     BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
   }
+
+  m_presenter->getInputHandler().setMapping(core::get<hid::InputMapping>(pybind11::globals(), "input_mapping").value());
 
   for(const auto& [key, name] : EnumUtil<I18n>::all())
   {

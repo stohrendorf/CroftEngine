@@ -4,6 +4,7 @@ from engine import TR1ItemId, I18n
 from scripts.tr1.object_infos import object_infos
 from scripts.tr1.audio import tracks
 from scripts.tr1.level_sequence import level_sequence, title_menu, lara_home
+from hid import GlfwKey, GlfwGamepadButton, Action
 
 cheats = {
     "godMode": True,
@@ -17,6 +18,32 @@ cheats = {
         TR1ItemId.Puzzle3: 10,
         TR1ItemId.Puzzle4: 10,
     }
+}
+
+input_mapping = {
+    Action.MoveSlow: [GlfwKey.LeftShift, GlfwGamepadButton.RightBumper],
+    Action.Action: [GlfwKey.LeftControl, GlfwGamepadButton.A],
+    Action.Holster: [GlfwKey.R, GlfwGamepadButton.Y],
+    Action.Jump: [GlfwKey.Space, GlfwGamepadButton.X],
+    Action.Roll: [GlfwKey.X, GlfwGamepadButton.B],
+    Action.FreeLook: [GlfwKey.Kp0, GlfwGamepadButton.LeftBumper],
+    Action.Menu: [GlfwKey.Escape, GlfwGamepadButton.Start],
+    Action.Debug: [GlfwKey.F11],
+    Action.DrawPistols: [GlfwKey.Num1],
+    Action.DrawShotgun: [GlfwKey.Num2],
+    Action.DrawUzis: [GlfwKey.Num3],
+    Action.DrawMagnums: [GlfwKey.Num4],
+    Action.ConsumeSmallMedipack: [GlfwKey.Num5],
+    Action.ConsumeLargeMedipack: [GlfwKey.Num6],
+    Action.Save: [GlfwKey.F5],
+    Action.Load: [GlfwKey.F6],
+    Action.Left: [GlfwKey.A, GlfwGamepadButton.DPadLeft],
+    Action.Right: [GlfwKey.D, GlfwGamepadButton.DPadRight],
+    Action.Forward: [GlfwKey.W, GlfwGamepadButton.DPadUp],
+    Action.Backward: [GlfwKey.S, GlfwGamepadButton.DPadDown],
+    Action.StepLeft: [GlfwKey.Q],
+    Action.StepRight: [GlfwKey.E],
+    Action.CheatDive: [GlfwKey.F10],  # only available in debug builds
 }
 
 

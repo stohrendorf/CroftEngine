@@ -106,6 +106,11 @@ public:
     return *m_inputHandler;
   }
 
+  [[nodiscard]] hid::InputHandler& getInputHandler()
+  {
+    return *m_inputHandler;
+  }
+
   void drawBars(const loader::file::Palette& palette, const ObjectManager& objectManager);
 
   [[nodiscard]] const ui::CachedFont& getTrFont() const
