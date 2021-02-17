@@ -109,6 +109,7 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
     getWorld().getObjectManager().getLara().m_state.rotation.Y = m_state.rotation.Y;
     getWorld().getObjectManager().getLara().m_state.rotation.Z = 0_deg;
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
+    getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
     for(int i = 0; i < 15; ++i)
     {
       const auto tmp = getWorld().getObjectManager().getLara().m_state.position.position

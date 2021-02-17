@@ -105,6 +105,7 @@ protected:
   void setCurrentSlideAngle(core::Angle a) noexcept;
 
   void setGoalAnimState(LaraStateId state);
+  void setCurrentAnimState(LaraStateId state);
 
   [[nodiscard]] LaraStateId getGoalAnimState() const;
 

@@ -44,8 +44,9 @@ public:
     }
     else
     {
-      setGoalAnimState(LaraStateId::Stop);
       setAnimation(AnimationId::LANDING_HARD, 358_frame);
+      setGoalAnimState(LaraStateId::Stop);
+      setCurrentAnimState(LaraStateId::Stop);
     }
     getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraScream, &getLara().m_state);
     getLara().m_state.fallspeed = 0_spd;

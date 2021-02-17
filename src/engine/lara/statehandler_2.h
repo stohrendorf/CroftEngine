@@ -26,6 +26,7 @@ public:
     {
       setAnimation(AnimationId::ROLL_BEGIN);
       setGoalAnimState(LaraStateId::Stop);
+      setCurrentAnimState(LaraStateId::RollForward);
       return;
     }
 

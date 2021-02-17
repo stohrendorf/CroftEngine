@@ -27,6 +27,7 @@ public:
     {
       setAnimation(AnimationId::ROLL_BEGIN, 3857_frame);
       setGoalAnimState(LaraStateId::Stop);
+      setCurrentAnimState(LaraStateId::RollForward);
       return;
     }
 
@@ -94,11 +95,13 @@ public:
         if(getLara().getSkeleton()->getFrame() < 10_frame)
         {
           setAnimation(AnimationId::WALL_SMASH_LEFT, 800_frame);
+          setCurrentAnimState(LaraStateId::Unknown12);
           return;
         }
         if(getLara().getSkeleton()->getFrame() >= 10_frame && getLara().getSkeleton()->getFrame() < 22_frame)
         {
           setAnimation(AnimationId::WALL_SMASH_RIGHT, 815_frame);
+          setCurrentAnimState(LaraStateId::Unknown12);
           return;
         }
       }
@@ -110,6 +113,7 @@ public:
     {
       setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
       setGoalAnimState(LaraStateId::JumpForward);
+      setCurrentAnimState(LaraStateId::JumpForward);
       getLara().m_state.falling = true;
       getLara().m_state.fallspeed = 0_spd;
       return;

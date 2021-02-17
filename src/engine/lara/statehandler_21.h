@@ -58,6 +58,7 @@ public:
     {
       setAnimation(AnimationId::STAY_SOLID, 185_frame);
       setGoalAnimState(LaraStateId::Stop);
+      setCurrentAnimState(LaraStateId::Stop);
     }
 
     if(!tryStartSlide(collisionInfo))

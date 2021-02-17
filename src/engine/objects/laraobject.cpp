@@ -290,6 +290,7 @@ void LaraObject::update()
       m_state.rotation.X = -45_deg;
       setAnimation(AnimationId::FREE_FALL_TO_UNDERWATER, 1895_frame);
       setGoalAnimState(LaraStateId::UnderwaterForward);
+      setCurrentAnimState(LaraStateId::UnderwaterDiving);
       m_state.fallspeed += m_state.fallspeed / 2;
     }
 
@@ -328,6 +329,7 @@ void LaraObject::update()
       m_underwaterState = UnderwaterState::OnLand;
       setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
       setGoalAnimState(LaraStateId::JumpForward);
+      setCurrentAnimState(LaraStateId::JumpForward);
       m_state.speed = std::exchange(m_state.fallspeed, 0_spd) / 4;
       m_state.falling = true;
     }
@@ -336,6 +338,7 @@ void LaraObject::update()
       m_underwaterState = UnderwaterState::Swimming;
       setAnimation(AnimationId::UNDERWATER_TO_ONWATER, 1937_frame);
       setGoalAnimState(LaraStateId::OnWaterStop);
+      setCurrentAnimState(LaraStateId::OnWaterStop);
       m_state.position.position.Y = *waterSurfaceHeight + 1_len;
       m_swimToDiveKeypressDuration = 11_frame;
       updateFloorHeight(-381_len);
@@ -347,6 +350,7 @@ void LaraObject::update()
     m_underwaterState = UnderwaterState::OnLand;
     setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
     setGoalAnimState(LaraStateId::JumpForward);
+    setCurrentAnimState(LaraStateId::JumpForward);
     m_state.speed = std::exchange(m_state.fallspeed, 0_spd) / 4;
     m_state.falling = true;
     m_handStatus = HandStatus::None;
@@ -2254,6 +2258,7 @@ LaraObject::LaraObject(const gsl::not_null<World*>& world,
 {
   setAnimation(AnimationId::STAY_IDLE);
   setGoalAnimState(LaraStateId::Stop);
+  setCurrentAnimState(LaraStateId::Stop);
   setMovementAngle(m_state.rotation.Y);
 
   m_underwaterRoute.step = core::SectorSize * 20;

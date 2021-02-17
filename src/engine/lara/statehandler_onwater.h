@@ -49,6 +49,7 @@ protected:
 
     setAnimation(AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041_frame);
     setGoalAnimState(LaraStateId::UnderwaterForward);
+    setCurrentAnimState(LaraStateId::UnderwaterDiving);
     getLara().m_state.rotation.X = -45_deg;
     getLara().m_state.fallspeed = 80_spd;
     setUnderwaterState(objects::UnderwaterState::Diving);
@@ -136,6 +137,7 @@ private:
 
     setAnimation(AnimationId::CLIMB_OUT_OF_WATER, 1849_frame);
     setGoalAnimState(LaraStateId::Stop);
+    setCurrentAnimState(LaraStateId::OnWaterExit);
     getLara().m_state.speed = 0_spd;
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;
