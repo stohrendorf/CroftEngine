@@ -8,7 +8,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> SwitchRingMenuState::onFrame(engine::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState> SwitchRingMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display)
 {
   if(m_duration != Duration)
   {

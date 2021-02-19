@@ -23,7 +23,8 @@ void ResetItemTransformMenuState::handleObject(engine::World& world, MenuDisplay
   }
 }
 
-std::unique_ptr<MenuState> ResetItemTransformMenuState::onFrame(engine::World& /*world*/, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState>
+  ResetItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& /*display*/)
 {
   if(m_duration != 0_frame)
   {

@@ -14,7 +14,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> IdleRingMenuState::onFrame(engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& /*ui*/, engine::World& world, MenuDisplay& display)
 {
   display.updateRingTitle();
 

@@ -1,9 +1,9 @@
 #pragma once
 
+#include "boxgouraud.h"
 #include "loader/file/color.h"
 #include "loader/file/datatypes.h"
 #include "screensprite.h"
-#include "util.h"
 
 #include <cstdint>
 #include <string>
@@ -15,6 +15,8 @@ struct Palette;
 
 namespace ui
 {
+class Ui;
+
 extern std::string makeAmmoString(const std::string& str);
 
 constexpr int FontBaseScale = 0x10000;
@@ -104,7 +106,7 @@ struct Label
   {
   }
 
-  void render(const CachedFont& font, const glm::ivec2& screenSize, const loader::file::Palette& palette) const;
+  void render(Ui& ui, const CachedFont& font, const glm::ivec2& screenSize) const;
 
   int calcWidth() const;
 

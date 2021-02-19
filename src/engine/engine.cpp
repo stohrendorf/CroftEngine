@@ -33,6 +33,7 @@
 #include "throttler.h"
 #include "tracks_tr1.h"
 #include "ui/label.h"
+#include "ui/ui.h"
 #include "world.h"
 
 #include <boost/locale/generator.hpp>
@@ -148,9 +149,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
 
     if(menu != nullptr)
     {
-      menu->display(world);
+      ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSprite(), world.getPalette()};
+      menu->display(ui, world);
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       m_presenter->getScreenOverlay().render(context);
+      ui.render();
       m_presenter->swapBuffers();
       switch(menu->result)
       {
@@ -221,9 +224,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
     if(!m_presenter->preFrame())
       continue;
 
-    menu->display(world);
+    ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSprite(), world.getPalette()};
+    menu->display(ui, world);
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
     m_presenter->getScreenOverlay().render(context);
+    ui.render();
     m_presenter->swapBuffers();
     switch(menu->result)
     {

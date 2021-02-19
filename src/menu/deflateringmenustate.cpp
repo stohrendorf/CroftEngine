@@ -19,7 +19,8 @@ void DeflateRingMenuState::handleObject(engine::World& world, MenuDisplay& displ
   }
 }
 
-std::unique_ptr<MenuState> DeflateRingMenuState::onFrame(engine::World& /*world*/, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState>
+  DeflateRingMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& /*display*/)
 {
   if(m_duration == 0_frame)
     return std::move(m_next);

@@ -16,7 +16,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> SelectedMenuState::onFrame(engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::World& world, MenuDisplay& display)
 {
   auto& currentObject = display.getCurrentRing().getSelectedObject();
   if(currentObject.type == engine::TR1ItemId::PassportClosed)

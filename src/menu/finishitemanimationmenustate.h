@@ -17,7 +17,7 @@ public:
   {
   }
 
-  std::unique_ptr<MenuState> onFrame(engine::World& world, MenuDisplay& display) override;
   void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

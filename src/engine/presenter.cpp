@@ -16,6 +16,7 @@
 #include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
 #include "ui/label.h"
+#include "ui/ui.h"
 #include "video/player.h"
 
 #include <boost/range/adaptors.hpp>
@@ -53,7 +54,8 @@ void Presenter::playVideo(const std::filesystem::path& path)
   });
 }
 
-void Presenter::renderWorld(const ObjectManager& objectManager,
+void Presenter::renderWorld(ui::Ui& ui,
+                            const ObjectManager& objectManager,
                             const std::vector<loader::file::Room>& rooms,
                             const CameraController& cameraController,
                             const std::unordered_set<const loader::file::Portal*>& waterEntryPortals)
@@ -199,17 +201,20 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     m_renderer->resetRenderState();
     m_screenOverlay->render(context);
   }
+
+  ui.render();
+
   swapBuffers();
 }
 
-void Presenter::drawLevelName(const loader::file::Palette& palette, const std::string& levelName)
+void Presenter::drawLevelName(ui::Ui& ui, const std::string& levelName)
 {
   ui::Label tmp{{0, -50}, levelName};
   tmp.alignX = ui::Label::Alignment::Center;
   tmp.alignY = ui::Label::Alignment::Bottom;
   tmp.outline = true;
   tmp.addBackground({0, 0}, {0, 0});
-  tmp.render(*m_trFont, getViewport(), palette);
+  tmp.render(ui, *m_trFont, getViewport());
 }
 
 void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManager& objectManager)

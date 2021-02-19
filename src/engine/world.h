@@ -204,7 +204,8 @@ public:
   void turn180Effect(objects::Object& object);
   void unholsterRightGunEffect(const objects::ModelObject& object);
   [[nodiscard]] const engine::floordata::FloorData& getFloorData() const;
-  [[nodiscard]] const loader::file::Palette& getPalette() const;
+  [[nodiscard]] std::array<gl::SRGBA8, 256> getPalette() const;
+  [[nodiscard]] const loader::file::Palette& getRawPalette() const;
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   core::TypeId find(const loader::file::SkeletalModelType* model) const;
   core::TypeId find(const loader::file::Sprite* sprite) const;

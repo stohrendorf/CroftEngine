@@ -34,7 +34,8 @@ void ApplyItemTransformMenuState::handleObject(engine::World& world, MenuDisplay
   }
 }
 
-std::unique_ptr<MenuState> ApplyItemTransformMenuState::onFrame(engine::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState>
+  ApplyItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display)
 {
   display.updateRingTitle();
 

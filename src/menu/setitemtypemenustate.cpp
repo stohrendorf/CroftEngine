@@ -5,7 +5,8 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> SetItemTypeMenuState::onFrame(engine::World& /*world*/, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState>
+  SetItemTypeMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& /*display*/)
 {
   return std::move(m_next);
 }

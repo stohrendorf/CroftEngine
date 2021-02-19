@@ -382,10 +382,10 @@ set( EDISONENGINE_SRCS
 
         ui/label.h
         ui/label.cpp
-        ui/util.h
-        ui/util.cpp
         ui/screensprite.h
         ui/screensprite.cpp
+        ui/ui.h
+        ui/ui.cpp
 
         video/player.h
         video/player.cpp

@@ -3,14 +3,15 @@
 #include "loader/file/datatypes.h"
 
 #include <gl/soglb_fwd.h>
+#include <utility>
 
 namespace ui
 {
 class ScreenSprite
 {
 public:
-  explicit ScreenSprite(const loader::file::Sprite& sprite)
-      : m_sprite{sprite}
+  explicit ScreenSprite(loader::file::Sprite sprite)
+      : m_sprite{std::move(sprite)}
   {
   }
 

@@ -33,6 +33,7 @@
 #include "serialization/yamldocument.h"
 #include "tracks_tr1.h"
 #include "ui/label.h"
+#include "ui/ui.h"
 
 #include <boost/format.hpp>
 #include <gl/texture2darray.h>
@@ -772,7 +773,15 @@ const std::vector<loader::file::Mesh>& World::getMeshes() const
   return m_level->m_meshes;
 }
 
-const loader::file::Palette& World::getPalette() const
+std::array<gl::SRGBA8, 256> World::getPalette() const
+{
+  std::array<gl::SRGBA8, 256> result;
+  for(size_t i = 0; i < 256; ++i)
+    result[i] = m_level->m_palette->colors[i].toTextureColor();
+  return result;
+}
+
+const loader::file::Palette& World::getRawPalette() const
 {
   return *m_level->m_palette;
 }
@@ -999,14 +1008,16 @@ void World::serialize(const serialization::Serializer<World>& ser)
 
 void World::gameLoop(const std::string& levelName, bool godMode)
 {
+  ui::Ui ui{getPresenter().getMaterialManager()->getScreenSprite(), getPalette()};
+
   if(!levelName.empty())
-    getPresenter().drawLevelName(getPalette(), levelName);
+    getPresenter().drawLevelName(ui, levelName);
 
   update(godMode);
 
   const auto waterEntryPortals = m_cameraController->update();
   doGlobalEffect();
-  getPresenter().drawBars(getPalette(), getObjectManager());
+  getPresenter().drawBars(*m_level->m_palette, getObjectManager());
   if(getObjectManager().getLara().getHandStatus() == engine::objects::HandStatus::Combat
      && getObjectManager().getLara().gunType != engine::objects::LaraObject::WeaponId::Pistols)
   {
@@ -1029,11 +1040,11 @@ void World::gameLoop(const std::string& levelName, bool godMode)
     }
     auto text = ui::Label{{-17, 22}, ui::makeAmmoString(std::to_string(n) + suffix)};
     text.alignX = ui::Label::Alignment::Right;
-    text.render(getPresenter().getTrFont(), getPresenter().getViewport(), *m_level->m_palette);
+    text.render(ui, getPresenter().getTrFont(), getPresenter().getViewport());
   }
 
   drawPickupWidgets();
-  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderWorld(ui, getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
 }
 
 bool World::cinematicLoop()
@@ -1044,7 +1055,8 @@ bool World::cinematicLoop()
     = m_cameraController->updateCinematic(m_level->m_cinematicFrames[m_cameraController->m_cinematicFrame], false);
   doGlobalEffect();
 
-  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  ui::Ui ui{getPresenter().getMaterialManager()->getScreenSprite(), getPalette()};
+  getPresenter().renderWorld(ui, getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
   if(++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size())
     return false;
   return true;

@@ -7,7 +7,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> InflateRingMenuState::onFrame(engine::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState> InflateRingMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display)
 {
   if(m_duration == 0_frame)
   {

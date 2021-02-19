@@ -9,7 +9,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> DeselectingMenuState::onFrame(engine::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState> DeselectingMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display)
 {
   display.updateRingTitle();
   return create<IdleRingMenuState>(false);

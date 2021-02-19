@@ -30,6 +30,7 @@ class SoundEngine;
 namespace ui
 {
 class CachedFont;
+class Ui;
 } // namespace ui
 
 namespace render
@@ -75,11 +76,12 @@ public:
 
   void playVideo(const std::filesystem::path& path);
 
-  void renderWorld(const ObjectManager& objectManager,
+  void renderWorld(ui::Ui& ui,
+                   const ObjectManager& objectManager,
                    const std::vector<loader::file::Room>& rooms,
                    const CameraController& cameraController,
                    const std::unordered_set<const loader::file::Portal*>& waterEntryPortals);
-  void drawLevelName(const loader::file::Palette& palette, const std::string& levelName);
+  void drawLevelName(ui::Ui& ui, const std::string& levelName);
 
   [[nodiscard]] const auto& getSoundEngine() const
   {

@@ -11,7 +11,6 @@
 #include "inflateringmenustate.h"
 #include "menuring.h"
 #include "render/scene/camera.h"
-#include "ui/util.h"
 
 namespace menu
 {
@@ -117,7 +116,7 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
   case engine::TR1ItemId::SmallMedipack:
   case engine::TR1ItemId::LargeMedipack:
     world.getPresenter().setHealthBarTimeout(40_frame);
-    world.getPresenter().drawBars(world.getPalette(), world.getObjectManager());
+    world.getPresenter().drawBars(world.getRawPalette(), world.getObjectManager());
     break;
   default: break;
   }
@@ -136,7 +135,7 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
   }
 }
 
-void MenuDisplay::display(engine::World& world)
+void MenuDisplay::display(ui::Ui& ui, engine::World& world)
 {
   ringTransform->cameraPos.Z = 598_len + ringTransform->radius;
 
@@ -151,7 +150,7 @@ void MenuDisplay::display(engine::World& world)
     itemAngle += getCurrentRing().getAnglePerItem();
   }
 
-  if(auto newState = m_currentState->onFrame(world, *this))
+  if(auto newState = m_currentState->onFrame(ui, world, *this))
   {
     m_currentState = std::move(newState);
     m_currentState->begin(world);
@@ -159,7 +158,7 @@ void MenuDisplay::display(engine::World& world)
 
   for(const auto& txt : objectTexts)
     if(txt != nullptr)
-      txt->render(world.getPresenter().getTrFont(), world.getPresenter().getViewport(), world.getPalette());
+      txt->render(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
 
   if(result != MenuResult::None)
     world.getAudioEngine().setStreamVolume(streamGain);

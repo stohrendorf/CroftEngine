@@ -3,6 +3,11 @@
 #include "menuringtransform.h"
 #include "ui/label.h"
 
+namespace ui
+{
+class Ui;
+}
+
 namespace menu
 {
 enum class InventoryMode
@@ -44,7 +49,7 @@ struct MenuDisplay
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   std::unique_ptr<MenuState> m_currentState;
 
-  void display(engine::World& world);
+  void display(ui::Ui& ui, engine::World& world);
   MenuResult result = MenuResult::None;
   std::optional<size_t> requestLoad;
 

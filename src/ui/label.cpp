@@ -1,7 +1,7 @@
 #include "label.h"
 
 #include "render/scene/material.h"
-#include "util.h"
+#include "ui.h"
 
 #include <gl/cimgwrapper.h>
 
@@ -76,7 +76,7 @@ int Label::calcWidth() const
   return width;
 }
 
-void Label::render(const CachedFont& font, const glm::ivec2& screenSize, const loader::file::Palette& palette) const
+void Label::render(Ui& ui, const CachedFont& font, const glm::ivec2& screenSize) const
 {
   Expects(font.getScale() == scale);
 
@@ -142,17 +142,17 @@ void Label::render(const CachedFont& font, const glm::ivec2& screenSize, const l
   {
     if(!backgroundGouraud.has_value())
     {
-      drawBox(font.getMaterial(), bgnd, effectiveBgndSize, {0, 0, 0, 192});
+      ui.drawBox(bgnd, effectiveBgndSize, {0, 0, 0, 192});
     }
     else
     {
       const auto half = effectiveBgndSize / 2;
       const auto half2 = effectiveBgndSize - half;
       const auto& g = backgroundGouraud.value();
-      drawBox(font.getMaterial(), bgnd, half, g.topLeft);
-      drawBox(font.getMaterial(), bgnd + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
-      drawBox(font.getMaterial(), bgnd + half, {half.x, half2.y}, g.bottomRight);
-      drawBox(font.getMaterial(), bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
+      ui.drawBox(bgnd, half, g.topLeft);
+      ui.drawBox(bgnd + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
+      ui.drawBox(bgnd + half, {half.x, half2.y}, g.bottomRight);
+      ui.drawBox(bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
     }
   }
 
@@ -185,7 +185,7 @@ void Label::render(const CachedFont& font, const glm::ivec2& screenSize, const l
 
   if(outline)
   {
-    drawOutlineBox(font.getMaterial(), bgnd, effectiveBgndSize, palette);
+    ui.drawOutlineBox(bgnd, effectiveBgndSize);
   }
 }
 
