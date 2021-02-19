@@ -28,7 +28,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
     glm::vec3 pos;
     glm::vec2 uv;
     int textureIdx;
-    glm::vec3 color{1.0f};
+    glm::vec4 color{1.0f};
     glm::vec3 normal{0, 0, 1};
   };
 

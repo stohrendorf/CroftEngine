@@ -24,7 +24,7 @@ public:
   {
     glm::vec3 position;
     glm::vec3 normal;
-    glm::vec3 color{1.0f};
+    glm::vec4 color{1.0f};
     glm::vec2 uv;
     glm::int32_t textureIndex{-1};
     glm::int32_t boneIndex{-1};

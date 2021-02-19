@@ -209,7 +209,7 @@ void Presenter::drawLevelName(const loader::file::Palette& palette, const std::s
   tmp.alignY = ui::Label::Alignment::Bottom;
   tmp.outline = true;
   tmp.addBackground({0, 0}, {0, 0});
-  tmp.draw(*m_trFont, *m_screenOverlay->getImage(), palette);
+  tmp.render(*m_trFont, getViewport(), palette);
 }
 
 void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManager& objectManager)

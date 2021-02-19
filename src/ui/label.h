@@ -2,10 +2,10 @@
 
 #include "loader/file/color.h"
 #include "loader/file/datatypes.h"
+#include "screensprite.h"
 #include "util.h"
 
 #include <cstdint>
-#include <gl/cimgwrapper.h>
 #include <string>
 
 namespace loader::file
@@ -21,72 +21,30 @@ constexpr int FontBaseScale = 0x10000;
 
 class CachedFont
 {
-  struct Glyph
-  {
-    explicit Glyph(gl::CImgWrapper&& image, glm::ivec2 shift)
-        : image{std::move(image)}
-        , shift{shift}
-    {
-    }
-
-    gl::CImgWrapper image;
-    const glm::ivec2 shift;
-  };
-
-  mutable std::vector<Glyph> m_glyphs;
+  gsl::span<const loader::file::Sprite> m_sprites;
   const int m_scale;
-
-  static gl::CImgWrapper extractChar(const loader::file::Sprite& sprite, const int scale)
-  {
-    BOOST_ASSERT(sprite.image != nullptr);
-
-    const auto dstW = glm::abs(sprite.render1.x - sprite.render0.x) * scale / FontBaseScale;
-    const auto dstH = glm::abs(sprite.render1.y - sprite.render0.y) * scale / FontBaseScale;
-
-    gl::CImgWrapper src{*sprite.image};
-    src.crop(sprite.uv0.toPx(sprite.image->width()).x,
-             sprite.uv0.toPx(sprite.image->height()).y,
-             sprite.uv1.toPx(sprite.image->width()).x,
-             sprite.uv1.toPx(sprite.image->height()).y);
-    src.resize(dstW, dstH);
-
-    return src;
-  }
+  const std::shared_ptr<render::scene::Material> m_material;
 
 public:
-  explicit CachedFont(const loader::file::SpriteSequence& sequence, const int scale = FontBaseScale)
-      : m_scale{scale}
+  explicit CachedFont(const loader::file::SpriteSequence& sequence,
+                      const std::shared_ptr<render::scene::Material>& material,
+                      const int scale = FontBaseScale)
+      : m_sprites{sequence.sprites}
+      , m_scale{scale}
+      , m_material{material}
   {
-    std::transform(sequence.sprites.begin(),
-                   sequence.sprites.end(),
-                   std::back_inserter(m_glyphs),
-                   [scale](const loader::file::Sprite& spr) {
-                     return Glyph{extractChar(spr, scale), spr.render0};
-                   });
   }
 
-  [[nodiscard]] const Glyph& get(size_t n) const
-  {
-    return m_glyphs.at(n);
-  }
-
-  void draw(size_t n, glm::ivec2 xy, gl::Image<gl::SRGBA8>& img) const
-  {
-    auto& src = m_glyphs.at(n);
-    xy += src.shift;
-
-    for(int dy = 0; dy < src.image.height(); ++dy)
-    {
-      for(int dx = 0; dx < src.image.width(); ++dx)
-      {
-        img.set(xy + glm::ivec2{dx, dy}, src.image(dx, dy), true);
-      }
-    }
-  }
+  void render(size_t n, const glm::ivec2& xy, const glm::ivec2& screenSize) const;
 
   [[nodiscard]] int getScale() const noexcept
   {
     return m_scale;
+  }
+
+  [[nodiscard]] const auto& getMaterial() const
+  {
+    return m_material;
   }
 };
 
@@ -146,7 +104,7 @@ struct Label
   {
   }
 
-  void draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::file::Palette& palette) const;
+  void render(const CachedFont& font, const glm::ivec2& screenSize, const loader::file::Palette& palette) const;
 
   int calcWidth() const;
 

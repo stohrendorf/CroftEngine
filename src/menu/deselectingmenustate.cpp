@@ -9,8 +9,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState>
-  DeselectingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState> DeselectingMenuState::onFrame(engine::World& /*world*/, MenuDisplay& display)
 {
   display.updateRingTitle();
   return create<IdleRingMenuState>(false);

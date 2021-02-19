@@ -78,10 +78,9 @@ void RenderSettingsMenuState::handleObject(engine::World& /*world*/, MenuDisplay
 {
 }
 
-std::unique_ptr<MenuState>
-  RenderSettingsMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> RenderSettingsMenuState::onFrame(engine::World& world, MenuDisplay& /*display*/)
 {
-  m_background->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+  m_background->render(world.getPresenter().getTrFont(), world.getPresenter().getViewport(), world.getPalette());
 
   for(size_t i = 0; i < m_labels.size(); ++i)
   {
@@ -94,7 +93,7 @@ std::unique_ptr<MenuState>
     {
       lbl->outline = false;
     }
-    lbl->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+    lbl->render(world.getPresenter().getTrFont(), world.getPresenter().getViewport(), world.getPalette());
   }
 
   if(m_selected > 0

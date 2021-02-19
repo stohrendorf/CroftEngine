@@ -21,7 +21,7 @@ public:
   }
 
   void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> onFrame(engine::World& world, MenuDisplay& display) override;
   void begin(engine::World& world) override;
 };
 } // namespace menu

@@ -16,8 +16,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState>
-  SelectedMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> SelectedMenuState::onFrame(engine::World& world, MenuDisplay& display)
 {
   auto& currentObject = display.getCurrentRing().getSelectedObject();
   if(currentObject.type == engine::TR1ItemId::PassportClosed)
@@ -30,7 +29,7 @@ std::unique_ptr<MenuState>
   if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
     return nullptr;
 
-  const bool autoSelect = display.doOptions(img, world, currentObject);
+  const bool autoSelect = display.doOptions(world, currentObject);
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
     if(display.rings.size() > 1 || !display.allowMenuClose)

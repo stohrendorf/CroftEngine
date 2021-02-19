@@ -19,7 +19,7 @@ public:
   explicit InflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform);
 
   void begin(engine::World& world) override;
-  std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> onFrame(engine::World& world, MenuDisplay& display) override;
   void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
 };
 } // namespace menu

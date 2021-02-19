@@ -21,8 +21,7 @@ void DoneMenuState::handleObject(engine::World& world, MenuDisplay& display, Men
   }
 }
 
-std::unique_ptr<MenuState>
-  DoneMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> DoneMenuState::onFrame(engine::World& world, MenuDisplay& display)
 {
   display.result = m_result;
 

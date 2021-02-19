@@ -23,7 +23,7 @@ void main()
         }
     }
     else {
-        baseColor = vec4(gpi.color, 1);
+        baseColor = gpi.color;
     }
 
     vec3 finalColor = baseColor.rgb * gpi.color.rgb;

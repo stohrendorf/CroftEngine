@@ -1,7 +1,5 @@
 #pragma once
 
-#include <gl/pixel.h>
-#include <gl/soglb_fwd.h>
 #include <memory>
 
 namespace engine
@@ -32,8 +30,7 @@ public:
   {
   }
   virtual void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) = 0;
-  virtual std::unique_ptr<MenuState> onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display)
-    = 0;
+  virtual std::unique_ptr<MenuState> onFrame(engine::World& world, MenuDisplay& display) = 0;
 
   template<typename T, typename... Ts>
   auto create(Ts&&... args) -> std::enable_if_t<std::is_base_of_v<MenuState, T>, std::unique_ptr<T>>

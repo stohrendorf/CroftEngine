@@ -39,6 +39,8 @@ public:
 
   [[nodiscard]] const std::shared_ptr<Material>& getCrt();
 
+  [[nodiscard]] const std::shared_ptr<Material>& getScreenSprite();
+
   void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures);
 
 private:
@@ -52,6 +54,7 @@ private:
   std::shared_ptr<Material> m_lightning{nullptr};
   std::array<std::array<std::array<std::array<std::shared_ptr<Material>, 2>, 2>, 2>, 2> m_composition{};
   std::shared_ptr<Material> m_crt{nullptr};
+  std::shared_ptr<Material> m_screenSprite{nullptr};
 
   const gsl::not_null<std::shared_ptr<CSM>> m_csm;
   const gsl::not_null<std::shared_ptr<Renderer>> m_renderer;

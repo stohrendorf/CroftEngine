@@ -120,5 +120,10 @@ public:
   {
     return get("flat.vert", "crt.frag");
   }
+
+  auto getScreenSprite()
+  {
+    return get("screensprite.vert", "screensprite.frag");
+  }
 };
 } // namespace render::scene

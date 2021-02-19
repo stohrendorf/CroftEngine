@@ -7,8 +7,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState>
-  FinishItemAnimationMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> FinishItemAnimationMenuState::onFrame(engine::World& world, MenuDisplay& display)
 {
   display.updateRingTitle();
 

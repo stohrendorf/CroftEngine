@@ -44,14 +44,14 @@ struct MenuDisplay
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   std::unique_ptr<MenuState> m_currentState;
 
-  void display(gl::Image<gl::SRGBA8>& img, engine::World& world);
+  void display(engine::World& world);
   MenuResult result = MenuResult::None;
   std::optional<size_t> requestLoad;
 
   std::vector<gsl::not_null<std::unique_ptr<MenuRing>>> rings;
   size_t currentRingIndex = 0;
   bool passOpen = false;
-  bool doOptions(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuObject& object);
+  bool doOptions(engine::World& world, MenuObject& object);
   void updateMenuObjectDescription(engine::World& world, const MenuObject& object);
   void clearMenuObjectDescription();
   void updateRingTitle();

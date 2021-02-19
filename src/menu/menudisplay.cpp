@@ -136,7 +136,7 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
   }
 }
 
-void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::World& world)
+void MenuDisplay::display(engine::World& world)
 {
   ringTransform->cameraPos.Z = 598_len + ringTransform->radius;
 
@@ -151,7 +151,7 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::World& world)
     itemAngle += getCurrentRing().getAnglePerItem();
   }
 
-  if(auto newState = m_currentState->onFrame(img, world, *this))
+  if(auto newState = m_currentState->onFrame(world, *this))
   {
     m_currentState = std::move(newState);
     m_currentState->begin(world);
@@ -159,7 +159,7 @@ void MenuDisplay::display(gl::Image<gl::SRGBA8>& img, engine::World& world)
 
   for(const auto& txt : objectTexts)
     if(txt != nullptr)
-      txt->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+      txt->render(world.getPresenter().getTrFont(), world.getPresenter().getViewport(), world.getPalette());
 
   if(result != MenuResult::None)
     world.getAudioEngine().setStreamVolume(streamGain);
@@ -171,7 +171,7 @@ void MenuDisplay::clearMenuObjectDescription()
   objectTexts[1].reset();
 }
 
-bool MenuDisplay::doOptions(gl::Image<gl::SRGBA8>& /*img*/, engine::World& world, MenuObject& object)
+bool MenuDisplay::doOptions(engine::World& world, MenuObject& object)
 {
   switch(object.type)
   {

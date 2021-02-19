@@ -8,8 +8,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState>
-  SwitchRingMenuState::onFrame(gl::Image<gl::SRGBA8>& /*img*/, engine::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState> SwitchRingMenuState::onFrame(engine::World& /*world*/, MenuDisplay& display)
 {
   if(m_duration != Duration)
   {

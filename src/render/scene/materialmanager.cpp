@@ -157,6 +157,22 @@ const std::shared_ptr<Material>& MaterialManager::getCrt()
   return m_crt;
 }
 
+const std::shared_ptr<Material>& MaterialManager::getScreenSprite()
+{
+  if(m_screenSprite != nullptr)
+    return m_screenSprite;
+
+  auto m = std::make_shared<Material>(m_shaderManager->getScreenSprite());
+  m->getUniform("u_input")->set(m_geometryTextures);
+  m->getRenderState().setBlend(true);
+  m->getRenderState().setBlendSrc(gl::api::BlendingFactor::SrcAlpha);
+  m->getRenderState().setBlendDst(gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m->getRenderState().setDepthTest(false);
+  m->getRenderState().setDepthWrite(false);
+  m_screenSprite = m;
+  return m_screenSprite;
+}
+
 void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
 {
   m_geometryTextures = std::move(geometryTextures);
@@ -165,5 +181,7 @@ void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl:
       for(const auto& c : b)
         if(c != nullptr)
           c->getUniform("u_diffuseTextures")->set(m_geometryTextures);
+  if(m_screenSprite != nullptr)
+    m_screenSprite->getUniform("u_input")->set(m_geometryTextures);
 }
 } // namespace render::scene

@@ -118,8 +118,7 @@ void PassportMenuState::nextPage(MenuObject& passport, engine::World& world)
   }
 }
 
-std::unique_ptr<MenuState>
-  PassportMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> PassportMenuState::onFrame(engine::World& world, MenuDisplay& display)
 {
   auto& passport = display.getCurrentRing().getSelectedObject();
   passport.type = engine::TR1ItemId::PassportOpening;
@@ -179,7 +178,7 @@ std::unique_ptr<MenuState>
   }
 
   if(m_passportText != nullptr)
-    m_passportText->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+    m_passportText->render(world.getPresenter().getTrFont(), world.getPresenter().getViewport(), world.getPalette());
 
   if(forcePageTurn == hid::AxisMovement::Left
      || world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))

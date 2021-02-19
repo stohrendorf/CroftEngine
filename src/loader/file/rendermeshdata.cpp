@@ -24,7 +24,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = tile.textureKey.tileAndFlag & TextureIndexMask;
 
       if(mesh.normals.empty())
-        iv.color = glm::vec3(toBrightness(quad.vertices[i].from(mesh.vertexShades)).get());
+        iv.color = glm::vec4(glm::vec3{toBrightness(quad.vertices[i].from(mesh.vertexShades)).get()}, 1.0f);
 
       if(mesh.isFlatShaded() || mesh.normals.empty()
          || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
@@ -62,7 +62,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
   }
   for(const QuadFace& quad : mesh.colored_rectangles)
   {
-    const auto color = gsl::at(palette.colors, quad.tileId.get() & 0xffu).toGLColor3();
+    const auto color = glm::vec4{gsl::at(palette.colors, quad.tileId.get() & 0xffu).toGLColor3(), 1.0f};
 
     const auto firstVertex = m_vertices.size();
     for(int i = 0; i < 4; ++i)
@@ -116,7 +116,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = tile.textureKey.tileAndFlag & TextureIndexMask;
       iv.uv = tile.uvCoordinates[i].toGl();
       if(mesh.normals.empty())
-        iv.color = glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
+        iv.color = glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertexShades)).get()}, 1.0f};
 
       if(mesh.isFlatShaded() || mesh.normals.empty()
          || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
@@ -137,7 +137,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
 
   for(const Triangle& tri : mesh.colored_triangles)
   {
-    const auto color = gsl::at(palette.colors, tri.tileId.get() & 0xffu).toGLColor3();
+    const auto color = glm::vec4{gsl::at(palette.colors, tri.tileId.get() & 0xffu).toGLColor3(), 1.0f};
 
     for(int i = 0; i < 3; ++i)
     {
@@ -146,7 +146,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = -1;
       iv.color = color;
       if(mesh.normals.empty())
-        iv.color *= glm::vec3(toBrightness(tri.vertices[i].from(mesh.vertexShades)).get());
+        iv.color *= glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertexShades)).get()}, 1.0f};
 
       if(mesh.isFlatShaded() || mesh.normals.empty()
          || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})

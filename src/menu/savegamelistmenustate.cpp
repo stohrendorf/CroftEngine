@@ -61,10 +61,9 @@ void SavegameListMenuState::handleObject(engine::World& /*world*/, MenuDisplay& 
 {
 }
 
-std::unique_ptr<MenuState>
-  SavegameListMenuState::onFrame(gl::Image<gl::SRGBA8>& img, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> SavegameListMenuState::onFrame(engine::World& world, MenuDisplay& display)
 {
-  m_background->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+  m_background->render(world.getPresenter().getTrFont(), world.getPresenter().getViewport(), world.getPalette());
 
   const auto page = m_selected / PerPage;
   const auto first = page * PerPage;
@@ -83,11 +82,11 @@ std::unique_ptr<MenuState>
       lbl->removeBackground();
       lbl->outline = false;
     }
-    lbl->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+    lbl->render(world.getPresenter().getTrFont(), world.getPresenter().getViewport(), world.getPalette());
   }
 
   if(!m_heading->text.empty())
-    m_heading->draw(world.getPresenter().getTrFont(), img, world.getPalette());
+    m_heading->render(world.getPresenter().getTrFont(), world.getPresenter().getViewport(), world.getPalette());
 
   if(m_selected > 0
      && world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))

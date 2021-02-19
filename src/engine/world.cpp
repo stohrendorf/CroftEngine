@@ -1029,7 +1029,7 @@ void World::gameLoop(const std::string& levelName, bool godMode)
     }
     auto text = ui::Label{{-17, 22}, ui::makeAmmoString(std::to_string(n) + suffix)};
     text.alignX = ui::Label::Alignment::Right;
-    text.draw(getPresenter().getTrFont(), *getPresenter().getScreenOverlay().getImage(), *m_level->m_palette);
+    text.render(getPresenter().getTrFont(), getPresenter().getViewport(), *m_level->m_palette);
   }
 
   drawPickupWidgets();
@@ -1464,7 +1464,8 @@ World::World(Engine& engine,
   }
 
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
-  getPresenter().setTrFont(std::make_unique<ui::CachedFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics)));
+  getPresenter().setTrFont(std::make_unique<ui::CachedFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics),
+                                                            getPresenter().getMaterialManager()->getScreenSprite()));
   if(track.has_value())
     m_audioEngine->playStopCdTrack(track.value(), false);
 }

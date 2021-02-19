@@ -168,6 +168,11 @@ public:
     m_window->setFullscreen(value);
   }
 
+  [[nodiscard]] const auto& getViewport() const
+  {
+    return m_window->getViewport();
+  }
+
 private:
   static constexpr int32_t CSMResolution = 2048;
 

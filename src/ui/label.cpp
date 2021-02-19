@@ -1,5 +1,6 @@
 #include "label.h"
 
+#include "render/scene/material.h"
 #include "util.h"
 
 #include <gl/cimgwrapper.h>
@@ -75,7 +76,7 @@ int Label::calcWidth() const
   return width;
 }
 
-void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loader::file::Palette& palette) const
+void Label::render(const CachedFont& font, const glm::ivec2& screenSize, const loader::file::Palette& palette) const
 {
   Expects(font.getScale() == scale);
 
@@ -97,20 +98,20 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
 
   if(alignX == Alignment::Center)
   {
-    xy.x += (img.getWidth() - textWidth) / 2;
+    xy.x += (screenSize.x - textWidth) / 2;
   }
   else if(alignX == Alignment::Right)
   {
-    xy.x += img.getWidth() - textWidth;
+    xy.x += screenSize.x - textWidth;
   }
 
   if(alignY == Alignment::Center)
   {
-    xy.y += img.getHeight() / 2;
+    xy.y += screenSize.y / 2;
   }
   else if(alignY == Alignment::Bottom)
   {
-    xy.y += img.getHeight();
+    xy.y += screenSize.y;
   }
 
   auto bgnd = bgndOff + xy - glm::ivec2{2, 15};
@@ -141,18 +142,17 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
   {
     if(!backgroundGouraud.has_value())
     {
-      for(int dy = 0; dy < effectiveBgndSize.y; ++dy)
-        img.line(bgnd + glm::ivec2{0, dy}, bgnd + glm::ivec2{effectiveBgndSize.x - 1, dy}, {0, 0, 0, 192}, true);
+      drawBox(font.getMaterial(), bgnd, effectiveBgndSize, {0, 0, 0, 192});
     }
     else
     {
       const auto half = effectiveBgndSize / 2;
       const auto half2 = effectiveBgndSize - half;
       const auto& g = backgroundGouraud.value();
-      drawBox(img, bgnd, half, g.topLeft, true);
-      drawBox(img, bgnd + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight, true);
-      drawBox(img, bgnd + half, {half.x, half2.y}, g.bottomRight, true);
-      drawBox(img, bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft, true);
+      drawBox(font.getMaterial(), bgnd, half, g.topLeft);
+      drawBox(font.getMaterial(), bgnd + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
+      drawBox(font.getMaterial(), bgnd + half, {half.x, half2.y}, g.bottomRight);
+      drawBox(font.getMaterial(), bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
     }
   }
 
@@ -175,7 +175,7 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
     else
       chr = charToSprite.at(chr - 32);
 
-    font.draw(chr, xy, img);
+    font.render(chr, xy, screenSize);
 
     if(origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~')
       continue;
@@ -185,7 +185,13 @@ void Label::draw(const CachedFont& font, gl::Image<gl::SRGBA8>& img, const loade
 
   if(outline)
   {
-    drawOutlineBox(img, bgnd, effectiveBgndSize, palette);
+    drawOutlineBox(font.getMaterial(), bgnd, effectiveBgndSize, palette);
   }
+}
+
+void CachedFont::render(size_t n, const glm::ivec2& xy, const glm::ivec2& screenSize) const
+{
+  ScreenSprite screenSprite{m_sprites[n]};
+  screenSprite.render(xy, screenSize, m_material);
 }
 } // namespace ui
