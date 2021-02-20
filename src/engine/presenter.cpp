@@ -209,27 +209,50 @@ void Presenter::renderWorld(ui::Ui& ui,
   swapBuffers();
 }
 
+namespace
+{
+constexpr int BarWidth = 100;
+constexpr int BarHeight = 5;
+
+void drawBar(ui::Ui& ui,
+             const glm::ivec2& xy0,
+             const int p,
+             const gl::SRGBA8& black,
+             const gl::SRGBA8& border1,
+             const gl::SRGBA8& border2,
+             const std::array<gl::SRGBA8, BarHeight>& barColors)
+{
+  ui.drawBox(xy0 + glm::ivec2{-1, -1}, {BarWidth + 2, BarHeight + 2}, black);
+  ui.drawHLine(xy0 + glm::ivec2{-2, 6}, BarWidth + 4, border1);
+  ui.drawVLine(xy0 + glm::ivec2{BarWidth + 2, -2}, BarHeight + 3, border1);
+  ui.drawHLine(xy0 + glm::ivec2{-2, -2}, BarWidth + 4, border2);
+  ui.drawVLine(xy0 + glm::ivec2{-2, -2}, BarHeight + 3, border2);
+
+  if(p > 0)
+  {
+    for(int i = 0; i < BarHeight; ++i)
+      ui.drawHLine(xy0 + glm::ivec2{0, i}, p, barColors[i]);
+  }
+};
+} // namespace
+
 void Presenter::drawBars(ui::Ui& ui, const loader::file::Palette& palette, const ObjectManager& objectManager)
 {
   if(objectManager.getLara().isInWater())
   {
-    const auto x0 = m_window->getViewport().x - 110;
-
-    for(int i = 7; i <= 13; ++i)
-      ui.drawHLine({x0 - 1, i}, 102, palette.colors[0].toTextureColor());
-    ui.drawHLine({x0 - 2, 14}, 104, palette.colors[17].toTextureColor());
-    ui.drawVLine({x0 + 102, 6}, 8, palette.colors[17].toTextureColor());
-    ui.drawHLine({x0 - 2, 6}, 104, palette.colors[19].toTextureColor());
-    ui.drawVLine({x0 - 2, 6}, 8, palette.colors[19].toTextureColor());
-
-    if(const int p = std::clamp(objectManager.getLara().getAir() * 100 / core::LaraAir, 0, 100); p > 0)
-    {
-      ui.drawHLine({x0, 8}, p, palette.colors[32].toTextureColor());
-      ui.drawHLine({x0, 9}, p, palette.colors[41].toTextureColor());
-      ui.drawHLine({x0, 10}, p, palette.colors[32].toTextureColor());
-      ui.drawHLine({x0, 11}, p, palette.colors[19].toTextureColor());
-      ui.drawHLine({x0, 12}, p, palette.colors[21].toTextureColor());
-    }
+    drawBar(ui,
+            {m_window->getViewport().x - BarWidth - 10, 8},
+            std::clamp(objectManager.getLara().getAir() * BarWidth / core::LaraAir, 0, BarWidth),
+            palette.colors[0].toTextureColor(),
+            palette.colors[17].toTextureColor(),
+            palette.colors[19].toTextureColor(),
+            {
+              palette.colors[32].toTextureColor(),
+              palette.colors[41].toTextureColor(),
+              palette.colors[32].toTextureColor(),
+              palette.colors[19].toTextureColor(),
+              palette.colors[21].toTextureColor(),
+            });
   }
 
   if(objectManager.getLara().getHandStatus() == objects::HandStatus::Combat || objectManager.getLara().isDead())
@@ -248,22 +271,19 @@ void Presenter::drawBars(ui::Ui& ui, const loader::file::Palette& palette, const
     alpha = gsl::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
   }
 
-  const int x0 = 8;
-  for(int i = 7; i <= 13; ++i)
-    ui.drawHLine({x0 - 1, i}, 102, palette.colors[0].toTextureColor(alpha));
-  ui.drawHLine({x0 - 2, 14}, 104, palette.colors[17].toTextureColor(alpha));
-  ui.drawVLine({x0 + 102, 6}, 8, palette.colors[17].toTextureColor(alpha));
-  ui.drawHLine({x0 - 2, 6}, 104, palette.colors[19].toTextureColor(alpha));
-  ui.drawHLine({x0 - 2, 6}, 8, palette.colors[19].toTextureColor(alpha));
-
-  if(const int p = std::clamp(objectManager.getLara().m_state.health * 100 / core::LaraHealth, 0, 100); p > 0)
-  {
-    ui.drawHLine({x0, 8}, p, palette.colors[8].toTextureColor(alpha));
-    ui.drawHLine({x0, 9}, p, palette.colors[11].toTextureColor(alpha));
-    ui.drawHLine({x0, 10}, p, palette.colors[8].toTextureColor(alpha));
-    ui.drawHLine({x0, 11}, p, palette.colors[6].toTextureColor(alpha));
-    ui.drawHLine({x0, 12}, p, palette.colors[24].toTextureColor(alpha));
-  }
+  drawBar(ui,
+          {8, 8},
+          std::clamp(objectManager.getLara().m_state.health * BarWidth / core::LaraHealth, 0, BarWidth),
+          palette.colors[0].toTextureColor(alpha),
+          palette.colors[17].toTextureColor(alpha),
+          palette.colors[19].toTextureColor(alpha),
+          {
+            palette.colors[8].toTextureColor(alpha),
+            palette.colors[11].toTextureColor(alpha),
+            palette.colors[8].toTextureColor(alpha),
+            palette.colors[6].toTextureColor(alpha),
+            palette.colors[24].toTextureColor(alpha),
+          });
 }
 
 Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution)
