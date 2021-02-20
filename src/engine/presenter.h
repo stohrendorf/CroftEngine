@@ -81,7 +81,6 @@ public:
                    const std::vector<loader::file::Room>& rooms,
                    const CameraController& cameraController,
                    const std::unordered_set<const loader::file::Portal*>& waterEntryPortals);
-  void drawLevelName(ui::Ui& ui, const std::string& levelName);
 
   [[nodiscard]] const auto& getSoundEngine() const
   {

@@ -199,7 +199,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
       if(allAmmoCheat)
         m_inventory.fillAllAmmo();
 
-      world.gameLoop(world.getTitle(), godMode);
+      world.gameLoop(godMode);
     }
     else
     {

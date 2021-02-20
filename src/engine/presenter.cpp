@@ -209,16 +209,6 @@ void Presenter::renderWorld(ui::Ui& ui,
   swapBuffers();
 }
 
-void Presenter::drawLevelName(ui::Ui& ui, const std::string& levelName)
-{
-  ui::Label tmp{{0, -50}, levelName};
-  tmp.alignX = ui::Label::Alignment::Center;
-  tmp.alignY = ui::Label::Alignment::Bottom;
-  tmp.outline = true;
-  tmp.addBackground({0, 0}, {0, 0});
-  tmp.draw(ui, *m_trFont, getViewport());
-}
-
 void Presenter::drawBars(ui::Ui& ui, const loader::file::Palette& palette, const ObjectManager& objectManager)
 {
   if(objectManager.getLara().isInWater())

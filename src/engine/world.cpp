@@ -1006,14 +1006,11 @@ void World::serialize(const serialization::Serializer<World>& ser)
     m_level->updateRoomBasedCaches();
 }
 
-void World::gameLoop(const std::string& levelName, bool godMode)
+void World::gameLoop(bool godMode)
 {
   ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
             getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
             getPalette()};
-
-  if(!levelName.empty())
-    getPresenter().drawLevelName(ui, levelName);
 
   update(godMode);
 
