@@ -268,6 +268,11 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
                                     384_len});
   }
 
+  objects.erase(
+    std::remove_if(objects.begin(),
+                   objects.end(),
+                   [&world](const MenuObject& obj) { return world.findAnimatedModelForType(obj.type) == nullptr; }),
+    objects.end());
   for(auto& object : objects)
     object.initModel(world);
 
@@ -365,6 +370,11 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
                                     216_len});
   }
 
+  objects.erase(
+    std::remove_if(objects.begin(),
+                   objects.end(),
+                   [&world](const MenuObject& obj) { return world.findAnimatedModelForType(obj.type) == nullptr; }),
+    objects.end());
   for(auto& object : objects)
     object.initModel(world);
 
@@ -427,6 +437,11 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
       MenuObject{"Pickup", engine::TR1ItemId::Item148, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
 
+  objects.erase(
+    std::remove_if(objects.begin(),
+                   objects.end(),
+                   [&world](const MenuObject& obj) { return world.findAnimatedModelForType(obj.type) == nullptr; }),
+    objects.end());
   for(auto& object : objects)
     object.initModel(world);
 

@@ -1,5 +1,6 @@
 #include "reflection.h"
 
+#include "core/pybindmodule.h"
 #include "engine/cameracontroller.h"
 #include "engine/engine.h"
 #include "engine/i18n.h"
@@ -8,7 +9,6 @@
 #include "engine/world.h"
 #include "loader/file/level/level.h"
 
-#include <boost/format.hpp>
 #include <boost/range/adaptors.hpp>
 
 namespace engine::script
@@ -44,7 +44,6 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine)
                                        std::string{},
                                        m_track,
                                        false,
-                                       std::unordered_map<TR1ItemId, size_t>{},
                                        std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{});
 
   world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
@@ -94,17 +93,20 @@ std::unique_ptr<engine::World> Level::loadWorld(Engine& engine)
 
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
 
-  auto inventory = m_inventory;
-  for(const auto& drop : m_dropInventory)
-    inventory.erase(drop);
+  for(const auto& [type, qty] : m_inventory)
+    engine.getInventory().put(type, qty);
+  for(const auto& type : m_dropInventory)
+    engine.getInventory().drop(type);
 
-  return std::make_unique<World>(engine,
-                                 loadLevel(engine, m_name, util::unescape(title)),
-                                 title,
-                                 m_track,
-                                 m_useAlternativeLara,
-                                 inventory,
-                                 m_itemTitles);
+  if(const auto tbl = core::get<pybind11::dict>(
+       core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "inventory"))
+  {
+    for(const auto& [type, qty] : *tbl)
+      engine.getInventory().put(type.cast<TR1ItemId>(), qty.cast<size_t>());
+  }
+
+  return std::make_unique<World>(
+    engine, loadLevel(engine, m_name, util::unescape(title)), title, m_track, m_useAlternativeLara, m_itemTitles);
 }
 
 bool Level::isLevel(const std::filesystem::path& path) const
@@ -121,6 +123,7 @@ std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine)
 std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine, const std::optional<size_t>& slot)
 {
   Expects(m_allowSave);
+  engine.getInventory().clear();
   auto world = loadWorld(engine);
   if(slot.has_value())
     world->load(slot.value());
@@ -131,6 +134,7 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine, c
 
 std::pair<RunResult, std::optional<size_t>> TitleMenu::run(Engine& engine)
 {
+  engine.getInventory().clear();
   auto world = loadWorld(engine);
   return engine.runTitleMenu(*world);
 }

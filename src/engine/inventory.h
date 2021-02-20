@@ -65,6 +65,11 @@ public:
     m_inventory.clear();
   }
 
+  void drop(TR1ItemId id)
+  {
+    m_inventory.erase(id);
+  }
+
   bool tryUse(objects::LaraObject& lara, TR1ItemId id);
 
   gsl::not_null<Ammo*> getAmmo(WeaponId weaponId)

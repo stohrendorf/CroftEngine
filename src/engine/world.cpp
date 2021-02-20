@@ -1184,7 +1184,6 @@ World::World(Engine& engine,
              std::string title,
              const std::optional<TR1TrackId>& track,
              bool useAlternativeLara,
-             std::unordered_map<TR1ItemId, size_t> initialInventory,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles)
     : m_engine{engine}
     , m_audioEngine{std::make_unique<AudioEngine>(
@@ -1194,13 +1193,6 @@ World::World(Engine& engine,
     , m_itemTitles{std::move(itemTitles)}
 {
   {
-    if(const auto tbl = core::get<pybind11::dict>(
-         core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "inventory"))
-    {
-      for(const auto& [type, qty] : *tbl)
-        initialInventory[type.cast<TR1ItemId>()] += qty.cast<size_t>();
-    }
-
     getPresenter().drawLoadingScreen(m_engine.i18n(I18n::BuildingTextures));
     for(auto& texture : m_level->m_textures)
     {
@@ -1464,15 +1456,6 @@ World::World(Engine& engine,
     if(useAlternativeLara)
     {
       useAlternativeLaraAppearance();
-    }
-
-    if(m_objectManager.getLaraPtr() != nullptr)
-    {
-      for(const auto& [item, qty] : initialInventory)
-      {
-        if(m_level->findAnimatedModelForType(item) != nullptr)
-          m_engine.getInventory().put(item, qty);
-      }
     }
   }
 

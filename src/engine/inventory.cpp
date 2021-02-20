@@ -16,7 +16,7 @@ void Inventory::put(const core::TypeId id, const size_t quantity)
   switch(id.get_as<TR1ItemId>())
   {
   case TR1ItemId::PistolsSprite:
-  case TR1ItemId::Pistols: m_inventory[TR1ItemId::Pistols] += quantity; break;
+  case TR1ItemId::Pistols: m_inventory[TR1ItemId::Pistols] = 1; break;
   case TR1ItemId::ShotgunSprite:
   case TR1ItemId::Shotgun:
     if(const auto clips = count(TR1ItemId::ShotgunAmmoSprite))

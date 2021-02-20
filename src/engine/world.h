@@ -60,7 +60,6 @@ public:
                  std::string title,
                  const std::optional<TR1TrackId>& track,
                  bool useAlternativeLara,
-                 std::unordered_map<TR1ItemId, size_t> initialInventory,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles);
 
   ~World();
