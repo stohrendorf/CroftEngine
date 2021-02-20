@@ -1187,7 +1187,7 @@ World::World(Engine& engine,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles)
     : m_engine{engine}
     , m_audioEngine{std::make_unique<AudioEngine>(
-        *this, engine.getRootPath() / "data" / "tr1" / "audio", engine.getPresenter().getSoundEngine())}
+        *this, engine.getRootPath() / "data" / "tr1" / "AUDIO", engine.getPresenter().getSoundEngine())}
     , m_level{std::move(level)}
     , m_title{std::move(title)}
     , m_itemTitles{std::move(itemTitles)}

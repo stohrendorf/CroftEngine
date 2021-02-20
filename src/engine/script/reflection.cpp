@@ -17,7 +17,7 @@ namespace
 {
 std::filesystem::path getLocalLevelPath(const std::string& basename)
 {
-  return std::filesystem::path{"data"} / "tr1" / "data" / (basename + ".PHD");
+  return std::filesystem::path{"data"} / "tr1" / "DATA" / (basename + ".PHD");
 }
 
 std::unique_ptr<loader::file::level::Level>
@@ -111,7 +111,15 @@ std::unique_ptr<engine::World> Level::loadWorld(Engine& engine)
 
 bool Level::isLevel(const std::filesystem::path& path) const
 {
-  return getLocalLevelPath(m_name) == path;
+  try
+  {
+    return std::filesystem::equivalent(getLocalLevelPath(m_name), path);
+  }
+  catch(std::error_code& ec)
+  {
+    ec.clear();
+    return false;
+  }
 }
 
 std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine)
