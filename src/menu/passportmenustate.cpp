@@ -178,7 +178,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::World&
   }
 
   if(m_passportText != nullptr)
-    m_passportText->render(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
+    m_passportText->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
 
   if(forcePageTurn == hid::AxisMovement::Left
      || world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))

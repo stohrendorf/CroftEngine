@@ -22,11 +22,6 @@
  * TR level data or engine internals.
  */
 
-namespace gl
-{
-class CImgWrapper;
-}
-
 namespace engine::objects
 {
 class Object;
@@ -488,8 +483,6 @@ inline gsl::not_null<const Sector*> findRealFloorSector(core::RoomBoundPosition&
 struct Sprite
 {
   core::TextureId texture_id{uint16_t(0)};
-
-  std::shared_ptr<gl::CImgWrapper> image{nullptr};
 
   UVCoordinates uv0;
   UVCoordinates uv1;

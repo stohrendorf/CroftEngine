@@ -3,7 +3,6 @@
 #include "boxgouraud.h"
 #include "loader/file/color.h"
 #include "loader/file/datatypes.h"
-#include "screensprite.h"
 
 #include <cstdint>
 #include <string>
@@ -21,32 +20,23 @@ extern std::string makeAmmoString(const std::string& str);
 
 constexpr int FontBaseScale = 0x10000;
 
-class CachedFont
+class TRFont
 {
   gsl::span<const loader::file::Sprite> m_sprites;
   const int m_scale;
-  const std::shared_ptr<render::scene::Material> m_material;
 
 public:
-  explicit CachedFont(const loader::file::SpriteSequence& sequence,
-                      const std::shared_ptr<render::scene::Material>& material,
-                      const int scale = FontBaseScale)
+  explicit TRFont(const loader::file::SpriteSequence& sequence, const int scale = FontBaseScale)
       : m_sprites{sequence.sprites}
       , m_scale{scale}
-      , m_material{material}
   {
   }
 
-  void render(size_t n, const glm::ivec2& xy, const glm::ivec2& screenSize) const;
+  void draw(ui::Ui& ui, size_t n, const glm::ivec2& xy) const;
 
   [[nodiscard]] int getScale() const noexcept
   {
     return m_scale;
-  }
-
-  [[nodiscard]] const auto& getMaterial() const
-  {
-    return m_material;
   }
 };
 
@@ -106,7 +96,7 @@ struct Label
   {
   }
 
-  void render(Ui& ui, const CachedFont& font, const glm::ivec2& screenSize) const;
+  void draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const;
 
   int calcWidth() const;
 

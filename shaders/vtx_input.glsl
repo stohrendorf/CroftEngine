@@ -13,3 +13,10 @@ layout(location=4) in float a_texIndex;
 #ifdef VTX_INPUT_BONE_INDEX
 layout(location=5) in float a_boneIndex;
 #endif
+
+#ifdef VTX_INPUT_COLOR_QUAD
+layout(location=6) in vec4 a_colorTopLeft;
+layout(location=7) in vec4 a_colorTopRight;
+layout(location=8) in vec4 a_colorBottomLeft;
+layout(location=9) in vec4 a_colorBottomRight;
+#endif

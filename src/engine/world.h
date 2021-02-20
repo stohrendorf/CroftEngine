@@ -269,9 +269,9 @@ public:
     return *m_textureAnimator;
   }
 
-  void addPickupWidget(gl::CImgWrapper image)
+  void addPickupWidget(loader::file::Sprite sprite)
   {
-    m_pickupWidgets.emplace_back(75_frame, std::move(image));
+    m_pickupWidgets.emplace_back(75_frame, std::move(sprite));
   }
 
   std::optional<std::string> getItemTitle(TR1ItemId id) const;
@@ -279,7 +279,7 @@ public:
 private:
   void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips);
 
-  void drawPickupWidgets();
+  void drawPickupWidgets(ui::Ui& ui);
 
   Engine& m_engine;
 

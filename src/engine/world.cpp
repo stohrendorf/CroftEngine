@@ -1008,7 +1008,9 @@ void World::serialize(const serialization::Serializer<World>& ser)
 
 void World::gameLoop(const std::string& levelName, bool godMode)
 {
-  ui::Ui ui{getPresenter().getMaterialManager()->getScreenSprite(), getPalette()};
+  ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
+            getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
+            getPalette()};
 
   if(!levelName.empty())
     getPresenter().drawLevelName(ui, levelName);
@@ -1040,10 +1042,10 @@ void World::gameLoop(const std::string& levelName, bool godMode)
     }
     auto text = ui::Label{{-17, 22}, ui::makeAmmoString(std::to_string(n) + suffix)};
     text.alignX = ui::Label::Alignment::Right;
-    text.render(ui, getPresenter().getTrFont(), getPresenter().getViewport());
+    text.draw(ui, getPresenter().getTrFont(), getPresenter().getViewport());
   }
 
-  drawPickupWidgets();
+  drawPickupWidgets(ui);
   getPresenter().renderWorld(ui, getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
 }
 
@@ -1055,7 +1057,9 @@ bool World::cinematicLoop()
     = m_cameraController->updateCinematic(m_level->m_cinematicFrames[m_cameraController->m_cinematicFrame], false);
   doGlobalEffect();
 
-  ui::Ui ui{getPresenter().getMaterialManager()->getScreenSprite(), getPalette()};
+  ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
+            getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
+            getPalette()};
   getPresenter().renderWorld(ui, getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
   if(++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size())
     return false;
@@ -1440,9 +1444,6 @@ World::World(Engine& engine,
       m_allTextures->assign(images[i]->pixels<gl::SRGBA8>().data(), gsl::narrow_cast<int>(i), 0);
     createMipmaps(images, textureLevels);
 
-    for(auto& sprite : m_level->m_sprites)
-      sprite.image = images[sprite.texture_id.get()];
-
     m_textureAnimator = std::make_unique<render::TextureAnimator>(m_level->m_animatedTextures);
 
     m_audioEngine->init(m_level->m_soundEffectProperties, m_level->m_soundEffects);
@@ -1476,8 +1477,7 @@ World::World(Engine& engine,
   }
 
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
-  getPresenter().setTrFont(std::make_unique<ui::CachedFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics),
-                                                            getPresenter().getMaterialManager()->getScreenSprite()));
+  getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics)));
   if(track.has_value())
     m_audioEngine->playStopCdTrack(track.value(), false);
 }
@@ -1527,7 +1527,7 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
   }
 }
 
-void World::drawPickupWidgets()
+void World::drawPickupWidgets(ui::Ui& ui)
 {
   auto& img = *getPresenter().getScreenOverlay().getImage();
   auto x = img.getWidth() * 9 / 10;
@@ -1538,7 +1538,7 @@ void World::drawPickupWidgets()
     if(widget.expired())
       continue;
 
-    widget.draw(img, x, y);
+    widget.draw(ui, x, y);
     x -= widthPerWidget;
   }
 }

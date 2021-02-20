@@ -29,7 +29,7 @@ class SoundEngine;
 
 namespace ui
 {
-class CachedFont;
+class TRFont;
 class Ui;
 } // namespace ui
 
@@ -115,7 +115,7 @@ public:
 
   void drawBars(const loader::file::Palette& palette, const ObjectManager& objectManager);
 
-  [[nodiscard]] const ui::CachedFont& getTrFont() const
+  [[nodiscard]] const ui::TRFont& getTrFont() const
   {
     Expects(m_trFont != nullptr);
     return *m_trFont;
@@ -157,7 +157,7 @@ public:
   bool preFrame();
   [[nodiscard]] bool shouldClose() const;
 
-  void setTrFont(std::unique_ptr<ui::CachedFont>&& font);
+  void setTrFont(std::unique_ptr<ui::TRFont>&& font);
 
   void swapBuffers();
 
@@ -189,7 +189,7 @@ private:
   core::Health m_drawnHealth = core::LaraHealth;
   core::Frame m_healthBarTimeout = -40_frame;
   const std::unique_ptr<hid::InputHandler> m_inputHandler;
-  std::unique_ptr<ui::CachedFont> m_trFont;
+  std::unique_ptr<ui::TRFont> m_trFont;
 
   const std::shared_ptr<render::scene::ShaderManager> m_shaderManager{};
   const std::shared_ptr<render::scene::CSM> m_csm{};

@@ -157,20 +157,35 @@ const std::shared_ptr<Material>& MaterialManager::getCrt()
   return m_crt;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getScreenSprite()
+const std::shared_ptr<Material>& MaterialManager::getScreenSpriteTextured()
 {
-  if(m_screenSprite != nullptr)
-    return m_screenSprite;
+  if(m_screenSpriteTextured != nullptr)
+    return m_screenSpriteTextured;
 
-  auto m = std::make_shared<Material>(m_shaderManager->getScreenSprite());
+  auto m = std::make_shared<Material>(m_shaderManager->getScreenSpriteTextured());
   m->getUniform("u_input")->set(m_geometryTextures);
   m->getRenderState().setBlend(true);
   m->getRenderState().setBlendSrc(gl::api::BlendingFactor::SrcAlpha);
   m->getRenderState().setBlendDst(gl::api::BlendingFactor::OneMinusSrcAlpha);
   m->getRenderState().setDepthTest(false);
   m->getRenderState().setDepthWrite(false);
-  m_screenSprite = m;
-  return m_screenSprite;
+  m_screenSpriteTextured = m;
+  return m_screenSpriteTextured;
+}
+
+const std::shared_ptr<Material>& MaterialManager::getScreenSpriteColorRect()
+{
+  if(m_screenSpriteColorRect != nullptr)
+    return m_screenSpriteColorRect;
+
+  auto m = std::make_shared<Material>(m_shaderManager->getScreenSpriteColorRect());
+  m->getRenderState().setBlend(true);
+  m->getRenderState().setBlendSrc(gl::api::BlendingFactor::SrcAlpha);
+  m->getRenderState().setBlendDst(gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m->getRenderState().setDepthTest(false);
+  m->getRenderState().setDepthWrite(false);
+  m_screenSpriteColorRect = m;
+  return m_screenSpriteColorRect;
 }
 
 void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
@@ -181,7 +196,7 @@ void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl:
       for(const auto& c : b)
         if(c != nullptr)
           c->getUniform("u_diffuseTextures")->set(m_geometryTextures);
-  if(m_screenSprite != nullptr)
-    m_screenSprite->getUniform("u_input")->set(m_geometryTextures);
+  if(m_screenSpriteTextured != nullptr)
+    m_screenSpriteTextured->getUniform("u_input")->set(m_geometryTextures);
 }
 } // namespace render::scene

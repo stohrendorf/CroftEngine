@@ -121,7 +121,12 @@ public:
     return get("flat.vert", "crt.frag");
   }
 
-  auto getScreenSprite()
+  auto getScreenSpriteTextured()
+  {
+    return get("screensprite.vert", "screensprite.frag", {"SCREENSPRITE_TEXTURE"});
+  }
+
+  auto getScreenSpriteColorRect()
   {
     return get("screensprite.vert", "screensprite.frag");
   }

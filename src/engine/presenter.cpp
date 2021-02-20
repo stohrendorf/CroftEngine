@@ -202,7 +202,7 @@ void Presenter::renderWorld(ui::Ui& ui,
     m_screenOverlay->render(context);
   }
 
-  ui.render();
+  ui.render(m_window->getViewport());
 
   swapBuffers();
 }
@@ -214,7 +214,7 @@ void Presenter::drawLevelName(ui::Ui& ui, const std::string& levelName)
   tmp.alignY = ui::Label::Alignment::Bottom;
   tmp.outline = true;
   tmp.addBackground({0, 0}, {0, 0});
-  tmp.render(ui, *m_trFont, getViewport());
+  tmp.draw(ui, *m_trFont, getViewport());
 }
 
 void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManager& objectManager)
@@ -392,7 +392,7 @@ bool Presenter::shouldClose() const
   return m_window->windowShouldClose();
 }
 
-void Presenter::setTrFont(std::unique_ptr<ui::CachedFont>&& font)
+void Presenter::setTrFont(std::unique_ptr<ui::TRFont>&& font)
 {
   m_trFont = std::move(font);
 }

@@ -13,6 +13,11 @@ class Mesh;
 class Material;
 } // namespace render::scene
 
+namespace loader::file
+{
+struct Sprite;
+}
+
 namespace ui
 {
 struct BoxGouraud;
@@ -20,8 +25,11 @@ struct BoxGouraud;
 class Ui final
 {
 public:
-  explicit Ui(std::shared_ptr<render::scene::Material> material, const std::array<gl::SRGBA8, 256>& palette)
-      : m_material{std::move(material)}
+  explicit Ui(std::shared_ptr<render::scene::Material> texture,
+              std::shared_ptr<render::scene::Material> color,
+              const std::array<gl::SRGBA8, 256>& palette)
+      : m_texture{std::move(texture)}
+      , m_color{std::move(color)}
       , m_palette{palette}
   {
   }
@@ -29,11 +37,13 @@ public:
   void drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const gl::SRGBA8& color);
+  void draw(const loader::file::Sprite& sprite, const glm::ivec2& xy);
 
-  void render();
+  void render(const glm::vec2& screenSize);
 
 private:
-  const std::shared_ptr<render::scene::Material> m_material;
+  const std::shared_ptr<render::scene::Material> m_texture;
+  const std::shared_ptr<render::scene::Material> m_color;
   const std::array<gl::SRGBA8, 256> m_palette;
   std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>> m_meshes{};
 };

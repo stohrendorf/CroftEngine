@@ -158,7 +158,7 @@ void MenuDisplay::display(ui::Ui& ui, engine::World& world)
 
   for(const auto& txt : objectTexts)
     if(txt != nullptr)
-      txt->render(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
+      txt->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
 
   if(result != MenuResult::None)
     world.getAudioEngine().setStreamVolume(streamGain);

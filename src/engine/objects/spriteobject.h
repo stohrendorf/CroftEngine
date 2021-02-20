@@ -24,8 +24,6 @@ protected:
                std::string name,
                gsl::not_null<std::shared_ptr<render::scene::Material>> material);
 
-  gl::CImgWrapper getCroppedImage() const;
-
 public:
   SpriteObject(const gsl::not_null<World*>& world,
                std::string name,
@@ -60,6 +58,12 @@ public:
 
   void update() override
   {
+  }
+
+  const loader::file::Sprite& getSprite() const
+  {
+    Expects(m_sprite != nullptr);
+    return *m_sprite;
   }
 
   loader::file::BoundingBox getBoundingBox() const override

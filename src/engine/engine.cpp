@@ -149,11 +149,13 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
 
     if(menu != nullptr)
     {
-      ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSprite(), world.getPalette()};
+      ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSpriteTextured(),
+                world.getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
+                world.getPalette()};
       menu->display(ui, world);
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       m_presenter->getScreenOverlay().render(context);
-      ui.render();
+      ui.render(m_presenter->getViewport());
       m_presenter->swapBuffers();
       switch(menu->result)
       {
@@ -224,11 +226,13 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
     if(!m_presenter->preFrame())
       continue;
 
-    ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSprite(), world.getPalette()};
+    ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSpriteTextured(),
+              world.getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
+              world.getPalette()};
     menu->display(ui, world);
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
     m_presenter->getScreenOverlay().render(context);
-    ui.render();
+    ui.render(m_presenter->getViewport());
     m_presenter->swapBuffers();
     switch(menu->result)
     {

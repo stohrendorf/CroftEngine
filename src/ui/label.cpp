@@ -3,8 +3,6 @@
 #include "render/scene/material.h"
 #include "ui.h"
 
-#include <gl/cimgwrapper.h>
-
 namespace ui
 {
 namespace
@@ -76,7 +74,7 @@ int Label::calcWidth() const
   return width;
 }
 
-void Label::render(Ui& ui, const CachedFont& font, const glm::ivec2& screenSize) const
+void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 {
   Expects(font.getScale() == scale);
 
@@ -175,7 +173,7 @@ void Label::render(Ui& ui, const CachedFont& font, const glm::ivec2& screenSize)
     else
       chr = charToSprite.at(chr - 32);
 
-    font.render(chr, xy, screenSize);
+    font.draw(ui, chr, xy);
 
     if(origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~')
       continue;
@@ -189,9 +187,8 @@ void Label::render(Ui& ui, const CachedFont& font, const glm::ivec2& screenSize)
   }
 }
 
-void CachedFont::render(size_t n, const glm::ivec2& xy, const glm::ivec2& screenSize) const
+void TRFont::draw(ui::Ui& ui, size_t n, const glm::ivec2& xy) const
 {
-  ScreenSprite screenSprite{m_sprites[n]};
-  screenSprite.render(xy, screenSize, m_material);
+  ui.draw(m_sprites[n], xy);
 }
 } // namespace ui

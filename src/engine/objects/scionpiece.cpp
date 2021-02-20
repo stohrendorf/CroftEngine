@@ -46,7 +46,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
   {
     m_state.triggerState = TriggerState::Invisible;
     getWorld().getInventory().put(getWorld().getObjectManager().getLara(), m_state.type);
-    getWorld().addPickupWidget(getCroppedImage());
+    getWorld().addPickupWidget(getSprite());
     setParent(getNode(), nullptr);
     m_state.collidable = false;
   }
