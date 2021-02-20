@@ -354,7 +354,7 @@ public:
     RangeXY leftAngles{};
     RangeXY rightAngles{};
     core::Angle aimSpeed = 0_deg;
-    core::Angle shotAccuracy = 0_deg;
+    core::Angle shotInaccuracy = 0_deg;
     core::Length gunHeight = 0_len;
     core::Health damage = 0_hp;
     core::Length targetDist = 0_len;

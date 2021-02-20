@@ -1644,7 +1644,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
   core::TRVec gunPosition = gunHolder.m_state.position.position;
   gunPosition.Y -= weapon->gunHeight;
   const core::TRRotation shootVector{
-    util::rand15s(weapon->shotAccuracy / 2) + aimAngle.X, util::rand15s(weapon->shotAccuracy / 2) + aimAngle.Y, +0_deg};
+    util::rand15s(weapon->shotInaccuracy) + aimAngle.X, util::rand15s(weapon->shotInaccuracy) + aimAngle.Y, +0_deg};
 
   std::vector<SkeletalModelNode::Sphere> spheres;
   if(targetObject != nullptr)
@@ -1655,20 +1655,15 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
   bool hasHit = false;
   glm::vec3 hitPos;
   const auto bulletDir = normalize(glm::vec3(shootVector.toMatrix()[2])); // +Z is our shooting direction
-  if(!spheres.empty())
+  for(const auto& sphere : spheres)
   {
-    core::Length minD{std::numeric_limits<core::Length::type>::max()};
-    for(const auto& sphere : spheres)
+    hitPos
+      = gunPosition.toRenderSystem() + bulletDir * dot(sphere.getPosition() - gunPosition.toRenderSystem(), bulletDir);
+
+    if(core::Length{static_cast<core::Length::type>(length(hitPos - sphere.getPosition()))} <= sphere.radius)
     {
-      hitPos = gunPosition.toRenderSystem()
-               + bulletDir * dot(sphere.getPosition() - gunPosition.toRenderSystem(), bulletDir);
-
-      const auto d = core::Length{static_cast<core::Length::type>(length(hitPos - sphere.getPosition()))};
-      if(d > sphere.radius || d >= minD)
-        continue;
-
-      minD = d;
       hasHit = true;
+      break;
     }
   }
 
@@ -2264,7 +2259,7 @@ LaraObject::LaraObject(const gsl::not_null<World*>& world,
   w.rightAngles.x.min = -80_deg;
   w.rightAngles.x.max = +80_deg;
   w.aimSpeed = +10_deg;
-  w.shotAccuracy = +8_deg;
+  w.shotInaccuracy = +8_deg;
   w.gunHeight = 650_len;
   w.damage = 1_hp;
   w.targetDist = core::SectorSize * 8;
@@ -2286,7 +2281,7 @@ LaraObject::LaraObject(const gsl::not_null<World*>& world,
   w.rightAngles.x.min = -80_deg;
   w.rightAngles.x.max = +80_deg;
   w.aimSpeed = +10_deg;
-  w.shotAccuracy = +8_deg;
+  w.shotInaccuracy = +8_deg;
   w.gunHeight = 650_len;
   w.damage = 2_hp;
   w.targetDist = core::SectorSize * 8;
@@ -2308,7 +2303,7 @@ LaraObject::LaraObject(const gsl::not_null<World*>& world,
   w.rightAngles.x.min = -80_deg;
   w.rightAngles.x.max = +80_deg;
   w.aimSpeed = +10_deg;
-  w.shotAccuracy = +8_deg;
+  w.shotInaccuracy = +8_deg;
   w.gunHeight = 650_len;
   w.damage = 1_hp;
   w.targetDist = core::SectorSize * 8;
@@ -2330,7 +2325,7 @@ LaraObject::LaraObject(const gsl::not_null<World*>& world,
   w.rightAngles.x.min = -65_deg;
   w.rightAngles.x.max = +65_deg;
   w.aimSpeed = +10_deg;
-  w.shotAccuracy = 0_deg;
+  w.shotInaccuracy = 0_deg;
   w.gunHeight = 500_len;
   w.damage = 4_hp;
   w.targetDist = core::SectorSize * 8;
@@ -2379,7 +2374,7 @@ void LaraObject::Weapon::serialize(const serialization::Serializer<World>& ser)
       S_NV("leftAngles", leftAngles),
       S_NV("rightAngles", rightAngles),
       S_NV("aimSpeed", aimSpeed),
-      S_NV("shotAccuracy", shotAccuracy),
+      S_NV("shotInaccuracy", shotInaccuracy),
       S_NV("gunHeight", gunHeight),
       S_NV("damage", damage),
       S_NV("targetDist", targetDist),

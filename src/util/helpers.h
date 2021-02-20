@@ -26,13 +26,13 @@ inline int16_t rand15()
 template<typename T>
 inline T rand15(T max)
 {
-  return max * rand15() / Rand15Max;
+  return static_cast<T>(static_cast<float>(max) * static_cast<float>(rand15()) / static_cast<float>(Rand15Max));
 }
 
 template<typename T, typename U>
 inline auto rand15(qs::quantity<T, U> max)
 {
-  return max * U(rand15()) / U(Rand15Max);
+  return (max.template cast<float>() * static_cast<float>(rand15()) / static_cast<float>(Rand15Max)).template cast<U>();
 }
 
 inline int16_t rand15s()
@@ -43,13 +43,14 @@ inline int16_t rand15s()
 template<typename T, typename U>
 inline auto rand15s(qs::quantity<T, U> max)
 {
-  return max * U(rand15s()) / U(Rand15Max);
+  return (max.template cast<float>() * static_cast<float>(rand15s()) / static_cast<float>(Rand15Max))
+    .template cast<U>();
 }
 
 template<typename T>
 inline T rand15s(T max)
 {
-  return max * rand15s() / Rand15Max;
+  return static_cast<T>(static_cast<float>(max) * static_cast<float>(rand15s()) / static_cast<float>(Rand15Max));
 }
 
 inline glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
