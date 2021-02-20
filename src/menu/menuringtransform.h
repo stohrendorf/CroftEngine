@@ -23,8 +23,8 @@ struct MenuRingTransform
   [[nodiscard]] glm::mat4 getView() const
   {
     return glm::lookAt(
-             cameraPos.toRenderSystem(), core::TRVec{0_len, 96_len, radius}.toRenderSystem(), glm::vec3{0, 1, 0})
-           * glm::eulerAngleX(core::toRad(cameraRotX));
+             cameraPos.toRenderSystem(), core::TRVec{0_len, -96_len, radius}.toRenderSystem(), glm::vec3{0, 1, 0})
+           * glm::eulerAngleX(core::toRad(-cameraRotX));
   }
 };
 } // namespace menu

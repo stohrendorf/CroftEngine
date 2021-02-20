@@ -294,7 +294,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
 
   if(world.getEngine().getInventory().count(engine::TR1ItemId::Pistols) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Controls),
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Pistols),
                                     engine::TR1ItemId::Pistols,
                                     12_frame,
                                     11_frame,

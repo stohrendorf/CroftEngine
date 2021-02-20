@@ -43,6 +43,6 @@ void DeflateRingMenuState::begin(engine::World& /*world*/)
 {
   // TODO fadeOutInventory(mode != InventoryMode::TitleMode);
   m_initialRadius = m_ringTransform->radius;
-  m_cameraSpeedY = (-256_len - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
+  m_cameraSpeedY = (-1536_len - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
 }
 } // namespace menu
