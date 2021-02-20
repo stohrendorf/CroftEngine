@@ -129,6 +129,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
     = core::get<bool>(core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "godMode")
         .value_or(false);
 
+  const bool allAmmoCheat
+    = core::get<bool>(core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}),
+                      "allAmmoCheat")
+        .value_or(false);
+
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
   while(true)
@@ -190,6 +195,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
       {
         return {RunResult::RequestLoad, std::nullopt};
       }
+
+      if(allAmmoCheat)
+        m_inventory.fillAllAmmo();
 
       world.gameLoop(world.getTitle(), godMode);
     }

@@ -270,7 +270,7 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
 
   if(collisionInfo.front.ceilingSpace.y > 0_len || collisionInfo.mid.ceilingSpace.y > -core::ClimbLimit2ClickMin
      || collisionInfo.mid.floorSpace.y < 200_len)
-  { //! @todo Magick 200
+  {
     return false;
   }
 
@@ -348,7 +348,6 @@ bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
     return false;
   }
 
-  //! @todo MAGICK +/- 30 degrees
   auto alignedRotation = alignRotation(m_lara.m_state.rotation.Y, 30_deg);
   if(!alignedRotation)
   {

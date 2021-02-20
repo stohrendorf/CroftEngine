@@ -1632,11 +1632,6 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
 
   const auto ammoPtr = getWorld().getEngine().getInventory().getAmmo(weaponId);
 
-  if(true /* FIXME engine::allAmmoCheat */)
-  {
-    ammoPtr->ammo = 1000;
-  }
-
   if(ammoPtr->ammo == 0)
   {
     playSoundEffect(TR1SoundEffect::EmptyAmmo);

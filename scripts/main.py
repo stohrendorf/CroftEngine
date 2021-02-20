@@ -8,6 +8,7 @@ from hid import GlfwKey, GlfwGamepadButton, Action
 
 cheats = {
     "godMode": True,
+    "allAmmoCheat": True,
     "inventory": {
         TR1ItemId.Key1: 10,
         TR1ItemId.Key2: 10,

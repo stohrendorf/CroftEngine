@@ -85,5 +85,13 @@ public:
     default: BOOST_THROW_EXCEPTION(std::domain_error("weaponId"));
     }
   }
+
+  void fillAllAmmo()
+  {
+    m_pistolsAmmo.ammo = 1000;
+    m_magnumsAmmo.ammo = 1000;
+    m_uzisAmmo.ammo = 1000;
+    m_shotgunAmmo.ammo = 1000;
+  }
 };
 } // namespace engine
