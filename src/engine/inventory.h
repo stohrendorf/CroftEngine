@@ -1,9 +1,12 @@
 #pragma once
 
 #include "core/id.h"
+#include "weaponid.h"
 
+#include <boost/throw_exception.hpp>
 #include <gsl-lite.hpp>
 #include <map>
+#include <stdexcept>
 
 namespace engine
 {
@@ -14,17 +17,31 @@ class LaraObject;
 
 class World;
 
+struct Ammo
+{
+  size_t ammo = 0;
+  uint32_t hits = 0;
+  uint32_t misses = 0;
+
+  void serialize(const serialization::Serializer<World>& ser);
+};
+
 class Inventory
 {
 private:
   std::map<TR1ItemId, size_t> m_inventory;
+
+  Ammo m_pistolsAmmo;
+  Ammo m_magnumsAmmo;
+  Ammo m_uzisAmmo;
+  Ammo m_shotgunAmmo;
 
 public:
   explicit Inventory() = default;
 
   void serialize(const serialization::Serializer<World>& ser);
 
-  void put(objects::LaraObject& lara, core::TypeId id, size_t quantity = 1);
+  void put(core::TypeId id, size_t quantity = 1);
 
   bool tryTake(TR1ItemId id, size_t quantity = 1);
 
@@ -49,5 +66,19 @@ public:
   }
 
   bool tryUse(objects::LaraObject& lara, TR1ItemId id);
+
+  gsl::not_null<Ammo*> getAmmo(WeaponId weaponId)
+  {
+    m_pistolsAmmo.ammo = 1000;
+
+    switch(weaponId)
+    {
+    case WeaponId::Pistols: return &m_pistolsAmmo; break;
+    case WeaponId::Magnums: return &m_magnumsAmmo; break;
+    case WeaponId::Uzis: return &m_uzisAmmo; break;
+    case WeaponId::Shotgun: return &m_shotgunAmmo; break;
+    default: BOOST_THROW_EXCEPTION(std::domain_error("weaponId"));
+    }
+  }
 };
 } // namespace engine

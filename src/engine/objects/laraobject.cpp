@@ -729,7 +729,7 @@ void LaraObject::updateLarasWeaponsStatus()
     switch(gunType)
     {
     case WeaponId::Pistols:
-      if(pistolsAmmo.ammo != 0)
+      if(getWorld().getInventory().getAmmo(WeaponId::Pistols)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -747,7 +747,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateGuns(gunType);
       break;
     case WeaponId::Magnums:
-      if(magnumsAmmo.ammo != 0)
+      if(getWorld().getInventory().getAmmo(WeaponId::Magnums)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -765,7 +765,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateGuns(gunType);
       break;
     case WeaponId::Uzis:
-      if(uzisAmmo.ammo != 0)
+      if(getWorld().getInventory().getAmmo(WeaponId::Uzis)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -783,7 +783,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateGuns(gunType);
       break;
     case WeaponId::Shotgun:
-      if(shotgunAmmo.ammo != 0)
+      if(getWorld().getInventory().getAmmo(WeaponId::Shotgun)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -1629,18 +1629,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
 {
   Expects(weaponId != WeaponId::None);
 
-  Ammo* ammoPtr;
-  switch(weaponId)
-  {
-  case WeaponId::Pistols:
-    ammoPtr = &pistolsAmmo;
-    pistolsAmmo.ammo = 1000;
-    break;
-  case WeaponId::Magnums: ammoPtr = &magnumsAmmo; break;
-  case WeaponId::Uzis: ammoPtr = &uzisAmmo; break;
-  case WeaponId::Shotgun: ammoPtr = &shotgunAmmo; break;
-  default: BOOST_THROW_EXCEPTION(std::out_of_range("weaponId"));
-  }
+  const auto ammoPtr = getWorld().getInventory().getAmmo(weaponId);
 
   if(true /* FIXME engine::allAmmoCheat */)
   {
@@ -2236,10 +2225,6 @@ void LaraObject::serialize(const serialization::Serializer<World>& ser)
       S_NV("rightArm", rightArm),
       S_NV("gunType", gunType),
       S_NV("requestedGunType", requestedGunType),
-      S_NV("pistolsAmmo", pistolsAmmo),
-      S_NV("magnumsAmmo", magnumsAmmo),
-      S_NV("uzisAmmo", uzisAmmo),
-      S_NV("shotgunAmmo", shotgunAmmo),
       S_NV("weaponTargetVector", m_weaponTargetVector),
       S_NV("weapons", weapons));
 
@@ -2381,11 +2366,6 @@ void LaraObject::initGunflares()
 
   m_gunFlareRight->setRenderable(mdl);
   m_gunFlareRight->setVisible(false);
-}
-
-void LaraObject::Ammo::serialize(const serialization::Serializer<World>& ser)
-{
-  ser(S_NV("ammo", ammo), S_NV("hits", hits), S_NV("misses", misses));
 }
 
 void LaraObject::AimInfo::serialize(const serialization::Serializer<World>& ser)

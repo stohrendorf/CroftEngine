@@ -38,7 +38,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       if(getWorld().getObjectManager().getLara().getSkeleton()->getFrame() == 2970_frame)
       {
         m_state.triggerState = TriggerState::Invisible;
-        getWorld().getInventory().put(getWorld().getObjectManager().getLara(), m_state.type);
+        getWorld().getInventory().put(m_state.type);
         getWorld().addPickupWidget(getSprite());
         setParent(getNode(), nullptr);
         m_state.collidable = false;
@@ -87,7 +87,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         }
 
         m_state.triggerState = TriggerState::Invisible;
-        getWorld().getInventory().put(getWorld().getObjectManager().getLara(), m_state.type);
+        getWorld().getInventory().put(m_state.type);
         getWorld().addPickupWidget(getSprite());
         setParent(getNode(), nullptr);
         m_state.collidable = false;

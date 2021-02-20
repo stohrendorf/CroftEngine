@@ -92,7 +92,7 @@ void TRex::update()
         getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
         getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
         getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
-        getWorld().getObjectManager().getLara().gunType = LaraObject::WeaponId::None;
+        getWorld().getObjectManager().getLara().gunType = WeaponId::None;
         getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
         getWorld().getCameraController().setRotationAroundLara(-25_deg, 170_deg);
         getWorld().getObjectManager().getLara().setAir(-1_frame);

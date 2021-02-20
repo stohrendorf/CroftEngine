@@ -1021,22 +1021,22 @@ void World::gameLoop(const std::string& levelName, bool godMode)
   doGlobalEffect();
   getPresenter().drawBars(ui, *m_level->m_palette, getObjectManager());
   if(getObjectManager().getLara().getHandStatus() == engine::objects::HandStatus::Combat
-     && getObjectManager().getLara().gunType != engine::objects::LaraObject::WeaponId::Pistols)
+     && getObjectManager().getLara().gunType != WeaponId::Pistols)
   {
     size_t n = 0;
     std::string suffix;
     switch(getObjectManager().getLara().gunType)
     {
-    case objects::LaraObject::WeaponId::Shotgun:
-      n = getObjectManager().getLara().shotgunAmmo.ammo / 6;
+    case WeaponId::Shotgun:
+      n = m_inventory.getAmmo(WeaponId::Shotgun)->ammo / 6;
       suffix = " A";
       break;
-    case objects::LaraObject::WeaponId::Magnums:
-      n = getObjectManager().getLara().magnumsAmmo.ammo;
+    case WeaponId::Magnums:
+      n = m_inventory.getAmmo(WeaponId::Magnums)->ammo;
       suffix = " B";
       break;
-    case objects::LaraObject::WeaponId::Uzis:
-      n = getObjectManager().getLara().uzisAmmo.ammo;
+    case WeaponId::Uzis:
+      n = m_inventory.getAmmo(WeaponId::Uzis)->ammo;
       suffix = " C";
       break;
     }
@@ -1471,7 +1471,7 @@ World::World(Engine& engine,
       for(const auto& [item, qty] : initialInventory)
       {
         if(m_level->findAnimatedModelForType(item) != nullptr)
-          m_inventory.put(m_objectManager.getLara(), item, qty);
+          m_inventory.put(item, qty);
       }
     }
   }

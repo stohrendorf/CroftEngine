@@ -45,7 +45,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
   else if(getWorld().getObjectManager().getLara().getSkeleton()->getLocalFrame() == 44_frame)
   {
     m_state.triggerState = TriggerState::Invisible;
-    getWorld().getInventory().put(getWorld().getObjectManager().getLara(), m_state.type);
+    getWorld().getInventory().put(m_state.type);
     getWorld().addPickupWidget(getSprite());
     setParent(getNode(), nullptr);
     m_state.collidable = false;

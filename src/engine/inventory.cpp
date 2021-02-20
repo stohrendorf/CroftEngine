@@ -9,7 +9,7 @@
 
 namespace engine
 {
-void Inventory::put(objects::LaraObject& lara, const core::TypeId id, const size_t quantity)
+void Inventory::put(const core::TypeId id, const size_t quantity)
 {
   BOOST_LOG_TRIVIAL(debug) << "Object " << toString(id.get_as<TR1ItemId>()) << " added to inventory";
 
@@ -22,9 +22,9 @@ void Inventory::put(objects::LaraObject& lara, const core::TypeId id, const size
     if(const auto clips = count(TR1ItemId::ShotgunAmmoSprite))
     {
       tryTake(TR1ItemId::ShotgunAmmoSprite, clips);
-      lara.shotgunAmmo.ammo += 12u * clips;
+      m_shotgunAmmo.ammo += 12u * clips;
     }
-    lara.shotgunAmmo.ammo += 12u * quantity;
+    m_shotgunAmmo.ammo += 12u * quantity;
     // TODO replaceItems( ShotgunSprite, ShotgunAmmoSprite );
     m_inventory[TR1ItemId::Shotgun] = 1;
     break;
@@ -33,9 +33,9 @@ void Inventory::put(objects::LaraObject& lara, const core::TypeId id, const size
     if(const auto clips = count(TR1ItemId::MagnumAmmoSprite))
     {
       tryTake(TR1ItemId::MagnumAmmoSprite, clips);
-      lara.magnumsAmmo.ammo += 50u * clips;
+      m_magnumsAmmo.ammo += 50u * clips;
     }
-    lara.magnumsAmmo.ammo += 50u * quantity;
+    m_magnumsAmmo.ammo += 50u * quantity;
     // TODO replaceItems( MagnumsSprite, MagnumAmmoSprite );
     m_inventory[TR1ItemId::Magnums] = 1;
     break;
@@ -44,30 +44,30 @@ void Inventory::put(objects::LaraObject& lara, const core::TypeId id, const size
     if(const auto clips = count(TR1ItemId::UziAmmoSprite))
     {
       tryTake(TR1ItemId::UziAmmoSprite, clips);
-      lara.uzisAmmo.ammo += 100u * clips;
+      m_uzisAmmo.ammo += 100u * clips;
     }
-    lara.uzisAmmo.ammo += 100u * quantity;
+    m_uzisAmmo.ammo += 100u * quantity;
     // TODO replaceItems( UzisSprite, UziAmmoSprite );
     m_inventory[TR1ItemId::Uzis] = 1;
     break;
   case TR1ItemId::ShotgunAmmoSprite:
   case TR1ItemId::ShotgunAmmo:
     if(count(TR1ItemId::ShotgunSprite) > 0)
-      lara.shotgunAmmo.ammo += 12u;
+      m_shotgunAmmo.ammo += 12u;
     else
       m_inventory[TR1ItemId::ShotgunAmmo] += quantity;
     break;
   case TR1ItemId::MagnumAmmoSprite:
   case TR1ItemId::MagnumAmmo:
     if(count(TR1ItemId::MagnumsSprite) > 0)
-      lara.magnumsAmmo.ammo += 50u;
+      m_magnumsAmmo.ammo += 50u;
     else
       m_inventory[TR1ItemId::MagnumAmmo] += quantity;
     break;
   case TR1ItemId::UziAmmoSprite:
   case TR1ItemId::UziAmmo:
     if(count(TR1ItemId::UzisSprite) > 0)
-      lara.uzisAmmo.ammo += 100u;
+      m_uzisAmmo.ammo += 100u;
     else
       m_inventory[TR1ItemId::UziAmmo] += quantity;
     break;
@@ -113,10 +113,10 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Shotgun) == 0)
       return false;
 
-    lara.requestedGunType = objects::LaraObject::WeaponId::Shotgun;
+    lara.requestedGunType = WeaponId::Shotgun;
     if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
     {
-      lara.gunType = objects::LaraObject::WeaponId::None;
+      lara.gunType = WeaponId::None;
     }
   }
   else if(id == TR1ItemId::Pistols || id == TR1ItemId::PistolsSprite)
@@ -124,10 +124,10 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Pistols) == 0)
       return false;
 
-    lara.requestedGunType = objects::LaraObject::WeaponId::Pistols;
+    lara.requestedGunType = WeaponId::Pistols;
     if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
     {
-      lara.gunType = objects::LaraObject::WeaponId::None;
+      lara.gunType = WeaponId::None;
     }
   }
   else if(id == TR1ItemId::Magnums || id == TR1ItemId::MagnumsSprite)
@@ -135,10 +135,10 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Magnums) == 0)
       return false;
 
-    lara.requestedGunType = objects::LaraObject::WeaponId::Magnums;
+    lara.requestedGunType = WeaponId::Magnums;
     if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
     {
-      lara.gunType = objects::LaraObject::WeaponId::None;
+      lara.gunType = WeaponId::None;
     }
   }
   else if(id == TR1ItemId::Uzis || id == TR1ItemId::UzisSprite)
@@ -146,10 +146,10 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Uzis) == 0)
       return false;
 
-    lara.requestedGunType = objects::LaraObject::WeaponId::Uzis;
+    lara.requestedGunType = WeaponId::Uzis;
     if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
     {
-      lara.gunType = objects::LaraObject::WeaponId::None;
+      lara.gunType = WeaponId::None;
     }
   }
   else if(id == TR1ItemId::LargeMedipack || id == TR1ItemId::LargeMedipackSprite)
@@ -205,6 +205,15 @@ bool Inventory::tryTake(const TR1ItemId id, const size_t quantity)
 
 void Inventory::serialize(const serialization::Serializer<World>& ser)
 {
-  ser(S_NV("inventory", m_inventory));
+  ser(S_NV("inventory", m_inventory),
+      S_NV("pistolsAmmo", m_pistolsAmmo),
+      S_NV("magnumsAmmo", m_magnumsAmmo),
+      S_NV("uzisAmmo", m_uzisAmmo),
+      S_NV("shotgunAmmo", m_shotgunAmmo));
+}
+
+void Ammo::serialize(const serialization::Serializer<World>& ser)
+{
+  ser(S_NV("ammo", ammo), S_NV("hits", hits), S_NV("misses", misses));
 }
 } // namespace engine

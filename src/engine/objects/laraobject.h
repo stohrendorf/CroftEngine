@@ -4,6 +4,7 @@
 #include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
 #include "engine/soundeffects_tr1.h"
+#include "engine/weaponid.h"
 #include "loader/file/animationid.h"
 #include "loader/file/larastateid.h"
 #include "modelobject.h"
@@ -323,34 +324,11 @@ public:
     void serialize(const serialization::Serializer<World>& ser);
   };
 
-  enum class WeaponId
-  {
-    None,
-    Pistols,
-    Magnums,
-    Uzis,
-    Shotgun
-  };
-
-  struct Ammo
-  {
-    size_t ammo = 0;
-    uint32_t hits = 0;
-    uint32_t misses = 0;
-
-    void serialize(const serialization::Serializer<World>& ser);
-  };
-
   AimInfo leftArm;
   AimInfo rightArm;
 
   WeaponId gunType = WeaponId::None;
   WeaponId requestedGunType = WeaponId::None;
-
-  Ammo pistolsAmmo;
-  Ammo magnumsAmmo;
-  Ammo uzisAmmo;
-  Ammo shotgunAmmo;
 
   std::shared_ptr<ModelObject> target{nullptr};
 
