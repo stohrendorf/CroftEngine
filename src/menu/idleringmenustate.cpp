@@ -84,11 +84,11 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& /*ui*/, engine::Wo
   return nullptr;
 }
 
-void IdleRingMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
+void IdleRingMenuState::handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(world, object);
+    display.updateMenuObjectDescription(ui, world, object);
     idleRotation(world, object);
   }
   else

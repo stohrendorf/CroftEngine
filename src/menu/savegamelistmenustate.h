@@ -37,7 +37,7 @@ public:
                                  const std::string& heading,
                                  const engine::World& world,
                                  bool loading);
-  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
+  void handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object) override;
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

@@ -57,7 +57,10 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
   }
 }
 
-void SavegameListMenuState::handleObject(engine::World& /*world*/, MenuDisplay& /*display*/, MenuObject& /*object*/)
+void SavegameListMenuState::handleObject(ui::Ui& /*ui*/,
+                                         engine::World& /*world*/,
+                                         MenuDisplay& /*display*/,
+                                         MenuObject& /*object*/)
 {
 }
 

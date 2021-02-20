@@ -57,7 +57,7 @@ struct MenuDisplay
   size_t currentRingIndex = 0;
   bool passOpen = false;
   bool doOptions(engine::World& world, MenuObject& object);
-  void updateMenuObjectDescription(engine::World& world, const MenuObject& object);
+  void updateMenuObjectDescription(ui::Ui& ui, engine::World& world, const MenuObject& object);
   void clearMenuObjectDescription();
   void updateRingTitle();
 

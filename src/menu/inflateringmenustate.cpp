@@ -29,7 +29,7 @@ std::unique_ptr<MenuState> InflateRingMenuState::onFrame(ui::Ui& /*ui*/, engine:
   return nullptr;
 }
 
-void InflateRingMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
+void InflateRingMenuState::handleObject(ui::Ui& /*ui*/, engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   display.clearMenuObjectDescription();
   if(&object == &display.getCurrentRing().getSelectedObject())

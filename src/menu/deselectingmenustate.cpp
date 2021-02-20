@@ -15,7 +15,10 @@ std::unique_ptr<MenuState> DeselectingMenuState::onFrame(ui::Ui& /*ui*/, engine:
   return create<IdleRingMenuState>(false);
 }
 
-void DeselectingMenuState::handleObject(engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
+void DeselectingMenuState::handleObject(ui::Ui& /*ui*/,
+                                        engine::World& /*world*/,
+                                        MenuDisplay& display,
+                                        MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);

@@ -64,7 +64,7 @@ void MenuDisplay::updateRingTitle()
   }
 }
 
-void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuObject& object)
+void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::World& world, const MenuObject& object)
 {
   if(objectTexts[0] == nullptr)
   {
@@ -116,7 +116,7 @@ void MenuDisplay::updateMenuObjectDescription(engine::World& world, const MenuOb
   case engine::TR1ItemId::SmallMedipack:
   case engine::TR1ItemId::LargeMedipack:
     world.getPresenter().setHealthBarTimeout(40_frame);
-    world.getPresenter().drawBars(world.getRawPalette(), world.getObjectManager());
+    world.getPresenter().drawBars(ui, world.getRawPalette(), world.getObjectManager());
     break;
   default: break;
   }
@@ -144,7 +144,7 @@ void MenuDisplay::display(ui::Ui& ui, engine::World& world)
   for(auto& menuObject : getCurrentRing().list)
   {
     MenuObject* object = &menuObject;
-    m_currentState->handleObject(world, *this, *object);
+    m_currentState->handleObject(ui, world, *this, *object);
 
     object->draw(world, *ringTransform, itemAngle);
     itemAngle += getCurrentRing().getAnglePerItem();

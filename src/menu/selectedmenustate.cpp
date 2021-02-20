@@ -65,7 +65,7 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::Wo
   return nullptr;
 }
 
-void SelectedMenuState::handleObject(engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
+void SelectedMenuState::handleObject(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);

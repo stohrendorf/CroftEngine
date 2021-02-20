@@ -35,7 +35,7 @@ public:
   explicit RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                    std::unique_ptr<MenuState> previous,
                                    engine::Engine& engine);
-  void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) override;
+  void handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object) override;
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

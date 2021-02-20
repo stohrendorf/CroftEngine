@@ -1019,7 +1019,7 @@ void World::gameLoop(const std::string& levelName, bool godMode)
 
   const auto waterEntryPortals = m_cameraController->update();
   doGlobalEffect();
-  getPresenter().drawBars(*m_level->m_palette, getObjectManager());
+  getPresenter().drawBars(ui, *m_level->m_palette, getObjectManager());
   if(getObjectManager().getLara().getHandStatus() == engine::objects::HandStatus::Combat
      && getObjectManager().getLara().gunType != engine::objects::LaraObject::WeaponId::Pistols)
   {

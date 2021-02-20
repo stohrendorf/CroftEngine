@@ -8,11 +8,11 @@
 
 namespace menu
 {
-void DoneMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
+void DoneMenuState::handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(world, object);
+    display.updateMenuObjectDescription(ui, world, object);
     zeroRotation(object, 256_au);
   }
   else

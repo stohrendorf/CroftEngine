@@ -200,43 +200,6 @@ public:
       detail::fill(gsl::not_null{m_data.data()}, m_data.size(), color);
   }
 
-  void lineDxy(glm::ivec2 xy0, const glm::ivec2& size, const StorageType& color, const bool blend = false)
-  {
-    line(xy0, xy0 + size, color, blend);
-  }
-
-  void line(glm::ivec2 xy0, const glm::ivec2& xy1, const StorageType& color, const bool blend = false)
-  {
-    // shamelessly copied from wikipedia
-    const int32_t dx = abs(xy1.x - xy0.x);
-    const int32_t dy = -abs(xy1.y - xy0.y);
-
-    const int32_t sx = xy0.x < xy1.x ? 1 : -1;
-    const int32_t sy = xy0.y < xy1.y ? 1 : -1;
-
-    int32_t err = dx + dy;
-
-    while(true)
-    {
-      set(xy0, color, blend);
-
-      if(xy0 == xy1)
-        break;
-
-      const auto e2 = 2 * err;
-      if(e2 > dy)
-      {
-        err += dy;
-        xy0.x += sx;
-      }
-      if(e2 < dx)
-      {
-        err += dx;
-        xy0.y += sy;
-      }
-    }
-  }
-
 private:
   std::vector<StorageType> m_data;
   glm::ivec2 m_size{0};

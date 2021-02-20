@@ -217,27 +217,26 @@ void Presenter::drawLevelName(ui::Ui& ui, const std::string& levelName)
   tmp.draw(ui, *m_trFont, getViewport());
 }
 
-void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManager& objectManager)
+void Presenter::drawBars(ui::Ui& ui, const loader::file::Palette& palette, const ObjectManager& objectManager)
 {
-  auto& image = *m_screenOverlay->getImage();
   if(objectManager.getLara().isInWater())
   {
     const auto x0 = m_window->getViewport().x - 110;
 
     for(int i = 7; i <= 13; ++i)
-      image.line({x0 - 1, i}, {x0 + 101, i}, palette.colors[0].toTextureColor());
-    image.line({x0 - 2, 14}, {x0 + 102, 14}, palette.colors[17].toTextureColor());
-    image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[17].toTextureColor());
-    image.line({x0 - 2, 6}, {x0 + 102, 6}, palette.colors[19].toTextureColor());
-    image.line({x0 - 2, 6}, {x0 - 2, 14}, palette.colors[19].toTextureColor());
+      ui.drawHLine({x0 - 1, i}, 102, palette.colors[0].toTextureColor());
+    ui.drawHLine({x0 - 2, 14}, 104, palette.colors[17].toTextureColor());
+    ui.drawVLine({x0 + 102, 6}, 8, palette.colors[17].toTextureColor());
+    ui.drawHLine({x0 - 2, 6}, 104, palette.colors[19].toTextureColor());
+    ui.drawVLine({x0 - 2, 6}, 8, palette.colors[19].toTextureColor());
 
     if(const int p = std::clamp(objectManager.getLara().getAir() * 100 / core::LaraAir, 0, 100); p > 0)
     {
-      image.line({x0, 8}, {x0 + p, 8}, palette.colors[32].toTextureColor());
-      image.line({x0, 9}, {x0 + p, 9}, palette.colors[41].toTextureColor());
-      image.line({x0, 10}, {x0 + p, 10}, palette.colors[32].toTextureColor());
-      image.line({x0, 11}, {x0 + p, 11}, palette.colors[19].toTextureColor());
-      image.line({x0, 12}, {x0 + p, 12}, palette.colors[21].toTextureColor());
+      ui.drawHLine({x0, 8}, p, palette.colors[32].toTextureColor());
+      ui.drawHLine({x0, 9}, p, palette.colors[41].toTextureColor());
+      ui.drawHLine({x0, 10}, p, palette.colors[32].toTextureColor());
+      ui.drawHLine({x0, 11}, p, palette.colors[19].toTextureColor());
+      ui.drawHLine({x0, 12}, p, palette.colors[21].toTextureColor());
     }
   }
 
@@ -259,19 +258,19 @@ void Presenter::drawBars(const loader::file::Palette& palette, const ObjectManag
 
   const int x0 = 8;
   for(int i = 7; i <= 13; ++i)
-    image.line({x0 - 1, i}, {x0 + 101, i}, palette.colors[0].toTextureColor(alpha), true);
-  image.line({x0 - 2, 14}, {x0 + 102, 14}, palette.colors[17].toTextureColor(alpha), true);
-  image.line({x0 + 102, 6}, {x0 + 102, 14}, palette.colors[17].toTextureColor(alpha), true);
-  image.line({x0 - 2, 6}, {x0 + 102, 6}, palette.colors[19].toTextureColor(alpha), true);
-  image.line({x0 - 2, 6}, {x0 - 2, 14}, palette.colors[19].toTextureColor(alpha), true);
+    ui.drawHLine({x0 - 1, i}, 102, palette.colors[0].toTextureColor(alpha));
+  ui.drawHLine({x0 - 2, 14}, 104, palette.colors[17].toTextureColor(alpha));
+  ui.drawVLine({x0 + 102, 6}, 8, palette.colors[17].toTextureColor(alpha));
+  ui.drawHLine({x0 - 2, 6}, 104, palette.colors[19].toTextureColor(alpha));
+  ui.drawHLine({x0 - 2, 6}, 8, palette.colors[19].toTextureColor(alpha));
 
   if(const int p = std::clamp(objectManager.getLara().m_state.health * 100 / core::LaraHealth, 0, 100); p > 0)
   {
-    image.line({x0, 8}, {x0 + p, 8}, palette.colors[8].toTextureColor(alpha), true);
-    image.line({x0, 9}, {x0 + p, 9}, palette.colors[11].toTextureColor(alpha), true);
-    image.line({x0, 10}, {x0 + p, 10}, palette.colors[8].toTextureColor(alpha), true);
-    image.line({x0, 11}, {x0 + p, 11}, palette.colors[6].toTextureColor(alpha), true);
-    image.line({x0, 12}, {x0 + p, 12}, palette.colors[24].toTextureColor(alpha), true);
+    ui.drawHLine({x0, 8}, p, palette.colors[8].toTextureColor(alpha));
+    ui.drawHLine({x0, 9}, p, palette.colors[11].toTextureColor(alpha));
+    ui.drawHLine({x0, 10}, p, palette.colors[8].toTextureColor(alpha));
+    ui.drawHLine({x0, 11}, p, palette.colors[6].toTextureColor(alpha));
+    ui.drawHLine({x0, 12}, p, palette.colors[24].toTextureColor(alpha));
   }
 }
 

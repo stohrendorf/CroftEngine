@@ -17,7 +17,7 @@
 
 namespace menu
 {
-void PassportMenuState::handleObject(engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
+void PassportMenuState::handleObject(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);

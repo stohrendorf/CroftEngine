@@ -113,7 +113,7 @@ public:
     return *m_inputHandler;
   }
 
-  void drawBars(const loader::file::Palette& palette, const ObjectManager& objectManager);
+  void drawBars(ui::Ui& ui, const loader::file::Palette& palette, const ObjectManager& objectManager);
 
   [[nodiscard]] const ui::TRFont& getTrFont() const
   {

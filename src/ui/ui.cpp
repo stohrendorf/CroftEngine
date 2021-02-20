@@ -115,23 +115,33 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> createVLine(
 };
 } // namespace
 
+void Ui::drawHLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color)
+{
+  m_meshes.emplace_back(createHLine(xy, length + glm::sign(length), color, m_color));
+}
+
+void Ui::drawVLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color)
+{
+  m_meshes.emplace_back(createVLine(xy, length + glm::sign(length), color, m_color));
+}
+
 void Ui::drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size)
 {
   const auto color1 = m_palette[15];
   const auto color2 = m_palette[31];
 
   // top
-  m_meshes.emplace_back(createHLine(xy - glm::ivec2{0, 1}, size.x + 1, color1, m_color));
-  m_meshes.emplace_back(createHLine(xy, size.x, color2, m_color));
+  drawHLine(xy - glm::ivec2{0, 1}, size.x, color1);
+  drawHLine(xy, size.x, color2);
   //right
-  m_meshes.emplace_back(createVLine(xy + glm::ivec2{size.x, -1}, size.y + 2, color1, m_color));
-  m_meshes.emplace_back(createVLine(xy + glm::ivec2{size.x + 1, -1}, size.y + 3, color2, m_color));
+  drawVLine(xy + glm::ivec2{size.x, -1}, size.y + 1, color1);
+  drawVLine(xy + glm::ivec2{size.x + 1, -1}, size.y + 2, color2);
   // bottom
-  m_meshes.emplace_back(createHLine(xy + size, -size.x, color1, m_color));
-  m_meshes.emplace_back(createHLine(xy + size + glm::ivec2{1, 1}, -size.x - 2, color2, m_color));
+  drawHLine(xy + size, -size.x + 1, color1);
+  drawHLine(xy + size + glm::ivec2{1, 1}, -size.x - 1, color2);
   // left
-  m_meshes.emplace_back(createVLine(xy + glm::ivec2{-1, size.y + 1}, -size.y - 2, color1, m_color));
-  m_meshes.emplace_back(createVLine(xy + glm::ivec2{0, size.y}, -size.y, color2, m_color));
+  drawVLine(xy + glm::ivec2{-1, size.y + 1}, -size.y - 1, color1);
+  drawVLine(xy + glm::ivec2{0, size.y}, -size.y + 1, color2);
 }
 
 void Ui::drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud)

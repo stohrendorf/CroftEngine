@@ -34,7 +34,7 @@ public:
   virtual void begin(engine::World& /*world*/)
   {
   }
-  virtual void handleObject(engine::World& world, MenuDisplay& display, MenuObject& object) = 0;
+  virtual void handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object) = 0;
   virtual std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) = 0;
 
   template<typename T, typename... Ts>

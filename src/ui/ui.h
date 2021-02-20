@@ -37,6 +37,8 @@ public:
   void drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const gl::SRGBA8& color);
+  void drawHLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color);
+  void drawVLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color);
   void draw(const loader::file::Sprite& sprite, const glm::ivec2& xy);
 
   void render(const glm::vec2& screenSize);

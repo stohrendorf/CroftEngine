@@ -74,7 +74,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.fullscreen); });
 }
 
-void RenderSettingsMenuState::handleObject(engine::World& /*world*/, MenuDisplay& /*display*/, MenuObject& /*object*/)
+void RenderSettingsMenuState::handleObject(ui::Ui& /*ui*/,
+                                           engine::World& /*world*/,
+                                           MenuDisplay& /*display*/,
+                                           MenuObject& /*object*/)
 {
 }
 

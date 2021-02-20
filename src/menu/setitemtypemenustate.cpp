@@ -11,7 +11,7 @@ std::unique_ptr<MenuState>
   return std::move(m_next);
 }
 
-void SetItemTypeMenuState::handleObject(engine::World& world, MenuDisplay& display, MenuObject& object)
+void SetItemTypeMenuState::handleObject(ui::Ui& /*ui*/, engine::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
