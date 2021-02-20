@@ -8,6 +8,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <filesystem>
+#include <unordered_set>
 
 namespace engine
 {
@@ -62,6 +63,7 @@ private:
   const std::unordered_map<std::string, std::string> m_titles;
   const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles;
   const std::unordered_map<TR1ItemId, size_t> m_inventory;
+  const std::unordered_set<TR1ItemId> m_dropInventory;
   const TR1TrackId m_track;
   const bool m_allowSave;
 
@@ -75,6 +77,7 @@ public:
                  std::unordered_map<std::string, std::string> titles,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
                  std::unordered_map<TR1ItemId, size_t> inventory,
+                 std::unordered_set<TR1ItemId> dropInventory,
                  TR1TrackId track,
                  bool allowSave)
       : m_name{std::move(name)}
@@ -83,6 +86,7 @@ public:
       , m_titles{std::move(titles)}
       , m_itemTitles{std::move(itemTitles)}
       , m_inventory{std::move(inventory)}
+      , m_dropInventory{std::move(dropInventory)}
       , m_track{track}
       , m_allowSave{allowSave}
   {
@@ -103,8 +107,9 @@ public:
             const std::unordered_map<std::string, std::string>& titles,
             const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
             const std::unordered_map<TR1ItemId, size_t>& inventory,
+            const std::unordered_set<TR1ItemId>& dropInventory,
             TR1TrackId track)
-      : Level{name, secrets, useAlternativeLara, titles, itemTitles, inventory, track, false}
+      : Level{name, secrets, useAlternativeLara, titles, itemTitles, inventory, dropInventory, track, false}
   {
   }
 

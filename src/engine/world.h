@@ -301,6 +301,7 @@ private:
 
   bool m_levelFinished = false;
 
+  // TODO move inventory to engine
   Inventory m_inventory{};
 
   struct PositionalEmitter final : public audio::Emitter

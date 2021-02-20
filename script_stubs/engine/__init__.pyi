@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Optional, Dict
+from typing import Optional, Dict, Set
 
 
 class ObjectInfo:
@@ -58,6 +58,7 @@ class Level(LevelSequenceItem):
             track: TR1TrackId,
             item_titles: Dict[str, Dict[TR1ItemId, str]] = {},
             inventory: Dict[TR1ItemId, int] = {},
+            drop_inventory: Set[TR1ItemId] = set(),
             use_alternative_lara: bool = False,
             allow_save: bool = True,
     ):

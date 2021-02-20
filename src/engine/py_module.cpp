@@ -59,6 +59,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::unordered_map<std::string, std::string>,
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
                   std::unordered_map<engine::TR1ItemId, size_t>,
+                  std::unordered_set<engine::TR1ItemId>,
                   engine::TR1TrackId,
                   bool>(),
          py::kw_only{},
@@ -68,6 +69,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
          py::arg("inventory") = py::dict{},
+         py::arg("drop_inventory") = py::set{},
          py::arg("track"),
          py::arg("allow_save") = true);
 
@@ -79,6 +81,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::unordered_map<std::string, std::string>,
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
                   std::unordered_map<engine::TR1ItemId, size_t>,
+                  std::unordered_set<engine::TR1ItemId>,
                   engine::TR1TrackId>(),
          py::kw_only{},
          py::arg("name"),
@@ -87,6 +90,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
          py::arg("inventory") = py::dict{},
+         py::arg("drop_inventory") = py::set{},
          py::arg("track"));
 
   py::enum_<engine::objects::TriggerState>(m, "ActivationState")

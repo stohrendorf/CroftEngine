@@ -243,7 +243,17 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience2,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
+        drop_inventory={
+            TR1ItemId.Pistols,
+            TR1ItemId.Magnums,
+            TR1ItemId.Uzis,
+            TR1ItemId.Shotgun,
+            TR1ItemId.ScionPiece1,
+            TR1ItemId.ScionPiece2,
+            TR1ItemId.ScionPiece3,
+            TR1ItemId.ScionPiece4,
+            TR1ItemId.ScionPiece5,
+        },
         item_titles={
             "en": {
                 TR1ItemId.Puzzle1: "Fuse",

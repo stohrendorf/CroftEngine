@@ -93,12 +93,17 @@ std::unique_ptr<engine::World> Level::loadWorld(Engine& engine)
     BOOST_LOG_TRIVIAL(error) << "Missing level title";
 
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
+
+  auto inventory = m_inventory;
+  for(const auto& drop : m_dropInventory)
+    inventory.erase(drop);
+
   return std::make_unique<World>(engine,
                                  loadLevel(engine, m_name, util::unescape(title)),
                                  title,
                                  m_track,
                                  m_useAlternativeLara,
-                                 m_inventory,
+                                 inventory,
                                  m_itemTitles);
 }
 
