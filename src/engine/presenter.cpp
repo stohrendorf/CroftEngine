@@ -211,8 +211,24 @@ void Presenter::renderWorld(ui::Ui& ui,
 
 namespace
 {
-constexpr int BarWidth = 100;
-constexpr int BarHeight = 5;
+constexpr size_t BarColors = 5;
+constexpr int BarScale = 3;
+constexpr int BarWidth = 100 * BarScale;
+constexpr int BarHeight = 5 * BarScale;
+
+gl::SRGBA8 getBarColor(float x, const std::array<gl::SRGBA8, BarColors>& barColors)
+{
+  x *= BarColors;
+  auto n = static_cast<int>(glm::floor(x));
+  if(n <= 0)
+    return barColors[0];
+  else if(static_cast<size_t>(n) >= BarColors - 1)
+    return barColors[BarColors - 1];
+
+  const auto a = barColors[n];
+  const auto b = barColors[n + 1];
+  return gl::imix(a, b, static_cast<uint8_t>(glm::mod(x, 1.0f) * 256));
+}
 
 void drawBar(ui::Ui& ui,
              const glm::ivec2& xy0,
@@ -220,10 +236,10 @@ void drawBar(ui::Ui& ui,
              const gl::SRGBA8& black,
              const gl::SRGBA8& border1,
              const gl::SRGBA8& border2,
-             const std::array<gl::SRGBA8, BarHeight>& barColors)
+             const std::array<gl::SRGBA8, BarColors>& barColors)
 {
   ui.drawBox(xy0 + glm::ivec2{-1, -1}, {BarWidth + 2, BarHeight + 2}, black);
-  ui.drawHLine(xy0 + glm::ivec2{-2, 6}, BarWidth + 4, border1);
+  ui.drawHLine(xy0 + glm::ivec2{-2, BarHeight + 1}, BarWidth + 4, border1);
   ui.drawVLine(xy0 + glm::ivec2{BarWidth + 2, -2}, BarHeight + 3, border1);
   ui.drawHLine(xy0 + glm::ivec2{-2, -2}, BarWidth + 4, border2);
   ui.drawVLine(xy0 + glm::ivec2{-2, -2}, BarHeight + 3, border2);
@@ -231,7 +247,7 @@ void drawBar(ui::Ui& ui,
   if(p > 0)
   {
     for(int i = 0; i < BarHeight; ++i)
-      ui.drawHLine(xy0 + glm::ivec2{0, i}, p, barColors[i]);
+      ui.drawHLine(xy0 + glm::ivec2{0, i}, p, getBarColor(static_cast<float>(i) / (BarHeight - 1), barColors));
   }
 };
 } // namespace
