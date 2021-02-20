@@ -39,7 +39,7 @@ public:
   }
 
 private:
-  const std::shared_ptr<gl::Image<gl::SRGBA8>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
+  const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
   std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_texture;
   std::shared_ptr<Mesh> m_mesh{nullptr};
 };

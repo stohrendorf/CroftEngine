@@ -89,17 +89,16 @@ bool Window::isVsync() const
   return m_vsync;
 }
 
-bool Window::updateWindowSize()
+void Window::updateWindowSize()
 {
   glm::ivec2 tmpSize;
   glfwGetFramebufferSize(m_window, &tmpSize.x, &tmpSize.y);
 
   if(tmpSize == m_viewport)
-    return false;
+    return;
 
   m_viewport = tmpSize;
   GL_ASSERT(::gl::api::viewport(0, 0, m_viewport.x, m_viewport.y));
-  return true;
 }
 
 void Window::swapBuffers() const

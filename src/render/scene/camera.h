@@ -71,6 +71,9 @@ public:
 
   void setAspectRatio(float aspectRatio)
   {
+    if(m_matrices.aspectRatio == aspectRatio)
+      return;
+
     m_matrices.aspectRatio = aspectRatio;
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);

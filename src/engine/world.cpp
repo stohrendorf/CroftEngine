@@ -1513,9 +1513,9 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
 void World::drawPickupWidgets(ui::Ui& ui)
 {
   auto& img = *getPresenter().getScreenOverlay().getImage();
-  auto x = img.getWidth() * 9 / 10;
-  auto y = img.getHeight() * 9 / 10;
-  auto widthPerWidget = img.getWidth() / 10 * 4 / 3;
+  auto x = img.getSize().x * 9 / 10;
+  auto y = img.getSize().y * 9 / 10;
+  auto widthPerWidget = img.getSize().x / 10 * 4 / 3;
   for(const auto& widget : m_pickupWidgets)
   {
     if(widget.expired())

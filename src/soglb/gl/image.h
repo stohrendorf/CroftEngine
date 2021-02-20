@@ -142,16 +142,6 @@ public:
     m_data = std::move(data);
   }
 
-  [[nodiscard]] int32_t getHeight() const
-  {
-    return m_size.y;
-  }
-
-  [[nodiscard]] int32_t getWidth() const
-  {
-    return m_size.x;
-  }
-
   [[nodiscard]] const auto& getSize() const
   {
     return m_size;

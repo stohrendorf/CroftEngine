@@ -590,22 +590,22 @@ struct Scaler
     auto srcLineRaw = dstVideoData[0];
     auto dst = img.getRawData();
 
-    Expects(img.getWidth() <= dstVideoLinesize[0] / int(sizeof(gl::SRGBA8)));
+    Expects(img.getSize().x <= dstVideoLinesize[0] / int(sizeof(gl::SRGBA8)));
 
     img.fill({0, 0, 0, 255});
 
-    Expects(img.getWidth() >= scaledWidth);
-    Expects(img.getHeight() >= scaledHeight);
-    const auto xOffset = static_cast<int32_t>((img.getWidth() - scaledWidth) / 2);
-    const auto yOffset = static_cast<int32_t>((img.getHeight() - scaledHeight) / 2);
-    dst += img.getWidth() * yOffset;
+    Expects(img.getSize().x >= scaledWidth);
+    Expects(img.getSize().y >= scaledHeight);
+    const auto xOffset = static_cast<int32_t>((img.getSize().x - scaledWidth) / 2);
+    const auto yOffset = static_cast<int32_t>((img.getSize().y - scaledHeight) / 2);
+    dst += img.getSize().x * yOffset;
     dst += xOffset;
     for(int32_t y = 0; y < scaledHeight; ++y)
     {
       std::copy_n(reinterpret_cast<gl::SRGBA8*>(srcLineRaw), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
                   scaledWidth,
                   dst);
-      dst += img.getWidth();
+      dst += img.getSize().x;
       srcLineRaw += dstVideoLinesize[0];
     }
   }
@@ -632,7 +632,7 @@ void play(const std::filesystem::path& filename,
   {
     if(const auto f = decoder->takeFrame())
     {
-      sws.resize(img->getWidth(), img->getHeight());
+      sws.resize(img->getSize().x, img->getSize().y);
       sws.scale(*f, *img);
     }
 

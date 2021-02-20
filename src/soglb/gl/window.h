@@ -15,7 +15,7 @@ public:
 
   void setVsync(bool enable);
 
-  bool updateWindowSize();
+  void updateWindowSize();
 
   [[nodiscard]] bool windowShouldClose() const
   {

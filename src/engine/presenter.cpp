@@ -35,12 +35,14 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   video::play(path, m_soundEngine->getSoLoud(), m_screenOverlay->getImage(), [&]() {
-    if(m_window->updateWindowSize())
-    {
-      if(m_window->isMinimized())
-        return true;
+    glfwPollEvents();
+    m_window->updateWindowSize();
+    if(m_window->isMinimized())
+      return true;
 
-      m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
+    m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
+    if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
+    {
       m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
     }
 
@@ -156,7 +158,7 @@ void Presenter::renderWorld(ui::Ui& ui,
     m_debugFont->drawText(
       *m_screenOverlay->getImage(),
       std::to_string(m_renderer->getFrameRate()).c_str(),
-      glm::ivec2{m_screenOverlay->getImage()->getWidth() - 40, m_screenOverlay->getImage()->getHeight() - 20},
+      glm::ivec2{m_screenOverlay->getImage()->getSize().x - 40, m_screenOverlay->getImage()->getSize().y - 20},
       gl::SRGBA8{255},
       DebugTextFontSize);
 
@@ -325,12 +327,12 @@ void Presenter::scaleSplashImage()
 void Presenter::drawLoadingScreen(const std::string& state)
 {
   glfwPollEvents();
-  if(m_window->updateWindowSize() || m_splashImageScaled.width() != m_window->getViewport().x
+  m_window->updateWindowSize();
+  if(m_window->isMinimized())
+    return;
+  if(m_splashImageScaled.width() != m_window->getViewport().x
      || m_splashImageScaled.height() != m_window->getViewport().y)
   {
-    if(m_window->isMinimized())
-      return;
-
     m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
     m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
     scaleSplashImage();
@@ -343,7 +345,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
                                       m_window->getViewport().x * m_window->getViewport().y);
   m_abibasFont->drawText(*m_screenOverlay->getImage(),
                          state.c_str(),
-                         glm::ivec2{40, m_screenOverlay->getImage()->getHeight() - 100},
+                         glm::ivec2{40, m_screenOverlay->getImage()->getSize().y - 100},
                          gl::SRGBA8{255, 255, 255, 192},
                          StatusLineFontSize);
 
@@ -358,18 +360,16 @@ void Presenter::drawLoadingScreen(const std::string& state)
 
 bool Presenter::preFrame()
 {
-  if(m_window->updateWindowSize())
-  {
-    if(m_window->isMinimized())
-      return false;
-
-    m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
-    m_renderPipeline->resize(m_window->getViewport());
-    m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
-  }
-
+  m_window->updateWindowSize();
   if(m_window->isMinimized())
     return false;
+
+  m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
+  m_renderPipeline->resize(m_window->getViewport());
+  if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
+  {
+    m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
+  }
 
   m_screenOverlay->getImage()->fill({0, 0, 0, 0});
 
