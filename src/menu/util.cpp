@@ -13,20 +13,20 @@ void rotateForSelection(MenuObject& object)
 
   if(const auto dy = object.selectedRotationY - object.rotationY; dy > 0_deg && dy < 180_deg)
   {
-    object.rotationY += 1024_au;
+    object.rotationY += 1024_au * 2;
   }
   else
   {
-    object.rotationY -= 1024_au;
+    object.rotationY -= 1024_au * 2;
   }
-  object.rotationY -= object.rotationY % 1024_au;
+  object.rotationY -= object.rotationY % (1024_au * 2);
 }
 
 void idleRotation(engine::World& world, MenuObject& object)
 {
   if(world.getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Null)
   {
-    object.rotationY += 256_au;
+    object.rotationY += 256_au * 2;
   }
 }
 
@@ -36,13 +36,13 @@ void zeroRotation(MenuObject& object, const core::Angle& speed)
 
   if(object.rotationY < 0_deg)
   {
-    object.rotationY += speed;
+    object.rotationY += speed * 2;
     if(object.rotationY > 0_deg)
       object.rotationY = 0_deg;
   }
   else if(object.rotationY > 0_deg)
   {
-    object.rotationY -= speed;
+    object.rotationY -= speed * 2;
     if(object.rotationY < 0_deg)
       object.rotationY = 0_deg;
   }

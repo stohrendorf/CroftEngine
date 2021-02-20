@@ -10,30 +10,33 @@ namespace menu
 {
 bool MenuObject::animate()
 {
-  if(meshAnimFrame == goalFrame)
+  for(int i = 0; i < 2; ++i)
   {
-    updateMeshRenderMask();
-    return false;
-  }
+    if(meshAnimFrame == goalFrame)
+    {
+      updateMeshRenderMask();
+      return false;
+    }
 
-  if(animStretchCounter != 0_frame)
-  {
-    animStretchCounter -= 1_frame;
-  }
-  else
-  {
-    animStretchCounter = animStretch;
-    meshAnimFrame += animDirection;
-    if(meshAnimFrame >= lastMeshAnimFrame)
+    if(animStretchCounter != 0_frame)
     {
-      meshAnimFrame = 0_frame;
+      animStretchCounter -= 1_frame;
     }
-    else if(meshAnimFrame < 0_frame)
+    else
     {
-      meshAnimFrame = lastMeshAnimFrame - 1_frame;
+      animStretchCounter = animStretch;
+      meshAnimFrame += animDirection;
+      if(meshAnimFrame >= lastMeshAnimFrame)
+      {
+        meshAnimFrame = 0_frame;
+      }
+      else if(meshAnimFrame < 0_frame)
+      {
+        meshAnimFrame = lastMeshAnimFrame - 1_frame;
+      }
     }
+    updateMeshRenderMask();
   }
-  updateMeshRenderMask();
   return true;
 }
 

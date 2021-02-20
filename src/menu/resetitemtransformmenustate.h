@@ -8,7 +8,7 @@ namespace menu
 class ResetItemTransformMenuState : public MenuState
 {
 private:
-  static constexpr core::Frame Duration = 16_frame;
+  static constexpr core::Frame Duration = 16_frame / 2;
   core::Frame m_duration{Duration};
   std::unique_ptr<MenuState> m_next;
 
