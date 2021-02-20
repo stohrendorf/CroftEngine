@@ -1,5 +1,6 @@
 #include "audioengine.h"
 
+#include "audio/streamsource.h"
 #include "objects/laraobject.h"
 #include "script/reflection.h"
 #include "tracks_tr1.h"
@@ -196,11 +197,21 @@ void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
 
 gsl::not_null<std::shared_ptr<audio::Voice>> AudioEngine::playStream(size_t trackId)
 {
-  auto wav = std::make_shared<SoLoud::WavStream>();
-  wav->load((m_rootPath / (boost::format("%03d.ogg") % trackId).str()).string().c_str());
-  auto voice = m_soundEngine->playBackground(wav, m_streamVolume);
-  voice->setProtect(true);
-  return voice;
+  if(std::filesystem::is_regular_file(m_rootPath / "CDAUDIO.WAD"))
+  {
+    auto wad = std::make_shared<audio::WadStream>(m_rootPath / "CDAUDIO.WAD", trackId);
+    auto voice = m_soundEngine->playBackground(wad, m_streamVolume);
+    voice->setProtect(true);
+    return voice;
+  }
+  else
+  {
+    auto wav = std::make_shared<SoLoud::WavStream>();
+    wav->load((m_rootPath / (boost::format("%03d.ogg") % trackId).str()).string().c_str());
+    auto voice = m_soundEngine->playBackground(wav, m_streamVolume);
+    voice->setProtect(true);
+    return voice;
+  }
 }
 
 std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter)
