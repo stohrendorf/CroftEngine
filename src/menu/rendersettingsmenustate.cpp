@@ -16,7 +16,7 @@ void setEnabledBackground(ui::Label& lbl, bool enabled)
   if(enabled)
   {
     lbl.addBackground(glm::ivec2{RenderSettingsMenuState::PixelWidth - 12, 16}, {0, 0});
-    lbl.backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 255, 32);
+    lbl.backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 96, 0);
   }
   else
   {
@@ -35,7 +35,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   m_background->alignX = ui::Label::Alignment::Center;
   m_background->alignY = ui::Label::Alignment::Bottom;
   m_background->addBackground({PixelWidth, TotalHeight + 12}, {0, 0});
-  m_background->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 96, 32);
+  m_background->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 32, 0);
   m_background->outline = true;
 
   auto addSetting = [this](const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler) {

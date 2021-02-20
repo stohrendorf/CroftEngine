@@ -25,13 +25,13 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
   m_heading->alignX = ui::Label::Alignment::Center;
   m_heading->alignY = ui::Label::Alignment::Bottom;
   m_heading->addBackground({PixelWidth - 4, 0}, {0, 0});
-  m_heading->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 128, 0);
+  m_heading->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 96, 0);
   m_heading->outline = true;
 
   m_background->alignX = ui::Label::Alignment::Center;
   m_background->alignY = ui::Label::Alignment::Bottom;
   m_background->addBackground({PixelWidth, LineHeight + TotalHeight + 12}, {0, 0});
-  m_background->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 96, 32);
+  m_background->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 32, 0);
   m_background->outline = true;
 
   const auto savedGames = world.getSavedGames();
