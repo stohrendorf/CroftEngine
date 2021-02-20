@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engineconfig.h"
+#include "inventory.h"
 
 #include <boost/assert.hpp>
 #include <boost/format.hpp>
@@ -92,6 +93,8 @@ private:
 
   std::unordered_map<I18n, std::string> m_i18n;
 
+  Inventory m_inventory{};
+
 public:
   explicit Engine(const std::filesystem::path& rootPath,
                   bool fullscreen = false,
@@ -163,6 +166,16 @@ public:
   const auto& getEngineConfig() const
   {
     return m_engineConfig;
+  }
+
+  auto& getInventory()
+  {
+    return m_inventory;
+  }
+
+  [[nodiscard]] const auto& getInventory() const
+  {
+    return m_inventory;
   }
 };
 } // namespace engine

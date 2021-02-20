@@ -1,6 +1,7 @@
 #include "scionpiece.h"
 
 #include "engine/audioengine.h"
+#include "engine/engine.h"
 #include "engine/particle.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
@@ -45,7 +46,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
   else if(getWorld().getObjectManager().getLara().getSkeleton()->getLocalFrame() == 44_frame)
   {
     m_state.triggerState = TriggerState::Invisible;
-    getWorld().getInventory().put(m_state.type);
+    getWorld().getEngine().getInventory().put(m_state.type);
     getWorld().addPickupWidget(getSprite());
     setParent(getNode(), nullptr);
     m_state.collidable = false;

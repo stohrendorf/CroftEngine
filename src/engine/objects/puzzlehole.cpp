@@ -1,5 +1,6 @@
 #include "puzzlehole.h"
 
+#include "engine/engine.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "hid/inputhandler.h"
@@ -39,10 +40,18 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     bool hasPuzzlePiece = false;
     switch(m_state.type.get_as<TR1ItemId>())
     {
-    case TR1ItemId::PuzzleHole1: hasPuzzlePiece = getWorld().getInventory().tryTake(TR1ItemId::Puzzle1); break;
-    case TR1ItemId::PuzzleHole2: hasPuzzlePiece = getWorld().getInventory().tryTake(TR1ItemId::Puzzle2); break;
-    case TR1ItemId::PuzzleHole3: hasPuzzlePiece = getWorld().getInventory().tryTake(TR1ItemId::Puzzle3); break;
-    case TR1ItemId::PuzzleHole4: hasPuzzlePiece = getWorld().getInventory().tryTake(TR1ItemId::Puzzle4); break;
+    case TR1ItemId::PuzzleHole1:
+      hasPuzzlePiece = getWorld().getEngine().getInventory().tryTake(TR1ItemId::Puzzle1);
+      break;
+    case TR1ItemId::PuzzleHole2:
+      hasPuzzlePiece = getWorld().getEngine().getInventory().tryTake(TR1ItemId::Puzzle2);
+      break;
+    case TR1ItemId::PuzzleHole3:
+      hasPuzzlePiece = getWorld().getEngine().getInventory().tryTake(TR1ItemId::Puzzle3);
+      break;
+    case TR1ItemId::PuzzleHole4:
+      hasPuzzlePiece = getWorld().getEngine().getInventory().tryTake(TR1ItemId::Puzzle4);
+      break;
     default: break;
     }
     if(!hasPuzzlePiece)

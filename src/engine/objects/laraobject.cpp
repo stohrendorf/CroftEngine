@@ -3,6 +3,7 @@
 #include "block.h"
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
+#include "engine/engine.h"
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/particle.h"
 #include "engine/presenter.h"
@@ -246,17 +247,17 @@ LaraObject::~LaraObject() = default;
 void LaraObject::update()
 {
   if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawPistols))
-    getWorld().getInventory().tryUse(*this, TR1ItemId::Pistols);
+    getWorld().getEngine().getInventory().tryUse(*this, TR1ItemId::Pistols);
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawShotgun))
-    getWorld().getInventory().tryUse(*this, TR1ItemId::Shotgun);
+    getWorld().getEngine().getInventory().tryUse(*this, TR1ItemId::Shotgun);
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawUzis))
-    getWorld().getInventory().tryUse(*this, TR1ItemId::Uzis);
+    getWorld().getEngine().getInventory().tryUse(*this, TR1ItemId::Uzis);
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawMagnums))
-    getWorld().getInventory().tryUse(*this, TR1ItemId::Magnums);
+    getWorld().getEngine().getInventory().tryUse(*this, TR1ItemId::Magnums);
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeSmallMedipack))
-    getWorld().getInventory().tryUse(*this, TR1ItemId::SmallMedipack);
+    getWorld().getEngine().getInventory().tryUse(*this, TR1ItemId::SmallMedipack);
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeLargeMedipack))
-    getWorld().getInventory().tryUse(*this, TR1ItemId::LargeMedipack);
+    getWorld().getEngine().getInventory().tryUse(*this, TR1ItemId::LargeMedipack);
 
 #ifndef NDEBUG
   if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::CheatDive))
@@ -729,7 +730,7 @@ void LaraObject::updateLarasWeaponsStatus()
     switch(gunType)
     {
     case WeaponId::Pistols:
-      if(getWorld().getInventory().getAmmo(WeaponId::Pistols)->ammo != 0)
+      if(getWorld().getEngine().getInventory().getAmmo(WeaponId::Pistols)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -747,7 +748,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateGuns(gunType);
       break;
     case WeaponId::Magnums:
-      if(getWorld().getInventory().getAmmo(WeaponId::Magnums)->ammo != 0)
+      if(getWorld().getEngine().getInventory().getAmmo(WeaponId::Magnums)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -765,7 +766,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateGuns(gunType);
       break;
     case WeaponId::Uzis:
-      if(getWorld().getInventory().getAmmo(WeaponId::Uzis)->ammo != 0)
+      if(getWorld().getEngine().getInventory().getAmmo(WeaponId::Uzis)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -783,7 +784,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateGuns(gunType);
       break;
     case WeaponId::Shotgun:
-      if(getWorld().getInventory().getAmmo(WeaponId::Shotgun)->ammo != 0)
+      if(getWorld().getEngine().getInventory().getAmmo(WeaponId::Shotgun)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -1629,7 +1630,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
 {
   Expects(weaponId != WeaponId::None);
 
-  const auto ammoPtr = getWorld().getInventory().getAmmo(weaponId);
+  const auto ammoPtr = getWorld().getEngine().getInventory().getAmmo(weaponId);
 
   if(true /* FIXME engine::allAmmoCheat */)
   {

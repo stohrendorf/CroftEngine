@@ -2,7 +2,6 @@
 
 #include "audio/soundengine.h"
 #include "floordata/floordata.h"
-#include "inventory.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
 #include "objectmanager.h"
@@ -95,16 +94,6 @@ public:
   [[nodiscard]] const ObjectManager& getObjectManager() const
   {
     return m_objectManager;
-  }
-
-  auto& getInventory()
-  {
-    return m_inventory;
-  }
-
-  [[nodiscard]] const auto& getInventory() const
-  {
-    return m_inventory;
   }
 
   void finishLevel()
@@ -300,9 +289,6 @@ private:
   ObjectManager m_objectManager;
 
   bool m_levelFinished = false;
-
-  // TODO move inventory to engine
-  Inventory m_inventory{};
 
   struct PositionalEmitter final : public audio::Emitter
   {

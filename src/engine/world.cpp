@@ -990,7 +990,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
   }
 
   ser(S_NV("objectManager", m_objectManager),
-      S_NV("inventory", m_inventory),
+      S_NV("inventory", m_engine.getInventory()),
       S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
       S_NV("cameras", serialization::FrozenVector{m_level->m_cameras}),
       S_NV("activeEffect", m_activeEffect),
@@ -1028,15 +1028,15 @@ void World::gameLoop(const std::string& levelName, bool godMode)
     switch(getObjectManager().getLara().gunType)
     {
     case WeaponId::Shotgun:
-      n = m_inventory.getAmmo(WeaponId::Shotgun)->ammo / 6;
+      n = m_engine.getInventory().getAmmo(WeaponId::Shotgun)->ammo / 6;
       suffix = " A";
       break;
     case WeaponId::Magnums:
-      n = m_inventory.getAmmo(WeaponId::Magnums)->ammo;
+      n = m_engine.getInventory().getAmmo(WeaponId::Magnums)->ammo;
       suffix = " B";
       break;
     case WeaponId::Uzis:
-      n = m_inventory.getAmmo(WeaponId::Uzis)->ammo;
+      n = m_engine.getInventory().getAmmo(WeaponId::Uzis)->ammo;
       suffix = " C";
       break;
     }
@@ -1471,7 +1471,7 @@ World::World(Engine& engine,
       for(const auto& [item, qty] : initialInventory)
       {
         if(m_level->findAnimatedModelForType(item) != nullptr)
-          m_inventory.put(item, qty);
+          m_engine.getInventory().put(item, qty);
       }
     }
   }
