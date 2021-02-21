@@ -26,6 +26,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
     .def_readwrite("pivot_length", &engine::script::ObjectInfo::pivot_length)
     .def_readwrite("target_update_chance", &engine::script::ObjectInfo::target_update_chance);
 
+  // NOLINTNEXTLINE(bugprone-unused-raii)
   py::class_<engine::script::LevelSequenceItem, std::shared_ptr<engine::script::LevelSequenceItem>>(
     m, "LevelSequenceItem", py::is_final{});
   py::class_<engine::script::Video, engine::script::LevelSequenceItem, std::shared_ptr<engine::script::Video>>(
@@ -60,7 +61,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
                   std::unordered_map<engine::TR1ItemId, size_t>,
                   std::unordered_set<engine::TR1ItemId>,
-                  engine::TR1TrackId,
+                  std::optional<engine::TR1TrackId>,
                   bool>(),
          py::kw_only{},
          py::arg("name"),
@@ -70,7 +71,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("item_titles") = py::dict{},
          py::arg("inventory") = py::dict{},
          py::arg("drop_inventory") = py::set{},
-         py::arg("track"),
+         py::arg("track") = std::nullopt,
          py::arg("allow_save") = true);
 
   py::class_<engine::script::TitleMenu, engine::script::Level, std::shared_ptr<engine::script::TitleMenu>>(
@@ -82,7 +83,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
                   std::unordered_map<engine::TR1ItemId, size_t>,
                   std::unordered_set<engine::TR1ItemId>,
-                  engine::TR1TrackId>(),
+                  std::optional<engine::TR1TrackId>>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("secrets"),
@@ -91,7 +92,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("item_titles") = py::dict{},
          py::arg("inventory") = py::dict{},
          py::arg("drop_inventory") = py::set{},
-         py::arg("track"));
+         py::arg("track") = std::nullopt);
 
   py::enum_<engine::objects::TriggerState>(m, "ActivationState")
     .value("INACTIVE", engine::objects::TriggerState::Inactive)

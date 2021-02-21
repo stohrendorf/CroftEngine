@@ -16,7 +16,6 @@ lara_home = Level(
         "en": "Lara's home",
         "de": "Laras Haus",
     },
-    track=TR1TrackId.Ambience1,
     secrets=0,
     use_alternative_lara=True,
     allow_save=False,
@@ -77,6 +76,11 @@ level_sequence = [
         track=TR1TrackId.Ambience1,
         secrets=3,
         inventory={TR1ItemId.Pistols: 1},
+        item_titles={
+            "en": {
+                TR1ItemId.ScionPiece5: "Scion",
+            },
+        },
     ),
     Cutscene(
         name="CUT1",
@@ -101,6 +105,7 @@ level_sequence = [
                 TR1ItemId.Key2: "Atlas Key",
                 TR1ItemId.Key3: "Damocles Key",
                 TR1ItemId.Key4: "Thor Key",
+                TR1ItemId.ScionPiece5: "Scion",
             },
         },
     ),
@@ -116,6 +121,7 @@ level_sequence = [
         item_titles={
             "en": {
                 TR1ItemId.Key1: "Rusty Key",
+                TR1ItemId.ScionPiece5: "Scion",
             },
         },
     ),
@@ -131,6 +137,7 @@ level_sequence = [
         item_titles={
             "en": {
                 TR1ItemId.Puzzle1: "Gold Bar",
+                TR1ItemId.ScionPiece5: "Scion",
             },
         },
     ),
@@ -148,6 +155,7 @@ level_sequence = [
                 TR1ItemId.Key1: "Gold Key",
                 TR1ItemId.Key2: "Silver Key",
                 TR1ItemId.Key3: "Rusty Key",
+                TR1ItemId.ScionPiece5: "Scion",
             },
         },
     ),
@@ -173,6 +181,7 @@ level_sequence = [
                 TR1ItemId.Key1: "Gold Key",
                 TR1ItemId.Key2: "Rusty Key",
                 TR1ItemId.Key3: "Rusty Key",
+                TR1ItemId.ScionPiece5: "Scion",
             },
         },
     ),
@@ -189,6 +198,7 @@ level_sequence = [
         item_titles={
             "en": {
                 TR1ItemId.Key1: "Saphire Key",
+                TR1ItemId.ScionPiece5: "Scion",
             },
         },
     ),
@@ -208,6 +218,7 @@ level_sequence = [
                 TR1ItemId.Puzzle3: "Seal of Anubis",
                 TR1ItemId.Puzzle4: "Ankh",
                 TR1ItemId.Key1: "Saphire Key",
+                TR1ItemId.ScionPiece5: "Scion",
             },
         },
     ),
@@ -225,6 +236,7 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Ankh",
                 TR1ItemId.Puzzle2: "Scarab",
                 TR1ItemId.Key1: "Gold Key",
+                TR1ItemId.ScionPiece5: "Scion",
             },
         },
     ),
@@ -259,6 +271,7 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Fuse",
                 TR1ItemId.Puzzle2: "Pyramid Key",
                 TR1ItemId.Key1: "Gold Key",
+                TR1ItemId.ScionPiece5: "Scion",
             },
         },
     ),
@@ -278,6 +291,11 @@ level_sequence = [
         track=TR1TrackId.Ambience4,
         secrets=3,
         inventory={TR1ItemId.Pistols: 1},
+        item_titles={
+            "en": {
+                TR1ItemId.ScionPiece5: "Scion",
+            },
+        },
     ),
     Video("PRISON.RPL"),
     Level(
@@ -288,7 +306,12 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience4,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1}
+        inventory={TR1ItemId.Pistols: 1},
+        item_titles={
+            "en": {
+                TR1ItemId.ScionPiece5: "Scion",
+            },
+        },
     ),
     Video("END.RPL"),
 ]

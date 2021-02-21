@@ -336,6 +336,39 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
                                     0_deg,
                                     296_len});
   }
+  if(world.getEngine().getInventory().count(engine::TR1ItemId::ShotgunAmmo) > 0)
+  {
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::ShotgunCells),
+                                    engine::TR1ItemId::ShotgunAmmo,
+                                    1_frame,
+                                    0_frame,
+                                    18_deg,
+                                    -20_deg,
+                                    0_deg,
+                                    296_len});
+  }
+  if(world.getEngine().getInventory().count(engine::TR1ItemId::MagnumAmmo) > 0)
+  {
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::MagnumClips),
+                                    engine::TR1ItemId::MagnumAmmo,
+                                    1_frame,
+                                    0_frame,
+                                    18_deg,
+                                    -20_deg,
+                                    0_deg,
+                                    296_len});
+  }
+  if(world.getEngine().getInventory().count(engine::TR1ItemId::UziAmmo) > 0)
+  {
+    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::UziClips),
+                                    engine::TR1ItemId::UziAmmo,
+                                    1_frame,
+                                    0_frame,
+                                    18_deg,
+                                    -20_deg,
+                                    0_deg,
+                                    296_len});
+  }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::Explosive) > 0)
   {
     objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Grenade),
@@ -435,6 +468,11 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
   {
     objects.emplace_back(
       MenuObject{"Pickup", engine::TR1ItemId::Item148, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+  }
+  if(world.getEngine().getInventory().count(engine::TR1ItemId::ScionPiece5) > 0)
+  {
+    objects.emplace_back(
+      MenuObject{"Scion", engine::TR1ItemId::ScionPiece5, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
 
   objects.erase(

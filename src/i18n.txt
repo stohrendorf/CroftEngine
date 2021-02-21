@@ -27,3 +27,6 @@ BuildingTextures
 LoadingLevel
 CreatingMipmaps
 LoadingGlidos
+ShotgunCells
+MagnumClips
+UziClips

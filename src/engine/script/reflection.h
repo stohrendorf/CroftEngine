@@ -64,7 +64,7 @@ private:
   const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles;
   const std::unordered_map<TR1ItemId, size_t> m_inventory;
   const std::unordered_set<TR1ItemId> m_dropInventory;
-  const TR1TrackId m_track;
+  const std::optional<TR1TrackId> m_track;
   const bool m_allowSave;
 
 protected:
@@ -78,7 +78,7 @@ public:
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
                  std::unordered_map<TR1ItemId, size_t> inventory,
                  std::unordered_set<TR1ItemId> dropInventory,
-                 TR1TrackId track,
+                 std::optional<TR1TrackId> track,
                  bool allowSave)
       : m_name{std::move(name)}
       , m_secrets{secrets}
@@ -108,7 +108,7 @@ public:
             const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
             const std::unordered_map<TR1ItemId, size_t>& inventory,
             const std::unordered_set<TR1ItemId>& dropInventory,
-            TR1TrackId track)
+            std::optional<TR1TrackId> track)
       : Level{name, secrets, useAlternativeLara, titles, itemTitles, inventory, dropInventory, track, false}
   {
   }

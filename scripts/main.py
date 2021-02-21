@@ -180,6 +180,18 @@ i18n = {
         "en": "Loading Glidos texture pack",
         "de": "Lade Glidos Textur Paket",
     },
+    I18n.ShotgunCells: {
+        "en": "Shotgun Cells",
+        "de": "Schrotflinte Patronen",
+    },
+    I18n.MagnumClips: {
+        "en": "Magnum Clips",
+        "de": "Magnum Ladestreifen",
+    },
+    I18n.UziClips: {
+        "en": "Uzi Clips",
+        "de": "Uzi Ladestreifen",
+    },
 }
 
 print("Yay! Main script loaded.")

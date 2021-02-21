@@ -55,7 +55,7 @@ class Level(LevelSequenceItem):
             name: str,
             secrets: int,
             titles: Dict[str, str],
-            track: TR1TrackId,
+            track: Optional[TR1TrackId] = None,
             item_titles: Dict[str, Dict[TR1ItemId, str]] = {},
             inventory: Dict[TR1ItemId, int] = {},
             drop_inventory: Set[TR1ItemId] = set(),
