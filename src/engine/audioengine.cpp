@@ -245,6 +245,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   switch(soundEffect->getPlaybackType(loader::file::level::Engine::TR1))
   {
   case loader::file::PlaybackType::Looping:
+    BOOST_LOG_TRIVIAL(trace) << "Play looping sound effect " << toString(id.get_as<TR1SoundEffect>());
     if(auto voices = m_soundEngine->getVoicesForAudioSource(emitter, audioSource); !voices.empty())
     {
       BOOST_ASSERT(voices.size() == 1);
@@ -257,6 +258,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
       return voice;
     }
   case loader::file::PlaybackType::Restart:
+    BOOST_LOG_TRIVIAL(trace) << "Play restarting sound effect " << toString(id.get_as<TR1SoundEffect>());
     if(auto voices = m_soundEngine->getVoicesForAudioSource(emitter, audioSource); !voices.empty())
     {
       auto voice = voices[0];
@@ -276,6 +278,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
       return m_soundEngine->play(audioSource, pitch, volume, emitter);
     }
   case loader::file::PlaybackType::Wait:
+    BOOST_LOG_TRIVIAL(trace) << "Play single-instance sound effect " << toString(id.get_as<TR1SoundEffect>());
     if(auto voices = m_soundEngine->getVoicesForAudioSource(emitter, audioSource); !voices.empty())
     {
       BOOST_ASSERT(voices.size() == 1);
@@ -338,10 +341,11 @@ void AudioEngine::addWav(const gsl::not_null<const uint8_t*>& buffer)
   m_samples.emplace_back(audio::loadWav(buffer.get()));
 }
 
-void AudioEngine::playSoundEffect(const core::SoundEffectId id, const glm::vec3& pos)
+std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffectId id, const glm::vec3& pos)
 {
   auto voice = playSoundEffect(id, nullptr);
   if(voice != nullptr)
     voice->setPosition(pos);
+  return voice;
 }
 } // namespace engine

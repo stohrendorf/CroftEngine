@@ -64,7 +64,7 @@ public:
   }
 
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
-  void playSoundEffect(core::SoundEffectId id, const glm::vec3& pos);
+  std::shared_ptr<audio::Voice> playSoundEffect(core::SoundEffectId id, const glm::vec3& pos);
 
   gsl::not_null<std::shared_ptr<audio::Voice>> playStream(size_t trackId);
 

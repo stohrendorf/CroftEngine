@@ -468,11 +468,16 @@ void World::floodEffect()
       mul = 30_frame - m_effectTimer;
     }
     pos.Y = 100_len * mul / 1_frame + m_cameraController->getLookAt().position.Y;
-    m_audioEngine->playSoundEffect(TR1SoundEffect::WaterFlow3, pos.toRenderSystem());
+    if(m_globalSoundEffect == nullptr)
+      m_globalSoundEffect = m_audioEngine->playSoundEffect(TR1SoundEffect::WaterFlow3, pos.toRenderSystem());
+    else
+      m_globalSoundEffect->setPosition(pos.toRenderSystem());
   }
   else
   {
     m_activeEffect.reset();
+    m_globalSoundEffect->stop();
+    m_globalSoundEffect.reset();
   }
   m_effectTimer += 1_frame;
 }
@@ -713,6 +718,7 @@ void World::update(const bool godMode)
 
 void World::runEffect(const size_t id, objects::Object* object)
 {
+  BOOST_LOG_TRIVIAL(trace) << "Global effect " << id;
   switch(id)
   {
   case 0: Expects(object != nullptr); return turn180Effect(*object);

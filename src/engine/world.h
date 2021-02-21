@@ -278,6 +278,7 @@ private:
 
   core::Frame m_effectTimer = 0_frame;
   std::optional<size_t> m_activeEffect{};
+  std::shared_ptr<audio::Voice> m_globalSoundEffect{};
 
   bool m_roomsAreSwapped = false;
   std::vector<size_t> m_roomOrder;
