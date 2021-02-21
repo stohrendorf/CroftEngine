@@ -68,7 +68,7 @@ void updateMood(const World& world, const objects::ObjectState& objectState, con
   {
     switch(creatureInfo.mood)
     {
-    case Mood::Bored:
+    case Mood::Bored: [[fallthrough]];
     case Mood::Stalk:
       if(objectState.is_hit && (util::rand15() < 2048 || !aiInfo.canReachEnemyZone()))
       {
@@ -141,7 +141,7 @@ void updateMood(const World& world, const objects::ObjectState& objectState, con
     if(!objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *box))
       break;
 
-    if(objectState.stalkBox(world, *box))
+    if(objectState.isStalkBox(world, *box))
     {
       creatureInfo.pathFinder.setRandomSearchTarget(box);
       creatureInfo.mood = Mood::Stalk;
@@ -155,14 +155,14 @@ void updateMood(const World& world, const objects::ObjectState& objectState, con
   case Mood::Stalk:
   {
     if(creatureInfo.pathFinder.required_box != nullptr
-       && objectState.stalkBox(world, *creatureInfo.pathFinder.required_box))
+       && objectState.isStalkBox(world, *creatureInfo.pathFinder.required_box))
       break;
 
     const auto box = creatureInfo.pathFinder.boxes[util::rand15(creatureInfo.pathFinder.boxes.size())];
     if(!objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *box))
       break;
 
-    if(objectState.stalkBox(world, *box))
+    if(objectState.isStalkBox(world, *box))
     {
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
@@ -183,11 +183,11 @@ void updateMood(const World& world, const objects::ObjectState& objectState, con
        || creatureInfo.pathFinder.required_box != nullptr)
       break;
 
-    if(objectState.inSameQuadrantAsBoxRelativeToLara(world, *box))
+    if(objectState.isEscapeBox(world, *box))
     {
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
-    else if(aiInfo.canReachEnemyZone() && objectState.stalkBox(world, *box))
+    else if(aiInfo.canReachEnemyZone() && objectState.isStalkBox(world, *box))
     {
       creatureInfo.pathFinder.setRandomSearchTarget(box);
       creatureInfo.mood = Mood::Stalk;

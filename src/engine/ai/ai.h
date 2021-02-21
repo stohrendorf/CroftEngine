@@ -46,7 +46,7 @@ struct AiInfo
 
   AiInfo(World& world, objects::ObjectState& objectState);
 
-  [[nodiscard]] bool canReachEnemyZone() const
+  [[nodiscard]] bool canReachEnemyZone() const noexcept
   {
     return !enemy_unreachable && zone_number == enemy_zone;
   }

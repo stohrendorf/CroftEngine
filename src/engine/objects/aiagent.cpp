@@ -394,7 +394,7 @@ AIAgent::AIAgent(const gsl::not_null<World*>& world,
     : ModelObject{world, room, item, true, animatedModel}
 {
   m_state.collidable = true;
-  const core::Angle v = util::rand15(180_deg) * 2;
+  const core::Angle v = util::rand15s(90_deg);
   m_state.rotation.Y += v;
 
   loadObjectInfo(false);

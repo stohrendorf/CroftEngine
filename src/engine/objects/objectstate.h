@@ -117,11 +117,11 @@ public:
     return !activationState.isInverted();
   }
 
-  bool stalkBox(const World& world, const loader::file::Box& targetBox) const;
+  bool isStalkBox(const World& world, const loader::file::Box& targetBox) const;
 
   bool isInsideZoneButNotInBox(const World& world, int16_t zoneId, const loader::file::Box& targetBox) const;
 
-  bool inSameQuadrantAsBoxRelativeToLara(const World& world, const loader::file::Box& targetBox) const;
+  bool isEscapeBox(const World& world, const loader::file::Box& targetBox) const;
 
   void initCreatureInfo(const World& world);
 

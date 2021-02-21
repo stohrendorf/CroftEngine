@@ -320,6 +320,7 @@ void SkeletalModelNode::serialize(const serialization::Serializer<World>& ser)
     ser.lazy([this](const serialization::Serializer<World>&) {
       m_needsMeshRebuild = true;
       rebuildMesh();
+      updatePose();
     });
 }
 

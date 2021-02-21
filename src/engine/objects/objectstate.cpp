@@ -14,7 +14,7 @@ namespace engine::objects
 {
 ObjectState::~ObjectState() = default;
 
-bool ObjectState::stalkBox(const World& world, const loader::file::Box& targetBox) const
+bool ObjectState::isStalkBox(const World& world, const loader::file::Box& targetBox) const
 {
   const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
 
@@ -33,9 +33,9 @@ bool ObjectState::stalkBox(const World& world, const loader::file::Box& targetBo
     return false;
   }
 
-  const auto laraToObjectAxis
-    = *axisFromAngle(angleFromAtan(position.position.X - laraPos.X, position.position.Z - laraPos.Z), 45_deg);
-  if(laraAxis != laraToObjectAxis)
+  const auto objectToLaraAxis
+    = *axisFromAngle(angleFromAtan(laraPos.X - position.position.X, laraPos.Z - position.position.Z), 45_deg);
+  if(laraAxis != objectToLaraAxis)
   {
     return true;
   }
@@ -73,18 +73,18 @@ bool ObjectState::isInsideZoneButNotInBox(const World& world,
   return !targetBox.contains(position.position.X, position.position.Z);
 }
 
-bool ObjectState::inSameQuadrantAsBoxRelativeToLara(const World& world, const loader::file::Box& targetBox) const
+bool ObjectState::isEscapeBox(const World& world, const loader::file::Box& targetBox) const
 {
   const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
 
-  const auto localBoxCenterX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
-  const auto localBoxCenterZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
-  if(abs(localBoxCenterX) < 5 * core::SectorSize && abs(localBoxCenterZ) < 5 * core::SectorSize)
+  const auto laraToBoxCtrX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
+  const auto laraToBoxCtrZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
+  if(abs(laraToBoxCtrX) < 5 * core::SectorSize && abs(laraToBoxCtrZ) < 5 * core::SectorSize)
     return false;
 
-  const auto localPosX = position.position.X - laraPos.X;
-  const auto localPosZ = position.position.Z - laraPos.Z;
-  return ((localPosZ > 0_len) == (localBoxCenterZ > 0_len)) || ((localPosX > 0_len) == (localBoxCenterX > 0_len));
+  const auto laraToObjX = position.position.X - laraPos.X;
+  const auto laraToObjZ = position.position.Z - laraPos.Z;
+  return ((laraToObjZ > 0_len) == (laraToBoxCtrZ > 0_len)) || ((laraToObjX > 0_len) == (laraToBoxCtrX > 0_len));
 }
 
 void ObjectState::initCreatureInfo(const World& world)

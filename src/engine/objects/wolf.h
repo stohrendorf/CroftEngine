@@ -19,6 +19,8 @@ public:
        const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
       : AIAgent{world, room, item, animatedModel}
   {
+    getSkeleton()->setAnim(getSkeleton()->getAnim(), 96_frame);
+    getSkeleton()->updatePose();
   }
 
   void update() override;
