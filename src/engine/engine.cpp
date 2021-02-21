@@ -333,4 +333,9 @@ SavegameMeta Engine::getSavegameMeta(const std::filesystem::path& filename) cons
   doc.load("meta", meta, meta);
   return meta;
 }
+
+void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser)
+{
+  ser(S_NV("filename", filename), S_NV("title", title));
+}
 } // namespace engine

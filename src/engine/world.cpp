@@ -1008,7 +1008,8 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
       S_NV("roomOrder", m_roomOrder),
       S_NV("rooms", serialization::FrozenVector{m_level->m_rooms}),
-      S_NV("boxes", serialization::FrozenVector{m_level->m_boxes}));
+      S_NV("boxes", serialization::FrozenVector{m_level->m_boxes}),
+      S_NV("audioEngine", *m_audioEngine));
 
   if(ser.loading)
     m_level->updateRoomBasedCaches();
@@ -1566,10 +1567,5 @@ void World::load(size_t slot)
 void World::save(size_t slot)
 {
   save(makeSavegameFilename(slot));
-}
-
-void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser)
-{
-  ser(S_NV("filename", filename), S_NV("title", title));
 }
 } // namespace engine

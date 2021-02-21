@@ -3,6 +3,9 @@
 #include "audio/streamsource.h"
 #include "objects/laraobject.h"
 #include "script/reflection.h"
+#include "serialization/map.h"
+#include "serialization/optional.h"
+#include "serialization/serialization.h"
 #include "tracks_tr1.h"
 #include "world.h"
 
@@ -347,5 +350,12 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   if(voice != nullptr)
     voice->setPosition(pos);
   return voice;
+}
+
+void AudioEngine::serialize(const serialization::Serializer<World>& ser)
+{
+  ser(S_NV("currentTrack", m_currentTrack),
+      S_NV("currentLaraTalk", m_currentLaraTalk),
+      S_NV("cdTrackActivationStates", m_cdTrackActivationStates));
 }
 } // namespace engine

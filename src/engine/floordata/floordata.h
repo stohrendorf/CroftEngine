@@ -139,6 +139,13 @@ public:
 
   void serialize(const serialization::Serializer<World>& ser);
 
+  static ActivationState create(const serialization::Serializer<World>& ser)
+  {
+    ActivationState result{};
+    result.serialize(ser);
+    return result;
+  }
+
 private:
   static ActivationSet extractActivationSet(const FloorDataValue fd)
   {

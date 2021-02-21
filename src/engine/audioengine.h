@@ -99,5 +99,7 @@ public:
     Expects(volume >= 0);
     m_soundEngine->getSoLoud().fadeGlobalVolume(volume, time);
   }
+
+  void serialize(const serialization::Serializer<World>& ser);
 };
 } // namespace engine
