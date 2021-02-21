@@ -84,7 +84,7 @@ public:
 
   void addWav(const gsl::not_null<const uint8_t*>& buffer);
 
-  void setStreamVolume(float volume)
+  void fadeStreamVolume(float volume)
   {
     Expects(volume >= 0);
     m_streamVolume = volume;
@@ -92,6 +92,12 @@ public:
       m_ambientStream->fadeVolume(volume, std::chrono::milliseconds(2000));
     if(m_interceptStream != nullptr)
       m_interceptStream->fadeVolume(volume, std::chrono::milliseconds(2000));
+  }
+
+  void fadeGlobalVolume(float volume, SoLoud::time time = 2.0)
+  {
+    Expects(volume >= 0);
+    m_soundEngine->getSoLoud().fadeGlobalVolume(volume, time);
   }
 };
 } // namespace engine

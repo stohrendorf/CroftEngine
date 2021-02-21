@@ -42,7 +42,7 @@ struct MenuDisplay
   const InventoryMode mode;
   std::array<std::unique_ptr<ui::Label>, 7> objectTexts;
   std::optional<engine::TR1ItemId> inventoryChosen{};
-  float streamGain;
+  float streamVolume;
   bool allowMenuClose = true;
   bool allowSave = true;
 

@@ -100,6 +100,7 @@ gsl::not_null<std::shared_ptr<Voice>> SoundEngine::play(const std::shared_ptr<So
 
   voice->setRelativePlaySpeed(pitch);
   m_voices[emitter][audioSource].emplace_back(voice);
+  m_soLoud->update3dAudio();
   voice->play();
   return voice;
 }
@@ -144,6 +145,7 @@ gsl::not_null<std::shared_ptr<Voice>> SoundEngine::play(const std::shared_ptr<So
 void SoundEngine::reset()
 {
   BOOST_LOG_TRIVIAL(debug) << "Resetting sound engine";
+  m_soLoud->setGlobalVolume(0.0f);
   m_soLoud->stopAll();
   m_voices.clear();
   m_listener = nullptr;
@@ -160,6 +162,7 @@ SoundEngine::SoundEngine()
                           << " channels at " << m_soLoud->getBackendSamplerate() << " Hz and buffer size "
                           << m_soLoud->getBackendBufferSize();
 
+  m_soLoud->setGlobalVolume(0.0f);
   m_underwaterFilter.setParams(SoLoud::BiquadResonantFilter::LOWPASS, 250, 1);
 }
 

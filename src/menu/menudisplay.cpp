@@ -161,7 +161,7 @@ void MenuDisplay::display(ui::Ui& ui, engine::World& world)
       txt->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
 
   if(result != MenuResult::None)
-    world.getAudioEngine().setStreamVolume(streamGain);
+    world.getAudioEngine().fadeStreamVolume(streamVolume);
 }
 
 void MenuDisplay::clearMenuObjectDescription()
@@ -488,7 +488,7 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
 
 MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
     : mode{mode}
-    , streamGain{world.getPresenter().getSoundEngine()->getSoLoud().getGlobalVolume()}
+    , streamVolume{world.getPresenter().getSoundEngine()->getSoLoud().getGlobalVolume()}
     , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform)}
 {
@@ -519,7 +519,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
   if(mode != InventoryMode::TitleMode)
   {
-    world.getAudioEngine().setStreamVolume(0);
+    world.getAudioEngine().fadeStreamVolume(0.1f);
   }
   world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
 }

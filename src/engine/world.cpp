@@ -344,6 +344,7 @@ void World::loadSceneData()
     m_cameraController = std::make_unique<CameraController>(this, getPresenter().getRenderer().getCamera());
   }
 
+  m_positionalEmitters.clear();
   m_positionalEmitters.reserve(m_level->m_soundSources.size());
   for(loader::file::SoundSource& src : m_level->m_soundSources)
   {
@@ -352,6 +353,7 @@ void World::loadSceneData()
     Expects(voice != nullptr);
     voice->setLooping(true);
   }
+  m_audioEngine->fadeGlobalVolume(1.0f);
 }
 
 void World::useAlternativeLaraAppearance(const bool withHead)
