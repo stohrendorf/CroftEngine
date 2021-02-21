@@ -9,6 +9,11 @@
 #include <set>
 #include <utility>
 
+namespace engine
+{
+class Engine;
+}
+
 namespace loader::trx
 {
 class Rectangle
@@ -148,7 +153,8 @@ class Equiv
 public:
   explicit Equiv(const std::filesystem::path& filename);
 
-  void resolve(const std::filesystem::path& root,
+  void resolve(const engine::Engine& engine,
+               const std::filesystem::path& root,
                std::map<std::string, std::filesystem::file_time_type>& timestamps,
                const std::filesystem::file_time_type& rootTimestamp,
                std::map<TexturePart, std::filesystem::path>& filesByPart,
@@ -178,7 +184,9 @@ private:
 class Glidos
 {
 public:
-  explicit Glidos(std::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback);
+  explicit Glidos(const engine::Engine& engine,
+                  std::filesystem::path baseDir,
+                  const std::function<void(const std::string&)>& statusCallback);
 
   void dump() const;
 

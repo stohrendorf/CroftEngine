@@ -53,27 +53,27 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   };
 
   addSetting(
-    "CRT",
+    engine.i18n(engine::I18n::CRT),
     [&engine]() { return engine.getEngineConfig().renderSettings.crt; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.crt); });
   addSetting(
-    "Depth-of-Field",
+    engine.i18n(engine::I18n::DepthOfField),
     [&engine]() { return engine.getEngineConfig().renderSettings.dof; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.dof); });
   addSetting(
-    "Lens Distortion",
+    engine.i18n(engine::I18n::LensDistortion),
     [&engine]() { return engine.getEngineConfig().renderSettings.lensDistortion; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.lensDistortion); });
   addSetting(
-    "Film Grain",
+    engine.i18n(engine::I18n::FilmGrain),
     [&engine]() { return engine.getEngineConfig().renderSettings.filmGrain; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.filmGrain); });
   addSetting(
-    "Fullscreen",
+    engine.i18n(engine::I18n::Fullscreen),
     [&engine]() { return engine.getEngineConfig().renderSettings.fullscreen; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.fullscreen); });
   addSetting(
-    "Bilinear Filtering",
+    engine.i18n(engine::I18n::BilinearFiltering),
     [&engine]() { return engine.getEngineConfig().renderSettings.bilinearFiltering; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.bilinearFiltering); });
 }

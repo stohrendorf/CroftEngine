@@ -27,6 +27,14 @@ BuildingTextures
 LoadingLevel
 CreatingMipmaps
 LoadingGlidos
+GlidosLoading
+GlidosResolvingMaps
 ShotgunCells
 MagnumClips
 UziClips
+CRT
+DepthOfField
+LensDistortion
+FilmGrain
+Fullscreen
+BilinearFiltering

@@ -314,8 +314,8 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
       return nullptr;
 
     m_presenter->drawLoadingScreen(i18n(I18n::LoadingGlidos));
-    return std::make_unique<loader::trx::Glidos>(m_rootPath / glidosPack,
-                                                 [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
+    return std::make_unique<loader::trx::Glidos>(
+      *this, m_rootPath / glidosPack, [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
   }
 
   return nullptr;

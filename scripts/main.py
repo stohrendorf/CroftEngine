@@ -181,6 +181,14 @@ i18n = {
         "en": "Loading Glidos texture pack",
         "de": "Lade Glidos Textur Paket",
     },
+    I18n.GlidosLoading: {
+        "en": "Glidos - Loading %1%",
+        "de": "Glidos - Lade %1%",
+    },
+    I18n.GlidosResolvingMaps: {
+        "en": "Glidos - Resolving maps (%1%%%)",
+        "de": "Glidos - Löse Zuordnungen auf (%1%%%)",
+    },
     I18n.ShotgunCells: {
         "en": "Shotgun Cells",
         "de": "Schrotflinte Patronen",
@@ -192,6 +200,30 @@ i18n = {
     I18n.UziClips: {
         "en": "Uzi Clips",
         "de": "Uzi Ladestreifen",
+    },
+    I18n.CRT: {
+        "en": "CRT",
+        "de": "CRT",
+    },
+    I18n.DepthOfField: {
+        "en": "Depth-of-Field",
+        "de": "Tiefensch~arfe",
+    },
+    I18n.LensDistortion: {
+        "en": "Lens Distortion",
+        "de": "Linsenverzerrung",
+    },
+    I18n.FilmGrain: {
+        "en": "Film Grain",
+        "de": "Filmrauschen",
+    },
+    I18n.Fullscreen: {
+        "en": "Fullscreen",
+        "de": "Vollbild",
+    },
+    I18n.BilinearFiltering: {
+        "en": "Bilinear Filtering",
+        "de": "Bilineare Filterung",
     },
 }
 

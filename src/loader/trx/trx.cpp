@@ -1,5 +1,8 @@
 #include "trx.h"
 
+#include "engine/engine.h"
+#include "engine/i18n.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/log/trivial.hpp>
 #include <fstream>
@@ -124,7 +127,8 @@ Equiv::Equiv(const std::filesystem::path& filename)
   }
 }
 
-void Equiv::resolve(const std::filesystem::path& root,
+void Equiv::resolve(const engine::Engine& engine,
+                    const std::filesystem::path& root,
                     std::map<std::string, std::filesystem::file_time_type>& timestamps,
                     const std::filesystem::file_time_type& rootTimestamp,
                     std::map<TexturePart, std::filesystem::path>& filesByPart,
@@ -135,7 +139,7 @@ void Equiv::resolve(const std::filesystem::path& root,
   auto resolved = std::count_if(
     m_equivalentSets.begin(), m_equivalentSets.end(), [](const EquivalenceSet& set) { return set.isResolved(); });
 
-  statusCallback("Glidos - Resolving maps (" + std::to_string(resolved * 100 / m_equivalentSets.size()) + "%)");
+  statusCallback(engine.i18n(engine::I18n::GlidosResolvingMaps, resolved * 100 / m_equivalentSets.size()));
 
   for(const auto& set : m_equivalentSets)
   {
@@ -192,7 +196,7 @@ void Equiv::resolve(const std::filesystem::path& root,
     // avoid too many draw calls
     if(resolved % 10 == 0)
     {
-      statusCallback("Glidos - Resolving maps (" + std::to_string(resolved * 100 / m_equivalentSets.size()) + "%)");
+      statusCallback(engine.i18n(engine::I18n::GlidosResolvingMaps, resolved * 100 / m_equivalentSets.size()));
     }
   }
 }
@@ -306,7 +310,9 @@ PathMap::PathMap(const std::filesystem::path& baseTxtName,
   }
 }
 
-Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback)
+Glidos::Glidos(const engine::Engine& engine,
+               std::filesystem::path baseDir,
+               const std::function<void(const std::string&)>& statusCallback)
     : m_baseDir{std::move(baseDir)}
 {
   if(!is_directory(m_baseDir))
@@ -316,7 +322,7 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
 
   m_rootTimestamp = last_write_time(m_baseDir / "equiv.txt");
 
-  statusCallback("Glidos - Loading equiv.txt");
+  statusCallback(engine.i18n(engine::I18n::GlidosLoading, "equiv.txt"));
 
   BOOST_LOG_TRIVIAL(debug) << "Loading equiv.txt";
   const Equiv equiv{m_baseDir / "equiv.txt"};
@@ -332,7 +338,7 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
     if(it->path().filename() == "equiv.txt")
       continue;
 
-    statusCallback("Glidos - Loading " + it->path().filename().string());
+    statusCallback(engine.i18n(engine::I18n::GlidosLoading, it->path().filename().string()));
     BOOST_LOG_TRIVIAL(debug) << "Loading part map " << it->path();
     maps.emplace_back(it->path(), m_newestTextureSourceTimestamps, m_rootTimestamp, m_filesByPart);
   }
@@ -340,9 +346,10 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
   BOOST_LOG_TRIVIAL(debug) << "Resolving links and equiv sets for " << maps.size() << " mappings";
   for(const auto& map : maps)
   {
-    equiv.resolve(map.getRoot(), m_newestTextureSourceTimestamps, m_rootTimestamp, m_filesByPart, statusCallback);
+    equiv.resolve(
+      engine, map.getRoot(), m_newestTextureSourceTimestamps, m_rootTimestamp, m_filesByPart, statusCallback);
   }
-  statusCallback("Glidos - Resolving maps (100%)");
+  statusCallback(engine.i18n(engine::I18n::GlidosResolvingMaps, 100));
 }
 
 void Glidos::dump() const
