@@ -49,6 +49,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     engine.i18n(engine::I18n::BilinearFiltering),
     [&engine]() { return engine.getEngineConfig().renderSettings.bilinearFiltering; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.bilinearFiltering); });
+  addSetting(
+    engine.i18n(engine::I18n::WaterDenoise),
+    [&engine]() { return engine.getEngineConfig().renderSettings.waterDenoise; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.waterDenoise); });
 }
 
 std::unique_ptr<MenuState>

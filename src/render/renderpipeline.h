@@ -110,6 +110,7 @@ private:
     void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
     void resize(const glm::ivec2& viewport,
+                const RenderSettings& renderSettings,
                 const GeometryStage& geometryStage,
                 const PortalStage& portalStage,
                 const SSAOStage& ssaoStage,
@@ -155,7 +156,6 @@ public:
     }
 
     m_size = viewport;
-
     resizeTextures(viewport);
   }
 

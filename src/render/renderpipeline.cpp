@@ -30,7 +30,8 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const gl
 
 void RenderPipeline::compositionPass(const bool water)
 {
-  m_portalStage.blur.render();
+  if(m_renderSettings.waterDenoise)
+    m_portalStage.blur.render();
   m_ssaoStage.render(m_size / 2);
   m_fxaaStage.render(m_size);
   m_compositionStage.render(water, m_renderSettings);
@@ -48,7 +49,7 @@ void RenderPipeline::resizeTextures(const glm::ivec2& viewport)
   m_portalStage.resize(viewport);
   m_ssaoStage.resize(viewport / 2, m_geometryStage);
   m_fxaaStage.resize(viewport, m_geometryStage);
-  m_compositionStage.resize(viewport, m_geometryStage, m_portalStage, m_ssaoStage, m_fxaaStage);
+  m_compositionStage.resize(viewport, m_renderSettings, m_geometryStage, m_portalStage, m_ssaoStage, m_fxaaStage);
 }
 
 RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager)
@@ -297,19 +298,26 @@ void RenderPipeline::CompositionStage::updateCamera(const gsl::not_null<std::sha
 }
 
 void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
+                                              const RenderSettings& renderSettings,
                                               const RenderPipeline::GeometryStage& geometryStage,
                                               const RenderPipeline::PortalStage& portalStage,
                                               const RenderPipeline::SSAOStage& ssaoStage,
                                               const RenderPipeline::FXAAStage& fxaaStage)
 {
   compositionMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
-  compositionMaterial->getUniform("u_portalPerturb")->set(portalStage.blur.getBlurredTexture());
+  if(renderSettings.waterDenoise)
+    compositionMaterial->getUniform("u_portalPerturb")->set(portalStage.blur.getBlurredTexture());
+  else
+    compositionMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
   compositionMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
   compositionMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
   compositionMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);
 
   waterCompositionMaterial->getUniform("u_portalDepth")->set(portalStage.depthBuffer);
-  waterCompositionMaterial->getUniform("u_portalPerturb")->set(portalStage.blur.getBlurredTexture());
+  if(renderSettings.waterDenoise)
+    waterCompositionMaterial->getUniform("u_portalPerturb")->set(portalStage.blur.getBlurredTexture());
+  else
+    waterCompositionMaterial->getUniform("u_portalPerturb")->set(portalStage.perturbBuffer);
   waterCompositionMaterial->getUniform("u_depth")->set(geometryStage.depthBuffer);
   waterCompositionMaterial->getUniform("u_ao")->set(ssaoStage.blur.getBlurredTexture());
   waterCompositionMaterial->getUniform("u_texture")->set(fxaaStage.colorBuffer);

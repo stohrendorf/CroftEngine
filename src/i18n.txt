@@ -39,3 +39,4 @@ FilmGrain
 Fullscreen
 BilinearFiltering
 Graphics
+WaterDenoise

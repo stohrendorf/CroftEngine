@@ -232,6 +232,10 @@ i18n = {
         "en": "Graphics",
         "de": "Grafik",
     },
+    I18n.WaterDenoise: {
+        "en": "Water Denoise",
+        "de": "Wassergl~attung",
+    },
 }
 
 print("Yay! Main script loaded.")
