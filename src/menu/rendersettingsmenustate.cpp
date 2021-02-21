@@ -72,6 +72,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     "Fullscreen",
     [&engine]() { return engine.getEngineConfig().renderSettings.fullscreen; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.fullscreen); });
+  addSetting(
+    "Bilinear Filtering",
+    [&engine]() { return engine.getEngineConfig().renderSettings.bilinearFiltering; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.bilinearFiltering); });
 }
 
 std::unique_ptr<MenuState> RenderSettingsMenuState::onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& /*display*/)

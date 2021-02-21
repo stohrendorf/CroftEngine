@@ -16,6 +16,7 @@ struct RenderSettings
   bool lensDistortion = true;
   bool filmGrain = true;
   bool fullscreen = false;
+  bool bilinearFiltering = false;
 
   void serialize(const serialization::Serializer<engine::EngineConfig>& ser);
 };

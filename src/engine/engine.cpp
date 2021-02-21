@@ -134,6 +134,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
                       "allAmmoCheat")
         .value_or(false);
 
+  m_presenter->apply(m_engineConfig.renderSettings);
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
   while(true)
@@ -213,6 +214,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
 {
   gl::Framebuffer::unbindAll();
 
+  m_presenter->apply(m_engineConfig.renderSettings);
+
   m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
   if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
@@ -261,6 +264,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItem(script:
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
+  m_presenter->apply(m_engineConfig.renderSettings);
   return item.run(*this);
 }
 
@@ -269,6 +273,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItemFromSave
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
+  m_presenter->apply(m_engineConfig.renderSettings);
   return item.runFromSave(*this, slot);
 }
 

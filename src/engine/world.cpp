@@ -1421,10 +1421,7 @@ World::World(Engine& engine,
     m_allTextures = std::make_unique<gl::Texture2DArray<gl::SRGBA8>>(
       glm::ivec3{atlases.getSize(), atlases.getSize(), gsl::narrow<int>(images.size())}, textureLevels, "all-textures");
     m_allTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
-    if(hasGlidosPack)
-      m_allTextures->set(gl::api::TextureMagFilter::Linear);
-    else
-      m_allTextures->set(gl::api::TextureMagFilter::Nearest);
+    m_allTextures->set(gl::api::TextureMagFilter::Nearest);
     m_allTextures->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
     m_allTextures->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
     getPresenter().getMaterialManager()->setGeometryTextures(m_allTextures);

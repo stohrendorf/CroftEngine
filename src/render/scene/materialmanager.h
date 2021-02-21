@@ -44,6 +44,8 @@ public:
 
   void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures);
 
+  void setBilinearFiltering(bool enabled);
+
 private:
   const gsl::not_null<std::shared_ptr<ShaderManager>> m_shaderManager;
 

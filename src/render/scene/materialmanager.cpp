@@ -199,4 +199,21 @@ void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl:
   if(m_screenSpriteTextured != nullptr)
     m_screenSpriteTextured->getUniform("u_input")->set(m_geometryTextures);
 }
+
+void MaterialManager::setBilinearFiltering(bool enabled)
+{
+  if(m_geometryTextures == nullptr)
+    return;
+
+  if(enabled)
+  {
+    m_geometryTextures->set(gl::api::TextureMinFilter::LinearMipmapLinear);
+    m_geometryTextures->set(gl::api::TextureMagFilter::Linear);
+  }
+  else
+  {
+    m_geometryTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
+    m_geometryTextures->set(gl::api::TextureMagFilter::Nearest);
+  }
+}
 } // namespace render::scene

@@ -444,5 +444,6 @@ void Presenter::apply(const render::RenderSettings& renderSettings)
 {
   setFullscreen(renderSettings.fullscreen);
   m_renderPipeline->apply(renderSettings, *m_materialManager);
+  m_materialManager->setBilinearFiltering(renderSettings.bilinearFiltering);
 }
 } // namespace engine
