@@ -137,6 +137,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
   m_presenter->apply(m_engineConfig.renderSettings);
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
+  core::Frame laraDeadTime = 0_frame;
   while(true)
   {
     if(m_presenter->shouldClose())
@@ -180,6 +181,17 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
 
     if(!isCutscene)
     {
+      if(world.getObjectManager().getLara().isDead())
+      {
+        laraDeadTime += 1_frame;
+        if(laraDeadTime >= 300_frame || (laraDeadTime >= 60_frame && m_presenter->getInputHandler().hasAnyAction()))
+        {
+          menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::DeathMode, world);
+          menu->allowSave = false;
+          continue;
+        }
+      }
+
       if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
       {
         menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world);

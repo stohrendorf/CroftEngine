@@ -73,18 +73,18 @@ std::optional<std::unique_ptr<MenuState>>
   return std::nullopt;
 }
 
-void PassportMenuState::showExitGamePage(engine::World& world, MenuDisplay& display, bool isInGame)
+void PassportMenuState::showExitGamePage(engine::World& world, MenuDisplay& display, bool returnToTitle)
 {
   if(m_passportText == nullptr)
   {
     m_passportText = std::make_unique<ui::Label>(
-      glm::ivec2{0, -16}, world.getEngine().i18n(!isInGame ? engine::I18n::ExitGame : engine::I18n::ExitToTitle));
+      glm::ivec2{0, -16}, world.getEngine().i18n(!returnToTitle ? engine::I18n::ExitGame : engine::I18n::ExitToTitle));
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
-    display.result = !isInGame ? MenuResult::ExitGame : MenuResult::ExitToTitle;
+    display.result = !returnToTitle ? MenuResult::ExitGame : MenuResult::ExitToTitle;
   }
 }
 
@@ -127,7 +127,6 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::World&
   if(passport.selectedRotationY == passport.rotationY && passport.animate())
     return nullptr;
 
-  const bool isInGame = display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::DeathMode;
   const bool hasSavedGames = world.hasSavedGames();
 
   display.objectTexts[0].reset();
@@ -170,10 +169,11 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::World&
         forcePageTurn = hid::AxisMovement::Right;
       break;
     }
-    if(auto tmp = showSaveGamePage(world, display, isInGame))
+    if(auto tmp = showSaveGamePage(
+         world, display, display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::DeathMode))
       return std::move(tmp.value());
     break;
-  case ExitGamePage: showExitGamePage(world, display, isInGame); break;
+  case ExitGamePage: showExitGamePage(world, display, display.mode != InventoryMode::TitleMode); break;
   default: Expects(page == -1); break;
   }
 

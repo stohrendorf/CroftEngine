@@ -31,7 +31,7 @@ private:
 
   std::optional<std::unique_ptr<MenuState>> showLoadGamePage(engine::World& world, MenuDisplay& display);
   std::optional<std::unique_ptr<MenuState>> showSaveGamePage(engine::World& world, MenuDisplay& display, bool isInGame);
-  void showExitGamePage(engine::World& world, MenuDisplay& display, bool isInGame);
+  void showExitGamePage(engine::World& world, MenuDisplay& display, bool returnToTitle);
   void prevPage(const core::Frame& minFrame, MenuObject& passport, engine::World& world);
   void nextPage(MenuObject& passport, engine::World& world);
 

@@ -33,6 +33,13 @@ public:
     return false;
   }
 
+  bool hasAnyAction() const
+  {
+    return std::any_of(m_inputState.actions.begin(),
+                       m_inputState.actions.end(),
+                       [](const std::pair<Action, InputState::Button>& action) { return action.second.current; });
+  }
+
   bool hasDebouncedAction(Action action) const
   {
     if(auto it = m_inputState.actions.find(action); it != m_inputState.actions.end())
