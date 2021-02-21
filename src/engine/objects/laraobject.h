@@ -438,6 +438,7 @@ public:
     const auto v = objectState.rotation.toMatrix() * glm::vec4{offset.toRenderSystem(), 1.0f};
     const auto p = core::TRVec{glm::vec3{v}};
     m_state.position.position = objectState.position.position + p;
+    m_state.rotation = objectState.rotation;
   }
 
   void burnIfAlive();
