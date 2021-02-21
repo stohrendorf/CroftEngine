@@ -12,7 +12,7 @@ std::unique_ptr<MenuState> InflateRingMenuState::onFrame(ui::Ui& /*ui*/, engine:
   if(m_duration == 0_frame)
   {
     bool doAutoSelect = false;
-    if(display.rings.size() == 1 && !display.passOpen)
+    if(display.rings.size() == 1 && !display.passOpen && display.mode != InventoryMode::TitleMode)
     {
       doAutoSelect = true;
     }
