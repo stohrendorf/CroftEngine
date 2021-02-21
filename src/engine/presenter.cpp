@@ -446,4 +446,18 @@ void Presenter::apply(const render::RenderSettings& renderSettings)
   m_renderPipeline->apply(renderSettings, *m_materialManager);
   m_materialManager->setBilinearFiltering(renderSettings.bilinearFiltering);
 }
+
+gl::CImgWrapper Presenter::takeScreenshot() const
+{
+  const auto vp = m_window->getViewport();
+
+  std::vector<uint8_t> pixels;
+  pixels.resize(vp.x * vp.y * 4);
+  GL_ASSERT(
+    gl::api::readPixel(0, 0, vp.x, vp.y, gl::api::PixelFormat::Rgba, gl::api::PixelType::UnsignedByte, pixels.data()));
+
+  gl::CImgWrapper img{pixels.data(), vp.x, vp.y, false};
+  img.fromScreenshot();
+  return img;
+}
 } // namespace engine

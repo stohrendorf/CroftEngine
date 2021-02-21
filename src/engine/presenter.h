@@ -174,6 +174,8 @@ public:
     return m_window->getViewport();
   }
 
+  gl::CImgWrapper takeScreenshot() const;
+
 private:
   static constexpr int32_t CSMResolution = 2048;
 

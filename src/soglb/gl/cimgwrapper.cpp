@@ -239,4 +239,12 @@ void CImgWrapper::extendBorder(int margin)
   else
     m_image->resize(-100, width() + 2 * margin, height() + 2 * margin, -100, 0, 1, 0, 0.5f, 0.5f, 0);
 }
+
+void CImgWrapper::fromScreenshot()
+{
+  deinterleave();
+  m_image->get_shared_channel(3).fill(255);
+  m_image->mirror('y');
+  interleave();
+}
 } // namespace gl

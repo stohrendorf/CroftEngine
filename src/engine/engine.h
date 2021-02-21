@@ -95,6 +95,8 @@ private:
 
   Inventory m_inventory{};
 
+  void makeScreenshot();
+
 public:
   explicit Engine(const std::filesystem::path& rootPath,
                   bool fullscreen = false,

@@ -44,6 +44,7 @@ input_mapping = {
     Action.Backward: [GlfwKey.S, GlfwGamepadButton.DPadDown],
     Action.StepLeft: [GlfwKey.Q],
     Action.StepRight: [GlfwKey.E],
+    Action.Screenshot: [GlfwKey.F12],
     Action.CheatDive: [GlfwKey.F10],  # only available in debug builds
 }
 

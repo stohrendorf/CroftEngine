@@ -102,6 +102,8 @@ public:
 
   void extendBorder(int margin);
 
+  void fromScreenshot();
+
 private:
   void unshare();
 };

@@ -207,7 +207,26 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
       if(!world.cinematicLoop())
         return {RunResult::NextLevel, std::nullopt};
     }
+
+    if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))
+    {
+      makeScreenshot();
+    }
   }
+}
+
+void Engine::makeScreenshot()
+{
+  auto img = m_presenter->takeScreenshot();
+  if(!std::filesystem::is_directory(m_rootPath / "screenshots"))
+    std::filesystem::create_directories(m_rootPath / "screenshots");
+
+  auto time = std::time(nullptr);
+  auto localTime = std::localtime(&time);
+  auto filename = boost::format("%04d-%02d-%02d %02d-%02d-%02d.png") % (localTime->tm_year + 1900)
+                  % (localTime->tm_mon + 1) % localTime->tm_mday % localTime->tm_hour % localTime->tm_min
+                  % localTime->tm_sec;
+  img.savePng(m_rootPath / "screenshots" / filename.str());
 }
 
 std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
@@ -256,6 +275,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
     case menu::MenuResult::RequestLoad:
       Expects(menu->requestLoad.has_value());
       return {RunResult::RequestLoad, menu->requestLoad};
+    }
+
+    if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))
+    {
+      makeScreenshot();
     }
   }
 }

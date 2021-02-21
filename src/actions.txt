@@ -21,3 +21,4 @@ Backward
 StepLeft
 StepRight
 CheatDive
+Screenshot
