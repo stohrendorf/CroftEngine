@@ -44,11 +44,11 @@ public:
         getLara().addHeadRotationY(2_deg, -44_deg, 44_deg);
       }
 
-      if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+      if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
       {
         getLara().addHeadRotationX(-2_deg, -42_deg, 22_deg);
       }
-      else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+      else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
       {
         getLara().addHeadRotationX(2_deg, -42_deg, 22_deg);
       }

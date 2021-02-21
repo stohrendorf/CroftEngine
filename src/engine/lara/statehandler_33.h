@@ -36,11 +36,11 @@ public:
         getLara().addHeadRotationY(2_deg, -50_deg, 50_deg);
       }
 
-      if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+      if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
       {
         getLara().addHeadRotationX(-2_deg, -40_deg, 40_deg);
       }
-      else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+      else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
       {
         getLara().addHeadRotationX(2_deg, -40_deg, 40_deg);
       }
