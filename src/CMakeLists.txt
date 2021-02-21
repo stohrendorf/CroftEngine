@@ -439,6 +439,7 @@ set( EDISONENGINE_SRCS
         menu/finishitemanimationmenustate.cpp
         menu/idleringmenustate.cpp
         menu/inflateringmenustate.cpp
+        menu/listdisplaymenustate.cpp
         menu/passportmenustate.cpp
         menu/rendersettingsmenustate.cpp
         menu/resetitemtransformmenustate.cpp

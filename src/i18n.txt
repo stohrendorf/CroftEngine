@@ -38,3 +38,4 @@ LensDistortion
 FilmGrain
 Fullscreen
 BilinearFiltering
+Graphics

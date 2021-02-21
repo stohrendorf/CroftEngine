@@ -228,6 +228,10 @@ i18n = {
         "en": "Bilinear Filtering",
         "de": "Bilineare Filterung",
     },
+    I18n.Graphics: {
+        "en": "Graphics",
+        "de": "Grafik",
+    },
 }
 
 print("Yay! Main script loaded.")

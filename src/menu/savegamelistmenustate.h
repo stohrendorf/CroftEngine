@@ -1,6 +1,6 @@
 #pragma once
 
-#include "selectedmenustate.h"
+#include "listdisplaymenustate.h"
 
 #include <string>
 #include <vector>
@@ -12,23 +12,13 @@ struct Label;
 
 namespace menu
 {
-class SavegameListMenuState : public SelectedMenuState
+class SavegameListMenuState : public ListDisplayMenuState
 {
 private:
-  static constexpr int16_t PixelWidth = 272;
-  static constexpr int16_t LineHeight = 18;
-  static constexpr int16_t YPos = -80;
-  static constexpr int16_t PerPage = 10;
-  static constexpr int16_t TotalHeight = PerPage * LineHeight + 10;
-  static constexpr int16_t YOffset = YPos - TotalHeight;
   static constexpr size_t TotalSlots = 20;
 
   std::unique_ptr<MenuState> m_previous;
-  size_t m_selected = 0;
-  std::vector<std::unique_ptr<ui::Label>> m_labels;
   std::vector<bool> m_hasSavegame;
-  std::unique_ptr<ui::Label> m_heading;
-  std::unique_ptr<ui::Label> m_background;
   const bool m_loading;
 
 public:
@@ -37,6 +27,8 @@ public:
                                  const std::string& heading,
                                  const engine::World& world,
                                  bool loading);
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) override;
+
+  std::unique_ptr<MenuState> onSelected(size_t idx, engine::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> onAborted() override;
 };
 } // namespace menu
