@@ -9,7 +9,7 @@ namespace engine::objects
 {
 void Switch::collide(CollisionInfo& /*collisionInfo*/)
 {
-  if(!getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
     return;
 
   if(getWorld().getObjectManager().getLara().getHandStatus() != HandStatus::None)
