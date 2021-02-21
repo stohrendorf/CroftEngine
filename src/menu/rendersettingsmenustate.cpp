@@ -28,7 +28,7 @@ void setEnabledBackground(ui::Label& lbl, bool enabled)
 RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                                  std::unique_ptr<MenuState> previous,
                                                  engine::Engine& engine)
-    : MenuState{ringTransform}
+    : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_background{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - 12}, " ")}
 {
@@ -72,13 +72,6 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     "Fullscreen",
     [&engine]() { return engine.getEngineConfig().renderSettings.fullscreen; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.fullscreen); });
-}
-
-void RenderSettingsMenuState::handleObject(ui::Ui& /*ui*/,
-                                           engine::World& /*world*/,
-                                           MenuDisplay& /*display*/,
-                                           MenuObject& /*object*/)
-{
 }
 
 std::unique_ptr<MenuState> RenderSettingsMenuState::onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& /*display*/)

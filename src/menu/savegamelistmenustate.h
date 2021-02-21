@@ -1,6 +1,6 @@
 #pragma once
 
-#include "menustate.h"
+#include "selectedmenustate.h"
 
 #include <string>
 #include <vector>
@@ -12,7 +12,7 @@ struct Label;
 
 namespace menu
 {
-class SavegameListMenuState : public MenuState
+class SavegameListMenuState : public SelectedMenuState
 {
 private:
   static constexpr int16_t PixelWidth = 272;
@@ -37,7 +37,6 @@ public:
                                  const std::string& heading,
                                  const engine::World& world,
                                  bool loading);
-  void handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object) override;
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

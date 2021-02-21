@@ -16,7 +16,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
                                              const std::string& heading,
                                              const engine::World& world,
                                              bool loading)
-    : MenuState{ringTransform}
+    : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_heading{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - LineHeight - 10}, heading)}
     , m_background{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - LineHeight - 12}, " ")}
@@ -55,13 +55,6 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     lbl->alignY = ui::Label::Alignment::Bottom;
     m_labels.emplace_back(std::move(lbl));
   }
-}
-
-void SavegameListMenuState::handleObject(ui::Ui& /*ui*/,
-                                         engine::World& /*world*/,
-                                         MenuDisplay& /*display*/,
-                                         MenuObject& /*object*/)
-{
 }
 
 std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display)

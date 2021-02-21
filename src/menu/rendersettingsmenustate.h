@@ -1,6 +1,6 @@
 #pragma once
 
-#include "menustate.h"
+#include "selectedmenustate.h"
 
 #include <functional>
 
@@ -16,7 +16,7 @@ class Engine;
 
 namespace menu
 {
-class RenderSettingsMenuState : public MenuState
+class RenderSettingsMenuState : public SelectedMenuState
 {
 private:
   static constexpr int16_t LineHeight = 18;
@@ -35,7 +35,6 @@ public:
   explicit RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                    std::unique_ptr<MenuState> previous,
                                    engine::Engine& engine);
-  void handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object) override;
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) override;
 };
 } // namespace menu
