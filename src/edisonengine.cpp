@@ -1,4 +1,5 @@
 #include "engine/engine.h"
+#include "engine/player.h"
 #include "engine/script/reflection.h"
 
 #include <boost/exception/diagnostic_information.hpp>
@@ -88,6 +89,8 @@ int main()
     mode = Mode::Game;
   };
 
+  std::shared_ptr<engine::Player> player;
+
   while(true)
   {
     std::pair<engine::RunResult, std::optional<size_t>> runResult;
@@ -95,24 +98,36 @@ int main()
     {
     case Mode::Title:
       Expects(!doLoad);
+      player = std::make_shared<engine::Player>();
       runResult = engine.runLevelSequenceItem(
-        *gsl::not_null{pybind11::globals()["title_menu"].cast<engine::script::LevelSequenceItem*>()});
+        *gsl::not_null{pybind11::globals()["title_menu"].cast<engine::script::LevelSequenceItem*>()}, player);
       break;
     case Mode::Gym:
       Expects(!doLoad);
+      player = std::make_shared<engine::Player>();
       runResult = engine.runLevelSequenceItem(
-        *gsl::not_null{pybind11::globals()["lara_home"].cast<engine::script::LevelSequenceItem*>()});
+        *gsl::not_null{pybind11::globals()["lara_home"].cast<engine::script::LevelSequenceItem*>()}, player);
       break;
     case Mode::Game:
       if(doLoad)
+      {
+        player = std::make_shared<engine::Player>();
         runResult = engine.runLevelSequenceItemFromSave(
           *gsl::not_null{pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
                            .cast<engine::script::LevelSequenceItem*>()},
-          loadSlot);
+          loadSlot,
+          player);
+      }
       else
+      {
+        if(player == nullptr || levelSequenceIndex == 0)
+          player = std::make_shared<engine::Player>();
+
         runResult = engine.runLevelSequenceItem(
           *gsl::not_null{pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
-                           .cast<engine::script::LevelSequenceItem*>()});
+                           .cast<engine::script::LevelSequenceItem*>()},
+          player);
+      }
       break;
     }
 

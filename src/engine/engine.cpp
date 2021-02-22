@@ -18,6 +18,7 @@
 #include "objects/objectfactory.h"
 #include "objects/pickupobject.h"
 #include "objects/tallblock.h"
+#include "player.h"
 #include "presenter.h"
 #include "render/renderpipeline.h"
 #include "render/scene/csm.h"
@@ -105,6 +106,8 @@ Engine::~Engine()
 std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCutscene, bool allowSave)
 {
   gl::Framebuffer::unbindAll();
+  if(!isCutscene)
+    world.getObjectManager().getLara().m_state.health = world.getPlayer().laraHealth;
 
   const bool godMode
     = core::get<bool>(core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "godMode")
@@ -191,7 +194,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
       }
 
       if(allAmmoCheat)
-        m_inventory.fillAllAmmo();
+        world.getPlayer().getInventory().fillAllAmmo();
 
       world.gameLoop(godMode);
     }
@@ -277,21 +280,23 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
   }
 }
 
-std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItem(script::LevelSequenceItem& item)
+std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItem(script::LevelSequenceItem& item,
+                                                                         const std::shared_ptr<Player>& player)
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
   m_presenter->apply(m_engineConfig.renderSettings);
-  return item.run(*this);
+  return item.run(*this, player);
 }
 
 std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItemFromSave(script::LevelSequenceItem& item,
-                                                                                 const std::optional<size_t>& slot)
+                                                                                 const std::optional<size_t>& slot,
+                                                                                 const std::shared_ptr<Player>& player)
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
   m_presenter->apply(m_engineConfig.renderSettings);
-  return item.runFromSave(*this, slot);
+  return item.runFromSave(*this, slot, player);
 }
 
 std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const

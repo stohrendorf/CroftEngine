@@ -50,6 +50,7 @@ class Engine;
 class AudioEngine;
 struct SavegameMeta;
 class CameraController;
+class Player;
 enum class TR1TrackId : int32_t;
 
 class World final
@@ -60,7 +61,8 @@ public:
                  std::string title,
                  const std::optional<TR1TrackId>& track,
                  bool useAlternativeLara,
-                 std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles);
+                 std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
+                 const std::shared_ptr<Player>& player);
 
   ~World();
 
@@ -264,6 +266,18 @@ public:
 
   std::optional<std::string> getItemTitle(TR1ItemId id) const;
 
+  auto& getPlayer()
+  {
+    Expects(m_player != nullptr);
+    return *m_player;
+  }
+
+  const auto& getPlayer() const
+  {
+    Expects(m_player != nullptr);
+    return *m_player;
+  }
+
 private:
   void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips);
 
@@ -319,5 +333,6 @@ private:
   std::unique_ptr<render::TextureAnimator> m_textureAnimator;
 
   std::vector<ui::PickupWidget> m_pickupWidgets{};
+  const std::shared_ptr<Player> m_player;
 };
 } // namespace engine

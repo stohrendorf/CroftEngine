@@ -1,6 +1,7 @@
 #include "pickupobject.h"
 
 #include "engine/engine.h"
+#include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "hid/inputhandler.h"
@@ -39,7 +40,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       if(getWorld().getObjectManager().getLara().getSkeleton()->getFrame() == 2970_frame)
       {
         m_state.triggerState = TriggerState::Invisible;
-        getWorld().getEngine().getInventory().put(m_state.type);
+        getWorld().getPlayer().getInventory().put(m_state.type);
         getWorld().addPickupWidget(getSprite());
         setParent(getNode(), nullptr);
         m_state.collidable = false;
@@ -88,7 +89,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         }
 
         m_state.triggerState = TriggerState::Invisible;
-        getWorld().getEngine().getInventory().put(m_state.type);
+        getWorld().getPlayer().getInventory().put(m_state.type);
         getWorld().addPickupWidget(getSprite());
         setParent(getNode(), nullptr);
         m_state.collidable = false;

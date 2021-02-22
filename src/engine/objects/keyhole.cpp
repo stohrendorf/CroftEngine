@@ -1,6 +1,7 @@
 #include "keyhole.h"
 
 #include "engine/engine.h"
+#include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "hid/inputhandler.h"
@@ -32,10 +33,10 @@ void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
   bool hasKey = false;
   switch(m_state.type.get_as<TR1ItemId>())
   {
-  case TR1ItemId::Keyhole1: hasKey = getWorld().getEngine().getInventory().tryTake(TR1ItemId::Key1); break;
-  case TR1ItemId::Keyhole2: hasKey = getWorld().getEngine().getInventory().tryTake(TR1ItemId::Key2); break;
-  case TR1ItemId::Keyhole3: hasKey = getWorld().getEngine().getInventory().tryTake(TR1ItemId::Key3); break;
-  case TR1ItemId::Keyhole4: hasKey = getWorld().getEngine().getInventory().tryTake(TR1ItemId::Key4); break;
+  case TR1ItemId::Keyhole1: hasKey = getWorld().getPlayer().getInventory().tryTake(TR1ItemId::Key1); break;
+  case TR1ItemId::Keyhole2: hasKey = getWorld().getPlayer().getInventory().tryTake(TR1ItemId::Key2); break;
+  case TR1ItemId::Keyhole3: hasKey = getWorld().getPlayer().getInventory().tryTake(TR1ItemId::Key3); break;
+  case TR1ItemId::Keyhole4: hasKey = getWorld().getPlayer().getInventory().tryTake(TR1ItemId::Key4); break;
   default: break;
   }
   if(!hasKey)

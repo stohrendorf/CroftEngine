@@ -50,6 +50,7 @@ class LevelSequenceItem;
 
 class I18nProvider;
 class Particle;
+class Player;
 class Presenter;
 class Throttler;
 class World;
@@ -90,8 +91,6 @@ private:
 
   std::unique_ptr<loader::trx::Glidos> m_glidos;
   [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
-
-  Inventory m_inventory{};
 
   void makeScreenshot();
 
@@ -135,9 +134,11 @@ public:
     return m_rootPath;
   }
 
-  std::pair<RunResult, std::optional<size_t>> runLevelSequenceItem(script::LevelSequenceItem& item);
+  std::pair<RunResult, std::optional<size_t>> runLevelSequenceItem(script::LevelSequenceItem& item,
+                                                                   const std::shared_ptr<Player>& player);
   std::pair<RunResult, std::optional<size_t>> runLevelSequenceItemFromSave(script::LevelSequenceItem& item,
-                                                                           const std::optional<size_t>& slot);
+                                                                           const std::optional<size_t>& slot,
+                                                                           const std::shared_ptr<Player>& player);
 
   [[nodiscard]] const auto& getGlidos() const noexcept
   {
@@ -158,16 +159,6 @@ public:
   const auto& getEngineConfig() const
   {
     return m_engineConfig;
-  }
-
-  auto& getInventory()
-  {
-    return m_inventory;
-  }
-
-  [[nodiscard]] const auto& getInventory() const
-  {
-    return m_inventory;
   }
 
   const auto& i18n() const

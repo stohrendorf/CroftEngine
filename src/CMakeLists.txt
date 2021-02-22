@@ -154,6 +154,8 @@ set( EDISONENGINE_SRCS
         engine/objectmanager.cpp
         engine/particle.h
         engine/particle.cpp
+        engine/player.h
+        engine/player.cpp
         engine/presenter.h
         engine/presenter.cpp
         engine/py_module.cpp

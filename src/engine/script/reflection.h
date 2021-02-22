@@ -14,6 +14,7 @@ namespace engine
 {
 enum class RunResult;
 class Engine;
+class Player;
 } // namespace engine
 
 namespace engine::script
@@ -43,9 +44,9 @@ class LevelSequenceItem
 {
 public:
   virtual ~LevelSequenceItem() = default;
-  virtual std::pair<RunResult, std::optional<size_t>> run(Engine& engine) = 0;
-  virtual std::pair<RunResult, std::optional<size_t>> runFromSave(Engine& /*engine*/,
-                                                                  const std::optional<size_t>& /*slot*/)
+  virtual std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) = 0;
+  virtual std::pair<RunResult, std::optional<size_t>>
+    runFromSave(Engine& /*engine*/, const std::optional<size_t>& /*slot*/, const std::shared_ptr<Player>& /*player*/)
   {
     BOOST_LOG_TRIVIAL(error) << "Cannot run from save";
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot run from save"));
@@ -68,7 +69,7 @@ private:
   const bool m_allowSave;
 
 protected:
-  [[nodiscard]] std::unique_ptr<engine::World> loadWorld(Engine& engine);
+  [[nodiscard]] std::unique_ptr<engine::World> loadWorld(Engine& engine, const std::shared_ptr<Player>& player);
 
 public:
   explicit Level(std::string name,
@@ -92,8 +93,9 @@ public:
   {
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
-  std::pair<RunResult, std::optional<size_t>> runFromSave(Engine& engine, const std::optional<size_t>& slot) override;
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
+  std::pair<RunResult, std::optional<size_t>>
+    runFromSave(Engine& engine, const std::optional<size_t>& slot, const std::shared_ptr<Player>& player) override;
 
   bool isLevel(const std::filesystem::path& path) const override;
 };
@@ -113,7 +115,7 @@ public:
   {
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
 
   bool isLevel(const std::filesystem::path& /*path*/) const override
   {
@@ -132,7 +134,7 @@ public:
   {
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
@@ -175,7 +177,7 @@ public:
   {
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(Engine& engine) override;
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {

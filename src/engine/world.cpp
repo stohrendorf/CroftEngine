@@ -14,6 +14,7 @@
 #include "objects/modelobject.h"
 #include "objects/pickupobject.h"
 #include "objects/tallblock.h"
+#include "player.h"
 #include "presenter.h"
 #include "render/scene/camera.h"
 #include "render/scene/materialmanager.h"
@@ -999,7 +1000,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
   }
 
   ser(S_NV("objectManager", m_objectManager),
-      S_NV("inventory", m_engine.getInventory()),
+      S_NV("player", *m_player),
       S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
       S_NV("cameras", serialization::FrozenVector{m_level->m_cameras}),
       S_NV("activeEffect", m_activeEffect),
@@ -1023,6 +1024,7 @@ void World::gameLoop(bool godMode)
             getPalette()};
 
   update(godMode);
+  m_player->laraHealth = m_objectManager.getLara().m_state.health;
 
   const auto waterEntryPortals = m_cameraController->update();
   doGlobalEffect();
@@ -1035,15 +1037,15 @@ void World::gameLoop(bool godMode)
     switch(getObjectManager().getLara().gunType)
     {
     case WeaponId::Shotgun:
-      n = m_engine.getInventory().getAmmo(WeaponId::Shotgun)->ammo / 6;
+      n = m_player->getInventory().getAmmo(WeaponId::Shotgun)->ammo / 6;
       suffix = " A";
       break;
     case WeaponId::Magnums:
-      n = m_engine.getInventory().getAmmo(WeaponId::Magnums)->ammo;
+      n = m_player->getInventory().getAmmo(WeaponId::Magnums)->ammo;
       suffix = " B";
       break;
     case WeaponId::Uzis:
-      n = m_engine.getInventory().getAmmo(WeaponId::Uzis)->ammo;
+      n = m_player->getInventory().getAmmo(WeaponId::Uzis)->ammo;
       suffix = " C";
       break;
     default: Expects(false); break;
@@ -1088,6 +1090,7 @@ void World::load(const std::filesystem::path& filename)
     return;
   }
   doc.load("data", *this, *this);
+  m_objectManager.getLara().m_state.health = m_player->laraHealth;
   m_level->updateRoomBasedCaches();
 }
 
@@ -1192,13 +1195,15 @@ World::World(Engine& engine,
              std::string title,
              const std::optional<TR1TrackId>& track,
              bool useAlternativeLara,
-             std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles)
+             std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
+             const std::shared_ptr<Player>& player)
     : m_engine{engine}
     , m_audioEngine{std::make_unique<AudioEngine>(
         *this, engine.getRootPath() / "data" / "tr1" / "AUDIO", engine.getPresenter().getSoundEngine())}
     , m_level{std::move(level)}
     , m_title{std::move(title)}
     , m_itemTitles{std::move(itemTitles)}
+    , m_player{player}
 {
   {
     getPresenter().drawLoadingScreen(m_engine.i18n()(I18n::BuildingTextures));

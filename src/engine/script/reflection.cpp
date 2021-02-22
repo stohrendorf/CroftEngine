@@ -5,6 +5,7 @@
 #include "engine/engine.h"
 #include "engine/i18nprovider.h"
 #include "engine/objects/modelobject.h"
+#include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "loader/file/level/level.h"
@@ -31,20 +32,21 @@ std::unique_ptr<loader::file::level::Level>
 }
 } // namespace
 
-std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine)
+std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine, const std::shared_ptr<Player>& /*player*/)
 {
   engine.getPresenter().playVideo(engine.getRootPath() / "data/tr1/fmv" / m_name);
   return {RunResult::NextLevel, std::nullopt};
 }
 
-std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine)
+std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const std::shared_ptr<Player>& player)
 {
   auto world = std::make_unique<World>(engine,
                                        loadLevel(engine, m_name, m_name),
                                        std::string{},
                                        m_track,
                                        false,
-                                       std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{});
+                                       std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{},
+                                       player);
 
   world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
   auto pos = world->getCameraController().getTRPosition().position;
@@ -78,7 +80,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine)
   return engine.run(*world, true, false);
 }
 
-std::unique_ptr<engine::World> Level::loadWorld(Engine& engine)
+std::unique_ptr<engine::World> Level::loadWorld(Engine& engine, const std::shared_ptr<Player>& player)
 {
   engine.getPresenter().debounceInput();
 
@@ -94,19 +96,24 @@ std::unique_ptr<engine::World> Level::loadWorld(Engine& engine)
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
 
   for(const auto& [type, qty] : m_inventory)
-    engine.getInventory().put(type, qty);
+    player->getInventory().put(type, qty);
   for(const auto& type : m_dropInventory)
-    engine.getInventory().drop(type);
+    player->getInventory().drop(type);
 
   if(const auto tbl = core::get<pybind11::dict>(
        core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "inventory"))
   {
     for(const auto& [type, qty] : *tbl)
-      engine.getInventory().put(type.cast<TR1ItemId>(), qty.cast<size_t>());
+      player->getInventory().put(type.cast<TR1ItemId>(), qty.cast<size_t>());
   }
 
-  return std::make_unique<World>(
-    engine, loadLevel(engine, m_name, util::unescape(title)), title, m_track, m_useAlternativeLara, m_itemTitles);
+  return std::make_unique<World>(engine,
+                                 loadLevel(engine, m_name, util::unescape(title)),
+                                 title,
+                                 m_track,
+                                 m_useAlternativeLara,
+                                 m_itemTitles,
+                                 player);
 }
 
 bool Level::isLevel(const std::filesystem::path& path) const
@@ -122,17 +129,18 @@ bool Level::isLevel(const std::filesystem::path& path) const
   }
 }
 
-std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine)
+std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine, const std::shared_ptr<Player>& player)
 {
-  auto world = loadWorld(engine);
+  auto world = loadWorld(engine, player);
   return engine.run(*world, false, m_allowSave);
 }
 
-std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine, const std::optional<size_t>& slot)
+std::pair<RunResult, std::optional<size_t>>
+  Level::runFromSave(Engine& engine, const std::optional<size_t>& slot, const std::shared_ptr<Player>& player)
 {
   Expects(m_allowSave);
-  engine.getInventory().clear();
-  auto world = loadWorld(engine);
+  player->getInventory().clear();
+  auto world = loadWorld(engine, player);
   if(slot.has_value())
     world->load(slot.value());
   else
@@ -140,10 +148,10 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine, c
   return engine.run(*world, false, m_allowSave);
 }
 
-std::pair<RunResult, std::optional<size_t>> TitleMenu::run(Engine& engine)
+std::pair<RunResult, std::optional<size_t>> TitleMenu::run(Engine& engine, const std::shared_ptr<Player>& player)
 {
-  engine.getInventory().clear();
-  auto world = loadWorld(engine);
+  player->getInventory().clear();
+  auto world = loadWorld(engine, player);
   return engine.runTitleMenu(*world);
 }
 } // namespace engine::script
