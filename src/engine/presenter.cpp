@@ -34,6 +34,7 @@ namespace engine
 void Presenter::playVideo(const std::filesystem::path& path)
 {
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+  m_soundEngine->getSoLoud().setGlobalVolume(1.0f);
   video::play(path, m_soundEngine->getSoLoud(), m_screenOverlay->getImage(), [&]() {
     glfwPollEvents();
     m_window->updateWindowSize();
