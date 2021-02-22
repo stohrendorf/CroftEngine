@@ -4,6 +4,7 @@
 #include "core/pybindmodule.h"
 #include "engine.h"
 #include "engine/i18n.h"
+#include "i18nprovider.h"
 #include "loader/file/level/level.h"
 #include "loader/file/rendermeshdata.h"
 #include "loader/trx/trx.h"
@@ -1074,7 +1075,7 @@ bool World::cinematicLoop()
 
 void World::load(const std::filesystem::path& filename)
 {
-  getPresenter().drawLoadingScreen(m_engine.i18n(I18n::Loading));
+  getPresenter().drawLoadingScreen(m_engine.i18n()(I18n::Loading));
   BOOST_LOG_TRIVIAL(info) << "Load";
   serialization::YAMLDocument<true> doc{m_engine.getSavegamePath() / filename};
   SavegameMeta meta{};
@@ -1091,7 +1092,7 @@ void World::load(const std::filesystem::path& filename)
 
 void World::save(const std::filesystem::path& filename)
 {
-  getPresenter().drawLoadingScreen(m_engine.i18n(I18n::Saving));
+  getPresenter().drawLoadingScreen(m_engine.i18n()(I18n::Saving));
   BOOST_LOG_TRIVIAL(info) << "Save";
   serialization::YAMLDocument<false> doc{m_engine.getSavegamePath() / filename};
   SavegameMeta meta{std::filesystem::relative(m_level->getFilename(), m_engine.getRootPath()).string(), m_title};
@@ -1199,7 +1200,7 @@ World::World(Engine& engine,
     , m_itemTitles{std::move(itemTitles)}
 {
   {
-    getPresenter().drawLoadingScreen(m_engine.i18n(I18n::BuildingTextures));
+    getPresenter().drawLoadingScreen(m_engine.i18n()(I18n::BuildingTextures));
     for(auto& texture : m_level->m_textures)
     {
       texture.toImage();
@@ -1502,7 +1503,7 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
     for(int mipmapLevel = 1; static_cast<size_t>(mipmapLevel) < nMips; dstSize /= 2, margin /= 2, ++mipmapLevel)
     {
       getPresenter().drawLoadingScreen(
-        m_engine.i18n(I18n::CreatingMipmaps, processedTiles * 100 / (totalTiles * (nMips - 1))));
+        m_engine.i18n()(I18n::CreatingMipmaps, processedTiles * 100 / (totalTiles * (nMips - 1))));
       processedTiles += tiles.size();
 
       BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", " << tiles.size()

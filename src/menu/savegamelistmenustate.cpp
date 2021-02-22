@@ -1,7 +1,7 @@
 #include "savegamelistmenustate.h"
 
 #include "engine/engine.h"
-#include "engine/i18n.h"
+#include "engine/i18nprovider.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "menudisplay.h"
@@ -32,7 +32,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     }
     else
     {
-      name = world.getEngine().i18n(engine::I18n::EmptySlot, i + 1);
+      name = world.getEngine().i18n()(engine::I18n::EmptySlot, i + 1);
       m_hasSavegame.emplace_back(false);
     }
     addEntry(name);

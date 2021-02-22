@@ -6,7 +6,7 @@
 #include "engine/audioengine.h"
 #include "floordata/floordata.h"
 #include "hid/inputhandler.h"
-#include "i18n.h"
+#include "i18nprovider.h"
 #include "loader/file/level/level.h"
 #include "loader/file/rendermeshdata.h"
 #include "loader/trx/trx.h"
@@ -90,27 +90,8 @@ Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm
     BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
   }
 
+  m_i18n = std::make_unique<I18nProvider>(pybind11::globals()["i18n"], m_language);
   m_presenter->getInputHandler().setMapping(core::get<hid::InputMapping>(pybind11::globals(), "input_mapping").value());
-
-  for(const auto& [key, name] : EnumUtil<I18n>::all())
-  {
-    const auto values = pybind11::globals()["i18n"][pybind11::cast(key)];
-    Expects(!values.is_none());
-    if(const auto loc = core::get<std::string>(values, m_language))
-    {
-      m_i18n.emplace(key, loc.value());
-    }
-    else if(const auto en = core::get<std::string>(values, "en"))
-    {
-      m_i18n.emplace(key, en.value());
-    }
-    else
-    {
-      BOOST_LOG_TRIVIAL(error) << "Missing i18n: " << name;
-      m_i18n.emplace(key, std::string{"MISSING i18n: "} + name);
-    }
-  }
-
   m_glidos = loadGlidosPack();
 }
 
@@ -325,17 +306,12 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
     if(!std::filesystem::is_directory(glidosPack))
       return nullptr;
 
-    m_presenter->drawLoadingScreen(i18n(I18n::LoadingGlidos));
+    m_presenter->drawLoadingScreen((*m_i18n)(I18n::LoadingGlidos));
     return std::make_unique<loader::trx::Glidos>(
-      *this, m_rootPath / glidosPack, [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
+      *m_i18n, m_rootPath / glidosPack, [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
   }
 
   return nullptr;
-}
-
-std::string Engine::i18n(I18n key) const
-{
-  return m_i18n.at(key);
 }
 
 SavegameMeta Engine::getSavegameMeta(const std::filesystem::path& filename) const

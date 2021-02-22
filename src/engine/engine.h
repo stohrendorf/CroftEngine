@@ -4,7 +4,6 @@
 #include "inventory.h"
 
 #include <boost/assert.hpp>
-#include <boost/format.hpp>
 #include <filesystem>
 #include <glm/glm.hpp>
 #include <memory>
@@ -49,11 +48,11 @@ namespace script
 class LevelSequenceItem;
 }
 
+class I18nProvider;
 class Particle;
 class Presenter;
 class Throttler;
 class World;
-enum class I18n;
 
 enum class RunResult
 {
@@ -87,11 +86,10 @@ private:
   std::shared_ptr<pybind11::scoped_interpreter> m_scriptEngine;
 
   std::string m_language;
+  std::unique_ptr<I18nProvider> m_i18n;
 
   std::unique_ptr<loader::trx::Glidos> m_glidos;
   [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
-
-  std::unordered_map<I18n, std::string> m_i18n;
 
   Inventory m_inventory{};
 
@@ -146,14 +144,6 @@ public:
     return m_glidos;
   }
 
-  std::string i18n(I18n key) const;
-
-  template<typename... Args>
-  std::string i18n(I18n key, Args&&... args) const
-  {
-    return (boost::format(i18n(key)) % ... % std::forward<Args>(args)).str();
-  }
-
   SavegameMeta getSavegameMeta(const std::filesystem::path& filename) const;
   SavegameMeta getSavegameMeta(size_t slot) const
   {
@@ -178,6 +168,11 @@ public:
   [[nodiscard]] const auto& getInventory() const
   {
     return m_inventory;
+  }
+
+  const auto& i18n() const
+  {
+    return *m_i18n;
   }
 };
 } // namespace engine

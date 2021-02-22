@@ -145,6 +145,8 @@ set( EDISONENGINE_SRCS
         engine/engineconfig.cpp
         engine/heightinfo.h
         engine/heightinfo.cpp
+        engine/i18nprovider.h
+        engine/i18nprovider.cpp
         engine/inventory.h
         engine/inventory.cpp
         engine/lighting.h

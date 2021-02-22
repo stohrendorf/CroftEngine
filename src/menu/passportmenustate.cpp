@@ -3,7 +3,7 @@
 #include "donemenustate.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
-#include "engine/i18n.h"
+#include "engine/i18nprovider.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "finishitemanimationmenustate.h"
@@ -30,7 +30,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
 {
   if(m_passportText == nullptr)
   {
-    m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, world.getEngine().i18n(engine::I18n::LoadGame));
+    m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, world.getEngine().i18n()(engine::I18n::LoadGame));
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }
@@ -52,7 +52,7 @@ std::optional<std::unique_ptr<MenuState>>
   {
     m_passportText = std::make_unique<ui::Label>(
       glm::ivec2{0, -16},
-      world.getEngine().i18n(m_allowSave && isInGame ? engine::I18n::SaveGame : engine::I18n::NewGame));
+      world.getEngine().i18n()(m_allowSave && isInGame ? engine::I18n::SaveGame : engine::I18n::NewGame));
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }
@@ -78,7 +78,8 @@ void PassportMenuState::showExitGamePage(engine::World& world, MenuDisplay& disp
   if(m_passportText == nullptr)
   {
     m_passportText = std::make_unique<ui::Label>(
-      glm::ivec2{0, -16}, world.getEngine().i18n(!returnToTitle ? engine::I18n::ExitGame : engine::I18n::ExitToTitle));
+      glm::ivec2{0, -16},
+      world.getEngine().i18n()(!returnToTitle ? engine::I18n::ExitGame : engine::I18n::ExitToTitle));
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }

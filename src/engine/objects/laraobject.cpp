@@ -1691,7 +1691,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
 
 void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const core::Health& damage)
 {
-  if(!object.m_state.isDead() && object.m_state.health <= damage)
+  if(!object.m_state.isDead() && damage >= object.m_state.health)
   {
     // TODO ++g_numKills;
   }

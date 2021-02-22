@@ -116,11 +116,6 @@ private:
 
   void testInteractions(CollisionInfo& collisionInfo);
 
-  //! @brief If "none", we are not allowed to dive until the "Dive" action key is released
-  //! @remarks This happens e.g. just after dive-to-swim transition, when players still
-  //!          keep the "Dive Forward" action key pressed; in this case, you usually won't go
-  //!          diving immediately again.
-  //! @fixme Move this to the engine
   core::Frame m_swimToDiveKeypressDuration = 0_frame;
 
 public:

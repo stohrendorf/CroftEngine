@@ -11,7 +11,7 @@
 
 namespace engine
 {
-class Engine;
+class I18nProvider;
 }
 
 namespace loader::trx
@@ -153,7 +153,7 @@ class Equiv
 public:
   explicit Equiv(const std::filesystem::path& filename);
 
-  void resolve(const engine::Engine& engine,
+  void resolve(const engine::I18nProvider& i18n,
                const std::filesystem::path& root,
                std::map<std::string, std::filesystem::file_time_type>& timestamps,
                const std::filesystem::file_time_type& rootTimestamp,
@@ -184,7 +184,7 @@ private:
 class Glidos
 {
 public:
-  explicit Glidos(const engine::Engine& engine,
+  explicit Glidos(const engine::I18nProvider& i18n,
                   std::filesystem::path baseDir,
                   const std::function<void(const std::string&)>& statusCallback);
 

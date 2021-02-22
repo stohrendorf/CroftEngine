@@ -3,7 +3,7 @@
 #include "core/pybindmodule.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
-#include "engine/i18n.h"
+#include "engine/i18nprovider.h"
 #include "engine/objects/laraobject.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
@@ -222,7 +222,7 @@ bool MenuDisplay::doOptions(engine::World& world, MenuObject& object)
 
 std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& world, bool withHomePolaroid)
 {
-  std::vector objects{MenuObject{world.getEngine().i18n(engine::I18n::Game),
+  std::vector objects{MenuObject{world.getEngine().i18n()(engine::I18n::Game),
                                  engine::TR1ItemId::PassportClosed,
                                  30_frame,
                                  14_frame,
@@ -232,7 +232,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
                                  384_len,
                                  0x13,
                                  0x13},
-                      MenuObject{world.getEngine().i18n(engine::I18n::Controls),
+                      MenuObject{world.getEngine().i18n()(engine::I18n::Controls),
                                  engine::TR1ItemId::DirectionKeys,
                                  1_frame,
                                  0_frame,
@@ -240,7 +240,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
                                  8_deg,
                                  0_deg,
                                  352_len},
-                      MenuObject{world.getEngine().i18n(engine::I18n::Sound),
+                      MenuObject{world.getEngine().i18n()(engine::I18n::Sound),
                                  engine::TR1ItemId::CassettePlayer,
                                  1_frame,
                                  0_frame,
@@ -248,7 +248,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
                                  -13_deg,
                                  0_deg,
                                  368_len},
-                      MenuObject{world.getEngine().i18n(engine::I18n::DetailLevels),
+                      MenuObject{world.getEngine().i18n()(engine::I18n::DetailLevels),
                                  engine::TR1ItemId::Sunglasses,
                                  1_frame,
                                  0_frame,
@@ -258,7 +258,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
                                  424_len}};
   if(withHomePolaroid)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::LarasHome),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::LarasHome),
                                     engine::TR1ItemId::LarasHomePolaroid,
                                     1_frame,
                                     0_frame,
@@ -281,7 +281,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
 
 std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& world)
 {
-  std::vector objects{MenuObject{world.getEngine().i18n(engine::I18n::Compass),
+  std::vector objects{MenuObject{world.getEngine().i18n()(engine::I18n::Compass),
                                  engine::TR1ItemId::Compass,
                                  25_frame,
                                  10_frame,
@@ -294,7 +294,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
 
   if(world.getEngine().getInventory().count(engine::TR1ItemId::Pistols) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Pistols),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Pistols),
                                     engine::TR1ItemId::Pistols,
                                     12_frame,
                                     11_frame,
@@ -305,7 +305,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::Shotgun) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Shotgun),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Shotgun),
                                     engine::TR1ItemId::Shotgun,
                                     13_frame,
                                     12_frame,
@@ -316,7 +316,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::Magnums) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Magnums),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Magnums),
                                     engine::TR1ItemId::Magnums,
                                     12_frame,
                                     11_frame,
@@ -327,7 +327,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::Uzis) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Uzis),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Uzis),
                                     engine::TR1ItemId::Uzis,
                                     13_frame,
                                     12_frame,
@@ -338,7 +338,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::ShotgunAmmo) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::ShotgunCells),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::ShotgunCells),
                                     engine::TR1ItemId::ShotgunAmmo,
                                     1_frame,
                                     0_frame,
@@ -349,7 +349,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::MagnumAmmo) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::MagnumClips),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::MagnumClips),
                                     engine::TR1ItemId::MagnumAmmo,
                                     1_frame,
                                     0_frame,
@@ -360,7 +360,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::UziAmmo) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::UziClips),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::UziClips),
                                     engine::TR1ItemId::UziAmmo,
                                     1_frame,
                                     0_frame,
@@ -371,7 +371,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::Explosive) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::Grenade),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Grenade),
                                     engine::TR1ItemId::Explosive,
                                     15_frame,
                                     14_frame,
@@ -382,7 +382,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::LargeMedipack) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::LargeMediPack),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::LargeMediPack),
                                     engine::TR1ItemId::LargeMedipack,
                                     20_frame,
                                     19_frame,
@@ -393,7 +393,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getEngine().getInventory().count(engine::TR1ItemId::SmallMedipack) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n(engine::I18n::SmallMediPack),
+    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::SmallMediPack),
                                     engine::TR1ItemId::SmallMedipack,
                                     26_frame,
                                     25_frame,
@@ -496,17 +496,17 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
 
   if(mode == InventoryMode::GameMode)
     rings.emplace_back(std::make_unique<MenuRing>(
-      MenuRing::Type::Inventory, world.getEngine().i18n(engine::I18n::Inventory), getMainRingObjects(world)));
+      MenuRing::Type::Inventory, world.getEngine().i18n()(engine::I18n::Inventory), getMainRingObjects(world)));
 
   rings.emplace_back(std::make_unique<MenuRing>(
     MenuRing::Type::Options,
-    world.getEngine().i18n(mode == InventoryMode::DeathMode ? engine::I18n::GameOver : engine::I18n::Option),
+    world.getEngine().i18n()(mode == InventoryMode::DeathMode ? engine::I18n::GameOver : engine::I18n::Option),
     getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
 
   if(mode == InventoryMode::GameMode)
   {
     rings.emplace_back(std::make_unique<MenuRing>(
-      MenuRing::Type::Items, world.getEngine().i18n(engine::I18n::Items), getKeysRingObjects(world)));
+      MenuRing::Type::Items, world.getEngine().i18n()(engine::I18n::Items), getKeysRingObjects(world)));
     if(rings.back()->list.empty())
     {
       rings.pop_back();
