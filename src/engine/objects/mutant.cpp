@@ -2,6 +2,7 @@
 
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/particle.h"
+#include "engine/player.h"
 #include "engine/world.h"
 #include "laraobject.h"
 #include "mutantegg.h"
@@ -505,7 +506,7 @@ void TorsoBoss::update()
         lara.m_state.rotation = {0_deg, m_state.rotation.Y, 0_deg};
         lara.m_state.health = core::DeadHealth;
         lara.setAir(-1_frame);
-        lara.gunType = WeaponId::None;
+        getWorld().getPlayer().gunType = WeaponId::None;
         lara.setHandStatus(HandStatus::Grabbing);
         lara.m_state.falling = false;
         getWorld().getCameraController().setMode(CameraMode::FixedPosition);

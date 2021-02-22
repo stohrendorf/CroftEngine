@@ -322,9 +322,6 @@ public:
   AimInfo leftArm;
   AimInfo rightArm;
 
-  WeaponId gunType = WeaponId::None;
-  WeaponId requestedGunType = WeaponId::None;
-
   std::shared_ptr<ModelObject> target{nullptr};
 
   struct Range
@@ -382,7 +379,7 @@ public:
 
   void updateAimingState(const Weapon& weapon);
 
-  void unholster();
+  void initWeaponAnimData();
 
   static core::RoomBoundPosition getUpperThirdBBoxCtr(const ModelObject& object);
 

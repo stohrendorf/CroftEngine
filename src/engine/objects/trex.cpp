@@ -1,6 +1,7 @@
 #include "trex.h"
 
 #include "engine/cameracontroller.h"
+#include "engine/player.h"
 #include "engine/world.h"
 #include "laraobject.h"
 #include "serialization/serialization.h"
@@ -92,7 +93,7 @@ void TRex::update()
         getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
         getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
         getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
-        getWorld().getObjectManager().getLara().gunType = WeaponId::None;
+        getWorld().getPlayer().gunType = WeaponId::None;
         getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
         getWorld().getCameraController().setRotationAroundLara(-25_deg, 170_deg);
         getWorld().getObjectManager().getLara().setAir(-1_frame);

@@ -24,6 +24,8 @@ public:
   void serialize(const serialization::Serializer<World>& ser);
 
   core::Health laraHealth{core::LaraHealth};
+  WeaponId gunType = WeaponId::None;
+  WeaponId requestedGunType = WeaponId::None;
 
 private:
   Inventory m_inventory{};

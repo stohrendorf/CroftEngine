@@ -1030,11 +1030,11 @@ void World::gameLoop(bool godMode)
   doGlobalEffect();
   getPresenter().drawBars(ui, *m_level->m_palette, getObjectManager());
   if(getObjectManager().getLara().getHandStatus() == engine::objects::HandStatus::Combat
-     && getObjectManager().getLara().gunType != WeaponId::Pistols)
+     && m_player->gunType != WeaponId::Pistols)
   {
     size_t n = 0;
     std::string suffix;
-    switch(getObjectManager().getLara().gunType)
+    switch(m_player->gunType)
     {
     case WeaponId::Shotgun:
       n = m_player->getInventory().getAmmo(WeaponId::Shotgun)->ammo / 6;
@@ -1091,6 +1091,7 @@ void World::load(const std::filesystem::path& filename)
   }
   doc.load("data", *this, *this);
   m_objectManager.getLara().m_state.health = m_player->laraHealth;
+  m_objectManager.getLara().initWeaponAnimData();
   m_level->updateRoomBasedCaches();
 }
 

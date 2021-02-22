@@ -107,7 +107,10 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
 {
   gl::Framebuffer::unbindAll();
   if(!isCutscene)
+  {
     world.getObjectManager().getLara().m_state.health = world.getPlayer().laraHealth;
+    world.getObjectManager().getLara().initWeaponAnimData();
+  }
 
   const bool godMode
     = core::get<bool>(core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "godMode")

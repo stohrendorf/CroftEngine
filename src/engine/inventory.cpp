@@ -1,5 +1,7 @@
 #include "inventory.h"
 
+#include "engine/player.h"
+#include "engine/world.h"
 #include "items_tr1.h"
 #include "objects/laraobject.h"
 #include "serialization/map.h"
@@ -113,10 +115,11 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Shotgun) == 0)
       return false;
 
-    lara.requestedGunType = WeaponId::Shotgun;
-    if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
+    lara.getWorld().getPlayer().requestedGunType = WeaponId::Shotgun;
+    if(lara.getHandStatus() == objects::HandStatus::None
+       && lara.getWorld().getPlayer().gunType == lara.getWorld().getPlayer().requestedGunType)
     {
-      lara.gunType = WeaponId::None;
+      lara.getWorld().getPlayer().gunType = WeaponId::None;
     }
   }
   else if(id == TR1ItemId::Pistols || id == TR1ItemId::PistolsSprite)
@@ -124,10 +127,11 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Pistols) == 0)
       return false;
 
-    lara.requestedGunType = WeaponId::Pistols;
-    if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
+    lara.getWorld().getPlayer().requestedGunType = WeaponId::Pistols;
+    if(lara.getHandStatus() == objects::HandStatus::None
+       && lara.getWorld().getPlayer().gunType == lara.getWorld().getPlayer().requestedGunType)
     {
-      lara.gunType = WeaponId::None;
+      lara.getWorld().getPlayer().gunType = WeaponId::None;
     }
   }
   else if(id == TR1ItemId::Magnums || id == TR1ItemId::MagnumsSprite)
@@ -135,10 +139,11 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Magnums) == 0)
       return false;
 
-    lara.requestedGunType = WeaponId::Magnums;
-    if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
+    lara.getWorld().getPlayer().requestedGunType = WeaponId::Magnums;
+    if(lara.getHandStatus() == objects::HandStatus::None
+       && lara.getWorld().getPlayer().gunType == lara.getWorld().getPlayer().requestedGunType)
     {
-      lara.gunType = WeaponId::None;
+      lara.getWorld().getPlayer().gunType = WeaponId::None;
     }
   }
   else if(id == TR1ItemId::Uzis || id == TR1ItemId::UzisSprite)
@@ -146,10 +151,11 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(TR1ItemId::Uzis) == 0)
       return false;
 
-    lara.requestedGunType = WeaponId::Uzis;
-    if(lara.getHandStatus() == objects::HandStatus::None && lara.gunType == lara.requestedGunType)
+    lara.getWorld().getPlayer().requestedGunType = WeaponId::Uzis;
+    if(lara.getHandStatus() == objects::HandStatus::None
+       && lara.getWorld().getPlayer().gunType == lara.getWorld().getPlayer().requestedGunType)
     {
-      lara.gunType = WeaponId::None;
+      lara.getWorld().getPlayer().gunType = WeaponId::None;
     }
   }
   else if(id == TR1ItemId::LargeMedipack || id == TR1ItemId::LargeMedipackSprite)
