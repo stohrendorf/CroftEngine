@@ -492,17 +492,6 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
     , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform)}
 {
-  m_currentState->begin(world);
-
-  if(mode == InventoryMode::GameMode)
-    rings.emplace_back(std::make_unique<MenuRing>(
-      MenuRing::Type::Inventory, world.getEngine().i18n()(engine::I18n::Inventory), getMainRingObjects(world)));
-
-  rings.emplace_back(std::make_unique<MenuRing>(
-    MenuRing::Type::Options,
-    world.getEngine().i18n()(mode == InventoryMode::DeathMode ? engine::I18n::GameOver : engine::I18n::Option),
-    getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
-
   if(mode == InventoryMode::GameMode)
   {
     rings.emplace_back(std::make_unique<MenuRing>(
@@ -513,7 +502,19 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
     }
   }
 
-  Ensures(!rings.empty());
+  if(mode == InventoryMode::GameMode)
+  {
+    currentRingIndex = rings.size();
+    rings.emplace_back(std::make_unique<MenuRing>(
+      MenuRing::Type::Inventory, world.getEngine().i18n()(engine::I18n::Inventory), getMainRingObjects(world)));
+  }
+
+  rings.emplace_back(std::make_unique<MenuRing>(
+    MenuRing::Type::Options,
+    world.getEngine().i18n()(mode == InventoryMode::DeathMode ? engine::I18n::GameOver : engine::I18n::Option),
+    getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
+
+  m_currentState->begin(world);
 
   world.getCameraController().getCamera()->setFieldOfView(core::toRad(80_deg));
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
