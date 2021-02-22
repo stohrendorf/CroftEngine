@@ -1046,6 +1046,7 @@ void World::gameLoop(bool godMode)
       n = m_engine.getInventory().getAmmo(WeaponId::Uzis)->ammo;
       suffix = " C";
       break;
+    default: Expects(false); break;
     }
     auto text = ui::Label{{-17, 22}, ui::makeAmmoString(std::to_string(n) + suffix)};
     text.alignX = ui::Label::Alignment::Right;
@@ -1213,11 +1214,8 @@ World::World(Engine& engine,
 
     render::MultiTextureAtlas atlases{2048};
     const auto atlasUvScale = 256.0f / gsl::narrow_cast<float>(atlases.getSize());
-    bool hasGlidosPack = false;
     if(const auto& glidos = m_engine.getGlidos())
     {
-      hasGlidosPack = true;
-
       for(size_t texIdx = 0; texIdx < m_level->m_textures.size(); ++texIdx)
       {
         const auto& texture = m_level->m_textures[texIdx];
