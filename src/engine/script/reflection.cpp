@@ -34,7 +34,7 @@ std::unique_ptr<loader::file::level::Level>
 
 std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine, const std::shared_ptr<Player>& /*player*/)
 {
-  engine.getPresenter().playVideo(engine.getRootPath() / "data/tr1/fmv" / m_name);
+  engine.getPresenter().playVideo(engine.getRootPath() / "data" / "tr1" / "FMV" / m_name);
   return {RunResult::NextLevel, std::nullopt};
 }
 
