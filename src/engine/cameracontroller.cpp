@@ -490,6 +490,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
       m_isCompletelyFixed = true;
     }
 
+    m_lookAt.room = focusedObject->m_state.position.room;
     const auto sector = loader::file::findRealFloorSector(m_lookAt);
     if(HeightInfo::fromFloor(sector, m_lookAt.position, m_world->getObjectManager().getObjects()).y
        < m_lookAt.position.Y)
@@ -525,7 +526,7 @@ void CameraController::handleFixedCamera()
   auto [success, goal] = raycastLineOfSight(m_lookAt, camera.position, m_world->getObjectManager());
   if(!success)
   {
-    moveIntoGeometry(goal, core::QuarterSectorSize);
+    moveIntoBox(goal, core::QuarterSectorSize);
   }
 
   m_isCompletelyFixed = true;
@@ -539,28 +540,36 @@ void CameraController::handleFixedCamera()
   }
 }
 
-core::Length CameraController::moveIntoGeometry(core::RoomBoundPosition& goal, const core::Length& margin) const
+core::Length CameraController::moveIntoBox(core::RoomBoundPosition& goal, const core::Length& margin) const
 {
   const auto sector = loader::file::findRealFloorSector(goal);
   Expects(sector->box != nullptr);
 
-  if(sector->box->zmin + margin > goal.position.Z
+  if(goal.position.Z < sector->box->zmin + margin
      && isVerticallyOutsideRoom(
        goal.position - core::TRVec(0_len, 0_len, margin), goal.room, m_world->getObjectManager()))
+  {
     goal.position.Z = sector->box->zmin + margin;
-  else if(sector->box->zmax - margin > goal.position.Z
+  }
+  else if(goal.position.Z > sector->box->zmax - margin
           && isVerticallyOutsideRoom(
             goal.position + core::TRVec(0_len, 0_len, margin), goal.room, m_world->getObjectManager()))
+  {
     goal.position.Z = sector->box->zmax - margin;
+  }
 
-  if(sector->box->xmin + margin > goal.position.X
+  if(goal.position.X < sector->box->xmin + margin
      && isVerticallyOutsideRoom(
        goal.position - core::TRVec(margin, 0_len, 0_len), goal.room, m_world->getObjectManager()))
+  {
     goal.position.X = sector->box->xmin + margin;
-  else if(sector->box->xmax - margin > goal.position.X
+  }
+  else if(goal.position.X > sector->box->xmax - margin
           && isVerticallyOutsideRoom(
             goal.position + core::TRVec(margin, 0_len, 0_len), goal.room, m_world->getObjectManager()))
+  {
     goal.position.X = sector->box->xmax - margin;
+  }
 
   auto bottom = HeightInfo::fromFloor(sector, goal.position, m_world->getObjectManager().getObjects()).y - margin;
   auto top = HeightInfo::fromCeiling(sector, goal.position, m_world->getObjectManager().getObjects()).y + margin;
@@ -569,9 +578,10 @@ core::Length CameraController::moveIntoGeometry(core::RoomBoundPosition& goal, c
 
   if(goal.position.Y > bottom)
     return bottom - goal.position.Y;
-  if(top > goal.position.Y)
+  else if(goal.position.Y < top)
     return top - goal.position.Y;
-  return 0_len;
+  else
+    return 0_len;
 }
 
 void CameraController::updatePosition(const core::RoomBoundPosition& goal, const int smoothFactor)
@@ -673,7 +683,7 @@ void CameraController::handleFreeLook(const objects::Object& object)
     m_lookAt.position.X = object.m_state.position.position.X;
     m_lookAt.position.Z = object.m_state.position.position.Z;
   }
-  m_lookAt.position.Y += moveIntoGeometry(m_lookAt, core::CameraWallDistance);
+  m_lookAt.position.Y += moveIntoBox(m_lookAt, core::CameraWallDistance);
 
   auto goal = clampBox(
     m_lookAt,

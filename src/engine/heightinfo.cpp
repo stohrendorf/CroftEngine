@@ -35,8 +35,9 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::Sector*> room
     case floordata::FloorDataChunkType::FloorSlant:
     {
       const core::Length::type xSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 0, 8));
-      const core::Length::type absX = std::abs(xSlant);
       const core::Length::type zSlant = gsl::narrow_cast<int8_t>(util::bits(fd->get(), 8, 8));
+      ++fd;
+      const core::Length::type absX = std::abs(xSlant);
       const core::Length::type absZ = std::abs(zSlant);
       if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
       {
@@ -71,7 +72,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::Sector*> room
         }
       }
     }
-      [[fallthrough]];
+    break;
     case floordata::FloorDataChunkType::CeilingSlant: ++fd; break;
     case floordata::FloorDataChunkType::PortalSector: ++fd; break;
     case floordata::FloorDataChunkType::Death: hi.lastCommandSequenceOrDeath = fd - 1; break;

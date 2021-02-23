@@ -212,7 +212,7 @@ private:
 
   void handleFixedCamera();
 
-  core::Length moveIntoGeometry(core::RoomBoundPosition& goal, const core::Length& margin) const;
+  core::Length moveIntoBox(core::RoomBoundPosition& goal, const core::Length& margin) const;
 
   void updatePosition(const core::RoomBoundPosition& goal, int smoothFactor);
 
