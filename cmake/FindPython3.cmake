@@ -58,9 +58,9 @@ if( NOT Python3_LIBRARY )
                 python${Python3_SHORT_VERSION} python3 python
         )
     else()
-        _python3_get_config_var( LIBPL LIBPL )
+        _python3_get_config_var( LIBDIR LIBDIR )
         _python3_get_config_var( LDLIBRARY LDLIBRARY )
-        set( Python3_LIBRARY "${Python3_LIBPL}/${Python3_LDLIBRARY}" )
+        set( Python3_LIBRARY "${Python3_LIBDIR}/${Python3_LDLIBRARY}" )
     endif()
 
     if( VCPKG_TOOLCHAIN )
