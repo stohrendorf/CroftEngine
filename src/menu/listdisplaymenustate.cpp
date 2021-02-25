@@ -85,7 +85,7 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::Wor
   {
     m_selected -= PerPage;
   }
-  else if(m_selected < m_labels.size() - PerPage
+  else if(m_selected + PerPage < m_labels.size() - 1
           && world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
   {
     m_selected += PerPage;
