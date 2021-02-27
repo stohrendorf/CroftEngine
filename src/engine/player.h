@@ -27,6 +27,7 @@ public:
   WeaponId gunType = WeaponId::None;
   WeaponId requestedGunType = WeaponId::None;
   size_t pickups = 0;
+  size_t kills = 0;
 
 private:
   Inventory m_inventory{};

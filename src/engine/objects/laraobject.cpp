@@ -1695,7 +1695,7 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
 {
   if(!object.m_state.isDead() && damage >= object.m_state.health)
   {
-    // TODO ++g_numKills;
+    ++getWorld().getPlayer().kills;
   }
   object.m_state.is_hit = true;
   object.m_state.health -= damage;
