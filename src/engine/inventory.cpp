@@ -15,64 +15,45 @@ void Inventory::put(const core::TypeId id, const size_t quantity)
 {
   BOOST_LOG_TRIVIAL(debug) << "Object " << toString(id.get_as<TR1ItemId>()) << " added to inventory";
 
+  auto addWeapon = [this](Ammo& ammo, size_t n) {
+    // convert existing ammo clips to ammo
+    ammo.addClips(count(ammo.ammoType) + n);
+    m_inventory.erase(ammo.ammoType);
+    m_inventory[ammo.weaponType] = 1;
+  };
+
+  auto addAmmoClips = [this](Ammo& ammo, size_t n) {
+    if(count(ammo.weaponType) > 0)
+      ammo.addClips(n);
+    else
+      m_inventory[ammo.ammoType] += n;
+  };
+
   switch(id.get_as<TR1ItemId>())
   {
   case TR1ItemId::PistolsSprite: [[fallthrough]];
   case TR1ItemId::Pistols: m_inventory[TR1ItemId::Pistols] = 1; break;
   case TR1ItemId::ShotgunSprite: [[fallthrough]];
   case TR1ItemId::Shotgun:
-    if(const auto clips = count(TR1ItemId::ShotgunAmmoSprite))
-    {
-      tryTake(TR1ItemId::ShotgunAmmoSprite, clips);
-      m_shotgunAmmo.ammo += 12u * clips;
-    }
-    m_shotgunAmmo.ammo += 12u * quantity;
+    addWeapon(m_shotgunAmmo, quantity);
     // TODO replaceItems( ShotgunSprite, ShotgunAmmoSprite );
-    m_inventory[TR1ItemId::Shotgun] = 1;
     break;
   case TR1ItemId::MagnumsSprite: [[fallthrough]];
   case TR1ItemId::Magnums:
-    if(const auto clips = count(TR1ItemId::MagnumAmmoSprite))
-    {
-      tryTake(TR1ItemId::MagnumAmmoSprite, clips);
-      m_magnumsAmmo.ammo += 50u * clips;
-    }
-    m_magnumsAmmo.ammo += 50u * quantity;
+    addWeapon(m_magnumsAmmo, quantity);
     // TODO replaceItems( MagnumsSprite, MagnumAmmoSprite );
-    m_inventory[TR1ItemId::Magnums] = 1;
     break;
   case TR1ItemId::UzisSprite: [[fallthrough]];
   case TR1ItemId::Uzis:
-    if(const auto clips = count(TR1ItemId::UziAmmoSprite))
-    {
-      tryTake(TR1ItemId::UziAmmoSprite, clips);
-      m_uzisAmmo.ammo += 100u * clips;
-    }
-    m_uzisAmmo.ammo += 100u * quantity;
+    addWeapon(m_uzisAmmo, quantity);
     // TODO replaceItems( UzisSprite, UziAmmoSprite );
-    m_inventory[TR1ItemId::Uzis] = 1;
     break;
   case TR1ItemId::ShotgunAmmoSprite: [[fallthrough]];
-  case TR1ItemId::ShotgunAmmo:
-    if(count(TR1ItemId::ShotgunSprite) > 0)
-      m_shotgunAmmo.ammo += 12u;
-    else
-      m_inventory[TR1ItemId::ShotgunAmmo] += quantity;
-    break;
+  case TR1ItemId::ShotgunAmmo: addAmmoClips(m_shotgunAmmo, quantity); break;
   case TR1ItemId::MagnumAmmoSprite: [[fallthrough]];
-  case TR1ItemId::MagnumAmmo:
-    if(count(TR1ItemId::MagnumsSprite) > 0)
-      m_magnumsAmmo.ammo += 50u;
-    else
-      m_inventory[TR1ItemId::MagnumAmmo] += quantity;
-    break;
+  case TR1ItemId::MagnumAmmo: addAmmoClips(m_magnumsAmmo, quantity); break;
   case TR1ItemId::UziAmmoSprite: [[fallthrough]];
-  case TR1ItemId::UziAmmo:
-    if(count(TR1ItemId::UzisSprite) > 0)
-      m_uzisAmmo.ammo += 100u;
-    else
-      m_inventory[TR1ItemId::UziAmmo] += quantity;
-    break;
+  case TR1ItemId::UziAmmo: addAmmoClips(m_uzisAmmo, quantity); break;
   case TR1ItemId::SmallMedipackSprite: [[fallthrough]];
   case TR1ItemId::SmallMedipack: m_inventory[TR1ItemId::SmallMedipack] += quantity; break;
   case TR1ItemId::LargeMedipackSprite: [[fallthrough]];
@@ -110,81 +91,58 @@ void Inventory::put(const core::TypeId id, const size_t quantity)
 
 bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
 {
-  if(id == TR1ItemId::Shotgun || id == TR1ItemId::ShotgunSprite)
-  {
-    if(count(TR1ItemId::Shotgun) == 0)
+  auto tryUseWeapon = [this, &lara](TR1ItemId weapon, WeaponId weaponId) -> bool {
+    if(count(weapon) == 0)
       return false;
 
-    lara.getWorld().getPlayer().requestedGunType = WeaponId::Shotgun;
+    lara.getWorld().getPlayer().requestedGunType = weaponId;
     if(lara.getHandStatus() == objects::HandStatus::None
        && lara.getWorld().getPlayer().gunType == lara.getWorld().getPlayer().requestedGunType)
     {
       lara.getWorld().getPlayer().gunType = WeaponId::None;
     }
+
+    return true;
+  };
+
+  auto tryUseMediPack = [this, &lara](TR1ItemId mediPack, const core::Health& health) -> bool {
+    if(count(mediPack) == 0)
+      return false;
+
+    if(lara.isDead() || lara.m_state.health >= core::LaraHealth)
+    {
+      return false;
+    }
+
+    lara.m_state.health = std::min(lara.m_state.health + health, core::LaraHealth);
+    tryTake(mediPack);
+    lara.playSoundEffect(TR1SoundEffect::LaraSigh);
+    return true;
+  };
+
+  if(id == TR1ItemId::Shotgun || id == TR1ItemId::ShotgunSprite)
+  {
+    return tryUseWeapon(TR1ItemId::Shotgun, WeaponId::Shotgun);
   }
   else if(id == TR1ItemId::Pistols || id == TR1ItemId::PistolsSprite)
   {
-    if(count(TR1ItemId::Pistols) == 0)
-      return false;
-
-    lara.getWorld().getPlayer().requestedGunType = WeaponId::Pistols;
-    if(lara.getHandStatus() == objects::HandStatus::None
-       && lara.getWorld().getPlayer().gunType == lara.getWorld().getPlayer().requestedGunType)
-    {
-      lara.getWorld().getPlayer().gunType = WeaponId::None;
-    }
+    return tryUseWeapon(TR1ItemId::Pistols, WeaponId::Pistols);
   }
   else if(id == TR1ItemId::Magnums || id == TR1ItemId::MagnumsSprite)
   {
-    if(count(TR1ItemId::Magnums) == 0)
-      return false;
-
-    lara.getWorld().getPlayer().requestedGunType = WeaponId::Magnums;
-    if(lara.getHandStatus() == objects::HandStatus::None
-       && lara.getWorld().getPlayer().gunType == lara.getWorld().getPlayer().requestedGunType)
-    {
-      lara.getWorld().getPlayer().gunType = WeaponId::None;
-    }
+    return tryUseWeapon(TR1ItemId::Magnums, WeaponId::Magnums);
   }
   else if(id == TR1ItemId::Uzis || id == TR1ItemId::UzisSprite)
   {
-    if(count(TR1ItemId::Uzis) == 0)
-      return false;
-
-    lara.getWorld().getPlayer().requestedGunType = WeaponId::Uzis;
-    if(lara.getHandStatus() == objects::HandStatus::None
-       && lara.getWorld().getPlayer().gunType == lara.getWorld().getPlayer().requestedGunType)
-    {
-      lara.getWorld().getPlayer().gunType = WeaponId::None;
-    }
+    return tryUseWeapon(TR1ItemId::Uzis, WeaponId::Uzis);
   }
   else if(id == TR1ItemId::LargeMedipack || id == TR1ItemId::LargeMedipackSprite)
   {
-    if(count(TR1ItemId::LargeMedipack) == 0)
-      return false;
-
-    if(lara.isDead() || lara.m_state.health >= core::LaraHealth)
-    {
-      return false;
-    }
-
-    lara.m_state.health = std::min(lara.m_state.health + core::LaraHealth, core::LaraHealth);
-    tryTake(TR1ItemId::LargeMedipackSprite);
-    lara.playSoundEffect(TR1SoundEffect::LaraSigh);
+    return tryUseMediPack(TR1ItemId::LargeMedipack, core::LaraHealth);
   }
   else if(id == TR1ItemId::SmallMedipack || id == TR1ItemId::SmallMedipackSprite)
   {
-    if(count(TR1ItemId::SmallMedipack) == 0)
-      return false;
-
-    if(lara.isDead() || lara.m_state.health >= core::LaraHealth)
-    {
-      return false;
-    }
-
-    lara.m_state.health = std::min(lara.m_state.health + core::LaraHealth / 2, core::LaraHealth);
-    tryTake(TR1ItemId::SmallMedipackSprite);
-    lara.playSoundEffect(TR1SoundEffect::LaraSigh);
+    return tryUseMediPack(TR1ItemId::LargeMedipack, core::LaraHealth / 2);
   }
 
   return true;
