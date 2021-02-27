@@ -26,6 +26,7 @@ public:
   core::Health laraHealth{core::LaraHealth};
   WeaponId gunType = WeaponId::None;
   WeaponId requestedGunType = WeaponId::None;
+  size_t pickups = 0;
 
 private:
   Inventory m_inventory{};

@@ -12,7 +12,8 @@ void Player::serialize(const serialization::Serializer<World>& ser)
   ser(S_NV("inventory", m_inventory),
       S_NV("laraHealth", laraHealth),
       S_NV("gunType", gunType),
-      S_NV("requestedGunType", requestedGunType));
+      S_NV("requestedGunType", requestedGunType),
+      S_NV("pickups", pickups));
 
   if(ser.loading && ser.context.getObjectManager().getLaraPtr() != nullptr)
     ser.lazy([](const serialization::Serializer<World>& ser) {

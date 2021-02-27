@@ -41,6 +41,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       {
         m_state.triggerState = TriggerState::Invisible;
         getWorld().getPlayer().getInventory().put(m_state.type);
+        ++getWorld().getPlayer().pickups;
         getWorld().addPickupWidget(getSprite());
         setParent(getNode(), nullptr);
         m_state.collidable = false;
@@ -90,6 +91,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
 
         m_state.triggerState = TriggerState::Invisible;
         getWorld().getPlayer().getInventory().put(m_state.type);
+        ++getWorld().getPlayer().pickups;
         getWorld().addPickupWidget(getSprite());
         setParent(getNode(), nullptr);
         m_state.collidable = false;
