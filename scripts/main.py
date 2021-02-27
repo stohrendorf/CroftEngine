@@ -236,6 +236,26 @@ i18n = {
         "en": "Water Denoise",
         "de": "Wassergl~attung",
     },
+    I18n.StatsTimeTakenHours: {
+        "en": "TIME TAKEN %1%:%2$02d:%3$02d",
+        "de": "ZEIT %1%:%2$02d:%3$02d",
+    },
+    I18n.StatsTimeTaken: {
+        "en": "TIME TAKEN %1$02d:%2$02d",
+        "de": "ZEIT %1$02d:%2$02d",
+    },
+    I18n.StatsSecrets: {
+        "en": "SECRETS %1% of %2%",
+        "de": "GEHEIMNISSE %1% von %2%",
+    },
+    I18n.StatsPickups: {
+        "en": "PICKUPS %1%",
+        "de": "SAMMELOBJEKTE %1%",
+    },
+    I18n.StatsKills: {
+        "en": "KILLS %1%",
+        "de": "GET~OTET %1%",
+    },
 }
 
 print("Yay! Main script loaded.")

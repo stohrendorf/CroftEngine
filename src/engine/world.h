@@ -59,10 +59,11 @@ public:
   explicit World(Engine& engine,
                  std::unique_ptr<loader::file::level::Level>&& level,
                  std::string title,
+                 size_t totalSecrets,
                  const std::optional<TR1TrackId>& track,
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
-                 const std::shared_ptr<Player>& player);
+                 std::shared_ptr<Player> player);
 
   ~World();
 
@@ -247,6 +248,11 @@ public:
     return m_title;
   }
 
+  auto getTotalSecrets() const
+  {
+    return m_totalSecrets;
+  }
+
   [[nodiscard]] const auto& getTextureAnimator() const
   {
     BOOST_ASSERT(m_textureAnimator != nullptr);
@@ -276,6 +282,11 @@ public:
   {
     Expects(m_player != nullptr);
     return *m_player;
+  }
+
+  const auto& getPlayerPtr() const
+  {
+    return m_player;
   }
 
 private:
@@ -327,6 +338,7 @@ private:
   std::array<floordata::ActivationState, 10> m_mapFlipActivationStates;
   objects::Object* m_pierre = nullptr;
   std::string m_title{};
+  size_t m_totalSecrets = 0;
   std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles{};
   std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_allTextures;
   core::Frame m_uvAnimTime = 0_frame;

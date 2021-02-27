@@ -59,7 +59,7 @@ class Level : public LevelSequenceItem
 {
 private:
   const std::string m_name;
-  const int m_secrets;
+  const size_t m_secrets;
   const bool m_useAlternativeLara;
   const std::unordered_map<std::string, std::string> m_titles;
   const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles;
@@ -73,7 +73,7 @@ protected:
 
 public:
   explicit Level(std::string name,
-                 int secrets,
+                 size_t secrets,
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::string> titles,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
@@ -104,14 +104,13 @@ class TitleMenu : public Level
 {
 public:
   TitleMenu(const std::string& name,
-            int secrets,
             bool useAlternativeLara,
             const std::unordered_map<std::string, std::string>& titles,
             const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
             const std::unordered_map<TR1ItemId, size_t>& inventory,
             const std::unordered_set<TR1ItemId>& dropInventory,
             std::optional<TR1TrackId> track)
-      : Level{name, secrets, useAlternativeLara, titles, itemTitles, inventory, dropInventory, track, false}
+      : Level{name, 0, useAlternativeLara, titles, itemTitles, inventory, dropInventory, track, false}
   {
   }
 

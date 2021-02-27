@@ -1195,17 +1195,19 @@ void remap(loader::file::Sprite& sprite,
 World::World(Engine& engine,
              std::unique_ptr<loader::file::level::Level>&& level,
              std::string title,
+             size_t totalSecrets,
              const std::optional<TR1TrackId>& track,
              bool useAlternativeLara,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
-             const std::shared_ptr<Player>& player)
+             std::shared_ptr<Player> player)
     : m_engine{engine}
     , m_audioEngine{std::make_unique<AudioEngine>(
         *this, engine.getRootPath() / "data" / "tr1" / "AUDIO", engine.getPresenter().getSoundEngine())}
     , m_level{std::move(level)}
     , m_title{std::move(title)}
+    , m_totalSecrets{totalSecrets}
     , m_itemTitles{std::move(itemTitles)}
-    , m_player{player}
+    , m_player{std::move(player)}
 {
   {
     getPresenter().drawLoadingScreen(m_engine.i18n()(I18n::BuildingTextures));

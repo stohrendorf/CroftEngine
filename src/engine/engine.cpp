@@ -34,6 +34,7 @@
 #include "throttler.h"
 #include "tracks_tr1.h"
 #include "ui/label.h"
+#include "ui/levelstats.h"
 #include "ui/ui.h"
 #include "world.h"
 
@@ -140,13 +141,41 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
   {
     if(m_presenter->shouldClose())
     {
-      updateTimeSpent();
       return {RunResult::ExitApp, std::nullopt};
     }
 
     if(world.levelFinished())
     {
       updateTimeSpent();
+
+      if(!isCutscene && allowSave)
+      {
+        while(true)
+        {
+          throttler.wait();
+          if(m_presenter->shouldClose())
+          {
+            return {RunResult::ExitApp, std::nullopt};
+          }
+
+          if(!m_presenter->preFrame())
+          {
+            continue;
+          }
+
+          ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSpriteTextured(),
+                    world.getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
+                    world.getPalette()};
+          ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
+          stats.draw(ui, *m_i18n);
+          ui.render(m_presenter->getViewport());
+          m_presenter->swapBuffers();
+
+          if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))
+            break;
+        }
+      }
+
       return {RunResult::NextLevel, std::nullopt};
     }
 

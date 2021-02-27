@@ -386,6 +386,8 @@ set( EDISONENGINE_SRCS
 
         ui/label.h
         ui/label.cpp
+        ui/levelstats.h
+        ui/levelstats.cpp
         ui/ui.h
         ui/ui.cpp
 
@@ -505,25 +507,43 @@ if( LINUX OR UNIX )
     endif()
 endif()
 
+macro( copy_runtime_dep_file SRCDIR DSTDIR FILENAME )
+    add_custom_command(
+            COMMENT "Copy ${FILENAME}"
+            OUTPUT ${DSTDIR}/${FILENAME}
+            MAIN_DEPENDENCY ${SRCDIR}/${FILENAME}
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${DSTDIR}
+            COMMAND ${CMAKE_COMMAND} -E copy ${SRCDIR}/${FILENAME} ${DSTDIR}/
+    )
+    set_source_files_properties(
+            ${DSTDIR}/${FILENAME}
+            PROPERTIES GENERATED TRUE
+    )
+    set_property(
+            TARGET edisonengine-runtime-deps
+            APPEND PROPERTY SOURCES ${DSTDIR}/${FILENAME}
+    )
+endmacro()
+
 if( WIN32 )
+    add_custom_target( edisonengine-runtime-deps )
+    add_dependencies( edisonengine edisonengine-runtime-deps )
+
     get_target_property( _bin_dir edisonengine BINARY_DIR )
 
     file(
             GLOB _shaders
+            RELATIVE ${CMAKE_SOURCE_DIR}
             ${CMAKE_SOURCE_DIR}/shaders/*.frag
             ${CMAKE_SOURCE_DIR}/shaders/*.vert
             ${CMAKE_SOURCE_DIR}/shaders/*.glsl
     )
     list( FILTER _shaders EXCLUDE REGEX "\.full\." )
 
-    add_custom_command(
-            TARGET edisonengine
-            POST_BUILD
-            COMMENT "Copy shaders"
-            DEPENDS ${_shaders}
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/shaders
-            COMMAND ${CMAKE_COMMAND} -E copy ${_shaders} ${_bin_dir}/shaders/
-    )
+    foreach( _file ${_shaders} )
+        get_filename_component( _dirname ${_file} DIRECTORY )
+        copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
+    endforeach()
 
     file(
             GLOB_RECURSE _scripts
@@ -533,26 +553,15 @@ if( WIN32 )
 
     foreach( _file ${_scripts} )
         get_filename_component( _dirname ${_file} DIRECTORY )
-        add_custom_command(
-                TARGET edisonengine
-                POST_BUILD
-                COMMENT "Copy script ${_file}"
-                COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/${_dirname}
-                COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/${_file} ${_bin_dir}/${_dirname}/
-        )
+        copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
     endforeach()
 
-    add_custom_command(
-            TARGET edisonengine
-            POST_BUILD
-            COMMENT "Copy runtime assets"
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/abibas.ttf ${_bin_dir}/
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/Apache License.txt" ${_bin_dir}/
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/DroidSansMono.ttf ${_bin_dir}/
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/LICENSE ${_bin_dir}/
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/logo.png ${_bin_dir}/
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/splash.png ${_bin_dir}/
-    )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} abibas.ttf )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} "Apache License.txt" )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} DroidSansMono.ttf )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} LICENSE )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} logo.png )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} splash.png )
 
     copy_python3_deps( edisonengine )
 endif()

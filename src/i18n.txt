@@ -40,3 +40,8 @@ Fullscreen
 BilinearFiltering
 Graphics
 WaterDenoise
+StatsTimeTakenHours
+StatsTimeTaken
+StatsSecrets
+StatsPickups
+StatsKills

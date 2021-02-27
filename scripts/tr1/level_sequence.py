@@ -7,7 +7,6 @@ title_menu = TitleMenu(
         "de": "Tomb Raider",
     },
     track=TR1TrackId.MainTheme,
-    secrets=0,
 )
 
 lara_home = Level(
