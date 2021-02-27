@@ -33,6 +33,14 @@ public:
   size_t secrets = 0;
   std::chrono::milliseconds timeSpent{0};
 
+  void resetStats()
+  {
+    pickups = 0;
+    kills = 0;
+    secrets = 0;
+    timeSpent = std::chrono::milliseconds{0};
+  }
+
 private:
   Inventory m_inventory{};
 };

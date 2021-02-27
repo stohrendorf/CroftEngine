@@ -95,6 +95,7 @@ std::unique_ptr<engine::World> Level::loadWorld(Engine& engine, const std::share
 
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
 
+  player->resetStats();
   for(const auto& [type, qty] : m_inventory)
     player->getInventory().put(type, qty);
   for(const auto& type : m_dropInventory)
