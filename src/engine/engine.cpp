@@ -125,24 +125,42 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
   core::Frame laraDeadTime = 0_frame;
+
+  std::optional<std::chrono::high_resolution_clock::time_point> gameSessionStart;
+  auto updateTimeSpent = [&gameSessionStart, &world]() {
+    if(gameSessionStart.has_value())
+    {
+      world.getPlayer().timeSpent += std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::high_resolution_clock::now() - gameSessionStart.value());
+      gameSessionStart.reset();
+    }
+  };
+
   while(true)
   {
     if(m_presenter->shouldClose())
     {
+      updateTimeSpent();
       return {RunResult::ExitApp, std::nullopt};
     }
 
     if(world.levelFinished())
     {
+      updateTimeSpent();
       return {RunResult::NextLevel, std::nullopt};
     }
 
     throttler.wait();
     if(!m_presenter->preFrame())
+    {
+      updateTimeSpent();
       continue;
+    }
 
     if(menu != nullptr)
     {
+      updateTimeSpent();
+
       ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSpriteTextured(),
                 world.getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
                 world.getPalette()};
@@ -170,6 +188,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
     {
       if(world.getObjectManager().getLara().isDead())
       {
+        updateTimeSpent();
         laraDeadTime += 1_frame;
         if(laraDeadTime >= 300_frame || (laraDeadTime >= 60_frame && m_presenter->getInputHandler().hasAnyAction()))
         {
@@ -181,6 +200,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
 
       if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
       {
+        updateTimeSpent();
         menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world);
         menu->allowSave = allowSave;
         continue;
@@ -188,16 +208,21 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
 
       if(allowSave && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Save))
       {
+        updateTimeSpent();
         world.save("quicksave.yaml");
         throttler.reset();
       }
       else if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
       {
+        updateTimeSpent();
         return {RunResult::RequestLoad, std::nullopt};
       }
 
       if(allAmmoCheat)
         world.getPlayer().getInventory().fillAllAmmo();
+
+      if(!gameSessionStart.has_value())
+        gameSessionStart = std::chrono::high_resolution_clock::now();
 
       world.gameLoop(godMode);
     }
@@ -209,6 +234,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
 
     if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))
     {
+      updateTimeSpent();
       makeScreenshot();
     }
   }

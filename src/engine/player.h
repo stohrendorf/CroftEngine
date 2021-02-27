@@ -4,6 +4,8 @@
 #include "core/units.h"
 #include "inventory.h"
 
+#include <chrono>
+
 namespace engine
 {
 class Player
@@ -29,6 +31,7 @@ public:
   size_t pickups = 0;
   size_t kills = 0;
   size_t secrets = 0;
+  std::chrono::milliseconds timeSpent{0};
 
 private:
   Inventory m_inventory{};
