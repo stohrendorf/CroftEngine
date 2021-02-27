@@ -927,6 +927,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       {
         m_secretsFoundBitmask.set(command.parameter);
         m_audioEngine->playStopCdTrack(TR1TrackId::Secret, false);
+        ++m_player->secrets;
       }
       break;
     default: break;
