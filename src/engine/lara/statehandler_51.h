@@ -16,7 +16,7 @@ public:
   void handleInput(CollisionInfo& collisionInfo) override
   {
     getLara().m_state.falling = false;
-    collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
+    collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
     const auto& alternateLara = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
     if(alternateLara == nullptr)
       return;
@@ -56,7 +56,7 @@ public:
     collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
     collisionInfo.badCeilingDistance = 0_len;
     setMovementAngle(getLara().m_state.rotation.Y);
-    collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
+    collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
   }

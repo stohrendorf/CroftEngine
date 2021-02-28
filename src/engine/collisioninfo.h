@@ -49,8 +49,8 @@ struct CollisionInfo
   core::Axis facingAxis = core::Axis::PosZ;
   core::Angle facingAngle = 0_deg;      // external
   core::Length collisionRadius = 0_len; // external
-  PolicyFlagSet policyFlags;            // external
-  core::TRVec oldPosition;              // external
+  PolicyFlagSet policies;               // external
+  core::TRVec initialPosition;          // external
   //! The deepest floor distance considered passable.
   core::Length badPositiveDistance = 0_len; // external
   //! The highest floor distance considered passable.
@@ -74,7 +74,7 @@ struct CollisionInfo
                                                                                  const core::Length& height,
                                                                                  const World& world);
 
-  bool checkStaticMeshCollisions(const core::TRVec& position, const core::Length& height, const World& world);
+  bool checkStaticMeshCollisions(const core::TRVec& pokePosition, const core::Length& pokeHeight, const World& world);
 };
 
 inline gsl::czstring toString(CollisionInfo::AxisColl value)

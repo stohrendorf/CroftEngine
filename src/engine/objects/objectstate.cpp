@@ -26,15 +26,15 @@ bool ObjectState::isStalkBox(const World& world, const loader::file::Box& target
     return false;
   }
 
-  const auto laraAxis = *axisFromAngle(world.getObjectManager().getLara().m_state.rotation.Y, 45_deg);
-  const auto laraToBoxAxis = *axisFromAngle(angleFromAtan(laraToBoxDistX, laraToBoxDistZ), 45_deg);
+  const auto laraAxis = axisFromAngle(world.getObjectManager().getLara().m_state.rotation.Y);
+  const auto laraToBoxAxis = axisFromAngle(angleFromAtan(laraToBoxDistX, laraToBoxDistZ));
   if(laraAxis == laraToBoxAxis)
   {
     return false;
   }
 
   const auto objectToLaraAxis
-    = *axisFromAngle(angleFromAtan(laraPos.X - position.position.X, laraPos.Z - position.position.Z), 45_deg);
+    = axisFromAngle(angleFromAtan(laraPos.X - position.position.X, laraPos.Z - position.position.Z));
   if(laraAxis != objectToLaraAxis)
   {
     return true;

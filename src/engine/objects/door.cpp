@@ -16,9 +16,8 @@ Door::Door(const gsl::not_null<World*>& world,
 {
 #ifndef NO_DOOR_BLOCK
   core::Length dx = 0_len, dz = 0_len;
-  const auto axis = axisFromAngle(m_state.rotation.Y, 45_deg);
-  Expects(axis.has_value());
-  switch(*axis)
+  const auto axis = axisFromAngle(m_state.rotation.Y);
+  switch(axis)
   {
   case core::Axis::PosZ: dz = -core::SectorSize; break;
   case core::Axis::PosX: dx = -core::SectorSize; break;
@@ -99,7 +98,7 @@ void Door::collide(CollisionInfo& collisionInfo)
   if(!testBoneCollision(getWorld().getObjectManager().getLara()))
     return;
 
-  if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+  if(!collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
   if(m_state.current_anim_state == m_state.goal_anim_state)
@@ -108,7 +107,7 @@ void Door::collide(CollisionInfo& collisionInfo)
   }
   else
   {
-    const auto enableSpaz = collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
+    const auto enableSpaz = collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
     enemyPush(collisionInfo, enableSpaz, true);
   }
 #endif

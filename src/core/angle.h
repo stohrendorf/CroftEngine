@@ -74,55 +74,70 @@ QS_DECLARE_QUANTITY(Angle, int32_t, "au");
 
 enum class Axis
 {
-  PosZ,
-  PosX,
-  NegZ,
-  NegX
+  Deg0,
+  PosZ = Deg0,
+  Right90,
+  PosX = Right90,
+  Deg180,
+  NegZ = Deg180,
+  Left90,
+  NegX = Left90
 };
 
 [[nodiscard]] inline std::optional<Axis> axisFromAngle(const Angle& angle, const Angle& margin)
 {
   Expects(margin >= 0_deg && margin <= 45_deg);
-  if(angle <= +0_deg + margin && angle >= +0_deg - margin)
-    return Axis::PosZ;
-  if(angle <= +90_deg + margin && angle >= +90_deg - margin)
-    return Axis::PosX;
-  if(angle <= -90_deg + margin && angle >= -90_deg - margin)
-    return Axis::NegX;
+  if(angle < +0_deg + margin && angle >= +0_deg - margin)
+    return Axis::Deg0;
+  if(angle < +90_deg + margin && angle >= +90_deg - margin)
+    return Axis::Right90;
+  if(angle < -90_deg + margin && angle >= -90_deg - margin)
+    return Axis::Left90;
   if(angle >= 180_deg - margin || angle <= -180_deg + margin)
-    return Axis::NegZ;
+    return Axis::Deg180;
 
   return std::nullopt;
 }
 
-[[nodiscard]] inline Angle alignRotation(const Axis& axis)
+[[nodiscard]] inline Axis axisFromAngle(Angle angle)
+{
+  angle += 45_deg;
+  if(angle < -90_deg)
+    return Axis::Deg180;
+  else if(angle < 0_deg)
+    return Axis::Left90;
+  else if(angle < 90_deg)
+    return Axis::Deg0;
+  else
+    return Axis::Right90;
+}
+
+[[nodiscard]] inline Angle snapRotation(const Axis& axis)
 {
   switch(axis)
   {
-  case Axis::PosZ: return 0_deg;
-  case Axis::PosX: return 90_deg;
-  case Axis::NegZ: return -180_deg;
-  case Axis::NegX: return -90_deg;
+  case Axis::Deg0: return 0_deg;
+  case Axis::Right90: return 90_deg;
+  case Axis::Deg180: return -180_deg;
+  case Axis::Left90: return -90_deg;
   default: return 0_deg;
   }
 }
 
-[[nodiscard]] inline std::optional<Angle> alignRotation(const Angle& angle, const Angle& margin)
+[[nodiscard]] inline std::optional<Angle> snapRotation(const Angle& angle, const Angle& margin)
 {
   auto axis = axisFromAngle(angle, margin);
   if(!axis)
     return {};
 
-  return alignRotation(*axis);
+  return snapRotation(*axis);
 }
 
 class TRRotation final
 {
 public:
   Angle X;
-
   Angle Y;
-
   Angle Z;
 
   TRRotation() = default;

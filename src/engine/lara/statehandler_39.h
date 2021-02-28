@@ -15,7 +15,7 @@ public:
 
   void handleInput(CollisionInfo& collisionInfo) override
   {
-    collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
+    collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
     setCameraRotationAroundLara(-15_deg, -130_deg);
     setCameraDistance(1024_len);
   }
@@ -27,7 +27,7 @@ public:
     collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
     collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
     collisionInfo.badCeilingDistance = 0_len;
-    collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
+    collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
   }
 };

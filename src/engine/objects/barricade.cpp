@@ -30,7 +30,7 @@ void Barricade::collide(CollisionInfo& collisionInfo)
   if(!testBoneCollision(getWorld().getObjectManager().getLara()))
     return;
 
-  if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+  if(!collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
   enemyPush(collisionInfo, false, true);

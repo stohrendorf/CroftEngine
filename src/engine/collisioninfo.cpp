@@ -8,7 +8,7 @@ namespace engine
 {
 namespace
 {
-core::Length reflectAtSectorBoundary(const core::Length& target, const core::Length& current)
+[[nodiscard]] core::Length reflectAtSectorBoundary(const core::Length& target, const core::Length& current)
 {
   const auto targetSector = target / core::SectorSize;
   const auto currentSector = current / core::SectorSize;
@@ -20,13 +20,60 @@ core::Length reflectAtSectorBoundary(const core::Length& target, const core::Len
     return -(targetInSector + 1_len);
   return core::SectorSize - (targetInSector - 1_len);
 }
+
+[[nodiscard]] bool intersects(const core::BoundingBox& a, const core::BoundingBox& b) noexcept
+{
+  return a.min.X < b.max.X && a.max.X > b.min.X && a.min.Y < b.max.Y && a.max.Y > b.min.Y && a.min.Z < b.max.Z
+         && a.max.Z > b.min.Z;
+}
+
+[[nodiscard]] core::BoundingBox
+  rotateTranslate(const core::BoundingBox& bbox, const core::TRVec& pos, const core::Angle& angle)
+{
+  auto result = bbox;
+
+  const auto axis = axisFromAngle(angle);
+  switch(axis)
+  {
+  case core::Axis::Deg0:
+    // nothing to do
+    break;
+  case core::Axis::Right90:
+    result.min.X = bbox.min.Z;
+    result.max.X = bbox.max.Z;
+    result.min.Z = -bbox.max.X;
+    result.max.Z = -bbox.min.X;
+    break;
+  case core::Axis::Deg180:
+    result.min.X = -bbox.max.X;
+    result.max.X = -bbox.min.X;
+    result.min.Z = -bbox.max.Z;
+    result.max.Z = -bbox.min.Z;
+    break;
+  case core::Axis::Left90:
+    result.min.X = -bbox.max.Z;
+    result.max.X = -bbox.min.Z;
+    result.min.Z = bbox.min.X;
+    result.max.Z = bbox.max.X;
+    break;
+  }
+
+  result.min += pos;
+  result.max += pos;
+  return result;
+}
+
+[[nodiscard]] core::Length absMin(const core::Length& a, const core::Length& b)
+{
+  return abs(a) < abs(b) ? a : b;
+}
 } // namespace
 
 void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& world, const core::Length& height)
 {
   collisionType = AxisColl::None;
-  shift = core::TRVec{};
-  facingAxis = *axisFromAngle(facingAngle, 45_deg);
+  shift = core::TRVec{0_len, 0_len, 0_len};
+  facingAxis = axisFromAngle(facingAngle);
 
   auto room = world.getObjectManager().getLara().m_state.position.room;
   const auto refTestPos = laraPos - core::TRVec(0_len, height + core::ScalpToHandsHeight, 0_len);
@@ -34,7 +81,8 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
 
   mid.init(currentSector, refTestPos, world.getObjectManager().getObjects(), laraPos.Y, height);
 
-  std::tie(floorSlantX, floorSlantZ) = getFloorSlantInfo(currentSector, laraPos);
+  std::tie(floorSlantX, floorSlantZ) = getFloorSlantInfo(
+    currentSector, core::TRVec{laraPos.X, world.getObjectManager().getLara().m_state.position.position.Y, laraPos.Z});
 
   core::Length frontX = 0_len, frontZ = 0_len;
   core::Length frontLeftX = 0_len, frontLeftZ = 0_len;
@@ -42,15 +90,15 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
 
   switch(facingAxis)
   {
-  case core::Axis::PosZ:
+  case core::Axis::Deg0:
     frontX = util::sin(collisionRadius, facingAngle);
     frontZ = collisionRadius;
-    frontLeftZ = collisionRadius;
     frontLeftX = -collisionRadius;
+    frontLeftZ = collisionRadius;
     frontRightX = collisionRadius;
     frontRightZ = collisionRadius;
     break;
-  case core::Axis::PosX:
+  case core::Axis::Right90:
     frontX = collisionRadius;
     frontZ = util::cos(collisionRadius, facingAngle);
     frontLeftX = collisionRadius;
@@ -58,7 +106,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
     frontRightX = collisionRadius;
     frontRightZ = -collisionRadius;
     break;
-  case core::Axis::NegZ:
+  case core::Axis::Deg180:
     frontX = util::sin(collisionRadius, facingAngle);
     frontZ = -collisionRadius;
     frontLeftX = collisionRadius;
@@ -66,7 +114,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
     frontRightX = -collisionRadius;
     frontRightZ = -collisionRadius;
     break;
-  case core::Axis::NegX:
+  case core::Axis::Left90:
     frontX = -collisionRadius;
     frontZ = util::cos(collisionRadius, facingAngle);
     frontLeftX = -collisionRadius;
@@ -76,69 +124,39 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
     break;
   }
 
-  // Front
-  auto testPos = refTestPos + core::TRVec(frontX, 0_len, frontZ);
-  auto sector = findRealFloorSector(testPos, &room);
-  front.init(sector, testPos, world.getObjectManager().getObjects(), laraPos.Y, height);
-  if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && front.floorSpace.slantClass == SlantClass::Steep
-     && front.floorSpace.y < 0_len)
-  {
-    front.floorSpace.y = -32767_len; // This is not a typo, it is really -32767
-  }
-  else if(front.floorSpace.y > 0_len
-          && ((policyFlags.is_set(PolicyFlags::SlopesArePits) && front.floorSpace.slantClass == SlantClass::Steep)
-              || (policyFlags.is_set(PolicyFlags::LavaIsPit) && front.floorSpace.lastCommandSequenceOrDeath != nullptr
-                  && floordata::FloorDataChunk::extractType(*front.floorSpace.lastCommandSequenceOrDeath)
-                       == floordata::FloorDataChunkType::Death)))
-  {
-    front.floorSpace.y = 2 * core::QuarterSectorSize;
-  }
+  const auto initVSI = [&refTestPos, &world, &height, laraPosY = laraPos.Y, policyFlags = policies](
+                         VerticalSpaceInfo& vsi,
+                         core::Length dx,
+                         core::Length dz,
+                         const gsl::not_null<gsl::not_null<const loader::file::Room*>*>& room) {
+    const auto testPos = refTestPos + core::TRVec(dx, 0_len, dz);
+    const auto sector = findRealFloorSector(testPos, room);
+    vsi.init(sector, testPos, world.getObjectManager().getObjects(), laraPosY, height);
 
-  // Front left
-  testPos = refTestPos + core::TRVec(frontLeftX, 0_len, frontLeftZ);
-  sector = findRealFloorSector(testPos, &room);
-  frontLeft.init(sector, testPos, world.getObjectManager().getObjects(), laraPos.Y, height);
+    if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && vsi.floorSpace.slantClass == SlantClass::Steep
+       && vsi.floorSpace.y < 0_len)
+    {
+      vsi.floorSpace.y = -32767_len; // This is not a typo, it is really -32767
+    }
+    else if(vsi.floorSpace.y > 0_len
+            && ((policyFlags.is_set(PolicyFlags::SlopesArePits) && vsi.floorSpace.slantClass == SlantClass::Steep)
+                || (policyFlags.is_set(PolicyFlags::LavaIsPit) && vsi.floorSpace.lastCommandSequenceOrDeath != nullptr
+                    && floordata::FloorDataChunk::extractType(*vsi.floorSpace.lastCommandSequenceOrDeath)
+                         == floordata::FloorDataChunkType::Death)))
+    {
+      vsi.floorSpace.y = core::SectorSize / 2;
+    }
+  };
 
-  if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && frontLeft.floorSpace.slantClass == SlantClass::Steep
-     && frontLeft.floorSpace.y < 0_len)
-  {
-    frontLeft.floorSpace.y = -32767_len; // This is not a typo, it is really -32767
-  }
-  else if(frontLeft.floorSpace.y > 0_len
-          && ((policyFlags.is_set(PolicyFlags::SlopesArePits) && frontLeft.floorSpace.slantClass == SlantClass::Steep)
-              || (policyFlags.is_set(PolicyFlags::LavaIsPit)
-                  && frontLeft.floorSpace.lastCommandSequenceOrDeath != nullptr
-                  && floordata::FloorDataChunk::extractType(*frontLeft.floorSpace.lastCommandSequenceOrDeath)
-                       == floordata::FloorDataChunkType::Death)))
-  {
-    frontLeft.floorSpace.y = 2 * core::QuarterSectorSize;
-  }
-
-  // Front right
-  testPos = refTestPos + core::TRVec(frontRightX, 0_len, frontRightZ);
-  sector = findRealFloorSector(testPos, &room);
-  frontRight.init(sector, testPos, world.getObjectManager().getObjects(), laraPos.Y, height);
-
-  if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && frontRight.floorSpace.slantClass == SlantClass::Steep
-     && frontRight.floorSpace.y < 0_len)
-  {
-    frontRight.floorSpace.y = -32767_len; // This is not a typo, it is really -32767
-  }
-  else if(frontRight.floorSpace.y > 0_len
-          && ((policyFlags.is_set(PolicyFlags::SlopesArePits) && frontRight.floorSpace.slantClass == SlantClass::Steep)
-              || (policyFlags.is_set(PolicyFlags::LavaIsPit)
-                  && frontRight.floorSpace.lastCommandSequenceOrDeath != nullptr
-                  && floordata::FloorDataChunk::extractType(*frontRight.floorSpace.lastCommandSequenceOrDeath)
-                       == floordata::FloorDataChunkType::Death)))
-  {
-    frontRight.floorSpace.y = 2 * core::QuarterSectorSize;
-  }
+  initVSI(front, frontX, frontZ, &room);
+  initVSI(frontLeft, frontLeftX, frontLeftZ, &room);
+  initVSI(frontRight, frontRightX, frontRightZ, &room);
 
   checkStaticMeshCollisions(laraPos, height, world);
 
   if(mid.floorSpace.y == -core::HeightLimit)
   {
-    shift = oldPosition - laraPos;
+    shift = initialPosition - laraPos;
     collisionType = AxisColl::Front;
     return;
   }
@@ -146,7 +164,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
   if(mid.floorSpace.y <= mid.ceilingSpace.y)
   {
     collisionType = AxisColl::TopFront;
-    shift = oldPosition - laraPos;
+    shift = initialPosition - laraPos;
     return;
   }
 
@@ -162,15 +180,15 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
     collisionType = AxisColl::Front;
     switch(facingAxis)
     {
-    case core::Axis::PosZ:
-    case core::Axis::NegZ:
-      shift.X = oldPosition.X - laraPos.X;
+    case core::Axis::Deg0: [[fallthrough]];
+    case core::Axis::Deg180:
+      shift.X = initialPosition.X - laraPos.X;
       shift.Z = reflectAtSectorBoundary(frontZ + laraPos.Z, laraPos.Z);
       break;
-    case core::Axis::PosX:
-    case core::Axis::NegX:
+    case core::Axis::Left90: [[fallthrough]];
+    case core::Axis::Right90:
       shift.X = reflectAtSectorBoundary(frontX + laraPos.X, laraPos.X);
-      shift.Z = oldPosition.Z - laraPos.Z;
+      shift.Z = initialPosition.Z - laraPos.Z;
       break;
     }
     return;
@@ -179,7 +197,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
   if(front.ceilingSpace.y >= badCeilingDistance)
   {
     collisionType = AxisColl::TopBottom;
-    shift = oldPosition - laraPos;
+    shift = initialPosition - laraPos;
     return;
   }
 
@@ -188,10 +206,10 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
     collisionType = AxisColl::Left;
     switch(facingAxis)
     {
-    case core::Axis::PosZ:
-    case core::Axis::NegZ: shift.X = reflectAtSectorBoundary(frontLeftX + laraPos.X, frontX + laraPos.X); break;
-    case core::Axis::PosX:
-    case core::Axis::NegX: shift.Z = reflectAtSectorBoundary(frontLeftZ + laraPos.Z, frontZ + laraPos.Z); break;
+    case core::Axis::Deg0: [[fallthrough]];
+    case core::Axis::Deg180: shift.X = reflectAtSectorBoundary(frontLeftX + laraPos.X, frontX + laraPos.X); break;
+    case core::Axis::Left90: [[fallthrough]];
+    case core::Axis::Right90: shift.Z = reflectAtSectorBoundary(frontLeftZ + laraPos.Z, frontZ + laraPos.Z); break;
     }
     return;
   }
@@ -201,10 +219,10 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
     collisionType = AxisColl::Right;
     switch(facingAxis)
     {
-    case core::Axis::PosZ:
-    case core::Axis::NegZ: shift.X = reflectAtSectorBoundary(frontRightX + laraPos.X, frontX + laraPos.X); break;
-    case core::Axis::PosX:
-    case core::Axis::NegX: shift.Z = reflectAtSectorBoundary(frontRightZ + laraPos.Z, frontZ + laraPos.Z); break;
+    case core::Axis::Deg0: [[fallthrough]];
+    case core::Axis::Deg180: shift.X = reflectAtSectorBoundary(frontRightX + laraPos.X, frontX + laraPos.X); break;
+    case core::Axis::Left90: [[fallthrough]];
+    case core::Axis::Right90: shift.Z = reflectAtSectorBoundary(frontRightZ + laraPos.Z, frontZ + laraPos.Z); break;
     }
   }
 }
@@ -235,14 +253,16 @@ std::set<gsl::not_null<const loader::file::Room*>> CollisionInfo::collectTouchin
   return result;
 }
 
-bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position,
-                                              const core::Length& height,
+bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
+                                              const core::Length& pokeHeight,
                                               const World& world)
 {
-  const auto rooms = collectTouchingRooms(position, collisionRadius + 50_len, height + 50_len, world);
+  const auto rooms = collectTouchingRooms(pokePosition, collisionRadius + 50_len, pokeHeight + 50_len, world);
 
-  const core::BoundingBox inBox{{position.X - collisionRadius, position.Y - height, position.Z - collisionRadius},
-                                {position.X + collisionRadius, position.Y, position.Z + collisionRadius}};
+  // no need to worry about rotation here, this is a square box
+  const core::BoundingBox pokeBox{
+    {pokePosition.X - collisionRadius, pokePosition.Y - pokeHeight, pokePosition.Z - collisionRadius},
+    {pokePosition.X + collisionRadius, pokePosition.Y, pokePosition.Z + collisionRadius}};
 
   hasStaticMeshCollision = false;
 
@@ -250,121 +270,74 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& position,
   {
     for(const loader::file::RoomStaticMesh& rsm : room->staticMeshes)
     {
-      const auto sm = world.findStaticMeshById(rsm.meshId);
-      if(sm->doNotCollide())
+      const auto mesh = world.findStaticMeshById(rsm.meshId);
+      if(mesh->doNotCollide())
         continue;
 
-      const auto meshBox = sm->getCollisionBox(rsm.position, rsm.rotation);
-
-      if(!meshBox.intersects(inBox))
+      const auto meshBox = rotateTranslate(mesh->collision_box, rsm.position, rsm.rotation);
+      if(!intersects(meshBox, pokeBox))
         continue;
 
-      core::Length dx = 0_len, dz = 0_len;
-      {
-        auto left = inBox.max.X - meshBox.min.X;
-        auto right = meshBox.max.X - inBox.min.X;
-        if(left < right)
-          dx = -left;
-        else
-          dx = right;
-
-        left = inBox.max.Z - meshBox.min.Z;
-        right = meshBox.max.Z - inBox.min.Z;
-        if(left < right)
-          dz = -left;
-        else
-          dz = right;
-      }
+      // both collision boxes are in world space
+      shift.X = absMin(meshBox.min.X - pokeBox.max.X, meshBox.max.X - pokeBox.min.X);
+      shift.Z = absMin(meshBox.min.Z - pokeBox.max.Z, meshBox.max.Z - pokeBox.min.Z);
 
       switch(facingAxis)
       {
-      case core::Axis::PosX:
-        if(abs(dz) > collisionRadius)
+      case core::Axis::Deg0:
+        if(abs(shift.X) > collisionRadius)
         {
-          shift.X = dx;
-          shift.Z = this->oldPosition.Z - position.Z;
+          shift.X = initialPosition.X - pokePosition.X;
           collisionType = AxisColl::Front;
         }
-        else if(dz > 0_len && dz <= collisionRadius)
+        else
         {
-          shift.X = 0_len;
-          shift.Z = dz;
-          collisionType = AxisColl::Right;
-        }
-        else if(dz < 0_len && dz >= -collisionRadius)
-        {
-          shift.X = 0_len;
-          shift.Z = dz;
-          collisionType = AxisColl::Left;
+          collisionType = shift.X > 0_len ? AxisColl::Left : AxisColl::Right;
         }
         break;
-      case core::Axis::PosZ:
-        if(abs(dx) > collisionRadius)
+      case core::Axis::Deg180:
+        if(abs(shift.X) > collisionRadius)
         {
-          shift.X = this->oldPosition.X - position.X;
-          shift.Z = dz;
+          shift.X = initialPosition.X - pokePosition.X;
           collisionType = AxisColl::Front;
         }
-        else if(dx > 0_len && dx <= collisionRadius)
+        else
         {
-          shift.X = dx;
           shift.Z = 0_len;
-          collisionType = AxisColl::Left;
-        }
-        else if(dx < 0_len && dx >= -collisionRadius)
-        {
-          shift.X = dx;
-          shift.Z = 0_len;
-          collisionType = AxisColl::Right;
+          collisionType = shift.X > 0_len ? AxisColl::Right : AxisColl::Left;
         }
         break;
-      case core::Axis::NegX:
-        if(abs(dz) > collisionRadius)
+      case core::Axis::Right90:
+        if(abs(shift.Z) > collisionRadius)
         {
-          shift.X = dx;
-          shift.Z = this->oldPosition.Z - position.Z;
+          shift.Z = initialPosition.Z - pokePosition.Z;
           collisionType = AxisColl::Front;
         }
-        else if(dz > 0_len && dz <= collisionRadius)
+        else
         {
           shift.X = 0_len;
-          shift.Z = dz;
-          collisionType = AxisColl::Left;
-        }
-        else if(dz < 0_len && dz >= -collisionRadius)
-        {
-          shift.X = 0_len;
-          shift.Z = dz;
-          collisionType = AxisColl::Right;
+          collisionType = shift.Z > 0_len ? AxisColl::Right : AxisColl::Left;
         }
         break;
-      case core::Axis::NegZ:
-        if(abs(dx) > collisionRadius)
+      case core::Axis::Left90:
+        if(abs(shift.Z) > collisionRadius)
         {
-          shift.X = this->oldPosition.X - position.X;
-          shift.Z = dz + 1_len;
+          shift.Z = initialPosition.Z - pokePosition.Z;
           collisionType = AxisColl::Front;
         }
-        else if(dx > 0_len && dx <= collisionRadius)
+        else
         {
-          shift.X = dx;
-          shift.Z = 0_len;
-          collisionType = AxisColl::Right;
-        }
-        else if(dx < 0_len && dx >= -collisionRadius)
-        {
-          shift.X = dx;
-          shift.Z = 0_len;
-          collisionType = AxisColl::Left;
+          shift.X = 0_len;
+          collisionType = shift.Z > 0_len ? AxisColl::Left : AxisColl::Right;
         }
         break;
       }
 
       hasStaticMeshCollision = true;
-      return true;
+      return hasStaticMeshCollision;
     }
   }
 
-  return false;
+  return hasStaticMeshCollision;
 }
 } // namespace engine

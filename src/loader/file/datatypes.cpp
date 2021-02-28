@@ -294,41 +294,6 @@ void Room::createSceneNode(const size_t roomId,
   resetScenery();
 }
 
-core::BoundingBox StaticMesh::getCollisionBox(const core::TRVec& pos, const core::Angle& angle) const
-{
-  auto result = collision_box;
-
-  const auto axis = axisFromAngle(angle, 45_deg);
-  switch(*axis)
-  {
-  case core::Axis::PosZ:
-    // nothing to do
-    break;
-  case core::Axis::PosX:
-    result.min.X = collision_box.min.Z;
-    result.max.X = collision_box.max.Z;
-    result.min.Z = -collision_box.max.X;
-    result.max.Z = -collision_box.min.X;
-    break;
-  case core::Axis::NegZ:
-    result.min.X = -collision_box.max.X;
-    result.max.X = -collision_box.min.X;
-    result.min.Z = -collision_box.max.Z;
-    result.max.Z = -collision_box.min.Z;
-    break;
-  case core::Axis::NegX:
-    result.min.X = -collision_box.max.Z;
-    result.max.X = -collision_box.min.Z;
-    result.min.Z = collision_box.min.X;
-    result.max.Z = collision_box.max.X;
-    break;
-  }
-
-  result.min += pos;
-  result.max += pos;
-  return result;
-}
-
 std::unique_ptr<StaticMesh> StaticMesh::read(io::SDLReader& reader)
 {
   auto mesh = std::make_unique<StaticMesh>();

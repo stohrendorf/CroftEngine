@@ -15,7 +15,7 @@ public:
 
   void handleInput(CollisionInfo& collisionInfo) override
   {
-    collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
+    collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
@@ -23,7 +23,7 @@ public:
     collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
     collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
     collisionInfo.badCeilingDistance = 0_len;
-    collisionInfo.policyFlags |= CollisionInfo::SlopeBlockingPolicy;
+    collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);

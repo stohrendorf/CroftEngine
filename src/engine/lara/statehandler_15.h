@@ -71,7 +71,7 @@ public:
     setGoalAnimState(LaraStateId::Stop);
     setCurrentAnimState(LaraStateId::Stop);
     getLara().m_state.speed = 0_spd;
-    getLara().m_state.position.position = collisionInfo.oldPosition;
+    getLara().m_state.position.position = collisionInfo.initialPosition;
   }
 };
 } // namespace engine::lara

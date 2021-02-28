@@ -16,7 +16,7 @@ public:
 
   void handleInput(CollisionInfo& collisionInfo) override
   {
-    collisionInfo.policyFlags &= ~CollisionInfo::SpazPushPolicy;
+    collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
     setCameraRotationAroundLaraY(75_deg);
     if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
     {

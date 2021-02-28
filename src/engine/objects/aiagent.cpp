@@ -182,7 +182,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
       {
-        switch(*axisFromAngle(m_state.rotation.Y, 45_deg))
+        switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::NegZ:
         case core::Axis::PosX: moveX = minXMove; break;
@@ -199,7 +199,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
       {
-        switch(*axisFromAngle(m_state.rotation.Y, 45_deg))
+        switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::PosZ:
         case core::Axis::PosX: moveZ = minZMove; break;
@@ -225,7 +225,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
       {
-        switch(*axisFromAngle(m_state.rotation.Y, 45_deg))
+        switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::PosX:
         case core::Axis::NegZ: moveX = minXMove; break;
@@ -242,7 +242,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
       {
-        switch(*axisFromAngle(m_state.rotation.Y, 45_deg))
+        switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::PosZ:
         case core::Axis::NegX: moveX = maxXMove; break;
@@ -408,10 +408,10 @@ void AIAgent::collide(CollisionInfo& collisionInfo)
   if(!testBoneCollision(getWorld().getObjectManager().getLara()))
     return;
 
-  if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+  if(!collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
-  const bool enableSpaz = !m_state.isDead() && collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
+  const bool enableSpaz = !m_state.isDead() && collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
   enemyPush(collisionInfo, enableSpaz, false);
 }
 

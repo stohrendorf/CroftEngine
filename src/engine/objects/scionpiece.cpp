@@ -135,7 +135,7 @@ void ScionHolder::collide(CollisionInfo& info)
   if(!testBoneCollision(getWorld().getObjectManager().getLara()))
     return;
 
-  if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+  if(!info.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
   enemyPush(info, false, true);

@@ -224,7 +224,7 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     const auto tmp = laraPosWorld - util::pitch(core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y);
     const auto a = angleFromAtan(tmp.X, tmp.Z) - 180_deg;
     getWorld().getObjectManager().getLara().hit_direction
-      = axisFromAngle(getWorld().getObjectManager().getLara().m_state.rotation.Y - a, 45_deg).value();
+      = axisFromAngle(getWorld().getObjectManager().getLara().m_state.rotation.Y - a);
     if(getWorld().getObjectManager().getLara().hit_frame == 0_frame)
     {
       getWorld().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraOof);
@@ -239,20 +239,20 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
   collisionInfo.badNegativeDistance = -384_len;
   collisionInfo.badCeilingDistance = 0_len;
   const auto facingAngle = collisionInfo.facingAngle;
-  collisionInfo.facingAngle
-    = angleFromAtan(getWorld().getObjectManager().getLara().m_state.position.position.X - collisionInfo.oldPosition.X,
-                    getWorld().getObjectManager().getLara().m_state.position.position.Z - collisionInfo.oldPosition.Z);
+  collisionInfo.facingAngle = angleFromAtan(
+    getWorld().getObjectManager().getLara().m_state.position.position.X - collisionInfo.initialPosition.X,
+    getWorld().getObjectManager().getLara().m_state.position.position.Z - collisionInfo.initialPosition.Z);
   collisionInfo.initHeightInfo(
     getWorld().getObjectManager().getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
   collisionInfo.facingAngle = facingAngle;
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::None)
   {
-    getWorld().getObjectManager().getLara().m_state.position.position.X = collisionInfo.oldPosition.X;
-    getWorld().getObjectManager().getLara().m_state.position.position.Z = collisionInfo.oldPosition.Z;
+    getWorld().getObjectManager().getLara().m_state.position.position.X = collisionInfo.initialPosition.X;
+    getWorld().getObjectManager().getLara().m_state.position.position.Z = collisionInfo.initialPosition.Z;
   }
   else
   {
-    collisionInfo.oldPosition = getWorld().getObjectManager().getLara().m_state.position.position;
+    collisionInfo.initialPosition = getWorld().getObjectManager().getLara().m_state.position.position;
     getWorld().getObjectManager().getLara().updateFloorHeight(-10_len);
   }
 }

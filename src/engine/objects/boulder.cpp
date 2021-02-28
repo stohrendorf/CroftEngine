@@ -80,7 +80,7 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
       if(!testBoneCollision(getWorld().getObjectManager().getLara()))
         return;
 
-      if(!collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+      if(!collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
         return;
 
       enemyPush(collisionInfo, false, true);
@@ -123,9 +123,9 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
     return;
   }
 
-  if(collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+  if(collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
   {
-    enemyPush(collisionInfo, collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableSpaz), true);
+    enemyPush(collisionInfo, collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableSpaz), true);
   }
   getWorld().getObjectManager().getLara().m_state.health -= 100_hp;
   const auto x = getWorld().getObjectManager().getLara().m_state.position.position.X - m_state.position.position.X;

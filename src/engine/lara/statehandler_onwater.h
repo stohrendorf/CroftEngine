@@ -29,7 +29,7 @@ protected:
        || collisionInfo.collisionType == CollisionInfo::AxisColl::Front)
     {
       getLara().m_state.fallspeed = 0_spd;
-      getLara().m_state.position.position = collisionInfo.oldPosition;
+      getLara().m_state.position.position = collisionInfo.initialPosition;
     }
     else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Left)
     {
@@ -99,7 +99,7 @@ private:
       return;
     }
 
-    const auto yRot = alignRotation(getLara().m_state.rotation.Y, 35_deg);
+    const auto yRot = snapRotation(getLara().m_state.rotation.Y, 35_deg);
     if(!yRot.has_value())
     {
       return;

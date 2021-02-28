@@ -137,7 +137,7 @@ void ThorHammerHandle::update()
 
 void ThorHammerHandle::collide(CollisionInfo& info)
 {
-  if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+  if(!info.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
   if(!isNear(getWorld().getObjectManager().getLara(), info.collisionRadius))
@@ -157,7 +157,7 @@ void ThorHammerBlock::collide(CollisionInfo& info)
   if(m_state.current_anim_state == 2_as)
     return;
 
-  if(!info.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+  if(!info.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     return;
 
   if(!isNear(getWorld().getObjectManager().getLara(), info.collisionRadius))

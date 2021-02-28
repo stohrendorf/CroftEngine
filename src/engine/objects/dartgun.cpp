@@ -23,12 +23,11 @@ void engine::objects::DartGun::update()
     return;
   }
 
-  auto axis = axisFromAngle(m_state.rotation.Y, 45_deg);
-  BOOST_ASSERT(axis.has_value());
+  auto axis = axisFromAngle(m_state.rotation.Y);
 
   core::TRVec d(0_len, 512_len, 0_len);
 
-  switch(*axis)
+  switch(axis)
   {
   case core::Axis::PosZ: d.Z += 412_len; break;
   case core::Axis::PosX: d.X += 412_len; break;

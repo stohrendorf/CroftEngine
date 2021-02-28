@@ -46,7 +46,7 @@ void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
           && isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius)
           && testBoneCollision(getWorld().getObjectManager().getLara()))
   {
-    if(collisionInfo.policyFlags.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+    if(collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
     {
       enemyPush(collisionInfo, false, true);
     }

@@ -31,12 +31,6 @@ struct BoundingBox final
       std::swap(min.Z, max.Z);
   }
 
-  [[nodiscard]] bool intersects(const BoundingBox& box) const noexcept
-  {
-    return !(min.X > box.max.X || max.X < box.min.X || min.Y > box.max.Y || max.Y < box.min.Y || min.Z > box.max.Z
-             || max.Z < box.min.Z);
-  }
-
   [[nodiscard]] bool contains(const TRVec& v) const noexcept
   {
     return v.X >= min.X && v.X <= max.X && v.Y >= min.Y && v.Y <= max.Y && v.Z >= min.Z && v.Z <= max.Z;

@@ -293,7 +293,7 @@ public:
     const auto rot = angleFromAtan(forceSourcePosition->X - m_state.position.position.X,
                                    forceSourcePosition->Z - m_state.position.position.Z)
                      - 180_deg;
-    hit_direction = axisFromAngle(m_state.rotation.Y - rot, 45_deg);
+    hit_direction = axisFromAngle(m_state.rotation.Y - rot);
     Expects(hit_direction.has_value());
     if(hit_frame == 0_frame)
     {

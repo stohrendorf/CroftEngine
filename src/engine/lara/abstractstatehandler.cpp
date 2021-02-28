@@ -286,7 +286,7 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
     return false;
   }
 
-  auto alignedRotation = alignRotation(m_lara.m_state.rotation.Y, 35_deg);
+  auto alignedRotation = snapRotation(m_lara.m_state.rotation.Y, 35_deg);
   if(!alignedRotation)
   {
     return false;
@@ -322,7 +322,7 @@ bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionIn
     return false;
   }
 
-  m_lara.m_state.position.position = collisionInfo.oldPosition;
+  m_lara.m_state.position.position = collisionInfo.initialPosition;
 
   setAnimation(AnimationId::STAY_SOLID, 185_frame);
   setGoalAnimState(LaraStateId::Stop);
@@ -348,7 +348,7 @@ bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
     return false;
   }
 
-  auto alignedRotation = alignRotation(m_lara.m_state.rotation.Y, 30_deg);
+  auto alignedRotation = snapRotation(m_lara.m_state.rotation.Y, 30_deg);
   if(!alignedRotation)
   {
     return false;
@@ -522,7 +522,7 @@ bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
     return false;
   }
 
-  auto alignedRotation = alignRotation(m_lara.m_state.rotation.Y, 35_deg);
+  auto alignedRotation = snapRotation(m_lara.m_state.rotation.Y, 35_deg);
   if(!alignedRotation)
   {
     return false;
@@ -642,7 +642,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   m_lara.m_state.fallspeed = 0_spd;
   m_lara.m_state.falling = false;
   setMovementAngle(m_lara.m_state.rotation.Y);
-  const auto axis = *axisFromAngle(getMovementAngle(), 45_deg);
+  const auto axis = axisFromAngle(getMovementAngle());
   switch(axis)
   {
   case core::Axis::PosZ:
@@ -697,7 +697,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   if(gradient >= core::MaxGrabbableGradient || collisionInfo.mid.ceilingSpace.y >= 0_len
      || collisionInfo.collisionType != CollisionInfo::AxisColl::Front || tooSteepToGrab)
   {
-    m_lara.m_state.position.position = collisionInfo.oldPosition;
+    m_lara.m_state.position.position = collisionInfo.initialPosition;
     if(getCurrentAnimState() != LaraStateId::ShimmyLeft && getCurrentAnimState() != LaraStateId::ShimmyRight)
     {
       return;

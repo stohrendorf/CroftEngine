@@ -22,8 +22,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
                                         {-10_deg, -30_deg, -10_deg},
                                         {+10_deg, +30_deg, +10_deg}};
 
-  auto axis = axisFromAngle(getWorld().getObjectManager().getLara().m_state.rotation.Y, 45_deg);
-  Expects(axis.has_value());
+  auto axis = axisFromAngle(getWorld().getObjectManager().getLara().m_state.rotation.Y);
 
   if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
@@ -33,7 +32,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
       return;
     }
 
-    const core::Angle y = alignRotation(*axis);
+    const core::Angle y = snapRotation(axis);
     m_state.rotation.Y = y;
 
     if(!limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
@@ -45,7 +44,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
     core::Length core::TRVec::*vp;
     core::Length d;
-    switch(*axis)
+    switch(axis)
     {
     case core::Axis::PosZ:
       d = core::SectorSize - core::DefaultCollisionRadius;
@@ -88,7 +87,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
   if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
   {
-    if(!canPushBlock(core::SectorSize, *axis))
+    if(!canPushBlock(core::SectorSize, axis))
     {
       return;
     }
@@ -98,7 +97,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
   }
   else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
   {
-    if(!canPullBlock(core::SectorSize, *axis))
+    if(!canPullBlock(core::SectorSize, axis))
     {
       return;
     }
@@ -217,10 +216,10 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
   auto pos = m_state.position.position;
   switch(axis)
   {
-  case core::Axis::PosZ: pos.Z -= core::SectorSize; break;
-  case core::Axis::PosX: pos.X -= core::SectorSize; break;
-  case core::Axis::NegZ: pos.Z += core::SectorSize; break;
-  case core::Axis::NegX: pos.X += core::SectorSize; break;
+  case core::Axis::Deg0: pos.Z -= core::SectorSize; break;
+  case core::Axis::Right90: pos.X -= core::SectorSize; break;
+  case core::Axis::Deg180: pos.Z += core::SectorSize; break;
+  case core::Axis::Left90: pos.X += core::SectorSize; break;
   default: break;
   }
 
@@ -274,21 +273,21 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
   laraPos = getWorld().getObjectManager().getLara().m_state.position.position;
   switch(axis)
   {
-  case core::Axis::PosZ:
+  case core::Axis::Deg0:
     laraPos.Z -= core::SectorSize;
-    tmp.facingAxis = core::Axis::NegZ;
+    tmp.facingAxis = core::Axis::Deg180;
     break;
-  case core::Axis::PosX:
+  case core::Axis::Right90:
     laraPos.X -= core::SectorSize;
-    tmp.facingAxis = core::Axis::NegX;
+    tmp.facingAxis = core::Axis::Left90;
     break;
-  case core::Axis::NegZ:
+  case core::Axis::Deg180:
     laraPos.Z += core::SectorSize;
-    tmp.facingAxis = core::Axis::PosZ;
+    tmp.facingAxis = core::Axis::Deg0;
     break;
-  case core::Axis::NegX:
+  case core::Axis::Left90:
     laraPos.X += core::SectorSize;
-    tmp.facingAxis = core::Axis::PosX;
+    tmp.facingAxis = core::Axis::Right90;
     break;
   default: break;
   }

@@ -23,7 +23,7 @@ public:
     getLara().m_state.fallspeed = 0_spd;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.policyFlags |= CollisionInfo::PolicyFlags::SlopesAreWalls;
+    collisionInfo.policies |= CollisionInfo::PolicyFlags::SlopesAreWalls;
     collisionInfo.badPositiveDistance = core::HeightLimit;
     collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
     collisionInfo.badCeilingDistance = 0_len;

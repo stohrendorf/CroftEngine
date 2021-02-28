@@ -43,9 +43,9 @@ void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>
 void LaraObject::handleLaraStateOnLand()
 {
   CollisionInfo collisionInfo;
-  collisionInfo.oldPosition = m_state.position.position;
+  collisionInfo.initialPosition = m_state.position.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadius;
-  collisionInfo.policyFlags = CollisionInfo::SpazPushPolicy;
+  collisionInfo.policies = CollisionInfo::SpazPushPolicy;
 
   lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
@@ -130,9 +130,9 @@ void LaraObject::handleLaraStateOnLand()
 void LaraObject::handleLaraStateDiving()
 {
   CollisionInfo collisionInfo;
-  collisionInfo.oldPosition = m_state.position.position;
+  collisionInfo.initialPosition = m_state.position.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadiusUnderwater;
-  collisionInfo.policyFlags.reset_all();
+  collisionInfo.policies.reset_all();
   collisionInfo.badCeilingDistance = core::LaraDiveHeight;
   collisionInfo.badPositiveDistance = core::HeightLimit;
   collisionInfo.badNegativeDistance = -core::LaraDiveHeight;
@@ -184,9 +184,9 @@ void LaraObject::handleLaraStateDiving()
 void LaraObject::handleLaraStateSwimming()
 {
   CollisionInfo collisionInfo;
-  collisionInfo.oldPosition = m_state.position.position;
+  collisionInfo.initialPosition = m_state.position.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadius;
-  collisionInfo.policyFlags.reset_all();
+  collisionInfo.policies.reset_all();
   collisionInfo.badCeilingDistance = core::DefaultCollisionRadius;
   collisionInfo.badPositiveDistance = core::HeightLimit;
   collisionInfo.badNegativeDistance = -core::DefaultCollisionRadius;
@@ -586,8 +586,8 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
   m_state.position.position.Z += std::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
 
   m_underwaterCurrentStrength = 0_len;
-  collisionInfo.facingAngle = angleFromAtan(m_state.position.position.X - collisionInfo.oldPosition.X,
-                                            m_state.position.position.Z - collisionInfo.oldPosition.Z);
+  collisionInfo.facingAngle = angleFromAtan(m_state.position.position.X - collisionInfo.initialPosition.X,
+                                            m_state.position.position.Z - collisionInfo.initialPosition.Z);
 
   collisionInfo.initHeightInfo(m_state.position.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
                                getWorld(),
@@ -614,7 +614,7 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     m_state.rotation.X += 2_deg;
   }
   applyShift(collisionInfo);
-  collisionInfo.oldPosition = m_state.position.position;
+  collisionInfo.initialPosition = m_state.position.position;
 }
 
 void LaraObject::updateLarasWeaponsStatus()

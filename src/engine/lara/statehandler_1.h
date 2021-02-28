@@ -73,7 +73,7 @@ public:
     collisionInfo.badPositiveDistance = core::HeightLimit;
     collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
     collisionInfo.badCeilingDistance = 0_len;
-    collisionInfo.policyFlags.set(CollisionInfo::PolicyFlags::SlopesAreWalls);
+    collisionInfo.policies.set(CollisionInfo::PolicyFlags::SlopesAreWalls);
     collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
 
     if(stopIfCeilingBlocked(collisionInfo))
