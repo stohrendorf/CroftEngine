@@ -33,7 +33,14 @@ public:
 
   void accept(Visitor& visitor)
   {
-    for(auto& node : m_nodes)
+    auto ordered = m_nodes;
+    std::sort(ordered.begin(),
+              ordered.end(),
+              [](const gsl::not_null<std::shared_ptr<Node>>& l, const gsl::not_null<std::shared_ptr<Node>>& r) {
+                return l->getRenderOrder() < r->getRenderOrder();
+              });
+
+    for(auto& node : ordered)
       visitor.visit(*node);
   }
 

@@ -58,7 +58,7 @@ public:
     std::vector<std::string> defines;
     if(skeletal)
       defines.emplace_back("SKELETAL");
-    return get("depth_only.vert", "empty.frag", defines);
+    return get("depth_only.vert", "depth_only.frag", defines);
   }
 
   auto getPortal()

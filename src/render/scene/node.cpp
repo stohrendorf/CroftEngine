@@ -47,4 +47,16 @@ void Node::transformChanged()
     child->transformChanged();
   }
 }
+
+void Node::accept(Visitor& visitor)
+{
+  auto ordered = m_children;
+  std::sort(ordered.begin(),
+            ordered.end(),
+            [](const gsl::not_null<std::shared_ptr<Node>>& l, const gsl::not_null<std::shared_ptr<Node>>& r) {
+              return l->getRenderOrder() < r->getRenderOrder();
+            });
+  for(const auto& node : ordered)
+    visitor.visit(*node);
+}
 } // namespace render::scene

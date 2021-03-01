@@ -291,7 +291,8 @@ struct Room
 
   static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN2 = 0x0040; ///< @FIXME: Find what it means!!! Always set by Dxtre3d.
   static constexpr uint16_t TR_ROOM_FLAG_NO_LENSFLARE = 0x0080; // In TR4-5. Was quicksand in TR3.
-  static constexpr uint16_t TR_ROOM_FLAG_MIST = 0x0100;         ///< @FIXME: Unknown meaning in TR1!!!
+  static constexpr uint16_t TR_ROOM_FLAG_MIST = 0x0100;
+  static constexpr uint16_t TR1_ROOM_FLAG_SKYBOX = 0x0100;
   static constexpr uint16_t TR_ROOM_FLAG_CAUSTICS = 0x0200;
 
   static constexpr uint16_t TR_ROOM_FLAG_UNKNOWN3 = 0x0400;
@@ -463,6 +464,11 @@ struct Room
   [[nodiscard]] static std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos);
 
   void resetScenery();
+
+  bool isSkybox() const noexcept
+  {
+    return (flags & TR1_ROOM_FLAG_SKYBOX) != 0;
+  }
 
   void serialize(const serialization::Serializer<engine::World>& ser);
 };

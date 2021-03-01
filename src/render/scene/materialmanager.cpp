@@ -51,6 +51,7 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly(bool skeletal)
   m_depthOnly[skeletal]->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   if(skeletal)
     m_depthOnly[skeletal]->getBuffer("BoneTransform")->bindBoneTransformBuffer();
+  m_depthOnly[skeletal]->getUniform("u_diffuseTextures")->set(m_geometryTextures);
 
   return m_depthOnly[skeletal];
 }
@@ -198,6 +199,10 @@ void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl:
           c->getUniform("u_diffuseTextures")->set(m_geometryTextures);
   if(m_screenSpriteTextured != nullptr)
     m_screenSpriteTextured->getUniform("u_input")->set(m_geometryTextures);
+
+  for(const auto& m : m_depthOnly)
+    if(m != nullptr)
+      m->getUniform("u_diffuseTextures")->set(m_geometryTextures);
 }
 
 void MaterialManager::setBilinearFiltering(bool enabled)
