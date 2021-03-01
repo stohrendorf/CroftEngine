@@ -134,4 +134,9 @@ void Window::setWindowed()
   Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
   m_isFullscreen = false;
 }
+
+Window::~Window()
+{
+  glfwDestroyWindow(m_window);
+}
 } // namespace gl

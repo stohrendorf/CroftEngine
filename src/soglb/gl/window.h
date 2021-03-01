@@ -10,6 +10,7 @@ class Window final
 {
 public:
   explicit Window(bool fullscreen = false, const glm::ivec2& resolution = {1280, 800});
+  ~Window();
 
   [[nodiscard]] bool isVsync() const;
 
