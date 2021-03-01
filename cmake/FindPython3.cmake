@@ -58,6 +58,8 @@ if( NOT Python3_LIBRARY )
                 python${Python3_SHORT_VERSION} python3 python
         )
     else()
+        _python3_get_config_var( LIBS LIBS )
+        set( Python3_LIBS "${Python3_LIBS}" CACHE STRING "Additional Python libraries" )
         _python3_get_config_var( LDLIBRARY LDLIBRARY )
 
         _python3_get_config_var( LIBDIR LIBDIR )
@@ -87,6 +89,11 @@ set_property(
         TARGET Python3::Python
         PROPERTY IMPORTED_LOCATION ${Python3_LIBRARY}
 )
+set_property(
+        TARGET Python3::Python
+        PROPERTY INTERFACE_LINK_LIBRARIES ${Python3_LIBS}
+)
+
 target_include_directories(
         Python3::Python
         INTERFACE ${Python3_INCLUDE_DIR}

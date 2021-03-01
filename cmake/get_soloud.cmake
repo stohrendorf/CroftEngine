@@ -20,6 +20,10 @@ add_library(
 )
 target_include_directories( soloud PUBLIC "${EXTERNAL_SRC_ROOT}/soloud20200207/include" )
 
+if( UNIX )
+    target_link_libraries( soloud PUBLIC dl )
+endif()
+
 function( add_soloud_backend name definition )
     file(
             GLOB_RECURSE _SOLOUD_BACKEND_SRCS
