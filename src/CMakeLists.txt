@@ -68,6 +68,7 @@ wrap_enum(
 
 set( EDISONENGINE_SRCS
         edisonengine.cpp
+        gslfailhandler.cpp
 
         engine/lara/abstractstatehandler.h
         engine/lara/abstractstatehandler.cpp
@@ -469,6 +470,7 @@ target_include_directories( edisonengine PRIVATE . )
 
 add_subdirectory( soglb )
 add_subdirectory( qs )
+add_subdirectory( core )
 
 target_link_libraries(
         edisonengine
