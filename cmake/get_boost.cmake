@@ -8,4 +8,8 @@ if( MSVC )
 endif()
 
 find_package( Boost COMPONENTS system log locale REQUIRED )
-add_definitions( -DBOOST_ALL_NO_LIB -DBOOST_LOG_DYN_LINK=0 )
+target_compile_definitions(
+        Boost::log
+        INTERFACE
+        -DBOOST_ALL_NO_LIB -DBOOST_LOG_DYN_LINK=0
+)

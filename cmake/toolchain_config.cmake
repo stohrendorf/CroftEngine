@@ -1,6 +1,8 @@
 set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
+enable_testing()
+
 if( CMAKE_BUILD_TYPE STREQUAL "Release" )
     include( CheckIPOSupported )
     check_ipo_supported()
