@@ -56,5 +56,15 @@ set_property(
 )
 
 target_link_libraries( soglb PRIVATE CImg::CImg )
-target_link_libraries( soglb PUBLIC GLEW::GLEW glfw gsl-lite::gsl-lite Freetype::Freetype Boost::log utf8cpp::utf8cpp )
+target_link_libraries(
+        soglb
+        PUBLIC
+        GLEW::GLEW
+        glfw
+        gsl-lite::gsl-lite
+        Freetype::Freetype
+        Boost::log
+        Boost::disable_autolinking
+        utf8cpp::utf8cpp
+)
 target_include_directories( soglb PUBLIC . )

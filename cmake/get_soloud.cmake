@@ -6,6 +6,8 @@ include( ./dl_unpack )
 
 dl_unpack( http://sol.gfxile.net/soloud/soloud_20200207_lite.zip soloud_20200207_lite.zip soloud20200207 )
 
+find_package( Threads REQUIRED )
+
 file(
         GLOB_RECURSE _SOLOUD_CORE_SRCS
         "${EXTERNAL_SRC_ROOT}/soloud20200207/src/core/*.c"
@@ -19,10 +21,7 @@ add_library(
         "${EXTERNAL_SRC_ROOT}/soloud20200207/src/filter/soloud_biquadresonantfilter.cpp"
 )
 target_include_directories( soloud PUBLIC "${EXTERNAL_SRC_ROOT}/soloud20200207/include" )
-
-if( UNIX )
-    target_link_libraries( soloud PUBLIC dl )
-endif()
+target_link_directories( soloud PUBLIC Threads::Threads ${CMAKE_DL_LIBS} )
 
 function( add_soloud_backend name definition )
     file(
@@ -56,7 +55,7 @@ if( WIN32 )
     add_soloud_backend( wasapi WASAPI )
     add_soloud_backend( winmm WINMM )
     add_soloud_backend( xaudio2 XAUDIO2 )
-elseif( UNIX )
+elseif( LINUX OR UNIX )
     add_soloud_backend( alsa ALSA )
     add_soloud_backend( oss OSS )
 

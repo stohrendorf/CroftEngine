@@ -1,3 +1,5 @@
+find_package( Threads REQUIRED )
+
 include( wrap_enum )
 
 wrap_enum(
@@ -478,6 +480,8 @@ target_link_libraries(
         Boost::system
         Boost::locale
         Boost::log
+        Boost::disable_autolinking
+        Boost::headers
         soloud
         SndFile::sndfile
         ryml
@@ -491,22 +495,15 @@ target_link_libraries(
         pybind11::pybind11
         pybind11::embed
         Python3::Python
+        Threads::Threads
 )
 
-if( LINUX OR UNIX )
+if(( LINUX OR UNIX ) AND CMAKE_COMPILER_IS_GNUCC )
     target_link_libraries(
             edisonengine
             PRIVATE
-            pthread
+            stdc++fs
     )
-
-    if( CMAKE_COMPILER_IS_GNUCC )
-        target_link_libraries(
-                edisonengine
-                PRIVATE
-                stdc++fs
-        )
-    endif()
 endif()
 
 macro( copy_runtime_dep_file SRCDIR DSTDIR FILENAME )
