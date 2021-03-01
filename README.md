@@ -1,7 +1,7 @@
 # EdisonEngine
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine?ref=badge_shield)
 
-An open-source Tomb Raider 1-5 engine remake.
+An open-source Tomb Raider 1 engine remake.
 
 ## Licensing
 
