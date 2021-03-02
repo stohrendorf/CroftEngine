@@ -117,35 +117,9 @@ struct TypeTraits<float>
 };
 
 #if GLM_VERSION < 98
-template<>
-struct TypeTraits<glm::vec1>
-{
-  static constexpr api::VertexAttribType VertexAttribType = api::VertexAttribType::Float;
-  static constexpr api::PixelType PixelType = api::PixelType::Float;
-  static constexpr api::core::SizeType ElementCount = 1;
-};
-template<>
-struct TypeTraits<glm::vec2>
-{
-  static constexpr api::VertexAttribType VertexAttribType = api::VertexAttribType::Float;
-  static constexpr api::PixelType PixelType = api::PixelType::Float;
-  static constexpr api::core::SizeType ElementCount = 2;
-};
-template<>
-struct TypeTraits<glm::vec3>
-{
-  static constexpr api::VertexAttribType VertexAttribType = api::VertexAttribType::Float;
-  static constexpr api::PixelType PixelType = api::PixelType::Float;
-  static constexpr api::core::SizeType ElementCount = 3;
-};
-template<>
-struct TypeTraits<glm::vec4>
-{
-  static constexpr api::VertexAttribType VertexAttribType = api::VertexAttribType::Float;
-  static constexpr api::PixelType PixelType = api::PixelType::Float;
-  static constexpr api::core::SizeType ElementCount = 4;
-};
-#else
+#  error "Your GLM version is too old, upgrade to 0.9.8 or higher"
+#endif
+
 template<int N>
 struct TypeTraits<glm::vec<N, float, glm::defaultp>>
 {
@@ -153,7 +127,6 @@ struct TypeTraits<glm::vec<N, float, glm::defaultp>>
   static constexpr api::PixelType PixelType = api::PixelType::Float;
   static constexpr api::core::SizeType ElementCount = N;
 };
-#endif
 
 template<>
 struct TypeTraits<api::core::Half>
