@@ -1,13 +1,15 @@
 #include "savegamelistmenustate.h"
 
+#include "closepassportmenustate.h"
+#include "deflateringmenustate.h"
+#include "donemenustate.h"
 #include "engine/engine.h"
 #include "engine/i18nprovider.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "menudisplay.h"
-#include "ui/label.h"
-
-#include <boost/format.hpp>
+#include "menuring.h"
+#include "requestloadmenustate.h"
 
 namespace menu
 {
@@ -45,11 +47,13 @@ std::unique_ptr<MenuState> SavegameListMenuState::onSelected(size_t idx, engine:
   {
     // TODO confirm overwrite if necessary
     world.save(idx);
+    return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
+                                          create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed)));
   }
   else if(m_hasSavegame.at(idx))
   {
-    display.requestLoad = idx;
-    display.result = MenuResult::RequestLoad;
+    return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
+                                          create<DeflateRingMenuState>(create<RequestLoadMenuState>(idx)));
   }
   return std::move(m_previous);
 }

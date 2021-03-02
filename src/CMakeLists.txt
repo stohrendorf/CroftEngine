@@ -452,6 +452,7 @@ set( EDISONENGINE_SRCS
         menu/listdisplaymenustate.cpp
         menu/passportmenustate.cpp
         menu/rendersettingsmenustate.cpp
+        menu/requestloadmenustate.cpp
         menu/resetitemtransformmenustate.cpp
         menu/rotateleftrightmenustate.cpp
         menu/savegamelistmenustate.cpp

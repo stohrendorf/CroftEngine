@@ -7,13 +7,10 @@
 #include "engine/i18nprovider.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
-#include "finishitemanimationmenustate.h"
 #include "idleringmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
-#include "resetitemtransformmenustate.h"
 #include "savegamelistmenustate.h"
-#include "setitemtypemenustate.h"
 #include "util.h"
 
 namespace menu
@@ -207,11 +204,11 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::World&
     if(!m_allowExit && display.mode != InventoryMode::TitleMode)
       return nullptr;
 
-    return create<ClosePassportMenuState>(passport);
+    return create<ClosePassportMenuState>(passport, create<IdleRingMenuState>(false));
   }
   else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
-    return create<ClosePassportMenuState>(passport);
+    return create<ClosePassportMenuState>(passport, create<IdleRingMenuState>(false));
   }
 
   return nullptr;

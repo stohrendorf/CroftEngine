@@ -1,8 +1,9 @@
 #include "closepassportmenustate.h"
 
+#include "deflateringmenustate.h"
 #include "engine/items_tr1.h"
 #include "finishitemanimationmenustate.h"
-#include "idleringmenustate.h"
+#include "menudisplay.h"
 #include "menuobject.h"
 #include "passportmenustate.h"
 #include "resetitemtransformmenustate.h"
@@ -11,8 +12,10 @@
 namespace menu
 {
 ClosePassportMenuState::ClosePassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                               MenuObject& passport)
+                                               MenuObject& passport,
+                                               std::unique_ptr<MenuState>&& next)
     : MenuState{ringTransform}
+    , m_next{std::move(next)}
 {
   Expects(passport.type == engine::TR1ItemId::PassportOpening);
 
@@ -34,7 +37,7 @@ std::unique_ptr<MenuState>
   ClosePassportMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& /*display*/)
 {
   return create<FinishItemAnimationMenuState>(create<SetItemTypeMenuState>(
-    engine::TR1ItemId::PassportClosed, create<ResetItemTransformMenuState>(create<IdleRingMenuState>(false))));
+    engine::TR1ItemId::PassportClosed, create<ResetItemTransformMenuState>(std::move(m_next))));
 }
 
 void ClosePassportMenuState::handleObject(ui::Ui& /*ui*/,
