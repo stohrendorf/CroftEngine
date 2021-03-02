@@ -42,8 +42,10 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
 std::unique_ptr<MenuState> SavegameListMenuState::onSelected(size_t idx, engine::World& world, MenuDisplay& display)
 {
   if(!m_loading)
+  {
     // TODO confirm overwrite if necessary
     world.save(idx);
+  }
   else if(m_hasSavegame.at(idx))
   {
     display.requestLoad = idx;

@@ -236,10 +236,12 @@ void Room::createSceneNode(const size_t roomId,
   resMesh->getRenderState().setDepthTest(!isSkybox());
   node->setRenderOrder(isSkybox() ? 0 : 1);
 
-  static gl::ShaderStorageBuffer<engine::Lighting::Light> emptyBuffer{"lights-buffer-empty"};
-  node->addBufferBinder("b_lights", [](const render::scene::Node&, gl::ShaderStorageBlock& shaderStorageBlock) {
-    shaderStorageBlock.bind(emptyBuffer);
-  });
+  node->addBufferBinder(
+    "b_lights",
+    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::Lighting::Light>>("lights-buffer-empty")](
+      const render::scene::Node&, gl::ShaderStorageBlock& shaderStorageBlock) {
+      shaderStorageBlock.bind(*emptyBuffer);
+    });
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {

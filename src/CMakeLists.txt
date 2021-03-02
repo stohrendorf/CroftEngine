@@ -442,6 +442,7 @@ set( EDISONENGINE_SRCS
         menu/menudisplay.cpp
         menu/menuobject.cpp
         menu/applyitemtransformmenustate.cpp
+        menu/closepassportmenustate.cpp
         menu/deflateringmenustate.cpp
         menu/deselectingmenustate.cpp
         menu/donemenustate.cpp

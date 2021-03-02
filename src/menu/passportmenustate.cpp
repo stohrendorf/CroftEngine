@@ -1,5 +1,6 @@
 #include "passportmenustate.h"
 
+#include "closepassportmenustate.h"
 #include "donemenustate.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
@@ -206,11 +207,11 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::World&
     if(!m_allowExit && display.mode != InventoryMode::TitleMode)
       return nullptr;
 
-    return close(display, page, passport);
+    return create<ClosePassportMenuState>(passport);
   }
   else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
-    return close(display, page, passport);
+    return create<ClosePassportMenuState>(passport);
   }
 
   return nullptr;
@@ -226,24 +227,5 @@ PassportMenuState::PassportMenuState(const std::shared_ptr<MenuRingTransform>& r
                   : mode == InventoryMode::SaveMode ? std::optional<int>{1}
                                                     : std::nullopt}
 {
-}
-
-std::unique_ptr<MenuState> PassportMenuState::close(MenuDisplay& /*display*/, int page, MenuObject& passport)
-{
-  m_passportText.reset();
-
-  if(page == ExitGamePage)
-  {
-    passport.goalFrame = passport.lastMeshAnimFrame - 1_frame;
-    passport.animDirection = 1_frame;
-  }
-  else
-  {
-    passport.goalFrame = 0_frame;
-    passport.animDirection = -1_frame;
-  }
-
-  return create<FinishItemAnimationMenuState>(create<SetItemTypeMenuState>(
-    engine::TR1ItemId::PassportClosed, create<ResetItemTransformMenuState>(create<IdleRingMenuState>(false))));
 }
 } // namespace menu
