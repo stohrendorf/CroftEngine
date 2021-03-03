@@ -430,7 +430,7 @@ void Presenter::swapBuffers()
 
 void Presenter::clear()
 {
-  m_renderer->resetScene();
+  m_renderer->resetRootNode();
   m_renderer->getCamera()->setFieldOfView(DefaultFov);
 }
 

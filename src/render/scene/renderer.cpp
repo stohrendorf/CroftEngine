@@ -1,14 +1,14 @@
 #include "renderer.h"
 
+#include "camera.h"
 #include "rendercontext.h"
-#include "scene.h"
 
 #include <utility>
 
 namespace render::scene
 {
 Renderer::Renderer(gsl::not_null<std::shared_ptr<Camera>> camera)
-    : m_scene{std::make_shared<Scene>()}
+    : m_rootNode{std::make_shared<Node>("<rootnode>")}
     , m_camera{std::move(camera)}
 {
 }
@@ -19,7 +19,7 @@ void Renderer::render()
 {
   RenderContext context{RenderMode::Full, std::nullopt};
   Visitor visitor{context};
-  m_scene->accept(visitor);
+  m_rootNode->accept(visitor);
 
   // Update FPS.
   ++m_frameCount;
@@ -69,8 +69,8 @@ void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& fl
   GL_ASSERT(gl::api::clear(bits));
 }
 
-void Renderer::resetScene()
+void Renderer::resetRootNode()
 {
-  m_scene = std::make_shared<Scene>();
+  m_rootNode = std::make_shared<Node>("<rootnode>");
 }
 } // namespace render::scene

@@ -5,7 +5,6 @@
 #include "mesh.h"
 #include "names.h"
 #include "node.h"
-#include "scene.h"
 
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>

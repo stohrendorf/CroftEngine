@@ -219,14 +219,11 @@ public:
     return false;
   }
 
-  void setRenderOrder(size_t order)
+  void clear()
   {
-    m_renderOrder = order;
-  }
-
-  auto getRenderOrder() const noexcept
-  {
-    return m_renderOrder;
+    auto tmp = m_children;
+    for(const auto& node : tmp)
+      setParent(node, nullptr);
   }
 
 private:
@@ -237,7 +234,6 @@ private:
   std::weak_ptr<Node> m_parent{};
   bool m_visible = true;
   std::shared_ptr<Renderable> m_renderable = nullptr;
-  size_t m_renderOrder{0};
   glm::mat4 m_localMatrix{1.0f};
 
   mutable bool m_dirty = false;

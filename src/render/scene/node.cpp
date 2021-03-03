@@ -1,7 +1,10 @@
 #include "node.h"
 
 #include "camera.h"
-#include "scene.h"
+#include "renderable.h"
+#include "rendercontext.h"
+
+#include <gl/debuggroup.h>
 
 namespace render::scene
 {
@@ -35,13 +38,29 @@ void Node::transformChanged()
 
 void Node::accept(Visitor& visitor)
 {
-  auto ordered = m_children;
-  std::sort(ordered.begin(),
-            ordered.end(),
-            [](const gsl::not_null<std::shared_ptr<Node>>& l, const gsl::not_null<std::shared_ptr<Node>>& r) {
-              return l->getRenderOrder() < r->getRenderOrder();
-            });
-  for(const auto& node : ordered)
+  for(const auto& node : m_children)
+  {
+    if(!node->isVisible())
+      continue;
+
+    if(auto r = node->getRenderable())
+    {
+      visitor.getContext().setCurrentNode(node.get().get());
+      gl::DebugGroup debugGroup{node->getName()};
+      [[maybe_unused]] bool rendered = r->render(visitor.getContext());
+      if constexpr(Visitor::FlushAfterEachRender)
+      {
+        if(rendered)
+        {
+          GL_ASSERT(gl::api::finish());
+        }
+      }
+    }
+  }
+
+  for(const auto& node : m_children)
+  {
     visitor.visit(*node);
+  }
 }
 } // namespace render::scene

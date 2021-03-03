@@ -1,5 +1,6 @@
 #include "visitor.h"
 
+#include "camera.h"
 #include "renderable.h"
 #include "rendercontext.h"
 
@@ -19,17 +20,6 @@ void Visitor::visit(Node& node)
 
   gl::DebugGroup debugGroup{node.getName()};
   m_context.setCurrentNode(&node);
-  if(auto r = node.getRenderable())
-  {
-    [[maybe_unused]] bool rendered = r->render(m_context);
-    if constexpr(FlushAfterEachRender)
-    {
-      if(rendered)
-      {
-        GL_ASSERT(gl::api::finish());
-      }
-    }
-  }
   node.accept(*this);
   m_context.setCurrentNode(nullptr);
 }

@@ -372,7 +372,6 @@ set( EDISONENGINE_SRCS
         render/scene/renderer.h
         render/scene/renderer.cpp
         render/scene/rendermode.h
-        render/scene/scene.h
         render/scene/screenoverlay.h
         render/scene/screenoverlay.cpp
         render/scene/shadermanager.h

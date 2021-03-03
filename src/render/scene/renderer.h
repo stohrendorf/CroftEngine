@@ -7,8 +7,8 @@
 namespace render::scene
 {
 class Camera;
+class Node;
 class RenderContext;
-class Scene;
 
 class Renderer final
 {
@@ -48,9 +48,9 @@ public:
     clear(flags, gl::SRGBA8{red, green, blue, alpha}, clearDepth);
   }
 
-  [[nodiscard]] const auto& getScene() const
+  [[nodiscard]] const auto& getRootNode() const
   {
-    return m_scene;
+    return m_rootNode;
   }
 
   [[nodiscard]] const auto& getCamera() const
@@ -65,7 +65,7 @@ public:
     state.apply(true);
   }
 
-  void resetScene();
+  void resetRootNode();
 
 private:
   const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
@@ -76,7 +76,7 @@ private:
   gl::SRGBA8 m_clearColor; // The clear color value last used for clearing the color buffer.
   float m_clearDepth = 1;  // The clear depth value last used for clearing the depth buffer.
 
-  std::shared_ptr<Scene> m_scene;
+  std::shared_ptr<Node> m_rootNode;
   gsl::not_null<std::shared_ptr<Camera>> m_camera;
 };
 } // namespace render::scene

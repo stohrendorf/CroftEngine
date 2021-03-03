@@ -2,7 +2,6 @@
 
 #include "camera.h"
 #include "node.h"
-#include "scene.h"
 
 namespace render::scene
 {

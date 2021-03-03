@@ -19,7 +19,6 @@
 #include "render/scene/camera.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/renderer.h"
-#include "render/scene/scene.h"
 #include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
 #include "render/textureatlas.h"
@@ -325,7 +324,7 @@ void World::loadSceneData()
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
     m_level->m_rooms[i].createSceneNode(i, *m_level, *m_textureAnimator, *getPresenter().getMaterialManager());
-    getPresenter().getRenderer().getScene()->addNode(m_level->m_rooms[i].node);
+    setParent(m_level->m_rooms[i].node, getPresenter().getRenderer().getRootNode());
   }
 
   m_objectManager.createObjects(*this, m_level->m_items);
@@ -973,11 +972,11 @@ void World::serialize(const serialization::Serializer<World>& ser)
 {
   if(ser.loading)
   {
-    getPresenter().getRenderer().getScene()->clear();
+    getPresenter().getRenderer().getRootNode()->clear();
     for(auto& room : m_level->m_rooms)
     {
       room.resetScenery();
-      getPresenter().getRenderer().getScene()->addNode(room.node);
+      setParent(room.node, getPresenter().getRenderer().getRootNode());
     }
 
     auto currentRoomOrder = m_roomOrder;
