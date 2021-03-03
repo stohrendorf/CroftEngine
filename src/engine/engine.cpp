@@ -333,6 +333,10 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
     {
       makeScreenshot();
     }
+    else if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
+    {
+      return {RunResult::RequestLoad, std::nullopt};
+    }
   }
 }
 
