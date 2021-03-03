@@ -21,14 +21,7 @@ public:
 
   void addNode(const gsl::not_null<std::shared_ptr<Node>>& node)
   {
-    if(node->m_scene == this)
-    {
-      // The node is already a member of this scene.
-      return;
-    }
-
     m_nodes.emplace_back(node);
-    node->m_scene = this;
   }
 
   void accept(Visitor& visitor)

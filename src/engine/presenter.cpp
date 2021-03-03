@@ -12,7 +12,6 @@
 #include "render/scene/node.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/renderer.h"
-#include "render/scene/rendervisitor.h"
 #include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
 #include "ui/label.h"
@@ -85,7 +84,7 @@ void Presenter::renderWorld(ui::Ui& ui,
 
       render::scene::RenderContext context{render::scene::RenderMode::CSMDepthOnly,
                                            m_csm->getActiveMatrix(glm::mat4{1.0f})};
-      render::scene::RenderVisitor visitor{context};
+      render::scene::Visitor visitor{context};
 
       for(const auto& room : rooms)
       {

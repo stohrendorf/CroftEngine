@@ -9,7 +9,6 @@
 namespace render::scene
 {
 class Renderable;
-class Scene;
 
 struct Transform
 {
@@ -18,8 +17,6 @@ struct Transform
 
 class Node
 {
-  friend class Scene;
-
 public:
   Node(const Node&) = delete;
   Node(Node&&) = delete;
@@ -45,8 +42,6 @@ public:
   {
     return m_parent;
   }
-
-  Scene* getScene() const;
 
   void setVisible(bool visible)
   {
@@ -237,7 +232,6 @@ public:
 private:
   void transformChanged();
 
-  Scene* m_scene = nullptr;
   std::string m_name;
   List m_children;
   std::weak_ptr<Node> m_parent{};

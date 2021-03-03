@@ -24,7 +24,6 @@
 #include "render/scene/csm.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/renderer.h"
-#include "render/scene/rendervisitor.h"
 #include "render/scene/scene.h"
 #include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"

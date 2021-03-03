@@ -1,7 +1,6 @@
 #include "renderer.h"
 
 #include "rendercontext.h"
-#include "rendervisitor.h"
 #include "scene.h"
 
 #include <utility>
@@ -19,7 +18,7 @@ Renderer::~Renderer() = default;
 void Renderer::render()
 {
   RenderContext context{RenderMode::Full, std::nullopt};
-  RenderVisitor visitor{context};
+  Visitor visitor{context};
   m_scene->accept(visitor);
 
   // Update FPS.

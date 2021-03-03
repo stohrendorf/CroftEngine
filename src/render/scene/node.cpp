@@ -23,21 +23,6 @@ Node::~Node()
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-Scene* Node::getScene() const
-{
-  if(m_scene != nullptr)
-    return m_scene;
-
-  if(const auto p = getParent().lock())
-  {
-    const auto scene = p->getScene();
-    if(scene)
-      return scene;
-  }
-  return nullptr;
-}
-
-// NOLINTNEXTLINE(misc-no-recursion)
 void Node::transformChanged()
 {
   m_dirty = true;

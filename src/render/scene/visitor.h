@@ -9,6 +9,8 @@ class Node;
 class Visitor
 {
 public:
+  static constexpr bool FlushAfterEachRender = false;
+
   explicit Visitor(RenderContext& context)
       : m_context{context}
   {
