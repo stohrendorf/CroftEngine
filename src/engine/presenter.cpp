@@ -308,7 +308,7 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
         DefaultFov, m_window->getAspectRatio(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImage{rootPath / "splash.png"}
-    , m_abibasFont{std::make_unique<gl::Font>(rootPath / "abibas.ttf")}
+    , m_trTTFFont{std::make_unique<gl::Font>(rootPath / "trfont.ttf")}
     , m_debugFont{std::make_unique<gl::Font>(rootPath / "DroidSansMono.ttf")}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow())}
     , m_shaderManager{std::make_shared<render::scene::ShaderManager>(rootPath / "shaders")}
@@ -369,11 +369,11 @@ void Presenter::drawLoadingScreen(const std::string& state)
 
   m_screenOverlay->getImage()->assign(m_splashImageScaled.pixels<gl::SRGBA8>().data(),
                                       m_window->getViewport().x * m_window->getViewport().y);
-  m_abibasFont->drawText(*m_screenOverlay->getImage(),
-                         state.c_str(),
-                         glm::ivec2{40, m_screenOverlay->getImage()->getSize().y - 100},
-                         gl::SRGBA8{255, 255, 255, 192},
-                         StatusLineFontSize);
+  m_trTTFFont->drawText(*m_screenOverlay->getImage(),
+                        state.c_str(),
+                        glm::ivec2{40, m_screenOverlay->getImage()->getSize().y - 100},
+                        gl::SRGBA8{255, 255, 255, 192},
+                        StatusLineFontSize);
 
   gl::Framebuffer::unbindAll();
 

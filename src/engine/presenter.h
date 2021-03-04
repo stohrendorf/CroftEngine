@@ -144,12 +144,6 @@ public:
     return *m_screenOverlay;
   }
 
-  [[nodiscard]] const auto& getRenderPipeline() const
-  {
-    BOOST_ASSERT(m_renderPipeline != nullptr);
-    return m_renderPipeline;
-  }
-
   void apply(const render::RenderSettings& renderSettings);
 
   void drawLoadingScreen(const std::string& state);
@@ -174,7 +168,7 @@ public:
     return m_window->getViewport();
   }
 
-  gl::CImgWrapper takeScreenshot() const;
+  [[nodiscard]] gl::CImgWrapper takeScreenshot() const;
 
 private:
   static constexpr int32_t CSMResolution = 2048;
@@ -185,7 +179,7 @@ private:
   const std::shared_ptr<render::scene::Renderer> m_renderer;
   const gl::CImgWrapper m_splashImage;
   gl::CImgWrapper m_splashImageScaled;
-  const std::unique_ptr<gl::Font> m_abibasFont;
+  const std::unique_ptr<gl::Font> m_trTTFFont;
   const std::unique_ptr<gl::Font> m_debugFont;
   core::Health m_drawnHealth = core::LaraHealth;
   core::Frame m_healthBarTimeout = -40_frame;

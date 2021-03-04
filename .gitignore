@@ -24,6 +24,7 @@
 /assets
 /screenshots
 /config.yaml
+/runtime-asset-src/*.blend?*
 
 # Thank you, Windows!
 Thumbs.db
