@@ -74,11 +74,11 @@ i18n = {
     },
     I18n.SaveGame: {
         "en": "Save Game",
-        "de": "Spiel speichern",
+        "de": "Spiel sichern",
     },
     I18n.NewGame: {
         "en": "New Game",
-        "de": "Neues Spiel",
+        "de": "Spiel starten",
     },
     I18n.ExitGame: {
         "en": "Exit Game",
@@ -86,7 +86,7 @@ i18n = {
     },
     I18n.ExitToTitle: {
         "en": "Exit to Title",
-        "de": "Zur~uck zum Titel",
+        "de": "Zur~uck zum Hauptmen~u",
     },
     I18n.EmptySlot: {
         "en": "- EMPTY SLOT %1%",
@@ -94,19 +94,19 @@ i18n = {
     },
     I18n.Items: {
         "en": "ITEMS",
-        "de": "GEGENST~ANDE",
+        "de": "Gegen~ande",
     },
     I18n.GameOver: {
         "en": "GAME OVER",
-        "de": "SPIEL VORBEI",
+        "de": "Ende des Spiels",
     },
     I18n.Option: {
         "en": "OPTION",
-        "de": "EINSTELLUNG",
+        "de": "Optionen",
     },
     I18n.Inventory: {
         "en": "INVENTORY",
-        "de": "INVENTAR",
+        "de": "Inventar",
     },
     I18n.Game: {
         "en": "Game",
@@ -114,7 +114,7 @@ i18n = {
     },
     I18n.Controls: {
         "en": "Controls",
-        "de": "Steuerung",
+        "de": "Kontrollen",
     },
     I18n.Sound: {
         "en": "Sound",
@@ -130,7 +130,7 @@ i18n = {
     },
     I18n.Compass: {
         "en": "Compass",
-        "de": "Kompass",
+        "de": "Kompa=",
     },
     I18n.Pistols: {
         "en": "Pistols",
@@ -150,15 +150,15 @@ i18n = {
     },
     I18n.Grenade: {
         "en": "Grenade",
-        "de": "Granate",
+        "de": "Granaten",
     },
     I18n.LargeMediPack: {
         "en": "Large Medi Pack",
-        "de": "Gro=es Medi Pack",
+        "de": "Gro=es Medi-Pack",
     },
     I18n.SmallMediPack: {
         "en": "Small Medi Pack",
-        "de": "Kleines Medi Pack",
+        "de": "Kleines Medi-Pack",
     },
     I18n.Loading: {
         "en": "Loading...",
@@ -194,15 +194,15 @@ i18n = {
     },
     I18n.ShotgunCells: {
         "en": "Shotgun Cells",
-        "de": "Schrotflinte Patronen",
+        "de": "Schrot-Munition",
     },
     I18n.MagnumClips: {
         "en": "Magnum Clips",
-        "de": "Magnum Ladestreifen",
+        "de": "Magnum-Munition",
     },
     I18n.UziClips: {
         "en": "Uzi Clips",
-        "de": "Uzi Ladestreifen",
+        "de": "Uzi-Munition",
     },
     I18n.CRT: {
         "en": "CRT",
