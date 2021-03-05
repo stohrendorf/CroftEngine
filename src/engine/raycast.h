@@ -12,7 +12,6 @@ namespace engine
 {
 class ObjectManager;
 
-extern std::pair<bool, core::RoomBoundPosition> raycastLineOfSight(const core::RoomBoundPosition& firstStepAxis,
-                                                                   const core::TRVec& secondStepAxis,
-                                                                   const ObjectManager& objectManager);
+extern std::pair<bool, core::RoomBoundPosition>
+  raycastLineOfSight(const core::RoomBoundPosition& start, const core::TRVec& goal, const ObjectManager& objectManager);
 } // namespace engine

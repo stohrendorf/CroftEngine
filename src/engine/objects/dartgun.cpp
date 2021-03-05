@@ -1,5 +1,6 @@
 #include "dartgun.h"
 
+#include "engine/particle.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/world.h"
 
@@ -40,6 +41,10 @@ void engine::objects::DartGun::update()
     TR1ItemId::Dart, m_state.position.room, m_state.rotation.Y, m_state.position.position - d, 0);
   dart->activate();
   dart->m_state.triggerState = TriggerState::Active;
+
+  auto particle = std::make_shared<SmokeParticle>(dart->m_state.position, getWorld(), dart->m_state.rotation);
+  setParent(particle, dart->m_state.position.room->node);
+  getWorld().getObjectManager().registerParticle(std::move(particle));
 
   playSoundEffect(TR1SoundEffect::DartgunShoot);
   ModelObject::update();

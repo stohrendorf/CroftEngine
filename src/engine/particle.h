@@ -139,17 +139,7 @@ public:
       nextFrame();
   }
 
-  bool update(World& /*world*/) override
-  {
-    --timePerSpriteFrame;
-    if(timePerSpriteFrame == 0)
-    {
-      return false;
-    }
-
-    applyTransform();
-    return true;
-  }
+  bool update(World& /*world*/) override;
 };
 
 class BubbleParticle final : public Particle
@@ -176,16 +166,7 @@ public:
   {
   }
 
-  bool update(World& /*world*/) override
-  {
-    ++timePerSpriteFrame;
-    if(timePerSpriteFrame != 1)
-      return true;
-
-    --negSpriteFrameId;
-    timePerSpriteFrame = 0;
-    return gsl::narrow<size_t>(-negSpriteFrameId) < getLength();
-  }
+  bool update(World& /*world*/) override;
 };
 
 class GunflareParticle final : public Particle
@@ -199,15 +180,7 @@ public:
     shade = core::Shade{core::Shade::type{4096}};
   }
 
-  bool update(World& /*world*/) override
-  {
-    --timePerSpriteFrame;
-    if(timePerSpriteFrame == 0)
-      return false;
-
-    angle.Z = util::rand15s(+180_deg);
-    return true;
-  }
+  bool update(World& /*world*/) override;
 };
 
 class FlameParticle final : public Particle
@@ -231,21 +204,7 @@ public:
     this->angle = angle;
   }
 
-  bool update(World& /*world*/) override
-  {
-    ++timePerSpriteFrame;
-    if(timePerSpriteFrame == 2)
-    {
-      timePerSpriteFrame = 0;
-      --negSpriteFrameId;
-      if(negSpriteFrameId <= 0 || static_cast<size_t>(negSpriteFrameId) <= getLength())
-      {
-        return false;
-      }
-    }
-
-    return true;
-  }
+  bool update(World& /*world*/) override;
 };
 
 class MeshShrapnelParticle final : public Particle
@@ -330,6 +289,18 @@ public:
   }
 
   bool update(World& world) override;
+};
+
+class SmokeParticle final : public Particle
+{
+public:
+  explicit SmokeParticle(const core::RoomBoundPosition& pos, World& world, const core::TRRotation& rotation)
+      : Particle{"smoke", TR1ItemId::Smoke, pos, world}
+  {
+    angle = rotation;
+  }
+
+  bool update(World& /*world*/) override;
 };
 
 inline gsl::not_null<std::shared_ptr<Particle>>

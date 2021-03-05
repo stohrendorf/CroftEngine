@@ -421,4 +421,64 @@ bool LavaParticle::update(World& world)
 
   return true;
 }
+
+bool SparkleParticle::update(World&)
+{
+  applyTransform();
+
+  ++timePerSpriteFrame;
+  if(timePerSpriteFrame != 1)
+    return true;
+
+  --negSpriteFrameId;
+  timePerSpriteFrame = 0;
+  return gsl::narrow<size_t>(-negSpriteFrameId) < getLength();
+}
+
+bool GunflareParticle::update(World&)
+{
+  --timePerSpriteFrame;
+  if(timePerSpriteFrame == 0)
+    return false;
+
+  angle.Z = util::rand15s(+180_deg);
+  return true;
+}
+
+bool ExplosionParticle::update(World&)
+{
+  ++timePerSpriteFrame;
+  if(timePerSpriteFrame == 2)
+  {
+    timePerSpriteFrame = 0;
+    --negSpriteFrameId;
+    if(negSpriteFrameId <= 0 || static_cast<size_t>(negSpriteFrameId) <= getLength())
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool SmokeParticle::update(World&)
+{
+  applyTransform();
+
+  ++timePerSpriteFrame;
+  if(timePerSpriteFrame < 3)
+    return true;
+
+  timePerSpriteFrame = 0;
+  nextFrame();
+  return gsl::narrow<size_t>(-negSpriteFrameId) < getLength();
+}
+
+bool RicochetParticle::update(World&)
+{
+  applyTransform();
+
+  --timePerSpriteFrame;
+  return timePerSpriteFrame != 0;
+}
 } // namespace engine

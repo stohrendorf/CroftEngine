@@ -1,6 +1,7 @@
 #include "dart.h"
 
 #include "engine/particle.h"
+#include "engine/raycast.h"
 #include "engine/world.h"
 #include "laraobject.h"
 
@@ -31,6 +32,8 @@ void Dart::update()
     getWorld().getObjectManager().registerParticle(fx);
   }
 
+  const auto oldPos = m_state.position;
+
   ModelObject::update();
 
   auto room = m_state.position.room;
@@ -47,10 +50,13 @@ void Dart::update()
 
   kill();
 
-  const auto particle = std::make_shared<RicochetParticle>(m_state.position, getWorld());
-  setParent(particle, m_state.position.room->node);
+  const auto [success, ricochetPos]
+    = raycastLineOfSight(oldPos, m_state.position.position, getWorld().getObjectManager());
+
+  auto particle = std::make_shared<RicochetParticle>(ricochetPos, getWorld());
+  setParent(particle, ricochetPos.room->node);
   particle->angle = m_state.rotation;
   particle->timePerSpriteFrame = 6;
-  getWorld().getObjectManager().registerParticle(particle);
+  getWorld().getObjectManager().registerParticle(std::move(particle));
 }
 } // namespace engine::objects
