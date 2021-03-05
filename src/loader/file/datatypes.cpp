@@ -132,14 +132,22 @@ void Room::createSceneNode(const size_t roomId,
     const auto center = getCenter(quad.vertices, vertices);
     if(const auto sector = getSectorByRelativePosition(center))
     {
-      if(sector->roomAbove != nullptr && sector->roomAbove->isWaterRoom() != isWaterRoom())
+      if(sector->roomAbove != nullptr)
       {
-        if(center.Y + position.Y == sector->ceilingHeight)
+        const bool planarWithPortal = center.Y + position.Y == sector->ceilingHeight;
+        if(planarWithPortal && sector->roomAbove->isWaterRoom() != isWaterRoom())
+          continue;
+        if(planarWithPortal && sector->roomAbove->alternateRoom.get() >= 0
+           && level.m_rooms.at(sector->roomAbove->alternateRoom.get()).isWaterRoom() != isWaterRoom())
           continue;
       }
-      if(sector->roomBelow != nullptr && sector->roomBelow->isWaterRoom() != isWaterRoom())
+      if(sector->roomBelow != nullptr)
       {
-        if(center.Y + position.Y == sector->floorHeight)
+        const bool planarWithPortal = center.Y + position.Y == sector->floorHeight;
+        if(planarWithPortal && sector->roomBelow->isWaterRoom() != isWaterRoom())
+          continue;
+        if(planarWithPortal && sector->roomBelow->alternateRoom.get() >= 0
+           && level.m_rooms.at(sector->roomBelow->alternateRoom.get()).isWaterRoom() != isWaterRoom())
           continue;
       }
     }
