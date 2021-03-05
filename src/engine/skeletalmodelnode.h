@@ -46,11 +46,11 @@ public:
 
   struct InterpolationInfo
   {
-    const loader::file::AnimFrame* firstFrame = nullptr;
-    const loader::file::AnimFrame* secondFrame = nullptr;
-    float bias = 0;
+    const gsl::not_null<const loader::file::AnimFrame*> firstFrame;
+    const gsl::not_null<const loader::file::AnimFrame*> secondFrame;
+    const float bias;
 
-    [[nodiscard]] const loader::file::AnimFrame* getNearestFrame() const
+    [[nodiscard]] const auto& getNearestFrame() const
     {
       if(bias <= 0.5f)
       {
@@ -58,21 +58,12 @@ public:
       }
       else
       {
-        BOOST_ASSERT(secondFrame != nullptr);
         return secondFrame;
       }
     }
   };
 
   InterpolationInfo getInterpolationInfo() const;
-
-  void updatePose(const InterpolationInfo& interpolationInfo)
-  {
-    if(interpolationInfo.bias == 0 || interpolationInfo.secondFrame == nullptr)
-      updatePoseKeyframe(interpolationInfo);
-    else
-      updatePoseInterpolated(interpolationInfo);
-  }
 
   struct Sphere
   {
@@ -202,8 +193,7 @@ private:
   const loader::file::Animation* m_anim = nullptr;
   core::Frame m_frame = 0_frame;
 
-  void updatePoseKeyframe(const InterpolationInfo& framePair);
-  void updatePoseInterpolated(const InterpolationInfo& framePair);
+  void updatePose(const InterpolationInfo& framePair);
 };
 
 void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<World>& ser);

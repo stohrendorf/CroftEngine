@@ -31,7 +31,7 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
 
 core::Speed SkeletalModelNode::calculateFloorSpeed(const core::Frame& frameOffset) const
 {
-  const auto scaled = m_anim->speed + m_anim->acceleration * (m_frame - m_anim->firstFrame + frameOffset);
+  const auto scaled = m_anim->speed + m_anim->acceleration * (getLocalFrame() + frameOffset);
   return scaled / (1 << 16);
 }
 
@@ -48,25 +48,22 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() c
      *       ^           <----->     ^
      *       Keyframe    Segment     Last keyframe
      */
-  InterpolationInfo result;
-
   Expects(m_anim != nullptr);
   Expects(m_anim->segmentLength > 0_frame);
 
   Expects(m_frame >= m_anim->firstFrame && m_frame <= m_anim->lastFrame);
   const auto firstKeyframeIndex = (m_frame - m_anim->firstFrame) / m_anim->segmentLength;
 
-  result.firstFrame = m_anim->frames->next(firstKeyframeIndex);
-  Expects(m_world->isValid(result.firstFrame));
+  auto firstFrame = m_anim->frames->next(firstKeyframeIndex);
+  Expects(m_world->isValid(firstFrame));
 
   if(m_frame >= m_anim->lastFrame)
   {
-    result.secondFrame = result.firstFrame;
-    return result;
+    return InterpolationInfo{firstFrame, firstFrame, 0.0f};
   }
 
-  result.secondFrame = result.firstFrame->next();
-  Expects(m_world->isValid(result.secondFrame));
+  const auto secondFrame = firstFrame->next();
+  Expects(m_world->isValid(secondFrame));
 
   auto segmentDuration = m_anim->segmentLength;
   const auto segmentFrame = (m_frame - m_anim->firstFrame) % m_anim->segmentLength;
@@ -74,15 +71,14 @@ SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() c
   if((firstKeyframeIndex + 1) * m_anim->segmentLength >= m_anim->getFrameCount())
   {
     // second keyframe beyond end
-    const auto tmp = m_anim->getFrameCount() % m_anim->segmentLength;
-    if(tmp != 0_frame)
+    if(const auto tmp = m_anim->getFrameCount() % m_anim->segmentLength; tmp != 0_frame)
       segmentDuration = tmp + 1_frame;
   }
 
-  result.bias = segmentFrame.cast<float>() / segmentDuration.cast<float>();
-  BOOST_ASSERT(result.bias >= 0 && result.bias <= 1);
+  const auto bias = segmentFrame.cast<float>() / segmentDuration.cast<float>();
+  BOOST_ASSERT(bias >= 0 && bias <= 1);
 
-  return result;
+  return InterpolationInfo{firstFrame, secondFrame, bias};
 }
 
 void SkeletalModelNode::updatePose()
@@ -95,12 +91,9 @@ void SkeletalModelNode::updatePose()
   updatePose(getInterpolationInfo());
 }
 
-void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePair)
+void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
 {
   BOOST_ASSERT(!m_model->bones.empty());
-
-  BOOST_ASSERT(framePair.bias > 0);
-  BOOST_ASSERT(framePair.secondFrame != nullptr);
 
   BOOST_ASSERT(framePair.firstFrame->numValues > 0);
   BOOST_ASSERT(framePair.secondFrame->numValues > 0);
@@ -151,54 +144,12 @@ void SkeletalModelNode::updatePoseInterpolated(const InterpolationInfo& framePai
   }
 }
 
-void SkeletalModelNode::updatePoseKeyframe(const InterpolationInfo& framePair)
-{
-  BOOST_ASSERT(!m_model->bones.empty());
-
-  BOOST_ASSERT(framePair.firstFrame->numValues > 0);
-
-  const auto angleData = framePair.firstFrame->getAngleData();
-
-  std::stack<glm::mat4> transforms;
-  transforms.push(translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl()) * core::fromPackedAngles(angleData[0])
-                  * m_meshParts[0].patch);
-
-  m_meshParts[0].matrix = transforms.top();
-
-  if(m_model->bones.size() <= 1)
-    return;
-
-  for(size_t i = 1; i < m_model->bones.size(); ++i)
-  {
-    if(m_model->bones[i].popMatrix)
-    {
-      transforms.pop();
-    }
-    if(m_model->bones[i].pushMatrix)
-    {
-      transforms.push({transforms.top()}); // make sure to have a copy, not a reference
-    }
-
-    if(framePair.firstFrame->numValues < i)
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
-    else
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * core::fromPackedAngles(angleData[i])
-                          * m_meshParts[i].patch;
-
-    m_meshParts[i].matrix = transforms.top();
-  }
-}
-
 loader::file::BoundingBox SkeletalModelNode::getBoundingBox() const
 {
   const auto framePair = getInterpolationInfo();
   BOOST_ASSERT(framePair.bias >= 0 && framePair.bias <= 1);
 
-  if(framePair.secondFrame != nullptr)
-  {
-    return {framePair.firstFrame->bbox.toBBox(), framePair.secondFrame->bbox.toBBox(), framePair.bias};
-  }
-  return framePair.firstFrame->bbox.toBBox();
+  return {framePair.firstFrame->bbox.toBBox(), framePair.secondFrame->bbox.toBBox(), framePair.bias};
 }
 
 bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, const core::AnimStateId& goal)
