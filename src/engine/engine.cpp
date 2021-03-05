@@ -60,17 +60,17 @@ std::shared_ptr<pybind11::scoped_interpreter> createScriptEngine(const std::file
 }
 } // namespace
 
-Engine::Engine(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution)
+Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resolution)
     : m_rootPath{rootPath}
-    , m_presenter{std::make_shared<Presenter>(rootPath, fullscreen, resolution)}
     , m_scriptEngine{createScriptEngine(rootPath)}
 {
   if(std::filesystem::is_regular_file(m_rootPath / "config.yaml"))
   {
     serialization::YAMLDocument<true> doc{m_rootPath / "config.yaml"};
     doc.load("config", m_engineConfig, m_engineConfig);
-    m_presenter->apply(m_engineConfig.renderSettings);
   }
+
+  m_presenter = std::make_shared<Presenter>(m_rootPath, m_engineConfig.renderSettings.fullscreen, resolution);
 
   try
   {

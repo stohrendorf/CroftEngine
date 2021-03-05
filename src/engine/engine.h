@@ -96,7 +96,6 @@ private:
 
 public:
   explicit Engine(const std::filesystem::path& rootPath,
-                  bool fullscreen = false,
                   const glm::ivec2& resolution = {1280, 800});
 
   ~Engine();
