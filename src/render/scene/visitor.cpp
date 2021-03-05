@@ -18,9 +18,6 @@ void Visitor::visit(Node& node)
     return;
   }
 
-  gl::DebugGroup debugGroup{node.getName()};
-  m_context.setCurrentNode(&node);
   node.accept(*this);
-  m_context.setCurrentNode(nullptr);
 }
 } // namespace render::scene

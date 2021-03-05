@@ -40,11 +40,6 @@ void Node::accept(Visitor& visitor)
 {
   gl::DebugGroup debugGroup{getName()};
 
-  for(const auto& node : m_children)
-  {
-    visitor.visit(*node);
-  }
-
   if(m_renderable != nullptr)
   {
     visitor.getContext().setCurrentNode(this);
@@ -56,6 +51,11 @@ void Node::accept(Visitor& visitor)
         GL_ASSERT(gl::api::finish());
       }
     }
+  }
+
+  for(const auto& node : m_children)
+  {
+    visitor.visit(*node);
   }
 
   visitor.getContext().setCurrentNode(nullptr);
