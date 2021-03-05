@@ -125,8 +125,8 @@ i18n = {
         "de": "Grafik",
     },
     I18n.LarasHome: {
-        "en": "Lara's home",
-        "de": "Laras Zuhause",
+        "en": "Gym",
+        "de": "Training",
     },
     I18n.Compass: {
         "en": "Compass",
