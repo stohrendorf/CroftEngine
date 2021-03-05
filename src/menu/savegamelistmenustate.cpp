@@ -47,13 +47,14 @@ std::unique_ptr<MenuState> SavegameListMenuState::onSelected(size_t idx, engine:
   {
     // TODO confirm overwrite if necessary
     world.save(idx);
-    return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
-                                          create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed)));
+    return create<ClosePassportMenuState>(
+      display.getCurrentRing().getSelectedObject(),
+      create<DeflateRingMenuState>(true, create<DoneMenuState>(MenuResult::Closed)));
   }
   else if(m_hasSavegame.at(idx))
   {
     return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
-                                          create<DeflateRingMenuState>(create<RequestLoadMenuState>(idx)));
+                                          create<DeflateRingMenuState>(true, create<RequestLoadMenuState>(idx)));
   }
   return std::move(m_previous);
 }

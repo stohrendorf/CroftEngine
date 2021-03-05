@@ -13,9 +13,11 @@ private:
   std::unique_ptr<MenuState> m_next;
   core::Length m_initialRadius{};
   core::Length m_cameraSpeedY{};
+  const core::Length m_target;
 
 public:
   explicit DeflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                bool down,
                                 std::unique_ptr<MenuState> next);
 
   void begin(engine::World& world) override;

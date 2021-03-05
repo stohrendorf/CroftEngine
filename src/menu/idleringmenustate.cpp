@@ -36,7 +36,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& /*ui*/, engine::Wo
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
     display.inventoryChosen.reset();
-    return create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed));
+    return create<DeflateRingMenuState>(true, create<DoneMenuState>(MenuResult::Closed));
   }
 
   if(m_autoSelect || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
@@ -73,12 +73,12 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& /*ui*/, engine::Wo
   if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward)
      && display.currentRingIndex > 0)
   {
-    return create<DeflateRingMenuState>(create<SwitchRingMenuState>(display.currentRingIndex - 1, false));
+    return create<DeflateRingMenuState>(true, create<SwitchRingMenuState>(display.currentRingIndex - 1, false));
   }
   else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward)
           && display.currentRingIndex + 1 < display.rings.size())
   {
-    return create<DeflateRingMenuState>(create<SwitchRingMenuState>(display.currentRingIndex + 1, false));
+    return create<DeflateRingMenuState>(false, create<SwitchRingMenuState>(display.currentRingIndex + 1, false));
   }
 
   return nullptr;

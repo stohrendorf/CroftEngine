@@ -38,8 +38,8 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::Wo
     }
     else
     {
-      return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>(MenuResult::Closed))));
+      return create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(
+        create<DeflateRingMenuState>(true, create<DoneMenuState>(MenuResult::Closed))));
     }
   }
   else if(autoSelect || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
@@ -58,7 +58,7 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::Wo
       const auto result
         = currentObject.type == engine::TR1ItemId::LarasHomePolaroid ? MenuResult::LaraHome : MenuResult::Closed;
       return create<FinishItemAnimationMenuState>(
-        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(create<DoneMenuState>(result))));
+        create<ResetItemTransformMenuState>(create<DeflateRingMenuState>(true, create<DoneMenuState>(result))));
     }
   }
 

@@ -33,9 +33,11 @@ std::unique_ptr<MenuState>
 }
 
 DeflateRingMenuState::DeflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                           bool down,
                                            std::unique_ptr<MenuState> next)
     : MenuState{ringTransform}
     , m_next{std::move(next)}
+    , m_target{down ? -1536_len : 1536_len}
 {
 }
 
@@ -43,6 +45,6 @@ void DeflateRingMenuState::begin(engine::World& /*world*/)
 {
   // TODO fadeOutInventory(mode != InventoryMode::TitleMode);
   m_initialRadius = m_ringTransform->radius;
-  m_cameraSpeedY = (-1536_len - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
+  m_cameraSpeedY = (m_target - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
 }
 } // namespace menu

@@ -138,11 +138,8 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 
   if(fillBackground)
   {
-    if(!backgroundGouraud.has_value())
-    {
-      ui.drawBox(bgnd, effectiveBgndSize, {0, 0, 0, 192});
-    }
-    else
+    ui.drawBox(bgnd, effectiveBgndSize, {0, 0, 0, 192});
+    if(backgroundGouraud.has_value())
     {
       const auto half = effectiveBgndSize / 2;
       const auto half2 = effectiveBgndSize - half;

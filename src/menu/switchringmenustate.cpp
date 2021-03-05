@@ -21,6 +21,7 @@ std::unique_ptr<MenuState> SwitchRingMenuState::onFrame(ui::Ui& /*ui*/, engine::
 
   display.currentRingIndex = m_next;
   m_ringTransform->cameraRotX = m_targetCameraRotX;
+  m_ringTransform->cameraPos.Y *= -1;
 
   return create<InflateRingMenuState>();
 }
