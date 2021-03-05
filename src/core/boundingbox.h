@@ -39,5 +39,11 @@ struct BoundingBox final
   TRVec min{0_len, 0_len, 0_len};
 
   TRVec max{0_len, 0_len, 0_len};
+
+  [[nodiscard]] bool intersects(const core::BoundingBox& b) const noexcept
+  {
+    return min.X < b.max.X && max.X > b.min.X && min.Y < b.max.Y && max.Y > b.min.Y && min.Z < b.max.Z
+           && max.Z > b.min.Z;
+  }
 };
 } // namespace core

@@ -21,12 +21,6 @@ namespace
   return core::SectorSize - (targetInSector - 1_len);
 }
 
-[[nodiscard]] bool intersects(const core::BoundingBox& a, const core::BoundingBox& b) noexcept
-{
-  return a.min.X < b.max.X && a.max.X > b.min.X && a.min.Y < b.max.Y && a.max.Y > b.min.Y && a.min.Z < b.max.Z
-         && a.max.Z > b.min.Z;
-}
-
 [[nodiscard]] core::BoundingBox
   rotateTranslate(const core::BoundingBox& bbox, const core::TRVec& pos, const core::Angle& angle)
 {
@@ -275,7 +269,7 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
         continue;
 
       const auto meshBox = rotateTranslate(mesh->collision_box, rsm.position, rsm.rotation);
-      if(!intersects(meshBox, pokeBox))
+      if(!meshBox.intersects(pokeBox))
         continue;
 
       // both collision boxes are in world space
