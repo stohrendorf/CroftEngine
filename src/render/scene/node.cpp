@@ -38,29 +38,26 @@ void Node::transformChanged()
 
 void Node::accept(Visitor& visitor)
 {
-  for(const auto& node : m_children)
-  {
-    if(!node->isVisible())
-      continue;
-
-    if(auto r = node->getRenderable())
-    {
-      visitor.getContext().setCurrentNode(node.get().get());
-      gl::DebugGroup debugGroup{node->getName()};
-      [[maybe_unused]] bool rendered = r->render(visitor.getContext());
-      if constexpr(Visitor::FlushAfterEachRender)
-      {
-        if(rendered)
-        {
-          GL_ASSERT(gl::api::finish());
-        }
-      }
-    }
-  }
+  gl::DebugGroup debugGroup{getName()};
 
   for(const auto& node : m_children)
   {
     visitor.visit(*node);
   }
+
+  if(m_renderable != nullptr)
+  {
+    visitor.getContext().setCurrentNode(this);
+    [[maybe_unused]] const bool rendered = m_renderable->render(visitor.getContext());
+    if constexpr(Visitor::FlushAfterEachRender)
+    {
+      if(rendered)
+      {
+        GL_ASSERT(gl::api::finish());
+      }
+    }
+  }
+
+  visitor.getContext().setCurrentNode(nullptr);
 }
 } // namespace render::scene
