@@ -556,7 +556,7 @@ if( WIN32 )
     endforeach()
 
     copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} trfont.ttf )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} OFL.ttf )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} OFL.txt )
     copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} "Apache License.txt" )
     copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} DroidSansMono.ttf )
     copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} LICENSE )
