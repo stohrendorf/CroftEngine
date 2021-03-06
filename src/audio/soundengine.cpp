@@ -15,10 +15,6 @@ void SoundEngine::update()
     const auto up = m_listener->getUpVector();
     m_soLoud->set3dListenerUp(up.x, up.y, up.z);
   }
-  else
-  {
-    BOOST_LOG_TRIVIAL(warning) << "No listener set";
-  }
 
   for(auto& [emitter, sourcesAndVoices] : m_voices)
   {

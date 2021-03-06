@@ -355,9 +355,11 @@ struct AVDecoder final : public SoLoud::AudioSource
         break;
       }
     }
-
-    BOOST_LOG_TRIVIAL(trace) << "fillQueues done: " << getAvError(err) << "; audio=" << audioQueue.size()
-                             << ", video=" << imgQueue.size();
+    if(err != 0)
+    {
+      BOOST_LOG_TRIVIAL(warning) << "fillQueues done: " << getAvError(err) << "; audio=" << audioQueue.size()
+                                 << ", video=" << imgQueue.size();
+    }
   }
 
   std::queue<AVFramePtr> imgQueue;
