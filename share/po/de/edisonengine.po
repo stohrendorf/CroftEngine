@@ -1,3 +1,20 @@
+# German translations for EdisonEngine package.
+# Copyright (C) 2021 Steffen Ohrendorf
+# This file is distributed under the same license as the EdisonEngine package.
+# Automatically generated, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: EdisonEngine \n"
+"Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
+"Last-Translator: Steffen Ohrendorf\n"
+"Language-Team: none\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: engine/engine.cpp:379
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"

@@ -175,9 +175,11 @@ function( configure_gettext )
                 COMMAND "${GETTEXT_XGETTEXT_EXECUTABLE}" ${GETTEXT_XGETTEXT_ARGS}
                 ${GETTEXT_SOURCES}
                 "--output=${_pot}"
-                "--omit-header"
                 "--boost"
                 "--add-comment=translators:"
+                "--language=C++"
+                "--from-code=UTF-8"
+                "--sort-output"
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" )
     endif()
     add_custom_command(
@@ -185,9 +187,11 @@ function( configure_gettext )
             COMMAND "${GETTEXT_XGETTEXT_EXECUTABLE}" ${GETTEXT_XGETTEXT_ARGS}
             ${GETTEXT_SOURCES}
             "--output=${_pot}"
-            "--omit-header"
             "--boost"
             "--add-comment=translators:"
+            "--language=C++"
+            "--from-code=UTF-8"
+            "--sort-output"
             DEPENDS ${GETTEXT_SOURCES}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
             COMMENT "Generating ${_pot}" )

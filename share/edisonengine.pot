@@ -1,3 +1,13 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: EdisonEngine \n"
+"Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
+"Language: en_GB.utf8\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
 #: engine/engine.cpp:379
 msgid "Loading Glidos texture pack"
 msgstr ""
