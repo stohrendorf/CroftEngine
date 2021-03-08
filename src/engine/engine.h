@@ -48,7 +48,6 @@ namespace script
 class LevelSequenceItem;
 }
 
-class I18nProvider;
 class Particle;
 class Player;
 class Presenter;
@@ -87,7 +86,6 @@ private:
   std::shared_ptr<pybind11::scoped_interpreter> m_scriptEngine;
 
   std::string m_language;
-  std::unique_ptr<I18nProvider> m_i18n;
 
   std::unique_ptr<loader::trx::Glidos> m_glidos;
   [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
@@ -158,11 +156,6 @@ public:
   const auto& getEngineConfig() const
   {
     return m_engineConfig;
-  }
-
-  const auto& i18n() const
-  {
-    return *m_i18n;
   }
 };
 } // namespace engine

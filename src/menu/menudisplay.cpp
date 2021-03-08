@@ -1,9 +1,9 @@
 #include "menudisplay.h"
 
+#include "core/i18n.h"
 #include "core/pybindmodule.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
-#include "engine/i18nprovider.h"
 #include "engine/objects/laraobject.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
@@ -223,7 +223,7 @@ bool MenuDisplay::doOptions(engine::World& world, MenuObject& object)
 
 std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& world, bool withHomePolaroid)
 {
-  std::vector objects{MenuObject{world.getEngine().i18n()(engine::I18n::Game),
+  std::vector objects{MenuObject{/* translators: TR charmap encoding */ _("Game"),
                                  engine::TR1ItemId::PassportClosed,
                                  30_frame,
                                  14_frame,
@@ -233,7 +233,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
                                  384_len,
                                  0x13,
                                  0x13},
-                      MenuObject{world.getEngine().i18n()(engine::I18n::Controls),
+                      MenuObject{/* translators: TR charmap encoding */ _("Controls"),
                                  engine::TR1ItemId::DirectionKeys,
                                  1_frame,
                                  0_frame,
@@ -241,7 +241,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
                                  8_deg,
                                  0_deg,
                                  352_len},
-                      MenuObject{world.getEngine().i18n()(engine::I18n::Sound),
+                      MenuObject{/* translators: TR charmap encoding */ _("Sound"),
                                  engine::TR1ItemId::CassettePlayer,
                                  1_frame,
                                  0_frame,
@@ -249,7 +249,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
                                  -13_deg,
                                  0_deg,
                                  368_len},
-                      MenuObject{world.getEngine().i18n()(engine::I18n::DetailLevels),
+                      MenuObject{/* translators: TR charmap encoding */ _("Detail Levels"),
                                  engine::TR1ItemId::Sunglasses,
                                  1_frame,
                                  0_frame,
@@ -259,7 +259,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
                                  424_len}};
   if(withHomePolaroid)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::LarasHome),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Gym"),
                                     engine::TR1ItemId::LarasHomePolaroid,
                                     1_frame,
                                     0_frame,
@@ -282,7 +282,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
 
 std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& world)
 {
-  std::vector objects{MenuObject{world.getEngine().i18n()(engine::I18n::Compass),
+  std::vector objects{MenuObject{/* translators: TR charmap encoding */ _("Compass"),
                                  engine::TR1ItemId::Compass,
                                  25_frame,
                                  10_frame,
@@ -295,7 +295,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
 
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Pistols) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Pistols),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Pistols"),
                                     engine::TR1ItemId::Pistols,
                                     12_frame,
                                     11_frame,
@@ -306,7 +306,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Shotgun) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Shotgun),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Shotgun"),
                                     engine::TR1ItemId::Shotgun,
                                     13_frame,
                                     12_frame,
@@ -317,7 +317,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Magnums) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Magnums),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Magnums"),
                                     engine::TR1ItemId::Magnums,
                                     12_frame,
                                     11_frame,
@@ -328,7 +328,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Uzis) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Uzis),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Uzis"),
                                     engine::TR1ItemId::Uzis,
                                     13_frame,
                                     12_frame,
@@ -339,7 +339,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::ShotgunAmmo) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::ShotgunCells),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Shotgun Cells"),
                                     engine::TR1ItemId::ShotgunAmmo,
                                     1_frame,
                                     0_frame,
@@ -350,7 +350,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::MagnumAmmo) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::MagnumClips),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Magnum Clips"),
                                     engine::TR1ItemId::MagnumAmmo,
                                     1_frame,
                                     0_frame,
@@ -361,7 +361,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::UziAmmo) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::UziClips),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Uzi Clips"),
                                     engine::TR1ItemId::UziAmmo,
                                     1_frame,
                                     0_frame,
@@ -372,7 +372,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Explosive) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::Grenade),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Grenade"),
                                     engine::TR1ItemId::Explosive,
                                     15_frame,
                                     14_frame,
@@ -383,7 +383,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::LargeMedipack) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::LargeMediPack),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Large Medi Pack"),
                                     engine::TR1ItemId::LargeMedipack,
                                     20_frame,
                                     19_frame,
@@ -394,7 +394,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   }
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::SmallMedipack) > 0)
   {
-    objects.emplace_back(MenuObject{world.getEngine().i18n()(engine::I18n::SmallMediPack),
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Small Medi Pack"),
                                     engine::TR1ItemId::SmallMedipack,
                                     26_frame,
                                     25_frame,
@@ -496,7 +496,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
   if(mode == InventoryMode::GameMode)
   {
     rings.emplace_back(std::make_unique<MenuRing>(
-      MenuRing::Type::Items, world.getEngine().i18n()(engine::I18n::Items), getKeysRingObjects(world)));
+      MenuRing::Type::Items, /* translators: TR charmap encoding */ _("ITEMS"), getKeysRingObjects(world)));
     if(rings.back()->list.empty())
     {
       rings.pop_back();
@@ -506,14 +506,17 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
   if(mode == InventoryMode::GameMode)
   {
     currentRingIndex = rings.size();
-    rings.emplace_back(std::make_unique<MenuRing>(
-      MenuRing::Type::Inventory, world.getEngine().i18n()(engine::I18n::Inventory), getMainRingObjects(world)));
+    rings.emplace_back(
+
+      std::make_unique<MenuRing>(
+        MenuRing::Type::Inventory, /* translators: TR charmap encoding */ _("INVENTORY"), getMainRingObjects(world)));
   }
 
-  rings.emplace_back(std::make_unique<MenuRing>(
-    MenuRing::Type::Options,
-    world.getEngine().i18n()(mode == InventoryMode::DeathMode ? engine::I18n::GameOver : engine::I18n::Option),
-    getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
+  rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Options,
+                                                mode == InventoryMode::DeathMode
+                                                  ? /* translators: TR charmap encoding */ _("GAME OVER")
+                                                  : /* translators: TR charmap encoding */ _("OPTION"),
+                                                getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
 
   m_currentState->begin(world);
 

@@ -1,7 +1,6 @@
 #include "listdisplaymenustate.h"
 
 #include "engine/engine.h"
-#include "engine/i18n.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "menudisplay.h"

@@ -8,7 +8,11 @@ if( VCPKG_TOOLCHAIN )
     find_package( CImg REQUIRED )
 else()
     set( _cimg_version "v.2.9.4" )
-    dl_unpack( https://github.com/dtschump/CImg/archive/${_cimg_version}.tar.gz CImg-${_cimg_version}.tar.gz CImg-${_cimg_version} )
+    dl_unpack(
+            URL https://github.com/dtschump/CImg/archive/${_cimg_version}.tar.gz
+            FILENAME CImg-${_cimg_version}.tar.gz
+            TEST CImg-${_cimg_version}
+    )
 
     add_library( CImg::CImg INTERFACE IMPORTED )
     target_include_directories( CImg::CImg SYSTEM BEFORE INTERFACE "${EXTERNAL_SRC_ROOT}/CImg-${_cimg_version}" )

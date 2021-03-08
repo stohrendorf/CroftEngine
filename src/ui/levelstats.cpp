@@ -1,13 +1,13 @@
 #include "levelstats.h"
 
-#include "engine/i18nprovider.h"
+#include "core/i18n.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "label.h"
 
 namespace ui
 {
-void LevelStats::draw(Ui& ui, const engine::I18nProvider& i18n) const
+void LevelStats::draw(Ui& ui) const
 {
   {
     Label lbl{{0, -50}, m_title};
@@ -22,10 +22,10 @@ void LevelStats::draw(Ui& ui, const engine::I18nProvider& i18n) const
   if(seconds >= std::chrono::hours{1})
   {
     Label lbl{{0, 70},
-              i18n(engine::I18n::StatsTimeTakenHours,
-                   seconds.count() / Hour.count(),
-                   (seconds.count() / Minute.count()) % Hour.count(),
-                   seconds.count() % Minute.count())};
+              /* translators: TR charmap encoding */ _("TIME TAKEN %1%:%2$02d:%3$02d",
+                                                       seconds.count() / Hour.count(),
+                                                       (seconds.count() / Minute.count()) % Hour.count(),
+                                                       seconds.count() % Minute.count())};
     lbl.alignX = Label::Alignment::Center;
     lbl.alignY = Label::Alignment::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
@@ -33,28 +33,30 @@ void LevelStats::draw(Ui& ui, const engine::I18nProvider& i18n) const
   else
   {
     Label lbl{{0, 70},
-              i18n(engine::I18n::StatsTimeTaken, seconds.count() / Minute.count(), seconds.count() % Minute.count())};
+              /* translators: TR charmap encoding */ _(
+                "TIME TAKEN %1$02d:%2$02d", seconds.count() / Minute.count(), seconds.count() % Minute.count())};
     lbl.alignX = Label::Alignment::Center;
     lbl.alignY = Label::Alignment::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
   }
 
   {
-    Label lbl{{0, 40}, i18n(engine::I18n::StatsSecrets, m_player->secrets, m_totalSecrets)};
+    Label lbl{{0, 40},
+              /* translators: TR charmap encoding */ _("SECRETS %1% of %2%", m_player->secrets, m_totalSecrets)};
     lbl.alignX = Label::Alignment::Center;
     lbl.alignY = Label::Alignment::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
   }
 
   {
-    Label lbl{{0, 10}, i18n(engine::I18n::StatsPickups, m_player->pickups)};
+    Label lbl{{0, 10}, /* translators: TR charmap encoding */ _("PICKUPS %1%", m_player->pickups)};
     lbl.alignX = Label::Alignment::Center;
     lbl.alignY = Label::Alignment::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
   }
 
   {
-    Label lbl{{0, -20}, i18n(engine::I18n::StatsKills, m_player->kills)};
+    Label lbl{{0, -20}, /* translators: TR charmap encoding */ _("KILLS %1%", m_player->kills)};
     lbl.alignX = Label::Alignment::Center;
     lbl.alignY = Label::Alignment::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());

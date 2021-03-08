@@ -1,12 +1,12 @@
 #include "engine.h"
 
 #include "audio/tracktype.h"
+#include "core/i18n.h"
 #include "core/pybindmodule.h"
 #include "engine/ai/ai.h"
 #include "engine/audioengine.h"
 #include "floordata/floordata.h"
 #include "hid/inputhandler.h"
-#include "i18nprovider.h"
 #include "loader/file/level/level.h"
 #include "loader/file/rendermeshdata.h"
 #include "loader/trx/trx.h"
@@ -82,7 +82,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load main.py"));
   }
 
-  m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
+  m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).name();
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
   if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
   {
@@ -90,7 +90,12 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
     BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
   }
 
-  m_i18n = std::make_unique<I18nProvider>(pybind11::globals()["i18n"], m_language);
+  BOOST_LOG_TRIVIAL(info) << "Using locales from "
+                          << std::filesystem::absolute(std::filesystem::current_path() / "share" / "po");
+  bindtextdomain("edisonengine", std::filesystem::absolute(std::filesystem::current_path() / "share" / "po").c_str());
+  setlocale(LC_ALL, m_language.c_str());
+  textdomain("edisonengine");
+
   m_presenter->getInputHandler().setMapping(core::get<hid::InputMapping>(pybind11::globals(), "input_mapping").value());
   m_glidos = loadGlidosPack();
 }
@@ -165,7 +170,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
                     world.getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
                     world.getPalette()};
           ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
-          stats.draw(ui, *m_i18n);
+          stats.draw(ui);
           ui.render(m_presenter->getViewport());
           m_presenter->swapBuffers();
 
@@ -371,9 +376,9 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
     if(!std::filesystem::is_directory(glidosPack))
       return nullptr;
 
-    m_presenter->drawLoadingScreen((*m_i18n)(I18n::LoadingGlidos));
-    return std::make_unique<loader::trx::Glidos>(
-      *m_i18n, m_rootPath / glidosPack, [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
+    m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
+    return std::make_unique<loader::trx::Glidos>(m_rootPath / glidosPack,
+                                                 [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
   }
 
   return nullptr;

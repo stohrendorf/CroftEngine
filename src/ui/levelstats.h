@@ -7,7 +7,6 @@ namespace engine
 {
 class Player;
 class Presenter;
-class I18nProvider;
 } // namespace engine
 
 namespace ui
@@ -28,7 +27,7 @@ public:
   {
   }
 
-  void draw(Ui& ui, const engine::I18nProvider& i18n) const;
+  void draw(Ui& ui) const;
 
 private:
   const std::string m_title;

@@ -31,6 +31,7 @@ include( get_pybind11 )
 include( get_gsllite )
 include( get_soloud )
 include( get_utf8cpp )
+include( get_gettext )
 
 add_subdirectory( 3rdparty/rapidyaml )
 add_subdirectory( 3rdparty/type_safe )

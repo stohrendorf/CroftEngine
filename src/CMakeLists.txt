@@ -38,13 +38,6 @@ wrap_enum(
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1.h
 )
 wrap_enum(
-        NAMESPACE engine
-        NAME I18n
-        TYPE int32_t
-        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/i18n.txt
-        DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/i18n.h
-)
-wrap_enum(
         NAMESPACE hid
         NAME GlfwKey
         TYPE int32_t
@@ -148,8 +141,6 @@ set( EDISONENGINE_SRCS
         engine/engineconfig.cpp
         engine/heightinfo.h
         engine/heightinfo.cpp
-        engine/i18nprovider.h
-        engine/i18nprovider.cpp
         engine/inventory.h
         engine/inventory.cpp
         engine/lighting.h
@@ -464,11 +455,34 @@ if( MSVC )
     list( APPEND EDISONENGINE_SRCS edisonengine.rc )
 endif()
 
+file(
+        GLOB_RECURSE ALL_SRCS
+        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+        *.cpp
+        *.h
+        *.hpp
+)
+configure_gettext(
+        TARGET_NAME i18n
+        DOMAIN edisonengine
+        SOURCES ${ALL_SRCS}
+        POTFILE_DESTINATION "${CMAKE_SOURCE_DIR}/share"
+        LANGUAGES de
+        XGETTEXT_ARGS
+        "--keyword=_"
+        "--keyword=N_"
+        "--keyword=P_:1,2"
+        "--package-name=${PROJECT_NAME}"
+        "--package-version=${PROJECT_VERSION}"
+        "--copyright-holder=Steffen Ohrendorf"
+        "--msgid-bugs-address=https://github.com/stohrendorf/EdisonEngine/issues"
+)
+
 add_executable( edisonengine ${EDISONENGINE_SRCS} )
 
 group_files( ${EDISONENGINE_SRCS} )
 
-target_include_directories( edisonengine PRIVATE . )
+target_include_directories( edisonengine PRIVATE . ${Intl_INCLUDE_DIRS} )
 
 add_subdirectory( soglb )
 add_subdirectory( qs )
@@ -496,7 +510,10 @@ target_link_libraries(
         pybind11::embed
         Python3::Python
         Threads::Threads
+        ${Libintl_LIBRARY}
 )
+
+add_dependencies( edisonengine i18n )
 
 if(( LINUX OR UNIX ) AND CMAKE_COMPILER_IS_GNUCC )
     target_link_libraries(
@@ -524,12 +541,23 @@ macro( copy_runtime_dep_file SRCDIR DSTDIR FILENAME )
     )
 endmacro()
 
+add_custom_target( edisonengine-runtime-deps )
+add_dependencies( edisonengine edisonengine-runtime-deps )
+
+get_target_property( _bin_dir edisonengine BINARY_DIR )
+
+file(
+        GLOB_RECURSE _shared_files
+        RELATIVE ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/share/*.mo
+)
+
+foreach( _file ${_shared_files} )
+    get_filename_component( _dirname ${_file} DIRECTORY )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
+endforeach()
+
 if( WIN32 )
-    add_custom_target( edisonengine-runtime-deps )
-    add_dependencies( edisonengine edisonengine-runtime-deps )
-
-    get_target_property( _bin_dir edisonengine BINARY_DIR )
-
     file(
             GLOB _shaders
             RELATIVE ${CMAKE_SOURCE_DIR}
@@ -537,7 +565,7 @@ if( WIN32 )
             ${CMAKE_SOURCE_DIR}/shaders/*.vert
             ${CMAKE_SOURCE_DIR}/shaders/*.glsl
     )
-    list( FILTER _shaders EXCLUDE REGEX "\.full\." )
+    list( FILTER _shaders EXCLUDE REGEX "\\.full\\." )
 
     foreach( _file ${_shaders} )
         get_filename_component( _dirname ${_file} DIRECTORY )

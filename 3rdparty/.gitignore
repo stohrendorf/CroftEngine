@@ -1,7 +1,9 @@
-CImg-*
-gsl-lite
-pybind*
-soloud*
+/CImg-*
+/gsl-lite
+/pybind*
+/soloud*
+/gettext
 
 *.zip
 *.tar.gz
+*.tar.xz

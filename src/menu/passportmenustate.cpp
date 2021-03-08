@@ -1,10 +1,10 @@
 #include "passportmenustate.h"
 
 #include "closepassportmenustate.h"
+#include "core/i18n.h"
 #include "donemenustate.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
-#include "engine/i18nprovider.h"
 #include "engine/presenter.h"
 #include "engine/world.h"
 #include "idleringmenustate.h"
@@ -28,7 +28,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
 {
   if(m_passportText == nullptr)
   {
-    m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, world.getEngine().i18n()(engine::I18n::LoadGame));
+    m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, _("Load Game"));
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }
@@ -48,9 +48,10 @@ std::optional<std::unique_ptr<MenuState>>
 {
   if(m_passportText == nullptr)
   {
-    m_passportText = std::make_unique<ui::Label>(
-      glm::ivec2{0, -16},
-      world.getEngine().i18n()(m_allowSave && isInGame ? engine::I18n::SaveGame : engine::I18n::NewGame));
+    m_passportText
+      = std::make_unique<ui::Label>(glm::ivec2{0, -16},
+                                    m_allowSave && isInGame ? /* translators: TR charmap encoding */ _("Save Game")
+                                                            : /* translators: TR charmap encoding */ _("New Game"));
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }
@@ -75,9 +76,10 @@ void PassportMenuState::showExitGamePage(engine::World& world, MenuDisplay& disp
 {
   if(m_passportText == nullptr)
   {
-    m_passportText = std::make_unique<ui::Label>(
-      glm::ivec2{0, -16},
-      world.getEngine().i18n()(!returnToTitle ? engine::I18n::ExitGame : engine::I18n::ExitToTitle));
+    m_passportText
+      = std::make_unique<ui::Label>(glm::ivec2{0, -16},
+                                    !returnToTitle ? /* translators: TR charmap encoding */ _("Exit Game")
+                                                   : /* translators: TR charmap encoding */ _("Exit to Title"));
     m_passportText->alignX = ui::Label::Alignment::Center;
     m_passportText->alignY = ui::Label::Alignment::Bottom;
   }

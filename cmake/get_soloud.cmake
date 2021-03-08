@@ -4,7 +4,11 @@ endif()
 
 include( ./dl_unpack )
 
-dl_unpack( http://sol.gfxile.net/soloud/soloud_20200207_lite.zip soloud_20200207_lite.zip soloud20200207 )
+dl_unpack(
+        URL http://sol.gfxile.net/soloud/soloud_20200207_lite.zip
+        FILENAME soloud_20200207_lite.zip
+        TEST soloud20200207
+)
 
 find_package( Threads REQUIRED )
 

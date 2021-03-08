@@ -4,7 +4,10 @@ endif()
 
 include( ./dl_unpack )
 
-download( https://raw.githubusercontent.com/martinmoene/gsl-lite/4b796627ad0fa42640f5fdb96f23c4a0d9ee084f/include/gsl/gsl-lite.hpp gsl-lite/gsl-lite.hpp )
+download(
+        URL https://raw.githubusercontent.com/martinmoene/gsl-lite/4b796627ad0fa42640f5fdb96f23c4a0d9ee084f/include/gsl/gsl-lite.hpp
+        FILENAME gsl-lite/gsl-lite.hpp
+)
 
 add_library( gsl-lite::gsl-lite INTERFACE IMPORTED )
 target_include_directories( gsl-lite::gsl-lite SYSTEM BEFORE INTERFACE "${EXTERNAL_SRC_ROOT}/gsl-lite" )
