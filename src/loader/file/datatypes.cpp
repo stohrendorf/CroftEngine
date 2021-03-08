@@ -333,7 +333,7 @@ void Room::patchHeightsForBlock(const engine::objects::Object& object, const cor
   auto room = object.m_state.position.room;
   // TODO Ugly const_cast
   gsl::not_null groundSector
-    = const_cast<Sector*>(loader::file::findRealFloorSector(object.m_state.position.position, &room).get());
+    = const_cast<TypedSector*>(loader::file::findRealFloorSector(object.m_state.position.position, &room).get());
   const auto topSector = loader::file::findRealFloorSector(
     object.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room);
 
@@ -859,13 +859,13 @@ void Room::resetScenery()
 
 void Room::serialize(const serialization::Serializer<engine::World>& ser)
 {
-  ser(S_NV("sectors", serialization::FrozenVector{sectors}));
+  ser(S_NV("sectors", serialization::FrozenVector{typedSectors}));
 }
 
-gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
-                                                 const gsl::not_null<gsl::not_null<const Room*>*>& room)
+gsl::not_null<const TypedSector*> findRealFloorSector(const core::TRVec& position,
+                                                      const gsl::not_null<gsl::not_null<const Room*>*>& room)
 {
-  const Sector* sector;
+  const TypedSector* sector;
   // follow portals
   while(true)
   {
@@ -972,15 +972,9 @@ Sector Sector::read(io::SDLReader& reader)
   return sector;
 }
 
-void Sector::serialize(const serialization::Serializer<engine::World>& ser)
+void TypedSector::serialize(const serialization::Serializer<engine::World>& ser)
 {
-  ser(S_NV("floorDataIndex", floorDataIndex),
-      S_NV("boxIndex", boxIndex),
-      S_NV("box", box),
-      S_NV("roomIndexBelow", roomIndexBelow),
-      S_NV("floorHeight", floorHeight),
-      S_NV("roomIndexAbove", roomIndexAbove),
-      S_NV("ceilingHeight", ceilingHeight));
+  ser(S_NV("box", box), S_NV("floorHeight", floorHeight), S_NV("ceilingHeight", ceilingHeight));
 
   if(ser.loading)
   {
@@ -991,54 +985,47 @@ void Sector::serialize(const serialization::Serializer<engine::World>& ser)
   }
 }
 
-void Sector::updateCaches(std::vector<Room>& rooms,
-                          const std::vector<Box>& boxes,
-                          const engine::floordata::FloorData& newFloorData)
+TypedSector::TypedSector(const Sector& src,
+                         std::vector<Room>& rooms,
+                         const std::vector<Box>& boxes,
+                         const engine::floordata::FloorData& newFloorData)
+    : box{src.boxIndex.get() >= 0 ? &boxes.at(src.boxIndex.get()) : nullptr}
+    , floorHeight{src.floorHeight}
+    , ceilingHeight{src.ceilingHeight}
+    , m_roomIndexBelow{src.roomIndexBelow}
+    , m_roomIndexAbove{src.roomIndexAbove}
 {
-  if(boxIndex.get() >= 0)
-  {
-    box = &boxes.at(boxIndex.get());
-  }
-  else
-  {
-    box = nullptr;
-  }
+  connect(rooms);
 
-  if(roomIndexBelow.get() != 0xff)
+  if(src.floorDataIndex.index != 0)
   {
-    roomBelow = &rooms.at(roomIndexBelow.get());
+    floorData = &src.floorDataIndex.from(newFloorData);
+
+    if(const auto newPortalTarget = engine::floordata::getPortalTarget(floorData); newPortalTarget.has_value())
+    {
+      portalTarget = &rooms.at(*newPortalTarget);
+    }
+  }
+}
+
+void TypedSector::connect(std::vector<Room>& rooms)
+{
+  if(m_roomIndexBelow.get() != 0xff)
+  {
+    roomBelow = &rooms.at(m_roomIndexBelow.get());
   }
   else
   {
     roomBelow = nullptr;
   }
 
-  if(roomIndexAbove.get() != 0xff)
+  if(m_roomIndexAbove.get() != 0xff)
   {
-    roomAbove = &rooms.at(roomIndexAbove.get());
+    roomAbove = &rooms.at(m_roomIndexAbove.get());
   }
   else
   {
     roomAbove = nullptr;
-  }
-
-  if(floorDataIndex.index != 0)
-  {
-    floorData = &floorDataIndex.from(newFloorData);
-
-    if(const auto newPortalTarget = engine::floordata::getPortalTarget(floorData); newPortalTarget.has_value())
-    {
-      portalTarget = &rooms.at(*newPortalTarget);
-    }
-    else
-    {
-      portalTarget = nullptr;
-    }
-  }
-  else
-  {
-    floorData = nullptr;
-    portalTarget = nullptr;
   }
 }
 

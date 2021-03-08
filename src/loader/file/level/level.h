@@ -143,7 +143,7 @@ public:
 
   [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
 
-  void updateRoomBasedCaches();
+  void connectSectors();
 
   const auto& getFilename() const
   {

@@ -79,41 +79,46 @@ struct Sector
      * @note If this is 0, no floor data is attached to this sector.
      */
   core::ContainerIndex<uint16_t, engine::floordata::FloorDataValue> floorDataIndex;
-  const engine::floordata::FloorDataValue* floorData = nullptr;
-  Room* portalTarget = nullptr;
 
-  core::BoxId boxIndex{int16_t(-1)}; //!< Index into Boxes[]/Zones[] (-1 if none)
-  const Box* box = nullptr;
-  core::RoomId8 roomIndexBelow{uint8_t(-1)}; //!< The number of the room below this one (255 if none)
-  Room* roomBelow = nullptr;
+  core::BoxId boxIndex{int16_t(-1)};             //!< Index into Boxes[]/Zones[] (-1 if none)
+  core::RoomId8 roomIndexBelow{uint8_t(-1)};     //!< The number of the room below this one (255 if none)
   core::Length floorHeight = -core::HeightLimit; //!< Absolute height of floor (multiply by 256 for world coordinates)
   core::RoomId8 roomIndexAbove{uint8_t(-1)};     //!< The number of the room above this one (255 if none)
-  Room* roomAbove = nullptr;
   core::Length ceilingHeight
     = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
   static Sector read(io::SDLReader& reader);
+};
 
-  void reset()
-  {
-    floorDataIndex = uint16_t{0};
-    floorData = nullptr;
-    portalTarget = nullptr; // cached from floordata
-    boxIndex = int16_t(-1);
-    box = nullptr;
-    roomIndexBelow = uint8_t(-1);
-    roomBelow = nullptr;
-    floorHeight = -core::HeightLimit;
-    roomIndexAbove = uint8_t(-1);
-    roomAbove = nullptr;
-    ceilingHeight = -core::HeightLimit;
-  }
+struct TypedSector
+{
+  /**
+     * @brief Index into FloorData[]
+     *
+     * @note If this is 0, no floor data is attached to this sector.
+     */
+  const engine::floordata::FloorDataValue* floorData = nullptr;
+  Room* portalTarget = nullptr;
+
+  const Box* box = nullptr;
+  Room* roomBelow = nullptr;
+  core::Length floorHeight = -core::HeightLimit;
+  Room* roomAbove = nullptr;
+  core::Length ceilingHeight = -core::HeightLimit;
+
+  TypedSector() = default;
+  TypedSector(const Sector& src,
+              std::vector<Room>& rooms,
+              const std::vector<Box>& boxes,
+              const engine::floordata::FloorData& newFloorData);
+
+  void connect(std::vector<Room>& rooms);
 
   void serialize(const serialization::Serializer<engine::World>& ser);
 
-  void updateCaches(std::vector<Room>& rooms,
-                    const std::vector<Box>& boxes,
-                    const engine::floordata::FloorData& newFloorData);
+private:
+  core::RoomId8 m_roomIndexBelow{uint8_t(-1)};
+  core::RoomId8 m_roomIndexAbove{uint8_t(-1)};
 };
 
 /*
@@ -321,6 +326,7 @@ struct Room
   int sectorCountZ{};            // "width" of sector list
   int sectorCountX{};            // "height" of sector list
   std::vector<Sector> sectors{}; // [NumXsectors * NumZsectors] list of sectors in this room
+  std::vector<TypedSector> typedSectors{};
   core::Shade ambientShade{};
   int16_t intensity2{};        // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
   int16_t lightMode{};         // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
@@ -392,17 +398,17 @@ struct Room
                        render::TextureAnimator& animator,
                        render::scene::MaterialManager& materialManager);
 
-  [[nodiscard]] const Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
+  [[nodiscard]] const TypedSector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
   {
     return getSectorByRelativePosition(worldPos - position);
   }
 
-  [[nodiscard]] const Sector* getSectorByRelativePosition(const core::TRVec& localPos) const
+  [[nodiscard]] const TypedSector* getSectorByRelativePosition(const core::TRVec& localPos) const
   {
     return getSectorByIndex(localPos.X / core::SectorSize, localPos.Z / core::SectorSize);
   }
 
-  [[nodiscard]] gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
+  [[nodiscard]] gsl::not_null<const TypedSector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
   {
     worldPos -= position;
     return getInnerSectorByIndex(worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize);
@@ -416,7 +422,7 @@ struct Room
     return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
   }
 
-  [[nodiscard]] const Sector* getSectorByIndex(const int dx, const int dz) const
+  [[nodiscard]] const TypedSector* getSectorByIndex(const int dx, const int dz) const
   {
     if(dx < 0 || dx >= sectorCountX)
     {
@@ -430,17 +436,17 @@ struct Room
                                  << sectorCountZ << " for room " << node->getName();
       return nullptr;
     }
-    return &sectors[sectorCountZ * dx + dz];
+    return &typedSectors[sectorCountZ * dx + dz];
   }
 
-  [[nodiscard]] gsl::not_null<const Sector*> getInnerSectorByIndex(int dx, int dz) const
+  [[nodiscard]] gsl::not_null<const TypedSector*> getInnerSectorByIndex(int dx, int dz) const
   {
     dx = std::clamp(dx, 1, sectorCountX - 2);
     dz = std::clamp(dz, 1, sectorCountZ - 2);
-    return &sectors[sectorCountZ * dx + dz];
+    return &typedSectors[sectorCountZ * dx + dz];
   }
 
-  [[nodiscard]] gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
+  [[nodiscard]] gsl::not_null<const TypedSector*> findFloorSectorWithClampedIndex(int dx, int dz) const
   {
     if(dz <= 0)
     {
@@ -465,7 +471,7 @@ struct Room
 
   void resetScenery();
 
-  bool isSkybox() const noexcept
+  [[nodiscard]] bool isSkybox() const noexcept
   {
     return (flags & TR1_ROOM_FLAG_SKYBOX) != 0;
   }
@@ -473,15 +479,16 @@ struct Room
   void serialize(const serialization::Serializer<engine::World>& ser);
 };
 
-extern gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
-                                                        const gsl::not_null<gsl::not_null<const Room*>*>& room);
+extern gsl::not_null<const TypedSector*> findRealFloorSector(const core::TRVec& position,
+                                                             const gsl::not_null<gsl::not_null<const Room*>*>& room);
 
-inline gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position, gsl::not_null<const Room*> room)
+inline gsl::not_null<const TypedSector*> findRealFloorSector(const core::TRVec& position,
+                                                             gsl::not_null<const Room*> room)
 {
   return findRealFloorSector(position, &room);
 }
 
-inline gsl::not_null<const Sector*> findRealFloorSector(core::RoomBoundPosition& rbs)
+inline gsl::not_null<const TypedSector*> findRealFloorSector(core::RoomBoundPosition& rbs)
 {
   return findRealFloorSector(rbs.position, &rbs.room);
 }

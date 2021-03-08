@@ -127,7 +127,7 @@ public:
 
   void collectZoneBoxes(const World& world);
 
-  const loader::file::Sector* getCurrentSector() const
+  const loader::file::TypedSector* getCurrentSector() const
   {
     return position.room->getSectorByAbsolutePosition(position.position);
   }

@@ -260,14 +260,12 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
   }
 }
 
-void Level::updateRoomBasedCaches()
+void Level::connectSectors()
 {
   for(Room& room : m_rooms)
   {
-    for(Sector& sector : room.sectors)
-    {
-      sector.updateCaches(m_rooms, m_boxes, m_floorData);
-    }
+    for(auto& sector : room.typedSectors)
+      sector.connect(m_rooms);
   }
 }
 
@@ -275,7 +273,7 @@ void Level::postProcessDataStructures()
 {
   BOOST_LOG_TRIVIAL(info) << "Post-processing data structures";
 
-  updateRoomBasedCaches();
+  connectSectors();
 
   Expects(m_baseZones.flyZone.size() == m_boxes.size());
   Expects(m_baseZones.groundZone1.size() == m_boxes.size());
@@ -361,5 +359,14 @@ void Level::postProcessDataStructures()
     Expects(sequence->length <= 0);
     Expects(gsl::narrow<size_t>(sequence->offset - sequence->length) <= m_sprites.size());
     sequence->sprites = gsl::make_span(&m_sprites[sequence->offset], -sequence->length);
+  }
+
+  for(auto& room : m_rooms)
+  {
+    room.typedSectors.clear();
+    std::transform(
+      room.sectors.begin(), room.sectors.end(), std::back_inserter(room.typedSectors), [this](const Sector& sector) {
+        return TypedSector{sector, m_rooms, m_boxes, m_floorData};
+      });
   }
 }

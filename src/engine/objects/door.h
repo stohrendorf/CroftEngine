@@ -26,8 +26,8 @@ public:
 private:
   struct Info
   {
-    loader::file::Sector* wingsSector{nullptr};
-    loader::file::Sector originalSector;
+    loader::file::TypedSector* wingsSector{nullptr};
+    loader::file::TypedSector originalSector;
     loader::file::Box* wingsBox{nullptr};
 
     void open();

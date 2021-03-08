@@ -126,22 +126,22 @@ void Door::serialize(const serialization::Serializer<World>& ser)
   {
     ser.lazy([this](const serialization::Serializer<World>& ser) {
       m_info.wingsSector
-        = const_cast<loader::file::Sector*>(m_state.position.room->getSectorByAbsolutePosition(m_wingsPosition));
+        = const_cast<loader::file::TypedSector*>(m_state.position.room->getSectorByAbsolutePosition(m_wingsPosition));
       if(m_info.originalSector.portalTarget != nullptr)
       {
-        m_target.wingsSector = const_cast<loader::file::Sector*>(
+        m_target.wingsSector = const_cast<loader::file::TypedSector*>(
           m_info.originalSector.portalTarget->getSectorByAbsolutePosition(m_state.position.position));
       }
 
       if(m_state.position.room->alternateRoom.get() >= 0)
       {
         m_alternateInfo.wingsSector
-          = const_cast<loader::file::Sector*>(ser.context.getRooms()
-                                                .at(m_state.position.room->alternateRoom.get())
-                                                .getSectorByAbsolutePosition(m_wingsPosition));
+          = const_cast<loader::file::TypedSector*>(ser.context.getRooms()
+                                                     .at(m_state.position.room->alternateRoom.get())
+                                                     .getSectorByAbsolutePosition(m_wingsPosition));
         if(m_alternateInfo.originalSector.portalTarget != nullptr)
         {
-          m_alternateTarget.wingsSector = const_cast<loader::file::Sector*>(
+          m_alternateTarget.wingsSector = const_cast<loader::file::TypedSector*>(
             m_alternateInfo.originalSector.portalTarget->getSectorByAbsolutePosition(m_state.position.position));
         }
       }
@@ -164,14 +164,14 @@ void Door::Info::close() // NOLINT(readability-make-member-function-const)
   if(wingsSector == nullptr)
     return;
 
-  wingsSector->reset();
+  *wingsSector = loader::file::TypedSector{};
   if(wingsBox != nullptr)
     wingsBox->blocked = true;
 }
 
 void Door::Info::init(const loader::file::Room& room, const core::TRVec& wingsPosition)
 {
-  wingsSector = const_cast<loader::file::Sector*>(room.getSectorByAbsolutePosition(wingsPosition));
+  wingsSector = const_cast<loader::file::TypedSector*>(room.getSectorByAbsolutePosition(wingsPosition));
   Expects(wingsSector != nullptr);
   originalSector = *wingsSector;
 
@@ -196,9 +196,7 @@ void Door::Info::serialize(const serialization::Serializer<World>& ser)
   if(ser.loading)
   {
     wingsSector = nullptr;
-    ser.lazy([this](const serialization::Serializer<World>& ser) {
-      originalSector.updateCaches(ser.context.getRooms(), ser.context.getBoxes(), ser.context.getFloorData());
-    });
+    ser.lazy([this](const serialization::Serializer<World>& ser) { originalSector.connect(ser.context.getRooms()); });
   }
 }
 } // namespace engine::objects

@@ -42,7 +42,7 @@ class ModelObject;
 class PickupObject;
 } // namespace objects
 
-extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
+extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::TypedSector*> sector,
                                                     const core::TRVec& position);
 
 class Presenter;

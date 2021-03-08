@@ -208,7 +208,7 @@ std::optional<bool> evaluateCondition(floordata::SequenceCondition condition,
 }
 } // namespace
 
-std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::Sector*> sector,
+std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::TypedSector*> sector,
                                              const core::TRVec& position)
 {
   while(sector->roomBelow != nullptr)
@@ -245,7 +245,7 @@ void World::swapAllRooms()
   }
 
   m_roomsAreSwapped = !m_roomsAreSwapped;
-  m_level->updateRoomBasedCaches();
+  m_level->connectSectors();
 }
 
 bool World::isValid(const loader::file::AnimFrame* frame) const
@@ -1013,7 +1013,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("audioEngine", *m_audioEngine));
 
   if(ser.loading)
-    m_level->updateRoomBasedCaches();
+    m_level->connectSectors();
 }
 
 void World::gameLoop(bool godMode)
@@ -1091,7 +1091,7 @@ void World::load(const std::filesystem::path& filename)
   doc.load("data", *this, *this);
   m_objectManager.getLara().m_state.health = m_player->laraHealth;
   m_objectManager.getLara().initWeaponAnimData();
-  m_level->updateRoomBasedCaches();
+  m_level->connectSectors();
 }
 
 void World::save(const std::filesystem::path& filename)
