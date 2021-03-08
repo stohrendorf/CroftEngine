@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-03-08 13:21+0100\n"
+"POT-Creation-Date: 2021-03-08 13:33+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de\n"
@@ -178,87 +178,87 @@ msgstr "Magnums"
 
 #. translators: TR charmap encoding
 #: menu/passportmenustate.cpp:54
-#, fuzzy
 msgid "New Game"
-msgstr "Spiel"
+msgstr "Spiel starten"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:518
 msgid "OPTION"
-msgstr ""
+msgstr "Optionen"
 
 #. translators: TR charmap encoding
 #: ui/levelstats.cpp:52
-#, fuzzy, boost-format
+#, boost-format
 msgid "PICKUPS %1%"
-msgstr "Besiegte Gegner %1%"
+msgstr "Gegenst~ande %1%"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:298
 msgid "Pistols"
-msgstr ""
+msgstr "Pistolen"
 
 #. translators: TR charmap encoding
 #: ui/levelstats.cpp:45
 #, boost-format
 msgid "SECRETS %1% of %2%"
-msgstr ""
+msgstr "Geheimnisse %1% von %2%"
 
 #. translators: TR charmap encoding
 #: menu/passportmenustate.cpp:53
 #, fuzzy
 msgid "Save Game"
-msgstr "Spiel laden"
+msgstr "Spiel starten"
 
 #: engine/world.cpp:1099
-#, fuzzy
 msgid "Saving..."
-msgstr "Lade..."
+msgstr "Speichere..."
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:309
 msgid "Shotgun"
-msgstr ""
+msgstr "Schrotflinte"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:342
 msgid "Shotgun Cells"
-msgstr ""
+msgstr "Schrot-Munition"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:397
-#, fuzzy
 msgid "Small Medi Pack"
-msgstr "Gro=es Medi-Pack"
+msgstr "Kleines Medi-Pack"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:244
 msgid "Sound"
-msgstr ""
+msgstr "Audio"
 
 #. translators: TR charmap encoding
 #: ui/levelstats.cpp:37
-#, c-format, boost-format
+#, boost-format
 msgid "TIME TAKEN %1$02d:%2$02d"
-msgstr ""
+msgstr "Ben~otigte Zeit %1$02d:%2$02d"
 
 #. translators: TR charmap encoding
 #: ui/levelstats.cpp:25
 #, boost-format
 msgid "TIME TAKEN %1%:%2$02d:%3$02d"
-msgstr ""
+msgstr "Ben~otigte Zeit %1%:%2$02d:%3$02d"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:364
 msgid "Uzi Clips"
-msgstr ""
+msgstr "Uzi-Munition"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:331
 msgid "Uzis"
-msgstr ""
+msgstr "Uzis"
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:53
 msgid "Water Denoise"
-msgstr ""
+msgstr "Wassergl~attung"
+
+#~ msgid "Spiel sichern"
+#~ msgstr "Spiel laden"

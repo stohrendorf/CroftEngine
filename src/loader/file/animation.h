@@ -157,10 +157,14 @@ struct Transitions
   uint16_t transitionCaseCount{};                                       // number of ranges (seems to always be 1..5)
   core::ContainerIndex<uint16_t, TransitionCase> firstTransitionCase{}; // Offset into AnimDispatches[]
 
-  gsl::span<const TransitionCase> transitionCases{};
-
   /// \brief reads an animation state change.
   static std::unique_ptr<Transitions> read(io::SDLReader& reader);
+};
+
+struct TypedTransitions
+{
+  core::AnimStateId stateId{uint16_t(0)};
+  gsl::span<const TransitionCase> transitionCases{};
 };
 
 struct Animation
@@ -185,12 +189,12 @@ struct Animation
   core::Frame nextFrame = 0_frame;
 
   uint16_t transitionsCount{};
-  core::ContainerIndex<uint16_t, Transitions> transitionsIndex{}; // offset into StateChanges[]
-  uint16_t animCommandCount{};                                    // How many of them to use.
-  core::ContainerIndex<uint16_t, int16_t> animCommandIndex{};     // offset into AnimCommand[]
+  core::ContainerIndex<uint16_t, TypedTransitions> transitionsIndex{}; // offset into StateChanges[]
+  uint16_t animCommandCount{};                                         // How many of them to use.
+  core::ContainerIndex<uint16_t, int16_t> animCommandIndex{};          // offset into AnimCommand[]
 
   const Animation* nextAnimation = nullptr;
-  gsl::span<const Transitions> transitions{};
+  gsl::span<const TypedTransitions> transitions{};
 
   [[nodiscard]] constexpr core::Frame getFrameCount() const
   {

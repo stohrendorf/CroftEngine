@@ -56,6 +56,7 @@ public:
   std::vector<Animation> m_animations;
 
   std::vector<Transitions> m_transitions;
+  std::vector<TypedTransitions> m_typedTransitions;
 
   std::vector<TransitionCase> m_transitionCases;
 

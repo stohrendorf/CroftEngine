@@ -158,7 +158,7 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
   if(m_anim->state_id == goal)
     return false;
 
-  for(const loader::file::Transitions& tr : m_anim->transitions)
+  for(const loader::file::TypedTransitions& tr : m_anim->transitions)
   {
     if(tr.stateId != goal)
       continue;

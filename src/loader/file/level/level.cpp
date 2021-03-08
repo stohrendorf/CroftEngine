@@ -313,6 +313,19 @@ void Level::postProcessDataStructures()
       model->animations = &model->animation_index.from(m_animations);
   }
 
+  std::transform(
+    m_transitions.begin(),
+    m_transitions.end(),
+    std::back_inserter(m_typedTransitions),
+    [this](const Transitions& transitions) {
+      Expects((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_transitionCases));
+      if(transitions.transitionCaseCount > 0)
+        return TypedTransitions{
+          transitions.stateId,
+          gsl::span{&transitions.firstTransitionCase.from(m_transitionCases), transitions.transitionCaseCount}};
+      return TypedTransitions{};
+    });
+
   for(Animation& anim : m_animations)
   {
     if(anim.poseDataOffset.index<decltype(m_poseFrames[0])>() >= m_poseFrames.size())
@@ -331,9 +344,9 @@ void Level::postProcessDataStructures()
     anim.nextAnimation = &m_animations[anim.nextAnimationIndex];
 
     Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
-    Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
+    Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_typedTransitions));
     if(anim.transitionsCount > 0)
-      anim.transitions = {&anim.transitionsIndex.from(m_transitions), anim.transitionsCount};
+      anim.transitions = {&anim.transitionsIndex.from(m_typedTransitions), anim.transitionsCount};
   }
 
   for(TransitionCase& transitionCase : m_transitionCases)
@@ -343,14 +356,6 @@ void Level::postProcessDataStructures()
     else
       BOOST_LOG_TRIVIAL(warning) << "Animation index " << transitionCase.targetAnimationIndex.index << " not less than "
                                  << m_animations.size();
-  }
-
-  for(Transitions& transition : m_transitions)
-  {
-    Expects((transition.firstTransitionCase + transition.transitionCaseCount).exclusiveIn(m_transitionCases));
-    if(transition.transitionCaseCount > 0)
-      transition.transitionCases
-        = {&transition.firstTransitionCase.from(m_transitionCases), transition.transitionCaseCount};
   }
 
   for(const auto& sequence : m_spriteSequences | boost::adaptors::map_values)
