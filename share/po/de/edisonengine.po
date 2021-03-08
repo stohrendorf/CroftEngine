@@ -205,9 +205,8 @@ msgstr "Geheimnisse %1% von %2%"
 
 #. translators: TR charmap encoding
 #: menu/passportmenustate.cpp:53
-#, fuzzy
 msgid "Save Game"
-msgstr "Spiel starten"
+msgstr "Spiel sichern"
 
 #: engine/world.cpp:1099
 msgid "Saving..."
