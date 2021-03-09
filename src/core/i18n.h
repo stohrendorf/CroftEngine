@@ -1,7 +1,14 @@
 #pragma once
 
 #include <boost/format.hpp>
+
+#ifdef _MSC_VER
+#  define fprintf
+#endif
 #include <libintl.h>
+#ifdef _MSC_VER
+#  undef fprintf
+#endif
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 inline const char* _(const char* message)

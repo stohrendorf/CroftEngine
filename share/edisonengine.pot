@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Steffen Ohrendorf
-# This file is distributed under the same license as the EdisonEngine package.
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-03-08 13:33+0100\n"
+"POT-Creation-Date: 2021-03-09 00:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -159,7 +159,7 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:379
+#: engine/engine.cpp:385
 msgid "Loading Glidos texture pack"
 msgstr ""
 
@@ -235,7 +235,7 @@ msgstr ""
 
 #. translators: TR charmap encoding
 #: ui/levelstats.cpp:37
-#, boost-format
+#, c-format, boost-format
 msgid "TIME TAKEN %1$02d:%2$02d"
 msgstr ""
 

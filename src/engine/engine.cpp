@@ -90,9 +90,15 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
     BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
   }
 
-  BOOST_LOG_TRIVIAL(info) << "Using locales from "
-                          << std::filesystem::absolute(std::filesystem::current_path() / "share" / "po");
-  bindtextdomain("edisonengine", std::filesystem::absolute(std::filesystem::current_path() / "share" / "po").c_str());
+  const auto poDir = std::filesystem::absolute(std::filesystem::current_path() / "share" / "po");
+  BOOST_LOG_TRIVIAL(info) << "Using locales from " << poDir;
+#ifdef WIN32
+  char cPath[512];
+  wcstombs(cPath, poDir.c_str(), 512);
+  bindtextdomain("edisonengine", cPath);
+#else
+  bindtextdomain("edisonengine", poDir.c_str());
+#endif
   setlocale(LC_ALL, m_language.c_str());
   textdomain("edisonengine");
 

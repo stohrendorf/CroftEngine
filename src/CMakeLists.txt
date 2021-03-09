@@ -510,7 +510,7 @@ target_link_libraries(
         pybind11::embed
         Python3::Python
         Threads::Threads
-        ${Libintl_LIBRARY}
+        ${Intl_LIBRARIES}
 )
 
 add_dependencies( edisonengine i18n )
