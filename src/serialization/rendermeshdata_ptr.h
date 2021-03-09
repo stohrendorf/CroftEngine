@@ -3,6 +3,7 @@
 #include "engine/world.h"
 #include "optional.h"
 #include "ptr.h"
+#include "serialization.h"
 
 namespace serialization
 {

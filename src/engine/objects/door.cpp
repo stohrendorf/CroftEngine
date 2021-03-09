@@ -1,8 +1,9 @@
 #include "door.h"
 
+#include "engine/world.h"
 #include "laraobject.h"
-#include "serialization/box_ptr.h"
 #include "serialization/serialization.h"
+#include "serialization/vector_element.h"
 
 namespace engine::objects
 {
@@ -192,11 +193,10 @@ void Door::Info::init(const loader::file::Room& room, const core::TRVec& wingsPo
 
 void Door::Info::serialize(const serialization::Serializer<World>& ser)
 {
-  ser(S_NV("originalSector", originalSector), S_NV("box", wingsBox));
+  ser(S_NV("originalSector", originalSector), S_NVVE("box", ser.context.getBoxes(), wingsBox));
   if(ser.loading)
   {
     wingsSector = nullptr;
-    ser.lazy([this](const serialization::Serializer<World>& ser) { originalSector.connect(ser.context.getRooms()); });
   }
 }
 } // namespace engine::objects

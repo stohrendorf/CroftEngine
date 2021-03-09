@@ -1,22 +1,25 @@
 #include "vec.h"
 
+#include "engine/world.h"
+#include "loader/file/datatypes.h"
+#include "loader/file/level/level.h"
 #include "serialization/not_null.h"
 #include "serialization/quantity.h"
-#include "serialization/room_ptr.h"
 #include "serialization/serialization.h"
+#include "serialization/vector_element.h"
 
 namespace core
 {
 void RoomBoundPosition::serialize(const serialization::Serializer<engine::World>& ser)
 {
-  ser(S_NV("room", room), S_NV("position", position));
+  ser(S_NVVENN("room", ser.context.getLevel().m_rooms, room), S_NV("position", position));
 }
 
 RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer<engine::World>& ser)
 {
   const loader::file::Room* room = nullptr;
   TRVec position{};
-  ser(S_NV("room", room), S_NV("position", position));
+  ser(S_NVVE("room", ser.context.getLevel().m_rooms, room), S_NV("position", position));
   return RoomBoundPosition{room, position};
 }
 

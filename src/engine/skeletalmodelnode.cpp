@@ -6,7 +6,6 @@
 #include "loader/file/mesh.h"
 #include "loader/file/rendermeshdata.h"
 #include "render/scene/mesh.h"
-#include "serialization/animation_ptr.h"
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
 #include "serialization/quantity.h"
@@ -14,6 +13,7 @@
 #include "serialization/serialization.h"
 #include "serialization/skeletalmodeltype_ptr.h"
 #include "serialization/vector.h"
+#include "serialization/vector_element.h"
 
 #include <stack>
 #include <utility>
@@ -265,7 +265,11 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
 void SkeletalModelNode::serialize(const serialization::Serializer<World>& ser)
 {
   auto id = getName();
-  ser(S_NV("id", id), S_NV("model", m_model), S_NV("parts", m_meshParts), S_NV("anim", m_anim), S_NV("frame", m_frame));
+  ser(S_NV("id", id),
+      S_NV("model", m_model),
+      S_NV("parts", m_meshParts),
+      S_NVVE("anim", ser.context.getAnimations(), m_anim),
+      S_NV("frame", m_frame));
 
   if(ser.loading)
     ser.lazy([this](const serialization::Serializer<World>&) {

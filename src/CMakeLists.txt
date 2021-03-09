@@ -405,11 +405,8 @@ set( EDISONENGINE_SRCS
         qs/string_util.h
         qs/tuple_util.h
 
-        serialization/animation_ptr.h
-        serialization/animframe_ptr.h
         serialization/array.h
         serialization/bitset.h
-        serialization/box_ptr.h
         serialization/deque.h
         serialization/glm.h
         serialization/map.h
@@ -418,12 +415,10 @@ set( EDISONENGINE_SRCS
         serialization/optional.h
         serialization/ptr.h
         serialization/quantity.h
-        serialization/room_ptr.h
         serialization/serialization.h
         serialization/serialization.cpp
         serialization/serialization_fwd.h
         serialization/skeletalmodeltype_ptr.h
-        serialization/sprite_ptr.h
         serialization/unordered_map.h
         serialization/unordered_set.h
         serialization/vector.h
@@ -512,8 +507,6 @@ target_link_libraries(
         Threads::Threads
         ${Intl_LIBRARIES}
 )
-
-add_dependencies( edisonengine i18n )
 
 if(( LINUX OR UNIX ) AND CMAKE_COMPILER_IS_GNUCC )
     target_link_libraries(

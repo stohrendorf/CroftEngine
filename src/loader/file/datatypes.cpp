@@ -1,5 +1,6 @@
 #include "datatypes.h"
 
+#include "engine/world.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "level/level.h"
@@ -9,10 +10,10 @@
 #include "render/scene/names.h"
 #include "render/scene/sprite.h"
 #include "render/textureanimator.h"
-#include "serialization/box_ptr.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
+#include "serialization/vector_element.h"
 #include "util.h"
 #include "util/helpers.h"
 
@@ -384,6 +385,7 @@ std::unique_ptr<Room> Room::readTr1(io::SDLReader& reader)
   room->sectorCountZ = reader.readU16();
   room->sectorCountX = reader.readU16();
   reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
+  room->typedSectors.resize(room->sectors.size());
 
   // read and make consistent
   room->ambientShade = core::Shade{reader.readI16()};
@@ -974,14 +976,17 @@ Sector Sector::read(io::SDLReader& reader)
 
 void TypedSector::serialize(const serialization::Serializer<engine::World>& ser)
 {
-  ser(S_NV("box", box), S_NV("floorHeight", floorHeight), S_NV("ceilingHeight", ceilingHeight));
+  ser(S_NVVE("box", ser.context.getBoxes(), box),
+      S_NV("floorHeight", floorHeight),
+      S_NV("ceilingHeight", ceilingHeight),
+      S_NV("roomIndexBelow", m_roomIndexBelow),
+      S_NV("roomIndexAbove", m_roomIndexAbove),
+      S_NVVE("portalTarget", ser.context.getLevel().m_rooms, portalTarget),
+      S_NVVE("floorData", ser.context.getLevel().m_floorData, floorData));
 
   if(ser.loading)
   {
-    roomBelow = nullptr;
-    roomAbove = nullptr;
-    floorData = nullptr;
-    portalTarget = nullptr;
+    ser.lazy([this](const serialization::Serializer<engine::World>& ser) { connect(ser.context.getRooms()); });
   }
 }
 

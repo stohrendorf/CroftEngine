@@ -1,12 +1,12 @@
 #include "objectstate.h"
 
 #include "engine/script/reflection.h"
+#include "engine/world.h"
 #include "laraobject.h"
-#include "serialization/animation_ptr.h"
 #include "serialization/bitset.h"
-#include "serialization/box_ptr.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "serialization/vector_element.h"
 
 #include <pybind11/pybind11.h>
 
@@ -144,7 +144,7 @@ void ObjectState::serialize(const serialization::Serializer<World>& ser)
       S_NV("activationState", activationState),
       S_NV("floor", floor),
       S_NV("touchBits", touch_bits),
-      S_NV("box", box),
+      S_NVVE("box", ser.context.getBoxes(), box),
       S_NV("shade", shade),
       S_NV("falling", falling),
       S_NV("isHit", is_hit),

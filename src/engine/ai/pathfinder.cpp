@@ -10,6 +10,7 @@
 #include "serialization/unordered_map.h"
 #include "serialization/unordered_set.h"
 #include "serialization/vector.h"
+#include "serialization/vector_element.h"
 
 namespace engine::ai
 {
@@ -329,14 +330,14 @@ void PathFinder::serialize(const serialization::Serializer<World>& ser)
       S_NV("step", step),
       S_NV("drop", drop),
       S_NV("fly", fly),
-      S_NV("targetBox", target_box),
-      S_NV("requiredBox", required_box),
+      S_NVVE("targetBox", ser.context.getBoxes(), target_box),
+      S_NVVE("requiredBox", ser.context.getBoxes(), required_box),
       S_NV("target", target));
 }
 
 void PathFinderNode::serialize(const serialization::Serializer<World>& ser)
 {
-  ser(S_NV("exitBox", exit_box), S_NV("traversable", traversable));
+  ser(S_NVVE("exitBox", ser.context.getBoxes(), exit_box), S_NV("traversable", traversable));
 }
 
 PathFinderNode PathFinderNode::create(const serialization::Serializer<World>& ser)

@@ -14,12 +14,12 @@
 #include "loader/file/rendermeshdata.h"
 #include "render/scene/mesh.h"
 #include "render/textureanimator.h"
-#include "serialization/animframe_ptr.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/unordered_map.h"
+#include "serialization/vector_element.h"
 
 #include <boost/range/adaptors.hpp>
 #include <glm/gtx/norm.hpp>
@@ -2364,11 +2364,13 @@ void LaraObject::initGunflares()
 
 void LaraObject::AimInfo::serialize(const serialization::Serializer<World>& ser)
 {
-  ser(S_NV("weaponAnimData", weaponAnimData),
+  auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
+  ser(S_NVVE("weaponAnimData", ser.context.getPoseFrames(), ptr),
       S_NV("frame", frame),
       S_NV("aiming", aiming),
       S_NV("aimRotation", aimRotation),
       S_NV("flashTimeout", flashTimeout));
+  weaponAnimData = reinterpret_cast<const loader::file::AnimFrame*>(ptr);
 }
 
 void LaraObject::Weapon::serialize(const serialization::Serializer<World>& ser)

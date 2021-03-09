@@ -1011,9 +1011,6 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("rooms", serialization::FrozenVector{m_level->m_rooms}),
       S_NV("boxes", serialization::FrozenVector{m_level->m_boxes}),
       S_NV("audioEngine", *m_audioEngine));
-
-  if(ser.loading)
-    m_level->connectSectors();
 }
 
 void World::gameLoop(bool godMode)

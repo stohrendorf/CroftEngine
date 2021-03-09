@@ -1,11 +1,13 @@
 #include "spriteobject.h"
 
+#include "engine/world.h"
 #include "loader/file/item.h"
+#include "loader/file/level/level.h"
 #include "render/scene/mesh.h"
 #include "render/scene/sprite.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
-#include "serialization/sprite_ptr.h"
+#include "serialization/vector_element.h"
 
 #include <utility>
 
@@ -67,7 +69,8 @@ void SpriteObject::serialize(const serialization::Serializer<World>& ser)
 {
   Object::serialize(ser);
   auto tmp = getNode()->getName();
-  ser(S_NV("@name", tmp), S_NV("sprite", m_sprite), S_NV("brightness", m_brightness));
+  ser(
+    S_NV("@name", tmp), S_NVVE("sprite", ser.context.getLevel().m_sprites, m_sprite), S_NV("brightness", m_brightness));
   if(ser.loading)
   {
     createModel();

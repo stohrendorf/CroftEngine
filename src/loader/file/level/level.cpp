@@ -273,8 +273,6 @@ void Level::postProcessDataStructures()
 {
   BOOST_LOG_TRIVIAL(info) << "Post-processing data structures";
 
-  connectSectors();
-
   Expects(m_baseZones.flyZone.size() == m_boxes.size());
   Expects(m_baseZones.groundZone1.size() == m_boxes.size());
   Expects(m_baseZones.groundZone2.size() == m_boxes.size());
@@ -374,4 +372,6 @@ void Level::postProcessDataStructures()
         return TypedSector{sector, m_rooms, m_boxes, m_floorData};
       });
   }
+
+  connectSectors();
 }
