@@ -4,40 +4,42 @@ endif()
 
 include( ./dl_unpack )
 
+set( _soloud_version RELEASE_20200207 )
+
 dl_unpack(
-        URL http://sol.gfxile.net/soloud/soloud_20200207_lite.zip
-        FILENAME soloud_20200207_lite.zip
-        TEST soloud20200207
+        URL https://github.com/jarikomppa/soloud/archive/${_soloud_version}.tar.gz
+        FILENAME ${_soloud_version}.tar.gz
+        TEST soloud-${_soloud_version}
 )
 
 find_package( Threads REQUIRED )
 
 file(
         GLOB_RECURSE _SOLOUD_CORE_SRCS
-        "${EXTERNAL_SRC_ROOT}/soloud20200207/src/core/*.c"
-        "${EXTERNAL_SRC_ROOT}/soloud20200207/src/core/*.cpp"
-        "${EXTERNAL_SRC_ROOT}/soloud20200207/src/audiosource/wav/*.c"
-        "${EXTERNAL_SRC_ROOT}/soloud20200207/src/audiosource/wav/*.cpp"
+        "${EXTERNAL_SRC_ROOT}/soloud-${_soloud_version}/src/core/*.c"
+        "${EXTERNAL_SRC_ROOT}/soloud-${_soloud_version}/src/core/*.cpp"
+        "${EXTERNAL_SRC_ROOT}/soloud-${_soloud_version}/src/audiosource/wav/*.c"
+        "${EXTERNAL_SRC_ROOT}/soloud-${_soloud_version}/src/audiosource/wav/*.cpp"
 )
 add_library(
         soloud STATIC
         ${_SOLOUD_CORE_SRCS}
-        "${EXTERNAL_SRC_ROOT}/soloud20200207/src/filter/soloud_biquadresonantfilter.cpp"
+        "${EXTERNAL_SRC_ROOT}/soloud-${_soloud_version}/src/filter/soloud_biquadresonantfilter.cpp"
 )
-target_include_directories( soloud PUBLIC "${EXTERNAL_SRC_ROOT}/soloud20200207/include" )
+target_include_directories( soloud PUBLIC "${EXTERNAL_SRC_ROOT}/soloud-${_soloud_version}/include" )
 target_link_directories( soloud PUBLIC Threads::Threads ${CMAKE_DL_LIBS} )
 
 function( add_soloud_backend name definition )
     file(
             GLOB_RECURSE _SOLOUD_BACKEND_SRCS
-            "${EXTERNAL_SRC_ROOT}/soloud20200207/src/backend/${name}/*.c"
-            "${EXTERNAL_SRC_ROOT}/soloud20200207/src/backend/${name}/*.cpp"
+            "${EXTERNAL_SRC_ROOT}/soloud-${_soloud_version}/src/backend/${name}/*.c"
+            "${EXTERNAL_SRC_ROOT}/soloud-${_soloud_version}/src/backend/${name}/*.cpp"
     )
     add_library(
             soloud_backend_${name} STATIC
             ${_SOLOUD_BACKEND_SRCS}
     )
-    target_include_directories( soloud_backend_${name} PUBLIC "${EXTERNAL_SRC_ROOT}/soloud20200207/include" )
+    target_include_directories( soloud_backend_${name} PUBLIC "${EXTERNAL_SRC_ROOT}/soloud-${_soloud_version}/include" )
     target_compile_definitions( soloud_backend_${name} PUBLIC -DWITH_${definition} )
     target_link_libraries( soloud PUBLIC soloud_backend_${name} )
 endfunction()
