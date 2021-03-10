@@ -76,8 +76,7 @@ public:
 
   void playVideo(const std::filesystem::path& path);
 
-  void renderWorld(ui::Ui& ui,
-                   const ObjectManager& objectManager,
+  void renderWorld(const ObjectManager& objectManager,
                    const std::vector<loader::file::Room>& rooms,
                    const CameraController& cameraController,
                    const std::unordered_set<const loader::file::Portal*>& waterEntryPortals);
@@ -143,6 +142,8 @@ public:
     BOOST_ASSERT(m_screenOverlay != nullptr);
     return *m_screenOverlay;
   }
+
+  void renderScreenOverlay();
 
   void apply(const render::RenderSettings& renderSettings);
 

@@ -56,8 +56,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
   });
 }
 
-void Presenter::renderWorld(ui::Ui& ui,
-                            const ObjectManager& objectManager,
+void Presenter::renderWorld(const ObjectManager& objectManager,
                             const std::vector<loader::file::Room>& rooms,
                             const CameraController& cameraController,
                             const std::unordered_set<const loader::file::Portal*>& waterEntryPortals)
@@ -197,16 +196,6 @@ void Presenter::renderWorld(ui::Ui& ui,
       drawObjectName(object, gl::SRGBA8{0, 255, 0, 255});
     }
   }
-
-  {
-    SOGLB_DEBUGGROUP("screen-overlay-pass");
-    m_renderer->resetRenderState();
-    m_screenOverlay->render(context);
-  }
-
-  ui.render(m_window->getViewport());
-
-  swapBuffers();
 }
 
 namespace
@@ -459,5 +448,14 @@ gl::CImgWrapper Presenter::takeScreenshot() const
   gl::CImgWrapper img{pixels.data(), vp.x, vp.y, false};
   img.fromScreenshot();
   return img;
+}
+
+void Presenter::renderScreenOverlay()
+{
+  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+
+  SOGLB_DEBUGGROUP("screen-overlay-pass");
+  m_renderer->resetRenderState();
+  m_screenOverlay->render(context);
 }
 } // namespace engine

@@ -1052,7 +1052,10 @@ void World::gameLoop(bool godMode)
   }
 
   drawPickupWidgets(ui);
-  getPresenter().renderWorld(ui, getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderScreenOverlay();
+  ui.render(getPresenter().getViewport());
+  getPresenter().swapBuffers();
 }
 
 bool World::cinematicLoop()
@@ -1066,7 +1069,10 @@ bool World::cinematicLoop()
   ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
             getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
             getPalette()};
-  getPresenter().renderWorld(ui, getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderScreenOverlay();
+  ui.render(getPresenter().getViewport());
+  getPresenter().swapBuffers();
   if(++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size())
     return false;
   return true;
@@ -1518,10 +1524,9 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
 
 void World::drawPickupWidgets(ui::Ui& ui)
 {
-  auto& img = *getPresenter().getScreenOverlay().getImage();
-  auto x = img.getSize().x * 9 / 10;
-  auto y = img.getSize().y * 9 / 10;
-  auto widthPerWidget = img.getSize().x / 10 * 4 / 3;
+  auto x = getPresenter().getViewport().x * 9 / 10;
+  auto y = getPresenter().getViewport().y * 9 / 10;
+  auto widthPerWidget = getPresenter().getViewport().x / 10 * 4 / 3;
   for(const auto& widget : m_pickupWidgets)
   {
     if(widget.expired())
