@@ -38,7 +38,7 @@ void Node::transformChanged()
 
 void Node::accept(Visitor& visitor)
 {
-  gl::DebugGroup debugGroup{getName()};
+  SOGLB_DEBUGGROUP(getName());
 
   if(m_renderable != nullptr)
   {

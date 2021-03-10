@@ -58,7 +58,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void CSM::Split::renderSquare()
 {
-  gl::DebugGroup dbg{"square-pass"};
+  SOGLB_DEBUGGROUP("square-pass");
   GL_ASSERT(gl::api::viewport(0, 0, depthTexture->size().x, depthTexture->size().y));
   squareFramebuffer->bindWithAttachments();
 

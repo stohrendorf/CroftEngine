@@ -2,6 +2,7 @@
 
 #include "material.h"
 #include "mesh.h"
+#include "rendercontext.h"
 #include "shadermanager.h"
 #include "shaderprogram.h"
 #include "uniformparameter.h"
@@ -52,7 +53,7 @@ public:
 
   void render() const
   {
-    gl::DebugGroup dbg{m_name + "/blur-pass"};
+    SOGLB_DEBUGGROUP(m_name + "/blur-pass");
     GL_ASSERT(gl::api::viewport(0, 0, m_blurredTexture->size().x, m_blurredTexture->size().y));
 
     gl::RenderState state;

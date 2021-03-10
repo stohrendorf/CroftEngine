@@ -216,7 +216,7 @@ void RenderPipeline::FXAAStage::bind()
 
 void RenderPipeline::FXAAStage::render(const glm::ivec2& size)
 {
-  gl::DebugGroup dbg{"fxaa-pass"};
+  SOGLB_DEBUGGROUP("fxaa-pass");
   GL_ASSERT(gl::api::viewport(0, 0, size.x, size.y));
   bind();
 
@@ -238,7 +238,7 @@ void RenderPipeline::SSAOStage::updateCamera(const gsl::not_null<std::shared_ptr
 
 void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
 {
-  gl::DebugGroup dbg{"ssao-pass"};
+  SOGLB_DEBUGGROUP("ssao-pass");
   GL_ASSERT(gl::api::viewport(0, 0, size.x, size.y));
   fb->bindWithAttachments();
 
@@ -346,7 +346,7 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void RenderPipeline::CompositionStage::render(bool water, const RenderSettings& renderSettings)
 {
-  gl::DebugGroup dbg{"postprocess-pass"};
+  SOGLB_DEBUGGROUP("postprocess-pass");
   if(renderSettings.crt)
     fb->bindWithAttachments();
   else

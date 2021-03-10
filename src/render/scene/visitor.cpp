@@ -14,7 +14,7 @@ void Visitor::visit(Node& node)
     return;
   if(const auto& vp = m_context.getViewProjection(); vp.has_value() && node.canBeCulled(vp.value()))
   {
-    gl::DebugGroup debugGroup{node.getName() + " <culled>"};
+    SOGLB_DEBUGGROUP(node.getName() + " <culled>");
     return;
   }
 
