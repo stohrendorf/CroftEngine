@@ -28,9 +28,12 @@ public:
                                                     const std::filesystem::path& fshPath,
                                                     const std::vector<std::string>& defines = {});
 
-  auto getFlat()
+  auto getFlat(bool withAlphaMultiplier)
   {
-    return get("flat.vert", "flat.frag", {"INVERT_Y"});
+    std::vector<std::string> defines{"INVERT_Y"};
+    if(withAlphaMultiplier)
+      defines.emplace_back("ALPHA_MULTIPLIER");
+    return get("flat.vert", "flat.frag", defines);
   }
 
   auto getGeometry(bool water, bool skeletal, bool roomShadowing)

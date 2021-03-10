@@ -26,6 +26,7 @@ bool ScreenOverlay::render(RenderContext& context)
 
   context.pushState(getRenderState());
   m_texture->assign(m_image->getRawData());
+  m_mesh->getMaterial().get(RenderMode::Full)->getUniform("u_alphaMultiplier")->set(m_alphaMultiplier);
   m_mesh->render(context);
   context.popState();
   return true;
@@ -39,7 +40,7 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
   }
 
-  const auto screenOverlayProgram = shaderManager.getFlat();
+  const auto screenOverlayProgram = shaderManager.getFlat(true);
 
   m_texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(m_image->getSize());
   m_texture->assign(m_image->getRawData())

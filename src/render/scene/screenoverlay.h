@@ -38,9 +38,15 @@ public:
     return m_texture;
   }
 
+  void setAlphaMultiplier(float value)
+  {
+    m_alphaMultiplier = value;
+  }
+
 private:
   const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
   std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_texture;
   std::shared_ptr<Mesh> m_mesh{nullptr};
+  float m_alphaMultiplier{1.0f};
 };
 } // namespace render::scene
