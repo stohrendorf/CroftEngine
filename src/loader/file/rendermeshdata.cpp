@@ -199,6 +199,9 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::to
     .set(render::scene::RenderMode::Full, material)
     .set(render::scene::RenderMode::DepthOnly, materialDepthOnly)
     .set(render::scene::RenderMode::CSMDepthOnly, materialCSMDepthOnly);
+  mesh->getRenderState().setDepthTest(true);
+  mesh->getRenderState().setDepthWrite(true);
+  mesh->getRenderState().setDepthFunction(gl::api::DepthFunction::Less);
 
   return mesh;
 }
