@@ -49,6 +49,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
     if(m_window->isMinimized())
       return true;
 
+    m_screenOverlay->setAlphaMultiplier(0.9f);
     m_screenOverlay->render(context);
     swapBuffers();
     m_inputHandler->update();
@@ -369,6 +370,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+  m_screenOverlay->setAlphaMultiplier(1.0f);
   m_screenOverlay->render(context);
   swapBuffers();
 }

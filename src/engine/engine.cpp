@@ -204,6 +204,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
                 world.getPalette()};
       menu->display(ui, world);
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+      m_presenter->getScreenOverlay().setAlphaMultiplier(1.0f);
       m_presenter->getScreenOverlay().render(context);
       ui.render(m_presenter->getViewport());
       m_presenter->swapBuffers();
@@ -324,6 +325,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
               world.getPalette()};
     menu->display(ui, world);
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+    m_presenter->getScreenOverlay().setAlphaMultiplier(1.0f);
     m_presenter->getScreenOverlay().render(context);
     ui.render(m_presenter->getViewport());
     m_presenter->swapBuffers();
