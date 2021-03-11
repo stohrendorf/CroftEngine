@@ -27,84 +27,132 @@ public:
 private:
   static std::shared_ptr<scene::Mesh> createFbMesh(const glm::ivec2& size, const gl::Program& program);
 
-  struct PortalStage
+  class PortalStage
   {
-    std::shared_ptr<gl::TextureDepth<float>> depthBuffer;
-    std::shared_ptr<gl::Texture2D<gl::RG32F>> perturbBuffer;
-    scene::SeparableBlur<gl::RG32F> blur;
-    std::shared_ptr<gl::Framebuffer> fb;
-
+  public:
     explicit PortalStage(scene::ShaderManager& shaderManager)
-        : blur{"perturb", shaderManager, 4, true, false}
+        : m_blur{"perturb", shaderManager, 4, true, false}
     {
     }
 
     void resize(const glm::ivec2& viewport);
     void bind(const gl::TextureDepth<float>& depth);
+
+    void renderBlur()
+    {
+      m_blur.render();
+    }
+
+    [[nodiscard]] const auto& getDepthBuffer() const
+    {
+      return m_depthBuffer;
+    }
+
+    [[nodiscard]] const auto& getNoisyTexture() const
+    {
+      return m_perturbBuffer;
+    }
+
+    [[nodiscard]] const auto& getBlurredTexture() const
+    {
+      return m_blur.getBlurredTexture();
+    }
+
+  private:
+    std::shared_ptr<gl::TextureDepth<float>> m_depthBuffer;
+    std::shared_ptr<gl::Texture2D<gl::RG32F>> m_perturbBuffer;
+    scene::SeparableBlur<gl::RG32F> m_blur;
+    std::shared_ptr<gl::Framebuffer> m_fb;
   };
 
-  struct GeometryStage
+  class GeometryStage
   {
-    std::shared_ptr<gl::TextureDepth<float>> depthBuffer;
-    std::shared_ptr<gl::Texture2D<gl::SRGBA8>> colorBuffer;
-    std::shared_ptr<gl::Texture2D<gl::RGB32F>> positionBuffer;
-    std::shared_ptr<gl::Texture2D<gl::RGB16F>> normalBuffer;
-    std::shared_ptr<gl::Framebuffer> fb;
-
+  public:
     void resize(const glm::ivec2& viewport);
     void bind(const glm::ivec2& size);
+
+    [[nodiscard]] const auto& getNormalBuffer() const
+    {
+      return m_normalBuffer;
+    }
+
+    [[nodiscard]] const auto& getPositionBuffer() const
+    {
+      return m_positionBuffer;
+    }
+
+    [[nodiscard]] const auto& getColorBuffer() const
+    {
+      return m_colorBuffer;
+    }
+
+    [[nodiscard]] const auto& getDepthBuffer() const
+    {
+      return m_depthBuffer;
+    }
+
+  private:
+    std::shared_ptr<gl::TextureDepth<float>> m_depthBuffer;
+    std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
+    std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_positionBuffer;
+    std::shared_ptr<gl::Texture2D<gl::RGB16F>> m_normalBuffer;
+    std::shared_ptr<gl::Framebuffer> m_fb;
   };
 
-  struct SSAOStage
+  class SSAOStage
   {
-    std::shared_ptr<scene::Mesh> renderMesh;
-
-    const std::shared_ptr<scene::ShaderProgram> shader;
-    const std::shared_ptr<scene::Material> material;
-
-    std::shared_ptr<gl::Texture2D<gl::RGB32F>> noiseTexture;
-    std::shared_ptr<gl::Texture2D<gl::Scalar16F>> aoBuffer;
-    std::shared_ptr<gl::Framebuffer> fb;
-
-    scene::SeparableBlur<gl::Scalar16F> blur;
-
+  public:
     explicit SSAOStage(scene::ShaderManager& shaderManager);
     void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);
     void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
     void render(const glm::ivec2& size);
+
+    [[nodiscard]] const auto& getBlurredTexture() const
+    {
+      return m_blur.getBlurredTexture();
+    }
+
+  private:
+    std::shared_ptr<scene::Mesh> m_renderMesh;
+
+    const std::shared_ptr<scene::ShaderProgram> m_shader;
+    const std::shared_ptr<scene::Material> m_material;
+
+    std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_noiseTexture;
+    std::shared_ptr<gl::Texture2D<gl::Scalar16F>> m_aoBuffer;
+    std::shared_ptr<gl::Framebuffer> m_fb;
+
+    scene::SeparableBlur<gl::Scalar16F> m_blur;
   };
 
-  struct FXAAStage
+  class FXAAStage
   {
-    std::shared_ptr<scene::Mesh> mesh;
-
-    const std::shared_ptr<scene::ShaderProgram> shader;
-    const std::shared_ptr<scene::Material> material;
-    std::shared_ptr<gl::Texture2D<gl::SRGBA8>> colorBuffer;
-    std::shared_ptr<gl::Framebuffer> fb;
-
+  public:
     explicit FXAAStage(scene::ShaderManager& shaderManager);
 
     void bind();
     void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);
 
     void render(const glm::ivec2& size);
+
+    [[nodiscard]] const auto& getColorBuffer() const
+    {
+      return m_colorBuffer;
+    }
+
+  private:
+    std::shared_ptr<scene::Mesh> m_mesh;
+
+    const std::shared_ptr<scene::ShaderProgram> m_shader;
+    const std::shared_ptr<scene::Material> m_material;
+    std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
+    std::shared_ptr<gl::Framebuffer> m_fb;
   };
 
-  struct CompositionStage
+  class CompositionStage
   {
-    std::shared_ptr<scene::Mesh> mesh;
-    std::shared_ptr<scene::Mesh> waterMesh;
-    std::shared_ptr<scene::Mesh> crtMesh;
-
-    std::shared_ptr<scene::Material> compositionMaterial;
-    std::shared_ptr<scene::Material> waterCompositionMaterial;
-    const std::shared_ptr<scene::Material> crtMaterial;
-    std::shared_ptr<gl::Texture2D<gl::SRGBA8>> colorBuffer;
-    std::shared_ptr<gl::Texture2D<gl::ScalarByte>> noise;
-    std::shared_ptr<gl::Framebuffer> fb;
-
+  public:
     explicit CompositionStage(scene::MaterialManager& materialManager, const RenderSettings& renderSettings);
 
     void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
@@ -119,6 +167,18 @@ private:
     void render(bool water, const RenderSettings& renderSettings);
 
     void initMaterials(scene::MaterialManager& materialManager, const RenderSettings& renderSettings);
+
+  private:
+    std::shared_ptr<scene::Mesh> m_mesh;
+    std::shared_ptr<scene::Mesh> m_waterMesh;
+    std::shared_ptr<scene::Mesh> m_crtMesh;
+
+    std::shared_ptr<scene::Material> m_compositionMaterial;
+    std::shared_ptr<scene::Material> m_waterCompositionMaterial;
+    const std::shared_ptr<scene::Material> m_crtMaterial;
+    std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
+    std::shared_ptr<gl::Texture2D<gl::ScalarByte>> m_noise;
+    std::shared_ptr<gl::Framebuffer> m_fb;
   };
 
   RenderSettings m_renderSettings{};
@@ -139,7 +199,7 @@ public:
 
   void bindPortalFrameBuffer()
   {
-    m_portalStage.bind(*m_geometryStage.depthBuffer);
+    m_portalStage.bind(*m_geometryStage.getDepthBuffer());
   }
 
   explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);

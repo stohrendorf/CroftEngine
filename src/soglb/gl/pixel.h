@@ -69,11 +69,13 @@ struct Pixel
   }
 };
 
-// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T,
          typename U,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
          glm::length_t _Channels,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
          api::PixelFormat _PixelFormat,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
          api::InternalFormat _InternalFormat>
 auto imix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
           const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& rhs,
