@@ -20,43 +20,65 @@ std::shared_ptr<scene::Mesh> RenderPipeline::createFbMesh(const glm::ivec2& size
 }
 
 RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport)
-    : m_portalStage{*materialManager.getShaderManager()}
-    , m_ssaoStage{*materialManager.getShaderManager()}
-    , m_fxaaStage{*materialManager.getShaderManager()}
-    , m_compositionStage{materialManager, m_renderSettings}
 {
-  resize(viewport);
+  resize(materialManager, viewport, true);
 }
 
 void RenderPipeline::compositionPass(const bool water)
 {
   if(m_renderSettings.waterDenoise)
-    m_portalStage.renderBlur();
-  m_ssaoStage.render(m_size / 2);
-  m_fxaaStage.render(m_size);
-  m_compositionStage.render(water, m_renderSettings);
+  {
+    BOOST_ASSERT(m_portalStage != nullptr);
+    m_portalStage->renderBlur();
+  }
+  BOOST_ASSERT(m_ssaoStage != nullptr);
+  m_ssaoStage->render(m_size / 2);
+  BOOST_ASSERT(m_fxaaStage != nullptr);
+  m_fxaaStage->render(m_size);
+  BOOST_ASSERT(m_compositionStage != nullptr);
+  m_compositionStage->render(water, m_renderSettings);
 }
 
 void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
 {
-  m_compositionStage.updateCamera(camera);
-  m_ssaoStage.updateCamera(camera);
+  BOOST_ASSERT(m_compositionStage != nullptr);
+  m_compositionStage->updateCamera(camera);
+  BOOST_ASSERT(m_ssaoStage != nullptr);
+  m_ssaoStage->updateCamera(camera);
 }
 
-void RenderPipeline::resizeTextures(const glm::ivec2& viewport)
+void RenderPipeline::apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager)
 {
-  m_geometryStage.resize(viewport);
-  m_portalStage.resize(viewport);
-  m_ssaoStage.resize(viewport / 2, m_geometryStage);
-  m_fxaaStage.resize(viewport, m_geometryStage);
-  m_compositionStage.resize(viewport, m_renderSettings, m_geometryStage, m_portalStage, m_ssaoStage, m_fxaaStage);
+  m_renderSettings = renderSettings;
+  resize(materialManager, m_size, true);
 }
 
-RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager)
+void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::ivec2& viewport, bool force)
+{
+  if(!force && m_size == viewport)
+  {
+    return;
+  }
+
+  m_size = viewport;
+
+  m_geometryStage = std::make_shared<GeometryStage>(viewport);
+  m_portalStage = std::make_shared<PortalStage>(*materialManager.getShaderManager(), viewport);
+  m_ssaoStage = std::make_shared<SSAOStage>(*materialManager.getShaderManager(), viewport / 2, *m_geometryStage);
+  m_fxaaStage = std::make_shared<FXAAStage>(*materialManager.getShaderManager(), viewport, *m_geometryStage);
+  m_compositionStage = std::make_shared<CompositionStage>(
+    materialManager, m_renderSettings, viewport, *m_geometryStage, *m_portalStage, *m_ssaoStage, *m_fxaaStage);
+}
+
+RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager,
+                                     const glm::ivec2& viewport,
+                                     const GeometryStage& geometryStage)
     : m_shader{shaderManager.getSSAO()}
     , m_material{std::make_shared<scene::Material>(m_shader)}
+    , m_renderMesh{createFbMesh(viewport, m_shader->getHandle())}
+    , m_noiseTexture{std::make_shared<gl::Texture2D<gl::RGB32F>>(glm::ivec2{4, 4}, "ssao-noise")}
+    , m_aoBuffer{std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao")}
     , m_blur{"ssao", shaderManager, 4, true, false}
-
 {
   // generate sample kernel
   std::uniform_real_distribution<float> randomFloats(0, 1);
@@ -94,18 +116,13 @@ RenderPipeline::SSAOStage::SSAOStage(scene::ShaderManager& shaderManager)
     ssaoNoise.emplace_back(randomFloats(generator) * 2 - 1, randomFloats(generator) * 2 - 1, 0.0f);
   }
 
-  m_noiseTexture = std::make_shared<gl::Texture2D<gl::RGB32F>>(glm::ivec2{4, 4}, "ssao-noise");
   m_noiseTexture->assign(ssaoNoise.data())
     .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureMinFilter::Nearest)
     .set(gl::api::TextureMagFilter::Nearest);
   m_material->getUniform("u_texNoise")->set(m_noiseTexture);
-}
 
-void RenderPipeline::SSAOStage::resize(const glm::ivec2& viewport, const RenderPipeline::GeometryStage& geometryStage)
-{
-  m_aoBuffer = std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao");
   m_aoBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
@@ -114,7 +131,6 @@ void RenderPipeline::SSAOStage::resize(const glm::ivec2& viewport, const RenderP
   m_material->getUniform("u_normals")->set(geometryStage.getNormalBuffer());
   m_material->getUniform("u_position")->set(geometryStage.getPositionBuffer());
 
-  m_renderMesh = createFbMesh(viewport, m_shader->getHandle());
   m_renderMesh->getMaterial().set(scene::RenderMode::Full, m_material);
 
   m_blur.setInput(m_aoBuffer);
@@ -124,13 +140,13 @@ void RenderPipeline::SSAOStage::resize(const glm::ivec2& viewport, const RenderP
            .build("ssao-fb");
 }
 
-void RenderPipeline::PortalStage::resize(const glm::ivec2& viewport)
+RenderPipeline::PortalStage::PortalStage(scene::ShaderManager& shaderManager, const glm::vec2& viewport)
+    : m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(viewport, "portal-depth")}
+    , m_perturbBuffer{std::make_shared<gl::Texture2D<gl::RG32F>>(viewport, "portal-perturb")}
+    , m_blur{"perturb", shaderManager, 4, true, false}
 {
-  m_depthBuffer = std::make_shared<gl::TextureDepth<float>>(viewport, "portal-depth");
   m_depthBuffer->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
-  m_perturbBuffer = std::make_shared<gl::Texture2D<gl::RG32F>>(viewport, "portal-perturb");
   m_perturbBuffer->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
-
   m_blur.setInput(m_perturbBuffer);
 
   m_fb = gl::FrameBufferBuilder()
@@ -155,25 +171,22 @@ void RenderPipeline::GeometryStage::bind(const glm::ivec2& size)
   m_fb->bindWithAttachments();
 }
 
-void RenderPipeline::GeometryStage::resize(const glm::ivec2& viewport)
+RenderPipeline::GeometryStage::GeometryStage(const glm::ivec2& viewport)
+    : m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(viewport, "geometry-depth")}
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "geometry-color")}
+    , m_positionBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "geometry-position")}
+    , m_normalBuffer{std::make_shared<gl::Texture2D<gl::RGB16F>>(viewport, "geometry-normal")}
 {
-  m_depthBuffer = std::make_shared<gl::TextureDepth<float>>(viewport, "geometry-depth");
   m_depthBuffer->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
-
-  m_colorBuffer = std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "geometry-color");
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
-
-  m_normalBuffer = std::make_shared<gl::Texture2D<gl::RGB16F>>(viewport, "geometry-normal");
-  m_normalBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+  m_positionBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Nearest)
     .set(gl::api::TextureMagFilter::Nearest);
-
-  m_positionBuffer = std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "geometry-position");
-  m_positionBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+  m_normalBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Nearest)
     .set(gl::api::TextureMagFilter::Nearest);
@@ -186,15 +199,14 @@ void RenderPipeline::GeometryStage::resize(const glm::ivec2& viewport)
            .build("geometry-fb");
 }
 
-RenderPipeline::FXAAStage::FXAAStage(scene::ShaderManager& shaderManager)
+RenderPipeline::FXAAStage::FXAAStage(scene::ShaderManager& shaderManager,
+                                     const glm::ivec2& viewport,
+                                     const GeometryStage& geometryStage)
     : m_shader{shaderManager.getFXAA()}
     , m_material{std::make_shared<scene::Material>(m_shader)}
+    , m_mesh{createFbMesh(viewport, m_shader->getHandle())}
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "fxaa-color")}
 {
-}
-
-void RenderPipeline::FXAAStage::resize(const glm::ivec2& viewport, const GeometryStage& geometryStage)
-{
-  m_colorBuffer = std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "fxaa-color");
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
@@ -202,7 +214,6 @@ void RenderPipeline::FXAAStage::resize(const glm::ivec2& viewport, const Geometr
 
   m_material->getUniform("u_input")->set(geometryStage.getColorBuffer());
 
-  m_mesh = createFbMesh(viewport, m_shader->getHandle());
   m_mesh->getMaterial().set(scene::RenderMode::Full, m_material);
 
   m_fb = gl::FrameBufferBuilder()
@@ -256,22 +267,23 @@ void RenderPipeline::SSAOStage::render(const glm::ivec2& size)
     GL_ASSERT(gl::api::finish());
 }
 
-void RenderPipeline::CompositionStage::initMaterials(scene::MaterialManager& materialManager,
-                                                     const RenderSettings& renderSettings)
-{
-  m_compositionMaterial = materialManager.getComposition(
-    false, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain);
-  m_waterCompositionMaterial
-    = materialManager.getComposition(true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain);
-}
-
 RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& materialManager,
-                                                   const RenderSettings& renderSettings)
-    : m_crtMaterial{materialManager.getCrt()}
-
+                                                   const RenderSettings& renderSettings,
+                                                   const glm::ivec2& viewport,
+                                                   const GeometryStage& geometryStage,
+                                                   const PortalStage& portalStage,
+                                                   const SSAOStage& ssaoStage,
+                                                   const FXAAStage& fxaaStage)
+    : m_compositionMaterial{materialManager.getComposition(
+      false, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
+    , m_waterCompositionMaterial{materialManager.getComposition(
+        true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
+    , m_crtMaterial{materialManager.getCrt()}
+    , m_mesh{createFbMesh(viewport, m_compositionMaterial->getShaderProgram()->getHandle())}
+    , m_waterMesh{createFbMesh(viewport, m_waterCompositionMaterial->getShaderProgram()->getHandle())}
+    , m_crtMesh{createFbMesh(viewport, m_crtMaterial->getShaderProgram()->getHandle())}
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
 {
-  initMaterials(materialManager, renderSettings);
-
   const glm::ivec2 resolution{256, 256};
 
   std::uniform_real_distribution<float> randomFloats(0, 1);
@@ -290,22 +302,7 @@ RenderPipeline::CompositionStage::CompositionStage(scene::MaterialManager& mater
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
-}
 
-// NOLINTNEXTLINE(readability-make-member-function-const)
-void RenderPipeline::CompositionStage::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
-{
-  m_compositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
-  m_waterCompositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
-}
-
-void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
-                                              const RenderSettings& renderSettings,
-                                              const RenderPipeline::GeometryStage& geometryStage,
-                                              const RenderPipeline::PortalStage& portalStage,
-                                              const RenderPipeline::SSAOStage& ssaoStage,
-                                              const RenderPipeline::FXAAStage& fxaaStage)
-{
   m_compositionMaterial->getUniform("u_portalDepth")->set(portalStage.getDepthBuffer());
   if(renderSettings.waterDenoise)
     m_compositionMaterial->getUniform("u_portalPerturb")->set(portalStage.getBlurredTexture());
@@ -324,7 +321,6 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
   m_waterCompositionMaterial->getUniform("u_ao")->set(ssaoStage.getBlurredTexture());
   m_waterCompositionMaterial->getUniform("u_texture")->set(fxaaStage.getColorBuffer());
 
-  m_colorBuffer = std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color");
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureMinFilter::Linear)
@@ -337,12 +333,16 @@ void RenderPipeline::CompositionStage::resize(const glm::ivec2& viewport,
            .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
            .build("composition-fb");
 
-  m_mesh = createFbMesh(viewport, m_compositionMaterial->getShaderProgram()->getHandle());
   m_mesh->getMaterial().set(scene::RenderMode::Full, m_compositionMaterial);
-  m_waterMesh = createFbMesh(viewport, m_waterCompositionMaterial->getShaderProgram()->getHandle());
   m_waterMesh->getMaterial().set(scene::RenderMode::Full, m_waterCompositionMaterial);
-  m_crtMesh = createFbMesh(viewport, m_crtMaterial->getShaderProgram()->getHandle());
   m_crtMesh->getMaterial().set(scene::RenderMode::Full, m_crtMaterial);
+}
+
+// NOLINTNEXTLINE(readability-make-member-function-const)
+void RenderPipeline::CompositionStage::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
+{
+  m_compositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
+  m_waterCompositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)

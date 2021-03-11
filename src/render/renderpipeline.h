@@ -30,12 +30,8 @@ private:
   class PortalStage
   {
   public:
-    explicit PortalStage(scene::ShaderManager& shaderManager)
-        : m_blur{"perturb", shaderManager, 4, true, false}
-    {
-    }
+    explicit PortalStage(scene::ShaderManager& shaderManager, const glm::vec2& viewport);
 
-    void resize(const glm::ivec2& viewport);
     void bind(const gl::TextureDepth<float>& depth);
 
     void renderBlur()
@@ -68,7 +64,7 @@ private:
   class GeometryStage
   {
   public:
-    void resize(const glm::ivec2& viewport);
+    explicit GeometryStage(const glm::ivec2& viewport);
     void bind(const glm::ivec2& size);
 
     [[nodiscard]] const auto& getNormalBuffer() const
@@ -102,8 +98,9 @@ private:
   class SSAOStage
   {
   public:
-    explicit SSAOStage(scene::ShaderManager& shaderManager);
-    void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);
+    explicit SSAOStage(scene::ShaderManager& shaderManager,
+                       const glm::ivec2& viewport,
+                       const GeometryStage& geometryStage);
     void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
     void render(const glm::ivec2& size);
@@ -114,10 +111,10 @@ private:
     }
 
   private:
-    std::shared_ptr<scene::Mesh> m_renderMesh;
-
     const std::shared_ptr<scene::ShaderProgram> m_shader;
     const std::shared_ptr<scene::Material> m_material;
+
+    std::shared_ptr<scene::Mesh> m_renderMesh;
 
     std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_noiseTexture;
     std::shared_ptr<gl::Texture2D<gl::Scalar16F>> m_aoBuffer;
@@ -129,10 +126,11 @@ private:
   class FXAAStage
   {
   public:
-    explicit FXAAStage(scene::ShaderManager& shaderManager);
+    explicit FXAAStage(scene::ShaderManager& shaderManager,
+                       const glm::ivec2& viewport,
+                       const GeometryStage& geometryStage);
 
     void bind();
-    void resize(const glm::ivec2& viewport, const GeometryStage& geometryStage);
 
     void render(const glm::ivec2& size);
 
@@ -142,10 +140,9 @@ private:
     }
 
   private:
-    std::shared_ptr<scene::Mesh> m_mesh;
-
     const std::shared_ptr<scene::ShaderProgram> m_shader;
     const std::shared_ptr<scene::Material> m_material;
+    std::shared_ptr<scene::Mesh> m_mesh;
     std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
     std::shared_ptr<gl::Framebuffer> m_fb;
   };
@@ -153,29 +150,26 @@ private:
   class CompositionStage
   {
   public:
-    explicit CompositionStage(scene::MaterialManager& materialManager, const RenderSettings& renderSettings);
+    explicit CompositionStage(scene::MaterialManager& materialManager,
+                              const RenderSettings& renderSettings,
+                              const glm::ivec2& viewport,
+                              const GeometryStage& geometryStage,
+                              const PortalStage& portalStage,
+                              const SSAOStage& ssaoStage,
+                              const FXAAStage& fxaaStage);
 
     void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
-    void resize(const glm::ivec2& viewport,
-                const RenderSettings& renderSettings,
-                const GeometryStage& geometryStage,
-                const PortalStage& portalStage,
-                const SSAOStage& ssaoStage,
-                const FXAAStage& fxaaStage);
-
     void render(bool water, const RenderSettings& renderSettings);
 
-    void initMaterials(scene::MaterialManager& materialManager, const RenderSettings& renderSettings);
-
   private:
-    std::shared_ptr<scene::Mesh> m_mesh;
-    std::shared_ptr<scene::Mesh> m_waterMesh;
-    std::shared_ptr<scene::Mesh> m_crtMesh;
-
     std::shared_ptr<scene::Material> m_compositionMaterial;
     std::shared_ptr<scene::Material> m_waterCompositionMaterial;
     const std::shared_ptr<scene::Material> m_crtMaterial;
+
+    std::shared_ptr<scene::Mesh> m_mesh;
+    std::shared_ptr<scene::Mesh> m_waterMesh;
+    std::shared_ptr<scene::Mesh> m_crtMesh;
     std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
     std::shared_ptr<gl::Texture2D<gl::ScalarByte>> m_noise;
     std::shared_ptr<gl::Framebuffer> m_fb;
@@ -183,23 +177,24 @@ private:
 
   RenderSettings m_renderSettings{};
   glm::ivec2 m_size{-1};
-  PortalStage m_portalStage;
-  GeometryStage m_geometryStage;
-  SSAOStage m_ssaoStage;
-  FXAAStage m_fxaaStage;
-  CompositionStage m_compositionStage;
-
-  void resizeTextures(const glm::ivec2& viewport);
+  std::shared_ptr<PortalStage> m_portalStage;
+  std::shared_ptr<GeometryStage> m_geometryStage;
+  std::shared_ptr<SSAOStage> m_ssaoStage;
+  std::shared_ptr<FXAAStage> m_fxaaStage;
+  std::shared_ptr<CompositionStage> m_compositionStage;
 
 public:
   void bindGeometryFrameBuffer(const glm::ivec2& size)
   {
-    m_geometryStage.bind(size);
+    BOOST_ASSERT(m_geometryStage != nullptr);
+    m_geometryStage->bind(size);
   }
 
   void bindPortalFrameBuffer()
   {
-    m_portalStage.bind(*m_geometryStage.getDepthBuffer());
+    BOOST_ASSERT(m_portalStage != nullptr);
+    BOOST_ASSERT(m_geometryStage != nullptr);
+    m_portalStage->bind(*m_geometryStage->getDepthBuffer());
   }
 
   explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
@@ -208,22 +203,8 @@ public:
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
-  void resize(const glm::ivec2& viewport, bool force = false)
-  {
-    if(!force && m_size == viewport)
-    {
-      return;
-    }
+  void resize(scene::MaterialManager& materialManager, const glm::ivec2& viewport, bool force = false);
 
-    m_size = viewport;
-    resizeTextures(viewport);
-  }
-
-  void apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager)
-  {
-    m_renderSettings = renderSettings;
-    m_compositionStage.initMaterials(materialManager, renderSettings);
-    resize(m_size, true);
-  }
+  void apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager);
 };
 } // namespace render

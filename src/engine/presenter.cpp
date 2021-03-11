@@ -382,7 +382,7 @@ bool Presenter::preFrame()
     return false;
 
   m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
-  m_renderPipeline->resize(m_window->getViewport());
+  m_renderPipeline->resize(*m_materialManager, m_window->getViewport());
   if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
   {
     m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
