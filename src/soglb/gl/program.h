@@ -4,6 +4,8 @@
 #include "shader.h"
 #include "texture.h"
 
+#include <type_traits>
+
 namespace gl
 {
 class Program;
@@ -64,7 +66,7 @@ public:
   {
   }
 
-  explicit LocatableProgramInterface(LocatableProgramInterface<_Type>&& rhs) noexcept
+  LocatableProgramInterface(LocatableProgramInterface<_Type>&& rhs) noexcept
       : ProgramInterface<_Type>{std::move(rhs)}
       , m_location{std::exchange(rhs.m_location, -1)}
   {
@@ -72,8 +74,8 @@ public:
 
   LocatableProgramInterface<_Type>& operator=(LocatableProgramInterface<_Type>&& rhs) noexcept
   {
-    ProgramInterface<_Type>::operator=(std::move(rhs));
     m_location = std::exchange(rhs.m_location, -1);
+    ProgramInterface<_Type>::operator=(std::move(rhs));
     return *this;
   }
 
@@ -103,7 +105,7 @@ public:
     Expects(m_binding >= 0);
   }
 
-  explicit ProgramBlock(ProgramBlock<_Type, _Target>&& rhs) noexcept
+  ProgramBlock(ProgramBlock<_Type, _Target>&& rhs) noexcept
       : ProgramInterface<_Type>{std::move(rhs)}
       , m_binding{std::exchange(rhs.m_binding, -1)}
   {
@@ -141,7 +143,7 @@ class Uniform final : public LocatableProgramInterface<api::ProgramInterface::Un
 public:
   explicit Uniform(const Program& program, uint32_t index, int32_t& samplerIndex);
 
-  explicit Uniform(Uniform&& rhs)
+  Uniform(Uniform&& rhs) noexcept
       : LocatableProgramInterface{std::move(rhs)}
       , m_samplerIndex{std::exchange(rhs.m_samplerIndex, -1)}
       , m_size{std::exchange(rhs.m_size, -1)}
@@ -151,10 +153,10 @@ public:
 
   Uniform& operator=(Uniform&& rhs) noexcept
   {
-    LocatableProgramInterface::operator=(std::move(rhs));
     m_samplerIndex = std::exchange(rhs.m_samplerIndex, -1);
     m_size = std::exchange(rhs.m_size, -1);
     m_program = std::exchange(rhs.m_program, InvalidProgram);
+    LocatableProgramInterface::operator=(std::move(rhs));
     return *this;
   }
 
@@ -520,6 +522,7 @@ inline Uniform::Uniform(const Program& program, const uint32_t index, int32_t& s
 
   switch(static_cast<api::UniformType>(type))
   {
+    // NOLINTNEXTLINE(bugprone-branch-clone)
   case api::UniformType::Sampler1d: [[fallthrough]];
   case api::UniformType::Sampler1dShadow: [[fallthrough]];
   case api::UniformType::Sampler1dArray: [[fallthrough]];

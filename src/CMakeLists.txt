@@ -342,6 +342,18 @@ set( EDISONENGINE_SRCS
         render/textureanimator.h
         render/textureanimator.cpp
 
+        render/pass/compositionpass.h
+        render/pass/compositionpass.cpp
+        render/pass/fxaapass.h
+        render/pass/fxaapass.cpp
+        render/pass/geometrypass.h
+        render/pass/geometrypass.cpp
+        render/pass/portalpass.h
+        render/pass/portalpass.cpp
+        render/pass/ssaopass.h
+        render/pass/ssaopass.cpp
+        render/pass/util.h
+
         render/scene/bufferparameter.h
         render/scene/bufferparameter.cpp
         render/scene/camera.h

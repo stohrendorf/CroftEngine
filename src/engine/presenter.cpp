@@ -5,6 +5,7 @@
 #include "engine/objects/laraobject.h"
 #include "loader/file/level/level.h"
 #include "objectmanager.h"
+#include "render/pass/config.h"
 #include "render/renderpipeline.h"
 #include "render/scene/camera.h"
 #include "render/scene/csm.h"
@@ -121,14 +122,14 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
         context.setCurrentNode(room.node.get());
         room.node->getRenderable()->render(context);
       }
-      if constexpr(render::RenderPipeline::FlushStages)
+      if constexpr(render::pass::FlushPasses)
         GL_ASSERT(gl::api::finish());
     }
 
     m_renderer->resetRenderState();
     m_renderer->render();
 
-    if constexpr(render::RenderPipeline::FlushStages)
+    if constexpr(render::pass::FlushPasses)
       GL_ASSERT(gl::api::finish());
   }
 
@@ -144,7 +145,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     {
       portal->mesh->render(context);
     }
-    if constexpr(render::RenderPipeline::FlushStages)
+    if constexpr(render::pass::FlushPasses)
       GL_ASSERT(gl::api::finish());
   }
 
