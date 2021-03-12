@@ -5,6 +5,7 @@
 #include "pass/geometrypass.h"
 #include "pass/portalpass.h"
 #include "pass/ssaopass.h"
+#include "pass/uipass.h"
 #include "scene/materialmanager.h"
 #include "scene/mesh.h"
 #include "scene/shadermanager.h"
@@ -62,6 +63,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
   m_fxaaPass = std::make_shared<pass::FXAAPass>(*materialManager.getShaderManager(), viewport, *m_geometryPass);
   m_compositionPass = std::make_shared<pass::CompositionPass>(
     materialManager, m_renderSettings, viewport, *m_geometryPass, *m_portalPass, *m_ssaoPass, *m_fxaaPass);
+  m_uiPass = std::make_shared<pass::UIPass>(*materialManager.getShaderManager(), viewport);
 }
 
 void RenderPipeline::bindPortalFrameBuffer()
@@ -71,9 +73,21 @@ void RenderPipeline::bindPortalFrameBuffer()
   m_portalPass->bind(*m_geometryPass->getDepthBuffer());
 }
 
+void RenderPipeline::bindUiFrameBuffer()
+{
+  BOOST_ASSERT(m_uiPass != nullptr);
+  m_uiPass->bind();
+}
+
 void RenderPipeline::bindGeometryFrameBuffer(const glm::ivec2& size)
 {
   BOOST_ASSERT(m_geometryPass != nullptr);
   m_geometryPass->bind(size);
+}
+
+void RenderPipeline::renderUiFrameBuffer(float alpha)
+{
+  BOOST_ASSERT(m_uiPass != nullptr);
+  m_uiPass->render(alpha);
 }
 } // namespace render

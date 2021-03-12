@@ -1,7 +1,6 @@
-#include "fxaapass.h"
+#include "uipass.h"
 
 #include "config.h"
-#include "geometrypass.h"
 #include "render/scene/material.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
@@ -10,46 +9,47 @@
 
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
+#include <gl/renderstate.h>
 #include <gl/texture2d.h>
 
 namespace render::pass
 {
-FXAAPass::FXAAPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass)
-    : m_shader{shaderManager.getFXAA()}
-    , m_material{std::make_shared<scene::Material>(m_shader)}
-    , m_mesh{createFbMesh(viewport, m_shader->getHandle())}
-    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "fxaa-color")}
-{
-  m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::TextureMinFilter::Linear)
-    .set(gl::api::TextureMagFilter::Linear);
-
-  m_material->getUniform("u_input")->set(geometryPass.getColorBuffer());
-  m_mesh->getMaterial().set(scene::RenderMode::Full, m_material);
-
-  m_fb = gl::FrameBufferBuilder()
-           .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
-           .build("fxaa-fb");
-}
-
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void FXAAPass::bind()
+void UIPass::bind()
 {
+  gl::Framebuffer::unbindAll();
   m_fb->bindWithAttachments();
 }
 
-void FXAAPass::render(const glm::ivec2& size)
+UIPass::UIPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
+    : m_shader{shaderManager.getFlat(true, false)}
+    , m_material{std::make_shared<scene::Material>(m_shader)}
+    , m_mesh{createFbMesh(viewport, m_shader->getHandle())}
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
 {
-  SOGLB_DEBUGGROUP("fxaa-pass");
-  GL_ASSERT(gl::api::viewport(0, 0, size.x, size.y));
-  bind();
+  m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::TextureMinFilter::Nearest)
+    .set(gl::api::TextureMagFilter::Nearest);
+
+  m_material->getUniform("u_input")->set(m_colorBuffer);
+  m_mesh->getMaterial().set(scene::RenderMode::Full, m_material);
+
+  m_fb
+    = gl::FrameBufferBuilder().texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer).build("ui-fb");
+}
+
+// NOLINTNEXTLINE(readability-make-member-function-const)
+void UIPass::render(float alpha)
+{
+  SOGLB_DEBUGGROUP("ui-pass");
+  gl::Framebuffer::unbindAll();
 
   gl::RenderState state;
-  state.setBlend(false);
+  state.setBlend(true);
   state.apply(true);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-
+  m_mesh->getMaterial().get(scene::RenderMode::Full)->getUniform("u_alphaMultiplier")->set(alpha);
   m_mesh->render(context);
 
   if constexpr(FlushPasses)

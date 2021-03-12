@@ -26,6 +26,7 @@ class GeometryPass;
 class SSAOPass;
 class FXAAPass;
 class CompositionPass;
+class UIPass;
 } // namespace pass
 
 class RenderPipeline
@@ -38,14 +39,15 @@ private:
   std::shared_ptr<pass::SSAOPass> m_ssaoPass;
   std::shared_ptr<pass::FXAAPass> m_fxaaPass;
   std::shared_ptr<pass::CompositionPass> m_compositionPass;
+  std::shared_ptr<pass::UIPass> m_uiPass;
 
 public:
-  void bindGeometryFrameBuffer(const glm::ivec2& size);
-
-  void bindPortalFrameBuffer();
-
   explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
 
+  void bindGeometryFrameBuffer(const glm::ivec2& size);
+  void bindPortalFrameBuffer();
+  void bindUiFrameBuffer();
+  void renderUiFrameBuffer(float alpha);
   void compositionPass(bool water);
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);

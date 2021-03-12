@@ -28,11 +28,13 @@ public:
                                                     const std::filesystem::path& fshPath,
                                                     const std::vector<std::string>& defines = {});
 
-  auto getFlat(bool withAlphaMultiplier)
+  auto getFlat(bool withAlphaMultiplier, bool invertY = true)
   {
-    std::vector<std::string> defines{"INVERT_Y"};
+    std::vector<std::string> defines;
     if(withAlphaMultiplier)
       defines.emplace_back("ALPHA_MULTIPLIER");
+    if(invertY)
+      defines.emplace_back("INVERT_Y");
     return get("flat.vert", "flat.frag", defines);
   }
 

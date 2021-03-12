@@ -177,7 +177,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
                     world.getPalette()};
           ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
           stats.draw(ui);
-          ui.render(m_presenter->getViewport());
+          m_presenter->renderUi(ui, 1);
           m_presenter->swapBuffers();
 
           if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))
@@ -206,7 +206,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       m_presenter->getScreenOverlay().setAlphaMultiplier(1.0f);
       m_presenter->getScreenOverlay().render(context);
-      ui.render(m_presenter->getViewport());
+      m_presenter->renderUi(ui, 1);
       m_presenter->swapBuffers();
       switch(menu->result)
       {
@@ -327,7 +327,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
     m_presenter->getScreenOverlay().setAlphaMultiplier(1.0f);
     m_presenter->getScreenOverlay().render(context);
-    ui.render(m_presenter->getViewport());
+    m_presenter->renderUi(ui, 1);
     m_presenter->swapBuffers();
     switch(menu->result)
     {

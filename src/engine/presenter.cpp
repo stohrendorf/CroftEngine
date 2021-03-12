@@ -461,4 +461,12 @@ void Presenter::renderScreenOverlay()
   m_renderer->resetRenderState();
   m_screenOverlay->render(context);
 }
+
+void Presenter::renderUi(ui::Ui& ui, float alpha)
+{
+  m_renderPipeline->bindUiFrameBuffer();
+  m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 0}, 0);
+  ui.render(getViewport());
+  m_renderPipeline->renderUiFrameBuffer(alpha);
+}
 } // namespace engine

@@ -1054,7 +1054,7 @@ void World::gameLoop(bool godMode)
   drawPickupWidgets(ui);
   getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
   getPresenter().renderScreenOverlay();
-  ui.render(getPresenter().getViewport());
+  getPresenter().renderUi(ui, 1);
   getPresenter().swapBuffers();
 }
 
@@ -1071,7 +1071,7 @@ bool World::cinematicLoop()
             getPalette()};
   getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
   getPresenter().renderScreenOverlay();
-  ui.render(getPresenter().getViewport());
+  getPresenter().renderUi(ui, 1);
   getPresenter().swapBuffers();
   if(++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size())
     return false;

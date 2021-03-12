@@ -144,6 +144,7 @@ public:
   }
 
   void renderScreenOverlay();
+  void renderUi(ui::Ui& ui, float alpha);
 
   void apply(const render::RenderSettings& renderSettings);
 
