@@ -159,6 +159,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
 
       if(!isCutscene && allowSave)
       {
+        static constexpr const auto BlendDuration = 30_frame;
+        auto currentBlendDuration = 0_frame;
+
         while(true)
         {
           throttler.wait();
@@ -177,7 +180,17 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCut
                     world.getPalette()};
           ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
           stats.draw(ui);
-          m_presenter->renderUi(ui, 1);
+
+          m_presenter->renderWorld(world.getObjectManager(),
+                                   world.getRooms(),
+                                   world.getCameraController(),
+                                   world.getCameraController().update());
+          m_presenter->renderScreenOverlay();
+
+          if(currentBlendDuration < BlendDuration)
+            currentBlendDuration += 1_frame;
+
+          m_presenter->renderUi(ui, currentBlendDuration.cast<float>() / BlendDuration.cast<float>());
           m_presenter->swapBuffers();
 
           if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))

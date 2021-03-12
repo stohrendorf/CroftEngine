@@ -4,11 +4,14 @@
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "label.h"
+#include "ui/ui.h"
 
 namespace ui
 {
 void LevelStats::draw(Ui& ui) const
 {
+  ui.drawBox({0, 0}, m_presenter->getViewport(), gl::SRGBA8{0, 0, 0, 224});
+
   {
     Label lbl{{0, -50}, m_title};
     lbl.alignX = Label::Alignment::Center;
