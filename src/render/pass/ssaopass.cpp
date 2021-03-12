@@ -1,5 +1,6 @@
 #include "ssaopass.h"
 
+#include "config.h"
 #include "geometrypass.h"
 #include "render/scene/shadermanager.h"
 #include "util.h"
@@ -95,7 +96,7 @@ void SSAOPass::render(const glm::ivec2& size)
   m_renderMesh->render(context);
   m_blur.render();
 
-  if constexpr(FlushStages)
+  if constexpr(FlushPasses)
     GL_ASSERT(gl::api::finish());
 }
 } // namespace render::pass
