@@ -20,23 +20,6 @@ PathFinder::PathFinder(const World& world)
     nodes.emplace(&box, PathFinderNode{});
 }
 
-namespace
-{
-gsl::span<const uint16_t> getOverlaps(const World& world, const uint16_t idx)
-{
-  const auto first = &world.getOverlaps().at(idx);
-  auto last = first;
-  const auto endOfUniverse = &world.getOverlaps().back() + 1;
-
-  while(last < endOfUniverse && (*last & 0x8000u) == 0)
-  {
-    ++last;
-  }
-
-  return gsl::span{first, last + 1};
-}
-} // namespace
-
 bool PathFinder::calculateTarget(const World& world, core::TRVec& moveTarget, const objects::ObjectState& objectState)
 {
   updatePath(world);
@@ -269,7 +252,7 @@ void PathFinder::updatePath(const World& world)
 
 void PathFinder::searchPath(const World& world)
 {
-  const auto zoneRef = loader::file::Box::getZoneRef(world.roomsAreSwapped(), fly, step);
+  const auto zoneRef = loader::file::TypedBox::getZoneRef(world.roomsAreSwapped(), fly, step);
 
   static constexpr uint8_t MaxExpansions = 5;
 
@@ -280,14 +263,12 @@ void PathFinder::searchPath(const World& world)
     const auto& currentNode = nodes[current];
     const auto searchZone = current->*zoneRef;
 
-    for(const auto overlapBoxIdx : getOverlaps(world, current->overlap_index))
+    for(const auto& successorBox : current->overlaps)
     {
-      const auto* successorBox = &world.getBoxes().at(overlapBoxIdx & 0x7FFFu);
-
       if(successorBox == current)
         continue;
 
-      if(searchZone != successorBox->*zoneRef)
+      if(searchZone != successorBox.get()->*zoneRef)
         continue; // cannot switch zones
 
       const auto boxHeightDiff = successorBox->floor - current->floor;

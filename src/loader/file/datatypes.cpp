@@ -992,7 +992,7 @@ void TypedSector::serialize(const serialization::Serializer<engine::World>& ser)
 
 TypedSector::TypedSector(const Sector& src,
                          std::vector<Room>& rooms,
-                         const std::vector<Box>& boxes,
+                         const std::vector<TypedBox>& boxes,
                          const engine::floordata::FloorData& newFloorData)
     : box{src.boxIndex.get() >= 0 ? &boxes.at(src.boxIndex.get()) : nullptr}
     , floorHeight{src.floorHeight}
@@ -1351,7 +1351,7 @@ std::unique_ptr<Box> Box::readTr2(io::SDLReader& reader)
   return box;
 }
 
-void Box::serialize(const serialization::Serializer<engine::World>& ser)
+void TypedBox::serialize(const serialization::Serializer<engine::World>& ser)
 {
   ser(S_NV("blocked", blocked), S_NV("blockable", blockable));
 }

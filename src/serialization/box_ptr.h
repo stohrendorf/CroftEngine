@@ -7,7 +7,7 @@
 
 namespace serialization
 {
-inline std::optional<uint32_t> ptrSave(const loader::file::Box* box, const Serializer<engine::World>& ser)
+inline std::optional<uint32_t> ptrSave(const loader::file::TypedBox* box, const Serializer<engine::World>& ser)
 {
   if(box == nullptr)
     return std::nullopt;
@@ -16,13 +16,14 @@ inline std::optional<uint32_t> ptrSave(const loader::file::Box* box, const Seria
   return gsl::narrow<uint32_t>(std::distance(&ser.context.getBoxes().at(0), box));
 }
 
-inline std::optional<uint32_t> ptrSave(loader::file::Box* box, const Serializer<engine::World>& ser)
+inline std::optional<uint32_t> ptrSave(loader::file::TypedBox* box, const Serializer<engine::World>& ser)
 {
-  return ptrSave(const_cast<const loader::file::Box*>(box), ser);
+  return ptrSave(const_cast<const loader::file::TypedBox*>(box), ser);
 }
 
-inline const loader::file::Box*
-  ptrLoad(const TypeId<const loader::file::Box*>&, std::optional<uint32_t> idx, const Serializer<engine::World>& ser)
+inline const loader::file::TypedBox* ptrLoad(const TypeId<const loader::file::TypedBox*>&,
+                                             std::optional<uint32_t> idx,
+                                             const Serializer<engine::World>& ser)
 {
   if(!idx.has_value())
     return nullptr;
@@ -31,9 +32,9 @@ inline const loader::file::Box*
   return &ser.context.getBoxes().at(idx.value());
 }
 
-inline loader::file::Box*
-  ptrLoad(const TypeId<loader::file::Box*>&, std::optional<uint32_t> idx, const Serializer<engine::World>& ser)
+inline loader::file::TypedBox*
+  ptrLoad(const TypeId<loader::file::TypedBox*>&, std::optional<uint32_t> idx, const Serializer<engine::World>& ser)
 {
-  return const_cast<loader::file::Box*>(ptrLoad(TypeId<const loader::file::Box*>{}, idx, ser));
+  return const_cast<loader::file::TypedBox*>(ptrLoad(TypeId<const loader::file::TypedBox*>{}, idx, ser));
 }
 } // namespace serialization

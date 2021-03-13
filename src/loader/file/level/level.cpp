@@ -273,22 +273,6 @@ void Level::postProcessDataStructures()
 {
   BOOST_LOG_TRIVIAL(info) << "Post-processing data structures";
 
-  Expects(m_baseZones.flyZone.size() == m_boxes.size());
-  Expects(m_baseZones.groundZone1.size() == m_boxes.size());
-  Expects(m_baseZones.groundZone2.size() == m_boxes.size());
-  Expects(m_alternateZones.flyZone.size() == m_boxes.size());
-  Expects(m_alternateZones.groundZone1.size() == m_boxes.size());
-  Expects(m_alternateZones.groundZone2.size() == m_boxes.size());
-  for(size_t i = 0; i < m_boxes.size(); ++i)
-  {
-    m_boxes[i].zoneFly = m_baseZones.flyZone[i];
-    m_boxes[i].zoneGround1 = m_baseZones.groundZone1[i];
-    m_boxes[i].zoneGround2 = m_baseZones.groundZone2[i];
-    m_boxes[i].zoneFlySwapped = m_alternateZones.flyZone[i];
-    m_boxes[i].zoneGround1Swapped = m_alternateZones.groundZone1[i];
-    m_boxes[i].zoneGround2Swapped = m_alternateZones.groundZone2[i];
-  }
-
   m_typedAnimations.resize(m_animations.size());
   m_typedTransitions.resize(m_transitions.size());
   for(size_t i = 0; i < m_animations.size(); ++i)
@@ -384,18 +368,57 @@ void Level::postProcessDataStructures()
     sequence->sprites = gsl::make_span(&m_sprites[sequence->offset], -sequence->length);
   }
 
+  m_typedBoxes.resize(m_boxes.size());
+  auto getOverlaps = [this](const uint16_t idx) {
+    std::vector<gsl::not_null<TypedBox*>> result;
+    const auto first = &m_overlaps.at(idx);
+    auto current = first;
+    const auto endOfUniverse = &m_overlaps.back() + 1;
+
+    while(current < endOfUniverse && (*current & 0x8000u) == 0)
+    {
+      result.emplace_back(&m_typedBoxes.at(*current));
+      ++current;
+    }
+    result.emplace_back(&m_typedBoxes.at(*current & 0x7FFFu));
+
+    return result;
+  };
+
+  std::transform(m_boxes.begin(), m_boxes.end(), m_typedBoxes.begin(), [&getOverlaps](const Box& box) {
+    return TypedBox{
+      box.zmin, box.zmax, box.xmin, box.xmax, box.floor, box.blocked, box.blockable, getOverlaps(box.overlap_index)};
+  });
+
+  Expects(m_baseZones.flyZone.size() == m_typedBoxes.size());
+  Expects(m_baseZones.groundZone1.size() == m_typedBoxes.size());
+  Expects(m_baseZones.groundZone2.size() == m_typedBoxes.size());
+  Expects(m_alternateZones.flyZone.size() == m_typedBoxes.size());
+  Expects(m_alternateZones.groundZone1.size() == m_typedBoxes.size());
+  Expects(m_alternateZones.groundZone2.size() == m_typedBoxes.size());
+  for(size_t i = 0; i < m_typedBoxes.size(); ++i)
+  {
+    m_typedBoxes[i].zoneFly = m_baseZones.flyZone[i];
+    m_typedBoxes[i].zoneGround1 = m_baseZones.groundZone1[i];
+    m_typedBoxes[i].zoneGround2 = m_baseZones.groundZone2[i];
+    m_typedBoxes[i].zoneFlySwapped = m_alternateZones.flyZone[i];
+    m_typedBoxes[i].zoneGround1Swapped = m_alternateZones.groundZone1[i];
+    m_typedBoxes[i].zoneGround2Swapped = m_alternateZones.groundZone2[i];
+  }
+
   for(auto& room : m_rooms)
   {
     room.typedSectors.clear();
     std::transform(
       room.sectors.begin(), room.sectors.end(), std::back_inserter(room.typedSectors), [this](const Sector& sector) {
-        return TypedSector{sector, m_rooms, m_boxes, m_floorData};
+        return TypedSector{sector, m_rooms, m_typedBoxes, m_floorData};
       });
   }
 
   Ensures(m_typedAnimations.size() == m_animations.size());
   Ensures(m_typedTransitionCases.size() == m_transitionCases.size());
   Ensures(m_typedTransitions.size() == m_transitions.size());
+  Ensures(m_typedBoxes.size() == m_boxes.size());
 
   connectSectors();
 }

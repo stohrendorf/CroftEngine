@@ -28,7 +28,7 @@ private:
   {
     loader::file::TypedSector* wingsSector{nullptr};
     loader::file::TypedSector originalSector;
-    loader::file::Box* wingsBox{nullptr};
+    loader::file::TypedBox* wingsBox{nullptr};
 
     void open();
     void close();

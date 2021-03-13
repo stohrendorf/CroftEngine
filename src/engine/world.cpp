@@ -276,9 +276,9 @@ std::vector<loader::file::Room>& World::getRooms()
   return m_level->m_rooms;
 }
 
-const std::vector<loader::file::Box>& World::getBoxes() const
+const std::vector<loader::file::TypedBox>& World::getBoxes() const
 {
-  return m_level->m_boxes;
+  return m_level->m_typedBoxes;
 }
 
 void World::loadSceneData()
@@ -888,9 +888,9 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     case floordata::CommandOpcode::UnderwaterCurrent:
     {
       const auto& sink = m_level->m_cameras.at(command.parameter);
-      if(m_objectManager.getLara().m_underwaterRoute.required_box != &m_level->m_boxes[sink.box_index])
+      if(m_objectManager.getLara().m_underwaterRoute.required_box != &m_level->m_typedBoxes[sink.box_index])
       {
-        m_objectManager.getLara().m_underwaterRoute.required_box = &m_level->m_boxes[sink.box_index];
+        m_objectManager.getLara().m_underwaterRoute.required_box = &m_level->m_typedBoxes[sink.box_index];
         m_objectManager.getLara().m_underwaterRoute.target = sink.position;
       }
       m_objectManager.getLara().m_underwaterCurrentStrength
@@ -1009,7 +1009,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
       S_NV("roomOrder", m_roomOrder),
       S_NV("rooms", serialization::FrozenVector{m_level->m_rooms}),
-      S_NV("boxes", serialization::FrozenVector{m_level->m_boxes}),
+      S_NV("boxes", serialization::FrozenVector{m_level->m_typedBoxes}),
       S_NV("audioEngine", *m_audioEngine));
 }
 

@@ -85,7 +85,7 @@ public:
   floordata::ActivationState activationState;
   core::Length floor = 0_len;
   std::bitset<32> touch_bits;
-  const loader::file::Box* box = nullptr;
+  const loader::file::TypedBox* box = nullptr;
   core::Shade shade{core::Shade::type{-1}};
 
   bool falling = false;
@@ -117,11 +117,11 @@ public:
     return !activationState.isInverted();
   }
 
-  bool isStalkBox(const World& world, const loader::file::Box& targetBox) const;
+  bool isStalkBox(const World& world, const loader::file::TypedBox& targetBox) const;
 
-  bool isInsideZoneButNotInBox(const World& world, int16_t zoneId, const loader::file::Box& targetBox) const;
+  bool isInsideZoneButNotInBox(const World& world, int16_t zoneId, const loader::file::TypedBox& targetBox) const;
 
-  bool isEscapeBox(const World& world, const loader::file::Box& targetBox) const;
+  bool isEscapeBox(const World& world, const loader::file::TypedBox& targetBox) const;
 
   void initCreatureInfo(const World& world);
 

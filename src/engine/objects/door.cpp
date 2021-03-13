@@ -178,12 +178,12 @@ void Door::Info::init(const loader::file::Room& room, const core::TRVec& wingsPo
 
   if(wingsSector->portalTarget == nullptr)
   {
-    wingsBox = const_cast<loader::file::Box*>(wingsSector->box);
+    wingsBox = const_cast<loader::file::TypedBox*>(wingsSector->box);
   }
   else
   {
     wingsBox
-      = const_cast<loader::file::Box*>(wingsSector->portalTarget->getSectorByAbsolutePosition(wingsPosition)->box);
+      = const_cast<loader::file::TypedBox*>(wingsSector->portalTarget->getSectorByAbsolutePosition(wingsPosition)->box);
   }
   if(wingsBox != nullptr && !wingsBox->blockable)
   {

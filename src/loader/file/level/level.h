@@ -64,6 +64,7 @@ public:
   std::vector<FlybyCamera> m_flybyCameras;
   std::vector<SoundSource> m_soundSources;
   std::vector<Box> m_boxes;
+  std::vector<TypedBox> m_typedBoxes;
   std::vector<uint16_t> m_overlaps;
   Zones m_baseZones;
   Zones m_alternateZones;

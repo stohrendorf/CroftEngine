@@ -238,7 +238,7 @@ AiInfo::AiInfo(World& world, objects::ObjectState& objectState)
   if(objectState.creatureInfo == nullptr)
     return;
 
-  const auto zoneRef = loader::file::Box::getZoneRef(
+  const auto zoneRef = loader::file::TypedBox::getZoneRef(
     world.roomsAreSwapped(), objectState.creatureInfo->pathFinder.fly, objectState.creatureInfo->pathFinder.step);
 
   objectState.box = objectState.getCurrentSector()->box;

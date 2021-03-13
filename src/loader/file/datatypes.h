@@ -69,7 +69,7 @@ struct Portal
   void buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
 };
 
-struct Box;
+struct TypedBox;
 
 struct Sector
 {
@@ -100,7 +100,7 @@ struct TypedSector
   const engine::floordata::FloorDataValue* floorData = nullptr;
   Room* portalTarget = nullptr;
 
-  const Box* box = nullptr;
+  const TypedBox* box = nullptr;
   Room* roomBelow = nullptr;
   core::Length floorHeight = -core::HeightLimit;
   Room* roomAbove = nullptr;
@@ -109,7 +109,7 @@ struct TypedSector
   TypedSector() = default;
   TypedSector(const Sector& src,
               std::vector<Room>& rooms,
-              const std::vector<Box>& boxes,
+              const std::vector<TypedBox>& boxes,
               const engine::floordata::FloorData& newFloorData);
 
   void connect(std::vector<Room>& rooms);
@@ -539,6 +539,24 @@ struct Box
   mutable bool blocked = true;
   bool blockable = true;
 
+  static std::unique_ptr<Box> readTr1(io::SDLReader& reader);
+  static std::unique_ptr<Box> readTr2(io::SDLReader& reader);
+};
+
+struct TypedBox
+{
+  core::Length zmin = 0_len;
+  core::Length zmax = 0_len;
+  core::Length xmin = 0_len;
+  core::Length xmax = 0_len;
+
+  core::Length floor = 0_len;
+
+  mutable bool blocked = true;
+  bool blockable = true;
+
+  std::vector<gsl::not_null<TypedBox*>> overlaps{};
+
   constexpr bool containsX(const core::Length& x) const noexcept
   {
     return x >= xmin && x <= xmax;
@@ -554,10 +572,6 @@ struct Box
     return containsX(x) && containsZ(z);
   }
 
-  static std::unique_ptr<Box> readTr1(io::SDLReader& reader);
-
-  static std::unique_ptr<Box> readTr2(io::SDLReader& reader);
-
   ZoneId zoneFly = 0;
   ZoneId zoneFlySwapped = 0;
   ZoneId zoneGround1 = 0;
@@ -565,19 +579,19 @@ struct Box
   ZoneId zoneGround2 = 0;
   ZoneId zoneGround2Swapped = 0;
 
-  static const ZoneId Box::*getZoneRef(const bool swapped, const core::Length& fly, const core::Length& step)
+  static const ZoneId TypedBox::*getZoneRef(const bool swapped, const core::Length& fly, const core::Length& step)
   {
     if(fly != 0_len)
     {
-      return swapped ? &Box::zoneFlySwapped : &Box::zoneFly;
+      return swapped ? &TypedBox::zoneFlySwapped : &TypedBox::zoneFly;
     }
     else if(step == core::QuarterSectorSize)
     {
-      return swapped ? &Box::zoneGround1Swapped : &Box::zoneGround1;
+      return swapped ? &TypedBox::zoneGround1Swapped : &TypedBox::zoneGround1;
     }
     else
     {
-      return swapped ? &Box::zoneGround2Swapped : &Box::zoneGround2;
+      return swapped ? &TypedBox::zoneGround2Swapped : &TypedBox::zoneGround2;
     }
   }
 
