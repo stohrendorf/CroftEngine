@@ -49,6 +49,7 @@ public:
   std::vector<Room> m_rooms;
   std::vector<uint32_t> m_meshIndices;
   std::vector<Animation> m_animations;
+  std::vector<TypedAnimation> m_typedAnimations;
   std::vector<Transitions> m_transitions;
   std::vector<TypedTransitions> m_typedTransitions;
   std::vector<TransitionCase> m_transitionCases;

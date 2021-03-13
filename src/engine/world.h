@@ -18,7 +18,7 @@ namespace loader::file
 {
 enum class AnimationId : uint16_t;
 class RenderMeshData;
-struct Animation;
+struct TypedAnimation;
 struct AnimFrame;
 struct Mesh;
 struct SkeletalModelType;
@@ -159,7 +159,7 @@ public:
   std::vector<loader::file::Room>& getRooms();
   [[nodiscard]] const loader::file::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
   [[nodiscard]] const std::unique_ptr<loader::file::SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
-  [[nodiscard]] const loader::file::Animation& getAnimation(loader::file::AnimationId id) const;
+  [[nodiscard]] const loader::file::TypedAnimation& getAnimation(loader::file::AnimationId id) const;
   [[nodiscard]] const std::vector<loader::file::CinematicFrame>& getCinematicFrames() const;
   [[nodiscard]] const std::vector<loader::file::Camera>& getCameras() const;
   [[nodiscard]] const std::vector<int16_t>& getAnimCommands() const;
@@ -187,7 +187,7 @@ public:
   void runEffect(size_t id, objects::Object* object);
   [[nodiscard]] const std::unique_ptr<loader::file::SkeletalModelType>&
     findAnimatedModelForType(core::TypeId type) const;
-  [[nodiscard]] const std::vector<loader::file::Animation>& getAnimations() const;
+  [[nodiscard]] const std::vector<loader::file::TypedAnimation>& getAnimations() const;
   [[nodiscard]] const std::vector<uint16_t>& getOverlaps() const;
   [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
   [[nodiscard]] gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> getRenderMesh(size_t idx) const;

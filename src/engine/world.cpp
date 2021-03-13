@@ -391,7 +391,7 @@ void World::laraNormalEffect()
   m_objectManager.getLara().setCurrentAnimState(loader::file::LaraStateId::Stop);
   m_objectManager.getLara().setRequiredAnimState(loader::file::LaraStateId::Unknown12);
   m_objectManager.getLara().getSkeleton()->setAnim(
-    &m_level->m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)], 185_frame);
+    &m_level->m_typedAnimations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)], 185_frame);
   m_cameraController->setMode(CameraMode::Chase);
   getPresenter().getRenderer().getCamera()->setFieldOfView(glm::radians(80.0f));
 }
@@ -675,9 +675,9 @@ void World::doGlobalEffect()
   m_audioEngine->setUnderwater(m_cameraController->getCurrentRoom()->isWaterRoom());
 }
 
-const loader::file::Animation& World::getAnimation(loader::file::AnimationId id) const
+const loader::file::TypedAnimation& World::getAnimation(loader::file::AnimationId id) const
 {
-  return m_level->m_animations.at(static_cast<int>(id));
+  return m_level->m_typedAnimations.at(static_cast<int>(id));
 }
 
 const std::vector<loader::file::CinematicFrame>& World::getCinematicFrames() const
@@ -751,9 +751,9 @@ const std::vector<int16_t>& World::getPoseFrames() const
   return m_level->m_poseFrames;
 }
 
-const std::vector<loader::file::Animation>& World::getAnimations() const
+const std::vector<loader::file::TypedAnimation>& World::getAnimations() const
 {
-  return m_level->m_animations;
+  return m_level->m_typedAnimations;
 }
 
 const std::vector<uint16_t>& World::getOverlaps() const

@@ -137,17 +137,19 @@ static_assert(sizeof(AnimFrame) == 20, "AnimFrame has wrong size");
 
 #pragma pack(pop)
 
-struct Animation;
+struct TypedAnimation;
 
 struct TransitionCase
 {
-  core::Frame firstFrame = 0_frame;                               // Lowest frame that uses this range
-  core::Frame lastFrame = 0_frame;                                // Highest frame (+1?) that uses this range
-  core::ContainerIndex<uint16_t, Animation> targetAnimationIndex; // Animation to dispatch to
-  core::Frame targetFrame = 0_frame;                              // Frame offset to dispatch to
+  core::Frame firstFrame = 0_frame;                                    // Lowest frame that uses this range
+  core::Frame lastFrame = 0_frame;                                     // Highest frame (+1?) that uses this range
+  core::ContainerIndex<uint16_t, TypedAnimation> targetAnimationIndex; // Animation to dispatch to
+  core::Frame targetFrame = 0_frame;                                   // Frame offset to dispatch to
 
   static std::unique_ptr<TransitionCase> read(io::SDLReader& reader);
 };
+
+struct TypedAnimation;
 
 struct TypedTransitionCase
 {
@@ -155,7 +157,7 @@ struct TypedTransitionCase
   const core::Frame lastFrame;
   const core::Frame targetFrame;
 
-  const Animation* targetAnimation = nullptr;
+  const TypedAnimation* targetAnimation = nullptr;
 };
 
 struct Transitions
@@ -178,8 +180,6 @@ struct Animation
 {
   core::ContainerOffset<uint32_t, int16_t> poseDataOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
 
-  const AnimFrame* frames = nullptr;
-
   core::Frame segmentLength = 0_frame; // Slowdown factor of this animation
   uint8_t poseDataSize{};              // number of bit16's in Frames[] used by this animation
   core::AnimStateId state_id = 0_as;
@@ -200,20 +200,37 @@ struct Animation
   uint16_t animCommandCount{};                                         // How many of them to use.
   core::ContainerIndex<uint16_t, int16_t> animCommandIndex{};          // offset into AnimCommand[]
 
-  const Animation* nextAnimation = nullptr;
+  static std::unique_ptr<Animation> readTr1(io::SDLReader& reader);
+  static std::unique_ptr<Animation> readTr4(io::SDLReader& reader);
+
+private:
+  static std::unique_ptr<Animation> read(io::SDLReader& reader, bool withLateral);
+};
+
+struct TypedAnimation
+{
+  const AnimFrame* frames = nullptr;
+
+  core::Frame segmentLength = 0_frame;
+  core::AnimStateId state_id = 0_as;
+
+  core::Speed speed{};
+  core::Acceleration acceleration{};
+
+  core::Frame firstFrame = 0_frame;
+  core::Frame lastFrame = 0_frame;
+  core::Frame nextFrame = 0_frame;
+
+  uint16_t animCommandCount{};
+  core::ContainerIndex<uint16_t, int16_t> animCommandIndex{};
+
+  const TypedAnimation* nextAnimation = nullptr;
   gsl::span<const TypedTransitions> transitions{};
 
   [[nodiscard]] constexpr core::Frame getFrameCount() const
   {
     return lastFrame - firstFrame + 1_frame;
   }
-
-  static std::unique_ptr<Animation> readTr1(io::SDLReader& reader);
-
-  static std::unique_ptr<Animation> readTr4(io::SDLReader& reader);
-
-private:
-  static std::unique_ptr<Animation> read(io::SDLReader& reader, bool withLateral);
 };
 
 struct Mesh;
@@ -246,7 +263,7 @@ struct SkeletalModelType
     mesh_base_index;                                         // starting mesh (offset into MeshPointers[])
   core::ContainerIndex<uint32_t, int32_t> bone_index;        // offset into MeshTree[]
   core::ContainerOffset<uint32_t, int16_t> pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
-  core::ContainerIndex<uint16_t, Animation> animation_index; // offset into Animations[]
+  core::ContainerIndex<uint16_t, TypedAnimation> animation_index; // offset into Animations[]
 
   struct Bone
   {
@@ -277,7 +294,7 @@ struct SkeletalModelType
 
   const AnimFrame* frames = nullptr;
 
-  const Animation* animations = nullptr;
+  const TypedAnimation* animations = nullptr;
 
   static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader);
 

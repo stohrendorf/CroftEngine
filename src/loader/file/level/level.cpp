@@ -289,6 +289,47 @@ void Level::postProcessDataStructures()
     m_boxes[i].zoneGround2Swapped = m_alternateZones.groundZone2[i];
   }
 
+  m_typedAnimations.resize(m_animations.size());
+  m_typedTransitions.resize(m_transitions.size());
+  for(size_t i = 0; i < m_animations.size(); ++i)
+  {
+    const auto& anim = m_animations[i];
+    const AnimFrame* frames = nullptr;
+
+    if(anim.poseDataOffset.index<decltype(m_poseFrames[0])>() >= m_poseFrames.size())
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Pose frame data index " << anim.poseDataOffset.index<decltype(m_poseFrames[0])>()
+                                 << " out of range 0.." << m_poseFrames.size() - 1;
+    }
+    else
+    {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+      frames = reinterpret_cast<const AnimFrame*>(&anim.poseDataOffset.from(m_poseFrames));
+    }
+
+    Expects(anim.nextAnimationIndex < m_typedAnimations.size());
+    auto nextAnimation = &m_typedAnimations[anim.nextAnimationIndex];
+
+    Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
+    Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_typedTransitions));
+    gsl::span<const TypedTransitions> transitions;
+    if(anim.transitionsCount > 0)
+      transitions = gsl::span{&anim.transitionsIndex.from(m_typedTransitions), anim.transitionsCount};
+
+    m_typedAnimations[i] = TypedAnimation{frames,
+                                          anim.segmentLength,
+                                          anim.state_id,
+                                          anim.speed,
+                                          anim.acceleration,
+                                          anim.firstFrame,
+                                          anim.lastFrame,
+                                          anim.nextFrame,
+                                          anim.animCommandCount,
+                                          anim.animCommandIndex,
+                                          nextAnimation,
+                                          std::move(transitions)};
+  }
+
   for(const std::unique_ptr<SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values)
   {
     if(model->pose_data_offset.index<decltype(m_poseFrames[0])>() >= m_poseFrames.size())
@@ -308,14 +349,25 @@ void Level::postProcessDataStructures()
     }
 
     if(model->animation_index.index != 0xffff)
-      model->animations = &model->animation_index.from(m_animations);
+      model->animations = &model->animation_index.from(m_typedAnimations);
   }
 
+  for(TransitionCase& transitionCase : m_transitionCases)
+  {
+    const TypedAnimation* anim = nullptr;
+    if(transitionCase.targetAnimationIndex.index < m_typedAnimations.size())
+      anim = &transitionCase.targetAnimationIndex.from(m_typedAnimations);
+    else
+      BOOST_LOG_TRIVIAL(warning) << "Animation index " << transitionCase.targetAnimationIndex.index << " not less than "
+                                 << m_typedAnimations.size();
+
+    m_typedTransitionCases.emplace_back(
+      TypedTransitionCase{transitionCase.firstFrame, transitionCase.lastFrame, transitionCase.targetFrame, anim});
+  }
+
+  Expects(m_transitions.size() == m_typedTransitions.size());
   std::transform(
-    m_transitions.begin(),
-    m_transitions.end(),
-    std::back_inserter(m_typedTransitions),
-    [this](const Transitions& transitions) {
+    m_transitions.begin(), m_transitions.end(), m_typedTransitions.begin(), [this](const Transitions& transitions) {
       Expects((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_typedTransitionCases));
       if(transitions.transitionCaseCount > 0)
         return TypedTransitions{
@@ -323,42 +375,6 @@ void Level::postProcessDataStructures()
           gsl::span{&transitions.firstTransitionCase.from(m_typedTransitionCases), transitions.transitionCaseCount}};
       return TypedTransitions{};
     });
-
-  for(Animation& anim : m_animations)
-  {
-    if(anim.poseDataOffset.index<decltype(m_poseFrames[0])>() >= m_poseFrames.size())
-    {
-      BOOST_LOG_TRIVIAL(warning) << "Pose frame data index " << anim.poseDataOffset.index<decltype(m_poseFrames[0])>()
-                                 << " out of range 0.." << m_poseFrames.size() - 1;
-      anim.frames = nullptr;
-    }
-    else
-    {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      anim.frames = reinterpret_cast<const AnimFrame*>(&anim.poseDataOffset.from(m_poseFrames));
-    }
-
-    Expects(anim.nextAnimationIndex < m_animations.size());
-    anim.nextAnimation = &m_animations[anim.nextAnimationIndex];
-
-    Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
-    Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_typedTransitions));
-    if(anim.transitionsCount > 0)
-      anim.transitions = {&anim.transitionsIndex.from(m_typedTransitions), anim.transitionsCount};
-  }
-
-  for(TransitionCase& transitionCase : m_transitionCases)
-  {
-    const Animation* anim = nullptr;
-    if(transitionCase.targetAnimationIndex.index < m_animations.size())
-      anim = &transitionCase.targetAnimationIndex.from(m_animations);
-    else
-      BOOST_LOG_TRIVIAL(warning) << "Animation index " << transitionCase.targetAnimationIndex.index << " not less than "
-                                 << m_animations.size();
-
-    m_typedTransitionCases.emplace_back(
-      TypedTransitionCase{transitionCase.firstFrame, transitionCase.lastFrame, transitionCase.targetFrame, anim});
-  }
 
   for(const auto& sequence : m_spriteSequences | boost::adaptors::map_values)
   {
@@ -376,6 +392,10 @@ void Level::postProcessDataStructures()
         return TypedSector{sector, m_rooms, m_boxes, m_floorData};
       });
   }
+
+  Ensures(m_typedAnimations.size() == m_animations.size());
+  Ensures(m_typedTransitionCases.size() == m_transitionCases.size());
+  Ensures(m_typedTransitions.size() == m_transitions.size());
 
   connectSectors();
 }

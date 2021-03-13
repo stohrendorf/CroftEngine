@@ -179,7 +179,7 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
 }
 
 void SkeletalModelNode::setAnimation(core::AnimStateId& animState,
-                                     const gsl::not_null<const loader::file::Animation*>& animation,
+                                     const gsl::not_null<const loader::file::TypedAnimation*>& animation,
                                      core::Frame frame)
 {
   BOOST_ASSERT(m_model->bones.empty() || animation->frames->numValues == m_model->bones.size());
@@ -358,7 +358,7 @@ bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
   return min.x > 1 || min.y > 1 || max.x < -1 || max.y < -1;
 }
 
-void SkeletalModelNode::setAnim(const gsl::not_null<const loader::file::Animation*>& anim,
+void SkeletalModelNode::setAnim(const gsl::not_null<const loader::file::TypedAnimation*>& anim,
                                 const std::optional<core::Frame>& frame)
 {
   m_anim = anim;
@@ -370,7 +370,7 @@ core::Frame SkeletalModelNode::getLocalFrame() const
   return m_frame - m_anim->firstFrame;
 }
 
-void SkeletalModelNode::replaceAnim(const gsl::not_null<const loader::file::Animation*>& anim,
+void SkeletalModelNode::replaceAnim(const gsl::not_null<const loader::file::TypedAnimation*>& anim,
                                     const core::Frame& localFrame)
 {
   setAnim(anim, anim->firstFrame + localFrame);

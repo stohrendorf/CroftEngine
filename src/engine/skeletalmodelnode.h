@@ -9,7 +9,7 @@
 namespace loader::file
 {
 struct SkeletalModelType;
-struct Animation;
+struct TypedAnimation;
 } // namespace loader::file
 
 namespace engine
@@ -30,7 +30,7 @@ public:
   void updatePose();
 
   void setAnimation(core::AnimStateId& animState,
-                    const gsl::not_null<const loader::file::Animation*>& animation,
+                    const gsl::not_null<const loader::file::TypedAnimation*>& animation,
                     core::Frame frame);
 
   core::Speed calculateFloorSpeed(const core::Frame& frameOffset = 0_frame) const;
@@ -147,10 +147,10 @@ public:
     rebuildMesh();
   }
 
-  void setAnim(const gsl::not_null<const loader::file::Animation*>& anim,
+  void setAnim(const gsl::not_null<const loader::file::TypedAnimation*>& anim,
                const std::optional<core::Frame>& frame = std::nullopt);
 
-  void replaceAnim(const gsl::not_null<const loader::file::Animation*>& anim, const core::Frame& localFrame);
+  void replaceAnim(const gsl::not_null<const loader::file::TypedAnimation*>& anim, const core::Frame& localFrame);
 
   [[nodiscard]] const auto& getFrame() const
   {
@@ -190,7 +190,7 @@ private:
   mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer;
   bool m_needsMeshRebuild = false;
 
-  const loader::file::Animation* m_anim = nullptr;
+  const loader::file::TypedAnimation* m_anim = nullptr;
   core::Frame m_frame = 0_frame;
 
   void updatePose(const InterpolationInfo& framePair);

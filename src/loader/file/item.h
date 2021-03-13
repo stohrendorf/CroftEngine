@@ -25,11 +25,8 @@ struct Item
   uint16_t activationState = 0;
 
   static std::unique_ptr<Item> readTr1(io::SDLReader& reader);
-
   static std::unique_ptr<Item> readTr2(io::SDLReader& reader);
-
   static std::unique_ptr<Item> readTr3(io::SDLReader& reader);
-
   static std::unique_ptr<Item> readTr4(io::SDLReader& reader);
 };
 } // namespace loader::file
