@@ -15,6 +15,11 @@ namespace render::scene
 class Mesh;
 }
 
+namespace engine::world
+{
+struct Animation;
+}
+
 namespace loader::file
 {
 namespace io
@@ -137,19 +142,15 @@ static_assert(sizeof(AnimFrame) == 20, "AnimFrame has wrong size");
 
 #pragma pack(pop)
 
-struct TypedAnimation;
-
 struct TransitionCase
 {
-  core::Frame firstFrame = 0_frame;                                    // Lowest frame that uses this range
-  core::Frame lastFrame = 0_frame;                                     // Highest frame (+1?) that uses this range
-  core::ContainerIndex<uint16_t, TypedAnimation> targetAnimationIndex; // Animation to dispatch to
-  core::Frame targetFrame = 0_frame;                                   // Frame offset to dispatch to
+  core::Frame firstFrame = 0_frame; // Lowest frame that uses this range
+  core::Frame lastFrame = 0_frame;  // Highest frame (+1?) that uses this range
+  core::ContainerIndex<uint16_t, engine::world::Animation> targetAnimationIndex; // Animation to dispatch to
+  core::Frame targetFrame = 0_frame;                                             // Frame offset to dispatch to
 
   static std::unique_ptr<TransitionCase> read(io::SDLReader& reader);
 };
-
-struct TypedAnimation;
 
 struct TypedTransitionCase
 {
@@ -157,7 +158,7 @@ struct TypedTransitionCase
   const core::Frame lastFrame;
   const core::Frame targetFrame;
 
-  const TypedAnimation* targetAnimation = nullptr;
+  const engine::world::Animation* targetAnimation = nullptr;
 };
 
 struct Transitions
@@ -207,32 +208,6 @@ private:
   static std::unique_ptr<Animation> read(io::SDLReader& reader, bool withLateral);
 };
 
-struct TypedAnimation
-{
-  const AnimFrame* frames = nullptr;
-
-  core::Frame segmentLength = 0_frame;
-  core::AnimStateId state_id = 0_as;
-
-  core::Speed speed{};
-  core::Acceleration acceleration{};
-
-  core::Frame firstFrame = 0_frame;
-  core::Frame lastFrame = 0_frame;
-  core::Frame nextFrame = 0_frame;
-
-  uint16_t animCommandCount{};
-  const int16_t* animCommands = nullptr;
-
-  const TypedAnimation* nextAnimation = nullptr;
-  gsl::span<const TypedTransitions> transitions{};
-
-  [[nodiscard]] constexpr core::Frame getFrameCount() const
-  {
-    return lastFrame - firstFrame + 1_frame;
-  }
-};
-
 struct Mesh;
 class RenderMeshData;
 
@@ -263,7 +238,7 @@ struct SkeletalModelType
     mesh_base_index;                                         // starting mesh (offset into MeshPointers[])
   core::ContainerIndex<uint32_t, int32_t> bone_index;        // offset into MeshTree[]
   core::ContainerOffset<uint32_t, int16_t> pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
-  core::ContainerIndex<uint16_t, TypedAnimation> animation_index; // offset into Animations[]
+  core::ContainerIndex<uint16_t, engine::world::Animation> animation_index; // offset into Animations[]
 
   struct Bone
   {
@@ -294,7 +269,7 @@ struct SkeletalModelType
 
   const AnimFrame* frames = nullptr;
 
-  const TypedAnimation* animations = nullptr;
+  const engine::world::Animation* animations = nullptr;
 
   static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader);
 

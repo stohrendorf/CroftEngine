@@ -3,6 +3,7 @@
 #include "engine/audioengine.h"
 #include "engine/objects/object.h"
 #include "engine/particle.h"
+#include "engine/world/animation.h"
 #include "engine/world/box.h"
 #include "game.h"
 #include "loader/file/animation.h"
@@ -50,7 +51,7 @@ public:
   std::vector<Room> m_rooms;
   std::vector<uint32_t> m_meshIndices;
   std::vector<Animation> m_animations;
-  std::vector<TypedAnimation> m_typedAnimations;
+  std::vector<engine::world::Animation> m_typedAnimations;
   std::vector<Transitions> m_transitions;
   std::vector<TypedTransitions> m_typedTransitions;
   std::vector<TransitionCase> m_transitionCases;

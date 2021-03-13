@@ -674,7 +674,7 @@ void World::doGlobalEffect()
   m_audioEngine->setUnderwater(m_cameraController->getCurrentRoom()->isWaterRoom());
 }
 
-const loader::file::TypedAnimation& World::getAnimation(loader::file::AnimationId id) const
+const Animation& World::getAnimation(loader::file::AnimationId id) const
 {
   return m_level->m_typedAnimations.at(static_cast<int>(id));
 }
@@ -750,7 +750,7 @@ const std::vector<int16_t>& World::getPoseFrames() const
   return m_level->m_poseFrames;
 }
 
-const std::vector<loader::file::TypedAnimation>& World::getAnimations() const
+const std::vector<Animation>& World::getAnimations() const
 {
   return m_level->m_typedAnimations;
 }

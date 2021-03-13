@@ -10,6 +10,7 @@
 #include "engine/presenter.h"
 #include "engine/raycast.h"
 #include "engine/tracks_tr1.h"
+#include "engine/world/animation.h"
 #include "hid/inputhandler.h"
 #include "loader/file/rendermeshdata.h"
 #include "render/scene/mesh.h"

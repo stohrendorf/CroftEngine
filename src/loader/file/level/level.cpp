@@ -301,18 +301,18 @@ void Level::postProcessDataStructures()
       transitions = gsl::span{&anim.transitionsIndex.from(m_typedTransitions), anim.transitionsCount};
 
     m_typedAnimations[i]
-      = TypedAnimation{frames,
-                       anim.segmentLength,
-                       anim.state_id,
-                       anim.speed,
-                       anim.acceleration,
-                       anim.firstFrame,
-                       anim.lastFrame,
-                       anim.nextFrame,
-                       anim.animCommandCount,
-                       anim.animCommandCount == 0 ? nullptr : &anim.animCommandIndex.from(m_animCommands),
-                       nextAnimation,
-                       std::move(transitions)};
+      = engine::world::Animation{frames,
+                                 anim.segmentLength,
+                                 anim.state_id,
+                                 anim.speed,
+                                 anim.acceleration,
+                                 anim.firstFrame,
+                                 anim.lastFrame,
+                                 anim.nextFrame,
+                                 anim.animCommandCount,
+                                 anim.animCommandCount == 0 ? nullptr : &anim.animCommandIndex.from(m_animCommands),
+                                 nextAnimation,
+                                 std::move(transitions)};
   }
 
   for(const std::unique_ptr<SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values)
@@ -339,7 +339,7 @@ void Level::postProcessDataStructures()
 
   for(TransitionCase& transitionCase : m_transitionCases)
   {
-    const TypedAnimation* anim = nullptr;
+    const engine::world::Animation* anim = nullptr;
     if(transitionCase.targetAnimationIndex.index < m_typedAnimations.size())
       anim = &transitionCase.targetAnimationIndex.from(m_typedAnimations);
     else

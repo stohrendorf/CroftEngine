@@ -18,7 +18,6 @@ namespace loader::file
 {
 enum class AnimationId : uint16_t;
 class RenderMeshData;
-struct TypedAnimation;
 struct AnimFrame;
 struct Mesh;
 struct SkeletalModelType;
@@ -40,11 +39,6 @@ class ModelObject;
 class PickupObject;
 } // namespace engine::objects
 
-namespace engine::world
-{
-extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector, const core::TRVec& position);
-}
-
 namespace engine
 {
 class Presenter;
@@ -58,6 +52,10 @@ enum class TR1TrackId : int32_t;
 
 namespace engine::world
 {
+struct Animation;
+
+extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector, const core::TRVec& position);
+
 class World final
 {
 public:
@@ -164,7 +162,7 @@ public:
   std::vector<loader::file::Room>& getRooms();
   [[nodiscard]] const loader::file::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
   [[nodiscard]] const std::unique_ptr<loader::file::SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
-  [[nodiscard]] const loader::file::TypedAnimation& getAnimation(loader::file::AnimationId id) const;
+  [[nodiscard]] const Animation& getAnimation(loader::file::AnimationId id) const;
   [[nodiscard]] const std::vector<loader::file::CinematicFrame>& getCinematicFrames() const;
   [[nodiscard]] const std::vector<loader::file::Camera>& getCameras() const;
   [[nodiscard]] const std::vector<int16_t>& getAnimCommands() const;
@@ -192,7 +190,7 @@ public:
   void runEffect(size_t id, objects::Object* object);
   [[nodiscard]] const std::unique_ptr<loader::file::SkeletalModelType>&
     findAnimatedModelForType(core::TypeId type) const;
-  [[nodiscard]] const std::vector<loader::file::TypedAnimation>& getAnimations() const;
+  [[nodiscard]] const std::vector<Animation>& getAnimations() const;
   [[nodiscard]] const std::vector<uint16_t>& getOverlaps() const;
   [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
   [[nodiscard]] gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> getRenderMesh(size_t idx) const;

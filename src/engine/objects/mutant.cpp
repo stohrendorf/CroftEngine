@@ -3,6 +3,7 @@
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/particle.h"
 #include "engine/player.h"
+#include "engine/world/animation.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "mutantegg.h"
