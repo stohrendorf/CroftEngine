@@ -70,8 +70,6 @@ struct Portal
   void buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
 };
 
-struct TypedBox;
-
 struct Sector
 {
   /**
@@ -490,8 +488,6 @@ struct SpriteSequence
   static std::unique_ptr<SpriteSequence> read(io::SDLReader& reader);
 };
 
-using ZoneId = uint16_t;
-
 struct Box
 {
   core::Length zmin = 0_len;
@@ -513,61 +509,7 @@ struct Box
   static std::unique_ptr<Box> readTr2(io::SDLReader& reader);
 };
 
-struct TypedBox
-{
-  core::Length zmin = 0_len;
-  core::Length zmax = 0_len;
-  core::Length xmin = 0_len;
-  core::Length xmax = 0_len;
-
-  core::Length floor = 0_len;
-
-  mutable bool blocked = true;
-  bool blockable = true;
-
-  std::vector<gsl::not_null<TypedBox*>> overlaps{};
-
-  constexpr bool containsX(const core::Length& x) const noexcept
-  {
-    return x >= xmin && x <= xmax;
-  }
-
-  constexpr bool containsZ(const core::Length& z) const noexcept
-  {
-    return z >= zmin && z <= zmax;
-  }
-
-  constexpr bool contains(const core::Length& x, const core::Length& z) const noexcept
-  {
-    return containsX(x) && containsZ(z);
-  }
-
-  ZoneId zoneFly = 0;
-  ZoneId zoneFlySwapped = 0;
-  ZoneId zoneGround1 = 0;
-  ZoneId zoneGround1Swapped = 0;
-  ZoneId zoneGround2 = 0;
-  ZoneId zoneGround2Swapped = 0;
-
-  static const ZoneId TypedBox::*getZoneRef(const bool swapped, const core::Length& fly, const core::Length& step)
-  {
-    if(fly != 0_len)
-    {
-      return swapped ? &TypedBox::zoneFlySwapped : &TypedBox::zoneFly;
-    }
-    else if(step == core::QuarterSectorSize)
-    {
-      return swapped ? &TypedBox::zoneGround1Swapped : &TypedBox::zoneGround1;
-    }
-    else
-    {
-      return swapped ? &TypedBox::zoneGround2Swapped : &TypedBox::zoneGround2;
-    }
-  }
-
-  void serialize(const serialization::Serializer<engine::world::World>& ser);
-};
-
+using ZoneId = uint16_t;
 using ZoneData = std::vector<ZoneId>;
 
 struct Zones

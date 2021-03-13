@@ -159,7 +159,7 @@ public:
   void swapAllRooms();
   bool isValid(const loader::file::AnimFrame* frame) const;
   void swapWithAlternate(loader::file::Room& orig, loader::file::Room& alternate);
-  [[nodiscard]] const std::vector<loader::file::TypedBox>& getBoxes() const;
+  [[nodiscard]] const std::vector<Box>& getBoxes() const;
   [[nodiscard]] const std::vector<loader::file::Room>& getRooms() const;
   std::vector<loader::file::Room>& getRooms();
   [[nodiscard]] const loader::file::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;

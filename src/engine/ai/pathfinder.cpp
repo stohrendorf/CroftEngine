@@ -254,7 +254,7 @@ void PathFinder::updatePath(const world::World& world)
 
 void PathFinder::searchPath(const world::World& world)
 {
-  const auto zoneRef = loader::file::TypedBox::getZoneRef(world.roomsAreSwapped(), fly, step);
+  const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(), fly, step);
 
   static constexpr uint8_t MaxExpansions = 5;
 

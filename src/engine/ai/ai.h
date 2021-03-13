@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/world/box.h"
 #include "pathfinder.h"
 
 #include <boost/range/adaptor/map.hpp>
@@ -35,8 +36,8 @@ inline std::ostream& operator<<(std::ostream& str, const Mood mood)
 
 struct AiInfo
 {
-  loader::file::ZoneId zone_number = 0;
-  loader::file::ZoneId enemy_zone = 0;
+  world::ZoneId zone_number = 0;
+  world::ZoneId enemy_zone = 0;
   bool enemy_unreachable = false;
   core::Area distance{0};
   bool ahead = false;

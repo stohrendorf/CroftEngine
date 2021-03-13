@@ -13,7 +13,7 @@ namespace engine::world
 {
 Sector::Sector(const loader::file::Sector& src,
                std::vector<loader::file::Room>& rooms,
-               const std::vector<loader::file::TypedBox>& boxes,
+               const std::vector<Box>& boxes,
                const engine::floordata::FloorData& newFloorData)
     : box{src.boxIndex.get() >= 0 ? &boxes.at(src.boxIndex.get()) : nullptr}
     , floorHeight{src.floorHeight}

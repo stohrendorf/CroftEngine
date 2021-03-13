@@ -1291,11 +1291,6 @@ std::unique_ptr<Box> Box::readTr2(io::SDLReader& reader)
   return box;
 }
 
-void TypedBox::serialize(const serialization::Serializer<engine::world::World>& ser)
-{
-  ser(S_NV("blocked", blocked), S_NV("blockable", blockable));
-}
-
 std::unique_ptr<FlybyCamera> FlybyCamera::read(io::SDLReader& reader)
 {
   auto camera = std::make_unique<FlybyCamera>();

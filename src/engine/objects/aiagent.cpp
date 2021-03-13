@@ -90,7 +90,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   const auto oldPosition = m_state.position;
 
   const auto boxFloor = m_state.box->floor;
-  const auto zoneRef = loader::file::TypedBox::getZoneRef(
+  const auto zoneRef = world::Box::getZoneRef(
     getWorld().roomsAreSwapped(), m_state.creatureInfo->pathFinder.fly, m_state.creatureInfo->pathFinder.step);
   ModelObject::update();
   if(m_state.triggerState == TriggerState::Deactivated)

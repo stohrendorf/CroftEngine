@@ -9,13 +9,13 @@
 namespace loader::file
 {
 struct Room;
-struct TypedBox;
 struct Sector;
 } // namespace loader::file
 
 namespace engine::world
 {
 class World;
+struct Box;
 
 struct Sector
 {
@@ -27,7 +27,7 @@ struct Sector
   const engine::floordata::FloorDataValue* floorData = nullptr;
   loader::file::Room* portalTarget = nullptr;
 
-  const loader::file::TypedBox* box = nullptr;
+  const Box* box = nullptr;
   loader::file::Room* roomBelow = nullptr;
   core::Length floorHeight = -core::HeightLimit;
   loader::file::Room* roomAbove = nullptr;
@@ -36,7 +36,7 @@ struct Sector
   Sector() = default;
   Sector(const loader::file::Sector& src,
          std::vector<loader::file::Room>& rooms,
-         const std::vector<loader::file::TypedBox>& boxes,
+         const std::vector<Box>& boxes,
          const engine::floordata::FloorData& newFloorData);
 
   void connect(std::vector<loader::file::Room>& rooms);

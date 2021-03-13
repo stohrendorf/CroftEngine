@@ -371,7 +371,7 @@ void Level::postProcessDataStructures()
 
   m_typedBoxes.resize(m_boxes.size());
   auto getOverlaps = [this](const uint16_t idx) {
-    std::vector<gsl::not_null<TypedBox*>> result;
+    std::vector<gsl::not_null<engine::world::Box*>> result;
     const auto first = &m_overlaps.at(idx);
     auto current = first;
     const auto endOfUniverse = &m_overlaps.back() + 1;
@@ -387,7 +387,7 @@ void Level::postProcessDataStructures()
   };
 
   std::transform(m_boxes.begin(), m_boxes.end(), m_typedBoxes.begin(), [&getOverlaps](const Box& box) {
-    return TypedBox{
+    return engine::world::Box{
       box.zmin, box.zmax, box.xmin, box.xmax, box.floor, box.blocked, box.blockable, getOverlaps(box.overlap_index)};
   });
 

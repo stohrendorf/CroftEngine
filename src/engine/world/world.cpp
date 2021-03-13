@@ -275,7 +275,7 @@ std::vector<loader::file::Room>& World::getRooms()
   return m_level->m_rooms;
 }
 
-const std::vector<loader::file::TypedBox>& World::getBoxes() const
+const std::vector<Box>& World::getBoxes() const
 {
   return m_level->m_typedBoxes;
 }

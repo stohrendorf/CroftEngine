@@ -3,6 +3,7 @@
 #include "engine/audioengine.h"
 #include "engine/objects/object.h"
 #include "engine/particle.h"
+#include "engine/world/box.h"
 #include "game.h"
 #include "loader/file/animation.h"
 #include "loader/file/datatypes.h"
@@ -64,7 +65,7 @@ public:
   std::vector<FlybyCamera> m_flybyCameras;
   std::vector<SoundSource> m_soundSources;
   std::vector<Box> m_boxes;
-  std::vector<TypedBox> m_typedBoxes;
+  std::vector<engine::world::Box> m_typedBoxes;
   std::vector<uint16_t> m_overlaps;
   Zones m_baseZones;
   Zones m_alternateZones;

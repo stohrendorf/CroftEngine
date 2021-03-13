@@ -14,7 +14,7 @@ namespace engine::objects
 {
 ObjectState::~ObjectState() = default;
 
-bool ObjectState::isStalkBox(const world::World& world, const loader::file::TypedBox& targetBox) const
+bool ObjectState::isStalkBox(const world::World& world, const world::Box& targetBox) const
 {
   const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
 
@@ -52,13 +52,13 @@ bool ObjectState::isStalkBox(const world::World& world, const loader::file::Type
 }
 
 bool ObjectState::isInsideZoneButNotInBox(const world::World& world,
-                                          const int16_t zoneId,
-                                          const loader::file::TypedBox& targetBox) const
+                                          const world::ZoneId zoneId,
+                                          const world::Box& targetBox) const
 {
   Expects(creatureInfo != nullptr);
 
-  const auto zoneRef = loader::file::TypedBox::getZoneRef(
-    world.roomsAreSwapped(), creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
+  const auto zoneRef
+    = world::Box::getZoneRef(world.roomsAreSwapped(), creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
 
   if(zoneId != targetBox.*zoneRef)
   {
@@ -73,7 +73,7 @@ bool ObjectState::isInsideZoneButNotInBox(const world::World& world,
   return !targetBox.contains(position.position.X, position.position.Z);
 }
 
-bool ObjectState::isEscapeBox(const world::World& world, const loader::file::TypedBox& targetBox) const
+bool ObjectState::isEscapeBox(const world::World& world, const world::Box& targetBox) const
 {
   const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
 
@@ -98,10 +98,8 @@ void ObjectState::initCreatureInfo(const world::World& world)
 
 void ObjectState::collectZoneBoxes(const world::World& world)
 {
-  const auto zoneRef1
-    = loader::file::TypedBox::getZoneRef(false, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
-  const auto zoneRef2
-    = loader::file::TypedBox::getZoneRef(true, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
+  const auto zoneRef1 = world::Box::getZoneRef(false, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
+  const auto zoneRef2 = world::Box::getZoneRef(true, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
 
   box = position.room->getInnerSectorByAbsolutePosition(position.position)->box;
   Ensures(box != nullptr);

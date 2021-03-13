@@ -3,6 +3,7 @@
 #include "audio/soundengine.h"
 #include "core/id.h"
 #include "engine/floordata/floordata.h"
+#include "engine/world/box.h"
 #include "loader/file/datatypes.h"
 
 namespace loader::file
@@ -88,7 +89,7 @@ public:
   floordata::ActivationState activationState;
   core::Length floor = 0_len;
   std::bitset<32> touch_bits;
-  const loader::file::TypedBox* box = nullptr;
+  const world::Box* box = nullptr;
   core::Shade shade{core::Shade::type{-1}};
 
   bool falling = false;
@@ -120,12 +121,11 @@ public:
     return !activationState.isInverted();
   }
 
-  bool isStalkBox(const world::World& world, const loader::file::TypedBox& targetBox) const;
+  bool isStalkBox(const world::World& world, const world::Box& targetBox) const;
 
-  bool
-    isInsideZoneButNotInBox(const world::World& world, int16_t zoneId, const loader::file::TypedBox& targetBox) const;
+  bool isInsideZoneButNotInBox(const world::World& world, world::ZoneId zoneId, const world::Box& targetBox) const;
 
-  bool isEscapeBox(const world::World& world, const loader::file::TypedBox& targetBox) const;
+  bool isEscapeBox(const world::World& world, const world::Box& targetBox) const;
 
   void initCreatureInfo(const world::World& world);
 

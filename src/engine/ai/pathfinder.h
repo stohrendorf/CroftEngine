@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/world/box.h"
 #include "loader/file/datatypes.h"
 #include "serialization/serialization_fwd.h"
 #include "util/helpers.h"
@@ -27,7 +28,7 @@ struct PathFinderNode
   /**
      * @brief The next box on the path.
      */
-  const loader::file::TypedBox* exit_box = nullptr;
+  const world::Box* exit_box = nullptr;
   bool traversable = true;
 
   void serialize(const serialization::Serializer<world::World>& ser);
@@ -36,16 +37,16 @@ struct PathFinderNode
 
 struct PathFinder
 {
-  std::unordered_map<const loader::file::TypedBox*, PathFinderNode> nodes;
-  std::vector<gsl::not_null<const loader::file::TypedBox*>> boxes;
-  std::deque<const loader::file::TypedBox*> expansions;
+  std::unordered_map<const world::Box*, PathFinderNode> nodes;
+  std::vector<gsl::not_null<const world::Box*>> boxes;
+  std::deque<const world::Box*> expansions;
   //! Contains all boxes where the "traversable" state has been determined
-  std::unordered_set<const loader::file::TypedBox*> visited;
+  std::unordered_set<const world::Box*> visited;
 
   bool cannotVisitBlocked = true;
   bool cannotVisitBlockable = false;
 
-  [[nodiscard]] bool canVisit(const loader::file::TypedBox& box) const noexcept
+  [[nodiscard]] bool canVisit(const world::Box& box) const noexcept
   {
     if(cannotVisitBlocked && box.blocked)
       return false;
@@ -62,14 +63,14 @@ struct PathFinder
   //! @}
 
   //! @brief The target box we need to reach
-  const loader::file::TypedBox* target_box = nullptr;
-  const loader::file::TypedBox* required_box = nullptr;
+  const world::Box* target_box = nullptr;
+  const world::Box* required_box = nullptr;
 
   core::TRVec target;
 
   explicit PathFinder(const world::World& world);
 
-  void setRandomSearchTarget(const gsl::not_null<const loader::file::TypedBox*>& box)
+  void setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
   {
     required_box = box;
     const auto zSize = box->zmax - box->zmin - core::SectorSize;
