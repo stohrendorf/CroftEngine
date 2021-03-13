@@ -333,8 +333,8 @@ void Room::patchHeightsForBlock(const engine::objects::Object& object, const cor
 {
   auto room = object.m_state.position.room;
   // TODO Ugly const_cast
-  gsl::not_null groundSector
-    = const_cast<TypedSector*>(loader::file::findRealFloorSector(object.m_state.position.position, &room).get());
+  gsl::not_null groundSector = const_cast<engine::world::Sector*>(
+    loader::file::findRealFloorSector(object.m_state.position.position, &room).get());
   const auto topSector = loader::file::findRealFloorSector(
     object.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room);
 
@@ -864,10 +864,10 @@ void Room::serialize(const serialization::Serializer<engine::world::World>& ser)
   ser(S_NV("sectors", serialization::FrozenVector{typedSectors}));
 }
 
-gsl::not_null<const TypedSector*> findRealFloorSector(const core::TRVec& position,
-                                                      const gsl::not_null<gsl::not_null<const Room*>*>& room)
+gsl::not_null<const engine::world::Sector*> findRealFloorSector(const core::TRVec& position,
+                                                                const gsl::not_null<gsl::not_null<const Room*>*>& room)
 {
-  const TypedSector* sector;
+  const engine::world::Sector* sector;
   // follow portals
   while(true)
   {
@@ -972,66 +972,6 @@ Sector Sector::read(io::SDLReader& reader)
   sector.roomIndexAbove = reader.readU8();
   sector.ceilingHeight = core::QuarterSectorSize * static_cast<core::Length::type>(reader.readI8());
   return sector;
-}
-
-void TypedSector::serialize(const serialization::Serializer<engine::world::World>& ser)
-{
-  ser(S_NVVE("box", ser.context.getBoxes(), box),
-      S_NV("floorHeight", floorHeight),
-      S_NV("ceilingHeight", ceilingHeight),
-      S_NV("roomIndexBelow", m_roomIndexBelow),
-      S_NV("roomIndexAbove", m_roomIndexAbove),
-      S_NVVE("portalTarget", ser.context.getLevel().m_rooms, portalTarget),
-      S_NVVE("floorData", ser.context.getLevel().m_floorData, floorData));
-
-  if(ser.loading)
-  {
-    ser.lazy([this](const serialization::Serializer<engine::world::World>& ser) { connect(ser.context.getRooms()); });
-  }
-}
-
-TypedSector::TypedSector(const Sector& src,
-                         std::vector<Room>& rooms,
-                         const std::vector<TypedBox>& boxes,
-                         const engine::floordata::FloorData& newFloorData)
-    : box{src.boxIndex.get() >= 0 ? &boxes.at(src.boxIndex.get()) : nullptr}
-    , floorHeight{src.floorHeight}
-    , ceilingHeight{src.ceilingHeight}
-    , m_roomIndexBelow{src.roomIndexBelow}
-    , m_roomIndexAbove{src.roomIndexAbove}
-{
-  connect(rooms);
-
-  if(src.floorDataIndex.index != 0)
-  {
-    floorData = &src.floorDataIndex.from(newFloorData);
-
-    if(const auto newPortalTarget = engine::floordata::getPortalTarget(floorData); newPortalTarget.has_value())
-    {
-      portalTarget = &rooms.at(*newPortalTarget);
-    }
-  }
-}
-
-void TypedSector::connect(std::vector<Room>& rooms)
-{
-  if(m_roomIndexBelow.get() != 0xff)
-  {
-    roomBelow = &rooms.at(m_roomIndexBelow.get());
-  }
-  else
-  {
-    roomBelow = nullptr;
-  }
-
-  if(m_roomIndexAbove.get() != 0xff)
-  {
-    roomAbove = &rooms.at(m_roomIndexAbove.get());
-  }
-  else
-  {
-    roomAbove = nullptr;
-  }
 }
 
 Light Light::readTr1(io::SDLReader& reader)

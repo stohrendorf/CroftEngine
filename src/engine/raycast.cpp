@@ -12,7 +12,7 @@ namespace
 {
 bool clampY(const core::TRVec& start,
             core::RoomBoundPosition& goal,
-            const gsl::not_null<const loader::file::TypedSector*>& sector,
+            const gsl::not_null<const world::Sector*>& sector,
             const ObjectManager& objectManager)
 {
   const auto delta = goal.position - start;

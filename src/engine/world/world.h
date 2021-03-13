@@ -42,8 +42,7 @@ class PickupObject;
 
 namespace engine::world
 {
-extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::TypedSector*> sector,
-                                                    const core::TRVec& position);
+extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector, const core::TRVec& position);
 }
 
 namespace engine

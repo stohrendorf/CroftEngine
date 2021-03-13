@@ -6,6 +6,7 @@
 #include "core/magic.h"
 #include "core/vec.h"
 #include "engine/floordata/types.h"
+#include "engine/world/sector.h"
 #include "meshes.h"
 #include "primitives.h"
 #include "render/scene/node.h"
@@ -25,7 +26,7 @@
 namespace engine::objects
 {
 class Object;
-} // namespace engine::objects
+}
 
 namespace render
 {
@@ -88,37 +89,6 @@ struct Sector
     = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
   static Sector read(io::SDLReader& reader);
-};
-
-struct TypedSector
-{
-  /**
-     * @brief Index into FloorData[]
-     *
-     * @note If this is 0, no floor data is attached to this sector.
-     */
-  const engine::floordata::FloorDataValue* floorData = nullptr;
-  Room* portalTarget = nullptr;
-
-  const TypedBox* box = nullptr;
-  Room* roomBelow = nullptr;
-  core::Length floorHeight = -core::HeightLimit;
-  Room* roomAbove = nullptr;
-  core::Length ceilingHeight = -core::HeightLimit;
-
-  TypedSector() = default;
-  TypedSector(const Sector& src,
-              std::vector<Room>& rooms,
-              const std::vector<TypedBox>& boxes,
-              const engine::floordata::FloorData& newFloorData);
-
-  void connect(std::vector<Room>& rooms);
-
-  void serialize(const serialization::Serializer<engine::world::World>& ser);
-
-private:
-  core::RoomId8 m_roomIndexBelow{uint8_t(-1)};
-  core::RoomId8 m_roomIndexAbove{uint8_t(-1)};
 };
 
 /*
@@ -326,7 +296,7 @@ struct Room
   int sectorCountZ{};            // "width" of sector list
   int sectorCountX{};            // "height" of sector list
   std::vector<Sector> sectors{}; // [NumXsectors * NumZsectors] list of sectors in this room
-  std::vector<TypedSector> typedSectors{};
+  std::vector<engine::world::Sector> typedSectors{};
   core::Shade ambientShade{};
   int16_t intensity2{};        // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
   int16_t lightMode{};         // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
@@ -398,17 +368,17 @@ struct Room
                        render::TextureAnimator& animator,
                        render::scene::MaterialManager& materialManager);
 
-  [[nodiscard]] const TypedSector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
+  [[nodiscard]] const engine::world::Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
   {
     return getSectorByRelativePosition(worldPos - position);
   }
 
-  [[nodiscard]] const TypedSector* getSectorByRelativePosition(const core::TRVec& localPos) const
+  [[nodiscard]] const engine::world::Sector* getSectorByRelativePosition(const core::TRVec& localPos) const
   {
     return getSectorByIndex(localPos.X / core::SectorSize, localPos.Z / core::SectorSize);
   }
 
-  [[nodiscard]] gsl::not_null<const TypedSector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
+  [[nodiscard]] gsl::not_null<const engine::world::Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
   {
     worldPos -= position;
     return getInnerSectorByIndex(worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize);
@@ -422,7 +392,7 @@ struct Room
     return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
   }
 
-  [[nodiscard]] const TypedSector* getSectorByIndex(const int dx, const int dz) const
+  [[nodiscard]] const engine::world::Sector* getSectorByIndex(const int dx, const int dz) const
   {
     if(dx < 0 || dx >= sectorCountX)
     {
@@ -439,14 +409,14 @@ struct Room
     return &typedSectors[sectorCountZ * dx + dz];
   }
 
-  [[nodiscard]] gsl::not_null<const TypedSector*> getInnerSectorByIndex(int dx, int dz) const
+  [[nodiscard]] gsl::not_null<const engine::world::Sector*> getInnerSectorByIndex(int dx, int dz) const
   {
     dx = std::clamp(dx, 1, sectorCountX - 2);
     dz = std::clamp(dz, 1, sectorCountZ - 2);
     return &typedSectors[sectorCountZ * dx + dz];
   }
 
-  [[nodiscard]] gsl::not_null<const TypedSector*> findFloorSectorWithClampedIndex(int dx, int dz) const
+  [[nodiscard]] gsl::not_null<const engine::world::Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
   {
     if(dz <= 0)
     {
@@ -479,16 +449,16 @@ struct Room
   void serialize(const serialization::Serializer<engine::world::World>& ser);
 };
 
-extern gsl::not_null<const TypedSector*> findRealFloorSector(const core::TRVec& position,
-                                                             const gsl::not_null<gsl::not_null<const Room*>*>& room);
+extern gsl::not_null<const engine::world::Sector*>
+  findRealFloorSector(const core::TRVec& position, const gsl::not_null<gsl::not_null<const Room*>*>& room);
 
-inline gsl::not_null<const TypedSector*> findRealFloorSector(const core::TRVec& position,
-                                                             gsl::not_null<const Room*> room)
+inline gsl::not_null<const engine::world::Sector*> findRealFloorSector(const core::TRVec& position,
+                                                                       gsl::not_null<const Room*> room)
 {
   return findRealFloorSector(position, &room);
 }
 
-inline gsl::not_null<const TypedSector*> findRealFloorSector(core::RoomBoundPosition& rbs)
+inline gsl::not_null<const engine::world::Sector*> findRealFloorSector(core::RoomBoundPosition& rbs)
 {
   return findRealFloorSector(rbs.position, &rbs.room);
 }

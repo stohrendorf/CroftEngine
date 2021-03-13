@@ -2,12 +2,13 @@
 
 #include "cameracontroller.h"
 #include "engine/objects/object.h"
+#include "world/sector.h"
 
 namespace engine
 {
 bool HeightInfo::skipSteepSlants = false;
 
-HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::TypedSector*> roomSector,
+HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
                                  const core::TRVec& pos,
                                  const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects)
 {
@@ -106,7 +107,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const loader::file::TypedSector*>
   return hi;
 }
 
-HeightInfo HeightInfo::fromCeiling(gsl::not_null<const loader::file::TypedSector*> roomSector,
+HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSector,
                                    const core::TRVec& pos,
                                    const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects)
 {

@@ -412,7 +412,7 @@ void Level::postProcessDataStructures()
     room.typedSectors.clear();
     std::transform(
       room.sectors.begin(), room.sectors.end(), std::back_inserter(room.typedSectors), [this](const Sector& sector) {
-        return TypedSector{sector, m_rooms, m_typedBoxes, m_floorData};
+        return engine::world::Sector{sector, m_rooms, m_typedBoxes, m_floorData};
       });
   }
 

@@ -10,6 +10,7 @@
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "world/sector.h"
 
 #include <utility>
 

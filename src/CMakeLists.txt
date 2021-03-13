@@ -158,6 +158,8 @@ set( EDISONENGINE_SRCS
         engine/skeletalmodelnode.h
         engine/skeletalmodelnode.cpp
 
+        engine/world/sector.h
+        engine/world/sector.cpp
         engine/world/world.h
         engine/world/world.cpp
 
