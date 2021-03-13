@@ -5,6 +5,7 @@
 #include "engine/particle.h"
 #include "engine/world/animation.h"
 #include "engine/world/box.h"
+#include "engine/world/transition.h"
 #include "game.h"
 #include "loader/file/animation.h"
 #include "loader/file/datatypes.h"
@@ -53,9 +54,9 @@ public:
   std::vector<Animation> m_animations;
   std::vector<engine::world::Animation> m_typedAnimations;
   std::vector<Transitions> m_transitions;
-  std::vector<TypedTransitions> m_typedTransitions;
+  std::vector<engine::world::Transitions> m_typedTransitions;
   std::vector<TransitionCase> m_transitionCases;
-  std::vector<TypedTransitionCase> m_typedTransitionCases;
+  std::vector<engine::world::TransitionCase> m_typedTransitionCases;
   std::vector<int16_t> m_animCommands;
   std::map<core::TypeId, std::unique_ptr<SkeletalModelType>> m_animatedModels;
   std::vector<TextureTile> m_textureTiles;

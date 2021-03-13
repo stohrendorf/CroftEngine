@@ -15,6 +15,7 @@
 #include "serialization/vector.h"
 #include "serialization/vector_element.h"
 #include "world/animation.h"
+#include "world/transition.h"
 
 #include <stack>
 #include <utility>
@@ -159,15 +160,15 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
   if(m_anim->state_id == goal)
     return false;
 
-  for(const loader::file::TypedTransitions& tr : m_anim->transitions)
+  for(const world::Transitions& tr : m_anim->transitions)
   {
     if(tr.stateId != goal)
       continue;
 
-    const auto it = std::find_if(
-      tr.transitionCases.cbegin(), tr.transitionCases.cend(), [this](const loader::file::TypedTransitionCase& trc) {
-        return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
-      });
+    const auto it
+      = std::find_if(tr.transitionCases.cbegin(), tr.transitionCases.cend(), [this](const world::TransitionCase& trc) {
+          return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
+        });
 
     if(it != tr.transitionCases.cend())
     {

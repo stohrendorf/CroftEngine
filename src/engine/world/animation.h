@@ -5,6 +5,8 @@
 
 namespace engine::world
 {
+struct Transitions;
+
 struct Animation
 {
   const loader::file::AnimFrame* frames = nullptr;
@@ -23,7 +25,7 @@ struct Animation
   const int16_t* animCommands = nullptr;
 
   const Animation* nextAnimation = nullptr;
-  gsl::span<const loader::file::TypedTransitions> transitions{};
+  gsl::span<const Transitions> transitions{};
 
   [[nodiscard]] constexpr core::Frame getFrameCount() const
   {

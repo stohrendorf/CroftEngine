@@ -296,7 +296,7 @@ void Level::postProcessDataStructures()
 
     Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
     Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_typedTransitions));
-    gsl::span<const TypedTransitions> transitions;
+    gsl::span<const engine::world::Transitions> transitions;
     if(anim.transitionsCount > 0)
       transitions = gsl::span{&anim.transitionsIndex.from(m_typedTransitions), anim.transitionsCount};
 
@@ -346,8 +346,8 @@ void Level::postProcessDataStructures()
       BOOST_LOG_TRIVIAL(warning) << "Animation index " << transitionCase.targetAnimationIndex.index << " not less than "
                                  << m_typedAnimations.size();
 
-    m_typedTransitionCases.emplace_back(
-      TypedTransitionCase{transitionCase.firstFrame, transitionCase.lastFrame, transitionCase.targetFrame, anim});
+    m_typedTransitionCases.emplace_back(engine::world::TransitionCase{
+      transitionCase.firstFrame, transitionCase.lastFrame, transitionCase.targetFrame, anim});
   }
 
   Expects(m_transitions.size() == m_typedTransitions.size());
@@ -355,10 +355,10 @@ void Level::postProcessDataStructures()
     m_transitions.begin(), m_transitions.end(), m_typedTransitions.begin(), [this](const Transitions& transitions) {
       Expects((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_typedTransitionCases));
       if(transitions.transitionCaseCount > 0)
-        return TypedTransitions{
+        return engine::world::Transitions{
           transitions.stateId,
           gsl::span{&transitions.firstTransitionCase.from(m_typedTransitionCases), transitions.transitionCaseCount}};
-      return TypedTransitions{};
+      return engine::world::Transitions{};
     });
 
   for(const auto& sequence : m_spriteSequences | boost::adaptors::map_values)

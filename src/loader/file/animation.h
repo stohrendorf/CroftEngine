@@ -18,7 +18,9 @@ class Mesh;
 namespace engine::world
 {
 struct Animation;
-}
+struct TransitionCase;
+struct Transitions;
+} // namespace engine::world
 
 namespace loader::file
 {
@@ -152,29 +154,14 @@ struct TransitionCase
   static std::unique_ptr<TransitionCase> read(io::SDLReader& reader);
 };
 
-struct TypedTransitionCase
-{
-  const core::Frame firstFrame;
-  const core::Frame lastFrame;
-  const core::Frame targetFrame;
-
-  const engine::world::Animation* targetAnimation = nullptr;
-};
-
 struct Transitions
 {
   core::AnimStateId stateId{uint16_t(0)};
   uint16_t transitionCaseCount{}; // number of ranges (seems to always be 1..5)
-  core::ContainerIndex<uint16_t, TypedTransitionCase> firstTransitionCase{}; // Offset into AnimDispatches[]
+  core::ContainerIndex<uint16_t, engine::world::TransitionCase> firstTransitionCase{}; // Offset into AnimDispatches[]
 
   /// \brief reads an animation state change.
   static std::unique_ptr<Transitions> read(io::SDLReader& reader);
-};
-
-struct TypedTransitions
-{
-  core::AnimStateId stateId{uint16_t(0)};
-  gsl::span<const TypedTransitionCase> transitionCases{};
 };
 
 struct Animation
@@ -197,9 +184,9 @@ struct Animation
   core::Frame nextFrame = 0_frame;
 
   uint16_t transitionsCount{};
-  core::ContainerIndex<uint16_t, TypedTransitions> transitionsIndex{}; // offset into StateChanges[]
-  uint16_t animCommandCount{};                                         // How many of them to use.
-  core::ContainerIndex<uint16_t, int16_t> animCommandIndex{};          // offset into AnimCommand[]
+  core::ContainerIndex<uint16_t, engine::world::Transitions> transitionsIndex{}; // offset into StateChanges[]
+  uint16_t animCommandCount{};                                                   // How many of them to use.
+  core::ContainerIndex<uint16_t, int16_t> animCommandIndex{};                    // offset into AnimCommand[]
 
   static std::unique_ptr<Animation> readTr1(io::SDLReader& reader);
   static std::unique_ptr<Animation> readTr4(io::SDLReader& reader);
