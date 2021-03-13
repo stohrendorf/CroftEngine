@@ -12,10 +12,13 @@ struct SkeletalModelType;
 struct TypedAnimation;
 } // namespace loader::file
 
-namespace engine
+namespace engine::world
 {
 class World;
+}
 
+namespace engine
+{
 namespace objects
 {
 struct ObjectState;
@@ -24,7 +27,7 @@ class SkeletalModelNode : public render::scene::Node
 {
 public:
   explicit SkeletalModelNode(const std::string& id,
-                             gsl::not_null<const World*> world,
+                             gsl::not_null<const world::World*> world,
                              gsl::not_null<const loader::file::SkeletalModelType*> model);
 
   void updatePose();
@@ -86,7 +89,7 @@ public:
                                               const loader::file::AnimFrame& frame,
                                               const glm::mat4* baseTransform);
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 
   static void buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, core::AnimStateId& animState);
 
@@ -180,11 +183,11 @@ private:
     std::shared_ptr<loader::file::RenderMeshData> mesh{nullptr};
     bool visible = true;
 
-    void serialize(const serialization::Serializer<World>& ser);
-    static MeshPart create(const serialization::Serializer<World>& ser);
+    void serialize(const serialization::Serializer<world::World>& ser);
+    static MeshPart create(const serialization::Serializer<world::World>& ser);
   };
 
-  const gsl::not_null<const World*> m_world;
+  const gsl::not_null<const world::World*> m_world;
   gsl::not_null<const loader::file::SkeletalModelType*> m_model;
   std::vector<MeshPart> m_meshParts{};
   mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer;
@@ -196,6 +199,6 @@ private:
   void updatePose(const InterpolationInfo& framePair);
 };
 
-void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<World>& ser);
+void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser);
 
 } // namespace engine

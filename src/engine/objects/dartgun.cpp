@@ -2,7 +2,7 @@
 
 #include "engine/particle.h"
 #include "engine/soundeffects_tr1.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 
 void engine::objects::DartGun::update()
 {

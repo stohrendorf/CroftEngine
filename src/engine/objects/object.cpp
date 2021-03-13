@@ -4,7 +4,7 @@
 #include "engine/particle.h"
 #include "engine/presenter.h"
 #include "engine/script/reflection.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "render/scene/sprite.h"
 #include "serialization/serialization.h"
@@ -19,14 +19,14 @@ void Object::applyTransform()
   getNode()->setLocalMatrix(translate(glm::mat4{1.0f}, tr) * m_state.rotation.toMatrix());
 }
 
-Object::Object(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+Object::Object(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
     : m_world{world}
     , m_state{world->getPresenter().getSoundEngine().get(), position}
     , m_hasUpdateFunction{false}
 {
 }
 
-Object::Object(const gsl::not_null<World*>& world,
+Object::Object(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const bool hasUpdateFunction)
@@ -193,7 +193,7 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
   return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au && d.X == 0_len && d.Y == 0_len && d.Z == 0_len;
 }
 
-void Object::serialize(const serialization::Serializer<World>& ser)
+void Object::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("@type", m_state.type),
       S_NV("@position", m_state.position),
@@ -201,7 +201,7 @@ void Object::serialize(const serialization::Serializer<World>& ser)
       S_NV("hasUpdateFunction", m_hasUpdateFunction),
       S_NV("isActive", m_isActive));
 
-  ser.lazy([this](const serialization::Serializer<World>& ser) {
+  ser.lazy([this](const serialization::Serializer<world::World>& ser) {
     // FIXME ser(S_NV("renderables", serialization::FrozenVector{getNode()->getChildren()}));
 
     if(ser.loading)

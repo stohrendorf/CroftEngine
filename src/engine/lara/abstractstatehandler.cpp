@@ -167,12 +167,12 @@ void AbstractStateHandler::setAnimation(const AnimationId anim, const std::optio
   m_lara.drawRoutine();
 }
 
-const World& AbstractStateHandler::getWorld() const
+const world::World& AbstractStateHandler::getWorld() const
 {
   return m_lara.getWorld();
 }
 
-World& AbstractStateHandler::getWorld()
+world::World& AbstractStateHandler::getWorld()
 {
   return m_lara.getWorld();
 }

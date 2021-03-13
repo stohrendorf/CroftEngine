@@ -3,13 +3,16 @@
 #include "engine/engine.h"
 #include "engine/objects/laraobject.h"
 #include "engine/script/reflection.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 
 namespace engine::ai
 {
-void updateMood(const World& world, const objects::ObjectState& objectState, const AiInfo& aiInfo, const bool violent)
+void updateMood(const world::World& world,
+                const objects::ObjectState& objectState,
+                const AiInfo& aiInfo,
+                const bool violent)
 {
   if(objectState.creatureInfo == nullptr)
     return;
@@ -204,7 +207,7 @@ void updateMood(const World& world, const objects::ObjectState& objectState, con
 }
 
 std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
-                                     const serialization::Serializer<World>& ser)
+                                     const serialization::Serializer<world::World>& ser)
 {
   if(!ser.node.has_val())
     return nullptr;
@@ -214,7 +217,7 @@ std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr
   return result;
 }
 
-void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer<World>& ser)
+void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser)
 {
   if(ser.loading)
   {
@@ -233,7 +236,7 @@ void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Seriali
   }
 }
 
-AiInfo::AiInfo(World& world, objects::ObjectState& objectState)
+AiInfo::AiInfo(world::World& world, objects::ObjectState& objectState)
 {
   if(objectState.creatureInfo == nullptr)
     return;
@@ -269,7 +272,7 @@ AiInfo::AiInfo(World& world, objects::ObjectState& objectState)
   }
 }
 
-CreatureInfo::CreatureInfo(const World& world, const core::TypeId type)
+CreatureInfo::CreatureInfo(const world::World& world, const core::TypeId type)
     : type{type}
     , pathFinder{world}
 {
@@ -306,7 +309,7 @@ CreatureInfo::CreatureInfo(const World& world, const core::TypeId type)
   }
 }
 
-void CreatureInfo::serialize(const serialization::Serializer<World>& ser)
+void CreatureInfo::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("headRotation", head_rotation),
       S_NV("neckRotation", neck_rotation),

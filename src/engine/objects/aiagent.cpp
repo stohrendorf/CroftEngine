@@ -3,7 +3,7 @@
 #include "engine/particle.h"
 #include "engine/raycast.h"
 #include "engine/script/reflection.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 
 #include <boost/range/adaptors.hpp>
@@ -387,7 +387,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   return true;
 }
 
-AIAgent::AIAgent(const gsl::not_null<World*>& world,
+AIAgent::AIAgent(const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -431,7 +431,7 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
 
 namespace
 {
-gsl::not_null<std::shared_ptr<Particle>> createGunFlare(World& world,
+gsl::not_null<std::shared_ptr<Particle>> createGunFlare(world::World& world,
                                                         const core::RoomBoundPosition& pos,
                                                         const core::Speed& /*speed*/,
                                                         const core::Angle& angle)

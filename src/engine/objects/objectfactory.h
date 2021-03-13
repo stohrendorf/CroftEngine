@@ -10,7 +10,7 @@ namespace loader::file
 struct Item;
 } // namespace loader::file
 
-namespace engine
+namespace engine::world
 {
 class World;
 }
@@ -18,14 +18,14 @@ class World;
 namespace engine::objects
 {
 class Object;
-extern std::shared_ptr<Object> createObject(World& world, loader::file::Item& item);
+extern std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& item);
 extern gsl::not_null<std::shared_ptr<Object>>
   create(const serialization::TypeId<gsl::not_null<std::shared_ptr<Object>>>&,
-         const serialization::Serializer<World>& ser);
+         const serialization::Serializer<world::World>& ser);
 } // namespace engine::objects
 
 namespace serialization
 {
 using engine::objects::create;
-extern void serialize(std::shared_ptr<engine::objects::Object>& ptr, const Serializer<engine::World>& ser);
+extern void serialize(std::shared_ptr<engine::objects::Object>& ptr, const Serializer<engine::world::World>& ser);
 } // namespace serialization

@@ -8,7 +8,7 @@ namespace engine::objects
 class ScionPiece final : public SpriteObject
 {
 public:
-  ScionPiece(const gsl::not_null<World*>& world,
+  ScionPiece(const gsl::not_null<world::World*>& world,
              const core::RoomBoundPosition& position,
              std::string name,
              const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
@@ -16,7 +16,7 @@ public:
   {
   }
 
-  ScionPiece(const gsl::not_null<World*>& world,
+  ScionPiece(const gsl::not_null<world::World*>& world,
              const std::string& name,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
@@ -32,12 +32,12 @@ public:
 class ScionPiece3 final : public ModelObject
 {
 public:
-  ScionPiece3(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  ScionPiece3(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  ScionPiece3(const gsl::not_null<World*>& world,
+  ScionPiece3(const gsl::not_null<world::World*>& world,
               const gsl::not_null<const loader::file::Room*>& room,
               const loader::file::Item& item,
               const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -54,12 +54,12 @@ private:
 class ScionPiece4 final : public ModelObject
 {
 public:
-  ScionPiece4(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  ScionPiece4(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  ScionPiece4(const gsl::not_null<World*>& world,
+  ScionPiece4(const gsl::not_null<world::World*>& world,
               const gsl::not_null<const loader::file::Room*>& room,
               const loader::file::Item& item,
               const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -73,12 +73,12 @@ public:
 class ScionHolder final : public ModelObject
 {
 public:
-  ScionHolder(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  ScionHolder(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  ScionHolder(const gsl::not_null<World*>& world,
+  ScionHolder(const gsl::not_null<world::World*>& world,
               const gsl::not_null<const loader::file::Room*>& room,
               const loader::file::Item& item,
               const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

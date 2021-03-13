@@ -9,8 +9,12 @@
 namespace engine
 {
 class CameraController;
+}
+
+namespace engine::world
+{
 class World;
-} // namespace engine
+}
 
 namespace loader::file
 {
@@ -35,11 +39,11 @@ struct PortalTracer
   };
 
   static std::unordered_set<const loader::file::Portal*> trace(const loader::file::Room& startRoom,
-                                                               const engine::World& world);
+                                                               const engine::world::World& world);
 
   static bool traceRoom(const loader::file::Room& room,
                         const CullBox& roomCullBox,
-                        const engine::World& world,
+                        const engine::world::World& world,
                         std::vector<const loader::file::Room*>& seenRooms,
                         bool inWater,
                         std::unordered_set<const loader::file::Portal*>& waterSurfacePortals,

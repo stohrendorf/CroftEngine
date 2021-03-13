@@ -7,13 +7,13 @@
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/sprite.h"
-#include "world.h"
+#include "world/world.h"
 
 #include <utility>
 
 namespace engine
 {
-void Particle::initRenderables(World& world, const float scale)
+void Particle::initRenderables(world::World& world, const float scale)
 {
   if(const auto& modelType = world.findAnimatedModelForType(object_number))
   {
@@ -65,7 +65,7 @@ glm::vec3 Particle::getPosition() const
 Particle::Particle(const std::string& id,
                    const core::TypeId objectNumber,
                    const gsl::not_null<const loader::file::Room*>& room,
-                   World& world,
+                   world::World& world,
                    const std::shared_ptr<render::scene::Renderable>& renderable,
                    float scale)
     : Node{id}
@@ -88,7 +88,7 @@ Particle::Particle(const std::string& id,
 Particle::Particle(const std::string& id,
                    const core::TypeId objectNumber,
                    core::RoomBoundPosition pos,
-                   World& world,
+                   world::World& world,
                    const std::shared_ptr<render::scene::Renderable>& renderable,
                    float scale)
     : Node{id}
@@ -108,7 +108,7 @@ Particle::Particle(const std::string& id,
   }
 }
 
-bool BloodSplatterParticle::update(World& world)
+bool BloodSplatterParticle::update(world::World& world)
 {
   pos.position += util::pitch(speed * 1_frame, angle.Y);
   ++timePerSpriteFrame;
@@ -124,7 +124,7 @@ bool BloodSplatterParticle::update(World& world)
   return true;
 }
 
-bool SplashParticle::update(World& world)
+bool SplashParticle::update(world::World& world)
 {
   nextFrame();
 
@@ -139,7 +139,7 @@ bool SplashParticle::update(World& world)
   return true;
 }
 
-bool BubbleParticle::update(World& world)
+bool BubbleParticle::update(world::World& world)
 {
   angle.X += 13_deg;
   angle.Y += 9_deg;
@@ -160,7 +160,7 @@ bool BubbleParticle::update(World& world)
   return true;
 }
 
-FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, World& world, bool randomize)
+FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, world::World& world, bool randomize)
     : Particle{"flame", TR1ItemId::Flame, pos, world}
 {
   timePerSpriteFrame = 0;
@@ -175,7 +175,7 @@ FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, World& world, b
   }
 }
 
-bool FlameParticle::update(World& world)
+bool FlameParticle::update(world::World& world)
 {
   nextFrame();
   if(negSpriteFrameId <= world.findSpriteSequenceForType(object_number)->length)
@@ -252,7 +252,7 @@ bool FlameParticle::update(World& world)
   return true;
 }
 
-bool MeshShrapnelParticle::update(World& world)
+bool MeshShrapnelParticle::update(world::World& world)
 {
   angle.X += 5_deg;
   angle.Z += 10_deg;
@@ -305,7 +305,7 @@ bool MeshShrapnelParticle::update(World& world)
   return false;
 }
 
-void MutantAmmoParticle::aimLaraChest(World& world)
+void MutantAmmoParticle::aimLaraChest(world::World& world)
 {
   const auto d = world.getObjectManager().getLara().m_state.position.position - pos.position;
   const auto bbox = world.getObjectManager().getLara().getSkeleton()->getBoundingBox();
@@ -315,7 +315,7 @@ void MutantAmmoParticle::aimLaraChest(World& world)
   angle.Y = util::rand15s(256_au) + angleFromAtan(d.X, d.Z);
 }
 
-bool MutantBulletParticle::update(World& world)
+bool MutantBulletParticle::update(world::World& world)
 {
   pos.position += util::yawPitch(speed * 1_frame, angle);
   const auto sector = loader::file::findRealFloorSector(pos);
@@ -349,7 +349,7 @@ bool MutantBulletParticle::update(World& world)
   return true;
 }
 
-bool MutantGrenadeParticle::update(World& world)
+bool MutantGrenadeParticle::update(world::World& world)
 {
   pos.position += util::yawPitch(speed * 1_frame, angle);
   const auto sector = loader::file::findRealFloorSector(pos);
@@ -399,7 +399,7 @@ bool MutantGrenadeParticle::update(World& world)
   applyTransform();
   return true;
 }
-bool LavaParticle::update(World& world)
+bool LavaParticle::update(world::World& world)
 {
   fall_speed += core::Gravity * 1_frame;
   pos.position += util::pitch(speed * 1_frame, angle.Y, fall_speed * 1_frame);
@@ -422,7 +422,7 @@ bool LavaParticle::update(World& world)
   return true;
 }
 
-bool SparkleParticle::update(World&)
+bool SparkleParticle::update(world::World&)
 {
   applyTransform();
 
@@ -435,7 +435,7 @@ bool SparkleParticle::update(World&)
   return gsl::narrow<size_t>(-negSpriteFrameId) < getLength();
 }
 
-bool GunflareParticle::update(World&)
+bool GunflareParticle::update(world::World&)
 {
   --timePerSpriteFrame;
   if(timePerSpriteFrame == 0)
@@ -445,7 +445,7 @@ bool GunflareParticle::update(World&)
   return true;
 }
 
-bool ExplosionParticle::update(World&)
+bool ExplosionParticle::update(world::World&)
 {
   ++timePerSpriteFrame;
   if(timePerSpriteFrame == 2)
@@ -461,7 +461,7 @@ bool ExplosionParticle::update(World&)
   return true;
 }
 
-bool SmokeParticle::update(World&)
+bool SmokeParticle::update(world::World&)
 {
   applyTransform();
 
@@ -474,7 +474,7 @@ bool SmokeParticle::update(World&)
   return gsl::narrow<size_t>(-negSpriteFrameId) < getLength();
 }
 
-bool RicochetParticle::update(World&)
+bool RicochetParticle::update(world::World&)
 {
   applyTransform();
 

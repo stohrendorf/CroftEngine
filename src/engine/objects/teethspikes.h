@@ -7,12 +7,12 @@ namespace engine::objects
 class TeethSpikes final : public ModelObject
 {
 public:
-  TeethSpikes(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  TeethSpikes(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  TeethSpikes(const gsl::not_null<World*>& world,
+  TeethSpikes(const gsl::not_null<world::World*>& world,
               const gsl::not_null<const loader::file::Room*>& room,
               const loader::file::Item& item,
               const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

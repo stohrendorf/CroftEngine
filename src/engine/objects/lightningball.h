@@ -7,12 +7,12 @@ namespace engine::objects
 class LightningBall final : public ModelObject
 {
 public:
-  LightningBall(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  LightningBall(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  LightningBall(const gsl::not_null<World*>& world,
+  LightningBall(const gsl::not_null<world::World*>& world,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
                 const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);
@@ -23,7 +23,7 @@ public:
 
   static constexpr size_t SegmentPoints = 16;
 
-  void serialize(const serialization::Serializer<World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
   static constexpr size_t ChildBolts = 5;
@@ -44,7 +44,7 @@ private:
     std::shared_ptr<render::scene::Node> node;
     std::shared_ptr<gl::VertexBuffer<glm::vec3>> vb;
 
-    void serialize(const serialization::Serializer<World>& ser);
+    void serialize(const serialization::Serializer<world::World>& ser);
   };
 
   std::array<ChildBolt, ChildBolts> m_childBolts;
@@ -53,6 +53,6 @@ private:
   std::shared_ptr<render::scene::Node> m_mainBoltNode;
   std::shared_ptr<gl::VertexBuffer<glm::vec3>> m_mainVb;
 
-  void init(World& world);
+  void init(world::World& world);
 };
 } // namespace engine::objects

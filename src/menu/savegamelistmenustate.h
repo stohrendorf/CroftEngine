@@ -25,10 +25,10 @@ public:
   explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                  std::unique_ptr<MenuState> previous,
                                  const std::string& heading,
-                                 const engine::World& world,
+                                 const engine::world::World& world,
                                  bool loading);
 
-  std::unique_ptr<MenuState> onSelected(size_t idx, engine::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> onSelected(size_t idx, engine::world::World& world, MenuDisplay& display) override;
   std::unique_ptr<MenuState> onAborted() override;
 };
 } // namespace menu

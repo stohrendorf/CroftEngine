@@ -8,12 +8,12 @@ namespace engine::objects
 class Rat final : public AIAgent
 {
 public:
-  Rat(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  Rat(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }
 
-  Rat(const gsl::not_null<World*>& world,
+  Rat(const gsl::not_null<world::World*>& world,
       const gsl::not_null<const loader::file::Room*>& room,
       const loader::file::Item& item,
       const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

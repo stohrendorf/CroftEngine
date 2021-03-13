@@ -2,11 +2,12 @@
 
 #include "object.h"
 
-namespace engine
+namespace engine::world
 {
 class World;
+}
 
-namespace objects
+namespace engine::objects
 {
 class SpriteObject : public Object
 {
@@ -19,13 +20,13 @@ private:
   void createModel();
 
 protected:
-  SpriteObject(const gsl::not_null<World*>& world,
+  SpriteObject(const gsl::not_null<world::World*>& world,
                const core::RoomBoundPosition& position,
                std::string name,
                gsl::not_null<std::shared_ptr<render::scene::Material>> material);
 
 public:
-  SpriteObject(const gsl::not_null<World*>& world,
+  SpriteObject(const gsl::not_null<world::World*>& world,
                std::string name,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
@@ -75,7 +76,6 @@ public:
     return bb;
   }
 
-  void serialize(const serialization::Serializer<World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 };
-} // namespace objects
-} // namespace engine
+} // namespace engine::objects

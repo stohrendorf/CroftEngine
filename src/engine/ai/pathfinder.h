@@ -8,10 +8,13 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace engine
+namespace engine::world
 {
 class World;
+}
 
+namespace engine
+{
 namespace objects
 {
 struct ObjectState;
@@ -27,8 +30,8 @@ struct PathFinderNode
   const loader::file::TypedBox* exit_box = nullptr;
   bool traversable = true;
 
-  void serialize(const serialization::Serializer<World>& ser);
-  static PathFinderNode create(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
+  static PathFinderNode create(const serialization::Serializer<world::World>& ser);
 };
 
 struct PathFinder
@@ -64,7 +67,7 @@ struct PathFinder
 
   core::TRVec target;
 
-  explicit PathFinder(const World& world);
+  explicit PathFinder(const world::World& world);
 
   void setRandomSearchTarget(const gsl::not_null<const loader::file::TypedBox*>& box)
   {
@@ -83,7 +86,7 @@ struct PathFinder
     }
   }
 
-  bool calculateTarget(const World& world, core::TRVec& moveTarget, const objects::ObjectState& objectState);
+  bool calculateTarget(const world::World& world, core::TRVec& moveTarget, const objects::ObjectState& objectState);
 
   /**
      * @brief Incrementally calculate all paths to a specific box.
@@ -94,11 +97,11 @@ struct PathFinder
      * calls to actually calculate the full path.  Until a full path is found, the nodes partially retain the old
      * paths from a previous search.
      */
-  void updatePath(const World& world);
+  void updatePath(const world::World& world);
 
-  void searchPath(const World& world);
+  void searchPath(const world::World& world);
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 };
 } // namespace ai
 } // namespace engine

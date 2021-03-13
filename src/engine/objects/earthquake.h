@@ -7,12 +7,12 @@ namespace engine::objects
 class Earthquake final : public NullRenderModelObject
 {
 public:
-  Earthquake(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  Earthquake(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : NullRenderModelObject{world, position}
   {
   }
 
-  Earthquake(const gsl::not_null<World*>& world,
+  Earthquake(const gsl::not_null<world::World*>& world,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

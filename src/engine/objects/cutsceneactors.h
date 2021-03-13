@@ -7,12 +7,12 @@ namespace engine::objects
 class CutsceneActor : public ModelObject
 {
 public:
-  CutsceneActor(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  CutsceneActor(const gsl::not_null<World*>& world,
+  CutsceneActor(const gsl::not_null<world::World*>& world,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
                 const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);
@@ -23,12 +23,12 @@ public:
 class CutsceneActor1 final : public CutsceneActor
 {
 public:
-  CutsceneActor1(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor1(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : CutsceneActor{world, position}
   {
   }
 
-  CutsceneActor1(const gsl::not_null<World*>& world,
+  CutsceneActor1(const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -40,12 +40,12 @@ public:
 class CutsceneActor2 final : public CutsceneActor
 {
 public:
-  CutsceneActor2(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor2(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : CutsceneActor{world, position}
   {
   }
 
-  CutsceneActor2(const gsl::not_null<World*>& world,
+  CutsceneActor2(const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -57,12 +57,12 @@ public:
 class CutsceneActor3 final : public CutsceneActor
 {
 public:
-  CutsceneActor3(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor3(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : CutsceneActor{world, position}
   {
   }
 
-  CutsceneActor3(const gsl::not_null<World*>& world,
+  CutsceneActor3(const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -74,12 +74,12 @@ public:
 class CutsceneActor4 final : public CutsceneActor
 {
 public:
-  CutsceneActor4(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor4(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : CutsceneActor{world, position}
   {
   }
 
-  CutsceneActor4(const gsl::not_null<World*>& world,
+  CutsceneActor4(const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

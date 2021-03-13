@@ -1,20 +1,21 @@
 #include "world.h"
 
-#include "audioengine.h"
 #include "core/i18n.h"
 #include "core/pybindmodule.h"
-#include "engine.h"
+#include "engine/audioengine.h"
+#include "engine/engine.h"
+#include "engine/objects/aiagent.h"
+#include "engine/objects/block.h"
+#include "engine/objects/laraobject.h"
+#include "engine/objects/modelobject.h"
+#include "engine/objects/pickupobject.h"
+#include "engine/objects/tallblock.h"
+#include "engine/player.h"
+#include "engine/presenter.h"
+#include "engine/tracks_tr1.h"
 #include "loader/file/level/level.h"
 #include "loader/file/rendermeshdata.h"
 #include "loader/trx/trx.h"
-#include "objects/aiagent.h"
-#include "objects/block.h"
-#include "objects/laraobject.h"
-#include "objects/modelobject.h"
-#include "objects/pickupobject.h"
-#include "objects/tallblock.h"
-#include "player.h"
-#include "presenter.h"
 #include "render/scene/camera.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/renderer.h"
@@ -31,7 +32,6 @@
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
 #include "serialization/yamldocument.h"
-#include "tracks_tr1.h"
 #include "ui/label.h"
 #include "ui/ui.h"
 
@@ -41,7 +41,7 @@
 #include <numeric>
 #include <utility>
 
-namespace engine
+namespace engine::world
 {
 namespace
 {
@@ -1576,4 +1576,4 @@ void World::save(size_t slot)
 {
   save(makeSavegameFilename(slot));
 }
-} // namespace engine
+} // namespace engine::world

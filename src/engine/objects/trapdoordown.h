@@ -7,12 +7,12 @@ namespace engine::objects
 class TrapDoorDown final : public ModelObject
 {
 public:
-  TrapDoorDown(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  TrapDoorDown(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  TrapDoorDown(const gsl::not_null<World*>& world,
+  TrapDoorDown(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

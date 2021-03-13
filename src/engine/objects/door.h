@@ -7,12 +7,12 @@ namespace engine::objects
 class Door final : public ModelObject
 {
 public:
-  Door(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  Door(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  Door(const gsl::not_null<World*>& world,
+  Door(const gsl::not_null<world::World*>& world,
        const gsl::not_null<const loader::file::Room*>& room,
        const loader::file::Item& item,
        const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);
@@ -21,7 +21,7 @@ public:
 
   void collide(CollisionInfo& collisionInfo) override;
 
-  void serialize(const serialization::Serializer<World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
   struct Info
@@ -33,7 +33,7 @@ private:
     void open();
     void close();
     void init(const loader::file::Room& room, const core::TRVec& wingsPosition);
-    void serialize(const serialization::Serializer<World>& ser);
+    void serialize(const serialization::Serializer<world::World>& ser);
   };
 
   Info m_info;

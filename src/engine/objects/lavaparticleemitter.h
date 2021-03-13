@@ -7,12 +7,12 @@ namespace engine::objects
 class LavaParticleEmitter final : public NullRenderModelObject
 {
 public:
-  LavaParticleEmitter(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  LavaParticleEmitter(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : NullRenderModelObject{world, position}
   {
   }
 
-  LavaParticleEmitter(const gsl::not_null<World*>& world,
+  LavaParticleEmitter(const gsl::not_null<world::World*>& world,
                       const gsl::not_null<const loader::file::Room*>& room,
                       const loader::file::Item& item,
                       const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

@@ -2198,7 +2198,7 @@ void LaraObject::burnIfAlive()
   }
 }
 
-void LaraObject::serialize(const serialization::Serializer<World>& ser)
+void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("yRotationSpeed", m_yRotationSpeed),
@@ -2222,7 +2222,7 @@ void LaraObject::serialize(const serialization::Serializer<World>& ser)
       S_NV("weaponTargetVector", m_weaponTargetVector),
       S_NV("weapons", weapons));
 
-  ser.lazy([this](const serialization::Serializer<World>& ser) {
+  ser.lazy([this](const serialization::Serializer<world::World>& ser) {
     ser(S_NV("target", serialization::ObjectReference{target}));
   });
 
@@ -2230,7 +2230,7 @@ void LaraObject::serialize(const serialization::Serializer<World>& ser)
     forceSourcePosition = nullptr;
 }
 
-LaraObject::LaraObject(const gsl::not_null<World*>& world,
+LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
                        const gsl::not_null<const loader::file::Room*>& room,
                        const loader::file::Item& item,
                        const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -2362,7 +2362,7 @@ void LaraObject::initGunflares()
   m_gunFlareRight->setVisible(false);
 }
 
-void LaraObject::AimInfo::serialize(const serialization::Serializer<World>& ser)
+void LaraObject::AimInfo::serialize(const serialization::Serializer<world::World>& ser)
 {
   auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
   ser(S_NVVE("weaponAnimData", ser.context.getPoseFrames(), ptr),
@@ -2373,7 +2373,7 @@ void LaraObject::AimInfo::serialize(const serialization::Serializer<World>& ser)
   weaponAnimData = reinterpret_cast<const loader::file::AnimFrame*>(ptr);
 }
 
-void LaraObject::Weapon::serialize(const serialization::Serializer<World>& ser)
+void LaraObject::Weapon::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("lockAngles", lockAngles),
       S_NV("leftAngles", leftAngles),
@@ -2388,12 +2388,12 @@ void LaraObject::Weapon::serialize(const serialization::Serializer<World>& ser)
       S_NV("shotSound", shotSound));
 }
 
-void LaraObject::Range::serialize(const serialization::Serializer<World>& ser)
+void LaraObject::Range::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("min", min), S_NV("max", max));
 }
 
-void LaraObject::RangeXY::serialize(const serialization::Serializer<World>& ser)
+void LaraObject::RangeXY::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("x", x), S_NV("y", y));
 }

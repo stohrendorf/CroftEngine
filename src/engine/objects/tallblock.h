@@ -7,12 +7,12 @@ namespace engine::objects
 class TallBlock final : public ModelObject
 {
 public:
-  TallBlock(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  TallBlock(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  TallBlock(const gsl::not_null<World*>& world,
+  TallBlock(const gsl::not_null<world::World*>& world,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,
             const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -23,6 +23,6 @@ public:
 
   void update() override;
 
-  void serialize(const serialization::Serializer<World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 };
 } // namespace engine::objects

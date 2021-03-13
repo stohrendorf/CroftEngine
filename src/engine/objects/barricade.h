@@ -7,12 +7,12 @@ namespace engine::objects
 class Barricade final : public ModelObject
 {
 public:
-  Barricade(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  Barricade(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  Barricade(const gsl::not_null<World*>& world,
+  Barricade(const gsl::not_null<world::World*>& world,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,
             const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

@@ -1,6 +1,6 @@
 #include "door.h"
 
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/serialization.h"
 #include "serialization/vector_element.h"
@@ -9,7 +9,7 @@ namespace engine::objects
 {
 // #define NO_DOOR_BLOCK
 
-Door::Door(const gsl::not_null<World*>& world,
+Door::Door(const gsl::not_null<world::World*>& world,
            const gsl::not_null<const loader::file::Room*>& room,
            const loader::file::Item& item,
            const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -114,7 +114,7 @@ void Door::collide(CollisionInfo& collisionInfo)
 #endif
 }
 
-void Door::serialize(const serialization::Serializer<World>& ser)
+void Door::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("info", m_info),
@@ -125,7 +125,7 @@ void Door::serialize(const serialization::Serializer<World>& ser)
 
   if(ser.loading)
   {
-    ser.lazy([this](const serialization::Serializer<World>& ser) {
+    ser.lazy([this](const serialization::Serializer<world::World>& ser) {
       m_info.wingsSector
         = const_cast<loader::file::TypedSector*>(m_state.position.room->getSectorByAbsolutePosition(m_wingsPosition));
       if(m_info.originalSector.portalTarget != nullptr)
@@ -191,7 +191,7 @@ void Door::Info::init(const loader::file::Room& room, const core::TRVec& wingsPo
   }
 }
 
-void Door::Info::serialize(const serialization::Serializer<World>& ser)
+void Door::Info::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("originalSector", originalSector), S_NVVE("box", ser.context.getBoxes(), wingsBox));
   if(ser.loading)

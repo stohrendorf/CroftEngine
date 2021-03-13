@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace engine
+namespace engine::world
 {
 class World;
 }
@@ -31,11 +31,11 @@ public:
 
   virtual ~MenuState() = default;
 
-  virtual void begin(engine::World& /*world*/)
+  virtual void begin(engine::world::World& /*world*/)
   {
   }
-  virtual void handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object) = 0;
-  virtual std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) = 0;
+  virtual void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) = 0;
+  virtual std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) = 0;
 
   template<typename T, typename... Ts>
   auto create(Ts&&... args) -> std::enable_if_t<std::is_base_of_v<MenuState, T>, std::unique_ptr<T>>

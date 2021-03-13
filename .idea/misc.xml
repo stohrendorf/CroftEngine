@@ -16,4 +16,7 @@
       <file path="$PROJECT_DIR$/release" />
     </excludeRoots>
   </component>
+  <component name="TaskProjectConfiguration">
+    <server type="YouTrack" url="https://edisonengine.myjetbrains.com/youtrack" />
+  </component>
 </project>

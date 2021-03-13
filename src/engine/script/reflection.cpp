@@ -7,7 +7,7 @@
 #include "engine/objects/modelobject.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "loader/file/level/level.h"
 
 #include <boost/range/adaptors.hpp>
@@ -40,14 +40,15 @@ std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine, const std
 
 std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const std::shared_ptr<Player>& player)
 {
-  auto world = std::make_unique<World>(engine,
-                                       loadLevel(engine, m_name, m_name),
-                                       std::string{},
-                                       0,
-                                       m_track,
-                                       false,
-                                       std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{},
-                                       player);
+  auto world
+    = std::make_unique<world::World>(engine,
+                                     loadLevel(engine, m_name, m_name),
+                                     std::string{},
+                                     0,
+                                     m_track,
+                                     false,
+                                     std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{},
+                                     player);
 
   world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
   auto pos = world->getCameraController().getTRPosition().position;
@@ -81,7 +82,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const 
   return engine.run(*world, true, false);
 }
 
-std::unique_ptr<engine::World> Level::loadWorld(Engine& engine, const std::shared_ptr<Player>& player)
+std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared_ptr<Player>& player)
 {
   engine.getPresenter().debounceInput();
 
@@ -109,14 +110,14 @@ std::unique_ptr<engine::World> Level::loadWorld(Engine& engine, const std::share
       player->getInventory().put(type.cast<TR1ItemId>(), qty.cast<size_t>());
   }
 
-  return std::make_unique<World>(engine,
-                                 loadLevel(engine, m_name, util::unescape(title)),
-                                 title,
-                                 m_secrets,
-                                 m_track,
-                                 m_useAlternativeLara,
-                                 m_itemTitles,
-                                 player);
+  return std::make_unique<world::World>(engine,
+                                        loadLevel(engine, m_name, util::unescape(title)),
+                                        title,
+                                        m_secrets,
+                                        m_track,
+                                        m_useAlternativeLara,
+                                        m_itemTitles,
+                                        player);
 }
 
 bool Level::isLevel(const std::filesystem::path& path) const

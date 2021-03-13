@@ -7,7 +7,7 @@
 #include "serialization/optional.h"
 #include "serialization/serialization.h"
 #include "tracks_tr1.h"
-#include "world.h"
+#include "world/world.h"
 
 #include <boost/format.hpp>
 #include <pybind11/pybind11.h>
@@ -352,7 +352,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   return voice;
 }
 
-void AudioEngine::serialize(const serialization::Serializer<World>& ser)
+void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("currentTrack", m_currentTrack),
       S_NV("currentLaraTalk", m_currentLaraTalk),

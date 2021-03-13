@@ -8,7 +8,8 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> SwitchRingMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState>
+  SwitchRingMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
 {
   if(m_duration != Duration)
   {
@@ -26,7 +27,10 @@ std::unique_ptr<MenuState> SwitchRingMenuState::onFrame(ui::Ui& /*ui*/, engine::
   return create<InflateRingMenuState>();
 }
 
-void SwitchRingMenuState::handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object)
+void SwitchRingMenuState::handleObject(ui::Ui& ui,
+                                       engine::world::World& world,
+                                       MenuDisplay& display,
+                                       MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
@@ -48,7 +52,7 @@ SwitchRingMenuState::SwitchRingMenuState(const std::shared_ptr<MenuRingTransform
 {
 }
 
-void SwitchRingMenuState::begin(engine::World& /*world*/)
+void SwitchRingMenuState::begin(engine::world::World& /*world*/)
 {
   m_radiusSpeed = m_ringTransform->radius / Duration * 1_frame;
   m_targetCameraRotX = m_down ? -45_deg : 45_deg;

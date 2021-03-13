@@ -7,7 +7,7 @@
 #include "engine/objects/laraobject.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "hid/inputhandler.h"
 #include "inflateringmenustate.h"
 #include "menuring.h"
@@ -65,7 +65,7 @@ void MenuDisplay::updateRingTitle()
   }
 }
 
-void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::World& world, const MenuObject& object)
+void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object)
 {
   if(objectTexts[0] == nullptr)
   {
@@ -136,7 +136,7 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::World& world, 
   }
 }
 
-void MenuDisplay::display(ui::Ui& ui, engine::World& world)
+void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
   ringTransform->cameraPos.Z = 598_len + ringTransform->radius;
 
@@ -171,7 +171,7 @@ void MenuDisplay::clearMenuObjectDescription()
   objectTexts[1].reset();
 }
 
-bool MenuDisplay::doOptions(engine::World& world, MenuObject& object)
+bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
 {
   switch(object.type)
   {
@@ -221,7 +221,7 @@ bool MenuDisplay::doOptions(engine::World& world, MenuObject& object)
   return false;
 }
 
-std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& world, bool withHomePolaroid)
+std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::World& world, bool withHomePolaroid)
 {
   std::vector objects{MenuObject{/* translators: TR charmap encoding */ _("Game"),
                                  engine::TR1ItemId::PassportClosed,
@@ -280,7 +280,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::World& w
   return objects;
 }
 
-std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& world)
+std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::World& world)
 {
   std::vector objects{MenuObject{/* translators: TR charmap encoding */ _("Compass"),
                                  engine::TR1ItemId::Compass,
@@ -415,7 +415,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::World& wor
   return objects;
 }
 
-std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& world)
+std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::World& world)
 {
   std::vector<MenuObject> objects{};
 
@@ -487,7 +487,7 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::World& wor
   return objects;
 }
 
-MenuDisplay::MenuDisplay(InventoryMode mode, engine::World& world)
+MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
     : mode{mode}
     , streamVolume{world.getPresenter().getSoundEngine()->getSoLoud().getGlobalVolume()}
     , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}

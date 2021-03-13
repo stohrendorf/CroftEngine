@@ -5,7 +5,7 @@
 #include "donemenustate.h"
 #include "engine/audioengine.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "rotateleftrightmenustate.h"
@@ -14,7 +14,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& /*ui*/, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
 {
   display.updateRingTitle();
 
@@ -84,7 +84,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& /*ui*/, engine::Wo
   return nullptr;
 }
 
-void IdleRingMenuState::handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object)
+void IdleRingMenuState::handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {

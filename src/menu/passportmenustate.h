@@ -22,11 +22,12 @@ private:
   std::optional<int> m_forcePage;
   std::unique_ptr<ui::Label> m_passportText;
 
-  std::optional<std::unique_ptr<MenuState>> showLoadGamePage(engine::World& world, MenuDisplay& display);
-  std::optional<std::unique_ptr<MenuState>> showSaveGamePage(engine::World& world, MenuDisplay& display, bool isInGame);
-  void showExitGamePage(engine::World& world, MenuDisplay& display, bool returnToTitle);
-  void prevPage(const core::Frame& minFrame, MenuObject& passport, engine::World& world);
-  void nextPage(MenuObject& passport, engine::World& world);
+  std::optional<std::unique_ptr<MenuState>> showLoadGamePage(engine::world::World& world, MenuDisplay& display);
+  std::optional<std::unique_ptr<MenuState>>
+    showSaveGamePage(engine::world::World& world, MenuDisplay& display, bool isInGame);
+  void showExitGamePage(engine::world::World& world, MenuDisplay& display, bool returnToTitle);
+  void prevPage(const core::Frame& minFrame, MenuObject& passport, engine::world::World& world);
+  void nextPage(MenuObject& passport, engine::world::World& world);
 
 public:
   static constexpr int LoadGamePage = 0;
@@ -38,7 +39,7 @@ public:
                              InventoryMode mode,
                              bool allowSave);
 
-  void handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object) override;
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) override;
+  void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) override;
+  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };
 } // namespace menu

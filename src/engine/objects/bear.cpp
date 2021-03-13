@@ -1,7 +1,7 @@
 #include "bear.h"
 
 #include "engine/particle.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/serialization.h"
 
@@ -162,7 +162,7 @@ void Bear::update()
   animateCreature(rotationToMoveTarget, 0_deg);
 }
 
-void Bear::serialize(const serialization::Serializer<World>& ser)
+void Bear::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
   ser(S_NV("hurt", m_hurt));

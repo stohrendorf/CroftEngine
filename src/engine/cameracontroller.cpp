@@ -242,7 +242,7 @@ core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
 }
 } // namespace
 
-CameraController::CameraController(const gsl::not_null<World*>& world,
+CameraController::CameraController(const gsl::not_null<world::World*>& world,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera)
     : Listener{world->getPresenter().getSoundEngine().get()}
     , m_camera{std::move(camera)}
@@ -770,7 +770,7 @@ std::unordered_set<const loader::file::Portal*>
   return result;
 }
 
-CameraController::CameraController(const gsl::not_null<World*>& world,
+CameraController::CameraController(const gsl::not_null<world::World*>& world,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                                    bool /*noLaraTag*/)
     : Listener{world->getPresenter().getSoundEngine().get()}
@@ -781,7 +781,7 @@ CameraController::CameraController(const gsl::not_null<World*>& world,
 {
 }
 
-void CameraController::serialize(const serialization::Serializer<World>& ser)
+void CameraController::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("position", m_position),
       S_NV("lookAt", m_lookAt),

@@ -17,10 +17,13 @@ namespace pybind11
 class dict;
 }
 
-namespace engine
+namespace engine::world
 {
 class World;
+}
 
+namespace engine
+{
 namespace ai
 {
 struct CreatureInfo;
@@ -95,7 +98,7 @@ public:
 
   std::shared_ptr<ai::CreatureInfo> creatureInfo;
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 
   bool updateActivationTimeout()
   {
@@ -117,15 +120,16 @@ public:
     return !activationState.isInverted();
   }
 
-  bool isStalkBox(const World& world, const loader::file::TypedBox& targetBox) const;
+  bool isStalkBox(const world::World& world, const loader::file::TypedBox& targetBox) const;
 
-  bool isInsideZoneButNotInBox(const World& world, int16_t zoneId, const loader::file::TypedBox& targetBox) const;
+  bool
+    isInsideZoneButNotInBox(const world::World& world, int16_t zoneId, const loader::file::TypedBox& targetBox) const;
 
-  bool isEscapeBox(const World& world, const loader::file::TypedBox& targetBox) const;
+  bool isEscapeBox(const world::World& world, const loader::file::TypedBox& targetBox) const;
 
-  void initCreatureInfo(const World& world);
+  void initCreatureInfo(const world::World& world);
 
-  void collectZoneBoxes(const World& world);
+  void collectZoneBoxes(const world::World& world);
 
   const loader::file::TypedSector* getCurrentSector() const
   {

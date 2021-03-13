@@ -18,6 +18,11 @@ namespace loader::file
 struct Item;
 }
 
+namespace engine::world
+{
+class World;
+}
+
 namespace engine
 {
 namespace objects
@@ -27,7 +32,6 @@ class LaraObject;
 } // namespace objects
 
 class Particle;
-class World;
 
 using ObjectId = uint16_t;
 
@@ -103,10 +107,10 @@ public:
   void applyScheduledDeletions();
   void registerObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object);
   std::shared_ptr<objects::Object> find(const objects::Object* object) const;
-  void createObjects(World& world, std::vector<loader::file::Item>& items);
+  void createObjects(world::World& world, std::vector<loader::file::Item>& items);
   [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;
-  void update(World& world, bool godMode);
+  void update(world::World& world, bool godMode);
 
-  void serialize(const serialization::Serializer<engine::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 };
 } // namespace engine

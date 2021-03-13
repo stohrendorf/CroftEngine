@@ -1,10 +1,10 @@
 #pragma once
 
 #include "audio/soundengine.h"
-#include "floordata/floordata.h"
+#include "engine/floordata/floordata.h"
+#include "engine/objectmanager.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
-#include "objectmanager.h"
 #include "ui/pickupwidget.h"
 
 #include <pybind11/pytypes.h>
@@ -34,17 +34,20 @@ namespace render
 class TextureAnimator;
 }
 
-namespace engine
-{
-namespace objects
+namespace engine::objects
 {
 class ModelObject;
 class PickupObject;
-} // namespace objects
+} // namespace engine::objects
 
+namespace engine::world
+{
 extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const loader::file::TypedSector*> sector,
                                                     const core::TRVec& position);
+}
 
+namespace engine
+{
 class Presenter;
 class Engine;
 class AudioEngine;
@@ -52,7 +55,10 @@ struct SavegameMeta;
 class CameraController;
 class Player;
 enum class TR1TrackId : int32_t;
+} // namespace engine
 
+namespace engine::world
+{
 class World final
 {
 public:
@@ -347,4 +353,4 @@ private:
   std::vector<ui::PickupWidget> m_pickupWidgets{};
   const std::shared_ptr<Player> m_player;
 };
-} // namespace engine
+} // namespace engine::world

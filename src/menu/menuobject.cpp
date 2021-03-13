@@ -1,7 +1,7 @@
 #include "menuobject.h"
 
 #include "engine/objects/laraobject.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "menuringtransform.h"
 #include "render/scene/renderable.h"
 #include "render/scene/rendercontext.h"
@@ -90,7 +90,7 @@ void MenuObject::updateMeshRenderMask()
   }
 }
 
-void MenuObject::initModel(const engine::World& world)
+void MenuObject::initModel(const engine::world::World& world)
 {
   const auto& obj = world.findAnimatedModelForType(type);
   Expects(obj != nullptr);
@@ -101,7 +101,7 @@ void MenuObject::initModel(const engine::World& world)
   engine::SkeletalModelNode::buildMesh(node, animState);
 }
 
-void MenuObject::draw(const engine::World& world,
+void MenuObject::draw(const engine::world::World& world,
                       const MenuRingTransform& ringTransform,
                       const core::Angle& ringItemAngle) const
 {

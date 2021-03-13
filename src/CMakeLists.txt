@@ -157,8 +157,9 @@ set( EDISONENGINE_SRCS
         engine/raycast.cpp
         engine/skeletalmodelnode.h
         engine/skeletalmodelnode.cpp
-        engine/world.h
-        engine/world.cpp
+
+        engine/world/world.h
+        engine/world/world.cpp
 
         engine/script/reflection.h
         engine/script/reflection.cpp

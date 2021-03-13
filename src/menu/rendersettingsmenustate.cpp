@@ -3,7 +3,7 @@
 #include "core/i18n.h"
 #include "engine/engine.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "menudisplay.h"
 #include "render/renderpipeline.h"
 
@@ -56,7 +56,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 }
 
 std::unique_ptr<MenuState>
-  RenderSettingsMenuState::onSelected(size_t idx, engine::World& /*world*/, MenuDisplay& /*display*/)
+  RenderSettingsMenuState::onSelected(size_t idx, engine::world::World& /*world*/, MenuDisplay& /*display*/)
 {
   const auto& [getter, toggler] = m_handlers.at(idx);
   toggler();

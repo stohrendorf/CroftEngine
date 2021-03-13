@@ -7,12 +7,12 @@ namespace engine::objects
 class Dart final : public ModelObject
 {
 public:
-  Dart(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  Dart(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  Dart(const gsl::not_null<World*>& world,
+  Dart(const gsl::not_null<world::World*>& world,
        const gsl::not_null<const loader::file::Room*>& room,
        const loader::file::Item& item,
        const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

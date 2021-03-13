@@ -27,7 +27,7 @@ public:
                                    std::unique_ptr<MenuState> previous,
                                    engine::Engine& engine);
 
-  std::unique_ptr<MenuState> onSelected(size_t idx, engine::World& world, MenuDisplay& display) override;
+  std::unique_ptr<MenuState> onSelected(size_t idx, engine::world::World& world, MenuDisplay& display) override;
   std::unique_ptr<MenuState> onAborted() override;
 };
 } // namespace menu

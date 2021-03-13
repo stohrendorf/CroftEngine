@@ -6,7 +6,10 @@
 
 namespace menu
 {
-void DeflateRingMenuState::handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object)
+void DeflateRingMenuState::handleObject(ui::Ui& ui,
+                                        engine::world::World& world,
+                                        MenuDisplay& display,
+                                        MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
@@ -20,7 +23,7 @@ void DeflateRingMenuState::handleObject(ui::Ui& ui, engine::World& world, MenuDi
 }
 
 std::unique_ptr<MenuState>
-  DeflateRingMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& /*display*/)
+  DeflateRingMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
 {
   if(m_duration == 0_frame)
     return std::move(m_next);
@@ -41,7 +44,7 @@ DeflateRingMenuState::DeflateRingMenuState(const std::shared_ptr<MenuRingTransfo
 {
 }
 
-void DeflateRingMenuState::begin(engine::World& /*world*/)
+void DeflateRingMenuState::begin(engine::world::World& /*world*/)
 {
   // TODO fadeOutInventory(mode != InventoryMode::TitleMode);
   m_initialRadius = m_ringTransform->radius;

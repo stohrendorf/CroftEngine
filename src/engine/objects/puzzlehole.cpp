@@ -3,7 +3,7 @@
 #include "engine/engine.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
 
@@ -119,7 +119,7 @@ void PuzzleHole::swapPuzzleState()
   initMesh();
 }
 
-PuzzleHole::PuzzleHole(const gsl::not_null<World*>& world,
+PuzzleHole::PuzzleHole(const gsl::not_null<world::World*>& world,
                        const gsl::not_null<const loader::file::Room*>& room,
                        const loader::file::Item& item,
                        const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -128,7 +128,7 @@ PuzzleHole::PuzzleHole(const gsl::not_null<World*>& world,
   initMesh();
 }
 
-PuzzleHole::PuzzleHole(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+PuzzleHole::PuzzleHole(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
     : ModelObject{world, position}
 {
 }

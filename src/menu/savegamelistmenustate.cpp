@@ -6,7 +6,7 @@
 #include "donemenustate.h"
 #include "engine/engine.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "requestloadmenustate.h"
@@ -16,7 +16,7 @@ namespace menu
 SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                              std::unique_ptr<MenuState> previous,
                                              const std::string& heading,
-                                             const engine::World& world,
+                                             const engine::world::World& world,
                                              bool loading)
     : ListDisplayMenuState{ringTransform, heading}
     , m_previous{std::move(previous)}
@@ -41,7 +41,8 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
   }
 }
 
-std::unique_ptr<MenuState> SavegameListMenuState::onSelected(size_t idx, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState>
+  SavegameListMenuState::onSelected(size_t idx, engine::world::World& world, MenuDisplay& display)
 {
   if(!m_loading)
   {

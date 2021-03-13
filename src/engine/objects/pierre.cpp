@@ -2,7 +2,7 @@
 
 #include "engine/cameracontroller.h"
 #include "engine/raycast.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "pickupobject.h"
 #include "serialization/quantity.h"
@@ -171,7 +171,7 @@ void Pierre::update()
   }
 }
 
-Pierre::Pierre(const gsl::not_null<World*>& world,
+Pierre::Pierre(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -179,7 +179,7 @@ Pierre::Pierre(const gsl::not_null<World*>& world,
 {
 }
 
-void Pierre::serialize(const serialization::Serializer<World>& ser)
+void Pierre::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
   ser(S_NV("fleeTime", m_fleeTime));

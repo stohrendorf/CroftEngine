@@ -1,7 +1,7 @@
 #include "deselectingmenustate.h"
 
 #include "engine/audioengine.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "idleringmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
@@ -9,14 +9,15 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> DeselectingMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display)
+std::unique_ptr<MenuState>
+  DeselectingMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
 {
   display.updateRingTitle();
   return create<IdleRingMenuState>(false);
 }
 
 void DeselectingMenuState::handleObject(ui::Ui& /*ui*/,
-                                        engine::World& /*world*/,
+                                        engine::world::World& /*world*/,
                                         MenuDisplay& display,
                                         MenuObject& object)
 {

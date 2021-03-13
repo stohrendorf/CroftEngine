@@ -35,6 +35,11 @@ struct CinematicFrame;
 class RenderMeshData;
 } // namespace loader::file
 
+namespace engine::world
+{
+class World;
+}
+
 namespace engine
 {
 namespace objects
@@ -52,7 +57,6 @@ class Particle;
 class Player;
 class Presenter;
 class Throttler;
-class World;
 
 enum class RunResult
 {
@@ -93,8 +97,7 @@ private:
   void makeScreenshot();
 
 public:
-  explicit Engine(const std::filesystem::path& rootPath,
-                  const glm::ivec2& resolution = {1280, 800});
+  explicit Engine(const std::filesystem::path& rootPath, const glm::ivec2& resolution = {1280, 800});
 
   ~Engine();
 
@@ -110,8 +113,8 @@ public:
     return *m_presenter;
   }
 
-  std::pair<RunResult, std::optional<size_t>> run(World& world, bool isCutscene, bool allowSave);
-  std::pair<RunResult, std::optional<size_t>> runTitleMenu(World& world);
+  std::pair<RunResult, std::optional<size_t>> run(world::World& world, bool isCutscene, bool allowSave);
+  std::pair<RunResult, std::optional<size_t>> runTitleMenu(world::World& world);
 
   [[nodiscard]] const std::string& getLanguage() const
   {

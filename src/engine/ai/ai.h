@@ -44,7 +44,7 @@ struct AiInfo
   core::Angle angle = 0_deg;
   core::Angle enemy_facing = 0_deg;
 
-  AiInfo(World& world, objects::ObjectState& objectState);
+  AiInfo(world::World& world, objects::ObjectState& objectState);
 
   [[nodiscard]] bool canReachEnemyZone() const noexcept
   {
@@ -62,7 +62,7 @@ struct CreatureInfo
   PathFinder pathFinder;
   core::TRVec target;
 
-  CreatureInfo(const World& world, core::TypeId type);
+  CreatureInfo(const world::World& world, core::TypeId type);
 
   void rotateHead(const core::Angle& angle)
   {
@@ -70,14 +70,14 @@ struct CreatureInfo
     head_rotation = std::clamp(delta + head_rotation, -90_deg, +90_deg);
   }
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 };
 
 std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
-                                     const serialization::Serializer<World>& ser);
+                                     const serialization::Serializer<world::World>& ser);
 
-void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer<World>& ser);
+void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser);
 
-void updateMood(const World& world, const objects::ObjectState& objectState, const AiInfo& aiInfo, bool violent);
+void updateMood(const world::World& world, const objects::ObjectState& objectState, const AiInfo& aiInfo, bool violent);
 } // namespace ai
 } // namespace engine

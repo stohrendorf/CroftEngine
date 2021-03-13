@@ -36,7 +36,7 @@ enum class MenuResult
 
 struct MenuDisplay
 {
-  explicit MenuDisplay(InventoryMode mode, engine::World& world);
+  explicit MenuDisplay(InventoryMode mode, engine::world::World& world);
   ~MenuDisplay();
 
   const InventoryMode mode;
@@ -49,15 +49,15 @@ struct MenuDisplay
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   std::unique_ptr<MenuState> m_currentState;
 
-  void display(ui::Ui& ui, engine::World& world);
+  void display(ui::Ui& ui, engine::world::World& world);
   MenuResult result = MenuResult::None;
   std::optional<size_t> requestLoad;
 
   std::vector<gsl::not_null<std::unique_ptr<MenuRing>>> rings;
   size_t currentRingIndex = 0;
   bool passOpen = false;
-  bool doOptions(engine::World& world, MenuObject& object);
-  void updateMenuObjectDescription(ui::Ui& ui, engine::World& world, const MenuObject& object);
+  bool doOptions(engine::world::World& world, MenuObject& object);
+  void updateMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object);
   void clearMenuObjectDescription();
   void updateRingTitle();
 
@@ -72,8 +72,9 @@ struct MenuDisplay
   }
 
 private:
-  [[nodiscard]] static std::vector<MenuObject> getOptionRingObjects(const engine::World& world, bool withHomePolaroid);
-  [[nodiscard]] static std::vector<MenuObject> getMainRingObjects(const engine::World& world);
-  [[nodiscard]] static std::vector<MenuObject> getKeysRingObjects(const engine::World& world);
+  [[nodiscard]] static std::vector<MenuObject> getOptionRingObjects(const engine::world::World& world,
+                                                                    bool withHomePolaroid);
+  [[nodiscard]] static std::vector<MenuObject> getMainRingObjects(const engine::world::World& world);
+  [[nodiscard]] static std::vector<MenuObject> getKeysRingObjects(const engine::world::World& world);
 };
 } // namespace menu

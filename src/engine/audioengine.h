@@ -11,14 +11,18 @@
 #include <map>
 #include <utility>
 
+namespace engine::world
+{
+class World;
+}
+
 namespace engine
 {
 enum class TR1TrackId;
-class World;
 
 class AudioEngine
 {
-  World& m_world;
+  world::World& m_world;
   const std::filesystem::path m_rootPath;
   const std::shared_ptr<audio::SoundEngine> m_soundEngine;
 
@@ -35,7 +39,9 @@ class AudioEngine
   float m_streamVolume = 0.8f;
 
 public:
-  explicit AudioEngine(World& world, std::filesystem::path rootPath, std::shared_ptr<audio::SoundEngine> soundEngine)
+  explicit AudioEngine(world::World& world,
+                       std::filesystem::path rootPath,
+                       std::shared_ptr<audio::SoundEngine> soundEngine)
       : m_world{world}
       , m_rootPath{std::move(rootPath)}
       , m_soundEngine{std::move(soundEngine)}
@@ -100,6 +106,6 @@ public:
     m_soundEngine->getSoLoud().fadeGlobalVolume(volume, time);
   }
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 };
 } // namespace engine

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "optional.h"
 #include "ptr.h"
 #include "serialization.h"
@@ -8,7 +8,7 @@
 namespace serialization
 {
 // cppcheck-suppress constParameter
-void save(const std::shared_ptr<loader::file::RenderMeshData>& mesh, const Serializer<engine::World>& ser)
+void save(const std::shared_ptr<loader::file::RenderMeshData>& mesh, const Serializer<engine::world::World>& ser)
 {
   if(mesh == nullptr)
   {
@@ -30,7 +30,7 @@ void save(const std::shared_ptr<loader::file::RenderMeshData>& mesh, const Seria
   Expects(false);
 }
 
-void load(std::shared_ptr<loader::file::RenderMeshData>& data, const Serializer<engine::World>& ser)
+void load(std::shared_ptr<loader::file::RenderMeshData>& data, const Serializer<engine::world::World>& ser)
 {
   if(ser.isNull())
   {
@@ -45,7 +45,7 @@ void load(std::shared_ptr<loader::file::RenderMeshData>& data, const Serializer<
 }
 
 std::shared_ptr<loader::file::RenderMeshData> create(const TypeId<std::shared_ptr<loader::file::RenderMeshData>>&,
-                                                     const Serializer<engine::World>& ser)
+                                                     const Serializer<engine::world::World>& ser)
 {
   Expects(ser.loading);
   std::shared_ptr<loader::file::RenderMeshData> tmp;

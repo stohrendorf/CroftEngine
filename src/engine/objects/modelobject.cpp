@@ -1,7 +1,7 @@
 #include "modelobject.h"
 
 #include "engine/particle.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "loader/file/item.h"
 #include "serialization/serialization.h"
@@ -10,7 +10,7 @@
 
 namespace engine::objects
 {
-ModelObject::ModelObject(const gsl::not_null<World*>& world,
+ModelObject::ModelObject(const gsl::not_null<world::World*>& world,
                          const gsl::not_null<const loader::file::Room*>& room,
                          const loader::file::Item& item,
                          const bool hasUpdateFunction,
@@ -285,8 +285,10 @@ bool ModelObject::testBoneCollision(const ModelObject& other)
 gsl::not_null<std::shared_ptr<Particle>>
   ModelObject::emitParticle(const core::TRVec& localPosition,
                             const size_t boneIndex,
-                            gsl::not_null<std::shared_ptr<Particle>> (*generate)(
-                              World& world, const core::RoomBoundPosition&, const core::Speed&, const core::Angle&))
+                            gsl::not_null<std::shared_ptr<Particle>> (*generate)(world::World& world,
+                                                                                 const core::RoomBoundPosition&,
+                                                                                 const core::Speed&,
+                                                                                 const core::Angle&))
 {
   BOOST_ASSERT(generate != nullptr);
   BOOST_ASSERT(boneIndex < m_skeleton->getBoneCount());
@@ -303,7 +305,7 @@ gsl::not_null<std::shared_ptr<Particle>>
   return particle;
 }
 
-void ModelObject::serialize(const serialization::Serializer<World>& ser)
+void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
 {
   Object::serialize(ser);
   ser(S_NV("skeleton", m_skeleton));
@@ -314,7 +316,7 @@ void ModelObject::serialize(const serialization::Serializer<World>& ser)
   }
 }
 
-std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<World>& ser)
+std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world::World>& ser)
 {
   auto result = std::make_shared<ModelObject>(&ser.context, core::RoomBoundPosition::create(ser["@position"]));
   result->serialize(ser);
@@ -322,12 +324,12 @@ std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<World
 }
 
 std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
-                                    serialization::Serializer<World>& ser)
+                                    serialization::Serializer<world::World>& ser)
 {
   return ModelObject::create(ser);
 }
 
-void NullRenderModelObject::serialize(const serialization::Serializer<World>& ser)
+void NullRenderModelObject::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
   if(ser.loading)

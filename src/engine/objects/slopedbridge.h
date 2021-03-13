@@ -10,13 +10,13 @@ private:
   int m_flatness;
 
 public:
-  SlopedBridge(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  SlopedBridge(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
       , m_flatness{0}
   {
   }
 
-  SlopedBridge(const gsl::not_null<World*>& world,
+  SlopedBridge(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel,
@@ -42,7 +42,7 @@ public:
     y = tmp + core::QuarterSectorSize;
   }
 
-  void serialize(const serialization::Serializer<World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
   core::Length getBridgeSlopeHeight(const core::TRVec& pos) const
@@ -64,12 +64,12 @@ private:
 class BridgeSlope1 final : public SlopedBridge
 {
 public:
-  BridgeSlope1(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  BridgeSlope1(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : SlopedBridge{world, position}
   {
   }
 
-  BridgeSlope1(const gsl::not_null<World*>& world,
+  BridgeSlope1(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -81,12 +81,12 @@ public:
 class BridgeSlope2 final : public SlopedBridge
 {
 public:
-  BridgeSlope2(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  BridgeSlope2(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : SlopedBridge{world, position}
   {
   }
 
-  BridgeSlope2(const gsl::not_null<World*>& world,
+  BridgeSlope2(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

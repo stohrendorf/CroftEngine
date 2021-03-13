@@ -9,14 +9,17 @@
 #include <map>
 #include <stdexcept>
 
+namespace engine::world
+{
+class World;
+}
+
 namespace engine
 {
 namespace objects
 {
 class LaraObject;
 }
-
-class World;
 
 struct Ammo
 {
@@ -32,7 +35,7 @@ struct Ammo
     ammo += roundsPerClip * n;
   }
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 };
 
 class Inventory
@@ -48,7 +51,7 @@ private:
 public:
   explicit Inventory() = default;
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 
   void put(core::TypeId id, size_t quantity = 1);
 

@@ -42,11 +42,13 @@ struct MenuObject
   mutable core::Angle compassNeedleRotationMomentum = 0_deg;
 
   std::shared_ptr<engine::SkeletalModelNode> node{nullptr};
-  void initModel(const engine::World& world);
+  void initModel(const engine::world::World& world);
 
   bool animate();
 
   void updateMeshRenderMask();
-  void draw(const engine::World& world, const MenuRingTransform& ringTransform, const core::Angle& ringItemAngle) const;
+  void draw(const engine::world::World& world,
+            const MenuRingTransform& ringTransform,
+            const core::Angle& ringItemAngle) const;
 };
 } // namespace menu

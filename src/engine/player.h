@@ -23,7 +23,7 @@ public:
     return m_inventory;
   }
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 
   core::Health laraHealth{core::LaraHealth};
   WeaponId gunType = WeaponId::None;

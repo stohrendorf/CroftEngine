@@ -6,7 +6,7 @@
 #include "engine/audioengine.h"
 #include "engine/engine.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "idleringmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
@@ -15,7 +15,10 @@
 
 namespace menu
 {
-void PassportMenuState::handleObject(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
+void PassportMenuState::handleObject(ui::Ui& /*ui*/,
+                                     engine::world::World& /*world*/,
+                                     MenuDisplay& display,
+                                     MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);
@@ -23,7 +26,7 @@ void PassportMenuState::handleObject(ui::Ui& /*ui*/, engine::World& /*world*/, M
     rotateForSelection(object);
 }
 
-std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(engine::World& world,
+std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(engine::world::World& world,
                                                                               MenuDisplay& display)
 {
   if(m_passportText == nullptr)
@@ -44,7 +47,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
 }
 
 std::optional<std::unique_ptr<MenuState>>
-  PassportMenuState::showSaveGamePage(engine::World& world, MenuDisplay& display, bool isInGame)
+  PassportMenuState::showSaveGamePage(engine::world::World& world, MenuDisplay& display, bool isInGame)
 {
   if(m_passportText == nullptr)
   {
@@ -72,7 +75,7 @@ std::optional<std::unique_ptr<MenuState>>
   return std::nullopt;
 }
 
-void PassportMenuState::showExitGamePage(engine::World& world, MenuDisplay& display, bool returnToTitle)
+void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDisplay& display, bool returnToTitle)
 {
   if(m_passportText == nullptr)
   {
@@ -89,7 +92,7 @@ void PassportMenuState::showExitGamePage(engine::World& world, MenuDisplay& disp
   }
 }
 
-void PassportMenuState::prevPage(const core::Frame& minFrame, MenuObject& passport, engine::World& world)
+void PassportMenuState::prevPage(const core::Frame& minFrame, MenuObject& passport, engine::world::World& world)
 {
   passport.goalFrame -= FramesPerPage;
   passport.animDirection = -1_frame;
@@ -104,7 +107,7 @@ void PassportMenuState::prevPage(const core::Frame& minFrame, MenuObject& passpo
   }
 }
 
-void PassportMenuState::nextPage(MenuObject& passport, engine::World& world)
+void PassportMenuState::nextPage(MenuObject& passport, engine::world::World& world)
 {
   passport.goalFrame += FramesPerPage;
   passport.animDirection = 1_frame;
@@ -119,7 +122,7 @@ void PassportMenuState::nextPage(MenuObject& passport, engine::World& world)
   }
 }
 
-std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   auto& passport = display.getCurrentRing().getSelectedObject();
   passport.type = engine::TR1ItemId::PassportOpening;

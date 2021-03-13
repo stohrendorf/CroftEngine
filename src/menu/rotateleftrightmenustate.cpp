@@ -6,7 +6,10 @@
 
 namespace menu
 {
-void RotateLeftRightMenuState::handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object)
+void RotateLeftRightMenuState::handleObject(ui::Ui& ui,
+                                            engine::world::World& world,
+                                            MenuDisplay& display,
+                                            MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
     display.updateMenuObjectDescription(ui, world, object);
@@ -33,7 +36,7 @@ RotateLeftRightMenuState::RotateLeftRightMenuState(const std::shared_ptr<MenuRin
 }
 
 std::unique_ptr<MenuState>
-  RotateLeftRightMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display)
+  RotateLeftRightMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
 {
   display.clearMenuObjectDescription();
   m_ringTransform->ringRotation += m_rotSpeed * 1_frame;

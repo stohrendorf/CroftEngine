@@ -34,14 +34,14 @@ ClosePassportMenuState::ClosePassportMenuState(const std::shared_ptr<MenuRingTra
 }
 
 std::unique_ptr<MenuState>
-  ClosePassportMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& /*display*/)
+  ClosePassportMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
 {
   return create<FinishItemAnimationMenuState>(create<SetItemTypeMenuState>(
     engine::TR1ItemId::PassportClosed, create<ResetItemTransformMenuState>(std::move(m_next))));
 }
 
 void ClosePassportMenuState::handleObject(ui::Ui& /*ui*/,
-                                          engine::World& /*world*/,
+                                          engine::world::World& /*world*/,
                                           MenuDisplay& /*display*/,
                                           MenuObject& /*object*/)
 {

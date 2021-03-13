@@ -39,7 +39,7 @@ void TallBlock::update()
   m_state.position.position = pos;
 }
 
-void TallBlock::serialize(const serialization::Serializer<World>& ser)
+void TallBlock::serialize(const serialization::Serializer<world::World>& ser)
 {
   loader::file::Room::patchHeightsForBlock(*this, 2 * core::SectorSize);
   ModelObject::serialize(ser);

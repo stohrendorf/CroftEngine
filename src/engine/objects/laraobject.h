@@ -55,14 +55,14 @@ private:
 #endif
 
 public:
-  LaraObject(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  LaraObject(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
       , m_underwaterRoute{*world}
   {
     initGunflares();
   }
 
-  LaraObject(const gsl::not_null<World*>& world,
+  LaraObject(const gsl::not_null<world::World*>& world,
              const gsl::not_null<const loader::file::Room*>& room,
              const loader::file::Item& item,
              const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel);
@@ -316,7 +316,7 @@ public:
     core::TRRotationXY aimRotation{};
     core::Frame flashTimeout = 0_frame;
 
-    void serialize(const serialization::Serializer<World>& ser);
+    void serialize(const serialization::Serializer<world::World>& ser);
   };
 
   AimInfo leftArm;
@@ -329,7 +329,7 @@ public:
     core::Angle min = 0_deg;
     core::Angle max = 0_deg;
 
-    void serialize(const serialization::Serializer<World>& ser);
+    void serialize(const serialization::Serializer<world::World>& ser);
   };
 
   struct RangeXY
@@ -337,7 +337,7 @@ public:
     Range x{};
     Range y{};
 
-    void serialize(const serialization::Serializer<World>& ser);
+    void serialize(const serialization::Serializer<world::World>& ser);
   };
 
   struct Weapon
@@ -354,9 +354,9 @@ public:
     core::Frame flashTime = 0_frame;
     TR1SoundEffect shotSound = TR1SoundEffect::LaraFootstep;
 
-    void serialize(const serialization::Serializer<World>& ser);
+    void serialize(const serialization::Serializer<world::World>& ser);
 
-    static Weapon create(const serialization::Serializer<World>& ser)
+    static Weapon create(const serialization::Serializer<world::World>& ser)
     {
       Weapon tmp;
       tmp.serialize(ser);
@@ -435,7 +435,7 @@ public:
 
   void burnIfAlive();
 
-  void serialize(const serialization::Serializer<World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
   bool isDead() const
   {

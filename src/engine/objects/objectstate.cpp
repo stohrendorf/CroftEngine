@@ -1,7 +1,7 @@
 #include "objectstate.h"
 
 #include "engine/script/reflection.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/bitset.h"
 #include "serialization/quantity.h"
@@ -14,7 +14,7 @@ namespace engine::objects
 {
 ObjectState::~ObjectState() = default;
 
-bool ObjectState::isStalkBox(const World& world, const loader::file::TypedBox& targetBox) const
+bool ObjectState::isStalkBox(const world::World& world, const loader::file::TypedBox& targetBox) const
 {
   const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
 
@@ -51,7 +51,7 @@ bool ObjectState::isStalkBox(const World& world, const loader::file::TypedBox& t
   BOOST_THROW_EXCEPTION(std::runtime_error("Unreachable code reached"));
 }
 
-bool ObjectState::isInsideZoneButNotInBox(const World& world,
+bool ObjectState::isInsideZoneButNotInBox(const world::World& world,
                                           const int16_t zoneId,
                                           const loader::file::TypedBox& targetBox) const
 {
@@ -73,7 +73,7 @@ bool ObjectState::isInsideZoneButNotInBox(const World& world,
   return !targetBox.contains(position.position.X, position.position.Z);
 }
 
-bool ObjectState::isEscapeBox(const World& world, const loader::file::TypedBox& targetBox) const
+bool ObjectState::isEscapeBox(const world::World& world, const loader::file::TypedBox& targetBox) const
 {
   const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
 
@@ -87,7 +87,7 @@ bool ObjectState::isEscapeBox(const World& world, const loader::file::TypedBox& 
   return ((laraToObjZ > 0_len) == (laraToBoxCtrZ > 0_len)) || ((laraToObjX > 0_len) == (laraToBoxCtrX > 0_len));
 }
 
-void ObjectState::initCreatureInfo(const World& world)
+void ObjectState::initCreatureInfo(const world::World& world)
 {
   if(creatureInfo != nullptr)
     return;
@@ -96,7 +96,7 @@ void ObjectState::initCreatureInfo(const World& world)
   collectZoneBoxes(world);
 }
 
-void ObjectState::collectZoneBoxes(const World& world)
+void ObjectState::collectZoneBoxes(const world::World& world)
 {
   const auto zoneRef1
     = loader::file::TypedBox::getZoneRef(false, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
@@ -128,7 +128,7 @@ void ObjectState::loadObjectInfo()
   health = core::Health{getObjectInfo(type.get()).cast<script::ObjectInfo>().hit_points};
 }
 
-void ObjectState::serialize(const serialization::Serializer<World>& ser)
+void ObjectState::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("position", position),
       S_NV("type", type),

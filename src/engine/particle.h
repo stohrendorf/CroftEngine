@@ -11,10 +11,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 
-namespace engine
+namespace engine::world
 {
 class World;
+}
 
+namespace engine
+{
 class Particle
     : public render::scene::Node
     , public audio::Emitter
@@ -33,7 +36,7 @@ private:
   std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_renderables{};
   Lighting m_lighting;
 
-  void initRenderables(World& world, float scale = 1);
+  void initRenderables(world::World& world, float scale = 1);
 
 protected:
   void nextFrame()
@@ -68,14 +71,14 @@ public:
   explicit Particle(const std::string& id,
                     core::TypeId objectNumber,
                     const gsl::not_null<const loader::file::Room*>& room,
-                    World& world,
+                    world::World& world,
                     const std::shared_ptr<render::scene::Renderable>& renderable = nullptr,
                     float scale = 1);
 
   explicit Particle(const std::string& id,
                     core::TypeId objectNumber,
                     core::RoomBoundPosition pos,
-                    World& world,
+                    world::World& world,
                     const std::shared_ptr<render::scene::Renderable>& renderable = nullptr,
                     float scale = 1);
 
@@ -84,7 +87,7 @@ public:
     m_lighting.updateStatic(shade);
   }
 
-  virtual bool update(World& world) = 0;
+  virtual bool update(world::World& world) = 0;
 
   glm::vec3 getPosition() const final;
 };
@@ -95,20 +98,20 @@ public:
   explicit BloodSplatterParticle(const core::RoomBoundPosition& pos,
                                  const core::Speed& speed_,
                                  const core::Angle& angle_,
-                                 World& world)
+                                 world::World& world)
       : Particle{"bloodsplat", TR1ItemId::Blood, pos, world}
   {
     speed = speed_;
     angle.Y = angle_;
   }
 
-  bool update(World& world) override;
+  bool update(world::World& world) override;
 };
 
 class SplashParticle final : public Particle
 {
 public:
-  explicit SplashParticle(const core::RoomBoundPosition& pos, World& world, const bool waterfall)
+  explicit SplashParticle(const core::RoomBoundPosition& pos, world::World& world, const bool waterfall)
       : Particle{"splash", TR1ItemId::Splash, pos, world}
   {
     if(!waterfall)
@@ -123,13 +126,13 @@ public:
     }
   }
 
-  bool update(World& world) override;
+  bool update(world::World& world) override;
 };
 
 class RicochetParticle final : public Particle
 {
 public:
-  explicit RicochetParticle(const core::RoomBoundPosition& pos, World& world)
+  explicit RicochetParticle(const core::RoomBoundPosition& pos, world::World& world)
       : Particle{"ricochet", TR1ItemId::Ricochet, pos, world}
   {
     timePerSpriteFrame = 4;
@@ -139,13 +142,13 @@ public:
       nextFrame();
   }
 
-  bool update(World& /*world*/) override;
+  bool update(world::World& /*world*/) override;
 };
 
 class BubbleParticle final : public Particle
 {
 public:
-  explicit BubbleParticle(const core::RoomBoundPosition& pos, World& world)
+  explicit BubbleParticle(const core::RoomBoundPosition& pos, world::World& world)
       : Particle{"bubble", TR1ItemId::Bubbles, pos, world, nullptr, 0.7f}
   {
     speed = 10_spd + util::rand15(6_spd);
@@ -155,24 +158,24 @@ public:
       nextFrame();
   }
 
-  bool update(World& world) override;
+  bool update(world::World& world) override;
 };
 
 class SparkleParticle final : public Particle
 {
 public:
-  explicit SparkleParticle(const core::RoomBoundPosition& pos, World& world)
+  explicit SparkleParticle(const core::RoomBoundPosition& pos, world::World& world)
       : Particle{"sparkles", TR1ItemId::Sparkles, pos, world}
   {
   }
 
-  bool update(World& /*world*/) override;
+  bool update(world::World& /*world*/) override;
 };
 
 class GunflareParticle final : public Particle
 {
 public:
-  explicit GunflareParticle(const core::RoomBoundPosition& pos, World& world, const core::Angle& yAngle)
+  explicit GunflareParticle(const core::RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
       : Particle{"gunflare", TR1ItemId::Gunflare, pos, world}
   {
     angle.Y = yAngle;
@@ -180,22 +183,22 @@ public:
     shade = core::Shade{core::Shade::type{4096}};
   }
 
-  bool update(World& /*world*/) override;
+  bool update(world::World& /*world*/) override;
 };
 
 class FlameParticle final : public Particle
 {
 public:
-  explicit FlameParticle(const core::RoomBoundPosition& pos, World& world, bool randomize = false);
+  explicit FlameParticle(const core::RoomBoundPosition& pos, world::World& world, bool randomize = false);
 
-  bool update(World& world) override;
+  bool update(world::World& world) override;
 };
 
 class ExplosionParticle final : public Particle
 {
 public:
   explicit ExplosionParticle(const core::RoomBoundPosition& pos,
-                             World& world,
+                             world::World& world,
                              const core::Speed& fallSpeed,
                              const core::TRRotation& angle)
       : Particle{"explosion", TR1ItemId::Explosion, pos, world}
@@ -204,14 +207,14 @@ public:
     this->angle = angle;
   }
 
-  bool update(World& /*world*/) override;
+  bool update(world::World& /*world*/) override;
 };
 
 class MeshShrapnelParticle final : public Particle
 {
 public:
   explicit MeshShrapnelParticle(const core::RoomBoundPosition& pos,
-                                World& world,
+                                world::World& world,
                                 const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
                                 const bool torsoBoss,
                                 const core::Length& damageRadius)
@@ -230,7 +233,7 @@ public:
     }
   }
 
-  bool update(World& world) override;
+  bool update(world::World& world) override;
 
 private:
   const core::Length m_damageRadius;
@@ -239,18 +242,18 @@ private:
 class MutantAmmoParticle : public Particle
 {
 protected:
-  explicit MutantAmmoParticle(const core::RoomBoundPosition& pos, World& world, const TR1ItemId itemType)
+  explicit MutantAmmoParticle(const core::RoomBoundPosition& pos, world::World& world, const TR1ItemId itemType)
       : Particle{"mutantAmmo", itemType, pos, world}
   {
   }
 
-  void aimLaraChest(World& world);
+  void aimLaraChest(world::World& world);
 };
 
 class MutantBulletParticle final : public MutantAmmoParticle
 {
 public:
-  explicit MutantBulletParticle(const core::RoomBoundPosition& pos, World& world, const core::Angle& yAngle)
+  explicit MutantBulletParticle(const core::RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
       : MutantAmmoParticle{pos, world, TR1ItemId::MutantBullet}
   {
     speed = 250_spd;
@@ -259,13 +262,13 @@ public:
     aimLaraChest(world);
   }
 
-  bool update(World& world) override;
+  bool update(world::World& world) override;
 };
 
 class MutantGrenadeParticle final : public MutantAmmoParticle
 {
 public:
-  explicit MutantGrenadeParticle(const core::RoomBoundPosition& pos, World& world, const core::Angle& yAngle)
+  explicit MutantGrenadeParticle(const core::RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
       : MutantAmmoParticle{pos, world, TR1ItemId::MutantGrenade}
   {
     speed = 220_spd;
@@ -273,13 +276,13 @@ public:
     aimLaraChest(world);
   }
 
-  bool update(World& world) override;
+  bool update(world::World& world) override;
 };
 
 class LavaParticle final : public Particle
 {
 public:
-  explicit LavaParticle(const core::RoomBoundPosition& pos, World& world)
+  explicit LavaParticle(const core::RoomBoundPosition& pos, world::World& world)
       : Particle{"lava", TR1ItemId::LavaParticles, pos, world}
   {
     angle.Y = util::rand15(180_deg) * 2;
@@ -288,23 +291,25 @@ public:
     negSpriteFrameId = util::rand15(int16_t{-4});
   }
 
-  bool update(World& world) override;
+  bool update(world::World& world) override;
 };
 
 class SmokeParticle final : public Particle
 {
 public:
-  explicit SmokeParticle(const core::RoomBoundPosition& pos, World& world, const core::TRRotation& rotation)
+  explicit SmokeParticle(const core::RoomBoundPosition& pos, world::World& world, const core::TRRotation& rotation)
       : Particle{"smoke", TR1ItemId::Smoke, pos, world}
   {
     angle = rotation;
   }
 
-  bool update(World& /*world*/) override;
+  bool update(world::World& /*world*/) override;
 };
 
-inline gsl::not_null<std::shared_ptr<Particle>>
-  createBloodSplat(World& world, const core::RoomBoundPosition& pos, const core::Speed& speed, const core::Angle& angle)
+inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(world::World& world,
+                                                                 const core::RoomBoundPosition& pos,
+                                                                 const core::Speed& speed,
+                                                                 const core::Angle& angle)
 {
   auto particle = std::make_shared<BloodSplatterParticle>(pos, speed, angle, world);
   setParent(particle, pos.room->node);

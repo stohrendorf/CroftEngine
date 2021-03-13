@@ -1,7 +1,7 @@
 #include "portaltracer.h"
 
 #include "engine/cameracontroller.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "loader/file/datatypes.h"
 #include "scene/camera.h"
 
@@ -128,7 +128,7 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
 
 bool PortalTracer::traceRoom(const loader::file::Room& room,
                              const PortalTracer::CullBox& roomCullBox,
-                             const engine::World& world,
+                             const engine::world::World& world,
                              std::vector<const loader::file::Room*>& seenRooms,
                              const bool inWater,
                              std::unordered_set<const loader::file::Portal*>& waterSurfacePortals,
@@ -163,7 +163,7 @@ bool PortalTracer::traceRoom(const loader::file::Room& room,
 }
 
 std::unordered_set<const loader::file::Portal*> PortalTracer::trace(const loader::file::Room& startRoom,
-                                                                    const engine::World& world)
+                                                                    const engine::world::World& world)
 {
   std::vector<const loader::file::Room*> seenRooms;
   seenRooms.reserve(32);

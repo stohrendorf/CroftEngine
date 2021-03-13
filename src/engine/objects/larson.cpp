@@ -1,6 +1,6 @@
 #include "larson.h"
 
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 
 namespace engine::objects
@@ -107,7 +107,7 @@ void Larson::update()
   animateCreature(creatureTurn, 0_deg);
 }
 
-Larson::Larson(const gsl::not_null<World*>& world,
+Larson::Larson(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

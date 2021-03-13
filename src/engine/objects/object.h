@@ -16,10 +16,14 @@ namespace loader::file
 struct Item;
 } // namespace loader::file
 
+namespace engine::world
+{
+class World;
+}
+
 namespace engine
 {
 class Particle;
-class World;
 
 namespace ai
 {
@@ -49,10 +53,10 @@ struct InteractionLimits
 
 class Object
 {
-  const gsl::not_null<World*> m_world;
+  const gsl::not_null<world::World*> m_world;
 
 protected:
-  Object(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position);
+  Object(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position);
 
 public:
   ObjectState m_state;
@@ -74,7 +78,7 @@ public:
     Interact = 7
   };
 
-  Object(const gsl::not_null<World*>& world,
+  Object(const gsl::not_null<world::World*>& world,
          const gsl::not_null<const loader::file::Room*>& room,
          const loader::file::Item& item,
          bool hasUpdateFunction);
@@ -119,12 +123,12 @@ public:
     m_state.position.position += util::pitch(d, m_state.rotation.Y);
   }
 
-  const World& getWorld() const
+  const world::World& getWorld() const
   {
     return *m_world;
   }
 
-  World& getWorld()
+  world::World& getWorld()
   {
     return *m_world;
   }
@@ -177,7 +181,7 @@ public:
 
   void kill();
 
-  virtual void serialize(const serialization::Serializer<World>& ser);
+  virtual void serialize(const serialization::Serializer<world::World>& ser);
 
   void playShotMissed(const core::RoomBoundPosition& pos);
 

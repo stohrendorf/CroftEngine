@@ -7,7 +7,7 @@ namespace engine::objects
 class PickupObject final : public SpriteObject
 {
 public:
-  PickupObject(const gsl::not_null<World*>& world,
+  PickupObject(const gsl::not_null<world::World*>& world,
                const core::RoomBoundPosition& position,
                std::string name,
                const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
@@ -15,7 +15,7 @@ public:
   {
   }
 
-  PickupObject(const gsl::not_null<World*>& world,
+  PickupObject(const gsl::not_null<world::World*>& world,
                const std::string& name,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,

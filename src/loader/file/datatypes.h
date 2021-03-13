@@ -114,7 +114,7 @@ struct TypedSector
 
   void connect(std::vector<Room>& rooms);
 
-  void serialize(const serialization::Serializer<engine::World>& ser);
+  void serialize(const serialization::Serializer<engine::world::World>& ser);
 
 private:
   core::RoomId8 m_roomIndexBelow{uint8_t(-1)};
@@ -476,7 +476,7 @@ struct Room
     return (flags & TR1_ROOM_FLAG_SKYBOX) != 0;
   }
 
-  void serialize(const serialization::Serializer<engine::World>& ser);
+  void serialize(const serialization::Serializer<engine::world::World>& ser);
 };
 
 extern gsl::not_null<const TypedSector*> findRealFloorSector(const core::TRVec& position,
@@ -595,7 +595,7 @@ struct TypedBox
     }
   }
 
-  void serialize(const serialization::Serializer<engine::World>& ser);
+  void serialize(const serialization::Serializer<engine::world::World>& ser);
 };
 
 using ZoneData = std::vector<ZoneId>;
@@ -626,7 +626,7 @@ struct Camera
     uint16_t box_index;
   };
 
-  void serialize(const serialization::Serializer<engine::World>& ser);
+  void serialize(const serialization::Serializer<engine::world::World>& ser);
 
   static std::unique_ptr<Camera> read(io::SDLReader& reader);
 

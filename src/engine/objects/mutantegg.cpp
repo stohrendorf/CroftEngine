@@ -61,7 +61,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
   return true;
 }
 
-MutantEgg::MutantEgg(const gsl::not_null<World*>& world,
+MutantEgg::MutantEgg(const gsl::not_null<world::World*>& world,
                      const gsl::not_null<const loader::file::Room*>& room,
                      loader::file::Item item,
                      const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -168,7 +168,7 @@ void MutantEgg::collide(CollisionInfo& info)
   enemyPush(info, false, true);
 }
 
-void MutantEgg::serialize(const serialization::Serializer<World>& ser)
+void MutantEgg::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("childObject", serialization::ObjectReference{m_childObject}));

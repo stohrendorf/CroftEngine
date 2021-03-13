@@ -137,9 +137,9 @@ public:
     return m_timeout;
   }
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 
-  static ActivationState create(const serialization::Serializer<World>& ser)
+  static ActivationState create(const serialization::Serializer<world::World>& ser)
   {
     ActivationState result{};
     result.serialize(ser);

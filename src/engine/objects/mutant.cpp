@@ -3,7 +3,7 @@
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/particle.h"
 #include "engine/player.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "mutantegg.h"
 #include "serialization/quantity.h"
@@ -13,7 +13,7 @@ namespace engine::objects
 {
 namespace
 {
-gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(World& world,
+gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world,
                                                              const core::RoomBoundPosition& pos,
                                                              const core::Speed& /*speed*/,
                                                              const core::Angle& angle)
@@ -22,7 +22,7 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(World& world,
   setParent(particle, pos.room->node);
   return particle;
 }
-gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(World& world,
+gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(world::World& world,
                                                             const core::RoomBoundPosition& pos,
                                                             const core::Speed& /*speed*/,
                                                             const core::Angle& angle)
@@ -280,7 +280,7 @@ void FlyingMutant::update()
   animateCreature(turnRot, 0_deg);
 }
 
-void FlyingMutant::serialize(const serialization::Serializer<World>& ser)
+void FlyingMutant::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
   ser(S_NV("shootBullet", m_shootBullet),
@@ -571,7 +571,7 @@ void TorsoBoss::update()
   }
 }
 
-void TorsoBoss::serialize(const serialization::Serializer<World>& ser)
+void TorsoBoss::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
   ser(S_NV("hasHitLara", m_hasHitLara), S_NV("turnStartFrame", m_turnStartFrame));

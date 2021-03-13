@@ -5,7 +5,7 @@
 #include "donemenustate.h"
 #include "engine/items_tr1.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "finishitemanimationmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
@@ -16,7 +16,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
 {
   auto& currentObject = display.getCurrentRing().getSelectedObject();
   if(currentObject.type == engine::TR1ItemId::PassportClosed)
@@ -65,7 +65,10 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::Wo
   return nullptr;
 }
 
-void SelectedMenuState::handleObject(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display, MenuObject& object)
+void SelectedMenuState::handleObject(ui::Ui& /*ui*/,
+                                     engine::world::World& /*world*/,
+                                     MenuDisplay& display,
+                                     MenuObject& object)
 {
   if(&object != &display.getCurrentRing().getSelectedObject())
     zeroRotation(object, 256_au);

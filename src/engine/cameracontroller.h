@@ -16,6 +16,11 @@ struct CinematicFrame;
 struct Portal;
 } // namespace loader::file
 
+namespace engine::world
+{
+class World;
+}
+
 namespace engine
 {
 namespace floordata
@@ -28,8 +33,6 @@ namespace objects
 {
 class Object;
 }
-
-class World;
 
 enum class CameraMode
 {
@@ -54,7 +57,7 @@ class CameraController final : public audio::Listener
 private:
   gsl::not_null<std::shared_ptr<render::scene::Camera>> m_camera;
 
-  const gsl::not_null<World*> m_world;
+  const gsl::not_null<world::World*> m_world;
 
   //! @brief Global camera position.
   core::RoomBoundPosition m_position;
@@ -91,14 +94,14 @@ private:
   core::Frame m_camOverrideTimeout{-1_frame};
 
 public:
-  explicit CameraController(const gsl::not_null<World*>& world,
+  explicit CameraController(const gsl::not_null<world::World*>& world,
                             gsl::not_null<std::shared_ptr<render::scene::Camera>> camera);
 
-  explicit CameraController(const gsl::not_null<World*>& world,
+  explicit CameraController(const gsl::not_null<world::World*>& world,
                             gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                             bool noLaraTag);
 
-  const gsl::not_null<World*>& getWorld() const noexcept
+  const gsl::not_null<world::World*>& getWorld() const noexcept
   {
     return m_world;
   }
@@ -201,7 +204,7 @@ public:
   std::unordered_set<const loader::file::Portal*> updateCinematic(const loader::file::CinematicFrame& frame,
                                                                   bool ingame);
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser);
 
   size_t m_cinematicFrame = 0;
   core::TRVec m_cinematicPos{0_len, 0_len, 0_len};

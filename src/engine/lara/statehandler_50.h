@@ -31,7 +31,7 @@ public:
     collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
   }
 
-  static void emitSparkles(World& world)
+  static void emitSparkles(world::World& world)
   {
     const auto spheres = world.getObjectManager().getLara().getSkeleton()->getBoneCollisionSpheres(
       world.getObjectManager().getLara().m_state,

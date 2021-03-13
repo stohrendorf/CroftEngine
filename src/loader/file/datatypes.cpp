@@ -1,6 +1,6 @@
 #include "datatypes.h"
 
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "level/level.h"
@@ -859,7 +859,7 @@ void Room::resetScenery()
   }
 }
 
-void Room::serialize(const serialization::Serializer<engine::World>& ser)
+void Room::serialize(const serialization::Serializer<engine::world::World>& ser)
 {
   ser(S_NV("sectors", serialization::FrozenVector{typedSectors}));
 }
@@ -909,7 +909,7 @@ gsl::not_null<const TypedSector*> findRealFloorSector(const core::TRVec& positio
   return sector;
 }
 
-void Camera::serialize(const serialization::Serializer<engine::World>& ser)
+void Camera::serialize(const serialization::Serializer<engine::world::World>& ser)
 {
   ser(S_NV("flags", flags));
 }
@@ -974,7 +974,7 @@ Sector Sector::read(io::SDLReader& reader)
   return sector;
 }
 
-void TypedSector::serialize(const serialization::Serializer<engine::World>& ser)
+void TypedSector::serialize(const serialization::Serializer<engine::world::World>& ser)
 {
   ser(S_NVVE("box", ser.context.getBoxes(), box),
       S_NV("floorHeight", floorHeight),
@@ -986,7 +986,7 @@ void TypedSector::serialize(const serialization::Serializer<engine::World>& ser)
 
   if(ser.loading)
   {
-    ser.lazy([this](const serialization::Serializer<engine::World>& ser) { connect(ser.context.getRooms()); });
+    ser.lazy([this](const serialization::Serializer<engine::world::World>& ser) { connect(ser.context.getRooms()); });
   }
 }
 
@@ -1351,7 +1351,7 @@ std::unique_ptr<Box> Box::readTr2(io::SDLReader& reader)
   return box;
 }
 
-void TypedBox::serialize(const serialization::Serializer<engine::World>& ser)
+void TypedBox::serialize(const serialization::Serializer<engine::world::World>& ser)
 {
   ser(S_NV("blocked", blocked), S_NV("blockable", blockable));
 }

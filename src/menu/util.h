@@ -3,7 +3,7 @@
 #include "core/angle.h"
 #include "core/units.h"
 
-namespace engine
+namespace engine::world
 {
 class World;
 }
@@ -13,7 +13,7 @@ namespace menu
 struct MenuObject;
 
 extern void rotateForSelection(MenuObject& object);
-extern void idleRotation(engine::World& world, MenuObject& object);
+extern void idleRotation(engine::world::World& world, MenuObject& object);
 extern void zeroRotation(MenuObject& object, const core::Angle& speed);
 
 template<typename Unit, typename Type>

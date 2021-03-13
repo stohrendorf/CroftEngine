@@ -8,13 +8,13 @@ namespace engine::objects
 class RollingBall final : public ModelObject
 {
 public:
-  RollingBall(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  RollingBall(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
       , m_position{position}
   {
   }
 
-  RollingBall(const gsl::not_null<World*>& world,
+  RollingBall(const gsl::not_null<world::World*>& world,
               const gsl::not_null<const loader::file::Room*>& room,
               const loader::file::Item& item,
               const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

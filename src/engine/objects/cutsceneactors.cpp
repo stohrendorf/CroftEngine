@@ -1,11 +1,11 @@
 #include "cutsceneactors.h"
 
 #include "engine/cameracontroller.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 
 namespace engine::objects
 {
-CutsceneActor::CutsceneActor(const gsl::not_null<World*>& world,
+CutsceneActor::CutsceneActor(const gsl::not_null<world::World*>& world,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

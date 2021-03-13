@@ -8,7 +8,7 @@
 namespace menu
 {
 std::unique_ptr<MenuState>
-  FinishItemAnimationMenuState::onFrame(ui::Ui& /*ui*/, engine::World& world, MenuDisplay& display)
+  FinishItemAnimationMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
 {
   display.updateRingTitle();
 
@@ -27,7 +27,7 @@ std::unique_ptr<MenuState>
 }
 
 void FinishItemAnimationMenuState::handleObject(ui::Ui& /*ui*/,
-                                                engine::World& /*world*/,
+                                                engine::world::World& /*world*/,
                                                 MenuDisplay& display,
                                                 MenuObject& object)
 {

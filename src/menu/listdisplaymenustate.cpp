@@ -2,7 +2,7 @@
 
 #include "engine/engine.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "menudisplay.h"
 #include "ui/label.h"
 
@@ -27,7 +27,7 @@ ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransfo
   m_background->outline = true;
 }
 
-std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   m_background->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
 

@@ -13,7 +13,7 @@
 
 namespace engine
 {
-void ObjectManager::createObjects(World& world, std::vector<loader::file::Item>& items)
+void ObjectManager::createObjects(world::World& world, std::vector<loader::file::Item>& items)
 {
   Expects(m_objectCounter == 0);
   m_objectCounter = gsl::narrow<ObjectId>(items.size());
@@ -100,7 +100,7 @@ std::shared_ptr<objects::Object> ObjectManager::getObject(ObjectId id) const
   return it->second.get();
 }
 
-void ObjectManager::update(World& world, bool godMode)
+void ObjectManager::update(world::World& world, bool godMode)
 {
   for(const auto& object : m_objects | boost::adaptors::map_values)
   {
@@ -149,7 +149,7 @@ void ObjectManager::update(World& world, bool godMode)
   applyScheduledDeletions();
 }
 
-void ObjectManager::serialize(const serialization::Serializer<World>& ser)
+void ObjectManager::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("objectCounter", m_objectCounter),
       S_NV("objects", m_objects),

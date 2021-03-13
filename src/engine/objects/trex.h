@@ -8,12 +8,12 @@ namespace engine::objects
 class TRex final : public AIAgent
 {
 public:
-  TRex(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  TRex(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }
 
-  TRex(const gsl::not_null<World*>& world,
+  TRex(const gsl::not_null<world::World*>& world,
        const gsl::not_null<const loader::file::Room*>& room,
        const loader::file::Item& item,
        const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -22,7 +22,7 @@ public:
   }
 
   void update() override;
-  void serialize(const serialization::Serializer<World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
   bool m_wantAttack = false;

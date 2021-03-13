@@ -1,7 +1,7 @@
 #include "pathfinder.h"
 
 #include "engine/objects/object.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "serialization/box_ptr.h"
 #include "serialization/deque.h"
 #include "serialization/not_null.h"
@@ -14,13 +14,15 @@
 
 namespace engine::ai
 {
-PathFinder::PathFinder(const World& world)
+PathFinder::PathFinder(const world::World& world)
 {
   for(const auto& box : world.getBoxes())
     nodes.emplace(&box, PathFinderNode{});
 }
 
-bool PathFinder::calculateTarget(const World& world, core::TRVec& moveTarget, const objects::ObjectState& objectState)
+bool PathFinder::calculateTarget(const world::World& world,
+                                 core::TRVec& moveTarget,
+                                 const objects::ObjectState& objectState)
 {
   updatePath(world);
 
@@ -232,7 +234,7 @@ bool PathFinder::calculateTarget(const World& world, core::TRVec& moveTarget, co
   return false;
 }
 
-void PathFinder::updatePath(const World& world)
+void PathFinder::updatePath(const world::World& world)
 {
   if(required_box != nullptr && required_box != target_box)
   {
@@ -250,7 +252,7 @@ void PathFinder::updatePath(const World& world)
   searchPath(world);
 }
 
-void PathFinder::searchPath(const World& world)
+void PathFinder::searchPath(const world::World& world)
 {
   const auto zoneRef = loader::file::TypedBox::getZoneRef(world.roomsAreSwapped(), fly, step);
 
@@ -300,7 +302,7 @@ void PathFinder::searchPath(const World& world)
   }
 }
 
-void PathFinder::serialize(const serialization::Serializer<World>& ser)
+void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("nodes", nodes),
       S_NV("boxes", boxes),
@@ -316,12 +318,12 @@ void PathFinder::serialize(const serialization::Serializer<World>& ser)
       S_NV("target", target));
 }
 
-void PathFinderNode::serialize(const serialization::Serializer<World>& ser)
+void PathFinderNode::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NVVE("exitBox", ser.context.getBoxes(), exit_box), S_NV("traversable", traversable));
 }
 
-PathFinderNode PathFinderNode::create(const serialization::Serializer<World>& ser)
+PathFinderNode PathFinderNode::create(const serialization::Serializer<world::World>& ser)
 {
   PathFinderNode tmp{};
   tmp.serialize(ser);

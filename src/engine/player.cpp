@@ -4,11 +4,11 @@
 #include "serialization/chrono.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
-#include "world.h"
+#include "world/world.h"
 
 namespace engine
 {
-void Player::serialize(const serialization::Serializer<World>& ser)
+void Player::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("inventory", m_inventory),
       S_NV("laraHealth", laraHealth),
@@ -20,7 +20,7 @@ void Player::serialize(const serialization::Serializer<World>& ser)
       S_NV("timeSpent", timeSpent));
 
   if(ser.loading && ser.context.getObjectManager().getLaraPtr() != nullptr)
-    ser.lazy([](const serialization::Serializer<World>& ser) {
+    ser.lazy([](const serialization::Serializer<world::World>& ser) {
       ser.context.getObjectManager().getLara().initWeaponAnimData();
     });
 }

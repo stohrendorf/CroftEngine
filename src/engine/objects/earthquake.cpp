@@ -3,7 +3,7 @@
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 
 namespace engine::objects
 {

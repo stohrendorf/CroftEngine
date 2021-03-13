@@ -21,7 +21,7 @@
 namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
-                                     gsl::not_null<const World*> world,
+                                     gsl::not_null<const world::World*> world,
                                      gsl::not_null<const loader::file::SkeletalModelType*> model)
     : Node{id}
     , m_world{std::move(world)}
@@ -262,7 +262,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
   return result;
 }
 
-void SkeletalModelNode::serialize(const serialization::Serializer<World>& ser)
+void SkeletalModelNode::serialize(const serialization::Serializer<world::World>& ser)
 {
   auto id = getName();
   ser(S_NV("id", id),
@@ -272,14 +272,14 @@ void SkeletalModelNode::serialize(const serialization::Serializer<World>& ser)
       S_NV("frame", m_frame));
 
   if(ser.loading)
-    ser.lazy([this](const serialization::Serializer<World>&) {
+    ser.lazy([this](const serialization::Serializer<world::World>&) {
       m_needsMeshRebuild = true;
       rebuildMesh();
       updatePose();
     });
 }
 
-void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<World>& ser)
+void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser)
 {
   if(ser.loading)
   {
@@ -376,12 +376,12 @@ void SkeletalModelNode::replaceAnim(const gsl::not_null<const loader::file::Type
   setAnim(anim, anim->firstFrame + localFrame);
 }
 
-void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<World>& ser)
+void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("patch", patch), S_NV("matrix", matrix), S_NV("mesh", mesh), S_NV("visible", visible));
 }
 
-SkeletalModelNode::MeshPart SkeletalModelNode::MeshPart::create(const serialization::Serializer<World>& ser)
+SkeletalModelNode::MeshPart SkeletalModelNode::MeshPart::create(const serialization::Serializer<world::World>& ser)
 {
   Expects(ser.loading);
   MeshPart tmp{};

@@ -1,7 +1,7 @@
 #include "raptor.h"
 
 #include "engine/particle.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 
 namespace engine::objects

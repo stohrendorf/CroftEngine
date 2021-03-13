@@ -3,14 +3,14 @@
 #include "engine/engine.h"
 #include "engine/items_tr1.h"
 #include "engine/player.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "util.h"
 
 namespace menu
 {
-void DoneMenuState::handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& display, MenuObject& object)
+void DoneMenuState::handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
@@ -23,7 +23,7 @@ void DoneMenuState::handleObject(ui::Ui& ui, engine::World& world, MenuDisplay& 
   }
 }
 
-std::unique_ptr<MenuState> DoneMenuState::onFrame(ui::Ui& /*ui*/, engine::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> DoneMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
 {
   display.result = m_result;
 

@@ -2,7 +2,7 @@
 
 #include "engine/cameracontroller.h"
 #include "engine/player.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/serialization.h"
 
@@ -124,7 +124,7 @@ void TRex::update()
   m_state.collidable = true;
 }
 
-void TRex::serialize(const serialization::Serializer<World>& ser)
+void TRex::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
   ser(S_NV("wantAttack", m_wantAttack));

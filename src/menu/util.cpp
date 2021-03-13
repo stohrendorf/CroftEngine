@@ -1,7 +1,7 @@
 #include "util.h"
 
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "menuobject.h"
 
 namespace menu
@@ -22,7 +22,7 @@ void rotateForSelection(MenuObject& object)
   object.rotationY -= object.rotationY % (1024_au * 2);
 }
 
-void idleRotation(engine::World& world, MenuObject& object)
+void idleRotation(engine::world::World& world, MenuObject& object)
 {
   if(world.getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Null)
   {

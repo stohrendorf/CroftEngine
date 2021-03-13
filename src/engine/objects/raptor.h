@@ -8,12 +8,12 @@ namespace engine::objects
 class Raptor final : public AIAgent
 {
 public:
-  Raptor(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  Raptor(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }
 
-  Raptor(const gsl::not_null<World*>& world,
+  Raptor(const gsl::not_null<world::World*>& world,
          const gsl::not_null<const loader::file::Room*>& room,
          const loader::file::Item& item,
          const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

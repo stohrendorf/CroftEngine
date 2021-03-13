@@ -2,7 +2,7 @@
 
 #include "engine/heightinfo.h"
 #include "engine/presenter.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "render/scene/material.h"
 #include "render/scene/materialmanager.h"
@@ -81,7 +81,7 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const std::shared_ptr
 }
 } // namespace
 
-LightningBall::LightningBall(const gsl::not_null<World*>& world,
+LightningBall::LightningBall(const gsl::not_null<world::World*>& world,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
                              const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -214,7 +214,7 @@ void LightningBall::prepareRender()
   }
 }
 
-void LightningBall::init(World& world)
+void LightningBall::init(world::World& world)
 {
   m_mainBoltMesh = createBolt(SegmentPoints, world.getPresenter().getMaterialManager()->getLightning(), 10, m_mainVb);
   m_mainBoltNode = std::make_shared<render::scene::Node>("lightning-bolt-main");
@@ -234,7 +234,7 @@ void LightningBall::init(World& world)
   }
 }
 
-void LightningBall::serialize(const serialization::Serializer<World>& ser)
+void LightningBall::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("poles", m_poles),
@@ -250,7 +250,7 @@ void LightningBall::serialize(const serialization::Serializer<World>& ser)
   }
 }
 
-void LightningBall::ChildBolt::serialize(const serialization::Serializer<World>& ser)
+void LightningBall::ChildBolt::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("startIndex", startIndex), S_NV("end", end));
 }

@@ -29,8 +29,8 @@ public:
   static constexpr int YOffset = YPos - TotalHeight;
 
   explicit ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, const std::string& heading);
-  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::World& world, MenuDisplay& display) override final;
-  virtual std::unique_ptr<MenuState> onSelected(size_t idx, engine::World& world, MenuDisplay& display) = 0;
+  std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override final;
+  virtual std::unique_ptr<MenuState> onSelected(size_t idx, engine::world::World& world, MenuDisplay& display) = 0;
   virtual std::unique_ptr<MenuState> onAborted() = 0;
 
   size_t addEntry(const std::string& label);

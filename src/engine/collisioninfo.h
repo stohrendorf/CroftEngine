@@ -6,14 +6,17 @@
 
 #include <set>
 
+namespace engine::world
+{
+class World;
+}
+
 namespace engine
 {
 namespace objects
 {
 class LaraObject;
 }
-
-class World;
 
 struct CollisionInfo
 {
@@ -67,14 +70,16 @@ struct CollisionInfo
 
   bool hasStaticMeshCollision = false;
 
-  void initHeightInfo(const core::TRVec& laraPos, const World& world, const core::Length& height);
+  void initHeightInfo(const core::TRVec& laraPos, const world::World& world, const core::Length& height);
 
   static std::set<gsl::not_null<const loader::file::Room*>> collectTouchingRooms(const core::TRVec& position,
                                                                                  const core::Length& radius,
                                                                                  const core::Length& height,
-                                                                                 const World& world);
+                                                                                 const world::World& world);
 
-  bool checkStaticMeshCollisions(const core::TRVec& pokePosition, const core::Length& pokeHeight, const World& world);
+  bool checkStaticMeshCollisions(const core::TRVec& pokePosition,
+                                 const core::Length& pokeHeight,
+                                 const world::World& world);
 };
 
 inline gsl::czstring toString(CollisionInfo::AxisColl value)

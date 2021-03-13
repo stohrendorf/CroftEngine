@@ -8,7 +8,7 @@
 namespace menu
 {
 void ApplyItemTransformMenuState::handleObject(ui::Ui& ui,
-                                               engine::World& world,
+                                               engine::world::World& world,
                                                MenuDisplay& display,
                                                MenuObject& object)
 {
@@ -38,7 +38,7 @@ void ApplyItemTransformMenuState::handleObject(ui::Ui& ui,
 }
 
 std::unique_ptr<MenuState>
-  ApplyItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::World& /*world*/, MenuDisplay& display)
+  ApplyItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
 {
   display.updateRingTitle();
 

@@ -69,7 +69,7 @@ private:
   const bool m_allowSave;
 
 protected:
-  [[nodiscard]] std::unique_ptr<engine::World> loadWorld(Engine& engine, const std::shared_ptr<Player>& player);
+  [[nodiscard]] std::unique_ptr<world::World> loadWorld(Engine& engine, const std::shared_ptr<Player>& player);
 
 public:
   explicit Level(std::string name,

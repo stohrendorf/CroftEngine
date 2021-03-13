@@ -1,6 +1,6 @@
 #include "vec.h"
 
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/level/level.h"
 #include "serialization/not_null.h"
@@ -10,12 +10,12 @@
 
 namespace core
 {
-void RoomBoundPosition::serialize(const serialization::Serializer<engine::World>& ser)
+void RoomBoundPosition::serialize(const serialization::Serializer<engine::world::World>& ser)
 {
   ser(S_NVVENN("room", ser.context.getLevel().m_rooms, room), S_NV("position", position));
 }
 
-RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer<engine::World>& ser)
+RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer<engine::world::World>& ser)
 {
   const loader::file::Room* room = nullptr;
   TRVec position{};
@@ -23,7 +23,7 @@ RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer<engi
   return RoomBoundPosition{room, position};
 }
 
-void TRVec::serialize(const serialization::Serializer<engine::World>& ser)
+void TRVec::serialize(const serialization::Serializer<engine::world::World>& ser)
 {
   ser(S_NV("x", X), S_NV("y", Y), S_NV("z", Z));
 }

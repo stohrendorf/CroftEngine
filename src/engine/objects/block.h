@@ -7,12 +7,12 @@ namespace engine::objects
 class Block final : public ModelObject
 {
 public:
-  Block(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  Block(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
 
-  Block(const gsl::not_null<World*>& world,
+  Block(const gsl::not_null<world::World*>& world,
         const gsl::not_null<const loader::file::Room*>& room,
         const loader::file::Item& item,
         const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)

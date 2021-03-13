@@ -8,12 +8,12 @@ namespace engine::objects
 class FlyingMutant : public AIAgent
 {
 public:
-  FlyingMutant(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  FlyingMutant(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }
 
-  FlyingMutant(const gsl::not_null<World*>& world,
+  FlyingMutant(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -23,7 +23,7 @@ public:
 
   void update() final;
 
-  void serialize(const serialization::Serializer<World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
   bool m_shootBullet = false;
@@ -35,12 +35,12 @@ private:
 class WalkingMutant final : public FlyingMutant
 {
 public:
-  WalkingMutant(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  WalkingMutant(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : FlyingMutant{world, position}
   {
   }
 
-  WalkingMutant(const gsl::not_null<World*>& world,
+  WalkingMutant(const gsl::not_null<world::World*>& world,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
                 const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -57,12 +57,12 @@ public:
 class CentaurMutant final : public AIAgent
 {
 public:
-  CentaurMutant(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  CentaurMutant(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }
 
-  CentaurMutant(const gsl::not_null<World*>& world,
+  CentaurMutant(const gsl::not_null<world::World*>& world,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
                 const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -76,12 +76,12 @@ public:
 class TorsoBoss final : public AIAgent
 {
 public:
-  TorsoBoss(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+  TorsoBoss(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }
 
-  TorsoBoss(const gsl::not_null<World*>& world,
+  TorsoBoss(const gsl::not_null<world::World*>& world,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,
             const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -91,7 +91,7 @@ public:
 
   void update() override;
 
-  void serialize(const serialization::Serializer<World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
   bool m_hasHitLara = false;

@@ -1,7 +1,7 @@
 #include "gorilla.h"
 
 #include "engine/particle.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/serialization.h"
 
@@ -202,7 +202,7 @@ void Gorilla::update()
   }
 }
 
-void Gorilla::serialize(const serialization::Serializer<World>& ser)
+void Gorilla::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
   ser(S_NV("wantAttack", m_wantAttack), S_NV("turnedRight", m_turnedRight), S_NV("turnedLeft", m_turnedLeft));

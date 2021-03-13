@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "ptr.h"
 #include "serialization.h"
 
@@ -19,7 +19,7 @@ struct ObjectReference final
   {
   }
 
-  void save(const Serializer<engine::World>& ser) const
+  void save(const Serializer<engine::world::World>& ser) const
   {
     if(ptr == nullptr)
     {
@@ -39,7 +39,7 @@ struct ObjectReference final
     }
   }
 
-  void load(const Serializer<engine::World>& ser)
+  void load(const Serializer<engine::world::World>& ser)
   {
     if(ser.isNull())
     {
@@ -47,7 +47,7 @@ struct ObjectReference final
     }
     else
     {
-      ser.lazy([pptr = &ptr](const Serializer<engine::World>& ser) {
+      ser.lazy([pptr = &ptr](const Serializer<engine::world::World>& ser) {
         ser.tag("objectref");
         engine::ObjectId id = 0;
         ser(S_NV("id", id));

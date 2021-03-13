@@ -1,7 +1,7 @@
 #include "inventory.h"
 
 #include "engine/player.h"
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "items_tr1.h"
 #include "objects/laraobject.h"
 #include "serialization/map.h"
@@ -167,7 +167,7 @@ bool Inventory::tryTake(const TR1ItemId id, const size_t quantity)
   return true;
 }
 
-void Inventory::serialize(const serialization::Serializer<World>& ser)
+void Inventory::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("inventory", m_inventory),
       S_NV("pistolsAmmo", m_pistolsAmmo),
@@ -176,7 +176,7 @@ void Inventory::serialize(const serialization::Serializer<World>& ser)
       S_NV("shotgunAmmo", m_shotgunAmmo));
 }
 
-void Ammo::serialize(const serialization::Serializer<World>& ser)
+void Ammo::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("ammo", ammo), S_NV("hits", hits), S_NV("misses", misses));
 }

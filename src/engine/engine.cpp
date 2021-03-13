@@ -34,7 +34,7 @@
 #include "ui/label.h"
 #include "ui/levelstats.h"
 #include "ui/ui.h"
-#include "world.h"
+#include "world/world.h"
 
 #include <boost/locale/generator.hpp>
 #include <boost/locale/info.hpp>
@@ -113,7 +113,7 @@ Engine::~Engine()
   doc.write();
 }
 
-std::pair<RunResult, std::optional<size_t>> Engine::run(World& world, bool isCutscene, bool allowSave)
+std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, bool isCutscene, bool allowSave)
 {
   gl::Framebuffer::unbindAll();
   if(!isCutscene)
@@ -306,7 +306,7 @@ void Engine::makeScreenshot()
   img.savePng(m_rootPath / "screenshots" / filename.str());
 }
 
-std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(World& world)
+std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& world)
 {
   gl::Framebuffer::unbindAll();
 

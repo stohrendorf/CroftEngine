@@ -1,12 +1,12 @@
 #include "thorhammer.h"
 
-#include "engine/world.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/serialization.h"
 
 namespace engine::objects
 {
-ThorHammerHandle::ThorHammerHandle(const gsl::not_null<World*>& world,
+ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world,
                                    const gsl::not_null<const loader::file::Room*>& room,
                                    const loader::file::Item& item,
                                    const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
@@ -17,7 +17,7 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<World*>& world,
   m_block->m_state.triggerState = TriggerState::Active;
 }
 
-ThorHammerHandle::ThorHammerHandle(const gsl::not_null<World*>& world, const core::RoomBoundPosition& position)
+ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
     : ModelObject{world, position}
     , m_block{world->createObject<ThorHammerBlock>(position)}
 {
@@ -146,10 +146,10 @@ void ThorHammerHandle::collide(CollisionInfo& info)
   enemyPush(info, false, true);
 }
 
-void ThorHammerHandle::serialize(const serialization::Serializer<World>& ser)
+void ThorHammerHandle::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
-  ser.lazy([this](const serialization::Serializer<World>& ser) { ser(S_NV("block", *m_block)); });
+  ser.lazy([this](const serialization::Serializer<world::World>& ser) { ser(S_NV("block", *m_block)); });
 }
 
 void ThorHammerBlock::collide(CollisionInfo& info)

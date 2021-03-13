@@ -2,7 +2,7 @@
 
 #include "core/magic.h"
 #include "objects/laraobject.h"
-#include "world.h"
+#include "world/world.h"
 
 namespace engine
 {
@@ -63,7 +63,7 @@ namespace
 }
 } // namespace
 
-void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& world, const core::Length& height)
+void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::World& world, const core::Length& height)
 {
   collisionType = AxisColl::None;
   shift = core::TRVec{0_len, 0_len, 0_len};
@@ -75,7 +75,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
 
   mid.init(currentSector, refTestPos, world.getObjectManager().getObjects(), laraPos.Y, height);
 
-  std::tie(floorSlantX, floorSlantZ) = getFloorSlantInfo(
+  std::tie(floorSlantX, floorSlantZ) = world::getFloorSlantInfo(
     currentSector, core::TRVec{laraPos.X, world.getObjectManager().getLara().m_state.position.position.Y, laraPos.Z});
 
   core::Length frontX = 0_len, frontZ = 0_len;
@@ -224,7 +224,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const World& worl
 std::set<gsl::not_null<const loader::file::Room*>> CollisionInfo::collectTouchingRooms(const core::TRVec& position,
                                                                                        const core::Length& radius,
                                                                                        const core::Length& height,
-                                                                                       const World& world)
+                                                                                       const world::World& world)
 {
   std::set<gsl::not_null<const loader::file::Room*>> result;
   auto room = world.getObjectManager().getLara().m_state.position.room;
@@ -249,7 +249,7 @@ std::set<gsl::not_null<const loader::file::Room*>> CollisionInfo::collectTouchin
 
 bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
                                               const core::Length& pokeHeight,
-                                              const World& world)
+                                              const world::World& world)
 {
   const auto rooms = collectTouchingRooms(pokePosition, collisionRadius + 50_len, pokeHeight + 50_len, world);
 
