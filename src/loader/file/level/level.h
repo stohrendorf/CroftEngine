@@ -3,9 +3,6 @@
 #include "engine/audioengine.h"
 #include "engine/objects/object.h"
 #include "engine/particle.h"
-#include "engine/world/animation.h"
-#include "engine/world/box.h"
-#include "engine/world/transition.h"
 #include "game.h"
 #include "loader/file/animation.h"
 #include "loader/file/datatypes.h"
@@ -52,11 +49,8 @@ public:
   std::vector<Room> m_rooms;
   std::vector<uint32_t> m_meshIndices;
   std::vector<Animation> m_animations;
-  std::vector<engine::world::Animation> m_typedAnimations;
   std::vector<Transitions> m_transitions;
-  std::vector<engine::world::Transitions> m_typedTransitions;
   std::vector<TransitionCase> m_transitionCases;
-  std::vector<engine::world::TransitionCase> m_typedTransitionCases;
   std::vector<int16_t> m_animCommands;
   std::map<core::TypeId, std::unique_ptr<SkeletalModelType>> m_animatedModels;
   std::vector<TextureTile> m_textureTiles;
@@ -67,7 +61,6 @@ public:
   std::vector<FlybyCamera> m_flybyCameras;
   std::vector<SoundSource> m_soundSources;
   std::vector<Box> m_boxes;
-  std::vector<engine::world::Box> m_typedBoxes;
   std::vector<uint16_t> m_overlaps;
   Zones m_baseZones;
   Zones m_alternateZones;
@@ -116,8 +109,6 @@ public:
 
   [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
 
-  void connectSectors();
-
   const auto& getFilename() const
   {
     return m_filename;
@@ -133,8 +124,6 @@ protected:
   static void convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst);
 
   static void convertTexture(WordTexture& tex, DWordTexture& dst);
-
-  void postProcessDataStructures();
 
 private:
   const std::filesystem::path m_filename;

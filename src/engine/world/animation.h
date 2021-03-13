@@ -3,6 +3,11 @@
 #include "core/id.h"
 #include "core/units.h"
 
+namespace loader::file
+{
+struct AnimFrame;
+}
+
 namespace engine::world
 {
 struct Transitions;

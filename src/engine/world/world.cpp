@@ -22,6 +22,7 @@
 #include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
 #include "render/textureatlas.h"
+#include "sector.h"
 #include "serialization/array.h"
 #include "serialization/bitset.h"
 #include "serialization/map.h"
@@ -244,7 +245,7 @@ void World::swapAllRooms()
   }
 
   m_roomsAreSwapped = !m_roomsAreSwapped;
-  m_level->connectSectors();
+  connectSectors();
 }
 
 bool World::isValid(const loader::file::AnimFrame* frame) const
@@ -277,7 +278,7 @@ std::vector<loader::file::Room>& World::getRooms()
 
 const std::vector<Box>& World::getBoxes() const
 {
-  return m_level->m_typedBoxes;
+  return m_boxes;
 }
 
 void World::loadSceneData()
@@ -390,7 +391,7 @@ void World::laraNormalEffect()
   m_objectManager.getLara().setCurrentAnimState(loader::file::LaraStateId::Stop);
   m_objectManager.getLara().setRequiredAnimState(loader::file::LaraStateId::Unknown12);
   m_objectManager.getLara().getSkeleton()->setAnim(
-    &m_level->m_typedAnimations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)], 185_frame);
+    &m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)], 185_frame);
   m_cameraController->setMode(CameraMode::Chase);
   getPresenter().getRenderer().getCamera()->setFieldOfView(glm::radians(80.0f));
 }
@@ -676,7 +677,7 @@ void World::doGlobalEffect()
 
 const Animation& World::getAnimation(loader::file::AnimationId id) const
 {
-  return m_level->m_typedAnimations.at(static_cast<int>(id));
+  return m_animations.at(static_cast<int>(id));
 }
 
 const std::vector<loader::file::CinematicFrame>& World::getCinematicFrames() const
@@ -752,7 +753,7 @@ const std::vector<int16_t>& World::getPoseFrames() const
 
 const std::vector<Animation>& World::getAnimations() const
 {
-  return m_level->m_typedAnimations;
+  return m_animations;
 }
 
 const std::vector<uint16_t>& World::getOverlaps() const
@@ -887,9 +888,9 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     case floordata::CommandOpcode::UnderwaterCurrent:
     {
       const auto& sink = m_level->m_cameras.at(command.parameter);
-      if(m_objectManager.getLara().m_underwaterRoute.required_box != &m_level->m_typedBoxes[sink.box_index])
+      if(m_objectManager.getLara().m_underwaterRoute.required_box != &m_boxes[sink.box_index])
       {
-        m_objectManager.getLara().m_underwaterRoute.required_box = &m_level->m_typedBoxes[sink.box_index];
+        m_objectManager.getLara().m_underwaterRoute.required_box = &m_boxes[sink.box_index];
         m_objectManager.getLara().m_underwaterRoute.target = sink.position;
       }
       m_objectManager.getLara().m_underwaterCurrentStrength
@@ -1008,7 +1009,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
       S_NV("roomOrder", m_roomOrder),
       S_NV("rooms", serialization::FrozenVector{m_level->m_rooms}),
-      S_NV("boxes", serialization::FrozenVector{m_level->m_typedBoxes}),
+      S_NV("boxes", serialization::FrozenVector{m_boxes}),
       S_NV("audioEngine", *m_audioEngine));
 }
 
@@ -1093,7 +1094,7 @@ void World::load(const std::filesystem::path& filename)
   doc.load("data", *this, *this);
   m_objectManager.getLara().m_state.health = m_player->laraHealth;
   m_objectManager.getLara().initWeaponAnimData();
-  m_level->connectSectors();
+  connectSectors();
 }
 
 void World::save(const std::filesystem::path& filename)
@@ -1209,6 +1210,8 @@ World::World(Engine& engine,
     , m_itemTitles{std::move(itemTitles)}
     , m_player{std::move(player)}
 {
+  initFromLevel();
+
   {
     getPresenter().drawLoadingScreen(_("Building textures"));
     for(auto& texture : m_level->m_textures)
@@ -1574,5 +1577,178 @@ void World::load(size_t slot)
 void World::save(size_t slot)
 {
   save(makeSavegameFilename(slot));
+}
+void World::initFromLevel()
+{
+  BOOST_LOG_TRIVIAL(info) << "Post-processing data structures";
+
+  m_animations.resize(m_level->m_animations.size());
+  m_transitions.resize(m_level->m_transitions.size());
+  for(size_t i = 0; i < m_animations.size(); ++i)
+  {
+    const auto& anim = m_level->m_animations[i];
+    const loader::file::AnimFrame* frames = nullptr;
+
+    if(anim.poseDataOffset.index<decltype(m_level->m_poseFrames[0])>() >= m_level->m_poseFrames.size())
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Pose frame data index "
+                                 << anim.poseDataOffset.index<decltype(m_level->m_poseFrames[0])>()
+                                 << " out of range 0.." << m_level->m_poseFrames.size() - 1;
+    }
+    else
+    {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+      frames = reinterpret_cast<const loader::file::AnimFrame*>(&anim.poseDataOffset.from(m_level->m_poseFrames));
+    }
+
+    Expects(anim.nextAnimationIndex < m_animations.size());
+    auto nextAnimation = &m_animations[anim.nextAnimationIndex];
+
+    Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_level->m_animCommands));
+    Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
+    gsl::span<const Transitions> transitions;
+    if(anim.transitionsCount > 0)
+      transitions = gsl::span{&anim.transitionsIndex.from(m_transitions), anim.transitionsCount};
+
+    m_animations[i]
+      = Animation{frames,
+                  anim.segmentLength,
+                  anim.state_id,
+                  anim.speed,
+                  anim.acceleration,
+                  anim.firstFrame,
+                  anim.lastFrame,
+                  anim.nextFrame,
+                  anim.animCommandCount,
+                  anim.animCommandCount == 0 ? nullptr : &anim.animCommandIndex.from(m_level->m_animCommands),
+                  nextAnimation,
+                  std::move(transitions)};
+  }
+
+  for(const std::unique_ptr<loader::file::SkeletalModelType>& model :
+      m_level->m_animatedModels | boost::adaptors::map_values)
+  {
+    if(model->pose_data_offset.index<decltype(m_level->m_poseFrames[0])>() >= m_level->m_poseFrames.size())
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Pose frame data index "
+                                 << model->pose_data_offset.index<decltype(m_level->m_poseFrames[0])>()
+                                 << " out of range 0.." << m_level->m_poseFrames.size() - 1;
+      continue;
+    }
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    model->frames
+      = reinterpret_cast<const loader::file::AnimFrame*>(&model->pose_data_offset.from(m_level->m_poseFrames));
+    if(model->nMeshes > 1)
+    {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+      model->boneTree = gsl::make_span(
+        reinterpret_cast<const loader::file::BoneTreeEntry*>(&model->bone_index.from(m_level->m_boneTrees)),
+        model->nMeshes - 1);
+    }
+
+    if(model->animation_index.index != 0xffff)
+      model->animations = &model->animation_index.from(m_animations);
+  }
+
+  for(const auto& transitionCase : m_level->m_transitionCases)
+  {
+    const Animation* anim = nullptr;
+    if(transitionCase.targetAnimationIndex.index < m_animations.size())
+      anim = &transitionCase.targetAnimationIndex.from(m_animations);
+    else
+      BOOST_LOG_TRIVIAL(warning) << "Animation index " << transitionCase.targetAnimationIndex.index << " not less than "
+                                 << m_animations.size();
+
+    m_transitionCases.emplace_back(
+      TransitionCase{transitionCase.firstFrame, transitionCase.lastFrame, transitionCase.targetFrame, anim});
+  }
+
+  Expects(m_transitions.size() == m_transitions.size());
+  std::transform(
+    m_level->m_transitions.begin(),
+    m_level->m_transitions.end(),
+    m_transitions.begin(),
+    [this](const loader::file::Transitions& transitions) {
+      Expects((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_transitionCases));
+      if(transitions.transitionCaseCount > 0)
+        return Transitions{
+          transitions.stateId,
+          gsl::span{&transitions.firstTransitionCase.from(m_transitionCases), transitions.transitionCaseCount}};
+      return Transitions{};
+    });
+
+  for(const auto& sequence : m_level->m_spriteSequences | boost::adaptors::map_values)
+  {
+    Expects(sequence != nullptr);
+    Expects(sequence->length <= 0);
+    Expects(gsl::narrow<size_t>(sequence->offset - sequence->length) <= m_level->m_sprites.size());
+    sequence->sprites = gsl::make_span(&m_level->m_sprites[sequence->offset], -sequence->length);
+  }
+
+  m_boxes.resize(m_level->m_boxes.size());
+  auto getOverlaps = [this](const uint16_t idx) {
+    std::vector<gsl::not_null<Box*>> result;
+    const auto first = &m_level->m_overlaps.at(idx);
+    auto current = first;
+    const auto endOfUniverse = &m_level->m_overlaps.back() + 1;
+
+    while(current < endOfUniverse && (*current & 0x8000u) == 0)
+    {
+      result.emplace_back(&m_boxes.at(*current));
+      ++current;
+    }
+    result.emplace_back(&m_boxes.at(*current & 0x7FFFu));
+
+    return result;
+  };
+
+  std::transform(
+    m_level->m_boxes.begin(), m_level->m_boxes.end(), m_boxes.begin(), [&getOverlaps](const loader::file::Box& box) {
+      return Box{
+        box.zmin, box.zmax, box.xmin, box.xmax, box.floor, box.blocked, box.blockable, getOverlaps(box.overlap_index)};
+    });
+
+  Expects(m_level->m_baseZones.flyZone.size() == m_boxes.size());
+  Expects(m_level->m_baseZones.groundZone1.size() == m_boxes.size());
+  Expects(m_level->m_baseZones.groundZone2.size() == m_boxes.size());
+  Expects(m_level->m_alternateZones.flyZone.size() == m_boxes.size());
+  Expects(m_level->m_alternateZones.groundZone1.size() == m_boxes.size());
+  Expects(m_level->m_alternateZones.groundZone2.size() == m_boxes.size());
+  for(size_t i = 0; i < m_boxes.size(); ++i)
+  {
+    m_boxes[i].zoneFly = m_level->m_baseZones.flyZone[i];
+    m_boxes[i].zoneGround1 = m_level->m_baseZones.groundZone1[i];
+    m_boxes[i].zoneGround2 = m_level->m_baseZones.groundZone2[i];
+    m_boxes[i].zoneFlySwapped = m_level->m_alternateZones.flyZone[i];
+    m_boxes[i].zoneGround1Swapped = m_level->m_alternateZones.groundZone1[i];
+    m_boxes[i].zoneGround2Swapped = m_level->m_alternateZones.groundZone2[i];
+  }
+
+  for(auto& room : m_level->m_rooms)
+  {
+    room.typedSectors.clear();
+    std::transform(room.sectors.begin(),
+                   room.sectors.end(),
+                   std::back_inserter(room.typedSectors),
+                   [this](const loader::file::Sector& sector) {
+                     return Sector{sector, m_level->m_rooms, m_boxes, m_level->m_floorData};
+                   });
+  }
+
+  Ensures(m_animations.size() == m_animations.size());
+  Ensures(m_transitionCases.size() == m_transitionCases.size());
+  Ensures(m_transitions.size() == m_transitions.size());
+  Ensures(m_boxes.size() == m_boxes.size());
+
+  connectSectors();
+}
+
+void World::connectSectors()
+{
+  for(auto& room : m_level->m_rooms)
+  {
+    for(auto& sector : room.typedSectors)
+      sector.connect(m_level->m_rooms);
+  }
 }
 } // namespace engine::world

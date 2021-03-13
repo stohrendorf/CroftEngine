@@ -1,10 +1,13 @@
 #pragma once
 
+#include "animation.h"
 #include "audio/soundengine.h"
+#include "box.h"
 #include "engine/floordata/floordata.h"
 #include "engine/objectmanager.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
+#include "transition.h"
 #include "ui/pickupwidget.h"
 
 #include <pybind11/pytypes.h>
@@ -349,5 +352,13 @@ private:
 
   std::vector<ui::PickupWidget> m_pickupWidgets{};
   const std::shared_ptr<Player> m_player;
+
+  std::vector<Animation> m_animations;
+  std::vector<Transitions> m_transitions;
+  std::vector<TransitionCase> m_transitionCases;
+  std::vector<Box> m_boxes;
+
+  void initFromLevel();
+  void connectSectors();
 };
 } // namespace engine::world
