@@ -398,7 +398,7 @@ void LaraObject::updateImpl()
   {
     if(getSkeleton()->getAnim()->animCommandCount > 0)
     {
-      const auto* cmd = &getSkeleton()->getAnim()->animCommandIndex.from(getWorld().getAnimCommands());
+      const auto* cmd = getSkeleton()->getAnim()->animCommands;
       for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
       {
         Expects(cmd < &getWorld().getAnimCommands().back());
@@ -442,7 +442,7 @@ void LaraObject::updateImpl()
 
   if(getSkeleton()->getAnim()->animCommandCount > 0)
   {
-    const auto* cmd = &getSkeleton()->getAnim()->animCommandIndex.from(getWorld().getAnimCommands());
+    const auto* cmd = getSkeleton()->getAnim()->animCommands;
     for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
     {
       Expects(cmd < &getWorld().getAnimCommands().back());

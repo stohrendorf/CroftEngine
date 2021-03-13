@@ -32,9 +32,8 @@ void ModelObject::update()
 
   if(endOfAnim)
   {
-    const auto* cmd = getSkeleton()->getAnim()->animCommandCount == 0
-                        ? nullptr
-                        : &getSkeleton()->getAnim()->animCommandIndex.from(getWorld().getAnimCommands());
+    const auto* cmd
+      = getSkeleton()->getAnim()->animCommandCount == 0 ? nullptr : getSkeleton()->getAnim()->animCommands;
     for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
     {
       BOOST_ASSERT(cmd < &getWorld().getAnimCommands().back());
@@ -69,9 +68,7 @@ void ModelObject::update()
       m_state.required_anim_state = 0_as;
   }
 
-  const auto* cmd = getSkeleton()->getAnim()->animCommandCount == 0
-                      ? nullptr
-                      : &getSkeleton()->getAnim()->animCommandIndex.from(getWorld().getAnimCommands());
+  const auto* cmd = getSkeleton()->getAnim()->animCommandCount == 0 ? nullptr : getSkeleton()->getAnim()->animCommands;
   for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
   {
     BOOST_ASSERT(cmd != nullptr && cmd < &getWorld().getAnimCommands().back());

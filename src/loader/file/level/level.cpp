@@ -300,18 +300,19 @@ void Level::postProcessDataStructures()
     if(anim.transitionsCount > 0)
       transitions = gsl::span{&anim.transitionsIndex.from(m_typedTransitions), anim.transitionsCount};
 
-    m_typedAnimations[i] = TypedAnimation{frames,
-                                          anim.segmentLength,
-                                          anim.state_id,
-                                          anim.speed,
-                                          anim.acceleration,
-                                          anim.firstFrame,
-                                          anim.lastFrame,
-                                          anim.nextFrame,
-                                          anim.animCommandCount,
-                                          anim.animCommandIndex,
-                                          nextAnimation,
-                                          std::move(transitions)};
+    m_typedAnimations[i]
+      = TypedAnimation{frames,
+                       anim.segmentLength,
+                       anim.state_id,
+                       anim.speed,
+                       anim.acceleration,
+                       anim.firstFrame,
+                       anim.lastFrame,
+                       anim.nextFrame,
+                       anim.animCommandCount,
+                       anim.animCommandCount == 0 ? nullptr : &anim.animCommandIndex.from(m_animCommands),
+                       nextAnimation,
+                       std::move(transitions)};
   }
 
   for(const std::unique_ptr<SkeletalModelType>& model : m_animatedModels | boost::adaptors::map_values)

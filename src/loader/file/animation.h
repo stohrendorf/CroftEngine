@@ -222,7 +222,7 @@ struct TypedAnimation
   core::Frame nextFrame = 0_frame;
 
   uint16_t animCommandCount{};
-  core::ContainerIndex<uint16_t, int16_t> animCommandIndex{};
+  const int16_t* animCommands = nullptr;
 
   const TypedAnimation* nextAnimation = nullptr;
   gsl::span<const TypedTransitions> transitions{};
