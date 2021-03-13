@@ -316,11 +316,11 @@ void Level::postProcessDataStructures()
     m_transitions.end(),
     std::back_inserter(m_typedTransitions),
     [this](const Transitions& transitions) {
-      Expects((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_transitionCases));
+      Expects((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_typedTransitionCases));
       if(transitions.transitionCaseCount > 0)
         return TypedTransitions{
           transitions.stateId,
-          gsl::span{&transitions.firstTransitionCase.from(m_transitionCases), transitions.transitionCaseCount}};
+          gsl::span{&transitions.firstTransitionCase.from(m_typedTransitionCases), transitions.transitionCaseCount}};
       return TypedTransitions{};
     });
 
@@ -349,11 +349,15 @@ void Level::postProcessDataStructures()
 
   for(TransitionCase& transitionCase : m_transitionCases)
   {
+    const Animation* anim = nullptr;
     if(transitionCase.targetAnimationIndex.index < m_animations.size())
-      transitionCase.targetAnimation = &transitionCase.targetAnimationIndex.from(m_animations);
+      anim = &transitionCase.targetAnimationIndex.from(m_animations);
     else
       BOOST_LOG_TRIVIAL(warning) << "Animation index " << transitionCase.targetAnimationIndex.index << " not less than "
                                  << m_animations.size();
+
+    m_typedTransitionCases.emplace_back(
+      TypedTransitionCase{transitionCase.firstFrame, transitionCase.lastFrame, transitionCase.targetFrame, anim});
   }
 
   for(const auto& sequence : m_spriteSequences | boost::adaptors::map_values)

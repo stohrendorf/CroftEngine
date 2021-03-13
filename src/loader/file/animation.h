@@ -146,16 +146,23 @@ struct TransitionCase
   core::ContainerIndex<uint16_t, Animation> targetAnimationIndex; // Animation to dispatch to
   core::Frame targetFrame = 0_frame;                              // Frame offset to dispatch to
 
-  const Animation* targetAnimation = nullptr;
-
   static std::unique_ptr<TransitionCase> read(io::SDLReader& reader);
+};
+
+struct TypedTransitionCase
+{
+  const core::Frame firstFrame;
+  const core::Frame lastFrame;
+  const core::Frame targetFrame;
+
+  const Animation* targetAnimation = nullptr;
 };
 
 struct Transitions
 {
   core::AnimStateId stateId{uint16_t(0)};
-  uint16_t transitionCaseCount{};                                       // number of ranges (seems to always be 1..5)
-  core::ContainerIndex<uint16_t, TransitionCase> firstTransitionCase{}; // Offset into AnimDispatches[]
+  uint16_t transitionCaseCount{}; // number of ranges (seems to always be 1..5)
+  core::ContainerIndex<uint16_t, TypedTransitionCase> firstTransitionCase{}; // Offset into AnimDispatches[]
 
   /// \brief reads an animation state change.
   static std::unique_ptr<Transitions> read(io::SDLReader& reader);
@@ -164,7 +171,7 @@ struct Transitions
 struct TypedTransitions
 {
   core::AnimStateId stateId{uint16_t(0)};
-  gsl::span<const TransitionCase> transitionCases{};
+  gsl::span<const TypedTransitionCase> transitionCases{};
 };
 
 struct Animation

@@ -164,7 +164,7 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
       continue;
 
     const auto it = std::find_if(
-      tr.transitionCases.cbegin(), tr.transitionCases.cend(), [this](const loader::file::TransitionCase& trc) {
+      tr.transitionCases.cbegin(), tr.transitionCases.cend(), [this](const loader::file::TypedTransitionCase& trc) {
         return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
       });
 
