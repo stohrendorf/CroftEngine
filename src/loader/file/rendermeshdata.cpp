@@ -24,7 +24,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = tile.textureKey.tileAndFlag & TextureIndexMask;
 
       if(mesh.normals.empty())
-        iv.color = glm::vec4(glm::vec3{toBrightness(quad.vertices[i].from(mesh.vertexShades)).get()}, 1.0f);
+        iv.color = glm::vec4(glm::vec3{toBrightness(quad.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f);
 
       if(mesh.isFlatShaded() || mesh.normals.empty()
          || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
@@ -72,7 +72,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = -1;
       iv.color = color;
       if(mesh.normals.empty())
-        iv.color *= toBrightness(quad.vertices[i].from(mesh.vertexShades)).get();
+        iv.color *= toBrightness(quad.vertices[i].from(mesh.vertex_shades)).get();
 
       if(mesh.isFlatShaded() || mesh.normals.empty()
          || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
@@ -116,7 +116,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = tile.textureKey.tileAndFlag & TextureIndexMask;
       iv.uv = tile.uvCoordinates[i].toGl();
       if(mesh.normals.empty())
-        iv.color = glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertexShades)).get()}, 1.0f};
+        iv.color = glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f};
 
       if(mesh.isFlatShaded() || mesh.normals.empty()
          || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
@@ -146,7 +146,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       iv.textureIndex = -1;
       iv.color = color;
       if(mesh.normals.empty())
-        iv.color *= glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertexShades)).get()}, 1.0f};
+        iv.color *= glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f};
 
       if(mesh.isFlatShaded() || mesh.normals.empty()
          || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})

@@ -7,6 +7,7 @@
 #include "engine/objectmanager.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
+#include "mesh.h"
 #include "staticmesh.h"
 #include "transition.h"
 #include "ui/pickupwidget.h"
@@ -199,7 +200,7 @@ public:
   [[nodiscard]] const std::vector<uint16_t>& getOverlaps() const;
   [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
   [[nodiscard]] gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> getRenderMesh(size_t idx) const;
-  [[nodiscard]] const std::vector<loader::file::Mesh>& getMeshes() const;
+  [[nodiscard]] const std::vector<Mesh>& getMeshes() const;
   void turn180Effect(objects::Object& object);
   void unholsterRightGunEffect(const objects::ModelObject& object);
   [[nodiscard]] const engine::floordata::FloorData& getFloorData() const;
@@ -357,6 +358,7 @@ private:
   std::vector<TransitionCase> m_transitionCases;
   std::vector<Box> m_boxes;
   std::unordered_map<core::StaticMeshId, StaticMesh> m_staticMeshes;
+  std::vector<Mesh> m_meshes;
 
   void initFromLevel();
   void connectSectors();

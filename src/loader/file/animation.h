@@ -20,6 +20,7 @@ namespace engine::world
 struct Animation;
 struct TransitionCase;
 struct Transitions;
+struct Mesh;
 } // namespace engine::world
 
 namespace loader::file
@@ -221,7 +222,9 @@ struct SkeletalModelType
   core::TypeId type{uint16_t(0)};
   int16_t nMeshes
     = 0; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
-  core::ContainerIndex<uint16_t, gsl::not_null<const Mesh*>, gsl::not_null<std::shared_ptr<render::scene::Mesh>>>
+  core::ContainerIndex<uint16_t,
+                       gsl::not_null<const engine::world::Mesh*>,
+                       gsl::not_null<std::shared_ptr<render::scene::Mesh>>>
     mesh_base_index;                                         // starting mesh (offset into MeshPointers[])
   core::ContainerIndex<uint32_t, int32_t> bone_index;        // offset into MeshTree[]
   core::ContainerOffset<uint32_t, int16_t> pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])

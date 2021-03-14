@@ -296,16 +296,20 @@ const std::vector<Box>& World::getBoxes() const
 
 void World::loadSceneData()
 {
-  for(size_t i = 0; i < m_level->m_meshes.size(); ++i)
-  {
-    m_level->m_meshes[i].meshData = std::make_shared<loader::file::RenderMeshData>(
-      m_level->m_meshes[i], m_level->m_textureTiles, *m_level->m_palette);
-  }
+  std::transform(
+    m_level->m_meshes.begin(),
+    m_level->m_meshes.end(),
+    std::back_inserter(m_meshes),
+    [this](const loader::file::Mesh& mesh) {
+      return Mesh{mesh.collision_center,
+                  mesh.collision_radius,
+                  std::make_shared<loader::file::RenderMeshData>(mesh, m_level->m_textureTiles, *m_level->m_palette)};
+    });
 
-  std::vector<gsl::not_null<const loader::file::Mesh*>> meshesDirect;
+  std::vector<gsl::not_null<const Mesh*>> meshesDirect;
   for(auto idx : m_level->m_meshIndices)
   {
-    meshesDirect.emplace_back(&m_level->m_meshes.at(idx));
+    meshesDirect.emplace_back(&m_meshes.at(idx));
   }
 
   for(const std::unique_ptr<loader::file::SkeletalModelType>& model :
@@ -794,12 +798,12 @@ const engine::floordata::FloorData& World::getFloorData() const
 
 gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> World::getRenderMesh(const size_t idx) const
 {
-  return m_level->m_meshes.at(idx).meshData;
+  return m_meshes.at(idx).meshData;
 }
 
-const std::vector<loader::file::Mesh>& World::getMeshes() const
+const std::vector<Mesh>& World::getMeshes() const
 {
-  return m_level->m_meshes;
+  return m_meshes;
 }
 
 std::array<gl::SRGBA8, 256> World::getPalette() const

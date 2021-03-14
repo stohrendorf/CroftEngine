@@ -16,8 +16,8 @@ namespace loader::file
 std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
 {
   auto mesh = std::make_unique<Mesh>();
-  mesh->collisionCenter = readCoordinates16(reader);
-  mesh->collisionRadius = core::Length{core::Length::type{reader.readI16()}};
+  mesh->collision_center = readCoordinates16(reader);
+  mesh->collision_radius = core::Length{core::Length::type{reader.readI16()}};
   mesh->flags = reader.readU16();
 
   reader.readVector(mesh->vertices, reader.readU16(), &io::readCoordinates16);
@@ -31,7 +31,7 @@ std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
   else
   {
     Expects(static_cast<size_t>(-num_normals) == mesh->vertices.size());
-    reader.readVector(mesh->vertexShades, -num_normals);
+    reader.readVector(mesh->vertex_shades, -num_normals);
   }
 
   reader.readVector(mesh->textured_rectangles, reader.readU16(), &QuadFace::readTr1);
@@ -45,8 +45,8 @@ std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
 std::unique_ptr<Mesh> Mesh::readTr4(io::SDLReader& reader)
 {
   auto mesh = std::make_unique<Mesh>();
-  mesh->collisionCenter = readCoordinates16(reader);
-  mesh->collisionRadius = core::Length{reader.readI32()};
+  mesh->collision_center = readCoordinates16(reader);
+  mesh->collision_radius = core::Length{reader.readI32()};
 
   reader.readVector(mesh->vertices, reader.readU16(), &io::readCoordinates16);
 
@@ -57,7 +57,7 @@ std::unique_ptr<Mesh> Mesh::readTr4(io::SDLReader& reader)
   }
   else
   {
-    reader.readVector(mesh->vertexShades, -num_normals);
+    reader.readVector(mesh->vertex_shades, -num_normals);
   }
 
   reader.readVector(mesh->textured_rectangles, reader.readU16(), &QuadFace::readTr4);
