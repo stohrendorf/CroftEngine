@@ -6,6 +6,8 @@
 #include "engine/floordata/types.h"
 #include "serialization/serialization_fwd.h"
 
+#include <optional>
+
 namespace loader::file
 {
 struct Room;
