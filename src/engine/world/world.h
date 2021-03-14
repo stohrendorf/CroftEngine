@@ -316,9 +316,6 @@ private:
   bool m_roomsAreSwapped = false;
   std::vector<size_t> m_roomOrder;
 
-  // list of meshes and models, resolved through m_meshIndices
-  std::vector<gsl::not_null<const loader::file::Mesh*>> m_meshesDirect;
-
   ObjectManager m_objectManager;
 
   bool m_levelFinished = false;

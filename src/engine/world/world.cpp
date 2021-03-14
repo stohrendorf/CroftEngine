@@ -302,10 +302,10 @@ void World::loadSceneData()
       m_level->m_meshes[i], m_level->m_textureTiles, *m_level->m_palette);
   }
 
+  std::vector<gsl::not_null<const loader::file::Mesh*>> meshesDirect;
   for(auto idx : m_level->m_meshIndices)
   {
-    Expects(idx < m_level->m_meshes.size());
-    m_meshesDirect.emplace_back(&m_level->m_meshes[idx]);
+    meshesDirect.emplace_back(&m_level->m_meshes.at(idx));
   }
 
   for(const std::unique_ptr<loader::file::SkeletalModelType>& model :
@@ -316,7 +316,7 @@ void World::loadSceneData()
       BOOST_ASSERT(model->boneTree.empty() || static_cast<size_t>(model->nMeshes) == model->boneTree.size() + 1);
       for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
       {
-        const auto& mesh = (model->mesh_base_index + i).from(m_meshesDirect);
+        const auto& mesh = (model->mesh_base_index + i).from(meshesDirect);
         model->bones.emplace_back(mesh->meshData,
                                   mesh->collisionCenter,
                                   mesh->collisionRadius,
@@ -329,7 +329,7 @@ void World::loadSceneData()
   for(const auto& staticMesh : m_level->m_staticMeshes)
   {
     loader::file::RenderMeshDataCompositor compositor;
-    compositor.append(*m_meshesDirect.at(staticMesh.mesh)->meshData);
+    compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData);
     const bool distinct = m_staticMeshes
                             .emplace(staticMesh.id,
                                      StaticMesh{staticMesh.collision_box,
