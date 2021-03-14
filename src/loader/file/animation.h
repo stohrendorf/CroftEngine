@@ -204,7 +204,6 @@ class RenderMeshData;
 struct BoneTreeEntry
 {
   uint32_t flags;
-
   int32_t x, y, z;
 
   [[nodiscard]] glm::vec3 toGl() const noexcept

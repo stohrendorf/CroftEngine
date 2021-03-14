@@ -197,13 +197,11 @@ public:
   [[nodiscard]] const std::unique_ptr<loader::file::SkeletalModelType>&
     findAnimatedModelForType(core::TypeId type) const;
   [[nodiscard]] const std::vector<Animation>& getAnimations() const;
-  [[nodiscard]] const std::vector<uint16_t>& getOverlaps() const;
   [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
   [[nodiscard]] gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> getRenderMesh(size_t idx) const;
   [[nodiscard]] const std::vector<Mesh>& getMeshes() const;
   void turn180Effect(objects::Object& object);
   void unholsterRightGunEffect(const objects::ModelObject& object);
-  [[nodiscard]] const engine::floordata::FloorData& getFloorData() const;
   [[nodiscard]] std::array<gl::SRGBA8, 256> getPalette() const;
   [[nodiscard]] const loader::file::Palette& getRawPalette() const;
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);

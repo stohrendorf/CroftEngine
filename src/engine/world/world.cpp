@@ -781,19 +781,9 @@ const std::vector<Animation>& World::getAnimations() const
   return m_animations;
 }
 
-const std::vector<uint16_t>& World::getOverlaps() const
-{
-  return m_level->m_overlaps;
-}
-
 const std::unique_ptr<loader::file::SkeletalModelType>& World::findAnimatedModelForType(core::TypeId type) const
 {
   return m_level->findAnimatedModelForType(type);
-}
-
-const engine::floordata::FloorData& World::getFloorData() const
-{
-  return m_level->m_floorData;
 }
 
 gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> World::getRenderMesh(const size_t idx) const
