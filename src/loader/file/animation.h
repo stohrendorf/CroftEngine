@@ -229,39 +229,9 @@ struct SkeletalModelType
   core::ContainerOffset<uint32_t, int16_t> pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
   core::ContainerIndex<uint16_t, engine::world::Animation> animation_index; // offset into Animations[]
 
-  struct Bone
-  {
-    const gsl::not_null<std::shared_ptr<RenderMeshData>> mesh;
-    const core::TRVec center;
-    const core::Length collision_size;
-    const glm::vec3 position;
-    const bool pushMatrix;
-    const bool popMatrix;
-
-    explicit Bone(gsl::not_null<std::shared_ptr<RenderMeshData>> mesh,
-                  core::TRVec center,
-                  const core::Length& collision_size,
-                  const std::optional<BoneTreeEntry>& boneTreeEntry)
-        : mesh{std::move(mesh)}
-        , center{std::move(center)}
-        , collision_size{collision_size}
-        , position{boneTreeEntry.has_value() ? boneTreeEntry->toGl() : glm::vec3{0}}
-        , pushMatrix{(boneTreeEntry.has_value() && (boneTreeEntry->flags & 0x02u) != 0)}
-        , popMatrix{(boneTreeEntry.has_value() && (boneTreeEntry->flags & 0x01u) != 0)}
-    {
-      BOOST_ASSERT(!boneTreeEntry.has_value() || (boneTreeEntry->flags & 0x1cu) == 0);
-    }
-  };
-
-  std::vector<Bone> bones;
   gsl::span<const BoneTreeEntry> boneTree{};
 
-  const AnimFrame* frames = nullptr;
-
-  const engine::world::Animation* animations = nullptr;
-
   static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader);
-
   static std::unique_ptr<SkeletalModelType> readTr5(io::SDLReader& reader);
 };
 } // namespace loader::file

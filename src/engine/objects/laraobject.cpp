@@ -1793,7 +1793,7 @@ public:
   }
 
   void transform(const std::initializer_list<size_t>& indices,
-                 const std::vector<loader::file::SkeletalModelType::Bone>& bones,
+                 const std::vector<world::SkeletalModelType::Bone>& bones,
                  const gsl::span<const uint32_t>& angleData,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
@@ -1802,7 +1802,7 @@ public:
   }
 
   void transform(const size_t idx,
-                 const std::vector<loader::file::SkeletalModelType::Bone>& bones,
+                 const std::vector<world::SkeletalModelType::Bone>& bones,
                  const gsl::span<const uint32_t>& angleData,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
@@ -1889,7 +1889,7 @@ public:
   }
 
   void transform(const std::initializer_list<size_t>& indices,
-                 const std::vector<loader::file::SkeletalModelType::Bone>& bones,
+                 const std::vector<world::SkeletalModelType::Bone>& bones,
                  const gsl::span<const uint32_t>& angleData1,
                  const gsl::span<const uint32_t>& angleData2,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
@@ -1899,7 +1899,7 @@ public:
   }
 
   void transform(const size_t idx,
-                 const std::vector<loader::file::SkeletalModelType::Bone>& bones,
+                 const std::vector<world::SkeletalModelType::Bone>& bones,
                  const gsl::span<const uint32_t>& angleData1,
                  const gsl::span<const uint32_t>& angleData2,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
@@ -2234,7 +2234,7 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
 LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
                        const gsl::not_null<const loader::file::Room*>& room,
                        const loader::file::Item& item,
-                       const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+                       const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject(world, room, item, false, animatedModel)
     , m_underwaterRoute{*world}
 {

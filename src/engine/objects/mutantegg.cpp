@@ -45,7 +45,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
       compositor.toMesh(*object.getWorld().getPresenter().getMaterialManager(), false, {}),
       isTorsoBoss,
       damageRadius);
-    particle->negSpriteFrameId = gsl::narrow<int16_t>((modelType->mesh_base_index + i).index);
+    particle->negSpriteFrameId = gsl::narrow<int16_t>((modelType->meshBaseIndex + i).index);
     setParent(particle, object.m_state.position.room->node);
     object.getWorld().getObjectManager().registerParticle(std::move(particle));
 
@@ -64,7 +64,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
 MutantEgg::MutantEgg(const gsl::not_null<world::World*>& world,
                      const gsl::not_null<const loader::file::Room*>& room,
                      loader::file::Item item,
-                     const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+                     const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{world, room, item, true, animatedModel}
 {
   m_state.activationState = floordata::ActivationState(uint16_t(item.activationState & ~0x3e00u));

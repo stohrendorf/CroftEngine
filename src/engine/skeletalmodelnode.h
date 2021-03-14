@@ -6,10 +6,10 @@
 #include <gsl-lite.hpp>
 #include <utility>
 
-namespace loader::file
+namespace engine::world
 {
 struct SkeletalModelType;
-} // namespace loader::file
+}
 
 namespace engine::world
 {
@@ -22,12 +22,13 @@ namespace objects
 {
 struct ObjectState;
 }
+
 class SkeletalModelNode : public render::scene::Node
 {
 public:
   explicit SkeletalModelNode(const std::string& id,
                              gsl::not_null<const world::World*> world,
-                             gsl::not_null<const loader::file::SkeletalModelType*> model);
+                             gsl::not_null<const world::SkeletalModelType*> model);
 
   void updatePose();
 
@@ -187,7 +188,7 @@ private:
   };
 
   const gsl::not_null<const world::World*> m_world;
-  gsl::not_null<const loader::file::SkeletalModelType*> m_model;
+  gsl::not_null<const world::SkeletalModelType*> m_model;
   std::vector<MeshPart> m_meshParts{};
   mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer;
   bool m_needsMeshRebuild = false;

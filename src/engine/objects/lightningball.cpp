@@ -84,12 +84,12 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const std::shared_ptr
 LightningBall::LightningBall(const gsl::not_null<world::World*>& world,
                              const gsl::not_null<const loader::file::Room*>& room,
                              const loader::file::Item& item,
-                             const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+                             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{world, room, item, true, animatedModel}
 {
-  if(animatedModel->nMeshes >= 1)
+  if(!animatedModel->bones.empty())
   {
-    m_poles = static_cast<size_t>(animatedModel->nMeshes - 1);
+    m_poles = static_cast<size_t>(animatedModel->bones.size() - 1u);
   }
 
   init(*world);

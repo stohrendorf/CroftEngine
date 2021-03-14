@@ -19,7 +19,7 @@ public:
   SlopedBridge(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
-               const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel,
+               const gsl::not_null<const world::SkeletalModelType*>& animatedModel,
                const int flatness)
       : ModelObject{world, room, item, false, animatedModel}
       , m_flatness{flatness}
@@ -72,7 +72,7 @@ public:
   BridgeSlope1(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
-               const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+               const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
       : SlopedBridge{world, room, item, animatedModel, 4}
   {
   }
@@ -89,7 +89,7 @@ public:
   BridgeSlope2(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
-               const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+               const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
       : SlopedBridge{world, room, item, animatedModel, 2}
   {
   }

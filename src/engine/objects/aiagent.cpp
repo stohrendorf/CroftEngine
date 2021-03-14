@@ -390,7 +390,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 AIAgent::AIAgent(const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const loader::file::Room*>& room,
                  const loader::file::Item& item,
-                 const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{world, room, item, true, animatedModel}
 {
   m_state.collidable = true;

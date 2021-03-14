@@ -19,7 +19,7 @@ public:
               const gsl::not_null<const loader::file::Room*>& room,
               const loader::file::Item& item,
               bool hasUpdateFunction,
-              const gsl::not_null<const loader::file::SkeletalModelType*>& model);
+              const gsl::not_null<const world::SkeletalModelType*>& model);
 
   ModelObject(const ModelObject&) = delete;
 
@@ -106,7 +106,7 @@ public:
                         const gsl::not_null<const loader::file::Room*>& room,
                         const loader::file::Item& item,
                         bool hasUpdateFunction,
-                        const gsl::not_null<const loader::file::SkeletalModelType*>& model)
+                        const gsl::not_null<const world::SkeletalModelType*>& model)
       : ModelObject{world, room, item, hasUpdateFunction, model}
   {
     getSkeleton()->setRenderable(nullptr);

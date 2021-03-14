@@ -12,7 +12,7 @@ namespace engine::objects
 Door::Door(const gsl::not_null<world::World*>& world,
            const gsl::not_null<const loader::file::Room*>& room,
            const loader::file::Item& item,
-           const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+           const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{world, room, item, true, animatedModel}
 {
 #ifndef NO_DOOR_BLOCK

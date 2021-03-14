@@ -15,7 +15,7 @@ ModelObject::ModelObject(const gsl::not_null<world::World*>& world,
                          const gsl::not_null<const loader::file::Room*>& room,
                          const loader::file::Item& item,
                          const bool hasUpdateFunction,
-                         const gsl::not_null<const loader::file::SkeletalModelType*>& model)
+                         const gsl::not_null<const world::SkeletalModelType*>& model)
     : Object{world, room, item, hasUpdateFunction}
     , m_skeleton{std::make_shared<SkeletalModelNode>(
         std::string("skeleton(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", world, model)}

@@ -16,7 +16,7 @@ public:
   FlyingMutant(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
-               const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+               const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
       : AIAgent{world, room, item, animatedModel}
   {
   }
@@ -43,7 +43,7 @@ public:
   WalkingMutant(const gsl::not_null<world::World*>& world,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
-                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+                const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
       : FlyingMutant{world, room, item, animatedModel}
   {
     for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
@@ -65,7 +65,7 @@ public:
   CentaurMutant(const gsl::not_null<world::World*>& world,
                 const gsl::not_null<const loader::file::Room*>& room,
                 const loader::file::Item& item,
-                const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+                const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
       : AIAgent{world, room, item, animatedModel}
   {
   }
@@ -84,7 +84,7 @@ public:
   TorsoBoss(const gsl::not_null<world::World*>& world,
             const gsl::not_null<const loader::file::Room*>& room,
             const loader::file::Item& item,
-            const gsl::not_null<const loader::file::SkeletalModelType*>& animatedModel)
+            const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
       : AIAgent{world, room, item, animatedModel}
   {
   }

@@ -24,7 +24,7 @@ namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
                                      gsl::not_null<const world::World*> world,
-                                     gsl::not_null<const loader::file::SkeletalModelType*> model)
+                                     gsl::not_null<const world::SkeletalModelType*> model)
     : Node{id}
     , m_world{std::move(world)}
     , m_model{std::move(model)}
@@ -237,7 +237,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
   std::vector<Sphere> result;
   result.emplace_back(translate(glm::mat4{1.0f}, pos.toRenderSystem())
                         + translate(transforms.top(), m_model->bones[0].center.toRenderSystem()),
-                      m_model->bones[0].collision_size);
+                      m_model->bones[0].collisionSize);
 
   for(gsl::index i = 1; i < m_model->bones.size(); ++i)
   {
@@ -258,7 +258,7 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
 
     auto m = translate(transforms.top(), m_model->bones[i].center.toRenderSystem());
     m[3] += glm::vec4(pos.toRenderSystem(), 0);
-    result.emplace_back(m, m_model->bones[i].collision_size);
+    result.emplace_back(m, m_model->bones[i].collisionSize);
   }
 
   return result;
@@ -285,7 +285,7 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
 {
   if(ser.loading)
   {
-    const loader::file::SkeletalModelType* model = nullptr;
+    const world::SkeletalModelType* model = nullptr;
     ser(S_NV("model", model));
     data = std::make_shared<SkeletalModelNode>(
       create(serialization::TypeId<std::string>{}, ser["id"]), &ser.context, model);

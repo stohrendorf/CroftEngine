@@ -8,6 +8,7 @@
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
 #include "mesh.h"
+#include "skeletalmodeltype.h"
 #include "staticmesh.h"
 #include "transition.h"
 #include "ui/pickupwidget.h"
@@ -189,13 +190,12 @@ public:
   void chainBlockEffect();
   void flickerEffect();
   void doGlobalEffect();
-  void loadSceneData();
+  void loadSceneData(const std::vector<gsl::not_null<const Mesh*>>& meshesDirect);
   std::shared_ptr<objects::PickupObject>
     createPickup(core::TypeId type, const gsl::not_null<const loader::file::Room*>& room, const core::TRVec& position);
   void useAlternativeLaraAppearance(bool withHead = false);
   void runEffect(size_t id, objects::Object* object);
-  [[nodiscard]] const std::unique_ptr<loader::file::SkeletalModelType>&
-    findAnimatedModelForType(core::TypeId type) const;
+  [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
   [[nodiscard]] const std::vector<Animation>& getAnimations() const;
   [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
   [[nodiscard]] gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> getRenderMesh(size_t idx) const;
@@ -205,7 +205,7 @@ public:
   [[nodiscard]] std::array<gl::SRGBA8, 256> getPalette() const;
   [[nodiscard]] const loader::file::Palette& getRawPalette() const;
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
-  core::TypeId find(const loader::file::SkeletalModelType* model) const;
+  core::TypeId find(const SkeletalModelType* model) const;
   core::TypeId find(const loader::file::Sprite* sprite) const;
   void serialize(const serialization::Serializer<World>& ser);
   void gameLoop(bool godMode);
@@ -357,8 +357,9 @@ private:
   std::vector<Box> m_boxes;
   std::unordered_map<core::StaticMeshId, StaticMesh> m_staticMeshes;
   std::vector<Mesh> m_meshes;
+  std::map<core::TypeId, std::unique_ptr<SkeletalModelType>> m_animatedModels;
 
-  void initFromLevel();
+  std::vector<gsl::not_null<const Mesh*>> initFromLevel();
   void connectSectors();
 };
 } // namespace engine::world

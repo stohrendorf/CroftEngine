@@ -294,42 +294,8 @@ const std::vector<Box>& World::getBoxes() const
   return m_boxes;
 }
 
-void World::loadSceneData()
+void World::loadSceneData(const std::vector<gsl::not_null<const Mesh*>>& meshesDirect)
 {
-  std::transform(
-    m_level->m_meshes.begin(),
-    m_level->m_meshes.end(),
-    std::back_inserter(m_meshes),
-    [this](const loader::file::Mesh& mesh) {
-      return Mesh{mesh.collision_center,
-                  mesh.collision_radius,
-                  std::make_shared<loader::file::RenderMeshData>(mesh, m_level->m_textureTiles, *m_level->m_palette)};
-    });
-
-  std::vector<gsl::not_null<const Mesh*>> meshesDirect;
-  for(auto idx : m_level->m_meshIndices)
-  {
-    meshesDirect.emplace_back(&m_meshes.at(idx));
-  }
-
-  for(const std::unique_ptr<loader::file::SkeletalModelType>& model :
-      m_level->m_animatedModels | boost::adaptors::map_values)
-  {
-    if(model->nMeshes > 0)
-    {
-      BOOST_ASSERT(model->boneTree.empty() || static_cast<size_t>(model->nMeshes) == model->boneTree.size() + 1);
-      for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
-      {
-        const auto& mesh = (model->mesh_base_index + i).from(meshesDirect);
-        model->bones.emplace_back(mesh->meshData,
-                                  mesh->collisionCenter,
-                                  mesh->collisionRadius,
-                                  i == 0 || model->boneTree.empty() ? std::nullopt
-                                                                    : std::make_optional(model->boneTree[i - 1]));
-      }
-    }
-  }
-
   for(const auto& staticMesh : m_level->m_staticMeshes)
   {
     loader::file::RenderMeshDataCompositor compositor;
@@ -781,9 +747,14 @@ const std::vector<Animation>& World::getAnimations() const
   return m_animations;
 }
 
-const std::unique_ptr<loader::file::SkeletalModelType>& World::findAnimatedModelForType(core::TypeId type) const
+const std::unique_ptr<SkeletalModelType>& World::findAnimatedModelForType(core::TypeId type) const
 {
-  return m_level->findAnimatedModelForType(type);
+  const auto it = m_animatedModels.find(type);
+  if(it != m_animatedModels.end())
+    return it->second;
+
+  static const std::unique_ptr<SkeletalModelType> none;
+  return none;
 }
 
 gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> World::getRenderMesh(const size_t idx) const
@@ -959,12 +930,12 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     setGlobalEffect(*flipEffect);
 }
 
-core::TypeId World::find(const loader::file::SkeletalModelType* model) const
+core::TypeId World::find(const SkeletalModelType* model) const
 {
-  auto it = std::find_if(m_level->m_animatedModels.begin(),
-                         m_level->m_animatedModels.end(),
-                         [&model](const auto& item) { return item.second.get() == model; });
-  if(it != m_level->m_animatedModels.end())
+  auto it = std::find_if(m_animatedModels.begin(), m_animatedModels.end(), [&model](const auto& item) {
+    return item.second.get() == model;
+  });
+  if(it != m_animatedModels.end())
     return it->first;
 
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find model"));
@@ -1225,8 +1196,6 @@ World::World(Engine& engine,
     , m_itemTitles{std::move(itemTitles)}
     , m_player{std::move(player)}
 {
-  initFromLevel();
-
   {
     getPresenter().drawLoadingScreen(_("Building textures"));
     for(auto& texture : m_level->m_textures)
@@ -1480,12 +1449,14 @@ World::World(Engine& engine,
     }
 
     getPresenter().drawLoadingScreen(util::unescape(m_title));
-    loadSceneData();
+  }
 
-    if(useAlternativeLara)
-    {
-      useAlternativeLaraAppearance();
-    }
+  auto meshesDirect = initFromLevel();
+  loadSceneData(meshesDirect);
+
+  if(useAlternativeLara)
+  {
+    useAlternativeLaraAppearance();
   }
 
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
@@ -1593,7 +1564,8 @@ void World::save(size_t slot)
 {
   save(makeSavegameFilename(slot));
 }
-void World::initFromLevel()
+
+std::vector<gsl::not_null<const Mesh*>> World::initFromLevel()
 {
   BOOST_LOG_TRIVIAL(info) << "Post-processing data structures";
 
@@ -1640,8 +1612,23 @@ void World::initFromLevel()
                   std::move(transitions)};
   }
 
-  for(const std::unique_ptr<loader::file::SkeletalModelType>& model :
-      m_level->m_animatedModels | boost::adaptors::map_values)
+  std::transform(
+    m_level->m_meshes.begin(),
+    m_level->m_meshes.end(),
+    std::back_inserter(m_meshes),
+    [this](const loader::file::Mesh& mesh) {
+      return Mesh{mesh.collision_center,
+                  mesh.collision_radius,
+                  std::make_shared<loader::file::RenderMeshData>(mesh, m_level->m_textureTiles, *m_level->m_palette)};
+    });
+
+  std::vector<gsl::not_null<const Mesh*>> meshesDirect;
+  for(auto idx : m_level->m_meshIndices)
+  {
+    meshesDirect.emplace_back(&m_meshes.at(idx));
+  }
+
+  for(const auto& [modelId, model] : m_level->m_animatedModels)
   {
     if(model->pose_data_offset.index<decltype(m_level->m_poseFrames[0])>() >= m_level->m_poseFrames.size())
     {
@@ -1651,7 +1638,7 @@ void World::initFromLevel()
       continue;
     }
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    model->frames
+    const auto frames
       = reinterpret_cast<const loader::file::AnimFrame*>(&model->pose_data_offset.from(m_level->m_poseFrames));
     if(model->nMeshes > 1)
     {
@@ -1661,8 +1648,28 @@ void World::initFromLevel()
         model->nMeshes - 1);
     }
 
+    Animation* animations = nullptr;
     if(model->animation_index.index != 0xffff)
-      model->animations = &model->animation_index.from(m_animations);
+      animations = &model->animation_index.from(m_animations);
+
+    std::vector<SkeletalModelType::Bone> bones;
+    if(model->nMeshes > 0)
+    {
+      BOOST_ASSERT(model->boneTree.empty() || static_cast<size_t>(model->nMeshes) == model->boneTree.size() + 1);
+      for(size_t i = 0; i < gsl::narrow_cast<size_t>(model->nMeshes); ++i)
+      {
+        const auto& mesh = (model->mesh_base_index + i).from(meshesDirect);
+        bones.emplace_back(mesh->meshData,
+                           mesh->collisionCenter,
+                           mesh->collisionRadius,
+                           i == 0 || model->boneTree.empty() ? std::nullopt
+                                                             : std::make_optional(model->boneTree[i - 1]));
+      }
+    }
+
+    m_animatedModels.emplace(modelId,
+                             std::make_unique<SkeletalModelType>(SkeletalModelType{
+                               model->type, model->mesh_base_index, std::move(bones), frames, animations}));
   }
 
   for(const auto& transitionCase : m_level->m_transitionCases)
@@ -1756,6 +1763,8 @@ void World::initFromLevel()
   Ensures(m_boxes.size() == m_boxes.size());
 
   connectSectors();
+
+  return meshesDirect;
 }
 
 void World::connectSectors()
