@@ -7,7 +7,7 @@ find_package( Threads REQUIRED )
 macro( add_boost_test name )
     add_executable( ${name} ${CMAKE_SOURCE_DIR}/src/gslfailhandler.cpp ${ARGN} )
     target_include_directories( ${name} PRIVATE ${CMAKE_SOURCE_DIR}/src )
-    add_test( NAME ${name} COMMAND ${name} -e stderr )
+    add_test( NAME ${name} COMMAND ${name} --logger=HRF,all --color_output=false --report_format=HRF --show_progress=no )
     target_link_libraries(
             ${name}
             PRIVATE
