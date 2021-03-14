@@ -102,11 +102,11 @@ core::TRVec getCenter(const std::array<VertexIndex, N>& faceVertices, const std:
 } // namespace
 
 void Room::createSceneNode(const size_t roomId,
-                           const level::Level& level,
+                           const engine::world::World& world,
                            render::TextureAnimator& animator,
                            render::scene::MaterialManager& materialManager)
 {
-  const auto texMask = gameToEngine(level.m_gameVersion) == loader::file::level::Engine::TR4
+  const auto texMask = gameToEngine(world.getLevel().m_gameVersion) == loader::file::level::Engine::TR4
                          ? loader::file::TextureIndexMaskTr4
                          : loader::file::TextureIndexMask;
 
@@ -139,7 +139,7 @@ void Room::createSceneNode(const size_t roomId,
         if(planarWithPortal && sector->roomAbove->isWaterRoom() != isWaterRoom())
           continue;
         if(planarWithPortal && sector->roomAbove->alternateRoom.get() >= 0
-           && level.m_rooms.at(sector->roomAbove->alternateRoom.get()).isWaterRoom() != isWaterRoom())
+           && world.getRooms().at(sector->roomAbove->alternateRoom.get()).isWaterRoom() != isWaterRoom())
           continue;
       }
       if(sector->roomBelow != nullptr)
@@ -148,12 +148,12 @@ void Room::createSceneNode(const size_t roomId,
         if(planarWithPortal && sector->roomBelow->isWaterRoom() != isWaterRoom())
           continue;
         if(planarWithPortal && sector->roomBelow->alternateRoom.get() >= 0
-           && level.m_rooms.at(sector->roomBelow->alternateRoom.get()).isWaterRoom() != isWaterRoom())
+           && world.getRooms().at(sector->roomBelow->alternateRoom.get()).isWaterRoom() != isWaterRoom())
           continue;
       }
     }
 
-    const TextureTile& tile = level.m_textureTiles.at(quad.tileId.get());
+    const TextureTile& tile = world.getLevel().m_textureTiles.at(quad.tileId.get());
 
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 4; ++i)
@@ -205,7 +205,7 @@ void Room::createSceneNode(const size_t roomId,
       }
     }
 
-    const TextureTile& tile = level.m_textureTiles.at(tri.tileId.get());
+    const TextureTile& tile = world.getLevel().m_textureTiles.at(tri.tileId.get());
 
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 3; ++i)
@@ -252,7 +252,7 @@ void Room::createSceneNode(const size_t roomId,
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {
-    const auto staticRenderMesh = level.findStaticRenderMeshById(sm.meshId);
+    const auto staticRenderMesh = world.findStaticRenderMeshById(sm.meshId);
     if(staticRenderMesh == nullptr)
       continue;
 
@@ -275,7 +275,7 @@ void Room::createSceneNode(const size_t roomId,
   {
     BOOST_ASSERT(spriteInstance.vertex.get() < vertices.size());
 
-    const Sprite& sprite = level.m_sprites.at(spriteInstance.id.get());
+    const Sprite& sprite = world.getLevel().m_sprites.at(spriteInstance.id.get());
 
     const auto mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
                                                       static_cast<float>(-sprite.render0.y),

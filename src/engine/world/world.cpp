@@ -261,9 +261,22 @@ const std::unique_ptr<loader::file::SpriteSequence>& World::findSpriteSequenceFo
   return m_level->findSpriteSequenceForType(type);
 }
 
-const loader::file::StaticMesh* World::findStaticMeshById(core::StaticMeshId meshId) const
+const StaticMesh* World::findStaticMeshById(core::StaticMeshId meshId) const
 {
-  return m_level->findStaticMeshById(meshId);
+  auto it = m_staticMeshes.find(meshId);
+  if(it != m_staticMeshes.end())
+    return &it->second;
+
+  return nullptr;
+}
+
+std::shared_ptr<render::scene::Mesh> World::findStaticRenderMeshById(const core::StaticMeshId meshId) const
+{
+  auto it = m_staticMeshes.find(meshId);
+  if(it != m_staticMeshes.end() && it->second.isVisible)
+    return it->second.renderMesh;
+
+  return nullptr;
 }
 
 const std::vector<loader::file::Room>& World::getRooms() const
@@ -313,16 +326,24 @@ void World::loadSceneData()
     }
   }
 
-  for(auto& staticMesh : m_level->m_staticMeshes)
+  for(const auto& staticMesh : m_level->m_staticMeshes)
   {
     loader::file::RenderMeshDataCompositor compositor;
     compositor.append(*m_meshesDirect.at(staticMesh.mesh)->meshData);
-    staticMesh.renderMesh = compositor.toMesh(*getPresenter().getMaterialManager(), false, {});
+    const bool distinct = m_staticMeshes
+                            .emplace(staticMesh.id,
+                                     StaticMesh{staticMesh.collision_box,
+                                                staticMesh.doNotCollide(),
+                                                staticMesh.isVisible(),
+                                                compositor.toMesh(*getPresenter().getMaterialManager(), false, {})})
+                            .second;
+
+    Expects(distinct);
   }
 
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    m_level->m_rooms[i].createSceneNode(i, *m_level, *m_textureAnimator, *getPresenter().getMaterialManager());
+    m_level->m_rooms[i].createSceneNode(i, *this, *m_textureAnimator, *getPresenter().getMaterialManager());
     setParent(m_level->m_rooms[i].node, getPresenter().getRenderer().getRootNode());
   }
 

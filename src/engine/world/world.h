@@ -7,6 +7,7 @@
 #include "engine/objectmanager.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
+#include "staticmesh.h"
 #include "transition.h"
 #include "ui/pickupwidget.h"
 
@@ -163,7 +164,8 @@ public:
   [[nodiscard]] const std::vector<Box>& getBoxes() const;
   [[nodiscard]] const std::vector<loader::file::Room>& getRooms() const;
   std::vector<loader::file::Room>& getRooms();
-  [[nodiscard]] const loader::file::StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
+  [[nodiscard]] const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
+  [[nodiscard]] std::shared_ptr<render::scene::Mesh> findStaticRenderMeshById(core::StaticMeshId meshId) const;
   [[nodiscard]] const std::unique_ptr<loader::file::SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
   [[nodiscard]] const Animation& getAnimation(loader::file::AnimationId id) const;
   [[nodiscard]] const std::vector<loader::file::CinematicFrame>& getCinematicFrames() const;
@@ -357,6 +359,7 @@ private:
   std::vector<Transitions> m_transitions;
   std::vector<TransitionCase> m_transitionCases;
   std::vector<Box> m_boxes;
+  std::unordered_map<core::StaticMeshId, StaticMesh> m_staticMeshes;
 
   void initFromLevel();
   void connectSectors();

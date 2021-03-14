@@ -101,10 +101,6 @@ public:
 
   virtual void loadFileData() = 0;
 
-  [[nodiscard]] const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
-
-  [[nodiscard]] std::shared_ptr<render::scene::Mesh> findStaticRenderMeshById(core::StaticMeshId meshId) const;
-
   [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
 
   [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;

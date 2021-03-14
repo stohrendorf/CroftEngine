@@ -178,27 +178,6 @@ Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& fil
   return ret;
 }
 
-const StaticMesh* Level::findStaticMeshById(const core::StaticMeshId meshId) const
-{
-  auto it = std::find_if(
-    m_staticMeshes.begin(), m_staticMeshes.end(), [meshId](const auto& mesh) { return mesh.id == meshId; });
-  if(it != m_staticMeshes.end())
-    return &*it;
-
-  return nullptr;
-}
-
-std::shared_ptr<render::scene::Mesh> Level::findStaticRenderMeshById(const core::StaticMeshId meshId) const
-{
-  auto it = std::find_if(m_staticMeshes.begin(), m_staticMeshes.end(), [meshId](const auto& mesh) {
-    return mesh.isVisible() && mesh.id == meshId;
-  });
-  if(it != m_staticMeshes.end())
-    return it->renderMesh;
-
-  return nullptr;
-}
-
 const std::unique_ptr<SkeletalModelType>& Level::findAnimatedModelForType(const core::TypeId type) const
 {
   const auto it = m_animatedModels.find(type);

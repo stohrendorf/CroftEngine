@@ -265,10 +265,10 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
     for(const loader::file::RoomStaticMesh& rsm : room->staticMeshes)
     {
       const auto mesh = world.findStaticMeshById(rsm.meshId);
-      if(mesh->doNotCollide())
+      if(mesh->doNotCollide)
         continue;
 
-      const auto meshBox = rotateTranslate(mesh->collision_box, rsm.position, rsm.rotation);
+      const auto meshBox = rotateTranslate(mesh->collisionBox, rsm.position, rsm.rotation);
       if(!meshBox.intersects(pokeBox))
         continue;
 

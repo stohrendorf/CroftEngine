@@ -362,7 +362,7 @@ struct Room
   static std::unique_ptr<Room> readTr5(io::SDLReader& reader);
 
   void createSceneNode(size_t roomId,
-                       const level::Level& level,
+                       const engine::world::World&,
                        render::TextureAnimator& animator,
                        render::scene::MaterialManager& materialManager);
 
