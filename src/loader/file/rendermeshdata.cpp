@@ -2,10 +2,10 @@
 
 #include "datatypes.h"
 #include "engine/world/atlastile.h"
+#include "engine/world/util.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendermode.h"
-#include "util.h"
 
 #include <gl/vertexarray.h>
 #include <render/renderpipeline.h>
@@ -35,16 +35,16 @@ RenderMeshData::RenderMeshData(const Mesh& mesh,
         if(i <= 2)
         {
           static const std::array<int, 3> indices{0, 1, 2};
-          iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                     quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                     quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+          iv.normal = engine::world::generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                                    quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                                    quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
         else
         {
           static const std::array<int, 3> indices{0, 2, 3};
-          iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                     quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                     quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+          iv.normal = engine::world::generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                                    quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                                    quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
       }
       else
@@ -83,16 +83,16 @@ RenderMeshData::RenderMeshData(const Mesh& mesh,
         if(i <= 2)
         {
           static const std::array<int, 3> indices{0, 1, 2};
-          iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                     quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                     quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+          iv.normal = engine::world::generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                                    quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                                    quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
         else
         {
           static const std::array<int, 3> indices{0, 2, 3};
-          iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                     quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                     quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+          iv.normal = engine::world::generateNormal(quad.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                                    quad.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                                    quad.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
         }
       }
       else
@@ -125,9 +125,9 @@ RenderMeshData::RenderMeshData(const Mesh& mesh,
          || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
       {
         static const std::array<int, 3> indices{0, 1, 2};
-        iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                   tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                   tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+        iv.normal = engine::world::generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                                  tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                                  tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
       }
       else
       {
@@ -155,9 +155,9 @@ RenderMeshData::RenderMeshData(const Mesh& mesh,
          || tri.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
       {
         static const std::array<int, 3> indices{0, 1, 2};
-        iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
-                                   tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
-                                   tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
+        iv.normal = engine::world::generateNormal(tri.vertices[indices[(i + 0) % 3]].from(mesh.vertices),
+                                                  tri.vertices[indices[(i + 1) % 3]].from(mesh.vertices),
+                                                  tri.vertices[indices[(i + 2) % 3]].from(mesh.vertices));
       }
       else
       {

@@ -18,6 +18,7 @@ namespace engine::world
 {
 class World;
 struct Box;
+struct Room;
 
 struct Sector
 {
@@ -27,21 +28,21 @@ struct Sector
      * @note If this is 0, no floor data is attached to this sector.
      */
   const engine::floordata::FloorDataValue* floorData = nullptr;
-  loader::file::Room* portalTarget = nullptr;
+  Room* portalTarget = nullptr;
 
   const Box* box = nullptr;
-  loader::file::Room* roomBelow = nullptr;
+  Room* roomBelow = nullptr;
   core::Length floorHeight = -core::HeightLimit;
-  loader::file::Room* roomAbove = nullptr;
+  Room* roomAbove = nullptr;
   core::Length ceilingHeight = -core::HeightLimit;
 
   Sector() = default;
   Sector(const loader::file::Sector& src,
-         std::vector<loader::file::Room>& rooms,
+         std::vector<Room>& rooms,
          const std::vector<Box>& boxes,
          const engine::floordata::FloorData& newFloorData);
 
-  void connect(std::vector<loader::file::Room>& rooms);
+  void connect(std::vector<Room>& rooms);
 
   void serialize(const serialization::Serializer<engine::world::World>& ser);
 

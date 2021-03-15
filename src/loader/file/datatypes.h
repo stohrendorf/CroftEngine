@@ -63,11 +63,8 @@ struct Portal
   core::TRVec normal;
   //! Vertices in world space
   std::array<core::TRVec, 4> vertices;
-  std::shared_ptr<render::scene::Mesh> mesh;
 
   static Portal read(io::SDLReader& reader, const core::TRVec& offset);
-
-  void buildMesh(const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
 };
 
 struct Sector
@@ -247,9 +244,6 @@ enum class ReverbType : uint8_t
 
 struct Room
 {
-  std::shared_ptr<render::scene::Node> node = nullptr;
-  std::vector<std::shared_ptr<render::scene::Node>> sceneryNodes{};
-
   // Various room flags specify various room options. Mostly, they
   // specify environment type and some additional actions which should
   // be performed in such rooms.
@@ -274,27 +268,18 @@ struct Room
   static constexpr uint16_t TR_ROOM_FLAG_POISON = 0x1000; ///< @FIXME: Is it really poison (P)?
 
   core::TRVec position{};
-
   core::Length lowestHeight{0};
-
   core::Length greatestHeight{0};
-
   std::vector<Layer> layers{};
-
   std::vector<RoomVertex> vertices{};
-
   std::vector<QuadFace> rectangles{};
-
   std::vector<Triangle> triangles{};
-
   std::vector<SpriteInstance> sprites{};
-
   std::vector<Portal> portals{};
 
   int sectorCountZ{};            // "width" of sector list
   int sectorCountX{};            // "height" of sector list
   std::vector<Sector> sectors{}; // [NumXsectors * NumZsectors] list of sectors in this room
-  std::vector<engine::world::Sector> typedSectors{};
   core::Shade ambientShade{};
   int16_t intensity2{};        // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
   int16_t lightMode{};         // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
@@ -316,6 +301,11 @@ struct Room
   [[nodiscard]] bool isWaterRoom() const noexcept
   {
     return (flags & TR_ROOM_FLAG_WATER) != 0;
+  }
+
+  [[nodiscard]] bool isSkybox() const noexcept
+  {
+    return (flags & TR1_ROOM_FLAG_SKYBOX) != 0;
   }
 
   uint8_t waterScheme{};
@@ -360,106 +350,7 @@ struct Room
   static std::unique_ptr<Room> readTr4(io::SDLReader& reader);
 
   static std::unique_ptr<Room> readTr5(io::SDLReader& reader);
-
-  void createSceneNode(size_t roomId,
-                       const engine::world::World&,
-                       render::TextureAnimator& animator,
-                       render::scene::MaterialManager& materialManager);
-
-  [[nodiscard]] const engine::world::Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
-  {
-    return getSectorByRelativePosition(worldPos - position);
-  }
-
-  [[nodiscard]] const engine::world::Sector* getSectorByRelativePosition(const core::TRVec& localPos) const
-  {
-    return getSectorByIndex(localPos.X / core::SectorSize, localPos.Z / core::SectorSize);
-  }
-
-  [[nodiscard]] gsl::not_null<const engine::world::Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
-  {
-    worldPos -= position;
-    return getInnerSectorByIndex(worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize);
-  }
-
-  [[nodiscard]] bool isInnerPositionXZ(core::TRVec worldPos) const
-  {
-    worldPos -= position;
-    const auto sx = worldPos.X / core::SectorSize;
-    const auto sz = worldPos.Z / core::SectorSize;
-    return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
-  }
-
-  [[nodiscard]] const engine::world::Sector* getSectorByIndex(const int dx, const int dz) const
-  {
-    if(dx < 0 || dx >= sectorCountX)
-    {
-      BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/"
-                                 << sectorCountZ << " for room " << node->getName();
-      return nullptr;
-    }
-    if(dz < 0 || dz >= sectorCountZ)
-    {
-      BOOST_LOG_TRIVIAL(warning) << "Sector coordinates " << dx << "/" << dz << " out of bounds " << sectorCountX << "/"
-                                 << sectorCountZ << " for room " << node->getName();
-      return nullptr;
-    }
-    return &typedSectors[sectorCountZ * dx + dz];
-  }
-
-  [[nodiscard]] gsl::not_null<const engine::world::Sector*> getInnerSectorByIndex(int dx, int dz) const
-  {
-    dx = std::clamp(dx, 1, sectorCountX - 2);
-    dz = std::clamp(dz, 1, sectorCountZ - 2);
-    return &typedSectors[sectorCountZ * dx + dz];
-  }
-
-  [[nodiscard]] gsl::not_null<const engine::world::Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
-  {
-    if(dz <= 0)
-    {
-      dz = 0;
-      dx = std::clamp(dx, 1, sectorCountX - 2);
-    }
-    else if(dz >= sectorCountZ - 1)
-    {
-      dz = sectorCountZ - 1;
-      dx = std::clamp(dx, 1, sectorCountX - 2);
-    }
-    else
-    {
-      dx = std::clamp(dx, 0, sectorCountX - 1);
-    }
-    return getSectorByIndex(dx, dz);
-  }
-
-  static void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);
-
-  [[nodiscard]] static std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos);
-
-  void resetScenery();
-
-  [[nodiscard]] bool isSkybox() const noexcept
-  {
-    return (flags & TR1_ROOM_FLAG_SKYBOX) != 0;
-  }
-
-  void serialize(const serialization::Serializer<engine::world::World>& ser);
 };
-
-extern gsl::not_null<const engine::world::Sector*>
-  findRealFloorSector(const core::TRVec& position, const gsl::not_null<gsl::not_null<const Room*>*>& room);
-
-inline gsl::not_null<const engine::world::Sector*> findRealFloorSector(const core::TRVec& position,
-                                                                       gsl::not_null<const Room*> room)
-{
-  return findRealFloorSector(position, &room);
-}
-
-inline gsl::not_null<const engine::world::Sector*> findRealFloorSector(core::RoomBoundPosition& rbs)
-{
-  return findRealFloorSector(rbs.position, &rbs.room);
-}
 
 struct Sprite
 {

@@ -10,7 +10,7 @@ namespace engine::objects
 // #define NO_DOOR_BLOCK
 
 Door::Door(const gsl::not_null<world::World*>& world,
-           const gsl::not_null<const loader::file::Room*>& room,
+           const gsl::not_null<const world::Room*>& room,
            const loader::file::Item& item,
            const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{world, room, item, true, animatedModel}
@@ -169,7 +169,7 @@ void Door::Info::close() // NOLINT(readability-make-member-function-const)
     wingsBox->blocked = true;
 }
 
-void Door::Info::init(const loader::file::Room& room, const core::TRVec& wingsPosition)
+void Door::Info::init(const world::Room& room, const core::TRVec& wingsPosition)
 {
   wingsSector = const_cast<world::Sector*>(room.getSectorByAbsolutePosition(wingsPosition));
   Expects(wingsSector != nullptr);

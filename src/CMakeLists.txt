@@ -160,6 +160,8 @@ set( EDISONENGINE_SRCS
 
         engine/world/box.h
         engine/world/box.cpp
+        engine/world/room.h
+        engine/world/room.cpp
         engine/world/sector.h
         engine/world/sector.cpp
         engine/world/world.h
@@ -206,7 +208,6 @@ set( EDISONENGINE_SRCS
         loader/file/rendermeshdata.cpp
         loader/file/texture.h
         loader/file/texture.cpp
-        loader/file/util.h
 
         loader/file/io/sdlreader.h
         loader/file/io/util.h

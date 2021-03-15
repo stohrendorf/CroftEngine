@@ -10,18 +10,18 @@
 namespace render
 {
 std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTracer::CullBox& parentCullBox,
-                                                                 const loader::file::Portal& portal,
+                                                                 const engine::world::Portal& portal,
                                                                  const engine::CameraController& camera)
 {
   static constexpr auto Eps = 1.0f / (1 << 14);
 
-  if(dot(portal.normal.toRenderSystem(), portal.vertices[0].toRenderSystem() - camera.getPosition()) >= 0)
+  if(dot(portal.normal, portal.vertices[0] - camera.getPosition()) >= 0)
   {
     return std::nullopt; // wrong orientation (normals must face the camera)
   }
 
-  const auto toView = [&camera](const core::TRVec& v) {
-    const auto tmp = camera.getCamera()->getViewMatrix() * glm::vec4{v.toRenderSystem(), 1.0f};
+  const auto toView = [&camera](const glm::vec3& v) {
+    const auto tmp = camera.getCamera()->getViewMatrix() * glm::vec4{v, 1.0f};
     BOOST_ASSERT(tmp.w > std::numeric_limits<float>::epsilon());
     return glm::vec3{tmp} / tmp.w;
   };
@@ -126,12 +126,12 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
   return portalCullBox;
 }
 
-bool PortalTracer::traceRoom(const loader::file::Room& room,
+bool PortalTracer::traceRoom(const engine::world::Room& room,
                              const PortalTracer::CullBox& roomCullBox,
                              const engine::world::World& world,
-                             std::vector<const loader::file::Room*>& seenRooms,
+                             std::vector<const engine::world::Room*>& seenRooms,
                              const bool inWater,
-                             std::unordered_set<const loader::file::Portal*>& waterSurfacePortals,
+                             std::unordered_set<const engine::world::Portal*>& waterSurfacePortals,
                              const bool startFromWater)
 {
   if(std::find(seenRooms.rbegin(), seenRooms.rend(), &room) != seenRooms.rend())
@@ -144,12 +144,12 @@ bool PortalTracer::traceRoom(const loader::file::Room& room,
     if(const auto narrowedCullBox = narrowCullBox(roomCullBox, portal, world.getCameraController()))
     {
       const auto& childRoom = world.getRooms().at(portal.adjoining_room.get());
-      const bool waterChanged = inWater == startFromWater && childRoom.isWaterRoom() != startFromWater;
+      const bool waterChanged = inWater == startFromWater && childRoom.isWaterRoom != startFromWater;
       if(traceRoom(childRoom,
                    *narrowedCullBox,
                    world,
                    seenRooms,
-                   inWater || childRoom.isWaterRoom(),
+                   inWater || childRoom.isWaterRoom,
                    waterSurfacePortals,
                    startFromWater)
          && waterChanged)
@@ -162,14 +162,14 @@ bool PortalTracer::traceRoom(const loader::file::Room& room,
   return true;
 }
 
-std::unordered_set<const loader::file::Portal*> PortalTracer::trace(const loader::file::Room& startRoom,
-                                                                    const engine::world::World& world)
+std::unordered_set<const engine::world::Portal*> PortalTracer::trace(const engine::world::Room& startRoom,
+                                                                     const engine::world::World& world)
 {
-  std::vector<const loader::file::Room*> seenRooms;
+  std::vector<const engine::world::Room*> seenRooms;
   seenRooms.reserve(32);
-  std::unordered_set<const loader::file::Portal*> waterSurfacePortals;
+  std::unordered_set<const engine::world::Portal*> waterSurfacePortals;
   traceRoom(
-    startRoom, {-1, -1, 1, 1}, world, seenRooms, startRoom.isWaterRoom(), waterSurfacePortals, startRoom.isWaterRoom());
+    startRoom, {-1, -1, 1, 1}, world, seenRooms, startRoom.isWaterRoom, waterSurfacePortals, startRoom.isWaterRoom);
   Expects(seenRooms.empty());
   return waterSurfacePortals;
 }

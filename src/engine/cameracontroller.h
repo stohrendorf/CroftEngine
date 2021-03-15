@@ -13,13 +13,13 @@ class Camera;
 namespace loader::file
 {
 struct CinematicFrame;
-struct Portal;
-} // namespace loader::file
+}
 
 namespace engine::world
 {
 class World;
-}
+struct Portal;
+} // namespace engine::world
 
 namespace engine
 {
@@ -148,7 +148,7 @@ public:
 
   void handleCommandSequence(const floordata::FloorDataValue* cmdSequence);
 
-  std::unordered_set<const loader::file::Portal*> update();
+  std::unordered_set<const world::Portal*> update();
 
   void setMode(const CameraMode t)
   {
@@ -201,8 +201,7 @@ public:
     return m_camera;
   }
 
-  std::unordered_set<const loader::file::Portal*> updateCinematic(const loader::file::CinematicFrame& frame,
-                                                                  bool ingame);
+  std::unordered_set<const world::Portal*> updateCinematic(const loader::file::CinematicFrame& frame, bool ingame);
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
@@ -211,7 +210,7 @@ public:
   core::TRRotation m_cinematicRot{0_deg, 0_deg, 0_deg};
 
 private:
-  std::unordered_set<const loader::file::Portal*> tracePortals();
+  std::unordered_set<const world::Portal*> tracePortals();
 
   void handleFixedCamera();
 

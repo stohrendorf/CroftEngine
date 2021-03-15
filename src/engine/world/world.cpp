@@ -235,13 +235,13 @@ void World::swapAllRooms()
   Expects(m_level->m_rooms.size() == m_roomOrder.size());
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    auto& room = m_level->m_rooms[i];
+    auto& room = m_rooms[i];
     if(room.alternateRoom.get() < 0)
       continue;
 
     BOOST_ASSERT(static_cast<size_t>(room.alternateRoom.get()) < m_level->m_rooms.size());
     std::swap(m_roomOrder[i], m_roomOrder.at(room.alternateRoom.get()));
-    swapWithAlternate(room, m_level->m_rooms.at(room.alternateRoom.get()));
+    swapWithAlternate(room, m_rooms.at(room.alternateRoom.get()));
   }
 
   m_roomsAreSwapped = !m_roomsAreSwapped;
@@ -284,14 +284,14 @@ std::shared_ptr<render::scene::Mesh> World::findStaticRenderMeshById(const core:
   return nullptr;
 }
 
-const std::vector<loader::file::Room>& World::getRooms() const
+const std::vector<Room>& World::getRooms() const
 {
-  return m_level->m_rooms;
+  return m_rooms;
 }
 
-std::vector<loader::file::Room>& World::getRooms()
+std::vector<Room>& World::getRooms()
 {
-  return m_level->m_rooms;
+  return m_rooms;
 }
 
 const std::vector<Box>& World::getBoxes() const
@@ -316,10 +316,11 @@ void World::loadSceneData(const std::vector<gsl::not_null<const Mesh*>>& meshesD
     Expects(distinct);
   }
 
-  for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
+  for(size_t i = 0; i < m_rooms.size(); ++i)
   {
-    m_level->m_rooms[i].createSceneNode(i, *this, *m_textureAnimator, *getPresenter().getMaterialManager());
-    setParent(m_level->m_rooms[i].node, getPresenter().getRenderer().getRootNode());
+    m_rooms[i].createSceneNode(
+      m_level->m_rooms.at(i), i, *this, *m_textureAnimator, *getPresenter().getMaterialManager());
+    setParent(m_rooms[i].node, getPresenter().getRenderer().getRootNode());
   }
 
   m_objectManager.createObjects(*this, m_level->m_items);
@@ -572,7 +573,7 @@ void World::flickerEffect()
   m_effectTimer += 1_frame;
 }
 
-void World::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alternate)
+void World::swapWithAlternate(Room& orig, Room& alternate)
 {
   // find any blocks in the original room and un-patch the floor heights
 
@@ -583,11 +584,11 @@ void World::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alte
 
     if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
-      loader::file::Room::patchHeightsForBlock(*tmp, core::SectorSize);
+      Room::patchHeightsForBlock(*tmp, core::SectorSize);
     }
     else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      loader::file::Room::patchHeightsForBlock(*tmp2, core::SectorSize * 2);
+      Room::patchHeightsForBlock(*tmp2, core::SectorSize * 2);
     }
   }
 
@@ -617,11 +618,11 @@ void World::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alte
 
     if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
-      loader::file::Room::patchHeightsForBlock(*tmp, -core::SectorSize);
+      Room::patchHeightsForBlock(*tmp, -core::SectorSize);
     }
     else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      loader::file::Room::patchHeightsForBlock(*tmp2, -core::SectorSize * 2);
+      Room::patchHeightsForBlock(*tmp2, -core::SectorSize * 2);
     }
   }
 
@@ -638,9 +639,8 @@ void World::swapWithAlternate(loader::file::Room& orig, loader::file::Room& alte
   }
 }
 
-std::shared_ptr<objects::PickupObject> World::createPickup(const core::TypeId type,
-                                                           const gsl::not_null<const loader::file::Room*>& room,
-                                                           const core::TRVec& position)
+std::shared_ptr<objects::PickupObject>
+  World::createPickup(const core::TypeId type, const gsl::not_null<const Room*>& room, const core::TRVec& position)
 {
   loader::file::Item item;
   item.type = type;
@@ -668,7 +668,7 @@ void World::doGlobalEffect()
   if(m_activeEffect.has_value())
     runEffect(*m_activeEffect, nullptr);
 
-  m_audioEngine->setUnderwater(m_cameraController->getCurrentRoom()->isWaterRoom());
+  m_audioEngine->setUnderwater(m_cameraController->getCurrentRoom()->isWaterRoom);
 }
 
 const Animation& World::getAnimation(loader::file::AnimationId id) const
@@ -962,7 +962,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
   if(ser.loading)
   {
     getPresenter().getRenderer().getRootNode()->clear();
-    for(auto& room : m_level->m_rooms)
+    for(auto& room : m_rooms)
     {
       room.resetScenery();
       setParent(room.node, getPresenter().getRenderer().getRootNode());
@@ -983,7 +983,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
         = std::distance(m_roomOrder.begin(), std::find(m_roomOrder.begin(), m_roomOrder.end(), currentIdx));
 
       std::swap(m_roomOrder[i], m_roomOrder[otherIdx]);
-      swapWithAlternate(m_level->m_rooms[currentIdx], m_level->m_rooms[otherIdx]);
+      swapWithAlternate(m_rooms[currentIdx], m_rooms[otherIdx]);
       Ensures(currentIdx == m_roomOrder[i]);
     }
   }
@@ -998,7 +998,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("secretsFound", m_secretsFoundBitmask),
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
       S_NV("roomOrder", m_roomOrder),
-      S_NV("rooms", serialization::FrozenVector{m_level->m_rooms}),
+      S_NV("rooms", serialization::FrozenVector{m_rooms}),
       S_NV("boxes", serialization::FrozenVector{m_boxes}),
       S_NV("audioEngine", *m_audioEngine));
 }
@@ -1766,14 +1766,26 @@ std::vector<gsl::not_null<const Mesh*>> World::initFromLevel()
     m_boxes[i].zoneGround2Swapped = m_level->m_alternateZones.groundZone2[i];
   }
 
-  for(auto& room : m_level->m_rooms)
+  for(auto& srcRoom : m_level->m_rooms)
   {
-    room.typedSectors.clear();
-    std::transform(room.sectors.begin(),
-                   room.sectors.end(),
-                   std::back_inserter(room.typedSectors),
+    Room room{srcRoom.isWaterRoom(),
+              srcRoom.position,
+              srcRoom.sectorCountZ,
+              srcRoom.sectorCountX,
+              srcRoom.ambientShade,
+              srcRoom.lights,
+              srcRoom.alternateRoom,
+              srcRoom.staticMeshes};
+    m_rooms.emplace_back(std::move(room));
+  }
+  for(size_t i = 0; i < m_rooms.size(); ++i)
+  {
+    const auto& srcRoom = m_level->m_rooms.at(i);
+    std::transform(srcRoom.sectors.begin(),
+                   srcRoom.sectors.end(),
+                   std::back_inserter(m_rooms[i].sectors),
                    [this](const loader::file::Sector& sector) {
-                     return Sector{sector, m_level->m_rooms, m_boxes, m_level->m_floorData};
+                     return Sector{sector, m_rooms, m_boxes, m_level->m_floorData};
                    });
   }
 
@@ -1789,10 +1801,10 @@ std::vector<gsl::not_null<const Mesh*>> World::initFromLevel()
 
 void World::connectSectors()
 {
-  for(auto& room : m_level->m_rooms)
+  for(auto& room : m_rooms)
   {
-    for(auto& sector : room.typedSectors)
-      sector.connect(m_level->m_rooms);
+    for(auto& sector : room.sectors)
+      sector.connect(m_rooms);
   }
 }
 } // namespace engine::world

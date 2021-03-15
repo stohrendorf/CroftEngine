@@ -2,7 +2,6 @@
 
 #include "cameracontroller.h"
 #include "engine/objects/object.h"
-#include "world/sector.h"
 
 namespace engine
 {

@@ -42,7 +42,7 @@ void freeLookClamp(core::Length& goalX,
 }
 
 bool isVerticallyOutsideRoom(const core::TRVec& pos,
-                             const gsl::not_null<const loader::file::Room*>& room,
+                             const gsl::not_null<const world::Room*>& room,
                              const ObjectManager& objectManager)
 {
   const auto sector = findRealFloorSector(pos, room);
@@ -208,7 +208,7 @@ core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
     if(result.position.X >= start.position.X)
       std::swap(minX, maxX);
     callback(result.position.Z, result.position.X, start.position.Z, start.position.X, minZ, minX, maxZ, maxX);
-    loader::file::findRealFloorSector(result);
+    world::findRealFloorSector(result);
     return result;
   }
 
@@ -217,7 +217,7 @@ core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
     if(result.position.X >= start.position.X)
       std::swap(minX, maxX);
     callback(result.position.Z, result.position.X, start.position.Z, start.position.X, maxZ, minX, minZ, maxX);
-    loader::file::findRealFloorSector(result);
+    world::findRealFloorSector(result);
     return result;
   }
 
@@ -226,7 +226,7 @@ core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
     if(result.position.Z >= start.position.Z)
       std::swap(minZ, maxZ);
     callback(result.position.X, result.position.Z, start.position.X, start.position.Z, minX, minZ, maxX, maxZ);
-    loader::file::findRealFloorSector(result);
+    world::findRealFloorSector(result);
     return result;
   }
 
@@ -235,7 +235,7 @@ core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
     if(result.position.Z >= start.position.Z)
       std::swap(minZ, maxZ);
     callback(result.position.X, result.position.Z, start.position.X, start.position.Z, maxX, minZ, minX, maxZ);
-    loader::file::findRealFloorSector(result);
+    world::findRealFloorSector(result);
     return result;
   }
 
@@ -368,7 +368,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-std::unordered_set<const loader::file::Portal*> CameraController::tracePortals()
+std::unordered_set<const world::Portal*> CameraController::tracePortals()
 {
   for(const auto& room : m_world->getRooms())
     room.node->setVisible(false);
@@ -381,7 +381,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::tracePortals()
   return result;
 }
 
-std::unordered_set<const loader::file::Portal*> CameraController::update()
+std::unordered_set<const world::Portal*> CameraController::update()
 {
   m_rotationAroundLara.X = std::clamp(m_rotationAroundLara.X, -85_deg, +85_deg);
 
@@ -492,7 +492,7 @@ std::unordered_set<const loader::file::Portal*> CameraController::update()
     }
 
     m_lookAt.room = focusedObject->m_state.position.room;
-    const auto sector = loader::file::findRealFloorSector(m_lookAt);
+    const auto sector = world::findRealFloorSector(m_lookAt);
     if(HeightInfo::fromFloor(sector, m_lookAt.position, m_world->getObjectManager().getObjects()).y
        < m_lookAt.position.Y)
       HeightInfo::skipSteepSlants = false;
@@ -543,7 +543,7 @@ void CameraController::handleFixedCamera()
 
 core::Length CameraController::moveIntoBox(core::RoomBoundPosition& goal, const core::Length& margin) const
 {
-  const auto sector = loader::file::findRealFloorSector(goal);
+  const auto sector = world::findRealFloorSector(goal);
   Expects(sector->box != nullptr);
 
   if(goal.position.Z < sector->box->zmin + margin
@@ -590,13 +590,13 @@ void CameraController::updatePosition(const core::RoomBoundPosition& goal, const
   m_position.position += (goal.position - m_position.position) / smoothFactor;
   m_position.room = goal.room;
   HeightInfo::skipSteepSlants = false;
-  auto sector = loader::file::findRealFloorSector(m_position);
+  auto sector = world::findRealFloorSector(m_position);
   auto floor = HeightInfo::fromFloor(sector, m_position.position, m_world->getObjectManager().getObjects()).y
                - core::QuarterSectorSize;
   if(floor <= std::min(m_position.position.Y, goal.position.Y))
   {
     m_position = raycastLineOfSight(m_lookAt, m_position.position, m_world->getObjectManager()).second;
-    sector = loader::file::findRealFloorSector(m_position);
+    sector = world::findRealFloorSector(m_position);
     floor = HeightInfo::fromFloor(sector, m_position.position, m_world->getObjectManager().getObjects()).y
             - core::QuarterSectorSize;
   }
@@ -735,8 +735,8 @@ void CameraController::handleEnemy(objects::Object& object)
   updatePosition(eye, m_smoothness);
 }
 
-std::unordered_set<const loader::file::Portal*>
-  CameraController::updateCinematic(const loader::file::CinematicFrame& frame, const bool ingame)
+std::unordered_set<const world::Portal*> CameraController::updateCinematic(const loader::file::CinematicFrame& frame,
+                                                                           const bool ingame)
 {
   const core::TRVec basePos = ingame ? m_cinematicPos : m_position.position;
   const core::TRVec newLookAt = basePos + util::pitch(frame.lookAt, m_eyeRotation.Y);
@@ -756,15 +756,15 @@ std::unordered_set<const loader::file::Portal*>
 
   // portal tracing doesn't work here because we always render each room.
   // assuming "sane" room layout here without overlapping rooms.
-  std::unordered_set<const loader::file::Portal*> result;
+  std::unordered_set<const world::Portal*> result;
   for(const auto& room : getWorld()->getRooms())
   {
-    if(room.isWaterRoom())
+    if(room.isWaterRoom)
       continue;
 
     for(const auto& portal : room.portals)
     {
-      if(getWorld()->getRooms().at(portal.adjoining_room.get()).isWaterRoom())
+      if(getWorld()->getRooms().at(portal.adjoining_room.get()).isWaterRoom)
         result.emplace(&portal);
     }
   }

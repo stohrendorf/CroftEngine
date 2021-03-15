@@ -27,7 +27,7 @@ Object::Object(const gsl::not_null<world::World*>& world, const core::RoomBoundP
 }
 
 Object::Object(const gsl::not_null<world::World*>& world,
-               const gsl::not_null<const loader::file::Room*>& room,
+               const gsl::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                const bool hasUpdateFunction)
     : Object{world, core::RoomBoundPosition{room, item.position}}
@@ -61,7 +61,7 @@ Object::Object(const gsl::not_null<world::World*>& world,
   }
 }
 
-void Object::setCurrentRoom(const gsl::not_null<const loader::file::Room*>& newRoom)
+void Object::setCurrentRoom(const gsl::not_null<const world::Room*>& newRoom)
 {
   if(newRoom == m_state.position.room)
   {
@@ -156,7 +156,7 @@ void Object::playShotMissed(const core::RoomBoundPosition& pos)
 
 std::optional<core::Length> Object::getWaterSurfaceHeight() const
 {
-  return loader::file::Room::getWaterSurfaceHeight(m_state.position);
+  return world::Room::getWaterSurfaceHeight(m_state.position);
 }
 
 void Object::updateLighting()

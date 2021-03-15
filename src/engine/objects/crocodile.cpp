@@ -203,7 +203,7 @@ void Crocodile::updateOnLand()
   {
     rotateCreatureHead(headRot);
   }
-  if(m_state.position.room->isWaterRoom())
+  if(m_state.position.room->isWaterRoom)
   {
     getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[0]);
     goal(getSkeleton()->getAnim()->state_id);

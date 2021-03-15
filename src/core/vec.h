@@ -10,7 +10,8 @@
 namespace engine::world
 {
 class World;
-}
+struct Room;
+} // namespace engine::world
 
 namespace loader::file
 {
@@ -130,11 +131,11 @@ extern std::ostream& operator<<(std::ostream& stream, const TRVec& rhs);
 
 struct RoomBoundPosition final
 {
-  gsl::not_null<const loader::file::Room*> room;
+  gsl::not_null<const engine::world::Room*> room;
 
   TRVec position;
 
-  explicit RoomBoundPosition(gsl::not_null<const loader::file::Room*> r, TRVec pos = {})
+  explicit RoomBoundPosition(gsl::not_null<const engine::world::Room*> r, TRVec pos = {})
       : room{std::move(r)}
       , position{std::move(pos)}
   {

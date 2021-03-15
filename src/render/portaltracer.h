@@ -14,13 +14,9 @@ class CameraController;
 namespace engine::world
 {
 class World;
-}
-
-namespace loader::file
-{
-struct Portal;
 struct Room;
-} // namespace loader::file
+struct Portal;
+} // namespace engine::world
 
 namespace render
 {
@@ -38,19 +34,19 @@ struct PortalTracer
     }
   };
 
-  static std::unordered_set<const loader::file::Portal*> trace(const loader::file::Room& startRoom,
-                                                               const engine::world::World& world);
+  static std::unordered_set<const engine::world::Portal*> trace(const engine::world::Room& startRoom,
+                                                                const engine::world::World& world);
 
-  static bool traceRoom(const loader::file::Room& room,
+  static bool traceRoom(const engine::world::Room& room,
                         const CullBox& roomCullBox,
                         const engine::world::World& world,
-                        std::vector<const loader::file::Room*>& seenRooms,
+                        std::vector<const engine::world::Room*>& seenRooms,
                         bool inWater,
-                        std::unordered_set<const loader::file::Portal*>& waterSurfacePortals,
+                        std::unordered_set<const engine::world::Portal*>& waterSurfacePortals,
                         bool startFromWater);
 
   static std::optional<CullBox> narrowCullBox(const CullBox& parentCullBox,
-                                              const loader::file::Portal& portal,
+                                              const engine::world::Portal& portal,
                                               const engine::CameraController& camera);
 };
 } // namespace render

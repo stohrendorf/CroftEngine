@@ -82,7 +82,7 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const std::shared_ptr
 } // namespace
 
 LightningBall::LightningBall(const gsl::not_null<world::World*>& world,
-                             const gsl::not_null<const loader::file::Room*>& room,
+                             const gsl::not_null<const world::Room*>& room,
                              const loader::file::Item& item,
                              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{world, room, item, true, animatedModel}
@@ -148,7 +148,7 @@ void LightningBall::update()
   {
     // we don't have poles, so just shoot downwards
     m_mainBoltEnd = core::TRVec{};
-    const auto sector = loader::file::findRealFloorSector(m_state.position);
+    const auto sector = world::findRealFloorSector(m_state.position);
     m_mainBoltEnd.Y
       = -HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects()).y;
     m_mainBoltEnd.Y -= m_state.position.position.Y;

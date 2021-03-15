@@ -6,13 +6,6 @@
 #include "engine/world/box.h"
 #include "loader/file/datatypes.h"
 
-namespace loader::file
-{
-struct Item;
-struct Animation;
-struct Box;
-} // namespace loader::file
-
 namespace pybind11
 {
 class dict;
@@ -55,7 +48,7 @@ private:
 
 public:
   explicit ObjectState(const gsl::not_null<audio::SoundEngine*>& engine,
-                       const gsl::not_null<const loader::file::Room*>& room,
+                       const gsl::not_null<const world::Room*>& room,
                        const core::TypeId type)
       : Emitter{engine}
       , type{type}
@@ -131,10 +124,7 @@ public:
 
   void collectZoneBoxes(const world::World& world);
 
-  const world::Sector* getCurrentSector() const
-  {
-    return position.room->getSectorByAbsolutePosition(position.position);
-  }
+  const world::Sector* getCurrentSector() const;
 
   void loadObjectInfo();
 

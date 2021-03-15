@@ -13,7 +13,7 @@ public:
   }
 
   ThorHammerBlock(const gsl::not_null<world::World*>& world,
-                  const gsl::not_null<const loader::file::Room*>& room,
+                  const gsl::not_null<const world::Room*>& room,
                   const loader::file::Item& item,
                   const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
       : ModelObject{world, room, item, true, animatedModel}
@@ -29,7 +29,7 @@ public:
   ThorHammerHandle(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position);
 
   ThorHammerHandle(const gsl::not_null<world::World*>& world,
-                   const gsl::not_null<const loader::file::Room*>& room,
+                   const gsl::not_null<const world::Room*>& room,
                    const loader::file::Item& item,
                    const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
 

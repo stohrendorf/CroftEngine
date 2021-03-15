@@ -266,7 +266,7 @@ void LaraObject::update()
     m_cheatDive = !m_cheatDive;
 #endif
 
-  if(m_underwaterState == UnderwaterState::OnLand && (m_cheatDive || m_state.position.room->isWaterRoom()))
+  if(m_underwaterState == UnderwaterState::OnLand && (m_cheatDive || m_state.position.room->isWaterRoom))
   {
     m_air = core::LaraAir;
     m_underwaterState = UnderwaterState::Diving;
@@ -318,7 +318,7 @@ void LaraObject::update()
       }
     }
   }
-  else if(m_underwaterState == UnderwaterState::Diving && !(m_cheatDive || m_state.position.room->isWaterRoom()))
+  else if(m_underwaterState == UnderwaterState::Diving && !(m_cheatDive || m_state.position.room->isWaterRoom))
   {
     auto waterSurfaceHeight = getWaterSurfaceHeight();
     m_state.fallspeed = 0_spd;
@@ -348,7 +348,7 @@ void LaraObject::update()
       playSoundEffect(TR1SoundEffect::LaraCatchingAir);
     }
   }
-  else if(m_underwaterState == UnderwaterState::Swimming && !(m_cheatDive || m_state.position.room->isWaterRoom()))
+  else if(m_underwaterState == UnderwaterState::Swimming && !(m_cheatDive || m_state.position.room->isWaterRoom))
   {
     m_underwaterState = UnderwaterState::OnLand;
     setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
@@ -522,9 +522,9 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
   if(isDead())
     return;
 
-  std::set<gsl::not_null<const loader::file::Room*>> rooms;
+  std::set<gsl::not_null<const world::Room*>> rooms;
   rooms.insert(m_state.position.room);
-  for(const loader::file::Portal& p : m_state.position.room->portals)
+  for(const world::Portal& p : m_state.position.room->portals)
     rooms.insert(&getWorld().getRooms().at(p.adjoining_room.get()));
 
   for(const auto& object : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
@@ -2232,7 +2232,7 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
 }
 
 LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
-                       const gsl::not_null<const loader::file::Room*>& room,
+                       const gsl::not_null<const world::Room*>& room,
                        const loader::file::Item& item,
                        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject(world, room, item, false, animatedModel)

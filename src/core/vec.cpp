@@ -17,7 +17,7 @@ void RoomBoundPosition::serialize(const serialization::Serializer<engine::world:
 
 RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer<engine::world::World>& ser)
 {
-  const loader::file::Room* room = nullptr;
+  const engine::world::Room* room = nullptr;
   TRVec position{};
   ser(S_NVVE("room", ser.context.getRooms(), room), S_NV("position", position));
   return RoomBoundPosition{room, position};

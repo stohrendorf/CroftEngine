@@ -6,7 +6,7 @@ void TrapDoorUp::update()
 {
   ModelObject::update();
   auto pos = m_state.position;
-  loader::file::findRealFloorSector(pos);
+  world::findRealFloorSector(pos);
   setCurrentRoom(pos.room);
 }
 } // namespace engine::objects

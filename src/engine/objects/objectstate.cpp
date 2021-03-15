@@ -150,4 +150,9 @@ void ObjectState::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("alreadyLookedAt", already_looked_at),
       S_NV("creatureInfo", creatureInfo));
 }
+
+const world::Sector* ObjectState::getCurrentSector() const
+{
+  return position.room->getSectorByAbsolutePosition(position.position);
+}
 } // namespace engine::objects

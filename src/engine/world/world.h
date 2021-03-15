@@ -9,6 +9,7 @@
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
 #include "mesh.h"
+#include "room.h"
 #include "skeletalmodeltype.h"
 #include "sprite.h"
 #include "staticmesh.h"
@@ -127,7 +128,7 @@ public:
 
   template<typename T>
   std::shared_ptr<T> createObject(const core::TypeId type,
-                                  const gsl::not_null<const loader::file::Room*>& room,
+                                  const gsl::not_null<const Room*>& room,
                                   const core::Angle& angle,
                                   const core::TRVec& position,
                                   const uint16_t activationState)
@@ -164,10 +165,10 @@ public:
 
   void swapAllRooms();
   bool isValid(const loader::file::AnimFrame* frame) const;
-  void swapWithAlternate(loader::file::Room& orig, loader::file::Room& alternate);
+  void swapWithAlternate(Room& orig, Room& alternate);
   [[nodiscard]] const std::vector<Box>& getBoxes() const;
-  [[nodiscard]] const std::vector<loader::file::Room>& getRooms() const;
-  std::vector<loader::file::Room>& getRooms();
+  [[nodiscard]] const std::vector<Room>& getRooms() const;
+  std::vector<Room>& getRooms();
   [[nodiscard]] const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
   [[nodiscard]] std::shared_ptr<render::scene::Mesh> findStaticRenderMeshById(core::StaticMeshId meshId) const;
   [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
@@ -194,7 +195,7 @@ public:
   void doGlobalEffect();
   void loadSceneData(const std::vector<gsl::not_null<const Mesh*>>& meshesDirect);
   std::shared_ptr<objects::PickupObject>
-    createPickup(core::TypeId type, const gsl::not_null<const loader::file::Room*>& room, const core::TRVec& position);
+    createPickup(core::TypeId type, const gsl::not_null<const Room*>& room, const core::TRVec& position);
   void useAlternativeLaraAppearance(bool withHead = false);
   void runEffect(size_t id, objects::Object* object);
   [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
@@ -373,6 +374,7 @@ private:
   std::vector<Sprite> m_sprites;
   std::map<core::TypeId, std::unique_ptr<SpriteSequence>> m_spriteSequences;
   std::vector<AtlasTile> m_atlasTiles;
+  std::vector<Room> m_rooms;
 
   std::vector<gsl::not_null<const Mesh*>> initFromLevel();
   void connectSectors();

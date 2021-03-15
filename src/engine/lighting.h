@@ -1,8 +1,8 @@
 #pragma once
 
 #include "core/vec.h"
-#include "loader/file/datatypes.h"
 #include "util/helpers.h"
+#include "world/room.h"
 
 #include <set>
 
@@ -36,9 +36,8 @@ struct Lighting
 
   gl::ShaderStorageBuffer<Light> m_buffer{"lights-buffer"};
 
-  void updateDynamic(const core::Shade& shade,
-                     const core::RoomBoundPosition& pos,
-                     const std::vector<loader::file::Room>& rooms)
+  void
+    updateDynamic(const core::Shade& shade, const core::RoomBoundPosition& pos, const std::vector<world::Room>& rooms)
   {
     if(shade.get() >= 0)
     {
@@ -55,14 +54,14 @@ struct Lighting
       return;
     }
 
-    std::set<gsl::not_null<const loader::file::Room*>> testRooms;
+    std::set<gsl::not_null<const world::Room*>> testRooms;
     testRooms.emplace(pos.room);
     std::transform(pos.room->portals.begin(),
                    pos.room->portals.end(),
                    std::inserter(testRooms, testRooms.end()),
                    [&rooms](const auto& portal) { return &rooms.at(portal.adjoining_room.get()); });
 
-    std::set<gsl::not_null<const loader::file::Room*>> testRooms2;
+    std::set<gsl::not_null<const world::Room*>> testRooms2;
     for(const auto& room : testRooms)
     {
       testRooms2.emplace(room);

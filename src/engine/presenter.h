@@ -6,15 +6,14 @@
 #include <boost/assert.hpp>
 #include <filesystem>
 #include <gl/cimgwrapper.h>
+#include <gl/soglb_fwd.h>
 #include <gl/window.h>
 #include <unordered_set>
 
 namespace loader::file
 {
 struct Palette;
-struct Room;
 struct TextureTile;
-struct Portal;
 
 namespace level
 {
@@ -48,14 +47,11 @@ class Renderer;
 } // namespace scene
 } // namespace render
 
-namespace gl
+namespace engine::world
 {
-class Font;
-template<typename>
-class Texture2DArray;
-template<typename>
-class Image;
-} // namespace gl
+struct Room;
+struct Portal;
+} // namespace engine::world
 
 namespace engine
 {
@@ -77,9 +73,9 @@ public:
   void playVideo(const std::filesystem::path& path);
 
   void renderWorld(const ObjectManager& objectManager,
-                   const std::vector<loader::file::Room>& rooms,
+                   const std::vector<world::Room>& rooms,
                    const CameraController& cameraController,
-                   const std::unordered_set<const loader::file::Portal*>& waterEntryPortals);
+                   const std::unordered_set<const world::Portal*>& waterEntryPortals);
 
   [[nodiscard]] const auto& getSoundEngine() const
   {

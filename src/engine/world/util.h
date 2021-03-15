@@ -2,7 +2,7 @@
 
 #include "core/vec.h"
 
-namespace loader::file
+namespace engine::world
 {
 inline glm::vec3 generateNormal(const glm::vec3& o, const glm::vec3& a, const glm::vec3& b)
 {
@@ -13,4 +13,4 @@ inline glm::vec3 generateNormal(const core::TRVec& o, const core::TRVec& a, cons
 {
   return generateNormal(o.toRenderSystem(), a.toRenderSystem(), b.toRenderSystem());
 }
-} // namespace loader::file
+} // namespace engine::world

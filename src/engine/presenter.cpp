@@ -59,9 +59,9 @@ void Presenter::playVideo(const std::filesystem::path& path)
 }
 
 void Presenter::renderWorld(const ObjectManager& objectManager,
-                            const std::vector<loader::file::Room>& rooms,
+                            const std::vector<world::Room>& rooms,
                             const CameraController& cameraController,
-                            const std::unordered_set<const loader::file::Portal*>& waterEntryPortals)
+                            const std::unordered_set<const world::Portal*>& waterEntryPortals)
 {
   m_renderPipeline->updateCamera(m_renderer->getCamera());
 
@@ -152,7 +152,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
   render::scene::RenderContext context{render::scene::RenderMode::Full,
                                        cameraController.getCamera()->getViewProjectionMatrix()};
 
-  m_renderPipeline->compositionPass(cameraController.getCurrentRoom()->isWaterRoom());
+  m_renderPipeline->compositionPass(cameraController.getCurrentRoom()->isWaterRoom);
 
   if(m_showDebugInfo)
   {

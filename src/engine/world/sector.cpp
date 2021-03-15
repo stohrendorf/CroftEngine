@@ -12,7 +12,7 @@
 namespace engine::world
 {
 Sector::Sector(const loader::file::Sector& src,
-               std::vector<loader::file::Room>& rooms,
+               std::vector<Room>& rooms,
                const std::vector<Box>& boxes,
                const engine::floordata::FloorData& newFloorData)
     : box{src.boxIndex.get() >= 0 ? &boxes.at(src.boxIndex.get()) : nullptr}
@@ -34,7 +34,7 @@ Sector::Sector(const loader::file::Sector& src,
   }
 }
 
-void Sector::connect(std::vector<loader::file::Room>& rooms)
+void Sector::connect(std::vector<Room>& rooms)
 {
   if(m_roomIndexBelow.has_value())
   {

@@ -70,7 +70,7 @@ protected:
 public:
   explicit Particle(const std::string& id,
                     core::TypeId objectNumber,
-                    const gsl::not_null<const loader::file::Room*>& room,
+                    const gsl::not_null<const world::Room*>& room,
                     world::World& world,
                     const std::shared_ptr<render::scene::Renderable>& renderable = nullptr,
                     float scale = 1);

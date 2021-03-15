@@ -112,7 +112,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
   // start moving the block, remove it from the floordata
   activate();
-  loader::file::Room::patchHeightsForBlock(*this, core::SectorSize);
+  world::Room::patchHeightsForBlock(*this, core::SectorSize);
   m_state.triggerState = TriggerState::Active;
 
   ModelObject::update();
@@ -123,7 +123,7 @@ void Block::update()
 {
   if(m_state.activationState.isOneshot())
   {
-    loader::file::Room::patchHeightsForBlock(*this, core::SectorSize);
+    world::Room::patchHeightsForBlock(*this, core::SectorSize);
     kill();
     return;
   }
@@ -131,7 +131,7 @@ void Block::update()
   ModelObject::update();
 
   auto pos = m_state.position;
-  auto sector = loader::file::findRealFloorSector(pos);
+  auto sector = world::findRealFloorSector(pos);
   const auto height = HeightInfo::fromFloor(sector, pos.position, getWorld().getObjectManager().getObjects()).y;
   if(height > pos.position.Y)
   {
@@ -157,9 +157,9 @@ void Block::update()
 
   m_state.triggerState = TriggerState::Inactive;
   deactivate();
-  loader::file::Room::patchHeightsForBlock(*this, -core::SectorSize);
+  world::Room::patchHeightsForBlock(*this, -core::SectorSize);
   pos = m_state.position;
-  sector = loader::file::findRealFloorSector(pos);
+  sector = world::findRealFloorSector(pos);
   getWorld().handleCommandSequence(
     HeightInfo::fromFloor(sector, pos.position, getWorld().getObjectManager().getObjects()).lastCommandSequenceOrDeath,
     true);

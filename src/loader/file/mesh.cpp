@@ -6,7 +6,6 @@
 #include "io/util.h"
 #include "render/scene/mesh.h"
 #include "rendermeshdata.h"
-#include "util.h"
 
 #include <gl/vertexarray.h>
 #include <utility>

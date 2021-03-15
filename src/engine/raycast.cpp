@@ -1,8 +1,8 @@
 #include "raycast.h"
 
 #include "heightinfo.h"
-#include "loader/file/datatypes.h"
 #include "objectmanager.h"
+#include "world/room.h"
 
 #include <algorithm>
 
@@ -24,7 +24,7 @@ bool clampY(const core::TRVec& start,
     const auto dy = goalFloor - start.Y;
     goal.position.X = delta.X * dy / delta.Y + start.X;
     goal.position.Z = delta.Z * dy / delta.Y + start.Z;
-    loader::file::findRealFloorSector(goal);
+    world::findRealFloorSector(goal);
     return false;
   }
 
@@ -35,7 +35,7 @@ bool clampY(const core::TRVec& start,
     const auto dy = goalCeiling - start.Y;
     goal.position.X = delta.X * dy / delta.Y + start.X;
     goal.position.Z = delta.Z * dy / delta.Y + start.Z;
-    loader::file::findRealFloorSector(goal);
+    world::findRealFloorSector(goal);
     return false;
   }
 
@@ -140,7 +140,7 @@ std::pair<bool, core::RoomBoundPosition>
     return {false, result};
   }
 
-  const auto sector = loader::file::findRealFloorSector(result);
+  const auto sector = world::findRealFloorSector(result);
   bool success = clampY(start.position, result, sector, objectManager) && firstCollision == CollisionType::None
                  && secondCollision == CollisionType::None;
   return {success, result};

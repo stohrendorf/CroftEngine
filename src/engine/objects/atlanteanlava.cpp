@@ -8,7 +8,7 @@ namespace engine::objects
 {
 void AtlanteanLava::update()
 {
-  loader::file::findRealFloorSector(m_state.position);
+  world::findRealFloorSector(m_state.position);
   setParent(getNode(), m_state.position.room->node);
   if(m_state.triggerState != TriggerState::Deactivated)
   {

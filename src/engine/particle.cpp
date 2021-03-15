@@ -64,7 +64,7 @@ glm::vec3 Particle::getPosition() const
 
 Particle::Particle(const std::string& id,
                    const core::TypeId objectNumber,
-                   const gsl::not_null<const loader::file::Room*>& room,
+                   const gsl::not_null<const world::Room*>& room,
                    world::World& world,
                    const std::shared_ptr<render::scene::Renderable>& renderable,
                    float scale)
@@ -145,7 +145,7 @@ bool BubbleParticle::update(world::World& world)
   angle.Y += 9_deg;
   pos.position += util::pitch(11_len, angle.Y, -speed * 1_frame);
   auto sector = findRealFloorSector(pos.position, &pos.room);
-  if(!pos.room->isWaterRoom())
+  if(!pos.room->isWaterRoom)
   {
     return false;
   }
@@ -233,7 +233,7 @@ bool FlameParticle::update(world::World& world)
     pos.position
       = core::TRVec{glm::vec3{translate(itemSpheres.at(-timePerSpriteFrame - 1).m, pos.position.toRenderSystem())[3]}};
 
-    if(const auto waterHeight = loader::file::Room::getWaterSurfaceHeight(pos);
+    if(const auto waterHeight = world::Room::getWaterSurfaceHeight(pos);
        !waterHeight.has_value() || waterHeight.value() >= pos.position.Y)
     {
       world.getAudioEngine().playSoundEffect(TR1SoundEffect::Burning, this);
@@ -318,7 +318,7 @@ void MutantAmmoParticle::aimLaraChest(world::World& world)
 bool MutantBulletParticle::update(world::World& world)
 {
   pos.position += util::yawPitch(speed * 1_frame, angle);
-  const auto sector = loader::file::findRealFloorSector(pos);
+  const auto sector = world::findRealFloorSector(pos);
   setParent(this, pos.room->node);
   if(HeightInfo::fromFloor(sector, pos.position, world.getObjectManager().getObjects()).y <= pos.position.Y
      || HeightInfo::fromCeiling(sector, pos.position, world.getObjectManager().getObjects()).y >= pos.position.Y)
@@ -352,7 +352,7 @@ bool MutantBulletParticle::update(world::World& world)
 bool MutantGrenadeParticle::update(world::World& world)
 {
   pos.position += util::yawPitch(speed * 1_frame, angle);
-  const auto sector = loader::file::findRealFloorSector(pos);
+  const auto sector = world::findRealFloorSector(pos);
   setParent(this, pos.room->node);
   if(HeightInfo::fromFloor(sector, pos.position, world.getObjectManager().getObjects()).y <= pos.position.Y
      || HeightInfo::fromCeiling(sector, pos.position, world.getObjectManager().getObjects()).y >= pos.position.Y)
@@ -404,7 +404,7 @@ bool LavaParticle::update(world::World& world)
   fall_speed += core::Gravity * 1_frame;
   pos.position += util::pitch(speed * 1_frame, angle.Y, fall_speed * 1_frame);
 
-  const auto sector = loader::file::findRealFloorSector(pos);
+  const auto sector = world::findRealFloorSector(pos);
   setParent(this, pos.room->node);
   if(HeightInfo::fromFloor(sector, pos.position, world.getObjectManager().getObjects()).y <= pos.position.Y
      || HeightInfo::fromCeiling(sector, pos.position, world.getObjectManager().getObjects()).y > pos.position.Y)

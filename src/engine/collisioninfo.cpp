@@ -122,7 +122,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
                          VerticalSpaceInfo& vsi,
                          core::Length dx,
                          core::Length dz,
-                         const gsl::not_null<gsl::not_null<const loader::file::Room*>*>& room) {
+                         const gsl::not_null<gsl::not_null<const world::Room*>*>& room) {
     const auto testPos = refTestPos + core::TRVec(dx, 0_len, dz);
     const auto sector = findRealFloorSector(testPos, room);
     vsi.init(sector, testPos, world.getObjectManager().getObjects(), laraPosY, height);
@@ -221,12 +221,12 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
   }
 }
 
-std::set<gsl::not_null<const loader::file::Room*>> CollisionInfo::collectTouchingRooms(const core::TRVec& position,
-                                                                                       const core::Length& radius,
-                                                                                       const core::Length& height,
-                                                                                       const world::World& world)
+std::set<gsl::not_null<const world::Room*>> CollisionInfo::collectTouchingRooms(const core::TRVec& position,
+                                                                                const core::Length& radius,
+                                                                                const core::Length& height,
+                                                                                const world::World& world)
 {
-  std::set<gsl::not_null<const loader::file::Room*>> result;
+  std::set<gsl::not_null<const world::Room*>> result;
   auto room = world.getObjectManager().getLara().m_state.position.room;
   result.emplace(room);
 

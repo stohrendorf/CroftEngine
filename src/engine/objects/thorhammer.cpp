@@ -8,7 +8,7 @@
 namespace engine::objects
 {
 ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world,
-                                   const gsl::not_null<const loader::file::Room*>& room,
+                                   const gsl::not_null<const world::Room*>& room,
                                    const loader::file::Item& item,
                                    const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{world, room, item, true, animatedModel}
@@ -115,7 +115,7 @@ void ThorHammerHandle::update()
     }
     if(!getWorld().getObjectManager().getLara().isDead())
     {
-      loader::file::Room::patchHeightsForBlock(*this, -2 * core::SectorSize);
+      world::Room::patchHeightsForBlock(*this, -2 * core::SectorSize);
     }
     m_state.position.position.X = oldPosX;
     m_state.position.position.Z = oldPosZ;

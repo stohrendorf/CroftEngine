@@ -79,7 +79,7 @@ public:
   };
 
   Object(const gsl::not_null<world::World*>& world,
-         const gsl::not_null<const loader::file::Room*>& room,
+         const gsl::not_null<const world::Room*>& room,
          const loader::file::Item& item,
          bool hasUpdateFunction);
 
@@ -95,7 +95,7 @@ public:
 
   virtual std::shared_ptr<render::scene::Node> getNode() const = 0;
 
-  void setCurrentRoom(const gsl::not_null<const loader::file::Room*>& newRoom);
+  void setCurrentRoom(const gsl::not_null<const world::Room*>& newRoom);
 
   void applyTransform();
 

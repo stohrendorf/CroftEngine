@@ -29,7 +29,7 @@ protected:
 public:
   SpriteObject(const gsl::not_null<world::World*>& world,
                std::string name,
-               const gsl::not_null<const loader::file::Room*>& room,
+               const gsl::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                bool hasUpdateFunction,
                const gsl::not_null<const world::Sprite*>& sprite,

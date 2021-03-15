@@ -72,10 +72,10 @@ struct CollisionInfo
 
   void initHeightInfo(const core::TRVec& laraPos, const world::World& world, const core::Length& height);
 
-  static std::set<gsl::not_null<const loader::file::Room*>> collectTouchingRooms(const core::TRVec& position,
-                                                                                 const core::Length& radius,
-                                                                                 const core::Length& height,
-                                                                                 const world::World& world);
+  static std::set<gsl::not_null<const world::Room*>> collectTouchingRooms(const core::TRVec& position,
+                                                                          const core::Length& radius,
+                                                                          const core::Length& height,
+                                                                          const world::World& world);
 
   bool checkStaticMeshCollisions(const core::TRVec& pokePosition,
                                  const core::Length& pokeHeight,
